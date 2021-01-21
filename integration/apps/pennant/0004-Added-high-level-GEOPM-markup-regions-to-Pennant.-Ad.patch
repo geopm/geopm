@@ -1,0 +1,194 @@
+From f1f9384b89ae348a43e82c1439b956eacceda95e Mon Sep 17 00:00:00 2001
+From: Fuat Keceli <fuat.keceli@intel.com>
+Date: Thu, 21 Jan 2021 09:45:50 -0800
+Subject: [PATCH 4/4] Added high level GEOPM markup regions to Pennant. Added
+ better hints and ignored regions.
+
+Signed-off-by: Fuat Keceli <fuat.keceli@intel.com>
+---
+ src/Driver.cc       | 19 +++++++++++++++++++
+ src/Hydro.cc        |  4 ++++
+ src/PennantGeopm.cc | 24 +++++++++++++++++++-----
+ src/PennantGeopm.hh |  7 +++++++
+ src/main.cc         | 16 ++++++++++++++++
+ 5 files changed, 65 insertions(+), 5 deletions(-)
+
+diff --git a/src/Driver.cc b/src/Driver.cc
+index 6339f31..418f162 100644
+--- a/src/Driver.cc
++++ b/src/Driver.cc
+@@ -99,6 +99,12 @@ void Driver::run() {
+         tlast = tbegin;
+     }
+ 
++#ifdef USEGEOPM
++#ifdef USEGEOPMMARKUP
++        geopm_prof_exit(region_id_startup);
++#endif // USEGEOPMMARKUP
++#endif // USEGEOPM
++
+     // main event loop
+     while (cycle < cstop && time < tstop) {
+ 
+@@ -114,6 +120,7 @@ void Driver::run() {
+ 
+ #ifdef USEGEOPM
+ #ifdef USEGEOPMMARKUP
++        geopm_prof_enter(region_id_section1);
+         geopm_prof_enter(region_id_calcGlobalDt);
+ #endif // USEGEOPMMARKUP
+ #endif // USEGEOPM
+@@ -149,8 +156,20 @@ void Driver::run() {
+             tlast = tcurr;
+         } // if mype...
+ 
++#ifdef USEGEOPM
++#ifdef USEGEOPMMARKUP
++        geopm_prof_exit(region_id_ignore);
++#endif
++#endif
++
+     } // while cycle...
+ 
++#ifdef USEGEOPM
++#ifdef USEGEOPMMARKUP
++        geopm_prof_enter(region_id_wrapup);
++#endif // USEGEOPMMARKUP
++#endif // USEGEOPM
++
+     if (mype == 0) {
+ 
+         // get stopping timestamp
+diff --git a/src/Hydro.cc b/src/Hydro.cc
+index 4427352..2bdbf35 100644
+--- a/src/Hydro.cc
++++ b/src/Hydro.cc
+@@ -273,6 +273,8 @@ void Hydro::doCycle(
+ #ifdef USEGEOPM
+ #ifdef USEGEOPMMARKUP
+     geopm_prof_exit(region_id_doCycle_checkBadSides1);
++    geopm_prof_exit(region_id_section1);
++    geopm_prof_enter(region_id_section2);
+     geopm_prof_enter(region_id_doCycle_sumToPoints1);
+ #endif
+ #endif
+@@ -385,6 +387,8 @@ void Hydro::doCycle(
+ #ifdef USEGEOPM
+ #ifdef USEGEOPMMARKUP
+     geopm_prof_exit(region_id_doCycle_omp5);
++    geopm_prof_exit(region_id_section2);
++    geopm_prof_enter(region_id_ignore);
+ #endif
+ #endif
+ 
+diff --git a/src/PennantGeopm.cc b/src/PennantGeopm.cc
+index 49d1af5..fe65c0c 100644
+--- a/src/PennantGeopm.cc
++++ b/src/PennantGeopm.cc
+@@ -8,6 +8,13 @@ namespace PennantGeopm {
+ #ifdef USEGEOPM
+ 
+ #ifdef USEGEOPMMARKUP
++uint64_t region_id_section1;
++uint64_t region_id_section2;
++
++uint64_t region_id_startup;
++uint64_t region_id_wrapup;
++uint64_t region_id_ignore;
++
+ uint64_t region_id_calcGlobalDt;
+ uint64_t region_id_doCycle_omp1;
+ uint64_t region_id_doCycle_omp2;
+@@ -27,15 +34,22 @@ void init() {
+ #ifdef USEGEOPM
+ 
+ #ifdef USEGEOPMMARKUP
+-    geopm_prof_region("calcGlobalDt", GEOPM_REGION_HINT_UNKNOWN, &region_id_calcGlobalDt);
++    geopm_prof_region("section1", GEOPM_REGION_HINT_UNKNOWN, &region_id_section1);
++    geopm_prof_region("section2", GEOPM_REGION_HINT_UNKNOWN, &region_id_section2);
++
++    geopm_prof_region("startup", GEOPM_REGION_HINT_IGNORE, &region_id_startup);
++    geopm_prof_region("wrapup", GEOPM_REGION_HINT_IGNORE, &region_id_wrapup);
++    geopm_prof_region("ignore", GEOPM_REGION_HINT_IGNORE, &region_id_ignore);
++
++    geopm_prof_region("calcGlobalDt", GEOPM_REGION_HINT_NETWORK, &region_id_calcGlobalDt);
+     geopm_prof_region("doCycle_omp1", GEOPM_REGION_HINT_UNKNOWN, &region_id_doCycle_omp1);
+-    geopm_prof_region("doCycle_omp2", GEOPM_REGION_HINT_UNKNOWN, &region_id_doCycle_omp2);
++    geopm_prof_region("doCycle_omp2", GEOPM_REGION_HINT_COMPUTE, &region_id_doCycle_omp2);
+     geopm_prof_region("doCycle_checkBadSides1", GEOPM_REGION_HINT_UNKNOWN, &region_id_doCycle_checkBadSides1);
+-    geopm_prof_region("doCycle_sumToPoints1", GEOPM_REGION_HINT_UNKNOWN, &region_id_doCycle_sumToPoints1);
+-    geopm_prof_region("doCycle_sumToPoints2", GEOPM_REGION_HINT_UNKNOWN, &region_id_doCycle_sumToPoints2);
++    geopm_prof_region("doCycle_sumToPoints1", GEOPM_REGION_HINT_NETWORK, &region_id_doCycle_sumToPoints1);
++    geopm_prof_region("doCycle_sumToPoints2", GEOPM_REGION_HINT_NETWORK, &region_id_doCycle_sumToPoints2);
+     geopm_prof_region("doCycle_omp3", GEOPM_REGION_HINT_UNKNOWN, &region_id_doCycle_omp3);
+     geopm_prof_region("doCycle_resetDtHydro", GEOPM_REGION_HINT_UNKNOWN, &region_id_doCycle_resetDtHydro);
+-    geopm_prof_region("doCycle_omp4", GEOPM_REGION_HINT_UNKNOWN, &region_id_doCycle_omp4);
++    geopm_prof_region("doCycle_omp4", GEOPM_REGION_HINT_MEMORY, &region_id_doCycle_omp4);
+     geopm_prof_region("doCycle_checkBadSides2", GEOPM_REGION_HINT_UNKNOWN, &region_id_doCycle_checkBadSides2);
+     geopm_prof_region("doCycle_omp5", GEOPM_REGION_HINT_UNKNOWN, &region_id_doCycle_omp5);
+ #endif // USEGEOPMMARKUP
+diff --git a/src/PennantGeopm.hh b/src/PennantGeopm.hh
+index 31bbd87..31d60a8 100644
+--- a/src/PennantGeopm.hh
++++ b/src/PennantGeopm.hh
+@@ -6,6 +6,13 @@ namespace PennantGeopm {
+ #ifdef USEGEOPM
+ 
+ #ifdef USEGEOPMMARKUP
++    extern uint64_t region_id_section1;
++    extern uint64_t region_id_section2;
++
++    extern uint64_t region_id_startup;
++    extern uint64_t region_id_wrapup;
++    extern uint64_t region_id_ignore;
++
+     extern uint64_t region_id_calcGlobalDt;
+     extern uint64_t region_id_doCycle_omp1;
+     extern uint64_t region_id_doCycle_omp2;
+diff --git a/src/main.cc b/src/main.cc
+index c62b97f..84532a6 100644
+--- a/src/main.cc
++++ b/src/main.cc
+@@ -18,16 +18,26 @@
+ #include "InputFile.hh"
+ #include "Driver.hh"
+ 
++#ifdef USEGEOPM
++#include "geopm.h"
++#endif
+ #include "PennantGeopm.hh"
+ 
+ using namespace std;
+ 
++using namespace PennantGeopm;
+ 
+ int main(const int argc, const char** argv)
+ {
+     Parallel::init();
+     PennantGeopm::init();
+ 
++#ifdef USEGEOPM
++#ifdef USEGEOPMMARKUP
++        geopm_prof_enter(region_id_startup);
++#endif // USEGEOPMMARKUP
++#endif // USEGEOPM
++
+     if (argc != 2) {
+         if (Parallel::mype == 0)
+             cerr << "Usage: pennant <filename>" << endl;
+@@ -49,6 +59,12 @@ int main(const int argc, const char** argv)
+ 
+     Parallel::final();
+ 
++#ifdef USEGEOPM
++#ifdef USEGEOPMMARKUP
++        geopm_prof_exit(region_id_wrapup);
++#endif // USEGEOPMMARKUP
++#endif // USEGEOPM
++
+     return 0;
+ 
+ }
+-- 
+1.8.3.1
+

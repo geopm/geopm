@@ -1,7 +1,7 @@
-From 49a76ed325466f32036ae9f6344988108f1465f6 Mon Sep 17 00:00:00 2001
+From 43961a1a036efcded2f5e2d3ec0d84a3eed0d1a5 Mon Sep 17 00:00:00 2001
 From: Fuat Keceli <fuat.keceli@intel.com>
 Date: Tue, 1 Dec 2020 17:44:13 -0800
-Subject: [PATCH 3/3] Added GEOPM region markup
+Subject: [PATCH 3/4] Added GEOPM region markup
 
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
