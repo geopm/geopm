@@ -50,6 +50,7 @@ from test_scaling_region import *
 from test_timed_scaling_region import *
 from test_profile_overflow import *
 from test_trace import *
+from test_monitor import *
 
 if __name__ == '__main__':
     unittest.main()
