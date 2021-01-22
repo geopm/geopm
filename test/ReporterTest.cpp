@@ -120,7 +120,6 @@ class ReporterTest : public testing::Test
         std::map<uint64_t, double> m_region_runtime = {
             {geopm_crc32_str("all2all"), 33.33},
             {geopm_crc32_str("model-init"), 22.11},
-            {GEOPM_REGION_HASH_UNMARKED, 12.13},
         };
         std::map<uint64_t, double> m_region_network_time = {
             {geopm_crc32_str("all2all"), 3.4},
@@ -400,7 +399,7 @@ TEST_F(ReporterTest, generate)
         "      ENERGY_PACKAGE@package-1: 222\n"
         "      agent stat: 2\n"
         "    Unmarked Totals:\n"
-        "      runtime (s): 12.13\n"
+        "      runtime (s): 0.56\n"
         "      count: 0\n"
         "      sync-runtime (s): 444\n"
         "      package-energy (J): 111\n"
