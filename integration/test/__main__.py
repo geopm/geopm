@@ -48,6 +48,8 @@ from test_tutorial_base import *
 from test_frequency_hint_usage import *
 from test_scaling_region import *
 from test_timed_scaling_region import *
+from test_profile_overflow import *
+from test_trace import *
 
 if __name__ == '__main__':
     unittest.main()
