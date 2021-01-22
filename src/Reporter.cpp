@@ -224,6 +224,7 @@ namespace geopm
                       return a.per_rank_avg_runtime > b.per_rank_avg_runtime;
                   });
 
+        double total_marked_runtime = 0.0;
         for (const auto &region : region_ordered) {
 #ifdef GEOPM_DEBUG
             if (GEOPM_REGION_HASH_INVALID == region.hash) {
@@ -244,10 +245,12 @@ namespace geopm
             if (it != agent_region_report.end()) {
                 yaml_write(report, M_INDENT_REGION_FIELD, agent_region_report.at(region.hash));
             }
+            total_marked_runtime += region.per_rank_avg_runtime;
         }
 
         yaml_write(report, M_INDENT_UNMARKED, "Unmarked Totals:");
-        double unmarked_time = m_proc_region_agg->get_runtime_average(GEOPM_REGION_HASH_UNMARKED);
+        double unmarked_time = m_sample_agg->sample_application(m_sync_signal_idx["TIME"]) -
+                               total_marked_runtime;
         yaml_write(report, M_INDENT_UNMARKED_FIELD,
                    {{"runtime (s)", unmarked_time},
                     {"count", 0}});
