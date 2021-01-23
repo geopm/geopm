@@ -33,12 +33,13 @@
 
 import sys
 import unittest
-import os
+import subprocess
+import json
 
 import geopm_context
 import geopmpy.io
+import geopmpy.hash
 
-import util
 
 class TestIntegrationGeopmagent(unittest.TestCase):
     ''' Tests of geopmagent.'''
@@ -48,44 +49,48 @@ class TestIntegrationGeopmagent(unittest.TestCase):
 
     def check_output(self, args, expected):
         try:
-            proc = subprocess.Popen([self.exec_name] + args,
-                                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            for exp in expected:
-                line = proc.stdout.readline()
-                while self.skip_warning_string.encode() in line or line == b'\n':
+            with subprocess.Popen([self.exec_name] + args,
+                                  stdout=subprocess.PIPE, stderr=subprocess.STDOUT) as proc:
+                proc.wait()
+                for exp in expected:
                     line = proc.stdout.readline()
-                self.assertIn(exp.encode(), line)
-            for line in proc.stdout:
-                if self.skip_warning_string.encode() not in line:
-                    self.assertNotIn(b'Error', line)
+                    while self.skip_warning_string.encode() in line or line == b'\n':
+                        line = proc.stdout.readline()
+                    self.assertIn(exp.encode(), line)
+                for line in proc.stdout:
+                    if self.skip_warning_string.encode() not in line:
+                        self.assertNotIn(b'Error', line)
         except subprocess.CalledProcessError as ex:
             sys.stderr.write('{}\n'.format(ex.output))
 
     def check_json_output(self, args, expected):
         try:
-            proc = subprocess.Popen([self.exec_name] + args,
-                                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            with subprocess.Popen([self.exec_name] + args,
+                                  stdout=subprocess.PIPE, stderr=subprocess.STDOUT) as proc:
+                proc.wait()
+                line = proc.stdout.readline()
+                while self.skip_warning_string.encode() in line or line == b'\n':
+                    line = proc.stdout.readline()
+                try:
+                    out_json = json.loads(line.decode())
+                except ValueError:
+                    self.fail('Could not convert json string: {}\n'.format(line))
+                self.assertEqual(expected, out_json)
+                for line in proc.stdout:
+                    if self.skip_warning_string.encode() not in line:
+                        self.assertNotIn(b'Error', line)
         except subprocess.CalledProcessError as ex:
             sys.stderr.write('{}\n'.format(ex.output))
-        line = proc.stdout.readline()
-        while self.skip_warning_string.encode() in line or line == b'\n':
-            line = proc.stdout.readline()
-        try:
-            out_json = json.loads(line.decode())
-        except ValueError:
-            self.fail('Could not convert json string: {}\n'.format(line))
-        self.assertEqual(expected, out_json)
-        for line in proc.stdout:
-            if self.skip_warning_string.encode() not in line:
-                self.assertNotIn(b'Error', line)
 
     def check_no_error(self, args):
         try:
-            proc = subprocess.Popen([self.exec_name] + args,
-                                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            for line in proc.stdout:
-                if self.skip_warning_string.encode() not in line:
-                    self.assertNotIn(b'Error', line)
+            with subprocess.Popen([self.exec_name] + args,
+                                  stdout=subprocess.PIPE, stderr=subprocess.STDOUT) as proc:
+                proc.wait()
+                for line in proc.stdout:
+                    if self.skip_warning_string.encode() not in line:
+                        self.assertNotIn(b'Error', line)
+                proc.stdout.close()
         except subprocess.CalledProcessError as ex:
             sys.stderr.write('{}\n'.format(ex.output))
 
@@ -139,7 +144,6 @@ class TestIntegrationGeopmagent(unittest.TestCase):
                           ['agent takes no parameters', 'Invalid argument'])
         self.check_output(['--agent', 'energy_efficient', '--policy', '2.0e9,5.0e9,4.5e9,6.7,4.2'],
                           ['Number of policies', 'Invalid argument'])
-
 
 
 if __name__ == '__main__':
