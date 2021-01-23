@@ -60,3 +60,4 @@ include integration/test/test_power_balancer.mk
 include integration/test/test_profile_overflow.mk
 include integration/test/test_trace.mk
 include integration/test/test_monitor.mk
+include integration/test/test_ompt.mk
