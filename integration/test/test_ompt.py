@@ -30,61 +30,75 @@
 #  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-
 import sys
 import unittest
 import os
 
-import geopm_context
+
+from integration.test import geopm_context
 import geopmpy.io
-
+import geopmpy.error
 import util
+import geopm_test_launcher
 
 
+@util.skip_unless_config_enable('ompt')
 class TestIntegration_ompt(unittest.TestCase):
-    @util.skip_unless_config_enable('ompt')
-    def test_unmarked_ompt(self):
-        name = 'test_unmarked_ompt'
-        report_path = name + '.report'
-        num_node = 4
-        num_rank = 16
-        app_conf = geopmpy.io.BenchConf(name + '_app.config')
-        self._tmp_files.append(app_conf.get_path())
-        app_conf.append_region('stream-unmarked', 1.0)
-        app_conf.append_region('dgemm-unmarked', 1.0)
-        app_conf.append_region('all2all-unmarked', 1.0)
-        agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._agent, self._options)
-        self._tmp_files.append(agent_conf.get_path())
-        launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path)
-        launcher.set_num_node(num_node)
-        launcher.set_num_rank(num_rank)
-        launcher.run(name)
+    @classmethod
+    def setUpClass(cls):
+        """Create launcher, execute benchmark and set up class variables.
 
-        self._output = geopmpy.io.AppOutput(report_path)
-        node_names = self._output.get_node_names()
-        self.assertEqual(len(node_names), num_node)
+        """
+        sys.stdout.write('(' + os.path.basename(__file__).split('.')[0] +
+                         '.' + cls.__name__ + ') ...')
+        test_name = 'test_ompt'
+        cls._report_path = '{}.report'.format(test_name)
+        cls._agent_conf_path = 'test_' + test_name + '-agent-config.json'
+        # Clear out exception record for python 2 support
+        geopmpy.error.exc_clear()
+        # Set the job size parameters
+        cls._num_node = 4
+        num_rank = 16
+
+        app_conf = geopmpy.io.BenchConf(test_name + '_app.config')
+        app_conf.append_region('stream-unmarked', 1.0)
+        agent_conf = geopmpy.io.AgentConf(test_name + '_agent.config')
+
+        # Create the test launcher with the above configuration
+        launcher = geopm_test_launcher.TestLauncher(app_conf,
+                                                    agent_conf,
+                                                    cls._report_path)
+        launcher.set_num_node(cls._num_node)
+        launcher.set_num_rank(num_rank)
+        # Run the test application
+        launcher.run(test_name)
+
+        # Output to be reused by all tests
+        cls._report = geopmpy.io.RawReport(cls._report_path)
+        cls._node_names = cls._report.host_names()
+
+    def test_unmarked_ompt(self):
+        report = geopmpy.io.RawReport(self._report_path)
+
+        node_names = report.host_names()
+        self.assertEqual(len(node_names), self._num_node)
         stream_id = None
-        region_names = self._output.get_region_names()
-        stream_name = [key for key in region_names if key.lower().find('stream') != -1][0]
         for nn in node_names:
-            stream_data = self._output.get_report_data(node_name=nn, region=stream_name)
+            region_names = report.region_names(nn)
+            stream_name = [key for key in region_names if key.lower().find('stream') != -1][0]
+            stream_data = report.raw_region(host_name=nn, region_name=stream_name)
             found = False
             for name in region_names:
                 if stream_name in name:  # account for numbers at end of OMPT region names
                     found = True
             self.assertTrue(found)
-            self.assertEqual(1, stream_data['count'].item())
+            self.assertLessEqual(1, stream_data['count'])
             if stream_id:
-                self.assertEqual(stream_id, stream_data['id'].item())
+                self.assertEqual(stream_id, stream_data['hash'])
             else:
-                stream_id = stream_data['id'].item()
+                stream_id = stream_data['hash']
             ompt_regions = [key for key in region_names if key.startswith('[OMPT]')]
-            self.assertLessEqual(2, len(ompt_regions))
-            self.assertTrue(('MPI_Alltoall' in region_names))
-            gemm_region = [key for key in region_names if key.lower().find('gemm') != -1]
-            self.assertLessEqual(1, len(gemm_region))
-
-
+            self.assertLessEqual(1, len(ompt_regions))
 
 if __name__ == '__main__':
     unittest.main()
