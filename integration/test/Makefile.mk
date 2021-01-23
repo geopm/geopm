@@ -64,3 +64,4 @@ include integration/test/test_ompt.mk
 include integration/test/test_geopmio.mk
 include integration/test/test_launch_application.mk
 include integration/test/test_launch_pthread.mk
+include integration/test/test_geopmagent.mk
