@@ -127,6 +127,10 @@ def get_config_value(key):
              os.path.dirname(
               os.path.realpath(__file__)))),
            'config.log')
+    if not os.path.exists(path):
+        path = os.path.join(
+               os.path.dirname(path),
+                'integration/build/config.log')
     with open(path) as config_file:
         for line in config_file:
             line_start = "{}='".format(key)
