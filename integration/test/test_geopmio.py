@@ -53,16 +53,17 @@ class TestIntegrationGeopmio(unittest.TestCase):
 
     def check_output(self, args, expected):
         try:
-            proc = subprocess.Popen([self.exec_name] + args,
-                                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            for exp in expected:
-                line = proc.stdout.readline()
-                while self.skip_warning_string.encode() in line:
+            with subprocess.Popen([self.exec_name] + args,
+                                  stdout=subprocess.PIPE, stderr=subprocess.STDOUT) as proc:
+                proc.wait()
+                for exp in expected:
                     line = proc.stdout.readline()
-                self.assertIn(exp.encode(), line)
-            for line in proc.stdout:
-                if self.skip_warning_string.encode() not in line:
-                    self.assertNotIn(b'Error', line)
+                    while self.skip_warning_string.encode() in line:
+                        line = proc.stdout.readline()
+                    self.assertIn(exp.encode(), line)
+                for line in proc.stdout:
+                    if self.skip_warning_string.encode() not in line:
+                        self.assertNotIn(b'Error', line)
         except subprocess.CalledProcessError as ex:
             sys.stderr.write('{} {}\n'.format(str(ex), proc.stderr.getvalue()))
 
@@ -183,11 +184,12 @@ class TestIntegrationGeopmio(unittest.TestCase):
         custom_env['GEOPM_PLUGIN_PATH'] = path
         all_signals = []
         try:
-            proc = subprocess.Popen([self.exec_name], env=custom_env,
-                                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            for line in proc.stdout:
-                if self.skip_warning_string.encode() not in line:
-                    all_signals.append(line.strip())
+            with subprocess.Popen([self.exec_name], env=custom_env,
+                                  stdout=subprocess.PIPE, stderr=subprocess.STDOUT) as proc:
+                proc.wait()
+                for line in proc.stdout:
+                    if self.skip_warning_string.encode() not in line:
+                        all_signals.append(line.strip())
         except subprocess.CalledProcessError as ex:
             sys.stderr.write('{}\n'.format(ex.output))
         self.assertIn(b'MSR::CORE_PERF_LIMIT_REASONS#', all_signals)
