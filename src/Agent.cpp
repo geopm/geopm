@@ -73,10 +73,6 @@ namespace geopm
                         PowerGovernorAgent::make_plugin,
                         Agent::make_dictionary(PowerGovernorAgent::policy_names(),
                                                PowerGovernorAgent::sample_names()));
-        register_plugin(EnergyEfficientAgent::plugin_name(),
-                        EnergyEfficientAgent::make_plugin,
-                        Agent::make_dictionary(EnergyEfficientAgent::policy_names(),
-                                               EnergyEfficientAgent::sample_names()));
         register_plugin(FrequencyMapAgent::plugin_name(),
                         FrequencyMapAgent::make_plugin,
                         Agent::make_dictionary(FrequencyMapAgent::policy_names(),
