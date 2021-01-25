@@ -116,11 +116,7 @@ def skip_unless_platform_bdx():
         return unittest.skip("Performance test is tuned for BDX server, The family {}, model {} is not supported.".format(fam, mod))
     return lambda func: func
 
-
-def get_config_value(key):
-    """Get the value of an option from the build configuration, returning None
-    if no such key is present.
-    """
+def get_config_log():
     path = os.path.join(
            os.path.dirname(
             os.path.dirname(
@@ -131,6 +127,13 @@ def get_config_value(key):
         path = os.path.join(
                os.path.dirname(path),
                 'integration/build/config.log')
+    return path
+
+def get_config_value(key):
+    """Get the value of an option from the build configuration, returning None
+    if no such key is present.
+    """
+    path = get_config_log()
     with open(path) as config_file:
         for line in config_file:
             line_start = "{}='".format(key)
@@ -148,12 +151,7 @@ def skip_unless_config_enable(feature):
 
 
 def skip_unless_optimized():
-    path = os.path.join(
-           os.path.dirname(
-            os.path.dirname(
-             os.path.dirname(
-              os.path.realpath(__file__)))),
-           'config.log')
+    path = get_config_log()
     with open(path) as fid:
         for line in fid.readlines():
             if line.startswith("enable_debug='1'"):
