@@ -53,7 +53,7 @@ class TestIntegration_ompt(unittest.TestCase):
                          '.' + cls.__name__ + ') ...')
         test_name = 'test_ompt'
         cls._report_path = '{}.report'.format(test_name)
-        cls._agent_conf_path = 'test_' + test_name + '-agent-config.json'
+        cls._agent_conf_path = test_name + '-agent-config.json'
         # Clear out exception record for python 2 support
         geopmpy.error.exc_clear()
         # Set the job size parameters

@@ -34,73 +34,68 @@
 import sys
 import unittest
 import os
+import pandas
 
 import geopm_context
 import geopmpy.io
 
 import util
-
-@util.skip_unless_do_launch()
-class TestIntegration(unittest.TestCase):
-    def setUp(self):
-        self.longMessage = True
-        self._agent = 'power_governor'
-        self._options = {'power_budget': 150}
-        self._tmp_files = []
-        self._output = None
-        self._power_limit = geopm_test_launcher.geopmread("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT board 0")
-        self._frequency = geopm_test_launcher.geopmread("MSR::PERF_CTL:FREQ board 0")
-        self._original_freq_map_env = os.environ.get('GEOPM_FREQUENCY_MAP')
-
-    def tearDown(self):
-        geopm_test_launcher.geopmwrite("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT board 0 " + str(self._power_limit))
-        geopm_test_launcher.geopmwrite("MSR::PERF_CTL:FREQ board 0 " + str(self._frequency))
-        if self._original_freq_map_env is None:
-            if 'GEOPM_FREQUENCY_MAP' in os.environ:
-                os.environ.pop('GEOPM_FREQUENCY_MAP')
-        else:
-            os.environ['GEOPM_FREQUENCY_MAP'] = self._original_freq_map_env
+import geopm_test_launcher
 
 
+class TestIntegration_power_governor(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        """Create launcher, execute benchmark and set up class variables.
 
-
-    # TODO: move to test_power_governor.py
-    @util.skip_unless_run_long_tests()
-    def test_power_consumption(self):
-        name = 'test_power_consumption'
-        report_path = name + '.report'
-        trace_path = name + '.trace'
-        num_node = 4
+        """
+        sys.stdout.write('(' + os.path.basename(__file__).split('.')[0] +
+                         '.' + cls.__name__ + ') ...')
+        test_name = 'test_power_governor'
+        cls._report_path = '{}.report'.format(test_name)
+        cls._trace_path = '{}.trace'.format(test_name)
+        cls._agent_conf_path = test_name + '-agent-config.json'
+        # Clear out exception record for python 2 support
+        geopmpy.error.exc_clear()
+        # Set the job size parameters
+        cls._num_node = 4
         num_rank = 16
         loop_count = 500
-        app_conf = geopmpy.io.BenchConf(name + '_app.config')
-        self._tmp_files.append(app_conf.get_path())
+        app_conf = geopmpy.io.BenchConf(test_name + '_app.config')
         app_conf.append_region('dgemm', 8.0)
         app_conf.set_loop_count(loop_count)
 
+        cls._agent = 'power_governor'
+        cls._options = dict()
         fam, mod = geopm_test_launcher.get_platform()
         if fam == 6 and mod == 87:
             # budget for KNL
-            self._options['power_budget'] = 130
+            cls._options['power_budget'] = 130
         else:
-            self._options['power_budget'] = 200
-        gov_agent_conf_path = name + '_gov_agent.config'
-        self._tmp_files.append(gov_agent_conf_path)
-        gov_agent_conf = geopmpy.io.AgentConf(gov_agent_conf_path, self._agent, self._options)
-        launcher = geopm_test_launcher.TestLauncher(app_conf, gov_agent_conf, report_path,
-                                                    trace_path, time_limit=900)
-        launcher.set_num_node(num_node)
-        launcher.set_num_rank(num_rank)
-        launcher.write_log(name, 'Power cap = {}W'.format(self._options['power_budget']))
-        launcher.run(name)
+            cls._options['power_budget'] = 200
+        agent_conf = geopmpy.io.AgentConf(test_name + '_agent.config', cls._agent, cls._options)
 
-        self._output = geopmpy.io.AppOutput(report_path, trace_path + '*')
-        node_names = self._output.get_node_names()
-        self.assertEqual(num_node, len(node_names))
-        all_power_data = {}
-        # Total power consumed will be Socket(s) + DRAM
-        for nn in node_names:
-            tt = self._output.get_trace_data(node_name=nn)
+        # Create the test launcher with the above configuration
+        launcher = geopm_test_launcher.TestLauncher(app_conf,
+                                                    agent_conf,
+                                                    cls._report_path,
+                                                    cls._trace_path)
+        launcher.set_num_node(cls._num_node)
+        launcher.set_num_rank(num_rank)
+        # Run the test application
+        launcher.run(test_name)
+
+        # Output to be reused by all tests
+        cls._report = geopmpy.io.RawReport(cls._report_path)
+        cls._trace = geopmpy.io.AppOutput(cls._trace_path + '*')
+        cls._node_names = cls._report.host_names()
+
+    @util.skip_unless_run_long_tests()
+    def test_power_consumption(self):
+        self.assertEqual(self._num_node, len(self._node_names))
+        all_power_data = dict()
+        for nn in self._node_names:
+            tt = self._trace.get_trace_data(node_name=nn)
 
             first_epoch_index = tt.loc[tt['EPOCH_COUNT'] == 0][:1].index[0]
             epoch_dropped_data = tt[first_epoch_index:]  # Drop all startup data
@@ -114,11 +109,8 @@ class TestIntegration(unittest.TestCase):
             pkg_energy_cols = [s for s in power_data.keys() if 'ENERGY_PACKAGE' in s]
             dram_energy_cols = [s for s in power_data.keys() if 'ENERGY_DRAM' in s]
             power_data['SOCKET_POWER'] = power_data[pkg_energy_cols].sum(axis=1) / power_data['ELAPSED_TIME']
-            power_data['DRAM_POWER'] = power_data[dram_energy_cols].sum(axis=1) / power_data['ELAPSED_TIME']
-            power_data['COMBINED_POWER'] = power_data['SOCKET_POWER'] + power_data['DRAM_POWER']
 
             pandas.set_option('display.width', 100)
-            launcher.write_log(name, 'Power stats from {} :\n{}'.format(nn, power_data.describe()))
 
             all_power_data[nn] = power_data
 
