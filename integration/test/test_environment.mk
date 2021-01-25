@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-#
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -31,32 +29,4 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-from __future__ import absolute_import
-
-import sys
-import os
-import unittest
-
-from geopm_test_integration import *
-from test_omp_outer_loop import *
-from test_ee_timed_scaling_mix import *
-from test_enforce_policy import *
-from test_profile_policy import *
-from test_plugin_static_policy import *
-from test_power_balancer import *
-from test_tutorial_base import *
-from test_frequency_hint_usage import *
-from test_scaling_region import *
-from test_timed_scaling_region import *
-from test_profile_overflow import *
-from test_trace import *
-from test_monitor import *
-from test_geopmio import *
-from test_ompt import *
-from test_launch_application import *
-from test_launch_pthread import *
-from test_geopmagent import *
-from test_environment import *
-
-if __name__ == '__main__':
-    unittest.main()
+EXTRA_DIST += integration/test/test_environment.py
