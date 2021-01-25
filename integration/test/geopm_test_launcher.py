@@ -45,6 +45,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import geopm_context
 import geopmpy.launcher
 from experiment import util
+import util as test_util
 
 
 # TODO: update tests to use util
@@ -143,6 +144,9 @@ class TestLauncher(object):
         test_name (str):  Name of the test run to use for log files and the policy name in reports.
         include_geopm_policy (bool):  If True (default), provide --geopm-policy for the agent
         """
+        if not test_util.do_launch():
+            return
+
         self._app_conf.write()
         self._agent_conf.write()
         with open(test_name + '.log', 'a') as outfile:
