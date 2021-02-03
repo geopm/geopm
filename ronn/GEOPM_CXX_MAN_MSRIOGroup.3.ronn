@@ -104,10 +104,10 @@ geopm::MSRIOGroup -- IOGroup providing MSR-based signals and controls
   * `virtual string control_description(`:
     `const string &`_control_name_`) const = 0;`
 
-  * `std::string msr_whitelist(`:
+  * `std::string msr_allowlist(`:
     `void) const;`
 
-  * `std::string msr_whitelist(`:
+  * `std::string msr_allowlist(`:
     `int `_cpuid_`) const;`
 
   * `int cpuid(`:
@@ -232,11 +232,11 @@ It relies on **geopm::MSR(3)** and **geopm::MSRIO(3)**.
     Software Developer's Manual at
     <https://software.intel.com/en-us/articles/intel-sdm>.
 
-  * `msr_whitelist`():
-    Fill string with the msr-safe whitelist file contents reflecting
+  * `msr_allowlist`():
+    Fill string with the msr-safe allowlist file contents reflecting
     all known MSRs for the current platform, or if _cpuid_ is
     provided, for the platform specified by _cpuid_.  Returns a string
-    formatted to be written to an msr-safe whitelist file.
+    formatted to be written to an msr-safe allowlist file.
 
   * `cpuid`():
     Get the cpuid of the current platform.

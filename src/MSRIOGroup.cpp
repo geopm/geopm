@@ -1150,8 +1150,8 @@ namespace geopm
         }
     }
 
-    void MSRIOGroup::parse_json_msrs_whitelist(const std::string &str,
-                                               std::map<uint64_t, std::pair<uint64_t, std::string> > &whitelist_data)
+    void MSRIOGroup::parse_json_msrs_allowlist(const std::string &str,
+                                               std::map<uint64_t, std::pair<uint64_t, std::string> > &allowlist_data)
     {
         std::string err;
         Json root = Json::parse(str, err);
@@ -1188,15 +1188,15 @@ namespace geopm
                     combined_write_mask |= (((1ULL << (end_bit - begin_bit + 1)) - 1) << begin_bit);
                 }
             }
-            whitelist_data[msr_offset] =
+            allowlist_data[msr_offset] =
                 std::pair<uint64_t, std::string>(combined_write_mask, msr_name);
         }
     }
 
-    std::string MSRIOGroup::format_whitelist(const std::map<uint64_t, std::pair<uint64_t, std::string> > &whitelist_data)
+    std::string MSRIOGroup::format_allowlist(const std::map<uint64_t, std::pair<uint64_t, std::string> > &allowlist_data)
     {
         std::map<uint64_t, std::string> offset_result_map;
-        for (const auto &kv : whitelist_data) {
+        for (const auto &kv : allowlist_data) {
             uint64_t msr_offset = kv.first;
             uint64_t write_mask = kv.second.first;
             std::string msr_name = kv.second.second;
@@ -1215,16 +1215,16 @@ namespace geopm
         return result.str();
     }
 
-    std::string MSRIOGroup::msr_whitelist(int cpuid)
+    std::string MSRIOGroup::msr_allowlist(int cpuid)
     {
-        std::map<uint64_t, std::pair<uint64_t, std::string> > whitelist_data;
-        parse_json_msrs_whitelist(arch_msr_json(), whitelist_data);
-        parse_json_msrs_whitelist(platform_data(cpuid), whitelist_data);
+        std::map<uint64_t, std::pair<uint64_t, std::string> > allowlist_data;
+        parse_json_msrs_allowlist(arch_msr_json(), allowlist_data);
+        parse_json_msrs_allowlist(platform_data(cpuid), allowlist_data);
         auto custom = msr_data_files();
         for (const auto &filename : custom) {
-            parse_json_msrs_whitelist(filename, whitelist_data);
+            parse_json_msrs_allowlist(filename, allowlist_data);
         }
-        return format_whitelist(whitelist_data);
+        return format_allowlist(allowlist_data);
     }
 
 }

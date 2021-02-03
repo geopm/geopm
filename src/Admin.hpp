@@ -54,13 +54,13 @@ namespace geopm
                       std::ostream &std_err);
             std::string run(bool do_default,
                             bool do_override,
-                            bool do_whitelist,
+                            bool do_allowlist,
                             int cpuid);
             OptionParser parser(std::ostream &std_out,
                                 std::ostream &std_err);
             std::string default_config(void);
             std::string override_config(void);
-            std::string whitelist(int cpuid);
+            std::string allowlist(int cpuid);
             std::string check_node(void);
             void check_config(const std::map<std::string, std::string> &config_map,
                               std::vector<std::string> &policy_names,

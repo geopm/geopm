@@ -129,7 +129,7 @@ TEST_F(AdminTest, config_override)
     ASSERT_NE(std::string::npos, result.find("environment-override.json"));
 }
 
-TEST_F(AdminTest, whitelist)
+TEST_F(AdminTest, allowlist)
 {
     std::string result_0 = m_admin->run(false, false, true, -1);
     ASSERT_EQ(0U, result_0.find("# MSR        Write Mask           # Comment\n"));

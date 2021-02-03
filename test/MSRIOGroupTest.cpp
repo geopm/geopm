@@ -929,10 +929,10 @@ TEST_F(MSRIOGroupTest, write_control)
 
 }
 
-TEST_F(MSRIOGroupTest, whitelist)
+TEST_F(MSRIOGroupTest, allowlist)
 {
     char file_name[NAME_MAX] = __FILE__;
-    std::ifstream file(std::string(dirname(file_name)) + "/legacy_whitelist.out");
+    std::ifstream file(std::string(dirname(file_name)) + "/legacy_allowlist.out");
     std::string line;
     uint64_t offset;
     uint64_t mask;
@@ -953,8 +953,8 @@ TEST_F(MSRIOGroupTest, whitelist)
         legacy_map[offset] = mask;
     }
 
-    std::string whitelist = MSRIOGroup::msr_whitelist(MSRIOGroup::M_CPUID_SKX);
-    std::istringstream iss(whitelist);
+    std::string allowlist = MSRIOGroup::msr_allowlist(MSRIOGroup::M_CPUID_SKX);
+    std::istringstream iss(allowlist);
     std::getline(iss, line);// throw away title line
     while (std::getline(iss, line)) {
         std::string tmp;
@@ -969,7 +969,7 @@ TEST_F(MSRIOGroupTest, whitelist)
         curr_map[offset] = mask;
     }
 
-    EXPECT_NE(0ull, curr_map.size()) << "Expected at least one register in whitelist.";
+    EXPECT_NE(0ull, curr_map.size()) << "Expected at least one register in allowlist.";
 
     for (auto it = curr_map.begin(); it != curr_map.end(); ++it) {
         offset = it->first;

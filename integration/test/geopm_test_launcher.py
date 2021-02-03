@@ -248,7 +248,7 @@ class TestLauncher(object):
 
     def msr_save(self):
         """
-        Snapshots all whitelisted MSRs using msrsave on all compute nodes
+        Snapshots all allowlisted MSRs using msrsave on all compute nodes
         that the job will be launched on.
         """
         self._msr_save_path = '/tmp/geopm-msr-save-' + getpass.getuser()
@@ -258,14 +258,14 @@ class TestLauncher(object):
         # We want to execute on every node so
         # (argv, self._num_node, self._num_node, ...
         # is intentional here and is the best we can do
-        # without a whitelist of node names
+        # without a allowlist of node names
         launcher = geopmpy.launcher.Factory().create(argv, self._num_node, self._num_node, self._cpu_per_rank, self._timeout,
                                                      self._time_limit, 'msr_save', self._node_list, self._host_file)
         launcher.run()
 
     def msr_restore(self):
         """
-        Restores all whitelisted MSRs using msrsave on all compute nodes
+        Restores all allowlisted MSRs using msrsave on all compute nodes
         that the job was launched on.
         """
         if self._msr_save_path is not None:
@@ -275,7 +275,7 @@ class TestLauncher(object):
             # We want to execute on every node so
             # (argv, self._num_node, self._num_node, ...
             # is intentional here and is the best we can do
-            # without a whitelist of node names
+            # without a allowlist of node names
             launcher = geopmpy.launcher.Factory().create(argv, self._num_node, self._num_node, self._cpu_per_rank, self._timeout,
                                                          self._time_limit, 'msr_save', self._node_list, self._exclude_list, self._host_file)
             launcher.run()

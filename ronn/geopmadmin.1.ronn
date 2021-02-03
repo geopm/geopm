@@ -33,7 +33,7 @@ geopmadmin(1) -- tool for geopm system administrators
 
 ## SYNOPSIS
 
-`geopmadmin` [`--config-default`|`--config-override`|`--msr-whitelist`] [`--cpuid`]
+`geopmadmin` [`--config-default`|`--config-override`|`--msr-allowlist`] [`--cpuid`]
 
 `geopmadmin` [`--help`|`--version`]
 
@@ -63,20 +63,24 @@ in a human readable format the values determined by these files.
     Print the path to the GEOPM configuration file that controls the
     override values for the system.
 
-  * `-w`, `--msr-whitelist`:
-    Print the minimum required whitelist for the msr-safe driver to
+  * `-a`, `--msr-allowlist`:
+    Print the minimum required allowlist for the msr-safe driver to
     enable all of the GEOPM features.
 
   * `-c`, `--cpuid`:
     Specify the cpuid in hexidecimal to select the architecture for
-    the msr-safe whitelist generation.  If this option is not
+    the msr-safe allowlist generation.  If this option is not
     specified the architecture where the application is running will
     be used.
 
 ## EXAMPLES
-Set the msr-safe whitelist to enable GEOPM:
+Set the msr-safe allowlist to enable GEOPM:
 
-    geopmadmin --whitelist > /dev/cpu/msr_whitelist
+    geopmadmin --allowlist > /dev/cpu/msr_allowlist
+
+on a legacy msr-safe system:
+
+    geopmadmin --allowlist > /dev/cpu/msr_whitelist
 
 Configure a system to force the use of the energy efficient agent:
 
