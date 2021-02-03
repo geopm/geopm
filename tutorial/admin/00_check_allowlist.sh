@@ -31,8 +31,8 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-#  This script will examine the currently installed whitelist for msr-safe
-#  and verify that the whitelist has the minimum required permissions in
+#  This script will examine the currently installed allowlist for msr-safe
+#  and verify that the allowlist has the minimum required permissions in
 #  order for GEOPM to function properly.
 
 set -eo pipefail
@@ -43,39 +43,41 @@ bitwise_and(){
 
 RC=0
 
-FILE=/dev/cpu/msr_whitelist
+FILE=/dev/cpu/msr_allowlist
 if [ ! -c ${FILE} ]; then
-    echo "ERROR: ${FILE} is not available.  Please install msr-safe."
+    FILE=/dev/cpu/msr_whitelist
+fi
+if [ ! -c ${FILE} ]; then
+    echo "ERROR: /dev/cpu/msr_allowlist is not available.  Note: msr_whitelist was also checked. Please install msr-safe."
     RC=1
 else
-    WHITELIST=$(cat ${FILE}) # This may require root.  If it does, re-run this script as root, or create a temp file
-                             # with the contents of msr_whitelist and overwrite the value for ${FILE}.
-    mapfile -t WL_MSRS < <(echo "${WHITELIST}" | tail -n +2 | cut -d' ' -f1)
-    mapfile -t WL_WRITEMASK < <(echo "${WHITELIST}" | tail -n +2 | cut -d' ' -f2)
+    ALLOWLIST=$(cat ${FILE}) # This may require root.  If it does, re-run this script as root, or create a temp file
+                             # with the contents of msr_allowlist and overwrite the value for ${FILE}.
+    mapfile -t AL_MSRS < <(echo "${ALLOWLIST}" | tail -n +2 | cut -d' ' -f1)
+    mapfile -t AL_WRITEMASK < <(echo "${ALLOWLIST}" | tail -n +2 | cut -d' ' -f2)
 
-    GEOPM_WL=$(geopmadmin -w)
-    mapfile -t GEOPM_MSRS < <(echo "${GEOPM_WL}" | tail -n +2 | cut -d' ' -f1)
-    mapfile -t GEOPM_WRITEMASK < <(echo "${GEOPM_WL}" | tail -n +2 | cut -d' ' -f4)
+    GEOPM_AL=$(geopmadmin -a)
+    mapfile -t GEOPM_MSRS < <(echo "${GEOPM_AL}" | tail -n +2 | cut -d' ' -f1)
+    mapfile -t GEOPM_WRITEMASK < <(echo "${GEOPM_AL}" | tail -n +2 | cut -d' ' -f4)
 
     for idx in "${!GEOPM_MSRS[@]}"; do
         FOUND=0
-        for jdx in "${!WL_MSRS[@]}"; do
-            if [ "${GEOPM_MSRS[idx]^^}" = "${WL_MSRS[jdx]^^}" ]; then
+        for jdx in "${!AL_MSRS[@]}"; do
+            if [ "${GEOPM_MSRS[idx]^^}" = "${AL_MSRS[jdx]^^}" ]; then
                 FOUND=1
-                if [ "$(bitwise_and ${GEOPM_WRITEMASK[idx]^^} ${WL_WRITEMASK[jdx]^^})" != "${GEOPM_WRITEMASK[idx]^^}" ]; then
+                if [ "$(bitwise_and ${GEOPM_WRITEMASK[idx]^^} ${AL_WRITEMASK[jdx]^^})" != "${GEOPM_WRITEMASK[idx]^^}" ]; then
                     echo "ERROR: MSR ${GEOPM_MSRS[idx]} has an improper writemask."
-                    echo "       GEOPM requires: ${GEOPM_WRITEMASK[idx]} | Current value: ${WL_WRITEMASK[jdx]}"
+                    echo "       GEOPM requires: ${GEOPM_WRITEMASK[idx]} | Current value: ${AL_WRITEMASK[jdx]}"
                     RC=1
                     break
                 fi
             fi
         done
         if [ ${FOUND} -ne 1 ]; then
-            echo "ERROR: Required MSR ${GEOPM_MSRS[idx]} was not found in the whitelist."
+            echo "ERROR: Required MSR ${GEOPM_MSRS[idx]} was not found in the allowlist."
             RC=1
         fi
     done
 fi
 
 exit ${RC}
-

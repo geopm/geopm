@@ -80,22 +80,22 @@ namespace geopm
             }
             std_out << run(par.is_set("default"),
                            par.is_set("override"),
-                           par.is_set("whitelist"),
+                           par.is_set("allowlist"),
                            std::stoi(par.get_value("cpuid"), NULL, 16));
         }
     }
 
     std::string Admin::run(bool do_default,
                            bool do_override,
-                           bool do_whitelist,
+                           bool do_allowlist,
                            int cpuid)
     {
         int action_count = 0;
         action_count += do_default;
         action_count += do_override;
-        action_count += do_whitelist;
+        action_count += do_allowlist;
         if (action_count > 1) {
-            throw geopm::Exception("geopmadmin: -d, -o and -w must be used exclusively",
+            throw geopm::Exception("geopmadmin: -d, -o and -a must be used exclusively",
                                    EINVAL, __FILE__, __LINE__);
         }
 
@@ -106,8 +106,8 @@ namespace geopm
         else if (do_override) {
             result = override_config();
         }
-        else if (do_whitelist) {
-            result = whitelist(cpuid);
+        else if (do_allowlist) {
+            result = allowlist(cpuid);
         }
         else {
             result = check_node();
@@ -122,12 +122,12 @@ namespace geopm
                           "print the path of the GEOPM default configuration file");
         result.add_option("override", 'o', "config-override", false,
                           "print the path of the GEOPM override configuration file");
-        result.add_option("whitelist", 'w', "msr-whitelist", false,
-                          "print the minimum msr-safe whitelist required by GEOPM");
+        result.add_option("allowlist", 'a', "msr-allowlist", false,
+                          "print the minimum msr-safe allowlist required by GEOPM");
         result.add_option("cpuid", 'c', "cpuid", "-1",
-                          "cpuid in hexidecimal for whitelist (default is current platform)");
+                          "cpuid in hexidecimal for allowlist (default is current platform)");
         result.add_example_usage("");
-        result.add_example_usage("[--config-default|--config-override|--msr-whitelist] [--cpuid]");
+        result.add_example_usage("[--config-default|--config-override|--msr-allowlist] [--cpuid]");
         return result;
     }
 
@@ -141,12 +141,12 @@ namespace geopm
         return m_override_config_path + "\n";
     }
 
-    std::string Admin::whitelist(int cpuid)
+    std::string Admin::allowlist(int cpuid)
     {
         if (cpuid == -1) {
             cpuid = m_cpuid_local;
         }
-        return geopm::MSRIOGroup::msr_whitelist(cpuid);
+        return geopm::MSRIOGroup::msr_allowlist(cpuid);
     }
 
     std::vector<std::string> Admin::dup_keys(const std::map<std::string, std::string> &map_a,

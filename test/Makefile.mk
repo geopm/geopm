@@ -47,7 +47,7 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoTest.default_config \
               test/gtest_links/AdminTest.positional_args \
               test/gtest_links/AdminTest.print_config \
               test/gtest_links/AdminTest.two_actions \
-              test/gtest_links/AdminTest.whitelist \
+              test/gtest_links/AdminTest.allowlist \
               test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/AgentFactoryTest.static_info_balancer \
               test/gtest_links/AgentFactoryTest.static_info_governor \
@@ -307,7 +307,7 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoTest.default_config \
               test/gtest_links/MSRIOGroupTest.valid_signal_domains \
               test/gtest_links/MSRIOGroupTest.valid_signal_format \
               test/gtest_links/MSRIOGroupTest.valid_signal_names \
-              test/gtest_links/MSRIOGroupTest.whitelist \
+              test/gtest_links/MSRIOGroupTest.allowlist \
               test/gtest_links/MSRIOGroupTest.write_control \
               test/gtest_links/MSRIOTest.read_aligned \
               test/gtest_links/MSRIOTest.read_batch \
@@ -550,7 +550,7 @@ EXTRA_DIST += test/InternalProfile.cpp \
               test/InternalProfile.hpp \
               test/MPIInterfaceTest.cpp \
               test/geopm_test.sh \
-              test/legacy_whitelist.out \
+              test/legacy_allowlist.out \
               test/no_omp_cpu.c \
               test/pmpi_mock.c \
               test/ProxyEpochRecordFilterTest.tutorial_2_profile_trace \

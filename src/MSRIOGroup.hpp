@@ -103,29 +103,29 @@ namespace geopm
             /// @brief Parse a JSON string and add any raw MSRs and
             ///        fields as available signals and controls.
             void parse_json_msrs(const std::string &str);
-            /// @brief Fill string with the msr-safe whitelist file
+            /// @brief Fill string with the msr-safe allowlist file
             ///        contents reflecting all known MSRs for the
             ///        specified platform.
             /// @param cpuid [in] The CPUID of the platform.
             /// @return String formatted to be written to an msr-safe
-            ///         whitelist file.
-            static std::string msr_whitelist(int cpuid);
+            ///         allowlist file.
+            static std::string msr_allowlist(int cpuid);
             /// @brief Get the cpuid of the current platform.
             static int cpuid(void);
             static std::string plugin_name(void);
             static std::unique_ptr<IOGroup> make_plugin(void);
         private:
             /// @brief Parse the given JSON string and update the
-            ///        whitelist data map.
-            static void parse_json_msrs_whitelist(const std::string &str,
-                                                  std::map<uint64_t, std::pair<uint64_t, std::string> > &whitelist_data);
-            /// @brief Format a string with the msr-safe whitelist file contents
+            ///        allowlist data map.
+            static void parse_json_msrs_allowlist(const std::string &str,
+                                                  std::map<uint64_t, std::pair<uint64_t, std::string> > &allowlist_data);
+            /// @brief Format a string with the msr-safe allowlist file contents
             ///        reflecting all known MSRs for the current platform.
-            /// @param [in] whitelist_data Map from MSR offset to
+            /// @param [in] allowlist_data Map from MSR offset to
             ///        write mask and name.
             /// @return String formatted to be written to
-            ///        an msr-safe whitelist file.
-            static std::string format_whitelist(const std::map<uint64_t, std::pair<uint64_t, std::string> > &whitelist_data);
+            ///        an msr-safe allowlist file.
+            static std::string format_allowlist(const std::map<uint64_t, std::pair<uint64_t, std::string> > &allowlist_data);
 
             /// @brief Return the JSON string for the MSR data
             ///        associated with the given cpuid.

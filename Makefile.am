@@ -346,7 +346,7 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
 TUTORIAL_DIST = tutorial/Makefile \
                 tutorial/README.md \
                 tutorial/admin/README.md \
-                tutorial/admin/00_check_whitelist.sh \
+                tutorial/admin/00_check_allowlist.sh \
                 tutorial/admin/00_test_prereqs.sh \
                 tutorial/admin/03_setup_fixed_frequency.sh \
                 tutorial/admin/04_setup_default_energy_efficient.sh \

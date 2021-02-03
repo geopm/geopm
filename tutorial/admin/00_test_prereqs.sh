@@ -136,7 +136,7 @@ if ! ${MSRSAVE} ${TMPFILE}; then
 fi
 rm ${TMPFILE}
 
-./00_check_whitelist.sh # GEOPM required MSRs set properly in the msr-safe whitelist
+./00_check_allowlist.sh # GEOPM required MSRs set properly in the msr-safe allowlist
 if [ $? -eq 1 ]; then
     RC=1
 fi
