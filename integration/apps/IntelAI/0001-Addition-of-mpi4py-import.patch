@@ -1,0 +1,25 @@
+From 313140031c836e53b70a36b3b0e80972d090062b Mon Sep 17 00:00:00 2001
+From: Lowren Lawson <lowren.h.lawson@intel.com>
+Date: Thu, 4 Feb 2021 22:05:32 -0800
+Subject: [PATCH] Addition of mpi4py import
+
+Signed-off-by: Lowren Lawson <lowren.h.lawson@intel.com>
+---
+ benchmarks/launch_benchmark.py | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/benchmarks/launch_benchmark.py b/benchmarks/launch_benchmark.py
+index 90a6944..f5050c6 100644
+--- a/benchmarks/launch_benchmark.py
++++ b/benchmarks/launch_benchmark.py
+@@ -21,6 +21,7 @@
+ from __future__ import absolute_import
+ from __future__ import division
+ from __future__ import print_function
++from mpi4py import MPI
+ 
+ import glob
+ import os
+-- 
+1.8.3.1
+

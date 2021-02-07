@@ -1,3 +1,4 @@
+#!/bin/bash
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -29,20 +30,26 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += integration/apps/apps.py \
-              integration/apps/build_func.sh \
-              integration/apps/__init__.py \
-              integration/apps/README.md \
-              # end
+set -x
+set -e
 
-include integration/apps/private.mk
-include integration/apps/amg/Makefile.mk
-include integration/apps/geopmbench/Makefile.mk
-include integration/apps/hpcg/Makefile.mk
-include integration/apps/hpl_mkl/Makefile.mk
-include integration/apps/hpl_netlib/Makefile.mk
-include integration/apps/minife/Makefile.mk
-include integration/apps/nekbone/Makefile.mk
-include integration/apps/nasft/Makefile.mk
-include integration/apps/pennant/Makefile.mk
-include integration/apps/IntelAI/Makefile.mk
+# Get helper functions
+source ../build_func.sh
+
+# Full tutorial here:
+# https://github.com/IntelAI/models/blob/master/docs/image_recognition/tensorflow/Tutorial.md
+
+#Get model
+git clone https://github.com/IntelAI/models.git IntelAIModel
+
+#Apply patch to monitor entire workload
+cd IntelAIModel
+git am < ../0001-Addition-of-mpi4py-import.patch
+
+#Install patch dependencies
+python3 -m pip install --user mpi4py tensorflow
+
+#Get pretrained model
+wget https://storage.googleapis.com/intel-optimized-tensorflow/models/v1_8/resnet50_fp32_pretrained_model.pb
+mkdir pretrained_models
+mv resnet50_fp32_pretrained_model.pb pretrained_models
