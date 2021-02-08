@@ -417,10 +417,29 @@ VMs and containers, that meets the BUILD REQUIREMENTS section above.
 
 The integration tests are located in the "integration/test" directory.
 These tests require a system meeting all of the requirements discussed
-in the RUN REQUIREMENTS section above and can be executed as follows:
+in the RUN REQUIREMENTS section above.  The following script can be used
+to compile the GEOPM source, install into a specified location and execute
+the integration scripts in a work directory.
 
-    cd integration/test
-    python .
+    ##### USER SPECIFIC #####
+    # Set the location of the GEOPM source tree
+    export GEOPM_SOURCE=${HOME}/Git/geopm
+    # Set the install prefix for the geopm build
+    export GEOPM_INSTALL=${HOME}/build/geopm
+    # Set a place to locate the output of the tests
+    export GEOPM_WORKDIR=${HOME}/geopm_test
+    #####   ALL USERS   #####
+    # Script defines bash functions to build and install GEOPM
+    source $GEOPM_SOURCE/integration/apps/build_func.sh
+    # Execute out-of-place build and install using build function
+    install_geopm
+    # Set up run environment to use installed GEOPM
+    source $GEOPM_SOURCE/integration/config/run_env.sh
+    # Create a directory for output
+    mkdir -p $GEOPM_WORKDIR
+    cd $GEOPM_WORKDIR
+    # Run the integration tests
+    python3 $GEOPM_SOURCE/integration/test
 
 These integration tests are based on pyunit and leverage the geopmpy
 python package to validate the runtime.  Please report failures of
