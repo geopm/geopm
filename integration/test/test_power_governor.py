@@ -51,17 +51,17 @@ class TestIntegration_power_governor(unittest.TestCase):
         """
         sys.stdout.write('(' + os.path.basename(__file__).split('.')[0] +
                          '.' + cls.__name__ + ') ...')
-        test_name = 'test_power_governor'
-        cls._report_path = '{}.report'.format(test_name)
-        cls._trace_path = '{}.trace'.format(test_name)
-        cls._agent_conf_path = test_name + '-agent-config.json'
+        cls._test_name = 'test_power_governor'
+        cls._report_path = '{}.report'.format(cls._test_name)
+        cls._trace_path = '{}.trace'.format(cls._test_name)
+        cls._agent_conf_path = cls._test_name + '-agent-config.json'
         # Clear out exception record for python 2 support
         geopmpy.error.exc_clear()
         # Set the job size parameters
         cls._num_node = 4
         num_rank = 16
         loop_count = 500
-        app_conf = geopmpy.io.BenchConf(test_name + '_app.config')
+        app_conf = geopmpy.io.BenchConf(cls._test_name + '_app.config')
         app_conf.append_region('dgemm', 8.0)
         app_conf.set_loop_count(loop_count)
 
@@ -73,7 +73,7 @@ class TestIntegration_power_governor(unittest.TestCase):
             cls._options['power_budget'] = 130
         else:
             cls._options['power_budget'] = 200
-        agent_conf = geopmpy.io.AgentConf(test_name + '_agent.config', cls._agent, cls._options)
+        agent_conf = geopmpy.io.AgentConf(cls._test_name + '_agent.config', cls._agent, cls._options)
 
         # Create the test launcher with the above configuration
         launcher = geopm_test_launcher.TestLauncher(app_conf,
@@ -83,7 +83,7 @@ class TestIntegration_power_governor(unittest.TestCase):
         launcher.set_num_node(cls._num_node)
         launcher.set_num_rank(num_rank)
         # Run the test application
-        launcher.run(test_name)
+        launcher.run(cls._test_name)
 
         # Output to be reused by all tests
         cls._report = geopmpy.io.RawReport(cls._report_path)
@@ -111,6 +111,9 @@ class TestIntegration_power_governor(unittest.TestCase):
             power_data['SOCKET_POWER'] = power_data[pkg_energy_cols].sum(axis=1) / power_data['ELAPSED_TIME']
 
             pandas.set_option('display.width', 100)
+            with open('{}.log'.format(self._test_name), 'a') as fid:
+                fid.write('\n{}: Power stats from host {}: \n{}\n\n'.format(
+                    self._test_name, nn, power_data.describe()))
 
             all_power_data[nn] = power_data
 
