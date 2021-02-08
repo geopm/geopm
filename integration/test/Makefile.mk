@@ -68,3 +68,4 @@ include integration/test/test_geopmagent.mk
 include integration/test/test_environment.mk
 include integration/test/test_power_governor.mk
 include integration/test/test_environment.mk
+include integration/test/test_frequency_map.mk
