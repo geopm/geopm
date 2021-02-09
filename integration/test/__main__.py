@@ -58,7 +58,7 @@ from test_launch_pthread import *
 from test_geopmagent import *
 from test_environment import *
 from test_power_governor import *
-from test_environment import *
+from test_frequency_map import *
 
 
 if __name__ == '__main__':
