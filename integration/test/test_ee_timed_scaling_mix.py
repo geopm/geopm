@@ -76,6 +76,7 @@ class AppConf(object):
 @util.skip_unless_cpufreq()
 @util.skip_unless_optimized()
 @util.skip_unless_run_long_tests()
+@unittest.skip('Disabled pending overhaul of agent.')
 class TestIntegrationEETimedScalingMix(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

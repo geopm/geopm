@@ -174,7 +174,7 @@ class TestIntegration_frequency_hint_usage(unittest.TestCase):
         util.assertNear(self, self._freq_default, achieved_freq,
                         msg='Expected achieved frequency to be near default from policy. ({} !~= {})'.format(self._freq_default, achieved_freq))
 
-    @unittest.expectedFailure # TODO Remove when agent behavior is changed.
+    @unittest.skip('Disabled pending overhaul of agent.')
     def test_frequency_sane_ee(self):
         """
         Test that the hint is respected for MPI regions within a
@@ -194,7 +194,7 @@ class TestIntegration_frequency_hint_usage(unittest.TestCase):
         # with the COMPUTE hint.
         self.assertNotEqual(self._freq_min, assigned_freq,
                             msg='Expected assigned frequency to not be the min from policy since this region has the COMPUTE hint. ({} == {}).'.format(self._freq_min, assigned_freq))
-        util.assertNotNear(self, self._freq_min, achieved_freq,
+        util.assertNotNear(self, self._freq_min, achieved_freq, epsilon=0.5,
                            msg='Expected achieved frequency to NOT be near min from policy. ({} ~= {})'.format(self._freq_min, achieved_freq))
 
 
