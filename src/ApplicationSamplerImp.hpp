@@ -88,6 +88,7 @@ namespace geopm
             const std::string m_filter_name;
             static const std::map<uint64_t, double> m_hint_time_init;
             std::vector<std::map<uint64_t, double> > m_hint_time;
+            std::vector<bool> m_is_cpu_active;
             geopm_time_s m_update_time;
             bool m_is_first_update;
     };

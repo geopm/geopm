@@ -144,6 +144,7 @@ namespace geopm
         , m_is_filtered(is_filtered)
         , m_filter_name(filter_name)
         , m_hint_time(m_num_cpu, m_hint_time_init)
+        , m_is_cpu_active(m_num_cpu, false)
         , m_update_time({{0, 0}})
         , m_is_first_update(true)
     {
@@ -178,7 +179,6 @@ namespace geopm
         m_sampler->check_sample_end();
 
         m_status->update_cache();
-
         if (!m_is_first_update) {
             double time_delta = geopm_time_diff(&m_update_time, &curr_time);
             for (int cpu_idx = 0; cpu_idx != m_num_cpu; ++cpu_idx) {
@@ -281,19 +281,23 @@ namespace geopm
 
     double ApplicationSamplerImp::cpu_hint_time(int cpu_idx, uint64_t hint) const
     {
+        double result = NAN;
         if (cpu_idx < 0 || cpu_idx >= m_num_cpu) {
             throw Exception("ApplicationSampler::" + std::string(__func__) +
                             "(): cpu_idx is out of range: " + std::to_string(cpu_idx),
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        auto &hint_map = m_hint_time[cpu_idx];
-        auto it = hint_map.find(hint);
-        if (it == hint_map.end()) {
-            throw Exception("ApplicationSampler::" + std::string(__func__) +
-                            "(): hint is invalid: " + std::to_string(hint),
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        if (m_is_cpu_active[cpu_idx]) {
+            auto &hint_map = m_hint_time[cpu_idx];
+            auto it = hint_map.find(hint);
+            if (it == hint_map.end()) {
+                throw Exception("ApplicationSampler::" + std::string(__func__) +
+                                "(): hint is invalid: " + std::to_string(hint),
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+            result = it->second;
         }
-        return it->second;
+        return result;
     }
 
     double ApplicationSamplerImp::cpu_progress(int cpu_idx) const
@@ -330,11 +334,14 @@ namespace geopm
             GEOPM_DEBUG_ASSERT(m_process_map.empty(),
                                "m_process_map is not empty, but we are connecting");
             // Convert per-cpu process to a set of the unique process id's
+            int cpu_idx = 0;
             std::set<int> proc_set;
             for (const auto &proc_it : per_cpu_process()) {
                 if (proc_it != -1) {
                     proc_set.insert(proc_it);
+                    m_is_cpu_active.at(cpu_idx) = true;
                 }
+                ++cpu_idx;
             }
             // For each unique process id create a record log and
             // insert it into map indexed by process id
