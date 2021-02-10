@@ -91,6 +91,7 @@ class TestIntegration_frequency_map(unittest.TestCase):
         cls._machine = machine.Machine()
         try:
             cls._machine.load()
+            sys.stderr.write('Warning: {}: using existing file "machine.json", delete if invalid\n'.format(cls._test_name))
         except RuntimeError:
             cls._machine.save()
 
