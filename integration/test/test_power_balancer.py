@@ -195,7 +195,7 @@ class TestIntegration_power_balancer(unittest.TestCase):
         # Require that the balancer moves the maximum dgemm runtime at
         # least 1/4 the distance to the mean dgemm runtime under the
         # governor.
-        margin_factor = 0.25
+        margin_factor = 0.50
         agent_runtime = dict()
         for agent in self._agent_list:
             run_name = '{}_{}_{}'.format(self._test_name, agent, app_name)
