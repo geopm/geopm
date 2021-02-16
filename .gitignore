@@ -82,6 +82,7 @@
 /integration/test/test_power_balancer
 /integration/test/test_profile_overflow
 /integration/test/test_profile_policy
+/integration/test/test_progress
 /integration/test/test_scaling_region
 /integration/test/test_timed_scaling_region
 /integration/test/test_tutorial_base
