@@ -37,8 +37,9 @@ consumption. Offers power-governor policy recommendations for
 minimum energy use subject to a runtime degradation constraint.
 '''
 
-import sys
 import argparse
+import math
+import sys
 
 import pandas
 import numpy as np
@@ -49,7 +50,7 @@ import geopmpy.io
 from experiment import common_args
 from experiment import machine
 
-class PowerLimitModel:
+class PowerLimitModel(object):
     "Abstract class for predicting a statistic based on a power limit."
     def __init__(self):
         "Default constructor."
@@ -98,12 +99,18 @@ class PolynomialFitPowerModel(PowerLimitModel):
         self._model = None
 
     def train(self, df, key):
-        self._model = Polynomial.fit(df.index,
-                                     df[key].values,
-                                     deg=self._degree).convert()
+        new_series, [resid, rank, sv, rcond] = Polynomial.fit(df.index,
+                                                              df[key].values,
+                                                              deg=self._degree,
+                                                              full=True)
+        self._model = new_series.convert()
+        self._resid = (resid[0] / len(df[key].values))**0.5
 
     def evaluate(self, PL):
         return sum(self._model.coef * PL ** np.arange(self._degree + 1))
+
+    def residual(self):
+        return self._resid
 
     def __str__(self):
         if self._model is not None:
@@ -134,7 +141,43 @@ class CubicPowerModel(PolynomialFitPowerModel):
     statistic from a power limit."""
     def __init__(self):
         "Simple constructor."
-        super().__init__(degree=3)
+        super(CubicPowerModel, self).__init__(degree=3)
+
+
+class CrossValidationModel(PowerLimitModel):
+    """
+    Implementation of a Cross Validation model. This creates an ensemble of
+    sub-models, gives each one a fraction of the data, and deduces confidence
+    values from the distribution of fit values."""
+    def __init__(self, base_gen, frac=0.8, size=100):
+        """
+        Simple constructor; base_gen is a callable that returns a
+        PowerLimitModel instance (or a derived class), frac is the proportion
+        of training data to give to each instance during training (default 0.8),
+        and size is the number of sub-models to instantiate for the ensemble
+        (default 100)."""
+
+        self._model = [base_gen() for _ in range(size)]
+        self._frac = frac
+
+    def train(self, df, key):
+        for mm in self._model:
+            mm.train(df.sample(frac=self._frac), key)
+
+    def evaluate(self, PL, full=False):
+        """
+        Evaluate a trained model on a single power limit (PL). Returns
+        the model's prediction for this power limit. If the parameter
+        full is True, also return the standard deviation and residuals
+        (default False)."""
+
+        vals = [mm.evaluate(PL) for mm in self._model]
+        mean = sum(vals)/len(vals)
+        dev = (sum([val**2 for val in vals])/len(vals) - mean**2)**0.5
+        res = (sum([mm.residual() for mm in self._model])/len(self._model))
+        if full:
+            return mean, [dev, res]
+        return mean
 
 
 def extract_columns(df, region_filter = None):
@@ -214,7 +257,75 @@ def policy_min_energy(plrange, enmodel, rtmodel = None, pltdp = None,
                 'energy': best_energy}
 
 
-def main(full_df, region_filter, dump_prefix, min_pl, max_pl, tdp, max_degradation):
+def rootssq(ll):
+    "Return the root of the sum of the squares of the list of values."
+    try:
+        return sum([ss**2  for ss in ll])**0.5
+    except TypeError:
+        pass
+    return ll
+
+def normal_comparison(dist1, dist2):
+    """Returns the probability that a sample drawn from the normal distribution
+    described by dist1 (a tuple of mu and sigma) will be larger than a sample
+    drawn from a normal distribution drawn from the normal distribution
+    described by dist2."""
+    mu1, sigma1 = dist1
+    mu2, sigma2 = dist2
+    sigma1 = rootssq(sigma1)
+    sigma2 = rootssq(sigma2)
+    return 0.5 * (1 + math.erf((mu1 - mu2) / (2 * (sigma1 ** 2 + sigma2 ** 2)**0.5)))
+
+
+def policy_confident_energy(plrange, enmodel, rtmodel = None, pltdp = None,
+                            max_degradation = None, confidence = 0.9):
+    """
+    Find the power limit over the range plrange (list-like) that
+    has the minimum predicted energy usage (according to the energy model
+    enmodel, an instance of PowerLimitModel), subject to the constraint
+    that its runtime does not exceed the runtime at power limit pltdp
+    by more than a factor of (1 + max_degradation), if max_degradation is
+    specified, with at least a confidence (default 0.9) probability. Returns a
+    dictionary with keys power, runtime, and energy, and values the optimal
+    power limit, the predicted runtime and energy at that limit,
+    respectively, and the standard deviations of these values."""
+    if pltdp is None:
+        pltdp = max(plrange)
+
+    en_predictions = [enmodel.evaluate(pl, True) for pl in plrange]
+    if max_degradation is None:
+        # we don't need the runtime model in this case
+        best_energy, best_pl = min(zip(en_predictions, plrange))
+        if rtmodel:
+            best_runtime = rtmodel.evaluate(best_pl, True)
+        else:
+            best_runtime = None
+        return {'power': best_pl,
+                'runtime': best_runtime[0],
+                'runtimedev': rootssq(best_runtime[1]),
+                'energy': best_energy[0],
+                'energydev': rootssq(best_energy[1])}
+    else:
+        rt_predictions = [rtmodel.evaluate(pl, True) for pl in plrange]
+        rt_at_tdp, [dev_tdp, res_tdp] = rtmodel.evaluate(pltdp, True)
+        degraded_rt = rt_at_tdp * (1 + max_degradation),\
+                [dev_tdp * (1 + max_degradation), res_tdp * (1 + max_degradation)]
+        constrained_values = [(energy, runtime, pl)
+                              for pl, runtime, energy
+                              in zip(plrange, rt_predictions, en_predictions)
+                              if normal_comparison(degraded_rt, runtime) > confidence]
+        if len(constrained_values) == 0:
+            # this means that we don't ever have enough confidence to guarantee this
+            return None
+        best_energy, best_runtime, best_pl = min(constrained_values)
+        return {'power': best_pl,
+                'runtime': best_runtime[0],
+                'runtimedev': rootssq(best_runtime[1]),
+                'energy': best_energy[0],
+                'energydev': rootssq(best_energy[1])}
+
+
+def main(full_df, region_filter, dump_prefix, min_pl, max_pl, tdp, max_degradation, cross_validation=True):
     """
     The main function. full_df is a report collection dataframe, region_filter
     is a list of regions to include, dump_prefix a filename prefix for
@@ -228,19 +339,33 @@ def main(full_df, region_filter, dump_prefix, min_pl, max_pl, tdp, max_degradati
         df.to_csv("{}.dat".format(dump_prefix))
         dump_stats_summary(df, "{}.stats".format(dump_prefix))
 
-    runtime_model = CubicPowerModel()
-    energy_model = CubicPowerModel()
+    if cross_validation:
+        runtime_model = CrossValidationModel(CubicPowerModel)
+        energy_model = CrossValidationModel(CubicPowerModel)
+    else:
+        runtime_model = CubicPowerModel()
+        energy_model = CubicPowerModel()
 
     runtime_model.train(df, key='runtime')
     energy_model.train(df, key='energy')
 
     plrange = [min_pl + i for i in range(int(max_pl - min_pl))] + [max_pl]
-    best_policy = policy_min_energy(plrange, energy_model, runtime_model, tdp,
-                                    max_degradation = max_degradation)
-    tdprt, tdpen = runtime_model.evaluate(tdp), energy_model.evaluate(tdp)
+    if cross_validation:
+        best_policy = policy_confident_energy(plrange, energy_model, runtime_model, tdp,
+                                              max_degradation = max_degradation)
+        tdprt, tdpen = runtime_model.evaluate(tdp, True), energy_model.evaluate(tdp, True)
+        tdp_values = {'power': tdp,
+                      'runtime': tdprt[0],
+                      'runtimedev': rootssq(tdprt[1]),
+                      'energy': tdpen[0],
+                      'energydev': rootssq(tdpen[1])}
+    else:
+        best_policy = policy_min_energy(plrange, energy_model, runtime_model, tdp,
+                                        max_degradation = max_degradation)
+        tdprt, tdpen = runtime_model.evaluate(tdp), energy_model.evaluate(tdp)
+        tdp_values = {'power': tdp, 'runtime': tdprt, 'energy': tdpen}
 
-    return {'tdp': {'power': tdp, 'runtime': tdprt, 'energy': tdpen},
-            'best': best_policy}
+    return {'tdp': tdp_values, 'best': best_policy}
 
 
 if __name__ == '__main__':
@@ -266,6 +391,9 @@ if __name__ == '__main__':
     parser.add_argument('--min_energy', action='store_true',
                         help='ignore max degradation, just give the minimum '
                              'energy possible')
+    parser.add_argument('--no-confidence', dest='confidence',
+                        action='store_false',
+                        help='Ignore uncertainty when giving a recommendation.')
 
     args = parser.parse_args()
 
@@ -303,17 +431,30 @@ if __name__ == '__main__':
         max_pl = args.max_power
 
     output = main(df, args.region_filter, args.dump_prefix, min_pl, max_pl, tdp,
-                  None if args.min_energy else args.max_degradation)
+                  None if args.min_energy else args.max_degradation,
+                  args.confidence)
 
-    sys.stdout.write('AT TDP = {power:.0f}W, '
-                     'RUNTIME = {runtime:.0f} s, '
-                     'ENERGY = {energy:.0f} J\n'.format(**output['tdp']))
-    sys.stdout.write('AT PL  = {power:.0f}W, '
-                     'RUNTIME = {runtime:.0f} s, '
-                     'ENERGY = {energy:.0f} J\n'.format(**output['best']))
+    if args.confidence:
+        sys.stdout.write('AT TDP = {power:.0f}W, '
+                         'RUNTIME = {runtime:.0f} s +/- {runtimedev:.0f}, '
+                         'ENERGY = {energy:.0f} J +/- {energydev:.0f}\n'.format(**output['tdp']))
+        if output['best']:
+            sys.stdout.write('AT PL  = {power:.0f}W, '
+                             'RUNTIME = {runtime:.0f} s +/- {runtimedev:.0f}, '
+                             'ENERGY = {energy:.0f} J +/- {energydev:.0f}\n'.format(**output['best']))
+        else:
+            sys.stdout.write("NO SUITABLE POLICY WAS FOUND.\n")
+    else:
+        sys.stdout.write('AT TDP = {power:.0f}W, '
+                         'RUNTIME = {runtime:.0f} s, '
+                         'ENERGY = {energy:.0f} J\n'.format(**output['tdp']))
+        sys.stdout.write('AT PL  = {power:.0f}W, '
+                         'RUNTIME = {runtime:.0f} s, '
+                         'ENERGY = {energy:.0f} J\n'.format(**output['best']))
 
     relative_delta = lambda new, old: 100 * (new - old) / old
 
-    sys.stdout.write('DELTA          RUNTIME = {:.1f} %,  ENERGY = {:.1f} %\n'
-                     .format(relative_delta(output['best']['runtime'], output['tdp']['runtime']),
-                             relative_delta(output['best']['energy'], output['tdp']['energy'])))
+    if output['best']:
+        sys.stdout.write('DELTA          RUNTIME = {:.1f} %,  ENERGY = {:.1f} %\n'
+                         .format(relative_delta(output['best']['runtime'], output['tdp']['runtime']),
+                                 relative_delta(output['best']['energy'], output['tdp']['energy'])))
