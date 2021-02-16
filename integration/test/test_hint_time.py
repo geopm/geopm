@@ -104,7 +104,6 @@ class TestIntegration_hint_time(unittest.TestCase):
                          '.' + cls.__name__ + ') ...')
         cls._test_name = 'hint_time'
         cls._report_path = 'test_{}.report'.format(cls._test_name)
-        cls._trace_path = 'test_{}.trace'.format(cls._test_name)
         cls._image_path = 'test_{}.png'.format(cls._test_name)
         cls._skip_launch = not util.do_launch()
         cls._agent_conf_path = 'test_' + cls._test_name + '-agent-config.json'

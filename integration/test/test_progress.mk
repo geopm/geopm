@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-#
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -31,36 +29,15 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-from __future__ import absolute_import
+EXTRA_DIST += integration/test/test_progress.py
 
-import sys
-import os
-import unittest
-
-from test_omp_outer_loop import *
-from test_ee_timed_scaling_mix import *
-from test_enforce_policy import *
-from test_profile_policy import *
-from test_plugin_static_policy import *
-from test_power_balancer import *
-from test_tutorial_base import *
-from test_frequency_hint_usage import *
-from test_scaling_region import *
-from test_timed_scaling_region import *
-from test_profile_overflow import *
-from test_trace import *
-from test_monitor import *
-from test_geopmio import *
-from test_ompt import *
-from test_launch_application import *
-from test_launch_pthread import *
-from test_geopmagent import *
-from test_environment import *
-from test_power_governor import *
-from test_frequency_map import *
-from test_hint_time import *
-from test_progress import *
-
-
-if __name__ == '__main__':
-    unittest.main()
+if ENABLE_MPI
+noinst_PROGRAMS += integration/test/test_progress
+integration_test_test_progress_SOURCES = integration/test/test_progress.cpp
+integration_test_test_progress_SOURCES += $(model_source_files)
+integration_test_test_progress_LDADD = libgeopm.la $(MATH_LIB) $(MPI_CLIBS)
+integration_test_test_progress_LDFLAGS = $(AM_LDFLAGS) $(MPI_CLDFLAGS) $(MATH_CLDFLAGS)
+integration_test_test_progress_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS) -D_GNU_SOURCE -std=c++11 $(MATH_CFLAGS)
+else
+EXTRA_DIST += integration/test/test_progress.cpp
+endif
