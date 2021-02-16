@@ -185,8 +185,7 @@ extern "C"
         int err = 0;
         if (g_pmpi_tprof_enabled) {
             try {
-                int cpu = geopm::Profile::get_cpu();
-                geopm::Profile::default_profile().thread_init(cpu, num_work_unit);
+                geopm::Profile::default_profile().thread_init(num_work_unit);
             }
             catch (...) {
                 err = geopm::exception_handler(std::current_exception());
