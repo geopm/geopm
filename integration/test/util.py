@@ -142,6 +142,24 @@ def get_config_value(key):
                 return line[len(line_start):-len(line_end)]
     return None
 
+def get_exec_path(bin_name):
+    """Find test binary
+
+    """
+    path_list = []
+    int_test_dir = os.path.dirname(os.path.realpath(__file__))
+    path_list.append(os.path.join(int_test_dir, '.libs'))
+    int_dir = os.path.dirname(int_test_dir)
+    # Look for out of place build from using apps/build_func.sh
+    path_list.append(os.path.join(int_dir, 'build/integration/test/.libs'))
+    bin_list = [os.path.join(pp, bin_name) for pp in path_list]
+    for bb in bin_list:
+        if os.path.exists(bb):
+            return bb
+
+    sep = '\n    '
+    msg = 'Could not find application binary, tried {}{}'.format(sep, sep.join(bin_list))
+    raise RuntimeError(msg)
 
 def skip_unless_config_enable(feature):
     if get_config_value('enable_{}'.format(feature)) == '1':
