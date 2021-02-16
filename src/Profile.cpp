@@ -500,6 +500,7 @@ namespace geopm
                 // region.
                 m_app_status->set_total_work_units(cpu, 0);
             }
+
         }
         else {
             // still nested, restore previous hint
@@ -536,13 +537,15 @@ namespace geopm
 
     }
 
-    void ProfileImp::thread_init(int cpu, uint32_t num_work_unit)
+    void ProfileImp::thread_init(uint32_t num_work_unit)
     {
         if (!m_is_enabled) {
             return;
         }
 
-        m_app_status->set_total_work_units(cpu, num_work_unit);
+        for (const auto &cpu : m_cpu_set) {
+            m_app_status->set_total_work_units(cpu, num_work_unit);
+        }
     }
 
     void ProfileImp::thread_post(int cpu)

@@ -32,6 +32,7 @@
 
 #include "config.h"
 #include "OMPT.hpp"
+#include "geopm.h"
 #include <omp-tools.h>
 
 
@@ -57,6 +58,27 @@ extern "C"
         geopm::OMPT::ompt().region_exit(parallel_function);
     }
 
+    static void on_ompt_event_work(ompt_work_t wstype,
+                                   ompt_scope_endpoint_t endpoint,
+                                   ompt_data_t *parallel_data,
+                                   ompt_data_t *task_data,
+                                   uint64_t count,
+                                   const void *parallel_function)
+    {
+        // Undertanding based on inpection of the values passed by the
+        // intel compiler implementation when running a test:
+        //
+        // - The omp team leader calls this function with the "count"
+        //   set to the number of work units that will be executed by
+        //   the team.
+        //
+        // - The omp non-lead threads call this function with "count"
+        //   set to zero.
+        if (count != 0ULL) {
+            geopm_tprof_init(count);
+        }
+    }
+
     int ompt_initialize(ompt_function_lookup_t lookup,
                         int initial_device_num,
                         ompt_data_t *tool_data)
@@ -65,6 +87,7 @@ extern "C"
             ompt_set_callback_t ompt_set_callback = (ompt_set_callback_t) lookup("ompt_set_callback");
             ompt_set_callback(ompt_callback_parallel_begin, (ompt_callback_t) &on_ompt_event_parallel_begin);
             ompt_set_callback(ompt_callback_parallel_end, (ompt_callback_t) &on_ompt_event_parallel_end);
+            ompt_set_callback(ompt_callback_work, (ompt_callback_t) &on_ompt_event_work);
         }
         // OpenMP 5.0 standard says return non-zero on success!?!?!
         return 1;

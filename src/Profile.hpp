@@ -157,7 +157,7 @@ namespace geopm
             ///             get_cpu().
             /// @param [in] num_work_unit The total work units for all
             ///             threads in the same parallel region.
-            virtual void thread_init(int cpu, uint32_t num_work_unit) = 0;
+            virtual void thread_init(uint32_t num_work_unit) = 0;
             /// @brief Mark one unit of work completed by the thread
             ///        on this CPU.
             /// @param [in] cpu The Linux logical CPU obtained with
@@ -240,7 +240,7 @@ namespace geopm
             void exit(uint64_t region_id) override;
             void epoch(void) override;
             void shutdown(void) override;
-            void thread_init(int cpu, uint32_t num_work_unit) override;
+            void thread_init(uint32_t num_work_unit) override;
             void thread_post(int cpu) override;
             virtual void enable_pmpi(void) override;
         protected:
