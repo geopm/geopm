@@ -36,7 +36,7 @@ LOG_FILE=test_loop_output.log
 while [ $? -eq 0 -a ${COUNT} -lt 10 ];
 do
     COUNT=$((COUNT+1))
-    echo "Beginning loop ${COUNT}..." > >(tee -a ${LOG_FILE})
+    echo "TEST LOOPER: Beginning loop ${COUNT}..." > >(tee -a ${LOG_FILE})
     GEOPM_RUN_LONG_TESTS=true python3 . -v $1 > >(tee -a ${LOG_FILE}) 2>&1
 done
 TEST_RETURN_CODE=$?
