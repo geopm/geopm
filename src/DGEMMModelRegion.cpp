@@ -98,9 +98,9 @@ namespace geopm
 
     void DGEMMModelRegion::big_o(double big_o_in)
     {
-        geopm::Profile &prof = geopm::Profile::default_profile();
-        uint64_t start_rid = prof.region("geopm_dgemm_model_region_startup", GEOPM_REGION_HINT_IGNORE);
-        prof.enter(start_rid);
+        uint64_t start_rid = 0;
+        geopm_prof_region("geopm_dgemm_model_region_startup", GEOPM_REGION_HINT_IGNORE, &start_rid);
+        geopm_prof_enter(start_rid);
 
         if (m_big_o && m_big_o != big_o_in) {
             free(m_matrix_c);
@@ -131,7 +131,7 @@ namespace geopm
             }
         }
         m_big_o = big_o_in;
-        prof.exit(start_rid);
+        geopm_prof_exit(start_rid);
     }
 
     void DGEMMModelRegion::run(void)
