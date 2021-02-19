@@ -176,7 +176,7 @@ class CrossValidationModel(PowerLimitModel):
         dev = (sum([val**2 for val in vals])/len(vals) - mean**2)**0.5
         res = (sum([mm.residual() for mm in self._model])/len(self._model))
         if full:
-            return mean, [dev, res]
+            return {'mean': mean, 'dev': [dev, res]}
         return mean
 
 
@@ -258,11 +258,12 @@ def policy_min_energy(plrange, enmodel, rtmodel = None, pltdp = None,
 
 
 def rootssq(ll):
-    "Return the root of the sum of the squares of the list of values."
+    """Return the root of the sum of the squares of the list of values. If a
+    non-iterable is passed in, just return it."""
     try:
         return sum([ss**2  for ss in ll])**0.5
     except TypeError:
-        pass
+        pass  # ll is not iterable
     return ll
 
 def normal_comparison(dist1, dist2):
@@ -270,8 +271,8 @@ def normal_comparison(dist1, dist2):
     described by dist1 (a tuple of mu and sigma) will be larger than a sample
     drawn from a normal distribution drawn from the normal distribution
     described by dist2."""
-    mu1, sigma1 = dist1
-    mu2, sigma2 = dist2
+    mu1, sigma1 = dist1['mean'], dist1['dev']
+    mu2, sigma2 = dist2['mean'], dist2['dev']
     sigma1 = rootssq(sigma1)
     sigma2 = rootssq(sigma2)
     return 0.5 * (1 + math.erf((mu1 - mu2) / (2 * (sigma1 ** 2 + sigma2 ** 2)**0.5)))
@@ -301,28 +302,29 @@ def policy_confident_energy(plrange, enmodel, rtmodel = None, pltdp = None,
         else:
             best_runtime = None
         return {'power': best_pl,
-                'runtime': best_runtime[0],
-                'runtimedev': rootssq(best_runtime[1]),
-                'energy': best_energy[0],
-                'energydev': rootssq(best_energy[1])}
+                'runtime': best_runtime['mean'],
+                'runtimedev': rootssq(best_runtime['dev']),
+                'energy': best_energy['mean'],
+                'energydev': rootssq(best_energy['dev'])}
     else:
         rt_predictions = [rtmodel.evaluate(pl, True) for pl in plrange]
-        rt_at_tdp, [dev_tdp, res_tdp] = rtmodel.evaluate(pltdp, True)
-        degraded_rt = rt_at_tdp * (1 + max_degradation),\
-                [dev_tdp * (1 + max_degradation), res_tdp * (1 + max_degradation)]
-        constrained_values = [(energy, runtime, pl)
+        rt_tdp_dist = rtmodel.evaluate(pltdp, True)
+        rt_at_tdp, [dev_tdp, res_tdp] = rt_tdp_dist['mean'], rt_tdp_dist['dev']
+        degraded_rt = {'mean': rt_at_tdp * (1 + max_degradation),\
+                'dev': [dev_tdp * (1 + max_degradation), res_tdp * (1 + max_degradation)]}
+        constrained_values = [(energy['mean'], energy, runtime, pl)
                               for pl, runtime, energy
                               in zip(plrange, rt_predictions, en_predictions)
                               if normal_comparison(degraded_rt, runtime) > confidence]
         if len(constrained_values) == 0:
             # this means that we don't ever have enough confidence to guarantee this
             return None
-        best_energy, best_runtime, best_pl = min(constrained_values)
+        _, best_energy, best_runtime, best_pl = min(constrained_values)
         return {'power': best_pl,
-                'runtime': best_runtime[0],
-                'runtimedev': rootssq(best_runtime[1]),
-                'energy': best_energy[0],
-                'energydev': rootssq(best_energy[1])}
+                'runtime': best_runtime['mean'],
+                'runtimedev': rootssq(best_runtime['dev']),
+                'energy': best_energy['mean'],
+                'energydev': rootssq(best_energy['dev'])}
 
 
 def main(full_df, region_filter, dump_prefix, min_pl, max_pl, tdp, max_degradation, cross_validation=True):
@@ -355,10 +357,10 @@ def main(full_df, region_filter, dump_prefix, min_pl, max_pl, tdp, max_degradati
                                               max_degradation = max_degradation)
         tdprt, tdpen = runtime_model.evaluate(tdp, True), energy_model.evaluate(tdp, True)
         tdp_values = {'power': tdp,
-                      'runtime': tdprt[0],
-                      'runtimedev': rootssq(tdprt[1]),
-                      'energy': tdpen[0],
-                      'energydev': rootssq(tdpen[1])}
+                      'runtime': tdprt['mean'],
+                      'runtimedev': rootssq(tdprt['dev']),
+                      'energy': tdpen['mean'],
+                      'energydev': rootssq(tdpen['dev'])}
     else:
         best_policy = policy_min_energy(plrange, energy_model, runtime_model, tdp,
                                         max_degradation = max_degradation)
@@ -391,7 +393,7 @@ if __name__ == '__main__':
     parser.add_argument('--min_energy', action='store_true',
                         help='ignore max degradation, just give the minimum '
                              'energy possible')
-    parser.add_argument('--no-confidence', dest='confidence',
+    parser.add_argument('--disable-confidence', dest='confidence',
                         action='store_false',
                         help='Ignore uncertainty when giving a recommendation.')
 
