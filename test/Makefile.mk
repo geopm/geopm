@@ -56,7 +56,6 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoTest.default_config \
               test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/AgentFactoryTest.static_info_balancer \
               test/gtest_links/AgentFactoryTest.static_info_governor \
-              test/gtest_links/AgentFactoryTest.static_info_energy_efficient \
               test/gtest_links/AgentFactoryTest.static_info_frequency_map \
               test/gtest_links/AggTest.agg_function \
               test/gtest_links/AggTest.function_strings \

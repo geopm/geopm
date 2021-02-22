@@ -105,7 +105,7 @@ TEST(AgentFactoryTest, static_info_governor)
     EXPECT_EQ(exp_policy, Agent::policy_names(agent_name));
 }
 
-TEST(AgentFactoryTest, static_info_energy_efficient)
+TEST(AgentFactoryTest, DISABLED_static_info_energy_efficient)
 {
     auto &factory = geopm::agent_factory();
     std::string agent_name = geopm::EnergyEfficientAgent::plugin_name();

@@ -51,7 +51,7 @@ class TestAgent(unittest.TestCase):
 
     def test_agent_names(self):
         names = geopmpy.agent.names()
-        expected = set(['energy_efficient', 'power_balancer', 'power_governor',
+        expected = set(['power_balancer', 'power_governor',
                         'frequency_map', 'monitor'])
         self.assertEqual(expected, set(names))
 
