@@ -309,31 +309,33 @@ TEST_F(ProfileTestIntegration, epoch)
 TEST_F(ProfileTestIntegration, progress_multithread)
 {
     m_profile->enter(0xABCD);
-    m_profile->thread_init(2, 4);
-    m_profile->thread_init(3, 8);
+    m_profile->thread_init(8);
+    m_ctl_status->update_cache();
+    EXPECT_EQ(0.0, m_ctl_status->get_progress_cpu(2));
+    EXPECT_EQ(0.0, m_ctl_status->get_progress_cpu(3));
 
     m_profile->thread_post(3);
     m_profile->thread_post(2);
     m_ctl_status->update_cache();
-    EXPECT_EQ(0.25, m_ctl_status->get_progress_cpu(2));
+    EXPECT_EQ(0.125, m_ctl_status->get_progress_cpu(2));
     EXPECT_EQ(0.125, m_ctl_status->get_progress_cpu(3));
 
     m_profile->thread_post(3);
     m_ctl_status->update_cache();
-    EXPECT_EQ(0.25, m_ctl_status->get_progress_cpu(2));
+    EXPECT_EQ(0.125, m_ctl_status->get_progress_cpu(2));
     EXPECT_EQ(0.25, m_ctl_status->get_progress_cpu(3));
 
     m_profile->thread_post(2);
     m_profile->thread_post(2);
     m_profile->thread_post(3);
     m_ctl_status->update_cache();
-    EXPECT_EQ(0.75, m_ctl_status->get_progress_cpu(2));
+    EXPECT_EQ(0.375, m_ctl_status->get_progress_cpu(2));
     EXPECT_EQ(0.375, m_ctl_status->get_progress_cpu(3));
 
     m_profile->thread_post(3);
     m_profile->thread_post(2);
     m_ctl_status->update_cache();
-    EXPECT_EQ(1.0, m_ctl_status->get_progress_cpu(2));
+    EXPECT_EQ(0.5, m_ctl_status->get_progress_cpu(2));
     EXPECT_EQ(0.5, m_ctl_status->get_progress_cpu(3));
     m_profile->exit(0xABCD);
 }
