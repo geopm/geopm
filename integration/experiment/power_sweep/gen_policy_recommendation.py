@@ -268,9 +268,10 @@ def rootssq(ll):
 
 def normal_comparison(dist1, dist2):
     """Returns the probability that a sample drawn from the normal distribution
-    described by dist1 (a tuple of mu and sigma) will be larger than a sample
-    drawn from a normal distribution drawn from the normal distribution
-    described by dist2."""
+    described by dist1 (a dictionary with keys 'mean' and 'dev' and values the
+    mean and standard deviation of the distribution, respectively) will be
+    larger than a sample drawn from a normal distribution drawn from the normal
+    distribution described by dist2."""
     mu1, sigma1 = dist1['mean'], dist1['dev']
     mu2, sigma2 = dist2['mean'], dist2['dev']
     sigma1 = rootssq(sigma1)
