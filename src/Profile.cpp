@@ -487,9 +487,6 @@ namespace geopm
             set_hint(GEOPM_REGION_HINT_UNSET);
             m_app_record_log->exit(hash, now);
             m_current_hash = GEOPM_REGION_HASH_UNMARKED;
-            for (const int &cpu_idx : m_cpu_set) {
-                m_app_status->set_hash(cpu_idx, m_current_hash);
-            }
             // reset both progress ints; calling post() outside of
             // region is an error
             for (auto cpu : m_cpu_set) {
@@ -498,9 +495,9 @@ namespace geopm
                 // progress from decreasing at the end of a region.
                 // The thread progress value is not valid outside of a
                 // region.
-                m_app_status->set_total_work_units(cpu, 0);
+                m_app_status->set_hash(cpu, m_current_hash);
+                m_app_status->reset_work_units(cpu);
             }
-
         }
         else {
             // still nested, restore previous hint
@@ -537,7 +534,16 @@ namespace geopm
 
     }
 
-    void ProfileImp::thread_init(uint32_t num_work_unit)
+    void ProfileImp::thread_init(int cpu)
+    {
+        if (!m_is_enabled) {
+            return;
+        }
+
+        m_app_status->reset_work_units(cpu);
+    }
+
+    void ProfileImp::thread_work(uint32_t num_work_unit)
     {
         if (!m_is_enabled) {
             return;

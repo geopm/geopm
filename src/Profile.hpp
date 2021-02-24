@@ -148,20 +148,27 @@ namespace geopm
             /// application.
             virtual void epoch(void) = 0;
             virtual void shutdown(void) = 0;
-            /// @brief Update the total work for one CPU and reset the
-            ///        work completed.  This method should be called
-            ///        by all threads in the same parallel region with
-            ///        the total expected to be completed by the
-            ///        entire group.
-            /// @param [in] cpu The Linux logical CPU obtained with
-            ///             get_cpu().
+            /// @brief Update the total work for all CPUs. This method
+            ///        should be called by one thread in the same
+            ///        parallel region with the total work units
+            ///        expected to be completed by the entire group.
+            ///
             /// @param [in] num_work_unit The total work units for all
-            ///             threads in the same parallel region.
-            virtual void thread_init(uint32_t num_work_unit) = 0;
+            ///        threads in the same parallel region.
+            virtual void thread_work(uint32_t num_work_unit) = 0;
+            /// @brief Reset the total amount of work completed by a
+            ///        CPU.  This should be called by each thread in
+            ///        the parallel region prior to the first call to
+            ///        thread_post().
+            ///
+            /// @param [in] cpu The Linux logical CPU obtained with
+            ///        get_cpu().
+            virtual void thread_init(int cpu) = 0;
             /// @brief Mark one unit of work completed by the thread
             ///        on this CPU.
+            //
             /// @param [in] cpu The Linux logical CPU obtained with
-            ///             get_cpu().
+            ///        get_cpu().
             virtual void thread_post(int cpu) = 0;
 
             virtual void enable_pmpi(void) = 0;
@@ -240,7 +247,8 @@ namespace geopm
             void exit(uint64_t region_id) override;
             void epoch(void) override;
             void shutdown(void) override;
-            void thread_init(uint32_t num_work_unit) override;
+            void thread_init(int cpu) override;
+            void thread_work(uint32_t num_work_unit) override;
             void thread_post(int cpu) override;
             virtual void enable_pmpi(void) override;
         protected:

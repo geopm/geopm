@@ -144,8 +144,8 @@ TEST_F(ProfileTest, enter_exit)
     EXPECT_CALL(*m_status, set_hint(2, GEOPM_REGION_HINT_UNSET));
     EXPECT_CALL(*m_status, set_hint(3, GEOPM_REGION_HINT_UNSET));
     // progress is cleared when exiting top-level region
-    EXPECT_CALL(*m_status, set_total_work_units(2, 0));
-    EXPECT_CALL(*m_status, set_total_work_units(3, 0));
+    EXPECT_CALL(*m_status, reset_work_units(2));
+    EXPECT_CALL(*m_status, reset_work_units(3));
 
     m_profile->exit(region_id);
 }
@@ -193,8 +193,8 @@ TEST_F(ProfileTest, enter_exit_nested)
         EXPECT_CALL(*m_status, set_hash(3, GEOPM_REGION_HASH_UNMARKED));
         EXPECT_CALL(*m_status, set_hint(2, GEOPM_REGION_HINT_UNSET));
         EXPECT_CALL(*m_status, set_hint(3, GEOPM_REGION_HINT_UNSET));
-        EXPECT_CALL(*m_status, set_total_work_units(2, 0));
-        EXPECT_CALL(*m_status, set_total_work_units(3, 0));
+        EXPECT_CALL(*m_status, reset_work_units(2));
+        EXPECT_CALL(*m_status, reset_work_units(3));
         m_profile->exit(usr_region_id);
     }
 }
@@ -215,9 +215,15 @@ TEST_F(ProfileTest, progress_multithread)
         m_profile->enter(0xABCD);
     }
     {
+        EXPECT_CALL(*m_status, reset_work_units(2));
+        EXPECT_CALL(*m_status, reset_work_units(3));
+        m_profile->thread_init(2);
+        m_profile->thread_init(3);
+    }
+    {
         EXPECT_CALL(*m_status, set_total_work_units(2, 6));
         EXPECT_CALL(*m_status, set_total_work_units(3, 6));
-        m_profile->thread_init(6);
+        m_profile->thread_work(6);
     }
     {
         EXPECT_CALL(*m_status, increment_work_unit(3));
@@ -235,8 +241,8 @@ TEST_F(ProfileTest, progress_multithread)
         EXPECT_CALL(*m_status, set_hash(_, _)).Times(2);
         EXPECT_CALL(*m_status, set_hint(_, _)).Times(2);
         // clear progress when exiting
-        EXPECT_CALL(*m_status, set_total_work_units(2, 0));
-        EXPECT_CALL(*m_status, set_total_work_units(3, 0));
+        EXPECT_CALL(*m_status, reset_work_units(2));
+        EXPECT_CALL(*m_status, reset_work_units(3));
         m_profile->exit(0xABCD);
     }
     // TODO: make it an error to set values for other CPUs not

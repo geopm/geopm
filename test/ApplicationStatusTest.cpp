@@ -166,7 +166,9 @@ TEST_F(ApplicationStatusTest, hash)
 TEST_F(ApplicationStatusTest, work_progress)
 {
     // CPUs 2 and 3 are inactive, 0 work units
+    m_status->reset_work_units(0);
     m_status->set_total_work_units(0, 4);
+    m_status->reset_work_units(1);
     m_status->set_total_work_units(1, 8);
     m_status->update_cache();
     EXPECT_DOUBLE_EQ(0.000, m_status->get_progress_cpu(0));
@@ -201,15 +203,16 @@ TEST_F(ApplicationStatusTest, work_progress)
                                GEOPM_ERROR_RUNTIME, "more increments than total work");
 
     // reset progress
-    m_status->set_total_work_units(0, 8);
+    m_status->reset_work_units(0);
+    m_status->set_total_work_units(0, 1);
     m_status->update_cache();
     EXPECT_DOUBLE_EQ(0.00, m_status->get_progress_cpu(0));
 
     // leave region
-    m_status->set_total_work_units(0, 0);
-    m_status->set_total_work_units(1, 0);
-    m_status->set_total_work_units(2, 0);
-    m_status->set_total_work_units(3, 0);
+    m_status->reset_work_units(0);
+    m_status->reset_work_units(1);
+    m_status->reset_work_units(2);
+    m_status->reset_work_units(3);
     m_status->update_cache();
     EXPECT_TRUE(std::isnan(m_status->get_progress_cpu(0)));
     EXPECT_TRUE(std::isnan(m_status->get_progress_cpu(1)));
@@ -219,6 +222,8 @@ TEST_F(ApplicationStatusTest, work_progress)
     GEOPM_EXPECT_THROW_MESSAGE(m_status->get_progress_cpu(-1),
                                GEOPM_ERROR_INVALID, "invalid CPU index");
     GEOPM_EXPECT_THROW_MESSAGE(m_status->get_progress_cpu(99),
+                               GEOPM_ERROR_INVALID, "invalid CPU index");
+    GEOPM_EXPECT_THROW_MESSAGE(m_status->reset_work_units(-1),
                                GEOPM_ERROR_INVALID, "invalid CPU index");
     GEOPM_EXPECT_THROW_MESSAGE(m_status->set_total_work_units(-1, 100),
                                GEOPM_ERROR_INVALID, "invalid CPU index");
