@@ -34,10 +34,8 @@
 import sys
 import unittest
 import os
-import pandas
 import numpy
 import socket
-import matplotlib.pyplot as plt
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from integration.test import geopm_context
@@ -126,6 +124,19 @@ class TestIntegration_progress(unittest.TestCase):
         cls._trace = geopmpy.io.AppOutput(cls._trace_path + '*')
 
     def get_hash(self, function_name):
+        """Get hash value from function name.
+
+        Return the hash value associated with the first region name in
+        the report that contains the substring.
+
+        Args:
+            function_name: The substring to match
+
+        Returns:
+            A string of the hex representation of the region hash
+            suitable for matching from the data frame.
+
+        """
         host = self._report.host_names()[0]
         region_names = self._report.region_names(host)
         full_name = [rn for rn in region_names if function_name in rn]
@@ -134,6 +145,22 @@ class TestIntegration_progress(unittest.TestCase):
         return hex(self._report.raw_region(host, full_name[0])['hash'])
 
     def check_progress(self, time, progress, expected_max, msg):
+        """Check a time series of progress values from a region.
+
+        Checks that the progress contains linearly increasing values
+        from zero to expected max.  Assert that a linear fit to the
+        data is a good one.
+
+        Args:
+            time: A sequence of time values
+
+            progress: A sequence of progress values
+
+            expected_max: The expected maximum progress
+
+            msg: Error message to include with any failures
+
+        """
         poly_out = numpy.polyfit(time,
                                  progress,
                                  1, full=True)
@@ -142,6 +169,8 @@ class TestIntegration_progress(unittest.TestCase):
         epsilon = 0.05
         abs_epsilon = epsilon * expected_max
         self.assertLessEqual(0.0, min_prog)
+        self.assertEqual(min_prog, progress[0])
+        self.assertEqual(max_prog, progress[-1])
         util.assertNear(self, 0.0, min_prog, epsilon=abs_epsilon,
                         msg='{}: minimum value'.format(msg))
         util.assertNear(self, expected_max, max_prog, epsilon=epsilon,
@@ -149,10 +178,23 @@ class TestIntegration_progress(unittest.TestCase):
         # Assert that the expected deviation from the fit is is no
         # larger than 1%.
         rr = max_prog - min_prog
+        self.assertLess(0.0, poly_out[0][0])
         error = (poly_out[1][0] / len(progress)) ** 0.5 / rr
         self.assertLess(error, 0.01, msg)
 
     def sum_progress(self, cpu_wp, df):
+        """Sum of all progress values from a set of cpus
+
+        Args:
+            cpu_wp: A container of CPU index values
+
+            df: Data frame to select columns from
+
+        Returns:
+            The sum of all matching REGION_PROGRESS columns from the
+            data frame
+
+        """
         result = numpy.zeros(len(df))
         for cpu in cpu_wp:
             name = 'REGION_PROGRESS-cpu-{}'.format(cpu)
@@ -160,25 +202,38 @@ class TestIntegration_progress(unittest.TestCase):
         return result
 
     def test_num_host(self):
+        """Check the number of hosts in the report
+
+        """
         host_names = self._report.host_names()
         self.assertEqual(len(host_names), self._num_node)
 
     def get_cpu_with_progress(self):
+        """Find all CPUs for which region progress is not NAN
+
+        """
         df = self._trace.get_trace_df()
         result = set()
         for cpu in range(self._machine.num_cpu()):
             name = 'REGION_PROGRESS-cpu-{}'.format(cpu)
-            if len(df[name].unique()) > 1:
+            if len(df[name].dropna()) > 0:
                 result.add(cpu)
         return result
 
     def test_num_active_cpu(self):
+        """Test that the correct number of CPUs report progress
+
+        """
         cpu_with_progress = self.get_cpu_with_progress()
         err_msg ='CPUs with progress:\n    {}\n'.format(cpu_with_progress)
         self.assertEqual(self._num_active_cpu, len(cpu_with_progress),
                          msg=err_msg)
 
     def test_linear_progress_triad(self):
+        """Test that the triad region with with the post included reports progress
+        that is well behaved for all CPUs and also collectively.
+
+        """
         df = self._trace.get_trace_df()
         grouped_df = df.groupby('REGION_HASH')
         cpu_with_progress = self.get_cpu_with_progress()
@@ -201,6 +256,10 @@ class TestIntegration_progress(unittest.TestCase):
                                 err_msg)
 
     def test_linear_progress_dgemm(self):
+        """Test that the dgemm region with with the post included reports progress
+        that is well behaved for all CPUs and also collectively.
+
+        """
         df = self._trace.get_trace_df()
         grouped_df = df.groupby('REGION_HASH')
         cpu_with_progress = self.get_cpu_with_progress()
@@ -223,6 +282,10 @@ class TestIntegration_progress(unittest.TestCase):
                                 err_msg)
 
     def test_zero_progress(self):
+        """Test that all regions that do not contain the geopm_tprof_post()
+        call report zero or no progress.
+
+        """
         df = self._trace.get_trace_df()
         grouped_df = df.groupby('REGION_HASH')
         cpu_with_progress = self.get_cpu_with_progress()
@@ -248,6 +311,16 @@ class TestIntegration_progress(unittest.TestCase):
         self.assertGreaterEqual(1.0, max(df['REGION_PROGRESS'].dropna()))
 
     def check_overhead(self, key, epsilon):
+        """Compare the regions where geopm_tprof_post() was and was not called
+        and check that the relative difference in time and energy is
+        in bounds.
+
+        Args:
+            key: Name of the region to match on (e.g. 'dgemm')
+
+            epsilon: Maximum relative overhead for time and energy
+
+        """
         for host in self._report.host_names():
             region_names = self._report.region_names(host)
             ref_energy = None
@@ -277,9 +350,17 @@ class TestIntegration_progress(unittest.TestCase):
                             msg='Time overhead of post for {} is too high'.format(key))
 
     def test_overhead_dgemm(self):
+        """Test that the overhead is small for dgemm which does many
+        operations for each work chunk.
+
+        """
         self.check_overhead('dgemm', 0.05)
 
     def test_overhead_triad(self):
+        """Test that the overhead not huge for triad which does only 3
+        operations per work chunk (FMA,add,store).
+
+        """
         self.check_overhead('triad', 1.5)
 
 if __name__ == '__main__':
