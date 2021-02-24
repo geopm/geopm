@@ -183,13 +183,17 @@ extern "C"
     int geopm_tprof_init(uint32_t num_work_unit)
     {
         int err = 0;
-        if (g_pmpi_tprof_enabled) {
-            try {
-                geopm::Profile::default_profile().thread_init(num_work_unit);
+        try {
+            auto &prof = geopm::Profile::default_profile();
+            if (g_pmpi_tprof_enabled) {
+                prof.thread_init(geopm::Profile::get_cpu());
             }
-            catch (...) {
-                err = geopm::exception_handler(std::current_exception());
+            if (g_pmpi_prof_enabled) {
+                prof.thread_work(num_work_unit);
             }
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
         }
         return err;
     }

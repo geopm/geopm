@@ -161,6 +161,9 @@ class TestIntegration_progress(unittest.TestCase):
             msg: Error message to include with any failures
 
         """
+        good_idx = numpy.isfinite(progress)
+        progress = progress[good_idx]
+        time = time[good_idx]
         poly_out = numpy.polyfit(time,
                                  progress,
                                  1, full=True)
@@ -227,13 +230,14 @@ class TestIntegration_progress(unittest.TestCase):
         self.assertEqual(self._num_active_cpu, len(cpu_with_progress),
                          msg=err_msg)
 
-    def check_monotone(self, progress):
+    def check_monotone(self, progress, err_msg):
         """Check that progress does not decrease over time.
 
         """
-        self.assertEqual(progress[0], min(progress))
-        self.assertEqual(progress[-1], max(progress))
-        self.assertLessEqual(0, min(progress.diff()[1:]))
+        progress = progress.dropna()
+        self.assertEqual(progress[0], min(progress), err_msg)
+        self.assertEqual(progress[-1], max(progress), err_msg)
+        self.assertLessEqual(0, min(progress.diff()[1:]), err_msg)
 
     def test_linear_progress_triad(self):
         """Test that the triad region with with the post reports progress that
@@ -255,8 +259,8 @@ class TestIntegration_progress(unittest.TestCase):
                             err_msg)
         for cpu in cpu_with_progress:
             name = 'REGION_PROGRESS-cpu-{}'.format(cpu)
-            self.check_monotone(triad_post_df[name])
             err_msg = 'Bad fit for triad cpu {} proggress'.format(cpu)
+            self.check_monotone(triad_post_df[name], err_msg)
             self.check_progress(triad_post_df['TIME'],
                                 triad_post_df[name],
                                 max_progress,
@@ -282,8 +286,8 @@ class TestIntegration_progress(unittest.TestCase):
                             err_msg)
         for cpu in cpu_with_progress:
             name = 'REGION_PROGRESS-cpu-{}'.format(cpu)
-            self.check_monotone(dgemm_post_df[name])
             err_msg = 'Bad fit for dgemm cpu {} proggress'.format(cpu)
+            self.check_monotone(dgemm_post_df[name], err_msg)
             self.check_progress(dgemm_post_df['TIME'],
                                 dgemm_post_df[name],
                                 max_progress,
@@ -369,7 +373,7 @@ class TestIntegration_progress(unittest.TestCase):
         operations per work chunk (FMA,add,store).
 
         """
-        self.check_overhead('triad', 1.5)
+        self.check_overhead('triad', 2.0)
 
 if __name__ == '__main__':
     unittest.main()

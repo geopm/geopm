@@ -74,9 +74,7 @@ extern "C"
         //
         // - The omp non-lead threads call this function with "count"
         //   set to zero.
-        if (count != 0ULL) {
-            geopm_tprof_init(count);
-        }
+        geopm_tprof_init(count);
     }
 
     int ompt_initialize(ompt_function_lookup_t lookup,

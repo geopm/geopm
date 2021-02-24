@@ -71,6 +71,7 @@ namespace geopm
             /// @brief Get the hash of the region currently running on
             ///        a CPU.
             virtual uint64_t get_hash(int cpu_idx) const = 0;
+            virtual void reset_work_units(int cpu_idx) = 0;
             /// @brief Reset the total work units for all threads to
             ///        be completed as part of a parallel region.
             ///        Calling this method also resets the work
@@ -140,6 +141,7 @@ namespace geopm
             uint64_t get_hint(int cpu_idx) const override;
             void set_hash(int cpu_idx, uint64_t hash) override;
             uint64_t get_hash(int cpu_idx) const override;
+            void reset_work_units(int cpu_idx) override;
             void set_total_work_units(int cpu_idx, int work_units) override;
             void increment_work_unit(int cpu_idx) override;
             double get_progress_cpu(int cpu_idx) const override;
