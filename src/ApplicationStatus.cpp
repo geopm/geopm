@@ -76,7 +76,7 @@ namespace geopm
         // initialize shmem if all zero is not appropriate
         for (int cpu = 0; cpu < m_num_cpu; ++cpu) {
             set_process({cpu}, -1);
-            set_total_work_units(cpu, 0);
+            reset_work_units(cpu);
         }
         update_cache();
     }
@@ -137,13 +137,26 @@ namespace geopm
         return m_cache[cpu_idx].hash;
     }
 
+    void ApplicationStatusImp::reset_work_units(int cpu_idx)
+    {
+        if (cpu_idx < 0 || cpu_idx >= m_num_cpu) {
+            throw Exception("ApplicationStatusImp::reset_work_units(): invalid CPU index: " + std::to_string(cpu_idx),
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        GEOPM_DEBUG_ASSERT(m_buffer != nullptr, "m_buffer not set");
+        // completed_work must be written first to prevent invalid
+        // progress in case of a race
+        m_buffer[cpu_idx].completed_work = 0;
+        m_buffer[cpu_idx].total_work = 0;
+    }
+
     void ApplicationStatusImp::set_total_work_units(int cpu_idx, int work_units)
     {
         if (cpu_idx < 0 || cpu_idx >= m_num_cpu) {
             throw Exception("ApplicationStatusImp::set_total_work_units(): invalid CPU index: " + std::to_string(cpu_idx),
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        if (work_units < 0) {
+        if (work_units <= 0) {
             throw Exception("ApplicationStatusImp::set_total_work_units(): invalid number of work units: " + std::to_string(work_units),
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
 
@@ -151,7 +164,6 @@ namespace geopm
         GEOPM_DEBUG_ASSERT(m_buffer != nullptr, "m_buffer not set");
         // completed_work must be written first to prevent invalid
         // progress in case of a race
-        m_buffer[cpu_idx].completed_work = 0;
         m_buffer[cpu_idx].total_work = work_units;
     }
 
