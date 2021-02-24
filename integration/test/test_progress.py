@@ -169,8 +169,6 @@ class TestIntegration_progress(unittest.TestCase):
         epsilon = 0.05
         abs_epsilon = epsilon * expected_max
         self.assertLessEqual(0.0, min_prog)
-        self.assertEqual(min_prog, progress[0])
-        self.assertEqual(max_prog, progress[-1])
         util.assertNear(self, 0.0, min_prog, epsilon=abs_epsilon,
                         msg='{}: minimum value'.format(msg))
         util.assertNear(self, expected_max, max_prog, epsilon=epsilon,
@@ -229,9 +227,17 @@ class TestIntegration_progress(unittest.TestCase):
         self.assertEqual(self._num_active_cpu, len(cpu_with_progress),
                          msg=err_msg)
 
+    def check_monotone(self, progress):
+        """Check that progress does not decrease over time.
+
+        """
+        self.assertEqual(progress[0], min(progress))
+        self.assertEqual(progress[-1], max(progress))
+        self.assertLessEqual(0, min(progress.diff()[1:]))
+
     def test_linear_progress_triad(self):
-        """Test that the triad region with with the post included reports progress
-        that is well behaved for all CPUs and also collectively.
+        """Test that the triad region with with the post reports progress that
+        is well behaved for all CPUs and also collectively.
 
         """
         df = self._trace.get_trace_df()
@@ -249,6 +255,7 @@ class TestIntegration_progress(unittest.TestCase):
                             err_msg)
         for cpu in cpu_with_progress:
             name = 'REGION_PROGRESS-cpu-{}'.format(cpu)
+            self.check_monotone(triad_post_df[name])
             err_msg = 'Bad fit for triad cpu {} proggress'.format(cpu)
             self.check_progress(triad_post_df['TIME'],
                                 triad_post_df[name],
@@ -256,8 +263,8 @@ class TestIntegration_progress(unittest.TestCase):
                                 err_msg)
 
     def test_linear_progress_dgemm(self):
-        """Test that the dgemm region with with the post included reports progress
-        that is well behaved for all CPUs and also collectively.
+        """Test that the dgemm region with with the post reports progress that
+        is well behaved for all CPUs and also collectively.
 
         """
         df = self._trace.get_trace_df()
@@ -275,6 +282,7 @@ class TestIntegration_progress(unittest.TestCase):
                             err_msg)
         for cpu in cpu_with_progress:
             name = 'REGION_PROGRESS-cpu-{}'.format(cpu)
+            self.check_monotone(dgemm_post_df[name])
             err_msg = 'Bad fit for dgemm cpu {} proggress'.format(cpu)
             self.check_progress(dgemm_post_df['TIME'],
                                 dgemm_post_df[name],
