@@ -215,15 +215,9 @@ TEST_F(ProfileTest, progress_multithread)
         m_profile->enter(0xABCD);
     }
     {
-        EXPECT_CALL(*m_status, reset_work_units(2));
-        EXPECT_CALL(*m_status, reset_work_units(3));
-        m_profile->thread_init(2);
-        m_profile->thread_init(3);
-    }
-    {
         EXPECT_CALL(*m_status, set_total_work_units(2, 6));
         EXPECT_CALL(*m_status, set_total_work_units(3, 6));
-        m_profile->thread_work(6);
+        m_profile->thread_init(6);
     }
     {
         EXPECT_CALL(*m_status, increment_work_unit(3));
