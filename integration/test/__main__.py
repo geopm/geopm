@@ -37,7 +37,6 @@ import sys
 import os
 import unittest
 
-from geopm_test_integration import *
 from test_omp_outer_loop import *
 from test_ee_timed_scaling_mix import *
 from test_enforce_policy import *
