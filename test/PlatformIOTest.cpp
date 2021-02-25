@@ -288,6 +288,8 @@ TEST_F(PlatformIOTest, push_control)
 
     EXPECT_CALL(*m_control_iogroup, control_domain_type("FREQ"));
     EXPECT_CALL(*m_control_iogroup, push_control("FREQ", GEOPM_DOMAIN_CPU, 0));
+    EXPECT_CALL(*m_control_iogroup, save_control());
+    m_platio->save_control();
     int idx = m_platio->push_control("FREQ", GEOPM_DOMAIN_CPU, 0);
     EXPECT_EQ(0, idx);
     EXPECT_EQ(idx, m_platio->push_control("FREQ", GEOPM_DOMAIN_CPU, 0));
@@ -304,6 +306,8 @@ TEST_F(PlatformIOTest, push_control_agg)
     EXPECT_CALL(*m_topo, domain_nested(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_PACKAGE, 0));
     EXPECT_EQ(0, m_platio->num_control_pushed());
     EXPECT_CALL(*m_control_iogroup, control_domain_type("FREQ")).Times(AtLeast(1));
+    EXPECT_CALL(*m_control_iogroup, save_control());
+    m_platio->save_control();
     for (auto cpu : m_cpu_set0) {
         EXPECT_CALL(*m_control_iogroup, push_control("FREQ", GEOPM_DOMAIN_CPU, cpu));
     }
@@ -376,6 +380,8 @@ TEST_F(PlatformIOTest, adjust)
 {
     EXPECT_CALL(*m_control_iogroup, control_domain_type("FREQ"));
     EXPECT_CALL(*m_control_iogroup, push_control("FREQ", _, _));
+    EXPECT_CALL(*m_control_iogroup, save_control());
+    m_platio->save_control();
     int freq_idx = m_platio->push_control("FREQ", GEOPM_DOMAIN_CPU, 0);
     EXPECT_EQ(0, freq_idx);
 
@@ -397,6 +403,8 @@ TEST_F(PlatformIOTest, adjust_agg)
     EXPECT_CALL(*m_topo, domain_nested(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_PACKAGE, 0));
     double value = 1.23e9;
     EXPECT_CALL(*m_control_iogroup, control_domain_type("FREQ")).Times(AtLeast(1));
+    EXPECT_CALL(*m_control_iogroup, save_control());
+    m_platio->save_control();
     for (auto cpu : m_cpu_set0) {
         EXPECT_CALL(*m_control_iogroup, push_control("FREQ", GEOPM_DOMAIN_CPU, cpu))
             .WillOnce(Return(cpu));
