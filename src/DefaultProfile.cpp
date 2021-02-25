@@ -185,11 +185,8 @@ extern "C"
         int err = 0;
         try {
             auto &prof = geopm::Profile::default_profile();
-            if (g_pmpi_tprof_enabled) {
-                prof.thread_init(geopm::Profile::get_cpu());
-            }
             if (g_pmpi_prof_enabled) {
-                prof.thread_work(num_work_unit);
+                prof.thread_init(num_work_unit);
             }
         }
         catch (...) {
