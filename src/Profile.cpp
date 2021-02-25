@@ -534,16 +534,7 @@ namespace geopm
 
     }
 
-    void ProfileImp::thread_init(int cpu)
-    {
-        if (!m_is_enabled) {
-            return;
-        }
-
-        m_app_status->reset_work_units(cpu);
-    }
-
-    void ProfileImp::thread_work(uint32_t num_work_unit)
+    void ProfileImp::thread_init(uint32_t num_work_unit)
     {
         if (!m_is_enabled) {
             return;

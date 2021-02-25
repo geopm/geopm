@@ -76,7 +76,6 @@ namespace geopm
         // initialize shmem if all zero is not appropriate
         for (int cpu = 0; cpu < m_num_cpu; ++cpu) {
             set_process({cpu}, -1);
-            reset_work_units(cpu);
         }
         update_cache();
     }
