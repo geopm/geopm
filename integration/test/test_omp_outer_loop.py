@@ -125,7 +125,7 @@ class TestIntegrationOMPOuterLoop(unittest.TestCase):
                 # MPI_Barrier regions network-time
                 if detected_region.startswith('[OMPT]'):
                     observed_region = report.raw_region(host_name, detected_region)
-                    if observed_region['network-time (sec)'] != 0:
+                    if observed_region['time-hint-network'] != 0:
                         network_time_detected = True
             self.assertTrue(network_time_detected,
                             msg="There should be some network time assiciated with an OMPT detected region.")

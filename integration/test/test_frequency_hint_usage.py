@@ -140,15 +140,15 @@ class TestIntegration_frequency_hint_usage(unittest.TestCase):
             launcher.set_num_rank(num_rank)
             launcher.run('test_' + test_name)
 
-            # EE run
-            launcher = geopm_test_launcher.TestLauncher(app_conf,
-                                                        ee_agent_conf,
-                                                        cls._ee_report_path,
-                                                        cls._ee_trace_path,
-                                                        time_limit=time_limit)
-            launcher.set_num_node(num_node)
-            launcher.set_num_rank(num_rank)
-            launcher.run(test_name)
+            # EE run - Not available; Removed from Agent factory.
+            #  launcher = geopm_test_launcher.TestLauncher(app_conf,
+            #                                              ee_agent_conf,
+            #                                              cls._ee_report_path,
+            #                                              cls._ee_trace_path,
+            #                                              time_limit=time_limit)
+            #  launcher.set_num_node(num_node)
+            #  launcher.set_num_rank(num_rank)
+            #  launcher.run(test_name)
 
 
     def tearDown(self):
