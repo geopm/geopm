@@ -105,13 +105,15 @@ class TestIntegration_progress(unittest.TestCase):
 
         app_conf = AppConf()
 
-        trace_signals = 'REGION_PROGRESS@cpu'
+        trace_signals = 'REGION_PROGRESS@cpu,REGION_HASH@cpu'
+        report_signals = 'TIME@cpu'
         agent_conf = geopmpy.io.AgentConf(cls._test_name + '_agent.config')
 
         # Create the test launcher with the above configuration
         launcher = geopm_test_launcher.TestLauncher(app_conf=app_conf,
                                                     agent_conf=agent_conf,
                                                     report_path=cls._report_path,
+                                                    report_signals=report_signals,
                                                     trace_path=cls._trace_path,
                                                     trace_signals=trace_signals)
         launcher.set_num_node(cls._num_node)
@@ -183,25 +185,6 @@ class TestIntegration_progress(unittest.TestCase):
         error = (poly_out[1][0] / len(progress)) ** 0.5 / rr
         self.assertLess(error, 0.01, msg)
 
-    def sum_progress(self, cpu_wp, df):
-        """Sum of all progress values from a set of cpus
-
-        Args:
-            cpu_wp: A container of CPU index values
-
-            df: Data frame to select columns from
-
-        Returns:
-            The sum of all matching REGION_PROGRESS columns from the
-            data frame
-
-        """
-        result = numpy.zeros(len(df))
-        for cpu in cpu_wp:
-            name = 'REGION_PROGRESS-cpu-{}'.format(cpu)
-            result += df[name]
-        return result
-
     def test_num_host(self):
         """Check the number of hosts in the report
 
@@ -244,22 +227,15 @@ class TestIntegration_progress(unittest.TestCase):
         is well behaved for all CPUs and also collectively.
 
         """
-        df = self._trace.get_trace_df()
-        grouped_df = df.groupby('REGION_HASH')
-        cpu_with_progress = self.get_cpu_with_progress()
-        max_progress = 1.0 / self._thread_per_rank
-
         triad_post_hash = self.get_hash('triad_with_post')
-        triad_post_df = grouped_df.get_group(triad_post_hash)
-        total_progress = self.sum_progress(cpu_with_progress, triad_post_df)
-        err_msg = 'Bad fit for triad total proggress'
-        self.check_progress(triad_post_df['TIME'],
-                            total_progress,
-                            self._num_rank,
-                            err_msg)
-        for cpu in cpu_with_progress:
+        df = self._trace.get_trace_df()
+        max_progress = 1.0 / self._thread_per_rank
+        for cpu in self.get_cpu_with_progress():
+            group_name = 'REGION_HASH-cpu-{}'.format(cpu)
+            grouped_df = df.groupby(group_name)
+            triad_post_df = grouped_df.get_group(triad_post_hash)
             name = 'REGION_PROGRESS-cpu-{}'.format(cpu)
-            err_msg = 'Bad fit for triad cpu {} proggress'.format(cpu)
+            err_msg = 'Bad fit for triad cpu {} progress'.format(cpu)
             self.check_monotone(triad_post_df[name], err_msg)
             self.check_progress(triad_post_df['TIME'],
                                 triad_post_df[name],
@@ -271,22 +247,15 @@ class TestIntegration_progress(unittest.TestCase):
         is well behaved for all CPUs and also collectively.
 
         """
-        df = self._trace.get_trace_df()
-        grouped_df = df.groupby('REGION_HASH')
-        cpu_with_progress = self.get_cpu_with_progress()
-        max_progress = 1.0 / self._thread_per_rank
-
         dgemm_post_hash = self.get_hash('dgemm_with_post')
-        dgemm_post_df = grouped_df.get_group(dgemm_post_hash)
-        total_progress = self.sum_progress(cpu_with_progress, dgemm_post_df)
-        err_msg = 'Bad fit for dgemm total proggress'
-        self.check_progress(dgemm_post_df['TIME'],
-                            total_progress,
-                            self._num_rank,
-                            err_msg)
-        for cpu in cpu_with_progress:
+        df = self._trace.get_trace_df()
+        max_progress = 1.0 / self._thread_per_rank
+        for cpu in self.get_cpu_with_progress():
+            group_name = 'REGION_HASH-cpu-{}'.format(cpu)
+            grouped_df = df.groupby(group_name)
+            dgemm_post_df = grouped_df.get_group(dgemm_post_hash)
             name = 'REGION_PROGRESS-cpu-{}'.format(cpu)
-            err_msg = 'Bad fit for dgemm cpu {} proggress'.format(cpu)
+            err_msg = 'Bad fit for dgemm cpu {} progress'.format(cpu)
             self.check_monotone(dgemm_post_df[name], err_msg)
             self.check_progress(dgemm_post_df['TIME'],
                                 dgemm_post_df[name],
@@ -300,7 +269,6 @@ class TestIntegration_progress(unittest.TestCase):
         """
         df = self._trace.get_trace_df()
         grouped_df = df.groupby('REGION_HASH')
-        cpu_with_progress = self.get_cpu_with_progress()
 
         triad_post_hash = self.get_hash('triad_with_post')
         dgemm_post_hash = self.get_hash('dgemm_with_post')
@@ -311,7 +279,7 @@ class TestIntegration_progress(unittest.TestCase):
                                       unmarked_hash,
                                       'NAN')]
         for gg in other_groups:
-           for cpu in cpu_with_progress:
+           for cpu in self.get_cpu_with_progress():
                name = 'REGION_PROGRESS-cpu-{}'.format(cpu)
                uu = grouped_df.get_group(gg)[name].dropna().unique()
                if len(uu) != 0:
