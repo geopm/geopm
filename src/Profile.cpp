@@ -536,6 +536,8 @@ namespace geopm
 
     void ProfileImp::thread_init(uint32_t num_work_unit)
     {
+        // Ignore calls with num_work_unit set to 1: work cannot be
+        // shared between threads.
         if (!m_is_enabled || num_work_unit <= 1) {
             return;
         }

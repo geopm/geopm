@@ -123,7 +123,7 @@ def get_config_log():
              os.path.dirname(
               os.path.realpath(__file__)))),
            'config.log')
-    if not os.path.exists(path):
+    if not os.path.isfile(path):
         path = os.path.join(
                os.path.dirname(path),
                 'integration/build/config.log')
@@ -154,7 +154,7 @@ def get_exec_path(bin_name):
     path_list.append(os.path.join(int_dir, 'build/integration/test/.libs'))
     bin_list = [os.path.join(pp, bin_name) for pp in path_list]
     for bb in bin_list:
-        if os.path.exists(bb):
+        if os.path.isfile(bb):
             return bb
 
     sep = '\n    '
