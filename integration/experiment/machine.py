@@ -32,6 +32,7 @@
 
 import json
 import os
+import sys
 import glob
 
 from . import util
@@ -156,4 +157,18 @@ def init_output_dir(output_dir):
 def get_machine(output_dir):
     mm = Machine(output_dir)
     mm.load()
+    return mm
+
+def try_machine(output_dir, msg_tag=None):
+    mm = Machine()
+    try:
+        mm.load()
+        err_msg = ['Warning']
+        if msg_tag:
+           err_msg.append(msg_tag)
+        err_msg.append('using existing file "machine.json", delete if invalid\n')
+        err_msg = ': '.join(err_msg)
+        sys.stderr.write(err_msg)
+    except RuntimeError:
+        mm.save()
     return mm
