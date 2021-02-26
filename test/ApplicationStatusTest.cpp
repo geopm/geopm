@@ -199,9 +199,6 @@ TEST_F(ApplicationStatusTest, work_progress)
     EXPECT_DOUBLE_EQ(1.000, m_status->get_progress_cpu(0));
     EXPECT_DOUBLE_EQ(0.500, m_status->get_progress_cpu(1));
 
-    GEOPM_EXPECT_THROW_MESSAGE(m_status->increment_work_unit(0),
-                               GEOPM_ERROR_RUNTIME, "more increments than total work");
-
     // reset progress
     m_status->reset_work_units(0);
     m_status->set_total_work_units(0, 1);

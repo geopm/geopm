@@ -174,12 +174,6 @@ namespace geopm
         }
         GEOPM_DEBUG_ASSERT(m_buffer != nullptr, "m_buffer not set");
 
-        // only this thread is writing, so don't need to lock
-        if (m_buffer[cpu_idx].completed_work >= m_buffer[cpu_idx].total_work) {
-            throw Exception("ApplicationStatusImp::increment_work_unit(): more increments than total work",
-                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-
-        }
         m_buffer[cpu_idx].completed_work += 1;
     }
 
