@@ -536,7 +536,7 @@ namespace geopm
 
     void ProfileImp::thread_init(uint32_t num_work_unit)
     {
-        if (!m_is_enabled) {
+        if (!m_is_enabled || num_work_unit <= 1) {
             return;
         }
 

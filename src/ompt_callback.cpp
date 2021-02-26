@@ -74,6 +74,10 @@ extern "C"
         //
         // - The omp non-lead threads call this function with "count"
         //   set to zero.
+        //
+        // - When independent work (e.g. not in a "#pragma omp for"
+        //   section) is executed in a parallel section this function
+        //   is called with count == 1.
         geopm_tprof_init(count);
     }
 
