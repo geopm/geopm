@@ -163,7 +163,9 @@ class TestIntegration_progress(unittest.TestCase):
             msg: Error message to include with any failures
 
         """
-        good_idx = numpy.isfinite(progress)
+        # Get rid of nan values and values
+        good_idx = numpy.isfinite(progress) & ~numpy.isin(progress, expected_max)
+        self.assertLess(len(progress) * 0.6, sum(good_idx))
         progress = progress[good_idx]
         time = time[good_idx]
         poly_out = numpy.polyfit(time,
