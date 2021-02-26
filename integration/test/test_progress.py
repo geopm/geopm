@@ -90,12 +90,7 @@ class TestIntegration_progress(unittest.TestCase):
         geopmpy.error.exc_clear()
 
         # Create machine
-        cls._machine = machine.Machine()
-        try:
-            cls._machine.load()
-            sys.stderr.write('Warning: {}: using existing file "machine.json", delete if invalid\n'.format(cls._test_name))
-        except RuntimeError:
-            cls._machine.save()
+        cls._machine = machine.try_machine('.', cls._test_name)
 
         # Set the job size parameters
         cls._num_node = 1
@@ -228,8 +223,9 @@ class TestIntegration_progress(unittest.TestCase):
         self.assertLessEqual(0, min(progress.diff()[1:]), err_msg)
 
     def test_linear_progress_triad(self):
-        """Test that the triad region with with the post reports progress that
-        is well behaved for all CPUs and also collectively.
+        """Test that the triad region with the geopm_tprof_post() call reports
+        progress that is well behaved for all CPUs and also
+        collectively.
 
         """
         triad_post_hash = self.get_hash('triad_with_post')
@@ -248,8 +244,9 @@ class TestIntegration_progress(unittest.TestCase):
                                 err_msg)
 
     def test_linear_progress_dgemm(self):
-        """Test that the dgemm region with with the post reports progress that
-        is well behaved for all CPUs and also collectively.
+        """Test that the dgemm region with the calls to geopm_tprof_post()
+        reports progress that is well behaved for all CPUs and also
+        collectively.
 
         """
         dgemm_post_hash = self.get_hash('dgemm_with_post')
@@ -342,8 +339,8 @@ class TestIntegration_progress(unittest.TestCase):
         self.check_overhead('dgemm', 0.05)
 
     def test_overhead_triad(self):
-        """Test that the overhead not huge for triad which does only 3
-        operations per work chunk (FMA,add,store).
+        """Test that the overhead is not huge for triad which does only 3
+        operations per work chunk (FMA, add, and store).
 
         """
         self.check_overhead('triad', 2.0)
