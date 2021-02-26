@@ -41,6 +41,7 @@
 #include "Exception.hpp"
 #include "geopm_debug.hpp"
 
+
 namespace geopm
 {
 
@@ -159,8 +160,7 @@ namespace geopm
 
         }
         GEOPM_DEBUG_ASSERT(m_buffer != nullptr, "m_buffer not set");
-        // completed_work must be written first to prevent invalid
-        // progress in case of a race
+        // total_work non-zero gates per thread use of completed_work
         m_buffer[cpu_idx].total_work = work_units;
     }
 

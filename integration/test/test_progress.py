@@ -163,8 +163,16 @@ class TestIntegration_progress(unittest.TestCase):
             msg: Error message to include with any failures
 
         """
+        epsilon = 0.05
+        abs_epsilon = epsilon * expected_max
         # Get rid of nan values and values
-        good_idx = numpy.isfinite(progress) & ~numpy.isin(progress, expected_max)
+        good_idx = numpy.isfinite(progress)
+        max_prog = max(progress[good_idx])
+        util.assertNear(self, expected_max, max_prog, epsilon=epsilon,
+                        msg='{}: maximum value'.format(msg))
+        # Get rid of values at expected_max to avoid bad fit error
+        # when completed threads stop increasing progress
+        good_idx = good_idx & ~numpy.isin(progress, expected_max)
         self.assertLess(len(progress) * 0.6, sum(good_idx))
         progress = progress[good_idx]
         time = time[good_idx]
@@ -172,14 +180,9 @@ class TestIntegration_progress(unittest.TestCase):
                                  progress,
                                  1, full=True)
         min_prog = min(progress)
-        max_prog = max(progress)
-        epsilon = 0.05
-        abs_epsilon = epsilon * expected_max
         self.assertLessEqual(0.0, min_prog)
         util.assertNear(self, 0.0, min_prog, epsilon=abs_epsilon,
                         msg='{}: minimum value'.format(msg))
-        util.assertNear(self, expected_max, max_prog, epsilon=epsilon,
-                        msg='{}: maximum value'.format(msg))
         # Assert that the expected deviation from the fit is is no
         # larger than 1%.
         rr = max_prog - min_prog
