@@ -147,6 +147,7 @@ class TestIntegrationEnforcePolicy(unittest.TestCase):
         current_freq = geopm_test_launcher.geopmread("MSR::PERF_CTL:FREQ board 0")
         self.assertEqual(test_freq, current_freq)
 
+    @unittest.skip('Disabled pending overhaul of agent.')
     def test_energy_efficient_max_freq(self):
         test_freq = self._sticker_freq - 2 * self._step_freq
         current_freq = geopm_test_launcher.geopmread("MSR::PERF_CTL:FREQ board 0")

@@ -134,7 +134,7 @@ class TestIntegrationScalingRegion(unittest.TestCase):
             for rn in report.region_names(host):
                 if rn.startswith('timed_scaling_region'):
                     region = report.raw_region(host, rn)
-                    util.assertNear(self, 1.0, report.get_field(region, 'runtime', 'sec'))
+                    util.assertNear(self, 1.0, report.get_field(region, 'runtime', 's'))
 
     @util.skip_unless_do_launch()
     def test_achieved_frequency(self):

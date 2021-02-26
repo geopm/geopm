@@ -135,7 +135,7 @@ class TestIntegration_power_balancer(unittest.TestCase):
                     launcher.set_num_node(cls._num_node)
                     launcher.set_num_rank(num_rank)
                     launcher.write_log(run_name, 'Power cap = {}W'.format(power_budget))
-                    launcher.run(run_name, add_geopm_args=['--geopm-trace-signals', 'MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT@package,EPOCH_RUNTIME@package,EPOCH_RUNTIME_NETWORK@package'])
+                    launcher.run(run_name, add_geopm_args=['--geopm-trace-signals', 'MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT@package'])
                     time.sleep(60)
 
 
@@ -144,12 +144,12 @@ class TestIntegration_power_balancer(unittest.TestCase):
             TestIntegration_power_balancer._keep_files = True
 
     def get_power_data(self, app_name, agent, report_path, trace_path):
-        output = geopmpy.io.AppOutput(report_path, trace_path + '*')
-        node_names = output.get_node_names()
-        self.assertEqual(self._num_node, len(node_names))
+        output = geopmpy.io.AppOutput(trace_path + '*')
 
         new_output = geopmpy.io.RawReport(report_path)
         power_budget = new_output.meta_data()['Policy']['POWER_PACKAGE_LIMIT_TOTAL']
+        node_names = new_output.host_names()
+        self.assertEqual(self._num_node, len(node_names))
 
         power_limits = []
         # Total power consumed will be Socket(s) + DRAM
@@ -188,11 +188,10 @@ class TestIntegration_power_balancer(unittest.TestCase):
             avg_power_limit = sum(power_limits) / len(power_limits)
             self.assertLessEqual(avg_power_limit, power_budget)
 
-        node_names = output.get_node_names()
         runtime_list = []
-        for node_name in node_names:
-            epoch_data = output.get_report_data(node_name=node_name, region='dgemm')
-            runtime_list.append(epoch_data['runtime'].values.item())
+        for nn in node_names:
+            dgemm_runtime = new_output.raw_region(nn, 'dgemm')['runtime (s)']
+            runtime_list.append(dgemm_runtime)
         return runtime_list
 
     def balancer_test_helper(self, app_name):
