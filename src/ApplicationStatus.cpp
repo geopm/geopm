@@ -143,10 +143,8 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         GEOPM_DEBUG_ASSERT(m_buffer != nullptr, "m_buffer not set");
-        // completed_work must be written first to prevent invalid
-        // progress in case of a race
-        m_buffer[cpu_idx].completed_work = 0;
         m_buffer[cpu_idx].total_work = 0;
+        m_buffer[cpu_idx].completed_work = 0;
     }
 
     void ApplicationStatusImp::set_total_work_units(int cpu_idx, int work_units)
@@ -174,7 +172,9 @@ namespace geopm
         }
         GEOPM_DEBUG_ASSERT(m_buffer != nullptr, "m_buffer not set");
 
-        m_buffer[cpu_idx].completed_work += 1;
+        if (m_buffer[cpu_idx].total_work != 0) {
+            ++(m_buffer[cpu_idx].completed_work);
+        }
     }
 
     double ApplicationStatusImp::get_progress_cpu(int cpu_idx) const
@@ -187,7 +187,7 @@ namespace geopm
                            "Memory for m_cache not sized correctly");
         double result = NAN;
         int total_work = m_cache[cpu_idx].total_work;
-        if (total_work > 0) {
+        if (total_work != 0) {
             result = (double)m_cache[cpu_idx].completed_work / total_work;
         }
         return result;
