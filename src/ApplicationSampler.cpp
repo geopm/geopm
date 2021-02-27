@@ -113,7 +113,8 @@ namespace geopm
                                 platform_topo().num_domain(GEOPM_DOMAIN_CPU),
                                 std::map<int, m_process_s> {},
                                 environment().do_record_filter(),
-                                environment().record_filter())
+                                environment().record_filter(),
+                                {})
     {
 
     }
@@ -136,7 +137,8 @@ namespace geopm
                                                  int num_cpu,
                                                  const std::map<int, m_process_s> &process_map,
                                                  bool is_filtered,
-                                                 const std::string &filter_name)
+                                                 const std::string &filter_name,
+                                                 const std::vector<bool> &is_cpu_active)
         : m_time_zero(geopm::time_zero())
         , m_status(status)
         , m_num_cpu(num_cpu)
@@ -144,11 +146,13 @@ namespace geopm
         , m_is_filtered(is_filtered)
         , m_filter_name(filter_name)
         , m_hint_time(m_num_cpu, m_hint_time_init)
-        , m_is_cpu_active(m_num_cpu, false)
+        , m_is_cpu_active(is_cpu_active)
         , m_update_time({{0, 0}})
         , m_is_first_update(true)
     {
-
+        if (m_is_cpu_active.empty()) {
+            m_is_cpu_active.resize(m_num_cpu, false);
+        }
     }
 
     ApplicationSamplerImp::~ApplicationSamplerImp()
