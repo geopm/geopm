@@ -87,8 +87,14 @@ void ApplicationSamplerTest::SetUp()
     m_process_map[0].record_log = m_record_log_0;
     m_process_map[234].filter = m_filter_1;
     m_process_map[234].record_log = m_record_log_1;
+    std::vector<bool> is_active(2, true);
 
-    m_app_sampler = std::make_shared<ApplicationSamplerImp>(m_mock_status, m_num_cpu, m_process_map, false, "");
+    m_app_sampler = std::make_shared<ApplicationSamplerImp>(m_mock_status,
+                                                            m_num_cpu,
+                                                            m_process_map,
+                                                            false,
+                                                            "",
+                                                            is_active);
     m_app_sampler->set_sampler(m_mock_profile_sampler);
     m_app_sampler->time_zero(geopm_time_s {{0,0}});
 }
