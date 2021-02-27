@@ -94,7 +94,7 @@ void loop_dgemm_with_post(double big_o, int count)
     std::shared_ptr<geopm::ModelRegion> dgemm_model(
         geopm::ModelRegion::model_region("dgemm-unmarked", big_o, false));
 #pragma omp for
-    for (size_t idx = 0; idx < count; ++idx) {
+    for (int idx = 0; idx < count; ++idx) {
         geopm_tprof_post();
         dgemm_model->run();
     }
@@ -109,7 +109,7 @@ void loop_dgemm_no_post(double big_o, int count)
     std::shared_ptr<geopm::ModelRegion> dgemm_model(
         geopm::ModelRegion::model_region("dgemm-unmarked", big_o, false));
 #pragma omp for
-    for (size_t idx = 0; idx < count; ++idx) {
+    for (int idx = 0; idx < count; ++idx) {
         dgemm_model->run();
     }
 }
@@ -123,7 +123,7 @@ void loop_dgemm_warmup(double big_o, int count)
     std::shared_ptr<geopm::ModelRegion> dgemm_model(
         geopm::ModelRegion::model_region("dgemm-unmarked", big_o, false));
 #pragma omp for
-    for (size_t idx = 0; idx < count; ++idx) {
+    for (int idx = 0; idx < count; ++idx) {
         dgemm_model->run();
     }
 }
