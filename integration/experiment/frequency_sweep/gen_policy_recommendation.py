@@ -51,12 +51,14 @@ from experiment import common_args
 from experiment import machine
 
 class FrequencyModel(object):
-    "Abstract class for predicting a statistic based on a frequency."
+    """
+    Abstract class for predicting a statistic based on one or more
+    frequencies."""
     def __init__(self):
         "Default constructor."
         raise NotImplementedError
 
-    def train(self, df, key):
+    def train(self, df, key, index_list):
         """
         Train this model to fit the data of column key contained in the
         dataframe (df), which is indexed by frequency. This modifies
@@ -64,7 +66,7 @@ class FrequencyModel(object):
         methods test and batch_test."""
         raise NotImplementedError
 
-    def evaluate(self, freq):
+    def evaluate(self, freq_list):
         """
         Evaluate a trained model on a single frequency (freq). Returns
         the model's prediction for this frequency."""
@@ -98,41 +100,39 @@ class PolynomialFitFrequencyModel(FrequencyModel):
         self._degree = degree
         self._model = None
 
-    def train(self, df, key):
-        new_series, [resid, rank, sv, rcond] = Polynomial.fit(df.index,
-                                                              df[key].values,
-                                                              deg=self._degree,
-                                                              full=True)
-        self._model = new_series.convert()
-        self._resid = (resid[0] / len(df[key].values))**0.5
+    def train(self, df, key, index_list = ['freq', 'uncore']):
+        AA = df.reset_index()[index_list]
+        
+        cols = ['1'] + index_list
+ 
+        AA['1'] = 1
+        for ii in range(2, self._degree+1):
+            for idx in index_list:
+                col = idx + '**' + str(ii)
+                cols.append(col)
+                AA[col] = AA[idx] ** ii
 
-    def evaluate(self, freq):
-        return sum(self._model.coef * freq ** np.arange(self._degree + 1))
+        AA = AA[cols]
+
+        new_series, resid, rank, s = np.linalg.lstsq(AA,
+                                                     df[key].values,
+                                                     rcond = None)
+        resid = sum((df[key].values - np.dot(AA, new_series))**2)
+        self._model = new_series
+        # numpy's least squares method doesn't consistently return residuals
+        # so we compute them manually
+        self._resid = (resid / len(df[key].values))**0.5
+
+    def evaluate(self, freq_list):
+        xx = [1]
+        for ii in range(1, self._degree+1):
+            for ff in freq_list:
+                xx.append(ff ** ii)
+
+        return sum(self._model * np.array(xx))
 
     def residual(self):
         return self._resid
-
-    def __str__(self):
-        if self._model is not None:
-            terms = ["", " freq"] + \
-                    [" freq ** {}".format(i) for i in range(2, self._degree + 1)]
-            coeffs = list(self._model.coef)
-            expression = ""
-            terms.reverse()
-            coeffs.reverse()
-            firstTerm = True
-            for tt, cc in zip(terms, coeffs):
-                if not firstTerm:
-                    if cc < 0:
-                        expression += " - "
-                        cc *= -1
-                    else:
-                        expression += " + "
-                expression += str(cc) + tt
-                firstTerm = False
-            return "<{} {}>".format(self.__class__.__name__, expression)
-        else:
-            return "<{} (untrained)>".format(self.__class__.__name__)
 
 
 class CubicFrequencyModel(PolynomialFitFrequencyModel):
@@ -141,7 +141,7 @@ class CubicFrequencyModel(PolynomialFitFrequencyModel):
     statistic from a frequency."""
     def __init__(self):
         "Simple constructor."
-        super(CubicFrequencyModel, self).__init__(degree=3)
+        super(CubicFrequencyModel, self).__init__(degree=2)
 
 
 class InverseFrequencyModel(FrequencyModel):
@@ -151,16 +151,33 @@ class InverseFrequencyModel(FrequencyModel):
     def __init__(self):
         self._model = None
 
-    def train(self, df, key):
-        new_series, [resid, rank, sv, rcond] = Polynomial.fit(1./df.index,
-                                                              df[key].values,
-                                                              deg=1,
-                                                              full=True)
-        self._model = new_series.convert()
-        self._resid = (resid[0] / len(df[key].values))**0.5
+    def train(self, df, key, index_list = ['freq', 'uncore']):
+        AA = df.reset_index()[index_list]
+        
+        cols = ['1']
+ 
+        AA['1'] = 1
+        for idx in index_list:
+            col = idx + 'inv'
+            cols.append(col)
+            AA[col] = 1./AA[idx]
 
-    def evaluate(self, freq):
-        return sum(self._model.coef * freq ** np.array([0, -1]))
+        AA = AA[cols]
+
+        new_series, resid, rank, s = np.linalg.lstsq(AA,
+                                                     df[key].values,
+                                                     rcond = None)
+        resid = sum((df[key].values - np.dot(AA, new_series))**2)
+        self._model = new_series
+        # numpy's least squares method doesn't consistently return residuals
+        # so we compute them manually
+        self._resid = (resid / len(df[key].values))**0.5
+
+    def evaluate(self, freq_list):
+        xx = [1.]
+        for ff in freq_list:
+            xx.append(1./ff)
+        return sum(self._model * np.array(xx))
 
     def residual(self):
         return self._resid
@@ -181,18 +198,18 @@ class CrossValidationModel(FrequencyModel):
         self._model = [base_gen() for _ in range(size)]
         self._frac = frac
 
-    def train(self, df, key):
+    def train(self, df, key, index_list = ['freq', 'uncore']):
         for mm in self._model:
             mm.train(df.sample(frac=self._frac), key)
 
-    def evaluate(self, freq, full=False):
+    def evaluate(self, freq_list, full=False):
         """
         Evaluate a trained model on a single frequency (freq). Returns
         the model's prediction for this frequency. If the parameter
         full is True, also return the standard deviation and residuals
         (default False)."""
 
-        vals = [mm.evaluate(freq) for mm in self._model]
+        vals = [mm.evaluate(freq_list) for mm in self._model]
         mean = sum(vals)/len(vals)
         dev = (sum([val**2 for val in vals])/len(vals) - mean**2)**0.5
         res = (sum([mm.residual() for mm in self._model])/len(self._model))
@@ -201,7 +218,7 @@ class CrossValidationModel(FrequencyModel):
         return mean
 
 
-def extract_columns(df, region_filter = None):
+def extract_columns(df, region_filter = None, keys = {'FREQ_DEFAULT': 'freq', 'FREQ_UNCORE': 'uncore'}):
     """
     Extract the columns of interest from the full report collection
     dataframe. This returns a dataframe indexed by the frequency
@@ -213,18 +230,18 @@ def extract_columns(df, region_filter = None):
         df_filtered = df[df['region'].isin(region_filter.split(','))]
 
     # these are the only columns we need
-    df_cols = df_filtered[['FREQ_DEFAULT',
-                           'host', 'Profile',
+    df_cols = df_filtered[list(keys.keys()) +
+                          ['host', 'Profile',
                            'runtime (sec)',
                            'package-energy (joules)']]
 
-    df_cols = df_cols.rename({'FREQ_DEFAULT': 'freq',
-                              'runtime (sec)': 'runtime',
-                              'package-energy (joules)': 'energy'
-                             }, axis = 1)
+    rename_dict = {'runtime (sec)': 'runtime', 'package-energy (joules)': 'energy'}
+    rename_dict.update(keys)
+    df_cols = df_cols.rename(rename_dict, axis = 1)
 
-    df_cols = df_cols.groupby(['freq', 'host', 'Profile']).sum().reset_index()
-    df_cols = df_cols[['freq', 'runtime', 'energy']].set_index('freq')
+    df_cols = df_cols.groupby(list(rename_dict.values()) + ['host', 'Profile']).sum().reset_index()
+    df_cols = df_cols[list(rename_dict.values())]
+    df_cols = df_cols.set_index(list(keys.values()))
 
     return df_cols
 
@@ -298,8 +315,9 @@ def normal_comparison(dist1, dist2):
     return 0.5 * (1 + math.erf((mu1 - mu2) / (2 * (sigma1 ** 2 + sigma2 ** 2)**0.5)))
 
 
-def policy_confident_energy(freqrange, enmodel, rtmodel = None, sticker = None,
-                            max_degradation = None, confidence = 0.9):
+def policy_confident_energy(freqrange, uncorerange, enmodel, rtmodel = None,
+                            sticker = None, max_degradation = None,
+                            confidence = 0.9):
     """
     Find the frequency over the range freqrange (list-like) that
     has the minimum predicted energy usage (according to the energy model
@@ -311,42 +329,49 @@ def policy_confident_energy(freqrange, enmodel, rtmodel = None, sticker = None,
     frequency, the predicted runtime and energy at that limit,
     respectively, and the standard deviations of these values."""
     if sticker is None:
-        sticker = max(freqrange)
+        sticker = max(freqrange), max(uncorerange)
 
-    en_predictions = [enmodel.evaluate(freq, True) for freq in freqrange]
+    en_predictions = {
+        (freq, uncore): enmodel.evaluate((freq, uncore), True)
+        for freq in freqrange for uncore in uncorerange}
+
     if max_degradation is None:
         # we don't need the runtime model in this case
-        best_energy, best_freq = min(zip(en_predictions, freqrange))
+        best_energy, best_freq_pair = min(zip(en_predictions.values(), en_predictions.keys()))
         if rtmodel:
-            best_runtime = rtmodel.evaluate(best_freq, True)
+            best_runtime = rtmodel.evaluate(best_freq_pair, True)
         else:
             best_runtime = None
-        return {'freq': best_freq,
+        return {'freq': best_freq_pair[0],
+                'uncore': best_freq_pair[1],
                 'runtime': best_runtime[0],
                 'runtimedev': rootssq(best_runtime[1]),
                 'energy': best_energy[0],
                 'energydev': rootssq(best_energy[1])}
     else:
-        rt_predictions = [rtmodel.evaluate(freq, True) for freq in freqrange]
+        rt_predictions = {
+                (freq, uncore): rtmodel.evaluate((freq, uncore), True)
+                for freq in freqrange for uncore in uncorerange}
         rt_at_sticker, [dev_sticker, res_sticker] = rtmodel.evaluate(sticker, True)
         degraded_rt = rt_at_sticker * (1 + max_degradation),\
                 [dev_sticker * (1 + max_degradation), res_sticker * (1 + max_degradation)]
-        constrained_values = [(energy, runtime, freq)
-                              for freq, runtime, energy
-                              in zip(freqrange, rt_predictions, en_predictions)
+        constrained_values = [(energy, runtime, freq, uncore)
+                              for freq, uncore, runtime, energy
+                              in zip(freqrange, uncorerange, rt_predictions, en_predictions)
                               if normal_comparison(degraded_rt, runtime) > confidence]
         if len(constrained_values) == 0:
             # this means that we don't ever have enough confidence to guarantee this
             return None
-        best_energy, best_runtime, best_freq = min(constrained_values)
+        best_energy, best_runtime, best_freq, best_uncore = min(constrained_values)
         return {'freq': best_freq,
+                'uncore': best_uncore,
                 'runtime': best_runtime[0],
                 'runtimedev': rootssq(best_runtime[1]),
                 'energy': best_energy[0],
                 'energydev': rootssq(best_energy[1])}
 
 
-def main(full_df, region_filter, dump_prefix, min_freq, max_freq, sticker, max_degradation, cross_validation=True, freq_step=1e8):
+def main(full_df, region_filter, dump_prefix, min_freq, max_freq, min_uncore, max_uncore, sticker, max_degradation, cross_validation=True, freq_step=1e8, uncore_step=1e8):
     """
     The main function. full_df is a report collection dataframe, region_filter
     is a list of regions to include, dump_prefix a filename prefix for
@@ -371,20 +396,22 @@ def main(full_df, region_filter, dump_prefix, min_freq, max_freq, sticker, max_d
     energy_model.train(df, key='energy')
 
     freqrange = [min_freq + i * freq_step for i in range(int((max_freq - min_freq)/freq_step))] + [max_freq]
+    uncorerange = [min_uncore + i * uncore_step for i in range(int((max_uncore - min_uncore)/uncore_step))] + [max_uncore]
     if cross_validation:
-        best_policy = policy_confident_energy(freqrange, energy_model, runtime_model, sticker,
+        best_policy = policy_confident_energy(freqrange, uncorerange, energy_model, runtime_model, sticker,
                                               max_degradation = max_degradation)
         stickerrt, stickeren = runtime_model.evaluate(sticker, True), energy_model.evaluate(sticker, True)
-        sticker_values = {'freq': sticker,
+        sticker_values = {'freq': sticker[0],
+                      'uncore': sticker[1],
                       'runtime': stickerrt[0],
                       'runtimedev': rootssq(stickerrt[1]),
                       'energy': stickeren[0],
                       'energydev': rootssq(stickeren[1])}
     else:
-        best_policy = policy_min_energy(freqrange, energy_model, runtime_model, sticker,
+        best_policy = policy_min_energy(freqrange, uncorerange, energy_model, runtime_model, sticker,
                                         max_degradation = max_degradation)
         stickerrt, stickeren = runtime_model.evaluate(sticker), energy_model.evaluate(sticker)
-        sticker_values = {'freq': sticker, 'runtime': stickerrt, 'energy': stickeren}
+        sticker_values = {'freq': sticker[0], 'uncore': sticker[1], 'runtime': stickerrt, 'energy': stickeren}
 
     return {'sticker': sticker_values, 'best': best_policy}
 
@@ -451,16 +478,20 @@ if __name__ == '__main__':
     if args.max_frequency and args.max_frequency > 0:
         max_freq = args.max_frequency
 
-    output = main(df, args.region_filter, args.dump_prefix, min_freq, max_freq, sticker,
+    min_uncore = 1.2e9
+    max_uncore = 2.7e9
+
+    output = main(df, args.region_filter, args.dump_prefix, min_freq, max_freq,
+                  min_uncore, max_uncore, (sticker, max_uncore), 
                   None if args.min_energy else args.max_degradation,
                   args.confidence)
 
     if args.confidence:
-        sys.stdout.write('AT STICKER = {freq:.0f}Hz, '
+        sys.stdout.write('AT STICKER = {freq:.0f}Hz, {uncore:.0f}Hz, '
                          'RUNTIME = {runtime:.0f} s +/- {runtimedev:.0f}, '
                          'ENERGY = {energy:.0f} J +/- {energydev:.0f}\n'.format(**output['sticker']))
         if output['best']:
-            sys.stdout.write('AT STICKER = {freq:.0f}Hz, '
+            sys.stdout.write('AT         = {freq:.0f}Hz, {uncore:.0f}Hz, '
                              'RUNTIME = {runtime:.0f} s +/- {runtimedev:.0f}, '
                              'ENERGY = {energy:.0f} J +/- {energydev:.0f}\n'.format(**output['best']))
         else:
@@ -476,6 +507,6 @@ if __name__ == '__main__':
     relative_delta = lambda new, old: 100 * (new - old) / old
 
     if output['best']:
-        sys.stdout.write('DELTA                  RUNTIME = {:.1f} %,  ENERGY = {:.1f} %\n'
+        sys.stdout.write('DELTA                                    RUNTIME = {:.1f} %,  ENERGY = {:.1f} %\n'
                          .format(relative_delta(output['best']['runtime'], output['sticker']['runtime']),
                                  relative_delta(output['best']['energy'], output['sticker']['energy'])))
