@@ -33,6 +33,8 @@
 #include <string.h>
 #include <mpi.h>
 
+#include <vector>
+
 #ifdef _OPENMP
 #include <omp.h>
 #else
@@ -63,13 +65,17 @@ int main(int argc, char **argv)
     }
 }
 
-    int per_thread = 10;
+    int per_thread = 100;
     int repeat = num_threads * per_thread;
+    std::vector<double> in_buffer(10000000, comm_rank);
+    std::vector<double> out_buffer(10000000, 0.0);
+
 #pragma omp parallel for
     for (int rep_idx = 0; rep_idx < repeat; ++rep_idx) {
         if (omp_get_thread_num() == 0) {
             if (!err) {
-                MPI_Barrier(MPI_COMM_WORLD);
+                MPI_Allreduce(in_buffer.data(), out_buffer.data(), in_buffer.size(),
+                              MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
             }
         }
     }

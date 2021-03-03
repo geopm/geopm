@@ -83,7 +83,7 @@ class TestIntegrationOMPOuterLoop(unittest.TestCase):
                          '.' + cls.__name__ + ') ...')
         test_name = 'test_omp_outer_loop'
         test_config = ['_with_ompt', '_without_ompt']
-        cls._expected_regions = ['MPI_Barrier']
+        cls._expected_regions = ['MPI_Allreduce']
         cls._report_path = []
         cls._skip_launch = not util.do_launch()
         num_node = 1
@@ -109,7 +109,7 @@ class TestIntegrationOMPOuterLoop(unittest.TestCase):
 
     def test_regions_absent(self):
         """Test that the first run's report does NOT contain
-           MPI_Barrier region.
+           MPI_Allreduce region.
         """
         # self._report_path[0] maps to with-ompt config
         report = geopmpy.io.RawReport(self._report_path[0])
@@ -122,17 +122,17 @@ class TestIntegrationOMPOuterLoop(unittest.TestCase):
             for detected_region in report.region_names(host_name):
                 # second omp parallel region should have some network-time associated with it
                 # so here we just assert that at least ONE of the regions has the consumed
-                # MPI_Barrier regions network-time
+                # MPI_Allreduce regions network-time
                 if detected_region.startswith('[OMPT]'):
                     observed_region = report.raw_region(host_name, detected_region)
-                    if observed_region['time-hint-network'] != 0:
+                    if observed_region['time-hint-network (s)'] != 0:
                         network_time_detected = True
             self.assertTrue(network_time_detected,
                             msg="There should be some network time assiciated with an OMPT detected region.")
 
     def test_regions_present(self):
         """Test that the second run's report DOES contain the
-           MPIBarrier region.
+           MPIAllreduce region.
         """
         # self._report_path[1] maps to with-ompt config
         report = geopmpy.io.RawReport(self._report_path[1])
@@ -142,7 +142,7 @@ class TestIntegrationOMPOuterLoop(unittest.TestCase):
                 self.assertTrue(expected_region in report.region_names(host_name),
                                  msg='Region {} should be present in report'.format(expected_region))
                 observed_region = report.raw_region(host_name, expected_region)
-                expected_count = 10
+                expected_count = 100
                 self.assertEqual(expected_count, observed_region['count'],
                                  msg='Region {} should have count {} in report'.format(expected_region, expected_count))
 
