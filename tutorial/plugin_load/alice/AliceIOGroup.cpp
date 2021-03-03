@@ -200,3 +200,8 @@ std::string AliceIOGroup::control_description(const std::string &control_name) c
 {
     return "";
 }
+
+int AliceIOGroup::signal_behavior(const std::string &signal_name) const
+{
+    return M_SIGNAL_BEHAVIOR_MONOTONE;
+}

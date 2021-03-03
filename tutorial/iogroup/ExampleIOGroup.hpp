@@ -73,6 +73,7 @@ class ExampleIOGroup : public geopm::IOGroup
         std::function<std::string(double)> format_function(const std::string &signal_name) const override;
         std::string signal_description(const std::string &signal_name) const;
         std::string control_description(const std::string &control_name) const;
+        int signal_behavior(const std::string &signal_name) const override;
         static std::string plugin_name(void);
         static std::unique_ptr<geopm::IOGroup> make_plugin(void);
     private:

@@ -200,3 +200,8 @@ std::string BobIOGroup::control_description(const std::string &control_name) con
 {
     return "";
 }
+
+int BobIOGroup::signal_behavior(const std::string &signal_name) const
+{
+    return M_SIGNAL_BEHAVIOR_MONOTONE;
+}
