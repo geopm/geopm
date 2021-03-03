@@ -455,7 +455,7 @@ int ExampleIOGroup::signal_behavior(const std::string &signal_name) const
                         " not valid for ExampleIOGroup.",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
-    /// All example signals are time based and increase monotonically
+    // All example signals are time based and increase monotonically
     return M_SIGNAL_BEHAVIOR_MONOTONE;
 }
 
