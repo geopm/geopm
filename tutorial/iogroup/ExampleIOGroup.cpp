@@ -448,6 +448,17 @@ std::string ExampleIOGroup::control_description(const std::string &control_name)
     return result;
 }
 
+int ExampleIOGroup::signal_behavior(const std::string &signal_name) const
+{
+    if (!is_valid_signal(signal_name)) {
+        throw Exception("ExampleIOGroup::signal_behavior(): signal_name " + signal_name +
+                        " not valid for ExampleIOGroup.",
+                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+    }
+    /// All example signals are time based and increase monotonically
+    return M_SIGNAL_BEHAVIOR_MONOTONE;
+}
+
 // Name used for registration with the IOGroup factory
 std::string ExampleIOGroup::plugin_name(void)
 {
