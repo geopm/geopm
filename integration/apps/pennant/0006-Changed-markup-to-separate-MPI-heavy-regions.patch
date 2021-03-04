@@ -1,0 +1,138 @@
+From 996895ac2ffdf4a77673ef4a651ffb6c3e1f3d94 Mon Sep 17 00:00:00 2001
+From: Fuat Keceli <fuat.keceli@intel.com>
+Date: Wed, 10 Feb 2021 10:16:00 -0800
+Subject: [PATCH 6/6] Changed markup to separate MPI heavy regions.
+
+#  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions
+#  are met:
+#
+#      * Redistributions of source code must retain the above copyright
+#        notice, this list of conditions and the following disclaimer.
+#
+#      * Redistributions in binary form must reproduce the above copyright
+#        notice, this list of conditions and the following disclaimer in
+#        the documentation and/or other materials provided with the
+#        distribution.
+#
+#      * Neither the name of Intel Corporation nor the names of its
+#        contributors may be used to endorse or promote products derived
+#        from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+#  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+#  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+#  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+#  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+#  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+#  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+#  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
+#  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+Signed-off-by: Fuat Keceli <fuat.keceli@intel.com>
+---
+ src/Driver.cc       |  2 +-
+ src/Hydro.cc        | 14 +++-----------
+ src/PennantGeopm.cc |  6 ++----
+ src/PennantGeopm.hh |  3 +--
+ 4 files changed, 7 insertions(+), 18 deletions(-)
+
+diff --git a/src/Driver.cc b/src/Driver.cc
+index fd2af0d..e76ea29 100644
+--- a/src/Driver.cc
++++ b/src/Driver.cc
+@@ -122,7 +122,6 @@ void Driver::run() {
+ 
+ #ifdef USEGEOPM
+ #ifdef USEGEOPMMARKUP
+-        geopm_prof_enter(region_id_section1);
+         geopm_prof_enter(region_id_calcGlobalDt);
+ #endif // USEGEOPMMARKUP
+ #endif // USEGEOPM
+@@ -133,6 +132,7 @@ void Driver::run() {
+ #ifdef USEGEOPM
+ #ifdef USEGEOPMMARKUP
+         geopm_prof_exit(region_id_calcGlobalDt);
++        geopm_prof_enter(region_id_section1);
+ #endif // USEGEOPMMARKUP
+ #endif // USEGEOPM
+ 
+diff --git a/src/Hydro.cc b/src/Hydro.cc
+index 2bdbf35..c907ff2 100644
+--- a/src/Hydro.cc
++++ b/src/Hydro.cc
+@@ -274,26 +274,18 @@ void Hydro::doCycle(
+ #ifdef USEGEOPMMARKUP
+     geopm_prof_exit(region_id_doCycle_checkBadSides1);
+     geopm_prof_exit(region_id_section1);
+-    geopm_prof_enter(region_id_section2);
+-    geopm_prof_enter(region_id_doCycle_sumToPoints1);
++    geopm_prof_enter(region_id_doCycle_sumToPoints);
+ #endif
+ #endif
+ 
+     // sum corner masses, forces to points
+     mesh->sumToPoints(cmaswt, pmaswt);
+-
+-#ifdef USEGEOPM
+-#ifdef USEGEOPMMARKUP
+-    geopm_prof_exit(region_id_doCycle_sumToPoints1);
+-    geopm_prof_enter(region_id_doCycle_sumToPoints2);
+-#endif
+-#endif
+-
+     mesh->sumToPoints(cftot, pf);
+ 
+ #ifdef USEGEOPM
+ #ifdef USEGEOPMMARKUP
+-    geopm_prof_exit(region_id_doCycle_sumToPoints2);
++    geopm_prof_exit(region_id_doCycle_sumToPoints);
++    geopm_prof_enter(region_id_section2);
+     geopm_prof_enter(region_id_doCycle_omp3);
+ #endif
+ #endif
+diff --git a/src/PennantGeopm.cc b/src/PennantGeopm.cc
+index fe65c0c..7fa3635 100644
+--- a/src/PennantGeopm.cc
++++ b/src/PennantGeopm.cc
+@@ -19,8 +19,7 @@ uint64_t region_id_calcGlobalDt;
+ uint64_t region_id_doCycle_omp1;
+ uint64_t region_id_doCycle_omp2;
+ uint64_t region_id_doCycle_checkBadSides1;
+-uint64_t region_id_doCycle_sumToPoints1;
+-uint64_t region_id_doCycle_sumToPoints2;
++uint64_t region_id_doCycle_sumToPoints;
+ uint64_t region_id_doCycle_omp3;
+ uint64_t region_id_doCycle_resetDtHydro;
+ uint64_t region_id_doCycle_omp4;
+@@ -45,8 +44,7 @@ void init() {
+     geopm_prof_region("doCycle_omp1", GEOPM_REGION_HINT_UNKNOWN, &region_id_doCycle_omp1);
+     geopm_prof_region("doCycle_omp2", GEOPM_REGION_HINT_COMPUTE, &region_id_doCycle_omp2);
+     geopm_prof_region("doCycle_checkBadSides1", GEOPM_REGION_HINT_UNKNOWN, &region_id_doCycle_checkBadSides1);
+-    geopm_prof_region("doCycle_sumToPoints1", GEOPM_REGION_HINT_NETWORK, &region_id_doCycle_sumToPoints1);
+-    geopm_prof_region("doCycle_sumToPoints2", GEOPM_REGION_HINT_NETWORK, &region_id_doCycle_sumToPoints2);
++    geopm_prof_region("doCycle_sumToPoints", GEOPM_REGION_HINT_NETWORK, &region_id_doCycle_sumToPoints);
+     geopm_prof_region("doCycle_omp3", GEOPM_REGION_HINT_UNKNOWN, &region_id_doCycle_omp3);
+     geopm_prof_region("doCycle_resetDtHydro", GEOPM_REGION_HINT_UNKNOWN, &region_id_doCycle_resetDtHydro);
+     geopm_prof_region("doCycle_omp4", GEOPM_REGION_HINT_MEMORY, &region_id_doCycle_omp4);
+diff --git a/src/PennantGeopm.hh b/src/PennantGeopm.hh
+index 31d60a8..e522861 100644
+--- a/src/PennantGeopm.hh
++++ b/src/PennantGeopm.hh
+@@ -17,8 +17,7 @@ namespace PennantGeopm {
+     extern uint64_t region_id_doCycle_omp1;
+     extern uint64_t region_id_doCycle_omp2;
+     extern uint64_t region_id_doCycle_checkBadSides1;
+-    extern uint64_t region_id_doCycle_sumToPoints1;
+-    extern uint64_t region_id_doCycle_sumToPoints2;
++    extern uint64_t region_id_doCycle_sumToPoints;
+     extern uint64_t region_id_doCycle_omp3;
+     extern uint64_t region_id_doCycle_resetDtHydro;
+     extern uint64_t region_id_doCycle_omp4;
+-- 
+1.8.3.1
+
