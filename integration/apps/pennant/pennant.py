@@ -64,19 +64,24 @@ def setup_run_args(parser):
                         help='Chooses an appropriate pennant build with a specific GEOPM ' +
                              'epoch marker per outer loop count. If not specified, built-in '
                              'value for the problem size will be used.')
+    parser.add_argument('--num-epochs', dest='num_epochs',
+                        action='store', type=int,
+                        help='Stop Pennant execution at the desired number of epochs (cycles in ' +
+                             'Pennant terms). Has no effect if it is less than 1 or greater than the '
+                             'number of cycles for the dataset.')
 
 def create_appconf(mach, args):
     ''' Create a PennantAppConfig object from an ArgParse and experiment.machine object.
     '''
     return PennantAppConf(mach, args.pennant_input, args.pennant_cores_per_node,
-                          args.pennant_cores_per_rank, args.epoch_to_outerloop)
+                          args.pennant_cores_per_rank, args.epoch_to_outerloop, args.num_epochs)
 
 class PennantAppConf(apps.AppConf):
     @staticmethod
     def name():
         return 'pennant'
 
-    def __init__(self, mach, problem_file, cores_per_node, cores_per_rank, epoch_to_outerloop):
+    def __init__(self, mach, problem_file, cores_per_node, cores_per_rank, epoch_to_outerloop, num_epochs):
         benchmark_dir = os.path.dirname(os.path.abspath(__file__))
 
         # Based on the problem size we choose a different build of pennant.
@@ -106,11 +111,15 @@ class PennantAppConf(apps.AppConf):
                 raise RuntimeError('Epoch to outer loop count does not match any of the pennant builds: {}'.format(epoch_to_outerloop))
 
         if os.path.isfile(problem_file):
-            self._exec_args = problem_file
+            self._exec_args = [problem_file]
         elif os.path.isfile(os.path.join(benchmark_dir, problem_file)):
-            self._exec_args = os.path.join(benchmark_dir, problem_file)
+            self._exec_args = [os.path.join(benchmark_dir, problem_file)]
         else:
             raise RuntimeError("Input file not found: " + problem_file)
+
+        if not num_epochs is None:
+            self._exec_args.append(str(num_epochs))
+
         if cores_per_node is None:
             # Reserve one for geopm.
             reserved_cores = mach.num_core() - 1

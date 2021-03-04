@@ -1,7 +1,7 @@
-From f1f9384b89ae348a43e82c1439b956eacceda95e Mon Sep 17 00:00:00 2001
+From 07401c5add450062c0ab82fa652d73f9ee9d51b0 Mon Sep 17 00:00:00 2001
 From: Fuat Keceli <fuat.keceli@intel.com>
 Date: Thu, 21 Jan 2021 09:45:50 -0800
-Subject: [PATCH 4/4] Added high level GEOPM markup regions to Pennant. Added
+Subject: [PATCH 4/6] Added high level GEOPM markup regions to Pennant. Added
  better hints and ignored regions.
 
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
