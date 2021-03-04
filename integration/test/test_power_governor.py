@@ -90,7 +90,6 @@ class TestIntegration_power_governor(unittest.TestCase):
         cls._trace = geopmpy.io.AppOutput(cls._trace_path + '*')
         cls._node_names = cls._report.host_names()
 
-    @util.skip_unless_run_long_tests()
     def test_power_consumption(self):
         self.assertEqual(self._num_node, len(self._node_names))
         all_power_data = dict()

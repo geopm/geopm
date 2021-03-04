@@ -38,15 +38,11 @@ import os
 import unittest
 
 from test_omp_outer_loop import *
-from test_ee_timed_scaling_mix import *
 from test_enforce_policy import *
 from test_profile_policy import *
 from test_plugin_static_policy import *
-from test_power_balancer import *
 from test_tutorial_base import *
 from test_frequency_hint_usage import *
-from test_scaling_region import *
-from test_timed_scaling_region import *
 from test_profile_overflow import *
 from test_trace import *
 from test_monitor import *
@@ -56,11 +52,16 @@ from test_launch_application import *
 from test_launch_pthread import *
 from test_geopmagent import *
 from test_environment import *
-from test_power_governor import *
 from test_frequency_map import *
 from test_hint_time import *
 from test_progress import *
 
+if 'GEOPM_RUN_LONG_TESTS' in os.environ
+    from test_ee_timed_scaling_mix import *
+    from test_power_balancer import *
+    from test_power_governor import *
+    from test_scaling_region import *
+    from test_timed_scaling_region import *
 
 if __name__ == '__main__':
     unittest.main()
