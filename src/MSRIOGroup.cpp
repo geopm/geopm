@@ -56,6 +56,8 @@
 #include "RawMSRSignal.hpp"
 #include "MSRFieldSignal.hpp"
 #include "DifferenceSignal.hpp"
+#include "DivisionSignal.hpp"
+#include "ScalabilityRegionSignal.hpp"
 #include "TimeSignal.hpp"
 #include "DerivativeSignal.hpp"
 #include "Control.hpp"
@@ -343,6 +345,93 @@ namespace geopm
                                                    IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE};
             }
         }
+
+        std::string signal_name = "MSR::PPERF:CPU_SCALABILITY";
+        std::string msr_name = "MSR::PPERF:PCNT_RATE";
+        auto read_it = m_signal_available.find(msr_name);
+        if (read_it != m_signal_available.end()) {
+            auto readings = read_it->second.signals;
+            int cnt_domain = read_it->second.domain;
+            int num_domain = m_platform_topo.num_domain(cnt_domain);
+            GEOPM_DEBUG_ASSERT(num_domain == (int)readings.size(),
+                               "size of domain for " + msr_name +
+                               " does not match number of signals available.");
+            std::vector<std::shared_ptr<Signal> > result(num_domain);
+            for (int domain_idx = 0; domain_idx < num_domain; ++domain_idx) {
+                auto numer_it = m_signal_available.find("MSR::PPERF:PCNT_RATE");
+                auto numers = numer_it->second.signals;
+                auto numer = numers[domain_idx];
+
+                auto denom_it = m_signal_available.find("MSR::APERF:ACNT_RATE");
+                auto denoms = denom_it->second.signals;
+                auto denom = denoms[domain_idx];
+
+                result[domain_idx] =
+                    std::make_shared<DivisionSignal>(numer, denom);
+            }
+
+            m_signal_available[signal_name] = {result,
+                                               cnt_domain,
+                                               IOGroup::M_UNITS_HERTZ, // TODO: This should be units_none, but that implies
+                                                                       // a format of int for MSRIOGroup in format_function
+                                               Agg::average,
+                                               "Measure of CPU Scalability as determined by PCNT over ACNT\n    alias_for: MSR::PPERF:PCNT_RATE/MSR::APERF:ACNT_RATE",
+                                               IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE};
+        }
+
+        struct hint_data
+        {
+            std::string hint_name;
+            std::string description;
+            std::string msr_name;
+            double range_upper;
+            double range_lower;
+        };
+        std::vector<hint_data> hint_signals {
+            {"MSR::PPERF:PCNT_REGION_HINT_COMPUTE",
+                    "Compute Bound Region Hint based on PCNT",
+                    "MSR::PPERF:CPU_SCALABILITY",
+                    2.0, 0.5}, //TODO: handle sampling error > 1.0 more gracefully
+            {"MSR::PPERF:PCNT_REGION_HINT_MEMORY",
+                    "Memory Bound Region Hint based on PCNT",
+                    "MSR::PPERF:CPU_SCALABILITY",
+                    0.5, 0.05},
+            {"MSR::PPERF:PCNT_REGION_HINT_IGNORE",
+                    "Ignore Hint based on PCNT",
+                    "MSR::PPERF:CPU_SCALABILITY",
+                    0.05, 0.0}
+        };
+
+        for (const auto &ps : hint_signals) {
+            std::string signal_name = ps.hint_name;
+            std::string msr_name = ps.msr_name;
+            auto read_it = m_signal_available.find(msr_name);
+            if (read_it != m_signal_available.end()) {
+                auto readings = read_it->second.signals;
+                int hint_domain = read_it->second.domain;
+                int num_domain = m_platform_topo.num_domain(hint_domain);
+                GEOPM_DEBUG_ASSERT(num_domain == (int)readings.size(),
+                                   "size of domain for " + msr_name +
+                                   " does not match number of signals available.");
+                std::vector<std::shared_ptr<Signal> > result(num_domain);
+                for (int domain_idx = 0; domain_idx < num_domain; ++domain_idx) {
+                    auto hint = readings[domain_idx];
+                    result[domain_idx] =
+                        std::make_shared<ScalabilityRegionSignal>(hint, time_sig,
+                                                           ps.range_upper, ps.range_lower,
+                                                           sleep_time);
+                }
+                m_signal_available[signal_name] = {result,
+                                                   hint_domain,
+                                                   IOGroup::M_UNITS_SECONDS,
+                                                   Agg::average,
+                                                   ps.description + "\n    alias_for: " + ps.msr_name + " in range: "
+                                                   + std::to_string(ps.range_lower) + "-" + std::to_string(ps.range_upper),
+                                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE};
+            }
+        }
+
+
     }
 
 

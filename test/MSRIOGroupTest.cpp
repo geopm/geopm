@@ -174,6 +174,10 @@ TEST_F(MSRIOGroupTest, valid_signal_names)
     ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::PPERF:PCNT"));
     ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::PPERF:PCNT_RATE"));
     ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::APERF:ACNT_RATE"));
+    ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::PPERF:CPU_SCALABILITY"));
+    ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::PPERF:PCNT_REGION_HINT_COMPUTE"));
+    ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::PPERF:PCNT_REGION_HINT_MEMORY"));
+    ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::PPERF:PCNT_REGION_HINT_IGNORE"));
 
     auto signal_names = m_msrio_group->signal_names();
     for (const auto &name : signal_aliases) {
@@ -231,6 +235,14 @@ TEST_F(MSRIOGroupTest, valid_signal_domains)
             m_msrio_group->signal_domain_type("MSR::PPERF:PCNT_RATE"));
     EXPECT_EQ(GEOPM_DOMAIN_CPU,
             m_msrio_group->signal_domain_type("MSR::APERF:ACNT_RATE"));
+    EXPECT_EQ(GEOPM_DOMAIN_CPU,
+            m_msrio_group->signal_domain_type("MSR::PPERF:CPU_SCALABILITY"));
+    EXPECT_EQ(GEOPM_DOMAIN_CPU,
+            m_msrio_group->signal_domain_type("MSR::PPERF:PCNT_REGION_HINT_COMPUTE"));
+    EXPECT_EQ(GEOPM_DOMAIN_CPU,
+            m_msrio_group->signal_domain_type("MSR::PPERF:PCNT_REGION_HINT_MEMORY"));
+    EXPECT_EQ(GEOPM_DOMAIN_CPU,
+            m_msrio_group->signal_domain_type("MSR::PPERF:PCNT_REGION_HINT_IGNORE"));
 
 }
 
@@ -290,6 +302,14 @@ TEST_F(MSRIOGroupTest, valid_signal_aggregation)
     EXPECT_TRUE(is_agg_select_first(func));
     func = m_msrio_group->agg_function("MSR::APERF:ACNT_RATE");
     EXPECT_TRUE(is_agg_select_first(func));
+    func = m_msrio_group->agg_function("MSR::PPERF:CPU_SCALABILITY");
+    EXPECT_TRUE(is_agg_average(func));
+    func = m_msrio_group->agg_function("MSR::PPERF:PCNT_REGION_HINT_COMPUTE");
+    EXPECT_TRUE(is_agg_average(func));
+    func = m_msrio_group->agg_function("MSR::PPERF:PCNT_REGION_HINT_MEMORY");
+    EXPECT_TRUE(is_agg_average(func));
+    func = m_msrio_group->agg_function("MSR::PPERF:PCNT_REGION_HINT_IGNORE");
+    EXPECT_TRUE(is_agg_average(func));
 
 }
 
@@ -640,6 +660,54 @@ TEST_F(MSRIOGroupTest, read_signal_power)
     EXPECT_EQ(200.5, result);
     result = m_msrio_group->read_signal("POWER_PACKAGE_MAX", GEOPM_DOMAIN_PACKAGE, 0);
     EXPECT_EQ(201.375, result);
+}
+
+TEST_F(MSRIOGroupTest, read_signal_scalability)
+{
+    uint64_t pcnt_offset = 0x64e;
+    uint64_t acnt_offset = 0xe8;
+    double result;
+
+    // power limits - 1/8W units
+    EXPECT_CALL(*m_msrio, read_msr(0, pcnt_offset))
+        .WillOnce(Return(0x58));
+
+    result = m_msrio_group->read_signal("MSR::PPERF:PCNT", GEOPM_DOMAIN_CPU, 0);
+    EXPECT_EQ(0x58, result);
+
+    EXPECT_CALL(*m_msrio, read_msr(0, acnt_offset))
+        .WillOnce(Return(0x58));
+
+    result = m_msrio_group->read_signal("MSR::APERF:ACNT", GEOPM_DOMAIN_CPU, 0);
+    EXPECT_EQ(0x58, result);
+
+    std::vector<uint64_t> cnt {0x0, 0x100, 0x200, 0x300, 0x400, 0x500, 0x600, 0x700};
+    for (uint64_t div = 1; div <= 10; ++div) {
+        //The CPU Scalability signal calls the rate signals, which are using 4 samples
+        EXPECT_CALL(*m_msrio, read_msr(0, acnt_offset))
+            .WillOnce(Return(cnt.at(0)))
+            .WillOnce(Return(cnt.at(1)))
+            .WillOnce(Return(cnt.at(2)))
+            .WillOnce(Return(cnt.at(3)))
+            .WillOnce(Return(cnt.at(4)))
+            .WillOnce(Return(cnt.at(5)))
+            .WillOnce(Return(cnt.at(6)))
+            .WillOnce(Return(cnt.at(7)));
+
+        //The CPU Scalability signal calls the rate signals, which are using 4 samples
+        EXPECT_CALL(*m_msrio, read_msr(0, pcnt_offset))
+            .WillOnce(Return(cnt.at(0)/div))
+            .WillOnce(Return(cnt.at(1)/div))
+            .WillOnce(Return(cnt.at(2)/div))
+            .WillOnce(Return(cnt.at(3)/div))
+            .WillOnce(Return(cnt.at(4)/div))
+            .WillOnce(Return(cnt.at(5)/div))
+            .WillOnce(Return(cnt.at(6)/div))
+            .WillOnce(Return(cnt.at(7)/div));
+
+        result = m_msrio_group->read_signal("MSR::PPERF:CPU_SCALABILITY", GEOPM_DOMAIN_CPU, 0);
+        EXPECT_NEAR(1.00/(double)div, result, 0.02);
+    }
 }
 
 TEST_F(MSRIOGroupTest, push_signal_temperature)
