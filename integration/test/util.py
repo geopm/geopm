@@ -184,12 +184,6 @@ def skip_unless_batch():
     return lambda func: func
 
 
-def skip_unless_run_long_tests():
-    if not g_util.skip_launch() and 'GEOPM_RUN_LONG_TESTS' not in os.environ:
-        return unittest.skip("Define GEOPM_RUN_LONG_TESTS in your environment to run this test.")
-    return lambda func: func
-
-
 def skip_unless_cpufreq():
     if not g_util.skip_launch():
         try:

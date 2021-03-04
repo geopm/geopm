@@ -54,7 +54,6 @@ if util.do_launch():
     geopmpy.error.exc_clear()
 
 
-@util.skip_unless_run_long_tests()
 @util.skip_unless_batch()
 class TestIntegration_power_balancer(unittest.TestCase):
 
