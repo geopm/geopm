@@ -38,4 +38,6 @@ EXTRA_DIST += integration/apps/pennant/pennant.py \
               integration/apps/pennant/0002-Added-geopm-epoch-markup.patch \
               integration/apps/pennant/0003-Added-GEOPM-region-markup.patch \
               integration/apps/pennant/0004-Added-high-level-GEOPM-markup-regions-to-Pennant.-Ad.patch \
+              integration/apps/pennant/0005-Added-command-line-arg-to-stop-execution-earlier.patch \
+              integration/apps/pennant/0006-Changed-markup-to-separate-MPI-heavy-regions.patch \
               # end
