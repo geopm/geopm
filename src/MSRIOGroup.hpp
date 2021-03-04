@@ -153,6 +153,9 @@ namespace geopm
             /// @brief Add support for power combined signals if underlying
             ///        signals are available.
             void register_power_signals(void);
+            /// @brief Add support for pcnt scalability signals if underlying
+            ///        signals are available.
+            void register_pcnt_scalability_signals(void);
             /// @brief Write to enable bits for all fixed counters.
             void enable_fixed_counters(void);
             /// @brief Check system configuration and warn if it ma

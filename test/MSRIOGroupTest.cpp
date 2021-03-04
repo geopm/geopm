@@ -170,6 +170,11 @@ TEST_F(MSRIOGroupTest, valid_signal_names)
     signal_aliases.push_back("POWER_PACKAGE");
     signal_aliases.push_back("POWER_DRAM");
 
+    //// scalability signals
+    ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::PPERF:PCNT"));
+    ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::PPERF:PCNT_RATE"));
+    ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::APERF:ACNT_RATE"));
+
     auto signal_names = m_msrio_group->signal_names();
     for (const auto &name : signal_aliases) {
         // check names appear in signal_names
@@ -218,6 +223,15 @@ TEST_F(MSRIOGroupTest, valid_signal_domains)
               m_msrio_group->signal_domain_type("POWER_PACKAGE"));
     EXPECT_EQ(GEOPM_DOMAIN_BOARD_MEMORY,
               m_msrio_group->signal_domain_type("POWER_DRAM"));
+
+    // scalability
+    EXPECT_EQ(GEOPM_DOMAIN_CPU,
+            m_msrio_group->signal_domain_type("MSR::PPERF:PCNT"));
+    EXPECT_EQ(GEOPM_DOMAIN_CPU,
+            m_msrio_group->signal_domain_type("MSR::PPERF:PCNT_RATE"));
+    EXPECT_EQ(GEOPM_DOMAIN_CPU,
+            m_msrio_group->signal_domain_type("MSR::APERF:ACNT_RATE"));
+
 }
 
 TEST_F(MSRIOGroupTest, valid_signal_aggregation)
@@ -268,6 +282,15 @@ TEST_F(MSRIOGroupTest, valid_signal_aggregation)
     EXPECT_TRUE(is_agg_sum(func));
     func = m_msrio_group->agg_function("POWER_DRAM");
     EXPECT_TRUE(is_agg_sum(func));
+
+    // scalability
+    func = m_msrio_group->agg_function("MSR::PPERF:PCNT");
+    EXPECT_TRUE(is_agg_select_first(func));
+    func = m_msrio_group->agg_function("MSR::PPERF:PCNT_RATE");
+    EXPECT_TRUE(is_agg_select_first(func));
+    func = m_msrio_group->agg_function("MSR::APERF:ACNT_RATE");
+    EXPECT_TRUE(is_agg_select_first(func));
+
 }
 
 TEST_F(MSRIOGroupTest, valid_signal_format)
