@@ -88,6 +88,8 @@ class TestIntegration_power_balancer(unittest.TestCase):
         geopmpy.error.exc_clear()
 
         if not cls._skip_launch:
+            report_signals='TIME@package,TIME_HINT_NETWORK@package'
+            trace_signals='MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT@package'
             loop_count = 500
             fam, mod = geopm_test_launcher.get_platform()
             alloc_nodes = geopm_test_launcher.TestLauncher.get_alloc_nodes()
@@ -130,11 +132,13 @@ class TestIntegration_power_balancer(unittest.TestCase):
                     cls._tmp_files.append(report_path)
                     cls._tmp_files.append(trace_path)
                     launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path,
-                                                                trace_path, time_limit=2700)
+                                                                trace_path, time_limit=2700,
+                                                                report_signals=report_signals,
+                                                                trace_signals=trace_signals)
                     launcher.set_num_node(cls._num_node)
                     launcher.set_num_rank(num_rank)
                     launcher.write_log(run_name, 'Power cap = {}W'.format(power_budget))
-                    launcher.run(run_name, add_geopm_args=['--geopm-trace-signals', 'MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT@package'])
+                    launcher.run(run_name)
                     time.sleep(60)
 
 
