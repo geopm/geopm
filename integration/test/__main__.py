@@ -56,12 +56,21 @@ from test_frequency_map import *
 from test_hint_time import *
 from test_progress import *
 
-if 'GEOPM_RUN_LONG_TESTS' in os.environ
+if 'GEOPM_RUN_LONG_TESTS' in os.environ:
     from test_ee_timed_scaling_mix import *
     from test_power_balancer import *
     from test_power_governor import *
     from test_scaling_region import *
     from test_timed_scaling_region import *
+else:
+    skipped_modules = ['test_ee_timed_scaling_mix',
+                       'test_power_balancer',
+                       'test_power_governor',
+                       'test_scaling_region',
+                       'test_timed_scaling_region',
+                       ]
+    for sm in skipped_modules:
+        sys.stderr.write("* ({}.*) ... skipped 'Requires GEOPM_RUN_LONG_TESTS environment variable'\n".format(sm))
 
 if __name__ == '__main__':
     unittest.main()
