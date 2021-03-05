@@ -63,7 +63,7 @@ namespace geopm
     {
         public:
             OMPTImp();
-            OMPTImp(bool do_ompt, Profile &prof);
+            OMPTImp(bool do_ompt);
             virtual ~OMPTImp() = default;
             bool is_enabled(void) override;
             void region_enter(const void *function_ptr) override;
@@ -74,7 +74,6 @@ namespace geopm
             /// Map from function address to geopm region ID
             std::map<size_t, uint64_t> m_function_region_id_map;
             bool m_do_ompt;
-            Profile &m_prof;
     };
 
     OMPT &OMPT::ompt(void)
@@ -84,14 +83,13 @@ namespace geopm
     }
 
     OMPTImp::OMPTImp()
-        : OMPTImp(environment().do_ompt(), Profile::default_profile())
+        : OMPTImp(environment().do_ompt())
     {
 
     }
 
-    OMPTImp::OMPTImp(bool do_ompt, Profile &prof)
+    OMPTImp::OMPTImp(bool do_ompt)
         : m_do_ompt(do_ompt)
-        , m_prof(prof)
     {
 
     }
@@ -147,12 +145,7 @@ namespace geopm
     {
         uint64_t rid = region_id(parallel_function);
         if (rid != GEOPM_REGION_HASH_UNMARKED) {
-            try {
-                m_prof.enter(rid);
-            }
-            catch (const Exception &) {
-
-            }
+            geopm_prof_enter(rid);
         }
     }
 
@@ -160,12 +153,7 @@ namespace geopm
     {
         uint64_t rid = region_id(parallel_function);
         if (rid != GEOPM_REGION_HASH_UNMARKED) {
-            try {
-                m_prof.exit(rid);
-            }
-            catch (const Exception &) {
-
-            }
+            geopm_prof_exit(rid);
         }
     }
 }
