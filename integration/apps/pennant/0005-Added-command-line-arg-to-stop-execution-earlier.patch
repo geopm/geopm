@@ -53,14 +53,14 @@ index 418f162..fd2af0d 100644
          : probname(pname) {
      using Parallel::numpe;
      using Parallel::mype;
-@@ -58,7 +58,9 @@ Driver::Driver(const InputFile* inp, const string& pname)
+@@ -58,7 +58,10 @@ Driver::Driver(const InputFile* inp, const string& pname)
      }  // if mype == 0
  
      cstop = inp->getInt("cstop", 999999);
--    tstop = inp->getDouble("tstop", 1.e99);
 +    if (run_cycles > 0 && run_cycles < cstop) {
 +        cstop = run_cycles;
-+    }    tstop = inp->getDouble("tstop", 1.e99);
++    }
+     tstop = inp->getDouble("tstop", 1.e99);
      if (cstop == 999999 && tstop == 1.e99) {
          if (mype == 0)
              cerr << "Must specify either cstop or tstop" << endl;
