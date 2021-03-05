@@ -282,6 +282,7 @@ namespace geopm
         }
 #endif
         step_imp().sample_platform(*this);
+        m_sample_agg->update();
         double runtime = 0.0;
         double power_slack = 0.0;
         double power_headroom = 0;
