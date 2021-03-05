@@ -349,7 +349,7 @@ TEST_F(SampleAggregatorTest, epoch_application_total)
     // (this is the current region hash).
     EXPECT_DOUBLE_EQ(2.0, m_agg->sample_region(M_SIGNAL_TIME, GEOPM_REGION_HASH_UNMARKED));
 
-    /// Run through the same three region hashes with the epoch set to two
+    // Run through the same three region hashes with the epoch set to two
     for (auto region : epoch_regions) {
         EXPECT_CALL(m_platio, sample(M_SIGNAL_TIME))
             .WillOnce(Return(step));
