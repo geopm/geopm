@@ -339,9 +339,29 @@ TEST_F(SampleAggregatorTest, epoch_application_total)
 
     EXPECT_DOUBLE_EQ(2.0, m_agg->sample_region(M_SIGNAL_TIME, reg_normal));
     EXPECT_DOUBLE_EQ(2.0, m_agg->sample_region(M_SIGNAL_TIME, GEOPM_REGION_HASH_UNMARKED));
-    // First epoch observed at step == 2, app finished at step == 4.  4 - 2 = 2
-    EXPECT_DOUBLE_EQ(2.0, m_agg->sample_epoch(M_SIGNAL_TIME));
+
+    for (auto region : epoch_regions) {
+        EXPECT_CALL(m_platio, sample(M_SIGNAL_TIME))
+            .WillRepeatedly(Return(step));
+        EXPECT_CALL(m_platio, sample(M_SIGNAL_R_HASH_BOARD))
+            .WillRepeatedly(Return(region));
+        // after first epoch()
+        EXPECT_CALL(m_platio, sample(M_SIGNAL_EPOCH_COUNT))
+            .WillRepeatedly(Return(2));
+
+        ++step;
+
+        m_agg->update();
+    }
+
+    EXPECT_DOUBLE_EQ(3.0, m_agg->sample_region(M_SIGNAL_TIME, reg_normal));
+    EXPECT_DOUBLE_EQ(1.0, m_agg->sample_region_last(M_SIGNAL_TIME, reg_normal));
+    EXPECT_DOUBLE_EQ(4.0, m_agg->sample_region(M_SIGNAL_TIME, GEOPM_REGION_HASH_UNMARKED));
+    // First epoch observed at step == 2, app finished at step == 7.  7 - 2 = 5
+    EXPECT_DOUBLE_EQ(5.0, m_agg->sample_epoch(M_SIGNAL_TIME));
+    // The last epoch went for three steps, so the time should be 3
+    EXPECT_DOUBLE_EQ(3.0, m_agg->sample_epoch_last(M_SIGNAL_TIME));
 
     // Application totals
-    EXPECT_DOUBLE_EQ(4.0, m_agg->sample_application(M_SIGNAL_TIME));
+    EXPECT_DOUBLE_EQ(7.0, m_agg->sample_application(M_SIGNAL_TIME));
 }
