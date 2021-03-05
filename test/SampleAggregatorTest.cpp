@@ -298,64 +298,77 @@ TEST_F(SampleAggregatorTest, epoch_application_total)
     EXPECT_CALL(m_platio, signal_behavior("TIME"))
         .WillOnce(Return(IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE));
     m_agg->push_signal("TIME", GEOPM_DOMAIN_BOARD, 0);
-    // regions before first epoch
+    // Two regions run before first epoch and each runs for one second
+    // (step also tracks time)
     std::vector<uint64_t> pre_epoch_regions {reg_normal, GEOPM_REGION_HASH_UNMARKED};
     int step = 0;
     for (auto region : pre_epoch_regions) {
         EXPECT_CALL(m_platio, sample(M_SIGNAL_TIME))
-            .WillRepeatedly(Return(step));
+            .WillOnce(Return(step));
         EXPECT_CALL(m_platio, sample(M_SIGNAL_R_HASH_BOARD))
-            .WillRepeatedly(Return(region));
+            .WillOnce(Return(region));
+        // Epoch count stays zero
         EXPECT_CALL(m_platio, sample(M_SIGNAL_EPOCH_COUNT))
-            .WillRepeatedly(Return(0));
+            .WillOnce(Return(0));
 
         ++step;
 
         m_agg->update();
     }
 
+    // Expect that the normal region ran for one second
     EXPECT_DOUBLE_EQ(1.0, m_agg->sample_region(M_SIGNAL_TIME, reg_normal));
+    // There is no unmarked time yet, we have only sampled unmarked once
     EXPECT_DOUBLE_EQ(0.0, m_agg->sample_region(M_SIGNAL_TIME, GEOPM_REGION_HASH_UNMARKED));
+    // Epoch count has stayed zero, so total time for epoch is zero
     EXPECT_DOUBLE_EQ(0.0, m_agg->sample_epoch(M_SIGNAL_TIME));
 
-    // only time from non-MPI, non-ignore regions will go in epoch
-    // unmarked region is also included in epoch
+    // Set epoch count to one and sample three times (three seconds)
     std::vector<uint64_t> epoch_regions {GEOPM_REGION_HASH_UNMARKED,
                                          reg_normal,
                                          GEOPM_REGION_HASH_UNMARKED};
     for (auto region : epoch_regions) {
         EXPECT_CALL(m_platio, sample(M_SIGNAL_TIME))
-            .WillRepeatedly(Return(step));
+            .WillOnce(Return(step));
         EXPECT_CALL(m_platio, sample(M_SIGNAL_R_HASH_BOARD))
-            .WillRepeatedly(Return(region));
+            .WillOnce(Return(region));
         // after first epoch()
         EXPECT_CALL(m_platio, sample(M_SIGNAL_EPOCH_COUNT))
-            .WillRepeatedly(Return(1));
+            .WillOnce(Return(1));
 
         ++step;
 
         m_agg->update();
     }
 
+    // Region normal was sampled for one second before the first epoch
+    // and one second after for a total of two seconds
     EXPECT_DOUBLE_EQ(2.0, m_agg->sample_region(M_SIGNAL_TIME, reg_normal));
+    EXPECT_DOUBLE_EQ(1.0, m_agg->sample_region_last(M_SIGNAL_TIME, reg_normal));
+    // There have been two completed samples in region hash unmarked
+    // (this is the current region hash).
     EXPECT_DOUBLE_EQ(2.0, m_agg->sample_region(M_SIGNAL_TIME, GEOPM_REGION_HASH_UNMARKED));
 
+    /// Run through the same three region hashes with the epoch set to two
     for (auto region : epoch_regions) {
         EXPECT_CALL(m_platio, sample(M_SIGNAL_TIME))
-            .WillRepeatedly(Return(step));
+            .WillOnce(Return(step));
         EXPECT_CALL(m_platio, sample(M_SIGNAL_R_HASH_BOARD))
-            .WillRepeatedly(Return(region));
-        // after first epoch()
+            .WillOnce(Return(region));
+        // This is the second epoch
         EXPECT_CALL(m_platio, sample(M_SIGNAL_EPOCH_COUNT))
-            .WillRepeatedly(Return(2));
+            .WillOnce(Return(2));
 
         ++step;
 
         m_agg->update();
     }
 
+    // Region normal was sampled three times
     EXPECT_DOUBLE_EQ(3.0, m_agg->sample_region(M_SIGNAL_TIME, reg_normal));
+    // The last time the region was sampled for one second
     EXPECT_DOUBLE_EQ(1.0, m_agg->sample_region_last(M_SIGNAL_TIME, reg_normal));
+    // The total unmarked time has increased by two samples since the last epoch
     EXPECT_DOUBLE_EQ(4.0, m_agg->sample_region(M_SIGNAL_TIME, GEOPM_REGION_HASH_UNMARKED));
     // First epoch observed at step == 2, app finished at step == 7.  7 - 2 = 5
     EXPECT_DOUBLE_EQ(5.0, m_agg->sample_epoch(M_SIGNAL_TIME));
