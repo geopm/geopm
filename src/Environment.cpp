@@ -144,7 +144,6 @@ namespace geopm
                 "GEOPM_TRACE_PROFILE",
                 "GEOPM_TRACE_ENDPOINT_POLICY",
                 "GEOPM_PLUGIN_PATH",
-                "GEOPM_REGION_BARRIER",
                 "GEOPM_TIMEOUT",
                 "GEOPM_DEBUG_ATTACH",
                 "GEOPM_PROFILE",
@@ -339,11 +338,6 @@ namespace geopm
     bool EnvironmentImp::do_endpoint(void) const
     {
         return is_set("GEOPM_ENDPOINT");
-    }
-
-    bool EnvironmentImp::do_region_barrier(void) const
-    {
-        return is_set("GEOPM_REGION_BARRIER");
     }
 
     bool EnvironmentImp::do_trace(void) const

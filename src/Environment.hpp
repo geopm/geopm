@@ -64,7 +64,6 @@ namespace geopm
             virtual int pmpi_ctl(void) const = 0;
             virtual bool do_policy(void) const = 0;
             virtual bool do_endpoint(void) const = 0;
-            virtual bool do_region_barrier(void) const = 0;
             virtual bool do_trace(void) const = 0;
             virtual bool do_trace_profile(void) const = 0;
             virtual bool do_trace_endpoint_policy(void) const = 0;
@@ -105,7 +104,6 @@ namespace geopm
             int pmpi_ctl(void) const override;
             bool do_policy(void) const override;
             bool do_endpoint(void) const override;
-            bool do_region_barrier(void) const override;
             bool do_trace(void) const override;
             bool do_trace_profile(void) const override;
             bool do_trace_endpoint_policy(void) const override;
