@@ -169,7 +169,6 @@ class Config(object):
         parser.add_argument('--geopm-endpoint', dest='endpoint', type=str)
         parser.add_argument('--geopm-plugin-path', dest='plugin', type=str)
         parser.add_argument('--geopm-debug-attach', dest='debug_attach', type=str)
-        parser.add_argument('--geopm-region-barrier', dest='barrier', action='store_true', default=False)
         parser.add_argument('--geopm-preload', dest='preload', action='store_true', default=False)
         parser.add_argument('--geopm-hyperthreads-disable', dest='allow_ht_pinning', action='store_false', default=True)
         parser.add_argument('--geopm-ompt-disable', dest='ompt_disable', action='store_true', default=False)
@@ -194,7 +193,6 @@ class Config(object):
         self.timeout = opts.timeout
         self.plugin = opts.plugin
         self.debug_attach = opts.debug_attach
-        self.barrier = opts.barrier
         if opts.preload:
             sys.stderr.write("Warning: <geopmpy.launcher> The --geopm-preload option is deprecated, libgeopm is always preloaded.\n")
         self.preload = True
@@ -258,8 +256,6 @@ class Config(object):
             result['GEOPM_PLUGIN_PATH'] = self.plugin
         if self.debug_attach:
             result['GEOPM_DEBUG_ATTACH'] = self.debug_attach
-        if self.barrier:
-            result['GEOPM_REGION_BARRIER'] = 'true'
         if self.omp_num_threads:
             result['OMP_NUM_THREADS'] = self.omp_num_threads
         if self.ompt_disable:
@@ -1644,8 +1640,6 @@ GEOPM_OPTIONS:
       --geopm-debug-attach=rk  attach serial debugger to rank "rk"
       --geopm-record-filter=filter
                                apply the "filter" to the application record stream
-      --geopm-region-barrier   apply node local barriers when application enters
-                               or exits a geopm region
       --geopm-preload          use LD_PRELOAD to link libgeopm.so at runtime
       --geopm-hyperthreads-disable
                                do not allow pinning to HTs
