@@ -409,21 +409,6 @@ listed below.
   option will override any value currently set in the environment.
   See the ENVIRONMENT section of **geopm(7)**.
 
-* `--geopm-region-barrier`:
-  Enables a node local MPI_Barrier() at time of calling
-  `geopm_region_enter`() or `geopm_region_exit`() for all application
-  ranks that share a node.  Since the GEOPM controller only considers
-  a region to be entered when all ranks on a node have entered the
-  region, enabling this feature forces control throughout all of the
-  time every rank spends in a region.  This feature is primarily used
-  for debugging purposes.  WARNING: If all regions marked in the
-  application are not entered synchronously by all ranks on a node
-  then enabling this feature will cause a deadlock and the application
-  will hang.  This option is used by the launcher to set the
-  GEOPM_REGION_BARRIER environment variable.  The command line option
-  will override any value currently set in the environment.  See the
-  ENVIRONMENT section of **geopm(7)**.
-
 * `--geopm-hyperthreads-disable`:
   Prevent the launcher from trying to use hyperthreads for pinning
   purposes when attempting to satisfy the MPI ranks / OMP threads
@@ -460,8 +445,8 @@ but on an ALPS managed system:
 ## ENVIRONMENT
 Every command line option to the launcher can also be specified as an
 environment variable if desired (with the exception of `--geopm-ctl`).
-For example, instead of specifying `--geopm-region-barrier` one can
-instead set in the environment `GEOPM_REGION_BARRIER=true` prior to
+For example, instead of specifying `--geopm-trace=geopm.trace` one can
+instead set in the environment `GEOPM_TRACE=geopm.trace` prior to
 invoking the launcher script.  The environment variables are named the
 same as the command line option but have the hyphens replaced with
 underscores, and are all uppercase.  The command line options take

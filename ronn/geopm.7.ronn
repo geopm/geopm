@@ -319,10 +319,6 @@ specified regardless of the values set in the calling environment.
     See documentation for equivalent command line option to
     **geopmlaunch(1)** called `--geopm-debug-attach`.
 
-  * `GEOPM_REGION_BARRIER`:
-    See documentation for equivalent command line option to
-    **geopmlaunch(1)** called `--geopm-region-barrier`.
-
   * `GEOPM_DISABLE_HYPERTHREADS`:
     See documentation for equivalent command line option to
     **geopmlaunch(1)** called `--geopm-hyperthreads-disable`.

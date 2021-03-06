@@ -118,7 +118,6 @@ void EnvironmentTest::expect_vars(std::map<std::string, std::string> exp_vars) c
     EXPECT_EQ(exp_vars["GEOPM_DEBUG_ATTACH"], std::to_string(m_env->debug_attach_process()));
     EXPECT_EQ(exp_vars["GEOPM_TRACE_SIGNALS"], m_env->trace_signals());
     EXPECT_EQ(exp_vars["GEOPM_REPORT_SIGNALS"], m_env->report_signals());
-    EXPECT_EQ(exp_vars.find("GEOPM_REGION_BARRIER") != exp_vars.end(), m_env->do_region_barrier());
 }
 
 void EnvironmentTest::SetUp()
@@ -140,7 +139,6 @@ void EnvironmentTest::SetUp()
               {"GEOPM_DEBUG_ATTACH", "1"},
               {"GEOPM_TRACE_SIGNALS", "test1,test2,test3"},
               {"GEOPM_REPORT_SIGNALS", "best1,best2,best3"},
-              {"GEOPM_REGION_BARRIER", std::to_string(false)},
              };
 
     m_pmpi_ctl_map["process"] = (int)GEOPM_CTL_PROCESS;
@@ -268,7 +266,6 @@ TEST_F(EnvironmentTest, default_only)
               {"GEOPM_DEBUG_ATTACH", "-1"},
               {"GEOPM_TRACE_SIGNALS", "default-test1,test2,test3"},
               {"GEOPM_REPORT_SIGNALS", "default-best1,best2,best3"},
-              {"GEOPM_REGION_BARRIER", std::to_string(false)},
              };
     vars_to_json(default_vars, M_DEFAULT_PATH);
 
@@ -298,7 +295,6 @@ TEST_F(EnvironmentTest, override_only)
               {"GEOPM_DEBUG_ATTACH", "-1"},
               {"GEOPM_TRACE_SIGNALS", "override-test1,test2,test3"},
               {"GEOPM_REPORT_SIGNALS", "override-best1,best2,best3"},
-              {"GEOPM_REGION_BARRIER", std::to_string(false)},
              };
     vars_to_json(override_vars, M_OVERRIDE_PATH);
 
@@ -327,7 +323,6 @@ TEST_F(EnvironmentTest, default_and_override)
               {"GEOPM_DEBUG_ATTACH", "-1"},
               {"GEOPM_TRACE_SIGNALS", "default-test1,test2,test3"},
               {"GEOPM_REPORT_SIGNALS", "default-best1,best2,best3"},
-              {"GEOPM_REGION_BARRIER", std::to_string(false)},
              };
     std::map<std::string, std::string> override_vars = {
               {"GEOPM_REPORT", "override-report-test_value"},
@@ -346,7 +341,6 @@ TEST_F(EnvironmentTest, default_and_override)
               {"GEOPM_DEBUG_ATTACH", "-1"},
               {"GEOPM_TRACE_SIGNALS", "override-test1,test2,test3"},
               {"GEOPM_REPORT_SIGNALS", "override-best1,best2,best3"},
-              {"GEOPM_REGION_BARRIER", std::to_string(false)},
              };
 
     vars_to_json(default_vars, M_DEFAULT_PATH);
@@ -403,7 +397,6 @@ TEST_F(EnvironmentTest, user_default_and_override)
         {"GEOPM_DEBUG_ATTACH", m_user["GEOPM_DEBUG_ATTACH"]},
         {"GEOPM_TRACE_SIGNALS", m_user["GEOPM_TRACE_SIGNALS"]},
         {"GEOPM_REPORT_SIGNALS", m_user["GEOPM_REPORT_SIGNALS"]},
-        {"GEOPM_REGION_BARRIER", m_user["GEOPM_REGION_BARRIER"]},
     };
     expect_vars(exp_vars);
 }
