@@ -56,7 +56,7 @@ class TestIntegration_frequency_map(unittest.TestCase):
                          '.' + cls.__name__ + ') ...')
         cls._test_name = 'test_frequency_map'
         cls._report_path = '{}.report'.format(cls._test_name)
-        cls._trace_path = '{}.trace*'.format(cls._test_name)
+        cls._trace_path = '{}.trace'.format(cls._test_name)
         cls._agent_conf_path = cls._test_name + '-agent-config.json'
         # Clear out exception record for python 2 support
         geopmpy.error.exc_clear()
@@ -83,8 +83,11 @@ class TestIntegration_frequency_map(unittest.TestCase):
 
         app_conf = geopmpy.io.BenchConf(cls._test_name + '_app.config')
         app_conf.set_loop_count(loop_count)
+        app_conf.append_region('barrier-unmarked', 1.0)
         app_conf.append_region('dgemm', dgemm_bigo)
+        app_conf.append_region('barrier-unmarked', 1.0)
         app_conf.append_region('stream', stream_bigo)
+        app_conf.append_region('barrier-unmarked', 1.0)
         app_conf.append_region('all2all', 1.0)
         app_conf.write()
 
@@ -99,7 +102,7 @@ class TestIntegration_frequency_map(unittest.TestCase):
         cls._freq_map['dgemm'] = cls._machine.frequency_min() + 2 * cls._machine.frequency_step()
         cls._freq_map['stream'] = cls._machine.frequency_sticker() - 2 * cls._machine.frequency_step()
         cls._freq_map['all2all'] = cls._machine.frequency_min()
-        cls._options = cls.create_frequency_map_policy(cls._machine.frequency_max(),
+        cls._options = cls.create_frequency_map_policy(cls._machine.frequency_sticker(),
                                                        cls._freq_map)
         cls._agent = 'frequency_map'
         trace_signals = 'REGION_HASH@core,MSR::PERF_CTL:FREQ@core'
@@ -119,18 +122,18 @@ class TestIntegration_frequency_map(unittest.TestCase):
 
         # Output to be reused by all tests
         cls._report = geopmpy.io.RawReport(cls._report_path)
-        cls._trace = geopmpy.io.AppOutput(cls._trace_path)
+        cls._trace = geopmpy.io.AppOutput('{}*'.format(cls._trace_path))
 
     @classmethod
-    def create_frequency_map_policy(cls, max_freq, frequency_map):
+    def create_frequency_map_policy(cls, default_freq, frequency_map):
         """Create a frequency map to be consumed by the frequency map agent.
 
         Arguments:
         min_freq: Floor frequency for the agent
-        max_freq: Ceiling frequency for the agent
+        default_freq: Ceiling frequency for the agent
         frequency_map: Dictionary mapping region names to frequencies
         """
-        policy = {'FREQ_DEFAULT': max_freq, 'FREQ_UNCORE': float('nan')}
+        policy = {'FREQ_DEFAULT': default_freq, 'FREQ_UNCORE': float('nan')}
         for i, (region_name, frequency) in enumerate(frequency_map.items()):
             policy['HASH_{}'.format(i)] = geopmpy.hash.crc32_str(region_name)
             policy['FREQ_{}'.format(i)] = frequency
@@ -146,6 +149,7 @@ class TestIntegration_frequency_map(unittest.TestCase):
         # Note two cores are left idle per package by default
         num_unused = self._machine.num_package() * 2
         num_used = total - num_unused
+        # Default frequency for the policy is sticker
         sticker = self._machine.frequency_sticker()
         return (num_used * target + num_unused * sticker) / total
 
