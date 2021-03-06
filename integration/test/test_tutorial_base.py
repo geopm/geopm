@@ -85,7 +85,7 @@ class TestIntegration_tutorial_base(unittest.TestCase):
             try:
                 subprocess.check_call(build_script, shell=True)
             except subprocess.CalledProcessError as ex:
-                raise RuntimeException('Failed to build the tutorials, try running "{}" on a system with all compilation requirements prior to running this test.\n    {}'.format(build_script, ex.message))
+                raise RuntimeError('Failed to build the tutorials, try running "{}" on a system with all compilation requirements prior to running this test.\n    {}'.format(build_script, ex.output))
 
         # Clear out exception record for python 2 support
         geopmpy.error.exc_clear()
