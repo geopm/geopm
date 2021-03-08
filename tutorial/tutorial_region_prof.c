@@ -50,29 +50,18 @@ static int stream_profiled_omp(uint64_t region_id, size_t num_stream, double sca
     const size_t num_block = num_stream / block;
     const size_t num_remain = num_stream % block;
     int err = 0;
-    int num_thread = 1;
 
-#pragma omp parallel
-{
-    num_thread = omp_get_num_threads();
-}
-#pragma omp parallel
-{
-    int thread_idx = omp_get_thread_num();
-    (void)geopm_tprof_init(num_block);
-
-#pragma omp for
+#pragma omp parallel for
     for (size_t i = 0; i < num_block; ++i) {
         for (size_t j = 0; j < block; ++j) {
             a[i * block + j] = b[i * block + j] + scalar * c[i * block + j];
         }
-        (void)geopm_tprof_post();
+        geopm_tprof_post();
     }
-#pragma omp for
+#pragma omp parallel for
     for (size_t j = 0; j < num_remain; ++j) {
         a[num_block * block + j] = b[num_block * block + j] + scalar * c[num_block * block + j];
     }
-}
 
     return err;
 }
