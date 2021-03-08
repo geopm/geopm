@@ -129,7 +129,6 @@ class TestIntegration_frequency_map(unittest.TestCase):
         """Create a frequency map to be consumed by the frequency map agent.
 
         Arguments:
-        min_freq: Floor frequency for the agent
         default_freq: Ceiling frequency for the agent
         frequency_map: Dictionary mapping region names to frequencies
         """
@@ -141,7 +140,7 @@ class TestIntegration_frequency_map(unittest.TestCase):
         return policy
 
     def expected_frequency(self, target):
-        """Adust the expected average frequency across the board to account
+        """Adjust the expected average frequency across the board to account
         for unused cores to be set to sticker.
 
         """
