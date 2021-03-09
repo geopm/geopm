@@ -176,6 +176,7 @@ TEST_F(EndpointTestIntegration, write_read_policy)
 
     values[0] = 888;
     mio.write_policy(values);
+    usleep(10);
     double age = mios.read_policy(result);
     EXPECT_EQ(values, result);
     EXPECT_LT(0.0, age);
