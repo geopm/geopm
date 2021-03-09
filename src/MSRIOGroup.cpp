@@ -224,7 +224,8 @@ namespace geopm
                                                    ts.description +
                                                    "\n    alias_for: Temperature derived from PROCHOT and "
                                                    + ts.msr_name,
-                                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE};
+                                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
+                                                   string_format_double};
             }
         }
     }
@@ -283,7 +284,8 @@ namespace geopm
                                                    IOGroup::M_UNITS_WATTS,
                                                    agg_function(msr_name),
                                                    ps.description + "\n    alias_for: " + ps.msr_name + " rate of change",
-                                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE};
+                                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
+                                                   string_format_double};
             }
         }
     }
@@ -342,7 +344,8 @@ namespace geopm
                                                    IOGroup::M_UNITS_HERTZ,
                                                    agg_function(msr_name),
                                                    ps.description + "\n    alias_for: " + ps.msr_name + " rate of change",
-                                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE};
+                                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
+                                                   string_format_double};
             }
         }
 
@@ -372,11 +375,11 @@ namespace geopm
 
             m_signal_available[signal_name] = {result,
                                                cnt_domain,
-                                               IOGroup::M_UNITS_HERTZ, // TODO: This should be units_none, but that implies
-                                                                       // a format of int for MSRIOGroup in format_function
+                                               IOGroup::M_UNITS_NONE,
                                                Agg::average,
                                                "Measure of CPU Scalability as determined by PCNT over ACNT\n    alias_for: MSR::PPERF:PCNT_RATE/MSR::APERF:ACNT_RATE",
-                                               IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE};
+                                               IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
+                                               string_format_double};
         }
 
         struct hint_data
@@ -391,13 +394,13 @@ namespace geopm
             {"MSR::PPERF:PCNT_REGION_HINT_COMPUTE",
                     "Compute Bound Region Hint based on PCNT",
                     "MSR::PPERF:CPU_SCALABILITY",
-                    2.0, 0.5}, //TODO: handle sampling error > 1.0 more gracefully
+                    2.0, 0.5},
             {"MSR::PPERF:PCNT_REGION_HINT_MEMORY",
                     "Memory Bound Region Hint based on PCNT",
                     "MSR::PPERF:CPU_SCALABILITY",
                     0.5, 0.05},
             {"MSR::PPERF:PCNT_REGION_HINT_IGNORE",
-                    "Ignore Hint based on PCNT",
+                    "Ignore Region Hint based on PCNT",
                     "MSR::PPERF:CPU_SCALABILITY",
                     0.05, 0.0}
         };
@@ -421,17 +424,17 @@ namespace geopm
                                                            ps.range_upper, ps.range_lower,
                                                            sleep_time);
                 }
+
                 m_signal_available[signal_name] = {result,
                                                    hint_domain,
                                                    IOGroup::M_UNITS_SECONDS,
                                                    Agg::average,
                                                    ps.description + "\n    alias_for: " + ps.msr_name + " in range: "
                                                    + std::to_string(ps.range_lower) + "-" + std::to_string(ps.range_upper),
-                                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE};
+                                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
+                                                   string_format_double};
             }
         }
-
-
     }
 
 
@@ -824,24 +827,17 @@ namespace geopm
         }
 
         std::function<std::string(double)> result = string_format_double;
-        if (string_ends_with(signal_name, "#")) {
-            result = string_format_raw64;
+        auto it = m_signal_available.find(signal_name);
+        if (it != m_signal_available.end()) {
+            int units = it->second.units;
+            result = it->second.format_function;
         }
-        else {
-            auto it = m_signal_available.find(signal_name);
-            if (it != m_signal_available.end()) {
-                int units = it->second.units;
-                if (IOGroup::M_UNITS_NONE == units) {
-                    result = string_format_integer;
-                }
-            }
 #ifdef GEOPM_DEBUG
-            else {
-                throw Exception("MSRIOGroup::format_function(): signal valid but not found in map",
-                                GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-            }
-#endif
+        else {
+            throw Exception("MSRIOGroup::format_function(): signal valid but not found in map",
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
+#endif
         return result;
     }
 
@@ -1212,6 +1208,7 @@ namespace geopm
             .agg_function = Agg::select_first,
             .description = M_DEFAULT_DESCRIPTION,
             .behavior = IOGroup::M_SIGNAL_BEHAVIOR_LABEL,
+            .format_function = string_format_raw64
         };
     }
 
@@ -1222,7 +1219,8 @@ namespace geopm
                                           int function, double scalar, int units,
                                           const std::string &agg_function,
                                           const std::string &description,
-                                          int behavior)
+                                          int behavior,
+                                          const std::function<std::string(double)> &format_function)
     {
         std::string raw_msr_signal_name = M_NAME_PREFIX + msr_name + "#";
         int num_domain = m_platform_topo.num_domain(domain_type);
@@ -1241,6 +1239,7 @@ namespace geopm
             .agg_function = Agg::name_to_function(agg_function),
             .description = description,
             .behavior = behavior,
+            .format_function = format_function,
         };
     }
 
@@ -1326,9 +1325,14 @@ namespace geopm
                     description = field_data["description"].string_value();
                 }
 
+                std::function<std::string(double)> format_function = string_format_double;
+                if (IOGroup::M_UNITS_NONE == units) {
+                    format_function = string_format_integer;
+                }
+
                 add_msr_field_signal(msr_name, sig_ctl_name, domain_type,
                                      begin_bit, end_bit, function, scalar, units,
-                                     agg_function, description, behavior);
+                                     agg_function, description, behavior, format_function);
                 if (is_control) {
                     add_msr_field_control(sig_ctl_name, domain_type, msr_offset,
                                           begin_bit, end_bit, function, scalar, units,

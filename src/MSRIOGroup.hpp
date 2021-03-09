@@ -187,7 +187,8 @@ namespace geopm
                                       int function, double scalar, int units,
                                       const std::string &aggregation,
                                       const std::string &description,
-                                      int behavior);
+                                      int behavior,
+                                      const std::function<std::string(double)> &format_function);
             // Add a bitfield of an MSR as an available control
             void add_msr_field_control(const std::string &msr_field_name,
                                        int domain_type,
@@ -224,6 +225,7 @@ namespace geopm
                 std::function<double(const std::vector<double> &)> agg_function;
                 std::string description;
                 int behavior;
+                std::function<std::string(double)> format_function;
             };
             std::map<std::string, signal_info> m_signal_available;
 
