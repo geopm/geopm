@@ -429,9 +429,9 @@ namespace geopm
                                                    hint_domain,
                                                    IOGroup::M_UNITS_SECONDS,
                                                    Agg::average,
-                                                   ps.description + "\n    alias_for: " + ps.msr_name + " in range: "
+                                                   ps.description + "\n    Based on : " + ps.msr_name + " in range: "
                                                    + std::to_string(ps.range_lower) + "-" + std::to_string(ps.range_upper),
-                                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
+                                                   IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
                                                    string_format_double};
             }
         }
