@@ -516,7 +516,10 @@ namespace geopm
         for (auto &balancer : role.m_power_balancer) {
             double headroom = role.M_MAX_PKG_POWER_SETTING -
                               (balancer->power_limit() + even_slack);
-            double factor = headroom / total_headroom;
+            double factor = 1.0;
+            if (total_headroom != 0.0) {
+                factor = headroom / total_headroom;
+            }
             double cap = balancer->power_limit() + even_slack + factor * slack_power;
             balancer->power_cap(cap);
         }
