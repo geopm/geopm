@@ -114,6 +114,7 @@ void SampleAggregatorTest::SetUp(void)
     EXPECT_CALL(m_platio, push_signal("TIME", GEOPM_DOMAIN_BOARD, 0))
         .WillOnce(Return(M_SIGNAL_TIME));
     m_agg = geopm::make_unique<SampleAggregatorImp>(m_platio);
+    m_agg->period_duration(1.0);
 }
 
 TEST_F(SampleAggregatorTest, sample_application)
@@ -222,6 +223,8 @@ TEST_F(SampleAggregatorTest, sample_application)
     EXPECT_EQ(M_SIGNAL_CYCLES_2, m_agg->push_signal("CYCLES", GEOPM_DOMAIN_CPU, 2));
     EXPECT_EQ(M_SIGNAL_CYCLES_3, m_agg->push_signal("CYCLES", GEOPM_DOMAIN_CPU, 3));
 
+    EXPECT_EQ(0, m_agg->sample_period_last(M_SIGNAL_TIME));
+
     for (int idx = 0; idx < num_sample; ++idx) {
         // expected sample values
         EXPECT_CALL(m_platio, sample(M_SIGNAL_TIME))
@@ -304,6 +307,9 @@ TEST_F(SampleAggregatorTest, epoch_application_total)
     int step = 0;
     for (auto region : pre_epoch_regions) {
         EXPECT_CALL(m_platio, sample(M_SIGNAL_TIME))
+            .WillOnce(Return(step))
+            .WillOnce(Return(step))
+            .WillOnce(Return(step))
             .WillOnce(Return(step));
         EXPECT_CALL(m_platio, sample(M_SIGNAL_R_HASH_BOARD))
             .WillOnce(Return(region));
@@ -329,6 +335,9 @@ TEST_F(SampleAggregatorTest, epoch_application_total)
                                          GEOPM_REGION_HASH_UNMARKED};
     for (auto region : epoch_regions) {
         EXPECT_CALL(m_platio, sample(M_SIGNAL_TIME))
+            .WillOnce(Return(step))
+            .WillOnce(Return(step))
+            .WillOnce(Return(step))
             .WillOnce(Return(step));
         EXPECT_CALL(m_platio, sample(M_SIGNAL_R_HASH_BOARD))
             .WillOnce(Return(region));
@@ -352,6 +361,9 @@ TEST_F(SampleAggregatorTest, epoch_application_total)
     // Run through the same three region hashes with the epoch set to two
     for (auto region : epoch_regions) {
         EXPECT_CALL(m_platio, sample(M_SIGNAL_TIME))
+            .WillOnce(Return(step))
+            .WillOnce(Return(step))
+            .WillOnce(Return(step))
             .WillOnce(Return(step));
         EXPECT_CALL(m_platio, sample(M_SIGNAL_R_HASH_BOARD))
             .WillOnce(Return(region));
@@ -374,6 +386,7 @@ TEST_F(SampleAggregatorTest, epoch_application_total)
     EXPECT_DOUBLE_EQ(5.0, m_agg->sample_epoch(M_SIGNAL_TIME));
     // The last epoch went for three steps, so the time should be 3
     EXPECT_DOUBLE_EQ(3.0, m_agg->sample_epoch_last(M_SIGNAL_TIME));
+    EXPECT_DOUBLE_EQ(1.0, m_agg->sample_period_last(M_SIGNAL_TIME));
 
     // Application totals
     EXPECT_DOUBLE_EQ(7.0, m_agg->sample_application(M_SIGNAL_TIME));

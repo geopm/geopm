@@ -65,6 +65,9 @@ namespace geopm
             double sample_region(int signal_idx, uint64_t region_hash) override;
             double sample_epoch_last(int signal_idx) override;
             double sample_region_last(int signal_idx, uint64_t region_hash) override;
+            void period_duration(double duration) override;
+            int get_period(void) override;
+            double sample_period_last(int signal_idx) override;
 
         private:
             // All of the data relating to a pushed "total" signal
@@ -83,6 +86,8 @@ namespace geopm
                 std::shared_ptr<SumAccumulator> app_accum;
                 // Accumulator for epoch totals (updated after first epoch call)
                 std::shared_ptr<SumAccumulator> epoch_accum;
+                // Accumulator for periodic totals (always updated)
+                std::shared_ptr<SumAccumulator> period_accum;
                 // Map from region hash to an accumulator for that region
                 std::map<uint64_t, std::shared_ptr<SumAccumulator> > region_accum;
                 // Iterator pointing to the region_hash_last map location
@@ -105,6 +110,8 @@ namespace geopm
                 std::shared_ptr<AvgAccumulator> app_accum;
                 // Accumulator for epoch totals (updated after first epoch call)
                 std::shared_ptr<AvgAccumulator> epoch_accum;
+                // Accumulator for periodic totals (always updated)
+                std::shared_ptr<AvgAccumulator> period_accum;
                 // Map from region hash to an accumulator for that region
                 std::map<uint64_t, std::shared_ptr<AvgAccumulator> > region_accum;
                 // Iterator pointing to the region_hash_last map location
@@ -118,6 +125,7 @@ namespace geopm
             uint64_t sample_to_hash(double sample);
 
             PlatformIO &m_platform_io;
+            // PlatformIO signal index for time of last sample
             int m_time_idx;
             bool m_is_updated;
             // Map from index returned by push_signal_total() to the
@@ -126,6 +134,8 @@ namespace geopm
             // Map from index returned by push_signal_average() to the
             // signal structure
             std::map<int, m_avg_signal_s> m_avg_signal;
+            double m_period_duration;
+            int m_period_last;
     };
 }
 

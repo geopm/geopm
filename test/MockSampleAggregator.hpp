@@ -57,6 +57,12 @@ class MockSampleAggregator : public geopm::SampleAggregator {
                      double(int signal_idx));
         MOCK_METHOD2(sample_region_last,
                      double(int signal_idx, uint64_t region_hash));
+        MOCK_METHOD1(sample_period_last,
+                     double(int signal_idx));
+        MOCK_METHOD1(period_duration,
+                     void(double));
+        MOCK_METHOD0(get_period,
+                     int(void));
 };
 
 #endif
