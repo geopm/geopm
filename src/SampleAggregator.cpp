@@ -121,6 +121,7 @@ namespace geopm
                 0,
                 SumAccumulator::make_unique(),
                 SumAccumulator::make_unique(),
+                SumAccumulator::make_unique(),
                 {},
                 {},
            };
@@ -150,6 +151,7 @@ namespace geopm
                 GEOPM_REGION_HASH_INVALID,
                 m_platform_io.push_signal("EPOCH_COUNT", domain_type, domain_idx),
                 0,
+                AvgAccumulator::make_unique(),
                 AvgAccumulator::make_unique(),
                 AvgAccumulator::make_unique(),
                 {},
@@ -209,6 +211,15 @@ namespace geopm
         }
     }
 
+    template <typename type>
+    void sample_aggregator_update_period(type &signal, int period)
+    {
+        if (period != 0) {
+            signal.period_accum->exit();
+        }
+        signal.period_accum->enter();
+    }
+
     uint64_t SampleAggregatorImp::sample_to_hash(double sample)
     {
         uint64_t result = sample;
@@ -218,8 +229,24 @@ namespace geopm
         return result;
     }
 
+    void SampleAggregatorImp::period_duration(double duration)
+    {
+        m_period_duration = duration;
+    }
+
+    int SampleAggregatorImp::get_period(void)
+    {
+        int result = 0;
+        if (m_period_duration) {
+            double time = m_platform_io.sample(m_time_idx);
+            result = static_cast<int>(time / m_period_duration);
+        }
+        return result;
+    }
+
     void SampleAggregatorImp::update_total(void)
     {
+        int period = get_period();
         // Update all of the sum aggregators
         for (auto &signal_it : m_sum_signal) {
             int signal_idx = signal_it.first;
@@ -243,6 +270,8 @@ namespace geopm
                 if (signal.epoch_count_last != 0) {
                     signal.epoch_accum->update(delta);
                 }
+                // Update the periodic totals
+                signal.period_accum->update(delta);
                 // Update region totals
                 signal.region_accum_it->second->update(delta);
                 sample_aggregator_update_epoch(signal, epoch_count);
@@ -251,6 +280,9 @@ namespace geopm
                     signal.region_accum_it = sample_aggregator_emplace_hash(signal.region_accum, hash);
                 }
                 sample_aggregator_update_hash_enter(signal, hash);
+                if (period != m_period_last) {
+                    sample_aggregator_update_period(signal, period);
+                }
                 signal.region_hash_last = hash;
                 signal.sample_last = sample;
             }
@@ -259,7 +291,8 @@ namespace geopm
 
     void SampleAggregatorImp::update_average(void)
     {
-        // Update all of the sum aggregators
+        int period = get_period();
+        // Update all of the average aggregators
         for (auto &signal_it : m_avg_signal) {
             int signal_idx = signal_it.first;
             m_avg_signal_s &signal = signal_it.second;
@@ -283,6 +316,8 @@ namespace geopm
                 if (signal.epoch_count_last != 0) {
                     signal.epoch_accum->update(delta, sample);
                 }
+                // Update the periodic totals
+                signal.period_accum->update(delta, sample);
                 // Update region totals
                 signal.region_accum_it->second->update(delta, sample);
                 sample_aggregator_update_epoch(signal, epoch_count);
@@ -291,6 +326,9 @@ namespace geopm
                     signal.region_accum_it = sample_aggregator_emplace_hash(signal.region_accum, hash);
                 }
                 sample_aggregator_update_hash_enter(signal, hash);
+                if (period != m_period_last) {
+                    sample_aggregator_update_period(signal, period);
+                }
                 signal.region_hash_last = hash;
                 signal.time_last = time;
             }
@@ -301,6 +339,7 @@ namespace geopm
     {
         update_total();
         update_average();
+        m_period_last = get_period();
         m_is_updated = true;
     }
 
@@ -419,4 +458,25 @@ namespace geopm
     {
         return sample_epoch_helper(signal_idx, true);
     }
+
+    double SampleAggregatorImp::sample_period_last(int signal_idx)
+    {
+        double result = NAN;
+        if (m_period_duration != 0.0) {
+            auto sum_it = m_sum_signal.find(signal_idx);
+            if (sum_it != m_sum_signal.end()) {
+                result = sum_it->second.period_accum->interval_total();
+            }
+            else {
+                auto avg_it = m_avg_signal.find(signal_idx);
+                if (avg_it == m_avg_signal.end()) {
+                    throw Exception("SampleAggregator::sample_period(): Invalid signal index: signal index not pushed with push_signal_total() or push_signal_average()",
+                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                }
+                result = avg_it->second.period_accum->interval_average();
+            }
+        }
+        return result;
+    }
+
 }

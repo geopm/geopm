@@ -230,6 +230,20 @@ namespace geopm
             /// @return Aggregated value for the signal during the
             ///         last execution of the region.
             virtual double sample_region_last(int signal_idx, uint64_t region_hash) = 0;
+            /// @brief Set the time period for sample_period_last()
+            ///
+            /// The duration must be greater than zero and if this
+            /// method is not called, sample_period_last() will
+            /// return NAN.
+            virtual void period_duration(double duration) = 0;
+            /// @brief Get the index of the current time period.
+            ///
+            /// @returns The number of completed durations since
+            /// the application start.
+            virtual int get_period(void) = 0;
+            /// @brief Get the aggregated value of a signal during the
+            ///        last completed time interval.
+            virtual double sample_period_last(int signal_idx) = 0;
         protected:
             SampleAggregator() = default;
     };
