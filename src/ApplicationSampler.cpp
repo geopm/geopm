@@ -149,6 +149,7 @@ namespace geopm
         , m_is_cpu_active(is_cpu_active)
         , m_update_time({{0, 0}})
         , m_is_first_update(true)
+        , m_hint_last(m_num_cpu, GEOPM_REGION_HINT_UNSET)
     {
         if (m_is_cpu_active.empty()) {
             m_is_cpu_active.resize(m_num_cpu, false);
@@ -183,11 +184,16 @@ namespace geopm
         m_sampler->check_sample_end();
 
         m_status->update_cache();
-        if (!m_is_first_update) {
+        if (m_is_first_update) {
+            for (int cpu_idx = 0; cpu_idx != m_num_cpu; ++cpu_idx) {
+                m_hint_last[cpu_idx] = m_status->get_hint(cpu_idx);
+            }
+        }
+        else {
             double time_delta = geopm_time_diff(&m_update_time, &curr_time);
             for (int cpu_idx = 0; cpu_idx != m_num_cpu; ++cpu_idx) {
-                uint64_t hint = m_status->get_hint(cpu_idx);
-                m_hint_time[cpu_idx].at(hint) += time_delta;
+                m_hint_time[cpu_idx].at(m_hint_last[cpu_idx]) += time_delta;
+                m_hint_last[cpu_idx] = m_status->get_hint(cpu_idx);
             }
         }
         m_is_first_update = false;
