@@ -131,18 +131,14 @@ TEST_F(ProfileTest, enter_exit)
     uint64_t region_id = hint | hash;
 
     EXPECT_CALL(*m_record_log, enter(hash, _));
-    EXPECT_CALL(*m_status, set_hash(2, hash));
-    EXPECT_CALL(*m_status, set_hash(3, hash));
-    EXPECT_CALL(*m_status, set_hint(2, hint));
-    EXPECT_CALL(*m_status, set_hint(3, hint));
+    EXPECT_CALL(*m_status, set_hash(2, hash, hint));
+    EXPECT_CALL(*m_status, set_hash(3, hash, hint));
     m_profile->enter(region_id);
 
     EXPECT_CALL(*m_record_log, exit(hash, _));
-    EXPECT_CALL(*m_status, set_hash(2, GEOPM_REGION_HASH_UNMARKED));
-    EXPECT_CALL(*m_status, set_hash(3, GEOPM_REGION_HASH_UNMARKED));
     // hint is cleared when exiting top-level region
-    EXPECT_CALL(*m_status, set_hint(2, GEOPM_REGION_HINT_UNSET));
-    EXPECT_CALL(*m_status, set_hint(3, GEOPM_REGION_HINT_UNSET));
+    EXPECT_CALL(*m_status, set_hash(2, GEOPM_REGION_HASH_UNMARKED, GEOPM_REGION_HINT_UNSET));
+    EXPECT_CALL(*m_status, set_hash(3, GEOPM_REGION_HASH_UNMARKED, GEOPM_REGION_HINT_UNSET));
     // progress is cleared when exiting top-level region
     EXPECT_CALL(*m_status, reset_work_units(2));
     EXPECT_CALL(*m_status, reset_work_units(3));
@@ -165,16 +161,14 @@ TEST_F(ProfileTest, enter_exit_nested)
     {
         // enter region and set hint
         EXPECT_CALL(*m_record_log, enter(usr_hash, _));
-        EXPECT_CALL(*m_status, set_hash(2, usr_hash));
-        EXPECT_CALL(*m_status, set_hash(3, usr_hash));
-        EXPECT_CALL(*m_status, set_hint(2, usr_hint));
-        EXPECT_CALL(*m_status, set_hint(3, usr_hint));
+        EXPECT_CALL(*m_status, set_hash(2, usr_hash, usr_hint));
+        EXPECT_CALL(*m_status, set_hash(3, usr_hash, usr_hint));
         m_profile->enter(usr_hint | usr_hash);
     }
     {
         // don't enter a nested region, just update hint
         EXPECT_CALL(*m_record_log, enter(_, _)).Times(0);
-        EXPECT_CALL(*m_status, set_hash(_, _)).Times(0);
+        EXPECT_CALL(*m_status, set_hash(_, _, _)).Times(0);
         EXPECT_CALL(*m_status, set_hint(2, mpi_hint));
         EXPECT_CALL(*m_status, set_hint(3, mpi_hint));
         m_profile->enter(mpi_hint | mpi_hash);
@@ -189,10 +183,8 @@ TEST_F(ProfileTest, enter_exit_nested)
     {
         // exit region and unset hint
         EXPECT_CALL(*m_record_log, exit(usr_hash, _));
-        EXPECT_CALL(*m_status, set_hash(2, GEOPM_REGION_HASH_UNMARKED));
-        EXPECT_CALL(*m_status, set_hash(3, GEOPM_REGION_HASH_UNMARKED));
-        EXPECT_CALL(*m_status, set_hint(2, GEOPM_REGION_HINT_UNSET));
-        EXPECT_CALL(*m_status, set_hint(3, GEOPM_REGION_HINT_UNSET));
+        EXPECT_CALL(*m_status, set_hash(2, GEOPM_REGION_HASH_UNMARKED, GEOPM_REGION_HINT_UNSET));
+        EXPECT_CALL(*m_status, set_hash(3, GEOPM_REGION_HASH_UNMARKED, GEOPM_REGION_HINT_UNSET));
         EXPECT_CALL(*m_status, reset_work_units(2));
         EXPECT_CALL(*m_status, reset_work_units(3));
         m_profile->exit(usr_region_id);
@@ -210,8 +202,7 @@ TEST_F(ProfileTest, progress_multithread)
     uint64_t hash = 0xABCD;
     {
         EXPECT_CALL(*m_record_log, enter(hash, _));
-        EXPECT_CALL(*m_status, set_hash(_, _)).Times(2);
-        EXPECT_CALL(*m_status, set_hint(_, _)).Times(2);
+        EXPECT_CALL(*m_status, set_hash(_, _, _)).Times(2);
         m_profile->enter(0xABCD);
     }
     {
@@ -232,8 +223,7 @@ TEST_F(ProfileTest, progress_multithread)
 
     {
         EXPECT_CALL(*m_record_log, exit(hash, _));
-        EXPECT_CALL(*m_status, set_hash(_, _)).Times(2);
-        EXPECT_CALL(*m_status, set_hint(_, _)).Times(2);
+        EXPECT_CALL(*m_status, set_hash(_, _, _)).Times(2);
         // clear progress when exiting
         EXPECT_CALL(*m_status, reset_work_units(2));
         EXPECT_CALL(*m_status, reset_work_units(3));

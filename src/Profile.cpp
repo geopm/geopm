@@ -448,12 +448,14 @@ namespace geopm
             geopm_time(&now);
             m_app_record_log->enter(hash, now);
             for (const int &cpu_idx : m_cpu_set) {
-                m_app_status->set_hash(cpu_idx, hash);
+                m_app_status->set_hash(cpu_idx, hash, hint);
             }
         }
-        // top level and nested entries inside a region both update hints
+        else {
+            // top level and nested entries inside a region both update hints
+            set_hint(hint);
+        }
         m_hint_stack.push(hint);
-        set_hint(hint);
 
 #ifdef GEOPM_OVERHEAD
         m_overhead_time += geopm_time_since(&overhead_entry);
@@ -484,7 +486,6 @@ namespace geopm
         m_hint_stack.pop();
         if (m_hint_stack.empty()) {
             // leaving outermost region, clear hints and exit region
-            set_hint(GEOPM_REGION_HINT_UNSET);
             m_app_record_log->exit(hash, now);
             m_current_hash = GEOPM_REGION_HASH_UNMARKED;
             // reset both progress ints; calling post() outside of
@@ -495,7 +496,7 @@ namespace geopm
                 // progress from decreasing at the end of a region.
                 // The thread progress value is not valid outside of a
                 // region.
-                m_app_status->set_hash(cpu, m_current_hash);
+                m_app_status->set_hash(cpu, m_current_hash, GEOPM_REGION_HINT_UNSET);
                 m_app_status->reset_work_units(cpu);
             }
         }
