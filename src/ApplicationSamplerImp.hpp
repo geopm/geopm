@@ -92,6 +92,7 @@ namespace geopm
             std::vector<bool> m_is_cpu_active;
             geopm_time_s m_update_time;
             bool m_is_first_update;
+            std::vector<uint64_t> m_hint_last;
     };
 }
 
