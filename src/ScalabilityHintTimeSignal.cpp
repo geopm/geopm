@@ -30,43 +30,62 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SCALABILITYREGIONSIGNAL_HPP_INCLUDE
-#define SCALABILITYREGIONSIGNAL_HPP_INCLUDE
+#include "config.h"
 
-#include <memory>
+#include "ScalabilityHintTimeSignal.hpp"
 
-#include "Signal.hpp"
+#include "Exception.hpp"
+#include "Helper.hpp"
+#include "geopm_debug.hpp"
+
+#include <math.h>
+#include <unistd.h>
 
 namespace geopm
 {
-    /// A composite signal used by an IOGroup to produce a signal as
-    /// the Scalability of two signals.
-    class ScalabilityRegionSignal : public Signal
+    ScalabilityHintTimeSignal::ScalabilityHintTimeSignal(std::shared_ptr<Signal> scalability_sig, std::shared_ptr<Signal> time_sig,
+                                                         double range_upper, double range_lower)
+        : m_scalability(scalability_sig)
+        , m_time(time_sig)
+        , m_range_upper(range_upper)
+        , m_range_lower(range_lower)
+        , m_is_batch_ready(false)
     {
-        public:
-            ScalabilityRegionSignal(std::shared_ptr<Signal> scalability_sig, std::shared_ptr<Signal> time_sig,
-                              double range_upper, double range_lower, double sleep_time);
-            ScalabilityRegionSignal(const ScalabilityRegionSignal &other) = delete;
-            virtual ~ScalabilityRegionSignal() = default;
-            void setup_batch(void) override;
-            double sample(void) override;
-            double read(void) const override;
-        private:
-            static double compute_region_time(double scalability,
-                                              double curr_time,
-                                              double prev_time,
-                                              double upper,
-                                              double lower);
+        GEOPM_DEBUG_ASSERT(m_scalability && m_time,
+                           "Signal pointers for scalability and time cannot be null.");
+    }
 
-            std::shared_ptr<Signal> m_scalability;
-            std::shared_ptr<Signal> m_time;
-            bool m_is_batch_ready;
-            double m_range_upper;
-            double m_range_lower;
-            double m_region_time = 0;
-            double m_prev_time = 0;
-            double m_sleep_time;
-    };
+    void ScalabilityHintTimeSignal::setup_batch(void)
+    {
+        if (!m_is_batch_ready) {
+            m_scalability->setup_batch();
+            m_time->setup_batch();
+            m_is_batch_ready = true;
+        }
+    }
+
+    double ScalabilityHintTimeSignal::sample(void)
+    {
+        if (!m_is_batch_ready) {
+            throw Exception("setup_batch() must be called before sample().",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+
+        double scalability = m_scalability->sample();
+        double curr_time = m_time->sample();
+
+        if (scalability < m_range_upper
+            && scalability >= m_range_lower
+            && !isnan(scalability)) {
+            m_region_time += curr_time - m_prev_time;
+        }
+        m_prev_time = curr_time;
+
+        return m_region_time;
+    }
+
+    double ScalabilityHintTimeSignal::read(void) const
+    {
+        return NAN;
+    }
 }
-
-#endif

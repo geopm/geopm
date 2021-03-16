@@ -57,7 +57,7 @@
 #include "MSRFieldSignal.hpp"
 #include "DifferenceSignal.hpp"
 #include "DivisionSignal.hpp"
-#include "ScalabilityRegionSignal.hpp"
+#include "ScalabilityHintTimeSignal.hpp"
 #include "TimeSignal.hpp"
 #include "DerivativeSignal.hpp"
 #include "Control.hpp"
@@ -299,7 +299,7 @@ namespace geopm
                                          GEOPM_DOMAIN_CPU,
                                          IOGroup::M_UNITS_SECONDS,
                                          Agg::select_first,
-                                         "Time in seconds used to calculate power"};
+                                         "Time in seconds used to calculate pcnt_rate, acnt_rate"};
         int derivative_window = 8;
         double sleep_time = 0.005;  // 5000 us
 
@@ -313,11 +313,11 @@ namespace geopm
             std::string msr_name;
         };
         std::vector<cnt_data> cnt_signals {
-            {"MSR::PPERF:PCNT_RATE",
-                    "Average cpu pcnt value over 20 ms or 4 control loop iterations",
+            {"MSR::PCNT_RATE",
+                    "Average cpu pcnt rate over 8 control loop iterations (40ms if using geopmread)",
                     "MSR::PPERF:PCNT"},
-            {"MSR::APERF:ACNT_RATE",
-                    "Average cpu acnt value over 20 ms or 4 control loop iterations",
+            {"MSR::ACNT_RATE",
+                    "Average cpu acnt rate over 8 control loop iterations (40ms if using geopmread)",
                     "MSR::APERF:ACNT"}
         };
         for (const auto &ps : cnt_signals) {
@@ -342,15 +342,15 @@ namespace geopm
                 m_signal_available[signal_name] = {result,
                                                    cnt_domain,
                                                    IOGroup::M_UNITS_HERTZ,
-                                                   agg_function(msr_name),
+                                                   Agg::average,
                                                    ps.description + "\n    alias_for: " + ps.msr_name + " rate of change",
                                                    IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                                    string_format_double};
             }
         }
 
-        std::string signal_name = "MSR::PPERF:CPU_SCALABILITY";
-        std::string msr_name = "MSR::PPERF:PCNT_RATE";
+        std::string signal_name = "MSR::CPU_SCALABILITY_RATIO";
+        std::string msr_name = "MSR::PCNT_RATE";
         auto read_it = m_signal_available.find(msr_name);
         if (read_it != m_signal_available.end()) {
             auto readings = read_it->second.signals;
@@ -361,11 +361,11 @@ namespace geopm
                                " does not match number of signals available.");
             std::vector<std::shared_ptr<Signal> > result(num_domain);
             for (int domain_idx = 0; domain_idx < num_domain; ++domain_idx) {
-                auto numer_it = m_signal_available.find("MSR::PPERF:PCNT_RATE");
+                auto numer_it = m_signal_available.find("MSR::PCNT_RATE");
                 auto numers = numer_it->second.signals;
                 auto numer = numers[domain_idx];
 
-                auto denom_it = m_signal_available.find("MSR::APERF:ACNT_RATE");
+                auto denom_it = m_signal_available.find("MSR::ACNT_RATE");
                 auto denoms = denom_it->second.signals;
                 auto denom = denoms[domain_idx];
 
@@ -377,7 +377,7 @@ namespace geopm
                                                cnt_domain,
                                                IOGroup::M_UNITS_NONE,
                                                Agg::average,
-                                               "Measure of CPU Scalability as determined by PCNT over ACNT\n    alias_for: MSR::PPERF:PCNT_RATE/MSR::APERF:ACNT_RATE",
+                                               "Measure of CPU Scalability as determined by PCNT over ACNT\n    alias_for: MSR::PCNT_RATE/MSR::ACNT_RATE",
                                                IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                                string_format_double};
         }
@@ -391,17 +391,17 @@ namespace geopm
             double range_lower;
         };
         std::vector<hint_data> hint_signals {
-            {"MSR::PPERF:PCNT_REGION_HINT_COMPUTE",
+            {"MSR::TIME_HINT_COMPUTE",
                     "Compute Bound Region Hint based on PCNT",
-                    "MSR::PPERF:CPU_SCALABILITY",
+                    "MSR::CPU_SCALABILITY_RATIO",
                     2.0, 0.5},
-            {"MSR::PPERF:PCNT_REGION_HINT_MEMORY",
+            {"MSR::TIME_HINT_MEMORY",
                     "Memory Bound Region Hint based on PCNT",
-                    "MSR::PPERF:CPU_SCALABILITY",
+                    "MSR::CPU_SCALABILITY_RATIO",
                     0.5, 0.05},
-            {"MSR::PPERF:PCNT_REGION_HINT_IGNORE",
+            {"MSR::TIME_HINT_IGNORE",
                     "Ignore Region Hint based on PCNT",
-                    "MSR::PPERF:CPU_SCALABILITY",
+                    "MSR::CPU_SCALABILITY_RATIO",
                     0.05, 0.0}
         };
 
@@ -420,9 +420,9 @@ namespace geopm
                 for (int domain_idx = 0; domain_idx < num_domain; ++domain_idx) {
                     auto hint = readings[domain_idx];
                     result[domain_idx] =
-                        std::make_shared<ScalabilityRegionSignal>(hint, time_sig,
-                                                           ps.range_upper, ps.range_lower,
-                                                           sleep_time);
+                        std::make_shared<ScalabilityHintTimeSignal>(hint, time_sig,
+                                                           ps.range_upper, ps.range_lower);
+
                 }
 
                 m_signal_available[signal_name] = {result,
@@ -829,7 +829,6 @@ namespace geopm
         std::function<std::string(double)> result = string_format_double;
         auto it = m_signal_available.find(signal_name);
         if (it != m_signal_available.end()) {
-            int units = it->second.units;
             result = it->second.format_function;
         }
 #ifdef GEOPM_DEBUG

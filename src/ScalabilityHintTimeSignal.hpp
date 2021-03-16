@@ -30,8 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef DIVISIONSIGNAL_HPP_INCLUDE
-#define DIVISIONSIGNAL_HPP_INCLUDE
+#ifndef SCALABILITYHINTTIMESIGNAL_HPP_INCLUDE
+#define SCALABILITYHINTTIMESIGNAL_HPP_INCLUDE
 
 #include <memory>
 
@@ -39,22 +39,27 @@
 
 namespace geopm
 {
-    /// @brief A composite signal used by an IOGroup to produce a signal as
-    /// the Division of two signals.
-    class DivisionSignal : public Signal
+    /// A composite signal used by an IOGroup to produce a signal as
+    /// the Scalability of two signals.
+    class ScalabilityHintTimeSignal : public Signal
     {
         public:
-            DivisionSignal(std::shared_ptr<Signal> numerator,
-                           std::shared_ptr<Signal> denominator);
-            DivisionSignal(const DivisionSignal &other) = delete;
-            virtual ~DivisionSignal() = default;
+            ScalabilityHintTimeSignal(std::shared_ptr<Signal> scalability_sig, std::shared_ptr<Signal> time_sig,
+                                      double range_upper, double range_lower);
+            ScalabilityHintTimeSignal(const ScalabilityHintTimeSignal &other) = delete;
+            virtual ~ScalabilityHintTimeSignal() = default;
             void setup_batch(void) override;
             double sample(void) override;
             double read(void) const override;
         private:
-            std::shared_ptr<Signal> m_numerator;
-            std::shared_ptr<Signal> m_denominator;
+            std::shared_ptr<Signal> m_scalability;
+            std::shared_ptr<Signal> m_time;
+            double m_range_upper;
+            double m_range_lower;
             bool m_is_batch_ready;
+
+            double m_region_time = 0;
+            double m_prev_time = 0;
     };
 }
 

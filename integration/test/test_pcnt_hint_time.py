@@ -31,7 +31,7 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-"""Test that PCNT_REGION_HINTS report values match expectectations when
+"""Test that pcnt hint time report values match expectations when
 running the synthetic benchmark
 
 """
@@ -54,7 +54,7 @@ if util.do_launch():
     from integration.test import geopm_test_launcher
     geopmpy.error.exc_clear()
 
-class TestIntegration_pcnt_region_hints(unittest.TestCase):
+class TestIntegration_pcnt_hint_time(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """Create launcher, execute benchmark and set up class variables.
@@ -62,11 +62,11 @@ class TestIntegration_pcnt_region_hints(unittest.TestCase):
         """
         sys.stdout.write('(' + os.path.basename(__file__).split('.')[0] +
                          '.' + cls.__name__ + ') ...')
-        test_name = 'pcnt_region_hints'
+        test_name = 'pcnt_hint_time'
         cls._report_path = 'test_{}.report'.format(test_name)
         cls._trace_path = 'test_{}.trace'.format(test_name)
         cls._image_path = 'test_{}.png'.format(test_name)
-        cls._report_signals = "MSR::PPERF:PCNT_REGION_HINT_COMPUTE,MSR::PPERF:PCNT_REGION_HINT_MEMORY,MSR::PPERF:PCNT_REGION_HINT_IGNORE"
+        cls._report_signals = "MSR::TIME_HINT_COMPUTE,MSR::TIME_HINT_MEMORY,MSR::TIME_HINT_IGNORE"
         cls._skip_launch = not util.do_launch()
         cls._agent_conf_path = 'test_' + test_name + '-agent-config.json'
         # Clear out exception record for python 2 support
@@ -107,7 +107,7 @@ class TestIntegration_pcnt_region_hints(unittest.TestCase):
 
     def tearDown(self):
         if sys.exc_info() != (None, None, None):
-            TestIntegration_pcnt_region_hints._keep_files = True
+            TestIntegration_pcnt_hint_time._keep_files = True
 
     def test_load_report(self):
         """Test that the report can be loaded
@@ -123,28 +123,28 @@ class TestIntegration_pcnt_region_hints(unittest.TestCase):
         '''
         for node in self._node_names:
             dgemm_data = self._report.raw_region(node, 'dgemm')
-            total_runtime = (dgemm_data['MSR::PPERF:PCNT_REGION_HINT_COMPUTE'] +
-                             dgemm_data['MSR::PPERF:PCNT_REGION_HINT_MEMORY'] +
-                             dgemm_data['MSR::PPERF:PCNT_REGION_HINT_IGNORE'])
+            total_runtime = (dgemm_data['MSR::TIME_HINT_COMPUTE'] +
+                             dgemm_data['MSR::TIME_HINT_MEMORY'] +
+                             dgemm_data['MSR::TIME_HINT_IGNORE'])
             util.assertNear(self, total_runtime, dgemm_data['sync-runtime (s)'])
 
             stream_data = self._report.raw_region(node, 'stream')
 
-            total_runtime = (stream_data['MSR::PPERF:PCNT_REGION_HINT_COMPUTE'] +
-                             stream_data['MSR::PPERF:PCNT_REGION_HINT_MEMORY'] +
-                             stream_data['MSR::PPERF:PCNT_REGION_HINT_IGNORE'])
+            total_runtime = (stream_data['MSR::TIME_HINT_COMPUTE'] +
+                             stream_data['MSR::TIME_HINT_MEMORY'] +
+                             stream_data['MSR::TIME_HINT_IGNORE'])
             util.assertNear(self, total_runtime, stream_data['sync-runtime (s)'])
 
             unmarked_data = self._report.raw_unmarked(node)
-            total_runtime = (unmarked_data['MSR::PPERF:PCNT_REGION_HINT_COMPUTE'] +
-                             unmarked_data['MSR::PPERF:PCNT_REGION_HINT_MEMORY'] +
-                             unmarked_data['MSR::PPERF:PCNT_REGION_HINT_IGNORE'])
+            total_runtime = (unmarked_data['MSR::TIME_HINT_COMPUTE'] +
+                             unmarked_data['MSR::TIME_HINT_MEMORY'] +
+                             unmarked_data['MSR::TIME_HINT_IGNORE'])
             util.assertNear(self, total_runtime, unmarked_data['sync-runtime (s)'])
 
             app_total = self._report.raw_totals(node)
-            total_runtime = (app_total['MSR::PPERF:PCNT_REGION_HINT_COMPUTE'] +
-                             app_total['MSR::PPERF:PCNT_REGION_HINT_MEMORY'] +
-                             app_total['MSR::PPERF:PCNT_REGION_HINT_IGNORE'])
+            total_runtime = (app_total['MSR::TIME_HINT_COMPUTE'] +
+                             app_total['MSR::TIME_HINT_MEMORY'] +
+                             app_total['MSR::TIME_HINT_IGNORE'])
             util.assertNear(self, total_runtime, app_total['sync-runtime (s)'])
 
 
@@ -155,30 +155,30 @@ class TestIntegration_pcnt_region_hints(unittest.TestCase):
         for node in self._node_names:
             # DGEMM should be at least 80% compute region
             dgemm_data = self._report.raw_region(node, 'dgemm')
-            hint_runtime = dgemm_data['MSR::PPERF:PCNT_REGION_HINT_COMPUTE']
+            hint_runtime = dgemm_data['MSR::TIME_HINT_COMPUTE']
             util.assertNear(self, hint_runtime, dgemm_data['sync-runtime (s)'], 0.20)
 
             # DGEMM should be at least 95% compute region and memory region
-            hint_runtime = (dgemm_data['MSR::PPERF:PCNT_REGION_HINT_COMPUTE'] +
-                            dgemm_data['MSR::PPERF:PCNT_REGION_HINT_MEMORY'])
+            hint_runtime = (dgemm_data['MSR::TIME_HINT_COMPUTE'] +
+                            dgemm_data['MSR::TIME_HINT_MEMORY'])
             util.assertNear(self, hint_runtime, dgemm_data['sync-runtime (s)'], 0.05)
 
             # STREAM should be at least 80% memory region and ignore region
             stream_data = self._report.raw_region(node, 'stream')
-            hint_runtime = (stream_data['MSR::PPERF:PCNT_REGION_HINT_MEMORY'] +
-                            stream_data['MSR::PPERF:PCNT_REGION_HINT_IGNORE'])
+            hint_runtime = (stream_data['MSR::TIME_HINT_MEMORY'] +
+                            stream_data['MSR::TIME_HINT_IGNORE'])
             util.assertNear(self, hint_runtime, stream_data['sync-runtime (s)'], 0.20)
 
             # app total compute hint time should be near dgemm runtime (not sync)
             app_total = self._report.raw_totals(node)
-            hint_runtime = app_total['MSR::PPERF:PCNT_REGION_HINT_COMPUTE']
+            hint_runtime = app_total['MSR::TIME_HINT_COMPUTE']
             util.assertNear(self, hint_runtime, dgemm_data['runtime (s)'], 0.20)
 
             # app total non-compute hint time should be near stream runtime (not sync)
             # when we discount any dgemm memory bound nature
-            hint_runtime = (app_total['MSR::PPERF:PCNT_REGION_HINT_MEMORY'] +
-                            app_total['MSR::PPERF:PCNT_REGION_HINT_IGNORE'] -
-                            dgemm_data['MSR::PPERF:PCNT_REGION_HINT_MEMORY'])
+            hint_runtime = (app_total['MSR::TIME_HINT_MEMORY'] +
+                            app_total['MSR::TIME_HINT_IGNORE'] -
+                            dgemm_data['MSR::TIME_HINT_MEMORY'])
 
             util.assertNear(self, hint_runtime, stream_data['runtime (s)'], 0.20)
 

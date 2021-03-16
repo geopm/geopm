@@ -472,15 +472,14 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
               test/gtest_links/ReporterTest.generate \
               test/gtest_links/SampleAggregatorTest.epoch_application_total \
               test/gtest_links/SampleAggregatorTest.sample_application \
-              test/gtest_links/ScalabilityRegionSignalTest.errors \
-              test/gtest_links/ScalabilityRegionSignalTest.read \
-              test/gtest_links/ScalabilityRegionSignalTest.read_nan \
-              test/gtest_links/ScalabilityRegionSignalTest.read_batch \
-              test/gtest_links/ScalabilityRegionSignalTest.read_batch_nan \
-              test/gtest_links/ScalabilityRegionSignalTest.read_batch_lower_boundary \
-              test/gtest_links/ScalabilityRegionSignalTest.read_batch_upper_boundary \
-              test/gtest_links/ScalabilityRegionSignalTest.read_batch_repeat \
-              test/gtest_links/ScalabilityRegionSignalTest.setup_batch \
+              test/gtest_links/ScalabilityHintTimeSignalTest.errors \
+              test/gtest_links/ScalabilityHintTimeSignalTest.read_nan \
+              test/gtest_links/ScalabilityHintTimeSignalTest.read_batch \
+              test/gtest_links/ScalabilityHintTimeSignalTest.read_batch_nan \
+              test/gtest_links/ScalabilityHintTimeSignalTest.read_batch_lower_boundary \
+              test/gtest_links/ScalabilityHintTimeSignalTest.read_batch_upper_boundary \
+              test/gtest_links/ScalabilityHintTimeSignalTest.read_batch_repeat \
+              test/gtest_links/ScalabilityHintTimeSignalTest.setup_batch \
               test/gtest_links/SchedTest.test_proc_cpuset_0 \
               test/gtest_links/SchedTest.test_proc_cpuset_1 \
               test/gtest_links/SchedTest.test_proc_cpuset_2 \
@@ -694,7 +693,7 @@ test_geopm_test_SOURCES = test/AcceleratorTopoNullTest.cpp \
                           test/RecordFilterTest.cpp \
                           test/ReporterTest.cpp \
                           test/SampleAggregatorTest.cpp \
-                          test/ScalabilityRegionSignalTest.cpp \
+                          test/ScalabilityHintTimeSignalTest.cpp \
                           test/SchedTest.cpp \
                           test/SharedMemoryTest.cpp \
                           test/SSTControlTest.cpp \

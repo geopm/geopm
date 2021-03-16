@@ -35,18 +35,18 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-#include "ScalabilityRegionSignal.hpp"
+#include "ScalabilityHintTimeSignal.hpp"
 #include "Helper.hpp"
 #include "MockSignal.hpp"
 #include "geopm_test.hpp"
 
 using geopm::Signal;
-using geopm::ScalabilityRegionSignal;
+using geopm::ScalabilityHintTimeSignal;
 
 using testing::Return;
 using testing::InvokeWithoutArgs;
 
-class ScalabilityRegionSignalTest : public ::testing::Test
+class ScalabilityHintTimeSignalTest : public ::testing::Test
 {
     protected:
         void SetUp(void);
@@ -63,7 +63,7 @@ class ScalabilityRegionSignalTest : public ::testing::Test
         std::vector< std::pair<double, double> > m_range;
 };
 
-void ScalabilityRegionSignalTest::SetUp(void)
+void ScalabilityHintTimeSignalTest::SetUp(void)
 {
     m_scal = {0.75, 0.45, 0.01};
     m_sleep_time = 0.005;
@@ -76,51 +76,20 @@ void ScalabilityRegionSignalTest::SetUp(void)
     m_time_sig = std::make_shared<MockSignal>();
     m_scal_sig = std::make_shared<MockSignal>();
     for (const auto &range : m_range) {
-        m_sig.push_back(geopm::make_unique<ScalabilityRegionSignal>(m_scal_sig, m_time_sig,
-                                                     range.first, range.second, m_sleep_time));
+        m_sig.push_back(geopm::make_unique<ScalabilityHintTimeSignal>(m_scal_sig, m_time_sig,
+                                                     range.first, range.second));
     }
 }
 
-TEST_F(ScalabilityRegionSignalTest, read)
+TEST_F(ScalabilityHintTimeSignalTest, read_nan)
 {
-    double time = 0.0;
-
-    for (int odx = 0; odx < m_scal.size(); ++odx) {
-        EXPECT_CALL(*m_scal_sig, read()).Times(m_sig.size())
-            .WillRepeatedly(Return(m_scal.at(odx)));
-
-        for (int idx = 0; idx < m_sig.size(); ++idx) {
-            EXPECT_CALL(*m_time_sig, read())
-                .WillOnce(Return(time))
-                .WillOnce(Return(time + m_sleep_time));
-            double actual = m_sig.at(idx)->read();
-            if (idx == odx) {
-                EXPECT_NEAR(m_sleep_time, actual, 0.00001);
-            }
-            else {
-                EXPECT_NEAR(0.0, actual, 0.00001);
-            }
-        }
-    }
-}
-
-TEST_F(ScalabilityRegionSignalTest, read_nan)
-{
-    double time = 0.0;
-
-    EXPECT_CALL(*m_scal_sig, read()).Times(m_sig.size())
-        .WillRepeatedly(Return(NAN));
-
-    for (int idx = 0; idx < m_sig.size(); ++idx) {
-        EXPECT_CALL(*m_time_sig, read())
-            .WillOnce(Return(time))
-            .WillOnce(Return(time + m_sleep_time));
+    for (int idx = 0; idx < (int) m_sig.size(); ++idx) {
         double actual = m_sig.at(idx)->read();
-        EXPECT_DOUBLE_EQ(0.0, actual);
+        EXPECT_TRUE(std::isnan(actual));
     }
 }
 
-TEST_F(ScalabilityRegionSignalTest, read_batch)
+TEST_F(ScalabilityHintTimeSignalTest, read_batch)
 {
     double time = 0.00;
 
@@ -131,7 +100,7 @@ TEST_F(ScalabilityRegionSignalTest, read_batch)
         sig->setup_batch();
     }
 
-    for (int odx = 0; odx < m_scal.size(); ++odx) {
+    for (int odx = 0; odx < (int) m_scal.size(); ++odx) {
         time += m_sleep_time;
         EXPECT_CALL(*m_time_sig, sample())
             .WillRepeatedly(Return(time));
@@ -139,7 +108,7 @@ TEST_F(ScalabilityRegionSignalTest, read_batch)
         EXPECT_CALL(*m_scal_sig, sample()).Times(m_sig.size())
             .WillRepeatedly(Return(m_scal.at(odx)));
 
-        for (int idx = 0; idx < m_sig.size(); ++idx) {
+        for (int idx = 0; idx < (int) m_sig.size(); ++idx) {
             double actual = m_sig.at(idx)->sample();
             if (idx <= odx) {
                 EXPECT_NEAR(m_sleep_time, actual, 0.00001);
@@ -152,7 +121,7 @@ TEST_F(ScalabilityRegionSignalTest, read_batch)
 }
 
 
-TEST_F(ScalabilityRegionSignalTest, read_batch_upper_boundary)
+TEST_F(ScalabilityHintTimeSignalTest, read_batch_upper_boundary)
 {
     double time = 0.00;
 
@@ -163,7 +132,7 @@ TEST_F(ScalabilityRegionSignalTest, read_batch_upper_boundary)
         sig->setup_batch();
     }
 
-    for (int odx = 0; odx < m_sig.size(); ++odx) {
+    for (int odx = 0; odx < (int) m_sig.size(); ++odx) {
         time += m_sleep_time;
 
         EXPECT_CALL(*m_time_sig, sample())
@@ -172,7 +141,7 @@ TEST_F(ScalabilityRegionSignalTest, read_batch_upper_boundary)
         EXPECT_CALL(*m_scal_sig, sample())
             .WillRepeatedly(Return(m_range.at(odx).first));
 
-        for (int idx = 0; idx < m_sig.size(); ++idx) {
+        for (int idx = 0; idx < (int) m_sig.size(); ++idx) {
             double actual = m_sig.at(idx)->sample();
             if  (idx < odx) {
                 EXPECT_NEAR(m_sleep_time, actual, 0.00001);
@@ -184,7 +153,7 @@ TEST_F(ScalabilityRegionSignalTest, read_batch_upper_boundary)
     }
 }
 
-TEST_F(ScalabilityRegionSignalTest, read_batch_lower_boundary)
+TEST_F(ScalabilityHintTimeSignalTest, read_batch_lower_boundary)
 {
     double time = 0.00;
 
@@ -195,7 +164,7 @@ TEST_F(ScalabilityRegionSignalTest, read_batch_lower_boundary)
         sig->setup_batch();
     }
 
-    for (int odx = 0; odx < m_sig.size(); ++odx) {
+    for (int odx = 0; odx < (int) m_sig.size(); ++odx) {
         time += m_sleep_time;
 
         EXPECT_CALL(*m_time_sig, sample())
@@ -204,7 +173,7 @@ TEST_F(ScalabilityRegionSignalTest, read_batch_lower_boundary)
         EXPECT_CALL(*m_scal_sig, sample())
             .WillRepeatedly(Return(m_range.at(odx).second));
 
-        for (int idx = 0; idx < m_sig.size(); ++idx) {
+        for (int idx = 0; idx < (int) m_sig.size(); ++idx) {
             double actual = m_sig.at(idx)->sample();
             if (idx <= odx) {
                 EXPECT_NEAR(m_sleep_time, actual, 0.00001);
@@ -216,7 +185,7 @@ TEST_F(ScalabilityRegionSignalTest, read_batch_lower_boundary)
     }
 }
 
-TEST_F(ScalabilityRegionSignalTest, read_batch_nan)
+TEST_F(ScalabilityHintTimeSignalTest, read_batch_nan)
 {
     double time = 0.00;
 
@@ -233,13 +202,13 @@ TEST_F(ScalabilityRegionSignalTest, read_batch_nan)
     EXPECT_CALL(*m_time_sig, sample())
         .WillRepeatedly(Return(time));
 
-    for (int idx = 0; idx < m_sig.size(); ++idx) {
+    for (int idx = 0; idx < (int) m_sig.size(); ++idx) {
         double actual = m_sig.at(idx)->sample();
         EXPECT_DOUBLE_EQ(0.0, actual);
     }
 }
 
-TEST_F(ScalabilityRegionSignalTest, read_batch_repeat)
+TEST_F(ScalabilityHintTimeSignalTest, read_batch_repeat)
 {
     int repeated_samples = 5;
     double time = 0.00;
@@ -252,7 +221,7 @@ TEST_F(ScalabilityRegionSignalTest, read_batch_repeat)
     }
 
     for (int reps = 0; reps < repeated_samples; ++reps) {
-        for (int odx = 0; odx < m_scal.size(); ++odx) {
+        for (int odx = 0; odx < (int) m_scal.size(); ++odx) {
             time += m_sleep_time;
             EXPECT_CALL(*m_time_sig, sample())
                 .WillRepeatedly(Return(time));
@@ -260,7 +229,7 @@ TEST_F(ScalabilityRegionSignalTest, read_batch_repeat)
             EXPECT_CALL(*m_scal_sig, sample()).Times(m_sig.size())
                 .WillRepeatedly(Return(m_scal.at(odx)));
 
-            for (int idx = 0; idx < m_sig.size(); ++idx) {
+            for (int idx = 0; idx < (int) m_sig.size(); ++idx) {
                 double actual = m_sig.at(idx)->sample();
                 if (idx <= odx) {
                     EXPECT_NEAR(m_sleep_time*(reps+1), actual, 0.00001);
@@ -273,7 +242,7 @@ TEST_F(ScalabilityRegionSignalTest, read_batch_repeat)
     }
 }
 
-TEST_F(ScalabilityRegionSignalTest, setup_batch)
+TEST_F(ScalabilityHintTimeSignalTest, setup_batch)
 {
     // check that setup_batch can be safely called twice
 
@@ -285,14 +254,14 @@ TEST_F(ScalabilityRegionSignalTest, setup_batch)
     }
 }
 
-TEST_F(ScalabilityRegionSignalTest, errors)
+TEST_F(ScalabilityHintTimeSignalTest, errors)
 {
 #ifdef GEOPM_DEBUG
     // cannot construct with null signals
-    GEOPM_EXPECT_THROW_MESSAGE(ScalabilityRegionSignal(nullptr, m_scal_sig, 0, 0),
+    GEOPM_EXPECT_THROW_MESSAGE(ScalabilityHintTimeSignal(nullptr, m_scal_sig, 0, 0),
                                GEOPM_ERROR_LOGIC,
                                "Signal pointers for scalability and time cannot be null.");
-    GEOPM_EXPECT_THROW_MESSAGE(ScalabilityRegionSignal(m_time_sig, nullptr, 0, 0),
+    GEOPM_EXPECT_THROW_MESSAGE(ScalabilityHintTimeSignal(m_time_sig, nullptr, 0, 0),
                                GEOPM_ERROR_LOGIC,
                                "Signal pointers for scalability and time cannot be null.");
 #endif

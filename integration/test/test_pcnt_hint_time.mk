@@ -29,4 +29,4 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += integration/test/test_pcnt_region_hints.py
+EXTRA_DIST += integration/test/test_pcnt_hint_time.py

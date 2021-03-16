@@ -41,7 +41,7 @@
 namespace geopm
 {
     DivisionSignal::DivisionSignal(std::shared_ptr<Signal> numerator,
-                                       std::shared_ptr<Signal> denominator)
+                                   std::shared_ptr<Signal> denominator)
         : m_numerator(numerator)
         , m_denominator(denominator)
         , m_is_batch_ready(false)
