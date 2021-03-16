@@ -126,6 +126,21 @@ namespace geopm
         m_buffer[cpu_idx].hash = (uint32_t)hash;
     }
 
+    void ApplicationStatusImp::set_hash(int cpu_idx, uint64_t hash, uint64_t hint)
+    {
+        if (cpu_idx < 0 || cpu_idx >= m_num_cpu) {
+            throw Exception("ApplicationStatusImp::set_hash(): invalid CPU index: " + std::to_string(cpu_idx),
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        if (((~0ULL << 32) & hash) != 0) {
+            throw Exception("ApplicationStatusImp::set_hash(): invalid region hash: " + std::to_string(hash),
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        GEOPM_DEBUG_ASSERT(m_buffer != nullptr, "m_buffer not set");
+        m_buffer[cpu_idx].hash = (uint32_t)hash;
+        m_buffer[cpu_idx].hint = (uint32_t)(hint >> 32);
+    }
+
     uint64_t ApplicationStatusImp::get_hash(int cpu_idx) const
     {
         if (cpu_idx < 0 || cpu_idx >= m_num_cpu) {

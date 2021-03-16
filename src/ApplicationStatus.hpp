@@ -68,6 +68,7 @@ namespace geopm
             /// @brief Set the hash of the region currently running on
             ///        a CPU.
             virtual void set_hash(int cpu_idx, uint64_t hash) = 0;
+            virtual void set_hash(int cpu_idx, uint64_t hash, uint64_t hint) = 0;
             /// @brief Get the hash of the region currently running on
             ///        a CPU.
             virtual uint64_t get_hash(int cpu_idx) const = 0;
@@ -140,6 +141,7 @@ namespace geopm
             void set_hint(int cpu_idx, uint64_t hint) override;
             uint64_t get_hint(int cpu_idx) const override;
             void set_hash(int cpu_idx, uint64_t hash) override;
+            void set_hash(int cpu_idx, uint64_t hash, uint64_t hint) override;
             uint64_t get_hash(int cpu_idx) const override;
             void reset_work_units(int cpu_idx) override;
             void set_total_work_units(int cpu_idx, int work_units) override;
