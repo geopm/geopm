@@ -60,6 +60,9 @@ def prepare(df):
 
 
 def governor_analysis(report_collection, analysis_dir):
+    if not os.path.exists(analysis_dir):
+        os.mkdir(analysis_dir)
+
     edf = report_collection.get_epoch_df()
     edf = prepare(edf) # Drop unneeded cols, rename confusing fields
 
@@ -82,9 +85,7 @@ def governor_analysis(report_collection, analysis_dir):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     common_args.add_output_dir(parser)
-    parser.add_argument('--analysis-dir', dest='analysis_dir',
-                        action='store', default='analysis',
-                        help='directory for output analysis files')
+    common_args.add_analysis_dir(parser)
 
     args, _ = parser.parse_known_args()
 
@@ -93,11 +94,6 @@ if __name__ == '__main__':
     except:
         sys.stderr.write('<geopm> Error: No report data found in {}; run a core/uncore frequency sweep before using this analysis\n'.format(output_dir))
         sys.exit(1)
-
-    try:
-        os.mkdir(args.analysis_dir)
-    except:
-        pass
 
     governor_analysis(rrc, args.analysis_dir)
 

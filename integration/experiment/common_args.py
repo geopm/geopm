@@ -168,3 +168,9 @@ def add_performance_metric(parser):
     parser.add_argument('--performance-metric', dest='performance_metric',
                         action='store', type=str, default='FOM',
                         help='metric to use for performance (default: figure of merit)')
+
+
+def add_analysis_dir(parser):
+    parser.add_argument('--analysis-dir', dest='analysis_dir',
+                        action='store', default='analysis',
+                        help='directory for output analysis files')
