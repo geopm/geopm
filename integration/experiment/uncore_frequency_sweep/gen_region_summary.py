@@ -78,8 +78,8 @@ def region_summary_analysis(report_collection, analysis_dir):
     df = prepare(df)
     adf = prepare(adf)
 
-    field_list = ['count', 'runtime (sec)', 'sync-runtime (sec)', 'network-time (sec)', 'package-energy (joules)', 'power (watts)', 'core freq (%)', 'core freq (Hz)']
-    adf_field_list = ['runtime (sec)', 'network-time (sec)', 'ignore-time (sec)', 'package-energy (joules)', 'dram-energy (joules)', 'power (watts)']
+    field_list = ['count', 'runtime (s)', 'sync-runtime (s)', 'time-hint-network (s)', 'package-energy (J)', 'power (W)', 'core freq (%)', 'core freq (Hz)']
+    adf_field_list = ['runtime (s)', 'time-hint-network (s)', 'time-hint-ignore (s)', 'package-energy (J)', 'dram-energy (J)', 'power (W)']
 
     # Write Epoch stats
     with open(os.path.join(analysis_dir, 'epoch_mean_stats.log'), 'w') as log:
@@ -140,8 +140,6 @@ def region_summary_analysis(report_collection, analysis_dir):
             ldf = ldf.reset_index('region', drop=True)
             log.write('{}\n\n'.format(ldf))
 
-    sys.exit(0)
-
     # Write detailed per-region stats
     sys.stderr.write('Writing detailed per-region stats.  This may take a minute... ')
     with open(os.path.join(analysis_dir, 'region_detailed_stats.log'), 'w') as log:
@@ -167,7 +165,7 @@ def region_length_analysis(report_collection, analysis_dir):
     df['runtime-per-iteration'] = df['runtime (s)'] / df['count']
     df['sync-runtime-per-iteration'] = df['sync-runtime (s)'] / df['count']
 
-    field_list = ['runtime-per-iteration', 'runtime (sec)', 'sync-runtime-per-iteration', 'sync-runtime (sec)', 'network-time (sec)', 'count']
+    field_list = ['runtime-per-iteration', 'runtime (s)', 'sync-runtime-per-iteration', 'sync-runtime (s)', 'time-hint-network (s)', 'count']
 
     gdf = df.groupby(['region', 'core_mhz', 'uncore_mhz'], sort=False)
     results = gdf[field_list].mean().sort_index(level=['region', 'core_mhz', 'uncore_mhz'], ascending=[True, False, False])
