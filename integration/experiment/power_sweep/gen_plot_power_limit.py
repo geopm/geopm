@@ -48,6 +48,9 @@ from experiment import common_args
 from experiment import plotting
 
 def plot_lines(traces, label, analysis_dir):
+    if not os.path.exists(analysis_dir):
+        os.mkdir(analysis_dir)
+
     fig, axs = plt.subplots(2)
     fig.set_size_inches((20, 10))
 
@@ -110,10 +113,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     common_args.add_output_dir(parser)
     common_args.add_label(parser)
-
-    parser.add_argument('--analysis-dir', dest='analysis_dir',
-                        action='store', default='analysis',
-                        help='directory for output analysis files')
+    common_args.add_analysis_dir(parser)
 
     # Positional arg for gathering all traces into a list
     # Works for files listed explicitly, or with a glob pattern e.g. *trace*
@@ -129,6 +129,7 @@ if __name__ == '__main__':
         if not (os.path.isfile(lp) and os.path.getsize(lp) > 0):
             sys.stderr.write('<geopm> Error: No trace data found in {}\n'.format(lp))
             sys.exit(1)
+
 
     plot_lines(args.tracepath, args.label, args.analysis_dir)
 
