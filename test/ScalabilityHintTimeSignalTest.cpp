@@ -56,7 +56,7 @@ class ScalabilityHintTimeSignalTest : public ::testing::Test
         std::vector<std::unique_ptr<Signal>> m_sig;
 
         // example data
-        std::vector<double> m_scal {0.75, 0.45, 0.01};
+        std::vector<double> m_scal;
 
         double m_sleep_time;
 
@@ -65,7 +65,7 @@ class ScalabilityHintTimeSignalTest : public ::testing::Test
 
 void ScalabilityHintTimeSignalTest::SetUp(void)
 {
-    m_scal = {0.75, 0.45, 0.01};
+    m_scal = {0.75, 0.45, 0.01, NAN};
     m_sleep_time = 0.005;
 
     m_range = {std::make_pair(2.0,0.5),
@@ -110,7 +110,7 @@ TEST_F(ScalabilityHintTimeSignalTest, read_batch)
 
         for (int idx = 0; idx < (int) m_sig.size(); ++idx) {
             double actual = m_sig.at(idx)->sample();
-            if (idx <= odx) {
+            if (idx <= odx-1) {
                 EXPECT_NEAR(m_sleep_time, actual, 0.00001);
             }
             else {
@@ -124,6 +124,7 @@ TEST_F(ScalabilityHintTimeSignalTest, read_batch)
 TEST_F(ScalabilityHintTimeSignalTest, read_batch_upper_boundary)
 {
     double time = 0.00;
+    std::vector<double> scal;
 
     EXPECT_CALL(*m_time_sig, setup_batch()).Times(m_sig.size());
 
@@ -132,18 +133,23 @@ TEST_F(ScalabilityHintTimeSignalTest, read_batch_upper_boundary)
         sig->setup_batch();
     }
 
-    for (int odx = 0; odx < (int) m_sig.size(); ++odx) {
+    for (const auto &range : m_range) {
+        scal.push_back(range.first);
+    }
+    scal.push_back(NAN);
+
+    for (int odx = 0; odx < (int) scal.size(); ++odx) {
         time += m_sleep_time;
 
         EXPECT_CALL(*m_time_sig, sample())
             .WillRepeatedly(Return(time));
 
         EXPECT_CALL(*m_scal_sig, sample())
-            .WillRepeatedly(Return(m_range.at(odx).first));
+            .WillRepeatedly(Return(scal.at(odx)));
 
         for (int idx = 0; idx < (int) m_sig.size(); ++idx) {
             double actual = m_sig.at(idx)->sample();
-            if  (idx < odx) {
+            if  (idx < odx-1) {
                 EXPECT_NEAR(m_sleep_time, actual, 0.00001);
             }
             else {
@@ -156,6 +162,7 @@ TEST_F(ScalabilityHintTimeSignalTest, read_batch_upper_boundary)
 TEST_F(ScalabilityHintTimeSignalTest, read_batch_lower_boundary)
 {
     double time = 0.00;
+    std::vector<double> scal;
 
     EXPECT_CALL(*m_time_sig, setup_batch()).Times(m_sig.size());
 
@@ -164,18 +171,23 @@ TEST_F(ScalabilityHintTimeSignalTest, read_batch_lower_boundary)
         sig->setup_batch();
     }
 
-    for (int odx = 0; odx < (int) m_sig.size(); ++odx) {
+    for (const auto &range : m_range) {
+        scal.push_back(range.second);
+    }
+    scal.push_back(NAN);
+
+    for (int odx = 0; odx < (int) scal.size(); ++odx) {
         time += m_sleep_time;
 
         EXPECT_CALL(*m_time_sig, sample())
             .WillRepeatedly(Return(time));
 
         EXPECT_CALL(*m_scal_sig, sample())
-            .WillRepeatedly(Return(m_range.at(odx).second));
+            .WillRepeatedly(Return(scal.at(odx)));
 
         for (int idx = 0; idx < (int) m_sig.size(); ++idx) {
             double actual = m_sig.at(idx)->sample();
-            if (idx <= odx) {
+            if (idx <= odx-1) {
                 EXPECT_NEAR(m_sleep_time, actual, 0.00001);
             }
             else {
@@ -223,6 +235,7 @@ TEST_F(ScalabilityHintTimeSignalTest, read_batch_repeat)
     for (int reps = 0; reps < repeated_samples; ++reps) {
         for (int odx = 0; odx < (int) m_scal.size(); ++odx) {
             time += m_sleep_time;
+
             EXPECT_CALL(*m_time_sig, sample())
                 .WillRepeatedly(Return(time));
 
@@ -231,7 +244,7 @@ TEST_F(ScalabilityHintTimeSignalTest, read_batch_repeat)
 
             for (int idx = 0; idx < (int) m_sig.size(); ++idx) {
                 double actual = m_sig.at(idx)->sample();
-                if (idx <= odx) {
+                if (idx <= odx-1) {
                     EXPECT_NEAR(m_sleep_time*(reps+1), actual, 0.00001);
                 }
                 else {

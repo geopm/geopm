@@ -57,9 +57,11 @@ namespace geopm
             double m_range_upper;
             double m_range_lower;
             bool m_is_batch_ready;
+            bool m_is_first_update;
+            double m_region_time;
 
-            double m_region_time = 0;
-            double m_prev_time = 0;
+            double m_prev_time;
+            double m_prev_scalability;
     };
 }
 

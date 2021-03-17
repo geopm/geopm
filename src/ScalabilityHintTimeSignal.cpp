@@ -50,6 +50,8 @@ namespace geopm
         , m_range_upper(range_upper)
         , m_range_lower(range_lower)
         , m_is_batch_ready(false)
+        , m_is_first_update(true)
+        , m_region_time(0)
     {
         GEOPM_DEBUG_ASSERT(m_scalability && m_time,
                            "Signal pointers for scalability and time cannot be null.");
@@ -74,12 +76,16 @@ namespace geopm
         double scalability = m_scalability->sample();
         double curr_time = m_time->sample();
 
-        if (scalability < m_range_upper
-            && scalability >= m_range_lower
-            && !isnan(scalability)) {
+        if (!isnan(m_prev_scalability)
+            && !m_is_first_update
+            && m_prev_scalability < m_range_upper
+            && m_prev_scalability >= m_range_lower) {
             m_region_time += curr_time - m_prev_time;
         }
+
         m_prev_time = curr_time;
+        m_prev_scalability = scalability;
+        m_is_first_update = false;
 
         return m_region_time;
     }
