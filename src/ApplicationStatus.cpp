@@ -112,20 +112,6 @@ namespace geopm
         return result;
     }
 
-    void ApplicationStatusImp::set_hash(int cpu_idx, uint64_t hash)
-    {
-        if (cpu_idx < 0 || cpu_idx >= m_num_cpu) {
-            throw Exception("ApplicationStatusImp::set_hash(): invalid CPU index: " + std::to_string(cpu_idx),
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-        if (((~0ULL << 32) & hash) != 0) {
-            throw Exception("ApplicationStatusImp::set_hash(): invalid region hash: " + std::to_string(hash),
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-        GEOPM_DEBUG_ASSERT(m_buffer != nullptr, "m_buffer not set");
-        m_buffer[cpu_idx].hash = (uint32_t)hash;
-    }
-
     void ApplicationStatusImp::set_hash(int cpu_idx, uint64_t hash, uint64_t hint)
     {
         if (cpu_idx < 0 || cpu_idx >= m_num_cpu) {
@@ -218,12 +204,10 @@ namespace geopm
             }
             m_buffer[cpu].process = process;
             if (process == -1) {
-                set_hash(cpu, GEOPM_REGION_HASH_INVALID);
-                set_hint(cpu, GEOPM_REGION_HINT_INACTIVE);
+                set_hash(cpu, GEOPM_REGION_HASH_INVALID, GEOPM_REGION_HINT_INACTIVE);
             }
             else {
-                set_hash(cpu, GEOPM_REGION_HASH_UNMARKED);
-                set_hint(cpu, GEOPM_REGION_HINT_UNSET);
+                set_hash(cpu, GEOPM_REGION_HASH_UNMARKED, GEOPM_REGION_HINT_UNSET);
             }
         }
     }

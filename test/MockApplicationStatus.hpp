@@ -44,8 +44,6 @@ class MockApplicationStatus : public geopm::ApplicationStatus
                      void(int cpu_idx, uint64_t hints));
         MOCK_CONST_METHOD1(get_hint,
                            uint64_t(int cpu_idx));
-        MOCK_METHOD2(set_hash,
-                     void(int cpu_idx, uint64_t hash));
         MOCK_METHOD3(set_hash,
                      void(int cpu_idx, uint64_t hash, uint64_t hint));
         MOCK_CONST_METHOD1(get_hash,
