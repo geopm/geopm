@@ -52,15 +52,13 @@ namespace geopm
 
             /// Interact with the mailbox on commands that are expected to return data
             int add_mbox_read(uint32_t cpu_index, uint16_t command,
-                              uint16_t subcommand, uint32_t subcommand_arg,
-                              uint32_t interface_parameter) override;
+                              uint16_t subcommand, uint32_t subcommand_arg) override;
             int add_mbox_write(uint32_t cpu_index, uint16_t command,
                                uint16_t subcommand, uint32_t interface_parameter,
                                uint16_t read_subcommand,
                                uint32_t read_interface_parameter,
                                uint32_t read_mask) override;
-            int add_mmio_read(uint32_t cpu_index, uint16_t register_offset,
-                              uint32_t register_value) override;
+            int add_mmio_read(uint32_t cpu_index, uint16_t register_offset) override;
             int add_mmio_write(uint32_t cpu_index, uint16_t register_offset,
                                uint32_t register_value, uint32_t read_mask) override;
             // call ioctl() for both mbox list and mmio list,
@@ -70,16 +68,14 @@ namespace geopm
             uint64_t sample(int batch_idx) const override;
             void write_batch(void) override;
             uint32_t read_mbox_once(uint32_t cpu_index, uint16_t command,
-                                    uint16_t subcommand, uint32_t subcommand_arg,
-                                    uint32_t interface_parameter) override;
+                                    uint16_t subcommand, uint32_t subcommand_arg) override;
             void write_mbox_once(uint32_t cpu_index, uint16_t command,
                                  uint16_t subcommand, uint32_t interface_parameter,
                                  uint16_t read_subcommand,
                                  uint32_t read_interface_parameter,
                                  uint32_t read_mask, uint64_t write_value,
                                  uint64_t write_mask) override;
-            uint32_t read_mmio_once(uint32_t cpu_index, uint16_t register_offset,
-                                    uint32_t register_value) override;
+            uint32_t read_mmio_once(uint32_t cpu_index, uint16_t register_offset) override;
             void write_mmio_once(uint32_t cpu_index, uint16_t register_offset,
                                  uint32_t register_value, uint32_t read_mask,
                                  uint64_t write_value, uint64_t write_mask) override;

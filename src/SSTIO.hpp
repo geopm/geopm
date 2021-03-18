@@ -50,10 +50,8 @@ namespace geopm
             /// @param [in] subcommand Which SST mailbox subcommand to issue
             /// @param [in] subcommand_arg Which argument to use for the SST
             ///             mailbox subcommand
-            /// @param [in] interface_parameter Which SST mailbox paramter to use
             virtual int add_mbox_read(uint32_t cpu_index, uint16_t command,
-                                      uint16_t subcommand, uint32_t subcommand_arg,
-                                      uint32_t interface_parameter) = 0;
+                                      uint16_t subcommand, uint32_t subcommand_arg) = 0;
 
             /// @brief Interact with the mailbox on commands that are not expected to return data
             /// @param [in] cpu_index Index of the cpu to which the mailbox
@@ -77,10 +75,7 @@ namespace geopm
             /// @param [in] cpu_index Index of the cpu to which the MMIO
             ///             read is being issued
             /// @param [in] register_offset Which SST MMIO register offset to use
-            /// @param [in] register_value Which SST MMIO register value to set
-            ///             prior to the read.
-            virtual int add_mmio_read(uint32_t cpu_index, uint16_t register_offset,
-                                      uint32_t register_value) = 0;
+            virtual int add_mmio_read(uint32_t cpu_index, uint16_t register_offset) = 0;
 
             /// @brief Interact with the mmio interface on commands that are not expected to return data
             /// @param [in] cpu_index Index of the cpu to which the MMIO
@@ -112,10 +107,8 @@ namespace geopm
             /// @param [in] subcommand Which SST mailbox subcommand to issue
             /// @param [in] subcommand_arg Which argument to use for the SST
             ///             mailbox subcommand
-            /// @param [in] interface_parameter Which SST mailbox paramter to use
             virtual uint32_t read_mbox_once(uint32_t cpu_index, uint16_t command,
-                                            uint16_t subcommand, uint32_t subcommand_arg,
-                                            uint32_t interface_parameter) = 0;
+                                            uint16_t subcommand, uint32_t subcommand_arg) = 0;
 
             /// @brief Immediately query the SST mailbox for a write operation.
             /// @param [in] cpu_index Index of the cpu to which the mailbox
@@ -143,10 +136,7 @@ namespace geopm
             /// @param [in] cpu_index Index of the cpu to which the MMIO
             ///             read is being issued
             /// @param [in] register_offset Which SST MMIO register offset to use
-            /// @param [in] register_value Which SST MMIO register value to set
-            ///             prior to the read.
-            virtual uint32_t read_mmio_once(uint32_t cpu_index, uint16_t register_offset,
-                                            uint32_t register_value) = 0;
+            virtual uint32_t read_mmio_once(uint32_t cpu_index, uint16_t register_offset) = 0;
 
             /// @brief Immediately write a value to the SST MMIO interface.
             /// @param [in] cpu_index Index of the cpu to which the MMIO
