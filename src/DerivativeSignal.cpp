@@ -112,8 +112,8 @@ namespace geopm
         }
         double time = m_time_sig->sample();
         size_t history_size = m_history.size();
-        // Check if this is the first call to sample() since the last
-        // call to read_batch()
+        // Check if this is the first call ever to sample() (history_size == 0)
+        // Or check if this is the first call to sample() since the last call to read_batch() (last element of history buffer does not match the sampled time)
         if (history_size == 0ULL ||
             time != m_history.value(m_history.size() - 1).time) {
             double signal = m_y_sig->sample();
