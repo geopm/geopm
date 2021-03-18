@@ -71,6 +71,7 @@ namespace geopm
             int m_derivative_num_fit;
             bool m_is_batch_ready;
             double m_sleep_time;
+            double m_last_result;
     };
 }
 

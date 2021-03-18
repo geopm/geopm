@@ -53,6 +53,7 @@ namespace geopm
         , m_derivative_num_fit(0)
         , m_is_batch_ready(false)
         , m_sleep_time(sleep_time)
+        , m_last_result(NAN)
     {
         GEOPM_DEBUG_ASSERT(m_time_sig && m_y_sig,
                            "Signal pointers for time_sig and y_sig cannot be null.");
@@ -110,8 +111,15 @@ namespace geopm
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         double time = m_time_sig->sample();
-        double signal = m_y_sig->sample();
-        return compute_next(m_history, m_derivative_num_fit, time, signal);
+        size_t history_size = m_history.size();
+        // Check if this is the first call to sample() since the last
+        // call to read_batch()
+        if (history_size == 0ULL ||
+            time != m_history.value(m_history.size() - 1).time) {
+            double signal = m_y_sig->sample();
+            m_last_result = compute_next(m_history, m_derivative_num_fit, time, signal);
+        }
+        return m_last_result;
     }
 
     double DerivativeSignal::read(void) const
