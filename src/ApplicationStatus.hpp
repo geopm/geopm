@@ -65,9 +65,8 @@ namespace geopm
             /// @param [in] cpu_idx Index of the Linux logical CPU.
             /// @return The current hint for the given CPU.
             virtual uint64_t get_hint(int cpu_idx) const = 0;
-            /// @brief Set the hash of the region currently running on
-            ///        a CPU.
-            virtual void set_hash(int cpu_idx, uint64_t hash) = 0;
+            /// @brief Set the hash and hint of the region currently
+            ///        running on a CPU.
             virtual void set_hash(int cpu_idx, uint64_t hash, uint64_t hint) = 0;
             /// @brief Get the hash of the region currently running on
             ///        a CPU.
@@ -140,7 +139,6 @@ namespace geopm
             virtual ~ApplicationStatusImp() = default;
             void set_hint(int cpu_idx, uint64_t hint) override;
             uint64_t get_hint(int cpu_idx) const override;
-            void set_hash(int cpu_idx, uint64_t hash) override;
             void set_hash(int cpu_idx, uint64_t hash, uint64_t hint) override;
             uint64_t get_hash(int cpu_idx) const override;
             void reset_work_units(int cpu_idx) override;
