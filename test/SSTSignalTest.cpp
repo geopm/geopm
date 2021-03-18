@@ -74,7 +74,7 @@ TEST_F(SSTSignalTest, mailbox_read_batch)
                    interface_param};
 
     int batch_idx = 42;
-    EXPECT_CALL(*m_sstio, add_mbox_read(cpu, command, subcommand, sub_arg, interface_param))
+    EXPECT_CALL(*m_sstio, add_mbox_read(cpu, command, subcommand, sub_arg))
         .WillOnce(Return(batch_idx));
 
     sig.setup_batch();
@@ -98,7 +98,7 @@ TEST_F(SSTSignalTest, mmio_read_batch)
                    interface_param};
 
     int batch_idx = 42;
-    EXPECT_CALL(*m_sstio, add_mmio_read(cpu, sub_arg, interface_param))
+    EXPECT_CALL(*m_sstio, add_mmio_read(cpu, sub_arg))
         .WillOnce(Return(batch_idx));
 
     sig.setup_batch();

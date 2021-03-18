@@ -42,32 +42,28 @@ class MockSSTIO : public geopm::SSTIO
 {
     public:
         virtual ~MockSSTIO() = default;
-        MOCK_METHOD5(add_mbox_read,
+        MOCK_METHOD4(add_mbox_read,
                      int(uint32_t cpu_index, uint16_t command,
-                         uint16_t subcommand, uint32_t subcommand_arg,
-                         uint32_t interface_parameter));
+                         uint16_t subcommand, uint32_t subcommand_arg));
         MOCK_METHOD7(add_mbox_write,
                      int(uint32_t cpu_index, uint16_t command, uint16_t subcommand,
                          uint32_t interface_parameter, uint16_t read_subcommand,
                          uint32_t read_interface_parameter, uint32_t read_mask));
-        MOCK_METHOD3(add_mmio_read, int(uint32_t cpu_index, uint16_t register_offset,
-                                        uint32_t register_value));
+        MOCK_METHOD2(add_mmio_read, int(uint32_t cpu_index, uint16_t register_offset));
         MOCK_METHOD4(add_mmio_write,
                      int(uint32_t cpu_index, uint16_t register_offset,
                          uint32_t register_value, uint32_t read_mask));
         MOCK_METHOD0(read_batch, void(void));
         MOCK_CONST_METHOD1(sample, uint64_t(int batch_idx));
         MOCK_METHOD0(write_batch, void(void));
-        MOCK_METHOD5(read_mbox_once, uint32_t(uint32_t cpu_index, uint16_t command,
-                                              uint16_t subcommand, uint32_t subcommand_arg,
-                                              uint32_t interface_parameter));
+        MOCK_METHOD4(read_mbox_once, uint32_t(uint32_t cpu_index, uint16_t command,
+                                              uint16_t subcommand, uint32_t subcommand_arg));
         MOCK_METHOD9(write_mbox_once,
                      void(uint32_t cpu_index, uint16_t command, uint16_t subcommand,
                           uint32_t interface_parameter, uint16_t read_subcommand,
                           uint32_t read_interface_parameter, uint32_t read_mask,
                           uint64_t write_value, uint64_t write_mask));
-        MOCK_METHOD3(read_mmio_once, uint32_t(uint32_t cpu_index, uint16_t register_offset,
-                                              uint32_t register_value));
+        MOCK_METHOD2(read_mmio_once, uint32_t(uint32_t cpu_index, uint16_t register_offset));
         MOCK_METHOD6(write_mmio_once,
                      void(uint32_t cpu_index, uint16_t register_offset,
                           uint32_t register_value, uint32_t read_mask,

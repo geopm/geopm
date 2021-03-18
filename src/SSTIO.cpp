@@ -111,13 +111,12 @@ namespace geopm
     }
 
     int SSTIOImp::add_mbox_read(uint32_t cpu_index, uint16_t command,
-                                uint16_t subcommand, uint32_t subcommand_arg,
-                                uint32_t interface_parameter)
+                                uint16_t subcommand, uint32_t subcommand_arg)
     {
         // save the stuff in the list
         struct sst_mbox_interface_s mbox {
             .cpu_index = cpu_index,
-            .mbox_interface_param = interface_parameter,
+            .mbox_interface_param = 0,
             .write_value = subcommand_arg,
             .read_value = 0,
             .command = command,
@@ -230,14 +229,13 @@ namespace geopm
         return idx;
     }
 
-    int SSTIOImp::add_mmio_read(uint32_t cpu_index, uint16_t register_offset,
-                                uint32_t register_value)
+    int SSTIOImp::add_mmio_read(uint32_t cpu_index, uint16_t register_offset)
     {
         struct sst_mmio_interface_s mmio {
             .is_write = 0,
             .cpu_index = cpu_index,
             .register_offset = register_offset,
-            .value = register_value,
+            .value = 0,
         };
         int mmio_idx = m_mmio_read_interfaces.size();
         m_mmio_read_interfaces.push_back(mmio);
@@ -405,13 +403,12 @@ namespace geopm
     }
 
     uint32_t SSTIOImp::read_mbox_once(uint32_t cpu_index, uint16_t command,
-                                      uint16_t subcommand, uint32_t subcommand_arg,
-                                      uint32_t interface_parameter)
+                                      uint16_t subcommand, uint32_t subcommand_arg)
     {
         sst_mbox_interface_batch_s read_batch{
             .num_entries = 1,
             .interfaces = { { .cpu_index = cpu_index,
-                              .mbox_interface_param = interface_parameter,
+                              .mbox_interface_param = 0,
                               .write_value = subcommand_arg,
                               .read_value = 0,
                               .command = command,
@@ -461,8 +458,7 @@ namespace geopm
         }
     }
 
-    uint32_t SSTIOImp::read_mmio_once(uint32_t cpu_index, uint16_t register_offset,
-                                      uint32_t register_value)
+    uint32_t SSTIOImp::read_mmio_once(uint32_t cpu_index, uint16_t register_offset)
     {
         sst_mmio_interface_batch_s read_batch{
             .num_entries = 1,
