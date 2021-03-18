@@ -231,6 +231,10 @@ namespace geopm
 
     void SampleAggregatorImp::period_duration(double duration)
     {
+        if (m_is_updated) {
+           throw Exception("SampleAggregatorImp::period_duration(): called after update()",
+                           GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
         m_period_duration = duration;
     }
 
