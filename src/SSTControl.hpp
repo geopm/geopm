@@ -101,6 +101,7 @@ namespace geopm
                 const uint32_t m_rmw_interface_parameter;
                 const uint32_t m_rmw_read_mask;
                 const double m_multiplier;
+                uint32_t m_saved_value;
     };
 }
 

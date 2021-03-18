@@ -98,11 +98,34 @@ namespace geopm
 
     void SSTControl::save(void)
     {
-
+        if (m_control_type == MMIO) {
+            m_saved_value = m_sstio->read_mmio_once(m_cpu_idx, m_interface_parameter);
+        }
+        else {
+            m_saved_value = m_sstio->read_mbox_once(
+                m_cpu_idx, m_command, m_rmw_subcommand,
+                /* Additional arguments for write operations are used as the
+                 * interface parameter. But in read operations, it is preloaded
+                 * into the data field to specify which data to read from the
+                 * mailbox.
+                 */
+                m_rmw_interface_parameter);
+        }
+        m_saved_value &= m_mask;
     }
 
     void SSTControl::restore(void)
     {
-
+        if (m_control_type == MMIO) {
+            m_sstio->write_mmio_once(
+                m_cpu_idx, m_interface_parameter, m_write_value, m_rmw_read_mask,
+                m_saved_value, m_mask);
+        }
+        else {
+            m_sstio->write_mbox_once(
+                m_cpu_idx, m_command, m_subcommand, m_interface_parameter,
+                m_rmw_subcommand, m_rmw_interface_parameter, m_rmw_read_mask,
+                m_saved_value, m_mask);
+        }
     }
 }

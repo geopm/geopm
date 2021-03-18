@@ -465,6 +465,8 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoTest.default_config \
               test/gtest_links/SharedMemoryTest.share_data_ipc \
               test/gtest_links/SSTControlTest.mailbox_adjust_batch \
               test/gtest_links/SSTControlTest.mmio_adjust_batch \
+              test/gtest_links/SSTControlTest.save_restore_mmio \
+              test/gtest_links/SSTControlTest.save_restore_mbox \
               test/gtest_links/SSTSignalTest.mailbox_read_batch \
               test/gtest_links/SSTSignalTest.mmio_read_batch \
               test/gtest_links/TimeIOGroupTest.adjust \
