@@ -213,8 +213,11 @@ namespace geopm
     {
         int result = GEOPM_DOMAIN_INVALID;
         if (is_valid_signal(signal_name)) {
-            if (std::isnan(m_signal_available.find(signal_name)->second.value)) {
-                result = GEOPM_DOMAIN_INVALID;
+            if (std::isnan(m_signal_available.find(signal_name)->second.value) ||
+                m_signal_available.find(signal_name)->second.value == 0) {
+                throw Exception("CpuinfoIOGroup::signal_domain_type(): signal name " + signal_name +
+                                " is valid but the value read is NaN or 0.",
+                                GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
             else {
                 result = GEOPM_DOMAIN_BOARD;
