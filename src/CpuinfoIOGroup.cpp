@@ -35,9 +35,11 @@
 #include <cmath>
 #include <cstring>
 
+#include <iostream>
 #include <fstream>
 #include <algorithm>
 #include <iterator>
+#include <cpuid.h>
 #include "Helper.hpp"
 #include "PlatformTopo.hpp"
 #include "Exception.hpp"
@@ -68,6 +70,21 @@ namespace geopm
             throw Exception("Failed to open " + read_str + ": " + strerror(errno),
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
+        return result;
+    }
+
+    static double read_cpuid_freq_sticker(void)
+    {
+        double result = NAN;
+        uint32_t leaf = 0x16; //processor frequency info
+        uint32_t eax = 0, ebx = 0, ecx = 0, edx = 0;
+        const uint32_t sticker_mask = 0xFFFF;
+        const uint32_t unit_factor = 1e6;
+
+        __get_cpuid(leaf, &eax, &ebx, &ecx, &edx);
+
+        result = (eax & sticker_mask) * unit_factor;
+
         return result;
     }
 
@@ -123,6 +140,12 @@ namespace geopm
             }
         }
         cpuinfo_file.close();
+        if (std::isnan(result)) {
+#ifdef GEOPM_DEBUG
+            std::cerr << "Warning: <geopm> Invalid brand string.  Using cpuid fallback." << std::endl;
+#endif
+            result = read_cpuid_freq_sticker();
+        }
         return result;
     }
 
