@@ -77,6 +77,9 @@ namespace geopm
             void set_sampler(std::shared_ptr<ProfileSampler> sampler) override;
             std::shared_ptr<ProfileSampler> get_sampler(void) override;
         private:
+            int sampler_cpu(void);
+            static std::unique_ptr<cpu_set_t, std::function<void(cpu_set_t *)> > make_cpu_set(std::vector<bool> cpu_enabled);
+            static size_t cpu_set_size(int num_cpu);
             std::shared_ptr<ProfileSampler> m_sampler;
             struct geopm_time_s m_time_zero;
             std::vector<record_s> m_record_buffer;

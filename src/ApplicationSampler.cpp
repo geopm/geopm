@@ -32,6 +32,7 @@
 
 #include "config.h"
 
+#include <sched.h>
 #include <map>
 #include <functional>
 
@@ -371,7 +372,50 @@ namespace geopm
                 process.short_regions.reserve(ApplicationRecordLog::max_region());
             }
         }
+        // Try to pin the sampling thread to a free core
+        std::vector<bool> cpu_enabled(m_num_cpu, false);
+        cpu_enabled.at(sampler_cpu()) = true;
+        std::unique_ptr<cpu_set_t, std::function<void(cpu_set_t *)> > cpu_mask =
+            make_cpu_set(cpu_enabled);
+        (void)sched_setaffinity(0, cpu_set_size(m_num_cpu), cpu_mask.get());
     }
+
+    int ApplicationSamplerImp::sampler_cpu(void)
+    {
+        int result = 0;
+        for (int cpu_idx = m_num_cpu - 1; cpu_idx != -1; --cpu_idx) {
+            if (!m_is_cpu_active[cpu_idx]) {
+                result = cpu_idx;
+                break;
+            }
+        }
+        return result;
+    }
+
+    std::unique_ptr<cpu_set_t, std::function<void(cpu_set_t *)> > ApplicationSamplerImp::make_cpu_set(std::vector<bool> cpu_enabled)
+    {
+        std::unique_ptr<cpu_set_t, std::function<void(cpu_set_t *)> > result(
+            CPU_ALLOC(cpu_enabled.size()),
+            [](cpu_set_t *ptr)
+            {
+                CPU_FREE(ptr);
+            });
+        for (size_t cpu_idx = 0; cpu_idx != cpu_enabled.size(); ++cpu_idx) {
+            if (cpu_enabled[cpu_idx]) {
+                CPU_SET(cpu_idx, result.get());
+            }
+            else {
+                CPU_CLR(cpu_idx, result.get());
+            }
+        }
+        return result;
+    }
+
+    size_t ApplicationSamplerImp::cpu_set_size(int num_cpu)
+    {
+        return CPU_ALLOC_SIZE(num_cpu);
+    }
+
 
     void ApplicationSamplerImp::set_sampler(std::shared_ptr<ProfileSampler> sampler)
     {
