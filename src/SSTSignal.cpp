@@ -57,7 +57,7 @@ namespace geopm
     void SSTSignal::setup_batch(void)
     {
         if (m_batch_idx == -1) {
-            if (m_signal_type == MMIO) {
+            if (m_signal_type == M_MMIO) {
                 m_batch_idx = m_sstio->add_mmio_read(m_cpu_idx, m_subcommand_arg);
             }
             else {
@@ -75,7 +75,7 @@ namespace geopm
     double SSTSignal::read(void) const
     {
         uint32_t ret;
-        if (m_signal_type == MMIO) {
+        if (m_signal_type == M_MMIO) {
             ret = m_sstio->read_mmio_once(m_cpu_idx, m_subcommand_arg);
         }
         else {

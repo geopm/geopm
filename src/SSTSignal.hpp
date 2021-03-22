@@ -48,8 +48,8 @@ namespace geopm
         public:
             enum SignalType
             {
-                MBOX, // SST Mailbox interface
-                MMIO  // SST MMIO interface
+                M_MBOX, // SST Mailbox interface
+                M_MMIO  // SST MMIO interface
             };
 
             /// @brief Create an SSTIO Signal.
