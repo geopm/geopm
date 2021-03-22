@@ -173,6 +173,7 @@ class Config(object):
         parser.add_argument('--geopm-hyperthreads-disable', dest='allow_ht_pinning', action='store_false', default=True)
         parser.add_argument('--geopm-ompt-disable', dest='ompt_disable', action='store_true', default=False)
         parser.add_argument('--geopm-record-filter', dest='record_filter', type=str)
+        parser.add_argument('--geopm-affinity-disable', dest='do_affinity', action='store_false', default=True)
         opts, self.argv_unparsed = parser.parse_known_args(argv)
         # Error check inputs
         if opts.ctl not in ('process', 'pthread', 'application'):
@@ -200,6 +201,7 @@ class Config(object):
         self.allow_ht_pinning = opts.allow_ht_pinning and 'GEOPM_DISABLE_HYPERTHREADS' not in os.environ
         self.ompt_disable = opts.ompt_disable
         self.record_filter = opts.record_filter
+        self.do_affinity = opts.do_affinity
 
     def __repr__(self):
         """
@@ -326,7 +328,7 @@ class Launcher(object):
     """
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
                  time_limit=None, job_name=None, node_list=None, exclude_list=None, host_file=None,
-                 partition=None, reservation=None, quiet=None):
+                 partition=None, reservation=None, quiet=None, do_affinity=None):
         """
         Constructor takes the command line options passed to the job
         launch application along with optional override values for
@@ -401,6 +403,9 @@ class Launcher(object):
         if reservation is not None:
             self.is_override_enabled = True
             self.reservation = reservation
+        if do_affinity is not None:
+            self.is_override_enabled = True
+            self.do_affinity = do_affinity
 
         # Calculate derived values
         if self.rank_per_node is None and self.num_rank and self.num_node:
@@ -742,7 +747,8 @@ class Launcher(object):
         result.extend(self.num_node_option())
         result.extend(self.exclude_list_option())
         result.extend(self.num_rank_option(is_geopmctl))
-        result.extend(self.affinity_option(is_geopmctl))
+        if self.config and self.config.do_affinity:
+            result.extend(self.affinity_option(is_geopmctl))
         result.extend(self.preload_option())
         result.extend(self.timeout_option())
         result.extend(self.time_limit_option())
@@ -885,13 +891,13 @@ class SrunLauncher(Launcher):
     """
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
                  time_limit=None, job_name=None, node_list=None, exclude_list=None, host_file=None,
-                 reservation=None, quiet=None):
+                 reservation=None, quiet=None, do_affinity=None):
         """
         Pass through to Launcher constructor.
         """
         super(SrunLauncher, self).__init__(argv, num_rank, num_node, cpu_per_rank, timeout,
                                            time_limit, job_name, node_list, exclude_list, host_file,
-                                           reservation=reservation, quiet=quiet)
+                                           reservation=reservation, quiet=quiet, do_affinity=do_affinity)
 
         if (self.is_geopm_enabled and
             self.config.get_ctl() == 'application' and
@@ -949,6 +955,7 @@ class SrunLauncher(Launcher):
         self.reservation = opts.reservation
 
         if (self.is_geopm_enabled and
+            self.config.do_affinity and
             any(aa.startswith(('--cpu_bind', '--cpu-bind')) for aa in self.argv)):
             raise SyntaxError('<geopm> geopmpy.launcher: The option --cpu_bind or --cpu-bind  must not be specified, this is controlled by geopm_srun.')
 
@@ -1130,13 +1137,13 @@ class OMPIExecLauncher(Launcher):
     """
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
                  time_limit=None, job_name=None, node_list=None, exclude_list=None, host_file=None,
-                 reservation=None, quiet=None):
+                 reservation=None, quiet=None, do_affinity=None):
         """
         Pass through to Launcher constructor.
         """
         super(OMPIExecLauncher, self).__init__(argv, num_rank, num_node, cpu_per_rank, timeout,
                                                time_limit, job_name, node_list, exclude_list,
-                                               host_file, quiet=quiet)
+                                               host_file, quiet=quiet, do_affinity=do_affinity)
         self._tmp_files = []
 
     def run(self, stdout=sys.stdout, stderr=sys.stderr):
@@ -1318,13 +1325,13 @@ class IMPIExecLauncher(Launcher):
 
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
                  time_limit=None, job_name=None, node_list=None, exclude_list=None, host_file=None,
-                 reservation=None, quiet=None):
+                 reservation=None, quiet=None, do_affinity=None):
         """
         Pass through to Launcher constructor.
         """
         super(IMPIExecLauncher, self).__init__(argv, num_rank, num_node, cpu_per_rank, timeout,
                                                time_limit, job_name, node_list, exclude_list, host_file,
-                                               reservation=reservation, quiet=quiet)
+                                               reservation=reservation, quiet=quiet, do_affinity=do_affinity)
 
         self.is_slurm_enabled = False
         if os.getenv('SLURM_NNODES'):
@@ -1454,13 +1461,13 @@ class IMPIExecLauncher(Launcher):
 class AprunLauncher(Launcher):
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
                  time_limit=None, job_name=None, node_list=None, exclude_list=None, host_file=None,
-                 reservation=None, quiet=None):
+                 reservation=None, quiet=None, do_affinity=None):
         """
         Pass through to Launcher constructor.
         """
         super(AprunLauncher, self).__init__(argv, num_rank, num_node, cpu_per_rank, timeout,
                                             time_limit, job_name, node_list, exclude_list, host_file,
-                                            reservation=reservation, quiet=quiet)
+                                            reservation=reservation, quiet=quiet, do_affinity=do_affinity)
 
         if self.is_geopm_enabled and self.config.get_ctl() == 'application':
             raise RuntimeError('<geopm> geopmpy.launcher: When using aprun specifying --geopm-ctl=application is not allowed.')
@@ -1497,6 +1504,7 @@ class AprunLauncher(Launcher):
         self.exclude_list = opts.exclude_list
 
         if (self.is_geopm_enabled and
+            self.config.do_affinity and
             any(aa.startswith('--cpu-binding') or
             aa.startswith('-cc') for aa in self.argv)):
             raise SyntaxError('<geopm> geopmpy.launcher: The options --cpu-binding or -cc must not be specified, this is controlled by geopmpy.launcher.')
