@@ -76,7 +76,7 @@ TEST_F(SSTControlTest, mailbox_adjust_batch)
     uint32_t read_interface_param = 0x94;
     uint32_t read_mask = 0xf0;
 
-    SSTControl control{ m_sstio, SSTControl::MBOX, cpu, command, subcommand,
+    SSTControl control{ m_sstio, SSTControl::M_MBOX, cpu, command, subcommand,
                         interface_param, write_value, begin_bit, end_bit, scale,
                         read_subcommand, read_interface_param, read_mask };
 
@@ -110,7 +110,7 @@ TEST_F(SSTControlTest, mmio_adjust_batch)
     uint32_t read_interface_param = 0x94;
     uint32_t read_mask = 0xf0;
 
-    SSTControl control{ m_sstio, SSTControl::MMIO, cpu, command, subcommand,
+    SSTControl control{ m_sstio, SSTControl::M_MMIO, cpu, command, subcommand,
                         interface_param, write_value, begin_bit, end_bit, scale,
                         read_subcommand, read_interface_param, read_mask };
 
@@ -147,7 +147,7 @@ TEST_F(SSTControlTest, save_restore_mmio)
     uint32_t read_mask = 0xf0;
     uint32_t write_mask = 0x30; /* bits 4-5 */
 
-    SSTControl control{ m_sstio, SSTControl::MMIO, cpu, command, subcommand,
+    SSTControl control{ m_sstio, SSTControl::M_MMIO, cpu, command, subcommand,
                         interface_param, write_value, begin_bit, end_bit, scale,
                         read_subcommand, read_interface_param, read_mask };
 
@@ -181,7 +181,7 @@ TEST_F(SSTControlTest, save_restore_mbox)
     uint32_t read_mask = 0xf0;
     uint32_t write_mask = 0x30; /* bits 4-5 */
 
-    SSTControl control{ m_sstio, SSTControl::MBOX, cpu, command, subcommand,
+    SSTControl control{ m_sstio, SSTControl::M_MBOX, cpu, command, subcommand,
                         interface_param, write_value, begin_bit, end_bit, scale,
                         read_subcommand, read_interface_param, read_mask };
 

@@ -63,7 +63,7 @@ namespace geopm
 
     void SSTControl::setup_batch(void)
     {
-        if (m_control_type == MMIO) {
+        if (m_control_type == M_MMIO) {
             m_adjust_idx = m_sstio->add_mmio_write(
                 m_cpu_idx, m_interface_parameter, m_write_value, m_rmw_read_mask);
         }
@@ -83,7 +83,7 @@ namespace geopm
 
     void SSTControl::write(double value)
     {
-        if (m_control_type == MMIO) {
+        if (m_control_type == M_MMIO) {
             m_sstio->write_mmio_once(
                 m_cpu_idx, m_interface_parameter, m_write_value, m_rmw_read_mask,
                 static_cast<uint64_t>(value * m_multiplier) << m_shift, m_mask);
@@ -98,7 +98,7 @@ namespace geopm
 
     void SSTControl::save(void)
     {
-        if (m_control_type == MMIO) {
+        if (m_control_type == M_MMIO) {
             m_saved_value = m_sstio->read_mmio_once(m_cpu_idx, m_interface_parameter);
         }
         else {
@@ -116,7 +116,7 @@ namespace geopm
 
     void SSTControl::restore(void)
     {
-        if (m_control_type == MMIO) {
+        if (m_control_type == M_MMIO) {
             m_sstio->write_mmio_once(
                 m_cpu_idx, m_interface_parameter, m_write_value, m_rmw_read_mask,
                 m_saved_value, m_mask);
