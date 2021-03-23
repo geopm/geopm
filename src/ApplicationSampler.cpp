@@ -111,7 +111,7 @@ namespace geopm
 
     ApplicationSamplerImp::ApplicationSamplerImp()
         : ApplicationSamplerImp(nullptr,
-                                platform_topo().num_domain(GEOPM_DOMAIN_CPU),
+                                platform_topo(),
                                 std::map<int, m_process_s> {},
                                 environment().do_record_filter(),
                                 environment().record_filter(),
@@ -135,14 +135,15 @@ namespace geopm
 
 
     ApplicationSamplerImp::ApplicationSamplerImp(std::shared_ptr<ApplicationStatus> status,
-                                                 int num_cpu,
+                                                 const PlatformTopo &platform_topo,
                                                  const std::map<int, m_process_s> &process_map,
                                                  bool is_filtered,
                                                  const std::string &filter_name,
                                                  const std::vector<bool> &is_cpu_active)
         : m_time_zero(geopm::time_zero())
         , m_status(status)
-        , m_num_cpu(num_cpu)
+        , m_topo(platform_topo)
+        , m_num_cpu(m_topo.num_domain(GEOPM_DOMAIN_CPU))
         , m_process_map(process_map)
         , m_is_filtered(is_filtered)
         , m_filter_name(filter_name)
@@ -373,19 +374,29 @@ namespace geopm
             }
         }
         // Try to pin the sampling thread to a free core
-        std::vector<bool> cpu_enabled(m_num_cpu, false);
-        cpu_enabled.at(sampler_cpu()) = true;
-        std::unique_ptr<cpu_set_t, std::function<void(cpu_set_t *)> > cpu_mask =
-            make_cpu_set(cpu_enabled);
-        (void)sched_setaffinity(0, cpu_set_size(m_num_cpu), cpu_mask.get());
+        std::vector<bool> sampler_cpu_vec(m_num_cpu, false);
+        sampler_cpu_vec.at(sampler_cpu()) = true;
+        std::unique_ptr<cpu_set_t, std::function<void(cpu_set_t *)> > sampler_cpu_mask =
+            make_cpu_set(sampler_cpu_vec);
+        (void)sched_setaffinity(0, cpu_set_size(m_num_cpu), sampler_cpu_mask.get());
     }
 
     int ApplicationSamplerImp::sampler_cpu(void)
     {
         int result = 0;
-        for (int cpu_idx = m_num_cpu - 1; cpu_idx != -1; --cpu_idx) {
-            if (!m_is_cpu_active[cpu_idx]) {
-                result = cpu_idx;
+        int num_core = m_topo.num_domain(GEOPM_DOMAIN_CORE);
+        std::vector<bool> is_core_active(num_core, false);
+        for (int cpu_idx = 0; cpu_idx != m_num_cpu; ++cpu_idx) {
+            if (m_is_cpu_active[cpu_idx]) {
+                is_core_active.at(m_topo.domain_idx(GEOPM_DOMAIN_CORE, cpu_idx)) = true;
+            }
+        }
+        for (int core_idx = num_core - 1; core_idx != -1; --core_idx) {
+            if (!is_core_active.at(core_idx)) {
+                std::set<int> inactive_cpu = m_topo.domain_nested(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_CORE, core_idx);
+                GEOPM_DEBUG_ASSERT(inactive_cpu.size() != 0,
+                                   "Valid core index returned no nested CPUs");
+                result = *(inactive_cpu.begin());
                 break;
             }
         }
