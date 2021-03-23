@@ -42,6 +42,7 @@ namespace geopm
     class RecordFilter;
     class ApplicationStatus;
     class SharedMemory;
+    class PlatformTopo;
 
     class ApplicationSamplerImp : public ApplicationSampler
     {
@@ -56,7 +57,7 @@ namespace geopm
             };
             ApplicationSamplerImp();
             ApplicationSamplerImp(std::shared_ptr<ApplicationStatus> status,
-                                  int num_cpu,
+                                  const PlatformTopo &platform_topo,
                                   const std::map<int, m_process_s> &process_map,
                                   bool is_filtered,
                                   const std::string &filter_name,
@@ -86,6 +87,7 @@ namespace geopm
             std::vector<short_region_s> m_short_region_buffer;
             std::shared_ptr<SharedMemory> m_status_shmem;
             std::shared_ptr<ApplicationStatus> m_status;
+            const PlatformTopo &m_topo;
             int m_num_cpu;
             std::map<int, m_process_s> m_process_map;
             const bool m_is_filtered;

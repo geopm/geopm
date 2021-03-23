@@ -40,6 +40,7 @@
 #include "MockApplicationRecordLog.hpp"
 #include "MockRecordFilter.hpp"
 #include "MockApplicationStatus.hpp"
+#include "MockPlatformTopo.hpp"
 #include "record.hpp"
 #include "geopm.h"
 #include "geopm_internal.h"
@@ -71,6 +72,7 @@ class ApplicationSamplerTest : public ::testing::Test
         std::shared_ptr<MockApplicationRecordLog> m_record_log_1;
         std::shared_ptr<MockApplicationStatus> m_mock_status;
         int m_num_cpu;
+        std::unique_ptr<MockPlatformTopo> m_mock_topo;
 };
 
 void ApplicationSamplerTest::SetUp()
@@ -88,9 +90,12 @@ void ApplicationSamplerTest::SetUp()
     m_process_map[234].filter = m_filter_1;
     m_process_map[234].record_log = m_record_log_1;
     std::vector<bool> is_active(2, true);
+    m_mock_topo = geopm::make_unique<MockPlatformTopo>();
+    EXPECT_CALL(*m_mock_topo, num_domain(GEOPM_DOMAIN_CPU))
+        .WillOnce(Return(m_num_cpu));
 
     m_app_sampler = std::make_shared<ApplicationSamplerImp>(m_mock_status,
-                                                            m_num_cpu,
+                                                            *m_mock_topo,
                                                             m_process_map,
                                                             false,
                                                             "",
@@ -115,6 +120,8 @@ TEST_F(ApplicationSamplerTest, one_enter_exit)
     EXPECT_CALL(*m_record_log_1, dump(_, _))
         .WillOnce(DoAll(SetArgReferee<0>(empty_message_buffer),
                         SetArgReferee<1>(empty_short_region_buffer)));
+    EXPECT_CALL(*m_mock_status, get_hint(_))
+        .WillRepeatedly(Return(GEOPM_REGION_HINT_UNKNOWN));
     EXPECT_CALL(*m_mock_status, update_cache());
     m_app_sampler->update({{1, 0}});
     std::vector<struct record_s> result {
