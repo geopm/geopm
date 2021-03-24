@@ -41,6 +41,7 @@
 #include "MockRecordFilter.hpp"
 #include "MockApplicationStatus.hpp"
 #include "MockPlatformTopo.hpp"
+#include "Scheduler.hpp"
 #include "record.hpp"
 #include "geopm.h"
 #include "geopm_internal.h"
@@ -64,7 +65,7 @@ class ApplicationSamplerTest : public ::testing::Test
     protected:
         void SetUp();
         std::shared_ptr<MockProfileSampler> m_mock_profile_sampler;
-        std::shared_ptr<ApplicationSampler> m_app_sampler;
+        std::shared_ptr<ApplicationSamplerImp> m_app_sampler;
         std::map<int, ApplicationSamplerImp::m_process_s> m_process_map;
         std::shared_ptr<MockRecordFilter> m_filter_0;
         std::shared_ptr<MockRecordFilter> m_filter_1;
@@ -83,7 +84,7 @@ void ApplicationSamplerTest::SetUp()
     m_record_log_0 = std::make_shared<MockApplicationRecordLog>();
     m_record_log_1 = std::make_shared<MockApplicationRecordLog>();
     m_mock_status = std::make_shared<MockApplicationStatus>();
-    m_num_cpu = 2;
+    m_num_cpu = 4;
 
     m_process_map[0].filter = m_filter_0;
     m_process_map[0].record_log = m_record_log_0;
@@ -163,6 +164,8 @@ TEST_F(ApplicationSamplerTest, one_enter_exit_two_ranks)
         .WillOnce(DoAll(SetArgReferee<0>(message_buffer_1),
                         SetArgReferee<1>(empty_short_region_buffer)));
     EXPECT_CALL(*m_mock_status, update_cache());
+    EXPECT_CALL(*m_mock_status, get_hint(_))
+        .WillRepeatedly(Return(GEOPM_REGION_HINT_UNKNOWN));
     m_app_sampler->update({{1, 0}});
     std::vector<struct record_s> result {
          m_app_sampler->get_records()
@@ -224,6 +227,8 @@ TEST_F(ApplicationSamplerTest, with_epoch)
         .WillOnce(DoAll(SetArgReferee<0>(message_buffer_1),
                         SetArgReferee<1>(empty_short_region_buffer)));
     EXPECT_CALL(*m_mock_status, update_cache());
+    EXPECT_CALL(*m_mock_status, get_hint(_))
+        .WillRepeatedly(Return(GEOPM_REGION_HINT_UNKNOWN));
     m_app_sampler->update({{1, 0}});
     std::vector<struct record_s> result {
          m_app_sampler->get_records()
@@ -334,6 +339,8 @@ TEST_F(ApplicationSamplerTest, short_regions)
         .WillOnce(DoAll(SetArgReferee<0>(message_buffer_1),
                         SetArgReferee<1>(short_region_buffer_1)));
     EXPECT_CALL(*m_mock_status, update_cache());
+    EXPECT_CALL(*m_mock_status, get_hint(_))
+        .WillRepeatedly(Return(GEOPM_REGION_HINT_UNKNOWN));
     m_app_sampler->update({{1, 0}});
     std::vector<struct record_s> records {
         m_app_sampler->get_records()
@@ -420,7 +427,9 @@ TEST_F(ApplicationSamplerTest, hint_time)
         EXPECT_CALL(*m_mock_status, update_cache());
         EXPECT_CALL(*m_mock_status, get_hint(_))
             .WillOnce(Return(GEOPM_REGION_HINT_NETWORK))
-            .WillOnce(Return(GEOPM_REGION_HINT_COMPUTE));
+            .WillOnce(Return(GEOPM_REGION_HINT_COMPUTE))
+            .WillOnce(Return(GEOPM_REGION_HINT_INACTIVE))
+            .WillOnce(Return(GEOPM_REGION_HINT_INACTIVE));
         m_app_sampler->update({{1, 0}});
     }
     compute_time = m_app_sampler->cpu_hint_time(0, GEOPM_REGION_HINT_COMPUTE);
@@ -445,7 +454,9 @@ TEST_F(ApplicationSamplerTest, hint_time)
         EXPECT_CALL(*m_mock_status, update_cache());
         EXPECT_CALL(*m_mock_status, get_hint(_))
             .WillOnce(Return(GEOPM_REGION_HINT_NETWORK))
-            .WillOnce(Return(GEOPM_REGION_HINT_MEMORY));
+            .WillOnce(Return(GEOPM_REGION_HINT_MEMORY))
+            .WillOnce(Return(GEOPM_REGION_HINT_INACTIVE))
+            .WillOnce(Return(GEOPM_REGION_HINT_INACTIVE));
         m_app_sampler->update({{2, 0}});
     }
     compute_time = m_app_sampler->cpu_hint_time(0, GEOPM_REGION_HINT_COMPUTE);
@@ -470,7 +481,9 @@ TEST_F(ApplicationSamplerTest, hint_time)
         EXPECT_CALL(*m_mock_status, update_cache());
         EXPECT_CALL(*m_mock_status, get_hint(_))
             .WillOnce(Return(GEOPM_REGION_HINT_COMPUTE))
-            .WillOnce(Return(GEOPM_REGION_HINT_NETWORK));
+            .WillOnce(Return(GEOPM_REGION_HINT_NETWORK))
+            .WillOnce(Return(GEOPM_REGION_HINT_INACTIVE))
+            .WillOnce(Return(GEOPM_REGION_HINT_INACTIVE));
         m_app_sampler->update({{4, 0}});
     }
     compute_time = m_app_sampler->cpu_hint_time(0, GEOPM_REGION_HINT_COMPUTE);
@@ -495,7 +508,9 @@ TEST_F(ApplicationSamplerTest, hint_time)
         EXPECT_CALL(*m_mock_status, update_cache());
         EXPECT_CALL(*m_mock_status, get_hint(_))
             .WillOnce(Return(GEOPM_REGION_HINT_UNSET))
-            .WillOnce(Return(GEOPM_REGION_HINT_UNSET));
+            .WillOnce(Return(GEOPM_REGION_HINT_UNSET))
+            .WillOnce(Return(GEOPM_REGION_HINT_INACTIVE))
+            .WillOnce(Return(GEOPM_REGION_HINT_INACTIVE));
         m_app_sampler->update({{7, 0}});
     }
     compute_time = m_app_sampler->cpu_hint_time(0, GEOPM_REGION_HINT_COMPUTE);
@@ -531,4 +546,26 @@ TEST_F(ApplicationSamplerTest, cpu_progress)
     EXPECT_CALL(*m_mock_status, get_progress_cpu(1))
         .WillOnce(Return(expected));
     EXPECT_EQ(expected, m_app_sampler->cpu_progress(1));
+}
+
+TEST_F(ApplicationSamplerTest, sampler_cpu)
+{
+    EXPECT_CALL(*m_mock_topo, num_domain(GEOPM_DOMAIN_CORE))
+        .WillOnce(Return(2));
+    EXPECT_CALL(*m_mock_topo, domain_idx(GEOPM_DOMAIN_CORE, 0))
+        .WillOnce(Return(0));
+    EXPECT_CALL(*m_mock_topo, domain_idx(GEOPM_DOMAIN_CORE, 1))
+        .WillOnce(Return(0));
+    std::set<int> core_cpu = {2, 3};
+    EXPECT_CALL(*m_mock_topo, domain_nested(GEOPM_DOMAIN_CPU,
+                                            GEOPM_DOMAIN_CORE, 1))
+        .WillOnce(Return(core_cpu));
+    EXPECT_EQ(2, m_app_sampler->sampler_cpu());
+
+    std::set<int> enabled_cpu = {2};
+    auto cpu_set = geopm::make_cpu_set(4, enabled_cpu);
+    EXPECT_EQ(0, CPU_ISSET(0, cpu_set.get()));
+    EXPECT_EQ(0, CPU_ISSET(1, cpu_set.get()));
+    EXPECT_EQ(1, CPU_ISSET(2, cpu_set.get()));
+    EXPECT_EQ(0, CPU_ISSET(3, cpu_set.get()));
 }

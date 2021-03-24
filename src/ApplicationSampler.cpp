@@ -32,7 +32,6 @@
 
 #include "config.h"
 
-#include <sched.h>
 #include <map>
 #include <functional>
 
@@ -46,6 +45,7 @@
 #include "ValidateRecord.hpp"
 #include "SharedMemory.hpp"
 #include "PlatformTopo.hpp"
+#include "Scheduler.hpp"
 #include "record.hpp"
 #include "geopm_debug.hpp"
 #include "geopm.h"
@@ -374,11 +374,9 @@ namespace geopm
             }
         }
         // Try to pin the sampling thread to a free core
-        std::vector<bool> sampler_cpu_vec(m_num_cpu, false);
-        sampler_cpu_vec.at(sampler_cpu()) = true;
-        std::unique_ptr<cpu_set_t, std::function<void(cpu_set_t *)> > sampler_cpu_mask =
-            make_cpu_set(sampler_cpu_vec);
-        (void)sched_setaffinity(0, cpu_set_size(m_num_cpu), sampler_cpu_mask.get());
+        std::set<int> sampler_cpu_set = {sampler_cpu()};
+        auto sampler_cpu_mask = make_cpu_set(m_num_cpu, sampler_cpu_set);
+        (void)sched_setaffinity(0, CPU_ALLOC_SIZE(m_num_cpu), sampler_cpu_mask.get());
     }
 
     int ApplicationSamplerImp::sampler_cpu(void)
@@ -393,7 +391,9 @@ namespace geopm
         }
         for (int core_idx = num_core - 1; core_idx != -1; --core_idx) {
             if (!is_core_active.at(core_idx)) {
-                std::set<int> inactive_cpu = m_topo.domain_nested(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_CORE, core_idx);
+                std::set<int> inactive_cpu = m_topo.domain_nested(GEOPM_DOMAIN_CPU,
+                                                                  GEOPM_DOMAIN_CORE,
+                                                                  core_idx);
                 GEOPM_DEBUG_ASSERT(inactive_cpu.size() != 0,
                                    "Valid core index returned no nested CPUs");
                 result = *(inactive_cpu.begin());
@@ -402,31 +402,6 @@ namespace geopm
         }
         return result;
     }
-
-    std::unique_ptr<cpu_set_t, std::function<void(cpu_set_t *)> > ApplicationSamplerImp::make_cpu_set(std::vector<bool> cpu_enabled)
-    {
-        std::unique_ptr<cpu_set_t, std::function<void(cpu_set_t *)> > result(
-            CPU_ALLOC(cpu_enabled.size()),
-            [](cpu_set_t *ptr)
-            {
-                CPU_FREE(ptr);
-            });
-        for (size_t cpu_idx = 0; cpu_idx != cpu_enabled.size(); ++cpu_idx) {
-            if (cpu_enabled[cpu_idx]) {
-                CPU_SET(cpu_idx, result.get());
-            }
-            else {
-                CPU_CLR(cpu_idx, result.get());
-            }
-        }
-        return result;
-    }
-
-    size_t ApplicationSamplerImp::cpu_set_size(int num_cpu)
-    {
-        return CPU_ALLOC_SIZE(num_cpu);
-    }
-
 
     void ApplicationSamplerImp::set_sampler(std::shared_ptr<ProfileSampler> sampler)
     {
