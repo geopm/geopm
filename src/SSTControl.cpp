@@ -50,6 +50,7 @@ namespace geopm
         , m_subcommand(subcommand)
         , m_interface_parameter(interface_parameter)
         , m_write_value(write_value)
+        , m_adjust_idx(0)
         , m_shift(begin_bit)
         , m_num_bit(end_bit - begin_bit + 1)
         , m_mask(((1ULL << m_num_bit) - 1) << begin_bit)
@@ -57,6 +58,7 @@ namespace geopm
         , m_rmw_interface_parameter(rmw_interface_parameter)
         , m_rmw_read_mask(rmw_read_mask)
         , m_multiplier(scale)
+        , m_saved_value(0)
     {
 
     }
