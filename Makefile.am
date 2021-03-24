@@ -581,6 +581,8 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/SampleAggregator.cpp \
                             src/SampleAggregator.hpp \
                             src/SampleAggregatorImp.hpp \
+                            src/Scheduler.cpp \
+                            src/Scheduler.hpp \
                             src/SharedMemory.cpp \
                             src/SharedMemory.hpp \
                             src/SharedMemoryImp.hpp \
