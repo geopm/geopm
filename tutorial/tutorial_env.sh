@@ -34,32 +34,25 @@
 # default environment for the tutorial.  Modify these variables to
 # suit your environment or export them before running the tutorial.
 
-# GEOPM_PREFIX: Where to find lib and include directories for geopm.
-if [ ! "$GEOPM_PREFIX" ]; then
-    GEOPM_PREFIX=$HOME/build/geopm
+# GEOPM_INSTALL: Where to find lib and include directories for geopm.
+if [ ! "$GEOPM_INSTALL" ]; then
+    GEOPM_INSTALL=$HOME/build/geopm
 fi
 
 # GEOPM_LAUNCHER: The resource manager exe used to launch jobs.
 # See 'man geopmlaunch' for supported options.
 if [ ! "$GEOPM_LAUNCHER" ]; then
     GEOPM_LAUNCHER='srun'
-elif [[ "$GEOPM_LAUNCHER" = "impi" && ! "$SLURM_NODELIST" && ! -e tutorial_hosts ]]; then
-    echo "WARNING: When using 'geopmlaunch impi' without a resource manager, the hosts"
-    echo "         must be defined in ./tutorial_hosts."
-    exit 1
-elif [[ "$GEOPM_LAUNCHER" = "ompi" && ! -e tutorial_hosts ]]; then
-    echo "WARNING: When using 'geopmlaunch ompi' the hosts must be defined in ./tutorial_hosts."
-    exit 1
 fi
 
 # GEOPM_BIN: Directory containing geopm programs.
 if [ ! "$GEOPM_BIN" ]; then
-    GEOPM_BIN=$GEOPM_PREFIX/bin
+    GEOPM_BIN=$GEOPM_INSTALL/bin
 fi
 
 # GEOPM_LIB: Directory containing libgeopm.so.
 if [ ! "$GEOPM_LIB" ]; then
-    GEOPM_LIB=$GEOPM_PREFIX/lib
+    GEOPM_LIB=$GEOPM_INSTALL/lib
 fi
 
 # GEOPMPY_PKGDIR: Directory containing geopmpy packages.
@@ -80,7 +73,7 @@ fi
 
 # GEOPM_INC: Directory containing geopm.h.
 if [ ! "$GEOPM_INC" ]; then
-    GEOPM_INC=$GEOPM_PREFIX/include
+    GEOPM_INC=$GEOPM_INSTALL/include
 fi
 
 # GEOPM_CFLAGS: Contains compile options for geopm.
