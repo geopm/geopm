@@ -375,15 +375,16 @@ script.
 The GEOPM runtime requires that each MPI process of the application
 under control is affinitized to distinct CPUs.  This is a strict
 requirement for the runtime and must be enforced by the MPI launch
-command.
+command.  When using the geopmlaunch wrapper described in the previous
+section, these affinity requirements are handled by geopmlaunch unless
+the --geopm-affinity-disable command line option is provided (see
+geopmlaunch(1)).
 
-Affinitizing the GEOPM control thread to a CPU that is distinct from
-the application CPUs may improve performance of the application, but
-this is not a requirement.  On systems where an application achieves
-highest performance when leaving a CPU unused by the application so
-that this CPU can be dedicated to the operating system, it is usually
-best to affinitize the GEOPM control thread to this CPU designated for
-system threads.
+While the GEOPM control thread connects to the application it will
+automatically affinitize iteself to the highest indexed core not used
+by the application if the application is not affinitized to a CPU on
+every core.  In the case were the application is utilizing all cores
+of the system, the GEOPM control thread will be pinned to CPU zero.
 
 There are many ways to launch an MPI application, and there is no
 single uniform way of enforcing MPI rank CPU affinities across
