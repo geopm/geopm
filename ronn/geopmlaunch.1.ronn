@@ -286,6 +286,20 @@ listed below.
   override any value currently set in the environment.  See the
   ENVIRONMENT section of **geopm(7)**.
 
+* `--geopm-affinity-disable`:
+  Enable direct user control of all application CPU affinity settings.
+  When specified, the launcher will not emit command line arguments or
+  environment variables related to affinity settings for the
+  underlying launcher.  The user is free to provide whatever affinity
+  settings are best for their application.  It is recommended that at
+  least one core is left free for the GEOPM controller thread, and if
+  there is a free core, the controller will automatically affinitize
+  itself to a CPU on that core when it connects with the application.
+  When this option is specified the user is responsible for providing
+  settings that affinitize MPI ranks to distinct CPUs.  Note: this
+  requirement is satisfied by the default behavior for some launchers
+  like Intel MPI.
+
 * `--geopm-endpoint` endpoint:
   Prefix for shared memory keys used by the endpoint.  The endpoint
   will be used to receive policies dynamically from the resource
@@ -342,7 +356,6 @@ listed below.
   ENVIRONMENT section of **geopm(7)**.
 
 * `--geopm-record-filter` filter:
-
   Applies the user specified filter to the application record data
   feed.  The filters currently supported are "proxy_epoch" and
   "edit_distance".  These filters can be used to infer the application
