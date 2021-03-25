@@ -384,7 +384,7 @@ namespace geopm
         if (err) {
 #ifdef GEOPM_DEBUG
             std::cerr << "Warning: <geopm> Unable to affinitize sampling thread to CPU "
-                      << *sampler_cpu_set.begin()
+                      << *(sampler_cpu_set.begin())
                       << ", sched_setaffinity() failed: " << strerror(errno) << "\n";
 #endif
         }
