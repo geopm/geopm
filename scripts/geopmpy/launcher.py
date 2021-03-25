@@ -1651,12 +1651,12 @@ GEOPM_OPTIONS:
       --geopm-debug-attach=rk  attach serial debugger to rank "rk"
       --geopm-record-filter=filter
                                apply the "filter" to the application record stream
-      --geopm-preload          use LD_PRELOAD to link libgeopm.so at runtime
       --geopm-hyperthreads-disable
                                do not allow pinning to HTs
       --geopm-ctl-disable      do not launch geopm; pass through commands to
                                underlying launcher
       --geopm-ompt-disable     disable automatic OpenMP region detection
+      --geopm-affinity-disable do not emit CPU affinity settings
 
 {}
 
