@@ -245,18 +245,14 @@ listed below.
   that each MPI process be assigned the same number of CPUs which may
   waste resources by assigning more than one CPU to the GEOPM
   controller process.  The _pthread_ option requires support for
-  MPI_THREAD_MULTIPLE, which is not enabled at many sites; in
-  addition, on some systems affinitizing one extra CPU to the MPI
-  process containing the controller thread may be not be possible,
-  resulting in running the GEOPM controller on the same CPU as the
-  main compute application.  The _application_ method of launch is not
-  compatible with `aprun`; with `srun`, the call must be made inside
-  of an existing allocation made with salloc or sbatch and the command
-  must request all of the compute nodes assigned to the allocation.
-  This option is used by the launcher to set the GEOPM_CTL environment
-  variable.  The command line option will override any value currently
-  set in the environment.  See the ENVIRONMENT section of
-  **geopm(7)**.
+  MPI_THREAD_MULTIPLE, which is not enabled at many sites.  The
+  _application_ method of launch is not compatible with `aprun`; with
+  `srun`, the call must be made inside of an existing allocation made
+  with salloc or sbatch and the command must request all of the
+  compute nodes assigned to the allocation.  This option is used by
+  the launcher to set the GEOPM_CTL environment variable.  The command
+  line option will override any value currently set in the
+  environment.  See the ENVIRONMENT section of **geopm(7)**.
 
 * `--geopm-agent` agent:
   Specify the Agent type.  The Agent defines the control algorithm
