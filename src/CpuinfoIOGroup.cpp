@@ -145,6 +145,9 @@ namespace geopm
             std::cerr << "Warning: <geopm> Invalid brand string.  Using cpuid fallback." << std::endl;
 #endif
             result = read_cpuid_freq_sticker();
+            if (result == 0) {
+                result = NAN;
+            }
         }
         return result;
     }
@@ -236,10 +239,9 @@ namespace geopm
     {
         int result = GEOPM_DOMAIN_INVALID;
         if (is_valid_signal(signal_name)) {
-            if (std::isnan(m_signal_available.find(signal_name)->second.value) ||
-                m_signal_available.find(signal_name)->second.value == 0) {
+            if (std::isnan(m_signal_available.find(signal_name)->second.value)) {
                 throw Exception("CpuinfoIOGroup::signal_domain_type(): signal name " + signal_name +
-                                " is valid but the value read is NaN or 0.",
+                                " is valid but the value read is NaN.",
                                 GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
             else {
