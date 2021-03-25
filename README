@@ -381,7 +381,7 @@ the --geopm-affinity-disable command line option is provided (see
 geopmlaunch(1)).
 
 While the GEOPM control thread connects to the application it will
-automatically affinitize iteself to the highest indexed core not used
+automatically affinitize itself to the highest indexed core not used
 by the application if the application is not affinitized to a CPU on
 every core.  In the case were the application is utilizing all cores
 of the system, the GEOPM control thread will be pinned to CPU zero.
