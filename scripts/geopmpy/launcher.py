@@ -720,8 +720,6 @@ class Launcher(object):
 
         if self.config.get_ctl() == 'process' or is_geopmctl:
             result.insert(0, {geopm_ctl_cpu})
-        elif self.config.get_ctl() == 'pthread':
-            result[0].add(geopm_ctl_cpu)
 
         return result
 
