@@ -34,6 +34,9 @@
 
 #include <map>
 #include <functional>
+#include <iostream>
+#include <cstring>
+#include <cerrno>
 
 #include "ApplicationSamplerImp.hpp"
 #include "ApplicationRecordLog.hpp"
@@ -376,7 +379,15 @@ namespace geopm
         // Try to pin the sampling thread to a free core
         std::set<int> sampler_cpu_set = {sampler_cpu()};
         auto sampler_cpu_mask = make_cpu_set(m_num_cpu, sampler_cpu_set);
-        (void)sched_setaffinity(0, CPU_ALLOC_SIZE(m_num_cpu), sampler_cpu_mask.get());
+
+        int err = sched_setaffinity(0, CPU_ALLOC_SIZE(m_num_cpu), sampler_cpu_mask.get());
+        if (err) {
+#ifdef GEOPM_DEBUG
+            std::cerr << "Warning: <geopm> Unable to affinitize sampling thread to CPU "
+                      << *sampler_cpu_set.begin()
+                      << ", sched_setaffinity() failed: " << strerror(errno) << "\n";
+#endif
+        }
     }
 
     int ApplicationSamplerImp::sampler_cpu(void)

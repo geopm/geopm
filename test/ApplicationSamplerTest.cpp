@@ -550,18 +550,32 @@ TEST_F(ApplicationSamplerTest, cpu_progress)
 
 TEST_F(ApplicationSamplerTest, sampler_cpu)
 {
+    // The model for this test is a system with two cores and four
+    // CPUs.  The first core has CPUs 0 and 1 and the second core has
+    // CPUs 2 and 3.  CPU's 0 and 1 are active and CPU's 2 and 3 are
+    // inactive.
+
+    // The topo is queried to discover the total number of cores
     EXPECT_CALL(*m_mock_topo, num_domain(GEOPM_DOMAIN_CORE))
         .WillOnce(Return(2));
+    // The topo is queried to discover the core of every active CPU
     EXPECT_CALL(*m_mock_topo, domain_idx(GEOPM_DOMAIN_CORE, 0))
         .WillOnce(Return(0));
     EXPECT_CALL(*m_mock_topo, domain_idx(GEOPM_DOMAIN_CORE, 1))
         .WillOnce(Return(0));
+    // Since core 1 has no active CPU's the topo is queried for the
+    // CPUs associated with core 1 (which are CPU 2 and 3)
     std::set<int> core_cpu = {2, 3};
     EXPECT_CALL(*m_mock_topo, domain_nested(GEOPM_DOMAIN_CPU,
                                             GEOPM_DOMAIN_CORE, 1))
         .WillOnce(Return(core_cpu));
+    // The sampler should pick the first CPU on the last unused core
+    // which is CPU 2
     EXPECT_EQ(2, m_app_sampler->sampler_cpu());
 
+    // Check that make_cpu_set() as it would be called in connect() in
+    // this example creates a cpu_set_t that has all but the third bit
+    // set to zero
     std::set<int> enabled_cpu = {2};
     auto cpu_set = geopm::make_cpu_set(4, enabled_cpu);
     EXPECT_EQ(0, CPU_ISSET(0, cpu_set.get()));
