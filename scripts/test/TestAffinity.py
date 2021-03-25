@@ -106,7 +106,7 @@ class TestAffinity(unittest.TestCase):
         self.pthread_argv += args.pop('add_args', [])
         launcher = TestAffinityLauncher(self.pthread_argv, **args)
         actual = launcher.affinity_list(False)
-        expect = [geopm_cpus | app_cpus[0]] + app_cpus[1:]
+        expect = app_cpus
         self.assertEqual(expect, actual)
 
     def check_application_mode(self, geopm_cpus, app_cpus, launch_args):
