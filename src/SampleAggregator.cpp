@@ -481,24 +481,22 @@ namespace geopm
 
     double SampleAggregatorImp::sample_period_last(int signal_idx)
     {
-        if (!m_is_updated) {
+        if (!m_is_updated || m_period_duration == 0.0) {
             return NAN;
         }
 
         double result = NAN;
-        if (m_period_duration != 0.0) {
-            auto sum_it = m_sum_signal.find(signal_idx);
-            if (sum_it != m_sum_signal.end()) {
-                result = sum_it->second.period_accum->interval_total();
+        auto sum_it = m_sum_signal.find(signal_idx);
+        if (sum_it != m_sum_signal.end()) {
+            result = sum_it->second.period_accum->interval_total();
+        }
+        else {
+            auto avg_it = m_avg_signal.find(signal_idx);
+            if (avg_it == m_avg_signal.end()) {
+                throw Exception("SampleAggregator::sample_period(): Invalid signal index: signal index not pushed with push_signal_total() or push_signal_average()",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
-            else {
-                auto avg_it = m_avg_signal.find(signal_idx);
-                if (avg_it == m_avg_signal.end()) {
-                    throw Exception("SampleAggregator::sample_period(): Invalid signal index: signal index not pushed with push_signal_total() or push_signal_average()",
-                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-                }
-                result = avg_it->second.period_accum->interval_average();
-            }
+            result = avg_it->second.period_accum->interval_average();
         }
         return result;
     }
