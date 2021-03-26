@@ -31,6 +31,7 @@
  */
 
 #include <vector>
+#include <cmath>
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -223,7 +224,7 @@ TEST_F(SampleAggregatorTest, sample_application)
     EXPECT_EQ(M_SIGNAL_CYCLES_2, m_agg->push_signal("CYCLES", GEOPM_DOMAIN_CPU, 2));
     EXPECT_EQ(M_SIGNAL_CYCLES_3, m_agg->push_signal("CYCLES", GEOPM_DOMAIN_CPU, 3));
 
-    EXPECT_EQ(0, m_agg->sample_period_last(M_SIGNAL_TIME));
+    EXPECT_TRUE(std::isnan(m_agg->sample_period_last(M_SIGNAL_TIME)));
 
     for (int idx = 0; idx < num_sample; ++idx) {
         // expected sample values
@@ -390,4 +391,19 @@ TEST_F(SampleAggregatorTest, epoch_application_total)
 
     // Application totals
     EXPECT_DOUBLE_EQ(7.0, m_agg->sample_application(M_SIGNAL_TIME));
+}
+
+TEST_F(SampleAggregatorTest, test_sample_before_update)
+{
+    EXPECT_CALL(m_platio, push_signal("TIME", GEOPM_DOMAIN_BOARD, 0));
+    EXPECT_CALL(m_platio, push_signal("REGION_HASH", GEOPM_DOMAIN_BOARD, 0));
+    EXPECT_CALL(m_platio, signal_behavior("TIME"))
+        .WillOnce(Return(IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE));
+    int time_idx = m_agg->push_signal("TIME", GEOPM_DOMAIN_BOARD, 0);
+    EXPECT_TRUE(std::isnan(m_agg->sample_application(time_idx)));
+    EXPECT_TRUE(std::isnan(m_agg->sample_region(time_idx, 0ULL)));
+    EXPECT_TRUE(std::isnan(m_agg->sample_region_last(time_idx, 0)));
+    EXPECT_TRUE(std::isnan(m_agg->sample_epoch(time_idx)));
+    EXPECT_TRUE(std::isnan(m_agg->sample_epoch_last(time_idx)));
+    EXPECT_TRUE(std::isnan(m_agg->sample_period_last(time_idx)));
 }

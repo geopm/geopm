@@ -349,6 +349,10 @@ namespace geopm
 
     double SampleAggregatorImp::sample_application(int signal_idx)
     {
+        if (!m_is_updated) {
+            return NAN;
+        }
+
         double result = NAN;
         auto sum_it = m_sum_signal.find(signal_idx);
         if (sum_it != m_sum_signal.end()) {
@@ -436,7 +440,10 @@ namespace geopm
 
     double SampleAggregatorImp::sample_region(int signal_idx, uint64_t region_hash)
     {
-        if (region_hash == GEOPM_REGION_HASH_EPOCH) {
+        if (!m_is_updated) {
+            return NAN;
+        }
+        else if (region_hash == GEOPM_REGION_HASH_EPOCH) {
             return sample_epoch(signal_idx);
         }
         else if (region_hash == GEOPM_REGION_HASH_APP) {
@@ -447,7 +454,10 @@ namespace geopm
 
     double SampleAggregatorImp::sample_region_last(int signal_idx, uint64_t region_hash)
     {
-        if (region_hash == GEOPM_REGION_HASH_EPOCH) {
+        if (!m_is_updated) {
+            return NAN;
+        }
+        else if (region_hash == GEOPM_REGION_HASH_EPOCH) {
             return sample_epoch_last(signal_idx);
         }
         return sample_region_helper(signal_idx, region_hash, true);
@@ -455,16 +465,26 @@ namespace geopm
 
     double SampleAggregatorImp::sample_epoch(int signal_idx)
     {
+        if (!m_is_updated) {
+            return NAN;
+        }
         return sample_epoch_helper(signal_idx, false);
     }
 
     double SampleAggregatorImp::sample_epoch_last(int signal_idx)
     {
+        if (!m_is_updated) {
+            return NAN;
+        }
         return sample_epoch_helper(signal_idx, true);
     }
 
     double SampleAggregatorImp::sample_period_last(int signal_idx)
     {
+        if (!m_is_updated) {
+            return NAN;
+        }
+
         double result = NAN;
         if (m_period_duration != 0.0) {
             auto sum_it = m_sum_signal.find(signal_idx);
