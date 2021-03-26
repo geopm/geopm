@@ -79,7 +79,7 @@ make dist
 cd -P $LINK_DIR
 tar xvf $SRC_BASE_DIR/geopm-tutorial.tar.gz
 cd geopm-tutorial
-export GEOPM_PREFIX=$destdir/$prefix
+export GEOPM_INSTALL=$destdir/$prefix
 ./tutorial_build_$compiler.sh
 
 # Print success message
