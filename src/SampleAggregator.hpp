@@ -162,7 +162,8 @@ namespace geopm
             ///        push_signal_average().
             ///
             /// @return Aggregated value for the signal since first
-            ///         epoch.
+            ///         epoch, or NAN if called before first call to
+            ///         update().
             virtual double sample_epoch(int signal_idx) = 0;
             /// @brief Get the aggregated value of a signal during the
             ///        execution of a particular region.
@@ -185,7 +186,8 @@ namespace geopm
             ///        data for.
             ///
             /// @return Aggregated value for the signal during the
-            ///         region.
+            ///         region, or NAN if called before first call to
+            ///         update().
             virtual double sample_region(int signal_idx, uint64_t region_hash) = 0;
             /// @brief Get the aggregated value of a signal over the
             ///        last completed epoch interval.
@@ -201,7 +203,8 @@ namespace geopm
             ///        push_signal_average().
             ///
             /// @return Aggregated value for the signal over last
-            ///         epoch.
+            ///         epoch, or NAN if called before first call to
+            ///         update().
             virtual double sample_epoch_last(int signal_idx) = 0;
             /// @brief Get the aggregated value of a signal during the
             ///        the last completed execution of a particular
@@ -228,18 +231,41 @@ namespace geopm
             ///        data for.
             ///
             /// @return Aggregated value for the signal during the
-            ///         last execution of the region.
+            ///         last execution of the region, or NAN if called
+            ///         before first call to update() or if
+            ///         period_duration() was not called.
             virtual double sample_region_last(int signal_idx, uint64_t region_hash) = 0;
             /// @brief Set the time period for sample_period_last()
             ///
-            /// The duration must be greater than zero and if this
-            /// method is not called, sample_period_last() will
-            /// return NAN.
+            /// Calling this method prior to the first call to
+            /// update() enables signals to be accumulated on a
+            /// periodic basis.  The sample_period_last() method is
+            /// used to sample an accumulated value over the last
+            /// completed time interval, and the period of the
+            /// interval is configured by calling this method.
+            ///
+            /// The sample_period_last() method will always return NAN
+            /// If period_duration() is not called prior to the first
+            /// call to update().  The period_duration() method will
+            /// throw an Exception if it is called after the first
+            /// call to update().
+            ///
+            /// @param [in] duration Time interval in seconds over
+            ///        which the sample_region_last() method is
+            ///        aggregated (must be greater than 0.0).
             virtual void period_duration(double duration) = 0;
             /// @brief Get the index of the current time period.
             ///
-            /// @returns The number of completed durations since
-            /// the application start.
+            /// Provides an index of completed durations.  Will return
+            /// zero if periodic sampling is not enabled (when
+            /// period_duration() was not called prior to update()).
+            /// When periodic sampling is enabled, the
+            /// sample_period_last() method will return 0.0 until a
+            /// full period has elapsed, this corresponds to when
+            /// get_period() returns a value greater than zero.
+            ///
+            /// @returns The number of completed durations since the
+            ///          application start.
             virtual int get_period(void) = 0;
             /// @brief Get the aggregated value of a signal during the
             ///        last completed time interval.
