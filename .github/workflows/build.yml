@@ -41,23 +41,28 @@ on:
     branches: [ dev ]
 
 jobs:
-  build:
-    runs-on: ${{ matrix.config.os }}
+  build_and_test:
+    name: "build_and_test: ${{ matrix.config.name }} ${{ matrix.debug-flag }}"
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         config:
         - {
-          name: clang,
-          os: ubuntu-latest,
-          cc: "clang", cxx: "clang"
+          name: clang-9,
+          cc: "clang-9", cxx: "clang++-9"
         }
         - {
-          name: gcc,
-          os: ubuntu-latest,
-          cc: "gcc", cxx: "g++"
+          name: gcc-9,
+          cc: "gcc-9", cxx: "g++-9"
         }
         # Note: python2 is not supported as of April 2020; pip install breaks on tables in 3.8
         python-version: [3.7]
+        debug-flag: ["enable-debug", "disable-debug"]
+    env:
+      CC: ${{ matrix.config.cc }}
+      CXX: ${{ matrix.config.cxx }}
+      FC: gfortran-9
+      F77: gfortran-9
 
     steps:
     - uses: actions/checkout@v2
@@ -65,7 +70,7 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - name: install system dependencies
-      run: sudo apt-get update && sudo apt-get install libelf-dev mpich libmpich-dev
+      run: sudo apt-get update && sudo apt-get install libelf-dev mpich libmpich-dev libomp-9-dev
     - name: install python dependencies
       uses: py-actions/py-dependency-install@v2
       with:
@@ -81,16 +86,16 @@ jobs:
       shell: bash
       run: .github/include_guards.sh
     - name: configure
-      run: ./autogen.sh && ./configure --enable-beta
+      run: ./autogen.sh && ./configure --enable-beta --${{ matrix.debug-flag }}
     - name: make
       run: make -j2
     - name: make checkprogs
       run: make checkprogs -j2
     - name: make check
-      run: make check
       env:
         LD_LIBRARY_PATH: $PWD/.libs:$LD_LIBRARY_PATH
         PYTHONPATH: $PWD/scripts:/usr/lib/python${{ matrix.python-version }}/dist-packages:$PYTHONPATH
+      run: make check
     - name: test-dist
       run: ./copying_headers/test-dist
     - name: show failure logs
