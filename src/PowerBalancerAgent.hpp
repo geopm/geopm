@@ -62,6 +62,13 @@ namespace geopm
                 ///        and thus, the algorithm must be restarted
                 ///        at step M_SEND_DOWN_LIMIT.
                 M_POLICY_POWER_PACKAGE_LIMIT_TOTAL,
+                /// @brief When this value is non-zero it specifies
+                ///        that the power balancer should balance
+                ///        based on periodic intervals with the
+                ///        specified duration in seconds rather than
+                ///        balancing using the application reported
+                ///        epochs (the default).
+                M_POLICY_PERIOD_DURATION,
                 /// @brief Step that the root is providing a policy
                 ///        for.  The parent has received a sample
                 ///        matching this step in the last walk up the
@@ -352,6 +359,7 @@ namespace geopm
                     const double M_MAX_PKG_POWER_SETTING;
                     bool m_is_single_node;
                     bool m_is_first_policy;
+                    bool m_do_periodic;
             };
     };
 }
