@@ -49,7 +49,6 @@ namespace geopm
         , m_command(command)
         , m_subcommand(subcommand)
         , m_subcommand_arg(subcommand_arg)
-        , m_interface_parameter(interface_parameter)
         , m_batch_idx(-1)
     {
     }
