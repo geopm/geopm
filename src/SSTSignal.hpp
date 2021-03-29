@@ -83,7 +83,6 @@ namespace geopm
             const uint16_t m_command;
             const uint16_t m_subcommand;
             const uint32_t m_subcommand_arg;
-            const uint32_t m_interface_parameter;
 
             int m_batch_idx;
     };
