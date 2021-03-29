@@ -360,6 +360,9 @@ namespace geopm
                     bool m_is_single_node;
                     bool m_is_first_policy;
                     bool m_do_periodic;
+                    const int M_WARM_PERIODS_MIN;
+                    const double M_WARM_TIME_MIN;
+                    int m_warm_periods;
             };
     };
 }

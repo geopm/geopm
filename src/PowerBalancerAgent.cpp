@@ -161,6 +161,9 @@ namespace geopm
         , m_is_single_node(is_single_node)
         , m_is_first_policy(true)
         , m_do_periodic(false)
+        , M_WARM_PERIODS_MIN(10)
+        , M_WARM_TIME_MIN(10.0)
+        , m_warm_periods(1)
     {
         if (m_power_balancer.empty()) {
             double ctl_latency = M_STABILITY_FACTOR * time_window;
@@ -217,8 +220,16 @@ namespace geopm
             if (m_is_first_policy) {
                 m_policy = in_policy;
                 if (m_policy[M_POLICY_PERIOD_DURATION] != 0.0) {
-                    m_sample_agg->period_duration(m_policy[M_POLICY_PERIOD_DURATION]);
                     m_do_periodic = true;
+                    double duration = m_policy[M_POLICY_PERIOD_DURATION];
+                    m_sample_agg->period_duration(duration);
+                    double warm_time = M_WARM_PERIODS_MIN * duration;
+                    if (warm_time >= M_WARM_TIME_MIN) {
+                        m_warm_periods = M_WARM_PERIODS_MIN;
+                    }
+                    else {
+                        m_warm_periods = static_cast<int>(M_WARM_TIME_MIN / duration) + 1;
+                    }
                 }
                 m_is_first_policy = false;
             }
@@ -551,7 +562,9 @@ namespace geopm
             int epoch_count = role.m_do_periodic ?
                               role.m_sample_agg->get_period() :
                               role.m_platform_io.sample(role.m_count_pio_idx[pkg_idx]);
-            if (epoch_count > 1 &&
+            // Wait m_warm_periods before starting algorithm if using
+            // periodic aggregation
+            if (epoch_count > role.m_warm_periods &&
                 epoch_count != package.last_epoch_count &&
                 !package.is_step_complete) {
                 /// We wish to measure runtime that is a function of node
