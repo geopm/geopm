@@ -219,7 +219,7 @@ namespace geopm
             void controller_ready(void) override;
             void abort(void) override;
             std::vector<struct geopm_prof_message_s> sample_cache(void) override;
-            void check_sample_end(void);
+            void check_sample_end(void) override;
         private:
             /// Holds the shared memory region used for application coordination
             /// and control.
