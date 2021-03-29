@@ -100,7 +100,11 @@ def launch_configs(output_dir, app_conf, agent_types, min_power, max_power, step
     for power_cap in range(max_power, min_power-1, -step_power):
         for agent in agent_types:
             name = '{}'.format(power_cap)
-            options = {'power_budget': power_cap}
+            options = {'POWER_PACKAGE_LIMIT_TOTAL': power_cap}
+            if agent.startswith('power_balancer-'):
+                period = float(agent.split('power_balancer-')[1])
+                agent = 'power_balancer'
+                options['PERIOD_DURATION'] = period
             config_file = os.path.join(output_dir, name + '_agent.config')
             agent_conf = geopmpy.io.AgentConf(path=config_file,
                                               agent=agent,
