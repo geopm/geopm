@@ -81,22 +81,22 @@ if ENABLE_SCHED
                        #end
     examples_simple_prof_c_SOURCES = examples/simple_prof_c.c
     examples_simple_prof_c_LDADD = libgeopm.la $(MPI_CXXLIBS)
-    examples_simple_prof_c_CPPFLAGS = $(AM_CPPFLAGS) $(MPI_CPPFLAGS) $(OPENMP_CFLAGS)
-    examples_simple_prof_c_LDFLAGS = $(AM_LDFLAGS) $(MPI_CXXLDFLAGS) $(OPENMP_CFLAGS)
-    examples_simple_prof_c_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS) $(OPENMP_CFLAGS)
-    examples_simple_prof_c_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CXXFLAGS) $(OPENMP_CFLAGS)
+    examples_simple_prof_c_CPPFLAGS = $(AM_CPPFLAGS)
+    examples_simple_prof_c_LDFLAGS = $(AM_LDFLAGS) $(MPI_CXXLDFLAGS)
+    examples_simple_prof_c_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
+    examples_simple_prof_c_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CXXFLAGS)
     examples_print_affinity_SOURCES = examples/print_affinity.cpp
     examples_print_affinity_LDADD  = $(MPI_CXXLIBS)
     examples_print_affinity_LDFLAGS  = $(AM_LDFLAGS) $(MPI_CXXLDFLAGS)
-    examples_print_affinity_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS) $(OPENMP_CFLAGS)
-    examples_print_affinity_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CXXFLAGS) $(OPENMP_CFLAGS)
+    examples_print_affinity_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
+    examples_print_affinity_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CXXFLAGS)
 if ENABLE_FORTRAN
     noinst_PROGRAMS += examples/simple_prof_f
     examples_simple_prof_f_SOURCES = examples/simple_prof_f.f90
-    examples_simple_prof_f_CPPFLAGS = $(AM_CPPFLAGS) $(MPI_CPPFLAGS) $(OPENMP_CFLAGS)
+    examples_simple_prof_f_CPPFLAGS = $(AM_CPPFLAGS)
     examples_simple_prof_f_LDADD = libgeopm.la libgeopmfort.la $(MPI_FCLIBS) $(MPI_CXXLIBS)
-    examples_simple_prof_f_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS) $(OPENMP_CFLAGS)
-    examples_simple_prof_f_FCFLAGS = $(AM_FCFLAGS) $(MPI_FCFLAGS) $(OPENMP_CFLAGS)
+    examples_simple_prof_f_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS)
+    examples_simple_prof_f_FCFLAGS = $(AM_FCFLAGS) $(MPI_FCFLAGS)
 endif
 endif
 endif
