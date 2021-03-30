@@ -82,12 +82,12 @@ if ENABLE_SCHED
     examples_simple_prof_c_SOURCES = examples/simple_prof_c.c
     examples_simple_prof_c_LDADD = libgeopm.la $(MPI_CXXLIBS)
     examples_simple_prof_c_CPPFLAGS = $(AM_CPPFLAGS)
-    examples_simple_prof_c_LDFLAGS = $(AM_LDFLAGS) $(MPI_CXXLDFLAGS)
+    examples_simple_prof_c_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS)
     examples_simple_prof_c_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
     examples_simple_prof_c_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CXXFLAGS)
     examples_print_affinity_SOURCES = examples/print_affinity.cpp
     examples_print_affinity_LDADD  = $(MPI_CXXLIBS)
-    examples_print_affinity_LDFLAGS  = $(AM_LDFLAGS) $(MPI_CXXLDFLAGS)
+    examples_print_affinity_LDFLAGS  = $(AM_LDFLAGS) $(MPI_LDFLAGS)
     examples_print_affinity_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
     examples_print_affinity_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CXXFLAGS)
 if ENABLE_FORTRAN
