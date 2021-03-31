@@ -1434,11 +1434,13 @@ class IMPIExecLauncher(Launcher):
                                  'Use "-f <host_file>" or "-hosts" to specify the hostnames of the compute nodes.\n')
                 IMPIExecLauncher._is_once = False
 
-        if self.is_slurm_enabled:
-            server = 'slurm'
-            if os.getenv('SLURM_CLUSTER_NAME') == 'endeavour':
-                server = 'ssh'
-            result += ['-bootstrap', server]
+        # If the user specified the bootstrap option, assume they know better than we do
+        if not any(aa.startswith('-bootstrap') for aa in self.argv):
+            if self.is_slurm_enabled:
+                server = 'slurm'
+                if os.getenv('SLURM_CLUSTER_NAME') == 'endeavour':
+                    server = 'ssh'
+                result += ['-bootstrap', server]
 
         return result
 
