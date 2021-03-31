@@ -4,7 +4,7 @@ Date: Wed, 7 Oct 2020 12:17:19 -0700
 Subject: [PATCH 2/5] Enable MPI in Intel build
 
 #
-#  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
+#  Copyright (c) 2015 - 2021, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
 #  modification, are permitted provided that the following conditions
