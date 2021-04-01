@@ -407,10 +407,13 @@ namespace geopm
                                                                   core_idx);
                 GEOPM_DEBUG_ASSERT(inactive_cpu.size() != 0,
                                    "Valid core index returned no nested CPUs");
-                result = *(inactive_cpu.begin());
+                result = *(inactive_cpu.rbegin());
                 break;
             }
         }
+#ifdef GEOPM_DEBUG
+        std::cout << "Info: <geopm> ApplicationSampler::sampler_cpu(): The Controller will run on logical CPU " << result << std::endl;
+#endif
         return result;
     }
 
