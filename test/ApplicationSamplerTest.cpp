@@ -569,9 +569,9 @@ TEST_F(ApplicationSamplerTest, sampler_cpu)
     EXPECT_CALL(*m_mock_topo, domain_nested(GEOPM_DOMAIN_CPU,
                                             GEOPM_DOMAIN_CORE, 1))
         .WillOnce(Return(core_cpu));
-    // The sampler should pick the first CPU on the last unused core
-    // which is CPU 2
-    EXPECT_EQ(2, m_app_sampler->sampler_cpu());
+    // The sampler should pick the last CPU on the last unused core
+    // which is CPU 3
+    EXPECT_EQ(3, m_app_sampler->sampler_cpu());
 
     // Check that make_cpu_set() as it would be called in connect() in
     // this example creates a cpu_set_t that has all but the third bit
