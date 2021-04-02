@@ -152,14 +152,14 @@ namespace geopm
         , m_platform_io(platform_io)
         , m_platform_topo(platform_topo)
         , m_sample_agg(sample_agg)
-        , m_num_domain(m_platform_topo.num_domain(GEOPM_DOMAIN_PACKAGE))
+        , m_num_package(m_platform_topo.num_domain(GEOPM_DOMAIN_PACKAGE))
         , m_num_core(m_platform_topo.num_domain(GEOPM_DOMAIN_CORE))
         , m_time_agg_idx(-1)
         , m_network_agg_idx(m_num_core, -1)
         , m_ignore_agg_idx(m_num_core, -1)
         , m_power_balancer(power_balancer)
         , M_STABILITY_FACTOR(3.0)
-        , m_package(m_num_domain, m_package_s {0.0, NAN, 0.0, 0.0, false, true, -1})
+        , m_package(m_num_package, m_package_s {0.0, NAN, 0.0, 0.0, false, true, -1})
         , M_MIN_PKG_POWER_SETTING(min_power)
         , M_MAX_PKG_POWER_SETTING(max_power)
         , m_is_single_node(is_single_node)
@@ -172,7 +172,7 @@ namespace geopm
     {
         if (m_power_balancer.empty()) {
             double ctl_latency = M_STABILITY_FACTOR * time_window;
-            for (int pkg_idx = 0; pkg_idx != m_num_domain; ++pkg_idx) {
+            for (int pkg_idx = 0; pkg_idx != m_num_package; ++pkg_idx) {
                 m_power_balancer.push_back(PowerBalancer::make_unique(ctl_latency));
             }
         }
@@ -187,7 +187,7 @@ namespace geopm
         // Setup signals and controls
         m_time_agg_idx = m_sample_agg->push_signal("TIME",
                                                    GEOPM_DOMAIN_BOARD, 0);
-        for (int pkg_idx = 0; pkg_idx != m_num_domain; ++pkg_idx) {
+        for (int pkg_idx = 0; pkg_idx != m_num_package; ++pkg_idx) {
             m_package[pkg_idx].pio_power_idx =
                 m_platform_io.push_control("POWER_PACKAGE_LIMIT",
                                            GEOPM_DOMAIN_PACKAGE, pkg_idx);
@@ -249,7 +249,7 @@ namespace geopm
         if (m_policy[M_POLICY_POWER_PACKAGE_LIMIT_TOTAL] != 0.0) {
             // New power cap from resource manager, reset algorithm.
             m_step_count = M_STEP_SEND_DOWN_LIMIT;
-            double pkg_limit = m_policy[M_POLICY_POWER_PACKAGE_LIMIT_TOTAL] / m_num_domain;
+            double pkg_limit = m_policy[M_POLICY_POWER_PACKAGE_LIMIT_TOTAL] / m_num_package;
             for (auto &balancer : m_power_balancer) {
                 balancer->power_cap(pkg_limit);
             }
@@ -268,7 +268,7 @@ namespace geopm
         }
 
         bool result = false;
-        for (int pkg_idx = 0; pkg_idx != m_num_domain; ++pkg_idx) {
+        for (int pkg_idx = 0; pkg_idx != m_num_package; ++pkg_idx) {
             auto &balancer = m_power_balancer[pkg_idx];
             auto &package = m_package[pkg_idx];
             // Request the power limit from the balancer
@@ -297,8 +297,15 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
-        step_imp().sample_platform(*this);
         m_sample_agg->update();
+        int period_count = m_sample_agg->get_period();
+        // Wait m_warm_periods before starting algorithm
+        if (period_count > m_warm_periods &&
+            period_count != m_last_period_count) {
+            step_imp().sample_platform(*this);
+        }
+        m_last_period_count = period_count;
+
         double runtime = 0.0;
         double power_slack = 0.0;
         double power_headroom = 0;
@@ -515,13 +522,13 @@ namespace geopm
                               balancer->power_limit();
             min_headroom = std::min(min_headroom, headroom);
         }
-        double even_slack = slack_power / role.m_num_domain;
+        double even_slack = slack_power / role.m_num_package;
         if (even_slack < min_headroom) {
             slack_power = 0;
         }
         else {
             even_slack = min_headroom;
-            slack_power -= even_slack * role.m_num_domain;
+            slack_power -= even_slack * role.m_num_package;
         }
         double total_headroom = 0.0;
         for (auto &balancer : role.m_power_balancer) {
@@ -557,37 +564,14 @@ namespace geopm
 
     void PowerBalancerAgent::MeasureRuntimeStep::sample_platform(PowerBalancerAgent::LeafRole &role) const
     {
-        int period_count = role.m_sample_agg->get_period();
-        // Wait m_warm_periods before starting algorithm
-        if (period_count > role.m_warm_periods &&
-            period_count != role.m_last_period_count) {
-            for (int pkg_idx = 0; pkg_idx < role.m_num_domain; ++pkg_idx) {
-                double sum_net_ig = 0.0;
-                std::set<int> nested_core = role.m_platform_topo.domain_nested(GEOPM_DOMAIN_CORE, GEOPM_DOMAIN_PACKAGE, pkg_idx);
-                std::set<int> active_nested_core;
-                std::set_intersection(nested_core.begin(), nested_core.end(),
-                                      role.m_active_core.begin(), role.m_active_core.end(),
-                                      std::inserter(active_nested_core, active_nested_core.begin()));
-                for (auto &core_idx : active_nested_core) {
-                    /// We wish to measure runtime that is a function of node
-                    /// local optimizations only, and therefore uncorrelated
-                    /// between compute nodes.
-                    sum_net_ig += role.m_sample_agg->sample_period_last(role.m_network_agg_idx[core_idx]);
-                    sum_net_ig += role.m_sample_agg->sample_period_last(role.m_ignore_agg_idx[core_idx]);
-                }
-                double balanced_period_runtime = role.m_sample_agg->sample_period_last(role.m_time_agg_idx);
-                int num_selected = active_nested_core.size();
-                if (num_selected != 0) {
-                    balanced_period_runtime -= sum_net_ig / num_selected;
-                }
-                auto &package = role.m_package[pkg_idx];
-                auto &balancer = role.m_power_balancer[pkg_idx];
-                package.is_step_complete = balancer->is_runtime_stable(balanced_period_runtime);
-                if (!package.is_step_complete) {
-                    package.runtime = balancer->runtime_sample();
-                }
+        std::vector<double> runtime = role.balanced_runtime();
+        for (int pkg_idx = 0; pkg_idx < role.m_num_package; ++pkg_idx) {
+            auto &package = role.m_package[pkg_idx];
+            auto &balancer = role.m_power_balancer[pkg_idx];
+            package.is_step_complete = balancer->is_runtime_stable(runtime.at(pkg_idx));
+            if (!package.is_step_complete) {
+                package.runtime = balancer->runtime_sample();
             }
-            role.m_last_period_count = period_count;
         }
     }
 
@@ -606,40 +590,49 @@ namespace geopm
         }
     }
 
+    std::vector<double> PowerBalancerAgent::LeafRole::balanced_runtime(void) const
+    {
+        /// We wish to measure runtime that is a function of node
+        /// local optimizations only, and therefore uncorrelated
+        /// between compute nodes.
+        std::vector<double> result(m_num_package, 0.0);
+        double period_last = m_sample_agg->sample_period_last(m_time_agg_idx);
+        for (int pkg_idx = 0; pkg_idx != m_num_package; ++pkg_idx) {
+            double sum_net_ig = 0.0;
+            std::set<int> nested_core = m_platform_topo.domain_nested(GEOPM_DOMAIN_CORE,
+                                                                      GEOPM_DOMAIN_PACKAGE,
+                                                                      pkg_idx);
+            std::set<int> active_nested_core;
+            std::set_intersection(nested_core.begin(), nested_core.end(),
+                                  m_active_core.begin(), m_active_core.end(),
+                                  std::inserter(active_nested_core, active_nested_core.begin()));
+            for (auto &core_idx : active_nested_core) {
+                sum_net_ig += m_sample_agg->sample_period_last(m_network_agg_idx[core_idx]);
+                sum_net_ig += m_sample_agg->sample_period_last(m_ignore_agg_idx[core_idx]);
+            }
+
+            int num_selected = active_nested_core.size();
+            // Note if there are no active cores on a socket, the we
+            // want the compute time to be zero so the balancer will
+            // stear power away from it.
+            if (num_selected != 0) {
+                result[pkg_idx] = period_last - sum_net_ig / num_selected;
+            }
+        }
+        return result;
+    }
+
     void PowerBalancerAgent::ReduceLimitStep::sample_platform(PowerBalancerAgent::LeafRole &role) const
     {
-
-        int period_count = role.m_sample_agg->get_period();
-        if (period_count > role.m_warm_periods &&
-            period_count != role.m_last_period_count) {
-            for (int pkg_idx = 0; pkg_idx < role.m_num_domain; ++pkg_idx) {
-                double sum_net_ig = 0.0;
-                std::set <int> nested_core = role.m_platform_topo.domain_nested(GEOPM_DOMAIN_CORE, GEOPM_DOMAIN_PACKAGE, pkg_idx);
-                std::set<int> active_nested_core;
-                std::set_intersection(nested_core.begin(), nested_core.end(),
-                                      role.m_active_core.begin(), role.m_active_core.end(),
-                                      std::inserter(active_nested_core, active_nested_core.begin()));
-                for (auto &core_idx : active_nested_core) {
-                    /// We wish to measure runtime that is a function of node
-                    /// local optimizations only, and therefore uncorrelated
-                    /// between compute nodes.
-                    sum_net_ig += role.m_sample_agg->sample_period_last(role.m_network_agg_idx[core_idx]);
-                    sum_net_ig += role.m_sample_agg->sample_period_last(role.m_ignore_agg_idx[core_idx]);
-                }
-                double balanced_period_runtime = role.m_sample_agg->sample_period_last(role.m_time_agg_idx);
-                int num_selected = active_nested_core.size();
-                if (num_selected != 0) {
-                    balanced_period_runtime -= sum_net_ig / num_selected;
-                }
-                auto &package = role.m_package[pkg_idx];
-                auto &balancer = role.m_power_balancer[pkg_idx];
-                package.is_step_complete = package.is_out_of_bounds ||
-                                           balancer->is_target_met(balanced_period_runtime);
-                package.power_slack = balancer->power_slack();
-                package.is_out_of_bounds = false;
-                package.power_headroom = role.M_MAX_PKG_POWER_SETTING - balancer->power_limit();
-            }
-            role.m_last_period_count = period_count;
+        std::vector<double> runtime = role.balanced_runtime();
+        for (int pkg_idx = 0; pkg_idx != role.m_num_package; ++pkg_idx) {
+            auto &package = role.m_package[pkg_idx];
+            auto &balancer = role.m_power_balancer[pkg_idx];
+            package.is_step_complete = package.is_out_of_bounds ||
+                                       balancer->is_target_met(runtime.at(pkg_idx));
+            package.power_slack = balancer->power_slack();
+            package.is_out_of_bounds = false;
+            package.power_headroom = role.M_MAX_PKG_POWER_SETTING - balancer->power_limit();
         }
     }
 

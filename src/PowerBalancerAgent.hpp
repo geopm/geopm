@@ -335,11 +335,12 @@ namespace geopm
                     void init_platform_io(void);
                     void are_steps_complete(bool is_complete);
                     bool are_steps_complete(void);
+                    std::vector<double> balanced_runtime(void) const;
                     PlatformIO &m_platform_io;
                     const PlatformTopo &m_platform_topo;
                     std::shared_ptr<SampleAggregator> m_sample_agg;
                     /// Number of power control domains
-                    int m_num_domain;
+                    int m_num_package;
                     int m_num_core;
                     int m_time_agg_idx;
                     std::vector<int> m_network_agg_idx;
