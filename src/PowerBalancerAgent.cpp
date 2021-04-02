@@ -40,6 +40,7 @@
 #include "PlatformIO.hpp"
 #include "PlatformTopo.hpp"
 #include "Exception.hpp"
+#include "geopm_debug.hpp"
 #include "Agg.hpp"
 #include "Helper.hpp"
 #include "SampleAggregator.hpp"
@@ -149,21 +150,21 @@ namespace geopm
         , m_platform_topo(platform_topo)
         , m_sample_agg(sample_agg)
         , m_num_domain(m_platform_topo.num_domain(GEOPM_DOMAIN_PACKAGE))
-        , m_count_pio_idx(m_num_domain, -1)
-        , m_time_agg_idx(m_num_domain, -1)
-        , m_network_agg_idx(m_num_domain, -1)
-        , m_ignore_agg_idx(m_num_domain, -1)
+        , m_num_core(m_platform_topo.num_domain(GEOPM_DOMAIN_CORE))
+        , m_time_agg_idx(-1)
+        , m_network_agg_idx(m_num_core, -1)
+        , m_ignore_agg_idx(m_num_core, -1)
         , m_power_balancer(power_balancer)
         , M_STABILITY_FACTOR(3.0)
-        , m_package(m_num_domain, m_package_s {0, 0.0, NAN, 0.0, 0.0, false, true, -1})
+        , m_package(m_num_domain, m_package_s {0.0, NAN, 0.0, 0.0, false, true, -1})
         , M_MIN_PKG_POWER_SETTING(min_power)
         , M_MAX_PKG_POWER_SETTING(max_power)
         , m_is_single_node(is_single_node)
         , m_is_first_policy(true)
-        , m_do_periodic(false)
         , M_WARM_PERIODS_MIN(10)
         , M_WARM_TIME_MIN(10.0)
         , m_warm_periods(1)
+        , m_last_period_count(0)
     {
         if (m_power_balancer.empty()) {
             double ctl_latency = M_STABILITY_FACTOR * time_window;
@@ -180,22 +181,20 @@ namespace geopm
     void PowerBalancerAgent::LeafRole::init_platform_io(void)
     {
         // Setup signals and controls
+        m_time_agg_idx = m_sample_agg->push_signal("TIME",
+                                                   GEOPM_DOMAIN_BOARD, 0);
         for (int pkg_idx = 0; pkg_idx != m_num_domain; ++pkg_idx) {
-            m_count_pio_idx[pkg_idx] =
-                m_platform_io.push_signal("EPOCH_COUNT",
-                                          GEOPM_DOMAIN_PACKAGE, pkg_idx);
-            m_time_agg_idx[pkg_idx] =
-                m_sample_agg->push_signal("TIME",
-                                          GEOPM_DOMAIN_PACKAGE, pkg_idx);
-            m_network_agg_idx[pkg_idx] =
-                m_sample_agg->push_signal("TIME_HINT_NETWORK",
-                                          GEOPM_DOMAIN_PACKAGE, pkg_idx);
-            m_ignore_agg_idx[pkg_idx] =
-                m_sample_agg->push_signal("TIME_HINT_IGNORE",
-                                          GEOPM_DOMAIN_PACKAGE, pkg_idx);
             m_package[pkg_idx].pio_power_idx =
                 m_platform_io.push_control("POWER_PACKAGE_LIMIT",
                                            GEOPM_DOMAIN_PACKAGE, pkg_idx);
+        }
+        for (int core_idx = 0; core_idx != m_num_core; ++core_idx) {
+            m_network_agg_idx[core_idx] =
+                m_sample_agg->push_signal("TIME_HINT_NETWORK",
+                                          GEOPM_DOMAIN_CORE, core_idx);
+            m_ignore_agg_idx[core_idx] =
+                m_sample_agg->push_signal("TIME_HINT_IGNORE",
+                                          GEOPM_DOMAIN_CORE, core_idx);
         }
     }
 
@@ -219,24 +218,21 @@ namespace geopm
         if (m_is_single_node) {
             if (m_is_first_policy) {
                 m_policy = in_policy;
-                if (m_policy[M_POLICY_PERIOD_DURATION] != 0.0) {
-                    m_do_periodic = true;
-                    double duration = m_policy[M_POLICY_PERIOD_DURATION];
-                    m_sample_agg->period_duration(duration);
-                    double warm_time = M_WARM_PERIODS_MIN * duration;
-                    if (warm_time >= M_WARM_TIME_MIN) {
-                        m_warm_periods = M_WARM_PERIODS_MIN;
-                    }
-                    else {
-                        m_warm_periods = static_cast<int>(M_WARM_TIME_MIN / duration) + 1;
-                    }
+                double duration = m_policy[M_POLICY_PERIOD_DURATION];
+                m_sample_agg->period_duration(duration);
+                double warm_time = M_WARM_PERIODS_MIN * duration;
+                if (warm_time >= M_WARM_TIME_MIN) {
+                    m_warm_periods = M_WARM_PERIODS_MIN;
+                }
+                else {
+                    m_warm_periods = static_cast<int>(M_WARM_TIME_MIN / duration) + 1;
                 }
                 m_is_first_policy = false;
             }
             else if (are_steps_complete()) {
                 std::vector<double> sample(M_NUM_SAMPLE, 0.0);
                 sample[M_SAMPLE_STEP_COUNT] = m_policy[M_POLICY_STEP_COUNT];
-                sample[M_SAMPLE_MAX_EPOCH_RUNTIME] = m_policy[M_POLICY_MAX_EPOCH_RUNTIME];
+                sample[M_SAMPLE_MAX_PERIOD_RUNTIME] = m_policy[M_POLICY_MAX_PERIOD_RUNTIME];
                 sample[M_SAMPLE_SUM_POWER_SLACK] = m_policy[M_POLICY_POWER_SLACK];
                 sample[M_SAMPLE_MIN_POWER_HEADROOM] = m_policy[M_POLICY_POWER_SLACK];
                 step_imp().update_policy(*this, sample);
@@ -308,13 +304,13 @@ namespace geopm
             power_headroom += pkg.power_headroom;
         }
         out_sample[M_SAMPLE_STEP_COUNT] = m_step_count;
-        out_sample[M_SAMPLE_MAX_EPOCH_RUNTIME] = runtime;
+        out_sample[M_SAMPLE_MAX_PERIOD_RUNTIME] = runtime;
         out_sample[M_SAMPLE_SUM_POWER_SLACK] = power_slack;
         out_sample[M_SAMPLE_MIN_POWER_HEADROOM] = power_headroom;
 
         bool result = are_steps_complete();
         if (m_is_single_node && result) {
-            m_policy.at(M_POLICY_MAX_EPOCH_RUNTIME) = runtime;
+            m_policy.at(M_POLICY_MAX_PERIOD_RUNTIME) = runtime;
             m_policy.at(M_POLICY_POWER_SLACK) = std::min(power_slack,
                                                          power_headroom);
         }
@@ -336,8 +332,8 @@ namespace geopm
             m_policy.at(M_POLICY_POWER_PACKAGE_LIMIT_TOTAL);
         values[M_TRACE_SAMPLE_POLICY_STEP_COUNT] =
             m_policy.at(M_POLICY_STEP_COUNT);
-        values[M_TRACE_SAMPLE_POLICY_MAX_EPOCH_RUNTIME] =
-            m_policy.at(M_POLICY_MAX_EPOCH_RUNTIME);
+        values[M_TRACE_SAMPLE_POLICY_MAX_PERIOD_RUNTIME] =
+            m_policy.at(M_POLICY_MAX_PERIOD_RUNTIME);
         values[M_TRACE_SAMPLE_POLICY_POWER_SLACK] =
             m_policy.at(M_POLICY_POWER_SLACK);
         double actual_limit = 0.0;
@@ -352,7 +348,7 @@ namespace geopm
         : Role(calc_num_node(fan_in))
         , M_AGG_FUNC({
               Agg::min, // M_SAMPLE_STEP_COUNT
-              Agg::max, // M_SAMPLE_MAX_EPOCH_RUNTIME
+              Agg::max, // M_SAMPLE_MAX_PERIOD_RUNTIME
               Agg::sum, // M_SAMPLE_SUM_POWER_SLACK
               Agg::min, // M_SAMPLE_MIN_POWER_HEADROOM
           })
@@ -473,7 +469,7 @@ namespace geopm
             m_step_count = M_STEP_SEND_DOWN_LIMIT;
             m_policy[M_POLICY_POWER_PACKAGE_LIMIT_TOTAL] = in_policy[M_POLICY_POWER_PACKAGE_LIMIT_TOTAL];
             m_policy[M_POLICY_STEP_COUNT] = M_STEP_SEND_DOWN_LIMIT;
-            m_policy[M_POLICY_MAX_EPOCH_RUNTIME] = 0.0;
+            m_policy[M_POLICY_MAX_PERIOD_RUNTIME] = 0.0;
             m_policy[M_POLICY_POWER_SLACK] = 0.0;
             m_root_cap = in_policy[M_POLICY_POWER_PACKAGE_LIMIT_TOTAL];
             if (m_root_cap > M_MAX_PKG_POWER_SETTING ||
@@ -548,7 +544,7 @@ namespace geopm
 
     void PowerBalancerAgent::MeasureRuntimeStep::update_policy(PowerBalancerAgent::Role &role, const std::vector<double> &sample) const
     {
-        role.m_policy.at(PowerBalancerAgent::M_POLICY_MAX_EPOCH_RUNTIME) = sample[PowerBalancerAgent::M_SAMPLE_MAX_EPOCH_RUNTIME];
+        role.m_policy.at(PowerBalancerAgent::M_POLICY_MAX_PERIOD_RUNTIME) = sample[PowerBalancerAgent::M_SAMPLE_MAX_PERIOD_RUNTIME];
     }
 
     void PowerBalancerAgent::MeasureRuntimeStep::enter_step(PowerBalancerAgent::LeafRole &role, const std::vector<double> &in_policy) const
@@ -557,36 +553,31 @@ namespace geopm
 
     void PowerBalancerAgent::MeasureRuntimeStep::sample_platform(PowerBalancerAgent::LeafRole &role) const
     {
-        for (int pkg_idx = 0; pkg_idx < role.m_num_domain; ++pkg_idx) {
-            auto &package = role.m_package[pkg_idx];
-            int epoch_count = role.m_do_periodic ?
-                              role.m_sample_agg->get_period() :
-                              role.m_platform_io.sample(role.m_count_pio_idx[pkg_idx]);
-            // Wait m_warm_periods before starting algorithm if using
-            // periodic aggregation
-            if (epoch_count > role.m_warm_periods &&
-                epoch_count != package.last_epoch_count &&
-                !package.is_step_complete) {
-                /// We wish to measure runtime that is a function of node
-                /// local optimizations only, and therefore uncorrelated
-                /// between compute nodes.
-                double total = role.m_do_periodic ?
-                               role.m_sample_agg->sample_period_last(role.m_time_agg_idx[pkg_idx]) :
-                               role.m_sample_agg->sample_epoch_last(role.m_time_agg_idx[pkg_idx]);
-                double network = role.m_do_periodic ?
-                                 role.m_sample_agg->sample_period_last(role.m_network_agg_idx[pkg_idx]) :
-                                 role.m_sample_agg->sample_epoch_last(role.m_network_agg_idx[pkg_idx]);
-                double ignore = role.m_do_periodic ?
-                                role.m_sample_agg->sample_period_last(role.m_ignore_agg_idx[pkg_idx]) :
-                                role.m_sample_agg->sample_epoch_last(role.m_ignore_agg_idx[pkg_idx]);
-                double balanced_epoch_runtime =  total - network - ignore;
+        int period_count = role.m_sample_agg->get_period();
+        // Wait m_warm_periods before starting algorithm
+        if (period_count > role.m_warm_periods &&
+            period_count != role.m_last_period_count) {
+            for (int pkg_idx = 0; pkg_idx < role.m_num_domain; ++pkg_idx) {
+                double sum_net_ig = 0.0;
+                auto nested_core = role.m_platform_topo.domain_nested(GEOPM_DOMAIN_CORE, GEOPM_DOMAIN_PACKAGE, pkg_idx);
+                for (auto &core_idx : nested_core) {
+                    /// We wish to measure runtime that is a function of node
+                    /// local optimizations only, and therefore uncorrelated
+                    /// between compute nodes.
+                    sum_net_ig += role.m_sample_agg->sample_period_last(role.m_network_agg_idx[core_idx]);
+                    sum_net_ig += role.m_sample_agg->sample_period_last(role.m_ignore_agg_idx[core_idx]);
+                }
+                double total = role.m_sample_agg->sample_period_last(role.m_time_agg_idx);
+                GEOPM_DEBUG_ASSERT(nested_core.size() != 0.0, "PlatformTopo::domain_nested() returned an empty set");
+                double balanced_period_runtime = total - sum_net_ig / nested_core.size();
+
+                auto &package = role.m_package[pkg_idx];
                 auto &balancer = role.m_power_balancer[pkg_idx];
-                package.is_step_complete = balancer->is_runtime_stable(balanced_epoch_runtime);
+                package.is_step_complete = balancer->is_runtime_stable(balanced_period_runtime);
                 if (!package.is_step_complete) {
                     package.runtime = balancer->runtime_sample();
                 }
             }
-            package.last_epoch_count = epoch_count;
         }
     }
 
@@ -599,7 +590,7 @@ namespace geopm
 
     void PowerBalancerAgent::ReduceLimitStep::enter_step(PowerBalancerAgent::LeafRole &role, const std::vector<double> &in_policy) const
     {
-        double target = in_policy[PowerBalancerAgent::M_POLICY_MAX_EPOCH_RUNTIME];
+        double target = in_policy[PowerBalancerAgent::M_POLICY_MAX_PERIOD_RUNTIME];
         for (auto balancer : role.m_power_balancer) {
             balancer->target_runtime(target);
         }
@@ -607,29 +598,33 @@ namespace geopm
 
     void PowerBalancerAgent::ReduceLimitStep::sample_platform(PowerBalancerAgent::LeafRole &role) const
     {
-        for (int pkg_idx = 0; pkg_idx != role.m_num_domain; ++pkg_idx) {
-            int epoch_count = role.m_platform_io.sample(role.m_count_pio_idx[pkg_idx]);
-            // If all of the ranks have observed a new epoch then update
-            // the power_balancer.
-            auto &package = role.m_package[pkg_idx];
-            auto &balancer = role.m_power_balancer[pkg_idx];
-            if (epoch_count > 1 &&
-                epoch_count != package.last_epoch_count &&
-                !package.is_step_complete) {
-                /// We wish to measure runtime that is a function of
-                /// node local optimizations only, and therefore
-                /// uncorrelated between compute nodes.
-                double total = role.m_sample_agg->sample_epoch_last(role.m_time_agg_idx[pkg_idx]);
-                double network = role.m_sample_agg->sample_epoch_last(role.m_network_agg_idx[pkg_idx]);
-                double ignore = role.m_sample_agg->sample_epoch_last(role.m_ignore_agg_idx[pkg_idx]);
-                double balanced_epoch_runtime =  total - network - ignore;
+
+        int period_count = role.m_sample_agg->get_period();
+        if (period_count > role.m_warm_periods &&
+            period_count != role.m_last_period_count) {
+            for (int pkg_idx = 0; pkg_idx < role.m_num_domain; ++pkg_idx) {
+                double sum_net_ig = 0.0;
+                auto core_nested = role.m_platform_topo.domain_nested(GEOPM_DOMAIN_CORE, GEOPM_DOMAIN_PACKAGE, pkg_idx);
+                for (auto &core_idx : core_nested) {
+                    /// We wish to measure runtime that is a function of node
+                    /// local optimizations only, and therefore uncorrelated
+                    /// between compute nodes.
+                    sum_net_ig += role.m_sample_agg->sample_period_last(role.m_network_agg_idx[core_idx]);
+                    sum_net_ig += role.m_sample_agg->sample_period_last(role.m_ignore_agg_idx[core_idx]);
+                }
+                double total = role.m_sample_agg->sample_period_last(role.m_time_agg_idx);
+                GEOPM_DEBUG_ASSERT(core_nested.size() != 0.0, "PlatformTopo::domain_nested() returned an empty set");
+                double balanced_period_runtime = total - sum_net_ig / core_nested.size();
+
+                auto &package = role.m_package[pkg_idx];
+                auto &balancer = role.m_power_balancer[pkg_idx];
                 package.is_step_complete = package.is_out_of_bounds ||
-                                           balancer->is_target_met(balanced_epoch_runtime);
+                                           balancer->is_target_met(balanced_period_runtime);
                 package.power_slack = balancer->power_slack();
                 package.is_out_of_bounds = false;
                 package.power_headroom = role.M_MAX_PKG_POWER_SETTING - balancer->power_limit();
             }
-            package.last_epoch_count = epoch_count;
+            role.m_last_period_count = period_count;
         }
     }
 
@@ -664,6 +659,7 @@ namespace geopm
         , M_MIN_PKG_POWER_SETTING(min_power)
         , M_MAX_PKG_POWER_SETTING(max_power)
         , M_TIME_WINDOW(0.015)
+        , M_DEFAULT_DURATION(1.0)
     {
         geopm_time(&m_last_wait);
         m_power_tdp = m_platform_io.read_signal("POWER_PACKAGE_TDP", GEOPM_DOMAIN_BOARD, 0);
@@ -773,7 +769,7 @@ namespace geopm
     {
         return {"POLICY_POWER_PACKAGE_LIMIT_TOTAL", // M_TRACE_SAMPLE_POLICY_POWER_PACKAGE_LIMIT_TOTAL
                 "POLICY_STEP_COUNT",        // M_TRACE_SAMPLE_POLICY_STEP_COUNT
-                "POLICY_MAX_EPOCH_RUNTIME", // M_TRACE_SAMPLE_POLICY_MAX_EPOCH_RUNTIME
+                "POLICY_MAX_PERIOD_RUNTIME", // M_TRACE_SAMPLE_POLICY_MAX_PERIOD_RUNTIME
                 "POLICY_POWER_SLACK",       // M_TRACE_SAMPLE_POLICY_POWER_SLACK
                 "ENFORCED_POWER_LIMIT",     // M_TRACE_SAMPLE_ENFORCED_POWER_LIMIT
                };
@@ -783,7 +779,7 @@ namespace geopm
     {
         return {string_format_double,         // M_TRACE_SAMPLE_POLICY_POWER_PACKAGE_LIMIT_TOTAL
                 format_step_count,            // M_TRACE_SAMPLE_POLICY_STEP_COUNT
-                string_format_double,         // M_TRACE_SAMPLE_POLICY_MAX_EPOCH_RUNTIME
+                string_format_double,         // M_TRACE_SAMPLE_POLICY_MAX_PERIOD_RUNTIME
                 string_format_double,         // M_TRACE_SAMPLE_POLICY_POWER_SLACK
                 string_format_double,         // M_TRACE_SAMPLE_ENFORCED_POWER_LIMIT
                };
@@ -820,14 +816,14 @@ namespace geopm
         return {"POWER_PACKAGE_LIMIT_TOTAL",
                 "PERIOD_DURATION",
                 "STEP_COUNT",
-                "MAX_EPOCH_RUNTIME",
+                "MAX_PERIOD_RUNTIME",
                 "POWER_SLACK"};
     }
 
     std::vector<std::string> PowerBalancerAgent::sample_names(void)
     {
         return {"STEP_COUNT",
-                "MAX_EPOCH_RUNTIME",
+                "MAX_PERIOD_RUNTIME",
                 "SUM_POWER_SLACK",
                 "MIN_POWER_HEADROOM"};
     }
@@ -861,14 +857,14 @@ namespace geopm
             policy[M_POLICY_POWER_PACKAGE_LIMIT_TOTAL] = m_power_tdp;
         }
         if (std::isnan(policy[M_POLICY_PERIOD_DURATION]) ||
-            policy[M_POLICY_PERIOD_DURATION] < 0.0) {
-            policy[M_POLICY_PERIOD_DURATION] = 0.0;
+            policy[M_POLICY_PERIOD_DURATION] <= 0.0) {
+            policy[M_POLICY_PERIOD_DURATION] = M_DEFAULT_DURATION;
         }
         if (std::isnan(policy[M_POLICY_STEP_COUNT])) {
             policy[M_POLICY_STEP_COUNT] = 0.0;
         }
-        if (std::isnan(policy[M_POLICY_MAX_EPOCH_RUNTIME])) {
-            policy[M_POLICY_MAX_EPOCH_RUNTIME] = 0.0;
+        if (std::isnan(policy[M_POLICY_MAX_PERIOD_RUNTIME])) {
+            policy[M_POLICY_MAX_PERIOD_RUNTIME] = 0.0;
         }
         if (std::isnan(policy[M_POLICY_POWER_SLACK])) {
             policy[M_POLICY_POWER_SLACK] = 0.0;

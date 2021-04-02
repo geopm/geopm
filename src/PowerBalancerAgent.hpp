@@ -62,12 +62,9 @@ namespace geopm
                 ///        and thus, the algorithm must be restarted
                 ///        at step M_SEND_DOWN_LIMIT.
                 M_POLICY_POWER_PACKAGE_LIMIT_TOTAL,
-                /// @brief When this value is non-zero it specifies
-                ///        that the power balancer should balance
-                ///        based on periodic intervals with the
-                ///        specified duration in seconds rather than
-                ///        balancing using the application reported
-                ///        epochs (the default).
+                /// @brief The power balancer will balance based on
+                ///        periodic intervals with the specified
+                ///        duration in seconds, default is 1 second.
                 M_POLICY_PERIOD_DURATION,
                 /// @brief Step that the root is providing a policy
                 ///        for.  The parent has received a sample
@@ -84,7 +81,7 @@ namespace geopm
                 ///        power.  This will have value 0.0 until all
                 ///        leaf agents have reported a runtime to the
                 ///        root agent.
-                M_POLICY_MAX_EPOCH_RUNTIME,
+                M_POLICY_MAX_PERIOD_RUNTIME,
                 /// @brief This value is updated in step
                 ///        M_STEP_ADJUST_LIMIT to the amount that each
                 ///        leaf agent should increase their power
@@ -109,7 +106,7 @@ namespace geopm
                 M_SAMPLE_STEP_COUNT,
                 /// @brief Maximum expected runtime for any node
                 ///        below.
-                M_SAMPLE_MAX_EPOCH_RUNTIME,
+                M_SAMPLE_MAX_PERIOD_RUNTIME,
                 /// @brief The sum of all slack power available from
                 ///        children below the agent.
                 M_SAMPLE_SUM_POWER_SLACK,
@@ -124,7 +121,7 @@ namespace geopm
             enum m_trace_sample_e {
                 M_TRACE_SAMPLE_POLICY_POWER_PACKAGE_LIMIT_TOTAL,
                 M_TRACE_SAMPLE_POLICY_STEP_COUNT,
-                M_TRACE_SAMPLE_POLICY_MAX_EPOCH_RUNTIME,
+                M_TRACE_SAMPLE_POLICY_MAX_PERIOD_RUNTIME,
                 M_TRACE_SAMPLE_POLICY_POWER_SLACK,
                 M_TRACE_SAMPLE_ENFORCED_POWER_LIMIT,
                 M_TRACE_NUM_SAMPLE,
@@ -135,15 +132,15 @@ namespace geopm
                 ///        manager average limit requested, otherwise
                 ///        send down average excess power.
                 M_STEP_SEND_DOWN_LIMIT = 0L,
-                /// @brief Measure epoch runtime several times and
-                ///        apply median filter.  Aggregate epoch
+                /// @brief Measure period runtime several times and
+                ///        apply median filter.  Aggregate period
                 ///        runtime up tree by applying maximum filter
                 ///        to measured values.  Propagate down from
                 ///        root the longest recorded runtime from any
                 ///        node.
                 M_STEP_MEASURE_RUNTIME,
                 /// @brief Decrease power limit on all nodes (other
-                ///        than the slowest) until epoch runtime
+                ///        than the slowest) until period runtime
                 ///        matches the slowest.  Aggregate amount
                 ///        power limit was reduced in last step up the
                 ///        tree with sum filter.  (Go to
@@ -236,6 +233,7 @@ namespace geopm
             const double M_MIN_PKG_POWER_SETTING;
             const double M_MAX_PKG_POWER_SETTING;
             const double M_TIME_WINDOW;
+            const double M_DEFAULT_DURATION;
 
             class RootRole;
             class LeafRole;
@@ -338,14 +336,13 @@ namespace geopm
                     std::shared_ptr<SampleAggregator> m_sample_agg;
                     /// Number of power control domains
                     int m_num_domain;
-                    std::vector<int> m_count_pio_idx;
-                    std::vector<int> m_time_agg_idx;
+                    int m_num_core;
+                    int m_time_agg_idx;
                     std::vector<int> m_network_agg_idx;
                     std::vector<int> m_ignore_agg_idx;
                     std::vector<std::shared_ptr<PowerBalancer> > m_power_balancer;
                     const double M_STABILITY_FACTOR;
                     struct m_package_s {
-                        int last_epoch_count;
                         double runtime;
                         double actual_limit;
                         double power_slack;
@@ -359,10 +356,10 @@ namespace geopm
                     const double M_MAX_PKG_POWER_SETTING;
                     bool m_is_single_node;
                     bool m_is_first_policy;
-                    bool m_do_periodic;
                     const int M_WARM_PERIODS_MIN;
                     const double M_WARM_TIME_MIN;
                     int m_warm_periods;
+                    int m_last_period_count;
             };
     };
 }
