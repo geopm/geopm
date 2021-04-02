@@ -78,7 +78,8 @@ def setup_power_bounds(mach, min_power, max_power, step_power):
 
 def report_signals():
     return ["CYCLES_THREAD@package", "CYCLES_REFERENCE@package",
-            "TIME@package", "ENERGY_PACKAGE@package"]
+            "TIME@package", "ENERGY_PACKAGE@package",
+            "MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT@package"]
 
 
 def trace_signals():
