@@ -578,6 +578,7 @@ namespace geopm
                     package.runtime = balancer->runtime_sample();
                 }
             }
+            role.m_last_period_count = period_count;
         }
     }
 
