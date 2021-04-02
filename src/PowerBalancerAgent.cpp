@@ -35,6 +35,7 @@
 #include <cfloat>
 #include <cmath>
 #include <algorithm>
+#include <iterator>
 
 #include "PowerBalancer.hpp"
 #include "PlatformIO.hpp"
@@ -44,6 +45,7 @@
 #include "Agg.hpp"
 #include "Helper.hpp"
 #include "SampleAggregator.hpp"
+#include "ApplicationSampler.hpp"
 #include "config.h"
 
 namespace geopm
@@ -144,7 +146,8 @@ namespace geopm
                                            double max_power,
                                            double time_window,
                                            bool is_single_node,
-                                           int num_node)
+                                           int num_node,
+                                           const std::set<int> &active_core)
         : Role(num_node)
         , m_platform_io(platform_io)
         , m_platform_topo(platform_topo)
@@ -165,6 +168,7 @@ namespace geopm
         , M_WARM_TIME_MIN(10.0)
         , m_warm_periods(1)
         , m_last_period_count(0)
+        , m_active_core(active_core)
     {
         if (m_power_balancer.empty()) {
             double ctl_latency = M_STABILITY_FACTOR * time_window;
@@ -559,18 +563,23 @@ namespace geopm
             period_count != role.m_last_period_count) {
             for (int pkg_idx = 0; pkg_idx < role.m_num_domain; ++pkg_idx) {
                 double sum_net_ig = 0.0;
-                auto nested_core = role.m_platform_topo.domain_nested(GEOPM_DOMAIN_CORE, GEOPM_DOMAIN_PACKAGE, pkg_idx);
-                for (auto &core_idx : nested_core) {
+                std::set<int> nested_core = role.m_platform_topo.domain_nested(GEOPM_DOMAIN_CORE, GEOPM_DOMAIN_PACKAGE, pkg_idx);
+                std::set<int> active_nested_core;
+                std::set_intersection(nested_core.begin(), nested_core.end(),
+                                      role.m_active_core.begin(), role.m_active_core.end(),
+                                      std::inserter(active_nested_core, active_nested_core.begin()));
+                for (auto &core_idx : active_nested_core) {
                     /// We wish to measure runtime that is a function of node
                     /// local optimizations only, and therefore uncorrelated
                     /// between compute nodes.
                     sum_net_ig += role.m_sample_agg->sample_period_last(role.m_network_agg_idx[core_idx]);
                     sum_net_ig += role.m_sample_agg->sample_period_last(role.m_ignore_agg_idx[core_idx]);
                 }
-                double total = role.m_sample_agg->sample_period_last(role.m_time_agg_idx);
-                GEOPM_DEBUG_ASSERT(nested_core.size() != 0.0, "PlatformTopo::domain_nested() returned an empty set");
-                double balanced_period_runtime = total - sum_net_ig / nested_core.size();
-
+                double balanced_period_runtime = role.m_sample_agg->sample_period_last(role.m_time_agg_idx);
+                int num_selected = active_nested_core.size();
+                if (num_selected != 0) {
+                    balanced_period_runtime -= sum_net_ig / num_selected;
+                }
                 auto &package = role.m_package[pkg_idx];
                 auto &balancer = role.m_power_balancer[pkg_idx];
                 package.is_step_complete = balancer->is_runtime_stable(balanced_period_runtime);
@@ -605,18 +614,23 @@ namespace geopm
             period_count != role.m_last_period_count) {
             for (int pkg_idx = 0; pkg_idx < role.m_num_domain; ++pkg_idx) {
                 double sum_net_ig = 0.0;
-                auto core_nested = role.m_platform_topo.domain_nested(GEOPM_DOMAIN_CORE, GEOPM_DOMAIN_PACKAGE, pkg_idx);
-                for (auto &core_idx : core_nested) {
+                std::set <int> nested_core = role.m_platform_topo.domain_nested(GEOPM_DOMAIN_CORE, GEOPM_DOMAIN_PACKAGE, pkg_idx);
+                std::set<int> active_nested_core;
+                std::set_intersection(nested_core.begin(), nested_core.end(),
+                                      role.m_active_core.begin(), role.m_active_core.end(),
+                                      std::inserter(active_nested_core, active_nested_core.begin()));
+                for (auto &core_idx : active_nested_core) {
                     /// We wish to measure runtime that is a function of node
                     /// local optimizations only, and therefore uncorrelated
                     /// between compute nodes.
                     sum_net_ig += role.m_sample_agg->sample_period_last(role.m_network_agg_idx[core_idx]);
                     sum_net_ig += role.m_sample_agg->sample_period_last(role.m_ignore_agg_idx[core_idx]);
                 }
-                double total = role.m_sample_agg->sample_period_last(role.m_time_agg_idx);
-                GEOPM_DEBUG_ASSERT(core_nested.size() != 0.0, "PlatformTopo::domain_nested() returned an empty set");
-                double balanced_period_runtime = total - sum_net_ig / core_nested.size();
-
+                double balanced_period_runtime = role.m_sample_agg->sample_period_last(role.m_time_agg_idx);
+                int num_selected = active_nested_core.size();
+                if (num_selected != 0) {
+                    balanced_period_runtime -= sum_net_ig / num_selected;
+                }
                 auto &package = role.m_package[pkg_idx];
                 auto &balancer = role.m_power_balancer[pkg_idx];
                 package.is_step_complete = package.is_out_of_bounds ||
@@ -635,7 +649,8 @@ namespace geopm
                              SampleAggregator::make_unique(),
                              {},
                              platform_io().read_signal("POWER_PACKAGE_MIN", GEOPM_DOMAIN_PACKAGE, 0),
-                             platform_io().read_signal("POWER_PACKAGE_MAX", GEOPM_DOMAIN_PACKAGE, 0))
+                             platform_io().read_signal("POWER_PACKAGE_MAX", GEOPM_DOMAIN_PACKAGE, 0),
+                             ApplicationSampler::application_sampler().per_cpu_process())
     {
 
     }
@@ -645,7 +660,8 @@ namespace geopm
                                            std::shared_ptr<SampleAggregator> sample_agg,
                                            std::vector<std::shared_ptr<PowerBalancer> > power_balancer,
                                            double min_power,
-                                           double max_power)
+                                           double max_power,
+                                           const std::vector<int> &per_cpu_process)
         : m_platform_io(platform_io)
         , m_platform_topo(platform_topo)
         , m_sample_agg(sample_agg)
@@ -664,6 +680,13 @@ namespace geopm
     {
         geopm_time(&m_last_wait);
         m_power_tdp = m_platform_io.read_signal("POWER_PACKAGE_TDP", GEOPM_DOMAIN_BOARD, 0);
+        int num_cpu = m_platform_topo.num_domain(GEOPM_DOMAIN_CPU);
+        for (int cpu_idx = 0; cpu_idx != num_cpu; ++cpu_idx) {
+            if (per_cpu_process.at(cpu_idx) != -1) {
+                int core_idx = m_platform_topo.domain_idx(GEOPM_DOMAIN_CORE, cpu_idx);
+                m_active_core.insert(core_idx);
+            }
+        }
     }
 
     PowerBalancerAgent::~PowerBalancerAgent() = default;
@@ -680,7 +703,8 @@ namespace geopm
                                                 M_MAX_PKG_POWER_SETTING,
                                                 M_TIME_WINDOW,
                                                 is_tree_root,
-                                                calc_num_node(fan_in));
+                                                calc_num_node(fan_in),
+                                                m_active_core);
             m_platform_io.write_control("POWER_PACKAGE_TIME_WINDOW",
                                         GEOPM_DOMAIN_BOARD, 0, M_TIME_WINDOW);
         }

@@ -35,6 +35,7 @@
 
 #include <vector>
 #include <functional>
+#include <set>
 
 #include "geopm_time.h"
 #include "Agent.hpp"
@@ -155,7 +156,8 @@ namespace geopm
                                std::shared_ptr<SampleAggregator> sample_agg,
                                std::vector<std::shared_ptr<PowerBalancer> > power_balancer,
                                double min_power,
-                               double max_power);
+                               double max_power,
+                               const std::vector<int> &per_cpu_process);
             PowerBalancerAgent();
             virtual ~PowerBalancerAgent();
             void init(int level, const std::vector<int> &fan_in, bool is_level_root) override;
@@ -234,6 +236,7 @@ namespace geopm
             const double M_MAX_PKG_POWER_SETTING;
             const double M_TIME_WINDOW;
             const double M_DEFAULT_DURATION;
+            std::set<int> m_active_core;
 
             class RootRole;
             class LeafRole;
@@ -322,7 +325,8 @@ namespace geopm
                              double max_power,
                              double time_window,
                              bool is_single_node,
-                             int num_node);
+                             int num_node,
+                             const std::set<int> &active_core);
                     virtual ~LeafRole();
                     bool adjust_platform(const std::vector<double> &in_policy) override;
                     bool sample_platform(std::vector<double> &out_sample) override;
@@ -360,6 +364,7 @@ namespace geopm
                     const double M_WARM_TIME_MIN;
                     int m_warm_periods;
                     int m_last_period_count;
+                    std::set<int> m_active_core;
             };
     };
 }
