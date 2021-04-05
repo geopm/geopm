@@ -62,6 +62,8 @@ namespace geopm
         : m_platform_io(platio)
         , m_time_idx(m_platform_io.push_signal("TIME", GEOPM_DOMAIN_BOARD, 0))
         , m_is_updated(false)
+        , m_period_duration(0.0)
+        , m_period_last(0)
     {
 
     }
