@@ -125,13 +125,14 @@ TEST_F(PowerBalancerAgentTest, tree_root_agent)
 
     m_agent->init(level, M_FAN_IN, IS_ROOT);
 
-    std::vector<double> in_policy {NAN, NAN, NAN, NAN};
+    std::vector<double> nan_policy = {NAN, NAN, NAN, NAN, NAN};
+    std::vector<double> in_policy = nan_policy;
     std::vector<std::vector<double> > exp_out_policy;
 
     std::vector<std::vector<double> > in_sample;
     std::vector<double> exp_out_sample;
 
-    std::vector<std::vector<double> > out_policy = std::vector<std::vector<double> >(num_children, {NAN, NAN, NAN, NAN});
+    std::vector<std::vector<double> > out_policy = std::vector<std::vector<double> >(num_children, nan_policy);
     std::vector<double> out_sample = {NAN, NAN, NAN, NAN};
 
 #ifdef GEOPM_DEBUG
@@ -151,11 +152,12 @@ TEST_F(PowerBalancerAgentTest, tree_root_agent)
     bool exp_ascend_ret  = true;
     bool desc_ret;
     bool ascend_ret;
+    double period_duration = 0.0;
     /// M_STEP_SEND_DOWN_LIMIT
     {
-    in_policy = {curr_cap, curr_cnt, curr_epc, curr_slk};
+    in_policy = {curr_cap, period_duration, curr_cnt, curr_epc, curr_slk};
     exp_out_policy = std::vector<std::vector<double> >(num_children,
-                                                       {curr_cap, curr_cnt, curr_epc, curr_slk});
+                                                       {curr_cap, period_duration, curr_cnt, curr_epc, curr_slk});
     in_sample = std::vector<std::vector<double> >(num_children, {(double)ctl_step, curr_epc, curr_slk, curr_hrm});
     exp_out_sample = {(double)ctl_step, curr_epc, curr_slk, curr_hrm};
 
@@ -185,9 +187,9 @@ TEST_F(PowerBalancerAgentTest, tree_root_agent)
 
     /// M_STEP_MEASURE_RUNTIME
     {
-    in_policy = {curr_cap, 0.0, 0.0, 0.0};
+    in_policy = {curr_cap, 0.0, 0.0, 0.0, 0.0};
     exp_out_policy = std::vector<std::vector<double> >(num_children,
-                                                       {0.0, curr_cnt, curr_epc, curr_slk});
+                                                       {0.0, 0.0, curr_cnt, curr_epc, curr_slk});
     curr_epc = 22.0;
     in_sample = std::vector<std::vector<double> >(num_children, {(double)ctl_step, curr_epc, curr_slk, curr_hrm});
     exp_out_sample = {(double)ctl_step, curr_epc, curr_slk, curr_hrm};
@@ -208,7 +210,7 @@ TEST_F(PowerBalancerAgentTest, tree_root_agent)
 
     /// M_STEP_REDUCE_LIMIT
     {
-    in_policy = {curr_cap, 0.0, 0.0, 0.0};
+    in_policy = {curr_cap, 0.0, 0.0, 0.0, 0.0};
     exp_out_policy = std::vector<std::vector<double> >(num_children,
                                                        {0.0, curr_cnt, curr_epc, curr_slk});
     curr_slk = 9.0;
@@ -230,7 +232,7 @@ TEST_F(PowerBalancerAgentTest, tree_root_agent)
     curr_cnt = (double) ctl_step;
     curr_slk = 0.0;///@todo
     exp_out_policy = std::vector<std::vector<double> >(num_children,
-                                                       {0.0, curr_cnt, curr_epc, curr_slk});
+                                                       {0.0, 0.0, curr_cnt, curr_epc, curr_slk});
 
     /// M_STEP_SEND_DOWN_LIMIT
     {
@@ -249,13 +251,14 @@ TEST_F(PowerBalancerAgentTest, tree_agent)
 
     m_agent->init(level, M_FAN_IN, IS_ROOT);
 
-    std::vector<double> in_policy {NAN, NAN, NAN, NAN};
+    std::vector<double> nan_policy = {NAN, NAN, NAN, NAN, NAN};
+    std::vector<double> in_policy = nan_policy;
     std::vector<std::vector<double> > exp_out_policy;
 
     std::vector<std::vector<double> > in_sample;
     std::vector<double> exp_out_sample;
 
-    std::vector<std::vector<double> > out_policy = std::vector<std::vector<double> >(num_children, {NAN, NAN, NAN, NAN});
+    std::vector<std::vector<double> > out_policy = std::vector<std::vector<double> >(num_children, nan_policy);
     std::vector<double> out_sample = {NAN, NAN, NAN, NAN};
 
 #ifdef GEOPM_DEBUG
@@ -275,11 +278,12 @@ TEST_F(PowerBalancerAgentTest, tree_agent)
     bool exp_ascend_ret  = true;
     bool desc_ret;
     bool ascend_ret;
+    double period_duration = 0.0;
     /// M_STEP_SEND_DOWN_LIMIT
     {
-    in_policy = {curr_cap, curr_cnt, curr_epc, curr_slk};
+    in_policy = {curr_cap, period_duration, curr_cnt, curr_epc, curr_slk};
     exp_out_policy = std::vector<std::vector<double> >(num_children,
-                                                       {curr_cap, curr_cnt, curr_epc, curr_slk});
+                                                       {curr_cap, period_duration, curr_cnt, curr_epc, curr_slk});
     in_sample = std::vector<std::vector<double> >(num_children, {(double)ctl_step, curr_epc, curr_slk, curr_hrm});
     exp_out_sample = {(double)ctl_step, curr_epc, 0.0, 0.0};
 
@@ -309,9 +313,9 @@ TEST_F(PowerBalancerAgentTest, tree_agent)
 
     /// M_STEP_MEASURE_RUNTIME
     {
-    in_policy = {0.0, curr_cnt, 0.0, 0.0};
+    in_policy = {0.0, 0.0, curr_cnt, 0.0, 0.0};
     exp_out_policy = std::vector<std::vector<double> >(num_children,
-                                                       {0.0, curr_cnt, curr_epc, curr_slk});
+                                                       {0.0, 0.0, curr_cnt, curr_epc, curr_slk});
     curr_epc = 22.0;
     in_sample = std::vector<std::vector<double> >(num_children, {(double)ctl_step, curr_epc, curr_slk, curr_hrm});
     exp_out_sample = {(double)ctl_step, curr_epc, curr_slk, curr_hrm};
@@ -332,9 +336,9 @@ TEST_F(PowerBalancerAgentTest, tree_agent)
 
     /// M_STEP_REDUCE_LIMIT
     {
-    in_policy = {0.0, curr_cnt, curr_epc, 0.0};
+    in_policy = {0.0, 0.0, curr_cnt, curr_epc, 0.0};
     exp_out_policy = std::vector<std::vector<double> >(num_children,
-                                                       {0.0, curr_cnt, curr_epc, curr_slk});
+                                                       {0.0, 0.0, curr_cnt, curr_epc, curr_slk});
     curr_slk = 9.0;
     in_sample = std::vector<std::vector<double> >(num_children, {(double)ctl_step, curr_epc, curr_slk, curr_hrm});
     exp_out_sample = {(double)ctl_step, curr_epc, num_children * curr_slk, curr_hrm};///@todo update when/if updated to use unique child sample inputs
@@ -354,11 +358,11 @@ TEST_F(PowerBalancerAgentTest, tree_agent)
     curr_cnt = (double) ctl_step;
     curr_slk /= num_children;
     exp_out_policy = std::vector<std::vector<double> >(num_children,
-                                                       {0.0, curr_cnt, 0.0, curr_slk});
+                                                       {0.0, 0.0, curr_cnt, 0.0, curr_slk});
 
     /// M_STEP_SEND_DOWN_LIMIT
     {
-    in_policy = {0.0, curr_cnt, 0.0, curr_slk};
+    in_policy = {0.0, 0.0, curr_cnt, 0.0, curr_slk};
     m_agent->split_policy(in_policy, out_policy);
     desc_ret = m_agent->do_send_policy();
     EXPECT_EQ(exp_descend_ret, desc_ret);
@@ -369,7 +373,7 @@ TEST_F(PowerBalancerAgentTest, tree_agent)
 TEST_F(PowerBalancerAgentTest, enforce_policy)
 {
     const double limit = 100;
-    const std::vector<double> policy{limit, NAN, NAN, NAN};
+    const std::vector<double> policy{limit, NAN, NAN, NAN, NAN};
     const std::vector<double> bad_policy{100};
 
     EXPECT_CALL(m_platform_io, control_domain_type("POWER_PACKAGE_LIMIT"))
@@ -391,21 +395,32 @@ TEST_F(PowerBalancerAgentTest, validate_policy)
     // valid policy unchanged
     policy = {100};
     m_agent->validate_policy(policy);
-    EXPECT_EQ(100, policy[0]);
+    EXPECT_EQ(100, policy.at(0));
+    EXPECT_EQ(0, policy.at(1));
 
     // NAN becomes default
     policy = {NAN};
     m_agent->validate_policy(policy);
-    EXPECT_EQ(M_POWER_PACKAGE_TDP, policy[0]);
+    EXPECT_EQ(M_POWER_PACKAGE_TDP, policy.at(0));
+    EXPECT_EQ(0, policy.at(1));
 
     // clamp to min
     policy = {M_POWER_PACKAGE_MIN - 1};
     m_agent->validate_policy(policy);
-    EXPECT_EQ(M_POWER_PACKAGE_MIN, policy[0]);
+    EXPECT_EQ(M_POWER_PACKAGE_MIN, policy.at(0));
+    EXPECT_EQ(0, policy.at(1));
 
     // clamp to max
     policy = {M_POWER_PACKAGE_MAX + 1};
     m_agent->validate_policy(policy);
-    EXPECT_EQ(M_POWER_PACKAGE_MAX, policy[0]);
+    EXPECT_EQ(M_POWER_PACKAGE_MAX, policy.at(0));
+    EXPECT_EQ(0, policy.at(1));
+
+    // valid policy unchanged
+    policy = {100, 2.0};
+    m_agent->validate_policy(policy);
+    EXPECT_EQ(100, policy.at(0));
+    EXPECT_EQ(2.0, policy.at(1));
+
 
 }
