@@ -160,7 +160,7 @@ class TestIntegration_progress(unittest.TestCase):
         """
         epsilon = 0.05
         abs_epsilon = epsilon * expected_max
-        # Get rid of nan values and values
+        # Get rid of nan values
         good_idx = numpy.isfinite(progress)
         max_prog = max(progress[good_idx])
         util.assertNear(self, expected_max, max_prog, epsilon=epsilon,
@@ -168,7 +168,9 @@ class TestIntegration_progress(unittest.TestCase):
         # Get rid of values at expected_max to avoid bad fit error
         # when completed threads stop increasing progress
         good_idx = good_idx & ~numpy.isin(progress, expected_max)
-        self.assertLess(len(progress) * 0.6, sum(good_idx))
+        # Make sure there are at least 10 samples to over-constrain
+        # the two parameter linear fit.
+        self.assertLess(10, sum(good_idx))
         progress = progress[good_idx]
         time = time[good_idx]
         poly_out = numpy.polyfit(time,
