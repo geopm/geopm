@@ -222,16 +222,6 @@ namespace geopm
         if (m_is_single_node) {
             if (m_is_first_policy) {
                 m_policy = in_policy;
-                double duration = m_policy[M_POLICY_PERIOD_DURATION];
-                m_sample_agg->period_duration(duration);
-                double warm_time = M_WARM_PERIODS_MIN * duration;
-                if (warm_time >= M_WARM_TIME_MIN) {
-                    m_warm_periods = M_WARM_PERIODS_MIN;
-                }
-                else {
-                    m_warm_periods = static_cast<int>(M_WARM_TIME_MIN / duration) + 1;
-                }
-                m_is_first_policy = false;
             }
             else if (are_steps_complete()) {
                 std::vector<double> sample(M_NUM_SAMPLE, 0.0);
@@ -246,6 +236,20 @@ namespace geopm
         else {
             m_policy = in_policy;
         }
+
+        if (m_is_first_policy) {
+            double duration = m_policy[M_POLICY_PERIOD_DURATION];
+            m_sample_agg->period_duration(duration);
+            double warm_time = M_WARM_PERIODS_MIN * duration;
+            if (warm_time >= M_WARM_TIME_MIN) {
+                m_warm_periods = M_WARM_PERIODS_MIN;
+            }
+            else {
+                m_warm_periods = static_cast<int>(M_WARM_TIME_MIN / duration) + 1;
+            }
+            m_is_first_policy = false;
+        }
+
         if (m_policy[M_POLICY_POWER_PACKAGE_LIMIT_TOTAL] != 0.0) {
             // New power cap from resource manager, reset algorithm.
             m_step_count = M_STEP_SEND_DOWN_LIMIT;
