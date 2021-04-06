@@ -81,25 +81,26 @@ def region_summary_analysis(report_collection, analysis_dir):
     field_list = ['count', 'runtime (s)', 'sync-runtime (s)', 'time-hint-network (s)', 'package-energy (J)', 'power (W)', 'core freq (%)', 'core freq (Hz)']
     adf_field_list = ['runtime (s)', 'time-hint-network (s)', 'time-hint-ignore (s)', 'package-energy (J)', 'dram-energy (J)', 'power (W)']
 
-    # Write Epoch stats
-    with open(os.path.join(analysis_dir, 'epoch_mean_stats.log'), 'w') as log:
-        gedf = edf.groupby(['core_mhz', 'uncore_mhz'], sort=False)
-        results = gedf[field_list].mean()
+    if edf[:1]['count'].item() > 0.0:
+        # Write Epoch stats
+        with open(os.path.join(analysis_dir, 'epoch_mean_stats.log'), 'w') as log:
+            gedf = edf.groupby(['core_mhz', 'uncore_mhz'], sort=False)
+            results = gedf[field_list].mean()
 
-        log.write('Epochs (all nodes/iterations) - default Uncore freq. = 2.4 GHz\n')
-        log.write('{}\n\n'.format(results.xs(2400, level=1)))
-        log.write('=' * 100 + '\n\n')
-        log.write('Epochs (all nodes/iterations)\n')
-        log.write('{}\n\n'.format(results))
+            log.write('Epochs (all nodes/iterations) - default Uncore freq. = 2.4 GHz\n')
+            log.write('{}\n\n'.format(results.xs(2400, level=1)))
+            log.write('=' * 100 + '\n\n')
+            log.write('Epochs (all nodes/iterations)\n')
+            log.write('{}\n\n'.format(results))
 
-    # Write detailed Epoch stats
-    with open(os.path.join(analysis_dir, 'epoch_detailed_stats.log'), 'w') as log:
-        log.write('Epochs (all nodes/iterations)\n')
-        for (core_freq, uncore_freq), ledf in edf.groupby(['core_mhz', 'uncore_mhz'], sort=False):
-            log.write('-' * 100 + '\n\n')
-            log.write('Requested Core Frequency MHz: {} | Uncore Frequency MHz: {}\n\n'.format(core_freq, uncore_freq))
-            log.write('{}\n\n'.format(ledf[field_list].describe()))
-        log.write('=' * 100 + '\n\n')
+        # Write detailed Epoch stats
+        with open(os.path.join(analysis_dir, 'epoch_detailed_stats.log'), 'w') as log:
+            log.write('Epochs (all nodes/iterations)\n')
+            for (core_freq, uncore_freq), ledf in edf.groupby(['core_mhz', 'uncore_mhz'], sort=False):
+                log.write('-' * 100 + '\n\n')
+                log.write('Requested Core Frequency MHz: {} | Uncore Frequency MHz: {}\n\n'.format(core_freq, uncore_freq))
+                log.write('{}\n\n'.format(ledf[field_list].describe()))
+            log.write('=' * 100 + '\n\n')
 
     # Write App Totals
     with open(os.path.join(analysis_dir, 'app_totals_mean_stats.log'), 'w') as log:
