@@ -53,6 +53,7 @@ def setup_run_args(parser):
     common_args.add_step_frequency(parser)
     common_args.add_run_max_turbo(parser)
     common_args.add_agent_list(parser)
+    common_args.add_label(parser)
     parser.set_defaults(agent_list='frequency_map')
 
 
@@ -129,7 +130,8 @@ def launch(app_conf, args, experiment_cli_args):
                                 output_dir=output_dir,
                                 cool_off_time=args.cool_off_time,
                                 enable_traces=args.enable_traces,
-                                enable_profile_traces=args.enable_profile_traces)
+                                enable_profile_traces=args.enable_profile_traces,
+                                label=args.label)
 
 
 def main(app_conf, **defaults):

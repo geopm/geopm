@@ -46,7 +46,7 @@ from apps import apps
 
 
 def launch_run(agent_conf, app_conf, run_id, output_dir, extra_cli_args,
-               num_nodes, enable_traces, enable_profile_traces):
+               num_nodes, enable_traces, enable_profile_traces, label):
     # launcher and app should create files in output_dir
     start_dir = os.getcwd()
     os.chdir(output_dir)
@@ -65,6 +65,8 @@ def launch_run(agent_conf, app_conf, run_id, output_dir, extra_cli_args,
     app_name = app_conf.name()
 
     uid = '{}_{}_{}'.format(app_name.lower(), agent_name, run_id)
+    if label is not None:
+        uid += '_{}'.format(label)
     report_path = os.path.join(output_dir, '{}.report'.format(uid))
     trace_path = os.path.join(output_dir, '{}.trace'.format(uid))
     profile_trace_path = os.path.join(output_dir, '{}.ptrace'.format(uid))
@@ -139,7 +141,8 @@ class LaunchConfig():
 
 
 def launch_all_runs(targets, num_nodes, iterations, extra_cli_args, output_dir,
-                    cool_off_time=60, enable_traces=False, enable_profile_traces=False):
+                    cool_off_time=60, enable_traces=False, enable_profile_traces=False,
+                    label=None):
     '''
     targets: a list of LaunchConfig
     iteration: integer number of iterations
@@ -162,7 +165,8 @@ def launch_all_runs(targets, num_nodes, iterations, extra_cli_args, output_dir,
                     launch_run(agent_conf, app_conf, run_id, output_dir,
                                extra_cli_args=extra_cli_args,
                                num_nodes=num_nodes, enable_traces=enable_traces,
-                               enable_profile_traces=enable_profile_traces)
+                               enable_profile_traces=enable_profile_traces,
+                               label=label)
                     trial_complete = True
                 except subprocess.CalledProcessError as e:
                     # Hit if e.g. the app calls MPI_ABORT
