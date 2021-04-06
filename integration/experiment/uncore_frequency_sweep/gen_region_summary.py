@@ -138,6 +138,8 @@ def region_summary_analysis(report_collection, analysis_dir):
         log.write('Per-region (all nodes/iterations)\n')
         for (region), ldf in results.groupby(['region'], sort=False):
             ldf = ldf.reset_index('region', drop=True)
+            log.write('-' * 100 + '\n\n')
+            log.write('Region: {}\n\n'.format(region))
             log.write('{}\n\n'.format(ldf))
 
     # Write detailed per-region stats
