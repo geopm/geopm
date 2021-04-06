@@ -103,9 +103,9 @@ def plot_heatmap(data, cmap, norm, zbar_range, zbar_label, z_thresh,
 
 def setup_3d_data(df, metric, show_details, scalar=1e9):
     # rename some columns
-    df['runtime'] = df['runtime (sec)']
-    df['energy'] = df['package-energy (joules)']
-    df['power'] = df['power (watts)']
+    df['runtime'] = df['runtime (s)']
+    df['energy'] = df['package-energy (J)']
+    df['power'] = df['power (W)']
 
     df['FREQ_DEFAULT'] /= scalar
     df['FREQ_UNCORE'] /= scalar
