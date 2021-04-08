@@ -13,3 +13,11 @@
 /geopm-service.spec
 /geopm_service.egg-info
 /stamp-h1
+/AUTHORS
+/COPYING
+/README
+/build
+/geopmdpy.egg-info
+/geopmdpy/version.py
+/libgeopmd.la
+/libtool
