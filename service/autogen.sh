@@ -47,4 +47,10 @@ elif [ ! -f VERSION ]; then
     echo "0.0.0" > VERSION
 fi
 
+for ff in AUTHORS CODE_OF_CONDUCT.md CONTRIBUTING.md COPYING; do
+    if [ ! -f $ff ]; then
+        cp ../$ff .
+    fi
+done
+
 autoreconf -i -f
