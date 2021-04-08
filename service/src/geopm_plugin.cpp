@@ -38,7 +38,6 @@
 
 #include "geopm_error.h"
 #include "geopm_plugin.hpp"
-#include "Environment.hpp"
 #include "Exception.hpp"
 #include "Helper.hpp"
 
@@ -49,17 +48,10 @@ namespace geopm
 {
     void plugin_load(const std::string &plugin_prefix)
     {
-        std::string env_plugin_path_str(geopm::environment().plugin_path());
         std::vector<std::string> plugin_paths {GEOPM_DEFAULT_PLUGIN_PATH};
         std::string so_suffix = ".so." GEOPM_ABI_VERSION;
         std::replace(so_suffix.begin(), so_suffix.end(), ':', '.');
 
-        if (!env_plugin_path_str.empty()) {
-            // load paths in reverse order from environment variable list
-            auto user_paths = geopm::string_split(env_plugin_path_str, ":");
-            std::reverse(user_paths.begin(), user_paths.end());
-            plugin_paths.insert(plugin_paths.end(), user_paths.begin(), user_paths.end());
-        }
         std::vector<std::string> plugins;
         for (const auto &path : plugin_paths) {
             std::vector<std::string> files = geopm::list_directory_files(path);

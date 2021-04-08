@@ -41,7 +41,6 @@
 #include <map>
 
 #include "geopm_internal.h"
-#include "geopm_hash.h"
 #include "Exception.hpp"
 
 namespace geopm

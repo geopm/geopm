@@ -34,7 +34,7 @@
 
 #include "MSRFieldSignal.hpp"
 
-#include "geopm_hash.h"
+#include "geopm_internal.h"
 #include "Exception.hpp"
 #include "geopm_debug.hpp"
 #include "Helper.hpp"
