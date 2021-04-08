@@ -46,18 +46,28 @@ install-plugin-dir:
 EXTRA_DIST = .gitignore \
              Makefile.am \
              README.md \
-             TODO \
              autogen.sh \
              configure.ac \
              contrib/json11/LICENSE.txt \
              contrib/json11/README.md \
              geopm-service.spec.in \
-             dbus-1/system.d/io.github.geopm.conf \
-             dbus-1/interfaces/io.github.geopm.xml \
-             bin/geopmd \
+             io.github.geopm.conf \
+             io.github.geopm.xml \
+             geopmd \
+             geopmdpy/pio.py \
+             geopmdpy/__init__.py \
+             geopmdpy/topo.py \
+             geopmdpy/version.py \
+             geopmdpy/version.py.in \
+             geopmdpy/error.py \
              setup.py \
              test/README.md \
-             system/systemd-geopm.service \
+             geopm.service \
+             AUTHORS \
+             CODE_OF_CONDUCT.md \
+             CONTRIBUTING.md \
+             COPYING \
+             VERSION \
              # end
 
 
