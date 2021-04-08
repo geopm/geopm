@@ -102,5 +102,35 @@
         </doc:description>
       </doc:doc>
     </method>
+    <method name="SignalInfo">
+      <arg name="query" direction="in" type="as">
+        <doc:doc><doc:summary>Array of signal names</doc:summary></doc:doc>
+      </arg>
+      <arg name="result" direction="out" type="a(siii)">
+        <doc:doc><doc:summary>Array of structures each contains the signal description, aggregation function enum, format function enum and behavior enum</doc:summary></doc:doc>
+      </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:para>
+            Enables a client to query information about an array of signals.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </method>
+    <method name="ControlInfo">
+      <arg name="query" direction="in" type="as">
+        <doc:doc><doc:summary>Array of control names</doc:summary></doc:doc>
+      </arg>
+      <arg name="result" direction="out" type="as">
+        <doc:doc><doc:summary>Array of structures each contains the control description</doc:summary></doc:doc>
+      </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:para>
+            Enables a client to query information about an array of signals.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </method>
   </interface>
 </node>
