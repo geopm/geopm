@@ -69,13 +69,13 @@ include_HEADERS = service/src/geopm.h \
                   service/src/geopm_error.h \
                   service/src/geopm_pio.h \
                   service/src/geopm_time.h \
+                  service/src/geopm_sched.h \
                   service/src/geopm_topo.h \
                   service/src/geopm_version.h \
                   src/geopm_agent.h \
                   src/geopm_ctl.h \
                   src/geopm_hash.h \
                   src/geopm_imbalancer.h \
-                  src/geopm_sched.h \
                   # end
 if ENABLE_BETA
     include_HEADERS += src/geopm_daemon.h \
@@ -542,9 +542,12 @@ libgeopmpolicy_la_SOURCES = service/contrib/json11/json11.cpp \
                             service/src/geopm.h \
                             service/src/geopm_debug.hpp \
                             service/src/geopm_error.h \
+                            service/src/geopm_internal.h \
                             service/src/geopm_pio.h \
                             service/src/geopm_plugin.cpp \
                             service/src/geopm_plugin.hpp \
+                            service/src/geopm_sched.c \
+                            service/src/geopm_sched.h \
                             service/src/geopm_time.h \
                             service/src/geopm_topo.h \
                             service/src/geopm_version.c \
@@ -662,10 +665,7 @@ libgeopmpolicy_la_SOURCES = service/contrib/json11/json11.cpp \
                             src/geopm_hash.c \
                             src/geopm_hash.h \
                             src/geopm_imbalancer.h \
-                            src/geopm_internal.h \
                             src/geopm_policystore.h \
-                            src/geopm_sched.c \
-                            src/geopm_sched.h \
                             src/record.cpp \
                             src/record.hpp \
                             # end
