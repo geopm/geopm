@@ -54,13 +54,6 @@ except IOError:
     __version__ = '0.0.0'
     __beta__ = False
 
-if not os.path.exists('COPYING'):
-    shutil.copyfile('../COPYING', 'COPYING')
-if not os.path.exists('README'):
-    shutil.copyfile('../README', 'README')
-if not os.path.exists('AUTHORS'):
-    shutil.copyfile('../AUTHORS', 'AUTHORS')
-
 long_description = """\
 The python implementation for the GEOPM daemon"""
 

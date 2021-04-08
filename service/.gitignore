@@ -21,3 +21,14 @@
 /geopmdpy/version.py
 /libgeopmd.la
 /libtool
+/CODE_OF_CONDUCT.md
+/CONTRIBUTING.md
+/ar-lib
+/compile
+/config.guess
+/config.sub
+/depcomp
+/geopm-service-*.tar.gz
+/install-sh
+/ltmain.sh
+/missing
