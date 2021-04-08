@@ -33,8 +33,8 @@
 #include "config.h"
 #include "SSTSignal.hpp"
 
-#include "geopm_hash.h"
 #include "SSTIO.hpp"
+#include "geopm_internal.h"
 
 namespace geopm
 {
