@@ -40,8 +40,8 @@
 #include <iostream>
 #include <mutex>
 #include <algorithm>
+#include <map>
 
-#include "Environment.hpp"
 #include "config.h"
 
 namespace geopm
