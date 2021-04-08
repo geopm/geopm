@@ -194,6 +194,12 @@ else
     EXTRA_DIST += $(nvml_source_files)
 endif
 
+install-python: setup.py
+# Move version.py into source for out of place builds
+	if [ ! -f $(abs_srcdir)/geopmdpy/version.py ]; then \
+	    cp geopmdpy/version.py $(abs_srcdir)/geopmdpy/version.py; \
+	fi
+	cd $(abs_srcdir) && $(PYTHON) ./setup.py install -O1 --root $(DESTDIR)/ --prefix $(prefix)
 
 
 # RPM TARGET

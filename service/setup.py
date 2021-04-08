@@ -33,20 +33,69 @@
 
 from setuptools import setup
 
-setup(
-    name='geopm-service',
-    version='0.0.0',
-    description='Support for the geopm service',
-    url='https://geopm.github.io',
-    license='BSD-3-Clause',
-    data_files=[
-        ('/usr/lib/systemd/system', ['system/systemd-geopm.service']),
-        ('/etc/dbus-1/system.d/', ['dbus-1/system.d/io.github.geopm.conf']),
-        ('/usr/bin/', ['bin/geopmd']),
-    ],
-    install_requires=[
-        'setuptools',
-        'dasbus',
-        'geopmpy',
-    ],
-)
+import os
+import sys
+import shutil
+
+from setuptools import setup
+
+if os.getcwd() != os.path.dirname(os.path.abspath(__file__)):
+    sys.stderr.write('ERROR:  script must be run in the directory that contains it\n')
+    exit(1)
+
+try:
+    # use excfile rather than import so that setup.py can be executed
+    # on a system missing dependencies required to import geopmpy.
+    version_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'geopmdpy/version.py')
+    with open(version_file) as fid:
+        exec(compile(fid.read(), version_file, 'exec'))
+except IOError:
+    sys.stderr.write('WARNING:  geopmpy/version.py not found, setting version to 0.0.0\n')
+    __version__ = '0.0.0'
+    __beta__ = False
+
+if not os.path.exists('COPYING'):
+    shutil.copyfile('../COPYING', 'COPYING')
+if not os.path.exists('README'):
+    shutil.copyfile('../README', 'README')
+if not os.path.exists('AUTHORS'):
+    shutil.copyfile('../AUTHORS', 'AUTHORS')
+
+long_description = """\
+The python implementation for the GEOPM daemon"""
+
+
+scripts = ["geopmd"]
+
+classifiers = ['Development Status :: 5 - Production/Stable',
+               'License :: OSI Approved :: BSD License',
+               'Operating System :: POSIX :: Linux',
+               'Natural Language :: English',
+               'Topic :: Scientific/Engineering',
+               'Topic :: Software Development :: Libraries :: Application Frameworks',
+               'Topic :: System :: Hardware :: Symmetric Multi-processing',
+               'Topic :: System :: Power (UPS)',
+               'Programming Language :: Python :: 2',
+               'Programming Language :: Python :: 3',
+               'Programming Language :: Python :: 2.7',
+               'Programming Language :: Python :: 3.6',
+]
+
+install_requires = ['cffi>=1.6.0',
+                    'setuptools>=39.2.0',
+                    'future>=0.17.1',
+                    'dasbus']
+
+setup(name='geopmdpy',
+      version=__version__,
+      description='GEOPM - Global Extensible Open Power Manager Daemon',
+      long_description=long_description,
+      url='https://geopm.github.io',
+      download_url='https://github.com/geopm/geopm/releases',
+      license='BSD-3-Clause',
+      author='Christopher Cantalupo <christopher.m.cantalupo@intel.com>',
+      packages=['geopmdpy'],
+      scripts=scripts,
+      classifiers=classifiers,
+      install_requires=install_requires,
+      python_requires='>=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*')
