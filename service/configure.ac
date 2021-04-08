@@ -222,7 +222,7 @@ AC_SUBST([AM_LDFLAGS])
 GEOPM_SOURCE_DIR=$(readlink -f $srcdir)
 AC_DEFINE_UNQUOTED([GEOPM_SOURCE_DIR], ["$GEOPM_SOURCE_DIR"], [Root of the GEOPM source directory])
 
-AC_CONFIG_FILES([Makefile geopm-service.spec])
+AC_CONFIG_FILES([Makefile geopm-service.spec geopmdpy/version.py])
 AC_OUTPUT
 
 # ============================================================================
