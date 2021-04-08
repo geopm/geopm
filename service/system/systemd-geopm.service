@@ -1,0 +1,11 @@
+[Unit]
+Description=User space interface to hardware features with fine grained access control
+
+[Service]
+Environment=PYTHONUNBUFFERED=true
+Type=dbus
+BusName=io.github.geopm
+ExecStart=/usr/bin/geopmd
+
+[Install]
+WantedBy=default.target
