@@ -41,12 +41,11 @@
 #include <iostream>
 
 #include "geopm_sched.h"
-#include "geopm_hash.h"
+#include "geopm_internal.h"
 #include "geopm.h"
 #include "PlatformTopo.hpp"
 #include "MSRIOGroup.hpp"
 #include "TimeIOGroup.hpp"
-#include "ProfileIOGroup.hpp"
 #include "CombinedSignal.hpp"
 #include "Exception.hpp"
 #include "Helper.hpp"
