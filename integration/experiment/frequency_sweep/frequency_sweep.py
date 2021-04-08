@@ -79,6 +79,7 @@ def setup_frequency_bounds(mach, min_freq, max_freq, step_freq, add_turbo_step):
     freqs = [step_freq * ss + min_freq for ss in range(num_step)]
     if add_turbo_step and sys_max not in freqs:
         freqs.append(sys_max)
+        freqs.append(sys_sticker)
     freqs = sorted(freqs, reverse=True)
     return freqs
 
