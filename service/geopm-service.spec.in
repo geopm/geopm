@@ -37,7 +37,7 @@ Group: System Environment/Libraries
 Vendor: Intel Corporation
 URL: https://geopm.github.io
 Source0: geopm-service.tar.gz
-BuildRoot: %{_tmppath}/geopm-%{version}-%{release}-root
+BuildRoot: %{_tmppath}/geopm-service-%{version}-%{release}-root
 BuildRequires: gcc-c++
 BuildRequires: unzip
 BuildRequires: libtool
@@ -89,7 +89,7 @@ The service package for GEOPM that runs the geopmd daemon.
 
 %prep
 
-%setup -n geopm-%{version}
+%setup -n geopm-service-%{version}
 
 %package -n python%{python_major_version}-geopmdpy
 Summary: Global Extensible Open Power Manager Service - python %{python_major_version}
@@ -98,11 +98,11 @@ Requires: geopm-service
 %{?python_provide:%python_provide python%{python_major_version}-geopmdpy}
 
 %description -n python%{python_major_version}-geopmdpy
-Python %{python_major_version} package for GEOPM.
+Python %{python_major_version} package for GEOPM service.
 
 %build
-test -f configure || ./autogen.sh
-
+#test -f configure || ./autogen.sh
+./autogen.sh
 ./configure --prefix=%{_prefix} --libdir=%{_libdir} --libexecdir=%{_libexecdir} \
             --includedir=%{_includedir} --sbindir=%{_sbindir} \
             --mandir=%{_mandir} --docdir=%{docdir} \
@@ -119,8 +119,6 @@ rm -f $(find %{buildroot}/%{_libdir} -name '*.a'; \
 install -Dp -m644 geopm.service %{buildroot}%{_unitdir}/geopm.service
 install -Dp -m644 io.github.geopm.conf %{buildroot}%{_sysconfdir}/dbus-1/system.d/io.github.geopm.conf
 install -Dp -m644 io.github.geopm.xml %{buildroot}%{_sysconfdir}/dbus-1/interfaces/io.github.geopm.xml
-
-%config
 
 %clean
 
@@ -144,5 +142,5 @@ install -Dp -m644 io.github.geopm.xml %{buildroot}%{_sysconfdir}/dbus-1/interfac
 %{_bindir}/geopmd
 %dir %{docdir}
 
-%files -n python%{python_major_version}-geopmpy
+%files -n python%{python_major_version}-geopmdpy
 %{expand:%{python%{python_major_version}_sitelib}}/*
