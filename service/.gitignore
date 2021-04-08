@@ -1,0 +1,15 @@
+/Makefile
+/Makefile.in
+/VERSION
+/aclocal.m4
+/autom4te.cache
+/autoscan.log
+/config.h
+/config.h.in
+/config.log
+/config.status
+/configure
+/dist
+/geopm-service.spec
+/geopm_service.egg-info
+/stamp-h1
