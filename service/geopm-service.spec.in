@@ -85,7 +85,7 @@ Prefix: %{_prefix}
 %endif
 
 %description
-The service package for GEOPM.
+The service package for GEOPM that runs the geopmd daemon.
 
 %prep
 
@@ -116,15 +116,24 @@ test -f configure || ./autogen.sh
 rm -f $(find %{buildroot}/%{_libdir} -name '*.a'; \
         find %{buildroot}/%{_libdir} -name '*.la')
 
+install -Dp -m644 geopm.service %{buildroot}%{_unitdir}/geopm.service
+install -Dp -m644 io.github.geopm.conf %{buildroot}%{_sysconfdir}/dbus-1/system.d/io.github.geopm.conf
+install -Dp -m644 io.github.geopm.xml %{buildroot}%{_sysconfdir}/dbus-1/interfaces/io.github.geopm.xml
+
+%config
+
 %clean
 
 %post
 /sbin/ldconfig
+%systemd_post geopm.service
 
 %preun
+%systemd_preun geopm.service
 
 %postun
 /sbin/ldconfig
+%systemd_postun_with_restart geopm.service
 
 %files
 %defattr(-,root,root,-)
@@ -132,7 +141,7 @@ rm -f $(find %{buildroot}/%{_libdir} -name '*.a'; \
 %{_libdir}/libgeopmd.so.0
 %{_libdir}/libgeopmd.so
 %dir %{_libdir}/geopm
-%{_bindir}/geopmaccess
+%{_bindir}/geopmd
 %dir %{docdir}
 
 %files -n python%{python_major_version}-geopmpy
