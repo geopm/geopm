@@ -36,6 +36,14 @@ class GEOPMService(object):
                 <arg direction="out" name="control_shmem" type="s" />
                 <arg direction="out" name="clock_start" type="(xx)" />
             </method>
+            <method name="SignalInfo">
+                <arg direction="in" name="query" type="as" />
+                <arg direction="out" name="result" type="a(siii)" />
+            </method>
+            <method name="ControlInfo">
+                 <arg direction="in" name="query" type="as" />
+                 <arg direction="out" name="result" type="as" />
+            </method>
         </interface>
     </node>
     """
@@ -66,6 +74,22 @@ class GEOPMService(object):
         # the sampling/control loop in a pthread and call it through
         # the geopmpy.pio CFFI interface.
         return 0, '/dev/shm/geopm-signal-0', '/dev/shm/geopm-control-0', (0, 0)
+
+    def SignalInfo(self, query):
+        result = []
+        for signal_name in query:
+            desc = self._pio.control_description(signal_name)
+            # TODO: need to create python wrappers to get aggregation
+            # function as an enum, format function as an enum and the
+            # behavior enum, for now just returning all zeros
+            result.append((desc, 0, 0, 0))
+        return result
+
+    def ControlInfo(self, query):
+        result = []
+        for control_name in query:
+            result.append(self._pio.control_description(control_name))
+        return result
 
 
 def main():
