@@ -15,3 +15,5 @@ geopm service:
 - io.github.geopm.AccessControl
 - io.github.geopm.AccessAllowed
 - io.github.geopm.Loop
+- io.github.geopm.SignalInfo
+- io.github.geopm.ControlInfo
