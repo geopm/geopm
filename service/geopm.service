@@ -1,5 +1,5 @@
 [Unit]
-Description=User space interface to hardware features with fine grained access control
+Description=Global Extensible Open Power Manager Service
 
 [Service]
 Environment=PYTHONUNBUFFERED=true
