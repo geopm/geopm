@@ -33,7 +33,7 @@
 
 from dasbus.loop import EventLoop
 from dasbus.connection import SessionMessageBus
-import geopmpy.pio
+import geopmdpy.pio
 
 class GEOPMService(object):
     __dbus_xml__ = """
