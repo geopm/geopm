@@ -32,7 +32,7 @@
 #
 
 from dasbus.loop import EventLoop
-from dasbus.connection import SessionMessageBus
+from dasbus.connection import SystemMessageBus
 import geopmdpy.pio
 
 class GEOPMService(object):
@@ -125,7 +125,7 @@ class GEOPMService(object):
 
 def main():
     loop = EventLoop()
-    bus = SessionMessageBus()
+    bus = SystemMessageBus()
     bus.publish_object("/io/github/geopm0", GEOPMService())
     bus.register_service("io.github.geopm0")
     loop.run()
