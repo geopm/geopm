@@ -138,9 +138,11 @@ install -Dp -m644 io.github.geopm.xml %{buildroot}%{_sysconfdir}/dbus-1/interfac
 %{_libdir}/libgeopmd.so.0.0.0
 %{_libdir}/libgeopmd.so.0
 %{_libdir}/libgeopmd.so
-%dir %{_libdir}/geopm
+%dir %{_libdir}/geopm-service
 %{_bindir}/geopmd
-%dir %{docdir}
+%{_sysconfdir}/dbus-1/system.d/io.github.geopm.conf
+%{_sysconfdir}/dbus-1/interfaces/io.github.geopm.xml
+%{_unitdir}/geopm.service
 
 %files -n python%{python_major_version}-geopmdpy
 %{expand:%{python%{python_major_version}_sitelib}}/*
