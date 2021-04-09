@@ -47,30 +47,10 @@ BuildRequires: libtool
 BuildRequires: gdb-headless
 %endif
 
-%if ((%{defined suse_version}) && (0%{?suse_version} < 1500)) || ((%{defined rhel}) && (0%{?rhel} < 8))
-# The version of python 3 available in these versions is not supported for all
-# of our package dependencies, but they do support 2.7 and newer versions of 3
-# We originally released to these distributions with an implicit python 2
-# dependency, so keep it that way for existing compatibility.
-%define python_major_version %{nil}
-BuildRequires: python
-BuildRequires: python-devel
-%define python_bin /usr/bin/python
-%else
 %define python_major_version 3
-%if %{defined rhel}
-# We should depend on python36, but that package is implemented as a module.
-# The enterprise Linux repos on opensuse's OBS instance don't expose modules
-# at this time, so the build fails due to a seemingly invalid dependency.
-# For now, depend on platform-python instead, which is a bare package.
-BuildRequires: platform-python
-BuildRequires: platform-python-devel
-%else
 BuildRequires: python3
 BuildRequires: python3-devel
-%endif
 %define python_bin %{__python3}
-%endif
 
 %if 0%{?suse_version} >= 1320
 BuildRequires: openssh
@@ -91,13 +71,14 @@ The service package for GEOPM that runs the geopmd daemon.
 
 %setup -n geopm-service-%{version}
 
-%package -n python%{python_major_version}-geopmdpy
+%package -n python%{python3_pkgversion}-geopmdpy
 Summary: Global Extensible Open Power Manager Service - python %{python_major_version}
 Group: System Environment/Libraries
 Requires: geopm-service
-%{?python_provide:%python_provide python%{python_major_version}-geopmdpy}
+Requires: python36-gobject-base
+%{?python_provide:%python_provide python%{python3_pkgversion}-geopmdpy}
 
-%description -n python%{python_major_version}-geopmdpy
+%description -n python%{python3_pkgversion}-geopmdpy
 Python %{python_major_version} package for GEOPM service.
 
 %build
@@ -144,5 +125,5 @@ install -Dp -m644 io.github.geopm.xml %{buildroot}%{_sysconfdir}/dbus-1/interfac
 %{_sysconfdir}/dbus-1/interfaces/io.github.geopm.xml
 %{_unitdir}/geopm.service
 
-%files -n python%{python_major_version}-geopmdpy
+%files -n python%{python3_pkgversion}-geopmdpy
 %{expand:%{python%{python_major_version}_sitelib}}/*
