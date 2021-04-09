@@ -78,7 +78,7 @@ class GEOPMService(object):
         </interface>
     </node>
     """
-    def __init__(self, pio=geopmpy.pio):
+    def __init__(self, pio=geopmdpy.pio):
         self._pio = pio
 
     def AccessList(self, group):
@@ -103,7 +103,7 @@ class GEOPMService(object):
     def Loop(self, signals, controls, interval):
         # TODO: We need to write a PlatformIO method that will execute
         # the sampling/control loop in a pthread and call it through
-        # the geopmpy.pio CFFI interface.
+        # the geopmdpy.pio CFFI interface.
         return 0, '/dev/shm/geopm-signal-0', '/dev/shm/geopm-control-0', (0, 0)
 
     def SignalInfo(self, query):
