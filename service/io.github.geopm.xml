@@ -2,7 +2,7 @@
     "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"
     "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd" >
 <node xmlns:doc="http://www.freedesktop.org/dbus/1.0/doc.dtd">
-  <interface name="io.github.geopm0">
+  <interface name="io.github.geopm">
     <method name="AccessList">
       <arg name="group" direction="in" type="s">
         <doc:doc><doc:summary>Name of permissions group to query, if empty query default access</doc:summary></doc:doc>
@@ -131,6 +131,9 @@
           </doc:para>
         </doc:description>
       </doc:doc>
+    </method>
+    <method name="Test">
+      <arg direction="out" name="result" type="(asas)" />
     </method>
   </interface>
 </node>
