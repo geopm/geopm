@@ -38,7 +38,7 @@ import geopmdpy.pio
 class GEOPMService(object):
     __dbus_xml__ = """
     <node>
-        <interface name="io.github.geopm0">
+        <interface name="io.github.geopm">
             <method name="AccessList">
                 <arg direction="in" name="group" type="s" />
                 <arg direction="out" name="allowed_signals" type="as" />
@@ -75,11 +75,17 @@ class GEOPMService(object):
                  <arg direction="in" name="query" type="as" />
                  <arg direction="out" name="result" type="as" />
             </method>
+            <method name="Test">
+                <arg direction="out" name="result" type="(asas)" />
+            </method>
         </interface>
     </node>
     """
     def __init__(self, pio=geopmdpy.pio):
         self._pio = pio
+
+    def Test(self):
+        return self._pio.signal_names(), self._pio.control_names()
 
     def AccessList(self, group):
         return self._pio.signal_names(), self._pio.control_names()
@@ -93,7 +99,6 @@ class GEOPMService(object):
         raise NotImplementedError
 
     def AccessAllowed(self):
-        names = self._pio.signal_names()
         signals = [(nn, self._pio.signal_domain_type(nn))
                    for nn in self._pio.signal_names()]
         controls = [(nn, self._pio.control_domain_type(nn))
@@ -126,8 +131,8 @@ class GEOPMService(object):
 def main():
     loop = EventLoop()
     bus = SystemMessageBus()
-    bus.publish_object("/io/github/geopm0", GEOPMService())
-    bus.register_service("io.github.geopm0")
+    bus.publish_object("/io/github/geopm", GEOPMService())
+    bus.register_service("io.github.geopm")
     loop.run()
 
 if __name__ == '__main__':
