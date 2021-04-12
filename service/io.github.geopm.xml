@@ -3,7 +3,10 @@
     "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd" >
 <node xmlns:doc="http://www.freedesktop.org/dbus/1.0/doc.dtd">
   <interface name="io.github.geopm">
-    <method name="Test">
+    <method name="TopoTest">
+      <arg direction="out" name="result" type="s" />
+    </method>
+    <method name="PlatformTest">
       <arg direction="out" name="result" type="(asas)" />
     </method>
   </interface>
