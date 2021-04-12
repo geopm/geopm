@@ -39,42 +39,6 @@ class GEOPMService(object):
     __dbus_xml__ = """
     <node>
         <interface name="io.github.geopm">
-            <method name="AccessList">
-                <arg direction="in" name="group" type="s" />
-                <arg direction="out" name="allowed_signals" type="as" />
-                <arg direction="out" name="allowed_controls" type="as" />
-            </method>
-            <method name="AccessControl">
-                <arg direction="in" name="group" type="s" />
-                <arg direction="in" name="allowed_signals" type="as" />
-                <arg direction="in" name="denied_signals" type="as" />
-                <arg direction="in" name="allowed_controls" type="as" />
-                <arg direction="in" name="denied_controls" type="as" />
-            </method>
-            <method name="AccessDelete">
-                <arg direction="in" name="group" type="s" />
-            </method>
-            <method name="AccessAllowed">
-                <arg direction="out" name="allowed_signals" type="a(si)" />
-                <arg direction="out" name="allowed_controls" type="a(si)" />
-            </method>
-            <method name="Loop">
-                <arg direction="in" name="signals" type="a(sii)" />
-                <arg direction="in" name="controls" type="a(sii)" />
-                <arg direction="in" name="interval" type="d" />
-                <arg direction="out" name="loop_pid" type="i" />
-                <arg direction="out" name="signal_shmem" type="s" />
-                <arg direction="out" name="control_shmem" type="s" />
-                <arg direction="out" name="clock_start" type="(xx)" />
-            </method>
-            <method name="SignalInfo">
-                <arg direction="in" name="query" type="as" />
-                <arg direction="out" name="result" type="a(siii)" />
-            </method>
-            <method name="ControlInfo">
-                 <arg direction="in" name="query" type="as" />
-                 <arg direction="out" name="result" type="as" />
-            </method>
             <method name="Test">
                 <arg direction="out" name="result" type="(asas)" />
             </method>
@@ -86,46 +50,6 @@ class GEOPMService(object):
 
     def Test(self):
         return self._pio.signal_names(), self._pio.control_names()
-
-    def AccessList(self, group):
-        return self._pio.signal_names(), self._pio.control_names()
-
-    def AccessControl(self, group,
-                      allowed_signals, denied_signals,
-                      allowed_controls, denied_controls):
-        raise NotImplementedError
-
-    def AccessDelete(self, group):
-        raise NotImplementedError
-
-    def AccessAllowed(self):
-        signals = [(nn, self._pio.signal_domain_type(nn))
-                   for nn in self._pio.signal_names()]
-        controls = [(nn, self._pio.control_domain_type(nn))
-                    for nn in self._pio.control_names()]
-        return signals, controls
-
-    def Loop(self, signals, controls, interval):
-        # TODO: We need to write a PlatformIO method that will execute
-        # the sampling/control loop in a pthread and call it through
-        # the geopmdpy.pio CFFI interface.
-        return 0, '/dev/shm/geopm-signal-0', '/dev/shm/geopm-control-0', (0, 0)
-
-    def SignalInfo(self, query):
-        result = []
-        for signal_name in query:
-            desc = self._pio.control_description(signal_name)
-            # TODO: need to create python wrappers to get aggregation
-            # function as an enum, format function as an enum and the
-            # behavior enum, for now just returning all zeros
-            result.append((desc, 0, 0, 0))
-        return result
-
-    def ControlInfo(self, query):
-        result = []
-        for control_name in query:
-            result.append(self._pio.control_description(control_name))
-        return result
 
 
 def main():
