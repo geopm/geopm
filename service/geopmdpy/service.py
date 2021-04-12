@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+#
 #  Copyright (c) 2015 - 2021, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -31,41 +31,28 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-from dasbus.loop import EventLoop
-from dasbus.connection import SystemMessageBus
-import geopmdpy.service
+"""Module containing the implementations of the D-Bus interfaces
+exposed by geopmd."""
 
-class GEOPMService(object):
-    __dbus_xml__ = """
-    <node>
-        <interface name="io.github.geopm">
-            <method name="TopoTest">
-                <arg direction="out" name="result" type="s" />
-            </method>
-            <method name="PlatformTest">
-                <arg direction="out" name="result" type="(asas)" />
-            </method>
-        </interface>
-    </node>
-    """
-    def __init__(self, topo=geopmdpy.service.TopoService(),
-                 platform=geopmdpy.service.PlatformService()):
+from . import pio
+from . import topo
+
+
+class PlatformService(object):
+    def init(self, pio=pio, topo=topo):
+        self._pio = pio
         self._topo = topo
-        self._platform = platform
 
-    def TopoTest(self):
-        return self._topo.test()
-
-    def PlatformTest(self):
-        return self._platform.test()
+    def test(self):
+        return self._pio.signal_names(), self._pio.control_names()
 
 
-def main():
-    loop = EventLoop()
-    bus = SystemMessageBus()
-    bus.publish_object("/io/github/geopm", GEOPMService())
-    bus.register_service("io.github.geopm")
-    loop.run()
+class TopoService(object):
+    def __init__(self, topo=topo):
+        self._topo = topo
 
-if __name__ == '__main__':
-    main()
+    def test(self):
+        self._topo.create_cache()
+        with open('/tmp/geopm-topo-cache') as fid:
+            result = fid.read()
+        return result
