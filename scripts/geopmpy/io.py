@@ -891,12 +891,12 @@ class RawReportCollection(object):
     Used to group together a collection of related RawReports.
     '''
 
-    def __init__(self, report_paths, dir_name='.', verbose=True, do_cache=True):
+    def __init__(self, report_paths, dir_name='.', dir_cache=None, verbose=True, do_cache=True):
         self._reports_df = pandas.DataFrame()
         self._app_reports_df = pandas.DataFrame()
         self._epoch_reports_df = pandas.DataFrame()
         self._meta_data = None
-        self.load_reports(report_paths, dir_name, verbose, do_cache)
+        self.load_reports(report_paths, dir_name, dir_cache, verbose, do_cache)
 
     @staticmethod
     def make_h5_name(paths, outdir):
@@ -914,7 +914,7 @@ class RawReportCollection(object):
                 df[key] = df[key].astype('S')
         return df
 
-    def load_reports(self, reports, dir_name, verbose, do_cache):
+    def load_reports(self, reports, dir_name, dir_cache, verbose, do_cache):
         '''
         TODO: copied from AppOutput.  refactor to shared function.
         - removed concept of tracked files to be deleted
@@ -934,7 +934,9 @@ class RawReportCollection(object):
             raise RuntimeError('<geopm> geopmpy.io: No report files found with pattern {}.'.format(report_glob))
 
         if do_cache:
-            self._report_h5_name = RawReportCollection.make_h5_name(report_paths, dir_name)
+            if dir_cache is None:
+                dir_cache = dir_name
+            self._report_h5_name = RawReportCollection.make_h5_name(report_paths, dir_cache)
             # check if cache is older than reports
             if os.path.exists(self._report_h5_name):
                 cache_mod_time = os.path.getmtime(self._report_h5_name)
