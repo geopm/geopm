@@ -44,34 +44,29 @@ def signal_info(name,
                 string_format,
                 behavior):
     # TODO: type checking
-    return name,
-           domain,
-           description,
-           aggregation,
-           string_format,
-           behavior
+    return (name,
+            domain,
+            description,
+            aggregation,
+            string_format,
+            behavior)
 
 def control_info(name,
                  domain,
                  description):
     # TODO: type checking
-    return name,
-           domain,
-           description
+    return (name,
+            domain,
+            description)
 
 class PlatformService(object):
-    def init(self, pio=pio):
+    def init(self, pio=pio, config_path='/etc/geopm-service'):
         self._pio = pio
-        self._CONFIG_PATH = '/etc/geopm-service'
+        self._CONFIG_PATH = config_path
         self._DEFAULT_ACCESS = '0.DEFAULT_ACCESS'
 
     def get_group_access(self, group):
-        if group is None or group == '':
-            group = self._DEFAULT_ACCESS
-        else:
-            group = str(group)
-            if group[0].isdigit():
-                raise RuntimeError('Linux group name cannot begin with a digit: group = "{}"'.format(group))
+        group = self._validate(group)
         path = os.path.join(self._CONFIG_PATH, group, 'allowed_signals')
         signals = self._read_allowed(path)
         path = os.path.join(self._CONFIG_PATH, group, 'allowed_controls')
@@ -79,7 +74,11 @@ class PlatformService(object):
         return signals, controls
 
     def set_group_access(self, group, allowed_signals, allowed_controls):
-        raise NotImplementedError('PlatformService: Implementation incomplete')
+        group = self._validate(group)
+        path = os.path.join(self._CONFIG_PATH, group, 'allowed_signals')
+        self._write_allowed(path, allowed_signals)
+        path = os.path.join(self._CONFIG_PATH, group, 'allowed_controls')
+        self._write_allowed(path, allowed_controls)
 
     def get_user_access(self, user):
         all_groups = os.getgrouplist(user)
@@ -89,8 +88,8 @@ class PlatformService(object):
             signals, controls = self.get_group_access(group)
             signal_set.update(signals)
             control_set.update(controls)
-        signals = list(signal_set)
-        controls = list(control_set)
+        signals = sorted(signal_set)
+        controls = sorted(control_set)
         return signals, controls
 
     def get_signal_names(self):
@@ -101,23 +100,37 @@ class PlatformService(object):
 
     def get_signal_info(self, signal_names):
         raise NotImplementedError('PlatformService: Implementation incomplete')
-        return []
+        return infos
 
     def get_control_info(self, control_names):
         raise NotImplementedError('PlatformService: Implementation incomplete')
-        return []
+        return infos
 
-    def loop(signal_names, control_names, interval, protocol):
+    def open_session(self, calling_pid, signal_names, control_names, interval,  protocol):
         raise NotImplementedError('PlatformService: Implementation incomplete')
-        return loop_pid, signal_shmem, control_shmem, clock_start
+        return loop_pid, clock_start, session_key
 
     def _read_allowed(self, path):
         try:
             with open(path) as fid:
-                result = [line.strip() for line in fid.readlines()]
+                result = [line.strip() for line in fid.readlines() if line.strip()]
         except FileNotFoundError:
             result = []
         return result
+
+    def _write_allowed(self, path, allowed):
+        allowed.append('')
+        with open(path, 'w') as fid:
+            fid.write('\n'.join(allowed))
+
+    def _validate_group(self, group):
+        if group is None or group == '':
+            group = self._DEFAULT_ACCESS
+        else:
+            group = str(group)
+            if group[0].isdigit():
+                raise RuntimeError('Linux group name cannot begin with a digit: group = "{}"'.format(group))
+        return group
 
     def test(self):
         return self._pio.signal_names(), self._pio.control_names()
