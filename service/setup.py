@@ -58,7 +58,7 @@ long_description = """\
 The python implementation for the GEOPM daemon"""
 
 
-scripts = ["geopmd"]
+scripts = ['geopmd', 'geopmaccess']
 
 classifiers = ['Development Status :: 5 - Production/Stable',
                'License :: OSI Approved :: BSD License',
@@ -68,9 +68,7 @@ classifiers = ['Development Status :: 5 - Production/Stable',
                'Topic :: Software Development :: Libraries :: Application Frameworks',
                'Topic :: System :: Hardware :: Symmetric Multi-processing',
                'Topic :: System :: Power (UPS)',
-               'Programming Language :: Python :: 2',
                'Programming Language :: Python :: 3',
-               'Programming Language :: Python :: 2.7',
                'Programming Language :: Python :: 3.6',
 ]
 
@@ -91,4 +89,4 @@ setup(name='geopmdpy',
       scripts=scripts,
       classifiers=classifiers,
       install_requires=install_requires,
-      python_requires='>=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*')
+      python_requires='>=3.6')
