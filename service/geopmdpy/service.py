@@ -37,11 +37,87 @@ exposed by geopmd."""
 from . import pio
 from . import topo
 
+def signal_info(name,
+                domain,
+                description,
+                aggregation,
+                string_format,
+                behavior):
+    # TODO: type checking
+    return name,
+           domain,
+           description,
+           aggregation,
+           string_format,
+           behavior
+
+def control_info(name,
+                 domain,
+                 description):
+    # TODO: type checking
+    return name,
+           domain,
+           description
 
 class PlatformService(object):
-    def init(self, pio=pio, topo=topo):
+    def init(self, pio=pio):
         self._pio = pio
-        self._topo = topo
+        self._CONFIG_PATH = '/etc/geopm-service'
+        self._DEFAULT_ACCESS = '0.DEFAULT_ACCESS'
+
+    def get_group_access(self, group):
+        if group is None or group == '':
+            group = self._DEFAULT_ACCESS
+        else:
+            group = str(group)
+            if group[0].isdigit():
+                raise RuntimeError('Linux group name cannot begin with a digit: group = "{}"'.format(group))
+        path = os.path.join(self._CONFIG_PATH, group, 'allowed_signals')
+        signals = self._read_allowed(path)
+        path = os.path.join(self._CONFIG_PATH, group, 'allowed_controls')
+        controls = self._read_allowed(path)
+        return signals, controls
+
+    def set_group_access(self, group, allowed_signals, allowed_controls):
+        raise NotImplementedError('PlatformService: Implementation incomplete')
+
+    def get_user_access(self, user):
+        all_groups = os.getgrouplist(user)
+        signal_set = set()
+        control_set = set()
+        for group in all_groups:
+            signals, controls = self.get_group_access(group)
+            signal_set.update(signals)
+            control_set.update(controls)
+        signals = list(signal_set)
+        controls = list(control_set)
+        return signals, controls
+
+    def get_signal_names(self):
+        return self._pio.signal_names()
+
+    def get_control_names(self):
+        return self._pio.control_names()
+
+    def get_signal_info(self, signal_names):
+        raise NotImplementedError('PlatformService: Implementation incomplete')
+        return []
+
+    def get_control_info(self, control_names):
+        raise NotImplementedError('PlatformService: Implementation incomplete')
+        return []
+
+    def loop(signal_names, control_names, interval, protocol):
+        raise NotImplementedError('PlatformService: Implementation incomplete')
+        return loop_pid, signal_shmem, control_shmem, clock_start
+
+    def _read_allowed(self, path):
+        try:
+            with open(path) as fid:
+                result = [line.strip() for line in fid.readlines()]
+        except FileNotFoundError:
+            result = []
+        return result
 
     def test(self):
         return self._pio.signal_names(), self._pio.control_names()
@@ -51,7 +127,7 @@ class TopoService(object):
     def __init__(self, topo=topo):
         self._topo = topo
 
-    def test(self):
+    def get_cache(self):
         self._topo.create_cache()
         with open('/tmp/geopm-topo-cache') as fid:
             result = fid.read()
