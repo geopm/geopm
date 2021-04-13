@@ -39,7 +39,7 @@ class GEOPMService(object):
     __dbus_xml__ = """
     <node>
         <interface name="io.github.geopm">
-            <method name="TopoTest">
+            <method name="TopoGetCache">
                 <arg direction="out" name="result" type="s" />
             </method>
             <method name="PlatformTest">
@@ -53,8 +53,8 @@ class GEOPMService(object):
         self._topo = topo
         self._platform = platform
 
-    def TopoTest(self):
-        return self._topo.test()
+    def TopoGetCache(self):
+        return self._topo.get_cache()
 
     def PlatformTest(self):
         return self._platform.test()
