@@ -57,6 +57,7 @@ EXTRA_DIST = .gitignore \
              geopmd \
              geopmdpy/pio.py \
              geopmdpy/__init__.py \
+             geopmdpy/__main__.py \
              geopmdpy/topo.py \
              geopmdpy/version.py \
              geopmdpy/version.py.in \
