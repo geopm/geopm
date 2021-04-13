@@ -195,16 +195,16 @@ class GEOPMService(object):
                  pid=None, user=None):
         self._topo = topo
         self._platform = platform
-        if None in (user, pid):
-            bus = SystemMessageBus()
-            dbus_proxy = bus.get_proxy('org.freedesktop.DBus', 'org/freedesktop/DBus')
-            if pid is None:
-                pid = dbus_proxy.GetConnectionUnixProcessID('io.github.geopm')
-            if user is None:
-                uid = dbus_proxy.GetConnectionUnixUser('io.github.geopm')
-                user = pwd.getpwuid(uid).pw_name
-        self._caller_pid = pid
-        self._caller_user = user
+        #if None in (user, pid):
+        #    bus = SystemMessageBus()
+        #    dbus_proxy = bus.get_proxy('org.freedesktop.DBus', 'org/freedesktop/DBus')
+        #    if pid is None:
+        #        pid = dbus_proxy.GetConnectionUnixProcessID('io.github.geopm')
+        #    if user is None:
+        #        uid = dbus_proxy.GetConnectionUnixUser('io.github.geopm')
+        #        user = pwd.getpwuid(uid).pw_name
+        self._caller_pid = 1
+        self._caller_user = 'cmcantal'
 
     def TopoGetCache(self):
         return self._topo.get_cache()
