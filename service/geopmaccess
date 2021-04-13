@@ -36,7 +36,7 @@ from dasbus.connection import SystemMessageBus
 def main():
     bus = SystemMessageBus()
     geopm_proxy = bus.get_proxy('io.github.geopm','/io/github/geopm')
-    all_signals, all_controls = geopm_proxy.Test()
+    all_signals, all_controls = geopm_proxy.PlatformGetAllAccess()
     print('---------------------')
     print('! AVAILABLE SIGNALS !')
     print('---------------------')
