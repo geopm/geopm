@@ -34,33 +34,36 @@
 """Module containing the implementations of the D-Bus interfaces
 exposed by geopmd."""
 
+import os
+import pwd
 from . import pio
 from . import topo
+from dasbus.connection import SystemMessageBus
 
 def signal_info(name,
-                domain,
                 description,
+                domain,
                 aggregation,
                 string_format,
                 behavior):
     # TODO: type checking
     return (name,
-            domain,
             description,
+            domain,
             aggregation,
             string_format,
             behavior)
 
 def control_info(name,
-                 domain,
-                 description):
+                 description,
+                 domain):
     # TODO: type checking
     return (name,
-            domain,
-            description)
+            description,
+            domain)
 
 class PlatformService(object):
-    def init(self, pio=pio, config_path='/etc/geopm-service'):
+    def __init__(self, pio=pio, config_path='/etc/geopm-service'):
         self._pio = pio
         self._CONFIG_PATH = config_path
         self._DEFAULT_ACCESS = '0.DEFAULT_ACCESS'
@@ -92,11 +95,8 @@ class PlatformService(object):
         controls = sorted(control_set)
         return signals, controls
 
-    def get_signal_names(self):
-        return self._pio.signal_names()
-
-    def get_control_names(self):
-        return self._pio.control_names()
+    def get_all_access(self):
+        return self._pio.signal_names(), self._pio.control_names()
 
     def get_signal_info(self, signal_names):
         raise NotImplementedError('PlatformService: Implementation incomplete')
@@ -109,6 +109,9 @@ class PlatformService(object):
     def open_session(self, calling_pid, signal_names, control_names, interval,  protocol):
         raise NotImplementedError('PlatformService: Implementation incomplete')
         return loop_pid, clock_start, session_key
+
+    def close_session(self):
+        raise NotImplementedError('PlatformService: Implementation incomplete')
 
     def _read_allowed(self, path):
         try:
@@ -145,3 +148,84 @@ class TopoService(object):
         with open('/tmp/geopm-topo-cache') as fid:
             result = fid.read()
         return result
+
+
+class GEOPMService(object):
+    __dbus_xml__ = """
+    <node>
+        <interface name="io.github.geopm">
+            <method name="TopoGetCache">
+                <arg direction="out" name="result" type="s" />
+            </method>
+            <method name="PlatformGetGroupAccess">
+                <arg direction="in" name="group" type="s" />
+                <arg direction="out" name="access_lists" type="(asas)" />
+            </method>
+            <method name="PlatformSetGroupAccess">
+                <arg direction="in" name="group" type="s" />
+                <arg direction="in" name="allowed_signals" type="as" />
+                <arg direction="in" name="allowed_controls" type="as" />
+            </method>
+            <method name="PlatformGetUserAccess">
+                <arg direction="out" name="access_lists" type="(asas)" />
+            </method>
+            <method name="PlatformGetAllAccess">
+                <arg direction="out" name="access_lists" type="(asas)" />
+            </method>
+            <method name="PlatformGetSignalInfo">
+                <arg direction="in" name="signal_names" type="as" />
+                <arg direction="out" name="info" type="a(ssiiii)" />
+            </method>
+            <method name="PlatformGetControlInfo">
+                <arg direction="in" name="control_names" type="as" />
+                <arg direction="out" name="info" type="a(ssi)" />
+            </method>
+            <method name="PlatformOpenSession">
+                <arg direction="in" name="signal_names" type="as" />
+                <arg direction="in" name="control_names" type="as" />
+                <arg direction="in" name="interval" type="d" />
+                <arg direction="in" name="protocol" type="i" />
+                <arg direction="out" name="session" type="(i(xx)s)" />
+            </method>
+        </interface>
+    </node>
+    """
+    def __init__(self, topo=TopoService(),
+                 platform=PlatformService(),
+                 pid=None, user=None):
+        self._topo = topo
+        self._platform = platform
+        if None in (user, pid):
+            bus = SystemMessageBus()
+            dbus_proxy = bus.get_proxy('org.freedesktop.DBus', 'org/freedesktop/DBus')
+            if pid is None:
+                pid = dbus_proxy.GetConnectionUnixProcessID('io.github.geopm')
+            if user is None:
+                uid = dbus_proxy.GetConnectionUnixUser('io.github.geopm')
+                user = pwd.getpwuid(uid).pw_name
+        self._caller_pid = pid
+        self._caller_user = user
+
+    def TopoGetCache(self):
+        return self._topo.get_cache()
+
+    def PlatformGetGroupAccess(self, group):
+        return self._platform.get_group_access(group)
+
+    def PlatformSetGroupAccess(self, group, allowed_signals, allowed_controls):
+        self._platform.set_group_access(group, allowed_signals, allowed_controls)
+
+    def PlatformGetUserAccess(self):
+        return self._platform.get_user_access(self._calling_user)
+
+    def PlatformGetAllAccess(self):
+        return self._platform.get_all_access()
+
+    def PlatformGetSignalInfo(self, signal_names):
+        return self._platform.get_signal_info(signal_names)
+
+    def PlatformGetControlInfo(self, control_names):
+        return self._platform.get_control_info(control_names)
+
+    def PlatformOpenSession(self, signal_names, control_names, interval, protocol):
+        return self._platform.open_session(self.calling_pid, signal_names, control_names, interval, protocol)
