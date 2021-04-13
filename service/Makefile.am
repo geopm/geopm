@@ -53,6 +53,7 @@ EXTRA_DIST = .gitignore \
              geopm-service.spec.in \
              io.github.geopm.conf \
              io.github.geopm.xml \
+             geopmaccess \
              geopmd \
              geopmdpy/pio.py \
              geopmdpy/__init__.py \
@@ -60,6 +61,7 @@ EXTRA_DIST = .gitignore \
              geopmdpy/version.py \
              geopmdpy/version.py.in \
              geopmdpy/error.py \
+             geopmdpy/service.py \
              setup.py \
              test/README.md \
              geopm.service \
