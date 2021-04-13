@@ -121,6 +121,7 @@ install -Dp -m644 io.github.geopm.xml %{buildroot}%{_sysconfdir}/dbus-1/interfac
 %{_libdir}/libgeopmd.so
 %dir %{_libdir}/geopm-service
 %{_bindir}/geopmd
+%{_bindir}/geopmaccess
 %{_sysconfdir}/dbus-1/system.d/io.github.geopm.conf
 %{_sysconfdir}/dbus-1/interfaces/io.github.geopm.xml
 %{_unitdir}/geopm.service
