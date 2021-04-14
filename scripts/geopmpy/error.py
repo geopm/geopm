@@ -58,7 +58,10 @@ enum geopm_error_e {
 void geopm_error_message(int err, char *msg, size_t size);
 
 """)
-_dl = _ffi.dlopen('libgeopmpolicy.so', _ffi.RTLD_GLOBAL|_ffi.RTLD_LAZY)
+try:
+    _dl = _ffi.dlopen('libgeopmpolicy.so', _ffi.RTLD_GLOBAL|_ffi.RTLD_LAZY)
+except OSError as ee:
+    raise OSError('This module requires libgeopmpolicy.so to be present in your LD_LIBRARY_PATH.') from ee
 
 ERROR_RUNTIME = _dl.GEOPM_ERROR_RUNTIME
 ERROR_LOGIC = _dl.GEOPM_ERROR_LOGIC
