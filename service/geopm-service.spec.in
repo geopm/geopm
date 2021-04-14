@@ -100,6 +100,7 @@ rm -f $(find %{buildroot}/%{_libdir} -name '*.a'; \
 install -Dp -m644 geopm.service %{buildroot}%{_unitdir}/geopm.service
 install -Dp -m644 io.github.geopm.conf %{buildroot}%{_sysconfdir}/dbus-1/system.d/io.github.geopm.conf
 install -Dp -m644 io.github.geopm.xml %{buildroot}%{_sysconfdir}/dbus-1/interfaces/io.github.geopm.xml
+mkdir -p %{buildroot}%{_sysconfdir}/geopm-service
 
 %clean
 
@@ -125,6 +126,7 @@ install -Dp -m644 io.github.geopm.xml %{buildroot}%{_sysconfdir}/dbus-1/interfac
 %{_sysconfdir}/dbus-1/system.d/io.github.geopm.conf
 %{_sysconfdir}/dbus-1/interfaces/io.github.geopm.xml
 %{_unitdir}/geopm.service
+%dir %{_sysconfdir}/geopm-service
 
 %files -n python%{python3_pkgversion}-geopmdpy
 %{expand:%{python%{python_major_version}_sitelib}}/*
