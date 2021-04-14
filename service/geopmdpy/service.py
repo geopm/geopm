@@ -36,6 +36,7 @@ exposed by geopmd."""
 
 import os
 import pwd
+import grp
 from . import pio
 from . import topo
 from dasbus.connection import SystemMessageBus
@@ -70,23 +71,31 @@ class PlatformService(object):
         self._active_pid = None
 
     def get_group_access(self, group):
-        group = self._validate(group)
-        path = os.path.join(self._CONFIG_PATH, group, 'allowed_signals')
-        signals = self._read_allowed(path)
-        path = os.path.join(self._CONFIG_PATH, group, 'allowed_controls')
-        controls = self._read_allowed(path)
+        group = self._validate_group(group)
+        group_dir = os.path.join(self._CONFIG_PATH, group)
+        if os.is_dir(group_dir):
+            path = os.path.join(group_dir, 'allowed_signals')
+            signals = self._read_allowed(path)
+            path = os.path.join(group_dir, 'allowed_controls')
+            controls = self._read_allowed(path)
+        else:
+            signals = []
+            controls = []
         return signals, controls
 
     def set_group_access(self, group, allowed_signals, allowed_controls):
-        group = self._validate(group)
-        path = os.path.join(self._CONFIG_PATH, group, 'allowed_signals')
+        group = self._validate_group(group)
+        group_dir = os.path.join(self._CONFIG_PATH, group)
+        os.makedirs(group_dir, exist_ok=True)
+        path = os.path.join(group_dir, 'allowed_signals')
         self._write_allowed(path, allowed_signals)
-        path = os.path.join(self._CONFIG_PATH, group, 'allowed_controls')
+        path = os.path.join(group_dir, 'allowed_controls')
         self._write_allowed(path, allowed_controls)
 
     def get_user_access(self, user):
-        gid = pwd.getpwnam(user).pw_gid
-        all_groups = os.getgrouplist(user, gid)
+        user_gid = pwd.getpwnam(user).pw_gid
+        all_gid = os.getgrouplist(user, user_gid)
+        all_groups = [grp.getgrgid(gid).gr_name for gid in all_gid]
         signal_set = set()
         control_set = set()
         for group in all_groups:
@@ -202,6 +211,8 @@ class GEOPMService(object):
         self._topo = topo
         self._platform = platform
         self._active_pid = None
+        self._dbus_proxy = SystemMessageBus().get_proxy('org.freedesktop.DBus',
+                                                        '/org/freedesktop/DBus')
 
     def TopoGetCache(self):
         return self._topo.get_cache()
@@ -213,11 +224,7 @@ class GEOPMService(object):
         self._platform.set_group_access(group, allowed_signals, allowed_controls)
 
     def PlatformGetUserAccess(self):
-        bus = SystemMessageBus()
-        dbus_proxy = bus.get_proxy('org.freedesktop.DBus', 'org/freedesktop/DBus')
-        uid = dbus_proxy.GetConnectionUnixUser('io.github.geopm')
-        user = pwd.getpwuid(uid).pw_name
-        return self._platform.get_user_access(user)
+        return self._platform.get_user_access(self._get_user())
 
     def PlatformGetAllAccess(self):
         return self._platform.get_all_access()
@@ -235,12 +242,7 @@ class GEOPMService(object):
         self._platform.close_session(self._get_pid())
 
     def _get_user(self):
-        dbus_proxy = SystemMessageBus().get_proxy('org.freedesktop.DBus', 'org/freedesktop/DBus')
-        uid = dbus_proxy.GetConnectionUnixUser('io.github.geopm')
-        user = pwd.getpwuid(uid).pw_name
-        return user
+        return pwd.getpwuid(self._dbus_proxy.GetConnectionUnixUser('io.github.geopm')).pw_name
 
     def _get_pid(self):
-        dbus_proxy = SystemMessageBus().get_proxy('org.freedesktop.DBus', 'org/freedesktop/DBus')
-        pid = dbus_proxy.GetConnectionUnixProcessID('io.github.geopm')
-        return pid
+        return self._dbus_proxy.GetConnectionUnixProcessID('io.github.geopm')
