@@ -55,7 +55,7 @@ import hashlib
 from distutils.spawn import find_executable
 from natsort import natsorted
 from geopmpy import __version__
-from geopmpy import agent
+from geopmpy import agent # Relies on CFFI
 from geopmpy import update_report
 
 try:
