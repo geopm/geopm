@@ -67,6 +67,7 @@ class PlatformService(object):
         self._pio = pio
         self._CONFIG_PATH = config_path
         self._DEFAULT_ACCESS = '0.DEFAULT_ACCESS'
+        self._active_pid = None
 
     def get_group_access(self, group):
         group = self._validate(group)
@@ -84,7 +85,8 @@ class PlatformService(object):
         self._write_allowed(path, allowed_controls)
 
     def get_user_access(self, user):
-        all_groups = os.getgrouplist(user)
+        gid = pwd.getpwnam(user).pw_gid
+        all_groups = os.getgrouplist(user, gid)
         signal_set = set()
         control_set = set()
         for group in all_groups:
@@ -106,12 +108,19 @@ class PlatformService(object):
         raise NotImplementedError('PlatformService: Implementation incomplete')
         return infos
 
-    def open_session(self, calling_pid, signal_names, control_names, interval,  protocol):
+    def open_session(self, calling_pid, signal_config, control_config, interval,  protocol):
+        if self._active_pid is not None:
+            raise RuntimeError('The geopm service already has a connected client')
+        self._active_pid = calling_pid
         raise NotImplementedError('PlatformService: Implementation incomplete')
         return loop_pid, clock_start, session_key
 
-    def close_session(self):
-        raise NotImplementedError('PlatformService: Implementation incomplete')
+    def close_session(self, calling_pid):
+        if self._active_pid is not None:
+            if calling_pid != self.active_pid:
+                raise RuntimeError('The currently active geopm session was opened by a different process')
+            self._active_pid = None
+            raise NotImplementedError('PlatformService: Implementation incomplete')
 
     def _read_allowed(self, path):
         try:
@@ -134,9 +143,6 @@ class PlatformService(object):
             if group[0].isdigit():
                 raise RuntimeError('Linux group name cannot begin with a digit: group = "{}"'.format(group))
         return group
-
-    def test(self):
-        return self._pio.signal_names(), self._pio.control_names()
 
 
 class TopoService(object):
@@ -187,24 +193,15 @@ class GEOPMService(object):
                 <arg direction="in" name="protocol" type="i" />
                 <arg direction="out" name="session" type="(i(xx)s)" />
             </method>
+            <method name="PlatformCloseSession" />
         </interface>
     </node>
     """
     def __init__(self, topo=TopoService(),
-                 platform=PlatformService(),
-                 pid=None, user=None):
+                 platform=PlatformService()):
         self._topo = topo
         self._platform = platform
-        #if None in (user, pid):
-        #    bus = SystemMessageBus()
-        #    dbus_proxy = bus.get_proxy('org.freedesktop.DBus', 'org/freedesktop/DBus')
-        #    if pid is None:
-        #        pid = dbus_proxy.GetConnectionUnixProcessID('io.github.geopm')
-        #    if user is None:
-        #        uid = dbus_proxy.GetConnectionUnixUser('io.github.geopm')
-        #        user = pwd.getpwuid(uid).pw_name
-        self._caller_pid = 1
-        self._caller_user = 'cmcantal'
+        self._active_pid = None
 
     def TopoGetCache(self):
         return self._topo.get_cache()
@@ -216,7 +213,11 @@ class GEOPMService(object):
         self._platform.set_group_access(group, allowed_signals, allowed_controls)
 
     def PlatformGetUserAccess(self):
-        return self._platform.get_user_access(self._calling_user)
+        bus = SystemMessageBus()
+        dbus_proxy = bus.get_proxy('org.freedesktop.DBus', 'org/freedesktop/DBus')
+        uid = dbus_proxy.GetConnectionUnixUser('io.github.geopm')
+        user = pwd.getpwuid(uid).pw_name
+        return self._platform.get_user_access(user)
 
     def PlatformGetAllAccess(self):
         return self._platform.get_all_access()
@@ -228,4 +229,18 @@ class GEOPMService(object):
         return self._platform.get_control_info(control_names)
 
     def PlatformOpenSession(self, signal_names, control_names, interval, protocol):
-        return self._platform.open_session(self.calling_pid, signal_names, control_names, interval, protocol)
+        return self._platform.open_session(self._get_pid(), signal_names, control_names, interval, protocol)
+
+    def PlatformCloseSession(self):
+        self._platform.close_session(self._get_pid())
+
+    def _get_user(self):
+        dbus_proxy = SystemMessageBus().get_proxy('org.freedesktop.DBus', 'org/freedesktop/DBus')
+        uid = dbus_proxy.GetConnectionUnixUser('io.github.geopm')
+        user = pwd.getpwuid(uid).pw_name
+        return user
+
+    def _get_pid(self):
+        dbus_proxy = SystemMessageBus().get_proxy('org.freedesktop.DBus', 'org/freedesktop/DBus')
+        pid = dbus_proxy.GetConnectionUnixProcessID('io.github.geopm')
+        return pid
