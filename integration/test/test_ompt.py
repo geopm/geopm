@@ -62,7 +62,7 @@ class TestIntegration_ompt(unittest.TestCase):
 
         app_conf = geopmpy.io.BenchConf(test_name + '_app.config')
         app_conf.append_region('stream-unmarked', 1.0)
-        agent_conf = geopmpy.io.AgentConf(test_name + '_agent.config')
+        agent_conf = geopmpy.agent.AgentConf(test_name + '_agent.config')
 
         # Create the test launcher with the above configuration
         launcher = geopm_test_launcher.TestLauncher(app_conf,

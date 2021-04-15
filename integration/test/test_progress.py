@@ -102,7 +102,7 @@ class TestIntegration_progress(unittest.TestCase):
 
         trace_signals = 'REGION_PROGRESS@cpu,REGION_HASH@cpu'
         report_signals = 'TIME@cpu'
-        agent_conf = geopmpy.io.AgentConf(cls._test_name + '_agent.config')
+        agent_conf = geopmpy.agent.AgentConf(cls._test_name + '_agent.config')
 
         # Create the test launcher with the above configuration
         launcher = geopm_test_launcher.TestLauncher(app_conf=app_conf,

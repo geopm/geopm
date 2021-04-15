@@ -47,6 +47,7 @@ import glob
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import geopm_context
 import geopmpy.io
+import geopmpy.agent
 import geopmpy.error
 
 import util
@@ -121,14 +122,14 @@ class TestIntegration_frequency_hint_usage(unittest.TestCase):
 
             # Configure the agents
             agent_conf_dict = {'FREQ_DEFAULT': cls._freq_default}
-            fmap_agent_conf = geopmpy.io.AgentConf(cls._fmap_agent_conf_path,
-                                                   'frequency_map',
-                                                   agent_conf_dict)
+            fmap_agent_conf = geopmpy.agent.AgentConf(cls._fmap_agent_conf_path,
+                                                      'frequency_map',
+                                                      agent_conf_dict)
             agent_conf_dict = {'FREQ_MIN': cls._freq_min,
                                'FREQ_MAX': cls._freq_default}
-            ee_agent_conf = geopmpy.io.AgentConf(cls._ee_agent_conf_path,
-                                                 'energy_efficient',
-                                                 agent_conf_dict)
+            ee_agent_conf = geopmpy.agent.AgentConf(cls._ee_agent_conf_path,
+                                                    'energy_efficient',
+                                                    agent_conf_dict)
 
             # Fmap run
             launcher = geopm_test_launcher.TestLauncher(app_conf,

@@ -41,7 +41,7 @@ import io
 import json
 
 import geopm_context
-import geopmpy.io
+import geopmpy.agent
 import geopm_test_launcher
 import util
 import geopmpy.topo
@@ -99,9 +99,9 @@ class TestIntegrationEnforcePolicy(unittest.TestCase):
         self._report_path = test_name + '.report'
         self._agent_conf_path = test_name + '-agent-config.json'
 
-        agent_conf = geopmpy.io.AgentConf(self._agent_conf_path,
-                                          agent_name,
-                                          policy_setting)
+        agent_conf = geopmpy.agent.AgentConf(self._agent_conf_path,
+                                             agent_name,
+                                             policy_setting)
         agent_conf.write()
 
         # set environment in launch using geopmlaunch options instead of

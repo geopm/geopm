@@ -35,7 +35,7 @@
 import argparse
 import os
 
-import geopmpy.io
+import geopmpy.agent
 import geopmpy.hash
 from experiment import util
 from experiment import launch_util
@@ -59,9 +59,9 @@ def launch_configs(output_dir, app_conf_ref, app_conf, default_freq, sweep_freqs
     options = {'FREQ_DEFAULT': default_freq,
                'FREQ_UNCORE': max_uncore}
     config_file = os.path.join(output_dir, '{}.config'.format('fma_fixed'))
-    agent_conf = geopmpy.io.AgentConf(config_file,
-                                      agent='frequency_map',
-                                      options=options)
+    agent_conf = geopmpy.agent.AgentConf(config_file,
+                                         agent='frequency_map',
+                                         options=options)
     result.append(launch_util.LaunchConfig(app_conf=app_conf_ref,
                                            agent_conf=agent_conf,
                                            name='fixed_uncore'))
@@ -74,9 +74,9 @@ def launch_configs(output_dir, app_conf_ref, app_conf, default_freq, sweep_freqs
                    'HASH_0': barrier_hash,
                    'FREQ_0': freq}
         config_file = os.path.join(output_dir, '{}.config'.format(rid))
-        agent_conf = geopmpy.io.AgentConf(config_file,
-                                          agent='frequency_map',
-                                          options=options)
+        agent_conf = geopmpy.agent.AgentConf(config_file,
+                                             agent='frequency_map',
+                                             options=options)
         result.append(launch_util.LaunchConfig(app_conf=app_conf,
                                                agent_conf=agent_conf,
                                                name=rid))

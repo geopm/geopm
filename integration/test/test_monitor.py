@@ -78,7 +78,7 @@ class TestIntegration_monitor(unittest.TestCase):
         app_conf.append_region('sleep-unmarked', cls._unmarked_bigo)
 
         # Configure the monitor agent
-        agent_conf = geopmpy.io.AgentConf(test_name + '_agent.config')
+        agent_conf = geopmpy.agent.AgentConf(test_name + '_agent.config')
 
         # Create the test launcher with the above configuration
         launcher = geopm_test_launcher.TestLauncher(app_conf,

@@ -67,7 +67,7 @@ class TestIntegration_trace(unittest.TestCase):
         app_conf.append_region('dgemm', 1.0)
         app_conf.append_region('all2all', 1.0)
 
-        agent_conf = geopmpy.io.AgentConf(cls._agent_conf_path)
+        agent_conf = geopmpy.agent.AgentConf(cls._agent_conf_path)
 
         launcher = geopm_test_launcher.TestLauncher(app_conf,
                                                     agent_conf,

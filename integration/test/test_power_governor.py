@@ -73,7 +73,7 @@ class TestIntegration_power_governor(unittest.TestCase):
             cls._options['power_budget'] = 130
         else:
             cls._options['power_budget'] = 200
-        agent_conf = geopmpy.io.AgentConf(cls._test_name + '_agent.config', cls._agent, cls._options)
+        agent_conf = geopmpy.agent.AgentConf(cls._test_name + '_agent.config', cls._agent, cls._options)
 
         # Create the test launcher with the above configuration
         launcher = geopm_test_launcher.TestLauncher(app_conf,

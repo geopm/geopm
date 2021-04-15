@@ -46,6 +46,7 @@ import glob
 
 import geopm_context
 import geopmpy.io
+import geopmpy.agent
 import geopmpy.error
 import geopm_test_launcher
 import util
@@ -95,10 +96,10 @@ class TestIntegrationEETimedScalingMix(unittest.TestCase):
             num_rank = 2
             min_freq = geopm_test_launcher.geopmread("CPUINFO::FREQ_MIN board 0")
             sticker_freq = geopm_test_launcher.geopmread("CPUINFO::FREQ_STICKER board 0")
-            agent_conf = geopmpy.io.AgentConf(cls._agent_conf_path,
-                                              'energy_efficient',
-                                              {'frequency_min':min_freq,
-                                               'frequency_max':sticker_freq})
+            agent_conf = geopmpy.agent.AgentConf(cls._agent_conf_path,
+                                                 'energy_efficient',
+                                                 {'frequency_min':min_freq,
+                                                  'frequency_max':sticker_freq})
             launcher = geopm_test_launcher.TestLauncher(AppConf(),
                                                         agent_conf,
                                                         cls._report_path,

@@ -106,7 +106,7 @@ class TestIntegration_frequency_map(unittest.TestCase):
                                                        cls._freq_map)
         cls._agent = 'frequency_map'
         trace_signals = 'REGION_HASH@core,MSR::PERF_CTL:FREQ@core'
-        agent_conf = geopmpy.io.AgentConf(cls._test_name + '_agent.config',
+        agent_conf = geopmpy.agent.AgentConf(cls._test_name + '_agent.config',
                                           cls._agent, cls._options)
 
         # Create the test launcher with the above configuration
