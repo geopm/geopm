@@ -36,5 +36,6 @@
                 <arg direction="in" name="protocol" type="i" />
                 <arg direction="out" name="session" type="(i(xx)s)" />
             </method>
+            <method name="PlatformCloseSession" />
       </interface>
     </node>
