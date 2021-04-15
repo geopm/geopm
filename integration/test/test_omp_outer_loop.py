@@ -95,7 +95,7 @@ class TestIntegrationOMPOuterLoop(unittest.TestCase):
             cls._report_path.append(report_path)
             cls._agent_conf_path = test_name + '-agent-config.json'
             if not cls._skip_launch:
-                agent_conf = geopmpy.io.AgentConf(cls._agent_conf_path)
+                agent_conf = geopmpy.agent.AgentConf(cls._agent_conf_path)
                 launcher = geopm_test_launcher.TestLauncher(AppConf(),
                                                             agent_conf,
                                                             report_path,

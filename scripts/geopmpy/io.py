@@ -55,7 +55,6 @@ import hashlib
 from distutils.spawn import find_executable
 from natsort import natsorted
 from geopmpy import __version__
-from geopmpy import agent # Relies on CFFI
 from geopmpy import update_report
 
 try:
@@ -719,67 +718,6 @@ imbalance : {imbalance}
 
     def get_exec_args(self):
         return [self._path]
-
-
-class AgentConf(object):
-    """The GEOPM agent configuration parameters.
-
-    This class contains all the parameters necessary to run the GEOPM
-    agent with a workload.
-
-    Attributes:
-        path: The output path for this configuration file.
-        options: A dict of the options for this agent.
-
-    """
-    def __init__(self, path, agent='monitor', options=dict()):
-        supported_agents = {'monitor', 'power_governor', 'power_balancer', 'energy_efficient',
-                            'frequency_map'}
-        self._path = path
-        if agent not in supported_agents:
-            raise SyntaxError('<geopm> geopmpy.io: AgentConf does not support agent type: ' + agent + '!')
-        self._agent = agent
-        self._options = options
-
-    def __repr__(self):
-        return json.dumps(self._options)
-
-    def __str__(self):
-        return self.__repr__()
-
-    def get_path(self):
-        return self._path
-
-    def get_agent(self):
-        return self._agent
-
-    def write(self):
-        """Write the current config to a file."""
-        policy_names = agent.policy_names(self._agent)
-        name_offsets = { name: offset for offset, name in enumerate(policy_names)}
-        policy_values = [float('nan')] * len(name_offsets)
-
-        # Earlier versions of this function had special handling per agent instead
-        # of using the agent's policy names. Translate the old-style inputs to
-        # use the new style for backward compatibility.
-        old_names = []
-        if self._agent in ['power_governor', 'power_balancer']:
-            old_names = ['power_budget']
-        elif self._agent in ['frequency_map', 'energy_efficient']:
-            old_names = ['frequency_min', 'frequency_max']
-        policy_dict = self._options.copy()
-        for offset, name in enumerate(old_names):
-            if name in policy_dict:
-                policy_dict[policy_names[offset]] = policy_dict.pop(name)
-
-        for (policy_name, policy_value) in policy_dict.items():
-            if policy_name not in name_offsets:
-                raise KeyError('<geopm> geopmpy.io: Policy "{}" does not exist in agent "{}"'.format(policy_name, self._agent))
-            policy_offset = name_offsets[policy_name]
-            policy_values[policy_offset] = policy_value
-
-        with open(self._path, "w") as outfile:
-            outfile.write(agent.policy_json(self._agent, policy_values))
 
 
 class RawReport(object):

@@ -109,7 +109,7 @@ class TestIntegrationScalingRegion(unittest.TestCase):
                 agent_conf_dict['HASH_{}'.format(freq_idx)] = cls._region_hash[freq_idx]
                 agent_conf_dict['FREQ_{}'.format(freq_idx)] = cls._region_freq[freq_idx]
 
-            agent_conf = geopmpy.io.AgentConf(cls._agent_conf_path,
+            agent_conf = geopmpy.agent.AgentConf(cls._agent_conf_path,
                                               'frequency_map',
                                               agent_conf_dict)
             launcher = geopm_test_launcher.TestLauncher(AppConf(),

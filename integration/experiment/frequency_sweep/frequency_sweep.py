@@ -39,7 +39,7 @@ import sys
 import argparse
 import os
 
-import geopmpy.io
+import geopmpy.agent
 
 from experiment import launch_util
 from experiment import common_args
@@ -99,7 +99,7 @@ def launch_configs(output_dir, app_conf, freq_range):
         name = '{:.1e}'.format(freq)
         options = {'FREQ_DEFAULT': freq}
         file_name = os.path.join(output_dir, '{}_agent_{}.config'.format(agent, freq))
-        agent_conf = geopmpy.io.AgentConf(file_name, agent, options)
+        agent_conf = geopmpy.agent.AgentConf(file_name, agent, options)
         targets.append(launch_util.LaunchConfig(app_conf=app_conf,
                                                 agent_conf=agent_conf,
                                                 name=name))

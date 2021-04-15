@@ -38,7 +38,7 @@ Helper functions for running power sweep experiments.
 import sys
 import argparse
 
-import geopmpy.io
+import geopmpy.agent
 
 from experiment import launch_util
 from experiment import common_args
@@ -107,7 +107,7 @@ def launch_configs(app_conf, core_freq_range, uncore_freq_range):
             name = '{:.1e}c_{:.1e}u'.format(freq, uncore_freq)
             options = {'FREQ_DEFAULT': freq,
                        'FREQ_UNCORE': uncore_freq}
-            agent_conf = geopmpy.io.AgentConf('{}_agent_{}c_{}u.config'.format(agent, freq, uncore_freq), agent, options)
+            agent_conf = geopmpy.agent.AgentConf('{}_agent_{}c_{}u.config'.format(agent, freq, uncore_freq), agent, options)
             targets.append(launch_util.LaunchConfig(app_conf=app_conf,
                                                     agent_conf=agent_conf,
                                                     name=name))

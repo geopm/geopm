@@ -123,7 +123,7 @@ class TestIntegration_hint_time(unittest.TestCase):
             time_limit = 60
             # Configure the test application
             app_conf = AppConf()
-            agent_conf = geopmpy.io.AgentConf(cls._agent_conf_path)
+            agent_conf = geopmpy.agent.AgentConf(cls._agent_conf_path)
 
             # Create the test launcher with the above configuration
             launcher = geopm_test_launcher.TestLauncher(app_conf,

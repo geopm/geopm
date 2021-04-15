@@ -57,6 +57,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(
 try:
     # Try to load geopmpy without modifiying the path
     import geopmpy.io
+    import geopmpy.agent
     import geopmpy.error
     import geopmpy.hash
 except ImportError:
@@ -64,6 +65,7 @@ except ImportError:
     # copy to path
     from integration.test import geopm_context
     import geopmpy.io
+    import geopmpy.agent
     import geopmpy.error
     import geopmpy.hash
 
@@ -196,9 +198,9 @@ class TestIntegration_ee_short_region_slop(unittest.TestCase):
         freq_min = float(os.getenv('GEOPM_SLOP_FREQ_MIN', str(freq_min_sys)))
         freq_max = float(os.getenv('GEOPM_SLOP_FREQ_MAX', str(freq_sticker)))
         agent_conf_fixed_dict = {'FREQ_DEFAULT':freq_max}
-        agent_conf_fixed = geopmpy.io.AgentConf(cls._agent_conf_fixed_path,
-                                                'frequency_map',
-                                                agent_conf_fixed_dict)
+        agent_conf_fixed = geopmpy.agent.AgentConf(cls._agent_conf_fixed_path,
+                                                   'frequency_map',
+                                                   agent_conf_fixed_dict)
         agent_conf_dynamic_dict = dict(agent_conf_fixed_dict)
         policy_idx = 0
         for hh in scaling_hash:
@@ -210,9 +212,9 @@ class TestIntegration_ee_short_region_slop(unittest.TestCase):
             agent_conf_dynamic_dict['FREQ_{}'.format(policy_idx)] = freq_min
             policy_idx += 1
 
-        agent_conf_dynamic = geopmpy.io.AgentConf(cls._agent_conf_dynamic_path,
-                                                  'frequency_map',
-                                                  agent_conf_dynamic_dict)
+        agent_conf_dynamic = geopmpy.agent.AgentConf(cls._agent_conf_dynamic_path,
+                                                     'frequency_map',
+                                                     agent_conf_dynamic_dict)
 
         return agent_conf_fixed, agent_conf_dynamic
 

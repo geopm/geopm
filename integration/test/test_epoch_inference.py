@@ -59,6 +59,7 @@ import glob
 
 import geopm_context
 import geopmpy.io
+import geopmpy.agent
 import geopmpy.error
 
 import util
@@ -123,9 +124,9 @@ class TestIntegration_epoch_inference(unittest.TestCase):
             num_rank = 1
             time_limit = 6000
             app_conf = AppConf()
-            agent_conf = geopmpy.io.AgentConf(cls._agent_conf_path,
-                                              'monitor',
-                                              {})
+            agent_conf = geopmpy.agent.AgentConf(cls._agent_conf_path,
+                                                 'monitor',
+                                                 {})
             for run_config in cls._config_names:
                 report_path = 'test_{}_{}.report'.format(cls._test_name, run_config)
                 trace_path = '{}_{}'.format(cls._trace_path_prefix, run_config)

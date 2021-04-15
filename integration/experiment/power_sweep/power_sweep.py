@@ -40,7 +40,7 @@ import math
 import argparse
 import os
 
-import geopmpy.io
+import geopmpy.agent
 
 from experiment import launch_util
 from experiment import common_args
@@ -102,9 +102,9 @@ def launch_configs(output_dir, app_conf, agent_types, min_power, max_power, step
             name = '{}'.format(power_cap)
             options = {'power_budget': power_cap}
             config_file = os.path.join(output_dir, name + '_agent.config')
-            agent_conf = geopmpy.io.AgentConf(path=config_file,
-                                              agent=agent,
-                                              options=options)
+            agent_conf = geopmpy.agent.AgentConf(path=config_file,
+                                                 agent=agent,
+                                                 options=options)
             targets.append(launch_util.LaunchConfig(app_conf=app_conf,
                                                     agent_conf=agent_conf,
                                                     name=name))

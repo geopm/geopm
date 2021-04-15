@@ -59,7 +59,7 @@ class TestIntegration_launch_pthread(unittest.TestCase):
         num_rank = 16
         app_conf = geopmpy.io.BenchConf(cls._test_name + '_app.config')
         app_conf.append_region('sleep', 1.0)
-        agent_conf = geopmpy.io.AgentConf(cls._agent_conf_path)
+        agent_conf = geopmpy.agent.AgentConf(cls._agent_conf_path)
         launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf,
                                                     cls._report_path,
                                                     cls._trace_path_prefix)

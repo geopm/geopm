@@ -125,7 +125,7 @@ class TestIntegration_power_balancer(unittest.TestCase):
                 else:
                     raise RuntimeError('No application config for app name {}'.format(app_name))
                 for agent in cls._agent_list:
-                    agent_conf = geopmpy.io.AgentConf(path_dict[agent], agent, options)
+                    agent_conf = geopmpy.agent.AgentConf(path_dict[agent], agent, options)
                     run_name = '{}_{}_{}'.format(cls._test_name, agent, app_name)
                     report_path = '{}.report'.format(run_name)
                     trace_path = '{}.trace'.format(run_name)

@@ -38,6 +38,7 @@ import json
 
 from integration.test import geopm_context
 import geopmpy.io
+import geopmpy.agent
 
 import util
 import geopm_test_launcher
@@ -60,7 +61,7 @@ class TestIntegrationEnvironment(unittest.TestCase):
         num_rank = 1
         app_conf = geopmpy.io.BenchConf(context + '.app.config')
         app_conf.append_region('sleep', 0.01)
-        user_agent_conf = geopmpy.io.AgentConf(context + '.user.agent.config', self._agent, {} if user_policy is None else user_policy)
+        user_agent_conf = geopmpy.agent.AgentConf(context + '.user.agent.config', self._agent, {} if user_policy is None else user_policy)
         launcher = geopm_test_launcher.TestLauncher(app_conf, user_agent_conf, report_path)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
