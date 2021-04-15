@@ -33,6 +33,8 @@
 import os
 import sys
 import shutil
+import subprocess
+
 try:
     from setuptools import setup
 except ImportError:
@@ -49,9 +51,23 @@ try:
     with open(version_file) as fid:
         exec(compile(fid.read(), version_file, 'exec'))
 except IOError:
-    sys.stderr.write('WARNING:  geopmpy/version.py not found, setting version to 0.0.0\n')
     __version__ = '0.0.0'
     __beta__ = False
+
+    try: # Get the version from git if using standalone geopmpy
+        __version__ = subprocess.check_output(['git', 'describe']).strip().decode()[1:]
+        version_components = __version__.split('-')
+        if len(version_components) > 1: # We are NOT on a tagged release
+            tag = version_components[0]
+            patches_since = version_components[1]
+            git_sha = version_components[2]
+            __version__ = '{}+dev{}{}'.format(tag, patches_since, git_sha)
+
+        with open(version_file, 'w') as vf:
+            vf.write("__version__ = '{}'\n".format(__version__))
+            vf.write('__beta__ = {}\n'.format(__beta__))
+    except OSError as ee:
+        sys.stderr.write('WARNING: setting version to 0.0.0, error determining version from git - {}\n'.format(ee))
 
 if not os.path.exists('COPYING'):
     shutil.copyfile('../COPYING', 'COPYING')
