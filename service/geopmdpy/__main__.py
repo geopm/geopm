@@ -39,9 +39,12 @@ from . import service
 def main():
     loop = EventLoop()
     bus = SystemMessageBus()
-    bus.publish_object("/io/github/geopm", service.GEOPMService())
-    bus.register_service("io.github.geopm")
-    loop.run()
+    try:
+        bus.publish_object("/io/github/geopm", service.GEOPMService())
+        bus.register_service("io.github.geopm")
+        loop.run()
+    finally:
+        bus.disconnect()
 
 if __name__ == '__main__':
     main()
