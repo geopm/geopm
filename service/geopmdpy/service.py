@@ -41,6 +41,7 @@ from . import pio
 from . import topo
 from dasbus.connection import SystemMessageBus
 
+
 def signal_info(name,
                 description,
                 domain,
@@ -73,7 +74,7 @@ class PlatformService(object):
     def get_group_access(self, group):
         group = self._validate_group(group)
         group_dir = os.path.join(self._CONFIG_PATH, group)
-        if os.is_dir(group_dir):
+        if os.path.isdir(group_dir):
             path = os.path.join(group_dir, 'allowed_signals')
             signals = self._read_allowed(path)
             path = os.path.join(group_dir, 'allowed_controls')
@@ -93,11 +94,15 @@ class PlatformService(object):
         self._write_allowed(path, allowed_controls)
 
     def get_user_access(self, user):
+        if user == 'root':
+            return self.get_all_access()
         user_gid = pwd.getpwnam(user).pw_gid
         all_gid = os.getgrouplist(user, user_gid)
         all_groups = [grp.getgrgid(gid).gr_name for gid in all_gid]
         signal_set = set()
         control_set = set()
+        print("DEBUG: <geopm> user = {}".format(user))
+        print("DEBUG: <geopm> all_groups = {}".format(all_groups))
         for group in all_groups:
             signals, controls = self.get_group_access(group)
             signal_set.update(signals)
@@ -211,8 +216,6 @@ class GEOPMService(object):
         self._topo = topo
         self._platform = platform
         self._active_pid = None
-        self._dbus_proxy = SystemMessageBus().get_proxy('org.freedesktop.DBus',
-                                                        '/org/freedesktop/DBus')
 
     def TopoGetCache(self):
         return self._topo.get_cache()
@@ -242,7 +245,20 @@ class GEOPMService(object):
         self._platform.close_session(self._get_pid())
 
     def _get_user(self):
-        return pwd.getpwuid(self._dbus_proxy.GetConnectionUnixUser('io.github.geopm')).pw_name
+        bus = SystemMessageBus()
+        dbus_proxy = bus.get_proxy('org.freedesktop.DBus',
+                                   '/org/freedesktop/DBus')
+        unique_name = bus.connection.get_unique_name()
+        print("DEBUG: <geopm> unique_name = {}".format(unique_name))
+        uid = dbus_proxy.GetConnectionUnixUser(unique_name)
+        user = pwd.getpwuid(uid).pw_name
+        print("DEBUG: <geopm> user = {}".format(user))
+        return user
 
     def _get_pid(self):
-        return self._dbus_proxy.GetConnectionUnixProcessID('io.github.geopm')
+        bus = SystemMessageBus()
+        dbus_proxy = bus.get_proxy('org.freedesktop.DBus',
+                                   '/org/freedesktop/DBus')
+        unique_name = bus.connection.get_unique_name()
+        pid = dbus_proxy.GetConnectionUnixProcessID(unique_name)
+        return pid
