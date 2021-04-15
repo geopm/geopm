@@ -128,14 +128,41 @@ users.
 PYTHON INSTALL
 --------------
 The GEOPM python tools are packaged in the RPMs described above, but
-they are also available from PyPI as the `geopmpy` package.  For
-example, to install the geopmpy package into your home directory, run
-the following command:
+the latest release is also available from PyPI as the `geopmpy`
+package.  For example, to install the geopmpy package into your home
+directory, run the following command:
 
-    pip install --user geopmpy
+    python -m pip install --user geopmpy
 
-Note this installs only the GEOPM python tools and does not install
-the full GEOPM runtime.
+To install the latest development version of the `geopmpy` package
+directly from GitHub, run the following command:
+
+    python -m pip install --user "git+https://github.com/geopm/geopm.git@dev#egg=geopmpy&subdirectory=scripts"
+
+Note these commands only install the GEOPM Python tools and do not
+install the full GEOPM runtime.  In the absence of the full GEOPM
+runtime *only* the following modules will load successfully:
+
+    geopmpy.io
+    geopmpy.launcher
+    geopmpy.plotter
+    geopmpy.update_report
+
+All other modules rely on the full GEOPM runtime (namely
+libgeopmpolicy.so) being present and available in LD_LIBRARY_PATH or
+similar.
+
+### Anaconda Usage
+To create an Anaconda environment that contains the `geopmpy` package,
+run the following commands:
+
+    conda init
+    conda activate # base env
+    conda create --name geopm
+    conda activate --stack geopm
+    conda install git pip # To ensure usage of the env's pip and not system pip
+
+    python -m pip install "git+https://github.com/geopm/geopm.git@dev#egg=geopmpy&subdirectory=scripts"
 
 BUILD REQUIREMENTS
 ------------------
