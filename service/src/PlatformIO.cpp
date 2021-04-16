@@ -608,7 +608,7 @@ namespace geopm
         return result;
     }
 
-    void PlatformIOImp::close_session(int client_pid)
+    void PlatformIOImp::close_session(const std::string &key)
     {
         throw Exception("PlatformIOImp::close_session()",
                         GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
@@ -923,11 +923,11 @@ extern "C" {
         return err;
     }
 
-    int geopm_pio_close_session(int client_pid)
+    int geopm_pio_close_session(const char *session_key)
     {
         int err = 0;
         try {
-            geopm::platform_io().close_session(client_pid);
+            geopm::platform_io().close_session(session_key);
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
