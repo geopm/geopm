@@ -122,16 +122,16 @@ class PlatformService(object):
         raise NotImplementedError('PlatformService: Implementation incomplete')
         return infos
 
-    def open_session(self, calling_pid, signal_config, control_config, interval,  protocol):
+    def open_session(self, client_pid, signal_config, control_config, interval,  protocol):
         if self._active_pid is not None:
             raise RuntimeError('The geopm service already has a connected client')
-        self._active_pid = calling_pid
+        self._active_pid = client_pid
         raise NotImplementedError('PlatformService: Implementation incomplete')
         return loop_pid, clock_start, session_key
 
-    def close_session(self, calling_pid):
+    def close_session(self, client_pid):
         if self._active_pid is not None:
-            if calling_pid != self.active_pid:
+            if client_pid != self.active_pid:
                 raise RuntimeError('The currently active geopm session was opened by a different process')
             self._active_pid = None
             raise NotImplementedError('PlatformService: Implementation incomplete')
