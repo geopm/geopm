@@ -43,6 +43,7 @@
 #include "geopm_sched.h"
 #include "geopm_internal.h"
 #include "geopm.h"
+#include "geopm_pio.h"
 #include "PlatformTopo.hpp"
 #include "MSRIOGroup.hpp"
 #include "TimeIOGroup.hpp"
@@ -594,6 +595,24 @@ namespace geopm
         }
         return iogroup->signal_behavior(signal_name);
     }
+
+    struct geopm_session_s PlatformIOImp::open_session(int client_pid,
+                                                       std::vector<struct geopm_request_s> signal_config,
+                                                       std::vector<struct geopm_request_s> control_config,
+                                                       double interval,
+                                                       int protocol)
+    {
+        struct geopm_session_s result {-1, 0, 0, "INVALID"};
+        throw Exception("PlatformIOImp::open_session()",
+                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        return result;
+    }
+
+    void PlatformIOImp::close_session(int client_pid)
+    {
+        throw Exception("PlatformIOImp::close_session()",
+                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+    }
 }
 
 extern "C" {
@@ -873,6 +892,42 @@ extern "C" {
                 description[description_max - 1] = '\0';
                 err = GEOPM_ERROR_INVALID;
             }
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+            err = err < 0 ? err : GEOPM_ERROR_RUNTIME;
+        }
+        return err;
+    }
+
+    int geopm_pio_open_session(int client_pid,
+                               int num_signal,
+                               const struct geopm_request_s *signal_config,
+                               int num_control,
+                               const struct geopm_request_s *control_config,
+                               double interval,
+                               int protocol,
+                               struct geopm_session_s *session)
+    {
+        int err = 0;
+        try {
+            const std::vector<geopm_request_s> signal_config_vec(signal_config, signal_config + num_signal);
+            const std::vector<geopm_request_s> control_config_vec(control_config, control_config + num_control);
+
+            *session = geopm::platform_io().open_session(client_pid, signal_config_vec, control_config_vec, interval, protocol);
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+            err = err < 0 ? err : GEOPM_ERROR_RUNTIME;
+        }
+        return err;
+    }
+
+    int geopm_pio_close_session(int client_pid)
+    {
+        int err = 0;
+        try {
+            geopm::platform_io().close_session(client_pid);
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
