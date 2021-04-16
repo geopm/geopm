@@ -37,6 +37,7 @@
 #include <map>
 
 #include "PlatformIO.hpp"
+#include "geopm_pio.h"
 
 namespace geopm
 {
@@ -82,6 +83,12 @@ namespace geopm
             std::string signal_description(const std::string &signal_name) const override;
             std::string control_description(const std::string &control_name) const override;
             int signal_behavior(const std::string &signal_name) const override;
+            struct geopm_session_s open_session(int client_pid,
+                                                std::vector<struct geopm_request_s> signal_config,
+                                                std::vector<struct geopm_request_s> control_config,
+                                                double interval,
+                                                int protocol) override;
+            void close_session(int client_pid) override;
             int num_signal_pushed(void) const;  // Used for testing only
             int num_control_pushed(void) const; // Used for testing only
         private:

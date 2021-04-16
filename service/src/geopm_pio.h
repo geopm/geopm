@@ -34,6 +34,7 @@
 #define GEOPM_PIO_H_INCLUDE
 
 #include <stddef.h>
+#include <limits.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -94,6 +95,36 @@ int geopm_pio_signal_description(const char *signal_name,
 int geopm_pio_control_description(const char *control_name,
                                   size_t description_max,
                                   char *description);
+
+
+struct geopm_session_s {
+    int loop_pid;
+    uint64_t start_sec;
+    uint64_t start_nsec;
+    char key[NAME_MAX];
+};
+
+struct geopm_request_s {
+    int domain;
+    int domain_idx;
+    char name[NAME_MAX];
+};
+
+enum geopm_session_protocol_e {
+     M_SESSION_PROTOCOL_SHMEM,
+     M_NUM_SESSION_PROTOCOL // Currently only one protocol supported
+};
+
+int geopm_pio_open_session(int client_pid,
+                           int num_signal,
+                           const struct geopm_request_s *signal_config,
+                           int num_control,
+                           const struct geopm_request_s *control_config,
+                           double interval,
+                           int protocol,
+                           struct geopm_session_s *session);
+
+int geopm_pio_close_session(int client_pid);
 
 #ifdef __cplusplus
 }
