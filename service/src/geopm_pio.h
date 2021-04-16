@@ -124,7 +124,7 @@ int geopm_pio_open_session(int client_pid,
                            int protocol,
                            struct geopm_session_s *session);
 
-int geopm_pio_close_session(int client_pid);
+int geopm_pio_close_session(const char *key);
 
 #ifdef __cplusplus
 }
