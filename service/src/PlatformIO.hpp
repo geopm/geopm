@@ -39,6 +39,8 @@
 #include <functional>
 #include <set>
 
+#include "geopm_pio.h"
+
 namespace geopm
 {
     class IOGroup;
@@ -205,6 +207,12 @@ namespace geopm
             ///
             /// @param [in] signal_name Name of the signal.
             virtual int signal_behavior(const std::string &signal_name) const = 0;
+            virtual struct geopm_session_s open_session(int client_pid,
+                                                        std::vector<struct geopm_request_s> signal_config,
+                                                        std::vector<struct geopm_request_s> control_config,
+                                                        double interval,
+                                                        int protocol) = 0;
+            virtual void close_session(int client_pid) = 0;
     };
 
     PlatformIO &platform_io(void);
