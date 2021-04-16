@@ -37,6 +37,7 @@ exposed by geopmd."""
 import os
 import pwd
 import grp
+import json
 from . import pio
 from . import topo
 from dasbus.connection import SystemMessageBus
@@ -65,9 +66,10 @@ def control_info(name,
             domain)
 
 class PlatformService(object):
-    def __init__(self, pio=pio, config_path='/etc/geopm-service'):
+    def __init__(self, pio=pio, config_path='/etc/geopm-service', var_path='/var/run/geopm-service'):
         self._pio = pio
         self._CONFIG_PATH = config_path
+        self._VAR_PATH = var_path
         self._DEFAULT_ACCESS = '0.DEFAULT_ACCESS'
         self._active_pid = None
 
@@ -126,10 +128,25 @@ class PlatformService(object):
         if self._active_pid is not None:
             raise RuntimeError('The geopm service already has a connected client')
         self._active_pid = client_pid
-        raise NotImplementedError('PlatformService: Implementation incomplete')
-        return loop_pid, clock_start, session_key
 
-    def close_session(self, client_pid):
+        loop_pid, start_sec, start_nsec, key = self._pio.open_session(client_pid, signal_config, control_config, interval, protocol)
+
+        makedirs(self._VAR_PATH, exist_ok=True)
+        session_file = os.path.join(self._VAR_PATH, 'session-{}'.format(key))
+        session_data = {'client_pid': client_pid,
+                        'signal_config': signal_config,
+                        'control_config': control_config,
+                        'interval': interval,
+                        'protocol': protocol,
+                        'loop_pid': loop_pid,
+                        'start_sec': start_sec,
+                        'start_nsec': start_nsec,
+                        'key': key}
+        with open(session_file, 'w') as fid:
+            json.dump(session_data, fid)
+        return loop_pid, start_sec, start_nsec, key
+
+    def close_session(self, client_pid, key):
         if self._active_pid is not None:
             if client_pid != self.active_pid:
                 raise RuntimeError('The currently active geopm session was opened by a different process')
@@ -205,9 +222,11 @@ class GEOPMService(object):
                 <arg direction="in" name="control_names" type="as" />
                 <arg direction="in" name="interval" type="d" />
                 <arg direction="in" name="protocol" type="i" />
-                <arg direction="out" name="session" type="(i(xx)s)" />
+                <arg direction="out" name="session" type="(ixxs)" />
             </method>
-            <method name="PlatformCloseSession" />
+            <method name="PlatformCloseSession">
+                <arg direction="in" name="key" type="s" />
+            </method>
         </interface>
     </node>
     """
@@ -241,8 +260,8 @@ class GEOPMService(object):
     def PlatformOpenSession(self, signal_names, control_names, interval, protocol):
         return self._platform.open_session(self._get_pid(), signal_names, control_names, interval, protocol)
 
-    def PlatformCloseSession(self):
-        self._platform.close_session(self._get_pid())
+    def PlatformCloseSession(self, key):
+        self._platform.close_session(self._get_pid(), key)
 
     def _get_user(self):
         bus = SystemMessageBus()

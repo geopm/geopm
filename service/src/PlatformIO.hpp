@@ -212,7 +212,7 @@ namespace geopm
                                                         std::vector<struct geopm_request_s> control_config,
                                                         double interval,
                                                         int protocol) = 0;
-            virtual void close_session(int client_pid) = 0;
+            virtual void close_session(const std::string &key) = 0;
     };
 
     PlatformIO &platform_io(void);
