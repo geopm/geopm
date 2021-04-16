@@ -48,7 +48,7 @@ def main():
     print('! AVAILABLE CONTROLS !')
     print('----------------------')
     print()
-    print('\n'.join(all_signals))
+    print('\n'.join(all_controls))
 
 if __name__ == '__main__':
     main()
