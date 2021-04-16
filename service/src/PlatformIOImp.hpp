@@ -88,7 +88,7 @@ namespace geopm
                                                 std::vector<struct geopm_request_s> control_config,
                                                 double interval,
                                                 int protocol) override;
-            void close_session(int client_pid) override;
+            void close_session(const std::string &key) override;
             int num_signal_pushed(void) const;  // Used for testing only
             int num_control_pushed(void) const; // Used for testing only
         private:
