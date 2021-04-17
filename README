@@ -134,8 +134,10 @@ directory, run the following command:
 
     python -m pip install --user geopmpy
 
-To install the latest development version of the `geopmpy` package
-directly from GitHub, run the following command:
+You may wish to install the latest development version of GEOPM as
+many of the features arriving in GEOPM v2.0 are not yet available from
+PyPI.  To install the latest development version of the `geopmpy`
+package directly from GitHub, run the following command:
 
     python -m pip install --user "git+https://github.com/geopm/geopm.git@dev#egg=geopmpy&subdirectory=scripts"
 
@@ -148,7 +150,7 @@ install the binaries required by the GEOPM runtime.  Without these binary files
     geopmpy.plotter
     geopmpy.update_report
 
-All other modules rely on the full GEOPM runtime (namely
+All other modules rely on the output of the GEOPM build (namely
 libgeopmpolicy.so) being present and available in LD_LIBRARY_PATH or
 similar.
 
