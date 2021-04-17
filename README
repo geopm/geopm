@@ -140,8 +140,8 @@ directly from GitHub, run the following command:
     python -m pip install --user "git+https://github.com/geopm/geopm.git@dev#egg=geopmpy&subdirectory=scripts"
 
 Note these commands only install the GEOPM Python tools and do not
-install the full GEOPM runtime.  In the absence of the full GEOPM
-runtime *only* the following modules will load successfully:
+install the binaries required by the GEOPM runtime.  Without these binary files
+*only* the following modules will load successfully:
 
     geopmpy.io
     geopmpy.launcher
