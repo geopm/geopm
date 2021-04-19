@@ -223,8 +223,8 @@ class AgentConf(object):
 
     def write(self):
         """Write the current config to a file."""
-        policy_names = agent.policy_names(self._agent)
-        name_offsets = { name: offset for offset, name in enumerate(policy_names)}
+        policy_items = policy_names(self._agent)
+        name_offsets = { name: offset for offset, name in enumerate(policy_items)}
         policy_values = [float('nan')] * len(name_offsets)
 
         # Earlier versions of this function had special handling per agent instead
@@ -238,7 +238,7 @@ class AgentConf(object):
         policy_dict = self._options.copy()
         for offset, name in enumerate(old_names):
             if name in policy_dict:
-                policy_dict[policy_names[offset]] = policy_dict.pop(name)
+                policy_dict[policy_items[offset]] = policy_dict.pop(name)
 
         for (policy_name, policy_value) in policy_dict.items():
             if policy_name not in name_offsets:
@@ -247,6 +247,6 @@ class AgentConf(object):
             policy_values[policy_offset] = policy_value
 
         with open(self._path, "w") as outfile:
-            outfile.write(agent.policy_json(self._agent, policy_values))
+            outfile.write(policy_json(self._agent, policy_values))
 
 
