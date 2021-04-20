@@ -178,6 +178,110 @@ namespace geopm
             /// @brief Restore all controls to values recorded in
             ///        previous call to the save_control() method.
             virtual void restore_control(void) = 0;
+            /// @brief Save the state of all controls so that any
+            ///        subsequent changes made through PlatformIO can
+            ///        be undone with a call to the restore_control()
+            ///        method.  Each IOGroup that supports controls
+            ///        will populate one file in the save directory
+            ///        that contains the saved state and name the file
+            ///        after the IOGroup name.
+            /// @param [in] save_dir Directory to be populated with
+            ///        save files.
+            virtual void save_control(const std::string &save_dir) = 0;
+            /// @brief Restore all controls to values recorded in
+            ///        previous call to the save_control(save_dir)
+            ///        method.  The directory provided contains the
+            ///        result of the previous saved state.
+            /// @param [in] save_dir Directory populated with save
+            ///        files.
+            virtual void restore_control(const std::string &save_dir) = 0;
+            /// @brief Supports the D-Bus interface for starting a
+            ///        batch server.
+            ///
+            /// This function is called directly by geopmd in order to
+            /// fork a new process that will support calls within the
+            /// client_pid to read_batch_client() and
+            /// write_batch_client().  The client initiates the server
+            /// by calling start_batch_client() within the client_pid
+            /// which make the request through D-Bus to start the
+            /// server.  The server_pid and server_key are stored in
+            /// the client's PlatformIO object to enable interactions
+            /// with the server while the batch session is open.
+            ///
+            /// @param [in] client_pid The Unix process ID of the
+            ///        client process that is initiating the batch
+            ///        server.
+            /// @param [in] signal_config A vector of requests for
+            ///        signals to be sampled.
+            /// @param [in] control_config Avector of requests for
+            ///        controls to be adjusted.
+            /// @param [out] server_pid The Unix process ID of the
+            ///        server process created.
+            /// @param [out] server_key The key used to identify the
+            ///        server connection: a substring in interprocess
+            ///        shared memory keys used for communication.
+            virtual void start_batch_server(int client_pid,
+                                            std::vector<geopm_request_s> signal_config,
+                                            std::vector<geopm_request_s> control_config,
+                                            int &server_pid,
+                                            std::string &server_key) = 0;
+            /// @brief Supports the D-Bus interface for stopping a
+            ///        batch server.
+            ///
+            /// This function is called directly by geopmd in order to
+            /// end a batch session and kill the batch server process
+            /// created by start_batch_server().
+            ///
+            /// @param [in] server_pid The Unix process ID of the
+            ///        server process returned by a previous call to
+            ///        start_batch_server().
+            virtual void stop_batch_server(int server_pid) = 0;
+            /// @brief Calls through the D-Bus interface to create a
+            ///        batch server.
+            ///
+            /// Makes a request to the geopm service to start a batch
+            /// session through a binding to the D-Bus interface.
+            /// This initiates a call to start_batch_server() by geopmd.
+            ///
+            /// @param [in] signal_config A vector of requests for
+            ///        signals to be sampled.
+            /// @param [in] control_config Avector of requests for
+            ///        controls to be adjusted.
+            virtual void start_batch_client(std::vector<geopm_request_s> signal_config,
+                                            std::vector<geopm_request_s> control_config) = 0;
+            /// @brief Calls through the D-Bus interface to stop a
+            ///        batch server.
+            ///
+            /// Make a request to the geopm service to stop a batch
+            /// session through a binding to the D-Bus interface.
+            /// This initiates a call to stop_batch_server() by geopmd.
+            virtual void stop_batch_client(void) = 0;
+            /// @brief Interface with a running batch server to read
+            ///        all of the configured signals.
+            ///
+            /// Initiates a request with the batch server thread by
+            /// sending a SIGCONT realtime signal with the associated
+            /// sival_int of 0.  The calling thread then waits for the
+            /// server thread to respond with SIGCONT.  It then copies
+            /// the data out of the signal shared memory buffer and
+            /// returns the result.
+            ///
+            /// @return A vector with all of the signals that were
+            ///         configured when start_batch_client() was
+            ///         called.
+            virtual std::vector<double> read_batch_client(void) = 0;
+            /// @brief Interface with a running batch server to write
+            ///        controls.
+            ///
+            /// Initiates a request with the batch server thread by
+            /// copying the control settings into shared memory and
+            /// then sending a SIGCONT realtime signal with the
+            /// associated sival_int of 1.
+            ///
+            /// @param [in] A vector with all of the settings for the
+            ///         controls that were configured when
+            ///         start_batch_client() was called.
+            virtual void write_batch_client(std::vector<double> settings) = 0;
             /// @brief Returns a function appropriate for aggregating
             ///        multiple values of the given signal into a
             ///        single value.
@@ -207,11 +311,51 @@ namespace geopm
             ///
             /// @param [in] signal_name Name of the signal.
             virtual int signal_behavior(const std::string &signal_name) const = 0;
-            virtual struct geopm_session_s open_session(int client_pid,
-                                                        std::vector<struct geopm_request_s> signal_config,
-                                                        std::vector<struct geopm_request_s> control_config,
-                                                        double interval,
-                                                        int protocol) = 0;
+            /// @brief Interace called by geopmd to create the server
+            ///        side of a session interface.
+            ///
+            /// This is the underlying implemetation for the
+            /// io.github.geopm.PlatformOpenSession API.  This method
+            /// is called by geopmd to create a pthread to support a
+            /// new session.  Calling this method will create a new
+            /// child thread of the calling process (the geopmd daemon
+            /// process) that will interace with the client thread
+            /// (client_pid) to provide access to the requested
+            /// signals (signal_config) and controls (control_config).
+            /// The method will return after the shared memory regions
+            /// supporting the service have been created and the child
+            /// thread that updates those regions has begun updating
+            /// the signal buffer.  Access is provided through the
+            /// SharedMemory interface with two shm file descriptors
+            /// created, one for signals and one for controls.  The
+            /// shm keys created will be of the form:
+            ///
+            ///     "/geopm-service-<KEY>-signals"
+            ///     "/geopm-service-<KEY>-controls"
+            ///
+            /// where <KEY> is the "key" field in the returned
+            /// geopm_session_s structure.  This key is used by the
+            /// be used on the client side with the
+            /// SharedMemory::make_unique_user() as the shm_key
+            /// parameter.
+
+            /// update the client process with all of the signals in
+            /// the configuration every
+            ///
+            ///
+            virtual struct geopm_session_s open_session_server(int client_pid,
+                                                               std::vector<struct geopm_request_s> signal_config,
+                                                               std::vector<struct geopm_request_s> control_config,
+                                                               double interval,
+                                                               int protocol) = 0;
+
+            /// @brief Calls the D-Bus interface to create a client session
+            virtual struct geopm_session_s open_session_client(std::vector<struct geopm_request_s> signal_config,
+                                                               std::vector<struct geopm_request_s> control_config,
+                                                               double interval,
+                                                               int protocol) = 0;
+
+
             virtual void close_session(const std::string &key) = 0;
     };
 
