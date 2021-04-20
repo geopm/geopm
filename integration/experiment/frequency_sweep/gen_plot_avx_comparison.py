@@ -56,7 +56,7 @@ def prepare(df):
     extra_cols = ['FREQ_{}'.format(ii) for ii in range(0,31)]
     extra_cols += ['HASH_{}'.format(ii) for ii in range(0,31)]
     extra_cols += ['Start Time', 'GEOPM Version']
-    df = df.drop(extra_cols, axis=1)
+    df = df.drop(extra_cols, axis=1, errors='ignore')
 
     # Rename confusing fields
     new_names = {"FREQ_DEFAULT" : "core_mhz",
@@ -93,6 +93,11 @@ def plot_profile_comparison(report_collection, args):
     # Check the profile string to determine which avx flag was used
     avx_flag = lambda ps : 'avx2' if 'avx2' in ps else ('avx512' if 'avx512' in ps else 'n/a')
     adf['avx_flag'] = adf['Profile'].apply(avx_flag)
+
+    # Create analysis_dir if it does not exist
+    analysis_dir = os.path.join(args.output_dir, args.analysis_dir)
+    if not os.path.exists(analysis_dir):
+        os.mkdir(analysis_dir)
 
     # Write raw data
     with open(os.path.join(args.output_dir, args.analysis_dir, 'raw_stats.log'), 'w') as log:
@@ -200,10 +205,6 @@ def plot_profile_comparison(report_collection, args):
 
     # Write data/plot files
     file_name = '{}_{}_avx_comparison'.format(args.label, args.metric)
-
-    analysis_dir = os.path.join(args.output_dir, args.analysis_dir)
-    if not os.path.exists(analysis_dir):
-        os.mkdir(analysis_dir)
 
     full_path = os.path.join(analysis_dir, file_name)
     plt.savefig(full_path + '.png')
