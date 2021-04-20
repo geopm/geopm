@@ -198,7 +198,6 @@ Requirements that can be avoided by removing features with configure
 option:
 
    - MPI compiler: --disable-mpi
-   - Ruby, Ruby Gems and Ronn:  --disable-ronn
    - A Fortran compiler:  --disable-fortran
    - The elfutils library: --disable-ompt
 

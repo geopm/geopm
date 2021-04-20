@@ -53,7 +53,6 @@ if [ ! -e $HOME/build/geopm/lib/libgeopmpolicy.so ]; then
     cd geopm/
     ./autogen.sh
     ./configure --disable-mpi \
-                --disable-ronn \
                 --disable-openmp \
                 --disable-fortran \
                 --prefix=$HOME/build/geopm
