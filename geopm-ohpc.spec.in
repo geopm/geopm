@@ -53,8 +53,6 @@ BuildRequires: openssh
 %ohpc_setup_compiler
 test -f configure || ./autogen.sh
 ./configure --prefix=%{install_path} \
-            --disable-ronn \
-            --with-python=python2 \
             || ( cat config.log && false )
 %{__make}
 
