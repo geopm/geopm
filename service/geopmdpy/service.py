@@ -38,6 +38,7 @@ import os
 import pwd
 import grp
 import json
+import shutil
 from . import pio
 from . import topo
 from dasbus.connection import SystemMessageBus
@@ -66,12 +67,15 @@ def control_info(name,
             domain)
 
 class PlatformService(object):
-    def __init__(self, pio=pio, config_path='/etc/geopm-service', var_path='/var/run/geopm-service'):
+    def __init__(self):
         self._pio = pio
-        self._CONFIG_PATH = config_path
-        self._VAR_PATH = var_path
+        self._CONFIG_PATH = '/etc/geopm-service'
+        self._VAR_PATH = '/var/run/geopm-service'
         self._DEFAULT_ACCESS = '0.DEFAULT_ACCESS'
-        self._active_pid = None
+        self._SAVE_DIR = 'SAVE_FILES'
+        self._write_pid = None
+        self._sessions = dict()
+        self._session_counter = 0
 
     def get_group_access(self, group):
         group = self._validate_group(group)
@@ -103,8 +107,6 @@ class PlatformService(object):
         all_groups = [grp.getgrgid(gid).gr_name for gid in all_gid]
         signal_set = set()
         control_set = set()
-        print("DEBUG: <geopm> user = {}".format(user))
-        print("DEBUG: <geopm> all_groups = {}".format(all_groups))
         for group in all_groups:
             signals, controls = self.get_group_access(group)
             signal_set.update(signals)
@@ -124,34 +126,80 @@ class PlatformService(object):
         raise NotImplementedError('PlatformService: Implementation incomplete')
         return infos
 
-    def open_session(self, client_pid, signal_config, control_config, interval,  protocol):
-        if self._active_pid is not None:
-            raise RuntimeError('The geopm service already has a connected client')
-        self._active_pid = client_pid
-
-        loop_pid, start_sec, start_nsec, key = self._pio.open_session(client_pid, signal_config, control_config, interval, protocol)
-
+    def open_session(self, user, client_pid, mode):
+        """Method that creates a new client session"""
+        signals, controls = self.get_user_access(user)
+        if mode == 'rw':
+            if len(controls) == 0:
+                # What about supporting monitor runs with the
+                # controller? We need to open the iogroup with read
+                # only mode in that case or it will throw
+                raise RuntimeError('Requested "rw" mode, but user does not have access to any controls')
+            if self._write_pid is not None:
+                raise RuntimeError('The geopm service already has a connected "rw" mode client')
+            self._write_pid = client_pid
+            save_dir = os.path.join(self._VAR_PATH, self._SAVE_DIR)
+            os.makedirs(save_dir)
+            self._pio.save_controls(save_dir)
+        elif mode == 'r':
+            controls = []
+        else:
+            raise RuntimeError('Unknown mode string: {}'.format(mode))
         makedirs(self._VAR_PATH, exist_ok=True)
-        session_file = os.path.join(self._VAR_PATH, 'session-{}'.format(key))
-        session_data = {'client_pid': client_pid,
-                        'signal_config': signal_config,
-                        'control_config': control_config,
-                        'interval': interval,
-                        'protocol': protocol,
-                        'loop_pid': loop_pid,
-                        'start_sec': start_sec,
-                        'start_nsec': start_nsec,
-                        'key': key}
+        session_file = os.path.join(self._VAR_PATH, 'session-{}.json'.format(session_id)
+        if os.path.isfile(session_file):
+            raise RuntimeError('Session file for connecting process already exists: {}'.format(session_file))
+        session_id = self._session_counter
+        self._session_counter += 1
+        session_data = {'session_id': session_id,
+                        'client_pid': client_pid,
+                        'mode': mode,
+                        'signals': signals,
+                        'controls': controls}
+        self._sessions[client_pid] = session_data
         with open(session_file, 'w') as fid:
             json.dump(session_data, fid)
-        return loop_pid, start_sec, start_nsec, key
+        return session_id
 
-    def close_session(self, client_pid, key):
-        if self._active_pid is not None:
-            if client_pid != self.active_pid:
-                raise RuntimeError('The currently active geopm session was opened by a different process')
-            self._active_pid = None
-            raise NotImplementedError('PlatformService: Implementation incomplete')
+    def close_session(self, client_pid):
+        session = self._get_session(client_pid, 'PlatformCloseSession')
+        session_file = os.path.join(self._VAR_PATH, 'session-{}.json'.format(session['session_id']))
+        os.remove(session_file)
+        if client_pid == self.write_pid:
+            save_dir = os.path.join(self._VAR_PATH, self._SAVE_DIR)
+            self._pio.restore_controls(save_dir)
+            shutil.rmtree(save_dir)
+            self._write_pid = None
+
+    def start_batch(self, client_pid, signal_config, control_config):
+        session = self._get_session(client_pid, 'PlatformStartBatch')
+        sig_req = {cc[2] for cc in signal_config}
+        cont_req = {cc[2] for cc in control_config}
+        if not sig_req.issubset(session['signals']):
+            raise RuntimeError('Requested signals that are not in allowed list')
+        if session['mode'] == 'r' and len(control_config) != 0:
+            raise RuntimeError('Requested controls from a read only session')
+        elif not cont_req.issubset(session['controls']):
+            raise RuntimeError('Requested controls that are not in allowed list')
+        return self._pio.start_batch(client_pid, signal_config, control_config)
+
+    def stop_batch(self, client_pid, server_pid):
+        self._get_session(client_pid, 'StopBatch')
+        self._pio.stop_batch(server_pid)
+
+    def read_signal(self, client_pid, signal_name, domain, domain_idx):
+        session = self._get_session(client_pid, 'PlatformReadSignal')
+        if not signal_name in session['signals']:
+            raise RuntimeError('Requested signal that is not in allowed list')
+        return self._pio.read_signal(signal_name, domain, domain_idx)
+
+    def write_control(self, client_pid, control_name, domain, domain_idx, setting):
+        session = self._get_session(client_pid, 'PlatformWriteControl')
+        if session['mode'] != 'rw':
+            raise RuntimeError('Session was opened in read only mode, PlatformWriteControl method is not allowed')
+        if not control_name in session['controls']:
+            raise RuntimeError('Requested control that is not in allowed list')
+        self._pio.write_control(signal_name, domain, domain_idx, setting)
 
     def _read_allowed(self, path):
         try:
@@ -175,6 +223,12 @@ class PlatformService(object):
                 raise RuntimeError('Linux group name cannot begin with a digit: group = "{}"'.format(group))
         return group
 
+    def _get_session(self, client_pid, operation):
+        try:
+            session = self._sessions[client_pid]
+        execpt KeyError:
+            raise RuntimeError('Operation {} not allowed without an open session'.format(operation))
+        return session
 
 class TopoService(object):
     def __init__(self, topo=topo):
@@ -218,8 +272,8 @@ class GEOPMService(object):
                 <arg direction="out" name="info" type="a(ssi)" />
             </method>
             <method name="PlatformOpenSession">
-                <arg direction="in" name="signal_names" type="as" />
-                <arg direction="in" name="control_names" type="as" />
+                <arg direction="in" name="signal_config" type="as" />
+                <arg direction="in" name="control_config" type="as" />
                 <arg direction="in" name="interval" type="d" />
                 <arg direction="in" name="protocol" type="i" />
                 <arg direction="out" name="session" type="(ixxs)" />
@@ -234,7 +288,7 @@ class GEOPMService(object):
                  platform=PlatformService()):
         self._topo = topo
         self._platform = platform
-        self._active_pid = None
+        self._write_pid = None
 
     def TopoGetCache(self):
         return self._topo.get_cache()
@@ -257,27 +311,49 @@ class GEOPMService(object):
     def PlatformGetControlInfo(self, control_names):
         return self._platform.get_control_info(control_names)
 
-    def PlatformOpenSession(self, signal_names, control_names, interval, protocol):
-        return self._platform.open_session(self._get_pid(), signal_names, control_names, interval, protocol)
+    def PlatformOpenSession(self, mode):
+        return self._platform.open_session(self._get_user(), self._get_pid(), mode)
 
-    def PlatformCloseSession(self, key):
-        self._platform.close_session(self._get_pid(), key)
+    def PlatformCloseSession(self, session_id):
+        self._platform.close_session(self._get_pid(), session_id)
+
+    def PlatformStartBatch(self, signal_config, control_config):
+        return self._platform.start_batch(self._get_pid(), signal_config, control_config)
+
+    def PlatformStopBatch(self, server_pid):
+        self._platform.stop_batch(self._get_pid(), server_pid)
+
+    def PlatformReadSignal(self, signal_name, domain, domain_idx):
+        return self._platform.read_signal(self._get_pid(), signal_name, domain, domain_idx)
+
+    def PlatformWriteControl(self, control_name, domain, domain_idx, setting):
+        self._platform.write_control(self._get_pid(), control_name, domain, domain_idx, setting)
 
     def _get_user(self):
         bus = SystemMessageBus()
         dbus_proxy = bus.get_proxy('org.freedesktop.DBus',
                                    '/org/freedesktop/DBus')
+        raise RuntimeError("dasbus does not support getting the caller's bus name")
+        # The implementation below will get the unique name of the
+        # geopmd connection, not the unique name of the client
+        # connection.  Getting the unique bus name of the caller is
+        # not yet a feature of dasbus, see:
+        # https://github.com/rhinstaller/dasbus/issues/55
         unique_name = bus.connection.get_unique_name()
-        print("DEBUG: <geopm> unique_name = {}".format(unique_name))
         uid = dbus_proxy.GetConnectionUnixUser(unique_name)
         user = pwd.getpwuid(uid).pw_name
-        print("DEBUG: <geopm> user = {}".format(user))
         return user
 
     def _get_pid(self):
         bus = SystemMessageBus()
         dbus_proxy = bus.get_proxy('org.freedesktop.DBus',
                                    '/org/freedesktop/DBus')
+        raise RuntimeError("dasbus does not support getting the caller's bus name")
+        # The implementation below will get the unique name of the
+        # geopmd connection, not the unique name of the client
+        # connection.  Getting the unique bus name of the caller is
+        # not yet a feature of dasbus, see:
+        # https://github.com/rhinstaller/dasbus/issues/55
         unique_name = bus.connection.get_unique_name()
         pid = dbus_proxy.GetConnectionUnixProcessID(unique_name)
         return pid
