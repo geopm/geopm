@@ -92,7 +92,11 @@ int geopm_pio_write_batch(void);
 
 int geopm_pio_save_control(void);
 
+int geopm_pio_save_control_dir(const char *save_dir);
+
 int geopm_pio_restore_control(void);
+
+int geopm_pio_restore_control_dir(const char *save_dir);
 
 int geopm_pio_signal_description(const char *signal_name,
                                  size_t description_max,
@@ -101,6 +105,18 @@ int geopm_pio_signal_description(const char *signal_name,
 int geopm_pio_control_description(const char *control_name,
                                   size_t description_max,
                                   char *description);
+
+int geopm_pio_start_batch_server(int client_pid,
+                                 int num_signal,
+                                 const struct geopm_request_s *signal_config,
+                                 int num_control,
+                                 const struct geopm_request_s *control_config,
+                                 int *server_pid,
+                                 int key_size,
+                                 char *server_key);
+
+int geopm_pio_stop_batch_server(int server_pid);
+
 """)
 _dl = _ffi.dlopen('libgeopmd.so', _ffi.RTLD_GLOBAL|_ffi.RTLD_LAZY)
 
@@ -462,3 +478,51 @@ def control_description(control_name):
     if err < 0:
         raise RuntimeError('geopm_pio_control_description() failed: {}'.format(error.message(err)))
     return _ffi.string(result_cstr).decode()
+
+def save_control_dir(save_dir):
+    """Save the state of all controls to files in the save directory so
+    that any subsequent changes made through write_control() or
+    write_batch() may be reverted with a call to
+    restore_control_dir(save_dir).  The control settings are stored in
+    files named after each IOGroup that is loaded.If an error occurs
+    then an exception is raised.
+
+    Args:
+        save_dir (str): Output directory where each IOGroup creates a
+                        save file.
+
+    """
+    global _ffi
+    global _dl
+    name_max = 1024
+    save_dir_cstr = _ffi.new("char[]", save_dir.encode())
+    err = _dl.geopm_pio_save_control_dir(save_dir_cstr)
+    if err < 0:
+        raise RuntimeError('geopm_pio_save_control_dir() failed: {}'.format(error.message(err)))
+
+def restore_control_dir():
+    """Restore the state recorded to the save directory by the last call to
+    save_control_dir(save_dir) so that all subsequent changes made
+    through write_control() or write_batch() are reverted to their
+    previous settings.  If an error occurs then an exception is
+    raised.
+
+    Args:
+        save_dir (str): Output directory where each IOGroup has
+                        created a save file.
+
+    """
+    global _ffi
+    global _dl
+    name_max = 1024
+    save_dir_cstr = _ffi.new("char[]", save_dir.encode())
+    err = _dl.geopm_pio_restore_control_dir(save_dir_cstr)
+    if err < 0:
+        raise RuntimeError('geopm_pio_restore_control() failed: {}'.format(error.message(err)))
+
+def start_batch_server(client_pid, signal_config, control_config):
+    raise NotImplementedError('pio.start_batch_server() is not yet implemented'
+    return server_pid, server_key
+
+def stop_batch_server(server_pid):
+    raise NotImplementedError('pio.stop_batch_server() is not yet implemented')
