@@ -29,6 +29,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#include "config.h"
 
 #include <functional>
 #include <mutex>
@@ -41,7 +42,9 @@
 #include "TimeIOGroup.hpp"
 #include "SSTIOGroup.hpp"
 #include "Helper.hpp"
-#include "config.h"
+#ifndef GEOPM_SERVICE_BUILD
+#include "ProfileIOGroup.hpp"
+#endif
 #ifdef GEOPM_CNL_IOGROUP
 #include "CNLIOGroup.hpp"
 #endif
@@ -108,6 +111,9 @@ namespace geopm
         // fail.
         register_plugin(ServiceIOGroup::plugin_name(),
                         ServiceIOGroup::make_plugin);
+        // Enable application profiling if not compiling the service.
+        register_plugin(ProfileIOGroup::plugin_name(),
+                        ProfileIOGroup::make_plugin);
 #endif
         register_plugin(MSRIOGroup::plugin_name(),
                         MSRIOGroup::make_plugin);
