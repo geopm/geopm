@@ -128,23 +128,20 @@ class PlatformService(object):
 
     def open_session(self, user, client_pid, mode):
         """Method that creates a new client session"""
+        if mode not in ('r', 'rw'):
+            raise RuntimeError('Unknown mode string: {}'.format(mode))
         signals, controls = self.get_user_access(user)
+        if mode == 'rw' and len(controls) == 0:
+            mode = 'r'
+        elif mode == 'r':
+            controls = []
         if mode == 'rw':
-            if len(controls) == 0:
-                # What about supporting monitor runs with the
-                # controller? We need to open the iogroup with read
-                # only mode in that case or it will throw
-                raise RuntimeError('Requested "rw" mode, but user does not have access to any controls')
             if self._write_pid is not None:
                 raise RuntimeError('The geopm service already has a connected "rw" mode client')
             self._write_pid = client_pid
             save_dir = os.path.join(self._VAR_PATH, self._SAVE_DIR)
             os.makedirs(save_dir)
             self._pio.save_controls(save_dir)
-        elif mode == 'r':
-            controls = []
-        else:
-            raise RuntimeError('Unknown mode string: {}'.format(mode))
         makedirs(self._VAR_PATH, exist_ok=True)
         session_file = os.path.join(self._VAR_PATH, 'session-{}.json'.format(session_id)
         if os.path.isfile(session_file):
@@ -181,11 +178,11 @@ class PlatformService(object):
             raise RuntimeError('Requested controls from a read only session')
         elif not cont_req.issubset(session['controls']):
             raise RuntimeError('Requested controls that are not in allowed list')
-        return self._pio.start_batch(client_pid, signal_config, control_config)
+        return self._pio.start_batch_server(client_pid, signal_config, control_config)
 
     def stop_batch(self, client_pid, server_pid):
         self._get_session(client_pid, 'StopBatch')
-        self._pio.stop_batch(server_pid)
+        self._pio.stop_batch_server(server_pid)
 
     def read_signal(self, client_pid, signal_name, domain, domain_idx):
         session = self._get_session(client_pid, 'PlatformReadSignal')

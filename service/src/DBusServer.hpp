@@ -41,7 +41,7 @@ namespace geopm
             /// @brief Interace called by geopmd to create the server
             ///        for batch commands.
             DBusServer() = default;
-            virtual ~DBusServer();
+            virtual ~DBusServer() = default;
             /// @brief Supports the D-Bus interface for starting a
             ///        batch server.
             ///
@@ -83,11 +83,11 @@ namespace geopm
             /// @param [out] server_key The key used to identify the
             ///        server connection: a substring in interprocess
             ///        shared memory keys used for communication.
-            virtual void start_batch(int client_pid,
-                                     std::vector<geopm_request_s> signal_config,
-                                     std::vector<geopm_request_s> control_config,
-                                     int &server_pid,
-                                     std::string &server_key) = 0;
+            static void start_batch(int client_pid,
+                                    const std::vector<geopm_request_s> &signal_config,
+                                    const std::vector<geopm_request_s> &control_config,
+                                    int &server_pid,
+                                    std::string &server_key);
             /// @brief Supports the D-Bus interface for stopping a
             ///        batch server.
             ///
@@ -98,7 +98,7 @@ namespace geopm
             /// @param [in] server_pid The Unix process ID of the
             ///        server process returned by a previous call to
             ///        start_batch_server().
-            virtual void stop_batch(int server_pid) = 0;
+            static void stop_batch(int server_pid);
     }
 }
 
