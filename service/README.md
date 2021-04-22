@@ -144,9 +144,9 @@ than through the read_signal() / write_control methods.  High
 performance of the batch interfaces used to gather data and enforce
 policy is required for GEOPM's runtime to be effective.  The D-Bus
 interface is not a high performance interface, but does enable robust
-access control.  We use the D-Bus interface to fork a thread that can
-service the read_batch() and write_batch() implementations of the
-ServiceIOGroup and use the access control features of D-Bus to
+access management.  We use the D-Bus interface to fork a thread that
+can service the read_batch() and write_batch() implementations of the
+ServiceIOGroup and use the access management features of D-Bus to
 regulate which signals and controls can be pushed onto the batch
 stack.
 
