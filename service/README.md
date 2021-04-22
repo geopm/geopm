@@ -45,7 +45,11 @@ operations a batch session through the D-Bus interface in opened with
 a request for access to a set of signals and/or controls.  Once this
 session is established, after validating all requested signals and
 controls, a protocol between the server and client is enabled that
-uses inter-process shared memory and Unix signals for fast access.
+uses inter-process shared memory and sending Unix signals for fast
+access.  In this documentation we will call these "Unix signals" to
+differenciate from the GEOPM signal concept which is unrelated to the
+Unix signal as defined in the signal(7) man page.
+
 
 Signals and Controls
 --------------------
@@ -147,17 +151,18 @@ regulate which signals and controls can be pushed onto the batch
 stack.
 
 The geopmd forked process providing the batch service reacts to the
-ServiceIOGroup sending signals.  To implement the read_batch() method,
-the ServiceIOGroup sends a signal to notify the service process that
-it would like the configured signals to be updated in shared memory.
-The service process reads all signals that are being supported by the
-client's ServiceIOGroup using the service process's instance of the
-PlatformIO object.  The signals are copied into the shared memory
-buffer and a SIGCONT signal is sent from the service process to the
-client process when the buffer is ready.  To implement the
-write_batch() method, the client process's ServiceIOGroup prepares the
-shared memory buffer with all control settings that it is supporting.
-The client sends a SIGCONT signal to the service process to notify it
-to write the settings.  The service process then reads the clients
-settings from a shared memory buffer and writes the values through the
-server process's PlatformIO instance.
+ServiceIOGroup sending Unix signals.  To implement the read_batch()
+method, the ServiceIOGroup sends a Unix signal to notify the service
+process that it would like the configured GEOPM signals to be updated
+in shared memory.  The service process reads all GEOPM signals that
+are being supported by the client's ServiceIOGroup using the service
+process's instance of the PlatformIO object.  The GEOPM signals are
+copied into the shared memory buffer and a SIGCONT Unix signal is sent
+from the service process to the client process when the buffer is
+ready.  To implement the write_batch() method, the client process's
+ServiceIOGroup prepares the shared memory buffer with all control
+settings that it is supporting.  The client sends a SIGCONT Unix
+signal to the service process to notify it to write the settings.  The
+service process then reads the clients settings from a shared memory
+buffer and writes the values through the server process's PlatformIO
+instance.
