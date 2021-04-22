@@ -95,6 +95,20 @@ namespace geopm
 
     IOGroupFactory::IOGroupFactory()
     {
+#ifndef GEOPM_SERVICE_BUILD
+        // Unless compiling for geopmd add the ServiceIOGroup which
+        // will go through D-Bus to access geopmd.  Note this IOGroup
+        // is loaded first and provides all signals and controls
+        // available from geopmd.  Any signal or control available
+        // without using the service will be used preferentially
+        // because this IOGroup is loaded first.  Also note that
+        // creation of the ServiceIOGroup will open a session with the
+        // service enabling save/restore by geopmd.  If the geopm
+        // service is not active then loading the ServiceIOGroup will
+        // fail.
+        register_plugin(ServiceIOGroup::plugin_name(),
+                        ServiceIOGroup::make_plugin);
+#endif
         register_plugin(MSRIOGroup::plugin_name(),
                         MSRIOGroup::make_plugin);
         register_plugin(TimeIOGroup::plugin_name(),
