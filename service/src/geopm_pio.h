@@ -86,9 +86,9 @@ int geopm_pio_write_batch(void);
 
 int geopm_pio_save_control(void);
 
-int geopm_pio_restore_control(void);
-
 int geopm_pio_save_control_dir(const char *save_dir);
+
+int geopm_pio_restore_control(void);
 
 int geopm_pio_restore_control_dir(const char *save_dir);
 
@@ -96,13 +96,24 @@ int geopm_pio_signal_description(const char *signal_name,
                                  size_t description_max,
                                  char *description);
 
-// geopm_pio_start_batch_server()
-// geopm_pio_stop_batch_server()
-
 int geopm_pio_control_description(const char *control_name,
                                   size_t description_max,
                                   char *description);
 
+// Either call through to DBusServer::start_batch or noop based on
+// GEOPM_SERVICE_BUILD define
+int geopm_pio_start_batch_server(int client_pid,
+                                 int num_signal,
+                                 const struct geopm_request_s *signal_config,
+                                 int num_control,
+                                 const struct geopm_request_s *control_config,
+                                 int *server_pid,
+                                 int key_size,
+                                 char *server_key);
+
+// Either call through to DBusServer::stop_batch or noop based on
+// GEOPM_SERVICE_BUILD define
+int geopm_pio_stop_batch_server(int server_pid);
 
 struct geopm_session_s {
     int loop_pid;
@@ -122,16 +133,6 @@ enum geopm_session_protocol_e {
      M_NUM_SESSION_PROTOCOL // Currently only one protocol supported
 };
 
-int geopm_pio_open_session(int client_pid,
-                           int num_signal,
-                           const struct geopm_request_s *signal_config,
-                           int num_control,
-                           const struct geopm_request_s *control_config,
-                           double interval,
-                           int protocol,
-                           struct geopm_session_s *session);
-
-int geopm_pio_close_session(const char *key);
 
 #ifdef __cplusplus
 }
