@@ -848,7 +848,7 @@ namespace geopm
                 scaling_governor = geopm::read_file("/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor");
                 size_t cr_pos = scaling_governor.find('\n');
                 scaling_governor = scaling_governor.substr(0, cr_pos);
-                if (scaling_governor != "performance") {
+                if (scaling_governor != "performance" && scaling_governor != "userspace") {
                     do_print_warning = true;
                 }
             }
@@ -859,8 +859,8 @@ namespace geopm
                 std::cerr << "Warning: <geopm> MSRIOGroup::" << std::string(__func__)
                           << "(): Incompatible CPU frequency driver/governor detected ("
                           << scaling_driver << "/" << scaling_governor << "). "
-                          << "The \"acpi-cpufreq\" driver and \"performance\" governor are required when setting "
-                          << "CPU frequency or power limit with GEOPM.  Other Linux power settings, including the intel_pstate driver,"
+                          << "The \"acpi-cpufreq\" driver and \"performance\" or \"userspace\" governor are required when setting "
+                          << "CPU frequency or power limits with GEOPM.  Other Linux power settings, including the intel_pstate driver,"
                           << "may overwrite GEOPM controls for frequency and power limits." << std::endl;
                     }
             do_check_governor = false;
