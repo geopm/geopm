@@ -424,6 +424,13 @@ namespace geopm
 #ifdef GEOPM_DEBUG
         std::cout << "Info: <geopm> ApplicationSampler::sampler_cpu(): The Controller will run on logical CPU " << result << std::endl;
 #endif
+
+        if (result == m_num_cpu - 1) {
+            std::cerr << "Warning: <geopm> ApplicationSampler::sampler_cpu(): User requested "
+                      << "all cores for application.  GEOPM will share a core with the "
+                      << "Application, running on logical CPU " << result << std::endl;
+        }
+
         return result;
     }
 
