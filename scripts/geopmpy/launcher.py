@@ -705,14 +705,11 @@ class Launcher(object):
                 core_index -= app_core_per_rank
 
         if core_index <= 0:
-            sys.stderr.write("Warning: <geopm> geopmpy.launcher: User requested all cores for application. ")
             if self.config.allow_ht_pinning and core_per_node * app_thread_per_core < self.num_linux_cpu:
-                sys.stderr.write("GEOPM controller will share a core with the application.\n")
                 # Run controller on the lowest hyperthread that is not
                 # occupied by the application
                 geopm_ctl_cpu = core_per_node * app_thread_per_core
             else:
-                sys.stderr.write("GEOPM controller will share a core with the OS.\n")
                 # Oversubscribe Linux CPU 0, no better solution
                 geopm_ctl_cpu = 0
         else:
