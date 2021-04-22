@@ -88,9 +88,16 @@ int geopm_pio_save_control(void);
 
 int geopm_pio_restore_control(void);
 
+int geopm_pio_save_control_dir(const char *save_dir);
+
+int geopm_pio_restore_control_dir(const char *save_dir);
+
 int geopm_pio_signal_description(const char *signal_name,
                                  size_t description_max,
                                  char *description);
+
+// geopm_pio_start_batch_server()
+// geopm_pio_stop_batch_server()
 
 int geopm_pio_control_description(const char *control_name,
                                   size_t description_max,
