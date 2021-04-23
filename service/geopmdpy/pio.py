@@ -521,7 +521,9 @@ def restore_control_dir():
         raise RuntimeError('geopm_pio_restore_control() failed: {}'.format(error.message(err)))
 
 def start_batch_server(client_pid, signal_config, control_config):
-    raise NotImplementedError('pio.start_batch_server() is not yet implemented'
+    raise NotImplementedError('pio.start_batch_server() is not yet implemented')
+    server_pid = 0
+    server_key = 'INVALID'
     return server_pid, server_key
 
 def stop_batch_server(server_pid):
