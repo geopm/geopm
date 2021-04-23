@@ -404,4 +404,14 @@ namespace geopm
         m_signal_available[alias_name].m_description =
             m_signal_available[signal_name].m_description + '\n' + "    alias_for: " + signal_name;
     }
+
+    void CNLIOGroup::save_control(const std::string &save_path)
+    {
+
+    }
+
+    void CNLIOGroup::restore_control(const std::string &save_path)
+    {
+
+    }
 }
