@@ -115,24 +115,11 @@ int geopm_pio_start_batch_server(int client_pid,
 // GEOPM_SERVICE_BUILD define
 int geopm_pio_stop_batch_server(int server_pid);
 
-struct geopm_session_s {
-    int loop_pid;
-    uint64_t start_sec;
-    uint64_t start_nsec;
-    char key[NAME_MAX];
-};
-
 struct geopm_request_s {
     int domain;
     int domain_idx;
     char name[NAME_MAX];
 };
-
-enum geopm_session_protocol_e {
-     M_SESSION_PROTOCOL_SHMEM,
-     M_NUM_SESSION_PROTOCOL // Currently only one protocol supported
-};
-
 
 #ifdef __cplusplus
 }
