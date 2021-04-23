@@ -109,8 +109,10 @@ namespace geopm
         // service enabling save/restore by geopmd.  If the geopm
         // service is not active then loading the ServiceIOGroup will
         // fail.
+#if 0   // TODO: ServiceIOGroup is not yet implemented
         register_plugin(ServiceIOGroup::plugin_name(),
                         ServiceIOGroup::make_plugin);
+#endif
         // Enable application profiling if not compiling the service.
         register_plugin(ProfileIOGroup::plugin_name(),
                         ProfileIOGroup::make_plugin);
