@@ -395,6 +395,7 @@ namespace geopm
         int result = m_num_cpu - 1;
         int num_core = m_topo.num_domain(GEOPM_DOMAIN_CORE);
         bool found_inactive_core = false;
+        bool found_inactive_cpu = false;
         std::vector<bool> is_core_active(num_core, false);
         for (int cpu_idx = 0; cpu_idx != m_num_cpu; ++cpu_idx) {
             if (m_is_cpu_active[cpu_idx]) {
@@ -410,6 +411,7 @@ namespace geopm
                                    "Valid core index returned no nested CPUs");
                 result = *(inactive_cpu.rbegin());
                 found_inactive_core = true;
+                found_inactive_cpu = true;
                 break;
             }
         }
@@ -417,6 +419,7 @@ namespace geopm
             for (int cpu_idx = m_num_cpu - 1; cpu_idx != -1; --cpu_idx) {
                 if(!m_is_cpu_active[cpu_idx]) {
                     result = cpu_idx;
+                    found_inactive_cpu = true;
                     break;
                 }
             }
@@ -425,11 +428,32 @@ namespace geopm
         std::cout << "Info: <geopm> ApplicationSampler::sampler_cpu(): The Controller will run on logical CPU " << result << std::endl;
 #endif
 
-        if (result == m_num_cpu - 1) {
+        if (!found_inactive_core) {
             std::cerr << "Warning: <geopm> ApplicationSampler::sampler_cpu(): User requested "
                       << "all cores for application.  GEOPM will share a core with the "
-                      << "Application, running on logical CPU " << result << std::endl;
+                      << "Application, running on logical CPU " << result;
+
+            if (result == 0) {
+                std::cerr << ", where the OS will run system threads.";
+            }
+
+            std::cerr << "." << std::endl;
         }
+
+        if (!found_inactive_cpu) {
+            std::cerr << "Warning: <geopm> ApplicationSampler::sampler_cpu(): "
+                      << "GEOPM will run on the same HW thread (oversubscribe) as the "
+                      << "Application." << std::endl;
+        }
+
+#ifdef GEOPM_DEBUG
+        if (found_inactive_core && 0 == m_topo.domain_idx(GEOPM_DOMAIN_CORE, result)) {
+            std::cerr << "Warning: <geopm> ApplicationSampler::sampler_cpu(): User requested "
+                      << "all cores except core 0 for the application.  GEOPM will share a "
+                      << "core with the OS, running on logical CPU " << result << "."
+                      << std::endl;
+        }
+#endif
 
         return result;
     }
