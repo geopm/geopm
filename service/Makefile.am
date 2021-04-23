@@ -91,6 +91,7 @@ libgeopmd_la_SOURCES = contrib/json11/json11.cpp \
                        src/Control.hpp \
                        src/CpuinfoIOGroup.cpp \
                        src/CpuinfoIOGroup.hpp \
+                       src/DBusServer.hpp \
                        src/DerivativeSignal.cpp \
                        src/DerivativeSignal.hpp \
                        src/DifferenceSignal.cpp \
