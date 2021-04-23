@@ -186,8 +186,6 @@ namespace geopm
             /// @brief Restore all controls to values recorded in
             ///        previous call to the save() method.
             virtual void restore_control(void) = 0;
-            virtual void save_control(const std::string &save_path) = 0;
-            virtual void restore_control(const std::string &save_path) = 0;
             /// @brief Return a function that should be used when aggregating
             ///        the given signal.
             /// @param [in] signal_name Name of the signal.
@@ -214,6 +212,8 @@ namespace geopm
             ///
             /// @param [in] signal_name Name of the signal.
             virtual int signal_behavior(const std::string &signal_name) const = 0;
+            virtual void save_control(const std::string &save_path) = 0;
+            virtual void restore_control(const std::string &save_path) = 0;
 
             /// @brief Convert a string to the corresponding m_units_e value
             static m_units_e string_to_units(const std::string &str);
