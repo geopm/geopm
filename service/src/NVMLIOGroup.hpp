@@ -73,6 +73,8 @@ namespace geopm
             std::string signal_description(const std::string &signal_name) const override;
             std::string control_description(const std::string &control_name) const override;
             int signal_behavior(const std::string &signal_name) const override;
+            void save_control(const std::string &save_path) override;
+            void restore_control(const std::string &save_path) override;
             static std::string plugin_name(void);
             static std::unique_ptr<geopm::IOGroup> make_plugin(void);
         private:
