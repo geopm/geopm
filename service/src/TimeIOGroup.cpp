@@ -243,4 +243,14 @@ namespace geopm
         }
         return IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE;
     }
+
+    void TimeIOGroup::save_control(const std::string &save_path)
+    {
+
+    }
+
+    void TimeIOGroup::restore_control(const std::string &save_path)
+    {
+
+    }
 }

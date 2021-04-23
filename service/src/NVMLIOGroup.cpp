@@ -634,6 +634,18 @@ namespace geopm
         return IOGroup::M_SIGNAL_BEHAVIOR_LABEL;
     }
 
+    void NVMLIOGroup::save_control(const std::string &save_path)
+    {
+        throw Exception("NVMLIOGroup::save_control()",
+                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+    }
+
+    void NVMLIOGroup::restore_control(const std::string &save_path)
+    {
+        throw Exception("NVMLIOGroup::restore_control()",
+                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+    }
+
     // Name used for registration with the IOGroup factory
     std::string NVMLIOGroup::plugin_name(void)
     {

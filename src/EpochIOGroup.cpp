@@ -279,6 +279,16 @@ namespace geopm
         return IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE;
     }
 
+    void EpochIOGroup::save_control(const std::string &save_path)
+    {
+
+    }
+
+    void EpochIOGroup::restore_control(const std::string &save_path)
+    {
+
+    }
+
     void EpochIOGroup::check_domain(int domain_type, int domain_idx) const
     {
         if (domain_type != GEOPM_DOMAIN_CPU) {
