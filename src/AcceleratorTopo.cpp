@@ -30,14 +30,19 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "config.h"
+
 #include <fstream>
 #include <iostream>
 #include <sstream>
 #include <string>
 
-#include "config.h"
 #include "Exception.hpp"
+#include "AcceleratorTopoNull.hpp"
+
+#ifdef GEOPM_ENABLE_NVML
 #include "NVMLAcceleratorTopo.hpp"
+#endif
 
 namespace geopm
 {
@@ -46,18 +51,8 @@ namespace geopm
 #ifdef GEOPM_ENABLE_NVML
         static NVMLAcceleratorTopo instance;
 #else
-        static AcceleratorTopo instance;
+        static AcceleratorTopoNull instance;
 #endif
         return instance;
-    }
-
-    int AcceleratorTopo::num_accelerator(void) const
-    {
-        return 0;
-    }
-
-    std::set<int> AcceleratorTopo::cpu_affinity_ideal(int domain_idx) const
-    {
-        return {};
     }
 }

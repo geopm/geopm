@@ -65,13 +65,13 @@ namespace geopm
             m_cpu_affinity_ideal.resize(m_num_accelerator);
 
             // Cache ideal affinitization due to the overhead associated with the NVML calls
-            for (int accel_idx = 0; accel_idx <  m_num_accelerator; ++accel_idx) {
+            for (unsigned int accel_idx = 0; accel_idx <  m_num_accelerator; ++accel_idx) {
                 ideal_affinitization_mask_vec.push_back(m_nvml_device_pool.cpu_affinity_ideal_mask(accel_idx));
             }
 
             /// @todo: As an optimization this may be replacable with CPU_OR of all masks in ideal_affinitzation_mask_vec
             //       and CPU_COUNT of the output
-            for (int accel_idx = 0; accel_idx <  m_num_accelerator; ++accel_idx) {
+            for (unsigned int accel_idx = 0; accel_idx <  m_num_accelerator; ++accel_idx) {
                 for (int cpu_idx = 0; cpu_idx < num_cpu; cpu_idx++) {
                     if (CPU_ISSET(cpu_idx, ideal_affinitization_mask_vec.at(accel_idx))) {
                         if (CPU_ISSET(cpu_idx, affinitized_cpuset) == 0) {
@@ -96,7 +96,7 @@ namespace geopm
                 // This is a greedy approach for mapping CPUs to accelerators, and as such may result in some CPUs
                 // not being affinitized at all.  A potential improvement is to always determine affinity
                 // for the accelerator with the fewest possible CPUs in the accelerator mask
-                for (int accel_idx = 0; accel_idx <  m_num_accelerator; ++accel_idx) {
+                for (unsigned int accel_idx = 0; accel_idx <  m_num_accelerator; ++accel_idx) {
                     unsigned int accelerator_cpu_count = 0;
                     for (int cpu_idx = 0;
                          cpu_idx != num_cpu &&
@@ -108,7 +108,7 @@ namespace geopm
                             ++accelerator_cpu_count;
 
                             // Remove this CPU from the affinity mask of all Accelerators
-                            for (int accel_idx_inner = 0; accel_idx_inner <  m_num_accelerator; ++accel_idx_inner) {
+                            for (unsigned int accel_idx_inner = 0; accel_idx_inner <  m_num_accelerator; ++accel_idx_inner) {
                                 CPU_CLR(cpu_idx, ideal_affinitization_mask_vec.at(accel_idx_inner));
                             }
                         }
@@ -132,7 +132,7 @@ namespace geopm
 
     std::set<int> NVMLAcceleratorTopo::cpu_affinity_ideal(int accel_idx) const
     {
-        if (accel_idx < 0 || accel_idx >= m_num_accelerator) {
+        if (accel_idx < 0 || (unsigned int) accel_idx >= m_num_accelerator) {
             throw Exception("NVMLAcceleratorTopo::" + std::string(__func__) + ": accel_idx " +
                             std::to_string(accel_idx) + " is out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);

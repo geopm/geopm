@@ -38,6 +38,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <nvml.h>
 
 #include "Exception.hpp"
 #include "Agg.hpp"
@@ -301,7 +302,7 @@ namespace geopm
 
         nvmlReturn_t nvml_result = nvmlDeviceGetComputeRunningProcesses(m_nvml_device[accel_idx], &temp, &process_info_list[0]);
         if (nvml_result == NVML_SUCCESS) {
-            for (int i = 0; i<temp; i++) {
+            for (unsigned int i = 0; i<temp; i++) {
                 result.push_back(process_info_list[i].pid);
             }
         }
@@ -323,7 +324,7 @@ namespace geopm
                               ": NVML failed to acquire running processes for accelerator " +
                               std::to_string(accel_idx) + ".", __LINE__);
 
-            for (int i = 0; i<temp; i++) {
+            for (unsigned int i = 0; i<temp; i++) {
                 result.push_back(process_info_list[i].pid);
             }
         }
