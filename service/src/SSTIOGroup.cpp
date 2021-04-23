@@ -608,6 +608,18 @@ namespace geopm
         return it->second.behavior;
     }
 
+    void SSTIOGroup::save_control(const std::string &save_path)
+    {
+        throw Exception("SSTIOGroup::save_control()",
+                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+    }
+
+    void SSTIOGroup::restore_control(const std::string &save_path)
+    {
+        throw Exception("SSTIOGroup::restore_control()",
+                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+    }
+
     void SSTIOGroup::add_mbox_signals(
         const std::string &raw_name, SSTIOGroup::SSTMailboxCommand command,
         uint16_t subcommand, const std::map<std::string, sst_signal_mailbox_field_s> &fields)
