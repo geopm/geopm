@@ -408,4 +408,14 @@ namespace geopm
     {
         return std::unique_ptr<IOGroup>(new CpuinfoIOGroup);
     }
+
+    void CpuinfoIOGroup::save_control(const std::string &save_path)
+    {
+
+    }
+
+    void CpuinfoIOGroup::restore_control(const std::string &save_path)
+    {
+
+    }
 }
