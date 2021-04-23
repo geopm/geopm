@@ -129,7 +129,7 @@ class PlatformService(object):
         """Method that creates a new client session"""
         signals, controls = self.get_user_access(user)
         makedirs(self._VAR_PATH, exist_ok=True)
-        session_file = os.path.join(self._VAR_PATH, 'session-{}.json'.format(client_pid)
+        session_file = os.path.join(self._VAR_PATH, 'session-{}.json'.format(client_pid))
         if os.path.isfile(session_file):
             raise RuntimeError('Session file for connecting process already exists: {}'.format(session_file))
         session_data = {'client_pid': client_pid,
@@ -142,7 +142,7 @@ class PlatformService(object):
 
     def close_session(self, client_pid):
         session = self._get_session(client_pid, 'PlatformCloseSession')
-        session_file = os.path.join(self._VAR_PATH, 'session-{}.json'.format(session['client_pid']))
+        session_file = os.path.join(self._VAR_PATH, 'session-{}.json'.format(client_pid))
         os.remove(session_file)
         if client_pid == self.write_pid:
             save_dir = os.path.join(self._VAR_PATH, self._SAVE_DIR)
@@ -204,7 +204,7 @@ class PlatformService(object):
     def _get_session(self, client_pid, operation):
         try:
             session = self._sessions[client_pid]
-        execpt KeyError:
+        except KeyError:
             raise RuntimeError('Operation {} not allowed without an open session'.format(operation))
         return session
 
@@ -212,7 +212,7 @@ class PlatformService(object):
         if self._sessions[client_pid]['mode'] != 'rw':
             if self._write_pid is not None:
                 raise RuntimeError('The geopm service already has a connected "rw" mode client')
-            session_file = os.path.join(self._VAR_PATH, 'session-{}.json'.format(client_pid)
+            session_file = os.path.join(self._VAR_PATH, 'session-{}.json'.format(client_pid))
             self._sessions[client_pid]['mode'] = 'rw'
             with open(session_file, 'w') as fid:
                 json.dump(self._sessions[client_pid], fid)
