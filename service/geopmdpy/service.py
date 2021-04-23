@@ -75,7 +75,6 @@ class PlatformService(object):
         self._SAVE_DIR = 'SAVE_FILES'
         self._write_pid = None
         self._sessions = dict()
-        self._session_counter = 0
 
     def get_group_access(self, group):
         group = self._validate_group(group)
@@ -130,24 +129,20 @@ class PlatformService(object):
         """Method that creates a new client session"""
         signals, controls = self.get_user_access(user)
         makedirs(self._VAR_PATH, exist_ok=True)
-        session_file = os.path.join(self._VAR_PATH, 'session-{}.json'.format(session_id)
+        session_file = os.path.join(self._VAR_PATH, 'session-{}.json'.format(client_pid)
         if os.path.isfile(session_file):
             raise RuntimeError('Session file for connecting process already exists: {}'.format(session_file))
-        session_id = self._session_counter
-        self._session_counter += 1
-        session_data = {'session_id': session_id,
-                        'client_pid': client_pid,
+        session_data = {'client_pid': client_pid,
                         'mode': 'r',
                         'signals': signals,
                         'controls': controls}
         self._sessions[client_pid] = session_data
         with open(session_file, 'w') as fid:
             json.dump(session_data, fid)
-        return session_id
 
     def close_session(self, client_pid):
         session = self._get_session(client_pid, 'PlatformCloseSession')
-        session_file = os.path.join(self._VAR_PATH, 'session-{}.json'.format(session['session_id']))
+        session_file = os.path.join(self._VAR_PATH, 'session-{}.json'.format(session['client_pid']))
         os.remove(session_file)
         if client_pid == self.write_pid:
             save_dir = os.path.join(self._VAR_PATH, self._SAVE_DIR)
@@ -217,8 +212,7 @@ class PlatformService(object):
         if self._sessions[client_pid]['mode'] != 'rw':
             if self._write_pid is not None:
                 raise RuntimeError('The geopm service already has a connected "rw" mode client')
-            session_id = self._sessions[client_pid]['session_id']
-            session_file = os.path.join(self._VAR_PATH, 'session-{}.json'.format(session_id)
+            session_file = os.path.join(self._VAR_PATH, 'session-{}.json'.format(client_pid)
             self._sessions[client_pid]['mode'] = 'rw'
             with open(session_file, 'w') as fid:
                 json.dump(self._sessions[client_pid], fid)
@@ -269,15 +263,27 @@ class GEOPMService(object):
                 <arg direction="in" name="control_names" type="as" />
                 <arg direction="out" name="info" type="a(ssi)" />
             </method>
-            <method name="PlatformOpenSession">
-                <arg direction="in" name="signal_config" type="as" />
-                <arg direction="in" name="control_config" type="as" />
-                <arg direction="in" name="interval" type="d" />
-                <arg direction="in" name="protocol" type="i" />
-                <arg direction="out" name="session" type="(ixxs)" />
+            <method name="PlatformOpenSession" />
+            <method name="PlatformCloseSession" />
+            <method name="PlatformStartBatch">
+                <arg direction="in" name="signal_config" type="a(iis)" />
+                <arg direction="in" name="control_config" type="a(iis)" />
+                <arg direction="out" name="batch" type="(is)" />
             </method>
-            <method name="PlatformCloseSession">
-                <arg direction="in" name="key" type="s" />
+            <method name="PlatformStopBatch">
+                <arg direction="in" name="server_pid" type="i" />
+            </method>
+            <method name="PlatformReadSignal">
+                <arg direction="in" name="signal_name" type="s" />
+                <arg direction="in" name="domain" type="i" />
+                <arg direction="in" name="domain_idx" type="i" />
+                <arg direction="out" name="sample" type="d" />
+            </method>
+            <method name="PlatformWriteControl">
+                <arg direction="in" name="control_name" type="s" />
+                <arg direction="in" name="domain" type="i" />
+                <arg direction="in" name="domain_idx" type="i" />
+                <arg direction="in" name="setting" type="d" />
             </method>
         </interface>
     </node>
@@ -310,10 +316,10 @@ class GEOPMService(object):
         return self._platform.get_control_info(control_names)
 
     def PlatformOpenSession(self):
-        return self._platform.open_session(self._get_user(), self._get_pid())
+        self._platform.open_session(self._get_user(), self._get_pid())
 
-    def PlatformCloseSession(self, session_id):
-        self._platform.close_session(self._get_pid(), session_id)
+    def PlatformCloseSession(self):
+        self._platform.close_session(self._get_pid())
 
     def PlatformStartBatch(self, signal_config, control_config):
         return self._platform.start_batch(self._get_pid(), signal_config, control_config)

@@ -29,15 +29,27 @@
                 <arg direction="in" name="control_names" type="as" />
                 <arg direction="out" name="info" type="a(ssi)" />
             </method>
-            <method name="PlatformOpenSession">
-                <arg direction="in" name="signal_names" type="as" />
-                <arg direction="in" name="control_names" type="as" />
-                <arg direction="in" name="interval" type="d" />
-                <arg direction="in" name="protocol" type="i" />
-                <arg direction="out" name="session" type="(i(xx)s)" />
+            <method name="PlatformOpenSession" />
+            <method name="PlatformCloseSession" />
+            <method name="PlatformStartBatch">
+                <arg direction="in" name="signal_config" type="a(iis)" />
+                <arg direction="in" name="control_config" type="a(iis)" />
+                <arg direction="out" name="batch" type="(is)" />
             </method>
-            <method name="PlatformCloseSession">
-                <arg direction="in" name="key" type="s" />
+            <method name="PlatformStopBatch">
+                <arg direction="in" name="server_pid" type="i" />
+            </method>
+            <method name="PlatformReadSignal">
+                <arg direction="in" name="signal_name" type="s" />
+                <arg direction="in" name="domain" type="i" />
+                <arg direction="in" name="domain_idx" type="i" />
+                <arg direction="out" name="sample" type="d" />
+            </method>
+            <method name="PlatformWriteControl">
+                <arg direction="in" name="control_name" type="s" />
+                <arg direction="in" name="domain" type="i" />
+                <arg direction="in" name="domain_idx" type="i" />
+                <arg direction="in" name="setting" type="d" />
             </method>
       </interface>
     </node>
