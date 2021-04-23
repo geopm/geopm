@@ -30,6 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "config.h"
+
 #include "PlatformIOImp.hpp"
 
 #include <cpuid.h>
@@ -52,7 +54,9 @@
 #include "Helper.hpp"
 #include "Agg.hpp"
 
-#include "config.h"
+#ifdef GEOPM_BUILD_SERVICE
+#include "DBusServer.hpp"
+#endif
 
 namespace geopm
 {
@@ -542,6 +546,18 @@ namespace geopm
         }
     }
 
+    void PlatformIOImp::save_control(const std::string &save_dir)
+    {
+        throw Exception("PlatformIOImp::save_control()",
+                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+    }
+
+    void PlatformIOImp::restore_control(const std::string &save_dir)
+    {
+        throw Exception("PlatformIOImp::save_control()",
+                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+    }
+
     std::function<double(const std::vector<double> &)> PlatformIOImp::agg_function(const std::string &signal_name) const
     {
         // Special signals from PlatformIOImp are aggregated by underlying signals
@@ -594,24 +610,6 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return iogroup->signal_behavior(signal_name);
-    }
-
-    struct geopm_session_s PlatformIOImp::open_session(int client_pid,
-                                                       std::vector<struct geopm_request_s> signal_config,
-                                                       std::vector<struct geopm_request_s> control_config,
-                                                       double interval,
-                                                       int protocol)
-    {
-        struct geopm_session_s result {-1, 0, 0, "INVALID"};
-        throw Exception("PlatformIOImp::open_session()",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
-        return result;
-    }
-
-    void PlatformIOImp::close_session(const std::string &key)
-    {
-        throw Exception("PlatformIOImp::close_session()",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
     }
 }
 
@@ -900,39 +898,52 @@ extern "C" {
         return err;
     }
 
-    int geopm_pio_open_session(int client_pid,
-                               int num_signal,
-                               const struct geopm_request_s *signal_config,
-                               int num_control,
-                               const struct geopm_request_s *control_config,
-                               double interval,
-                               int protocol,
-                               struct geopm_session_s *session)
+    int geopm_pio_start_batch_server(int client_pid,
+                                     int num_signal,
+                                     const struct geopm_request_s *signal_config,
+                                     int num_control,
+                                     const struct geopm_request_s *control_config,
+                                     int *server_pid,
+                                     int key_size,
+                                     char *server_key)
     {
+#ifndef GEOPM_BUILD_SERVICE
+        return GEOPM_ERROR_INVALID;
+#else
         int err = 0;
         try {
-            const std::vector<geopm_request_s> signal_config_vec(signal_config, signal_config + num_signal);
-            const std::vector<geopm_request_s> control_config_vec(control_config, control_config + num_control);
-
-            *session = geopm::platform_io().open_session(client_pid, signal_config_vec, control_config_vec, interval, protocol);
+            std::vector<struct geopm_request_s> signal_config_vec(signal_config, signal_config + num_signal);
+            std::vector<struct geopm_request_s> control_config_vec(control_config, control_config + num_control);
+            std::string server_key_str;
+            DBusServer::start_batch(client_pid, signal_config_vec, control_config_vec, *server_pid, server_key_str);
+            strncpy(server_key, server_key_str.c_str(), key_size);
+            if (server_key[key_size - 1] != '\0') {
+                server_key[key_size - 1] = '\0';
+                err = GEOPM_ERROR_INVALID;
+            }
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
             err = err < 0 ? err : GEOPM_ERROR_RUNTIME;
         }
         return err;
+#endif
     }
 
-    int geopm_pio_close_session(const char *session_key)
+    int geopm_pio_stop_batch_server(int server_pid)
     {
+#ifndef GEOPM_BUILD_SERVICE
+        return GEOPM_ERROR_INVALID;
+#else
         int err = 0;
         try {
-            geopm::platform_io().close_session(session_key);
+            DBusServer::stop_batch(server_pid);
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
             err = err < 0 ? err : GEOPM_ERROR_RUNTIME;
         }
         return err;
+#endif
     }
 }
