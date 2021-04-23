@@ -178,23 +178,6 @@ namespace geopm
             /// @brief Restore all controls to values recorded in
             ///        previous call to the save_control() method.
             virtual void restore_control(void) = 0;
-            /// @brief Save the state of all controls so that any
-            ///        subsequent changes made through PlatformIO can
-            ///        be undone with a call to the restore_control()
-            ///        method.  Each IOGroup that supports controls
-            ///        will populate one file in the save directory
-            ///        that contains the saved state and name the file
-            ///        after the IOGroup name.
-            /// @param [in] save_dir Directory to be populated with
-            ///        save files.
-            virtual void save_control(const std::string &save_dir) = 0;
-            /// @brief Restore all controls to values recorded in
-            ///        previous call to the save_control(save_dir)
-            ///        method.  The directory provided contains the
-            ///        result of the previous saved state.
-            /// @param [in] save_dir Directory populated with save
-            ///        files.
-            virtual void restore_control(const std::string &save_dir) = 0;
             /// @brief Returns a function appropriate for aggregating
             ///        multiple values of the given signal into a
             ///        single value.
@@ -224,6 +207,23 @@ namespace geopm
             ///
             /// @param [in] signal_name Name of the signal.
             virtual int signal_behavior(const std::string &signal_name) const = 0;
+            /// @brief Save the state of all controls so that any
+            ///        subsequent changes made through PlatformIO can
+            ///        be undone with a call to the restore_control()
+            ///        method.  Each IOGroup that supports controls
+            ///        will populate one file in the save directory
+            ///        that contains the saved state and name the file
+            ///        after the IOGroup name.
+            /// @param [in] save_dir Directory to be populated with
+            ///        save files.
+            virtual void save_control(const std::string &save_dir) = 0;
+            /// @brief Restore all controls to values recorded in
+            ///        previous call to the save_control(save_dir)
+            ///        method.  The directory provided contains the
+            ///        result of the previous saved state.
+            /// @param [in] save_dir Directory populated with save
+            ///        files.
+            virtual void restore_control(const std::string &save_dir) = 0;
     };
 
     PlatformIO &platform_io(void);
