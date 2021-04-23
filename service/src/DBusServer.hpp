@@ -99,7 +99,7 @@ namespace geopm
             ///        server process returned by a previous call to
             ///        start_batch_server().
             static void stop_batch(int server_pid);
-    }
+    };
 }
 
 #endif
