@@ -35,7 +35,7 @@ if ENABLE_MPI
     check_PROGRAMS += test/geopm_mpi_test_api
 endif
 
-GTEST_TESTS = test/gtest_links/AcceleratorTopoTest.default_config \
+GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
               test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/AccumulatorTest.sum_ones \
               test/gtest_links/AccumulatorTest.sum_idx \
@@ -337,6 +337,22 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoTest.default_config \
               test/gtest_links/ModelApplicationTest.parse_config_errors \
               test/gtest_links/MonitorAgentTest.policy_names \
               test/gtest_links/MonitorAgentTest.sample_names \
+              test/gtest_links/NVMLAcceleratorTopoTest.hpe_sx40_default_config \
+              test/gtest_links/NVMLAcceleratorTopoTest.no_gpu_config \
+              test/gtest_links/NVMLAcceleratorTopoTest.mutex_affinitization_config \
+              test/gtest_links/NVMLAcceleratorTopoTest.equidistant_affinitization_config \
+              test/gtest_links/NVMLAcceleratorTopoTest.n1_superset_n_affinitization_config \
+              test/gtest_links/NVMLAcceleratorTopoTest.greedbuster_affinitization_config \
+              test/gtest_links/NVMLAcceleratorTopoTest.hpe_6500_affinitization_config \
+              test/gtest_links/NVMLAcceleratorTopoTest.uneven_affinitization_config \
+              test/gtest_links/NVMLAcceleratorTopoTest.high_cpu_count_config \
+              test/gtest_links/NVMLAcceleratorTopoTest.high_cpu_count_gaps_config \
+              test/gtest_links/NVMLIOGroupTest.read_signal \
+              test/gtest_links/NVMLIOGroupTest.read_signal_and_batch \
+              test/gtest_links/NVMLIOGroupTest.write_control \
+              test/gtest_links/NVMLIOGroupTest.push_control_adjust_write_batch \
+              test/gtest_links/NVMLIOGroupTest.error_path \
+              test/gtest_links/NVMLIOGroupTest.valid_signals \
               test/gtest_links/OptionParserTest.get_invalid \
               test/gtest_links/OptionParserTest.parse_errors \
               test/gtest_links/OptionParserTest.add_option_errors \
@@ -536,26 +552,6 @@ if ENABLE_OMPT
                    # end
 endif
 
-if ENABLE_NVML
-    GTEST_TESTS += test/gtest_links/NVMLAcceleratorTopoTest.hpe_sx40_default_config \
-                   test/gtest_links/NVMLAcceleratorTopoTest.no_gpu_config \
-                   test/gtest_links/NVMLAcceleratorTopoTest.mutex_affinitization_config \
-                   test/gtest_links/NVMLAcceleratorTopoTest.equidistant_affinitization_config \
-                   test/gtest_links/NVMLAcceleratorTopoTest.n1_superset_n_affinitization_config \
-                   test/gtest_links/NVMLAcceleratorTopoTest.greedbuster_affinitization_config \
-                   test/gtest_links/NVMLAcceleratorTopoTest.hpe_6500_affinitization_config \
-                   test/gtest_links/NVMLAcceleratorTopoTest.uneven_affinitization_config \
-                   test/gtest_links/NVMLAcceleratorTopoTest.high_cpu_count_config \
-                   test/gtest_links/NVMLAcceleratorTopoTest.high_cpu_count_gaps_config \
-                   test/gtest_links/NVMLIOGroupTest.read_signal \
-                   test/gtest_links/NVMLIOGroupTest.read_signal_and_batch \
-                   test/gtest_links/NVMLIOGroupTest.write_control \
-                   test/gtest_links/NVMLIOGroupTest.push_control_adjust_write_batch \
-                   test/gtest_links/NVMLIOGroupTest.error_path \
-                   test/gtest_links/NVMLIOGroupTest.valid_signals \
-                   # end
-endif
-
 TESTS_ENVIRONMENT = PYTHON='$(PYTHON)'
 
 TESTS += $(GTEST_TESTS) \
@@ -582,7 +578,7 @@ EXTRA_DIST += test/InternalProfile.cpp \
               test/EditDistPeriodicityDetectorTest.cpp \
               # end
 
-test_geopm_test_SOURCES = test/AcceleratorTopoTest.cpp \
+test_geopm_test_SOURCES = test/AcceleratorTopoNullTest.cpp \
                           test/AccumulatorTest.cpp \
                           test/AdminTest.cpp \
                           test/AgentFactoryTest.cpp \
@@ -640,6 +636,7 @@ test_geopm_test_SOURCES = test/AcceleratorTopoTest.cpp \
                           test/MockFrequencyGovernor.hpp \
                           test/MockIOGroup.hpp \
                           test/MockMSRIO.hpp \
+                          test/MockNVMLDevicePool.hpp \
                           test/MockPlatformIO.hpp \
                           test/MockPlatformTopo.cpp \
                           test/MockPlatformTopo.hpp \
@@ -660,6 +657,8 @@ test_geopm_test_SOURCES = test/AcceleratorTopoTest.cpp \
                           test/MockTreeCommLevel.hpp \
                           test/ModelApplicationTest.cpp \
                           test/MonitorAgentTest.cpp \
+                          test/NVMLAcceleratorTopoTest.cpp \
+                          test/NVMLIOGroupTest.cpp \
                           test/OptionParserTest.cpp \
                           test/PlatformIOTest.cpp \
                           test/PlatformTopoTest.cpp \
@@ -698,21 +697,10 @@ beta_test_sources = test/DaemonTest.cpp \
                     test/PolicyStoreImpTest.cpp \
                     # end
 
-nvml_test_sources = test/NVMLAcceleratorTopoTest.cpp \
-                    test/MockNVMLDevicePool.hpp \
-                    test/NVMLIOGroupTest.cpp \
-                    # end
-
 if ENABLE_BETA
     test_geopm_test_SOURCES += $(beta_test_sources)
 else
     EXTRA_DIST += $(beta_test_sources)
-endif
-
-if ENABLE_NVML
-    test_geopm_test_SOURCES += $(nvml_test_sources)
-else
-    EXTRA_DIST += $(nvml_test_sources)
 endif
 
 if ENABLE_OMPT

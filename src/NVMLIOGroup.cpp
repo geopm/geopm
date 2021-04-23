@@ -402,14 +402,14 @@ namespace geopm
             if (sv.first == "NVML::CPU_ACCELERATOR_ACTIVE_AFFINITIZATION") {
                 std::map<pid_t, double> process_map = accelerator_process_map();
 
-                for (int domain_idx = 0; domain_idx < sv.second.signals.size(); ++domain_idx) {
+                for (unsigned int domain_idx = 0; domain_idx < sv.second.signals.size(); ++domain_idx) {
                     if (sv.second.signals.at(domain_idx)->m_do_read) {
                         sv.second.signals.at(domain_idx)->m_value = cpu_accelerator_affinity(domain_idx, process_map);
                     }
                 }
             }
             else {
-                for (int domain_idx = 0; domain_idx < sv.second.signals.size(); ++domain_idx) {
+                for (unsigned int domain_idx = 0; domain_idx < sv.second.signals.size(); ++domain_idx) {
                     if (sv.second.signals.at(domain_idx)->m_do_read) {
                         sv.second.signals.at(domain_idx)->m_value = read_signal(sv.first, sv.second.domain, domain_idx);
                     }
@@ -422,7 +422,7 @@ namespace geopm
     void NVMLIOGroup::write_batch(void)
     {
         for (auto &sv : m_control_available) {
-            for (int domain_idx = 0; domain_idx < sv.second.controls.size(); ++domain_idx) {
+            for (unsigned int domain_idx = 0; domain_idx < sv.second.controls.size(); ++domain_idx) {
                 if (sv.second.controls.at(domain_idx)->m_is_adjusted) {
                     write_control(sv.first, sv.second.domain, domain_idx, sv.second.controls.at(domain_idx)->m_setting);
                 }

@@ -37,8 +37,6 @@
 #include <string>
 #include <cstdint>
 
-#include <nvml.h>
-
 #include "geopm_sched.h"
 
 namespace geopm

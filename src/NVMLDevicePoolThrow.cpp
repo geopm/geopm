@@ -30,28 +30,30 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <unistd.h>
-#include <limits.h>
+#include "config.h"
+
+#include <cmath>
 
 #include <fstream>
+#include <iostream>
+#include <sstream>
 #include <string>
 
-#include "gtest/gtest.h"
-#include "gmock/gmock.h"
-
-#include "config.h"
-#include "Helper.hpp"
 #include "Exception.hpp"
-#include "AcceleratorTopo.hpp"
+#include "Agg.hpp"
+#include "Helper.hpp"
+#include "geopm_sched.h"
 
-using geopm::AcceleratorTopo;
-using geopm::Exception;
-using testing::Return;
+#include "NVMLDevicePool.hpp"
 
-TEST(AcceleratorTopoTest, default_config)
+namespace geopm
 {
-    std::unique_ptr<AcceleratorTopo> topo;
-    topo = geopm::make_unique<AcceleratorTopo>();
-    EXPECT_EQ(0, topo->num_accelerator());
-    EXPECT_EQ(topo->cpu_affinity_ideal(0), std::set<int>{});
+
+    const NVMLDevicePool &nvml_device_pool(const int num_cpu)
+    {
+        throw Exception("NVMLDevicePoolThrow::" + std::string(__func__) +
+                        ": GEOPM configured without nvml library support.  Please configure with --enable-nvml",
+                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+    }
+
 }

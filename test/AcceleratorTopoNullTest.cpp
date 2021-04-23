@@ -30,28 +30,29 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef ACCELERATORTOPO_HPP_INCLUDE
-#define ACCELERATORTOPO_HPP_INCLUDE
+#include <unistd.h>
+#include <limits.h>
 
-#include <cstdint>
-#include <vector>
-#include <set>
+#include <fstream>
+#include <string>
 
-namespace geopm
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
+
+#include "config.h"
+#include "Helper.hpp"
+#include "Exception.hpp"
+#include "AcceleratorTopoNull.hpp"
+
+using geopm::AcceleratorTopo;
+using geopm::AcceleratorTopoNull;
+using geopm::Exception;
+using testing::Return;
+
+TEST(AcceleratorTopoNullTest, default_config)
 {
-    class AcceleratorTopo
-    {
-        public:
-            AcceleratorTopo() = default;
-            virtual ~AcceleratorTopo() = default;
-            /// @brief Number of accelerators on the platform.
-            virtual int num_accelerator(void) const = 0;
-            /// @brief CPU Affinitization set for a particular accelerator
-            /// @param [in] domain_idx The index indicating a particular
-            ///        accelerator
-            virtual std::set<int> cpu_affinity_ideal(int domain_idx) const = 0;
-    };
-
-    const AcceleratorTopo &accelerator_topo(void);
+    std::unique_ptr<AcceleratorTopoNull> topo;
+    topo = geopm::make_unique<AcceleratorTopoNull>();
+    EXPECT_EQ(0, topo->num_accelerator());
+    EXPECT_EQ(topo->cpu_affinity_ideal(0), std::set<int>{});
 }
-#endif

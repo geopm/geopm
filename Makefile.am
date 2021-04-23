@@ -446,6 +446,8 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             contrib/json11/json11.hpp \
                             src/AcceleratorTopo.cpp \
                             src/AcceleratorTopo.hpp \
+                            src/AcceleratorTopoNull.cpp \
+                            src/AcceleratorTopoNull.hpp \
                             src/Accumulator.cpp \
                             src/Accumulator.hpp \
                             src/Admin.cpp \
@@ -637,17 +639,23 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/msr_data_snb.cpp \
                             src/record.cpp \
                             src/record.hpp \
+                            src/NVMLAcceleratorTopo.cpp \
+                            src/NVMLAcceleratorTopo.hpp \
+                            src/NVMLDevicePool.hpp \
+                            src/NVMLIOGroup.cpp \
+                            src/NVMLIOGroup.hpp \
                             # end
 
+nvml_source_files = src/NVMLDevicePool.cpp \
+                    src/NVMLDevicePoolImp.hpp \
+                    #end
+
 if ENABLE_NVML
-    libgeopmpolicy_la_SOURCES += src/NVMLAcceleratorTopo.cpp \
-                                 src/NVMLAcceleratorTopo.hpp \
-                                 src/NVMLDevicePool.cpp \
-                                 src/NVMLDevicePool.hpp \
-                                 src/NVMLDevicePoolImp.hpp \
-                                 src/NVMLIOGroup.cpp \
-                                 src/NVMLIOGroup.hpp \
-                                 #end
+    libgeopmpolicy_la_SOURCES += $(nvml_source_files)
+else
+    libgeopmpolicy_la_SOURCES += src/NVMLDevicePoolThrow.cpp
+    EXTRA_DIST += $(nvml_source_files) \
+                  #end
 endif
 
 beta_source_files = src/Daemon.cpp \

@@ -30,28 +30,24 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef ACCELERATORTOPO_HPP_INCLUDE
-#define ACCELERATORTOPO_HPP_INCLUDE
+#ifndef ACCELERATORTOPONULL_HPP_INCLUDE
+#define ACCELERATORTOPONULL_HPP_INCLUDE
 
 #include <cstdint>
 #include <vector>
 #include <set>
 
+#include "AcceleratorTopo.hpp"
+
 namespace geopm
 {
-    class AcceleratorTopo
+    class AcceleratorTopoNull : public AcceleratorTopo
     {
         public:
-            AcceleratorTopo() = default;
-            virtual ~AcceleratorTopo() = default;
-            /// @brief Number of accelerators on the platform.
-            virtual int num_accelerator(void) const = 0;
-            /// @brief CPU Affinitization set for a particular accelerator
-            /// @param [in] domain_idx The index indicating a particular
-            ///        accelerator
-            virtual std::set<int> cpu_affinity_ideal(int domain_idx) const = 0;
+            AcceleratorTopoNull() = default ;
+            virtual ~AcceleratorTopoNull() = default;
+            int num_accelerator(void) const override;
+            std::set<int> cpu_affinity_ideal(int accel_idx) const override;
     };
-
-    const AcceleratorTopo &accelerator_topo(void);
 }
 #endif
