@@ -126,22 +126,9 @@ class PlatformService(object):
         raise NotImplementedError('PlatformService: Implementation incomplete')
         return infos
 
-    def open_session(self, user, client_pid, mode):
+    def open_session(self, user, client_pid):
         """Method that creates a new client session"""
-        if mode not in ('r', 'rw'):
-            raise RuntimeError('Unknown mode string: {}'.format(mode))
         signals, controls = self.get_user_access(user)
-        if mode == 'rw' and len(controls) == 0:
-            mode = 'r'
-        elif mode == 'r':
-            controls = []
-        if mode == 'rw':
-            if self._write_pid is not None:
-                raise RuntimeError('The geopm service already has a connected "rw" mode client')
-            self._write_pid = client_pid
-            save_dir = os.path.join(self._VAR_PATH, self._SAVE_DIR)
-            os.makedirs(save_dir)
-            self._pio.save_controls(save_dir)
         makedirs(self._VAR_PATH, exist_ok=True)
         session_file = os.path.join(self._VAR_PATH, 'session-{}.json'.format(session_id)
         if os.path.isfile(session_file):
@@ -150,7 +137,7 @@ class PlatformService(object):
         self._session_counter += 1
         session_data = {'session_id': session_id,
                         'client_pid': client_pid,
-                        'mode': mode,
+                        'mode': 'r',
                         'signals': signals,
                         'controls': controls}
         self._sessions[client_pid] = session_data
@@ -174,10 +161,10 @@ class PlatformService(object):
         cont_req = {cc[2] for cc in control_config}
         if not sig_req.issubset(session['signals']):
             raise RuntimeError('Requested signals that are not in allowed list')
-        if session['mode'] == 'r' and len(control_config) != 0:
-            raise RuntimeError('Requested controls from a read only session')
         elif not cont_req.issubset(session['controls']):
             raise RuntimeError('Requested controls that are not in allowed list')
+        if len(control_config) != 0:
+            self._write_mode(client_pid)
         return self._pio.start_batch_server(client_pid, signal_config, control_config)
 
     def stop_batch(self, client_pid, server_pid):
@@ -192,10 +179,9 @@ class PlatformService(object):
 
     def write_control(self, client_pid, control_name, domain, domain_idx, setting):
         session = self._get_session(client_pid, 'PlatformWriteControl')
-        if session['mode'] != 'rw':
-            raise RuntimeError('Session was opened in read only mode, PlatformWriteControl method is not allowed')
         if not control_name in session['controls']:
             raise RuntimeError('Requested control that is not in allowed list')
+        self._write_mode(client_pid)
         self._pio.write_control(signal_name, domain, domain_idx, setting)
 
     def _read_allowed(self, path):
@@ -226,6 +212,21 @@ class PlatformService(object):
         execpt KeyError:
             raise RuntimeError('Operation {} not allowed without an open session'.format(operation))
         return session
+
+    def _write_mode(self, client_pid):
+        if self._sessions[client_pid]['mode'] != 'rw':
+            if self._write_pid is not None:
+                raise RuntimeError('The geopm service already has a connected "rw" mode client')
+            session_id = self._sessions[client_pid]['session_id']
+            session_file = os.path.join(self._VAR_PATH, 'session-{}.json'.format(session_id)
+            self._sessions[client_pid]['mode'] = 'rw'
+            with open(session_file, 'w') as fid:
+                json.dump(self._sessions[client_pid], fid)
+            self._write_pid = client_pid
+            save_dir = os.path.join(self._VAR_PATH, self._SAVE_DIR)
+            os.makedirs(save_dir)
+            self._pio.save_controls(save_dir)
+
 
 class TopoService(object):
     def __init__(self, topo=topo):
@@ -308,8 +309,8 @@ class GEOPMService(object):
     def PlatformGetControlInfo(self, control_names):
         return self._platform.get_control_info(control_names)
 
-    def PlatformOpenSession(self, mode):
-        return self._platform.open_session(self._get_user(), self._get_pid(), mode)
+    def PlatformOpenSession(self):
+        return self._platform.open_session(self._get_user(), self._get_pid())
 
     def PlatformCloseSession(self, session_id):
         self._platform.close_session(self._get_pid(), session_id)
