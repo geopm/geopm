@@ -881,6 +881,18 @@ namespace geopm
         return result;
     }
 
+    void MSRIOGroup::save_control(const std::string &save_path)
+    {
+        throw Exception("MSRIOGroup::save_control()",
+                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+    }
+
+    void MSRIOGroup::restore_control(const std::string &save_path)
+    {
+        throw Exception("MSRIOGroup::restore_control()",
+                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+    }
+
     std::string MSRIOGroup::platform_data(int cpu_id)
     {
         std::string platform_msrs;
