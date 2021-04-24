@@ -46,6 +46,7 @@
 #include "geopm.h"
 #include "geopm_internal.h"
 #include "geopm_test.hpp"
+#include "config.h"
 
 using testing::_;
 using testing::Return;
@@ -563,6 +564,12 @@ TEST_F(ApplicationSamplerTest, sampler_cpu)
         .WillOnce(Return(0));
     EXPECT_CALL(*m_mock_topo, domain_idx(GEOPM_DOMAIN_CORE, 1))
         .WillOnce(Return(0));
+#ifdef GEOPM_DEBUG
+    // In the case of debug builds, an additional call is performed
+    // to see if we're sharing a core with the OS
+    EXPECT_CALL(*m_mock_topo, domain_idx(GEOPM_DOMAIN_CORE, 3))
+        .WillOnce(Return(0));
+#endif
     // Since core 1 has no active CPU's the topo is queried for the
     // CPUs associated with core 1 (which are CPU 2 and 3)
     std::set<int> core_cpu = {2, 3};
