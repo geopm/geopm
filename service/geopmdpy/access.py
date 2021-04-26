@@ -31,7 +31,20 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-from geopmdpy.access import main
+from dasbus.connection import SystemMessageBus
+
+def print_user_signals(geopm_proxy):
+    all_signals, _ = geopm_proxy.PlatformGetUserAccess()
+    print('\n'.join(all_signals))
+
+def print_user_controls(geopm_proxy):
+    _, all_controls = geopm_proxy.PlatformGetUserAccess()
+    print('\n'.join(all_controls))
+
+def main():
+    bus = SystemMessageBus()
+    geopm_proxy = bus.get_proxy('io.github.geopm','/io/github/geopm')
+    print_user_signals(geopm_proxy)
 
 if __name__ == '__main__':
     main()
