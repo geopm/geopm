@@ -31,20 +31,79 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+import sys
 from dasbus.connection import SystemMessageBus
+from argparse import ArgumentParser
 
-def print_user_signals(geopm_proxy):
-    all_signals, _ = geopm_proxy.PlatformGetUserAccess()
-    print('\n'.join(all_signals))
 
-def print_user_controls(geopm_proxy):
-    _, all_controls = geopm_proxy.PlatformGetUserAccess()
-    print('\n'.join(all_controls))
+def set_group_signals(geopm_proxy, group, signals):
+    _, current_controls = geopm_proxy.PlatformGetGroupAccess(group)
+    geopm_proxy.PlatformSetGroupAccess(group, signals, current_controls)
+
+def set_group_controls(geopm_proxy, group, controls):
+    current_signals, _ = geopm_proxy.PlatformGetGroupAccess(group)
+    geopm_proxy.PlatformSetGroupAccess(group, current_signals, controls)
+
+def get_all_signals(geopm_proxy):
+    all_signals, _ = geopm_proxy.PlatformGetAllAccess()
+    return '\n'.join(all_signals)
+
+def get_all_controls(geopm_proxy):
+    _, all_controls = geopm_proxy.PlatformGetAllAccess()
+    return '\n'.join(all_controls)
+
+def get_group_signals(geopm_proxy, group):
+    all_signals, _ = geopm_proxy.PlatformGetGroupAccess(group)
+    return '\n'.join(all_signals)
+
+def get_group_controls(geopm_proxy, group):
+    _, all_controls = geopm_proxy.PlatformGetGroupAccess(group)
+    return '\n'.join(all_controls)
+
 
 def main():
+    description = """Access managment for the geopm service.  Command line tool for
+    reading and writing the access management lists for the geopm
+    service signals and controls.
+
+    """
+    parser = ArgumentParser(description=description)
+    parser_group_sc = parser.add_mutually_exclusive_group(required=True)
+    parser_group_sc.add_argument('-s', '--signals', dest='signals', action='store_true', default=False,
+                                 help='List signal names')
+    parser_group_sc.add_argument('-c', '--controls', dest='controls', action='store_true', default=False,
+                                 help='List control names')
+    parser_group_ga = parser.add_mutually_exclusive_group(required=False)
+    parser_group_ga.add_argument('-g', '--group', dest='group', type=str, default='',
+                                help='Read or write access for a Unix group (default is for all users)')
+    parser_group_ga.add_argument('-a', '--all', dest='all', action='store_true', default=False,
+                                 help='Print all available signals or controls on the system (invalid with -w)')
+    parser.add_argument('-w', '--write', dest='write', action='store_true', default=False,
+                        help='Write restricted access list for default user or a particular Unix group from standard input')
+    args = parser.parse_args()
+
     bus = SystemMessageBus()
     geopm_proxy = bus.get_proxy('io.github.geopm','/io/github/geopm')
-    print_user_signals(geopm_proxy)
+    if args.write:
+        in_names = [ll.strip() for ll in sys.stdin.readlines() if ll.strip()]
+        if args.all:
+            raise RuntimeError('Option -a/--all is not allowed if -w/--write is provided')
+        else:
+            if args.signals:
+                set_group_signals(geopm_proxy, args.group, in_names)
+            elif args.controls:
+                set_group_controls(geopm_proxy, args.group, in_names)
+    else:
+        if args.all:
+            if args.signals:
+                print(get_all_signals(geopm_proxy))
+            elif args.controls:
+                print(get_all_controls(geopm_proxy))
+        else:
+            if args.signals:
+                print(get_group_signals(geopm_proxy, args.group))
+            elif args.controls:
+                print(get_group_controls(geopm_proxy, args.group))
 
 if __name__ == '__main__':
     main()
