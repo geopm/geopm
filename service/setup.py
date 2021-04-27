@@ -58,7 +58,7 @@ long_description = """\
 The python implementation for the GEOPM daemon"""
 
 
-scripts = ['geopmd', 'geopmaccess']
+scripts = ['geopmd', 'geopmaccess', 'geopmsession']
 
 classifiers = ['Development Status :: 5 - Production/Stable',
                'License :: OSI Approved :: BSD License',
