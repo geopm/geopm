@@ -42,7 +42,10 @@ import shutil
 from . import pio
 from . import topo
 from dasbus.connection import SystemMessageBus
-
+try:
+    from dasbus.server.interface import accepts_additional_arguments
+except ImportError as ee:
+    raise ImportError('{}: Getting the unique bus name of the caller is a new feature, see https://github.com/rhinstaller/dasbus/pull/57'.format(ee))
 
 def signal_info(name,
                 description,
@@ -315,49 +318,43 @@ class GEOPMService(object):
     def PlatformGetControlInfo(self, control_names):
         return self._platform.get_control_info(control_names)
 
-    def PlatformOpenSession(self):
-        self._platform.open_session(self._get_user(), self._get_pid())
+    @accepts_additional_arguments
+    def PlatformOpenSession(self, **call_info):
+        self._platform.open_session(self._get_user(**call_info), self._get_pid(**call_info))
 
-    def PlatformCloseSession(self):
-        self._platform.close_session(self._get_pid())
+    @accepts_additional_arguments
+    def PlatformCloseSession(self, **call_info):
+        self._platform.close_session(self._get_pid(**call_info))
 
-    def PlatformStartBatch(self, signal_config, control_config):
-        return self._platform.start_batch(self._get_pid(), signal_config, control_config)
+    @accepts_additional_arguments
+    def PlatformStartBatch(self, signal_config, control_config, **call_info):
+        return self._platform.start_batch(self._get_pid(**call_info), signal_config, control_config)
 
-    def PlatformStopBatch(self, server_pid):
-        self._platform.stop_batch(self._get_pid(), server_pid)
+    @accepts_additional_arguments
+    def PlatformStopBatch(self, server_pid, **call_info):
+        self._platform.stop_batch(self._get_pid(**call_info), server_pid)
 
-    def PlatformReadSignal(self, signal_name, domain, domain_idx):
-        return self._platform.read_signal(self._get_pid(), signal_name, domain, domain_idx)
+    @accepts_additional_arguments
+    def PlatformReadSignal(self, signal_name, domain, domain_idx, **call_info):
+        return self._platform.read_signal(self._get_pid(**call_info), signal_name, domain, domain_idx)
 
-    def PlatformWriteControl(self, control_name, domain, domain_idx, setting):
-        self._platform.write_control(self._get_pid(), control_name, domain, domain_idx, setting)
+    @accepts_additional_arguments
+    def PlatformWriteControl(self, control_name, domain, domain_idx, setting, **call_info):
+        self._platform.write_control(self._get_pid(**call_info), control_name, domain, domain_idx, setting)
 
-    def _get_user(self):
+    def _get_user(self, call_info):
+        unique_name = call_info['sender']
         bus = SystemMessageBus()
         dbus_proxy = bus.get_proxy('org.freedesktop.DBus',
                                    '/org/freedesktop/DBus')
-        raise RuntimeError("dasbus does not support getting the caller's bus name")
-        # The implementation below will get the unique name of the
-        # geopmd connection, not the unique name of the client
-        # connection.  Getting the unique bus name of the caller is
-        # not yet a feature of dasbus, see:
-        # https://github.com/rhinstaller/dasbus/issues/55
-        unique_name = bus.connection.get_unique_name()
         uid = dbus_proxy.GetConnectionUnixUser(unique_name)
         user = pwd.getpwuid(uid).pw_name
         return user
 
-    def _get_pid(self):
+    def _get_pid(self, call_info):
+        unique_name = call_info['sender']
         bus = SystemMessageBus()
         dbus_proxy = bus.get_proxy('org.freedesktop.DBus',
                                    '/org/freedesktop/DBus')
-        raise RuntimeError("dasbus does not support getting the caller's bus name")
-        # The implementation below will get the unique name of the
-        # geopmd connection, not the unique name of the client
-        # connection.  Getting the unique bus name of the caller is
-        # not yet a feature of dasbus, see:
-        # https://github.com/rhinstaller/dasbus/issues/55
-        unique_name = bus.connection.get_unique_name()
         pid = dbus_proxy.GetConnectionUnixProcessID(unique_name)
         return pid
