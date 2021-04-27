@@ -57,27 +57,23 @@ def main():
 
     """
     parser = ArgumentParser(description=description)
-    parser.add_argument('-m', '--mode', dest='mode', type=str, default='r',
-                        help='Session mode options are: "read" or "write", may also be specified in short form as "r" or "w"')
+    parser.add_argument('-w', '--write', dest='write', action='store_true', default=False,
+                        help='Open a write mode session to adjust control values.')
     parser.add_argument('-t', '--time', dest='time', type=float, default=0.0,
                         help='Total run time of the session to be openend in seconds')
     parser.add_argument('-p', '--period', dest='period', type=float, default = 0.0,
                         help='When used with a read mode session reads all values out periodically with the specified period in seconds')
     # Validate arguments
     args = parser.parse_args()
-    if args.mode in ('read' or 'r'):
-        mode = 'r'
+    if not args.write:
         if args.period > args.time:
             raise RuntimeError('Specified a period that is greater than the total time')
         if args.period < 0.0 or args.time < 0.0:
             raise RuntimeError('Specified a negative time or period')
 
-    elif args.mode in ('write' or 'w'):
-        mode = 'w'
+    else:
         if args.time <= 0.0:
             raise RuntimeError('When opening a write mode session, a time greater than zero must be specified')
-    else:
-        raise RuntimeError('Invalid mode specified: "{}"'.format(args.mode))
     # Parse standard input
     requests = []
     for line in sys.stdin:
@@ -86,14 +82,7 @@ def main():
             break
         if not line.startswith('#'):
             words = line.split()
-            if mode == 'r':
-                if len(words) != 3:
-                    raise RuntimeError('Invalid command for reading: "{}"'.format(line))
-                signal_name = words[0]
-                domain_type = topo.domain_type(words[1])
-                domain_idx = int(words[2])
-                requests.append((signal_name, domain_type, domain_idx))
-            else:
+            if args.write:
                 if len(words) != 4:
                     raise RuntimeError('Invalid command for writing: "{}"'.format(line))
                 control_name = words[0]
@@ -101,13 +90,20 @@ def main():
                 domain_idx = int(words[2])
                 setting = float(words[3])
                 requests.append((control_name, domain_type, domain_idx, setting))
+            else:
+                if len(words) != 3:
+                    raise RuntimeError('Invalid command for reading: "{}"'.format(line))
+                signal_name = words[0]
+                domain_type = topo.domain_type(words[1])
+                domain_idx = int(words[2])
+                requests.append((signal_name, domain_type, domain_idx))
 
     bus = SystemMessageBus()
     geopm_proxy = bus.get_proxy('io.github.geopm','/io/github/geopm')
-    if mode == 'r':
-        read_session(geopm_proxy, args.time, args.period, requests)
-    else:
+    if args.write:
         write_session(geopm_proxy, args.time, requests)
+    else:
+        read_session(geopm_proxy, args.time, args.period, requests)
 
 if __name__ == '__main__':
     main()
