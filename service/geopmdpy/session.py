@@ -39,9 +39,11 @@ from . import topo
 def read_session(geopm_proxy, time, period, requests):
     if time != 0.0:
         raise NotImplementedError('Current only support for one-shot reads')
+    geopm_proxy.PlatformOpenSession()
     result = []
     for rr in requests:
         result.append(str(geopm_proxy.PlatformReadSignal(rr[0], rr[1], rr[2])))
+    geopm_proxy.PlatformCloseSession()
     result_line = '{}\n'.format(','.join(result))
     sys.stdout.write(result_line)
 

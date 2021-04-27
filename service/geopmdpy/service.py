@@ -45,7 +45,7 @@ from dasbus.connection import SystemMessageBus
 try:
     from dasbus.server.interface import accepts_additional_arguments
 except ImportError as ee:
-    raise ImportError('{}: Getting the unique bus name of the caller is a new feature, see https://github.com/rhinstaller/dasbus/pull/57'.format(ee))
+    raise ImportError('Getting the unique bus name of the caller is a new feature, see https://github.com/rhinstaller/dasbus/pull/57') from ee
 
 def signal_info(name,
                 description,
@@ -131,7 +131,7 @@ class PlatformService(object):
     def open_session(self, user, client_pid):
         """Method that creates a new client session"""
         signals, controls = self.get_user_access(user)
-        makedirs(self._VAR_PATH, exist_ok=True)
+        os.makedirs(self._VAR_PATH, exist_ok=True)
         session_file = os.path.join(self._VAR_PATH, 'session-{}.json'.format(client_pid))
         if os.path.isfile(session_file):
             raise RuntimeError('Session file for connecting process already exists: {}'.format(session_file))
@@ -147,7 +147,7 @@ class PlatformService(object):
         session = self._get_session(client_pid, 'PlatformCloseSession')
         session_file = os.path.join(self._VAR_PATH, 'session-{}.json'.format(client_pid))
         os.remove(session_file)
-        if client_pid == self.write_pid:
+        if client_pid == self._write_pid:
             save_dir = os.path.join(self._VAR_PATH, self._SAVE_DIR)
             self._pio.restore_controls(save_dir)
             shutil.rmtree(save_dir)
