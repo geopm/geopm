@@ -123,6 +123,7 @@ mkdir -p %{buildroot}%{_sysconfdir}/geopm-service
 %dir %{_libdir}/geopm-service
 %{_bindir}/geopmd
 %{_bindir}/geopmaccess
+%{_bindir}/geopmsession
 %{_sysconfdir}/dbus-1/system.d/io.github.geopm.conf
 %{_sysconfdir}/dbus-1/interfaces/io.github.geopm.xml
 %{_unitdir}/geopm.service

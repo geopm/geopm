@@ -55,12 +55,14 @@ EXTRA_DIST = .gitignore \
              io.github.geopm.xml \
              geopmaccess \
              geopmd \
+             geopmsession \
              geopmdpy/__init__.py \
              geopmdpy/__main__.py \
              geopmdpy/access.py \
              geopmdpy/error.py \
              geopmdpy/pio.py \
              geopmdpy/service.py \
+             geopmdpy/session.py \
              geopmdpy/topo.py \
              geopmdpy/version.py \
              geopmdpy/version.py.in \
