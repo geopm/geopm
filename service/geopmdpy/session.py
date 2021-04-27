@@ -32,23 +32,31 @@
 #
 
 import sys
+import time
 from dasbus.connection import SystemMessageBus
 from argparse import ArgumentParser
 from . import topo
 
 def read_session(geopm_proxy, time, period, requests):
-    if time != 0.0:
-        raise NotImplementedError('Current only support for one-shot reads')
     geopm_proxy.PlatformOpenSession()
-    result = []
-    for rr in requests:
-        result.append(str(geopm_proxy.PlatformReadSignal(rr[0], rr[1], rr[2])))
+    if period == 0:
+        num_period = 1
+    else:
+        num_period = int(time / period)  + 1
+    for period_idx in range(num_period):
+        result = []
+        for rr in requests:
+            result.append(str(geopm_proxy.PlatformReadSignal(*rr)))
+        result_line = '{}\n'.format(','.join(result))
+        sys.stdout.write(result_line)
     geopm_proxy.PlatformCloseSession()
-    result_line = '{}\n'.format(','.join(result))
-    sys.stdout.write(result_line)
 
 def write_session(geopm_proxy, time, requests):
-    raise NotImplementedError('Current only support for one-shot reads')
+    geopm_proxy.PlatformOpenSession()
+    for rr in requests:
+        geopm_proxy.PlatformWriteControl(*rr)
+    time.sleep(time)
+    geopm_proxy.PlatformCloseSession()
 
 def main():
     description="""Command line interface for the geopm service read/write features.
@@ -74,6 +82,9 @@ def main():
     else:
         if args.time <= 0.0:
             raise RuntimeError('When opening a write mode session, a time greater than zero must be specified')
+        if args.period != 0.0:
+            raise RuntimeError('Cannot specify period with write mode session')
+
     # Parse standard input
     requests = []
     for line in sys.stdin:
