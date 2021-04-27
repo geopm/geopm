@@ -33,16 +33,23 @@
 
 import sys
 from dasbus.connection import SystemMessageBus
+from dasbus.error import DBusError
 from argparse import ArgumentParser
 
 
 def set_group_signals(geopm_proxy, group, signals):
     _, current_controls = geopm_proxy.PlatformGetGroupAccess(group)
-    geopm_proxy.PlatformSetGroupAccess(group, signals, current_controls)
+    try:
+        geopm_proxy.PlatformSetGroupAccess(group, signals, current_controls)
+    except DBusError as ee:
+        raise RuntimeError('Failed to set group signal access list, request must be made by root user') from ee
 
 def set_group_controls(geopm_proxy, group, controls):
     current_signals, _ = geopm_proxy.PlatformGetGroupAccess(group)
-    geopm_proxy.PlatformSetGroupAccess(group, current_signals, controls)
+    try:
+        geopm_proxy.PlatformSetGroupAccess(group, current_signals, controls)
+    except DBusError as ee:
+        raise RuntimeError('Failed to set group control access list, request must be made by root user') from ee
 
 def get_all_signals(geopm_proxy):
     all_signals, _ = geopm_proxy.PlatformGetAllAccess()
