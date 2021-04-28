@@ -128,6 +128,12 @@ class PlatformService(object):
         raise NotImplementedError('PlatformService: Implementation incomplete')
         return infos
 
+    def lock_control(self):
+        raise NotImplementedError('PlatformService: Implementation incomplete')
+
+    def unlock_control(self):
+        raise NotImplementedError('PlatformService: Implementation incomplete')
+
     def open_session(self, user, client_pid):
         """Method that creates a new client session"""
         signals, controls = self.get_user_access(user)
@@ -266,6 +272,8 @@ class GEOPMService(object):
                 <arg direction="in" name="control_names" type="as" />
                 <arg direction="out" name="info" type="a(ssi)" />
             </method>
+            <method name="PlatformLockControl" />
+            <method name="PlatformUnlockControl" />
             <method name="PlatformOpenSession" />
             <method name="PlatformCloseSession" />
             <method name="PlatformStartBatch">
@@ -317,6 +325,12 @@ class GEOPMService(object):
 
     def PlatformGetControlInfo(self, control_names):
         return self._platform.get_control_info(control_names)
+
+    def PlatformLockControl(self):
+        self._platform.lock_control()
+
+    def PlatformUnlockControl(self):
+        self._platform.unlock_control()
 
     @accepts_additional_arguments
     def PlatformOpenSession(self, **call_info):
