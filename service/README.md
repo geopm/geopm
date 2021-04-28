@@ -23,18 +23,19 @@ controls that cannot be provided by any of the IOGroups loaded by the
 unprivileged user process.
 
 The GEOPM service also provides a fail-safe save/restore mechanism for
-any platform controls that are exposed by PlatformIO.  This is done by
-initiating a session with the service when the ServiceIOGroup is first
-created by a libgeopm or libgeopmpolicy user.  All the initial values
-for all controls are saved by the GEOPM service prior to opening the
-session with the end-user.  When the session is closed, either by an
-explicit D-Bus call by the client, or when the process that initiated
-the client session ends, all control knobs are restored to the values
-that they had prior to opening the session.  Some filtering may be
-applied to the raw signals provided by the hardware interface before
-being exposed to the client session.  In particular, all monotonic
-signals (e.g. hardware counters) are reported with respect to the
-value they had when the session began, which is reported as zero.
+any platform controls that are exposed by PlatformIO in conjuction
+with a read/write session.  This is done by initiating a session with
+the service when the ServiceIOGroup is first created by a libgeopm or
+libgeopmpolicy user.  All the initial values for all controls are
+saved by the GEOPM service prior to opening the session with the
+end-user.  When the session is closed, either by an explicit D-Bus
+call by the client, or when the process that initiated the client
+session ends, all control knobs are restored to the values that they
+had prior to opening the session.  Some filtering may be applied to
+the raw signals provided by the hardware interface before being
+exposed to the client session.  In particular, all monotonic signals
+(e.g. hardware counters) are reported with respect to the value they
+had when the session began, which is reported as zero.
 
 When a client calls `read_signal()` or `write_control()` on their
 PlatformIO object and the only IOGroup that provides the signal or
