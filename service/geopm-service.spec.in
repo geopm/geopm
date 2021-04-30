@@ -42,10 +42,7 @@ BuildRequires: gcc-c++
 BuildRequires: unzip
 BuildRequires: libtool
 
-%if 0%{?rhel} >= 8
-# Needed to generate debuginfo packages
-BuildRequires: gdb-headless
-%endif
+%global debug_package %{nil}
 
 %define python_major_version 3
 BuildRequires: python3
@@ -75,7 +72,7 @@ The service package for GEOPM that runs the geopmd daemon.
 Summary: Global Extensible Open Power Manager Service - python %{python_major_version}
 Group: System Environment/Libraries
 Requires: geopm-service
-Requires: python36-gobject-base
+Requires: python3-gobject-base
 %{?python_provide:%python_provide python%{python3_pkgversion}-geopmdpy}
 
 %description -n python%{python3_pkgversion}-geopmdpy
