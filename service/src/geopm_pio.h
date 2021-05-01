@@ -100,6 +100,9 @@ int geopm_pio_control_description(const char *control_name,
                                   size_t description_max,
                                   char *description);
 
+
+struct geopm_request_s;
+
 // Either call through to DBusServer::start_batch or noop based on
 // GEOPM_SERVICE_BUILD define
 int geopm_pio_start_batch_server(int client_pid,
@@ -114,12 +117,6 @@ int geopm_pio_start_batch_server(int client_pid,
 // Either call through to DBusServer::stop_batch or noop based on
 // GEOPM_SERVICE_BUILD define
 int geopm_pio_stop_batch_server(int server_pid);
-
-struct geopm_request_s {
-    int domain;
-    int domain_idx;
-    char name[NAME_MAX];
-};
 
 #ifdef __cplusplus
 }
