@@ -407,6 +407,13 @@ AC_CHECK_LIB([pthread], [pthread_mutex_init], [], [
 AC_CHECK_HEADER([pthread.h], [], [
     echo "missing pthread.h: POSIX thread interface is required"
     exit -1])
+AC_CHECK_LIB([systemd], [sd_bus_open_system], [], [
+    echo "missing libsystemd or does libsystemd does not support sd_bus interface"
+    exit -1])
+AC_CHECK_HEADER([systemd/sd-bus.h], [], [
+    echo "missing systemd/sd-bus.h: sd_bus interface is required"
+    exit -1])
+
 if test "x$enable_beta" = "x1" ; then
   AC_CHECK_LIB([sqlite3], [sqlite3_open], [], [
       echo "missing libsqlite3: <https://www.sqlite.org> use --with-sqlite3 or --with-sqlite3-lib"
