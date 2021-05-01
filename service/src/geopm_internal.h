@@ -33,6 +33,7 @@
 #ifndef GEOPM_INTERNAL_H_INCLUDE
 #define GEOPM_INTERNAL_H_INCLUDE
 #include <stdint.h>
+#include <limits.h>
 
 #include "geopm.h"
 #include "geopm_time.h"
@@ -87,6 +88,12 @@ struct geopm_prof_message_s {
      * @brief Progress of the rank within the current region.
      */
     double progress;
+};
+
+struct geopm_request_s {
+    int domain;
+    int domain_idx;
+    char name[NAME_MAX];
 };
 
 /**
