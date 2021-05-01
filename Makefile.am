@@ -634,6 +634,8 @@ libgeopmpolicy_la_SOURCES = service/contrib/json11/json11.cpp \
                             src/SampleAggregatorImp.hpp \
                             src/Scheduler.cpp \
                             src/Scheduler.hpp \
+                            src/ServiceProxy.cpp \
+                            src/ServiceProxy.hpp \
                             src/Tracer.cpp \
                             src/Tracer.hpp \
                             src/TreeComm.cpp \
