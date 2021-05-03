@@ -256,4 +256,52 @@ namespace geopm
         }
         return result->second;
     }
+
+    std::function<double(const std::vector<double> &)> Agg::type_to_function(int agg_type)
+    {
+        std::map<int, std::function<double(const std::vector<double> &)> > type_map = {
+            {M_SUM, sum},
+            {M_AVERAGE, average},
+            {M_MEDIAN, median},
+            {M_LOGICAL_AND, logical_and},
+            {M_LOGICAL_OR, logical_or},
+            {M_REGION_HASH, region_hash},
+            {M_REGION_HINT, region_hint},
+            {M_MIN, min},
+            {M_MAX, max},
+            {M_STDDEV, stddev},
+            {M_SELECT_FIRST, select_first},
+            {M_EXPECT_SAME, expect_same},
+        };
+        auto result = type_map.find(agg_type);
+        if (result == type_map.end()) {
+            throw Exception("Agg::type_to_function(): agg_type out of range: " + std::to_string(agg_type),
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return result->second;
+    }
+
+    std::string Agg::type_to_name(int agg_type)
+    {
+        std::map<int, std::string> type_map = {
+            {M_SUM, "sum"},
+            {M_AVERAGE, "average"},
+            {M_MEDIAN, "median"},
+            {M_LOGICAL_AND, "logical_and"},
+            {M_LOGICAL_OR, "logical_or"},
+            {M_REGION_HASH, "region_hash"},
+            {M_REGION_HINT, "region_hint"},
+            {M_MIN, "min"},
+            {M_MAX, "max"},
+            {M_STDDEV, "stddev"},
+            {M_SELECT_FIRST, "select_first"},
+            {M_EXPECT_SAME, "expect_same"},
+        };
+        auto result = type_map.find(agg_type);
+        if (result == type_map.end()) {
+            throw Exception("Agg::type_to_function(): agg_type out of range: " + std::to_string(agg_type),
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return result->second;
+    }
 }
