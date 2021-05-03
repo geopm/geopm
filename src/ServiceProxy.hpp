@@ -43,33 +43,33 @@ struct geopm_request_s;
 
 namespace geopm
 {
+    struct signal_info_s {
+        std::string name;
+        std::string description;
+        int domain;
+        int aggregation;
+        int string_format;
+        int behavior;
+    };
+
+    struct control_info_s {
+        std::string name;
+        std::string description;
+        int domain;
+    };
+
     /// @brief Proxy object for the io.github.geopm D-Bus interface
     /// used to implement the ServiceIOGroup
     class ServiceProxy
     {
         public:
-            struct m_signal_info_s {
-                std::string name;
-                std::string description;
-                int domain;
-                int aggregation;
-                int string_format;
-                int behavior;
-            };
-
-            struct m_control_info_s {
-                std::string name;
-                std::string description;
-                int domain;
-            };
-
             ServiceProxy() = default;
             virtual ~ServiceProxy() = default;
-            std::unique_ptr<ServiceProxy> make_unique(void);
+            static std::unique_ptr<ServiceProxy> make_unique(void);
             virtual void platform_get_user_access(std::vector<std::string> &signal_names,
                                                   std::vector<std::string> &control_names) = 0;
-            virtual std::vector<m_signal_info_s> platform_get_signal_info(const std::vector<std::string> &signal_names) = 0;
-            virtual std::vector<m_control_info_s> platform_get_control_info(const std::vector<std::string> &control_names) = 0;
+            virtual std::vector<signal_info_s> platform_get_signal_info(const std::vector<std::string> &signal_names) = 0;
+            virtual std::vector<control_info_s> platform_get_control_info(const std::vector<std::string> &control_names) = 0;
             virtual void platform_open_session(void) = 0;
             virtual void platform_close_session(void) = 0;
             virtual void platform_start_batch(const std::vector<struct geopm_request_s> &signal_config,
@@ -93,8 +93,8 @@ namespace geopm
             virtual ~ServiceProxyImp();
             void platform_get_user_access(std::vector<std::string> &signal_names,
                                           std::vector<std::string> &control_names) override;
-            std::vector<m_signal_info_s> platform_get_signal_info(const std::vector<std::string> &signal_names) override;
-            std::vector<m_control_info_s> platform_get_control_info(const std::vector<std::string> &control_names) override;
+            std::vector<signal_info_s> platform_get_signal_info(const std::vector<std::string> &signal_names) override;
+            std::vector<control_info_s> platform_get_control_info(const std::vector<std::string> &control_names) override;
             void platform_open_session(void) override;
             void platform_close_session(void) override;
             void platform_start_batch(const std::vector<struct geopm_request_s> &signal_config,
