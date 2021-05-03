@@ -44,6 +44,21 @@ namespace geopm
     class Agg
     {
         public:
+            enum m_type_e {
+                M_SUM,
+                M_AVERAGE,
+                M_MEDIAN,
+                M_LOGICAL_AND,
+                M_LOGICAL_OR,
+                M_MIN,
+                M_MAX,
+                M_STDDEV,
+                M_REGION_HASH,
+                M_REGION_HINT,
+                M_SELECT_FIRST,
+                M_EXPECT_SAME,
+                M_NUM_TYPE
+            };
             /// @brief Returns the sum of the input operands.
             static double sum(const std::vector<double> &operand);
             /// @brief Returns the average of the input operands.
@@ -98,6 +113,14 @@ namespace geopm
             ///        given std::function.  If the std::function does not match
             ///        a known function, it throws an error.
             static std::string function_to_name(std::function<double(const std::vector<double> &)> func);
+            /// @brief Returns the corresponding agg function for one
+            ///        of the Agg::m_type_e enum values.  If the
+            ///        agg_type is out of range, it throws an error.
+            static std::function<double(const std::vector<double> &)> type_to_function(int agg_type);
+            /// @brief Returns the corresponding agg function name for
+            ///        one of the Agg:m_type_e enum values.  If the
+            ///        agg_type is out of range, it throws an error.
+            static std::string type_to_name(int agg_type);
     };
 }
 
