@@ -38,6 +38,8 @@
 #include <utility>
 #include <vector>
 #include <stdint.h>
+#include <functional>
+
 
 namespace geopm
 {
@@ -100,6 +102,14 @@ namespace geopm
     /// @brief Returns whether one string ends with another.
     bool string_ends_with(std::string str, std::string key);
 
+    enum string_format_e {
+        STRING_FORMAT_DOUBLE,
+        STRING_FORMAT_INTEGER,
+        STRING_FORMAT_HEX,
+        STRING_FORMAT_RAW64,
+    };
+    /// @brief Convert a format enum to a format function
+    std::function<std::string(double)> string_format_function(int format_type);
     /// @brief Format a string to best represent a signal encoding a
     ///        double precision floating point number.
     /// @param [in] signal A real number that requires many
