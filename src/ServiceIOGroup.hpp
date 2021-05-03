@@ -33,19 +33,27 @@
 #ifndef SERVICEIOGROUP_HPP_INCLUDE
 #define SERVICEIOGROUP_HPP_INCLUDE
 
+#include <map>
+
 #include "IOGroup.hpp"
 
 namespace geopm
 {
+    class PlatformTopo;
+    class ServiceProxy;
+    struct signal_info_s;
+    struct control_info_s;
+
     /// @brief IOGroup that uses DBus interface to access geopmd
     ///        provided signals and controls.  This IOGroup is not
     ///        loaded by a server side PlatformIO object.
     class ServiceIOGroup : public IOGroup
     {
+        public:
             ServiceIOGroup();
             ServiceIOGroup(const PlatformTopo &platform_topo,
-                           std::shared_ptr<BatchServer> batch_server);
-            virtual ~ServiceGroup() = default;
+                           std::shared_ptr<ServiceProxy> service_proxy);
+            virtual ~ServiceIOGroup() = default;
             std::set<std::string> signal_names(void) const override;
             std::set<std::string> control_names(void) const override;
             bool is_valid_signal(const std::string &signal_name) const override;
@@ -86,6 +94,15 @@ namespace geopm
             void restore_control(const std::string &save_path) override;
             static std::string plugin_name(void);
             static std::unique_ptr<IOGroup> make_plugin(void);
+        private:
+            static const std::string M_PLUGIN_NAME;
+            static std::map<std::string, signal_info_s> service_signal_info(std::shared_ptr<ServiceProxy> service_proxy);
+            static std::map<std::string, control_info_s> service_control_info(std::shared_ptr<ServiceProxy> service_proxy);
+            const PlatformTopo &m_platform_topo;
+            std::shared_ptr<ServiceProxy> m_service_proxy;
+            std::map<std::string, signal_info_s> m_signal_info;
+            std::map<std::string, control_info_s> m_control_info;
+
     };
 }
 
