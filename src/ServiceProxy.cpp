@@ -79,7 +79,7 @@ namespace geopm
         }
     }
 
-    std::vector<ServiceProxy::m_signal_info_s> ServiceProxyImp::platform_get_signal_info(const std::vector<std::string> &signal_names)
+    std::vector<signal_info_s> ServiceProxyImp::platform_get_signal_info(const std::vector<std::string> &signal_names)
     {
         throw Exception("ServiceProxyImp::platform_get_signal_info()",
                         GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
@@ -87,7 +87,7 @@ namespace geopm
         return {};
     }
 
-    std::vector<ServiceProxy::m_control_info_s> ServiceProxyImp::platform_get_control_info(const std::vector<std::string> &control_names)
+    std::vector<control_info_s> ServiceProxyImp::platform_get_control_info(const std::vector<std::string> &control_names)
     {
         throw Exception("ServiceProxyImp::platform_get_control_info()",
                         GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);

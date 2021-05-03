@@ -245,4 +245,20 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
     }
+
+    std::function<std::string(double)> string_format_function(int format_type)
+    {
+        static const std::map<int, std::function<std::string(double)> > function_map {
+            {STRING_FORMAT_DOUBLE, string_format_double},
+            {STRING_FORMAT_INTEGER, string_format_integer},
+            {STRING_FORMAT_HEX, string_format_hex},
+            {STRING_FORMAT_RAW64, string_format_raw64},
+        };
+        auto it = function_map.find(format_type);
+        if (it == function_map.end()) {
+            throw Exception("geopm::string_format_function(): format_type out of range: " + std::to_string(format_type),
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return it->second;
+    }
 }
