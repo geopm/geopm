@@ -56,6 +56,8 @@
 #include "RawMSRSignal.hpp"
 #include "MSRFieldSignal.hpp"
 #include "DifferenceSignal.hpp"
+#include "DivisionSignal.hpp"
+#include "ScalabilityHintTimeSignal.hpp"
 #include "TimeSignal.hpp"
 #include "DerivativeSignal.hpp"
 #include "Control.hpp"
@@ -148,6 +150,7 @@ namespace geopm
 
         register_temperature_signals();
         register_power_signals();
+        register_pcnt_scalability_signals();
 
         register_control_alias("POWER_PACKAGE_LIMIT", "MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT");
         register_control_alias("FREQUENCY", "MSR::PERF_CTL:FREQ"); // TODO: Remove @ v2.0
@@ -221,7 +224,8 @@ namespace geopm
                                                    ts.description +
                                                    "\n    alias_for: Temperature derived from PROCHOT and "
                                                    + ts.msr_name,
-                                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE};
+                                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
+                                                   string_format_double};
             }
         }
     }
@@ -280,10 +284,159 @@ namespace geopm
                                                    IOGroup::M_UNITS_WATTS,
                                                    agg_function(msr_name),
                                                    ps.description + "\n    alias_for: " + ps.msr_name + " rate of change",
-                                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE};
+                                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
+                                                   string_format_double};
             }
         }
     }
+
+    void MSRIOGroup::register_pcnt_scalability_signals(void)
+    {
+        // register time signal; domain board
+        std::string time_name = "MSR::TIME";
+        std::shared_ptr<Signal> time_sig = std::make_shared<TimeSignal>(m_time_zero, m_time_batch);
+        m_signal_available[time_name] = {std::vector<std::shared_ptr<Signal> >({time_sig}),
+                                         GEOPM_DOMAIN_CPU,
+                                         IOGroup::M_UNITS_SECONDS,
+                                         Agg::select_first,
+                                         "Time in seconds used to calculate pcnt_rate, acnt_rate"};
+        int derivative_window = 8;
+        double sleep_time = 0.005;  // 5000 us
+
+        // Mapping of high-level signal name to description and
+        // underlying energy MSR.  The domain will match that of the
+        // energy signal.
+        struct cnt_data
+        {
+            std::string cnt_name;
+            std::string description;
+            std::string msr_name;
+        };
+        std::vector<cnt_data> cnt_signals {
+            {"MSR::PCNT_RATE",
+                    "Average cpu pcnt rate over 8 control loop iterations (40ms if using geopmread)",
+                    "MSR::PPERF:PCNT"},
+            {"MSR::ACNT_RATE",
+                    "Average cpu acnt rate over 8 control loop iterations (40ms if using geopmread)",
+                    "MSR::APERF:ACNT"}
+        };
+        for (const auto &ps : cnt_signals) {
+            std::string signal_name = ps.cnt_name;
+            std::string msr_name = ps.msr_name;
+            auto read_it = m_signal_available.find(msr_name);
+            if (read_it != m_signal_available.end()) {
+                auto readings = read_it->second.signals;
+                int cnt_domain = read_it->second.domain;
+                int num_domain = m_platform_topo.num_domain(cnt_domain);
+                GEOPM_DEBUG_ASSERT(num_domain == (int)readings.size(),
+                                   "size of domain for " + msr_name +
+                                   " does not match number of signals available.");
+                std::vector<std::shared_ptr<Signal> > result(num_domain);
+                for (int domain_idx = 0; domain_idx < num_domain; ++domain_idx) {
+                    auto dt_cnt = readings[domain_idx];
+                    result[domain_idx] =
+                        std::make_shared<DerivativeSignal>(time_sig, dt_cnt,
+                                                           derivative_window,
+                                                           sleep_time);
+                }
+                m_signal_available[signal_name] = {result,
+                                                   cnt_domain,
+                                                   IOGroup::M_UNITS_HERTZ,
+                                                   Agg::average,
+                                                   ps.description + "\n    alias_for: " + ps.msr_name + " rate of change",
+                                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
+                                                   string_format_double};
+            }
+        }
+
+        std::string signal_name = "MSR::CPU_SCALABILITY_RATIO";
+        std::string msr_name = "MSR::PCNT_RATE";
+        auto read_it = m_signal_available.find(msr_name);
+        if (read_it != m_signal_available.end()) {
+            auto readings = read_it->second.signals;
+            int cnt_domain = read_it->second.domain;
+            int num_domain = m_platform_topo.num_domain(cnt_domain);
+            GEOPM_DEBUG_ASSERT(num_domain == (int)readings.size(),
+                               "size of domain for " + msr_name +
+                               " does not match number of signals available.");
+            std::vector<std::shared_ptr<Signal> > result(num_domain);
+            for (int domain_idx = 0; domain_idx < num_domain; ++domain_idx) {
+                auto numer_it = m_signal_available.find("MSR::PCNT_RATE");
+                auto numers = numer_it->second.signals;
+                auto numer = numers[domain_idx];
+
+                auto denom_it = m_signal_available.find("MSR::ACNT_RATE");
+                auto denoms = denom_it->second.signals;
+                auto denom = denoms[domain_idx];
+
+                result[domain_idx] =
+                    std::make_shared<DivisionSignal>(numer, denom);
+            }
+
+            m_signal_available[signal_name] = {result,
+                                               cnt_domain,
+                                               IOGroup::M_UNITS_NONE,
+                                               Agg::average,
+                                               "Measure of CPU Scalability as determined by PCNT over ACNT\n    alias_for: MSR::PCNT_RATE/MSR::ACNT_RATE",
+                                               IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
+                                               string_format_double};
+        }
+
+        struct hint_data
+        {
+            std::string hint_name;
+            std::string description;
+            std::string msr_name;
+            double range_upper;
+            double range_lower;
+        };
+        std::vector<hint_data> hint_signals {
+            {"MSR::TIME_HINT_COMPUTE",
+                    "Compute Bound Region Hint based on PCNT",
+                    "MSR::CPU_SCALABILITY_RATIO",
+                    2.0, 0.5},
+            {"MSR::TIME_HINT_MEMORY",
+                    "Memory Bound Region Hint based on PCNT",
+                    "MSR::CPU_SCALABILITY_RATIO",
+                    0.5, 0.05},
+            {"MSR::TIME_HINT_IGNORE",
+                    "Ignore Region Hint based on PCNT",
+                    "MSR::CPU_SCALABILITY_RATIO",
+                    0.05, 0.0}
+        };
+
+        for (const auto &ps : hint_signals) {
+            std::string signal_name = ps.hint_name;
+            std::string msr_name = ps.msr_name;
+            auto read_it = m_signal_available.find(msr_name);
+            if (read_it != m_signal_available.end()) {
+                auto readings = read_it->second.signals;
+                int hint_domain = read_it->second.domain;
+                int num_domain = m_platform_topo.num_domain(hint_domain);
+                GEOPM_DEBUG_ASSERT(num_domain == (int)readings.size(),
+                                   "size of domain for " + msr_name +
+                                   " does not match number of signals available.");
+                std::vector<std::shared_ptr<Signal> > result(num_domain);
+                for (int domain_idx = 0; domain_idx < num_domain; ++domain_idx) {
+                    auto hint = readings[domain_idx];
+                    result[domain_idx] =
+                        std::make_shared<ScalabilityHintTimeSignal>(hint, time_sig,
+                                                           ps.range_upper, ps.range_lower);
+
+                }
+
+                m_signal_available[signal_name] = {result,
+                                                   hint_domain,
+                                                   IOGroup::M_UNITS_SECONDS,
+                                                   Agg::average,
+                                                   ps.description + "\n    Based on : " + ps.msr_name + " in range: "
+                                                   + std::to_string(ps.range_lower) + "-" + std::to_string(ps.range_upper),
+                                                   IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
+                                                   string_format_double};
+            }
+        }
+    }
+
 
     std::set<std::string> MSRIOGroup::signal_names(void) const
     {
@@ -674,24 +827,16 @@ namespace geopm
         }
 
         std::function<std::string(double)> result = string_format_double;
-        if (string_ends_with(signal_name, "#")) {
-            result = string_format_raw64;
+        auto it = m_signal_available.find(signal_name);
+        if (it != m_signal_available.end()) {
+            result = it->second.format_function;
         }
-        else {
-            auto it = m_signal_available.find(signal_name);
-            if (it != m_signal_available.end()) {
-                int units = it->second.units;
-                if (IOGroup::M_UNITS_NONE == units) {
-                    result = string_format_integer;
-                }
-            }
 #ifdef GEOPM_DEBUG
-            else {
-                throw Exception("MSRIOGroup::format_function(): signal valid but not found in map",
-                                GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-            }
-#endif
+        else {
+            throw Exception("MSRIOGroup::format_function(): signal valid but not found in map",
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
+#endif
         return result;
     }
 
@@ -1062,6 +1207,7 @@ namespace geopm
             .agg_function = Agg::select_first,
             .description = M_DEFAULT_DESCRIPTION,
             .behavior = IOGroup::M_SIGNAL_BEHAVIOR_LABEL,
+            .format_function = string_format_raw64
         };
     }
 
@@ -1072,7 +1218,8 @@ namespace geopm
                                           int function, double scalar, int units,
                                           const std::string &agg_function,
                                           const std::string &description,
-                                          int behavior)
+                                          int behavior,
+                                          const std::function<std::string(double)> &format_function)
     {
         std::string raw_msr_signal_name = M_NAME_PREFIX + msr_name + "#";
         int num_domain = m_platform_topo.num_domain(domain_type);
@@ -1091,6 +1238,7 @@ namespace geopm
             .agg_function = Agg::name_to_function(agg_function),
             .description = description,
             .behavior = behavior,
+            .format_function = format_function,
         };
     }
 
@@ -1176,9 +1324,14 @@ namespace geopm
                     description = field_data["description"].string_value();
                 }
 
+                std::function<std::string(double)> format_function = string_format_double;
+                if (IOGroup::M_UNITS_NONE == units) {
+                    format_function = string_format_integer;
+                }
+
                 add_msr_field_signal(msr_name, sig_ctl_name, domain_type,
                                      begin_bit, end_bit, function, scalar, units,
-                                     agg_function, description, behavior);
+                                     agg_function, description, behavior, format_function);
                 if (is_control) {
                     add_msr_field_control(sig_ctl_name, domain_type, msr_offset,
                                           begin_bit, end_bit, function, scalar, units,

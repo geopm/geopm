@@ -487,6 +487,10 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/DerivativeSignal.hpp \
                             src/DifferenceSignal.cpp \
                             src/DifferenceSignal.hpp \
+                            src/DivisionSignal.cpp \
+                            src/DivisionSignal.hpp \
+                            src/ScalabilityHintTimeSignal.cpp \
+                            src/ScalabilityHintTimeSignal.hpp \
                             src/DomainControl.cpp \
                             src/DomainControl.hpp \
                             src/EditDistPeriodicityDetector.cpp \

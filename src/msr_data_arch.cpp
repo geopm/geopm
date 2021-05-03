@@ -68,7 +68,8 @@ namespace geopm
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "monotone",
-                    "writeable": false
+                    "writeable": false,
+                    "aggregation": "sum"
                 }
             }
         },
@@ -83,7 +84,8 @@ namespace geopm
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "monotone",
-                    "writeable": false
+                    "writeable": false,
+                    "aggregation": "sum"
                 }
             }
         },
