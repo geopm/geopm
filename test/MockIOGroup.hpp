@@ -82,6 +82,10 @@ class MockIOGroup : public geopm::IOGroup
                            std::string(const std::string &control_name));
         MOCK_CONST_METHOD1(signal_behavior,
                            int(const std::string &signal_name));
+        MOCK_METHOD1(save_control,
+                     void(const std::string &save_dir));
+        MOCK_METHOD1(restore_control,
+                     void(const std::string &save_dir));
 };
 
 #endif
