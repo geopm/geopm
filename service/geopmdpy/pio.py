@@ -106,6 +106,11 @@ int geopm_pio_control_description(const char *control_name,
                                   size_t description_max,
                                   char *description);
 
+int geopm_pio_signal_info(const char *signal_name,
+                          int *aggregation_type,
+                          int *format_type,
+                          int *behavior_type);
+
 int geopm_pio_start_batch_server(int client_pid,
                                  int num_signal,
                                  const struct geopm_request_s *signal_config,
@@ -519,6 +524,19 @@ def restore_control_dir():
     err = _dl.geopm_pio_restore_control_dir(save_dir_cstr)
     if err < 0:
         raise RuntimeError('geopm_pio_restore_control() failed: {}'.format(error.message(err)))
+
+def signal_info(signal_name):
+    global _ffi
+    global _dl
+    name_max = 1024
+    signal_name_cstr = _ffi.new("char[]", signal_name.encode())
+    aggregation_type = _ffi.new("int*")
+    format_type = _ffi.new("int*")
+    behavior_type = _ffi.new("int*")
+    err = _dl.geopm_pio_signal_info(signal_name_cstr, aggregation_type, format_type, behavior_type)
+    if err < 0:
+        raise RuntimeError('geopm_pio_signal_info() failed: {}'.format(error.message(err)))
+    return (aggregation_type[0], format_type[0], behavior_type[0])
 
 def start_batch_server(client_pid, signal_config, control_config):
     raise NotImplementedError('pio.start_batch_server() is not yet implemented')
