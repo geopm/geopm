@@ -314,8 +314,9 @@ class GEOPMService(object):
     def PlatformSetGroupAccess(self, group, allowed_signals, allowed_controls):
         self._platform.set_group_access(group, allowed_signals, allowed_controls)
 
-    def PlatformGetUserAccess(self):
-        return self._platform.get_user_access(self._get_user())
+    @accepts_additional_arguments
+    def PlatformGetUserAccess(self, **call_info):
+        return self._platform.get_user_access(self._get_user(**call_info))
 
     def PlatformGetAllAccess(self):
         return self._platform.get_all_access()
