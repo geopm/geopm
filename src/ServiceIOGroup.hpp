@@ -98,6 +98,7 @@ namespace geopm
             static const std::string M_PLUGIN_NAME;
             static std::map<std::string, signal_info_s> service_signal_info(std::shared_ptr<ServiceProxy> service_proxy);
             static std::map<std::string, control_info_s> service_control_info(std::shared_ptr<ServiceProxy> service_proxy);
+            static std::string strip_plugin_name(const std::string &name);
             const PlatformTopo &m_platform_topo;
             std::shared_ptr<ServiceProxy> m_service_proxy;
             std::map<std::string, signal_info_s> m_signal_info;
