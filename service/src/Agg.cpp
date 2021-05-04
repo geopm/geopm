@@ -257,6 +257,32 @@ namespace geopm
         return result->second;
     }
 
+    int Agg::function_to_type(std::function<double(const std::vector<double> &)> func)
+    {
+        std::map<decltype(&sum), int> function_map = {
+            {sum, M_SUM},
+            {average, M_AVERAGE},
+            {median, M_MEDIAN},
+            {logical_and, M_LOGICAL_AND},
+            {logical_or, M_LOGICAL_OR},
+            {region_hash, M_REGION_HASH},
+            {region_hint, M_REGION_HINT},
+            {min, M_MIN},
+            {max, M_MAX},
+            {stddev, M_STDDEV},
+            {select_first, M_SELECT_FIRST},
+            {expect_same, M_EXPECT_SAME},
+        };
+
+        auto f_ref = *(func.target<decltype(&sum)>());
+        auto result = function_map.find(f_ref);
+        if (result == function_map.end()) {
+            throw Exception("Agg::function_to_name(): unknown aggregation function.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return result->second;
+    }
+
     std::function<double(const std::vector<double> &)> Agg::type_to_function(int agg_type)
     {
         std::map<int, std::function<double(const std::vector<double> &)> > type_map = {
