@@ -39,6 +39,7 @@
 #include "Exception.hpp"
 #include "MockPlatformTopo.hpp"
 #include "geopm_hash.h"
+#include "geopm_internal.h"
 #include "geopm_test.hpp"
 
 using geopm::DebugIOGroup;
