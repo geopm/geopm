@@ -75,6 +75,7 @@ namespace geopm
         int num_signal = signal_names.size();
         for (int signal_idx = 0; signal_idx != num_signal; ++signal_idx) {
             result[signal_names[signal_idx]] = signal_info[signal_idx];
+            result[M_PLUGIN_NAME + "::" + signal_names[signal_idx]] = signal_info[signal_idx];
         }
         return result;
     }
@@ -91,6 +92,7 @@ namespace geopm
         int num_control = control_names.size();
         for (int control_idx = 0; control_idx != num_control; ++control_idx) {
             result[control_names[control_idx]] = control_info[control_idx];
+            result[M_PLUGIN_NAME + "::" + control_names[control_idx]] = control_info[control_idx];
         }
         return result;
     }
@@ -100,6 +102,7 @@ namespace geopm
         std::set<std::string> result;
         for (const auto &si : m_signal_info) {
             result.insert(si.first);
+            result.insert(M_PLUGIN_NAME + "::" + si.first);
         }
         return result;
     }
@@ -109,6 +112,7 @@ namespace geopm
         std::set<std::string> result;
         for (const auto &ci : m_control_info) {
             result.insert(ci.first);
+            result.insert(M_PLUGIN_NAME + "::" + ci.first);
         }
         return result;
     }
@@ -204,7 +208,8 @@ namespace geopm
             throw Exception("ServiceIOGroup::read_signal(): domain_idx out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        return m_service_proxy->platform_read_signal(signal_name, domain_type, domain_idx);
+        std::string signal_name_strip = strip_plugin_name(signal_name);
+        return m_service_proxy->platform_read_signal(signal_name_strip, domain_type, domain_idx);
     }
 
     void ServiceIOGroup::write_control(const std::string &control_name,
@@ -225,7 +230,8 @@ namespace geopm
             throw Exception("ServiceIOGroup::write_control(): domain_idx out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        m_service_proxy->platform_write_control(control_name, domain_type, domain_idx, setting);
+        std::string control_name_strip = strip_plugin_name(control_name);
+        m_service_proxy->platform_write_control(control_name_strip, domain_type, domain_idx, setting);
     }
 
     void ServiceIOGroup::save_control(void)
@@ -301,6 +307,17 @@ namespace geopm
     void ServiceIOGroup::restore_control(const std::string &save_path)
     {
         // Proxy, so no direct save/restore
+    }
+
+    std::string ServiceIOGroup::strip_plugin_name(const std::string &name)
+    {
+        static const std::string key = M_PLUGIN_NAME + "::";
+        static const size_t key_len = key.size();
+        std::string result = name;
+        if (string_begins_with(name, key)) {
+            result = name.substr(key_len);
+        }
+        return result;
     }
 
     std::string ServiceIOGroup::plugin_name(void)
