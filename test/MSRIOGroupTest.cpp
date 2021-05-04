@@ -48,6 +48,7 @@
 
 #include "geopm_sched.h"
 #include "geopm_hash.h"
+#include "geopm_internal.h"
 #include "Helper.hpp"
 #include "PlatformTopo.hpp"
 #include "MSRIOImp.hpp"
