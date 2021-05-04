@@ -898,6 +898,27 @@ extern "C" {
         return err;
     }
 
+    int geopm_pio_signal_info(const char *signal_name,
+                              int *aggregation_type,
+                              int *format_type,
+                              int *behavior_type)
+    {
+        int err = 0;
+        try {
+            auto agg_func = geopm::platform_io().agg_function(signal_name);
+            *aggregation_type = geopm::Agg::function_to_type(agg_func);
+            auto format_func = geopm::platform_io().format_function(signal_name);
+            *format_type = geopm::string_format_function_to_type(format_func);
+            *behavior_type = geopm::platform_io().signal_behavior(signal_name);
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+            err = err < 0 ? err : GEOPM_ERROR_RUNTIME;
+        }
+        return err;
+    }
+
+
     int geopm_pio_start_batch_server(int client_pid,
                                      int num_signal,
                                      const struct geopm_request_s *signal_config,

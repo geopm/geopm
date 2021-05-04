@@ -100,6 +100,11 @@ int geopm_pio_control_description(const char *control_name,
                                   size_t description_max,
                                   char *description);
 
+int geopm_pio_signal_info(const char *signal_name,
+                          int *aggregation_type,
+                          int *format_type,
+                          int *behavior_type);
+
 
 struct geopm_request_s;
 
