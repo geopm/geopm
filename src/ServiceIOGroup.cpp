@@ -263,7 +263,7 @@ namespace geopm
                             " not valid for ServiceIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        return string_format_function(it->second.string_format);
+        return string_format_type_to_function(it->second.string_format);
     }
 
     std::string ServiceIOGroup::signal_description(const std::string &signal_name) const

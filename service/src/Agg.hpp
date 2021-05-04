@@ -113,6 +113,10 @@ namespace geopm
             ///        given std::function.  If the std::function does not match
             ///        a known function, it throws an error.
             static std::string function_to_name(std::function<double(const std::vector<double> &)> func);
+            /// @brief Returns the corresponding agg function type for a
+            ///        given std::function.  If the std::function does not match
+            ///        a known function, it throws an error.
+            static int function_to_type(std::function<double(const std::vector<double> &)> func);
             /// @brief Returns the corresponding agg function for one
             ///        of the Agg::m_type_e enum values.  If the
             ///        agg_type is out of range, it throws an error.
