@@ -8,8 +8,13 @@ MANIFEST
 README
 README.md
 TODO
-contrib/json11/LICENSE.txt
-contrib/json11/README.md
+service/contrib/json11/LICENSE.txt
+service/contrib/json11/README.md
+service/io.github.geopm.conf
+service/io.github.geopm.xml
+service/m4
+service/README.md
+service/test/README.md
 copying_headers/MANIFEST.BSD3-intel
 copying_headers/MANIFEST.BSD3-llnl
 copying_headers/MANIFEST.EXEMPT
@@ -110,6 +115,7 @@ ronn/geopmread.1.ronn
 ronn/geopmwrite.1.ronn
 ronn/header.html
 ronn/index.txt
+service/.gitignore
 scripts/MANIFEST.in
 scripts/outlier/README.md
 scripts/outlier/theta_nodelist_broken.txt
