@@ -47,28 +47,6 @@ try:
 except ImportError as ee:
     raise ImportError('Getting the unique bus name of the caller is a new feature, see https://github.com/rhinstaller/dasbus/pull/57') from ee
 
-def signal_info(name,
-                description,
-                domain,
-                aggregation,
-                string_format,
-                behavior):
-    # TODO: type checking
-    return (name,
-            description,
-            domain,
-            aggregation,
-            string_format,
-            behavior)
-
-def control_info(name,
-                 description,
-                 domain):
-    # TODO: type checking
-    return (name,
-            description,
-            domain)
-
 class PlatformService(object):
     def __init__(self):
         self._pio = pio
@@ -121,12 +99,21 @@ class PlatformService(object):
         return self._pio.signal_names(), self._pio.control_names()
 
     def get_signal_info(self, signal_names):
-        raise NotImplementedError('PlatformService: Implementation incomplete')
-        return infos
+        result = []
+        for name in signal_names:
+            description = self._pio.signal_description(name)
+            domain_type = self._pio.signal_domain_type(name)
+            aggregation, format_type, behavior = self._pio.signal_info(name)
+            result.append((name, description, domain_type, aggregation, format_type, behavior))
+        return result
 
     def get_control_info(self, control_names):
-        raise NotImplementedError('PlatformService: Implementation incomplete')
-        return infos
+        result = []
+        for name in control_names:
+            description = self._pio.control_description(name)
+            domain_type = self._pio.control_domain_type(name)
+            result.append((name, description, domain_type))
+        return result
 
     def lock_control(self):
         raise NotImplementedError('PlatformService: Implementation incomplete')
