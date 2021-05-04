@@ -35,6 +35,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
+#include "geopm_internal.h"
 #include "Helper.hpp"
 #include "SSTIOGroup.hpp"
 #include "MockPlatformTopo.hpp"
@@ -227,7 +228,7 @@ TEST_F(SSTIOGroupTest, sample_mmio_percore_control)
     EXPECT_CALL(*m_sstio, read_batch());
     m_group->read_batch();
 
-    // It should read bits 16..17 (lower 2 bits of e and 1) 
+    // It should read bits 16..17 (lower 2 bits of e and 1)
     uint32_t raw0 = 0xfeffff;
     uint32_t raw1 = 0xf1ffff;
     uint32_t expected0 = 0x2;
@@ -321,7 +322,7 @@ TEST_F(SSTIOGroupTest, error_in_save_removes_control)
         << unimpacted_control << " before failed save";
 
     // save_control will hit a lot of other controls. Let them all succeed
-    // except for the ones we are testing. Google Test docs recommend using 
+    // except for the ones we are testing. Google Test docs recommend using
     // ON_CALL for don't-care cases like this, but the EXPECT_CALL we do later
     // on a subest of these calls will not work with that pattern.
     EXPECT_CALL(*m_sstio, write_mmio_once(_, _, _, _, _, _)).WillRepeatedly(Return());
