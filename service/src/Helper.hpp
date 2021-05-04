@@ -109,7 +109,8 @@ namespace geopm
         STRING_FORMAT_RAW64,
     };
     /// @brief Convert a format enum to a format function
-    std::function<std::string(double)> string_format_function(int format_type);
+    std::function<std::string(double)> string_format_type_to_function(int format_type);
+    int string_format_function_to_type(std::function<std::string(double)> format_function);
     /// @brief Format a string to best represent a signal encoding a
     ///        double precision floating point number.
     /// @param [in] signal A real number that requires many
