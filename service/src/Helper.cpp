@@ -232,7 +232,7 @@ namespace geopm
         return result;
     }
 
-    std::function<std::string(double)> string_format_function(int format_type)
+    std::function<std::string(double)> string_format_type_to_function(int format_type)
     {
         static const std::map<int, std::function<std::string(double)> > function_map {
             {STRING_FORMAT_DOUBLE, string_format_double},
@@ -246,5 +246,21 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return it->second;
+    }
+    int string_format_function_to_type(std::function<std::string(double)> format_function)
+    {
+        std::map<decltype(&string_format_double), int> function_map = {
+            {string_format_double, STRING_FORMAT_DOUBLE},
+            {string_format_integer, STRING_FORMAT_INTEGER},
+            {string_format_hex, STRING_FORMAT_HEX},
+            {string_format_raw64, STRING_FORMAT_RAW64},
+        };
+        auto f_ref = *(format_function.target<decltype(&string_format_double)>());
+        auto result = function_map.find(f_ref);
+        if (result == function_map.end()) {
+            throw Exception("string_format_function_to_type(): unknown format function.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return result->second;
     }
 }
