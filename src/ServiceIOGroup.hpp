@@ -53,7 +53,7 @@ namespace geopm
             ServiceIOGroup();
             ServiceIOGroup(const PlatformTopo &platform_topo,
                            std::shared_ptr<ServiceProxy> service_proxy);
-            virtual ~ServiceIOGroup() = default;
+            virtual ~ServiceIOGroup();
             std::set<std::string> signal_names(void) const override;
             std::set<std::string> control_names(void) const override;
             bool is_valid_signal(const std::string &signal_name) const override;
