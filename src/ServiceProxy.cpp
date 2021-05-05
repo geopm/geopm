@@ -84,29 +84,41 @@ namespace geopm
         std::vector<signal_info_s> result;
         sd_bus_error bus_error = SD_BUS_ERROR_NULL;
         sd_bus_message *bus_message = nullptr;
+        int err = sd_bus_message_new_method_call(m_bus,
+                                                 &bus_message,
+                                                 "io.github.geopm",
+                                                 "/io/github/geopm",
+                                                 "io.github.geopm",
+                                                 "PlatformGetSignalInfo");
+        if (err < 0) {
+            throw Exception("ServiceProxy::platform_get_signal_info(): Failed to create a new message",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
         std::vector<const char *> signal_names_cstr;
         for (const auto &name : signal_names) {
             signal_names_cstr.push_back(name.c_str());
         }
-        int err = sd_bus_call_method(m_bus, "io.github.geopm",
-                                     "/io/github/geopm",
-                                     "io.github.geopm",
-                                     "PlatformGetSignalInfo",
-                                     &bus_error, &bus_message, "as",
-                                     signal_names_cstr.data());
+        signal_names_cstr.push_back(nullptr);
+        err = sd_bus_message_append_strv(bus_message, (char **)signal_names_cstr.data());
+        if (err < 0) {
+            throw Exception("ServiceProxy::platform_get_signal_info(): Failed to append array",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        sd_bus_message *bus_reply = nullptr;
+        err = sd_bus_call(m_bus, bus_message, 0, &bus_error, &bus_reply);
         if (err < 0) {
             std::ostringstream error_message;
-            error_message << "ServiceProxy::platform_get_signal_info(): Failed to call sd-bus function sd_bus_call_method(), error:"
+            error_message << "ServiceProxy::platform_get_signal_info(): Failed to call sd-bus function sd_bus_call(), error:"
                           << err << " name: " << bus_error.name << ": " << bus_error.message;
             throw Exception(error_message.str(), GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
-        err = sd_bus_message_enter_container(bus_message, SD_BUS_TYPE_ARRAY, "(ssiiii)");
+        err = sd_bus_message_enter_container(bus_reply, SD_BUS_TYPE_ARRAY, "(ssiiii)");
         if (err < 0) {
             throw Exception("ServiceProxy::platform_get_signal_info(): Failed to enter \"a(ssiiii)\" container",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         for (bool is_done = false; !is_done;) {
-            err = sd_bus_message_enter_container(bus_message, SD_BUS_TYPE_STRUCT, "ssiiii");
+            err = sd_bus_message_enter_container(bus_reply, SD_BUS_TYPE_STRUCT, "ssiiii");
             if (err < 0) {
                 throw Exception("ServiceProxy::platform_get_signal_info(): Failed to enter \"(ssiiii)\" container",
                                 GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
@@ -116,42 +128,42 @@ namespace geopm
             }
             else {
                 const char *name = nullptr;
-                err = sd_bus_message_read(bus_message, "s", &name);
+                err = sd_bus_message_read(bus_reply, "s", &name);
                 if (err < 0) {
                     throw Exception("ServiceProxy::platform_get_signal_info(): Failed to read name",
                                     GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
                 }
                 const char *description = nullptr;
-                err = sd_bus_message_read(bus_message, "s", &description);
+                err = sd_bus_message_read(bus_reply, "s", &description);
                 if (err < 0) {
                     throw Exception("ServiceProxy::platform_get_signal_info(): Failed to read description",
                                     GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
                 }
                 int domain = -1;
-                err = sd_bus_message_read(bus_message, "i", &domain);
+                err = sd_bus_message_read(bus_reply, "i", &domain);
                 if (err < 0) {
                     throw Exception("ServiceProxy::platform_get_signal_info(): Failed to read domain",
                                     GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
                 }
                 int aggregation = -1;
-                err = sd_bus_message_read(bus_message, "i", &aggregation);
+                err = sd_bus_message_read(bus_reply, "i", &aggregation);
                 if (err < 0) {
                     throw Exception("ServiceProxy::platform_get_signal_info(): Failed to read aggregation",
                                     GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
                 }
                 int string_format = -1;
-                err = sd_bus_message_read(bus_message, "i", &string_format);
+                err = sd_bus_message_read(bus_reply, "i", &string_format);
                 if (err < 0) {
                     throw Exception("ServiceProxy::platform_get_signal_info(): Failed to read string_format",
                                     GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
                 }
                 int behavior = -1;
-                err = sd_bus_message_read(bus_message, "i", &behavior);
+                err = sd_bus_message_read(bus_reply, "i", &behavior);
                 if (err < 0) {
                     throw Exception("ServiceProxy::platform_get_signal_info(): Failed to read behavior",
                                     GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
                 }
-                err = sd_bus_message_exit_container(bus_message);
+                err = sd_bus_message_exit_container(bus_reply);
                 if (err < 0) {
                     throw Exception("ServiceProxy::platform_get_signal_info(): Failed to exit \"(ssiiii)\" container",
                                     GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
@@ -159,7 +171,7 @@ namespace geopm
                 result.push_back({name, description, domain, aggregation, string_format, behavior});
             }
         }
-        err = sd_bus_message_exit_container(bus_message);
+        err = sd_bus_message_exit_container(bus_reply);
         if (err < 0) {
             throw Exception("ServiceProxy::platform_get_signal_info(): Failed to exit \"a(ssiiii)\" container",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
@@ -172,29 +184,41 @@ namespace geopm
         std::vector<control_info_s> result;
         sd_bus_error bus_error = SD_BUS_ERROR_NULL;
         sd_bus_message *bus_message = nullptr;
+        int err = sd_bus_message_new_method_call(m_bus,
+                                                 &bus_message,
+                                                 "io.github.geopm",
+                                                 "/io/github/geopm",
+                                                 "io.github.geopm",
+                                                 "PlatformGetControlInfo");
+        if (err < 0) {
+            throw Exception("ServiceProxy::platform_get_control_info(): Failed to create a new message",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
         std::vector<const char *> control_names_cstr;
         for (const auto &name : control_names) {
             control_names_cstr.push_back(name.c_str());
         }
-        int err = sd_bus_call_method(m_bus, "io.github.geopm",
-                                     "/io/github/geopm",
-                                     "io.github.geopm",
-                                     "PlatformGetControlInfo",
-                                     &bus_error, &bus_message, "as",
-                                     control_names_cstr.data());
+        control_names_cstr.push_back(nullptr);
+        err = sd_bus_message_append_strv(bus_message, (char **)control_names_cstr.data());
+        if (err < 0) {
+            throw Exception("ServiceProxy::platform_get_control_info(): Failed to append array",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        sd_bus_message *bus_reply = nullptr;
+        err = sd_bus_call(m_bus, bus_message, 0, &bus_error, &bus_reply);
         if (err < 0) {
             std::ostringstream error_message;
-            error_message << "ServiceProxy::platform_get_control_info(): Failed to call sd-bus function sd_bus_call_method(), error:"
+            error_message << "ServiceProxy::platform_get_control_info(): Failed to call sd-bus function sd_bus_call(), error:"
                           << err << " name: " << bus_error.name << ": " << bus_error.message;
             throw Exception(error_message.str(), GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
-        err = sd_bus_message_enter_container(bus_message, SD_BUS_TYPE_ARRAY, "(ssi)");
+        err = sd_bus_message_enter_container(bus_reply, SD_BUS_TYPE_ARRAY, "(ssi)");
         if (err < 0) {
             throw Exception("ServiceProxy::platform_get_control_info(): Failed to enter \"a(ssi)\" container",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         for (bool is_done = false; !is_done;) {
-            err = sd_bus_message_enter_container(bus_message, SD_BUS_TYPE_STRUCT, "ssi");
+            err = sd_bus_message_enter_container(bus_reply, SD_BUS_TYPE_STRUCT, "ssi");
             if (err < 0) {
                 throw Exception("ServiceProxy::platform_get_control_info(): Failed to enter \"(ssi)\" container",
                                 GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
@@ -204,39 +228,38 @@ namespace geopm
             }
             else {
                 const char *name = nullptr;
-                err = sd_bus_message_read(bus_message, "s", &name);
+                err = sd_bus_message_read(bus_reply, "s", &name);
                 if (err < 0) {
                     throw Exception("ServiceProxy::platform_get_control_info(): Failed to read name",
                                     GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
                 }
                 const char *description = nullptr;
-                err = sd_bus_message_read(bus_message, "s", &description);
+                err = sd_bus_message_read(bus_reply, "s", &description);
                 if (err < 0) {
                     throw Exception("ServiceProxy::platform_get_control_info(): Failed to read description",
                                     GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
                 }
                 int domain = -1;
-                err = sd_bus_message_read(bus_message, "i", &domain);
+                err = sd_bus_message_read(bus_reply, "i", &domain);
                 if (err < 0) {
                     throw Exception("ServiceProxy::platform_get_control_info(): Failed to read domain",
                                     GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
                 }
-                err = sd_bus_message_exit_container(bus_message);
+                err = sd_bus_message_exit_container(bus_reply);
                 if (err < 0) {
-                    throw Exception("ServiceProxy::platform_get_control_info(): Failed to exit \"(ssiiii)\" container",
+                    throw Exception("ServiceProxy::platform_get_control_info(): Failed to exit \"(ssi)\" container",
                                     GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
                 }
                 result.push_back({name, description, domain});
             }
         }
-        err = sd_bus_message_exit_container(bus_message);
+        err = sd_bus_message_exit_container(bus_reply);
         if (err < 0) {
-            throw Exception("ServiceProxy::platform_get_control_info(): Failed to exit \"a(ssiiii)\" container",
+            throw Exception("ServiceProxy::platform_get_control_info(): Failed to exit \"a(ssi)\" container",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         return result;
     }
-
 
     void ServiceProxyImp::platform_open_session(void)
     {
