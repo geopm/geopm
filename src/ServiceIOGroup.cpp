@@ -60,8 +60,14 @@ namespace geopm
         , m_signal_info(service_signal_info(m_service_proxy))
         , m_control_info(service_control_info(m_service_proxy))
     {
-
+        m_service_proxy->platform_open_session();
     }
+
+    ServiceIOGroup::~ServiceIOGroup()
+    {
+        m_service_proxy->platform_close_session();
+    }
+
 
     std::map<std::string, signal_info_s> ServiceIOGroup::service_signal_info(std::shared_ptr<ServiceProxy> service_proxy)
     {
@@ -102,7 +108,6 @@ namespace geopm
         std::set<std::string> result;
         for (const auto &si : m_signal_info) {
             result.insert(si.first);
-            result.insert(M_PLUGIN_NAME + "::" + si.first);
         }
         return result;
     }
@@ -112,7 +117,6 @@ namespace geopm
         std::set<std::string> result;
         for (const auto &ci : m_control_info) {
             result.insert(ci.first);
-            result.insert(M_PLUGIN_NAME + "::" + ci.first);
         }
         return result;
     }
