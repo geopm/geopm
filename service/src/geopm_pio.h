@@ -100,6 +100,27 @@ int geopm_pio_control_description(const char *control_name,
                                   size_t description_max,
                                   char *description);
 
+
+/// @brief C interface to get enums associated with a signal name.
+///
+/// This interfacesupports DBus PlatformGetSignalInfo method.  This C
+/// interface is implemented using several PlatformIO methods unlike
+/// the other wrappers in this header.
+///
+/// @param [in] signal_name Name of signal to query
+///
+/// @param [out] aggregation_type One of the Agg::m_type_e enum values
+///        describing the way the signal is aggregated.
+///
+/// @param [out] format_type One of the geopm::string_format_e
+///        enums defined in Helper.hpp that defines how to format
+///        the signal as a string.
+///
+/// @param [out] behavior_type One of the
+///        IOGroup::m_signal_behavior_e enum values that decribes
+///        the signals behavior over time.
+///
+/// @return Zero on success, error value on failure
 int geopm_pio_signal_info(const char *signal_name,
                           int *aggregation_type,
                           int *format_type,
