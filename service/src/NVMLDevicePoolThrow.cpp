@@ -31,23 +31,13 @@
  */
 
 #include "config.h"
-
-#include <cmath>
-
-#include <fstream>
-#include <iostream>
-#include <sstream>
 #include <string>
 
 #include "Exception.hpp"
-#include "Agg.hpp"
-#include "Helper.hpp"
-#include "geopm_sched.h"
-
-#include "NVMLDevicePool.hpp"
 
 namespace geopm
 {
+    class NVMLDevicePool;
 
     const NVMLDevicePool &nvml_device_pool(const int num_cpu)
     {
