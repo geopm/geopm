@@ -117,7 +117,8 @@ namespace geopm
             throw Exception("ServiceProxy::platform_get_signal_info(): Failed to enter \"a(ssiiii)\" container",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
-        for (bool is_done = false; !is_done;) {
+        bool is_done = false;
+        while (!is_done) {
             err = sd_bus_message_enter_container(bus_reply, SD_BUS_TYPE_STRUCT, "ssiiii");
             if (err < 0) {
                 throw Exception("ServiceProxy::platform_get_signal_info(): Failed to enter \"(ssiiii)\" container",
@@ -217,7 +218,8 @@ namespace geopm
             throw Exception("ServiceProxy::platform_get_control_info(): Failed to enter \"a(ssi)\" container",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
-        for (bool is_done = false; !is_done;) {
+        bool is_done = false;
+        while (!is_done) {
             err = sd_bus_message_enter_container(bus_reply, SD_BUS_TYPE_STRUCT, "ssi");
             if (err < 0) {
                 throw Exception("ServiceProxy::platform_get_control_info(): Failed to enter \"(ssi)\" container",
@@ -362,7 +364,8 @@ namespace geopm
             throw Exception("ServiceProxyImp::read_string_array(): Failed to enter \"as\" container",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
-        for (bool is_done = false; !is_done;) {
+        bool is_done = false;
+        while (!is_done) {
             const char *c_str = nullptr;
             int err = sd_bus_message_read(bus_message, "s", &c_str);
             if (err < 0) {
