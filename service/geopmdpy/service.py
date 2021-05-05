@@ -142,7 +142,7 @@ class PlatformService(object):
         os.remove(session_file)
         if client_pid == self._write_pid:
             save_dir = os.path.join(self._VAR_PATH, self._SAVE_DIR)
-            self._pio.restore_controls(save_dir)
+            self._pio.restore_control()
             shutil.rmtree(save_dir)
             self._write_pid = None
 
@@ -215,7 +215,9 @@ class PlatformService(object):
             self._write_pid = client_pid
             save_dir = os.path.join(self._VAR_PATH, self._SAVE_DIR)
             os.makedirs(save_dir)
-            self._pio.save_controls(save_dir)
+            # TODO: Will need to save to disk in order to support
+            # daemon restart
+            self._pio.save_control()
 
 
 class TopoService(object):
