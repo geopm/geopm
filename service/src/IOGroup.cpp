@@ -43,7 +43,9 @@
 #include "SSTIOGroup.hpp"
 #include "Helper.hpp"
 #ifndef GEOPM_SERVICE_BUILD
+#ifdef GEOPM_ENABLE_SYSTEMD
 #include "ServiceIOGroup.hpp"
+#endif
 #include "ProfileIOGroup.hpp"
 #endif
 #ifdef GEOPM_CNL_IOGROUP
@@ -107,8 +109,10 @@ namespace geopm
         // service enabling save/restore by geopmd.  If the geopm
         // service is not active then loading the ServiceIOGroup will
         // fail.
+#ifdef GEOPM_ENABLE_SYSTEMD
         register_plugin(ServiceIOGroup::plugin_name(),
                         ServiceIOGroup::make_plugin);
+#endif
         // Enable application profiling if not compiling the service.
         register_plugin(ProfileIOGroup::plugin_name(),
                         ProfileIOGroup::make_plugin);
