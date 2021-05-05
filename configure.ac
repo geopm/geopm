@@ -106,15 +106,15 @@ fi
 AC_SUBST([enable_beta])
 AM_CONDITIONAL([ENABLE_BETA], [test "x$enable_beta" = "x1"])
 
-AC_ARG_ENABLE([procfs],
-  [AS_HELP_STRING([--disable-procfs], [Disable use of procfs for use on operating systems other than standard Linux])],
-[if test "x$enable_procfs" = "xno" ; then
-  enable_procfs="0"
+AC_ARG_ENABLE([systemd],
+  [AS_HELP_STRING([--disable-systemd], [Disable the use of the sd_bus interface of libsystemd to support the ServiceIOGroup])],
+[if test "x$enable_systemd" = "xno" ; then
+  enable_systemd="0"
 else
-  enable_procfs="1"
+  enable_systemd="1"
 fi
 ],
-[enable_procfs="1"]
+[enable_systemd="1"]
 )
 
 AC_ARG_ENABLE([nvml],
@@ -129,6 +129,9 @@ fi
 )
 AC_SUBST([enable_nvml])
 AM_CONDITIONAL([ENABLE_NVML], [test "x$enable_nvml" = "x1"])
+
+AC_SUBST([enable_systemd])
+AM_CONDITIONAL([ENABLE_SYSTEMD], [test "x$enable_systemd" = "x1"])
 
 AC_ARG_ENABLE([cnl-iogroup],
   [AS_HELP_STRING([--enable-cnl-iogroup], [Enable the CNL IOGroup])],
@@ -172,6 +175,13 @@ if test "x$enable_nvml" = "x1" ; then
   AC_DEFINE([GEOPM_ENABLE_NVML], [ ], [Enables use of the NVML library to support NVML board accelerators])
 else
   ENABLE_NVML=False
+fi
+
+if test "x$enable_systemd" = "x1" ; then
+  ENABLE_SYSTEMD=True
+  AC_DEFINE([GEOPM_ENABLE_SYSTEMD], [ ], [Enables the use of the sd_bus interface of libsystemd to support the ServiceIOGroup])
+else
+  ENABLE_SYSTEMD=False
 fi
 
 AC_ARG_WITH([sqlite3], [AS_HELP_STRING([--with-sqlite3=PATH],
@@ -420,12 +430,15 @@ AC_CHECK_LIB([pthread], [pthread_mutex_init], [], [
 AC_CHECK_HEADER([pthread.h], [], [
     echo "missing pthread.h: POSIX thread interface is required"
     exit -1])
-AC_CHECK_LIB([systemd], [sd_bus_open_system], [], [
-    echo "missing libsystemd or does libsystemd does not support sd_bus interface"
-    exit -1])
-AC_CHECK_HEADER([systemd/sd-bus.h], [], [
-    echo "missing systemd/sd-bus.h: sd_bus interface is required"
-    exit -1])
+
+if test "x$enable_systemd" = "x1" ; then
+    AC_CHECK_LIB([systemd], [sd_bus_open_system], [], [
+        echo "missing libsystemd or does libsystemd does not support sd_bus interface, to disable ServiceIOGroup configure with --disable-systemd"
+        exit -1])
+    AC_CHECK_HEADER([systemd/sd-bus.h], [], [
+        echo "missing systemd/sd-bus.h: sd_bus interface is required"
+        exit -1])
+fi
 
 if test "x$enable_beta" = "x1" ; then
   AC_CHECK_LIB([sqlite3], [sqlite3_open], [], [
