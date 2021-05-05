@@ -642,10 +642,6 @@ libgeopmpolicy_la_SOURCES = service/contrib/json11/json11.cpp \
                             src/SampleAggregatorImp.hpp \
                             src/Scheduler.cpp \
                             src/Scheduler.hpp \
-                            src/ServiceIOGroup.cpp \
-                            src/ServiceIOGroup.hpp \
-                            src/ServiceProxy.cpp \
-                            src/ServiceProxy.hpp \
                             src/Tracer.cpp \
                             src/Tracer.hpp \
                             src/TreeComm.cpp \
@@ -666,7 +662,7 @@ libgeopmpolicy_la_SOURCES = service/contrib/json11/json11.cpp \
 
 nvml_source_files = service/src/NVMLDevicePool.cpp \
                     service/src/NVMLDevicePoolImp.hpp \
-                    #end
+                    # end
 
 if ENABLE_NVML
     libgeopmpolicy_la_SOURCES += $(nvml_source_files)
@@ -674,6 +670,18 @@ else
     libgeopmpolicy_la_SOURCES += service/src/NVMLDevicePoolThrow.cpp
     EXTRA_DIST += $(nvml_source_files)
 endif
+
+systemd_source_files = src/ServiceIOGroup.cpp \
+                       src/ServiceIOGroup.hpp \
+                       src/ServiceProxy.cpp \
+                       src/ServiceProxy.hpp \
+                       # end
+if ENABLE_SYSTEMD
+    libgeopmpolicy_la_SOURCES += $(systemd_source_files)
+else
+    EXTRA_DIST += $(systemd_source_files)
+endif
+
 
 beta_source_files = src/Daemon.cpp \
                     src/Daemon.hpp \
