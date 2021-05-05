@@ -75,11 +75,8 @@ def main():
 
     """
     parser = ArgumentParser(description=description)
-    parser_group_sc = parser.add_mutually_exclusive_group(required=True)
-    parser_group_sc.add_argument('-s', '--signals', dest='signals', action='store_true', default=False,
-                                 help='List signal names')
-    parser_group_sc.add_argument('-c', '--controls', dest='controls', action='store_true', default=False,
-                                 help='List control names')
+    parser.add_argument('-c', '--controls', dest='controls', action='store_true', default=False,
+                        help='Get or set access for controls, not signals')
     parser_group_ga = parser.add_mutually_exclusive_group(required=False)
     parser_group_ga.add_argument('-g', '--group', dest='group', type=str, default='',
                                 help='Read or write access for a Unix group (default is for all users)')
@@ -96,21 +93,24 @@ def main():
         if args.all:
             raise RuntimeError('Option -a/--all is not allowed if -w/--write is provided')
         else:
-            if args.signals:
-                set_group_signals(geopm_proxy, args.group, in_names)
-            elif args.controls:
+            if args.controls:
                 set_group_controls(geopm_proxy, args.group, in_names)
+            else:
+                set_group_signals(geopm_proxy, args.group, in_names)
     else:
+        output = None
         if args.all:
-            if args.signals:
-                print(get_all_signals(geopm_proxy))
-            elif args.controls:
-                print(get_all_controls(geopm_proxy))
+            if args.controls:
+                output = get_all_controls(geopm_proxy)
+            else:
+                output = get_all_signals(geopm_proxy)
         else:
-            if args.signals:
-                print(get_group_signals(geopm_proxy, args.group))
-            elif args.controls:
-                print(get_group_controls(geopm_proxy, args.group))
+            if args.controls:
+                output = get_group_controls(geopm_proxy, args.group)
+            else:
+                output = get_group_signals(geopm_proxy, args.group)
+        if output:
+            print(output)
 
 if __name__ == '__main__':
     main()
