@@ -29,8 +29,13 @@
                 <arg direction="in" name="control_names" type="as" />
                 <arg direction="out" name="info" type="a(ssi)" />
             </method>
+            <method name="PlatformLockControl" />
+            <method name="PlatformUnlockControl" />
             <method name="PlatformOpenSession" />
             <method name="PlatformCloseSession" />
+            <method name="PlatformCloseSessionAdmin">
+                <arg direction="in" name="client_pid" type="i" />
+            </method>
             <method name="PlatformStartBatch">
                 <arg direction="in" name="signal_config" type="a(iis)" />
                 <arg direction="in" name="control_config" type="a(iis)" />
