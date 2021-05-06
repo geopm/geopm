@@ -285,6 +285,9 @@ class GEOPMService(object):
             <method name="PlatformUnlockControl" />
             <method name="PlatformOpenSession" />
             <method name="PlatformCloseSession" />
+            <method name="PlatformCloseSessionAdmin">
+                <arg direction="in" name="client_pid" type="i" />
+            </method>
             <method name="PlatformStartBatch">
                 <arg direction="in" name="signal_config" type="a(iis)" />
                 <arg direction="in" name="control_config" type="a(iis)" />
@@ -349,6 +352,9 @@ class GEOPMService(object):
     @accepts_additional_arguments
     def PlatformCloseSession(self, **call_info):
         self._platform.close_session(self._get_pid(**call_info))
+
+    def PlatformCloseSessionAdmin(self, client_pid):
+        self._platform.close_session(client_pid)
 
     @accepts_additional_arguments
     def PlatformStartBatch(self, signal_config, control_config, **call_info):
