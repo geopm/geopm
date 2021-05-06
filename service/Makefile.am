@@ -84,6 +84,8 @@ libgeopmd_la_SOURCES = contrib/json11/json11.cpp \
                        contrib/json11/json11.hpp \
                        src/AcceleratorTopo.cpp \
                        src/AcceleratorTopo.hpp \
+                       src/AcceleratorTopoNull.cpp \
+                       src/AcceleratorTopoNull.hpp \
                        src/Agg.cpp \
                        src/Agg.hpp \
                        src/CircularBuffer.hpp \
