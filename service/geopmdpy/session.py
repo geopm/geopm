@@ -37,25 +37,26 @@ from dasbus.connection import SystemMessageBus
 from argparse import ArgumentParser
 from . import topo
 
-def read_session(geopm_proxy, time, period, requests):
+def read_session(geopm_proxy, duration, period, requests):
     geopm_proxy.PlatformOpenSession()
     if period == 0:
         num_period = 1
     else:
-        num_period = int(time / period)  + 1
+        num_period = int(duration / period)  + 1
     for period_idx in range(num_period):
         result = []
         for rr in requests:
             result.append(str(geopm_proxy.PlatformReadSignal(*rr)))
         result_line = '{}\n'.format(','.join(result))
         sys.stdout.write(result_line)
+        time.sleep(period)
     geopm_proxy.PlatformCloseSession()
 
-def write_session(geopm_proxy, time, requests):
+def write_session(geopm_proxy, duration, requests):
     geopm_proxy.PlatformOpenSession()
     for rr in requests:
         geopm_proxy.PlatformWriteControl(*rr)
-    time.sleep(time)
+    time.sleep(duration)
     geopm_proxy.PlatformCloseSession()
 
 def main():
