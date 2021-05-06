@@ -39,6 +39,10 @@ import pwd
 import grp
 import json
 import shutil
+import psutil
+import gi
+from gi.repository import GLib
+
 from . import pio
 from . import topo
 from dasbus.connection import SystemMessageBus
@@ -54,6 +58,7 @@ class PlatformService(object):
         self._VAR_PATH = '/var/run/geopm-service'
         self._DEFAULT_ACCESS = '0.DEFAULT_ACCESS'
         self._SAVE_DIR = 'SAVE_FILES'
+        self._WATCH_INTERVAL_MSEC = 1000
         self._write_pid = None
         self._sessions = dict()
 
@@ -125,26 +130,30 @@ class PlatformService(object):
         """Method that creates a new client session"""
         signals, controls = self.get_user_access(user)
         os.makedirs(self._VAR_PATH, exist_ok=True)
-        session_file = os.path.join(self._VAR_PATH, 'session-{}.json'.format(client_pid))
+        session_file = self._get_session_file(client_pid)
         if os.path.isfile(session_file):
             raise RuntimeError('Session file for connecting process already exists: {}'.format(session_file))
+        watch_id = self._watch_client(client_pid)
         session_data = {'client_pid': client_pid,
                         'mode': 'r',
                         'signals': signals,
-                        'controls': controls}
+                        'controls': controls,
+                        'watch_id': watch_id}
         self._sessions[client_pid] = session_data
         with open(session_file, 'w') as fid:
             json.dump(session_data, fid)
 
     def close_session(self, client_pid):
         session = self._get_session(client_pid, 'PlatformCloseSession')
-        session_file = os.path.join(self._VAR_PATH, 'session-{}.json'.format(client_pid))
-        os.remove(session_file)
         if client_pid == self._write_pid:
             save_dir = os.path.join(self._VAR_PATH, self._SAVE_DIR)
             self._pio.restore_control()
             shutil.rmtree(save_dir)
             self._write_pid = None
+        GLib.source_remove(session['watch_id'])
+        self._sessions.pop(client_pid)
+        session_file = self._get_session_file(client_pid)
+        os.remove(session_file)
 
     def start_batch(self, client_pid, signal_config, control_config):
         session = self._get_session(client_pid, 'PlatformStartBatch')
@@ -204,11 +213,14 @@ class PlatformService(object):
             raise RuntimeError('Operation {} not allowed without an open session'.format(operation))
         return session
 
+    def _get_session_file(self, client_pid):
+        return os.path.join(self._VAR_PATH, 'session-{}.json'.format(client_pid))
+
     def _write_mode(self, client_pid):
         if self._sessions[client_pid]['mode'] != 'rw':
             if self._write_pid is not None:
                 raise RuntimeError('The geopm service already has a connected "rw" mode client')
-            session_file = os.path.join(self._VAR_PATH, 'session-{}.json'.format(client_pid))
+            session_file = self._get_session_file(client_pid)
             self._sessions[client_pid]['mode'] = 'rw'
             with open(session_file, 'w') as fid:
                 json.dump(self._sessions[client_pid], fid)
@@ -219,6 +231,14 @@ class PlatformService(object):
             # daemon restart
             self._pio.save_control()
 
+    def _watch_client(self, client_pid):
+        return GLib.timeout_add(self._WATCH_INTERVAL_MSEC, self._check_client, client_pid)
+
+    def _check_client(self, client_pid):
+        if client_pid in self._sessions and not psutil.pid_exists(client_pid):
+            self.close_session(client_pid)
+            return False
+        return True
 
 class TopoService(object):
     def __init__(self, topo=topo):
