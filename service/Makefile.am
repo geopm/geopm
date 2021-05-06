@@ -84,6 +84,8 @@ libgeopmd_la_SOURCES = contrib/json11/json11.cpp \
                        contrib/json11/json11.hpp \
                        src/AcceleratorTopo.cpp \
                        src/AcceleratorTopo.hpp \
+                       src/AcceleratorTopoNull.cpp \
+                       src/AcceleratorTopoNull.hpp \
                        src/Agg.cpp \
                        src/Agg.hpp \
                        src/CircularBuffer.hpp \
@@ -120,6 +122,11 @@ libgeopmd_la_SOURCES = contrib/json11/json11.cpp \
                        src/MSRIOGroup.hpp \
                        src/MSRPath.cpp \
                        src/MSRPath.hpp \
+                       src/NVMLAcceleratorTopo.cpp \
+                       src/NVMLAcceleratorTopo.hpp \
+                       src/NVMLDevicePool.hpp \
+                       src/NVMLIOGroup.cpp \
+                       src/NVMLIOGroup.hpp \
                        src/PlatformIO.cpp \
                        src/PlatformIO.hpp \
                        src/PlatformIOImp.hpp \
@@ -169,15 +176,15 @@ libgeopmd_la_SOURCES = contrib/json11/json11.cpp \
                        src/msr_data_snb.cpp \
                        # end
 
+nvml_source_file = src/NVMLDevicePool.cpp \
+                   src/NVMLDevicePoolImp.hpp \
+                   # end
+
 if ENABLE_NVML
-    libgeopmd_la_SOURCES += src/NVMLAcceleratorTopo.cpp \
-                            src/NVMLAcceleratorTopo.hpp \
-                            src/NVMLDevicePool.cpp \
-                            src/NVMLDevicePool.hpp \
-                            src/NVMLDevicePoolImp.hpp \
-                            src/NVMLIOGroup.cpp \
-                            src/NVMLIOGroup.hpp \
-                            #end
+    libgeopmd_la_SOURCES += $(nvml_source_files)
+else
+    libgeopmd_la_SOURCES += src/NVMLDevicePoolThrow.cpp
+    EXTRA_DIST += $(nvml_source_files)
 endif
 
 install-python: setup.py
