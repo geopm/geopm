@@ -75,6 +75,7 @@ classifiers = ['Development Status :: 5 - Production/Stable',
 install_requires = ['cffi>=1.6.0',
                     'setuptools>=39.2.0',
                     'future>=0.17.1',
+                    'psutil',
                     'dasbus']
 
 setup(name='geopmdpy',
