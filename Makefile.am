@@ -359,6 +359,7 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              service/io.github.geopm.xml \
              service/io.github.geopm.conf \
              service/src/DBusServer.hpp \
+             service/m4 \
              specs/geopm-gcc-mvapich2-toss.spec \
              specs/geopm-intel-mvapich2-toss.spec \
              travis_ci.sh \
