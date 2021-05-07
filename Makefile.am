@@ -560,7 +560,6 @@ libgeopmpolicy_la_SOURCES = service/contrib/json11/json11.cpp \
                             src/Controller.hpp \
                             src/CSV.cpp \
                             src/CSV.hpp \
-                            src/DBusClient.hpp \
                             src/DebugIOGroup.cpp \
                             src/DebugIOGroup.hpp \
                             src/EditDistPeriodicityDetector.cpp \
