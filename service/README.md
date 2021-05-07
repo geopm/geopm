@@ -31,7 +31,7 @@ geopmd process loads PlatformIO through libgeopmd as a root user which
 has permissions to load all signals and controls from all IOGroups but
 does not load the ProfileIOGroup that provides signals derived from
 the user application.  The PlatformIO loaded by geopmd provides the
-implemenation for the GEOPM service D-Bus interfaces.
+implementation for the GEOPM service D-Bus interfaces.
 
 
 Signals and Controls
@@ -118,7 +118,7 @@ loaded by the PlatformIO factory after the ServiceIOGroup.
 Note that if any control adjustments are made during a session through
 the GEOPM service then every control supported by GEOPM will be
 reverted when the session ends.  One consequence of this is that when
-a control is exposed to a user only through the geopm service, then
+a control is exposed to a user only through the GEOPM service, then
 the geopmwrite command line tool will not be effective (the value will
 be written, but reverted when the geopmwrite process ends).  The
 geopmsession command line tool can be used to write any number of the
@@ -152,7 +152,7 @@ PlatformIO object provided by libgeopm or libgeopmpolicy and the only
 IOGroup that provides the signal or control requested is the
 ServiceIOGroup, then each request goes through the slow D-Bus
 interface.  When a client process uses the ServiceIOGroup for batch
-operations a separte batch server process is created through the D-Bus
+operations a separate batch server process is created through the D-Bus
 interface.  The implementations for `push_signal()` and
 `push_control()` are used to configure the stack of signals and
 controls that will be enabled by the batch server.  This batch server
