@@ -74,6 +74,7 @@ EXTRA_DIST = .gitignore \
              CONTRIBUTING.md \
              COPYING \
              VERSION \
+             TODO.md \
              # end
 
 
@@ -202,8 +203,7 @@ if ENABLE_LEVELZERO
     libgeopmd_la_SOURCES += $(levelzero_source_files)
 else
     libgeopmd_la_SOURCES += src/LevelZeroThrow.cpp
-    EXTRA_DIST += $(levelzero_source_files) \
-                  #end
+    EXTRA_DIST += $(levelzero_source_files)
 endif
 
 if ENABLE_NVML
