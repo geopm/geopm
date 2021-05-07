@@ -246,8 +246,8 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              TODO \
              autogen.sh \
              configure.ac \
-             contrib/json11/LICENSE.txt \
-             contrib/json11/README.md \
+             service/contrib/json11/LICENSE.txt \
+             service/contrib/json11/README.md \
              copying_headers/MANIFEST.BSD3-llnl \
              copying_headers/MANIFEST.EXEMPT \
              copying_headers/MANIFEST.MIT-dropbox \
@@ -331,6 +331,31 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              scripts/outlier/README.md \
              scripts/outlier/outlier_detection.py \
              scripts/outlier/theta_nodelist_broken.txt \
+             service/geopm-service.spec.in \
+             service/Makefile.am \
+             service/test/README.md \
+             service/geopm.service \
+             service/geopmsession \
+             service/geopmd \
+             service/geopmaccess \
+             service/TODO.md \
+             service/geopmdpy/service.py \
+             service/geopmdpy/session.py \
+             service/geopmdpy/__main__.py \
+             service/geopmdpy/pio.py \
+             service/geopmdpy/access.py \
+             service/geopmdpy/version.py.in \
+             service/geopmdpy/topo.py \
+             service/geopmdpy/__init__.py \
+             service/geopmdpy/error.py \
+             service/autogen.sh \
+             service/setup.py \
+             service/.gitignore \
+             service/README.md \
+             service/configure.ac \
+             service/io.github.geopm.xml \
+             service/io.github.geopm.conf \
+             service/src/DBusServer.hpp \
              specs/geopm.spec \
              specs/geopm.spec.in \
              specs/geopm-dudley.spec \
@@ -721,7 +746,7 @@ ompt_source_files = src/OMPT.cpp \
 fortran_source_files = src/geopm.f90 \
                        src/geopm_pmpi_fortran.c \
                        # end
-geopmctl_source_files = src/geopm_version.h \
+geopmctl_source_files = service/src/geopm_version.h \
                         src/geopmctl_main.c \
                         # end
 

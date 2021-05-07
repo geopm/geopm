@@ -74,6 +74,7 @@ EXTRA_DIST = .gitignore \
              CONTRIBUTING.md \
              COPYING \
              VERSION \
+             TODO.md \
              # end
 
 
@@ -179,9 +180,9 @@ libgeopmd_la_SOURCES = contrib/json11/json11.cpp \
                        src/msr_data_snb.cpp \
                        # end
 
-nvml_source_file = src/NVMLDevicePool.cpp \
-                   src/NVMLDevicePoolImp.hpp \
-                   # end
+nvml_source_files = src/NVMLDevicePool.cpp \
+                    src/NVMLDevicePoolImp.hpp \
+                    # end
 
 if ENABLE_NVML
     libgeopmd_la_SOURCES += $(nvml_source_files)
