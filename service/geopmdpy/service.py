@@ -49,7 +49,9 @@ from dasbus.connection import SystemMessageBus
 try:
     from dasbus.server.interface import accepts_additional_arguments
 except ImportError as ee:
-    raise ImportError('Getting the unique bus name of the caller is a new feature, see https://github.com/rhinstaller/dasbus/pull/57') from ee
+    err_msg = '''dasbus version greater than 1.5 required:
+    https://github.com/rhinstaller/dasbus/pull/57'''
+    raise ImportError(err_msg) from ee
 
 class PlatformService(object):
     def __init__(self):
