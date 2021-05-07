@@ -142,3 +142,6 @@ Features
    and enable "--signals=ENERGY_PACKAGE@package" to imply: add signal
    for all packages.  This could be a command line option supported in
    place of using standard input for read sessions.
+3) The dasbus interface enables automatic generation of interface xml.
+   We should try to take advantage of this feature and additionally
+   use it to generate the interface xml file.
