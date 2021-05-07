@@ -74,6 +74,7 @@ EXTRA_DIST = .gitignore \
              CONTRIBUTING.md \
              COPYING \
              VERSION \
+             TODO.md \
              # end
 
 

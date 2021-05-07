@@ -710,7 +710,7 @@ ompt_source_files = src/OMPT.cpp \
 fortran_source_files = src/geopm.f90 \
                        src/geopm_pmpi_fortran.c \
                        # end
-geopmctl_source_files = src/geopm_version.h \
+geopmctl_source_files = service/src/geopm_version.h \
                         src/geopmctl_main.c \
                         # end
 
