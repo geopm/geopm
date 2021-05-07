@@ -356,6 +356,7 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              service/io.github.geopm.xml \
              service/io.github.geopm.conf \
              service/src/DBusServer.hpp \
+             service/m4 \
              specs/geopm.spec \
              specs/geopm.spec.in \
              specs/geopm-dudley.spec \
