@@ -145,3 +145,16 @@ Features
 3) The dasbus interface enables automatic generation of interface xml.
    We should try to take advantage of this feature and additionally
    use it to generate the interface xml file.
+
+
+Duplicated Code
+---------------
+
+1) The pio.py, topo.py error.py and version.py were copied from
+   geopmpy to geopmdpy.  These are bindings to C interfaces and in the
+   case of geopmdpy these bind to libgeopmd and for geopmpy these bind
+   to libgeopmpolicy.
+2) The service directory is constructed as an independent package,
+   perhaps it would be better to have the geopm service be a
+   dependency libgeopmpolicy, libgeopm and geopmpy.  Might want to
+   consider changing some .so names in the process.
