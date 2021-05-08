@@ -5,12 +5,13 @@ The GEOPM service enables a client to make measurements from the
 hardware platform and set hardware control parameters.  Fine grained
 permissions management for both measurements (signals) and controls is
 configurable by system administrators with the `geopmaccess` command
-line tool.  The service provides access to many simultaneous reading
-client sessions, but only one client session is granted write
-permission at any time.  When a client session is granted write access
-it will retain that permission until the session ends.  When the
-client session ends, all hardware settings that are managed by the
-GEOPM service are restored to their previous values.
+line tool.  The service can support many simultaneous client sessions
+that make measurements, but only one client session is granted write
+permission to set hardware control values at any time.  When a client
+session is granted write access it will retain that permission until
+the session ends.  When the client session ends, all hardware settings
+that are managed by the GEOPM service are restored to the value they
+had prior to the client opening a write session.
 
 The `geopmd` daemon is started by the GEOPM systemd service and uses
 D-Bus for communication with client processes and for administrator
