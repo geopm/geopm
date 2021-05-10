@@ -55,7 +55,7 @@
 #include "Agg.hpp"
 
 #ifdef GEOPM_SERVICE_BUILD
-#include "DBusServer.hpp"
+//#include "DBusServer.hpp"
 #endif
 
 namespace geopm
@@ -936,7 +936,7 @@ extern "C" {
             std::vector<struct geopm_request_s> signal_config_vec(signal_config, signal_config + num_signal);
             std::vector<struct geopm_request_s> control_config_vec(control_config, control_config + num_control);
             std::string server_key_str;
-            geopm::DBusServer::start_batch(client_pid, signal_config_vec, control_config_vec, *server_pid, server_key_str);
+            //geopm::DBusServer::start_batch(client_pid, signal_config_vec, control_config_vec, *server_pid, server_key_str);
             strncpy(server_key, server_key_str.c_str(), key_size);
             if (server_key[key_size - 1] != '\0') {
                 server_key[key_size - 1] = '\0';
@@ -958,7 +958,7 @@ extern "C" {
 #else
         int err = 0;
         try {
-            geopm::DBusServer::stop_batch(server_pid);
+            //geopm::DBusServer::stop_batch(server_pid);
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
