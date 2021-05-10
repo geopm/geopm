@@ -92,6 +92,7 @@ class PlatformService(object):
         user_gid = pwd.getpwnam(user).pw_gid
         all_gid = os.getgrouplist(user, user_gid)
         all_groups = [grp.getgrgid(gid).gr_name for gid in all_gid]
+        all_groups.append('') # Default access list
         signal_set = set()
         control_set = set()
         for group in all_groups:
