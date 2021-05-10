@@ -114,7 +114,9 @@ namespace geopm
         }
 
         register_signal_alias("TIMESTAMP_COUNTER", "MSR::TIME_STAMP_COUNTER:TIMESTAMP_COUNT");
+        register_signal_alias("FREQUENCY", "MSR::PERF_STATUS:FREQ"); // TODO: Remove @ v2.0
         register_signal_alias("CPU_FREQUENCY_STATUS", "MSR::PERF_STATUS:FREQ");
+        register_control_alias("FREQUENCY", "MSR::PERF_CTL:FREQ"); // TODO: Remove @ v2.0
         register_signal_alias("CPU_FREQUENCY_CONTROL", "MSR::PERF_CTL:FREQ");
         register_signal_alias("INSTRUCTIONS_RETIRED", "MSR::FIXED_CTR0:INST_RETIRED_ANY");
         register_signal_alias("CYCLES_THREAD", "MSR::FIXED_CTR1:CPU_CLK_UNHALTED_THREAD");
@@ -149,6 +151,8 @@ namespace geopm
                 break;
         }
         if (max_turbo_name != "") {
+            register_signal_alias("FREQUENCY_MAX", max_turbo_name); // TODO: Remove @ v2.0
+            set_signal_description("FREQUENCY_MAX", "Maximum processor frequency."); // TODO: Remove @ v2.0
             register_signal_alias("CPU_FREQUENCY_MAX", max_turbo_name);
             set_signal_description("CPU_FREQUENCY_MAX", "Maximum processor frequency.");
         }
