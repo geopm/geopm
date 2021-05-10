@@ -30,7 +30,13 @@ Documentation
    problem it is solving.
 8) Write a system administrators guide to configuring and deploying
    the geopm service to be included in the geopm-service(8) man page.
-
+9) The signal and control descriptions as they are currently written
+   do not provide the system administrator with enough information to
+   know about the security implications of providing access.
+10) The high level alias names for signals and controls should be
+    vetted and renamed since these strings play critical role in the
+    service interface, and some names are too general
+    (e.g. FREQUENCY).
 
 Testing
 -------
