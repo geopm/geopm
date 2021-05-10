@@ -164,3 +164,8 @@ Duplicated Code
    perhaps it would be better to have the geopm service be a
    dependency libgeopmpolicy, libgeopm and geopmpy.  Might want to
    consider changing some .so names in the process.
+3) If a user does an in place build of the service directory and then
+   does an in place build of the base directory (or vice-versa)
+   without doing a make clean in between they will end up with the
+   wrong objects because of how configure time macros are being used
+   to differentiate the two builds.
