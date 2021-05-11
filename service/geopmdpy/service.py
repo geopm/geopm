@@ -185,7 +185,7 @@ class PlatformService(object):
         if not control_name in session['controls']:
             raise RuntimeError('Requested control that is not in allowed list')
         self._write_mode(client_pid)
-        self._pio.write_control(signal_name, domain, domain_idx, setting)
+        self._pio.write_control(control_name, domain, domain_idx, setting)
 
     def _read_allowed(self, path):
         try:
