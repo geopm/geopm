@@ -73,6 +73,7 @@ Summary: Global Extensible Open Power Manager Service - python %{python_major_ve
 Group: System Environment/Libraries
 Requires: geopm-service
 Requires: python3-gobject-base
+Requires: python3-dasbus
 %{?python_provide:%python_provide python%{python3_pkgversion}-geopmdpy}
 
 %description -n python%{python3_pkgversion}-geopmdpy
