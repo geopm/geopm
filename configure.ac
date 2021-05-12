@@ -551,19 +551,7 @@ AC_COMPILE_IFELSE([
 ])
 
 [CFLAGS="$CFLAGS_SAVE"]
-[CFLAGS="$CFLAGS -Wall -Werror -Wno-inconsistent-missing-override"]
-AC_MSG_CHECKING([for support for -Wno-inconsistent-missing-override])
-AC_COMPILE_IFELSE([
-    AC_LANG_PROGRAM([[#include <stdio.h>]],
-          [[printf("Hello World.\n");]])
-],[
-    AC_MSG_RESULT(yes)
-    AM_CONDITIONAL([GEOPM_DISABLE_INCONSISTENT_OVERRIDE], [true])
-],[
-    AC_MSG_RESULT(no)
-    AM_CONDITIONAL([GEOPM_DISABLE_INCONSISTENT_OVERRIDE], [false])
-])
-
+[CFLAGS="$CFLAGS -Wall -Werror"]
 [LDFLAGS="$LDFLAGS_SAVE"]
 [CFLAGS="$CFLAGS_SAVE"]
 [CXXFLAGS="$CXXFLAGS_SAVE"]
