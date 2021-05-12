@@ -30,18 +30,23 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-set -x
-
+#
+# SUMMARY
+# =======
+#
 # This test shows the GEOPM service being used to set the maximum CPU
 # frequency of core zero to 2 GHz.  The test uses the geopmsession
 # command line tool to read and write from/to the MSR_PERF_CTL
 # register to control the maximum frequency of the core.  The test
 # first reads the value of the register, then opens a write session to
-# set it to 2 GHz and reads the register again.  The test then kills the
-# write session with signal 9 and reads the control register a third
-# time.  The test asserts that the control value was changed by the
-# write sesssion, and that this change was reverted to the value it
-# started with after the session is killed.
+# set it to 2 GHz and reads the register again.  The test then kills
+# the write session with signal 9 and reads the control register a
+# third time.  The test asserts that the control value was changed by
+# the write sesssion, and that this change was reverted to the value
+# it started with after the session is killed.
+#
+
+set -x
 
 # PARAMETERS
 CONTROL=MSR::PERF_CTL:FREQ
