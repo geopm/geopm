@@ -53,6 +53,10 @@ SESSION_DIR=/var/run/geopm-service
 
 # READ CONTROL REGISTER
 START_VALUE=$(echo ${REQUEST} | geopmsession)
+if [[ $? -ne 0 ]]; then
+    echo "Error: Call to read ${CONTROL} through geopmsession failed."
+    exit -1
+fi
 
 # CHECK THAT IT IS DIFFERENT THAN THE TEST VALUE
 if [[ ${CONTROL_VALUE} == ${START_VALUE} ]]; then
