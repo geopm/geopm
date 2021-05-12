@@ -61,7 +61,7 @@ if [[ ${CONTROL_VALUE} == ${START_VALUE} ]]; then
 fi
 
 # START A SESSION WITH THE REQUEST
-echo ${REQUEST} ${CONTROL_VALUE} | geopmsession -w -t 10 &
+echo "${REQUEST} ${CONTROL_VALUE}" | geopmsession -w -t 10 &
 SESSION_ID=$!
 SESSION_FILE=${SESSION_DIR}/session-${SESSION_ID}.json
 sleep 1
