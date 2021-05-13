@@ -41,14 +41,14 @@ dist-googletest: googletest_archive_check
 check-am: libgmock.a libgtest.a
 clean-local-googletest: clean-local-gmock
 
-googletest_version = 1.8.1
+googletest_version = 1.10.0
 googletest_suite = googletest-release-$(googletest_version)
 googlemock = $(googletest_suite)/googlemock
 googletest = $(googletest_suite)/googletest
 googletest_suite_archive = release-$(googletest_version).tar.gz
 googletest_suite_archive_download = googletest-$(googletest_suite_archive)
 googletest_url = https://github.com/google/googletest/archive/$(googletest_suite_archive)
-googletest_sha1 = 152b849610d91a9dfa1401293f43230c2e0c33f8
+googletest_sha1 = 9c89be7df9c5e8cb0bc20b3c4b39bf7e82686770
 
 $(googletest_suite_archive_download):
 	wget --timeout=20 -O $(googletest_suite_archive_download) $(googletest_url) || \
@@ -85,7 +85,7 @@ libgmock.a: $(googletest_suite)/VERSION
 	    echo "Error: Failure to extract or download gmock archive" 2>&1; \
 	    exit -1; \
 	fi
-	$(CXX) $(CXXFLAGS) -isystem $(googlemock)/include -I$(googlemock) -isystem $(googletest)/include -I$(googletest) -pthread \
+	$(CXX) $(CXXFLAGS) -isystem $(googlemock)/include -I$(googlemock) -isystem $(googletest)/include -I$(googletest) -pthread -std=c++11\
 	      -c $(googlemock)/src/gmock-all.cc
 	ar -rv libgmock.a gmock-all.o
 
@@ -94,7 +94,7 @@ libgtest.a: $(googletest_suite)/VERSION
 	    echo "Error: Failure to extract or download gmock archive" 2>&1; \
 	    exit -1; \
 	fi
-	$(CXX) $(CXXFLAGS) -isystem $(googletest)/include -I$(googletest) -pthread \
+	$(CXX) $(CXXFLAGS) -isystem $(googletest)/include -I$(googletest) -pthread -std=c++11 \
 	      -c $(googletest)/src/gtest-all.cc
 	ar -rv libgtest.a gtest-all.o
 
