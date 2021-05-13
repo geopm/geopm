@@ -1,4 +1,5 @@
-#
+#!/usr/bin/env python3
+
 #  Copyright (c) 2015 - 2021, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -30,24 +31,8 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-"""The geopm daemon python package
+import unittest
+from test_service import *
 
-"""
-
-import os
-
-try:
-    from geopmdpy.version import __version__
-except ImportError:
-    try:
-        # Look for VERSION file in git repository
-        file_path = os.path.abspath(__file__)
-        src_version_path = os.path.join(
-                           os.path.dirname(
-                           os.path.dirname(
-                           os.path.dirname(file_path))),
-                           'VERSION')
-        with open(src_version_path) as fid:
-            __version__ = fid.read().strip()
-    except IOError:
-        __version__ = '0.0.0'
+if __name__ == '__main__':
+    unittest.main()
