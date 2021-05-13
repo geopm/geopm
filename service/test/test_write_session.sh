@@ -30,21 +30,25 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-#
-# SUMMARY
-# =======
-#
-# This test shows the GEOPM service being used to set the maximum CPU
-# frequency of core zero to 2 GHz.  The test uses the geopmsession
-# command line tool to read and write from/to the MSR_PERF_CTL
-# register to control the maximum frequency of the core.  The test
-# first reads the value of the register, then opens a write session to
-# set it to 2 GHz and reads the register again.  The test then kills
-# the write session with signal 9 and reads the control register a
-# third time.  The test asserts that the control value was changed by
-# the write sesssion, and that this change was reverted to the value
-# it started with after the session is killed.
-#
+if [[ $# -gt 0 ]] && [[ $1 == '--help' ]]; then
+    echo "
+    Creating a write session:
+    -------------------------
+
+    This test shows the GEOPM service being used to set the maximum
+    CPU frequency of core zero to 2 GHz.  The test uses the
+    geopmsession command line tool to read and write from/to the
+    MSR_PERF_CTL register to control the maximum frequency of the
+    core.  The test first reads the value of the register, then opens
+    a write session to set it to 2 GHz and reads the register again.
+    The test then kills the write session with signal 9 and reads the
+    control register a third time.  The test asserts that the control
+    value was changed by the write sesssion, and that this change was
+    reverted to the value it started with after the session is
+    killed.
+"
+    exit 0
+fi
 
 # PARAMETERS
 CONTROL=MSR::PERF_CTL:FREQ
@@ -52,14 +56,13 @@ DOMAIN=core
 DOMAIN_IDX=0
 CONTROL_VALUE=2000000000.0
 REQUEST="${CONTROL} ${DOMAIN} ${DOMAIN_IDX}"
-SESSION_DIR=/var/run/geopm-service
 
 test_error() {
     echo "Error: $1" 1>&2
     exit -1
 }
 
-# READ CONTROL REGISTER
+# READ START VALUE OF CONTROL REGISTER
 START_VALUE=$(echo ${REQUEST} | geopmsession) ||
     test_error "Call to read ${CONTROL} through geopmsession failed"
 
@@ -67,21 +70,10 @@ START_VALUE=$(echo ${REQUEST} | geopmsession) ||
 test ${CONTROL_VALUE} != ${START_VALUE} ||
     test_error "Start value for the control is the same as the test value"
 
-# START A SESSION WITH THE REQUEST
+# START A SESSION THAT WRITES THE CONTROL VALUE
 echo "${REQUEST} ${CONTROL_VALUE}" | geopmsession -w -t 10 &
 SESSION_ID=$!
-SESSION_FILE=${SESSION_DIR}/session-${SESSION_ID}.json
 sleep 1
-
-# CHECK THAT THE SESSION IS UP AND THERE IS A SESSION FILE IN WRITE MODE
-ps ${SESSION_ID} > /dev/null ||
-    test_error "Failed to keep session open for one second"
-
-test -f ${SESSION_FILE} ||
-    test_error "Failed to create a session file"
-
-grep '"mode": "rw"' ${SESSION_FILE} > /dev/null ||
-    test_error "Failed to create a read/write session"
 
 # READ THE CONTROLLED REGISTER
 SESSION_VALUE=$(echo ${REQUEST} | geopmsession)
@@ -91,13 +83,14 @@ kill -9 ${SESSION_ID} ||
     test_error "Failed to kill session"
 sleep 1
 
-# CHECK THAT SAVE/RESTORE WORKED
+# READ THE RESTORED REGISTER
 END_VALUE=$(echo ${REQUEST} | geopmsession)
 
-
+# CHECK THAT THE REGISTER WAS CHANGED DURING THE SESSION
 test ${CONTROL_VALUE} == ${SESSION_VALUE} ||
     test_error "Control is not set during the session"
 
+# CHECK THAT SAVE/RESTORE WORKED
 test ${START_VALUE} == ${END_VALUE} ||
     test_error "Control is not restored after the session"
 
