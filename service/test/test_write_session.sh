@@ -46,8 +46,6 @@
 # it started with after the session is killed.
 #
 
-set -x
-
 # PARAMETERS
 CONTROL=MSR::PERF_CTL:FREQ
 DOMAIN=core
@@ -56,18 +54,18 @@ CONTROL_VALUE=2000000000.0
 REQUEST="${CONTROL} ${DOMAIN} ${DOMAIN_IDX}"
 SESSION_DIR=/var/run/geopm-service
 
-# READ CONTROL REGISTER
-START_VALUE=$(echo ${REQUEST} | geopmsession)
-if [[ $? -ne 0 ]]; then
-    echo "Error: Call to read ${CONTROL} through geopmsession failed."
+test_error() {
+    echo "Error: $1" 1>&2
     exit -1
-fi
+}
+
+# READ CONTROL REGISTER
+START_VALUE=$(echo ${REQUEST} | geopmsession) ||
+    test_error "Call to read ${CONTROL} through geopmsession failed"
 
 # CHECK THAT IT IS DIFFERENT THAN THE TEST VALUE
-if [[ ${CONTROL_VALUE} == ${START_VALUE} ]]; then
-    echo "Error: Start value for the control is the same as the test value" 1>&2
-    exit -1
-fi
+test ${CONTROL_VALUE} != ${START_VALUE} ||
+    test_error "Start value for the control is the same as the test value"
 
 # START A SESSION WITH THE REQUEST
 echo "${REQUEST} ${CONTROL_VALUE}" | geopmsession -w -t 10 &
@@ -76,43 +74,32 @@ SESSION_FILE=${SESSION_DIR}/session-${SESSION_ID}.json
 sleep 1
 
 # CHECK THAT THE SESSION IS UP AND THERE IS A SESSION FILE IN WRITE MODE
-if ! ps ${SESSION_ID} > /dev/null; then
-    echo "Error: Failed to keep session open for one second" 1>&2
-    exit -1
-fi
-if [[ ! -f ${SESSION_FILE} ]]; then
-    echo "Error: Failed to create a session file" 1>&2
-    exit -1
-fi
-if ! grep '"mode": "rw"' ${SESSION_FILE} > /dev/null; then
-    echo "Error: Failed to create a read/write session"  1>&2
-    exit -1
-fi
+ps ${SESSION_ID} > /dev/null ||
+    test_error "Failed to keep session open for one second"
+
+test -f ${SESSION_FILE} ||
+    test_error "Failed to create a session file"
+
+grep '"mode": "rw"' ${SESSION_FILE} > /dev/null ||
+    test_error "Failed to create a read/write session"
 
 # READ THE CONTROLLED REGISTER
 SESSION_VALUE=$(echo ${REQUEST} | geopmsession)
 
 # END THE SESSION
-kill -9 ${SESSION_ID}
-if [[ $? -ne 0 ]]; then
-    echo "Error: Failed to kill session" 1>&2
-    exit -1
-fi
+kill -9 ${SESSION_ID} ||
+    test_error "Failed to kill session"
 sleep 1
 
 # CHECK THAT SAVE/RESTORE WORKED
 END_VALUE=$(echo ${REQUEST} | geopmsession)
 
 
-if [[ ${CONTROL_VALUE} != ${SESSION_VALUE} ]]; then
-    echo "Error: Control is not set during the session" 1>&2
-    exit -1
-fi
+test ${CONTROL_VALUE} == ${SESSION_VALUE} ||
+    test_error "Control is not set during the session"
 
-if [[ ${START_VALUE} != ${END_VALUE} ]]; then
-    echo "Error: Control is not restored after the session" 1>&2
-    exit -1
-fi
+test ${START_VALUE} == ${END_VALUE} ||
+    test_error "Control is not restored after the session"
 
 echo "SUCCESS"
 exit 0
