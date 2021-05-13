@@ -55,6 +55,8 @@ except ImportError as ee:
 
 class PlatformService(object):
     def __init__(self):
+        """PlatformService constructor
+        """
         self._pio = pio
         self._CONFIG_PATH = '/etc/geopm-service'
         self._VAR_PATH = '/var/run/geopm-service'
@@ -65,6 +67,22 @@ class PlatformService(object):
         self._sessions = dict()
 
     def get_group_access(self, group):
+        """Get the signals and controls in the access list.
+
+        Provides the default access lists or the access lists for a
+        particular Unix group.  These lists correspond to values
+        stored in the geopm service configuration files.  These files
+        are read with each call to this method.  If no files exist
+        that match the query, empty lists are returned.
+
+        Args:
+            group (str): Unix group name to query. The default access
+                lists are returned if group is the empty string.
+
+        Returns:
+            list(str), list(str): Signal and control access lists
+
+        """
         group = self._validate_group(group)
         group_dir = os.path.join(self._CONFIG_PATH, group)
         if os.path.isdir(group_dir):
@@ -190,7 +208,8 @@ class PlatformService(object):
     def _read_allowed(self, path):
         try:
             with open(path) as fid:
-                result = [line.strip() for line in fid.readlines() if line.strip()]
+                result = [line.strip() for line in fid.readlines()
+                          if line.strip() and not line.startswith('#')]
         except FileNotFoundError:
             result = []
         return result
