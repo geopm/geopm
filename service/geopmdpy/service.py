@@ -123,6 +123,8 @@ class PlatformService(object):
 
         """
         group = self._validate_group(group)
+        self._validate_signals(allowed_signals)
+        self._validate_controls(allowed_controls)
         group_dir = os.path.join(self._CONFIG_PATH, group)
         os.makedirs(group_dir, exist_ok=True)
         path = os.path.join(group_dir, 'allowed_signals')
@@ -258,6 +260,22 @@ class PlatformService(object):
             if group not in self._ALL_GROUPS:
                 raise RuntimeError('Linux group is not defined: group = "{}"'.format(group))
         return group
+
+    def _validate_signals(self, signals):
+        signals = set(signals)
+        all_signals = self._pio.signal_names()
+        if not signals.issubset(all_signals):
+            unmatched = signals.difference(all_signals)
+            err_msg = 'The service does not support any signals that match: "{}"'.format('", "'.join(unmatched))
+            raise RuntimeError(err_msg)
+
+    def _validate_controls(self, controls):
+        controls = set(controls)
+        all_controls = self._pio.control_names()
+        if not controls.issubset(all_controls):
+            unmatched = controls.difference(all_controls)
+            err_msg = 'The service does not support any controls that match: "{}"'.format('", "'.join(unmatched))
+            raise RuntimeError(err_msg)
 
     def _get_user_groups(self, user):
         user_gid = pwd.getpwnam(user).pw_gid
