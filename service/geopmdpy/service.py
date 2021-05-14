@@ -66,6 +66,8 @@ class PlatformService(object):
         self._WATCH_INTERVAL_MSEC = 1000
         self._write_pid = None
         self._sessions = dict()
+        self._dbus_proxy = SystemMessageBus().get_proxy('org.freedesktop.DBus',
+                                                        '/org/freedesktop/DBus')
 
     def get_group_access(self, group):
         """Get the signals and controls in the allowed lists.
@@ -107,11 +109,9 @@ class PlatformService(object):
         group.  These lists restrict user access to signals or
         controls provided by the service.  If the user specifies a
         list that contains signals or controls that are not currently
-        supported, the request will fail without modifying any
-        configuration files.  If the group name is not valid on the
-        system a RuntimeError is raised.  A RuntimeError is also
-        raised if any of the signals or controls specified are not
-        provided by the service.
+        supported, the request will raise a RuntimeError without
+        modifying any configuration files.  If the group name is not
+        valid on the system a RuntimeError is also raised.
 
         """
         group = self._validate_group(group)
@@ -421,17 +421,9 @@ class GEOPMService(object):
 
     def _get_user(self, call_info):
         unique_name = call_info['sender']
-        bus = SystemMessageBus()
-        dbus_proxy = bus.get_proxy('org.freedesktop.DBus',
-                                   '/org/freedesktop/DBus')
-        uid = dbus_proxy.GetConnectionUnixUser(unique_name)
-        user = pwd.getpwuid(uid).pw_name
-        return user
+        uid = self._dbus_proxy.GetConnectionUnixUser(unique_name)
+        return pwd.getpwuid(uid).pw_name
 
     def _get_pid(self, call_info):
         unique_name = call_info['sender']
-        bus = SystemMessageBus()
-        dbus_proxy = bus.get_proxy('org.freedesktop.DBus',
-                                   '/org/freedesktop/DBus')
-        pid = dbus_proxy.GetConnectionUnixProcessID(unique_name)
-        return pid
+        return self._dbus_proxy.GetConnectionUnixProcessID(unique_name)
