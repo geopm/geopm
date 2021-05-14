@@ -113,6 +113,14 @@ class PlatformService(object):
         modifying any configuration files.  If the group name is not
         valid on the system a RuntimeError is also raised.
 
+        Args:
+            group (str): Unix group name to query. The default allowed
+                lists are written if group is the empty string.
+
+            allowed_signals (list(str)): Signal names that are allowed
+
+            allowed_controls (list(str)): Control names that are allowed
+
         """
         group = self._validate_group(group)
         group_dir = os.path.join(self._CONFIG_PATH, group)
@@ -130,13 +138,11 @@ class PlatformService(object):
         """
         if user == 'root':
             return self.get_all_access()
-        user_gid = pwd.getpwnam(user).pw_gid
-        all_gid = os.getgrouplist(user, user_gid)
-        all_groups = [grp.getgrgid(gid).gr_name for gid in all_gid]
-        all_groups.append('') # Default access list
+        user_groups = self._get_user_groups(user)
+        user_groups.append('') # Default access list
         signal_set = set()
         control_set = set()
-        for group in all_groups:
+        for group in user_groups:
             signals, controls = self.get_group_access(group)
             signal_set.update(signals)
             control_set.update(controls)
@@ -252,6 +258,11 @@ class PlatformService(object):
             if group not in self._ALL_GROUPS:
                 raise RuntimeError('Linux group is not defined: group = "{}"'.format(group))
         return group
+
+    def _get_user_groups(self, user):
+        user_gid = pwd.getpwnam(user).pw_gid
+        all_gid = os.getgrouplist(user, user_gid)
+        return [grp.getgrgid(gid).gr_name for gid in all_gid]
 
     def _get_session(self, client_pid, operation):
         try:
