@@ -49,6 +49,7 @@ class TestPlatformService(unittest.TestCase):
         self._platform_service._pio = self._mock_pio
         self._platform_service._CONFIG_PATH = self._CONFIG_PATH.name
         self._platform_service._VAR_PATH = self._VAR_PATH.name
+        self._platform_service._ALL_GROUPS = ['named']
 
     def tearDown(self):
         self._CONFIG_PATH.cleanup()
@@ -90,6 +91,8 @@ class TestPlatformService(unittest.TestCase):
         lines = '\n'.join(lines)
         with open(control_file, 'w') as fid:
             fid.write(lines)
+        with self.assertRaises(RuntimeError) as context:
+            self._platform_service.get_group_access('INVALID_GROUP_NAME')
         signals, controls = self._platform_service.get_group_access('named')
         self.assertEqual([], signals)
         self.assertEqual(set(controls_expect), set(controls))
