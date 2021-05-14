@@ -153,6 +153,9 @@ namespace geopm
             /// @brief Add support for power combined signals if underlying
             ///        signals are available.
             void register_power_signals(void);
+            /// @brief Add support for Intel Resource Director signals if
+            ///        underlying signals are available.
+            void register_rdt_signals(void);
             /// @brief Write to enable bits for all fixed counters.
             void enable_fixed_counters(void);
             /// @brief Check system configuration and warn if it ma
@@ -208,6 +211,17 @@ namespace geopm
             // time for derivative signals
             std::shared_ptr<geopm_time_s> m_time_zero;
             std::shared_ptr<double> m_time_batch;
+
+            struct rdt_info
+            {
+                bool rdt_support;
+                uint32_t rmid_max;
+                uint32_t mbm_scalar;
+            };
+            rdt_info m_rdt;
+            /// @brief Return the Intel Resource Director Technology
+            ///        support information
+            static rdt_info rdt(void);
 
             // All available signals: map from name to signal_info.
             // The signals vector is over the indices for the domain.

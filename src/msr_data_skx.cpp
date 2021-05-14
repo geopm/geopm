@@ -648,6 +648,79 @@ namespace geopm
                 }
             }
         },
+        "QM_EVTSEL": {
+            "offset": "0xC8D",
+            "domain": "package",
+            "fields": {
+                "EVENT_ID": {
+                    "begin_bit": 0,
+                    "end_bit":   7,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "behavior":  "label",
+                    "writeable": true
+                },
+                "RMID": {
+                    "begin_bit": 31,
+                    "end_bit":   40,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "behavior":  "label",
+                    "writeable": true
+                }
+            }
+        },
+        "QM_CTR": {
+            "offset": "0xC8E",
+            "domain": "package",
+            "fields": {
+                "RM_DATA": {
+                    "begin_bit": 0,
+                    "end_bit":   31,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "behavior":  "variable",
+                    "writeable": false,
+                    "aggregation": "sum"
+                },
+                "UNAVAILABLE": {
+                    "begin_bit": 62,
+                    "end_bit":   62,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "behavior":  "variable",
+                    "writeable": false
+                },
+                "ERROR": {
+                    "begin_bit": 63,
+                    "end_bit":   31,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "behavior":  "variable",
+                    "writeable": false
+                }
+            }
+        },
+        "PQR_ASSOC": {
+            "offset": "0xC8F",
+            "domain": "cpu",
+            "fields": {
+                "RMID": {
+                    "begin_bit": 0,
+                    "end_bit":   9,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "behavior":  "variable",
+                    "writeable": true
+                }
+            }
+        },
         "UNCORE_PERF_STATUS": {
             "offset": "0x621",
             "domain": "package",

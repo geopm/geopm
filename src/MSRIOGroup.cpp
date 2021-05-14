@@ -148,6 +148,10 @@ namespace geopm
 
         register_temperature_signals();
         register_power_signals();
+        m_rdt = rdt();
+        if (m_rdt.rdt_support) {
+            register_rdt_signals();
+        }
 
         register_control_alias("POWER_PACKAGE_LIMIT", "MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT");
         register_control_alias("FREQUENCY", "MSR::PERF_CTL:FREQ"); // TODO: Remove @ v2.0
@@ -284,6 +288,76 @@ namespace geopm
             }
         }
     }
+
+    void MSRIOGroup::register_rdt_signals(void)
+    {
+        std::string signal_name = "QM_CTR_SCALED";
+        std::string msr_name = "MSR::QM_CTR#";
+        std::string description = "Resource Monitor Data scaled to number of bytes by the conversion factor";
+
+        auto read_it = m_signal_available.find(msr_name);
+        if (read_it != m_signal_available.end()) {
+            auto readings = read_it->second.signals;
+            int ctr_domain = read_it->second.domain;
+            int num_domain = m_platform_topo.num_domain(ctr_domain);
+            GEOPM_DEBUG_ASSERT(num_domain == (int)readings.size(),
+                               "size of domain for " + msr_name +
+                               " does not match number of signals available.");
+            std::vector<std::shared_ptr<Signal> > result(num_domain);
+            for (int domain_idx = 0; domain_idx < num_domain; ++domain_idx) {
+                //auto raw_msr = m_signal_available.at(msr_name).signals[domain_idx];
+                   // geopm::make_unique<MSRFieldSignal>(raw_msr, 0, 31,
+                result[domain_idx] =
+                    geopm::make_unique<MSRFieldSignal>(readings[domain_idx], 0, 31,
+                                                       0, (double)m_rdt.mbm_scalar);
+            }
+
+            m_signal_available[signal_name] = {result,
+                                               ctr_domain,
+                                               IOGroup::M_UNITS_NONE,
+                                               agg_function(msr_name),
+                                               description + "\n    alias_for: " + msr_name,
+                                               IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE};
+        }
+
+        // register time signal; domain board
+        std::string time_name = "MSR::TIME";
+        std::shared_ptr<Signal> time_sig = std::make_shared<TimeSignal>(m_time_zero, m_time_batch);
+        m_signal_available[time_name] = {std::vector<std::shared_ptr<Signal> >({time_sig}),
+                                         GEOPM_DOMAIN_BOARD,
+                                         IOGroup::M_UNITS_SECONDS,
+                                         Agg::select_first,
+                                         "Time in seconds used to calculate power"};
+
+        int derivative_window = 8;
+        double sleep_time = 0.005;  // 5000 us
+
+        msr_name = "QM_CTR_SCALED";
+        signal_name = "QM_CTR_SCALED_RATE";
+        description = "Resource Monitor Data Rate scaled to number of bytes by the conversion factor";
+        read_it = m_signal_available.find(msr_name);
+        if (read_it != m_signal_available.end()) {
+            auto readings = read_it->second.signals;
+            int ctr_domain = read_it->second.domain;
+            int num_domain = m_platform_topo.num_domain(ctr_domain);
+            std::vector<std::shared_ptr<Signal> > result(num_domain);
+            for (int domain_idx = 0; domain_idx < num_domain; ++domain_idx) {
+                auto ctr = readings[domain_idx];
+                result[domain_idx] =
+                    std::make_shared<DerivativeSignal>(time_sig, ctr,
+                                                       derivative_window,
+                                                       sleep_time);
+            }
+            m_signal_available[signal_name] = {result,
+                                               ctr_domain,
+                                               IOGroup::M_UNITS_NONE,
+                                               agg_function(msr_name),
+                                               description + "\n    alias_for: " + msr_name + " rate of change",
+                                               IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE};
+
+        }
+    }
+
 
     std::set<std::string> MSRIOGroup::signal_names(void) const
     {
@@ -580,6 +654,38 @@ namespace geopm
         }
 
         return ((family << 8) + model);
+    }
+
+    MSRIOGroup::rdt_info MSRIOGroup::rdt(void) {
+        uint32_t leaf, subleaf = 0;
+        uint32_t eax, ebx, ecx, edx = 0;
+        bool supported = false;
+        uint32_t max, scale = 0;
+
+        leaf = 0x0F;
+        subleaf = 0;
+
+        __cpuid_count(leaf, subleaf, eax, ebx, ecx, edx);
+        supported = (edx >> 1) & 1;
+        max = ebx;
+
+        if ((edx >> 1) ==  1) {
+            subleaf = 1;
+            eax = 0;
+            ebx = 0;
+            ecx = 0;
+            edx = 0;
+            __cpuid_count(leaf, subleaf, eax, ebx, ecx, edx);
+            scale = ebx;
+        }
+
+        rdt_info rdt = {
+            .rdt_support = supported,
+            .rmid_max = max,
+            .mbm_scalar = scale
+        };
+
+        return rdt;
     }
 
     void MSRIOGroup::register_signal_alias(const std::string &signal_name,

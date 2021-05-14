@@ -242,6 +242,15 @@ namespace geopm
                     "behavior":  "variable",
                     "writeable": false
                 },
+                "LIMIT_CPUID_MAXVAL": {
+                    "begin_bit": 22,
+                    "end_bit":   22,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "behavior":  "variable",
+                    "writeable": false
+                },
                 "TURBO_MODE_DISABLE": {
                     "begin_bit": 38,
                     "end_bit":   38,
