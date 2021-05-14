@@ -60,6 +60,7 @@ class PlatformService(object):
         self._pio = pio
         self._CONFIG_PATH = '/etc/geopm-service'
         self._VAR_PATH = '/var/run/geopm-service'
+        self._ALL_GROUPS = [gg.gr_name for gg in grp.getgrall()]
         self._DEFAULT_ACCESS = '0.DEFAULT_ACCESS'
         self._SAVE_DIR = 'SAVE_FILES'
         self._WATCH_INTERVAL_MSEC = 1000
@@ -67,20 +68,23 @@ class PlatformService(object):
         self._sessions = dict()
 
     def get_group_access(self, group):
-        """Get the signals and controls in the access list.
+        """Get the signals and controls in the allowed lists.
 
-        Provides the default access lists or the access lists for a
+        Provides the default allowed lists or the allowed lists for a
         particular Unix group.  These lists correspond to values
-        stored in the geopm service configuration files.  These files
-        are read with each call to this method.  If no files exist
-        that match the query, empty lists are returned.
+        stored in the GEOPM service configuration files.  The
+        configuration files are read with each call to this method.
+        If no files exist that match the query, empty lists are
+        returned.  Empty lines and lines that begin with the '#'
+        character are ignored.  If the group name is not valid on the
+        system a RuntimeError is raised.
 
         Args:
-            group (str): Unix group name to query. The default access
+            group (str): Unix group name to query. The default allowed
                 lists are returned if group is the empty string.
 
         Returns:
-            list(str), list(str): Signal and control access lists
+            list(str), list(str): Signal and control allowed lists
 
         """
         group = self._validate_group(group)
@@ -96,6 +100,20 @@ class PlatformService(object):
         return signals, controls
 
     def set_group_access(self, group, allowed_signals, allowed_controls):
+        """Set the signals and controls in the allowed lists.
+
+        Writes the configuration files that control the default
+        allowed lists or the allowed lists for a particular Unix
+        group.  These lists restrict user access to signals or
+        controls provided by the service.  If the user specifies a
+        list that contains signals or controls that are not currently
+        supported, the request will fail without modifying any
+        configuration files.  If the group name is not valid on the
+        system a RuntimeError is raised.  A RuntimeError is also
+        raised if any of the signals or controls specified are not
+        provided by the service.
+
+        """
         group = self._validate_group(group)
         group_dir = os.path.join(self._CONFIG_PATH, group)
         os.makedirs(group_dir, exist_ok=True)
@@ -105,6 +123,11 @@ class PlatformService(object):
         self._write_allowed(path, allowed_controls)
 
     def get_user_access(self, user):
+        """When a user requests a signal or control they are restricted to the
+        superset of the default allowed list and the allowed list for
+        all Unix groups that the user belongs to.
+
+        """
         if user == 'root':
             return self.get_all_access()
         user_gid = pwd.getpwnam(user).pw_gid
@@ -226,6 +249,8 @@ class PlatformService(object):
             group = str(group)
             if group[0].isdigit():
                 raise RuntimeError('Linux group name cannot begin with a digit: group = "{}"'.format(group))
+            if group not in self._ALL_GROUPS:
+                raise RuntimeError('Linux group is not defined: group = "{}"'.format(group))
         return group
 
     def _get_session(self, client_pid, operation):
