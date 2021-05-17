@@ -141,6 +141,17 @@ fi
 [enable_cnl_iogroup="0"]
 )
 
+AC_ARG_ENABLE([papi-iogroup],
+  [AS_HELP_STRING([--enable-papi-iogroup], [Enable the PAPI IOGroup])],
+[if test "x$enable_papi_iogroup" = "xno" ; then
+  enable_papi_iogroup="0"
+else
+  enable_papi_iogroup="1"
+fi
+],
+[enable_papi_iogroup="0"]
+)
+
 if test "x$enable_debug" = "x1" ; then
   AC_DEFINE([GEOPM_DEBUG], [ ], [Enables code for debugging])
   CFLAGS="$CFLAGS -O0 -g"
@@ -197,6 +208,11 @@ if test "x$enable_cnl_iogroup" = "x1" ; then
   AC_DEFINE([GEOPM_CNL_IOGROUP], [ ], [Enables the CNL IOGroup])
 fi
 AC_SUBST([enable_cnl_iogroup])
+
+if test "x$enable_papi_iogroup" = "x1" ; then
+  AC_DEFINE([GEOPM_PAPI_IOGROUP], [ ], [Enables the PAPI IOGroup])
+fi
+AC_SUBST([enable_papi_iogroup])
 
 AC_ARG_WITH([mpi-bin], [AS_HELP_STRING([--with-mpi-bin=PATH],
             [specify directory for mpi compiler wrapper binaries])])
@@ -283,6 +299,15 @@ if test "x$with_libelf_lib" != x; then
   LD_LIBRARY_PATH="$with_libelf_lib:$LD_LIBRARY_PATH"
   EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_libelf_lib"
 fi
+
+AC_ARG_WITH([libpapi], [AS_HELP_STRING([--with-libpapi=PATH],
+            [specify directory for installed libpapi package.])])
+if test "x$with_libpapi" != x; then
+  EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$with_libpapi/include"
+  LD_LIBRARY_PATH="$with_libpapi/lib:$LD_LIBRARY_PATH"
+  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_libpapi/lib"
+fi
+
 
 AC_ARG_VAR([PYTHON],
            [PYTHON the Python interpreter used to build Python modules])
@@ -468,6 +493,16 @@ if test "x$enable_nvml" = "x1" ; then
         exit -1])
 fi
 
+if test "x$enable_papi_iogroup" = "x1" ; then
+    AC_SEARCH_LIBS([PAPI_library_init], [papi])
+    AC_CHECK_LIB([papi], [PAPI_library_init], [], [
+        echo "missing libpapi: PAPI library is required, use --with-libpapi to specify its location"
+        exit -1])
+    AC_CHECK_HEADER([papi.h], [], [
+        echo "missing papi.h: PAPI header is required, use --with-libpapi to specify its location"
+        exit -1])
+fi
+
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h float.h inttypes.h malloc.h netdb.h stddef.h stdint.h stdlib.h string.h sys/socket.h unistd.h])
 
@@ -649,4 +684,5 @@ AC_MSG_RESULT([ompt               : ${enable_ompt}])
 AC_MSG_RESULT([beta               : ${enable_beta}])
 AC_MSG_RESULT([bloat              : ${enable_bloat}])
 AC_MSG_RESULT([nvml               : ${enable_nvml}])
+AC_MSG_RESULT([papi               : ${enable_papi_iogroup}])
 AC_MSG_RESULT([===============================================================================])
