@@ -178,7 +178,7 @@ namespace geopm
 
         char agent_name[GEOPM_ENDPOINT_AGENT_NAME_MAX];
         std::copy(data->agent, data->agent + GEOPM_ENDPOINT_AGENT_NAME_MAX, agent_name);
-        std::string agent {agent_name};
+        std::string agent = agent_name;
         if (agent != "") {
             m_num_policy = Agent::num_policy(agent_name);
             m_num_sample = Agent::num_sample(agent_name);
@@ -239,7 +239,7 @@ namespace geopm
 
         char profile_name[GEOPM_ENDPOINT_PROFILE_NAME_MAX];
         std::copy(data->profile_name, data->profile_name + GEOPM_ENDPOINT_PROFILE_NAME_MAX, profile_name);
-        std::string profile {profile_name};
+        std::string profile = profile_name;
         return profile;
     }
 
@@ -255,7 +255,7 @@ namespace geopm
         // check for agent
         char agent_name[GEOPM_ENDPOINT_AGENT_NAME_MAX];
         std::copy(data->agent, data->agent + GEOPM_ENDPOINT_AGENT_NAME_MAX, agent_name);
-        std::string agent {agent_name};
+        std::string agent = agent_name;
         std::set<std::string> result;
         if (agent != "") {
             char hostlist_path[GEOPM_ENDPOINT_HOSTLIST_PATH_MAX];
