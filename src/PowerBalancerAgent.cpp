@@ -35,6 +35,7 @@
 #include <cfloat>
 #include <cmath>
 #include <algorithm>
+#include <limits>
 
 #include "PowerBalancer.hpp"
 #include "PlatformIO.hpp"
