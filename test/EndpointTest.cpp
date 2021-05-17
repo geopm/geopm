@@ -256,9 +256,9 @@ TEST_F(EndpointTest, stop_wait_loop)
     mio.reset_wait_loop();
 
     auto run_thread = std::async(std::launch::async,
-                                 [&mio, this] {
-                                     mio.wait_for_agent_attach(m_timeout);
-                                 });
+                                 &EndpointImp::wait_for_agent_attach,
+                                 &mio,
+                                 m_timeout);
     mio.stop_wait_loop();
     // wait for less than timeout; should exit before time limit without throwing
     auto result = run_thread.wait_for(std::chrono::seconds(m_timeout - 1));
@@ -273,10 +273,11 @@ TEST_F(EndpointTest, attach_wait_loop_timeout_throws)
 
     geopm_time_s before;
     geopm_time(&before);
+
     auto run_thread = std::async(std::launch::async,
-                                 [&mio, this] {
-                                     mio.wait_for_agent_attach(m_timeout);
-                                 });
+                                 &EndpointImp::wait_for_agent_attach,
+                                 &mio,
+                                 m_timeout);
     // throw from our timeout should happen before longer async timeout
     std::future_status result = run_thread.wait_for(std::chrono::seconds(m_timeout + 1));
     GEOPM_EXPECT_THROW_MESSAGE(run_thread.get(),
@@ -299,10 +300,11 @@ TEST_F(EndpointTest, detach_wait_loop_timeout_throws)
 
     geopm_time_s before;
     geopm_time(&before);
+
     auto run_thread = std::async(std::launch::async,
-                                 [&mio, this] {
-                                     mio.wait_for_agent_detach(m_timeout);
-                                 });
+                                 &EndpointImp::wait_for_agent_detach,
+                                 &mio,
+                                 m_timeout);
     // throw from our timeout should happen before longer async timeout
     std::future_status result = run_thread.wait_for(std::chrono::seconds(m_timeout + 1));
     GEOPM_EXPECT_THROW_MESSAGE(run_thread.get(),
@@ -322,9 +324,9 @@ TEST_F(EndpointTest, wait_stops_when_agent_attaches)
     mio.open();
 
     auto run_thread = std::async(std::launch::async,
-                                 [&mio, this] {
-                                     mio.wait_for_agent_attach(m_timeout);
-                                 });
+                                 &EndpointImp::wait_for_agent_attach,
+                                 &mio,
+                                 m_timeout);
     // simulate agent attach
     strncpy(data->agent, "monitor", GEOPM_ENDPOINT_AGENT_NAME_MAX);
     // wait for less than timeout; should exit before time limit without throwing
@@ -363,9 +365,9 @@ TEST_F(EndpointTest, wait_stops_when_agent_detaches)
     ASSERT_EQ("monitor", mio.get_agent());
 
     auto run_thread = std::async(std::launch::async,
-                                 [&mio, this] {
-                                     mio.wait_for_agent_detach(m_timeout);
-                                 });
+                                 &EndpointImp::wait_for_agent_detach,
+                                 &mio,
+                                 m_timeout);
 
     // simulate agent detach
     strncpy(data->agent, "", GEOPM_ENDPOINT_AGENT_NAME_MAX);
