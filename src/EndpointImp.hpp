@@ -96,8 +96,8 @@ namespace geopm
 
             EndpointImp(const std::string &data_path);
             EndpointImp(const std::string &data_path,
-                        std::unique_ptr<SharedMemory> policy_shmem,
-                        std::unique_ptr<SharedMemory> sample_shmem,
+                        std::shared_ptr<SharedMemory> policy_shmem,
+                        std::shared_ptr<SharedMemory> sample_shmem,
                         size_t num_policy,
                         size_t num_sample);
             virtual ~EndpointImp();
@@ -117,8 +117,8 @@ namespace geopm
             static std::string shm_sample_postfix(void);
         private:
             std::string m_path;
-            std::unique_ptr<SharedMemory> m_policy_shmem;
-            std::unique_ptr<SharedMemory> m_sample_shmem;
+            std::shared_ptr<SharedMemory> m_policy_shmem;
+            std::shared_ptr<SharedMemory> m_sample_shmem;
             size_t m_num_policy;
             size_t m_num_sample;
             bool m_is_open;
