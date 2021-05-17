@@ -70,8 +70,8 @@ class EndpointTest : public ::testing::Test
     protected:
         void SetUp();
         const std::string m_shm_path = "/EndpointTest_data_" + std::to_string(geteuid());
-        std::unique_ptr<MockSharedMemory> m_policy_shmem;
-        std::unique_ptr<MockSharedMemory> m_sample_shmem;
+        std::shared_ptr<MockSharedMemory> m_policy_shmem;
+        std::shared_ptr<MockSharedMemory> m_sample_shmem;
         int m_timeout;
 };
 
@@ -107,7 +107,7 @@ TEST_F(EndpointTest, write_shm_policy)
 {
     std::vector<double> values = {777, 12.3456, 2.3e9};
     struct geopm_endpoint_policy_shmem_s *data = (struct geopm_endpoint_policy_shmem_s *) m_policy_shmem->pointer();
-    EndpointImp jio(m_shm_path, std::move(m_policy_shmem), std::move(m_sample_shmem), values.size(), 0);
+    EndpointImp jio(m_shm_path, m_policy_shmem, m_sample_shmem, values.size(), 0);
     jio.open();
     jio.write_policy(values);
 
@@ -121,7 +121,7 @@ TEST_F(EndpointTest, parse_shm_sample)
     double tmp[] = { 1.1, 2.2, 3.3, 4.4, 5.5 };
     int num_sample = sizeof(tmp) / sizeof(tmp[0]);
     struct geopm_endpoint_sample_shmem_s *data = (struct geopm_endpoint_sample_shmem_s *) m_sample_shmem->pointer();
-    EndpointImp gp(m_shm_path, std::move(m_policy_shmem), std::move(m_sample_shmem), 0, num_sample);
+    EndpointImp gp(m_shm_path, m_policy_shmem, m_sample_shmem, 0, num_sample);
     gp.open();
     // Build the data
     data->count = num_sample;
@@ -213,7 +213,7 @@ TEST_F(EndpointTestIntegration, write_read_sample)
 TEST_F(EndpointTest, get_agent)
 {
     struct geopm_endpoint_sample_shmem_s *data = (struct geopm_endpoint_sample_shmem_s *) m_sample_shmem->pointer();
-    EndpointImp mio(m_shm_path, std::move(m_policy_shmem), std::move(m_sample_shmem), 0, 0);
+    EndpointImp mio(m_shm_path, m_policy_shmem, m_sample_shmem, 0, 0);
     mio.open();
     strncpy(data->agent, "monitor", GEOPM_ENDPOINT_AGENT_NAME_MAX);
     EXPECT_EQ("monitor", mio.get_agent());
@@ -223,7 +223,7 @@ TEST_F(EndpointTest, get_agent)
 TEST_F(EndpointTest, get_profile_name)
 {
     struct geopm_endpoint_sample_shmem_s *data = (struct geopm_endpoint_sample_shmem_s *) m_sample_shmem->pointer();
-    EndpointImp mio(m_shm_path, std::move(m_policy_shmem), std::move(m_sample_shmem), 0, 0);
+    EndpointImp mio(m_shm_path, m_policy_shmem, m_sample_shmem, 0, 0);
     mio.open();
     strncpy(data->profile_name, "my_prof", GEOPM_ENDPOINT_PROFILE_NAME_MAX);
     EXPECT_EQ("my_prof", mio.get_profile_name());
@@ -234,7 +234,7 @@ TEST_F(EndpointTest, get_hostnames)
 {
     std::set<std::string> hosts = {"node0", "node1", "node2", "node3", "node4"};
     struct geopm_endpoint_sample_shmem_s *data = (struct geopm_endpoint_sample_shmem_s *) m_sample_shmem->pointer();
-    EndpointImp mio(m_shm_path, std::move(m_policy_shmem), std::move(m_sample_shmem), 0, 0);
+    EndpointImp mio(m_shm_path, m_policy_shmem, m_sample_shmem, 0, 0);
     mio.open();
     std::string hostlist_path = "EndpointTest_hostlist";
     std::ofstream hostlist(hostlist_path);
@@ -251,7 +251,7 @@ TEST_F(EndpointTest, get_hostnames)
 
 TEST_F(EndpointTest, stop_wait_loop)
 {
-    EndpointImp mio(m_shm_path, std::move(m_policy_shmem), std::move(m_sample_shmem), 0, 0);
+    EndpointImp mio(m_shm_path, m_policy_shmem, m_sample_shmem, 0, 0);
     mio.open();
     mio.reset_wait_loop();
 
@@ -268,7 +268,7 @@ TEST_F(EndpointTest, stop_wait_loop)
 
 TEST_F(EndpointTest, attach_wait_loop_timeout_throws)
 {
-    EndpointImp mio(m_shm_path, std::move(m_policy_shmem), std::move(m_sample_shmem), 0, 0);
+    EndpointImp mio(m_shm_path, m_policy_shmem, m_sample_shmem, 0, 0);
     mio.open();
 
     geopm_time_s before;
@@ -292,7 +292,7 @@ TEST_F(EndpointTest, attach_wait_loop_timeout_throws)
 TEST_F(EndpointTest, detach_wait_loop_timeout_throws)
 {
     struct geopm_endpoint_sample_shmem_s *data = (struct geopm_endpoint_sample_shmem_s *) m_sample_shmem->pointer();
-    EndpointImp mio(m_shm_path, std::move(m_policy_shmem), std::move(m_sample_shmem), 0, 0);
+    EndpointImp mio(m_shm_path, m_policy_shmem, m_sample_shmem, 0, 0);
     mio.open();
     // simulate agent attach
     strncpy(data->agent, "monitor", GEOPM_ENDPOINT_AGENT_NAME_MAX);
@@ -318,7 +318,7 @@ TEST_F(EndpointTest, detach_wait_loop_timeout_throws)
 TEST_F(EndpointTest, wait_stops_when_agent_attaches)
 {
     struct geopm_endpoint_sample_shmem_s *data = (struct geopm_endpoint_sample_shmem_s *) m_sample_shmem->pointer();
-    EndpointImp mio(m_shm_path, std::move(m_policy_shmem), std::move(m_sample_shmem), 0, 0);
+    EndpointImp mio(m_shm_path, m_policy_shmem, m_sample_shmem, 0, 0);
     mio.open();
 
     auto run_thread = std::async(std::launch::async,
@@ -336,7 +336,7 @@ TEST_F(EndpointTest, wait_stops_when_agent_attaches)
 TEST_F(EndpointTest, wait_attach_timeout_0)
 {
     struct geopm_endpoint_sample_shmem_s *data = (struct geopm_endpoint_sample_shmem_s *) m_sample_shmem->pointer();
-    EndpointImp mio(m_shm_path, std::move(m_policy_shmem), std::move(m_sample_shmem), 0, 0);
+    EndpointImp mio(m_shm_path, m_policy_shmem, m_sample_shmem, 0, 0);
     mio.open();
 
     // if agent is not already attached, throw immediately
@@ -356,7 +356,7 @@ TEST_F(EndpointTest, wait_attach_timeout_0)
 TEST_F(EndpointTest, wait_stops_when_agent_detaches)
 {
     struct geopm_endpoint_sample_shmem_s *data = (struct geopm_endpoint_sample_shmem_s *) m_sample_shmem->pointer();
-    EndpointImp mio(m_shm_path, std::move(m_policy_shmem), std::move(m_sample_shmem), 0, 0);
+    EndpointImp mio(m_shm_path, m_policy_shmem, m_sample_shmem, 0, 0);
     mio.open();
     // simulate agent attach
     strncpy(data->agent, "monitor", GEOPM_ENDPOINT_AGENT_NAME_MAX);
@@ -379,7 +379,7 @@ TEST_F(EndpointTest, wait_stops_when_agent_detaches)
 TEST_F(EndpointTest, wait_detach_timeout_0)
 {
     struct geopm_endpoint_sample_shmem_s *data = (struct geopm_endpoint_sample_shmem_s *) m_sample_shmem->pointer();
-    EndpointImp mio(m_shm_path, std::move(m_policy_shmem), std::move(m_sample_shmem), 0, 0);
+    EndpointImp mio(m_shm_path, m_policy_shmem, m_sample_shmem, 0, 0);
     mio.open();
     // simulate agent attach
     strncpy(data->agent, "monitor", GEOPM_ENDPOINT_AGENT_NAME_MAX);
