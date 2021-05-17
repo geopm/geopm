@@ -593,9 +593,11 @@ AC_DEFINE_UNQUOTED([GEOPM_SOURCE_DIR], ["$GEOPM_SOURCE_DIR"], [Root of the GEOPM
 AC_CONFIG_FILES([Makefile geopm.spec geopm-ohpc.spec geopm-theta.spec scripts/geopmpy/version.py])
 AC_OUTPUT
 
+CC_VERSION=$(${CC} --version | head -n1)
 # ============================================================================
 # Print out the results of configuration.
 AC_MSG_RESULT([===============================================================================])
+AC_MSG_RESULT([CC version         : ${CC_VERSION}])
 AC_MSG_RESULT([version            : ${VERSION}])
 AC_MSG_RESULT([])
 AC_MSG_RESULT([CPPFLAGS           : ${CPPFLAGS}])
