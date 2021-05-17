@@ -50,6 +50,9 @@
 #ifdef GEOPM_ENABLE_NVML
 #include "NVMLIOGroup.hpp"
 #endif
+#ifdef GEOPM_PAPI_IOGROUP
+#include "PAPIIOGroup.hpp"
+#endif
 #ifdef GEOPM_DEBUG
 #include <iostream>
 #endif
@@ -113,6 +116,10 @@ namespace geopm
 #ifdef GEOPM_ENABLE_NVML
         register_plugin(NVMLIOGroup::plugin_name(),
                         NVMLIOGroup::make_plugin);
+#endif
+#ifdef GEOPM_PAPI_IOGROUP
+        register_plugin(PAPIIOGroup::plugin_name(),
+                        PAPIIOGroup::make_plugin);
 #endif
     }
 
