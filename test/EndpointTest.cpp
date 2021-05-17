@@ -259,6 +259,7 @@ TEST_F(EndpointTest, stop_wait_loop)
                                  &EndpointImp::wait_for_agent_attach,
                                  &mio,
                                  m_timeout);
+    ASSERT_TRUE(run_thread.valid());
     mio.stop_wait_loop();
     // wait for less than timeout; should exit before time limit without throwing
     auto result = run_thread.wait_for(std::chrono::seconds(m_timeout - 1));
@@ -278,6 +279,7 @@ TEST_F(EndpointTest, attach_wait_loop_timeout_throws)
                                  &EndpointImp::wait_for_agent_attach,
                                  &mio,
                                  m_timeout);
+    ASSERT_TRUE(run_thread.valid());
     // throw from our timeout should happen before longer async timeout
     std::future_status result = run_thread.wait_for(std::chrono::seconds(m_timeout + 1));
     GEOPM_EXPECT_THROW_MESSAGE(run_thread.get(),
@@ -305,6 +307,7 @@ TEST_F(EndpointTest, detach_wait_loop_timeout_throws)
                                  &EndpointImp::wait_for_agent_detach,
                                  &mio,
                                  m_timeout);
+    ASSERT_TRUE(run_thread.valid());
     // throw from our timeout should happen before longer async timeout
     std::future_status result = run_thread.wait_for(std::chrono::seconds(m_timeout + 1));
     GEOPM_EXPECT_THROW_MESSAGE(run_thread.get(),
@@ -327,6 +330,7 @@ TEST_F(EndpointTest, wait_stops_when_agent_attaches)
                                  &EndpointImp::wait_for_agent_attach,
                                  &mio,
                                  m_timeout);
+    ASSERT_TRUE(run_thread.valid());
     // simulate agent attach
     strncpy(data->agent, "monitor", GEOPM_ENDPOINT_AGENT_NAME_MAX);
     // wait for less than timeout; should exit before time limit without throwing
@@ -369,6 +373,7 @@ TEST_F(EndpointTest, wait_stops_when_agent_detaches)
                                  &mio,
                                  m_timeout);
 
+    ASSERT_TRUE(run_thread.valid());
     // simulate agent detach
     strncpy(data->agent, "", GEOPM_ENDPOINT_AGENT_NAME_MAX);
 
