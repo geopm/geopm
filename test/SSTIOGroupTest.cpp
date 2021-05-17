@@ -227,7 +227,7 @@ TEST_F(SSTIOGroupTest, sample_mmio_percore_control)
     EXPECT_CALL(*m_sstio, read_batch());
     m_group->read_batch();
 
-    // It should read bits 16..17 (lower 2 bits of e and 1) 
+    // It should read bits 16..17 (lower 2 bits of e and 1)
     uint32_t raw0 = 0xfeffff;
     uint32_t raw1 = 0xf1ffff;
     uint32_t expected0 = 0x2;
@@ -313,7 +313,7 @@ TEST_F(SSTIOGroupTest, error_in_save_removes_control)
     } };
     const std::string unimpacted_control{"SST::COREPRIORITY:2:FREQUENCY_MIN"};
 
-    for (const auto control_name : broken_controls) {
+    for (const auto &control_name : broken_controls) {
         EXPECT_TRUE(m_group->is_valid_control(control_name))
             << control_name << " before failed save";
     }
@@ -321,7 +321,7 @@ TEST_F(SSTIOGroupTest, error_in_save_removes_control)
         << unimpacted_control << " before failed save";
 
     // save_control will hit a lot of other controls. Let them all succeed
-    // except for the ones we are testing. Google Test docs recommend using 
+    // except for the ones we are testing. Google Test docs recommend using
     // ON_CALL for don't-care cases like this, but the EXPECT_CALL we do later
     // on a subest of these calls will not work with that pattern.
     EXPECT_CALL(*m_sstio, write_mmio_once(_, _, _, _, _, _)).WillRepeatedly(Return());
@@ -334,7 +334,7 @@ TEST_F(SSTIOGroupTest, error_in_save_removes_control)
 
     m_group->save_control();
 
-    for (const auto control_name : broken_controls) {
+    for (const auto &control_name : broken_controls) {
         EXPECT_FALSE(m_group->is_valid_control(control_name))
             << control_name << " after failed save";
     }
