@@ -84,7 +84,7 @@ jobs:
       shell: bash
       run: .github/include_guards.sh
     - name: configure
-      run: ./autogen.sh && ./configure --enable-beta --${{ matrix.debug-flag }}
+      run: ./autogen.sh && ./configure --enable-beta --disable-openmp --${{ matrix.debug-flag }}
     - name: make
       run: make -j2
     - name: make checkprogs
