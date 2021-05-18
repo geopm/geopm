@@ -59,8 +59,8 @@ if ENABLE_FORTRAN
 endif
 endif
 
-install-exec-hook: install-python install-fortran install-openmp install-plugin-dir
-dist: dist-googletest dist-openmp
+install-exec-hook: install-python install-fortran install-plugin-dir
+dist: dist-googletest
 
 
 include_HEADERS = src/geopm.h \
@@ -786,7 +786,6 @@ CLEAN_LOCAL_TARGETS= clean-local-coverage \
                      clean-local-fortran \
                      clean-local-googletest \
                      clean-local-man \
-                     clean-local-openmp \
                      # end
 
 clean-local: $(CLEAN_LOCAL_TARGETS)
@@ -880,6 +879,5 @@ include test/Makefile.mk
 include integration/Makefile.mk
 include examples/Makefile.mk
 include scripts/Makefile.mk
-include openmp.mk
 
 .PHONY: $(PHONY_TARGETS)
