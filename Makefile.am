@@ -48,9 +48,12 @@ nodist_include_HEADERS =
 
 if ENABLE_MPI
     lib_LTLIBRARIES += libgeopm.la
-    bin_PROGRAMS += geopmbench \
-                    geopmctl \
+    bin_PROGRAMS += geopmctl \
                     # end
+if ENABLE_OPENMP
+    bin_PROGRAMS += geopmbench \
+                    # end
+endif
 if ENABLE_FORTRAN
     lib_LTLIBRARIES += libgeopmfort.la
 endif
@@ -761,9 +764,15 @@ model_source_files = src/All2allModelRegion.cpp \
                      # end
 
 if ENABLE_MPI
+if ENABLE_OPENMP
     geopmbench_SOURCES = $(model_source_files) \
                          src/geopmbench_main.cpp \
                          # end
+else
+    EXTRA_DIST += $(model_source_files) \
+                  src/geopmbench_main.cpp \
+                  # end
+endif
 else
     EXTRA_DIST += $(model_source_files) \
                   src/geopmbench_main.cpp \
