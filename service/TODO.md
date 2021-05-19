@@ -88,6 +88,8 @@ Reliability and Security
    should be pretty straight forward to implement.  We may also want
    to consider accounting for other restrictions such as "rdma", "io",
    or "perf_event".
+5) Follow guidelines in this article to reduce attack surface:
+   https://www.linuxjournal.com/content/systemd-service-strengthening
 
 
 Performance
