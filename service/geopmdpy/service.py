@@ -240,7 +240,7 @@ class PlatformService(object):
         try:
             with open(path) as fid:
                 result = [line.strip() for line in fid.readlines()
-                          if line.strip() and not line.startswith('#')]
+                          if line.strip() and not line.strip().startswith('#')]
         except FileNotFoundError:
             result = []
         return result
