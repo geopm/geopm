@@ -27,5 +27,5 @@ The unit tests for the C++ files in `geopm/service/src` are located in
 In the future it may make sense to split the unit tests in to two
 directories so that the service subdirectory is fully independent.
 
-The unit tests for the geopmdpy module have not yet been written.
-These will be located in `geopm/service/geopmdpy-test`.
+The unit tests for the geopmdpy module are located in
+`geopm/service/geopmdpy_test`.
