@@ -66,8 +66,6 @@ class PlatformService(object):
         self._WATCH_INTERVAL_MSEC = 1000
         self._write_pid = None
         self._sessions = dict()
-        self._dbus_proxy = SystemMessageBus().get_proxy('org.freedesktop.DBus',
-                                                        '/org/freedesktop/DBus')
 
     def get_group_access(self, group):
         """Get the signals and controls in the allowed lists.
@@ -392,6 +390,8 @@ class GEOPMService(object):
         self._topo = topo
         self._platform = platform
         self._write_pid = None
+        self._dbus_proxy = SystemMessageBus().get_proxy('org.freedesktop.DBus',
+                                                        '/org/freedesktop/DBus')
 
     def TopoGetCache(self):
         return self._topo.get_cache()
