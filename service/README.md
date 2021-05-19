@@ -1,5 +1,23 @@
 GEOPM systemd Service and Daemon
---------------------------------
+================================
+
+- Fine grained access management system for hardware features: read
+  hardware "signals" and write hardware "controls".
+
+- System administrator configures access permissions based on Unix
+  group.
+
+- Save / restore of hardware controls based on client process lifetime.
+
+- A high performance interface enabling batch access to validated sets
+  of signals/controls.
+
+- Supports extensibility for heterogenous environments through C++
+  plugin infrastructure (IOGroups).
+
+
+Overview
+--------
 
 The GEOPM service enables a client to make measurements from the
 hardware platform and set hardware control parameters.  Fine grained
