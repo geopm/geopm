@@ -66,15 +66,30 @@ class TestPlatformService(unittest.TestCase):
         default_dir = os.path.join(self._CONFIG_PATH.name, '0.DEFAULT_ACCESS')
         os.makedirs(default_dir)
         signal_file = os.path.join(default_dir, 'allowed_signals')
-        lines = list(signals_expect)
-        lines.insert(2, '# Comment line')
-        lines = '\n'.join(lines)
+        lines = """# Comment about the file contents
+  geopm
+energy
+\tsignals\t
+  # An indented comment
+default
+
+
+"""
         with open(signal_file, 'w') as fid:
             fid.write(lines)
         control_file = os.path.join(default_dir, 'allowed_controls')
-        lines = list(controls_expect)
-        lines.insert(0, '# Comment line')
-        lines = '\n'.join(lines)
+        lines = """controls
+\t# Inline comment
+geopm
+
+
+# Another comment
+default
+  power
+
+
+
+"""
         with open(control_file, 'w') as fid:
             fid.write(lines)
         signals, controls = self._platform_service.get_group_access('')
