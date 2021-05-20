@@ -45,7 +45,6 @@ install-plugin-dir:
 
 EXTRA_DIST = .gitignore \
              Makefile.am \
-             README.md \
              autogen.sh \
              configure.ac \
              contrib/json11/LICENSE.txt \
@@ -55,7 +54,6 @@ EXTRA_DIST = .gitignore \
              io.github.geopm.xml \
              geopmaccess \
              geopmd \
-             geopmsession \
              geopmdpy/__init__.py \
              geopmdpy/__main__.py \
              geopmdpy/access.py \
@@ -66,17 +64,22 @@ EXTRA_DIST = .gitignore \
              geopmdpy/topo.py \
              geopmdpy/version.py \
              geopmdpy/version.py.in \
+             geopmdpy_test/__main__.py \
+             geopmdpy_test/test_service.py \
+             geopmsession \
              setup.py \
              test/README.md \
+             test/test_su_give_access.sh \
+             test/test_write_session.sh \
              geopm.service \
              AUTHORS \
              CODE_OF_CONDUCT.md \
              CONTRIBUTING.md \
              COPYING \
-             VERSION \
+             README.md \
              TODO.md \
+             VERSION \
              # end
-
 
 # Add ABI version
 libgeopmd_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(geopm_abi_version)
