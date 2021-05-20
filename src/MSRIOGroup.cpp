@@ -98,6 +98,7 @@ namespace geopm
         , m_is_fixed_enabled(false)
         , m_time_zero(std::make_shared<geopm_time_s>(time_zero()))
         , m_time_batch(std::make_shared<double>(NAN))
+        , m_rdt(rdt())
     {
         // Load available signals and controls from files
         parse_json_msrs(arch_msr_json());
@@ -148,10 +149,8 @@ namespace geopm
 
         register_temperature_signals();
         register_power_signals();
-        m_rdt = rdt();
-        if (m_rdt.rdt_support) {
-            register_rdt_signals();
-        }
+
+        register_rdt_signals();
 
         register_control_alias("POWER_PACKAGE_LIMIT", "MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT");
         register_control_alias("FREQUENCY", "MSR::PERF_CTL:FREQ"); // TODO: Remove @ v2.0
@@ -291,34 +290,35 @@ namespace geopm
 
     void MSRIOGroup::register_rdt_signals(void)
     {
+        if (!m_rdt.rdt_support) {
+            return;
+        }
+
+        //TODO: LHL: Add check for CPUID_LIMIT_MAXVAL, or comment explaining
         std::string signal_name = "QM_CTR_SCALED";
-        std::string msr_name = "MSR::QM_CTR#";
+        //std::string msr_name = "MSR::QM_CTR#";
+        std::string msr_name = "MSR::QM_CTR:RM_DATA";
         std::string description = "Resource Monitor Data scaled to number of bytes by the conversion factor";
 
         auto read_it = m_signal_available.find(msr_name);
         if (read_it != m_signal_available.end()) {
             auto readings = read_it->second.signals;
             int ctr_domain = read_it->second.domain;
-            int num_domain = m_platform_topo.num_domain(ctr_domain);
-            GEOPM_DEBUG_ASSERT(num_domain == (int)readings.size(),
-                               "size of domain for " + msr_name +
-                               " does not match number of signals available.");
-            std::vector<std::shared_ptr<Signal> > result(num_domain);
-            for (int domain_idx = 0; domain_idx < num_domain; ++domain_idx) {
-                //auto raw_msr = m_signal_available.at(msr_name).signals[domain_idx];
-                   // geopm::make_unique<MSRFieldSignal>(raw_msr, 0, 31,
-                result[domain_idx] =
-                    geopm::make_unique<MSRFieldSignal>(readings[domain_idx], 0, 31,
-                                                       0, (double)m_rdt.mbm_scalar);
-            }
 
-            m_signal_available[signal_name] = {result,
-                                               ctr_domain,
-                                               IOGroup::M_UNITS_NONE,
-                                               agg_function(msr_name),
-                                               description + "\n    alias_for: " + msr_name,
-                                               IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE};
+            // Begin bit, end bit, and function are currently hardcoded as there's no accessor
+            // for MSRFieldSignal values that doesn't involve reparsing the JSON file
+            MSRIOGroup::add_msr_field_signal("QM_CTR",
+                                         signal_name,
+                                         ctr_domain,
+                                         0, 31,
+                                         MSR::string_to_function("scale"),
+                                         (double)m_rdt.mbm_scalar,
+                                         IOGroup::M_UNITS_NONE,
+                                         Agg::function_to_name(agg_function(msr_name)),
+                                         description,
+                                         IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE);
         }
+
 
         // register time signal; domain board
         std::string time_name = "MSR::TIME";
@@ -666,10 +666,10 @@ namespace geopm
         subleaf = 0;
 
         __cpuid_count(leaf, subleaf, eax, ebx, ecx, edx);
-        supported = (edx >> 1) & 1;
+        supported = (bool)((edx >> 1) & 1);
         max = ebx;
 
-        if ((edx >> 1) ==  1) {
+        if (supported == true) {
             subleaf = 1;
             eax = 0;
             ebx = 0;
