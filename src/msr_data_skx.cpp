@@ -697,7 +697,7 @@ namespace geopm
                 },
                 "ERROR": {
                     "begin_bit": 63,
-                    "end_bit":   31,
+                    "end_bit":   63,
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
