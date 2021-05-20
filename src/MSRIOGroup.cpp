@@ -290,13 +290,18 @@ namespace geopm
 
     void MSRIOGroup::register_rdt_signals(void)
     {
-        if (!m_rdt.rdt_support) {
+        // It may be necessary to wrap the initial rdt() call in this check
+        int domain = signal_domain_type("MSR::MISC_ENABLE:LIMIT_CPUID_MAXVAL");
+        int num_domain = m_platform_topo.num_domain(domain);
+        double disable = 0.0;
+        for (int dom_idx = 0; dom_idx < num_domain; ++dom_idx) {
+            disable += read_signal("MSR::MISC_ENABLE:LIMIT_CPUID_MAXVAL", domain, dom_idx);
+        }
+        if ((disable != 0.0) || (!m_rdt.rdt_support)) {
             return;
         }
 
-        //TODO: LHL: Add check for CPUID_LIMIT_MAXVAL, or comment explaining
         std::string signal_name = "QM_CTR_SCALED";
-        //std::string msr_name = "MSR::QM_CTR#";
         std::string msr_name = "MSR::QM_CTR:RM_DATA";
         std::string description = "Resource Monitor Data scaled to number of bytes by the conversion factor";
 
@@ -339,7 +344,7 @@ namespace geopm
         if (read_it != m_signal_available.end()) {
             auto readings = read_it->second.signals;
             int ctr_domain = read_it->second.domain;
-            int num_domain = m_platform_topo.num_domain(ctr_domain);
+            num_domain = m_platform_topo.num_domain(ctr_domain);
             std::vector<std::shared_ptr<Signal> > result(num_domain);
             for (int domain_idx = 0; domain_idx < num_domain; ++domain_idx) {
                 auto ctr = readings[domain_idx];

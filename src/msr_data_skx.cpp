@@ -662,8 +662,8 @@ namespace geopm
                     "writeable": true
                 },
                 "RMID": {
-                    "begin_bit": 31,
-                    "end_bit":   40,
+                    "begin_bit": 32,
+                    "end_bit":   41,
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
