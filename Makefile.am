@@ -345,19 +345,23 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              service/geopmd \
              service/geopmaccess \
              service/TODO.md \
+             service/geopmdpy/__init__.py \
+             service/geopmdpy/__main__.py \
+             service/geopmdpy/access.py \
+             service/geopmdpy/error.py \
+             service/geopmdpy/pio.py \
              service/geopmdpy/service.py \
              service/geopmdpy/session.py \
-             service/geopmdpy/__main__.py \
-             service/geopmdpy/pio.py \
-             service/geopmdpy/access.py \
-             service/geopmdpy/version.py.in \
              service/geopmdpy/topo.py \
-             service/geopmdpy/__init__.py \
-             service/geopmdpy/error.py \
+             service/geopmdpy/version.py.in \
+             service/geopmdpy_test/__main__.py \
+             service/geopmdpy_test/test_service.py \
              service/autogen.sh \
              service/setup.py \
              service/.gitignore \
              service/README.md \
+             service/test/test_su_give_access.sh \
+             service/test/test_write_session.sh \
              service/configure.ac \
              service/io.github.geopm.xml \
              service/io.github.geopm.conf \
