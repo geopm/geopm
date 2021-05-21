@@ -303,7 +303,7 @@ namespace geopm
 
         std::string signal_name = "QM_CTR_SCALED";
         std::string msr_name = "MSR::QM_CTR:RM_DATA";
-        std::string description = "Resource Monitor Data scaled to number of bytes by the conversion factor";
+        std::string description = "Resource Monitor Data converted to bytes";
 
         auto read_it = m_signal_available.find(msr_name);
         if (read_it != m_signal_available.end()) {
@@ -313,15 +313,15 @@ namespace geopm
             // Begin bit, end bit, and function are currently hardcoded as there's no accessor
             // for MSRFieldSignal values that doesn't involve reparsing the JSON file
             MSRIOGroup::add_msr_field_signal("QM_CTR",
-                                         signal_name,
-                                         ctr_domain,
-                                         0, 31,
-                                         MSR::string_to_function("scale"),
-                                         (double)m_rdt.mbm_scalar,
-                                         IOGroup::M_UNITS_NONE,
-                                         Agg::function_to_name(agg_function(msr_name)),
-                                         description,
-                                         IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE);
+                                             signal_name,
+                                             ctr_domain,
+                                             0, 31,
+                                             MSR::string_to_function("scale"),
+                                             (double)m_rdt.mbm_scalar,
+                                             IOGroup::M_UNITS_NONE,
+                                             Agg::function_to_name(agg_function(msr_name)),
+                                             description,
+                                             IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE);
         }
 
 
@@ -332,14 +332,14 @@ namespace geopm
                                          GEOPM_DOMAIN_BOARD,
                                          IOGroup::M_UNITS_SECONDS,
                                          Agg::select_first,
-                                         "Time in seconds used to calculate power"};
+                                         "Time in seconds"};
 
         int derivative_window = 8;
         double sleep_time = 0.005;  // 5000 us
 
         msr_name = "QM_CTR_SCALED";
         signal_name = "QM_CTR_SCALED_RATE";
-        description = "Resource Monitor Data Rate scaled to number of bytes by the conversion factor";
+        description = "Resource Monitor Data converted to bytes/second";
         read_it = m_signal_available.find(msr_name);
         if (read_it != m_signal_available.end()) {
             auto readings = read_it->second.signals;
@@ -661,7 +661,8 @@ namespace geopm
         return ((family << 8) + model);
     }
 
-    MSRIOGroup::rdt_info MSRIOGroup::rdt(void) {
+    MSRIOGroup::rdt_info MSRIOGroup::rdt(void)
+    {
         uint32_t leaf, subleaf = 0;
         uint32_t eax, ebx, ecx, edx = 0;
         bool supported = false;
