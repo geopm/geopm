@@ -54,7 +54,7 @@ fi
 CONTROL=MSR::PERF_CTL:FREQ
 DOMAIN=core
 DOMAIN_IDX=0
-CONTROL_VALUE=2000000000.0
+SETTING=2000000000.0
 REQUEST="${CONTROL} ${DOMAIN} ${DOMAIN_IDX}"
 
 test_error() {
@@ -67,11 +67,11 @@ START_VALUE=$(echo ${REQUEST} | geopmsession) ||
     test_error "Call to read ${CONTROL} through geopmsession failed"
 
 # CHECK THAT IT IS DIFFERENT THAN THE TEST VALUE
-test ${CONTROL_VALUE} != ${START_VALUE} ||
+test ${SETTING} != ${START_VALUE} ||
     test_error "Start value for the control is the same as the test value"
 
 # START A SESSION THAT WRITES THE CONTROL VALUE
-echo "${REQUEST} ${CONTROL_VALUE}" | geopmsession -w -t 10 &
+echo "${REQUEST} ${SETTING}" | geopmsession -w -t 10 &
 SESSION_ID=$!
 sleep 1
 
@@ -87,7 +87,7 @@ sleep 1
 END_VALUE=$(echo ${REQUEST} | geopmsession)
 
 # CHECK THAT THE REGISTER WAS CHANGED DURING THE SESSION
-test ${CONTROL_VALUE} == ${SESSION_VALUE} ||
+test ${SETTING} == ${SESSION_VALUE} ||
     test_error "Control is not set during the session"
 
 # CHECK THAT SAVE/RESTORE WORKED
