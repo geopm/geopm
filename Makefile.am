@@ -360,6 +360,7 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              service/setup.py \
              service/.gitignore \
              service/README.md \
+             service/test/install_service.sh \
              service/test/test_su_give_access.sh \
              service/test/test_write_session.sh \
              service/configure.ac \
