@@ -54,10 +54,10 @@ CONTROL=MSR::PERF_CTL:FREQ
 TEST_DIR=$(dirname $(readlink -f $0))
 TEST_USER=test
 TEST_SCRIPT=${TEST_DIR}/test_write_session.sh
-SAVE_SIGNALS=test_su_give_access_save_signals.txt
-SAVE_CONTROLS=test_su_give_access_save_controls.txt
-TEST_SIGNALS=test_su_give_access_test_signals.txt
-TEST_CONTROLS=test_su_give_access_test_controls.txt
+SAVE_SIGNALS=$(mktemp)
+SAVE_CONTROLS=$(mktemp)
+TEST_SIGNALS=$(mktemp)
+TEST_CONTROLS=$(mktemp)
 
 test_error() {
     echo "Error: $1" 1>&2
