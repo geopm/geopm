@@ -69,6 +69,7 @@ EXTRA_DIST = .gitignore \
              geopmsession \
              setup.py \
              test/README.md \
+             test/install_service.sh \
              test/test_su_give_access.sh \
              test/test_write_session.sh \
              geopm.service \
