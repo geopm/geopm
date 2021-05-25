@@ -51,6 +51,9 @@ BuildRequires: python3-devel
 
 %if 0%{?suse_version} >= 1320
 BuildRequires: openssh
+Requires: python3-gobject
+%else
+Requires: python3-gobject-base
 %endif
 
 Prefix: %{_prefix}
@@ -59,6 +62,12 @@ Prefix: %{_prefix}
 %define docdir %{_defaultdocdir}/geopm
 %else
 %define docdir %{_defaultdocdir}/geopm-%{version}
+%endif
+
+%if 0%{?el7}
+%global python3_pkgversion 36
+%else
+%{!?python3_pkgversion:%global python3_pkgversion 3}
 %endif
 
 %description
@@ -72,8 +81,6 @@ The service package for GEOPM that runs the geopmd daemon.
 Summary: Global Extensible Open Power Manager Service - python %{python_major_version}
 Group: System Environment/Libraries
 Requires: geopm-service
-Requires: python3-gobject-base
-Requires: python3-dasbus
 %{?python_provide:%python_provide python%{python3_pkgversion}-geopmdpy}
 
 %description -n python%{python3_pkgversion}-geopmdpy
