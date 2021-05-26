@@ -30,7 +30,7 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-print_help () {
+print_help() {
     echo "Usage: $0 VERSION [USER]
                  $0 --remove
 
@@ -53,7 +53,7 @@ install_error () {
     exit -1
 }
 
-install_packages () {
+install_packages() {
     VERSION=$1
     RPM_USER=$2
     RPM_DIR=/home/${RPM_USER}/rpmbuild/RPMS
@@ -73,7 +73,7 @@ start_service () {
         install_error "Failed to start the geopm service"
 }
 
-remove_service () {
+remove_service() {
     systemctl stop geopm ||
         echo "Warning: Failed to stop geopm service" 1>&2
     zypper remove -y geopm-service python3-geopmdpy ||
