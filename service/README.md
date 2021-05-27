@@ -15,6 +15,7 @@ GEOPM systemd Service and Daemon
 - Supports extensibility for heterogenous environments through C++
   plugin infrastructure (IOGroups).
 
+- [Overview slides](https://geopm.github.io/pdf/geopm-service.pdf)
 
 Overview
 --------
