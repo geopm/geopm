@@ -49,8 +49,7 @@ BuildRequires: python3
 BuildRequires: python3-devel
 %define python_bin %{__python3}
 
-%if 0%{?suse_version} >= 1320
-BuildRequires: openssh
+%if 0%{?suse_version}
 Requires: python3-gobject
 %else
 Requires: python3-gobject-base
@@ -64,11 +63,7 @@ Prefix: %{_prefix}
 %define docdir %{_defaultdocdir}/geopm-%{version}
 %endif
 
-%if 0%{?el7}
-%global python3_pkgversion 36
-%else
 %{!?python3_pkgversion:%global python3_pkgversion 3}
-%endif
 
 %description
 The service package for GEOPM that runs the geopmd daemon.
@@ -87,7 +82,6 @@ Requires: geopm-service
 Python %{python_major_version} package for GEOPM service.
 
 %build
-#test -f configure || ./autogen.sh
 ./autogen.sh
 ./configure --prefix=%{_prefix} --libdir=%{_libdir} --libexecdir=%{_libexecdir} \
             --includedir=%{_includedir} --sbindir=%{_sbindir} \

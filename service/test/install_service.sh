@@ -31,8 +31,9 @@
 #
 
 print_help() {
-    echo "Usage: $0 VERSION [USER]
-                 $0 --remove
+    echo "
+    Usage: $0 VERSION [USER]
+           $0 --remove
 
     Installs the RPMs created by the \"make rpm\" target of the geopm/service
     build.  The geopm-service and python3-geopmdpy packages are installed and
@@ -44,18 +45,19 @@ print_help() {
     https://github.com/rhinstaller/dasbus/blob/master/python-dasbus.spec
 
     Note the dasbus spec file is designed to support Fedora packaging.
+
+    Example:
+
+        sudo ./install_service.sh \$(cat ../VERSION) \$USER
+
 "
     exit 0
 }
 
-install_error () {
+install_error() {
     echo "Error: $1" 1>&2
     exit -1
 }
-
-if [[ ${USER} != "root" ]]; then
-    install_error "Script must be run as user root"
-fi
 
 # Support both yum and zypper
 if which zypper >& /dev/null; then
@@ -76,12 +78,12 @@ ${RPM_DIR}/x86_64/python3-geopmdpy-${VERSION}-1.x86_64.rpm"
     for PKG in ${PACKAGES}; do
         test -f ${PKG} ||
             install_error "File does not exist: ${PKG}"
-        ${PKG_INSTALL} ${PKG} ||
-            install_error "Failed to install the following package: ${PKG}"
     done
+    ${PKG_INSTALL} ${PACKAGES} ||
+        install_error "Failed to install the following package: ${PKG}"
 }
 
-start_service () {
+start_service() {
     systemctl start geopm ||
         install_error "Failed to start the geopm service"
 }
@@ -90,11 +92,13 @@ remove_service() {
     systemctl stop geopm ||
         echo "Warning: Failed to stop geopm service" 1>&2
     ${PKG_REMOVE} geopm-service python3-geopmdpy ||
-        echo "Warning: Failed to remove geopm service packages"
+        echo "Warning: Failed to remove geopm service packages" 1>&2
 }
 
 if [[ $# -lt 1 ]] || [[ $1 == '--help' ]]; then
     print_help
+elif [[ ${USER} != "root" ]]; then
+    install_error "Script must be run as user root"
 elif [[ $# -eq 1 ]] && [[ $1 == '--remove' ]]; then
     remove_service
 else
@@ -102,9 +106,9 @@ else
     if [[ $# -gt 1 ]]; then
         RPM_USER=$2
     else
-        RPM_USER=$USER
+        RPM_USER=${USER}
     fi
     remove_service
-    install_packages $GEOPM_VERSION $RPM_USER &&
+    install_packages ${GEOPM_VERSION} ${RPM_USER} &&
     start_service
 fi
