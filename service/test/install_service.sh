@@ -53,17 +53,30 @@ install_error () {
     exit -1
 }
 
+if [[ ${USER} != "root" ]]; then
+    install_error "Script must be run as user root"
+fi
+
+# Support both yum and zypper
+if which zypper >& /dev/null; then
+    PKG_INSTALL="zypper install -y --allow-unsigned-rpm"
+    PKG_REMOVE="zypper remove -y"
+else
+    PKG_INSTALL="yum install -y"
+    PKG_REMOVE="yum remove -y"
+fi
+
 install_packages() {
     VERSION=$1
     RPM_USER=$2
     RPM_DIR=/home/${RPM_USER}/rpmbuild/RPMS
     PACKAGES="\
-${RPM_DIR}/x86_64/geopm-service-${VERSION}.x86_64.rpm
-${RPM_DIR}/x86_64/python3-geopmdpy-${VERSION}.x86_64.rpm"
+${RPM_DIR}/x86_64/geopm-service-${VERSION}-1.x86_64.rpm
+${RPM_DIR}/x86_64/python3-geopmdpy-${VERSION}-1.x86_64.rpm"
     for PKG in ${PACKAGES}; do
         test -f ${PKG} ||
             install_error "File does not exist: ${PKG}"
-        zypper install -y --allow-unsigned-rpm ${PKG} ||
+        ${PKG_INSTALL} ${PKG} ||
             install_error "Failed to install the following package: ${PKG}"
     done
 }
@@ -76,7 +89,7 @@ start_service () {
 remove_service() {
     systemctl stop geopm ||
         echo "Warning: Failed to stop geopm service" 1>&2
-    zypper remove -y geopm-service python3-geopmdpy ||
+    ${PKG_REMOVE} geopm-service python3-geopmdpy ||
         echo "Warning: Failed to remove geopm service packages"
 }
 
