@@ -54,6 +54,12 @@ the user application.  The PlatformIO loaded by geopmd provides the
 implementation for the GEOPM service D-Bus interfaces.
 
 
+Architecture Diagram
+--------------------
+
+![](https://geopm.github.io/images/geopm-service-diagram.svg)
+
+
 Signals and Controls
 --------------------
 
