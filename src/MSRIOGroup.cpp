@@ -108,35 +108,11 @@ namespace geopm
             parse_json_msrs(data);
         }
 
+        m_hwp_is_enabled = is_hwp_enabled();
+        register_frequency_signals();
+        register_frequency_controls();
+
         register_signal_alias("TIMESTAMP_COUNTER", "MSR::TIME_STAMP_COUNTER:TIMESTAMP_COUNT");
-        register_signal_alias("FREQUENCY", "MSR::PERF_STATUS:FREQ"); // TODO: Remove @ v2.0
-        register_signal_alias("CPU_FREQUENCY_STATUS", "MSR::PERF_STATUS:FREQ");
-        register_signal_alias("CPU_FREQUENCY_CONTROL", "MSR::PERF_CTL:FREQ");
-
-        std::string max_turbo_name;
-        switch (m_cpuid) {
-            case MSRIOGroup::M_CPUID_KNL:
-                max_turbo_name = "MSR::TURBO_RATIO_LIMIT:GROUP_0_MAX_RATIO_LIMIT";
-                break;
-            case MSRIOGroup::M_CPUID_SNB:
-            case MSRIOGroup::M_CPUID_IVT:
-            case MSRIOGroup::M_CPUID_HSX:
-            case MSRIOGroup::M_CPUID_BDX:
-                max_turbo_name = "MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_1CORE";
-                break;
-            case MSRIOGroup::M_CPUID_SKX:
-            case MSRIOGroup::M_CPUID_ICX:
-                max_turbo_name = "MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_0";
-                break;
-            default:
-                throw Exception("MSRIOGroup: Unsupported CPUID",
-                                GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-        }
-        register_signal_alias("FREQUENCY_MAX", max_turbo_name); // TODO: Remove @ v2.0
-        set_signal_description("FREQUENCY_MAX", "Maximum processor frequency."); // TODO: Remove @ v2.0
-        register_signal_alias("CPU_FREQUENCY_MAX", max_turbo_name);
-        set_signal_description("CPU_FREQUENCY_MAX", "Maximum processor frequency.");
-
         register_signal_alias("ENERGY_PACKAGE", "MSR::PKG_ENERGY_STATUS:ENERGY");
         register_signal_alias("ENERGY_DRAM", "MSR::DRAM_ENERGY_STATUS:ENERGY");
         register_signal_alias("INSTRUCTIONS_RETIRED", "MSR::FIXED_CTR0:INST_RETIRED_ANY");
@@ -150,9 +126,8 @@ namespace geopm
         register_power_signals();
 
         register_control_alias("POWER_PACKAGE_LIMIT", "MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT");
-        register_control_alias("FREQUENCY", "MSR::PERF_CTL:FREQ"); // TODO: Remove @ v2.0
-        register_control_alias("CPU_FREQUENCY_CONTROL", "MSR::PERF_CTL:FREQ");
         register_control_alias("POWER_PACKAGE_TIME_WINDOW", "MSR::PKG_POWER_LIMIT:PL1_TIME_WINDOW");
+
     }
 
     void MSRIOGroup::set_signal_description(const std::string &name,
@@ -223,6 +198,56 @@ namespace geopm
                                                    + ts.msr_name,
                                                    IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE};
             }
+        }
+    }
+
+    void MSRIOGroup::register_frequency_signals(void)
+    {
+        if (m_hwp_is_enabled){
+            register_signal_alias("CPU_FREQUENCY_MAX_CONTROL", "MSR::HWP_REQUEST:MAXIMUM_PERFORMANCE");
+        }
+        else {
+            register_signal_alias("CPU_FREQUENCY_MAX_CONTROL", "MSR::PERF_CTL:FREQ");
+        }
+        register_signal_alias("CPU_FREQUENCY_STATUS", "MSR::PERF_STATUS:FREQ");
+        std::string max_turbo_name;
+        switch (m_cpuid) {
+            case MSRIOGroup::M_CPUID_KNL:
+                max_turbo_name = "MSR::TURBO_RATIO_LIMIT:GROUP_0_MAX_RATIO_LIMIT";
+                break;
+            case MSRIOGroup::M_CPUID_SNB:
+            case MSRIOGroup::M_CPUID_IVT:
+            case MSRIOGroup::M_CPUID_HSX:
+            case MSRIOGroup::M_CPUID_BDX:
+                max_turbo_name = "MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_1CORE";
+                break;
+            case MSRIOGroup::M_CPUID_SKX:
+            case MSRIOGroup::M_CPUID_ICX:
+                max_turbo_name = "MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_0";
+                break;
+            default:
+                throw Exception("MSRIOGroup: Unsupported CPUID",
+                                GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+
+        if (m_hwp_is_enabled)
+        {
+            register_signal_alias("CPU_FREQUENCY_MAX", "MSR::HWP_CAPABILITIES:HIGHEST_PERFORMANCE");
+
+        }
+        else {
+            register_signal_alias("CPU_FREQUENCY_MAX_CONTROL", max_turbo_name);
+        }
+
+        set_signal_description("CPU_FREQUENCY_MAX", "Maximum processor frequency.");
+    }
+
+    void MSRIOGroup::register_frequency_controls(void) {
+        if (m_hwp_is_enabled) {
+            register_control_alias("CPU_FREQUENCY_MAX_CONTROL", "MSR::HWP_REQUEST:MAXIMUM_PERFORMANCE");
+        }
+        else {
+            register_control_alias("CPU_FREQUENCY_MAX_CONTROL", "MSR::PERF_CTL:FREQ");
         }
     }
 
@@ -518,6 +543,7 @@ namespace geopm
         if (control_name == "POWER_PACKAGE_LIMIT") {
             write_control("MSR::PKG_POWER_LIMIT:PL1_LIMIT_ENABLE", domain_type, domain_idx, 1.0);
         }
+
         std::shared_ptr<Control> control = m_control_available.at(control_name).controls[domain_idx];
         control->write(setting);
     }
@@ -548,6 +574,31 @@ namespace geopm
                 dom_ctl->restore();
             }
         }
+    }
+
+    bool MSRIOGroup::is_hwp_enabled(void)
+    {
+        uint32_t leaf = 6; //thermal and power management features
+        uint32_t eax, ebx, ecx, edx;
+        const uint32_t hwp_mask = 0x80;
+        bool supported, enabled = false;
+        __get_cpuid(leaf, &eax, &ebx, &ecx, &edx);
+
+        supported = (bool)((eax & hwp_mask) >> 7);
+
+        if (supported) {
+            int domain = signal_domain_type("MSR::PM_ENABLE:ENABLE");
+            int num_domain = m_platform_topo.num_domain(domain);
+            double pkg_enable = 0.0;
+            for (int dom_idx = 0; dom_idx < num_domain; ++dom_idx) {
+                pkg_enable += read_signal("MSR::PM_ENABLE:ENABLE", domain, dom_idx);
+            }
+            if (pkg_enable == 1.0*num_domain) {
+                enabled = true;
+            }
+        }
+
+        return enabled;
     }
 
     int MSRIOGroup::cpuid(void)
