@@ -57,7 +57,7 @@ implementation for the GEOPM service D-Bus interfaces.
 Architecture Diagram
 --------------------
 
-![](https://geopm.github.io/images/geopm-service-diagram.svg)
+[![](https://geopm.github.io/images/geopm-service-diagram.svg)](https://geopm.github.io/pdf/geopm-service-diagram.pdf)
 
 
 Signals and Controls
