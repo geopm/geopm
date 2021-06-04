@@ -687,7 +687,7 @@ namespace geopm
 
         rdt_info rdt = {
             .rdt_support = supported,
-            .rmid_max = max,
+            .rmid_bit_width = ceil(log2(max) + 1)-1,
             .mbm_scalar = scale
         };
 
@@ -1286,6 +1286,15 @@ namespace geopm
                 }
                 if (field_data.find("description") != field_data.end()) {
                     description = field_data["description"].string_value();
+                }
+
+                if (msr_field_name == "QM_EVT_SEL:RMID" || msr_field_name == "PQR_ASSOC:RMID") {
+                    if((end_bit - begin_bit) != m_rdt.rmid_bit_width) {
+                        throw Exception("MSRIOGroup::" + std::string(__func__) + "(): RMID bit width " +
+                                        std::to_string(end_bit - begin_bit) + "  does not match CPUID value: " +
+                                        std::to_string(m_rdt.rmid_bit_width), GEOPM_ERROR_INVALID, __FILE__,
+                                        __LINE__);
+                    }
                 }
 
                 add_msr_field_signal(msr_name, sig_ctl_name, domain_type,
