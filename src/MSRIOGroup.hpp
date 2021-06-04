@@ -215,7 +215,7 @@ namespace geopm
             struct rdt_info
             {
                 bool rdt_support;
-                uint32_t rmid_max;
+                uint32_t rmid_bit_width;
                 uint32_t mbm_scalar;
             };
             rdt_info m_rdt;
