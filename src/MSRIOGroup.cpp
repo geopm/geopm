@@ -293,11 +293,11 @@ namespace geopm
         // It may be necessary to wrap the initial rdt() call in this check
         int domain = signal_domain_type("MSR::MISC_ENABLE:LIMIT_CPUID_MAXVAL");
         int num_domain = m_platform_topo.num_domain(domain);
-        double disable = 0.0;
+        bool disable = false;
         for (int dom_idx = 0; dom_idx < num_domain; ++dom_idx) {
-            disable += read_signal("MSR::MISC_ENABLE:LIMIT_CPUID_MAXVAL", domain, dom_idx);
+            disable |= (bool)read_signal("MSR::MISC_ENABLE:LIMIT_CPUID_MAXVAL", domain, dom_idx);
         }
-        if ((disable != 0.0) || (!m_rdt.rdt_support)) {
+        if (disable || (!m_rdt.rdt_support)) {
             return;
         }
 
@@ -987,11 +987,11 @@ namespace geopm
 
             int domain = signal_domain_type("MSR::PKG_POWER_LIMIT:LOCK");
             int num_domain = m_platform_topo.num_domain(domain);
-            double lock = 0.0;
+            bool lock = false;
             for (int dom_idx = 0; dom_idx < num_domain; ++dom_idx) {
-                lock += read_signal("MSR::PKG_POWER_LIMIT:LOCK", domain, dom_idx);
+                lock |= (bool)read_signal("MSR::PKG_POWER_LIMIT:LOCK", domain, dom_idx);
             }
-            if (lock != 0.0) {
+            if (lock) {
                 throw Exception("MSRIOGroup::" + std::string(__func__) + "(): " +
                                 "Unable to control power when RAPL lock bit is set. " +
                                 "Check BIOS settings to ensure RAPL is enabled.",
