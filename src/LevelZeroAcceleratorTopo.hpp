@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 - 2021, Intel Corporation
+ * Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -30,33 +30,31 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "config.h"
+#ifndef LEVELZEROACCELERATORTOPO_HPP_INCLUDE
+#define LEVELZEROACCELERATORTOPO_HPP_INCLUDE
 
-#include <fstream>
-#include <iostream>
-#include <sstream>
-#include <string>
+#include <cstdint>
+#include <vector>
+#include <set>
 
-#include "Exception.hpp"
-#include "AcceleratorTopoNull.hpp"
-
-#ifdef GEOPM_ENABLE_NVML
-#include "NVMLAcceleratorTopo.hpp"
-#elif defined(GEOPM_ENABLE_LEVELZERO)
-#include "LevelZeroAcceleratorTopo.hpp"
-#endif
+#include "AcceleratorTopo.hpp"
 
 namespace geopm
 {
-    const AcceleratorTopo &accelerator_topo(void)
+    class LevelZeroDevicePool;
+
+    class LevelZeroAcceleratorTopo : public AcceleratorTopo
     {
-#ifdef GEOPM_ENABLE_NVML
-        static NVMLAcceleratorTopo instance;
-#elif defined(GEOPM_ENABLE_LEVELZERO)
-        static LevelZeroAcceleratorTopo instance;
-#else
-        static AcceleratorTopoNull instance;
-#endif
-        return instance;
-    }
+        public:
+            LevelZeroAcceleratorTopo();
+            LevelZeroAcceleratorTopo(const LevelZeroDevicePool &device_pool, const int num_cpu);
+            virtual ~LevelZeroAcceleratorTopo() = default;
+            virtual int num_accelerator(void) const override;
+            virtual std::set<int> cpu_affinity_ideal(int accel_idx) const override;
+        private:
+            const LevelZeroDevicePool &m_levelzero_device_pool;
+            std::vector<std::set<int> > m_cpu_affinity_ideal;
+            unsigned int m_num_accelerator;
+    };
 }
+#endif

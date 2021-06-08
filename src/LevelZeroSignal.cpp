@@ -32,31 +32,43 @@
 
 #include "config.h"
 
-#include <fstream>
-#include <iostream>
-#include <sstream>
-#include <string>
+#include "LevelZeroSignal.hpp"
 
+#include "geopm_hash.h"
+#include "geopm_debug.hpp"
+#include "MSRIO.hpp"
 #include "Exception.hpp"
-#include "AcceleratorTopoNull.hpp"
-
-#ifdef GEOPM_ENABLE_NVML
-#include "NVMLAcceleratorTopo.hpp"
-#elif defined(GEOPM_ENABLE_LEVELZERO)
-#include "LevelZeroAcceleratorTopo.hpp"
-#endif
+#include "Helper.hpp"
 
 namespace geopm
 {
-    const AcceleratorTopo &accelerator_topo(void)
+    LevelZeroSignal::LevelZeroSignal(std::function<double (unsigned int)> devpool_func,
+                                     unsigned int accelerator, double scalar)
+        : m_devpool_func(devpool_func)
+        , m_accel(accelerator)
+        , m_scalar(scalar)
+        , m_is_batch_ready(false)
     {
-#ifdef GEOPM_ENABLE_NVML
-        static NVMLAcceleratorTopo instance;
-#elif defined(GEOPM_ENABLE_LEVELZERO)
-        static LevelZeroAcceleratorTopo instance;
-#else
-        static AcceleratorTopoNull instance;
-#endif
-        return instance;
+    }
+
+    void LevelZeroSignal::setup_batch(void)
+    {
+        if (!m_is_batch_ready) {
+            m_is_batch_ready = true;
+        }
+    }
+
+    double LevelZeroSignal::sample(void)
+    {
+        if (!m_is_batch_ready) {
+            throw Exception("setup_batch() must be called before sample().",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        return read();
+    }
+
+    double LevelZeroSignal::read(void) const
+    {
+        return m_devpool_func(m_accel)*m_scalar;
     }
 }

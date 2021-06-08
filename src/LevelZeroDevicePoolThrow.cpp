@@ -32,31 +32,28 @@
 
 #include "config.h"
 
+#include <cmath>
+
 #include <fstream>
 #include <iostream>
 #include <sstream>
 #include <string>
 
 #include "Exception.hpp"
-#include "AcceleratorTopoNull.hpp"
+#include "Agg.hpp"
+#include "Helper.hpp"
+#include "geopm_sched.h"
 
-#ifdef GEOPM_ENABLE_NVML
-#include "NVMLAcceleratorTopo.hpp"
-#elif defined(GEOPM_ENABLE_LEVELZERO)
-#include "LevelZeroAcceleratorTopo.hpp"
-#endif
+#include "LevelZeroDevicePool.hpp"
 
 namespace geopm
 {
-    const AcceleratorTopo &accelerator_topo(void)
+
+    const LevelZeroDevicePool &levelzero_device_pool(const int num_cpu)
     {
-#ifdef GEOPM_ENABLE_NVML
-        static NVMLAcceleratorTopo instance;
-#elif defined(GEOPM_ENABLE_LEVELZERO)
-        static LevelZeroAcceleratorTopo instance;
-#else
-        static AcceleratorTopoNull instance;
-#endif
-        return instance;
+        throw Exception("LevelZeroDevicePoolThrow::" + std::string(__func__) +
+                        ": GEOPM configured without Level Zero library support.  Please configure with --enable-levelzero",
+                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
+
 }

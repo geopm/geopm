@@ -30,33 +30,40 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "config.h"
+#ifndef LEVELZEROSIGNAL_HPP_INCLUDE
+#define LEVELZEROSIGNAL_HPP_INCLUDE
 
-#include <fstream>
-#include <iostream>
-#include <sstream>
+#include <cstdint>
+#include <cmath>
+
 #include <string>
+#include <memory>
+#include <functional>
 
-#include "Exception.hpp"
-#include "AcceleratorTopoNull.hpp"
+#include "Signal.hpp"
+#include "LevelZeroDevicePool.hpp"
 
-#ifdef GEOPM_ENABLE_NVML
-#include "NVMLAcceleratorTopo.hpp"
-#elif defined(GEOPM_ENABLE_LEVELZERO)
-#include "LevelZeroAcceleratorTopo.hpp"
-#endif
 
 namespace geopm
 {
-    const AcceleratorTopo &accelerator_topo(void)
+    class LevelZeroDevicePool;
+
+    class LevelZeroSignal : public Signal
     {
-#ifdef GEOPM_ENABLE_NVML
-        static NVMLAcceleratorTopo instance;
-#elif defined(GEOPM_ENABLE_LEVELZERO)
-        static LevelZeroAcceleratorTopo instance;
-#else
-        static AcceleratorTopoNull instance;
-#endif
-        return instance;
-    }
+        public:
+            virtual ~LevelZeroSignal() = default;
+            LevelZeroSignal(std::function<double (unsigned int)> devpool_func,
+                         unsigned int accelerator, double scalar);
+            LevelZeroSignal(const LevelZeroSignal &other) = delete;
+            void setup_batch(void) override;
+            double sample(void) override;
+            double read(void) const override;
+        private:
+            std::function<double (unsigned int)> m_devpool_func;
+            unsigned int m_accel;
+            double m_scalar;
+            bool m_is_batch_ready;
+    };
 }
+
+#endif
