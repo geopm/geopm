@@ -39,7 +39,7 @@ if [ ! "$OMP_FLAGS" ]; then
 fi
 
 make \
-CC=icc CXX=icpc MPICC=mpiicc MPICXX=mpiicpc MPIFC=mpiifort MPIF77=mpiifort \
+CC=${CC:-icc} CXX=${CXX:-icpc} MPICC=${MPICC:-mpiicc} MPICXX=${MPICXX:-mpiicpc} MPIFC=${MPIFC:-mpiifort} MPIF77=${MPIF77:-mpiifort} \
 CFLAGS="$GEOPM_CFLAGS $OMP_FLAGS -DTUTORIAL_ENABLE_MKL -D_GNU_SOURCE -std=c99 -xAVX $CFLAGS" \
 CXXFLAGS="$GEOPM_CFLAGS $OMP_FLAGS -DTUTORIAL_ENABLE_MKL -D_GNU_SOURCE -std=c++11 -xAVX $CXXFLAGS" \
 LDFLAGS="$GEOPM_LDFLAGS $OMP_FLAGS -lm -lrt -mkl -xAVX $LDFLAGS"
