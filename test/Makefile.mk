@@ -491,6 +491,17 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
               test/gtest_links/SSTIOGroupTest.valid_signal_names \
               test/gtest_links/SSTSignalTest.mailbox_read_batch \
               test/gtest_links/SSTSignalTest.mmio_read_batch \
+              test/gtest_links/SSTIOTest.mbox_batch_reads \
+              test/gtest_links/SSTIOTest.mmio_batch_reads \
+              test/gtest_links/SSTIOTest.mbox_batch_writes \
+              test/gtest_links/SSTIOTest.mmio_batch_writes \
+              test/gtest_links/SSTIOTest.sample_batched_reads \
+              test/gtest_links/SSTIOTest.adjust_batched_writes \
+              test/gtest_links/SSTIOTest.read_mbox_once \
+              test/gtest_links/SSTIOTest.read_mmio_once \
+              test/gtest_links/SSTIOTest.write_mbox_once \
+              test/gtest_links/SSTIOTest.write_mmio_once \
+              test/gtest_links/SSTIOTest.get_punit_from_cpu \
               test/gtest_links/TimeIOGroupTest.adjust \
               test/gtest_links/TimeIOGroupTest.is_valid \
               test/gtest_links/TimeIOGroupTest.push \
@@ -678,6 +689,7 @@ test_geopm_test_SOURCES = test/AcceleratorTopoNullTest.cpp \
                           test/SSTControlTest.cpp \
                           test/SSTIOGroupTest.cpp \
                           test/SSTSignalTest.cpp \
+                          test/SSTIOTest.cpp \
                           test/TimeIOGroupTest.cpp \
                           test/TracerTest.cpp \
                           test/TreeCommLevelTest.cpp \
