@@ -14,6 +14,7 @@ service/io.github.geopm.conf
 service/io.github.geopm.xml
 service/m4
 service/README.md
+service/requirements.txt
 service/TODO.md
 service/test/README.md
 copying_headers/MANIFEST.BSD3-intel
