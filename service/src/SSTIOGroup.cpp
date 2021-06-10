@@ -550,12 +550,16 @@ namespace geopm
 
     std::function<std::string(double)> SSTIOGroup::format_function(const std::string &signal_name) const
     {
+        std::function<std::string(double)> result = string_format_double;
         if (!is_valid_signal(signal_name)) {
             throw Exception("SSTIOGroup::format_function(): " + signal_name +
                             "not valid for SSTIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        return string_format_double;
+        if (string_ends_with(signal_name, "#")) {
+            result = string_format_hex;
+        }
+        return result;
     }
 
     std::string SSTIOGroup::signal_description(const std::string &signal_name) const
