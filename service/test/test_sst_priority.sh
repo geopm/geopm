@@ -90,7 +90,8 @@ expect = [1, -1, -1, -1, -1, 1, -1, -1];
 delta = [b - a for (a, b) in zip(*[[float(x) for x in line.split(',')] for line in sys.stdin if line.strip()])];
 result = [e * d > 0 for (e, d) in zip(expect, delta)];
 if False in result:
-    print('FAIL\n');
+    sys.stderr.write('Change in frequency for first eight CPUs:\n    {}\n\n'.format(delta));
+    sys.stderr.write('FAIL\n');
     exit(-1);
 print('SUCCESS\n');
 exit(0);
