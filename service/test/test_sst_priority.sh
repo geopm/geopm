@@ -88,7 +88,7 @@ cat ${READ_REQUEST} | geopmsession >> ${SESSION_LOG}
 cat ${SESSION_LOG} | python3 -c "import sys;
 expect = [1, -1, -1, -1, -1, 1, -1, -1];
 delta = [b - a for (a, b) in zip(*[[float(x) for x in line.split(',')] for line in sys.stdin if line.strip()])];
-result = [ee * dd > 0 for ee, dd in zip(expect, delta)];
+result = [e * d > 0 for (e, d) in zip(expect, delta)];
 if False in result:
     print('FAIL\n');
     exit(-1);
