@@ -359,8 +359,10 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              service/autogen.sh \
              service/setup.py \
              service/.gitignore \
+             service/requirements.txt \
              service/README.md \
              service/test/install_service.sh \
+             service/test/test_sst_priority.sh \
              service/test/test_su_give_access.sh \
              service/test/test_write_session.sh \
              service/configure.ac \

@@ -67,9 +67,11 @@ EXTRA_DIST = .gitignore \
              geopmdpy_test/__main__.py \
              geopmdpy_test/test_service.py \
              geopmsession \
+             requirements.txt \
              setup.py \
              test/README.md \
              test/install_service.sh \
+             test/test_sst_priority.sh \
              test/test_su_give_access.sh \
              test/test_write_session.sh \
              geopm.service \
