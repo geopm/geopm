@@ -219,6 +219,10 @@ namespace geopm
                 uint32_t mbm_scalar;
             };
             rdt_info m_rdt;
+
+            int m_derivative_window;
+            double m_sleep_time;
+
             /// @brief Return the Intel Resource Director Technology
             ///        support information
             static rdt_info rdt(void);
