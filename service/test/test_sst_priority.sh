@@ -42,8 +42,6 @@ if [[ $# -gt 0 ]] && [[ $1 == '--help' ]]; then
     cores on the system are printed before and after configuring SST
     core priority.
 
-    This test is a work in progress.
-
 "
     exit 0
 fi
@@ -69,11 +67,18 @@ echo 'SST::COREPRIORITY_ENABLE:ENABLE board 0 1
 SST::TURBO_ENABLE:ENABLE board 0 1
 SST::COREPRIORITY:ASSOCIATION board 0 3
 SST::COREPRIORITY:ASSOCIATION core 0 0
-SST::COREPRIORITY:ASSOCIATION core 5 0' > ${WRITE_REQUEST}
+SST::COREPRIORITY:ASSOCIATION core 5 0
+SST::COREPRIORITY:0:WEIGHT board 0 0
+SST::COREPRIORITY:0:FREQUENCY_MIN board 0 3.0e9
+SST::COREPRIORITY:0:FREQUENCY_MAX board 0 4.0e9
+SST::COREPRIORITY:3:WEIGHT board 0 15
+SST::COREPRIORITY:3:FREQUENCY_MIN board 0 1.0e9
+SST::COREPRIORITY:3:FREQUENCY_MAX board 0 4.0e9' > ${WRITE_REQUEST}
 
 # Run stress workload on all cores
 stress-ng --parallel 0 --class cpu >& $BENCH_LOG &
 BENCH_ID=$!
+sleep 1
 
 # Print CPU frequencies for the first 8 cores
 cat ${READ_REQUEST} | geopmsession > ${SESSION_LOG}
