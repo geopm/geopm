@@ -41,13 +41,13 @@ on:
 jobs:
   build_and_test:
     name: "build_and_test: ${{ matrix.config.name }} ${{ matrix.debug-flag }}"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
         config:
         - {
-          name: clang-9,
-          cc: "clang-9", cxx: "clang++-9"
+          name: clang-12,
+          cc: "clang-12", cxx: "clang++-12"
         }
         - {
           name: gcc-9,
