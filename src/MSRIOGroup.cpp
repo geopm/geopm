@@ -58,6 +58,7 @@
 #include "DifferenceSignal.hpp"
 #include "TimeSignal.hpp"
 #include "DerivativeSignal.hpp"
+#include "MultiplicationSignal.hpp"
 #include "Control.hpp"
 #include "MSRFieldControl.hpp"
 #include "DomainControl.hpp"
@@ -99,6 +100,8 @@ namespace geopm
         , m_time_zero(std::make_shared<geopm_time_s>(time_zero()))
         , m_time_batch(std::make_shared<double>(NAN))
         , m_rdt(rdt())
+        , m_derivative_window(8)
+        , m_sleep_time(0.005)  // 5000 us
     {
         // Load available signals and controls from files
         parse_json_msrs(arch_msr_json());
@@ -239,8 +242,6 @@ namespace geopm
                                          IOGroup::M_UNITS_SECONDS,
                                          Agg::select_first,
                                          "Time in seconds used to calculate power"};
-        int derivative_window = 8;
-        double sleep_time = 0.005;  // 5000 us
 
         // Mapping of high-level signal name to description and
         // underlying energy MSR.  The domain will match that of the
@@ -275,8 +276,8 @@ namespace geopm
                     auto eng = readings[domain_idx];
                     result[domain_idx] =
                         std::make_shared<DerivativeSignal>(time_sig, eng,
-                                                           derivative_window,
-                                                           sleep_time);
+                                                           m_derivative_window,
+                                                           m_sleep_time);
                 }
                 m_signal_available[signal_name] = {result,
                                                    energy_domain,
@@ -297,7 +298,7 @@ namespace geopm
         for (int dom_idx = 0; dom_idx < num_domain; ++dom_idx) {
             disable |= (bool)read_signal("MSR::MISC_ENABLE:LIMIT_CPUID_MAXVAL", domain, dom_idx);
         }
-        if (disable || (!m_rdt.rdt_support)) {
+        if (disable || !m_rdt.rdt_support) {
             return;
         }
 
@@ -309,19 +310,23 @@ namespace geopm
         if (read_it != m_signal_available.end()) {
             auto readings = read_it->second.signals;
             int ctr_domain = read_it->second.domain;
-
-            // Begin bit, end bit, and function are currently hardcoded as there's no accessor
-            // for MSRFieldSignal values that doesn't involve reparsing the JSON file
-            MSRIOGroup::add_msr_field_signal("QM_CTR",
-                                             signal_name,
-                                             ctr_domain,
-                                             0, 31,
-                                             MSR::string_to_function("scale"),
-                                             (double)m_rdt.mbm_scalar,
-                                             IOGroup::M_UNITS_NONE,
-                                             Agg::function_to_name(agg_function(msr_name)),
-                                             description,
-                                             IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE);
+            num_domain = m_platform_topo.num_domain(ctr_domain);
+            GEOPM_DEBUG_ASSERT(num_domain == (int)readings.size(),
+                               "size of domain for " + msr_name +
+                               " does not match number of signals available.");
+            std::vector<std::shared_ptr<Signal> > result(num_domain);
+            for (int domain_idx = 0; domain_idx < num_domain; ++domain_idx) {
+                auto ctr = readings[domain_idx];
+                result[domain_idx] =
+                    std::make_shared<MultiplicationSignal>(ctr, (double)m_rdt.mbm_scalar);
+            }
+            m_signal_available[signal_name] = {result,
+                                               ctr_domain,
+                                               IOGroup::M_UNITS_NONE,
+                                               agg_function(msr_name),
+                                               description + "\n    alias_for: " + msr_name + " multiplied by " +
+                                               std::to_string(m_rdt.mbm_scalar) + " (provided by cpuid)",
+                                               IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE};
         }
 
 
@@ -334,9 +339,6 @@ namespace geopm
                                          Agg::select_first,
                                          "Time in seconds"};
 
-        int derivative_window = 8;
-        double sleep_time = 0.005;  // 5000 us
-
         msr_name = "QM_CTR_SCALED";
         signal_name = "QM_CTR_SCALED_RATE";
         description = "Resource Monitor Data converted to bytes/second";
@@ -345,13 +347,16 @@ namespace geopm
             auto readings = read_it->second.signals;
             int ctr_domain = read_it->second.domain;
             num_domain = m_platform_topo.num_domain(ctr_domain);
+            GEOPM_DEBUG_ASSERT(num_domain == (int)readings.size(),
+                               "size of domain for " + msr_name +
+                               " does not match number of signals available.");
             std::vector<std::shared_ptr<Signal> > result(num_domain);
             for (int domain_idx = 0; domain_idx < num_domain; ++domain_idx) {
                 auto ctr = readings[domain_idx];
                 result[domain_idx] =
                     std::make_shared<DerivativeSignal>(time_sig, ctr,
-                                                       derivative_window,
-                                                       sleep_time);
+                                                       m_derivative_window,
+                                                       m_sleep_time);
             }
             m_signal_available[signal_name] = {result,
                                                ctr_domain,
@@ -687,7 +692,7 @@ namespace geopm
 
         rdt_info rdt = {
             .rdt_support = supported,
-            .rmid_bit_width = ceil(log2(max) + 1)-1,
+            .rmid_bit_width = (uint32_t)ceil(log2((double)max) + 1)-1,
             .mbm_scalar = scale
         };
 
@@ -1289,7 +1294,7 @@ namespace geopm
                 }
 
                 if (msr_field_name == "QM_EVT_SEL:RMID" || msr_field_name == "PQR_ASSOC:RMID") {
-                    if((end_bit - begin_bit) != m_rdt.rmid_bit_width) {
+                    if((end_bit - begin_bit) != (int)m_rdt.rmid_bit_width) {
                         throw Exception("MSRIOGroup::" + std::string(__func__) + "(): RMID bit width " +
                                         std::to_string(end_bit - begin_bit) + "  does not match CPUID value: " +
                                         std::to_string(m_rdt.rmid_bit_width), GEOPM_ERROR_INVALID, __FILE__,
