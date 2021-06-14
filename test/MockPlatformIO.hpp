@@ -43,10 +43,6 @@ class MockPlatformIO : public geopm::PlatformIO
     public:
         MOCK_METHOD(void, register_iogroup,
                     (std::shared_ptr<geopm::IOGroup> iogroup), (override));
-        MOCK_METHOD(void, register_profileio,
-                    (std::shared_ptr<geopm::ProfileIOGroup> iogroup), (override));
-        MOCK_METHOD(std::shared_ptr<geopm::ProfileIOGroup>, get_profileio, (),
-                    (override));
         MOCK_METHOD(std::set<std::string>, signal_names, (), (const, override));
         MOCK_METHOD(std::set<std::string>, control_names, (), (const, override));
         MOCK_METHOD(int, signal_domain_type, (const std::string &signal_name),
@@ -56,15 +52,9 @@ class MockPlatformIO : public geopm::PlatformIO
         MOCK_METHOD(int, push_signal,
                     (const std::string &signal_name, int domain_type, int domain_idx),
                     (override));
-        MOCK_METHOD(int, push_combined_signal,
-                    (const std::string &signal_name, int domain_type,
-                     int domain_idx, const std::vector<int> &sub_signal_idx),
-                    (override));
         MOCK_METHOD(int, push_control,
                     (const std::string &control_name, int domain_type, int domain_idx),
                     (override));
-        MOCK_METHOD(int, num_signal_pushed, (), (const, override));
-        MOCK_METHOD(int, num_control_pushed, (), (const, override));
         MOCK_METHOD(double, sample, (int signal_idx), (override));
         MOCK_METHOD(void, adjust, (int control_idx, double setting), (override));
         MOCK_METHOD(void, read_batch, (), (override));

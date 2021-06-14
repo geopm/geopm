@@ -49,7 +49,6 @@ class MockPowerBalancer : public geopm::PowerBalancer
         MOCK_METHOD(void, calculate_runtime_sample, (), (override));
         MOCK_METHOD(void, target_runtime, (double largest_runtime), (override));
         MOCK_METHOD(bool, is_target_met, (double measured_runtime), (override));
-        MOCK_METHOD(void, achieved_limit, (double achieved), (override));
         MOCK_METHOD(double, power_slack, (), (override));
 };
 
