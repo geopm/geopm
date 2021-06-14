@@ -45,22 +45,6 @@ class MockApplicationIO : public geopm::ApplicationIO
         MOCK_METHOD(std::string, report_name, (), (const, override));
         MOCK_METHOD(std::string, profile_name, (), (const, override));
         MOCK_METHOD(std::set<std::string>, region_name_set, (), (const, override));
-        MOCK_METHOD(double, total_region_runtime, (uint64_t region_id),
-                    (const, override));
-        MOCK_METHOD(double, total_region_runtime_mpi, (uint64_t region_id),
-                    (const, override));
-        MOCK_METHOD(double, total_epoch_runtime_ignore, (), (const, override));
-        MOCK_METHOD(double, total_app_runtime_mpi, (), (const, override));
-        MOCK_METHOD(double, total_app_runtime_ignore, (), (const, override));
-        MOCK_METHOD(double, total_epoch_runtime, (), (const, override));
-        MOCK_METHOD(double, total_epoch_runtime_network, (), (const, override));
-        MOCK_METHOD(double, total_epoch_energy_pkg, (), (const, override));
-        MOCK_METHOD(double, total_epoch_energy_dram, (), (const, override));
-        MOCK_METHOD(int, total_epoch_count, (), (const, override));
-        MOCK_METHOD(int, total_count, (uint64_t region_id), (const, override));
-        MOCK_METHOD(void, update, (std::shared_ptr<geopm::Comm> comm), (override));
-        MOCK_METHOD(std::list<geopm_region_info_s>, region_info, (), (const, override));
-        MOCK_METHOD(void, clear_region_info, (), (override));
         MOCK_METHOD(void, controller_ready, (), (override));
         MOCK_METHOD(void, abort, (), (override));
 };

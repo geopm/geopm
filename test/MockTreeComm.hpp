@@ -102,8 +102,6 @@ class MockTreeComm : public geopm::TreeComm
             return true;
         }
         MOCK_METHOD(size_t, overhead_send, (), (const, override));
-        MOCK_METHOD(void, broadcast_string, (const std::string &str), (override));
-        MOCK_METHOD(std::string, broadcast_string, (), (override));
         int num_send(void)
         {
             return m_num_send;

@@ -42,7 +42,6 @@ class MockNVMLDevicePool : public geopm::NVMLDevicePool
     public:
         MOCK_METHOD(int, num_accelerator, (), (const, override));
         MOCK_METHOD(cpu_set_t *, cpu_affinity_ideal_mask, (int), (const, override));
-        MOCK_METHOD(uint64_t, frequency_status, (int), (const, override));
         MOCK_METHOD(uint64_t, frequency_status_sm, (int), (const, override));
         MOCK_METHOD(uint64_t, utilization, (int), (const, override));
         MOCK_METHOD(uint64_t, power, (int), (const, override));
