@@ -40,8 +40,8 @@
 class MockAcceleratorTopo : public geopm::AcceleratorTopo
 {
     public:
-        MOCK_CONST_METHOD0(num_accelerator, int(void));
-        MOCK_CONST_METHOD1(cpu_affinity_ideal, std::set<int>(int));
+        MOCK_METHOD(int, num_accelerator, (), (const, override));
+        MOCK_METHOD(std::set<int>, cpu_affinity_ideal, (int), (const, override));
 };
 
 #endif

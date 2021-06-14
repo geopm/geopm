@@ -40,17 +40,20 @@
 class MockApplicationStatus : public geopm::ApplicationStatus
 {
     public:
-        MOCK_METHOD2(set_hint, void(int cpu_idx, uint64_t hints));
-        MOCK_CONST_METHOD1(get_hint, uint64_t(int cpu_idx));
-        MOCK_METHOD3(set_hash, void(int cpu_idx, uint64_t hash, uint64_t hint));
-        MOCK_CONST_METHOD1(get_hash, uint64_t(int cpu_idx));
-        MOCK_METHOD1(reset_work_units, void(int cpu_idx));
-        MOCK_METHOD2(set_total_work_units, void(int cpu_idx, int work_units));
-        MOCK_METHOD1(increment_work_unit, void(int cpu_idx));
-        MOCK_CONST_METHOD1(get_progress_cpu, double(int cpu_idx));
-        MOCK_METHOD2(set_process, void(const std::set<int> &cpu_idx, int process));
-        MOCK_CONST_METHOD1(get_process, int(int cpu_idx));
-        MOCK_METHOD0(update_cache, void(void));
+        MOCK_METHOD(void, set_hint, (int cpu_idx, uint64_t hints), (override));
+        MOCK_METHOD(uint64_t, get_hint, (int cpu_idx), (const, override));
+        MOCK_METHOD(void, set_hash, (int cpu_idx, uint64_t hash, uint64_t hint),
+                    (override));
+        MOCK_METHOD(uint64_t, get_hash, (int cpu_idx), (const, override));
+        MOCK_METHOD(void, reset_work_units, (int cpu_idx), (override));
+        MOCK_METHOD(void, set_total_work_units, (int cpu_idx, int work_units),
+                    (override));
+        MOCK_METHOD(void, increment_work_unit, (int cpu_idx), (override));
+        MOCK_METHOD(double, get_progress_cpu, (int cpu_idx), (const, override));
+        MOCK_METHOD(void, set_process,
+                    (const std::set<int> &cpu_idx, int process), (override));
+        MOCK_METHOD(int, get_process, (int cpu_idx), (const, override));
+        MOCK_METHOD(void, update_cache, (), (override));
 };
 
 #endif

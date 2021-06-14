@@ -74,8 +74,8 @@ class MSRIOMockFiles
 class MockMSRPath : public MSRPath
 {
     public:
-        MOCK_METHOD2(msr_path, std::string(int cpu_idx, int fallback_idx));
-        MOCK_METHOD0(msr_batch_path, std::string(void));
+        MOCK_METHOD(std::string, msr_path, (int cpu_idx, int fallback_idx), (override));
+        MOCK_METHOD(std::string, msr_batch_path, (), (override));
 };
 
 MSRIOMockFiles::MSRIOMockFiles(int num_cpu)

@@ -41,11 +41,12 @@
 class MockTracer : public geopm::Tracer
 {
     public:
-        MOCK_METHOD2(columns,
-                     void(const std::vector<std::string> &agent_cols,
-                          const std::vector<std::function<std::string(double)> > &agent_formats));
-        MOCK_METHOD1(update, void(const std::vector<double> &agent_vals));
-        MOCK_METHOD0(flush, void(void));
+        MOCK_METHOD(void, columns,
+                    (const std::vector<std::string> &agent_cols,
+                     const std::vector<std::function<std::string(double)> > &agent_formats),
+                    (override));
+        MOCK_METHOD(void, update, (const std::vector<double> &agent_vals), (override));
+        MOCK_METHOD(void, flush, (), (override));
 };
 
 #endif
