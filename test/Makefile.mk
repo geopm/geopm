@@ -731,11 +731,6 @@ test_geopm_test_CPPFLAGS = $(AM_CPPFLAGS) -Iplugin
 test_geopm_test_CFLAGS = $(AM_CFLAGS)
 test_geopm_test_CXXFLAGS = $(AM_CXXFLAGS)
 
-if GEOPM_DISABLE_INCONSISTENT_OVERRIDE
-    test_geopm_test_CFLAGS += -Wno-inconsistent-missing-override
-    test_geopm_test_CXXFLAGS += -Wno-inconsistent-missing-override
-endif
-
 if ENABLE_MPI
     test_geopm_mpi_test_api_SOURCES = test/MPIInterfaceTest.cpp \
                                       test/geopm_test.cpp \
