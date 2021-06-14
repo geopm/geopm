@@ -62,14 +62,14 @@ class MockAgent : public geopm::Agent
         MOCK_METHOD(void, sample_platform, (std::vector<double> & out_sample),
                     (override));
         MOCK_METHOD(void, wait, (), (override));
-        MOCK_METHOD(std::vector<std::pair<std::string, std::string> >,
+        MOCK_METHOD((std::vector<std::pair<std::string, std::string> >),
                     report_header, (), (const, override));
-        MOCK_METHOD(std::vector<std::pair<std::string, std::string> >,
+        MOCK_METHOD((std::vector<std::pair<std::string, std::string> >),
                     report_host, (), (const, override));
-        MOCK_METHOD(std::map<uint64_t, std::vector<std::pair<std::string, std::string> > >,
+        MOCK_METHOD((std::map<uint64_t, std::vector<std::pair<std::string, std::string> > >),
                     report_region, (), (const, override));
         MOCK_METHOD(std::vector<std::string>, trace_names, (), (const, override));
-        MOCK_METHOD(std::vector<std::function<std::string, trace_formats, (double)> >(),
+        MOCK_METHOD((std::vector<std::function<std::string(double)> >), trace_formats, (),
                     (const, override));
         MOCK_METHOD(void, trace_values, (std::vector<double> & values), (override));
 };

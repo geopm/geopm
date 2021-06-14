@@ -78,11 +78,10 @@ class MockPlatformIO : public geopm::PlatformIO
                     (override));
         MOCK_METHOD(void, save_control, (), (override));
         MOCK_METHOD(void, restore_control, (), (override));
-        MOCK_METHOD(std::function<double, agg_function, (const std::vector<double> &)>(
-                        const std::string &),
-                    (const, override));
-        MOCK_METHOD(std::function<std::string, format_function, (double)>(const std::string &),
-                    (const, override));
+        MOCK_METHOD(std::function<double(const std::vector<double> &)>, agg_function,
+                    (const std::string &signal_name), (const, override));
+        MOCK_METHOD(std::function<std::string(double)>, format_function,
+                    (const std::string &signal_name), (const, override));
         MOCK_METHOD(std::string, signal_description,
                     (const std::string &signal_name), (const, override));
         MOCK_METHOD(std::string, control_description,
