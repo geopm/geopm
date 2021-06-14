@@ -55,12 +55,12 @@ class MockSharedMemory : public geopm::SharedMemory
         };
         virtual ~MockSharedMemory() = default;
 
-        MOCK_CONST_METHOD0(pointer, void *(void));
-        MOCK_CONST_METHOD0(key, std::string(void));
-        MOCK_CONST_METHOD0(size, size_t(void));
-        MOCK_METHOD0(get_scoped_lock,
-                     std::unique_ptr<geopm::SharedMemoryScopedLock>(void));
-        MOCK_METHOD0(unlink, void(void));
+        MOCK_METHOD(void *, pointer, (), (const, override));
+        MOCK_METHOD(std::string, key, (), (const, override));
+        MOCK_METHOD(size_t, size, (), (const, override));
+        MOCK_METHOD(std::unique_ptr<geopm::SharedMemoryScopedLock>,
+                    get_scoped_lock, (), (override));
+        MOCK_METHOD(void, unlink, (), (override));
 
     protected:
         std::vector<char> m_buffer;

@@ -40,9 +40,11 @@
 class MockProcessRegionAggregator : public geopm::ProcessRegionAggregator
 {
     public:
-        MOCK_METHOD0(update, void(void));
-        MOCK_CONST_METHOD1(get_runtime_average, double(uint64_t region_hash));
-        MOCK_CONST_METHOD1(get_count_average, double(uint64_t region_hash));
+        MOCK_METHOD(void, update, (), (override));
+        MOCK_METHOD(double, get_runtime_average, (uint64_t region_hash),
+                    (const, override));
+        MOCK_METHOD(double, get_count_average, (uint64_t region_hash),
+                    (const, override));
 };
 
 #endif

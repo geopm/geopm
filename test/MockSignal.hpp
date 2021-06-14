@@ -40,9 +40,9 @@
 class MockSignal : public geopm::Signal
 {
     public:
-        MOCK_METHOD0(setup_batch, void(void));
-        MOCK_METHOD0(sample, double(void));
-        MOCK_CONST_METHOD0(read, double(void));
+        MOCK_METHOD(void, setup_batch, (), (override));
+        MOCK_METHOD(double, sample, (), (override));
+        MOCK_METHOD(double, read, (), (const, override));
 };
 
 #endif

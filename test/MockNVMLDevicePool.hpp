@@ -40,25 +40,25 @@
 class MockNVMLDevicePool : public geopm::NVMLDevicePool
 {
     public:
-        MOCK_CONST_METHOD0(num_accelerator, int(void));
-        MOCK_CONST_METHOD1(cpu_affinity_ideal_mask, cpu_set_t *(int));
-        MOCK_CONST_METHOD1(frequency_status, uint64_t(int));
-        MOCK_CONST_METHOD1(frequency_status_sm, uint64_t(int));
-        MOCK_CONST_METHOD1(utilization, uint64_t(int));
-        MOCK_CONST_METHOD1(power, uint64_t(int));
-        MOCK_CONST_METHOD1(power_limit, uint64_t(int));
-        MOCK_CONST_METHOD1(frequency_status_mem, uint64_t(int));
-        MOCK_CONST_METHOD1(throttle_reasons, uint64_t(int));
-        MOCK_CONST_METHOD1(temperature, uint64_t(int));
-        MOCK_CONST_METHOD1(energy, uint64_t(int));
-        MOCK_CONST_METHOD1(performance_state, uint64_t(int));
-        MOCK_CONST_METHOD1(throughput_rx_pcie, uint64_t(int));
-        MOCK_CONST_METHOD1(throughput_tx_pcie, uint64_t(int));
-        MOCK_CONST_METHOD1(utilization_mem, uint64_t(int));
-        MOCK_CONST_METHOD1(active_process_list, std::vector<int>(int));
-        MOCK_CONST_METHOD3(frequency_control_sm, void(int, int, int));
-        MOCK_CONST_METHOD1(frequency_reset_control, void(int));
-        MOCK_CONST_METHOD2(power_control, void(int, int));
+        MOCK_METHOD(int, num_accelerator, (), (const, override));
+        MOCK_METHOD(cpu_set_t *, cpu_affinity_ideal_mask, (int), (const, override));
+        MOCK_METHOD(uint64_t, frequency_status, (int), (const, override));
+        MOCK_METHOD(uint64_t, frequency_status_sm, (int), (const, override));
+        MOCK_METHOD(uint64_t, utilization, (int), (const, override));
+        MOCK_METHOD(uint64_t, power, (int), (const, override));
+        MOCK_METHOD(uint64_t, power_limit, (int), (const, override));
+        MOCK_METHOD(uint64_t, frequency_status_mem, (int), (const, override));
+        MOCK_METHOD(uint64_t, throttle_reasons, (int), (const, override));
+        MOCK_METHOD(uint64_t, temperature, (int), (const, override));
+        MOCK_METHOD(uint64_t, energy, (int), (const, override));
+        MOCK_METHOD(uint64_t, performance_state, (int), (const, override));
+        MOCK_METHOD(uint64_t, throughput_rx_pcie, (int), (const, override));
+        MOCK_METHOD(uint64_t, throughput_tx_pcie, (int), (const, override));
+        MOCK_METHOD(uint64_t, utilization_mem, (int), (const, override));
+        MOCK_METHOD(std::vector<int>, active_process_list, (int), (const, override));
+        MOCK_METHOD(void, frequency_control_sm, (int, int, int), (const, override));
+        MOCK_METHOD(void, frequency_reset_control, (int), (const, override));
+        MOCK_METHOD(void, power_control, (int, int), (const, override));
 };
 
 #endif

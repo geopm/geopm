@@ -40,8 +40,8 @@
 class MockRecordFilter : public geopm::RecordFilter
 {
     public:
-        MOCK_METHOD1(filter,
-                     std::vector<geopm::record_s>(const geopm::record_s &record));
+        MOCK_METHOD(std::vector<geopm::record_s>, filter,
+                    (const geopm::record_s &record), (override));
 };
 
 #endif

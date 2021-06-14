@@ -43,16 +43,17 @@
 class MockReporter : public geopm::Reporter
 {
     public:
-        MOCK_METHOD0(init, void(void));
-        MOCK_METHOD0(update, void(void));
-        MOCK_METHOD7(
-            generate,
-            void(const std::string &agent_name,
-                 const std::vector<std::pair<std::string, std::string> > &agent_report_header,
-                 const std::vector<std::pair<std::string, std::string> > &agent_node_report,
-                 const std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > &agent_region_report,
-                 const geopm::ApplicationIO &application_io,
-                 std::shared_ptr<geopm::Comm> comm, const geopm::TreeComm &tree_comm));
+        MOCK_METHOD(void, init, (), (override));
+        MOCK_METHOD(void, update, (), (override));
+        MOCK_METHOD(
+            void, generate,
+            (const std::string &agent_name,
+             const std::vector<std::pair<std::string, std::string> > &agent_report_header,
+             const std::vector<std::pair<std::string, std::string> > &agent_node_report,
+             const std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > &agent_region_report,
+             const geopm::ApplicationIO &application_io,
+             std::shared_ptr<geopm::Comm> comm, const geopm::TreeComm &tree_comm),
+            (override));
 };
 
 #endif

@@ -40,14 +40,16 @@
 class MockPolicyStore : public geopm::PolicyStore
 {
     public:
-        MOCK_CONST_METHOD2(get_best,
-                           std::vector<double>(const std::string &profile_name,
-                                               const std::string &agent_name));
-        MOCK_METHOD3(set_best, void(const std::string &profile_name,
-                                    const std::string &agent_name,
-                                    const std::vector<double> &policy));
-        MOCK_METHOD2(set_default, void(const std::string &agent_name,
-                                       const std::vector<double> &policy));
+        MOCK_METHOD(std::vector<double>, get_best,
+                    (const std::string &profile_name, const std::string &agent_name),
+                    (const, override));
+        MOCK_METHOD(void, set_best,
+                    (const std::string &profile_name, const std::string &agent_name,
+                     const std::vector<double> &policy),
+                    (override));
+        MOCK_METHOD(void, set_default,
+                    (const std::string &agent_name, const std::vector<double> &policy),
+                    (override));
 };
 
 #endif

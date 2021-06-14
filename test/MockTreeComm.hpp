@@ -44,11 +44,11 @@
 class MockTreeComm : public geopm::TreeComm
 {
     public:
-        MOCK_CONST_METHOD0(num_level_controlled, int(void));
-        MOCK_CONST_METHOD0(max_level, int(void));
-        MOCK_CONST_METHOD0(root_level, int(void));
-        MOCK_CONST_METHOD1(level_rank, int(int level));
-        MOCK_CONST_METHOD1(level_size, int(int level));
+        MOCK_METHOD(int, num_level_controlled, (), (const, override));
+        MOCK_METHOD(int, max_level, (), (const, override));
+        MOCK_METHOD(int, root_level, (), (const, override));
+        MOCK_METHOD(int, level_rank, (int level), (const, override));
+        MOCK_METHOD(int, level_size, (int level), (const, override));
 
         void send_up(int level, const std::vector<double> &sample) override
         {
@@ -101,9 +101,9 @@ class MockTreeComm : public geopm::TreeComm
             policy = m_data_sent_down.at(level);
             return true;
         }
-        MOCK_CONST_METHOD0(overhead_send, size_t(void));
-        MOCK_METHOD1(broadcast_string, void(const std::string &str));
-        MOCK_METHOD0(broadcast_string, std::string(void));
+        MOCK_METHOD(size_t, overhead_send, (), (const, override));
+        MOCK_METHOD(void, broadcast_string, (const std::string &str), (override));
+        MOCK_METHOD(std::string, broadcast_string, (), (override));
         int num_send(void)
         {
             return m_num_send;
