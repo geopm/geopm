@@ -67,6 +67,7 @@ using testing::Return;
 using testing::AtLeast;
 using testing::ContainerEq;
 using testing::SetArgReferee;
+using testing::DoAll;
 
 class ControllerTestMockPlatformIO : public MockPlatformIO
 {
