@@ -41,14 +41,14 @@ dist-googletest: googletest_archive_check
 check-am: libgmock.a libgtest.a
 clean-local-googletest: clean-local-gmock
 
-googletest_version = 1.10.0
+googletest_version = 1.11.0
 googletest_suite = googletest-release-$(googletest_version)
 googlemock = $(googletest_suite)/googlemock
 googletest = $(googletest_suite)/googletest
 googletest_suite_archive = release-$(googletest_version).tar.gz
 googletest_suite_archive_download = googletest-$(googletest_suite_archive)
 googletest_url = https://github.com/google/googletest/archive/$(googletest_suite_archive)
-googletest_sha1 = 9c89be7df9c5e8cb0bc20b3c4b39bf7e82686770
+googletest_sha1 = 7b100bb68db8df1060e178c495f3cbe941c9b058
 
 $(googletest_suite_archive_download):
 	wget --timeout=20 -O $(googletest_suite_archive_download) $(googletest_url) || \
