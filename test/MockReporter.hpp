@@ -48,9 +48,9 @@ class MockReporter : public geopm::Reporter
         MOCK_METHOD(
             void, generate,
             (const std::string &agent_name,
-             const std::vector<std::pair<std::string, std::string> > &agent_report_header,
-             const std::vector<std::pair<std::string, std::string> > &agent_node_report,
-             const std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > &agent_region_report,
+             (const std::vector<std::pair<std::string, std::string> >)&agent_report_header,
+             (const std::vector<std::pair<std::string, std::string> >)&agent_node_report,
+             (const std::map<uint64_t, std::vector<std::pair<std::string, std::string> > >)&agent_region_report,
              const geopm::ApplicationIO &application_io,
              std::shared_ptr<geopm::Comm> comm, const geopm::TreeComm &tree_comm),
             (override));

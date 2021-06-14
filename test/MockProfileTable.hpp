@@ -46,7 +46,7 @@ class MockProfileTable : public geopm::ProfileTable
         MOCK_METHOD(size_t, capacity, (), (const, override));
         MOCK_METHOD(size_t, size, (), (const, override));
         MOCK_METHOD(void, dump,
-                    (std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::iterator content,
+                    ((std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::iterator)content,
                      size_t &length),
                     (override));
         MOCK_METHOD(bool, name_fill, (size_t header_offset), (override));
