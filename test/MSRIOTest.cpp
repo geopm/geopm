@@ -30,21 +30,21 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/mman.h>
 #include <fcntl.h>
-#include <unistd.h>
 #include <limits.h>
+#include <unistd.h>
 #include <sstream>
-#include <vector>
 #include <string>
+#include <vector>
 #include "gtest/gtest.h"
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
-#include "MSRIOImp.hpp"
-#include "MSRPath.hpp"
 #include "Exception.hpp"
 #include "Helper.hpp"
+#include "MSRIOImp.hpp"
+#include "MSRPath.hpp"
 #include "geopm_test.hpp"
 
 using geopm::MSRIO;
@@ -58,7 +58,11 @@ class MSRIOMockFiles
         MSRIOMockFiles(int num_cpu);
         virtual ~MSRIOMockFiles();
         char *msr_space_ptr(int cpu_idx, off_t offset);
-        std::vector<std::string> test_dev_path(void) { return m_test_dev_path; }
+        std::vector<std::string> test_dev_path(void)
+        {
+            return m_test_dev_path;
+        }
+
     protected:
         const char **msr_words(void) const;
         const size_t M_MAX_OFFSET;
@@ -67,13 +71,11 @@ class MSRIOMockFiles
         std::vector<char *> m_msr_space;
 };
 
-
-class MockMSRPath : public MSRPath {
+class MockMSRPath : public MSRPath
+{
     public:
-        MOCK_METHOD2(msr_path,
-                     std::string(int cpu_idx, int fallback_idx));
-        MOCK_METHOD0(msr_batch_path,
-                     std::string(void));
+        MOCK_METHOD2(msr_path, std::string(int cpu_idx, int fallback_idx));
+        MOCK_METHOD0(msr_batch_path, std::string(void));
 };
 
 MSRIOMockFiles::MSRIOMockFiles(int num_cpu)
@@ -85,19 +87,23 @@ MSRIOMockFiles::MSRIOMockFiles(int num_cpu)
         int fd = mkstemp(tmp_path);
         if (fd == -1) {
             throw geopm::Exception("MSRIOMockFiles: mkstemp() failed",
-                                   errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                                   errno ? errno : GEOPM_ERROR_RUNTIME,
+                                   __FILE__, __LINE__);
         }
         m_test_dev_path.push_back(tmp_path);
 
         int err = ftruncate(fd, M_MAX_OFFSET);
         if (err) {
             throw geopm::Exception("MSRIOMockFiles: ftruncate() failed",
-                                   errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                                   errno ? errno : GEOPM_ERROR_RUNTIME,
+                                   __FILE__, __LINE__);
         }
-        char *msr_space_ptr = (char *)mmap(NULL, M_MAX_OFFSET, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+        char *msr_space_ptr = (char *)mmap(
+            NULL, M_MAX_OFFSET, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
         if (msr_space_ptr == NULL) {
             throw geopm::Exception("MSRIOMockFiles: mmap() failed",
-                                   errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                                   errno ? errno : GEOPM_ERROR_RUNTIME,
+                                   __FILE__, __LINE__);
         }
         close(fd);
         m_msr_space.push_back(msr_space_ptr);
@@ -119,8 +125,7 @@ MSRIOMockFiles::~MSRIOMockFiles()
     }
 }
 
-
-char* MSRIOMockFiles::msr_space_ptr(int cpu_idx, off_t offset)
+char *MSRIOMockFiles::msr_space_ptr(int cpu_idx, off_t offset)
 {
     return m_msr_space[cpu_idx] + offset;
 }
@@ -645,8 +650,7 @@ const char **MSRIOMockFiles::msr_words(void) const
     return instance;
 }
 
-
-class MSRIOTest : public :: testing :: Test
+class MSRIOTest : public ::testing ::Test
 {
     protected:
         void SetUp(void);
@@ -666,15 +670,11 @@ void MSRIOTest::SetUp(void)
         EXPECT_CALL(*m_path, msr_path(cpu_idx, 0))
             .WillOnce(Return(m_files->test_dev_path()[cpu_idx]));
     }
-    EXPECT_CALL(*m_path, msr_batch_path())
-        .WillOnce(Return("NO_FILE_HERE"));
+    EXPECT_CALL(*m_path, msr_batch_path()).WillOnce(Return("NO_FILE_HERE"));
     m_msrio = geopm::make_unique<MSRIOImp>(m_num_cpu, m_path);
 }
 
-void MSRIOTest::TearDown(void)
-{
-
-}
+void MSRIOTest::TearDown(void) {}
 
 TEST_F(MSRIOTest, read_aligned)
 {
@@ -749,9 +749,11 @@ TEST_F(MSRIOTest, read_batch)
         cpu_idx.push_back(i);
     }
 
-    std::vector<std::string> words {"software", "engineer", "document", "everyday",
-                                    "modeling", "standout", "patience", "goodwill"};
-    std::vector<uint64_t> offsets {0xd28, 0x520, 0x468, 0x570, 0x918, 0xd80, 0xa40, 0x688};
+    std::vector<std::string> words{ "software", "engineer", "document",
+                                    "everyday", "modeling", "standout",
+                                    "patience", "goodwill" };
+    std::vector<uint64_t> offsets{ 0xd28, 0x520, 0x468, 0x570,
+                                   0x918, 0xd80, 0xa40, 0x688 };
 
     std::vector<int> read_cpu_idx;
     std::vector<uint64_t> read_offset;
@@ -770,8 +772,7 @@ TEST_F(MSRIOTest, read_batch)
     ASSERT_LT(0u, sample_idx.size());
 
     // sample without read_batch is an error
-    GEOPM_EXPECT_THROW_MESSAGE(m_msrio->sample(sample_idx[0]),
-                               GEOPM_ERROR_INVALID,
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio->sample(sample_idx[0]), GEOPM_ERROR_INVALID,
                                "cannot call sample() before read_batch()");
 
     m_msrio->read_batch();
@@ -788,22 +789,24 @@ TEST_F(MSRIOTest, write_batch)
     for (int i = 0; i < m_num_cpu; ++i) {
         cpu_idx.push_back(i);
     }
-    //                       begin_words {"software", "engineer", "document", "everyday",
-    //                                    "modeling", "standout", "patience", "goodwill"};
-    std::vector<std::string> end_words   {"HARDware", "BEgineRX", "Mocument", "everyWay",
-                                          "moBIling", "XHandout", "patENTED", "goLdMill"};
+    //                       begin_words {"software", "engineer", "document",
+    //                       "everyday",
+    //                                    "modeling", "standout", "patience",
+    //                                    "goodwill"};
+    std::vector<std::string> end_words{ "HARDware", "BEgineRX", "Mocument",
+                                        "everyWay", "moBIling", "XHandout",
+                                        "patENTED", "goLdMill" };
 
-    std::vector<uint64_t> offsets {0xd28, 0x520, 0x468, 0x570, 0x918, 0xd80, 0xa40, 0x688};
-    std::vector<uint64_t> masks   {0x00000000FFFFFFFF,
-                                   0xFFFF00000000FFFF,
-                                   0x00000000000000FF,
-                                   0x0000FF0000000000,
-                                   0x00000000FFFF0000,
-                                   0x000000000000FFFF,
-                                   0xFFFFFFFFFF000000,
-                                   0x000000FF00FF0000};
-    std::vector<const char *> write_words  {"HARD\0\0\0\0", "BE\0\0\0\0RX", "M\0\0\0\0\0\0\0", "\0\0\0\0\0W\0\0",
-                                            "\0\0BI\0\0\0\0", "XH\0\0\0\0\0\0", "\0\0\0ENTED", "\0\0L\0M\0\0\0"};
+    std::vector<uint64_t> offsets{ 0xd28, 0x520, 0x468, 0x570,
+                                   0x918, 0xd80, 0xa40, 0x688 };
+    std::vector<uint64_t> masks{ 0x00000000FFFFFFFF, 0xFFFF00000000FFFF,
+                                 0x00000000000000FF, 0x0000FF0000000000,
+                                 0x00000000FFFF0000, 0x000000000000FFFF,
+                                 0xFFFFFFFFFF000000, 0x000000FF00FF0000 };
+    std::vector<const char *> write_words{ "HARD\0\0\0\0",    "BE\0\0\0\0RX",
+                                           "M\0\0\0\0\0\0\0", "\0\0\0\0\0W\0\0",
+                                           "\0\0BI\0\0\0\0",  "XH\0\0\0\0\0\0",
+                                           "\0\0\0ENTED",     "\0\0L\0M\0\0\0" };
 
     for (auto &ci : cpu_idx) {
         auto wi = write_words.begin();

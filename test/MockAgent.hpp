@@ -41,40 +41,31 @@
 class MockAgent : public geopm::Agent
 {
     public:
-        MOCK_METHOD3(init,
-                     void(int level, const std::vector<int> &fan_in, bool is_level_root));
-        MOCK_CONST_METHOD1(validate_policy,
-                           void(std::vector<double> &policy));
-        MOCK_METHOD2(split_policy,
-                     void(const std::vector<double> &in_policy,
-                          std::vector<std::vector<double> >&out_policy));
-        MOCK_CONST_METHOD0(do_send_policy,
-                           bool(void));
+        MOCK_METHOD3(init, void(int level, const std::vector<int> &fan_in,
+                                bool is_level_root));
+        MOCK_CONST_METHOD1(validate_policy, void(std::vector<double> &policy));
+        MOCK_METHOD2(split_policy, void(const std::vector<double> &in_policy,
+                                        std::vector<std::vector<double> > &out_policy));
+        MOCK_CONST_METHOD0(do_send_policy, bool(void));
         MOCK_METHOD2(aggregate_sample,
                      void(const std::vector<std::vector<double> > &in_signal,
                           std::vector<double> &out_signal));
-        MOCK_CONST_METHOD0(do_send_sample,
-                           bool(void));
-        MOCK_METHOD1(adjust_platform,
-                     void(const std::vector<double> &in_policy));
-        MOCK_CONST_METHOD0(do_write_batch,
-                           bool(void));
-        MOCK_METHOD1(sample_platform,
-                     void(std::vector<double> &out_sample));
-        MOCK_METHOD0(wait,
-                     void(void));
+        MOCK_CONST_METHOD0(do_send_sample, bool(void));
+        MOCK_METHOD1(adjust_platform, void(const std::vector<double> &in_policy));
+        MOCK_CONST_METHOD0(do_write_batch, bool(void));
+        MOCK_METHOD1(sample_platform, void(std::vector<double> &out_sample));
+        MOCK_METHOD0(wait, void(void));
         MOCK_CONST_METHOD0(report_header,
                            std::vector<std::pair<std::string, std::string> >(void));
         MOCK_CONST_METHOD0(report_host,
                            std::vector<std::pair<std::string, std::string> >(void));
-        MOCK_CONST_METHOD0(report_region,
-                           std::map<uint64_t, std::vector<std::pair<std::string, std::string> > >(void));
-        MOCK_CONST_METHOD0(trace_names,
-                           std::vector<std::string>(void));
+        MOCK_CONST_METHOD0(
+            report_region,
+            std::map<uint64_t, std::vector<std::pair<std::string, std::string> > >(void));
+        MOCK_CONST_METHOD0(trace_names, std::vector<std::string>(void));
         MOCK_CONST_METHOD0(trace_formats,
                            std::vector<std::function<std::string(double)> >(void));
-        MOCK_METHOD1(trace_values,
-                     void(std::vector<double> &values));
+        MOCK_METHOD1(trace_values, void(std::vector<double> &values));
 };
 
 #endif

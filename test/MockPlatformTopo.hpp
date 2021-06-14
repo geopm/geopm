@@ -42,19 +42,15 @@
 class MockPlatformTopo : public geopm::PlatformTopo
 {
     public:
-        MOCK_CONST_METHOD1(num_domain,
-                           int(int domain_type));
-        MOCK_CONST_METHOD2(domain_idx,
-                           int(int domain_type, int cpu_idx));
-        MOCK_CONST_METHOD2(is_nested_domain,
-                           bool(int inner_domain, int outer_domain));
-        MOCK_CONST_METHOD3(domain_nested,
-                           std::set<int>(int inner_domain, int outer_domain, int outer_idx));
+        MOCK_CONST_METHOD1(num_domain, int(int domain_type));
+        MOCK_CONST_METHOD2(domain_idx, int(int domain_type, int cpu_idx));
+        MOCK_CONST_METHOD2(is_nested_domain, bool(int inner_domain, int outer_domain));
+        MOCK_CONST_METHOD3(domain_nested, std::set<int>(int inner_domain, int outer_domain,
+                                                        int outer_idx));
 };
 
 /// Create a MockPlatformTopo and set up expectations for the system hierarchy.
 /// Counts for each input component are for the whole board.
 std::shared_ptr<MockPlatformTopo> make_topo(int num_package, int num_core, int num_cpu);
-
 
 #endif

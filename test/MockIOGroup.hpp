@@ -40,48 +40,36 @@
 class MockIOGroup : public geopm::IOGroup
 {
     public:
-        MOCK_CONST_METHOD0(signal_names,
-                           std::set<std::string>(void));
-        MOCK_CONST_METHOD0(control_names,
-                           std::set<std::string>(void));
-        MOCK_CONST_METHOD1(is_valid_signal,
-                           bool (const std::string &signal_name));
-        MOCK_CONST_METHOD1(is_valid_control,
-                           bool (const std::string &control_name));
-        MOCK_CONST_METHOD1(signal_domain_type,
-                           int (const std::string &signal_name));
-        MOCK_CONST_METHOD1(control_domain_type,
-                           int (const std::string &control_name));
-        MOCK_METHOD3(push_signal,
-                     int (const std::string &signal_name, int domain_type, int domain_idx));
-        MOCK_METHOD3(push_control,
-                     int (const std::string &control_name, int domain_type, int domain_idx));
-        MOCK_METHOD0(read_batch,
-                     void (void));
-        MOCK_METHOD0(write_batch,
-                     void (void));
-        MOCK_METHOD1(sample,
-                     double (int sample_idx));
-        MOCK_METHOD2(adjust,
-                     void (int control_idx, double setting));
-        MOCK_METHOD3(read_signal,
-                     double (const std::string &signal_name, int domain_type, int domain_idx));
-        MOCK_METHOD4(write_control,
-                     void (const std::string &control_name, int domain_type, int domain_idx, double setting));
-        MOCK_METHOD0(save_control,
-                     void(void));
-        MOCK_METHOD0(restore_control,
-                     void(void));
+        MOCK_CONST_METHOD0(signal_names, std::set<std::string>(void));
+        MOCK_CONST_METHOD0(control_names, std::set<std::string>(void));
+        MOCK_CONST_METHOD1(is_valid_signal, bool(const std::string &signal_name));
+        MOCK_CONST_METHOD1(is_valid_control, bool(const std::string &control_name));
+        MOCK_CONST_METHOD1(signal_domain_type, int(const std::string &signal_name));
+        MOCK_CONST_METHOD1(control_domain_type, int(const std::string &control_name));
+        MOCK_METHOD3(push_signal, int(const std::string &signal_name,
+                                      int domain_type, int domain_idx));
+        MOCK_METHOD3(push_control, int(const std::string &control_name,
+                                       int domain_type, int domain_idx));
+        MOCK_METHOD0(read_batch, void(void));
+        MOCK_METHOD0(write_batch, void(void));
+        MOCK_METHOD1(sample, double(int sample_idx));
+        MOCK_METHOD2(adjust, void(int control_idx, double setting));
+        MOCK_METHOD3(read_signal, double(const std::string &signal_name,
+                                         int domain_type, int domain_idx));
+        MOCK_METHOD4(write_control, void(const std::string &control_name, int domain_type,
+                                         int domain_idx, double setting));
+        MOCK_METHOD0(save_control, void(void));
+        MOCK_METHOD0(restore_control, void(void));
         MOCK_CONST_METHOD1(agg_function,
-                           std::function<double(const std::vector<double> &)> (const std::string &signal_name));
+                           std::function<double(const std::vector<double> &)>(
+                               const std::string &signal_name));
         MOCK_CONST_METHOD1(format_function,
-                           std::function<std::string(double)> (const std::string &signal_name));
+                           std::function<std::string(double)>(const std::string &signal_name));
         MOCK_CONST_METHOD1(signal_description,
                            std::string(const std::string &signal_name));
         MOCK_CONST_METHOD1(control_description,
                            std::string(const std::string &control_name));
-        MOCK_CONST_METHOD1(signal_behavior,
-                           int(const std::string &signal_name));
+        MOCK_CONST_METHOD1(signal_behavior, int(const std::string &signal_name));
 };
 
 #endif
