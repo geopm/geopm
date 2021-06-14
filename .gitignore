@@ -55,8 +55,8 @@
 /geopmwrite
 /gh-pages/
 /gmock-all.o
-/googletest-release-1.10.0/
-/googletest-release-1.10.0.tar.gz
+/googletest-release-*/
+/googletest-release-*.tar.gz
 /gtest-all.o
 /install-sh
 /integration/apps/hpcg/hpcg/
