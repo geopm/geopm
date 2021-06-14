@@ -76,14 +76,6 @@ void EpochIOGroupTest::SetUp()
     m_group = std::make_shared<EpochIOGroup>(m_topo, m_app);
 }
 
-MATCHER_P(IsRecordEqual, other, "")
-{
-    return arg.time == other.time &&
-           arg.process == other.process &&
-           arg.event == other.event &&
-           arg.signal == other.signal;
-}
-
 TEST_F(EpochIOGroupTest, valid_signals)
 {
     std::vector<std::string> expected_names = {
