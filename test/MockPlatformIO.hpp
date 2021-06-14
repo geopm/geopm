@@ -35,63 +35,49 @@
 
 #include "gmock/gmock.h"
 
-#include "PlatformIO.hpp"
 #include "IOGroup.hpp"
+#include "PlatformIO.hpp"
 
 class MockPlatformIO : public geopm::PlatformIO
 {
     public:
-        MOCK_METHOD1(register_iogroup,
-                     void(std::shared_ptr<geopm::IOGroup> iogroup));
+        MOCK_METHOD1(register_iogroup, void(std::shared_ptr<geopm::IOGroup> iogroup));
         MOCK_METHOD1(register_profileio,
                      void(std::shared_ptr<geopm::ProfileIOGroup> iogroup));
-        MOCK_METHOD0(get_profileio,
-                     std::shared_ptr<geopm::ProfileIOGroup>(void));
-        MOCK_CONST_METHOD0(signal_names,
-                           std::set<std::string>(void));
-        MOCK_CONST_METHOD0(control_names,
-                           std::set<std::string>(void));
-        MOCK_CONST_METHOD1(signal_domain_type,
-                           int(const std::string &signal_name));
-        MOCK_CONST_METHOD1(control_domain_type,
-                           int(const std::string &control_name));
-        MOCK_METHOD3(push_signal,
-                     int(const std::string &signal_name, int domain_type, int domain_idx));
+        MOCK_METHOD0(get_profileio, std::shared_ptr<geopm::ProfileIOGroup>(void));
+        MOCK_CONST_METHOD0(signal_names, std::set<std::string>(void));
+        MOCK_CONST_METHOD0(control_names, std::set<std::string>(void));
+        MOCK_CONST_METHOD1(signal_domain_type, int(const std::string &signal_name));
+        MOCK_CONST_METHOD1(control_domain_type, int(const std::string &control_name));
+        MOCK_METHOD3(push_signal, int(const std::string &signal_name,
+                                      int domain_type, int domain_idx));
         MOCK_METHOD4(push_combined_signal,
-                     int(const std::string &signal_name, int domain_type, int domain_idx,
-                         const std::vector<int> &sub_signal_idx));
-        MOCK_METHOD3(push_control,
-                     int(const std::string &control_name, int domain_type, int domain_idx));
-        MOCK_CONST_METHOD0(num_signal_pushed,
-                           int(void));
-        MOCK_CONST_METHOD0(num_control_pushed,
-                           int(void));
-        MOCK_METHOD1(sample,
-                     double(int signal_idx));
-        MOCK_METHOD2(adjust,
-                     void(int control_idx, double setting));
-        MOCK_METHOD0(read_batch,
-                     void(void));
-        MOCK_METHOD0(write_batch,
-                     void(void));
-        MOCK_METHOD3(read_signal,
-                     double(const std::string &signal_name, int domain_type, int domain_idx));
-        MOCK_METHOD4(write_control,
-                     void(const std::string &control_name, int domain_type, int domain_idx, double setting));
-        MOCK_METHOD0(save_control,
-                     void(void));
-        MOCK_METHOD0(restore_control,
-                     void(void));
+                     int(const std::string &signal_name, int domain_type,
+                         int domain_idx, const std::vector<int> &sub_signal_idx));
+        MOCK_METHOD3(push_control, int(const std::string &control_name,
+                                       int domain_type, int domain_idx));
+        MOCK_CONST_METHOD0(num_signal_pushed, int(void));
+        MOCK_CONST_METHOD0(num_control_pushed, int(void));
+        MOCK_METHOD1(sample, double(int signal_idx));
+        MOCK_METHOD2(adjust, void(int control_idx, double setting));
+        MOCK_METHOD0(read_batch, void(void));
+        MOCK_METHOD0(write_batch, void(void));
+        MOCK_METHOD3(read_signal, double(const std::string &signal_name,
+                                         int domain_type, int domain_idx));
+        MOCK_METHOD4(write_control, void(const std::string &control_name, int domain_type,
+                                         int domain_idx, double setting));
+        MOCK_METHOD0(save_control, void(void));
+        MOCK_METHOD0(restore_control, void(void));
         MOCK_CONST_METHOD1(agg_function,
-                           std::function<double(const std::vector<double> &)>(const std::string&));
+                           std::function<double(const std::vector<double> &)>(
+                               const std::string &));
         MOCK_CONST_METHOD1(format_function,
-                           std::function<std::string(double)>(const std::string&));
+                           std::function<std::string(double)>(const std::string &));
         MOCK_CONST_METHOD1(signal_description,
                            std::string(const std::string &signal_name));
         MOCK_CONST_METHOD1(control_description,
                            std::string(const std::string &control_name));
-        MOCK_CONST_METHOD1(signal_behavior,
-                           int(const std::string &signal_name));
+        MOCK_CONST_METHOD1(signal_behavior, int(const std::string &signal_name));
 };
 
 #endif

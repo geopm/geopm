@@ -35,8 +35,8 @@
 
 #include "gmock/gmock.h"
 
-#include "geopm.h"
 #include "Tracer.hpp"
+#include "geopm.h"
 
 class MockTracer : public geopm::Tracer
 {
@@ -44,10 +44,8 @@ class MockTracer : public geopm::Tracer
         MOCK_METHOD2(columns,
                      void(const std::vector<std::string> &agent_cols,
                           const std::vector<std::function<std::string(double)> > &agent_formats));
-        MOCK_METHOD1(update,
-                     void(const std::vector<double> &agent_vals));
-        MOCK_METHOD0(flush,
-                     void(void));
+        MOCK_METHOD1(update, void(const std::vector<double> &agent_vals));
+        MOCK_METHOD0(flush, void(void));
 };
 
 #endif

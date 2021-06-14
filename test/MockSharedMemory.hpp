@@ -35,8 +35,8 @@
 
 #include <vector>
 
-#include "gtest/gtest.h"
 #include "gmock/gmock.h"
+#include "gtest/gtest.h"
 
 #include "SharedMemory.hpp"
 #include "SharedMemoryScopedLock.hpp"
@@ -45,27 +45,23 @@ class MockSharedMemory : public geopm::SharedMemory
 {
     public:
         MockSharedMemory() = delete;
-        MockSharedMemory(size_t size) {
+        MockSharedMemory(size_t size)
+        {
             m_buffer = std::vector<char>(size, '\0');
-            EXPECT_CALL(*this, size())
-                .WillRepeatedly(testing::Return(size));
+            EXPECT_CALL(*this, size()).WillRepeatedly(testing::Return(size));
             EXPECT_CALL(*this, pointer())
                 .WillRepeatedly(testing::Return(m_buffer.data()));
-            EXPECT_CALL(*this, unlink())
-                .WillRepeatedly(testing::Return());
+            EXPECT_CALL(*this, unlink()).WillRepeatedly(testing::Return());
         };
         virtual ~MockSharedMemory() = default;
 
-        MOCK_CONST_METHOD0(pointer,
-                           void *(void));
-        MOCK_CONST_METHOD0(key,
-                           std::string (void));
-        MOCK_CONST_METHOD0(size,
-                           size_t (void));
+        MOCK_CONST_METHOD0(pointer, void *(void));
+        MOCK_CONST_METHOD0(key, std::string(void));
+        MOCK_CONST_METHOD0(size, size_t(void));
         MOCK_METHOD0(get_scoped_lock,
                      std::unique_ptr<geopm::SharedMemoryScopedLock>(void));
-        MOCK_METHOD0(unlink,
-                     void(void));
+        MOCK_METHOD0(unlink, void(void));
+
     protected:
         std::vector<char> m_buffer;
 };

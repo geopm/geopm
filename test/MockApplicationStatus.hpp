@@ -40,28 +40,17 @@
 class MockApplicationStatus : public geopm::ApplicationStatus
 {
     public:
-        MOCK_METHOD2(set_hint,
-                     void(int cpu_idx, uint64_t hints));
-        MOCK_CONST_METHOD1(get_hint,
-                           uint64_t(int cpu_idx));
-        MOCK_METHOD3(set_hash,
-                     void(int cpu_idx, uint64_t hash, uint64_t hint));
-        MOCK_CONST_METHOD1(get_hash,
-                           uint64_t(int cpu_idx));
-        MOCK_METHOD1(reset_work_units,
-                     void(int cpu_idx));
-        MOCK_METHOD2(set_total_work_units,
-                     void(int cpu_idx, int work_units));
-        MOCK_METHOD1(increment_work_unit,
-                     void(int cpu_idx));
-        MOCK_CONST_METHOD1(get_progress_cpu,
-                           double(int cpu_idx));
-        MOCK_METHOD2(set_process,
-                     void(const std::set<int> &cpu_idx, int process));
-        MOCK_CONST_METHOD1(get_process,
-                           int(int cpu_idx));
-        MOCK_METHOD0(update_cache,
-                     void(void));
+        MOCK_METHOD2(set_hint, void(int cpu_idx, uint64_t hints));
+        MOCK_CONST_METHOD1(get_hint, uint64_t(int cpu_idx));
+        MOCK_METHOD3(set_hash, void(int cpu_idx, uint64_t hash, uint64_t hint));
+        MOCK_CONST_METHOD1(get_hash, uint64_t(int cpu_idx));
+        MOCK_METHOD1(reset_work_units, void(int cpu_idx));
+        MOCK_METHOD2(set_total_work_units, void(int cpu_idx, int work_units));
+        MOCK_METHOD1(increment_work_unit, void(int cpu_idx));
+        MOCK_CONST_METHOD1(get_progress_cpu, double(int cpu_idx));
+        MOCK_METHOD2(set_process, void(const std::set<int> &cpu_idx, int process));
+        MOCK_CONST_METHOD1(get_process, int(int cpu_idx));
+        MOCK_METHOD0(update_cache, void(void));
 };
 
 #endif

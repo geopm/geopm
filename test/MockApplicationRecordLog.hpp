@@ -40,19 +40,13 @@
 class MockApplicationRecordLog : public geopm::ApplicationRecordLog
 {
     public:
-        MOCK_METHOD1(set_process,
-                     void(int process));
-        MOCK_METHOD1(set_time_zero,
-                     void(const geopm_time_s &time));
-        MOCK_METHOD2(enter,
-                     void(uint64_t hash, const geopm_time_s &time));
-        MOCK_METHOD2(exit,
-                     void(uint64_t hash, const geopm_time_s &time));
-        MOCK_METHOD1(epoch,
-                     void(const geopm_time_s &time));
-        MOCK_METHOD2(dump,
-                     void(std::vector<geopm::record_s> &records,
-                          std::vector<geopm::short_region_s> &short_regions));
+        MOCK_METHOD1(set_process, void(int process));
+        MOCK_METHOD1(set_time_zero, void(const geopm_time_s &time));
+        MOCK_METHOD2(enter, void(uint64_t hash, const geopm_time_s &time));
+        MOCK_METHOD2(exit, void(uint64_t hash, const geopm_time_s &time));
+        MOCK_METHOD1(epoch, void(const geopm_time_s &time));
+        MOCK_METHOD2(dump, void(std::vector<geopm::record_s> &records,
+                                std::vector<geopm::short_region_s> &short_regions));
 };
 
 #endif

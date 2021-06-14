@@ -37,30 +37,20 @@
 
 #include "PowerBalancer.hpp"
 
-class MockPowerBalancer : public geopm::PowerBalancer {
+class MockPowerBalancer : public geopm::PowerBalancer
+{
     public:
-        MOCK_METHOD1(power_cap,
-                     void(double cap));
-        MOCK_CONST_METHOD0(power_cap,
-                           double(void));
-        MOCK_CONST_METHOD0(power_limit,
-                           double(void));
-        MOCK_METHOD1(power_limit_adjusted,
-                     void(double limit));
-        MOCK_METHOD1(is_runtime_stable,
-                     bool(double measured_runtime));
-        MOCK_CONST_METHOD0(runtime_sample,
-                           double(void));
-        MOCK_METHOD0(calculate_runtime_sample,
-                     void(void));
-        MOCK_METHOD1(target_runtime,
-                     void(double largest_runtime));
-        MOCK_METHOD1(is_target_met,
-                     bool(double measured_runtime));
-        MOCK_METHOD1(achieved_limit,
-                     void(double achieved));
-        MOCK_METHOD0(power_slack,
-                     double(void));
+        MOCK_METHOD1(power_cap, void(double cap));
+        MOCK_CONST_METHOD0(power_cap, double(void));
+        MOCK_CONST_METHOD0(power_limit, double(void));
+        MOCK_METHOD1(power_limit_adjusted, void(double limit));
+        MOCK_METHOD1(is_runtime_stable, bool(double measured_runtime));
+        MOCK_CONST_METHOD0(runtime_sample, double(void));
+        MOCK_METHOD0(calculate_runtime_sample, void(void));
+        MOCK_METHOD1(target_runtime, void(double largest_runtime));
+        MOCK_METHOD1(is_target_met, bool(double measured_runtime));
+        MOCK_METHOD1(achieved_limit, void(double achieved));
+        MOCK_METHOD0(power_slack, double(void));
 };
 
 #endif

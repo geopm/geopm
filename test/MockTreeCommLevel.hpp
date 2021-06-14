@@ -37,20 +37,15 @@
 
 #include "TreeCommLevel.hpp"
 
-class MockTreeCommLevel : public geopm::TreeCommLevel {
+class MockTreeCommLevel : public geopm::TreeCommLevel
+{
     public:
-        MOCK_CONST_METHOD0(level_rank,
-                           int(void));
-        MOCK_METHOD1(send_up,
-                     void(const std::vector<double> &sample));
-        MOCK_METHOD1(send_down,
-                     void(const std::vector<std::vector<double> > &policy));
-        MOCK_METHOD1(receive_up,
-                     bool(std::vector<std::vector<double> > &sample));
-        MOCK_METHOD1(receive_down,
-                     bool(std::vector<double> &policy));
-        MOCK_CONST_METHOD0(overhead_send,
-                           size_t(void));
+        MOCK_CONST_METHOD0(level_rank, int(void));
+        MOCK_METHOD1(send_up, void(const std::vector<double> &sample));
+        MOCK_METHOD1(send_down, void(const std::vector<std::vector<double> > &policy));
+        MOCK_METHOD1(receive_up, bool(std::vector<std::vector<double> > &sample));
+        MOCK_METHOD1(receive_down, bool(std::vector<double> &policy));
+        MOCK_CONST_METHOD0(overhead_send, size_t(void));
 };
 
 #endif

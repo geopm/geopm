@@ -33,8 +33,8 @@
 #ifndef MOCKTREECOMM_HPP_INCLUDE
 #define MOCKTREECOMM_HPP_INCLUDE
 
-#include <set>
 #include <map>
+#include <set>
 #include <vector>
 
 #include "gmock/gmock.h"
@@ -44,16 +44,11 @@
 class MockTreeComm : public geopm::TreeComm
 {
     public:
-        MOCK_CONST_METHOD0(num_level_controlled,
-                           int(void));
-        MOCK_CONST_METHOD0(max_level,
-                           int(void));
-        MOCK_CONST_METHOD0(root_level,
-                           int(void));
-        MOCK_CONST_METHOD1(level_rank,
-                           int(int level));
-        MOCK_CONST_METHOD1(level_size,
-                           int(int level));
+        MOCK_CONST_METHOD0(num_level_controlled, int(void));
+        MOCK_CONST_METHOD0(max_level, int(void));
+        MOCK_CONST_METHOD0(root_level, int(void));
+        MOCK_CONST_METHOD1(level_rank, int(int level));
+        MOCK_CONST_METHOD1(level_size, int(int level));
 
         void send_up(int level, const std::vector<double> &sample) override
         {
@@ -61,16 +56,18 @@ class MockTreeComm : public geopm::TreeComm
             m_levels_sent_up.insert(level);
             m_data_sent_up[level] = sample;
         }
-        void send_up_mock_child(int level, int child_idx, const std::vector<double> &sample)
+        void send_up_mock_child(int level, int child_idx,
+                                const std::vector<double> &sample)
         {
-            m_data_sent_up_child[{level, child_idx}] = sample;
+            m_data_sent_up_child[{ level, child_idx }] = sample;
         }
         void send_down(int level, const std::vector<std::vector<double> > &policy) override
         {
             ++m_num_send;
             m_levels_sent_down.insert(level);
             if (policy.size() == 0) {
-                throw std::runtime_error("MockTreeComm::send_down(): policy vector was wrong size");
+                throw std::runtime_error(
+                    "MockTreeComm::send_down(): policy vector was wrong size");
             }
             m_data_sent_down[level] = policy[0]; /// @todo slightly wrong
         }
@@ -83,8 +80,9 @@ class MockTreeComm : public geopm::TreeComm
             m_levels_rcvd_up.insert(level);
             int child_idx = 0;
             for (auto &vec : sample) {
-                if (m_data_sent_up_child.find({level, child_idx}) != m_data_sent_up_child.end()) {
-                    vec = m_data_sent_up_child.at({level, child_idx});
+                if (m_data_sent_up_child.find({ level, child_idx }) !=
+                    m_data_sent_up_child.end()) {
+                    vec = m_data_sent_up_child.at({ level, child_idx });
                 }
                 else {
                     vec = m_data_sent_up.at(level);
@@ -103,12 +101,9 @@ class MockTreeComm : public geopm::TreeComm
             policy = m_data_sent_down.at(level);
             return true;
         }
-        MOCK_CONST_METHOD0(overhead_send,
-                           size_t(void));
-        MOCK_METHOD1(broadcast_string,
-                     void(const std::string &str));
-        MOCK_METHOD0(broadcast_string,
-                     std::string(void));
+        MOCK_CONST_METHOD0(overhead_send, size_t(void));
+        MOCK_METHOD1(broadcast_string, void(const std::string &str));
+        MOCK_METHOD0(broadcast_string, std::string(void));
         int num_send(void)
         {
             return m_num_send;
@@ -142,6 +137,7 @@ class MockTreeComm : public geopm::TreeComm
             m_levels_rcvd_down.clear();
             m_levels_rcvd_up.clear();
         }
+
     private:
         // map from level -> last sent data
         std::map<int, std::vector<double> > m_data_sent_up;

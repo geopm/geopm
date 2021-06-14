@@ -40,14 +40,11 @@
 class MockPowerGovernor : public geopm::PowerGovernor
 {
     public:
-        MOCK_METHOD0(init_platform_io,
-                     void(void));
-        MOCK_METHOD0(sample_platform,
-                     void(void));
+        MOCK_METHOD0(init_platform_io, void(void));
+        MOCK_METHOD0(sample_platform, void(void));
         MOCK_METHOD2(adjust_platform,
                      void(double node_power_request, double &node_power_actual));
-        MOCK_CONST_METHOD0(do_write_batch,
-                     bool());
+        MOCK_CONST_METHOD0(do_write_batch, bool());
         MOCK_METHOD2(set_power_bounds,
                      void(double min_pkg_power, double max_pkg_power));
         MOCK_CONST_METHOD0(power_package_time_window, double(void));
