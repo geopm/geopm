@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-#  Copyright (c) 2015 - 2021, Intel Corporation
+#  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
 #  modification, are permitted provided that the following conditions
@@ -32,20 +32,37 @@
 #
 
 '''
-Creates a model relating power-limit to both runtime and energy
-consumption. Offers power-governor policy recommendations for
+Creates a model relating frequency to both runtime and energy
+consumption. Offers frequency policy recommendations for
 minimum energy use subject to a runtime degradation constraint.
 '''
 
-import policy_model
+import argparse
+import math
+import sys
+
+import pandas
+import numpy as np
+from numpy.polynomial.polynomial import Polynomial
+
+import geopmpy.io
+
+from experiment import common_args
+from experiment import machine
 
 
-def main(full_df, region_filter, dump_prefix, min_pl, max_pl, tdp, max_degradation, cross_validation=True):
+
+# TODO 
+# change everything to use 'index' rather than 'freq'
+# as the keys
+# also to expect a pair of indices in the case when...
+
+def main(full_df, region_filter, dump_prefix, min_freq, max_freq, min_uncore, max_uncore, sticker, max_degradation, cross_validation=True, freq_step=1e8, uncore_step=1e8):
     """
     The main function. full_df is a report collection dataframe, region_filter
     is a list of regions to include, dump_prefix a filename prefix for
-    debugging output (if specified), min_pl, max_pl, tdp are the minimum,
-    maximum, and reference power limits, respectively, max_degradation
+    debugging output (if specified), min_freq, max_freq, sticker are the minimum,
+    maximum, and sticker frequencies, respectively, max_degradation
     specifies what maximum runtime degradation is accepted. If max_degradation
     is None, then just find the minimum energy configuration, ignoring
     runtime."""
@@ -55,44 +72,40 @@ def main(full_df, region_filter, dump_prefix, min_pl, max_pl, tdp, max_degradati
         dump_stats_summary(df, "{}.stats".format(dump_prefix))
 
     if cross_validation:
-        runtime_model = policy_model.CrossValidationModel(policy_model.CubicPolicyModel)
-        energy_model = policy_model.CrossValidationModel(policy_model.CubicPolicyModel)
+        runtime_model = CrossValidationModel(InverseFrequencyModel)
+        energy_model = CrossValidationModel(CubicFrequencyModel)
     else:
-        runtime_model = CubicPolicyModel()
-        energy_model = CubicPolicyModel()
+        runtime_model = InverseFrequencyModel()
+        energy_model = CubicFrequencyModel()
 
     runtime_model.train(df, key='runtime')
     energy_model.train(df, key='energy')
 
-    plrange = [min_pl + i for i in range(int(max_pl - min_pl))] + [max_pl]
+    freqrange = [min_freq + i * freq_step for i in range(int((max_freq - min_freq)/freq_step))] + [max_freq]
+    uncorerange = [min_uncore + i * uncore_step for i in range(int((max_uncore - min_uncore)/uncore_step))] + [max_uncore]
     if cross_validation:
-        best_policy = policy_model.policy_confident_energy(plrange,
-                                                           energy_model,
-                                                           runtime_model,
-                                                           tdp,
-                                                           max_degradation = max_degradation)
-        tdprt, tdpen = runtime_model.evaluate(tdp, True), energy_model.evaluate(tdp, True)
-        tdp_values = {'power': tdp,
-                      'runtime': tdprt['mean'],
-                      'runtimedev': rootssq(tdprt['dev']),
-                      'energy': tdpen['mean'],
-                      'energydev': rootssq(tdpen['dev'])}
+        best_policy = policy_confident_energy(freqrange, uncorerange, energy_model, runtime_model, sticker,
+                                              max_degradation = max_degradation)
+        stickerrt, stickeren = runtime_model.evaluate(sticker, True), energy_model.evaluate(sticker, True)
+        sticker_values = {'freq': sticker[0],
+                      'uncore': sticker[1],
+                      'runtime': stickerrt[0],
+                      'runtimedev': rootssq(stickerrt[1]),
+                      'energy': stickeren[0],
+                      'energydev': rootssq(stickeren[1])}
     else:
-        best_policy = policy_model.policy_min_energy(plrange,
-                                                     energy_model,
-                                                     runtime_model,
-                                                     tdp,
-                                                     max_degradation = max_degradation)
-        tdprt, tdpen = runtime_model.evaluate(tdp), energy_model.evaluate(tdp)
-        tdp_values = {'power': tdp, 'runtime': tdprt, 'energy': tdpen}
+        best_policy = policy_min_energy(freqrange, uncorerange, energy_model, runtime_model, sticker,
+                                        max_degradation = max_degradation)
+        stickerrt, stickeren = runtime_model.evaluate(sticker), energy_model.evaluate(sticker)
+        sticker_values = {'freq': sticker[0], 'uncore': sticker[1], 'runtime': stickerrt, 'energy': stickeren}
 
-    return {'tdp': tdp_values, 'best': best_policy}
+    return {'sticker': sticker_values, 'best': best_policy}
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    common_args.add_min_power(parser)
-    common_args.add_max_power(parser)
+    common_args.add_min_frequency(parser)
+    common_args.add_max_frequency(parser)
     parser.add_argument('--path', required=True,
                         help='path containing reports and machine.json')
     parser.add_argument('--region-filter', default=None, dest='region_filter',
@@ -102,9 +115,9 @@ if __name__ == '__main__':
     parser.add_argument('--dump-prefix', dest='dump_prefix',
                         help='prefix to dump statistics to, empty to not dump '
                              'stats')
-    parser.add_argument('--tdp', default=None, type=float,
-                        help='tdp (sticker power limit), default behavior is '
-                             'to use max power')
+    parser.add_argument('--sticker', default=None, type=float,
+                        help='sticker frequency, default behavior is '
+                             'to use max frequency')
     parser.add_argument('--max-degradation',
                         default=0.1, type=float, dest='max_degradation',
                         help='maximum allowed runtime degradation, default is '
@@ -112,7 +125,7 @@ if __name__ == '__main__':
     parser.add_argument('--min_energy', action='store_true',
                         help='ignore max degradation, just give the minimum '
                              'energy possible')
-    parser.add_argument('--disable-confidence', dest='confidence',
+    parser.add_argument('--no-confidence', dest='confidence',
                         action='store_false',
                         help='Ignore uncertainty when giving a recommendation.')
 
@@ -128,54 +141,58 @@ if __name__ == '__main__':
                          '; run a power sweep before using this analysis.\n')
         sys.exit(1)
 
-    min_pl, tdp, max_pl = None, None, None
-    if None in [args.min_power, args.tdp, args.max_power] or \
-            min(args.min_power, args.tdp, args.max_power) < 0:
+    min_freq, sticker, max_freq = None, None, None
+    if None in [args.min_frequency, args.sticker, args.max_frequency] or \
+            min(args.min_frequency, args.sticker, args.max_frequency) < 0:
         try:
             machine_info = machine.get_machine(args.path)
-            min_pl = machine_info.power_package_min()
-            tdp = machine_info.power_package_tdp()
-            max_pl = machine_info.power_package_tdp()
+            min_freq = machine_info.frequency_min()
+            sticker = machine_info.frequency_sticker()
+            max_freq = machine_info.frequency_max()
         except RuntimeError:
             sys.stderr.write('Warning: couldn\'t open machine.json. Falling '
                              'back to default values.\n')
-            min_pl = 150
-            tdp = 280
-            max_pl = 280
+            min_freq = 1.0e9
+            sticker = 2.4e9
+            max_freq = 3.7e9
 
     # user-provided arguments override
-    if args.min_power and args.min_power > 0:
-        min_pl = args.min_power
-    if args.tdp and args.tdp > 0:
-        tdp = args.tdp
-    if args.max_power and args.max_power > 0:
-        max_pl = args.max_power
+    if args.min_frequency and args.min_frequency > 0:
+        min_freq = args.min_frequency
+    if args.sticker and args.sticker > 0:
+        sticker = args.sticker
+    if args.max_frequency and args.max_frequency > 0:
+        max_freq = args.max_frequency
 
-    output = main(df, args.region_filter, args.dump_prefix, min_pl, max_pl, tdp,
+    min_uncore = 1.2e9
+    max_uncore = 2.7e9
+
+    output = main(df, args.region_filter, args.dump_prefix, min_freq, max_freq,
+                  min_uncore, max_uncore, (sticker, max_uncore), 
                   None if args.min_energy else args.max_degradation,
                   args.confidence)
 
     if args.confidence:
-        sys.stdout.write('AT TDP = {power:.0f}W, '
+        sys.stdout.write('AT STICKER = {freq:.0f}Hz, {uncore:.0f}Hz, '
                          'RUNTIME = {runtime:.0f} s +/- {runtimedev:.0f}, '
-                         'ENERGY = {energy:.0f} J +/- {energydev:.0f}\n'.format(**output['tdp']))
+                         'ENERGY = {energy:.0f} J +/- {energydev:.0f}\n'.format(**output['sticker']))
         if output['best']:
-            sys.stdout.write('AT PL  = {power:.0f}W, '
+            sys.stdout.write('AT         = {freq:.0f}Hz, {uncore:.0f}Hz, '
                              'RUNTIME = {runtime:.0f} s +/- {runtimedev:.0f}, '
                              'ENERGY = {energy:.0f} J +/- {energydev:.0f}\n'.format(**output['best']))
         else:
             sys.stdout.write("NO SUITABLE POLICY WAS FOUND.\n")
     else:
-        sys.stdout.write('AT TDP = {power:.0f}W, '
-                         'RUNTIME = {runtime:.0f} s, '
-                         'ENERGY = {energy:.0f} J\n'.format(**output['tdp']))
-        sys.stdout.write('AT PL  = {power:.0f}W, '
-                         'RUNTIME = {runtime:.0f} s, '
-                         'ENERGY = {energy:.0f} J\n'.format(**output['best']))
+        sys.stdout.write('AT STICKER = {freq:.0f}Hz, '
+                         'RUNTIME    = {runtime:.0f} s, '
+                         'ENERGY     = {energy:.0f} J\n'.format(**output['sticker']))
+        sys.stdout.write('AT freq    = {freq:.0f}Hz, '
+                         'RUNTIME    = {runtime:.0f} s, '
+                         'ENERGY     = {energy:.0f} J\n'.format(**output['best']))
 
     relative_delta = lambda new, old: 100 * (new - old) / old
 
     if output['best']:
-        sys.stdout.write('DELTA          RUNTIME = {:.1f} %,  ENERGY = {:.1f} %\n'
-                         .format(relative_delta(output['best']['runtime'], output['tdp']['runtime']),
-                                 relative_delta(output['best']['energy'], output['tdp']['energy'])))
+        sys.stdout.write('DELTA                                    RUNTIME = {:.1f} %,  ENERGY = {:.1f} %\n'
+                         .format(relative_delta(output['best']['runtime'], output['sticker']['runtime']),
+                                 relative_delta(output['best']['energy'], output['sticker']['energy'])))
