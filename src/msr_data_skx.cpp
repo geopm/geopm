@@ -678,8 +678,8 @@ namespace geopm
             "fields": {
                 "RM_DATA": {
                     "begin_bit": 0,
-                    "end_bit":   31,
-                    "function":  "scale",
+                    "end_bit":   23,
+                    "function":  "overflow",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
