@@ -1295,9 +1295,11 @@ namespace geopm
 
                 if (m_rdt.rdt_support && (msr_field_name == "QM_EVT_SEL:RMID" || msr_field_name == "PQR_ASSOC:RMID")) {
                     if((end_bit - begin_bit) != (int)m_rdt.rmid_bit_width) {
-                        throw Exception("MSRIOGroup::" + std::string(__func__) + "(): RMID bit width " +
-                                        std::to_string(end_bit - begin_bit) + "  does not match CPUID value: " +
-                                        std::to_string(m_rdt.rmid_bit_width), GEOPM_ERROR_INVALID, __FILE__,
+                        std::ostringstream except;
+                        except << "MSRIOGroup::" << __func__ << "(): RMID bit width "
+                               << (end_bit - begin_bit) << " does not match CPUID value "
+                               << m_rdt.rmid_bit_width;
+                        throw Exception(except.str(), GEOPM_ERROR_INVALID, __FILE__,
                                         __LINE__);
                     }
                 }
