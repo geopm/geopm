@@ -1293,7 +1293,7 @@ namespace geopm
                     description = field_data["description"].string_value();
                 }
 
-                if (msr_field_name == "QM_EVT_SEL:RMID" || msr_field_name == "PQR_ASSOC:RMID") {
+                if (m_rdt.rdt_support && (msr_field_name == "QM_EVT_SEL:RMID" || msr_field_name == "PQR_ASSOC:RMID")) {
                     if((end_bit - begin_bit) != (int)m_rdt.rmid_bit_width) {
                         throw Exception("MSRIOGroup::" + std::string(__func__) + "(): RMID bit width " +
                                         std::to_string(end_bit - begin_bit) + "  does not match CPUID value: " +
