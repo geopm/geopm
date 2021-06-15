@@ -40,28 +40,18 @@
 class MockEndpoint : public geopm::Endpoint
 {
     public:
-        MOCK_METHOD0(open,
-                     void(void));
-        MOCK_METHOD0(close,
-                     void(void));
-        MOCK_METHOD1(write_policy,
-                     void(const std::vector<double> &policy));
-        MOCK_METHOD1(read_sample,
-                     double(std::vector<double> &sample));
-        MOCK_METHOD0(get_agent,
-                     std::string(void));
-        MOCK_METHOD1(wait_for_agent_attach,
-                    void(double timeout));
-        MOCK_METHOD1(wait_for_agent_detach,
-                    void(double timeout));
-        MOCK_METHOD0(stop_wait_loop,
-                     void(void));
-        MOCK_METHOD0(reset_wait_loop,
-                     void(void));
-        MOCK_METHOD0(get_profile_name,
-                     std::string(void));
-        MOCK_METHOD0(get_hostnames,
-                     std::set<std::string>(void));
+        MOCK_METHOD(void, open, (), (override));
+        MOCK_METHOD(void, close, (), (override));
+        MOCK_METHOD(void, write_policy, (const std::vector<double> &policy),
+                    (override));
+        MOCK_METHOD(double, read_sample, (std::vector<double> & sample), (override));
+        MOCK_METHOD(std::string, get_agent, (), (override));
+        MOCK_METHOD(void, wait_for_agent_attach, (double timeout), (override));
+        MOCK_METHOD(void, wait_for_agent_detach, (double timeout), (override));
+        MOCK_METHOD(void, stop_wait_loop, (), (override));
+        MOCK_METHOD(void, reset_wait_loop, (), (override));
+        MOCK_METHOD(std::string, get_profile_name, (), (override));
+        MOCK_METHOD(std::set<std::string>, get_hostnames, (), (override));
 };
 
 #endif

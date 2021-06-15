@@ -40,16 +40,11 @@
 class MockControl : public geopm::Control
 {
     public:
-        MOCK_METHOD0(setup_batch,
-                     void(void));
-        MOCK_METHOD1(adjust,
-                     void(double value));
-        MOCK_METHOD1(write,
-                     void(double value));
-        MOCK_METHOD0(save,
-                     void(void));
-        MOCK_METHOD0(restore,
-                     void(void));
+        MOCK_METHOD(void, setup_batch, (), (override));
+        MOCK_METHOD(void, adjust, (double value), (override));
+        MOCK_METHOD(void, write, (double value), (override));
+        MOCK_METHOD(void, save, (), (override));
+        MOCK_METHOD(void, restore, (), (override));
 };
 
 #endif

@@ -30,28 +30,22 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MOCKFREQUENCYGOVERNOR_HPP_INCLUDE
-#define MOCKFREQUENCYGOVERNOR_HPP_INCLUDE
+#ifndef MOCKSSTIOCTL_HPP_INCLUDE
+#define MOCKSSTIOCTL_HPP_INCLUDE
 
 #include "gmock/gmock.h"
 
-#include "FrequencyGovernor.hpp"
+#include "SSTIoctl.hpp"
 
-class MockFrequencyGovernor : public geopm::FrequencyGovernor
+class MockSSTIoctl : public geopm::SSTIoctl
 {
     public:
-        MOCK_METHOD(void, init_platform_io, (), (override));
-        MOCK_METHOD(int, frequency_domain_type, (), (const, override));
-        MOCK_METHOD(void, adjust_platform,
-                    (const std::vector<double> &frequency_request), (override));
-        MOCK_METHOD(bool, do_write_batch, (), (const, override));
-        MOCK_METHOD(bool, set_frequency_bounds,
-                    (double freq_min, double freq_max), (override));
-        MOCK_METHOD(double, get_frequency_min, (), (const, override));
-        MOCK_METHOD(double, get_frequency_max, (), (const, override));
-        MOCK_METHOD(double, get_frequency_step, (), (const, override));
-        MOCK_METHOD(void, validate_policy, (double &freq_min, double &freq_max),
-                    (const, override));
+        virtual ~MockSSTIoctl() = default;
+
+        MOCK_METHOD(int, version, (geopm::sst_version_s *version), (override));
+        MOCK_METHOD(int, get_cpu_id, (geopm::sst_cpu_map_interface_batch_s *cpu_batch), (override));
+        MOCK_METHOD(int, mbox, (geopm::sst_mbox_interface_batch_s *mbox_batch), (override));
+        MOCK_METHOD(int, mmio, (geopm::sst_mmio_interface_batch_s *mmio_batch), (override));
 };
 
 #endif

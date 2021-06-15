@@ -40,8 +40,7 @@
 class MockEndpointPolicyTracer : public geopm::EndpointPolicyTracer
 {
     public:
-        MOCK_METHOD1(update,
-                     void(const std::vector<double> &policy));
+        MOCK_METHOD(void, update, (const std::vector<double> &policy), (override));
 };
 
 #endif

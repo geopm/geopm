@@ -38,40 +38,33 @@
 #include "ApplicationSampler.hpp"
 #include "record.hpp"
 
-
 class MockApplicationSampler : public geopm::ApplicationSampler
 {
     public:
-        MOCK_METHOD1(time_zero,
-                     void(const geopm_time_s &start_time));
-        MOCK_METHOD1(update,
-                     void(const geopm_time_s &curr_time));
-        MOCK_CONST_METHOD1(cpu_region_hash,
-                           uint64_t(int cpu_idx));
-        MOCK_CONST_METHOD1(cpu_hint,
-                           uint64_t(int cpu_idx));
-        MOCK_CONST_METHOD2(cpu_hint_time,
-                           double(int cpu_idx, uint64_t hint));
-        MOCK_CONST_METHOD1(cpu_progress,
-                           double(int cpu_idx));
-        MOCK_CONST_METHOD0(per_cpu_process,
-                           std::vector<int>(void));
-        MOCK_METHOD1(connect,
-                     void(const std::string &shm_key));
-        MOCK_METHOD1(set_sampler,
-                     void(std::shared_ptr<geopm::ProfileSampler> sampler));
-        MOCK_METHOD0(get_sampler,
-                     std::shared_ptr<geopm::ProfileSampler>(void));
-        MOCK_CONST_METHOD1(get_name_map,
-                           std::map<uint64_t, std::string>(uint64_t name_key));
-        MOCK_CONST_METHOD1(get_short_region,
-                           geopm::short_region_s(uint64_t event_signal));
+        MOCK_METHOD(void, time_zero, (const geopm_time_s &start_time), (override));
+        MOCK_METHOD(void, update, (const geopm_time_s &curr_time), (override));
+        MOCK_METHOD(uint64_t, cpu_region_hash, (int cpu_idx), (const, override));
+        MOCK_METHOD(uint64_t, cpu_hint, (int cpu_idx), (const, override));
+        MOCK_METHOD(double, cpu_hint_time, (int cpu_idx, uint64_t hint),
+                    (const, override));
+        MOCK_METHOD(double, cpu_progress, (int cpu_idx), (const, override));
+        MOCK_METHOD(std::vector<int>, per_cpu_process, (), (const, override));
+        MOCK_METHOD(void, connect, (const std::string &shm_key), (override));
+        MOCK_METHOD(void, set_sampler,
+                    (std::shared_ptr<geopm::ProfileSampler> sampler), (override));
+        MOCK_METHOD(std::shared_ptr<geopm::ProfileSampler>, get_sampler, (),
+                    (override));
+        MOCK_METHOD((std::map<uint64_t, std::string>), get_name_map,
+                    (uint64_t name_key), (const, override));
+        MOCK_METHOD(geopm::short_region_s, get_short_region,
+                    (uint64_t event_signal), (const, override));
         std::vector<geopm::record_s> get_records(void) const override;
         /// Inject records to be used by next call to get_records()
         /// @todo: figure out input type for this
         void inject_records(const std::vector<geopm::record_s> &records);
         void inject_records(const std::string &record_trace);
         void update_time(double time);
+
     private:
         std::vector<geopm::record_s> m_records;
         double m_time_0;

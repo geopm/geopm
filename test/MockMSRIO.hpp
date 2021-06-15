@@ -40,22 +40,17 @@
 class MockMSRIO : public geopm::MSRIO
 {
     public:
-        MOCK_METHOD2(read_msr,
-                     uint64_t(int cpu_idx, uint64_t offset));
-        MOCK_METHOD4(write_msr,
-                     void(int cpu_idx, uint64_t offset, uint64_t raw_value, uint64_t write_mask));
-        MOCK_METHOD2(add_read,
-                     int(int cpu_idx, uint64_t offset));
-        MOCK_METHOD0(read_batch,
-                     void(void));
-        MOCK_CONST_METHOD1(sample,
-                           uint64_t(int batch_idx));
-        MOCK_METHOD2(add_write,
-                     int(int cpu_idx, uint64_t offset));
-        MOCK_METHOD3(adjust,
-                     void(int batch_idx, uint64_t value, uint64_t write_mask));
-        MOCK_METHOD0(write_batch,
-                     void(void));
+        MOCK_METHOD(uint64_t, read_msr, (int cpu_idx, uint64_t offset), (override));
+        MOCK_METHOD(void, write_msr,
+                    (int cpu_idx, uint64_t offset, uint64_t raw_value, uint64_t write_mask),
+                    (override));
+        MOCK_METHOD(int, add_read, (int cpu_idx, uint64_t offset), (override));
+        MOCK_METHOD(void, read_batch, (), (override));
+        MOCK_METHOD(uint64_t, sample, (int batch_idx), (const, override));
+        MOCK_METHOD(int, add_write, (int cpu_idx, uint64_t offset), (override));
+        MOCK_METHOD(void, adjust,
+                    (int batch_idx, uint64_t value, uint64_t write_mask), (override));
+        MOCK_METHOD(void, write_batch, (), (override));
 };
 
 #endif

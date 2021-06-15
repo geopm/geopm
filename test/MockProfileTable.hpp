@@ -40,21 +40,18 @@
 class MockProfileTable : public geopm::ProfileTable
 {
     public:
-        MOCK_METHOD1(key,
-                     uint64_t (const std::string &name));
-        MOCK_METHOD1(insert,
-                     void (const struct geopm_prof_message_s &value));
-        MOCK_CONST_METHOD0(capacity,
-                           size_t (void));
-        MOCK_CONST_METHOD0(size,
-                           size_t (void));
-        MOCK_METHOD2(dump,
-                     void (std::vector<std::pair<uint64_t, struct geopm_prof_message_s>>::iterator content,
-                           size_t &length));
-        MOCK_METHOD1(name_fill,
-                     bool (size_t header_offset));
-        MOCK_METHOD2(name_set,
-                     bool (size_t header_offset, std::set<std::string> &name));
+        MOCK_METHOD(uint64_t, key, (const std::string &name), (override));
+        MOCK_METHOD(void, insert, (const struct geopm_prof_message_s &value),
+                    (override));
+        MOCK_METHOD(size_t, capacity, (), (const, override));
+        MOCK_METHOD(size_t, size, (), (const, override));
+        MOCK_METHOD(void, dump,
+                    ((std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::iterator)content,
+                     size_t &length),
+                    (override));
+        MOCK_METHOD(bool, name_fill, (size_t header_offset), (override));
+        MOCK_METHOD(bool, name_set,
+                    (size_t header_offset, std::set<std::string> &name), (override));
 };
 
 #endif

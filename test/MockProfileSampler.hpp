@@ -35,38 +35,26 @@
 
 #include "gmock/gmock.h"
 
-#include "ProfileSampler.hpp"
 #include "Comm.hpp"
+#include "ProfileSampler.hpp"
 
 class MockProfileSampler : public geopm::ProfileSampler
 {
     public:
-        MOCK_CONST_METHOD0(do_shutdown,
-                     bool (void));
-        MOCK_CONST_METHOD0(do_report,
-                           bool (void));
-        MOCK_METHOD0(region_names,
-                     void (void));
-        MOCK_METHOD0(initialize,
-                     void (void));
-        MOCK_CONST_METHOD0(rank_per_node,
-                           int (void));
-        MOCK_CONST_METHOD0(cpu_rank,
-                           std::vector<int> (void));
-        MOCK_CONST_METHOD0(name_set,
-                           std::set<std::string> (void));
-        MOCK_CONST_METHOD0(report_name,
-                           std::string (void));
-        MOCK_CONST_METHOD0(profile_name,
-                           std::string (void));
-        MOCK_METHOD0(controller_ready,
-                     void(void));
-        MOCK_METHOD0(abort,
-                     void(void));
-        MOCK_METHOD0(sample_cache,
-                     std::vector<struct geopm_prof_message_s> (void));
-        MOCK_METHOD0(check_sample_end,
-                     void(void));
+        MOCK_METHOD(bool, do_shutdown, (), (const, override));
+        MOCK_METHOD(bool, do_report, (), (const, override));
+        MOCK_METHOD(void, region_names, (), (override));
+        MOCK_METHOD(void, initialize, (), (override));
+        MOCK_METHOD(int, rank_per_node, (), (const, override));
+        MOCK_METHOD(std::vector<int>, cpu_rank, (), (const, override));
+        MOCK_METHOD(std::set<std::string>, name_set, (), (const, override));
+        MOCK_METHOD(std::string, report_name, (), (const, override));
+        MOCK_METHOD(std::string, profile_name, (), (const, override));
+        MOCK_METHOD(void, controller_ready, (), (override));
+        MOCK_METHOD(void, abort, (), (override));
+        MOCK_METHOD(std::vector<struct geopm_prof_message_s>, sample_cache, (),
+                    (override));
+        MOCK_METHOD(void, check_sample_end, (), (override));
 };
 
 #endif

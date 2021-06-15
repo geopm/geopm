@@ -40,8 +40,8 @@
 class MockProfileTracer : public geopm::ProfileTracer
 {
     public:
-        MOCK_METHOD1(update,
-                     void(const std::vector<geopm::record_s> &records));
+        MOCK_METHOD(void, update, (const std::vector<geopm::record_s> &records),
+                    (override));
 };
 
 #endif

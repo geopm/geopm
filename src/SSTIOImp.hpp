@@ -44,10 +44,21 @@
 
 namespace geopm
 {
+    class SSTIoctl;
+    struct sst_mbox_interface_batch_s;
+    struct sst_mmio_interface_batch_s;
     class SSTIOImp : public SSTIO
     {
         public:
+            /// @brief Main constructor for the SST ioctl interface.
+            /// @param [in] max_cpus The number of CPUs to attempt to map
+            ///             to punit cores.
             SSTIOImp(uint32_t max_cpus);
+
+            /// @brief This is the same as the main constructor, but it allows
+            /// you to override the ioctl interface.
+            SSTIOImp(uint32_t max_cpus, std::shared_ptr<SSTIoctl> ioctl_interface);
+
             virtual ~SSTIOImp() = default;
 
             /// Interact with the mailbox on commands that are expected to return data
@@ -87,58 +98,6 @@ namespace geopm
             {
                 MBOX,
                 MMIO
-            };
-
-            struct sst_version_s
-            {
-                uint16_t interface_version;
-                uint16_t driver_version;
-                uint16_t batch_command_limit;
-                uint8_t is_mbox_supported;
-                uint8_t is_mmio_supported;
-            };
-
-            struct sst_cpu_map_interface_s
-            {
-                uint32_t cpu_index;
-                uint32_t punit_cpu;
-            };
-
-            struct sst_cpu_map_interface_batch_s
-            {
-                uint32_t num_entries;
-                sst_cpu_map_interface_s interfaces[1];
-            };
-
-            struct sst_mmio_interface_s
-            {
-                uint32_t is_write;
-                uint32_t cpu_index;
-                uint32_t register_offset;
-                uint32_t value;
-            };
-
-            struct sst_mmio_interface_batch_s
-            {
-                uint32_t num_entries;
-                sst_mmio_interface_s interfaces[1];
-            };
-
-            struct sst_mbox_interface_s
-            {
-                uint32_t cpu_index;
-                uint32_t mbox_interface_param; // Parameter to the mbox interface itself
-                uint32_t write_value; // Mailbox data, or input parameter for a read
-                uint32_t read_value; // Mailbox data (read-only)
-                uint16_t command;
-                uint16_t subcommand;
-                uint32_t reserved;
-            };
-
-            struct sst_mbox_interface_batch_s
-            {
-                uint32_t num_entries;
-                sst_mbox_interface_s interfaces[1];
             };
 
             template<typename OuterStruct>
@@ -181,8 +140,7 @@ namespace geopm
                 return outer_structs;
             }
 
-            std::string m_path;
-            int m_fd;
+            std::shared_ptr<SSTIoctl> m_ioctl;
             int m_batch_command_limit;
             std::vector<struct sst_mbox_interface_s> m_mbox_read_interfaces;
             std::vector<struct sst_mbox_interface_s> m_mbox_write_interfaces;
