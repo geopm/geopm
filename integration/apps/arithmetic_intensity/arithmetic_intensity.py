@@ -1,0 +1,113 @@
+#  Copyright (c) 2015 - 2021, Intel Corporation
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions
+#  are met:
+#
+#      * Redistributions of source code must retain the above copyright
+#        notice, this list of conditions and the following disclaimer.
+#
+#      * Redistributions in binary form must reproduce the above copyright
+#        notice, this list of conditions and the following disclaimer in
+#        the documentation and/or other materials provided with the
+#        distribution.
+#
+#      * Neither the name of Intel Corporation nor the names of its
+#        contributors may be used to endorse or promote products derived
+#        from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+#  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+#  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+#  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+#  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+#  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+#  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+#  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
+#  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+
+'''
+AppConf class for Pennant benchmark.
+'''
+
+import os
+import re
+
+from apps import apps
+
+
+def setup_run_args(parser):
+    """ Add common arguments for all run scripts.
+    """
+    parser.add_argument('--run-type', dest='run_type', choices=['sse', 'avx2', 'avx512'], default='sse',
+        help='Choose a vectorization type for the run.')
+    parser.add_argument('--slowdown', type=int, default=1,
+        help='When imbalance is present, this specifies the amount of work for slow ranks to perform, as a factor of the amount of work the fast ranks perform.')
+    parser.add_argument('--slow-ranks', type=int, default=0,
+        help='The number of ranks to run with extra work for an imbalanced load.')
+    parser.add_argument('--floats', type=int, default=67108864,
+        help='The number of floating-point numbers per rank in the problem array.')
+    parser.add_argument('-v', '--verbose',
+        help='Run in verbose mode.')
+    parser.add_argument('-s', '--single-precision',
+        help='Run in single-precision mode.')
+    parser.add_argument('-l', '--list',
+        help='List the available arithmetic intensity levels for use with the --benchmarks option.')
+    parser.add_argument('-i', '--iterations', type=int, default=5,
+        help='The number of times to run each phase of the benchmark.')
+    parser.add_argument('-b', '--benchmarks', nargs='+', type=float,
+        help='List of benchmark intensity variants to run (all are run if this option is not specified).')
+    parser.add_argument('--start-time', type=int,
+        help='Time at which the benchmark will start, in seconds since the system clock\'s epoch. Start immediately by default, or if the provided time is in the past.')
+    parser.add_argument('--ranks-per-node', dest='ranks_per_node',
+                        action='store', type=int,
+                        help='Number of physical cores to reserve for the app. ' +
+                             'If not defined, all nodes but one will be reserved (leaving one ' +
+                             'node for GEOPM).')
+
+def create_appconf(mach, args):
+    ''' Create a PennantAppConfig object from an ArgParse and experiment.machine object.
+    '''
+
+    app_args = []
+    for arg in ['slowdown', 'slow_ranks', 'floats', 'verbose', 'single_precision', 'list', 'iterations', 'benchmarks', 'start_time']:
+        values = vars(args)[arg]
+        if values is not None:
+            arg = "--" + arg.replace('_', '-')
+            app_args.append(arg)
+            if type(values) == list:
+                app_args += [str(ii) for ii in values]
+            else:
+                app_args.append(str(values))
+
+    return ArithmeticIntensityAppConf(mach, app_args, args.run_type, args.ranks_per_node)
+
+class ArithmeticIntensityAppConf(apps.AppConf):
+    @staticmethod
+    def name():
+        return 'arithmetic_intensity'
+
+    def __init__(self, mach, app_args, run_type, ranks_per_node):
+        benchmark_dir = os.path.dirname(os.path.abspath(__file__))
+        self._exec_path = os.path.join(benchmark_dir, "ARITHMETIC_INTENSITY", "bench_" + run_type)
+        self._exec_args = app_args
+        if ranks_per_node is None:
+            self._ranks_per_node = mach.num_core() - 1
+        else:
+            if ranks_per_node > mach.num_core():
+                raise RuntimeError('Number of requested cores is more than the number ' +
+                                   'of available cores: {} vs. {}'.format(cores_per_node, mach.num_core()))
+            self._ranks_per_node = ranks_per_node
+
+    def get_rank_per_node(self):
+        return self._ranks_per_node
+
+    def get_cpu_per_rank(self):
+        return 1
+
+    def get_custom_geopm_args(self):
+        return ['--geopm-hyperthreads-disable']
+
