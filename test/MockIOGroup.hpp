@@ -69,6 +69,8 @@ class MockIOGroup : public geopm::IOGroup
                     (override));
         MOCK_METHOD(void, save_control, (), (override));
         MOCK_METHOD(void, restore_control, (), (override));
+        MOCK_METHOD(void, save_control, (const std::string &save_dir), (override));
+        MOCK_METHOD(void, restore_control, (const std::string &save_dir), (override));
         MOCK_METHOD(std::function<double(const std::vector<double> &)>, agg_function,
                     (const std::string &signal_name), (const, override));
         MOCK_METHOD(std::function<std::string(double)>, format_function,
