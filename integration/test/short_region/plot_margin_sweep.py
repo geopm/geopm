@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 #  Copyright (c) 2015 - 2021, Intel Corporation
 #
@@ -46,7 +46,7 @@ import subprocess
 import os
 try:
     with open(os.devnull, 'w') as FNULL:
-        subprocess.check_call("python -c 'import matplotlib.pyplot'", stdout=FNULL, stderr=FNULL, shell=True)
+        subprocess.check_call("python3 -c 'import matplotlib.pyplot'", stdout=FNULL, stderr=FNULL, shell=True)
 except subprocess.CalledProcessError:
     sys.stderr.write('Warning: Unable to use default matplotlib backend ({}).  For interactive plotting,'
                      ' please install Tkinter support in the OS.  '
