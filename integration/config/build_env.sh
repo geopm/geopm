@@ -49,20 +49,19 @@ export GEOPM_SOURCE=${GEOPM_SOURCE:?Please set GEOPM_SOURCE in your environment.
 export GEOPM_INSTALL=${GEOPM_INSTALL:?Please set GEOPM_INSTALL in your environment.}
 export GEOPM_APPS_SOURCES=${GEOPM_APPS_SOURCES:?Please set GEOPM_APPS_SOURCES in your environment.}
 
-# Using generic names for MPI compiler wrappers.  These names are
-# supported by Intel (R) MPI, but may be used with other MPI
-# implementations as well.
+# Using Intel specific names for MPI compiler wrappers if no other settings
+# are provided by the user.
 export CC=${CC:-icc}
 export CXX=${CXX:-icpc}
 export FC=${FC:-ifort}
 export F77=${F77:-ifort}
 export F90=${F90:-ifort}
-export MPICC=${MPICC:-mpicc}
-export MPICXX=${MPICXX:-mpicxx}
-export MPIFORT=${MPIFORT:-mpifort}
-export MPIFC=${MPIFC:-mpifort}
-export MPIF77=${MPIF77:-mpifort}
-export MPIF90=${MPIF90:-mpifort}
+export MPICC=${MPICC:-mpiicc}
+export MPICXX=${MPICXX:-mpiicpc}
+export MPIFORT=${MPIFORT:-mpiifort}
+export MPIFC=${MPIFC:-mpiifort}
+export MPIF77=${MPIF77:-mpiifort}
+export MPIF90=${MPIF90:-mpiifort}
 
 COMPILER_LIST="CC CXX MPICC MPICXX FC F77 MPIFC MPIF77"
 for compiler in ${COMPILER_LIST}; do
