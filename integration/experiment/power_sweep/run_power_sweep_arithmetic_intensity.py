@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+#
 #  Copyright (c) 2015 - 2021, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -29,21 +31,24 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += integration/apps/apps.py \
-              integration/apps/build_func.sh \
-              integration/apps/__init__.py \
-              integration/apps/README.md \
-              # end
+'''
+Run a power sweep with Arithmetic Intensity benchmark.
+'''
 
-include integration/apps/private.mk
-include integration/apps/amg/Makefile.mk
-include integration/apps/arithmetic_intensity/Makefile.mk
-include integration/apps/geopmbench/Makefile.mk
-include integration/apps/hpcg/Makefile.mk
-include integration/apps/hpl_mkl/Makefile.mk
-include integration/apps/hpl_netlib/Makefile.mk
-include integration/apps/minife/Makefile.mk
-include integration/apps/nekbone/Makefile.mk
-include integration/apps/nasft/Makefile.mk
-include integration/apps/pennant/Makefile.mk
-include integration/apps/qe/Makefile.mk
+import argparse
+
+from experiment.power_sweep import power_sweep
+from experiment import machine
+from apps.arithmetic_intensity import arithmetic_intensity
+
+
+if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser()
+    power_sweep.setup_run_args(parser)
+    arithmetic_intensity.setup_run_args(parser)
+    args, extra_args = parser.parse_known_args()
+    mach = machine.init_output_dir(args.output_dir)
+    app_conf = arithmetic_intensity.create_appconf(mach, args)
+    power_sweep.launch(app_conf=app_conf, args=args,
+                       experiment_cli_args=extra_args)
