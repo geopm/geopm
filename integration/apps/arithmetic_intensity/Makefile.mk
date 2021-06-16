@@ -29,21 +29,10 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += integration/apps/apps.py \
-              integration/apps/build_func.sh \
-              integration/apps/__init__.py \
-              integration/apps/README.md \
+Ï
+EXTRA_DIST += integration/apps/arithmetic_intensity/arithmetic_intensity.py \
+              integration/apps/arithmetic_intensity/__init__.py \
+              integration/apps/arithmetic_intensity/build.sh \
+              integration/apps/arithmetic_intensity/README.md \
+              integration/apps/arithmetic_intensity/0001-Fixed-the-MPICC-compiler.patch \
               # end
-
-include integration/apps/private.mk
-include integration/apps/amg/Makefile.mk
-include integration/apps/arithmetic_intensity/Makefile.mk
-include integration/apps/geopmbench/Makefile.mk
-include integration/apps/hpcg/Makefile.mk
-include integration/apps/hpl_mkl/Makefile.mk
-include integration/apps/hpl_netlib/Makefile.mk
-include integration/apps/minife/Makefile.mk
-include integration/apps/nekbone/Makefile.mk
-include integration/apps/nasft/Makefile.mk
-include integration/apps/pennant/Makefile.mk
-include integration/apps/qe/Makefile.mk

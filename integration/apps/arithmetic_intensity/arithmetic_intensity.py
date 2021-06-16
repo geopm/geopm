@@ -30,7 +30,7 @@
 #
 
 '''
-AppConf class for Pennant benchmark.
+AppConf class for Arithmetic Intensity benchmark.
 '''
 
 import os
@@ -69,7 +69,7 @@ def setup_run_args(parser):
                              'node for GEOPM).')
 
 def create_appconf(mach, args):
-    ''' Create a PennantAppConfig object from an ArgParse and experiment.machine object.
+    ''' Create a ArithmeticIntensityAppConf object from an ArgParse and experiment.machine object.
     '''
 
     app_args = []
