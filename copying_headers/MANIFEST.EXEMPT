@@ -31,6 +31,7 @@ geopm-theta.spec.in
 integration/README.md
 integration/apps/README.md
 integration/apps/amg/README.md
+integration/apps/arithmetic_intensity/README.md
 integration/apps/hpl_mkl/README.md
 integration/apps/hpl_netlib/README.md
 integration/apps/minife/README.md
