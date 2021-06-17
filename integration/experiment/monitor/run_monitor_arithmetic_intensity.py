@@ -32,7 +32,7 @@
 #
 
 '''
-Run Pennant with the monitor agent.
+Run Arithmetic Intensity benchmark with the monitor agent.
 '''
 
 import argparse

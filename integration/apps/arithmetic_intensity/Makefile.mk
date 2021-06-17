@@ -33,5 +33,4 @@ EXTRA_DIST += integration/apps/arithmetic_intensity/arithmetic_intensity.py \
               integration/apps/arithmetic_intensity/__init__.py \
               integration/apps/arithmetic_intensity/build.sh \
               integration/apps/arithmetic_intensity/README.md \
-              integration/apps/arithmetic_intensity/0001-Fixed-the-MPICC-compiler.patch \
               # end
