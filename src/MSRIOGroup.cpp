@@ -99,7 +99,7 @@ namespace geopm
         , m_is_fixed_enabled(false)
         , m_time_zero(std::make_shared<geopm_time_s>(time_zero()))
         , m_time_batch(std::make_shared<double>(NAN))
-        , m_rdt(rdt())
+        , m_rdt_info(get_rdt_info())
         , m_derivative_window(8)
         , m_sleep_time(0.005)  // 5000 us
     {
@@ -298,7 +298,7 @@ namespace geopm
         for (int dom_idx = 0; dom_idx < num_domain; ++dom_idx) {
             disable |= (bool)read_signal("MSR::MISC_ENABLE:LIMIT_CPUID_MAXVAL", domain, dom_idx);
         }
-        if (disable || !m_rdt.rdt_support) {
+        if (disable || !m_rdt_info.rdt_support) {
             return;
         }
 
@@ -318,14 +318,14 @@ namespace geopm
             for (int domain_idx = 0; domain_idx < num_domain; ++domain_idx) {
                 auto ctr = readings[domain_idx];
                 result[domain_idx] =
-                    std::make_shared<MultiplicationSignal>(ctr, (double)m_rdt.mbm_scalar);
+                    std::make_shared<MultiplicationSignal>(ctr, (double)m_rdt_info.mbm_scalar);
             }
             m_signal_available[signal_name] = {result,
                                                ctr_domain,
                                                IOGroup::M_UNITS_NONE,
                                                agg_function(msr_name),
                                                description + "\n    alias_for: " + msr_name + " multiplied by " +
-                                               std::to_string(m_rdt.mbm_scalar) + " (provided by cpuid)",
+                                               std::to_string(m_rdt_info.mbm_scalar) + " (provided by cpuid)",
                                                IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE};
         }
 
@@ -666,7 +666,7 @@ namespace geopm
         return ((family << 8) + model);
     }
 
-    MSRIOGroup::rdt_info MSRIOGroup::rdt(void)
+    MSRIOGroup::rdt_info MSRIOGroup::get_rdt_info(void)
     {
         uint32_t leaf, subleaf = 0;
         uint32_t eax, ebx, ecx, edx = 0;
@@ -1293,12 +1293,12 @@ namespace geopm
                     description = field_data["description"].string_value();
                 }
 
-                if (m_rdt.rdt_support && (msr_field_name == "QM_EVT_SEL:RMID" || msr_field_name == "PQR_ASSOC:RMID")) {
-                    if((end_bit - begin_bit) != (int)m_rdt.rmid_bit_width) {
+                if (m_rdt_info.rdt_support && (msr_field_name == "QM_EVT_SEL:RMID" || msr_field_name == "PQR_ASSOC:RMID")) {
+                    if((end_bit - begin_bit) != (int)m_rdt_info.rmid_bit_width) {
                         std::ostringstream except;
                         except << "MSRIOGroup::" << __func__ << "(): RMID bit width "
                                << (end_bit - begin_bit) << " does not match CPUID value "
-                               << m_rdt.rmid_bit_width;
+                               << m_rdt_info.rmid_bit_width;
                         throw Exception(except.str(), GEOPM_ERROR_INVALID, __FILE__,
                                         __LINE__);
                     }

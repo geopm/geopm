@@ -218,14 +218,14 @@ namespace geopm
                 uint32_t rmid_bit_width;
                 uint32_t mbm_scalar;
             };
-            rdt_info m_rdt;
+            rdt_info m_rdt_info;
 
             int m_derivative_window;
             double m_sleep_time;
 
             /// @brief Return the Intel Resource Director Technology
             ///        support information
-            static rdt_info rdt(void);
+            static rdt_info get_rdt_info(void);
 
             // All available signals: map from name to signal_info.
             // The signals vector is over the indices for the domain.
