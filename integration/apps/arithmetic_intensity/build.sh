@@ -37,27 +37,28 @@ set -e
 source ../build_func.sh
 
 if [ ! -x "$(command -v nasm)" ]; then
-    DIRNAME=nasm
-    GITREPO=https://github.com/netwide-assembler/nasm.git
-    TOPHASH=e2ed7b7e
-    ARCHIVE=${DIRNAME}_${TOPHASH}.tgz
+    DIRNAME=nasm-2.15.05
+    ARCHIVE=${DIRNAME}.tar.gz
+    URL=https://github.com/netwide-assembler/nasm/archive/refs/tags/
 
-    get_archive ${ARCHIVE}
-    if [ -f ${ARCHIVE} ]; then
-        unpack_archive ${ARCHIVE}
-    else
-        clean_source ${DIRNAME}
-        clone_repo_git ${GITREPO} ${DIRNAME} ${TOPHASH}
-    fi
+    # Run helper functions
+    clean_source ${DIRNAME}
+    rm -rf __MACOSX
+    get_archive ${ARCHIVE} ${URL}
+    unpack_archive ${ARCHIVE}
+    # Move to the actual dirname defined above.
+    mv $(tar -tzf ${ARCHIVE} | head -1) ${DIRNAME}
+    rm -rf __MACOSX
+    setup_source_git ${DIRNAME}
 
-    if ! ls nasm/nasm 2> /dev/null; then
-        cd nasm
+    if ! ls ${DIRNAME}/nasm 2> /dev/null; then
+        cd ${DIRNAME}
         sh autogen.sh
         sh configure
         make
         cd -
     fi
-    export PATH=$PWD/nasm:$PATH
+    export PATH=${PWD}/${DIRNAME}:${PATH}
 fi
 
 DIRNAME=ARITHMETIC_INTENSITY
@@ -77,4 +78,4 @@ setup_source_git ${DIRNAME}
 # build
 echo $PATH
 cd ${DIRNAME}
-make
+make CXX=${MPICXX}
