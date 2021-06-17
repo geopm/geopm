@@ -37,10 +37,18 @@
 # It is NOT intended to be ./ executed.
 
 
-source /opt/intel/compiler/latest/bin/compilervars.sh intel64
-source /opt/intel/impi/latest/compilers_and_libraries/linux/mpi/intel64/bin/mpivars.sh
+if [ "${SETVARS_COMPLETED:-}" = "1" ] ; then
+    echo "INFO: One API setvars.sh is already sourced. Skipped sourcing again."
+else
+    source /opt/intel/oneAPI/latest/setvars.sh
+fi
 
 export GEOPM_LAUNCHER=impi
+export CC=icc
+export CXX=icpc
+export FC=ifort
+export F77=ifort
+export F90=ifort
 export MPICC=mpiicc
 export MPICXX=mpiicpc
 export MPIFORT=mpiifort
