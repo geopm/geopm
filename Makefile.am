@@ -344,7 +344,6 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              service/geopmsession \
              service/geopmd \
              service/geopmaccess \
-             service/TODO.md \
              service/geopmdpy/__init__.py \
              service/geopmdpy/__main__.py \
              service/geopmdpy/access.py \
