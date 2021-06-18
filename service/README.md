@@ -60,6 +60,17 @@ Architecture Diagram
 [![](https://geopm.github.io/images/geopm-service-diagram.svg)](https://geopm.github.io/pdf/geopm-service-diagram.pdf)
 
 
+Status
+------
+
+The GEOPM systemd service is a new feature.  What exists currently is
+a proof of concept / prototype, and there are many outstanding issues
+that must be resolved before the GEOPM service is ready for release.
+These issues are tracked on github with the "geopm-service" tag:
+
+https://github.com/geopm/geopm/issues?q=is%3Aissue+is%3Aopen+label%3Ageopm-service
+
+
 Signals and Controls
 --------------------
 
