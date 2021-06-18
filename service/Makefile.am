@@ -80,7 +80,6 @@ EXTRA_DIST = .gitignore \
              CONTRIBUTING.md \
              COPYING \
              README.md \
-             TODO.md \
              VERSION \
              # end
 
