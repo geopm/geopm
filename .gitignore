@@ -50,7 +50,7 @@
 /geopm.o
 /geopmpolicy
 /geopmread
-/geopm*.spec
+/specs/geopm*.spec
 /geopm*.tar.gz
 /geopmwrite
 /gh-pages/
