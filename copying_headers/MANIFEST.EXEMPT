@@ -114,6 +114,7 @@ scripts/outlier/README.md
 scripts/outlier/theta_nodelist_broken.txt
 scripts/requirements.txt
 scripts/test/test_io_experiment.report
+specs/geopm-dudley.spec.in
 specs/geopm-ohpc.spec.in
 specs/geopm-theta.spec.in
 test/EditDistPeriodicityDetectorTest.0_pattern_a.trace

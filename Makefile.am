@@ -331,10 +331,13 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              scripts/outlier/theta_nodelist_broken.txt \
              specs/geopm.spec \
              specs/geopm.spec.in \
+             specs/geopm-dudley.spec \
+             specs/geopm-dudley.spec.in \
              specs/geopm-gcc-mvapich2-toss.spec \
              specs/geopm-intel-mvapich2-toss.spec \
              specs/geopm-ohpc.spec \
              specs/geopm-ohpc.spec.in \
+			 specs/geopm-pyyaml-req.patch \
              specs/geopm-theta.spec \
              specs/geopm-theta.spec.in \
              travis_ci.sh \
@@ -836,6 +839,14 @@ rpm-theta: dist
 	mkdir -p $(rpm_topdir)/SPECS
 	cp geopm-$(VERSION).tar.gz $(rpm_topdir)/SOURCES/
 	cp specs/geopm-theta.spec $(rpm_topdir)/SPECS/geopm-$(VERSION).spec
+	rpmbuild $(rpmbuild_flags) --buildroot=$(rpm_topdir)-root --define "_sourcedir $(rpm_topdir)/SOURCES" -ba $(rpm_topdir)/SPECS/geopm-$(VERSION).spec
+
+rpm-dudley: dist
+	mkdir -p $(rpm_topdir)/SOURCES
+	mkdir -p $(rpm_topdir)/SPECS
+	cp geopm-$(VERSION).tar.gz $(rpm_topdir)/SOURCES/
+	cp specs/geopm-dudley.spec $(rpm_topdir)/SPECS/geopm-$(VERSION).spec
+	cp specs/geopm-pyyaml-req.patch $(rpm_topdir)/SOURCES/
 	rpmbuild $(rpmbuild_flags) --buildroot=$(rpm_topdir)-root --define "_sourcedir $(rpm_topdir)/SOURCES" -ba $(rpm_topdir)/SPECS/geopm-$(VERSION).spec
 
 # DOXYGEN TARGET

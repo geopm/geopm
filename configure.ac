@@ -576,7 +576,7 @@ AC_SUBST([ENABLE_BETA])
 GEOPM_SOURCE_DIR=$(readlink -f $srcdir)
 AC_DEFINE_UNQUOTED([GEOPM_SOURCE_DIR], ["$GEOPM_SOURCE_DIR"], [Root of the GEOPM source directory])
 
-AC_CONFIG_FILES([Makefile specs/geopm.spec specs/geopm-ohpc.spec specs/geopm-theta.spec scripts/geopmpy/version.py])
+AC_CONFIG_FILES([Makefile specs/geopm.spec specs/geopm-dudley.spec specs/geopm-ohpc.spec specs/geopm-theta.spec scripts/geopmpy/version.py])
 AC_OUTPUT
 
 CC_VERSION=$(${CC} --version | head -n1)
