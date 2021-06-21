@@ -41,7 +41,12 @@ BuildRoot: %{_tmppath}/geopm-%{version}-%{release}-root
 BuildRequires: gcc-c++
 BuildRequires: unzip
 BuildRequires: libtool
+
+%if 0%{?suse_version}
+BuildRequires: libelf-devel
+%else
 BuildRequires: elfutils-libelf-devel
+%endif
 
 %if 0%{?rhel} >= 8
 # Needed to generate debuginfo packages

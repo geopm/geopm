@@ -32,11 +32,16 @@ BuildRequires: autoconf
 BuildRequires: automake
 BuildRequires: libtool
 BuildRequires: libtool-ltdl-devel
-BuildRequires: python
-BuildRequires: python-devel
+BuildRequires: python3
+BuildRequires: python3-devel
 BuildRequires: unzip
 BuildRequires: sqlite-devel
+
+%if 0%{?suse_version}
+BuildRequires: libelf-devel
+%else
 BuildRequires: elfutils-libelf-devel
+%endif
 
 %if 0%{?suse_version} >= 1320
 BuildRequires: openssh
@@ -53,6 +58,7 @@ BuildRequires: openssh
 %ohpc_setup_compiler
 test -f configure || ./autogen.sh
 ./configure --prefix=%{install_path} \
+            --with-python=python3 \
             || ( cat config.log && false )
 %{__make}
 
@@ -87,7 +93,7 @@ module-whatis "URL %{url}"
 set     version             %{version}
 
 prepend-path    PATH                %{install_path}/bin
-prepend-path    PYTHONPATH          %{install_path}/lib/python2.7/site-packages
+prepend-path    PYTHONPATH          %{install_path}/lib/python${python3_version}/site-packages
 prepend-path    INCLUDE             %{install_path}/include
 prepend-path    LD_LIBRARY_PATH     %{install_path}/lib
 prepend-path    MANPATH             %{install_path}/share/man
