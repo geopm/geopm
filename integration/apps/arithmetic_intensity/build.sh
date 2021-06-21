@@ -36,6 +36,16 @@ set -e
 # Get helper functions
 source ../build_func.sh
 
+if [[ $# -eq 0 ]]; then
+    echo 'Building from release'
+elif [[ $# -eq 1 ]]; then
+    echo 'Building from head of main'
+    TOPHASH=$1
+else
+    1>&2 echo "usage: $0 [HASH_FOR_HEAD_OF_MAIN]"
+    exit 1
+fi
+
 if [ ! -x "$(command -v nasm)" ]; then
     DIRNAME=nasm-2.15.05
     ARCHIVE=${DIRNAME}.tar.gz
@@ -63,16 +73,26 @@ fi
 
 DIRNAME=ARITHMETIC_INTENSITY
 GITREPO=https://github.com/dannosliwcd/arithmetic-intensity
-TOPHASH=1d54601
-ARCHIVE=${DIRNAME}_${TOPHASH}.tgz
-
 clean_source ${DIRNAME}
-get_archive ${ARCHIVE}
-if [ -f ${ARCHIVE} ]; then
+if [[ -z "$TOPHASH" ]]; then
+    # If a top hash is not specified, get the release version.
+    ARCHIVED_DIRNAME=arithmetic-intensity-1.0
+    ARCHIVE=v1.0.tar.gz
+    URL="${GITREPO}/archive/refs/tags/"
+    get_archive ${ARCHIVE} ${URL}
     unpack_archive ${ARCHIVE}
+    mv "${ARCHIVED_DIRNAME}" "${DIRNAME}"
 else
-    clone_repo_git ${GITREPO} ${DIRNAME} ${TOPHASH}
+    # If a top hash is specified, get the latest commit.
+    ARCHIVE=${DIRNAME}_${TOPHASH}.tgz
+    get_archive ${ARCHIVE}
+    if [ -f ${ARCHIVE} ]; then
+        unpack_archive ${ARCHIVE}
+    else
+        clone_repo_git ${GITREPO} ${DIRNAME} ${TOPHASH}
+    fi
 fi
+
 setup_source_git ${DIRNAME}
 
 # build
