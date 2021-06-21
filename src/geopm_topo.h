@@ -91,6 +91,14 @@ enum geopm_domain_e {
     GEOPM_NUM_DOMAIN = 10,
 };
 
+enum geopm_levelzero_domain_e {
+    GEOPM_LEVELZERO_DOMAIN_ALL = 0,
+    GEOPM_LEVELZERO_DOMAIN_COMPUTE = 1,
+    GEOPM_LEVELZERO_DOMAIN_MEMORY = 2,
+    GEOPM_LEVELZERO_DOMAIN_SIZE = 3
+};
+
+
 int geopm_topo_num_domain(int domain_type);
 
 int geopm_topo_domain_idx(int domain_type,

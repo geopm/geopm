@@ -660,6 +660,9 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/LevelZeroDevicePool.hpp \
                             src/LevelZeroIOGroup.cpp \
                             src/LevelZeroIOGroup.hpp \
+                            src/LevelZeroShim.cpp \
+                            src/LevelZeroShim.hpp \
+                            src/LevelZeroShimImp.hpp \
                             src/LevelZeroSignal.cpp \
                             src/LevelZeroSignal.hpp \
                             # end

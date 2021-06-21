@@ -73,7 +73,7 @@ namespace geopm
                                   {},
                                   [this](unsigned int domain_idx) -> double
                                   {
-                                      return this->m_levelzero_device_pool.frequency_status_gpu(domain_idx);
+                                      return this->m_levelzero_device_pool.frequency_status(domain_idx, GEOPM_LEVELZERO_DOMAIN_COMPUTE);
                                   },
                                   1e6
                                   }},
@@ -85,7 +85,7 @@ namespace geopm
                                   {},
                                   [this](unsigned int domain_idx) -> double
                                   {
-                                      return this->m_levelzero_device_pool.frequency_max_gpu(domain_idx);
+                                      return this->m_levelzero_device_pool.frequency_max(domain_idx, GEOPM_LEVELZERO_DOMAIN_COMPUTE);
                                   },
                                   1e6
                                   }},
@@ -97,7 +97,7 @@ namespace geopm
                                   {},
                                   [this](unsigned int domain_idx) -> double
                                   {
-                                      return this->m_levelzero_device_pool.frequency_min_gpu(domain_idx);
+                                      return this->m_levelzero_device_pool.frequency_min(domain_idx, GEOPM_LEVELZERO_DOMAIN_COMPUTE);
                                   },
                                   1e6
                                   }},
@@ -125,30 +125,6 @@ namespace geopm
                                   },
                                   1/1e6
                                   }},
-                              {"LEVELZERO::FREQUENCY_RANGE_MIN_GPU_CONTROL", {
-                                  "Accelerator compute/GPU domain user specified min frequency in hertz",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
-                                  Agg::average,
-                                  string_format_double,
-                                  {},
-                                  [this](unsigned int domain_idx) -> double
-                                  {
-                                      return this->m_levelzero_device_pool.frequency_range_min_gpu(domain_idx);
-                                  },
-                                  1e6
-                                  }},
-                              {"LEVELZERO::FREQUENCY_RANGE_MAX_GPU_CONTROL", {
-                                  "Accelerator compute/GPU domain user specified max frequency in hertz",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
-                                  Agg::average,
-                                  string_format_double,
-                                  {},
-                                  [this](unsigned int domain_idx) -> double
-                                  {
-                                      return this->m_levelzero_device_pool.frequency_range_max_gpu(domain_idx);
-                                  },
-                                  1e6
-                                  }},
                               {"LEVELZERO::FREQUENCY_MEMORY", {
                                   "Accelerator memory domain frequency in hertz",
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
@@ -157,7 +133,7 @@ namespace geopm
                                   {},
                                   [this](unsigned int domain_idx) -> double
                                   {
-                                      return this->m_levelzero_device_pool.frequency_status_mem(domain_idx);
+                                      return this->m_levelzero_device_pool.frequency_status(domain_idx, GEOPM_LEVELZERO_DOMAIN_MEMORY);
                                   },
                                   1e6
                                   }},
@@ -169,7 +145,7 @@ namespace geopm
                                   {},
                                   [this](unsigned int domain_idx) -> double
                                   {
-                                      return this->m_levelzero_device_pool.frequency_max_mem(domain_idx);
+                                      return this->m_levelzero_device_pool.frequency_max(domain_idx, GEOPM_LEVELZERO_DOMAIN_MEMORY);
                                   },
                                   1e6
                                   }},
@@ -181,143 +157,9 @@ namespace geopm
                                   {},
                                   [this](unsigned int domain_idx) -> double
                                   {
-                                      return this->m_levelzero_device_pool.frequency_min_mem(domain_idx);
+                                      return this->m_levelzero_device_pool.frequency_min(domain_idx, GEOPM_LEVELZERO_DOMAIN_MEMORY);
                                   },
                                   1e6
-                                  }},
-                              {"LEVELZERO::MEMORY_ALLOCATED", {
-                                  "Memory usage as a ratio of total memory",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
-                                  Agg::average,
-                                  string_format_double,
-                                  {},
-                                  [this](unsigned int domain_idx) -> double
-                                  {
-                                      return this->m_levelzero_device_pool.memory_allocated(domain_idx);
-                                  },
-                                  1
-                                  }},
-                              {"LEVELZERO::TEMPERATURE", {
-                                  "Device Temperature in Celsius",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
-                                  Agg::average,
-                                  string_format_double,
-                                  {},
-                                  [this](unsigned int domain_idx) -> double
-                                  {
-                                      return this->m_levelzero_device_pool.temperature(domain_idx);
-                                  },
-                                  1
-                                  }},
-                              {"LEVELZERO::TEMPERATURE_GPU", {
-                                  "Device GPU Temperature in Celsius",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
-                                  Agg::average,
-                                  string_format_double,
-                                  {},
-                                  [this](unsigned int domain_idx) -> double
-                                  {
-                                      return this->m_levelzero_device_pool.temperature_gpu(domain_idx);
-                                  },
-                                  1
-                                  }},
-                              {"LEVELZERO::TEMPERATURE_MEMORY", {
-                                  "Device Memory Temperature in Celsius",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
-                                  Agg::average,
-                                  string_format_double,
-                                  {},
-                                  [this](unsigned int domain_idx) -> double
-                                  {
-                                      return this->m_levelzero_device_pool.temperature_memory(domain_idx);
-                                  },
-                                  1
-                                  }},
-                              {"LEVELZERO::STANDBY_MODE", {
-                                  "Accelerator Standby Mode."
-                                  "\n  0 indicates the device may go into standby"
-                                  "\n  1 indicates the device will never go into standby",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
-                                  Agg::average,
-                                  string_format_double,
-                                  {},
-                                  [this](unsigned int domain_idx) -> double
-                                  {
-                                      return this->m_levelzero_device_pool.standby_mode(domain_idx);
-                                  },
-                                  1
-                                  }},
-                              {"LEVELZERO::POWER_LIMIT_ENABLED_SUSTAINED", {
-                                  "Accelerator sustained power limit enable value",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
-                                  Agg::average,
-                                  string_format_double,
-                                  {},
-                                  [this](unsigned int domain_idx) -> double
-                                  {
-                                      return this->m_levelzero_device_pool.power_limit_enabled_sustained(domain_idx);
-                                  },
-                                  1
-                                  }},
-                              {"LEVELZERO::POWER_LIMIT_SUSTAINED", {
-                                  "Accelerator sustained power limit in Watts",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
-                                  Agg::average,
-                                  string_format_double,
-                                  {},
-                                  [this](unsigned int domain_idx) -> double
-                                  {
-                                      return this->m_levelzero_device_pool.power_limit_sustained(domain_idx);
-                                  },
-                                  1/1e3
-                                  }},
-                              {"LEVELZERO::POWER_LIMIT_INTERVAL_SUSTAINED", {
-                                  "Accelerator sustained power limit interval in seconds",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
-                                  Agg::average,
-                                  string_format_double,
-                                  {},
-                                  [this](unsigned int domain_idx) -> double
-                                  {
-                                      return this->m_levelzero_device_pool.power_limit_interval_sustained(domain_idx);
-                                  },
-                                  1/1e3
-                                  }},
-                              {"LEVELZERO::POWER_LIMIT_BURST", {
-                                  "Accelerator burst power limit in Watts",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
-                                  Agg::average,
-                                  string_format_double,
-                                  {},
-                                  [this](unsigned int domain_idx) -> double
-                                  {
-                                      return this->m_levelzero_device_pool.power_limit_burst(domain_idx);
-                                  },
-                                  1/1e3
-                                  }},
-                              {"LEVELZERO::POWER_LIMIT_ENABLED_BURST", {
-                                  "Accelerator burst power limit enable value",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
-                                  Agg::average,
-                                  string_format_double,
-                                  {},
-                                  [this](unsigned int domain_idx) -> double
-                                  {
-                                      return this->m_levelzero_device_pool.power_limit_enabled_burst(domain_idx);
-                                  },
-                                  1
-                                  }},
-                              {"LEVELZERO::POWER_LIMIT_PEAK_AC", {
-                                  "Accelerator peak AC power limit in Watts",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
-                                  Agg::average,
-                                  string_format_double,
-                                  {},
-                                  [this](unsigned int domain_idx) -> double
-                                  {
-                                      return this->m_levelzero_device_pool.power_limit_peak_ac(domain_idx);
-                                  },
-                                  1/1e3
                                   }},
                               {"LEVELZERO::POWER_LIMIT_DEFAULT", {
                                   "Default power limit in Watts",
@@ -355,42 +197,6 @@ namespace geopm
                                   },
                                   1/1e3
                                   }},
-                              {"LEVELZERO::THROTTLE_REASONS_GPU", {
-                                  "GPU throttle reasons",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
-                                  Agg::average,
-                                  string_format_double,
-                                  {},
-                                  [this](unsigned int domain_idx) -> double
-                                  {
-                                      return this->m_levelzero_device_pool.frequency_status_throttle_reason_gpu(domain_idx);
-                                  },
-                                  1
-                                  }},
-                              {"LEVELZERO::THROTTLE_TIME_GPU", {
-                                  "GPU throttle time",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
-                                  Agg::average,
-                                  string_format_double,
-                                  {},
-                                  [this](unsigned int domain_idx) -> double
-                                  {
-                                      return this->m_levelzero_device_pool.frequency_throttle_time_gpu(domain_idx);
-                                  },
-                                  1/1e6
-                                  }},
-                              {"LEVELZERO::THROTTLE_TIME_TIMESTAMP_GPU", {
-                                  "GPU throttle time reading timestamp",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
-                                  Agg::average,
-                                  string_format_double,
-                                  {},
-                                  [this](unsigned int domain_idx) -> double
-                                  {
-                                      return this->m_levelzero_device_pool.frequency_throttle_time_timestamp_gpu(domain_idx);
-                                  },
-                                  1/1e6
-                                  }},
                               {"LEVELZERO::ACTIVE_TIME", {
                                   "GPU active time",
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
@@ -399,7 +205,7 @@ namespace geopm
                                   {},
                                   [this](unsigned int domain_idx) -> double
                                   {
-                                      return this->m_levelzero_device_pool.active_time(domain_idx);
+                                      return this->m_levelzero_device_pool.active_time(domain_idx, GEOPM_LEVELZERO_DOMAIN_ALL);
                                   },
                                   1/1e6
                                   }},
@@ -411,7 +217,7 @@ namespace geopm
                                   {},
                                   [this](unsigned int domain_idx) -> double
                                   {
-                                      return this->m_levelzero_device_pool.active_time_timestamp(domain_idx);
+                                      return this->m_levelzero_device_pool.active_time_timestamp(domain_idx, GEOPM_LEVELZERO_DOMAIN_ALL);
                                   },
                                   1/1e6
                                   }},
@@ -423,7 +229,7 @@ namespace geopm
                                   {},
                                   [this](unsigned int domain_idx) -> double
                                   {
-                                      return this->m_levelzero_device_pool.active_time_compute(domain_idx);
+                                      return this->m_levelzero_device_pool.active_time(domain_idx, GEOPM_LEVELZERO_DOMAIN_COMPUTE);
                                   },
                                   1/1e6
                                   }},
@@ -435,7 +241,7 @@ namespace geopm
                                   {},
                                   [this](unsigned int domain_idx) -> double
                                   {
-                                      return this->m_levelzero_device_pool.active_time_timestamp_compute(domain_idx);
+                                      return this->m_levelzero_device_pool.active_time_timestamp(domain_idx, GEOPM_LEVELZERO_DOMAIN_COMPUTE);
                                   },
                                   1/1e6
                                   }},
@@ -447,7 +253,7 @@ namespace geopm
                                   {},
                                   [this](unsigned int domain_idx) -> double
                                   {
-                                      return this->m_levelzero_device_pool.active_time_copy(domain_idx);
+                                      return this->m_levelzero_device_pool.active_time(domain_idx, GEOPM_LEVELZERO_DOMAIN_MEMORY);
                                   },
                                   1/1e6
                                   }},
@@ -459,58 +265,13 @@ namespace geopm
                                   {},
                                   [this](unsigned int domain_idx) -> double
                                   {
-                                      return this->m_levelzero_device_pool.active_time_timestamp_copy(domain_idx);
+                                      return this->m_levelzero_device_pool.active_time_timestamp(domain_idx, GEOPM_LEVELZERO_DOMAIN_MEMORY);
                                   },
                                   1/1e6
-                                  }},
-                              {"LEVELZERO::ACTIVE_TIME_MEDIA_DECODE", {
-                                  "GPU Media Decode engine active time",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
-                                  Agg::average,
-                                  string_format_double,
-                                  {},
-                                  [this](unsigned int domain_idx) -> double
-                                  {
-                                      return this->m_levelzero_device_pool.active_time_media_decode(domain_idx);
-                                  },
-                                  1/1e6
-                                  }},
-                              {"LEVELZERO::ACTIVE_TIME_TIMESTAMP_MEDIA_DECODE", {
-                                  "GPU Media Decode engine active time",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
-                                  Agg::average,
-                                  string_format_double,
-                                  {},
-                                  [this](unsigned int domain_idx) -> double
-                                  {
-                                      return this->m_levelzero_device_pool.active_time_timestamp_media_decode(domain_idx);
-                                  },
-                                  1/1e6
-                                  }},
-                              {"LEVELZERO::PERFORMANCE_FACTOR", {
-                                  "Perofrmance Factor of the domain",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
-                                  Agg::average,
-                                  string_format_double,
-                                  {},
-                                  [this](unsigned int domain_idx) -> double
-                                  {
-                                      return this->m_levelzero_device_pool.performance_factor(domain_idx);
-                                  },
-                                  1
-                                  }},
+                                  }}
                              })
         , m_control_available({{"LEVELZERO::FREQUENCY_GPU_CONTROL", {
                                     "Sets accelerator frequency (in hertz)",
-                                    {},
-                                    GEOPM_DOMAIN_BOARD_ACCELERATOR,
-                                    Agg::average,
-                                    string_format_double
-                                    }},
-                                {"LEVELZERO::STANDBY_MODE_CONTROL", {
-                                    "Accelerator Standby Mode."
-                                    "\n  0 indicates the device may go into standby"
-                                    "\n  1 indicates the device will never go into standby",
                                     {},
                                     GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                     Agg::average,
@@ -569,10 +330,6 @@ namespace geopm
                         "\n  resulting in a reduced signal range (i.e. not 0 to 1)",
                     "LEVELZERO::ACTIVE_TIME",
                     "LEVELZERO::ACTIVE_TIME_TIMESTAMP"},
-            {"LEVELZERO::THROTTLE_RATIO_GPU",
-                    "Ratio of time the GPU domains were throttled",
-                    "LEVELZERO::THROTTLE_TIME_GPU",
-                    "LEVELZERO::THROTTLE_TIME_TIMESTAMP_GPU"},
             {"LEVELZERO::UTILIZATION_COMPUTE",
                     "Compute engine utilization"
                         "n  Level Zero logical engines may may to the same hardware"
@@ -585,12 +342,6 @@ namespace geopm
                         "\n  resulting in a reduced signal range (i.e. not 0 to 1)",
                     "LEVELZERO::ACTIVE_TIME_COPY",
                     "LEVELZERO::ACTIVE_TIME_TIMESTAMP_COPY"},
-            {"LEVELZERO::UTILIZATION_MEDIA_DECODE",
-                    "Media decode engine utilization"
-                        "n  Level Zero logical engines may may to the same hardware"
-                        "\n  resulting in a reduced signal range (i.e. not 0 to 1)",
-                    "LEVELZERO::ACTIVE_TIME_MEDIA_DECODE",
-                    "LEVELZERO::ACTIVE_TIME_TIMESTAMP_MEDIA_DECODE"}
         };
         //std::shared_ptr<Signal> time_sig = std::make_shared<TimeSignal>(m_time_zero, m_time_batch);
         //m_signal_available[time_name] = {std::vector<std::shared_ptr<Signal> >({time_sig}),
@@ -871,10 +622,7 @@ namespace geopm
         }
 
         if (control_name == "LEVELZERO::FREQUENCY_GPU_CONTROL" || control_name == "FREQUENCY_ACCELERATOR_CONTROL") {
-            m_levelzero_device_pool.frequency_control_gpu(domain_idx, setting/1e6);
-        }
-        else if (control_name == "LEVELZERO::STANDBY_MODE_CONTROL") {
-            m_levelzero_device_pool.standby_mode_control(domain_idx, setting);
+            m_levelzero_device_pool.frequency_control(domain_idx, GEOPM_LEVELZERO_DOMAIN_COMPUTE, setting/1e6);
         }
         else {
     #ifdef GEOPM_DEBUG
@@ -890,15 +638,15 @@ namespace geopm
     {
         // TODO: Read ALL LEVELZERO Power Limits, frequency settings, etc
         for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR); ++domain_idx) {
-            //Frequency Control Settings
-            m_initial_freq_range_min_gpu_limit.push_back(read_signal("LEVELZERO::FREQUENCY_RANGE_MIN_GPU_CONTROL", GEOPM_DOMAIN_BOARD_ACCELERATOR, domain_idx));
-            m_initial_freq_range_max_gpu_limit.push_back(read_signal("LEVELZERO::FREQUENCY_RANGE_MAX_GPU_CONTROL", GEOPM_DOMAIN_BOARD_ACCELERATOR, domain_idx));
-            //Power Control Settings
-            m_initial_power_limit_sustained.push_back(read_signal("LEVELZERO::POWER_LIMIT_SUSTAINED", GEOPM_DOMAIN_BOARD_ACCELERATOR, domain_idx));
-            m_initial_power_limit_enabled_sustained.push_back(read_signal("LEVELZERO::POWER_LIMIT_ENABLED_SUSTAINED", GEOPM_DOMAIN_BOARD_ACCELERATOR, domain_idx));
-            m_initial_power_limit_interval_sustained.push_back(read_signal("LEVELZERO::POWER_LIMIT_INTERVAL_SUSTAINED", GEOPM_DOMAIN_BOARD_ACCELERATOR, domain_idx));
-            m_initial_power_limit_burst.push_back(read_signal("LEVELZERO::POWER_LIMIT_BURST", GEOPM_DOMAIN_BOARD_ACCELERATOR, domain_idx));
-            m_initial_power_limit_enabled_burst.push_back(read_signal("LEVELZERO::POWER_LIMIT_ENABLED_BURST", GEOPM_DOMAIN_BOARD_ACCELERATOR, domain_idx));
+//            //Frequency Control Settings
+//            m_initial_freq_range_min_gpu_limit.push_back(read_signal("LEVELZERO::FREQUENCY_RANGE_MIN_GPU_CONTROL", GEOPM_DOMAIN_BOARD_ACCELERATOR, domain_idx));
+//            m_initial_freq_range_max_gpu_limit.push_back(read_signal("LEVELZERO::FREQUENCY_RANGE_MAX_GPU_CONTROL", GEOPM_DOMAIN_BOARD_ACCELERATOR, domain_idx));
+//            //Power Control Settings
+//            m_initial_power_limit_sustained.push_back(read_signal("LEVELZERO::POWER_LIMIT_SUSTAINED", GEOPM_DOMAIN_BOARD_ACCELERATOR, domain_idx));
+//            m_initial_power_limit_enabled_sustained.push_back(read_signal("LEVELZERO::POWER_LIMIT_ENABLED_SUSTAINED", GEOPM_DOMAIN_BOARD_ACCELERATOR, domain_idx));
+//            m_initial_power_limit_interval_sustained.push_back(read_signal("LEVELZERO::POWER_LIMIT_INTERVAL_SUSTAINED", GEOPM_DOMAIN_BOARD_ACCELERATOR, domain_idx));
+//            m_initial_power_limit_burst.push_back(read_signal("LEVELZERO::POWER_LIMIT_BURST", GEOPM_DOMAIN_BOARD_ACCELERATOR, domain_idx));
+//            m_initial_power_limit_enabled_burst.push_back(read_signal("LEVELZERO::POWER_LIMIT_ENABLED_BURST", GEOPM_DOMAIN_BOARD_ACCELERATOR, domain_idx));
         }
     }
 
