@@ -63,14 +63,16 @@ export MPIFC=${MPIFC:-mpiifort}
 export MPIF77=${MPIF77:-mpiifort}
 export MPIF90=${MPIF90:-mpiifort}
 
-COMPILER_LIST="CC CXX MPICC MPICXX FC F77 MPIFC MPIF77"
-for compiler in ${COMPILER_LIST}; do
-    # Check to ensure Intel (R) is used
-    if ! ${!compiler} --version | grep --quiet Intel; then
-        echo "Error: Please ensure the Intel (R) toolchain is setup properly. (${compiler} = ${!compiler} is not supported)"
-        return 1
-    fi
-done
+if [ -z ${GEOPM_SKIP_COMPILER_CHECK+x} ]; then
+    COMPILER_LIST="CC CXX MPICC MPICXX FC F77 F90 MPIFC MPIFORT MPIF77 MPIF90"
+    for compiler in ${COMPILER_LIST}; do
+        # Check to ensure Intel (R) is used
+        if ! ${!compiler} --version | grep --quiet Intel; then
+            echo "Error: Please ensure the Intel (R) toolchain is setup properly. (${compiler} = ${!compiler} is not supported)"
+            return 1
+        fi
+    done
+fi
 
 # lmod-like exports
 if [ ! -z "${MANPATH}" ]; then
