@@ -475,6 +475,11 @@ These integration tests are based on pyunit and leverage the geopmpy
 python package to validate the runtime.  Please report failures of
 these tests as issues.
 
+Note that if the `GEOPM_SKIP_COMPILER_CHECK` environment variable is
+set when `install_geopm` is called, then the check to verify that the
+Intel compilers are used will be bypassed.  This can be useful for
+performing builds with the GNU toolchain.
+
 RESOURCE MANAGER INTEGRATION
 ----------------------------
 The GEOPM package can be integrated with a compute cluster resource
