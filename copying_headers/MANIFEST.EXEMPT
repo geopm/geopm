@@ -26,8 +26,6 @@ examples/comd/README
 examples/custom_msr/msr_reasons.json
 examples/hacc/README
 examples/qbox/README
-geopm-ohpc.spec.in
-geopm-theta.spec.in
 integration/README.md
 integration/apps/README.md
 integration/apps/amg/README.md
@@ -116,6 +114,8 @@ scripts/outlier/README.md
 scripts/outlier/theta_nodelist_broken.txt
 scripts/requirements.txt
 scripts/test/test_io_experiment.report
+specs/geopm-ohpc.spec.in
+specs/geopm-theta.spec.in
 test/EditDistPeriodicityDetectorTest.0_pattern_a.trace
 test/EditDistPeriodicityDetectorTest.1_pattern_ab.trace
 test/EditDistPeriodicityDetectorTest.2_pattern_abb.trace

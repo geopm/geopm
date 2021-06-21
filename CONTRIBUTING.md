@@ -137,7 +137,7 @@ can be tested by running the copying_headers/test_license script after
 committing the new file to git, removing the geopm/MANIFEST file and
 running the autogen.sh script.  Files for which a license comment is
 not appropriate should be listed in copying_headers/MANIFEST.EXEMPT.
-Any new installed files should also be added geopm.spec.in.
+Any new installed files should also be added specs/geopm.spec.in.
 
 Introducing a new man page requires changes in multiple files:
 1. The build target (man page) should be added to ronn_man in
@@ -146,7 +146,7 @@ Introducing a new man page requires changes in multiple files:
 3. The ronn source file should be added to MANIFEST.EXEMPT as
    described above.
 4. The gzipped installed man page should be listed in the %files section of
-   geopm.spec.in.
+   specs/geopm.spec.in.
 5. A link from the man page name to the man page file should be added
    to ronn/index.txt.
 6. A link to the new man page should be added to the SEE ALSO section of

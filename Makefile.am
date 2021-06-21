@@ -259,13 +259,7 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              dox-public/Doxyfile.in \
              dox/Doxyfile \
              gen_man.sh \
-             geopm-ohpc.spec \
-             geopm-ohpc.spec.in \
-             geopm-theta.spec \
-             geopm-theta.spec.in \
              geopm-tutorial.tar.gz \
-             geopm.spec \
-             geopm.spec.in \
              indicators/index.html \
              indicators/indicators.py \
              pull_request_template.md \
@@ -335,8 +329,14 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              scripts/outlier/README.md \
              scripts/outlier/outlier_detection.py \
              scripts/outlier/theta_nodelist_broken.txt \
+             specs/geopm.spec \
+             specs/geopm.spec.in \
              specs/geopm-gcc-mvapich2-toss.spec \
              specs/geopm-intel-mvapich2-toss.spec \
+             specs/geopm-ohpc.spec \
+             specs/geopm-ohpc.spec.in \
+             specs/geopm-theta.spec \
+             specs/geopm-theta.spec.in \
              travis_ci.sh \
              test_hw/Makefile \
              test_hw/geopm_time.h \
@@ -828,14 +828,14 @@ rpm: dist
 	mkdir -p $(rpm_topdir)/SOURCES
 	mkdir -p $(rpm_topdir)/SPECS
 	cp geopm-$(VERSION).tar.gz $(rpm_topdir)/SOURCES/geopm.tar.gz
-	cp geopm.spec $(rpm_topdir)/SPECS/geopm.spec
+	cp specs/geopm.spec $(rpm_topdir)/SPECS/geopm.spec
 	rpmbuild $(rpmbuild_flags) -ba $(rpm_topdir)/SPECS/geopm.spec
 
 rpm-theta: dist
 	mkdir -p $(rpm_topdir)/SOURCES
 	mkdir -p $(rpm_topdir)/SPECS
 	cp geopm-$(VERSION).tar.gz $(rpm_topdir)/SOURCES/
-	cp geopm-theta.spec $(rpm_topdir)/SPECS/geopm-$(VERSION).spec
+	cp specs/geopm-theta.spec $(rpm_topdir)/SPECS/geopm-$(VERSION).spec
 	rpmbuild $(rpmbuild_flags) --buildroot=$(rpm_topdir)-root --define "_sourcedir $(rpm_topdir)/SOURCES" -ba $(rpm_topdir)/SPECS/geopm-$(VERSION).spec
 
 # DOXYGEN TARGET
