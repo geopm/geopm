@@ -1,3 +1,5 @@
+#!/bin/bash
+#
 #  Copyright (c) 2015 - 2021, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -29,17 +31,14 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-
-EXTRA_DIST += integration/README.md \
-              integration/config/build_env.sh \
-              integration/config/run_env.sh \
-              integration/config/dudley_env.sh \
-              integration/config/endeavor_env.sh \
-              integration/config/smng_env.sh \
-              integration/config/gnu_env.sh \
-              # end
-
-include integration/apps/Makefile.mk
-include integration/experiment/Makefile.mk
-include integration/test/Makefile.mk
-include integration/smoke/Makefile.mk
+export CC=gcc
+export CXX=g++
+export FC=gfortran
+export F77=gfortran
+export F90=gfortran
+export MPICC=mpicc
+export MPICXX=mpic++
+export MPIFORT=mpifort
+export MPIFC=mpifort
+export MPIF77=mpifort
+export MPIF90=mpifort
