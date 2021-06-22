@@ -36,18 +36,15 @@
 # This script is intended to be sourced within an existing script or shell ONLY.
 # It is NOT intended to be ./ executed.
 
-module purge
-module load autotools intel impi
-
 export CC=icc
 export CXX=icpc
-export MPICC=mpiicc
-export MPICXX=mpiicpc
+export MPICC=mpicc
+export MPICXX=mpic++
 export FC=ifort
 export F77=ifort
 export F90=ifort
-export MPIFORT=mpiifort
-export MPIFC=mpiifort
-export MPIF77=mpiifort
-export MPIF90=mpiifort
+export MPIFORT=mpifort
+export MPIFC=mpifort
+export MPIF77=mpifort
+export MPIF90=mpifort
 export FI_PROVIDER=psm2
