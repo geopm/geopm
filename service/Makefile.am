@@ -184,6 +184,7 @@ msr_cpp_files = \
                 src/msr_data_knl.cpp \
                 src/msr_data_skx.cpp \
                 src/msr_data_snb.cpp \
+                src/msr_data_spr.cpp \
                 # end
 EXTRA_DIST += \
 	      docs/json_data/msr_data_arch.json \
@@ -191,6 +192,7 @@ EXTRA_DIST += \
 	      docs/json_data/msr_data_knl.json \
 	      docs/json_data/msr_data_skx.json \
 	      docs/json_data/msr_data_snb.json \
+	      docs/json_data/msr_data_spr.json \
 	      src/msr_data.cpp.in \
 	      # end
 

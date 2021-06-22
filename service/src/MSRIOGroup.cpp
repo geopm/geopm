@@ -50,6 +50,7 @@ namespace geopm
     const std::string hsx_msr_json(void);
     const std::string snb_msr_json(void);
     const std::string skx_msr_json(void);
+    const std::string spr_msr_json(void);
 
     const std::string MSRIOGroup::M_DEFAULT_DESCRIPTION =
         "Refer to the Intel(R) 64 and IA-32 Architectures Software Developer's "
@@ -1257,12 +1258,15 @@ namespace geopm
                  cpu_id == MSRIOGroup::M_CPUID_ICX) {
             platform_msrs = skx_msr_json();
         }
-        else if (cpu_id >= MSRIOGroup::M_CPUID_ICX) {
+        else if (cpu_id == MSRIOGroup::M_CPUID_SPR) {
+            platform_msrs = spr_msr_json();
+        }
+        else if (cpu_id >= MSRIOGroup::M_CPUID_SPR) {
 #ifdef GEOPM_DEBUG
-            std::cerr << "Warning: <geopm> New/Untested CPUID detected; Defaulting to SKX MSRs"
+            std::cerr << "Warning: <geopm> New/Untested CPUID detected; Defaulting to SPR MSRs"
                       << std::endl;
 #endif
-            platform_msrs = skx_msr_json();
+            platform_msrs = spr_msr_json();
         }
         else {
             throw Exception("MSRIOGroup: Unsupported CPUID",
