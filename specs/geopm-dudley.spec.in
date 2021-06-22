@@ -87,7 +87,7 @@ setenv          %{PNAME}_BIN            %{install_prefix}/bin
 setenv          %{PNAME}_LIB            %{install_prefix}/lib
 setenv          %{PNAME}_INC            %{install_prefix}/include
 
-prereq intel
+prereq oneapi
 prereq mpich
 
 EOF
