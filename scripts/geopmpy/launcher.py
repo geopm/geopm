@@ -1314,6 +1314,9 @@ class OMPIExecLauncher(Launcher):
         """
         return ','
 
+    def exclude_list_option(self):
+        return []
+
 class IMPIExecLauncher(Launcher):
     """
     Launcher derived object for use with the Intel(R) MPI Library job launch
