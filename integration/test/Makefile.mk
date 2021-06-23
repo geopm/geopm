@@ -63,6 +63,7 @@ include integration/test/test_ompt.mk
 include integration/test/test_geopmio.mk
 include integration/test/test_launch_application.mk
 include integration/test/test_launch_pthread.mk
+include integration/test/test_levelzero_signals.mk
 include integration/test/test_geopmagent.mk
 include integration/test/test_environment.mk
 include integration/test/test_power_governor.mk
