@@ -87,12 +87,12 @@ namespace geopm
     {
         //Shutdown NVML
         nvmlReturn_t nvml_result = nvmlShutdown();
-#ifdef GEOPM_DEBUG
         if (nvml_result != NVML_SUCCESS) {
+#ifdef GEOPM_DEBUG
             std::cerr << "NVMLDevicePool::" << __func__ <<  ": NVML failed to shutdown."
                       << "  Error: " <<  nvmlErrorString(nvml_result) << std::endl;
-        }
 #endif
+        }
     }
 
     void NVMLDevicePoolImp::check_nvml_result(nvmlReturn_t nvml_result, int error, const std::string &message, int line) const
@@ -109,7 +109,7 @@ namespace geopm
 
     void NVMLDevicePoolImp::check_accel_range(int accel_idx) const
     {
-        if (accel_idx < 0 || accel_idx >= m_num_accelerator) {
+        if (accel_idx < 0 || accel_idx >= (int)m_num_accelerator) {
             throw Exception("NVMLDevicePool::" + std::string(__func__) + ": accel_idx " +
                             std::to_string(accel_idx) + "  is out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
