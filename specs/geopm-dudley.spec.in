@@ -4,10 +4,11 @@
 %define python_family python3
 %define pip_family pip3
 %define install_prefix /opt/ohpc/pub/libs/%{pname}/%{pname}-%{version}
+%define install_prefix_short /opt/ohpc/pub/libs/%{pname}/%{pname}-
 %define module_prefix /opt/ohpc/pub/modulefiles/%{pname}
 %define module_name %{version}
 %define python_family_lib_dir /lib/python%{expand:%{%{python_family}_version}}/site-packages
-%global __requires_exclude_from ^%{install_prefix}%{python_family_lib_dir}/.*$
+%global __requires_exclude_from ^%{install_prefix_short}.*%{python_family_lib_dir}/.*$
 
 Name:          %{pname}
 Summary:       Global Extensible Open Power Manager
