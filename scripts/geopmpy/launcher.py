@@ -1012,6 +1012,9 @@ class SrunLauncher(Launcher):
             result.append(bind_cmd)
             result.append('v,mask_cpu:' + ','.join(mask_list))
 
+            if self.config.get_ctl() == 'application':
+                result.append('--overlap')
+
         return result
 
     def timeout_option(self):
