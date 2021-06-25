@@ -206,6 +206,8 @@ namespace geopm
             /// application run.
             ///
             /// @param [in] signal_name Name of the signal.
+            /// @return One of the IOGroup::m_signal_behavior_e enum
+            ///         values that identifies the signal behavior
             virtual int signal_behavior(const std::string &signal_name) const = 0;
             /// @brief Save the state of all controls so that any
             ///        subsequent changes made through PlatformIO can
