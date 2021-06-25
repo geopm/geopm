@@ -69,6 +69,7 @@ temp_dir=$(mktemp -d $HOME/.local/tmp/geopm-tutorial-test.XXXXXXXX)
 ln -s $temp_dir $LINK_DIR
 
 # Install geopm into the temporary location
+unset GEOPM_INSTALL GEOPM_LAUNCHER GEOPM_BIN GEOPM_INC GEOPM_LIB GEOPM_CFLAGS GEOPM_LDFLAGS
 destdir=$temp_dir/build
 prefix=$(get_config prefix)
 cd $SRC_BASE_DIR
