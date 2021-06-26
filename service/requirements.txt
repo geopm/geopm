@@ -1,0 +1,4 @@
+cffi==1.13.2
+dasbus==1.6
+PyGObject==3.34.0
+psutil==5.4.8

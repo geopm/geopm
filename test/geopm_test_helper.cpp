@@ -31,6 +31,7 @@
  */
 
 #include "geopm_test.hpp"
+#include "geopm_internal.h"
 
 #include "geopm.h"
 #include "geopm_hash.h"

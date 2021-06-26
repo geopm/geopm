@@ -35,9 +35,10 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
+#include "geopm_hash.h"
+#include "geopm_internal.h"
 #include "SSTSignal.hpp"
 #include "MockSSTIO.hpp"
-#include "geopm_hash.h"
 
 using geopm::SSTSignal;
 using testing::Return;

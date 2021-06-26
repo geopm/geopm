@@ -135,8 +135,6 @@ TEST_F(AdminTest, allowlist)
     ASSERT_EQ(0U, result_0.find("# MSR        Write Mask           # Comment\n"));
     std::string result_1 = m_admin->run(false, false, true, m_cpuid);
     ASSERT_EQ(result_0, result_1);
-    GEOPM_EXPECT_THROW_MESSAGE(m_admin->run(false, false, true, 0x123),
-                               GEOPM_ERROR_RUNTIME, "Unsupported CPUID");
 }
 
 TEST_F(AdminTest, no_options)

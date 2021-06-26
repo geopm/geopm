@@ -41,6 +41,7 @@
 #include "MSR.hpp"
 #include "Helper.hpp"
 #include "geopm_hash.h"
+#include "geopm_internal.h"
 #include "MockSignal.hpp"
 #include "geopm_test.hpp"
 

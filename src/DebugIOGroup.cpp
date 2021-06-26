@@ -240,4 +240,14 @@ namespace geopm
         }
         return m_signal_info.at(signal_name).behavior;
     }
+
+    void DebugIOGroup::save_control(const std::string &save_path)
+    {
+
+    }
+
+    void DebugIOGroup::restore_control(const std::string &save_path)
+    {
+
+    }
 }

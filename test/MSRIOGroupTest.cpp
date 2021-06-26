@@ -48,6 +48,7 @@
 
 #include "geopm_sched.h"
 #include "geopm_hash.h"
+#include "geopm_internal.h"
 #include "Helper.hpp"
 #include "PlatformTopo.hpp"
 #include "MSRIOImp.hpp"
@@ -120,10 +121,6 @@ TEST_F(MSRIOGroupTest, supported_cpuid)
                    << std::hex << id << std::dec << ": " << ex.what();
         }
     }
-
-    // unsupported cpuid
-    GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup(*m_topo, m_msrio, 0x9999, m_num_cpu),
-                               GEOPM_ERROR_RUNTIME, "Unsupported CPUID");
 }
 
 TEST_F(MSRIOGroupTest, valid_signal_names)

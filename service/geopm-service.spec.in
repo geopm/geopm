@@ -1,0 +1,132 @@
+#  Copyright (c) 2015 - 2021, Intel Corporation
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions
+#  are met:
+#
+#      * Redistributions of source code must retain the above copyright
+#        notice, this list of conditions and the following disclaimer.
+#
+#      * Redistributions in binary form must reproduce the above copyright
+#        notice, this list of conditions and the following disclaimer in
+#        the documentation and/or other materials provided with the
+#        distribution.
+#
+#      * Neither the name of Intel Corporation nor the names of its
+#        contributors may be used to endorse or promote products derived
+#        from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+#  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+#  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+#  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+#  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+#  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+#  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+#  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
+#  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+Summary: Global Extensible Open Power Manager Service
+Name: geopm-service
+Version: @VERSION@
+Release: 1
+License: BSD-3-Clause
+Group: System Environment/Libraries
+Vendor: Intel Corporation
+URL: https://geopm.github.io
+Source0: geopm-service.tar.gz
+BuildRoot: %{_tmppath}/geopm-service-%{version}-%{release}-root
+BuildRequires: gcc-c++
+BuildRequires: unzip
+BuildRequires: libtool
+
+%global debug_package %{nil}
+
+%define python_major_version 3
+BuildRequires: python3
+BuildRequires: python3-devel
+%define python_bin %{__python3}
+
+%if 0%{?suse_version}
+Requires: python3-gobject
+%else
+Requires: python3-gobject-base
+%endif
+
+Prefix: %{_prefix}
+
+%if %{defined suse_version}
+%define docdir %{_defaultdocdir}/geopm
+%else
+%define docdir %{_defaultdocdir}/geopm-%{version}
+%endif
+
+%{!?python3_pkgversion:%global python3_pkgversion 3}
+
+%description
+The service package for GEOPM that runs the geopmd daemon.
+
+%prep
+
+%setup -n geopm-service-%{version}
+
+%package -n python%{python3_pkgversion}-geopmdpy
+Summary: Global Extensible Open Power Manager Service - python %{python_major_version}
+Group: System Environment/Libraries
+Requires: geopm-service
+%{?python_provide:%python_provide python%{python3_pkgversion}-geopmdpy}
+
+%description -n python%{python3_pkgversion}-geopmdpy
+Python %{python_major_version} package for GEOPM service.
+
+%build
+./autogen.sh
+./configure --prefix=%{_prefix} --libdir=%{_libdir} --libexecdir=%{_libexecdir} \
+            --includedir=%{_includedir} --sbindir=%{_sbindir} \
+            --mandir=%{_mandir} --docdir=%{docdir} \
+            --with-python=%{python_bin} \
+            || ( cat config.log && false )
+
+%{__make} %{?_smp_mflags}
+
+%install
+%{__make} DESTDIR=%{buildroot} install
+rm -f $(find %{buildroot}/%{_libdir} -name '*.a'; \
+        find %{buildroot}/%{_libdir} -name '*.la')
+
+install -Dp -m644 geopm.service %{buildroot}%{_unitdir}/geopm.service
+install -Dp -m644 io.github.geopm.conf %{buildroot}%{_sysconfdir}/dbus-1/system.d/io.github.geopm.conf
+install -Dp -m644 io.github.geopm.xml %{buildroot}%{_sysconfdir}/dbus-1/interfaces/io.github.geopm.xml
+mkdir -p %{buildroot}%{_sysconfdir}/geopm-service
+
+%clean
+
+%post
+/sbin/ldconfig
+%systemd_post geopm.service
+
+%preun
+%systemd_preun geopm.service
+
+%postun
+/sbin/ldconfig
+%systemd_postun_with_restart geopm.service
+
+%files
+%defattr(-,root,root,-)
+%{_libdir}/libgeopmd.so.0.0.0
+%{_libdir}/libgeopmd.so.0
+%{_libdir}/libgeopmd.so
+%dir %{_libdir}/geopm-service
+%{_bindir}/geopmd
+%{_bindir}/geopmaccess
+%{_bindir}/geopmsession
+%{_sysconfdir}/dbus-1/system.d/io.github.geopm.conf
+%{_sysconfdir}/dbus-1/interfaces/io.github.geopm.xml
+%{_unitdir}/geopm.service
+%dir %{_sysconfdir}/geopm-service
+
+%files -n python%{python3_pkgversion}-geopmdpy
+%{expand:%{python%{python_major_version}_sitelib}}/*

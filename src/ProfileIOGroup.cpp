@@ -477,6 +477,16 @@ namespace geopm
         return signal_type;
     }
 
+    void ProfileIOGroup::save_control(const std::string &save_path)
+    {
+
+    }
+
+    void ProfileIOGroup::restore_control(const std::string &save_path)
+    {
+
+    }
+
     std::string ProfileIOGroup::plugin_name(void)
     {
         return GEOPM_PROFILE_IO_GROUP_PLUGIN_NAME;
