@@ -88,6 +88,11 @@ Prefix: %{_prefix}
 %define docdir %{_defaultdocdir}/geopm-%{version}
 %endif
 
+%define compdir %(pkg-config --variable=completionsdir bash-completion)
+%if "x%{compdir}" == "x"
+%define compdir "%{_sysconfdir}/bash_completion.d"
+%endif
+
 %description
 @BLURB@
 
@@ -122,6 +127,7 @@ test -f configure || ./autogen.sh
             --disable-mpi --disable-openmp \
             --disable-fortran \
             --with-python=%{python_bin} \
+            --with-bash-completion-dir=%{compdir} \
             || ( cat config.log && false )
 %else
 ./configure --prefix=%{_prefix} --libdir=%{_libdir} --libexecdir=%{_libexecdir} \
@@ -130,6 +136,7 @@ test -f configure || ./autogen.sh
             --disable-mpi --disable-openmp \
             --disable-fortran \
             --with-python=%{python_bin} \
+            --with-bash-completion-dir=%{compdir} \
             || ( cat config.log && false )
 %endif
 
@@ -170,6 +177,7 @@ rm -f %{buildroot}/%{_bindir}/geopmlaunch
 %{_bindir}/geopmagent
 %{_bindir}/geopmread
 %{_bindir}/geopmwrite
+%{compdir}
 %dir %{docdir}
 %doc %{docdir}/COPYING
 %doc %{docdir}/README
