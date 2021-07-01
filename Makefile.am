@@ -895,5 +895,6 @@ include test/Makefile.mk
 include integration/Makefile.mk
 include examples/Makefile.mk
 include scripts/Makefile.mk
+include shell_completion/Makefile.mk
 
 .PHONY: $(PHONY_TARGETS)
