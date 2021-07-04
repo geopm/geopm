@@ -37,11 +37,8 @@
 # It is NOT intended to be ./ executed.
 
 
-if [ "${SETVARS_COMPLETED:-}" = "1" ] ; then
-    echo "INFO: One API setvars.sh is already sourced. Skipped sourcing again."
-else
-    source /opt/intel/oneAPI/latest/setvars.sh
-fi
+source /opt/intel/compiler/latest/bin/compilervars.sh intel64
+source /opt/intel/impi/latest/compilers_and_libraries/linux/mpi/intel64/bin/mpivars.sh
 
 export GEOPM_LAUNCHER=impi
 export CC=icc
@@ -55,3 +52,4 @@ export MPIFORT=mpiifort
 export MPIFC=mpiifort
 export MPIF77=mpiifort
 export MPIF90=mpiifort
+
