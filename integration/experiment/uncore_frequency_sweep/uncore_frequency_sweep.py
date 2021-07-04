@@ -129,9 +129,10 @@ def launch(app_conf, args, experiment_cli_args):
                                                       args.max_uncore_frequency,
                                                       args.step_uncore_frequency)
     targets = launch_configs(app_conf, core_freq_range, uncore_freq_range)
-    extra_cli_args = list(experiment_cli_args)
-    extra_cli_args += launch_util.geopm_signal_args(report_signals=report_signals(),
+    extra_cli_args = launch_util.geopm_signal_args(report_signals=report_signals(),
                                                     trace_signals=trace_signals())
+    extra_cli_args += list(experiment_cli_args)
+
     launch_util.launch_all_runs(targets=targets,
                                 num_nodes=args.node_count,
                                 iterations=args.trial_count,

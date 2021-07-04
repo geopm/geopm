@@ -119,9 +119,9 @@ def launch(app_conf, args, experiment_cli_args):
                                         args.step_frequency,
                                         args.run_max_turbo)
     targets = launch_configs(output_dir, app_conf, freq_range)
-    extra_cli_args = list(experiment_cli_args)
-    extra_cli_args += launch_util.geopm_signal_args(report_signals=report_signals(),
+    extra_cli_args = launch_util.geopm_signal_args(report_signals=report_signals(),
                                                     trace_signals=trace_signals())
+    extra_cli_args += list(experiment_cli_args)
     launch_util.launch_all_runs(targets=targets,
                                 num_nodes=args.node_count,
                                 iterations=args.trial_count,
