@@ -630,8 +630,7 @@ namespace geopm
 
     int NVMLIOGroup::signal_behavior(const std::string &signal_name) const
     {
-        // TODO: fix me
-        return IOGroup::M_SIGNAL_BEHAVIOR_LABEL;
+        return IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE;
     }
 
     // Name used for registration with the IOGroup factory
