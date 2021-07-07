@@ -534,6 +534,8 @@ libgeopmpolicy_la_SOURCES = service/contrib/json11/json11.cpp \
                             service/src/MSRIOGroup.hpp \
                             service/src/MSRPath.cpp \
                             service/src/MSRPath.hpp \
+                            service/src/MultiplicationSignal.cpp \
+                            service/src/MultiplicationSignal.hpp \
                             service/src/NVMLAcceleratorTopo.cpp \
                             service/src/NVMLAcceleratorTopo.hpp \
                             service/src/NVMLDevicePool.hpp \
@@ -648,8 +650,6 @@ libgeopmpolicy_la_SOURCES = service/contrib/json11/json11.cpp \
                             src/ModelParse.hpp \
                             src/MonitorAgent.cpp \
                             src/MonitorAgent.hpp \
-                            src/MultiplicationSignal.cpp \
-                            src/MultiplicationSignal.hpp \
                             src/OptionParser.cpp \
                             src/OptionParser.hpp \
                             src/PowerBalancer.cpp \
