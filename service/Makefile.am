@@ -64,8 +64,6 @@ EXTRA_DIST = .gitignore \
              geopmdpy/topo.py \
              geopmdpy/version.py \
              geopmdpy/version.py.in \
-             geopmdpy_test/__main__.py \
-             geopmdpy_test/test_service.py \
              geopmsession \
              requirements.txt \
              setup.py \
@@ -205,7 +203,6 @@ install-python: setup.py
 	fi
 	cd $(abs_srcdir) && $(PYTHON) ./setup.py install -O1 --root $(DESTDIR)/ --prefix $(prefix)
 
-
 # RPM TARGET
 rpm_topdir ?= $(HOME)/rpmbuild
 rpm: dist
@@ -214,3 +211,16 @@ rpm: dist
 	cp geopm-service-$(VERSION).tar.gz $(rpm_topdir)/SOURCES/geopm-service.tar.gz
 	cp geopm-service.spec $(rpm_topdir)/SPECS/geopm-service.spec
 	rpmbuild $(rpmbuild_flags) -ba $(rpm_topdir)/SPECS/geopm-service.spec
+
+checkprogs: geopmdpy-checkprogs $(check_PROGRAMS) $(check_LTLIBRARIES)
+
+CLEAN_LOCAL_TARGETS = clean-local-python
+
+clean-local: $(CLEAN_LOCAL_TARGETS)
+
+clean-local-python: setup.py
+	$(PYTHON) ./setup.py clean --all
+
+PHONY_TARGETS =
+
+include geopmdpy_test/Makefile.mk
