@@ -31,11 +31,14 @@
 
 EXTRA_DIST += geopmdpy_test/__main__.py \
               geopmdpy_test/TestPlatformService.py \
+              geopmdpy_test/TestDBusXML.py \
               # end
 
 GEOPMDPY_TESTS = geopmdpy_test/pytest_links/TestPlatformService.test_get_group_access_empty \
                  geopmdpy_test/pytest_links/TestPlatformService.test_get_group_access_default \
                  geopmdpy_test/pytest_links/TestPlatformService.test_get_group_access_named \
+                 geopmdpy_test/pytest_links/TestDBusXML.test_xml_parse_no_doc \
+                 geopmdpy_test/pytest_links/TestDBusXML.test_xml_parse_with_doc \
                  # end
 
 TESTS = $(GEOPMDPY_TESTS)
