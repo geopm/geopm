@@ -139,6 +139,8 @@ libgeopmd_la_SOURCES = contrib/json11/json11.cpp \
                        src/MSRIOGroup.hpp \
                        src/MSRPath.cpp \
                        src/MSRPath.hpp \
+                       src/MultiplicationSignal.cpp \
+                       src/MultiplicationSignal.hpp \
                        src/NVMLAcceleratorTopo.cpp \
                        src/NVMLAcceleratorTopo.hpp \
                        src/NVMLDevicePool.hpp \
