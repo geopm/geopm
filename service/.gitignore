@@ -10,6 +10,7 @@
 /config.status
 /configure
 /dist
+/io.github.geopm.xml
 /geopm-service.spec
 /geopm_service.egg-info
 /stamp-h1
