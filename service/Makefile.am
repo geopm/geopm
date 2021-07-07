@@ -57,6 +57,7 @@ EXTRA_DIST = .gitignore \
              geopmdpy/__init__.py \
              geopmdpy/__main__.py \
              geopmdpy/access.py \
+             geopmdpy/dbus_xml.py \
              geopmdpy/error.py \
              geopmdpy/pio.py \
              geopmdpy/service.py \
@@ -195,6 +196,9 @@ else
     libgeopmd_la_SOURCES += src/NVMLDevicePoolThrow.cpp
     EXTRA_DIST += $(nvml_source_files)
 endif
+
+io.github.geopm.xml: geopmdpy/dbus_xml.py geopmdpy/service.py
+	PYTHONPATH=:$PYTHONPATH $(PYTHON) -m geopmdpy.dbus_xml > $@
 
 install-python: setup.py
 # Move version.py into source for out of place builds
