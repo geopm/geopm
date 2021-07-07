@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+#
 #  Copyright (c) 2015 - 2021, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -31,9 +31,36 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+import sys
 import unittest
-from TestPlatformService import *
-from TestDBusXML import *
+import xml.etree.ElementTree as ET
+from geopmdpy import dbus_xml
+from geopmdpy import service
+
+class TestDBusXML(unittest.TestCase):
+    def setUp(self):
+        self._test_name = 'TestDBusXML'
+
+    def tearDown(self):
+        pass
+
+    def test_xml_parse_no_doc(self):
+        xml = dbus_xml.geopm_dbus_xml()
+        try:
+            ET.fromstring(xml)
+        except (Exception) as ex:
+            sys.stderr.write('Error: Failed to parse GEOPM DBus XML:\n\n')
+            sys.stderr.write('{}\n\n'.format(xml))
+            raise ex
+
+    def test_xml_parse_with_doc(self):
+        xml = dbus_xml.geopm_dbus_xml(service.TopoService, service.PlatformService)
+        try:
+            ET.fromstring(xml)
+        except (Exception) as ex:
+            sys.stderr.write('Error: Failed to parse GEOPM DBus XML:\n\n')
+            sys.stderr.write('{}\n\n'.format(xml))
+            raise ex
 
 if __name__ == '__main__':
     unittest.main()
