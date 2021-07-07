@@ -341,6 +341,7 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              service/geopmdpy/__init__.py \
              service/geopmdpy/__main__.py \
              service/geopmdpy/access.py \
+             service/geopmdpy/dbus_xml.py \
              service/geopmdpy/error.py \
              service/geopmdpy/pio.py \
              service/geopmdpy/service.py \
@@ -348,6 +349,7 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              service/geopmdpy/topo.py \
              service/geopmdpy/version.py.in \
              service/geopmdpy_test/__main__.py \
+             service/geopmdpy_test/TestDBusXML.py \
              service/geopmdpy_test/TestPlatformService.py \
              service/autogen.sh \
              service/setup.py \
@@ -359,7 +361,6 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              service/test/test_su_give_access.sh \
              service/test/test_write_session.sh \
              service/configure.ac \
-             service/io.github.geopm.xml \
              service/io.github.geopm.conf \
              service/src/DBusServer.hpp \
              service/m4 \
