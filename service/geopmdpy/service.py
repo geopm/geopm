@@ -689,6 +689,10 @@ class TopoService(object):
         provides all the information required to associate all domains
         with CPUs.
 
+        Returns:
+            (str): Contents of the topology cache file that defines
+                   the system topology
+
         """
         self._topo.create_cache()
         with open('/tmp/geopm-topo-cache') as fid:
