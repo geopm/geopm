@@ -91,7 +91,7 @@ def add_step_power(parser):
 
 def add_label(parser):
     parser.add_argument('--label', action='store', default="APP",
-                        help='name of the application to use for plot titles')
+                        help='name to use for plot titles or for the profile field in output files')
 
 
 def add_min_frequency(parser):
