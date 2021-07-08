@@ -590,3 +590,12 @@ TEST_F(ApplicationSamplerTest, sampler_cpu)
     EXPECT_EQ(1, CPU_ISSET(2, cpu_set.get()));
     EXPECT_EQ(0, CPU_ISSET(3, cpu_set.get()));
 }
+
+TEST_F(ApplicationSamplerTest, per_cpu_process_no_sampler)
+{
+    m_app_sampler->set_sampler(nullptr);
+    auto process_actual = m_app_sampler->per_cpu_process();
+    EXPECT_EQ((size_t)m_num_cpu, process_actual.size());
+    std::vector<int> process_expect(m_num_cpu, -1);
+    EXPECT_EQ(process_expect, process_actual);
+}
