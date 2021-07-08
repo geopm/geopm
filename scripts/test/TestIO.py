@@ -37,7 +37,7 @@ import unittest
 import os
 import tempfile
 import shutil
-import mock
+from unittest import mock
 from collections import Counter
 from contextlib import contextmanager
 
