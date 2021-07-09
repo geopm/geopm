@@ -348,7 +348,7 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              service/geopmdpy/topo.py \
              service/geopmdpy/version.py.in \
              service/geopmdpy_test/__main__.py \
-             service/geopmdpy_test/test_service.py \
+             service/geopmdpy_test/TestPlatformService.py \
              service/autogen.sh \
              service/setup.py \
              service/.gitignore \
