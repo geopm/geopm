@@ -115,13 +115,13 @@ class PlatformService(object):
         controls provided by the service.  If the user specifies a
         list that contains signals or controls that are not currently
         supported, the request will raise a RuntimeError without
-        modifying any configuration files.  If the group name is not
-        valid on the system a RuntimeError is also raised.
+        modifying any configuration files.  A RuntimeError will also
+        be raised if the group name is not valid on the system.
 
         Args:
-            group (str): Unix group name to query. The default allowed
-                         lists are written if group is the empty
-                         string.
+            group (str): Which Unix group name to query; if this is
+                         the empty string, the default allowed
+                         lists are written.
 
             allowed_signals (list(str)): Signal names that are allowed
 
@@ -139,28 +139,25 @@ class PlatformService(object):
         self._write_allowed(path, allowed_controls)
 
     def get_user_access(self, user):
-        """Get the signals and controls that are accessible to a user
+        """Get the list of all of the signals and controls that are
+        accessible to the specified user, or the default access lists
+        that apply to all non-root users if the empty string is
+        provided.
 
-        The caller specifies a particular Unix user name and the list
-        of all signals and controls that the user has access to are
-        returned.
-
-        The method returns the default access lists that apply to all
-        non-root users if caller provides the empty string for the the
-        user name.  All available signals and controls are returned if
-        the caller specifies the user name 'root'.  A RuntimeError is
+        All available signals and controls are returned if the caller
+        specifies the user name 'root'.  A RuntimeError is
         raised if the user does not exist on the system.
 
         When a user requests a signal or control through one of the
-        other PlatformService methods they are restricted to the
-        super-set of the default allowed list and the allowed list for
+        other PlatformService methods, they are restricted to the
+        union of the default allowed lists and the allowed lists for
         all Unix groups that the user belongs to.  These combined
-        lists are what is returned.
+        lists are what this method returns.
 
         Args:
-            user (str): Unix user name to query. The default allowed
-                        lists are returned if user is the empty
-                        string.
+            user (str): Which Unix user name to query; if the empty
+                        string is provided, the default allowed list
+                        is returned.
 
         Returns:
             list(str), list(str): Signal and control allowed lists
@@ -181,11 +178,11 @@ class PlatformService(object):
         return signals, controls
 
     def get_all_access(self):
-        """Get all signals and controls that the service supports
+        """Get all of the signals and controls that the service supports.
 
         Returns the list of all signals and controls supported by the
         service.  The lists returned are independent of the access
-        controls, and therefore calling get_all_access() is equivalent
+        controls; therefore, calling get_all_access() is equivalent
         to calling get_user_access('root').
 
         Returns:
@@ -195,12 +192,11 @@ class PlatformService(object):
         return self._pio.signal_names(), self._pio.control_names()
 
     def get_signal_info(self, signal_names):
-        """For each specified signal name return a tuple of information
+        """For each specified signal name, return a tuple of information.
 
-        The caller specifies a list of signal names to query
-        information about each.  The method returns a list with as
-        many entries as the caller specified signals where each entry
-        is a tuple of information about the signal.
+        The caller provides a list of signal names.  This method returns
+        a list of the same length which consists of a tuple of information
+        for each signal.
 
         The method will raise a RuntimeError if any of the requested
         signal names are not supported by the service.
@@ -212,7 +208,7 @@ class PlatformService(object):
             list(tuple((str), (str), (int), (int), (int), (int))):
                 name (str): The signal name specified by the caller
 
-                description (str): A human readable description of
+                description (str): A human-readable description of
                                    what the signal measures.
 
                 domain_type (int): One of the geopmpy.topo.DOMAIN_*
@@ -222,18 +218,18 @@ class PlatformService(object):
 
                 aggregation (int): One of the geopm::Agg::m_type_e
                                    enum values defined in Agg.hpp that
-                                   identifies how to aggregate the
+                                   specifies how to aggregate the
                                    signal over domains.
 
                 format_type (int): One of the geopm::string_format_e
                                    enum values defined in Helper.hpp
-                                   that identifies how to convert the
+                                   that specifies how to convert the
                                    signal value to a human readable
                                    string.
 
                 behavior (int): One of the
                                 IOGroup::m_signal_behavior_e enum
-                                values that identifies how the signal
+                                values that specifies how the signal
                                 changes over time.
 
         """
@@ -246,12 +242,11 @@ class PlatformService(object):
         return result
 
     def get_control_info(self, control_names):
-        """For each specified control name return a tuple of information
+        """For each specified control name, return a tuple of information.
 
-        The caller specifies a list of control names to query
-        information about each.  The method returns a list with as
-        many entries as the caller specified controls where each
-        entry is a tuple of information about the control.
+        The caller provides a list of control names.  This method returns
+        a list of the same length which consists of a tuple of information
+        for each control.
 
         The method will raise a RuntimeError if any of the requested
         control names are not supported by the service.
@@ -263,7 +258,7 @@ class PlatformService(object):
             list(tuple((str), (str), (int))):
                 name (str): The control name specified by the caller
 
-                description (str): A human readable description the
+                description (str): A human-readable description of the
                                    effect of setting the control.
 
                 domain_type (int): One of the geopmpy.topo.DOMAIN_*
@@ -280,7 +275,7 @@ class PlatformService(object):
         return result
 
     def lock_control(self):
-        """Block all write-mode sessions
+        """Block all write-mode sessions.
 
         A call to this method will end any currently running
         write-mode session and block the creation of any new
@@ -292,42 +287,42 @@ class PlatformService(object):
         the "io.github.geopm.conf" DBus configuration file.
 
         Until write-mode sessions are re-enabled, any calls to
-        write_control() or calls to start_batch() with an non-empty
-        control_config parameter will raise RuntimeErrors.
+        write_control() or calls to start_batch() with a non-empty
+        control_config parameter will raise a RuntimeError.
 
         The default system configuration may be updated by the system
         administrator while write-mode is locked.  For instance, the
-        system administrator may use the geopmwrite command line tool
+        system administrator may use the geopmwrite command-line tool
         as user root between calls to lock_control() and
         unlock_control().  These changes will be reflected by the
         save/restore executed by the service for the next client
         write-mode session after the controls are unlocked.
 
-        No action is taken and no error occurs if controls are already
+        No action is taken and no error is raised if controls are already
         disabled when this method is called.
 
         """
         raise NotImplementedError('PlatformService: Implementation incomplete')
 
     def unlock_control(self):
-        """Unblock access to create new write-mode sessions
+        """Unblock access to create new write-mode sessions.
 
         A call to this method will re-enable write-mode sessions to be
         created after they were previously disabled by a call to
         lock_control().
 
         Although new sessions may be created after a call to
-        unlock_control(), a write-mode session ended due to a previous
-        call to lock_control() will remain closed.
+        unlock_control(), write-mode sessions that were ended due to
+        previous calls to lock_control() will remain closed.
 
-        No action is taken and no error occurs if controls are
-        already enabled when this method is called.
+        No action is taken and no error is raised if controls are already
+        enabled when this method is called.
 
         """
         raise NotImplementedError('PlatformService: Implementation incomplete')
 
     def open_session(self, user, client_pid):
-        """Open a new session session for the client process
+        """Open a new session session for the client process.
 
         The creation of a session is the first step that a client
         thread makes to interact with the GEOPM service.  Each Linux
@@ -337,13 +332,13 @@ class PlatformService(object):
         session will also be ended if the client thread terminates for
         any reason.
 
-        No action is taken and no error occurs if there is an existing
+        No action is taken and no error is raised if there is an existing
         session associated with the client PID.
 
         All sessions are opened in read-mode, and may later be
         promoted to write-mode.  This promotion will occur with the
         first successful call requiring access to controls.  This
-        includes any calls to write_control() or a call to
+        includes any calls to write_control() or calls to
         start_batch() with a non-empty control_config.  These calls
         will fail if there is an active write-mode session opened by
         another thread.
@@ -354,10 +349,9 @@ class PlatformService(object):
         controls when the write-mode session ends.
 
         Permissions for the session's access to signals and controls
-        are determined based on the existing policy for the user when
+        are determined based on the policy for the user when
         the session is first opened.  Calling the set_group_access()
-        method to change to the policy will not affect active
-        sessions.
+        method to alter the policy will not affect active sessions.
 
         Args:
             user (str): Unix user name that owns the client thread
@@ -383,24 +377,24 @@ class PlatformService(object):
             json.dump(session_data, fid)
 
     def close_session(self, client_pid):
-        """Close an active session for the client process
+        """Close an active session for the client process.
 
         After closing a session, the client process is required to
-        call open_session() again before using any of the client
-        facing member functions.
+        call open_session() again before using any of the client-facing
+        member functions.
 
         Closing an active session will remove the record of which
-        signals and controls the client process has access to so that
-        this record is updated based on the current policy when the
+        signals and controls the client process has access to; thus,
+        this record is updated to reflect changes to the policy when the
         next session is opened by the process.
 
-        When closing a write-mode session, the control values recorded
-        when then session was converted to write-mode are restored.
+        When closing a write-mode session, the control values that were
+        recorded when the session was promoted to write-mode are restored.
 
         This method supports both the client and administrative DBus
         interfaces that are used to close a session.  The client DBus
-        interface is restricted to enable a user to close only
-        sessions created with their user ID.
+        interface only allows users to close sessions that were created
+        with their user ID.
 
         A RuntimeError is raised if the client_pid does not have an
         open session.
@@ -421,24 +415,23 @@ class PlatformService(object):
         os.remove(session_file)
 
     def start_batch(self, client_pid, signal_config, control_config):
-        """Start a batch server to support a client session
+        """Start a batch server to support a client session.
 
         Configure the signals and controls that will be enabled by the
         batch server and start the server process.  The server enables
         fast access for the signals and controls that are configured
         by the caller.  These are configured by specifying a name,
-        domain and domain index for all signals and controls that the
-        server will support.
+        domain and domain index for each of the signals and controls
+        that the server will support.
 
         After a batch server is successfully created, the client will
         interact with the batch server though PlatformIO interfaces
-        that do not go over DBus.  In this way DBus is used to verify
-        access, but once access is established, a faster protocol than
-        DBus can be safely used.
+        that do not go over DBus.  That is, once access is established
+        by DBus, a faster protocol can be safely used.
 
-        The batch server does not enable different features than
-        calling the read_signal() or write_control() methods, however
-        it does provide a much higher performance interface.
+        The batch server does not enable features beyond those of
+        the read_signal() or write_control() methods; it simply
+        provides a much higher performance interface.
 
         A RuntimeError is raised if the client does not have
         permission to read or write any of configured signals or
@@ -470,11 +463,11 @@ class PlatformService(object):
 
         Returns:
             tuple(int, str):
-                server_pid (int): The Linux PID of the batch server process
+                server_pid (int): The Linux PID of the batch server process.
 
                 server_key (str): A unique identifier enabling the
                                   server/client connection across
-                                  inter-process shared memory
+                                  inter-process shared memory.
 
         """
         session = self._get_session(client_pid, 'PlatformStartBatch')
@@ -489,7 +482,7 @@ class PlatformService(object):
         return self._pio.start_batch_server(client_pid, signal_config, control_config)
 
     def stop_batch(self, client_pid, server_pid):
-        """End the batch server previously started by the client
+        """End a batch server previously started by the client.
 
         Terminate the batch server process and free up all resources
         associated with the batch server.  Any future calls by the
@@ -497,16 +490,16 @@ class PlatformService(object):
         in errors.
 
         The batch server will also be terminated if the client session
-        that created the server ends for any reason.
+        that created the server terminates for any reason.
 
-        A RuntimeError will be raised if the server PID specified was
+        A RuntimeError will be raised if the specified server PID was
         not previously created by the client's call to start_batch(),
         or if the batch server has already been closed for any reason.
 
         Args:
-            client_pid (int): Linux PID of the client thread
+            client_pid (int): Linux PID of the client thread.
 
-            server_pid (int): Linux PID of the batch server process
+            server_pid (int): Linux PID of a batch server process
                               returned by a previous call to
                               start_batch().
 
@@ -515,22 +508,22 @@ class PlatformService(object):
         self._pio.stop_batch_server(server_pid)
 
     def read_signal(self, client_pid, signal_name, domain, domain_idx):
-        """Read a signal from a particular domain
+        """Read a signal from a particular domain.
 
         Select a signal by name and read the current value from the
-        domain type and index specified.  The read signal is returned
+        domain type and index specified.  The value is returned
         as a floating point number in SI units.
 
         A RuntimeError is raised if the client_pid does not have an
-        open session, or if they do not have permission to read the
+        open session or if the client does not have permission to read the
         signal from the specified domain.
 
-        A RuntimeError is raised if the signal name requested is not
+        A RuntimeError is raised if the requested signal is not
         supported, the domain is invalid or the domain index is out of
         range.
 
         Args:
-            client_pid (int): Linux PID of the client thread
+            client_pid (int): Linux PID of the client thread.
 
             signal_name (str): Name of the signal to read.
 
@@ -541,7 +534,7 @@ class PlatformService(object):
                               read from.
 
         Returns:
-            (float): The value of the signal read in SI units.
+            (float): The value of the signal in SI units.
 
         """
         session = self._get_session(client_pid, 'PlatformReadSignal')
@@ -557,18 +550,18 @@ class PlatformService(object):
         is a floating point number in SI units.
 
         A RuntimeError is raised if the client_pid does not have an
-        open session, or if they do not have permission to write the
+        open session, or if the client does not have permission to write the
         control to the specified domain.
 
         A RuntimeError is raised if a different client currently has an
         open write-mode session.
 
-        A RuntimeError is raised if the control name requested is not
+        A RuntimeError is raised if the requested control is not
         supported, the domain is invalid or the domain index is out of
         range.
 
         Args:
-            client_pid (int): Linux PID of the client thread
+            client_pid (int): Linux PID of the client thread.
 
             control_name (str): The name of the control to write.
 
@@ -682,7 +675,7 @@ class TopoService(object):
         self._topo = topo
 
     def get_cache(self):
-        """Return the contents of the PlatformTopo cache file
+        """Return the contents of the PlatformTopo cache file.
 
         Create the PlatformTopo cache file if it does not exist and
         then return the contents of the file as a string.  This
@@ -691,7 +684,7 @@ class TopoService(object):
 
         Returns:
             (str): Contents of the topology cache file that defines
-                   the system topology
+                   the system topology.
 
         """
         self._topo.create_cache()
@@ -701,7 +694,7 @@ class TopoService(object):
 
 
 class GEOPMService(object):
-    """The dasbus service object that is published
+    """The dasbus service object that is published.
 
     Object used by dasbus to map GEOPM service DBus APIs to their
     implementation.  A GEOPMService object is published by geopmd
@@ -712,7 +705,7 @@ class GEOPMService(object):
     within the io.github.geopm DBus namespace.  The parameter type
     conversion is configured with the __dbus_xml__ class member.
 
-    The implementation for each method is a pass through call to a
+    The implementation for each method is a pass-through call to a
     member object method.  These member objects do not have an
     explicit dasbus dependency which facilitates unit testing.
 
