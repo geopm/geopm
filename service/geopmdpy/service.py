@@ -140,9 +140,10 @@ class PlatformService(object):
 
     def get_user_access(self, user):
         """Get the list of all of the signals and controls that are
-        accessible to the specified user, or the default access lists
-        that apply to all non-root users if the empty string is
-        provided.
+        accessible to the specified user.
+
+        Returns the default access lists that apply to all non-root
+        users if the empty string is provided.
 
         All available signals and controls are returned if the caller
         specifies the user name 'root'.  A RuntimeError is
