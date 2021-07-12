@@ -47,22 +47,6 @@ def geopm_dbus_xml(TopoService=None, PlatformService=None):
     do_parse_docs = _use_docstring_parser
     if TopoService is None or PlatformService is None:
         do_parse_docs = False
-    if do_parse_docs:
-        TopoGetCache = google.parse(TopoService.get_cache.__doc__)
-        PlatformGetGroupAccess = google.parse(PlatformService.get_group_access.__doc__)
-        PlatformSetGroupAccess = google.parse(PlatformService.set_group_access.__doc__)
-        PlatformGetUserAccess = google.parse(PlatformService.get_user_access.__doc__)
-        PlatformGetAllAccess = google.parse(PlatformService.get_all_access.__doc__)
-        PlatformGetSignalInfo = google.parse(PlatformService.get_signal_info.__doc__)
-        PlatformGetControlInfo = google.parse(PlatformService.get_control_info.__doc__)
-        PlatformLockControl = google.parse(PlatformService.lock_control.__doc__)
-        PlatformUnlockControl = google.parse(PlatformService.unlock_control.__doc__)
-        PlatformOpenSession = google.parse(PlatformService.open_session.__doc__)
-        PlatformCloseSession = google.parse(PlatformService.close_session.__doc__)
-        PlatformStartBatch = google.parse(PlatformService.start_batch.__doc__)
-        PlatformStopBatch = google.parse(PlatformService.stop_batch.__doc__)
-        PlatformReadSignal = google.parse(PlatformService.read_signal.__doc__)
-        PlatformWriteControl = google.parse(PlatformService.write_control.__doc__)
 
     format_string ="""\
 <node xmlns:doc="http://www.freedesktop.org/dbus/1.0/doc.dtd">
@@ -385,7 +369,23 @@ def geopm_dbus_xml(TopoService=None, PlatformService=None):
     </method>
   </interface>
 </node>"""
+
     if do_parse_docs:
+        TopoGetCache = google.parse(TopoService.get_cache.__doc__)
+        PlatformGetGroupAccess = google.parse(PlatformService.get_group_access.__doc__)
+        PlatformSetGroupAccess = google.parse(PlatformService.set_group_access.__doc__)
+        PlatformGetUserAccess = google.parse(PlatformService.get_user_access.__doc__)
+        PlatformGetAllAccess = google.parse(PlatformService.get_all_access.__doc__)
+        PlatformGetSignalInfo = google.parse(PlatformService.get_signal_info.__doc__)
+        PlatformGetControlInfo = google.parse(PlatformService.get_control_info.__doc__)
+        PlatformLockControl = google.parse(PlatformService.lock_control.__doc__)
+        PlatformUnlockControl = google.parse(PlatformService.unlock_control.__doc__)
+        PlatformOpenSession = google.parse(PlatformService.open_session.__doc__)
+        PlatformCloseSession = google.parse(PlatformService.close_session.__doc__)
+        PlatformStartBatch = google.parse(PlatformService.start_batch.__doc__)
+        PlatformStopBatch = google.parse(PlatformService.stop_batch.__doc__)
+        PlatformReadSignal = google.parse(PlatformService.read_signal.__doc__)
+        PlatformWriteControl = google.parse(PlatformService.write_control.__doc__)
         result = format_string.format(
             module_doc=_module_doc,
             TopoGetCache_returns_description=TopoGetCache.returns.description,
