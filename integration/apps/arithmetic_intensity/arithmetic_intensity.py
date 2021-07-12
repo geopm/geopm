@@ -93,7 +93,7 @@ def setup_run_args(parser):
                              'node for GEOPM).')
     parser.add_argument('--distribute-slow-ranks', action='store_true',
                         help='Distribute slow ranks across nodes and packages. Otherwise, slow '
-                             'ranks are assigned to fill nodes and packages (default: True).')
+                             'ranks are assigned to fill nodes and packages (default: False).')
 
 def create_appconf(mach, args):
     ''' Create a ArithmeticIntensityAppConf object from an ArgParse and experiment.machine object.
