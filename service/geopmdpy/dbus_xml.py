@@ -444,64 +444,25 @@ def geopm_dbus_xml(TopoService=None, PlatformService=None):
             PlatformWriteControl_short_description=PlatformWriteControl.short_description,
             PlatformWriteControl_long_description=PlatformWriteControl.long_description)
     else:
-        result = format_string.format(
-            module_doc=_module_doc,
-            TopoGetCache_returns_description='',
-            TopoGetCache_short_description='',
-            TopoGetCache_long_description='',
-            PlatformGetGroupAccess_params0_description='',
-            PlatformGetGroupAccess_returns_description='',
-            PlatformGetGroupAccess_short_description='',
-            PlatformGetGroupAccess_long_description='',
-            PlatformSetGroupAccess_params0_description='',
-            PlatformSetGroupAccess_params1_description='',
-            PlatformSetGroupAccess_params2_description='',
-            PlatformSetGroupAccess_short_description='',
-            PlatformSetGroupAccess_long_description='',
-            PlatformGetUserAccess_returns_description='',
-            PlatformGetUserAccess_short_description='',
-            PlatformGetUserAccess_long_description='',
-            PlatformGetAllAccess_returns_description='',
-            PlatformGetAllAccess_short_description='',
-            PlatformGetAllAccess_long_description='',
-            PlatformGetSignalInfo_params0_description='',
-            PlatformGetSignalInfo_returns_description='',
-            PlatformGetSignalInfo_short_description='',
-            PlatformGetSignalInfo_long_description='',
-            PlatformGetControlInfo_params0_description='',
-            PlatformGetControlInfo_returns_description='',
-            PlatformGetControlInfo_short_description='',
-            PlatformGetControlInfo_long_description='',
-            PlatformLockControl_short_description='',
-            PlatformLockControl_long_description='',
-            PlatformUnlockControl_short_description='',
-            PlatformUnlockControl_long_description='',
-            PlatformOpenSession_short_description='',
-            PlatformOpenSession_long_description='',
-            PlatformCloseSession_params0_description='',
-            PlatformCloseSession_short_description='',
-            PlatformCloseSession_long_description='',
-            PlatformStartBatch_params0_description='',
-            PlatformStartBatch_params1_description='',
-            PlatformStartBatch_returns_description='',
-            PlatformStartBatch_short_description='',
-            PlatformStartBatch_long_description='',
-            PlatformStopBatch_params0_description='',
-            PlatformStopBatch_short_description='',
-            PlatformStopBatch_long_description='',
-            PlatformReadSignal_params0_description='',
-            PlatformReadSignal_params1_description='',
-            PlatformReadSignal_params2_description='',
-            PlatformReadSignal_returns_description='',
-            PlatformReadSignal_short_description='',
-            PlatformReadSignal_long_description='',
-            PlatformWriteControl_params0_description='',
-            PlatformWriteControl_params1_description='',
-            PlatformWriteControl_params2_description='',
-            PlatformWriteControl_params3_description='',
-            PlatformWriteControl_short_description='',
-            PlatformWriteControl_long_description='')
+        result = _remove_doc(format_string)
     return result
+
+
+def _remove_doc(xml_str):
+    """Remove DBus XML documentation from string input
+
+    """
+    result = []
+    do_add = True
+    for line in xml_str.splitlines():
+        if '<doc:doc>' in line:
+            do_add = False
+        if do_add:
+            result.append(line)
+        if '</doc:doc>' in line:
+            do_add = True
+    return '\n'.join(result)
+
 
 if __name__ == '__main__':
     from . import service
