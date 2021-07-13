@@ -1012,6 +1012,9 @@ class SrunLauncher(Launcher):
             result.append(bind_cmd)
             result.append('v,mask_cpu:' + ','.join(mask_list))
 
+            if self.config.get_ctl() == 'application':
+                result.append('--overlap')
+
         return result
 
     def timeout_option(self):
@@ -1310,6 +1313,9 @@ class OMPIExecLauncher(Launcher):
         a node list string given a list of node names.
         """
         return ','
+
+    def exclude_list_option(self):
+        return []
 
 class IMPIExecLauncher(Launcher):
     """

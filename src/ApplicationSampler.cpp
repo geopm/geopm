@@ -180,11 +180,10 @@ namespace geopm
 
     void ApplicationSamplerImp::update(const geopm_time_s &curr_time)
     {
-        if (!m_status) {
+        if (!m_status || !m_sampler) {
             throw Exception("ApplicationSamplerImp::" + std::string(__func__) + "(): cannot read process info before connect().",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
-
         // TODO: temporary until handshake fixed
         m_sampler->check_sample_end();
 
@@ -326,7 +325,12 @@ namespace geopm
 
     std::vector<int> ApplicationSamplerImp::per_cpu_process(void) const
     {
-        return m_sampler->cpu_rank();
+        std::vector<int> result(m_num_cpu, -1);
+        if (m_sampler) {
+            result = m_sampler->cpu_rank();
+        }
+        return result;
+#if 0
         /// @todo code below will work *after* the handshake is complete
         if (!m_status) {
             throw Exception("ApplicationSamplerImp::" + std::string(__func__) + "(): cannot read process info before connect().",
@@ -337,6 +341,7 @@ namespace geopm
             result[cpu_idx] = m_status->get_process(cpu_idx);
         }
         return result;
+#endif
     }
 
     void ApplicationSamplerImp::connect(const std::string &shm_key)
