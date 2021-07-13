@@ -229,6 +229,9 @@ install-python: setup.py
 	fi
 	cd $(abs_srcdir) && $(PYTHON) ./setup.py install -O1 --root $(DESTDIR)/ --prefix $(prefix)
 
+clean-local-python: setup.py
+	$(PYTHON) ./setup.py clean --all
+
 # RPM TARGET
 rpm_topdir ?= $(HOME)/rpmbuild
 rpm: dist
@@ -244,9 +247,9 @@ CLEAN_LOCAL_TARGETS = clean-local-python
 
 clean-local: $(CLEAN_LOCAL_TARGETS)
 
-clean-local-python: setup.py
-	$(PYTHON) ./setup.py clean --all
+PHONY_TARGETS = clean-local-python
 
-PHONY_TARGETS =
+.PHONY: $(PHONY_TARGETS)
 
 include geopmdpy_test/Makefile.mk
+include docs/Makefile.mk
