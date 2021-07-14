@@ -78,7 +78,7 @@ EXTRA_DIST = .gitignore \
              CODE_OF_CONDUCT.md \
              CONTRIBUTING.md \
              COPYING \
-             README.md \
+             README.rst \
              VERSION \
              # end
 
