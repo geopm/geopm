@@ -88,3 +88,39 @@ class TinyAppConf(apps.AppConf):
 
     def get_bash_exec_args(self):
         return self._bench_conf.get_path()
+
+class GeopmbenchAppConf(apps.AppConf):
+    ''' A version that user can pass config files.'''
+    @staticmethod
+    def name():
+        return 'geopmbench'
+
+    def __init__(self, bench_conf_path, ranks_per_node):
+        self._bench_conf_path = bench_conf_path
+        self._ranks_per_node = ranks_per_node
+
+    def get_rank_per_node(self):
+        return self._ranks_per_node
+
+    def get_bash_exec_path(self):
+        # TODO: may need to find local version if not installed
+        return 'geopmbench'
+
+    def get_bash_exec_args(self):
+        return self._bench_conf_path
+
+def setup_geopmbench_run_args(parser):
+    """ Add common arguments for all run scripts.
+    """
+    parser.add_argument('config_file', action='store', type=str,
+                        help='Path to the geopmbench config json file.')
+    parser.add_argument('--ranks-per-node', dest='ranks_per_node',
+                        action='store', type=int,
+                        help='Number of MPI ranks physical cores to reserve for the app.')
+
+def create_geopmbench_appconf(mach, args):
+    ''' Create a AppConfig object from an ArgParse and experiment.machine object.
+    '''
+    if args.ranks_per_node is None:
+        args.ranks_per_node = mach.num_package()
+    return GeopmbenchAppConf(args.config_file, args.ranks_per_node)

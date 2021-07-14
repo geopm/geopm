@@ -37,6 +37,7 @@ EXTRA_DIST += integration/experiment/uncore_frequency_sweep/__init__.py \
               integration/experiment/uncore_frequency_sweep/run_uncore_frequency_sweep_arithmetic_intensity.py \
               integration/experiment/uncore_frequency_sweep/run_uncore_frequency_sweep_dgemm.py \
               integration/experiment/uncore_frequency_sweep/run_uncore_frequency_sweep_dgemm_tiny.py \
+              integration/experiment/uncore_frequency_sweep/run_uncore_frequency_sweep_geopmbench.py \
               integration/experiment/uncore_frequency_sweep/run_uncore_frequency_sweep_pennant.py \
               integration/experiment/uncore_frequency_sweep/test.py \
               # end
