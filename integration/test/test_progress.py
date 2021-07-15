@@ -40,6 +40,7 @@ import socket
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from integration.test import geopm_context
 from integration.test import util
+import geopmpy.agent
 import geopmpy.io
 import geopmpy.hash
 from integration.experiment import machine
