@@ -1078,8 +1078,24 @@ class SrunLauncher(Launcher):
             result = ['--reservation', self.reservation]
         return result
 
+    current_governor = None
+    desired_governor = None
     def performance_governor_option(self):
-        return ['--cpu-freq=Performance']
+        governor_file = '/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor'
+        if SrunLauncher.current_governor is None:
+            pid = subprocess.Popen(['srun', 'cat', '{}'.format(governor_file)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            output, err = pid.communicate()
+            SrunLauncher.current_governor = output.decode().strip('\n')
+
+        if SrunLauncher.current_governor is not None and \
+           SrunLauncher.desired_governor is None:
+            if SrunLauncher.current_governor not in ['performance', 'userspace']:
+                sys.stderr.write('Warning: <geopm> geopmpy.launcher: Incompatible CPU frequency governor detected ("{}").  The "performance" or "userspace" governor is required when setting CPU frequency with GEOPM.  The governor will be set to "performance" via srun which will overwrite any previous frequency control settings.\n'.format(SrunLauncher.current_governor))
+                SrunLauncher.desired_governor = ['--cpu-freq=Performance']
+            else:
+                SrunLauncher.desired_governor = []
+
+        return SrunLauncher.desired_governor
 
     def get_idle_nodes(self):
         """
