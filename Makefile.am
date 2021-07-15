@@ -362,6 +362,7 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              service/.gitignore \
              service/requirements.txt \
              service/README.rst \
+             service/test/build_dasbus.sh \
              service/test/install_service.sh \
              service/test/test_sst_priority.sh \
              service/test/test_su_give_access.sh \
