@@ -36,8 +36,8 @@ EXTRA_DIST += docs/source/conf.py \
               docs/source/readme.rst \
               # end
 
-docs:
-	sphinx-build -M html docs/source docs/build
+docs: .libs/libgeopmd.so
+	LD_LIBRARY_PATH=.libs:$LD_LIBRARY_PATH sphinx-build -M html docs/source docs/build
 
 clean-local-docs:
 	rm -rf docs/build
