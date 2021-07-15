@@ -55,8 +55,6 @@ class TestIntegration_trace(unittest.TestCase):
         cls._trace_path_prefix = '{}.trace'.format(cls._test_name)
 
         cls._agent_conf_path = cls._test_name + '-agent-config.json'
-        # Clear out exception record for python 2 support
-        geopmpy.error.exc_clear()
 
         num_node = 4
         num_rank = 4

@@ -90,7 +90,6 @@ class TestIntegrationEETimedScalingMix(unittest.TestCase):
         cls._trace_path = test_name + '.trace'
         cls._skip_launch = not util.do_launch()
         cls._agent_conf_path = test_name + '-agent-config.json'
-        geopmpy.error.exc_clear()
         if not cls._skip_launch:
             num_node = 2
             num_rank = 2

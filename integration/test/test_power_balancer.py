@@ -51,7 +51,6 @@ if util.do_launch():
     # Note: this import may be moved outside of do_launch if needed to run
     # commands on compute nodes such as geopm_test_launcher.geopmread
     import geopm_test_launcher
-    geopmpy.error.exc_clear()
 
 
 @util.skip_unless_batch()
@@ -83,9 +82,6 @@ class TestIntegration_power_balancer(unittest.TestCase):
         cls._skip_launch = not util.do_launch()
         cls._show_details = True
         cls._tmp_files = []
-
-        # Clear out exception record for python 2 support
-        geopmpy.error.exc_clear()
 
         if not cls._skip_launch:
             report_signals='TIME@package,TIME_HINT_NETWORK@package'

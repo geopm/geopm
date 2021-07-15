@@ -88,7 +88,6 @@ class TestIntegrationOMPOuterLoop(unittest.TestCase):
         cls._skip_launch = not util.do_launch()
         num_node = 1
         num_rank = 4
-        geopmpy.error.exc_clear()
         for config in test_config:
             curr_run = test_name + config
             report_path = curr_run + '.report'
