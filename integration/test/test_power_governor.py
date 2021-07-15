@@ -55,8 +55,6 @@ class TestIntegration_power_governor(unittest.TestCase):
         cls._report_path = '{}.report'.format(cls._test_name)
         cls._trace_path = '{}.trace'.format(cls._test_name)
         cls._agent_conf_path = cls._test_name + '-agent-config.json'
-        # Clear out exception record for python 2 support
-        geopmpy.error.exc_clear()
         # Set the job size parameters
         cls._num_node = 4
         num_rank = 16

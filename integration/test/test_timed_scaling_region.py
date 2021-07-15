@@ -92,7 +92,6 @@ class TestIntegrationScalingRegion(unittest.TestCase):
         # timed_scaling_region_0, timed_scaling_region_1, ... , timed_scaling_region_30
         cls._region_hash = [geopmpy.hash.crc32_str('timed_scaling_region_{}'.format(ii))
                             for ii in range(31)]
-        geopmpy.error.exc_clear()
         if not cls._skip_launch:
             num_node = 1
             num_rank = 1

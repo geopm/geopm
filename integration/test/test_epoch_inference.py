@@ -67,7 +67,6 @@ if util.do_launch():
     # Note: this import may be moved outside of do_launch if needed to run
     # commands on compute nodes such as geopm_test_launcher.geopmread
     import geopm_test_launcher
-    geopmpy.error.exc_clear()
 
 
 class AppConf(object):
@@ -114,8 +113,6 @@ class TestIntegration_epoch_inference(unittest.TestCase):
         cls._trace_path_prefix = 'test_{}_trace'.format(cls._test_name)
         cls._agent_conf_path = 'test_' + cls._test_name + '-agent-config.json'
         cls._files.append(cls._agent_conf_path)
-        # Clear out exception record for python 2 support
-        geopmpy.error.exc_clear()
 
         cls._config_names = ['no_epoch', 'spin_epoch', 'barrier_epoch', 'spin_stride_epoch']
 

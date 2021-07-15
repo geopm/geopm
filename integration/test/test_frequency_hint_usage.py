@@ -52,8 +52,6 @@ import geopmpy.error
 
 import util
 import geopm_test_launcher
-if util.do_launch():
-    geopmpy.error.exc_clear()
 
 
 class AppConf(object):
@@ -104,8 +102,6 @@ class TestIntegration_frequency_hint_usage(unittest.TestCase):
         cls._ee_report_path = 'test_{}_ee.report'.format(test_name)
         cls._ee_trace_path = 'test_{}_ee.trace'.format(test_name)
         cls._ee_agent_conf_path = 'test_' + test_name + '-ee-agent-config.json'
-
-        geopmpy.error.exc_clear()  # Clear out exception record for python 2 support
 
         cls._freq_min = geopm_test_launcher.geopmread("CPUINFO::FREQ_MIN board 0")
         cls._freq_sticker = geopm_test_launcher.geopmread("CPUINFO::FREQ_STICKER board 0")
