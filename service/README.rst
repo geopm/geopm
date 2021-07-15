@@ -1,28 +1,28 @@
 
-GEOPM systemd Service and Daemon
+GEOPM Systemd Service and Daemon
 ================================
 
 
-* 
+*
   Fine grained access management system for hardware features: read
   hardware "signals" and write hardware "controls".
 
-* 
+*
   System administrator configures access permissions based on Unix
   group.
 
-* 
+*
   Save / restore of hardware controls based on client process lifetime.
 
-* 
+*
   A high performance interface enabling batch access to validated sets
   of signals/controls.
 
-* 
+*
   Supports extensibility for heterogenous environments through C++
   plugin infrastructure (IOGroups).
 
-* 
+*
   `Overview slides <https://geopm.github.io/pdf/geopm-service.pdf>`_
 
 Overview
@@ -67,7 +67,7 @@ Architecture Diagram
 
 .. image:: https://geopm.github.io/images/geopm-service-diagram.svg
    :target: https://geopm.github.io/pdf/geopm-service-diagram.pdf
-   :alt: 
+   :alt:
 
 
 Status
