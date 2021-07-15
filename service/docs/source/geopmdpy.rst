@@ -1,5 +1,3 @@
-geopmdpy package
-================
 
 geopmdpy.service module
 -----------------------
