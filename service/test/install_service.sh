@@ -42,7 +42,8 @@ print_help() {
     The geopm-service requires dasbus version 1.5 or later is
     installed.  Use the script build_dasbus.sh located in this
     directory to create the required dasbus RPM if it is not already
-    installed on your system.
+    installed on your system.  The script prints instructions on how
+    to install the RPM it creates.
 
     Example:
 
@@ -75,8 +76,7 @@ install_packages() {
     RPM_DIR=/home/${RPM_USER}/rpmbuild/RPMS
     PACKAGES="\
 ${RPM_DIR}/x86_64/geopm-service-${VERSION}-1.x86_64.rpm
-${RPM_DIR}/x86_64/python3-geopmdpy-${VERSION}-1.x86_64.rpm
-${RPM_DIR}/noarch/python3-dasbus-1.6*.noarch.rpm"
+${RPM_DIR}/x86_64/python3-geopmdpy-${VERSION}-1.x86_64.rpm"
     for PKG in ${PACKAGES}; do
         test -f ${PKG} ||
             install_error "File does not exist: ${PKG}"
