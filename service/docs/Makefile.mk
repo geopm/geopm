@@ -29,7 +29,8 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += docs/source/conf.py \
+EXTRA_DIST += docs/source/build.rst \
+              docs/source/conf.py \
               docs/source/geopmdpy.rst \
               docs/source/index.rst \
               docs/source/modules.rst \

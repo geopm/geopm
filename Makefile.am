@@ -331,11 +331,12 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              scripts/outlier/README.md \
              scripts/outlier/outlier_detection.py \
              scripts/outlier/theta_nodelist_broken.txt \
+             service/docs/source/build.rst \
              service/docs/source/conf.py \
              service/docs/source/geopmdpy.rst \
              service/docs/source/index.rst \
              service/docs/source/modules.rst \
-             servuce/docs/source/readme.rst \
+             service/docs/source/readme.rst \
              service/geopm-service.spec.in \
              service/Makefile.am \
              service/test/README.md \
