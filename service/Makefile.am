@@ -69,6 +69,7 @@ EXTRA_DIST = .gitignore \
              requirements.txt \
              setup.py \
              test/README.md \
+             test/build_dasbus.sh \
              test/install_service.sh \
              test/test_sst_priority.sh \
              test/test_su_give_access.sh \
