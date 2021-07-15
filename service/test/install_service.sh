@@ -37,14 +37,12 @@ print_help() {
 
     Installs the RPMs created by the \"make rpm\" target of the geopm/service
     build.  The geopm-service and python3-geopmdpy packages are installed and
-    then the geopm service is started with systemctl.  The dasbus python3
-    module version 1.5 or later must be installed For the service to start
-    successfully.  This can be installed via pip from PyPI or with an RPM
-    derived from the dasbus spec file:
+    then the geopm service is started with systemctl.
 
-    https://github.com/rhinstaller/dasbus/blob/master/python-dasbus.spec
-
-    Note the dasbus spec file is designed to support Fedora packaging.
+    The geopm-service requires dasbus version 1.5 or later is
+    installed.  Use the script build_dasbus.sh located in this
+    directory to create the required dasbus RPM if it is not already
+    installed on your system.
 
     Example:
 
@@ -77,7 +75,8 @@ install_packages() {
     RPM_DIR=/home/${RPM_USER}/rpmbuild/RPMS
     PACKAGES="\
 ${RPM_DIR}/x86_64/geopm-service-${VERSION}-1.x86_64.rpm
-${RPM_DIR}/x86_64/python3-geopmdpy-${VERSION}-1.x86_64.rpm"
+${RPM_DIR}/x86_64/python3-geopmdpy-${VERSION}-1.x86_64.rpm
+${RPM_DIR}/noarch/python3-dasbus-1.6*.noarch.rpm"
     for PKG in ${PACKAGES}; do
         test -f ${PKG} ||
             install_error "File does not exist: ${PKG}"
