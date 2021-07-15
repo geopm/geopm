@@ -344,7 +344,7 @@ class TestIntegration_progress(unittest.TestCase):
         operations per work chunk (FMA, add, and store).
 
         """
-        self.check_overhead('triad', 2.0)
+        self.check_overhead('triad', 4.0)
 
 if __name__ == '__main__':
     unittest.main()
