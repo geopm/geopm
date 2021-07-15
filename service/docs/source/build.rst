@@ -7,6 +7,9 @@ RPM packaging system enables some cross-Linux-distribution
 compatibility for the installation of the systemd service, and
 provides a clean mechanism for uninstall.
 
+We are currently supporting the GEOPM service for the CentOS 8, RHEL
+8, and SLES 15 SP2 Linux distributions.
+
 
 Upstream RHEL and CentOS Package Requirements
 ---------------------------------------------
@@ -41,13 +44,13 @@ dasbus is required.  Alternatively, dasbus may be updated with
 ``pip``, but unless a python-dasbus RPM installed on the system, the
 requirement must be removed from the file
 ``geopm/service/geopm-service.spec.in`` before building the
-geopm-service RPM.
+GEOPM service RPMs.
 
 
-Building ``geopm-service`` RPMs
--------------------------------
+Building GEOPM Service RPMs
+---------------------------
 
-Support for packaging for CentOS-8 RHEL-8 and SLES-15-SP2 is provided
+Support for packaging for CentOS 8, RHEL 8, and SLES 15 SP2 is provided
 by the geopm service build system.
 
 .. code-block::
@@ -61,7 +64,8 @@ by the geopm service build system.
     make rpm
 
 
-These commands create the geopm-service RPM files here:
+These commands create the GEOPM service RPM files in your rpmbuild
+directory:
 
 .. code-block::
 
