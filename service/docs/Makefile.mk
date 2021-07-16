@@ -29,12 +29,15 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += docs/source/build.rst \
+EXTRA_DIST += docs/source/admin.rst \
+              docs/source/analysis.rst \
+              docs/source/build.rst \
+              docs/source/client.rst \
               docs/source/conf.py \
-              docs/source/geopmdpy.rst \
               docs/source/index.rst \
-              docs/source/modules.rst \
               docs/source/readme.rst \
+              docs/source/reference.rst \
+              docs/source/runtime.rst \
               # end
 
 docs: .libs/libgeopmd.so
