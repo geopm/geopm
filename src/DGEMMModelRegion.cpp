@@ -78,6 +78,7 @@ namespace geopm
         , m_matrix_c(NULL)
         , m_matrix_size(0)
         , m_pad_size(geopm::hardware_destructive_interference_size)
+        , m_num_warmup(4)
     {
         m_name = "dgemm";
         m_do_imbalance = do_imbalance;
@@ -131,6 +132,9 @@ namespace geopm
             }
         }
         m_big_o = big_o_in;
+        for (int warmup_idx = 0; warmup_idx != m_num_warmup; ++warmup_idx) {
+            run();
+        }
         geopm_prof_exit(start_rid);
     }
 

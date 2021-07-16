@@ -54,6 +54,7 @@ namespace geopm
             double *m_matrix_c;
             size_t m_matrix_size;
             const size_t m_pad_size;
+            const int m_num_warmup;
     };
 }
 
