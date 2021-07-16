@@ -14,7 +14,7 @@ We are currently supporting the GEOPM service for the CentOS 8, RHEL
 Upstream RHEL and CentOS Package Requirements
 ---------------------------------------------
 
-.. code-block::
+.. code-block:: bash
 
     yum install python3 python3-devel python3-gobject-base
 
@@ -23,7 +23,7 @@ Upstream RHEL and CentOS Package Requirements
 Upstream SLES and OpenSUSE Package Requirements
 -----------------------------------------------
 
-.. code-block::
+.. code-block:: bash
 
     zypper install python3 python3-devel python3-gobject
 
@@ -41,10 +41,10 @@ completion.
 The ``python-dasbus`` requirement is explicitly stated in the
 geopm-service spec file.  Because of this, an RPM installation of
 dasbus is required.  Alternatively, dasbus may be updated with
-``pip``, but unless a python-dasbus RPM installed on the system, the
-requirement must be removed from the file
-``geopm/service/geopm-service.spec.in`` before building the
-GEOPM service RPMs.
+``pip``, but unless a python-dasbus RPM is installed on the system,
+the requirement must be removed from the file
+``geopm/service/geopm-service.spec.in`` before building the GEOPM
+service RPMs.
 
 
 Building GEOPM Service RPMs
@@ -53,7 +53,7 @@ Building GEOPM Service RPMs
 Support for packaging for CentOS 8, RHEL 8, and SLES 15 SP2 is provided
 by the geopm service build system.
 
-.. code-block::
+.. code-block:: bash
 
     git clone git@github.com:geopm/geopm.git
     cd geopm
@@ -67,7 +67,7 @@ by the geopm service build system.
 These commands create the GEOPM service RPM files in your rpmbuild
 directory:
 
-.. code-block::
+.. code-block:: bash
 
     $HOME/rpmbuild/RPMS/x86_64/geopm-service-<VERSION>-1.x86_64.rpm
     $HOME/rpmbuild/RPMS/x86_64/python3-geopmdpy-<VERSION>-1.x86_64.rpm
@@ -80,7 +80,7 @@ After following the instructions above, install the RPM files by
 executing the ``install_service.sh`` script located in the
 ``service/test`` sub-directory of the GEOPM repository.
 
-.. code-block::
+.. code-block:: bash
 
     cd geopm/service
     sudo ./test/install_service.sh $(cat VERSION) $USER
@@ -93,7 +93,7 @@ To stop the GEOPM service and uninstall the RPMs from the system,
 simply pass the ``--remove`` option to the installer script used in
 the previous section:
 
-.. code-block::
+.. code-block:: bash
 
     cd geopm/service
     sudo ./test/install_service.sh --remove
