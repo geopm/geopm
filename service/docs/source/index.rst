@@ -1,7 +1,7 @@
 .. GEOPM Service documentation master file
 
-Welcome to GEOPM Service's documentation!
-=========================================
+GEOPM Service Documentation
+===========================
 
 .. toctree::
    :maxdepth: 2
@@ -9,7 +9,11 @@ Welcome to GEOPM Service's documentation!
 
    readme
    build
-   modules
+   admin
+   client
+   runtime
+   analysis
+   reference
 
 Indices and tables
 ==================
