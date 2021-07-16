@@ -12,71 +12,98 @@ all users, and may extend these default privileges for specific Unix
 groups.
 
 
+Example: Reading the Access Lists
+---------------------------------
+
+The signals and controls provided by the GEOPM Service depend on which
+Linux features are avaiable, i.e. which device drivers are loaded, how
+they are configured, and what hardware is installed.  The service may
+be extended with IOGroup plugins which may augment the signals and
+controls available through the service.
+
+The ``geopmaccess`` commandline tool can be used to discover which
+signals and controls are provided by the GEOPM Service on your system.
+
+.. code-block:: bash
+
+    # LIST ALL SIGNALS PROVIDED
+    geopmaccess -a
+
+    # LIST ALL CONTROLS PROVIDED
+    geopmaccess -a -c
+
+    # LIST DEFAULT SIGNAL ACCESS LIST
+    geopmaccess
+
+    # LIST DEFAULT CONTROL ACCESS LIST
+    geopmaccess -c
+
+    # LIST SIGNAL ACCESS FOR A UNIX GROUP: "power"
+    geopmaccess -g power
+
+    # LIST CONTROL ACCESS FOR A UNIX GROUP: "power"
+    geopmaccess -c -g power
+
+
 Example: Enabling User Access
 -----------------------------
 
-This test configures the GEOPM service to enable and disable any
-user to read and write to bits 8-15 of the MSR_PERF_CTL register
-which controls the maximum frequency of the core.  The test saves
-the existing settings so they can be restored at the end of the
-test.  Access to the control is removed from the list, and it is
-shown that the test user cannot succesfully run the
-test_write_session.sh script.  Access to the control is granted
-and it is shown that the test user can succefully change the
-value.
+This example configures the GEOPM Service to enable any user to read
+and write to bits 8-15 of the MSR_PERF_CTL register which controls the
+maximum frequency of the core.
 
 
 .. code-block:: bash
 
-    # PARAMETERS
+    # NAME OF CONTROL
     CONTROL=MSR::PERF_CTL:FREQ
-    TEST_DIR=$(dirname $(readlink -f $0))
-    TEST_USER=test
-    TEST_SCRIPT=${TEST_DIR}/test_write_session.sh
-    SAVE_SIGNALS=$(mktemp)
-    SAVE_CONTROLS=$(mktemp)
-    TEST_SIGNALS=$(mktemp)
-    TEST_CONTROLS=$(mktemp)
 
-    test_error() {
-        echo "Error: $1" 1>&2
-        exit -1
-    }
-
-    # MAKE SURE TEST IS RUN AS ROOT USER
-    test ${USER} == "root" ||
-        test_error "Must be run as the root user, this is an administrator test"
+    # CREATE TEMPORARY FILES
+    ACCESS_SIGNALS=$(mktemp)
+    ACCESS_CONTROLS=$(mktemp)
 
     # SAVE INITIAL ACCESS SETTINGS
-    geopmaccess > ${SAVE_SIGNALS}
-    geopmaccess -c > ${SAVE_CONTROLS}
-
-    # REMOVE CONTROL FROM ACCESS LIST FOR READING AND WRITING
-    grep -v ${CONTROL} ${SAVE_SIGNALS} > ${TEST_SIGNALS}
-    grep -v ${CONTROL} ${SAVE_CONTROLS} > ${TEST_CONTROLS}
-    geopmaccess -w < ${TEST_SIGNALS}
-    geopmaccess -w -c < ${TEST_CONTROLS}
-
-    # RUN WRITE SESSION TEST AND MAKE SURE IT FAILS
-    su ${TEST_USER} ${TEST_SCRIPT} &&
-        test_error "Access to $CONTROL was disabled, but write session passed"
+    geopmaccess > ${ACCESS_SIGNALS}
+    geopmaccess -c > ${ACCESS_CONTROLS}
 
     # ADD THE CONTROL INTO ACCESS LIST FOR READING AND WRITING
-    echo ${CONTROL} >> ${TEST_SIGNALS}
-    echo ${CONTROL} >> ${TEST_CONTROLS}
-    geopmaccess -w < ${TEST_SIGNALS}
-    geopmaccess -w -c < ${TEST_CONTROLS}
-
-    # RUN WRITE SESSION TEST AND MAKE SURE IT PASSES
-    su ${TEST_USER} ${TEST_SCRIPT} ||
-        test_error "Access to $CONTROL was enabled, but write session failed"
-
-    # RESTORE INITIAL ACCESS SETTINGS
-    geopmaccess -w < ${SAVE_SIGNALS}
-    geopmaccess -w -c < ${SAVE_CONTROLS}
+    echo ${CONTROL} >> ${ACCESS_SIGNALS}
+    echo ${CONTROL} >> ${ACCESS_CONTROLS}
+    geopmaccess -w < ${ACCESS_SIGNALS}
+    geopmaccess -w -c < ${ACCESS_CONTROLS}
 
     # CLEAN UP TEMPORARY FILES
-    rm ${SAVE_SIGNALS} ${SAVE_CONTROLS} ${TEST_SIGNALS} ${TEST_CONTROLS}
+    rm ${ACCESS_SIGNALS} ${ACCESS_CONTROLS}
 
-    echo "SUCCESS"
-    exit 0
+
+Example: Enabling Group Access
+------------------------------
+
+As an administrator you may want to enable access to a signal or
+control for a subset of your users.  This can be accomplished by
+creating a Unix user group containing the users that should be
+provided this privilege.  This mechanism may also be used to extend
+permissions for one particular user if the user-name-specific group is
+provided.
+
+
+.. code-block:: bash
+
+    # NAME OF SIGNAL
+    SIGNAL=INSTRUCTIONS_RETIRED
+
+    # NAME OF UNIX GROUP
+    GROUP_NAME=perf
+
+    # CREATE A TEMPORARY FILE
+    ACCESS_SIGNALS=$(mktemp)
+
+    # SAVE INITIAL ACCESS SETTINGS
+    geopmaccess -g ${GROUP_NAME} > ${ACCESS_SIGNALS}
+
+    # ADD THE SIGNAL INTO ACCESS LIST FOR READING
+    echo ${SIGNAL} >> ${ACCESS_SIGNALS}
+    geopmaccess -g ${GROUP_NAME} -w < ${ACCESS_SIGNALS}
+
+    # CLEAN UP TEMPORARY FILE
+    rm ${ACCESS_SIGNALS}
