@@ -33,37 +33,59 @@
 AppConf class for Arithmetic Intensity benchmark.
 '''
 
+import argparse
 import os
 import re
+import subprocess
+import sys
 
 from apps import apps
 
+def exec_path(run_type):
+    '''
+    Args
+
+    run_type (str): One of sse, avx2 or avx512
+
+    Returns
+
+    Execution path for a given avx type.
+    '''
+    benchmark_dir = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(benchmark_dir, "ARITHMETIC_INTENSITY", "bench_" + run_type)
+
+def read_app_help(run_type):
+    '''
+    Args
+
+    run_type (str): One of sse, avx2 or avx512
+
+    Returns
+
+    Help text returned by the executable of the matching avx type.
+    '''
+    args = [exec_path(run_type), "--help"]
+    try:
+        output = subprocess.run(args, check=False, universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    except FileNotFoundError:
+        sys.stderr.write("ERROR: Executable not found: {}\n".format(exec_path(run_type)))
+        sys.exit(1)
+    if output.returncode != 0:
+        sys.stderr.write("ERROR: App help option returned the following error:\n{}\n".format(output.stdout))
+        sys.exit(1)
+    # Remove the first lines up to right after "Options:"
+    help_out = output.stdout.split("\n")
+    start_idx = [idx for idx, val in enumerate(help_out) if re.match(r'^\s*Options:\s*$', val)][0] + 1
+    return "\n".join(help_out[start_idx:])
 
 def setup_run_args(parser):
     """ Add common arguments for all run scripts.
     """
-    parser.add_argument('--run-type', dest='run_type', choices=['sse', 'avx2', 'avx512'], default='sse',
-        help='Choose a vectorization type for the run.')
-    parser.add_argument('--slowdown', type=float, default=1,
-        help='When imbalance is present, this specifies the amount of work for slow ranks to perform, as a factor of the amount of work the fast ranks perform.')
-    parser.add_argument('--base-internal-iterations', type=int, default=1,
-        help='How many iterations to perform in the inner loop, for the fast set of ranks (all ranks if there is no imbalance).')
-    parser.add_argument('--slow-ranks', type=int, default=0,
-        help='The number of ranks to run with extra work for an imbalanced load.')
-    parser.add_argument('--floats', type=int, default=67108864,
-        help='The number of floating-point numbers per rank in the problem array.')
-    parser.add_argument('-v', '--verbose',
-        help='Run in verbose mode.')
-    parser.add_argument('-s', '--single-precision',
-        help='Run in single-precision mode.')
-    parser.add_argument('-l', '--list',
-        help='List the available arithmetic intensity levels for use with the --benchmarks option.')
-    parser.add_argument('-i', '--iterations', type=int, default=5,
-        help='The number of times to run each phase of the benchmark.')
-    parser.add_argument('-b', '--benchmarks', nargs='+', type=float,
-        help='List of benchmark intensity variants to run (all are run if this option is not specified).')
-    parser.add_argument('--start-time', type=int,
-        help='Time at which the benchmark will start, in seconds since the system clock\'s epoch. Start immediately by default, or if the provided time is in the past.')
+    parser.epilog =  "Following are the additional/optional arguments passed to the app:\n\n" + read_app_help("sse")
+    parser.formatter_class = argparse.RawDescriptionHelpFormatter
+    parser.add_argument('--run-type', dest='run_type',
+                        choices=['sse', 'avx2', 'avx512'], default='sse',
+                        help='Choose a vectorization type for the run (default: sse).')
     parser.add_argument('--ranks-per-node', dest='ranks_per_node',
                         action='store', type=int,
                         help='Number of physical cores to reserve for the app. ' +
@@ -71,41 +93,29 @@ def setup_run_args(parser):
                              'node for GEOPM).')
     parser.add_argument('--distribute-slow-ranks', action='store_true',
                         help='Distribute slow ranks across nodes and packages. Otherwise, slow '
-                             'ranks are assigned to fill nodes and packages.')
+                             'ranks are assigned to fill nodes and packages (default: False).')
 
 def create_appconf(mach, args):
     ''' Create a ArithmeticIntensityAppConf object from an ArgParse and experiment.machine object.
     '''
-
-    app_args = []
-    for arg in ['slowdown', 'base_internal_iterations', 'slow_ranks', 'floats', 'verbose', 'single_precision', 'list', 'iterations', 'benchmarks', 'start_time']:
-        values = vars(args)[arg]
-        if values is not None:
-            arg = "--" + arg.replace('_', '-')
-            app_args.append(arg)
-            if type(values) == list:
-                app_args += [str(ii) for ii in values]
-            else:
-                app_args.append(str(values))
-
-    return ArithmeticIntensityAppConf(mach, app_args, args.run_type, args.ranks_per_node, args.distribute_slow_ranks)
+    return ArithmeticIntensityAppConf(mach, args.run_type, args.ranks_per_node,
+                                      args.distribute_slow_ranks)
 
 class ArithmeticIntensityAppConf(apps.AppConf):
     @staticmethod
     def name():
         return 'arithmetic_intensity'
 
-    def __init__(self, mach, app_args, run_type, ranks_per_node, distribute_slow_ranks):
-        benchmark_dir = os.path.dirname(os.path.abspath(__file__))
-        self._exec_path = os.path.join(benchmark_dir, "ARITHMETIC_INTENSITY", "bench_" + run_type)
-        self._exec_args = app_args
+    def __init__(self, mach, run_type, ranks_per_node, distribute_slow_ranks):
+        self._exec_path = exec_path(run_type)
+        self._exec_args = []
         self._distribute_slow_ranks = distribute_slow_ranks
         if ranks_per_node is None:
             self._ranks_per_node = mach.num_core() - 1
         else:
             if ranks_per_node > mach.num_core():
-                raise RuntimeError('Number of requested cores is more than the number ' +
-                                   'of available cores: {} vs. {}'.format(cores_per_node, mach.num_core()))
+                raise RuntimeError('Number of requested cores is more than the number of available ' +
+                                   'cores: {} vs. {}'.format(ranks_per_node, mach.num_core()))
             self._ranks_per_node = ranks_per_node
 
     def get_rank_per_node(self):

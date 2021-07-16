@@ -34,7 +34,7 @@
 from __future__ import absolute_import
 
 import unittest
-import mock
+from unittest import mock
 try:
     from importlib import reload
 except ImportError:

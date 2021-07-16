@@ -35,7 +35,7 @@ from __future__ import absolute_import
 
 import unittest
 import os
-import mock
+from unittest import mock
 import subprocess
 import shlex
 try:

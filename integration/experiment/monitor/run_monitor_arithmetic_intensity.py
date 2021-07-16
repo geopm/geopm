@@ -43,7 +43,7 @@ from apps.arithmetic_intensity import arithmetic_intensity
 
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     monitor.setup_run_args(parser)
     arithmetic_intensity.setup_run_args(parser)
     args, extra_args = parser.parse_known_args()
