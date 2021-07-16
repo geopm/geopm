@@ -1,62 +1,65 @@
 
-geopmdpy.service module
------------------------
+Reference Manual
+================
+
+geopmdpy.service
+----------------
 
 .. automodule:: geopmdpy.service
    :members:
    :undoc-members:
    :show-inheritance:
 
-geopmdpy.dbus\_xml module
--------------------------
+geopmdpy.dbus\_xml
+------------------
 
 .. automodule:: geopmdpy.dbus_xml
    :members:
    :undoc-members:
    :show-inheritance:
 
-geopmdpy.pio module
--------------------
+geopmdpy.pio
+------------
 
 .. automodule:: geopmdpy.pio
    :members:
    :undoc-members:
    :show-inheritance:
 
-geopmdpy.topo module
---------------------
+geopmdpy.topo
+-------------
 
 .. automodule:: geopmdpy.topo
    :members:
    :undoc-members:
    :show-inheritance:
 
-geopmdpy.session module
------------------------
+geopmdpy.session
+----------------
 
 .. automodule:: geopmdpy.session
    :members:
    :undoc-members:
    :show-inheritance:
 
-geopmdpy.access module
-----------------------
+geopmdpy.access
+---------------
 
 .. automodule:: geopmdpy.access
    :members:
    :undoc-members:
    :show-inheritance:
 
-geopmdpy.error module
----------------------
+geopmdpy.error
+--------------
 
 .. automodule:: geopmdpy.error
    :members:
    :undoc-members:
    :show-inheritance:
 
-geopmdpy.version module
------------------------
+geopmdpy.version
+----------------
 
 .. automodule:: geopmdpy.version
    :members:
