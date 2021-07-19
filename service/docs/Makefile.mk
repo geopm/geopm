@@ -40,7 +40,11 @@ EXTRA_DIST += docs/source/admin.rst \
               docs/source/runtime.rst \
               # end
 
-docs: .libs/libgeopmd.so
+docs/source/images:
+	echo "Error: Create a symbolic link to geopm.github.io/images in docs/source/images" 1>&2
+	false
+
+docs: .libs/libgeopmd.so docs/source/images
 	LD_LIBRARY_PATH=.libs:$(LD_LIBRARY_PATH) sphinx-build -M html docs/source docs/build
 
 clean-local-docs:
