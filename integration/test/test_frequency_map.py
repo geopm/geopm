@@ -38,6 +38,7 @@ import pandas
 import socket
 
 import geopm_context
+import geopmpy.agent
 import geopmpy.io
 import geopmpy.hash
 

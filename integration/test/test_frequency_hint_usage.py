@@ -111,7 +111,7 @@ class TestIntegration_frequency_hint_usage(unittest.TestCase):
         if not cls._skip_launch:
             # Set the job size parameters
             num_node = 1
-            num_rank = 1
+            num_rank = 2
             time_limit = 6000
             # Configure the test application
             app_conf = AppConf()
@@ -127,12 +127,14 @@ class TestIntegration_frequency_hint_usage(unittest.TestCase):
                                                     'energy_efficient',
                                                     agent_conf_dict)
 
+            trace_signals = 'REGION_HASH@core,MSR::PERF_CTL:FREQ@core,MSR::PERF_STATUS:FREQ@core'
             # Fmap run
             launcher = geopm_test_launcher.TestLauncher(app_conf,
                                                         fmap_agent_conf,
                                                         cls._fmap_report_path,
                                                         cls._fmap_trace_path,
-                                                        time_limit=time_limit)
+                                                        time_limit=time_limit,
+                                                        trace_signals=trace_signals)
             launcher.set_num_node(num_node)
             launcher.set_num_rank(num_rank)
             launcher.run('test_' + test_name)
