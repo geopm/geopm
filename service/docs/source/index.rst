@@ -1,4 +1,4 @@
-.. GEOPM Service documentation master file
+.. GEOPM Service documentation main file
 
 GEOPM Service Documentation
 ===========================
