@@ -11,8 +11,8 @@ command line tool before they will be available to a non-root user
 with the ``geopmsession`` command.
 
 
-Example: Reading Instructions Retired
--------------------------------------
+Reading Instructions Retired
+----------------------------
 
 In this example we will read the hardware counter that measures
 instructions retired for Linux logical CPU 0 and 1.  This read will be

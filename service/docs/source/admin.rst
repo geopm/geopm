@@ -12,8 +12,8 @@ all users, and may extend these default privileges for specific Unix
 groups.
 
 
-Example: Reading the Access Lists
----------------------------------
+Reading the Access Lists
+------------------------
 
 The signals and controls provided by the GEOPM Service depend on which
 Linux features are avaiable, i.e. which device drivers are loaded, how
@@ -45,8 +45,8 @@ signals and controls are provided by the GEOPM Service on your system.
     geopmaccess -c -g power
 
 
-Example: Enabling User Access
------------------------------
+Enabling User Access
+--------------------
 
 This example configures the GEOPM Service to enable any user to read
 and write to bits 8-15 of the MSR_PERF_CTL register which controls the
@@ -76,8 +76,8 @@ maximum frequency of the core.
     rm ${ACCESS_SIGNALS} ${ACCESS_CONTROLS}
 
 
-Example: Enabling Group Access
-------------------------------
+Enabling Group Access
+---------------------
 
 As an administrator you may want to enable access to a signal or
 control for a subset of your users.  This can be accomplished by
