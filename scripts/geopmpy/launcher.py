@@ -571,6 +571,29 @@ class Launcher(object):
         if is_geopmctl and geopm_pid.returncode:
             raise subprocess.CalledProcessError(geopm_pid.returncode, geopm_argv)
 
+    def run_compute_cmd(self, argv, num_node=None):
+        """
+        Run a command on the compute nodes.
+        """
+        if num_node is None:
+            num_node = self.num_node # Run on all the nodes in the job by default
+        launch_cmd = 'dummy {} --geopm-ctl-disable -- '.format(self.__class__.__name__) + argv
+        combined_argv = shlex.split(launch_cmd)
+
+        factory = Factory()
+        launcher = factory.create(combined_argv,
+                                  num_rank=num_node,
+                                  num_node=self.num_node,
+                                  host_file=self.host_file,
+                                  node_list=self.node_list,
+                                  exclude_list=self.exclude_list,
+                                  reservation=self.reservation,
+                                  partition=self.partition)
+        ostream = io.StringIO()
+        launcher.run(stdout=ostream)
+        out = ostream.getvalue()
+        return out
+
     def environ(self):
         """
         Returns the modified environment dictionary updated with GEOPM
@@ -596,32 +619,14 @@ class Launcher(object):
         launched on.  This is used to inform CPU affinity assignment.
         """
         # Create the cache for the PlatformTopo on each compute node
-        argv = shlex.split('dummy {} --geopm-ctl-disable -- geopmread --cache'.format(self.__class__.__name__))
-        factory = Factory()
-        # run geopmread --cache on every node (1 rank per node)
-        launcher = factory.create(argv, num_rank=self.num_node, num_node=self.num_node,
-                                  host_file=self.host_file,
-                                  node_list=self.node_list,
-                                  exclude_list=self.exclude_list,
-                                  reservation=self.reservation,
-                                  partition=self.partition)
-        launcher.run()
+        self.run_compute_cmd('geopmread --cache')
+
         # Query the topology for Launcher calculations by running lscpu on one node.
         # Note that a warning may be emitted by underlying launcher when main application uses more
         # than one node and the node list is passed.  We should run lscpu on all the nodes in the
         # allocation and check that the node topology is uniform across all nodes used by the job
         # instead of just running on one node.
-        argv = shlex.split('dummy {} --geopm-ctl-disable -- lscpu --hex'.format(self.__class__.__name__))
-        # run lscpu on a single node (1 rank)
-        launcher = factory.create(argv, 1, 1,
-                                  host_file=self.host_file,
-                                  node_list=self.node_list,
-                                  exclude_list=self.exclude_list,
-                                  reservation=self.reservation,
-                                  partition=self.partition)
-        ostream = io.StringIO()
-        launcher.run(stdout=ostream)
-        out = ostream.getvalue()
+        out = self.run_compute_cmd('lscpu --hex', 1)
         cpu_tpc_core_socket = [int(line.split(':')[1])
                                for line in out.splitlines()
                                if line.find('CPU(s):') == 0 or
@@ -638,20 +643,11 @@ class Launcher(object):
 
     def init_governor(self):
         """
+        Queries the compute nodes to determine the current CPU frequency
+        governor.
         """
         governor_file = '/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor'
-        argv = shlex.split('dummy {} --geopm-ctl-disable -- cat {}'.format(self.__class__.__name__, governor_file))
-        factory = Factory()
-        launcher = factory.create(argv, num_rank=self.num_node, num_node=self.num_node,
-                                  host_file=self.host_file,
-                                  node_list=self.node_list,
-                                  exclude_list=self.exclude_list,
-                                  reservation=self.reservation,
-                                  partition=self.partition)
-        ostream = io.StringIO()
-        launcher.run(stdout=ostream)
-        out = ostream.getvalue()
-
+        out = self.run_compute_cmd('cat {}'.format(governor_file))
         current_governor = out.splitlines()[3:] # Args 0:2 are just an echo of the command
 
         if not all(current_governor[0] == gov for gov in current_governor):
