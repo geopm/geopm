@@ -107,3 +107,24 @@ provided.
 
     # CLEAN UP TEMPORARY FILE
     rm ${ACCESS_SIGNALS}
+
+
+Another example of using group permissions is to create a Unix group
+called "geopm" that is granted access to all signals and controls that
+are enabled on the system.  Users that should be granted full use of
+the service can then be added to the geopm Unix group.
+
+
+.. code-block:: bash
+
+    # NAME OF UNIX GROUP
+    GROUP_NAME=geopm
+
+    # CREATE "geopm" GROUP
+    groupadd ${GROUP_NAME}
+
+    # ENABLE GROUP TO READ ALL AVAILABLE SIGNALS
+    geopmaccess -a | geopmaccess -g ${GROUP_NAME} -w
+
+    # ENABLE GROUP TO WRITE ALL AVAILABLE CONTROLS
+    geopmaccess -a -c | geopmaccess -g ${GROUP_NAME} -w -c
