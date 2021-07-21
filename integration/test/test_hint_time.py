@@ -51,7 +51,6 @@ if util.do_launch():
     # Note: this import may be moved outside of do_launch if needed to run
     # commands on compute nodes such as geopm_test_launcher.geopmread
     from integration.test import geopm_test_launcher
-    geopmpy.error.exc_clear()
 
 class AppConf(object):
     """Class that is used by the test launcher in place of a
@@ -107,8 +106,6 @@ class TestIntegration_hint_time(unittest.TestCase):
         cls._image_path = 'test_{}.png'.format(cls._test_name)
         cls._skip_launch = not util.do_launch()
         cls._agent_conf_path = 'test_' + cls._test_name + '-agent-config.json'
-        # Clear out exception record for python 2 support
-        geopmpy.error.exc_clear()
         machine_file_name = 'test_{}.machine'.format(cls._test_name)
         cls._machine = machine.Machine()
         try:

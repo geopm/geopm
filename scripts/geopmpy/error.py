@@ -97,10 +97,3 @@ def message(err_number):
     _dl.geopm_error_message(err_number, result_cstr, name_max)
     return _ffi.string(result_cstr).decode()
 
-def exc_clear():
-    """Clear out exception record when run with python2, in python3 this
-    is cleared automatically when you leave the except clause.
-
-    """
-    if 'exc_clear' in dir(sys):
-        sys.exc_clear()

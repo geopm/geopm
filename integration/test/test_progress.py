@@ -40,6 +40,7 @@ import socket
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from integration.test import geopm_context
 from integration.test import util
+import geopmpy.agent
 import geopmpy.io
 import geopmpy.hash
 from integration.experiment import machine
@@ -86,8 +87,6 @@ class TestIntegration_progress(unittest.TestCase):
         cls._report_path = '{}.report'.format(cls._test_name)
         cls._trace_path = '{}.trace'.format(cls._test_name)
         cls._agent_conf_path = cls._test_name + '-agent-config.json'
-        # Clear out exception record for python 2 support
-        geopmpy.error.exc_clear()
 
         # Create machine
         cls._machine = machine.try_machine('.', cls._test_name)
@@ -345,7 +344,7 @@ class TestIntegration_progress(unittest.TestCase):
         operations per work chunk (FMA, add, and store).
 
         """
-        self.check_overhead('triad', 2.0)
+        self.check_overhead('triad', 4.0)
 
 if __name__ == '__main__':
     unittest.main()

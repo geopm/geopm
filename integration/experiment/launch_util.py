@@ -168,6 +168,9 @@ def launch_all_runs(targets, num_nodes, iterations, extra_cli_args, output_dir,
                     # Hit if e.g. the app calls MPI_ABORT
                     sys.stderr.write('Warning: <geopm> Execption encountered during run {}'.format(e))
                     sys.stderr.write('Retrying previous trial...')
+                    # Without sleep, the failed run tries to start over and over again and becomes
+                    # unresponsive to CTRL-C.
+                    time.sleep(5)
                 finally:
                     app_conf.trial_teardown(run_id, output_dir)
 

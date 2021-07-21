@@ -74,7 +74,6 @@ if util.do_launch():
     # If we are not skipping the launch we need to import the test
     # launcher
     from integration.test import geopm_test_launcher
-    geopmpy.error.exc_clear()
 
 # Globals controlling uniform y axis limits in all plots
 g_plot_energy_lim = [4000, 11000]
@@ -137,8 +136,6 @@ class TestIntegration_ee_short_region_slop(unittest.TestCase):
         cls._job_time_limit = 6000
         cls._report_signals = 'INSTRUCTIONS_RETIRED,CYCLES_REFERENCE,CYCLES_THREAD'
         cls._trace_signals = 'INSTRUCTIONS_RETIRED,MSR::UNCORE_PERF_STATUS:FREQ,TEMPERATURE_CORE'
-        # Clear out exception record for python 2 support
-        geopmpy.error.exc_clear()
         if not cls._skip_launch:
             cls.launch()
 
