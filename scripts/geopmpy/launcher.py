@@ -583,7 +583,7 @@ class Launcher(object):
         factory = Factory()
         launcher = factory.create(combined_argv,
                                   num_rank=num_node,
-                                  num_node=self.num_node,
+                                  num_node=num_node,
                                   host_file=self.host_file,
                                   node_list=self.node_list,
                                   exclude_list=self.exclude_list,
