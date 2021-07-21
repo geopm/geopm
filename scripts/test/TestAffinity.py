@@ -69,6 +69,9 @@ class TestAffinityLauncher(geopmpy.launcher.Launcher):
         self.num_socket = self.topo._num_socket
         self.num_linux_cpu = self.topo._num_linux_cpu
 
+    def init_governor(self):
+        pass
+
     def parse_launcher_argv(self):
         pass
 
