@@ -255,7 +255,7 @@ namespace geopm
                     "end_bit":   23,
                     "function":  "scale",
                     "units":     "none",
-                    "scalar":    1e8,
+                    "scalar":    1,
                     "behavior":  "constant",
                     "writeable": false
                 },
