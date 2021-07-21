@@ -79,12 +79,13 @@ class Factory(object):
 
     def create(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
                time_limit=None, job_name=None, node_list=None, exclude_list=None, host_file=None,
-               reservation=None, quiet=None):
+               partition=None, reservation=None, quiet=None):
         try:
             launcher_name = argv[1]
             return self._launcher_dict[launcher_name](argv[2:], num_rank, num_node, cpu_per_rank, timeout,
                                                       time_limit, job_name, node_list, exclude_list,
-                                                      host_file, reservation=reservation, quiet=quiet)
+                                                      host_file, partition=partition, reservation=reservation,
+                                                      quiet=quiet)
         except KeyError:
             raise LookupError('<geopm> geopmpy.launcher: Unsupported launcher "{}" requested'.format(launcher_name))
 
@@ -357,6 +358,7 @@ class Launcher(object):
             self.is_geopm_enabled = False
             self.is_override_enabled = False
         self.is_slurm_enabled = False
+        self.governor = None
         self.parse_launcher_argv()
 
         self.cpu_per_rank = None
@@ -437,6 +439,7 @@ class Launcher(object):
             if self.num_node is None:
                 raise SyntaxError('<geopm> geopmpy.launcher: Number of nodes must be specified.')
             self.init_topo()
+            self.init_governor()
             if not is_cpu_per_rank_override and 'OMP_NUM_THREADS' not in os.environ:
                 # exclude 2 cores for GEOPM and OS
                 available_cores = self.num_linux_cpu // self.thread_per_core - 2
@@ -600,7 +603,8 @@ class Launcher(object):
                                   host_file=self.host_file,
                                   node_list=self.node_list,
                                   exclude_list=self.exclude_list,
-                                  reservation=self.reservation)
+                                  reservation=self.reservation,
+                                  partition=self.partition)
         launcher.run()
         # Query the topology for Launcher calculations by running lscpu on one node.
         # Note that a warning may be emitted by underlying launcher when main application uses more
@@ -613,7 +617,8 @@ class Launcher(object):
                                   host_file=self.host_file,
                                   node_list=self.node_list,
                                   exclude_list=self.exclude_list,
-                                  reservation=self.reservation)
+                                  reservation=self.reservation,
+                                  partition=self.partition)
         ostream = io.StringIO()
         launcher.run(stdout=ostream)
         out = ostream.getvalue()
@@ -630,6 +635,37 @@ class Launcher(object):
         self.thread_per_core = cpu_tpc_core_socket[1]
         self.core_per_socket = cpu_tpc_core_socket[2]
         self.num_socket = cpu_tpc_core_socket[3]
+
+    def init_governor(self):
+        """
+        """
+        governor_file = '/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor'
+        argv = shlex.split('dummy {} --geopm-ctl-disable -- cat {}'.format(self.__class__.__name__, governor_file))
+        factory = Factory()
+        launcher = factory.create(argv, num_rank=self.num_node, num_node=self.num_node,
+                                  host_file=self.host_file,
+                                  node_list=self.node_list,
+                                  exclude_list=self.exclude_list,
+                                  reservation=self.reservation,
+                                  partition=self.partition)
+        ostream = io.StringIO()
+        launcher.run(stdout=ostream)
+        out = ostream.getvalue()
+
+        current_governor = out.splitlines()[3:] # Args 0:2 are just an echo of the command
+
+        if not all(current_governor[0] == gov for gov in current_governor):
+            raise RuntimeError('<geopm> geopmpy.launcher: CPU governor mismatch: All compute nodes do not have the same governor.\n({})'.format(current_governor))
+        if current_governor[0] not in ['performance', 'userspace']:
+            warn_str = """\
+Warning: <geopm> geopmpy.launcher: Incompatible CPU frequency governor
+     detected ("{}").  The "performance" or "userspace" governor
+     is required when setting CPU frequency with GEOPM.  The
+     governor will be set to "performance" via srun which will
+     overwrite any previous frequency control settings.
+"""
+            sys.stderr.write(warn_str.format(', '.join(current_governor)))
+            self.governor = 'Performance'
 
     def affinity_list(self, is_geopmctl):
         """
@@ -886,13 +922,14 @@ class SrunLauncher(Launcher):
     """
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
                  time_limit=None, job_name=None, node_list=None, exclude_list=None, host_file=None,
-                 reservation=None, quiet=None, do_affinity=None):
+                 partition=None, reservation=None, quiet=None, do_affinity=None):
         """
         Pass through to Launcher constructor.
         """
         super(SrunLauncher, self).__init__(argv, num_rank, num_node, cpu_per_rank, timeout,
                                            time_limit, job_name, node_list, exclude_list, host_file,
-                                           reservation=reservation, quiet=quiet, do_affinity=do_affinity)
+                                           partition=partition, reservation=reservation, quiet=quiet,
+                                           do_affinity=do_affinity)
 
         if (self.is_geopm_enabled and
             self.config.get_ctl() == 'application' and
@@ -1078,28 +1115,11 @@ class SrunLauncher(Launcher):
             result = ['--reservation', self.reservation]
         return result
 
-    _static_performance_governor_option = None
     def performance_governor_option(self):
-        if SrunLauncher._static_performance_governor_option is None:
-            governor_file = '/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor'
-            pid = subprocess.Popen(['srun', 'cat', '{}'.format(governor_file)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            output, err = pid.communicate()
-            current_governor = output.decode().strip('\n').split('\n')
-            if not all(current_governor[0] == gov for gov in current_governor):
-                raise RuntimeError('<geopm> geopmpy.launcher: CPU governor mismatch: All compute nodes do not have the same governor.\n({})'.format(current_governor))
-            desired_governor = []
-            if current_governor[0] not in ['performance', 'userspace']:
-                warn_str = """\
-Warning: <geopm> geopmpy.launcher: Incompatible CPU frequency governor
-         detected ("{}").  The "performance" or "userspace" governor
-         is required when setting CPU frequency with GEOPM.  The
-         governor will be set to "performance" via srun which will
-         overwrite any previous frequency control settings.
-"""
-                sys.stderr.write(warn_str.format(current_governor))
-                desired_governor = ['--cpu-freq=Performance']
-            SrunLauncher._static_performance_governor_option = desired_governor
-        return SrunLauncher._static_performance_governor_option
+        result = []
+        if self.governor is not None:
+            result = ['--cpu-freq={}'.format(self.governor)]
+        return result
 
     def get_idle_nodes(self):
         """
@@ -1155,7 +1175,7 @@ class OMPIExecLauncher(Launcher):
     """
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
                  time_limit=None, job_name=None, node_list=None, exclude_list=None, host_file=None,
-                 reservation=None, quiet=None, do_affinity=None):
+                 partition=None, reservation=None, quiet=None, do_affinity=None):
         """
         Pass through to Launcher constructor.
         """
@@ -1346,7 +1366,7 @@ class IMPIExecLauncher(Launcher):
 
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
                  time_limit=None, job_name=None, node_list=None, exclude_list=None, host_file=None,
-                 reservation=None, quiet=None, do_affinity=None):
+                 partition=None, reservation=None, quiet=None, do_affinity=None):
         """
         Pass through to Launcher constructor.
         """
@@ -1484,7 +1504,7 @@ class IMPIExecLauncher(Launcher):
 class AprunLauncher(Launcher):
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
                  time_limit=None, job_name=None, node_list=None, exclude_list=None, host_file=None,
-                 reservation=None, quiet=None, do_affinity=None):
+                 partition=None, reservation=None, quiet=None, do_affinity=None):
         """
         Pass through to Launcher constructor.
         """
