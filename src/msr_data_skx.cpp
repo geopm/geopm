@@ -664,7 +664,7 @@ namespace geopm
                 },
                 "RMID": {
                     "begin_bit": 32,
-                    "end_bit":   40,
+                    "end_bit":   41,
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
@@ -713,7 +713,7 @@ namespace geopm
             "fields": {
                 "RMID": {
                     "begin_bit": 0,
-                    "end_bit":   8,
+                    "end_bit":   9,
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
