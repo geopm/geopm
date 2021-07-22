@@ -692,7 +692,7 @@ namespace geopm
 
         rdt_info rdt = {
             .rdt_support = supported,
-            .rmid_bit_width = (uint32_t)ceil(log2((double)max) + 1)-1,
+            .rmid_bit_width = (uint32_t)ceil(log2((double)max + 1)),
             .mbm_scalar = scale
         };
 
@@ -1293,12 +1293,12 @@ namespace geopm
                     description = field_data["description"].string_value();
                 }
 
-                if (m_rdt_info.rdt_support && (msr_field_name == "QM_EVT_SEL:RMID" || msr_field_name == "PQR_ASSOC:RMID")) {
-                    if((end_bit - begin_bit) != (int)m_rdt_info.rmid_bit_width) {
+                if (m_rdt_info.rdt_support && (msr_field_name == "QM_EVTSEL:RMID" || msr_field_name == "PQR_ASSOC:RMID")) {
+                    if((int)m_rdt_info.rmid_bit_width > (end_bit - begin_bit + 1)) {
                         std::ostringstream except;
-                        except << "MSRIOGroup::" << __func__ << "(): RMID bit width "
-                               << (end_bit - begin_bit) << " does not match CPUID value "
-                               << m_rdt_info.rmid_bit_width;
+                        except << "MSRIOGroup::" << __func__ << "(): CPUID RMID bit width "
+                               << m_rdt_info.rmid_bit_width << " is greater than the MSR provided RMID bit width "
+                               << (end_bit - begin_bit + 1);
                         throw Exception(except.str(), GEOPM_ERROR_INVALID, __FILE__,
                                         __LINE__);
                     }
