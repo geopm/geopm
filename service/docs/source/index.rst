@@ -13,6 +13,7 @@ GEOPM Service Documentation
    client
    runtime
    analysis
+   info
    reference
 
 Indices and tables
