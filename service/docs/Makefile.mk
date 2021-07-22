@@ -29,7 +29,8 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += docs/source/admin.rst \
+EXTRA_DIST += docs/geninfo.sh \
+              docs/source/admin.rst \
               docs/source/analysis.rst \
               docs/source/build.rst \
               docs/source/client.rst \
