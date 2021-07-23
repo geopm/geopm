@@ -588,7 +588,7 @@ class Launcher(object):
                                   node_list=self.node_list,
                                   exclude_list=self.exclude_list,
                                   reservation=self.reservation,
-                                  partition=self.partition)
+                                  partition=getattr(self, 'partition', None))
         ostream = io.StringIO()
         launcher.run(stdout=ostream)
         out = ostream.getvalue()
@@ -1253,7 +1253,7 @@ class OMPIExecLauncher(Launcher):
 
         if is_geopmctl:
             # add not to warn on fork messge
-            result.append('--mca mpi_warn_on_fork 0')
+            result.extend(['--mca', 'mpi_warn_on_fork', '0'])
         return result
 
     def parse_host_file(self, file_name):
