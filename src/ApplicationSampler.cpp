@@ -37,6 +37,7 @@
 #include <iostream>
 #include <cstring>
 #include <cerrno>
+#include <stdexcept>
 
 #include "ApplicationSamplerImp.hpp"
 #include "ApplicationRecordLog.hpp"
@@ -196,8 +197,15 @@ namespace geopm
         else {
             double time_delta = geopm_time_diff(&m_update_time, &curr_time);
             for (int cpu_idx = 0; cpu_idx != m_num_cpu; ++cpu_idx) {
-                m_hint_time[cpu_idx].at(m_hint_last[cpu_idx]) += time_delta;
-                m_hint_last[cpu_idx] = m_status->get_hint(cpu_idx);
+                try {
+                    m_hint_time[cpu_idx].at(m_hint_last[cpu_idx]) += time_delta;
+                    m_hint_last[cpu_idx] = m_status->get_hint(cpu_idx);
+                }
+                catch (const std::out_of_range& oor) {
+                    throw Exception("ApplicationSamplerImp::" + std::string(__func__) +
+                                    "(): Out-of-range error while updating hints:" + oor.what(),
+                                    GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                }
             }
         }
         m_is_first_update = false;
