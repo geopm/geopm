@@ -180,11 +180,11 @@ class TestIntegration_progress(unittest.TestCase):
         util.assertNear(self, 0.0, min_prog, epsilon=abs_epsilon,
                         msg='{}: minimum value'.format(msg))
         # Assert that the expected deviation from the fit is is no
-        # larger than 1%.
+        # larger than 2%.
         rr = max_prog - min_prog
         self.assertLess(0.0, poly_out[0][0])
         error = (poly_out[1][0] / len(progress)) ** 0.5 / rr
-        self.assertLess(error, 0.01, msg)
+        self.assertLess(error, 0.02, msg)
 
     def test_num_host(self):
         """Check the number of hosts in the report
