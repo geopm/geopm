@@ -341,6 +341,7 @@ class Launcher(object):
         self.environ_ext = dict()
         self.rank_per_node = None
         self.exclude_list = None
+        self.partition = None
         self.reservation = None
         self.quiet = quiet
         self.default_handler = signal.getsignal(signal.SIGINT)
@@ -588,7 +589,7 @@ class Launcher(object):
                                   node_list=self.node_list,
                                   exclude_list=self.exclude_list,
                                   reservation=self.reservation,
-                                  partition=getattr(self, 'partition', None))
+                                  partition=self.partition)
         ostream = io.StringIO()
         launcher.run(stdout=ostream)
         out = ostream.getvalue()
