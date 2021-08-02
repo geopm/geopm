@@ -54,6 +54,8 @@ namespace geopm
             double *m_array_c;
             size_t m_array_len;
             const size_t m_align;
+        private:
+            void cleanup(void);
     };
 }
 

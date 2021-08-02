@@ -56,6 +56,8 @@ namespace geopm
             int m_num_rank;
             const size_t m_align;
             int m_rank;
+        private:
+            void cleanup(void);
     };
 }
 

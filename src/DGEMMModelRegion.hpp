@@ -55,6 +55,11 @@ namespace geopm
             size_t m_matrix_size;
             const size_t m_pad_size;
             const int m_num_warmup;
+        private:
+            void cleanup(void);
+            void warmup(void);
+
+            uint64_t m_start_rid;
     };
 }
 
