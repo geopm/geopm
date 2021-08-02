@@ -79,14 +79,19 @@ namespace geopm
 
     All2allModelRegion::~All2allModelRegion()
     {
-        big_o(0);
+        cleanup();
+    }
+
+    void All2allModelRegion::cleanup(void)
+    {
+        free(m_recv_buffer);
+        free(m_send_buffer);
     }
 
     void All2allModelRegion::big_o(double big_o_in)
     {
         if (m_big_o && m_big_o != big_o_in) {
-            free(m_recv_buffer);
-            free(m_send_buffer);
+            cleanup();
         }
 
         num_progress_updates(big_o_in);

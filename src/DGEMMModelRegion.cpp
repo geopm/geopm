@@ -90,24 +90,29 @@ namespace geopm
                             err, __FILE__, __LINE__);
         }
         big_o(big_o_in);
+        warmup();
     }
 
     DGEMMModelRegion::~DGEMMModelRegion()
     {
-        big_o(0);
+        cleanup();
+    }
+
+    void DGEMMModelRegion::cleanup(void)
+    {
+        free(m_matrix_c);
+        free(m_matrix_b);
+        free(m_matrix_a);
     }
 
     void DGEMMModelRegion::big_o(double big_o_in)
     {
-        uint64_t start_rid = 0;
-        geopm_prof_region("geopm_dgemm_model_region_startup", GEOPM_REGION_HINT_IGNORE, &start_rid);
-        geopm_prof_enter(start_rid);
-
         if (m_big_o && m_big_o != big_o_in) {
-            free(m_matrix_c);
-            free(m_matrix_b);
-            free(m_matrix_a);
+            cleanup();
         }
+
+        geopm_prof_region("geopm_dgemm_model_region_startup", GEOPM_REGION_HINT_IGNORE, &m_start_rid);
+        geopm_prof_enter(m_start_rid);
 
         num_progress_updates(big_o_in);
 
@@ -132,10 +137,16 @@ namespace geopm
             }
         }
         m_big_o = big_o_in;
+        geopm_prof_exit(m_start_rid);
+    }
+
+    void DGEMMModelRegion::warmup(void)
+    {
+        geopm_prof_enter(m_start_rid);
         for (int warmup_idx = 0; warmup_idx != m_num_warmup; ++warmup_idx) {
             run();
         }
-        geopm_prof_exit(start_rid);
+        geopm_prof_exit(m_start_rid);
     }
 
     void DGEMMModelRegion::run(void)

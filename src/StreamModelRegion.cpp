@@ -68,20 +68,25 @@ namespace geopm
 
     StreamModelRegion::~StreamModelRegion()
     {
-        big_o(0);
+        cleanup();
+    }
+
+    void StreamModelRegion::cleanup(void)
+    {
+        free(m_array_c);
+        free(m_array_b);
+        free(m_array_a);
     }
 
     void StreamModelRegion::big_o(double big_o_in)
     {
+        if (m_big_o && m_big_o != big_o_in) {
+            cleanup();
+        }
+
         uint64_t start_rid = 0;
         geopm_prof_region("geopm_stream_model_region_startup", GEOPM_REGION_HINT_IGNORE, &start_rid);
         geopm_prof_enter(start_rid);
-
-        if (m_big_o && m_big_o != big_o_in) {
-            free(m_array_c);
-            free(m_array_b);
-            free(m_array_a);
-        }
 
         num_progress_updates(big_o_in);
 
