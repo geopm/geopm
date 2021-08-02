@@ -172,15 +172,27 @@ namespace geopm
 
     void ModelRegion::region_enter(void)
     {
+        int err = 0;
         if (!m_do_unmarked) {
-            (void)geopm_prof_enter(m_region_id);
+            err = geopm_prof_enter(m_region_id);
+            if (err != 0) {
+                throw Exception("ModelRegion::region_enter(): geopm_prof_enter() error on region_id: '" +
+                                geopm::string_format_hex(m_region_id)  + "'",
+                                GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
         }
     }
 
     void ModelRegion::region_exit(void)
     {
+        int err = 0;
         if (!m_do_unmarked) {
-            (void)geopm_prof_exit(m_region_id);
+            err = geopm_prof_exit(m_region_id);
+            if (err != 0) {
+                throw Exception("ModelRegion::region_exit(): geopm_prof_exit() error on region_id: '" +
+                                geopm::string_format_hex(m_region_id)  + "'",
+                                GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
         }
     }
 

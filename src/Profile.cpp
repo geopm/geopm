@@ -417,6 +417,13 @@ namespace geopm
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         uint64_t result = m_table->key(region_name);
+
+#ifdef GEOPM_DEBUG
+        if (m_region_ids.find(result) == m_region_ids.end()) {
+            m_region_ids.insert(result);
+        }
+#endif
+
         /// Record hint when registering a region.
         result = geopm_region_id_set_hint(hint, result);
 
@@ -440,6 +447,14 @@ namespace geopm
 
         uint64_t hash = geopm_region_id_hash(region_id);
         uint64_t hint = geopm_region_id_hint(region_id);
+
+#ifdef GEOPM_DEBUG
+        if (m_region_ids.find(hash) == m_region_ids.end()) {
+            throw Exception("Profile::region(): Region '" + geopm::string_format_hex(hash) +
+                            "' has not yet been created.  Call geopm_prof_region() first.",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+#endif
 
         if (m_current_hash == GEOPM_REGION_HASH_UNMARKED) {
             // not currently in a region; enter region

@@ -39,6 +39,9 @@
 #include <set>
 #include <memory>
 #include <stack>
+#include <set>
+
+#include "config.h"
 
 namespace geopm
 {
@@ -313,6 +316,11 @@ namespace geopm
             double m_overhead_time;
             double m_overhead_time_startup;
             double m_overhead_time_shutdown;
+
+            /// @brief The list of known region identifiers.
+#ifdef GEOPM_DEBUG
+            std::set<uint64_t> m_region_ids;
+#endif
 
     };
 }
