@@ -155,6 +155,9 @@ namespace geopm
             case GEOPM_DOMAIN_BOARD_ACCELERATOR:
                 result = m_accelerator_topo.num_accelerator();
                 break;
+            case GEOPM_DOMAIN_BOARD_ACCELERATOR_SUBDEVICE:
+                result = m_accelerator_topo.num_accelerator_subdevice();
+                break;
             case GEOPM_DOMAIN_PACKAGE_ACCELERATOR:
                 // @todo Add support for package accelerators to PlatformTopo.
                 result = 0;
@@ -193,6 +196,9 @@ namespace geopm
                 break;
             case GEOPM_DOMAIN_BOARD_ACCELERATOR:
                 cpu_idx = m_accelerator_topo.cpu_affinity_ideal(domain_idx);
+                break;
+            case GEOPM_DOMAIN_BOARD_ACCELERATOR_SUBDEVICE:
+                cpu_idx = m_accelerator_topo.cpu_affinity_ideal_subdevice(domain_idx);
                 break;
             case GEOPM_DOMAIN_PACKAGE:
                 for (int thread_idx = 0;
@@ -285,6 +291,14 @@ namespace geopm
                         }
                     }
                     break;
+                case GEOPM_DOMAIN_BOARD_ACCELERATOR_SUBDEVICE:
+                    for(int accel_sub_idx = 0; (accel_sub_idx <  m_accelerator_topo.num_accelerator_subdevice()) && (result == -1); ++accel_sub_idx) {
+                        std::set<int> affin = m_accelerator_topo.cpu_affinity_ideal_subdevice(accel_sub_idx);
+                        if (affin.find(cpu_idx) != affin.end()) {
+                            result = accel_sub_idx;
+                        }
+                    }
+                    break;
                 case GEOPM_DOMAIN_PACKAGE_MEMORY:
                 case GEOPM_DOMAIN_BOARD_NIC:
                 case GEOPM_DOMAIN_PACKAGE_NIC:
@@ -344,6 +358,16 @@ namespace geopm
             // To support mapping CPU signals to ACCELERATOR domain
             result = true;
         }
+        else if (outer_domain == GEOPM_DOMAIN_BOARD_ACCELERATOR &&
+                 inner_domain == GEOPM_DOMAIN_BOARD_ACCELERATOR_SUBDEVICE) {
+            // To support mapping ACCELERATOR SUBDEVICE signals to ACCELERATOR domain
+            result = true;
+        }
+        else if (outer_domain == GEOPM_DOMAIN_BOARD_ACCELERATOR_SUBDEVICE &&
+                 inner_domain == GEOPM_DOMAIN_CPU) {
+            // To support mapping CPU signals to ACCELERATOR SUBDEVICE domain
+            result = true;
+        }
         return result;
     }
 
@@ -383,7 +407,8 @@ namespace geopm
             {"board_nic", GEOPM_DOMAIN_BOARD_NIC},
             {"package_nic", GEOPM_DOMAIN_PACKAGE_NIC},
             {"board_accelerator", GEOPM_DOMAIN_BOARD_ACCELERATOR},
-            {"package_accelerator", GEOPM_DOMAIN_PACKAGE_ACCELERATOR}
+            {"package_accelerator", GEOPM_DOMAIN_PACKAGE_ACCELERATOR},
+            {"board_accelerator_subdevice", GEOPM_DOMAIN_BOARD_ACCELERATOR_SUBDEVICE}
         };
     }
 

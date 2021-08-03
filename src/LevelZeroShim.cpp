@@ -44,6 +44,7 @@
 #include <time.h>
 
 #include "Exception.hpp"
+#include "Environment.hpp"
 #include "Agg.hpp"
 #include "Helper.hpp"
 #include "geopm_sched.h"
@@ -52,20 +53,17 @@
 
 namespace geopm
 {
-    const LevelZeroShim &levelzero_shim(const int num_cpu)
+    const LevelZeroShim &levelzero_shim()
     {
-        static LevelZeroShimImp instance(num_cpu);
+        static LevelZeroShimImp instance;
         return instance;
     }
 
-    LevelZeroShimImp::LevelZeroShimImp(const int num_cpu)
-        : M_NUM_CPU(num_cpu)
+    LevelZeroShimImp::LevelZeroShimImp()
     {
-        //TODO: change to a check and error if not enabled.  All ENV handling goes through environment class
-        char *zes_enable_sysman = getenv("ZES_ENABLE_SYSMAN");
-        if (zes_enable_sysman == NULL || strcmp(zes_enable_sysman, "1") != 0) {
-            std::cout << "GEOPM Debug: ZES_ENABLE_SYSMAN not set to 1.  Forcing to 1" << std::endl;
-            setenv("ZES_ENABLE_SYSMAN", "1", 1);
+        if (!geopm::environment().do_sysman()) {
+            throw Exception("LevelZeroShim::" + std::string(__func__) + ": GEOPM LevelZero support requires ZES_ENABLE_SYSMAN=1",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         ze_result_t ze_result;
@@ -74,15 +72,16 @@ namespace geopm
         check_ze_result(ze_result, GEOPM_ERROR_RUNTIME, "LevelZeroShim::" + std::string(__func__) +
                                                         ": LevelZero Driver failed to initialize.", __LINE__);
         // Discover drivers
-        ze_result = zeDriverGet(&m_num_driver, nullptr);
+        uint32_t num_driver = 0;
+        ze_result = zeDriverGet(&num_driver, nullptr);
         check_ze_result(ze_result, GEOPM_ERROR_RUNTIME, "LevelZeroShim::" + std::string(__func__) +
                                                         ": LevelZero Driver enumeration failed.", __LINE__);
-        m_levelzero_driver.resize(m_num_driver);
-        ze_result = zeDriverGet(&m_num_driver, m_levelzero_driver.data());
+        m_levelzero_driver.resize(num_driver);
+        ze_result = zeDriverGet(&num_driver, m_levelzero_driver.data());
         check_ze_result(ze_result, GEOPM_ERROR_RUNTIME, "LevelZeroShim::" + std::string(__func__) +
                                                         ": LevelZero Driver acquisition failed.", __LINE__);
 
-        for (unsigned int driver = 0; driver < m_num_driver; driver++) {
+        for (unsigned int driver = 0; driver < num_driver; driver++) {
             // Discover devices in a driver
             uint32_t num_device = 0;
 
@@ -94,33 +93,37 @@ namespace geopm
             check_ze_result(ze_result, GEOPM_ERROR_RUNTIME, "LevelZeroShim::" + std::string(__func__) +
                                                             ": LevelZero Device acquisition failed.", __LINE__);
 
-
-            for(unsigned int accel_idx = 0; accel_idx < num_device; ++accel_idx) {
+            for(unsigned int device_idx = 0; device_idx < num_device; ++device_idx) {
                 ze_device_properties_t property;
-                ze_result = zeDeviceGetProperties(device_handle.at(accel_idx), &property);
+                ze_result = zeDeviceGetProperties(device_handle.at(device_idx), &property);
 
                 uint32_t num_subdevice = 0;
 
-                ze_result = zeDeviceGetSubDevices(device_handle.at(accel_idx), &num_subdevice, nullptr);
+                ze_result = zeDeviceGetSubDevices(device_handle.at(device_idx), &num_subdevice, nullptr);
                 check_ze_result(ze_result, GEOPM_ERROR_RUNTIME, "LevelZeroShim::" + std::string(__func__) +
                                                                 ": LevelZero Sub-Device enumeration failed.", __LINE__);
 
                 std::vector<zes_device_handle_t> subdevice_handle(num_subdevice);
-                ze_result = zeDeviceGetSubDevices(device_handle.at(accel_idx), &num_subdevice, subdevice_handle.data());
+                ze_result = zeDeviceGetSubDevices(device_handle.at(device_idx), &num_subdevice, subdevice_handle.data());
                 check_ze_result(ze_result, GEOPM_ERROR_RUNTIME, "LevelZeroShim::" + std::string(__func__) +
                                                                 ": LevelZero Sub-Device acquisition failed.", __LINE__);
-
-#ifdef GEOPM_DEBUG
-                std::cout << "Debug: levelZero sub-devices: " << std::to_string(num_subdevice) << std::endl;
-#endif
+                // A limitation of the current subdevice support implementation is that we do NOT support devices
+                // without subdevices.  Theoretically this is ANY Level Zero GPU, depending on how the user sets
+                // the ZE_AFFINITY_MASK environment variable.
+                if (num_subdevice == 0) {
+                    throw Exception("LevelZeroShim::" + std::string(__func__) + ": GEOPM Requires subdevices" +
+                                    " to be enumerated.  Please check ZE_AFFINITY_MASK enviroment variable settings",
+                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                }
 
                 if (property.type == ZE_DEVICE_TYPE_GPU) {
                     if ((property.flags & ZE_DEVICE_PROPERTY_FLAG_INTEGRATED) == 0) {
                         ++m_num_board_gpu;
+                        m_num_board_gpu_subdevice += num_subdevice;
 
                         //NOTE: We're only supporting Board GPUs to start with
                         m_devices.push_back({
-                            device_handle.at(accel_idx),
+                            device_handle.at(device_idx),
                             property,
                             num_subdevice,
                             subdevice_handle,
@@ -156,13 +159,13 @@ namespace geopm
                 }
 #endif
             }
-            m_num_device = m_num_board_gpu + m_num_integrated_gpu + m_num_fpga + m_num_mca;
 
-            // This approach is far simpler, but does not allow for functioning in systems with multiple
-            // accelerator types but unsupported accel types OR split accel indexes (i.e. BOARD_ACCELERATOR
-            // vs PACKAGE_ACCELERATOR)
-            //m_sysman_device.insert(m_sysman_device.end(), device_handle.begin(), device_handle.end());
-            //m_num_device = m_num_device + num_device;
+            if ((m_num_board_gpu_subdevice % m_num_board_gpu) != 0) {
+                throw Exception("LevelZeroShim::" + std::string(__func__) + ": GEOPM Requires the number" +
+                                " of subdevices to be evenly divisible by the number of devices. " +
+                                " Please check ZE_AFFINITY_MASK enviroment variable settings",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
         }
 
         // TODO: When additional device types such as FPGA, MCA, and Integrated GPU are supported by GEOPM
@@ -174,12 +177,12 @@ namespace geopm
        }
     }
 
-    void LevelZeroShimImp::domain_cache(unsigned int accel_idx) {
+    void LevelZeroShimImp::domain_cache(unsigned int device_idx) {
         ze_result_t ze_result;
         uint32_t num_domain = 0;
 
         //Cache frequency domains
-        ze_result = zesDeviceEnumFrequencyDomains(m_devices.at(accel_idx).device_handle, &num_domain, nullptr);
+        ze_result = zesDeviceEnumFrequencyDomains(m_devices.at(device_idx).device_handle, &num_domain, nullptr);
         if (ze_result == ZE_RESULT_ERROR_UNSUPPORTED_FEATURE) {
             std::cerr << "Warning: <geopm> LevelZeroShim: Frequency domain detection is "
                          "not supported.\n";
@@ -191,11 +194,11 @@ namespace geopm
             std::vector<zes_freq_handle_t> freq_domain;
             freq_domain.resize(num_domain);
 
-            ze_result = zesDeviceEnumFrequencyDomains(m_devices.at(accel_idx).device_handle, &num_domain, freq_domain.data());
+            ze_result = zesDeviceEnumFrequencyDomains(m_devices.at(device_idx).device_handle, &num_domain, freq_domain.data());
             check_ze_result(ze_result, GEOPM_ERROR_RUNTIME, "LevelZeroShim::" + std::string(__func__) +
                                                         ": Sysman failed to get domain handles.", __LINE__);
 
-            m_devices.at(accel_idx).subdevice.m_freq_domain.resize(GEOPM_LEVELZERO_DOMAIN_SIZE);
+            m_devices.at(device_idx).subdevice.m_freq_domain.resize(GEOPM_LEVELZERO_DOMAIN_SIZE);
 
             for (auto handle : freq_domain) {
                 zes_freq_properties_t property;
@@ -203,21 +206,24 @@ namespace geopm
                 check_ze_result(ze_result, GEOPM_ERROR_RUNTIME, "LevelZeroShim::" + std::string(__func__) +
                                                                 ": Sysman failed to get domain properties.", __LINE__);
 
-                if (property.type == ZES_FREQ_DOMAIN_GPU) {
-                    m_devices.at(accel_idx).subdevice.m_freq_domain.at(GEOPM_LEVELZERO_DOMAIN_COMPUTE).push_back(handle);
+                if (property.onSubdevice == 0) {
+                    std::cerr << "Warning: <geopm> LevelZeroShim: A device level frequency domain was found"
+                                 " but is not currently supported.\n";
                 }
-                else if (property.type == ZES_FREQ_DOMAIN_MEMORY) {
-                    m_devices.at(accel_idx).subdevice.m_freq_domain.at(GEOPM_LEVELZERO_DOMAIN_MEMORY).push_back(handle);
+                else {
+                    if (property.type == ZES_FREQ_DOMAIN_GPU) {
+                        m_devices.at(device_idx).subdevice.m_freq_domain.at(GEOPM_LEVELZERO_DOMAIN_COMPUTE).push_back(handle);
+                    }
+                    else if (property.type == ZES_FREQ_DOMAIN_MEMORY) {
+                        m_devices.at(device_idx).subdevice.m_freq_domain.at(GEOPM_LEVELZERO_DOMAIN_MEMORY).push_back(handle);
+                    }
                 }
             }
-#ifdef GEOPM_DEBUG
-            std::cout << "Debug: levelZero frequency domains: " << std::to_string(num_domain) << std::endl;
-#endif
         }
 
         //Cache power domains
         num_domain = 0;
-        ze_result = zesDeviceEnumPowerDomains(m_devices.at(accel_idx).device_handle, &num_domain, nullptr);
+        ze_result = zesDeviceEnumPowerDomains(m_devices.at(device_idx).device_handle, &num_domain, nullptr);
         if (ze_result == ZE_RESULT_ERROR_UNSUPPORTED_FEATURE) {
             std::cerr << "Warning: <geopm> LevelZeroShim: Power domain detection is "
                          "not supported.\n";
@@ -228,34 +234,40 @@ namespace geopm
             std::vector<zes_pwr_handle_t> power_domain;
             power_domain.resize(num_domain);
 
-            ze_result = zesDeviceEnumPowerDomains(m_devices.at(accel_idx).device_handle, &num_domain, power_domain.data());
+            ze_result = zesDeviceEnumPowerDomains(m_devices.at(device_idx).device_handle, &num_domain, power_domain.data());
             check_ze_result(ze_result, GEOPM_ERROR_RUNTIME, "LevelZeroShim::" + std::string(__func__) +
                                                             ": Sysman failed to get domain handle(s).", __LINE__);
 
+            int num_device_power_domain = 0;
             for (auto handle : power_domain) {
                 zes_power_properties_t property;
                 ze_result = zesPowerGetProperties(handle, &property);
                 check_ze_result(ze_result, GEOPM_ERROR_RUNTIME, "LevelZeroShim::" + std::string(__func__) +
                                                                 ": Sysman failed to get domain power properties", __LINE__);
 
-                //For initial GEOPM support we're only providing device level power, but are tracking sub-device
-                //for future use
-                //finding non-subdevice domain.
+                //Finding non-subdevice domain.
                 if (property.onSubdevice == 0) {
-                    m_devices.at(accel_idx).m_power_domain.push_back(handle);
+                    m_devices.at(device_idx).m_power_domain = handle;
+                    ++num_device_power_domain;
+
+                    if (num_device_power_domain != 1) {
+                        std::cerr << "Warning: <geopm> LevelZeroShim: Multiple device level power domains "
+                                     "detected.  This may lead to incorrect power readings\n";
+                    }
                 }
                 else {
-                    m_devices.at(accel_idx).subdevice.m_power_domain.push_back(handle);
+                    //For initial GEOPM support we're only providing device level power, but are tracking sub-device
+                    //for future use
+                    m_devices.at(device_idx).subdevice.m_power_domain.push_back(handle);
+                    std::cerr << "Warning: <geopm> LevelZeroShim: A sub-device level power domain was found"
+                                 " but is not currently supported.\n";
                 }
             }
-#ifdef GEOPM_DEBUG
-            std::cout << "Debug: levelZero power domains: " << std::to_string(num_domain) << std::endl;
-#endif
         }
 
         //Cache engine domains
         num_domain = 0;
-        ze_result = zesDeviceEnumEngineGroups(m_devices.at(accel_idx).device_handle, &num_domain, nullptr);
+        ze_result = zesDeviceEnumEngineGroups(m_devices.at(device_idx).device_handle, &num_domain, nullptr);
         if (ze_result == ZE_RESULT_ERROR_UNSUPPORTED_FEATURE) {
             std::cerr << "Warning: <geopm> LevelZeroShim: Engine domain detection is "
                          "not supported.\n";
@@ -266,116 +278,86 @@ namespace geopm
             std::vector<zes_engine_handle_t> engine_domain;
             engine_domain.resize(num_domain);
 
-            ze_result = zesDeviceEnumEngineGroups(m_devices.at(accel_idx).device_handle, &num_domain, engine_domain.data());
+            ze_result = zesDeviceEnumEngineGroups(m_devices.at(device_idx).device_handle, &num_domain, engine_domain.data());
             check_ze_result(ze_result, GEOPM_ERROR_RUNTIME, "LevelZeroShim::" + std::string(__func__) +
                                                             ": Sysman failed to get number of domains", __LINE__);
 
-            m_devices.at(accel_idx).subdevice.m_engine_domain.resize(GEOPM_LEVELZERO_DOMAIN_SIZE);
-
+            m_devices.at(device_idx).subdevice.m_engine_domain.resize(GEOPM_LEVELZERO_DOMAIN_SIZE);
             for (auto handle : engine_domain) {
                 zes_engine_properties_t property;
                 ze_result = zesEngineGetProperties(handle, &property);
                 check_ze_result(ze_result, GEOPM_ERROR_RUNTIME, "LevelZeroShim::" + std::string(__func__) +
                                                                 ": Sysman failed to get domain engine properties", __LINE__);
-                if (property.type == ZES_ENGINE_GROUP_ALL) {
-                    m_devices.at(accel_idx).subdevice.m_engine_domain.at(GEOPM_LEVELZERO_DOMAIN_ALL).push_back(handle);
+                if (property.onSubdevice == 0) {
+                    std::cerr << "Warning: <geopm> LevelZeroShim: A device level frequency domain was found"
+                                 " but is not currently supported.\n";
                 }
-                //TODO: change to ZES_ENGINE_GROUP_COMPUTE_ALL?  Or check for COMPUTE_ALL and then do _SINGLE
-                else if (property.type == ZES_ENGINE_GROUP_COMPUTE_SINGLE) {
-                    m_devices.at(accel_idx).subdevice.m_engine_domain.at(GEOPM_LEVELZERO_DOMAIN_COMPUTE).push_back(handle);
-                }
-                //TODO: change to ZES_ENGINE_GROUP_COPY_ALL?  Or check for COMPUTE_ALL and then do _SINGLE
-                else if (property.type == ZES_ENGINE_GROUP_COPY_SINGLE) {
-                    m_devices.at(accel_idx).subdevice.m_engine_domain.at(GEOPM_LEVELZERO_DOMAIN_MEMORY).push_back(handle);
+                else {
+                    if (property.type == ZES_ENGINE_GROUP_ALL) {
+                        m_devices.at(device_idx).subdevice.m_engine_domain.at(GEOPM_LEVELZERO_DOMAIN_ALL).push_back(handle);
+                    }
+
+                    //TODO: Some devices may not support ZES_ENGINE_GROUP_COMPUTE/COPY_ALL.  We can do a check for COMPUTE_ALL
+                    //      and then fallback to change to ZES_ENGINE_GROUP_COMPUTE/COPY_SINGLE, but we have to aggregate the signals
+                    //      in that case
+                    else if (property.type == ZES_ENGINE_GROUP_COMPUTE_ALL) {
+                        m_devices.at(device_idx).subdevice.m_engine_domain.at(GEOPM_LEVELZERO_DOMAIN_COMPUTE).push_back(handle);
+                    }
+                    else if (property.type == ZES_ENGINE_GROUP_COPY_ALL) {
+                        m_devices.at(device_idx).subdevice.m_engine_domain.at(GEOPM_LEVELZERO_DOMAIN_MEMORY).push_back(handle);
+                    }
                 }
             }
-#ifdef GEOPM_DEBUG
-            std::cout << "Debug: levelZero engine domains: " << std::to_string(num_domain) << std::endl;
-#endif
+
+            if (num_domain != 0 &&
+                m_devices.at(device_idx).subdevice.m_engine_domain.at(GEOPM_LEVELZERO_DOMAIN_COMPUTE).size() == 0) {
+                std::cerr << "Warning: <geopm> LevelZeroShim: Engine domain detection did not find"
+                             "ZES_ENGINE_GROUP_COMPUTE_ALL.\n";
+            }
+            if (num_domain != 0 &&
+                m_devices.at(device_idx).subdevice.m_engine_domain.at(GEOPM_LEVELZERO_DOMAIN_MEMORY).size() == 0) {
+                std::cerr << "Warning: <geopm> LevelZeroShim: Engine domain detection did not find"
+                             "ZES_ENGINE_GROUP_COPY_ALL.\n";
+            }
         }
 
-    }
-
-    LevelZeroShimImp::~LevelZeroShimImp()
-    {
     }
 
     int LevelZeroShimImp::num_accelerator() const
     {
-        return num_accelerator(ZE_DEVICE_TYPE_GPU);
+        //  TODO: this should be expanded to return all supported accel types.
+        //  Right now that is only board_gpus
+        return m_num_board_gpu;
     }
 
-    int LevelZeroShimImp::num_accelerator(ze_device_type_t type) const
+    int LevelZeroShimImp::num_accelerator_subdevice() const
     {
-        //switch/case
-        if (type == ZE_DEVICE_TYPE_GPU) {
-            // TODO: add Integrated vs Board nuance
-            return m_num_board_gpu;
-        }
-        else if (type == ZE_DEVICE_TYPE_CPU) {
-            return M_NUM_CPU;
-        }
-        else if (type == ZE_DEVICE_TYPE_FPGA) {
-            return m_num_fpga;
-        }
-        else if (type == ZE_DEVICE_TYPE_MCA) {
-            return m_num_mca;
-        }
-        else {
-            throw Exception("LevelZeroShim::" + std::string(__func__) + ": accelerator type " +
-                            std::to_string(type) + "  is unsupported", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
+        //  TODO: this should be expanded to return all supported accel type subdevices.
+        //  Right now that is only board_gpu subdevices
+        return m_num_board_gpu_subdevice;
     }
 
-    int LevelZeroShimImp::frequency_domain_count(unsigned int accel_idx, geopm_levelzero_domain_e domain) const
+    int LevelZeroShimImp::frequency_domain_count(unsigned int device_idx, int domain) const
     {
-        return m_devices.at(accel_idx).subdevice.m_freq_domain.at(domain).size();
+        return m_devices.at(device_idx).subdevice.m_freq_domain.at(domain).size();
     }
 
-    int LevelZeroShimImp::engine_domain_count(unsigned int accel_idx, geopm_levelzero_domain_e domain) const
+    int LevelZeroShimImp::engine_domain_count(unsigned int device_idx, int domain) const
     {
-        return m_devices.at(accel_idx).subdevice.m_engine_domain.at(domain).size();
+        return m_devices.at(device_idx).subdevice.m_engine_domain.at(domain).size();
     }
 
-    int LevelZeroShimImp::energy_domain_count_device(unsigned int accel_idx) const
+    double LevelZeroShimImp::frequency_status(unsigned int device_idx, int domain, int domain_idx) const
     {
-        return m_devices.at(accel_idx).m_power_domain.size();
+        return frequency_status_shim(device_idx, domain, domain_idx).actual;
     }
 
-    int LevelZeroShimImp::energy_domain_count_subdevice(unsigned int accel_idx, int domain_idx) const
-    {
-        return m_devices.at(accel_idx).subdevice.m_power_domain.size();
-    }
-
-    double LevelZeroShimImp::frequency_status(unsigned int accel_idx, geopm_levelzero_domain_e domain, int domain_idx) const
-    {
-        return frequency_status_shim(accel_idx, domain, domain_idx).actual;
-    }
-
-    //double LevelZeroShimImp::frequency_tdp(unsigned int accel_idx, geopm_levelzero_domain_e domain, int domain_idx) const
-    //{
-    //    return frequency_status_shim(accel_idx, domain, domain_idx).tdp;
-    //}
-
-    //double LevelZeroShimImp::frequency_efficient(unsigned int accel_idx, geopm_levelzero_domain_e domain, int domain_idx) const
-    //{
-    //    return frequency_status_shim(accel_idx, domain, domain_idx).efficient;
-    //}
-
-    //uint64_t LevelZeroShimImp::frequency_throttle_reasons(unsigned int accel_idx, geopm_levelzero_domain_e domain, int domain_idx) const
-    //{
-    //    return frequency_status_shim(accel_idx, domain, domain_idx).throttle_reasons;
-    //}
-
-    //std::tuple<double, double, double, double, double, uint64_t> LevelZeroShimImp::frequency_status_shim(unsigned int accel_idx, geopm_levelzero_domain_e domain, int domain_idx) const
-    LevelZeroShimImp::frequency_s LevelZeroShimImp::frequency_status_shim(unsigned int accel_idx, geopm_levelzero_domain_e domain, int domain_idx) const
+    LevelZeroShimImp::frequency_s LevelZeroShimImp::frequency_status_shim(unsigned int device_idx, int domain, int domain_idx) const
     {
         ze_result_t ze_result;
-        zes_freq_domain_t type;
-
         frequency_s result;
 
-        zes_freq_handle_t handle = m_devices.at(accel_idx).subdevice.m_freq_domain.at(domain).at(domain_idx);
+        zes_freq_handle_t handle = m_devices.at(device_idx).subdevice.m_freq_domain.at(domain).at(domain_idx);
         zes_freq_state_t state;
         ze_result = zesFrequencyGetState(handle, &state);
         check_ze_result(ze_result, GEOPM_ERROR_RUNTIME, "LevelZeroShim::" + std::string(__func__) +
@@ -391,23 +373,23 @@ namespace geopm
         return result;
     }
 
-    double LevelZeroShimImp::frequency_min(unsigned int accel_idx, geopm_levelzero_domain_e domain, int domain_idx) const
+    double LevelZeroShimImp::frequency_min(unsigned int device_idx, int domain, int domain_idx) const
     {
-        return frequency_min_max(accel_idx, domain, domain_idx).first;
+        return frequency_min_max(device_idx, domain, domain_idx).first;
     }
 
-    double LevelZeroShimImp::frequency_max(unsigned int accel_idx, geopm_levelzero_domain_e domain, int domain_idx) const
+    double LevelZeroShimImp::frequency_max(unsigned int device_idx, int domain, int domain_idx) const
     {
-        return frequency_min_max(accel_idx, domain, domain_idx).second;
+        return frequency_min_max(device_idx, domain, domain_idx).second;
     }
 
-    std::pair<double, double> LevelZeroShimImp::frequency_min_max(unsigned int accel_idx, geopm_levelzero_domain_e domain, int domain_idx) const
+    std::pair<double, double> LevelZeroShimImp::frequency_min_max(unsigned int device_idx, int domain, int domain_idx) const
     {
         ze_result_t ze_result;
         double result_min = 0;
         double result_max = 0;
 
-        zes_freq_handle_t handle = m_devices.at(accel_idx).subdevice.m_freq_domain.at(domain).at(domain_idx);
+        zes_freq_handle_t handle = m_devices.at(device_idx).subdevice.m_freq_domain.at(domain).at(domain_idx);
         zes_freq_properties_t property;
         ze_result = zesFrequencyGetProperties(handle, &property);
         check_ze_result(ze_result, GEOPM_ERROR_RUNTIME, "LevelZeroShim::" + std::string(__func__) +
@@ -418,26 +400,25 @@ namespace geopm
         return {result_min, result_max};
     }
 
-    uint64_t LevelZeroShimImp::active_time_timestamp(unsigned int accel_idx, geopm_levelzero_domain_e domain, int domain_idx) const
+    uint64_t LevelZeroShimImp::active_time_timestamp(unsigned int device_idx, int domain, int domain_idx) const
     {
-        return active_time_pair(accel_idx, domain, domain_idx).second;
+        return active_time_pair(device_idx, domain, domain_idx).second;
     }
 
-    uint64_t LevelZeroShimImp::active_time(unsigned int accel_idx, geopm_levelzero_domain_e domain, int domain_idx) const
+    uint64_t LevelZeroShimImp::active_time(unsigned int device_idx, int domain, int domain_idx) const
     {
-        return active_time_pair(accel_idx, domain, domain_idx).first;
+        return active_time_pair(device_idx, domain, domain_idx).first;
     }
 
-    std::pair<uint64_t,uint64_t> LevelZeroShimImp::active_time_pair(unsigned int accel_idx, geopm_levelzero_domain_e domain, int domain_idx) const
+    std::pair<uint64_t,uint64_t> LevelZeroShimImp::active_time_pair(unsigned int device_idx, int domain, int domain_idx) const
     {
         ze_result_t ze_result;
         uint64_t result_active = 0;
         uint64_t result_timestamp = 0;
 
-        zes_engine_properties_t property;
         zes_engine_stats_t stats;
 
-        zes_engine_handle_t handle = m_devices.at(accel_idx).subdevice.m_engine_domain.at(domain).at(domain_idx);
+        zes_engine_handle_t handle = m_devices.at(device_idx).subdevice.m_engine_domain.at(domain).at(domain_idx);
         ze_result = zesEngineGetActivity(handle, &stats);
         check_ze_result(ze_result, GEOPM_ERROR_RUNTIME, "LevelZeroShim::" + std::string(__func__) +
                                                         ": Sysman failed to get engine group activity.", __LINE__);
@@ -447,17 +428,13 @@ namespace geopm
         return {result_active, result_timestamp};
     }
 
-    std::pair<uint64_t,uint64_t> LevelZeroShimImp::energy_pair(unsigned int accel_idx, int domain_idx) const
+    std::pair<uint64_t,uint64_t> LevelZeroShimImp::energy_pair(unsigned int device_idx) const
     {
         ze_result_t ze_result;
         uint64_t result_energy = 0;
         uint64_t result_timestamp = 0;
 
-        zes_pwr_handle_t handle = m_devices.at(accel_idx).m_power_domain.at(domain_idx);
-        //For initial GEOPM support we're only providing device level power.  Eventually we'll want to
-        //choose between these two
-        //zes_power_handle_t subdevice_handle = m_devices.at(accel_idx).subdevice.m_power_domain.at(domain).at(domain_idx);
-
+        zes_pwr_handle_t handle = m_devices.at(device_idx).m_power_domain;
         zes_power_energy_counter_t energy_counter;
         ze_result = zesPowerGetEnergyCounter(handle, &energy_counter);
         check_ze_result(ze_result, GEOPM_ERROR_RUNTIME, "LevelZeroShim::" + std::string(__func__) +
@@ -467,68 +444,53 @@ namespace geopm
         return {result_energy, result_timestamp};
     }
 
-    uint64_t LevelZeroShimImp::energy_timestamp(unsigned int accel_idx, int domain_idx) const
+    uint64_t LevelZeroShimImp::energy_timestamp(unsigned int device_idx) const
     {
-        //TODO: for performance testing we may want to cache either the timestamp or the energy reading
-        return energy_pair(accel_idx, domain_idx).second;
+        return energy_pair(device_idx).second;
     }
 
-    uint64_t LevelZeroShimImp::energy(unsigned int accel_idx, int domain_idx) const
+    uint64_t LevelZeroShimImp::energy(unsigned int device_idx) const
     {
-        //TODO: for performance testing we may want to cache either the timestamp or the energy reading
-        return energy_pair(accel_idx, domain_idx).first;
+        return energy_pair(device_idx).first;
     }
 
-    int32_t LevelZeroShimImp::power_limit_tdp(unsigned int accel_idx, int domain_idx) const
+    int32_t LevelZeroShimImp::power_limit_tdp(unsigned int device_idx) const
     {
-        //return std::get<2>(power_limit_default(accel_idx, domain_idx));
-        return power_limit_default(accel_idx, domain_idx).tdp;
+        return power_limit_default(device_idx).tdp;
     }
 
-    int32_t LevelZeroShimImp::power_limit_min(unsigned int accel_idx, int domain_idx) const
+    int32_t LevelZeroShimImp::power_limit_min(unsigned int device_idx) const
     {
-        //return std::get<0>(power_limit_default(accel_idx, domain_idx));
-        return power_limit_default(accel_idx, domain_idx).min;
+        return power_limit_default(device_idx).min;
     }
 
-    int32_t LevelZeroShimImp::power_limit_max(unsigned int accel_idx, int domain_idx) const
+    int32_t LevelZeroShimImp::power_limit_max(unsigned int device_idx) const
     {
-        //return std::get<1>(power_limit_default(accel_idx, domain_idx));
-        return power_limit_default(accel_idx, domain_idx).max;
+        return power_limit_default(device_idx).max;
     }
 
-    //std::tuple<int32_t, int32_t, int32_t> LevelZeroShimImp::power_limit_default(unsigned int accel_idx, int domain_idx) const
-    LevelZeroShimImp::power_limit_s LevelZeroShimImp::power_limit_default(unsigned int accel_idx, int domain_idx) const
+    LevelZeroShimImp::power_limit_s LevelZeroShimImp::power_limit_default(unsigned int device_idx) const
     {
         ze_result_t ze_result;
 
         zes_power_properties_t property;
-        uint64_t tdp = 0;
-        uint64_t min_power_limit = 0;
-        uint64_t max_power_limit = 0;
         power_limit_s result_power;
 
-        //For initial GEOPM support we're only providing device level power.  Eventually we'll want to
-        //choose between these two
-        //zes_power_handle_t subdevice_handle = m_devices.at(accel_idx).subdevice.m_power_domain.at(domain).at(domain_idx);
-        zes_pwr_handle_t handle = m_devices.at(accel_idx).m_power_domain.at(domain_idx);
+        zes_pwr_handle_t handle = m_devices.at(device_idx).m_power_domain;
 
-        //TODO: these could cached at init time
+        //TODO: these could be cached at init time
         ze_result = zesPowerGetProperties(handle, &property);
         check_ze_result(ze_result, GEOPM_ERROR_RUNTIME, "LevelZeroDevicePool::" + std::string(__func__) +
                                                         ": Sysman failed to get domain power properties", __LINE__);
-        tdp = property.defaultLimit;
-        min_power_limit = property.minLimit;
-        max_power_limit = property.maxLimit;
         result_power.tdp = property.defaultLimit;
         result_power.min = property.minLimit;
         result_power.max = property.maxLimit;
 
-        //return std::make_tuple(min_power_limit, max_power_limit, tdp);
         return result_power;
     }
 
-    void LevelZeroShimImp::frequency_control(unsigned int accel_idx, geopm_levelzero_domain_e domain, int domain_idx, double setting) const
+    //TODO: frequency_control_min and frequency_control_max capability will be required in some form for save/restore
+    void LevelZeroShimImp::frequency_control(unsigned int device_idx, int domain, int domain_idx, double setting) const
     {
         ze_result_t ze_result;
         zes_freq_properties_t property;
@@ -536,7 +498,7 @@ namespace geopm
         range.min = setting;
         range.max = setting;
 
-        zes_freq_handle_t handle = m_devices.at(accel_idx).subdevice.m_freq_domain.at(domain).at(domain_idx);
+        zes_freq_handle_t handle = m_devices.at(device_idx).subdevice.m_freq_domain.at(domain).at(domain_idx);
 
         ze_result = zesFrequencyGetProperties(handle, &property);
         check_ze_result(ze_result, GEOPM_ERROR_RUNTIME, "LevelZeroShim::" + std::string(__func__) +

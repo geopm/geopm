@@ -302,8 +302,8 @@ AC_ARG_WITH([liblevelzero], [AS_HELP_STRING([--with-liblevelzero=PATH],
             [specify directory for installed liblevelzero package.])])
 if test "x$with_liblevelzero" != x; then
   EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$with_liblevelzero/include/level_zero"
-  LD_LIBRARY_PATH="$with_liblevelzero/lib:$LD_LIBRARY_PATH"
-  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_liblevelzero/lib64" #Chris, is this safe?
+  LD_LIBRARY_PATH="$with_liblevelzero/lib64:$LD_LIBRARY_PATH"
+  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_liblevelzero/lib64"
 fi
 
 AC_ARG_WITH([libelf], [AS_HELP_STRING([--with-libelf=PATH],

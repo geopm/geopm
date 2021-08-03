@@ -42,86 +42,34 @@ class MockLevelZeroDevicePool : public geopm::LevelZeroDevicePool
     public:
         MOCK_CONST_METHOD0(num_accelerator,
                            int(void));
-        MOCK_CONST_METHOD1(frequency_status_gpu,
-                           double(unsigned int));
-        MOCK_CONST_METHOD1(frequency_status_mem,
-                           double(unsigned int));
-        MOCK_CONST_METHOD1(frequency_min_gpu,
-                           double(unsigned int));
-        MOCK_CONST_METHOD1(frequency_max_gpu,
-                           double(unsigned int));
-        MOCK_CONST_METHOD1(frequency_min_mem,
-                           double(unsigned int));
-        MOCK_CONST_METHOD1(frequency_max_mem,
-                           double(unsigned int));
-        MOCK_CONST_METHOD1(frequency_range_min_gpu,
-                           double(unsigned int));
-        MOCK_CONST_METHOD1(frequency_range_max_gpu,
-                           double(unsigned int));
-        MOCK_CONST_METHOD1(frequency_status_throttle_reason_gpu,
+        MOCK_CONST_METHOD0(num_accelerator_subdevice,
+                           int(void));
+
+        MOCK_CONST_METHOD2(frequency_status,
+                           double(unsigned int, int));
+        MOCK_CONST_METHOD2(frequency_min,
+                           double(unsigned int, int));
+        MOCK_CONST_METHOD2(frequency_max,
+                           double(unsigned int, int));
+
+        MOCK_CONST_METHOD2(active_time,
+                           uint64_t(unsigned int, int));
+        MOCK_CONST_METHOD2(active_time_timestamp,
+                           uint64_t(unsigned int, int));
+
+        MOCK_CONST_METHOD1(energy,
                            uint64_t(unsigned int));
-        MOCK_CONST_METHOD1(frequency_throttle_time_gpu,
+        MOCK_CONST_METHOD1(energy_timestamp,
                            uint64_t(unsigned int));
-        MOCK_CONST_METHOD1(frequency_throttle_time_timestamp_gpu,
-                           uint64_t(unsigned int));
-        MOCK_CONST_METHOD1(active_time,
-                           uint64_t(unsigned int));
-        MOCK_CONST_METHOD1(active_time_timestamp,
-                           uint64_t(unsigned int));
-        MOCK_CONST_METHOD1(active_time_compute,
-                           uint64_t(unsigned int));
-        MOCK_CONST_METHOD1(active_time_timestamp_compute,
-                           uint64_t(unsigned int));
-        MOCK_CONST_METHOD1(active_time_copy,
-                           uint64_t(unsigned int));
-        MOCK_CONST_METHOD1(active_time_timestamp_copy,
-                           uint64_t(unsigned int));
-        MOCK_CONST_METHOD1(active_time_media_decode,
-                           uint64_t(unsigned int));
-        MOCK_CONST_METHOD1(active_time_timestamp_media_decode,
-                           uint64_t(unsigned int));
-        MOCK_CONST_METHOD1(temperature,
-                           double(unsigned int));
-        MOCK_CONST_METHOD1(temperature_gpu,
-                           double(unsigned int));
-        MOCK_CONST_METHOD1(temperature_memory,
-                           double(unsigned int));
         MOCK_CONST_METHOD1(power_limit_tdp,
                            int32_t(unsigned int));
         MOCK_CONST_METHOD1(power_limit_min,
                            int32_t(unsigned int));
         MOCK_CONST_METHOD1(power_limit_max,
                            int32_t(unsigned int));
-        MOCK_CONST_METHOD1(power_limit_enabled_sustained,
-                           bool(unsigned int));
-        MOCK_CONST_METHOD1(power_limit_sustained,
-                           int32_t(unsigned int));
-        MOCK_CONST_METHOD1(power_limit_interval_sustained,
-                           int32_t(unsigned int));
-        MOCK_CONST_METHOD1(power_limit_enabled_burst,
-                           bool(unsigned int));
-        MOCK_CONST_METHOD1(power_limit_burst,
-                           int32_t(unsigned int));
-        MOCK_CONST_METHOD1(power_limit_peak_ac,
-                           int32_t(unsigned int));
-        MOCK_CONST_METHOD1(energy,
-                           uint64_t(unsigned int));
-        MOCK_CONST_METHOD1(energy_timestamp,
-                           uint64_t(unsigned int));
-        MOCK_CONST_METHOD1(performance_factor,
-                           double(unsigned int));
-        MOCK_CONST_METHOD1(active_process_list,
-                           std::vector<uint32_t>(unsigned int));
-        MOCK_CONST_METHOD1(standby_mode,
-                           double(unsigned int));
-        MOCK_CONST_METHOD1(memory_allocated,
-                           double(unsigned int));
-        MOCK_CONST_METHOD2(energy_threshold_control,
-                           void(unsigned int, double));
-        MOCK_CONST_METHOD2(frequency_control_gpu,
-                           void(unsigned int, double));
-        MOCK_CONST_METHOD2(standby_mode_control,
-                           void(unsigned int, double));
+
+        MOCK_CONST_METHOD3(frequency_control,
+                           void(unsigned int, int, double));
 };
 
 #endif

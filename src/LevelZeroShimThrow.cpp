@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 - 2021, Intel Corporation
+ * Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -39,21 +39,24 @@
 #include <sstream>
 #include <string>
 
+#include <thread>
+#include <chrono>
+#include <time.h>
+
 #include "Exception.hpp"
+#include "Environment.hpp"
 #include "Agg.hpp"
 #include "Helper.hpp"
 #include "geopm_sched.h"
 
-#include "LevelZeroDevicePool.hpp"
+#include "LevelZeroShim.hpp"
 
 namespace geopm
 {
-
-    const LevelZeroDevicePool &levelzero_device_pool(const int num_cpu)
+    const LevelZeroShim &levelzero_shim()
     {
-        throw Exception("LevelZeroDevicePoolThrow::" + std::string(__func__) +
+        throw Exception("LevelZeroShimThrow::" + std::string(__func__) +
                         ": GEOPM configured without Level Zero library support.  Please configure with --enable-levelzero",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
-
 }

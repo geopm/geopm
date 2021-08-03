@@ -52,20 +52,19 @@
 
 namespace geopm
 {
-
-    const LevelZeroDevicePool &levelzero_device_pool(const int num_cpu)
+    const LevelZeroDevicePool &levelzero_device_pool()
     {
-        static LevelZeroDevicePoolImp instance(num_cpu);
+        static LevelZeroDevicePoolImp instance(levelzero_shim());
         return instance;
     }
 
-    LevelZeroDevicePoolImp::LevelZeroDevicePoolImp(const int num_cpu)
-        : M_NUM_CPU(num_cpu)
-        , m_shim(levelzero_shim(num_cpu))
+    LevelZeroDevicePoolImp::LevelZeroDevicePoolImp(const LevelZeroShim &shim)
+        : m_shim(shim)
     {
     }
 
-    LevelZeroDevicePoolImp::~LevelZeroDevicePoolImp()
+    LevelZeroDevicePoolImp::LevelZeroDevicePoolImp()
+        : LevelZeroDevicePoolImp(levelzero_shim())
     {
     }
 
@@ -74,16 +73,30 @@ namespace geopm
         return m_shim.num_accelerator();
     }
 
-    void LevelZeroDevicePoolImp::check_accel_range(unsigned int accel_idx) const
+    int LevelZeroDevicePoolImp::num_accelerator_subdevice() const
     {
-        if (accel_idx >= (unsigned int) num_accelerator()) {
-            throw Exception("LevelZeroDevicePool::" + std::string(__func__) + ": accel_idx " +
-                            std::to_string(accel_idx) + "  is out of range",
+        return m_shim.num_accelerator_subdevice();
+    }
+
+    void LevelZeroDevicePoolImp::check_device_range(unsigned int dev_idx) const
+    {
+        if (dev_idx >= (unsigned int) num_accelerator()) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) + ": device idx " +
+                            std::to_string(dev_idx) + " is out of range.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
     }
 
-    void LevelZeroDevicePoolImp::check_domain_range(int size, const char *func, int line) const
+    void LevelZeroDevicePoolImp::check_subdevice_range(unsigned int sub_idx) const
+    {
+        if (sub_idx >= (unsigned int) num_accelerator_subdevice()) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) + ": subdevice idx " +
+                            std::to_string(sub_idx) + " is out of range",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+    }
+
+    void LevelZeroDevicePoolImp::check_domain_exists(int size, const char *func, int line) const
     {
         if (size == 0) {
             throw Exception("LevelZeroDevicePool::" + std::string(func) + ": Not supported on this hardware",
@@ -91,159 +104,112 @@ namespace geopm
         }
     }
 
-    double LevelZeroDevicePoolImp::frequency_status(unsigned int accel_idx, geopm_levelzero_domain_e domain) const
+    std::pair<unsigned int, unsigned int> LevelZeroDevicePoolImp::subdevice_device_conversion(unsigned int sub_idx) const
     {
-        check_accel_range(accel_idx);
-        double result = 0;
-        double result_cnt = 0;
-        int domain_size = m_shim.frequency_domain_count(accel_idx, domain);
-        check_domain_range(domain_size, __func__, __LINE__);
-        for (int domain_idx = 0; domain_idx < domain_size; domain_idx++){
-            result += m_shim.frequency_status(accel_idx, domain, domain_idx);
-            ++result_cnt; //TODO: change for official multi-tile support
+        check_subdevice_range(sub_idx);
+        unsigned int device_idx = 0;
+        int subdevice_idx = 0;
+
+        // TODO: this assumes a simple split of subdevice to device.
+        // This may need to be adjusted based upon user preference or use case
+        if ((num_accelerator_subdevice() % num_accelerator()) != 0) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) + ": GEOPM Requires the number" +
+                            " of subdevices to be evenly divisible by the number of devices. ",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        return result/result_cnt;
+        int num_subdevice_per_device = num_accelerator_subdevice()/num_accelerator();
+
+        device_idx = sub_idx / num_subdevice_per_device;
+        check_device_range(device_idx);
+        subdevice_idx = sub_idx % num_subdevice_per_device;
+        return {device_idx, subdevice_idx};
     }
 
-    double LevelZeroDevicePoolImp::frequency_min(unsigned int accel_idx, geopm_levelzero_domain_e domain) const
+    double LevelZeroDevicePoolImp::frequency_status(unsigned int subdevice_idx, int l0_domain) const
     {
-        check_accel_range(accel_idx);
-        double result = 0;
-        double result_cnt = 0;
-        int domain_size = m_shim.frequency_domain_count(accel_idx, domain);
-        check_domain_range(domain_size, __func__, __LINE__);
-        for (int domain_idx = 0; domain_idx < domain_size; domain_idx++){
-            result += m_shim.frequency_min(accel_idx, domain, domain_idx);
-            ++result_cnt; //TODO: change for official multi-tile support
-        }
-        return result/result_cnt;
+        std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
+        dev_subdev_idx_pair = subdevice_device_conversion(subdevice_idx);
+        check_domain_exists(m_shim.frequency_domain_count(dev_subdev_idx_pair.first, l0_domain), __func__, __LINE__);
+
+        return m_shim.frequency_status(dev_subdev_idx_pair.first, l0_domain, dev_subdev_idx_pair.second);
     }
 
-    double LevelZeroDevicePoolImp::frequency_max(unsigned int accel_idx, geopm_levelzero_domain_e domain) const
+    double LevelZeroDevicePoolImp::frequency_min(unsigned int subdevice_idx, int l0_domain) const
     {
-        check_accel_range(accel_idx);
-        double result = 0;
-        double result_cnt = 0;
-        int domain_size = m_shim.frequency_domain_count(accel_idx, domain);
-        check_domain_range(domain_size, __func__, __LINE__);
-        for (int domain_idx = 0; domain_idx < domain_size; domain_idx++){
-            result += m_shim.frequency_max(accel_idx, domain, domain_idx);
-            ++result_cnt; //TODO: change for official multi-tile support
-        }
-        return result/result_cnt;
+        std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
+        dev_subdev_idx_pair = subdevice_device_conversion(subdevice_idx);
+        check_domain_exists(m_shim.frequency_domain_count(dev_subdev_idx_pair.first, l0_domain), __func__, __LINE__);
+
+        return m_shim.frequency_min(dev_subdev_idx_pair.first, l0_domain, dev_subdev_idx_pair.second);
     }
 
-    uint64_t LevelZeroDevicePoolImp::active_time_timestamp(unsigned int accel_idx, geopm_levelzero_domain_e domain) const
+    double LevelZeroDevicePoolImp::frequency_max(unsigned int subdevice_idx, int l0_domain) const
     {
-        check_accel_range(accel_idx);
-        double result = 0;
-        double result_cnt = 0;
-        int domain_size = m_shim.engine_domain_count(accel_idx, domain);
-        check_domain_range(domain_size, __func__, __LINE__);
-        for (int domain_idx = 0; domain_idx < domain_size; domain_idx++){
-            result += m_shim.active_time_timestamp(accel_idx, domain, domain_idx);
-            ++result_cnt; //TODO: change for official multi-tile support
-        }
-        return result/result_cnt;
+        std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
+        dev_subdev_idx_pair = subdevice_device_conversion(subdevice_idx);
+        check_domain_exists(m_shim.frequency_domain_count(dev_subdev_idx_pair.first, l0_domain), __func__, __LINE__);
+
+        return m_shim.frequency_max(dev_subdev_idx_pair.first, l0_domain, dev_subdev_idx_pair.second);
     }
 
-    uint64_t LevelZeroDevicePoolImp::active_time(unsigned int accel_idx, geopm_levelzero_domain_e domain) const
+    uint64_t LevelZeroDevicePoolImp::active_time_timestamp(unsigned int subdevice_idx, int l0_domain) const
     {
-        check_accel_range(accel_idx);
-        double result = 0;
-        double result_cnt = 0;
-        int domain_size = m_shim.engine_domain_count(accel_idx, domain);
-        check_domain_range(domain_size, __func__, __LINE__);
-        for (int domain_idx = 0; domain_idx < domain_size; domain_idx++){
-            result += m_shim.active_time(accel_idx, domain, domain_idx);
-            ++result_cnt; //TODO: change for official multi-tile support
-        }
-        return result/result_cnt;
+        // TODO: Some devices may not support ZES_ENGINE_GROUP_COMPUTE/COPY_ALL. In that case this should be a
+        //       device level signal that handles aggregation of domains directly here
+        std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
+        dev_subdev_idx_pair = subdevice_device_conversion(subdevice_idx);
+        check_domain_exists(m_shim.engine_domain_count(dev_subdev_idx_pair.first, l0_domain), __func__, __LINE__);
+
+        return m_shim.active_time_timestamp(dev_subdev_idx_pair.first, l0_domain, dev_subdev_idx_pair.second);
     }
 
-    int32_t LevelZeroDevicePoolImp::power_limit_min(unsigned int accel_idx) const
+    uint64_t LevelZeroDevicePoolImp::active_time(unsigned int subdevice_idx, int l0_domain) const
     {
-        check_accel_range(accel_idx);
-        double result = 0;
-        double result_cnt = 0;
+        //TODO: Some devices may not support ZES_ENGINE_GROUP_COMPUTE/COPY_ALL. In that case this should be a
+        //      device level signal that handles aggregation of domains directly here
+        std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
+        dev_subdev_idx_pair = subdevice_device_conversion(subdevice_idx);
+        check_domain_exists(m_shim.engine_domain_count(dev_subdev_idx_pair.first, l0_domain), __func__, __LINE__);
 
-        int domain_size = m_shim.energy_domain_count_device(accel_idx);
-        check_domain_range(domain_size, __func__, __LINE__);
-        for (int domain_idx = 0; domain_idx < domain_size; domain_idx++){
-            result += m_shim.power_limit_min(accel_idx, domain_idx);
-            ++result_cnt; //TODO: change for official multi-tile support
-        }
-        return result/result_cnt;
+        return m_shim.active_time(dev_subdev_idx_pair.first, l0_domain, dev_subdev_idx_pair.second);
     }
 
-    int32_t LevelZeroDevicePoolImp::power_limit_max(unsigned int accel_idx) const
+    int32_t LevelZeroDevicePoolImp::power_limit_min(unsigned int dev_idx) const
     {
-        check_accel_range(accel_idx);
-        double result = 0;
-        double result_cnt = 0;
-
-        int domain_size = m_shim.energy_domain_count_device(accel_idx);
-        check_domain_range(domain_size, __func__, __LINE__);
-        for (int domain_idx = 0; domain_idx < domain_size; domain_idx++){
-            result += m_shim.power_limit_max(accel_idx, domain_idx);
-            ++result_cnt; //TODO: change for official multi-tile support
-        }
-        return result/result_cnt;
+        check_device_range(dev_idx);
+        return m_shim.power_limit_min(dev_idx);
     }
 
-    int32_t LevelZeroDevicePoolImp::power_limit_tdp(unsigned int accel_idx) const
+    int32_t LevelZeroDevicePoolImp::power_limit_max(unsigned int dev_idx) const
     {
-        check_accel_range(accel_idx);
-        double result = 0;
-        double result_cnt = 0;
-
-        int domain_size = m_shim.energy_domain_count_device(accel_idx);
-        check_domain_range(domain_size, __func__, __LINE__);
-        for (int domain_idx = 0; domain_idx < domain_size; domain_idx++){
-            result += m_shim.power_limit_tdp(accel_idx, domain_idx);
-            ++result_cnt; //TODO: change for official multi-tile support
-        }
-        return result/result_cnt;
+        check_device_range(dev_idx);
+        return m_shim.power_limit_max(dev_idx);
     }
 
-    uint64_t LevelZeroDevicePoolImp::energy_timestamp(unsigned int accel_idx) const
+    int32_t LevelZeroDevicePoolImp::power_limit_tdp(unsigned int dev_idx) const
     {
-        check_accel_range(accel_idx);
-        double result = 0;
-        double result_cnt = 0;
-
-        int domain_size = m_shim.energy_domain_count_device(accel_idx);
-        check_domain_range(domain_size, __func__, __LINE__);
-        for (int domain_idx = 0; domain_idx < domain_size; domain_idx++){
-            result += m_shim.energy_timestamp(accel_idx, domain_idx);
-            ++result_cnt; //TODO: change for official multi-tile support
-        }
-        return result/result_cnt;
+        check_device_range(dev_idx);
+        return m_shim.power_limit_tdp(dev_idx);
     }
 
-    uint64_t LevelZeroDevicePoolImp::energy(unsigned int accel_idx) const
+    uint64_t LevelZeroDevicePoolImp::energy_timestamp(unsigned int dev_idx) const
     {
-        check_accel_range(accel_idx);
-        double result = 0;
-        double result_cnt = 0;
-
-        int domain_size = m_shim.energy_domain_count_device(accel_idx);
-        check_domain_range(domain_size, __func__, __LINE__);
-        for (int domain_idx = 0; domain_idx < domain_size; domain_idx++){
-            result += m_shim.energy(accel_idx, domain_idx);
-            ++result_cnt; //TODO: change for official multi-tile support
-        }
-        return result/result_cnt;
+        check_device_range(dev_idx);
+        return m_shim.energy_timestamp(dev_idx);
     }
 
-    void LevelZeroDevicePoolImp::frequency_control(unsigned int accel_idx, geopm_levelzero_domain_e domain, double setting) const
+    uint64_t LevelZeroDevicePoolImp::energy(unsigned int dev_idx) const
     {
-        check_accel_range(accel_idx);
-        int domain_size = m_shim.frequency_domain_count(accel_idx, domain);
-        check_domain_range(domain_size, __func__, __LINE__);
-        for (int domain_idx = 0; domain_idx < domain_size; domain_idx++){
-            m_shim.frequency_control(accel_idx, domain, domain_idx, setting);
-        }
+        check_device_range(dev_idx);
+        return m_shim.energy(dev_idx);
     }
 
+    void LevelZeroDevicePoolImp::frequency_control(unsigned int subdevice_idx, int l0_domain, double setting) const
+    {
+        std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
+        dev_subdev_idx_pair = subdevice_device_conversion(subdevice_idx);
+        check_domain_exists(m_shim.frequency_domain_count(dev_subdev_idx_pair.first, l0_domain), __func__, __LINE__);
+
+        m_shim.frequency_control(dev_subdev_idx_pair.first, l0_domain, dev_subdev_idx_pair.second, setting);
+    }
 }

@@ -50,11 +50,15 @@ namespace geopm
             LevelZeroAcceleratorTopo(const LevelZeroDevicePool &device_pool, const int num_cpu);
             virtual ~LevelZeroAcceleratorTopo() = default;
             virtual int num_accelerator(void) const override;
+            virtual int num_accelerator_subdevice(void) const override;
             virtual std::set<int> cpu_affinity_ideal(int accel_idx) const override;
+            virtual std::set<int> cpu_affinity_ideal_subdevice(int accel_idx) const override;
         private:
             const LevelZeroDevicePool &m_levelzero_device_pool;
             std::vector<std::set<int> > m_cpu_affinity_ideal;
+            std::vector<std::set<int> > m_cpu_affinity_ideal_subdevice;
             unsigned int m_num_accelerator;
+            unsigned int m_num_accelerator_subdevice;
     };
 }
 #endif

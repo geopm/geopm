@@ -60,10 +60,11 @@ class TestIntegrationLevelZeroSignals(unittest.TestCase):
         cls._app_exec_path = os.path.join(script_dir, '.libs', 'test_levelzero_signals')
 
     def setUp(self):
-        #TODO: get num accelerators
-        #TODO: verify they're level zero accels and not nvidia
         self._stdout = None
         self._stderr = None
+
+        #TODO: Add query for numnber of devices and subdevices
+        #TODO: Add check for ZES_SYSMAN_ENABLE=1
 
     def tearDown(self):
         pass
@@ -73,18 +74,12 @@ class TestIntegrationLevelZeroSignals(unittest.TestCase):
         power = geopm_test_launcher.geopmread("LEVELZERO::POWER board_accelerator 0")
         power_limit_max = geopm_test_launcher.geopmread("LEVELZERO::POWER_LIMIT_MAX board_accelerator 0")
         power_limit_min = geopm_test_launcher.geopmread("LEVELZERO::POWER_LIMIT_MIN board_accelerator 0")
-        power_limit_enabled_sustained = geopm_test_launcher.geopmread("LEVELZERO::POWER_LIMIT_ENABLED_SUSTAINED board_accelerator 0")
-        power_limit_sustained = geopm_test_launcher.geopmread("LEVELZERO::POWER_LIMIT_SUSTAINED board_accelerator 0")
-        power_limit_default = geopm_test_launcher.geopmread("LEVELZERO::POWER_LIMIT_DEFAULT board_accelerator 0")
 
         #Info
         sys.stdout.write("Power:\n");
         sys.stdout.write("\tPower: {}\n".format(power));
         sys.stdout.write("\tPower limit max: {}\n".format(power_limit_max));
         sys.stdout.write("\tPower limit min: {}\n".format(power_limit_min));
-        sys.stdout.write("\tPower limit default: {}\n".format(power_limit_default));
-        sys.stdout.write("\tPower limit sustained enable: {}\n".format(power_limit_enabled_sustained));
-        sys.stdout.write("\tPower limit sustained: {}\n".format(power_limit_sustained));
 
         #Check
         self.assertGreater(power, 0)
@@ -94,10 +89,10 @@ class TestIntegrationLevelZeroSignals(unittest.TestCase):
         if(power_limit_max > 0): #Negative value indicates max is not supported
             self.assertLessEqual(power, power_limit_max)
 
-        if(power_limit_enabled_sustained == 1):
-            self.assertLessEqual(power, power_limit_sustained)
+        #TODO: Power limit enabled sustained check
 
     def test_energy(self):
+        sys.stdout.write("Running LevelZero Energy Test\n");
         #Query
         energy_prev = geopm_test_launcher.geopmread("LEVELZERO::ENERGY board_accelerator 0")
         energy_timestamp_prev = geopm_test_launcher.geopmread("LEVELZERO::ENERGY_TIMESTAMP board_accelerator 0")
@@ -105,38 +100,31 @@ class TestIntegrationLevelZeroSignals(unittest.TestCase):
         energy_curr = geopm_test_launcher.geopmread("LEVELZERO::ENERGY board_accelerator 0")
         energy_timestamp_curr = geopm_test_launcher.geopmread("LEVELZERO::ENERGY_TIMESTAMP board_accelerator 0")
 
+        sys.stdout.write("Energy:\n");
+        sys.stdout.write("\tEnergy Sample 0: {}\n".format(energy_prev));
+        sys.stdout.write("\tEnergy Sample 1: {}\n".format(energy_curr));
+
         #Check
         self.assertNotEqual(energy_prev, energy_curr)
         self.assertNotEqual(energy_timestamp_prev, energy_timestamp_curr)
 
     def test_frequency(self):
+        sys.stdout.write("Running LevelZero Frequency Test\n");
         #Query
-        standby_mode = geopm_test_launcher.geopmread("LEVELZERO::STANDBY_MODE board_accelerator 0")
         frequency_gpu = geopm_test_launcher.geopmread("LEVELZERO::FREQUENCY_GPU board_accelerator 0")
         frequency_min_gpu = geopm_test_launcher.geopmread("LEVELZERO::FREQUENCY_MIN_GPU board_accelerator 0")
         frequency_max_gpu = geopm_test_launcher.geopmread("LEVELZERO::FREQUENCY_MAX_GPU board_accelerator 0")
-        frequency_range_min_gpu = geopm_test_launcher.geopmread("LEVELZERO::FREQUENCY_RANGE_MIN_GPU_CONTROL board_accelerator 0")
-        frequency_range_max_gpu = geopm_test_launcher.geopmread("LEVELZERO::FREQUENCY_RANGE_MAX_GPU_CONTROL board_accelerator 0")
 
         #Info
         sys.stdout.write("Frequency:\n");
-        sys.stdout.write("\tStandby Mode: {}\n".format(standby_mode));
         sys.stdout.write("\tFrequency GPU: {}\n".format(frequency_gpu));
         sys.stdout.write("\tFrequency GPU Min: {}\n".format(frequency_min_gpu));
         sys.stdout.write("\tFrequency GPU Max: {}\n".format(frequency_max_gpu));
-        sys.stdout.write("\tFrequency GPU Control Min: {}\n".format(frequency_range_min_gpu));
-        sys.stdout.write("\tFrequency GPU Control Max: {}\n".format(frequency_range_max_gpu));
 
-        #Check
-        if(standby_mode == 0): #We may enter idle and see 0 Hz
-            self.assertGreaterEqual(frequency_gpu, 0)
-        else:
-            self.assertGreaterEqual(frequency_gpu, frequency_min_gpu)
-            self.assertGreaterEqual(frequency_gpu, frequency_range_min_gpu)
-
+        #TODO: standby mode check
+        self.assertGreaterEqual(frequency_gpu, frequency_min_gpu)
         if(frequency_max_gpu > 0): #Negative value indicates max was not supported
             self.assertLessEqual(frequency_gpu, frequency_max_gpu)
-            self.assertLessEqual(frequency_gpu, frequency_range_max_gpu)
 
 
 if __name__ == '__main__':

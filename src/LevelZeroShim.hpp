@@ -51,111 +51,97 @@ namespace geopm
             /// @return Number of LevelZero accelerators.
             virtual int num_accelerator(void) const = 0;
 
+            /// @brief Number of accelerator subdevices on the platform.
+            /// @return Number of LevelZero accelerator subdevices.
+            virtual int num_accelerator_subdevice(void) const = 0;
+
             /// @brief Get the number of LevelZero frequency domains of a certain type
             /// @param [in] domain The domain type being targeted
             /// @return Accelerator frequency domain count.
-            virtual int frequency_domain_count(unsigned int accel_idx, geopm_levelzero_domain_e domain) const = 0;
+            virtual int frequency_domain_count(unsigned int device_idx, int domain) const = 0;
             /// @brief Get the LevelZero device actual frequency in MHz
-            /// @param [in] accel_idx The index indicating a particular
+            /// @param [in] device_idx The index indicating a particular
             ///        accelerator.
             /// @param [in] domain The domain type being targeted
             /// @param [in] domain_idx The index indicating a particular
             ///        domain of the accelerator.
             /// @return Accelerator device core clock rate in MHz.
-            virtual double frequency_status(unsigned int accel_idx, geopm_levelzero_domain_e domain, int domain_idx) const = 0;
+            virtual double frequency_status(unsigned int device_idx, int domain, int domain_idx) const = 0;
             /// @brief Get the LevelZero device mininmum frequency in MHz
-            /// @param [in] accel_idx The index indicating a particular
+            /// @param [in] device_idx The index indicating a particular
             ///        accelerator.
             /// @param [in] domain The domain type being targeted
             /// @param [in] domain_idx The index indicating a particular
             ///        domain of the accelerator.
             /// @return Accelerator minimum frequency in MHz.
-            virtual double frequency_min(unsigned int accel_idx, geopm_levelzero_domain_e domain, int domain_idx) const = 0;
+            virtual double frequency_min(unsigned int device_idx, int domain, int domain_idx) const = 0;
             /// @brief Get the LevelZero device maximum frequency in MHz
-            /// @param [in] accel_idx The index indicating a particular
+            /// @param [in] device_idx The index indicating a particular
             ///        accelerator.
             /// @param [in] domain The domain type being targeted
             /// @param [in] domain_idx The index indicating a particular
             ///        domain of the accelerator.
             /// @return Accelerator maximum frequency in MHz.
-            virtual double frequency_max(unsigned int accel_idx, geopm_levelzero_domain_e domain, int domain_idx) const = 0;
+            virtual double frequency_max(unsigned int device_idx, int domain, int domain_idx) const = 0;
 
             /// @brief Get the number of LevelZero engine domains
             /// @param [in] domain The domain type being targeted
             /// @return Accelerator engine domain count.
-            virtual int engine_domain_count(unsigned int accel_idx, geopm_levelzero_domain_e domain) const = 0;
+            virtual int engine_domain_count(unsigned int device_idx, int domain) const = 0;
             /// @brief Get the LevelZero device active time in microseconds
-            /// @param [in] accel_idx The index indicating a particular
+            /// @param [in] device_idx The index indicating a particular
             ///        accelerator.
             /// @param [in] domain The domain type being targeted
             /// @param [in] domain_idx The index indicating a particular
             ///        domain of the accelerator.
             /// @return Accelerator active time in microseconds.
-            virtual uint64_t active_time(unsigned int accel_idx, geopm_levelzero_domain_e domain, int domain_idx) const = 0;
+            virtual uint64_t active_time(unsigned int device_idx, int domain, int domain_idx) const = 0;
             /// @brief Get the LevelZero device timestamp for the active time value in microseconds
-            /// @param [in] accel_idx The index indicating a particular
+            /// @param [in] device_idx The index indicating a particular
             ///        accelerator.
             /// @param [in] domain The domain type being targeted
             /// @param [in] domain_idx The index indicating a particular
             ///        domain of the accelerator.
             /// @return Accelerator device timestamp for the active time value in microseconds.
-            virtual uint64_t active_time_timestamp(unsigned int accel_idx, geopm_levelzero_domain_e domain, int domain_idx) const = 0;
+            virtual uint64_t active_time_timestamp(unsigned int device_idx, int domain, int domain_idx) const = 0;
 
             /// @brief Get the LevelZero device default power limit in milliwatts
-            /// @param [in] accel_idx The index indicating a particular
+            /// @param [in] device_idx The index indicating a particular
             ///        accelerator.
-            /// @param [in] domain_idx The index indicating a particular
-            ///        domain of the accelerator.
             /// @return Accelerator default power limit in milliwatts
-            virtual int32_t power_limit_tdp(unsigned int accel_idx, int domain_idx) const = 0;
+            virtual int32_t power_limit_tdp(unsigned int device_idx) const = 0;
             /// @brief Get the LevelZero device minimum power limit in milliwatts
-            /// @param [in] accel_idx The index indicating a particular
+            /// @param [in] device_idx The index indicating a particular
             ///        accelerator.
-            /// @param [in] domain_idx The index indicating a particular
-            ///        domain of the accelerator.
             /// @return Accelerator minimum power limit in milliwatts
-            virtual int32_t power_limit_min(unsigned int accel_idx, int domain_idx) const = 0;
+            virtual int32_t power_limit_min(unsigned int device_idx) const = 0;
             /// @brief Get the LevelZero device maximum power limit in milliwatts
-            /// @param [in] accel_idx The index indicating a particular
+            /// @param [in] device_idx The index indicating a particular
             ///        accelerator.
-            /// @param [in] domain_idx The index indicating a particular
-            ///        domain of the accelerator.
             /// @return Accelerator maximum power limit in milliwatts
-            virtual int32_t power_limit_max(unsigned int accel_idx, int domain_idx) const = 0;
+            virtual int32_t power_limit_max(unsigned int device_idx) const = 0;
 
-            /// @brief Get the number of LevelZero device energy domains
-            /// @param [in] domain The domain type being targeted
-            /// @return Accelerator device energy domain count.
-            virtual int energy_domain_count_device(unsigned int accel_idx) const = 0;
-            /// @brief Get the number of LevelZero subdevice energy domains
-            /// @param [in] accel_idx The index indicating a particular
-            ///        accelerator.
-            /// @param [in] domain_idx The index indicating a particular
-            ///        domain of the accelerator.
-            /// @return Accelerator sub-device energy domain count.
-            virtual int energy_domain_count_subdevice(unsigned int accel_idx, int domain_idx) const = 0;
             /// @brief Get the LevelZero device energy in microjoules.
-            /// @param [in] accel_idx The index indicating a particular
+            /// @param [in] device_idx The index indicating a particular
             ///        accelerator.
             /// @return Accelerator energy in microjoules.
-            virtual uint64_t energy(unsigned int accel_idx, int domain_idx) const = 0;
+            virtual uint64_t energy(unsigned int device_idx) const = 0;
             /// @brief Get the LevelZero device energy timestamp in microseconds
-            /// @param [in] accel_idx The index indicating a particular
+            /// @param [in] device_idx The index indicating a particular
             ///        accelerator.
-            /// @param [in] domain_idx The index indicating a particular
-            ///        domain of the accelerator.
             /// @return Accelerator energy timestamp in microseconds
-            virtual uint64_t energy_timestamp(unsigned int accel_idx, int domain_idx) const = 0;
+            virtual uint64_t energy_timestamp(unsigned int device_idx) const = 0;
 
             /// @brief Set min and max frequency for LevelZero device.
-            /// @param [in] accel_idx The index indicating a particular
+            /// @param [in] device_idx The index indicating a particular
             ///        accelerator.
             /// @param [in] domain The domain type being targeted
             /// @param [in] setting Target frequency in MHz.
-            virtual void frequency_control(unsigned int accel_idx, geopm_levelzero_domain_e domain, int domain_idx, double setting) const = 0;
+            virtual void frequency_control(unsigned int device_idx, int domain, int domain_idx, double setting) const = 0;
 
         private:
     };
-    const LevelZeroShim &levelzero_shim(int num_cpu);
+
+    const LevelZeroShim &levelzero_shim();
 }
 #endif

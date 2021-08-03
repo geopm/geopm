@@ -56,7 +56,7 @@ namespace geopm
 {
 
     LevelZeroIOGroup::LevelZeroIOGroup()
-        : LevelZeroIOGroup(platform_topo(), levelzero_device_pool(platform_topo().num_domain(GEOPM_DOMAIN_CPU)))
+        : LevelZeroIOGroup(platform_topo(), levelzero_device_pool())
     {
     }
 
@@ -67,7 +67,7 @@ namespace geopm
         , m_is_batch_read(false)
         , m_signal_available({{"LEVELZERO::FREQUENCY_GPU", {
                                   "Accelerator compute/GPU domain frequency in hertz",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                  GEOPM_DOMAIN_BOARD_ACCELERATOR_SUBDEVICE,
                                   Agg::average,
                                   string_format_double,
                                   {},
@@ -79,7 +79,7 @@ namespace geopm
                                   }},
                               {"LEVELZERO::FREQUENCY_MAX_GPU", {
                                   "Accelerator compute/GPU domain maximum frequency in hertz",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                  GEOPM_DOMAIN_BOARD_ACCELERATOR_SUBDEVICE,
                                   Agg::average,
                                   string_format_double,
                                   {},
@@ -91,7 +91,7 @@ namespace geopm
                                   }},
                               {"LEVELZERO::FREQUENCY_MIN_GPU", {
                                   "Accelerator compute/GPU domain minimum frequency in hertz",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                  GEOPM_DOMAIN_BOARD_ACCELERATOR_SUBDEVICE,
                                   Agg::average,
                                   string_format_double,
                                   {},
@@ -127,7 +127,7 @@ namespace geopm
                                   }},
                               {"LEVELZERO::FREQUENCY_MEMORY", {
                                   "Accelerator memory domain frequency in hertz",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                  GEOPM_DOMAIN_BOARD_ACCELERATOR_SUBDEVICE,
                                   Agg::average,
                                   string_format_double,
                                   {},
@@ -139,7 +139,7 @@ namespace geopm
                                   }},
                               {"LEVELZERO::FREQUENCY_MAX_MEMORY", {
                                   "Accelerator memory domain maximum frequency in hertz",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                  GEOPM_DOMAIN_BOARD_ACCELERATOR_SUBDEVICE,
                                   Agg::average,
                                   string_format_double,
                                   {},
@@ -151,7 +151,7 @@ namespace geopm
                                   }},
                               {"LEVELZERO::FREQUENCY_MIN_MEMORY", {
                                   "Accelerator memory domain minimum frequency in hertz",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                  GEOPM_DOMAIN_BOARD_ACCELERATOR_SUBDEVICE,
                                   Agg::average,
                                   string_format_double,
                                   {},
@@ -199,7 +199,7 @@ namespace geopm
                                   }},
                               {"LEVELZERO::ACTIVE_TIME", {
                                   "GPU active time",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                  GEOPM_DOMAIN_BOARD_ACCELERATOR_SUBDEVICE,
                                   Agg::average,
                                   string_format_double,
                                   {},
@@ -211,7 +211,7 @@ namespace geopm
                                   }},
                               {"LEVELZERO::ACTIVE_TIME_TIMESTAMP", {
                                   "GPU active time reading timestamp",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                  GEOPM_DOMAIN_BOARD_ACCELERATOR_SUBDEVICE,
                                   Agg::average,
                                   string_format_double,
                                   {},
@@ -223,7 +223,7 @@ namespace geopm
                                   }},
                               {"LEVELZERO::ACTIVE_TIME_COMPUTE", {
                                   "GPU Compute engine active time",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                  GEOPM_DOMAIN_BOARD_ACCELERATOR_SUBDEVICE,
                                   Agg::average,
                                   string_format_double,
                                   {},
@@ -235,7 +235,7 @@ namespace geopm
                                   }},
                               {"LEVELZERO::ACTIVE_TIME_TIMESTAMP_COMPUTE", {
                                   "GPU Compute engine active time reading timestamp",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                  GEOPM_DOMAIN_BOARD_ACCELERATOR_SUBDEVICE,
                                   Agg::average,
                                   string_format_double,
                                   {},
@@ -247,7 +247,7 @@ namespace geopm
                                   }},
                               {"LEVELZERO::ACTIVE_TIME_COPY", {
                                   "GPU Copy engine active time",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                  GEOPM_DOMAIN_BOARD_ACCELERATOR_SUBDEVICE,
                                   Agg::average,
                                   string_format_double,
                                   {},
@@ -259,7 +259,7 @@ namespace geopm
                                   }},
                               {"LEVELZERO::ACTIVE_TIME_TIMESTAMP_COPY", {
                                   "GPU Copy engine active time timestamp",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                  GEOPM_DOMAIN_BOARD_ACCELERATOR_SUBDEVICE,
                                   Agg::average,
                                   string_format_double,
                                   {},
@@ -273,7 +273,7 @@ namespace geopm
         , m_control_available({{"LEVELZERO::FREQUENCY_GPU_CONTROL", {
                                     "Sets accelerator frequency (in hertz)",
                                     {},
-                                    GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                    GEOPM_DOMAIN_BOARD_ACCELERATOR_SUBDEVICE,
                                     Agg::average,
                                     string_format_double
                                     }}
@@ -531,12 +531,6 @@ namespace geopm
         for (auto &sv : m_control_available) {
             for (unsigned int domain_idx = 0; domain_idx < sv.second.controls.size(); ++domain_idx) {
                 if (sv.second.controls.at(domain_idx)->m_is_adjusted) {
-                    // TODO: numerous optimizations are possible, including:
-                    //          grouped power limit writes
-                    //          grouped freqeuncy writes (with device pool modification)
-                    //
-                    //  The majority of these require more in-depth level zero data types being understood by the
-                    //  IOGroup, OR new data structures
                     write_control(sv.first, sv.second.domain_type, domain_idx, sv.second.controls.at(domain_idx)->m_setting);
                 }
             }
@@ -611,12 +605,12 @@ namespace geopm
                             " not valid for LevelZeroIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        if (domain_type != GEOPM_DOMAIN_BOARD_ACCELERATOR) {
+        if (domain_type != control_domain_type(control_name)) {
             throw Exception("LevelZeroIOGroup::" + std::string(__func__) + ": " + control_name + ": domain_type must be " +
                             std::to_string(control_domain_type(control_name)),
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        if (domain_idx < 0 || domain_idx >= m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR)) {
+        if (domain_idx < 0 || domain_idx >= m_platform_topo.num_domain(control_domain_type(control_name))) {
             throw Exception("LevelZeroIOGroup::" + std::string(__func__) + ": domain_idx out of range.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
@@ -636,17 +630,8 @@ namespace geopm
     // to adjust them
     void LevelZeroIOGroup::save_control(void)
     {
-        // TODO: Read ALL LEVELZERO Power Limits, frequency settings, etc
         for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR); ++domain_idx) {
-//            //Frequency Control Settings
-//            m_initial_freq_range_min_gpu_limit.push_back(read_signal("LEVELZERO::FREQUENCY_RANGE_MIN_GPU_CONTROL", GEOPM_DOMAIN_BOARD_ACCELERATOR, domain_idx));
-//            m_initial_freq_range_max_gpu_limit.push_back(read_signal("LEVELZERO::FREQUENCY_RANGE_MAX_GPU_CONTROL", GEOPM_DOMAIN_BOARD_ACCELERATOR, domain_idx));
-//            //Power Control Settings
-//            m_initial_power_limit_sustained.push_back(read_signal("LEVELZERO::POWER_LIMIT_SUSTAINED", GEOPM_DOMAIN_BOARD_ACCELERATOR, domain_idx));
-//            m_initial_power_limit_enabled_sustained.push_back(read_signal("LEVELZERO::POWER_LIMIT_ENABLED_SUSTAINED", GEOPM_DOMAIN_BOARD_ACCELERATOR, domain_idx));
-//            m_initial_power_limit_interval_sustained.push_back(read_signal("LEVELZERO::POWER_LIMIT_INTERVAL_SUSTAINED", GEOPM_DOMAIN_BOARD_ACCELERATOR, domain_idx));
-//            m_initial_power_limit_burst.push_back(read_signal("LEVELZERO::POWER_LIMIT_BURST", GEOPM_DOMAIN_BOARD_ACCELERATOR, domain_idx));
-//            m_initial_power_limit_enabled_burst.push_back(read_signal("LEVELZERO::POWER_LIMIT_ENABLED_BURST", GEOPM_DOMAIN_BOARD_ACCELERATOR, domain_idx));
+            // TODO: Read ALL LEVELZERO Power Limits, frequency settings, etc
         }
     }
 

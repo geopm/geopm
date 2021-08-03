@@ -50,7 +50,9 @@ namespace geopm
             NVMLAcceleratorTopo(const NVMLDevicePool &device_pool, const int num_cpu);
             virtual ~NVMLAcceleratorTopo() = default;
             virtual int num_accelerator(void) const override;
+            virtual int num_accelerator_subdevice(void) const override;
             virtual std::set<int> cpu_affinity_ideal(int accel_idx) const override;
+            virtual std::set<int> cpu_affinity_ideal_subdevice(int domain_idx) const override;
         private:
             const NVMLDevicePool &m_nvml_device_pool;
             std::vector<std::set<int> > m_cpu_affinity_ideal;
