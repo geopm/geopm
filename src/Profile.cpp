@@ -412,10 +412,7 @@ namespace geopm
         geopm_time(&overhead_entry);
 #endif
 
-        if (hint && ((hint & (hint - 1)) != 0)) {   /// power of 2 check
-            throw Exception("ProfileImp:region() multiple region hints set and only 1 at a time is supported.",
-                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-        }
+        geopm::check_hint(hint);
         uint64_t result = m_table->key(region_name);
 
 #ifdef GEOPM_DEBUG
@@ -447,6 +444,7 @@ namespace geopm
 
         uint64_t hash = geopm_region_id_hash(region_id);
         uint64_t hint = geopm_region_id_hint(region_id);
+        geopm::check_hint(hint);
 
 #ifdef GEOPM_DEBUG
         if (m_region_ids.find(hash) == m_region_ids.end()) {
