@@ -37,6 +37,7 @@
 #include <memory>
 #include <utility>
 #include <vector>
+#include <stdint.h>
 
 namespace geopm
 {
@@ -139,6 +140,9 @@ namespace geopm
     ///        false sharing between threads.
     /// @todo  Replace with C++17 standard library equivalent.
     static constexpr int hardware_destructive_interference_size = 64;
+
+    /// @brief Verify a region's hint value is legal for use.
+    void check_hint(uint64_t hint);
 }
 
 #endif

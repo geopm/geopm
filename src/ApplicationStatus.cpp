@@ -87,10 +87,7 @@ namespace geopm
             throw Exception("ApplicationStatusImp::set_hint(): invalid CPU index: " + std::to_string(cpu_idx),
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        if ((hint & ~GEOPM_MASK_REGION_HINT) != 0ULL) {
-            throw Exception("ApplicationStatusImp::set_hint(): invalid hint",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
+        geopm::check_hint(hint);
         GEOPM_DEBUG_ASSERT(m_buffer != nullptr, "m_buffer not set");
         // pack hint into 32 bits for atomic write
         m_buffer[cpu_idx].hint = (uint32_t)(hint >> 32);
@@ -105,10 +102,7 @@ namespace geopm
         GEOPM_DEBUG_ASSERT(m_cache.size() == buffer_size(m_num_cpu),
                            "Memory for m_cache not sized correctly");
         uint64_t result = (uint64_t)m_cache[cpu_idx].hint << 32;
-        if ((result & ~GEOPM_MASK_REGION_HINT) != 0ULL) {
-            throw Exception("ApplicationStatusImp::get_hint(): invalid hint value read from shared memory: " + std::to_string(result),
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
+        geopm::check_hint(result);
         return result;
     }
 

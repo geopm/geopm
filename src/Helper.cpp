@@ -231,4 +231,18 @@ namespace geopm
         snprintf(result, NAME_MAX, "0x%016" PRIx64, geopm_signal_to_field(signal));
         return result;
     }
+
+    void check_hint(uint64_t hint)
+    {
+        if (hint && ((hint & (hint - 1)) != 0)) {   /// power of 2 check
+            throw Exception("Helper::" + std::string(__func__) + "(): multiple region hints set and only 1 at a time is supported:" +
+                            geopm::string_format_hex(hint),
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        if ((hint & ~GEOPM_MASK_REGION_HINT) != 0ULL) {
+            throw Exception("Helper::" + std::string(__func__) + "(): invalid hint:" +
+                            geopm::string_format_hex(hint),
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+    }
 }
