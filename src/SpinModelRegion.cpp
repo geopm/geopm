@@ -51,12 +51,12 @@ namespace geopm
         m_do_imbalance = do_imbalance;
         m_do_progress = do_progress;
         m_do_unmarked = do_unmarked;
-        big_o(big_o_in);
         int err = ModelRegion::region();
         if (err) {
             throw Exception("SpinModelRegion::SpinModelRegion()",
                             err, __FILE__, __LINE__);
         }
+        big_o(big_o_in);
     }
 
     SpinModelRegion::~SpinModelRegion()
