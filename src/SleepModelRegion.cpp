@@ -50,12 +50,12 @@ namespace geopm
         m_do_imbalance = do_imbalance;
         m_do_progress = do_progress;
         m_do_unmarked = do_unmarked;
-        big_o(big_o_in);
         int err = ModelRegion::region();
         if (err) {
             throw Exception("SleepModelRegion::SleepModelRegion()",
                             err, __FILE__, __LINE__);
         }
+        big_o(big_o_in);
     }
 
     SleepModelRegion::~SleepModelRegion()
