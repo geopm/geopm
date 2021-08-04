@@ -131,7 +131,7 @@ TEST_F(ApplicationStatusTest, hints)
     memcpy(m_mock_shared_memory->pointer(), bad_data.data(), 64);
     m_status->update_cache();
     GEOPM_EXPECT_THROW_MESSAGE(m_status->get_hint(0),
-                               GEOPM_ERROR_INVALID, "invalid hint value read");
+                               GEOPM_ERROR_INVALID, "invalid hint");
 }
 
 TEST_F(ApplicationStatusTest, hash)

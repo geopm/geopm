@@ -42,7 +42,9 @@
 #include "gtest/gtest.h"
 
 #include "geopm.h"
+#include "geopm_internal.h"
 #include "Profile.hpp"
+#include "config.h"
 
 #include "geopm_test.hpp"
 #include "MockComm.hpp"
@@ -126,9 +128,11 @@ void ProfileTest::SetUp()
 
 TEST_F(ProfileTest, enter_exit)
 {
-    uint64_t hash = 0xABCD;
+    EXPECT_CALL(*m_table, key(_)).WillOnce(Return(0xABCD));
+    std::string name = "test_region";
     uint64_t hint = GEOPM_REGION_HINT_COMPUTE;
-    uint64_t region_id = hint | hash;
+    uint64_t region_id = m_profile->region(name, hint);
+    uint64_t hash = geopm_region_id_hash(region_id);
 
     EXPECT_CALL(*m_record_log, enter(hash, _));
     EXPECT_CALL(*m_status, set_hash(2, hash, hint));
@@ -152,18 +156,23 @@ TEST_F(ProfileTest, enter_exit)
 
 TEST_F(ProfileTest, enter_exit_nested)
 {
-    uint64_t usr_hash = 0xABCD;
+    EXPECT_CALL(*m_table, key(_)).WillOnce(Return(0xABCD));
+    std::string usr_name = "usr_test_region";
     uint64_t usr_hint = GEOPM_REGION_HINT_COMPUTE;
-    uint64_t usr_region_id = usr_hint | usr_hash;
-    uint64_t mpi_hash = 0x5678;
+    uint64_t usr_region_id = m_profile->region(usr_name, usr_hint);
+    uint64_t usr_hash = geopm_region_id_hash(usr_region_id);
+
+    EXPECT_CALL(*m_table, key(_)).WillOnce(Return(0x5678));
+    std::string mpi_name = "mpi_test_region";
     uint64_t mpi_hint = GEOPM_REGION_HINT_NETWORK;
-    uint64_t mpi_region_id = mpi_hint | mpi_hash;
+    uint64_t mpi_region_id = m_profile->region(mpi_name, mpi_hint);
+
     {
         // enter region and set hint
         EXPECT_CALL(*m_record_log, enter(usr_hash, _));
         EXPECT_CALL(*m_status, set_hash(2, usr_hash, usr_hint));
         EXPECT_CALL(*m_status, set_hash(3, usr_hash, usr_hint));
-        m_profile->enter(usr_hint | usr_hash);
+        m_profile->enter(usr_region_id);
     }
     {
         // don't enter a nested region, just update hint
@@ -171,7 +180,7 @@ TEST_F(ProfileTest, enter_exit_nested)
         EXPECT_CALL(*m_status, set_hash(_, _, _)).Times(0);
         EXPECT_CALL(*m_status, set_hint(2, mpi_hint));
         EXPECT_CALL(*m_status, set_hint(3, mpi_hint));
-        m_profile->enter(mpi_hint | mpi_hash);
+        m_profile->enter(mpi_region_id);
     }
     {
         // don't exit, just restore hint
@@ -199,11 +208,15 @@ TEST_F(ProfileTest, epoch)
 
 TEST_F(ProfileTest, progress_multithread)
 {
-    uint64_t hash = 0xABCD;
+    EXPECT_CALL(*m_table, key(_)).WillOnce(Return(0xABCD));
+    std::string name = "test_region";
+    uint64_t hint = GEOPM_REGION_HINT_COMPUTE;
+    uint64_t region_id = m_profile->region(name, hint);
+    uint64_t hash = geopm_region_id_hash(region_id);
     {
         EXPECT_CALL(*m_record_log, enter(hash, _));
         EXPECT_CALL(*m_status, set_hash(_, _, _)).Times(2);
-        m_profile->enter(0xABCD);
+        m_profile->enter(region_id);
     }
     {
         EXPECT_CALL(*m_status, set_total_work_units(2, 6));
@@ -227,7 +240,7 @@ TEST_F(ProfileTest, progress_multithread)
         // clear progress when exiting
         EXPECT_CALL(*m_status, reset_work_units(2));
         EXPECT_CALL(*m_status, reset_work_units(3));
-        m_profile->exit(0xABCD);
+        m_profile->exit(region_id);
     }
     // TODO: make it an error to set values for other CPUs not
     // assigned to this process.  Does it also make sense to provide

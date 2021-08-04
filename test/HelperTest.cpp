@@ -36,6 +36,7 @@
 #include <vector>
 
 #include "Helper.hpp"
+#include "geopm.h"
 #include "geopm_test.hpp"
 
 TEST(HelperTest, string_split)
@@ -101,4 +102,18 @@ TEST(HelperTest, string_ends_with)
     EXPECT_TRUE(geopm::string_ends_with("orange", "orange"));
     EXPECT_FALSE(geopm::string_ends_with("", "plum"));
     EXPECT_TRUE(geopm::string_ends_with("plum", ""));
+}
+
+TEST(HelperTest, check_hint)
+{
+    uint64_t hint = GEOPM_REGION_HINT_COMPUTE;
+    EXPECT_NO_THROW(geopm::check_hint(hint));
+    hint |= GEOPM_REGION_HINT_MEMORY;
+    GEOPM_EXPECT_THROW_MESSAGE(geopm::check_hint(hint),
+                               GEOPM_ERROR_INVALID,
+                               "multiple region hints set");
+    hint = 1ULL << 31;
+    GEOPM_EXPECT_THROW_MESSAGE(geopm::check_hint(hint),
+                               GEOPM_ERROR_INVALID,
+                               "invalid hint");
 }

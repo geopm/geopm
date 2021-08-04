@@ -158,9 +158,12 @@ void ProfileTestIntegration::TearDown()
 
 TEST_F(ProfileTestIntegration, enter_exit)
 {
-    uint64_t hash = 0xABCD;
+    EXPECT_CALL(*m_table, key(_)).WillOnce(Return(0xABCD));
+    std::string name = "test_region";
     uint64_t hint = GEOPM_REGION_HINT_COMPUTE;
-    uint64_t region_id = hint | hash;
+    uint64_t region_id = m_profile->region(name, hint);
+    uint64_t hash = geopm_region_id_hash(region_id);
+
     std::vector<record_s> records;
     std::vector<short_region_s> short_regions;
 
@@ -190,9 +193,11 @@ TEST_F(ProfileTestIntegration, enter_exit)
 
 TEST_F(ProfileTestIntegration, enter_exit_short)
 {
-    uint64_t hash = 0xABCD;
+    EXPECT_CALL(*m_table, key(_)).WillOnce(Return(0xABCD));
+    std::string name = "test_region";
     uint64_t hint = GEOPM_REGION_HINT_COMPUTE;
-    uint64_t region_id = hint | hash;
+    uint64_t region_id = m_profile->region(name, hint);
+    uint64_t hash = geopm_region_id_hash(region_id);
     std::vector<record_s> records;
     std::vector<short_region_s> short_regions;
 
@@ -246,16 +251,21 @@ TEST_F(ProfileTestIntegration, enter_exit_short)
 
 TEST_F(ProfileTestIntegration, enter_exit_nested)
 {
-    uint64_t usr_hash = 0xABCD;
+    EXPECT_CALL(*m_table, key(_)).WillOnce(Return(0xABCD));
+    std::string usr_name = "usr_test_region";
     uint64_t usr_hint = GEOPM_REGION_HINT_COMPUTE;
-    uint64_t usr_region_id = usr_hint | usr_hash;
-    uint64_t mpi_hash = 0x5678;
+    uint64_t usr_region_id = m_profile->region(usr_name, usr_hint);
+    uint64_t usr_hash = geopm_region_id_hash(usr_region_id);
+
+    EXPECT_CALL(*m_table, key(_)).WillOnce(Return(0x5678));
+    std::string mpi_name = "mpi_test_region";
     uint64_t mpi_hint = GEOPM_REGION_HINT_NETWORK;
-    uint64_t mpi_region_id = mpi_hint | mpi_hash;
+    uint64_t mpi_region_id = m_profile->region(mpi_name, mpi_hint);
+
     std::vector<record_s> records;
     std::vector<short_region_s> short_regions;
 
-    m_profile->enter(usr_hint | usr_hash);
+    m_profile->enter(usr_region_id);
     m_ctl_record_log->dump(records, short_regions);
     m_ctl_status->update_cache();
     ASSERT_EQ(1ULL, records.size());
@@ -264,7 +274,7 @@ TEST_F(ProfileTestIntegration, enter_exit_nested)
     EXPECT_EQ(usr_hint, m_ctl_status->get_hint(2));
     EXPECT_EQ(usr_hint, m_ctl_status->get_hint(3));
 
-    m_profile->enter(mpi_hint | mpi_hash);
+    m_profile->enter(mpi_region_id);
     m_ctl_record_log->dump(records, short_regions);
     m_ctl_status->update_cache();
     // no entry for nested region
@@ -308,7 +318,12 @@ TEST_F(ProfileTestIntegration, epoch)
 
 TEST_F(ProfileTestIntegration, progress_multithread)
 {
-    m_profile->enter(0xABCD);
+    EXPECT_CALL(*m_table, key(_)).WillOnce(Return(0xABCD));
+    std::string name = "test_region";
+    uint64_t hint = GEOPM_REGION_HINT_COMPUTE;
+    uint64_t region_id = m_profile->region(name, hint);
+
+    m_profile->enter(region_id);
     m_profile->thread_init(8);
     m_ctl_status->update_cache();
     EXPECT_EQ(0.0, m_ctl_status->get_progress_cpu(2));
@@ -337,5 +352,5 @@ TEST_F(ProfileTestIntegration, progress_multithread)
     m_ctl_status->update_cache();
     EXPECT_EQ(0.5, m_ctl_status->get_progress_cpu(2));
     EXPECT_EQ(0.5, m_ctl_status->get_progress_cpu(3));
-    m_profile->exit(0xABCD);
+    m_profile->exit(region_id);
 }
