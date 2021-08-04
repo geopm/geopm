@@ -111,12 +111,13 @@ class GeopmbenchAppConf(apps.AppConf):
 
 def setup_geopmbench_run_args(parser):
     """ Add common arguments for all run scripts.
+    Note that config_file is a positional argument and is required by default.
     """
     parser.add_argument('config_file', action='store', type=str,
                         help='Path to the geopmbench config json file.')
     parser.add_argument('--ranks-per-node', dest='ranks_per_node',
                         action='store', type=int,
-                        help='Number of MPI ranks physical cores to reserve for the app.')
+                        help='Number of MPI ranks to reserve for the app per node.')
 
 def create_geopmbench_appconf(mach, args):
     ''' Create a AppConfig object from an ArgParse and experiment.machine object.
