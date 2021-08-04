@@ -67,6 +67,29 @@ def get_group_controls(geopm_proxy, group):
     _, all_controls = geopm_proxy.PlatformGetGroupAccess(group)
     return '\n'.join(all_controls)
 
+def run(geopm_proxy, is_write, is_all, is_control, group):
+    output = None
+    if is_write:
+        in_names = [ll.strip() for ll in sys.stdin.readlines() if ll.strip()]
+        if is_all:
+            raise RuntimeError('Option -a/--all is not allowed if -w/--write is provided')
+        else:
+            if is_control:
+                set_group_controls(geopm_proxy, group, in_names)
+            else:
+                set_group_signals(geopm_proxy, group, in_names)
+    else:
+        if is_all:
+            if is_control:
+                output = get_all_controls(geopm_proxy)
+            else:
+                output = get_all_signals(geopm_proxy)
+        else:
+            if is_control:
+                output = get_group_controls(geopm_proxy, group)
+            else:
+                output = get_group_signals(geopm_proxy, group)
+    return output
 
 def main():
     description = """Access managment for the geopm service.  Command line tool for
@@ -88,29 +111,9 @@ def main():
 
     bus = SystemMessageBus()
     geopm_proxy = bus.get_proxy('io.github.geopm','/io/github/geopm')
-    if args.write:
-        in_names = [ll.strip() for ll in sys.stdin.readlines() if ll.strip()]
-        if args.all:
-            raise RuntimeError('Option -a/--all is not allowed if -w/--write is provided')
-        else:
-            if args.controls:
-                set_group_controls(geopm_proxy, args.group, in_names)
-            else:
-                set_group_signals(geopm_proxy, args.group, in_names)
-    else:
-        output = None
-        if args.all:
-            if args.controls:
-                output = get_all_controls(geopm_proxy)
-            else:
-                output = get_all_signals(geopm_proxy)
-        else:
-            if args.controls:
-                output = get_group_controls(geopm_proxy, args.group)
-            else:
-                output = get_group_signals(geopm_proxy, args.group)
-        if output:
-            print(output)
+    output = run(geopm_proxy, args.write, args.all, args.controls, args.group)
+    if output:
+        print(output)
 
 if __name__ == '__main__':
     main()
