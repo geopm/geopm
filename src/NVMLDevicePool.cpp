@@ -89,8 +89,9 @@ namespace geopm
         nvmlReturn_t nvml_result = nvmlShutdown();
         if (nvml_result != NVML_SUCCESS) {
 #ifdef GEOPM_DEBUG
-            std::cerr << "NVMLDevicePool::" << __func__ <<  ": NVML failed to shutdown."
-                      << "  Error: " <<  nvmlErrorString(nvml_result) << std::endl;
+            std::cerr << "Warning: <geopm> NVMLDevicePool::" << __func__
+                      <<  ": NVML failed to shutdown. "
+                      <<  nvmlErrorString(nvml_result) << std::endl;
 #endif
         }
     }
@@ -98,7 +99,7 @@ namespace geopm
     void NVMLDevicePoolImp::check_nvml_result(nvmlReturn_t nvml_result, int error, const std::string &message, int line) const
     {
         if (nvml_result != NVML_SUCCESS) {
-            throw Exception(message + "  Error: " + nvmlErrorString(nvml_result), error, __FILE__, line);
+            throw Exception(message + " : " + nvmlErrorString(nvml_result), error, __FILE__, line);
         }
     }
 
@@ -317,7 +318,7 @@ namespace geopm
             if (nvml_result == NVML_ERROR_INSUFFICIENT_SIZE) {
                 throw Exception("NVMLDevicePool::" + std::string(__func__) +
                                 ": NVML failed to acquire running processes for accelerator " +
-                                std::to_string(accel_idx) + ".  Increase M_MAX_CONTEXTS to resolve. Error: " +
+                                std::to_string(accel_idx) + ".  Increase M_MAX_CONTEXTS to resolve: " +
                                 nvmlErrorString(nvml_result), GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
             check_nvml_result(nvml_result, GEOPM_ERROR_RUNTIME, "NVMLDevicePool::" + std::string(__func__) +
