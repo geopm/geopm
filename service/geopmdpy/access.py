@@ -36,44 +36,57 @@
 """
 
 import sys
+import os
 from dasbus.connection import SystemMessageBus
 from dasbus.error import DBusError
 from argparse import ArgumentParser
 
 
 class Access:
-    """Extention to the GEOPM D-Bus proxy to support the geopmaccess
+    """Extension to the GEOPM D-Bus proxy to support the geopmaccess
        command line interface.
+
     """
     def __init__(self, geopm_proxy):
-    """Constructor for Access class
+        """Constructor for Access class
 
-        Args:
-            geopm_proxy (dasbus.client.proxy.InterfaceProxy): The
-                dasbus proxy for the GEOPM D-Bus interface.
-    """
+            Args:
+                geopm_proxy (dasbus.client.proxy.InterfaceProxy): The
+                    dasbus proxy for the GEOPM D-Bus interface.
+
+        """
+        try:
+            geopm_proxy.PlatformGetGroupAccess
+        except DBusError as ee:
+            if 'io.github.geopm was not provided' in str(ee):
+                err_msg = """The geopm systemd service is not enabled.
+    Install geopm service and run 'systemctl start geopm'"""
+                raise RuntimeError(err_msg) from ee
+            else:
+                raise ee
         self._geopm_proxy = geopm_proxy
 
     def set_group_signals(self, group, signals):
         """Call GEOPM D-Bus API to set signal access
 
-        Sets the signal access list for a group while leaving the control
-        access list unchanged.  The user must be 'root' to perform this
-        operation.  The PlatformGetGroupAccess D-Bus API of the
-        io.github.geopm interface is used.
+        Sets the signal access list for a group while leaving the
+        control access list unchanged.  The user must be 'root' to
+        perform this operation.  The PlatformGetGroupAccess D-Bus API
+        of the io.github.geopm interface is used.
 
         Args:
-            group (str): Unix group name to set access list for.  The call
-                         sets the default signal access list if group
-                         provided is ''.
+            group (str): Unix group name to set access list for.  The
+                         call sets the default signal access list if
+                         group provided is ''.
 
-            signals (list(str)): List of all signal names that are allowed
-                                 for the group or for the defaults.
+            signals (list(str)): List of all signal names that are
+                                 allowed for the group or for the
+                                 defaults.
 
         Raises:
             RuntimeError: The user is not root, the group provided is
-                          invalid, or any of the provided signal names are
-                          not supported.
+                          invalid, or any of the provided signal names
+                          are not supported.
 
         """
         try:
@@ -88,18 +101,19 @@ class Access:
     def set_group_controls(self, group, controls):
         """Call GEOPM D-Bus API to set control access
 
-        Sets the control access list for a group while leaving the signal
-        access list unchanged.  The user must be 'root' to perform this
-        operation.  The PlatformGetGroupAccess D-Bus API of the
-        io.github.geopm interface is used.
+        Sets the control access list for a group while leaving the
+        signal access list unchanged.  The user must be 'root' to
+        perform this operation.  The PlatformGetGroupAccess D-Bus API
+        of the io.github.geopm interface is used.
 
         Args:
-            group (str): Unix group name to set access list for.  The call
-                         sets the default control access list if group
-                         provided is ''.
+            group (str): Unix group name to set access list for.  The
+                         call sets the default control access list if
+                         group provided is ''.
 
-            controls (list(str)): List of all control names that are allowed
-                                 for the group or for the defaults.
+            controls (list(str)): List of all control names that are
+                                 allowed for the group or for the
+                                 defaults.
 
         Raises:
             RuntimeError: The user is not root, the group provided is
@@ -120,9 +134,9 @@ class Access:
         """Call GEOPM D-Bus API and return all supported signal names
 
         Returns a human readable list of all signals available on the
-        system.  The returned string has one signal name on each line.  The
-        PlatformGetAllAccess D-Bus API of the io.github.geopm interface is
-        used.
+        platform.  The returned string has one signal name on each
+        line.  The PlatformGetAllAccess D-Bus API of the
+        io.github.geopm interface is used.
 
         Returns:
             str: All available signals, one on each line
@@ -135,9 +149,9 @@ class Access:
         """Call GEOPM D-Bus API and return all supported control names
 
         Returns a human readable list of all controls available on the
-        system.  The returned string has one control name on each line.  The
-        PlatformGetAllAccess D-Bus API of the io.github.geopm interface is
-        used.
+        system.  The returned string has one control name on each
+        line.  The PlatformGetAllAccess D-Bus API of the
+        io.github.geopm interface is used.
 
         Returns:
             str: All available controls, one on each line
@@ -149,22 +163,27 @@ class Access:
     def get_group_signals(self, group):
         """Call GEOPM D-Bus API and return the group's signal access list
 
-        Returns a human readable list of the signals that are enabled when
-        a user belongs to the provided Unix group.  The default signal
-        access list is returned if the group provided is the empty string.
-        If the group provided is not empty then the list of signals that
-        are enabled for the group is returned.  A user is restricted to
-        the combination of the default access list and the access list for
-        all groups that they belong to.  The results from querying a
-        specific Unix group do not reflect the default access list.  The
-        returned string has one signal name on each line.  The
-        PlatformGetGroupAccess D-Bus API of the io.github.geopm interface
-        is used.
+        Returns a human readable list of the signals that are enabled.
+        The returned string has one signal name on each line.
+
+        The default signal access list is returned if the group
+        provided is the empty string.  If the group provided is not
+        empty then the list of signals that are enabled for the
+        specified Unix group is returned.
+
+        A user process accessing the GEOPM D-Bus APIs is restricted to
+        the combination of the default access list and the access list
+        for all groups that the user belongs to.  The results from
+        querying a specific Unix group with this method do not reflect
+        the default access list that is enabled for all users.
+
+        The Platforms D-Bus API of the io.github.geopm
+        interface is called.
 
         Args:
-            group (str): Unix group name to set access list for.  Sets the
-                         default control access list if group provided is
-                         ''. the empty string.
+            group (str): Unix group name to get access list for.  Gets
+                         the default signal access list if group
+                         provided is '': the empty string.
 
         Returns:
             str: Access list of signals, one on each line
@@ -175,13 +194,72 @@ class Access:
         return '\n'.join(all_signals)
 
     def get_group_controls(self, group):
+        """Call GEOPM D-Bus API and return the group's control access list
+
+        Returns a human readable list of the controls that are
+        enabled.  The returned string has one control name on each
+        line.
+
+        The default control access list is returned if the group
+        provided is the empty string.  If the group provided is not
+        empty then the list of controls that are enabled for the
+        specified Unix group is returned.
+
+        A user process accessing the GEOPM D-Bus APIs is restricted to
+        the combination of the default access list and the access list
+        for all groups that the user belongs to.  The results from
+        querying a specific Unix group with this method do not reflect
+        the default access list that is enabled for all users.
+
+        The PlatformGetGroupAccess D-Bus API of the io.github.geopm
+        interface is called.
+
+        Args:
+            group (str): Unix group name to get access list for.  Gets
+                         the default control access list if group
+                         provided is '': the empty string.
+
+        Returns:
+            str: Access list of controls, one on each line
+
+        """
         _, all_controls = self._geopm_proxy.PlatformGetGroupAccess(group)
         return '\n'.join(all_controls)
 
     def read_stdin(self):
+        """Parse list of signals or controls from standard input
+
+        """
         return [ll.strip() for ll in sys.stdin.readlines() if ll.strip()]
 
     def run(self, is_write, is_all, is_control, group):
+        """Execute geopmaccess command line interface
+
+        The inputs to this method are parsed from the command line
+        interface of geopmaccess.  All of the features of the
+        geopmaccess tool are implemented with this method.
+
+        Args:
+
+            is_write (bool): True if user requested to write to the
+                             access lists, False if it is a read
+                             operation.
+
+            is_all (bool): True if the user requested that all
+                           available signals or controls be printed as
+                           opposed to one of the access lists.
+
+            is_control (bool): True if the user requested to read or
+                               write the control access lists.
+
+            group (str): If is_all is not specified, the group
+                         determines which access list will be read or
+                         written.  If the group is the empty string
+                         then the default access list is used,
+                         otherwise the parameter specifies the Unix
+                         group.
+
+        """
         output = None
         if is_write:
             if is_all:
@@ -205,13 +283,14 @@ class Access:
         return output
 
 def main():
-    description = """Access managment for the geopm service.  Command line tool for
+    """Access management for the geopm service.  Command line tool for
     reading and writing the access management lists for the geopm
     service signals and controls.
 
     """
+
     err = 0
-    parser = ArgumentParser(description=description)
+    parser = ArgumentParser(description=main.__doc__)
     parser.add_argument('-c', '--controls', dest='controls', action='store_true', default=False,
                         help='Get or set access for controls, not signals')
     parser_group_ga = parser.add_mutually_exclusive_group(required=False)
@@ -223,16 +302,17 @@ def main():
                         help='Write restricted access list for default user or a particular Unix group from standard input')
     args = parser.parse_args()
 
-    acc = Access(SystemMessageBus().get_proxy(
-        'io.github.geopm','/io/github/geopm'))
     try:
+        acc = Access(SystemMessageBus().get_proxy('io.github.geopm',
+                                                  '/io/github/geopm'))
         output = acc.run(args.write, args.all, args.controls, args.group)
         if output:
             print(output)
-    except RuntimeError as ex:
-        if 'GEOPM_DEBUG' in os.eniron:
-            raise ex
-        sys.stderr.write('Error: {}\n\n'.format(ex))
+    except RuntimeError as ee:
+        if 'GEOPM_DEBUG' in os.environ:
+            # Do not handle exception if GEOPM_DEBUG is set
+            raise ee
+        sys.stderr.write('Error: {}\n\n'.format(ee))
         err = -1
     return err
 
