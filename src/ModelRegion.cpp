@@ -178,7 +178,7 @@ namespace geopm
             if (err != 0) {
                 throw Exception("ModelRegion::region_enter(): geopm_prof_enter() error on region_id: '" +
                                 geopm::string_format_hex(m_region_id)  + "'",
-                                GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                                err, __FILE__, __LINE__);
             }
         }
     }
@@ -191,7 +191,7 @@ namespace geopm
             if (err != 0) {
                 throw Exception("ModelRegion::region_exit(): geopm_prof_exit() error on region_id: '" +
                                 geopm::string_format_hex(m_region_id)  + "'",
-                                GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                                err, __FILE__, __LINE__);
             }
         }
     }
