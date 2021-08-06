@@ -169,7 +169,12 @@ class PlatformService(object):
         """
         if user == 'root':
             return self.get_all_access()
-        user_groups = self._get_user_groups(user)
+        user_groups = []
+        if user != '':
+            try:
+                user_groups = self._get_user_groups(user)
+            except KeyError as e:
+                raise RuntimeError("Specified user '{}' does not exist.".format(user))
         user_groups.append('') # Default access list
         signal_set = set()
         control_set = set()
@@ -326,7 +331,7 @@ class PlatformService(object):
         raise NotImplementedError('PlatformService: Implementation incomplete')
 
     def open_session(self, user, client_pid):
-        """Open a new session session for the client process.
+        """Open a new session session for the client thread.
 
         The creation of a session is the first step that a client
         thread makes to interact with the GEOPM service.  Each Linux
@@ -410,7 +415,7 @@ class PlatformService(object):
         session = self._get_session(client_pid, 'PlatformCloseSession')
         if client_pid == self._write_pid:
             save_dir = os.path.join(self._VAR_PATH, self._SAVE_DIR)
-            self._pio.restore_control()
+            self._pio.restore_control() # TODO Make this call restore_control_dir()
             shutil.rmtree(save_dir)
             self._write_pid = None
         GLib.source_remove(session['watch_id'])
@@ -478,9 +483,11 @@ class PlatformService(object):
         sig_req = {cc[2] for cc in signal_config}
         cont_req = {cc[2] for cc in control_config}
         if not sig_req.issubset(session['signals']):
-            raise RuntimeError('Requested signals that are not in allowed list')
+            raise RuntimeError('Requested signals that are not in allowed list: {}' \
+                               .format(sorted(sig_req.difference(session['signals']))))
         elif not cont_req.issubset(session['controls']):
-            raise RuntimeError('Requested controls that are not in allowed list')
+            raise RuntimeError('Requested controls that are not in allowed list: {}' \
+                               .format(sorted(cont_req.difference(session['controls']))))
         if len(control_config) != 0:
             self._write_mode(client_pid)
         return self._pio.start_batch_server(client_pid, signal_config, control_config)
@@ -508,7 +515,7 @@ class PlatformService(object):
                               start_batch().
 
         """
-        self._get_session(client_pid, 'StopBatch')
+        _ = self._get_session(client_pid, 'StopBatch')
         self._pio.stop_batch_server(server_pid)
 
     def read_signal(self, client_pid, signal_name, domain, domain_idx):
@@ -543,7 +550,7 @@ class PlatformService(object):
         """
         session = self._get_session(client_pid, 'PlatformReadSignal')
         if not signal_name in session['signals']:
-            raise RuntimeError('Requested signal that is not in allowed list')
+            raise RuntimeError('Requested signal that is not in allowed list: {}'.format(signal_name))
         return self._pio.read_signal(signal_name, domain, domain_idx)
 
     def write_control(self, client_pid, control_name, domain, domain_idx, setting):
@@ -581,7 +588,7 @@ class PlatformService(object):
         """
         session = self._get_session(client_pid, 'PlatformWriteControl')
         if not control_name in session['controls']:
-            raise RuntimeError('Requested control that is not in allowed list')
+            raise RuntimeError('Requested control that is not in allowed list: {}'.format(control_name))
         self._write_mode(client_pid)
         self._pio.write_control(control_name, domain, domain_idx, setting)
 
@@ -635,7 +642,7 @@ class PlatformService(object):
         try:
             session = self._sessions[client_pid]
         except KeyError:
-            raise RuntimeError('Operation {} not allowed without an open session'.format(operation))
+            raise RuntimeError("Operation '{}' not allowed without an open session".format(operation))
         return session
 
     def _get_session_file(self, client_pid):
