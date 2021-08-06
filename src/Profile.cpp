@@ -416,9 +416,7 @@ namespace geopm
         uint64_t result = m_table->key(region_name);
 
 #ifdef GEOPM_DEBUG
-        if (m_region_ids.find(result) == m_region_ids.end()) {
-            m_region_ids.insert(result);
-        }
+        m_region_ids.emplace(result);
 #endif
 
         /// Record hint when registering a region.
