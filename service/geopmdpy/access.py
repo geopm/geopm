@@ -31,6 +31,10 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+"""Implementation for the geopmaccess command line tool.
+
+"""
+
 import sys
 from dasbus.connection import SystemMessageBus
 from dasbus.error import DBusError
@@ -38,28 +42,139 @@ from argparse import ArgumentParser
 
 
 def set_group_signals(geopm_proxy, group, signals):
-    _, current_controls = geopm_proxy.PlatformGetGroupAccess(group)
+    """Call GEOPM D-Bus API to set signal access
+
+    Sets the signal access list for a group while leaving the control
+    access list unchanged.  The user must be 'root' to perform this
+    operation.  The PlatformGetGroupAccess D-Bus API of the
+    io.github.geopm interface is used.
+
+    Args:
+        geopm_proxy (dasbus.client.proxy.InterfaceProxy): The dasbus
+            proxy for the GEOPM D-Bus interface.
+
+        group (str): Unix group name to set access list for.  The call
+                     sets the default signal access list if group
+                     provided is ''.
+
+        signals (list(str)): List of all signal names that are allowed
+                             for the group or for the defaults.
+
+    Raises:
+        RuntimeError: The user is not root, the group provided is
+                      invalid, or any of the provided signal names are
+                      not supported.
+
+    """
+    try:
+        _, current_controls = geopm_proxy.PlatformGetGroupAccess(group)
+    except DBusError as ee:
+        raise RuntimeError('Failed to read group signal access list for specified group: {}'.format(group)) from ee
     try:
         geopm_proxy.PlatformSetGroupAccess(group, signals, current_controls)
     except DBusError as ee:
         raise RuntimeError('Failed to set group signal access list, request must be made by root user') from ee
 
 def set_group_controls(geopm_proxy, group, controls):
-    current_signals, _ = geopm_proxy.PlatformGetGroupAccess(group)
+    """Call GEOPM D-Bus API to set control access
+
+    Sets the control access list for a group while leaving the signal
+    access list unchanged.  The user must be 'root' to perform this
+    operation.  The PlatformGetGroupAccess D-Bus API of the
+    io.github.geopm interface is used.
+
+    Args:
+        geopm_proxy (dasbus.client.proxy.InterfaceProxy): The dasbus
+            proxy for the GEOPM D-Bus interface.
+
+        group (str): Unix group name to set access list for.  The call
+                     sets the default control access list if group
+                     provided is ''.
+
+        controls (list(str)): List of all control names that are allowed
+                             for the group or for the defaults.
+
+    Raises:
+        RuntimeError: The user is not root, the group provided is
+                      invalid, or any of the provided control names are
+                      not supported.
+
+    """
+    try:
+        current_signals, _ = geopm_proxy.PlatformGetGroupAccess(group)
+    except DBusError as ee:
+        raise RuntimeError('Failed to read group control access list for specified group: {}'.format(group)) from ee
     try:
         geopm_proxy.PlatformSetGroupAccess(group, current_signals, controls)
     except DBusError as ee:
         raise RuntimeError('Failed to set group control access list, request must be made by root user') from ee
 
 def get_all_signals(geopm_proxy):
+    """Call GEOPM D-Bus API and return all supported signal names
+
+    Returns a human readable list of all signals available on the
+    system.  The returned string has one signal name on each line.  The
+    PlatformGetAllAccess D-Bus API of the io.github.geopm interface is
+    used.
+
+    Args:
+        geopm_proxy (dasbus.client.proxy.InterfaceProxy): The dasbus
+            proxy for the GEOPM D-Bus interface.
+
+    Returns:
+        str: All available signals, one on each line
+
+    """
     all_signals, _ = geopm_proxy.PlatformGetAllAccess()
     return '\n'.join(all_signals)
 
 def get_all_controls(geopm_proxy):
+    """Call GEOPM D-Bus API and return all supported control names
+
+    Returns a human readable list of all controls available on the
+    system.  The returned string has one control name on each line.  The
+    PlatformGetAllAccess D-Bus API of the io.github.geopm interface is
+    used.
+
+    Args:
+        geopm_proxy (dasbus.client.proxy.InterfaceProxy): The dasbus
+            proxy for the GEOPM D-Bus interface.
+
+    Returns:
+        str: All available controls, one on each line
+
+    """
     _, all_controls = geopm_proxy.PlatformGetAllAccess()
     return '\n'.join(all_controls)
 
 def get_group_signals(geopm_proxy, group):
+    """Call GEOPM D-Bus API and return the group's signal access list
+
+    Returns a human readable list of the signals that are enabled when
+    a user belongs to the provided Unix group.  The default signal
+    access list is returned if the group provided is the empty string.
+    If the group provided is not empty then the list of signals that
+    are enabled for the group is returned.  A user is restricted to
+    the combination of the default access list and the access list for
+    all groups that they belong to.  The results from querying a
+    specific Unix group do not reflect the default access list.  The
+    returned string has one signal name on each line.  The
+    PlatformGetGroupAccess D-Bus API of the io.github.geopm interface
+    is used.
+
+    Args:
+        geopm_proxy (dasbus.client.proxy.InterfaceProxy): The dasbus
+            proxy for the GEOPM D-Bus interface.
+
+        group (str): Unix group name to set access list for.  Sets the
+                     default control access list if group provided is
+                     ''. the empty string.
+
+    Returns:
+        str: Access list of signals, one on each line
+
+    """
+
     all_signals, _ = geopm_proxy.PlatformGetGroupAccess(group)
     return '\n'.join(all_signals)
 
@@ -97,6 +212,7 @@ def main():
     service signals and controls.
 
     """
+    err = 0
     parser = ArgumentParser(description=description)
     parser.add_argument('-c', '--controls', dest='controls', action='store_true', default=False,
                         help='Get or set access for controls, not signals')
@@ -111,9 +227,17 @@ def main():
 
     bus = SystemMessageBus()
     geopm_proxy = bus.get_proxy('io.github.geopm','/io/github/geopm')
-    output = run(geopm_proxy, args.write, args.all, args.controls, args.group)
-    if output:
-        print(output)
+    try:
+        output = run(geopm_proxy, args.write, args.all, args.controls, args.group)
+        if output:
+            print(output)
+    except RuntimeError as ex:
+        if 'GEOPM_DEBUG' in os.eniron:
+            raise ex
+        sys.stderr.write('Error: {}\n\n'.format(ex))
+        err = -1
+    return err
 
 if __name__ == '__main__':
-    main()
+    err = main()
+    exit(err)
