@@ -31,91 +31,562 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-import sys
-import time
-from dasbus.connection import SystemMessageBus
-from argparse import ArgumentParser
-from . import topo
+"""Implementation for the geopmsession command line tool
 
-def read_session(geopm_proxy, duration, period, requests):
-    geopm_proxy.PlatformOpenSession()
-    if period == 0:
-        num_period = 1
-    else:
-        num_period = int(duration / period)  + 1
-    for period_idx in range(num_period):
+"""
+
+import sys
+import os
+import time
+import math
+from argparse import ArgumentParser
+from dasbus.connection import SystemMessageBus
+from dasbus.error import DBusError
+from . import topo
+from . import pio
+
+
+class Session:
+    """Object responsible for creating a GEOPM service session
+
+    This object's run() method is the main entry point for
+    geopmsession command line tool.  The inputs to run() are derived
+    from the command line options provided by the user.
+
+    The Session object depends on the Requests object to parse the
+    input request buffer from the user.  The Session object also
+    depends on the TimedLoop object when executing a periodic read
+    session.
+
+    """
+
+    def __init__(self, geopm_proxy):
+        """Constructor for Session class
+
+        Args:
+            geopm_proxy (dasbus.client.proxy.InterfaceProxy): The
+                dasbus proxy for the GEOPM D-Bus interface.
+
+        Raises:
+            RuntimeError: The geopm systemd service is not running
+
+        """
+        try:
+            geopm_proxy.PlatformOpenSession
+        except DBusError as ee:
+            if 'io.github.geopm was not provided' in str(ee):
+                err_msg = """The geopm systemd service is not enabled.
+    Install geopm service and run 'systemctl start geopm'"""
+                raise RuntimeError(err_msg) from ee
+            else:
+                raise ee
+        self._geopm_proxy = geopm_proxy
+
+    def read_signals(self, requests):
+        """Read requested signals from GEOPM D-Bus interface
+
+        All of the signals parsed from the input stream of requests
+        are read and the values returned.
+
+        Args:
+            requests (ReadRequests): Request object parsed from user
+                                     input.
+
+        Returns:
+            list(float): Read signal values: one for each element of
+                the list of parsed requests.
+
+        """
         result = []
         for rr in requests:
-            result.append(str(geopm_proxy.PlatformReadSignal(*rr)))
-        result_line = '{}\n'.format(','.join(result))
-        sys.stdout.write(result_line)
-        time.sleep(period)
-    geopm_proxy.PlatformCloseSession()
+            result.append(self._geopm_proxy.PlatformReadSignal(*rr))
+        return result
 
-def write_session(geopm_proxy, duration, requests):
-    geopm_proxy.PlatformOpenSession()
-    for rr in requests:
-        geopm_proxy.PlatformWriteControl(*rr)
-    time.sleep(duration)
-    geopm_proxy.PlatformCloseSession()
+    def format_signals(self, signals, signal_format):
+        """Format a list of signal values for printing
+
+        Args:
+            signals (list(float)): Values to be printed
+
+            signal_format (list(int)): The geopm::format_string_e enum
+                                       value describing the formatting
+                                       for each signal provided.
+
+        Returns:
+            str: Ready-to-print line of formatted values
+
+        """
+        if len(signals) != len(signal_format):
+            raise RuntimeError(
+                'Number of signal values does not match the number of requests')
+        result = [pio.format_signal(ss, ff) for (ss, ff) in
+                  zip(signals, signal_format)]
+        return '{}\n'.format(','.join(result))
+
+    def run_read(self, requests, duration, period, out_stream):
+        """Run a read mode session
+
+        Use the GEOPM D-Bus interface to periodically read the
+        requested signals. A line of text will be printed to the
+        output stream for each period of time.  The line will contain
+        a comma separated list of the read values, one for each
+        request.
+
+        Only one read of the requests is made if the period is zero.
+        If the period is non-zero then the requested signals are read
+        periodically.  The first read is immediate, and then a delay
+        of period seconds is waited until the next sample is made.
+        These periodic reads are executed and printed until the
+        duration of time specified has been met or exceeded.
+
+        Args:
+            requests (ReadRequests): Request object parsed from user
+                                     input.
+
+            duration (float): The user specified minimum length of time
+                              for the samples to span in units of
+                              seconds.
+
+            period (float): The user specified period between samples
+                            in units of seconds.
+
+            out_stream (file): Object with .write() method where output
+                               will be printed (typically sys.stdout).
+
+        """
+        self._geopm_proxy.PlatformOpenSession()
+        num_period = 0
+        if period != 0:
+            num_period = math.ceil(duration / period)
+        for sample_idx in TimedLoop(num_period, period):
+            signals = self.read_signals(requests)
+            line = self.format_signals(signals, requests.get_formats())
+            out_stream.write(line)
+        self._geopm_proxy.PlatformCloseSession()
+
+    def run_write(self, requests, duration):
+        """Run a write mode session
+
+        Use the GEOPM D-Bus interface to write the requested set of
+        controls.  The control settings will be held for the specified
+        duration of time and the call to this method blocks until the
+        duration of time has elapsed.
+
+        Args:
+            requests (WriteRequests): Request object parsed from user
+                                      input.
+
+            duration (float): Length of time to hold the requested
+                              control settings in units of seconds.
+
+        """
+        self._geopm_proxy.PlatformOpenSession()
+        for rr in requests:
+            self._geopm_proxy.PlatformWriteControl(*rr)
+        time.sleep(duration)
+        self._geopm_proxy.PlatformCloseSession()
+
+    def check_read_args(self, run_time, period):
+        """Check that the run time and period are valid for a read session
+
+        Args:
+            run_time (float): Time duration of the session in seconds.
+
+            period (float): The user specified period between samples
+                            in units of seconds.
+
+        Raises:
+            RuntimeError: The period is greater than the total time or
+                          either is negative.
+
+        """
+        if period > run_time:
+            raise RuntimeError('Specified a period that is greater than the total run time')
+        if period < 0.0 or run_time < 0.0:
+            raise RuntimeError('Specified a negative run time or period')
+
+    def check_write_args(self, run_time, period):
+        """Check that the run time and period are valid for a write session
+
+        Args:
+            run_time (float): Time duration of the session in seconds.
+
+            period (float): The user specified period between samples
+                            in units of seconds.
+
+        Raises:
+            RuntimeError: The period is non-zero or total time is negative.
+
+        """
+        if run_time <= 0.0:
+            raise RuntimeError('When opening a write mode session, a time greater than zero must be specified')
+        if period != 0.0:
+            raise RuntimeError('Cannot specify period with write mode session')
+
+    def run(self, is_write, run_time, period,
+            request_stream=sys.stdin, out_stream=sys.stdout):
+        """"Create a GEOPM session with values parsed from the command line
+
+        The implementation for the geopmsession command line tool.
+        The inputs to this method are derived from the parsed command
+        line provided by the user.
+
+        Args:
+            is_write (bool): True for write mode session requests, and
+                             False for read mode session requests.
+
+            run_time (float): Time duration of the session in seconds.
+
+            period (float): Time interval for each line of output for
+                            a read session.  Value must be zero for a
+                            write mode session.
+
+            request_stream (file): Input from user describing the
+                                   requests to read or write values.
+
+            out_stream (file): Stream where output from a read mode
+                               session will be printed.  This
+                               parameter is not used for a write mode
+                               session.
+
+        """
+        if is_write:
+            requests = WriteRequests(request_stream)
+            self.check_write_args(run_time, period)
+            self.run_write(requests, run_time)
+        else:
+            requests = ReadRequests(request_stream, self._geopm_proxy)
+            self.check_read_args(run_time, period)
+            self.run_read(requests, run_time, period, out_stream)
+
+
+class TimedLoop:
+    """Object that can be iterated over to run a timed loop
+
+    Use in a for loop to execute a fixed number of timed delays.  The
+    overhead time for executing what is inside of the loop is
+    accounted for.  Calls to time.sleep() are made to delay until the
+    targeted end time for each iteration.
+
+    Example:
+
+        >>> time_zero = time.time()
+        >>> for loop_idx in TimedLoop(10, 0.1):
+        ...     print('{}: {}'.format(loop_idx, time.time() - time_zero))
+        ...
+        0: 0.0008680820465087891
+        1: 0.10126090049743652
+        2: 0.20174455642700195
+        3: 0.30123186111450195
+        4: 0.4010961055755615
+        5: 0.5020360946655273
+        6: 0.6011238098144531
+        7: 0.7011349201202393
+        8: 0.8020164966583252
+        9: 0.9015650749206543
+        10: 1.0021190643310547
+
+    """
+
+    def __init__(self, num_period, period):
+        """Constructor for timed loop object
+
+        The number of loops executed is one greater than the number of
+        time intervals requested, and that the first iteration is not
+        delayed.  The total amount of time spanned by the loop is the
+        product of the two input parameters.
+
+        Args:
+
+            num_period (int): Number of time periods spanned by the
+                              loop.
+
+            period (float): Target interval for the loop execution in
+                            units of seconds.
+
+        """
+
+        self._period = period
+        # Add one to ensure:
+        #     total_time == num_loop * period
+        # because we do not delay the start iteration
+        self._num_loop = num_period + 1
+
+    def __iter__(self):
+        """Set up a timed loop
+
+        Iteration method for timed loop.  This iterator can be used in
+        a for statement to execute the loop periodically.
+
+
+        """
+        self._loop_idx = 0
+        self._target_time = time.time()
+        return self
+
+    def __next__(self):
+        """Sleep until next targeted time for loop and update counter
+
+        """
+        result = self._loop_idx
+        if self._loop_idx == self._num_loop:
+            raise StopIteration
+        if self._loop_idx != 0:
+            sleep_time = self._target_time - time.time()
+            if sleep_time > 0:
+                time.sleep(sleep_time)
+        self._target_time += self._period
+        self._loop_idx += 1
+        return result
+
+
+class Requests:
+    """Object derived from user input that provides request information
+
+    The geopmsession command line tool parses requests for reading or
+    writing from standard input.  The Requests object holds the logic
+    for parsing the input stream upon construction.  The resulting
+    object may be iterated upon to retrieve the requested
+    signals/controls that the user would like to read/write.  The
+    Request object also provides the enum used to format signal values
+    into strings (for read mode sessions).
+
+    """
+    def __init__(self):
+        raise NotImplementedError('Requests class is an abstract base class for ReadRequests and WriteRequests')
+
+    def __iter__(self):
+        """Iterate over list of requests
+
+        """
+        yield from self._requests
+
+    def get_names(self):
+        """Get the signal or control names from each request
+
+        Returns:
+            list(string): The name of the signal or control associated
+                           with each user request.
+
+        """
+        return [rr[0] for rr in self._requests]
+
+    def iterate_stream(self, request_stream):
+        """Iterated over a stream of requests
+
+        This is a generator function that will filter out comment
+        lines and trailing white space from the input stream.  It can
+        be used to iterate over a request stream from the user for
+        either a read or write mode session.
+
+        Args:
+            request_stream (file): Stream containing requests from
+                                   user.
+
+        Returns:
+            generator: Iterate over filtered lines of the
+                       request_stream
+
+        """
+        for line in request_stream:
+            line = line.strip()
+            if line == '':
+                break
+            if not line.startswith('#'):
+                yield line
+
+
+class ReadRequests(Requests):
+    def __init__(self, request_stream, geopm_proxy):
+        """Constructor for ReadRequests object
+
+        Args:
+            request_stream (file): Input from user describing the
+                                   requests to read signals.
+
+            geopm_proxy (dasbus.client.proxy.InterfaceProxy): The
+                dasbus proxy for the GEOPM D-Bus interface.
+
+        Raises:
+            RuntimeError: The geopm systemd service is not running
+
+        """
+        self._requests = self.parse_requests(request_stream)
+        self._formats = self.query_formats(self.get_names(), geopm_proxy)
+
+    def parse_requests(self, request_stream):
+        """Parse input stream and return list of read requests
+
+        Parse a user supplied stream into a list of tuples
+        representing read requests.  The tuples are of the form
+        (signal_name, domain_type, domain_idx) and are parsed one from
+        each line of the stream.  Each of the values in the stream is
+        separated by white space.
+
+        Each signal_name should match one of the signal names provided
+        by the service.  The domain_type is specified as the name
+        string, i.e one of the following strings: "board", "package",
+        "core", "cpu", "board_memory", "package_memory", "board_nic",
+        "package_nic", "board_accelerator", "package_accelerator".
+        The domain index is a positive integer indexing the specific
+        domain.
+
+        Args:
+            request_stream (file): Input stream to parse for read
+                                   requests
+
+        Returns:
+            list((str, int, int)): List of request tuples. Each
+                                   request comprises a signal name,
+                                   domain type, and domain index.
+
+        Raises:
+            RuntimeError: Line from stream does not split into three
+                          words and is also not a comment or empty
+                          line.
+
+        """
+        requests = []
+        for line in self.iterate_stream(request_stream):
+            words = line.split()
+            if len(words) != 3:
+                raise RuntimeError('Read request must be three words: "{}"'.format(line))
+            try:
+                signal_name = words[0]
+                domain_type = topo.domain_type(words[1])
+                domain_idx = int(words[2])
+            except (RuntimeError, ValueError):
+                raise RuntimeError('Unable to convert values into a read request: {}'.format(line))
+            requests.append((signal_name, domain_type, domain_idx))
+        return requests
+
+    def query_formats(self, signal_names, geopm_proxy):
+        """Call the GEOPM D-Bus API to get the format type for each signal name
+
+        Returns a list of geopm::string_format_e integers that determine
+        how each signal value is formatted as a string.
+
+        Args:
+            signal_names (list(str)): List of signal names to query.
+
+            geopm_proxy (dasbus.client.proxy.InterfaceProxy): The
+                dasbus proxy for the GEOPM D-Bus interface.
+
+        Returns:
+            list(int): List of geopm::string_format_e integers, one
+                       for each signal name in input list.
+
+        """
+
+        try:
+            result = [info[4] for info in
+                      geopm_proxy.PlatformGetSignalInfo(signal_names)]
+        except DBusError as ee:
+            if 'io.github.geopm was not provided' in str(ee):
+                err_msg = """The geopm systemd service is not enabled.
+    Install geopm service and run 'systemctl start geopm'"""
+                raise RuntimeError(err_msg) from ee
+            else:
+                raise ee
+        return result
+
+    def get_formats(self):
+        """Get formatting enum values for the parsed read requests
+
+        Returns:
+            list(int): The geopm::string_format_e enum value for each
+                       read request.
+
+        """
+        return self._formats
+
+
+class WriteRequests(Requests):
+    def __init__(self, request_stream):
+        """Constructor for Requests object
+
+        Args:
+            request_stream (file): Input from user describing the
+                                   requests to write controls.
+
+        Raises:
+            RuntimeError: The geopm systemd service is not running
+
+        """
+        self._requests = self.parse_requests(request_stream)
+
+    def parse_requests(self, request_stream):
+        """Parse input stream and return list of write requests
+
+        Parse a user supplied stream into a list of tuples
+        representing write requests.  The tuples are of the form
+        (control_name, domain_type, domain_idx, setting) and are parsed
+        one from each line of the stream.  Each of the values in the
+        stream is separated by white space.
+
+        Each control_name should match one of the control names
+        provided by the service.  The domain_type is specified as the
+        name string, i.e one of the following strings: "board",
+        "package", "core", "cpu", "board_memory", "package_memory",
+        "board_nic", "package_nic", "board_accelerator",
+        "package_accelerator".  The domain index is a positive integer
+        indexing the specific domain.  The setting is the requested
+        control value.
+
+        Args:
+            request_stream (file): Input stream to parse for write
+                                   requests
+
+        Returns:
+            list((str, int, int, float)): List of request tuples. Each
+                request comprises a signal name, domain type, domain
+                index, and setting value.
+
+        Raises:
+            RuntimeError: Line from stream does not split into three
+                          words and is also not a comment or empty
+                          line.
+
+        """
+        requests = []
+        for line in self.iterate_stream(request_stream):
+            words = line.split()
+            if len(words) != 4:
+                raise RuntimeError('Invalid command for writing: "{}"'.format(line))
+            control_name = words[0]
+            domain_type = topo.domain_type(words[1])
+            domain_idx = int(words[2])
+            setting = float(words[3])
+            requests.append((control_name, domain_type, domain_idx, setting))
+        return requests
+
 
 def main():
-    description="""Command line interface for the geopm service read/write features.
+    """Command line interface for the geopm service read/write features.
     This command can be used to read signals and write controls by
     opening a session with the geopm service.
 
     """
-    parser = ArgumentParser(description=description)
+    err = 0
+    parser = ArgumentParser(description=main.__doc__)
     parser.add_argument('-w', '--write', dest='write', action='store_true', default=False,
                         help='Open a write mode session to adjust control values.')
     parser.add_argument('-t', '--time', dest='time', type=float, default=0.0,
-                        help='Total run time of the session to be openend in seconds')
+                        help='Total run time of the session to be opened in seconds')
     parser.add_argument('-p', '--period', dest='period', type=float, default = 0.0,
                         help='When used with a read mode session reads all values out periodically with the specified period in seconds')
-    # Validate arguments
     args = parser.parse_args()
-    if not args.write:
-        if args.period > args.time:
-            raise RuntimeError('Specified a period that is greater than the total time')
-        if args.period < 0.0 or args.time < 0.0:
-            raise RuntimeError('Specified a negative time or period')
-
-    else:
-        if args.time <= 0.0:
-            raise RuntimeError('When opening a write mode session, a time greater than zero must be specified')
-        if args.period != 0.0:
-            raise RuntimeError('Cannot specify period with write mode session')
-
-    # Parse standard input
-    requests = []
-    for line in sys.stdin:
-        line = line.strip()
-        if line == '':
-            break
-        if not line.startswith('#'):
-            words = line.split()
-            if args.write:
-                if len(words) != 4:
-                    raise RuntimeError('Invalid command for writing: "{}"'.format(line))
-                control_name = words[0]
-                domain_type = topo.domain_type(words[1])
-                domain_idx = int(words[2])
-                setting = float(words[3])
-                requests.append((control_name, domain_type, domain_idx, setting))
-            else:
-                if len(words) != 3:
-                    raise RuntimeError('Invalid command for reading: "{}"'.format(line))
-                signal_name = words[0]
-                domain_type = topo.domain_type(words[1])
-                domain_idx = int(words[2])
-                requests.append((signal_name, domain_type, domain_idx))
-
-    bus = SystemMessageBus()
-    geopm_proxy = bus.get_proxy('io.github.geopm','/io/github/geopm')
-    if args.write:
-        write_session(geopm_proxy, args.time, requests)
-    else:
-        read_session(geopm_proxy, args.time, args.period, requests)
+    try:
+        sess = Session(SystemMessageBus().get_proxy('io.github.geopm',
+                                                    '/io/github/geopm'))
+        sess.run(args.write, args.time, args.period)
+    except RuntimeError as ee:
+        if 'GEOPM_DEBUG' in os.environ:
+            # Do not handle exception if GEOPM_DEBUG is set
+            raise ee
+        sys.stderr.write('Error: {}\n\n'.format(ee))
+        err = -1
+    return err
 
 if __name__ == '__main__':
-    main()
+    exit(main())
