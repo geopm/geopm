@@ -37,9 +37,9 @@
 
 import sys
 import os
+from argparse import ArgumentParser
 from dasbus.connection import SystemMessageBus
 from dasbus.error import DBusError
-from argparse import ArgumentParser
 
 
 class Access:
