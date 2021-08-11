@@ -144,6 +144,11 @@ int geopm_pio_start_batch_server(int client_pid,
 // GEOPM_SERVICE_BUILD define
 int geopm_pio_stop_batch_server(int server_pid);
 
+int geopm_pio_format_signal(double signal,
+                            int format_type,
+                            size_t result_max,
+                            char *result);
+
 #ifdef __cplusplus
 }
 #endif
