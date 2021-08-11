@@ -122,6 +122,12 @@ int geopm_pio_start_batch_server(int client_pid,
 
 int geopm_pio_stop_batch_server(int server_pid);
 
+int geopm_pio_format_signal(double signal,
+                            int format_type,
+                            size_t result_max,
+                            char *result);
+
+
 """)
 _dl = _ffi.dlopen('libgeopmd.so', _ffi.RTLD_GLOBAL|_ffi.RTLD_LAZY)
 
@@ -546,3 +552,15 @@ def start_batch_server(client_pid, signal_config, control_config):
 
 def stop_batch_server(server_pid):
     raise NotImplementedError('pio.stop_batch_server() is not yet implemented')
+
+def format_signal(signal, format_type):
+    global _ffi
+    global _dl
+
+    result = ''
+    name_max = 1024
+    result_cstr = _ffi.new("char[]", name_max)
+    err = _dl.geopm_pio_format_signal(signal, format_type, name_max, result_cstr)
+    if err < 0:
+        raise RuntimeError('geopm_pio_format_signal() failed: {}'.format(error.message(err)))
+    return _ffi.string(result_cstr).decode()
