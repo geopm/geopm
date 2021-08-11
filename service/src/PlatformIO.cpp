@@ -967,4 +967,28 @@ extern "C" {
         return err;
 #endif
     }
+
+    int geopm_pio_format_signal(double signal,
+                                int format_type,
+                                size_t result_max,
+                                char *result)
+    {
+        int err = 0;
+        try {
+            auto format_func = geopm::string_format_type_to_function(format_type);
+            std::string result_cxx = format_func(signal);
+            result[result_max - 1] = '\0';
+            strncpy(result, result_cxx.c_str(), result_max);
+            if (result[result_max - 1] != '\0') {
+                err = GEOPM_ERROR_INVALID;
+                result[result_max - 1] = '\0';
+            }
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+            err = err < 0 ? err : GEOPM_ERROR_RUNTIME;
+        }
+        return err;
+
+    }
 }
