@@ -84,8 +84,7 @@ class PlatformService(object):
         configuration files are read with each call to this method.
         If no files exist that match the query, empty lists are
         returned.  Empty lines and lines that begin with the '#'
-        character are ignored.  If the group name is not valid on the
-        system a RuntimeError is raised.
+        character are ignored.
 
         Args:
             group (str): Unix group name to query. The default allowed
@@ -93,6 +92,9 @@ class PlatformService(object):
 
         Returns:
             list(str), list(str): Signal and control allowed lists
+
+        Raises:
+            RuntimeError: The group name is not valid on the system.
 
         """
         group = self._validate_group(group)
