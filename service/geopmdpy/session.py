@@ -270,9 +270,10 @@ class TimedLoop:
 
     Example:
 
-        >>> time_zero = time.time()
-        >>> for loop_idx in TimedLoop(10, 0.1):
-        ...     print('{}: {}'.format(loop_idx, time.time() - time_zero))
+        >>> from time import time
+        >>> time_0 = time()
+        >>> for index in TimedLoop(10, 0.1):
+        ...     print(f'{index}: {time() - time_0}')
         ...
         0: 0.0008680820465087891
         1: 0.10126090049743652
