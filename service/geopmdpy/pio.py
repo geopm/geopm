@@ -139,7 +139,7 @@ def signal_names():
     signal_name as input.
 
     Returns:
-        list of str: All available signal names.
+        list(str): All available signal names.
 
     """
     global _ffi
@@ -166,7 +166,7 @@ def control_names():
     control_name as input.
 
     Returns:
-        list of str: All available control names.
+        list(str): All available control names.
 
     """
     global _ffi
@@ -190,8 +190,8 @@ def signal_domain_type(signal_name):
     Signals cannot be sampled at a finer granularity than the native
     domain, and such requests will result in a raised exception.  When
     a request is made to read a signal at a courser domain than the
-    native domain, the signal will be read at the native grainularity
-    for all subdomains of the requested domain and the returned result
+    native domain, the signal will be read at the native granularity
+    for all sub-domains of the requested domain and the returned result
     will be aggregated from the values read.  The result can be
     converted into a domain name with the topo.domain_name() function.
 
@@ -199,7 +199,7 @@ def signal_domain_type(signal_name):
         signal_name (str): name of signal to query
 
     Returns:
-        int: One of the geopmpy.topo.DOMAIN_* integers corresponding
+        int: One of the geopmdpy.topo.DOMAIN_* integers corresponding
             to a domain type.
 
     """
@@ -218,15 +218,15 @@ def control_domain_type(control_name):
     domain, and such requests will result in a raised exception.  When
     a request is made to write a control at a courser domain than the
     native domain, the same control value will be set for all
-    subdomains of the requested domain.
+    sub-domains of the requested domain.
 
     Args:
         control_name (str): name of control to query
 
     Returns:
-        int: One of the geopmpy.topo.DOMAIN_* integers corresponding
+        int: One of the geopmdpy.topo.DOMAIN_* integers corresponding
             to a domain type.  This can be converted into a domain
-            name with the geopmpy.topo.domain_name() function.
+            name with the geopmdpy.topo.domain_name() function.
 
     """
     global _ffi
@@ -248,7 +248,7 @@ def read_signal(signal_name, domain_type, domain_idx):
     Args:
         signal_name (str): Name of the signal to be read.
         domain_type (int or str): One of the domain types provided
-            by the geopmpy.topo module or the name associated
+            by the geopmdpy.topo module or the name associated
             with a domain type (e.g. 'cpu' or 'board').
         domain_idx (int): Index of domain to read from.
 
@@ -277,7 +277,7 @@ def write_control(control_name, domain_type, domain_idx, setting):
     Args:
         control_name (str): Name of the control to be written.
         domain_type (int or str): One of the domain types provided
-            by the geopmpy.topo module or the name associated
+            by the geopmdpy.topo module or the name associated
             with a domain type (e.g. 'cpu' or 'board').
         domain_idx (int): Index of domain to write to.
         setting (float): Value of the control to be written.
@@ -292,23 +292,24 @@ def write_control(control_name, domain_type, domain_idx, setting):
         raise RuntimeError('geopm_pio_write_control() failed: {}'.format(error.message(err)))
 
 def push_signal(signal_name, domain_type, domain_idx):
-    """Push a signal onto the stack of batch access signals.  Subsequent
-    calls to the read_batch() function will read the signal and
-    update the internal state used to store batch signals.  The
+    """Push a signal onto the stack of batch access signals.
+
+    Subsequent calls to the read_batch() function will read the signal
+    and update the internal state used to store batch signals.  The
     function returns an index that can be passed to the sample()
     function to access the signal value stored in the internal state
-    from the last update.  A distinct signal index will be
-    returned for each unique combination of input parameters.  All
-    signals must be pushed onto the stack prior to the fist call
-    to sample() or read_batch().  Attempts to push a signal onto
-    the stack after the first call to sample() or read_batch() or
-    attempts to push a signal_name that is not provided by
-    signal_names() will result in a raised exception.
+    from the last update.  A distinct signal index will be returned
+    for each unique combination of input parameters.  All signals must
+    be pushed onto the stack prior to the fist call to sample() or
+    read_batch().  Attempts to push a signal onto the stack after the
+    first call to sample() or read_batch() or attempts to push a
+    signal_name that is not provided by signal_names() will result in
+    a raised exception.
 
     Args:
         signal_name (str): Name of the signal to be read.
         domain_type (int or str): One of the domain types provided
-            by the geopmpy.topo module or the name associated
+            by the geopmdpy.topo module or the name associated
             with a domain type (e.g. 'cpu' or 'board').
         domain_idx (int): Index of domain to read from.
 
@@ -327,24 +328,24 @@ def push_signal(signal_name, domain_type, domain_idx):
     return result
 
 def push_control(control_name, domain_type, domain_idx):
-    """Push a control onto the stack of batch access controls.  The return
-    value is an index that can be passed to the adjust() function
-    which will update the internal state used to store batch
+    """Push a control onto the stack of batch access controls.
+
+    The return value is an index that can be passed to the adjust()
+    function which will update the internal state used to store batch
     controls.  Subsequent calls to the write_batch() function access
-    the control values in the internal state and write the values
-    to the hardware.  A distinct control index will be returned
-    for each unique combination of input parameters.  All controls
-    must be pushed onto the stack prior to the first call to the
-    adjust() or write_batch() functions.  Attempts to push a
-    controls onto the stack after the first call to adjust() or
-    write_batch() or attempts to push a control_name that is not a
-    value provided by the control_names() function will result in a
-    raised exception.
+    the control values in the internal state and write the values to
+    the hardware.  A distinct control index will be returned for each
+    unique combination of input parameters.  All controls must be
+    pushed onto the stack prior to the first call to the adjust() or
+    write_batch() functions.  Attempts to push a controls onto the
+    stack after the first call to adjust() or write_batch() or
+    attempts to push a control_name that is not a value provided by
+    the control_names() function will result in a raised exception.
 
     Args:
         control_name (str): Name of the control to be written.
         domain_type (int or str): One of the domain types provided
-            by the geopmpy.topo module or the name associated
+            by the geopmdpy.topo module or the name associated
             with a domain type (e.g. 'cpu' or 'board').
         domain_idx (int): Index of domain to write to.
 
@@ -363,8 +364,12 @@ def push_control(control_name, domain_type, domain_idx):
     return result
 
 def sample(signal_idx):
-    """Samples cached value of a single signal that has been pushed via
-    the push_signal() function and returns the value read.
+    """Samples cached value of a single signal.
+
+    This function returns one of the values that was read in the last
+    call to read_batch().  The particular signal returned is
+    determined by the signal index provided.  This signal index is the
+    value that was returned when push_signal() was called.
 
     Args:
         signal_idx (int): Index returned by a previous call to the
@@ -384,15 +389,20 @@ def sample(signal_idx):
     return result_cdbl[0]
 
 def adjust(control_idx, setting):
-    """Updates the cached value of a single control that has been pushed
-    via the push_control() function so next call to write_batch() will
+    """Updates the cached value of a single control.
+
+    The particular control that is modified is determined by the
+    control index provided.  The control index is the value that was
+    returned when push_control() was called.  The value for this
+    control is updated so that the next call to write_batch() will
     write the setting to the platform.
 
     Args:
-        control_idx (int): Index returned by a previous call to
-            the push_control() function.
-        setting (float): Value for control to be set on next call
-            to write_batch().
+        control_idx (int): Index returned by a previous call to the
+                           push_control() function.
+
+        setting (float): Value for control to be set on next call to
+                         write_batch().
 
     """
     global _dl
@@ -401,8 +411,9 @@ def adjust(control_idx, setting):
         raise RuntimeError('geopm_pio_adjust() failed: {}'.format(error.message(err)))
 
 def read_batch():
-    """Read all pushed signals from the platform so that the next call to
-    sample() will reflect the updated data.
+    """Read all pushed signals from the platform.
+
+    The next calls to sample() will reflect the updated data.
 
     """
     global _dl
@@ -411,8 +422,10 @@ def read_batch():
         raise RuntimeError('geopm_pio_read_batch() failed: {}'.format(error.message(err)))
 
 def write_batch():
-    """Write all pushed controls so that values provided to adjust() are
-    written to the platform.
+    """Write all pushed controls to the platform.
+
+    The values provided to previous calls to adjust() are written to
+    the platform.
 
     """
     global _dl
@@ -421,11 +434,14 @@ def write_batch():
         raise RuntimeError('geopm_pio_write_batch() failed: {}'.format(error.message(err)))
 
 def save_control():
-    """Save the state of all controls so that any subsequent changes made
-    through write_control() or write_batch() may be reverted with a
-    call to restore_control().  The control settings are stored in
-    memory managed by GEOPM.  If an error occurs then an exception is
-    raised.
+    """Save the state of all controls.
+
+    Any subsequent changes made through write_control() or
+    write_batch() will be reverted with a call to restore_control().
+    The control settings are stored in memory managed by GEOPM.
+
+    Raises:
+        RuntimeError:  Failure to save all control values.
 
     """
     global _dl
@@ -434,10 +450,13 @@ def save_control():
         raise RuntimeError('geopm_pio_save_control() failed: {}'.format(error.message(err)))
 
 def restore_control():
-    """Restore the state recorded by the last call to save_control() so
-    that all subsequent changes made through write_control() or
-    write_batch() are reverted to their previous settings.  If an
-    error occurs then an exception is raised.
+    """Restore the state recorded by the last call to save_control().
+
+    All previous changes made through write_control() or write_batch()
+    are reverted to their previous settings.
+
+    Raises:
+        RuntimeError:  Failure to restore all control values.
 
     """
 
@@ -447,9 +466,11 @@ def restore_control():
         raise RuntimeError('geopm_pio_restore_control() failed: {}'.format(error.message(err)))
 
 def signal_description(signal_name):
-    """Get a description of a signal.  A description should include the
-    units of the signal and the aggregation function along with other
-    descriptive text.  An exception is raised if any error occurs.
+    """Get a description of a signal.
+
+    A description should include the units of the signal and the
+    aggregation function along with other descriptive text.  An
+    exception is raised if any error occurs.
 
     Args:
         signal_name (str): Name of signal.
@@ -469,9 +490,11 @@ def signal_description(signal_name):
     return _ffi.string(result_cstr).decode()
 
 def control_description(control_name):
-    """Get a description of a control.  A description should include the
-    units of the control along with other descriptive text.  An
-    exception is raised if any error occurs.
+    """Get a description of a control.
+
+    A description should include the units of the control along with
+    other descriptive text.  An exception is raised if any error
+    occurs.
 
     Args:
         control_name (str): Name of control.
@@ -491,16 +514,19 @@ def control_description(control_name):
     return _ffi.string(result_cstr).decode()
 
 def save_control_dir(save_dir):
-    """Save the state of all controls to files in the save directory so
-    that any subsequent changes made through write_control() or
-    write_batch() may be reverted with a call to
+    """Save the state of all controls to files in the save directory.
+
+    Any subsequent changes made through write_control() or
+    write_batch() will be reverted with a call to
     restore_control_dir(save_dir).  The control settings are stored in
-    files named after each IOGroup that is loaded.If an error occurs
-    then an exception is raised.
+    files named after each IOGroup that is loaded.
 
     Args:
         save_dir (str): Output directory where each IOGroup creates a
                         save file.
+
+    Raises:
+        RuntimeError:  Failure to save all control values.
 
     """
     global _ffi
@@ -512,15 +538,19 @@ def save_control_dir(save_dir):
         raise RuntimeError('geopm_pio_save_control_dir() failed: {}'.format(error.message(err)))
 
 def restore_control_dir(save_dir):
-    """Restore the state recorded to the save directory by the last call to
+    """Restore the state recorded to the save directory
+
+    The save directory will have been created by the last call to
     save_control_dir(save_dir) so that all subsequent changes made
     through write_control() or write_batch() are reverted to their
-    previous settings.  If an error occurs then an exception is
-    raised.
+    previous settings.
 
     Args:
         save_dir (str): Output directory where each IOGroup has
                         created a save file.
+
+    Raises:
+        RuntimeError:  Failure to restore all control values.
 
     """
     global _ffi
@@ -532,6 +562,31 @@ def restore_control_dir(save_dir):
         raise RuntimeError('geopm_pio_restore_control() failed: {}'.format(error.message(err)))
 
 def signal_info(signal_name):
+    """Get information about a signal
+
+    Query the integer enum values that give information about the
+    named signal.  There are three integers returned which correspond
+    to the the aggregation type, the format method, and the behavior
+    of the signal.
+
+    The aggregation type is one of the the geopm::Agg::m_type_e enum
+    values defined in Agg.hpp.  The format method is one of the
+    geopm::string_format_e enum values defined in Helper.hpp.  The
+    behavior is one of the geopm::IOGroup::m_signal_behavior_e enum
+    values defined in IOGroup.hpp.
+
+    Args:
+        signal_name (str): Name of the signal to query.
+
+    Returns:
+        tuple(int, int, int): The aggregation type, format type, and
+                              behavior type enum values associated
+                              with the signal.
+
+    Raises:
+        RuntimeError: Query of signal name failed.
+
+    """
     global _ffi
     global _dl
     name_max = 1024
@@ -545,15 +600,87 @@ def signal_info(signal_name):
     return (aggregation_type[0], format_type[0], behavior_type[0])
 
 def start_batch_server(client_pid, signal_config, control_config):
+    """Start a batch server to interface with a client thread
+
+    Create a new process to interact with the client thread using the
+    GEOPM batch server protocol.  The created server will be enabled
+    to read the configured signals and write the configured controls
+    based on requests made by the client thread after the server is
+    running.  Each configuration is a list of tuples that specify the
+    name of the signal or control, the domain type, and domain index.
+    This call to start the batch server will block until the server is
+    up and ready to respond to client requests through the GEOPM batch
+    server protocol.
+
+    Args:
+        client_pid (int): Linux PID of the thread that will interact
+                          with the batch server.
+
+        signal_config (list((str, int, int))): List of requested
+            signals where each tuple represents (signal_name,
+            domain_type, domain_idx).
+
+        control_config (list((str, int, int))): List of requested
+            controlss where each tuple represents (control_name,
+            domain_type, domain_idx).
+
+    Returns:
+        tuple(int, str): The server PID and the string key used by the
+                         client thread to initiate the GEOPM batch
+                         server protocol.
+
+    Raises:
+        NotImplementedError: This function has not yet been
+                             implemented.
+
+    """
     raise NotImplementedError('pio.start_batch_server() is not yet implemented')
     server_pid = 0
     server_key = 'INVALID'
     return server_pid, server_key
 
 def stop_batch_server(server_pid):
+    """Stop a currently running batch server
+
+    End a batch server process that was created with a call to
+    start_batch_server().  This will end the server process, and the
+    client will not be able to use the GEOPM batch server protocol
+    unless it starts a new server.
+
+    Args:
+        server_pid (int): Linux PID of the created batch server.  This
+                          is the value of the first element of the
+                          tuple returned by the start_batch_server()
+                          function.
+
+    Raises:
+        NotImplementedError: This function has not yet been
+                             implemented.
+
+    """
     raise NotImplementedError('pio.stop_batch_server() is not yet implemented')
 
 def format_signal(signal, format_type):
+    """Convert a signal into a string representation
+
+    All signals have a format enum that describes how to format a
+    value that was read.  This format enum can be queried with the
+    signal_info() function and passed as the format type parameter.
+
+    Args:
+        signal (float): The value of a signal that was read.
+
+        format_type (int): The geopm::string_format_e enum value
+                           defined in Helper.hpp that describes how to
+                           format the value.
+
+    Returns:
+        str: String representation of the signal value.
+
+    Raises:
+        RuntimeError: Unable to format the value.
+
+    """
     global _ffi
     global _dl
 
