@@ -150,7 +150,7 @@ class Session:
             period (float): The user specified period between samples
                             in units of seconds.
 
-            out_stream (file): Object with .write() method where output
+            out_stream (file): Object with write() method where output
                                will be printed (typically sys.stdout).
 
         """
@@ -190,7 +190,8 @@ class Session:
         """Check that the run time and period are valid for a read session
 
         Args:
-            run_time (float): Time duration of the session in seconds.
+            run_time (float): Time duration of the session open in
+                              seconds.
 
             period (float): The user specified period between samples
                             in units of seconds.
@@ -563,6 +564,7 @@ class WriteRequestQueue(RequestQueue):
 
 def main():
     """Command line interface for the geopm service read/write features.
+
     This command can be used to read signals and write controls by
     opening a session with the geopm service.
 
