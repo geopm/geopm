@@ -53,7 +53,7 @@ class Session:
     geopmsession command line tool.  The inputs to run() are derived
     from the command line options provided by the user.
 
-    The Session object depends on the Requests object to parse the
+    The Session object depends on the RequestQueue object to parse the
     input request buffer from the user.  The Session object also
     depends on the TimedLoop object when executing a periodic read
     session.
@@ -89,12 +89,12 @@ class Session:
         are read and the values returned.
 
         Args:
-            requests (ReadRequests): Request object parsed from user
-                                     input.
+            requests (ReadRequestQueue): Request object parsed from
+                                         user input.
 
         Returns:
             list(float): Read signal values: one for each element of
-                the list of parsed requests.
+                         the list of parsed requests.
 
         """
         result = []
@@ -140,8 +140,8 @@ class Session:
         duration of time specified has been met or exceeded.
 
         Args:
-            requests (ReadRequests): Request object parsed from user
-                                     input.
+            requests (ReadRequestQueue): Request object parsed from
+                                         user input.
 
             duration (float): The user specified minimum length of time
                               for the samples to span in units of
@@ -173,8 +173,8 @@ class Session:
         duration of time has elapsed.
 
         Args:
-            requests (WriteRequests): Request object parsed from user
-                                      input.
+            requests (WriteRequestQueue): Request object parsed from
+                                          user input.
 
             duration (float): Length of time to hold the requested
                               control settings in units of seconds.
@@ -251,11 +251,11 @@ class Session:
 
         """
         if is_write:
-            requests = WriteRequests(request_stream)
+            requests = WriteRequestQueue(request_stream)
             self.check_write_args(run_time, period)
             self.run_write(requests, run_time)
         else:
-            requests = ReadRequests(request_stream, self._geopm_proxy)
+            requests = ReadRequestQueue(request_stream, self._geopm_proxy)
             self.check_read_args(run_time, period)
             self.run_read(requests, run_time, period, out_stream)
 
@@ -340,20 +340,20 @@ class TimedLoop:
         return result
 
 
-class Requests:
+class RequestQueue:
     """Object derived from user input that provides request information
 
     The geopmsession command line tool parses requests for reading or
-    writing from standard input.  The Requests object holds the logic
-    for parsing the input stream upon construction.  The resulting
-    object may be iterated upon to retrieve the requested
+    writing from standard input.  The RequestQueue object holds the
+    logic for parsing the input stream upon construction.  The
+    resulting object may be iterated upon to retrieve the requested
     signals/controls that the user would like to read/write.  The
     Request object also provides the enum used to format signal values
     into strings (for read mode sessions).
 
     """
     def __init__(self):
-        raise NotImplementedError('Requests class is an abstract base class for ReadRequests and WriteRequests')
+        raise NotImplementedError('RequestQueue class is an abstract base class for ReadRequestQueue and WriteRequestQueue')
 
     def __iter__(self):
         """Iterate over list of requests
@@ -396,9 +396,9 @@ class Requests:
                 yield line
 
 
-class ReadRequests(Requests):
+class ReadRequestQueue(RequestQueue):
     def __init__(self, request_stream, geopm_proxy):
-        """Constructor for ReadRequests object
+        """Constructor for ReadRequestQueue object
 
         Args:
             request_stream (file): Input from user describing the
@@ -501,9 +501,9 @@ class ReadRequests(Requests):
         return self._formats
 
 
-class WriteRequests(Requests):
+class WriteRequestQueue(RequestQueue):
     def __init__(self, request_stream):
-        """Constructor for Requests object
+        """Constructor for RequestQueue object
 
         Args:
             request_stream (file): Input from user describing the
