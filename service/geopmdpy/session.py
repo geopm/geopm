@@ -319,7 +319,6 @@ class TimedLoop:
         Iteration method for timed loop.  This iterator can be used in
         a for statement to execute the loop periodically.
 
-
         """
         self._loop_idx = 0
         self._target_time = time.time()
@@ -373,7 +372,7 @@ class Requests:
         return [rr[0] for rr in self._requests]
 
     def iterate_stream(self, request_stream):
-        """Iterated over a stream of requests
+        """Iterate over a stream of requests
 
         This is a generator function that will filter out comment
         lines and trailing white space from the input stream.  It can
