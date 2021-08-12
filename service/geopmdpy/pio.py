@@ -511,7 +511,7 @@ def save_control_dir(save_dir):
     if err < 0:
         raise RuntimeError('geopm_pio_save_control_dir() failed: {}'.format(error.message(err)))
 
-def restore_control_dir():
+def restore_control_dir(save_dir):
     """Restore the state recorded to the save directory by the last call to
     save_control_dir(save_dir) so that all subsequent changes made
     through write_control() or write_batch() are reverted to their
