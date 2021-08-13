@@ -30,33 +30,45 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef NVMLACCELERATORTOPO_HPP_INCLUDE
-#define NVMLACCELERATORTOPO_HPP_INCLUDE
+#include "config.h"
 
-#include <cstdint>
-#include <vector>
-#include <set>
+#include "LevelZeroSignal.hpp"
 
-#include "AcceleratorTopo.hpp"
+#include "geopm_hash.h"
+#include "geopm_debug.hpp"
+#include "MSRIO.hpp"
+#include "Exception.hpp"
+#include "Helper.hpp"
 
 namespace geopm
 {
-    class NVMLDevicePool;
-
-    class NVMLAcceleratorTopo : public AcceleratorTopo
+    LevelZeroSignal::LevelZeroSignal(std::function<double (unsigned int)> devpool_func,
+                                     unsigned int accelerator, double scalar)
+        : m_devpool_func(devpool_func)
+        , m_accel(accelerator)
+        , m_scalar(scalar)
+        , m_is_batch_ready(false)
     {
-        public:
-            NVMLAcceleratorTopo();
-            NVMLAcceleratorTopo(const NVMLDevicePool &device_pool, const int num_cpu);
-            virtual ~NVMLAcceleratorTopo() = default;
-            virtual int num_accelerator(void) const override;
-            virtual int num_accelerator_subdevice(void) const override;
-            virtual std::set<int> cpu_affinity_ideal(int accel_idx) const override;
-            virtual std::set<int> cpu_affinity_ideal_subdevice(int domain_idx) const override;
-        private:
-            const NVMLDevicePool &m_nvml_device_pool;
-            std::vector<std::set<int> > m_cpu_affinity_ideal;
-            unsigned int m_num_accelerator;
-    };
+    }
+
+    void LevelZeroSignal::setup_batch(void)
+    {
+        if (!m_is_batch_ready) {
+            m_is_batch_ready = true;
+        }
+    }
+
+    double LevelZeroSignal::sample(void)
+    {
+        if (!m_is_batch_ready) {
+            throw Exception("setup_batch() must be called before sample().",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        return read();
+    }
+
+    double LevelZeroSignal::read(void) const
+    {
+        return m_devpool_func(m_accel)*m_scalar;
+    }
 }
-#endif

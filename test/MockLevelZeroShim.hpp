@@ -30,20 +30,50 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MOCKACCELERATORTOPO_HPP_INCLUDE
-#define MOCKACCELERATORTOPO_HPP_INCLUDE
+#ifndef MOCKLEVELZEROSHIM_HPP_INCLUDE
+#define MOCKLEVELZEROSHIM_HPP_INCLUDE
 
 #include "gmock/gmock.h"
 
-#include "AcceleratorTopo.hpp"
+#include "LevelZeroShim.hpp"
 
-class MockAcceleratorTopo : public geopm::AcceleratorTopo
+class MockLevelZeroShim : public geopm::LevelZeroShim
 {
     public:
-        MOCK_METHOD(int, num_accelerator, (), (const, override));
-        MOCK_METHOD(int, num_accelerator_subdevice, (), (const, override));
-        MOCK_METHOD(std::set<int>, cpu_affinity_ideal, (int), (const, override));
-        MOCK_METHOD(std::set<int>, cpu_affinity_ideal_subdevice, (int), (const, override));
+        MOCK_CONST_METHOD0(num_accelerator,
+                           int(void));
+        MOCK_CONST_METHOD0(num_accelerator_subdevice,
+                           int(void));
+
+        MOCK_CONST_METHOD2(frequency_domain_count,
+                           int(unsigned int, int));
+        MOCK_CONST_METHOD3(frequency_status,
+                           double(unsigned int, int, int));
+        MOCK_CONST_METHOD3(frequency_min,
+                           double(unsigned int, int, int));
+        MOCK_CONST_METHOD3(frequency_max,
+                           double(unsigned int, int, int));
+
+        MOCK_CONST_METHOD2(engine_domain_count,
+                           int(unsigned int, int));
+        MOCK_CONST_METHOD3(active_time,
+                           uint64_t(unsigned int, int, int));
+        MOCK_CONST_METHOD3(active_time_timestamp,
+                           uint64_t(unsigned int, int, int));
+
+        MOCK_CONST_METHOD1(energy,
+                           uint64_t(unsigned int));
+        MOCK_CONST_METHOD1(energy_timestamp,
+                           uint64_t(unsigned int));
+        MOCK_CONST_METHOD1(power_limit_tdp,
+                           int32_t(unsigned int));
+        MOCK_CONST_METHOD1(power_limit_min,
+                           int32_t(unsigned int));
+        MOCK_CONST_METHOD1(power_limit_max,
+                           int32_t(unsigned int));
+
+        MOCK_CONST_METHOD4(frequency_control,
+                           void(unsigned int, int, int, double));
 };
 
 #endif

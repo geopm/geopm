@@ -117,6 +117,19 @@ fi
 [enable_procfs="1"]
 )
 
+AC_ARG_ENABLE([levelzero],
+  [AS_HELP_STRING([--enable-levelzero], [Enables use of the levelzero library to support levelzero board accelerators])],
+[if test "x$enable_levelzero" = "xno" ; then
+  enable_levelzero="0"
+else
+  enable_levelzero="1"
+fi
+],
+[enable_levelzero="0"]
+)
+AC_SUBST([enable_levelzero])
+AM_CONDITIONAL([ENABLE_LEVELZERO], [test "x$enable_levelzero" = "x1"])
+
 AC_ARG_ENABLE([nvml],
   [AS_HELP_STRING([--enable-nvml], [Enables use of the NVML library to support NVML board accelerators])],
 [if test "x$enable_nvml" = "xno" ; then
@@ -166,6 +179,13 @@ if test "x$enable_msrsafe_ioctl_write" = "x1" ; then
   AC_DEFINE([GEOPM_MSRSAFE_IOCTL_WRITE], [ ], [Enables use of msr-safe ioctl feature for writing (broken as of msr-safe version 1.2.0)])
 fi
 AC_SUBST([enable_msrsafe_ioctl_write])
+
+if test "x$enable_levelzero" = "x1" ; then
+  ENABLE_LEVELZERO=True
+  AC_DEFINE([GEOPM_ENABLE_LEVELZERO], [ ], [Enables use of the levelzero library to support levelzero board accelerators])
+else
+  ENABLE_levelzero=False
+fi
 
 if test "x$enable_nvml" = "x1" ; then
   ENABLE_NVML=True
@@ -276,6 +296,14 @@ if test "x$with_libnvml" != x; then
   EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$with_libnvml/include"
   LD_LIBRARY_PATH="$with_libnvml/lib:$LD_LIBRARY_PATH"
   EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_libnvml/lib"
+fi
+
+AC_ARG_WITH([liblevelzero], [AS_HELP_STRING([--with-liblevelzero=PATH],
+            [specify directory for installed liblevelzero package.])])
+if test "x$with_liblevelzero" != x; then
+  EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$with_liblevelzero/include/level_zero"
+  LD_LIBRARY_PATH="$with_liblevelzero/lib64:$LD_LIBRARY_PATH"
+  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_liblevelzero/lib64"
 fi
 
 AC_ARG_WITH([libelf], [AS_HELP_STRING([--with-libelf=PATH],
@@ -481,6 +509,16 @@ if test "x$enable_nvml" = "x1" ; then
         exit -1])
 fi
 
+if test "x$enable_levelzero" = "x1" ; then
+    AC_SEARCH_LIBS([zeInit], [ze_loader])
+    AC_CHECK_LIB([ze_loader], [zeInit], [], [
+        echo "missing libze_loader: LevelZero library is required, use --with-liblevelzero to specify location"
+        exit -1])
+    AC_CHECK_HEADER([ze_api.h], [], [
+        echo "missing ze_api.h: LevelZero header is required, use --with-liblevelzero to specify location"
+        exit -1])
+fi
+
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h float.h inttypes.h malloc.h netdb.h stddef.h stdint.h stdlib.h string.h sys/socket.h unistd.h])
 
@@ -651,4 +689,5 @@ AC_MSG_RESULT([ompt               : ${enable_ompt}])
 AC_MSG_RESULT([beta               : ${enable_beta}])
 AC_MSG_RESULT([bloat              : ${enable_bloat}])
 AC_MSG_RESULT([nvml               : ${enable_nvml}])
+AC_MSG_RESULT([levelzero          : ${enable_levelzero}])
 AC_MSG_RESULT([===============================================================================])

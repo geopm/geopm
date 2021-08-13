@@ -42,6 +42,8 @@
 
 #ifdef GEOPM_ENABLE_NVML
 #include "NVMLAcceleratorTopo.hpp"
+#elif defined(GEOPM_ENABLE_LEVELZERO)
+#include "LevelZeroAcceleratorTopo.hpp"
 #endif
 
 namespace geopm
@@ -50,6 +52,8 @@ namespace geopm
     {
 #ifdef GEOPM_ENABLE_NVML
         static NVMLAcceleratorTopo instance;
+#elif defined(GEOPM_ENABLE_LEVELZERO)
+        static LevelZeroAcceleratorTopo instance;
 #else
         static AcceleratorTopoNull instance;
 #endif

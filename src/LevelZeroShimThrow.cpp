@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 - 2021, Intel Corporation
+ * Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -30,33 +30,33 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef NVMLACCELERATORTOPO_HPP_INCLUDE
-#define NVMLACCELERATORTOPO_HPP_INCLUDE
+#include "config.h"
 
-#include <cstdint>
-#include <vector>
-#include <set>
+#include <cmath>
 
-#include "AcceleratorTopo.hpp"
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include <string>
+
+#include <thread>
+#include <chrono>
+#include <time.h>
+
+#include "Exception.hpp"
+#include "Environment.hpp"
+#include "Agg.hpp"
+#include "Helper.hpp"
+#include "geopm_sched.h"
+
+#include "LevelZeroShim.hpp"
 
 namespace geopm
 {
-    class NVMLDevicePool;
-
-    class NVMLAcceleratorTopo : public AcceleratorTopo
+    const LevelZeroShim &levelzero_shim()
     {
-        public:
-            NVMLAcceleratorTopo();
-            NVMLAcceleratorTopo(const NVMLDevicePool &device_pool, const int num_cpu);
-            virtual ~NVMLAcceleratorTopo() = default;
-            virtual int num_accelerator(void) const override;
-            virtual int num_accelerator_subdevice(void) const override;
-            virtual std::set<int> cpu_affinity_ideal(int accel_idx) const override;
-            virtual std::set<int> cpu_affinity_ideal_subdevice(int domain_idx) const override;
-        private:
-            const NVMLDevicePool &m_nvml_device_pool;
-            std::vector<std::set<int> > m_cpu_affinity_ideal;
-            unsigned int m_num_accelerator;
-    };
+        throw Exception("LevelZeroShimThrow::" + std::string(__func__) +
+                        ": GEOPM configured without Level Zero library support.  Please configure with --enable-levelzero",
+                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+    }
 }
-#endif

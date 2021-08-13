@@ -130,6 +130,13 @@ namespace geopm
         return m_num_accelerator;
     }
 
+    int NVMLAcceleratorTopo::num_accelerator_subdevice(void) const
+    {
+        // At this time sub-devices are not supported separate from sub-devices on NVIDIA
+        // As such we are reporting a single sub-device per device for mapping purposes
+        return m_num_accelerator;
+    }
+
     std::set<int> NVMLAcceleratorTopo::cpu_affinity_ideal(int accel_idx) const
     {
         if (accel_idx < 0 || (unsigned int) accel_idx >= m_num_accelerator) {
@@ -138,5 +145,12 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return m_cpu_affinity_ideal.at(accel_idx);
+    }
+
+    std::set<int> NVMLAcceleratorTopo::cpu_affinity_ideal_subdevice(int accel_idx) const
+    {
+        // At this time sub-devices are not supported separate from sub-devices on NVIDIA
+        // As such we are reporting a single sub-device per device for mapping purposes
+        return cpu_affinity_ideal(accel_idx);
     }
 }
