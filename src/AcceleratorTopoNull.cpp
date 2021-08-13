@@ -45,7 +45,17 @@ namespace geopm
         return 0;
     }
 
+    int AcceleratorTopoNull::num_accelerator_subdevice(void) const
+    {
+        return 0;
+    }
+
     std::set<int> AcceleratorTopoNull::cpu_affinity_ideal(int domain_idx) const
+    {
+        return {};
+    }
+
+    std::set<int> AcceleratorTopoNull::cpu_affinity_ideal_subdevice(int domain_idx) const
     {
         return {};
     }

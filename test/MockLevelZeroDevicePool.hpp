@@ -30,33 +30,46 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef NVMLACCELERATORTOPO_HPP_INCLUDE
-#define NVMLACCELERATORTOPO_HPP_INCLUDE
+#ifndef MOCKLEVELZERODEVICEPOOL_HPP_INCLUDE
+#define MOCKLEVELZERODEVICEPOOL_HPP_INCLUDE
 
-#include <cstdint>
-#include <vector>
-#include <set>
+#include "gmock/gmock.h"
 
-#include "AcceleratorTopo.hpp"
+#include "LevelZeroDevicePool.hpp"
 
-namespace geopm
+class MockLevelZeroDevicePool : public geopm::LevelZeroDevicePool
 {
-    class NVMLDevicePool;
+    public:
+        MOCK_CONST_METHOD0(num_accelerator,
+                           int(void));
+        MOCK_CONST_METHOD0(num_accelerator_subdevice,
+                           int(void));
 
-    class NVMLAcceleratorTopo : public AcceleratorTopo
-    {
-        public:
-            NVMLAcceleratorTopo();
-            NVMLAcceleratorTopo(const NVMLDevicePool &device_pool, const int num_cpu);
-            virtual ~NVMLAcceleratorTopo() = default;
-            virtual int num_accelerator(void) const override;
-            virtual int num_accelerator_subdevice(void) const override;
-            virtual std::set<int> cpu_affinity_ideal(int accel_idx) const override;
-            virtual std::set<int> cpu_affinity_ideal_subdevice(int domain_idx) const override;
-        private:
-            const NVMLDevicePool &m_nvml_device_pool;
-            std::vector<std::set<int> > m_cpu_affinity_ideal;
-            unsigned int m_num_accelerator;
-    };
-}
+        MOCK_CONST_METHOD2(frequency_status,
+                           double(unsigned int, int));
+        MOCK_CONST_METHOD2(frequency_min,
+                           double(unsigned int, int));
+        MOCK_CONST_METHOD2(frequency_max,
+                           double(unsigned int, int));
+
+        MOCK_CONST_METHOD2(active_time,
+                           uint64_t(unsigned int, int));
+        MOCK_CONST_METHOD2(active_time_timestamp,
+                           uint64_t(unsigned int, int));
+
+        MOCK_CONST_METHOD1(energy,
+                           uint64_t(unsigned int));
+        MOCK_CONST_METHOD1(energy_timestamp,
+                           uint64_t(unsigned int));
+        MOCK_CONST_METHOD1(power_limit_tdp,
+                           int32_t(unsigned int));
+        MOCK_CONST_METHOD1(power_limit_min,
+                           int32_t(unsigned int));
+        MOCK_CONST_METHOD1(power_limit_max,
+                           int32_t(unsigned int));
+
+        MOCK_CONST_METHOD3(frequency_control,
+                           void(unsigned int, int, double));
+};
+
 #endif

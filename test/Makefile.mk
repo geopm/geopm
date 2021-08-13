@@ -280,6 +280,18 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
               test/gtest_links/IOGroupTest.signals_have_descriptions \
               test/gtest_links/IOGroupTest.signals_have_format_functions \
               test/gtest_links/IOGroupTest.string_to_behavior \
+              test/gtest_links/LevelZeroAcceleratorTopoTest.no_gpu_config \
+              test/gtest_links/LevelZeroAcceleratorTopoTest.four_forty_config \
+              test/gtest_links/LevelZeroAcceleratorTopoTest.eight_fiftysix_affinitization_config \
+              test/gtest_links/LevelZeroAcceleratorTopoTest.uneven_affinitization_config \
+              test/gtest_links/LevelZeroAcceleratorTopoTest.high_cpu_count_config \
+              test/gtest_links/LevelZeroDevicePoolTest.device_count \
+              test/gtest_links/LevelZeroDevicePoolTest.subdevice_conversion_and_function \
+              test/gtest_links/LevelZeroDevicePoolTest.subdevice_conversion_error \
+              test/gtest_links/LevelZeroDevicePoolTest.subdevice_domain_error \
+              test/gtest_links/LevelZeroDevicePoolTest.subdevice_range_check \
+              test/gtest_links/LevelZeroDevicePoolTest.device_range_check \
+              test/gtest_links/LevelZeroDevicePoolTest.device_function_check \
               test/gtest_links/MSRIOGroupTest.adjust \
               test/gtest_links/MSRIOGroupTest.control_error \
               test/gtest_links/MSRIOGroupTest.cpuid \
@@ -622,6 +634,8 @@ test_geopm_test_SOURCES = test/AcceleratorTopoNullTest.cpp \
                           test/FrequencyMapAgentTest.cpp \
                           test/HelperTest.cpp \
                           test/IOGroupTest.cpp \
+                          test/LevelZeroAcceleratorTopoTest.cpp \
+                          test/LevelZeroDevicePoolTest.cpp \
                           test/MSRIOGroupTest.cpp \
                           test/MSRIOTest.cpp \
                           test/MSRFieldControlTest.cpp \
@@ -644,6 +658,8 @@ test_geopm_test_SOURCES = test/AcceleratorTopoNullTest.cpp \
                           test/MockIOGroup.hpp \
                           test/MockMSRIO.hpp \
                           test/MockNVMLDevicePool.hpp \
+                          test/MockLevelZeroDevicePool.hpp \
+                          test/MockLevelZeroShim.hpp \
                           test/MockPlatformIO.hpp \
                           test/MockPlatformTopo.cpp \
                           test/MockPlatformTopo.hpp \

@@ -86,9 +86,21 @@ enum geopm_domain_e {
      */
     GEOPM_DOMAIN_PACKAGE_ACCELERATOR = 9,
     /*!
+     * @brief Accelerator card subdevices on the PCI Bus (e.g
+     *        Level Zero subdevices)
+     */
+    GEOPM_DOMAIN_BOARD_ACCELERATOR_SUBDEVICE = 10,
+    /*!
      * @brief Number of valid domains.
      */
-    GEOPM_NUM_DOMAIN = 10,
+    GEOPM_NUM_DOMAIN = 11,
+};
+
+enum geopm_levelzero_domain_e {
+    GEOPM_LEVELZERO_DOMAIN_ALL = 0,
+    GEOPM_LEVELZERO_DOMAIN_COMPUTE = 1,
+    GEOPM_LEVELZERO_DOMAIN_MEMORY = 2,
+    GEOPM_LEVELZERO_DOMAIN_SIZE = 3
 };
 
 int geopm_topo_num_domain(int domain_type);

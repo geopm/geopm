@@ -30,33 +30,40 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef NVMLACCELERATORTOPO_HPP_INCLUDE
-#define NVMLACCELERATORTOPO_HPP_INCLUDE
+#ifndef LEVELZEROSIGNAL_HPP_INCLUDE
+#define LEVELZEROSIGNAL_HPP_INCLUDE
 
 #include <cstdint>
-#include <vector>
-#include <set>
+#include <cmath>
 
-#include "AcceleratorTopo.hpp"
+#include <string>
+#include <memory>
+#include <functional>
+
+#include "Signal.hpp"
+#include "LevelZeroDevicePool.hpp"
+
 
 namespace geopm
 {
-    class NVMLDevicePool;
+    class LevelZeroDevicePool;
 
-    class NVMLAcceleratorTopo : public AcceleratorTopo
+    class LevelZeroSignal : public Signal
     {
         public:
-            NVMLAcceleratorTopo();
-            NVMLAcceleratorTopo(const NVMLDevicePool &device_pool, const int num_cpu);
-            virtual ~NVMLAcceleratorTopo() = default;
-            virtual int num_accelerator(void) const override;
-            virtual int num_accelerator_subdevice(void) const override;
-            virtual std::set<int> cpu_affinity_ideal(int accel_idx) const override;
-            virtual std::set<int> cpu_affinity_ideal_subdevice(int domain_idx) const override;
+            virtual ~LevelZeroSignal() = default;
+            LevelZeroSignal(std::function<double (unsigned int)> devpool_func,
+                         unsigned int accelerator, double scalar);
+            LevelZeroSignal(const LevelZeroSignal &other) = delete;
+            void setup_batch(void) override;
+            double sample(void) override;
+            double read(void) const override;
         private:
-            const NVMLDevicePool &m_nvml_device_pool;
-            std::vector<std::set<int> > m_cpu_affinity_ideal;
-            unsigned int m_num_accelerator;
+            std::function<double (unsigned int)> m_devpool_func;
+            unsigned int m_accel;
+            double m_scalar;
+            bool m_is_batch_ready;
     };
 }
+
 #endif

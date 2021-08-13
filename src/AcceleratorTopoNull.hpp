@@ -47,7 +47,9 @@ namespace geopm
             AcceleratorTopoNull() = default ;
             virtual ~AcceleratorTopoNull() = default;
             int num_accelerator(void) const override;
+            int num_accelerator_subdevice(void) const override;
             std::set<int> cpu_affinity_ideal(int accel_idx) const override;
+            std::set<int> cpu_affinity_ideal_subdevice(int accel_idx) const override;
     };
 }
 #endif
