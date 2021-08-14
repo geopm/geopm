@@ -30,6 +30,7 @@
 #
 
 EXTRA_DIST += geopmdpy_test/__main__.py \
+              geopmdpy_test/TestAccess.py \
               geopmdpy_test/TestPlatformService.py \
               geopmdpy_test/TestDBusXML.py \
               geopmdpy_test/TestError.py \
@@ -83,6 +84,16 @@ GEOPMDPY_TESTS = geopmdpy_test/pytest_links/TestPlatformService.test__read_allow
                  geopmdpy_test/pytest_links/TestTopo.test_num_domain \
                  geopmdpy_test/pytest_links/TestTopo.test_domain_domain_nested \
                  geopmdpy_test/pytest_links/TestTopo.test_domain_name_type \
+                 geopmdpy_test/pytest_links/TestAccess.test_default_signals_query \
+                 geopmdpy_test/pytest_links/TestAccess.test_default_controls_query \
+                 geopmdpy_test/pytest_links/TestAccess.test_group_signals_query \
+                 geopmdpy_test/pytest_links/TestAccess.test_group_controls_query \
+                 geopmdpy_test/pytest_links/TestAccess.test_all_signals_query \
+                 geopmdpy_test/pytest_links/TestAccess.test_all_controls_query \
+                 geopmdpy_test/pytest_links/TestAccess.test_write_default_signals \
+                 geopmdpy_test/pytest_links/TestAccess.test_write_default_controls \
+                 geopmdpy_test/pytest_links/TestAccess.test_write_group_signals \
+                 geopmdpy_test/pytest_links/TestAccess.test_write_group_controls \
                  # end
 
 TESTS = $(GEOPMDPY_TESTS)
