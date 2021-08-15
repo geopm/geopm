@@ -45,17 +45,15 @@ namespace geopm
             AcceleratorTopo() = default;
             virtual ~AcceleratorTopo() = default;
             /// @brief Number of accelerators on the platform.
+            /// @param [in] domain The GEOPM domain type
             virtual int num_accelerator(void) const = 0;
-            /// @brief Number of accelerator subdevices on the platform.
-            virtual int num_accelerator_subdevice(void) const = 0;
+            virtual int num_accelerator(int domain) const = 0;
             /// @brief CPU Affinitization set for a particular accelerator
+            /// @param [in] domain The GEOPM domain type
             /// @param [in] domain_idx The index indicating a particular
             ///        accelerator
             virtual std::set<int> cpu_affinity_ideal(int domain_idx) const = 0;
-            /// @brief CPU Affinitization set for a particular accelerator subdevice
-            /// @param [in] domain_idx The index indicating a particular
-            ///        accelerator subdevice
-            virtual std::set<int> cpu_affinity_ideal_subdevice(int domain_idx) const = 0;
+            virtual std::set<int> cpu_affinity_ideal(int domain, int domain_idx) const = 0;
     };
 
     const AcceleratorTopo &accelerator_topo(void);

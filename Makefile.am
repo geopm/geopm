@@ -660,23 +660,21 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/LevelZeroDevicePool.cpp \
                             src/LevelZeroDevicePool.hpp \
                             src/LevelZeroDevicePoolImp.hpp \
-                            src/LevelZeroShimImp.hpp \
-                            src/LevelZeroSignal.cpp \
-                            src/LevelZeroSignal.hpp \
+                            src/LevelZeroImp.hpp \
                             # end
 
 nvml_source_files = src/NVMLDevicePool.cpp \
                     src/NVMLDevicePoolImp.hpp \
                     #end
 
-levelzero_source_files = src/LevelZeroShim.cpp \
-                         src/LevelZeroShim.hpp \
+levelzero_source_files = src/LevelZero.cpp \
+                         src/LevelZero.hpp \
                          #end
 
 if ENABLE_LEVELZERO
     libgeopmpolicy_la_SOURCES += $(levelzero_source_files)
 else
-    libgeopmpolicy_la_SOURCES += src/LevelZeroShimThrow.cpp
+    libgeopmpolicy_la_SOURCES += src/LevelZeroThrow.cpp
     EXTRA_DIST += $(levelzero_source_files) \
                   #end
 endif

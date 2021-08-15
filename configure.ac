@@ -180,18 +180,17 @@ if test "x$enable_msrsafe_ioctl_write" = "x1" ; then
 fi
 AC_SUBST([enable_msrsafe_ioctl_write])
 
-if test "x$enable_levelzero" = "x1" ; then
-  ENABLE_LEVELZERO=True
-  AC_DEFINE([GEOPM_ENABLE_LEVELZERO], [ ], [Enables use of the levelzero library to support levelzero board accelerators])
-else
-  ENABLE_levelzero=False
-fi
-
 if test "x$enable_nvml" = "x1" ; then
   ENABLE_NVML=True
   AC_DEFINE([GEOPM_ENABLE_NVML], [ ], [Enables use of the NVML library to support NVML board accelerators])
 else
-  ENABLE_NVML=False
+    ENABLE_NVML=False
+    if test "x$enable_levelzero" = "x1" ; then
+        ENABLE_LEVELZERO=True
+        AC_DEFINE([GEOPM_ENABLE_LEVELZERO], [ ], [Enables use of the levelzero library to support levelzero board accelerators])
+    else
+        ENABLE_LEVELZERO=False
+    fi
 fi
 
 AC_ARG_WITH([sqlite3], [AS_HELP_STRING([--with-sqlite3=PATH],
@@ -507,16 +506,16 @@ if test "x$enable_nvml" = "x1" ; then
     AC_CHECK_HEADER([nvml.h], [], [
         echo "missing nvml.h: NVML header is required, use --with-libnvml to specify location"
         exit -1])
-fi
-
-if test "x$enable_levelzero" = "x1" ; then
-    AC_SEARCH_LIBS([zeInit], [ze_loader])
-    AC_CHECK_LIB([ze_loader], [zeInit], [], [
-        echo "missing libze_loader: LevelZero library is required, use --with-liblevelzero to specify location"
-        exit -1])
-    AC_CHECK_HEADER([ze_api.h], [], [
-        echo "missing ze_api.h: LevelZero header is required, use --with-liblevelzero to specify location"
-        exit -1])
+else
+    if test "x$enable_levelzero" = "x1" ; then
+        AC_SEARCH_LIBS([zeInit], [ze_loader])
+        AC_CHECK_LIB([ze_loader], [zeInit], [], [
+            echo "missing libze_loader: LevelZero library is required, use --with-liblevelzero to specify location"
+            exit -1])
+        AC_CHECK_HEADER([ze_api.h], [], [
+            echo "missing ze_api.h: LevelZero header is required, use --with-liblevelzero to specify location"
+            exit -1])
+    fi
 fi
 
 # Checks for header files.

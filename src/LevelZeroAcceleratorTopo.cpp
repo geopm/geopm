@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
+ * Copyright (c) 2015 - 2021, Intel Corporation
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -30,9 +30,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <fstream>
 #include <iostream>
-#include <sstream>
 #include <string>
 #include <map>
 
@@ -48,90 +46,122 @@ namespace geopm
     {
     }
 
-    LevelZeroAcceleratorTopo::LevelZeroAcceleratorTopo(const LevelZeroDevicePool &device_pool, const int num_cpu)
+    LevelZeroAcceleratorTopo::LevelZeroAcceleratorTopo(const LevelZeroDevicePool &device_pool,
+                                                       const int num_cpu)
         : m_levelzero_device_pool(device_pool)
-        , m_num_accelerator(m_levelzero_device_pool.num_accelerator())
-        , m_num_accelerator_subdevice(m_levelzero_device_pool.num_accelerator_subdevice())
     {
-        if (m_num_accelerator == 0) {
+        unsigned int num_accelerator = m_levelzero_device_pool.
+                                       num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR);
+        unsigned int num_accelerator_chip = m_levelzero_device_pool.
+                                            num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP);
+
+        if (num_accelerator == 0) {
             std::cerr << "Warning: <geopm> LevelZeroAcceleratorTopo: No levelZero devices detected.\n";
         }
         else {
-            m_cpu_affinity_ideal.resize(m_num_accelerator);
-            unsigned int num_cpu_per_accelerator = num_cpu / m_num_accelerator;
+            m_cpu_affinity_ideal.resize(num_accelerator);
+            unsigned int num_cpu_per_accelerator = num_cpu / num_accelerator;
 
             // TODO: Add ideal cpu to accelerator affinitization that isn't a simple split if needed.
             //       This may come from a call to oneAPI, LevelZero, etc
-            for (unsigned int accel_idx = 0; accel_idx <  m_num_accelerator; ++accel_idx) {
-                for (unsigned int cpu_idx = accel_idx*num_cpu_per_accelerator;
-                     cpu_idx < (accel_idx+1)*num_cpu_per_accelerator;
+            for (unsigned int accel_idx = 0; accel_idx <  num_accelerator; ++accel_idx) {
+                for (unsigned int cpu_idx = accel_idx * num_cpu_per_accelerator;
+                     cpu_idx < (accel_idx + 1) * num_cpu_per_accelerator;
                      cpu_idx++) {
                     m_cpu_affinity_ideal.at(accel_idx).insert(cpu_idx);
                 }
             }
-            if ((num_cpu % m_num_accelerator) != 0) {
+            if ((num_cpu % num_accelerator) != 0) {
                 unsigned int accel_idx = 0;
-                for (int cpu_idx = num_cpu_per_accelerator*m_num_accelerator; cpu_idx < num_cpu; ++cpu_idx) {
-                    m_cpu_affinity_ideal.at(accel_idx%m_num_accelerator).insert(cpu_idx);
+                for (int cpu_idx = num_cpu_per_accelerator * num_accelerator;
+                     cpu_idx < num_cpu; ++cpu_idx) {
+                    m_cpu_affinity_ideal.at(accel_idx % num_accelerator).insert(cpu_idx);
                     ++accel_idx;
                 }
             }
         }
 
-        if (m_num_accelerator_subdevice == 0) {
+        if (num_accelerator_chip == 0) {
             std::cerr << "Warning: <geopm> LevelZeroAcceleratorTopo: No levelZero subdevices detected.\n";
         }
         else {
-            m_cpu_affinity_ideal_subdevice.resize(m_num_accelerator_subdevice);
-            unsigned int num_cpu_per_accelerator_subdevice = num_cpu / m_num_accelerator_subdevice;
+            m_cpu_affinity_ideal_chip.resize(num_accelerator_chip);
+            unsigned int num_cpu_per_accelerator_chip = num_cpu / num_accelerator_chip;
 
             // TODO: Add ideal cpu to accelerator subdevice affinitization that isn't a simple split if needed.
             //       This may come from a call to oneAPI, LevelZero, etc
-            for (unsigned int accel_sub_idx = 0; accel_sub_idx <  m_num_accelerator_subdevice; ++accel_sub_idx) {
-                for (unsigned int cpu_idx = accel_sub_idx*num_cpu_per_accelerator_subdevice;
-                     cpu_idx < (accel_sub_idx+1)*num_cpu_per_accelerator_subdevice;
+            for (unsigned int accel_sub_idx = 0; accel_sub_idx <  num_accelerator_chip;
+                 ++accel_sub_idx) {
+                for (unsigned int cpu_idx = accel_sub_idx * num_cpu_per_accelerator_chip;
+                     cpu_idx < (accel_sub_idx + 1) * num_cpu_per_accelerator_chip;
                      cpu_idx++) {
-                    m_cpu_affinity_ideal_subdevice.at(accel_sub_idx).insert(cpu_idx);
+                    m_cpu_affinity_ideal_chip.at(accel_sub_idx).insert(cpu_idx);
                 }
             }
-            if ((num_cpu % m_num_accelerator_subdevice) != 0) {
+            if ((num_cpu % num_accelerator_chip) != 0) {
                 unsigned int accel_sub_idx = 0;
-                for (int cpu_idx = num_cpu_per_accelerator_subdevice*m_num_accelerator_subdevice; cpu_idx < num_cpu; ++cpu_idx) {
-                    m_cpu_affinity_ideal_subdevice.at(accel_sub_idx%m_num_accelerator_subdevice).insert(cpu_idx);
+                for (int cpu_idx = num_cpu_per_accelerator_chip * num_accelerator_chip;
+                     cpu_idx < num_cpu; ++cpu_idx) {
+                    m_cpu_affinity_ideal_chip.at(accel_sub_idx %
+                                                 num_accelerator_chip).insert(cpu_idx);
                     ++accel_sub_idx;
                 }
             }
-
         }
     }
 
-    int LevelZeroAcceleratorTopo::num_accelerator(void) const
+    int LevelZeroAcceleratorTopo::num_accelerator() const
     {
-        return m_num_accelerator;
+        return num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR);
     }
 
-    int LevelZeroAcceleratorTopo::num_accelerator_subdevice(void) const
+    int LevelZeroAcceleratorTopo::num_accelerator(int domain) const
     {
-        return m_num_accelerator_subdevice;
+        int result = -1;
+        if (domain == GEOPM_DOMAIN_BOARD_ACCELERATOR) {
+            result = m_cpu_affinity_ideal.size();
+        }
+        else if (domain == GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP) {
+            result = m_cpu_affinity_ideal_chip.size();
+        }
+        else {
+            throw Exception("LevelZeroAcceleratorTopo::" + std::string(__func__) + ": domain " +
+                            std::to_string(domain) + " is not supported.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return result;
     }
 
     std::set<int> LevelZeroAcceleratorTopo::cpu_affinity_ideal(int accel_idx) const
     {
-        if (accel_idx < 0 || (unsigned int)accel_idx >= m_num_accelerator) {
-            throw Exception("LevelZeroAcceleratorTopo::" + std::string(__func__) + ": accel_idx " +
-                            std::to_string(accel_idx) + " is out of range",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-        return m_cpu_affinity_ideal.at(accel_idx);
+        return cpu_affinity_ideal(GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
     }
 
-    std::set<int> LevelZeroAcceleratorTopo::cpu_affinity_ideal_subdevice(int accel_idx) const
+    std::set<int> LevelZeroAcceleratorTopo::cpu_affinity_ideal(int domain, int accel_idx) const
     {
-        if (accel_idx < 0 || (unsigned int)accel_idx >= m_num_accelerator_subdevice) {
-            throw Exception("LevelZeroAcceleratorTopo::" + std::string(__func__) + ": accel_idx " +
-                            std::to_string(accel_idx) + " is out of range",
+        std::set<int> result = {};
+        if (domain == GEOPM_DOMAIN_BOARD_ACCELERATOR) {
+            if (accel_idx < 0 || (unsigned int)accel_idx >= m_cpu_affinity_ideal.size()) {
+                throw Exception("LevelZeroAcceleratorTopo::" + std::string(__func__) + ": accel_idx " +
+                                std::to_string(accel_idx) + " is out of range",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+            result = m_cpu_affinity_ideal.at(accel_idx);
+        }
+        else if (domain == GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP) {
+            if (accel_idx < 0 || (unsigned int)accel_idx >= m_cpu_affinity_ideal_chip.size()) {
+                throw Exception("LevelZeroAcceleratorTopo::" + std::string(__func__) + ": accel_idx " +
+                                std::to_string(accel_idx) + " is out of range",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+            result = m_cpu_affinity_ideal_chip.at(accel_idx);
+        }
+        else {
+            throw Exception("LevelZeroAcceleratorTopo::" + std::string(__func__) + ": domain " +
+                            std::to_string(domain) + " is not supported.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        return m_cpu_affinity_ideal_subdevice.at(accel_idx);
+        return result;
     }
+
 }

@@ -288,7 +288,7 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
               test/gtest_links/LevelZeroDevicePoolTest.device_count \
               test/gtest_links/LevelZeroDevicePoolTest.subdevice_conversion_and_function \
               test/gtest_links/LevelZeroDevicePoolTest.subdevice_conversion_error \
-              test/gtest_links/LevelZeroDevicePoolTest.subdevice_domain_error \
+              test/gtest_links/LevelZeroDevicePoolTest.domain_error \
               test/gtest_links/LevelZeroDevicePoolTest.subdevice_range_check \
               test/gtest_links/LevelZeroDevicePoolTest.device_range_check \
               test/gtest_links/LevelZeroDevicePoolTest.device_function_check \
@@ -659,7 +659,7 @@ test_geopm_test_SOURCES = test/AcceleratorTopoNullTest.cpp \
                           test/MockMSRIO.hpp \
                           test/MockNVMLDevicePool.hpp \
                           test/MockLevelZeroDevicePool.hpp \
-                          test/MockLevelZeroShim.hpp \
+                          test/MockLevelZero.hpp \
                           test/MockPlatformIO.hpp \
                           test/MockPlatformTopo.cpp \
                           test/MockPlatformTopo.hpp \

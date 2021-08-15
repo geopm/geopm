@@ -106,7 +106,8 @@ namespace geopm
         parse_lscpu_numa(lscpu_map, m_numa_map);
     }
 
-    PlatformTopoImp::PlatformTopoImp(const std::string &test_cache_file_name, const AcceleratorTopo &accelerator_topo)
+    PlatformTopoImp::PlatformTopoImp(const std::string &test_cache_file_name,
+                                     const AcceleratorTopo &accelerator_topo)
         : M_TEST_CACHE_FILE_NAME(test_cache_file_name)
         , m_do_fclose(true)
         , m_accelerator_topo(accelerator_topo)
@@ -153,10 +154,12 @@ namespace geopm
                 result = 0;
                 break;
             case GEOPM_DOMAIN_BOARD_ACCELERATOR:
-                result = m_accelerator_topo.num_accelerator();
+                result = m_accelerator_topo.num_accelerator(
+                         GEOPM_DOMAIN_BOARD_ACCELERATOR);
                 break;
-            case GEOPM_DOMAIN_BOARD_ACCELERATOR_SUBDEVICE:
-                result = m_accelerator_topo.num_accelerator_subdevice();
+            case GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP:
+                result = m_accelerator_topo.num_accelerator(
+                         GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP);
                 break;
             case GEOPM_DOMAIN_PACKAGE_ACCELERATOR:
                 // @todo Add support for package accelerators to PlatformTopo.
@@ -195,10 +198,12 @@ namespace geopm
                 }
                 break;
             case GEOPM_DOMAIN_BOARD_ACCELERATOR:
-                cpu_idx = m_accelerator_topo.cpu_affinity_ideal(domain_idx);
+                cpu_idx = m_accelerator_topo.cpu_affinity_ideal(
+                          GEOPM_DOMAIN_BOARD_ACCELERATOR, domain_idx);
                 break;
-            case GEOPM_DOMAIN_BOARD_ACCELERATOR_SUBDEVICE:
-                cpu_idx = m_accelerator_topo.cpu_affinity_ideal_subdevice(domain_idx);
+            case GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP:
+                cpu_idx = m_accelerator_topo.cpu_affinity_ideal(
+                          GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, domain_idx);
                 break;
             case GEOPM_DOMAIN_PACKAGE:
                 for (int thread_idx = 0;
@@ -284,16 +289,24 @@ namespace geopm
                     }
                     break;
                 case GEOPM_DOMAIN_BOARD_ACCELERATOR:
-                    for(int accel_idx = 0; (accel_idx <  m_accelerator_topo.num_accelerator()) && (result == -1); ++accel_idx) {
-                        std::set<int> affin = m_accelerator_topo.cpu_affinity_ideal(accel_idx);
+                    for(int accel_idx = 0; (accel_idx <
+                        m_accelerator_topo.num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR))
+                        && (result == -1); ++accel_idx) {
+                        std::set<int> affin = m_accelerator_topo.cpu_affinity_ideal(
+                                              GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                              accel_idx);
                         if (affin.find(cpu_idx) != affin.end()) {
                             result = accel_idx;
                         }
                     }
                     break;
-                case GEOPM_DOMAIN_BOARD_ACCELERATOR_SUBDEVICE:
-                    for(int accel_sub_idx = 0; (accel_sub_idx <  m_accelerator_topo.num_accelerator_subdevice()) && (result == -1); ++accel_sub_idx) {
-                        std::set<int> affin = m_accelerator_topo.cpu_affinity_ideal_subdevice(accel_sub_idx);
+                case GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP:
+                    for(int accel_sub_idx = 0; (accel_sub_idx <
+                        m_accelerator_topo.num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP))
+                        && (result == -1); ++accel_sub_idx) {
+                        std::set<int> affin = m_accelerator_topo.cpu_affinity_ideal(
+                                              GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                              accel_sub_idx);
                         if (affin.find(cpu_idx) != affin.end()) {
                             result = accel_sub_idx;
                         }
@@ -359,11 +372,11 @@ namespace geopm
             result = true;
         }
         else if (outer_domain == GEOPM_DOMAIN_BOARD_ACCELERATOR &&
-                 inner_domain == GEOPM_DOMAIN_BOARD_ACCELERATOR_SUBDEVICE) {
+                 inner_domain == GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP) {
             // To support mapping ACCELERATOR SUBDEVICE signals to ACCELERATOR domain
             result = true;
         }
-        else if (outer_domain == GEOPM_DOMAIN_BOARD_ACCELERATOR_SUBDEVICE &&
+        else if (outer_domain == GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP &&
                  inner_domain == GEOPM_DOMAIN_CPU) {
             // To support mapping CPU signals to ACCELERATOR SUBDEVICE domain
             result = true;
@@ -408,7 +421,7 @@ namespace geopm
             {"package_nic", GEOPM_DOMAIN_PACKAGE_NIC},
             {"board_accelerator", GEOPM_DOMAIN_BOARD_ACCELERATOR},
             {"package_accelerator", GEOPM_DOMAIN_PACKAGE_ACCELERATOR},
-            {"board_accelerator_subdevice", GEOPM_DOMAIN_BOARD_ACCELERATOR_SUBDEVICE}
+            {"board_accelerator_chip", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP}
         };
     }
 
