@@ -40,36 +40,35 @@
 class MockLevelZeroDevicePool : public geopm::LevelZeroDevicePool
 {
     public:
-        MOCK_CONST_METHOD0(num_accelerator,
-                           int(void));
-        MOCK_CONST_METHOD0(num_accelerator_subdevice,
-                           int(void));
+        MOCK_CONST_METHOD1(num_accelerator,
+                           int(int));
 
-        MOCK_CONST_METHOD2(frequency_status,
-                           double(unsigned int, int));
-        MOCK_CONST_METHOD2(frequency_min,
-                           double(unsigned int, int));
-        MOCK_CONST_METHOD2(frequency_max,
-                           double(unsigned int, int));
+        MOCK_CONST_METHOD3(frequency_status,
+                           double(int, unsigned int, int));
+        MOCK_CONST_METHOD3(frequency_min,
+                           double(int, unsigned int, int));
+        MOCK_CONST_METHOD3(frequency_max,
+                           double(int, unsigned int, int));
 
-        MOCK_CONST_METHOD2(active_time,
-                           uint64_t(unsigned int, int));
-        MOCK_CONST_METHOD2(active_time_timestamp,
-                           uint64_t(unsigned int, int));
+        MOCK_CONST_METHOD3(active_time,
+                           uint64_t(int, unsigned int, int));
+        MOCK_CONST_METHOD3(active_time_timestamp,
+                           uint64_t(int, unsigned int, int));
 
-        MOCK_CONST_METHOD1(energy,
-                           uint64_t(unsigned int));
-        MOCK_CONST_METHOD1(energy_timestamp,
-                           uint64_t(unsigned int));
-        MOCK_CONST_METHOD1(power_limit_tdp,
-                           int32_t(unsigned int));
-        MOCK_CONST_METHOD1(power_limit_min,
-                           int32_t(unsigned int));
-        MOCK_CONST_METHOD1(power_limit_max,
-                           int32_t(unsigned int));
+        MOCK_CONST_METHOD3(power_limit_tdp,
+                           int32_t(int, unsigned int, int));
+        MOCK_CONST_METHOD3(power_limit_min,
+                           int32_t(int, unsigned int, int));
+        MOCK_CONST_METHOD3(power_limit_max,
+                           int32_t(int, unsigned int, int));
 
-        MOCK_CONST_METHOD3(frequency_control,
-                           void(unsigned int, int, double));
+        MOCK_CONST_METHOD3(energy,
+                           uint64_t(int, unsigned int, int));
+        MOCK_CONST_METHOD3(energy_timestamp,
+                           uint64_t(int, unsigned int, int));
+
+        MOCK_CONST_METHOD4(frequency_control,
+                           void(int, unsigned int, int, double));
 };
 
 #endif

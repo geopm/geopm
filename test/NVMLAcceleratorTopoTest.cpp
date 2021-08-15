@@ -45,6 +45,7 @@
 #include "MockNVMLDevicePool.hpp"
 #include "NVMLAcceleratorTopo.hpp"
 #include "geopm_test.hpp"
+#include "geopm_topo.h"
 
 using geopm::NVMLAcceleratorTopo;
 using geopm::Exception;
@@ -80,7 +81,8 @@ TEST_F(NVMLAcceleratorTopoTest, no_gpu_config)
     EXPECT_EQ(num_accelerator, topo.num_accelerator());
 
     GEOPM_EXPECT_THROW_MESSAGE(topo.cpu_affinity_ideal(num_accelerator), GEOPM_ERROR_INVALID, "accel_idx 0 is out of range");
-    GEOPM_EXPECT_THROW_MESSAGE(topo.cpu_affinity_ideal_subdevice(num_accelerator), GEOPM_ERROR_INVALID, "accel_idx 0 is out of range");
+    GEOPM_EXPECT_THROW_MESSAGE(topo.cpu_affinity_ideal(GEOPM_DOMAIN_BOARD_ACCELERATOR, num_accelerator), GEOPM_ERROR_INVALID, "accel_idx 0 is out of range");
+    GEOPM_EXPECT_THROW_MESSAGE(topo.cpu_affinity_ideal(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, num_accelerator), GEOPM_ERROR_INVALID, "accel_idx 0 is out of range");
 }
 
 //Test case: The HPE SX40 default system configuration
@@ -103,7 +105,7 @@ TEST_F(NVMLAcceleratorTopoTest, hpe_sx40_default_config)
 
     NVMLAcceleratorTopo topo(*m_device_pool, num_cpu);
     EXPECT_EQ(num_accelerator, topo.num_accelerator());
-    EXPECT_EQ(num_accelerator, topo.num_accelerator_subdevice());
+    EXPECT_EQ(num_accelerator, topo.num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP));
     std::set<int> cpus_allowed_set[num_accelerator];
     cpus_allowed_set[0] = {0,1,2,3,4,5,6,7,8,9};
     cpus_allowed_set[1] = {10,11,12,13,14,15,16,17,18,19};
@@ -112,7 +114,7 @@ TEST_F(NVMLAcceleratorTopoTest, hpe_sx40_default_config)
 
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
         ASSERT_THAT(topo.cpu_affinity_ideal(accel_idx), cpus_allowed_set[accel_idx]);
-        ASSERT_THAT(topo.cpu_affinity_ideal_subdevice(accel_idx), cpus_allowed_set[accel_idx]);
+        ASSERT_THAT(topo.cpu_affinity_ideal(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, accel_idx), cpus_allowed_set[accel_idx]);
     }
 }
 

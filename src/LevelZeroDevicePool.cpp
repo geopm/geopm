@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
+ * Copyright (c) 2015 - 2021, Intel Corporation
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -32,16 +32,8 @@
 
 #include "config.h"
 
-#include <cmath>
-
-#include <fstream>
-#include <iostream>
-#include <sstream>
 #include <string>
-
-#include <thread>
-#include <chrono>
-#include <time.h>
+#include <cstdint>
 
 #include "Exception.hpp"
 #include "Agg.hpp"
@@ -54,162 +46,290 @@ namespace geopm
 {
     const LevelZeroDevicePool &levelzero_device_pool()
     {
-        static LevelZeroDevicePoolImp instance(levelzero_shim());
+        static LevelZeroDevicePoolImp instance(levelzero());
         return instance;
     }
 
-    LevelZeroDevicePoolImp::LevelZeroDevicePoolImp(const LevelZeroShim &shim)
-        : m_shim(shim)
+    LevelZeroDevicePoolImp::LevelZeroDevicePoolImp(const LevelZero &levelzero)
+        : m_levelzero(levelzero)
     {
     }
 
     LevelZeroDevicePoolImp::LevelZeroDevicePoolImp()
-        : LevelZeroDevicePoolImp(levelzero_shim())
+        : LevelZeroDevicePoolImp(levelzero())
     {
     }
 
-    int LevelZeroDevicePoolImp::num_accelerator() const
+    int LevelZeroDevicePoolImp::num_accelerator(int domain) const
     {
-        return m_shim.num_accelerator();
-    }
-
-    int LevelZeroDevicePoolImp::num_accelerator_subdevice() const
-    {
-        return m_shim.num_accelerator_subdevice();
-    }
-
-    void LevelZeroDevicePoolImp::check_device_range(unsigned int dev_idx) const
-    {
-        if (dev_idx >= (unsigned int) num_accelerator()) {
-            throw Exception("LevelZeroDevicePool::" + std::string(__func__) + ": device idx " +
-                            std::to_string(dev_idx) + " is out of range.",
+        if (domain != GEOPM_DOMAIN_BOARD_ACCELERATOR
+            && domain != GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) + " is not supported.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
+        return m_levelzero.num_accelerator(domain);
     }
 
-    void LevelZeroDevicePoolImp::check_subdevice_range(unsigned int sub_idx) const
+    void LevelZeroDevicePoolImp::check_idx_range(int domain, unsigned int domain_idx) const
     {
-        if (sub_idx >= (unsigned int) num_accelerator_subdevice()) {
-            throw Exception("LevelZeroDevicePool::" + std::string(__func__) + ": subdevice idx " +
-                            std::to_string(sub_idx) + " is out of range",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        if (domain_idx >= (unsigned int) num_accelerator(domain)) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) + ": domain "
+                            + std::to_string(domain) + " idx " + std::to_string(domain_idx) +
+                            " is out of range.", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
     }
 
     void LevelZeroDevicePoolImp::check_domain_exists(int size, const char *func, int line) const
     {
         if (size == 0) {
-            throw Exception("LevelZeroDevicePool::" + std::string(func) + ": Not supported on this hardware",
-                             GEOPM_ERROR_INVALID, __FILE__, line);
+            throw Exception("LevelZeroDevicePool::" + std::string(func) +
+                            ":Not supported on this hardware",
+                            GEOPM_ERROR_INVALID, __FILE__, line);
         }
     }
 
     std::pair<unsigned int, unsigned int> LevelZeroDevicePoolImp::subdevice_device_conversion(unsigned int sub_idx) const
     {
-        check_subdevice_range(sub_idx);
+        check_idx_range(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx);
         unsigned int device_idx = 0;
         int subdevice_idx = 0;
 
         // TODO: this assumes a simple split of subdevice to device.
         // This may need to be adjusted based upon user preference or use case
-        if ((num_accelerator_subdevice() % num_accelerator()) != 0) {
-            throw Exception("LevelZeroDevicePool::" + std::string(__func__) + ": GEOPM Requires the number" +
+        if (num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP) %
+            num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR) != 0) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": GEOPM Requires the number" +
                             " of subdevices to be evenly divisible by the number of devices. ",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        int num_subdevice_per_device = num_accelerator_subdevice()/num_accelerator();
+        int num_subdevice_per_device = num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP) /
+                                       num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR);
 
         device_idx = sub_idx / num_subdevice_per_device;
-        check_device_range(device_idx);
+        check_idx_range(GEOPM_DOMAIN_BOARD_ACCELERATOR, device_idx);
         subdevice_idx = sub_idx % num_subdevice_per_device;
         return {device_idx, subdevice_idx};
     }
 
-    double LevelZeroDevicePoolImp::frequency_status(unsigned int subdevice_idx, int l0_domain) const
+    double LevelZeroDevicePoolImp::frequency_status(int domain, unsigned int domain_idx,
+                                                    int l0_domain) const
     {
+        if (domain != GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for the frequency domain.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
         std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
-        dev_subdev_idx_pair = subdevice_device_conversion(subdevice_idx);
-        check_domain_exists(m_shim.frequency_domain_count(dev_subdev_idx_pair.first, l0_domain), __func__, __LINE__);
+        dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
+        check_domain_exists(m_levelzero.frequency_domain_count(
+                                        dev_subdev_idx_pair.first, l0_domain),
+                                        __func__, __LINE__);
 
-        return m_shim.frequency_status(dev_subdev_idx_pair.first, l0_domain, dev_subdev_idx_pair.second);
+        return m_levelzero.frequency_status(dev_subdev_idx_pair.first, l0_domain,
+                                            dev_subdev_idx_pair.second);
     }
 
-    double LevelZeroDevicePoolImp::frequency_min(unsigned int subdevice_idx, int l0_domain) const
+    double LevelZeroDevicePoolImp::frequency_min(int domain, unsigned int domain_idx,
+                                                 int l0_domain) const
     {
+        if (domain != GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for the frequency domain.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
         std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
-        dev_subdev_idx_pair = subdevice_device_conversion(subdevice_idx);
-        check_domain_exists(m_shim.frequency_domain_count(dev_subdev_idx_pair.first, l0_domain), __func__, __LINE__);
+        dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
+        check_domain_exists(m_levelzero.frequency_domain_count(dev_subdev_idx_pair.first,
+                                        l0_domain), __func__, __LINE__);
 
-        return m_shim.frequency_min(dev_subdev_idx_pair.first, l0_domain, dev_subdev_idx_pair.second);
+        return m_levelzero.frequency_min(dev_subdev_idx_pair.first,
+                                         l0_domain, dev_subdev_idx_pair.second);
     }
 
-    double LevelZeroDevicePoolImp::frequency_max(unsigned int subdevice_idx, int l0_domain) const
+    double LevelZeroDevicePoolImp::frequency_max(int domain, unsigned int domain_idx,
+                                                 int l0_domain) const
     {
+        if (domain != GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                             ": domain " + std::to_string(domain) +
+                            " is not supported for the frequency domain.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
         std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
-        dev_subdev_idx_pair = subdevice_device_conversion(subdevice_idx);
-        check_domain_exists(m_shim.frequency_domain_count(dev_subdev_idx_pair.first, l0_domain), __func__, __LINE__);
+        dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
+        check_domain_exists(m_levelzero.frequency_domain_count(
+                                        dev_subdev_idx_pair.first, l0_domain), __func__, __LINE__);
 
-        return m_shim.frequency_max(dev_subdev_idx_pair.first, l0_domain, dev_subdev_idx_pair.second);
+        return m_levelzero.frequency_max(dev_subdev_idx_pair.first, l0_domain,
+                                         dev_subdev_idx_pair.second);
     }
 
-    uint64_t LevelZeroDevicePoolImp::active_time_timestamp(unsigned int subdevice_idx, int l0_domain) const
+    std::pair<uint64_t, uint64_t> LevelZeroDevicePoolImp::active_time_pair(int domain,
+                                                                           unsigned int domain_idx,
+                                                                           int l0_domain) const
     {
+        if (domain != GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for the engine domain.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
         // TODO: Some devices may not support ZES_ENGINE_GROUP_COMPUTE/COPY_ALL. In that case this should be a
         //       device level signal that handles aggregation of domains directly here
         std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
-        dev_subdev_idx_pair = subdevice_device_conversion(subdevice_idx);
-        check_domain_exists(m_shim.engine_domain_count(dev_subdev_idx_pair.first, l0_domain), __func__, __LINE__);
+        dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
+        check_domain_exists(m_levelzero.engine_domain_count(
+                                        dev_subdev_idx_pair.first, l0_domain),
+                                        __func__, __LINE__);
 
-        return m_shim.active_time_timestamp(dev_subdev_idx_pair.first, l0_domain, dev_subdev_idx_pair.second);
+        return m_levelzero.active_time_pair(dev_subdev_idx_pair.first, l0_domain,
+                                            dev_subdev_idx_pair.second);
     }
 
-    uint64_t LevelZeroDevicePoolImp::active_time(unsigned int subdevice_idx, int l0_domain) const
+    uint64_t LevelZeroDevicePoolImp::active_time_timestamp(int domain,
+                                                           unsigned int domain_idx,
+                                                           int l0_domain) const
     {
+        if (domain != GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                             ": domain " + std::to_string(domain) +
+                            " is not supported for the engine domain.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        // TODO: Some devices may not support ZES_ENGINE_GROUP_COMPUTE/COPY_ALL. In that case this should be a
+        //       device level signal that handles aggregation of domains directly here
+        std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
+        dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
+        check_domain_exists(m_levelzero.engine_domain_count(
+                                        dev_subdev_idx_pair.first, l0_domain),
+                                        __func__, __LINE__);
+
+        return m_levelzero.active_time_timestamp(dev_subdev_idx_pair.first, l0_domain,
+                                                 dev_subdev_idx_pair.second);
+    }
+
+    uint64_t LevelZeroDevicePoolImp::active_time(int domain, unsigned int domain_idx,
+                                                 int l0_domain) const
+    {
+        if (domain != GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " +std::to_string(domain) +
+                            " is not supported for the engine domain.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
         //TODO: Some devices may not support ZES_ENGINE_GROUP_COMPUTE/COPY_ALL. In that case this should be a
         //      device level signal that handles aggregation of domains directly here
         std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
-        dev_subdev_idx_pair = subdevice_device_conversion(subdevice_idx);
-        check_domain_exists(m_shim.engine_domain_count(dev_subdev_idx_pair.first, l0_domain), __func__, __LINE__);
-
-        return m_shim.active_time(dev_subdev_idx_pair.first, l0_domain, dev_subdev_idx_pair.second);
+        dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
+        check_domain_exists(m_levelzero.engine_domain_count(
+                                        dev_subdev_idx_pair.first, l0_domain),
+                                        __func__, __LINE__);
+        return m_levelzero.active_time(dev_subdev_idx_pair.first, l0_domain,
+                                       dev_subdev_idx_pair.second);
     }
 
-    int32_t LevelZeroDevicePoolImp::power_limit_min(unsigned int dev_idx) const
+    int32_t LevelZeroDevicePoolImp::power_limit_min(int domain, unsigned int domain_idx,
+                                                    int l0_domain) const
     {
-        check_device_range(dev_idx);
-        return m_shim.power_limit_min(dev_idx);
+        if (domain != GEOPM_DOMAIN_BOARD_ACCELERATOR) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for the power domain.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        check_idx_range(domain, domain_idx);
+        return m_levelzero.power_limit_min(domain_idx);
     }
 
-    int32_t LevelZeroDevicePoolImp::power_limit_max(unsigned int dev_idx) const
+    int32_t LevelZeroDevicePoolImp::power_limit_max(int domain,
+                                                    unsigned int domain_idx,
+                                                    int l0_domain) const
     {
-        check_device_range(dev_idx);
-        return m_shim.power_limit_max(dev_idx);
+        if (domain != GEOPM_DOMAIN_BOARD_ACCELERATOR) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for the power domain.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        check_idx_range(domain, domain_idx);
+        return m_levelzero.power_limit_max(domain_idx);
     }
 
-    int32_t LevelZeroDevicePoolImp::power_limit_tdp(unsigned int dev_idx) const
+    int32_t LevelZeroDevicePoolImp::power_limit_tdp(int domain,
+                                                    unsigned int domain_idx,
+                                                    int l0_domain) const
     {
-        check_device_range(dev_idx);
-        return m_shim.power_limit_tdp(dev_idx);
+        if (domain != GEOPM_DOMAIN_BOARD_ACCELERATOR) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for the power domain.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        check_idx_range(domain, domain_idx);
+        return m_levelzero.power_limit_tdp(domain_idx);
     }
 
-    uint64_t LevelZeroDevicePoolImp::energy_timestamp(unsigned int dev_idx) const
+    std::pair<uint64_t, uint64_t> LevelZeroDevicePoolImp::energy_pair(int domain,
+                                                                      unsigned int domain_idx,
+                                                                      int l0_domain) const
     {
-        check_device_range(dev_idx);
-        return m_shim.energy_timestamp(dev_idx);
+        if (domain != GEOPM_DOMAIN_BOARD_ACCELERATOR) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for the power domain.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        check_idx_range(domain, domain_idx);
+        return m_levelzero.energy_pair(domain_idx);
     }
 
-    uint64_t LevelZeroDevicePoolImp::energy(unsigned int dev_idx) const
+    uint64_t LevelZeroDevicePoolImp::energy_timestamp(int domain,
+                                                      unsigned int domain_idx,
+                                                      int l0_domain) const
     {
-        check_device_range(dev_idx);
-        return m_shim.energy(dev_idx);
+        if (domain != GEOPM_DOMAIN_BOARD_ACCELERATOR) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for the power domain.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        check_idx_range(domain, domain_idx);
+        return m_levelzero.energy_timestamp(domain_idx);
     }
 
-    void LevelZeroDevicePoolImp::frequency_control(unsigned int subdevice_idx, int l0_domain, double setting) const
+    uint64_t LevelZeroDevicePoolImp::energy(int domain, unsigned int domain_idx,
+                                            int l0_domain) const
     {
+        if (domain != GEOPM_DOMAIN_BOARD_ACCELERATOR) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for the power domain.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        check_idx_range(domain, domain_idx);
+        return m_levelzero.energy(domain_idx);
+    }
+
+    void LevelZeroDevicePoolImp::frequency_control(int domain, unsigned int domain_idx,
+                                                   int l0_domain, double setting) const
+    {
+        if (domain != GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for the frequency domain.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
         std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
-        dev_subdev_idx_pair = subdevice_device_conversion(subdevice_idx);
-        check_domain_exists(m_shim.frequency_domain_count(dev_subdev_idx_pair.first, l0_domain), __func__, __LINE__);
+        dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
+        check_domain_exists(m_levelzero.frequency_domain_count(
+                                        dev_subdev_idx_pair.first, l0_domain),
+                                        __func__, __LINE__);
 
-        m_shim.frequency_control(dev_subdev_idx_pair.first, l0_domain, dev_subdev_idx_pair.second, setting);
+        m_levelzero.frequency_control(dev_subdev_idx_pair.first, l0_domain,
+                                      dev_subdev_idx_pair.second, setting);
     }
 }

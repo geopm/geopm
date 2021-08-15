@@ -42,10 +42,11 @@
 #include "config.h"
 #include "Helper.hpp"
 #include "Exception.hpp"
-#include "MockLevelZeroShim.hpp"
+#include "MockLevelZero.hpp"
 #include "LevelZeroDevicePoolImp.hpp"
 #include "LevelZeroAcceleratorTopo.hpp"
 #include "geopm_test.hpp"
+#include "geopm_topo.h"
 
 using geopm::LevelZeroAcceleratorTopo;
 using geopm::LevelZeroDevicePoolImp;
@@ -58,12 +59,12 @@ class LevelZeroAcceleratorTopoTest : public :: testing :: Test
         void SetUp();
         void TearDown();
 
-        std::shared_ptr<MockLevelZeroShim> m_shim;
+        std::shared_ptr<MockLevelZero> m_levelzero;
 };
 
 void LevelZeroAcceleratorTopoTest::SetUp()
 {
-    m_shim = std::make_shared<MockLevelZeroShim>();
+    m_levelzero = std::make_shared<MockLevelZero>();
 }
 
 void LevelZeroAcceleratorTopoTest::TearDown()
@@ -75,13 +76,14 @@ TEST_F(LevelZeroAcceleratorTopoTest, no_gpu_config)
 {
     const int num_accelerator = 0;
     const int num_cpu = 40;
-    LevelZeroDevicePoolImp m_device_pool(*m_shim);
+    LevelZeroDevicePoolImp m_device_pool(*m_levelzero);
 
-    EXPECT_CALL(*m_shim, num_accelerator()).WillOnce(Return(num_accelerator));
-    EXPECT_CALL(*m_shim, num_accelerator_subdevice()).WillOnce(Return(num_accelerator));
+    EXPECT_CALL(*m_levelzero, num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR)).WillOnce(Return(num_accelerator));
+    EXPECT_CALL(*m_levelzero, num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP)).WillOnce(Return(num_accelerator));
 
     LevelZeroAcceleratorTopo topo(m_device_pool, num_cpu);
     EXPECT_EQ(num_accelerator, topo.num_accelerator());
+    EXPECT_EQ(num_accelerator, topo.num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP));
 
     GEOPM_EXPECT_THROW_MESSAGE(topo.cpu_affinity_ideal(num_accelerator), GEOPM_ERROR_INVALID, "accel_idx 0 is out of range");
 }
@@ -91,13 +93,15 @@ TEST_F(LevelZeroAcceleratorTopoTest, four_forty_config)
     const int num_accelerator = 4;
     int num_accelerator_subdevice = 4;
     const int num_cpu = 40;
-    LevelZeroDevicePoolImp m_device_pool(*m_shim);
+    LevelZeroDevicePoolImp m_device_pool(*m_levelzero);
 
-    EXPECT_CALL(*m_shim, num_accelerator()).WillOnce(Return(num_accelerator));
-    EXPECT_CALL(*m_shim, num_accelerator_subdevice()).WillOnce(Return(num_accelerator_subdevice));
+    EXPECT_CALL(*m_levelzero, num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR)).WillOnce(Return(num_accelerator));
+    EXPECT_CALL(*m_levelzero, num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP)).WillOnce(Return(num_accelerator_subdevice));
 
     LevelZeroAcceleratorTopo topo(m_device_pool, num_cpu);
     EXPECT_EQ(num_accelerator, topo.num_accelerator());
+    EXPECT_EQ(num_accelerator_subdevice, topo.num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP));
+
     std::set<int> cpus_allowed_set[num_accelerator];
     cpus_allowed_set[0] = {0,1,2,3,4,5,6,7,8,9};
     cpus_allowed_set[1] = {10,11,12,13,14,15,16,17,18,19};
@@ -106,15 +110,16 @@ TEST_F(LevelZeroAcceleratorTopoTest, four_forty_config)
 
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
         ASSERT_THAT(topo.cpu_affinity_ideal(accel_idx), cpus_allowed_set[accel_idx]);
-        ASSERT_THAT(topo.cpu_affinity_ideal_subdevice(accel_idx), cpus_allowed_set[accel_idx]);
+        ASSERT_THAT(topo.cpu_affinity_ideal(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, accel_idx), cpus_allowed_set[accel_idx]);
     }
 
     num_accelerator_subdevice = 8;
-    EXPECT_CALL(*m_shim, num_accelerator()).WillOnce(Return(num_accelerator));
-    EXPECT_CALL(*m_shim, num_accelerator_subdevice()).WillOnce(Return(num_accelerator_subdevice));
+    EXPECT_CALL(*m_levelzero, num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR)).WillOnce(Return(num_accelerator));
+    EXPECT_CALL(*m_levelzero, num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP)).WillOnce(Return(num_accelerator_subdevice));
 
     LevelZeroAcceleratorTopo topo_sub(m_device_pool, num_cpu);
     EXPECT_EQ(num_accelerator, topo_sub.num_accelerator());
+    EXPECT_EQ(num_accelerator_subdevice, topo_sub.num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP));
 
     std::set<int> cpus_allowed_set_subdevice[num_accelerator_subdevice];
     cpus_allowed_set_subdevice[0] = {0,1,2,3,4};
@@ -128,9 +133,11 @@ TEST_F(LevelZeroAcceleratorTopoTest, four_forty_config)
 
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
         ASSERT_THAT(topo_sub.cpu_affinity_ideal(accel_idx), cpus_allowed_set[accel_idx]);
-        ASSERT_THAT(topo_sub.cpu_affinity_ideal_subdevice(accel_idx), cpus_allowed_set_subdevice[accel_idx]);
     }
+    for (int accel_idx = 0; accel_idx < num_accelerator_subdevice; ++accel_idx) {
+        ASSERT_THAT(topo_sub.cpu_affinity_ideal(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, accel_idx), cpus_allowed_set_subdevice[accel_idx]);
 }
+    }
 
 //Test case: Different GPU/CPU count, with 8 GPUs and 28 cores per socket.
 TEST_F(LevelZeroAcceleratorTopoTest, eight_fiftysix_affinitization_config)
@@ -138,14 +145,15 @@ TEST_F(LevelZeroAcceleratorTopoTest, eight_fiftysix_affinitization_config)
     const int num_accelerator = 8;
     const int num_accelerator_subdevice = 8;
     const int num_cpu = 56;
-    LevelZeroDevicePoolImp m_device_pool(*m_shim);
+    LevelZeroDevicePoolImp m_device_pool(*m_levelzero);
 
-    EXPECT_CALL(*m_shim, num_accelerator()).WillOnce(Return(num_accelerator));
-    EXPECT_CALL(*m_shim, num_accelerator_subdevice()).WillOnce(Return(num_accelerator_subdevice));
+    EXPECT_CALL(*m_levelzero, num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR)).WillOnce(Return(num_accelerator));
+    EXPECT_CALL(*m_levelzero, num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP)).WillOnce(Return(num_accelerator_subdevice));
 
     LevelZeroAcceleratorTopo topo(m_device_pool, num_cpu);
 
     EXPECT_EQ(num_accelerator, topo.num_accelerator());
+    EXPECT_EQ(num_accelerator_subdevice, topo.num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP));
     std::set<int> cpus_allowed_set[num_accelerator];
     cpus_allowed_set[0] = {0 ,1 ,2 ,3 ,4 ,5 ,6 };
     cpus_allowed_set[1] = {7 ,8 ,9 ,10,11,12,13};
@@ -158,7 +166,7 @@ TEST_F(LevelZeroAcceleratorTopoTest, eight_fiftysix_affinitization_config)
 
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
         ASSERT_THAT(topo.cpu_affinity_ideal(accel_idx), cpus_allowed_set[accel_idx]);
-        ASSERT_THAT(topo.cpu_affinity_ideal_subdevice(accel_idx), cpus_allowed_set[accel_idx]);
+        ASSERT_THAT(topo.cpu_affinity_ideal(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, accel_idx), cpus_allowed_set[accel_idx]);
     }
 }
 
@@ -168,10 +176,10 @@ TEST_F(LevelZeroAcceleratorTopoTest, uneven_affinitization_config)
     const int num_accelerator = 3;
     const int num_accelerator_subdevice = 6;
     const int num_cpu =20;
-    LevelZeroDevicePoolImp m_device_pool(*m_shim);
+    LevelZeroDevicePoolImp m_device_pool(*m_levelzero);
 
-    EXPECT_CALL(*m_shim, num_accelerator()).WillOnce(Return(num_accelerator));
-    EXPECT_CALL(*m_shim, num_accelerator_subdevice()).WillOnce(Return(num_accelerator_subdevice));
+    EXPECT_CALL(*m_levelzero, num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR)).WillOnce(Return(num_accelerator));
+    EXPECT_CALL(*m_levelzero, num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP)).WillOnce(Return(num_accelerator_subdevice));
 
     LevelZeroAcceleratorTopo topo(m_device_pool, num_cpu);
 
@@ -193,7 +201,7 @@ TEST_F(LevelZeroAcceleratorTopoTest, uneven_affinitization_config)
         ASSERT_THAT(topo.cpu_affinity_ideal(accel_idx), cpus_allowed_set[accel_idx]);
     }
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
-        ASSERT_THAT(topo.cpu_affinity_ideal_subdevice(accel_idx), cpus_allowed_set_subdevice[accel_idx]);
+        ASSERT_THAT(topo.cpu_affinity_ideal(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, accel_idx), cpus_allowed_set_subdevice[accel_idx]);
     }
 
     // TODO: Add subdevice check
@@ -206,10 +214,10 @@ TEST_F(LevelZeroAcceleratorTopoTest, high_cpu_count_config)
     const int num_accelerator = 8;
     const int num_accelerator_subdevice = 32;
     const int num_cpu = 128;
-    LevelZeroDevicePoolImp m_device_pool(*m_shim);
+    LevelZeroDevicePoolImp m_device_pool(*m_levelzero);
 
-    EXPECT_CALL(*m_shim, num_accelerator()).WillOnce(Return(num_accelerator));
-    EXPECT_CALL(*m_shim, num_accelerator_subdevice()).WillOnce(Return(num_accelerator_subdevice));
+    EXPECT_CALL(*m_levelzero, num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR)).WillOnce(Return(num_accelerator));
+    EXPECT_CALL(*m_levelzero, num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP)).WillOnce(Return(num_accelerator_subdevice));
 
     LevelZeroAcceleratorTopo topo(m_device_pool, num_cpu);
 
@@ -228,6 +236,6 @@ TEST_F(LevelZeroAcceleratorTopoTest, high_cpu_count_config)
         for (int cpu_idx = 0; cpu_idx < num_cpu/num_accelerator_subdevice; ++cpu_idx) {
             cpus_allowed_set_subdevice[sub_idx].insert(cpu_idx+(sub_idx*4));
         }
-        ASSERT_THAT(topo.cpu_affinity_ideal_subdevice(sub_idx), cpus_allowed_set_subdevice[sub_idx]);
+        ASSERT_THAT(topo.cpu_affinity_ideal(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx), cpus_allowed_set_subdevice[sub_idx]);
     }
 }

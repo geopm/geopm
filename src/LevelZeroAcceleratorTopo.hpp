@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
+ * Copyright (c) 2015 - 2021, Intel Corporation
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -47,18 +47,17 @@ namespace geopm
     {
         public:
             LevelZeroAcceleratorTopo();
-            LevelZeroAcceleratorTopo(const LevelZeroDevicePool &device_pool, const int num_cpu);
+            LevelZeroAcceleratorTopo(const LevelZeroDevicePool &device_pool,
+                                     const int num_cpu);
             virtual ~LevelZeroAcceleratorTopo() = default;
             virtual int num_accelerator(void) const override;
-            virtual int num_accelerator_subdevice(void) const override;
+            virtual int num_accelerator(int domain) const override;
             virtual std::set<int> cpu_affinity_ideal(int accel_idx) const override;
-            virtual std::set<int> cpu_affinity_ideal_subdevice(int accel_idx) const override;
+            virtual std::set<int> cpu_affinity_ideal(int domain, int accel_idx) const override;
         private:
             const LevelZeroDevicePool &m_levelzero_device_pool;
             std::vector<std::set<int> > m_cpu_affinity_ideal;
-            std::vector<std::set<int> > m_cpu_affinity_ideal_subdevice;
-            unsigned int m_num_accelerator;
-            unsigned int m_num_accelerator_subdevice;
+            std::vector<std::set<int> > m_cpu_affinity_ideal_chip;
     };
 }
 #endif

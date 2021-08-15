@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
+ * Copyright (c) 2015 - 2021, Intel Corporation
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -34,9 +34,10 @@
 #define LEVELZERODEVICEPOOLIMP_HPP_INCLUDE
 
 #include <string>
+#include <cstdint>
 
 #include "LevelZeroDevicePool.hpp"
-#include "LevelZeroShim.hpp"
+#include "LevelZero.hpp"
 
 #include "geopm_time.h"
 
@@ -46,29 +47,43 @@ namespace geopm
     {
         public:
             LevelZeroDevicePoolImp();
-            LevelZeroDevicePoolImp(const LevelZeroShim &device_shim);
+            LevelZeroDevicePoolImp(const LevelZero &levelzero);
             virtual ~LevelZeroDevicePoolImp() = default;
-            virtual int num_accelerator(void) const override;
-            virtual int num_accelerator_subdevice(void) const override;
+            virtual int num_accelerator(int domain_type) const override;
 
-            virtual double frequency_status(unsigned int subdevice_idx, int l0_domain) const override;
-            virtual double frequency_min(unsigned int subdevice_idx, int l0_domain) const override;
-            virtual double frequency_max(unsigned int subdevice_idx, int l0_domain) const override;
-            virtual uint64_t active_time(unsigned int device_idx, int l0_domain) const override;
-            virtual uint64_t active_time_timestamp(unsigned int device_idx, int l0_domain) const override;
-            virtual int32_t power_limit_tdp(unsigned int idx) const override;
-            virtual int32_t power_limit_min(unsigned int idx) const override;
-            virtual int32_t power_limit_max(unsigned int idx) const override;
-            virtual uint64_t energy(unsigned int idx) const override;
-            virtual uint64_t energy_timestamp(unsigned int idx) const override;
+            virtual double frequency_status(int domain, unsigned int domain_idx,
+                                            int l0_domain) const override;
+            virtual double frequency_min(int domain, unsigned int domain_idx,
+                                         int l0_domain) const override;
+            virtual double frequency_max(int domain, unsigned int domain_idx,
+                                         int l0_domain) const override;
+            virtual std::pair<uint64_t, uint64_t> active_time_pair(int domain,
+                                                                   unsigned int device_idx,
+                                                                   int l0_domain) const override;
+            virtual uint64_t active_time(int domain, unsigned int device_idx,
+                                         int l0_domain) const override;
+            virtual uint64_t active_time_timestamp(int domain, unsigned int device_idx,
+                                                   int l0_domain) const override;
+            virtual int32_t power_limit_tdp(int domain, unsigned int domain_idx,
+                                            int l0_domain) const override;
+            virtual int32_t power_limit_min(int domain, unsigned int domain_idx,
+                                            int l0_domain) const override;
+            virtual int32_t power_limit_max(int domain, unsigned int domain_idx,
+                                            int l0_domain) const override;
+            virtual std::pair<uint64_t, uint64_t> energy_pair(int domain,
+                                                              unsigned int domain_idx,
+                                                              int l0_domain) const override;
+            virtual uint64_t energy(int domain, unsigned int domain_idx, int l0_domain) const override;
+            virtual uint64_t energy_timestamp(int domain, unsigned int domain_idx,
+                                              int l0_domain) const override;
 
-            virtual void frequency_control(unsigned int subdevice_idx, int l0_domain, double setting) const override;
+            virtual void frequency_control(int domain, unsigned int domain_idx,
+                                           int l0_domain, double setting) const override;
 
         private:
-            const LevelZeroShim &m_shim;
+            const LevelZero &m_levelzero;
 
-            virtual void check_device_range(unsigned int dev_idx) const;
-            virtual void check_subdevice_range(unsigned int sub_idx) const;
+            virtual void check_idx_range(int domain, unsigned int domain_idx) const;
             virtual void check_domain_exists(int size, const char *func, int line) const;
             virtual std::pair<unsigned int, unsigned int> subdevice_device_conversion(unsigned int idx) const;
     };

@@ -40,11 +40,8 @@
 #include "Exception.hpp"
 #include "AcceleratorTopoNull.hpp"
 
-#ifdef GEOPM_ENABLE_NVML
 #include "NVMLAcceleratorTopo.hpp"
-#elif defined(GEOPM_ENABLE_LEVELZERO)
 #include "LevelZeroAcceleratorTopo.hpp"
-#endif
 
 namespace geopm
 {

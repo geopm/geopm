@@ -30,40 +30,17 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef LEVELZEROSIGNAL_HPP_INCLUDE
-#define LEVELZEROSIGNAL_HPP_INCLUDE
+#include "config.h"
 
-#include <cstdint>
-#include <cmath>
-
-#include <string>
-#include <memory>
-#include <functional>
-
-#include "Signal.hpp"
-#include "LevelZeroDevicePool.hpp"
-
+#include "Exception.hpp"
+#include "LevelZero.hpp"
 
 namespace geopm
 {
-    class LevelZeroDevicePool;
-
-    class LevelZeroSignal : public Signal
+    const LevelZero &levelzero()
     {
-        public:
-            virtual ~LevelZeroSignal() = default;
-            LevelZeroSignal(std::function<double (unsigned int)> devpool_func,
-                         unsigned int accelerator, double scalar);
-            LevelZeroSignal(const LevelZeroSignal &other) = delete;
-            void setup_batch(void) override;
-            double sample(void) override;
-            double read(void) const override;
-        private:
-            std::function<double (unsigned int)> m_devpool_func;
-            unsigned int m_accel;
-            double m_scalar;
-            bool m_is_batch_ready;
-    };
+        throw Exception("LevelZeroThrow::" + std::string(__func__) +
+                        ": GEOPM configured without Level Zero library support.  Please configure with --enable-levelzero",
+                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+    }
 }
-
-#endif

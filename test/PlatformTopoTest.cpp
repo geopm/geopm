@@ -44,6 +44,7 @@
 #include "PlatformTopoImp.hpp"
 #include "Exception.hpp"
 #include "config.h"
+#include "LevelZero.hpp"
 #include "geopm_test.hpp"
 
 //using geopm::AcceleratorTopo;
@@ -243,7 +244,7 @@ void PlatformTopoTest::SetUp()
 
     m_accelerator_topo = std::make_shared<MockAcceleratorTopo>();
     ON_CALL(*m_accelerator_topo, num_accelerator()).WillByDefault(Return(0));
-    ON_CALL(*m_accelerator_topo, num_accelerator_subdevice()).WillByDefault(Return(0));
+    ON_CALL(*m_accelerator_topo, num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP)).WillByDefault(Return(0));
 }
 
 void PlatformTopoTest::TearDown()
@@ -268,8 +269,12 @@ TEST_F(PlatformTopoTest, hsw_num_domain)
 {
     const int num_accelerator = 4;
     const int num_accelerator_subdevice = 8;
-    EXPECT_CALL(*m_accelerator_topo, num_accelerator()).WillRepeatedly(Return(num_accelerator));
-    EXPECT_CALL(*m_accelerator_topo, num_accelerator_subdevice()).WillRepeatedly(Return(num_accelerator_subdevice));
+    EXPECT_CALL(*m_accelerator_topo, num_accelerator())
+                .WillRepeatedly(Return(num_accelerator));
+    EXPECT_CALL(*m_accelerator_topo, num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR))
+                .WillRepeatedly(Return(num_accelerator));
+    EXPECT_CALL(*m_accelerator_topo, num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP))
+                .WillRepeatedly(Return(num_accelerator_subdevice));
     write_lscpu(m_hsw_lscpu_str);
     PlatformTopoImp topo(m_lscpu_file_name, *m_accelerator_topo);
     EXPECT_EQ(1, topo.num_domain(GEOPM_DOMAIN_BOARD));
@@ -284,7 +289,7 @@ TEST_F(PlatformTopoTest, hsw_num_domain)
     EXPECT_EQ(0, topo.num_domain(GEOPM_DOMAIN_PACKAGE_NIC));
     EXPECT_EQ(num_accelerator, topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR));
     EXPECT_EQ(0, topo.num_domain(GEOPM_DOMAIN_PACKAGE_ACCELERATOR));
-    EXPECT_EQ(num_accelerator_subdevice, topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR_SUBDEVICE));
+    EXPECT_EQ(num_accelerator_subdevice, topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP));
 
     EXPECT_THROW(topo.num_domain(GEOPM_DOMAIN_INVALID), geopm::Exception);
 }
@@ -306,7 +311,8 @@ TEST_F(PlatformTopoTest, bdx_num_domain)
     const int num_accelerator = 4;
     const int num_accelerator_subdevice = 4;
     EXPECT_CALL(*m_accelerator_topo, num_accelerator()).WillRepeatedly(Return(num_accelerator));
-    EXPECT_CALL(*m_accelerator_topo, num_accelerator_subdevice()).WillRepeatedly(Return(num_accelerator_subdevice));
+    EXPECT_CALL(*m_accelerator_topo, num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR)).WillRepeatedly(Return(num_accelerator_subdevice));
+    EXPECT_CALL(*m_accelerator_topo, num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP)).WillRepeatedly(Return(num_accelerator_subdevice));
     write_lscpu(m_bdx_lscpu_str);
     PlatformTopoImp topo(m_lscpu_file_name, *m_accelerator_topo);
     EXPECT_EQ(1, topo.num_domain(GEOPM_DOMAIN_BOARD));
@@ -316,7 +322,7 @@ TEST_F(PlatformTopoTest, bdx_num_domain)
     EXPECT_EQ(2, topo.num_domain(GEOPM_DOMAIN_BOARD_MEMORY));
     EXPECT_EQ(0, topo.num_domain(GEOPM_DOMAIN_PACKAGE_MEMORY));
     EXPECT_EQ(num_accelerator, topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR));
-    EXPECT_EQ(num_accelerator_subdevice, topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR));
+    EXPECT_EQ(num_accelerator_subdevice, topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP));
 }
 
 TEST_F(PlatformTopoTest, ppc_num_domain)
@@ -369,8 +375,12 @@ TEST_F(PlatformTopoTest, bdx_domain_idx)
 {
     const int num_accelerator = 4;
     const int num_accelerator_subdevice = 8;
-    EXPECT_CALL(*m_accelerator_topo, num_accelerator()).WillRepeatedly(Return(num_accelerator));
-    EXPECT_CALL(*m_accelerator_topo, num_accelerator_subdevice()).WillRepeatedly(Return(num_accelerator_subdevice));
+    EXPECT_CALL(*m_accelerator_topo, num_accelerator()).
+                WillRepeatedly(Return(num_accelerator));
+    EXPECT_CALL(*m_accelerator_topo, num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR)).
+                WillRepeatedly(Return(num_accelerator_subdevice));
+    EXPECT_CALL(*m_accelerator_topo, num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP)).
+                WillRepeatedly(Return(num_accelerator_subdevice));
     std::set<int> cpu_affin[num_accelerator];
     std::set<int> cpu_affin_sub[num_accelerator_subdevice];
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
@@ -378,14 +388,18 @@ TEST_F(PlatformTopoTest, bdx_domain_idx)
             cpu_affin[accel_idx].insert(cpu_idx+(accel_idx*(72/num_accelerator)));
         }
         EXPECT_CALL(*m_accelerator_topo,
-                     cpu_affinity_ideal(accel_idx)).WillRepeatedly(Return(cpu_affin[accel_idx]));
+                    cpu_affinity_ideal(GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                    accel_idx)).WillRepeatedly(Return(cpu_affin[accel_idx]));
+        EXPECT_CALL(*m_accelerator_topo,
+                    cpu_affinity_ideal(accel_idx)).WillRepeatedly(Return(cpu_affin[accel_idx]));
     }
     for (int sub_idx = 0; sub_idx < num_accelerator_subdevice; ++sub_idx) {
         for (int cpu_idx = 0; cpu_idx < 72/num_accelerator_subdevice; ++cpu_idx) {
             cpu_affin_sub[sub_idx].insert(cpu_idx+(sub_idx*(72/num_accelerator_subdevice)));
         }
         EXPECT_CALL(*m_accelerator_topo,
-                     cpu_affinity_ideal_subdevice(sub_idx)).WillRepeatedly(Return(cpu_affin_sub[sub_idx]));
+                    cpu_affinity_ideal(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx)).
+                    WillRepeatedly(Return(cpu_affin_sub[sub_idx]));
     }
     write_lscpu(m_bdx_lscpu_str);
     PlatformTopoImp topo(m_lscpu_file_name, *m_accelerator_topo);
@@ -436,28 +450,28 @@ TEST_F(PlatformTopoTest, bdx_domain_idx)
 
     for (int cpu_idx = 0; cpu_idx < 72; ++cpu_idx) {
         if (cpu_idx < 9) {
-            EXPECT_EQ(0, topo.domain_idx(GEOPM_DOMAIN_BOARD_ACCELERATOR_SUBDEVICE, cpu_idx));
+            EXPECT_EQ(0, topo.domain_idx(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, cpu_idx));
         }
         else if (cpu_idx < 18) {
-            EXPECT_EQ(1, topo.domain_idx(GEOPM_DOMAIN_BOARD_ACCELERATOR_SUBDEVICE, cpu_idx));
+            EXPECT_EQ(1, topo.domain_idx(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, cpu_idx));
         }
         else if (cpu_idx < 27) {
-            EXPECT_EQ(2, topo.domain_idx(GEOPM_DOMAIN_BOARD_ACCELERATOR_SUBDEVICE, cpu_idx));
+            EXPECT_EQ(2, topo.domain_idx(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, cpu_idx));
         }
         else if (cpu_idx < 36) {
-            EXPECT_EQ(3, topo.domain_idx(GEOPM_DOMAIN_BOARD_ACCELERATOR_SUBDEVICE, cpu_idx));
+            EXPECT_EQ(3, topo.domain_idx(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, cpu_idx));
         }
         else if (cpu_idx < 45) {
-            EXPECT_EQ(4, topo.domain_idx(GEOPM_DOMAIN_BOARD_ACCELERATOR_SUBDEVICE, cpu_idx));
+            EXPECT_EQ(4, topo.domain_idx(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, cpu_idx));
         }
         else if (cpu_idx < 54) {
-            EXPECT_EQ(5, topo.domain_idx(GEOPM_DOMAIN_BOARD_ACCELERATOR_SUBDEVICE, cpu_idx));
+            EXPECT_EQ(5, topo.domain_idx(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, cpu_idx));
         }
         else if (cpu_idx < 63) {
-            EXPECT_EQ(6, topo.domain_idx(GEOPM_DOMAIN_BOARD_ACCELERATOR_SUBDEVICE, cpu_idx));
+            EXPECT_EQ(6, topo.domain_idx(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, cpu_idx));
         }
         else {
-            EXPECT_EQ(7, topo.domain_idx(GEOPM_DOMAIN_BOARD_ACCELERATOR_SUBDEVICE, cpu_idx));
+            EXPECT_EQ(7, topo.domain_idx(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, cpu_idx));
         }
     }
 
@@ -521,14 +535,21 @@ TEST_F(PlatformTopoTest, bdx_domain_nested)
 {
     /// @todo: Add accelerator & subdevice
     const int num_accelerator = 4;
-    EXPECT_CALL(*m_accelerator_topo, num_accelerator()).WillRepeatedly(Return(num_accelerator));
+    EXPECT_CALL(*m_accelerator_topo, num_accelerator()).
+                WillRepeatedly(Return(num_accelerator));
+    EXPECT_CALL(*m_accelerator_topo, num_accelerator(
+                GEOPM_DOMAIN_BOARD_ACCELERATOR)).WillRepeatedly(Return(num_accelerator));
     std::set<int> cpu_affin[num_accelerator];
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
         for (int cpu_idx = 0; cpu_idx < 72/num_accelerator; ++cpu_idx) {
             cpu_affin[accel_idx].insert(cpu_idx+(accel_idx*18));
         }
         EXPECT_CALL(*m_accelerator_topo,
-                     cpu_affinity_ideal(accel_idx)).WillRepeatedly(Return(cpu_affin[accel_idx]));
+                    cpu_affinity_ideal(accel_idx)).
+                    WillRepeatedly(Return(cpu_affin[accel_idx]));
+        EXPECT_CALL(*m_accelerator_topo,
+                    cpu_affinity_ideal(GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                    accel_idx)).WillRepeatedly(Return(cpu_affin[accel_idx]));
     }
     write_lscpu(m_bdx_lscpu_str);
     PlatformTopoImp topo(m_lscpu_file_name, *m_accelerator_topo);
@@ -756,7 +777,7 @@ TEST_F(PlatformTopoTest, domain_type_to_name)
     EXPECT_EQ("package_nic", PlatformTopo::domain_type_to_name(GEOPM_DOMAIN_PACKAGE_NIC));
     EXPECT_EQ("board_accelerator", PlatformTopo::domain_type_to_name(GEOPM_DOMAIN_BOARD_ACCELERATOR));
     EXPECT_EQ("package_accelerator", PlatformTopo::domain_type_to_name(GEOPM_DOMAIN_PACKAGE_ACCELERATOR));
-    EXPECT_EQ("board_accelerator_subdevice", PlatformTopo::domain_type_to_name(GEOPM_DOMAIN_BOARD_ACCELERATOR_SUBDEVICE));
+    EXPECT_EQ("board_accelerator_chip", PlatformTopo::domain_type_to_name(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP));
 }
 
 TEST_F(PlatformTopoTest, domain_name_to_type)
@@ -773,7 +794,7 @@ TEST_F(PlatformTopoTest, domain_name_to_type)
     EXPECT_EQ(GEOPM_DOMAIN_PACKAGE_NIC, PlatformTopo::domain_name_to_type("package_nic"));
     EXPECT_EQ(GEOPM_DOMAIN_BOARD_ACCELERATOR, PlatformTopo::domain_name_to_type("board_accelerator"));
     EXPECT_EQ(GEOPM_DOMAIN_PACKAGE_ACCELERATOR, PlatformTopo::domain_name_to_type("package_accelerator"));
-    EXPECT_EQ(GEOPM_DOMAIN_BOARD_ACCELERATOR_SUBDEVICE, PlatformTopo::domain_name_to_type("board_accelerator_subdevice"));
+    EXPECT_EQ(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, PlatformTopo::domain_name_to_type("board_accelerator_chip"));
 }
 
 TEST_F(PlatformTopoTest, create_cache)
