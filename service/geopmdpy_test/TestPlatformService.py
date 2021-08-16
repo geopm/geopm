@@ -54,6 +54,8 @@ class TestPlatformService(unittest.TestCase):
         self._platform_service._CONFIG_PATH = self._CONFIG_PATH.name
         self._platform_service._VAR_PATH = self._VAR_PATH.name
         self._platform_service._ALL_GROUPS = ['named']
+        self._bad_user_id = 'GEOPM_TEST_INVALID_USER_NAME'
+        self._bad_group_id = 'GEOPM_TEST_INVALID_GROUP_NAME'
 
     def tearDown(self):
         self._CONFIG_PATH.cleanup()
@@ -107,10 +109,10 @@ default
     def test_get_group_access_invalid(self):
         err_msg = 'Linux group name cannot begin with a digit'
         with self.assertRaisesRegex(RuntimeError, err_msg):
-            self._platform_service.get_group_access('1bad')
+            self._platform_service.get_group_access('1' + self._bad_group_id)
         err_msg = 'Linux group is not defined'
         with self.assertRaisesRegex(RuntimeError, err_msg):
-            self._platform_service.get_group_access('bad')
+            self._platform_service.get_group_access(self._bad_group_id)
 
     def test_get_group_access_default(self):
         signals_expect = ['geopm', 'signals', 'default', 'energy']
@@ -210,13 +212,13 @@ default
         self.assertEqual([], controls)
 
     def test_get_user_access_invalid(self):
-        bad_user = 'badbadbad'
+        bad_user = self._bad_user_id
         err_msg = "Specified user '{}' does not exist.".format(bad_user)
         with self.assertRaisesRegex(RuntimeError, err_msg):
             self._platform_service.get_user_access(bad_user)
 
     def test_get_user_groups_invalid(self):
-        bad_user = 'badbadbad'
+        bad_user = self._bad_user_id
         err_msg = r"getpwnam\(\): name not found: '{}'".format(bad_user)
         with self.assertRaisesRegex(KeyError, err_msg):
             self._platform_service._get_user_groups(bad_user)
