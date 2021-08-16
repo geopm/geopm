@@ -217,13 +217,13 @@ default
 
     def test_get_user_groups_invalid(self):
         bad_user = 'badbadbad'
-        err_msg = "getpwnam\(\): name not found: '{}'".format(bad_user)
+        err_msg = r"getpwnam\(\): name not found: '{}'".format(bad_user)
         with self.assertRaisesRegex(KeyError, err_msg):
             self._platform_service._get_user_groups(bad_user)
 
         bad_gid = 999999
         fake_pwd = pwd.struct_passwd((None, None, None, bad_gid, None, '', None))
-        err_msg = "getgrgid\(\): gid not found: {}".format(bad_gid)
+        err_msg = r"getgrgid\(\): gid not found: {}".format(bad_gid)
         with mock.patch('pwd.getpwnam', return_value=fake_pwd), \
              self.assertRaisesRegex(KeyError, err_msg):
             self._platform_service._get_user_groups(bad_user)
@@ -485,7 +485,7 @@ default
         signal_config = [(0, 0, sig) for sig in valid_signals]
         control_config = [(0, 0, con) for con in valid_controls]
 
-        err_msg = 'pio.start_batch_server\(\) is not yet implemented'
+        err_msg = r'pio.start_batch_server\(\) is not yet implemented'
         with self.assertRaisesRegex(NotImplementedError, err_msg), \
              mock.patch('geopmdpy.pio.save_control', return_value=[]):
             self._platform_service.start_batch(client_pid, signal_config,
