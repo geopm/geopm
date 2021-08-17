@@ -448,7 +448,7 @@ default
         signal_config = [(0, 0, sig) for sig in valid_signals]
 
         valid_controls = session_data['controls']
-        bogus_controls = [(0, 0, 'frequency'), (0, 0, 'energy')]
+        bogus_controls = [(0, 0, 'invalid_frequency'), (0, 0, 'invalid_energy')]
         control_config = [(0, 0, con) for con in valid_controls]
         control_config.extend(bogus_controls)
 
@@ -458,7 +458,7 @@ default
             self._platform_service.start_batch(client_pid, signal_config,
                                                control_config)
 
-        bogus_signals = [(0, 0, 'uncore'), (0, 0, 'power')]
+        bogus_signals = [(0, 0, 'invalid_uncore'), (0, 0, 'invalid_power')]
         signal_config.extend(bogus_signals)
 
         err_msg = re.escape('Requested signals that are not in allowed list: {}' \
@@ -590,8 +590,8 @@ default
         result = self._platform_service._read_allowed('INVALID_PATH')
         self.assertEqual([], result)
 
-    def test__check_client(self):
-        result = self._platform_service._check_client('')
+    def test_check_client(self):
+        result = self._platform_service.check_client('')
         self.assertTrue(result)
 
         session_data = self._write_session_files_helper()
@@ -600,7 +600,7 @@ default
 
         with mock.patch('geopmdpy.service.PlatformService.close_session',
                         return_value=[]) as pcs:
-            result = self._platform_service._check_client(client_pid)
+            result = self._platform_service.check_client(client_pid)
             self.assertFalse(result)
             pcs.assert_called_once_with(client_pid)
 
