@@ -664,9 +664,9 @@ class PlatformService(object):
             self._pio.save_control()
 
     def _watch_client(self, client_pid):
-        return GLib.timeout_add(self._WATCH_INTERVAL_MSEC, self._check_client, client_pid)
+        return GLib.timeout_add(self._WATCH_INTERVAL_MSEC, self.check_client, client_pid)
 
-    def _check_client(self, client_pid):
+    def check_client(self, client_pid):
         if client_pid in self._sessions and not psutil.pid_exists(client_pid):
             self.close_session(client_pid)
             return False
