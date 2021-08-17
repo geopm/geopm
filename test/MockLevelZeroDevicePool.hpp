@@ -40,36 +40,39 @@
 class MockLevelZeroDevicePool : public geopm::LevelZeroDevicePool
 {
     public:
-        MOCK_METHOD(num_accelerator,
-                    int(int), (const, override));
+        MOCK_METHOD(int, num_accelerator,
+                    (int), (const, override));
 
-        MOCK_METHOD(frequency_status,
-                    double(int, unsigned int, int), (const, override));
-        MOCK_METHOD(frequency_min,
-                    double(int, unsigned int, int), (const, override));
-        MOCK_METHOD(frequency_max,
-                    double(int, unsigned int, int), (const, override));
+        MOCK_METHOD(double, frequency_status,
+                    (int, unsigned int, int), (const, override));
+        MOCK_METHOD(double, frequency_min,
+                    (int, unsigned int, int), (const, override));
+        MOCK_METHOD(double, frequency_max,
+                    (int, unsigned int, int), (const, override));
 
-        MOCK_METHOD(active_time,
-                    uint64_t(int, unsigned int, int), (const, override));
-        MOCK_METHOD(active_time_timestamp,
-                    uint64_t(int, unsigned int, int), (const, override));
+        MOCK_METHOD((std::pair<uint64_t, uint64_t>), active_time_pair,
+                    (int, unsigned int, int), (const, override));
+        MOCK_METHOD(uint64_t, active_time,
+                    (int, unsigned int, int), (const, override));
+        MOCK_METHOD(uint64_t, active_time_timestamp,
+                    (int, unsigned int, int), (const, override));
 
-        MOCK_METHOD(power_limit_tdp,
-                    int32_t(int, unsigned int, int), (const, override));
-        MOCK_METHOD(power_limit_min,
-                    int32_t(int, unsigned int, int), (const, override));
-        MOCK_METHOD(power_limit_max,
-                    int32_t(int, unsigned int, int), (const, override));
+        MOCK_METHOD(int32_t, power_limit_tdp,
+                    (int, unsigned int, int), (const, override));
+        MOCK_METHOD(int32_t, power_limit_min,
+                    (int, unsigned int, int), (const, override));
+        MOCK_METHOD(int32_t, power_limit_max,
+                    (int, unsigned int, int), (const, override));
 
-        MOCK_METHOD(energy,
-                    uint64_t(int, unsigned int, int), (const, override));
-        MOCK_METHOD(energy_timestamp,
-                    uint64_t(int, unsigned int, int), (const, override));
+        MOCK_METHOD((std::pair<uint64_t, uint64_t>), energy_pair,
+                    (int, unsigned int, int), (const, override));
+        MOCK_METHOD(uint64_t, energy,
+                    (int, unsigned int, int), (const, override));
+        MOCK_METHOD(uint64_t, energy_timestamp,
+                    (int, unsigned int, int), (const, override));
 
-        MOCK_METHOD(frequency_control,
-                    void(int, unsigned int, int, double),
-                    (const, override));
+        MOCK_METHOD(void, frequency_control,
+                    (int, unsigned int, int, double),(const, override));
 };
 
 #endif
