@@ -661,6 +661,10 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/LevelZeroDevicePool.hpp \
                             src/LevelZeroDevicePoolImp.hpp \
                             src/LevelZeroImp.hpp \
+                            src/LevelZeroIOGroup.cpp \
+                            src/LevelZeroIOGroup.hpp \
+                            src/LevelZeroSignal.cpp \
+                            src/LevelZeroSignal.hpp \
                             # end
 
 nvml_source_files = src/NVMLDevicePool.cpp \
