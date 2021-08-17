@@ -38,7 +38,7 @@ EXTRA_DIST += geopmdpy_test/__main__.py \
               # end
 
 GEOPMDPY_TESTS = geopmdpy_test/pytest_links/TestPlatformService.test__read_allowed_invalid \
-                 geopmdpy_test/pytest_links/TestPlatformService.test__check_client \
+                 geopmdpy_test/pytest_links/TestPlatformService.test_check_client \
                  geopmdpy_test/pytest_links/TestPlatformService.test_close_session_invalid \
                  geopmdpy_test/pytest_links/TestPlatformService.test_close_session_read \
                  geopmdpy_test/pytest_links/TestPlatformService.test_close_session_write \
