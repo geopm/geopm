@@ -72,6 +72,8 @@ EXTRA_DIST = .gitignore \
              test/README.md \
              test/build_dasbus.sh \
              test/install_service.sh \
+             test/test_controller.py \
+             test/test_controller.sh \
              test/test_sst_priority.sh \
              test/test_su_give_access.sh \
              test/test_write_session.sh \
