@@ -36,6 +36,8 @@ EXTRA_DIST += geopmdpy_test/__main__.py \
               geopmdpy_test/TestError.py \
               geopmdpy_test/TestPIO.py \
               geopmdpy_test/TestTopo.py \
+              geopmdpy_test/TestRequestQueue.py \
+              geopmdpy_test/TestSession.py \
               # end
 
 GEOPMDPY_TESTS = geopmdpy_test/pytest_links/TestPlatformService.test__read_allowed_invalid \
@@ -94,6 +96,21 @@ GEOPMDPY_TESTS = geopmdpy_test/pytest_links/TestPlatformService.test__read_allow
                  geopmdpy_test/pytest_links/TestAccess.test_write_default_controls \
                  geopmdpy_test/pytest_links/TestAccess.test_write_group_signals \
                  geopmdpy_test/pytest_links/TestAccess.test_write_group_controls \
+                 geopmdpy_test/pytest_links/TestRequestQueue.test_read_request_queue \
+                 geopmdpy_test/pytest_links/TestRequestQueue.test_read_request_queue_invalid \
+                 geopmdpy_test/pytest_links/TestRequestQueue.test_request_queue_invalid \
+                 geopmdpy_test/pytest_links/TestRequestQueue.test_write_request_queue \
+                 geopmdpy_test/pytest_links/TestRequestQueue.test_write_request_queue_invalid \
+                 geopmdpy_test/pytest_links/TestSession.test_check_read_args \
+                 geopmdpy_test/pytest_links/TestSession.test_check_write_args \
+                 geopmdpy_test/pytest_links/TestSession.test_create_session \
+                 geopmdpy_test/pytest_links/TestSession.test_create_session_invalid \
+                 geopmdpy_test/pytest_links/TestSession.test_format_signals \
+                 geopmdpy_test/pytest_links/TestSession.test_format_signals_invalid \
+                 geopmdpy_test/pytest_links/TestSession.test_read_signals \
+                 geopmdpy_test/pytest_links/TestSession.test_run \
+                 geopmdpy_test/pytest_links/TestSession.test_run_read \
+                 geopmdpy_test/pytest_links/TestSession.test_run_write \
                  # end
 
 TESTS = $(GEOPMDPY_TESTS)
