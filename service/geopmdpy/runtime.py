@@ -126,8 +126,7 @@ class Agent:
     """
 
     def get_signals(self):
-
-    """Get list of read requests
+        """Get list of read requests
 
         Returns:
             (list(tuple(str, int, int))): List of signal requests
@@ -166,7 +165,21 @@ class Agent:
 
 
 class Controller:
+    """Class that supports a runtime control agorithm
+
+    """
     self __init__(self, agent, argv, timeout=43200):
+        """Controller constructor
+
+        Args:
+            agent (Agent): Object that conforms to the Agent class
+                           interface.
+
+            argv (list(str)): Arguments for application that is executed.
+
+            timeout (float): Maximum runtime before controller ends.
+
+        """
         self._signals = agent.get_signals()
         self._controls = agent.get_controls()
         self._update_func = lambda agent, signals: agent.update(signals)
@@ -175,6 +188,12 @@ class Controller:
         self._argv = argv
 
     self run(self):
+        """Execute control loop defined by agent
+
+        Returns:
+            list(float): Change in all signals used by the Agent from
+                         begining to end of the application run.
+        """
         pio.save_control()
         try:
             for ss in self._signals:
