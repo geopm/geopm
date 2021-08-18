@@ -60,6 +60,7 @@ EXTRA_DIST = .gitignore \
              geopmdpy/dbus_xml.py \
              geopmdpy/error.py \
              geopmdpy/pio.py \
+             geopmdpy/runtime.py \
              geopmdpy/service.py \
              geopmdpy/session.py \
              geopmdpy/topo.py \
