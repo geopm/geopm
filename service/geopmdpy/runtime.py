@@ -35,6 +35,7 @@
 
 """
 
+import math
 import time
 import subprocess
 from . import pio
@@ -186,12 +187,16 @@ class Controller:
             timeout (float): Maximum runtime before controller ends.
 
         """
+        self._agent = agent
         self._signals = agent.get_signals()
         self._controls = agent.get_controls()
-        self._update_func = lambda agent, signals: agent.update(signals)
         self._update_period = agent.get_period()
         self._num_update = math.ceil(timeout / self._update_period)
         self._argv = argv
+
+    def read_all_signals(self):
+        return [pio.sample(signal_idx)
+                for signal_idx in range(len(self._signals))]
 
     def run(self):
         """Execute control loop defined by agent
@@ -207,20 +212,19 @@ class Controller:
             for cc in self._controls:
                 pio.push_control(*cc)
             pio.read_batch()
-            signals_begin = pio.sample()
-            pid = subprocess.Popen(self._argv, shell=True)
+            signals_begin = self.read_all_signals()
+            pid = subprocess.Popen(self._argv)
             for loop_idx in TimedLoop(self._num_update, self._update_period):
                 if pid.poll() is not None:
                     break
                 pio.read_batch()
-                signals = [pio.read_signal(signal_idx)
-                           for signal_idx in range(len(self._signals))]
-                controls = self._update_func(signals)
+                signals = self.read_all_signals()
+                controls = self._agent.update(signals)
                 for control_idx in range(len(self._controls)):
                     pio.adjust(control_idx, control[control_idx])
                 pio.write_batch()
             pio.read_batch()
-            signals_end = pio.sample()
+            signals_end = self.read_all_signals()
             result = [ee - bb for bb, ee in zip(signals_begin, signals_end)]
         finally:
             pio.restore_control()
