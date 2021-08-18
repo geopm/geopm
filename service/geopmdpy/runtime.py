@@ -168,7 +168,7 @@ class Controller:
     """Class that supports a runtime control agorithm
 
     """
-    self __init__(self, agent, argv, timeout=43200):
+    def __init__(self, agent, argv, timeout=43200):
         """Controller constructor
 
         Args:
@@ -187,7 +187,7 @@ class Controller:
         self._num_update = math.ceil(timeout / self._update_period)
         self._argv = argv
 
-    self run(self):
+    def run(self):
         """Execute control loop defined by agent
 
         Returns:
