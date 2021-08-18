@@ -44,7 +44,7 @@ from dasbus.connection import SystemMessageBus
 from dasbus.error import DBusError
 from . import topo
 from . import pio
-
+from . import runtime
 
 class Session:
     """Object responsible for creating a GEOPM service session
