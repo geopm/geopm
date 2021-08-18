@@ -55,8 +55,8 @@ class Session:
 
     The Session object depends on the RequestQueue object to parse the
     input request buffer from the user.  The Session object also
-    depends on the TimedLoop object when executing a periodic read
-    session.
+    depends on the runtime.TimedLoop object when executing a periodic
+    read session.
 
     """
 
@@ -158,7 +158,7 @@ class Session:
         num_period = 0
         if period != 0:
             num_period = math.ceil(duration / period)
-        for sample_idx in TimedLoop(num_period, period):
+        for sample_idx in runtime.TimedLoop(num_period, period):
             signals = self.read_signals(requests)
             line = self.format_signals(signals, requests.get_formats())
             out_stream.write(line)
@@ -259,86 +259,6 @@ class Session:
             requests = ReadRequestQueue(request_stream, self._geopm_proxy)
             self.check_read_args(run_time, period)
             self.run_read(requests, run_time, period, out_stream)
-
-
-class TimedLoop:
-    """Object that can be iterated over to run a timed loop
-
-    Use in a for loop to execute a fixed number of timed delays.  The
-    overhead time for executing what is inside of the loop is
-    accounted for.  Calls to time.sleep() are made to delay until the
-    targeted end time for each iteration.
-
-    Example:
-
-        >>> from time import time
-        >>> time_0 = time()
-        >>> for index in TimedLoop(10, 0.1):
-        ...     print(f'{index}: {time() - time_0}')
-        ...
-        0: 0.0008680820465087891
-        1: 0.10126090049743652
-        2: 0.20174455642700195
-        3: 0.30123186111450195
-        4: 0.4010961055755615
-        5: 0.5020360946655273
-        6: 0.6011238098144531
-        7: 0.7011349201202393
-        8: 0.8020164966583252
-        9: 0.9015650749206543
-        10: 1.0021190643310547
-
-    """
-
-    def __init__(self, num_period, period):
-        """Constructor for timed loop object
-
-        The number of loops executed is one greater than the number of
-        time intervals requested, and that the first iteration is not
-        delayed.  The total amount of time spanned by the loop is the
-        product of the two input parameters.
-
-        Args:
-
-            num_period (int): Number of time periods spanned by the
-                              loop.
-
-            period (float): Target interval for the loop execution in
-                            units of seconds.
-
-        """
-
-        self._period = period
-        # Add one to ensure:
-        #     total_time == num_loop * period
-        # because we do not delay the start iteration
-        self._num_loop = num_period + 1
-
-    def __iter__(self):
-        """Set up a timed loop
-
-        Iteration method for timed loop.  This iterator can be used in
-        a for statement to execute the loop periodically.
-
-        """
-        self._loop_idx = 0
-        self._target_time = time.time()
-        return self
-
-    def __next__(self):
-        """Sleep until next targeted time for loop and update counter
-
-        """
-        result = self._loop_idx
-        if self._loop_idx == self._num_loop:
-            raise StopIteration
-        if self._loop_idx != 0:
-            sleep_time = self._target_time - time.time()
-            if sleep_time > 0:
-                time.sleep(sleep_time)
-        self._target_time += self._period
-        self._loop_idx += 1
-        return result
 
 
 class RequestQueue:
