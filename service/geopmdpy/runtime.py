@@ -37,6 +37,7 @@
 
 import time
 import subprocess
+from . import pio
 
 class TimedLoop:
     """Object that can be iterated over to run a timed loop
@@ -129,7 +130,9 @@ class Agent:
         """Get list of read requests
 
         Returns:
-            (list(tuple(str, int, int))): List of signal requests
+            list((str, int, int)): List of request tuples. Each
+                                   request comprises a signal name,
+                                   domain type, and domain index.
 
         """
         raise NotImplementedError('Agent is an abstract base class')
@@ -138,13 +141,16 @@ class Agent:
         """Get list of control requests
 
         Returns:
-            (list(tuple(str, int, int))): List of control requests
+            list((str, int, int)): List of request tuples. Each
+                                   request comprises a control name,
+                                   domain type, and domain index.
 
         """
         raise NotImplementedError('Agent is an abstract base class')
 
     def update(self, signals):
         """Called periodically by the Controller
+
         Args:
             signals (list(float)): Recently read signal values
 
