@@ -136,7 +136,7 @@ class Session:
         Only one read of the requests is made if the period is zero.
         If the period is non-zero then the requested signals are read
         periodically.  The first read is immediate, and then a delay
-        of period seconds is waited until the next sample is made.
+        of period seconds elapses until the next sample is made.
         These periodic reads are executed and printed until the
         duration of time specified has been met or exceeded.
 
@@ -378,8 +378,10 @@ class ReadRequestQueue(RequestQueue):
                 domain_type = topo.domain_type(words[1])
                 domain_idx = int(words[2])
             except (RuntimeError, ValueError):
-                raise RuntimeError('Unable to convert values into a read request: {}'.format(line))
+                raise RuntimeError('Unable to convert values into a read request: "{}"'.format(line))
             requests.append((signal_name, domain_type, domain_idx))
+        if len(requests) == 0:
+            raise RuntimeError('Empty request stream.')
         return requests
 
     def query_formats(self, signal_names, geopm_proxy):
@@ -465,7 +467,7 @@ class WriteRequestQueue(RequestQueue):
                 index, and setting value.
 
         Raises:
-            RuntimeError: Line from stream does not split into three
+            RuntimeError: Line from stream does not split into four
                           words and is also not a comment or empty
                           line.
 
@@ -474,12 +476,17 @@ class WriteRequestQueue(RequestQueue):
         for line in self.iterate_stream(request_stream):
             words = line.split()
             if len(words) != 4:
-                raise RuntimeError('Invalid command for writing: "{}"'.format(line))
-            control_name = words[0]
-            domain_type = topo.domain_type(words[1])
-            domain_idx = int(words[2])
-            setting = float(words[3])
+                raise RuntimeError('Write request must be four words: "{}"'.format(line))
+            try:
+                control_name = words[0]
+                domain_type = topo.domain_type(words[1])
+                domain_idx = int(words[2])
+                setting = float(words[3])
+            except (RuntimeError, ValueError):
+                raise RuntimeError('Unable to convert values into a write request: "{}"'.format(line))
             requests.append((control_name, domain_type, domain_idx, setting))
+        if len(requests) == 0:
+            raise RuntimeError('Empty request stream.')
         return requests
 
 
