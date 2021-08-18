@@ -36,6 +36,7 @@
 """
 
 import time
+import subprocess
 
 class TimedLoop:
     """Object that can be iterated over to run a timed loop
@@ -114,4 +115,37 @@ class TimedLoop:
                 time.sleep(sleep_time)
         self._target_time += self._period
         self._loop_idx += 1
+        return result
+
+
+class Controller:
+    self __init__(self, agent, argv, timeout=43200):
+        self._signals = agent.signals()
+        self._controls = agent.controls()
+        self._update_func = lambda agent, signals: agent.update(signals)
+        self._update_period = agent.update_period()
+        self._num_update = math.ceil(timeout / self._update_period)
+        self._argv = argv
+
+    self run(self):
+        for ss in self._signals:
+            pio.push_signal(*ss)
+        for cc in self._controls:
+            pio.push_control(*cc)
+        pio.read_batch()
+        signals_begin = pio.sample()
+        pid = subprocess.Popen(self._argv, shell=True)
+        for loop_idx in TimedLoop(self._num_update, self._update_period):
+            if pid.poll() is not None:
+                break
+            pio.read_batch()
+            signals = [pio.read_signal(signal_idx)
+                       for signal_idx in range(len(self._signals))]
+            controls = self._update_func(signals)
+            for control_idx in range(len(self._controls)):
+                pio.adjust(control_idx, control[control_idx])
+            pio.write_batch()
+        pio.read_batch()
+        signals_end = pio.sample()
+        result = [ee - bb for bb, ee in zip(signals_begin, signals_end)]
         return result
