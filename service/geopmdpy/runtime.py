@@ -40,6 +40,7 @@ import time
 import subprocess
 from . import pio
 
+
 class TimedLoop:
     """Object that can be iterated over to run a timed loop
 
@@ -119,6 +120,7 @@ class TimedLoop:
         self._loop_idx += 1
         return result
 
+
 class Agent:
     """Base class that documents the interfaces required by an agent
 
@@ -170,6 +172,15 @@ class Agent:
         """
         raise NotImplementedError('Agent is an abstract base class')
 
+    def get_report(self):
+        """Summary of all data collected by calls to update()
+
+        Returns:
+            str: Human readable report
+
+        """
+        raise NotImplementedError('Agent is an abstract base class')
+
 
 class Controller:
     """Class that supports a runtime control agorithm
@@ -180,11 +191,11 @@ class Controller:
 
         Args:
             agent (Agent): Object that conforms to the Agent class
-                           interface.
+                           interface
 
-            argv (list(str)): Arguments for application that is executed.
+            argv (list(str)): Arguments for application that is executed
 
-            timeout (float): Maximum runtime before controller ends.
+            timeout (float): Maximum runtime before controller ends
 
         """
         self._agent = agent
@@ -195,15 +206,23 @@ class Controller:
         self._argv = argv
 
     def read_all_signals(self):
+        """Sample for all signals pushed with pio
+
+        Returns:
+            list(float): Sampled values for each signal
+
+        """
         return [pio.sample(signal_idx)
                 for signal_idx in range(len(self._signals))]
 
     def run(self):
         """Execute control loop defined by agent
 
+        Interfaces with PlatformIO directly through the geopmdpy.pio module.
+
         Returns:
-            list(float): Change in all signals used by the Agent from
-                         begining to end of the application run.
+            str: Human readable report created by agent
+
         """
         pio.save_control()
         try:
@@ -211,8 +230,6 @@ class Controller:
                 pio.push_signal(*ss)
             for cc in self._controls:
                 pio.push_control(*cc)
-            pio.read_batch()
-            signals_begin = self.read_all_signals()
             pid = subprocess.Popen(self._argv)
             for loop_idx in TimedLoop(self._num_update, self._update_period):
                 if pid.poll() is not None:
@@ -223,9 +240,6 @@ class Controller:
                 for control_idx in range(len(self._controls)):
                     pio.adjust(control_idx, control[control_idx])
                 pio.write_batch()
-            pio.read_batch()
-            signals_end = self.read_all_signals()
-            result = [ee - bb for bb, ee in zip(signals_begin, signals_end)]
         finally:
             pio.restore_control()
-        return result
+        return self._agent.get_report()
