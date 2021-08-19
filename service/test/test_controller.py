@@ -37,6 +37,12 @@ import geopmdpy.topo
 
 
 class LocalAgent(geopmdpy.runtime.Agent):
+    """Simple example that uses the geopmdpy.runtime module
+
+    Runs a command while executing a five millisecond control loop. On each
+    control loop step the agent prints outtime and instructions retired.
+
+    """
     def __init__(self):
         self._loop_idx = 0
 
@@ -66,10 +72,24 @@ class LocalAgent(geopmdpy.runtime.Agent):
 
 
 def main():
+    """Run the LocalAgent
+
+    """
+    err = 0
+    help_msg = f"""\
+Usage: {sys.argv[0]} COMMAND
+
+{LocalAgent.__doc__}
+    """
+    if len(sys.argv) < 2:
+        err = -1
+    if err != 0 or sys.argv[1] == '--help':
+        sys.stderr.print(help_msg)
+        return err
     agent = LocalAgent()
     controller = geopmdpy.runtime.Controller(agent, sys.argv[1:])
-    controller.run()
-    print(agent.get_report())
+    print(controller.run())
+    return err
 
 if __name__ == '__main__':
-    main()
+    exit(main())
