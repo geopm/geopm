@@ -332,13 +332,13 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              scripts/outlier/outlier_detection.py \
              scripts/outlier/theta_nodelist_broken.txt \
              service/docs/geninfo.sh \
+             service/docs/Makefile.mk \
              service/docs/source/admin.rst \
              service/docs/source/analysis.rst \
              service/docs/source/build.rst \
              service/docs/source/client.rst \
              service/docs/source/conf.py \
              service/docs/source/controls_SKX.rst \
-             service/docs/source/images \
              service/docs/source/index.rst \
              service/docs/source/info.rst \
              service/docs/source/readme.rst \
@@ -359,13 +359,20 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              service/geopmdpy/dbus_xml.py \
              service/geopmdpy/error.py \
              service/geopmdpy/pio.py \
+             service/geopmdpy/runtime.py \
              service/geopmdpy/service.py \
              service/geopmdpy/session.py \
              service/geopmdpy/topo.py \
              service/geopmdpy/version.py.in \
-             service/geopmdpy_test/__main__.py \
+             service/geopmdpy_test/geopmdpy_test.sh \
+             service/geopmdpy_test/Makefile.mk \
+             service/geopmdpy_test/TestAccess.py \
              service/geopmdpy_test/TestDBusXML.py \
+             service/geopmdpy_test/TestError.py \
+             service/geopmdpy_test/TestPIO.py \
              service/geopmdpy_test/TestPlatformService.py \
+             service/geopmdpy_test/TestTopo.py \
+             service/geopmdpy_test/__main__.py \
              service/autogen.sh \
              service/setup.py \
              service/.gitignore \
@@ -373,11 +380,13 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              service/README.rst \
              service/test/build_dasbus.sh \
              service/test/install_service.sh \
+             service/test/test_controller.py \
              service/test/test_sst_priority.sh \
              service/test/test_su_give_access.sh \
              service/test/test_write_session.sh \
              service/configure.ac \
              service/io.github.geopm.conf \
+             service/io.github.geopm.xml \
              service/src/DBusServer.hpp \
              service/m4 \
              specs/geopm.spec \
@@ -388,7 +397,7 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              specs/geopm-intel-mvapich2-toss.spec \
              specs/geopm-ohpc.spec \
              specs/geopm-ohpc.spec.in \
-			 specs/geopm-pyyaml-req.patch \
+             specs/geopm-pyyaml-req.patch \
              specs/geopm-theta.spec \
              specs/geopm-theta.spec.in \
              travis_ci.sh \
