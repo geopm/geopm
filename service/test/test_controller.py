@@ -40,7 +40,7 @@ class LocalAgent(geopmdpy.runtime.Agent):
     """Simple example that uses the geopmdpy.runtime module
 
     Runs a command while executing a five millisecond control loop. On each
-    control loop step the agent prints outtime and instructions retired.
+    control loop step the agent prints out time and instructions retired.
 
     """
     def __init__(self):
