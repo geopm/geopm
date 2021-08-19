@@ -76,15 +76,11 @@ def main():
 
     """
     err = 0
-    help_msg = f"""\
-Usage: {sys.argv[0]} COMMAND
-
-{LocalAgent.__doc__}
-    """
+    help_msg = f'Usage: {sys.argv[0]} COMMAND\n\n{LocalAgent.__doc__}\n'
     if len(sys.argv) < 2:
         err = -1
     if err != 0 or sys.argv[1] == '--help':
-        sys.stderr.print(help_msg)
+        sys.stderr.write(help_msg)
         return err
     agent = LocalAgent()
     controller = geopmdpy.runtime.Controller(agent, sys.argv[1:])
