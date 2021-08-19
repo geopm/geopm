@@ -206,6 +206,8 @@ class Controller:
         self._agent = agent
         self._signals = agent.get_signals()
         self._controls = agent.get_controls()
+        self._signals_idx = [pio.push_signal(*ss) for ss in self._signals]
+        self._controls_idx = [pio.push_control(*cc) for cc in self._controls]
         self._update_period = agent.get_period()
         self._num_update = None
         if timeout != 0:
@@ -220,7 +222,7 @@ class Controller:
 
         """
         return [pio.sample(signal_idx)
-                for signal_idx in range(len(self._signals))]
+                for signal_idx in self._signals_idx]
 
     def run(self):
         """Execute control loop defined by agent
@@ -233,10 +235,6 @@ class Controller:
         """
         pio.save_control()
         try:
-            for ss in self._signals:
-                pio.push_signal(*ss)
-            for cc in self._controls:
-                pio.push_control(*cc)
             pid = subprocess.Popen(self._argv)
             for loop_idx in TimedLoop(self._update_period, self._num_update):
                 if pid.poll() is not None:
@@ -244,7 +242,7 @@ class Controller:
                 pio.read_batch()
                 signals = self.read_all_signals()
                 controls = self._agent.update(signals)
-                for control_idx in range(len(self._controls)):
+                for control_idx in self._controls_idx:
                     pio.adjust(control_idx, control[control_idx])
                 pio.write_batch()
         finally:
