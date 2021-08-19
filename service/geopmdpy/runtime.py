@@ -53,7 +53,7 @@ class TimedLoop:
 
         >>> from time import time
         >>> time_0 = time()
-        >>> for index in TimedLoop(10, 0.1):
+        >>> for index in TimedLoop(0.1, 10):
         ...     print(f'{index}: {time() - time_0}')
         ...
         0: 0.0008680820465087891
@@ -70,7 +70,7 @@ class TimedLoop:
 
     """
 
-    def __init__(self, num_period, period):
+    def __init__(self, period, num_period=None):
         """Constructor for timed loop object
 
         The number of loops executed is one greater than the number of
@@ -78,21 +78,24 @@ class TimedLoop:
         delayed.  The total amount of time spanned by the loop is the
         product of the two input parameters.
 
+        To create an infinte loop, specify num_period is None.
+
         Args:
+            period (float): Target interval for the loop execution in
+                            units of seconds.
 
             num_period (int): Number of time periods spanned by the
                               loop.
 
-            period (float): Target interval for the loop execution in
-                            units of seconds.
-
         """
 
         self._period = period
+        self._num_loop = num_period
         # Add one to ensure:
         #     total_time == num_loop * period
         # because we do not delay the start iteration
-        self._num_loop = num_period + 1
+        if self._num_loop is not None:
+            self._num_loop += 1
 
     def __iter__(self):
         """Set up a timed loop
@@ -186,7 +189,7 @@ class Controller:
     """Class that supports a runtime control agorithm
 
     """
-    def __init__(self, agent, argv, timeout=43200):
+    def __init__(self, agent, argv, timeout=0):
         """Controller constructor
 
         Args:
@@ -195,14 +198,18 @@ class Controller:
 
             argv (list(str)): Arguments for application that is executed
 
-            timeout (float): Maximum runtime before controller ends
+            timeout (float): Maximum runtime before controller ends, the agent
+                             will run indefinitely (until killed by another
+                             process) if timeout == 0.
 
         """
         self._agent = agent
         self._signals = agent.get_signals()
         self._controls = agent.get_controls()
         self._update_period = agent.get_period()
-        self._num_update = math.ceil(timeout / self._update_period)
+        self._num_update = None
+        if timeout != 0:
+            self._num_update = math.ceil(timeout / self._update_period)
         self._argv = argv
 
     def read_all_signals(self):
@@ -231,7 +238,7 @@ class Controller:
             for cc in self._controls:
                 pio.push_control(*cc)
             pid = subprocess.Popen(self._argv)
-            for loop_idx in TimedLoop(self._num_update, self._update_period):
+            for loop_idx in TimedLoop(self._update_period, self._num_update):
                 if pid.poll() is not None:
                     break
                 pio.read_batch()
