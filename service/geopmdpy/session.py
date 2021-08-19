@@ -46,6 +46,7 @@ from . import topo
 from . import pio
 from . import runtime
 
+
 class Session:
     """Object responsible for creating a GEOPM service session
 
