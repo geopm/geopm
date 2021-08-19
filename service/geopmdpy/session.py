@@ -159,7 +159,7 @@ class Session:
         num_period = 0
         if period != 0:
             num_period = math.ceil(duration / period)
-        for sample_idx in runtime.TimedLoop(num_period, period):
+        for sample_idx in runtime.TimedLoop(period, num_period):
             signals = self.read_signals(requests)
             line = self.format_signals(signals, requests.get_formats())
             out_stream.write(line)
