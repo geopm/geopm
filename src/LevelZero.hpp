@@ -59,7 +59,7 @@ namespace geopm
 
             /// @brief Number of accelerators on the platform.
             /// @param [in] domain The GEOPM domain type being targeted
-            /// @return Number of LevelZero accelerators.
+            /// @return Number of LevelZero accelerators or accelerator chips.
             virtual int num_accelerator(int domain) const = 0;
 
             /// @brief Get the number of LevelZero frequency domains of a certain type
@@ -168,8 +168,6 @@ namespace geopm
             /// @param [in] setting Target frequency in MHz.
             virtual void frequency_control(unsigned int l0_device_idx, int l0_domain,
                                            int l0_domain_idx, double setting) const = 0;
-
-        private:
     };
 
     const LevelZero &levelzero();

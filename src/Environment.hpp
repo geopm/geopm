@@ -74,7 +74,6 @@ namespace geopm
             virtual std::string override_config_path(void) const = 0;
             virtual std::string record_filter(void) const = 0;
             virtual bool do_record_filter(void) const = 0;
-            virtual bool do_sysman(void) const = 0;
             virtual bool do_debug_attach_all(void) const = 0;
             virtual bool do_debug_attach_one(void) const = 0;
             virtual int debug_attach_process(void) const = 0;
@@ -120,7 +119,6 @@ namespace geopm
                                                std::map<std::string, std::string> &name_value_map);
             std::string record_filter(void) const override;
             bool do_record_filter(void) const override;
-            bool do_sysman(void) const override;
             bool do_debug_attach_all(void) const override;
             bool do_debug_attach_one(void) const override;
             int debug_attach_process(void) const override;

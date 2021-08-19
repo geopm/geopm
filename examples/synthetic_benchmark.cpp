@@ -357,7 +357,7 @@ void synthetic_benchmark_main(int nranks, int rank)
             }
         }
 
-        x = x + do_work(i);
+        x += do_work(i);
         geopm_tprof_post();
     }
     GET_TIME(tEnd);

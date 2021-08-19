@@ -42,7 +42,6 @@
 #include <string>
 #include <vector>
 #include <set>
-#include <iostream>
 
 #include "contrib/json11/json11.hpp"
 
@@ -151,8 +150,7 @@ namespace geopm
                 "GEOPM_FREQUENCY_MAP",
                 "GEOPM_MAX_FAN_OUT",
                 "GEOPM_OMPT_DISABLE",
-                "GEOPM_RECORD_FILTER",
-                "ZES_ENABLE_SYSMAN"};
+                "GEOPM_RECORD_FILTER"};
     }
 
     void EnvironmentImp::parse_environment()
@@ -427,22 +425,4 @@ namespace geopm
     {
         return is_set("GEOPM_RECORD_FILTER");
     }
-
-    bool EnvironmentImp::do_sysman(void) const
-    {
-        bool result = false;
-        if (is_set("ZES_ENABLE_SYSMAN")) {
-            try {
-                if(std::stoi(lookup("ZES_ENABLE_SYSMAN")) == 1) {
-                    result = true;
-                }
-            }
-            catch (const std::exception &) {
-
-            }
-        }
-        return result;
-    }
-
-
 }

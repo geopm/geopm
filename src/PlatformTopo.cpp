@@ -421,7 +421,7 @@ namespace geopm
             {"package_nic", GEOPM_DOMAIN_PACKAGE_NIC},
             {"board_accelerator", GEOPM_DOMAIN_BOARD_ACCELERATOR},
             {"package_accelerator", GEOPM_DOMAIN_PACKAGE_ACCELERATOR},
-            {"board_accelerator_chip", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP}
+            {"board_accelerator_chip", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP},
         };
     }
 

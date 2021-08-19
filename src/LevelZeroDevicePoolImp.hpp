@@ -49,43 +49,43 @@ namespace geopm
             LevelZeroDevicePoolImp();
             LevelZeroDevicePoolImp(const LevelZero &levelzero);
             virtual ~LevelZeroDevicePoolImp() = default;
-            virtual int num_accelerator(int domain_type) const override;
+            int num_accelerator(int domain_type) const override;
 
-            virtual double frequency_status(int domain, unsigned int domain_idx,
-                                            int l0_domain) const override;
-            virtual double frequency_min(int domain, unsigned int domain_idx,
-                                         int l0_domain) const override;
-            virtual double frequency_max(int domain, unsigned int domain_idx,
-                                         int l0_domain) const override;
-            virtual std::pair<uint64_t, uint64_t> active_time_pair(int domain,
-                                                                   unsigned int device_idx,
-                                                                   int l0_domain) const override;
-            virtual uint64_t active_time(int domain, unsigned int device_idx,
-                                         int l0_domain) const override;
-            virtual uint64_t active_time_timestamp(int domain, unsigned int device_idx,
-                                                   int l0_domain) const override;
-            virtual int32_t power_limit_tdp(int domain, unsigned int domain_idx,
-                                            int l0_domain) const override;
-            virtual int32_t power_limit_min(int domain, unsigned int domain_idx,
-                                            int l0_domain) const override;
-            virtual int32_t power_limit_max(int domain, unsigned int domain_idx,
-                                            int l0_domain) const override;
-            virtual std::pair<uint64_t, uint64_t> energy_pair(int domain,
-                                                              unsigned int domain_idx,
-                                                              int l0_domain) const override;
-            virtual uint64_t energy(int domain, unsigned int domain_idx, int l0_domain) const override;
-            virtual uint64_t energy_timestamp(int domain, unsigned int domain_idx,
-                                              int l0_domain) const override;
+            double frequency_status(int domain, unsigned int domain_idx,
+                                    int l0_domain) const override;
+            double frequency_min(int domain, unsigned int domain_idx,
+                                 int l0_domain) const override;
+            double frequency_max(int domain, unsigned int domain_idx,
+                                 int l0_domain) const override;
+            std::pair<uint64_t, uint64_t> active_time_pair(int domain,
+                                                           unsigned int device_idx,
+                                                           int l0_domain) const override;
+            uint64_t active_time(int domain, unsigned int device_idx,
+                                 int l0_domain) const override;
+            uint64_t active_time_timestamp(int domain, unsigned int device_idx,
+                                           int l0_domain) const override;
+            int32_t power_limit_tdp(int domain, unsigned int domain_idx,
+                                    int l0_domain) const override;
+            int32_t power_limit_min(int domain, unsigned int domain_idx,
+                                    int l0_domain) const override;
+            int32_t power_limit_max(int domain, unsigned int domain_idx,
+                                    int l0_domain) const override;
+            std::pair<uint64_t, uint64_t> energy_pair(int domain,
+                                                      unsigned int domain_idx,
+                                                      int l0_domain) const override;
+            uint64_t energy(int domain, unsigned int domain_idx, int l0_domain) const override;
+            uint64_t energy_timestamp(int domain, unsigned int domain_idx,
+                                      int l0_domain) const override;
 
-            virtual void frequency_control(int domain, unsigned int domain_idx,
+            void frequency_control(int domain, unsigned int domain_idx,
                                            int l0_domain, double setting) const override;
 
         private:
             const LevelZero &m_levelzero;
 
-            virtual void check_idx_range(int domain, unsigned int domain_idx) const;
-            virtual void check_domain_exists(int size, const char *func, int line) const;
-            virtual std::pair<unsigned int, unsigned int> subdevice_device_conversion(unsigned int idx) const;
+            void check_idx_range(int domain, unsigned int domain_idx) const;
+            void check_domain_exists(int size, const char *func, int line) const;
+            std::pair<unsigned int, unsigned int> subdevice_device_conversion(unsigned int idx) const;
     };
 }
 #endif
