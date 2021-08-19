@@ -31,26 +31,45 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+import sys
 import geopmdpy.runtime
 import geopmdpy.topo
 
+
 class LocalAgent(geopmdpy.runtime.Agent):
+    def __init__(self):
+        self._loop_idx = 0
+
     def get_signals(self):
-        return [("INSTRUCTIONS_RETIRED", geopmdpy.topo.DOMAIN_PACKAGE, 0)]
+        return [("TIME", geopmdpy.topo.DOMAIN_BOARD, 0),
+                ("INSTRUCTIONS_RETIRED", geopmdpy.topo.DOMAIN_PACKAGE, 0)]
 
     def get_controls(self):
         return []
 
     def update(self, signals):
+        if self._loop_idx == 0:
+            self._signals_begin = list(signals)
+        self._signals_last = list(signals)
         print(signals)
+        self._loop_idx += 1
         return []
 
     def get_period(self):
         return 0.005
 
+    def get_report(self):
+        delta = [ee - bb for (bb, ee) in
+                 zip(self._signals_begin,
+                     self._signals_end)]
+        return f'\n\nTotal time: {delta[0]}\nTotal instructions: {delta[1]}'
 
-if __name__ == '__main__':
-    import sys
+
+def main():
     agent = LocalAgent()
     controller = geopmdpy.runtime.Controller(agent, sys.argv[1:])
     controller.run()
+    print(controller.report())
+
+if __name__ == '__main__':
+    main()
