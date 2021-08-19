@@ -56,7 +56,9 @@ namespace geopm
                                             num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP);
 
         if (num_accelerator == 0) {
+#ifdef GEOPM_DEBUG
             std::cerr << "Warning: <geopm> LevelZeroAcceleratorTopo: No levelZero devices detected.\n";
+#endif
         }
         else {
             m_cpu_affinity_ideal.resize(num_accelerator);
@@ -82,7 +84,9 @@ namespace geopm
         }
 
         if (num_accelerator_chip == 0) {
+#ifdef GEOPM_DEBUG
             std::cerr << "Warning: <geopm> LevelZeroAcceleratorTopo: No levelZero subdevices detected.\n";
+#endif
         }
         else {
             m_cpu_affinity_ideal_chip.resize(num_accelerator_chip);

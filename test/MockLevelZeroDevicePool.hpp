@@ -40,35 +40,36 @@
 class MockLevelZeroDevicePool : public geopm::LevelZeroDevicePool
 {
     public:
-        MOCK_CONST_METHOD1(num_accelerator,
-                           int(int));
+        MOCK_METHOD(num_accelerator,
+                    int(int), (const, override));
 
-        MOCK_CONST_METHOD3(frequency_status,
-                           double(int, unsigned int, int));
-        MOCK_CONST_METHOD3(frequency_min,
-                           double(int, unsigned int, int));
-        MOCK_CONST_METHOD3(frequency_max,
-                           double(int, unsigned int, int));
+        MOCK_METHOD(frequency_status,
+                    double(int, unsigned int, int), (const, override));
+        MOCK_METHOD(frequency_min,
+                    double(int, unsigned int, int), (const, override));
+        MOCK_METHOD(frequency_max,
+                    double(int, unsigned int, int), (const, override));
 
-        MOCK_CONST_METHOD3(active_time,
-                           uint64_t(int, unsigned int, int));
-        MOCK_CONST_METHOD3(active_time_timestamp,
-                           uint64_t(int, unsigned int, int));
+        MOCK_METHOD(active_time,
+                    uint64_t(int, unsigned int, int), (const, override));
+        MOCK_METHOD(active_time_timestamp,
+                    uint64_t(int, unsigned int, int), (const, override));
 
-        MOCK_CONST_METHOD3(power_limit_tdp,
-                           int32_t(int, unsigned int, int));
-        MOCK_CONST_METHOD3(power_limit_min,
-                           int32_t(int, unsigned int, int));
-        MOCK_CONST_METHOD3(power_limit_max,
-                           int32_t(int, unsigned int, int));
+        MOCK_METHOD(power_limit_tdp,
+                    int32_t(int, unsigned int, int), (const, override));
+        MOCK_METHOD(power_limit_min,
+                    int32_t(int, unsigned int, int), (const, override));
+        MOCK_METHOD(power_limit_max,
+                    int32_t(int, unsigned int, int), (const, override));
 
-        MOCK_CONST_METHOD3(energy,
-                           uint64_t(int, unsigned int, int));
-        MOCK_CONST_METHOD3(energy_timestamp,
-                           uint64_t(int, unsigned int, int));
+        MOCK_METHOD(energy,
+                    uint64_t(int, unsigned int, int), (const, override));
+        MOCK_METHOD(energy_timestamp,
+                    uint64_t(int, unsigned int, int), (const, override));
 
-        MOCK_CONST_METHOD4(frequency_control,
-                           void(int, unsigned int, int, double));
+        MOCK_METHOD(frequency_control,
+                    void(int, unsigned int, int, double),
+                    (const, override));
 };
 
 #endif

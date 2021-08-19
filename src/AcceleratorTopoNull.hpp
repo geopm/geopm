@@ -46,10 +46,10 @@ namespace geopm
         public:
             AcceleratorTopoNull() = default ;
             virtual ~AcceleratorTopoNull() = default;
-            virtual int num_accelerator(void) const override;
-            virtual int num_accelerator(int domain_type) const override;
-            virtual std::set<int> cpu_affinity_ideal(int accel_idx) const override;
-            virtual std::set<int> cpu_affinity_ideal(int domain_type, int accel_idx) const override;
+            int num_accelerator(void) const override;
+            int num_accelerator(int domain_type) const override;
+            std::set<int> cpu_affinity_ideal(int accel_idx) const override;
+            std::set<int> cpu_affinity_ideal(int domain_type, int accel_idx) const override;
     };
 }
 #endif

@@ -40,44 +40,44 @@
 class MockLevelZero : public geopm::LevelZero
 {
     public:
-        MOCK_CONST_METHOD0(num_accelerator,
-                           int(void));
-        MOCK_CONST_METHOD1(num_accelerator,
-                           int(int));
+        MOCK_METHOD(int, num_accelerator, (), (const, override));
 
-        MOCK_CONST_METHOD2(frequency_domain_count,
-                           int(unsigned int, int));
-        MOCK_CONST_METHOD3(frequency_status,
-                           double(unsigned int, int, int));
-        MOCK_CONST_METHOD3(frequency_min,
-                           double(unsigned int, int, int));
-        MOCK_CONST_METHOD3(frequency_max,
-                           double(unsigned int, int, int));
+        MOCK_METHOD(int, num_accelerator, (int), (const, override));
 
-        MOCK_CONST_METHOD2(engine_domain_count,
-                           int(unsigned int, int));
-        MOCK_CONST_METHOD3(active_time_pair,
-                           std::pair<uint64_t, uint64_t>(unsigned int, int, int));
-        MOCK_CONST_METHOD3(active_time,
-                           uint64_t(unsigned int, int, int));
-        MOCK_CONST_METHOD3(active_time_timestamp,
-                           uint64_t(unsigned int, int, int));
+        MOCK_METHOD(int, frequency_domain_count, (unsigned int, int),
+                    (const, override));
+        MOCK_METHOD(double, frequency_status, (unsigned int, int, int),
+                    (const, override));
+        MOCK_METHOD(double, frequency_min, (unsigned int, int, int),
+                    (const, override));
+        MOCK_METHOD(double, frequency_max, (unsigned int, int, int),
+                    (const, override));
 
-        MOCK_CONST_METHOD1(energy_pair,
-                           std::pair<uint64_t, uint64_t>(unsigned int));
-        MOCK_CONST_METHOD1(energy,
-                           uint64_t(unsigned int));
-        MOCK_CONST_METHOD1(energy_timestamp,
-                           uint64_t(unsigned int));
-        MOCK_CONST_METHOD1(power_limit_tdp,
-                           int32_t(unsigned int));
-        MOCK_CONST_METHOD1(power_limit_min,
-                           int32_t(unsigned int));
-        MOCK_CONST_METHOD1(power_limit_max,
-                           int32_t(unsigned int));
+        MOCK_METHOD(int, engine_domain_count, (unsigned int, int),
+                    (const, override));
+        MOCK_METHOD((std::pair<uint64_t, uint64_t>), active_time_pair,
+                    (unsigned int, int, int),
+                    (const, override));
+        MOCK_METHOD(uint64_t, active_time,
+                    (unsigned int, int, int), (const, override));
+        MOCK_METHOD(uint64_t, active_time_timestamp,
+                    (unsigned int, int, int), (const, override));
 
-        MOCK_CONST_METHOD4(frequency_control,
-                           void(unsigned int, int, int, double));
+        MOCK_METHOD((std::pair<uint64_t, uint64_t>), energy_pair,
+                    (unsigned int), (const, override));
+        MOCK_METHOD(uint64_t, energy,
+                    (unsigned int), (const, override));
+        MOCK_METHOD(uint64_t, energy_timestamp,
+                    (unsigned int), (const, override));
+        MOCK_METHOD(int32_t, power_limit_tdp,
+                    (unsigned int), (const, override));
+        MOCK_METHOD(int32_t, power_limit_min,
+                    (unsigned int), (const, override));
+        MOCK_METHOD(int32_t, power_limit_max,
+                    (unsigned int), (const, override));
+
+        MOCK_METHOD(void, frequency_control,
+                    (unsigned int, int, int, double), (const, override));
 };
 
 #endif
