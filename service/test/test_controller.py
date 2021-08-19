@@ -61,7 +61,7 @@ class LocalAgent(geopmdpy.runtime.Agent):
     def get_report(self):
         delta = [ee - bb for (bb, ee) in
                  zip(self._signals_begin,
-                     self._signals_end)]
+                     self._signals_last)]
         return f'\n\nTotal time: {delta[0]}\nTotal instructions: {delta[1]}'
 
 
@@ -69,7 +69,7 @@ def main():
     agent = LocalAgent()
     controller = geopmdpy.runtime.Controller(agent, sys.argv[1:])
     controller.run()
-    print(controller.report())
+    print(agent.get_report())
 
 if __name__ == '__main__':
     main()
