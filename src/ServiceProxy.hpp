@@ -41,11 +41,10 @@ struct sd_bus;
 struct sd_bus_message;
 struct geopm_request_s;
 
-    .
 namespace geopm
 {
     /// @brief Information pertaining to a particular signal supported
-    /// by an PlatformIO
+    ///        by PlatformIO
     struct signal_info_s {
         /// @brief Name of the signal
         std::string name;
@@ -68,7 +67,7 @@ namespace geopm
     };
 
     /// @brief Information pertaining to a particular control
-    ///        supported by an PlatformIO
+    ///        supported by PlatformIO
     struct control_info_s {
         /// @brief Name of the control
         std::string name;
@@ -129,7 +128,7 @@ namespace geopm
             /// @param signal_config [in] Vector of signal requests
             ///                      that will be supported by the
             ///                      batch server that is created.
-            /// @param signal_config [in] Vector of control requests
+            /// @param control_config [in] Vector of control requests
             ///                      that will be supported by the
             ///                      batch server that is created.
             /// @param server_pid [out] Linux PID of the server
