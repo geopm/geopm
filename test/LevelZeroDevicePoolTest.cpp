@@ -143,17 +143,34 @@ TEST_F(LevelZeroDevicePoolTest, domain_error)
     int dev_idx = 0;
     int domain_count = 0; //zero to cause a throw
     EXPECT_CALL(*m_levelzero, frequency_domain_count(dev_idx, MockLevelZero::M_DOMAIN_COMPUTE)).WillRepeatedly(Return(domain_count));
+    EXPECT_CALL(*m_levelzero, engine_domain_count(dev_idx, MockLevelZero::M_DOMAIN_COMPUTE)).WillRepeatedly(Return(domain_count));
     LevelZeroDevicePoolImp m_device_pool(*m_levelzero);
 
     //Frequency
     GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.frequency_status(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, dev_idx, MockLevelZero::M_DOMAIN_COMPUTE), GEOPM_ERROR_INVALID, "Not supported on this hardware");
     GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.frequency_min(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, dev_idx, MockLevelZero::M_DOMAIN_COMPUTE), GEOPM_ERROR_INVALID, "Not supported on this hardware");
     GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.frequency_max(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, dev_idx, MockLevelZero::M_DOMAIN_COMPUTE), GEOPM_ERROR_INVALID, "Not supported on this hardware");
-    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.energy(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "domain "+std::to_string(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP)+" is not supported for the power domain");
+
+    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.frequency_status(GEOPM_DOMAIN_BOARD_ACCELERATOR, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "domain "+std::to_string(GEOPM_DOMAIN_BOARD_ACCELERATOR)+" is not supported for the frequency domain");
+    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.frequency_min(GEOPM_DOMAIN_BOARD_ACCELERATOR, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "domain "+std::to_string(GEOPM_DOMAIN_BOARD_ACCELERATOR)+" is not supported for the frequency domain");
+    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.frequency_max(GEOPM_DOMAIN_BOARD_ACCELERATOR, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "domain "+std::to_string(GEOPM_DOMAIN_BOARD_ACCELERATOR)+" is not supported for the frequency domain");
 
     //Utilization
+    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.active_time(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, dev_idx, MockLevelZero::M_DOMAIN_COMPUTE), GEOPM_ERROR_INVALID, "Not supported on this hardware");
+    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.active_time_timestamp(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, dev_idx, MockLevelZero::M_DOMAIN_COMPUTE), GEOPM_ERROR_INVALID, "Not supported on this hardware");
+    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.active_time_pair(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, dev_idx, MockLevelZero::M_DOMAIN_COMPUTE), GEOPM_ERROR_INVALID, "Not supported on this hardware");
 
-    //Power
+    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.active_time(GEOPM_DOMAIN_BOARD_ACCELERATOR, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "domain "+std::to_string(GEOPM_DOMAIN_BOARD_ACCELERATOR)+" is not supported for the engine domain");
+    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.active_time_timestamp(GEOPM_DOMAIN_BOARD_ACCELERATOR, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "domain "+std::to_string(GEOPM_DOMAIN_BOARD_ACCELERATOR)+" is not supported for the engine domain");
+    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.active_time_pair(GEOPM_DOMAIN_BOARD_ACCELERATOR, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "domain "+std::to_string(GEOPM_DOMAIN_BOARD_ACCELERATOR)+" is not supported for the engine domain");
+
+    //Energy & Power
+    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.energy(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "domain "+std::to_string(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP)+" is not supported for the power domain");
+    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.energy_timestamp(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "domain "+std::to_string(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP)+" is not supported for the power domain");
+    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.energy_pair(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "domain "+std::to_string(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP)+" is not supported for the power domain");
+    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.power_limit_tdp(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "domain "+std::to_string(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP)+" is not supported for the power domain");
+    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.power_limit_min(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "domain "+std::to_string(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP)+" is not supported for the power domain");
+    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.power_limit_max(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "domain "+std::to_string(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP)+" is not supported for the power domain");
 }
 
 TEST_F(LevelZeroDevicePoolTest, subdevice_range_check)

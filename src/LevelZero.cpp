@@ -364,7 +364,6 @@ namespace geopm
             }
 #endif
         }
-
     }
 
     int LevelZeroImp::num_accelerator() const
