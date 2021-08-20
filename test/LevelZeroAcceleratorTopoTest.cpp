@@ -136,8 +136,8 @@ TEST_F(LevelZeroAcceleratorTopoTest, four_forty_config)
     }
     for (int accel_idx = 0; accel_idx < num_accelerator_subdevice; ++accel_idx) {
         ASSERT_THAT(topo_sub.cpu_affinity_ideal(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, accel_idx), cpus_allowed_set_subdevice[accel_idx]);
-}
     }
+}
 
 //Test case: Different GPU/CPU count, with 8 GPUs and 28 cores per socket.
 TEST_F(LevelZeroAcceleratorTopoTest, eight_fiftysix_affinitization_config)
@@ -189,6 +189,10 @@ TEST_F(LevelZeroAcceleratorTopoTest, uneven_affinitization_config)
     cpus_allowed_set[1] = {6 ,7 ,8 ,9 ,10,11,19};
     cpus_allowed_set[2] = {12,13,14,15,16,17};
 
+    for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
+        ASSERT_THAT(topo.cpu_affinity_ideal(accel_idx), cpus_allowed_set[accel_idx]);
+    }
+
     std::set<int> cpus_allowed_set_subdevice[num_accelerator_subdevice];
     cpus_allowed_set_subdevice[0] = {0, 1, 2, 18};
     cpus_allowed_set_subdevice[1] = {3, 4, 5, 19};
@@ -197,14 +201,9 @@ TEST_F(LevelZeroAcceleratorTopoTest, uneven_affinitization_config)
     cpus_allowed_set_subdevice[4] = {12,13,14};
     cpus_allowed_set_subdevice[5] = {14,16,17};
 
-    for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
-        ASSERT_THAT(topo.cpu_affinity_ideal(accel_idx), cpus_allowed_set[accel_idx]);
+    for (int sub_idx = 0; sub_idx < num_accelerator; ++sub_idx) {
+        ASSERT_THAT(topo.cpu_affinity_ideal(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx), cpus_allowed_set_subdevice[sub_idx]);
     }
-    for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
-        ASSERT_THAT(topo.cpu_affinity_ideal(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, accel_idx), cpus_allowed_set_subdevice[accel_idx]);
-    }
-
-    // TODO: Add subdevice check
 }
 
 //Test case: High Core count, theoretical system to test large CPU SETS.

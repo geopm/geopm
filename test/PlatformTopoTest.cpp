@@ -47,7 +47,6 @@
 #include "LevelZero.hpp"
 #include "geopm_test.hpp"
 
-//using geopm::AcceleratorTopo;
 using geopm::PlatformTopo;
 using geopm::PlatformTopoImp;
 using geopm::Exception;
