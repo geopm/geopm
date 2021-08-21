@@ -604,6 +604,9 @@ namespace geopm
         //       ACTIVE_TIMESTAMP signals are called at the same domain
         //       level, instead call the paired version to guarantee we get the
         //       value with the correct timestamp
+        for (auto &sv : m_signal_pushed) {
+            std::dynamic_pointer_cast<LevelZeroSignal>(sv)->read_batch_element();
+        }
     }
 
     // Write all controls that have been pushed and adjusted
