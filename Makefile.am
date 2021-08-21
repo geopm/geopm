@@ -728,7 +728,11 @@ else
     EXTRA_DIST += $(nvml_source_files)
 endif
 
-systemd_source_files = src/ServiceIOGroup.cpp \
+systemd_source_files = src/SDBus.cpp \
+                       src/SDBus.hpp \
+                       src/SDBusMessage.cpp \
+                       src/SDBusMessage.hpp \
+                       src/ServiceIOGroup.cpp \
                        src/ServiceIOGroup.hpp \
                        src/ServiceProxy.cpp \
                        src/ServiceProxy.hpp \
