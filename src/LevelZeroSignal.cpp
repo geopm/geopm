@@ -58,13 +58,18 @@ namespace geopm
         }
     }
 
+    void LevelZeroSignal::read_batch_element(void)
+    {
+        m_value = read();
+    }
+
     double LevelZeroSignal::sample(void)
     {
         if (!m_is_batch_ready) {
             throw Exception("setup_batch() must be called before sample().",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
-        return read();
+        return m_value;
     }
 
     double LevelZeroSignal::read(void) const
