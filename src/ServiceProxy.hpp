@@ -37,12 +37,13 @@
 #include <memory>
 #include <vector>
 
-struct sd_bus;
-struct sd_bus_message;
 struct geopm_request_s;
 
 namespace geopm
 {
+    class SDBus;
+    class SDBusMessage;
+
     /// @brief Information pertaining to a particular signal supported
     ///        by PlatformIO
     struct signal_info_s {
@@ -175,7 +176,7 @@ namespace geopm
     {
         public:
             ServiceProxyImp();
-            virtual ~ServiceProxyImp();
+            virtual ~ServiceProxyImp() = default;
             void platform_get_user_access(std::vector<std::string> &signal_names,
                                           std::vector<std::string> &control_names) override;
             std::vector<signal_info_s> platform_get_signal_info(const std::vector<std::string> &signal_names) override;
@@ -195,9 +196,9 @@ namespace geopm
                                         int domain_idx,
                                         double setting) override;
         private:
-            sd_bus_message *call_method(const std::string &method_name);
-            std::vector<std::string> read_string_array(sd_bus_message *bus_message);
-            struct sd_bus *m_bus;
+            void check_message(const std::shared_ptr<SDBusMessage> bus_message);
+            std::vector<std::string> read_string_array(std::shared_ptr<SDBusMessage> bus_message);
+            std::shared_ptr<SDBus> m_bus;
     };
 }
 
