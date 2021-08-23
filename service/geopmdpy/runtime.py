@@ -85,10 +85,17 @@ class TimedLoop:
                             units of seconds.
 
             num_period (int): Number of time periods spanned by the
-                              loop.
+                              loop + 1.
 
         """
 
+        if period <= 0.0:
+            raise RuntimeError('Specified period is invalid.  Must be > 0.')
+        if num_period is not None:
+            if num_period <= 0:
+                raise RuntimeError('Specified num_period is invalid.  Must be > 0.')
+            if not isinstance(num_period, int):
+                raise ValueError('num_period must be a whole number.')
         self._period = period
         self._num_loop = num_period
         # Add one to ensure:
@@ -131,6 +138,8 @@ class Agent:
     define the control algorithm.
 
     """
+    def __init__(self):
+        raise NotImplementedError('Agent is an abstract base class')
 
     def get_signals(self):
         """Get list of read requests
@@ -238,13 +247,16 @@ class Controller:
             pid = subprocess.Popen(self._argv)
             for loop_idx in TimedLoop(self._update_period, self._num_update):
                 if pid.poll() is not None:
+                    # Nice process has died error, and RC
                     break
                 pio.read_batch()
                 signals = self.read_all_signals()
                 controls = self._agent.update(signals)
                 for control_idx in self._controls_idx:
-                    pio.adjust(control_idx, control[control_idx])
+                    pio.adjust(control_idx, controls[control_idx])
                 pio.write_batch()
+        except:
+            raise
         finally:
             pio.restore_control()
         return self._agent.get_report()

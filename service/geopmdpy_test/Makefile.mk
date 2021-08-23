@@ -111,6 +111,12 @@ GEOPMDPY_TESTS = geopmdpy_test/pytest_links/TestPlatformService.test__read_allow
                  geopmdpy_test/pytest_links/TestSession.test_run \
                  geopmdpy_test/pytest_links/TestSession.test_run_read \
                  geopmdpy_test/pytest_links/TestSession.test_run_write \
+                 geopmdpy_test/pytest_links/TestRuntime.test_agent \
+                 geopmdpy_test/pytest_links/TestRuntime.test_controller_construction \
+                 geopmdpy_test/pytest_links/TestRuntime.test_controller_run \
+                 geopmdpy_test/pytest_links/TestRuntime.test_timed_loop_fixed \
+                 geopmdpy_test/pytest_links/TestRuntime.test_timed_loop_infinite \
+                 geopmdpy_test/pytest_links/TestRuntime.test_timed_loop_invalid \
                  # end
 
 TESTS = $(GEOPMDPY_TESTS)
