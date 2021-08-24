@@ -58,9 +58,9 @@ namespace geopm
         }
     }
 
-    void LevelZeroSignal::read_batch_element(void)
+    void LevelZeroSignal::set_sample(double value)
     {
-        m_value = read();
+        m_value = value;
     }
 
     double LevelZeroSignal::sample(void)

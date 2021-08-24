@@ -127,6 +127,7 @@ namespace geopm
             std::map<std::string, control_info> m_control_available;
             std::vector<std::shared_ptr<Signal> > m_signal_pushed;
             std::vector<std::shared_ptr<control_s> > m_control_pushed;
+            const std::set<std::string> m_special_signal_set;
     };
 }
 #endif

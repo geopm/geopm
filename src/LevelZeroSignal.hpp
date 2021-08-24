@@ -58,7 +58,7 @@ namespace geopm
             void setup_batch(void) override;
             double sample(void) override;
             double read(void) const override;
-            void read_batch_element(void);
+            void set_sample(double value);
         private:
             std::function<double (unsigned int)> m_devpool_func;
             unsigned int m_domain_idx;

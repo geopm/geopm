@@ -314,6 +314,8 @@ namespace geopm
 
             m_devices.at(device_idx).subdevice.
                       engine_domain.resize(geopm::LevelZero::M_DOMAIN_SIZE);
+            m_devices.at(device_idx).subdevice.
+                      cached_timestamp.resize(geopm::LevelZero::M_DOMAIN_SIZE);
             for (auto handle : engine_domain) {
                 zes_engine_properties_t property;
                 ze_result = zesEngineGetProperties(handle, &property);
@@ -332,6 +334,8 @@ namespace geopm
                     if (property.type == ZES_ENGINE_GROUP_ALL) {
                         m_devices.at(device_idx).subdevice.engine_domain.at(
                                  geopm::LevelZero::M_DOMAIN_ALL).push_back(handle);
+                        m_devices.at(device_idx).subdevice.cached_timestamp.at(
+                                 geopm::LevelZero::M_DOMAIN_ALL).push_back(0);
                     }
 
                     //TODO: Some devices may not support ZES_ENGINE_GROUP_COMPUTE/COPY_ALL.
@@ -341,10 +345,14 @@ namespace geopm
                     else if (property.type == ZES_ENGINE_GROUP_COMPUTE_ALL) {
                         m_devices.at(device_idx).subdevice.engine_domain.at(
                                      geopm::LevelZero::M_DOMAIN_COMPUTE).push_back(handle);
+                        m_devices.at(device_idx).subdevice.cached_timestamp.at(
+                                 geopm::LevelZero::M_DOMAIN_COMPUTE).push_back(0);
                     }
                     else if (property.type == ZES_ENGINE_GROUP_COPY_ALL) {
                         m_devices.at(device_idx).subdevice.engine_domain.at(
                                      geopm::LevelZero::M_DOMAIN_MEMORY).push_back(handle);
+                        m_devices.at(device_idx).subdevice.cached_timestamp.at(
+                                 geopm::LevelZero::M_DOMAIN_MEMORY).push_back(0);
                     }
                 }
             }
@@ -472,7 +480,8 @@ namespace geopm
     uint64_t LevelZeroImp::active_time_timestamp(unsigned int l0_device_idx,
                                                  int l0_domain, int l0_domain_idx) const
     {
-        return active_time_pair(l0_device_idx, l0_domain, l0_domain_idx).second;
+        return m_devices.at(l0_device_idx).subdevice.cached_timestamp.at(
+                        l0_domain).at(l0_domain_idx);
     }
 
     uint64_t LevelZeroImp::active_time(unsigned int l0_device_idx,
@@ -497,15 +506,17 @@ namespace geopm
         check_ze_result(ze_result, GEOPM_ERROR_RUNTIME, "LevelZero::"
                         + std::string(__func__) +
                         ": Sysman failed to get engine group activity.", __LINE__);
-        result_active += stats.activeTime;
-        result_timestamp += stats.timestamp;
+        result_active = stats.activeTime;
+        result_timestamp = stats.timestamp;
+        m_devices.at(l0_device_idx).subdevice.cached_timestamp.at(
+                        l0_domain).at(l0_domain_idx) = result_timestamp;
 
         return {result_active, result_timestamp};
     }
 
     uint64_t LevelZeroImp::energy_timestamp(unsigned int l0_device_idx) const
     {
-        return energy_pair(l0_device_idx).second;
+        return m_devices.at(l0_device_idx).cached_energy_timestamp;
     }
 
     uint64_t LevelZeroImp::energy(unsigned int l0_device_idx) const
@@ -527,6 +538,8 @@ namespace geopm
                         ": Sysman failed to get energy_counter values", __LINE__);
         result_energy += energy_counter.energy;
         result_timestamp += energy_counter.timestamp;
+        m_devices.at(l0_device_idx).cached_energy_timestamp = result_timestamp;
+
         return {result_energy, result_timestamp};
     }
 
