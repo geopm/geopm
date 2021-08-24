@@ -98,6 +98,7 @@ namespace geopm
                 // These are enum geopm_levelzero_domain_e indexed, then subdevice indexed
                 std::vector<std::vector<zes_freq_handle_t> > freq_domain;
                 std::vector<std::vector<zes_engine_handle_t> > engine_domain;
+                mutable std::vector<std::vector<uint64_t> > cached_timestamp;
             };
 
             struct m_device_info_s {
@@ -114,6 +115,7 @@ namespace geopm
 
                 // Device/Package domains
                 zes_pwr_handle_t power_domain;
+                mutable uint64_t cached_energy_timestamp;
             };
 
 

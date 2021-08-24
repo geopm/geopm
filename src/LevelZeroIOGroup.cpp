@@ -39,6 +39,7 @@
 #include <numeric>
 #include <sched.h>
 #include <errno.h>
+#include <string.h>
 
 #include "IOGroup.hpp"
 #include "Signal.hpp"
@@ -132,7 +133,8 @@ namespace geopm
                                   1 / 1e6
                                   }},
                               {"LEVELZERO::ENERGY_TIMESTAMP", {
-                                  "Accelerator energy timestamp in seconds",
+                                  "Accelerator energy timestamp in seconds"
+                                  "\nValue cached on LEVELZERO::ENERGY read",
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::average,
                                   string_format_double,
@@ -252,7 +254,8 @@ namespace geopm
                                   1 / 1e6
                                   }},
                               {"LEVELZERO::ACTIVE_TIME_TIMESTAMP", {
-                                  "GPU active time reading timestamp",
+                                  "GPU active time reading timestamp"
+                                  "\nValue cached on LEVELZERO::ACTIVE_TIME read",
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
                                   Agg::average,
                                   string_format_double,
@@ -281,8 +284,9 @@ namespace geopm
                                   },
                                   1 / 1e6
                                   }},
-                              {"LEVELZERO::ACTIVE_TIME_TIMESTAMP_COMPUTE", {
-                                  "GPU Compute engine active time reading timestamp",
+                              {"LEVELZERO::ACTIVE_TIME_COMPUTE_TIMESTAMP", {
+                                  "GPU Compute engine active time reading timestamp"
+                                  "\nValue cached on LEVELZERO::ACTIVE_TIME_COMPUTE read",
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
                                   Agg::average,
                                   string_format_double,
@@ -311,8 +315,9 @@ namespace geopm
                                   },
                                   1 / 1e6
                                   }},
-                              {"LEVELZERO::ACTIVE_TIME_TIMESTAMP_COPY", {
-                                  "GPU Copy engine active time timestamp",
+                              {"LEVELZERO::ACTIVE_TIME_COPY_TIMESTAMP", {
+                                  "GPU Copy engine active time timestamp"
+                                  "\nValue cached on LEVELZERO::ACTIVE_TIME_COPY read",
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
                                   Agg::average,
                                   string_format_double,
@@ -335,6 +340,10 @@ namespace geopm
                                     string_format_double
                                     }}
                               })
+        , m_special_signal_set({"LEVELZERO::ENERGY",
+                                "LEVELZERO::ACTIVE_TIME",
+                                "LEVELZERO::ACTIVE_TIME_COMPUTE",
+                                "LEVELZERO::ACTIVE_TIME_COPY"})
     {
         // populate signals for each domain
         for (auto &sv : m_signal_available) {
@@ -398,13 +407,13 @@ namespace geopm
                         "n  Level Zero logical engines may may to the same hardware"
                         "\n  resulting in a reduced signal range (i.e. not 0 to 1)",
                     "LEVELZERO::ACTIVE_TIME_COMPUTE",
-                    "LEVELZERO::ACTIVE_TIME_TIMESTAMP_COMPUTE"},
+                    "LEVELZERO::ACTIVE_TIME_COMPUTE_TIMESTAMP"},
             {"LEVELZERO::UTILIZATION_COPY",
                     "Copy engine utilization"
                         "n  Level Zero logical engines may may to the same hardware"
                         "\n  resulting in a reduced signal range (i.e. not 0 to 1)",
                     "LEVELZERO::ACTIVE_TIME_COPY",
-                    "LEVELZERO::ACTIVE_TIME_TIMESTAMP_COPY"},
+                    "LEVELZERO::ACTIVE_TIME_COPY_TIMESTAMP"},
         };
         for (const auto &ds : derivative_signals) {
             auto read_it = m_signal_available.find(ds.base_name);
@@ -531,6 +540,32 @@ namespace geopm
 
         int result = -1;
         bool is_found = false;
+
+        // Guarantee base signal was pushed before any timestamp signals
+        if (string_ends_with(signal_name, "_TIMESTAMP")) {
+            std::string base_signal_name =
+                (std::string)signal_name.substr(
+                0, signal_name.length() - strlen("_TIMESTAMP"));
+
+            std::shared_ptr<Signal> base_signal = m_signal_available.at(
+                base_signal_name).m_signals.at(domain_idx);
+
+            // check if base signal was pushed
+            for (size_t ii = 0; !is_found && ii < m_signal_pushed.size(); ++ii) {
+                if (m_signal_pushed[ii] == base_signal) {
+                    result = ii;
+                    is_found = true;
+                }
+            }
+            // if not, push the base signal
+            if (!is_found) {
+                push_signal(base_signal_name, domain_type, domain_idx);
+            }
+        }
+
+        // Reset is_found for next search
+        is_found = false;
+
         std::shared_ptr<Signal> signal = m_signal_available.at(
                                          signal_name).m_signals.at(domain_idx);
 
@@ -546,6 +581,10 @@ namespace geopm
             result = m_signal_pushed.size();
             m_signal_pushed.push_back(signal);
             signal->setup_batch();
+
+            if (m_special_signal_set.find(signal_name) != m_special_signal_set.end()) {
+                push_signal(signal_name + "_TIMESTAMP", domain_type, domain_idx);
+            }
         }
 
         return result;
@@ -600,12 +639,9 @@ namespace geopm
     void LevelZeroIOGroup::read_batch(void)
     {
         m_is_batch_read = true;
-        // TODO: if ENERGY and ENERGY_TIMESTAMP or ACTIVE_TIME and
-        //       ACTIVE_TIMESTAMP signals are called at the same domain
-        //       level, instead call the paired version to guarantee we get the
-        //       value with the correct timestamp
-        for (auto &sv : m_signal_pushed) {
-            std::dynamic_pointer_cast<LevelZeroSignal>(sv)->read_batch_element();
+        for (size_t ii = 0; ii < m_signal_pushed.size(); ++ii) {
+            std::dynamic_pointer_cast<LevelZeroSignal>(m_signal_pushed[ii])->
+                set_sample(m_signal_pushed[ii]->read());
         }
     }
 
@@ -679,6 +715,11 @@ namespace geopm
             throw Exception("LevelZeroIOGroup::" + std::string(__func__) +
                             ": domain_idx out of range.", GEOPM_ERROR_INVALID,
                             __FILE__, __LINE__);
+        }
+        if (string_ends_with(signal_name, "_TIMESTAMP")) {
+            throw Exception("LevelZeroIOGroup::" + std::string(__func__) +
+                            ": TIMESTAMP Signals are for batch use only.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         double result = NAN;

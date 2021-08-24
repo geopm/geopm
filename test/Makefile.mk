@@ -298,6 +298,8 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
               test/gtest_links/LevelZeroIOGroupTest.write_control \
               test/gtest_links/LevelZeroIOGroupTest.push_control_adjust_write_batch \
               test/gtest_links/LevelZeroIOGroupTest.read_signal_and_batch \
+              test/gtest_links/LevelZeroIOGroupTest.read_timestamp_batch \
+              test/gtest_links/LevelZeroIOGroupTest.read_timestamp_batch_reverse \
               test/gtest_links/MSRIOGroupTest.adjust \
               test/gtest_links/MSRIOGroupTest.control_error \
               test/gtest_links/MSRIOGroupTest.cpuid \
