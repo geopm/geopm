@@ -79,6 +79,7 @@ int main(int argc, char **argv)
     int output_num;
     double policy_vals[GEOPMAGENT_DOUBLE_LENGTH] = {0};
     char error_str[GEOPMAGENT_STRING_LENGTH] = {0};
+    char agent_str[GEOPMAGENT_STRING_LENGTH] = {0};
     char policy_vals_str[GEOPMAGENT_STRING_LENGTH] = {0};
     char output_str[NAME_MAX * GEOPMAGENT_DOUBLE_LENGTH];
     const char *agent_ptr = NULL;
@@ -87,7 +88,8 @@ int main(int argc, char **argv)
     try {
         std::string agent = parser.get_value("agent");
         if (agent != "") {
-            agent_ptr = agent.c_str();
+            strncpy(agent_str, agent.c_str(), GEOPMAGENT_STRING_LENGTH - 1);
+            agent_ptr = agent_str;
         }
         std::string policy = parser.get_value("policy");
         if (parser.get_value("policy") != "") {
