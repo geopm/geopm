@@ -66,65 +66,12 @@ class PassthroughAgent(Agent):
     def get_report(self):
         return self._report_data
 
-class TestRuntime(unittest.TestCase):
+class TestController(unittest.TestCase):
     def setUp(self):
-        self._test_name = 'TestRuntime'
+        self._test_name = 'TestController'
 
     def tearDown(self):
         pass
-
-    def test_timed_loop_invalid(self):
-        err_msg = 'Specified period is invalid.  Must be > 0.'
-        with self.assertRaisesRegex(RuntimeError, err_msg):
-            TimedLoop(0, 0)
-
-        err_msg = 'Specified num_period is invalid.  Must be > 0.'
-        with self.assertRaisesRegex(RuntimeError, err_msg):
-            TimedLoop(1, 0)
-
-        err_msg = 'num_period must be a whole number.'
-        with self.assertRaisesRegex(ValueError, err_msg):
-            TimedLoop(1.5, 1.5)
-
-        err_msg = "'<=' not supported between instances of 'str' and 'float'"
-        with self.assertRaisesRegex(TypeError, err_msg):
-            TimedLoop('asd', 'dsa')
-
-    def test_timed_loop_infinite(self):
-        period = 0.01
-        tl = TimedLoop(period) # Infinte loop
-
-        self.assertEqual(period, tl._period)
-        self.assertIsNone(tl._num_loop)
-
-        t1 = None
-        for index in tl:
-            if t1 is not None:
-                elapsed = time() - t1
-                self.assertAlmostEqual(period, elapsed, delta = 0.001)
-            t1 = time()
-            if index == 50: # Break after 50 iterations
-                break
-
-    def test_timed_loop_fixed(self):
-        period = 0.01
-        num_period = 10
-        tl = TimedLoop(period, num_period)
-
-        self.assertEqual(period, tl._period)
-        self.assertEqual(num_period + 1, tl._num_loop)
-
-        it = iter(tl)
-        for ii in range(num_period + 1):
-            # Start checking at 2 since 0 is really setup and the 1st iteration is not delayed
-            if ii == 2:
-                elapsed = time() - t1
-                self.assertAlmostEqual(period, elapsed, delta = 0.001)
-            t1 = time()
-            self.assertEqual(ii, next(it))
-
-        with self.assertRaisesRegex(StopIteration, ''):
-            next(it)
 
     def test_agent(self):
         err_msg = 'Agent is an abstract base class'
