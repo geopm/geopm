@@ -148,6 +148,19 @@ class TestRuntime(unittest.TestCase):
             ca.get_report()
 
     # TODO Negative controller tests
+    def test_controller_construction_invalid(self):
+        err_msg = 'agent must be a subclass of Agent.'
+        with self.assertRaisesRegex(ValueError, err_msg):
+            con = Controller([1,2,3], 'abc')
+
+        signals = [('power', 1, 2), ('energy', 3, 4)]
+        controls = [('frequency', 5, 6), ('power', 7, 8)]
+        period = 42
+        pa = PassthroughAgent(signals, controls, period)
+        argv = 12
+        with mock.patch('geopmdpy.pio.push_signal', side_effect = itertools.count()) as pps, \
+             mock.patch('geopmdpy.pio.push_control', side_effect = itertools.count()) as ppc:
+            con = Controller(pa, argv, 0.1)
 
     def test_controller_construction(self):
         signals = [('power', 1, 2), ('energy', 3, 4)]
