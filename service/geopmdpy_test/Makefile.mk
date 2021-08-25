@@ -38,6 +38,8 @@ EXTRA_DIST += geopmdpy_test/__main__.py \
               geopmdpy_test/TestTopo.py \
               geopmdpy_test/TestRequestQueue.py \
               geopmdpy_test/TestSession.py \
+              geopmdpy_test/TestTimedLoop.py \
+              geopmdpy_test/TestController.py \
               # end
 
 GEOPMDPY_TESTS = geopmdpy_test/pytest_links/TestPlatformService.test__read_allowed_invalid \
@@ -111,12 +113,12 @@ GEOPMDPY_TESTS = geopmdpy_test/pytest_links/TestPlatformService.test__read_allow
                  geopmdpy_test/pytest_links/TestSession.test_run \
                  geopmdpy_test/pytest_links/TestSession.test_run_read \
                  geopmdpy_test/pytest_links/TestSession.test_run_write \
-                 geopmdpy_test/pytest_links/TestRuntime.test_agent \
-                 geopmdpy_test/pytest_links/TestRuntime.test_controller_construction \
-                 geopmdpy_test/pytest_links/TestRuntime.test_controller_run \
-                 geopmdpy_test/pytest_links/TestRuntime.test_timed_loop_fixed \
-                 geopmdpy_test/pytest_links/TestRuntime.test_timed_loop_infinite \
-                 geopmdpy_test/pytest_links/TestRuntime.test_timed_loop_invalid \
+                 geopmdpy_test/pytest_links/TestController.test_agent \
+                 geopmdpy_test/pytest_links/TestController.test_controller_construction \
+                 geopmdpy_test/pytest_links/TestController.test_controller_run \
+                 geopmdpy_test/pytest_links/TestTimedLoop.test_timed_loop_fixed \
+                 geopmdpy_test/pytest_links/TestTimedLoop.test_timed_loop_infinite \
+                 geopmdpy_test/pytest_links/TestTimedLoop.test_timed_loop_invalid \
                  # end
 
 TESTS = $(GEOPMDPY_TESTS)
