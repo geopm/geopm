@@ -84,7 +84,8 @@ namespace geopm
     {
         if (size == 0) {
             throw Exception("LevelZeroDevicePool::" + std::string(func) +
-                            ":Not supported on this hardware",
+                            ": Not supported on this hardware for the specified "
+                            "LevelZero domain",
                             GEOPM_ERROR_INVALID, __FILE__, line);
         }
     }
@@ -166,6 +167,26 @@ namespace geopm
 
         return m_levelzero.frequency_max(dev_subdev_idx_pair.first, l0_domain,
                                          dev_subdev_idx_pair.second);
+    }
+
+    std::pair<double, double> LevelZeroDevicePoolImp::frequency_range(int domain,
+                                                                      unsigned int domain_idx,
+                                                                      int l0_domain) const
+    {
+        if (domain != GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                             ": domain " + std::to_string(domain) +
+                            " is not supported for the frequency domain.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
+        dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
+        check_domain_exists(m_levelzero.frequency_domain_count(
+                                        dev_subdev_idx_pair.first, l0_domain), __func__, __LINE__);
+
+        return m_levelzero.frequency_range(dev_subdev_idx_pair.first, l0_domain,
+                                           dev_subdev_idx_pair.second);
+
     }
 
     std::pair<uint64_t, uint64_t> LevelZeroDevicePoolImp::active_time_pair(int domain,
@@ -315,7 +336,8 @@ namespace geopm
     }
 
     void LevelZeroDevicePoolImp::frequency_control(int domain, unsigned int domain_idx,
-                                                   int l0_domain, double setting) const
+                                                   int l0_domain, double range_min,
+                                                   double range_max) const
     {
         if (domain != GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP) {
             throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
@@ -330,6 +352,7 @@ namespace geopm
                                         __func__, __LINE__);
 
         m_levelzero.frequency_control(dev_subdev_idx_pair.first, l0_domain,
-                                      dev_subdev_idx_pair.second, setting);
+                                      dev_subdev_idx_pair.second, range_min,
+                                      range_max);
     }
 }

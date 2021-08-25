@@ -95,8 +95,7 @@ namespace geopm
             void register_control_alias(const std::string &alias_name,
                                         const std::string &control_name);
 
-            struct control_s
-            {
+            struct control_s {
                 double m_setting;
                 bool m_is_adjusted;
             };
@@ -128,6 +127,9 @@ namespace geopm
             std::vector<std::shared_ptr<Signal> > m_signal_pushed;
             std::vector<std::shared_ptr<control_s> > m_control_pushed;
             const std::set<std::string> m_special_signal_set;
+
+            //GEOPM Domain indexed
+            std::vector<std::pair<double,double> > m_frequency_range;
     };
 }
 #endif

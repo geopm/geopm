@@ -116,7 +116,7 @@ TEST_F(LevelZeroDevicePoolTest, subdevice_conversion_and_function)
         EXPECT_EQ((uint64_t)(value+sub_idx+num_accelerator_subdevice*30), m_device_pool.active_time(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE));
         EXPECT_EQ((uint64_t)(value+sub_idx+num_accelerator_subdevice*40), m_device_pool.active_time_timestamp(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE));
 
-        EXPECT_NO_THROW(m_device_pool.frequency_control(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE, value));
+        EXPECT_NO_THROW(m_device_pool.frequency_control(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE, value, value));
     }
 }
 

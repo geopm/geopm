@@ -166,6 +166,24 @@ TEST_F(LevelZeroIOGroupTest, valid_signals)
     }
 }
 
+
+TEST_F(LevelZeroIOGroupTest, save_restore)
+{
+    const int num_accelerator_subdevice = m_platform_topo->num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP);
+    std::map<int, double> batch_value;
+    LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool);
+
+    std::vector<std::pair<double,double> > mock_freq_range = {{0,1530}, {1000,1320}, {30,420}, {130,135},
+                                                              {20,400}, {53,123}, {1600,1700}, {500,500}};
+
+    for (int sub_idx = 0; sub_idx < num_accelerator_subdevice; ++sub_idx) {
+        EXPECT_CALL(*m_device_pool, frequency_range(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx, geopm::LevelZero::M_DOMAIN_COMPUTE)).WillRepeatedly(Return(mock_freq_range.at(sub_idx)));
+    }
+
+    levelzero_io.save_control();
+    levelzero_io.restore_control();
+}
+
 TEST_F(LevelZeroIOGroupTest, push_control_adjust_write_batch)
 {
     const int num_accelerator_subdevice = m_platform_topo->num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP);
@@ -180,7 +198,7 @@ TEST_F(LevelZeroIOGroupTest, push_control_adjust_write_batch)
         batch_value[(levelzero_io.push_control("FREQUENCY_ACCELERATOR_CONTROL",
                                         GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx))] = mock_freq.at(sub_idx)*1e6;
         EXPECT_CALL(*m_device_pool,
-                    frequency_control(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE, mock_freq.at(sub_idx))).Times(2);
+                    frequency_control(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE, mock_freq.at(sub_idx), mock_freq.at(sub_idx))).Times(2);
     }
 
     for (auto& sv: batch_value) {
@@ -199,7 +217,7 @@ TEST_F(LevelZeroIOGroupTest, write_control)
 
     for (int sub_idx = 0; sub_idx < num_accelerator_subdevice; ++sub_idx) {
         EXPECT_CALL(*m_device_pool,
-                    frequency_control(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE, mock_freq.at(sub_idx))).Times(2);
+                    frequency_control(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE, mock_freq.at(sub_idx), mock_freq.at(sub_idx))).Times(2);
 
         EXPECT_NO_THROW(levelzero_io.write_control("LEVELZERO::FREQUENCY_GPU_CONTROL",
                                               GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx,

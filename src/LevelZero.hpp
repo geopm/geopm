@@ -94,6 +94,17 @@ namespace geopm
             /// @return Accelerator maximum frequency in MHz.
             virtual double frequency_max(unsigned int l0_device_idx, int l0_domain,
                                          int l0_domain_idx) const = 0;
+            /// @brief Get the LevelZero device mininum and maximum frequency
+            ///        control range in MHz
+            /// @param [in] l0_device_idx The index indicating a particular
+            ///        Level Zero accelerator.
+            /// @param [in] l0_domain The LevelZero domain type being targeted
+            /// @param [in] l0_domain_idx The LevelZero index indicating a particular
+            ///        domain of the accelerator.
+            /// @return Accelerator minimum and maximum frequency range in MHz.
+            virtual std::pair<double, double> frequency_range(unsigned int l0_device_idx,
+                                                              int l0_domain,
+                                                              int l0_domain_idx) const = 0;
 
             /// @brief Get the number of LevelZero engine domains
             /// @param [in] l0_domain The LevelZero domain type being targeted
@@ -118,7 +129,8 @@ namespace geopm
             /// @return Accelerator active time in microseconds.
             virtual uint64_t active_time(unsigned int l0_device_idx, int l0_domain,
                                          int l0_domain_idx) const = 0;
-            /// @brief Get the LevelZero device timestamp for the active time value in microseconds
+            /// @brief Get the cachced LevelZero device timestamp for the
+            ///        active time value in microseconds
             /// @param [in] l0_device_idx The index indicating a particular
             ///        Level Zero accelerator.
             /// @param [in] l0_domain The LevelZero domain type being targeted
@@ -155,7 +167,7 @@ namespace geopm
             ///        Level Zero accelerator.
             /// @return Accelerator energy in microjoules.
             virtual uint64_t energy(unsigned int l0_device_idx) const = 0;
-            /// @brief Get the LevelZero device energy timestamp in microseconds
+            /// @brief Get the LevelZero device energy cached timestamp in microseconds
             /// @param [in] l0_device_idx The index indicating a particular
             ///        Level Zero accelerator.
             /// @return Accelerator energy timestamp in microseconds
@@ -165,9 +177,11 @@ namespace geopm
             /// @param [in] l0_device_idx The index indicating a particular
             ///        Level Zero accelerator.
             /// @param [in] domain The domain type being targeted
-            /// @param [in] setting Target frequency in MHz.
+            /// @param [in] range_min Min target frequency in MHz.
+            /// @param [in] range_max Max target frequency in MHz.
             virtual void frequency_control(unsigned int l0_device_idx, int l0_domain,
-                                           int l0_domain_idx, double setting) const = 0;
+                                           int l0_domain_idx, double range_min,
+                                           double range_max) const = 0;
     };
 
     const LevelZero &levelzero();
