@@ -212,6 +212,8 @@ class Controller:
                              process) if timeout == 0.
 
         """
+        if not isinstance(agent, Agent):
+            raise ValueError('agent must be a subclass of Agent.')
         self._agent = agent
         self._signals = agent.get_signals()
         self._controls = agent.get_controls()
