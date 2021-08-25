@@ -40,6 +40,7 @@
 #include <sched.h>
 #include <errno.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "IOGroup.hpp"
 #include "Signal.hpp"
@@ -765,7 +766,7 @@ namespace geopm
             control_name == "FREQUENCY_ACCELERATOR_CONTROL") {
             m_levelzero_device_pool.frequency_control(domain_type, domain_idx,
                                                       geopm::LevelZero::M_DOMAIN_COMPUTE,
-                                                      setting / 1e6);
+                                                      setting / 1e6, setting / 1e6);
         }
         else {
     #ifdef GEOPM_DEBUG
@@ -781,9 +782,22 @@ namespace geopm
     void LevelZeroIOGroup::save_control(void)
     {
         for (int domain_idx = 0;
-             domain_idx < m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR);
+             domain_idx < m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP);
              ++domain_idx) {
-            // TODO: Read ALL LEVELZERO Power Limits, frequency settings, etc
+
+            try {
+                // Currently only the levelzero compute domain control is supported.
+                // As new controls are added they should be included
+                m_frequency_range.push_back(m_levelzero_device_pool.frequency_range(
+                                            GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, domain_idx,
+                                            geopm::LevelZero::M_DOMAIN_COMPUTE));
+            }
+            catch (const geopm::Exception &ex) {
+                throw Exception("LevelZeroIOGroup::" + std::string(__func__) + ": "
+                                + " Failed to fetch frequency control range for "
+                                " BOARD_ACCELERATOR_CHIP domain " + std::to_string(domain_idx),
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
         }
     }
 
@@ -791,10 +805,27 @@ namespace geopm
     // platform settings
     void LevelZeroIOGroup::restore_control(void)
     {
-        /// @todo: Usage of the LEVELZERO API for setting frequency, power, etc
-        ///        requires root privileges.  As such several unit tests will
-        ///        fail when calling restore_control.  Once a non-privileged
-        ///        solution is available this may be used
+        for (int domain_idx = 0;
+             domain_idx < m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP);
+             ++domain_idx) {
+            try {
+                // Currently only the levelzero compute domain control is supported.
+                // As new controls are added they should be included
+                m_levelzero_device_pool.frequency_control(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                        domain_idx, geopm::LevelZero::M_DOMAIN_COMPUTE,
+                                        m_frequency_range.at(domain_idx).first,
+                                        m_frequency_range.at(domain_idx).second);
+            }
+            catch (const geopm::Exception &ex) {
+#ifdef GEOPM_DEBUG
+                std::cerr << "Warning: <geopm> LevelZeroIOGroup: Failed to "
+                             "restore frequency control settings for "
+                             "BOARD_ACCELERATOR_CHIP domain " << std::to_string(domain_idx)
+                             << ".  Exception: " << ex.what()
+                             << std::endl;
+#endif
+            }
+        }
     }
 
     // Hint to Agent about how to aggregate signals from this IOGroup

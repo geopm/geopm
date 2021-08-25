@@ -57,6 +57,9 @@ namespace geopm
                                  int l0_domain) const override;
             double frequency_max(int domain, unsigned int domain_idx,
                                  int l0_domain) const override;
+            std::pair <double, double> frequency_range(int domain,
+                                                       unsigned int domain_idx,
+                                                       int l0_domain) const override;
             std::pair<uint64_t, uint64_t> active_time_pair(int domain,
                                                            unsigned int device_idx,
                                                            int l0_domain) const override;
@@ -78,7 +81,8 @@ namespace geopm
                                       int l0_domain) const override;
 
             void frequency_control(int domain, unsigned int domain_idx,
-                                           int l0_domain, double setting) const override;
+                                   int l0_domain, double range_min,
+                                   double range_max) const override;
 
         private:
             const LevelZero &m_levelzero;

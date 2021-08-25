@@ -52,6 +52,8 @@ class MockLevelZero : public geopm::LevelZero
                     (const, override));
         MOCK_METHOD(double, frequency_max, (unsigned int, int, int),
                     (const, override));
+        MOCK_METHOD((std::pair<double, double>), frequency_range,
+                    (unsigned int, int, int), (const, override));
 
         MOCK_METHOD(int, engine_domain_count, (unsigned int, int),
                     (const, override));
@@ -77,7 +79,7 @@ class MockLevelZero : public geopm::LevelZero
                     (unsigned int), (const, override));
 
         MOCK_METHOD(void, frequency_control,
-                    (unsigned int, int, int, double), (const, override));
+                    (unsigned int, int, int, double, double), (const, override));
 };
 
 #endif

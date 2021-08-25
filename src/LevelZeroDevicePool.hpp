@@ -77,6 +77,9 @@ namespace geopm
             /// @return Accelerator maximum frequency in MHz.
             virtual double frequency_max(int domain, unsigned int domain_idx,
                                          int l0_domain) const = 0;
+            virtual std::pair<double, double> frequency_range(int domain,
+                                                              unsigned int domain_idx,
+                                                              int l0_domain) const = 0;
 
             // UTILIZATION SIGNAL FUNCTIONS
             /// @brief Get the LevelZero device active time and timestamp in microseconds
@@ -160,9 +163,11 @@ namespace geopm
             /// @param [in] domain_idx The GEOPM domain index
             ///             (i.e. accelerator being targeted)
             /// @param [in] l0_domain The LevelZero domain type being targeted
-            /// @param [in] setting Target frequency in MHz.
+            /// @param [in] range_min Min target frequency in MHz.
+            /// @param [in] range_max Max target frequency in MHz.
             virtual void frequency_control(int domain, unsigned int domain_idx,
-                                           int l0_domain, double setting) const = 0;
+                                           int l0_domain, double range_min,
+                                           double range_max) const = 0;
 
         private:
     };

@@ -461,9 +461,6 @@ namespace geopm
                                                               int l0_domain_idx) const
     {
         ze_result_t ze_result;
-        double result_min = 0;
-        double result_max = 0;
-
         zes_freq_handle_t handle = m_devices.at(l0_device_idx).subdevice.freq_domain.at(
                                                                l0_domain).at(l0_domain_idx);
         zes_freq_properties_t property;
@@ -471,10 +468,23 @@ namespace geopm
         check_ze_result(ze_result, GEOPM_ERROR_RUNTIME, "LevelZero::"
                         + std::string(__func__) +
                         ": Sysman failed to get domain properties.", __LINE__);
-        result_min += property.min;
-        result_max += property.max;
 
-        return {result_min, result_max};
+        return {property.min, property.max};
+    }
+
+    std::pair<double, double> LevelZeroImp::frequency_range(unsigned int l0_device_idx,
+                                                            int l0_domain,
+                                                            int l0_domain_idx) const
+    {
+        ze_result_t ze_result;
+        zes_freq_handle_t handle = m_devices.at(l0_device_idx).subdevice.freq_domain.at(
+                                                               l0_domain).at(l0_domain_idx);
+        zes_freq_range_t range;
+        ze_result = zesFrequencyGetRange(handle, &range);
+        check_ze_result(ze_result, GEOPM_ERROR_RUNTIME, "LevelZero::"
+                        + std::string(__func__) +
+                        ": Sysman failed to get frequency range.", __LINE__);
+        return {range.min, range.max};
     }
 
     uint64_t LevelZeroImp::active_time_timestamp(unsigned int l0_device_idx,
@@ -580,13 +590,14 @@ namespace geopm
 
     //TODO: frequency_control_min and frequency_control_max capability will be required in some form for save/restore
     void LevelZeroImp::frequency_control(unsigned int l0_device_idx, int l0_domain,
-                                             int l0_domain_idx, double setting) const
+                                         int l0_domain_idx, double range_min,
+                                         double range_max) const
     {
         ze_result_t ze_result;
         zes_freq_properties_t property;
         zes_freq_range_t range;
-        range.min = setting;
-        range.max = setting;
+        range.min = range_min;
+        range.max = range_max;
 
         zes_freq_handle_t handle = m_devices.at(l0_device_idx).subdevice.
                                    freq_domain.at(l0_domain).at(l0_domain_idx);

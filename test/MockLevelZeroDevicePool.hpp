@@ -49,6 +49,8 @@ class MockLevelZeroDevicePool : public geopm::LevelZeroDevicePool
                     (int, unsigned int, int), (const, override));
         MOCK_METHOD(double, frequency_max,
                     (int, unsigned int, int), (const, override));
+        MOCK_METHOD((std::pair<double, double>), frequency_range,
+                    (int, unsigned int, int), (const, override));
 
         MOCK_METHOD((std::pair<uint64_t, uint64_t>), active_time_pair,
                     (int, unsigned int, int), (const, override));
@@ -72,7 +74,7 @@ class MockLevelZeroDevicePool : public geopm::LevelZeroDevicePool
                     (int, unsigned int, int), (const, override));
 
         MOCK_METHOD(void, frequency_control,
-                    (int, unsigned int, int, double),(const, override));
+                    (int, unsigned int, int, double, double),(const, override));
 };
 
 #endif
