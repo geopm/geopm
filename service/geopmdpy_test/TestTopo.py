@@ -34,10 +34,14 @@
 from __future__ import absolute_import
 
 import unittest
+from importlib import reload
 from geopmdpy import topo
 
 
 class TestTopo(unittest.TestCase):
+    def setUp(self):
+        reload(topo) # Ensures that the mocked dlopen call does not leak into this test
+
     def test_num_domain(self):
         num_cpu_str = topo.num_domain("cpu")
         self.assertLess(0, num_cpu_str)
