@@ -38,6 +38,7 @@
 import math
 import time
 import subprocess
+import sys
 from . import pio
 
 
@@ -226,6 +227,7 @@ class Controller:
         if timeout != 0:
             self._num_update = math.ceil(timeout / self._update_period)
         self._argv = argv
+        self._returncode = None
 
     def read_all_signals(self):
         """Sample for all signals pushed with pio
@@ -236,6 +238,16 @@ class Controller:
         """
         return [pio.sample(signal_idx)
                 for signal_idx in self._signals_idx]
+
+    def returncode(self):
+        """Get the return code of the application process
+
+        Returns:
+            int: Return code of app process
+        """
+        if self._returncode is None:
+            raise RuntimeError('App process is still running')
+        return self._returncode
 
     def run(self):
         """Execute control loop defined by agent
@@ -251,7 +263,7 @@ class Controller:
             pid = subprocess.Popen(self._argv)
             for loop_idx in TimedLoop(self._update_period, self._num_update):
                 if pid.poll() is not None:
-                    # Nice process has died error, and RC
+                    sys.stderr.write('Ths app process has ended.  return code = {}'.format(pid.returncode))
                     break
                 pio.read_batch()
                 signals = self.read_all_signals()
@@ -263,4 +275,5 @@ class Controller:
             raise
         finally:
             pio.restore_control()
+            self._returncode = pid.returncode
         return self._agent.get_report()
