@@ -123,6 +123,7 @@ class TestController(unittest.TestCase):
             self.assertEqual(period, con._update_period)
             self.assertIsNone(con._num_update)
             self.assertEqual(argv, con._argv)
+            self.assertIsNone(con._returncode)
 
             calls = [mock.call(*cc) for cc in signals]
             pps.assert_has_calls(calls)
@@ -143,13 +144,14 @@ class TestController(unittest.TestCase):
             self.assertEqual(period, con._update_period)
             self.assertEqual(math.ceil(timeout / period), con._num_update)
             self.assertEqual(argv, con._argv)
+            self.assertIsNone(con._returncode)
 
             calls = [mock.call(*cc) for cc in signals]
             pps.assert_has_calls(calls)
             calls = [mock.call(*cc) for cc in controls]
             ppc.assert_has_calls(calls)
 
-    def test_controller_run(self):
+    def _controller_run_helper(self, return_code = None):
         signals = [('power', 1, 2), ('energy', 3, 4)]
         controls = [('frequency', 5, 6), ('power', 7, 8)]
         period = 42
@@ -173,6 +175,7 @@ class TestController(unittest.TestCase):
             self.assertEqual(list(range(len(signals))), con.read_all_signals())
 
             sp().poll.return_value = None # Fake the process to be alive
+            sp().returncode = return_code
             result = con.run()
 
             psc.assert_called_once()
@@ -186,6 +189,19 @@ class TestController(unittest.TestCase):
             pwb.assert_has_calls([mock.call()] * loops)
             prc.assert_called_once()
             self.assertEqual(pa._report_data, result)
+
+            if return_code is None:
+                err_msg = 'App process is still running'
+                with self.assertRaisesRegex(RuntimeError, err_msg):
+                    con.returncode()
+            else:
+                self.assertEqual(return_code, con.returncode())
+
+    def test_controller_run(self):
+        self._controller_run_helper()
+
+    def test_controller_run_app_rc(self):
+        self._controller_run_helper(42)
 
 
 if __name__ == '__main__':
