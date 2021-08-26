@@ -641,8 +641,7 @@ namespace geopm
     {
         m_is_batch_read = true;
         for (size_t ii = 0; ii < m_signal_pushed.size(); ++ii) {
-            std::dynamic_pointer_cast<LevelZeroSignal>(m_signal_pushed[ii])->
-                set_sample(m_signal_pushed[ii]->read());
+            m_signal_pushed[ii]->set_sample(m_signal_pushed[ii]->read());
         }
     }
 

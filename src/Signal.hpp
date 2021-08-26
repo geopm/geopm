@@ -55,6 +55,8 @@ namespace geopm
             /// @brief Read directly the value of the signal without
             ///        affecting any pushed batch signals.
             virtual double read(void) const = 0;
+            /// @brief Set the value to be returned by sample()
+            virtual void set_sample(double) {};
     };
 }
 
