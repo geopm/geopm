@@ -453,7 +453,6 @@ namespace geopm
                                                    };
             }
         }
-
     }
 
     // Extract the set of all signal names from the index map
@@ -893,7 +892,7 @@ namespace geopm
     }
 
     void LevelZeroIOGroup::register_signal_alias(const std::string &alias_name,
-                                            const std::string &signal_name)
+                                                 const std::string &signal_name)
     {
         if (m_signal_available.find(alias_name) != m_signal_available.end()) {
             throw Exception("LevelZeroIOGroup::" + std::string(__func__) +
@@ -909,12 +908,12 @@ namespace geopm
         // copy signal info but append to description
         m_signal_available[alias_name] = it->second;
         m_signal_available[alias_name].m_description =
-            m_signal_available[signal_name].m_description + '\n' +
-                                            "    alias_for: " + signal_name;
+            m_signal_available[signal_name].m_description +
+            "\n    alias_for: " + signal_name;
     }
 
     void LevelZeroIOGroup::register_control_alias(const std::string &alias_name,
-                                           const std::string &control_name)
+                                                  const std::string &control_name)
     {
         if (m_control_available.find(alias_name) != m_control_available.end()) {
             throw Exception("LevelZeroIOGroup::" + std::string(__func__) +
@@ -930,7 +929,7 @@ namespace geopm
         // copy control info but append to description
         m_control_available[alias_name] = it->second;
         m_control_available[alias_name].m_description =
-       m_control_available[control_name].m_description + '\n' +
-                                         "    alias_for: " + control_name;
+            m_control_available[control_name].m_description +
+            "\n    alias_for: " + control_name;
     }
 }
