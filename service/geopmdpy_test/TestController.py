@@ -39,7 +39,6 @@ from time import time
 
 # Patch dlopen to allow the tests to run when there is no build
 with mock.patch('cffi.FFI.dlopen', return_value=mock.MagicMock()):
-    from geopmdpy.runtime import TimedLoop
     from geopmdpy.runtime import Agent
     from geopmdpy.runtime import Controller
 
@@ -66,6 +65,12 @@ class PassthroughAgent(Agent):
     def get_report(self):
         return self._report_data
 
+
+class ConstructorAgent(Agent):
+    def __init__(self):
+        pass
+
+
 class TestController(unittest.TestCase):
     def setUp(self):
         self._test_name = 'TestController'
@@ -77,10 +82,6 @@ class TestController(unittest.TestCase):
         err_msg = 'Agent is an abstract base class'
         with self.assertRaisesRegex(NotImplementedError, err_msg):
             Agent()
-
-        class ConstructorAgent(Agent):
-            def __init__(self):
-                pass
 
         ca = ConstructorAgent()
         with self.assertRaisesRegex(NotImplementedError, err_msg):
@@ -94,20 +95,14 @@ class TestController(unittest.TestCase):
         with self.assertRaisesRegex(NotImplementedError, err_msg):
             ca.get_report()
 
-    # TODO Negative controller tests
     def test_controller_construction_invalid(self):
         err_msg = 'agent must be a subclass of Agent.'
         with self.assertRaisesRegex(ValueError, err_msg):
-            con = Controller([1,2,3], 'abc')
+            con = Controller([1, 2, 3], 'abc')
 
-        signals = [('power', 1, 2), ('energy', 3, 4)]
-        controls = [('frequency', 5, 6), ('power', 7, 8)]
-        period = 42
-        pa = PassthroughAgent(signals, controls, period)
-        argv = 12
-        with mock.patch('geopmdpy.pio.push_signal', side_effect = itertools.count()) as pps, \
-             mock.patch('geopmdpy.pio.push_control', side_effect = itertools.count()) as ppc:
-            con = Controller(pa, argv, 0.1)
+        err_msg = 'timeout must be >= 0'
+        with self.assertRaisesRegex(ValueError, err_msg):
+            con = Controller(ConstructorAgent(), 'args', -5)
 
     def test_controller_construction(self):
         signals = [('power', 1, 2), ('energy', 3, 4)]
