@@ -214,6 +214,8 @@ class Controller:
         """
         if not isinstance(agent, Agent):
             raise ValueError('agent must be a subclass of Agent.')
+        if timeout < 0:
+            raise ValueError('timeout must be >= 0')
         self._agent = agent
         self._signals = agent.get_signals()
         self._controls = agent.get_controls()
