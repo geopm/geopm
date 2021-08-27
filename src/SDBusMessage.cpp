@@ -32,6 +32,7 @@
 
 #include "SDBusMessage.hpp"
 #include <cmath>
+#include <climits>
 #include <sstream>
 #include <systemd/sd-bus.h>
 
@@ -137,7 +138,7 @@ namespace geopm
     int SDBusMessageImp::read_integer(void)
     {
         check_null_ptr(__func__, m_bus_message);
-        int result = -1;
+        int result = INT_MAX;
         int ret = sd_bus_message_read(m_bus_message, "i", &result);
         check_bus_error("sd_bus_message_read", ret);
         m_was_success = (ret != 0);
