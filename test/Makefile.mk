@@ -470,6 +470,7 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
               test/gtest_links/SchedTest.test_proc_cpuset_6 \
               test/gtest_links/SchedTest.test_proc_cpuset_7 \
               test/gtest_links/SchedTest.test_proc_cpuset_8 \
+              test/gtest_links/ServiceProxyTest.platform_get_user_access \
               test/gtest_links/SharedMemoryTest.fd_check \
               test/gtest_links/SharedMemoryTest.invalid_construction \
               test/gtest_links/SharedMemoryTest.lock_shmem \
@@ -656,7 +657,10 @@ test_geopm_test_SOURCES = test/AcceleratorTopoNullTest.cpp \
                           test/MockRecordFilter.hpp \
                           test/MockReporter.hpp \
                           test/MockSampleAggregator.hpp \
+                          test/MockSDBus.hpp \
+                          test/MockSDBusMessage.hpp \
                           test/MockSharedMemory.hpp \
+                          test/MockServiceProxy.hpp \
                           test/MockSignal.hpp \
                           test/MockSSTIO.hpp \
                           test/MockSSTIoctl.hpp \
@@ -686,6 +690,7 @@ test_geopm_test_SOURCES = test/AcceleratorTopoNullTest.cpp \
                           test/ReporterTest.cpp \
                           test/SampleAggregatorTest.cpp \
                           test/SchedTest.cpp \
+                          test/ServiceProxyTest.cpp \
                           test/SharedMemoryTest.cpp \
                           test/SSTControlTest.cpp \
                           test/SSTIOGroupTest.cpp \
