@@ -151,14 +151,14 @@ class TestController(unittest.TestCase):
             calls = [mock.call(*cc) for cc in controls]
             ppc.assert_has_calls(calls)
 
-    def _controller_run_helper(self, return_code = None):
+    def _controller_run_helper(self, return_code = None, subprocess_error = False):
         signals = [('power', 1, 2), ('energy', 3, 4)]
         controls = [('frequency', 5, 6), ('power', 7, 8)]
         period = 42
 
         argv = 'data'
         pa = PassthroughAgent(signals, controls, period)
-        loops = 5
+        loops = 5 if return_code is None else 1
 
         with mock.patch('geopmdpy.pio.push_signal', side_effect = itertools.count()) as pps, \
              mock.patch('geopmdpy.pio.push_control', side_effect = itertools.count()) as ppc, \
@@ -174,34 +174,48 @@ class TestController(unittest.TestCase):
             con = Controller(pa, argv)
             self.assertEqual(list(range(len(signals))), con.read_all_signals())
 
-            sp().poll.return_value = None # Fake the process to be alive
+            sp().poll.return_value = return_code
             sp().returncode = return_code
-            result = con.run()
 
-            psc.assert_called_once()
-            calls = [mock.call(argv)] + [mock.call().poll()] * loops
-            sp.assert_has_calls(calls)
-            rtl.assert_called_with(period, None)
-            sp().poll.assert_has_calls([mock.call()] * loops)
-            prb.assert_has_calls([mock.call()] * loops)
-            calls = [mock.call(ii, pa._adjust_value) for ii in range(len(controls))] * loops
-            pad.assert_has_calls(calls)
-            pwb.assert_has_calls([mock.call()] * loops)
-            prc.assert_called_once()
-            self.assertEqual(pa._report_data, result)
-
-            if return_code is None:
-                err_msg = 'App process is still running'
-                with self.assertRaisesRegex(RuntimeError, err_msg):
-                    con.returncode()
+            if subprocess_error:
+                sp_err_msg = 'An error has occured'
+                sp.side_effect = RuntimeError(sp_err_msg)
+                with self.assertRaisesRegex(RuntimeError, sp_err_msg):
+                    con.run()
             else:
-                self.assertEqual(return_code, con.returncode())
+                result = con.run()
+
+                psc.assert_called_once()
+                calls = [mock.call(argv)] + [mock.call().poll()] * loops
+                sp.assert_has_calls(calls)
+                rtl.assert_called_with(period, None)
+                sp().poll.assert_has_calls([mock.call()] * loops)
+
+                if return_code is not None:
+                    loops = 0 # Poll is called once in this case then the break is hit
+
+                prb.assert_has_calls([mock.call()] * loops)
+                calls = [mock.call(ii, pa._adjust_value) for ii in range(len(controls))] * loops
+                pad.assert_has_calls(calls)
+                pwb.assert_has_calls([mock.call()] * loops)
+                prc.assert_called_once()
+                self.assertEqual(pa._report_data, result)
+
+                if return_code is None:
+                    err_msg = 'App process is still running'
+                    with self.assertRaisesRegex(RuntimeError, err_msg):
+                        con.returncode()
+                else:
+                    self.assertEqual(return_code, con.returncode())
 
     def test_controller_run(self):
         self._controller_run_helper()
 
     def test_controller_run_app_rc(self):
         self._controller_run_helper(42)
+
+    def test_controller_run_app_error(self):
+        self._controller_run_helper(subprocess_error = True)
 
 
 if __name__ == '__main__':
