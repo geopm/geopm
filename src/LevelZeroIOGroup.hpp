@@ -102,18 +102,18 @@ namespace geopm
 
             struct signal_info {
                 std::string m_description;
-                int domain_type;
+                int m_domain_type;
                 std::function<double(const std::vector<double> &)> m_agg_function;
                 std::function<std::string(double)> m_format_function;
                 std::vector<std::shared_ptr<Signal> > m_signals;
                 std::function<double (unsigned int)> m_devpool_func;
-                double scalar;
+                double m_scalar;
             };
 
             struct control_info {
                 std::string m_description;
-                std::vector<std::shared_ptr<control_s> > controls;
-                int domain_type;
+                std::vector<std::shared_ptr<control_s> > m_controls;
+                int m_domain_type;
                 std::function<double(const std::vector<double> &)> m_agg_function;
                 std::function<std::string(double)> m_format_function;
             };

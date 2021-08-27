@@ -354,7 +354,7 @@ namespace geopm
                 std::shared_ptr<Signal> signal =
                         std::make_shared<LevelZeroSignal>(sv.second.m_devpool_func,
                                                           domain_idx,
-                                                          sv.second.scalar);
+                                                          sv.second.m_scalar);
                 result.push_back(signal);
             }
             sv.second.m_signals = result;
@@ -376,7 +376,7 @@ namespace geopm
                 std::shared_ptr<control_s> ctrl = std::make_shared<control_s>(control_s{0, false});
                 result.push_back(ctrl);
             }
-            sv.second.controls = result;
+            sv.second.m_controls = result;
         }
     }
 
@@ -399,19 +399,19 @@ namespace geopm
                     "LEVELZERO::ENERGY_TIMESTAMP"},
             {"LEVELZERO::UTILIZATION",
                     "GPU utilization"
-                        "n  Level Zero logical engines may may to the same hardware"
+                        "n  Level Zero logical engines may map to the same hardware"
                         "\n  resulting in a reduced signal range (i.e. not 0 to 1)",
                     "LEVELZERO::ACTIVE_TIME",
                     "LEVELZERO::ACTIVE_TIME_TIMESTAMP"},
             {"LEVELZERO::UTILIZATION_COMPUTE",
                     "Compute engine utilization"
-                        "n  Level Zero logical engines may may to the same hardware"
+                        "n  Level Zero logical engines may map to the same hardware"
                         "\n  resulting in a reduced signal range (i.e. not 0 to 1)",
                     "LEVELZERO::ACTIVE_TIME_COMPUTE",
                     "LEVELZERO::ACTIVE_TIME_COMPUTE_TIMESTAMP"},
             {"LEVELZERO::UTILIZATION_COPY",
                     "Copy engine utilization"
-                        "n  Level Zero logical engines may may to the same hardware"
+                        "n  Level Zero logical engines may map to the same hardware"
                         "\n  resulting in a reduced signal range (i.e. not 0 to 1)",
                     "LEVELZERO::ACTIVE_TIME_COPY",
                     "LEVELZERO::ACTIVE_TIME_COPY_TIMESTAMP"},
@@ -422,14 +422,14 @@ namespace geopm
             if (read_it != m_signal_available.end()
                 && time_it != m_signal_available.end()) {
                 auto readings = read_it->second.m_signals;
-                int domain = read_it->second.domain_type;
+                int domain = read_it->second.m_domain_type;
                 int num_domain = m_platform_topo.num_domain(domain);
                 GEOPM_DEBUG_ASSERT(num_domain == (int)readings.size(),
                                    "size of domain for " + ds.base_name +
                                    " does not match number of signals available.");
 
                 auto time_sig = time_it->second.m_signals;
-                GEOPM_DEBUG_ASSERT(time_it->second.domain_type == domain,
+                GEOPM_DEBUG_ASSERT(time_it->second.m_domain_type == domain,
                                    "domain for " + ds.time_name +
                                    " does not match " + ds.base_name);
 
@@ -493,7 +493,7 @@ namespace geopm
         int result = GEOPM_DOMAIN_INVALID;
         auto it = m_signal_available.find(signal_name);
         if (it != m_signal_available.end()) {
-            result = it->second.domain_type;
+            result = it->second.m_domain_type;
         }
         return result;
     }
@@ -504,7 +504,7 @@ namespace geopm
         int result = GEOPM_DOMAIN_INVALID;
         auto it = m_control_available.find(control_name);
         if (it != m_control_available.end()) {
-            result = it->second.domain_type;
+            result = it->second.m_domain_type;
         }
         return result;
     }
@@ -616,7 +616,7 @@ namespace geopm
         int result = -1;
         bool is_found = false;
         std::shared_ptr<control_s> control = m_control_available.at(
-                                             control_name).controls.at(domain_idx);
+                                             control_name).m_controls.at(domain_idx);
 
         // Check if control was already pushed
         for (size_t ii = 0; !is_found && ii < m_control_pushed.size(); ++ii) {
@@ -649,10 +649,10 @@ namespace geopm
     {
         for (auto &sv : m_control_available) {
             for (unsigned int domain_idx = 0;
-                 domain_idx < sv.second.controls.size(); ++domain_idx) {
-                if (sv.second.controls.at(domain_idx)->m_is_adjusted) {
-                    write_control(sv.first, sv.second.domain_type, domain_idx,
-                                  sv.second.controls.at(domain_idx)->m_setting);
+                 domain_idx < sv.second.m_controls.size(); ++domain_idx) {
+                if (sv.second.m_controls.at(domain_idx)->m_is_adjusted) {
+                    write_control(sv.first, sv.second.m_domain_type, domain_idx,
+                                  sv.second.m_controls.at(domain_idx)->m_setting);
                 }
             }
         }

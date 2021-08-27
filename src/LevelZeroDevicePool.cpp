@@ -175,7 +175,7 @@ namespace geopm
     {
         if (domain != GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP) {
             throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
-                             ": domain " + std::to_string(domain) +
+                            ": domain " + std::to_string(domain) +
                             " is not supported for the frequency domain.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }

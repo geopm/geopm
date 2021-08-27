@@ -33,11 +33,6 @@
 #ifndef LEVELZEROSIGNAL_HPP_INCLUDE
 #define LEVELZEROSIGNAL_HPP_INCLUDE
 
-#include <cstdint>
-#include <cmath>
-
-#include <string>
-#include <memory>
 #include <functional>
 
 #include "Signal.hpp"
