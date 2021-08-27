@@ -60,9 +60,8 @@ namespace geopm
             virtual ~SDBus() = default;
             /// @brief Factory method for SDBus interface
             ///
-            /// Returns:
-            ///     Unique pointer to an implementation of the SDBus
-            ///     interface.
+            /// @return Unique pointer to an implementation of the
+            ///         SDBus interface.
             static std::unique_ptr<SDBus> make_unique(void);
             /// @brief Wrapper for the sd_bus_call(3) function.
             ///
