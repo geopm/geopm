@@ -30,15 +30,22 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef MOCKSERVICEPROXY_HPP_INCLUDE
+#define MOCKSERVICEPROXY_HPP_INCLUDE
+
+#include "gmock/gmock.h"
+#include "geopm_internal.h"
+#include "ServiceProxy.hpp"
+
 class MockServiceProxy : public geopm::ServiceProxy
 {
     public:
         MOCK_METHOD(void, platform_get_user_access,
                     (std::vector<std::string> &signal_names,
                      std::vector<std::string> &control_names), (override));
-        MOCK_METHOD(std::vector<signal_info_s>, platform_get_signal_info,
+        MOCK_METHOD(std::vector<geopm::signal_info_s>, platform_get_signal_info,
                     (const std::vector<std::string> &signal_names), (override));
-        MOCK_METHOD(std::vector<control_info_s>, platform_get_control_info,
+        MOCK_METHOD(std::vector<geopm::control_info_s>, platform_get_control_info,
                     (const std::vector<std::string> &control_names), (override));
         MOCK_METHOD(void, platform_open_session, (), (override));
         MOCK_METHOD(void, platform_close_session, (), (override));
@@ -54,3 +61,5 @@ class MockServiceProxy : public geopm::ServiceProxy
                     (const std::string &control_name, int domain,
                      int domain_idx, double setting), (override));
 };
+
+#endif
