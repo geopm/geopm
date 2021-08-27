@@ -275,5 +275,5 @@ class Controller:
             raise
         finally:
             pio.restore_control()
-            self._returncode = pid.returncode
+        self._returncode = pid.returncode
         return self._agent.get_report()
