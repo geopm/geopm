@@ -50,7 +50,13 @@ namespace geopm
     }
 
     ServiceProxyImp::ServiceProxyImp()
-        : m_bus(SDBus::make_unique())
+        : ServiceProxyImp(SDBus::make_unique())
+    {
+
+    }
+
+    ServiceProxyImp::ServiceProxyImp(std::shared_ptr<SDBus> bus)
+        : m_bus(bus)
     {
 
     }
