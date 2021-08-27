@@ -44,7 +44,11 @@ namespace geopm
     class SDBusMessage
     {
         public:
+            /// @brief Used with enter_container() method to specify a
+            ///        structure container.
             static const char M_MESSAGE_TYPE_STRUCT;
+            /// @brief Used with enter_container() method to specify an
+            ///        array container.
             static const char M_MESSAGE_TYPE_ARRAY;
             SDBusMessage() = default;
             virtual ~SDBusMessage() = default;
