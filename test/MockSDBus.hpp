@@ -30,21 +30,29 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef MOCKSDBUS_HPP_INCLUDE
+#define MOCKSDBUS_HPP_INCLUDE
+
+#include "gmock/gmock.h"
+
+#include "SDBus.hpp"
 
 class MockSDBus : public geopm::SDBus
 {
     public:
-        MOCK_METHOD(std::shared_ptr<SDBusMessage>, call,
-                    (std::shared_ptr<SDBusMessage> message), (override));
-        MOCK_METHOD(std::shared_ptr<SDBusMessage>, call_method,
+        MOCK_METHOD(std::shared_ptr<geopm::SDBusMessage>, call,
+                    (std::shared_ptr<geopm::SDBusMessage> message), (override));
+        MOCK_METHOD(std::shared_ptr<geopm::SDBusMessage>, call_method,
                     (const std::string &member), (override));
-        MOCK_METHOD(std::shared_ptr<SDBusMessage>, call_method,
+        MOCK_METHOD(std::shared_ptr<geopm::SDBusMessage>, call_method,
                     (const std::string &member,
                      const std::string &arg0, int arg1, int arg2), (override));
-        MOCK_METHOD(std::shared_ptr<SDBusMessage>, call_method,
+        MOCK_METHOD(std::shared_ptr<geopm::SDBusMessage>, call_method,
                     (const std::string &member,
                      const std::string &arg0, int arg1, int arg2, double arg3),
                     (override));
-        MOCK_METHOD(std::shared_ptr<SDBusMessage>, make_call_message,
+        MOCK_METHOD(std::shared_ptr<geopm::SDBusMessage>, make_call_message,
                     (const std::string &member), (override));
 };
+
+#endif

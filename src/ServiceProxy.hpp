@@ -176,6 +176,7 @@ namespace geopm
     {
         public:
             ServiceProxyImp();
+            ServiceProxyImp(std::shared_ptr<SDBus> bus);
             virtual ~ServiceProxyImp() = default;
             void platform_get_user_access(std::vector<std::string> &signal_names,
                                           std::vector<std::string> &control_names) override;

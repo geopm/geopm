@@ -30,27 +30,37 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MOCKSDBUSMESSAGE_HPP_INCLUDE
-#define MOCKSDBUSMESSAGE_HPP_INCLUDE
+include <memory>
 
-#include "gmock/gmock.h"
+#include "ServiceProxy.hpp"
+#include "MockSDBus.hpp"
+#include "MockSDBusMessage.hpp"
 
-#include "SDBusMessage.hpp"
+using geopm::signal_info_s;
+using geopm::control_info_s;
+using geopm::ServiceProxyImp;
+using geopm::SDBus;
+using geopm::SDBusMessage;
 
-class MockSDBusMessage : public geopm::SDBusMessage
+class ServiceProxyTest : public ::testing::Test
 {
-    public:
-        MOCK_METHOD(sd_bus_message*, get_sd_ptr, (), (override));
-        MOCK_METHOD(void, enter_container, (char type,
-                                            const std::string &contents),
-                    (override));
-        MOCK_METHOD(void, exit_container, (), (override));
-        MOCK_METHOD(std::string, read_string, (), (override));
-        MOCK_METHOD(double, read_double, (), (override));
-        MOCK_METHOD(int, read_integer, (), (override));
-        MOCK_METHOD(void, append_strings,
-                    (const std::vector<std::string> &write_values), (override));
-        MOCK_METHOD(bool, was_success, (), (override));
+    protected:
+        void SetUp();
+        std::shared_ptr<MockSDBus> m_bus;
+        std::shared_ptr<MockSDBusMessage> m_bus_message;
+        std::shared_ptr<MockSDBusMessage> m_bus_reply;
+        std::shared_ptr<ServiceProxyImp> m_proxy;
 };
 
-#endif
+void ServiceProxyTest::SetUp()
+{
+    m_bus = std::make_shared<MockSDBus>();
+    m_bus_message = std::make_shared<MockSDBusMessage>();
+    m_bus_reply = std::make_shared<MockSDBusMessage>();
+    m_proxy = std::make_shared<ServiceProxyImp>(m_bus);
+}
+
+TEST_F(ServiceProxyTest, platform_get_user_access)
+{
+
+}
