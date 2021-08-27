@@ -197,7 +197,6 @@ namespace geopm
                                         int domain_idx,
                                         double setting) override;
         private:
-            void check_message(const std::shared_ptr<SDBusMessage> bus_message);
             std::vector<std::string> read_string_array(std::shared_ptr<SDBusMessage> bus_message);
             std::shared_ptr<SDBus> m_bus;
     };

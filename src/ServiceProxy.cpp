@@ -66,7 +66,6 @@ namespace geopm
     {
         std::shared_ptr<SDBusMessage> bus_message =
             m_bus->call_method("PlatformGetUserAccess");
-        check_message(bus_message);
 
         bus_message->enter_container(SDBusMessage::M_MESSAGE_TYPE_STRUCT, "asas");
         signal_names = read_string_array(bus_message);
@@ -80,7 +79,6 @@ namespace geopm
         std::vector<signal_info_s> result;
         std::shared_ptr<SDBusMessage> bus_message =
             m_bus->make_call_message("PlatformGetSignalInfo");
-        check_message(bus_message);
         bus_message->append_strings(signal_names);
         std::shared_ptr<SDBusMessage> bus_reply = m_bus->call(bus_message);
         bus_reply->enter_container(SDBusMessage::M_MESSAGE_TYPE_ARRAY, "(ssiiii)");
@@ -107,7 +105,6 @@ namespace geopm
         std::vector<control_info_s> result;
         std::shared_ptr<SDBusMessage> bus_message =
             m_bus->make_call_message("PlatformGetControlInfo");
-        check_message(bus_message);
         bus_message->append_strings(control_names);
         std::shared_ptr<SDBusMessage> bus_reply = m_bus->call(bus_message);
         bus_reply->enter_container(SDBusMessage::M_MESSAGE_TYPE_ARRAY, "(ssi)");
@@ -157,7 +154,6 @@ namespace geopm
                                                                          signal_name,
                                                                          domain,
                                                                          domain_idx);
-        check_message(reply_message);
         return reply_message->read_double();
     }
 
@@ -173,24 +169,15 @@ namespace geopm
                                  setting);
     }
 
-    void ServiceProxyImp::check_message(const std::shared_ptr<SDBusMessage> bus_message)
-    {
-        if (bus_message == nullptr) {
-            throw Exception("ServiceProxy: Unexpected NULL SDBusMessage pointer returned by SDBus API",
-                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-        }
-    }
-
     std::vector<std::string> ServiceProxyImp::read_string_array(
         std::shared_ptr<SDBusMessage> bus_message)
     {
         std::vector<std::string> result;
         bus_message->enter_container(SDBusMessage::M_MESSAGE_TYPE_ARRAY, "s");
+        std::string str = bus_message->read_string();
         while (bus_message->was_success()) {
-            std::string str = bus_message->read_string();
-            if (bus_message->was_success()) {
-                result.push_back(str);
-            }
+            result.push_back(str);
+            str = bus_message->read_string();
         }
         bus_message->exit_container();
         return result;
