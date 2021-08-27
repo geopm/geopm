@@ -40,6 +40,9 @@
 
 namespace geopm
 {
+    const char SDBusMessage::M_MESSAGE_TYPE_STRUCT = SD_BUS_TYPE_STRUCT;
+    const char SDBusMessage::M_MESSAGE_TYPE_ARRAY = SD_BUS_TYPE_ARRAY;
+
     static void check_bus_error(const std::string &func_name,
                                 int return_val)
     {
@@ -91,19 +94,6 @@ namespace geopm
     void SDBusMessageImp::enter_container(char type, const std::string &contents)
     {
         check_null_ptr(__func__, m_bus_message);
-        switch (type) {
-            case M_MESSAGE_TYPE_STRUCT:
-                type = SD_BUS_TYPE_STRUCT;
-                break;
-            case M_MESSAGE_TYPE_ARRAY:
-                type = SD_BUS_TYPE_ARRAY;
-                break;
-            default:
-                throw Exception("Invalid type, not in SDBusMessage:m_message_type_e: " +
-                                std::to_string(type),
-                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-                break;
-        }
         int ret = sd_bus_message_enter_container(m_bus_message,
                                                  type, contents.c_str());
         check_bus_error("sd_bus_message_enter_container", ret);
