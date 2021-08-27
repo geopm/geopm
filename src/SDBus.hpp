@@ -36,7 +36,6 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include <systemd/sd-bus.h>
 
 struct sd_bus;
 
