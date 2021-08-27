@@ -44,10 +44,8 @@ namespace geopm
     class SDBusMessage
     {
         public:
-            enum m_message_type_e {
-                M_MESSAGE_TYPE_STRUCT,
-                M_MESSAGE_TYPE_ARRAY,
-            };
+            static const char M_MESSAGE_TYPE_STRUCT;
+            static const char M_MESSAGE_TYPE_ARRAY;
             SDBusMessage() = default;
             virtual ~SDBusMessage() = default;
             static std::unique_ptr<SDBusMessage> make_unique(sd_bus_message *bus_message);
