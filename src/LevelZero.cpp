@@ -109,26 +109,31 @@ namespace geopm
                 check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
                                 "LevelZero::" + std::string(__func__) +
                                 ": LevelZero Sub-Device acquisition failed.", __LINE__);
-                // A limitation of the current subdevice support implementation is that we do NOT support devices
-                // without subdevices.  Theoretically this is ANY Level Zero GPU, depending on how the user sets
-                // the ZE_AFFINITY_MASK environment variable.
+#ifdef GEOPM_DEBUG
                 if (num_subdevice == 0) {
-                    throw Exception("LevelZero::" + std::string(__func__) +
-                                    ": GEOPM Requires subdevices to be enumerated." +
-                                    " Please check ZE_AFFINITY_MASK enviroment variable settings",
-                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                    std::cerr << "LevelZero::" << std::string(__func__)  <<
+                                 ": GEOPM Requires at least one subdevice. "
+                                 "Please check ZE_AFFINITY_MASK enviroment variable "
+                                 "setting.  Forcing device to act as sub-device" << std::endl;
                 }
-
+#endif
                 if (property.type == ZE_DEVICE_TYPE_GPU) {
                     if ((property.flags & ZE_DEVICE_PROPERTY_FLAG_INTEGRATED) == 0) {
                         ++m_num_board_gpu;
-                        m_num_board_gpu_subdevice += num_subdevice;
+                        if (num_subdevice != 0) {
+                            m_num_board_gpu_subdevice += num_subdevice;
+                        }
+                        else {
+                            // If there are no subdevices we are going to treat the
+                            // device as a subdevice.
+                            m_num_board_gpu_subdevice += 1;
+                        }
 
                         //NOTE: We're only supporting Board GPUs to start with
                         m_devices.push_back({
                             device_handle.at(device_idx),
                             property,
-                            num_subdevice,
+                            num_subdevice, //if there are no subdevices leave this as 0
                             subdevice_handle,
                             {}, //subdevice
                             {}, //power domain
@@ -215,7 +220,7 @@ namespace geopm
                                 "LevelZero::" + std::string(__func__) +
                                 ": Sysman failed to get domain properties.", __LINE__);
 
-                if (property.onSubdevice == 0) {
+                if (property.onSubdevice == 0 && m_devices.at(device_idx).m_num_subdevice != 0) {
 #ifdef GEOPM_DEBUG
                     std::cerr << "Warning: <geopm> LevelZero: A device level "
                                  "frequency domain was found but is not currently supported.\n";
@@ -324,7 +329,7 @@ namespace geopm
                                 ": Sysman failed to get domain engine properties",
                                 __LINE__);
 
-                if (property.onSubdevice == 0) {
+                if (property.onSubdevice == 0 && m_devices.at(device_idx).m_num_subdevice != 0) {
 #ifdef GEOPM_DEBUG
                     std::cerr << "Warning: <geopm> LevelZero: A device level "
                                  "engine domain was found but is not currently supported.\n";
