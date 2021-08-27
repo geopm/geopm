@@ -491,6 +491,18 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
               test/gtest_links/SchedTest.test_proc_cpuset_6 \
               test/gtest_links/SchedTest.test_proc_cpuset_7 \
               test/gtest_links/SchedTest.test_proc_cpuset_8 \
+              test/gtest_links/ServiceIOGroupTest.signal_control_info \
+              test/gtest_links/ServiceIOGroupTest.domain_type \
+              test/gtest_links/ServiceIOGroupTest.read_signal_behavior \
+              test/gtest_links/ServiceIOGroupTest.write_control \
+              test/gtest_links/ServiceIOGroupTest.valid_signal_aggregation \
+              test/gtest_links/ServiceIOGroupTest.valid_format_function \
+              test/gtest_links/ServiceIOGroupTest.push_signal \
+              test/gtest_links/ServiceIOGroupTest.push_control \
+              test/gtest_links/ServiceIOGroupTest.read_batch \
+              test/gtest_links/ServiceIOGroupTest.write_batch \
+              test/gtest_links/ServiceIOGroupTest.sample \
+              test/gtest_links/ServiceIOGroupTest.adjust \
               test/gtest_links/ServiceProxyTest.platform_get_user_access \
               test/gtest_links/ServiceProxyTest.platform_get_signal_info \
               test/gtest_links/ServiceProxyTest.platform_get_control_info \
@@ -725,6 +737,7 @@ test_geopm_test_SOURCES = test/AcceleratorTopoNullTest.cpp \
                           test/SampleAggregatorTest.cpp \
                           test/SchedTest.cpp \
                           test/ServiceProxyTest.cpp \
+                          test/ServiceIOGroupTest.cpp \
                           test/SharedMemoryTest.cpp \
                           test/SSTControlTest.cpp \
                           test/SSTIOGroupTest.cpp \
