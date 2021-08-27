@@ -175,9 +175,9 @@ namespace geopm
                 const std::string &member) override;
         private:
             sd_bus *m_bus;
-            const char * m_dbus_destination;
-            const char * m_dbus_path;
-            const char * m_dbus_interface;
+            const char *m_dbus_destination;
+            const char *m_dbus_path;
+            const char *m_dbus_interface;
             const uint64_t m_dbus_timeout_usec;
     };
 }
