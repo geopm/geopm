@@ -86,7 +86,9 @@ class TimedLoop:
                             units of seconds.
 
             num_period (int): Number of time periods spanned by the
-                              loop + 1.
+                              loop.  The total loop time is num_periods * period,
+                              but since there is no delay in the first loop, there
+                              will be num_period + 1 loop iterations.
 
         """
 
