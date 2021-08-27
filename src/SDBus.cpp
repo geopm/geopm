@@ -33,6 +33,7 @@
 #include "SDBus.hpp"
 
 #include <sstream>
+#include <systemd/sd-bus.h>
 
 #include "Helper.hpp"
 #include "Exception.hpp"
