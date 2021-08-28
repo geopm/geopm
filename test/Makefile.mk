@@ -471,6 +471,12 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
               test/gtest_links/SchedTest.test_proc_cpuset_7 \
               test/gtest_links/SchedTest.test_proc_cpuset_8 \
               test/gtest_links/ServiceProxyTest.platform_get_user_access \
+              test/gtest_links/ServiceProxyTest.platform_get_signal_info \
+              test/gtest_links/ServiceProxyTest.platform_get_control_info \
+              test/gtest_links/ServiceProxyTest.platform_open_session \
+              test/gtest_links/ServiceProxyTest.platform_close_session \
+              test/gtest_links/ServiceProxyTest.platform_start_batch \
+              test/gtest_links/ServiceProxyTest.platform_stop_batch \
               test/gtest_links/SharedMemoryTest.fd_check \
               test/gtest_links/SharedMemoryTest.invalid_construction \
               test/gtest_links/SharedMemoryTest.lock_shmem \
