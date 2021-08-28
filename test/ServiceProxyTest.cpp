@@ -48,6 +48,8 @@ class ServiceProxyTest : public ::testing::Test
 {
     protected:
         void SetUp();
+        void check_signal_info(const signal_info_s &actual,
+                               const signal_info_s &expect) const;
         std::shared_ptr<MockSDBus> m_bus;
         std::shared_ptr<MockSDBusMessage> m_bus_message;
         std::shared_ptr<MockSDBusMessage> m_bus_reply;
@@ -94,5 +96,62 @@ TEST_F(ServiceProxyTest, platform_get_user_access)
     std::vector<std::string> control_expect = {"frequency", "power"};
     EXPECT_EQ(signal_expect, signal_actual);
     EXPECT_EQ(control_expect, control_actual);
+}
 
+TEST_F(ServiceProxyTest, platform_get_signal_info)
+{
+    int num_container = 3; // One array with two structures in it
+    EXPECT_CALL(*m_bus_reply, enter_container(_,_))
+        .Times(num_container + 1); // Extra enter array of struct termination
+    EXPECT_CALL(*m_bus_reply, exit_container())
+        .Times(num_container);
+    EXPECT_CALL(*m_bus_reply, was_success())
+        .WillOnce(Return(true))
+        .WillOnce(Return(true))
+        .WillOnce(Return(false));
+    EXPECT_CALL(*m_bus_reply, read_string())
+        .WillOnce(Return("instructions"))
+        .WillOnce(Return("Number of instructions retired"))
+        .WillOnce(Return("misses"))
+        .WillOnce(Return("Number of cache misses"));
+    EXPECT_CALL(*m_bus_reply, read_integer())
+        .WillOnce(Return(1))
+        .WillOnce(Return(2))
+        .WillOnce(Return(3))
+        .WillOnce(Return(4))
+        .WillOnce(Return(5))
+        .WillOnce(Return(6))
+        .WillOnce(Return(7))
+        .WillOnce(Return(8));
+    EXPECT_CALL(*m_bus, make_call_message("PlatformGetSignalInfo"))
+        .WillOnce(Return(m_bus_message));
+    std::vector<std::string> input_names = {"instructions", "misses"};
+    EXPECT_CALL(*m_bus_message, append_strings(input_names))
+        .Times(1);
+    std::shared_ptr<SDBusMessage> bus_message_ptr = m_bus_message;
+    EXPECT_CALL(*m_bus, call_method(bus_message_ptr))
+        .WillOnce(Return(m_bus_reply));
+    std::vector<signal_info_s> info_actual = m_proxy->platform_get_signal_info(input_names);
+
+    std::vector<signal_info_s> info_expect = {{"instructions",
+                                               "Number of instructions retired",
+                                                1, 2, 3, 4},
+                                              {"misses",
+                                               "Number of cache misses",
+                                                5, 6, 7, 8}};
+    ASSERT_EQ(info_actual.size(), info_expect.size());
+    for (unsigned info_idx = 0; info_idx != info_actual.size(); ++info_idx) {
+        check_signal_info(info_expect.at(info_idx), info_actual.at(info_idx));
+    }
+}
+
+void ServiceProxyTest::check_signal_info(const signal_info_s &actual,
+                                         const signal_info_s &expect) const
+{
+    EXPECT_EQ(actual.name, expect.name);
+    EXPECT_EQ(actual.description, expect.description);
+    EXPECT_EQ(actual.domain, expect.domain);
+    EXPECT_EQ(actual.aggregation, expect.aggregation);
+    EXPECT_EQ(actual.string_format, expect.string_format);
+    EXPECT_EQ(actual.behavior, expect.behavior);
 }
