@@ -241,3 +241,15 @@ TEST_F(ServiceProxyTest, platform_stop_batch)
                                GEOPM_ERROR_NOT_IMPLEMENTED,
                                "platform_stop_batch");
 }
+
+TEST_F(ServiceProxyTest, platform_read_signal)
+{
+    EXPECT_CALL(*m_bus, call_method("PlatformReadSignal", "instructions", 1, 2));
+    m_proxy->platform_read_signal("instructions", 1, 2);
+}
+
+TEST_F(ServiceProxyTest, platform_write_control)
+{
+    EXPECT_CALL(*m_bus, call_method("PlatformWriteControl", "frequency", 1, 2, 1.0e9));
+    m_proxy->platform_write_control("frequency", 1, 2, 1.0e9);
+}
