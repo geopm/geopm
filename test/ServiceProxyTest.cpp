@@ -35,6 +35,8 @@
 #include "ServiceProxy.hpp"
 #include "MockSDBus.hpp"
 #include "MockSDBusMessage.hpp"
+#include "geopm_test.hpp"
+#include "geopm_internal.h"
 
 using geopm::signal_info_s;
 using geopm::control_info_s;
@@ -207,3 +209,35 @@ void ServiceProxyTest::check_control_info(const control_info_s &actual,
     EXPECT_EQ(actual.domain, expect.domain);
 }
 
+TEST_F(ServiceProxyTest, platform_open_session)
+{
+    EXPECT_CALL(*m_bus, call_method("PlatformOpenSession"));
+    m_proxy->platform_open_session();
+}
+
+TEST_F(ServiceProxyTest, platform_close_session)
+{
+    EXPECT_CALL(*m_bus, call_method("PlatformCloseSession"));
+    m_proxy->platform_close_session();
+}
+
+TEST_F(ServiceProxyTest, platform_start_batch)
+{
+    std::vector<struct geopm_request_s> signal_config;
+    std::vector<struct geopm_request_s> control_config;
+    int server_pid = -1;
+    std::string server_key;
+    GEOPM_EXPECT_THROW_MESSAGE(m_proxy->platform_start_batch(signal_config,
+                                                             control_config,
+                                                             server_pid,
+                                                             server_key),
+                               GEOPM_ERROR_NOT_IMPLEMENTED,
+                               "platform_start_batch");
+}
+
+TEST_F(ServiceProxyTest, platform_stop_batch)
+{
+    GEOPM_EXPECT_THROW_MESSAGE(m_proxy->platform_stop_batch(100),
+                               GEOPM_ERROR_NOT_IMPLEMENTED,
+                               "platform_stop_batch");
+}
