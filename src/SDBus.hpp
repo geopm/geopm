@@ -80,7 +80,7 @@ namespace geopm
             /// @param message [in] Complete SDBusMessage returned by
             ///                call to make_call_message().
             /// @return Reply message that resulted from the call.
-            virtual std::shared_ptr<SDBusMessage> call(
+            virtual std::shared_ptr<SDBusMessage> call_method(
                 std::shared_ptr<SDBusMessage> message) = 0;
             /// @brief Wrapper for the sd_bus_call_method(3) function.
             ///
@@ -156,7 +156,7 @@ namespace geopm
         public:
             SDBusImp();
             virtual ~SDBusImp();
-            std::shared_ptr<SDBusMessage> call(
+            std::shared_ptr<SDBusMessage> call_method(
                 std::shared_ptr<SDBusMessage> message) override;
             std::shared_ptr<SDBusMessage> call_method(
                 const std::string &member) override;
