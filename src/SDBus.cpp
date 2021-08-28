@@ -81,7 +81,7 @@ namespace geopm
         sd_bus_close(m_bus);
     }
 
-    std::shared_ptr<SDBusMessage> SDBusImp::call(
+    std::shared_ptr<SDBusMessage> SDBusImp::call_method(
         std::shared_ptr<SDBusMessage> message)
     {
         sd_bus_message *bus_reply;
