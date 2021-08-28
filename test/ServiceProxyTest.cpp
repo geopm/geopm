@@ -50,6 +50,8 @@ class ServiceProxyTest : public ::testing::Test
         void SetUp();
         void check_signal_info(const signal_info_s &actual,
                                const signal_info_s &expect) const;
+        void check_control_info(const control_info_s &actual,
+                                const control_info_s &expect) const;
         std::shared_ptr<MockSDBus> m_bus;
         std::shared_ptr<MockSDBusMessage> m_bus_message;
         std::shared_ptr<MockSDBusMessage> m_bus_reply;
@@ -155,3 +157,53 @@ void ServiceProxyTest::check_signal_info(const signal_info_s &actual,
     EXPECT_EQ(actual.string_format, expect.string_format);
     EXPECT_EQ(actual.behavior, expect.behavior);
 }
+
+TEST_F(ServiceProxyTest, platform_get_control_info)
+{
+    int num_container = 3; // One array with two structures in it
+    EXPECT_CALL(*m_bus_reply, enter_container(_,_))
+        .Times(num_container + 1); // Extra enter array of struct termination
+    EXPECT_CALL(*m_bus_reply, exit_container())
+        .Times(num_container);
+    EXPECT_CALL(*m_bus_reply, was_success())
+        .WillOnce(Return(true))
+        .WillOnce(Return(true))
+        .WillOnce(Return(false));
+    EXPECT_CALL(*m_bus_reply, read_string())
+        .WillOnce(Return("frequency"))
+        .WillOnce(Return("Maximum cpu frequency"))
+        .WillOnce(Return("power"))
+        .WillOnce(Return("Maximum power cap"));
+    EXPECT_CALL(*m_bus_reply, read_integer())
+        .WillOnce(Return(1))
+        .WillOnce(Return(2));
+    EXPECT_CALL(*m_bus, make_call_message("PlatformGetControlInfo"))
+        .WillOnce(Return(m_bus_message));
+    std::vector<std::string> input_names = {"frequency", "power"};
+    EXPECT_CALL(*m_bus_message, append_strings(input_names))
+        .Times(1);
+    std::shared_ptr<SDBusMessage> bus_message_ptr = m_bus_message;
+    EXPECT_CALL(*m_bus, call_method(bus_message_ptr))
+        .WillOnce(Return(m_bus_reply));
+    std::vector<control_info_s> info_actual = m_proxy->platform_get_control_info(input_names);
+
+    std::vector<control_info_s> info_expect = {{"frequency",
+                                               "Maximum cpu frequency",
+                                                1},
+                                              {"power",
+                                               "Maximum power cap",
+                                                2}};
+    ASSERT_EQ(info_actual.size(), info_expect.size());
+    for (unsigned info_idx = 0; info_idx != info_actual.size(); ++info_idx) {
+        check_control_info(info_expect.at(info_idx), info_actual.at(info_idx));
+    }
+}
+
+void ServiceProxyTest::check_control_info(const control_info_s &actual,
+                                          const control_info_s &expect) const
+{
+    EXPECT_EQ(actual.name, expect.name);
+    EXPECT_EQ(actual.description, expect.description);
+    EXPECT_EQ(actual.domain, expect.domain);
+}
+
