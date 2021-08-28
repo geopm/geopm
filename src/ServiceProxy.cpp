@@ -80,7 +80,7 @@ namespace geopm
         std::shared_ptr<SDBusMessage> bus_message =
             m_bus->make_call_message("PlatformGetSignalInfo");
         bus_message->append_strings(signal_names);
-        std::shared_ptr<SDBusMessage> bus_reply = m_bus->call(bus_message);
+        std::shared_ptr<SDBusMessage> bus_reply = m_bus->call_method(bus_message);
         bus_reply->enter_container(SDBusMessage::M_MESSAGE_TYPE_ARRAY, "(ssiiii)");
         bus_reply->enter_container(SDBusMessage::M_MESSAGE_TYPE_STRUCT, "ssiiii");
         while (bus_reply->was_success()) {
@@ -106,7 +106,7 @@ namespace geopm
         std::shared_ptr<SDBusMessage> bus_message =
             m_bus->make_call_message("PlatformGetControlInfo");
         bus_message->append_strings(control_names);
-        std::shared_ptr<SDBusMessage> bus_reply = m_bus->call(bus_message);
+        std::shared_ptr<SDBusMessage> bus_reply = m_bus->call_method(bus_message);
         bus_reply->enter_container(SDBusMessage::M_MESSAGE_TYPE_ARRAY, "(ssi)");
         bus_reply->enter_container(SDBusMessage::M_MESSAGE_TYPE_STRUCT, "ssi");
         while (bus_reply->was_success()) {
