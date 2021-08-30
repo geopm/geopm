@@ -127,7 +127,6 @@ libgeopmd_la_SOURCES = contrib/json11/json11.cpp \
                        src/LevelZeroImp.hpp \
                        src/LevelZeroSignal.cpp \
                        src/LevelZeroSignal.hpp \
-                       src/LevelZeroThrow.cpp \
                        src/MSR.cpp \
                        src/MSR.hpp \
                        src/MSRFieldControl.cpp \
@@ -210,6 +209,8 @@ levelzero_source_files = src/LevelZero.cpp \
 
 if ENABLE_LEVELZERO
     libgeopmd_la_SOURCES += $(levelzero_source_files)
+    EXTRA_DIST += src/LevelZeroThrow.cpp
+
 else
     libgeopmd_la_SOURCES += src/LevelZeroThrow.cpp
     EXTRA_DIST += $(levelzero_source_files)
@@ -217,6 +218,7 @@ endif
 
 if ENABLE_NVML
     libgeopmd_la_SOURCES += $(nvml_source_files)
+    EXTRA_DIST += src/NVMLDevicePoolThrow.cpp
 else
     libgeopmd_la_SOURCES += src/NVMLDevicePoolThrow.cpp
     EXTRA_DIST += $(nvml_source_files)

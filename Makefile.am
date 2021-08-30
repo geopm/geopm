@@ -546,7 +546,6 @@ libgeopmpolicy_la_SOURCES = service/contrib/json11/json11.cpp \
                             service/src/LevelZeroImp.hpp \
                             service/src/LevelZeroSignal.cpp \
                             service/src/LevelZeroSignal.hpp \
-                            service/src/LevelZeroThrow.cpp \
                             service/src/MSR.cpp \
                             service/src/MSR.hpp \
                             service/src/MSRFieldControl.cpp \
@@ -738,14 +737,16 @@ levelzero_source_files = service/src/LevelZero.cpp \
 
 if ENABLE_LEVELZERO
     libgeopmpolicy_la_SOURCES += $(levelzero_source_files)
+    EXTRA_DIST += service/src/LevelZeroThrow.cpp
+
 else
     libgeopmpolicy_la_SOURCES += service/src/LevelZeroThrow.cpp
-    EXTRA_DIST += $(levelzero_source_files) \
-                  #end
+    EXTRA_DIST += $(levelzero_source_files)
 endif
 
 if ENABLE_NVML
     libgeopmpolicy_la_SOURCES += $(nvml_source_files)
+    EXTRA_DIST += service/src/NVMLDevicePoolThrow.cpp
 else
     libgeopmpolicy_la_SOURCES += service/src/NVMLDevicePoolThrow.cpp
     EXTRA_DIST += $(nvml_source_files)

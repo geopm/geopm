@@ -932,4 +932,16 @@ namespace geopm
             m_control_available[control_name].m_description +
             "\n    alias_for: " + control_name;
     }
+
+    void LevelZeroIOGroup::save_control(const std::string &save_path)
+    {
+        throw Exception("LevelZeroIOGroup::save_control()",
+                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+    }
+    void LevelZeroIOGroup::restore_control(const std::string &save_path)
+    {
+        throw Exception("LevelZeroIOGroup::save_control()",
+                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+    }
+
 }
