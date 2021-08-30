@@ -120,10 +120,8 @@ namespace geopm
                 if (property.type == ZE_DEVICE_TYPE_GPU) {
                     if ((property.flags & ZE_DEVICE_PROPERTY_FLAG_INTEGRATED) == 0) {
                         ++m_num_board_gpu;
-                        if (num_subdevice != 0) {
-                            m_num_board_gpu_subdevice += num_subdevice;
-                        }
-                        else {
+                        m_num_board_gpu_subdevice += num_subdevice;
+                        if (num_subdevice == 0) {
                             // If there are no subdevices we are going to treat the
                             // device as a subdevice.
                             m_num_board_gpu_subdevice += 1;
