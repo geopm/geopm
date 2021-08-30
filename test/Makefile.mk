@@ -814,8 +814,10 @@ $(GTEST_TESTS): test/gtest_links/%:
 	ln -s $(abs_srcdir)/test/geopm_test.sh $@
 
 coverage: check
-	lcov --no-external --capture --directory src --output-file coverage.info --rc lcov_branch_coverage=1
-	genhtml coverage.info --output-directory coverage --rc lcov_branch_coverage=1
+	lcov --no-external --capture --directory src --output-file coverage-base.info
+	genhtml coverage-base.info --output-directory coverage-base
+	lcov --no-external --capture --directory service/src --output-file coverage-service.info
+	genhtml coverage-service.info --output-directory coverage-service
 
 clean-local-gtest-script-links:
 	rm -f test/gtest_links/*
