@@ -62,6 +62,19 @@ fi
 [enable_debug="0"]
 )
 
+AC_ARG_ENABLE([levelzero],
+  [AS_HELP_STRING([--enable-levelzero], [Enables use of the levelzero library to support levelzero board accelerators])],
+[if test "x$enable_levelzero" = "xno" ; then
+  enable_levelzero="0"
+else
+  enable_levelzero="1"
+fi
+],
+[enable_levelzero="0"]
+)
+AC_SUBST([enable_levelzero])
+AM_CONDITIONAL([ENABLE_LEVELZERO], [test "x$enable_levelzero" = "x1"])
+
 AC_ARG_ENABLE([nvml],
   [AS_HELP_STRING([--enable-nvml], [Enables use of the NVML library to support NVML board accelerators])],
 [if test "x$enable_nvml" = "xno" ; then
@@ -98,6 +111,12 @@ if test "x$enable_nvml" = "x1" ; then
   AC_DEFINE([GEOPM_ENABLE_NVML], [ ], [Enables use of the NVML library to support NVML board accelerators])
 else
   ENABLE_NVML=False
+    if test "x$enable_levelzero" = "x1" ; then
+        ENABLE_LEVELZERO=True
+        AC_DEFINE([GEOPM_ENABLE_LEVELZERO], [ ], [Enables use of the levelzero library to support levelzero board accelerators])
+    else
+        ENABLE_LEVELZERO=False
+    fi
 fi
 
 if test "x$enable_cnl_iogroup" = "x1" ; then
@@ -111,6 +130,14 @@ if test "x$with_libnvml" != x; then
   EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$with_libnvml/include"
   LD_LIBRARY_PATH="$with_libnvml/lib:$LD_LIBRARY_PATH"
   EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_libnvml/lib"
+fi
+
+AC_ARG_WITH([liblevelzero], [AS_HELP_STRING([--with-liblevelzero=PATH],
+            [specify directory for installed liblevelzero package.])])
+if test "x$with_liblevelzero" != x; then
+  EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$with_liblevelzero/include/level_zero"
+  LD_LIBRARY_PATH="$with_liblevelzero/lib64:$LD_LIBRARY_PATH"
+  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_liblevelzero/lib64"
 fi
 
 AC_ARG_VAR([PYTHON],
@@ -170,6 +197,16 @@ if test "x$enable_nvml" = "x1" ; then
     AC_CHECK_HEADER([nvml.h], [], [
         echo "missing nvml.h: NVML header is required, use --with-libnvml to specify location"
         exit -1])
+else
+    if test "x$enable_levelzero" = "x1" ; then
+        AC_SEARCH_LIBS([zeInit], [ze_loader])
+        AC_CHECK_LIB([ze_loader], [zeInit], [], [
+            echo "missing libze_loader: LevelZero library is required, use --with-liblevelzero to specify location"
+            exit -1])
+        AC_CHECK_HEADER([ze_api.h], [], [
+            echo "missing ze_api.h: LevelZero header is required, use --with-liblevelzero to specify location"
+            exit -1])
+    fi
 fi
 
 AC_CHECK_HEADERS([fcntl.h limits.h stddef.h stdint.h stdlib.h string.h sys/ioctl.h unistd.h])
@@ -257,4 +294,5 @@ AC_MSG_RESULT([GEOPM_CONFIG_PATH  : ${GEOPM_CONFIG_PATH}])
 AC_MSG_RESULT([])
 AC_MSG_RESULT([debug              : ${enable_debug}])
 AC_MSG_RESULT([nvml               : ${enable_nvml}])
+AC_MSG_RESULT([levelzero          : ${enable_levelzero}])
 AC_MSG_RESULT([===============================================================================])
