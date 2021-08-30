@@ -244,8 +244,13 @@ TEST_F(ServiceProxyTest, platform_stop_batch)
 
 TEST_F(ServiceProxyTest, platform_read_signal)
 {
-    EXPECT_CALL(*m_bus, call_method("PlatformReadSignal", "instructions", 1, 2));
-    m_proxy->platform_read_signal("instructions", 1, 2);
+    double expect_read = 42.24;
+    EXPECT_CALL(*m_bus, call_method("PlatformReadSignal", "instructions", 1, 2))
+        .WillOnce(Return(m_bus_reply));
+    EXPECT_CALL(*m_bus_reply, read_double())
+        .WillOnce(Return(expect_read));
+    double actual_read = m_proxy->platform_read_signal("instructions", 1, 2);
+    EXPECT_EQ(expect_read, actual_read);
 }
 
 TEST_F(ServiceProxyTest, platform_write_control)
