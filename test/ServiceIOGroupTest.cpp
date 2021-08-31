@@ -147,11 +147,11 @@ TEST_F(ServiceIOGroupTest, signal_control_info)
 
 TEST_F(ServiceIOGroupTest, domain_type)
 {
-    for (unsigned ii = 0; ii < m_expected_signals.size(); ++ii) {
+    for (int ii = 0; ii < (int)m_expected_signals.size(); ++ii) {
         EXPECT_EQ(ii, m_serviceio_group->signal_domain_type(m_expected_signals.at(ii)));
         EXPECT_EQ(ii, m_serviceio_group->signal_domain_type("SERVICE::" + m_expected_signals.at(ii)));
     }
-    for (unsigned ii = 0; ii < m_expected_controls.size(); ++ii) {
+    for (int ii = 0; ii < (int)m_expected_controls.size(); ++ii) {
         EXPECT_EQ(ii, m_serviceio_group->control_domain_type(m_expected_controls.at(ii)));
         EXPECT_EQ(ii, m_serviceio_group->control_domain_type("SERVICE::" + m_expected_controls.at(ii)));
     }
@@ -167,7 +167,7 @@ TEST_F(ServiceIOGroupTest, read_signal_behavior)
             .WillOnce(Return(7));
         EXPECT_EQ(42, m_serviceio_group->read_signal(m_expected_signals.at(ii), ii, ii));
         EXPECT_EQ(7, m_serviceio_group->read_signal("SERVICE::" + m_expected_signals.at(ii), ii, ii));
-        EXPECT_EQ(ii, m_serviceio_group->signal_behavior(m_expected_signals.at(ii)));
+        EXPECT_EQ((int)ii, m_serviceio_group->signal_behavior(m_expected_signals.at(ii)));
     }
     GEOPM_EXPECT_THROW_MESSAGE(m_serviceio_group->signal_behavior("BAD SIGNAL"),
                                GEOPM_ERROR_INVALID,
