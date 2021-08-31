@@ -147,11 +147,11 @@ TEST_F(ServiceIOGroupTest, signal_control_info)
 
 TEST_F(ServiceIOGroupTest, domain_type)
 {
-    for (int ii = 0; ii < m_expected_signals.size(); ++ii) {
+    for (unsigned ii = 0; ii < m_expected_signals.size(); ++ii) {
         EXPECT_EQ(ii, m_serviceio_group->signal_domain_type(m_expected_signals.at(ii)));
         EXPECT_EQ(ii, m_serviceio_group->signal_domain_type("SERVICE::" + m_expected_signals.at(ii)));
     }
-    for (int ii = 0; ii < m_expected_controls.size(); ++ii) {
+    for (unsigned ii = 0; ii < m_expected_controls.size(); ++ii) {
         EXPECT_EQ(ii, m_serviceio_group->control_domain_type(m_expected_controls.at(ii)));
         EXPECT_EQ(ii, m_serviceio_group->control_domain_type("SERVICE::" + m_expected_controls.at(ii)));
     }
@@ -161,7 +161,7 @@ TEST_F(ServiceIOGroupTest, domain_type)
 
 TEST_F(ServiceIOGroupTest, read_signal_behavior)
 {
-    for (int ii = 0; ii < m_expected_signals.size(); ++ii) {
+    for (unsigned ii = 0; ii < m_expected_signals.size(); ++ii) {
         EXPECT_CALL(*m_proxy, platform_read_signal(m_expected_signals.at(ii), ii, ii))
             .WillOnce(Return(42))
             .WillOnce(Return(7));
@@ -176,7 +176,7 @@ TEST_F(ServiceIOGroupTest, read_signal_behavior)
 
 TEST_F(ServiceIOGroupTest, write_control)
 {
-    for (int ii = 0; ii < m_expected_controls.size(); ++ii) {
+    for (unsigned ii = 0; ii < m_expected_controls.size(); ++ii) {
         EXPECT_CALL(*m_proxy, platform_write_control(m_expected_controls.at(ii), ii, ii, 42));
         EXPECT_NO_THROW(m_serviceio_group->write_control(m_expected_controls.at(ii), ii, ii, 42));
         EXPECT_CALL(*m_proxy, platform_write_control(m_expected_controls.at(ii), ii, ii, 7));
