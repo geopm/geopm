@@ -31,11 +31,8 @@
 
 check_PROGRAMS += test/geopm_test
 
-if ENABLE_MPI
-    check_PROGRAMS += test/geopm_mpi_test_api
-endif
-
-GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
+GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
+              test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/AccumulatorTest.sum_ones \
               test/gtest_links/AccumulatorTest.sum_idx \
               test/gtest_links/AccumulatorTest.avg_ones \
@@ -56,6 +53,8 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/AgentFactoryTest.static_info_balancer \
               test/gtest_links/AgentFactoryTest.static_info_governor \
               test/gtest_links/AgentFactoryTest.static_info_frequency_map \
+              test/gtest_links/AggTest.agg_function \
+              test/gtest_links/AggTest.function_strings \
               test/gtest_links/ApplicationIOTest.passthrough \
               test/gtest_links/ApplicationRecordLogTest.bad_shmem \
               test/gtest_links/ApplicationRecordLogTest.get_sizes \
@@ -91,6 +90,20 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/ApplicationStatusTest.update_cache \
               test/gtest_links/ApplicationStatusTest.work_progress \
               test/gtest_links/ApplicationStatusTest.wrong_buffer_size \
+              test/gtest_links/CircularBufferTest.buffer_capacity \
+              test/gtest_links/CircularBufferTest.buffer_size \
+              test/gtest_links/CircularBufferTest.buffer_values \
+              test/gtest_links/CircularBufferTest.make_vector_slice \
+              test/gtest_links/CNLIOGroupTest.valid_signals \
+              test/gtest_links/CNLIOGroupTest.read_signal \
+              test/gtest_links/CNLIOGroupTest.push_signal \
+              test/gtest_links/CNLIOGroupTest.parse_energy \
+              test/gtest_links/CNLIOGroupTest.parse_power \
+              test/gtest_links/CombinedSignalTest.sample_flat_derivative \
+              test/gtest_links/CombinedSignalTest.sample_max \
+              test/gtest_links/CombinedSignalTest.sample_slope_derivative \
+              test/gtest_links/CombinedSignalTest.sample_sum \
+              test/gtest_links/CombinedSignalTest.sample_difference \
               test/gtest_links/CommMPIImpTest.mpi_allreduce \
               test/gtest_links/CommMPIImpTest.mpi_barrier \
               test/gtest_links/CommMPIImpTest.mpi_broadcast \
@@ -118,10 +131,45 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/ControllerTest.two_level_controller_0 \
               test/gtest_links/ControllerTest.two_level_controller_1 \
               test/gtest_links/ControllerTest.two_level_controller_2 \
+              test/gtest_links/CpuinfoIOGroupTest.parse_cpu_freq \
+              test/gtest_links/CpuinfoIOGroupTest.parse_error_no_sticker \
+              test/gtest_links/CpuinfoIOGroupTest.parse_error_sticker_bad_path \
+              test/gtest_links/CpuinfoIOGroupTest.parse_sticker_missing_newline \
+              test/gtest_links/CpuinfoIOGroupTest.parse_sticker_multiple_ghz \
+              test/gtest_links/CpuinfoIOGroupTest.parse_sticker_multiple_model_name \
+              test/gtest_links/CpuinfoIOGroupTest.parse_sticker_with_at \
+              test/gtest_links/CpuinfoIOGroupTest.parse_sticker_with_ghz_space \
+              test/gtest_links/CpuinfoIOGroupTest.parse_sticker_without_at \
+              test/gtest_links/CpuinfoIOGroupTest.plugin \
+              test/gtest_links/CpuinfoIOGroupTest.push_signal \
+              test/gtest_links/CpuinfoIOGroupTest.read_signal \
+              test/gtest_links/CpuinfoIOGroupTest.valid_signals \
               test/gtest_links/CSVTest.buffer \
               test/gtest_links/CSVTest.columns \
               test/gtest_links/CSVTest.header \
               test/gtest_links/CSVTest.negative \
+              test/gtest_links/DebugIOGroupTest.is_valid \
+              test/gtest_links/DebugIOGroupTest.push \
+              test/gtest_links/DebugIOGroupTest.read_signal \
+              test/gtest_links/DebugIOGroupTest.register_signal_error \
+              test/gtest_links/DebugIOGroupTest.sample \
+              test/gtest_links/DerivativeSignalTest.errors \
+              test/gtest_links/DerivativeSignalTest.read_batch_flat \
+              test/gtest_links/DerivativeSignalTest.read_batch_first \
+              test/gtest_links/DerivativeSignalTest.read_batch_slope_1 \
+              test/gtest_links/DerivativeSignalTest.read_batch_slope_2 \
+              test/gtest_links/DerivativeSignalTest.read_flat \
+              test/gtest_links/DerivativeSignalTest.read_slope_1 \
+              test/gtest_links/DerivativeSignalTest.setup_batch \
+              test/gtest_links/DifferenceSignalTest.errors \
+              test/gtest_links/DifferenceSignalTest.read \
+              test/gtest_links/DifferenceSignalTest.read_batch \
+              test/gtest_links/DifferenceSignalTest.setup_batch \
+              test/gtest_links/DomainControlTest.errors \
+              test/gtest_links/DomainControlTest.save_restore \
+              test/gtest_links/DomainControlTest.setup_batch \
+              test/gtest_links/DomainControlTest.write \
+              test/gtest_links/DomainControlTest.write_batch \
               test/gtest_links/EditDistEpochRecordFilterTest.one_region_repeated \
               test/gtest_links/EditDistEpochRecordFilterTest.filter_in \
               test/gtest_links/EditDistEpochRecordFilterTest.filter_out \
@@ -197,6 +245,9 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/EpochIOGroupTest.read_batch \
               test/gtest_links/EpochIOGroupTest.sample_count \
               test/gtest_links/EpochIOGroupTest.valid_signals \
+              test/gtest_links/ExceptionTest.check_ronn \
+              test/gtest_links/ExceptionTest.hello \
+              test/gtest_links/ExceptionTest.last_message \
               test/gtest_links/FilePolicyTest.parse_json_file \
               test/gtest_links/FilePolicyTest.negative_bad_files \
               test/gtest_links/FilePolicyTest.negative_parse_json_file \
@@ -214,9 +265,107 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/FrequencyMapAgentTest.policy_to_json \
               test/gtest_links/FrequencyMapAgentTest.split_policy \
               test/gtest_links/FrequencyMapAgentTest.validate_policy \
+              test/gtest_links/HelperTest.string_begins_with \
+              test/gtest_links/HelperTest.string_ends_with \
+              test/gtest_links/HelperTest.string_join \
+              test/gtest_links/HelperTest.string_split \
+              test/gtest_links/IOGroupTest.control_names_are_valid \
+              test/gtest_links/IOGroupTest.controls_have_descriptions \
+              test/gtest_links/IOGroupTest.signal_names_are_valid \
+              test/gtest_links/IOGroupTest.signals_have_agg_functions \
+              test/gtest_links/IOGroupTest.signals_have_descriptions \
+              test/gtest_links/IOGroupTest.signals_have_format_functions \
+              test/gtest_links/IOGroupTest.string_to_behavior \
+              test/gtest_links/LevelZeroAcceleratorTopoTest.no_gpu_config \
+              test/gtest_links/LevelZeroAcceleratorTopoTest.four_forty_config \
+              test/gtest_links/LevelZeroAcceleratorTopoTest.eight_fiftysix_affinitization_config \
+              test/gtest_links/LevelZeroAcceleratorTopoTest.uneven_affinitization_config \
+              test/gtest_links/LevelZeroAcceleratorTopoTest.high_cpu_count_config \
+              test/gtest_links/LevelZeroDevicePoolTest.device_count \
+              test/gtest_links/LevelZeroDevicePoolTest.subdevice_conversion_and_function \
+              test/gtest_links/LevelZeroDevicePoolTest.subdevice_conversion_error \
+              test/gtest_links/LevelZeroDevicePoolTest.domain_error \
+              test/gtest_links/LevelZeroDevicePoolTest.subdevice_range_check \
+              test/gtest_links/LevelZeroDevicePoolTest.device_range_check \
+              test/gtest_links/LevelZeroDevicePoolTest.device_function_check \
+              test/gtest_links/LevelZeroIOGroupTest.valid_signals \
+              test/gtest_links/LevelZeroIOGroupTest.read_signal \
+              test/gtest_links/LevelZeroIOGroupTest.error_path \
+              test/gtest_links/LevelZeroIOGroupTest.write_control \
+              test/gtest_links/LevelZeroIOGroupTest.save_restore \
+              test/gtest_links/LevelZeroIOGroupTest.push_control_adjust_write_batch \
+              test/gtest_links/LevelZeroIOGroupTest.read_signal_and_batch \
+              test/gtest_links/LevelZeroIOGroupTest.read_timestamp_batch \
+              test/gtest_links/LevelZeroIOGroupTest.read_timestamp_batch_reverse \
+              test/gtest_links/MSRIOGroupTest.adjust \
+              test/gtest_links/MSRIOGroupTest.control_error \
+              test/gtest_links/MSRIOGroupTest.cpuid \
+              test/gtest_links/MSRIOGroupTest.parse_json_msrs \
+              test/gtest_links/MSRIOGroupTest.parse_json_msrs_error_fields \
+              test/gtest_links/MSRIOGroupTest.parse_json_msrs_error_msrs \
+              test/gtest_links/MSRIOGroupTest.parse_json_msrs_error_top_level \
+              test/gtest_links/MSRIOGroupTest.push_control \
+              test/gtest_links/MSRIOGroupTest.push_signal \
+              test/gtest_links/MSRIOGroupTest.push_signal_temperature \
+              test/gtest_links/MSRIOGroupTest.read_signal_counter \
+              test/gtest_links/MSRIOGroupTest.read_signal_energy \
+              test/gtest_links/MSRIOGroupTest.read_signal_frequency \
+              test/gtest_links/MSRIOGroupTest.read_signal_power \
+              test/gtest_links/MSRIOGroupTest.read_signal_temperature \
+              test/gtest_links/MSRIOGroupTest.sample \
+              test/gtest_links/MSRIOGroupTest.sample_raw \
+              test/gtest_links/MSRIOGroupTest.signal_error \
+              test/gtest_links/MSRIOGroupTest.supported_cpuid \
+              test/gtest_links/MSRIOGroupTest.valid_signal_aggregation \
+              test/gtest_links/MSRIOGroupTest.valid_signal_domains \
+              test/gtest_links/MSRIOGroupTest.valid_signal_format \
+              test/gtest_links/MSRIOGroupTest.valid_signal_names \
+              test/gtest_links/MSRIOGroupTest.allowlist \
+              test/gtest_links/MSRIOGroupTest.write_control \
+              test/gtest_links/MSRIOTest.read_aligned \
+              test/gtest_links/MSRIOTest.read_batch \
+              test/gtest_links/MSRIOTest.read_unaligned \
+              test/gtest_links/MSRIOTest.write \
+              test/gtest_links/MSRIOTest.write_batch \
+              test/gtest_links/MSRFieldControlTest.errors \
+              test/gtest_links/MSRFieldControlTest.save_restore \
+              test/gtest_links/MSRFieldControlTest.setup_batch \
+              test/gtest_links/MSRFieldControlTest.write_batch_7_bit_float \
+              test/gtest_links/MSRFieldControlTest.write_7_bit_float \
+              test/gtest_links/MSRFieldControlTest.write_batch_log_half \
+              test/gtest_links/MSRFieldControlTest.write_log_half \
+              test/gtest_links/MSRFieldControlTest.write_batch_scale \
+              test/gtest_links/MSRFieldControlTest.write_scale \
+              test/gtest_links/MSRFieldSignalTest.read_batch_7_bit_float \
+              test/gtest_links/MSRFieldSignalTest.read_batch_log_half \
+              test/gtest_links/MSRFieldSignalTest.read_batch_overflow \
+              test/gtest_links/MSRFieldSignalTest.read_batch_scale \
+              test/gtest_links/MSRFieldSignalTest.read_7_bit_float \
+              test/gtest_links/MSRFieldSignalTest.read_log_half \
+              test/gtest_links/MSRFieldSignalTest.read_overflow \
+              test/gtest_links/MSRFieldSignalTest.read_scale \
+              test/gtest_links/MSRFieldSignalTest.real_counter \
+              test/gtest_links/MSRFieldSignalTest.setup_batch \
+              test/gtest_links/MSRFieldSignalTest.errors \
               test/gtest_links/ModelApplicationTest.parse_config_errors \
               test/gtest_links/MonitorAgentTest.policy_names \
               test/gtest_links/MonitorAgentTest.sample_names \
+              test/gtest_links/NVMLAcceleratorTopoTest.hpe_sx40_default_config \
+              test/gtest_links/NVMLAcceleratorTopoTest.no_gpu_config \
+              test/gtest_links/NVMLAcceleratorTopoTest.mutex_affinitization_config \
+              test/gtest_links/NVMLAcceleratorTopoTest.equidistant_affinitization_config \
+              test/gtest_links/NVMLAcceleratorTopoTest.n1_superset_n_affinitization_config \
+              test/gtest_links/NVMLAcceleratorTopoTest.greedbuster_affinitization_config \
+              test/gtest_links/NVMLAcceleratorTopoTest.hpe_6500_affinitization_config \
+              test/gtest_links/NVMLAcceleratorTopoTest.uneven_affinitization_config \
+              test/gtest_links/NVMLAcceleratorTopoTest.high_cpu_count_config \
+              test/gtest_links/NVMLAcceleratorTopoTest.high_cpu_count_gaps_config \
+              test/gtest_links/NVMLIOGroupTest.read_signal \
+              test/gtest_links/NVMLIOGroupTest.read_signal_and_batch \
+              test/gtest_links/NVMLIOGroupTest.write_control \
+              test/gtest_links/NVMLIOGroupTest.push_control_adjust_write_batch \
+              test/gtest_links/NVMLIOGroupTest.error_path \
+              test/gtest_links/NVMLIOGroupTest.valid_signals \
               test/gtest_links/OptionParserTest.get_invalid \
               test/gtest_links/OptionParserTest.parse_errors \
               test/gtest_links/OptionParserTest.add_option_errors \
@@ -230,6 +379,40 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/OptionParserTest.complex \
               test/gtest_links/OptionParserTest.compact_short_options \
               test/gtest_links/OptionParserTest.format_help \
+              test/gtest_links/PlatformIOTest.adjust \
+              test/gtest_links/PlatformIOTest.adjust_agg \
+              test/gtest_links/PlatformIOTest.agg_function \
+              test/gtest_links/PlatformIOTest.domain_type \
+              test/gtest_links/PlatformIOTest.push_control \
+              test/gtest_links/PlatformIOTest.push_control_agg \
+              test/gtest_links/PlatformIOTest.push_signal \
+              test/gtest_links/PlatformIOTest.push_signal_agg \
+              test/gtest_links/PlatformIOTest.read_signal \
+              test/gtest_links/PlatformIOTest.read_signal_agg \
+              test/gtest_links/PlatformIOTest.read_signal_override \
+              test/gtest_links/PlatformIOTest.sample \
+              test/gtest_links/PlatformIOTest.sample_agg \
+              test/gtest_links/PlatformIOTest.signal_behavior \
+              test/gtest_links/PlatformIOTest.signal_control_description \
+              test/gtest_links/PlatformIOTest.signal_control_names \
+              test/gtest_links/PlatformIOTest.write_control \
+              test/gtest_links/PlatformIOTest.write_control_override \
+              test/gtest_links/PlatformIOTest.write_control_agg \
+              test/gtest_links/PlatformTopoTest.bdx_domain_idx \
+              test/gtest_links/PlatformTopoTest.bdx_is_nested_domain \
+              test/gtest_links/PlatformTopoTest.bdx_domain_nested \
+              test/gtest_links/PlatformTopoTest.bdx_num_domain \
+              test/gtest_links/PlatformTopoTest.construction \
+              test/gtest_links/PlatformTopoTest.create_cache \
+              test/gtest_links/PlatformTopoTest.domain_name_to_type \
+              test/gtest_links/PlatformTopoTest.domain_type_to_name \
+              test/gtest_links/PlatformTopoTest.hsw_num_domain \
+              test/gtest_links/PlatformTopoTest.knl_num_domain \
+              test/gtest_links/PlatformTopoTest.no0x_num_domain \
+              test/gtest_links/PlatformTopoTest.parse_error \
+              test/gtest_links/PlatformTopoTest.ppc_num_domain \
+              test/gtest_links/PlatformTopoTest.singleton_construction \
+              test/gtest_links/PlatformTopoTest.call_c_wrappers \
               test/gtest_links/PowerBalancerAgentTest.tree_agent \
               test/gtest_links/PowerBalancerAgentTest.tree_root_agent \
               test/gtest_links/PowerBalancerAgentTest.enforce_policy \
@@ -285,6 +468,10 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/ProxyEpochRecordFilterTest.filter_out \
               test/gtest_links/ProxyEpochRecordFilterTest.parse_name \
               test/gtest_links/ProxyEpochRecordFilterTest.parse_tutorial_2 \
+              test/gtest_links/RawMSRSignalTest.errors \
+              test/gtest_links/RawMSRSignalTest.read \
+              test/gtest_links/RawMSRSignalTest.read_batch \
+              test/gtest_links/RawMSRSignalTest.setup_batch \
               test/gtest_links/RecordFilterTest.invalid_filter_name \
               test/gtest_links/RecordFilterTest.make_proxy_epoch \
               test/gtest_links/RecordFilterTest.make_edit_distance \
@@ -321,6 +508,46 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/ServiceProxyTest.platform_stop_batch \
               test/gtest_links/ServiceProxyTest.platform_read_signal \
               test/gtest_links/ServiceProxyTest.platform_write_control \
+              test/gtest_links/SharedMemoryTest.fd_check \
+              test/gtest_links/SharedMemoryTest.invalid_construction \
+              test/gtest_links/SharedMemoryTest.lock_shmem \
+              test/gtest_links/SharedMemoryTest.lock_shmem_u \
+              test/gtest_links/SharedMemoryTest.share_data \
+              test/gtest_links/SharedMemoryTest.share_data_ipc \
+              test/gtest_links/SSTControlTest.mailbox_adjust_batch \
+              test/gtest_links/SSTControlTest.mmio_adjust_batch \
+              test/gtest_links/SSTControlTest.save_restore_mmio \
+              test/gtest_links/SSTControlTest.save_restore_mbox \
+              test/gtest_links/SSTIOGroupTest.adjust_mbox_control \
+              test/gtest_links/SSTIOGroupTest.adjust_mmio_control \
+              test/gtest_links/SSTIOGroupTest.error_in_save_removes_control \
+              test/gtest_links/SSTIOGroupTest.sample_mbox_control \
+              test/gtest_links/SSTIOGroupTest.sample_mbox_signal \
+              test/gtest_links/SSTIOGroupTest.sample_mmio_percore_control \
+              test/gtest_links/SSTIOGroupTest.valid_control_domains \
+              test/gtest_links/SSTIOGroupTest.valid_control_names \
+              test/gtest_links/SSTIOGroupTest.valid_signal_domains \
+              test/gtest_links/SSTIOGroupTest.valid_signal_names \
+              test/gtest_links/SSTSignalTest.mailbox_read_batch \
+              test/gtest_links/SSTSignalTest.mmio_read_batch \
+              test/gtest_links/SSTIOTest.mbox_batch_reads \
+              test/gtest_links/SSTIOTest.mmio_batch_reads \
+              test/gtest_links/SSTIOTest.mbox_batch_writes \
+              test/gtest_links/SSTIOTest.mmio_batch_writes \
+              test/gtest_links/SSTIOTest.sample_batched_reads \
+              test/gtest_links/SSTIOTest.adjust_batched_writes \
+              test/gtest_links/SSTIOTest.read_mbox_once \
+              test/gtest_links/SSTIOTest.read_mmio_once \
+              test/gtest_links/SSTIOTest.write_mbox_once \
+              test/gtest_links/SSTIOTest.write_mmio_once \
+              test/gtest_links/SSTIOTest.get_punit_from_cpu \
+              test/gtest_links/TimeIOGroupTest.adjust \
+              test/gtest_links/TimeIOGroupTest.is_valid \
+              test/gtest_links/TimeIOGroupTest.push \
+              test/gtest_links/TimeIOGroupTest.read_nothing \
+              test/gtest_links/TimeIOGroupTest.read_signal \
+              test/gtest_links/TimeIOGroupTest.read_signal_and_batch \
+              test/gtest_links/TimeIOGroupTest.sample \
               test/gtest_links/TracerTest.columns \
               test/gtest_links/TracerTest.region_entry_exit \
               test/gtest_links/TracerTest.update_samples \
@@ -396,17 +623,27 @@ EXTRA_DIST += test/InternalProfile.cpp \
               test/EditDistPeriodicityDetectorTest.cpp \
               # end
 
-test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
+test_geopm_test_SOURCES = test/AcceleratorTopoNullTest.cpp \
+                          test/AccumulatorTest.cpp \
                           test/AdminTest.cpp \
                           test/AgentFactoryTest.cpp \
+                          test/AggTest.cpp \
                           test/ApplicationIOTest.cpp \
                           test/ApplicationRecordLogTest.cpp \
                           test/ApplicationSamplerTest.cpp \
                           test/ApplicationStatusTest.cpp \
+                          test/CircularBufferTest.cpp \
+                          test/CNLIOGroupTest.cpp \
+                          test/CombinedSignalTest.cpp \
                           test/CommMPIImpTest.cpp \
                           test/ControlMessageTest.cpp \
                           test/ControllerTest.cpp \
+                          test/CpuinfoIOGroupTest.cpp \
                           test/CSVTest.cpp \
+                          test/DebugIOGroupTest.cpp \
+                          test/DerivativeSignalTest.cpp \
+                          test/DifferenceSignalTest.cpp \
+                          test/DomainControlTest.cpp \
                           test/EditDistEpochRecordFilterTest.cpp \
                           test/EditDistPeriodicityDetectorTest.cpp \
                           test/EndpointTest.cpp \
@@ -417,9 +654,20 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
                           test/EnvironmentTest.cpp \
                           test/EpochIOGroupTest.cpp \
                           test/EpochIOGroupIntegrationTest.cpp \
+                          test/ExceptionTest.cpp \
                           test/FilePolicyTest.cpp \
                           test/FrequencyGovernorTest.cpp \
                           test/FrequencyMapAgentTest.cpp \
+                          test/HelperTest.cpp \
+                          test/IOGroupTest.cpp \
+                          test/LevelZeroAcceleratorTopoTest.cpp \
+                          test/LevelZeroDevicePoolTest.cpp \
+                          test/LevelZeroIOGroupTest.cpp \
+                          test/MSRIOGroupTest.cpp \
+                          test/MSRIOTest.cpp \
+                          test/MSRFieldControlTest.cpp \
+                          test/MSRFieldSignalTest.cpp \
+                          test/MockAcceleratorTopo.hpp \
                           test/MockAgent.hpp \
                           test/MockApplicationIO.hpp \
                           test/MockApplicationRecordLog.hpp \
@@ -427,6 +675,7 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
                           test/MockApplicationSampler.hpp \
                           test/MockApplicationStatus.hpp \
                           test/MockComm.hpp \
+                          test/MockControl.hpp \
                           test/MockControlMessage.hpp \
                           test/MockEndpoint.hpp \
                           test/MockEndpointPolicyTracer.hpp \
@@ -434,7 +683,13 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
                           test/MockEnergyEfficientRegion.hpp \
                           test/MockFrequencyGovernor.hpp \
                           test/MockIOGroup.hpp \
+                          test/MockMSRIO.hpp \
+                          test/MockNVMLDevicePool.hpp \
+                          test/MockLevelZeroDevicePool.hpp \
+                          test/MockLevelZero.hpp \
                           test/MockPlatformIO.hpp \
+                          test/MockPlatformTopo.cpp \
+                          test/MockPlatformTopo.hpp \
                           test/MockPowerBalancer.hpp \
                           test/MockPowerGovernor.hpp \
                           test/MockProcessRegionAggregator.hpp \
@@ -448,12 +703,19 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
                           test/MockSDBusMessage.hpp \
                           test/MockSharedMemory.hpp \
                           test/MockServiceProxy.hpp \
+                          test/MockSignal.hpp \
+                          test/MockSSTIO.hpp \
+                          test/MockSSTIoctl.hpp \
                           test/MockTracer.hpp \
                           test/MockTreeComm.hpp \
                           test/MockTreeCommLevel.hpp \
                           test/ModelApplicationTest.cpp \
                           test/MonitorAgentTest.cpp \
+                          test/NVMLAcceleratorTopoTest.cpp \
+                          test/NVMLIOGroupTest.cpp \
                           test/OptionParserTest.cpp \
+                          test/PlatformIOTest.cpp \
+                          test/PlatformTopoTest.cpp \
                           test/PowerBalancerAgentTest.cpp \
                           test/PowerBalancerTest.cpp \
                           test/PowerGovernorAgentTest.cpp \
@@ -464,6 +726,7 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
                           test/ProfileTestIntegration.cpp \
                           test/ProfileTracerTest.cpp \
                           test/ProxyEpochRecordFilterTest.cpp \
+                          test/RawMSRSignalTest.cpp \
                           test/ProcessRegionAggregatorTest.cpp \
                           test/RecordFilterTest.cpp \
                           test/ReporterTest.cpp \
@@ -471,6 +734,12 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
                           test/SchedTest.cpp \
                           test/ServiceProxyTest.cpp \
                           test/ServiceIOGroupTest.cpp \
+                          test/SharedMemoryTest.cpp \
+                          test/SSTControlTest.cpp \
+                          test/SSTIOGroupTest.cpp \
+                          test/SSTSignalTest.cpp \
+                          test/SSTIOTest.cpp \
+                          test/TimeIOGroupTest.cpp \
                           test/TracerTest.cpp \
                           test/TreeCommLevelTest.cpp \
                           test/TreeCommTest.cpp \
@@ -543,8 +812,6 @@ $(GTEST_TESTS): test/gtest_links/%:
 coverage: check
 	lcov --no-external --capture --directory src --output-file coverage-base.info
 	genhtml coverage-base.info --output-directory coverage-base
-	lcov --no-external --capture --directory service/src --output-file coverage-service.info
-	genhtml coverage-service.info --output-directory coverage-service
 
 clean-local-gtest-script-links:
 	rm -f test/gtest_links/*
