@@ -61,13 +61,6 @@ if [[ ${test_name} =~ ^ProfileTable ]]; then
     fi
 fi
 
-# Skipped on Mac because the implementation is lax about invalid shmem construction
-if [[ ${test_name} == SharedMemoryTest.invalid_construction ]]; then
-    if  [[ $(uname) == Darwin ]]; then
-        run_test=false
-    fi
-fi
-
 if [ "${run_test}" == "true" ]; then
     exec_name=geopm_test
     if [[ ${test_name} =~ ^MPIInterface ]]; then
