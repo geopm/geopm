@@ -379,7 +379,6 @@ EXTRA_DIST += test/InternalProfile.cpp \
               test/InternalProfile.hpp \
               test/MPIInterfaceTest.cpp \
               test/geopm_test.sh \
-              test/legacy_allowlist.out \
               test/no_omp_cpu.c \
               test/pmpi_mock.c \
               test/ProxyEpochRecordFilterTest.tutorial_2_profile_trace \
@@ -434,6 +433,8 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
                           test/MockEnergyEfficientRegion.hpp \
                           test/MockFrequencyGovernor.hpp \
                           test/MockIOGroup.hpp \
+                          test/MockPlatformTopo.cpp \
+                          test/MockPlatformTopo.hpp \
                           test/MockPlatformIO.hpp \
                           test/MockPowerBalancer.hpp \
                           test/MockPowerGovernor.hpp \
@@ -550,5 +551,3 @@ clean-local-gtest-script-links:
 	rm -f test/gtest_links/*
 
 CLEAN_LOCAL_TARGETS += clean-local-gtest-script-links
-
-include test/googletest.mk
