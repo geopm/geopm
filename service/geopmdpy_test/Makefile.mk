@@ -124,7 +124,7 @@ GEOPMDPY_TESTS = geopmdpy_test/pytest_links/TestPlatformService.test__read_allow
                  geopmdpy_test/pytest_links/TestTimedLoop.test_timed_loop_invalid \
                  # end
 
-TESTS = $(GEOPMDPY_TESTS)
+TESTS += $(GEOPMDPY_TESTS)
 
 geopmdpy-checkprogs: $(GEOPMDPY_TESTS)
 
