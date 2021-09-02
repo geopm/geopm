@@ -39,6 +39,7 @@ AM_CPPFLAGS += -I$(top_srcdir)/src \
 lib_LTLIBRARIES = libgeopmd.la
 
 install-exec-hook: install-python install-plugin-dir
+dist: dist-googletest
 
 install-plugin-dir:
 	$(INSTALL) -d $(DESTDIR)/$(pkglibdir)
@@ -246,7 +247,7 @@ rpm: dist
 	cp geopm-service.spec $(rpm_topdir)/SPECS/geopm-service.spec
 	rpmbuild $(rpmbuild_flags) -ba $(rpm_topdir)/SPECS/geopm-service.spec
 
-checkprogs: geopmdpy-checkprogs $(check_PROGRAMS) $(check_LTLIBRARIES)
+checkprogs: gtest-checkprogs geopmdpy-checkprogs $(check_PROGRAMS) $(check_LTLIBRARIES)
 
 CLEAN_LOCAL_TARGETS = clean-local-python
 
@@ -256,5 +257,13 @@ PHONY_TARGETS = clean-local-python
 
 .PHONY: $(PHONY_TARGETS)
 
+# INCLUDES
+check_PROGRAMS =
+check_LTLIBRARIES =
+TESTS =
+BUILT_SOURCES =
+DISTCLEANFILES =
+
+include test/Makefile.mk
 include geopmdpy_test/Makefile.mk
 include docs/Makefile.mk
