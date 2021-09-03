@@ -231,8 +231,9 @@ default
             self._platform_service._get_user_groups(bad_user)
 
     def test_get_user_groups_current(self):
-        expected_groups = [grp.getgrgid(gid).gr_name for gid in os.getgroups()]
         current_user = pwd.getpwuid(os.getuid()).pw_name
+        expected_groups = [grp.getgrgid(gid).gr_name
+                           for gid in os.getgrouplist(current_user, os.getgid())]
         groups = self._platform_service._get_user_groups(current_user)
         self.assertEqual(set(expected_groups), set(groups))
 
