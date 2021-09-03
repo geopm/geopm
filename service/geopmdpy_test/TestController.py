@@ -112,9 +112,11 @@ class TestController(unittest.TestCase):
         argv = 'data'
         pa = PassthroughAgent(signals, controls, period)
         with mock.patch('geopmdpy.pio.push_signal', side_effect = itertools.count()) as pps, \
-             mock.patch('geopmdpy.pio.push_control', side_effect = itertools.count()) as ppc:
+             mock.patch('geopmdpy.pio.push_control', side_effect = itertools.count()) as ppc, \
+             mock.patch('geopmdpy.pio.save_control') as psc:
             con = Controller(pa, argv) # No timeout
 
+            psc.assert_called_once()
             self.assertIs(pa, con._agent)
             self.assertEqual(signals, con._signals)
             self.assertEqual(controls, con._controls)
@@ -133,9 +135,11 @@ class TestController(unittest.TestCase):
         # Again, with timeout, same expectations otherwise
         timeout = 10
         with mock.patch('geopmdpy.pio.push_signal', side_effect = itertools.count()) as pps, \
-             mock.patch('geopmdpy.pio.push_control', side_effect = itertools.count()) as ppc:
+             mock.patch('geopmdpy.pio.push_control', side_effect = itertools.count()) as ppc, \
+             mock.patch('geopmdpy.pio.save_control') as psc:
             con = Controller(pa, argv, timeout)
 
+            psc.assert_called_once()
             self.assertIs(pa, con._agent)
             self.assertEqual(signals, con._signals)
             self.assertEqual(controls, con._controls)
@@ -162,9 +166,9 @@ class TestController(unittest.TestCase):
 
         with mock.patch('geopmdpy.pio.push_signal', side_effect = itertools.count()) as pps, \
              mock.patch('geopmdpy.pio.push_control', side_effect = itertools.count()) as ppc, \
-             mock.patch('geopmdpy.pio.save_control') as psc, \
              mock.patch('geopmdpy.pio.restore_control') as prc, \
              mock.patch('geopmdpy.pio.sample', side_effect = itertools.count()) as ps, \
+             mock.patch('geopmdpy.pio.save_control') as psc, \
              mock.patch('geopmdpy.pio.read_batch') as prb, \
              mock.patch('geopmdpy.pio.write_batch') as pwb, \
              mock.patch('geopmdpy.pio.adjust') as pad, \
@@ -172,6 +176,7 @@ class TestController(unittest.TestCase):
              mock.patch('subprocess.Popen') as sp:
 
             con = Controller(pa, argv)
+            psc.assert_called_once()
             self.assertEqual(list(range(len(signals))), con.read_all_signals())
 
             sp().poll.return_value = return_code
@@ -185,7 +190,6 @@ class TestController(unittest.TestCase):
             else:
                 result = con.run()
 
-                psc.assert_called_once()
                 calls = [mock.call(argv)] + [mock.call().poll()] * loops
                 sp.assert_has_calls(calls)
                 rtl.assert_called_with(period, None)

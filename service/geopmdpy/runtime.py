@@ -219,6 +219,7 @@ class Controller:
             raise ValueError('agent must be a subclass of Agent.')
         if timeout < 0:
             raise ValueError('timeout must be >= 0')
+        pio.save_control()
         self._agent = agent
         self._signals = agent.get_signals()
         self._controls = agent.get_controls()
@@ -260,7 +261,6 @@ class Controller:
             str: Human readable report created by agent
 
         """
-        pio.save_control()
         try:
             pid = subprocess.Popen(self._argv)
             for loop_idx in TimedLoop(self._update_period, self._num_update):
@@ -269,9 +269,9 @@ class Controller:
                     break
                 pio.read_batch()
                 signals = self.read_all_signals()
-                controls = self._agent.update(signals)
-                for control_idx in self._controls_idx:
-                    pio.adjust(control_idx, controls[control_idx])
+                new_settings = self._agent.update(signals)
+                for control_idx, new_setting in zip(self._controls_idx, new_settings):
+                    pio.adjust(control_idx, new_setting)
                 pio.write_batch()
         except:
             raise
