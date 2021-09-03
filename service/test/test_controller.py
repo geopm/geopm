@@ -45,21 +45,24 @@ class LocalAgent(geopmdpy.runtime.Agent):
     """
     def __init__(self):
         self._loop_idx = 0
+        self._cpu_freq = None
 
     def get_signals(self):
         return [("TIME", geopmdpy.topo.DOMAIN_BOARD, 0),
                 ("INSTRUCTIONS_RETIRED", geopmdpy.topo.DOMAIN_PACKAGE, 0)]
 
     def get_controls(self):
-        return []
+        return [("FREQUENCY", geopmdpy.topo.DOMAIN_PACKAGE, 0)]
 
     def update(self, signals):
+        if self._cpu_freq is None:
+            self._cpu_freq = geopmdpy.pio.read_signal('CPU_FREQUENCY_MAX', 'board', 0)
         if self._loop_idx == 0:
             self._signals_begin = list(signals)
         self._signals_last = list(signals)
         print(signals)
         self._loop_idx += 1
-        return []
+        return [self._cpu_freq]
 
     def get_period(self):
         return 0.005
