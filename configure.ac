@@ -117,32 +117,6 @@ fi
 [enable_systemd="1"]
 )
 
-AC_ARG_ENABLE([levelzero],
-  [AS_HELP_STRING([--enable-levelzero], [Enables use of the levelzero library to support levelzero board accelerators])],
-[if test "x$enable_levelzero" = "xno" ; then
-  enable_levelzero="0"
-else
-  enable_levelzero="1"
-fi
-],
-[enable_levelzero="0"]
-)
-AC_SUBST([enable_levelzero])
-AM_CONDITIONAL([ENABLE_LEVELZERO], [test "x$enable_levelzero" = "x1"])
-
-AC_ARG_ENABLE([nvml],
-  [AS_HELP_STRING([--enable-nvml], [Enables use of the NVML library to support NVML board accelerators])],
-[if test "x$enable_nvml" = "xno" ; then
-  enable_nvml="0"
-else
-  enable_nvml="1"
-fi
-],
-[enable_nvml="0"]
-)
-AC_SUBST([enable_nvml])
-AM_CONDITIONAL([ENABLE_NVML], [test "x$enable_nvml" = "x1"])
-
 AC_SUBST([enable_systemd])
 AM_CONDITIONAL([ENABLE_SYSTEMD], [test "x$enable_systemd" = "x1"])
 
@@ -182,19 +156,6 @@ if test "x$enable_msrsafe_ioctl_write" = "x1" ; then
   AC_DEFINE([GEOPM_MSRSAFE_IOCTL_WRITE], [ ], [Enables use of msr-safe ioctl feature for writing (broken as of msr-safe version 1.2.0)])
 fi
 AC_SUBST([enable_msrsafe_ioctl_write])
-
-if test "x$enable_nvml" = "x1" ; then
-  ENABLE_NVML=True
-  AC_DEFINE([GEOPM_ENABLE_NVML], [ ], [Enables use of the NVML library to support NVML board accelerators])
-else
-    ENABLE_NVML=False
-    if test "x$enable_levelzero" = "x1" ; then
-        ENABLE_LEVELZERO=True
-        AC_DEFINE([GEOPM_ENABLE_LEVELZERO], [ ], [Enables use of the levelzero library to support levelzero board accelerators])
-    else
-        ENABLE_LEVELZERO=False
-    fi
-fi
 
 if test "x$enable_systemd" = "x1" ; then
   ENABLE_SYSTEMD=True
@@ -298,22 +259,6 @@ fi
 )
 AC_SUBST([enable_fortran])
 AM_CONDITIONAL([ENABLE_FORTRAN], [test "x$enable_fortran" = "x1"])
-
-AC_ARG_WITH([libnvml], [AS_HELP_STRING([--with-libnvml=PATH],
-            [specify directory for installed libnvml package.])])
-if test "x$with_libnvml" != x; then
-  EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$with_libnvml/include"
-  LD_LIBRARY_PATH="$with_libnvml/lib:$LD_LIBRARY_PATH"
-  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_libnvml/lib"
-fi
-
-AC_ARG_WITH([liblevelzero], [AS_HELP_STRING([--with-liblevelzero=PATH],
-            [specify directory for installed liblevelzero package.])])
-if test "x$with_liblevelzero" != x; then
-  EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$with_liblevelzero/include/level_zero"
-  LD_LIBRARY_PATH="$with_liblevelzero/lib64:$LD_LIBRARY_PATH"
-  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_liblevelzero/lib64"
-fi
 
 AC_ARG_WITH([libelf], [AS_HELP_STRING([--with-libelf=PATH],
             [specify directory for installed libelf package.])])
@@ -518,26 +463,6 @@ AC_CHECK_HEADER([gelf.h], [], [
     echo "missing gelf.h: ELF library is required, use --with-libelf or --with-libelf-include to specify location"
     exit -1])
 
-if test "x$enable_nvml" = "x1" ; then
-    AC_SEARCH_LIBS([nvmlSystemGetCudaDriverVersion], [nvidia-ml])
-    AC_CHECK_LIB([nvidia-ml], [nvmlSystemGetCudaDriverVersion], [], [
-        echo "missing libnvidia-ml: NVML library is required, use --with-libnvml to specify location"
-        exit -1])
-    AC_CHECK_HEADER([nvml.h], [], [
-        echo "missing nvml.h: NVML header is required, use --with-libnvml to specify location"
-        exit -1])
-else
-    if test "x$enable_levelzero" = "x1" ; then
-        AC_SEARCH_LIBS([zeInit], [ze_loader])
-        AC_CHECK_LIB([ze_loader], [zeInit], [], [
-            echo "missing libze_loader: LevelZero library is required, use --with-liblevelzero to specify location"
-            exit -1])
-        AC_CHECK_HEADER([ze_api.h], [], [
-            echo "missing ze_api.h: LevelZero header is required, use --with-liblevelzero to specify location"
-            exit -1])
-    fi
-fi
-
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h float.h inttypes.h malloc.h netdb.h stddef.h stdint.h stdlib.h string.h sys/socket.h unistd.h])
 
@@ -707,6 +632,4 @@ AC_MSG_RESULT([fortran            : ${enable_fortran}])
 AC_MSG_RESULT([ompt               : ${enable_ompt}])
 AC_MSG_RESULT([beta               : ${enable_beta}])
 AC_MSG_RESULT([bloat              : ${enable_bloat}])
-AC_MSG_RESULT([nvml               : ${enable_nvml}])
-AC_MSG_RESULT([levelzero          : ${enable_levelzero}])
 AC_MSG_RESULT([===============================================================================])
