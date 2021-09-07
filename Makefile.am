@@ -32,11 +32,17 @@
 # GLOBAL SETTINGS
 ACLOCAL_AMFLAGS = -I m4
 AM_CPPFLAGS += -I$(top_srcdir)/src \
-               -I$(top_srcdir)/service \
-               -I$(top_srcdir)/service/src \
                -DGEOPM_DEFAULT_PLUGIN_PATH=\"$(pkglibdir)\" \
                -D_POSIX_C_SOURCE=200809L \
                -DOMPI_SKIP_MPICXX
+
+# Assume in place build of subdirectory if GEOPM_SERVICE_INCLUDE or
+# GEOPM_SERVICE_LIB are not defined
+GEOPM_SERVICE_INCLUDE ?= $(top_srcdir)/service
+GEOPM_SERVICE_LIB ?= $(top_srcdir)/service/.libs
+
+AM_CPPFLAGS += -I$(GEOPM_SERVICE_INCLUDE) -I$(GEOPM_SERVICE_INCLUDE)/src
+AM_LDFLAGS += -L$(GEOPM_SERVICE_LIB) -lgeopmd
 
 # THINGS THAT ARE INSTALLED
 lib_LTLIBRARIES = libgeopmpolicy.la
@@ -65,14 +71,7 @@ install-exec-hook: install-python install-fortran install-plugin-dir
 dist: dist-googletest
 
 
-include_HEADERS = service/src/geopm.h \
-                  service/src/geopm_error.h \
-                  service/src/geopm_pio.h \
-                  service/src/geopm_time.h \
-                  service/src/geopm_sched.h \
-                  service/src/geopm_topo.h \
-                  service/src/geopm_version.h \
-                  src/geopm_agent.h \
+include_HEADERS = src/geopm_agent.h \
                   src/geopm_ctl.h \
                   src/geopm_hash.h \
                   src/geopm_imbalancer.h \
@@ -84,23 +83,7 @@ if ENABLE_BETA
                        # end
 endif
 
-pkginclude_HEADERS = service/contrib/json11/json11.hpp \
-                     service/src/Agg.hpp \
-                     service/src/CircularBuffer.hpp \
-                     service/src/CpuinfoIOGroup.hpp \
-                     service/src/Exception.hpp \
-                     service/src/Helper.hpp \
-                     service/src/IOGroup.hpp \
-                     service/src/MSR.hpp \
-                     service/src/MSRIO.hpp \
-                     service/src/MSRIOGroup.hpp \
-                     service/src/PlatformIO.hpp \
-                     service/src/PlatformTopo.hpp \
-                     service/src/PluginFactory.hpp \
-                     service/src/SharedMemory.hpp \
-                     service/src/SharedMemoryScopedLock.hpp \
-                     service/src/TimeIOGroup.hpp \
-                     src/Agent.hpp \
+pkginclude_HEADERS = src/Agent.hpp \
                      src/EnergyEfficientRegion.hpp \
                      src/FrequencyGovernor.hpp \
                      src/PowerBalancer.hpp \
@@ -246,8 +229,6 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              TODO \
              autogen.sh \
              configure.ac \
-             service/contrib/json11/LICENSE.txt \
-             service/contrib/json11/README.md \
              copying_headers/MANIFEST.BSD3-llnl \
              copying_headers/MANIFEST.EXEMPT \
              copying_headers/MANIFEST.MIT-dropbox \
@@ -331,64 +312,6 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              scripts/outlier/README.md \
              scripts/outlier/outlier_detection.py \
              scripts/outlier/theta_nodelist_broken.txt \
-             service/docs/geninfo.sh \
-             service/docs/Makefile.mk \
-             service/docs/source/admin.rst \
-             service/docs/source/analysis.rst \
-             service/docs/source/build.rst \
-             service/docs/source/client.rst \
-             service/docs/source/conf.py \
-             service/docs/source/controls_SKX.rst \
-             service/docs/source/index.rst \
-             service/docs/source/info.rst \
-             service/docs/source/readme.rst \
-             service/docs/source/reference.rst \
-             service/docs/source/runtime.rst \
-             service/docs/source/signals_SKX.rst \
-             service/docs/source/_static/.dirfile \
-             service/geopm-service.spec.in \
-             service/Makefile.am \
-             service/test/README.md \
-             service/geopm.service \
-             service/geopmsession \
-             service/geopmd \
-             service/geopmaccess \
-             service/geopmdpy/__init__.py \
-             service/geopmdpy/__main__.py \
-             service/geopmdpy/access.py \
-             service/geopmdpy/dbus_xml.py \
-             service/geopmdpy/error.py \
-             service/geopmdpy/pio.py \
-             service/geopmdpy/runtime.py \
-             service/geopmdpy/service.py \
-             service/geopmdpy/session.py \
-             service/geopmdpy/topo.py \
-             service/geopmdpy/version.py.in \
-             service/geopmdpy_test/geopmdpy_test.sh \
-             service/geopmdpy_test/Makefile.mk \
-             service/geopmdpy_test/TestAccess.py \
-             service/geopmdpy_test/TestDBusXML.py \
-             service/geopmdpy_test/TestError.py \
-             service/geopmdpy_test/TestPIO.py \
-             service/geopmdpy_test/TestPlatformService.py \
-             service/geopmdpy_test/TestTopo.py \
-             service/geopmdpy_test/__main__.py \
-             service/autogen.sh \
-             service/setup.py \
-             service/.gitignore \
-             service/requirements.txt \
-             service/README.rst \
-             service/test/build_dasbus.sh \
-             service/test/install_service.sh \
-             service/test/test_controller.py \
-             service/test/test_sst_priority.sh \
-             service/test/test_su_give_access.sh \
-             service/test/test_write_session.sh \
-             service/configure.ac \
-             service/io.github.geopm.conf \
-             service/io.github.geopm.xml \
-             service/src/DBusServer.hpp \
-             service/m4 \
              specs/geopm.spec \
              specs/geopm.spec.in \
              specs/geopm-dudley.spec \
@@ -508,115 +431,7 @@ if ENABLE_FORTRAN
 endif
 endif
 
-libgeopmpolicy_la_SOURCES = service/contrib/json11/json11.cpp \
-                            service/contrib/json11/json11.hpp \
-                            service/src/AcceleratorTopo.cpp \
-                            service/src/AcceleratorTopo.hpp \
-                            service/src/AcceleratorTopoNull.cpp \
-                            service/src/AcceleratorTopoNull.hpp \
-                            service/src/Agg.cpp \
-                            service/src/Agg.hpp \
-                            service/src/CircularBuffer.hpp \
-                            service/src/CNLIOGroup.cpp \
-                            service/src/CNLIOGroup.hpp \
-                            service/src/CombinedSignal.cpp \
-                            service/src/CombinedSignal.hpp \
-                            service/src/Control.hpp \
-                            service/src/CpuinfoIOGroup.cpp \
-                            service/src/CpuinfoIOGroup.hpp \
-                            service/src/DerivativeSignal.cpp \
-                            service/src/DerivativeSignal.hpp \
-                            service/src/DifferenceSignal.cpp \
-                            service/src/DifferenceSignal.hpp \
-                            service/src/DomainControl.cpp \
-                            service/src/DomainControl.hpp \
-                            service/src/Exception.cpp \
-                            service/src/Exception.hpp \
-                            service/src/Helper.cpp \
-                            service/src/Helper.hpp \
-                            service/src/IOGroup.cpp \
-                            service/src/IOGroup.hpp \
-                            service/src/LevelZeroAcceleratorTopo.cpp \
-                            service/src/LevelZeroAcceleratorTopo.hpp \
-                            service/src/LevelZeroDevicePool.cpp \
-                            service/src/LevelZeroDevicePool.hpp \
-                            service/src/LevelZeroDevicePoolImp.hpp \
-                            service/src/LevelZeroIOGroup.cpp \
-                            service/src/LevelZeroIOGroup.hpp \
-                            service/src/LevelZeroImp.hpp \
-                            service/src/LevelZeroSignal.cpp \
-                            service/src/LevelZeroSignal.hpp \
-                            service/src/MSR.cpp \
-                            service/src/MSR.hpp \
-                            service/src/MSRFieldControl.cpp \
-                            service/src/MSRFieldControl.hpp \
-                            service/src/MSRFieldSignal.cpp \
-                            service/src/MSRFieldSignal.hpp \
-                            service/src/MSRIO.cpp \
-                            service/src/MSRIO.hpp \
-                            service/src/MSRIOImp.hpp \
-                            service/src/MSRIOGroup.cpp \
-                            service/src/MSRIOGroup.hpp \
-                            service/src/MSRPath.cpp \
-                            service/src/MSRPath.hpp \
-                            service/src/MultiplicationSignal.cpp \
-                            service/src/MultiplicationSignal.hpp \
-                            service/src/NVMLAcceleratorTopo.cpp \
-                            service/src/NVMLAcceleratorTopo.hpp \
-                            service/src/NVMLDevicePool.hpp \
-                            service/src/NVMLIOGroup.cpp \
-                            service/src/NVMLIOGroup.hpp \
-                            service/src/PlatformIO.cpp \
-                            service/src/PlatformIO.hpp \
-                            service/src/PlatformIOImp.hpp \
-                            service/src/PlatformTopo.cpp \
-                            service/src/PlatformTopo.hpp \
-                            service/src/PlatformTopoImp.hpp \
-                            service/src/PluginFactory.hpp \
-                            service/src/RawMSRSignal.cpp \
-                            service/src/RawMSRSignal.hpp \
-                            service/src/SharedMemory.cpp \
-                            service/src/SharedMemory.hpp \
-                            service/src/SharedMemoryImp.hpp \
-                            service/src/SharedMemoryScopedLock.cpp \
-                            service/src/SharedMemoryScopedLock.hpp \
-                            service/src/Signal.hpp \
-                            service/src/SSTIO.cpp \
-                            service/src/SSTIoctl.cpp \
-                            service/src/SSTIoctlImp.hpp \
-                            service/src/SSTIoctl.hpp \
-                            service/src/SSTIOImp.hpp \
-                            service/src/SSTIO.hpp \
-                            service/src/SSTControl.cpp \
-                            service/src/SSTControl.hpp \
-                            service/src/SSTIOGroup.cpp \
-                            service/src/SSTIOGroup.hpp \
-                            service/src/SSTSignal.cpp \
-                            service/src/SSTSignal.hpp \
-                            service/src/TimeIOGroup.cpp \
-                            service/src/TimeIOGroup.hpp \
-                            service/src/TimeSignal.cpp \
-                            service/src/TimeSignal.hpp \
-                            service/src/TimeZero.cpp \
-                            service/src/geopm.h \
-                            service/src/geopm_debug.hpp \
-                            service/src/geopm_error.h \
-                            service/src/geopm_internal.h \
-                            service/src/geopm_pio.h \
-                            service/src/geopm_plugin.cpp \
-                            service/src/geopm_plugin.hpp \
-                            service/src/geopm_sched.c \
-                            service/src/geopm_sched.h \
-                            service/src/geopm_time.h \
-                            service/src/geopm_topo.h \
-                            service/src/geopm_version.c \
-                            service/src/geopm_version.h \
-                            service/src/msr_data_arch.cpp \
-                            service/src/msr_data_hsx.cpp \
-                            service/src/msr_data_knl.cpp \
-                            service/src/msr_data_skx.cpp \
-                            service/src/msr_data_snb.cpp \
-                            src/Accumulator.cpp \
+libgeopmpolicy_la_SOURCES = src/Accumulator.cpp \
                             src/Accumulator.hpp \
                             src/Admin.cpp \
                             src/Admin.hpp \
@@ -727,31 +542,6 @@ libgeopmpolicy_la_SOURCES = service/contrib/json11/json11.cpp \
                             src/record.hpp \
                             # end
 
-nvml_source_files = service/src/NVMLDevicePool.cpp \
-                    service/src/NVMLDevicePoolImp.hpp \
-                    # end
-
-levelzero_source_files = service/src/LevelZero.cpp \
-                         service/src/LevelZero.hpp \
-                         #end
-
-if ENABLE_LEVELZERO
-    libgeopmpolicy_la_SOURCES += $(levelzero_source_files)
-    EXTRA_DIST += service/src/LevelZeroThrow.cpp
-
-else
-    libgeopmpolicy_la_SOURCES += service/src/LevelZeroThrow.cpp
-    EXTRA_DIST += $(levelzero_source_files)
-endif
-
-if ENABLE_NVML
-    libgeopmpolicy_la_SOURCES += $(nvml_source_files)
-    EXTRA_DIST += service/src/NVMLDevicePoolThrow.cpp
-else
-    libgeopmpolicy_la_SOURCES += service/src/NVMLDevicePoolThrow.cpp
-    EXTRA_DIST += $(nvml_source_files)
-endif
-
 systemd_source_files = src/SDBus.cpp \
                        src/SDBus.hpp \
                        src/SDBusMessage.cpp \
@@ -807,7 +597,7 @@ ompt_source_files = src/OMPT.cpp \
 fortran_source_files = src/geopm.f90 \
                        src/geopm_pmpi_fortran.c \
                        # end
-geopmctl_source_files = service/src/geopm_version.h \
+geopmctl_source_files = src/geopm_version.h \
                         src/geopmctl_main.c \
                         # end
 
