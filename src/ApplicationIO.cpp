@@ -34,10 +34,10 @@
 
 #include <utility>
 
-#include "Exception.hpp"
+#include "geopm/Exception.hpp"
 #include "ApplicationSampler.hpp"
 #include "ProfileSampler.hpp"
-#include "Helper.hpp"
+#include "geopm/Helper.hpp"
 #include "config.h"
 
 #ifdef GEOPM_HAS_XMMINTRIN

@@ -42,7 +42,7 @@
 
 #include "geopm.h"
 #include "geopm_time.h"
-#include "Exception.hpp"
+#include "geopm/Exception.hpp"
 #include "Profile.hpp"
 #include "Comm.hpp"
 

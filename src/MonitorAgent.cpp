@@ -32,10 +32,10 @@
 
 #include "MonitorAgent.hpp"
 
-#include "PlatformIO.hpp"
-#include "PlatformTopo.hpp"
-#include "Helper.hpp"
-#include "Exception.hpp"
+#include "geopm/PlatformIO.hpp"
+#include "geopm/PlatformTopo.hpp"
+#include "geopm/Helper.hpp"
+#include "geopm/Exception.hpp"
 #include "config.h"
 
 namespace geopm

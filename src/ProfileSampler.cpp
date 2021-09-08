@@ -48,13 +48,13 @@
 #include "geopm_time.h"
 #include "geopm_sched.h"
 #include "Environment.hpp"
-#include "Helper.hpp"
-#include "PlatformTopo.hpp"
+#include "geopm/Helper.hpp"
+#include "geopm/PlatformTopo.hpp"
 #include "ProfileTable.hpp"
 #include "Comm.hpp"
 #include "ControlMessage.hpp"
-#include "SharedMemory.hpp"
-#include "Exception.hpp"
+#include "geopm/SharedMemory.hpp"
+#include "geopm/Exception.hpp"
 #include "config.h"
 
 namespace geopm

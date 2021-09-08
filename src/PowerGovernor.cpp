@@ -38,10 +38,10 @@
 #include <iostream>
 #include <unistd.h>
 
-#include "Helper.hpp"
-#include "PlatformIO.hpp"
-#include "PlatformTopo.hpp"
-#include "Exception.hpp"
+#include "geopm/Helper.hpp"
+#include "geopm/PlatformIO.hpp"
+#include "geopm/PlatformTopo.hpp"
+#include "geopm/Exception.hpp"
 #include "config.h"
 
 namespace geopm

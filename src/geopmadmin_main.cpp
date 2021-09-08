@@ -36,7 +36,7 @@
 #include <sstream>
 
 #include "Admin.hpp"
-#include "Exception.hpp"
+#include "geopm/Exception.hpp"
 
 int main(int argc, const char **argv)
 {

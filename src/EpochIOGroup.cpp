@@ -32,15 +32,15 @@
 
 #include "config.h"
 
-#include "EpochIOGroup.hpp"
+#include "Epochgeopm/IOGroup.hpp"
 
 #include <cmath>
 
-#include "PlatformTopo.hpp"
+#include "geopm/PlatformTopo.hpp"
 #include "ApplicationSampler.hpp"
-#include "Helper.hpp"
-#include "Exception.hpp"
-#include "Agg.hpp"
+#include "geopm/Helper.hpp"
+#include "geopm/Exception.hpp"
+#include "geopm/Agg.hpp"
 #include "geopm_debug.hpp"
 #include "record.hpp"
 

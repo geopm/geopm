@@ -38,12 +38,12 @@
 #include "geopm_internal.h"
 #include "geopm_hash.h"
 #include "geopm_debug.hpp"
-#include "PlatformIO.hpp"
-#include "PlatformTopo.hpp"
-#include "Exception.hpp"
-#include "Helper.hpp"
+#include "geopm/PlatformIO.hpp"
+#include "geopm/PlatformTopo.hpp"
+#include "geopm/Exception.hpp"
+#include "geopm/Helper.hpp"
 #include "Accumulator.hpp"
-#include "IOGroup.hpp"
+#include "geopm/IOGroup.hpp"
 
 namespace geopm
 {

@@ -34,9 +34,9 @@
 #include <cmath>
 #include <memory>
 
-#include "Exception.hpp"
+#include "geopm/Exception.hpp"
 #include "PolicyStoreImp.hpp"
-#include "Helper.hpp"
+#include "geopm/Helper.hpp"
 #include "geopm_error.h"
 #include "geopm_policystore.h"
 #include "config.h"

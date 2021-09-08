@@ -40,9 +40,9 @@
 #include "CSV.hpp"
 #include "Agent.hpp"
 #include "Environment.hpp"
-#include "Helper.hpp"
-#include "PlatformIO.hpp"
-#include "PlatformTopo.hpp"
+#include "geopm/Helper.hpp"
+#include "geopm/PlatformIO.hpp"
+#include "geopm/PlatformTopo.hpp"
 #include "geopm_time.h"
 
 #include "config.h"

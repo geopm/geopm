@@ -33,7 +33,7 @@
 #include "ProcessRegionAggregator.hpp"
 
 #include "ApplicationSampler.hpp"
-#include "Helper.hpp"
+#include "geopm/Helper.hpp"
 #include "record.hpp"
 #include "geopm_debug.hpp"
 

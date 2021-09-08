@@ -36,9 +36,9 @@
 #include <iostream>
 
 #include "geopm.h"
-#include "Exception.hpp"
+#include "geopm/Exception.hpp"
 #include "Profile.hpp"
-#include "Helper.hpp"
+#include "geopm/Helper.hpp"
 
 namespace geopm
 {

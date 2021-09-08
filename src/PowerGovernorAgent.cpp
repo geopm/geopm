@@ -37,12 +37,12 @@
 #include <algorithm>
 
 #include "PowerGovernor.hpp"
-#include "PlatformIO.hpp"
-#include "PlatformTopo.hpp"
-#include "Exception.hpp"
-#include "CircularBuffer.hpp"
-#include "Agg.hpp"
-#include "Helper.hpp"
+#include "geopm/PlatformIO.hpp"
+#include "geopm/PlatformTopo.hpp"
+#include "geopm/Exception.hpp"
+#include "geopm/CircularBuffer.hpp"
+#include "geopm/Agg.hpp"
+#include "geopm/Helper.hpp"
 #include "config.h"
 
 namespace geopm

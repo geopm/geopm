@@ -37,7 +37,7 @@
 #include <algorithm>
 
 #include "Comm.hpp"
-#include "Exception.hpp"
+#include "geopm/Exception.hpp"
 #include "config.h"
 
 namespace geopm

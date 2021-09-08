@@ -55,15 +55,15 @@ namespace geopm
         ///        the geopm_domain_e values defined in geopm_topo.h.
         int domain;
         /// @brief The signal aggregation type.  One of the the
-        ///        geopm::Agg::m_type_e values defined in Agg.hpp
+        ///        geopm::Agg::m_type_e values defined in geopm/Agg.hpp
         int aggregation;
         /// @brief The format method to convert a signal to a string.
         ///        One of the geopm::string_format_e values defined in
-        ///        Helper.hpp.
+        ///        geopm/Helper.hpp.
         int string_format;
         /// @brief The signal behavior type.  One of the
         ///        geopm::IOGroup::m_signal_behavior_e values defined
-        ///        in IOGroup.hpp.
+        ///        in geopm/IOGroup.hpp.
         int behavior;
     };
 

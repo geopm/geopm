@@ -40,7 +40,7 @@
 #include <limits.h>
 
 #include "Environment.hpp"
-#include "Exception.hpp"
+#include "geopm/Exception.hpp"
 #ifndef GEOPM_TEST
 #include <mpi.h>
 #endif
