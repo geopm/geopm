@@ -41,7 +41,7 @@
 #include <list>
 #include <memory>
 
-#include "PlatformIO.hpp"
+#include "geopm/PlatformIO.hpp"
 #include "CSV.hpp"
 
 struct geopm_region_info_s;

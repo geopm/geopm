@@ -37,10 +37,10 @@
 #include <fstream>
 
 #include "EndpointImp.hpp"  // for shmem region structs and constants
-#include "Helper.hpp"
+#include "geopm/Helper.hpp"
 #include "Agent.hpp"
 #include "Environment.hpp"
-#include "SharedMemory.hpp"
+#include "geopm/SharedMemory.hpp"
 
 #include "config.h"
 

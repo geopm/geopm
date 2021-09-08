@@ -39,7 +39,7 @@
 #include <vector>
 #include <set>
 
-#include "Helper.hpp"
+#include "geopm/Helper.hpp"
 
 namespace geopm
 {

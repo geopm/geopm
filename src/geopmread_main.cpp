@@ -45,9 +45,9 @@
 #include "geopm_version.h"
 #include "geopm_error.h"
 #include "geopm_hash.h"
-#include "PlatformIO.hpp"
-#include "PlatformTopo.hpp"
-#include "Exception.hpp"
+#include "geopm/PlatformIO.hpp"
+#include "geopm/PlatformTopo.hpp"
+#include "geopm/Exception.hpp"
 
 #include "config.h"
 

@@ -34,9 +34,9 @@
 
 #include "geopm_version.h"
 #include "geopm_hash.h"
-#include "Helper.hpp"
+#include "geopm/Helper.hpp"
 #include "CSV.hpp"
-#include "Exception.hpp"
+#include "geopm/Exception.hpp"
 #include "Environment.hpp"
 #include "config.h"
 

@@ -40,10 +40,10 @@
 #include "Admin.hpp"
 #include "Agent.hpp"
 #include "Environment.hpp"
-#include "Exception.hpp"
+#include "geopm/Exception.hpp"
 #include "FilePolicy.hpp"
-#include "Helper.hpp"
-#include "MSRIOGroup.hpp"
+#include "geopm/Helper.hpp"
+#include "MSRgeopm/IOGroup.hpp"
 #include "OptionParser.hpp"
 
 

@@ -37,9 +37,9 @@
 #include <cmath>
 
 #include "geopm.h"
-#include "Exception.hpp"
+#include "geopm/Exception.hpp"
 #include "Profile.hpp"
-#include "Helper.hpp"
+#include "geopm/Helper.hpp"
 
 #ifdef GEOPM_ENABLE_MKL
 #include <mkl.h>

@@ -40,8 +40,6 @@ AM_CPPFLAGS += -I$(top_srcdir)/src \
 # GEOPM_SERVICE_LIB are not defined
 GEOPM_SERVICE_DIR ?= $(top_srcdir)/service
 
-AM_CPPFLAGS += -I$(GEOPM_SERVICE_DIR) -I$(GEOPM_SERVICE_DIR)/src
-
 # THINGS THAT ARE INSTALLED
 lib_LTLIBRARIES = libgeopmpolicy.la
 bin_PROGRAMS = geopmadmin \

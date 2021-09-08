@@ -37,8 +37,8 @@
 #include <map>
 
 #include "Comm.hpp"
-#include "Exception.hpp"
-#include "SharedMemory.hpp"
+#include "geopm/Exception.hpp"
+#include "geopm/SharedMemory.hpp"
 #include "geopm_mpi_comm_split.h"
 #include "config.h"
 

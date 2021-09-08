@@ -38,7 +38,7 @@
 #include <string>
 #include <list>
 
-#include "PluginFactory.hpp"
+#include "geopm/PluginFactory.hpp"
 
 namespace geopm
 {

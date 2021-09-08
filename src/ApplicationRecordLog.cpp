@@ -34,9 +34,9 @@
 
 #include "geopm.h"
 #include "ApplicationRecordLog.hpp"
-#include "SharedMemory.hpp"
-#include "Exception.hpp"
-#include "Helper.hpp"
+#include "geopm/SharedMemory.hpp"
+#include "geopm/Exception.hpp"
+#include "geopm/Helper.hpp"
 #include "geopm_debug.hpp"
 
 

@@ -37,8 +37,8 @@
 #include <string.h>
 #include <fstream>
 
-#include "Exception.hpp"
-#include "Helper.hpp"
+#include "geopm/Exception.hpp"
+#include "geopm/Helper.hpp"
 #include "geopm_time.h"
 #include "geopm_imbalancer.h"
 

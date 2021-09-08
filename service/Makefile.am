@@ -39,32 +39,37 @@ AM_CPPFLAGS += -I$(top_srcdir)/src \
 lib_LTLIBRARIES = libgeopmd.la
 
 include_HEADERS = src/geopm.h \
+                  src/geopm_debug.hpp \
                   src/geopm_error.h \
                   src/geopm_hash.h \
+                  src/geopm_internal.h \
                   src/geopm_pio.h \
+                  src/geopm_plugin.hpp \
                   src/geopm_time.h \
                   src/geopm_sched.h \
                   src/geopm_topo.h \
                   src/geopm_version.h \
                   # end
 
-pkginclude_HEADERS = contrib/json11/json11.hpp \
-                     src/Agg.hpp \
-                     src/CircularBuffer.hpp \
-                     src/CpuinfoIOGroup.hpp \
-                     src/Exception.hpp \
-                     src/Helper.hpp \
-                     src/IOGroup.hpp \
-                     src/MSR.hpp \
-                     src/MSRIO.hpp \
-                     src/MSRIOGroup.hpp \
-                     src/PlatformIO.hpp \
-                     src/PlatformTopo.hpp \
-                     src/PluginFactory.hpp \
-                     src/SharedMemory.hpp \
-                     src/SharedMemoryScopedLock.hpp \
-                     src/TimeIOGroup.hpp \
-                     # end
+geopmincludedir = $(includedir)/geopm
+
+geopminclude_HEADERS = contrib/json11/json11.hpp \
+                       src/Agg.hpp \
+                       src/CircularBuffer.hpp \
+                       src/CpuinfoIOGroup.hpp \
+                       src/Exception.hpp \
+                       src/Helper.hpp \
+                       src/IOGroup.hpp \
+                       src/MSR.hpp \
+                       src/MSRIO.hpp \
+                       src/MSRIOGroup.hpp \
+                       src/PlatformIO.hpp \
+                       src/PlatformTopo.hpp \
+                       src/PluginFactory.hpp \
+                       src/SharedMemory.hpp \
+                       src/SharedMemoryScopedLock.hpp \
+                       src/TimeIOGroup.hpp \
+                       # end
 
 install-exec-hook: install-python install-plugin-dir
 dist: dist-googletest

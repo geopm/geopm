@@ -36,8 +36,8 @@
 
 #include "geopm.h"
 #include "ValidateRecord.hpp"
-#include "Exception.hpp"
-#include "Helper.hpp"
+#include "geopm/Exception.hpp"
+#include "geopm/Helper.hpp"
 #include "record.hpp"
 
 namespace geopm

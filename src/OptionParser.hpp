@@ -38,7 +38,7 @@
 #include <ostream>
 #include <vector>
 
-#include "Exception.hpp"
+#include "geopm/Exception.hpp"
 
 namespace geopm
 {
