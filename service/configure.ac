@@ -140,7 +140,7 @@ if test "x$with_liblevelzero" != x; then
   EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_liblevelzero/lib64"
 fi
 
-AC_CHECK_HEADER([xmmintrin.h], [AC_DEFINE([GEOPM_HAS_XMMINTRIN], [1], [smmintrin.h is available])], [])
+AC_CHECK_HEADER([nmmintrin.h], [AC_DEFINE([GEOPM_HAS_SSE42], [1], [nmmintrin.h is available])], [])
 
 AC_ARG_VAR([PYTHON],
            [PYTHON the Python interpreter used to build Python modules])
