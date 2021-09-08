@@ -38,11 +38,9 @@ AM_CPPFLAGS += -I$(top_srcdir)/src \
 
 # Assume in place build of subdirectory if GEOPM_SERVICE_INCLUDE or
 # GEOPM_SERVICE_LIB are not defined
-GEOPM_SERVICE_INCLUDE ?= $(top_srcdir)/service
-GEOPM_SERVICE_LIB ?= $(top_srcdir)/service/.libs
+GEOPM_SERVICE_DIR ?= $(top_srcdir)/service
 
-AM_CPPFLAGS += -I$(GEOPM_SERVICE_INCLUDE) -I$(GEOPM_SERVICE_INCLUDE)/src
-AM_LDFLAGS += -L$(GEOPM_SERVICE_LIB) -lgeopmd
+AM_CPPFLAGS += -I$(GEOPM_SERVICE_DIR) -I$(GEOPM_SERVICE_DIR)/src
 
 # THINGS THAT ARE INSTALLED
 lib_LTLIBRARIES = libgeopmpolicy.la
