@@ -260,6 +260,26 @@ fi
 AC_SUBST([enable_fortran])
 AM_CONDITIONAL([ENABLE_FORTRAN], [test "x$enable_fortran" = "x1"])
 
+AC_ARG_WITH([geopmd], [AS_HELP_STRING([--with-geopmd=PATH],
+            [specify directory for installed geopmd package.])])
+if test "x$with_geopmd" != x; then
+  EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$with_geopmd/include"
+  LD_LIBRARY_PATH="$with_geopmd/lib:$LD_LIBRARY_PATH"
+  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_geopmd/lib"
+fi
+AC_ARG_WITH([geopmd-include], [AS_HELP_STRING([--with-geopmd-include=PATH],
+            [specify directory for the installed geopmd include files.])])
+if test "x$with_geopmd_include" != x; then
+  EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$with_geopmd_include"
+fi
+AC_ARG_WITH([geopmd-lib], [AS_HELP_STRING([--with-geopmd-lib=PATH],
+            [specify directory for installed geopmd library])])
+if test "x$with_geopmd_lib" != x; then
+  LD_LIBRARY_PATH="$with_geopmd_lib:$LD_LIBRARY_PATH"
+  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_geopmd_lib"
+fi
+
+
 AC_ARG_WITH([libelf], [AS_HELP_STRING([--with-libelf=PATH],
             [specify directory for installed libelf package.])])
 if test "x$with_libelf" != x; then
@@ -451,6 +471,14 @@ fi
 AC_SUBST([enable_ompt])
 AM_CONDITIONAL([ENABLE_OMPT], [test "x$enable_ompt" = "x1"])
 AM_CONDITIONAL([HAS_OMPT], [test "x$has_ompt" = "x1"])
+
+AC_SEARCH_LIBS([geopm_pio_read_signal], [geopmd])
+AC_CHECK_LIB([geopmd], [geopm_pio_read_signal], [], [
+    echo "missing libgeopmd: Install the geopm-service and use --with-geopmd or --with-geopmd-lib to specify location"
+    exit -1])
+AC_CHECK_HEADER([geopm.h], [], [
+    echo "missing geopm.h: Intall the geopm-service and use --with-geopmd or --with-geopmd-include to specify location"
+    exit -1])
 
 AC_SEARCH_LIBS([elf_begin], [elf])
 AC_CHECK_LIB([elf], [elf_begin], [], [
