@@ -40,10 +40,6 @@
 #include "geopm/Helper.hpp"
 #include "config.h"
 
-#ifdef GEOPM_HAS_XMMINTRIN
-#include <xmmintrin.h>
-#endif
-
 namespace geopm
 {
     constexpr size_t ApplicationIOImp::M_SHMEM_REGION_SIZE;

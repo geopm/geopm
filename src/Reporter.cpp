@@ -39,9 +39,6 @@
 #include <fcntl.h>
 #include <limits.h>
 #include <math.h>
-#ifdef GEOPM_HAS_XMMINTRIN
-#include <xmmintrin.h>
-#endif
 
 #include <sstream>
 #include <fstream>
