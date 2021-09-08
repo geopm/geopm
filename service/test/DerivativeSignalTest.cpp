@@ -36,7 +36,7 @@
 #include "gmock/gmock.h"
 
 #include "DerivativeSignal.hpp"
-#include "Helper.hpp"
+#include "geopm/Helper.hpp"
 #include "MockSignal.hpp"
 #include "geopm_test.hpp"
 

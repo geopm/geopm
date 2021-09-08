@@ -35,7 +35,7 @@
 #include <map>
 
 #include "config.h"
-#include "Exception.hpp"
+#include "geopm/Exception.hpp"
 #include "LevelZeroDevicePool.hpp"
 #include "LevelZeroAcceleratorTopo.hpp"
 

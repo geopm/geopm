@@ -38,7 +38,7 @@
 #include "gmock/gmock.h"
 
 #include "FilePolicy.hpp"
-#include "Exception.hpp"
+#include "geopm/Exception.hpp"
 #include "geopm_test.hpp"
 
 using geopm::FilePolicy;

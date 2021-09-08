@@ -37,10 +37,10 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-#include "Helper.hpp"
+#include "geopm/Helper.hpp"
 #include "Tracer.hpp"
-#include "PlatformIO.hpp"
-#include "PlatformTopo.hpp"
+#include "geopm/PlatformIO.hpp"
+#include "geopm/PlatformTopo.hpp"
 #include "MockPlatformIO.hpp"
 #include "MockPlatformTopo.hpp"
 #include "geopm_internal.h"

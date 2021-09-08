@@ -36,7 +36,7 @@
 
 #include "geopm_topo.h"
 
-#include "Helper.hpp"
+#include "geopm/Helper.hpp"
 #include "ServiceIOGroup.hpp"
 #include "MockServiceProxy.hpp"
 #include "MockPlatformTopo.hpp"

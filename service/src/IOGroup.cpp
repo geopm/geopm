@@ -34,14 +34,14 @@
 #include <functional>
 #include <mutex>
 
-#include "IOGroup.hpp"
+#include "geopm/IOGroup.hpp"
 
 #include "geopm_plugin.hpp"
-#include "MSRIOGroup.hpp"
-#include "CpuinfoIOGroup.hpp"
-#include "TimeIOGroup.hpp"
+#include "geopm/MSRIOGroup.hpp"
+#include "geopm/CpuinfoIOGroup.hpp"
+#include "geopm/TimeIOGroup.hpp"
 #include "SSTIOGroup.hpp"
-#include "Helper.hpp"
+#include "geopm/Helper.hpp"
 #ifndef GEOPM_SERVICE_BUILD
 #ifdef GEOPM_ENABLE_SYSTEMD
 #include "ServiceIOGroup.hpp"

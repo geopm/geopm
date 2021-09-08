@@ -39,10 +39,10 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-#include "Helper.hpp"
+#include "geopm/Helper.hpp"
 #include "MockAcceleratorTopo.hpp"
 #include "PlatformTopoImp.hpp"
-#include "Exception.hpp"
+#include "geopm/Exception.hpp"
 #include "config.h"
 #include "LevelZero.hpp"
 #include "geopm_test.hpp"

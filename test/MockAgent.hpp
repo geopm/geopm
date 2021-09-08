@@ -36,7 +36,7 @@
 #include "gmock/gmock.h"
 
 #include "Agent.hpp"
-#include "PlatformIO.hpp"
+#include "geopm/PlatformIO.hpp"
 
 class MockAgent : public geopm::Agent
 {

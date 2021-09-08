@@ -33,7 +33,7 @@
 #ifndef SHAREDMEMORYIMP_HPP_INCLUDE
 #define SHAREDMEMORYIMP_HPP_INCLUDE
 
-#include "SharedMemory.hpp"
+#include "geopm/SharedMemory.hpp"
 
 #include <pthread.h>
 

@@ -40,8 +40,8 @@
 #include "gmock/gmock.h"
 
 #include "config.h"
-#include "Helper.hpp"
-#include "Exception.hpp"
+#include "geopm/Helper.hpp"
+#include "geopm/Exception.hpp"
 #include "MockNVMLDevicePool.hpp"
 #include "NVMLAcceleratorTopo.hpp"
 #include "geopm_test.hpp"

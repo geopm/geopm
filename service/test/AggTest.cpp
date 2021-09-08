@@ -32,7 +32,7 @@
 
 #include "geopm_test.hpp"
 
-#include "Agg.hpp"
+#include "geopm/Agg.hpp"
 #include "geopm.h"
 #include "geopm_internal.h"
 #include "geopm_hash.h"

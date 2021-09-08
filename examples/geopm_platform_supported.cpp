@@ -38,7 +38,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#include "PlatformTopo.hpp"
+#include "geopm/PlatformTopo.hpp"
 #include "geopm_hash.h"
 #include "geopm_error.h"
 

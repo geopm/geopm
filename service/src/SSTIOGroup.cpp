@@ -40,12 +40,12 @@
 #include <iterator>
 #include <sstream>
 
-#include "Agg.hpp"
-#include "Exception.hpp"
-#include "Helper.hpp"
-#include "MSR.hpp"
+#include "geopm/Agg.hpp"
+#include "geopm/Exception.hpp"
+#include "geopm/Helper.hpp"
+#include "geopm/MSR.hpp"
 #include "MSRFieldSignal.hpp"
-#include "PlatformTopo.hpp"
+#include "geopm/PlatformTopo.hpp"
 #include "SSTControl.hpp"
 #include "SSTIO.hpp"
 #include "SSTSignal.hpp"

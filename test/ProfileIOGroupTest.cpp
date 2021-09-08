@@ -34,8 +34,8 @@
 
 #include "geopm.h"
 #include "ProfileIOGroup.hpp"
-#include "Exception.hpp"
-#include "Helper.hpp"
+#include "geopm/Exception.hpp"
+#include "geopm/Helper.hpp"
 #include "MockPlatformTopo.hpp"
 #include "MockApplicationSampler.hpp"
 #include "geopm_test.hpp"

@@ -35,14 +35,14 @@
 #include <memory>
 #include <fstream>
 
-#include "contrib/json11/json11.hpp"
+#include "geopm/json11.hpp"
 
 #include "gtest/gtest.h"
 #include "geopm_error.h"
 #include "geopm_internal.h"
 #include "Environment.hpp"
-#include "Exception.hpp"
-#include "Helper.hpp"
+#include "geopm/Exception.hpp"
+#include "geopm/Helper.hpp"
 
 using json11::Json;
 using geopm::Environment;

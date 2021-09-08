@@ -32,7 +32,7 @@
 
 #include "config.h"
 
-#include "Profilegeopm/IOGroup.hpp"
+#include "ProfileIOGroup.hpp"
 
 #include "geopm/PlatformTopo.hpp"
 #include "ApplicationSampler.hpp"

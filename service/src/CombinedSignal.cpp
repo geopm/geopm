@@ -36,8 +36,8 @@
 #include <numeric>
 #include <algorithm>
 
-#include "Exception.hpp"
-#include "Agg.hpp"
+#include "geopm/Exception.hpp"
+#include "geopm/Agg.hpp"
 #include "config.h"
 
 namespace geopm

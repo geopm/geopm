@@ -42,7 +42,7 @@
 #include <string>
 #include <utility>
 
-#include "Exception.hpp"
+#include "geopm/Exception.hpp"
 #include "SSTIoctlImp.hpp"
 
 #define GEOPM_IOC_SST_VERSION _IOR(0xfe, 0, struct geopm::sst_version_s *)

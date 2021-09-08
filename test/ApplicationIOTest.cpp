@@ -40,7 +40,7 @@
 
 #include "ApplicationIO.hpp"
 #include "ApplicationSampler.hpp"
-#include "Helper.hpp"
+#include "geopm/Helper.hpp"
 #include "MockProfileSampler.hpp"
 #include "MockPlatformIO.hpp"
 #include "MockPlatformTopo.hpp"

@@ -35,7 +35,7 @@
 #include <fstream>
 #include <string>
 
-#include "Exception.hpp"
+#include "geopm/Exception.hpp"
 #include "AcceleratorTopoNull.hpp"
 #include "geopm_topo.h"
 

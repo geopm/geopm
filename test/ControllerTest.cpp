@@ -51,8 +51,8 @@
 #include "MockReporter.hpp"
 #include "MockTracer.hpp"
 #include "MockEndpointPolicyTracer.hpp"
-#include "Helper.hpp"
-#include "Agg.hpp"
+#include "geopm/Helper.hpp"
+#include "geopm/Agg.hpp"
 #include "MockApplicationSampler.hpp"
 #include "MockProfileTracer.hpp"
 

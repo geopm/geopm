@@ -39,7 +39,7 @@
 #include "geopm_sched.h"
 #include "geopm_test.hpp"
 #include "Admin.hpp"
-#include "Helper.hpp"
+#include "geopm/Helper.hpp"
 
 using geopm::Admin;
 using testing::Return;

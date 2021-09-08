@@ -36,7 +36,7 @@
 
 #include <algorithm>
 
-#include "contrib/json11/geopm/json11.hpp"
+#include "geopm/json11.hpp"
 
 #include "geopm/Helper.hpp"
 #include "geopm/Exception.hpp"

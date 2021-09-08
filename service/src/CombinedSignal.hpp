@@ -37,7 +37,7 @@
 #include <functional>
 #include <vector>
 
-#include "CircularBuffer.hpp"
+#include "geopm/CircularBuffer.hpp"
 
 namespace geopm
 {

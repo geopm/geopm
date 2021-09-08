@@ -33,9 +33,9 @@
 #include "config.h"
 
 #include "MSRFieldControl.hpp"
-#include "MSRIO.hpp"
-#include "MSR.hpp"
-#include "Exception.hpp"
+#include "geopm/MSRIO.hpp"
+#include "geopm/MSR.hpp"
+#include "geopm/Exception.hpp"
 #include "geopm_debug.hpp"
 
 namespace geopm

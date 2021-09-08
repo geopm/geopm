@@ -45,7 +45,7 @@
 #include "MockPlatformTopo.hpp"
 #include "MockFrequencyGovernor.hpp"
 #include "MockEnergyEfficientRegion.hpp"
-#include "Helper.hpp"
+#include "geopm/Helper.hpp"
 #include "geopm_test.hpp"
 #include "config.h"
 

@@ -37,7 +37,7 @@
 #include <sstream>
 #include <string>
 
-#include "Exception.hpp"
+#include "geopm/Exception.hpp"
 #include "AcceleratorTopoNull.hpp"
 
 #include "NVMLAcceleratorTopo.hpp"
