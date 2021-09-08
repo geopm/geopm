@@ -38,7 +38,7 @@
 #include <map>
 #include <memory>
 
-#include "contrib/json11/json11.hpp"
+#include "geopm/json11.hpp"
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "geopm_agent.h"
@@ -47,12 +47,12 @@
 
 #include "Agent.hpp"
 #include "FrequencyMapAgent.hpp"
-#include "Exception.hpp"
-#include "Helper.hpp"
-#include "Agg.hpp"
+#include "geopm/Exception.hpp"
+#include "geopm/Helper.hpp"
+#include "geopm/Agg.hpp"
 #include "MockPlatformIO.hpp"
 #include "MockPlatformTopo.hpp"
-#include "PlatformTopo.hpp"
+#include "geopm/PlatformTopo.hpp"
 #include "geopm.h"
 #include "geopm_test.hpp"
 

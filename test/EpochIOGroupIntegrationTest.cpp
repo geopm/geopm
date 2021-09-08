@@ -35,8 +35,8 @@
 
 #include "EpochIOGroup.hpp"
 #include "record.hpp"
-#include "Exception.hpp"
-#include "PlatformTopo.hpp"
+#include "geopm/Exception.hpp"
+#include "geopm/PlatformTopo.hpp"
 #include "MockPlatformTopo.hpp"
 #include "MockApplicationSampler.hpp"
 #include "geopm.h"

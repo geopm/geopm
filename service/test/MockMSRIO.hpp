@@ -35,7 +35,7 @@
 
 #include "gmock/gmock.h"
 
-#include "MSRIO.hpp"
+#include "geopm/MSRIO.hpp"
 
 class MockMSRIO : public geopm::MSRIO
 {

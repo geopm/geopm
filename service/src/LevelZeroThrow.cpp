@@ -32,7 +32,7 @@
 
 #include "config.h"
 
-#include "Exception.hpp"
+#include "geopm/Exception.hpp"
 #include "LevelZero.hpp"
 
 namespace geopm

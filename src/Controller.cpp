@@ -57,7 +57,7 @@
 #include "ApplicationSampler.hpp"
 #include "record.hpp"
 
-#include "Profilegeopm/IOGroup.hpp"
+#include "ProfileIOGroup.hpp"
 
 extern "C"
 {

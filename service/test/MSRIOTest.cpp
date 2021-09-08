@@ -41,8 +41,8 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include "Exception.hpp"
-#include "Helper.hpp"
+#include "geopm/Exception.hpp"
+#include "geopm/Helper.hpp"
 #include "MSRIOImp.hpp"
 #include "MSRPath.hpp"
 #include "geopm_test.hpp"

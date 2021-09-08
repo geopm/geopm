@@ -40,8 +40,8 @@
 #include "gmock/gmock.h"
 
 #include "config.h"
-#include "Helper.hpp"
-#include "Exception.hpp"
+#include "geopm/Helper.hpp"
+#include "geopm/Exception.hpp"
 #include "AcceleratorTopoNull.hpp"
 #include "geopm_topo.h"
 

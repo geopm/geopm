@@ -39,7 +39,7 @@
 #include "PowerGovernorImp.hpp"
 #include "MockPlatformIO.hpp"
 #include "MockPlatformTopo.hpp"
-#include "Helper.hpp"
+#include "geopm/Helper.hpp"
 
 using geopm::PowerGovernor;
 using geopm::PowerGovernorImp;

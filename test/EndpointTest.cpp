@@ -51,11 +51,11 @@
 #include "geopm_time.h"
 #include "geopm_endpoint.h"
 #include "MockSharedMemory.hpp"
-#include "Helper.hpp"
-#include "Exception.hpp"
+#include "geopm/Helper.hpp"
+#include "geopm/Exception.hpp"
 #include "EndpointImp.hpp"
 #include "EndpointUser.hpp"
-#include "SharedMemory.hpp"
+#include "geopm/SharedMemory.hpp"
 
 using geopm::Endpoint;
 using geopm::EndpointImp;

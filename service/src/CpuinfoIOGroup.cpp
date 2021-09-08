@@ -30,7 +30,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "CpuinfoIOGroup.hpp"
+#include "geopm/CpuinfoIOGroup.hpp"
 
 #include <cmath>
 #include <cstring>
@@ -40,10 +40,10 @@
 #include <algorithm>
 #include <iterator>
 #include <cpuid.h>
-#include "Helper.hpp"
-#include "PlatformTopo.hpp"
-#include "Exception.hpp"
-#include "Agg.hpp"
+#include "geopm/Helper.hpp"
+#include "geopm/PlatformTopo.hpp"
+#include "geopm/Exception.hpp"
+#include "geopm/Agg.hpp"
 #include "config.h"
 
 #define GEOPM_CPUINFO_IO_GROUP_PLUGIN_NAME "CPUINFO"

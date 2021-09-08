@@ -35,10 +35,10 @@
 #include "MSRFieldSignal.hpp"
 
 #include "geopm_internal.h"
-#include "Exception.hpp"
+#include "geopm/Exception.hpp"
 #include "geopm_debug.hpp"
-#include "Helper.hpp"
-#include "MSR.hpp"  // for enums
+#include "geopm/Helper.hpp"
+#include "geopm/MSR.hpp"  // for enums
 
 namespace geopm
 {

@@ -38,7 +38,7 @@
 #include "gmock/gmock.h"
 
 #include "DifferenceSignal.hpp"
-#include "Helper.hpp"
+#include "geopm/Helper.hpp"
 #include "geopm_test.hpp"
 #include "MockSignal.hpp"
 

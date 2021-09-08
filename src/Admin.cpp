@@ -43,7 +43,7 @@
 #include "geopm/Exception.hpp"
 #include "FilePolicy.hpp"
 #include "geopm/Helper.hpp"
-#include "MSRgeopm/IOGroup.hpp"
+#include "geopm/MSRIOGroup.hpp"
 #include "OptionParser.hpp"
 
 

@@ -38,8 +38,8 @@
 #include "gmock/gmock.h"
 
 #include "MSRFieldControl.hpp"
-#include "MSR.hpp"
-#include "Helper.hpp"
+#include "geopm/MSR.hpp"
+#include "geopm/Helper.hpp"
 #include "MockMSRIO.hpp"
 #include "geopm_test.hpp"
 

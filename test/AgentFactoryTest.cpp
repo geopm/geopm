@@ -33,7 +33,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-#include "PluginFactory.hpp"
+#include "geopm/PluginFactory.hpp"
 #include "Agent.hpp"
 #include "MonitorAgent.hpp"
 #include "PowerBalancerAgent.hpp"

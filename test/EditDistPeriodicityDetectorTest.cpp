@@ -37,7 +37,7 @@
 
 #include "EditDistPeriodicityDetector.hpp"
 #include "MockApplicationSampler.hpp"
-#include "Helper.hpp"
+#include "geopm/Helper.hpp"
 #include "geopm_test.hpp"
 
 using geopm::record_s;

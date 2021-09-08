@@ -38,8 +38,8 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-#include "SharedMemory.hpp"
-#include "SharedMemoryScopedLock.hpp"
+#include "geopm/SharedMemory.hpp"
+#include "geopm/SharedMemoryScopedLock.hpp"
 
 class MockSharedMemory : public geopm::SharedMemory
 {

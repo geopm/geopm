@@ -43,12 +43,12 @@
 #include <sched.h>
 #include <errno.h>
 
-#include "IOGroup.hpp"
-#include "PlatformTopo.hpp"
+#include "geopm/IOGroup.hpp"
+#include "geopm/PlatformTopo.hpp"
 #include "NVMLDevicePool.hpp"
-#include "Exception.hpp"
-#include "Agg.hpp"
-#include "Helper.hpp"
+#include "geopm/Exception.hpp"
+#include "geopm/Agg.hpp"
+#include "geopm/Helper.hpp"
 
 namespace geopm
 {

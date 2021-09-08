@@ -33,10 +33,10 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-#include "PluginFactory.hpp"
+#include "geopm/PluginFactory.hpp"
 #include "DebugIOGroup.hpp"
-#include "PlatformTopo.hpp"
-#include "Exception.hpp"
+#include "geopm/PlatformTopo.hpp"
+#include "geopm/Exception.hpp"
 #include "MockPlatformTopo.hpp"
 #include "geopm_hash.h"
 #include "geopm_internal.h"

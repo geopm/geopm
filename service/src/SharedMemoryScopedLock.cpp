@@ -30,9 +30,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "SharedMemoryScopedLock.hpp"
+#include "geopm/SharedMemoryScopedLock.hpp"
 
-#include "Exception.hpp"
+#include "geopm/Exception.hpp"
 #include "config.h"
 
 namespace geopm

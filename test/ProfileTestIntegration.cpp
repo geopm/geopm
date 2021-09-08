@@ -43,7 +43,7 @@
 
 #include "geopm.h"
 #include "Profile.hpp"
-#include "SharedMemory.hpp"
+#include "geopm/SharedMemory.hpp"
 #include "ApplicationRecordLog.hpp"
 #include "ApplicationStatus.hpp"
 

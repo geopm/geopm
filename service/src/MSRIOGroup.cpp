@@ -32,7 +32,7 @@
 
 #include "config.h"
 
-#include "MSRIOGroup.hpp"
+#include "geopm/MSRIOGroup.hpp"
 
 #include <cpuid.h>
 #include <cmath>
@@ -43,14 +43,14 @@
 #include <iostream>
 #include <set>
 
-#include "contrib/json11/json11.hpp"
+#include "geopm/json11.hpp"
 
 #include "geopm_sched.h"
 #include "geopm_internal.h"
-#include "Exception.hpp"
-#include "Agg.hpp"
+#include "geopm/Exception.hpp"
+#include "geopm/Agg.hpp"
 #include "MSRIOImp.hpp"
-#include "MSR.hpp"
+#include "geopm/MSR.hpp"
 #include "Signal.hpp"
 #include "RawMSRSignal.hpp"
 #include "MSRFieldSignal.hpp"
@@ -61,8 +61,8 @@
 #include "Control.hpp"
 #include "MSRFieldControl.hpp"
 #include "DomainControl.hpp"
-#include "PlatformTopo.hpp"
-#include "Helper.hpp"
+#include "geopm/PlatformTopo.hpp"
+#include "geopm/Helper.hpp"
 #include "geopm_debug.hpp"
 
 using json11::Json;

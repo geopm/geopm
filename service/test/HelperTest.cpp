@@ -35,7 +35,7 @@
 #include <string>
 #include <vector>
 
-#include "Helper.hpp"
+#include "geopm/Helper.hpp"
 #include "geopm.h"
 #include "geopm_test.hpp"
 

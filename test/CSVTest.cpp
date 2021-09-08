@@ -39,7 +39,7 @@
 #include "gtest/gtest.h"
 #include "geopm_error.h"
 #include "geopm_test.hpp"
-#include "Helper.hpp"
+#include "geopm/Helper.hpp"
 #include "CSV.hpp"
 #include "geopm_version.h"
 #include "geopm_hash.h"

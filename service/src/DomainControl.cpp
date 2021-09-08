@@ -33,7 +33,7 @@
 #include "config.h"
 
 #include "DomainControl.hpp"
-#include "Exception.hpp"
+#include "geopm/Exception.hpp"
 #include "geopm_debug.hpp"
 
 namespace geopm

@@ -37,8 +37,8 @@
 
 #include "EndpointPolicyTracerImp.hpp"
 #include "MockPlatformIO.hpp"
-#include "PlatformTopo.hpp"
-#include "Helper.hpp"
+#include "geopm/PlatformTopo.hpp"
+#include "geopm/Helper.hpp"
 
 using testing::Return;
 

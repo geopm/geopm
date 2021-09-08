@@ -35,7 +35,7 @@
 #include <functional>
 #include <map>
 
-#include "IOGroup.hpp"
+#include "geopm/IOGroup.hpp"
 #include "geopm_time.h"
 
 namespace geopm

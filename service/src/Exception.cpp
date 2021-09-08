@@ -30,7 +30,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Exception.hpp"
+#include "geopm/Exception.hpp"
 
 #include <string.h>
 #include <stdio.h>
