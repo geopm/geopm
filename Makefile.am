@@ -36,10 +36,6 @@ AM_CPPFLAGS += -I$(top_srcdir)/src \
                -D_POSIX_C_SOURCE=200809L \
                -DOMPI_SKIP_MPICXX
 
-# Assume in place build of subdirectory if GEOPM_SERVICE_INCLUDE or
-# GEOPM_SERVICE_LIB are not defined
-GEOPM_SERVICE_DIR ?= $(top_srcdir)/service
-
 # THINGS THAT ARE INSTALLED
 lib_LTLIBRARIES = libgeopmpolicy.la
 bin_PROGRAMS = geopmadmin \

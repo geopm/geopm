@@ -29,12 +29,16 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#include "config.h"
 
 #include <string.h>
+#ifdef GEOPM_HAS_SSE42
 #include <smmintrin.h>
+#else
+#include <stdio.h>
+#endif
 
 #include "geopm_hash.h"
-#include "config.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -43,7 +47,19 @@ extern "C"
 
 uint64_t geopm_crc32_u64(uint64_t begin, uint64_t key)
 {
-    return _mm_crc32_u64(begin, key);
+    uint64_t result = 0;
+#ifdef GEOPM_HAS_SSE42
+    result = _mm_crc32_u64(begin, key);
+#else
+#ifdef GEOPM_DEBUG
+    static int is_once = 1;
+    if (is_once) {
+        fprintf(stderr, "Warning: <geopm> geopm_crc32_u64() called, but was compiled without SSE4.2 support, returning 0.\n");
+        is_once = 0;
+    }
+#endif
+#endif
+    return result;
 }
 
 uint64_t geopm_crc32_str(const char *key)
