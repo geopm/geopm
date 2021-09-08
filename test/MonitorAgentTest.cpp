@@ -36,8 +36,8 @@
 #include "MonitorAgent.hpp"
 #include "MockPlatformIO.hpp"
 #include "MockPlatformTopo.hpp"
-#include "Helper.hpp"
-#include "Agg.hpp"
+#include "geopm/Helper.hpp"
+#include "geopm/Agg.hpp"
 
 using geopm::PlatformTopo;
 using geopm::MonitorAgent;

@@ -44,7 +44,7 @@
 #include <string>
 
 #include "geopm_sched.h"
-#include "Exception.hpp"
+#include "geopm/Exception.hpp"
 #include "AcceleratorTopo.hpp"
 
 #include "config.h"

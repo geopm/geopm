@@ -43,7 +43,7 @@
 #include <vector>
 #include <set>
 
-#include "contrib/json11/geopm/json11.hpp"
+#include "geopm/json11.hpp"
 
 #include "geopm_internal.h"
 #include "geopm/Exception.hpp"

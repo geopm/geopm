@@ -35,9 +35,9 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-#include "CircularBuffer.hpp"
+#include "geopm/CircularBuffer.hpp"
 #include "PowerBalancerImp.hpp"
-#include "Helper.hpp"
+#include "geopm/Helper.hpp"
 
 using geopm::PowerBalancer;
 using geopm::PowerBalancerImp;

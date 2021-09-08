@@ -40,7 +40,7 @@
 #include "MockPlatformTopo.hpp"
 #include "MockSampleAggregator.hpp"
 #include "PowerBalancerAgent.hpp"
-#include "Helper.hpp"
+#include "geopm/Helper.hpp"
 #include "geopm_test.hpp"
 
 #include "config.h"

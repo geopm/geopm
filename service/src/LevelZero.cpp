@@ -36,9 +36,9 @@
 #include <iostream>
 #include <map>
 
-#include "Exception.hpp"
-#include "Agg.hpp"
-#include "Helper.hpp"
+#include "geopm/Exception.hpp"
+#include "geopm/Agg.hpp"
+#include "geopm/Helper.hpp"
 
 #include "LevelZeroImp.hpp"
 

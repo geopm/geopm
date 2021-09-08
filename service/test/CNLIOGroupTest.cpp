@@ -43,9 +43,9 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-#include "Exception.hpp"
-#include "PlatformTopo.hpp"
-#include "PluginFactory.hpp"
+#include "geopm/Exception.hpp"
+#include "geopm/PlatformTopo.hpp"
+#include "geopm/PluginFactory.hpp"
 #include "geopm_hash.h"
 #include "geopm_test.hpp"
 #include <sys/stat.h>

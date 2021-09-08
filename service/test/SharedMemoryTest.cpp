@@ -34,9 +34,9 @@
 
 #include "gtest/gtest.h"
 #include "geopm_error.h"
-#include "Exception.hpp"
-#include "SharedMemory.hpp"
-#include "Helper.hpp"
+#include "geopm/Exception.hpp"
+#include "geopm/SharedMemory.hpp"
+#include "geopm/Helper.hpp"
 #include "geopm_test.hpp"
 
 using geopm::SharedMemory;

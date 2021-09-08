@@ -38,7 +38,7 @@
 #include <memory>
 #include <functional>
 
-#include "contrib/json11/json11.hpp"
+#include "geopm/json11.hpp"
 
 #include "IOGroup.hpp"
 #include "geopm_time.h"

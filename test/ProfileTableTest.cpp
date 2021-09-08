@@ -37,9 +37,9 @@
 #include "gtest/gtest.h"
 
 #include "geopm_internal.h"
-#include "Exception.hpp"
+#include "geopm/Exception.hpp"
 #include "ProfileTable.hpp"
-#include "Helper.hpp"
+#include "geopm/Helper.hpp"
 
 using geopm::ProfileTable;
 using geopm::ProfileTableImp;

@@ -36,7 +36,7 @@
 #include "gmock/gmock.h"
 
 #include "geopm_internal.h"
-#include "Helper.hpp"
+#include "geopm/Helper.hpp"
 #include "SSTIOGroup.hpp"
 #include "MockPlatformTopo.hpp"
 #include "MockSSTIO.hpp"

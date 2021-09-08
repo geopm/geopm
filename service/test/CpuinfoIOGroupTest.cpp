@@ -41,10 +41,10 @@
 #include "gmock/gmock.h"
 #include "geopm_hash.h"
 
-#include "Exception.hpp"
-#include "PluginFactory.hpp"
-#include "CpuinfoIOGroup.hpp"
-#include "PlatformTopo.hpp"
+#include "geopm/Exception.hpp"
+#include "geopm/PluginFactory.hpp"
+#include "geopm/CpuinfoIOGroup.hpp"
+#include "geopm/PlatformTopo.hpp"
 #include "geopm_test.hpp"
 
 using geopm::PlatformTopo;

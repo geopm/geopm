@@ -37,7 +37,7 @@
 #include <fstream>
 #include <limits.h>
 
-#include "contrib/json11/geopm/json11.hpp"
+#include "geopm/json11.hpp"
 
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"

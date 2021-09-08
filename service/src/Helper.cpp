@@ -30,7 +30,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Helper.hpp"
+#include "geopm/Helper.hpp"
 
 #include <unistd.h>
 #include <limits.h>
@@ -47,7 +47,7 @@
 #include <map>
 #include "geopm.h"
 #include "geopm_internal.h"
-#include "Exception.hpp"
+#include "geopm/Exception.hpp"
 #include "config.h"
 
 namespace geopm

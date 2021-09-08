@@ -37,8 +37,8 @@
 
 #include "MockApplicationSampler.hpp"
 #include "record.hpp"
-#include "Helper.hpp"
-#include "Exception.hpp"
+#include "geopm/Helper.hpp"
+#include "geopm/Exception.hpp"
 #include "geopm.h"
 
 void MockApplicationSampler::update_time(double time)

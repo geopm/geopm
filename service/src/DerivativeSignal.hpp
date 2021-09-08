@@ -36,7 +36,7 @@
 #include <memory>
 
 #include "Signal.hpp"
-#include "CircularBuffer.hpp"
+#include "geopm/CircularBuffer.hpp"
 
 namespace geopm
 {

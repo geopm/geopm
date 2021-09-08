@@ -32,7 +32,7 @@
 
 #include "config.h"
 
-#include "Servicegeopm/IOGroup.hpp"
+#include "ServiceIOGroup.hpp"
 
 #include <cmath>
 #include "geopm/Agg.hpp"

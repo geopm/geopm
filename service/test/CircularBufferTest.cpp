@@ -34,8 +34,8 @@
 #include <vector>
 
 #include "gtest/gtest.h"
-#include "CircularBuffer.hpp"
-#include "Helper.hpp"
+#include "geopm/CircularBuffer.hpp"
+#include "geopm/Helper.hpp"
 
 class CircularBufferTest: public :: testing :: Test
 {

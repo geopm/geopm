@@ -33,7 +33,7 @@
 #include "config.h"
 
 #include "LevelZeroSignal.hpp"
-#include "Exception.hpp"
+#include "geopm/Exception.hpp"
 
 namespace geopm
 {

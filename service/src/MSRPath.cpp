@@ -35,7 +35,7 @@
 #include <sstream>
 
 #include "MSRPath.hpp"
-#include "Exception.hpp"
+#include "geopm/Exception.hpp"
 
 namespace geopm
 {

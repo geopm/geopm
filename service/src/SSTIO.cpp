@@ -40,7 +40,7 @@
 #include <algorithm>
 #include <utility>
 
-#include "Exception.hpp"
+#include "geopm/Exception.hpp"
 #include "SSTIOImp.hpp"
 #include "SSTIoctl.hpp"
 

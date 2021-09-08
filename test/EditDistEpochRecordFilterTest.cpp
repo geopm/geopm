@@ -39,7 +39,7 @@
 #include "EditDistEpochRecordFilter.hpp"
 #include "MockApplicationSampler.hpp"
 #include "record.hpp"
-#include "Helper.hpp"
+#include "geopm/Helper.hpp"
 #include "geopm_test.hpp"
 
 using geopm::EditDistEpochRecordFilter;

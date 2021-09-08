@@ -40,9 +40,9 @@
 #include <string>
 #include <nvml.h>
 
-#include "Exception.hpp"
-#include "Agg.hpp"
-#include "Helper.hpp"
+#include "geopm/Exception.hpp"
+#include "geopm/Agg.hpp"
+#include "geopm/Helper.hpp"
 #include "geopm_sched.h"
 
 #include "NVMLDevicePoolImp.hpp"
