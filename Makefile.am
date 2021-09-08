@@ -73,7 +73,6 @@ dist: dist-googletest
 
 include_HEADERS = src/geopm_agent.h \
                   src/geopm_ctl.h \
-                  src/geopm_hash.h \
                   src/geopm_imbalancer.h \
                   # end
 if ENABLE_BETA
@@ -534,8 +533,6 @@ libgeopmpolicy_la_SOURCES = src/Accumulator.cpp \
                             src/ValidateRecord.hpp \
                             src/geopm_agent.h \
                             src/geopm_endpoint.h \
-                            src/geopm_hash.c \
-                            src/geopm_hash.h \
                             src/geopm_imbalancer.h \
                             src/geopm_policystore.h \
                             src/record.cpp \

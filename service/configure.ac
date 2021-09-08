@@ -140,6 +140,8 @@ if test "x$with_liblevelzero" != x; then
   EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_liblevelzero/lib64"
 fi
 
+AC_CHECK_HEADER([xmmintrin.h], [AC_DEFINE([GEOPM_HAS_XMMINTRIN], [1], [smmintrin.h is available])], [])
+
 AC_ARG_VAR([PYTHON],
            [PYTHON the Python interpreter used to build Python modules])
 
@@ -160,8 +162,8 @@ AC_DEFINE_UNQUOTED([GEOPM_CONFIG_PATH],
           ["${GEOPM_CONFIG_PATH}"],
           [The prefix to the path where GEOPM config files are stored])
 
-[EXTRA_CFLAGS="$EXTRA_CFLAGS -std=c99"]
-[EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS -std=c++11"]
+[EXTRA_CFLAGS="$EXTRA_CFLAGS -std=c99 -msse4.2"]
+[EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS -std=c++11 -msse4.2"]
 
 [LDFLAGS="$EXTRA_LDFLAGS $LDFLAGS"]
 [CFLAGS="$EXTRA_CFLAGS $CFLAGS"]

@@ -122,6 +122,11 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/CSVTest.columns \
               test/gtest_links/CSVTest.header \
               test/gtest_links/CSVTest.negative \
+              test/gtest_links/DebugIOGroupTest.is_valid \
+              test/gtest_links/DebugIOGroupTest.push \
+              test/gtest_links/DebugIOGroupTest.read_signal \
+              test/gtest_links/DebugIOGroupTest.register_signal_error \
+              test/gtest_links/DebugIOGroupTest.sample \
               test/gtest_links/EditDistEpochRecordFilterTest.one_region_repeated \
               test/gtest_links/EditDistEpochRecordFilterTest.filter_in \
               test/gtest_links/EditDistEpochRecordFilterTest.filter_out \
@@ -406,6 +411,7 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
                           test/ControlMessageTest.cpp \
                           test/ControllerTest.cpp \
                           test/CSVTest.cpp \
+                          test/DebugIOGroupTest.cpp \
                           test/EditDistEpochRecordFilterTest.cpp \
                           test/EditDistPeriodicityDetectorTest.cpp \
                           test/EndpointTest.cpp \
