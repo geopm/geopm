@@ -190,6 +190,10 @@ libgeopmd_la_SOURCES = contrib/json11/json11.cpp \
                        src/PluginFactory.hpp \
                        src/RawMSRSignal.cpp \
                        src/RawMSRSignal.hpp \
+                       src/ServiceIOGroup.cpp \
+                       src/ServiceIOGroup.hpp \
+                       src/ServiceProxy.cpp \
+                       src/ServiceProxy.hpp \
                        src/SharedMemory.cpp \
                        src/SharedMemory.hpp \
                        src/SharedMemoryImp.hpp \
@@ -234,6 +238,19 @@ libgeopmd_la_SOURCES = contrib/json11/json11.cpp \
                        src/msr_data_skx.cpp \
                        src/msr_data_snb.cpp \
                        # end
+
+systemd_source_files = src/SDBus.cpp \
+                       src/SDBus.hpp \
+                       src/SDBusMessage.cpp \
+                       src/SDBusMessage.hpp \
+                       # end
+if ENABLE_SYSTEMD
+    libgeopmd_la_SOURCES += $(systemd_source_files)
+else
+    EXTRA_DIST += $(systemd_source_files)
+endif
+
+
 
 nvml_source_files = src/NVMLDevicePool.cpp \
                     src/NVMLDevicePoolImp.hpp \

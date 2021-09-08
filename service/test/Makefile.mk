@@ -220,6 +220,27 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
               test/gtest_links/RawMSRSignalTest.read \
               test/gtest_links/RawMSRSignalTest.read_batch \
               test/gtest_links/RawMSRSignalTest.setup_batch \
+              test/gtest_links/ServiceIOGroupTest.signal_control_info \
+              test/gtest_links/ServiceIOGroupTest.domain_type \
+              test/gtest_links/ServiceIOGroupTest.read_signal_behavior \
+              test/gtest_links/ServiceIOGroupTest.write_control \
+              test/gtest_links/ServiceIOGroupTest.valid_signal_aggregation \
+              test/gtest_links/ServiceIOGroupTest.valid_format_function \
+              test/gtest_links/ServiceIOGroupTest.push_signal \
+              test/gtest_links/ServiceIOGroupTest.push_control \
+              test/gtest_links/ServiceIOGroupTest.read_batch \
+              test/gtest_links/ServiceIOGroupTest.write_batch \
+              test/gtest_links/ServiceIOGroupTest.sample \
+              test/gtest_links/ServiceIOGroupTest.adjust \
+              test/gtest_links/ServiceProxyTest.platform_get_user_access \
+              test/gtest_links/ServiceProxyTest.platform_get_signal_info \
+              test/gtest_links/ServiceProxyTest.platform_get_control_info \
+              test/gtest_links/ServiceProxyTest.platform_open_session \
+              test/gtest_links/ServiceProxyTest.platform_close_session \
+              test/gtest_links/ServiceProxyTest.platform_start_batch \
+              test/gtest_links/ServiceProxyTest.platform_stop_batch \
+              test/gtest_links/ServiceProxyTest.platform_read_signal \
+              test/gtest_links/ServiceProxyTest.platform_write_control \
               test/gtest_links/SharedMemoryTest.fd_check \
               test/gtest_links/SharedMemoryTest.invalid_construction \
               test/gtest_links/SharedMemoryTest.lock_shmem \
@@ -302,6 +323,9 @@ test_geopm_test_SOURCES = test/AcceleratorTopoNullTest.cpp \
                           test/MockPlatformIO.hpp \
                           test/MockPlatformTopo.cpp \
                           test/MockPlatformTopo.hpp \
+                          test/MockSDBus.hpp \
+                          test/MockSDBusMessage.hpp \
+                          test/MockServiceProxy.hpp \
                           test/MockSignal.hpp \
                           test/MockSSTIO.hpp \
                           test/MockSSTIoctl.hpp \
