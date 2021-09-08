@@ -61,11 +61,6 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
               test/gtest_links/CpuinfoIOGroupTest.push_signal \
               test/gtest_links/CpuinfoIOGroupTest.read_signal \
               test/gtest_links/CpuinfoIOGroupTest.valid_signals \
-              test/gtest_links/DebugIOGroupTest.is_valid \
-              test/gtest_links/DebugIOGroupTest.push \
-              test/gtest_links/DebugIOGroupTest.read_signal \
-              test/gtest_links/DebugIOGroupTest.register_signal_error \
-              test/gtest_links/DebugIOGroupTest.sample \
               test/gtest_links/DerivativeSignalTest.errors \
               test/gtest_links/DerivativeSignalTest.read_batch_flat \
               test/gtest_links/DerivativeSignalTest.read_batch_first \
@@ -281,11 +276,13 @@ test_geopm_test_SOURCES = test/AcceleratorTopoNullTest.cpp \
                           test/CNLIOGroupTest.cpp \
                           test/CombinedSignalTest.cpp \
                           test/CpuinfoIOGroupTest.cpp \
-                          test/DebugIOGroupTest.cpp \
                           test/DerivativeSignalTest.cpp \
                           test/DifferenceSignalTest.cpp \
                           test/DomainControlTest.cpp \
                           test/ExceptionTest.cpp \
+                          test/geopm_test.cpp \
+                          test/geopm_test.hpp \
+                          test/geopm_test_helper.cpp \
                           test/HelperTest.cpp \
                           test/IOGroupTest.cpp \
                           test/LevelZeroAcceleratorTopoTest.cpp \
@@ -297,10 +294,14 @@ test_geopm_test_SOURCES = test/AcceleratorTopoNullTest.cpp \
                           test/MSRFieldSignalTest.cpp \
                           test/MockAcceleratorTopo.hpp \
                           test/MockControl.hpp \
+                          test/MockIOGroup.hpp \
                           test/MockMSRIO.hpp \
                           test/MockNVMLDevicePool.hpp \
                           test/MockLevelZeroDevicePool.hpp \
                           test/MockLevelZero.hpp \
+                          test/MockPlatformIO.hpp \
+                          test/MockPlatformTopo.cpp \
+                          test/MockPlatformTopo.hpp \
                           test/MockSignal.hpp \
                           test/MockSSTIO.hpp \
                           test/MockSSTIoctl.hpp \
@@ -317,7 +318,7 @@ test_geopm_test_SOURCES = test/AcceleratorTopoNullTest.cpp \
                           test/TimeIOGroupTest.cpp \
                           # end
 
-test_geopm_test_LDADD = libgeopmpolicy.la \
+test_geopm_test_LDADD = libgeopmd.la \
                         libgmock.a \
                         libgtest.a \
                         # end
