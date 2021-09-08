@@ -36,7 +36,7 @@
 #include <list>
 #include <map>
 
-#include "PlatformIO.hpp"
+#include "geopm/PlatformIO.hpp"
 #include "geopm_pio.h"
 
 namespace geopm
@@ -94,7 +94,7 @@ namespace geopm
             ///        with the given signal name.
             /// @param [in] signal_name Name of the signal requested.
             /// @param [in] domain_type One of the values from the
-            ///        m_domain_e enum described in PlatformTopo.hpp.
+            ///        m_domain_e enum described in geopm/PlatformTopo.hpp.
             /// @param [in] domain_idx The index of the domain within
             ///        the set of domains of the same type on the
             ///        platform.

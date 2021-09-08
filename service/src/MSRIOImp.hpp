@@ -36,7 +36,7 @@
 #include <string>
 #include <map>
 
-#include "MSRIO.hpp"
+#include "geopm/MSRIO.hpp"
 
 namespace geopm
 {

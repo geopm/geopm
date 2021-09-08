@@ -36,9 +36,9 @@
 
 #include "geopm_internal.h"
 #include "geopm_debug.hpp"
-#include "MSRIO.hpp"
-#include "Exception.hpp"
-#include "Helper.hpp"
+#include "geopm/MSRIO.hpp"
+#include "geopm/Exception.hpp"
+#include "geopm/Helper.hpp"
 
 namespace geopm
 {

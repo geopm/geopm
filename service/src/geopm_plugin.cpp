@@ -38,8 +38,8 @@
 
 #include "geopm_error.h"
 #include "geopm_plugin.hpp"
-#include "Exception.hpp"
-#include "Helper.hpp"
+#include "geopm/Exception.hpp"
+#include "geopm/Helper.hpp"
 
 #include "config.h"
 

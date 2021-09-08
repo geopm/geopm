@@ -36,7 +36,7 @@
 #include "gmock/gmock.h"
 
 #include "FrequencyGovernorImp.hpp"
-#include "Helper.hpp"
+#include "geopm/Helper.hpp"
 #include "geopm_test.hpp"
 #include "MockPlatformIO.hpp"
 #include "MockPlatformTopo.hpp"

@@ -34,7 +34,7 @@
 #ifndef PLATFORMTOPOIMP_HPP_INCLUDE
 #define PLATFORMTOPOIMP_HPP_INCLUDE
 
-#include "PlatformTopo.hpp"
+#include "geopm/PlatformTopo.hpp"
 
 namespace geopm
 {

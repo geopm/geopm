@@ -37,7 +37,7 @@
 #include <cmath>
 #include <unistd.h>
 
-#include "Helper.hpp"
+#include "geopm/Helper.hpp"
 #include "geopm_debug.hpp"
 
 namespace geopm

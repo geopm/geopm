@@ -30,12 +30,12 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "TimeIOGroup.hpp"
+#include "geopm/TimeIOGroup.hpp"
 
-#include "PlatformTopo.hpp"
-#include "Helper.hpp"
-#include "Exception.hpp"
-#include "Agg.hpp"
+#include "geopm/PlatformTopo.hpp"
+#include "geopm/Helper.hpp"
+#include "geopm/Exception.hpp"
+#include "geopm/Agg.hpp"
 #include "config.h"
 
 #define GEOPM_TIME_IO_GROUP_PLUGIN_NAME "TIME"

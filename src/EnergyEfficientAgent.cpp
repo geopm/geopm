@@ -37,7 +37,7 @@
 #include <iomanip>
 #include <utility>
 
-#include "contrib/json11/geopm/json11.hpp"
+#include "geopm/json11.hpp"
 
 #include "geopm.h"
 #include "geopm_hash.h"

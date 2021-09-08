@@ -42,15 +42,15 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "IOGroup.hpp"
+#include "geopm/IOGroup.hpp"
 #include "Signal.hpp"
 #include "DerivativeSignal.hpp"
-#include "PlatformTopo.hpp"
+#include "geopm/PlatformTopo.hpp"
 #include "LevelZeroDevicePool.hpp"
 #include "LevelZero.hpp"
-#include "Exception.hpp"
-#include "Agg.hpp"
-#include "Helper.hpp"
+#include "geopm/Exception.hpp"
+#include "geopm/Agg.hpp"
+#include "geopm/Helper.hpp"
 #include "geopm_debug.hpp"
 
 namespace geopm

@@ -36,7 +36,7 @@
 #include "gmock/gmock.h"
 
 #include "EnergyEfficientRegion.hpp"
-#include "Exception.hpp"
+#include "geopm/Exception.hpp"
 #include "config.h"
 
 using ::testing::Return;

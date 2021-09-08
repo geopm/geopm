@@ -40,10 +40,10 @@
 #include <iterator>
 #include <limits>
 
-#include "Agg.hpp"
-#include "Exception.hpp"
-#include "Helper.hpp"
-#include "PlatformTopo.hpp"
+#include "geopm/Agg.hpp"
+#include "geopm/Exception.hpp"
+#include "geopm/Helper.hpp"
+#include "geopm/PlatformTopo.hpp"
 
 #include "config.h"
 

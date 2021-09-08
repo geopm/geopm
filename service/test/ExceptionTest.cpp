@@ -36,7 +36,7 @@
 
 #include "gtest/gtest.h"
 #include "geopm_error.h"
-#include "Exception.hpp"
+#include "geopm/Exception.hpp"
 
 
 class ExceptionTest: public :: testing :: Test {};

@@ -32,7 +32,7 @@
 
 #include "config.h"
 
-#include "Epochgeopm/IOGroup.hpp"
+#include "EpochIOGroup.hpp"
 
 #include <cmath>
 

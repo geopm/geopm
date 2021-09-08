@@ -38,7 +38,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-#include "PlatformTopo.hpp"
+#include "geopm/PlatformTopo.hpp"
 #include "Reporter.hpp"
 #include "MockPlatformIO.hpp"
 #include "MockPlatformTopo.hpp"
@@ -47,7 +47,7 @@
 #include "MockApplicationIO.hpp"
 #include "MockComm.hpp"
 #include "MockTreeComm.hpp"
-#include "Helper.hpp"
+#include "geopm/Helper.hpp"
 #include "geopm.h"
 #include "geopm_internal.h"
 #include "geopm_hash.h"

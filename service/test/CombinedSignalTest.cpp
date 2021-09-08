@@ -34,8 +34,8 @@
 #include "gtest/gtest.h"
 
 #include "CombinedSignal.hpp"
-#include "Exception.hpp"
-#include "Agg.hpp"
+#include "geopm/Exception.hpp"
+#include "geopm/Agg.hpp"
 #include "config.h"
 
 using geopm::CombinedSignal;

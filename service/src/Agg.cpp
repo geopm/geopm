@@ -32,7 +32,7 @@
 
 #include "config.h"
 
-#include "Agg.hpp"
+#include "geopm/Agg.hpp"
 
 #include <cmath>
 
@@ -41,7 +41,7 @@
 #include <map>
 
 #include "geopm_internal.h"
-#include "Exception.hpp"
+#include "geopm/Exception.hpp"
 
 namespace geopm
 {

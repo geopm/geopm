@@ -37,7 +37,7 @@
 #include <map>
 
 #include "config.h"
-#include "Exception.hpp"
+#include "geopm/Exception.hpp"
 #include "NVMLDevicePool.hpp"
 #include "NVMLAcceleratorTopo.hpp"
 #include "geopm_topo.h"

@@ -35,7 +35,7 @@
 
 #include "config.h"  // for GEOPM_DEBUG
 
-#include "Exception.hpp"
+#include "geopm/Exception.hpp"
 
 #ifdef GEOPM_DEBUG
 /// Used to check for errors that should never occur unless there is a

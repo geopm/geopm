@@ -35,7 +35,7 @@
 #include "TimeSignal.hpp"
 
 #include "geopm_time.h"
-#include "Exception.hpp"
+#include "geopm/Exception.hpp"
 
 namespace geopm
 {

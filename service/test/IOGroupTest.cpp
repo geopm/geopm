@@ -44,10 +44,10 @@
 #include "gmock/gmock.h"
 
 #include "geopm_internal.h"
-#include "PluginFactory.hpp"
-#include "IOGroup.hpp"
-#include "PlatformTopo.hpp"
-#include "Helper.hpp"
+#include "geopm/PluginFactory.hpp"
+#include "geopm/IOGroup.hpp"
+#include "geopm/PlatformTopo.hpp"
+#include "geopm/Helper.hpp"
 #include "geopm_test.hpp"
 
 using geopm::PluginFactory;

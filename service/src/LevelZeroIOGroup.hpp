@@ -39,7 +39,7 @@
 #include <memory>
 #include <functional>
 
-#include "IOGroup.hpp"
+#include "geopm/IOGroup.hpp"
 #include "LevelZeroSignal.hpp"
 
 namespace geopm

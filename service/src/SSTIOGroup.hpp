@@ -36,7 +36,7 @@
 #include <set>
 #include <functional>
 
-#include "IOGroup.hpp"
+#include "geopm/IOGroup.hpp"
 
 
 namespace geopm

@@ -39,8 +39,8 @@
 #include "geopm_endpoint.h"
 #include "EndpointUser.hpp"
 #include "EndpointImp.hpp"
-#include "SharedMemory.hpp"
-#include "Helper.hpp"
+#include "geopm/SharedMemory.hpp"
+#include "geopm/Helper.hpp"
 #include "MockSharedMemory.hpp"
 
 using geopm::EndpointUserImp;
