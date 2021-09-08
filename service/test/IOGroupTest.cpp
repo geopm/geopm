@@ -47,14 +47,12 @@
 #include "PluginFactory.hpp"
 #include "IOGroup.hpp"
 #include "PlatformTopo.hpp"
-#include "ProfileIOGroup.hpp"
 #include "Helper.hpp"
 #include "geopm_test.hpp"
 
 using geopm::PluginFactory;
 using geopm::IOGroup;
 using geopm::PlatformTopo;
-using geopm::ProfileIOGroup;
 using testing::Return;
 
 class IOGroupTest : public ::testing::Test
