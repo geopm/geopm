@@ -42,11 +42,8 @@
 #include "geopm/TimeIOGroup.hpp"
 #include "SSTIOGroup.hpp"
 #include "geopm/Helper.hpp"
-#ifndef GEOPM_SERVICE_BUILD
 #ifdef GEOPM_ENABLE_SYSTEMD
 #include "ServiceIOGroup.hpp"
-#endif
-#include "ProfileIOGroup.hpp"
 #endif
 #ifdef GEOPM_CNL_IOGROUP
 #include "CNLIOGroup.hpp"
@@ -101,7 +98,6 @@ namespace geopm
 
     IOGroupFactory::IOGroupFactory()
     {
-#ifndef GEOPM_SERVICE_BUILD
         // Unless compiling for geopmd add the ServiceIOGroup which
         // will go through D-Bus to access geopmd.  Note this IOGroup
         // is loaded first and provides all signals and controls
@@ -115,10 +111,6 @@ namespace geopm
 #ifdef GEOPM_ENABLE_SYSTEMD
         register_plugin(ServiceIOGroup::plugin_name(),
                         ServiceIOGroup::make_plugin);
-#endif
-        // Enable application profiling if not compiling the service.
-        register_plugin(ProfileIOGroup::plugin_name(),
-                        ProfileIOGroup::make_plugin);
 #endif
         register_plugin(MSRIOGroup::plugin_name(),
                         MSRIOGroup::make_plugin);
