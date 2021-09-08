@@ -30,11 +30,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "DebugIOGroup.hpp"
+#include "Debuggeopm/IOGroup.hpp"
 
-#include "PlatformTopo.hpp"
-#include "Exception.hpp"
-#include "Agg.hpp"
+#include "geopm/PlatformTopo.hpp"
+#include "geopm/Exception.hpp"
+#include "geopm/Agg.hpp"
 #include "config.h"
 
 namespace geopm

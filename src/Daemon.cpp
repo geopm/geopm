@@ -37,10 +37,10 @@
 #include "geopm_daemon.h"
 
 #include "geopm_time.h"
-#include "Exception.hpp"
+#include "geopm/Exception.hpp"
 #include "Endpoint.hpp"
 #include "PolicyStore.hpp"
-#include "Helper.hpp"
+#include "geopm/Helper.hpp"
 
 namespace geopm
 {

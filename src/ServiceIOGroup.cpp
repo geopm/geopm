@@ -32,13 +32,13 @@
 
 #include "config.h"
 
-#include "ServiceIOGroup.hpp"
+#include "Servicegeopm/IOGroup.hpp"
 
 #include <cmath>
-#include "Agg.hpp"
+#include "geopm/Agg.hpp"
 #include "ServiceProxy.hpp"
-#include "Helper.hpp"
-#include "PlatformTopo.hpp"
+#include "geopm/Helper.hpp"
+#include "geopm/PlatformTopo.hpp"
 #include "geopm_debug.hpp"
 
 namespace geopm

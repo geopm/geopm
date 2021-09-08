@@ -37,7 +37,7 @@
 #include <iomanip>
 #include <utility>
 
-#include "contrib/json11/json11.hpp"
+#include "contrib/json11/geopm/json11.hpp"
 
 #include "geopm.h"
 #include "geopm_hash.h"
@@ -45,10 +45,10 @@
 #include "ApplicationSampler.hpp"
 #include "EnergyEfficientRegion.hpp"
 #include "FrequencyGovernor.hpp"
-#include "PlatformIO.hpp"
-#include "PlatformTopo.hpp"
-#include "Helper.hpp"
-#include "Exception.hpp"
+#include "geopm/PlatformIO.hpp"
+#include "geopm/PlatformTopo.hpp"
+#include "geopm/Helper.hpp"
+#include "geopm/Exception.hpp"
 #include "config.h"
 
 using json11::Json;

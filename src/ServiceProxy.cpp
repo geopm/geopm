@@ -34,8 +34,8 @@
 
 #include <sstream>
 
-#include "Exception.hpp"
-#include "Helper.hpp"
+#include "geopm/Exception.hpp"
+#include "geopm/Helper.hpp"
 #include "SDBus.hpp"
 #include "SDBusMessage.hpp"
 #include "geopm_internal.h"

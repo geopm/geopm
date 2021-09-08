@@ -33,7 +33,7 @@
 #include "config.h"
 
 #include "Accumulator.hpp"
-#include "Helper.hpp"
+#include "geopm/Helper.hpp"
 
 namespace geopm
 {

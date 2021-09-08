@@ -39,7 +39,7 @@
 #include "geopm.h"
 #include "geopm_time.h"
 #include "geopm_imbalancer.h"
-#include "Exception.hpp"
+#include "geopm/Exception.hpp"
 
 namespace geopm
 {

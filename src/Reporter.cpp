@@ -50,15 +50,15 @@
 #include <iostream>
 #include <iomanip>
 
-#include "PlatformIO.hpp"
-#include "PlatformTopo.hpp"
+#include "geopm/PlatformIO.hpp"
+#include "geopm/PlatformTopo.hpp"
 #include "SampleAggregator.hpp"
 #include "ProcessRegionAggregator.hpp"
 #include "ApplicationIO.hpp"
 #include "Comm.hpp"
 #include "TreeComm.hpp"
-#include "Exception.hpp"
-#include "Helper.hpp"
+#include "geopm/Exception.hpp"
+#include "geopm/Helper.hpp"
 #include "geopm.h"
 #include "geopm_hash.h"
 #include "geopm_version.h"
