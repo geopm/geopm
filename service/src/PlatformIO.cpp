@@ -54,9 +54,8 @@
 #include "geopm/Helper.hpp"
 #include "geopm/Agg.hpp"
 
-#ifdef GEOPM_SERVICE_BUILD
-//#include "DBusServer.hpp"
-#endif
+// When we support the batch server this include will be required.
+// #include "DBusServer.hpp"
 
 namespace geopm
 {
@@ -928,9 +927,10 @@ extern "C" {
                                      int key_size,
                                      char *server_key)
     {
-#ifndef GEOPM_SERVICE_BUILD
+        // For now just return error code, will call through to DBusServer
+        // when there is an implementation.
         return GEOPM_ERROR_INVALID;
-#else
+#if 0
         int err = 0;
         try {
             std::vector<struct geopm_request_s> signal_config_vec(signal_config, signal_config + num_signal);
@@ -953,9 +953,10 @@ extern "C" {
 
     int geopm_pio_stop_batch_server(int server_pid)
     {
-#ifndef GEOPM_SERVICE_BUILD
+        // For now just return error code, will call through to DBusServer
+        // when there is an implementation.
         return GEOPM_ERROR_INVALID;
-#else
+#if 0
         int err = 0;
         try {
             //geopm::DBusServer::stop_batch(server_pid);

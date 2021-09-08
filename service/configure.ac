@@ -62,6 +62,28 @@ fi
 [enable_debug="0"]
 )
 
+AC_ARG_ENABLE([systemd],
+  [AS_HELP_STRING([--disable-systemd], [Disable the use of the sd_bus interface of libsystemd to support the ServiceIOGroup])],
+[if test "x$enable_systemd" = "xno" ; then
+  enable_systemd="0"
+else
+  enable_systemd="1"
+fi
+],
+[enable_systemd="1"]
+)
+
+AC_SUBST([enable_systemd])
+AM_CONDITIONAL([ENABLE_SYSTEMD], [test "x$enable_systemd" = "x1"])
+
+if test "x$enable_systemd" = "x1" ; then
+  ENABLE_SYSTEMD=True
+  AC_DEFINE([GEOPM_ENABLE_SYSTEMD], [ ], [Enables the use of the sd_bus interface of libsystemd to support the ServiceIOGroup])
+else
+  ENABLE_SYSTEMD=False
+fi
+
+
 AC_ARG_ENABLE([levelzero],
   [AS_HELP_STRING([--enable-levelzero], [Enables use of the levelzero library to support levelzero board accelerators])],
 [if test "x$enable_levelzero" = "xno" ; then
@@ -190,6 +212,15 @@ AC_CHECK_LIB([pthread], [pthread_mutex_init], [], [
 AC_CHECK_HEADER([pthread.h], [], [
     echo "missing pthread.h: POSIX thread interface is required"
     exit -1])
+
+if test "x$enable_systemd" = "x1" ; then
+    AC_CHECK_LIB([systemd], [sd_bus_open_system], [], [
+        echo "missing libsystemd or does libsystemd does not support sd_bus interface, to disable ServiceIOGroup configure with --disable-systemd"
+        exit -1])
+    AC_CHECK_HEADER([systemd/sd-bus.h], [], [
+        echo "missing systemd/sd-bus.h: sd_bus interface is required"
+        exit -1])
+fi
 
 if test "x$enable_nvml" = "x1" ; then
     AC_SEARCH_LIBS([nvmlSystemGetCudaDriverVersion], [nvidia-ml])

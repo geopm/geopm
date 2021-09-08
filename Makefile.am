@@ -531,22 +531,6 @@ libgeopmpolicy_la_SOURCES = src/Accumulator.cpp \
                             src/record.hpp \
                             # end
 
-systemd_source_files = src/SDBus.cpp \
-                       src/SDBus.hpp \
-                       src/SDBusMessage.cpp \
-                       src/SDBusMessage.hpp \
-                       src/ServiceIOGroup.cpp \
-                       src/ServiceIOGroup.hpp \
-                       src/ServiceProxy.cpp \
-                       src/ServiceProxy.hpp \
-                       # end
-if ENABLE_SYSTEMD
-    libgeopmpolicy_la_SOURCES += $(systemd_source_files)
-else
-    EXTRA_DIST += $(systemd_source_files)
-endif
-
-
 beta_source_files = src/Daemon.cpp \
                     src/Daemon.hpp \
                     src/DaemonImp.hpp \

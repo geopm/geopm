@@ -129,8 +129,7 @@ int geopm_pio_signal_info(const char *signal_name,
 
 struct geopm_request_s;
 
-// Either call through to DBusServer::start_batch or noop based on
-// GEOPM_SERVICE_BUILD define
+// Call through to DBusServer::start_batch()
 int geopm_pio_start_batch_server(int client_pid,
                                  int num_signal,
                                  const struct geopm_request_s *signal_config,
@@ -140,8 +139,7 @@ int geopm_pio_start_batch_server(int client_pid,
                                  int key_size,
                                  char *server_key);
 
-// Either call through to DBusServer::stop_batch or noop based on
-// GEOPM_SERVICE_BUILD define
+// Call through to DBusServer::stop_batch()
 int geopm_pio_stop_batch_server(int server_pid);
 
 int geopm_pio_format_signal(double signal,
