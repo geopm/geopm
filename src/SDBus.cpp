@@ -35,8 +35,8 @@
 #include <sstream>
 #include <systemd/sd-bus.h>
 
-#include "Helper.hpp"
-#include "Exception.hpp"
+#include "geopm/Helper.hpp"
+#include "geopm/Exception.hpp"
 #include "SDBusMessage.hpp"
 
 namespace geopm

@@ -49,7 +49,7 @@
 #include "EnergyEfficientAgent.hpp"
 #include "FrequencyMapAgent.hpp"
 #include "Environment.hpp"
-#include "Helper.hpp"
+#include "geopm/Helper.hpp"
 
 namespace geopm
 {

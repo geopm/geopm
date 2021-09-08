@@ -33,8 +33,8 @@
 
 #include <cmath>
 
-#include "Agg.hpp"
-#include "Helper.hpp"
+#include "geopm/Agg.hpp"
+#include "geopm/Helper.hpp"
 #include "config.h"
 
 namespace geopm

@@ -35,8 +35,8 @@
 #include "RecordFilter.hpp"
 #include "ProxyEpochRecordFilter.hpp"
 #include "EditDistEpochRecordFilter.hpp"
-#include "Helper.hpp"
-#include "Exception.hpp"
+#include "geopm/Helper.hpp"
+#include "geopm/Exception.hpp"
 
 namespace geopm
 {

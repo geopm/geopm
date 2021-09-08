@@ -36,10 +36,10 @@
 
 #include <algorithm>
 
-#include "contrib/json11/json11.hpp"
+#include "contrib/json11/geopm/json11.hpp"
 
-#include "Helper.hpp"
-#include "Exception.hpp"
+#include "geopm/Helper.hpp"
+#include "geopm/Exception.hpp"
 #include "config.h"
 
 using json11::Json;

@@ -38,7 +38,7 @@
 #include <vector>
 #include <functional>
 
-#include "PluginFactory.hpp"
+#include "geopm/PluginFactory.hpp"
 
 namespace geopm
 {

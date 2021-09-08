@@ -32,13 +32,13 @@
 
 #include "config.h"
 
-#include "ProfileIOGroup.hpp"
+#include "Profilegeopm/IOGroup.hpp"
 
-#include "PlatformTopo.hpp"
+#include "geopm/PlatformTopo.hpp"
 #include "ApplicationSampler.hpp"
-#include "Helper.hpp"
-#include "Exception.hpp"
-#include "Agg.hpp"
+#include "geopm/Helper.hpp"
+#include "geopm/Exception.hpp"
+#include "geopm/Agg.hpp"
 #include "geopm_hash.h"
 #include "geopm_time.h"
 #include "geopm_internal.h"

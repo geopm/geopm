@@ -38,11 +38,11 @@
 #include <limits>
 
 #include "PowerBalancer.hpp"
-#include "PlatformIO.hpp"
-#include "PlatformTopo.hpp"
-#include "Exception.hpp"
-#include "Agg.hpp"
-#include "Helper.hpp"
+#include "geopm/PlatformIO.hpp"
+#include "geopm/PlatformTopo.hpp"
+#include "geopm/Exception.hpp"
+#include "geopm/Agg.hpp"
+#include "geopm/Helper.hpp"
 #include "SampleAggregator.hpp"
 #include "config.h"
 

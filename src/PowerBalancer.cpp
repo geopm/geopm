@@ -35,9 +35,9 @@
 #include <vector>
 #include <cmath>
 
-#include "CircularBuffer.hpp"
-#include "Agg.hpp"
-#include "Helper.hpp"
+#include "geopm/CircularBuffer.hpp"
+#include "geopm/Agg.hpp"
+#include "geopm/Helper.hpp"
 #include "config.h"
 
 namespace geopm

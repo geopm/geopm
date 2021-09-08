@@ -41,8 +41,8 @@
 
 #include "Agent.hpp"
 #include "Environment.hpp"
-#include "Exception.hpp"
-#include "Helper.hpp"
+#include "geopm/Exception.hpp"
+#include "geopm/Helper.hpp"
 #include "geopm_error.h"
 #include "config.h"
 

@@ -44,8 +44,8 @@
 #include <iostream>
 
 #include "ELF.hpp"
-#include "Exception.hpp"
-#include "Helper.hpp"
+#include "geopm/Exception.hpp"
+#include "geopm/Helper.hpp"
 
 namespace geopm
 {

@@ -40,7 +40,7 @@
 
 #include "Environment.hpp"
 
-#include "Exception.hpp"
+#include "geopm/Exception.hpp"
 #include "TreeCommLevel.hpp"
 #include "Comm.hpp"
 #include "config.h"

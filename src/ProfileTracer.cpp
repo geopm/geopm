@@ -38,12 +38,12 @@
 #include <iostream>
 #include <iomanip>
 #include "ProfileTracerImp.hpp"
-#include "PlatformIO.hpp"
-#include "PlatformTopo.hpp"
-#include "Helper.hpp"
+#include "geopm/PlatformIO.hpp"
+#include "geopm/PlatformTopo.hpp"
+#include "geopm/Helper.hpp"
 #include "geopm_internal.h"
 #include "Environment.hpp"
-#include "Exception.hpp"
+#include "geopm/Exception.hpp"
 #include "CSV.hpp"
 #include "geopm_debug.hpp"
 #include "ApplicationSampler.hpp"

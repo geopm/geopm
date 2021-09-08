@@ -39,17 +39,17 @@
 #include <utility>
 #include <algorithm>
 
-#include "contrib/json11/json11.hpp"
+#include "contrib/json11/geopm/json11.hpp"
 
 #include "geopm.h"
 #include "geopm_hash.h"
 
 #include "Environment.hpp"
-#include "PlatformIO.hpp"
-#include "PlatformTopo.hpp"
+#include "geopm/PlatformIO.hpp"
+#include "geopm/PlatformTopo.hpp"
 #include "FrequencyGovernor.hpp"
-#include "Helper.hpp"
-#include "Exception.hpp"
+#include "geopm/Helper.hpp"
+#include "geopm/Exception.hpp"
 #include "geopm_debug.hpp"
 #include "config.h"
 

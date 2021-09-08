@@ -35,7 +35,7 @@
 
 #include <memory>
 
-#include "IOGroup.hpp"
+#include "geopm/IOGroup.hpp"
 
 namespace geopm
 {

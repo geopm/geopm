@@ -42,10 +42,10 @@
 #include <algorithm>
 #include <time.h>
 
-#include "PlatformIO.hpp"
-#include "PlatformTopo.hpp"
-#include "Exception.hpp"
-#include "Helper.hpp"
+#include "geopm/PlatformIO.hpp"
+#include "geopm/PlatformTopo.hpp"
+#include "geopm/Exception.hpp"
+#include "geopm/Helper.hpp"
 #include "Environment.hpp"
 #include "geopm_hash.h"
 #include "geopm_version.h"

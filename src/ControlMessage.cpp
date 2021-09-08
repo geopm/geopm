@@ -37,8 +37,8 @@
 #include <limits.h>
 
 #include "geopm_time.h"
-#include "Exception.hpp"
-#include "Helper.hpp"
+#include "geopm/Exception.hpp"
+#include "geopm/Helper.hpp"
 
 #include "config.h"
 

@@ -46,7 +46,7 @@
 #include "Profile.hpp"
 #include "ELF.hpp"
 #include "Environment.hpp"
-#include "Exception.hpp"
+#include "geopm/Exception.hpp"
 #include "OMPT.hpp"
 
 #include "config.h"
