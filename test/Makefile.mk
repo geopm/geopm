@@ -305,27 +305,6 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/SchedTest.test_proc_cpuset_6 \
               test/gtest_links/SchedTest.test_proc_cpuset_7 \
               test/gtest_links/SchedTest.test_proc_cpuset_8 \
-              test/gtest_links/ServiceIOGroupTest.signal_control_info \
-              test/gtest_links/ServiceIOGroupTest.domain_type \
-              test/gtest_links/ServiceIOGroupTest.read_signal_behavior \
-              test/gtest_links/ServiceIOGroupTest.write_control \
-              test/gtest_links/ServiceIOGroupTest.valid_signal_aggregation \
-              test/gtest_links/ServiceIOGroupTest.valid_format_function \
-              test/gtest_links/ServiceIOGroupTest.push_signal \
-              test/gtest_links/ServiceIOGroupTest.push_control \
-              test/gtest_links/ServiceIOGroupTest.read_batch \
-              test/gtest_links/ServiceIOGroupTest.write_batch \
-              test/gtest_links/ServiceIOGroupTest.sample \
-              test/gtest_links/ServiceIOGroupTest.adjust \
-              test/gtest_links/ServiceProxyTest.platform_get_user_access \
-              test/gtest_links/ServiceProxyTest.platform_get_signal_info \
-              test/gtest_links/ServiceProxyTest.platform_get_control_info \
-              test/gtest_links/ServiceProxyTest.platform_open_session \
-              test/gtest_links/ServiceProxyTest.platform_close_session \
-              test/gtest_links/ServiceProxyTest.platform_start_batch \
-              test/gtest_links/ServiceProxyTest.platform_stop_batch \
-              test/gtest_links/ServiceProxyTest.platform_read_signal \
-              test/gtest_links/ServiceProxyTest.platform_write_control \
               test/gtest_links/TracerTest.columns \
               test/gtest_links/TracerTest.region_entry_exit \
               test/gtest_links/TracerTest.update_samples \
@@ -451,10 +430,7 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
                           test/MockRecordFilter.hpp \
                           test/MockReporter.hpp \
                           test/MockSampleAggregator.hpp \
-                          test/MockSDBus.hpp \
-                          test/MockSDBusMessage.hpp \
                           test/MockSharedMemory.hpp \
-                          test/MockServiceProxy.hpp \
                           test/MockTracer.hpp \
                           test/MockTreeComm.hpp \
                           test/MockTreeCommLevel.hpp \

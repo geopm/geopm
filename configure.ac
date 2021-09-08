@@ -106,20 +106,6 @@ fi
 AC_SUBST([enable_beta])
 AM_CONDITIONAL([ENABLE_BETA], [test "x$enable_beta" = "x1"])
 
-AC_ARG_ENABLE([systemd],
-  [AS_HELP_STRING([--disable-systemd], [Disable the use of the sd_bus interface of libsystemd to support the ServiceIOGroup])],
-[if test "x$enable_systemd" = "xno" ; then
-  enable_systemd="0"
-else
-  enable_systemd="1"
-fi
-],
-[enable_systemd="1"]
-)
-
-AC_SUBST([enable_systemd])
-AM_CONDITIONAL([ENABLE_SYSTEMD], [test "x$enable_systemd" = "x1"])
-
 AC_ARG_ENABLE([cnl-iogroup],
   [AS_HELP_STRING([--enable-cnl-iogroup], [Enable the CNL IOGroup])],
 [if test "x$enable_cnl_iogroup" = "xno" ; then
@@ -156,13 +142,6 @@ if test "x$enable_msrsafe_ioctl_write" = "x1" ; then
   AC_DEFINE([GEOPM_MSRSAFE_IOCTL_WRITE], [ ], [Enables use of msr-safe ioctl feature for writing (broken as of msr-safe version 1.2.0)])
 fi
 AC_SUBST([enable_msrsafe_ioctl_write])
-
-if test "x$enable_systemd" = "x1" ; then
-  ENABLE_SYSTEMD=True
-  AC_DEFINE([GEOPM_ENABLE_SYSTEMD], [ ], [Enables the use of the sd_bus interface of libsystemd to support the ServiceIOGroup])
-else
-  ENABLE_SYSTEMD=False
-fi
 
 AC_ARG_WITH([sqlite3], [AS_HELP_STRING([--with-sqlite3=PATH],
             [specify directory for installed sqlite3 package.])])
@@ -422,15 +401,6 @@ AC_CHECK_LIB([pthread], [pthread_mutex_init], [], [
 AC_CHECK_HEADER([pthread.h], [], [
     echo "missing pthread.h: POSIX thread interface is required"
     exit -1])
-
-if test "x$enable_systemd" = "x1" ; then
-    AC_CHECK_LIB([systemd], [sd_bus_open_system], [], [
-        echo "missing libsystemd or does libsystemd does not support sd_bus interface, to disable ServiceIOGroup configure with --disable-systemd"
-        exit -1])
-    AC_CHECK_HEADER([systemd/sd-bus.h], [], [
-        echo "missing systemd/sd-bus.h: sd_bus interface is required"
-        exit -1])
-fi
 
 if test "x$enable_beta" = "x1" ; then
   AC_CHECK_LIB([sqlite3], [sqlite3_open], [], [
