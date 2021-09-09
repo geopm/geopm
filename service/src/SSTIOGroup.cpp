@@ -43,7 +43,7 @@
 #include "geopm/Agg.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
-#include "geopm/MSR.hpp"
+#include "MSR.hpp"
 #include "MSRFieldSignal.hpp"
 #include "geopm/PlatformTopo.hpp"
 #include "SSTControl.hpp"

@@ -38,7 +38,7 @@
 #include "geopm/Exception.hpp"
 #include "geopm_debug.hpp"
 #include "geopm/Helper.hpp"
-#include "geopm/MSR.hpp"  // for enums
+#include "MSR.hpp"  // for enums
 
 namespace geopm
 {

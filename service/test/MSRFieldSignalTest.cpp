@@ -38,7 +38,7 @@
 #include "gmock/gmock.h"
 
 #include "MSRFieldSignal.hpp"
-#include "geopm/MSR.hpp"
+#include "MSR.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm_hash.h"
 #include "geopm_internal.h"
