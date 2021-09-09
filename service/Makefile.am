@@ -86,6 +86,13 @@ EXTRA_DIST = .gitignore \
              geopm-service.spec.in \
              io.github.geopm.conf \
              io.github.geopm.xml \
+             integration/README.md \
+             integration/build_dasbus.sh \
+             integration/install_service.sh \
+             integration/test/test_controller.py \
+             integration/test/test_sst_priority.sh \
+             integration/test/test_su_give_access.sh \
+             integration/test/test_write_session.sh \
              geopmaccess \
              geopmd \
              geopmdpy/__init__.py \
@@ -103,13 +110,6 @@ EXTRA_DIST = .gitignore \
              geopmsession \
              requirements.txt \
              setup.py \
-             test/README.md \
-             test/build_dasbus.sh \
-             test/install_service.sh \
-             test/test_controller.py \
-             test/test_sst_priority.sh \
-             test/test_su_give_access.sh \
-             test/test_write_session.sh \
              geopm.service \
              AUTHORS \
              CODE_OF_CONDUCT.md \
