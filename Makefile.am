@@ -77,6 +77,7 @@ endif
 pkginclude_HEADERS = src/Agent.hpp \
                      src/EnergyEfficientRegion.hpp \
                      src/FrequencyGovernor.hpp \
+                     src/PlatformIOProf.hpp \
                      src/PowerBalancer.hpp \
                      src/PowerGovernor.hpp \
                      src/SampleAggregator.hpp \
