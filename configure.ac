@@ -445,7 +445,7 @@ AC_SEARCH_LIBS([geopm_pio_read_signal], [geopmd])
 AC_CHECK_LIB([geopmd], [geopm_pio_read_signal], [], [
     echo "missing libgeopmd: Install the geopm-service and use --with-geopmd or --with-geopmd-lib to specify location"
     exit -1])
-AC_CHECK_HEADER([geopm.h], [], [
+AC_CHECK_HEADER([geopm_pio.h], [], [
     echo "missing geopm.h: Intall the geopm-service and use --with-geopmd or --with-geopmd-include to specify location"
     exit -1])
 
