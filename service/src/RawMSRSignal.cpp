@@ -36,7 +36,7 @@
 
 #include "geopm_internal.h"
 #include "geopm_debug.hpp"
-#include "geopm/MSRIO.hpp"
+#include "MSRIO.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
 

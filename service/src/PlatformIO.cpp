@@ -48,7 +48,7 @@
 #include "geopm_pio.h"
 #include "geopm/PlatformTopo.hpp"
 #include "geopm/MSRIOGroup.hpp"
-#include "geopm/TimeIOGroup.hpp"
+#include "TimeIOGroup.hpp"
 #include "CombinedSignal.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"

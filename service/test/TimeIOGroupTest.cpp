@@ -32,7 +32,7 @@
 
 #include "gtest/gtest.h"
 #include "geopm/PluginFactory.hpp"
-#include "geopm/TimeIOGroup.hpp"
+#include "TimeIOGroup.hpp"
 #include "geopm/PlatformTopo.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm_time.h"

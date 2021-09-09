@@ -29,33 +29,31 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef CPUINFOIOGROUP_HPP_INCLUDE
-#define CPUINFOIOGROUP_HPP_INCLUDE
 
-#include <map>
+#ifndef TIMEIOGROUP_HPP_INCLUDE
+#define TIMEIOGROUP_HPP_INCLUDE
+
+#include <set>
 #include <functional>
 
-#include "IOGroup.hpp"
+#include "geopm/IOGroup.hpp"
+#include "geopm_time.h"
 
 namespace geopm
 {
-    /// @brief IOGroup that provides constants for CPU frequency limits
-    ///        as signals for PlatformIO.
-    class CpuinfoIOGroup : public IOGroup
+    /// @brief IOGroup that provides a signal for the time since GEOPM startup.
+    class TimeIOGroup : public IOGroup
     {
         public:
-            CpuinfoIOGroup();
-            CpuinfoIOGroup(const std::string &cpu_info_path,
-                           const std::string &cpu_freq_min_path,
-                           const std::string &cpu_freq_max_path);
-            virtual ~CpuinfoIOGroup() = default;
+            TimeIOGroup();
+            virtual ~TimeIOGroup() = default;
             std::set<std::string> signal_names(void) const override;
             std::set<std::string> control_names(void) const override;
             bool is_valid_signal(const std::string &signal_name) const override;
             bool is_valid_control(const std::string &control_name) const override;
             int signal_domain_type(const std::string &signal_name) const override;
             int control_domain_type(const std::string &control_name) const override;
-            int push_signal(const std::string &signal_name, int domain_type, int domain_idx) override;
+            int push_signal(const std::string &signal_name, int domain_type, int domain_idx)  override;
             int push_control(const std::string &control_name, int domain_type, int domain_idx) override;
             void read_batch(void) override;
             void write_batch(void) override;
@@ -75,16 +73,11 @@ namespace geopm
             static std::string plugin_name(void);
             static std::unique_ptr<IOGroup> make_plugin(void);
         private:
-            /// @brief Add support for an alias of a signal by name.
-            void register_signal_alias(const std::string &alias_name, const std::string &signal_name);
-
-            struct m_signal_info_s {
-                double value;
-                int units;
-                std::function<double(const std::vector<double> &)> agg_function;
-                std::string description;
-            };
-            std::map<std::string, m_signal_info_s> m_signal_available;
+            bool m_is_signal_pushed;
+            bool m_is_batch_read;
+            geopm_time_s m_time_zero;
+            double m_time_curr;
+            const std::set<std::string> m_valid_signal_name;
     };
 }
 
