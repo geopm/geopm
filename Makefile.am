@@ -527,6 +527,8 @@ libgeopmpolicy_la_SOURCES = src/Accumulator.cpp \
                             src/geopm_endpoint.h \
                             src/geopm_imbalancer.h \
                             src/geopm_policystore.h \
+                            src/profile_io_prof.cpp \
+                            src/profile_io_prof.hpp \
                             src/record.cpp \
                             src/record.hpp \
                             # end
