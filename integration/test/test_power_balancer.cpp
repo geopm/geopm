@@ -39,9 +39,9 @@
 #include <memory>
 
 #include "geopm.h"
-#include "Exception.hpp"
+#include "geopm/Exception.hpp"
 #include "ModelRegion.hpp"
-#include "PlatformTopo.hpp"
+#include "geopm/PlatformTopo.hpp"
 #include "geopm_sched.h"
 
 int main(int argc, char **argv)

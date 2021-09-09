@@ -35,7 +35,7 @@
 #include <string>
 
 #include "geopm_daemon.h"
-#include "Exception.hpp"
+#include "geopm/Exception.hpp"
 
 
 struct geopm_daemon_c *g_daemon;

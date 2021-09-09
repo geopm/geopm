@@ -40,9 +40,9 @@
 
 #include "geopm.h"
 #include "Profile.hpp"
-#include "PlatformIO.hpp"
-#include "PlatformTopo.hpp"
-#include "Exception.hpp"
+#include "geopm/PlatformIO.hpp"
+#include "geopm/PlatformTopo.hpp"
+#include "geopm/Exception.hpp"
 #include "ModelRegion.hpp"
 
 using geopm::platform_io;
