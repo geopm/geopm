@@ -120,7 +120,6 @@ namespace geopm
 
             struct derivative_signal_info
             {
-                std::string m_name;
                 std::string m_description;
                 std::string m_base_name;
                 std::string m_time_name;
@@ -135,8 +134,8 @@ namespace geopm
             std::vector<std::shared_ptr<Signal> > m_signal_pushed;
             std::vector<std::shared_ptr<control_s> > m_control_pushed;
             const std::set<std::string> m_special_signal_set;
-            const std::vector<derivative_signal_info> m_derivative_signals;
-            std::set<int> m_skip_signal_set;
+            const std::map<std::string, derivative_signal_info> m_derivative_signal_map;
+            std::set<int> m_derivative_signal_pushed_set;
 
             //GEOPM Domain indexed
             std::vector<std::pair<double,double> > m_frequency_range;
