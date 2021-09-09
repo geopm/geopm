@@ -345,6 +345,31 @@ namespace geopm
                                 "LEVELZERO::ACTIVE_TIME",
                                 "LEVELZERO::ACTIVE_TIME_COMPUTE",
                                 "LEVELZERO::ACTIVE_TIME_COPY"})
+
+        , m_derivative_signals ({
+            {"LEVELZERO::POWER",
+                    "Average accelerator power over 40 ms or 8 control loop iterations",
+                    "LEVELZERO::ENERGY",
+                    "LEVELZERO::ENERGY_TIMESTAMP"},
+            {"LEVELZERO::UTILIZATION",
+                    "GPU utilization"
+                        "n  Level Zero logical engines may map to the same hardware"
+                        "\n  resulting in a reduced signal range (i.e. not 0 to 1)",
+                    "LEVELZERO::ACTIVE_TIME",
+                    "LEVELZERO::ACTIVE_TIME_TIMESTAMP"},
+            {"LEVELZERO::UTILIZATION_COMPUTE",
+                    "Compute engine utilization"
+                        "n  Level Zero logical engines may map to the same hardware"
+                        "\n  resulting in a reduced signal range (i.e. not 0 to 1)",
+                    "LEVELZERO::ACTIVE_TIME_COMPUTE",
+                    "LEVELZERO::ACTIVE_TIME_COMPUTE_TIMESTAMP"},
+            {"LEVELZERO::UTILIZATION_COPY",
+                    "Copy engine utilization"
+                        "n  Level Zero logical engines may map to the same hardware"
+                        "\n  resulting in a reduced signal range (i.e. not 0 to 1)",
+                    "LEVELZERO::ACTIVE_TIME_COPY",
+                    "LEVELZERO::ACTIVE_TIME_COPY_TIMESTAMP"},
+        })
     {
         // populate signals for each domain
         for (auto &sv : m_signal_available) {
@@ -384,54 +409,22 @@ namespace geopm
         int derivative_window = 8;
         double sleep_time = 0.005;
 
-        struct signal_data
-        {
-            std::string name;
-            std::string description;
-            std::string base_name;
-            std::string time_name;
-        };
-
-        std::vector<signal_data> derivative_signals {
-            {"LEVELZERO::POWER",
-                    "Average accelerator power over 40 ms or 8 control loop iterations",
-                    "LEVELZERO::ENERGY",
-                    "LEVELZERO::ENERGY_TIMESTAMP"},
-            {"LEVELZERO::UTILIZATION",
-                    "GPU utilization"
-                        "n  Level Zero logical engines may map to the same hardware"
-                        "\n  resulting in a reduced signal range (i.e. not 0 to 1)",
-                    "LEVELZERO::ACTIVE_TIME",
-                    "LEVELZERO::ACTIVE_TIME_TIMESTAMP"},
-            {"LEVELZERO::UTILIZATION_COMPUTE",
-                    "Compute engine utilization"
-                        "n  Level Zero logical engines may map to the same hardware"
-                        "\n  resulting in a reduced signal range (i.e. not 0 to 1)",
-                    "LEVELZERO::ACTIVE_TIME_COMPUTE",
-                    "LEVELZERO::ACTIVE_TIME_COMPUTE_TIMESTAMP"},
-            {"LEVELZERO::UTILIZATION_COPY",
-                    "Copy engine utilization"
-                        "n  Level Zero logical engines may map to the same hardware"
-                        "\n  resulting in a reduced signal range (i.e. not 0 to 1)",
-                    "LEVELZERO::ACTIVE_TIME_COPY",
-                    "LEVELZERO::ACTIVE_TIME_COPY_TIMESTAMP"},
-        };
-        for (const auto &ds : derivative_signals) {
-            auto read_it = m_signal_available.find(ds.base_name);
-            auto time_it = m_signal_available.find(ds.time_name);
+        for (const auto &ds : m_derivative_signals) {
+            auto read_it = m_signal_available.find(ds.m_base_name);
+            auto time_it = m_signal_available.find(ds.m_time_name);
             if (read_it != m_signal_available.end()
                 && time_it != m_signal_available.end()) {
                 auto readings = read_it->second.m_signals;
                 int domain = read_it->second.m_domain_type;
                 int num_domain = m_platform_topo.num_domain(domain);
                 GEOPM_DEBUG_ASSERT(num_domain == (int)readings.size(),
-                                   "size of domain for " + ds.base_name +
+                                   "size of domain for " + ds.m_base_name +
                                    " does not match number of signals available.");
 
                 auto time_sig = time_it->second.m_signals;
                 GEOPM_DEBUG_ASSERT(time_it->second.m_domain_type == domain,
-                                   "domain for " + ds.time_name +
-                                   " does not match " + ds.base_name);
+                                   "domain for " + ds.m_time_name +
+                                   " does not match " + ds.m_base_name);
 
                 std::vector<std::shared_ptr<Signal> > result(num_domain);
                 for (int domain_idx = 0; domain_idx < num_domain; ++domain_idx) {
@@ -442,11 +435,11 @@ namespace geopm
                                                            derivative_window,
                                                            sleep_time);
                 }
-                m_signal_available[ds.name] = {ds.description + "\n    alias_for: " +
-                                               ds.base_name + " rate of change",
+                m_signal_available[ds.m_name] = {ds.m_description + "\n    alias_for: " +
+                                               ds.m_base_name + " rate of change",
                                                    domain,
-                                                   agg_function(ds.base_name),
-                                                   format_function(ds.base_name),
+                                                   agg_function(ds.m_base_name),
+                                                   format_function(ds.m_base_name),
                                                    result,
                                                    nullptr,
                                                    1
@@ -587,6 +580,18 @@ namespace geopm
             }
         }
 
+        // Push signals related to derivative signals
+        for (const auto &ds : m_derivative_signals) {
+            if (signal_name == ds.m_name) {
+                //Add derivative signals to the skip list
+                m_skip_signal_set.insert(result);
+
+                //push associated signals
+                push_signal(ds.m_base_name, domain_type, domain_idx);
+                push_signal(ds.m_time_name, domain_type, domain_idx);
+            }
+        }
+
         return result;
     }
 
@@ -640,7 +645,9 @@ namespace geopm
     {
         m_is_batch_read = true;
         for (size_t ii = 0; ii < m_signal_pushed.size(); ++ii) {
-            m_signal_pushed[ii]->set_sample(m_signal_pushed[ii]->read());
+            if (m_skip_signal_set.find(ii) == m_skip_signal_set.end()) {
+                m_signal_pushed[ii]->set_sample(m_signal_pushed[ii]->read());
+            }
         }
     }
 
@@ -720,7 +727,6 @@ namespace geopm
                             ": TIMESTAMP Signals are for batch use only.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-
         double result = NAN;
         auto it = m_signal_available.find(signal_name);
         if (it != m_signal_available.end()) {

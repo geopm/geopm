@@ -128,8 +128,8 @@ namespace geopm
         CircularBuffer<m_sample_s> temp_history(M_NUM_SAMPLE_HISTORY);
         int num_fit = 0;
         for (int ii = 0; ii < M_NUM_SAMPLE_HISTORY; ++ii) {
-            double time = m_time_sig->read();
             double signal = m_y_sig->read();
+            double time = m_time_sig->read();
             result = compute_next(temp_history, num_fit, time, signal);
             if (ii < M_NUM_SAMPLE_HISTORY - 1) {
                 usleep(m_sleep_time * 1e6);
