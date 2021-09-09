@@ -531,3 +531,5 @@ clean-local-gtest-script-links:
 	rm -f test/gtest_links/*
 
 CLEAN_LOCAL_TARGETS += clean-local-gtest-script-links
+
+include test/googletest.mk
