@@ -45,8 +45,8 @@ include_HEADERS = src/geopm.h \
                   src/geopm_internal.h \
                   src/geopm_pio.h \
                   src/geopm_plugin.hpp \
-                  src/geopm_time.h \
                   src/geopm_sched.h \
+                  src/geopm_time.h \
                   src/geopm_topo.h \
                   src/geopm_version.h \
                   # end
@@ -122,22 +122,21 @@ EXTRA_DIST = .gitignore \
 # Add ABI version
 libgeopmd_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(geopm_abi_version)
 
-libgeopmd_la_SOURCES = contrib/json11/json11.cpp \
+libgeopmd_la_SOURCES = $(include_HEADERS) \
+                       $(geopminclude_HEADERS) \
+                       contrib/json11/json11.cpp \
                        contrib/json11/json11.hpp \
                        src/AcceleratorTopo.cpp \
                        src/AcceleratorTopo.hpp \
                        src/AcceleratorTopoNull.cpp \
                        src/AcceleratorTopoNull.hpp \
                        src/Agg.cpp \
-                       src/Agg.hpp \
-                       src/CircularBuffer.hpp \
                        src/CNLIOGroup.cpp \
                        src/CNLIOGroup.hpp \
                        src/CombinedSignal.cpp \
                        src/CombinedSignal.hpp \
                        src/Control.hpp \
                        src/CpuinfoIOGroup.cpp \
-                       src/CpuinfoIOGroup.hpp \
                        src/DBusServer.hpp \
                        src/DerivativeSignal.cpp \
                        src/DerivativeSignal.hpp \
@@ -146,11 +145,8 @@ libgeopmd_la_SOURCES = contrib/json11/json11.cpp \
                        src/DomainControl.cpp \
                        src/DomainControl.hpp \
                        src/Exception.cpp \
-                       src/Exception.hpp \
                        src/Helper.cpp \
-                       src/Helper.hpp \
                        src/IOGroup.cpp \
-                       src/IOGroup.hpp \
                        src/LevelZeroAcceleratorTopo.cpp \
                        src/LevelZeroAcceleratorTopo.hpp \
                        src/LevelZeroDevicePool.cpp \
@@ -162,16 +158,13 @@ libgeopmd_la_SOURCES = contrib/json11/json11.cpp \
                        src/LevelZeroSignal.cpp \
                        src/LevelZeroSignal.hpp \
                        src/MSR.cpp \
-                       src/MSR.hpp \
                        src/MSRFieldControl.cpp \
                        src/MSRFieldControl.hpp \
                        src/MSRFieldSignal.cpp \
                        src/MSRFieldSignal.hpp \
                        src/MSRIO.cpp \
-                       src/MSRIO.hpp \
                        src/MSRIOImp.hpp \
                        src/MSRIOGroup.cpp \
-                       src/MSRIOGroup.hpp \
                        src/MSRPath.cpp \
                        src/MSRPath.hpp \
                        src/MultiplicationSignal.cpp \
@@ -182,12 +175,9 @@ libgeopmd_la_SOURCES = contrib/json11/json11.cpp \
                        src/NVMLIOGroup.cpp \
                        src/NVMLIOGroup.hpp \
                        src/PlatformIO.cpp \
-                       src/PlatformIO.hpp \
                        src/PlatformIOImp.hpp \
                        src/PlatformTopo.cpp \
-                       src/PlatformTopo.hpp \
                        src/PlatformTopoImp.hpp \
-                       src/PluginFactory.hpp \
                        src/RawMSRSignal.cpp \
                        src/RawMSRSignal.hpp \
                        src/ServiceIOGroup.cpp \
@@ -195,10 +185,8 @@ libgeopmd_la_SOURCES = contrib/json11/json11.cpp \
                        src/ServiceProxy.cpp \
                        src/ServiceProxy.hpp \
                        src/SharedMemory.cpp \
-                       src/SharedMemory.hpp \
                        src/SharedMemoryImp.hpp \
                        src/SharedMemoryScopedLock.cpp \
-                       src/SharedMemoryScopedLock.hpp \
                        src/Signal.hpp \
                        src/SSTIO.cpp \
                        src/SSTIoctl.cpp \
@@ -213,25 +201,13 @@ libgeopmd_la_SOURCES = contrib/json11/json11.cpp \
                        src/SSTSignal.cpp \
                        src/SSTSignal.hpp \
                        src/TimeIOGroup.cpp \
-                       src/TimeIOGroup.hpp \
                        src/TimeSignal.cpp \
                        src/TimeSignal.hpp \
                        src/TimeZero.cpp \
-                       src/geopm.h \
-                       src/geopm_debug.hpp \
-                       src/geopm_error.h \
                        src/geopm_hash.c \
-                       src/geopm_hash.h \
-                       src/geopm_internal.h \
-                       src/geopm_pio.h \
                        src/geopm_plugin.cpp \
-                       src/geopm_plugin.hpp \
                        src/geopm_sched.c \
-                       src/geopm_sched.h \
-                       src/geopm_time.h \
-                       src/geopm_topo.h \
                        src/geopm_version.c \
-                       src/geopm_version.h \
                        src/msr_data_arch.cpp \
                        src/msr_data_hsx.cpp \
                        src/msr_data_knl.cpp \
