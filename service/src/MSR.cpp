@@ -32,7 +32,7 @@
 
 #include "config.h"
 
-#include "geopm/MSR.hpp"
+#include "MSR.hpp"
 #include "geopm/Exception.hpp"
 
 namespace geopm

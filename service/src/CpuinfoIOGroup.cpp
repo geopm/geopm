@@ -30,7 +30,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "geopm/CpuinfoIOGroup.hpp"
+#include "CpuinfoIOGroup.hpp"
 
 #include <cmath>
 #include <cstring>
