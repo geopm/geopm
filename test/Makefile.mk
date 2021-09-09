@@ -452,8 +452,6 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
                           test/ReporterTest.cpp \
                           test/SampleAggregatorTest.cpp \
                           test/SchedTest.cpp \
-                          test/ServiceProxyTest.cpp \
-                          test/ServiceIOGroupTest.cpp \
                           test/TracerTest.cpp \
                           test/TreeCommLevelTest.cpp \
                           test/TreeCommTest.cpp \

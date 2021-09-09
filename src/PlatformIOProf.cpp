@@ -30,21 +30,59 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef PLATFORM_IO_PROF_HPP_INCLUDE
-#define PLATFORM_IO_PROF_HPP_INCLUDE
+#include "config.h"
+#include "PlatformIOProf.hpp"
+
+#include <string>
+#ifdef GEOPM_DEBUG
+#include <iostream>
+#endif
+
+#include "geopm/Exception.hpp"
+#include "geopm/PlatformIO.hpp"
+#include "ProfileIOGroup.hpp"
+#include "EpochIOGroup.hpp"
+
 
 namespace geopm
 {
-    class PlatformIOProf {
-        public:
-            static PlatformIO &platform_io(void);
-            virtual ~PlatformIOProf() = default;
-        private:
-            PlatformIOProf();
-            void print_load_warning(const std::string io_group_name,
-                                    const std::string what) const;
-            PlatformIO &m_platform_io;
-    };
+    PlatformIO &PlatformIOProf::platform_io(void)
+    {
+        static PlatformIOProf instance;
+        return instance.m_platform_io;
+    }
+
+    PlatformIOProf::PlatformIOProf()
+        : m_platform_io(geopm::platform_io())
+    {
+        try {
+            m_platform_io.register_iogroup(
+                ProfileIOGroup::make_plugin());
+        }
+        catch (const geopm::Exception &ex) {
+            print_load_warning("ProfileIOGroup", ex.what());
+        }
+        try {
+            m_platform_io.register_iogroup(
+                EpochIOGroup::make_plugin());
+        }
+        catch (const geopm::Exception &ex) {
+            print_load_warning("EpochIOGroup", ex.what());
+        }
+
+    }
+    void PlatformIOProf::print_load_warning(const std::string &io_group_name,
+                                            const std::string &what) const
+    {
+#ifdef GEOPM_DEBUG
+        std::cerr << "Warning: <geopm> Failed to load " << io_group_name
+                  << " IOGroup.  "
+                  << "GEOPM may not work properly unless an alternate "
+                  << "IOGroup plugin is loaded to provide signals/controls "
+                  << "required."
+                  << std::endl;
+        std::cerr << "The error was: " << what << std::endl;
+#endif
+    }
 }
 
-#endif

@@ -37,6 +37,7 @@
 
 #include <vector>
 
+#include "PlatformIOProf.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm/PlatformIO.hpp"
@@ -56,7 +57,7 @@ namespace geopm
     }
 
     FrequencyGovernorImp::FrequencyGovernorImp()
-        : FrequencyGovernorImp(platform_io(), platform_topo())
+        : FrequencyGovernorImp(PlatformIOProf::platform_io(), platform_topo())
     {
 
     }

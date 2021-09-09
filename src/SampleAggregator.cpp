@@ -43,6 +43,7 @@
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
 #include "Accumulator.hpp"
+#include "PlatformIOProf.hpp"
 #include "geopm/IOGroup.hpp"
 
 namespace geopm
@@ -53,7 +54,7 @@ namespace geopm
     }
 
     SampleAggregatorImp::SampleAggregatorImp()
-        : SampleAggregatorImp(platform_io())
+        : SampleAggregatorImp(PlatformIOProf::platform_io())
     {
 
     }

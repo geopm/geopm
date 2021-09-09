@@ -43,6 +43,7 @@
 #include "geopm/Exception.hpp"
 #include "geopm/Agg.hpp"
 #include "geopm/Helper.hpp"
+#include "PlatformIOProf.hpp"
 #include "SampleAggregator.hpp"
 #include "config.h"
 
@@ -609,12 +610,12 @@ namespace geopm
     }
 
     PowerBalancerAgent::PowerBalancerAgent()
-        : PowerBalancerAgent(platform_io(),
+        : PowerBalancerAgent(PlatformIOProf::platform_io(),
                              platform_topo(),
                              SampleAggregator::make_unique(),
                              {},
-                             platform_io().read_signal("POWER_PACKAGE_MIN", GEOPM_DOMAIN_PACKAGE, 0),
-                             platform_io().read_signal("POWER_PACKAGE_MAX", GEOPM_DOMAIN_PACKAGE, 0))
+                             PlatformIOProf::platform_io().read_signal("POWER_PACKAGE_MIN", GEOPM_DOMAIN_PACKAGE, 0),
+                             PlatformIOProf::platform_io().read_signal("POWER_PACKAGE_MAX", GEOPM_DOMAIN_PACKAGE, 0))
     {
 
     }

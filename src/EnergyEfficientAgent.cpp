@@ -45,6 +45,7 @@
 #include "ApplicationSampler.hpp"
 #include "EnergyEfficientRegion.hpp"
 #include "FrequencyGovernor.hpp"
+#include "PlatformIOProf.hpp"
 #include "geopm/PlatformIO.hpp"
 #include "geopm/PlatformTopo.hpp"
 #include "geopm/Helper.hpp"
@@ -56,7 +57,7 @@ using json11::Json;
 namespace geopm
 {
     EnergyEfficientAgent::EnergyEfficientAgent()
-        : EnergyEfficientAgent(platform_io(), platform_topo(),
+        : EnergyEfficientAgent(PlatformIOProf::platform_io(), platform_topo(),
                                FrequencyGovernor::make_shared(),
                                std::map<uint64_t, std::shared_ptr<EnergyEfficientRegion> >())
     {
