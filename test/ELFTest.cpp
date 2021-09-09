@@ -35,7 +35,7 @@
 #include <functional>
 #include "gtest/gtest.h"
 #include "ELF.hpp"
-#include "Helper.hpp"
+#include "geopm/Helper.hpp"
 #include "geopm_hash.h"
 
 class ELFTest: public :: testing :: Test

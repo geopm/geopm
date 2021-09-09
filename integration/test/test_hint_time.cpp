@@ -40,7 +40,7 @@
 
 #include "geopm.h"
 #include "Profile.hpp"
-#include "Exception.hpp"
+#include "geopm/Exception.hpp"
 #include "ModelRegion.hpp"
 
 int main(int argc, char **argv)

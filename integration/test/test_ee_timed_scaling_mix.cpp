@@ -39,7 +39,7 @@
 
 #include "geopm.h"
 #include "Profile.hpp"
-#include "Exception.hpp"
+#include "geopm/Exception.hpp"
 #include "ModelRegion.hpp"
 
 
