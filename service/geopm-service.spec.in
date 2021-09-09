@@ -96,6 +96,8 @@ Python %{python_major_version} package for GEOPM service.
 %{__make} DESTDIR=%{buildroot} install
 rm -f $(find %{buildroot}/%{_libdir} -name '*.a'; \
         find %{buildroot}/%{_libdir} -name '*.la')
+# Remove headers until we define a devel package
+rm -rf %{buildroot}/%{_includedir}
 
 install -Dp -m644 geopm.service %{buildroot}%{_unitdir}/geopm.service
 install -Dp -m644 io.github.geopm.conf %{buildroot}%{_sysconfdir}/dbus-1/system.d/io.github.geopm.conf
