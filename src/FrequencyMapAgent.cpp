@@ -45,6 +45,7 @@
 #include "geopm_hash.h"
 
 #include "Environment.hpp"
+#include "PlatformIOProf.hpp"
 #include "geopm/PlatformIO.hpp"
 #include "geopm/PlatformTopo.hpp"
 #include "FrequencyGovernor.hpp"
@@ -58,7 +59,7 @@ using json11::Json;
 namespace geopm
 {
     FrequencyMapAgent::FrequencyMapAgent()
-        : FrequencyMapAgent(platform_io(), platform_topo())
+        : FrequencyMapAgent(PlatformIOProf::platform_io(), platform_topo())
     {
 
     }
