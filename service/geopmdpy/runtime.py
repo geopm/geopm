@@ -92,10 +92,10 @@ class TimedLoop:
 
         """
 
-        if period <= 0.0:
-            raise RuntimeError('Specified period is invalid.  Must be > 0.')
+        if period < 0.0:
+            raise RuntimeError('Specified period is invalid.  Must be >= 0.')
         if num_period is not None:
-            if num_period <= 0:
+            if num_period < 0:
                 raise RuntimeError('Specified num_period is invalid.  Must be > 0.')
             if not isinstance(num_period, int):
                 raise ValueError('num_period must be a whole number.')
