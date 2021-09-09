@@ -40,6 +40,7 @@
 #include "CSV.hpp"
 #include "Agent.hpp"
 #include "Environment.hpp"
+#include "PlatformIOProf.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm/PlatformIO.hpp"
 #include "geopm/PlatformTopo.hpp"
@@ -58,7 +59,7 @@ namespace geopm
         : EndpointPolicyTracerImp(1024 * 1024 * sizeof(char),
                                   environment().do_trace_endpoint_policy(),
                                   environment().trace_endpoint_policy(),
-                                  platform_io(),
+                                  PlatformIOProf::platform_io(),
                                   Agent::policy_names(environment().agent()))
     {
 

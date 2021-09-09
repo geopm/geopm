@@ -37,6 +37,7 @@
 #include <algorithm>
 
 #include "PowerGovernor.hpp"
+#include "PlatformIOProf.hpp"
 #include "geopm/PlatformIO.hpp"
 #include "geopm/PlatformTopo.hpp"
 #include "geopm/Exception.hpp"
@@ -48,7 +49,7 @@
 namespace geopm
 {
     PowerGovernorAgent::PowerGovernorAgent()
-        : PowerGovernorAgent(platform_io(), platform_topo(), nullptr)
+        : PowerGovernorAgent(PlatformIOProf::platform_io(), platform_topo(), nullptr)
     {
 
     }

@@ -32,6 +32,7 @@
 
 #include "MonitorAgent.hpp"
 
+#include "PlatformIOProf.hpp"
 #include "geopm/PlatformIO.hpp"
 #include "geopm/PlatformTopo.hpp"
 #include "geopm/Helper.hpp"
@@ -41,7 +42,7 @@
 namespace geopm
 {
     MonitorAgent::MonitorAgent()
-        : MonitorAgent(platform_io(), platform_topo())
+        : MonitorAgent(PlatformIOProf::platform_io(), platform_topo())
     {
 
     }
