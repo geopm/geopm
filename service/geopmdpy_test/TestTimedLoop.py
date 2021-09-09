@@ -47,19 +47,19 @@ class TestTimedLoop(unittest.TestCase):
         pass
 
     def test_timed_loop_invalid(self):
-        err_msg = 'Specified period is invalid.  Must be > 0.'
+        err_msg = 'Specified period is invalid.  Must be >= 0.'
         with self.assertRaisesRegex(RuntimeError, err_msg):
-            TimedLoop(0, 0)
+            TimedLoop(-1, 0)
 
         err_msg = 'Specified num_period is invalid.  Must be > 0.'
         with self.assertRaisesRegex(RuntimeError, err_msg):
-            TimedLoop(1, 0)
+            TimedLoop(1, -1)
 
         err_msg = 'num_period must be a whole number.'
         with self.assertRaisesRegex(ValueError, err_msg):
             TimedLoop(1.5, 1.5)
 
-        err_msg = "'<=' not supported between instances of 'str' and 'float'"
+        err_msg = "'<' not supported between instances of 'str' and 'float'"
         with self.assertRaisesRegex(TypeError, err_msg):
             TimedLoop('asd', 'dsa')
 
