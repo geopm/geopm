@@ -29,6 +29,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#include "config.h"
 
 #include "PowerGovernorImp.hpp"
 
@@ -38,11 +39,12 @@
 #include <iostream>
 #include <unistd.h>
 
+#include "PlatformIOProf.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm/PlatformIO.hpp"
 #include "geopm/PlatformTopo.hpp"
 #include "geopm/Exception.hpp"
-#include "config.h"
+
 
 namespace geopm
 {
@@ -57,7 +59,7 @@ namespace geopm
     }
 
     PowerGovernorImp::PowerGovernorImp()
-        : PowerGovernorImp(platform_io(), platform_topo())
+        : PowerGovernorImp(PlatformIOProf::platform_io(), platform_topo())
     {
 
     }

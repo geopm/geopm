@@ -56,6 +56,7 @@
 #include "ProfileTracer.hpp"
 #include "ApplicationSampler.hpp"
 #include "record.hpp"
+#include "PlatformIOProf.hpp"
 
 #include "ProfileIOGroup.hpp"
 
@@ -178,7 +179,7 @@ namespace geopm
 
     Controller::Controller(std::shared_ptr<Comm> ppn1_comm)
         : Controller(ppn1_comm,
-                     platform_io(),
+                     PlatformIOProf::platform_io(),
                      environment().agent(),
                      Agent::num_policy(environment().agent()),
                      Agent::num_sample(environment().agent()),
@@ -189,7 +190,7 @@ namespace geopm
                      std::shared_ptr<ApplicationIO>(new ApplicationIOImp()),
                      std::unique_ptr<Reporter>(new ReporterImp(get_start_time(),
                                                                environment().report(),
-                                                               platform_io(),
+                                                               PlatformIOProf::platform_io(),
                                                                platform_topo(),
                                                                ppn1_comm->rank())),
                      nullptr,
