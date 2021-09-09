@@ -38,8 +38,8 @@
 
 #include "geopm_plugin.hpp"
 #include "geopm/MSRIOGroup.hpp"
-#include "geopm/CpuinfoIOGroup.hpp"
-#include "geopm/TimeIOGroup.hpp"
+#include "CpuinfoIOGroup.hpp"
+#include "TimeIOGroup.hpp"
 #include "SSTIOGroup.hpp"
 #include "geopm/Helper.hpp"
 #ifdef GEOPM_ENABLE_SYSTEMD

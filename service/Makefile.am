@@ -56,19 +56,15 @@ geopmincludedir = $(includedir)/geopm
 geopminclude_HEADERS = contrib/json11/json11.hpp \
                        src/geopm/Agg.hpp \
                        src/geopm/CircularBuffer.hpp \
-                       src/geopm/CpuinfoIOGroup.hpp \
                        src/geopm/Exception.hpp \
                        src/geopm/Helper.hpp \
                        src/geopm/IOGroup.hpp \
-                       src/geopm/MSR.hpp \
-                       src/geopm/MSRIO.hpp \
                        src/geopm/MSRIOGroup.hpp \
                        src/geopm/PlatformIO.hpp \
                        src/geopm/PlatformTopo.hpp \
                        src/geopm/PluginFactory.hpp \
                        src/geopm/SharedMemory.hpp \
                        src/geopm/SharedMemoryScopedLock.hpp \
-                       src/geopm/TimeIOGroup.hpp \
                        # end
 
 install-exec-hook: install-python install-plugin-dir
@@ -138,6 +134,7 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/CombinedSignal.hpp \
                        src/Control.hpp \
                        src/CpuinfoIOGroup.cpp \
+                       src/CpuinfoIOGroup.hpp \
                        src/DBusServer.hpp \
                        src/DerivativeSignal.cpp \
                        src/DerivativeSignal.hpp \
@@ -159,11 +156,13 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/LevelZeroSignal.cpp \
                        src/LevelZeroSignal.hpp \
                        src/MSR.cpp \
+                       src/MSR.hpp \
                        src/MSRFieldControl.cpp \
                        src/MSRFieldControl.hpp \
                        src/MSRFieldSignal.cpp \
                        src/MSRFieldSignal.hpp \
                        src/MSRIO.cpp \
+                       src/MSRIO.hpp \
                        src/MSRIOImp.hpp \
                        src/MSRIOGroup.cpp \
                        src/MSRPath.cpp \
@@ -202,6 +201,7 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/SSTSignal.cpp \
                        src/SSTSignal.hpp \
                        src/TimeIOGroup.cpp \
+                       src/TimeIOGroup.hpp \
                        src/TimeSignal.cpp \
                        src/TimeSignal.hpp \
                        src/TimeZero.cpp \

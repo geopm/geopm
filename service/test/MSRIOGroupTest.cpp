@@ -52,7 +52,7 @@
 #include "geopm/Helper.hpp"
 #include "geopm/PlatformTopo.hpp"
 #include "MSRIOImp.hpp"
-#include "geopm/MSR.hpp"
+#include "MSR.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/PluginFactory.hpp"
 #include "geopm/MSRIOGroup.hpp"

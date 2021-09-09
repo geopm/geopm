@@ -43,7 +43,7 @@
 
 #include "geopm/Exception.hpp"
 #include "geopm/PluginFactory.hpp"
-#include "geopm/CpuinfoIOGroup.hpp"
+#include "CpuinfoIOGroup.hpp"
 #include "geopm/PlatformTopo.hpp"
 #include "geopm_test.hpp"
 

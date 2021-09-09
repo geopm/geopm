@@ -50,7 +50,7 @@
 #include "geopm/Exception.hpp"
 #include "geopm/Agg.hpp"
 #include "MSRIOImp.hpp"
-#include "geopm/MSR.hpp"
+#include "MSR.hpp"
 #include "Signal.hpp"
 #include "RawMSRSignal.hpp"
 #include "MSRFieldSignal.hpp"

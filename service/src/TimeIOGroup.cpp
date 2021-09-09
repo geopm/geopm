@@ -30,7 +30,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "geopm/TimeIOGroup.hpp"
+#include "TimeIOGroup.hpp"
 
 #include "geopm/PlatformTopo.hpp"
 #include "geopm/Helper.hpp"
