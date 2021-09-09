@@ -110,6 +110,7 @@ EXTRA_DIST = .gitignore \
              geopmsession \
              requirements.txt \
              setup.py \
+             src/geopm/json11.hpp \
              geopm.service \
              AUTHORS \
              CODE_OF_CONDUCT.md \
