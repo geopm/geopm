@@ -40,9 +40,9 @@
 #include "gmock/gmock.h"
 
 #include "Agent.hpp"
-#include "Exception.hpp"
+#include "geopm/Exception.hpp"
 #include "MockAgent.hpp"
-#include "Helper.hpp"
+#include "geopm/Helper.hpp"
 #include "geopm_test.hpp"
 
 class PolicyStoreImpTest : public ::testing::Test
