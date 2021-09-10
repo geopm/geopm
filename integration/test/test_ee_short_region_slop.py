@@ -58,7 +58,7 @@ try:
     # Try to load geopmpy without modifiying the path
     import geopmpy.io
     import geopmpy.agent
-    import geopmpy.error
+    import geopmdpy.error
     import geopmpy.hash
 except ImportError:
     # If geopmpy is not installed in the PYTHONPATH then add local
@@ -66,7 +66,7 @@ except ImportError:
     from integration.test import geopm_context
     import geopmpy.io
     import geopmpy.agent
-    import geopmpy.error
+    import geopmdpy.error
     import geopmpy.hash
 
 from integration.test import util

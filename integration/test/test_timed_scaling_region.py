@@ -45,7 +45,7 @@ import glob
 
 import geopm_context
 import geopmpy.io
-import geopmpy.error
+import geopmdpy.error
 import geopmpy.hash
 import geopm_test_launcher
 import util

@@ -69,7 +69,7 @@ if parse_version(pandas.__version__) < parse_version('0.19.2'):
 from natsort import natsorted
 from cycler import cycler
 
-from geopmpy import __version__
+from . import __version__
 import geopmpy.io
 
 

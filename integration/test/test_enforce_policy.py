@@ -44,7 +44,7 @@ import geopm_context
 import geopmpy.agent
 import geopm_test_launcher
 import util
-import geopmpy.topo
+import geopmdpy.topo
 
 
 @util.skip_unless_do_launch()
@@ -157,7 +157,7 @@ class TestIntegrationEnforcePolicy(unittest.TestCase):
         self.assertEqual(test_freq, current_freq)
 
     def test_power_governor_power_cap(self):
-        num_pkg = geopmpy.topo.num_domain('package')
+        num_pkg = geopmdpy.topo.num_domain('package')
         test_power = self._tdp_power * num_pkg - 20
         current_power = num_pkg * geopm_test_launcher.geopmread("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT board 0")
         self.assertNotEqual(test_power, current_power)
@@ -166,7 +166,7 @@ class TestIntegrationEnforcePolicy(unittest.TestCase):
         self.assertEqual(test_power, current_power)
 
     def test_power_balancer_power_cap(self):
-        num_pkg = geopmpy.topo.num_domain('package')
+        num_pkg = geopmdpy.topo.num_domain('package')
         test_power = self._tdp_power * num_pkg - 20
         current_power = num_pkg * geopm_test_launcher.geopmread("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT board 0")
         self.assertNotEqual(test_power, current_power)
