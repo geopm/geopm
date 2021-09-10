@@ -34,6 +34,7 @@
 """Module containing the implementations of the DBus interfaces
 exposed by geopmd."""
 
+from __future__ import absolute_import
 import os
 import pwd
 import grp
