@@ -31,11 +31,14 @@ Upstream SLES and OpenSUSE Package Requirements
 Dasbus Requirement
 ------------------
 
-The GEOPM service requires a more recent version of dasbus than is
-currently packaged by Linux distributions (dasbus version 1.5 or more
-recent).  The script located in ``geopm/test/build_dasbus.sh`` can be
-executed to create the required RPM based on dasbus version 1.6.  The
-script will print how to install the generated RPM upon successful
+the geopm service requires a more recent version of dasbus than is
+currently packaged by linux distributions (dasbus version 1.5 or more
+recent).  The script located in the subdirectory of the geopm repo:
+
+``service/integration/build_dasbus.sh``
+
+can be executed to create the required rpm based on dasbus version 1.6.
+the script will print how to install the generated RPM upon successful
 completion.
 
 The ``python-dasbus`` requirement is explicitly stated in the
@@ -43,15 +46,15 @@ geopm-service spec file.  Because of this, an RPM installation of
 dasbus is required.  Alternatively, dasbus may be updated with
 ``pip``, but unless a python-dasbus RPM is installed on the system,
 the requirement must be removed from the file
-``geopm/service/geopm-service.spec.in`` before building the GEOPM
-service RPMs.
+``service/geopm-service.spec.in`` in the GEOPM repo before building
+the GEOPM service RPMs.
 
 
 Building GEOPM Service RPMs
 ---------------------------
 
 Support for packaging for CentOS 8, RHEL 8, and SLES 15 SP2 is provided
-by the geopm service build system.
+by the GEOPM service build system.
 
 .. code-block:: bash
 
@@ -78,12 +81,12 @@ Installing and Starting the GEOPM Service
 
 After following the instructions above, install the RPM files by
 executing the ``install_service.sh`` script located in the
-``service/test`` sub-directory of the GEOPM repository.
+``service/integration`` sub-directory of the GEOPM repository.
 
 .. code-block:: bash
 
     cd geopm/service
-    sudo ./test/install_service.sh $(cat VERSION) $USER
+    sudo ./integration/install_service.sh $(cat VERSION) $USER
     systemctl status geopm
 
 Removing the GEOPM Service
@@ -96,4 +99,4 @@ the previous section:
 .. code-block:: bash
 
     cd geopm/service
-    sudo ./test/install_service.sh --remove
+    sudo ./integration/install_service.sh --remove
