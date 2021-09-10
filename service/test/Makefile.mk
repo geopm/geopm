@@ -363,7 +363,7 @@ $(GTEST_TESTS): test/gtest_links/%:
 
 coverage: check
 	lcov --no-external --capture --directory src --output-file coverage-service.info
-	genhtml coverage-service.info --output-directory coverage-base
+	genhtml coverage-service.info --output-directory coverage-service
 
 clean-local-gtest-script-links:
 	rm -f test/gtest_links/*
