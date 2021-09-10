@@ -40,29 +40,23 @@ EXTRA_DIST += scripts/MANIFEST.in \
               scripts/geopmplotter \
               scripts/geopmpy/__init__.py \
               scripts/geopmpy/agent.py \
-              scripts/geopmpy/error.py \
               scripts/geopmpy/io.py \
               scripts/geopmpy/hash.py \
               scripts/geopmpy/launcher.py \
-              scripts/geopmpy/pio.py \
               scripts/geopmpy/plotter.py \
               scripts/geopmpy/policy_store.py \
-              scripts/geopmpy/topo.py \
               scripts/geopmpy/update_report.py \
               scripts/geopmpy/version.py \
               scripts/requirements.txt \
               scripts/setup.py \
               scripts/test/TestAffinity.py \
               scripts/test/TestAgent.py \
-              scripts/test/TestError.py \
               scripts/test/TestHash.py \
               scripts/test/TestIO.py \
               scripts/test/test_io_experiment.report \
               scripts/test/TestLauncher.py \
-              scripts/test/TestPIO.py \
               scripts/test/TestPolicyStore.py \
               scripts/test/TestPolicyStoreIntegration.py \
-              scripts/test/TestTopo.py \
               scripts/test/__init__.py \
               scripts/test/geopmpy_test.sh \
               scripts/test/check_python3_compatibility.sh \
@@ -105,7 +99,6 @@ PYTEST_TESTS = scripts/test/pytest_links/TestAffinity.test_affinity_0 \
                scripts/test/pytest_links/TestAgent.test_json \
                scripts/test/pytest_links/TestAgent.test_policy_names \
                scripts/test/pytest_links/TestAgent.test_sample_names \
-               scripts/test/pytest_links/TestError.test_error_message \
                scripts/test/pytest_links/TestHash.test_hash \
                scripts/test/pytest_links/TestIO.test_requested_online_frequency \
                scripts/test/pytest_links/TestIO.test_report_cache \
@@ -121,19 +114,11 @@ PYTEST_TESTS = scripts/test/pytest_links/TestAffinity.test_affinity_0 \
                scripts/test/pytest_links/TestLauncher.test_non_file_output \
                scripts/test/pytest_links/TestLauncher.test_main \
                scripts/test/pytest_links/TestLauncher.test_quoted_args \
-               scripts/test/pytest_links/TestPIO.test_domain_name \
-               scripts/test/pytest_links/TestPIO.test_signal_names \
-               scripts/test/pytest_links/TestPIO.test_control_names \
-               scripts/test/pytest_links/TestPIO.test_read_signal \
-               scripts/test/pytest_links/TestPIO.test_write_control \
                scripts/test/pytest_links/TestPolicyStore.test_connect \
                scripts/test/pytest_links/TestPolicyStore.test_disconnect \
                scripts/test/pytest_links/TestPolicyStore.test_get_best \
                scripts/test/pytest_links/TestPolicyStore.test_set_best \
                scripts/test/pytest_links/TestPolicyStore.test_set_default \
-               scripts/test/pytest_links/TestTopo.test_num_domain \
-               scripts/test/pytest_links/TestTopo.test_domain_domain_nested \
-               scripts/test/pytest_links/TestTopo.test_domain_name_type \
                # end
 
 if ENABLE_BETA
