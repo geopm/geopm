@@ -74,7 +74,7 @@ class TestTimedLoop(unittest.TestCase):
         for index in tl:
             if t1 is not None:
                 elapsed = time() - t1
-                self.assertAlmostEqual(period, elapsed, delta = 0.001)
+                self.assertAlmostEqual(period, elapsed, delta = 0.002)
             t1 = time()
             if index == 50: # Break after 50 iterations
                 break
