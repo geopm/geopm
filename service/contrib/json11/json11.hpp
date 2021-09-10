@@ -48,6 +48,8 @@
  * THE SOFTWARE.
  */
 
+#ifndef JSON11_HPP_INCLUDE
+#define JSON11_HPP_INCLUDE
 #pragma once
 
 #include <string>
@@ -230,3 +232,4 @@ protected:
 };
 
 } // namespace json11
+#endif

@@ -31,3 +31,4 @@
 #
 scripts_dir=$(dirname "${BASH_SOURCE[0]}")/..
 "${PYTHON-python3}" -m pylint --py3k "$scripts_dir/geopmpy"
+"${PYTHON-python3}" -m pylint --py3k "$scripts_dir/../service/geopmdpy"

@@ -33,7 +33,7 @@
 ret=0
 
 echo "Checking include guards in headers."
-DIR="src/ test/"
+DIR="src/ test/ service/src/"
 for file in $(find $DIR -name "*.h" -o -name "*.hpp"); do
     guard=$(basename $file | sed "s|\.|_|g" | tr 'a-z' 'A-Z')_INCLUDE
     if [ $(grep -c $guard $file) -lt 2 ]; then
