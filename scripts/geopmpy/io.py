@@ -54,8 +54,8 @@ import hashlib
 
 from distutils.spawn import find_executable
 from natsort import natsorted
-from geopmpy import __version__
-from geopmpy import update_report
+from . import __version__
+from . import update_report
 
 try:
     _, os.environ['COLUMNS'] = subprocess.check_output(['stty', 'size']).decode().split()

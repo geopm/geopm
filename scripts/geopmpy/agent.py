@@ -34,7 +34,7 @@
 from __future__ import absolute_import
 
 import cffi
-from . import error
+from geopmdpy import error
 import json
 
 

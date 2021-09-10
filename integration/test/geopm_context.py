@@ -41,5 +41,13 @@ def modify_path():
                   os.path.realpath(__file__)))), 'scripts')
     if scripts_dir not in sys.path:
         sys.path.insert(0, scripts_dir)
+    service_dir = os.path.join(
+                  os.path.dirname(
+                  os.path.dirname(
+                  os.path.dirname(
+                  os.path.realpath(__file__)))), 'service')
+    if service_dir not in sys.path:
+        sys.path.insert(0, service_dir)
+
 
 modify_path()

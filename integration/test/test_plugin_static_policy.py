@@ -45,8 +45,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import geopm_context
 import geopmpy.io
 import util
-import geopmpy.topo
-import geopmpy.pio
+import geopmdpy.topo
+import geopmdpy.pio
 import geopm_test_launcher
 
 
@@ -137,19 +137,19 @@ class TestIntegrationPluginStaticPolicy(unittest.TestCase):
             policy_name = 'FREQ_FIXED'
         try:
             test_freq = self._geopmadminagentpolicy[policy_name]
-            current_freq = geopmpy.pio.read_signal("MSR::PERF_CTL:FREQ", "board", 0)
+            current_freq = geopmdpy.pio.read_signal("MSR::PERF_CTL:FREQ", "board", 0)
             self.assertEqual(test_freq, current_freq)
         except KeyError:
             self.skipTest('Expected frequency cap "{}" for agent missing from policy'.format(policy_name))
 
     @skip_unless_power_agent()
     def test_power_cap_enforced(self):
-        num_pkg = geopmpy.topo.num_domain('package')
+        num_pkg = geopmdpy.topo.num_domain('package')
         policy_name = 'POWER_PACKAGE_LIMIT_TOTAL'
         try:
             test_power = self._geopmadminagentpolicy[policy_name] / num_pkg
             for pkg in range(num_pkg):
-                current_power = geopmpy.pio.read_signal("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT", "package", pkg)
+                current_power = geopmdpy.pio.read_signal("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT", "package", pkg)
                 self.assertEqual(test_power, current_power)
         except KeyError:
             self.skipTest('Expected power cap "{}" for agent missing from policy'.format(policy_name))

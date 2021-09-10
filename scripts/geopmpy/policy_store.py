@@ -35,7 +35,7 @@ from __future__ import absolute_import
 
 import math
 import cffi
-from . import error
+from geopmdpy import error
 _ffi = cffi.FFI()
 _ffi.cdef("""
 int geopm_policystore_connect(const char *data_path);
