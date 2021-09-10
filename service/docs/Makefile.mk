@@ -36,7 +36,7 @@ EXTRA_DIST += docs/geninfo.sh \
               docs/source/client.rst \
               docs/source/conf.py \
               docs/source/controls_SKX.rst \
-              docs/source/images \
+              docs/source/images/geopm-logo-clear.png \
               docs/source/index.rst \
               docs/source/info.rst \
               docs/source/readme.rst \
@@ -46,9 +46,10 @@ EXTRA_DIST += docs/geninfo.sh \
               docs/source/_static/.dirfile \
               # end
 
-docs/source/images:
-	echo "Error: Create a symbolic link to geopm.github.io/images in docs/source/images" 1>&2
-	false
+docs/source/images/geopm-logo-clear.png:
+	echo "Warning: Create a symbolic link to geopm.github.io/images in docs/source/images, will use empty logo file" 1>&2
+	mkdir -p docs/source/images
+	touch docs/source/images/geopm-logo-clear.png
 
 docs: .libs/libgeopmd.so docs/source/images
 	LD_LIBRARY_PATH=.libs:$(LD_LIBRARY_PATH) sphinx-build -M html docs/source docs/build
