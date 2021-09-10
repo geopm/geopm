@@ -132,7 +132,7 @@ service/io.github.geopm.xml
 service/m4
 service/README.rst
 service/requirements.txt
-service/test/README.md
+service/integration/README.md
 shell_completion/README.md
 specs/geopm-dudley.spec.in
 specs/geopm-ohpc.spec.in
