@@ -45,8 +45,8 @@ import glob
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from integration.test import geopm_context
 import geopmpy.io
-import geopmpy.error
-import geopmpy.topo
+import geopmdpy.error
+import geopmdpy.topo
 import geopm_test_launcher
 import check_trace
 
@@ -96,7 +96,7 @@ class TestIntegration_profile_overflow(unittest.TestCase):
         # Set the job size parameters such that we have a 3 level tree
         os.environ["GEOPM_MAX_FAN_OUT"] = "2"
         num_node = 4
-        num_rank = geopmpy.topo.num_domain(geopmpy.topo.DOMAIN_CORE) - 2
+        num_rank = geopmdpy.topo.num_domain(geopmdpy.topo.DOMAIN_CORE) - 2
         time_limit = 600
         # Configure the test application
         app_conf = AppConf()

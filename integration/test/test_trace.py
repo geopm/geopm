@@ -38,8 +38,8 @@ import glob
 
 import geopm_context
 import geopmpy.io
-import geopmpy.error
-import geopmpy.topo
+import geopmdpy.error
+import geopmdpy.topo
 import util
 import geopm_test_launcher
 import check_trace

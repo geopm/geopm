@@ -43,7 +43,7 @@ import glob
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from integration.test import geopm_context
 import geopmpy.io
-import geopmpy.error
+import geopmdpy.error
 
 from integration.test import util
 if util.do_launch():

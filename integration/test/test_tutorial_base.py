@@ -47,15 +47,15 @@ import shutil
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 try:
     # Try to load geopmpy without modifiying the path
-    import geopmpy.io
-    import geopmpy.error
+    import geopmdpy.io
+    import geopmdpy.error
     import geopmpy.hash
 except ImportError:
     # If geopmpy is not installed in the PYTHONPATH then add local
     # copy to path
     import geopm_context
-    import geopmpy.io
-    import geopmpy.error
+    import geopmdpy.io
+    import geopmdpy.error
     import geopmpy.hash
 import util
 

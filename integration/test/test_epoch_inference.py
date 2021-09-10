@@ -60,7 +60,7 @@ import glob
 import geopm_context
 import geopmpy.io
 import geopmpy.agent
-import geopmpy.error
+import geopmdpy.error
 
 import util
 if util.do_launch():

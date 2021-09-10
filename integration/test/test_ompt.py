@@ -37,7 +37,7 @@ import os
 
 from integration.test import geopm_context
 import geopmpy.io
-import geopmpy.error
+import geopmdpy.error
 import util
 import geopm_test_launcher
 

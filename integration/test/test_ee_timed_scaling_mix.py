@@ -47,7 +47,7 @@ import glob
 import geopm_context
 import geopmpy.io
 import geopmpy.agent
-import geopmpy.error
+import geopmdpy.error
 import geopm_test_launcher
 import util
 
