@@ -62,7 +62,7 @@ import tempfile
 import traceback
 
 from collections import OrderedDict
-from geopmpy import __version__
+from . import __version__
 
 
 class Factory(object):

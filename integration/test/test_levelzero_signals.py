@@ -45,7 +45,7 @@ import geopmpy.agent
 import geopm_test_launcher
 import util
 import time
-import geopmpy.topo
+import geopmdpy.topo
 
 
 @util.skip_unless_levelzero()

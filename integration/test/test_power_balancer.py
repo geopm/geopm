@@ -45,7 +45,7 @@ import time
 import geopm_context
 import geopmpy.agent
 import geopmpy.io
-import geopmpy.error
+import geopmdpy.error
 
 import util
 if util.do_launch():
