@@ -13,9 +13,11 @@ enabled systems are given below.
    :caption: Signals:
 
    signals_SKX
+   signals_LevelZero
 
 .. toctree::
    :maxdepth: 2
    :caption: Controls:
 
    controls_SKX
+   controls_LevelZero
