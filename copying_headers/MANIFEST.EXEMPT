@@ -138,6 +138,7 @@ service/docs/source/conf.py
 service/docs/source/contrib.rst
 service/docs/source/controls_SKX.rst
 service/docs/source/devel.rst
+service/docs/source/controls_LevelZero.rst
 service/docs/source/index.rst
 service/docs/source/info.rst
 service/docs/source/readme.rst
@@ -147,6 +148,7 @@ service/docs/source/runtime.rst
 service/docs/source/signals_SKX.rst
 service/dox/blurb.md
 service/dox/Doxyfile.in
+service/docs/source/signals_LevelZero.rst
 service/.gitignore
 service/io.github.geopm.conf
 service/io.github.geopm.xml
