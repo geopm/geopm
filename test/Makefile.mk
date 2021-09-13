@@ -362,7 +362,6 @@ TESTS += $(GTEST_TESTS) \
 EXTRA_DIST += test/InternalProfile.cpp \
               test/InternalProfile.hpp \
               test/MPIInterfaceTest.cpp \
-              test/geopm_test.sh \
               test/no_omp_cpu.c \
               test/pmpi_mock.c \
               test/ProxyEpochRecordFilterTest.tutorial_2_profile_trace \

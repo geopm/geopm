@@ -220,6 +220,7 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              README.md \
              TODO \
              autogen.sh \
+             build.sh \
              configure.ac \
              copying_headers/MANIFEST.BSD3-llnl \
              copying_headers/MANIFEST.EXEMPT \
