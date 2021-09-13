@@ -519,7 +519,7 @@ PHONY_TARGETS += gtest-checkprogs
 $(GTEST_TESTS): test/gtest_links/%:
 	mkdir -p test/gtest_links
 	rm -f $@
-	ln -s $(abs_srcdir)/test/geopm_test.sh $@
+	ln -s $(abs_builddir)/test/geopm_test.sh $@
 
 coverage: check
 	lcov --no-external --capture --directory src --output-file coverage-base.info

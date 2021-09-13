@@ -242,20 +242,28 @@ AM_CONDITIONAL([ENABLE_FORTRAN], [test "x$enable_fortran" = "x1"])
 AC_ARG_WITH([geopmd], [AS_HELP_STRING([--with-geopmd=PATH],
             [specify directory for installed geopmd package.])])
 if test "x$with_geopmd" != x; then
-  EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$with_geopmd/include"
-  LD_LIBRARY_PATH="$with_geopmd/lib:$LD_LIBRARY_PATH"
-  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_geopmd/lib"
+  GEOPMD_INCLUDE=$with_geopmd/include
+  GEOPMD_LIBDIR=$with_geopmd/lib
+  EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$GEOPMD_INCLUDE"
+  LD_LIBRARY_PATH="$GEOPMD_LIBDIR:$LD_LIBRARY_PATH"
+  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$GEOPMD_LIBDIR"
+  AC_SUBST([GEOPMD_LIBDIR])
+  AC_SUBST([GEOPMD_INCLUDE])
 fi
 AC_ARG_WITH([geopmd-include], [AS_HELP_STRING([--with-geopmd-include=PATH],
             [specify directory for the installed geopmd include files.])])
 if test "x$with_geopmd_include" != x; then
-  EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$with_geopmd_include"
+  GEOPMD_INCLUDE=$with_geopmd_include
+  EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$GEOPMD_INCLUDE"
+  AC_SUBST([GEOPMD_INCLUDE])
 fi
 AC_ARG_WITH([geopmd-lib], [AS_HELP_STRING([--with-geopmd-lib=PATH],
             [specify directory for installed geopmd library])])
 if test "x$with_geopmd_lib" != x; then
-  LD_LIBRARY_PATH="$with_geopmd_lib:$LD_LIBRARY_PATH"
-  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_geopmd_lib"
+  GEOPMD_LIBDIR=$with_geopmd_lib
+  LD_LIBRARY_PATH="$GEOPMD_LIBDIR:$LD_LIBRARY_PATH"
+  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$GEOPMD_LIBDIR"
+  AC_SUBST([GEOPMD_LIBDIR])
 fi
 
 
@@ -568,7 +576,7 @@ AC_SUBST([ENABLE_BETA])
 GEOPM_SOURCE_DIR=$(readlink -f $srcdir)
 AC_DEFINE_UNQUOTED([GEOPM_SOURCE_DIR], ["$GEOPM_SOURCE_DIR"], [Root of the GEOPM source directory])
 
-AC_CONFIG_FILES([Makefile specs/geopm.spec specs/geopm-dudley.spec specs/geopm-ohpc.spec specs/geopm-theta.spec scripts/geopmpy/version.py])
+AC_CONFIG_FILES([Makefile specs/geopm.spec specs/geopm-dudley.spec specs/geopm-ohpc.spec specs/geopm-theta.spec scripts/geopmpy/version.py test/geopm_test.sh scripts/test/geopmpy_test.sh], [chmod a+x test/geopm_test.sh scripts/test/geopmpy_test.sh])
 AC_OUTPUT
 
 CC_VERSION=$(${CC} --version | head -n1)

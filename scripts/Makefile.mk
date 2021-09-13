@@ -134,7 +134,7 @@ PHONY_TARGETS += pytest-checkprogs
 $(PYTEST_TESTS): scripts/test/pytest_links/%:
 	mkdir -p scripts/test/pytest_links
 	rm -f $@
-	ln -s $(abs_srcdir)/scripts/test/geopmpy_test.sh $@
+	ln -s $(abs_builddir)/scripts/test/geopmpy_test.sh $@
 
 clean-local-pytest-script-links:
 	rm -f scripts/test/pytest_links/*
