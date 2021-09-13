@@ -58,7 +58,6 @@ EXTRA_DIST += scripts/MANIFEST.in \
               scripts/test/TestPolicyStore.py \
               scripts/test/TestPolicyStoreIntegration.py \
               scripts/test/__init__.py \
-              scripts/test/geopmpy_test.sh \
               scripts/test/check_python3_compatibility.sh \
               # end
 
