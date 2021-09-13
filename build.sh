@@ -35,15 +35,15 @@
 set -e
 
 # Set this variable to append configure options for base build
-# GEOPM_BASE_CONFIG_OPTIONS=
+# GEOPM_BASE_CONFIG_OPTIONS=--enable-debug --prefix=$HOME/build/geopm
 
 # Set this variable to append configure options for service build
-# GEOPM_SERVICE_CONFIG_OPTIONS=
-
+# GEOPM_SERVICE_CONFIG_OPTIONS=--enable-debug --prefix=$HOME/build/geopm
 
 if [ ! -z "$NUM_THREAD" ]; then
-    NUM_THREAD=20
+    NUM_THREAD=9
 fi
+
 if [ ! -z "$GEOPM_SOURCE" ]; then
     cd $GEOPM_SOURCE
 fi
