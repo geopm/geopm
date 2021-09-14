@@ -335,6 +335,8 @@ test_geopm_test_SOURCES = test/AcceleratorTopoNullTest.cpp \
                           test/PlatformTopoTest.cpp \
                           test/RawMSRSignalTest.cpp \
                           test/SharedMemoryTest.cpp \
+                          test/ServiceIOGroupTest.cpp \
+                          test/ServiceProxyTest.cpp \
                           test/SSTControlTest.cpp \
                           test/SSTIOGroupTest.cpp \
                           test/SSTSignalTest.cpp \
