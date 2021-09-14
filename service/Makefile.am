@@ -254,8 +254,11 @@ else
     EXTRA_DIST += $(nvml_source_files)
 endif
 
-io.github.geopm.xml: geopmdpy/dbus_xml.py geopmdpy/service.py
-	PYTHONPATH=$(abs_srcdir):$(PYTHONPATH) $(PYTHON) -m geopmdpy.dbus_xml > $@
+io.github.geopm.xml:
+# Update io.github.geopm.xml in case API documentation changes
+# Remove the file before executing target
+	PYTHONPATH=$(abs_srcdir):$(PYTHONPATH) \
+	$(PYTHON) -m geopmdpy.dbus_xml > $@
 
 install-python: setup.py
 # Move version.py into source for out of place builds
