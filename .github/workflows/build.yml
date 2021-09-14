@@ -34,9 +34,13 @@ name: C/C++ CI
 
 on:
   push:
-    branches: [ dev ]
+    branches:
+      - dev
+      - geopm-service
   pull_request:
-    branches: [ dev ]
+    branches:
+      - dev
+      - geopm-service
 
 jobs:
   build_and_test:
