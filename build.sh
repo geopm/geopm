@@ -59,7 +59,7 @@ make -j${NUM_THREAD} checkprogs
 make check
 
 # Run the base build
-cd ..
+cd ../..
 ./autogen.sh
 mkdir -p build
 cd build

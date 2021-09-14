@@ -36,7 +36,6 @@ EXTRA_DIST += docs/geninfo.sh \
               docs/source/client.rst \
               docs/source/conf.py \
               docs/source/controls_SKX.rst \
-              docs/source/images/geopm-logo-clear.png \
               docs/source/index.rst \
               docs/source/info.rst \
               docs/source/readme.rst \
