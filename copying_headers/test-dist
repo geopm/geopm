@@ -46,7 +46,6 @@ fi
 TMPDIR=$(mktemp -d)
 mkdir -p ${TMPDIR}
 
-rm -f VERSION
 rm -f MANIFEST
 
 ./autogen.sh
