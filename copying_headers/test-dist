@@ -74,22 +74,12 @@ popd
 pushd ${TMPDIR}
     tar -xvf geopm-$version.tar.gz
     pushd geopm-$version
-        ALL_MANIFEST="MANIFEST copying_headers/MANIFEST.*"
-        for ff in $ALL_MANIFEST; do
-            nn=$(echo ${ff} | sed 's|MANIFEST|tmp-MANIFEST|')
-            mv ${ff} ${nn}
-            grep -v '^service' ${nn} > ${ff} || true
-        done
-        ./copying_headers/test-license
+        ./copying_headers/test-license --ignore-service
         if [ -d service ]; then
             echo "Error:  The service directory is created by base tarball" 1>&2 && false
         fi
         tar xvf ../geopm-service-$version.tar.gz
         mv geopm-service-$version service
-        for ff in $ALL_MANIFEST; do
-            nn=$(echo ${ff} | sed 's|MANIFEST|tmp-MANIFEST|')
-            mv ${nn} ${ff}
-        done
         ./copying_headers/test-license
     popd
 popd
