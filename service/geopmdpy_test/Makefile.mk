@@ -30,6 +30,7 @@
 #
 
 EXTRA_DIST += geopmdpy_test/__main__.py \
+              geopmdpy_test/geopmdpy_test.sh \
               geopmdpy_test/TestAccess.py \
               geopmdpy_test/TestPlatformService.py \
               geopmdpy_test/TestDBusXML.py \
