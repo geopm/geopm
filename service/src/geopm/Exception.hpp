@@ -78,48 +78,6 @@ namespace geopm
             /// GEOPM_ERROR_RUNTIME (-1) is used for the error code.
             Exception();
             Exception(const Exception &other);
-            /// @brief Error number only constructor.
-            ///
-            /// User provides error code.  Enables an abbreviated
-            /// what() result.
-            ///
-            /// @param [in] err Error code, positive values are system
-            ///        errors (see errno(3)), negative values are
-            ///        GEOPM errors.  If zero is specified
-            ///        GEOPM_ERROR_RUNTIME (-1) is assumed.
-            Exception(int err);
-            /// @brief Message and error number constructor.
-            ///
-            /// User provides message and error code.  The error
-            /// message provided is appended to the abbreviated what()
-            /// result.
-            ///
-            /// @param [in] what Extension to error message returned
-            ///        by what() method.
-            ///
-            /// @param [in] err Error code, positive values are system
-            ///        errors (see errno(3)), negative values are
-            ///        GEOPM errors.  If zero is specified
-            ///        GEOPM_ERROR_RUNTIME (-1) is assumed.
-            Exception(const std::string &what, int err);
-            /// @brief Error number and line number constructor.
-            ///
-            /// User provides error code, file name, and line number.
-            /// The what() method produces the abbreviated message
-            /// with the file and line number information appended.
-            ///
-            /// @param [in] err Error code, positive values are system
-            ///        errors (see errno(3)), negative values are
-            ///        GEOPM errors.  If zero is specified
-            ///        GEOPM_ERROR_RUNTIME (-1) is assumed.
-            ///
-            /// @param [in] file Name of source file where exception
-            ///        was thrown, e.g. preprocessor `__FILE__`.
-            ///
-            /// @param [in] line Line number in source file where
-            ///        exception was thrown, e.g. preprocessor
-            ///        `__LINE__`.
-            Exception(int err, const char *file, int line);
             /// @brief Message, error number, file and line
             ///        constructor.
             ///
