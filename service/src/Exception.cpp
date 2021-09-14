@@ -113,16 +113,6 @@ namespace geopm
         return err;
     }
 
-    Exception::Exception(const std::string &what, int err, const char *file, int line)
-        : std::runtime_error(ErrorMessage::get().message_fixed(err) + (
-                                 what.size() != 0 ? (std::string(": ") + what) : std::string("")) + (
-                                 file != NULL ? (std::string(": at geopm/") + std::string(file) +
-                                 std::string(":") + std::to_string(line)) : std::string("")))
-        , m_err(err ? err : GEOPM_ERROR_RUNTIME)
-    {
-
-    }
-
     Exception::Exception()
         : Exception("", GEOPM_ERROR_RUNTIME, NULL, 0)
     {
@@ -136,20 +126,12 @@ namespace geopm
 
     }
 
-    Exception::Exception(int err)
-        : Exception("", err, NULL, 0)
-    {
-
-    }
-
-    Exception::Exception(const std::string &what, int err)
-        : Exception(what, err, NULL, 0)
-    {
-
-    }
-
-    Exception::Exception(int err, const char *file, int line)
-        : Exception("", err, file, line)
+    Exception::Exception(const std::string &what, int err, const char *file, int line)
+        : std::runtime_error(ErrorMessage::get().message_fixed(err) + (
+                                 what.size() != 0 ? (std::string(": ") + what) : std::string("")) + (
+                                 file != NULL ? (std::string(": at geopm/") + std::string(file) +
+                                 std::string(":") + std::to_string(line)) : std::string("")))
+        , m_err(err ? err : GEOPM_ERROR_RUNTIME)
     {
 
     }
