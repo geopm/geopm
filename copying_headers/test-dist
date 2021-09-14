@@ -30,25 +30,58 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 set -e
+set -x
 
-rm -rf test-dist-tmp
-rm -f VERSION
+if [ $# == 0 ]; then
+    BASE_BUILD_DIR=$PWD
+    SERVICE_BUILD_DIR=$PWD/service
+elif [ $# == 1 ]; then
+    BASE_BUILD_DIR=$1
+    SERVICE_BUILD_DIR=$1
+else
+    BASE_BUILD_DIR=$1
+    SERVICE_BUILD_DIR=$2
+fi
+
+TMPDIR=$(mktemp -d)
+mkdir -p ${TMPDIR}
+
 rm -f MANIFEST
+
 ./autogen.sh
 version=$(cat VERSION)
+
 ./copying_headers/test-license
-rm -f geopm-$version.tar.gz
-if [ ! -f Makefile ]; then
-    ./configure --disable-fortran
-fi
-make dist
-mkdir -p test-dist-tmp
-mv geopm-$version.tar.gz test-dist-tmp
-pushd test-dist-tmp
+
+pushd ${BASE_BUILD_DIR}
+    rm -f geopm-$version.tar.gz
+    if [ ! -f Makefile ]; then
+        echo "Error:  No makefile in base directory, run configure" 1>&2 && false
+    fi
+    make dist
+    mv geopm-$version.tar.gz ${TMPDIR}
+popd
+pushd $SERVICE_BUILD_DIR
+    if [ ! -f Makefile ]; then
+        echo "Error:  No makefile in service directory, run configure" 1>&2 && false
+    fi
+    rm -f geopm-service-$version.tar.gz
+    make dist
+    mv geopm-service-$version.tar.gz ${TMPDIR}
+popd
+
+pushd ${TMPDIR}
     tar -xvf geopm-$version.tar.gz
     pushd geopm-$version
+        ./copying_headers/test-license --ignore-service
+        if [ -d service ]; then
+            echo "Error:  The service directory is created by base tarball" 1>&2 && false
+        fi
+        tar xvf ../geopm-service-$version.tar.gz
+        mv geopm-service-$version service
         ./copying_headers/test-license
     popd
 popd
-rm -rf test-dist-tmp
+
+echo rm -rf ${TMPDIR}
 echo [ PASSED ] geopm v$version distribution contains all files and all files have license headers.
