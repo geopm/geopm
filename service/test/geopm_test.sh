@@ -55,7 +55,7 @@ ${exec_path}/${exec_name} \
 err=$?
 
 # Parse output log to see if the test actually ran.
-if (grep -Fq "[==========] Running 0 tests from 0 test cases." ${log_file}); then
+if (grep -Fq "[==========] Running 0 tests" ${log_file}); then
     echo "ERROR: Test ${test_name} does not exist!"
     err=1
 fi
