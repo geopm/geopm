@@ -195,8 +195,9 @@ class License(object):
 
 
 class Repo(object):
-    def __init__(self, repo_dir):
+    def __init__(self, repo_dir, do_ignore_service):
         self.repo_dir = repo_dir
+        self.do_ignore_service = do_ignore_service
         self.copying = os.path.join(repo_dir, 'copying_headers')
         self.default_manifest = 'MANIFEST.BSD3-intel'
         try:
@@ -218,6 +219,10 @@ class Repo(object):
         self.check_manifest()
         self.check_license()
 
+    def parse_manifest(self, manifest):
+        return [nn for nn in open(manifest).read().strip().splitlines()
+                if not (self.do_ignore_service and nn.startswith('service/'))]
+
     def check_manifest(self):
         """
         Check that the partial manifests contain the shipping manifest
@@ -225,7 +230,7 @@ class Repo(object):
         """
         manifest = os.path.join(self.repo_dir, 'MANIFEST')
         try:
-            full = open(manifest).read().strip().splitlines()
+            full = self.parse_manifest(manifest)
         except OSError:
             raise BadRepoError(manifest)
         full = set(full)
@@ -237,7 +242,7 @@ class Repo(object):
         part = []
         for path in self.manifest_list:
             try:
-                extension = set(open(path).read().strip().splitlines())
+                extension = self.parse_manifest(path)
                 repeat_files = set(part).intersection(extension)
                 if repeat_files:
                     raise ManifestDoubleCountedError(repeat_files)
@@ -254,10 +259,12 @@ class Repo(object):
                                             self.default_manifest)
             with open(default_manifest, 'w') as fid:
                 for ff in missing_files:
-                    fid.write('{}\n'.format(ff))
+                    if not (self.do_ignore_service and ff.startswith('service/')):
+                        fid.write('{}\n'.format(ff))
         manifest = os.path.join(self.repo_dir, 'copying_headers', 'MANIFEST.EXEMPT')
         bad_paths = []
-        for path in open(manifest):
+        all_paths = self.parse_manifest(manifest)
+        for path in all_paths:
             if not os.path.exists(path.strip()):
                 bad_paths.append(path.strip())
         if bad_paths:
@@ -271,7 +278,7 @@ class Repo(object):
             header_path = os.path.join(self.copying, 'header.{0}'.format(tag))
             manifest = os.path.join(self.copying, 'MANIFEST.{0}'.format(tag))
             try:
-                paths = open(manifest).read().strip().splitlines()
+                paths = self.parse_manifest(manifest)
             except OSError:
                 raise BadRepoError(manifest)
             lic = License(header_path)
@@ -290,10 +297,11 @@ class Repo(object):
 def main():
     global __version__
     try:
-        opts, args = getopt.gnu_getopt(sys.argv[1:], 'u:h', ['help', 'version'])
+        opts, args = getopt.gnu_getopt(sys.argv[1:], 'u:h:i', ['help', 'version', 'ignore-service'])
     except getopt.GetoptError as err:
         raise CommandLineError(err)
     update_dir = ''
+    do_ignore_service = False
     for flag, val in opts:
         if flag == '-u':
             update_dir = val
@@ -303,6 +311,8 @@ def main():
         elif flag == '--version':
             sys.stdout.write('{}\n'.format(__version__))
             return ''
+        elif flag == '--ignore-service':
+            do_ignore_service = True
         else:
             raise CommandLineError('Parsing command line, unknown flag {0}\n'.format(flag))
 
@@ -311,7 +321,7 @@ def main():
     else:
         repo_dir = args[0]
 
-    repo = Repo(repo_dir)
+    repo = Repo(repo_dir, do_ignore_service)
     if not update_dir:
         repo.check()
     else:
