@@ -184,7 +184,8 @@ namespace geopm
     {
         auto it = m_bool_opts.find(name);
         if (it == m_bool_opts.end()) {
-            throw geopm::Exception(std::string("Invalid option ") + name, GEOPM_ERROR_INVALID);
+            throw geopm::Exception(std::string("Invalid option ") + name,
+                                   GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return it->second.value;
     }
@@ -193,7 +194,8 @@ namespace geopm
     {
         auto it = m_str_opts.find(name);
         if (it == m_str_opts.end()) {
-            throw geopm::Exception(std::string("Invalid option ") + name, GEOPM_ERROR_INVALID);
+            throw geopm::Exception(std::string("Invalid option ") + name,
+                                   GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return it->second.value;
     }
