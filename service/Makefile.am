@@ -255,7 +255,7 @@ else
 endif
 
 io.github.geopm.xml: geopmdpy/dbus_xml.py geopmdpy/service.py
-	PYTHONPATH=:$(PYTHONPATH) $(PYTHON) -m geopmdpy.dbus_xml > $@
+	PYTHONPATH=$(abs_srcdir):$(PYTHONPATH) $(PYTHON) -m geopmdpy.dbus_xml > $@
 
 install-python: setup.py
 # Move version.py into source for out of place builds
