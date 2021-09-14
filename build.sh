@@ -53,7 +53,7 @@ cd service
 ./autogen.sh
 mkdir -p build
 cd build
-../configure ${GEOPM_SERVICE_CONFIG_OPTIONS}
+CC=gcc CXX=g++ ../configure ${GEOPM_SERVICE_CONFIG_OPTIONS}
 make -j${NUM_THREAD}
 make -j${NUM_THREAD} checkprogs
 make check
