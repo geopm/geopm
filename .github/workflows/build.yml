@@ -105,8 +105,8 @@ jobs:
       env:
         LD_LIBRARY_PATH: .libs:./service/.libs:${LD_LIBRARY_PATH}
         PYTHONPATH: scripts:${PYTHONPATH}
-    # - name: test-dist
-    #   run: ./copying_headers/test-dist
+    - name: test-dist
+      run: ./copying_headers/test-dist
     - name: show failure logs
       if: ${{ failure() }}
       run: |
