@@ -47,7 +47,7 @@ CPU_FREQUENCY_STICKER
     - domain: board
     - iogroup: CpuinfoIOGroup
 FREQUENCY_ACCELERATOR
-Accelerator compute/GPU domain frequency in hertz
+    - Accelerator compute/GPU domain frequency in hertz
     - alias_for: LEVELZERO::FREQUENCY_GPU
 FREQUENCY_MIN
     - description: Minimum processor frequency
