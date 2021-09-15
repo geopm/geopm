@@ -458,10 +458,8 @@ the integration scripts in a work directory.
     # Set a place to locate the output of the tests
     export GEOPM_WORKDIR=${HOME}/geopm_test
     #####   ALL USERS   #####
-    # Script defines bash functions to build and install GEOPM
-    source $GEOPM_SOURCE/integration/apps/build_func.sh
-    # Execute out-of-place build and install using build function
-    install_geopm
+    # Execute out-of-place build and install using build script in base dir
+    ${GEOPM_SOURCE}/build.sh
     # Set up run environment to use installed GEOPM
     source $GEOPM_SOURCE/integration/config/run_env.sh
     # Create a directory for output
@@ -475,9 +473,9 @@ python package to validate the runtime.  Please report failures of
 these tests as issues.
 
 Note that if the `GEOPM_SKIP_COMPILER_CHECK` environment variable is
-set when `install_geopm` is called, then the check to verify that the
-Intel compilers are used will be bypassed.  This can be useful for
-performing builds with the GNU toolchain.
+set when `${GEOPM_SOURCE}/build.sh` is called, then the check to
+verify that the Intel compilers are used will be bypassed.  This can
+be useful for performing builds with the GNU toolchain.
 
 RESOURCE MANAGER INTEGRATION
 ----------------------------
