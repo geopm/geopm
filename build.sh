@@ -34,38 +34,61 @@
 
 set -e
 
+source integration/config/build_env.sh
+
+# Clear out old builds
+if [ -d "${GEOPM_INSTALL}" ]; then
+    echo "Removing old build located at ${GEOPM_INSTALL}"
+    rm -rf ${GEOPM_INSTALL}
+fi
+
+# e.g. To do a debug build, add --enable-debug here
+GEOPM_GLOBAL_CONFIG_OPTIONS="${GEOPM_GLOBAL_CONFIG_OPTIONS} --prefix=${GEOPM_INSTALL}"
+
 # Set this variable to append configure options for base build
-# GEOPM_BASE_CONFIG_OPTIONS=--enable-debug --prefix=$HOME/build/geopm
+GEOPM_BASE_CONFIG_OPTIONS="${GEOPM_GLOBAL_CONFIG_OPTIONS}"
 
 # Set this variable to append configure options for service build
-# GEOPM_SERVICE_CONFIG_OPTIONS=--enable-debug --prefix=$HOME/build/geopm
+GEOPM_SERVICE_CONFIG_OPTIONS="${GEOPM_GLOBAL_CONFIG_OPTIONS}"
 
-if [ ! -z "$NUM_THREAD" ]; then
-    NUM_THREAD=9
-fi
-
-if [ ! -z "$GEOPM_SOURCE" ]; then
-    cd $GEOPM_SOURCE
-fi
+NUM_THREAD=${NUM_THREAD:-9}
 
 # Run the service build
 cd service
-./autogen.sh
-mkdir -p build
+if [ ! -f "configure" ]; then
+    ./autogen.sh
+fi
+mkdir -p build # Objects created at configure time will go here
 cd build
 CC=gcc CXX=g++ ../configure ${GEOPM_SERVICE_CONFIG_OPTIONS}
 make -j${NUM_THREAD}
-make -j${NUM_THREAD} checkprogs
-make check
+if [ ! -z ${RUN_TESTS+x} ]; then
+    make -j${NUM_THREAD} checkprogs
+    make check
+fi
+if [ -z ${SKIP_INSTALL+x} ]; then
+    make install
+fi
 
 # Run the base build
 cd ../..
-./autogen.sh
+if [ ! -f "configure" ]; then
+    ./autogen.sh
+fi
 mkdir -p build
 cd build
-../configure --with-geopmd-lib=../service/build/.libs \
-             --with-geopmd-include=../service/src \
+# Note: When running without make install, comment in the next 2 lines, and
+#       comment out only the 3rd line, leaving the BASE_CONFIG_OPTIONS commented in.
+# ../configure --with-geopmd-lib=../service/build/.libs \
+#              --with-geopmd-include=../service/src \
+../configure --with-geopmd=${GEOPM_INSTALL} \
              ${GEOPM_BASE_CONFIG_OPTIONS}
+
 make -j${NUM_THREAD}
-make -j${NUM_THREAD} checkprogs
-make check
+if [ ! -z ${RUN_TESTS+x} ]; then
+    make -j${NUM_THREAD} checkprogs
+    make check
+fi
+if [ -z ${SKIP_INSTALL+x} ]; then
+    make install
+fi
