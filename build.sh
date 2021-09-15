@@ -30,10 +30,13 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-# Simple script that will build and test both the base and the service
+# Simple script that will build and test both the base and the service.
+# Example invocation:
+#   git clean -ffdx && RUN_TESTS=yes ./build.sh
 
 set -e
 
+# This script must be run from the root of the GEOPM repo.
 source integration/config/build_env.sh
 
 # Clear out old builds
@@ -42,7 +45,7 @@ if [ -d "${GEOPM_INSTALL}" ]; then
     rm -rf ${GEOPM_INSTALL}
 fi
 
-# e.g. To do a debug build, add --enable-debug here
+# e.g. To do a debug build, add --enable-debug to this env var
 GEOPM_GLOBAL_CONFIG_OPTIONS="${GEOPM_GLOBAL_CONFIG_OPTIONS} --prefix=${GEOPM_INSTALL}"
 
 # Set this variable to append configure options for base build
@@ -53,42 +56,43 @@ GEOPM_SERVICE_CONFIG_OPTIONS="${GEOPM_GLOBAL_CONFIG_OPTIONS}"
 
 NUM_THREAD=${NUM_THREAD:-9}
 
+build(){
+    if [ ! -f "configure" ]; then
+        ./autogen.sh
+    fi
+
+    mkdir -p build # Objects created at configure time will go here
+    cd build
+
+    if [ ! -f "Makefile" ]; then
+        ../configure ${1}
+    fi
+    make -j${NUM_THREAD}
+
+    # By default, the tests are skipped
+    if [ ! -z ${RUN_TESTS+x} ]; then
+        make -j${NUM_THREAD} checkprogs
+        make check
+    fi
+
+    # By default, make install is called
+    if [ -z ${SKIP_INSTALL+x} ]; then
+        make install
+    fi
+}
+
+
 # Run the service build
 cd service
-if [ ! -f "configure" ]; then
-    ./autogen.sh
-fi
-mkdir -p build # Objects created at configure time will go here
-cd build
-CC=gcc CXX=g++ ../configure ${GEOPM_SERVICE_CONFIG_OPTIONS}
-make -j${NUM_THREAD}
-if [ ! -z ${RUN_TESTS+x} ]; then
-    make -j${NUM_THREAD} checkprogs
-    make check
-fi
-if [ -z ${SKIP_INSTALL+x} ]; then
-    make install
-fi
+CC=gcc CXX=g++ build ${GEOPM_SERVICE_CONFIG_OPTIONS}
 
 # Run the base build
-cd ../..
-if [ ! -f "configure" ]; then
-    ./autogen.sh
-fi
-mkdir -p build
-cd build
-# Note: When running without make install, comment in the next 2 lines, and
-#       comment out only the 3rd line, leaving the BASE_CONFIG_OPTIONS commented in.
-# ../configure --with-geopmd-lib=../service/build/.libs \
-#              --with-geopmd-include=../service/src \
-../configure --with-geopmd=${GEOPM_INSTALL} \
-             ${GEOPM_BASE_CONFIG_OPTIONS}
-
-make -j${NUM_THREAD}
-if [ ! -z ${RUN_TESTS+x} ]; then
-    make -j${NUM_THREAD} checkprogs
-    make check
-fi
+cd ../.. # PWD here is service/build
 if [ -z ${SKIP_INSTALL+x} ]; then
-    make install
+    build "--with-geopmd=${GEOPM_INSTALL} ${GEOPM_BASE_CONFIG_OPTIONS}"
+else
+    build "--with-geopmd-lib=../service/build/.libs \
+           --with-geopmd-include=../service/src \
+           ${GEOPM_BASE_CONFIG_OPTIONS}"
 fi
+
