@@ -36,12 +36,14 @@ EXTRA_DIST += docs/geninfo.sh \
               docs/source/client.rst \
               docs/source/conf.py \
               docs/source/controls_SKX.rst \
+              docs/source/controls_LevelZero.rst \
               docs/source/index.rst \
               docs/source/info.rst \
               docs/source/readme.rst \
               docs/source/reference.rst \
               docs/source/runtime.rst \
               docs/source/signals_SKX.rst \
+              docs/source/signals_LevelZero.rst \
               docs/source/_static/.dirfile \
               # end
 
