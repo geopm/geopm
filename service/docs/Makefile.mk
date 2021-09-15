@@ -45,12 +45,7 @@ EXTRA_DIST += docs/geninfo.sh \
               docs/source/_static/.dirfile \
               # end
 
-docs/source/images/geopm-logo-clear.png:
-	echo "Warning: Create a symbolic link to geopm.github.io/images in docs/source/images, will use empty logo file" 1>&2
-	mkdir -p docs/source/images
-	touch docs/source/images/geopm-logo-clear.png
-
-docs: .libs/libgeopmd.so docs/source/images
+docs: .libs/libgeopmd.so
 	LD_LIBRARY_PATH=.libs:$(LD_LIBRARY_PATH) sphinx-build -M html docs/source docs/build
 
 clean-local-docs:
