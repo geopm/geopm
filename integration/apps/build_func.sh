@@ -175,22 +175,3 @@ clean_geopm() {
         fi
     fi
 }
-
-# Build geopm in a subdirectory and install into GEOPM build
-# All arguments are forwarded to the configure command
-install_geopm() {
-    local CONFIG_EXT="$@"
-    local BASE_DIR=${PWD}
-    local BUILD_DIR=${GEOPM_SOURCE}/integration/build
-    clean_geopm ${BUILD_DIR} && \
-    cd ${GEOPM_SOURCE} && \
-    ./autogen.sh && \
-    mkdir -p ${BUILD_DIR} && \
-    cd ${BUILD_DIR} && \
-    ${GEOPM_SOURCE}/configure --prefix=${GEOPM_INSTALL} ${CONFIG_EXT} && \
-    make -j10 && \
-    make install
-    local ERR=$?
-    cd ${BASE_DIR}
-    return ${ERR}
-}
