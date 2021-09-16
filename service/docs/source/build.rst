@@ -16,7 +16,7 @@ Upstream RHEL and CentOS Package Requirements
 
 .. code-block:: bash
 
-    yum install python3 python3-devel python3-gobject-base
+    yum install python3 python3-devel python3-gobject-base systemd-devel
 
 
 
@@ -25,7 +25,7 @@ Upstream SLES and OpenSUSE Package Requirements
 
 .. code-block:: bash
 
-    zypper install python3 python3-devel python3-gobject
+    zypper install python3 python3-devel python3-gobject systemd-devel
 
 
 Dasbus Requirement
