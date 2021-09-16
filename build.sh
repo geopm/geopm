@@ -47,14 +47,15 @@ usage(){
     echo "    GEOPM_GLOBAL_CONFIG_OPTIONS : Configure options applicable to all build types."
     echo "    GEOPM_BASE_CONFIG_OPTIONS : Configure options only applicable to the base build."
     echo "    GEOPM_SERVICE_CONFIG_OPTIONS : Configure options only applicable to the service build."
+    echo "        Ensure quotes are used when specifying multiple options.  See examples below."
     echo "    GEOPM_NUM_THREADS : The number of threads to use when running make (default: 9)."
     echo "    GEOPM_RUN_TESTS : Set to enable running of unit tests."
     echo "    GEOPM_SKIP_INSTALL : Set to skip \"make install\"."
     echo
     echo "Examples (proceeded by \"git clean -ffdx\" to ensure the build tree is clean):"
-    echo "    GEOPM_GLOBAL_CONFIG_OPTIONS="--enable-debug" GEOPM_RUN_TESTS=yes ./build.sh"
-    echo "    GEOPM_BASE_CONFIG_OPTIONS="--enable-beta" ./build.sh"
-    echo "    GEOPM_SERVICE_CONFIG_OPTIONS="--enable-levelzero" ./build.sh"
+    echo "    GEOPM_GLOBAL_CONFIG_OPTIONS=\"--enable-debug --enable-coverage\" GEOPM_RUN_TESTS=yes ./build.sh"
+    echo "    GEOPM_BASE_CONFIG_OPTIONS=\"--enable-beta\" ./build.sh"
+    echo "    GEOPM_SERVICE_CONFIG_OPTIONS=\"--enable-levelzero --enable-systemd\" ./build.sh"
 }
 
 if [[ ${1} == '--help' ]]; then
