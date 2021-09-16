@@ -31,8 +31,10 @@
 #
 
 # Simple script that will build and test both the base and the service.
-# Example invocation:
-#   git clean -ffdx && GEOPM_RUN_TESTS=yes ./build.sh
+# Example invocations (proceeded by "git clean -ffdx"):
+#   GEOPM_GLOBAL_CONFIG_OPTIONS="--enable-debug" GEOPM_RUN_TESTS=yes ./build.sh
+#   GEOPM_BASE_CONFIG_OPTIONS="--enable-beta" ./build.sh
+#   GEOPM_SERVICE_CONFIG_OPTIONS="--enable-levelzero" ./build.sh
 
 set -e
 
@@ -90,7 +92,7 @@ build(){
 
 # Run the service build
 cd service
-CC=gcc CXX=g++ build ${GEOPM_SERVICE_CONFIG_OPTIONS}
+CC=gcc CXX=g++ build "${GEOPM_SERVICE_CONFIG_OPTIONS}"
 
 # Run the base build
 cd ../.. # PWD here is service/build
