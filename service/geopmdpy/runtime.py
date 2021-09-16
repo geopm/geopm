@@ -149,6 +149,9 @@ class Agent:
     def get_signals(self):
         """Get list of read requests
 
+        The returned signals will be sampled from the platform by the
+        Controller and passed into Agent.update().
+
         Returns:
             list((str, int, int)): List of request tuples. Each
                                    request comprises a signal name,
@@ -160,6 +163,9 @@ class Agent:
     def get_controls(self):
         """Get list of control requests
 
+        The returned controls will be set in the platform by the Controller
+        based on the return value from Agent.update().
+
         Returns:
             list((str, int, int)): List of request tuples. Each
                                    request comprises a control name,
@@ -168,8 +174,48 @@ class Agent:
         """
         raise NotImplementedError('Agent is an abstract base class')
 
+    def run_begin(self, policy):
+        """Called by Controller at the start of each run
+
+        The policy for the run is passed through to the agent from the
+        Controller.run() input.  For some agents, the policy may always be
+        None.
+
+        Args:
+            policy (object): The Agent specific policy provided to the
+                             Controller.run() method.
+
+        """
+        raise NotImplementedError('Agent is an abstract base class')
+
+    def policy_repr(self, policy):
+        """Create a string representation of a policy suitable for printing
+
+        """
+        return policy.__repr__()
+
+    def run_end(self):
+        """Called by the Controller at the end of each run
+
+        The result of calling the get_report() method after run_end() should
+        reflect the same report until the next call to run_end().  This report
+        will document the measurments made between the last calls to
+        run_begin() and run_end().  Each call to run_end() will follow a
+        previous call to run_begin().  The run_end() method will be called by
+        the Controller even if the run resulted in an error that raises an
+        exception.  In this way resources associated with a single run can be
+        released when the run_end() method is called.
+
+        """
+        raise NotImplementedError('Agent is an abstract base class')
+
     def update(self, signals):
         """Called periodically by the Controller
+
+        The signals that specified by get_signals() will be passed as inputs
+        to the method by the Controller.  The update() method will be called
+        periodically and the interval is set by the value returned by
+        Agent.get_period().
 
         Args:
             signals (list(float)): Recently read signal values
@@ -191,6 +237,12 @@ class Agent:
 
     def get_report(self):
         """Summary of all data collected by calls to update()
+
+        The report covers the interval of time between the last two calls to
+        Agent.begin_run() / Agent.end_run().  Until the next call to
+        Agent.begin_run(), the same report will be returned by this method.
+        The Controller.run() method will return this report upon completion of
+        the run.
 
         Returns:
             str: Human readable report
@@ -254,7 +306,7 @@ class Controller:
             raise RuntimeError('App process is still running')
         return self._returncode
 
-    def run(self):
+    def run(self, policy=None):
         """Execute control loop defined by agent
 
         Interfaces with PlatformIO directly through the geopmdpy.pio module.
@@ -265,6 +317,7 @@ class Controller:
         """
         try:
             pid = subprocess.Popen(self._argv)
+            self._agent.run_begin(policy)
             for loop_idx in TimedLoop(self._update_period, self._num_update):
                 if pid.poll() is not None:
                     sys.stderr.write('Ths app process has ended.  return code = {}'.format(pid.returncode))
@@ -279,5 +332,6 @@ class Controller:
             raise
         finally:
             pio.restore_control()
+            self._agent.run_end()
         self._returncode = pid.returncode
         return self._agent.get_report()
