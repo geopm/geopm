@@ -209,8 +209,6 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              .github/include_guards.sh \
              .github/workflows/build.yml \
              .gitignore \
-             .travis.yml \
-             .travis_obs.sh \
              BLURB \
              CODE_OF_CONDUCT.md \
              CONTRIBUTING.md \
@@ -316,7 +314,6 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              specs/geopm-pyyaml-req.patch \
              specs/geopm-theta.spec \
              specs/geopm-theta.spec.in \
-             travis_ci.sh \
              test_hw/Makefile \
              test_hw/geopm_time.h \
              test_hw/rapl_pkg_limit_plot.py \

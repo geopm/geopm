@@ -3,7 +3,7 @@
 GEOPM - Global Extensible Open Power Manager
 ============================================
 
-[![Build Status](https://travis-ci.org/geopm/geopm.svg)](https://travis-ci.org/geopm/geopm)
+[![Build Status](https://github.com/geopm/geopm/actions/workflows/build.yml/badge.svg)](https://github.com/geopm/geopm/actions)
 ![version](https://img.shields.io/badge/version-1.1.0-blue)
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 
