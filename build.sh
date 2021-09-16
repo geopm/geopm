@@ -31,18 +31,42 @@
 #
 
 # Simple script that will build and test both the base and the service.
-# Example invocations (proceeded by "git clean -ffdx"):
-#   GEOPM_GLOBAL_CONFIG_OPTIONS="--enable-debug" GEOPM_RUN_TESTS=yes ./build.sh
-#   GEOPM_BASE_CONFIG_OPTIONS="--enable-beta" ./build.sh
-#   GEOPM_SERVICE_CONFIG_OPTIONS="--enable-levelzero" ./build.sh
 
 set -e
+
+usage(){
+    echo "Usage:"
+    echo "    <ENVIRONMENT_OVERRIDES> ${0}"
+    echo
+    echo "Requirements:"
+    echo "    GEOPM_SOURCE and GEOPM_INSTALL are set in the calling environment."
+    echo "    Ideally this is done with ~/.geopmrc."
+    echo "    See integration/README.md for more information."
+    echo
+    echo "ENVIRONMENT_OVERRIDES allows for the following variables to be specified:"
+    echo "    GEOPM_GLOBAL_CONFIG_OPTIONS : Configure options applicable to all build types."
+    echo "    GEOPM_BASE_CONFIG_OPTIONS : Configure options only applicable to the base build."
+    echo "    GEOPM_SERVICE_CONFIG_OPTIONS : Configure options only applicable to the service build."
+    echo "    GEOPM_NUM_THREADS : The number of threads to use when running make (default: 9)."
+    echo "    GEOPM_RUN_TESTS : Set to enable running of unit tests."
+    echo "    GEOPM_SKIP_INSTALL : Set to skip \"make install\"."
+    echo
+    echo "Examples (proceeded by \"git clean -ffdx\" to ensure the build tree is clean):"
+    echo "    GEOPM_GLOBAL_CONFIG_OPTIONS="--enable-debug" GEOPM_RUN_TESTS=yes ./build.sh"
+    echo "    GEOPM_BASE_CONFIG_OPTIONS="--enable-beta" ./build.sh"
+    echo "    GEOPM_SERVICE_CONFIG_OPTIONS="--enable-levelzero" ./build.sh"
+}
+
+if [[ ${1} == '--help' ]]; then
+    usage
+    exit 1
+fi
 
 GEOPM_SOURCE=${GEOPM_SOURCE:-${PWD}}
 cd ${GEOPM_SOURCE}
 BUILD_ENV="integration/config/build_env.sh"
 if [ ! -f "${BUILD_ENV}" ]; then
-    echo "Error: Please set GEOPM_SOURCE in your environment."
+    usage
     exit 1
 fi
 source ${BUILD_ENV}
