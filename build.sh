@@ -32,12 +32,18 @@
 
 # Simple script that will build and test both the base and the service.
 # Example invocation:
-#   git clean -ffdx && RUN_TESTS=yes ./build.sh
+#   git clean -ffdx && GEOPM_RUN_TESTS=yes ./build.sh
 
 set -e
 
-# This script must be run from the root of the GEOPM repo.
-source integration/config/build_env.sh
+GEOPM_SOURCE=${GEOPM_SOURCE:-${PWD}}
+cd ${GEOPM_SOURCE}
+BUILD_ENV="integration/config/build_env.sh"
+if [ ! -f "${BUILD_ENV}" ]; then
+    echo "Error: Please set GEOPM_SOURCE in your environment."
+    exit 1
+fi
+source ${BUILD_ENV}
 
 # Clear out old builds
 if [ -d "${GEOPM_INSTALL}" ]; then
@@ -49,12 +55,12 @@ fi
 GEOPM_GLOBAL_CONFIG_OPTIONS="${GEOPM_GLOBAL_CONFIG_OPTIONS} --prefix=${GEOPM_INSTALL}"
 
 # Set this variable to append configure options for base build
-GEOPM_BASE_CONFIG_OPTIONS="${GEOPM_GLOBAL_CONFIG_OPTIONS}"
+GEOPM_BASE_CONFIG_OPTIONS="${GEOPM_BASE_CONFIG_OPTIONS} ${GEOPM_GLOBAL_CONFIG_OPTIONS}"
 
 # Set this variable to append configure options for service build
-GEOPM_SERVICE_CONFIG_OPTIONS="${GEOPM_GLOBAL_CONFIG_OPTIONS}"
+GEOPM_SERVICE_CONFIG_OPTIONS="${GEOPM_SERVICE_CONFIG_OPTIONS} ${GEOPM_GLOBAL_CONFIG_OPTIONS}"
 
-NUM_THREAD=${NUM_THREAD:-9}
+GEOPM_NUM_THREAD=${GEOPM_NUM_THREAD:-9}
 
 build(){
     if [ ! -f "configure" ]; then
@@ -67,16 +73,16 @@ build(){
     if [ ! -f "Makefile" ]; then
         ../configure ${1}
     fi
-    make -j${NUM_THREAD}
+    make -j${GEOPM_NUM_THREAD}
 
     # By default, the tests are skipped
-    if [ ! -z ${RUN_TESTS+x} ]; then
-        make -j${NUM_THREAD} checkprogs
+    if [ ! -z ${GEOPM_RUN_TESTS+x} ]; then
+        make -j${GEOPM_NUM_THREAD} checkprogs
         make check
     fi
 
     # By default, make install is called
-    if [ -z ${SKIP_INSTALL+x} ]; then
+    if [ -z ${GEOPM_SKIP_INSTALL+x} ]; then
         make install
     fi
 }
@@ -88,7 +94,7 @@ CC=gcc CXX=g++ build ${GEOPM_SERVICE_CONFIG_OPTIONS}
 
 # Run the base build
 cd ../.. # PWD here is service/build
-if [ -z ${SKIP_INSTALL+x} ]; then
+if [ -z ${GEOPM_SKIP_INSTALL+x} ]; then
     build "--with-geopmd=${GEOPM_INSTALL} ${GEOPM_BASE_CONFIG_OPTIONS}"
 else
     build "--with-geopmd-lib=../service/build/.libs \
