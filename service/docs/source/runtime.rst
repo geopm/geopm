@@ -1,3 +1,3 @@
 
-Guide for HPC Runtime Users
-===========================
+Guide for Runtime Users
+=======================
