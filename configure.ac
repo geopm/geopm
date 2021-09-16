@@ -127,11 +127,6 @@ if test "x$enable_overhead" = "x1" ; then
 fi
 AC_SUBST([enable_overhead])
 
-if test "x$enable_msrsafe_ioctl_write" = "x1" ; then
-  AC_DEFINE([GEOPM_MSRSAFE_IOCTL_WRITE], [ ], [Enables use of msr-safe ioctl feature for writing (broken as of msr-safe version 1.2.0)])
-fi
-AC_SUBST([enable_msrsafe_ioctl_write])
-
 AC_ARG_WITH([sqlite3], [AS_HELP_STRING([--with-sqlite3=PATH],
             [specify directory for installed sqlite3 package.])])
 if test "x$with_sqlite3" != x; then
@@ -150,11 +145,6 @@ if test "x$with_sqlite3_lib" != x; then
   LD_LIBRARY_PATH="$with_sqlite3_lib:$LD_LIBRARY_PATH"
   EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_sqlite3_lib"
 fi
-
-if test "x$enable_cnl_iogroup" = "x1" ; then
-  AC_DEFINE([GEOPM_CNL_IOGROUP], [ ], [Enables the CNL IOGroup])
-fi
-AC_SUBST([enable_cnl_iogroup])
 
 AC_ARG_WITH([mpi-bin], [AS_HELP_STRING([--with-mpi-bin=PATH],
             [specify directory for mpi compiler wrapper binaries])])
@@ -627,5 +617,4 @@ AC_MSG_RESULT([openmp             : ${enable_openmp}])
 AC_MSG_RESULT([fortran            : ${enable_fortran}])
 AC_MSG_RESULT([ompt               : ${enable_ompt}])
 AC_MSG_RESULT([beta               : ${enable_beta}])
-AC_MSG_RESULT([bloat              : ${enable_bloat}])
 AC_MSG_RESULT([===============================================================================])
