@@ -45,8 +45,10 @@ EXTRA_DIST += docs/geninfo.sh \
               docs/source/_static/.dirfile \
               # end
 
-docs: .libs/libgeopmd.so
-	LD_LIBRARY_PATH=.libs:$(LD_LIBRARY_PATH) sphinx-build -M html docs/source docs/build
+docs: .libs/libgeopmd.so $(abs_srcdir)/geopmdpy/version.py
+	LD_LIBRARY_PATH=.libs:$(LD_LIBRARY_PATH) \
+	PYTHONPATH=$(abs_srcdir):$(PYTHONPATH) \
+	sphinx-build -M html $(abs_srcdir)/docs/source docs/build
 
 clean-local-docs:
 	rm -rf docs/build
