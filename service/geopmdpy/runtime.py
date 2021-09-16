@@ -81,7 +81,7 @@ class TimedLoop:
         delayed.  The total amount of time spanned by the loop is the
         product of the two input parameters.
 
-        To create an infinte loop, specify num_period is None.
+        To create an infinite loop, specify num_period is None.
 
         Args:
             period (float): Target interval for the loop execution in
@@ -199,7 +199,7 @@ class Agent:
 
         The result of calling the get_report() method after run_end() should
         reflect the same report until the next call to run_end().  This report
-        will document the measurments made between the last calls to
+        will document the measurements made between the last calls to
         run_begin() and run_end().  Each call to run_end() will follow a
         previous call to run_begin().  The run_end() method will be called by
         the Controller even if the run resulted in an error that raises an
@@ -227,7 +227,7 @@ class Agent:
         raise NotImplementedError('Agent is an abstract base class')
 
     def get_period(self):
-        """Get the target time interal for the control loop
+        """Get the target time internal for the control loop
 
         Returns:
             float: Time interval in seconds
@@ -252,7 +252,7 @@ class Agent:
 
 
 class Controller:
-    """Class that supports a runtime control agorithm
+    """Class that supports a runtime control algorithm
 
     """
     def __init__(self, agent, argv, timeout=0):
@@ -320,7 +320,7 @@ class Controller:
             self._agent.run_begin(policy)
             for loop_idx in TimedLoop(self._update_period, self._num_update):
                 if pid.poll() is not None:
-                    sys.stderr.write('Ths app process has ended.  return code = {}'.format(pid.returncode))
+                    sys.stderr.write('The app process has ended.  return code = {}'.format(pid.returncode))
                     break
                 pio.read_batch()
                 signals = self.read_all_signals()
