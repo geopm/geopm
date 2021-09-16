@@ -260,11 +260,12 @@ io.github.geopm.xml:
 	PYTHONPATH=$(abs_srcdir):$(PYTHONPATH) \
 	$(PYTHON) -m geopmdpy.dbus_xml > $@
 
-install-python: setup.py
+
+$(abs_srcdir)/geopmdpy/version.py:
 # Move version.py into source for out of place builds
-	if [ ! -f $(abs_srcdir)/geopmdpy/version.py ]; then \
-	    cp geopmdpy/version.py $(abs_srcdir)/geopmdpy/version.py; \
-	fi
+	cp geopmdpy/version.py $@
+
+install-python: setup.py $(abs_srcdir)/geopmdpy/version.py
 	cd $(abs_srcdir) && $(PYTHON) ./setup.py install -O1 --root $(DESTDIR)/ --prefix $(prefix)
 
 clean-local-python: setup.py
