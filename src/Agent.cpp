@@ -20,6 +20,7 @@
 #include "PowerBalancerAgent.hpp"
 #include "PowerGovernorAgent.hpp"
 #include "FrequencyMapAgent.hpp"
+#include "FixedFrequencyAgent.hpp"
 #include "Environment.hpp"
 #include "geopm/Helper.hpp"
 
@@ -49,6 +50,10 @@ namespace geopm
                         FrequencyMapAgent::make_plugin,
                         Agent::make_dictionary(FrequencyMapAgent::policy_names(),
                                                FrequencyMapAgent::sample_names()));
+        register_plugin(FixedFrequencyAgent::plugin_name(),
+                        FixedFrequencyAgent::make_plugin,
+                        Agent::make_dictionary(FixedFrequencyAgent::policy_names(),
+                                               FixedFrequencyAgent::sample_names()));
     }
 
 
