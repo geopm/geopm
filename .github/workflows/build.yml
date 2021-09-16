@@ -42,6 +42,10 @@ on:
       - dev
       - geopm-service
 
+concurrency:
+  group: ci-${{ github.ref }}-${{ github.head_ref }}
+  cancel-in-progress: true
+
 jobs:
   build_and_test:
     name: "build_and_test: ${{ matrix.config.name }} ${{ matrix.debug-flag }}"
