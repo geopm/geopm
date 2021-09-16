@@ -40,8 +40,6 @@ AM_CPPFLAGS += -I$(top_srcdir)/src \
 lib_LTLIBRARIES = libgeopmpolicy.la
 bin_PROGRAMS = geopmadmin \
                geopmagent \
-               geopmread \
-               geopmwrite \
                #end
 pkglib_LTLIBRARIES =
 nodist_include_HEADERS =
@@ -404,12 +402,8 @@ endif
 
 # EXTEND FLAGS FOR NON-MPI TARGETS
 libgeopmpolicy_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(geopm_abi_version)
-geopmread_CXXFLAGS = $(AM_CXXFLAGS) -std=c++11
-geopmwrite_CXXFLAGS = $(AM_CXXFLAGS) -std=c++11
 
 # ADD LIBRARY DEPENDENCIES FOR EXECUTABLES
-geopmread_LDADD = libgeopmpolicy.la
-geopmwrite_LDADD = libgeopmpolicy.la
 geopmagent_LDADD = libgeopmpolicy.la
 geopmadmin_LDADD = libgeopmpolicy.la
 if ENABLE_MPI
@@ -547,8 +541,6 @@ else
     EXTRA_DIST += $(beta_source_files)
 endif
 
-geopmread_SOURCES = src/geopmread_main.cpp
-geopmwrite_SOURCES = src/geopmwrite_main.cpp
 geopmagent_SOURCES = src/geopmagent_main.cpp
 geopmadmin_SOURCES = src/geopmadmin_main.cpp
 
