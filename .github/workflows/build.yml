@@ -77,10 +77,6 @@ jobs:
            python3 -m pip install --upgrade pip setuptools wheel pep517
            python3 -m pip install -r service/requirements.txt
            python3 -m pip install -r scripts/requirements.txt
-    - name: python3 linter
-      run: |
-           scripts/test/check_python3_compatibility.sh | tee scripts/py3k_lint.log
-           exit ${PIPESTATUS[0]}
     - name: check include guards
       shell: bash
       run: .github/include_guards.sh

@@ -52,7 +52,6 @@ index bf78713f..f6553d7d 100644
 -pyyaml>=5.1.0
 +pyyaml==5.1.1
  future>=0.17.1
- pylint>=1.9.5
 --
 2.26.2
 
