@@ -180,6 +180,8 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/PlatformTopoImp.hpp \
                        src/RawMSRSignal.cpp \
                        src/RawMSRSignal.hpp \
+                       src/SDBus.hpp \
+                       src/SDBusMessage.hpp \
                        src/ServiceIOGroup.cpp \
                        src/ServiceIOGroup.hpp \
                        src/ServiceProxy.cpp \
@@ -217,13 +219,13 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        # end
 
 systemd_source_files = src/SDBus.cpp \
-                       src/SDBus.hpp \
                        src/SDBusMessage.cpp \
-                       src/SDBusMessage.hpp \
                        # end
 if ENABLE_SYSTEMD
     libgeopmd_la_SOURCES += $(systemd_source_files)
+    EXTRA_DIST += src/SDBusNull.cpp
 else
+    libgeopmd_la_SOURCES += src/SDBusNull.cpp
     EXTRA_DIST += $(systemd_source_files)
 endif
 
