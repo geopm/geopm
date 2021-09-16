@@ -106,17 +106,6 @@ fi
 AC_SUBST([enable_beta])
 AM_CONDITIONAL([ENABLE_BETA], [test "x$enable_beta" = "x1"])
 
-AC_ARG_ENABLE([cnl-iogroup],
-  [AS_HELP_STRING([--enable-cnl-iogroup], [Enable the CNL IOGroup])],
-[if test "x$enable_cnl_iogroup" = "xno" ; then
-  enable_cnl_iogroup="0"
-else
-  enable_cnl_iogroup="1"
-fi
-],
-[enable_cnl_iogroup="0"]
-)
-
 if test "x$enable_debug" = "x1" ; then
   AC_DEFINE([GEOPM_DEBUG], [ ], [Enables code for debugging])
   CFLAGS="$CFLAGS -O0 -g"
