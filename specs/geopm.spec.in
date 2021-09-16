@@ -175,8 +175,6 @@ rm -f %{buildroot}/%{_bindir}/geopmlaunch
 %dir %{_libdir}/geopm
 %{_bindir}/geopmadmin
 %{_bindir}/geopmagent
-%{_bindir}/geopmread
-%{_bindir}/geopmwrite
 %{compdir}
 %dir %{docdir}
 %doc %{docdir}/COPYING
