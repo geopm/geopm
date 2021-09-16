@@ -30,15 +30,16 @@ Changes to GEOPM are submitted by opening a pull request on GitHub
 from a fork of GEOPM.  Including a Signed-off-by: line in the commit
 message is appreciated, but not required.  All pull requests to the
 geopm/geopm repository on GitHub will automatically be submitted to
-Travis CI for unit testing.
+GitHub Actions for unit testing.
 
 The link for creating a pull request is here:
 
 https://github.com/geopm/geopm/pulls
 
-and the link to the results of the unit testing is here:
+and the link to the results of the unit testing can be found under the
+actions tab on the GEOPM GitHub webpage:
 
-https://travis-ci.org/geopm/geopm
+https://github.com/geopm/geopm/actions
 
 We encourage users and developers of the GEOPM software to participate
 in our code review process through GitHub.
