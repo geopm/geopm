@@ -225,16 +225,14 @@ TEST_F(ServiceIOGroupTest, push_control)
 
 TEST_F(ServiceIOGroupTest, read_batch)
 {
-    GEOPM_EXPECT_THROW_MESSAGE(m_serviceio_group->read_batch(),
-                               GEOPM_ERROR_NOT_IMPLEMENTED,
-                               "ServiceIOGroup::read_batch()");
+    // For now this should be a noop
+    m_serviceio_group->read_batch();
 }
 
 TEST_F(ServiceIOGroupTest, write_batch)
 {
-    GEOPM_EXPECT_THROW_MESSAGE(m_serviceio_group->write_batch(),
-                               GEOPM_ERROR_NOT_IMPLEMENTED,
-                               "ServiceIOGroup::write_batch()");
+    // For now this should be a noop
+    m_serviceio_group->write_batch();
 }
 
 TEST_F(ServiceIOGroupTest, sample)

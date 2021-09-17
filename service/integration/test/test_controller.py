@@ -53,6 +53,7 @@ class LocalAgent(geopmdpy.runtime.Agent):
         result = [("TIME", geopmdpy.topo.DOMAIN_BOARD, 0)]
         for pkg in range(geopmdpy.topo.num_domain(geopmdpy.topo.DOMAIN_PACKAGE)):
             result.append(("INSTRUCTIONS_RETIRED", geopmdpy.topo.DOMAIN_PACKAGE, pkg))
+        return result
 
     def get_controls(self):
         return [("CPU_FREQUENCY_CONTROL", geopmdpy.topo.DOMAIN_BOARD, 0)]
