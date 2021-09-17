@@ -83,6 +83,14 @@ Requires: geopm-service
 %description -n python%{python3_pkgversion}-geopmdpy
 Python %{python_major_version} package for GEOPM service.
 
+%package devel
+Summary: Global Extensible Open Power Manager Service - development
+Group: System Environment/Libraries
+Requires: geopm-service
+
+%description devel
+Development package for the GEOPM Service.
+
 %build
 ./autogen.sh
 ./configure --prefix=%{_prefix} --libdir=%{_libdir} --libexecdir=%{_libexecdir} \
@@ -97,8 +105,6 @@ Python %{python_major_version} package for GEOPM service.
 %{__make} DESTDIR=%{buildroot} install
 rm -f $(find %{buildroot}/%{_libdir} -name '*.a'; \
         find %{buildroot}/%{_libdir} -name '*.la')
-# Remove headers until we define a devel package
-rm -rf %{buildroot}/%{_includedir}
 
 install -Dp -m644 geopm.service %{buildroot}%{_unitdir}/geopm.service
 install -Dp -m644 io.github.geopm.conf %{buildroot}%{_sysconfdir}/dbus-1/system.d/io.github.geopm.conf
@@ -136,3 +142,29 @@ mkdir -p %{buildroot}%{_sysconfdir}/geopm-service
 
 %files -n python%{python3_pkgversion}-geopmdpy
 %{expand:%{python%{python_major_version}_sitelib}}/*
+
+%files devel
+%dir %{_includedir}/geopm
+%{_includedir}/geopm/Agg.hpp
+%{_includedir}/geopm/CircularBuffer.hpp
+%{_includedir}/geopm/Exception.hpp
+%{_includedir}/geopm/Helper.hpp
+%{_includedir}/geopm/IOGroup.hpp
+%{_includedir}/geopm/json11.hpp
+%{_includedir}/geopm/MSRIOGroup.hpp
+%{_includedir}/geopm/PlatformIO.hpp
+%{_includedir}/geopm/PlatformTopo.hpp
+%{_includedir}/geopm/PluginFactory.hpp
+%{_includedir}/geopm/SharedMemory.hpp
+%{_includedir}/geopm/SharedMemoryScopedLock.hpp
+%{_includedir}/geopm_debug.hpp
+%{_includedir}/geopm_error.h
+%{_includedir}/geopm.h
+%{_includedir}/geopm_hash.h
+%{_includedir}/geopm_internal.h
+%{_includedir}/geopm_pio.h
+%{_includedir}/geopm_plugin.hpp
+%{_includedir}/geopm_sched.h
+%{_includedir}/geopm_time.h
+%{_includedir}/geopm_topo.h
+%{_includedir}/geopm_version.h
