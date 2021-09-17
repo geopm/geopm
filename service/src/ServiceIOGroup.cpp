@@ -171,14 +171,12 @@ namespace geopm
 
     void ServiceIOGroup::read_batch(void)
     {
-        throw Exception("ServiceIOGroup::read_batch()",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+
     }
 
     void ServiceIOGroup::write_batch(void)
     {
-        throw Exception("ServiceIOGroup::write_batch()",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+
     }
 
     double ServiceIOGroup::sample(int sample_idx)
