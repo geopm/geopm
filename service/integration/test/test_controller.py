@@ -39,20 +39,31 @@ import geopmdpy.topo
 class LocalAgent(geopmdpy.runtime.Agent):
     """Simple example that uses the geopmdpy.runtime module
 
-    Runs a command while executing a five millisecond control loop. On each
-    control loop step the agent prints out time and instructions retired.
+    Runs a command while executing a five millisecond control loop. On
+    each control loop step the agent prints out time and instructions
+    retired. The agent also sets the CPU frequency cap based on the
+    policy.  If the policy is None the CPU frequency is unlimited.
 
     """
     def __init__(self):
-        self._loop_idx = 0
-        self._cpu_freq = geopmdpy.pio.read_signal('CPU_FREQUENCY_MAX', 'board', 0)
+        self.run_end()
 
     def get_signals(self):
         return [("TIME", geopmdpy.topo.DOMAIN_BOARD, 0),
                 ("INSTRUCTIONS_RETIRED", geopmdpy.topo.DOMAIN_PACKAGE, 0)]
 
     def get_controls(self):
-        return [("FREQUENCY", geopmdpy.topo.DOMAIN_PACKAGE, 0)]
+        return [("CPU_FREQUENCY_CONTROL", geopmdpy.topo.DOMAIN_PACKAGE, 0)]
+
+    def run_begin(self, policy):
+        if policy is not None:
+            if policy < 0 or policy > self._cpu_freq:
+                raise RuntimeError(f'Invalid CPU frequency value: {policy}')
+            self._cpu_freq = policy
+
+    def run_end(self):
+        self._loop_idx = 0
+        self._cpu_freq = geopmdpy.pio.read_signal('CPU_FREQUENCY_MAX', 'board', 0)
 
     def update(self, signals):
         if self._loop_idx == 0:
@@ -77,16 +88,17 @@ def main():
 
     """
     err = 0
-    help_msg = f'Usage: {sys.argv[0]} COMMAND\n\n{LocalAgent.__doc__}\n'
-    if len(sys.argv) < 2:
+    help_msg = f'Usage: {sys.argv[0]} CPU_FREQUENCY_MAX COMMAND\n\n{LocalAgent.__doc__}\n'
+    if len(sys.argv) < 3:
         err = -1
     if err != 0 or sys.argv[1] == '--help':
         sys.stderr.write(help_msg)
         return err
+    cpu_frequency_max = float(argv[1])
     agent = LocalAgent()
-    controller = geopmdpy.runtime.Controller(agent, sys.argv[1:])
-    print(controller.run())
-    return err
+    controller = geopmdpy.runtime.Controller(agent, sys.argv[2:])
+    print(controller.run(cpu_frequency_max))
+    return controller.returncode()
 
 if __name__ == '__main__':
     exit(main())
