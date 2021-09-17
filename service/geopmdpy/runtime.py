@@ -255,14 +255,12 @@ class Controller:
     """Class that supports a runtime control algorithm
 
     """
-    def __init__(self, agent, argv, timeout=0):
+    def __init__(self, agent, timeout=0):
         """Controller constructor
 
         Args:
             agent (Agent): Object that conforms to the Agent class
                            interface
-
-            argv (list(str)): Arguments for application that is executed
 
             timeout (float): Maximum runtime before controller ends, the agent
                              will run indefinitely (until killed by another
@@ -283,7 +281,6 @@ class Controller:
         self._num_update = None
         if timeout != 0:
             self._num_update = math.ceil(timeout / self._update_period)
-        self._argv = argv
         self._returncode = None
 
     def read_all_signals(self):
@@ -306,10 +303,15 @@ class Controller:
             raise RuntimeError('App process is still running')
         return self._returncode
 
-    def run(self, policy=None):
+    def run(self, argv, policy=None):
         """Execute control loop defined by agent
 
         Interfaces with PlatformIO directly through the geopmdpy.pio module.
+
+        Args:
+            argv (list(str)): Arguments for application that is executed
+
+            policy (object): Policy for Agent to use during the run
 
         Returns:
             str: Human readable report created by agent
@@ -317,7 +319,7 @@ class Controller:
         """
         sys.stderr.write('<geopmdpy> RUN BEGIN\n')
         try:
-            pid = subprocess.Popen(self._argv)
+            pid = subprocess.Popen(argv)
             self._agent.run_begin(policy)
             for loop_idx in TimedLoop(self._update_period, self._num_update):
                 if pid.poll() is not None:

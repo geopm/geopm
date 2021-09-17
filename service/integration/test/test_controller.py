@@ -103,8 +103,8 @@ def main():
         return err
     cpu_frequency_max = float(sys.argv[1])
     agent = LocalAgent()
-    controller = geopmdpy.runtime.Controller(agent, sys.argv[2:])
-    print(controller.run(cpu_frequency_max))
+    controller = geopmdpy.runtime.Controller(agent)
+    print(controller.run(sys.argv[2:], cpu_frequency_max))
     return controller.returncode()
 
 if __name__ == '__main__':
