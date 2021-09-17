@@ -41,19 +41,21 @@ class LocalAgent(geopmdpy.runtime.Agent):
 
     Runs a command while executing a five millisecond control loop. On
     each control loop step the agent prints out time and instructions
-    retired. The agent also sets the CPU frequency cap based on the
-    policy.  If the policy is None the CPU frequency is unlimited.
+    retired for each package. The agent also sets the CPU frequency
+    cap based on the policy.  If the policy is None the CPU frequency
+    is unlimited.
 
     """
     def __init__(self):
         self.run_end()
 
     def get_signals(self):
-        return [("TIME", geopmdpy.topo.DOMAIN_BOARD, 0),
-                ("INSTRUCTIONS_RETIRED", geopmdpy.topo.DOMAIN_PACKAGE, 0)]
+        result = [("TIME", geopmdpy.topo.DOMAIN_BOARD, 0)]
+        for pkg in range(geopmdpy.topo.num_domain(geopmdpy.topo.DOMAIN_PACKAGE)):
+            result.append(("INSTRUCTIONS_RETIRED", geopmdpy.topo.DOMAIN_PACKAGE, pkg))
 
     def get_controls(self):
-        return [("CPU_FREQUENCY_CONTROL", geopmdpy.topo.DOMAIN_PACKAGE, 0)]
+        return [("CPU_FREQUENCY_CONTROL", geopmdpy.topo.DOMAIN_BOARD, 0)]
 
     def run_begin(self, policy):
         if policy is not None:
@@ -80,7 +82,11 @@ class LocalAgent(geopmdpy.runtime.Agent):
         delta = [ee - bb for (bb, ee) in
                  zip(self._signals_begin,
                      self._signals_last)]
-        return f'\n\nTotal time: {delta[0]}\nTotal instructions: {delta[1]}'
+        lines = ['', '', f'Total time: {delta[0]}']
+        for pkg, dd in enumerate(delta[1:]):
+            lines.append(f'Total instructions package {pkg}: {dd}')
+        lines.append('')
+        return '\n'.join(lines)
 
 
 def main():
@@ -94,7 +100,7 @@ def main():
     if err != 0 or sys.argv[1] == '--help':
         sys.stderr.write(help_msg)
         return err
-    cpu_frequency_max = float(argv[1])
+    cpu_frequency_max = float(sys.argv[1])
     agent = LocalAgent()
     controller = geopmdpy.runtime.Controller(agent, sys.argv[2:])
     print(controller.run(cpu_frequency_max))
