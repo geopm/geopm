@@ -8,10 +8,12 @@ GEOPM Service Documentation
    :caption: Contents:
 
    readme
+   requires
    build
    admin
    client
    runtime
+   devel
    analysis
    info
    reference
