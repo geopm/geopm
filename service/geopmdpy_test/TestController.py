@@ -104,11 +104,11 @@ class TestController(unittest.TestCase):
     def test_controller_construction_invalid(self):
         err_msg = 'agent must be a subclass of Agent.'
         with self.assertRaisesRegex(ValueError, err_msg):
-            con = Controller([1, 2, 3], 'abc')
+            con = Controller('abc')
 
         err_msg = 'timeout must be >= 0'
         with self.assertRaisesRegex(ValueError, err_msg):
-            con = Controller(ConstructorAgent(), 'args', -5)
+            con = Controller(ConstructorAgent(), -5)
 
     def test_controller_construction(self):
         signals = [('power', 1, 2), ('energy', 3, 4)]
@@ -121,7 +121,7 @@ class TestController(unittest.TestCase):
              mock.patch('geopmdpy.pio.save_control') as psc, \
              mock.patch('geopmdpy.topo.num_domain', return_value=1) as pnd:
             pa = PassthroughAgent(signals, controls, period)
-            con = Controller(pa, argv) # No timeout
+            con = Controller(pa) # No timeout
 
             psc.assert_called_once()
             self.assertIs(pa, con._agent)
@@ -131,7 +131,6 @@ class TestController(unittest.TestCase):
             self.assertEqual(list(range(len(controls))), con._controls_idx)
             self.assertEqual(period, con._update_period)
             self.assertIsNone(con._num_update)
-            self.assertEqual(argv, con._argv)
             self.assertIsNone(con._returncode)
 
             calls = [mock.call(*cc) for cc in signals]
@@ -144,7 +143,7 @@ class TestController(unittest.TestCase):
         with mock.patch('geopmdpy.pio.push_signal', side_effect = itertools.count()) as pps, \
              mock.patch('geopmdpy.pio.push_control', side_effect = itertools.count()) as ppc, \
              mock.patch('geopmdpy.pio.save_control') as psc:
-            con = Controller(pa, argv, timeout)
+            con = Controller(pa, timeout)
 
             psc.assert_called_once()
             self.assertIs(pa, con._agent)
@@ -154,7 +153,6 @@ class TestController(unittest.TestCase):
             self.assertEqual(list(range(len(controls))), con._controls_idx)
             self.assertEqual(period, con._update_period)
             self.assertEqual(math.ceil(timeout / period), con._num_update)
-            self.assertEqual(argv, con._argv)
             self.assertIsNone(con._returncode)
 
             calls = [mock.call(*cc) for cc in signals]
@@ -182,7 +180,7 @@ class TestController(unittest.TestCase):
              mock.patch('geopmdpy.runtime.TimedLoop', return_value=list(range(loops))) as rtl, \
              mock.patch('subprocess.Popen') as sp:
 
-            con = Controller(pa, argv)
+            con = Controller(pa)
             psc.assert_called_once()
             self.assertEqual(list(range(len(signals))), con.read_all_signals())
 
@@ -193,9 +191,9 @@ class TestController(unittest.TestCase):
                 sp_err_msg = 'An error has occured'
                 sp.side_effect = RuntimeError(sp_err_msg)
                 with self.assertRaisesRegex(RuntimeError, sp_err_msg):
-                    con.run()
+                    con.run(argv)
             else:
-                result = con.run()
+                result = con.run(argv)
 
                 calls = [mock.call(argv)] + [mock.call().poll()] * loops
                 sp.assert_has_calls(calls)
