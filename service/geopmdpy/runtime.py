@@ -315,12 +315,12 @@ class Controller:
             str: Human readable report created by agent
 
         """
+        sys.stderr.write('<geopmdpy> Run begin\n')
         try:
             pid = subprocess.Popen(self._argv)
             self._agent.run_begin(policy)
             for loop_idx in TimedLoop(self._update_period, self._num_update):
                 if pid.poll() is not None:
-                    sys.stderr.write('The app process has ended.  return code = {}'.format(pid.returncode))
                     break
                 pio.read_batch()
                 signals = self.read_all_signals()
@@ -334,4 +334,5 @@ class Controller:
             pio.restore_control()
             self._agent.run_end()
         self._returncode = pid.returncode
+        sys.stderr.write(f'<geopmdpy> Run end, return code = {self._returncode}\n')
         return self._agent.get_report()
