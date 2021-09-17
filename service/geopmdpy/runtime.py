@@ -227,7 +227,7 @@ class Agent:
         raise NotImplementedError('Agent is an abstract base class')
 
     def get_period(self):
-        """Get the target time internal for the control loop
+        """Get the target time interval for the control loop
 
         Returns:
             float: Time interval in seconds

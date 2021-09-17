@@ -171,12 +171,12 @@ namespace geopm
 
     void ServiceIOGroup::read_batch(void)
     {
-
+        // No implementation until we support push_signal()
     }
 
     void ServiceIOGroup::write_batch(void)
     {
-
+        // No implementation until we support push_control()
     }
 
     double ServiceIOGroup::sample(int sample_idx)
