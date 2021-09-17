@@ -59,8 +59,14 @@ class PassthroughAgent(Agent):
     def get_period(self):
         return self._period
 
+    def run_begin(self, policy):
+        pass
+
     def update(self, signals):
         return [self._adjust_value] * len(signals)
+
+    def run_end(self):
+        pass
 
     def get_report(self):
         return self._report_data
@@ -110,10 +116,11 @@ class TestController(unittest.TestCase):
         period = 42
 
         argv = 'data'
-        pa = PassthroughAgent(signals, controls, period)
         with mock.patch('geopmdpy.pio.push_signal', side_effect = itertools.count()) as pps, \
              mock.patch('geopmdpy.pio.push_control', side_effect = itertools.count()) as ppc, \
-             mock.patch('geopmdpy.pio.save_control') as psc:
+             mock.patch('geopmdpy.pio.save_control') as psc, \
+             mock.patch('geopmdpy.topo.num_domain', return_value=1) as pnd:
+            pa = PassthroughAgent(signals, controls, period)
             con = Controller(pa, argv) # No timeout
 
             psc.assert_called_once()

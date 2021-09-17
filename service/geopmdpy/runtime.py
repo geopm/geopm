@@ -315,7 +315,7 @@ class Controller:
             str: Human readable report created by agent
 
         """
-        sys.stderr.write('<geopmdpy> Run begin\n')
+        sys.stderr.write('<geopmdpy> RUN BEGIN\n')
         try:
             pid = subprocess.Popen(self._argv)
             self._agent.run_begin(policy)
@@ -334,5 +334,5 @@ class Controller:
             pio.restore_control()
             self._agent.run_end()
         self._returncode = pid.returncode
-        sys.stderr.write(f'<geopmdpy> Run end, return code = {self._returncode}\n')
+        sys.stderr.write(f'<geopmdpy> RUN END, return: {self._returncode}\n')
         return self._agent.get_report()
