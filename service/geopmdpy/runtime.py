@@ -262,9 +262,12 @@ class Controller:
             agent (Agent): Object that conforms to the Agent class
                            interface
 
-            timeout (float): Maximum runtime before controller ends, the agent
-                             will run indefinitely (until killed by another
-                             process) if timeout == 0.
+            timeout (float): The agent algorithm will run for the full
+                             duration of the application execution if timeout
+                             is 0.  Setting the timeout to a non-zero value
+                             will end the agent algorithm after the specified
+                             period of time or when the application ends,
+                             whichever occurs first.
 
         """
         if not isinstance(agent, Agent):
