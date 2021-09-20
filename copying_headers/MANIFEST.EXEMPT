@@ -12,8 +12,7 @@ copying_headers/MANIFEST.BSD3-llnl
 copying_headers/MANIFEST.EXEMPT
 copying_headers/MANIFEST.MIT-dropbox
 copying_headers/MANIFEST.NAS
-dox/Doxyfile
-dox-public/Doxyfile.in
+dox/Doxyfile.in
 examples/comd/README
 examples/custom_msr/msr_reasons.json
 examples/hacc/README
@@ -126,6 +125,8 @@ service/docs/source/reference.rst
 service/docs/source/runtime.rst
 service/docs/source/signals_SKX.rst
 service/docs/source/_static/.dirfile
+service/dox/blurb.md
+service/dox/Doxyfile.in
 service/.gitignore
 service/io.github.geopm.conf
 service/io.github.geopm.xml
