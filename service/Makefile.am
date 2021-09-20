@@ -83,6 +83,8 @@ EXTRA_DIST = .gitignore \
              configure.ac \
              contrib/json11/LICENSE.txt \
              contrib/json11/README.md \
+             dox/blurb.md \
+             dox/Doxygen.in \
              geopm-service.spec.in \
              io.github.geopm.conf \
              io.github.geopm.xml \
@@ -284,6 +286,26 @@ install-python: setup.py $(abs_srcdir)/geopmdpy/version.py
 clean-local-python: setup.py
 	$(PYTHON) ./setup.py clean --all
 
+# DOXYGEN TARGETS
+dox-public/Doxyfile: $(top_srcdir)/dox/Doxyfile.in
+	mkdir -p dox-public
+	sed -e "s|@DOX_VERSION@|$(VERSION)|g" \
+	    -e "s|@DOX_OUTPUT@|$(abs_builddir)/dox-public|g" \
+	    -e "s|@DOX_INPUT@|dox/blurb.md $(include_HEADERS) $(geopminclude_HEADERS)|g" \
+        $^ > $@
+
+dox/Doxyfile: $(top_srcdir)/dox/Doxyfile.in
+	mkdir -p dox
+	sed -e "s|@DOX_VERSION@|$(VERSION)|g" \
+	    -e "s|@DOX_OUTPUT@|$(abs_builddir)/dox|g" \
+	    -e "s|@DOX_INPUT@|dox/blurb.md src|g" \
+        $^ > $@
+
+doxygen: dox-public/Doxyfile dox/Doxyfile
+	cd $(top_srcdir) && doxygen $(abs_builddir)/dox/Doxyfile
+	cd $(top_srcdir) && doxygen $(abs_builddir)/dox-public/Doxyfile
+
+
 # RPM TARGET
 rpm_topdir ?= $(HOME)/rpmbuild
 rpm: dist
@@ -299,7 +321,7 @@ CLEAN_LOCAL_TARGETS = clean-local-python
 
 clean-local: $(CLEAN_LOCAL_TARGETS)
 
-PHONY_TARGETS = clean-local-python
+PHONY_TARGETS = clean-local-python doxygen
 
 .PHONY: $(PHONY_TARGETS)
 
