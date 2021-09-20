@@ -84,7 +84,7 @@ EXTRA_DIST = .gitignore \
              contrib/json11/LICENSE.txt \
              contrib/json11/README.md \
              dox/blurb.md \
-             dox/Doxygen.in \
+             dox/Doxyfile.in \
              geopm-service.spec.in \
              io.github.geopm.conf \
              io.github.geopm.xml \
