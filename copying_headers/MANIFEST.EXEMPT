@@ -118,10 +118,12 @@ service/docs/source/build.rst
 service/docs/source/client.rst
 service/docs/source/conf.py
 service/docs/source/controls_SKX.rst
+service/docs/source/devel.rst
 service/docs/source/index.rst
 service/docs/source/info.rst
 service/docs/source/readme.rst
 service/docs/source/reference.rst
+service/docs/source/requires.rst
 service/docs/source/runtime.rst
 service/docs/source/signals_SKX.rst
 service/docs/source/_static/.dirfile
