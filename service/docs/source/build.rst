@@ -3,7 +3,7 @@ Building and Installing
 =======================
 
 These are build instructions for an administrator that would like to
-install the GEOPM Service based on a checkout of the geopm git
+install the GEOPM Service based on a checkout of the GEOPM git
 repository.  Following these instructions will enable the user to
 create RPM packages that can be installed on several Linux
 distributions.
@@ -66,7 +66,7 @@ A system administrator that would like enable users of the system to
 link to the C or C++ interfaces provided by libgeopmd.so should
 install the GEOPM Service Development Package.  This provides the C
 and C++ header files, and will occur as part of running the
-install_service.sh script documented above.
+`install_service.sh` script documented above.
 
 
 Removing the GEOPM Service
