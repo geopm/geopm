@@ -703,14 +703,24 @@ rpm-dudley: dist
 	cp specs/geopm-pyyaml-req.patch $(rpm_topdir)/SOURCES/
 	rpmbuild $(rpmbuild_flags) --buildroot=$(rpm_topdir)-root --define "_sourcedir $(rpm_topdir)/SOURCES" -ba $(rpm_topdir)/SPECS/geopm-$(VERSION).spec
 
-# DOXYGEN TARGET
-dox-public/Doxyfile: dox-public/Doxyfile.in
-	sed -e "s|@INSTALL_HEADER_FILES@|$(include_HEADERS) $(pkginclude_HEADERS)|g" \
-            dox-public/Doxyfile.in > dox-public/Doxyfile
+# DOXYGEN TARGETS
+dox-public/Doxyfile: $(top_srcdir)/dox/Doxyfile.in
+	mkdir -p dox-public
+	sed -e "s|@DOX_VERSION@|$(VERSION)|g" \
+	    -e "s|@DOX_OUTPUT@|$(abs_builddir)/dox-public|g" \
+	    -e "s|@DOX_INPUT@|README.md $(include_HEADERS) $(pkginclude_HEADERS)|g" \
+        $^ > $@
 
-doxygen: dox-public/Doxyfile
-	doxygen dox/Doxyfile
-	doxygen dox-public/Doxyfile
+dox/Doxyfile: $(top_srcdir)/dox/Doxyfile.in
+	mkdir -p dox
+	sed -e "s|@DOX_VERSION@|$(VERSION)|g" \
+	    -e "s|@DOX_OUTPUT@|$(abs_builddir)/dox|g" \
+	    -e "s|@DOX_INPUT@|README.md src|g" \
+        $^ > $@
+
+doxygen: dox-public/Doxyfile dox/Doxyfile
+	cd $(top_srcdir) && doxygen $(abs_builddir)/dox/Doxyfile
+	cd $(top_srcdir) && doxygen $(abs_builddir)/dox-public/Doxyfile
 
 # MAN TARGET
 $(ronn_man): man/%: $(top_srcdir)/ronn/%.ronn
