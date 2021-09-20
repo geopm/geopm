@@ -228,8 +228,7 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              copying_headers/header.NAS \
              copying_headers/test-dist \
              copying_headers/test-license \
-             dox-public/Doxyfile.in \
-             dox/Doxyfile \
+             dox/Doxyfile.in \
              gen_man.sh \
              geopm-tutorial.tar.gz \
              indicators/index.html \
