@@ -206,6 +206,11 @@ dist_doc_DATA = COPYING \
 EXTRA_DIST = $(TUTORIAL_DIST) \
              .github/include_guards.sh \
              .github/workflows/build.yml \
+             .github/ISSUE_TEMPLATE/bug_report.md \
+             .github/ISSUE_TEMPLATE/feature_request.md \
+             .github/ISSUE_TEMPLATE/story.md \
+             .github/ISSUE_TEMPLATE/task.md \
+             .github/ISSUE_TEMPLATE/tech_debt.md \
              .gitignore \
              BLURB \
              CODE_OF_CONDUCT.md \
