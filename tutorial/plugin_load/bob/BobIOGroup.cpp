@@ -181,7 +181,17 @@ void BobIOGroup::save_control(void)
 
 }
 
+void BobIOGroup::save_control(const std::string &save_path)
+{
+
+}
+
 void BobIOGroup::restore_control(void)
+{
+
+}
+
+void BobIOGroup::restore_control(const std::string &save_path)
 {
 
 }

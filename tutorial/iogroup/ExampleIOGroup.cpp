@@ -365,9 +365,19 @@ void ExampleIOGroup::save_control(void)
 
 }
 
+void ExampleIOGroup::save_control(const std::string &save_path)
+{
+
+}
+
 // Implemented to allow an IOGroup to restore previously saved
 // platform settings
 void ExampleIOGroup::restore_control(void)
+{
+
+}
+
+void ExampleIOGroup::restore_control(const std::string &save_path)
 {
 
 }
