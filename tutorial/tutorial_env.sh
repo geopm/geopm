@@ -34,9 +34,13 @@
 # default environment for the tutorial.  Modify these variables to
 # suit your environment or export them before running the tutorial.
 
-# GEOPM_INSTALL: Where to find lib and include directories for geopm.
-if [ ! "$GEOPM_INSTALL" ]; then
-    GEOPM_INSTALL=$HOME/build/geopm
+if [ -z ${GEOPM_INSTALL+x} ]; then
+    if [ -f ${HOME}/.geopmrc ]; then
+        source ${HOME}/.geopmrc
+    else
+        echo "Error: Please set GEOPM_INSTALL in your environment."
+        exit 1
+    fi
 fi
 
 # GEOPM_LAUNCHER: The resource manager exe used to launch jobs.
