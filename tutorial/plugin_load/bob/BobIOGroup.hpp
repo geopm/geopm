@@ -59,7 +59,9 @@ class BobIOGroup : public geopm::IOGroup
         double read_signal(const std::string &signal_name, int domain_type, int domain_idx) override;
         void write_control(const std::string &control_name, int domain_type, int domain_idx, double setting) override;
         void save_control(void) override;
+        void save_control(const std::string &save_path) override;
         void restore_control(void) override;
+        void restore_control(const std::string &save_path) override;
         std::function<double(const std::vector<double> &)> agg_function(const std::string &signal_name) const override;
         std::function<std::string(double)> format_function(const std::string &signal_name) const override;
         std::string signal_description(const std::string &signal_name) const;

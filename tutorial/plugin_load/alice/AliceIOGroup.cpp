@@ -181,7 +181,17 @@ void AliceIOGroup::save_control(void)
 
 }
 
+void AliceIOGroup::save_control(const std::string &save_path)
+{
+
+}
+
 void AliceIOGroup::restore_control(void)
+{
+
+}
+
+void AliceIOGroup::restore_control(const std::string &save_path)
 {
 
 }
