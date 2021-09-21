@@ -48,6 +48,7 @@ usage(){
     echo "    GEOPM_BASE_CONFIG_OPTIONS : Configure options only applicable to the base build."
     echo "    GEOPM_SERVICE_CONFIG_OPTIONS : Configure options only applicable to the service build."
     echo "        Ensure quotes are used when specifying multiple options.  See examples below."
+    echo "    GEOPM_OBJDIR: Build time objects go here (e.g. Makefile, processed .in files)."
     echo "    GEOPM_NUM_THREADS : The number of threads to use when running make (default: 9)."
     echo "    GEOPM_RUN_TESTS : Set to enable running of unit tests."
     echo "    GEOPM_SKIP_INSTALL : Set to skip \"make install\"."
@@ -64,6 +65,7 @@ if [[ ${1} == '--help' ]]; then
 fi
 
 GEOPM_SOURCE=${GEOPM_SOURCE:-${PWD}}
+GEOPM_OBJDIR=${GEOPM_OBJDIR:-.}
 cd ${GEOPM_SOURCE}
 BUILD_ENV="integration/config/build_env.sh"
 if [ ! -f "${BUILD_ENV}" ]; then
@@ -90,15 +92,16 @@ GEOPM_SERVICE_CONFIG_OPTIONS="${GEOPM_SERVICE_CONFIG_OPTIONS} ${GEOPM_GLOBAL_CON
 GEOPM_NUM_THREAD=${GEOPM_NUM_THREAD:-9}
 
 build(){
+    BUILDROOT=${PWD}
     if [ ! -f "configure" ]; then
         ./autogen.sh
     fi
 
-    mkdir -p build # Objects created at configure time will go here
-    cd build
+    mkdir -p ${GEOPM_OBJDIR} # Objects created at configure time will go here
+    cd ${GEOPM_OBJDIR}
 
     if [ ! -f "Makefile" ]; then
-        ../configure ${1}
+        ${BUILDROOT}/configure ${1}
     fi
     make -j${GEOPM_NUM_THREAD}
 
@@ -120,12 +123,12 @@ cd service
 CC=gcc CXX=g++ build "${GEOPM_SERVICE_CONFIG_OPTIONS}"
 
 # Run the base build
-cd ../.. # PWD here is service/build
+cd ${GEOPM_SOURCE}
 if [ -z ${GEOPM_SKIP_INSTALL+x} ]; then
     build "--with-geopmd=${GEOPM_INSTALL} ${GEOPM_BASE_CONFIG_OPTIONS}"
 else
-    build "--with-geopmd-lib=../service/build/.libs \
-           --with-geopmd-include=../service/src \
+    build "--with-geopmd-lib=service/${GEOPM_OBJDIR}/.libs \
+           --with-geopmd-include=service/src \
            ${GEOPM_BASE_CONFIG_OPTIONS}"
 fi
 
