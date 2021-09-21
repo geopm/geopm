@@ -72,7 +72,10 @@ ln -s $temp_dir $LINK_DIR
 unset GEOPM_INSTALL GEOPM_LAUNCHER GEOPM_BIN GEOPM_INC GEOPM_LIB GEOPM_CFLAGS GEOPM_LDFLAGS
 destdir=$temp_dir/build
 prefix=$(get_config prefix)
-cd $SRC_BASE_DIR
+cd $SRC_BASE_DIR/service
+DESTDIR=$destdir make install
+make dist
+cd ..
 DESTDIR=$destdir make install
 make dist
 
