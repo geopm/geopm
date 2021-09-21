@@ -18,6 +18,11 @@ examples/custom_msr/msr_reasons.json
 examples/hacc/README
 examples/qbox/README
 examples/README.md
+.github/ISSUE_TEMPLATE/bug_report.md
+.github/ISSUE_TEMPLATE/feature_request.md
+.github/ISSUE_TEMPLATE/story.md
+.github/ISSUE_TEMPLATE/task.md
+.github/ISSUE_TEMPLATE/tech_debt.md
 .gitignore
 integration/apps/amg/README.md
 integration/apps/arithmetic_intensity/README.md
