@@ -54,10 +54,11 @@ if [ ! "$GEOPM_BIN" ]; then
     GEOPM_BIN=$GEOPM_INSTALL/bin
 fi
 
-# GEOPM_LIB: Directory containing libgeopm.so.
+# GEOPM_LIB: Directory containing libgeopm.so, libgeopmd.so, etc.
 if [ ! "$GEOPM_LIB" ]; then
     GEOPM_LIB=$GEOPM_INSTALL/lib
 fi
+LD_LIBRARY_PATH=${GEOPM_LIB}:${LD_LIBRARY_PATH}
 
 # GEOPMPY_PKGDIR: Directory containing geopmpy packages.
 if [ ! "$GEOPMPY_PKGDIR" ]; then
