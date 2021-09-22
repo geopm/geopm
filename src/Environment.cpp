@@ -143,7 +143,6 @@ namespace geopm
                 "GEOPM_TRACE_SIGNALS",
                 "GEOPM_TRACE_PROFILE",
                 "GEOPM_TRACE_ENDPOINT_POLICY",
-                "GEOPM_PLUGIN_PATH",
                 "GEOPM_TIMEOUT",
                 "GEOPM_DEBUG_ATTACH",
                 "GEOPM_PROFILE",
@@ -287,11 +286,6 @@ namespace geopm
     std::string EnvironmentImp::frequency_map(void) const
     {
         return lookup("GEOPM_FREQUENCY_MAP");
-    }
-
-    std::string EnvironmentImp::plugin_path(void) const
-    {
-        return lookup("GEOPM_PLUGIN_PATH");
     }
 
     std::string EnvironmentImp::trace_signals(void) const

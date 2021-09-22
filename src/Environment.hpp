@@ -54,7 +54,6 @@ namespace geopm
             virtual std::string trace(void) const = 0;
             virtual std::string trace_profile(void) const = 0;
             virtual std::string trace_endpoint_policy(void) const = 0;
-            virtual std::string plugin_path(void) const = 0;
             virtual std::string profile(void) const = 0;
             virtual std::string frequency_map(void) const = 0;
             virtual std::string agent(void) const = 0;
@@ -94,7 +93,6 @@ namespace geopm
             std::string trace(void) const override;
             std::string trace_profile(void) const override;
             std::string trace_endpoint_policy(void) const override;
-            std::string plugin_path(void) const override;
             std::string profile(void) const override;
             std::string frequency_map(void) const override;
             std::string agent(void) const override;
