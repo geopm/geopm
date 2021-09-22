@@ -37,6 +37,7 @@
 #include <dirent.h>
 #include <string.h>
 #include <errno.h>
+#include <stdlib.h>
 
 #include <cmath>
 #include <climits>
@@ -277,5 +278,15 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return result->second;
+    }
+
+    std::string get_env(const std::string &name)
+    {
+        std::string env_string;
+        char *check_string = getenv(name.c_str());
+        if (check_string != NULL) {
+            env_string = check_string;
+        }
+        return env_string;
     }
 }

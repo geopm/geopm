@@ -37,6 +37,7 @@
 #include <map>
 #include <memory>
 #include <functional>
+#include <string>
 
 #include "geopm/json11.hpp"
 
