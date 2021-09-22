@@ -12,10 +12,8 @@ GEOPM Service Documentation
    build
    admin
    client
-   runtime
    contrib
    devel
-   analysis
    info
    reference
 
