@@ -32,7 +32,7 @@
 # GLOBAL SETTINGS
 ACLOCAL_AMFLAGS = -I m4
 AM_CPPFLAGS += -I$(top_srcdir)/src \
-               -DGEOPM_DEFAULT_PLUGIN_PATH=\"$(pkglibdir)\" \
+               -DGEOPM_DEFAULT_PLUGIN_PATH=\"$(libdir)/geopm\" \
                -D_POSIX_C_SOURCE=200809L
 
 # THINGS THAT ARE INSTALLED
