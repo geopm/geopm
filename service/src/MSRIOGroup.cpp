@@ -34,6 +34,7 @@
 
 #include "geopm/MSRIOGroup.hpp"
 
+#include <stdlib.h>
 #include <cpuid.h>
 #include <cmath>
 #include <sstream>
@@ -927,7 +928,12 @@ namespace geopm
     {
         std::set<std::string> data_files;
         // search path for additional json files to parse
+        std::string env_plugin_path(geopm::get_env("GEOPM_PLUGIN_PATH"));
         std::vector<std::string> plugin_paths {GEOPM_DEFAULT_PLUGIN_PATH};
+        if (!env_plugin_path.empty()) {
+            std::vector<std::string> dirs = string_split(env_plugin_path, ":");
+            plugin_paths.insert(plugin_paths.end(), dirs.begin(), dirs.end());
+        }
         std::vector<std::unique_ptr<MSR> > msr_arr_custom;
         for (const auto &dir : plugin_paths) {
             auto files = list_directory_files(dir);
