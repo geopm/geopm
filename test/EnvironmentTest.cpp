@@ -106,7 +106,6 @@ void EnvironmentTest::expect_vars(std::map<std::string, std::string> exp_vars) c
     EXPECT_EQ(exp_vars["GEOPM_SHMKEY"], m_env->shmkey());
     EXPECT_EQ(exp_vars["GEOPM_TRACE"], m_env->trace());
     EXPECT_EQ(exp_vars["GEOPM_TRACE_PROFILE"], m_env->trace_profile());
-    EXPECT_EQ(exp_vars["GEOPM_PLUGIN_PATH"], m_env->plugin_path());
     EXPECT_EQ(exp_vars["GEOPM_PROFILE"], m_env->profile());
     EXPECT_EQ(exp_vars["GEOPM_FREQUENCY_MAP"], m_env->frequency_map());
     auto it = m_pmpi_ctl_map.find(exp_vars["GEOPM_CTL"]);
@@ -133,7 +132,6 @@ void EnvironmentTest::SetUp()
               {"GEOPM_AGENT", "agent-test_value"},
               {"GEOPM_TRACE", "trace-test_value"},
               {"GEOPM_TRACE_PROFILE", "trace-profile-test_value"},
-              {"GEOPM_PLUGIN_PATH", "plugin_path-test_value"},
               {"GEOPM_FREQUENCY_MAP", "hash:freq,hash:freq,hash:freq"},
               {"GEOPM_MAX_FAN_OUT", "16"},
               {"GEOPM_DEBUG_ATTACH", "1"},
@@ -257,7 +255,6 @@ TEST_F(EnvironmentTest, default_only)
               {"GEOPM_SHMKEY", "default-shmkey-test_value"},
               {"GEOPM_TRACE", "default-trace-test_value"},
               {"GEOPM_TRACE_PROFILE", "default-trace-profile-test_value"},
-              {"GEOPM_PLUGIN_PATH", "default-plugin_path-test_value"},
               {"GEOPM_PROFILE", "default-profile-test_value"},
               {"GEOPM_FREQUENCY_MAP", "default-hash:freq,hash:freq,hash:freq"},
               {"GEOPM_CTL", "pthread"},
@@ -286,7 +283,6 @@ TEST_F(EnvironmentTest, override_only)
               {"GEOPM_SHMKEY", "/override-shmkey-test_value"},
               {"GEOPM_TRACE", "override-trace-test_value"},
               {"GEOPM_TRACE_PROFILE", "override-trace-profile-test_value"},
-              {"GEOPM_PLUGIN_PATH", "override-plugin_path-test_value"},
               {"GEOPM_PROFILE", "override-profile-test_value"},
               {"GEOPM_FREQUENCY_MAP", "override-hash:freq,hash:freq,hash:freq"},
               {"GEOPM_CTL", "process"},
@@ -314,7 +310,6 @@ TEST_F(EnvironmentTest, default_and_override)
               {"GEOPM_SHMKEY", "default-shmkey-test_value"},
               {"GEOPM_TRACE", "default-trace-test_value"},
               {"GEOPM_TRACE_PROFILE", "default-trace-profile-test_value"},
-              {"GEOPM_PLUGIN_PATH", "default-plugin_path-test_value"},
               {"GEOPM_PROFILE", "default-profile-test_value"},
               {"GEOPM_FREQUENCY_MAP", "default-hash:freq,hash:freq,hash:freq"},
               {"GEOPM_CTL", "pthread"},
@@ -332,7 +327,6 @@ TEST_F(EnvironmentTest, default_and_override)
               {"GEOPM_SHMKEY", "/override-shmkey-test_value"},
               {"GEOPM_TRACE", "override-trace-test_value"},
               {"GEOPM_TRACE_PROFILE", "override-trace-profile-test_value"},
-              {"GEOPM_PLUGIN_PATH", "override-plugin_path-test_value"},
               {"GEOPM_PROFILE", "override-profile-test_value"},
               {"GEOPM_FREQUENCY_MAP", "override-hash:freq,hash:freq,hash:freq"},
               {"GEOPM_CTL", "process"},
@@ -368,7 +362,6 @@ TEST_F(EnvironmentTest, user_default_and_override)
     std::map<std::string, std::string> override_vars = {
               {"GEOPM_COMM", "override-comm-test_value"},
               {"GEOPM_AGENT", "override-agent-test_value"},
-              {"GEOPM_PLUGIN_PATH", "override-plugin_path-test_value"},
               {"GEOPM_CTL", "process"},
     };
     for (const auto &kv : m_user) {
@@ -388,7 +381,6 @@ TEST_F(EnvironmentTest, user_default_and_override)
         {"GEOPM_SHMKEY", internal_default_vars["GEOPM_SHMKEY"]},
         {"GEOPM_TRACE", m_user["GEOPM_TRACE"]},
         {"GEOPM_TRACE_PROFILE", m_user["GEOPM_TRACE_PROFILE"]},
-        {"GEOPM_PLUGIN_PATH", override_vars["GEOPM_PLUGIN_PATH"]},
         {"GEOPM_PROFILE", std::string(program_invocation_name)},
         {"GEOPM_FREQUENCY_MAP", m_user["GEOPM_FREQUENCY_MAP"]},
         {"GEOPM_CTL", override_vars["GEOPM_CTL"]},
