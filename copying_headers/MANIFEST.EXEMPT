@@ -1,7 +1,7 @@
 AUTHORS
 ChangeLog
 CODE_OF_CONDUCT.md
-CONTRIBUTING.md
+CONTRIBUTING.rst
 COPYING
 copying_headers/header.BSD3-intel
 copying_headers/header.BSD3-llnl
@@ -122,6 +122,7 @@ service/docs/source/analysis.rst
 service/docs/source/build.rst
 service/docs/source/client.rst
 service/docs/source/conf.py
+service/docs/source/contrib.rst
 service/docs/source/controls_SKX.rst
 service/docs/source/devel.rst
 service/docs/source/index.rst

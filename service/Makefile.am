@@ -116,7 +116,7 @@ EXTRA_DIST = .gitignore \
              geopm.service \
              AUTHORS \
              CODE_OF_CONDUCT.md \
-             CONTRIBUTING.md \
+             CONTRIBUTING.rst \
              COPYING \
              README.rst \
              VERSION \
