@@ -35,6 +35,7 @@ EXTRA_DIST += docs/geninfo.sh \
               docs/source/build.rst \
               docs/source/client.rst \
               docs/source/conf.py \
+              docs/source/contrib.rst \
               docs/source/controls_SKX.rst \
               docs/source/devel.rst \
               docs/source/index.rst \

@@ -214,7 +214,7 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              .gitignore \
              BLURB \
              CODE_OF_CONDUCT.md \
-             CONTRIBUTING.md \
+             CONTRIBUTING.rst \
              ChangeLog \
              MANIFEST \
              Makefile.am \
