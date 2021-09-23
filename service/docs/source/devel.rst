@@ -2,8 +2,8 @@
 Guide for GEOPM Developers
 ==========================
 
-These are instruction for a developer that would like to modify the
-source code in the geopm repository.
+These are instructions for a developer that would like to modify the
+source code in the GEOPM repository.
 
 
 Test Instructions
