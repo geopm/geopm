@@ -1,13 +1,13 @@
 %define pname geopm
 %define PNAME GEOPM
-%define install_prefix  /soft/perftools/%{pname}/%{pname}-%{version}
+%define install_prefix  /soft/perftools/%{pname}/%{pname}-%{version}-%{release}
 %define module_prefix   /soft/environment/modules/modulefiles/%{pname}
-%define module_name     %{version}
+%define module_name     %{version}-%{release}
 
 Name:          %{pname}
 Summary:       Global Extensible Open Power Manager
 Version:       @VERSION@
-Release:       1
+Release:       2
 License:       BSD-3-Clause
 Group:         System Environment/Libraries
 URL:           https://geopm.github.io
@@ -21,7 +21,6 @@ BuildRequires: python
 BuildRequires: python-devel
 BuildRequires: unzip
 BuildRequires: openssh
-BuildRequires: elfutils-libelf-devel
 
 %description
 @BLURB@
@@ -43,14 +42,16 @@ CXXFLAGS='-xCORE-AVX2' \
 FCFLAGS='-dynamic -xCORE-AVX2' \
 FFLAGS='-dynamic -xCORE-AVX2' \
 ./configure --prefix=%{install_prefix} \
-            --with-python=%{__python2} \
+            --with-python=%{__python3} \
             || ( cat config.log && false )
-%{__make}
+%{__make} -j16
 
 
 %install
-pip install --ignore-installed --target=%{buildroot}/%{install_prefix}/lib/python%{python_version}/site-packages \
+module swap PrgEnv-intel PrgEnv-gnu
+%{__python3} -m pip install --ignore-installed --target=%{buildroot}/%{install_prefix}/lib/python%{python_version}/site-packages \
             -r ./scripts/requirements.txt
+module swap PrgEnv-gnu PrgEnv-intel
 %{__make} DESTDIR=%{buildroot} install
 rm -f $(find %{buildroot}/%{install_prefix} -name '*.a'; \
         find %{buildroot}/%{install_prefix} -name '*.la'; \
@@ -59,7 +60,7 @@ rm -f $(find %{buildroot}/%{install_prefix} -name '*.a'; \
 # Module file
 # OpenHPC module file
 %{__mkdir_p} %{buildroot}%{module_prefix}
-%{__cat} << EOF > %{buildroot}/%{module_prefix}/%{version}
+%{__cat} << EOF > %{buildroot}/%{module_prefix}/%{version}-%{release}
 #%Module1.0#####################################################################
 
 proc ModulesHelp { } {
@@ -67,11 +68,11 @@ proc ModulesHelp { } {
 puts stderr " "
 puts stderr "This module loads the %{pname} package built with the intel compiler"
 puts stderr "toolchain and the cray mpich MPI stack."
-puts stderr "\nVersion %{version}\n"
+puts stderr "\nVersion %{version}-%{release}\n"
 
 }
 module-whatis "Name: %{pname}"
-module-whatis "Version: %{version}"
+module-whatis "Version: %{version}-%{release}"
 module-whatis "Category: perftools"
 module-whatis "Description: %{summary}"
 module-whatis "URL: %{url}"
@@ -79,8 +80,6 @@ module-whatis "ALCF Theta tutorial: https://github.com/geopm/theta-tutorial"
 module-whatis "ALCF Theta guide: https://github.com/geopm/theta-tutorial/blob/master/QUICKSTART.md"
 
 conflict "darshan"
-
-set     version             %{version}
 
 prepend-path    PATH                    %{install_prefix}/bin
 prepend-path    PYTHONPATH              %{install_prefix}/lib/python%{python_version}/site-packages
