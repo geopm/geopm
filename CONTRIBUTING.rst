@@ -11,7 +11,7 @@ Bug Report
 
 Please file an issue on our GitHub site for any bug observed:
 
-https://github.com/geopm/geopm/issues
+https://github.com/geopm/geopm/issues/new/choose
 
 and select the "Bug report" template.
 
@@ -24,13 +24,6 @@ the command
 .. code-block::
 
    geopmread --version
-
-
-or
-
-.. code-block::
-
-   geopmagent --version
 
 
 Providing code that is small and reproduces the issue is nice to have.
@@ -67,11 +60,33 @@ message is appreciated, but not required.  All pull requests to the
 geopm/geopm repository on GitHub will automatically be submitted to
 GitHub Actions for unit testing.
 
+Making a pull request is a step in a process.  The first step in this
+process is creating an issue from one the "Bug report", "Feature
+request", or "Story" templates.  This step identifies the high level
+goal for one or more changes to the repository.
+
+Each change to the repository is identified with an issue created
+using one of the issues templates that begins "Change - ".  The
+"Change" issue should reference the "Bug report," "Feature request,"
+or "Story" that the change relates to.  This is done with a "Relates
+to #XXXX" note in the issue description.
+
+Each pull request will close a "Change" issue by filling in the "Fixes
+#XXXX" notation in the pull request template, it may also close the
+high level issue, if this is the last required change to fix the bug,
+complete the feature, or accomplish the story described in the high
+level issue.  Note that the requirements for the pull request should
+be documented in the "Change" issue, not in the pull request itself.
+
+The link for creating an issue is here:
+
+https://github.com/geopm/geopm/issues/new/choose
+
 The link for creating a pull request is here:
 
 https://github.com/geopm/geopm/pulls
 
-and the link to the results of the unit testing can be found under the
+The link to the results of the unit testing can be found under the
 actions tab on the GEOPM GitHub webpage:
 
 https://github.com/geopm/geopm/actions
@@ -89,7 +104,8 @@ is as follows:
 
 #.
    An issue has been created about the problem that the pull request
-   is solving.
+   is solving.  Note that most PRs that change source code refer to
+   an issue created with one of the "Change - " templates.
 
 #.
    Author creates a branch reflecting the issue number,
@@ -109,12 +125,8 @@ is as follows:
    may be helpful when editing the pull request text.
 
 #.
-   The author will edit the pull request template to include only one
-   of the ``<details>`` sections.  Each section applies to a category
-   of change.  Select the category that best fits the change you are
-   making and delete all other details sections from the template.
-   Make sure all check boxes are marked and all bracketed text is
-   filled in for what remains of the template.
+   Check that all of the requirements in the issue referenced by the
+   PR have been met.
 
 #.
    The submitter may optionally request specific people to be

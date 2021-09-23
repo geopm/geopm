@@ -7,13 +7,22 @@ assignees: ''
 
 ---
 **What problem does the story solve? Please describe.**
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+A clear and concise description of what the problem is. Ex. I'm always
+frustrated when [...]
 
 **Describe the tasks that will be required to complete the story**
 A clear and concise description of the steps to solve the problem.
 
 **Describe alternatives you've considered**
-A clear and concise description of any alternative solutions or features you've considered.
+A clear and concise description of any alternative solutions or
+features you've considered.
 
 **Additional context**
-Add any other context about the story here.
+Add any other context about the story here (e.g. links to feature
+request, bug report or related issues).
+
+_Note_:
+
+This template is primarily used by the GEOPM maintainers for sprint
+planning.  Planning is done using the github Milestones for the GEOPM
+repository.
