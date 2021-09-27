@@ -62,6 +62,18 @@ fi
 [enable_debug="0"]
 )
 
+AC_ARG_ENABLE([coverage],
+  [AS_HELP_STRING([--enable-coverage], [Build with test coverage support and enable debug])],
+[if test "x$enable_coverage" = "xno" ; then
+  enable_coverage="0"
+else
+  enable_coverage="1"
+  enable_debug="1"
+fi
+],
+[enable_coverage="0"]
+)
+
 AC_ARG_ENABLE([systemd],
   [AS_HELP_STRING([--disable-systemd], [Disable the use of the sd_bus interface of libsystemd to support the ServiceIOGroup])],
 [if test "x$enable_systemd" = "xno" ; then
@@ -127,6 +139,14 @@ if test "x$enable_debug" = "x1" ; then
   CXXFLAGS="$CXXFLAGS -O0 -g"
 fi
 AC_SUBST([enable_debug])
+
+if test "x$enable_coverage" = "x1" ; then
+  AC_DEFINE([GEOPM_COVERAGE], [ ], [Enables test coverage reporting])
+  EXTRA_CFLAGS="$EXTRA_CFLAGS --coverage"
+  EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS --coverage"
+  EXTRA_LDFLAGS="$EXTRA_LDFLAGS --coverage -lgcov"
+fi
+AC_SUBST([enable_coverage])
 
 if test "x$enable_nvml" = "x1" ; then
   ENABLE_NVML=True
@@ -329,6 +349,7 @@ AC_MSG_RESULT([mandir             : ${mandir}])
 AC_MSG_RESULT([GEOPM_CONFIG_PATH  : ${GEOPM_CONFIG_PATH}])
 AC_MSG_RESULT([])
 AC_MSG_RESULT([debug              : ${enable_debug}])
+AC_MSG_RESULT([coverage           : ${enable_coverage}])
 AC_MSG_RESULT([nvml               : ${enable_nvml}])
 AC_MSG_RESULT([levelzero          : ${enable_levelzero}])
 AC_MSG_RESULT([===============================================================================])
