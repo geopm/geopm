@@ -94,8 +94,10 @@ start_service() {
 remove_service() {
     systemctl stop geopm ||
         echo "Warning: Failed to stop geopm service" 1>&2
-    ${PKG_REMOVE} geopm-service python3-geopmdpy ||
-        echo "Warning: Failed to remove geopm service packages" 1>&2
+    for pkg in python3-geopmdpy geopm-service-devel geopm-service; do
+        ${PKG_REMOVE} $pkg ||
+            echo "Warning: Failed to remove geopm service package: $pkg" 1>&2
+    done
 }
 
 if [[ $# -lt 1 ]] || [[ $1 == '--help' ]]; then
