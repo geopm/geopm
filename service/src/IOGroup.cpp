@@ -31,8 +31,11 @@
  */
 #include "config.h"
 
+#include <unistd.h>
+
 #include <functional>
 #include <mutex>
+
 
 #include "geopm/IOGroup.hpp"
 
@@ -98,9 +101,9 @@ namespace geopm
 
     IOGroupFactory::IOGroupFactory()
     {
-        // Unless compiling for geopmd add the ServiceIOGroup which
-        // will go through D-Bus to access geopmd.  Note this IOGroup
-        // is loaded first and provides all signals and controls
+        // Unless running as root add the ServiceIOGroup which will go
+        // through D-Bus to access geopmd.  Note this IOGroup is
+        // loaded first and provides all signals and controls
         // available from geopmd.  Any signal or control available
         // without using the service will be used preferentially
         // because this IOGroup is loaded first.  Also note that
@@ -109,8 +112,10 @@ namespace geopm
         // service is not active then loading the ServiceIOGroup will
         // fail.
 #ifdef GEOPM_ENABLE_SYSTEMD
-        register_plugin(ServiceIOGroup::plugin_name(),
-                        ServiceIOGroup::make_plugin);
+        if (getuid() != 0) {
+            register_plugin(ServiceIOGroup::plugin_name(),
+                            ServiceIOGroup::make_plugin);
+        }
 #endif
         register_plugin(MSRIOGroup::plugin_name(),
                         MSRIOGroup::make_plugin);
