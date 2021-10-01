@@ -153,6 +153,8 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/DifferenceSignal.cpp \
                        src/DifferenceSignal.hpp \
                        src/DCGMDevicePool.hpp \
+                       src/DCGMIOGroup.hpp \
+                       src/DCGMIOGroup.cpp \
                        src/DomainControl.cpp \
                        src/DomainControl.hpp \
                        src/Exception.cpp \
