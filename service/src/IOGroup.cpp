@@ -51,6 +51,9 @@
 #ifdef GEOPM_CNL_IOGROUP
 #include "CNLIOGroup.hpp"
 #endif
+#ifdef GEOPM_ENABLE_DCGM
+#include "DCGMIOGroup.hpp"
+#endif
 #ifdef GEOPM_ENABLE_NVML
 #include "NVMLIOGroup.hpp"
 #endif
@@ -128,6 +131,10 @@ namespace geopm
 #ifdef GEOPM_CNL_IOGROUP
         register_plugin(CNLIOGroup::plugin_name(),
                         CNLIOGroup::make_plugin);
+#endif
+#ifdef GEOPM_ENABLE_DCGM
+        register_plugin(DCGMIOGroup::plugin_name(),
+                        DCGMIOGroup::make_plugin);
 #endif
 #ifdef GEOPM_ENABLE_NVML
         register_plugin(NVMLIOGroup::plugin_name(),
