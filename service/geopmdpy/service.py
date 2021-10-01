@@ -103,8 +103,10 @@ class PlatformService(object):
         if os.path.isdir(group_dir):
             path = os.path.join(group_dir, 'allowed_signals')
             signals = self._read_allowed(path)
+            signals = self._filter_valid_signals(signals)
             path = os.path.join(group_dir, 'allowed_controls')
             controls = self._read_allowed(path)
+            controls = self._filter_valid_controls(controls)
         else:
             signals = []
             controls = []
@@ -185,6 +187,7 @@ class PlatformService(object):
             control_set.update(controls)
         signals = sorted(signal_set)
         controls = sorted(control_set)
+
         return signals, controls
 
     def get_all_access(self):
@@ -617,6 +620,16 @@ class PlatformService(object):
             if group not in self._ALL_GROUPS:
                 raise RuntimeError('Linux group is not defined: group = "{}"'.format(group))
         return group
+
+    def _filter_valid_signals(self, signals):
+        signals = set(signals)
+        all_signals = self._pio.signal_names()
+        return list(signals.intersection(all_signals))
+
+    def _filter_valid_controls(self, controls):
+        controls = set(controls)
+        all_controls = self._pio.control_names()
+        return list(controls.intersection(all_controls))
 
     def _validate_signals(self, signals):
         signals = set(signals)
