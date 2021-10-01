@@ -93,12 +93,14 @@ Development package for the GEOPM Service.
 
 %build
 ./autogen.sh
+CC=gcc CXX=g++ \
 ./configure --prefix=%{_prefix} --libdir=%{_libdir} --libexecdir=%{_libexecdir} \
             --includedir=%{_includedir} --sbindir=%{_sbindir} \
             --mandir=%{_mandir} --docdir=%{docdir} \
             --with-python=%{python_bin} \
             || ( cat config.log && false )
 
+CC=gcc CXX=g++ \
 %{__make} %{?_smp_mflags}
 
 %install
