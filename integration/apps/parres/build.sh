@@ -85,3 +85,12 @@ $nvcc_bin \
     --gpu-architecture=sm_70 \
     --expt-extended-lambda -g -O3 -std=c++14 \
     -L$cuda_lib -D_MWAITXINTRIN_H_INCLUDED -DPRKVERSION="2.16" dgemm-mpi-cublas.cu -lcublas $mpi_flags -o dgemm-mpi-cublas
+
+# Compile MPI version of nstream
+$nvcc_bin \
+    --compiler-bindir=$gcc_bindir \
+    --gpu-architecture=sm_70 \
+    --expt-extended-lambda -g -O3 -std=c++14 \
+    -L$cuda_lib \
+    -L$cuda_lib -D_MWAITXINTRIN_H_INCLUDED -DPRKVERSION="2.16" nstream-cublas.cu -lcublas $mpi_flags -o nstream-mpi-cublas
+
