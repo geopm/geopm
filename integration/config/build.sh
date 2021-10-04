@@ -128,7 +128,7 @@ build(){
 
 # Run the service build
 cd service
-CC=gcc CXX=g++ build "${GEOPM_SERVICE_CONFIG_OPTIONS}"
+CFLAGS= CXXFLAGS= CC=gcc CXX=g++ build "${GEOPM_SERVICE_CONFIG_OPTIONS}"
 
 # Run the base build
 cd ${GEOPM_SOURCE}

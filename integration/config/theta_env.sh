@@ -1,3 +1,5 @@
+#!/bin/bash
+#
 #  Copyright (c) 2015 - 2021, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -29,19 +31,28 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+# THETA BUILD ENVIRONMENT
+#
+# This script is intended to be sourced within an existing script or shell ONLY.
+# It is NOT intended to be ./ executed.
 
-EXTRA_DIST += integration/README.md \
-              integration/config/build.sh \
-              integration/config/build_env.sh \
-              integration/config/run_env.sh \
-              integration/config/dudley_env.sh \
-              integration/config/endeavor_env.sh \
-              integration/config/smng_env.sh \
-              integration/config/theta_env.sh \
-              integration/config/gnu_env.sh \
-              # end
+module unload darshan
 
-include integration/apps/Makefile.mk
-include integration/experiment/Makefile.mk
-include integration/test/Makefile.mk
-include integration/smoke/Makefile.mk
+export CC='cc -dynamic'
+export CXX='CC -dynamic'
+export MPICC='cc -dynamic'
+export MPICXX='CC -dynamic'
+export FC=ftn
+export F77=ftn
+export F90=ftn
+export MPIFORT=ftn
+export MPIFC=ftn
+export MPIF77=ftn
+export MPIF90=ftn
+
+AVX_FLAG='-xCORE-AVX2'
+export CFLAGS=${AVX_FLAG}
+export CXXFLAGS=${AVX_FLAG}
+export FCFLAGS="-dynamic ${AVX_FLAG}"
+export FFLAGS="-dynamic ${AVX_FLAG}"
+
