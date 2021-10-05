@@ -1,0 +1,31 @@
+From af18008f5e0f4acbd73f5d48e162bdc29653440e Mon Sep 17 00:00:00 2001
+From: "lowren.h.lawson@intel.com" <lowren.h.lawson@intel.com>
+Date: Tue, 5 Oct 2021 14:22:48 -0700
+Subject: [PATCH 3/3] Added transpose-cublas mpi init & finalize for GEOPM
+
+Signed-off-by: lowren.h.lawson@intel.com <lowren.h.lawson@intel.com>
+---
+ Cxx11/transpose-cublas.cu | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/Cxx11/transpose-cublas.cu b/Cxx11/transpose-cublas.cu
+index fd8f628a..c83c6952 100644
+--- a/Cxx11/transpose-cublas.cu
++++ b/Cxx11/transpose-cublas.cu
+@@ -55,11 +55,13 @@
+ 
+ #include "prk_util.h"
+ #include "prk_cuda.h"
++#include "prk_mpi.h"
+ 
+ #define CUBLAS_AXPY_BUG 1
+ 
+ int main(int argc, char * argv[])
+ {
++  prk::MPI::state mpi(&argc,&argv);
+   std::cout << "Parallel Research Kernels version " << PRKVERSION << std::endl;
+   std::cout << "C++11/CUBLAS Matrix transpose: B = A^T" << std::endl;
+ 
+-- 
+2.18.1
+
