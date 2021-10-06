@@ -45,7 +45,6 @@ EXTRA_DIST += docs/geninfo.sh \
               docs/source/requires.rst \
               docs/source/runtime.rst \
               docs/source/signals_SKX.rst \
-              docs/source/_static/.dirfile \
               # end
 
 docs: libgeopmd.la $(abs_srcdir)/geopmdpy/version.py

@@ -12,6 +12,7 @@ GEOPM Service Documentation
    build
    admin
    client
+   runtime
    contrib
    devel
    info

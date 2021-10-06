@@ -8,21 +8,26 @@ GEOPM - Global Extensible Open Power Manager
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 
 
-WEB PAGES
+Web Pages
 ---------
 https://geopm.github.io <br>
+https://geopm.github.io/geopmdpy/ <br>
 https://geopm.github.io/man/geopm.7.html <br>
 https://geopm.slack.com
 
-SUMMARY
+
+Summary
 -------
+
 The Global Extensible Open Power Manager (GEOPM) is a framework for
-exploring power and energy optimizations targeting high performance
-computing.
+exploring power and energy optimizations on heterogeneous platforms.
 
 With GEOPM you can:
 
-- Interact with hardware settings using a platform-agnostic interface
+- Interact with hardware settings and sensors using a
+  platform-agnostic interface
+- Restore changes to hardware settings when configuring process
+  terminates
 - Profile applications to study their power and energy behavior
 - Automatically detect MPI and OpenMP phases in an application
 - Optimize MPI applications to improve energy efficiency or reduce the
@@ -32,553 +37,90 @@ With GEOPM you can:
   plugin architecture
 
 
-DESCRIPTION
------------
-The GEOPM package provides many built-in features.  A
-simple use case is reading hardware counters and setting hardware
-controls with platform independant syntax using a command line tool on
-a particular compute node.  An advanced use case is dynamically
-coordinating hardware settings across all compute nodes used by an
-application in response to the application's behavior and requests
-from the resource manager.  The dynamic coordination is implemented as
-a hierarchical control system for scalable communication and
-decentralized control. The hierarchical control system can optimize
-for various objective functions including maximizing global
-application performance within a power bound or minimizing energy
-consumption with marginal degradation of application performance.  The
-root of the control hierarchy tree can communicate with the system
-resource manager to extend the hierarchy above the individual MPI
-application and enable the management of system power resources for
-multiple MPI jobs and multiple users by the system resource manager.
+Repository Organization
+-----------------------
 
-The GEOPM package provides two libraries: libgeopm for use with MPI
-applications, and libgeopmpolicy for use with applications that do not
-link to MPI.  There are several command line tools included in GEOPM
-which have dedicated manual pages.  The geopmlaunch(1) command line
-tool is used to launch an MPI application while enabling the GEOPM
-runtime to create a GEOPM Controller thread on each compute node.  The
-Controller loads plugins and executes the Agent algorithm to control
-the compute application.  The geopmlaunch(1) command is part of the
-geopmpy python package that is included in the GEOPM installation.
-See the GEOPM overview man page for further documentation and links:
-[geopm(7)](https://geopm.github.io/man/geopm.7.html).
+The GEOPM repository supports two software packages: the
+`geopm-service` package and the `geopm` package.  The `geopm-service`
+package provides a Linux systemd service.  The `geopm` package
+provides a runtime for distrubted HPC applications.
 
-The GEOPM runtime is extended through three plugin classes: Agent,
-IOGroup, and Comm.  New implementations of these classes can be
-dynamically loaded at runtime by the GEOPM Controller.  The Agent
-class defines which data are collected, how control decisions are
-made, and what messages are communicated between Agents in the tree
-hierarchy.  The reading of data and writing of controls from within a
-compute node is abstracted from the Agent through the PlatformIO
-interface.  This interface provides access to the IOGroup
-implementations that provide a variety of signals and controls.
-IOGroup plugins can be developed independently of the Agents to extend
-the read and write capabilities provided by GEOPM.  The PlatformIO
-abstraction enables Agent implementations to be ported to different
-hardware platforms without modification.  Messaging between Agents
-running on different compute nodes is encapsulated in the Comm class.
-New implementations of the Comm class make it possible to port
-inter-node communication used by the GEOPM runtime to different
-underlying communication protocols and hardware without modifying the
-Agent implementations.
+- A build of the `geopm-service` package is required to build and run
+  the `geopm` HPC runtime
 
-The libgeopm library can be called directly or indirectly within MPI
-applications to enable application feedback for informing the control
-decisions.  The indirect calls are facilitated by GEOPM's integration
-with MPI and OpenMP through their profiling decorators, and the direct
-calls are made through the geopm_prof_c(3) or geopm_fortran(3)
-interfaces.  Marking up a compute application with profiling
-information through these interfaces can enable better integration of
-the GEOPM runtime with the compute application and more precise
-control.
+- All `geopm-service` package features may be used independently of
+  the features provided by the `geopm` package
 
-TRAVIS CI
----------
-The GEOPM public GitHub project has been integrated with Travis
-continuous integration.
+- All run and build requirements of the `geopm-service` package are
+  provided by commony used Linux distributions
 
-http://travis-ci.org/geopm/geopm
+- The run and build requirements of the `geopm` package include
+  several additional HPC specific dependencies
 
-All pull requests will be built and tested automatically by Travis.
 
-INSTALL
--------
-The OpenHPC project provides the most robust way to install GEOPM.
+GEOPM Service
+-------------
 
-[OpenHPC](https://openhpc.community/)
+The files supporting the `geopm-service` package are all within the
+`service` subdirectory located in the root directory of the the GEOPM
+repository.  Please refer to the `service/README.rst` file for further
+documentation about the GEOPM Service.  Additionally a comprehensive
+overview of the GEOPM service is posted here:
 
-The GEOPM project was first packaged with OpenHPC version 1.3.6.  The
-OpenHPC install guide contains documentation on how to install GEOPM
-and its dependencies and can be found on the OpenHPC download page.
+https://geopm.github.io/geopmdpy/
 
-[OpenHPC Downloads](https://openhpc.community/downloads/)
 
-The OpenHPC packages are distributed from the OpenHPC OBS build server.
+GEOPM HPC Runtime
+-----------------
 
-[yum and zypper repositories](http://build.openhpc.community/OpenHPC:/1.3/updates/)
+The `geopm` package provides many built-in features.  An advanced use
+case is dynamically coordinating hardware settings across all compute
+nodes used by an distributed HPC application in response to the
+application's behavior and resource manager requests.  The dynamic
+coordination is implemented as a hierarchical control system for
+scalable communication and decentralized control. The hierarchical
+control system can optimize for various objective functions including
+maximizing global application performance within a power bound or
+minimizing energy consumption with marginal degradation of application
+performance.  The root of the control hierarchy tree can communicate
+with the system resource manager to extend the hierarchy above the
+individual MPI application and enable the management of system power
+resources for multiple MPI jobs and multiple users by the system
+resource manager.
 
-The OpenHPC project packages all of the dependencies required by GEOPM
-that are not part of a standard Linux distribution.  This includes the
-msr-safe kernel driver and MSR save/restore functionality built into
-the Slurm resource manager to enable robust reset of hardware controls
-when returning compute nodes to the general pool available to other
-users.
+More documentation on the GEOPM HPC Runtime is posted with our web
+documentation here:
 
-PYTHON INSTALL
---------------
-The GEOPM python tools are packaged in the RPMs described above, but
-the latest release is also available from PyPI as the `geopmpy`
-package.  For example, to install the geopmpy package into your home
-directory, run the following command:
+https://geopm.github.io/geopmdpy/runtime.html
 
-    python -m pip install --user geopmpy
 
-You may wish to install the latest development version of GEOPM as
-many of the features arriving in GEOPM v2.0 are not yet available from
-PyPI.  To install the latest development version of the `geopmpy`
-package directly from GitHub, run the following command:
+Guide for Contributors
+----------------------
 
-    python -m pip install --user "git+https://github.com/geopm/geopm.git@dev#egg=geopmpy&subdirectory=scripts"
+We appreciate all feedback on our project.  Please see our
+contributing guide for how some guidelines on how to participate.
+This guide is located in the root of the GEOPM repository in a file
+called `CONTRIBUTING.rst`.  This guide can also be viewed here:
 
-Note these commands only install the GEOPM Python tools and do not
-install the binaries required by the GEOPM runtime.  Without these binary files
-*only* the following modules will load successfully:
+https://geopm.github.io/geopmdpy/contrib.html
 
-    geopmpy.io
-    geopmpy.launcher
-    geopmpy.plotter
-    geopmpy.update_report
 
-All other modules rely on the output of the GEOPM build (namely
-libgeopmpolicy.so) being present and available in LD_LIBRARY_PATH or
-similar.
+Guide for GEOPM Developers
+--------------------------
 
-### Anaconda Usage
-To create an Anaconda environment that contains the `geopmpy` package,
-run the following commands:
+GEOPM is an open development project and we use Github to plan, review
+and test our work.  The proccess we follow is documented here:
 
-    conda init
-    conda activate # base env
-    conda create --name geopm
-    conda activate --stack geopm
-    conda install git pip # To ensure usage of the env's pip and not system pip
+https://geopm.github.io/geopmdpy/devel.html
 
-    python -m pip install "git+https://github.com/geopm/geopm.git@dev#egg=geopmpy&subdirectory=scripts"
+this web page provides a guide for developers wishing to modify source
+code anywhere in the GEOPM repository for both the `geopm-service` and
+the `geopm` packages.
 
-BUILD REQUIREMENTS
-------------------
-In order to build the GEOPM package from source, the below
-requirements must be met.  The user can opt out of the features
-enabled by any of these requirements by providing the appropriate
-disable flag to the configure command line.
 
-The GEOPM package requires a compiler that supports the MPI 2.2 and
-C++11 standards.  These requirements can be met by using GCC version
-4.7 or greater and installing the openmpi-devel package version 1.7 or
-greater on RHEL and SLES Linux, and libopenmpi-dev on Ubuntu.
-Documentation creation including man pages further requires the
-rubygems and ruby-devel package on RHEL and SLES, or ruby and ruby-dev on
-Ubuntu.
-
-RHEL:
-
-    yum install openmpi-devel elfutils-libelf-devel ruby-devel rubygems
-
-SUSE:
-
-    zypper install openmpi-devel elfutils-libelf-devel ruby-devel rubygems
-
-UBUNTU (as of 18.04.3 LTS):
-
-    apt install libtool automake libopenmpi-dev build-essential gfortran \
-        libelf-dev ruby ruby-dev python libsqlite3-dev
-
-Requirements that can be avoided by removing features with configure
-option:
-
-   - MPI compiler: --disable-mpi
-   - A Fortran compiler:  --disable-fortran
-   - The elfutils library: --disable-ompt
-
-Alternatively these can be installed from source, and an alternate MPI
-implementation to OpenMPI can be selected (e.g. the Intel distribution
-of MPI).  See
-
-    ./configure --help
-
-for details on how to use non-standard install locations for build
-requirements through the
-
-    ./configure --with-<feature>
-
-options.
-
-
-BUILD INSTRUCTIONS
-------------------
-The source code can be rebuilt from the source RPMs available from
-OpenHPC.  To build from the git repository follow the instructions
-below.
-
-If building with the Intel toolchain the following environment variables
-must be set prior to running configure:
-
-    export CC=icc
-    export CXX=icpc
-    export FC=ifort
-    export F77=ifort
-    export MPICC=mpiicc
-    export MPICXX=mpiicpc
-    export MPIFC=mpiifort
-    export MPIF77=mpiifort
-
-To build all targets and install it in a "build/geopm" subdirectory of your
-home directory run the following commands:
-
-    ./autogen.sh
-    ./configure --prefix=$HOME/build/geopm
-    make
-    make install
-
-An RPM can be created on a RHEL or SUSE system with the
-
-    make rpm
-
-target.  Note that the --with-mpi-bin option may be required to inform
-configure about the location of the MPI compiler wrappers.  The following
-command may be sufficient to determine the location:
-
-    dirname $(find /usr -name mpicc)
-
-To build in an environment without support for OpenMP (i.e. clang on Mac OS X)
-use the
-
-    ./configure --disable-openmp
-
-option.  The
-
-    ./configure --disable-mpi
-
-option can be used to build only targets which do not require MPI.  By default
-MPI targets are built.
-
-
-RUN REQUIREMENTS
-----------------
-We are targeting SLES12 and RHEL7 distributions for functional runtime
-support.  There is a single runtime requirement that can be obtained
-from these distributions for the OpenMPI implementation of MPI.  To install,
-follow the instructions below for your Linux distribution.
-
-RHEL:
-
-    yum install openmpi
-
-SUSE:
-
-    zypper install openmpi
-
-Alternatively the MPI requirement can be met by using OpenHPC
-packages.
-
-### BIOS Configuration
-If power governing or power balancing is the intended use case
-for GEOPM deployment then there is an additional dependency on
-the BIOS being configured to support RAPL control. To check for
-BIOS support, execute the following on a compute node:
-    ./tutorial/admin/00_test_prereqs.sh
-
-If the script output contains:
-    WARNING: The lock bit for the PKG_POWER_LIMIT MSR is set.  The power_balancer
-             and power_governor agents will not function properly until this is cleared.
-
-Please enable RAPL in your BIOS and if such an option doesn't exist please
-contact your BIOS vendor to obtain a RAPL supported BIOS.
-
-For additional information, please contact the GEOPM team.
-
-### USER ENVIRONMENT
-The libraries, binaries and python tools will not be installed into
-the standard system paths if GEOPM is built from source and configured
-with the `--prefix` option.  In this case, it is required that the
-user augment their environment to specify the installed location.  If
-the configure option is specified as above:
-
-    GEOPM_PREFIX=$HOME/build/geopm
-    ./configure --prefix=$GEOPM_PREFIX
-
-then the following modifications to the user's environment should be
-made prior to running any GEOPM tools:
-
-    export LD_LIBRARY_PATH=$GEOPM_PREFIX/lib:$LD_LIBRARY_PATH
-    export PATH=$GEOPM_PREFIX/bin:$PATH
-    export PYTHONPATH=$(ls -d $GEOPM_PREFIX/lib/python*/site-packages | tail -n1):$PYTHONPATH
-
-Use a PYTHONPATH that points to the site-packages created by the geopm build.
-The version created is for whichever version of python 3 was used in the
-configure step.  If a different version of python is desired, override the
-default with the --with-python option in the configure script.
-
-### SYSTEMD CONFIGURATION
-In order for GEOPM to properly use shared memory to communicate
-between the Controller and the application, it may be necessary to
-alter the configuration for systemd.  The default behavior of systemd
-is to clean-up all inter-process communication for non-system users.
-This causes issues with GEOPM's initialization routines for shared
-memory.  This can be disabled by ensuring that `RemoveIPC=no` is set
-in `/etc/systemd/logind.conf`.  Most Linux distributions change the
-default setting to disable this behavior.  More information can be
-found [here](https://superuser.com/a/1179962).
-
-### MSR DRIVER
-The msr-safe kernel driver must be loaded at runtime to support
-user-level read and write of the model specific registers (MSRs)
-configured by the allowed list.  The msr-safe kernel driver is
-distributed with OpenHPC and can be installed using the RPMs
-distributed there (see INSTALL section above).
-
-The source code for the driver can be found here at the link below.
-
-[msr-safe repo](https://github.com/scalability-llnl/msr-safe)
-
-Alternately, you can run GEOPM as root with the standard msr driver loaded:
-
-    modprobe msr
-
-### LINUX POWER MANAGEMENT
-Note that other Linux mechanisms for power management can interfere
-with GEOPM, and these must be disabled.  We suggest disabling the
-intel_pstate kernel driver by modifying the kernel command line
-through grub2 or the boot loader on your system by adding:
-
-    "intel_pstate=disable"
-
-The cpufreq driver will be enabled when the intel_pstate driver is
-disabled.  The cpufreq driver has several modes controlled by the
-scaling_governor sysfs entry.  When the performance mode is selected,
-the driver will not interfere with GEOPM.  For SLURM based systems the
-[GEOPM launch wrappers](#geopm-mpi-launch-wrapper) will attempt to set
-the scaling governor to "performance".  This alleviates the need to
-manually set the governor.  Older versions of SLURM require the
-desired governors to be explicitly listed in /etc/slurm.conf.  In
-particular, SLURM 15.x requires the following option:
-
-    CpuFreqGovernors=OnDemand,Performance
-
-More information on the slurm.conf file can be found
-[here](https://slurm.schedmd.com/slurm.conf.html).
-Non-SLURM systems must still set the scaling governor through some
-other mechanism to ensure proper GEOPM behavior.  The following
-command will set the governor to performance:
-
-    echo performance | tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor
-
-See kernel documentation
-[here](https://www.kernel.org/doc/Documentation/cpu-freq/governors.txt)
-for more information.
-
-### GEOPM APPLICATION LAUNCH WRAPPER
-The GEOPM package installs the command, "geopmlaunch".  This is a
-wrapper for the MPI launch commands like "srun", "aprun", and
-"mpiexec" where the wrapper script enables the GEOPM runtime.  The
-"geopmlaunch" command supports exactly the same command line interface
-as the underlying launch command, but the wrapper extends the
-interface with GEOPM specific options.  The "geopmlaunch" application
-launches the primary compute application and the GEOPM control thread
-on each compute node and manages the CPU affinity requirements for all
-processes.  The wrapper is documented in the geopmlaunch(1) man page.
-
-There are several underlying MPI application launchers that
-"geopmlaunch" wrapper supports.  See the geopmlaunch(1) man page for
-information on available launchers and how to select them.  If the
-launch mechanism for your system is not supported, then affinity
-requirements must be enforced by the user and all options to the GEOPM
-runtime must be passed through environment variables.  Please consult
-the geopm(7) man page for documentation of the environment variables
-used by the GEOPM runtime that are otherwise controlled by the wrapper
-script.
-
-### CPU AFFINITY REQUIREMENTS
-The GEOPM runtime requires that each MPI process of the application
-under control is affinitized to distinct CPUs.  This is a strict
-requirement for the runtime and must be enforced by the MPI launch
-command.  When using the geopmlaunch wrapper described in the previous
-section, these affinity requirements are handled by geopmlaunch unless
-the --geopm-affinity-disable command line option is provided (see
-geopmlaunch(1)).
-
-While the GEOPM control thread connects to the application it will
-automatically affinitize itself to the highest indexed core not used
-by the application if the application is not affinitized to a CPU on
-every core.  In the case were the application is utilizing all cores
-of the system, the GEOPM control thread will be pinned to the highest
-logical CPU.
-
-There are many ways to launch an MPI application, and there is no
-single uniform way of enforcing MPI rank CPU affinities across
-different job launch mechanisms.  Additionally, OpenMP runtimes, which
-are associated with the compiler choice, have different mechanisms for
-affinitizing OpenMP threads within CPUs available to each MPI process.
-To complicate things further the GEOPM control thread can be launched
-as an application thread or a process that may be part of the primary
-MPI application or a completely separate MPI application.  For these
-reasons it is difficult to document how to correctly affinitize
-processes in all configurations.  Please refer to your site
-documentation about CPU affinity for the best solution on the system
-you are using and consider extending the geopmlaunch wrapper to
-support your system configuration (please see the CONTRIBUTING.md file
-for information about how to share these implementation with the
-community).
-
-TESTING
--------
-From within the source code directory, unit tests can be executed with
-the "make check" target.  The unit tests can be built without executing
-them with the "make checkprogs" target.  A typical parallel build and
-test cyle is executed with the following commands:
-
-    make -j
-    make checkprogs -j
-    make check
-
-The unit tests can be executed on any development system, including
-VMs and containers, that meets the BUILD REQUIREMENTS section above.
-
-The integration tests are located in the "integration/test" directory.
-These tests require a system meeting all of the requirements discussed
-in the RUN REQUIREMENTS section above.  The following script can be used
-to compile the GEOPM source, install into a specified location and execute
-the integration scripts in a work directory.
-
-    ##### USER SPECIFIC #####
-    # Set the location of the GEOPM source tree
-    export GEOPM_SOURCE=${HOME}/Git/geopm
-    # Set the install prefix for the geopm build
-    export GEOPM_INSTALL=${HOME}/build/geopm
-    # Set a place to locate the output of the tests
-    export GEOPM_WORKDIR=${HOME}/geopm_test
-    #####   ALL USERS   #####
-    # Execute out-of-place build and install using build script in base dir
-    ${GEOPM_SOURCE}/build.sh
-    # Set up run environment to use installed GEOPM
-    source $GEOPM_SOURCE/integration/config/run_env.sh
-    # Create a directory for output
-    mkdir -p $GEOPM_WORKDIR
-    cd $GEOPM_WORKDIR
-    # Run the integration tests
-    python3 $GEOPM_SOURCE/integration/test
-
-These integration tests are based on pyunit and leverage the geopmpy
-python package to validate the runtime.  Please report failures of
-these tests as issues.
-
-Note that if the `GEOPM_SKIP_COMPILER_CHECK` environment variable is
-set when `${GEOPM_SOURCE}/build.sh` is called, then the check to
-verify that the Intel compilers are used will be bypassed.  This can
-be useful for performing builds with the GNU toolchain.
-
-RESOURCE MANAGER INTEGRATION
-----------------------------
-The GEOPM package can be integrated with a compute cluster resource
-manager by modifying the resource manager daemon running on the
-cluster compute nodes.  An example of integration with the SLURM
-resource manager via a SPANK plugin can be found here:
-
-https://github.com/geopm/geopm-slurm
-
-and the implementation reflects what is documented below.
-
-Integration is achieved by modifying the daemon to make two
-libgeopmpolicy.so function calls prior to releasing resources to the
-user (prologue), and one call after the resources have been reclaimed
-from the user (epilogue).  In the prologue, the resource manager
-compute node daemon calls:
-
-    geopm_pio_save_control()
-
-which records into memory the value of all controls that can be
-written through GEOPM (see geopm_pio_c(3)).  The second call made in
-the prologue is:
-
-    geopm_agent_enforce_policy()
-
-and this call (see geopm_agent_c(3)) enforces the configured policy
-such as a power cap or a limit on CPU frequency by a one time
-adjustment of hardware settings.  In the epilogue, the resource
-manager calls:
-
-    geopm_pio_restore_control()
-
-which will set all GEOPM platform controls back to the values read in
-the prologue.
-
-The configuration of the policy enforced in the prologue is controlled
-by the two files:
-
-    /etc/geopm/environment-default.json
-    /etc/geopm/environment-override.json
-
-which are JSON objects mapping GEOPM environment variable strings to
-string values.  The default configuration file controls values used
-when a GEOPM variable is not set in the calling environment.  The
-override configuration file enforces values for GEOPM variables
-regardless of what is specified in the calling environment.  The list
-of all GEOPM environment variables can be found in the geopm(7) man
-page.  The two GEOPM environment variables used by
-geopm_agent_enforce_policy() are "GEOPM_AGENT" and "GEOPM_POLICY".
-Note that it is expected that /etc is mounted on a node-local file
-system, so the geopm configuration files are typically part of the
-compute node boot image.  Also note that the "GEOPM_POLICY" value
-specifies a path to another JSON file which may be located on a
-shared file system, and this second file controls the values enforced
-(e.g. power cap value in Watts, or CPU frequency value in Hz).
-
-When configuring a cluster to use GEOPM as the site-wide power
-management solution, it is expected that one agent algorithm with one
-policy will be applied to all compute nodes within a queue partition.
-The system administrator selects the agent based on the site
-requirements.  If the site requires that the average CPU power draw
-per compute node remains under a cap across the system, then they
-would choose the power_balancer agent (see
-geopm_agent_power_balancer(7)).  If saving as much energy as possible
-with a limited impact on performance is the site requirement, then the
-energy_efficient agent would be selected (see
-geopm_agent_energy_efficient(7)).  If the site would like to restrict
-applications to run below a particular CPU frequency unless they are
-executing a high priority optimized subroutine that has been granted
-permission by the site administration to run at an elevated CPU
-frequency, they would choose the frequency_map agent (see
-geopm_agent_frequency_map(7)).  There is also the option for a site
-specific custom agent plugin to be deployed.  In all of these use
-cases, calling geopm_agent_enforce_policy() prior to releasing compute
-node resources to the end user will enforce static limits to power or
-CPU frequency, and these will impact all user applications.  In order
-to leverage the dynamic runtime features of GEOPM, the user must
-opt-in by launching their MPI application with the geopmlaunch(1)
-command line tool.
-
-The following example shows how a system administrator would configure
-a system to use the power_balancer agent.  This use case will enforce
-a static power limit for applications which do not use geopmlaunch(),
-and will optimize power limits to balance performance when
-geopmlaunch() is used.  First, the system administrator creates the
-following JSON object in the boot image of the compute node in the
-path "/etc/geopm/environment-override.json":
-
-    {"GEOPM_AGENT": "power_balancer",
-     "GEOPM_POLICY": "/shared_fs/config/geopm_power_balancer.json"}
-
-Note that the "POWER_PACKAGE_LIMIT_TOTAL" value controlling the limit
-is specified in a secondary JSON file "geopm_power_balancer.json" that
-may be located on a shared file system and can be created with the
-geopmagent(1) command line tool.  Locating the policy file on the
-shared file system enables the limit to be modified without changing
-the compute node boot image.  Changing the policy value will impact
-all subsequently launched GEOPM processes, but it will not change the
-behavior of already running GEOPM control processes.
-
-STATUS
+Status
 ------
+
 This software is production quality as of version 1.0.  We will be
 enforcing [semantic versioning](https://semver.org/) for all releases
 following version 1.0.  We are very interested in feedback from the
@@ -598,16 +140,20 @@ GEOPM with the `--enable-beta` configure flag.  The features currently
 considered unfinalized are the endpoint interface, the `geopmendpoint`
 application, and the `geopmplotter` application.
 
-DISCLAIMER
-----------
+
+License
+-------
+
+The GEOPM source code is distributed under the 3-clause BSD license.
+
 SEE COPYING FILE FOR LICENSE INFORMATION.
 
-LAST UPDATE
+Last Update
 -----------
-2020 September 25
+2021 September 24
 
 Christopher Cantalupo <christopher.m.cantalupo@intel.com> <br>
-Diana Guttman <diana.r.guttman@intel.com>
+Brad Geltz <brad.geltz@intel.com> <br>
 
 ACKNOWLEDGMENTS
 ---------------
