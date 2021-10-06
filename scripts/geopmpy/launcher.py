@@ -1630,7 +1630,7 @@ class AprunLauncher(Launcher):
             value = ':'.join((ll for ll in
                               ('libgeopm.so', os.getenv('LD_PRELOAD'))
                               if ll is not None))
-            result = ['-e',  "LD_PRELOAD='{}'".format(value)]
+            result = ['-e',  'LD_PRELOAD={}'.format(value)]
         return result
 
 
