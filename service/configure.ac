@@ -166,20 +166,20 @@ if test "x$enable_cnl_iogroup" = "x1" ; then
 fi
 AC_SUBST([enable_cnl_iogroup])
 
-AC_ARG_WITH([libnvml], [AS_HELP_STRING([--with-libnvml=PATH],
-            [specify directory for installed libnvml package.])])
-if test "x$with_libnvml" != x; then
-  EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$with_libnvml/include"
-  LD_LIBRARY_PATH="$with_libnvml/lib:$LD_LIBRARY_PATH"
-  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_libnvml/lib"
+AC_ARG_WITH([nvml], [AS_HELP_STRING([--with-nvml=PATH],
+            [specify directory for installed nvml package.])])
+if test "x$with_nvml" != x; then
+  EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$with_nvml/include"
+  LD_LIBRARY_PATH="$with_nvml/lib:$LD_LIBRARY_PATH"
+  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_nvml/lib"
 fi
 
-AC_ARG_WITH([liblevelzero], [AS_HELP_STRING([--with-liblevelzero=PATH],
-            [specify directory for installed liblevelzero package.])])
-if test "x$with_liblevelzero" != x; then
-  EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$with_liblevelzero/include/level_zero"
-  LD_LIBRARY_PATH="$with_liblevelzero/lib64:$LD_LIBRARY_PATH"
-  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_liblevelzero/lib64"
+AC_ARG_WITH([levelzero], [AS_HELP_STRING([--with-levelzero=PATH],
+            [specify directory for installed levelzero package.])])
+if test "x$with_levelzero" != x; then
+  EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$with_levelzero/include/level_zero"
+  LD_LIBRARY_PATH="$with_levelzero/lib64:$LD_LIBRARY_PATH"
+  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_levelzero/lib64"
 fi
 
 AC_CHECK_HEADER([nmmintrin.h], [AC_DEFINE([GEOPM_HAS_SSE42], [1], [nmmintrin.h is available])], [])
@@ -245,19 +245,19 @@ fi
 if test "x$enable_nvml" = "x1" ; then
     AC_SEARCH_LIBS([nvmlSystemGetCudaDriverVersion], [nvidia-ml])
     AC_CHECK_LIB([nvidia-ml], [nvmlSystemGetCudaDriverVersion], [], [
-        echo "missing libnvidia-ml: NVML library is required, use --with-libnvml to specify location"
+        echo "missing libnvidia-ml: NVML library is required, use --with-nvml to specify install prefix for NVML path"
         exit -1])
     AC_CHECK_HEADER([nvml.h], [], [
-        echo "missing nvml.h: NVML header is required, use --with-libnvml to specify location"
+        echo "missing nvml.h: NVML header is required, use --with-nvml to specify install prefix for NVML path"
         exit -1])
 else
     if test "x$enable_levelzero" = "x1" ; then
         AC_SEARCH_LIBS([zeInit], [ze_loader])
         AC_CHECK_LIB([ze_loader], [zeInit], [], [
-            echo "missing libze_loader: LevelZero library is required, use --with-liblevelzero to specify location"
+            echo "missing libze_loader: LevelZero library is required, use --with-levelzero to specify location"
             exit -1])
         AC_CHECK_HEADER([ze_api.h], [], [
-            echo "missing ze_api.h: LevelZero header is required, use --with-liblevelzero to specify location"
+            echo "missing ze_api.h: LevelZero header is required, use --with-levelzero to specify location"
             exit -1])
     fi
 fi
