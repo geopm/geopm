@@ -108,6 +108,14 @@ geopmdpy.access
    :undoc-members:
    :show-inheritance:
 
+geopmdpy.runtime
+----------------
+
+.. automodule:: geopmdpy.runtime
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 geopmdpy.error
 --------------
 

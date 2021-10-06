@@ -144,7 +144,6 @@ service/docs/source/reference.rst
 service/docs/source/requires.rst
 service/docs/source/runtime.rst
 service/docs/source/signals_SKX.rst
-service/docs/source/_static/.dirfile
 service/dox/blurb.md
 service/dox/Doxyfile.in
 service/.gitignore
