@@ -74,19 +74,27 @@ if [ ! -f "${BUILD_ENV}" ]; then
 fi
 source ${BUILD_ENV}
 
-# Clear out old builds
-if [ -d "${GEOPM_INSTALL}" ]; then
+# Check that GEOPM_INSTALL is defined unless we are skipping install
+# This check is redundant with the check that is in build_env.sh
+# that enforces GEOPM_INSTALL to be set.
+if [ -z "${GEOPM_INSTALL}" ] && [ -z "${GEOPM_SKIP_INSTALL+x}" ]; then
+    echo "Please define GEOPM_INSTALL or GEOPM_SKIP_INSTALL prior to using this script" 1>&2
+    exit 1
+fi
+
+# Clear out old builds unless we are skipping install
+if [ -d "${GEOPM_INSTALL}" ] && [ -z "${GEOPM_SKIP_INSTALL+x}" ]; then
     echo "Removing old build located at ${GEOPM_INSTALL}"
     rm -rf ${GEOPM_INSTALL}
 fi
 
-# e.g. To do a debug build, add --enable-debug to this env var
-GEOPM_GLOBAL_CONFIG_OPTIONS="${GEOPM_GLOBAL_CONFIG_OPTIONS} --prefix=${GEOPM_INSTALL}"
+# Append prefix to global config options unless skipping install
+if [ -z "${GEOPM_SKIP_INSTALL+x}" ]; then
+    GEOPM_GLOBAL_CONFIG_OPTIONS="${GEOPM_GLOBAL_CONFIG_OPTIONS} --prefix=${GEOPM_INSTALL}"
+fi
 
-# Set this variable to append configure options for base build
+# Combine global options with build specific options
 GEOPM_BASE_CONFIG_OPTIONS="${GEOPM_BASE_CONFIG_OPTIONS} ${GEOPM_GLOBAL_CONFIG_OPTIONS}"
-
-# Set this variable to append configure options for service build
 GEOPM_SERVICE_CONFIG_OPTIONS="${GEOPM_SERVICE_CONFIG_OPTIONS} ${GEOPM_GLOBAL_CONFIG_OPTIONS}"
 
 GEOPM_NUM_THREAD=${GEOPM_NUM_THREAD:-9}
@@ -131,4 +139,3 @@ else
            --with-geopmd-include=service/src \
            ${GEOPM_BASE_CONFIG_OPTIONS}"
 fi
-
