@@ -3,58 +3,246 @@ Guide for GEOPM Developers
 ==========================
 
 These are instructions for a developer that would like to modify the
-source code in the GEOPM repository.
+source code in the GEOPM git repository.  The GEOPM repository
+contains two independent autotools based build systems that are used
+to compile, test and install software components written in C++ and
+Python.  The ``service`` subdirectory of the GEOPM repository contains
+all files related to the GEOPM systemd service including the build
+system and all source code for the software components.  The base
+directory of the GEOPM git repository is populated with a build system
+that supports all sofware components not located in the ``service``
+directory.  The base build depends soley on components in the
+``service`` directory that are installed by the service build
+including: the ``libgeopmd.so`` library, the C and C++ public
+interface header files for that library, and the ``geopmdpy`` Python
+module.
 
 
-Test Instructions
------------------
+Developer Build Process
+-----------------------
 
-To launch the GEOPM unit tests, run the following command in the geopm
-build directory after running configure:
+The basic procedure for building all of the software in the GEOPM
+repository is to run the following commands with the base of the GEOPM
+repository:
 
-.. code-block::
+.. code-block:: bash
 
-   make check
+    # Build the geopm-service package
+    cd service/
+    ./autogen.sh
+    ./configure
+    make
+
+    # Optionaly, build the geopm HPC runtime package
+    cd ..
+    ./autogen.sh
+    ./configure
+    make
 
 
-Please run these tests before submitting a change request.  You can
-build and run unit tests on a standalone computer (such as a laptop) by
-configuring without MPI as follows:
+After the build is complete, a developer may wish to execute the unit
+tests.  Each of the two builds have a ``check`` target for their
+makefiles.  The test programs may be build separately from the
+``check`` target by specifying the ``checkprogs`` make target.
 
-.. code-block::
+.. code-block:: bash
 
-   ./configure --disable-mpi
-   make
-   make check
+    # Run the geopm-service package unit tests
+    cd service/
+    make checkprogs
+    make check
+
+    # Optionally run the geopm HPC runtime package unit tests
+    cd ..
+    make checkprogs
+    make check
 
 
-The integration tests require a system with MPI and multiple compute nodes.
+The developer may be interested in installing the build artifacts to a
+separate directory.  In this case, the build process differs slightly:
+some extra options will be provided to configure.
+
+.. code-block:: bash
+
+    # Define the install location
+    GEOPM_INSTALL=$HOME/build/geopm
+
+    # Build the geopm-service package
+    cd service/
+    ./autogen.sh
+    ./configure --prefix=$GEOPM_INSTALL
+    make
+    make install
+
+    # Optionally, build the geopm HPC runtime package
+    cd ..
+    ./autogen.sh
+    ./configure --prefix=$GEOPM_INSTALL --with-geopmd=$GEOPM_INSTALL
+    make
+    make install
+
+
+The libraries, binaries and python tools will not be installed into
+the standard system paths if GEOPM is built from source and configured
+with the `--prefix` option.  In this case, it is required that the
+user augment their environment to specify the installed location.  If
+the configure option is specified as above. then the following
+modifications to the user's environment should be made prior to
+running any GEOPM tools:
+
+.. code-block:: bash
+
+    export LD_LIBRARY_PATH=$GEOPM_INSTALL/lib:$LD_LIBRARY_PATH
+    export PATH=$GEOPM_INSTALL/bin:$PATH
+    export PYTHONPATH=$(ls -d $GEOPM_INSTALL/lib/python*/site-packages | tail -n1):$PYTHONPATH
+
+
+Use a PYTHONPATH that points to the site-packages created by the geopm
+build.  The version created is for whichever version of python 3 was
+used in the configure step.  If a different version of python is
+desired, override the default with the --with-python option in the
+configure script.
+
+
+Configuring the Build
+---------------------
+
+There are many options that may be passed to each of the two configure
+scripts that are part of the GEOPM repository build system.  Two
+scripts called ``autogen.sh`` are provided, one in the base of the
+GEOPM repository and the other in the service directory.  Each of
+these scripts manage the GEOPM version that is imbedded in the build
+artifacts, and create the two ``configure`` scripts using the
+autotools package.
+
+Running the configure scripts generate a number of output files,
+including the ``Makefile`` that is used for the rest of the build
+steps.  The ``configure`` scripts accept a large number of command
+line options, and environment variables that affect the behavior.
+Each of configure script will provide user documentation through the
+``./configure --help`` command.  Some important options and
+environment variables are listed below.
+
+Both configure scripts
+^^^^^^^^^^^^^^^^^^^^^^
+
+* ``--prefix``
+  Path prefix for install artifacts
+
+* ``--disable-systemd``
+  Do not build GEOPM Service access into PlatformIO
+
+* ``--enable-debug``
+  Create more verbose error and warning messaging and disable
+  optimization.
+
+* ``--enable-coverage``
+  Enable coverage report generation with gcov
+
+* ``export CC=``
+  Set the C compiler with environment variable
+
+* ``export CXX=``
+  Set the C++ compiler with environment variable
+
+
+Service configure script
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+* ``--enable-nvml``
+  Add support for the Nvidia NVML library
+
+* ``--enable-levelzero``
+  Add support for OneAPI LevelZero
+
+
+Base configure script
+^^^^^^^^^^^^^^^^^^^^^
+
+* ``--with-geopmd=``
+  Provide install location of the service build
+
+* ``--disable-mpi``
+  Build the base directory without MPI dependencies
+
+* ``--disable-fortran``
+  Build the base directory without fortran dependencies
+
+* ``--disable-openmp``
+  Build the base directory without OpenMP dependencies
+
+* ``export FC=``
+  Set the Fortran compiler with environment variable
+
+* ``export F77=``
+  Set the Fortran 77 compiler with environment variable
+
+* ``export MPICC=``
+  Set the MPI C compiler wrapper with environment variable
+
+* ``export MPICXX=``
+  Set the MPI C++ compiler wrapper with environment variable
+
+* ``export MPIFC=``
+  Set the Fortran compiler wrapper with environment variable
+
+* ``export MPIF77=``
+  Set the Fortran 77 compiler wrapper with environment variable
+
+
+Intel Compiler and MPI Toolchain
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+To enable the use of the Intel toolchain for both the compiler and MPI support, export
+the following variables prior to configuring the base build of the GEOPM repository:
+
+.. code-block:: bash
+
+    export CC=icc
+    export CXX=icpc
+    export FC=ifort
+    export F77=ifort
+    export MPICC=mpiicc
+    export MPICXX=mpiicpc
+    export MPIFC=mpiifort
+    export MPIF77=mpiifort
+
+We recommend using the system compiler toolchain for compiling the
+GEOPM service when creating an installed RPM.  The ``make rpm`` target
+of the service directory uses the geopm-service spec file to ensure
+that the system GCC toolchain is used to create the RPM.
+
 
 Coverage Instructions
 ---------------------
 
 To generate a coverage report, first be sure that you have installed
-the lcov package available here:
+the lcov package.  Note that if you are using GCC 9 or above, you must
+use lcov v1.15 or later to work around `this issue
+<https://github.com/linux-test-project/lcov/issues/58>`_.
 
-http://ltp.sourceforge.net/coverage/lcov.php
+The lcov source is available here:
 
-The GEOPM build must be configured with the "--enable-coverage" option.  Then
-simply run
+`https://github.com/linux-test-project/lcov/`
+
+The GEOPM build must be configured with the "--enable-coverage" option
+prior to running the tests.  Then in either the service directory or
+the root directory, simply run
 
 .. code-block::
 
    make coverage
 
 
-which runs tests and produce a coverage report in
+which runs the corresponding unit tests and produces a coverage report in
 
 .. code-block::
 
-   coverage/index.html
+   ./coverage/index.html
 
 
 Note that all tests must pass in order to generate a coverage report.
 Any help in increasing code coverage levels is appreciated.
+
 
 Coding Style
 ------------
@@ -86,6 +274,7 @@ Avoid preprocessor macros as much as possible (use enum not #define).
 Preprocessor usage should be reserved for expressing configure time
 options.
 
+
 License Headers
 ---------------
 
@@ -98,20 +287,27 @@ Files for which a license comment is not appropriate should be listed
 in copying_headers/MANIFEST.EXEMPT.  Any new installed files should
 also be added to specs/geopm.spec.in or service/geopm-service.spec.in.
 
+
 Creating Manuals
 ----------------
 
 Introducing a new man page requires changes in multiple files:
 
 
-#. The build target (man page) should be added to ronn_man in
+#.
+   The build target (man page) should be added to ronn_man in
    Makefile.am.
-#. The ronn source file should be added to EXTRA_DIST in Makefile.am.
-#. The ronn source file should be added to MANIFEST.EXEMPT as
+#.
+   The ronn source file should be added to EXTRA_DIST in Makefile.am.
+#.
+   The ronn source file should be added to MANIFEST.EXEMPT as
    described above.
-#. The gzipped installed man page should be listed in the %files section of
+#.
+   The gzipped installed man page should be listed in the %files section of
    specs/geopm.spec.in.
-#. A link from the man page name to the man page file should be added
+#.
+   A link from the man page name to the man page file should be added
    to ronn/index.txt.
-#. A link to the new man page should be added to the SEE ALSO section of
+#.
+   A link to the new man page should be added to the SEE ALSO section of
    geopm.7.ronn and any other related man pages.
