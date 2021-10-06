@@ -218,6 +218,32 @@ fi
 AC_SUBST([enable_fortran])
 AM_CONDITIONAL([ENABLE_FORTRAN], [test "x$enable_fortran" = "x1"])
 
+# The block of code for geopmd-local must precede the blocks below for
+# with-geopmpd* so that the with-geopmd* options take precedence over
+# using the local build.
+AC_ARG_ENABLE([geopmd-local],
+  [AS_HELP_STRING([--disable-geopmd-local],
+  [Use installed geopmd package, do not use in place build of the service directory.])],
+[if test "x$enable_geopmd_local" = "xno" ; then
+  enable_geopmd_local="0"
+else
+  enable_geopmd_local="1"
+fi
+],
+[enable_geopmd_local="1"]
+)
+
+if test "x$enable_geopmd_local" = "x1"; then
+  GEOPMD_INCLUDE="$srcdir/service/src"
+  GEOPMD_LIBDIR="$srcdir/service/.libs"
+  EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$GEOPMD_INCLUDE"
+  LD_LIBRARY_PATH="$GEOPMD_LIBDIR:$LD_LIBRARY_PATH"
+  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$GEOPMD_LIBDIR"
+  AC_SUBST([GEOPMD_LIBDIR])
+  AC_SUBST([GEOPMD_INCLUDE])
+fi
+
+# This must stay below the geopm-local block above
 AC_ARG_WITH([geopmd], [AS_HELP_STRING([--with-geopmd=PATH],
             [specify directory for installed geopmd package.])])
 if test "x$with_geopmd" != x; then
