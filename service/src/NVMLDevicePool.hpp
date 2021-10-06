@@ -56,16 +56,22 @@ namespace geopm
             /// @return CPU to Accelerator idea affinitization bitmask.
             virtual cpu_set_t *cpu_affinity_ideal_mask(int accel_idx) const = 0;
             /// @brief Get the NVML device streaming multiprocessor frequency
-            //         in MHz.
+            ///        in MHz.
             /// @param [in] accel_idx The index indicating a particular
             ///        accelerator.
             /// @return Accelerator streaming multiproccesor frequency in MHz.
             virtual uint64_t frequency_status_sm(int accel_idx) const = 0;
+            /// @brief Get the supported NVML device streaming multiprocessor frequencies
+            ///        in MHz.
+            /// @param [in] accel_idx The index indicating a particular
+            ///        accelerator.
+            /// @return Accelerator supported streaming multiproccesor frequencies in MHz.
+            virtual std::vector<double> frequency_supported_sm(int accel_idx) const = 0;
             /// @brief Get the NVML device utilization metric.
             /// @param [in] accel_idx The index indicating a particular
             ///        accelerator.
             /// @return Accelerator streaming multiprocessor utilization
-            //          percentage as a whole number from 0 to 100.
+            ///         percentage as a whole number from 0 to 100.
             virtual uint64_t utilization(int accel_idx) const = 0;
             /// @brief Get the NVML device power in milliwatts.
             /// @param [in] accel_idx The index indicating a particular
@@ -86,7 +92,7 @@ namespace geopm
             /// @param [in] accel_idx The index indicating a particular
             ///        accelerator.
             /// @return Accelerator clock throttle reasons as defined
-            //          in nvml.h.
+            ///         in nvml.h.
             virtual uint64_t throttle_reasons(int accel_idx) const = 0;
             /// @brief Get the current NVML device temperature.
             /// @param [in] accel_idx The index indicating a particular
@@ -94,27 +100,27 @@ namespace geopm
             /// @return Accelerator temperature in Celsius.
             virtual uint64_t temperature(int accel_idx) const = 0;
             /// @brief Get the total energy consumed counter value for
-            //         an NVML device in millijoules.
+            ///        an NVML device in millijoules.
             /// @param [in] accel_idx The index indicating a particular
             ///        accelerator.
             /// @return Accelerator energy consumption in millijoules.
             virtual uint64_t energy(int accel_idx) const = 0;
             /// @brief Get the current performance state of an NVML
-            //         device.
+            ///        device.
             /// @param [in] accel_idx The index indicating a particular
             ///        accelerator.
             /// @return Accelerator performance state, defined by the
-            //          NVML API as 0 to 15, with 0 being maximum performance,
-            //          15 being minimum performance, and 32 being unknown.
+            ///         NVML API as 0 to 15, with 0 being maximum performance,
+            ///         15 being minimum performance, and 32 being unknown.
             virtual uint64_t performance_state(int accel_idx) const = 0;
             /// @brief Get the pcie receive throughput over a 20ms period for
-            //         an NVML device.
+            ///        an NVML device.
             /// @param [in] accel_idx The index indicating a particular
             ///        accelerator.
             /// @return Accelerator pcie receive throughput in kilobytes per second.
             virtual uint64_t throughput_rx_pcie(int accel_idx) const = 0;
             /// @brief Get the pcie transmit throughput over a 20ms period for
-            //         an NVML device.
+            ///        an NVML device.
             /// @param [in] accel_idx The index indicating a particular
             ///        accelerator.
             /// @return Accelerator pcie transmit throughput in kilobytes per second.
@@ -123,14 +129,14 @@ namespace geopm
             /// @param [in] accel_idx The index indicating a particular
             ///        accelerator.
             /// @return Accelerator memory utilization percentage
-            //          as a whole number from 0 to 100.
+            ///         as a whole number from 0 to 100.
             virtual uint64_t utilization_mem(int accel_idx) const = 0;
             /// @brief Get the list of PIDs with an active context on an NVML
-            //         device.
+            ///        device.
             /// @param [in] accel_idx The index indicating a particular
             ///        accelerator.
             /// @return List of PIDs that are associated with a context on the
-            //          specified NVML device.
+            ///         specified NVML device.
             virtual std::vector<int> active_process_list(int accel_idx) const = 0;
 
             /// @brief Set min and max frequency for NVML device.
