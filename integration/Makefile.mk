@@ -31,6 +31,7 @@
 
 
 EXTRA_DIST += integration/README.md \
+              integration/config/build.sh \
               integration/config/build_env.sh \
               integration/config/run_env.sh \
               integration/config/dudley_env.sh \
