@@ -46,6 +46,7 @@ namespace geopm
             virtual int num_accelerator(void) const override;
             virtual cpu_set_t *cpu_affinity_ideal_mask(int accel_idx) const override;
             virtual uint64_t frequency_status_sm(int accel_idx) const override;
+            virtual std::vector<double> frequency_supported_sm(int accel_idx) const override;
             virtual uint64_t utilization(int accel_idx) const override;
             virtual uint64_t power(int accel_idx) const override;
             virtual uint64_t power_limit(int accel_idx) const override;
