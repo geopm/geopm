@@ -39,6 +39,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <algorithm>
 #include <string>
 #include <sched.h>
 #include <errno.h>
@@ -155,6 +156,20 @@ namespace geopm
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::max,
                                   string_format_double
+                                  }},
+                              {"NVML::FREQUENCY_MAX", {
+                                  "Streaming multiprocessor Maximum frequency in hertz",
+                                  {},
+                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                  Agg::max,
+                                  string_format_double
+                                  }},
+                              {"NVML::FREQUENCY_MIN", {
+                                  "Streaming multiprocessor Minimum frequency in hertz",
+                                  {},
+                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                  Agg::max,
+                                  string_format_double
                                   }}
                              })
         , m_control_available({{"NVML::FREQUENCY_CONTROL", {
@@ -204,6 +219,11 @@ namespace geopm
         }
         register_control_alias("POWER_ACCELERATOR_LIMIT_CONTROL", "NVML::POWER_LIMIT_CONTROL");
         register_control_alias("FREQUENCY_ACCELERATOR_CONTROL", "NVML::FREQUENCY_CONTROL");
+
+        for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR); ++domain_idx) {
+            m_supported_freq.push_back(m_nvml_device_pool.frequency_supported_sm(domain_idx));
+            std::sort(m_supported_freq.at(domain_idx).begin(), m_supported_freq.at(domain_idx).end());
+        }
     }
 
     // Extract the set of all signal names from the index map
@@ -479,6 +499,12 @@ namespace geopm
         double result = NAN;
         if (signal_name == "NVML::FREQUENCY" || signal_name == "FREQUENCY_ACCELERATOR") {
             result = (double) m_nvml_device_pool.frequency_status_sm(domain_idx)*1e6;
+        }
+        else if (signal_name == "NVML::FREQUENCY_MIN") {
+            result = (double) m_supported_freq.at(domain_idx).front()*1e6;
+        }
+        else if (signal_name == "NVML::FREQUENCY_MAX") {
+            result = (double) m_supported_freq.at(domain_idx).back()*1e6;
         }
         else if (signal_name == "NVML::UTILIZATION_ACCELERATOR") {
             result = (double) m_nvml_device_pool.utilization(domain_idx)/100;
