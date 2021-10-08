@@ -68,6 +68,7 @@ namespace geopm
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::average,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
                               {"NVML::UTILIZATION_ACCELERATOR", {
@@ -75,6 +76,7 @@ namespace geopm
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::average,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
                               {"NVML::POWER", {
@@ -82,6 +84,7 @@ namespace geopm
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::sum,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
                               {"NVML::POWER_LIMIT", {
@@ -89,6 +92,7 @@ namespace geopm
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::sum,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
                               {"NVML::FREQUENCY_MEMORY", {
@@ -96,6 +100,7 @@ namespace geopm
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::average,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
                               {"NVML::THROTTLE_REASONS", {
@@ -103,6 +108,7 @@ namespace geopm
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::expect_same,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
                               {"NVML::TEMPERATURE", {
@@ -110,6 +116,7 @@ namespace geopm
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::average,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
                               {"NVML::TOTAL_ENERGY_CONSUMPTION", {
@@ -117,6 +124,7 @@ namespace geopm
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::sum,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
                                   string_format_double
                                   }},
                               {"NVML::PERFORMANCE_STATE", {
@@ -125,6 +133,7 @@ namespace geopm
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::expect_same,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
                               {"NVML::PCIE_RX_THROUGHPUT", {
@@ -132,6 +141,7 @@ namespace geopm
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::sum,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
                               {"NVML::PCIE_TX_THROUGHPUT", {
@@ -139,6 +149,7 @@ namespace geopm
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::sum,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
                               {"NVML::CPU_ACCELERATOR_ACTIVE_AFFINITIZATION", {
@@ -148,6 +159,7 @@ namespace geopm
                                   {},
                                   GEOPM_DOMAIN_CPU,
                                   Agg::expect_same,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
                               {"NVML::UTILIZATION_MEMORY", {
@@ -155,6 +167,7 @@ namespace geopm
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::max,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
                               {"NVML::FREQUENCY_MAX", {
@@ -162,6 +175,7 @@ namespace geopm
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::expect_same,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_CONSTANT,
                                   string_format_double
                                   }},
                               {"NVML::FREQUENCY_MIN", {
@@ -169,6 +183,7 @@ namespace geopm
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::expect_same,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_CONSTANT,
                                   string_format_double
                                   }}
                              })
@@ -207,6 +222,7 @@ namespace geopm
         }
         register_signal_alias("POWER_ACCELERATOR", "NVML::POWER");
         register_signal_alias("FREQUENCY_ACCELERATOR", "NVML::FREQUENCY");
+        register_signal_alias("ENERGY_ACCELERATOR", "NVML::TOTAL_ENERGY_CONSUMPTION");
 
         // populate controls for each domain
         for (auto &sv : m_control_available) {
@@ -537,7 +553,7 @@ namespace geopm
         else if (signal_name == "NVML::TEMPERATURE") {
             result = (double) m_nvml_device_pool.temperature(domain_idx);
         }
-        else if (signal_name == "NVML::TOTAL_ENERGY_CONSUMPTION" ) {
+        else if (signal_name == "NVML::TOTAL_ENERGY_CONSUMPTION" || signal_name == "ENERGY_ACCELERATOR") {
             result = (double) m_nvml_device_pool.energy(domain_idx) / 1e3;
         }
         else if (signal_name == "NVML::PERFORMANCE_STATE") {
@@ -669,7 +685,12 @@ namespace geopm
 
     int NVMLIOGroup::signal_behavior(const std::string &signal_name) const
     {
-        return IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE;
+        if (!is_valid_signal(signal_name)) {
+            throw Exception("NVMLIOGroup::" + std::string(__func__) + ": signal_name " + signal_name +
+                            " not valid for NVMLIOGroup.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return m_signal_available.at(signal_name).m_behavior;
     }
 
     void NVMLIOGroup::save_control(const std::string &save_path)
