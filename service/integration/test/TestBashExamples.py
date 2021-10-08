@@ -50,10 +50,9 @@ class TestBashExamples(unittest.TestCase):
             with self.subTest(bash_example=script_name):
                 pid = subprocess.Popen([script],
                                        stdout=subprocess.PIPE,
-                                       stderr=subprocess.PIPE)
+                                       stderr=subprocess.PIPE,
+                                       universal_newlines=True)
                 out, err = pid.communicate()
-                out = out.decode("utf-8")
-                err = err.decode("utf-8")
                 output = f'\n\nSTDOUT:\n{out}\n\nSTDERR:\n{err}'
                 self.assertEqual(0, pid.returncode, output)
                 sys.stdout.write(f'{script_name}{output}\n\nSUCCESS\n')
