@@ -363,6 +363,11 @@ namespace geopm
             {"time-hint-unset (s)", {"TIME_HINT_UNSET"}, sample_only},
         };
 
+        auto all_names = platform_io().signal_names();
+        if (all_names.find("ENERGY_ACCELERATOR") != all_names.end()) {
+            m_sync_fields.push_back({"accelerator-energy (J)", {"ENERGY_ACCELERATOR"}, sample_only});
+        }
+
         for (const auto &field : m_sync_fields) {
             for (const auto &signal : field.supporting_signals) {
                 m_sync_signal_idx[signal] = m_sample_agg->push_signal(signal, GEOPM_DOMAIN_BOARD, 0);
