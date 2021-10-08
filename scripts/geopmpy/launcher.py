@@ -482,7 +482,9 @@ class Launcher(object):
         if stderr_encoding is None:
             stderr_encoding = locale.getpreferredencoding()
 
-        argv_mod = self.launcher_command()
+        argv_mod = [self.launcher_command()]
+        if self.quiet:
+            argv_mod.extend(self.quiet_option())
         if self.is_override_enabled:
             argv_mod.extend(self.launcher_argv(False))
             argv_mod.extend(self.argv_unparsed)
@@ -504,7 +506,7 @@ class Launcher(object):
         # any quoted words as separate args
         argv_mod = ' '.join(pipes.quote(arg) for arg in argv_mod)
         if self.is_geopm_enabled and self.config.get_ctl() == 'application':
-            geopm_argv = self.launcher_command()
+            geopm_argv = [self.launcher_command()]
             geopm_argv.extend(self.launcher_argv(True))
             geopm_argv.append('geopmctl')
             geopm_argv = ' '.join(pipes.quote(arg) for arg in geopm_argv)
@@ -885,6 +887,13 @@ Warning: <geopm> geopmpy.launcher: Incompatible CPU frequency governor
         """
         return []
 
+    def quiet_option(self):
+        """
+        Returns a list containing the job launch option to suppress any
+        end-of-job status messages that may interfere with parsing of stdout.
+        """
+        return []
+
     def get_idle_nodes(self):
         """
         Returns a list of the names of compute nodes that are currently
@@ -993,7 +1002,7 @@ class SrunLauncher(Launcher):
         """
         Returns 'srun', the name of the SLURM MPI job launch application.
         """
-        return ['srun']
+        return 'srun'
 
     def num_node_option(self):
         """
@@ -1197,7 +1206,7 @@ class OMPIExecLauncher(Launcher):
         """
         Returns 'mpiexec', the name of the Open MPI project job launch application.
         """
-        return ['mpiexec']
+        return 'mpiexec'
 
     def parse_launcher_argv(self):
         """
@@ -1386,7 +1395,7 @@ class IMPIExecLauncher(Launcher):
         """
         Returns 'mpiexec.hydra', the name of the Intel MPI Library job launch application.
         """
-        return ['mpiexec.hydra']
+        return 'mpiexec.hydra'
 
     def parse_launcher_argv(self):
         """
@@ -1554,10 +1563,7 @@ class AprunLauncher(Launcher):
         """
         Returns 'aprun', the name of the ALPS MPI job launch application.
         """
-        cmd = ['aprun']
-        if self.quiet:
-            cmd.extend(['-q'])
-        return cmd
+        return 'aprun'
 
     def num_node_option(self):
         """
@@ -1632,6 +1638,12 @@ class AprunLauncher(Launcher):
                               if ll is not None))
             result = ['-e',  'LD_PRELOAD={}'.format(value)]
         return result
+
+    def quiet_option(self):
+        """
+        Returns a list containing the -q option for aprun.
+        """
+        return ['-q']
 
 
 def main():
