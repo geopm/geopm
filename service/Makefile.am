@@ -94,6 +94,7 @@ EXTRA_DIST = .gitignore \
              integration/test/__main__.py \
              integration/test/TestBashExamples.py \
              integration/test/test_controller.py \
+             integration/test/test_controller.sh \
              integration/test/test_sst_priority.sh \
              integration/test/test_su_give_access.sh \
              integration/test/test_write_session.sh \
