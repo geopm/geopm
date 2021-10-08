@@ -114,6 +114,7 @@ namespace geopm
                 std::vector<std::shared_ptr<signal_s> > signals;
                 int domain;
                 std::function<double(const std::vector<double> &)> m_agg_function;
+                int m_behavior;
                 std::function<std::string(double)> m_format_function;
             };
 
