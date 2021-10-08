@@ -101,6 +101,7 @@ if False in result:
 print('SUCCESS\n');
 exit(0);
 "
+err=$?
 
 # Kill the benchmark and the write session
 kill -9 ${BENCH_ID}
@@ -109,3 +110,4 @@ rm ${BENCH_LOG}
 rm ${SESSION_LOG}
 rm ${READ_REQUEST}
 rm ${WRITE_REQUEST}
+exit $err
