@@ -46,17 +46,17 @@ class TestBashExamples(unittest.TestCase):
 
     def test_all(self):
         for script in self.bash_tests:
-            with self.subTest(bash_example=os.path.basename(script)):
+            script_name = os.path.basename(script)
+            with self.subTest(bash_example=script_name):
                 pid = subprocess.Popen([script],
                                        stdout=subprocess.PIPE,
                                        stderr=subprocess.PIPE)
                 out, err = pid.communicate()
-                output = f'\n\nSTDOUT:\n{out.decode("utf-8")}\n\nSTDERR:\n{err.decode("utf-8")}'
-                if pid.returncode != 0:
-                    self.assertEqual(0, pid.returncode, output)
-                else:
-                    sys.stdout.write(output)
-
+                out = out.decode("utf-8")
+                err = err.decode("utf-8")
+                output = f'\n\nSTDOUT:\n{out}\n\nSTDERR:\n{err}'
+                self.assertEqual(0, pid.returncode, output)
+                sys.stdout.write(f'{script_name}{output}\n\nSUCCESS\n')
 
 
 if __name__ == '__main__':
