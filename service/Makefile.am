@@ -91,6 +91,8 @@ EXTRA_DIST = .gitignore \
              integration/README.md \
              integration/build_dasbus.sh \
              integration/install_service.sh \
+             integration/test/__main__.py \
+             integration/test/TestBashExamples.py \
              integration/test/test_controller.py \
              integration/test/test_sst_priority.sh \
              integration/test/test_su_give_access.sh \
