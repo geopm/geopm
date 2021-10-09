@@ -751,7 +751,9 @@ class GEOPMService(object):
     def PlatformGetGroupAccess(self, group):
         return self._platform.get_group_access(group)
 
-    def PlatformSetGroupAccess(self, group, allowed_signals, allowed_controls):
+    @accepts_additional_arguments
+    def PlatformSetGroupAccess(self, group, allowed_signals, allowed_controls, **call_info):
+        self._check_cap_sys_admin(call_info, "PlatformSetGroupAccess")
         self._platform.set_group_access(group, allowed_signals, allowed_controls)
 
     @accepts_additional_arguments
@@ -767,10 +769,14 @@ class GEOPMService(object):
     def PlatformGetControlInfo(self, control_names):
         return self._platform.get_control_info(control_names)
 
-    def PlatformLockControl(self):
+    @accepts_additional_arguments
+    def PlatformLockControl(self, **call_info):
+        self._check_cap_sys_admin(call_info, "PlatformLockControl")
         self._platform.lock_control()
 
-    def PlatformUnlockControl(self):
+    @accepts_additional_arguments
+    def PlatformUnlockControl(self, **call_info):
+        self._check_cap_sys_admin(call_info, "PlatformUnLockControl")
         self._platform.unlock_control()
 
     @accepts_additional_arguments
@@ -781,7 +787,9 @@ class GEOPMService(object):
     def PlatformCloseSession(self, **call_info):
         self._platform.close_session(self._get_pid(**call_info))
 
-    def PlatformCloseSessionAdmin(self, client_pid):
+    @accepts_additional_arguments
+    def PlatformCloseSessionAdmin(self, client_pid, **call_info):
+        self._check_cap_sys_admin(call_info, "PlatformCloseSessionAdmin")
         self._platform.close_session(client_pid)
 
     @accepts_additional_arguments
@@ -830,3 +838,16 @@ class GEOPMService(object):
         """
         unique_name = call_info['sender']
         return self._dbus_proxy.GetConnectionUnixProcessID(unique_name)
+
+    def _check_cap_sys_admin(self, call_info, api_name):
+        has_admin = False
+        cap = 0
+        cap_sys_admin = 0x00200000
+        pid = self._get_pid(**call_info)
+        status_path = f'/proc/{pid}/status'
+        with open(status_path) as fid:
+            for line in fid.readlines():
+                if line.startswith('CapEff:'):
+                    cap = int(line.split(':')[1], 16)
+        if cap & cap_sys_admin == 0:
+            raise RuntimeError('Calling "io.github.geopm.{api_name}" requires CAP_SYS_ADMIN capabilities')
