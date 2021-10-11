@@ -814,7 +814,7 @@ namespace geopm
             "fields": {
                 "PERFCTR": {
                     "begin_bit": 0,
-                    "end_bit":   31,
+                    "end_bit":   47,
                     "function":  "overflow",
                     "units":     "none",
                     "scalar":    1.0,
@@ -830,7 +830,7 @@ namespace geopm
             "fields": {
                 "PERFCTR": {
                     "begin_bit": 0,
-                    "end_bit":   31,
+                    "end_bit":   47,
                     "function":  "overflow",
                     "units":     "none",
                     "scalar":    1.0,
@@ -846,7 +846,7 @@ namespace geopm
             "fields": {
                 "PERFCTR": {
                     "begin_bit": 0,
-                    "end_bit":   31,
+                    "end_bit":   47,
                     "function":  "overflow",
                     "units":     "none",
                     "scalar":    1.0,
@@ -862,7 +862,7 @@ namespace geopm
             "fields": {
                 "PERFCTR": {
                     "begin_bit": 0,
-                    "end_bit":   31,
+                    "end_bit":   47,
                     "function":  "overflow",
                     "units":     "none",
                     "scalar":    1.0,

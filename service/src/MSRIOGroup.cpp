@@ -100,6 +100,7 @@ namespace geopm
         , m_time_zero(std::make_shared<geopm_time_s>(time_zero()))
         , m_time_batch(std::make_shared<double>(NAN))
         , m_rdt_info(get_rdt_info())
+        , m_pmc_bit_width(get_pmc_bit_width())
         , m_derivative_window(8)
         , m_sleep_time(0.005)  // 5000 us
     {
@@ -702,6 +703,21 @@ namespace geopm
         };
 
         return rdt;
+    }
+
+    uint32_t MSRIOGroup::get_pmc_bit_width(void)
+    {
+        uint32_t leaf, subleaf = 0;
+        uint32_t eax, ebx, ecx, edx = 0;
+
+        leaf = 0x0A;
+        subleaf = 0;
+
+        __cpuid_count(leaf, subleaf, eax, ebx, ecx, edx);
+
+        // SDM vol 3b, section 18 specifies where to find how many PMC bits are
+        // available
+        return (eax >> 16) & 0xff;
     }
 
     void MSRIOGroup::register_signal_alias(const std::string &signal_name,
@@ -1319,6 +1335,20 @@ namespace geopm
                         throw Exception(except.str(), GEOPM_ERROR_INVALID, __FILE__,
                                         __LINE__);
                     }
+                }
+
+                if (string_begins_with(msr_field_name, "IA32_PMC") &&
+                    string_ends_with(msr_field_name, ":PERFCTR")) {
+                    if (m_pmc_bit_width > 0) {
+                        end_bit = begin_bit + m_pmc_bit_width - 1;
+                    }
+#ifdef GEOPM_DEBUG
+                    else {
+                        std::cerr << "Warning: <geopm> CPUID specified 0 bits for "
+                                  << msr_field_name << "; using the default width: "
+                                  << (end_bit - begin_bit + 1) << std::endl;
+                    }
+#endif
                 }
 
                 add_msr_field_signal(msr_name, sig_ctl_name, domain_type,

@@ -223,12 +223,18 @@ namespace geopm
             };
             rdt_info m_rdt_info;
 
+            uint32_t m_pmc_bit_width;
+
             int m_derivative_window;
             double m_sleep_time;
 
             /// @brief Return the Intel Resource Director Technology
             ///        support information
             static rdt_info get_rdt_info(void);
+
+            /// @brief Return the Intel Performance Monitoring Counter
+            ///        support information
+            static uint32_t get_pmc_bit_width(void);
 
             // All available signals: map from name to signal_info.
             // The signals vector is over the indices for the domain.
