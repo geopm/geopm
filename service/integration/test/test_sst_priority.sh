@@ -46,14 +46,17 @@ if [[ $# -gt 0 ]] && [[ $1 == '--help' ]]; then
     exit 0
 fi
 
-# Input for geopmsession to read frequency
+if [[ ! -e /dev/isst_interface ]]; then
+    echo "Warning: Skipping $0, isst_interface driver is not present" 1>&2
+    exit 0
+fi
 
-# Input for geopmsession to configure SST
 BENCH_LOG=$(mktemp)
 SESSION_LOG=$(mktemp)
 READ_REQUEST=$(mktemp)
 WRITE_REQUEST=$(mktemp)
 
+# Input for geopmsession to read frequency
 echo 'CPU_FREQUENCY_STATUS core 0
 CPU_FREQUENCY_STATUS core 1
 CPU_FREQUENCY_STATUS core 2
@@ -63,6 +66,7 @@ CPU_FREQUENCY_STATUS core 5
 CPU_FREQUENCY_STATUS core 6
 CPU_FREQUENCY_STATUS core 7' > ${READ_REQUEST}
 
+# Input for geopmsession to configure SST
 echo 'SST::COREPRIORITY_ENABLE:ENABLE board 0 1
 SST::TURBO_ENABLE:ENABLE board 0 1
 SST::COREPRIORITY:ASSOCIATION board 0 3
