@@ -57,10 +57,19 @@ setup_source_git ${DIRNAME}
 cd ${DIRNAME}/Cxx11
 
 # Set vars
-mpicc_bin=/opt/intel/compilers_and_libraries_2019.5.281/linux/mpi/intel64/bin/mpicc
-nvcc_bin=/usr/local/cuda-11.0/bin/nvcc
+if [ -z ${I_MPI_ROOT} ]; then
+   I_MPI_ROOT = "/opt/intel/compilers_and_libraries/linux/mpi"
+fi
+
+if command -v nvcc; then
+    nvcc_bin=$(command -v nvcc)
+    cuda_lib=$(echo $nvcc_bin | sed -e 's/bin\/mpicc$/lib64/')
+else
+    nvcc_bin=/usr/local/cuda/bin/nvcc
+    cuda_lib=/usr/local/cuda/lib64
+fi
+
 gcc_bindir=/usr/bin
-cuda_lib=/usr/local/cuda-11.0/lib64/
 
 # Compile Single GPU non-MPI version
 $nvcc_bin \
@@ -79,7 +88,7 @@ $nvcc_bin \
     -D_MWAITXINTRIN_H_INCLUDED -DPRKVERSION="2.16" dgemm-multigpu-cublas.cu -lcublas -o dgemm-multigpu-cublas
 
 # Compile Multi GPU MPI version
-mpi_flags="-I/opt/intel/compilers_and_libraries_2019.5.281/linux/mpi/intel64/include -L/opt/intel/compilers_and_libraries_2019.5.281/linux/mpi/intel64/lib/release -L/opt/intel/compilers_and_libraries_2019.5.281/linux/mpi/intel64/lib -Xlinker --enable-new-dtags -Xlinker -rpath -Xlinker /opt/intel/compilers_and_libraries_2019.5.281/linux/mpi/intel64/lib/release -Xlinker -rpath -Xlinker /opt/intel/compilers_and_libraries_2019.5.281/linux/mpi/intel64/lib -lmpifort -lmpi -lrt -lpthread -Xlinker --enable-new-dtags -ldl"
+mpi_flags="-I${I_MPI_ROOT}/intel64/include -L${I_MPI_ROOT}/intel64/lib/release -L${I_MPI_ROOT}/intel64/lib -Xlinker --enable-new-dtags -Xlinker -rpath -Xlinker ${I_MPI_ROOT}/intel64/lib/release -Xlinker -rpath -Xlinker ${I_MPI_ROOT}/intel64/lib -lmpifort -lmpi -lrt -lpthread -Xlinker --enable-new-dtags -ldl"
 $nvcc_bin \
     --compiler-bindir=$gcc_bindir \
     --gpu-architecture=sm_70 \

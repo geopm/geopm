@@ -1,0 +1,6 @@
+#clears application clock settings
+nvidia-smi -rac
+#clears clock settings
+nvidia-smi -rgc
+#sets power limit
+nvidia-smi -pl 300 

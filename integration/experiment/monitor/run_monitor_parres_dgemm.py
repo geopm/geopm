@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+#
 #  Copyright (c) 2015 - 2021, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -29,12 +31,23 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += integration/apps/parres/0001-Added-nstream-cublas-mpi-init-finalize-for-GEOPM.patch \
-	      integration/apps/parres/0002-Added-sgemm-cublas-mpi-init-finalize-for-GEOPM.patch \
-	      integration/apps/parres/0003-Added-transpose-cublas-mpi-init-finalize-for-GEOPM.patch \
-	      integration/apps/parres/__init__.py \
-              integration/apps/parres/build.sh \
-              integration/apps/parres/README.md \
-	      integration/apps/parres/parres.py \
-	      integration/apps/parres/parres.experiment.setup \
-              # end
+'''
+Run Hacc with the monitor agent.
+'''
+
+import argparse
+
+from experiment.monitor import monitor
+from experiment import machine
+from apps.parres import parres
+
+if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser()
+    monitor.setup_run_args(parser)
+    parres.setup_run_args(parser)
+    args, extra_args = parser.parse_known_args()
+    mach = machine.init_output_dir(args.output_dir)
+    app_conf = parres.create_dgemm_appconf(mach, args)
+    monitor.launch(app_conf=app_conf, args=args,
+                   experiment_cli_args=extra_args)
