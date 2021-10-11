@@ -129,9 +129,6 @@ Both configure scripts
 * ``--prefix``
   Path prefix for install artifacts
 
-* ``--disable-systemd``
-  Do not build GEOPM Service access into PlatformIO
-
 * ``--enable-debug``
   Create more verbose error and warning messaging and disable
   optimization.
@@ -154,6 +151,9 @@ Service configure script
 
 * ``--enable-levelzero``
   Add support for OneAPI LevelZero
+
+* ``--disable-systemd``
+  Do not build GEOPM Service access into PlatformIO
 
 
 Base configure script
