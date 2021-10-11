@@ -35,9 +35,10 @@ print_help() {
     Usage: $0 VERSION [USER]
            $0 --remove
 
-    Installs the RPMs created by the \"make rpm\" target of the geopm/service
-    build.  The geopm-service and python3-geopmdpy packages are installed and
-    then the geopm service is started with systemctl.
+    Installs the RPMs created by the \"make rpm\" target of the
+    geopm/service build.  The geopm-service geopm-service-devel and
+    python3-geopmdpy packages are installed and then the geopm service
+    is started with systemctl.
 
     The geopm-service requires dasbus version 1.5 or later is
     installed.  Use the script build_dasbus.sh located in this
