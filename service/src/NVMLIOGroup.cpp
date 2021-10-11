@@ -239,7 +239,10 @@ namespace geopm
         }
         register_signal_alias("GPU_POWER", M_NAME_PREFIX + "GPU_POWER");
         register_signal_alias("GPU_FREQUENCY_STATUS", M_NAME_PREFIX + "GPU_FREQUENCY_STATUS");
+        register_signal_alias("FREQUENCY_MIN_ACCELERATOR", "NVML::FREQUENCY_MIN");
+        register_signal_alias("FREQUENCY_MAX_ACCELERATOR", "NVML::FREQUENCY_MAX");
         register_signal_alias("ENERGY_ACCELERATOR", "NVML::TOTAL_ENERGY_CONSUMPTION");
+        register_signal_alias("UTILIZATION_ACCELERATOR", "NVML::UTILIZATION_ACCELERATOR");
 
         // populate controls for each domain
         for (auto &sv : m_control_available) {
@@ -265,6 +268,8 @@ namespace geopm
                                 ": No supported frequencies found for accelerator " + std::to_string(domain_idx),
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
+
+            // sort guarantees the ordering for min & max calls
             std::sort(supported_frequency.begin(), supported_frequency.end());
             m_supported_freq.push_back(supported_frequency);
         }
