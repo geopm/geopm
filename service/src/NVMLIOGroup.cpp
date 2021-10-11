@@ -222,7 +222,10 @@ namespace geopm
         }
         register_signal_alias("POWER_ACCELERATOR", "NVML::POWER");
         register_signal_alias("FREQUENCY_ACCELERATOR", "NVML::FREQUENCY");
+        register_signal_alias("FREQUENCY_MIN_ACCELERATOR", "NVML::FREQUENCY_MIN");
+        register_signal_alias("FREQUENCY_MAX_ACCELERATOR", "NVML::FREQUENCY_MAX");
         register_signal_alias("ENERGY_ACCELERATOR", "NVML::TOTAL_ENERGY_CONSUMPTION");
+        register_signal_alias("UTILIZATION_ACCELERATOR", "NVML::UTILIZATION_ACCELERATOR");
 
         // populate controls for each domain
         for (auto &sv : m_control_available) {
@@ -246,6 +249,8 @@ namespace geopm
                                 ": No supported frequencies found for accelerator " + std::to_string(domain_idx),
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
+
+            // sort guarantees the ordering for min & max calls
             std::sort(supported_frequency.begin(), supported_frequency.end());
             m_supported_freq.push_back(supported_frequency);
         }
@@ -525,17 +530,17 @@ namespace geopm
         if (signal_name == "NVML::FREQUENCY" || signal_name == "FREQUENCY_ACCELERATOR") {
             result = (double) m_nvml_device_pool.frequency_status_sm(domain_idx) * 1e6;
         }
-        else if (signal_name == "NVML::FREQUENCY_MIN") {
+        else if (signal_name == "NVML::FREQUENCY_MIN" || signal_name == "FREQUENCY_MIN_ACCELERATOR") {
             if (m_supported_freq.at(domain_idx).size() != 0) {
                 result = 1e6 * m_supported_freq.at(domain_idx).front();
             }
         }
-        else if (signal_name == "NVML::FREQUENCY_MAX") {
+        else if (signal_name == "NVML::FREQUENCY_MAX" || signal_name == "FREQUENCY_MAX_ACCELERATOR") {
             if (m_supported_freq.at(domain_idx).size() != 0) {
                 result = 1e6 * m_supported_freq.at(domain_idx).back();
             }
         }
-        else if (signal_name == "NVML::UTILIZATION_ACCELERATOR") {
+        else if (signal_name == "NVML::UTILIZATION_ACCELERATOR" || signal_name == "UTILIZATION_ACCELERATOR") {
             result = (double) m_nvml_device_pool.utilization(domain_idx) / 100;
         }
         else if (signal_name == "NVML::THROTTLE_REASONS") {
