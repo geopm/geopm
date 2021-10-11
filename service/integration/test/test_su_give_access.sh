@@ -64,10 +64,6 @@ test_error() {
     exit -1
 }
 
-# MAKE SURE TEST IS RUN AS ROOT USER
-test ${USER} == "root" ||
-    test_error "Must be run as the root user, this is an administrator test"
-
 # SAVE INITIAL ACCESS SETTINGS
 geopmaccess > ${SAVE_SIGNALS}
 geopmaccess -c > ${SAVE_CONTROLS}
@@ -75,8 +71,8 @@ geopmaccess -c > ${SAVE_CONTROLS}
 # REMOVE CONTROL FROM ACCESS LIST FOR READING AND WRITING
 grep -v ${CONTROL} ${SAVE_SIGNALS} > ${TEST_SIGNALS}
 grep -v ${CONTROL} ${SAVE_CONTROLS} > ${TEST_CONTROLS}
-geopmaccess -w < ${TEST_SIGNALS}
-geopmaccess -w -c < ${TEST_CONTROLS}
+sudo -n geopmaccess -w < ${TEST_SIGNALS}
+sudo -n geopmaccess -w -c < ${TEST_CONTROLS}
 
 # RUN WRITE SESSION TEST AND MAKE SURE IT FAILS
 su ${TEST_USER} ${TEST_SCRIPT} &&
@@ -85,16 +81,16 @@ su ${TEST_USER} ${TEST_SCRIPT} &&
 # ADD THE CONTROL INTO ACCESS LIST FOR READING AND WRITING
 echo ${CONTROL} >> ${TEST_SIGNALS}
 echo ${CONTROL} >> ${TEST_CONTROLS}
-geopmaccess -w < ${TEST_SIGNALS}
-geopmaccess -w -c < ${TEST_CONTROLS}
+sudo -n geopmaccess -w < ${TEST_SIGNALS}
+sudo -n geopmaccess -w -c < ${TEST_CONTROLS}
 
 # RUN WRITE SESSION TEST AND MAKE SURE IT PASSES
 su ${TEST_USER} ${TEST_SCRIPT} ||
     test_error "Access to $CONTROL was enabled, but write session failed"
 
 # RESTORE INITIAL ACCESS SETTINGS
-geopmaccess -w < ${SAVE_SIGNALS}
-geopmaccess -w -c < ${SAVE_CONTROLS}
+sudo -n geopmaccess -w < ${SAVE_SIGNALS}
+sudo -n geopmaccess -w -c < ${SAVE_CONTROLS}
 
 # CLEAN UP TEMPORARY FILES
 rm ${SAVE_SIGNALS} ${SAVE_CONTROLS} ${TEST_SIGNALS} ${TEST_CONTROLS}
