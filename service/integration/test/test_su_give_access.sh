@@ -53,7 +53,11 @@ fi
 CONTROL=MSR::PERF_CTL:FREQ
 TEST_DIR=$(dirname $(readlink -f $0))
 TEST_USER=test
-TEST_SCRIPT=${TEST_DIR}/test_write_session.sh
+if [[ $(whoami) == 'root' ]]; then
+    TEST_SCRIPT="su ${TEST_USER} ${TEST_DIR}/test_write_session.sh"
+else
+    TEST_SCRIPT=${TEST_DIR}/test_write_session.sh
+fi
 SAVE_SIGNALS=$(mktemp)
 SAVE_CONTROLS=$(mktemp)
 TEST_SIGNALS=$(mktemp)
@@ -75,7 +79,7 @@ sudo -n geopmaccess -w < ${TEST_SIGNALS}
 sudo -n geopmaccess -w -c < ${TEST_CONTROLS}
 
 # RUN WRITE SESSION TEST AND MAKE SURE IT FAILS
-su ${TEST_USER} ${TEST_SCRIPT} &&
+${TEST_SCRIPT} &&
     test_error "Access to $CONTROL was disabled, but write session passed"
 
 # ADD THE CONTROL INTO ACCESS LIST FOR READING AND WRITING
@@ -85,7 +89,7 @@ sudo -n geopmaccess -w < ${TEST_SIGNALS}
 sudo -n geopmaccess -w -c < ${TEST_CONTROLS}
 
 # RUN WRITE SESSION TEST AND MAKE SURE IT PASSES
-su ${TEST_USER} ${TEST_SCRIPT} ||
+${TEST_SCRIPT} ||
     test_error "Access to $CONTROL was enabled, but write session failed"
 
 # RESTORE INITIAL ACCESS SETTINGS
