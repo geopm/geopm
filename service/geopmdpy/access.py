@@ -97,7 +97,7 @@ class Access:
         try:
             self._geopm_proxy.PlatformSetGroupAccess(group, signals, current_controls)
         except DBusError as ee:
-            raise RuntimeError('Failed to set group signal access list, request must be made by user with CAP_SYS_ADMIN') from ee
+            raise RuntimeError('Failed to set group signal access list, try with sudo or as "root" user (requires CAP_SYS_ADMIN)') from ee
 
     def set_group_controls(self, group, controls):
         """Call GEOPM D-Bus API to set control access
@@ -129,7 +129,7 @@ class Access:
         try:
             self._geopm_proxy.PlatformSetGroupAccess(group, current_signals, controls)
         except DBusError as ee:
-            raise RuntimeError('Failed to set group control access list, request must be made by user with CAP_SYS_ADMIN') from ee
+            raise RuntimeError('Failed to set group control access list, try with sudo or as "root" user (requires CAP_SYS_ADMIN)') from ee
 
     def get_all_signals(self):
         """Call GEOPM D-Bus API and return all supported signal names
