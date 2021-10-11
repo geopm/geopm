@@ -30,11 +30,9 @@
 #
 
 EXTRA_DIST += integration/apps/parres/0001-Added-nstream-cublas-mpi-init-finalize-for-GEOPM.patch \
-	      integration/apps/parres/0002-Added-sgemm-cublas-mpi-init-finalize-for-GEOPM.patch \
-	      integration/apps/parres/0003-Added-transpose-cublas-mpi-init-finalize-for-GEOPM.patch \
-	      integration/apps/parres/__init__.py \
+              integration/apps/parres/__init__.py \
               integration/apps/parres/build.sh \
               integration/apps/parres/README.md \
-	      integration/apps/parres/parres.py \
-	      integration/apps/parres/parres.experiment.setup \
+              integration/apps/parres/parres.py \
+              integration/apps/parres/parres.experiment.setup \
               # end

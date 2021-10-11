@@ -103,18 +103,3 @@ $nvcc_bin \
     -L$cuda_lib \
     -L$cuda_lib -D_MWAITXINTRIN_H_INCLUDED -DPRKVERSION="2.16" nstream-cublas.cu -lcublas $mpi_flags -o nstream-mpi-cublas
 
-# Compile MPI version of sgemm
-$nvcc_bin \
-    --compiler-bindir=$gcc_bindir \
-    --gpu-architecture=sm_70 \
-    --expt-extended-lambda -g -O3 -std=c++14 \
-    -L$cuda_lib \
-    -L$cuda_lib -D_MWAITXINTRIN_H_INCLUDED -DPRKVERSION="2.16" sgemm-cublas.cu -lcublas $mpi_flags -o sgemm-mpi-cublas
-
-# Compile MPI version of transpose
-$nvcc_bin \
-    --compiler-bindir=$gcc_bindir \
-    --gpu-architecture=sm_70 \
-    --expt-extended-lambda -g -O3 -std=c++14 \
-    -L$cuda_lib \
-    -L$cuda_lib -D_MWAITXINTRIN_H_INCLUDED -DPRKVERSION="2.16" transpose-cublas.cu -lcublas $mpi_flags -o transpose-mpi-cublas
