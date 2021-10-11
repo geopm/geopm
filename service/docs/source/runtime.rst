@@ -292,8 +292,8 @@ reasons it is difficult to document how to correctly affinitize
 processes in all configurations.  Please refer to your site
 documentation about CPU affinity for the best solution on the system
 you are using and consider extending the geopmlaunch wrapper to
-support your system configuration (please see the CONTRIBUTING.md file
-for information about how to share these implementation with the
+support your system configuration (please see the CONTRIBUTING.rst file
+for information about how to share these implementations with the
 community).
 
 Resource Manager Integration
