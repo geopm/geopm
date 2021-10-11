@@ -32,7 +32,7 @@
 #
 
 '''
-Run Hacc with the monitor agent.
+Run ParRes dgemm with the monitor agent.
 '''
 
 import argparse

@@ -32,7 +32,7 @@
 #
 
 '''
-Run Hacc with the monitor agent.
+Run ParRes nstream with the monitor agent.
 '''
 
 import argparse
