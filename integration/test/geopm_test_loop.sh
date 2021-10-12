@@ -31,18 +31,30 @@
 #
 
 COUNT=0
+ERR=0
 LOG_FILE=test_loop_output.log
 
-while [ $? -eq 0 -a ${COUNT} -lt 10 ];
+while [ ${ERR} -eq 0 -a ${COUNT} -lt 10 ];
 do
     COUNT=$((COUNT+1))
     echo "TEST LOOPER: Beginning loop ${COUNT}..." > >(tee -a ${LOG_FILE})
     GEOPM_RUN_LONG_TESTS=true python3 . -v $1 > >(tee -a ${LOG_FILE}) 2>&1
+    ERR=$?
+
+    if [ ${ERR} -eq 0 ]; then
+        pushd ${GEOPM_SOURCE}/service/integration/test
+        # Requirements for service testing
+        srun -N${SLURM_NNODES} -- sudo /usr/sbin/install_service.sh $(cat ../../VERSION) ${USER}
+        python3 . &> ${GEOPM_SOURCE}/integration/test/service_tests.log
+        ERR=$?
+        # TODO Run legacy tests through service after removing msr-safe privs
+        srun -N4 -- sudo /usr/sbin/install_service.sh --remove
+        popd
+    fi
 done
-TEST_RETURN_CODE=$?
 
 #Do email only if there was a failure
-if [ ${TEST_RETURN_CODE} -ne 0 ]; then
+if [ ${ERR} -ne 0 ]; then
     touch .tests_failed
 fi
 
