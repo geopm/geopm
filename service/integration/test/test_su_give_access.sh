@@ -41,7 +41,7 @@ if [[ $# -gt 0 ]] && [[ $1 == '--help' ]]; then
     the existing settings so they can be restored at the end of the
     test.  Access to the control is removed from the list, and it is
     shown that the test user cannot succesfully run the
-    test_write_session.sh script.  Access to the control is granted
+    check_write_session.sh script.  Access to the control is granted
     and it is shown that the test user can succefully change the
     value.
 
@@ -54,9 +54,9 @@ CONTROL=MSR::PERF_CTL:FREQ
 TEST_DIR=$(dirname $(readlink -f $0))
 TEST_USER=test
 if [[ $(whoami) == 'root' ]]; then
-    TEST_SCRIPT="su ${TEST_USER} ${TEST_DIR}/test_write_session.sh"
+    TEST_SCRIPT="su ${TEST_USER} ${TEST_DIR}/check_write_session.sh"
 else
-    TEST_SCRIPT=${TEST_DIR}/test_write_session.sh
+    TEST_SCRIPT=${TEST_DIR}/check_write_session.sh
 fi
 SAVE_SIGNALS=$(mktemp)
 SAVE_CONTROLS=$(mktemp)
