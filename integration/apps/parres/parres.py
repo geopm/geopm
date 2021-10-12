@@ -70,21 +70,14 @@ def setup_run_args(parser):
     parser.add_argument('--parres-args', dest='parres_args',
                         action='store', type=str,
                         help='Arguments for parres binary')
-    parser.add_argument('--use-mpi-pin-default-list', dest='mpi_pin_default',
-                        action='store_const', const=True, default=False,
-                        help='export I_MPI_PIN_PROCESSOR_LIST with default list, must run with arg geopm-affinity-disable')
-    parser.add_argument('--use-mpi-pin-list', dest='mpi_pin_list',
-                        action='store', type=str,
-                        help='export specified I_MPI_PIN_PROCESSOR_LIST, must run with arg geopm-affinity-disable')
 
     
     
 def create_dgemm_appconf(mach, args):
     ''' Create a ParresAppConfig object from an ArgParse and experiment.machine object.                                                                                                                                                                                                                                                                         
     '''
-    return ParresDgemmAppConf(mach, args.node_count, args.parres_cores_per_node,
-                              args.parres_gpus_per_node, args.parres_cores_per_rank, args.parres_init_setup, args.parres_exp_setup, args.parres_teardown,
-                              args.parres_args,args.mpi_pin_default, args.mpi_pin_list)
+    return ParresDgemmAppConf(mach, args.node_count, args.parres_cores_per_node, args.node_count,
+                              args.parres_gpus_per_node, args.parres_cores_per_rank, args.parres_init_setup, args.parres_exp_setup, args.parres_teardown, args.parres_args)
 
     
 class ParresDgemmAppConf(apps.AppConf):
@@ -92,7 +85,7 @@ class ParresDgemmAppConf(apps.AppConf):
     def name():
         return 'parres_dgemm'
 
-    def __init__(self, mach, num_nodes, cores_per_node, gpus_per_node, cores_per_rank, parres_init_setup, parres_exp_setup, parres_teardown, parres_args, mpi_pin_default, mpi_pin_list):
+    def __init__(self, mach, num_nodes, cores_per_node, node_count, gpus_per_node, cores_per_rank, parres_init_setup, parres_exp_setup, parres_teardown, parres_args):
         if cores_per_node is None:
             self._cores_per_node = 4
         else:
@@ -105,6 +98,9 @@ class ParresDgemmAppConf(apps.AppConf):
                                'per rank: {} % {}'.format(self._cores_per_node, cores_per_rank))
         self._cores_per_rank = cores_per_rank
 
+        if node_count != 1:
+            raise RuntimeError('ParRes Dgemm is only setup for 1 node not {}'.format(node_count))
+        
         if gpus_per_node is None:
             gpus_per_node = mach.num_board_accelerator()
         else:
@@ -116,18 +112,6 @@ class ParresDgemmAppConf(apps.AppConf):
                 
         benchmark_dir = os.path.dirname(os.path.abspath(__file__))
 
-        affinity_disable = False
-        if mpi_pin_list is not None:
-            affinity_disable = True
-
-        elif mpi_pin_default:
-            affinity_disable = True
-            mpi_pin_list = "1,2,3,21,22"
-
-        if affinity_disable:
-            os.environ["I_MPI_PIN_PROCESSOR_LIST"] = mpi_pin_list
-            
-            
         if not parres_init_setup is None:
             if not os.path.isfile(parres_init_setup):
                 if (os.path.isfile(os.path.join(benchmark_dir, parres_init_setup))):
@@ -202,9 +186,9 @@ class ParresDgemmAppConf(apps.AppConf):
 def create_nstream_appconf(mach, args):
     ''' Create a ParresAppConfig object from an ArgParse and experiment.machine object.                                                                                                                                                                                                                                                                         
     '''
-    return ParresNstreamAppConf(mach, args.node_count, args.parres_cores_per_node,
+    return ParresNstreamAppConf(mach, args.node_count, args.parres_cores_per_node, args.node_count,
                                 args.parres_gpus_per_node, args.parres_cores_per_rank, args.parres_init_setup, args.parres_exp_setup, args.parres_teardown,
-                                args.parres_args, args.mpi_pin_default, args.mpi_pin_list)
+                                args.parres_args)
 
     
 class ParresNstreamAppConf(apps.AppConf):
@@ -212,7 +196,7 @@ class ParresNstreamAppConf(apps.AppConf):
     def name():
         return 'parres_nstream'
 
-    def __init__(self, mach, num_nodes, cores_per_node, gpus_per_node, cores_per_rank, parres_init_setup, parres_exp_setup, parres_teardown, parres_args, mpi_pin_default, mpi_pin_list):
+    def __init__(self, mach, num_nodes, cores_per_node, node_count, gpus_per_node, cores_per_rank, parres_init_setup, parres_exp_setup, parres_teardown, parres_args):
         if cores_per_node is None:
             self._cores_per_node = 1
         else:
@@ -224,6 +208,9 @@ class ParresNstreamAppConf(apps.AppConf):
                                'per rank: {} % {}'.format(self._cores_per_node, cores_per_rank))
         self._cores_per_rank = cores_per_rank
 
+        if node_count != 1:
+            raise RuntimeError('ParRes Dgemm is only setup for 1 node not {}'.format(node_count))
+        
         if gpus_per_node is None:
             gpus_per_node = 1
         else:
@@ -236,18 +223,6 @@ class ParresNstreamAppConf(apps.AppConf):
                 
         benchmark_dir = os.path.dirname(os.path.abspath(__file__))
 
-        affinity_disable = False
-        if mpi_pin_list is not None:
-            affinity_disable = True
-
-        elif mpi_pin_default:
-            affinity_disable = True
-            mpi_pin_list = "1,21"
-
-        if affinity_disable:
-            os.environ["I_MPI_PIN_PROCESSOR_LIST"] = mpi_pin_list
-            
-            
         if not parres_init_setup is None:
             if not os.path.isfile(parres_init_setup):
                 if (os.path.isfile(os.path.join(benchmark_dir, parres_init_setup))):
