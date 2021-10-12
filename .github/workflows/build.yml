@@ -118,4 +118,4 @@ jobs:
            cat scripts/test/pytest_links/*.log || true
            cat service/geopmdpy_test/pytest_links/*.log || true
            cat test/gtest_links/*.log || true
-           cat test/service/gtest_links/*.log || true
+           cat service/test/gtest_links/*.log || true
