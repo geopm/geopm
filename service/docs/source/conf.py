@@ -44,7 +44,7 @@ sys.path.insert(0, os.path.abspath('../..'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'GEOPM Service'
+project = 'GEOPM'
 copyright = '2021, Intel (R) Corporation'
 author = 'Intel (R) Corporation'
 
