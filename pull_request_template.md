@@ -11,6 +11,6 @@ either of the following links:
 
 https://github.com/geopm/geopm/blob/dev/CONTRIBUTING.rst#change-request
 
-https://geopm.github.io/geopmdpy/contrib.html#change-request
+https://geopm.github.io/contrib.html#change-request
 
 about the process to change the GEOPM repository.

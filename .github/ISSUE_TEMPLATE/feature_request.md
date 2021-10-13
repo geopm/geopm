@@ -27,6 +27,6 @@ either of the following links:
 
 https://github.com/geopm/geopm/blob/dev/CONTRIBUTING.rst#feature-request
 
-https://geopm.github.io/geopmdpy/contrib.html#feature-request
+https://geopm.github.io/contrib.html#feature-request
 
 about the process of developing a GEOPM feature.

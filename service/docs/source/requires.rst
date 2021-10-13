@@ -8,7 +8,7 @@ all provided by commonly used Linux distributions.  A user that is
 only interested in using the GEOPM Service will find all of the
 dependencies in this page.  A user of the GEOPM HPC Runtime should
 refer to the documentation for that feature
-`here <https://geopm.github.io/geopmdpy/runtime.html>`__ to learn
+`here <https://geopm.github.io/runtime.html>`__ to learn
 about the external dependencies that the runtime requires.
 
 Build Requirements

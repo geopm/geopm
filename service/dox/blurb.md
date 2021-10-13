@@ -1,7 +1,7 @@
 GEOPM Systemd Service and Daemon
 ================================
 
-* [Primary documentation](https://geopm.github.io/geopmdpy/)
+* [Primary documentation](https://geopm.github.io)
 
 * Fine grained access management system for hardware features: read
   hardware "signals" and write hardware "controls".
