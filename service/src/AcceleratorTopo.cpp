@@ -32,10 +32,7 @@
 
 #include "config.h"
 
-#include <fstream>
-#include <iostream>
-#include <sstream>
-#include <string>
+#include <geopm/Helper.hpp>
 
 #include "geopm/Exception.hpp"
 #include "AcceleratorTopoNull.hpp"
@@ -45,15 +42,28 @@
 
 namespace geopm
 {
+    static std::unique_ptr<AcceleratorTopo> make_unique_accelerator_topo(void)
+    {
+        std::unique_ptr<AcceleratorTopo> result;
+        try {
+#ifdef GEOPM_ENABLE_NVML
+            result = geopm::make_unique<NVMLAcceratorTopo>();
+#elif defined(GEOPM_ENABLE_LEVELZERO)
+            result = geopm::make_unique<LevelZeroAcceleratorTopo>();
+#else
+            result = geopm::make_unique<AcceleratorTopoNull>();
+#endif
+        }
+        catch (const Exception &ex) {
+            result = geopm::make_unique<AcceleratorTopoNull>();
+        }
+        return result;
+    }
+
     const AcceleratorTopo &accelerator_topo(void)
     {
-#ifdef GEOPM_ENABLE_NVML
-        static NVMLAcceleratorTopo instance;
-#elif defined(GEOPM_ENABLE_LEVELZERO)
-        static LevelZeroAcceleratorTopo instance;
-#else
-        static AcceleratorTopoNull instance;
-#endif
-        return instance;
+        static std::unique_ptr<AcceleratorTopo> instance = make_unique_accelerator_topo();
+        return *instance;
     }
+
 }
