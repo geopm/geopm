@@ -11,7 +11,7 @@ GEOPM - Global Extensible Open Power Manager
 Web Pages
 ---------
 https://geopm.github.io <br>
-https://geopm.github.io/geopmdpy/ <br>
+https://geopm.github.io/ <br>
 https://geopm.github.io/man/geopm.7.html <br>
 https://geopm.slack.com
 
@@ -67,7 +67,7 @@ repository.  Please refer to the `service/README.rst` file for further
 documentation about the GEOPM Service.  Additionally a comprehensive
 overview of the GEOPM service is posted here:
 
-https://geopm.github.io/geopmdpy/
+https://geopm.github.io/
 
 
 GEOPM HPC Runtime
@@ -91,7 +91,7 @@ resource manager.
 More documentation on the GEOPM HPC Runtime is posted with our web
 documentation here:
 
-https://geopm.github.io/geopmdpy/runtime.html
+https://geopm.github.io/runtime.html
 
 
 Guide for Contributors
@@ -102,7 +102,7 @@ contributing guide for how some guidelines on how to participate.
 This guide is located in the root of the GEOPM repository in a file
 called `CONTRIBUTING.rst`.  This guide can also be viewed here:
 
-https://geopm.github.io/geopmdpy/contrib.html
+https://geopm.github.io/contrib.html
 
 
 Guide for GEOPM Developers
@@ -111,7 +111,7 @@ Guide for GEOPM Developers
 GEOPM is an open development project and we use Github to plan, review
 and test our work.  The proccess we follow is documented here:
 
-https://geopm.github.io/geopmdpy/devel.html
+https://geopm.github.io/devel.html
 
 this web page provides a guide for developers wishing to modify source
 code anywhere in the GEOPM repository for both the `geopm-service` and

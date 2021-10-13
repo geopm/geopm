@@ -152,7 +152,7 @@ Developers Guide
 
 The guide for developers is maintained here:
 
-https://geopm.github.io/geopmdpy/devel.html
+https://geopm.github.io/devel.html
 
 Refer to this guide to learn how to make changes to the GEOPM source
 code.
