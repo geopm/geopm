@@ -67,7 +67,7 @@ namespace geopm
     void POSIXSignalImp::check_return(int err, const std::string &func_name) const
     {
         if (err != 0) {
-            throw Exception("POSIXSignal(): Sytem call " + func_name +
+            throw Exception("POSIXSignal(): POSIX signal function call " + func_name +
                             " returned an error", err, __FILE__, __LINE__);
         }
     }
