@@ -1,6 +1,6 @@
 
-GEOPM Systemd Service and Daemon
-================================
+GEOPM Systemd Service
+=====================
 
 
 *
