@@ -194,6 +194,8 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/PlatformIOImp.hpp \
                        src/PlatformTopo.cpp \
                        src/PlatformTopoImp.hpp \
+                       src/POSIXSignal.cpp \
+                       src/POSIXSignal.hpp \
                        src/RawMSRSignal.cpp \
                        src/RawMSRSignal.hpp \
                        src/SDBus.hpp \
