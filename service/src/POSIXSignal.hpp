@@ -49,11 +49,48 @@ namespace geopm
             /// @return Unique pointer to an implementation of the
             ///         POSIXSignal interface.
             static std::unique_ptr<POSIXSignal> make_unique(void);
+            /// @brief Create a sigset_t from a set of signal numbers
+            ///
+            /// @param signal_set [in]: Set of all signal numbers to
+            ///                         add to the sigset.
+            ///
+            /// @return A sigset_t that is zeroed execept for
+            ///         specified signals
             virtual sigset_t make_sigset(const std::set<int> &signal_set) const = 0;
-            /// @brief Wrapper around sigwait(2)
-            /// @param set [in]
-            /// @return Signal that was sent
+            /// @brief Wrapper around sigwait()
+            ///
+            /// @param sigset [in] Set of signals to wait for
+            ///
+            /// @return Signal number that was sent
             virtual int signal_wait(const sigset_t &sigset) const = 0;
+            /// @brief Wrapper around sigwaitinfo()
+            ///
+            /// @param sigset [in] Set of signals to wait for
+            ///
+            /// @param timeout [in] The wait timeout in seconds, if
+            ///                zero then no timeout is used (infinte
+            ///                wait).
+            ///
+            /// @return The POSIX defined siginfo_t struct that
+            ///         describes the signal that was received.
+            virtual siginfo_t signal_wait_info(const sigset_t &sigset) const = 0;
+            /// @brief Wrapper around sigtimedwait()
+            ///
+            /// @param sigset [in] Set of signals to wait for
+            ///
+            /// @return Signal number that was sent
+            virtual int signal_wait(const sigset_t &sigset, double timeout) const = 0;
+            /// @brief Wrapper around sigtimedwaitinfo()
+            ///
+            /// @param sigset [in] Set of signals to wait for
+            ///
+            /// @param timeout [in] The wait timeout in seconds, if
+            ///                zero then no timeout is used (infinte
+            ///                wait).
+            ///
+            /// @return The POSIX defined siginfo_t struct that
+            ///         describes the signal that was received.
+            virtual siginfo_t signal_wait_info(const sigset_t &sigset, double timeout) const = 0;
     };
 
     class POSIXSignalImp : public POSIXSignal
