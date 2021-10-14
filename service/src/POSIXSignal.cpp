@@ -56,6 +56,33 @@ namespace geopm
         return result;
     }
 
+    POSIXSignal::m_info_s POSIXSignalImp::reduce_info(siginfo_t const &info) const
+    {
+        return {};
+    }
+
+    int POSIXSignalImp::sig_wait_info(sigset_t const *sigset, siginfo_t *info) const
+    {
+        return 0;
+    }
+
+    int POSIXSignalImp::sig_timed_wait(sigset_t const *sigset, siginfo_t *info,
+                                       const timespec *timout) const
+    {
+        return 0;
+    }
+
+    void POSIXSignalImp::sig_queue(pid_t pid, int sig, int value) const
+    {
+
+    }
+
+    void POSIXSignalImp::sig_action(int signum, const struct sigaction *act,
+                                    struct sigaction *oldact) const
+    {
+
+    }
+
 #if 0 // This method is not defined any more.  Leaving the code here
       // as an example
     int POSIXSignalImp::signal_wait(const sigset_t &sigset) const
