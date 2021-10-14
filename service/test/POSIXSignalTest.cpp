@@ -119,13 +119,13 @@ TEST_F(POSIXSignalTest, sig_action)
 {
     std::string errmsg_expect = "Bad address: POSIXSignal(): POSIX signal function call sigaction() returned an error";
     struct sigaction oldact;
-    struct sigaction newact {};
+    struct sigaction newact;
     GEOPM_EXPECT_THROW_MESSAGE(
         m_posix_sig->sig_action(SIGCONT, nullptr, &oldact),
         EFAULT, errmsg_expect);
 
     errmsg_expect = "Invalid argument: POSIXSignal(): POSIX signal function call sigaction() returned an error";
     GEOPM_EXPECT_THROW_MESSAGE(
-        m_posix_sig->sig_action(-1, &newact, &oldact),
+        m_posix_sig->sig_action(SIGKILL, &newact, &oldact),
         EINVAL, errmsg_expect);
 }
