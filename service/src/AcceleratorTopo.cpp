@@ -47,7 +47,7 @@ namespace geopm
         std::unique_ptr<AcceleratorTopo> result;
         try {
 #ifdef GEOPM_ENABLE_NVML
-            result = geopm::make_unique<NVMLAcceratorTopo>();
+            result = geopm::make_unique<NVMLAcceleratorTopo>();
 #elif defined(GEOPM_ENABLE_LEVELZERO)
             result = geopm::make_unique<LevelZeroAcceleratorTopo>();
 #else
