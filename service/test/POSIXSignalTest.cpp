@@ -60,8 +60,9 @@ TEST_F(POSIXSignalTest, make_sigset)
     EXPECT_EQ(1, sigismember(&sigset, SIGSTOP));
     EXPECT_EQ(0, sigismember(&sigset, SIGIO));
     EXPECT_EQ(0, sigismember(&sigset, SIGCHLD));
+    std::string errmsg_expect = "Invalid argument: POSIXSignal(): POSIX signal function call sigaddset() returned an error";
     GEOPM_EXPECT_THROW_MESSAGE(m_posix_sig->make_sigset({-1}),
-                               EINVAL, "invalid signal number");
+                               EINVAL, errmsg_expect);
 }
 
 TEST_F(POSIXSignalTest, reduce_info)
@@ -80,4 +81,21 @@ TEST_F(POSIXSignalTest, reduce_info)
     EXPECT_EQ(expect_signal, info.signo);
     EXPECT_EQ(expect_pid, info.pid);
     EXPECT_EQ(expect_value, info.value);
+}
+
+TEST_F(POSIXSignalTest, sig_timed_wait)
+{
+    siginfo_t info;
+    timespec timeout {0,1000};
+    sigset_t sigset = m_posix_sig->make_sigset({SIGSTOP});
+    std::string errmsg_expect = "Resource temporarily unavailable: POSIXSignal(): POSIX signal function call sigtimedwait() returned an error";
+    GEOPM_EXPECT_THROW_MESSAGE(
+        m_posix_sig->sig_timed_wait(&sigset, &info, &timeout),
+        EAGAIN, errmsg_expect);
+
+    timeout = {-1, -1};
+    errmsg_expect = "Invalid argument: POSIXSignal(): POSIX signal function call sigtimedwait() returned an error";
+    GEOPM_EXPECT_THROW_MESSAGE(
+        m_posix_sig->sig_timed_wait(&sigset, &info, &timeout),
+        EINVAL, errmsg_expect);
 }

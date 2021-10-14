@@ -215,6 +215,7 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
               test/gtest_links/PlatformTopoTest.call_c_wrappers \
               test/gtest_links/POSIXSignalTest.make_sigset \
               test/gtest_links/POSIXSignalTest.reduce_info \
+              test/gtest_links/POSIXSignalTest.sig_timed_wait \
               test/gtest_links/RawMSRSignalTest.errors \
               test/gtest_links/RawMSRSignalTest.read \
               test/gtest_links/RawMSRSignalTest.read_batch \
