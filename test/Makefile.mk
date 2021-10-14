@@ -520,9 +520,14 @@ $(GTEST_TESTS): test/gtest_links/%:
 	rm -f $@
 	ln -s $(abs_builddir)/test/geopm_test.sh $@
 
-coverage: check
+init-coverage:
+	lcov --no-external --capture --initial --directory src --output-file coverage-base-initial.info
+
+coverage: | init-coverage check
 	lcov --no-external --capture --directory src --output-file coverage-base.info
-	genhtml coverage-base.info --output-directory coverage-base
+	lcov -a coverage-base-initial.info -a coverage-base.info --output-file coverage-base-combined.info
+	lcov --remove coverage-base-combined.info "$$(realpath $$(pwd))/src/geopm_pmpi_fortran.c" --output-file coverage-base-combined-filtered.info
+	genhtml coverage-base-combined-filtered.info --output-directory coverage-base --legend -t $$(git describe) -f
 
 clean-local-gtest-script-links:
 	rm -f test/gtest_links/*

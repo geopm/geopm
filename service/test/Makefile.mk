@@ -361,9 +361,13 @@ $(GTEST_TESTS): test/gtest_links/%:
 	rm -f $@
 	ln -s $(abs_srcdir)/test/geopm_test.sh $@
 
-coverage: check
+init-coverage:
+	lcov --no-external --capture --initial --directory src --output-file coverage-service-initial.info
+
+coverage: | init-coverage check
 	lcov --no-external --capture --directory src --output-file coverage-service.info
-	genhtml coverage-service.info --output-directory coverage-service
+	lcov -a coverage-service-initial.info -a coverage-service.info --output-file coverage-service-combined.info
+	genhtml coverage-service-combined.info --output-directory coverage-service --legend -t $$(git describe) -f
 
 clean-local-gtest-script-links:
 	rm -f test/gtest_links/*
