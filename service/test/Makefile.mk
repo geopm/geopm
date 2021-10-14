@@ -213,6 +213,8 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
               test/gtest_links/PlatformTopoTest.ppc_num_domain \
               test/gtest_links/PlatformTopoTest.singleton_construction \
               test/gtest_links/PlatformTopoTest.call_c_wrappers \
+              test/gtest_links/POSIXSignalTest.make_sigset \
+              test/gtest_links/POSIXSignalTest.reduce_info \
               test/gtest_links/RawMSRSignalTest.errors \
               test/gtest_links/RawMSRSignalTest.read \
               test/gtest_links/RawMSRSignalTest.read_batch \
@@ -329,6 +331,7 @@ test_geopm_test_SOURCES = test/AcceleratorTopoNullTest.cpp \
                           test/MockSSTIoctl.hpp \
                           test/NVMLAcceleratorTopoTest.cpp \
                           test/NVMLIOGroupTest.cpp \
+                          test/POSIXSignalTest.cpp \
                           test/PlatformIOTest.cpp \
                           test/PlatformTopoTest.cpp \
                           test/RawMSRSignalTest.cpp \
