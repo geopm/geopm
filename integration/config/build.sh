@@ -65,7 +65,6 @@ if [[ ${1} == '--help' ]]; then
 fi
 
 GEOPM_SOURCE=${GEOPM_SOURCE:-${PWD}}
-GEOPM_OBJDIR=${GEOPM_OBJDIR:-.}
 cd ${GEOPM_SOURCE}
 BUILD_ENV="integration/config/build_env.sh"
 if [ ! -f "${BUILD_ENV}" ]; then
@@ -105,11 +104,17 @@ build(){
         ./autogen.sh
     fi
 
-    mkdir -p ${GEOPM_OBJDIR} # Objects created at configure time will go here
-    cd ${GEOPM_OBJDIR}
+    if [ ! -z ${GEOPM_OBJDIR+x} ]; then
+        mkdir -p ${GEOPM_OBJDIR} # Objects created at configure time will go here
+        cd ${GEOPM_OBJDIR}
+    fi
 
     if [ ! -f "Makefile" ]; then
-        ${BUILDROOT}/configure ${1}
+        if [ ! -z ${GEOPM_OBJDIR+x} ]; then
+            ${BUILDROOT}/configure ${1}
+        else
+            ./configure ${1}
+        fi
     fi
     make -j${GEOPM_NUM_THREAD}
 
@@ -135,7 +140,11 @@ cd ${GEOPM_SOURCE}
 if [ -z ${GEOPM_SKIP_INSTALL+x} ]; then
     build "--with-geopmd=${GEOPM_INSTALL} ${GEOPM_BASE_CONFIG_OPTIONS}"
 else
-    build "--with-geopmd-lib=service/${GEOPM_OBJDIR}/.libs \
-           --with-geopmd-include=service/src \
-           ${GEOPM_BASE_CONFIG_OPTIONS}"
+    if [ ! -z ${GEOPM_OBJDIR+x} ]; then
+        build "--with-geopmd-lib=${GEOPM_SOURCE}/service/${GEOPM_OBJDIR}/.libs \
+               --with-geopmd-include=${GEOPM_SOURCE}/service/src \
+               ${GEOPM_BASE_CONFIG_OPTIONS}"
+    else
+        build "${GEOPM_BASE_CONFIG_OPTIONS}"
+    fi
 fi
