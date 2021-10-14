@@ -42,6 +42,14 @@ namespace geopm
     class POSIXSignal
     {
         public:
+            /// @brief Reduced information set from siginfo_t struct
+            /// defined in signal.h.
+            struct m_info_s {
+                int signo;
+                int value;
+                int pid;
+            };
+
             POSIXSignal() = default;
             virtual ~POSIXSignal() = default;
             /// @brief Factory method for POSIXSignal interface
@@ -49,6 +57,7 @@ namespace geopm
             /// @return Unique pointer to an implementation of the
             ///         POSIXSignal interface.
             static std::unique_ptr<POSIXSignal> make_unique(void);
+
             /// @brief Create a sigset_t from a set of signal numbers
             ///
             /// @param signal_set [in]: Set of all signal numbers to
@@ -57,40 +66,48 @@ namespace geopm
             /// @return A sigset_t that is zeroed execept for
             ///         specified signals
             virtual sigset_t make_sigset(const std::set<int> &signal_set) const = 0;
-            /// @brief Wrapper around sigwait()
+
+            /// @brief Extract the signal number, signal value integer
+            ///        and sending PID from a siginfo_t struct to
+            ///        simplify mock data.
+            virtual m_info_s reduce_info(const siginfo_t &info) const = 0;
+
+            //------------------------------------------------------------------
+            // Functions below here are wrappers around signal(7)
+            // functions.  They differ only in the conversion of error
+            // return values into raised geopm::Exceptions based on
+            // errno value.
+            // ------------------------------------------------------------------
+
+            /// @brief Wrapper for sigwaitinfo(3) that converts errors
+            ///        into Exceptions.
             ///
-            /// @param sigset [in] Set of signals to wait for
+            /// See documentation for sigwaitinfo(3) about parameters
+            /// and return value.
+            virtual int sig_wait_info(const sigset_t *sigset,
+                                      siginfo_t *info) const = 0;
+
+            /// @brief Wrapper for sigtimedwait(3) that converts errors
+            ///        into Exceptions.
             ///
-            /// @return Signal number that was sent
-            virtual int signal_wait(const sigset_t &sigset) const = 0;
-            /// @brief Wrapper around sigwaitinfo()
+            /// See documentation for sigtimedwait(3) about parameters
+            /// and return value.
+            virtual int sig_timed_wait(const sigset_t *sigset, siginfo_t *info,
+                                       const struct timespec *timeout) const = 0;
+
+            /// @brief Wrapper for sigqueue(3) that converts errors
+            ///        into Exceptions.
             ///
-            /// @param sigset [in] Set of signals to wait for
+            /// See documentation for sigqueue(3) about parameters.
+            virtual void sig_queue(pid_t pid, int sig,
+                                   int value) const= 0;
+
+            /// @brief Wrapper for sigaction(3) that converts errors
+            ///        into Exceptions.
             ///
-            /// @param timeout [in] The wait timeout in seconds, if
-            ///                zero then no timeout is used (infinte
-            ///                wait).
-            ///
-            /// @return The POSIX defined siginfo_t struct that
-            ///         describes the signal that was received.
-            virtual siginfo_t signal_wait_info(const sigset_t &sigset) const = 0;
-            /// @brief Wrapper around sigtimedwait()
-            ///
-            /// @param sigset [in] Set of signals to wait for
-            ///
-            /// @return Signal number that was sent
-            virtual int signal_wait(const sigset_t &sigset, double timeout) const = 0;
-            /// @brief Wrapper around sigtimedwaitinfo()
-            ///
-            /// @param sigset [in] Set of signals to wait for
-            ///
-            /// @param timeout [in] The wait timeout in seconds, if
-            ///                zero then no timeout is used (infinte
-            ///                wait).
-            ///
-            /// @return The POSIX defined siginfo_t struct that
-            ///         describes the signal that was received.
-            virtual siginfo_t signal_wait_info(const sigset_t &sigset, double timeout) const = 0;
+            /// See documentation for sigaction(3) about parameters.
+            virtual void sig_action(int signum, const struct sigaction *act,
+                                    struct sigaction *oldact) const = 0;
     };
 
     class POSIXSignalImp : public POSIXSignal
@@ -99,7 +116,14 @@ namespace geopm
             POSIXSignalImp() = default;
             virtual ~POSIXSignalImp() = default;
             sigset_t make_sigset(const std::set<int> &signal_set) const override;
-            int signal_wait(const sigset_t &signal_set) const override;
+            m_info_s reduce_info(const siginfo_t &info) const override;
+            int sig_wait_info(const sigset_t *sigset,
+                              siginfo_t *info) const override;
+            int sig_timed_wait(const sigset_t *sigset, siginfo_t *info,
+                               const struct timespec *timeout) const override;
+            void sig_queue(pid_t pid, int sig, int value) const override;
+            void sig_action(int signum, const struct sigaction *act,
+                            struct sigaction *oldact) const override;
         private:
             void check_return(int err, const std::string &func_name) const;
     };

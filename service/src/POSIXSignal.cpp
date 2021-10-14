@@ -34,6 +34,7 @@
 #include "POSIXSignal.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
+#include <cerrno>
 
 namespace geopm
 {
@@ -55,6 +56,8 @@ namespace geopm
         return result;
     }
 
+#if 0 // This method is not defined any more.  Leaving the code here
+      // as an example
     int POSIXSignalImp::signal_wait(const sigset_t &sigset) const
     {
         int result;
@@ -62,13 +65,14 @@ namespace geopm
         check_return(err, "sigwait");
         return result;
     }
+#endif
 
 
     void POSIXSignalImp::check_return(int err, const std::string &func_name) const
     {
-        if (err != 0) {
+        if (err == -1) {
             throw Exception("POSIXSignal(): POSIX signal function call " + func_name +
-                            " returned an error", err, __FILE__, __LINE__);
+                            " returned an error", errno, __FILE__, __LINE__);
         }
     }
 }
