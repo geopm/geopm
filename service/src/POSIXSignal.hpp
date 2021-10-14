@@ -45,9 +45,9 @@ namespace geopm
             /// @brief Reduced information set from siginfo_t struct
             /// defined in signal.h.
             struct m_info_s {
-                int signo;
-                int value;
-                int pid;
+                int signo;  // siginfo_t::si_signo;  /* Signal number */
+                int value;  // siginfo_t::si_value;  /* Signal value */
+                int pid;    // siginfo_t::si_pid;    /* Sending process ID */
             };
 
             POSIXSignal() = default;
@@ -60,6 +60,8 @@ namespace geopm
 
             /// @brief Create a sigset_t from a set of signal numbers
             ///
+            /// @throw geopm::Exception upon EINVAL
+            ///
             /// @param signal_set [in]: Set of all signal numbers to
             ///                         add to the sigset.
             ///
@@ -70,6 +72,10 @@ namespace geopm
             /// @brief Extract the signal number, signal value integer
             ///        and sending PID from a siginfo_t struct to
             ///        simplify mock data.
+            ///
+            /// @param info [in]: see sigaction(2) man page
+            ///
+            /// @return m_info_s reduced information set from siginfo_t struct
             virtual m_info_s reduce_info(const siginfo_t &info) const = 0;
 
             //------------------------------------------------------------------
@@ -79,33 +85,44 @@ namespace geopm
             // errno value.
             // ------------------------------------------------------------------
 
-            /// @brief Wrapper for sigwaitinfo(3) that converts errors
+            /// @brief Wrapper for sigwaitinfo(2) that converts errors
             ///        into Exceptions.
             ///
-            /// See documentation for sigwaitinfo(3) about parameters
-            /// and return value.
+            /// @throw geopm::Exception upon EAGAIN, EINTR, EINVAL
+            ///
+            /// @remark See documentation for sigwaitinfo(2) about parameters
+            ///         and return value.
             virtual int sig_wait_info(const sigset_t *sigset,
                                       siginfo_t *info) const = 0;
 
-            /// @brief Wrapper for sigtimedwait(3) that converts errors
+            /// @brief Wrapper for sigtimedwait(2) that converts errors
             ///        into Exceptions.
             ///
-            /// See documentation for sigtimedwait(3) about parameters
-            /// and return value.
+            /// @throw geopm::Exception upon EAGAIN, EINTR, EINVAL
+            ///
+            /// @remark See documentation for sigtimedwait(2) about parameters
+            ///         and return value.
             virtual int sig_timed_wait(const sigset_t *sigset, siginfo_t *info,
                                        const struct timespec *timeout) const = 0;
 
             /// @brief Wrapper for sigqueue(3) that converts errors
             ///        into Exceptions.
             ///
-            /// See documentation for sigqueue(3) about parameters.
+            /// @throw geopm::Exception upon EINVAL, ESRCH
+            ///
+            /// @remark See documentation for sigqueue(3) about parameters.
             virtual void sig_queue(pid_t pid, int sig,
                                    int value) const= 0;
 
-            /// @brief Wrapper for sigaction(3) that converts errors
+            /// @brief Wrapper for sigaction(2) that converts errors
             ///        into Exceptions.
             ///
-            /// See documentation for sigaction(3) about parameters.
+            /// @throw geopm::Exception upon EFAULT, EINVAL
+            ///
+            /// @warning The Linux API sigaction(2) does not properly implement error checking,
+            ///          so this function checks for EFAULT if `act` or `oldact` are `nullptr`
+            ///
+            /// @remark See documentation for sigaction(2) about parameters.
             virtual void sig_action(int signum, const struct sigaction *act,
                                     struct sigaction *oldact) const = 0;
     };
