@@ -33,6 +33,7 @@
 #include "POSIXSignal.hpp"
 
 #include <memory>
+#include <unistd.h>
 
 #include "gtest/gtest.h"
 #include "geopm_test.hpp"
@@ -97,5 +98,34 @@ TEST_F(POSIXSignalTest, sig_timed_wait)
     errmsg_expect = "Invalid argument: POSIXSignal(): POSIX signal function call sigtimedwait() returned an error";
     GEOPM_EXPECT_THROW_MESSAGE(
         m_posix_sig->sig_timed_wait(&sigset, &info, &timeout),
+        EINVAL, errmsg_expect);
+}
+
+TEST_F(POSIXSignalTest, sig_queue)
+{
+    std::string errmsg_expect = "Invalid argument: POSIXSignal(): POSIX signal function call sigqueue() returned an error";
+    int pid = getpid();
+    GEOPM_EXPECT_THROW_MESSAGE(
+        m_posix_sig->sig_queue(pid, -1, 2),
+        EINVAL, errmsg_expect);
+
+    errmsg_expect = "No such process: POSIXSignal(): POSIX signal function call sigqueue() returned an error";
+    GEOPM_EXPECT_THROW_MESSAGE(
+        m_posix_sig->sig_queue(999999999, SIGCONT, 2),
+        ESRCH, errmsg_expect);
+}
+
+TEST_F(POSIXSignalTest, sig_action)
+{
+    std::string errmsg_expect = "Bad address: POSIXSignal(): POSIX signal function call sigaction() returned an error";
+    struct sigaction oldact;
+    struct sigaction newact {};
+    GEOPM_EXPECT_THROW_MESSAGE(
+        m_posix_sig->sig_action(SIGCONT, nullptr, &oldact),
+        EFAULT, errmsg_expect);
+
+    errmsg_expect = "Invalid argument: POSIXSignal(): POSIX signal function call sigaction() returned an error";
+    GEOPM_EXPECT_THROW_MESSAGE(
+        m_posix_sig->sig_action(-1, &newact, &oldact),
         EINVAL, errmsg_expect);
 }
