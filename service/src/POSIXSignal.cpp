@@ -31,10 +31,12 @@
  */
 
 #include "config.h"
+
+#include <cerrno>
+
 #include "POSIXSignal.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
-#include <cerrno>
 
 namespace geopm
 {
@@ -56,44 +58,56 @@ namespace geopm
         return result;
     }
 
-    POSIXSignal::m_info_s POSIXSignalImp::reduce_info(siginfo_t const &info) const
+    POSIXSignal::m_info_s POSIXSignalImp::reduce_info(const siginfo_t &info) const
     {
-        return {};
+        POSIXSignal::m_info_s custom_signal_info = {0};
+        custom_signal_info.signo = info.si_signo;
+        custom_signal_info.value = info.si_value.sival_int;
+        custom_signal_info.pid   = info.si_pid;
+        return custom_signal_info;
     }
 
-    int POSIXSignalImp::sig_wait_info(sigset_t const *sigset, siginfo_t *info) const
+    int POSIXSignalImp::sig_wait_info(const sigset_t *sigset, siginfo_t *info) const
     {
-        return 0;
+        int result = sigwaitinfo(sigset, info);
+        check_return(result, "sigwaitinfo()");
+        return result;
     }
 
-    int POSIXSignalImp::sig_timed_wait(sigset_t const *sigset, siginfo_t *info,
-                                       const timespec *timout) const
+    int POSIXSignalImp::sig_timed_wait(const sigset_t *sigset, siginfo_t *info,
+                                       const timespec *timeout) const
     {
-        return 0;
+        int result = sigtimedwait(sigset, info, timeout);
+        check_return(result, "sigtimedwait()");
+        return result;
     }
 
     void POSIXSignalImp::sig_queue(pid_t pid, int sig, int value) const
     {
-
+        union sigval signal_value = {0};
+        signal_value.sival_int = value;
+        check_return(sigqueue(pid, sig, signal_value), "sigqueue()");
     }
 
     void POSIXSignalImp::sig_action(int signum, const struct sigaction *act,
                                     struct sigaction *oldact) const
     {
-
+        check_return(sigaction(signum, act, oldact), "sigaction()");
     }
 
-#if 0 // This method is not defined any more.  Leaving the code here
-      // as an example
-    int POSIXSignalImp::signal_wait(const sigset_t &sigset) const
+    void POSIXSignalImp::sig_proc_mask(int how, const sigset_t *set, sigset_t *oldset) const
     {
-        int result;
-        int err = sigwait(&sigset, &result);
-        check_return(err, "sigwait");
-        return result;
+        check_return(sigprocmask(how, set, oldset), "sigprocmask()");
     }
-#endif
 
+    void POSIXSignalImp::sig_suspend(const sigset_t *mask) const
+    {
+        sigsuspend(mask);
+        if (errno != EINTR) {
+            check_return(-1, "sigsuspend()");
+        }
+        errno = 0;
+    }
 
     void POSIXSignalImp::check_return(int err, const std::string &func_name) const
     {
