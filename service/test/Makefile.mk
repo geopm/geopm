@@ -367,7 +367,7 @@ init-coverage:
 coverage: | init-coverage check
 	lcov --no-external --capture --directory src --output-file coverage-service.info
 	lcov -a coverage-service-initial.info -a coverage-service.info --output-file coverage-service-combined.info
-	genhtml coverage-service-combined.info --output-directory coverage-service --legend -t $$(git describe) -f
+	genhtml coverage-service-combined.info --output-directory coverage-service --legend -t $(VERSION) -f
 
 clean-local-gtest-script-links:
 	rm -f test/gtest_links/*
