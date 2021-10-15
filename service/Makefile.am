@@ -151,6 +151,7 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/Control.hpp \
                        src/CpuinfoIOGroup.cpp \
                        src/CpuinfoIOGroup.hpp \
+                       src/DBusServer.cpp \
                        src/DBusServer.hpp \
                        src/DerivativeSignal.cpp \
                        src/DerivativeSignal.hpp \
