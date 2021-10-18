@@ -31,6 +31,8 @@
  */
 
 #include <sys/stat.h>
+#include <unistd.h>
+#include <errno.h>
 
 #include "gtest/gtest.h"
 #include "geopm_error.h"
@@ -40,6 +42,7 @@
 #include "geopm_test.hpp"
 
 using geopm::SharedMemory;
+using testing::Throw;
 
 class SharedMemoryTest : public :: testing :: Test
 {
@@ -197,4 +200,23 @@ TEST_F(SharedMemoryTest, lock_shmem_u)
     // mutex should be lockable again
     EXPECT_EQ(0, pthread_mutex_trylock(mutex));
     EXPECT_EQ(0, pthread_mutex_unlock(mutex));
+}
+
+TEST_F(SharedMemoryTest, chown)
+{
+    config_shmem();
+    gid_t gid = getgid();
+    uid_t uid = getuid();
+
+    // Sanity check: set to my own gid/uid
+    EXPECT_NO_THROW(m_shmem->chown(gid, uid));
+
+    // Try to set root gid/uid
+    GEOPM_EXPECT_THROW_MESSAGE(m_shmem->chown(0, 0),
+                               EPERM, "Could not chown shmem key");
+
+    m_shmem->unlink(); // Manually unlink unless config_shmem_u() is called
+
+    GEOPM_EXPECT_THROW_MESSAGE(m_shmem->chown(gid, uid),
+                               GEOPM_ERROR_RUNTIME, "unlinked");
 }

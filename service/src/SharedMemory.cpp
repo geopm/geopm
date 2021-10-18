@@ -264,4 +264,35 @@ namespace geopm
         m_is_linked = true;
         m_do_unlink_check = true;
     }
+
+    void SharedMemoryImp::chown(const unsigned int gid, const unsigned int uid) {
+        int err = 0;
+        int shm_id = -1;
+        if (m_is_linked) {
+            shm_id = shm_open(m_shm_key.c_str(), O_RDWR, 0);
+        }
+        else {
+            throw Exception("SharedMemoryImp: Cannot chown shm that has been unlinked.", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+
+        if (shm_id < 0) {
+            std::ostringstream ex_str;
+            ex_str << "SharedMemoryImp: Could not open shared memory with key \""  <<  m_shm_key << "\"";
+            throw Exception(ex_str.str(), errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+
+        err = fchown(shm_id, uid, gid);
+        if (err) {
+            std::ostringstream ex_str;
+            ex_str << "SharedMemoryImp: Could not chown shmem key (" << m_shm_key
+                   << ") to UID (" << std::to_string(uid)
+                   << "), GID (" << std::to_string(gid) + ")";
+            throw Exception(ex_str.str(), errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+
+        err = close(shm_id);
+        if (err) {
+            throw Exception("SharedMemoryImp: Could not close shared memory file", errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+    }
 }
