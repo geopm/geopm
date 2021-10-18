@@ -82,13 +82,20 @@ namespace geopm
                 size_t signal_size = signal_config.size() * sizeof(double);
                 size_t control_size = control_config.size() * sizeof(double);
                 std::string shmem_prefix = "/geopm-service-" + m_server_key;
+                // TODO: Manage ownership
+                // int uid = m_posix_signal->pid_to_uid(client_pid);
+                // int gid = m_posix_signal->pid_to_gid(client_pid);
                 if (signal_size != 0) {
                     m_signal_shmem = SharedMemory::make_unique_owner(
                         shmem_prefix + "-signals", signal_size);
+                    // Requires a chown if server is different user than client
+                    // m_signal_shmem->chown(gid, uid);
                 }
                 if (control_size != 0) {
                     m_control_shmem = SharedMemory::make_unique_owner(
                         shmem_prefix + "-controls", control_size);
+                    // Requires a chown if server is different user than client
+                    // m_control_shmem->chown(gid, uid);
                 }
                 run_batch(parent_pid);
                 exit(0);
