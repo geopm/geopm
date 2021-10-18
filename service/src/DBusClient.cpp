@@ -44,6 +44,15 @@
 
 namespace geopm
 {
+    std::unique_ptr<DBusClient> DBusClient::make_unique(int server_pid,
+                                                        const std::string &server_key,
+                                                        int num_signal,
+                                                        int num_control)
+    {
+        return geopm::make_unique<DBusClientImp>(server_pid, server_key,
+                                                 num_signal, num_control);
+    }
+
     DBusClientImp::DBusClientImp(int server_pid, const std::string &server_key,
                                  int num_signal, int num_control)
         : DBusClientImp(server_pid, num_signal, num_control,

@@ -35,11 +35,14 @@
 #include "ServiceIOGroup.hpp"
 
 #include <cmath>
+#include <climits>
 #include "geopm/Agg.hpp"
 #include "ServiceProxy.hpp"
+#include "DBusClient.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm/PlatformTopo.hpp"
 #include "geopm_debug.hpp"
+#include "geopm_internal.h"
 
 namespace geopm
 {
@@ -155,42 +158,59 @@ namespace geopm
                                     int domain_type,
                                     int domain_idx)
     {
-        throw Exception("ServiceIOGroup::push_signal()",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
-        return -1;
+        if (signal_name.size() >= NAME_MAX) {
+            throw Exception("ServiceIOGroup::push_signal(): signal_name: " + signal_name + " is too long",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        geopm_request_s request;
+        request.domain = domain_type;
+        request.domain_idx = domain_idx;
+        request.name[NAME_MAX - 1] = '\0';
+        strncpy(request.name, signal_name.c_str(), NAME_MAX - 1);
+        m_signal_requests.push_back(request);
+        return m_signal_requests.size();
     }
 
     int ServiceIOGroup::push_control(const std::string &control_name,
                                      int domain_type,
                                      int domain_idx)
     {
-        throw Exception("ServiceIOGroup::push_control()",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
-        return -1;
+        if (control_name.size() >= NAME_MAX) {
+            throw Exception("ServiceIOGroup::push_control(): control_name: " + control_name + " is too long",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        geopm_request_s request;
+        request.domain = domain_type;
+        request.domain_idx = domain_idx;
+        request.name[NAME_MAX - 1] = '\0';
+        strncpy(request.name, control_name.c_str(), NAME_MAX - 1);
+        m_control_requests.push_back(request);
+        return m_control_requests.size();
     }
 
     void ServiceIOGroup::read_batch(void)
     {
-        // No implementation until we support push_signal()
+        init_batch_server();
+        m_batch_samples = m_batch_server->read_batch();
     }
 
     void ServiceIOGroup::write_batch(void)
     {
-        // No implementation until we support push_control()
+        init_batch_server();
+        m_batch_server->write_batch(m_batch_settings);
     }
 
     double ServiceIOGroup::sample(int sample_idx)
     {
-        throw Exception("ServiceIOGroup::sample()",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
-        return NAN;
+        // TODO: Check that sample_idx is in range and batch_server is not null
+        return m_batch_samples.at(sample_idx);
     }
 
     void ServiceIOGroup::adjust(int control_idx,
                                 double setting)
     {
-        throw Exception("ServiceIOGroup::adjust()",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        // TODO: Check that control_idx is in range and batch_server is not null
+        m_batch_settings.at(control_idx) = setting;
     }
 
     double ServiceIOGroup::read_signal(const std::string &signal_name,
@@ -309,6 +329,21 @@ namespace geopm
     void ServiceIOGroup::restore_control(const std::string &save_path)
     {
         // Proxy, so no direct save/restore
+    }
+
+    void ServiceIOGroup::init_batch_server(void)
+    {
+        if (m_batch_server == nullptr) {
+            int server_pid = 0;
+            std::string server_key;
+            m_service_proxy->platform_start_batch(m_signal_requests,
+                                                  m_control_requests,
+                                                  server_pid,
+                                                  server_key);
+            m_batch_server = DBusClient::make_unique(server_pid, server_key,
+                                                     m_signal_requests.size(),
+                                                     m_control_requests.size());
+        }
     }
 
     std::string ServiceIOGroup::strip_plugin_name(const std::string &name)
