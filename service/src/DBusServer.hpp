@@ -110,7 +110,6 @@ namespace geopm
             /// end a batch session and kill the batch server process
             /// created by start_batch_server().
             virtual void stop_batch(void) = 0;
-            virtual void run_batch(int parent_pid) = 0;
             virtual bool is_active(void) const = 0;
     };
 
@@ -131,7 +130,7 @@ namespace geopm
             int server_pid(void) const override;
             std::string server_key(void) const override;
             void stop_batch(void) override;
-            void run_batch(int parent_pid) override;
+            void run_batch(int parent_pid);
             bool is_active(void) const override;
         private:
             void push_requests(void);

@@ -158,6 +158,7 @@ namespace geopm
                                     int domain_type,
                                     int domain_idx)
     {
+        // TODO: More checks required that read_batch()/adjust() was not called
         if (signal_name.size() >= NAME_MAX) {
             throw Exception("ServiceIOGroup::push_signal(): signal_name: " + signal_name + " is too long",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -175,6 +176,7 @@ namespace geopm
                                      int domain_type,
                                      int domain_idx)
     {
+        // TODO: More checks required that read_batch()/adjust() was not called
         if (control_name.size() >= NAME_MAX) {
             throw Exception("ServiceIOGroup::push_control(): control_name: " + control_name + " is too long",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -196,7 +198,6 @@ namespace geopm
 
     void ServiceIOGroup::write_batch(void)
     {
-        init_batch_server();
         m_batch_server->write_batch(m_batch_settings);
     }
 
@@ -210,6 +211,7 @@ namespace geopm
                                 double setting)
     {
         // TODO: Check that control_idx is in range and batch_server is not null
+        init_batch_server();
         m_batch_settings.at(control_idx) = setting;
     }
 

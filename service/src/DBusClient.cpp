@@ -59,7 +59,6 @@ namespace geopm
                         POSIXSignal::make_unique(),
                         SharedMemory::make_unique_user("/geopm-service-" + server_key + "-signals", 1.0),
                         SharedMemory::make_unique_user("/geopm-service-" + server_key + "-controls", 1.0))
-
     {
 
     }
