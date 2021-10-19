@@ -122,14 +122,14 @@ TEST_F(LevelZeroAcceleratorTopoTest, four_forty_config)
     EXPECT_EQ(num_accelerator_subdevice, topo_sub.num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP));
 
     std::set<int> cpus_allowed_set_subdevice[num_accelerator_subdevice];
-    cpus_allowed_set_subdevice[0] = {0,1,2,3,4};
-    cpus_allowed_set_subdevice[1] = {5,6,7,8,9};
-    cpus_allowed_set_subdevice[2] = {10,11,12,13,14};
-    cpus_allowed_set_subdevice[3] = {15,16,17,18,19};
-    cpus_allowed_set_subdevice[4] = {20,21,22,23,24};
-    cpus_allowed_set_subdevice[5] = {25,26,27,28,29};
-    cpus_allowed_set_subdevice[6] = {30,31,32,33,34};
-    cpus_allowed_set_subdevice[7] = {35,36,37,38,39};
+    cpus_allowed_set_subdevice[0] = {0,2,4,6,8};
+    cpus_allowed_set_subdevice[1] = {1,3,5,7,9};
+    cpus_allowed_set_subdevice[2] = {10,12,14,16,18};
+    cpus_allowed_set_subdevice[3] = {11,13,15,17,19};
+    cpus_allowed_set_subdevice[4] = {20,22,24,26,28};
+    cpus_allowed_set_subdevice[5] = {21,23,25,27,29};
+    cpus_allowed_set_subdevice[6] = {30,32,34,36,38};
+    cpus_allowed_set_subdevice[7] = {31,33,35,37,39};
 
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
         ASSERT_THAT(topo_sub.cpu_affinity_ideal(accel_idx), cpus_allowed_set[accel_idx]);
@@ -194,12 +194,14 @@ TEST_F(LevelZeroAcceleratorTopoTest, uneven_affinitization_config)
     }
 
     std::set<int> cpus_allowed_set_subdevice[num_accelerator_subdevice];
-    cpus_allowed_set_subdevice[0] = {0, 1, 2, 18};
-    cpus_allowed_set_subdevice[1] = {3, 4, 5, 19};
-    cpus_allowed_set_subdevice[2] = {6, 7, 8};
-    cpus_allowed_set_subdevice[3] = {9,10,11};
-    cpus_allowed_set_subdevice[4] = {12,13,14};
-    cpus_allowed_set_subdevice[5] = {14,16,17};
+    cpus_allowed_set_subdevice[0] = {0, 2, 4,18};
+    cpus_allowed_set_subdevice[1] = {1, 3, 5};
+
+    cpus_allowed_set_subdevice[2] = {6, 8,10,19};
+    cpus_allowed_set_subdevice[3] = {7, 9,11};
+
+    cpus_allowed_set_subdevice[4] = {12,14,16};
+    cpus_allowed_set_subdevice[5] = {13,15,17};
 
     for (int sub_idx = 0; sub_idx < num_accelerator; ++sub_idx) {
         ASSERT_THAT(topo.cpu_affinity_ideal(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx), cpus_allowed_set_subdevice[sub_idx]);
@@ -233,7 +235,9 @@ TEST_F(LevelZeroAcceleratorTopoTest, high_cpu_count_config)
     std::set<int> cpus_allowed_set_subdevice[num_accelerator_subdevice];
     for (int sub_idx = 0; sub_idx < num_accelerator_subdevice; ++sub_idx) {
         for (int cpu_idx = 0; cpu_idx < num_cpu/num_accelerator_subdevice; ++cpu_idx) {
-            cpus_allowed_set_subdevice[sub_idx].insert(cpu_idx+(sub_idx*4));
+            int accel_idx = sub_idx/(num_accelerator_subdevice/num_accelerator);
+                //cpus_allowed_set_subdevice[sub_idx].insert(cpu_idx+(sub_idx*4));
+            cpus_allowed_set_subdevice[sub_idx].insert((cpu_idx)*4 + sub_idx + (accel_idx)*12);
         }
         ASSERT_THAT(topo.cpu_affinity_ideal(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx), cpus_allowed_set_subdevice[sub_idx]);
     }
