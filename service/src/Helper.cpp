@@ -38,6 +38,7 @@
 #include <string.h>
 #include <errno.h>
 #include <stdlib.h>
+#include <sys/stat.h>
 
 #include <cmath>
 #include <climits>
@@ -289,4 +290,26 @@ namespace geopm
         }
         return env_string;
     }
+
+    unsigned int pid_to_uid(const int pid) {
+        int err = 0;
+        std::string proc_path = "/proc/" + std::to_string(pid);
+        struct stat stat_struct;
+        err = stat(proc_path.c_str(), &stat_struct);
+        if (err) {
+            throw Exception("pid_to_uid(): ", errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        return stat_struct.st_uid;
+    };
+
+    unsigned int pid_to_gid(const int pid) {
+        int err = 0;
+        std::string proc_path = "/proc/" + std::to_string(pid);
+        struct stat stat_struct;
+        err = stat(proc_path.c_str(), &stat_struct);
+        if (err) {
+            throw Exception("pid_to_gid(): ", errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        return stat_struct.st_gid;
+    };
 }

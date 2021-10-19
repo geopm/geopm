@@ -159,6 +159,16 @@ namespace geopm
     /// @param [in] The name of the environment variable to read.
     /// @return The contents of the variable if present, otherwise an empty string.
     std::string get_env(const std::string &name);
+
+    /// @brief Query for the user id assoiciated with the process id.
+    /// @param [in] pid The process id to query.
+    /// @return The user id.
+    unsigned int pid_to_uid(const int pid);
+
+    /// @brief Query for the group id assoiciated with the process id.
+    /// @param [in] pid The process id to query.
+    /// @return The group id.
+    unsigned int pid_to_gid(const int pid);
 }
 
 #endif
