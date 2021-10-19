@@ -29,9 +29,9 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-#clears application clock settings
+#clears application clock settings -- user level control only if root allows it
 nvidia-smi -rac
-#clears clock settings
+#clears clock settings -- root level control
 nvidia-smi -rgc
-#sets power limit
+#sets power limit -- root level control
 nvidia-smi -pl 300 
