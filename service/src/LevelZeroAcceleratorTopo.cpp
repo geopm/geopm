@@ -64,13 +64,22 @@ namespace geopm
             m_cpu_affinity_ideal.resize(num_accelerator);
             unsigned int num_cpu_per_accelerator = num_cpu / num_accelerator;
 
+            m_cpu_affinity_ideal_chip.resize(num_accelerator_chip);
+            unsigned int num_chip_per_accelerator = num_accelerator_chip / num_accelerator;
+
             // TODO: Add ideal cpu to accelerator affinitization that isn't a simple split if needed.
             //       This may come from a call to oneAPI, LevelZero, etc
             for (unsigned int accel_idx = 0; accel_idx <  num_accelerator; ++accel_idx) {
+                int chip_idx = 0;
                 for (unsigned int cpu_idx = accel_idx * num_cpu_per_accelerator;
                      cpu_idx < (accel_idx + 1) * num_cpu_per_accelerator;
                      cpu_idx++) {
                     m_cpu_affinity_ideal.at(accel_idx).insert(cpu_idx);
+
+                    m_cpu_affinity_ideal_chip.at(accel_idx*num_chip_per_accelerator +
+                                                 (chip_idx%num_chip_per_accelerator)).insert(cpu_idx);
+                    ++chip_idx;
+
                 }
             }
             if ((num_cpu % num_accelerator) != 0) {
@@ -78,37 +87,8 @@ namespace geopm
                 for (int cpu_idx = num_cpu_per_accelerator * num_accelerator;
                      cpu_idx < num_cpu; ++cpu_idx) {
                     m_cpu_affinity_ideal.at(accel_idx % num_accelerator).insert(cpu_idx);
+                    m_cpu_affinity_ideal_chip.at(accel_idx*num_chip_per_accelerator).insert(cpu_idx);
                     ++accel_idx;
-                }
-            }
-        }
-
-        if (num_accelerator_chip == 0) {
-#ifdef GEOPM_DEBUG
-            std::cerr << "Warning: <geopm> LevelZeroAcceleratorTopo: No levelZero subdevices detected.\n";
-#endif
-        }
-        else {
-            m_cpu_affinity_ideal_chip.resize(num_accelerator_chip);
-            unsigned int num_cpu_per_accelerator_chip = num_cpu / num_accelerator_chip;
-
-            // TODO: Add ideal cpu to accelerator subdevice affinitization that isn't a simple split if needed.
-            //       This may come from a call to oneAPI, LevelZero, etc
-            for (unsigned int accel_sub_idx = 0; accel_sub_idx <  num_accelerator_chip;
-                 ++accel_sub_idx) {
-                for (unsigned int cpu_idx = accel_sub_idx * num_cpu_per_accelerator_chip;
-                     cpu_idx < (accel_sub_idx + 1) * num_cpu_per_accelerator_chip;
-                     cpu_idx++) {
-                    m_cpu_affinity_ideal_chip.at(accel_sub_idx).insert(cpu_idx);
-                }
-            }
-            if ((num_cpu % num_accelerator_chip) != 0) {
-                unsigned int accel_sub_idx = 0;
-                for (int cpu_idx = num_cpu_per_accelerator_chip * num_accelerator_chip;
-                     cpu_idx < num_cpu; ++cpu_idx) {
-                    m_cpu_affinity_ideal_chip.at(accel_sub_idx %
-                                                 num_accelerator_chip).insert(cpu_idx);
-                    ++accel_sub_idx;
                 }
             }
         }
