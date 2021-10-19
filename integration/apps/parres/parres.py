@@ -181,8 +181,18 @@ class ParresDgemmAppConf(apps.AppConf):
             os.chmod(self._parres_teardown, 0o755)
             subprocess.call(self._parres_teardown, shell=True)
 
+    def parse_fom(self, log_path):
+        result = None
+        key = 'AVG Rate (MF/s): '
+        with open(log_path) as fid:
+            for line in fid.readlines():
+                if key in line:
+                    result = line.split(': ')[1]
+                    result = float(result.split(' ')[0])
+                    break
+        return result
 
-
+            
 def create_nstream_appconf(mach, args):
     ''' Create a ParresAppConfig object from an ArgParse and experiment.machine object.                                                                                                                                                                                                                                                                         
     '''
@@ -249,7 +259,7 @@ class ParresNstreamAppConf(apps.AppConf):
         self._parres_exp_setup = parres_exp_setup
         self._parres_teardown = parres_teardown
 
-        binary_name = 'Kernels/Cxx11/nstream-mpi-cublas'
+        binary_name = 'Kernels/Cxx11/nstream-mpi-cuda'
         if parres_args is None:
             params = ["1","1000000000"]
         else:
@@ -293,4 +303,14 @@ class ParresNstreamAppConf(apps.AppConf):
             subprocess.call(self._parres_teardown, shell=True)
 
 
+    def parse_fom(self, log_path):
+        result = None
+        key = 'Rate (MB/s): '
+        with open(log_path) as fid:
+            for line in fid.readlines():
+                if key in line:
+                    result = line.split(': ')[1]
+                    result = float(result.split(' ')[0])
+                    break
+        return result
 

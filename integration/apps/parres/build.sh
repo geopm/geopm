@@ -98,8 +98,7 @@ $nvcc_bin \
 # Compile MPI version of nstream
 $nvcc_bin \
     --compiler-bindir=$gcc_bindir \
-    --gpu-architecture=sm_70 \
+    --gpu-architecture=sm_70 -rdc=true \
     --expt-extended-lambda -g -O3 -std=c++14 \
-    -L$cuda_lib \
-    -L$cuda_lib -D_MWAITXINTRIN_H_INCLUDED -DPRKVERSION="2.16" nstream-cublas.cu -lcublas $mpi_flags -o nstream-mpi-cublas
+    -L$cuda_lib -D_X86INTRIN_H_INCLUDED -DPRKVERSION="2020" nstream-mpi-cuda.cu $mpi_flags -o nstream-mpi-cuda
 
