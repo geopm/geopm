@@ -244,6 +244,8 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
               test/gtest_links/SharedMemoryTest.lock_shmem_u \
               test/gtest_links/SharedMemoryTest.share_data \
               test/gtest_links/SharedMemoryTest.share_data_ipc \
+              test/gtest_links/SharedMemoryTest.default_world_permissions \
+              test/gtest_links/SharedMemoryTest.secure_no_world_permissions \
               test/gtest_links/SSTControlTest.mailbox_adjust_batch \
               test/gtest_links/SSTControlTest.mmio_adjust_batch \
               test/gtest_links/SSTControlTest.save_restore_mmio \

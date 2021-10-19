@@ -66,6 +66,8 @@ namespace geopm
             virtual std::unique_ptr<SharedMemoryScopedLock> get_scoped_lock(void) = 0;
             /// @brief Creates a shared memory region with the given key and size.
             static std::unique_ptr<SharedMemory> make_unique_owner(const std::string &shm_key, size_t size);
+            /// @brief Creates a shared memory region with the given key and size without world permissions.
+            static std::unique_ptr<SharedMemory> make_unique_owner_secure(const std::string &shm_key, size_t size);
             /// @brief Attaches to the shared memory region with the given key.  If
             ///        it cannot attach within the timeout, throws an exception.
             static std::unique_ptr<SharedMemory> make_unique_user(const std::string &shm_key, unsigned int timeout);
