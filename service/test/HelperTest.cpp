@@ -34,6 +34,7 @@
 
 #include <string>
 #include <vector>
+#include <unistd.h>
 
 #include "geopm/Helper.hpp"
 #include "geopm.h"
@@ -116,4 +117,13 @@ TEST(HelperTest, check_hint)
     GEOPM_EXPECT_THROW_MESSAGE(geopm::check_hint(hint),
                                GEOPM_ERROR_INVALID,
                                "invalid hint");
+}
+
+TEST(HelperTest, pid_to)
+{
+    unsigned int uid = getuid();
+    unsigned int gid = getgid();
+    unsigned int pid = getpid();
+    EXPECT_EQ(uid, geopm::pid_to_uid(pid));
+    EXPECT_EQ(gid, geopm::pid_to_gid(pid));
 }
