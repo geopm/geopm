@@ -58,7 +58,8 @@ namespace geopm
             ///        an inter-process shared memory region.
             /// @param [in] shm_key Shared memory key to create the region.
             /// @param [in] size Size of the region to create.
-            void create_memory_region(const std::string &shm_key, size_t size);
+            /// @param [in] world_perms Allow world r/w.
+            void create_memory_region(const std::string &shm_key, size_t size, bool world_perms);
             /// @brief Takes a key and attempts to attach to a
             ///        inter-process shared memory region. This version of the
             ///        constructor tries to attach multiple times until a timeout

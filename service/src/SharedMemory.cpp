@@ -86,7 +86,14 @@ namespace geopm
     std::unique_ptr<SharedMemory> SharedMemory::make_unique_owner(const std::string &shm_key, size_t size)
     {
         std::unique_ptr<SharedMemoryImp> owner = geopm::make_unique<SharedMemoryImp>();
-        owner->create_memory_region(shm_key, size);
+        owner->create_memory_region(shm_key, size, false);
+        return std::unique_ptr<SharedMemory>(std::move(owner));
+    }
+
+    std::unique_ptr<SharedMemory> SharedMemory::make_unique_owner_secure(const std::string &shm_key, size_t size)
+    {
+        std::unique_ptr<SharedMemoryImp> owner = geopm::make_unique<SharedMemoryImp>();
+        owner->create_memory_region(shm_key, size, true);
         return std::unique_ptr<SharedMemory>(std::move(owner));
     }
 
@@ -106,7 +113,7 @@ namespace geopm
 
     }
 
-    void SharedMemoryImp::create_memory_region(const std::string &shm_key, size_t size)
+    void SharedMemoryImp::create_memory_region(const std::string &shm_key, size_t size, bool world_perms)
     {
         if (!size) {
             throw Exception("SharedMemoryImp: Cannot create shared memory region of zero size", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
@@ -115,7 +122,13 @@ namespace geopm
         m_size = size + M_LOCK_SIZE;
 
         mode_t old_mask = umask(0);
-        int shm_id = shm_open(m_shm_key.c_str(), O_RDWR | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR | S_IRGRP| S_IWGRP | S_IROTH| S_IWOTH);
+        int shm_id = 0;
+        if (world_perms) {
+            shm_id = shm_open(m_shm_key.c_str(), O_RDWR | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+        }
+        else {
+            shm_id = shm_open(m_shm_key.c_str(), O_RDWR | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
+        }
         if (shm_id < 0) {
             std::ostringstream ex_str;
             ex_str << "SharedMemoryImp: Could not open shared memory with key " << m_shm_key;

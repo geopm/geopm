@@ -30,9 +30,12 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <fcntl.h>
+#include <sys/mman.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <errno.h>
+#include <stdint.h>
 
 #include "gtest/gtest.h"
 #include "geopm_error.h"
@@ -50,6 +53,7 @@ class SharedMemoryTest : public :: testing :: Test
         void SetUp();
         void TearDown();
         void config_shmem();
+        void config_shmem_s();
         void config_shmem_u();
         std::string m_shm_key;
         size_t m_size;
@@ -75,6 +79,11 @@ void SharedMemoryTest::TearDown()
 void SharedMemoryTest::config_shmem()
 {
     m_shmem = SharedMemory::make_unique_owner(m_shm_key, m_size);
+}
+
+void SharedMemoryTest::config_shmem_s()
+{
+    m_shmem = SharedMemory::make_unique_owner_secure(m_shm_key, m_size);
 }
 
 void SharedMemoryTest::config_shmem_u()
@@ -219,4 +228,34 @@ TEST_F(SharedMemoryTest, chown)
 
     GEOPM_EXPECT_THROW_MESSAGE(m_shmem->chown(gid, uid),
                                GEOPM_ERROR_RUNTIME, "unlinked");
+}
+
+TEST_F(SharedMemoryTest, default_world_permissions)
+{
+    int shm_id = -1;
+    uint32_t permissions_bits = 0;
+    uint32_t expected_permissions = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
+    struct stat stat_struct;
+
+    config_shmem();
+    shm_id = shm_open(m_shm_key.c_str(), O_RDWR, 0);
+    fstat(shm_id, &stat_struct);
+    permissions_bits = stat_struct.st_mode & ~(S_IFMT); // Mask off type bits, save mode bits
+    EXPECT_EQ(expected_permissions, permissions_bits);
+    m_shmem->unlink(); // Manually unlink unless config_shmem_u() is called
+}
+
+TEST_F(SharedMemoryTest, secure_no_world_permissions)
+{
+    int shm_id = -1;
+    uint32_t permissions_bits = 0;
+    uint32_t expected_permissions = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP;
+    struct stat stat_struct;
+
+    config_shmem_s();
+    shm_id = shm_open(m_shm_key.c_str(), O_RDWR, 0);
+    fstat(shm_id, &stat_struct);
+    permissions_bits = stat_struct.st_mode & ~(S_IFMT); // Mask off type bits, save mode bits
+    EXPECT_EQ(expected_permissions, permissions_bits);
+    m_shmem->unlink(); // Manually unlink unless config_shmem_u() is called
 }
