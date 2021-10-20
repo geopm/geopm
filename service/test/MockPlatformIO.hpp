@@ -80,6 +80,14 @@ class MockPlatformIO : public geopm::PlatformIO
                     (const std::string &control_name), (const, override));
         MOCK_METHOD(int, signal_behavior, (const std::string &signal_name),
                     (const, override));
+        MOCK_METHOD(void, start_batch_server,
+                    (int client_pid,
+                     const std::vector<geopm_request_s> &signal_config,
+                     const std::vector<geopm_request_s> &control_config,
+                     int &server_pid,
+                     std::string &server_key), (override));
+        MOCK_METHOD(void, stop_batch_server, (int server_pid), (override));
+
 };
 
 #endif
