@@ -119,7 +119,7 @@ namespace geopm
             ///
             /// @remark See documentation for sigqueue(3) about parameters.
             virtual void sig_queue(pid_t pid, int sig,
-                                   int value) const= 0;
+                                   int value) const = 0;
 
             /// @brief Wrapper for sigaction(2) that converts errors
             ///        into Exceptions.
@@ -166,7 +166,8 @@ namespace geopm
             void sig_queue(pid_t pid, int sig, int value) const override;
             void sig_action(int signum, const struct sigaction *act,
                             struct sigaction *oldact) const override;
-            void sig_proc_mask(int how, const sigset_t *set, sigset_t *oldset) const override;
+            void sig_proc_mask(int how, const sigset_t *sigset,
+                                       sigset_t *oldset) const override;
             void sig_suspend(const sigset_t *mask) const override;
         private:
             void check_return(int err, const std::string &func_name) const;

@@ -140,8 +140,8 @@ namespace geopm
             void push_requests(void);
             void read_and_update(void);
             void update_and_write(void);
-            void init_posix_signal(void);
-            void reset_posix_signal(void);
+            void critical_region_enter(void);
+            void critical_region_exit(void);
             void create_shmem(void);
             void check_invalid_signal(void);
 

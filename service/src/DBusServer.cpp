@@ -118,18 +118,24 @@ namespace geopm
         , m_server_pid(0)
         , m_is_active(false)
         , m_is_blocked(false)
+        , m_block_mask(m_posix_signal->make_sigset({SIGIO,
+                                                    SIGCONT,
+                                                    SIGTERM,
+                                                    SIGCHLD}))
     {
         if (m_posix_signal == nullptr) {
-            // TODO: Make sure starting process mask is not blocking SIGCONT SIGIO or SIGTERM
             // This is not a unit test, so actually do the fork()
             m_posix_signal = POSIXSignal::make_unique();
-            init_posix_signal();
+            // Make sure the process mask is not blocking our signals
+            // initially
+            m_posix_signal->sig_proc_mask(SIG_UNBLOCK, &m_block_mask, nullptr);
+            critical_region_enter();
             int parent_pid = getpid();
             int forked_pid = fork();
             if (forked_pid == 0) {
                 create_shmem();
                 run_batch(parent_pid);
-                reset_posix_signal();
+                critical_region_exit();
                 exit(0);
             }
             while (g_message_ready_count == 0 &&
@@ -137,7 +143,7 @@ namespace geopm
                 m_posix_signal->sig_suspend(&m_orig_mask);
                 check_invalid_signal();
             }
-            posix_signal_reset();
+            critical_region_exit();
             --g_message_ready_count;
             m_server_pid = forked_pid;
         }
@@ -162,7 +168,7 @@ namespace geopm
     void DBusServerImp::stop_batch(void)
     {
         if (m_is_active) {
-            init_posix_signal();
+            critical_region_enter();
             m_posix_signal->sig_queue(m_server_pid, SIGTERM, M_MESSAGE_TERMINATE);
             while (g_message_child_count == 0 &&
                    g_message_invalid_count == 0) {
@@ -170,6 +176,7 @@ namespace geopm
                 check_invalid_signal();
             }
             --g_message_child_count;
+            critical_region_exit();
             m_is_active = false;
         }
     }
@@ -204,7 +211,7 @@ namespace geopm
     void DBusServerImp::check_invalid_signal(void)
     {
         if (g_message_invalid_count != 0) {
-            reset_posix_signal();
+            exit_critial_region();
             throw Exception("DBusServerImp:: Recieved a signal could not be handled properly",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
@@ -283,21 +290,17 @@ namespace geopm
         }
     }
 
-    void DBusServerImp::init_posix_signal(void)
+    void DBusServerImp::critical_region_enter(void)
     {
         if (m_is_blocked) {
             return;
         }
         // Block signals for SIGIO, SIGCONT, and SIGTERM so we
         // may use sigsuspend to wait for them
-        sigset_t block_mask = m_posix_signal->make_sigset({SIGIO,
-                                                           SIGCONT,
-                                                           SIGTERM,
-                                                           SIGCHLD});
-        m_posix_signal->sig_proc_mask(SIG_BLOCK, &block_mask, &m_orig_mask);
+        m_posix_signal->sig_proc_mask(SIG_BLOCK, &m_block_mask, &m_orig_mask);
         // Register signal handlers for SIGIO, SIGCONT, and SIGTERM
         struct sigaction action = {};
-        action.sa_mask = block_mask;
+        action.sa_mask = m_block_mask;
         action.sa_flags = SA_SIGINFO;
         action.sa_sigaction = &action_sigio;
         m_posix_signal->sig_action(SIGIO, &action, &m_orig_action_sigio);
@@ -310,7 +313,7 @@ namespace geopm
         m_is_blocked = true;
     }
 
-    void DBusServerImp::reset_posix_signal(void)
+    void DBusServerImp::exit_critial_region(void)
     {
         if (!m_is_blocked) {
             return;

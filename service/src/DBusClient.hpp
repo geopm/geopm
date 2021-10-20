@@ -74,8 +74,8 @@ namespace geopm
             std::vector<double> read_batch(void) override;
             void write_batch(std::vector<double> settings) override;
         private:
-            void init_posix_signal(void);
-            void reset_posix_signal(void);
+            void critical_section_enter(void);
+            void critical_section_exit(void);
 
             int m_server_pid;
             int m_num_signal;

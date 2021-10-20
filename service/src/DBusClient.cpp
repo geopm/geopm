@@ -95,12 +95,12 @@ namespace geopm
 
     std::vector<double> DBusClientImp::read_batch(void)
     {
-        init_posix_signal();
+        critical_section_enter();
         m_posix_signal->sig_queue(m_server_pid, SIGIO, DBusServer::M_MESSAGE_READ);
         while (g_message_ready_count == 0) {
             m_posix_signal->sig_suspend(&m_orig_mask);
         }
-        reset_posix_signal();
+        critical_section_exit();
         --g_message_ready_count;
         auto lock = m_signal_shmem->get_scoped_lock();
         double *buffer = (double *)m_signal_shmem->pointer();
@@ -114,28 +114,28 @@ namespace geopm
         auto lock = m_signal_shmem->get_scoped_lock();
         double *buffer = (double *)m_signal_shmem->pointer();
         std::copy(settings.begin(), settings.end(), buffer);
-        init_posix_signal();
+        critical_section_enter();
         m_posix_signal->sig_queue(m_server_pid, SIGIO, DBusServer::M_MESSAGE_WRITE);
         while (g_message_ready_count == 0) {
             m_posix_signal->sig_suspend(&m_orig_mask);
         }
-        reset_posix_signal();
+        critical_section_exit();
         --g_message_ready_count;
     }
 
-    void DBusClientImp::init_posix_signal(void)
+    void DBusClientImp::critical_section_enter(void)
     {
         if (m_is_blocked) {
             return;
         }
         // Block signals for SIGCONT so we may use sigsuspend to wait
         m_posix_signal->sig_proc_mask(SIG_BLOCK, &m_block_mask, &m_orig_mask);
-        // Register signal handlers for SIGCONT
+        // Register signal handler for SIGCONT
         m_posix_signal->sig_action(SIGCONT, &m_action_sigcont, &m_orig_action_sigcont);
         m_is_blocked = true;
     }
 
-    void DBusServerImp::reset_posix_signal(void)
+    void DBusClientImp::critical_section_exit(void)
     {
         if (!m_is_blocked) {
             return;

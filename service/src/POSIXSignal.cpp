@@ -116,4 +116,16 @@ namespace geopm
                             " returned an error", errno, __FILE__, __LINE__);
         }
     }
+
+    void POSIXSignalImp::sig_proc_mask(int how, const sigset_t *sigset,
+                                       sigset_t *oldset) const
+    {
+
+    }
+
+    void POSIXSignalImp::sig_suspend(const sigset_t *mask) const
+    {
+
+    }
+
 }
