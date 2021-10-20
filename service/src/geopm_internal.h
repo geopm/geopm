@@ -90,12 +90,6 @@ struct geopm_prof_message_s {
     double progress;
 };
 
-struct geopm_request_s {
-    int domain;
-    int domain_idx;
-    char name[NAME_MAX];
-};
-
 /**
  * Helper that creates the DefaultProfile signleton (if not already created)
  * and catches all exceptions.

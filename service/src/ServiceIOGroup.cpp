@@ -36,13 +36,14 @@
 
 #include <cmath>
 #include <climits>
+#include <cstring>
 #include "geopm/Agg.hpp"
 #include "ServiceProxy.hpp"
 #include "BatchClient.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm/PlatformTopo.hpp"
+#include "geopm/PlatformIO.hpp"
 #include "geopm_debug.hpp"
-#include "geopm_internal.h"
 
 namespace geopm
 {

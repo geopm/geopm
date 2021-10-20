@@ -40,8 +40,8 @@
 #include "geopm/PlatformIO.hpp"
 #include "geopm/SharedMemory.hpp"
 #include "geopm/Helper.hpp"
+#include "geopm/PlatformIO.hpp"
 #include "POSIXSignal.hpp"
-#include "geopm_internal.h"
 
 
 volatile static sig_atomic_t g_message_read_count = 0;

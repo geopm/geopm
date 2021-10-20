@@ -38,9 +38,10 @@
 
 #include "geopm/Helper.hpp"
 #include "geopm/SharedMemory.hpp"
+#include "geopm/PlatformIO.hpp"
 #include "BatchServer.hpp"
 #include "POSIXSignal.hpp"
-#include "geopm_internal.h"
+
 
 volatile static sig_atomic_t g_message_ready_count = 0;
 

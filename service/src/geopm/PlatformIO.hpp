@@ -38,10 +38,15 @@
 #include <vector>
 #include <functional>
 #include <set>
+#include <climits>
 
 #include "geopm_pio.h"
 
-struct geopm_request_s;
+struct geopm_request_s {
+    int domain;
+    int domain_idx;
+    char name[NAME_MAX];
+};
 
 namespace geopm
 {
