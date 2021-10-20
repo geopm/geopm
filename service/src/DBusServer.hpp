@@ -157,12 +157,13 @@ namespace geopm
             bool m_is_active;
             std::vector<int> m_signal_idx;
             std::vector<int> m_control_idx;
+            bool m_is_blocked;
             sigset_t m_orig_mask;
+            sigset_t m_block_mask;
             struct sigaction m_orig_action_sigio;
             struct sigaction m_orig_action_sigcont;
             struct sigaction m_orig_action_sigterm;
             struct sigaction m_orig_action_sigchld;
-            bool m_is_blocked;
     };
 }
 

@@ -50,12 +50,10 @@
 #include "geopm/MSRIOGroup.hpp"
 #include "TimeIOGroup.hpp"
 #include "CombinedSignal.hpp"
+#include "DBusServer.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm/Agg.hpp"
-
-// When we support the batch server this include will be required.
-// #include "DBusServer.hpp"
 
 namespace geopm
 {
@@ -612,8 +610,8 @@ namespace geopm
     }
 
     void PlatformIOImp::start_batch_server(int client_pid,
-                                           std::vector<geopm_request_s> signal_config,
-                                           std::vector<geopm_request_s> control_config,
+                                           const std::vector<geopm_request_s> &signal_config,
+                                           const std::vector<geopm_request_s> &control_config,
                                            int &server_pid,
                                            std::string &server_key)
     {
@@ -621,8 +619,8 @@ namespace geopm
             DBusServer::make_unique(client_pid, signal_config, control_config);
         server_pid = batch_server->server_pid();
         server_key = batch_server->server_key();
-        if (m_batch_server.find(server_key) != m_batch_server.end()) {
-            raise Exception("PlatformIOImp::start_batch_server(): Created a server with PID of existing server: " + std::to_string(server_pid),
+        if (m_batch_server.find(server_pid) != m_batch_server.end()) {
+            throw Exception("PlatformIOImp::start_batch_server(): Created a server with PID of existing server: " + std::to_string(server_pid),
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         m_batch_server[server_pid] = batch_server;
@@ -640,7 +638,7 @@ namespace geopm
             std::cerr << "Warning: <geopm> PlatformIO::stop_batch_server(): Batch server was inactive when it was stopped\n";
         }
 #endif
-        it->stop_batch();
+        it->second->stop_batch();
         m_batch_server.erase(it);
     }
 }
@@ -989,7 +987,7 @@ extern "C" {
     {
         int err = 0;
         try {
-            geopm::platform_io()->stop_batch_server(server_pid);
+            geopm::platform_io().stop_batch_server(server_pid);
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());

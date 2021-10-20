@@ -39,6 +39,7 @@
 #include "geopm/Exception.hpp"
 #include "geopm/PlatformIO.hpp"
 #include "geopm/SharedMemory.hpp"
+#include "geopm/Helper.hpp"
 #include "POSIXSignal.hpp"
 #include "geopm_internal.h"
 
@@ -90,6 +91,15 @@ static void action_sigchld(int signo, siginfo_t *siginfo, void *context)
 
 namespace geopm
 {
+
+    std::unique_ptr<DBusServer>
+    DBusServer::make_unique(int client_pid,
+                            const std::vector<geopm_request_s> &signal_config,
+                            const std::vector<geopm_request_s> &control_config)
+    {
+        return geopm::make_unique<DBusServerImp>(client_pid, signal_config,
+                                                 control_config);
+    }
     DBusServerImp::DBusServerImp(int client_pid,
                                  const std::vector<geopm_request_s> &signal_config,
                                  const std::vector<geopm_request_s> &control_config)
@@ -211,7 +221,7 @@ namespace geopm
     void DBusServerImp::check_invalid_signal(void)
     {
         if (g_message_invalid_count != 0) {
-            exit_critial_region();
+            critical_region_exit();
             throw Exception("DBusServerImp:: Recieved a signal could not be handled properly",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
@@ -295,10 +305,13 @@ namespace geopm
         if (m_is_blocked) {
             return;
         }
-        // Block signals for SIGIO, SIGCONT, and SIGTERM so we
-        // may use sigsuspend to wait for them
         m_posix_signal->sig_proc_mask(SIG_BLOCK, &m_block_mask, &m_orig_mask);
-        // Register signal handlers for SIGIO, SIGCONT, and SIGTERM
+        g_message_read_count = 0;
+        g_message_write_count = 0;
+        g_message_ready_count = 0;
+        g_message_terminate_count = 0;
+        g_message_child_count = 0;
+        g_message_invalid_count = 0;
         struct sigaction action = {};
         action.sa_mask = m_block_mask;
         action.sa_flags = SA_SIGINFO;
@@ -313,17 +326,15 @@ namespace geopm
         m_is_blocked = true;
     }
 
-    void DBusServerImp::exit_critial_region(void)
+    void DBusServerImp::critical_region_exit(void)
     {
         if (!m_is_blocked) {
             return;
         }
-        // Reset blocked signals
         m_posix_signal->sig_action(SIGIO, &m_orig_action_sigio, nullptr);
         m_posix_signal->sig_action(SIGCONT, &m_orig_action_sigcont, nullptr);
         m_posix_signal->sig_action(SIGTERM, &m_orig_action_sigterm, nullptr);
         m_posix_signal->sig_action(SIGCHLD, &m_orig_action_sigchld, nullptr);
-        // TODO: Do we need to check for pending signals before unblocking?
         m_posix_signal->sig_proc_mask(SIG_SETMASK, &m_orig_mask, nullptr);
         m_is_blocked = false;
     }

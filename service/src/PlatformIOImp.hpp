@@ -44,6 +44,7 @@ namespace geopm
     class IOGroup;
     class CombinedSignal;
     class PlatformTopo;
+    class DBusServer;
 
     class PlatformIOImp : public PlatformIO
     {
@@ -85,8 +86,9 @@ namespace geopm
             int signal_behavior(const std::string &signal_name) const override;
             void save_control(const std::string &save_dir) override;
             void restore_control(const std::string &save_dir) override;
-            void start_batch_server(std::vector<geopm_request_s> signal_config,
-                                    std::vector<geopm_request_s> control_config,
+            void start_batch_server(int client_pid,
+                                    const std::vector<geopm_request_s> &signal_config,
+                                    const std::vector<geopm_request_s> &control_config,
                                     int &server_pid,
                                     std::string &server_key) override;
             void stop_batch_server(int server_pid) override;

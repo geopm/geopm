@@ -91,6 +91,9 @@ namespace geopm
         m_action_sigcont.sa_mask = m_block_mask;
         m_action_sigcont.sa_flags = SA_SIGINFO;
         m_action_sigcont.sa_sigaction = &action_sigcont;
+        // Make sure the process mask is not blocking our signals
+        // initially
+        m_posix_signal->sig_proc_mask(SIG_UNBLOCK, &m_block_mask, nullptr);
     }
 
     std::vector<double> DBusClientImp::read_batch(void)
@@ -130,7 +133,7 @@ namespace geopm
         }
         // Block signals for SIGCONT so we may use sigsuspend to wait
         m_posix_signal->sig_proc_mask(SIG_BLOCK, &m_block_mask, &m_orig_mask);
-        // Register signal handler for SIGCONT
+        g_message_ready_count = 0;
         m_posix_signal->sig_action(SIGCONT, &m_action_sigcont, &m_orig_action_sigcont);
         m_is_blocked = true;
     }
@@ -140,9 +143,8 @@ namespace geopm
         if (!m_is_blocked) {
             return;
         }
-        // Reset blocked signals
         m_posix_signal->sig_action(SIGCONT, &m_orig_action_sigcont, nullptr);
-        // TODO: Do we need to check for pending signals before unblocking?
+        // Reset blocked signals
         m_posix_signal->sig_proc_mask(SIG_SETMASK, &m_orig_mask, nullptr);
         m_is_blocked = false;
     }
