@@ -128,14 +128,18 @@ namespace geopm
         , m_server_pid(0)
         , m_is_active(false)
         , m_is_blocked(false)
-        , m_block_mask(m_posix_signal->make_sigset({SIGIO,
+    {
+        bool is_test = (m_posix_signal != nullptr);
+        if (!is_test) {
+            m_posix_signal = POSIXSignal::make_unique();
+        }
+        m_block_mask = m_posix_signal->make_sigset({SIGIO,
                                                     SIGCONT,
                                                     SIGTERM,
-                                                    SIGCHLD}))
-    {
-        if (m_posix_signal == nullptr) {
+                                                    SIGCHLD});
+        if (!is_test) {
             // This is not a unit test, so actually do the fork()
-            m_posix_signal = POSIXSignal::make_unique();
+
             // Make sure the process mask is not blocking our signals
             // initially
             m_posix_signal->sig_proc_mask(SIG_UNBLOCK, &m_block_mask, nullptr);

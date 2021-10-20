@@ -68,8 +68,10 @@ namespace geopm
                                  int num_signal, int num_control)
         : BatchClientImp(server_pid, num_signal, num_control,
                         POSIXSignal::make_unique(),
-                        SharedMemory::make_unique_user("/geopm-service-" + server_key + "-signals", 1.0),
-                        SharedMemory::make_unique_user("/geopm-service-" + server_key + "-controls", 1.0))
+                        num_signal == 0 ? nullptr :
+                            SharedMemory::make_unique_user("/geopm-service-" + server_key + "-signals", 1.0),
+                        num_control == 0 ? nullptr :
+                            SharedMemory::make_unique_user("/geopm-service-" + server_key + "-controls", 1.0))
     {
 
     }
