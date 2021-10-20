@@ -226,6 +226,12 @@ namespace geopm
             /// @param [in] save_dir Directory populated with save
             ///        files.
             virtual void restore_control(const std::string &save_dir) = 0;
+            virtual void start_batch_server(std::vector<geopm_request_s> signal_config,
+                                            std::vector<geopm_request_s> control_config,
+                                            int &server_pid,
+                                            std::string &server_key) = 0;
+            virtual void stop_batch_server(int server_pid) = 0;
+
     };
 
     PlatformIO &platform_io(void);
