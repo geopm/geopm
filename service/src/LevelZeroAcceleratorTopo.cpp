@@ -55,9 +55,9 @@ namespace geopm
         unsigned int num_accelerator_chip = m_levelzero_device_pool.
                                             num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP);
 
-        if (num_accelerator == 0) {
+        if (num_accelerator == 0 || num_accelerator_chip == 0) {
 #ifdef GEOPM_DEBUG
-            std::cerr << "Warning: <geopm> LevelZeroAcceleratorTopo: No levelZero devices detected.\n";
+            std::cerr << "Warning: <geopm> LevelZeroAcceleratorTopo: No levelZero devices or chips detected.\n";
 #endif
         }
         else {
@@ -76,10 +76,12 @@ namespace geopm
                      cpu_idx++) {
                     m_cpu_affinity_ideal.at(accel_idx).insert(cpu_idx);
 
-                    m_cpu_affinity_ideal_chip.at(accel_idx*num_chip_per_accelerator +
-                                                 (chip_idx%num_chip_per_accelerator)).insert(cpu_idx);
+                    // CHIP to CPU association is currently only used to associate CHIPS to
+                    // ACCELERATORS.  This logic just distributes the CPUs associated with
+                    // an ACCELERATOR to its CHIPS in a round robin fashion.
+                    m_cpu_affinity_ideal_chip.at(accel_idx * num_chip_per_accelerator +
+                                                 (chip_idx % num_chip_per_accelerator)).insert(cpu_idx);
                     ++chip_idx;
-
                 }
             }
             if ((num_cpu % num_accelerator) != 0) {
@@ -87,7 +89,7 @@ namespace geopm
                 for (int cpu_idx = num_cpu_per_accelerator * num_accelerator;
                      cpu_idx < num_cpu; ++cpu_idx) {
                     m_cpu_affinity_ideal.at(accel_idx % num_accelerator).insert(cpu_idx);
-                    m_cpu_affinity_ideal_chip.at(accel_idx*num_chip_per_accelerator).insert(cpu_idx);
+                    m_cpu_affinity_ideal_chip.at(accel_idx * num_chip_per_accelerator).insert(cpu_idx);
                     ++accel_idx;
                 }
             }
