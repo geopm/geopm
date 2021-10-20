@@ -42,6 +42,52 @@
 #include "POSIXSignal.hpp"
 #include "geopm_internal.h"
 
+
+volatile static sig_atomic_t g_message_read_count = 0;
+volatile static sig_atomic_t g_message_write_count = 0;
+volatile static sig_atomic_t g_message_ready_count = 0;
+volatile static sig_atomic_t g_message_terminate_count = 0;
+volatile static sig_atomic_t g_message_child_count = 0;
+volatile static sig_atomic_t g_message_invalid_count = 0;
+
+
+static void action_sigio(int signo, siginfo_t *siginfo, void *context)
+{
+    switch (siginfo->si_value.sival_int) {
+        case geopm::DBusServer::M_MESSAGE_READ:
+            ++g_message_read_count;
+            break;
+        case geopm::DBusServer::M_MESSAGE_WRITE:
+            ++g_message_read_count;
+            break;
+        default:
+            ++g_message_invalid_count;
+            break;
+    }
+}
+
+static void action_sigcont(int signo, siginfo_t *siginfo, void *context)
+{
+    if (siginfo->si_value.sival_int == geopm::DBusServer::M_MESSAGE_READY) {
+        ++g_message_ready_count;
+    }
+}
+
+static void action_sigterm(int signo, siginfo_t *siginfo, void *context)
+{
+    if (siginfo->si_value.sival_int == geopm::DBusServer::M_MESSAGE_TERMINATE) {
+        ++g_message_terminate_count;
+    }
+    else {
+        ++g_message_invalid_count;
+    }
+}
+
+static void action_sigchld(int signo, siginfo_t *siginfo, void *context)
+{
+    ++g_message_child_count;
+}
+
 namespace geopm
 {
     DBusServerImp::DBusServerImp(int client_pid,
@@ -71,45 +117,28 @@ namespace geopm
         , m_server_key(std::to_string(m_client_pid))
         , m_server_pid(0)
         , m_is_active(false)
+        , m_is_blocked(false)
     {
         if (m_posix_signal == nullptr) {
+            // TODO: Make sure starting process mask is not blocking SIGCONT SIGIO or SIGTERM
             // This is not a unit test, so actually do the fork()
             m_posix_signal = POSIXSignal::make_unique();
+            init_posix_signal();
             int parent_pid = getpid();
-            // TODO: Register a handler for SIGCHLD
             int forked_pid = fork();
             if (forked_pid == 0) {
-                size_t signal_size = signal_config.size() * sizeof(double);
-                size_t control_size = control_config.size() * sizeof(double);
-                std::string shmem_prefix = "/geopm-service-" + m_server_key;
-                // TODO: Manage ownership
-                // int uid = m_posix_signal->pid_to_uid(client_pid);
-                // int gid = m_posix_signal->pid_to_gid(client_pid);
-                if (signal_size != 0) {
-                    m_signal_shmem = SharedMemory::make_unique_owner(
-                        shmem_prefix + "-signals", signal_size);
-                    // Requires a chown if server is different user than client
-                    // m_signal_shmem->chown(gid, uid);
-                }
-                if (control_size != 0) {
-                    m_control_shmem = SharedMemory::make_unique_owner(
-                        shmem_prefix + "-controls", control_size);
-                    // Requires a chown if server is different user than client
-                    // m_control_shmem->chown(gid, uid);
-                }
+                create_shmem();
                 run_batch(parent_pid);
+                reset_posix_signal();
                 exit(0);
             }
-            sigset_t sigset = posix_signal->make_sigset({SIGCONT});
-            siginfo_t siginfo {};
-            timespec timeout = {1, 0};
-            try {
-                posix_signal->sig_timed_wait(&sigset, &siginfo, &timeout);
+            while (g_message_ready_count == 0 &&
+                   g_message_invalid_count == 0) {
+                m_posix_signal->sig_suspend(&m_orig_mask);
+                check_invalid_signal();
             }
-            catch (const Exception &ex) {
-                throw Exception("DBusServer: Timed out waiting for batch server to start",
-                                GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-            }
+            posix_signal_reset();
+            --g_message_ready_count;
             m_server_pid = forked_pid;
         }
         m_is_active = true;
@@ -133,51 +162,51 @@ namespace geopm
     void DBusServerImp::stop_batch(void)
     {
         if (m_is_active) {
-            m_posix_signal->sig_queue(m_server_pid, SIGTERM, 0);
-            sigset_t sigset = m_posix_signal->make_sigset({SIGCHLD});
-            siginfo_t siginfo {};
-            timespec timeout = {1, 0};
-            try {
-                m_posix_signal->sig_timed_wait(&sigset, &siginfo, &timeout);
+            init_posix_signal();
+            m_posix_signal->sig_queue(m_server_pid, SIGTERM, M_MESSAGE_TERMINATE);
+            while (g_message_child_count == 0 &&
+                   g_message_invalid_count == 0) {
+                m_posix_signal->sig_suspend(&m_orig_mask);
+                check_invalid_signal();
             }
-            catch (const Exception &ex) {
-                throw Exception("DBusServer: Timed out waiting for batch server to stop",
-                                GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-            }
+            --g_message_child_count;
             m_is_active = false;
         }
     }
 
     void DBusServerImp::run_batch(int parent_pid)
     {
-        // TODO: Register a handler for SIGTERM SIGIO
-        push_requests();
-        bool do_read = m_signal_config.size() != 0;
-        bool do_write = m_control_config.size() != 0;
-        if ((do_read && m_signal_config.size() * sizeof(double) > m_signal_shmem->size()) ||
-            (do_write && m_control_config.size() * sizeof(double) > m_control_shmem->size())) {
-            throw Exception("DBusServer::run_batch(): Input configuration are too large for shared memory provided",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
         // Signal that the server is ready
-        sigset_t sigset = m_posix_signal->make_sigset({SIGTERM, SIGIO});
-        siginfo_t siginfo {};
-        m_posix_signal->sig_queue(parent_pid, SIGCONT, 0);
-
+        m_posix_signal->sig_queue(parent_pid, SIGCONT, M_MESSAGE_READY);
+        push_requests();
         // Start event loop
-        int signo = 0;
-        while (signo != SIGTERM) {
-            signo = m_posix_signal->sig_wait_info(&sigset, &siginfo);
-            POSIXSignal::m_info_s info = m_posix_signal->reduce_info(siginfo);
-            if (signo == SIGIO) {
-                if (do_read && info.value == M_VALUE_READ) {
-                    read_and_update();
-                }
-                else if (do_write && info.value == M_VALUE_WRITE) {
-                    update_and_write();
-                }
-                m_posix_signal->sig_queue(m_client_pid, SIGCONT, 0);
+        while (g_message_terminate_count == 0 &&
+               g_message_invalid_count == 0) {
+            m_posix_signal->sig_suspend(&m_orig_mask);
+            int num_cont = 0;
+            if (g_message_read_count != 0) {
+                read_and_update();
+                ++num_cont;
+                --g_message_read_count;
             }
+            if (g_message_write_count != 0) {
+                update_and_write();
+                ++num_cont;
+                --g_message_write_count;
+            }
+            for (; num_cont != 0; --num_cont) {
+                m_posix_signal->sig_queue(m_client_pid, SIGCONT, M_MESSAGE_READY);
+            }
+            check_invalid_signal();
+        }
+    }
+
+    void DBusServerImp::check_invalid_signal(void)
+    {
+        if (g_message_invalid_count != 0) {
+            reset_posix_signal();
+            throw Exception("DBusServerImp:: Recieved a signal could not be handled properly",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
     }
 
@@ -200,6 +229,10 @@ namespace geopm
 
     void DBusServerImp::read_and_update(void)
     {
+        if (m_signal_config.size() == 0) {
+            return;
+        }
+
         m_pio.read_batch();
         auto lock = m_signal_shmem->get_scoped_lock();
         double *buffer = (double *)m_signal_shmem->pointer();
@@ -212,6 +245,10 @@ namespace geopm
 
     void DBusServerImp::update_and_write(void)
     {
+        if (m_control_config.size() == 0) {
+            return;
+        }
+
         auto lock = m_control_shmem->get_scoped_lock();
         double *buffer = (double *)m_control_shmem->pointer();
         int buffer_idx = 0;
@@ -220,5 +257,71 @@ namespace geopm
             ++buffer_idx;
         }
         m_pio.write_batch();
+    }
+
+
+    void DBusServerImp::create_shmem(void)
+    {
+        // Create shared memory regions
+        size_t signal_size = m_signal_config.size() * sizeof(double);
+        size_t control_size = m_control_config.size() * sizeof(double);
+        std::string shmem_prefix = "/geopm-service-" + m_server_key;
+        // TODO: Manage ownership
+        // int uid = m_posix_signal->pid_to_uid(client_pid);
+        // int gid = m_posix_signal->pid_to_gid(client_pid);
+        if (signal_size != 0) {
+            m_signal_shmem = SharedMemory::make_unique_owner(
+                shmem_prefix + "-signals", signal_size);
+            // Requires a chown if server is different user than client
+            // m_signal_shmem->chown(gid, uid);
+        }
+        if (control_size != 0) {
+            m_control_shmem = SharedMemory::make_unique_owner(
+                shmem_prefix + "-controls", control_size);
+            // Requires a chown if server is different user than client
+            // m_control_shmem->chown(gid, uid);
+        }
+    }
+
+    void DBusServerImp::init_posix_signal(void)
+    {
+        if (m_is_blocked) {
+            return;
+        }
+        // Block signals for SIGIO, SIGCONT, and SIGTERM so we
+        // may use sigsuspend to wait for them
+        sigset_t block_mask = m_posix_signal->make_sigset({SIGIO,
+                                                           SIGCONT,
+                                                           SIGTERM,
+                                                           SIGCHLD});
+        m_posix_signal->sig_proc_mask(SIG_BLOCK, &block_mask, &m_orig_mask);
+        // Register signal handlers for SIGIO, SIGCONT, and SIGTERM
+        struct sigaction action = {};
+        action.sa_mask = block_mask;
+        action.sa_flags = SA_SIGINFO;
+        action.sa_sigaction = &action_sigio;
+        m_posix_signal->sig_action(SIGIO, &action, &m_orig_action_sigio);
+        action.sa_sigaction = &action_sigcont;
+        m_posix_signal->sig_action(SIGCONT, &action, &m_orig_action_sigcont);
+        action.sa_sigaction = &action_sigterm;
+        m_posix_signal->sig_action(SIGTERM, &action, &m_orig_action_sigterm);
+        action.sa_sigaction = &action_sigchld;
+        m_posix_signal->sig_action(SIGCHLD, &action, &m_orig_action_sigchld);
+        m_is_blocked = true;
+    }
+
+    void DBusServerImp::reset_posix_signal(void)
+    {
+        if (!m_is_blocked) {
+            return;
+        }
+        // Reset blocked signals
+        m_posix_signal->sig_action(SIGIO, &m_orig_action_sigio, nullptr);
+        m_posix_signal->sig_action(SIGCONT, &m_orig_action_sigcont, nullptr);
+        m_posix_signal->sig_action(SIGTERM, &m_orig_action_sigterm, nullptr);
+        m_posix_signal->sig_action(SIGCHLD, &m_orig_action_sigchld, nullptr);
+        // TODO: Do we need to check for pending signals before unblocking?
+        m_posix_signal->sig_proc_mask(SIG_SETMASK, &m_orig_mask, nullptr);
+        m_is_blocked = false;
     }
 }

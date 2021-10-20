@@ -35,6 +35,8 @@
 
 #include <memory>
 #include <vector>
+#include <signal.h>
+
 
 struct geopm_request_s;
 
@@ -47,10 +49,12 @@ namespace geopm
     class DBusServer
     {
         public:
-            enum m_value_e {
-                M_VALUE_READ,
-                M_VALUE_WRITE,
-                M_NUM_VALUE
+            enum m_message_e {
+                M_MESSAGE_READ = 0x10F000, // Add a marker
+                M_MESSAGE_WRITE,
+                M_MESSAGE_READY,
+                M_MESSAGE_TERMINATE,
+                M_NUM_MESSAGE
             };
 
             /// @brief Interace called by geopmd to create the server
@@ -136,6 +140,11 @@ namespace geopm
             void push_requests(void);
             void read_and_update(void);
             void update_and_write(void);
+            void init_posix_signal(void);
+            void reset_posix_signal(void);
+            void create_shmem(void);
+            void check_invalid_signal(void);
+
             int m_client_pid;
             std::vector<geopm_request_s> m_signal_config;
             std::vector<geopm_request_s> m_control_config;
@@ -148,7 +157,12 @@ namespace geopm
             bool m_is_active;
             std::vector<int> m_signal_idx;
             std::vector<int> m_control_idx;
-
+            sigset_t m_orig_mask;
+            struct sigaction m_orig_action_sigio;
+            struct sigaction m_orig_action_sigcont;
+            struct sigaction m_orig_action_sigterm;
+            struct sigaction m_orig_action_sigchld;
+            bool m_is_blocked;
     };
 }
 

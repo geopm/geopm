@@ -35,6 +35,7 @@
 
 #include <memory>
 #include <vector>
+#include <signal.h>
 
 struct geopm_request_s;
 
@@ -79,6 +80,7 @@ namespace geopm
             std::shared_ptr<POSIXSignal> m_posix_signal;
             std::shared_ptr<SharedMemory> m_signal_shmem;
             std::shared_ptr<SharedMemory> m_control_shmem;
+            // TODO: These should not really be unique_ptr type
             const std::unique_ptr<sigset_t> m_sig_wait_set;
             const std::unique_ptr<timespec> m_timeout;
 

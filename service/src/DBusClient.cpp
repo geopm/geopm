@@ -83,7 +83,7 @@ namespace geopm
     std::vector<double> DBusClientImp::read_batch(void)
     {
         siginfo_t info;
-        m_posix_signal->sig_queue(m_server_pid, SIGIO, DBusServer::M_VALUE_READ);
+        m_posix_signal->sig_queue(m_server_pid, SIGIO, DBusServer::M_MESSAGE_READ);
         m_posix_signal->sig_timed_wait(m_sig_wait_set.get(), &info, m_timeout.get());
         auto lock = m_signal_shmem->get_scoped_lock();
         double *buffer = (double *)m_signal_shmem->pointer();
@@ -98,7 +98,7 @@ namespace geopm
         double *buffer = (double *)m_signal_shmem->pointer();
         std::copy(settings.begin(), settings.end(), buffer);
         siginfo_t info;
-        m_posix_signal->sig_queue(m_server_pid, SIGIO, DBusServer::M_VALUE_WRITE);
+        m_posix_signal->sig_queue(m_server_pid, SIGIO, DBusServer::M_MESSAGE_WRITE);
         m_posix_signal->sig_timed_wait(m_sig_wait_set.get(), &info, m_timeout.get());
     }
 }
