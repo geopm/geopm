@@ -214,11 +214,21 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
               test/gtest_links/PlatformTopoTest.ppc_num_domain \
               test/gtest_links/PlatformTopoTest.singleton_construction \
               test/gtest_links/PlatformTopoTest.call_c_wrappers \
-              test/gtest_links/POSIXSignalTest.make_sigset \
+              test/gtest_links/POSIXSignalTest.make_sigset_correct \
+              test/gtest_links/POSIXSignalTest.make_sigset_EINVAL \
+              test/gtest_links/POSIXSignalTest.make_sigset_zeroed \
               test/gtest_links/POSIXSignalTest.reduce_info \
-              test/gtest_links/POSIXSignalTest.sig_timed_wait \
-              test/gtest_links/POSIXSignalTest.sig_queue \
-              test/gtest_links/POSIXSignalTest.sig_action \
+              test/gtest_links/POSIXSignalTest.sig_timed_wait_EAGAIN \
+              test/gtest_links/POSIXSignalTest.sig_timed_wait_EINVAL \
+              test/gtest_links/POSIXSignalTest.sig_queue_EINVAL \
+              test/gtest_links/POSIXSignalTest.sig_queue_ESRCH \
+              test/gtest_links/POSIXSignalTest.sig_queue_EPERM \
+              test/gtest_links/POSIXSignalTest.sig_action_EINVAL \
+              test/gtest_links/POSIXSignalTest.sig_proc_mask_SIG_SETMASK \
+              test/gtest_links/POSIXSignalTest.sig_proc_mask_SIG_BLOCK \
+              test/gtest_links/POSIXSignalTest.sig_proc_mask_SIG_UNBLOCK \
+              test/gtest_links/POSIXSignalTest.sig_proc_mask_EINVAL \
+              test/gtest_links/POSIXSignalTest.sig_suspend_EFAULT \
               test/gtest_links/RawMSRSignalTest.errors \
               test/gtest_links/RawMSRSignalTest.read \
               test/gtest_links/RawMSRSignalTest.read_batch \
