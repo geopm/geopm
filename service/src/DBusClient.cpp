@@ -42,6 +42,16 @@
 #include "POSIXSignal.hpp"
 #include "geopm_internal.h"
 
+volatile static sig_atomic_t g_message_ready_count = 0;
+
+static void action_sigcont(int signo, siginfo_t *siginfo, void *context)
+{
+    if (siginfo->si_value.sival_int == geopm::DBusServer::M_MESSAGE_READY) {
+        ++g_message_ready_count;
+    }
+}
+
+
 namespace geopm
 {
     std::unique_ptr<DBusClient> DBusClient::make_unique(int server_pid,
@@ -74,17 +84,24 @@ namespace geopm
         , m_posix_signal(posix_signal)
         , m_signal_shmem(signal_shmem)
         , m_control_shmem(control_shmem)
-        , m_sig_wait_set(geopm::make_unique<sigset_t>(m_posix_signal->make_sigset({SIGCONT})))
-        , m_timeout(geopm::make_unique<timespec>(timespec {1, 0}))
+        , m_block_mask(m_posix_signal->make_sigset({SIGCONT}))
+        , m_action_sigcont({})
+        , m_is_blocked(false)
     {
-
+        m_action_sigcont.sa_mask = m_block_mask;
+        m_action_sigcont.sa_flags = SA_SIGINFO;
+        m_action_sigcont.sa_sigaction = &action_sigcont;
     }
 
     std::vector<double> DBusClientImp::read_batch(void)
     {
-        siginfo_t info;
+        init_posix_signal();
         m_posix_signal->sig_queue(m_server_pid, SIGIO, DBusServer::M_MESSAGE_READ);
-        m_posix_signal->sig_timed_wait(m_sig_wait_set.get(), &info, m_timeout.get());
+        while (g_message_ready_count == 0) {
+            m_posix_signal->sig_suspend(&m_orig_mask);
+        }
+        reset_posix_signal();
+        --g_message_ready_count;
         auto lock = m_signal_shmem->get_scoped_lock();
         double *buffer = (double *)m_signal_shmem->pointer();
         std::vector<double> result(m_num_signal);
@@ -97,8 +114,36 @@ namespace geopm
         auto lock = m_signal_shmem->get_scoped_lock();
         double *buffer = (double *)m_signal_shmem->pointer();
         std::copy(settings.begin(), settings.end(), buffer);
-        siginfo_t info;
+        init_posix_signal();
         m_posix_signal->sig_queue(m_server_pid, SIGIO, DBusServer::M_MESSAGE_WRITE);
-        m_posix_signal->sig_timed_wait(m_sig_wait_set.get(), &info, m_timeout.get());
+        while (g_message_ready_count == 0) {
+            m_posix_signal->sig_suspend(&m_orig_mask);
+        }
+        reset_posix_signal();
+        --g_message_ready_count;
+    }
+
+    void DBusClientImp::init_posix_signal(void)
+    {
+        if (m_is_blocked) {
+            return;
+        }
+        // Block signals for SIGCONT so we may use sigsuspend to wait
+        m_posix_signal->sig_proc_mask(SIG_BLOCK, &m_block_mask, &m_orig_mask);
+        // Register signal handlers for SIGCONT
+        m_posix_signal->sig_action(SIGCONT, &m_action_sigcont, &m_orig_action_sigcont);
+        m_is_blocked = true;
+    }
+
+    void DBusServerImp::reset_posix_signal(void)
+    {
+        if (!m_is_blocked) {
+            return;
+        }
+        // Reset blocked signals
+        m_posix_signal->sig_action(SIGCONT, &m_orig_action_sigcont, nullptr);
+        // TODO: Do we need to check for pending signals before unblocking?
+        m_posix_signal->sig_proc_mask(SIG_SETMASK, &m_orig_mask, nullptr);
+        m_is_blocked = false;
     }
 }

@@ -74,15 +74,20 @@ namespace geopm
             std::vector<double> read_batch(void) override;
             void write_batch(std::vector<double> settings) override;
         private:
+            void init_posix_signal(void);
+            void reset_posix_signal(void);
+
             int m_server_pid;
             int m_num_signal;
             int m_num_control;
             std::shared_ptr<POSIXSignal> m_posix_signal;
             std::shared_ptr<SharedMemory> m_signal_shmem;
             std::shared_ptr<SharedMemory> m_control_shmem;
-            // TODO: These should not really be unique_ptr type
-            const std::unique_ptr<sigset_t> m_sig_wait_set;
-            const std::unique_ptr<timespec> m_timeout;
+            const sigset_t m_block_mask;
+            sigset_t m_orig_mask;
+            struct sigaction m_orig_action_sigcont;
+            struct sigaction m_action_sigcont;
+            bool m_is_blocked;
 
     };
 }
