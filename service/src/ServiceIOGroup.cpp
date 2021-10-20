@@ -38,7 +38,7 @@
 #include <climits>
 #include "geopm/Agg.hpp"
 #include "ServiceProxy.hpp"
-#include "DBusClient.hpp"
+#include "BatchClient.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm/PlatformTopo.hpp"
 #include "geopm_debug.hpp"
@@ -342,7 +342,7 @@ namespace geopm
                                                   m_control_requests,
                                                   server_pid,
                                                   server_key);
-            m_batch_server = DBusClient::make_unique(server_pid, server_key,
+            m_batch_server = BatchClient::make_unique(server_pid, server_key,
                                                      m_signal_requests.size(),
                                                      m_control_requests.size());
         }

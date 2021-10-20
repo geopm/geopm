@@ -44,7 +44,7 @@ namespace geopm
     class IOGroup;
     class CombinedSignal;
     class PlatformTopo;
-    class DBusServer;
+    class BatchServer;
 
     class PlatformIOImp : public PlatformIO
     {
@@ -155,7 +155,7 @@ namespace geopm
                                     std::unique_ptr<CombinedSignal> > > m_combined_signal;
             std::map<int, std::vector<int> > m_combined_control;
             bool m_do_restore;
-            std::map<int, std::shared_ptr<DBusServer> > m_batch_server;
+            std::map<int, std::shared_ptr<BatchServer> > m_batch_server;
     };
 }
 

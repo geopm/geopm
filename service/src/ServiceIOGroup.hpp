@@ -43,7 +43,7 @@ namespace geopm
 {
     class PlatformTopo;
     class ServiceProxy;
-    class DBusClient;
+    class BatchClient;
     struct signal_info_s;
     struct control_info_s;
 
@@ -109,7 +109,7 @@ namespace geopm
             std::map<std::string, control_info_s> m_control_info;
             std::vector<geopm_request_s> m_signal_requests;
             std::vector<geopm_request_s> m_control_requests;
-            std::shared_ptr<DBusClient> m_batch_server;
+            std::shared_ptr<BatchClient> m_batch_server;
             std::vector<double> m_batch_samples;
             std::vector<double> m_batch_settings;
     };

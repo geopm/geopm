@@ -30,8 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef DBUSSERVER_HPP_INCLUDE
-#define DBUSSERVER_HPP_INCLUDE
+#ifndef BATCHSERVER_HPP_INCLUDE
+#define BATCHSERVER_HPP_INCLUDE
 
 #include <memory>
 #include <vector>
@@ -46,7 +46,7 @@ namespace geopm
     class SharedMemory;
     class POSIXSignal;
 
-    class DBusServer
+    class BatchServer
     {
         public:
             enum m_message_e {
@@ -59,8 +59,8 @@ namespace geopm
 
             /// @brief Interace called by geopmd to create the server
             ///        for batch commands.
-            DBusServer() = default;
-            virtual ~DBusServer() = default;
+            BatchServer() = default;
+            virtual ~BatchServer() = default;
             /// @brief Supports the D-Bus interface for starting a
             ///        batch server.
             ///
@@ -97,7 +97,7 @@ namespace geopm
             ///        signals to be sampled.
             /// @param [in] control_config Avector of requests for
             ///        controls to be adjusted.
-            static std::unique_ptr<DBusServer> make_unique(int client_pid,
+            static std::unique_ptr<BatchServer> make_unique(int client_pid,
                                                            const std::vector<geopm_request_s> &signal_config,
                                                            const std::vector<geopm_request_s> &control_config);
             /// @return The Unix process ID of the server process
@@ -117,20 +117,20 @@ namespace geopm
             virtual bool is_active(void) const = 0;
     };
 
-    class DBusServerImp : public DBusServer
+    class BatchServerImp : public BatchServer
     {
         public:
-            DBusServerImp(int client_pid,
+            BatchServerImp(int client_pid,
                           const std::vector<geopm_request_s> &signal_config,
                           const std::vector<geopm_request_s> &control_config);
-            DBusServerImp(int client_pid,
+            BatchServerImp(int client_pid,
                           const std::vector<geopm_request_s> &signal_config,
                           const std::vector<geopm_request_s> &control_config,
                           PlatformIO &pio,
                           std::shared_ptr<POSIXSignal> posix_signal,
                           std::shared_ptr<SharedMemory> signal_shmem,
                           std::shared_ptr<SharedMemory> control_shmem);
-            virtual ~DBusServerImp();
+            virtual ~BatchServerImp();
             int server_pid(void) const override;
             std::string server_key(void) const override;
             void stop_batch(void) override;

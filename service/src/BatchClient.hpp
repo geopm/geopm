@@ -30,8 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef DBUSCLIENT_HPP_INCLUDE
-#define DBUSCLIENT_HPP_INCLUDE
+#ifndef BATCHCLIENT_HPP_INCLUDE
+#define BATCHCLIENT_HPP_INCLUDE
 
 #include <memory>
 #include <vector>
@@ -44,12 +44,12 @@ namespace geopm
     class SharedMemory;
     class POSIXSignal;
 
-    class DBusClient
+    class BatchClient
     {
         public:
-            DBusClient() = default;
-            virtual ~DBusClient() = default;
-            static std::unique_ptr<DBusClient> make_unique(int server_pid,
+            BatchClient() = default;
+            virtual ~BatchClient() = default;
+            static std::unique_ptr<BatchClient> make_unique(int server_pid,
                                                            const std::string &server_key,
                                                            int num_signal,
                                                            int num_control);
@@ -57,20 +57,20 @@ namespace geopm
             virtual void write_batch(std::vector<double> settings) = 0;
     };
 
-    class DBusClientImp : public DBusClient
+    class BatchClientImp : public BatchClient
     {
         public:
-            DBusClientImp(int server_pid, const std::string &server_key,
+            BatchClientImp(int server_pid, const std::string &server_key,
                           int num_signal, int num_control);
-            DBusClientImp(int server_pid, int num_signal, int num_control,
+            BatchClientImp(int server_pid, int num_signal, int num_control,
                           std::shared_ptr<POSIXSignal> posix_signal,
                           std::shared_ptr<SharedMemory> signal_shmem,
                           std::shared_ptr<SharedMemory> control_shmem);
-            DBusClientImp(std::shared_ptr<POSIXSignal> posix_signal,
+            BatchClientImp(std::shared_ptr<POSIXSignal> posix_signal,
                           std::shared_ptr<SharedMemory> signal_shmem,
                           std::shared_ptr<SharedMemory> control_shmem,
                           int num_signal, int num_control);
-            virtual ~DBusClientImp() = default;
+            virtual ~BatchClientImp() = default;
             std::vector<double> read_batch(void) override;
             void write_batch(std::vector<double> settings) override;
         private:

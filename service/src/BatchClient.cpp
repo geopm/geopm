@@ -31,14 +31,14 @@
  */
 
 #include "config.h"
-#include "DBusClient.hpp"
+#include "BatchClient.hpp"
 
 #include <signal.h>
 #include <unistd.h>
 
 #include "geopm/Helper.hpp"
 #include "geopm/SharedMemory.hpp"
-#include "DBusServer.hpp"
+#include "BatchServer.hpp"
 #include "POSIXSignal.hpp"
 #include "geopm_internal.h"
 
@@ -46,7 +46,7 @@ volatile static sig_atomic_t g_message_ready_count = 0;
 
 static void action_sigcont(int signo, siginfo_t *siginfo, void *context)
 {
-    if (siginfo->si_value.sival_int == geopm::DBusServer::M_MESSAGE_READY) {
+    if (siginfo->si_value.sival_int == geopm::BatchServer::M_MESSAGE_READY) {
         ++g_message_ready_count;
     }
 }
@@ -54,18 +54,18 @@ static void action_sigcont(int signo, siginfo_t *siginfo, void *context)
 
 namespace geopm
 {
-    std::unique_ptr<DBusClient> DBusClient::make_unique(int server_pid,
+    std::unique_ptr<BatchClient> BatchClient::make_unique(int server_pid,
                                                         const std::string &server_key,
                                                         int num_signal,
                                                         int num_control)
     {
-        return geopm::make_unique<DBusClientImp>(server_pid, server_key,
+        return geopm::make_unique<BatchClientImp>(server_pid, server_key,
                                                  num_signal, num_control);
     }
 
-    DBusClientImp::DBusClientImp(int server_pid, const std::string &server_key,
+    BatchClientImp::BatchClientImp(int server_pid, const std::string &server_key,
                                  int num_signal, int num_control)
-        : DBusClientImp(server_pid, num_signal, num_control,
+        : BatchClientImp(server_pid, num_signal, num_control,
                         POSIXSignal::make_unique(),
                         SharedMemory::make_unique_user("/geopm-service-" + server_key + "-signals", 1.0),
                         SharedMemory::make_unique_user("/geopm-service-" + server_key + "-controls", 1.0))
@@ -74,7 +74,7 @@ namespace geopm
     }
 
 
-    DBusClientImp::DBusClientImp(int server_pid, int num_signal, int num_control,
+    BatchClientImp::BatchClientImp(int server_pid, int num_signal, int num_control,
                                  std::shared_ptr<POSIXSignal> posix_signal,
                                  std::shared_ptr<SharedMemory> signal_shmem,
                                  std::shared_ptr<SharedMemory> control_shmem)
@@ -96,10 +96,10 @@ namespace geopm
         m_posix_signal->sig_proc_mask(SIG_UNBLOCK, &m_block_mask, nullptr);
     }
 
-    std::vector<double> DBusClientImp::read_batch(void)
+    std::vector<double> BatchClientImp::read_batch(void)
     {
         critical_section_enter();
-        m_posix_signal->sig_queue(m_server_pid, SIGIO, DBusServer::M_MESSAGE_READ);
+        m_posix_signal->sig_queue(m_server_pid, SIGIO, BatchServer::M_MESSAGE_READ);
         while (g_message_ready_count == 0) {
             m_posix_signal->sig_suspend(&m_orig_mask);
         }
@@ -112,13 +112,13 @@ namespace geopm
         return result;
     }
 
-    void DBusClientImp::write_batch(std::vector<double> settings)
+    void BatchClientImp::write_batch(std::vector<double> settings)
     {
         auto lock = m_signal_shmem->get_scoped_lock();
         double *buffer = (double *)m_signal_shmem->pointer();
         std::copy(settings.begin(), settings.end(), buffer);
         critical_section_enter();
-        m_posix_signal->sig_queue(m_server_pid, SIGIO, DBusServer::M_MESSAGE_WRITE);
+        m_posix_signal->sig_queue(m_server_pid, SIGIO, BatchServer::M_MESSAGE_WRITE);
         while (g_message_ready_count == 0) {
             m_posix_signal->sig_suspend(&m_orig_mask);
         }
@@ -126,7 +126,7 @@ namespace geopm
         --g_message_ready_count;
     }
 
-    void DBusClientImp::critical_section_enter(void)
+    void BatchClientImp::critical_section_enter(void)
     {
         if (m_is_blocked) {
             return;
@@ -138,7 +138,7 @@ namespace geopm
         m_is_blocked = true;
     }
 
-    void DBusClientImp::critical_section_exit(void)
+    void BatchClientImp::critical_section_exit(void)
     {
         if (!m_is_blocked) {
             return;

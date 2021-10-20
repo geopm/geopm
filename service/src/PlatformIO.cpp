@@ -50,7 +50,7 @@
 #include "geopm/MSRIOGroup.hpp"
 #include "TimeIOGroup.hpp"
 #include "CombinedSignal.hpp"
-#include "DBusServer.hpp"
+#include "BatchServer.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm/Agg.hpp"
@@ -615,8 +615,8 @@ namespace geopm
                                            int &server_pid,
                                            std::string &server_key)
     {
-        std::shared_ptr<DBusServer> batch_server =
-            DBusServer::make_unique(client_pid, signal_config, control_config);
+        std::shared_ptr<BatchServer> batch_server =
+            BatchServer::make_unique(client_pid, signal_config, control_config);
         server_pid = batch_server->server_pid();
         server_key = batch_server->server_key();
         if (m_batch_server.find(server_pid) != m_batch_server.end()) {

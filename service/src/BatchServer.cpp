@@ -31,7 +31,7 @@
  */
 
 #include "config.h"
-#include "DBusServer.hpp"
+#include "BatchServer.hpp"
 
 #include <signal.h>
 #include <unistd.h>
@@ -55,10 +55,10 @@ volatile static sig_atomic_t g_message_invalid_count = 0;
 static void action_sigio(int signo, siginfo_t *siginfo, void *context)
 {
     switch (siginfo->si_value.sival_int) {
-        case geopm::DBusServer::M_MESSAGE_READ:
+        case geopm::BatchServer::M_MESSAGE_READ:
             ++g_message_read_count;
             break;
-        case geopm::DBusServer::M_MESSAGE_WRITE:
+        case geopm::BatchServer::M_MESSAGE_WRITE:
             ++g_message_read_count;
             break;
         default:
@@ -69,14 +69,14 @@ static void action_sigio(int signo, siginfo_t *siginfo, void *context)
 
 static void action_sigcont(int signo, siginfo_t *siginfo, void *context)
 {
-    if (siginfo->si_value.sival_int == geopm::DBusServer::M_MESSAGE_READY) {
+    if (siginfo->si_value.sival_int == geopm::BatchServer::M_MESSAGE_READY) {
         ++g_message_ready_count;
     }
 }
 
 static void action_sigterm(int signo, siginfo_t *siginfo, void *context)
 {
-    if (siginfo->si_value.sival_int == geopm::DBusServer::M_MESSAGE_TERMINATE) {
+    if (siginfo->si_value.sival_int == geopm::BatchServer::M_MESSAGE_TERMINATE) {
         ++g_message_terminate_count;
     }
     else {
@@ -92,25 +92,25 @@ static void action_sigchld(int signo, siginfo_t *siginfo, void *context)
 namespace geopm
 {
 
-    std::unique_ptr<DBusServer>
-    DBusServer::make_unique(int client_pid,
+    std::unique_ptr<BatchServer>
+    BatchServer::make_unique(int client_pid,
                             const std::vector<geopm_request_s> &signal_config,
                             const std::vector<geopm_request_s> &control_config)
     {
-        return geopm::make_unique<DBusServerImp>(client_pid, signal_config,
+        return geopm::make_unique<BatchServerImp>(client_pid, signal_config,
                                                  control_config);
     }
-    DBusServerImp::DBusServerImp(int client_pid,
+    BatchServerImp::BatchServerImp(int client_pid,
                                  const std::vector<geopm_request_s> &signal_config,
                                  const std::vector<geopm_request_s> &control_config)
-        : DBusServerImp(client_pid, signal_config, control_config,
+        : BatchServerImp(client_pid, signal_config, control_config,
                         platform_io(), nullptr, nullptr, nullptr)
     {
 
     }
 
 
-    DBusServerImp::DBusServerImp(int client_pid,
+    BatchServerImp::BatchServerImp(int client_pid,
                                  const std::vector<geopm_request_s> &signal_config,
                                  const std::vector<geopm_request_s> &control_config,
                                  PlatformIO &pio,
@@ -160,22 +160,22 @@ namespace geopm
         m_is_active = true;
     }
 
-    DBusServerImp::~DBusServerImp()
+    BatchServerImp::~BatchServerImp()
     {
         stop_batch();
     }
 
-    int DBusServerImp::server_pid(void) const
+    int BatchServerImp::server_pid(void) const
     {
         return m_server_pid;
     }
 
-    std::string DBusServerImp::server_key(void) const
+    std::string BatchServerImp::server_key(void) const
     {
         return m_server_key;
     }
 
-    void DBusServerImp::stop_batch(void)
+    void BatchServerImp::stop_batch(void)
     {
         if (m_is_active) {
             critical_region_enter();
@@ -191,7 +191,7 @@ namespace geopm
         }
     }
 
-    void DBusServerImp::run_batch(int parent_pid)
+    void BatchServerImp::run_batch(int parent_pid)
     {
         // Signal that the server is ready
         m_posix_signal->sig_queue(parent_pid, SIGCONT, M_MESSAGE_READY);
@@ -218,21 +218,21 @@ namespace geopm
         }
     }
 
-    void DBusServerImp::check_invalid_signal(void)
+    void BatchServerImp::check_invalid_signal(void)
     {
         if (g_message_invalid_count != 0) {
             critical_region_exit();
-            throw Exception("DBusServerImp:: Recieved a signal could not be handled properly",
+            throw Exception("BatchServerImp:: Recieved a signal could not be handled properly",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
     }
 
-    bool DBusServerImp::is_active(void) const
+    bool BatchServerImp::is_active(void) const
     {
         return m_is_active;
     }
 
-    void DBusServerImp::push_requests(void)
+    void BatchServerImp::push_requests(void)
     {
         for (const auto &req : m_signal_config) {
             m_signal_idx.push_back(
@@ -244,7 +244,7 @@ namespace geopm
         }
     }
 
-    void DBusServerImp::read_and_update(void)
+    void BatchServerImp::read_and_update(void)
     {
         if (m_signal_config.size() == 0) {
             return;
@@ -260,7 +260,7 @@ namespace geopm
         }
     }
 
-    void DBusServerImp::update_and_write(void)
+    void BatchServerImp::update_and_write(void)
     {
         if (m_control_config.size() == 0) {
             return;
@@ -277,7 +277,7 @@ namespace geopm
     }
 
 
-    void DBusServerImp::create_shmem(void)
+    void BatchServerImp::create_shmem(void)
     {
         // Create shared memory regions
         size_t signal_size = m_signal_config.size() * sizeof(double);
@@ -300,7 +300,7 @@ namespace geopm
         }
     }
 
-    void DBusServerImp::critical_region_enter(void)
+    void BatchServerImp::critical_region_enter(void)
     {
         if (m_is_blocked) {
             return;
@@ -326,7 +326,7 @@ namespace geopm
         m_is_blocked = true;
     }
 
-    void DBusServerImp::critical_region_exit(void)
+    void BatchServerImp::critical_region_exit(void)
     {
         if (!m_is_blocked) {
             return;
