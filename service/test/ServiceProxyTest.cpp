@@ -36,7 +36,7 @@
 #include "MockSDBus.hpp"
 #include "MockSDBusMessage.hpp"
 #include "geopm_test.hpp"
-#include "geopm_internal.h"
+#include "geopm/PlatformIO.hpp"
 
 using geopm::signal_info_s;
 using geopm::control_info_s;

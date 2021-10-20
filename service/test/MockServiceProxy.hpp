@@ -34,8 +34,8 @@
 #define MOCKSERVICEPROXY_HPP_INCLUDE
 
 #include "gmock/gmock.h"
-#include "geopm_internal.h"
 #include "ServiceProxy.hpp"
+#include "geopm/PlatformIO.hpp"
 
 class MockServiceProxy : public geopm::ServiceProxy
 {
