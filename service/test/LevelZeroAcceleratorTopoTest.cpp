@@ -236,7 +236,6 @@ TEST_F(LevelZeroAcceleratorTopoTest, high_cpu_count_config)
     for (int sub_idx = 0; sub_idx < num_accelerator_subdevice; ++sub_idx) {
         for (int cpu_idx = 0; cpu_idx < num_cpu/num_accelerator_subdevice; ++cpu_idx) {
             int accel_idx = sub_idx/(num_accelerator_subdevice/num_accelerator);
-                //cpus_allowed_set_subdevice[sub_idx].insert(cpu_idx+(sub_idx*4));
             cpus_allowed_set_subdevice[sub_idx].insert((cpu_idx)*4 + sub_idx + (accel_idx)*12);
         }
         ASSERT_THAT(topo.cpu_affinity_ideal(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx), cpus_allowed_set_subdevice[sub_idx]);
