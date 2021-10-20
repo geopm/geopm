@@ -140,7 +140,7 @@ namespace geopm
             ///
             /// @throw geopm::Exception upon EFAULT
             ///
-            /// @remark See documentation for sigprocmask(2) about parameters
+            /// @remark See documentation for sigsuspend(2) about parameters
             ///         and return value. Except that it doesn't return an error by defualt.
             virtual void sig_suspend(const sigset_t *mask) const = 0;
     };
