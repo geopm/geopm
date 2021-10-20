@@ -634,7 +634,7 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 #ifdef GEOPM_DEBUG
-        if (!it->is_active()) {
+        if (!it->second->is_active()) {
             std::cerr << "Warning: <geopm> PlatformIO::stop_batch_server(): Batch server was inactive when it was stopped\n";
         }
 #endif
