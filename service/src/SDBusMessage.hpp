@@ -91,6 +91,23 @@ namespace geopm
             /// Wrapper around sd_bus_message_exit_container(3)
             /// function.
             virtual void exit_container(void) = 0;
+            /// @brief Open a container in the message for writing
+            ///
+            /// Wrapper around sd_bus_message_open_container(3)
+            ///
+            /// @param type [in] One of M_MESSAGE_TYPE_STRUCT or
+            ///             M_MESSAGE_TYPE_ARRAY which map to the
+            ///             related char values defined in "sd-bus.h".
+            /// @param contents [in] The sd_bus string expression that
+            ///                 describes the data types in the message.
+            virtual void open_container(
+                char type,
+                const std::string &contents) = 0;
+            /// @brief Close a container in the message for writing
+            ///
+            /// Wrapper around sd_bus_message_close_open_container(3)
+            ///
+            virtual void close_container(void) = 0;
             /// @brief Read a string out of the message
             ///
             /// Wrapper around the "sd_bus_message_read(3)" function.
@@ -145,6 +162,10 @@ namespace geopm
                 char type,
                 const std::string &contents) override;
             void exit_container(void) override;
+            virtual void open_container(
+                char type,
+                const std::string &contents) override;
+            virtual void close_container(void) override;
             std::string read_string(void) override;
             double read_double(void) override;
             int read_integer(void) override;
