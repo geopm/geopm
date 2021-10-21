@@ -40,6 +40,7 @@
 
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
+#include "geopm/PlatformIO.hpp"
 
 namespace geopm
 {
@@ -176,6 +177,25 @@ namespace geopm
                                              (char **)write_values_cstr.data());
         check_bus_error("sd_bus_message_append_strv", ret);
         m_was_success = true; // FIXME ??
+    }
+
+    void SDBusMessageImp::append_request_s(const std::vector<struct geopm_request_s> &write_values)
+    {
+        check_null_ptr(__func__, m_bus_message);
+        std::vector<const char *> write_values_cstr;
+        m_was_success = true;
+        for (const auto &wv : write_values) {
+            if (!m_was_success) {
+                break;
+            }
+            int ret = sd_bus_message_append(m_bus_message,
+                                            "iis",
+                                            wv.domain, wv.domain_idx, wv.name);
+            check_bus_error("sd_bus_message_append", ret);
+            if (m_was_success) {
+                m_was_success = (ret != 0);
+            }
+        }
     }
 
     bool SDBusMessageImp::was_success(void)
