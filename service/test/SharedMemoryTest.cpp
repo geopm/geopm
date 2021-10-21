@@ -230,7 +230,7 @@ TEST_F(SharedMemoryTest, chown)
                                GEOPM_ERROR_RUNTIME, "unlinked");
 }
 
-TEST_F(SharedMemoryTest, default_world_permissions)
+TEST_F(SharedMemoryTest, default_permissions)
 {
     int shm_id = -1;
     uint32_t permissions_bits = 0;
@@ -245,11 +245,11 @@ TEST_F(SharedMemoryTest, default_world_permissions)
     m_shmem->unlink(); // Manually unlink unless config_shmem_u() is called
 }
 
-TEST_F(SharedMemoryTest, secure_no_world_permissions)
+TEST_F(SharedMemoryTest, secure_permissions)
 {
     int shm_id = -1;
     uint32_t permissions_bits = 0;
-    uint32_t expected_permissions = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP;
+    uint32_t expected_permissions = S_IRUSR | S_IWUSR;
     struct stat stat_struct;
 
     config_shmem_s();

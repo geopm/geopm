@@ -113,7 +113,7 @@ namespace geopm
 
     }
 
-    void SharedMemoryImp::create_memory_region(const std::string &shm_key, size_t size, bool world_perms)
+    void SharedMemoryImp::create_memory_region(const std::string &shm_key, size_t size, bool is_secure)
     {
         if (!size) {
             throw Exception("SharedMemoryImp: Cannot create shared memory region of zero size", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
@@ -123,8 +123,8 @@ namespace geopm
 
         mode_t old_mask = umask(0);
         int shm_id = 0;
-        if (world_perms) {
-            shm_id = shm_open(m_shm_key.c_str(), O_RDWR | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+        if (is_secure) {
+            shm_id = shm_open(m_shm_key.c_str(), O_RDWR | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
         }
         else {
             shm_id = shm_open(m_shm_key.c_str(), O_RDWR | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
