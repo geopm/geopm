@@ -136,8 +136,30 @@ namespace geopm
                                                int &server_pid,
                                                std::string &server_key)
     {
-        throw Exception("ServiceProxyImp::platform_start_batch()",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        std::shared_ptr<SDBusMessage> bus_message = m_bus->make_call_message("PlatformStartBatch");
+        bus_message->open_container(SDBusMessage::M_MESSAGE_TYPE_ARRAY, "(iis)");
+        bus_message->open_container(SDBusMessage::M_MESSAGE_TYPE_STRUCT, "iis");
+        while (bus_message->was_success()) {
+            bus_message->append_request_s(signal_config);
+        }
+        bus_message->close_container(); // iis
+        bus_message->close_container(); // (iis)
+
+        bus_message->open_container(SDBusMessage::M_MESSAGE_TYPE_ARRAY, "(iis)");
+        bus_message->open_container(SDBusMessage::M_MESSAGE_TYPE_STRUCT, "iis");
+        while (bus_message->was_success()) {
+            bus_message->append_request_s(control_config);
+        }
+        bus_message->close_container(); // iis
+        bus_message->close_container(); // (iis)
+
+        std::shared_ptr<SDBusMessage> bus_reply = m_bus->call_method("PlatformStartBatch");
+        bus_reply->enter_container(SDBusMessage::M_MESSAGE_TYPE_STRUCT, "is");
+        while (bus_reply->was_success()) {
+            server_pid = bus_reply->read_integer();
+            server_key = bus_reply->read_string();
+        }
+        bus_reply->exit_container();
     }
 
     void ServiceProxyImp::platform_stop_batch(int server_pid)
