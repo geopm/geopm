@@ -389,7 +389,14 @@ open session.
     <method name="PlatformStartBatch">
       <arg direction="in" name="signal_config" type="a(iis)">
         <doc:doc>
-          <doc:summary>Linux PID of the client thread
+          <doc:summary>domain_type (int): One of the geopmpy.topo.DOMAIN_*
+                   integers corresponding to a domain
+                   type to read from.
+
+domain_idx (int): Specifies the particular domain
+                  index to read from.
+
+signal_name (str): The name of the signal to read.
           </doc:summary>
         </doc:doc>
       </arg>
@@ -397,10 +404,10 @@ open session.
         <doc:doc>
           <doc:summary>domain_type (int): One of the geopmpy.topo.DOMAIN_*
                    integers corresponding to a domain
-                   type to read from.
+                   type to write to.
 
 domain_idx (int): Specifies the particular domain
-                  index to read from.
+                  index to write to.
 
 signal_name (str): The name of the signal to read.
           </doc:summary>
