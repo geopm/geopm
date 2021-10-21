@@ -129,7 +129,7 @@ namespace geopm
     Exception::Exception(const std::string &what, int err, const char *file, int line)
         : std::runtime_error(ErrorMessage::get().message_fixed(err) + (
                                  what.size() != 0 ? (std::string(": ") + what) : std::string("")) + (
-                                 file != NULL ? (std::string(": at geopm/") + std::string(file) +
+                                 file != NULL ? (std::string(": at ") + std::string(file) +
                                  std::string(":") + std::to_string(line)) : std::string("")))
         , m_err(err ? err : GEOPM_ERROR_RUNTIME)
     {
