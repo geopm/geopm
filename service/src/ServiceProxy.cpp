@@ -34,11 +34,11 @@
 
 #include <sstream>
 
+#include "geopm/PlatformIO.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
 #include "SDBus.hpp"
 #include "SDBusMessage.hpp"
-#include "geopm_internal.h"
 
 
 namespace geopm
@@ -138,27 +138,22 @@ namespace geopm
     {
         std::shared_ptr<SDBusMessage> bus_message = m_bus->make_call_message("PlatformStartBatch");
         bus_message->open_container(SDBusMessage::M_MESSAGE_TYPE_ARRAY, "(iis)");
-        bus_message->open_container(SDBusMessage::M_MESSAGE_TYPE_STRUCT, "iis");
-        while (bus_message->was_success()) {
-            bus_message->append_request_s(signal_config);
+
+        for (const auto &sig_it : signal_config) {
+            bus_message->append_request_s(sig_it);
         }
-        bus_message->close_container(); // iis
         bus_message->close_container(); // (iis)
 
         bus_message->open_container(SDBusMessage::M_MESSAGE_TYPE_ARRAY, "(iis)");
-        bus_message->open_container(SDBusMessage::M_MESSAGE_TYPE_STRUCT, "iis");
-        while (bus_message->was_success()) {
-            bus_message->append_request_s(control_config);
+        for (const auto &cont_it : control_config) {
+            bus_message->append_request_s(cont_it);
         }
-        bus_message->close_container(); // iis
         bus_message->close_container(); // (iis)
 
         std::shared_ptr<SDBusMessage> bus_reply = m_bus->call_method("PlatformStartBatch");
         bus_reply->enter_container(SDBusMessage::M_MESSAGE_TYPE_STRUCT, "is");
-        while (bus_reply->was_success()) {
-            server_pid = bus_reply->read_integer();
-            server_key = bus_reply->read_string();
-        }
+        server_pid = bus_reply->read_integer();
+        server_key = bus_reply->read_string();
         bus_reply->exit_container();
     }
 
