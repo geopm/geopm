@@ -647,18 +647,24 @@ def start_batch_server(client_pid, signal_config, control_config):
     for idx, req in enumerate(signal_config):
         signal_config_carr[idx].domain = req[0]
         signal_config_carr[idx].domain_idx = req[1]
-        signal_config_carr[idx].name = req[2]
+        signal_config_carr[idx].name = req[2].encode()
 
     for idx, req in enumerate(control_config):
         control_config_carr[idx].domain = req[0]
         control_config_carr[idx].domain_idx = req[1]
-        control_config_carr[idx].name = req[2]
+        control_config_carr[idx].name = req[2].encode()
 
     server_pid_c = _ffi.new('int *')
     server_key_cstr = _ffi.new('char [255]')
 
-    err = _dl.geopm_pio_start_batch_server(client_pid, len(signal_config), signal_config, len(control_config), control_config,
-                                           server_pid_c, 255, server_key_cstr)
+    err = _dl.geopm_pio_start_batch_server(client_pid,
+                                           len(signal_config),
+                                           signal_config_carr,
+                                           len(control_config),
+                                           control_config_carr,
+                                           server_pid_c,
+                                           255,
+                                           server_key_cstr)
     if err < 0:
         raise RuntimeError('geopm_pio_start_batch_server() failed: {}'.format(error.message(err)))
     server_pid = server_pid_c[0]
