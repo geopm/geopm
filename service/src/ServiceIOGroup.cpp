@@ -230,9 +230,8 @@ namespace geopm
     {
         if (m_batch_server != nullptr &&
             m_control_requests.size() != 0) {
-            m_batch_samples = m_batch_server->read_batch();
+            m_batch_server->write_batch(m_batch_settings);
         }
-        m_batch_server->write_batch(m_batch_settings);
     }
 
     double ServiceIOGroup::sample(int sample_idx)
