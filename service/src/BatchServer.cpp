@@ -79,7 +79,7 @@ static void action_sigterm(int signo, siginfo_t *siginfo, void *context)
         ++g_message_terminate_count;
     }
     else {
-        // ++g_message_invalid_count;
+        ++g_message_invalid_count;
     }
 }
 
