@@ -150,7 +150,7 @@ namespace geopm
         }
         bus_message->close_container(); // (iis)
 
-        std::shared_ptr<SDBusMessage> bus_reply = m_bus->call_method("PlatformStartBatch");
+        std::shared_ptr<SDBusMessage> bus_reply = m_bus->call_method(bus_message);
         bus_reply->enter_container(SDBusMessage::M_MESSAGE_TYPE_STRUCT, "is");
         server_pid = bus_reply->read_integer();
         server_key = bus_reply->read_string();

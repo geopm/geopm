@@ -157,6 +157,25 @@ namespace geopm
         return SDBusMessage::make_unique(bus_reply);
     }
 
+    std::shared_ptr<SDBusMessage> SDBusImp::call_method(
+        const std::string &member,
+        int arg0)
+    {
+        sd_bus_error bus_error = SD_BUS_ERROR_NULL;
+        sd_bus_message *bus_reply = nullptr;
+        int err = sd_bus_call_method(m_bus,
+                                     m_dbus_destination,
+                                     m_dbus_path,
+                                     m_dbus_interface,
+                                     member.c_str(),
+                                     &bus_error,
+                                     &bus_reply,
+                                     "i",
+                                     arg0);
+        check_bus_error("sd_bus_call_method", err, &bus_error);
+        return SDBusMessage::make_unique(bus_reply);
+    }
+
     std::shared_ptr<SDBusMessage> SDBusImp::make_call_message(
         const std::string &member)
     {

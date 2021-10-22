@@ -133,6 +133,9 @@ namespace geopm
                 int arg1,
                 int arg2,
                 double arg3) = 0;
+            virtual std::shared_ptr<SDBusMessage> call_method(
+                const std::string &member,
+                int arg0) = 0;
             /// @brief Wrapper for the
             ///        sd_bus_message_new_method_call(3) function
             ///
@@ -171,6 +174,9 @@ namespace geopm
                 int arg1,
                 int arg2,
                 double arg3) override;
+            std::shared_ptr<SDBusMessage> call_method(
+                const std::string &member,
+                int arg0) override;
             std::shared_ptr<SDBusMessage> make_call_message(
                 const std::string &member) override;
         private:

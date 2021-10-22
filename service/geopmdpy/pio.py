@@ -46,6 +46,13 @@ from . import error
 
 _ffi = cffi.FFI()
 _ffi.cdef("""
+
+struct geopm_request_s {
+    int domain;
+    int domain_idx;
+    char name[255];
+};
+
 int geopm_pio_num_signal_name(void);
 
 int geopm_pio_signal_name(int name_idx,
@@ -149,7 +156,7 @@ def signal_names():
     num_signal = _dl.geopm_pio_num_signal_name()
     if num_signal < 0:
         raise RuntimeError('geopm_pio_num_signal_name() failed: {}'.format(error.message(num_signal)))
-    name_max = 1024
+    name_max = 255
     signal_name_cstr = _ffi.new("char[]", name_max)
     for signal_idx in range(num_signal):
         err = _dl.geopm_pio_signal_name(signal_idx, name_max, signal_name_cstr)
@@ -634,9 +641,27 @@ def start_batch_server(client_pid, signal_config, control_config):
                              implemented.
 
     """
-    raise NotImplementedError('pio.start_batch_server() is not yet implemented')
-    server_pid = 0
-    server_key = 'INVALID'
+
+    signal_config_carr = _ffi.new(f'struct geopm_request_s[{len(signal_config)}]')
+    control_config_carr = _ffi.new(f'struct geopm_request_s[{len(control_config)}]')
+    for idx, req in enumerate(signal_config):
+        signal_config_carr[idx].domain = req[0]
+        signal_config_carr[idx].domain_idx = req[1]
+        signal_config_carr[idx].name = req[2]
+
+    for idx, req in enumerate(control_config):
+        control_config_carr[idx].domain = req[0]
+        control_config_carr[idx].domain_idx = req[1]
+        control_config_carr[idx].name = req[2]
+
+    server_pid_c = _ffi.new('int *')
+    server_key_cstr = _ffi.new('char [NAME_MAX]')
+    err = _dl.geopm_pio_start_batch_server(client_pid, signal_config, control_config,
+                                           server_pid_c, server_key_cstr)
+    if err < 0:
+        raise RuntimeError('geopm_pio_start_batch_server() failed: {}'.format(error.message(err)))
+    server_pid = server_pid_c[0]
+    server_key = _ffi.string(server_key_cstr).decode()
     return server_pid, server_key
 
 def stop_batch_server(server_pid):
@@ -658,7 +683,7 @@ def stop_batch_server(server_pid):
                              implemented.
 
     """
-    raise NotImplementedError('pio.stop_batch_server() is not yet implemented')
+    _dl.geopm_pio_start_batch_server(server_pid)
 
 def format_signal(signal, format_type):
     """Convert a signal into a string representation
