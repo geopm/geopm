@@ -159,8 +159,21 @@ namespace geopm
                                     int domain_type,
                                     int domain_idx)
     {
-        // TODO: More checks required that read_batch()/adjust() was not called
-        if (signal_name.size() >= NAME_MAX) {
+        if (!is_valid_signal(signal_name)) {
+            throw Exception("ServiceIOGroup::push_signal(): signal name \"" +
+                            signal_name + "\" not found",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        if (domain_type != signal_domain_type(signal_name)) {
+            throw Exception("ServiceIOGroup::push_signal(): domain_type requested does not match the domain of the signal (" + signal_name + ").",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        if (domain_idx < 0 || domain_idx >= m_platform_topo.num_domain(domain_type)) {
+            throw Exception("ServiceIOGroup::push_signal(): domain_idx out of range",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        std::string signal_name_strip = strip_plugin_name(signal_name);
+        if (signal_name_strip.size() >= NAME_MAX) {
             throw Exception("ServiceIOGroup::push_signal(): signal_name: " + signal_name + " is too long",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
@@ -168,7 +181,7 @@ namespace geopm
         request.domain = domain_type;
         request.domain_idx = domain_idx;
         request.name[NAME_MAX - 1] = '\0';
-        strncpy(request.name, signal_name.c_str(), NAME_MAX - 1);
+        strncpy(request.name, signal_name_strip.c_str(), NAME_MAX - 1);
         m_signal_requests.push_back(request);
         return m_signal_requests.size();
     }
@@ -177,8 +190,21 @@ namespace geopm
                                      int domain_type,
                                      int domain_idx)
     {
-        // TODO: More checks required that read_batch()/adjust() was not called
-        if (control_name.size() >= NAME_MAX) {
+        if (!is_valid_control(control_name)) {
+            throw Exception("ServiceIOGroup::push_control(): control name \"" +
+                            control_name + "\" not found",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        if (domain_type != control_domain_type(control_name)) {
+            throw Exception("ServiceIOGroup::push_control(): domain_type requested does not match the domain of the control (" + control_name + ").",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        if (domain_idx < 0 || domain_idx >= m_platform_topo.num_domain(domain_type)) {
+            throw Exception("ServiceIOGroup::push_control(): domain_idx out of range",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        std::string control_name_strip = strip_plugin_name(control_name);
+        if (control_name_strip.size() >= NAME_MAX) {
             throw Exception("ServiceIOGroup::push_control(): control_name: " + control_name + " is too long",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
@@ -186,7 +212,7 @@ namespace geopm
         request.domain = domain_type;
         request.domain_idx = domain_idx;
         request.name[NAME_MAX - 1] = '\0';
-        strncpy(request.name, control_name.c_str(), NAME_MAX - 1);
+        strncpy(request.name, control_name_strip.c_str(), NAME_MAX - 1);
         m_control_requests.push_back(request);
         return m_control_requests.size();
     }

@@ -615,6 +615,10 @@ namespace geopm
                                            int &server_pid,
                                            std::string &server_key)
     {
+        if (signal_config.size() == 0 && control_config.size() == 0) {
+            throw Exception("PlatformIOImp::start_batch_server(): Requested a batch server, but no signals or controls were specified",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
         std::shared_ptr<BatchServer> batch_server =
             BatchServer::make_unique(client_pid, signal_config, control_config);
         server_pid = batch_server->server_pid();
