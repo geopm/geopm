@@ -53,7 +53,7 @@ namespace geopm
                 M_MESSAGE_READ,
                 M_MESSAGE_WRITE,
                 M_MESSAGE_READY,
-                M_MESSAGE_TERMINATE,
+                M_MESSAGE_QUIT,
                 M_NUM_MESSAGE
             };
 
@@ -162,7 +162,7 @@ namespace geopm
             sigset_t m_block_mask;
             struct sigaction m_orig_action_sigio;
             struct sigaction m_orig_action_sigcont;
-            struct sigaction m_orig_action_sigterm;
+            struct sigaction m_orig_action_sigquit;
             struct sigaction m_orig_action_sigchld;
     };
 }
