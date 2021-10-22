@@ -43,6 +43,8 @@
 #include "geopm/PlatformIO.hpp"
 #include "POSIXSignal.hpp"
 
+#include <iostream>
+
 volatile static sig_atomic_t g_message_read_count = 0;
 volatile static sig_atomic_t g_message_write_count = 0;
 volatile static sig_atomic_t g_message_ready_count = 0;
@@ -205,6 +207,7 @@ namespace geopm
             m_posix_signal->sig_suspend(&m_orig_mask);
             int num_cont = 0;
             if (g_message_read_count != 0) {
+                std::cerr << "Calling BatchServerImp::read_and_update()\n";
                 read_and_update();
                 ++num_cont;
                 --g_message_read_count;

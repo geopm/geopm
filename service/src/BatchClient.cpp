@@ -38,6 +38,7 @@
 
 #include "geopm/Helper.hpp"
 #include "geopm/SharedMemory.hpp"
+#include "geopm/Exception.hpp"
 #include "geopm/PlatformIO.hpp"
 #include "BatchServer.hpp"
 #include "POSIXSignal.hpp"
@@ -101,22 +102,31 @@ namespace geopm
 
     std::vector<double> BatchClientImp::read_batch(void)
     {
+        if (m_num_signal == 0) {
+            return {};
+        }
         critical_section_enter();
         m_posix_signal->sig_queue(m_server_pid, SIGIO, BatchServer::M_MESSAGE_READ);
         while (g_message_ready_count == 0) {
             m_posix_signal->sig_suspend(&m_orig_mask);
         }
-        critical_section_exit();
         --g_message_ready_count;
+        critical_section_exit();
         auto lock = m_signal_shmem->get_scoped_lock();
         double *buffer = (double *)m_signal_shmem->pointer();
-        std::vector<double> result(m_num_signal);
-        std::copy(buffer, buffer + m_num_signal, result.begin());
+        std::vector<double> result(buffer, buffer + m_num_signal);
         return result;
     }
 
     void BatchClientImp::write_batch(std::vector<double> settings)
     {
+        if (m_num_control == 0) {
+            return;
+        }
+        if (settings.size() != (size_t)m_num_control) {
+            throw Exception("BatchClientImp::write_batch(): settings vector length does not match the number of configured controls",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
         auto lock = m_signal_shmem->get_scoped_lock();
         double *buffer = (double *)m_signal_shmem->pointer();
         std::copy(settings.begin(), settings.end(), buffer);

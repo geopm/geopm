@@ -142,13 +142,13 @@ namespace geopm
         for (const auto &sig_it : signal_config) {
             bus_message->append_request_s(sig_it);
         }
-        bus_message->close_container(); // (iis)
+        bus_message->close_container();
 
         bus_message->open_container(SDBusMessage::M_MESSAGE_TYPE_ARRAY, "(iis)");
         for (const auto &cont_it : control_config) {
             bus_message->append_request_s(cont_it);
         }
-        bus_message->close_container(); // (iis)
+        bus_message->close_container();
 
         std::shared_ptr<SDBusMessage> bus_reply = m_bus->call_method(bus_message);
         bus_reply->enter_container(SDBusMessage::M_MESSAGE_TYPE_STRUCT, "is");
