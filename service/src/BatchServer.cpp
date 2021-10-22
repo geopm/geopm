@@ -95,15 +95,15 @@ namespace geopm
 
     std::unique_ptr<BatchServer>
     BatchServer::make_unique(int client_pid,
-                            const std::vector<geopm_request_s> &signal_config,
-                            const std::vector<geopm_request_s> &control_config)
+                             const std::vector<geopm_request_s> &signal_config,
+                             const std::vector<geopm_request_s> &control_config)
     {
         return geopm::make_unique<BatchServerImp>(client_pid, signal_config,
                                                  control_config);
     }
     BatchServerImp::BatchServerImp(int client_pid,
-                                 const std::vector<geopm_request_s> &signal_config,
-                                 const std::vector<geopm_request_s> &control_config)
+                                   const std::vector<geopm_request_s> &signal_config,
+                                   const std::vector<geopm_request_s> &control_config)
         : BatchServerImp(client_pid, signal_config, control_config,
                         platform_io(), nullptr, nullptr, nullptr)
     {
@@ -112,12 +112,12 @@ namespace geopm
 
 
     BatchServerImp::BatchServerImp(int client_pid,
-                                 const std::vector<geopm_request_s> &signal_config,
-                                 const std::vector<geopm_request_s> &control_config,
-                                 PlatformIO &pio,
-                                 std::shared_ptr<POSIXSignal> posix_signal,
-                                 std::shared_ptr<SharedMemory> signal_shmem,
-                                 std::shared_ptr<SharedMemory> control_shmem)
+                                   const std::vector<geopm_request_s> &signal_config,
+                                   const std::vector<geopm_request_s> &control_config,
+                                   PlatformIO &pio,
+                                   std::shared_ptr<POSIXSignal> posix_signal,
+                                   std::shared_ptr<SharedMemory> signal_shmem,
+                                   std::shared_ptr<SharedMemory> control_shmem)
         : m_client_pid(client_pid)
         , m_signal_config(signal_config)
         , m_control_config(control_config)
@@ -149,6 +149,18 @@ namespace geopm
             int forked_pid = fork();
             if (forked_pid == 0) {
                 create_shmem();
+                int client_uid = pid_to_uid(client_pid);
+                int client_gid = pid_to_gid(client_pid);
+                int err = setgid(client_gid);
+                if (err == -1) {
+                    throw Exception("BatchServerImp() Could not call setgid()",
+                                    GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                }
+                err = setuid(client_uid);
+                if (err == -1) {
+                    throw Exception("BatchServerImp() Could not call setuid()",
+                                    GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                }
                 run_batch(parent_pid);
                 critical_region_exit();
                 exit(0);

@@ -42,6 +42,12 @@ EXTRA_DIST += integration/README.md \
               integration/test/test_su_give_access.sh \
               # end
 
-check_PROGRAMS += integration/test/test_batch_server
+check_PROGRAMS += integration/test/test_batch_server \
+                  integration/test/test_batch_interface \
+                  #end
+
 integration_test_test_batch_server_SOURCES = integration/test/test_batch_server.cpp
 integration_test_test_batch_server_LDADD = libgeopmd.la
+
+integration_test_test_batch_interface_SOURCES = integration/test/test_batch_interface.cpp
+integration_test_test_batch_interface_LDADD = libgeopmd.la
