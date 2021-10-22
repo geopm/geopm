@@ -50,7 +50,7 @@ namespace geopm
     {
         public:
             enum m_message_e {
-                M_MESSAGE_READ = 0x10F000, // Add a marker
+                M_MESSAGE_READ,
                 M_MESSAGE_WRITE,
                 M_MESSAGE_READY,
                 M_MESSAGE_TERMINATE,

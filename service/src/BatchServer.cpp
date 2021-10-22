@@ -43,7 +43,6 @@
 #include "geopm/PlatformIO.hpp"
 #include "POSIXSignal.hpp"
 
-
 volatile static sig_atomic_t g_message_read_count = 0;
 volatile static sig_atomic_t g_message_write_count = 0;
 volatile static sig_atomic_t g_message_ready_count = 0;
@@ -80,7 +79,7 @@ static void action_sigterm(int signo, siginfo_t *siginfo, void *context)
         ++g_message_terminate_count;
     }
     else {
-        ++g_message_invalid_count;
+        // ++g_message_invalid_count;
     }
 }
 
@@ -226,7 +225,7 @@ namespace geopm
     {
         if (g_message_invalid_count != 0) {
             critical_region_exit();
-            throw Exception("BatchServerImp:: Recieved a signal could not be handled properly",
+            throw Exception("BatchServerImp:: Recieved a signal that could not be handled properly",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
     }
