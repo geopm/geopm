@@ -57,16 +57,16 @@ static void action_sigcont(int signo, siginfo_t *siginfo, void *context)
 namespace geopm
 {
     std::unique_ptr<BatchClient> BatchClient::make_unique(int server_pid,
-                                                        const std::string &server_key,
-                                                        int num_signal,
-                                                        int num_control)
+                                                          const std::string &server_key,
+                                                          int num_signal,
+                                                          int num_control)
     {
         return geopm::make_unique<BatchClientImp>(server_pid, server_key,
-                                                 num_signal, num_control);
+                                                  num_signal, num_control);
     }
 
     BatchClientImp::BatchClientImp(int server_pid, const std::string &server_key,
-                                 int num_signal, int num_control)
+                                   int num_signal, int num_control)
         : BatchClientImp(server_pid, num_signal, num_control,
                         POSIXSignal::make_unique(),
                         num_signal == 0 ? nullptr :
