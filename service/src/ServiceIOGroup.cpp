@@ -362,7 +362,9 @@ namespace geopm
 
     void ServiceIOGroup::init_batch_server(void)
     {
-        if (m_batch_server == nullptr) {
+        if (m_batch_server == nullptr &&
+            (m_signal_requests.size() != 0 ||
+             m_control_requests.size() != 0)) {
             int server_pid = 0;
             std::string server_key;
             m_service_proxy->platform_start_batch(m_signal_requests,
