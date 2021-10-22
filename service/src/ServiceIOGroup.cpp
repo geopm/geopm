@@ -220,11 +220,18 @@ namespace geopm
     void ServiceIOGroup::read_batch(void)
     {
         init_batch_server();
-        m_batch_samples = m_batch_server->read_batch();
+        if (m_batch_server != nullptr &&
+            m_signal_requests.size() != 0) {
+            m_batch_samples = m_batch_server->read_batch();
+        }
     }
 
     void ServiceIOGroup::write_batch(void)
     {
+        if (m_batch_server != nullptr &&
+            m_control_requests.size() != 0) {
+            m_batch_samples = m_batch_server->read_batch();
+        }
         m_batch_server->write_batch(m_batch_settings);
     }
 
