@@ -159,8 +159,7 @@ namespace geopm
 
     void ServiceProxyImp::platform_stop_batch(int server_pid)
     {
-        throw Exception("ServiceProxyImp::platform_stop_batch()",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        m_bus->call_method("PlatformStopBatch", server_pid);
     }
 
     double ServiceProxyImp::platform_read_signal(const std::string &signal_name,

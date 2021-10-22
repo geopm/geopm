@@ -655,9 +655,10 @@ def start_batch_server(client_pid, signal_config, control_config):
         control_config_carr[idx].name = req[2]
 
     server_pid_c = _ffi.new('int *')
-    server_key_cstr = _ffi.new('char [NAME_MAX]')
-    err = _dl.geopm_pio_start_batch_server(client_pid, signal_config, control_config,
-                                           server_pid_c, server_key_cstr)
+    server_key_cstr = _ffi.new('char [255]')
+
+    err = _dl.geopm_pio_start_batch_server(client_pid, len(signal_config), signal_config, len(control_config), control_config,
+                                           server_pid_c, 255, server_key_cstr)
     if err < 0:
         raise RuntimeError('geopm_pio_start_batch_server() failed: {}'.format(error.message(err)))
     server_pid = server_pid_c[0]
