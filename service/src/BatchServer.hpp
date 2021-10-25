@@ -144,7 +144,7 @@ namespace geopm
             void critical_region_exit(void);
             void create_shmem(void);
             void check_invalid_signal(void);
-
+            void chown_fid(int client_uid, int client_gid);
             int m_client_pid;
             std::vector<geopm_request_s> m_signal_config;
             std::vector<geopm_request_s> m_control_config;

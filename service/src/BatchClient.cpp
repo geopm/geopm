@@ -135,8 +135,8 @@ namespace geopm
         while (g_message_ready_count == 0) {
             m_posix_signal->sig_suspend(&m_orig_mask);
         }
-        critical_section_exit();
         --g_message_ready_count;
+        critical_section_exit();
     }
 
     void BatchClientImp::critical_section_enter(void)

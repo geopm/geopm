@@ -33,6 +33,7 @@
 #include "config.h"
 #include "BatchServer.hpp"
 
+#include <string>
 #include <signal.h>
 #include <unistd.h>
 
@@ -110,6 +111,19 @@ namespace geopm
 
     }
 
+    void BatchServerImp::chown_fid(int client_uid, int client_gid)
+    {
+        int my_pid = getpid();
+        std::string fd_path = "/proc/" + std::to_string(my_pid) + "/fd";
+        for (const auto &fid_str : list_directory_files(fd_path)) {
+            std::string full_path = fd_path + '/' + fid_str;
+            int err = lchown(full_path.c_str(), client_uid, client_gid);
+            if (err != 0) {
+                throw Exception("BatchServerImp::chown_fid(): failed to call lchown()",
+                                errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
+        }
+    }
 
     BatchServerImp::BatchServerImp(int client_pid,
                                    const std::vector<geopm_request_s> &signal_config,
@@ -151,16 +165,19 @@ namespace geopm
                 create_shmem();
                 int client_uid = pid_to_uid(client_pid);
                 int client_gid = pid_to_gid(client_pid);
+                chown_fid(client_uid, client_gid);
                 int err = setgid(client_gid);
                 if (err == -1) {
                     throw Exception("BatchServerImp() Could not call setgid()",
-                                    GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                                    errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
                 }
                 err = setuid(client_uid);
                 if (err == -1) {
                     throw Exception("BatchServerImp() Could not call setuid()",
-                                    GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                                    errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
                 }
+                // Signal that the server is ready
+                m_posix_signal->sig_queue(parent_pid, SIGCONT, M_MESSAGE_READY);
                 run_batch(parent_pid);
                 critical_region_exit();
                 exit(0);
@@ -210,8 +227,6 @@ namespace geopm
 
     void BatchServerImp::run_batch(int parent_pid)
     {
-        // Signal that the server is ready
-        m_posix_signal->sig_queue(parent_pid, SIGCONT, M_MESSAGE_READY);
         push_requests();
         // Start event loop
         while (g_message_quit_count == 0 &&
