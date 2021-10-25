@@ -51,10 +51,8 @@ volatile static sig_atomic_t g_message_write_count = 0;
 volatile static sig_atomic_t g_message_ready_count = 0;
 volatile static sig_atomic_t g_message_quit_count = 0;
 volatile static sig_atomic_t g_message_child_count = 0;
-volatile static sig_atomic_t g_message_invalid_count = 0;
 
-
-static void action_sigio(int signo, siginfo_t *siginfo, void *context)
+static void action_sigcont(int signo, siginfo_t *siginfo, void *context)
 {
     switch (siginfo->si_value.sival_int) {
         case geopm::BatchServer::M_MESSAGE_READ:
@@ -63,26 +61,14 @@ static void action_sigio(int signo, siginfo_t *siginfo, void *context)
         case geopm::BatchServer::M_MESSAGE_WRITE:
             ++g_message_write_count;
             break;
-        default:
-            ++g_message_invalid_count;
+        case geopm::BatchServer::M_MESSAGE_READY:
+            ++g_message_ready_count;
             break;
-    }
-}
-
-static void action_sigcont(int signo, siginfo_t *siginfo, void *context)
-{
-    if (siginfo->si_value.sival_int == geopm::BatchServer::M_MESSAGE_READY) {
-        ++g_message_ready_count;
-    }
-}
-
-static void action_sigquit(int signo, siginfo_t *siginfo, void *context)
-{
-    if (siginfo->si_value.sival_int == geopm::BatchServer::M_MESSAGE_QUIT) {
-        ++g_message_quit_count;
-    }
-    else {
-        ++g_message_invalid_count;
+        case geopm::BatchServer::M_MESSAGE_QUIT:
+            ++g_message_quit_count;
+            break;
+        default:
+            break;
     }
 }
 
@@ -134,9 +120,7 @@ namespace geopm
         if (!is_test) {
             m_posix_signal = POSIXSignal::make_unique();
         }
-        m_block_mask = m_posix_signal->make_sigset({SIGIO,
-                                                    SIGCONT,
-                                                    SIGQUIT,
+        m_block_mask = m_posix_signal->make_sigset({SIGCONT,
                                                     SIGCHLD});
         if (!is_test) {
             // This is not a unit test, so actually do the fork()
@@ -166,10 +150,8 @@ namespace geopm
                 critical_region_exit();
                 exit(0);
             }
-            while (g_message_ready_count == 0 &&
-                   g_message_invalid_count == 0) {
+            while (g_message_ready_count == 0) {
                 m_posix_signal->sig_suspend(&m_orig_mask);
-                check_invalid_signal();
             }
             --g_message_ready_count;
             critical_region_exit();
@@ -197,11 +179,9 @@ namespace geopm
     {
         if (m_is_active) {
             critical_region_enter();
-            m_posix_signal->sig_queue(m_server_pid, SIGQUIT, M_MESSAGE_QUIT);
-            while (g_message_child_count == 0 &&
-                   g_message_invalid_count == 0) {
+            m_posix_signal->sig_queue(m_server_pid, SIGCONT, M_MESSAGE_QUIT);
+            while (g_message_child_count == 0) {
                 m_posix_signal->sig_suspend(&m_orig_mask);
-                check_invalid_signal();
             }
             --g_message_child_count;
             critical_region_exit();
@@ -213,8 +193,7 @@ namespace geopm
     {
         push_requests();
         // Start event loop
-        while (g_message_quit_count == 0 &&
-               g_message_invalid_count == 0) {
+        while (g_message_quit_count == 0) {
             m_posix_signal->sig_suspend(&m_orig_mask);
             int num_cont = 0;
             if (g_message_read_count != 0) {
@@ -230,16 +209,6 @@ namespace geopm
             for (; num_cont != 0; --num_cont) {
                 m_posix_signal->sig_queue(m_client_pid, SIGCONT, M_MESSAGE_READY);
             }
-            check_invalid_signal();
-        }
-    }
-
-    void BatchServerImp::check_invalid_signal(void)
-    {
-        if (g_message_invalid_count != 0) {
-            critical_region_exit();
-            throw Exception("BatchServerImp:: Recieved a signal that could not be handled properly",
-                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
     }
 
@@ -299,7 +268,6 @@ namespace geopm
         size_t signal_size = m_signal_config.size() * sizeof(double);
         size_t control_size = m_control_config.size() * sizeof(double);
         std::string shmem_prefix = "/geopm-service-" + m_server_key;
-        // TODO: Manage ownership
         int uid = pid_to_uid(m_client_pid);
         int gid = pid_to_gid(m_client_pid);
         if (signal_size != 0) {
@@ -327,16 +295,11 @@ namespace geopm
         g_message_ready_count = 0;
         g_message_quit_count = 0;
         g_message_child_count = 0;
-        g_message_invalid_count = 0;
         struct sigaction action = {};
         action.sa_mask = m_block_mask;
         action.sa_flags = SA_SIGINFO;
-        action.sa_sigaction = &action_sigio;
-        m_posix_signal->sig_action(SIGIO, &action, &m_orig_action_sigio);
         action.sa_sigaction = &action_sigcont;
         m_posix_signal->sig_action(SIGCONT, &action, &m_orig_action_sigcont);
-        action.sa_sigaction = &action_sigquit;
-        m_posix_signal->sig_action(SIGQUIT, &action, &m_orig_action_sigquit);
         action.sa_sigaction = &action_sigchld;
         m_posix_signal->sig_action(SIGCHLD, &action, &m_orig_action_sigchld);
         m_is_blocked = true;
@@ -347,9 +310,7 @@ namespace geopm
         if (!m_is_blocked) {
             return;
         }
-        m_posix_signal->sig_action(SIGIO, &m_orig_action_sigio, nullptr);
         m_posix_signal->sig_action(SIGCONT, &m_orig_action_sigcont, nullptr);
-        m_posix_signal->sig_action(SIGQUIT, &m_orig_action_sigquit, nullptr);
         m_posix_signal->sig_action(SIGCHLD, &m_orig_action_sigchld, nullptr);
         m_posix_signal->sig_proc_mask(SIG_SETMASK, &m_orig_mask, nullptr);
         m_is_blocked = false;

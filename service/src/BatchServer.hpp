@@ -50,11 +50,10 @@ namespace geopm
     {
         public:
             enum m_message_e {
-                M_MESSAGE_READ,
+                M_MESSAGE_READ = 0x10FF00,
                 M_MESSAGE_WRITE,
                 M_MESSAGE_READY,
                 M_MESSAGE_QUIT,
-                M_NUM_MESSAGE
             };
 
             /// @brief Interace called by geopmd to create the server
