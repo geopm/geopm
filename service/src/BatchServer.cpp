@@ -46,8 +46,6 @@
 #include "geopm/PlatformIO.hpp"
 #include "POSIXSignal.hpp"
 
-#include <iostream>
-
 volatile static sig_atomic_t g_message_read_count = 0;
 volatile static sig_atomic_t g_message_write_count = 0;
 volatile static sig_atomic_t g_message_ready_count = 0;
@@ -113,34 +111,6 @@ namespace geopm
 
     }
 
-    void BatchServerImp::chown_fid(int client_uid, int client_gid)
-    {
-        int my_pid = getpid();
-        std::ostringstream fd_path;
-        fd_path << "/proc/" << my_pid << "/fd";
-        int num_err = 0;
-        for (const auto &fid_str : list_directory_files(fd_path.str())) {
-            try {
-                (void)stoi(fid_str);
-            }
-            catch (const std::invalid_argument &ex) {
-                continue;
-            }
-            std::ostringstream full_path;
-            full_path << fd_path.str() << '/' << fid_str;
-            int err = lchown(full_path.str().c_str(), client_uid, client_gid);
-            if (err != 0) {
-                ++num_err;
-            }
-        }
-        if (num_err > 1) {
-            std::ostringstream error_string;
-            error_string  << "BatchServerImp::chown_fid(): failed to call lchown() "
-                          << num_err << " times, expected once";
-            throw Exception(error_string.str(), GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-        }
-    }
-
     BatchServerImp::BatchServerImp(int client_pid,
                                    const std::vector<geopm_request_s> &signal_config,
                                    const std::vector<geopm_request_s> &control_config,
@@ -181,7 +151,6 @@ namespace geopm
                 create_shmem();
                 int client_uid = pid_to_uid(client_pid);
                 int client_gid = pid_to_gid(client_pid);
-                chown_fid(client_uid, client_gid);
                 int err = setgid(client_gid);
                 if (err == -1) {
                     throw Exception("BatchServerImp() Could not call setgid()",
@@ -192,8 +161,6 @@ namespace geopm
                     throw Exception("BatchServerImp() Could not call setuid()",
                                     errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
                 }
-                // Signal that the server is ready
-                std::cerr << __FILE__ << ":" << __LINE__ + 1 << "m_posix_signal->sig_queue(parent_pid, SIGCONT, M_MESSAGE_READY);\n";
                 m_posix_signal->sig_queue(parent_pid, SIGCONT, M_MESSAGE_READY);
                 run_batch(parent_pid);
                 critical_region_exit();
@@ -230,7 +197,6 @@ namespace geopm
     {
         if (m_is_active) {
             critical_region_enter();
-            std::cerr << __FILE__ << ":" << __LINE__ + 1 << "m_posix_signal->sig_queue(m_server_pid, SIGQUIT, M_MESSAGE_QUIT);\n";
             m_posix_signal->sig_queue(m_server_pid, SIGQUIT, M_MESSAGE_QUIT);
             while (g_message_child_count == 0 &&
                    g_message_invalid_count == 0) {
@@ -252,7 +218,6 @@ namespace geopm
             m_posix_signal->sig_suspend(&m_orig_mask);
             int num_cont = 0;
             if (g_message_read_count != 0) {
-                std::cerr << "Calling BatchServerImp::read_and_update()\n";
                 read_and_update();
                 ++num_cont;
                 --g_message_read_count;
@@ -263,7 +228,6 @@ namespace geopm
                 --g_message_write_count;
             }
             for (; num_cont != 0; --num_cont) {
-                std::cerr << __FILE__ << ":" << __LINE__ + 1 << "m_posix_signal->sig_queue(m_client_pid, SIGCONT, M_MESSAGE_READY);\n";
                 m_posix_signal->sig_queue(m_client_pid, SIGCONT, M_MESSAGE_READY);
             }
             check_invalid_signal();
@@ -336,19 +300,19 @@ namespace geopm
         size_t control_size = m_control_config.size() * sizeof(double);
         std::string shmem_prefix = "/geopm-service-" + m_server_key;
         // TODO: Manage ownership
-        // int uid = m_posix_signal->pid_to_uid(client_pid);
-        // int gid = m_posix_signal->pid_to_gid(client_pid);
+        int uid = pid_to_uid(m_client_pid);
+        int gid = pid_to_gid(m_client_pid);
         if (signal_size != 0) {
-            m_signal_shmem = SharedMemory::make_unique_owner(
+            m_signal_shmem = SharedMemory::make_unique_owner_secure(
                 shmem_prefix + "-signals", signal_size);
             // Requires a chown if server is different user than client
-            // m_signal_shmem->chown(gid, uid);
+            m_signal_shmem->chown(gid, uid);
         }
         if (control_size != 0) {
-            m_control_shmem = SharedMemory::make_unique_owner(
+            m_control_shmem = SharedMemory::make_unique_owner_secure(
                 shmem_prefix + "-controls", control_size);
             // Requires a chown if server is different user than client
-            // m_control_shmem->chown(gid, uid);
+            m_control_shmem->chown(gid, uid);
         }
     }
 
