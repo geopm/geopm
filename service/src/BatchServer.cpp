@@ -33,7 +33,9 @@
 #include "config.h"
 #include "BatchServer.hpp"
 
+#include <cstdlib>
 #include <string>
+#include <sstream>
 #include <signal.h>
 #include <unistd.h>
 
@@ -114,14 +116,28 @@ namespace geopm
     void BatchServerImp::chown_fid(int client_uid, int client_gid)
     {
         int my_pid = getpid();
-        std::string fd_path = "/proc/" + std::to_string(my_pid) + "/fd";
-        for (const auto &fid_str : list_directory_files(fd_path)) {
-            std::string full_path = fd_path + '/' + fid_str;
-            int err = lchown(full_path.c_str(), client_uid, client_gid);
-            if (err != 0) {
-                throw Exception("BatchServerImp::chown_fid(): failed to call lchown()",
-                                errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        std::ostringstream fd_path;
+        fd_path << "/proc/" << my_pid << "/fd";
+        int num_err = 0;
+        for (const auto &fid_str : list_directory_files(fd_path.str())) {
+            try {
+                (void)stoi(fid_str);
             }
+            catch (const std::invalid_argument &ex) {
+                continue;
+            }
+            std::ostringstream full_path;
+            full_path << fd_path.str() << '/' << fid_str;
+            int err = lchown(full_path.str().c_str(), client_uid, client_gid);
+            if (err != 0) {
+                ++num_err;
+            }
+        }
+        if (num_err > 1) {
+            std::ostringstream error_string;
+            error_string  << "BatchServerImp::chown_fid(): failed to call lchown() "
+                          << num_err << " times, expected once";
+            throw Exception(error_string.str(), GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
     }
 
@@ -177,6 +193,7 @@ namespace geopm
                                     errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
                 }
                 // Signal that the server is ready
+                std::cerr << __FILE__ << ":" << __LINE__ + 1 << "m_posix_signal->sig_queue(parent_pid, SIGCONT, M_MESSAGE_READY);\n";
                 m_posix_signal->sig_queue(parent_pid, SIGCONT, M_MESSAGE_READY);
                 run_batch(parent_pid);
                 critical_region_exit();
@@ -213,6 +230,7 @@ namespace geopm
     {
         if (m_is_active) {
             critical_region_enter();
+            std::cerr << __FILE__ << ":" << __LINE__ + 1 << "m_posix_signal->sig_queue(m_server_pid, SIGQUIT, M_MESSAGE_QUIT);\n";
             m_posix_signal->sig_queue(m_server_pid, SIGQUIT, M_MESSAGE_QUIT);
             while (g_message_child_count == 0 &&
                    g_message_invalid_count == 0) {
@@ -245,6 +263,7 @@ namespace geopm
                 --g_message_write_count;
             }
             for (; num_cont != 0; --num_cont) {
+                std::cerr << __FILE__ << ":" << __LINE__ + 1 << "m_posix_signal->sig_queue(m_client_pid, SIGCONT, M_MESSAGE_READY);\n";
                 m_posix_signal->sig_queue(m_client_pid, SIGCONT, M_MESSAGE_READY);
             }
             check_invalid_signal();

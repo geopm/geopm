@@ -33,6 +33,7 @@
 #include "config.h"
 #include "BatchClient.hpp"
 
+#include <iostream>
 #include <signal.h>
 #include <unistd.h>
 
@@ -106,6 +107,7 @@ namespace geopm
             return {};
         }
         critical_section_enter();
+        std::cerr << __FILE__ << ":" << __LINE__ + 1 << " m_posix_signal->sig_queue(m_server_pid, SIGIO, BatchServer::M_MESSAGE_READ);\n";
         m_posix_signal->sig_queue(m_server_pid, SIGIO, BatchServer::M_MESSAGE_READ);
         while (g_message_ready_count == 0) {
             m_posix_signal->sig_suspend(&m_orig_mask);
@@ -131,6 +133,7 @@ namespace geopm
         double *buffer = (double *)m_signal_shmem->pointer();
         std::copy(settings.begin(), settings.end(), buffer);
         critical_section_enter();
+        std::cerr << __FILE__ << ":" << __LINE__ + 1 << " m_posix_signal->sig_queue(m_server_pid, SIGIO, BatchServer::M_MESSAGE_WRITE);\n";
         m_posix_signal->sig_queue(m_server_pid, SIGIO, BatchServer::M_MESSAGE_WRITE);
         while (g_message_ready_count == 0) {
             m_posix_signal->sig_suspend(&m_orig_mask);

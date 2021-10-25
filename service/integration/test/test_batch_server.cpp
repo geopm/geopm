@@ -44,7 +44,7 @@ using geopm::BatchClient;
 void run(void)
 {
     int client_pid = getpid();
-    geopm_request_s request = {GEOPM_DOMAIN_BOARD, 0, "TIME"};
+    geopm_request_s request = {GEOPM_DOMAIN_CPU, 0, "TIME"};
     std::shared_ptr<BatchServer> batch_server =
         BatchServer::make_unique(client_pid, {request}, {});
     int server_pid = batch_server->server_pid();

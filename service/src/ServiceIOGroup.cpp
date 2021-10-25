@@ -183,7 +183,7 @@ namespace geopm
         request.name[NAME_MAX - 1] = '\0';
         strncpy(request.name, signal_name_strip.c_str(), NAME_MAX - 1);
         m_signal_requests.push_back(request);
-        return m_signal_requests.size();
+        return m_signal_requests.size() - 1;
     }
 
     int ServiceIOGroup::push_control(const std::string &control_name,
@@ -214,7 +214,7 @@ namespace geopm
         request.name[NAME_MAX - 1] = '\0';
         strncpy(request.name, control_name_strip.c_str(), NAME_MAX - 1);
         m_control_requests.push_back(request);
-        return m_control_requests.size();
+        return m_control_requests.size() - 1;
     }
 
     void ServiceIOGroup::read_batch(void)

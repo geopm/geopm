@@ -37,7 +37,7 @@
 void run(void)
 {
     geopm::PlatformIO &pio = geopm::platform_io();
-    int signal_idx = pio.push_signal("SERVICE::TIME", GEOPM_DOMAIN_BOARD, 0);
+    int signal_idx = pio.push_signal("SERVICE::TIME", GEOPM_DOMAIN_CPU, 0);
     for (int idx = 0; idx < 10; ++idx) {
         pio.read_batch();
         double tt = pio.sample(signal_idx);
