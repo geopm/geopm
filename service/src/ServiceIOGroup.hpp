@@ -37,10 +37,13 @@
 
 #include "geopm/IOGroup.hpp"
 
+struct geopm_request_s;
+
 namespace geopm
 {
     class PlatformTopo;
     class ServiceProxy;
+    class BatchClient;
     struct signal_info_s;
     struct control_info_s;
 
@@ -52,7 +55,8 @@ namespace geopm
         public:
             ServiceIOGroup();
             ServiceIOGroup(const PlatformTopo &platform_topo,
-                           std::shared_ptr<ServiceProxy> service_proxy);
+                           std::shared_ptr<ServiceProxy> service_proxy,
+                           std::shared_ptr<BatchClient> batch_client_mock);
             virtual ~ServiceIOGroup();
             std::set<std::string> signal_names(void) const override;
             std::set<std::string> control_names(void) const override;
@@ -95,6 +99,7 @@ namespace geopm
             static std::string plugin_name(void);
             static std::unique_ptr<IOGroup> make_plugin(void);
         private:
+            void init_batch_server(void);
             static const std::string M_PLUGIN_NAME;
             static std::map<std::string, signal_info_s> service_signal_info(std::shared_ptr<ServiceProxy> service_proxy);
             static std::map<std::string, control_info_s> service_control_info(std::shared_ptr<ServiceProxy> service_proxy);
@@ -103,7 +108,13 @@ namespace geopm
             std::shared_ptr<ServiceProxy> m_service_proxy;
             std::map<std::string, signal_info_s> m_signal_info;
             std::map<std::string, control_info_s> m_control_info;
-
+            std::vector<geopm_request_s> m_signal_requests;
+            std::vector<geopm_request_s> m_control_requests;
+            std::shared_ptr<BatchClient> m_batch_client;
+            std::vector<double> m_batch_samples;
+            std::vector<double> m_batch_settings;
+            int m_session_pid;
+            bool m_is_batch_active;
     };
 }
 

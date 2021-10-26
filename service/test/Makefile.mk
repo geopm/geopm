@@ -268,8 +268,8 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
               test/gtest_links/ServiceIOGroupTest.push_control \
               test/gtest_links/ServiceIOGroupTest.read_batch \
               test/gtest_links/ServiceIOGroupTest.write_batch \
-              test/gtest_links/ServiceIOGroupTest.sample \
-              test/gtest_links/ServiceIOGroupTest.adjust \
+              test/gtest_links/ServiceIOGroupTest.save_control \
+              test/gtest_links/ServiceIOGroupTest.restore_control \
               test/gtest_links/ServiceProxyTest.platform_get_user_access \
               test/gtest_links/ServiceProxyTest.platform_get_signal_info \
               test/gtest_links/ServiceProxyTest.platform_get_control_info \
@@ -358,6 +358,7 @@ test_geopm_test_SOURCES = test/AcceleratorTopoNullTest.cpp \
                           test/MSRFieldControlTest.cpp \
                           test/MSRFieldSignalTest.cpp \
                           test/MockAcceleratorTopo.hpp \
+                          test/MockBatchClient.hpp \
                           test/MockBatchStatus.hpp \
                           test/MockControl.hpp \
                           test/MockIOGroup.hpp \

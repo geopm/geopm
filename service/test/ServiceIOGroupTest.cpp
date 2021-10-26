@@ -41,6 +41,7 @@
 #include "ServiceIOGroup.hpp"
 #include "MockServiceProxy.hpp"
 #include "MockPlatformTopo.hpp"
+#include "MockBatchClient.hpp"
 #include "geopm_test.hpp"
 
 using geopm::signal_info_s;
@@ -49,8 +50,9 @@ using geopm::ServiceIOGroup;
 using geopm::Exception;
 using testing::AtLeast;
 using testing::Return;
-using testing::Throw;
 using testing::_;
+using testing::SetArgReferee;
+using testing::DoAll;
 
 class ServiceIOGroupTest : public :: testing:: Test
 {
@@ -60,6 +62,7 @@ class ServiceIOGroupTest : public :: testing:: Test
         std::unique_ptr<ServiceIOGroup> m_serviceio_group;
         std::shared_ptr<MockServiceProxy> m_proxy;
         std::shared_ptr<MockPlatformTopo> m_topo;
+        std::shared_ptr<MockBatchClient> m_batch_client;
 
         int m_num_package = 2;
         int m_num_core = 4;
@@ -75,6 +78,7 @@ void ServiceIOGroupTest::SetUp()
 {
     m_topo = make_topo(m_num_package, m_num_core, m_num_cpu);
     m_proxy = std::make_shared<MockServiceProxy>();
+    m_batch_client = std::make_shared<MockBatchClient>();
     EXPECT_CALL(*m_topo, num_domain(_)).Times(AtLeast(0));
 
     m_expected_signals = {"signal1", "signal2"};
@@ -117,7 +121,9 @@ void ServiceIOGroupTest::SetUp()
     EXPECT_CALL(*m_proxy, platform_open_session());
     EXPECT_CALL(*m_proxy, platform_close_session());
 
-    m_serviceio_group = geopm::make_unique<ServiceIOGroup>(*m_topo, m_proxy);
+    m_serviceio_group = geopm::make_unique<ServiceIOGroup>(*m_topo,
+                                                           m_proxy,
+                                                           m_batch_client);
 }
 
 TEST_F(ServiceIOGroupTest, signal_control_info)
@@ -212,16 +218,35 @@ TEST_F(ServiceIOGroupTest, valid_format_function)
 
 TEST_F(ServiceIOGroupTest, push_signal)
 {
-    GEOPM_EXPECT_THROW_MESSAGE(m_serviceio_group->push_signal("BAD SIGNAL", 0, 0),
-                               GEOPM_ERROR_NOT_IMPLEMENTED,
-                               "ServiceIOGroup::push_signal()");
+    EXPECT_CALL(*m_proxy, platform_start_batch(_, _, _, _))
+        .WillOnce(DoAll(SetArgReferee<2>(1234),
+                        SetArgReferee<3>("1234")));
+    std::vector<double> expected_result = {4.321012};
+    EXPECT_CALL(*m_batch_client, read_batch())
+        .WillOnce(Return(expected_result));
+    int signal_handle = m_serviceio_group->push_signal("signal1", GEOPM_DOMAIN_BOARD, 0);
+    m_serviceio_group->read_batch();
+    double actual_result = m_serviceio_group->sample(signal_handle);
+    EXPECT_EQ(expected_result[0], actual_result);
+    EXPECT_CALL(*m_batch_client, stop_batch())
+        .Times(1);
+    m_batch_client.reset();
 }
 
 TEST_F(ServiceIOGroupTest, push_control)
 {
-    GEOPM_EXPECT_THROW_MESSAGE(m_serviceio_group->push_control("BAD CONTROL", 0, 0),
-                               GEOPM_ERROR_NOT_IMPLEMENTED,
-                               "ServiceIOGroup::push_control()");
+    std::vector<double> expected_setting = {4.321012};
+    EXPECT_CALL(*m_proxy, platform_start_batch(_, _, _, _))
+        .WillOnce(DoAll(SetArgReferee<2>(1234),
+                        SetArgReferee<3>("1234")));
+    EXPECT_CALL(*m_batch_client, write_batch(_))
+        .Times(1);
+    int control_handle = m_serviceio_group->push_control("control1", GEOPM_DOMAIN_BOARD, 0);
+    m_serviceio_group->adjust(control_handle, expected_setting[0]);
+    m_serviceio_group->write_batch();
+    EXPECT_CALL(*m_batch_client, stop_batch())
+        .Times(1);
+    m_batch_client.reset();
 }
 
 TEST_F(ServiceIOGroupTest, read_batch)
@@ -236,16 +261,16 @@ TEST_F(ServiceIOGroupTest, write_batch)
     m_serviceio_group->write_batch();
 }
 
-TEST_F(ServiceIOGroupTest, sample)
+TEST_F(ServiceIOGroupTest, save_control)
 {
-    GEOPM_EXPECT_THROW_MESSAGE(m_serviceio_group->sample(0),
-                               GEOPM_ERROR_NOT_IMPLEMENTED,
-                               "ServiceIOGroup::sample()");
+    /// These are noops, make sure mock objects are not called into
+    m_serviceio_group->save_control();
+    m_serviceio_group->save_control("/bad/file/path");
 }
 
-TEST_F(ServiceIOGroupTest, adjust)
+TEST_F(ServiceIOGroupTest, restore_control)
 {
-    GEOPM_EXPECT_THROW_MESSAGE(m_serviceio_group->adjust(0, 0),
-                               GEOPM_ERROR_NOT_IMPLEMENTED,
-                               "ServiceIOGroup::adjust()");
+    /// These are noops, make sure mock objects are not called into
+    m_serviceio_group->restore_control();
+    m_serviceio_group->restore_control("/bad/file/path");
 }
