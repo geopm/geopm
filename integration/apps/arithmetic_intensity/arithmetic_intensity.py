@@ -72,6 +72,9 @@ def setup_run_args(parser):
     parser.add_argument('--slowdown', type=float, default=1,
         help='When imbalance is present, this specifies the amount of work for slow ranks'
              ' to perform, as a factor of the amount of work the fast ranks perform.')
+    parser.add_argument('--base-internal-iterations', type=int,
+        help='How many iterations to perform in the inner loop, for the fast set of ranks '
+             '(all ranks if there is no imbalance).')
     parser.add_argument('--slow-ranks', type=int, default=0,
         help='The number of ranks to run with extra work for an imbalanced load.')
     parser.add_argument('--floats', type=int, default=67108864,
@@ -94,7 +97,7 @@ def create_appconf(mach, args):
     ''' Create a ArithmeticIntensityAppConf object from an ArgParse and experiment.machine object.
     '''
     app_args = []
-    for arg in ['slowdown', 'slow_ranks', 'floats', 'verbose',
+    for arg in ['slowdown', 'base_internal_iterations', 'slow_ranks', 'floats', 'verbose',
                 'single_precision', 'list', 'iterations', 'benchmarks', 'start_time']:
         values = vars(args)[arg]
         if values is not None:
