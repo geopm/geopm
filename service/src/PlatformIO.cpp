@@ -964,10 +964,18 @@ extern "C" {
     {
         int err = 0;
         try {
-            std::vector<geopm_request_s> signal_config_vec(signal_config,
-                                                           signal_config + num_signal);
-            std::vector<geopm_request_s> control_config_vec(control_config,
-                                                            control_config + num_control);
+            std::vector<geopm_request_s> signal_config_vec(num_signal);
+            if (signal_config != nullptr) {
+                std::copy(signal_config,
+                          signal_config + num_signal,
+                          signal_config_vec.begin());
+            }
+            std::vector<geopm_request_s> control_config_vec(num_control);
+            if (control_config != nullptr) {
+                std::copy(control_config,
+                          control_config + num_control,
+                          control_config_vec.begin());
+            }
             std::string server_key_str;
             geopm::platform_io().start_batch_server(client_pid,
                                                     signal_config_vec,
