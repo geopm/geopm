@@ -44,6 +44,7 @@ namespace geopm
     class IOGroup;
     class CombinedSignal;
     class PlatformTopo;
+    class BatchServer;
 
     class PlatformIOImp : public PlatformIO
     {
@@ -85,6 +86,13 @@ namespace geopm
             int signal_behavior(const std::string &signal_name) const override;
             void save_control(const std::string &save_dir) override;
             void restore_control(const std::string &save_dir) override;
+            void start_batch_server(int client_pid,
+                                    const std::vector<geopm_request_s> &signal_config,
+                                    const std::vector<geopm_request_s> &control_config,
+                                    int &server_pid,
+                                    std::string &server_key) override;
+            void stop_batch_server(int server_pid) override;
+
             int num_signal_pushed(void) const;  // Used for testing only
             int num_control_pushed(void) const; // Used for testing only
         private:
@@ -147,6 +155,7 @@ namespace geopm
                                     std::unique_ptr<CombinedSignal> > > m_combined_signal;
             std::map<int, std::vector<int> > m_combined_control;
             bool m_do_restore;
+            std::map<int, std::shared_ptr<BatchServer> > m_batch_server;
     };
 }
 

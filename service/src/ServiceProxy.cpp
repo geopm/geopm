@@ -34,11 +34,11 @@
 
 #include <sstream>
 
+#include "geopm/PlatformIO.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
 #include "SDBus.hpp"
 #include "SDBusMessage.hpp"
-#include "geopm_internal.h"
 
 
 namespace geopm
@@ -136,14 +136,30 @@ namespace geopm
                                                int &server_pid,
                                                std::string &server_key)
     {
-        throw Exception("ServiceProxyImp::platform_start_batch()",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        std::shared_ptr<SDBusMessage> bus_message = m_bus->make_call_message("PlatformStartBatch");
+        bus_message->open_container(SDBusMessage::M_MESSAGE_TYPE_ARRAY, "(iis)");
+
+        for (const auto &sig_it : signal_config) {
+            bus_message->append_request_s(sig_it);
+        }
+        bus_message->close_container();
+
+        bus_message->open_container(SDBusMessage::M_MESSAGE_TYPE_ARRAY, "(iis)");
+        for (const auto &cont_it : control_config) {
+            bus_message->append_request_s(cont_it);
+        }
+        bus_message->close_container();
+
+        std::shared_ptr<SDBusMessage> bus_reply = m_bus->call_method(bus_message);
+        bus_reply->enter_container(SDBusMessage::M_MESSAGE_TYPE_STRUCT, "is");
+        server_pid = bus_reply->read_integer();
+        server_key = bus_reply->read_string();
+        bus_reply->exit_container();
     }
 
     void ServiceProxyImp::platform_stop_batch(int server_pid)
     {
-        throw Exception("ServiceProxyImp::platform_stop_batch()",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        m_bus->call_method("PlatformStopBatch", server_pid);
     }
 
     double ServiceProxyImp::platform_read_signal(const std::string &signal_name,

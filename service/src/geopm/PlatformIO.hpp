@@ -38,8 +38,15 @@
 #include <vector>
 #include <functional>
 #include <set>
+#include <climits>
 
 #include "geopm_pio.h"
+
+struct geopm_request_s {
+    int domain;
+    int domain_idx;
+    char name[NAME_MAX];
+};
 
 namespace geopm
 {
@@ -226,6 +233,12 @@ namespace geopm
             /// @param [in] save_dir Directory populated with save
             ///        files.
             virtual void restore_control(const std::string &save_dir) = 0;
+            virtual void start_batch_server(int client_pid,
+                                            const std::vector<geopm_request_s> &signal_config,
+                                            const std::vector<geopm_request_s> &control_config,
+                                            int &server_pid,
+                                            std::string &server_key) = 0;
+            virtual void stop_batch_server(int server_pid) = 0;
     };
 
     PlatformIO &platform_io(void);

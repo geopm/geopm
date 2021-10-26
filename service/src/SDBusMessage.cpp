@@ -40,6 +40,7 @@
 
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
+#include "geopm/PlatformIO.hpp"
 
 namespace geopm
 {
@@ -111,6 +112,21 @@ namespace geopm
         m_was_success = (ret != 0);
     }
 
+    void SDBusMessageImp::open_container(char type, const std::string &contents)
+    {
+        check_null_ptr(__func__, m_bus_message);
+        int ret = sd_bus_message_open_container(m_bus_message,
+                                                type, contents.c_str());
+        check_bus_error("sd_bus_message_open_container", ret);
+    }
+
+    void SDBusMessageImp::close_container(void)
+    {
+        check_null_ptr(__func__, m_bus_message);
+        int ret = sd_bus_message_close_container(m_bus_message);
+        check_bus_error("sd_bus_message_close_container", ret);
+    }
+
     std::string SDBusMessageImp::read_string(void)
     {
         std::string result;
@@ -158,7 +174,14 @@ namespace geopm
         int ret = sd_bus_message_append_strv(m_bus_message,
                                              (char **)write_values_cstr.data());
         check_bus_error("sd_bus_message_append_strv", ret);
-        m_was_success = true;
+    }
+
+    void SDBusMessageImp::append_request_s(const geopm_request_s &request)
+    {
+        check_null_ptr(__func__, m_bus_message);
+        int ret = sd_bus_message_append(m_bus_message, "(iis)", request.domain,
+                                        request.domain_idx, request.name);
+        check_bus_error("sd_bus_message_append", ret);
     }
 
     bool SDBusMessageImp::was_success(void)
