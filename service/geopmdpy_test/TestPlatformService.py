@@ -507,11 +507,14 @@ default
         signal_config = [(0, 0, sig) for sig in valid_signals]
         control_config = [(0, 0, con) for con in valid_controls]
 
-        err_msg = r'pio.start_batch_server\(\) is not yet implemented'
-        with self.assertRaisesRegex(NotImplementedError, err_msg), \
+        expected_result = (1234, "1234")
+        with mock.patch('geopmdpy.pio.start_batch_server', return_value=expected_result), \
              mock.patch('geopmdpy.pio.save_control', return_value=[]):
-            self._platform_service.start_batch(client_pid, signal_config,
-                                               control_config)
+            actual_result = self._platform_service.start_batch(client_pid, signal_config,
+                                                               control_config)
+        self.assertEqual(expected_result, actual_result,
+                         msg='start_batch() did not pass back correct result')
+
         # Assertions about _write_mode modifying the internal state
         self.assertEqual(self._platform_service._sessions[client_pid]['mode'],
                          'rw')

@@ -29,37 +29,26 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef MOCKSERVICEPROXY_HPP_INCLUDE
-#define MOCKSERVICEPROXY_HPP_INCLUDE
-
-#include "gmock/gmock.h"
-#include "ServiceProxy.hpp"
+#include <iostream>
+#include <unistd.h>
 #include "geopm/PlatformIO.hpp"
+#include "geopm_topo.h"
 
-class MockServiceProxy : public geopm::ServiceProxy
+void run(void)
 {
-    public:
-        MOCK_METHOD(void, platform_get_user_access,
-                    (std::vector<std::string> &signal_names,
-                     std::vector<std::string> &control_names), (override));
-        MOCK_METHOD(std::vector<geopm::signal_info_s>, platform_get_signal_info,
-                    (const std::vector<std::string> &signal_names), (override));
-        MOCK_METHOD(std::vector<geopm::control_info_s>, platform_get_control_info,
-                    (const std::vector<std::string> &control_names), (override));
-        MOCK_METHOD(void, platform_open_session, (), (override));
-        MOCK_METHOD(void, platform_close_session, (), (override));
-        MOCK_METHOD(void, platform_start_batch,
-                    (const std::vector<struct geopm_request_s> &signal_config,
-                     const std::vector<struct geopm_request_s> &control_config,
-                     int &server_pid, std::string &server_key), (override));
-        MOCK_METHOD(void, platform_stop_batch, (int server_pid), (override));
-        MOCK_METHOD(double, platform_read_signal,
-                    (const std::string &signal_name, int domain,
-                     int domain_idx), (override));
-        MOCK_METHOD(void, platform_write_control,
-                    (const std::string &control_name, int domain,
-                     int domain_idx, double setting), (override));
-};
+    geopm::PlatformIO &pio = geopm::platform_io();
+    int signal_idx = pio.push_signal("SERVICE::TIME", GEOPM_DOMAIN_CPU, 0);
+    for (int idx = 0; idx < 10; ++idx) {
+        pio.read_batch();
+        double tt = pio.sample(signal_idx);
+        std::cerr << tt << "\n";
+        sleep(1);
+    }
+}
 
-#endif
+
+int main (int argc, char **argv)
+{
+    run();
+    return 0;
+}

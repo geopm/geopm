@@ -88,16 +88,6 @@ EXTRA_DIST = .gitignore \
              geopm-service.spec.in \
              io.github.geopm.conf \
              io.github.geopm.xml \
-             integration/README.md \
-             integration/build_dasbus.sh \
-             integration/install_service.sh \
-             integration/test/__main__.py \
-             integration/test/TestBashExamples.py \
-             integration/test/check_write_session.sh \
-             integration/test/test_controller.py \
-             integration/test/test_controller.sh \
-             integration/test/test_sst_priority.sh \
-             integration/test/test_su_give_access.sh \
              geopmaccess \
              geopmd \
              geopmdpy/__init__.py \
@@ -146,10 +136,10 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/Agg.cpp \
                        src/BatchClient.cpp \
                        src/BatchClient.hpp \
-                       src/BatchStatus.cpp \
-                       src/BatchStatus.hpp \
                        src/BatchServer.cpp \
                        src/BatchServer.hpp \
+                       src/BatchStatus.cpp \
+                       src/BatchStatus.hpp \
                        src/CNLIOGroup.cpp \
                        src/CNLIOGroup.hpp \
                        src/CombinedSignal.cpp \
@@ -345,3 +335,4 @@ DISTCLEANFILES =
 include test/Makefile.mk
 include geopmdpy_test/Makefile.mk
 include docs/Makefile.mk
+include integration/Makefile.mk
