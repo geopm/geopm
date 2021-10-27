@@ -150,13 +150,15 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/Control.hpp \
                        src/CpuinfoIOGroup.cpp \
                        src/CpuinfoIOGroup.hpp \
+                       src/DCGMDevicePool.hpp \
+                       src/DCGMIOGroup.hpp \
+                       src/DCGMIOGroup.cpp \
                        src/DerivativeSignal.cpp \
                        src/DerivativeSignal.hpp \
                        src/DifferenceSignal.cpp \
                        src/DifferenceSignal.hpp \
-                       src/DCGMDevicePool.hpp \
-                       src/DCGMIOGroup.hpp \
-                       src/DCGMIOGroup.cpp \
+                       src/DivisionSignal.cpp \
+                       src/DivisionSignal.hpp \
                        src/DomainControl.cpp \
                        src/DomainControl.hpp \
                        src/Exception.cpp \
