@@ -36,6 +36,7 @@
 #include <vector>
 #include <map>
 #include <set>
+#include <string>
 
 #include "geopm_internal.h"
 
