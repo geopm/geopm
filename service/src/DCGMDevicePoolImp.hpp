@@ -42,7 +42,6 @@
 
 namespace geopm
 {
-
     class DCGMDevicePoolImp : public DCGMDevicePool
     {
         public:
@@ -57,7 +56,7 @@ namespace geopm
             virtual void max_samples(int accel_idx, int max_samples) override;
 
         private:
-            virtual void check_dcgm_result(const dcgmReturn_t result, const std::string error);
+            virtual void check_dcgm_result(const dcgmReturn_t result, const std::string error, const int line);
 
             long long m_update_freq;
             double m_max_keep_age;
@@ -69,6 +68,7 @@ namespace geopm
 
             unsigned short m_dcgm_field_ids[M_FIELD_IDS];
 
+            // Accelerator indexed vector of vector of field values
             std::vector<std::vector<dcgmFieldValue_v1>> m_dcgm_field_values;
     };
 }
