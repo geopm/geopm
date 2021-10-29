@@ -42,8 +42,6 @@ namespace geopm
                 M_SM_ACTIVE,
                 M_SM_OCCUPANCY,
                 M_DRAM_ACTIVE,
-                M_PCIE_TX_BYTES,
-                M_PCIE_RX_BYTES,
                 M_FIELD_IDS
             };
 
