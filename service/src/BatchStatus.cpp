@@ -52,18 +52,18 @@ namespace geopm
                                     const std::string &server_key)
     {
         // calling the server constructor
-        return geopm::make_unique<BatchStatusFIFO>(client_pid, server_key);
+        return geopm::make_unique<BatchStatusImp>(client_pid, server_key);
     }
 
     std::unique_ptr<BatchStatus>
     BatchStatus::make_unique_client(const std::string &server_key)
     {
         // calling the client constructor
-        return geopm::make_unique<BatchStatusFIFO>(server_key);
+        return geopm::make_unique<BatchStatusImp>(server_key);
     }
 
     // The constructor which is called by the client.
-    BatchStatusFIFO::BatchStatusFIFO(const std::string &server_key,
+    BatchStatusImp::BatchStatusImp(const std::string &server_key,
                                      const std::string &fifo_prefix = "/tmp/geopm-service-status")
     : m_fifo_prefix(fifo_prefix),
       m_read_fifo_path(m_fifo_prefix + "-out-" + server_key),
@@ -77,7 +77,7 @@ namespace geopm
     }
 
     // The constructor which is called by the server.
-    BatchStatusFIFO::BatchStatusFIFO(int client_pid, const std::string &server_key,
+    BatchStatusImp::BatchStatusImp(int client_pid, const std::string &server_key,
                                      const std::string &fifo_prefix = "/tmp/geopm-service-status")
     : m_fifo_prefix(fifo_prefix),
       m_read_fifo_path(m_fifo_prefix + "-in-" + server_key),
@@ -110,13 +110,13 @@ namespace geopm
         );
     }
 
-    BatchStatusFIFO::~BatchStatusFIFO()
+    BatchStatusImp::~BatchStatusImp()
     {
         check_return(close_file(m_write_fd), "close(2)");
         check_return(close_file(m_read_fd), "close(2)");
     }
 
-    void BatchStatusFIFO::server_open(void)
+    void BatchStatusImp::server_open(void)
     {
         m_write_fd = open(m_write_fifo_path.c_str(), O_WRONLY);
         check_return(m_write_fd, "open(2)");
@@ -124,7 +124,7 @@ namespace geopm
         check_return(m_read_fd, "open(2)");
     }
 
-    void BatchStatusFIFO::client_open(void)
+    void BatchStatusImp::client_open(void)
     {
         m_read_fd = open(m_read_fifo_path.c_str(), O_RDONLY);
         check_return(m_read_fd, "open(2)");
@@ -132,13 +132,13 @@ namespace geopm
         check_return(m_write_fd, "open(2)");
     }
 
-    void BatchStatusFIFO::send_message(char msg)
+    void BatchStatusImp::send_message(char msg)
     {
         if (!is_open()) open_fifo();
         check_return(write(m_write_fd, &msg, sizeof(char)), "write(2)");
     }
 
-    char BatchStatusFIFO::receive_message(void)
+    char BatchStatusImp::receive_message(void)
     {
         if (!is_open()) open_fifo();
         char result = '\0';
@@ -146,13 +146,13 @@ namespace geopm
         return result;
     }
 
-    void BatchStatusFIFO::receive_message(char expect)
+    void BatchStatusImp::receive_message(char expect)
     {
         if (!is_open()) open_fifo();
         char actual = receive_message();
         if (actual != expect) {
             std::ostringstream error_message;
-            error_message << "BatchStatusFIFO::receive_message(): "
+            error_message << "BatchStatusImp::receive_message(): "
                           << "Expected message: \"" << expect
                           << "\" but received \"" <<   actual << "\"";
             throw geopm::Exception(
@@ -164,11 +164,11 @@ namespace geopm
         }
     }
 
-    void BatchStatusFIFO::check_return(int ret, const std::string &func_name)
+    void BatchStatusImp::check_return(int ret, const std::string &func_name)
     {
         if (ret == -1) {
             throw geopm::Exception(
-                "BatchStatusFIFO: System call failed: " + func_name,
+                "BatchStatusImp: System call failed: " + func_name,
                 errno ? errno : GEOPM_ERROR_RUNTIME,
                 __FILE__,
                 __LINE__

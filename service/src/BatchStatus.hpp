@@ -75,19 +75,19 @@ namespace geopm
     };
 
 
-    class BatchStatusFIFO : public BatchStatus
+    class BatchStatusImp : public BatchStatus
     {
         public:
             /**
              * The constructor which is called by the client.
              */
-            BatchStatusFIFO(const std::string &server_key, const std::string &fifo_prefix);
+            BatchStatusImp(const std::string &server_key, const std::string &fifo_prefix);
 
             /**
              * The constructor which is called by the server.
              */
-            BatchStatusFIFO(int other_pid, const std::string &server_key, const std::string &fifo_prefix);
-            virtual ~BatchStatusFIFO();
+            BatchStatusImp(int other_pid, const std::string &server_key, const std::string &fifo_prefix);
+            virtual ~BatchStatusImp();
             void send_message(char msg) override;
             char receive_message(void) override;
             void receive_message(char expect) override;
@@ -96,7 +96,7 @@ namespace geopm
             void client_open(void);
             inline void open_fifo(void) const
             {
-                return (open_function) ? (const_cast<BatchStatusFIFO*>(this)->*(this->open_function))() : (void)0;
+                return (open_function) ? (const_cast<BatchStatusImp*>(this)->*(this->open_function))() : (void)0;
             }
             inline bool is_open(void) const
             {
@@ -112,7 +112,7 @@ namespace geopm
             std::string m_write_fifo_path;
             int m_read_fd;
             int m_write_fd;
-            void (geopm::BatchStatusFIFO:: *open_function)(void) = nullptr;
+            void (geopm::BatchStatusImp:: *open_function)(void) = nullptr;
             int  (*close_function)(int) = nullptr;
     };
 }
