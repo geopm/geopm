@@ -34,6 +34,7 @@ check_PROGRAMS += test/geopm_test
 GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
               test/gtest_links/AggTest.agg_function \
               test/gtest_links/AggTest.function_strings \
+              test/gtest_links/BatchStatusTest.client_send_one \
               test/gtest_links/CircularBufferTest.buffer_capacity \
               test/gtest_links/CircularBufferTest.buffer_size \
               test/gtest_links/CircularBufferTest.buffer_values \
@@ -310,6 +311,7 @@ EXTRA_DIST += test/legacy_allowlist.out \
 
 test_geopm_test_SOURCES = test/AcceleratorTopoNullTest.cpp \
                           test/AggTest.cpp \
+                          test/BatchStatusTest.cpp \
                           test/CircularBufferTest.cpp \
                           test/CNLIOGroupTest.cpp \
                           test/CombinedSignalTest.cpp \
