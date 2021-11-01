@@ -131,6 +131,8 @@ namespace geopm
             }
             sv.second.signals = result;
         }
+        register_signal_alias("ACCELERATOR_COMPUTE_ACTIVITY", "DCGM::SM_ACTIVE");
+        register_signal_alias("ACCELERATOR_MEMORY_ACTIVITY", "DCGM::DRAM_ACTIVE");
 
         // populate controls for each domain
         for (auto &sv : m_control_available) {
@@ -386,19 +388,19 @@ namespace geopm
                             std::to_string(control_domain_type(control_name)),
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        if (domain_idx < 0 || domain_idx >= m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR)) {
+        if (domain_idx < 0 || domain_idx >= m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD)) {
             throw Exception("DCGMIOGroup::" + std::string(__func__) + ": domain_idx out of range.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         if (control_name == "DCGM::FIELD_UPDATE_RATE") {
-            m_dcgm_device_pool.field_update_rate(domain_idx, setting*1e6);
+            m_dcgm_device_pool.field_update_rate(setting*1e3);
         }
         else if (control_name == "DCGM::MAX_STORAGE_TIME") {
-            m_dcgm_device_pool.max_storage_time(domain_idx, setting);
+            m_dcgm_device_pool.max_storage_time(setting);
         }
         else if (control_name == "DCGM::MAX_SAMPLES") {
-            m_dcgm_device_pool.max_samples(domain_idx, setting);
+            m_dcgm_device_pool.max_samples(setting);
         }
         else {
     #ifdef GEOPM_DEBUG
