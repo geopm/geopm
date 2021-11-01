@@ -144,6 +144,7 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/AcceleratorTopoNull.cpp \
                        src/AcceleratorTopoNull.hpp \
                        src/Agg.cpp \
+                       src/BatchStatus.hpp \
                        src/CNLIOGroup.cpp \
                        src/CNLIOGroup.hpp \
                        src/CombinedSignal.cpp \
