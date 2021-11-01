@@ -35,17 +35,26 @@
 
 #include <string>
 #include <memory>
+#include <unordered_map>
+
+#include "POSIXSignal.hpp"
 
 namespace geopm
 {
     class BatchStatus
     {
         public:
+            static constexpr char M_MESSAGE_READ = 'r';
+            static constexpr char M_MESSAGE_WRITE = 'w';
+            static constexpr char M_MESSAGE_CONTINUE = 'c';
+            static constexpr char M_MESSAGE_QUIT = 'q';
+
             BatchStatus() = default;
             virtual ~BatchStatus() = default;
             static std::unique_ptr<BatchStatus> make_unique_server(int client_pid,
                                                                    const std::string &server_key);
             static std::unique_ptr<BatchStatus> make_unique_client(const std::string &server_key);
+            static std::unique_ptr<BatchStatus> make_unique_signal(int other_pid);
             /// @brief Send an integer to the other process
             ///
             /// @param msg [in] Message number to send.
@@ -65,22 +74,62 @@ namespace geopm
             virtual void receive_message(char expect) = 0;
     };
 
-    class BatchStatusImp : public BatchStatus
+
+    class BatchStatusSignal : public BatchStatus
     {
         public:
-            BatchStatusImp(int other_pid, const std::string &server_key,
-                           bool is_server);
-            BatchStatusImp(int other_pid, const std::string &server_key,
-                           bool is_server, const std::string &fifo_prefix);
-            virtual ~BatchStatusImp();
+            typedef int POSIX_SIGNAL;
+
+            BatchStatusSignal(int other_pid);
+            virtual ~BatchStatusSignal();
             void send_message(char msg) override;
             char receive_message(void) override;
             void receive_message(char expect) override;
         private:
+            int other_pid;
+            POSIXSignal* m_signal = nullptr;
+    };
+
+
+    class BatchStatusFIFO : public BatchStatus
+    {
+        public:
+            /**
+             * The constructor which is called by the client.
+             */
+            BatchStatusFIFO(const std::string &server_key, const std::string &fifo_prefix);
+
+            /**
+             * The constructor which is called by the server.
+             */
+            BatchStatusFIFO(int other_pid, const std::string &server_key, const std::string &fifo_prefix);
+            virtual ~BatchStatusFIFO();
+            void send_message(char msg) override;
+            char receive_message(void) override;
+            void receive_message(char expect) override;
+        private:
+            void server_open(void);
+            void client_open(void);
+            inline void open_fifo(void) const
+            {
+                return (open_function) ? (const_cast<BatchStatusFIFO*>(this)->*(this->open_function))() : (void)0;
+            }
+            inline bool is_open(void) const
+            {
+                return (m_read_fd != -1 && m_write_fd != -1);
+            }
+            inline int close_file(int file_descriptor) const
+            {
+                return (close_function) ? close_function(file_descriptor) : 0;
+            }
             void check_return(int ret, const std::string &func_name);
             const std::string m_fifo_prefix;
+            std::string m_read_fifo_path;
+            std::string m_write_fifo_path;
             int m_read_fd;
             int m_write_fd;
+            void (geopm::BatchStatusFIFO:: *open_function)(void) = nullptr;
+            int  (*close_function)(int) = nullptr;
     };
 }
 

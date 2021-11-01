@@ -31,9 +31,13 @@
  */
 
 #include "config.h"
+
 #include "BatchStatus.hpp"
+#include "POSIXSignal.hpp"
+
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
+
 #include <cerrno>
 #include <sstream>
 #include <unistd.h>
@@ -47,89 +51,184 @@ namespace geopm
     BatchStatus::make_unique_server(int client_pid,
                                     const std::string &server_key)
     {
-        return geopm::make_unique<BatchStatusImp>(client_pid, server_key, true);
+        // calling the server constructor
+        return geopm::make_unique<BatchStatusFIFO>(client_pid, server_key);
     }
 
     std::unique_ptr<BatchStatus>
     BatchStatus::make_unique_client(const std::string &server_key)
     {
-        return geopm::make_unique<BatchStatusImp>(0, server_key, false);
+        // calling the client constructor
+        return geopm::make_unique<BatchStatusFIFO>(server_key);
     }
 
-    BatchStatusImp::BatchStatusImp(int other_pid, const std::string &server_key,
-                                   bool is_server)
-        : BatchStatusImp(other_pid, server_key, is_server,
-                         "/tmp/geopm-service-status")
+    std::unique_ptr<BatchStatus>
+    BatchStatus::make_unique_signal(int other_pid)
     {
-
+        // calling the signal constructor
+        return geopm::make_unique<BatchStatusSignal>(other_pid);
     }
 
-    BatchStatusImp::BatchStatusImp(int other_pid, const std::string &server_key,
-                                   bool is_server, const std::string &fifo_prefix)
-        : m_fifo_prefix(fifo_prefix)
+    // The constructor which is called by both the client and the server for signals.
+    BatchStatusSignal::BatchStatusSignal(int other_pid)
+    : other_pid(other_pid),
+      m_signal(new POSIXSignalImp)
     {
-        std::string read_fifo_path;
-        std::string write_fifo_path;
-        if (is_server) {
-            read_fifo_path = m_fifo_prefix + "-in-" + server_key;
-            write_fifo_path = m_fifo_prefix + "-out-" + server_key;
-            check_return(mkfifo(read_fifo_path.c_str(), S_IRUSR | S_IWUSR), "mkfifo(3)");
-            check_return(mkfifo(write_fifo_path.c_str(), S_IRUSR | S_IWUSR), "mkfifo(3)");
-            int uid = pid_to_uid(other_pid);
-            int gid = pid_to_gid(other_pid);
-            check_return(chown(read_fifo_path.c_str(), uid, gid), "chown(2)");
-            check_return(chown(write_fifo_path.c_str(), uid, gid), "chown(2)");
-            m_write_fd = open(write_fifo_path.c_str(), O_WRONLY);
-            check_return(m_write_fd, "open(2)");
-            m_read_fd = open(read_fifo_path.c_str(), O_RDONLY);
-            check_return(m_read_fd, "open(2)");
+        //
+    }
+
+    BatchStatusSignal::~BatchStatusSignal()
+    {
+        delete m_signal; m_signal = nullptr;
+    }
+
+    void BatchStatusSignal::send_message(char msg)
+    {
+        m_signal->sig_queue(other_pid, SIGCONT, msg);
+    }
+
+    char BatchStatusSignal::receive_message(void)
+    {
+        sigset_t signal_set = m_signal->make_sigset({SIGCONT});
+        siginfo_t signal_info = {0};
+        m_signal->sig_wait_info(&signal_set, &signal_info);
+        POSIXSignal::m_info_s info = m_signal->reduce_info(signal_info);
+        char actual = info.value;
+        return actual;
+    }
+
+    void BatchStatusSignal::receive_message(char expect)
+    {
+        sigset_t signal_set = m_signal->make_sigset({SIGCONT});
+        siginfo_t signal_info = {0};
+        m_signal->sig_wait_info(&signal_set, &signal_info);
+        POSIXSignal::m_info_s info = m_signal->reduce_info(signal_info);
+        char actual = info.value;
+        if (actual != expect) {
+            std::ostringstream error_message;
+            error_message << "BatchStatusSignal::receive_message(): "
+                          << "Expected message: \"" << expect
+                          << "\" but received \"" <<   actual << "\"";
+            throw geopm::Exception(
+                error_message.str(),
+                GEOPM_ERROR_RUNTIME,
+                __FILE__,
+                __LINE__
+            );
         }
-        else {
-            read_fifo_path = m_fifo_prefix + "-out-" + server_key;
-            write_fifo_path = m_fifo_prefix + "-in-" + server_key;
-            m_read_fd = open(read_fifo_path.c_str(), O_RDONLY);
-            check_return(m_read_fd, "open(2)");
-            m_write_fd = open(write_fifo_path.c_str(), O_WRONLY);
-            check_return(m_write_fd, "open(2)");
-        }
     }
 
-    BatchStatusImp::~BatchStatusImp()
+    // The constructor which is called by the client.
+    BatchStatusFIFO::BatchStatusFIFO(const std::string &server_key,
+                                     const std::string &fifo_prefix = "/tmp/geopm-service-status")
+    : m_fifo_prefix(fifo_prefix),
+      m_read_fifo_path(m_fifo_prefix + "-out-" + server_key),
+      m_write_fifo_path(m_fifo_prefix + "-in-" + server_key),
+      m_read_fd(-1),
+      m_write_fd(-1),
+      open_function(client_open),
+      close_function(nullptr),
     {
-        check_return(close(m_write_fd), "close(2)");
-        check_return(close(m_read_fd), "close(2)");
+        // Assume that the server itself will make the fifo.
     }
 
-    void BatchStatusImp::send_message(char msg)
+    // The constructor which is called by the server.
+    BatchStatusFIFO::BatchStatusFIFO(int client_pid, const std::string &server_key,
+                                     const std::string &fifo_prefix = "/tmp/geopm-service-status")
+    : m_fifo_prefix(fifo_prefix),
+      m_read_fifo_path(m_fifo_prefix + "-in-" + server_key),
+      m_write_fifo_path(m_fifo_prefix + "-out-" + server_key),
+      m_read_fd(-1),
+      m_write_fd(-1),
+      open_function(server_open),
+      close_function(close)
     {
-        check_return(write(m_write_fd, &msg, 1), "write(2)");
+        // The server first creates the fifo in the file system.
+        check_return(
+            mkfifo(m_read_fifo_path.c_str(), S_IRUSR | S_IWUSR),
+            "mkfifo(3)"
+        );
+        check_return(
+            mkfifo(m_write_fifo_path.c_str(), S_IRUSR | S_IWUSR),
+            "mkfifo(3)"
+        );
+
+        // Then the server grants the client ownership of the fifo.
+        int uid = pid_to_uid(client_pid);
+        int gid = pid_to_gid(client_pid);
+        check_return(
+            chown(m_read_fifo_path.c_str(), uid, gid),
+            "chown(2)"
+        );
+        check_return(
+            chown(m_write_fifo_path.c_str(), uid, gid),
+            "chown(2)"
+        );
     }
 
-    char BatchStatusImp::receive_message(void)
+    BatchStatusFIFO::~BatchStatusFIFO()
     {
+        check_return(close_file(m_write_fd), "close(2)");
+        check_return(close_file(m_read_fd), "close(2)");
+    }
+
+    void BatchStatusFIFO::server_open(void)
+    {
+        m_write_fd = open(m_write_fifo_path.c_str(), O_WRONLY);
+        check_return(m_write_fd, "open(2)");
+        m_read_fd = open(m_read_fifo_path.c_str(), O_RDONLY);
+        check_return(m_read_fd, "open(2)");
+    }
+
+    void BatchStatusFIFO::client_open(void)
+    {
+        m_read_fd = open(m_read_fifo_path.c_str(), O_RDONLY);
+        check_return(m_read_fd, "open(2)");
+        m_write_fd = open(m_write_fifo_path.c_str(), O_WRONLY);
+        check_return(m_write_fd, "open(2)");
+    }
+
+    void BatchStatusFIFO::send_message(char msg)
+    {
+        if (!is_open()) open_fifo();
+        check_return(write(m_write_fd, &msg, sizeof(char)), "write(2)");
+    }
+
+    char BatchStatusFIFO::receive_message(void)
+    {
+        if (!is_open()) open_fifo();
         char result = '\0';
-        check_return(read(m_read_fd, &result, 1), "read(2)");
+        check_return(read(m_read_fd, &result, sizeof(char)), "read(2)");
         return result;
     }
 
-    void BatchStatusImp::receive_message(char expect)
+    void BatchStatusFIFO::receive_message(char expect)
     {
+        if (!is_open()) open_fifo();
         char actual = receive_message();
         if (actual != expect) {
             std::ostringstream error_message;
-            error_message << "BatchStatusImp::receive_message(): "
+            error_message << "BatchStatusFIFO::receive_message(): "
                           << "Expected message: \"" << expect
                           << "\" but received \"" <<   actual << "\"";
-            throw Exception(error_message.str(),
-                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            throw geopm::Exception(
+                error_message.str(),
+                GEOPM_ERROR_RUNTIME,
+                __FILE__,
+                __LINE__
+            );
         }
     }
 
-    void BatchStatusImp::check_return(int ret, const std::string &func_name)
+    void BatchStatusFIFO::check_return(int ret, const std::string &func_name)
     {
         if (ret == -1) {
-            throw Exception("BatchStatusImp: System call failed: " + func_name,
-                            errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            throw geopm::Exception(
+                "BatchStatusFIFO: System call failed: " + func_name,
+                errno ? errno : GEOPM_ERROR_RUNTIME,
+                __FILE__,
+                __LINE__
+            );
         }
     }
 }
