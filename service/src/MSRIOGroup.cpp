@@ -518,8 +518,9 @@ namespace geopm
 
     void MSRIOGroup::read_batch(void)
     {
-        m_msrio->read_batch();
-
+        if (m_signal_pushed.size() != 0) {
+            m_msrio->read_batch();
+        }
         // update timesignal value
         *m_time_batch = geopm_time_since(m_time_zero.get());
 
@@ -529,7 +530,7 @@ namespace geopm
 
     void MSRIOGroup::write_batch(void)
     {
-        if (m_control_pushed.size()) {
+        if (m_control_pushed.size() != 0) {
             if (std::any_of(m_is_adjusted.begin(), m_is_adjusted.end(), [](bool it) {return !it;})) {
                 throw Exception("MSRIOGroup::write_batch() called before all controls were adjusted",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
