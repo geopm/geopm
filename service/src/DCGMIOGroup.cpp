@@ -129,7 +129,7 @@ namespace geopm
                 std::shared_ptr<signal_s> sgnl = std::make_shared<signal_s>(signal_s{0, false});
                 result.push_back(sgnl);
             }
-            sv.second.signals = result;
+            sv.second.m_signals = result;
         }
         register_signal_alias("ACCELERATOR_COMPUTE_ACTIVITY", "DCGM::SM_ACTIVE");
         register_signal_alias("ACCELERATOR_MEMORY_ACTIVITY", "DCGM::DRAM_ACTIVE");
@@ -141,7 +141,7 @@ namespace geopm
                 std::shared_ptr<control_s> ctrl = std::make_shared<control_s>(control_s{0, false});
                 result.push_back(ctrl);
             }
-            sv.second.controls = result;
+            sv.second.m_controls = result;
         }
     }
 
@@ -217,7 +217,7 @@ namespace geopm
 
         int result = -1;
         bool is_found = false;
-        std::shared_ptr<signal_s> signal = m_signal_available.at(signal_name).signals.at(domain_idx);
+        std::shared_ptr<signal_s> signal = m_signal_available.at(signal_name).m_signals.at(domain_idx);
 
         // Check if signal was already pushed
         for (size_t ii = 0; !is_found && ii < m_signal_pushed.size(); ++ii) {
@@ -257,7 +257,7 @@ namespace geopm
 
         int result = -1;
         bool is_found = false;
-        std::shared_ptr<control_s> control = m_control_available.at(control_name).controls.at(domain_idx);
+        std::shared_ptr<control_s> control = m_control_available.at(control_name).m_controls.at(domain_idx);
 
         // Check if control was already pushed
         for (size_t ii = 0; !is_found && ii < m_control_pushed.size(); ++ii) {
@@ -291,8 +291,8 @@ namespace geopm
                 m_dcgm_device_pool.update_field_value(domain_idx);
 
                 for (auto &sv : m_signal_available) {
-                    if (sv.second.signals.at(domain_idx)->m_do_read) {
-                        sv.second.signals.at(domain_idx)->m_value =
+                    if (sv.second.m_signals.at(domain_idx)->m_do_read) {
+                        sv.second.m_signals.at(domain_idx)->m_value =
                             sv.second.m_devpool_func(domain_idx);
                     }
                 }
@@ -304,10 +304,10 @@ namespace geopm
     void DCGMIOGroup::write_batch(void)
     {
         for (auto &sv : m_control_available) {
-            for (unsigned int domain_idx = 0; domain_idx < sv.second.controls.size(); ++domain_idx) {
-                if (sv.second.controls.at(domain_idx)->m_is_adjusted) {
+            for (unsigned int domain_idx = 0; domain_idx < sv.second.m_controls.size(); ++domain_idx) {
+                if (sv.second.m_controls.at(domain_idx)->m_is_adjusted) {
                     write_control(sv.first, control_domain_type(sv.first), domain_idx,
-                                  sv.second.controls.at(domain_idx)->m_setting);
+                                  sv.second.m_controls.at(domain_idx)->m_setting);
                 }
             }
         }
@@ -414,20 +414,12 @@ namespace geopm
     // to adjust them
     void DCGMIOGroup::save_control(void)
     {
-        for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(
-             GEOPM_DOMAIN_BOARD); ++domain_idx) {
-            //TODO: Implement
-        }
     }
 
     // Implemented to allow an IOGroup to restore previously saved
     // platform settings
     void DCGMIOGroup::restore_control(void)
     {
-        for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(
-             GEOPM_DOMAIN_BOARD); ++domain_idx) {
-            //TODO: Implement
-        }
     }
 
     void DCGMIOGroup::save_control(const std::string &save_path)
