@@ -48,6 +48,7 @@ namespace geopm
             static constexpr char M_MESSAGE_WRITE = 'w';
             static constexpr char M_MESSAGE_CONTINUE = 'c';
             static constexpr char M_MESSAGE_QUIT = 'q';
+            static constexpr char M_MESSAGE_TERMINATE = 't';
 
             BatchStatus() = default;
             virtual ~BatchStatus() = default;

@@ -1,0 +1,323 @@
+/*
+ * Copyright (c) 2015 - 2021, Intel Corporation
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in
+ *       the documentation and/or other materials provided with the
+ *       distribution.
+ *
+ *     * Neither the name of Intel Corporation nor the names of its
+ *       contributors may be used to endorse or promote products derived
+ *       from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+#include "config.h"
+#include "BatchServer.hpp"
+
+#include <cstdlib>
+#include <cerrno>
+#include <unistd.h>
+
+#include "geopm/Exception.hpp"
+#include "geopm/PlatformIO.hpp"
+#include "geopm/SharedMemory.hpp"
+#include "geopm/Helper.hpp"
+#include "geopm/PlatformIO.hpp"
+#include "BatchStatus.hpp"
+#include "POSIXSignal.hpp"
+#include "geopm_debug.hpp"
+
+volatile static sig_atomic_t g_sigterm_count = 0;
+
+static void action_sigterm(int signo, siginfo_t *siginfo, void *context)
+{
+    if (siginfo->si_value.sival_int == geopm::BatchStatus::M_MESSAGE_TERMINATE) {
+        ++g_sigterm_count;
+    }
+}
+
+namespace geopm
+{
+    std::unique_ptr<BatchServer>
+    BatchServer::make_unique(int client_pid,
+                             const std::vector<geopm_request_s> &signal_config,
+                             const std::vector<geopm_request_s> &control_config)
+    {
+        return geopm::make_unique<BatchServerImp>(client_pid, signal_config,
+                                                  control_config);
+    }
+
+    BatchServerImp::BatchServerImp(int client_pid,
+                                   const std::vector<geopm_request_s> &signal_config,
+                                   const std::vector<geopm_request_s> &control_config)
+        : BatchServerImp(client_pid, signal_config, control_config,
+                         platform_io(), nullptr, nullptr, nullptr, nullptr, 0)
+    {
+        // Fork the server when calling real constructor.
+        auto setup = [this]() {
+            this->register_handler();
+            this->create_shmem();
+        };
+        auto run = [this]() {
+            this->run_batch();
+        };
+        m_server_pid = fork_with_setup(setup, run);
+    }
+
+    BatchServerImp::BatchServerImp(int client_pid,
+                                   const std::vector<geopm_request_s> &signal_config,
+                                   const std::vector<geopm_request_s> &control_config,
+                                   PlatformIO &pio,
+                                   std::shared_ptr<BatchStatus> batch_status,
+                                   std::shared_ptr<POSIXSignal> posix_signal,
+                                   std::shared_ptr<SharedMemory> signal_shmem,
+                                   std::shared_ptr<SharedMemory> control_shmem,
+                                   int server_pid)
+        : m_client_pid(client_pid)
+        , m_server_key(std::to_string(m_client_pid))
+        , m_signal_config(signal_config)
+        , m_control_config(control_config)
+        , m_pio(pio)
+        , m_signal_shmem(signal_shmem)
+        , m_control_shmem(control_shmem)
+        , m_batch_status(batch_status != nullptr ?
+                         batch_status : BatchStatus::make_unique_server(m_client_pid,
+                                                                        m_server_key))
+        , m_posix_signal(posix_signal != nullptr ?
+                         posix_signal : POSIXSignal::make_unique())
+        , m_server_pid(server_pid)
+        , m_is_active(true)
+    {
+
+    }
+
+    BatchServerImp::~BatchServerImp()
+    {
+        if (m_server_pid != 0 && m_is_active) {
+            try {
+                stop_batch();
+            }
+            catch (...) {
+
+            }
+        }
+    }
+
+    int BatchServerImp::server_pid(void) const
+    {
+        return m_server_pid;
+    }
+
+    std::string BatchServerImp::server_key(void) const
+    {
+        return m_server_key;
+    }
+
+    void BatchServerImp::stop_batch(void)
+    {
+        if (m_server_pid == 0) {
+            throw Exception("BatchServerImp::stop_batch(): must be called from parent process, not child process",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        if (m_is_active) {
+            try {
+                m_posix_signal->sig_queue(m_server_pid, SIGTERM, BatchStatus::M_MESSAGE_TERMINATE);
+            }
+            catch (const Exception &ex) {
+                if (ex.err_value() != ESRCH) {
+                    throw ex;
+                }
+            }
+            m_is_active = false;
+        }
+    }
+
+    void BatchServerImp::run_batch(void)
+    {
+        push_requests();
+        // Start event loop
+        char out_message = BatchStatus::M_MESSAGE_CONTINUE;
+        while (out_message == BatchStatus::M_MESSAGE_CONTINUE &&
+               g_sigterm_count == 0) {
+            char in_message;
+            try {
+                in_message = m_batch_status->receive_message();
+            }
+            catch (const Exception &ex) {
+                // If we were interupted by SIGTERM exit gracefully
+                if (ex.err_value() == EINTR &&
+                    g_sigterm_count != 0) {
+                    in_message = BatchStatus::M_MESSAGE_TERMINATE;
+                }
+                else {
+                    throw ex;
+                }
+            }
+            switch (in_message) {
+                case BatchStatus::M_MESSAGE_READ:
+                    read_and_update();
+                    break;
+                case BatchStatus::M_MESSAGE_WRITE:
+                    update_and_write();
+                    break;
+                case BatchStatus::M_MESSAGE_QUIT:
+                    out_message = BatchStatus::M_MESSAGE_QUIT;
+                    break;
+                case BatchStatus::M_MESSAGE_TERMINATE:
+                    out_message = BatchStatus::M_MESSAGE_TERMINATE;
+                    break;
+                default:
+                    throw Exception("BatchServerImp::run_batch(): Received unknown response from client: " +
+                                    std::to_string(in_message), GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                    break;
+            }
+            if (out_message != BatchStatus::M_MESSAGE_TERMINATE) {
+                try {
+                    m_batch_status->send_message(out_message);
+                }
+                catch (const Exception &ex) {
+                    // If we were not interupted SIGTERM rethrow
+                    if (ex.err_value() != EINTR ||
+                        g_sigterm_count == 0) {
+                        throw ex;
+                    }
+                }
+            }
+        }
+    }
+
+    bool BatchServerImp::is_active(void) const
+    {
+        return m_is_active;
+    }
+
+    void BatchServerImp::push_requests(void)
+    {
+        for (const auto &req : m_signal_config) {
+            m_signal_handle.push_back(
+                m_pio.push_signal(req.name, req.domain, req.domain_idx));
+        }
+        for (const auto &req : m_control_config) {
+            m_control_handle.push_back(
+                m_pio.push_control(req.name, req.domain, req.domain_idx));
+        }
+    }
+
+    void BatchServerImp::read_and_update(void)
+    {
+        if (m_signal_config.size() == 0) {
+            return;
+        }
+
+        m_pio.read_batch();
+        double *shmem_buffer = (double *)m_signal_shmem->pointer();
+        int buffer_idx = 0;
+        for (const auto &handle : m_signal_handle) {
+            shmem_buffer[buffer_idx] = m_pio.sample(handle);
+            ++buffer_idx;
+        }
+    }
+
+    void BatchServerImp::update_and_write(void)
+    {
+        if (m_control_config.size() == 0) {
+            return;
+        }
+
+        double *shmem_buffer = (double *)m_control_shmem->pointer();
+        int buffer_idx = 0;
+        for (const auto &handle : m_control_handle) {
+            m_pio.adjust(handle, shmem_buffer[buffer_idx]);
+            ++buffer_idx;
+        }
+        m_pio.write_batch();
+    }
+
+
+    void BatchServerImp::create_shmem(void)
+    {
+        // Create shared memory regions
+        size_t signal_size = m_signal_config.size() * sizeof(double);
+        size_t control_size = m_control_config.size() * sizeof(double);
+        std::string shmem_prefix_signal = M_SHMEM_PREFIX + m_server_key + "-signal";
+        std::string shmem_prefix_control = M_SHMEM_PREFIX + m_server_key + "-control";
+        int uid = pid_to_uid(m_client_pid);
+        int gid = pid_to_gid(m_client_pid);
+        if (signal_size != 0) {
+            m_signal_shmem = SharedMemory::make_unique_owner_secure(
+                shmem_prefix_signal, signal_size);
+            // Requires a chown if server is different user than client
+            m_signal_shmem->chown(uid, gid);
+        }
+        if (control_size != 0) {
+            m_control_shmem = SharedMemory::make_unique_owner_secure(
+                shmem_prefix_control, control_size);
+            // Requires a chown if server is different user than client
+            m_control_shmem->chown(uid, gid);
+        }
+    }
+
+    void BatchServerImp::register_handler(void)
+    {
+        g_sigterm_count = 0;
+        struct sigaction action = {};
+        action.sa_mask = m_posix_signal->make_sigset({SIGTERM});
+        action.sa_flags = SA_SIGINFO; // Do not set SA_RESTART so read will fail
+        action.sa_sigaction = &action_sigterm;
+        m_posix_signal->sig_action(SIGTERM, &action, nullptr);
+    }
+
+    int BatchServerImp::fork_with_setup(std::function<void(void)> setup,
+                                        std::function<void(void)> run)
+    {
+        int pipe_fd[2];
+        check_return(pipe(pipe_fd), "pipe(2)");
+        int forked_pid = fork();
+        check_return(forked_pid, "fork(2)");
+        if (forked_pid == 0) {
+            check_return(close(pipe_fd[0]), "close(2)");
+            setup();
+            char msg = BatchStatus::M_MESSAGE_CONTINUE;
+            check_return(write(pipe_fd[1], &msg, 1), "write(2)");
+            check_return(close(pipe_fd[1]), "close(2)");
+            run();
+            exit(0);
+        }
+        check_return(close(pipe_fd[1]), "close(2)");
+        char msg = '\0';
+        check_return(read(pipe_fd[0], &msg, 1), "read(2)");
+        if (msg != BatchStatus::M_MESSAGE_CONTINUE) {
+            throw Exception("BatchServerImp: Receivied unexpected message from batch server at startup: \"" +
+                            std::to_string(msg) + "\"", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        check_return(close(pipe_fd[0]), "close(2)");
+        return forked_pid;
+    }
+
+    void BatchServerImp::check_return(int ret, const std::string &func_name) const
+    {
+        if (ret == -1) {
+            throw Exception("BatchServerImp: System call failed: " + func_name,
+                            errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+    }
+}

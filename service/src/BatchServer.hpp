@@ -30,18 +30,32 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef DBUSSERVER_HPP_INCLUDE
-#define DBUSSERVER_HPP_INCLUDE
+#ifndef BATCHSERVER_HPP_INCLUDE
+#define BATCHSERVER_HPP_INCLUDE
+
+#include <memory>
+#include <vector>
+#include <string>
+#include <functional>
+#include <signal.h>
+
+
+struct geopm_request_s;
 
 namespace geopm
 {
-    class DBusServer
+    class PlatformIO;
+    class SharedMemory;
+    class BatchStatus;
+    class POSIXSignal;
+
+    class BatchServer
     {
         public:
             /// @brief Interace called by geopmd to create the server
             ///        for batch commands.
-            DBusServer() = default;
-            virtual ~DBusServer() = default;
+            BatchServer() = default;
+            virtual ~BatchServer() = default;
             /// @brief Supports the D-Bus interface for starting a
             ///        batch server.
             ///
@@ -78,27 +92,79 @@ namespace geopm
             ///        signals to be sampled.
             /// @param [in] control_config Avector of requests for
             ///        controls to be adjusted.
-            /// @param [out] server_pid The Unix process ID of the
-            ///        server process created.
-            /// @param [out] server_key The key used to identify the
-            ///        server connection: a substring in interprocess
-            ///        shared memory keys used for communication.
-            static void start_batch(int client_pid,
-                                    const std::vector<geopm_request_s> &signal_config,
-                                    const std::vector<geopm_request_s> &control_config,
-                                    int &server_pid,
-                                    std::string &server_key);
+            static std::unique_ptr<BatchServer> make_unique(int client_pid,
+                                                            const std::vector<geopm_request_s> &signal_config,
+                                                            const std::vector<geopm_request_s> &control_config);
+            /// @return The Unix process ID of the server process
+            ///        created.
+            virtual int server_pid(void) const = 0;
+            /// @return The key used to identify the server
+            ///        connection: a substring in interprocess shared
+            ///        memory keys used for communication.
+            virtual std::string server_key(void) const = 0;
             /// @brief Supports the D-Bus interface for stopping a
             ///        batch server.
             ///
             /// This function is called directly by geopmd in order to
             /// end a batch session and kill the batch server process
             /// created by start_batch_server().
-            ///
-            /// @param [in] server_pid The Unix process ID of the
-            ///        server process returned by a previous call to
-            ///        start_batch_server().
-            static void stop_batch(int server_pid);
+            virtual void stop_batch(void) = 0;
+            /// @brief Returns true if the batch server is running
+            virtual bool is_active(void) const = 0;
+            static constexpr const char* M_SHMEM_PREFIX = "/geopm-service-batch-buffer-";
+    };
+
+    class BatchServerImp : public BatchServer
+    {
+        public:
+            BatchServerImp(int client_pid,
+                           const std::vector<geopm_request_s> &signal_config,
+                           const std::vector<geopm_request_s> &control_config);
+            BatchServerImp(int client_pid,
+                           const std::vector<geopm_request_s> &signal_config,
+                           const std::vector<geopm_request_s> &control_config,
+                           PlatformIO &pio,
+                           std::shared_ptr<BatchStatus> batch_status,
+                           std::shared_ptr<POSIXSignal> posix_signal,
+                           std::shared_ptr<SharedMemory> signal_shmem,
+                           std::shared_ptr<SharedMemory> control_shmem,
+                           int server_pid);
+            virtual ~BatchServerImp();
+            int server_pid(void) const override;
+            std::string server_key(void) const override;
+            void stop_batch(void) override;
+            bool is_active(void) const override;
+            void run_batch(void);
+            /// @brief Fork a process that runs two functions and
+            ///        block until the first function completes.
+            int fork_with_setup(std::function<void(void)> setup,
+                                std::function<void(void)> run);
+        private:
+            void push_requests(void);
+            void read_and_update(void);
+            void update_and_write(void);
+            void register_handler(void);
+            void create_shmem(void);
+            void check_invalid_signal(void);
+            void check_return(int ret, const std::string &func_name) const;
+
+            const int m_client_pid;
+            const std::string m_server_key;
+            const std::vector<geopm_request_s> m_signal_config;
+            const std::vector<geopm_request_s> m_control_config;
+            PlatformIO &m_pio;
+            std::shared_ptr<SharedMemory> m_signal_shmem;
+            std::shared_ptr<SharedMemory> m_control_shmem;
+            std::shared_ptr<BatchStatus> m_batch_status;
+            std::shared_ptr<POSIXSignal> m_posix_signal;
+            int m_server_pid;
+            bool m_is_active;
+            /// @brief Stores the PlatformIO batch handles for all pushed
+            ///        signals
+            std::vector<int> m_signal_handle;
+            /// @brief Stores the PlatformIO batch handles for all pushed
+            ///        controls
+            std::vector<int> m_control_handle;
     };
 }
 

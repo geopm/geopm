@@ -34,6 +34,11 @@ check_PROGRAMS += test/geopm_test
 GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
               test/gtest_links/AggTest.agg_function \
               test/gtest_links/AggTest.function_strings \
+              test/gtest_links/BatchServerTest.get_server_pid \
+              test/gtest_links/BatchServerTest.get_server_key \
+              test/gtest_links/BatchServerTest.stop_batch \
+              test/gtest_links/BatchServerTest.run_batch_read \
+              test/gtest_links/BatchServerTest.run_batch_write \
               test/gtest_links/BatchStatusTest.client_send_to_server_fifo_expect \
               test/gtest_links/BatchStatusTest.server_send_to_client_fifo_expect \
               test/gtest_links/BatchStatusTest.server_send_to_client_fifo \
@@ -317,6 +322,7 @@ EXTRA_DIST += test/legacy_allowlist.out \
 
 test_geopm_test_SOURCES = test/AcceleratorTopoNullTest.cpp \
                           test/AggTest.cpp \
+                          test/BatchServerTest.cpp \
                           test/BatchStatusTest.cpp \
                           test/CircularBufferTest.cpp \
                           test/CNLIOGroupTest.cpp \
