@@ -40,7 +40,7 @@
 #include <sys/wait.h>
 
 using geopm::BatchStatus;
-using geopm::BatchStatusFIFO;
+using geopm::BatchStatusImp;
 
 class BatchStatusTest : public ::testing::Test
 {
