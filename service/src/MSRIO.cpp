@@ -286,6 +286,9 @@ namespace geopm
 
    void MSRIOImp::msr_ioctl_read(void)
     {
+        if (m_read_batch.numops == 0) {
+            return;
+        }
         GEOPM_DEBUG_ASSERT(m_read_batch.numops == m_read_batch_op.size() &&
                            m_read_batch.ops == m_read_batch_op.data(),
                            "Batch operations not updated prior to calling MSRIOImp::msr_ioctl_read()");
@@ -294,6 +297,9 @@ namespace geopm
 
     void MSRIOImp::msr_ioctl_write(void)
     {
+        if (m_write_batch.numops == 0) {
+            return;
+        }
         GEOPM_DEBUG_ASSERT(m_write_batch.numops == m_write_batch_op.size() &&
                            m_write_batch.ops == m_write_batch_op.data(),
                            "Batch operations not updated prior to calling MSRIOImp::msr_ioctl_write()");
