@@ -118,7 +118,6 @@ namespace geopm
         int ret = sd_bus_message_open_container(m_bus_message,
                                                 type, contents.c_str());
         check_bus_error("sd_bus_message_open_container", ret);
-        m_was_success = (ret != 0);
     }
 
     void SDBusMessageImp::close_container(void)
@@ -126,7 +125,6 @@ namespace geopm
         check_null_ptr(__func__, m_bus_message);
         int ret = sd_bus_message_close_container(m_bus_message);
         check_bus_error("sd_bus_message_close_container", ret);
-        m_was_success = (ret != 0);
     }
 
     std::string SDBusMessageImp::read_string(void)
@@ -176,26 +174,14 @@ namespace geopm
         int ret = sd_bus_message_append_strv(m_bus_message,
                                              (char **)write_values_cstr.data());
         check_bus_error("sd_bus_message_append_strv", ret);
-        m_was_success = true; // FIXME ??
     }
 
-    void SDBusMessageImp::append_request_s(const std::vector<struct geopm_request_s> &write_values)
+    void SDBusMessageImp::append_request_s(const geopm_request_s &request)
     {
         check_null_ptr(__func__, m_bus_message);
-        std::vector<const char *> write_values_cstr;
-        m_was_success = true;
-        for (const auto &wv : write_values) {
-            if (!m_was_success) {
-                break;
-            }
-            int ret = sd_bus_message_append(m_bus_message,
-                                            "iis",
-                                            wv.domain, wv.domain_idx, wv.name);
-            check_bus_error("sd_bus_message_append", ret);
-            if (m_was_success) {
-                m_was_success = (ret != 0);
-            }
-        }
+        int ret = sd_bus_message_append(m_bus_message, "(iis)", request.domain,
+                                        request.domain_idx, request.name);
+        check_bus_error("sd_bus_message_append", ret);
     }
 
     bool SDBusMessageImp::was_success(void)
