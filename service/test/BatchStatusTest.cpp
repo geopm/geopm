@@ -33,13 +33,14 @@
 #include "config.h"
 
 #include "BatchStatus.hpp"
+
 #include "gtest/gtest.h"
 #include <functional>
 #include <unistd.h>
 #include <sys/wait.h>
 
 using geopm::BatchStatus;
-using geopm::BatchStatusImp;
+using geopm::BatchStatusFIFO;
 
 class BatchStatusTest : public ::testing::Test
 {
@@ -74,22 +75,102 @@ void BatchStatusTest::TearDown(void)
     (void)unlink(path.c_str());
 }
 
-TEST_F(BatchStatusTest, client_send_one)
+TEST_F(BatchStatusTest, client_send_to_server_fifo)
 {
     int client_pid = getpid();
     std::function<void(void)> test_func = [this, client_pid]()
     {
-        std::shared_ptr<BatchStatus> server_status =
-            std::make_shared<BatchStatusImp>(client_pid,
-                                             this->m_server_key,
-                                             true,
-                                             this->m_server_prefix);
-            server_status->receive_message('a');
+        auto server_status = BatchStatus::make_unique_server(
+            client_pid, this->m_server_key
+        );
+        server_status->receive_message(BatchStatus::M_MESSAGE_READ);
     };
     int server_pid = fork_other(test_func);
-    sleep(1);
-    std::shared_ptr<BatchStatus> client_status =
-        std::make_shared<BatchStatusImp>(0, m_server_key, false, m_server_prefix);
-    client_status->send_message('a');
-    waitpid(server_pid, nullptr, 0);
+    sleep(1);  // context switch
+    auto client_status = BatchStatus::make_unique_client(m_server_key);
+    client_status->send_message(BatchStatus::M_MESSAGE_READ);
+    waitpid(server_pid, nullptr, 0);  // reap child process
+}
+
+TEST_F(BatchStatusTest, server_send_to_client_fifo)
+{
+    int client_pid = getpid();
+    std::function<void(void)> test_func = [this, client_pid]()
+    {
+        auto server_status = BatchStatus::make_unique_server(
+            client_pid, this->m_server_key
+        );
+        server_status->send_message(BatchStatus::M_MESSAGE_READ);
+    };
+    int server_pid = fork_other(test_func);
+    sleep(1);  // context switch
+    auto client_status = BatchStatus::make_unique_client(m_server_key);
+    client_status->receive_message(BatchStatus::M_MESSAGE_READ);
+    waitpid(server_pid, nullptr, 0);  // reap child process
+}
+
+TEST_F(BatchStatusTest, both_send_at_once_fifo)
+{
+    int client_pid = getpid();
+    std::function<void(void)> test_func = [this, client_pid]()
+    {
+        auto server_status = BatchStatus::make_unique_server(
+            client_pid, this->m_server_key
+        );
+        server_status->send_message(BatchStatus::M_MESSAGE_WRITE);
+        server_status->receive_message(BatchStatus::M_MESSAGE_READ);
+    };
+    int server_pid = fork_other(test_func);
+    sleep(1);  // context switch
+    auto client_status = BatchStatus::make_unique_client(m_server_key);
+    client_status->receive_message(BatchStatus::M_MESSAGE_WRITE);
+    client_status->send_message(BatchStatus::M_MESSAGE_READ);
+    waitpid(server_pid, nullptr, 0);  // reap child process
+}
+
+TEST_F(BatchStatusTest, client_send_to_server_signal)
+{
+    int client_pid = getpid();
+    std::function<void(void)> test_func = [this, client_pid]()
+    {
+        auto server_status = BatchStatus::make_unique_signal(client_pid);
+        server_status->receive_message(BatchStatus::M_MESSAGE_READ);
+    };
+    int server_pid = fork_other(test_func);
+    sleep(1);  // context switch
+    auto client_status = BatchStatus::make_unique_signal(server_pid);
+    client_status->send_message(BatchStatus::M_MESSAGE_READ);
+    waitpid(server_pid, nullptr, 0);  // reap child process
+}
+
+TEST_F(BatchStatusTest, server_send_to_client_signal)
+{
+    int client_pid = getpid();
+    std::function<void(void)> test_func = [this, client_pid]()
+    {
+        auto server_status = BatchStatus::make_unique_signal(client_pid);
+        server_status->send_message(BatchStatus::M_MESSAGE_READ);
+    };
+    int server_pid = fork_other(test_func);
+    sleep(1);  // context switch
+    auto client_status = BatchStatus::make_unique_signal(server_pid);
+    client_status->receive_message(BatchStatus::M_MESSAGE_READ);
+    waitpid(server_pid, nullptr, 0);  // reap child process
+}
+
+TEST_F(BatchStatusTest, both_send_at_once_signal)
+{
+    int client_pid = getpid();
+    std::function<void(void)> test_func = [this, client_pid]()
+    {
+        auto server_status = BatchStatus::make_unique_signal(client_pid);
+        server_status->send_message(BatchStatus::M_MESSAGE_WRITE);
+        server_status->receive_message(BatchStatus::M_MESSAGE_READ);
+    };
+    int server_pid = fork_other(test_func);
+    sleep(1);  // context switch
+    auto client_status = BatchStatus::make_unique_signal(server_pid);
+    client_status->receive_message(BatchStatus::M_MESSAGE_WRITE);
+    client_status->send_message(BatchStatus::M_MESSAGE_READ);
+    waitpid(server_pid, nullptr, 0);  // reap child process
 }
