@@ -54,7 +54,7 @@ namespace geopm
             static std::unique_ptr<BatchStatus> make_unique_server(int client_pid,
                                                                    const std::string &server_key);
             static std::unique_ptr<BatchStatus> make_unique_client(const std::string &server_key);
-            static std::unique_ptr<BatchStatus> make_unique_signal(int other_pid);
+
             /// @brief Send an integer to the other process
             ///
             /// @param msg [in] Message number to send.
@@ -72,22 +72,6 @@ namespace geopm
             /// @throw Exception if a message is received, but the
             ///        message does not match the expected_message.
             virtual void receive_message(char expect) = 0;
-    };
-
-
-    class BatchStatusSignal : public BatchStatus
-    {
-        public:
-            typedef int POSIX_SIGNAL;
-
-            BatchStatusSignal(int other_pid);
-            virtual ~BatchStatusSignal();
-            void send_message(char msg) override;
-            char receive_message(void) override;
-            void receive_message(char expect) override;
-        private:
-            int other_pid;
-            POSIXSignal* m_signal = nullptr;
     };
 
 

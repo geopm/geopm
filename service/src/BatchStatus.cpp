@@ -62,62 +62,6 @@ namespace geopm
         return geopm::make_unique<BatchStatusFIFO>(server_key);
     }
 
-    std::unique_ptr<BatchStatus>
-    BatchStatus::make_unique_signal(int other_pid)
-    {
-        // calling the signal constructor
-        return geopm::make_unique<BatchStatusSignal>(other_pid);
-    }
-
-    // The constructor which is called by both the client and the server for signals.
-    BatchStatusSignal::BatchStatusSignal(int other_pid)
-    : other_pid(other_pid),
-      m_signal(new POSIXSignalImp)
-    {
-        //
-    }
-
-    BatchStatusSignal::~BatchStatusSignal()
-    {
-        delete m_signal; m_signal = nullptr;
-    }
-
-    void BatchStatusSignal::send_message(char msg)
-    {
-        m_signal->sig_queue(other_pid, SIGCONT, msg);
-    }
-
-    char BatchStatusSignal::receive_message(void)
-    {
-        sigset_t signal_set = m_signal->make_sigset({SIGCONT});
-        siginfo_t signal_info = {0};
-        m_signal->sig_wait_info(&signal_set, &signal_info);
-        POSIXSignal::m_info_s info = m_signal->reduce_info(signal_info);
-        char actual = info.value;
-        return actual;
-    }
-
-    void BatchStatusSignal::receive_message(char expect)
-    {
-        sigset_t signal_set = m_signal->make_sigset({SIGCONT});
-        siginfo_t signal_info = {0};
-        m_signal->sig_wait_info(&signal_set, &signal_info);
-        POSIXSignal::m_info_s info = m_signal->reduce_info(signal_info);
-        char actual = info.value;
-        if (actual != expect) {
-            std::ostringstream error_message;
-            error_message << "BatchStatusSignal::receive_message(): "
-                          << "Expected message: \"" << expect
-                          << "\" but received \"" <<   actual << "\"";
-            throw geopm::Exception(
-                error_message.str(),
-                GEOPM_ERROR_RUNTIME,
-                __FILE__,
-                __LINE__
-            );
-        }
-    }
-
     // The constructor which is called by the client.
     BatchStatusFIFO::BatchStatusFIFO(const std::string &server_key,
                                      const std::string &fifo_prefix = "/tmp/geopm-service-status")
