@@ -99,7 +99,7 @@ namespace geopm
 
             struct signal_info {
                 std::string m_description;
-                std::vector<std::shared_ptr<signal_s> > signals;
+                std::vector<std::shared_ptr<signal_s> > m_signals;
                 std::function<double (unsigned int)> m_devpool_func;
                 std::function<double(const std::vector<double> &)> m_agg_function;
                 std::function<std::string(double)> m_format_function;
@@ -107,7 +107,7 @@ namespace geopm
 
             struct control_info {
                 std::string m_description;
-                std::vector<std::shared_ptr<control_s> > controls;
+                std::vector<std::shared_ptr<control_s> > m_controls;
                 std::function<double(const std::vector<double> &)> m_agg_function;
                 std::function<std::string(double)> m_format_function;
             };

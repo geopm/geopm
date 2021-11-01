@@ -97,6 +97,12 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
               test/gtest_links/CpuinfoIOGroupTest.push_signal \
               test/gtest_links/CpuinfoIOGroupTest.read_signal \
               test/gtest_links/CpuinfoIOGroupTest.valid_signals \
+              test/gtest_links/DCGMIOGroupTest.read_signal \
+              test/gtest_links/DCGMIOGroupTest.read_signal_and_batch \
+              test/gtest_links/DCGMIOGroupTest.write_control \
+              test/gtest_links/DCGMIOGroupTest.push_control_adjust_write_batch \
+              test/gtest_links/DCGMIOGroupTest.error_path \
+              test/gtest_links/DCGMIOGroupTest.valid_signals \
               test/gtest_links/DerivativeSignalTest.errors \
               test/gtest_links/DerivativeSignalTest.read_batch_flat \
               test/gtest_links/DerivativeSignalTest.read_batch_first \
@@ -375,6 +381,7 @@ test_geopm_test_SOURCES = test/AcceleratorTopoNullTest.cpp \
                           test/CNLIOGroupTest.cpp \
                           test/CombinedSignalTest.cpp \
                           test/CpuinfoIOGroupTest.cpp \
+                          test/DCGMIOGroupTest.cpp \
                           test/DerivativeSignalTest.cpp \
                           test/DifferenceSignalTest.cpp \
                           test/DomainControlTest.cpp \
@@ -395,6 +402,7 @@ test_geopm_test_SOURCES = test/AcceleratorTopoNullTest.cpp \
                           test/MockBatchClient.hpp \
                           test/MockBatchStatus.hpp \
                           test/MockControl.hpp \
+                          test/MockDCGMDevicePool.hpp \
                           test/MockIOGroup.hpp \
                           test/MockMSRIO.hpp \
                           test/MockNVMLDevicePool.hpp \
