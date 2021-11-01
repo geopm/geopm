@@ -146,6 +146,8 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/Agg.cpp \
                        src/BatchStatus.cpp \
                        src/BatchStatus.hpp \
+                       src/BatchServer.cpp \
+                       src/BatchServer.hpp \
                        src/CNLIOGroup.cpp \
                        src/CNLIOGroup.hpp \
                        src/CombinedSignal.cpp \
@@ -153,7 +155,6 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/Control.hpp \
                        src/CpuinfoIOGroup.cpp \
                        src/CpuinfoIOGroup.hpp \
-                       src/DBusServer.hpp \
                        src/DerivativeSignal.cpp \
                        src/DerivativeSignal.hpp \
                        src/DifferenceSignal.cpp \
