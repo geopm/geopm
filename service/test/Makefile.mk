@@ -139,6 +139,7 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
               test/gtest_links/MSRIOGroupTest.valid_signal_names \
               test/gtest_links/MSRIOGroupTest.allowlist \
               test/gtest_links/MSRIOGroupTest.write_control \
+              test/gtest_links/MSRIOGroupTest.batch_calls_no_push \
               test/gtest_links/MSRIOTest.read_aligned \
               test/gtest_links/MSRIOTest.read_batch \
               test/gtest_links/MSRIOTest.read_unaligned \

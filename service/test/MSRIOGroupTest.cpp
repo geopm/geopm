@@ -1285,3 +1285,13 @@ TEST_F(MSRIOGroupTest, parse_json_msrs)
               "    iogroup: MSRIOGroup",
               m_msrio_group->signal_description("MSR::MSR_ONE:FIELD_RO"));
 }
+
+TEST_F(MSRIOGroupTest, batch_calls_no_push)
+{
+    // Make sure calling read_batch and write batch with nothing
+    // pushed does not call into ioctl.
+    EXPECT_CALL(*m_msrio, read_batch()).Times(0);
+    EXPECT_CALL(*m_msrio, write_batch()).Times(0);
+    m_msrio_group->read_batch();
+    m_msrio_group->write_batch();
+}
