@@ -238,6 +238,7 @@ TEST_F(NVMLIOGroupTest, read_signal)
     const int num_cpu = m_platform_topo->num_domain(GEOPM_DOMAIN_CPU);
 
     std::vector<double> mock_freq = {1530, 1320, 420, 135};
+    std::vector<double> mock_supported_freq = {135, 142, 407, 414, 760, 882, 1170, 1530};
     std::vector<double> mock_utilization_accelerator = {100, 90, 50, 0};
     std::vector<double> mock_power = {153600, 70000, 300000, 50000};
     std::vector<double> mock_power_limit = {300000, 270000, 300000, 250000};
@@ -254,6 +255,7 @@ TEST_F(NVMLIOGroupTest, read_signal)
 
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
         EXPECT_CALL(*m_device_pool, frequency_status_sm(accel_idx)).WillRepeatedly(Return(mock_freq.at(accel_idx)));
+        EXPECT_CALL(*m_device_pool, frequency_supported_sm(accel_idx)).WillRepeatedly(Return(mock_supported_freq));
         EXPECT_CALL(*m_device_pool, utilization(accel_idx)).WillRepeatedly(Return(mock_utilization_accelerator.at(accel_idx)));
         EXPECT_CALL(*m_device_pool, power(accel_idx)).WillRepeatedly(Return(mock_power.at(accel_idx)));;
         EXPECT_CALL(*m_device_pool, power_limit(accel_idx)).WillRepeatedly(Return(mock_power_limit.at(accel_idx)));;
@@ -265,7 +267,6 @@ TEST_F(NVMLIOGroupTest, read_signal)
         EXPECT_CALL(*m_device_pool, throughput_rx_pcie(accel_idx)).WillRepeatedly(Return(mock_pcie_rx_throughput.at(accel_idx)));
         EXPECT_CALL(*m_device_pool, throughput_tx_pcie(accel_idx)).WillRepeatedly(Return(mock_pcie_tx_throughput.at(accel_idx)));
         EXPECT_CALL(*m_device_pool, utilization_mem(accel_idx)).WillRepeatedly(Return(mock_utilization_mem.at(accel_idx)));
-
     }
 
     for (int cpu_idx = 0; cpu_idx < num_cpu; ++cpu_idx) {
@@ -273,12 +274,19 @@ TEST_F(NVMLIOGroupTest, read_signal)
     }
 
     NVMLIOGroup nvml_io(*m_platform_topo, *m_device_pool);
+    std::sort(mock_supported_freq.begin(), mock_supported_freq.end());
 
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
         double frequency = nvml_io.read_signal("NVML::FREQUENCY", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
         double frequency_alias = nvml_io.read_signal("FREQUENCY_ACCELERATOR", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
         EXPECT_DOUBLE_EQ(frequency, frequency_alias);
         EXPECT_DOUBLE_EQ(frequency, mock_freq.at(accel_idx)*1e6);
+
+        double frequency_min = nvml_io.read_signal("NVML::FREQUENCY_MIN", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
+        EXPECT_DOUBLE_EQ(frequency_min, mock_supported_freq.front()*1e6);
+
+        double frequency_max = nvml_io.read_signal("NVML::FREQUENCY_MAX", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
+        EXPECT_DOUBLE_EQ(frequency_max, mock_supported_freq.back()*1e6);
 
         double utilization_accelerator = nvml_io.read_signal("NVML::UTILIZATION_ACCELERATOR", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
         EXPECT_DOUBLE_EQ(utilization_accelerator, mock_utilization_accelerator.at(accel_idx)/100);
