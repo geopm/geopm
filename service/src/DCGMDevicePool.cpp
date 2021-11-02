@@ -157,7 +157,7 @@ namespace geopm
         check_dcgm_result(result, "Error getting latest values for fields in read_batch", __LINE__);
     }
 
-    void DCGMDevicePoolImp::field_update_rate(int accel_idx, int field_update_rate)
+    void DCGMDevicePoolImp::field_update_rate(int field_update_rate)
     {
         dcgmReturn_t result;
         m_update_freq = field_update_rate;
@@ -166,7 +166,7 @@ namespace geopm
         check_dcgm_result(result, "Error setting Field Update Rate", __LINE__);
     }
 
-    void DCGMDevicePoolImp::max_storage_time(int accel_idx, int max_storage_time)
+    void DCGMDevicePoolImp::max_storage_time(int max_storage_time)
     {
         dcgmReturn_t result;
         m_max_keep_age = max_storage_time;
@@ -175,7 +175,7 @@ namespace geopm
         check_dcgm_result(result, "Error setting Max Storage Time", __LINE__);
     }
 
-    void DCGMDevicePoolImp::max_samples(int accel_idx, int max_samples)
+    void DCGMDevicePoolImp::max_samples(int max_samples)
     {
         dcgmReturn_t result;
         m_max_keep_sample = max_samples;

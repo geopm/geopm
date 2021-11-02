@@ -51,9 +51,9 @@ namespace geopm
             virtual int dcgm_device() const override;
             virtual double field_value(int accel_idx, int geopm_field_id) const override;
             virtual void update_field_value(int accel_idx) override;
-            virtual void field_update_rate(int accel_idx, int field_update_rate) override;
-            virtual void max_storage_time(int accel_idx, int max_storage_time) override;
-            virtual void max_samples(int accel_idx, int max_samples) override;
+            virtual void field_update_rate(int field_update_rate) override;
+            virtual void max_storage_time(int max_storage_time) override;
+            virtual void max_samples(int max_samples) override;
 
         private:
             virtual void check_dcgm_result(const dcgmReturn_t result, const std::string error, const int line);
