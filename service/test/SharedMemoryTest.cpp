@@ -214,11 +214,11 @@ TEST_F(SharedMemoryTest, lock_shmem_u)
 TEST_F(SharedMemoryTest, chown)
 {
     config_shmem();
-    gid_t gid = getgid();
     uid_t uid = getuid();
+    gid_t gid = getgid();
 
     // Sanity check: set to my own gid/uid
-    EXPECT_NO_THROW(m_shmem->chown(gid, uid));
+    EXPECT_NO_THROW(m_shmem->chown(uid, gid));
 
     // Try to set root gid/uid
     GEOPM_EXPECT_THROW_MESSAGE(m_shmem->chown(0, 0),
@@ -226,7 +226,7 @@ TEST_F(SharedMemoryTest, chown)
 
     m_shmem->unlink(); // Manually unlink unless config_shmem_u() is called
 
-    GEOPM_EXPECT_THROW_MESSAGE(m_shmem->chown(gid, uid),
+    GEOPM_EXPECT_THROW_MESSAGE(m_shmem->chown(uid, gid),
                                GEOPM_ERROR_RUNTIME, "unlinked");
 }
 
