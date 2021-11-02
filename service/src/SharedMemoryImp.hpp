@@ -70,9 +70,9 @@ namespace geopm
             void attach_memory_region(const std::string &shm_key, unsigned int timeout);
             /// @brief Modifies the shared memory to be owned by the specified gid
             //         and uid if current permissions allow for the change.
-            /// @param [in] gid Group ID to become owner.
             /// @param [in] uid User ID to become owner.
-            void chown(const unsigned int gid, const unsigned int uid) override;
+            /// @param [in] gid Group ID to become owner.
+            void chown(const unsigned int uid, const unsigned int gid) override;
         private:
             /// @brief Shared memory key for the region.
             std::string m_shm_key;
