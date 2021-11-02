@@ -66,7 +66,7 @@ namespace geopm
             /// @param [in] accel_idx The index indicating a particular
             ///        accelerator.
             /// @return Accelerator supported streaming multiproccesor frequencies in MHz.
-            virtual std::vector<double> frequency_supported_sm(int accel_idx) const = 0;
+            virtual std::vector<unsigned int> frequency_supported_sm(int accel_idx) const = 0;
             /// @brief Get the NVML device utilization metric.
             /// @param [in] accel_idx The index indicating a particular
             ///        accelerator.

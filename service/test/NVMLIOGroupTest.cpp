@@ -109,6 +109,11 @@ void NVMLIOGroupTest::SetUp()
     }
 
     EXPECT_CALL(*m_device_pool, num_accelerator()).WillRepeatedly(Return(num_board_accelerator));
+
+    std::vector<unsigned int> mock_supported_freq = {135, 142, 407, 414, 760, 882, 1170, 1530};
+    for (int accel_idx = 0; accel_idx < num_board_accelerator; ++accel_idx) {
+        EXPECT_CALL(*m_device_pool, frequency_supported_sm(accel_idx)).WillRepeatedly(Return(mock_supported_freq));
+    }
 }
 
 void NVMLIOGroupTest::TearDown()
@@ -238,7 +243,7 @@ TEST_F(NVMLIOGroupTest, read_signal)
     const int num_cpu = m_platform_topo->num_domain(GEOPM_DOMAIN_CPU);
 
     std::vector<double> mock_freq = {1530, 1320, 420, 135};
-    std::vector<double> mock_supported_freq = {135, 142, 407, 414, 760, 882, 1170, 1530};
+    std::vector<unsigned int> mock_supported_freq = {135, 142, 407, 414, 760, 882, 1170, 1530};
     std::vector<double> mock_utilization_accelerator = {100, 90, 50, 0};
     std::vector<double> mock_power = {153600, 70000, 300000, 50000};
     std::vector<double> mock_power_limit = {300000, 270000, 300000, 250000};
@@ -348,6 +353,19 @@ TEST_F(NVMLIOGroupTest, error_path)
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
         EXPECT_CALL(*m_device_pool, frequency_status_sm(accel_idx)).WillRepeatedly(Return(mock_freq.at(accel_idx)));
     }
+
+    std::vector<unsigned int> mock_supported_freq = {};
+    for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
+        EXPECT_CALL(*m_device_pool, frequency_supported_sm(accel_idx)).WillRepeatedly(Return(mock_supported_freq));
+    }
+    GEOPM_EXPECT_THROW_MESSAGE(NVMLIOGroup nvml_io_fail(*m_platform_topo, *m_device_pool), GEOPM_ERROR_INVALID,
+                               "No supported frequencies found for accelerator");
+
+    mock_supported_freq = {135, 142, 407, 414, 760, 882, 1170, 1530};
+    for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
+        EXPECT_CALL(*m_device_pool, frequency_supported_sm(accel_idx)).WillRepeatedly(Return(mock_supported_freq));
+    }
+
     NVMLIOGroup nvml_io(*m_platform_topo, *m_device_pool);
 
     GEOPM_EXPECT_THROW_MESSAGE(nvml_io.push_signal("NVML::FREQUENCY", GEOPM_DOMAIN_BOARD, 0),
