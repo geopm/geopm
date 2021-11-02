@@ -161,14 +161,14 @@ namespace geopm
                                   "Streaming multiprocessor Maximum frequency in hertz",
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
-                                  Agg::max,
+                                  Agg::expect_same,
                                   string_format_double
                                   }},
                               {"NVML::FREQUENCY_MIN", {
                                   "Streaming multiprocessor Minimum frequency in hertz",
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
-                                  Agg::max,
+                                  Agg::expect_same,
                                   string_format_double
                                   }}
                              })
@@ -221,7 +221,13 @@ namespace geopm
         register_control_alias("FREQUENCY_ACCELERATOR_CONTROL", "NVML::FREQUENCY_CONTROL");
 
         for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR); ++domain_idx) {
-            m_supported_freq.push_back(m_nvml_device_pool.frequency_supported_sm(domain_idx));
+            std::vector<unsigned int> supported_frequency = m_nvml_device_pool.frequency_supported_sm(domain_idx);
+            if (supported_frequency.size() == 0) {
+                throw Exception("NVMLIOGroup::" + std::string(__func__) +
+                                ": No supported frequencies found for accelerator " + std::to_string(domain_idx),
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+            m_supported_freq.push_back(supported_frequency);
             std::sort(m_supported_freq.at(domain_idx).begin(), m_supported_freq.at(domain_idx).end());
         }
     }
@@ -501,10 +507,14 @@ namespace geopm
             result = (double) m_nvml_device_pool.frequency_status_sm(domain_idx)*1e6;
         }
         else if (signal_name == "NVML::FREQUENCY_MIN") {
-            result = (double) m_supported_freq.at(domain_idx).front()*1e6;
+            if (m_supported_freq.at(domain_idx).size() != 0) {
+                result = (double) m_supported_freq.at(domain_idx).front()*1e6;
+            }
         }
         else if (signal_name == "NVML::FREQUENCY_MAX") {
-            result = (double) m_supported_freq.at(domain_idx).back()*1e6;
+            if (m_supported_freq.at(domain_idx).size() != 0) {
+                result = (double) m_supported_freq.at(domain_idx).back()*1e6;
+            }
         }
         else if (signal_name == "NVML::UTILIZATION_ACCELERATOR") {
             result = (double) m_nvml_device_pool.utilization(domain_idx)/100;

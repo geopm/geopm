@@ -150,35 +150,27 @@ namespace geopm
         return (uint64_t)result;
     }
 
-    std::vector<double> NVMLDevicePoolImp::frequency_supported_sm(int accel_idx) const
+    std::vector<unsigned int> NVMLDevicePoolImp::frequency_supported_sm(int accel_idx) const
     {
         check_accel_range(accel_idx);
         unsigned int count = 100;
-        unsigned int *supported_freqs;
-        supported_freqs = new unsigned int[count];
-        std::vector<double> result;
+        std::vector<unsigned int> supported_freqs(count);
 
         nvmlReturn_t nvml_result = nvmlDeviceGetSupportedGraphicsClocks(m_nvml_device.at(accel_idx),
                                                                         frequency_status_mem(accel_idx),
-                                                                        &count, supported_freqs);
-        if (nvml_result == NVML_SUCCESS) {
-            for (unsigned int i = 0; i<count; i++) {
-                result.push_back(supported_freqs[i]);
-            }
-        }
-        else if (nvml_result == NVML_ERROR_INSUFFICIENT_SIZE) {
-            supported_freqs = new unsigned int[count];
+                                                                        &count, supported_freqs.data());
+
+        if (nvml_result == NVML_ERROR_INSUFFICIENT_SIZE) {
+            supported_freqs.resize(count);
             nvml_result = nvmlDeviceGetSupportedGraphicsClocks(m_nvml_device.at(accel_idx),
                                                                frequency_status_mem(accel_idx),
-                                                               &count, supported_freqs);
-            for (unsigned int i = 0; i<count; i++) {
-                result.push_back(supported_freqs[i]);
-            }
+                                                               &count, supported_freqs.data());
         }
         check_nvml_result(nvml_result, GEOPM_ERROR_RUNTIME, "NVMLDevicePool::" + std::string(__func__) +
                           ": NVML failed to get SM Frequency for accelerator " +
                           std::to_string(accel_idx) + ".", __LINE__);
-        return result;
+
+        return supported_freqs;
     }
 
 
