@@ -47,100 +47,46 @@
 
 namespace geopm
 {
+    /********************************
+     * Members of class BatchStatus *
+     ********************************/
+
     std::unique_ptr<BatchStatus>
     BatchStatus::make_unique_server(int client_pid,
                                     const std::string &server_key)
     {
         // calling the server constructor
-        return geopm::make_unique<BatchStatusImp>(client_pid, server_key);
+        return geopm::make_unique<BatchStatusServer>(client_pid, server_key);
     }
 
     std::unique_ptr<BatchStatus>
     BatchStatus::make_unique_client(const std::string &server_key)
     {
         // calling the client constructor
-        return geopm::make_unique<BatchStatusImp>(server_key);
+        return geopm::make_unique<BatchStatusClient>(server_key);
     }
 
-    // The constructor which is called by the client.
-    BatchStatusImp::BatchStatusImp(const std::string &server_key,
-                                     const std::string &fifo_prefix = "/tmp/geopm-service-status")
-    : m_fifo_prefix(fifo_prefix),
-      m_read_fifo_path(m_fifo_prefix + "-out-" + server_key),
-      m_write_fifo_path(m_fifo_prefix + "-in-" + server_key),
-      m_read_fd(-1),
-      m_write_fd(-1),
-      open_function(client_open),
-      close_function(nullptr),
-    {
-        // Assume that the server itself will make the fifo.
-    }
+    /***********************************
+     * Members of class BatchStatusImp *
+     ***********************************/
 
-    // The constructor which is called by the server.
-    BatchStatusImp::BatchStatusImp(int client_pid, const std::string &server_key,
-                                     const std::string &fifo_prefix = "/tmp/geopm-service-status")
-    : m_fifo_prefix(fifo_prefix),
-      m_read_fifo_path(m_fifo_prefix + "-in-" + server_key),
-      m_write_fifo_path(m_fifo_prefix + "-out-" + server_key),
-      m_read_fd(-1),
-      m_write_fd(-1),
-      open_function(server_open),
-      close_function(close)
+    BatchStatusImp::BatchStatusImp(int m_read_fd, int m_write_fd)
+    : BatchStatus{},
+      m_read_fd{m_read_fd},
+      m_write_fd{m_write_fd}
     {
-        // The server first creates the fifo in the file system.
-        check_return(
-            mkfifo(m_read_fifo_path.c_str(), S_IRUSR | S_IWUSR),
-            "mkfifo(3)"
-        );
-        check_return(
-            mkfifo(m_write_fifo_path.c_str(), S_IRUSR | S_IWUSR),
-            "mkfifo(3)"
-        );
-
-        // Then the server grants the client ownership of the fifo.
-        int uid = pid_to_uid(client_pid);
-        int gid = pid_to_gid(client_pid);
-        check_return(
-            chown(m_read_fifo_path.c_str(), uid, gid),
-            "chown(2)"
-        );
-        check_return(
-            chown(m_write_fifo_path.c_str(), uid, gid),
-            "chown(2)"
-        );
-    }
-
-    BatchStatusImp::~BatchStatusImp()
-    {
-        check_return(close_file(m_write_fd), "close(2)");
-        check_return(close_file(m_read_fd), "close(2)");
-    }
-
-    void BatchStatusImp::server_open(void)
-    {
-        m_write_fd = open(m_write_fifo_path.c_str(), O_WRONLY);
-        check_return(m_write_fd, "open(2)");
-        m_read_fd = open(m_read_fifo_path.c_str(), O_RDONLY);
-        check_return(m_read_fd, "open(2)");
-    }
-
-    void BatchStatusImp::client_open(void)
-    {
-        m_read_fd = open(m_read_fifo_path.c_str(), O_RDONLY);
-        check_return(m_read_fd, "open(2)");
-        m_write_fd = open(m_write_fifo_path.c_str(), O_WRONLY);
-        check_return(m_write_fd, "open(2)");
+        //
     }
 
     void BatchStatusImp::send_message(char msg)
     {
-        if (!is_open()) open_fifo();
+        open_fifo();
         check_return(write(m_write_fd, &msg, sizeof(char)), "write(2)");
     }
 
     char BatchStatusImp::receive_message(void)
     {
-        if (!is_open()) open_fifo();
+        open_fifo();
         char result = '\0';
         check_return(read(m_read_fd, &result, sizeof(char)), "read(2)");
         return result;
@@ -148,7 +94,7 @@ namespace geopm
 
     void BatchStatusImp::receive_message(char expect)
     {
-        if (!is_open()) open_fifo();
+        open_fifo();
         char actual = receive_message();
         if (actual != expect) {
             std::ostringstream error_message;
@@ -173,6 +119,87 @@ namespace geopm
                 __FILE__,
                 __LINE__
             );
+        }
+    }
+
+    /**************************************
+     * Members of class BatchStatusServer *
+     **************************************/
+
+    // The constructor which is called by the server.
+    BatchStatusServer::BatchStatusServer(int client_pid, const std::string &server_key)
+    : BatchStatusImp(-1, -1),
+      m_read_fifo_path(std::string(M_FIFO_PREFIX) + "-in-" + server_key),
+      m_write_fifo_path(std::string(M_FIFO_PREFIX) + "-out-" + server_key)
+    {
+        // The server first creates the fifo in the file system.
+        check_return(
+            mkfifo(m_read_fifo_path.c_str(), S_IRUSR | S_IWUSR),
+            "mkfifo(3)"
+        );
+        check_return(
+            mkfifo(m_write_fifo_path.c_str(), S_IRUSR | S_IWUSR),
+            "mkfifo(3)"
+        );
+
+        // Then the server grants the client ownership of the fifo.
+        int uid = pid_to_uid(client_pid);
+        int gid = pid_to_gid(client_pid);
+        check_return(
+            chown(m_read_fifo_path.c_str(), uid, gid),
+            "chown(2)"
+        );
+        check_return(
+            chown(m_write_fifo_path.c_str(), uid, gid),
+            "chown(2)"
+        );
+    }
+
+    BatchStatusServer::~BatchStatusServer()
+    {
+        check_return(close(m_read_fd), "close(2)");
+        check_return(close(m_write_fd), "close(2)");
+
+        check_return(unlink(m_read_fifo_path.c_str()),  "unlink(2)");
+        check_return(unlink(m_write_fifo_path.c_str()), "unlink(2)");
+    }
+
+    void BatchStatusServer::open_fifo(void)
+    {
+        if (m_read_fd == -1 || m_write_fd == -1) {
+            m_write_fd = open(m_write_fifo_path.c_str(), O_WRONLY);
+            check_return(m_write_fd, "open(2)");
+            m_read_fd = open(m_read_fifo_path.c_str(), O_RDONLY);
+            check_return(m_read_fd, "open(2)");
+        }
+    }
+
+    /**************************************
+     * Members of class BatchStatusClient *
+     **************************************/
+
+    // The constructor which is called by the client.
+    BatchStatusClient::BatchStatusClient(const std::string &server_key)
+    : BatchStatusImp(-1, -1),
+      m_read_fifo_path(std::string(M_FIFO_PREFIX) + "-out-" + server_key),
+      m_write_fifo_path(std::string(M_FIFO_PREFIX) + "-in-" + server_key)
+    {
+        // Assume that the server itself will make the fifo.
+    }
+
+    BatchStatusClient::~BatchStatusClient()
+    {
+        check_return(close(m_write_fd), "close(2)");
+        check_return(close(m_read_fd), "close(2)");
+    }
+
+    void BatchStatusClient::open_fifo(void)
+    {
+        if (m_read_fd == -1 || m_write_fd == -1) {
+            m_read_fd = open(m_read_fifo_path.c_str(), O_RDONLY);
+            check_return(m_read_fd, "open(2)");
+            m_write_fd = open(m_write_fifo_path.c_str(), O_WRONLY);
+            check_return(m_write_fd, "open(2)");
         }
     }
 }

@@ -51,8 +51,7 @@ namespace geopm
 
             BatchStatus() = default;
             virtual ~BatchStatus() = default;
-            static std::unique_ptr<BatchStatus> make_unique_server(int client_pid,
-                                                                   const std::string &server_key);
+            static std::unique_ptr<BatchStatus> make_unique_server(int client_pid, const std::string &server_key);
             static std::unique_ptr<BatchStatus> make_unique_client(const std::string &server_key);
 
             /// @brief Send an integer to the other process
@@ -72,48 +71,55 @@ namespace geopm
             /// @throw Exception if a message is received, but the
             ///        message does not match the expected_message.
             virtual void receive_message(char expect) = 0;
+
+        protected:
+            const char* M_FIFO_PREFIX = "/tmp/geopm-service-status";
     };
 
-
     class BatchStatusImp : public BatchStatus
+    {
+        public:
+            BatchStatusImp(int m_read_fd, int m_write_fd);
+            virtual ~BatchStatusImp() = default;
+            void send_message(char msg) override;
+            char receive_message(void) override;
+            void receive_message(char expect) override;
+
+        protected:
+            virtual void open_fifo(void) = 0;
+            void check_return(int ret, const std::string &func_name);
+            int m_read_fd;
+            int m_write_fd;
+    };
+
+    class BatchStatusServer : public BatchStatusImp
+    {
+        public:
+            /**
+             * The constructor which is called by the server.
+             */
+            BatchStatusServer(int other_pid, const std::string &server_key);
+            virtual ~BatchStatusServer();
+
+        private:
+            void open_fifo(void) override;
+            std::string m_read_fifo_path;
+            std::string m_write_fifo_path;
+    };
+
+    class BatchStatusClient : public BatchStatusImp
     {
         public:
             /**
              * The constructor which is called by the client.
              */
-            BatchStatusImp(const std::string &server_key, const std::string &fifo_prefix);
+            BatchStatusClient(const std::string &server_key);
+            virtual ~BatchStatusClient();
 
-            /**
-             * The constructor which is called by the server.
-             */
-            BatchStatusImp(int other_pid, const std::string &server_key, const std::string &fifo_prefix);
-            virtual ~BatchStatusImp();
-            void send_message(char msg) override;
-            char receive_message(void) override;
-            void receive_message(char expect) override;
         private:
-            void server_open(void);
-            void client_open(void);
-            inline void open_fifo(void) const
-            {
-                return (open_function) ? (const_cast<BatchStatusImp*>(this)->*(this->open_function))() : (void)0;
-            }
-            inline bool is_open(void) const
-            {
-                return (m_read_fd != -1 && m_write_fd != -1);
-            }
-            inline int close_file(int file_descriptor) const
-            {
-                return (close_function) ? close_function(file_descriptor) : 0;
-            }
-            void check_return(int ret, const std::string &func_name);
-            const std::string m_fifo_prefix;
+            void open_fifo(void) override;
             std::string m_read_fifo_path;
             std::string m_write_fifo_path;
-            int m_read_fd;
-            int m_write_fd;
-            void (geopm::BatchStatusImp:: *open_function)(void) = nullptr;
-            int  (*close_function)(int) = nullptr;
     };
 }
 
