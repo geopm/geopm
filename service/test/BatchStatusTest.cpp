@@ -52,15 +52,6 @@ class BatchStatusTest : public ::testing::Test
         std::string m_server_key;
 };
 
-int BatchStatusTest::fork_other(std::function<void(void)> other_func)
-{
-    int result = fork();
-    if (result == 0) {
-        other_func();
-        exit(0);
-    }
-    return result;
-}
 void BatchStatusTest::SetUp(void)
 {
     m_server_prefix = "batch-status";
@@ -74,6 +65,21 @@ void BatchStatusTest::TearDown(void)
     path = m_server_prefix + "-out-" + m_server_key;
     (void)unlink(path.c_str());
 }
+
+int BatchStatusTest::fork_other(std::function<void(void)> other_func)
+{
+    int result = fork();
+    if (result == 0) {
+        other_func();
+        exit(0);
+    }
+    return result;
+}
+
+
+/************************************
+ * Test Fixtures of BatchStatusTest *
+ ************************************/
 
 TEST_F(BatchStatusTest, client_send_to_server_fifo)
 {

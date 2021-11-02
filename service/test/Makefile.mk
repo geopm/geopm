@@ -34,7 +34,9 @@ check_PROGRAMS += test/geopm_test
 GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
               test/gtest_links/AggTest.agg_function \
               test/gtest_links/AggTest.function_strings \
-              test/gtest_links/BatchStatusTest.client_send_one \
+              test/gtest_links/BatchStatusTest.client_send_to_server_fifo \
+              test/gtest_links/BatchStatusTest.server_send_to_client_fifo \
+              test/gtest_links/BatchStatusTest.both_send_at_once_fifo \
               test/gtest_links/CircularBufferTest.buffer_capacity \
               test/gtest_links/CircularBufferTest.buffer_size \
               test/gtest_links/CircularBufferTest.buffer_values \
