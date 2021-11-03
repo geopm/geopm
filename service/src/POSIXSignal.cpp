@@ -95,9 +95,9 @@ namespace geopm
         check_return(sigaction(signum, act, oldact), "sigaction()");
     }
 
-    void POSIXSignalImp::sig_proc_mask(int how, const sigset_t *set, sigset_t *oldset) const
+    void POSIXSignalImp::sig_proc_mask(int how, const sigset_t *sigset, sigset_t *oldset) const
     {
-        check_return(sigprocmask(how, set, oldset), "sigprocmask()");
+        check_return(sigprocmask(how, sigset, oldset), "sigprocmask()");
     }
 
     void POSIXSignalImp::sig_suspend(const sigset_t *mask) const
