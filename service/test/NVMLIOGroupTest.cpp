@@ -288,13 +288,19 @@ TEST_F(NVMLIOGroupTest, read_signal)
         EXPECT_DOUBLE_EQ(frequency, mock_freq.at(accel_idx) * 1e6);
 
         double frequency_min = nvml_io.read_signal("NVML::FREQUENCY_MIN", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
+        double frequency_min_alias = nvml_io.read_signal("FREQUENCY_MIN_ACCELERATOR", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
         EXPECT_DOUBLE_EQ(frequency_min, mock_supported_freq.front() * 1e6);
+        EXPECT_DOUBLE_EQ(frequency_min, frequency_min_alias);
 
         double frequency_max = nvml_io.read_signal("NVML::FREQUENCY_MAX", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
+        double frequency_max_alias = nvml_io.read_signal("FREQUENCY_MAX_ACCELERATOR", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
         EXPECT_DOUBLE_EQ(frequency_max, mock_supported_freq.back() * 1e6);
+        EXPECT_DOUBLE_EQ(frequency_max, frequency_max_alias);
 
         double utilization_accelerator = nvml_io.read_signal("NVML::UTILIZATION_ACCELERATOR", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
+        double utilization_accelerator_alias = nvml_io.read_signal("UTILIZATION_ACCELERATOR", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
         EXPECT_DOUBLE_EQ(utilization_accelerator, mock_utilization_accelerator.at(accel_idx) / 100);
+        EXPECT_DOUBLE_EQ(utilization_accelerator, utilization_accelerator_alias);
 
         double throttle_reasons = nvml_io.read_signal("NVML::THROTTLE_REASONS", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
         EXPECT_DOUBLE_EQ(throttle_reasons, mock_throttle_reasons.at(accel_idx));
@@ -311,7 +317,9 @@ TEST_F(NVMLIOGroupTest, read_signal)
         EXPECT_DOUBLE_EQ(temperature, mock_temperature.at(accel_idx));
 
         double total_energy_consumption = nvml_io.read_signal("NVML::TOTAL_ENERGY_CONSUMPTION", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
+        double total_energy_consumption_alias = nvml_io.read_signal("ENERGY_ACCELERATOR", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
         EXPECT_DOUBLE_EQ(total_energy_consumption, mock_energy.at(accel_idx) / 1e3);
+        EXPECT_DOUBLE_EQ(total_energy_consumption, total_energy_consumption_alias);
 
         double performance_state = nvml_io.read_signal("NVML::PERFORMANCE_STATE", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
         EXPECT_DOUBLE_EQ(performance_state, mock_performance_state.at(accel_idx));
