@@ -54,7 +54,7 @@ class MockSDBusMessage : public geopm::SDBusMessage
         MOCK_METHOD(int, read_integer, (), (override));
         MOCK_METHOD(void, append_strings,
                     (const std::vector<std::string> &write_values), (override));
-        MOCK_METHOD(void, append_request_s,
+        MOCK_METHOD(void, append_request,
                     (const geopm_request_s &request), (override));
         MOCK_METHOD(bool, was_success, (), (override));
 };

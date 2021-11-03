@@ -139,13 +139,13 @@ namespace geopm
         std::shared_ptr<SDBusMessage> bus_message = m_bus->make_call_message("PlatformStartBatch");
         bus_message->open_container(SDBusMessage::M_MESSAGE_TYPE_ARRAY, "(iis)");
         for (const auto &sig_it : signal_config) {
-            bus_message->append_request_s(sig_it);
+            bus_message->append_request(sig_it);
         }
         bus_message->close_container();
 
         bus_message->open_container(SDBusMessage::M_MESSAGE_TYPE_ARRAY, "(iis)");
         for (const auto &cont_it : control_config) {
-            bus_message->append_request_s(cont_it);
+            bus_message->append_request(cont_it);
         }
         bus_message->close_container();
 

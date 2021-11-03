@@ -143,7 +143,7 @@ namespace geopm
             ///
             /// @param [in] Vector of geopm_request_s to write into the
             ///        message as an array.
-            virtual void append_request_s(const geopm_request_s &request) = 0;
+            virtual void append_request(const geopm_request_s &request) = 0;
             /// @brief Determine if end of array has been reached.
             ///
             /// When iterating through an array container, the
@@ -180,7 +180,7 @@ namespace geopm
             int read_integer(void) override;
             void append_strings(
                 const std::vector<std::string> &write_values) override;
-            void append_request_s(const geopm_request_s &request) override;
+            void append_request(const geopm_request_s &request) override;
             bool was_success(void) override;
         private:
             sd_bus_message *m_bus_message;
