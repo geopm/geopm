@@ -234,7 +234,7 @@ TEST_F(ServiceProxyTest, platform_start_batch)
     EXPECT_CALL(*m_bus_message,
                 open_container(SDBusMessage::M_MESSAGE_TYPE_ARRAY, "(iis)"))
         .Times(2);
-    EXPECT_CALL(*m_bus_message, append_request_s(_))
+    EXPECT_CALL(*m_bus_message, append_request(_))
         .Times(3);
     EXPECT_CALL(*m_bus_message,
                 close_container())

@@ -176,7 +176,7 @@ namespace geopm
         check_bus_error("sd_bus_message_append_strv", ret);
     }
 
-    void SDBusMessageImp::append_request_s(const geopm_request_s &request)
+    void SDBusMessageImp::append_request(const geopm_request_s &request)
     {
         check_null_ptr(__func__, m_bus_message);
         int ret = sd_bus_message_append(m_bus_message, "(iis)", request.domain,
