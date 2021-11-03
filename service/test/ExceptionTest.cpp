@@ -75,7 +75,7 @@ TEST_F(ExceptionTest, last_message)
 {
     char message_cstr[256];
     std::string message;
-    std::string expect("<geopm> Invalid argument: ExceptionTest: Detail: at geopm/ExceptionTest.cpp:1234");
+    std::string expect("<geopm> Invalid argument: ExceptionTest: Detail: at ExceptionTest.cpp:1234");
     try {
         throw geopm::Exception("ExceptionTest: Detail", GEOPM_ERROR_INVALID, "ExceptionTest.cpp", 1234);
     }
@@ -101,7 +101,7 @@ TEST_F(ExceptionTest, last_message)
     }
     geopm_error_message(GEOPM_ERROR_RUNTIME, message_cstr, 256);
     message = message_cstr;
-    std::string expect_new("<geopm> Runtime error: ExceptionTest: New message: at geopm/ExceptionTest.cpp:1234");
+    std::string expect_new("<geopm> Runtime error: ExceptionTest: New message: at ExceptionTest.cpp:1234");
     EXPECT_EQ(expect_new, message);
 
     // Make sure long exception messages are handled
