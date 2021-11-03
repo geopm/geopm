@@ -36,7 +36,7 @@
 #include "MockSDBus.hpp"
 #include "MockSDBusMessage.hpp"
 #include "geopm_test.hpp"
-#include "geopm_internal.h"
+#include "geopm/PlatformIO.hpp"
 
 using geopm::signal_info_s;
 using geopm::control_info_s;
@@ -223,23 +223,48 @@ TEST_F(ServiceProxyTest, platform_close_session)
 
 TEST_F(ServiceProxyTest, platform_start_batch)
 {
-    std::vector<struct geopm_request_s> signal_config;
-    std::vector<struct geopm_request_s> control_config;
-    int server_pid = -1;
+    std::vector<geopm_request_s> signal_config = {geopm_request_s {1, 0, "CPU_FREQUENCY"},
+                                                  geopm_request_s {2, 1, "TEMPERATURE"}};
+    std::vector<geopm_request_s> control_config = {geopm_request_s {1, 0, "MAX_CPU_FREQUENCY"}};
+    int server_pid_expect = 1234;
+    std::string server_key_expect = "4321";
+    EXPECT_CALL(*m_bus,
+                make_call_message("PlatformStartBatch"))
+        .WillOnce(Return(m_bus_message));
+    EXPECT_CALL(*m_bus_message,
+                open_container(SDBusMessage::M_MESSAGE_TYPE_ARRAY, "(iis)"))
+        .Times(2);
+    EXPECT_CALL(*m_bus_message, append_request_s(_))
+        .Times(3);
+    EXPECT_CALL(*m_bus_message,
+                close_container())
+        .Times(2);
+    std::shared_ptr<SDBusMessage> bus_message_ptr = m_bus_message;
+    EXPECT_CALL(*m_bus, call_method(bus_message_ptr))
+        .WillOnce(Return(m_bus_reply));
+    EXPECT_CALL(*m_bus_reply,
+                enter_container(SDBusMessage::M_MESSAGE_TYPE_STRUCT, "is"));
+    EXPECT_CALL(*m_bus_reply,
+                read_integer())
+        .WillOnce(Return(server_pid_expect));
+    EXPECT_CALL(*m_bus_reply,
+                read_string())
+        .WillOnce(Return(server_key_expect));
+    EXPECT_CALL(*m_bus_reply,
+                exit_container());
+    int server_pid = 0;
     std::string server_key;
-    GEOPM_EXPECT_THROW_MESSAGE(m_proxy->platform_start_batch(signal_config,
-                                                             control_config,
-                                                             server_pid,
-                                                             server_key),
-                               GEOPM_ERROR_NOT_IMPLEMENTED,
-                               "platform_start_batch");
+    m_proxy->platform_start_batch(signal_config, control_config,
+                                  server_pid, server_key);
+    ASSERT_EQ(server_pid_expect, server_pid);
+    ASSERT_EQ(server_key_expect, server_key);
 }
 
 TEST_F(ServiceProxyTest, platform_stop_batch)
 {
-    GEOPM_EXPECT_THROW_MESSAGE(m_proxy->platform_stop_batch(100),
-                               GEOPM_ERROR_NOT_IMPLEMENTED,
-                               "platform_stop_batch");
+    int server_pid = 4321;
+    EXPECT_CALL(*m_bus, call_method("PlatformStopBatch", server_pid));
+    m_proxy->platform_stop_batch(server_pid);
 }
 
 TEST_F(ServiceProxyTest, platform_read_signal)

@@ -37,6 +37,7 @@
 #include "geopm_topo.h"
 
 #include "geopm/Helper.hpp"
+#include "geopm/PlatformIO.hpp"
 #include "ServiceIOGroup.hpp"
 #include "MockServiceProxy.hpp"
 #include "MockPlatformTopo.hpp"
@@ -248,4 +249,3 @@ TEST_F(ServiceIOGroupTest, adjust)
                                GEOPM_ERROR_NOT_IMPLEMENTED,
                                "ServiceIOGroup::adjust()");
 }
-
