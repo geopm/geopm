@@ -73,7 +73,7 @@ namespace geopm
             virtual void receive_message(char expect) = 0;
 
         protected:
-            const char* M_FIFO_PREFIX = "/tmp/geopm-service-status";
+            static constexpr const char* M_FIFO_PREFIX = "/tmp/geopm-service-status";
     };
 
     class BatchStatusImp : public BatchStatus

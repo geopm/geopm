@@ -157,8 +157,12 @@ namespace geopm
 
     BatchStatusServer::~BatchStatusServer()
     {
-        check_return(close(m_read_fd), "close(2)");
-        check_return(close(m_write_fd), "close(2)");
+        if (m_read_fd != -1) {
+            check_return(close(m_read_fd), "close(2)");
+        }
+        if (m_write_fd != -1) {
+            check_return(close(m_write_fd), "close(2)");
+        }
 
         check_return(unlink(m_read_fifo_path.c_str()),  "unlink(2)");
         check_return(unlink(m_write_fifo_path.c_str()), "unlink(2)");
@@ -189,8 +193,12 @@ namespace geopm
 
     BatchStatusClient::~BatchStatusClient()
     {
-        check_return(close(m_write_fd), "close(2)");
-        check_return(close(m_read_fd), "close(2)");
+        if (m_write_fd != -1) {
+            check_return(close(m_write_fd), "close(2)");
+        }
+        if (m_read_fd != -1) {
+            check_return(close(m_read_fd), "close(2)");
+        }
     }
 
     void BatchStatusClient::open_fifo(void)
