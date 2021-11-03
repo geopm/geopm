@@ -72,7 +72,8 @@ namespace geopm
             ///        message does not match the expected_message.
             virtual void receive_message(char expect) = 0;
 
-        protected:
+            // This is the single place where the server prefix is located,
+            // which is also accessed by BatchStatusTest.
             static constexpr const char* M_FIFO_PREFIX = "/tmp/geopm-service-status";
     };
 
