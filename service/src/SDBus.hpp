@@ -133,6 +133,16 @@ namespace geopm
                 int arg1,
                 int arg2,
                 double arg3) = 0;
+            /// @brief Wrapper for the sd_bus_call_method(3) function.
+            ///
+            /// Used to execute a GEOPM D-Bus API that takes one
+            /// integer argument.
+            ///
+            /// @param member [in] Name of the API from the
+            ///               io.github.geopm interface.
+            /// @param arg0 [in] First parameter to pass to the D-Bus
+            ///             API.
+            /// @return Reply message that resulted from the call.
             virtual std::shared_ptr<SDBusMessage> call_method(
                 const std::string &member,
                 int arg0) = 0;
