@@ -66,6 +66,7 @@ namespace geopm
 
         private:
             const unsigned int M_MAX_CONTEXTS;
+            const unsigned int M_MAX_FREQUENCIES;
             const unsigned int M_NUM_CPU;
             virtual void check_accel_range(int accel_idx) const;
             virtual void check_nvml_result(nvmlReturn_t nvml_result, int error, const std::string &message, int line) const;

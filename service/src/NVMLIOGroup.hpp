@@ -88,7 +88,7 @@ namespace geopm
             const NVMLDevicePool &m_nvml_device_pool;
             bool m_is_batch_read;
             std::vector<uint64_t> m_initial_power_limit;
-            std::vector<std::vector<unsigned int>> m_supported_freq;
+            std::vector<std::vector<unsigned int> > m_supported_freq;
 
             struct signal_s
             {
