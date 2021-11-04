@@ -60,9 +60,7 @@ void BatchStatusTest::SetUp(void)
     m_server_prefix = BatchStatus::M_FIFO_PREFIX;
     m_server_key = "test-key";
 
-    /**********************************************************************
-     * Explicitly force the fifo to be removed if it is already existing. *
-     **********************************************************************/
+    // Explicitly force the fifo to be removed if it is already existing.
     std::string path = m_server_prefix + "-in-" + m_server_key;
     (void)unlink(path.c_str());
     path = m_server_prefix + "-out-" + m_server_key;
@@ -84,13 +82,13 @@ int BatchStatusTest::fork_other(std::function<void(int)> child_process_func)
     int &write_pipe_fd = pipe_fd[1];
     int &read_pipe_fd  = pipe_fd[0];
     int result = fork();
-    /* child process */
+    // child process //
     if (result == 0) {
         close(read_pipe_fd);  // close read end of pipe
         child_process_func(write_pipe_fd);  // pass write end of pipe
         close(write_pipe_fd);  // close write end of pipe
         exit(EXIT_SUCCESS);
-    /* parent process */
+    // parent process //
     } else {
         close(write_pipe_fd);  // close write end of pipe
         char unique_char;
