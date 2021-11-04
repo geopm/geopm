@@ -35,6 +35,11 @@
 
 namespace geopm
 {
+    /// An interface for the NVIDIA Data Center GPU Manager (DCGM).
+    /// This class is a wrapper around all calls to the DCGM library
+    /// and is intented to be called via the DCGMIOGroup.  Its primary
+    /// function is provided an abstracted interface to DCGM metrics
+    /// of interest.
     class DCGMDevicePool
     {
         public:
@@ -69,10 +74,12 @@ namespace geopm
             /// @param [in] accel_idx The index indicating a particular
             ///        accelerator.
             /// @return The value for the specified field
-            virtual double field_value(int accel_idx, int geopm_field_id) const = 0;
+            virtual double sample_field_value(int accel_idx, int geopm_field_id) const = 0;
 
             /// @brief Query DCGM for the latest value for an accelerator.
-            ///        Note that this is the last value DCGM cached
+            ///        Note that this is the last value DCGM cahced.  This
+            //         updates the DCGM device pool stored value that is provided
+            //         via the sample_field_value function
             /// @param [in] accel_idx The index indicating a particular
             ///        accelerator.
             virtual void update_field_value(int accel_idx) = 0;
