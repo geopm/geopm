@@ -50,9 +50,9 @@ namespace geopm
     }
 
     DCGMDevicePoolImp::DCGMDevicePoolImp()
-        : m_update_freq(1000)    // 1 millisecond
-        , m_max_keep_age(1.0)    // 1 second
-        , m_max_keep_sample(100) // 100 samples
+        : m_update_freq(100000)    // 100 millisecond
+        , m_max_keep_age(1.0)      // 1 second
+        , m_max_keep_sample(100)   // 100 samples
     {
         // Guarantee geopm_dcgm_field_ids_e order is used
         m_dcgm_field_ids[M_SM_ACTIVE] = DCGM_FI_PROF_SM_ACTIVE;
@@ -124,7 +124,6 @@ namespace geopm
     DCGMDevicePoolImp::~DCGMDevicePoolImp()
     {
         //Shutdown DCGM
-        dcgmStatusDestroy(NULL);
         dcgmFieldGroupDestroy(m_dcgm_handle, m_field_group_id);
         dcgmGroupDestroy(m_dcgm_handle, DCGM_GROUP_ALL_GPUS);
     }
@@ -142,9 +141,12 @@ namespace geopm
         return m_dcgm_dev_count;
     }
 
-    double DCGMDevicePoolImp::field_value(int accel_idx, int geopm_field_id) const {
-        double result;
-        result = m_dcgm_field_values.at(accel_idx).at(geopm_field_id).value.dbl;
+    double DCGMDevicePoolImp::sample_field_value(int accel_idx, int geopm_field_id) const {
+        double result = NAN;
+
+        if (m_dcgm_field_values.at(accel_idx).at(geopm_field_id).status == DCGM_ST_OK); {
+            result = m_dcgm_field_values.at(accel_idx).at(geopm_field_id).value.dbl;
+        }
         return result;
     }
 

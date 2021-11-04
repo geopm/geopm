@@ -49,7 +49,7 @@ namespace geopm
             virtual ~DCGMDevicePoolImp();
 
             virtual int dcgm_device() const override;
-            virtual double field_value(int accel_idx, int geopm_field_id) const override;
+            virtual double sample_field_value(int accel_idx, int geopm_field_id) const override;
             virtual void update_field_value(int accel_idx) override;
             virtual void field_update_rate(int field_update_rate) override;
             virtual void max_storage_time(int max_storage_time) override;
