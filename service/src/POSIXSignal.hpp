@@ -78,13 +78,6 @@ namespace geopm
             /// @return m_info_s reduced information set from siginfo_t struct
             virtual m_info_s reduce_info(const siginfo_t &info) const = 0;
 
-            // @brief Use stat() to get the get the uid of /proc/<PID>
-            // virtual int pid_to_uid(int pid);
-
-            // @brief Use stat() to get the get the gid of /proc/<PID>
-            // virtual int pid_to_gid(int pid);
-
-
             //------------------------------------------------------------------
             // Functions below here are wrappers around signal(7)
             // functions.  They differ only in the conversion of error
