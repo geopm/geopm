@@ -135,7 +135,8 @@ namespace geopm
             ///
             /// @remark See documentation for sigprocmask(2) about parameters
             ///         and return value.
-            virtual void sig_proc_mask(int how, const sigset_t *sigset, sigset_t *oldset) const = 0;
+            virtual void sig_proc_mask(int how, const sigset_t *sigset,
+                                       sigset_t *oldset) const = 0;
 
             /// @brief Wrapper for sigsuspend(2) that converts errors
             ///        into Exceptions.
