@@ -223,12 +223,15 @@ namespace geopm
         for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR); ++domain_idx) {
             std::vector<unsigned int> supported_frequency = m_nvml_device_pool.frequency_supported_sm(domain_idx);
             if (supported_frequency.size() == 0) {
+                // TODO: Long term this should simply hide the FREQUENCY_MIN and FREQUENCY_MAX signals,
+                //       not prevent loading of the IO Group
+
                 throw Exception("NVMLIOGroup::" + std::string(__func__) +
                                 ": No supported frequencies found for accelerator " + std::to_string(domain_idx),
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
+            std::sort(supported_frequency.begin(), supported_frequency.end());
             m_supported_freq.push_back(supported_frequency);
-            std::sort(m_supported_freq.at(domain_idx).begin(), m_supported_freq.at(domain_idx).end());
         }
     }
 
@@ -504,50 +507,50 @@ namespace geopm
 
         double result = NAN;
         if (signal_name == "NVML::FREQUENCY" || signal_name == "FREQUENCY_ACCELERATOR") {
-            result = (double) m_nvml_device_pool.frequency_status_sm(domain_idx)*1e6;
+            result = (double) m_nvml_device_pool.frequency_status_sm(domain_idx) * 1e6;
         }
         else if (signal_name == "NVML::FREQUENCY_MIN") {
             if (m_supported_freq.at(domain_idx).size() != 0) {
-                result = (double) m_supported_freq.at(domain_idx).front()*1e6;
+                result = 1e6 * m_supported_freq.at(domain_idx).front();
             }
         }
         else if (signal_name == "NVML::FREQUENCY_MAX") {
             if (m_supported_freq.at(domain_idx).size() != 0) {
-                result = (double) m_supported_freq.at(domain_idx).back()*1e6;
+                result = 1e6 * m_supported_freq.at(domain_idx).back();
             }
         }
         else if (signal_name == "NVML::UTILIZATION_ACCELERATOR") {
-            result = (double) m_nvml_device_pool.utilization(domain_idx)/100;
+            result = (double) m_nvml_device_pool.utilization(domain_idx) / 100;
         }
         else if (signal_name == "NVML::THROTTLE_REASONS") {
             result = (double) m_nvml_device_pool.throttle_reasons(domain_idx);
         }
         else if (signal_name == "NVML::POWER" || signal_name == "POWER_ACCELERATOR") {
-            result = (double) m_nvml_device_pool.power(domain_idx)/1e3;
+            result = (double) m_nvml_device_pool.power(domain_idx) / 1e3;
         }
         else if (signal_name == "NVML::POWER_LIMIT") {
-            result = (double) m_nvml_device_pool.power_limit(domain_idx)/1e3;
+            result = (double) m_nvml_device_pool.power_limit(domain_idx) / 1e3;
         }
         else if (signal_name == "NVML::FREQUENCY_MEMORY") {
-            result = (double) m_nvml_device_pool.frequency_status_mem(domain_idx)*1e6;
+            result = (double) m_nvml_device_pool.frequency_status_mem(domain_idx) * 1e6;
         }
         else if (signal_name == "NVML::TEMPERATURE") {
             result = (double) m_nvml_device_pool.temperature(domain_idx);
         }
         else if (signal_name == "NVML::TOTAL_ENERGY_CONSUMPTION" ) {
-            result = (double) m_nvml_device_pool.energy(domain_idx)/1e3;
+            result = (double) m_nvml_device_pool.energy(domain_idx) / 1e3;
         }
         else if (signal_name == "NVML::PERFORMANCE_STATE") {
             result = (double) m_nvml_device_pool.performance_state(domain_idx);
         }
         else if (signal_name == "NVML::PCIE_RX_THROUGHPUT") {
-            result = (double) m_nvml_device_pool.throughput_rx_pcie(domain_idx)*1024;
+            result = (double) m_nvml_device_pool.throughput_rx_pcie(domain_idx) * 1024;
         }
         else if (signal_name == "NVML::PCIE_TX_THROUGHPUT") {
-            result = (double) m_nvml_device_pool.throughput_tx_pcie(domain_idx)*1024;
+            result = (double) m_nvml_device_pool.throughput_tx_pcie(domain_idx) * 1024;
         }
         else if (signal_name == "NVML::UTILIZATION_MEMORY") {
-            result = (double) m_nvml_device_pool.utilization_mem(domain_idx)/100;
+            result = (double) m_nvml_device_pool.utilization_mem(domain_idx) / 100;
         }
         else if (signal_name == "NVML::CPU_ACCELERATOR_ACTIVE_AFFINITIZATION") {
             std::map<pid_t, double> process_map = accelerator_process_map();
@@ -582,13 +585,13 @@ namespace geopm
         }
 
         if (control_name == "NVML::FREQUENCY_CONTROL" || control_name == "FREQUENCY_ACCELERATOR_CONTROL") {
-            m_nvml_device_pool.frequency_control_sm(domain_idx, setting/1e6, setting/1e6);
+            m_nvml_device_pool.frequency_control_sm(domain_idx, setting / 1e6, setting / 1e6);
         }
         else if (control_name == "NVML::FREQUENCY_RESET_CONTROL") {
             m_nvml_device_pool.frequency_reset_control(domain_idx);
         }
         else if (control_name == "NVML::POWER_LIMIT_CONTROL" || control_name == "POWER_ACCELERATOR_LIMIT_CONTROL") {
-            m_nvml_device_pool.power_control(domain_idx, setting*1e3);
+            m_nvml_device_pool.power_control(domain_idx, setting * 1e3);
         }
         else {
     #ifdef GEOPM_DEBUG

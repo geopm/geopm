@@ -140,9 +140,9 @@ TEST_F(NVMLIOGroupTest, push_control_adjust_write_batch)
     std::vector<double> mock_power = {153600, 70000, 300000, 50000};
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
         batch_value[(nvml_io.push_control("NVML::FREQUENCY_CONTROL",
-                                        GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx))] = mock_freq.at(accel_idx)*1e6;
+                                        GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx))] = mock_freq.at(accel_idx) * 1e6;
         batch_value[(nvml_io.push_control("FREQUENCY_ACCELERATOR_CONTROL",
-                                        GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx))] = mock_freq.at(accel_idx)*1e6;
+                                        GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx))] = mock_freq.at(accel_idx) * 1e6;
         EXPECT_CALL(*m_device_pool,
                     frequency_control_sm(accel_idx, mock_freq.at(accel_idx),
                                          mock_freq.at(accel_idx))).Times(2);
@@ -152,9 +152,9 @@ TEST_F(NVMLIOGroupTest, push_control_adjust_write_batch)
         EXPECT_CALL(*m_device_pool, frequency_reset_control(accel_idx)).Times(1);
 
         batch_value[(nvml_io.push_control("NVML::POWER_LIMIT_CONTROL",
-                                        GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx))] = mock_power.at(accel_idx)/1e3;
+                                        GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx))] = mock_power.at(accel_idx) / 1e3;
         batch_value[(nvml_io.push_control("POWER_ACCELERATOR_LIMIT_CONTROL",
-                                        GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx))] = mock_power.at(accel_idx)/1e3;
+                                        GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx))] = mock_power.at(accel_idx) / 1e3;
         EXPECT_CALL(*m_device_pool, power_control(accel_idx, mock_power.at(accel_idx))).Times(2);
     }
 
@@ -179,10 +179,10 @@ TEST_F(NVMLIOGroupTest, write_control)
                                          mock_freq.at(accel_idx))).Times(2);
         EXPECT_NO_THROW(nvml_io.write_control("NVML::FREQUENCY_CONTROL",
                                               GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx,
-                                              mock_freq.at(accel_idx)*1e6));
+                                              mock_freq.at(accel_idx) * 1e6));
         EXPECT_NO_THROW(nvml_io.write_control("FREQUENCY_ACCELERATOR_CONTROL",
                                               GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx,
-                                              mock_freq.at(accel_idx)*1e6));
+                                              mock_freq.at(accel_idx) * 1e6));
 
         EXPECT_CALL(*m_device_pool, frequency_reset_control(accel_idx)).Times(1);
         EXPECT_NO_THROW(nvml_io.write_control("NVML::FREQUENCY_RESET_CONTROL",
@@ -191,10 +191,10 @@ TEST_F(NVMLIOGroupTest, write_control)
         EXPECT_CALL(*m_device_pool, power_control(accel_idx, mock_power.at(accel_idx))).Times(2);
         EXPECT_NO_THROW(nvml_io.write_control("NVML::POWER_LIMIT_CONTROL",
                                               GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx,
-                                              mock_power.at(accel_idx)/1e3));
+                                              mock_power.at(accel_idx) / 1e3));
         EXPECT_NO_THROW(nvml_io.write_control("POWER_ACCELERATOR_LIMIT_CONTROL",
                                               GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx,
-                                              mock_power.at(accel_idx)/1e3));
+                                              mock_power.at(accel_idx) / 1e3));
     }
 }
 
@@ -218,7 +218,7 @@ TEST_F(NVMLIOGroupTest, read_signal_and_batch)
         double frequency = nvml_io.read_signal("NVML::FREQUENCY", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
         double frequency_batch = nvml_io.sample(batch_idx.at(accel_idx));
 
-        EXPECT_DOUBLE_EQ(frequency, mock_freq.at(accel_idx)*1e6);
+        EXPECT_DOUBLE_EQ(frequency, mock_freq.at(accel_idx) * 1e6);
         EXPECT_DOUBLE_EQ(frequency, frequency_batch);
     }
 
@@ -232,7 +232,7 @@ TEST_F(NVMLIOGroupTest, read_signal_and_batch)
         double frequency = nvml_io.read_signal("NVML::FREQUENCY", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
         double frequency_batch = nvml_io.sample(batch_idx.at(accel_idx));
 
-        EXPECT_DOUBLE_EQ(frequency, (mock_freq.at(accel_idx))*1e6);
+        EXPECT_DOUBLE_EQ(frequency, (mock_freq.at(accel_idx)) * 1e6);
         EXPECT_DOUBLE_EQ(frequency, frequency_batch);
     }
 }
@@ -285,16 +285,16 @@ TEST_F(NVMLIOGroupTest, read_signal)
         double frequency = nvml_io.read_signal("NVML::FREQUENCY", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
         double frequency_alias = nvml_io.read_signal("FREQUENCY_ACCELERATOR", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
         EXPECT_DOUBLE_EQ(frequency, frequency_alias);
-        EXPECT_DOUBLE_EQ(frequency, mock_freq.at(accel_idx)*1e6);
+        EXPECT_DOUBLE_EQ(frequency, mock_freq.at(accel_idx) * 1e6);
 
         double frequency_min = nvml_io.read_signal("NVML::FREQUENCY_MIN", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
-        EXPECT_DOUBLE_EQ(frequency_min, mock_supported_freq.front()*1e6);
+        EXPECT_DOUBLE_EQ(frequency_min, mock_supported_freq.front() * 1e6);
 
         double frequency_max = nvml_io.read_signal("NVML::FREQUENCY_MAX", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
-        EXPECT_DOUBLE_EQ(frequency_max, mock_supported_freq.back()*1e6);
+        EXPECT_DOUBLE_EQ(frequency_max, mock_supported_freq.back() * 1e6);
 
         double utilization_accelerator = nvml_io.read_signal("NVML::UTILIZATION_ACCELERATOR", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
-        EXPECT_DOUBLE_EQ(utilization_accelerator, mock_utilization_accelerator.at(accel_idx)/100);
+        EXPECT_DOUBLE_EQ(utilization_accelerator, mock_utilization_accelerator.at(accel_idx) / 100);
 
         double throttle_reasons = nvml_io.read_signal("NVML::THROTTLE_REASONS", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
         EXPECT_DOUBLE_EQ(throttle_reasons, mock_throttle_reasons.at(accel_idx));
@@ -302,28 +302,28 @@ TEST_F(NVMLIOGroupTest, read_signal)
         double power = nvml_io.read_signal("NVML::POWER", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
         double power_alias = nvml_io.read_signal("POWER_ACCELERATOR", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
         EXPECT_DOUBLE_EQ(power, power_alias);
-        EXPECT_DOUBLE_EQ(power, mock_power.at(accel_idx)/1e3);
+        EXPECT_DOUBLE_EQ(power, mock_power.at(accel_idx) / 1e3);
 
         double frequency_mem = nvml_io.read_signal("NVML::FREQUENCY_MEMORY", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
-        EXPECT_DOUBLE_EQ(frequency_mem, mock_freq_mem.at(accel_idx)*1e6);
+        EXPECT_DOUBLE_EQ(frequency_mem, mock_freq_mem.at(accel_idx) * 1e6);
 
         double temperature = nvml_io.read_signal("NVML::TEMPERATURE", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
         EXPECT_DOUBLE_EQ(temperature, mock_temperature.at(accel_idx));
 
         double total_energy_consumption = nvml_io.read_signal("NVML::TOTAL_ENERGY_CONSUMPTION", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
-        EXPECT_DOUBLE_EQ(total_energy_consumption, mock_energy.at(accel_idx)/1e3);
+        EXPECT_DOUBLE_EQ(total_energy_consumption, mock_energy.at(accel_idx) / 1e3);
 
         double performance_state = nvml_io.read_signal("NVML::PERFORMANCE_STATE", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
         EXPECT_DOUBLE_EQ(performance_state, mock_performance_state.at(accel_idx));
 
         double pcie_rx_throughput = nvml_io.read_signal("NVML::PCIE_RX_THROUGHPUT", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
-        EXPECT_DOUBLE_EQ(pcie_rx_throughput, mock_pcie_rx_throughput.at(accel_idx)*1024);
+        EXPECT_DOUBLE_EQ(pcie_rx_throughput, mock_pcie_rx_throughput.at(accel_idx) * 1024);
 
         double pcie_tx_throughput = nvml_io.read_signal("NVML::PCIE_TX_THROUGHPUT", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
-        EXPECT_DOUBLE_EQ(pcie_tx_throughput, mock_pcie_tx_throughput.at(accel_idx)*1024);
+        EXPECT_DOUBLE_EQ(pcie_tx_throughput, mock_pcie_tx_throughput.at(accel_idx) * 1024);
 
         double utilization_mem = nvml_io.read_signal("NVML::UTILIZATION_MEMORY", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
-        EXPECT_DOUBLE_EQ(utilization_mem, mock_utilization_mem.at(accel_idx)/100);
+        EXPECT_DOUBLE_EQ(utilization_mem, mock_utilization_mem.at(accel_idx) / 100);
     }
 
     for (int cpu_idx = 0; cpu_idx < num_cpu; ++cpu_idx) {

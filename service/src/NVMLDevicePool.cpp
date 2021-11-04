@@ -58,6 +58,7 @@ namespace geopm
 
     NVMLDevicePoolImp::NVMLDevicePoolImp(const int num_cpu)
         : M_MAX_CONTEXTS(64)
+        , M_MAX_FREQUENCIES(200)
         , M_NUM_CPU(num_cpu)
     {
         nvmlReturn_t nvml_result;
@@ -153,15 +154,15 @@ namespace geopm
     std::vector<unsigned int> NVMLDevicePoolImp::frequency_supported_sm(int accel_idx) const
     {
         check_accel_range(accel_idx);
-        unsigned int count = 100;
+        unsigned int count = M_MAX_FREQUENCIES;
         std::vector<unsigned int> supported_freqs(count);
 
         nvmlReturn_t nvml_result = nvmlDeviceGetSupportedGraphicsClocks(m_nvml_device.at(accel_idx),
                                                                         frequency_status_mem(accel_idx),
                                                                         &count, supported_freqs.data());
+        supported_freqs.resize(count);
 
         if (nvml_result == NVML_ERROR_INSUFFICIENT_SIZE) {
-            supported_freqs.resize(count);
             nvml_result = nvmlDeviceGetSupportedGraphicsClocks(m_nvml_device.at(accel_idx),
                                                                frequency_status_mem(accel_idx),
                                                                &count, supported_freqs.data());
