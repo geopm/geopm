@@ -195,7 +195,7 @@ TEST_F(DCGMIOGroupTest, read_signal_and_batch)
     DCGMIOGroup dcgm_io(*m_platform_topo, *m_device_pool);
 
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
-        EXPECT_CALL(*m_device_pool, field_value(accel_idx, geopm::DCGMDevicePool::M_SM_ACTIVE)).WillRepeatedly(Return(mock_sm_active.at(accel_idx)));
+        EXPECT_CALL(*m_device_pool, sample_field_value(accel_idx, geopm::DCGMDevicePool::M_SM_ACTIVE)).WillRepeatedly(Return(mock_sm_active.at(accel_idx)));
     }
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
         batch_idx.push_back(dcgm_io.push_signal("DCGM::SM_ACTIVE", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx));
@@ -212,7 +212,7 @@ TEST_F(DCGMIOGroupTest, read_signal_and_batch)
     mock_sm_active = {0.9, 0.45, 0.3, 0.29};
     //second round of testing with a modified value
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
-        EXPECT_CALL(*m_device_pool, field_value(accel_idx, geopm::DCGMDevicePool::M_SM_ACTIVE)).WillRepeatedly(Return(mock_sm_active.at(accel_idx)));
+        EXPECT_CALL(*m_device_pool, sample_field_value(accel_idx, geopm::DCGMDevicePool::M_SM_ACTIVE)).WillRepeatedly(Return(mock_sm_active.at(accel_idx)));
     }
     dcgm_io.read_batch();
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
@@ -235,9 +235,9 @@ TEST_F(DCGMIOGroupTest, read_signal)
     std::vector<int> active_process_list = {40961, 40962, 40963};
 
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
-        EXPECT_CALL(*m_device_pool, field_value(accel_idx, geopm::DCGMDevicePool::M_SM_ACTIVE)).WillRepeatedly(Return(mock_sm_active.at(accel_idx)));
-        EXPECT_CALL(*m_device_pool, field_value(accel_idx, geopm::DCGMDevicePool::M_SM_OCCUPANCY)).WillRepeatedly(Return(mock_sm_occupancy.at(accel_idx)));
-        EXPECT_CALL(*m_device_pool, field_value(accel_idx, geopm::DCGMDevicePool::M_DRAM_ACTIVE)).WillRepeatedly(Return(mock_dram_active.at(accel_idx)));;
+        EXPECT_CALL(*m_device_pool, sample_field_value(accel_idx, geopm::DCGMDevicePool::M_SM_ACTIVE)).WillRepeatedly(Return(mock_sm_active.at(accel_idx)));
+        EXPECT_CALL(*m_device_pool, sample_field_value(accel_idx, geopm::DCGMDevicePool::M_SM_OCCUPANCY)).WillRepeatedly(Return(mock_sm_occupancy.at(accel_idx)));
+        EXPECT_CALL(*m_device_pool, sample_field_value(accel_idx, geopm::DCGMDevicePool::M_DRAM_ACTIVE)).WillRepeatedly(Return(mock_dram_active.at(accel_idx)));;
     }
 
     DCGMIOGroup dcgm_io(*m_platform_topo, *m_device_pool);
@@ -274,7 +274,7 @@ TEST_F(DCGMIOGroupTest, error_path)
 
     std::vector<double> mock_sm_active = {0.22, 0.79, 0.65, 0.37};
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
-        EXPECT_CALL(*m_device_pool, field_value(accel_idx, geopm::DCGMDevicePool::M_SM_ACTIVE)).WillRepeatedly(Return(mock_sm_active.at(accel_idx)));
+        EXPECT_CALL(*m_device_pool, sample_field_value(accel_idx, geopm::DCGMDevicePool::M_SM_ACTIVE)).WillRepeatedly(Return(mock_sm_active.at(accel_idx)));
     }
 
     EXPECT_CALL(*m_device_pool, dcgm_device()).WillOnce(Return(num_accelerator-1));
