@@ -66,7 +66,7 @@ namespace geopm
                                   {},
                                   [this](unsigned int domain_idx) -> double
                                   {
-                                      return this->m_dcgm_device_pool.field_value(
+                                      return this->m_dcgm_device_pool.sample_field_value(
                                                    domain_idx, geopm::DCGMDevicePool::M_SM_ACTIVE);
                                   },
                                   Agg::average,
@@ -77,7 +77,7 @@ namespace geopm
                                   {},
                                   [this](unsigned int domain_idx) -> double
                                   {
-                                      return this->m_dcgm_device_pool.field_value(
+                                      return this->m_dcgm_device_pool.sample_field_value(
                                                    domain_idx, geopm::DCGMDevicePool::M_SM_OCCUPANCY);
                                   },
                                   Agg::average,
@@ -88,7 +88,7 @@ namespace geopm
                                   {},
                                   [this](unsigned int domain_idx) -> double
                                   {
-                                      return this->m_dcgm_device_pool.field_value(
+                                      return this->m_dcgm_device_pool.sample_field_value(
                                                    domain_idx, geopm::DCGMDevicePool::M_DRAM_ACTIVE);
                                   },
                                   Agg::average,

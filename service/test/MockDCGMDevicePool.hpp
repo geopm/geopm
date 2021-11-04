@@ -41,7 +41,7 @@ class MockDCGMDevicePool : public geopm::DCGMDevicePool
 {
     public:
         MOCK_METHOD(int, dcgm_device, (), (const, override));
-        MOCK_METHOD(double, field_value, (int, int), (const, override));
+        MOCK_METHOD(double, sample_field_value, (int, int), (const, override));
         MOCK_METHOD(void, update_field_value, (int), (override));
         MOCK_METHOD(void, field_update_rate, (int), (override));
         MOCK_METHOD(void, max_storage_time, (int), (override));
