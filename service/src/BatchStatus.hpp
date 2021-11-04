@@ -96,9 +96,9 @@ namespace geopm
     class BatchStatusServer : public BatchStatusImp
     {
         public:
-            /**
-             * The constructor which is called by the server.
-             */
+            ///
+            /// The constructor which is called by the server.
+            ///
             BatchStatusServer(int other_pid, const std::string &server_key);
             virtual ~BatchStatusServer();
 
@@ -111,9 +111,9 @@ namespace geopm
     class BatchStatusClient : public BatchStatusImp
     {
         public:
-            /**
-             * The constructor which is called by the client.
-             */
+            ///
+            /// The constructor which is called by the client.
+            ///
             BatchStatusClient(const std::string &server_key);
             virtual ~BatchStatusClient();
 
