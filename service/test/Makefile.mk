@@ -351,6 +351,7 @@ test_geopm_test_SOURCES = test/AcceleratorTopoNullTest.cpp \
                           test/MockSDBus.hpp \
                           test/MockSDBusMessage.hpp \
                           test/MockServiceProxy.hpp \
+                          test/MockSharedMemory.hpp \
                           test/MockSignal.hpp \
                           test/MockSSTIO.hpp \
                           test/MockSSTIoctl.hpp \
