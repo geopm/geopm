@@ -144,6 +144,8 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/AcceleratorTopoNull.cpp \
                        src/AcceleratorTopoNull.hpp \
                        src/Agg.cpp \
+                       src/BatchClient.cpp \
+                       src/BatchClient.hpp \
                        src/BatchStatus.cpp \
                        src/BatchStatus.hpp \
                        src/BatchServer.cpp \
