@@ -20,6 +20,7 @@
 #include "PowerBalancerAgent.hpp"
 #include "PowerGovernorAgent.hpp"
 #include "FrequencyMapAgent.hpp"
+#include "GPUActivityAgent.hpp"
 #include "Environment.hpp"
 #include "geopm/Helper.hpp"
 
@@ -59,6 +60,10 @@ namespace geopm
                         Agent::make_dictionary(CPUActivityAgent::policy_names(),
                                                CPUActivityAgent::sample_names()));
 #endif
+        register_plugin(GPUActivityAgent::plugin_name(),
+                        GPUActivityAgent::make_plugin,
+                        Agent::make_dictionary(GPUActivityAgent::policy_names(),
+                                               GPUActivityAgent::sample_names()));
     }
 
 
