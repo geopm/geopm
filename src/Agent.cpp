@@ -48,6 +48,7 @@
 #include "PowerGovernorAgent.hpp"
 #include "EnergyEfficientAgent.hpp"
 #include "FrequencyMapAgent.hpp"
+#include "GPUActivityAgent.hpp"
 #include "Environment.hpp"
 #include "geopm/Helper.hpp"
 
@@ -77,6 +78,10 @@ namespace geopm
                         FrequencyMapAgent::make_plugin,
                         Agent::make_dictionary(FrequencyMapAgent::policy_names(),
                                                FrequencyMapAgent::sample_names()));
+        register_plugin(GPUActivityAgent::plugin_name(),
+                        GPUActivityAgent::make_plugin,
+                        Agent::make_dictionary(GPUActivityAgent::policy_names(),
+                                               GPUActivityAgent::sample_names()));
     }
 
 
