@@ -339,6 +339,7 @@ test_geopm_test_SOURCES = test/AcceleratorTopoNullTest.cpp \
                           test/MSRFieldControlTest.cpp \
                           test/MSRFieldSignalTest.cpp \
                           test/MockAcceleratorTopo.hpp \
+                          test/MockBatchStatus.hpp \
                           test/MockControl.hpp \
                           test/MockIOGroup.hpp \
                           test/MockMSRIO.hpp \
