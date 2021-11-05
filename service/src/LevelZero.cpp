@@ -273,13 +273,6 @@ namespace geopm
                 if (property.onSubdevice == 0) {
                     m_devices.at(device_idx).power_domain = handle;
                     ++num_device_power_domain;
-
-                    if (num_device_power_domain != 1) {
-                        throw Exception("LevelZero::" + std::string(__func__) +
-                                        ": Multiple device level power domains "
-                                        "detected.  This may lead to incorrect power readings",
-                                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-                    }
                 }
 #ifdef GEOPM_DEBUG
                 else {
@@ -288,6 +281,13 @@ namespace geopm
                                  "level power domain was found but is not currently supported.\n";
                 }
 #endif
+
+                if (num_device_power_domain != 1) {
+                    throw Exception("LevelZero::" + std::string(__func__) +
+                                    ": GEOPM requires a single device level power domain, "
+                                    "but found " + std::to_string(num_device_power_domain),
+                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                }
             }
         }
 
