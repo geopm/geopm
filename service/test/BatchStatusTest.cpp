@@ -53,6 +53,8 @@ class BatchStatusTest : public ::testing::Test
         int fork_other(std::function<void(int)> child_process_func);
         std::string m_server_prefix;
         std::string m_server_key;
+        std::string m_status_path_in;
+        std::string m_status_path_out;
 };
 
 void BatchStatusTest::SetUp(void)
@@ -61,18 +63,16 @@ void BatchStatusTest::SetUp(void)
     m_server_key = "test-key";
 
     // Explicitly force the fifo to be removed if it is already existing.
-    std::string path = m_server_prefix + "-in-" + m_server_key;
-    (void)unlink(path.c_str());
-    path = m_server_prefix + "-out-" + m_server_key;
-    (void)unlink(path.c_str());
+    m_status_path_in = m_server_prefix + m_server_key + "-in" ;
+    m_status_path_out = m_server_prefix + m_server_key + "-out";
+    (void)unlink(m_status_path_in.c_str());
+    (void)unlink(m_status_path_out.c_str());
 }
 
 void BatchStatusTest::TearDown(void)
 {
-    std::string path = m_server_prefix + "-in-" + m_server_key;
-    (void)unlink(path.c_str());
-    path = m_server_prefix + "-out-" + m_server_key;
-    (void)unlink(path.c_str());
+    (void)unlink(m_status_path_in.c_str());
+    (void)unlink(m_status_path_out.c_str());
 }
 
 int BatchStatusTest::fork_other(std::function<void(int)> child_process_func)
