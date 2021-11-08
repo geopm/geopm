@@ -71,11 +71,11 @@ namespace geopm
      ***********************************/
 
     BatchStatusImp::BatchStatusImp(int m_read_fd, int m_write_fd)
-    : BatchStatus{}
-    , m_read_fd{m_read_fd}
-    , m_write_fd{m_write_fd}
+        : BatchStatus{}
+        , m_read_fd{m_read_fd}
+        , m_write_fd{m_write_fd}
     {
-        //
+
     }
 
     void BatchStatusImp::send_message(char msg)
@@ -101,24 +101,17 @@ namespace geopm
             error_message << "BatchStatusImp::receive_message(): "
                           << "Expected message: \"" << expect
                           << "\" but received \"" <<   actual << "\"";
-            throw geopm::Exception(
-                error_message.str(),
-                GEOPM_ERROR_RUNTIME,
-                __FILE__,
-                __LINE__
-            );
+            throw Exception(error_message.str(), GEOPM_ERROR_RUNTIME,
+                            __FILE__, __LINE__);
         }
     }
 
     void BatchStatusImp::check_return(int ret, const std::string &func_name)
     {
         if (ret == -1) {
-            throw geopm::Exception(
-                "BatchStatusImp: System call failed: " + func_name,
-                errno ? errno : GEOPM_ERROR_RUNTIME,
-                __FILE__,
-                __LINE__
-            );
+            throw Exception("BatchStatusImp: System call failed: " + func_name,
+                            errno ? errno : GEOPM_ERROR_RUNTIME,
+                            __FILE__, __LINE__);
         }
     }
 
@@ -128,9 +121,9 @@ namespace geopm
 
     // The constructor which is called by the server.
     BatchStatusServer::BatchStatusServer(int client_pid, const std::string &server_key)
-    : BatchStatusImp(-1, -1)
-    , m_read_fifo_path(std::string(M_FIFO_PREFIX) + "-in-" + server_key)
-    , m_write_fifo_path(std::string(M_FIFO_PREFIX) + "-out-" + server_key)
+        : BatchStatusImp(-1, -1)
+        , m_read_fifo_path(M_FIFO_PREFIX + server_key + "-in")
+        , m_write_fifo_path(M_FIFO_PREFIX + server_key + "-out")
     {
         // The server first creates the fifo in the file system.
         check_return(
@@ -185,8 +178,8 @@ namespace geopm
     // The constructor which is called by the client.
     BatchStatusClient::BatchStatusClient(const std::string &server_key)
     : BatchStatusImp(-1, -1)
-    , m_read_fifo_path(std::string(M_FIFO_PREFIX) + "-out-" + server_key)
-    , m_write_fifo_path(std::string(M_FIFO_PREFIX) + "-in-" + server_key)
+    , m_read_fifo_path(std::string(M_FIFO_PREFIX) +  server_key + "-out")
+    , m_write_fifo_path(std::string(M_FIFO_PREFIX) + server_key + "-in" )
     {
         // Assume that the server itself will make the fifo.
     }
