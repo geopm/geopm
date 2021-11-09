@@ -236,6 +236,7 @@ namespace geopm
                             ": Sysman failed to get domain handle(s).", __LINE__);
 
             int num_device_power_domain = 0;
+            int num_subdevice_power_domain = 0;
             for (auto handle : power_domain) {
                 zes_power_properties_t property = {};
                 ze_result = zesPowerGetProperties(handle, &property);
@@ -248,23 +249,33 @@ namespace geopm
                 if (property.onSubdevice == 0) {
                     m_devices.at(device_idx).power_domain = handle;
                     ++num_device_power_domain;
+                    if (num_device_power_domain != 1) {
+                        throw Exception("LevelZero::" + std::string(__func__) +
+                                        ": Multiple device level power domains "
+                                        "detected.  This may lead to incorrect power readings",
+                                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                    }
                 }
-#ifdef GEOPM_DEBUG
                 else {
-                    //For initial GEOPM support we're only providing device level power
-                    std::cerr << "Warning: <geopm> LevelZero: A sub-device "
-                                 "level power domain was found but is not currently supported.\n";
+                    ++num_subdevice_power_domain;
+                    m_devices.at(device_idx).subdevice.power_domain.push_back(handle);
                 }
-#endif
-
             }
 
-            if (num_device_power_domain != 1) {
+            if (num_device_power_domain != 1 && num_subdevice_power_domain == 0) {
                 throw Exception("LevelZero::" + std::string(__func__) +
-                                ": GEOPM requires a single device level power domain, "
-                                "but found " + std::to_string(num_device_power_domain),
+                                ": GEOPM requires one and only one device "+
+                                "level power domain (detected: " +
+                                std::to_string(num_device_power_domain) +  "),"  +
+                                "or at least one subdevice level power domain (detected: " +
+                                std::to_string(num_subdevice_power_domain) + ").",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
+
+            m_devices.at(device_idx).num_device_power_domain = num_device_power_domain;
+            m_devices.at(device_idx).subdevice.num_subdevice_power_domain = num_subdevice_power_domain;
+            m_devices.at(device_idx).subdevice.
+                      cached_energy_timestamp.resize(m_devices.at(device_idx).subdevice.power_domain.size());
         }
 
         //Cache engine domains
@@ -380,6 +391,22 @@ namespace geopm
                 break;
         }
         return result;
+    }
+
+    int LevelZeroImp::power_domain_count(int geopm_domain,
+                                         unsigned int l0_device_idx,
+                                         int l0_domain) const
+    {
+        int count = 0;
+        if (l0_domain == M_DOMAIN_ALL) {
+            if (geopm_domain == GEOPM_DOMAIN_GPU) {
+                count = m_devices.at(l0_device_idx).num_device_power_domain;
+            }
+            else if (geopm_domain == GEOPM_DOMAIN_GPU_CHIP) {
+                count = m_devices.at(l0_device_idx).subdevice.num_subdevice_power_domain;
+            }
+        }
+        return count;
     }
 
     int LevelZeroImp::frequency_domain_count(unsigned int l0_device_idx, int l0_domain) const
@@ -519,38 +546,92 @@ namespace geopm
         return energy_pair(l0_device_idx).first;
     }
 
+    uint64_t LevelZeroImp::energy_timestamp(unsigned int l0_device_idx,
+                                            int l0_domain, int l0_domain_idx) const
+    {
+        //TODO: either check l0_domain, or move to treating it the same
+        //      as all other signals (i.e. All, Compute, and Mem)
+        return m_devices.at(l0_device_idx).subdevice.cached_energy_timestamp.at(l0_domain_idx);
+    }
+
+    uint64_t LevelZeroImp::energy(unsigned int l0_device_idx,
+                                  int l0_domain, int l0_domain_idx) const
+    {
+        //TODO: either check l0_domain, or move to treating it the same
+        //      as all other signals (i.e. All, Compute, and Mem)
+        return energy_pair(l0_device_idx, l0_domain_idx).first;
+    }
+
+    std::pair<uint64_t,uint64_t> LevelZeroImp::energy_pair(unsigned int l0_device_idx,
+                                                           int l0_domain_idx) const
+    {
+        ze_result_t ze_result;
+        uint64_t result_energy = 0;
+        uint64_t result_timestamp = 0;
+
+        if (power_domain_count(GEOPM_DOMAIN_GPU_CHIP,
+                               l0_device_idx,
+                               M_DOMAIN_ALL) >= l0_domain_idx) {
+            zes_pwr_handle_t handle = m_devices.at(l0_device_idx).subdevice.power_domain.at(l0_domain_idx);
+
+            zes_power_energy_counter_t energy_counter = {};
+            ze_result = zesPowerGetEnergyCounter(handle, &energy_counter);
+            check_ze_result(ze_result, GEOPM_ERROR_RUNTIME, "LevelZero::"
+                            + std::string(__func__) +
+                            ": Sysman failed to get energy_counter values", __LINE__);
+            result_energy += energy_counter.energy;
+            result_timestamp += energy_counter.timestamp;
+            m_devices.at(l0_device_idx).subdevice.cached_energy_timestamp.at(l0_domain_idx) = result_timestamp;
+        }
+        return {result_energy, result_timestamp};
+    }
+
     std::pair<uint64_t,uint64_t> LevelZeroImp::energy_pair(unsigned int l0_device_idx) const
     {
         ze_result_t ze_result;
         uint64_t result_energy = 0;
         uint64_t result_timestamp = 0;
 
-        zes_pwr_handle_t handle = m_devices.at(l0_device_idx).power_domain;
-        zes_power_energy_counter_t energy_counter = {};
-        ze_result = zesPowerGetEnergyCounter(handle, &energy_counter);
-        check_ze_result(ze_result, GEOPM_ERROR_RUNTIME, "LevelZero::"
-                        + std::string(__func__) +
-                        ": Sysman failed to get energy_counter values", __LINE__);
-        result_energy += energy_counter.energy;
-        result_timestamp += energy_counter.timestamp;
-        m_devices.at(l0_device_idx).cached_energy_timestamp = result_timestamp;
-
+        if (power_domain_count(GEOPM_DOMAIN_GPU,
+                               l0_device_idx, M_DOMAIN_ALL)  == 1) {
+            zes_pwr_handle_t handle = m_devices.at(l0_device_idx).power_domain;
+            zes_power_energy_counter_t energy_counter;
+            ze_result = zesPowerGetEnergyCounter(handle, &energy_counter);
+            check_ze_result(ze_result, GEOPM_ERROR_RUNTIME, "LevelZero::"
+                            + std::string(__func__) +
+                            ": Sysman failed to get energy_counter values", __LINE__);
+            result_energy += energy_counter.energy;
+            result_timestamp += energy_counter.timestamp;
+            m_devices.at(l0_device_idx).cached_energy_timestamp = result_timestamp;
+        }
         return {result_energy, result_timestamp};
     }
 
     int32_t LevelZeroImp::power_limit_tdp(unsigned int l0_device_idx) const
     {
-        return power_limit_default(l0_device_idx).tdp;
+        int32_t tdp = 0;
+        if (m_devices.at(l0_device_idx).num_device_power_domain == 1) {
+            tdp = power_limit_default(l0_device_idx).tdp;
+        }
+        return tdp;
     }
 
     int32_t LevelZeroImp::power_limit_min(unsigned int l0_device_idx) const
     {
-        return power_limit_default(l0_device_idx).min;
+        int32_t min = 0;
+        if (m_devices.at(l0_device_idx).num_device_power_domain == 1) {
+            return power_limit_default(l0_device_idx).min;
+        }
+        return min;
     }
 
     int32_t LevelZeroImp::power_limit_max(unsigned int l0_device_idx) const
     {
-        return power_limit_default(l0_device_idx).max;
+        int32_t max = 0;
+        if (m_devices.at(l0_device_idx).num_device_power_domain == 1) {
+            max = power_limit_default(l0_device_idx).max;
+        }
+        return max;
     }
 
     LevelZeroImp::m_power_limit_s LevelZeroImp::power_limit_default(unsigned int l0_device_idx) const
@@ -560,16 +641,17 @@ namespace geopm
         zes_power_properties_t property = {};
         m_power_limit_s result_power;
 
-        zes_pwr_handle_t handle = m_devices.at(l0_device_idx).power_domain;
-        ze_result = zesPowerGetProperties(handle, &property);
-        check_ze_result(ze_result, GEOPM_ERROR_RUNTIME, "LevelZeroDevicePool::"
-                        + std::string(__func__) +
-                        ": Sysman failed to get domain power properties", __LINE__);
+        if (m_devices.at(l0_device_idx).num_device_power_domain == 1) {
+            zes_pwr_handle_t handle = m_devices.at(l0_device_idx).power_domain;
 
-        result_power.tdp = property.defaultLimit;
-        result_power.min = property.minLimit;
-        result_power.max = property.maxLimit;
-
+            ze_result = zesPowerGetProperties(handle, &property);
+            check_ze_result(ze_result, GEOPM_ERROR_RUNTIME, "LevelZeroDevicePool::"
+                            + std::string(__func__) +
+                            ": Sysman failed to get domain power properties", __LINE__);
+            result_power.tdp = property.defaultLimit;
+            result_power.min = property.minLimit;
+            result_power.max = property.maxLimit;
+        }
         return result_power;
     }
 

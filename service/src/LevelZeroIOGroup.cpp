@@ -131,6 +131,22 @@ namespace geopm
                                   },
                                   1
                                   }},
+                              {M_NAME_PREFIX + "GPU_CORE_ENERGY", {
+                                  "GPU Compute Hardware Domain chip energy in Joules",
+                                  GEOPM_DOMAIN_GPU_CHIP,
+                                  Agg::sum,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
+                                  string_format_double,
+                                  {},
+                                  [this](unsigned int domain_idx) -> double
+                                  {
+                                      return this->m_levelzero_device_pool.energy(
+                                                   GEOPM_DOMAIN_GPU_CHIP,
+                                                   domain_idx,
+                                                   geopm::LevelZero::M_DOMAIN_ALL);
+                                  },
+                                  1 / 1e6
+                                  }},
                               {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_CONTROL", {
                                   "The minimum frequency request for the GPU Compute Hardware.",
                                   GEOPM_DOMAIN_GPU_CHIP,
@@ -146,6 +162,23 @@ namespace geopm
                                                    geopm::LevelZero::M_DOMAIN_COMPUTE)).first;
                                   },
                                   1e6
+                                  }},
+                              {M_NAME_PREFIX + "GPU_CORE_ENERGY_TIMESTAMP", {
+                                  "GPU compute hardware domain energy timestamp in seconds."
+                                  "\nValue cached on LEVELZERO::GPU_CORE_ENERGY read",
+                                  GEOPM_DOMAIN_GPU_CHIP,
+                                  Agg::sum,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
+                                  string_format_double,
+                                  {},
+                                  [this](unsigned int domain_idx) -> double
+                                  {
+                                      return this->m_levelzero_device_pool.energy_timestamp(
+                                                   GEOPM_DOMAIN_GPU_CHIP,
+                                                   domain_idx,
+                                                   geopm::LevelZero::M_DOMAIN_ALL);
+                                  },
+                                  1 / 1e6
                                   }},
                               {M_NAME_PREFIX + "GPU_ENERGY", {
                                   "GPU energy in joules.",
@@ -398,6 +431,7 @@ namespace geopm
                                     }}
                               })
         , m_special_signal_set({M_NAME_PREFIX + "GPU_ENERGY",
+                                M_NAME_PREFIX + "GPU_CORE_ENERGY",
                                 M_NAME_PREFIX + "GPU_ACTIVE_TIME",
                                 M_NAME_PREFIX + "GPU_CORE_ACTIVE_TIME",
                                 M_NAME_PREFIX + "GPU_UNCORE_ACTIVE_TIME"})
@@ -409,6 +443,11 @@ namespace geopm
                      M_NAME_PREFIX + "GPU_ENERGY",
                      M_NAME_PREFIX + "GPU_ENERGY_TIMESTAMP",
                      Agg::sum,
+                     IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE}},
+            {M_NAME_PREFIX + "GPU_CORE_POWER",
+                    {"Average GPU power over 40 ms or 8 control loop iterations",
+                    M_NAME_PREFIX + "GPU_CORE_ENERGY",
+                    M_NAME_PREFIX + "GPU_CORE_ENERGY_TIMESTAMP",
                      IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE}},
             {M_NAME_PREFIX + "GPU_UTILIZATION",
                     {"Utilization of all GPU engines. Level Zero logical engines may map to the same hardware,"
@@ -473,6 +512,8 @@ namespace geopm
         register_signal_alias("GPU_CORE_FREQUENCY_STATUS", M_NAME_PREFIX + "GPU_CORE_FREQUENCY_STATUS");
         register_signal_alias("GPU_ENERGY", M_NAME_PREFIX + "GPU_ENERGY");
         register_signal_alias("GPU_POWER", M_NAME_PREFIX + "GPU_POWER");
+        register_signal_alias("GPU_CORE_ENERGY", M_NAME_PREFIX + "GPU_CORE_ENERGY");
+        register_signal_alias("GPU_CORE_POWER", M_NAME_PREFIX + "GPU_CORE_POWER");
         register_signal_alias("GPU_UTILIZATION", M_NAME_PREFIX + "GPU_UTILIZATION");
         register_signal_alias("GPU_CORE_ACTIVITY", M_NAME_PREFIX + "GPU_CORE_UTILIZATION");
         register_signal_alias("GPU_UNCORE_ACTIVITY", M_NAME_PREFIX + "GPU_UNCORE_UTILIZATION");
