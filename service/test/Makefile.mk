@@ -356,6 +356,7 @@ test_geopm_test_SOURCES = test/AcceleratorTopoNullTest.cpp \
                           test/MockSignal.hpp \
                           test/MockSSTIO.hpp \
                           test/MockSSTIoctl.hpp \
+                          test/MockPOSIXSignal.hpp \
                           test/NVMLAcceleratorTopoTest.cpp \
                           test/NVMLIOGroupTest.cpp \
                           test/POSIXSignalTest.cpp \
