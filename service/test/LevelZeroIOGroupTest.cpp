@@ -243,6 +243,8 @@ TEST_F(LevelZeroIOGroupTest, read_signal_and_batch)
 
     std::vector<double> mock_freq = {1530, 1630, 1320, 1420, 420, 520, 135, 235};
     std::vector<double> mock_energy = {9000000, 11000000, 2300000, 5341000000};
+    std::vector<double> mock_energy_chip = {4000000, 5000000, 1100000, 2621000000,
+                                            4200000, 5200000, 1120000, 2621200000,};
     std::vector<int> batch_idx;
 
     LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool, nullptr);
@@ -250,6 +252,11 @@ TEST_F(LevelZeroIOGroupTest, read_signal_and_batch)
     for (int sub_idx = 0; sub_idx < num_accelerator_subdevice; ++sub_idx) {
         EXPECT_CALL(*m_device_pool, frequency_status(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE)).WillRepeatedly(Return(mock_freq.at(sub_idx)));
         batch_idx.push_back(levelzero_io.push_signal("LEVELZERO::GPUCHIP_FREQUENCY_STATUS", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx));
+    }
+
+    for (int sub_idx = 0; sub_idx < num_accelerator_subdevice; ++sub_idx) {
+        EXPECT_CALL(*m_device_pool, energy(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL)).WillRepeatedly(Return(mock_energy_chip.at(sub_idx)));
+        batch_idx.push_back(levelzero_io.push_signal("LEVELZERO::GPUCHIP_ENERGY", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx));
     }
 
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
@@ -267,9 +274,17 @@ TEST_F(LevelZeroIOGroupTest, read_signal_and_batch)
         EXPECT_DOUBLE_EQ(frequency, frequency_batch);
     }
 
+    for (int sub_idx = 0; sub_idx < num_accelerator_subdevice; ++sub_idx) {
+        double energy_chip = levelzero_io.read_signal("LEVELZERO::GPUCHIP_ENERGY", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx);
+        double energy_chip_batch = levelzero_io.sample(batch_idx.at(num_accelerator_subdevice + sub_idx));
+
+        EXPECT_DOUBLE_EQ(energy_chip, mock_energy_chip.at(sub_idx)/1e6);
+        EXPECT_DOUBLE_EQ(energy_chip, energy_chip_batch);
+    }
+
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
         double energy = levelzero_io.read_signal("LEVELZERO::GPU_ENERGY", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
-        double energy_batch = levelzero_io.sample(batch_idx.at(num_accelerator_subdevice+accel_idx));
+        double energy_batch = levelzero_io.sample(batch_idx.at(2*num_accelerator_subdevice+accel_idx));
 
         EXPECT_DOUBLE_EQ(energy, mock_energy.at(accel_idx)/1e6);
         EXPECT_DOUBLE_EQ(energy, energy_batch);
@@ -278,8 +293,11 @@ TEST_F(LevelZeroIOGroupTest, read_signal_and_batch)
     //second round of testing with a modified value
     mock_freq = {1730, 1830, 1520, 1620, 620, 720, 335, 435};
     mock_energy = {9320000, 12300000, 2360000, 3417000000};
+    mock_energy_chip = {4310000, 11100000, 1240000, 1655000000,
+                        4300000, 11000000, 1230000, 1555000000};
     for (int sub_idx = 0; sub_idx < num_accelerator_subdevice; ++sub_idx) {
         EXPECT_CALL(*m_device_pool, frequency_status(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE)).WillRepeatedly(Return(mock_freq.at(sub_idx)));
+        EXPECT_CALL(*m_device_pool, energy(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL)).WillRepeatedly(Return(mock_energy_chip.at(sub_idx)));
     }
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
         EXPECT_CALL(*m_device_pool, energy(GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx, MockLevelZero::M_DOMAIN_ALL)).WillRepeatedly(Return(mock_energy.at(accel_idx)));
@@ -293,9 +311,17 @@ TEST_F(LevelZeroIOGroupTest, read_signal_and_batch)
         EXPECT_DOUBLE_EQ(frequency, mock_freq.at(sub_idx)*1e6);
         EXPECT_DOUBLE_EQ(frequency, frequency_batch);
     }
+
+    for (int sub_idx = 0; sub_idx < num_accelerator_subdevice; ++sub_idx) {
+        double energy_chip = levelzero_io.read_signal("LEVELZERO::GPUCHIP_ENERGY", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx);
+        double energy_chip_batch = levelzero_io.sample(batch_idx.at(num_accelerator_subdevice + sub_idx));
+
+        EXPECT_DOUBLE_EQ(energy_chip, mock_energy_chip.at(sub_idx)/1e6);
+        EXPECT_DOUBLE_EQ(energy_chip, energy_chip_batch);
+    }
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
         double energy = levelzero_io.read_signal("LEVELZERO::GPU_ENERGY", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
-        double energy_batch = levelzero_io.sample(batch_idx.at(num_accelerator_subdevice+accel_idx));
+        double energy_batch = levelzero_io.sample(batch_idx.at(num_accelerator_subdevice*2+accel_idx));
 
         EXPECT_DOUBLE_EQ(energy, mock_energy.at(accel_idx)/1e6);
         EXPECT_DOUBLE_EQ(energy, energy_batch);
@@ -466,7 +492,8 @@ TEST_F(LevelZeroIOGroupTest, read_signal)
     std::vector<int32_t> mock_power_limit_max = {310000, 280000, 320000, 270000};
     std::vector<int32_t> mock_power_limit_tdp = {320000, 290000, 330000, 280000};
     std::vector<uint64_t> mock_energy = {630000000, 280000000, 470000000, 950000000};
-
+    std::vector<uint64_t> mock_energy_chip = {330000000, 180000000, 270000000, 350000000,
+                                              430000000, 280000000, 370000000, 450000000};
     for (int sub_idx = 0; sub_idx < num_accelerator_subdevice; ++sub_idx) {
         //Frequency
         EXPECT_CALL(*m_device_pool, frequency_status(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE)).WillRepeatedly(Return(mock_freq_gpu.at(sub_idx)));
@@ -475,6 +502,9 @@ TEST_F(LevelZeroIOGroupTest, read_signal)
         EXPECT_CALL(*m_device_pool, frequency_max(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE)).WillRepeatedly(Return(mock_freq_max_gpu.at(sub_idx)));
         EXPECT_CALL(*m_device_pool, frequency_min(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx, MockLevelZero::M_DOMAIN_MEMORY)).WillRepeatedly(Return(mock_freq_min_mem.at(sub_idx)));
         EXPECT_CALL(*m_device_pool, frequency_max(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx, MockLevelZero::M_DOMAIN_MEMORY)).WillRepeatedly(Return(mock_freq_max_mem.at(sub_idx)));
+
+        //Power & energy
+        EXPECT_CALL(*m_device_pool, energy(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL)).WillRepeatedly(Return(mock_energy_chip.at(sub_idx)));
 
         //Active time
         EXPECT_CALL(*m_device_pool, active_time(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL)).WillRepeatedly(Return(mock_active_time.at(sub_idx)));
@@ -516,6 +546,10 @@ TEST_F(LevelZeroIOGroupTest, read_signal)
         EXPECT_DOUBLE_EQ(active_time_compute, mock_active_time_compute.at(sub_idx)/1e6);
         double active_time_copy = levelzero_io.read_signal("LEVELZERO::GPUCHIP_ACTIVE_TIME_COPY", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx);
         EXPECT_DOUBLE_EQ(active_time_copy, mock_active_time_copy.at(sub_idx)/1e6);
+
+        //Power & energy
+        double energy = levelzero_io.read_signal("LEVELZERO::GPUCHIP_ENERGY", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx);
+        EXPECT_DOUBLE_EQ(energy, mock_energy_chip.at(sub_idx)/1e6);
     }
 
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
@@ -534,6 +568,7 @@ TEST_F(LevelZeroIOGroupTest, read_signal)
     // Assume DerivativeSignals class functions as expected
     // Just check validity of derived signals
     ASSERT_TRUE(levelzero_io.is_valid_signal("LEVELZERO::GPU_POWER"));
+    ASSERT_TRUE(levelzero_io.is_valid_signal("LEVELZERO::GPUCHIP_POWER"));
     ASSERT_TRUE(levelzero_io.is_valid_signal("LEVELZERO::GPU_UTILIZATION"));
     ASSERT_TRUE(levelzero_io.is_valid_signal("LEVELZERO::GPU_UTILIZATION_COMPUTE"));
     ASSERT_TRUE(levelzero_io.is_valid_signal("LEVELZERO::GPU_UTILIZATION_COPY"));
@@ -606,6 +641,7 @@ TEST_F(LevelZeroIOGroupTest, error_path)
     GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::GPUCHIP_ACTIVE_TIME_COPY_TIMESTAMP", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, 0), GEOPM_ERROR_INVALID, "TIMESTAMP Signals are for batch use only.");
     GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::GPUCHIP_ACTIVE_TIME_COMPUTE_TIMESTAMP", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, 0), GEOPM_ERROR_INVALID, "TIMESTAMP Signals are for batch use only.");
     GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::GPU_ENERGY_TIMESTAMP", GEOPM_DOMAIN_BOARD_ACCELERATOR, 0), GEOPM_ERROR_INVALID, "TIMESTAMP Signals are for batch use only.");
+    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::GPUCHIP_ENERGY_TIMESTAMP", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, 0), GEOPM_ERROR_INVALID, "TIMESTAMP Signals are for batch use only.");
 }
 
 TEST_F(LevelZeroIOGroupTest, save_restore_control)

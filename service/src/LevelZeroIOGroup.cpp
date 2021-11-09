@@ -138,6 +138,21 @@ namespace geopm
                                   },
                                   1e6
                                   }},
+                              {M_NAME_PREFIX + "GPUCHIP_ENERGY", {
+                                  "Accelerator chip energy in Joules",
+                                  GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                  Agg::sum,
+                                  string_format_double,
+                                  {},
+                                  [this](unsigned int domain_idx) -> double
+                                  {
+                                      return this->m_levelzero_device_pool.energy(
+                                                   GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                                   domain_idx,
+                                                   geopm::LevelZero::M_DOMAIN_ALL);
+                                  },
+                                  1 / 1e6
+                                  }},
                               {M_NAME_PREFIX + "GPUCHIP_FREQUENCY_MIN_CONTROL", {
                                   "Compute/GPU chip domain current minimum frequency requested in hertz",
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
@@ -152,6 +167,22 @@ namespace geopm
                                                    geopm::LevelZero::M_DOMAIN_COMPUTE)).first;
                                   },
                                   1e6
+                                  }},
+                              {M_NAME_PREFIX + "GPUCHIP_ENERGY_TIMESTAMP", {
+                                  "GPU chip energy timestamp in seconds"
+                                  "\nValue cached on LEVELZERO::GPUCHIP_ENERGY read",
+                                  GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                  Agg::sum,
+                                  string_format_double,
+                                  {},
+                                  [this](unsigned int domain_idx) -> double
+                                  {
+                                      return this->m_levelzero_device_pool.energy_timestamp(
+                                                   GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                                   domain_idx,
+                                                   geopm::LevelZero::M_DOMAIN_ALL);
+                                  },
+                                  1 / 1e6
                                   }},
                               {M_NAME_PREFIX + "GPU_ENERGY", {
                                   "GPU energy in Joules",
@@ -170,7 +201,7 @@ namespace geopm
                                   }},
                               {M_NAME_PREFIX + "GPU_ENERGY_TIMESTAMP", {
                                   "GPU energy timestamp in seconds"
-                                  "\nValue cached on LEVELZERO::ENERGY read",
+                                  "\nValue cached on LEVELZERO::GPU_ENERGY read",
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::average,
                                   string_format_double,
@@ -409,6 +440,7 @@ namespace geopm
                                     }}
                               })
         , m_special_signal_set({M_NAME_PREFIX + "GPU_ENERGY",
+                                M_NAME_PREFIX + "GPUCHIP_ENERGY",
                                 M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME",
                                 M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME_COMPUTE",
                                 M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME_COPY"})
@@ -418,6 +450,10 @@ namespace geopm
                     {"Average GPU power over 40 ms or 8 control loop iterations",
                     M_NAME_PREFIX + "GPU_ENERGY",
                     M_NAME_PREFIX + "GPU_ENERGY_TIMESTAMP"}},
+            {M_NAME_PREFIX + "GPUCHIP_POWER",
+                    {"Average accelerator power over 40 ms or 8 control loop iterations",
+                    M_NAME_PREFIX + "GPUCHIP_ENERGY",
+                    M_NAME_PREFIX + "GPUCHIP_ENERGY_TIMESTAMP"}},
             {M_NAME_PREFIX + "GPU_UTILIZATION",
                     {"GPU utilization"
                         "n  Level Zero logical engines may map to the same hardware"
@@ -457,6 +493,9 @@ namespace geopm
 
         register_signal_alias("GPUCHIP_FREQUENCY_STATUS", M_NAME_PREFIX + "GPUCHIP_FREQUENCY_STATUS");
         register_signal_alias("GPU_POWER", M_NAME_PREFIX + "GPU_POWER");
+        register_signal_alias("GPU_ENERGY", M_NAME_PREFIX + "GPU_ENERGY");
+        register_signal_alias("GPUCHIP_POWER", M_NAME_PREFIX + "GPUCHIP_POWER");
+        register_signal_alias("GPUCHIP_ENERGY", M_NAME_PREFIX + "GPUCHIP_ENERGY");
         register_signal_alias("GPUCHIP_FREQUENCY_CONTROL",
                                M_NAME_PREFIX + "GPUCHIP_FREQUENCY_CONTROL");
         register_control_alias("GPUCHIP_FREQUENCY_CONTROL",
