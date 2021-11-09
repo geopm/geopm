@@ -122,6 +122,10 @@ namespace geopm
             virtual uint64_t active_time_timestamp(unsigned int l0_device_idx,
                                                    int l0_domain, int l0_domain_idx) const = 0;
 
+            /// TODO: Document
+            virtual int power_domain_count(int geopm_domain,
+                                           unsigned int l0_device_idx,
+                                           int l0_domain) const = 0;
             /// @brief Get the LevelZero device default power limit in milliwatts
             /// @param [in] l0_device_idx The index indicating a particular
             ///        Level Zero GPU.
@@ -149,6 +153,16 @@ namespace geopm
             ///        Level Zero GPU.
             /// @return GPU energy in microjoules.
             virtual uint64_t energy(unsigned int l0_device_idx) const = 0;
+
+            /// TODO: document & collapse
+            virtual uint64_t energy(unsigned int l0_device_idx, int l0_domain,
+                                    int l0_domain_idx) const = 0;
+            /// TODO: document & collapse
+            virtual uint64_t energy_timestamp(unsigned int l0_device_idx, int l0_domain,
+                                              int l0_domain_idx) const = 0;
+            /// TODO: document & collapse
+            virtual std::pair<uint64_t, uint64_t> energy_pair(unsigned int l0_device_idx,
+                                                              int l0_domain_idx) const = 0;
             /// @brief Get the LevelZero device energy cached timestamp in microseconds
             /// @param [in] l0_device_idx The index indicating a particular
             ///        Level Zero GPU.

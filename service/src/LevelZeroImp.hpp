@@ -47,9 +47,18 @@ namespace geopm
             uint64_t active_time_timestamp(unsigned int l0_device_idx,
                                           int l0_domain, int l0_domain_idx) const override;
 
+            int power_domain_count(int geopm_domain, unsigned int l0_device_idx,
+                                   int l0_domain) const override;
             std::pair<uint64_t, uint64_t> energy_pair(unsigned int l0_device_idx) const override;
             uint64_t energy(unsigned int l0_device_idx) const override;
             uint64_t energy_timestamp(unsigned int l0_device_idx) const override;
+            std::pair<uint64_t, uint64_t> energy_pair(unsigned int l0_device_idx,
+                                                      int l0_domain_idx) const override;
+            uint64_t energy(unsigned int l0_device_idx,
+                            int l0_domain, int l0_domain_idx) const override;
+            uint64_t energy_timestamp(unsigned int l0_device_idx,
+                                      int l0_domain,
+                                      int l0_domain_idx) const override;
             int32_t power_limit_tdp(unsigned int l0_device_idx) const override;
             int32_t power_limit_min(unsigned int l0_device_idx) const override;
             int32_t power_limit_max(unsigned int l0_device_idx) const override;
@@ -78,6 +87,10 @@ namespace geopm
                 std::vector<std::vector<zes_freq_handle_t> > freq_domain;
                 std::vector<std::vector<zes_engine_handle_t> > engine_domain;
                 mutable std::vector<std::vector<uint64_t> > cached_timestamp;
+
+                uint32_t num_subdevice_power_domain;
+                std::vector<zes_pwr_handle_t> power_domain;
+                mutable std::vector<uint64_t> cached_energy_timestamp;
             };
 
             struct m_device_info_s {
@@ -93,6 +106,7 @@ namespace geopm
                 m_subdevice_s subdevice;
 
                 // Device/Package domains
+                uint32_t num_device_power_domain;
                 zes_pwr_handle_t power_domain;
                 mutable uint64_t cached_energy_timestamp;
             };

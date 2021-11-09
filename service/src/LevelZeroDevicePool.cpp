@@ -304,27 +304,59 @@ namespace geopm
                                                       unsigned int domain_idx,
                                                       int l0_domain) const
     {
+        uint64_t energy_timestamp = 0;
         if (domain != GEOPM_DOMAIN_GPU) {
+            check_idx_range(domain, domain_idx);
+            energy_timestamp = m_levelzero.energy_timestamp(domain_idx);
+        }
+        else if (domain != GEOPM_DOMAIN_GPU_CHIP) {
+            std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
+            dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
+
+            check_domain_exists(m_levelzero.power_domain_count(domain,
+                                            dev_subdev_idx_pair.first, l0_domain),
+                                            __func__, __LINE__);
+
+            energy_timestamp = m_levelzero.energy_timestamp(dev_subdev_idx_pair.first, l0_domain,
+                                                            dev_subdev_idx_pair.second);
+        }
+        else {
             throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
                             ": domain " + std::to_string(domain) +
                             " is not supported for the power domain.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        check_idx_range(domain, domain_idx);
-        return m_levelzero.energy_timestamp(domain_idx);
+
+        return energy_timestamp;
     }
 
     uint64_t LevelZeroDevicePoolImp::energy(int domain, unsigned int domain_idx,
                                             int l0_domain) const
     {
+        uint64_t energy = 0;
         if (domain != GEOPM_DOMAIN_GPU) {
+            check_idx_range(domain, domain_idx);
+            energy = m_levelzero.energy(domain_idx);
+        }
+        else if (domain != GEOPM_DOMAIN_GPU_CHIP) {
+            std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
+            dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
+
+            //TODO: check l0_domain
+            check_domain_exists(m_levelzero.power_domain_count(domain,
+                                            dev_subdev_idx_pair.first, l0_domain),
+                                            __func__, __LINE__);
+
+            energy = m_levelzero.energy(dev_subdev_idx_pair.first, l0_domain,
+                                        dev_subdev_idx_pair.second);
+        }
+        else {
             throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
                             ": domain " + std::to_string(domain) +
                             " is not supported for the power domain.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        check_idx_range(domain, domain_idx);
-        return m_levelzero.energy(domain_idx);
+        return energy;
     }
 
     void LevelZeroDevicePoolImp::frequency_control(int domain, unsigned int domain_idx,
