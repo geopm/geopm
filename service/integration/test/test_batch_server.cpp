@@ -56,7 +56,7 @@ void run(void)
         std::cout << sample.at(0) << "\n";
         sleep(1);
     }
-    batch_server->stop_batch();
+    batch_client->stop_batch();
 }
 
 
