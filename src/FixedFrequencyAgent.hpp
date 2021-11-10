@@ -111,6 +111,7 @@ namespace geopm
             const double M_WAIT_SEC;
 
             bool m_do_write_batch;
+            bool m_is_adjust_initialized;
     };
 }
 

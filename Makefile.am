@@ -266,6 +266,7 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              ronn/GEOPM_CXX_MAN_EnergyEfficientAgent.3.ronn \
              ronn/GEOPM_CXX_MAN_EnergyEfficientRegion.3.ronn \
              ronn/GEOPM_CXX_MAN_Exception.3.ronn \
+             ronn/GEOPM_CXX_MAN_FixedFrequencyAgent.3.ronn \
              ronn/GEOPM_CXX_MAN_Helper.3.ronn \
              ronn/GEOPM_CXX_MAN_IOGroup.3.ronn \
              ronn/GEOPM_CXX_MAN_MPIComm.3.ronn \
@@ -286,6 +287,7 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              ronn/geopm.7.ronn \
              ronn/geopm_agent_c.3.ronn \
              ronn/geopm_agent_energy_efficient.7.ronn \
+             ronn/geopm_agent_fixed_frequency.7.ronn \
              ronn/geopm_agent_frequency_map.7.ronn \
              ronn/geopm_agent_monitor.7.ronn \
              ronn/geopm_agent_power_balancer.7.ronn \
