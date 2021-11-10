@@ -1,0 +1,150 @@
+geopm_agent_frequency_map(7) --  agent for setting fixed CPU, Uncore, and Accelerator frequencies
+======================================================================================
+
+[//]: # (Copyright (c) 2015 - 2021, Intel Corporation)
+[//]: # ()
+[//]: # (Redistribution and use in source and binary forms, with or without)
+[//]: # (modification, are permitted provided that the following conditions)
+[//]: # (are met:)
+[//]: # ()
+[//]: # (    * Redistributions of source code must retain the above copyright)
+[//]: # (      notice, this list of conditions and the following disclaimer.)
+[//]: # ()
+[//]: # (    * Redistributions in binary form must reproduce the above copyright)
+[//]: # (      notice, this list of conditions and the following disclaimer in)
+[//]: # (      the documentation and/or other materials provided with the)
+[//]: # (      distribution.)
+[//]: # ()
+[//]: # (    * Neither the name of Intel Corporation nor the names of its)
+[//]: # (      contributors may be used to endorse or promote products derived)
+[//]: # (      from this software without specific prior written permission.)
+[//]: # ()
+[//]: # (THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS)
+[//]: # ("AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT)
+[//]: # (LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR)
+[//]: # (A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT)
+[//]: # (OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,)
+[//]: # (SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT)
+[//]: # (LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,)
+[//]: # (DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY)
+[//]: # (THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT)
+[//]: # ((INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE)
+[//]: # (OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
+
+## DESCRIPTION
+The fixed frequency agent adjusts the CPU, Uncore, and Accelerator frequencies
+based upon the agent policy.  The Agent policy provides a single frequency value
+for all three frequency domains.  The uncore policy value is used to set both
+the minimum and maximum.  If the policy valu for any domain is NAN the frequency
+that domain is not modified.
+
+## AGENT NAME
+The agent described in this manual is selected in many geopm
+interfaces with the "fixed_frequency" agent name.  This name can be
+passed to **geopmlaunch(1)** as the argument to the `--geopm-agent`
+option, or the `GEOPM_AGENT` environment variable can be set to this
+name (see **geopm(7)**).  This name can also be passed to the
+**geopmagent(1)** as the argument to the '-a' option.
+
+## POLICY PARAMETERS
+
+  `ACCELERATOR_FREQUENCY`: The operating frequency in units of Hz for the
+                           Board Accelerators.  Setting it to a NAN will
+                           result in the system default value.
+  `CPU_FREQUENCY`: The operating frequency in units of Hz for all CPUs.
+                   Setting it to a NAN will result in the system default
+                   value.
+  `UNCORE_FREQUENCY`: The operating frequency in units of Hz for the uncore
+                      domain.  If specified the uncore clock will operate
+                      the fixed frequency provided.  If the parameter is
+                      NAN, then the system default range of uncore frequency
+                      will be allowed.
+
+## POLICY REQUIREMENTS
+The fixed frequency values must be in the order of ACCELERATOR_FREQUENCY,
+CPU_FREQUENCY, UNCORE_FREQUENCY.  A value must be provided, but can be NAN.
+
+## REPORT EXTENSIONS
+None
+
+## CONTROL LOOP RATE
+The agent gates the control loop to sample the region hash and control
+CPU frequency at 50 millisecond intervals.  If the uncore frequency is
+specified in the policy, then it is set at agent start up time.
+
+
+## EXAMPLES
+Besides the default CPU frequency and uncore frequency parameters, the
+policy consists of the map of per-region frequencies given as pairs of
+region hash and CPU frequency values.  The recommended way to generate
+a policy file for this agent is to use the **geopmagent(1)** command
+line tool.
+
+To create a policy with a default frequency of 3 GHz, an uncore
+frequency of 2 GHz with a map of "region_1" to 1.5 GHz and "region_2"
+to 2.5 GHz you can specify:
+
+    geopmagent -a frequency_map -p '3e9,2e9,region_1,1.5e9,region_2,2.5e9'
+
+Alternatively you can specify the regions by their hashed values:
+
+    geopmagent -a frequency_map -p '3e9,2e9,0xee12ee15,1.5e9,0xfd421de1,2.5e9'
+
+Although the **geopmagent(1)** is the recommended tool for creating
+the json policy string, there is one thing to note about creating the
+json string without this tool.  Since json does not support hex
+literals, the json must include the hashes in their decimal form. For
+example, the above policy json is:
+
+    {"FREQ_DEFAULT": 3e9,
+     "FREQ_UNCORE": 2e9,
+     "HASH_0": 3994218005,
+     "FREQ_0": 1.5e9,
+     "HASH_1": 4248968673,
+     "FREQ_1": 2.5e9}
+
+The **geopmread(1)** command line tool can be useful for learning the
+bounds of these system parameters.  The minimum, sticker, and
+maximum CPU frequencies are queried as below:
+
+    $ geopmread FREQUENCY_MIN board 0
+    1000000000
+
+    $ geopmread FREQUENCY_STICKER board 0
+    2100000000
+
+    $ geopmread FREQUENCY_MAX board 0
+    3700000000
+
+The minimum, and maximum uncore frequencies are queried as below:
+
+    $ geopmread MSR::UNCORE_RATIO_LIMIT:MIN_RATIO board 0
+    1200000000
+
+    $ geopmread MSR::UNCORE_RATIO_LIMIT:MAX_RATIO board 0
+    2400000000
+
+The geopmagent and geopmread command line tools can be used together
+to generate policies.  For example, to create a policy with the
+default CPU frequency set to two steps below maximum and the uncore
+frequency to the maximum the following commands can be used:
+
+    $ freq_default=$(($(geopmread FREQUENCY_MAX board 0) - \
+                      2 * $(geopmread FREQUENCY_STEP board 0)))
+    $ freq_uncore=$(geopmread MSR::UNCORE_RATIO_LIMIT:MAX_RATIO board 0)
+    $ geopmagent -a frequency_map -p$freq_default,$freq_uncore
+      {"FREQ_DEFAULT": 3500000000, "FREQ_UNCORE": 2400000000}
+
+
+## COPYRIGHT
+Copyright (c) 2015 - 2021, Intel Corporation. All rights reserved.
+
+## SEE ALSO
+**geopm(7)**,
+**geopm_agent_energy_efficient(7)**,
+**geopm_agent_power_balancer(7)**,
+**geopm_agent_power_governor(7)**,
+**geopm::Agent(3)**,
+**geopm_agent_c(3)**,
+**geopmagent(1)**,
+**geopmlaunch(1)**
