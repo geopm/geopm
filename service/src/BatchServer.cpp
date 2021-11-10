@@ -36,6 +36,7 @@
 #include <cstdlib>
 #include <cerrno>
 #include <unistd.h>
+#include <iostream>
 
 #include "geopm/Exception.hpp"
 #include "geopm/PlatformIO.hpp"
@@ -106,6 +107,7 @@ namespace geopm
                          posix_signal : POSIXSignal::make_unique())
         , m_server_pid(server_pid)
         , m_is_active(true)
+        , m_is_client_waiting(false)
     {
 
     }
@@ -116,8 +118,11 @@ namespace geopm
             try {
                 stop_batch();
             }
+            catch (const Exception &ex) {
+                std::cerr << "Warning: <geopm> BatchServerImp::~BatchServerImp(): Exception thrown in destructor: " <<  ex.what() << "\n";
+            }
             catch (...) {
-
+                std::cerr << "Warning: <geopm> BatchServerImp::~BatchServerImp(): Non-GEOPM exception thrown in destructor\n";
             }
         }
     }
@@ -144,63 +149,92 @@ namespace geopm
             }
             catch (const Exception &ex) {
                 if (ex.err_value() != ESRCH) {
-                    throw ex;
+                    throw;
                 }
             }
             m_is_active = false;
         }
     }
 
+    char BatchServerImp::read_message(void)
+    {
+        char in_message = BatchStatus::M_MESSAGE_TERMINATE;
+        try {
+            in_message = m_batch_status->receive_message();
+        }
+        catch (const Exception &ex) {
+            // If we were not interupted by SIGTERM with correct value rethrow
+            if (ex.err_value() != EINTR ||
+                g_sigterm_count == 0) {
+                throw;
+            }
+        }
+        return in_message;
+    }
+
+    void BatchServerImp::write_message(char out_message)
+    {
+        try {
+            m_batch_status->send_message(out_message);
+	    m_is_client_waiting = false;
+        }
+        catch (const Exception &ex) {
+            // If we were not interupted SIGTERM with correct value rethrow
+            if (ex.err_value() != EINTR ||
+                g_sigterm_count == 0) {
+                throw;
+            }
+        }
+    }
+
     void BatchServerImp::run_batch(void)
     {
         push_requests();
+        try {
+            event_loop();
+        }
+        catch(...) {
+            if (m_is_client_waiting) {
+                std::cerr << "Warning: <geopm>: " << __FILE__ << ":" << __LINE__
+                          << " Batch server was terminated while client was waiting: sending client quit message\n";
+                m_batch_status->send_message(BatchStatus::M_MESSAGE_QUIT);
+                std::cerr << "Warning: <geopm>: " << __FILE__ << ":" << __LINE__
+                          << " Batch server was terminated while client was waiting: client received quit message\n";
+                m_is_client_waiting = false;
+            }
+            throw;
+        }
+    }
+    void BatchServerImp::event_loop(void)
+    {
         // Start event loop
         char out_message = BatchStatus::M_MESSAGE_CONTINUE;
         while (out_message == BatchStatus::M_MESSAGE_CONTINUE &&
                g_sigterm_count == 0) {
-            char in_message;
-            try {
-                in_message = m_batch_status->receive_message();
-            }
-            catch (const Exception &ex) {
-                // If we were interupted by SIGTERM exit gracefully
-                if (ex.err_value() == EINTR &&
-                    g_sigterm_count != 0) {
-                    in_message = BatchStatus::M_MESSAGE_TERMINATE;
-                }
-                else {
-                    throw ex;
-                }
-            }
+            char in_message = read_message();
             switch (in_message) {
                 case BatchStatus::M_MESSAGE_READ:
+                    m_is_client_waiting = true;
                     read_and_update();
                     break;
                 case BatchStatus::M_MESSAGE_WRITE:
+                    m_is_client_waiting = true;
                     update_and_write();
                     break;
                 case BatchStatus::M_MESSAGE_QUIT:
+                    m_is_client_waiting = true;
                     out_message = BatchStatus::M_MESSAGE_QUIT;
                     break;
                 case BatchStatus::M_MESSAGE_TERMINATE:
-                    out_message = BatchStatus::M_MESSAGE_TERMINATE;
                     break;
                 default:
                     throw Exception("BatchServerImp::run_batch(): Received unknown response from client: " +
                                     std::to_string(in_message), GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
                     break;
             }
-            if (out_message != BatchStatus::M_MESSAGE_TERMINATE) {
-                try {
-                    m_batch_status->send_message(out_message);
-                }
-                catch (const Exception &ex) {
-                    // If we were not interupted SIGTERM rethrow
-                    if (ex.err_value() != EINTR ||
-                        g_sigterm_count == 0) {
-                        throw ex;
-                    }
-                }
+            // If in_message came from client send respose
+            if (in_message != BatchStatus::M_MESSAGE_TERMINATE) {
+                write_message(out_message);
             }
         }
     }
@@ -300,7 +334,9 @@ namespace geopm
             check_return(write(pipe_fd[1], &msg, 1), "write(2)");
             check_return(close(pipe_fd[1]), "close(2)");
             run();
-            exit(0);
+            m_signal_shmem.reset();
+            m_control_shmem.reset();
+            _Exit(0);
         }
         check_return(close(pipe_fd[1]), "close(2)");
         char msg = '\0';
