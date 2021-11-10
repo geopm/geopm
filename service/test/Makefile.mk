@@ -38,7 +38,11 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
               test/gtest_links/BatchServerTest.get_server_key \
               test/gtest_links/BatchServerTest.stop_batch \
               test/gtest_links/BatchServerTest.run_batch_read \
+              test/gtest_links/BatchServerTest.run_batch_read_empty \
               test/gtest_links/BatchServerTest.run_batch_write \
+              test/gtest_links/BatchServerTest.run_batch_write_empty \
+              test/gtest_links/BatchServerTest.create_shmem \
+              test/gtest_links/BatchServerTest.fork_with_setup \
               test/gtest_links/BatchStatusTest.client_send_to_server_fifo_expect \
               test/gtest_links/BatchStatusTest.server_send_to_client_fifo_expect \
               test/gtest_links/BatchStatusTest.server_send_to_client_fifo \

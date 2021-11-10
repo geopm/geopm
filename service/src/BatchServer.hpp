@@ -77,8 +77,8 @@ namespace geopm
             /// for signals and one for controls.  The shm keys
             /// created will be of the form:
             ///
-            ///     "/geopm-service-<KEY>-signals"
-            ///     "/geopm-service-<KEY>-controls"
+            ///     "/geopm-service-batch-buffer-<KEY>-signals"
+            ///     "/geopm-service-batch-buffer-<KEY>-controls"
             ///
             /// where <KEY> is the "server_key".  This key is used by
             /// the client side with the
@@ -135,6 +135,7 @@ namespace geopm
             void stop_batch(void) override;
             bool is_active(void) const override;
             void run_batch(void);
+            void create_shmem(void);
             /// @brief Fork a process that runs two functions and
             ///        block until the first function completes.
             int fork_with_setup(std::function<void(void)> setup,
@@ -144,7 +145,6 @@ namespace geopm
             void read_and_update(void);
             void update_and_write(void);
             void register_handler(void);
-            void create_shmem(void);
             void check_invalid_signal(void);
             void check_return(int ret, const std::string &func_name) const;
 
