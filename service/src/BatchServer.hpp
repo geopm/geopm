@@ -147,6 +147,9 @@ namespace geopm
             void register_handler(void);
             void check_invalid_signal(void);
             void check_return(int ret, const std::string &func_name) const;
+            char read_message(void);
+            void write_message(char message);
+            void event_loop(void);
 
             const int m_client_pid;
             const std::string m_server_key;
@@ -159,6 +162,7 @@ namespace geopm
             std::shared_ptr<POSIXSignal> m_posix_signal;
             int m_server_pid;
             bool m_is_active;
+            bool m_is_client_waiting;
             /// @brief Stores the PlatformIO batch handles for all pushed
             ///        signals
             std::vector<int> m_signal_handle;

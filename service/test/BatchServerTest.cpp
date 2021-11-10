@@ -399,14 +399,13 @@ TEST_F(BatchServerTest, fork_with_setup)
         PROT_READ  | PROT_WRITE,     // int prot
         MAP_SHARED | MAP_ANONYMOUS,  // int flags
         -1,                          // int fd
-        0                            // off_t offset
-    );
+        0);                          // off_t offset
     size_t &counter = *counter_mem;
     counter = 0;
 
     std::function<void(void)> setup = [&counter](void)
     {
-        if(counter == 0u) {
+        if (counter == 0u) {
             ++counter;
         }
     };
