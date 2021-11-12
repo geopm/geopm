@@ -103,6 +103,28 @@ TEST_F(BatchClientTest, write_batch)
     EXPECT_EQ(settings_expect[0], shmem_buffer[0]);
 }
 
+TEST_F(BatchClientTest, write_batch_wrong_size)
+{
+    std::vector<double> wrong_size_vector = {12.58, 29.85, 93.21, 11.12};
+
+    GEOPM_EXPECT_THROW_MESSAGE(
+        m_batch_client->write_batch(wrong_size_vector),
+        GEOPM_ERROR_INVALID,
+        "BatchClientImp::write_batch(): settings vector length does not match the number of configured controls"
+    );
+}
+
+TEST_F(BatchClientTest, write_batch_wrong_size_empty)
+{
+    std::vector<double> wrong_size_vector = {12.58, 29.85, 93.21, 11.12};
+
+    GEOPM_EXPECT_THROW_MESSAGE(
+        m_batch_client_empty->write_batch(wrong_size_vector),
+        GEOPM_ERROR_INVALID,
+        "BatchClientImp::write_batch(): settings vector length does not match the number of configured controls"
+    );
+}
+
 TEST_F(BatchClientTest, read_batch_empty)
 {
     std::vector<double> result_expect;
@@ -133,4 +155,21 @@ TEST_F(BatchClientTest, create_but_timeout)
     GEOPM_EXPECT_THROW_MESSAGE(
         BatchClient::make_unique("test-key", 1e-6, 1, 0),
         ENOENT, "Could not open shared memory with key");
+}
+
+TEST_F(BatchClientTest, stop_batch)
+{
+    InSequence sequence;
+
+    EXPECT_CALL(*m_batch_status,
+                send_message(BatchStatus::M_MESSAGE_QUIT))
+        .Times(1)
+        .RetiresOnSaturation();
+
+    EXPECT_CALL(*m_batch_status,
+                receive_message(BatchStatus::M_MESSAGE_QUIT))
+        .Times(1)
+        .RetiresOnSaturation();
+
+    m_batch_client->stop_batch();
 }

@@ -99,12 +99,12 @@ namespace geopm
 
     void BatchClientImp::write_batch(std::vector<double> settings)
     {
-        if (m_num_control == 0) {
-            return;
-        }
         if (settings.size() != (size_t)m_num_control) {
             throw Exception("BatchClientImp::write_batch(): settings vector length does not match the number of configured controls",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        if (m_num_control == 0) {
+            return;
         }
         double *buffer = (double *)m_control_shmem->pointer();
         std::copy(settings.begin(), settings.end(), buffer);
