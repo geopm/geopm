@@ -421,7 +421,7 @@ TEST_F(BatchServerTest, fork_with_setup)
     int forked_pid = m_batch_server_pid->fork_with_setup(setup, run);
     waitpid(forked_pid, NULL, 0);
 
-    ASSERT_EQ(2u, counter);
+    EXPECT_EQ(2u, counter);
 
     munmap(counter_mem, sizeof(size_t));
     counter_mem = nullptr;

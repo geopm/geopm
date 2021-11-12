@@ -176,7 +176,7 @@ namespace geopm
     {
         try {
             m_batch_status->send_message(out_message);
-	    m_is_client_waiting = false;
+            m_is_client_waiting = false;
         }
         catch (const Exception &ex) {
             // If we were not interupted SIGTERM with correct value rethrow
