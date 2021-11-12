@@ -36,9 +36,12 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
               test/gtest_links/AggTest.function_strings \
               test/gtest_links/BatchClientTest.read_batch \
               test/gtest_links/BatchClientTest.write_batch \
+              test/gtest_links/BatchClientTest.write_batch_wrong_size \
+              test/gtest_links/BatchClientTest.write_batch_wrong_size_empty \
               test/gtest_links/BatchClientTest.read_batch_empty \
               test/gtest_links/BatchClientTest.write_batch_empty \
               test/gtest_links/BatchClientTest.create_but_timeout \
+              test/gtest_links/BatchClientTest.stop_batch \
               test/gtest_links/BatchServerTest.get_server_pid \
               test/gtest_links/BatchServerTest.get_server_key \
               test/gtest_links/BatchServerTest.stop_batch \
