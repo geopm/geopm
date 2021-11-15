@@ -32,8 +32,17 @@
 #
 
 import unittest
-from TestPlatformService import *
+
+from TestAccess import *
+from TestController import *
 from TestDBusXML import *
+from TestError import *
+from TestPIO import *
+from TestPlatformService import *
+from TestRequestQueue import *
+from TestSession import *
+from TestTimedLoop import *
+from TestTopo import *
 
 if __name__ == '__main__':
     unittest.main()
