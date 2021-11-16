@@ -76,6 +76,7 @@ List all available agents on the system:
 
     $ geopmagent
     energy_efficient
+    fixed_frequency
     frequency_map
     monitor
     power_balancer
@@ -125,6 +126,7 @@ Copyright (c) 2015 - 2021, Intel Corporation. All rights reserved.
 ## SEE ALSO
 **geopm(7)**,
 **geopm_agent_energy_efficient(7)**,
+**geopm_agent_fixed_frequency(7)**,
 **geopm_agent_frequency_map(7)**,
 **geopm_agent_monitor(7)**,
 **geopm_agent_power_balancer(7)**,

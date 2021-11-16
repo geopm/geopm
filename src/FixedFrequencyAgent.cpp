@@ -38,11 +38,11 @@
 #include <cassert>
 #include <algorithm>
 
-#include "PluginFactory.hpp"
-#include "PlatformIO.hpp"
-#include "PlatformTopo.hpp"
-#include "Helper.hpp"
-#include "Agg.hpp"
+#include "geopm/PluginFactory.hpp"
+#include "geopm/PlatformIO.hpp"
+#include "geopm/PlatformTopo.hpp"
+#include "geopm/Helper.hpp"
+#include "geopm/Agg.hpp"
 
 #include <string>
 
@@ -103,19 +103,10 @@ namespace geopm
     void FixedFrequencyAgent::validate_policy(std::vector<double> &in_policy) const
     {
         assert(in_policy.size() == M_NUM_POLICY);
-        double accel_max_freq = m_platform_io.read_signal("FREQUENCY_MAX_ACCELERATOR", GEOPM_DOMAIN_BOARD, 0);
-        double cpu_max_freq = m_platform_io.read_signal("CPU_FREQUENCY_MAX", GEOPM_DOMAIN_BOARD, 0);
-        double uncore_max_freq = m_platform_io.read_signal("MSR::UNCORE_RATIO_LIMIT:MAX_RATIO", GEOPM_DOMAIN_BOARD, 0);
+        double accel_max_freq = m_platform_io.read_signal("NVML::FREQUENCY_MAX", GEOPM_DOMAIN_BOARD, 0);
 
         if (std::isnan(in_policy[M_POLICY_ACCELERATOR_FREQUENCY])) {
             in_policy[M_POLICY_ACCELERATOR_FREQUENCY] = accel_max_freq;
-        }
-        if (std::isnan(in_policy[M_POLICY_CPU_FREQUENCY])) {
-            in_policy[M_POLICY_CPU_FREQUENCY] = cpu_max_freq;
-        }
-        //TODO: NAN --> do not set
-        if (std::isnan(in_policy[M_POLICY_UNCORE_FREQUENCY])) {
-            in_policy[M_POLICY_UNCORE_FREQUENCY] = uncore_max_freq;
         }
 
     }
@@ -208,6 +199,7 @@ namespace geopm
             m_platform_io.adjust(freq_ctl_itr->second.m_batch_idx, uncore_init_max);
 
             m_is_adjust_initialized = true;
+            m_do_write_batch = true;
         }
 
     }

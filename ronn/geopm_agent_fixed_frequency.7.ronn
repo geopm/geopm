@@ -35,8 +35,9 @@ geopm_agent_frequency_map(7) --  agent for setting fixed CPU, Uncore, and Accele
 The fixed frequency agent adjusts the CPU, Uncore, and Accelerator frequencies
 based upon the agent policy.  The Agent policy provides a single frequency value
 for all three frequency domains.  The uncore policy value is used to set both
-the minimum and maximum.  If the policy valu for any domain is NAN the frequency
-that domain is not modified.
+the minimum and maximum.  If the policy value for the CPU or Uncore is NAN,
+the frequency of that domain is not modified.  If the policy value for the
+Accelerator is NAN, the maximum Accelerator frequency is used.
 
 ## AGENT NAME
 The agent described in this manual is selected in many geopm
@@ -74,44 +75,40 @@ specified in the policy, then it is set at agent start up time.
 
 
 ## EXAMPLES
-Besides the default CPU frequency and uncore frequency parameters, the
-policy consists of the map of per-region frequencies given as pairs of
-region hash and CPU frequency values.  The recommended way to generate
-a policy file for this agent is to use the **geopmagent(1)** command
-line tool.
+The recommended way to generate a policy file for this agent is to use the
+**geopmagent(1)** command line tool.
 
-To create a policy with a default frequency of 3 GHz, an uncore
-frequency of 2 GHz with a map of "region_1" to 1.5 GHz and "region_2"
-to 2.5 GHz you can specify:
+To create a policy with an accelerator frequency of 1.53 GHz, a core
+frequency of 3.1 GHz, and an uncore frequency of 2 GHz
 
-    geopmagent -a frequency_map -p '3e9,2e9,region_1,1.5e9,region_2,2.5e9'
-
-Alternatively you can specify the regions by their hashed values:
-
-    geopmagent -a frequency_map -p '3e9,2e9,0xee12ee15,1.5e9,0xfd421de1,2.5e9'
+    geopmagent -a fixed_frequency -p '1.530e9,3.1e9,2e9'
 
 Although the **geopmagent(1)** is the recommended tool for creating
-the json policy string, there is one thing to note about creating the
-json string without this tool.  Since json does not support hex
-literals, the json must include the hashes in their decimal form. For
-example, the above policy json is:
+the json policy string, the json string without this tool can be used.
+For example, the above policy json is:
 
-    {"FREQ_DEFAULT": 3e9,
-     "FREQ_UNCORE": 2e9,
-     "HASH_0": 3994218005,
-     "FREQ_0": 1.5e9,
-     "HASH_1": 4248968673,
-     "FREQ_1": 2.5e9}
+    {"ACCELERATOR_FREQUENCY": 1530000000,
+     "CORE_FREQUENCY": 3100000000,
+     "UNCORE_FREQUENCY": 2000000000}
 
 The **geopmread(1)** command line tool can be useful for learning the
-bounds of these system parameters.  The minimum, sticker, and
-maximum CPU frequencies are queried as below:
+bounds of these system parameters.
+
+The minimum and maximum accelerator frequencies are queried as below:
+
+    $ geopmread NVML::FREQUENCY_MIN board 0
+    135000000
+
+    $ geopmread NVML::FREQUENCY_MAX board 0
+    1530000000
+
+The minimum, sticker, and maximum CPU frequencies are queried as below:
 
     $ geopmread FREQUENCY_MIN board 0
     1000000000
 
     $ geopmread FREQUENCY_STICKER board 0
-    2100000000
+    2400000000
 
     $ geopmread FREQUENCY_MAX board 0
     3700000000
@@ -124,17 +121,6 @@ The minimum, and maximum uncore frequencies are queried as below:
     $ geopmread MSR::UNCORE_RATIO_LIMIT:MAX_RATIO board 0
     2400000000
 
-The geopmagent and geopmread command line tools can be used together
-to generate policies.  For example, to create a policy with the
-default CPU frequency set to two steps below maximum and the uncore
-frequency to the maximum the following commands can be used:
-
-    $ freq_default=$(($(geopmread FREQUENCY_MAX board 0) - \
-                      2 * $(geopmread FREQUENCY_STEP board 0)))
-    $ freq_uncore=$(geopmread MSR::UNCORE_RATIO_LIMIT:MAX_RATIO board 0)
-    $ geopmagent -a frequency_map -p$freq_default,$freq_uncore
-      {"FREQ_DEFAULT": 3500000000, "FREQ_UNCORE": 2400000000}
-
 
 ## COPYRIGHT
 Copyright (c) 2015 - 2021, Intel Corporation. All rights reserved.
@@ -142,6 +128,7 @@ Copyright (c) 2015 - 2021, Intel Corporation. All rights reserved.
 ## SEE ALSO
 **geopm(7)**,
 **geopm_agent_energy_efficient(7)**,
+**geopm_agent_frequency_map(7)**,
 **geopm_agent_power_balancer(7)**,
 **geopm_agent_power_governor(7)**,
 **geopm::Agent(3)**,

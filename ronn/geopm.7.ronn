@@ -64,6 +64,8 @@ geopm(7) -- global extensible open power manager
 
 **geopm_agent_energy_efficient(7)**: Agent for saving energy, also finds optimal region frequencies
 
+**geopm_agent_fixed_frequency(7)**: Agent for accelerator, cpu, and uncore at a fixed frequency
+
 **geopm_agent_frequency_map(7)**: Agent for running regions at user selected frequencies
 
 **geopm_agent_power_balancer(7)**: Agent that optimizes performance under a power cap
@@ -353,6 +355,7 @@ Copyright (c) 2015 - 2021, Intel Corporation. All rights reserved.
 ## SEE ALSO
 **geopmpy(7)**,
 **geopm_agent_energy_efficient(7)**,
+**geopm_agent_fixed_frequency(7)**,
 **geopm_agent_frequency_map(7)**,
 **geopm_agent_monitor(7)**,
 **geopm_agent_power_balancer(7)**,
