@@ -298,16 +298,20 @@ GEOPM Options
 
                       Specify the Agent type.  The Agent defines the control
                       algorithm used by the GEOPM runtime.  Available agents
-                      are: ``"monitor"`` (default, enables profiling features
-                      only), ``"power_balancer"`` (optimizes runtime under a power
-                      cap), ``"power_governor"`` (enforces a uniform power cap),
-                      and ``"frequency_map"`` (runs each region at a specified
-                      frequency).  See :doc:`geopm_agent_monitor(7)
+                      are: "monitor" (default, enables profiling features
+                      only), "power_balancer" (optimizes runtime under a power
+                      cap), "power_governor" (enforces a uniform power cap),
+                      "fixed_frequency" (runs accelerator, cpu, and uncore at a
+                      specified frequency), and "frequency_map" (runs each
+                      region at a specified frequency).
+                      See :doc:`geopm_agent_monitor(7)
                       <geopm_agent_monitor.7>`,
                       :doc:`geopm_agent_power_balancer(7)
                       <geopm_agent_power_balancer.7>`,
                       :doc:`geopm_agent_power_governor(7)
-                      <geopm_agent_power_governor.7>`, and
+                      <geopm_agent_power_governor.7>`,
+                      :doc:`geopm_agent_fixed_frequency(7)
+                      <geopm_agent_fixed_frequency.7>`, and
                       :doc:`geopm_agent_frequency_map(7)
                       <geopm_agent_frequency_map.7>` for descriptions of each
                       agent.
