@@ -67,13 +67,11 @@ clone_repo_git(){
     fi
 
     cd ${DIRNAME}
-    local HASH=$(git rev-parse --short HEAD)
-    cd -
-    if [ "${TOPHASH}" != "${HASH}" ]; then
-        echo "Error: Current source hash (${HASH}) is different than expected hash (${TOPHASH})."
+    if ! git reset --hard ${TOPHASH}; then
+        echo "Error: Could not reset to specified git hash: ${TOPHASH}." 1>&2
         return 1
     fi
-
+    cd -
     backup_archive ${ARCHIVE} ${DIRNAME}
 }
 
