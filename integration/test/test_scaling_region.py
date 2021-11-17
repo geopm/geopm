@@ -46,6 +46,7 @@ import glob
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import geopm_context
 import geopmpy.io
+import geopmpy.agent
 import geopmdpy.error
 import geopmpy.hash
 import geopm_test_launcher

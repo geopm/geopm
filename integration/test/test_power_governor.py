@@ -38,6 +38,7 @@ import pandas
 
 import geopm_context
 import geopmpy.io
+import geopmpy.agent
 
 import util
 import geopm_test_launcher
