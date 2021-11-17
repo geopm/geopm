@@ -114,6 +114,9 @@ namespace geopm
 
     void BatchClientImp::stop_batch(void)
     {
+        // Note that all requests sent to the batch server block on
+        // the client side until the server has completed the
+        // request. This is even true for the request to quit.
         m_batch_status->send_message(BatchStatus::M_MESSAGE_QUIT);
         m_batch_status->receive_message(BatchStatus::M_MESSAGE_QUIT);
     }
