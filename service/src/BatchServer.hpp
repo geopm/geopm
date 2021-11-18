@@ -110,7 +110,7 @@ namespace geopm
             /// created by start_batch_server().
             virtual void stop_batch(void) = 0;
             /// @brief Returns true if the batch server is running
-            virtual bool is_active(void) const = 0;
+            virtual bool is_active(void) = 0;
             static constexpr const char* M_SHMEM_PREFIX = "/geopm-service-batch-buffer-";
     };
 
@@ -133,7 +133,7 @@ namespace geopm
             int server_pid(void) const override;
             std::string server_key(void) const override;
             void stop_batch(void) override;
-            bool is_active(void) const override;
+            bool is_active(void) override;
             void run_batch(void);
             void create_shmem(void);
             /// @brief Fork a process that runs two functions and
@@ -144,7 +144,8 @@ namespace geopm
             void push_requests(void);
             void read_and_update(void);
             void update_and_write(void);
-            void register_handler(void);
+            void parent_register_handler(void);
+            void child_register_handler(void);
             void check_invalid_signal(void);
             void check_return(int ret, const std::string &func_name) const;
             char read_message(void);
