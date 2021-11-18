@@ -36,8 +36,10 @@
 #include <cstdlib>
 #include <cerrno>
 #include <unistd.h>
+#include <wait.h>
 #include <iostream>
 
+#include "geopm_error.h"
 #include "geopm/Exception.hpp"
 #include "geopm/PlatformIO.hpp"
 #include "geopm/SharedMemory.hpp"
@@ -48,12 +50,26 @@
 #include "geopm_debug.hpp"
 
 volatile static sig_atomic_t g_sigterm_count = 0;
+volatile static sig_atomic_t g_sigchld_count = 0;
+volatile static sig_atomic_t g_sigchld_status = 0;
 
 static void action_sigterm(int signo, siginfo_t *siginfo, void *context)
 {
     if (siginfo->si_value.sival_int == geopm::BatchStatus::M_MESSAGE_TERMINATE) {
         ++g_sigterm_count;
     }
+}
+
+static void action_sigchld(int signo, siginfo_t *siginfo, void *context)
+{
+    int child_status = 0;
+    int child_pid = 0;
+    while ((child_pid = waitpid(-1, &child_status, WNOHANG)) > 0) {
+        if (child_status != 0) {
+            g_sigchld_status = child_status;
+        }
+    }
+    ++g_sigchld_count;
 }
 
 namespace geopm
@@ -75,12 +91,13 @@ namespace geopm
     {
         // Fork the server when calling real constructor.
         auto setup = [this]() {
-            this->register_handler();
+            this->child_register_handler();
             this->create_shmem();
         };
         auto run = [this]() {
             this->run_batch();
         };
+        parent_register_handler();
         m_server_pid = fork_with_setup(setup, run);
     }
 
@@ -143,7 +160,7 @@ namespace geopm
             throw Exception("BatchServerImp::stop_batch(): must be called from parent process, not child process",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
-        if (m_is_active) {
+        if (is_active()) {
             try {
                 m_posix_signal->sig_queue(m_server_pid, SIGTERM, BatchStatus::M_MESSAGE_TERMINATE);
             }
@@ -239,8 +256,20 @@ namespace geopm
         }
     }
 
-    bool BatchServerImp::is_active(void) const
+    bool BatchServerImp::is_active(void)
     {
+        if (g_sigchld_count != 0) {
+            m_is_active = false;
+            --g_sigchld_count;
+            if (g_sigchld_status != 0) {
+                char err_msg[NAME_MAX];
+                geopm_error_message(g_sigchld_status, err_msg, NAME_MAX);
+                std::cerr << "Warning: <geopm> " << __FILE__ << ":" << __LINE__
+                          << " :  The batch server child process ended with non-zero status: "
+                          << g_sigchld_status << " : \"" << err_msg << "\"\n";
+                g_sigchld_status = 0;
+            }
+        }
         return m_is_active;
     }
 
@@ -310,14 +339,26 @@ namespace geopm
         }
     }
 
-    void BatchServerImp::register_handler(void)
+    void BatchServerImp::child_register_handler(void)
     {
+        int signo = SIGTERM;
         g_sigterm_count = 0;
         struct sigaction action = {};
-        action.sa_mask = m_posix_signal->make_sigset({SIGTERM});
+        action.sa_mask = m_posix_signal->make_sigset({signo});
         action.sa_flags = SA_SIGINFO; // Do not set SA_RESTART so read will fail
         action.sa_sigaction = &action_sigterm;
-        m_posix_signal->sig_action(SIGTERM, &action, nullptr);
+        m_posix_signal->sig_action(signo, &action, nullptr);
+    }
+
+    void BatchServerImp::parent_register_handler(void)
+    {
+        int signo = SIGCHLD;
+        g_sigchld_count = 0;
+        struct sigaction action = {};
+        action.sa_mask = m_posix_signal->make_sigset({signo});
+        action.sa_flags = SA_SIGINFO;
+        action.sa_sigaction = &action_sigchld;
+        m_posix_signal->sig_action(signo, &action, nullptr);
     }
 
     int BatchServerImp::fork_with_setup(std::function<void(void)> setup,
