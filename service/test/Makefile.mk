@@ -261,7 +261,9 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
               test/gtest_links/ServiceIOGroupTest.signal_control_info \
               test/gtest_links/ServiceIOGroupTest.domain_type \
               test/gtest_links/ServiceIOGroupTest.read_signal_behavior \
+              test/gtest_links/ServiceIOGroupTest.read_signal_exception \
               test/gtest_links/ServiceIOGroupTest.write_control \
+              test/gtest_links/ServiceIOGroupTest.write_control_exception \
               test/gtest_links/ServiceIOGroupTest.valid_signal_aggregation \
               test/gtest_links/ServiceIOGroupTest.valid_format_function \
               test/gtest_links/ServiceIOGroupTest.push_signal \
