@@ -110,7 +110,7 @@ class TestSession(unittest.TestCase):
         mock_requests.__iter__.return_value = user_requests
         format_return_value = "1.234, 2.345, 3.456"
         mock_requests.get_formats.return_value = format_return_value
-        signal_handle = range(3)
+        signal_handle = list(range(3))
         signal_expect = num_period * [1.234, 2.345, 3.456]
 
         with mock.patch('geopmdpy.runtime.TimedLoop', return_value=[0, 1]) as mock_timed_loop, \
