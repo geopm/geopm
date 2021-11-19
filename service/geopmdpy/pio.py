@@ -40,7 +40,6 @@ signals and writing controls from system components.
 from __future__ import absolute_import
 
 import cffi
-import sys
 from . import topo
 from . import error
 
@@ -643,7 +642,6 @@ def start_batch_server(client_pid, signal_config, control_config):
 
     """
 
-    sys.stderr.write(f"pio.start_batch_server({client_pid}, {signal_config}, {control_config}): begin\n")
     num_signal = len(signal_config)
     num_control = len(control_config)
     if num_signal != 0:
@@ -667,7 +665,6 @@ def start_batch_server(client_pid, signal_config, control_config):
 
     server_pid_c = _ffi.new('int *')
     server_key_cstr = _ffi.new('char [255]')
-    sys.stderr.write("pio.start_batch_server(): call enter\n")
     err = _dl.geopm_pio_start_batch_server(client_pid,
                                            num_signal,
                                            signal_config_carr,
@@ -676,12 +673,10 @@ def start_batch_server(client_pid, signal_config, control_config):
                                            server_pid_c,
                                            255,
                                            server_key_cstr)
-    sys.stderr.write("pio.start_batch_server(): call exit\n")
     if err < 0:
         raise RuntimeError('geopm_pio_start_batch_server() failed: {}'.format(error.message(err)))
     server_pid = server_pid_c[0]
     server_key = _ffi.string(server_key_cstr).decode()
-    sys.stderr.write(f"pio.start_batch_server(): return {server_pid} {server_key}\n")
     return server_pid, server_key
 
 def stop_batch_server(server_pid):
