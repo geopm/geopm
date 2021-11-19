@@ -247,16 +247,34 @@ namespace geopm
 
     double ServiceIOGroup::sample(int sample_idx)
     {
-        // TODO: Check that sample_idx is in range and batch_server is not null
-        return m_batch_samples.at(sample_idx);
+        if (m_signal_requests.size() == 0) {
+            throw Exception("ServiceIOGroup::sample() called prior to any calls to push_signal()",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        if (m_batch_samples.size() == 0) {
+            throw Exception("ServiceIOGroup::sample() called prior to any calls to read_batch()",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        if (sample_idx < 0 || (unsigned)sample_idx >= m_batch_samples.size()) {
+            throw Exception("ServiceIOGroup::sample() called with parameter that was not returned by push_signal()",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return m_batch_samples[sample_idx];
     }
 
     void ServiceIOGroup::adjust(int control_idx,
                                 double setting)
     {
-        // TODO: Check that control_idx is in range and batch_server is not null
+        if (m_control_requests.size() == 0) {
+            throw Exception("ServiceIOGroup::adjust() called prior to any calls to push_control()",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
         init_batch_server();
-        m_batch_settings.at(control_idx) = setting;
+        if (control_idx < 0 || (unsigned)control_idx >= m_batch_settings.size()) {
+            throw Exception("ServiceIOGroup::adjust() called with an initial parameter that was not returned by push_control()",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        m_batch_settings[control_idx] = setting;
     }
 
     double ServiceIOGroup::read_signal(const std::string &signal_name,
