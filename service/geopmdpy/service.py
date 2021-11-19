@@ -752,7 +752,7 @@ class PlatformService(object):
     def _write_mode(self, client_pid):
         if self._write_pid != client_pid:
             if self._write_pid is not None:
-                raise RuntimeError(f'The PID {client_pid} requested write access, but the geopm service already has write mode client with PID6 {self._write_pid}')
+                raise RuntimeError(f'The PID {client_pid} requested write access, but the geopm service already has write mode client with PID {self._write_pid}')
             self._active_sessions.set_write_client(client_pid)
             self._write_pid = client_pid
             save_dir = os.path.join(self._VAR_PATH, self._SAVE_DIR)
