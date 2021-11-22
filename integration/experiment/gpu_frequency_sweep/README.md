@@ -1,9 +1,9 @@
-UNCORE FREQUENCY SWEEP-BASED EXPERIMENTS
+GPU FREQUENCY SWEEP-BASED EXPERIMENTS
 ----------------------------------------
 
 The scripts in this directory are used to run and analyze application
-runs that use a range of settings for both the core and the uncore
-frequency.
+runs that use a range of settings for the accelerator, the core and
+the uncore frequency.
 
 ## Base Experiment Module
 
