@@ -76,22 +76,6 @@ namespace geopm
         private:
             void init_platform_io(void);
 
-            struct signal
-            {
-                int m_batch_idx;
-                double m_last_signal;
-            };
-
-            std::map<std::string, signal> m_signal_available;
-
-            struct control
-            {
-                int m_batch_idx;
-                double m_last_setting;
-            };
-
-            std::map<std::string, control> m_control_available;
-
             // Policy indices; must match policy_names()
             enum m_policy_e {
                 M_POLICY_ACCELERATOR_FREQUENCY,
@@ -112,6 +96,22 @@ namespace geopm
 
             bool m_do_write_batch;
             bool m_is_adjust_initialized;
+      
+            struct signal
+            {
+                int m_batch_idx;
+                double m_last_signal;
+            };
+
+            std::map<std::string, signal> m_signal_available;
+
+            struct control
+            {
+                int m_batch_idx;
+                double m_last_setting;
+            };
+
+            std::map<std::string, control> m_control_available;
     };
 }
 
