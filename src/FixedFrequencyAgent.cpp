@@ -179,8 +179,8 @@ namespace geopm
         if (!m_is_adjust_initialized) {
             double accel_init_freq = m_platform_io.read_signal("NVML::FREQUENCY_MAX", GEOPM_DOMAIN_BOARD, 0);
             freq_ctl_itr = m_control_available.find("FREQUENCY_ACCELERATOR_CONTROL");
-	    m_platform_io.adjust(freq_ctl_itr->second.m_batch_idx, accel_init_freq);
-	    freq_ctl_itr->second.m_last_setting = accel_init_freq;
+            m_platform_io.adjust(freq_ctl_itr->second.m_batch_idx, accel_init_freq);
+            freq_ctl_itr->second.m_last_setting = accel_init_freq;
 
             double cpu_init_freq = m_platform_io.read_signal("CPU_FREQUENCY_CONTROL", GEOPM_DOMAIN_BOARD, 0);
             freq_ctl_itr = m_control_available.find("CPU_FREQUENCY_CONTROL");
