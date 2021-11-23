@@ -61,8 +61,6 @@ namespace geopm
         , m_do_write_batch(false)
         , m_is_adjust_initialized(false)
         , m_signal_available({{"FREQUENCY_ACCELERATOR", {}},
-                              {"NVML::UTILIZATION_ACCELERATOR", {}},
-                              {"NVML::UTILIZATION_MEMORY", {}},
                               {"POWER_ACCELERATOR", {}},
                               {"NVML::TOTAL_ENERGY_CONSUMPTION", {}},
                               {"MSR::UNCORE_PERF_STATUS:FREQ", {}},
@@ -103,12 +101,6 @@ namespace geopm
     void FixedFrequencyAgent::validate_policy(std::vector<double> &in_policy) const
     {
         assert(in_policy.size() == M_NUM_POLICY);
-        double accel_max_freq = m_platform_io.read_signal("NVML::FREQUENCY_MAX", GEOPM_DOMAIN_BOARD, 0);
-
-        if (std::isnan(in_policy[M_POLICY_ACCELERATOR_FREQUENCY])) {
-            in_policy[M_POLICY_ACCELERATOR_FREQUENCY] = accel_max_freq;
-        }
-
     }
 
     // Distribute incoming policy to children
@@ -185,6 +177,11 @@ namespace geopm
         }
 
         if (!m_is_adjust_initialized) {
+            double accel_init_freq = m_platform_io.read_signal("NVML::FREQUENCY_MAX", GEOPM_DOMAIN_BOARD, 0);
+            freq_ctl_itr = m_control_available.find("FREQUENCY_ACCELERATOR_CONTROL");
+	    m_platform_io.adjust(freq_ctl_itr->second.m_batch_idx, accel_init_freq);
+	    freq_ctl_itr->second.m_last_setting = accel_init_freq;
+
             double cpu_init_freq = m_platform_io.read_signal("CPU_FREQUENCY_CONTROL", GEOPM_DOMAIN_BOARD, 0);
             freq_ctl_itr = m_control_available.find("CPU_FREQUENCY_CONTROL");
             m_platform_io.adjust(freq_ctl_itr->second.m_batch_idx, cpu_init_freq);
