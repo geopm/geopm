@@ -1,0 +1,151 @@
+geopm_agent_gpu_activity(7) -- agent for selecting GPU frequency based on GPU compute activity
+=================================================================================================
+
+[//]: # (Copyright (c) 2015 - 2021, Intel Corporation)
+[//]: # ()
+[//]: # (Redistribution and use in source and binary forms, with or without)
+[//]: # (modification, are permitted provided that the following conditions)
+[//]: # (are met:)
+[//]: # ()
+[//]: # (    * Redistributions of source code must retain the above copyright)
+[//]: # (      notice, this list of conditions and the following disclaimer.)
+[//]: # ()
+[//]: # (    * Redistributions in binary form must reproduce the above copyright)
+[//]: # (      notice, this list of conditions and the following disclaimer in)
+[//]: # (      the documentation and/or other materials provided with the)
+[//]: # (      distribution.)
+[//]: # ()
+[//]: # (    * Neither the name of Intel Corporation nor the names of its)
+[//]: # (      contributors may be used to endorse or promote products derived)
+[//]: # (      from this software without specific prior written permission.)
+[//]: # ()
+[//]: # (THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS)
+[//]: # ("AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT)
+[//]: # (LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR)
+[//]: # (A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT)
+[//]: # (OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,)
+[//]: # (SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT)
+[//]: # (LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,)
+[//]: # (DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY)
+[//]: # (THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT)
+[//]: # ((INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE)
+[//]: # (OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
+
+## DESCRIPTION
+
+The goal of this Agent is to save GPU energy by scaling GPU frequency based upon
+the compute activity of each GPU as provided by the ACCELERATOR_COMPUTE_ACTIVITY
+signal.
+
+The GPUActivityAgent scales frequency in the range of Fe to Fmax, where Fmax
+is provided via the policy as ACCELERATROR_FREQ_MAX and Fe is provided via
+the policy as ACCELERATOR_FREQ_EFFICIENT.  Low activity regions (compute activity
+of 0.0) run at the Fe frequency, high activity regions (compute activity of 1.0)
+run at the Fmax frequency, and regions in between the extremes run at a frequency
+selected via F = = Fe + (Fmax - Fe) * ACCELERATOR_COMPUTE_ACTIVITY.
+
+Fe is intended to be an energy efficient frequency that is selected via system
+characterization.  The recommended approach to selecting Fe is to perform a
+frequency sweep on the GPUs of interest using a workload that scales strongly with
+frequency.  With this approach, Fe will be the frequency that provides the lowest
+GPU energy consumption for the workload.
+
+Fmax is intended to be the maximum allowable frequency, and may be set as the
+default GPU maximum frequency, or limited based upon user/admin preference.
+
+The GPUActivityAgent provides an optional input of phi that allows for biasing the
+frequency range used by the agent.  The default phi value of 0.5 provides frequency
+selection in the full range from Fe to Fmax.  A phi value less than 0.5 biases the
+agent towards higher frequencies by increasing the Fe value provided by the policy.
+In the extreme case (phi of 0) Fe will be raised to Fmax.  A phi value greater than
+0.5 biases the agent towards lower frequencies by reducing the Fmax value provided
+by the policy.  In the extreme case (phi of 1.0) Fmax will be lowered to Fe.
+
+For NVIDIA based systems the GPUActivityAgent attempts to set the
+DCGM::FIELD_UPDATE_RATE to 1ms, DCGM::MAX_STORAGE_TIME to 1s, and DCGM::MAX_SAMPLES
+to 100.  While the DCGM documentation indicates that users should 'generally' query
+no faster than 100ms, the interface allows for setting the polling rate in the
+microsecond range.  This agent intended for use with workloads with short phases and
+is intended to react only to the last sample taken, so a 1ms polling rate is used.
+This has been shown to work for a small number of profiling metrics queried from DCGM.
+If this leads to undesired behavior these settings may be changed, but may result in a
+reduction in performance on workloads with short phases of high GPU activity
+
+## AGENT BEHAVIOR HIGHLIGHTS
+Policies and samples are vectors of double precision values where each
+value has a meaning defined by the **geopm::Agent(3)** implementation.
+The Agent interface also provides methods for the Agent to extend
+reports and traces with additional Agent-specific information.
+
+* `Agent Name`:
+  Set the `--geopm-agent` launch option or `GEOPM_AGENT` environment
+  variable to "energy_efficient" and the Controller will select the
+  EnergyEfficientAgent for its control handler.  See
+  **geopm_launch(1)** and **geopm(7)** for more information about
+  launch options and environment variables.
+
+* `Agent Policy Definitions`:
+  The Fe, Fmax, and  and maximum frequency are policy values.
+  Setting both to the same value can be used to force the entire
+  application to run at one frequency.
+
+  `ACCELERATOR_FREQ_MAX`: The maximum frequency in hertz that the algorithm is
+                          allowed to choose.  If NAN is passed, it will use the
+                          maximum available frequency by default.
+
+  `ACCELERATOR_FREQ_EFFICIENT`: The minimum frequency in hertz that the algorithm is
+                                allowed to choose.  If NAN is passed, it will use
+                                (maximum frequency + minimum frequency) / 2 by default.
+
+
+  `ACCELERATOR_PHI`: The performance bias knob.  The value must be between
+                     0.0 and 1.0. If NAN is passed, it will use 0.5 by default.
+
+* `Agent Sample Definitions`:
+  N/A
+
+* `Trace Column Extensions`:
+  `ACCELERATOR_COMPUTE_ACTIVITY`: A measurement of the amount of execution occuring
+                                  on an accelerator
+  `FREQUENCY_ACCELERATOR`: The frequency of the accelerator
+  `ENERGY_ACCELERATOR`: The energy consumption of the accelerator
+
+* `Report Extensions`:
+  Report extensions vary based upon the usage of debug configurations.  Debug and
+  non-debug builds will add the following to the report:
+  'Accelerator Frequency Requests` : The number of frequency requests made by the agent
+  'Resolved Max Frequency` : Fmax after phi has been taken into account
+  'Resolved Efficient Frequency` : Fe after phi has been taken into account
+  'Resolved Frequency Range` : The selection range of the agent after phi has been taken
+                               into account
+
+  Debug builds will add the following additional values to the report, which may
+  aid in debugging agent behavior without traces:
+  `Accelerator Passive Energy`: Aggregate GPU energy reading during regions of 0
+                                ACCELERATOR_COMPUTE_ACTIVITY
+  `Accelerator Passive Samples`: Total number of samples taken during regions of
+                                 0 ACCELERATOR_COMPUTE_ACTIVITY
+  `Accelerator Passive Freq Request Avg`: Average frequency requested during regions
+                                          of 0 ACCELERATOR_COMPUTE_ACTIVITY.
+  `Accelerator Active Energy`: Aggregate GPU energy reading during regions of non-zero
+                               ACCELERATOR_COMPUTE_ACTIVITY
+  `Accelerator Active Samples`: Total number of samples taken during regions of
+                                non-zero ACCELERATOR_COMPUTE_ACTIVITY
+  `Accelerator Active Freq Request Avg`: Average frequency requested during regions
+                                         of non-zero ACCELERATOR_COMPUTE_ACTIVITY.
+
+* `Control Loop Gate`:
+  The agent gates the Controller's control loop to a cadence of 20ms.
+
+## COPYRIGHT
+Copyright (c) 2015 - 2021, Intel Corporation. All rights reserved.
+
+## SEE ALSO
+**geopm(7)**,
+**geopm_agent_monitor(7)**,
+**geopm_agent_energy_efficient(7)**,
+**geopm::Agent(3)**,
+**geopm_agent_c(3)**,
+**geopm_prof_c(3)**,
+**geopmagent(1)**,
+**geopmlaunch(1)**
