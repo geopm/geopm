@@ -78,6 +78,7 @@ namespace geopm
             const PlatformTopo &m_platform_topo;
             geopm_time_s m_last_wait;
             const double M_WAIT_SEC;
+            const double M_POLICY_PHI_DEFAULT;
             bool m_do_write_batch;
 
             struct signal
@@ -111,7 +112,7 @@ namespace geopm
             enum m_policy_e {
                 M_POLICY_ACCELERATOR_FREQ_MAX,
                 M_POLICY_ACCELERATOR_FREQ_EFFICIENT,
-                M_POLICY_ACCELERATOR_ENERGY_PERF_BIAS,
+                M_POLICY_ACCELERATOR_PHI,
                 M_NUM_POLICY
             };
 
