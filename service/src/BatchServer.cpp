@@ -142,6 +142,13 @@ namespace geopm
                 std::cerr << "Warning: <geopm> BatchServerImp::~BatchServerImp(): Non-GEOPM exception thrown in destructor\n";
             }
         }
+        if (m_signal_shmem != nullptr) {
+            m_signal_shmem->unlink();
+        }
+
+        if (m_control_shmem != nullptr) {
+            m_control_shmem->unlink();
+        }
     }
 
     int BatchServerImp::server_pid(void) const
