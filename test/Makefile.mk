@@ -185,6 +185,13 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/FrequencyMapAgentTest.report_neither_map_nor_set \
               test/gtest_links/FrequencyMapAgentTest.split_policy \
               test/gtest_links/FrequencyMapAgentTest.validate_policy \
+              test/gtest_links/GPUActivityAgentTest.name \
+              test/gtest_links/GPUActivityAgentTest.validate_policy \
+              test/gtest_links/GPUActivityAgentTest.adjust_platform_high \
+              test/gtest_links/GPUActivityAgentTest.adjust_platform_medium \
+              test/gtest_links/GPUActivityAgentTest.adjust_platform_low \
+              test/gtest_links/GPUActivityAgentTest.adjust_platform_zero \
+              test/gtest_links/GPUActivityAgentTest.adjust_platform_signal_out_of_bounds \
               test/gtest_links/ModelApplicationTest.parse_config_errors \
               test/gtest_links/MonitorAgentTest.policy_names \
               test/gtest_links/MonitorAgentTest.sample_names \
@@ -384,6 +391,7 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
                           test/FilePolicyTest.cpp \
                           test/FrequencyGovernorTest.cpp \
                           test/FrequencyMapAgentTest.cpp \
+                          test/GPUActivityAgentTest.cpp \
                           test/MockAgent.hpp \
                           test/MockApplicationIO.hpp \
                           test/MockApplicationRecordLog.hpp \
@@ -398,6 +406,7 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
                           test/MockFrequencyLimitDetector.hpp \
                           test/MockFrequencyGovernor.hpp \
                           test/MockIOGroup.hpp \
+                          test/MockNVMLDevicePool.hpp \
                           test/MockPlatformTopo.cpp \
                           test/MockPlatformTopo.hpp \
                           test/MockPlatformIO.hpp \

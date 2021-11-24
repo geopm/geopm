@@ -49,6 +49,7 @@ namespace geopm
     {
         public:
             GPUActivityAgent();
+            GPUActivityAgent(PlatformIO &plat_io, const PlatformTopo &topo);
             virtual ~GPUActivityAgent() = default;
             void init(int level, const std::vector<int> &fan_in, bool is_level_root) override;
             void validate_policy(std::vector<double> &in_policy) const override;
