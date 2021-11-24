@@ -36,10 +36,12 @@
 #include <cassert>
 #include <algorithm>
 
+#include "PlatformIOProf.hpp"
 #include "geopm/PluginFactory.hpp"
 #include "geopm/PlatformIO.hpp"
 #include "geopm/PlatformTopo.hpp"
 #include "geopm/Helper.hpp"
+#include "geopm/Exception.hpp"
 #include "geopm/Agg.hpp"
 
 #include <string>
@@ -48,9 +50,16 @@
 
 namespace geopm
 {
+
     GPUActivityAgent::GPUActivityAgent()
-        : m_platform_io(platform_io())
-        , m_platform_topo(platform_topo())
+        : GPUActivityAgent(PlatformIOProf::platform_io(), platform_topo())
+    {
+
+    }
+
+    GPUActivityAgent::GPUActivityAgent(PlatformIO &plat_io, const PlatformTopo &topo)
+        : m_platform_io(plat_io)
+        , m_platform_topo(topo)
         , m_last_wait{{0, 0}}
         , M_WAIT_SEC(0.020) // 20ms Wait
         , M_POLICY_PHI_DEFAULT(0.5)
@@ -157,6 +166,15 @@ namespace geopm
         if (std::isnan(in_policy[M_POLICY_ACCELERATOR_FREQ_MAX])) {
             in_policy[M_POLICY_ACCELERATOR_FREQ_MAX] = accel_max_freq;
         }
+
+        if (in_policy[M_POLICY_ACCELERATOR_FREQ_MAX] > accel_max_freq ||
+            in_policy[M_POLICY_ACCELERATOR_FREQ_MAX] < accel_min_freq ) {
+            throw Exception("GPUActivityAgent::" + std::string(__func__) +
+                            "(): ACCELERATOR_FREQ_MAX out of range: " +
+                            std::to_string(in_policy[M_POLICY_ACCELERATOR_FREQ_MAX]) +
+                            ".", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
         // Not all accelerators provide an 'efficient' frequency signal, and the
         // value provided by the policy may not be valid.  In this case approximating
         // f_efficient as midway between F_min and F_max is reasonable.
@@ -165,21 +183,35 @@ namespace geopm
                                                              + accel_min_freq) / 2;
         }
 
+        if (in_policy[M_POLICY_ACCELERATOR_FREQ_EFFICIENT] > accel_max_freq ||
+            in_policy[M_POLICY_ACCELERATOR_FREQ_EFFICIENT] < accel_min_freq ) {
+            throw Exception("GPUActivityAgent::" + std::string(__func__) +
+                            "(): ACCELERATOR_FREQ_EFFICIENT out of range: " +
+                            std::to_string(in_policy[M_POLICY_ACCELERATOR_FREQ_EFFICIENT]) +
+                            ".", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
         if (in_policy[M_POLICY_ACCELERATOR_FREQ_EFFICIENT] > in_policy[M_POLICY_ACCELERATOR_FREQ_MAX]) {
-            in_policy[M_POLICY_ACCELERATOR_FREQ_EFFICIENT] = in_policy[M_POLICY_ACCELERATOR_FREQ_MAX];
+            throw Exception("GPUActivityAgent::" + std::string(__func__) +
+                            "(): ACCELERATOR_FREQ_EFFICIENT (" +
+                            std::to_string(in_policy[M_POLICY_ACCELERATOR_FREQ_EFFICIENT]) +
+                            ") value exceeds ACCELERATOR_FREQ_MAX (" +
+                            std::to_string(in_policy[M_POLICY_ACCELERATOR_FREQ_MAX]) +
+                            ").", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         // If no phi value is provided assume the default behavior.
         if (std::isnan(in_policy[M_POLICY_ACCELERATOR_PHI])) {
             in_policy[M_POLICY_ACCELERATOR_PHI] = M_POLICY_PHI_DEFAULT;
         }
-        else if (in_policy[M_POLICY_ACCELERATOR_PHI] < 0.0) {
-            in_policy[M_POLICY_ACCELERATOR_PHI] = 0.0;
-        }
-        else if (in_policy[M_POLICY_ACCELERATOR_PHI] > 1.0) {
-            in_policy[M_POLICY_ACCELERATOR_PHI] = 1.0;
-        }
 
+        if (in_policy[M_POLICY_ACCELERATOR_PHI] < 0.0 ||
+            in_policy[M_POLICY_ACCELERATOR_PHI] > 1.0) {
+            throw Exception("GPUActivityAgent::" + std::string(__func__) +
+                            "(): POLICY_ACCELERATOR_PHI value out of range: " +
+                            std::to_string(in_policy[M_POLICY_ACCELERATOR_PHI]) + ".",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
     }
 
     // Distribute incoming policy to children
@@ -227,7 +259,7 @@ namespace geopm
         // Per GPU freq
         std::vector<double> board_accelerator_freq_request;
 
-        // Policy provided controls
+        // Policy provided initial values
         double f_max = in_policy[M_POLICY_ACCELERATOR_FREQ_MAX];
         double f_efficient = in_policy[M_POLICY_ACCELERATOR_FREQ_EFFICIENT];
         double phi = in_policy[M_POLICY_ACCELERATOR_PHI];
