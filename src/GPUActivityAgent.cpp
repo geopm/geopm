@@ -46,21 +46,14 @@
 
 #include <iostream>
 
-//#define SAMPLE_PERIOD_SECONDS 0.025 // 25mS wait
-//#define DECISION_WINDOW_SECONDS 0.100
-//#define SAMPLE_PERIOD_SECONDS 0.015 // 15mS wait
-#define SAMPLE_PERIOD_SECONDS 0.020 // 20mS wait
-#define DECISION_WINDOW_SECONDS 0.100
-#define DECISION_WINDOW_SAMPLES (DECISION_WINDOW_SECONDS / SAMPLE_PERIOD_SECONDS)
-#define M_POLICY_ENERGY_PERF_BIAS_DEFAULT 50;
-
 namespace geopm
 {
     GPUActivityAgent::GPUActivityAgent()
         : m_platform_io(platform_io())
         , m_platform_topo(platform_topo())
         , m_last_wait{{0, 0}}
-        , M_WAIT_SEC(SAMPLE_PERIOD_SECONDS)
+        , M_WAIT_SEC(0.020) // 20ms Wait
+        , M_POLICY_PHI_DEFAULT(0.5)
         , m_do_write_batch(false)
         // This agent approach is meant to allow for quick prototyping through simplifying
         // signal & control addition and usage.  Most changes to signals and controls
@@ -142,8 +135,8 @@ namespace geopm
         if (all_names.find("DCGM::FIELD_UPDATE_RATE") != all_names.end()) {
             // While DCGM documentation indicates that users should 'generally' query no faster
             // than 100ms, the interface allows for setting the polling rate in the us range.
-            // This agent intended for use with workloads with short phases & is stateless (reacting
-            // only the the last sample taken), so a 1ms polling rate is used.  This has been shown
+            // This agent intended for use with workloads with short phases & is intended to react
+            // only to the last sample taken), so a 1ms polling rate is used.  This has been shown
             // to work for a small number of profiling metrics queried from DCGM.
             // If this leads to undesired behavior these settings may be changed at the cost of
             // performance on workloads with short phases of high GPU activity
@@ -169,12 +162,24 @@ namespace geopm
         // f_efficient as midway between F_min and F_max is reasonable.
         if (std::isnan(in_policy[M_POLICY_ACCELERATOR_FREQ_EFFICIENT])) {
             in_policy[M_POLICY_ACCELERATOR_FREQ_EFFICIENT] = (in_policy[M_POLICY_ACCELERATOR_FREQ_MAX]
-                                                             +accel_min_freq)/2;
+                                                             + accel_min_freq) / 2;
         }
-        // If not EPB value is provided assume the default behavior.
-        if (std::isnan(in_policy[M_POLICY_ACCELERATOR_ENERGY_PERF_BIAS])) {
-            in_policy[M_POLICY_ACCELERATOR_ENERGY_PERF_BIAS] = M_POLICY_ENERGY_PERF_BIAS_DEFAULT;
+
+        if (in_policy[M_POLICY_ACCELERATOR_FREQ_EFFICIENT] > in_policy[M_POLICY_ACCELERATOR_FREQ_MAX]) {
+            in_policy[M_POLICY_ACCELERATOR_FREQ_EFFICIENT] = in_policy[M_POLICY_ACCELERATOR_FREQ_MAX];
         }
+
+        // If no phi value is provided assume the default behavior.
+        if (std::isnan(in_policy[M_POLICY_ACCELERATOR_PHI])) {
+            in_policy[M_POLICY_ACCELERATOR_PHI] = M_POLICY_PHI_DEFAULT;
+        }
+        else if (in_policy[M_POLICY_ACCELERATOR_PHI] < 0.0) {
+            in_policy[M_POLICY_ACCELERATOR_PHI] = 0.0;
+        }
+        else if (in_policy[M_POLICY_ACCELERATOR_PHI] > 1.0) {
+            in_policy[M_POLICY_ACCELERATOR_PHI] = 1.0;
+        }
+
     }
 
     // Distribute incoming policy to children
@@ -220,31 +225,31 @@ namespace geopm
 #endif
 
         // Per GPU freq
-        std::vector<double> board_gpu_freq_request;
+        std::vector<double> board_accelerator_freq_request;
 
         // Policy provided controls
         double f_max = in_policy[M_POLICY_ACCELERATOR_FREQ_MAX];
         double f_efficient = in_policy[M_POLICY_ACCELERATOR_FREQ_EFFICIENT];
-        double energy_perf_bias = in_policy[M_POLICY_ACCELERATOR_ENERGY_PERF_BIAS];
+        double phi = in_policy[M_POLICY_ACCELERATOR_PHI];
 
-        // initial range is needed to apply EPB
+        // initial range is needed to apply phi
         double f_range = f_max - f_efficient;
 
-        if (energy_perf_bias > 50) {
-            //Energy Biased.  Scale F_max down to F_efficient based upon EPB value
-            //Active region EPB usage
-            f_max = std::max(f_efficient, f_max-f_range*(energy_perf_bias-50)/50);
+        if (phi > 0.5) {
+            //Energy Biased.  Scale F_max down to F_efficient based upon phi value
+            //Active region phi usage
+            f_max = std::max(f_efficient, f_max - f_range * (phi-0.5) / 0.5);
         }
-        else if (energy_perf_bias < 50) {
-            //Perf Biased.  Scale F_efficient up to F_max based upon EPB value
-            //Active region EPB usage
-            f_efficient = std::min(f_max, f_efficient+f_range*(50-energy_perf_bias)/50);
+        else if (phi < 0.5) {
+            //Perf Biased.  Scale F_efficient up to F_max based upon phi value
+            //Active region phi usage
+            f_efficient = std::min(f_max, f_efficient + f_range * (0.5-phi) / 0.5);
         }
 
-        // Recalculate range after EPB has been applied
+        // Recalculate range after phi has been applied
         f_range = f_max - f_efficient;
 
-        // Tracking EPB resolved frequencies for the report
+        // Tracking phi resolved frequencies for the report
         m_f_max_resolved = f_max;
         m_f_efficient_resolved = f_efficient;
         m_f_range_resolved = f_range;
@@ -279,7 +284,7 @@ namespace geopm
                 // achieved through tracking the GPU Utilization signal and setting frequency
                 // to a separate idle value (f_idle) during regions where GPU Utilizaiton is
                 // zero (or below some bar).
-                f_request = (f_efficient + (f_range)*(std::min(1.0,accelerator_compute_activity)));
+                f_request = f_efficient + f_range * std::min(1.0, accelerator_compute_activity);
 
 #ifdef GEOPM_DEBUG
                 // Tracking logic.  This is not needed for any performance reason,
@@ -308,19 +313,19 @@ namespace geopm
             f_request = std::max(f_request, f_efficient);
 
             // Store frequency request
-            board_gpu_freq_request.push_back(f_request);
+            board_accelerator_freq_request.push_back(f_request);
         }
 
-        if (!board_gpu_freq_request.empty()) {
+        if (!board_accelerator_freq_request.empty()) {
             // set frequency control per accelerator
             auto freq_ctl_itr = m_control_available.find("FREQUENCY_ACCELERATOR_CONTROL");
             for (int domain_idx = 0; domain_idx < (int) freq_ctl_itr->second.controls.size(); ++domain_idx) {
-                if (board_gpu_freq_request.at(domain_idx) !=
+                if (board_accelerator_freq_request.at(domain_idx) !=
                     freq_ctl_itr->second.controls.at(domain_idx).m_last_setting) {
                     m_platform_io.adjust(freq_ctl_itr->second.controls.at(domain_idx).m_batch_idx,
-                                         board_gpu_freq_request.at(domain_idx));
+                                         board_accelerator_freq_request.at(domain_idx));
                     freq_ctl_itr->second.controls.at(domain_idx).m_last_setting =
-                                         board_gpu_freq_request.at(domain_idx);
+                                         board_accelerator_freq_request.at(domain_idx);
                     ++m_accelerator_frequency_requests;
                 }
             }
@@ -491,7 +496,7 @@ namespace geopm
     // Describes expected policies to be provided by the resource manager or user
     std::vector<std::string> GPUActivityAgent::policy_names(void)
     {
-        return {"ACCELERATOR_FREQ_MAX", "ACCELERATOR_FREQ_EFFICIENT", "ACCELERATOR_ENERGY_PERF_BIAS"};
+        return {"ACCELERATOR_FREQ_MAX", "ACCELERATOR_FREQ_EFFICIENT", "ACCELERATOR_PHI"};
     }
 
     // Describes samples to be provided to the resource manager or user
