@@ -328,7 +328,7 @@ TEST_F(ReporterTest, generate)
 
     // Other calls
     EXPECT_CALL(m_tree_comm, overhead_send()).WillOnce(Return(678 * 56));
-    EXPECT_CALL(*m_comm, rank()).WillOnce(Return(0));
+    EXPECT_CALL(*m_comm, rank()).WillRepeatedly(Return(0));
     EXPECT_CALL(*m_comm, num_rank()).WillOnce(Return(1));
 
     std::vector<std::pair<std::string, std::string> > agent_header {
