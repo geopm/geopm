@@ -138,7 +138,8 @@ namespace geopm
 
         double accel_freq_request = in_policy[M_POLICY_ACCELERATOR_FREQUENCY];
         double cpu_freq_request = in_policy[M_POLICY_CPU_FREQUENCY];
-        double uncore_freq_request = in_policy[M_POLICY_UNCORE_FREQUENCY];
+        double uncore_min_freq_request = in_policy[M_POLICY_UNCORE_MIN_FREQUENCY];
+        double uncore_max_freq_request = in_policy[M_POLICY_UNCORE_MAX_FREQUENCY];
 
         // set Accelerator frequency control
         auto freq_ctl_itr = m_control_available.find("FREQUENCY_ACCELERATOR_CONTROL");
@@ -160,18 +161,20 @@ namespace geopm
             }
         }
 
-        // set Uncore frequency control
-        freq_ctl_itr = m_control_available.find("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO");
-        if (!std::isnan(in_policy[M_POLICY_UNCORE_FREQUENCY])) {
-            if (uncore_freq_request != freq_ctl_itr->second.m_last_setting) {
-                m_platform_io.adjust(freq_ctl_itr->second.m_batch_idx, uncore_freq_request);
-                freq_ctl_itr->second.m_last_setting = uncore_freq_request;
+        // set Uncore frequency controls
+        if (!std::isnan(in_policy[M_POLICY_UNCORE_MIN_FREQUENCY])) {
+            freq_ctl_itr = m_control_available.find("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO");
+            if (uncore_min_freq_request != freq_ctl_itr->second.m_last_setting) {
+                m_platform_io.adjust(freq_ctl_itr->second.m_batch_idx, uncore_min_freq_request);
+                freq_ctl_itr->second.m_last_setting = uncore_min_freq_request;
                 m_do_write_batch = true;
             }
+	}
+	if (!std::isnan(in_policy[M_POLICY_UNCORE_MAX_FREQUENCY])) {
             freq_ctl_itr = m_control_available.find("MSR::UNCORE_RATIO_LIMIT:MAX_RATIO");
-            if (uncore_freq_request != freq_ctl_itr->second.m_last_setting) {
-                m_platform_io.adjust(freq_ctl_itr->second.m_batch_idx, uncore_freq_request);
-                freq_ctl_itr->second.m_last_setting = uncore_freq_request;
+            if (uncore_max_freq_request != freq_ctl_itr->second.m_last_setting) {
+                m_platform_io.adjust(freq_ctl_itr->second.m_batch_idx, uncore_max_freq_request);
+                freq_ctl_itr->second.m_last_setting = uncore_max_freq_request;
                 m_do_write_batch = true;
             }
         }
@@ -294,7 +297,8 @@ namespace geopm
     {
         return {"ACCELERATOR_FREQUENCY",
                 "CORE_FREQUENCY",
-                "UNCORE_FREQUENCY",
+                "UNCORE_MIN_FREQUENCY",
+                "UNCORE_MAX_FREQUENCY",
                };
     }
 

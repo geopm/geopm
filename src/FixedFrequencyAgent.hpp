@@ -80,7 +80,8 @@ namespace geopm
             enum m_policy_e {
                 M_POLICY_ACCELERATOR_FREQUENCY,
                 M_POLICY_CPU_FREQUENCY,
-                M_POLICY_UNCORE_FREQUENCY,
+                M_POLICY_UNCORE_MIN_FREQUENCY,
+                M_POLICY_UNCORE_MAX_FREQUENCY,
                 M_NUM_POLICY
             };
             // Sample indices; must match sample_names()
