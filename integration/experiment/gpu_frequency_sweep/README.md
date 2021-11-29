@@ -51,11 +51,6 @@ the uncore frequency.
 
 ## Analysis Scripts to Produce Summary Tables and Visualizations
 
-#### `gen_plot_heatmap.py`:
-
-  Plots the requested metric against core and gpu frequency as a
-  heatmap or 3D surface.
-
 #### `gen_region_summary.py`:
 
   Various Region and Application summary tables.
