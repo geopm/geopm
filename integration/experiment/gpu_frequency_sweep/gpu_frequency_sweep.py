@@ -32,7 +32,7 @@
 #
 
 '''
-Helper functions for running power sweep experiments.
+Helper functions for running gpu frequency sweep experiments.
 '''
 
 import sys
@@ -91,7 +91,6 @@ def setup_gpu_frequency_bounds(mach, min_gpu_freq, max_gpu_freq, step_gpu_freq):
             gpu_freqs.append(int(gclks[min(range(len(gclks)), key = lambda i: abs(gclks[i]-val))]))
             val -= step_gpu_freq
 
-    print(gpu_freqs)
     return gpu_freqs
     
 def setup_uncore_frequency_bounds(mach, min_uncore_freq, max_uncore_freq,
@@ -121,11 +120,11 @@ def launch_configs(app_conf, core_freq_range, uncore_freq_range, gpu_freq_range)
     for freq in core_freq_range:
         for uncore_freq in uncore_freq_range:
             for gpu_freq in gpu_freq_range:
-                #name = '{:.3e}g_{:.1e}c_{:.1e}u'.format(gpu_freq, freq, uncore_freq)
-                name = '{}g_{}c_{}u'.format(gpu_freq, freq, uncore_freq)
+                name = '{:.3e}g_{:.1e}c_{:.1e}u'.format(gpu_freq, freq, uncore_freq)
                 options = {'ACCELERATOR_FREQUENCY': gpu_freq,
                            'CORE_FREQUENCY': freq,
-                           'UNCORE_FREQUENCY': uncore_freq}
+                           'UNCORE_MIN_FREQUENCY': uncore_freq,
+                           'UNCORE_MAX_FREQUENCY': uncore_freq}
                            
                 agent_conf = geopmpy.agent.AgentConf('{}_agent_{}g_{}c_{}u.config'.format(agent, gpu_freq, freq, uncore_freq), agent, options)
                 targets.append(launch_util.LaunchConfig(app_conf=app_conf,
