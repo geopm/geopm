@@ -55,7 +55,7 @@ def prepare(df):
     
     # Rename confusing fields
     new_names = {"CORE_FREQUENCY" : "core_mhz",
-                 "UNCORE_FREQUENCY" : "uncore_mhz",
+                 "UNCORE_MIN_FREQUENCY" : "uncore_mhz",
                  "ACCELERATOR_FREQUENCY" : "gpu_mhz",
                  "frequency (%)" : "core freq (%)",
                  "frequency (Hz)" : "core freq (Hz)"}
