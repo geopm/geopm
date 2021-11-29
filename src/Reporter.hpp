@@ -167,6 +167,14 @@ namespace geopm
             static void yaml_write(std::ostream &os, int indent_level,
                                    const std::vector<std::pair<std::string, double> > &data);
 
+            std::string create_header(const std::string &agent_name,
+                                      const std::string &profile_name,
+                                      const std::vector<std::pair<std::string, std::string> > &agent_report_header);
+            std::string create_report(std::set<std::string> region_name_set, double max_memory, double comm_overhead,
+                                      const std::vector<std::pair<std::string, std::string> > &agent_host_report,
+                                      const std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > &agent_region_report);
+            std::string gather_report(const std::string host_report, std::shared_ptr<Comm> comm);
+
             std::string m_start_time;
             std::string m_report_name;
             PlatformIO &m_platform_io;

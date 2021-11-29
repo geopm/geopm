@@ -162,32 +162,60 @@ namespace geopm
             if (!common_report.good()) {
                 throw Exception("Failed to open report file", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
-            // make header
-            std::string policy_str = "{}";
-            if (m_do_endpoint) {
-                policy_str = "DYNAMIC";
-            }
-            else if (m_policy_path.size() > 0) {
-                try {
-                    policy_str = read_file(m_policy_path);
-                }
-                catch(...) {
-                    policy_str = m_policy_path;
-                }
-            }
-            std::vector<std::pair<std::string, std::string> > header {
-                {"GEOPM Version", geopm_version()},
-                {"Start Time", m_start_time},
-                {"Profile", application_io.profile_name()},
-                {"Agent", agent_name},
-                {"Policy", policy_str}
-            };
-            yaml_write(common_report, M_INDENT_HEADER, header);
-            yaml_write(common_report, M_INDENT_HEADER, agent_report_header);
-            common_report << "\n";
-            yaml_write(common_report, M_INDENT_HOST, "Hosts:");
+            common_report << create_header(agent_name, application_io.profile_name(), agent_report_header);
         }
 
+        std::string host_report = create_report(application_io.region_name_set(),
+                                                get_max_memory(),
+                                                tree_comm.overhead_send(),
+                                                agent_host_report,
+                                                agent_region_report);
+        std::string full_report = gather_report(host_report, comm);
+
+        if (!rank) {
+            common_report << full_report;
+            common_report << std::endl;
+            common_report.close();
+        }
+    }
+
+    std::string ReporterImp::create_header(const std::string &agent_name,
+                                           const std::string &profile_name,
+                                           const std::vector<std::pair<std::string, std::string> > &agent_report_header)
+    {
+        std::ostringstream common_report;
+        // make header
+        std::string policy_str = "{}";
+        if (m_do_endpoint) {
+            policy_str = "DYNAMIC";
+        }
+        else if (m_policy_path.size() > 0) {
+            try {
+                policy_str = read_file(m_policy_path);
+            }
+            catch(...) {
+                policy_str = m_policy_path;
+            }
+        }
+        std::vector<std::pair<std::string, std::string> > header {
+            {"GEOPM Version", geopm_version()},
+            {"Start Time", m_start_time},
+            {"Profile", profile_name},
+            {"Agent", agent_name},
+            {"Policy", policy_str}
+        };
+        yaml_write(common_report, M_INDENT_HEADER, header);
+        yaml_write(common_report, M_INDENT_HEADER, agent_report_header);
+        common_report << "\n";
+        yaml_write(common_report, M_INDENT_HOST, "Hosts:");
+        return common_report.str();
+    }
+
+
+    std::string ReporterImp::create_report(std::set<std::string> region_name_set, double max_memory, double comm_overhead,
+                                           const std::vector<std::pair<std::string, std::string> > &agent_host_report,
+                                           const std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > &agent_region_report)
+    {
         // per-host report
         std::ostringstream report;
         yaml_write(report, M_INDENT_HOST_NAME, hostname() + ":");
@@ -203,7 +231,6 @@ namespace geopm
         };
 
         std::vector<region_info> region_ordered;
-        auto region_name_set = application_io.region_name_set();
         for (const auto &region : region_name_set) {
             uint64_t region_hash = geopm_crc32_str(region.c_str());
             int count = m_proc_region_agg->get_count_average(region_hash);
@@ -275,18 +302,19 @@ namespace geopm
                     {"count", 0}});
         auto region_data = get_region_data(GEOPM_REGION_HASH_APP);
         yaml_write(report, M_INDENT_TOTALS_FIELD, region_data);
-
         // Controller overhead
         std::vector<std::pair<std::string, double> > overhead {
-            {"geopmctl memory HWM (B)", get_max_memory()},
-            {"geopmctl network BW (B/s)", tree_comm.overhead_send() / total_runtime}
+            {"geopmctl memory HWM (B)", max_memory},
+            {"geopmctl network BW (B/s)", comm_overhead / total_runtime}
         };
         yaml_write(report, M_INDENT_TOTALS_FIELD, overhead);
+        return report.str();
+    }
 
+    std::string ReporterImp::gather_report(const std::string host_report, std::shared_ptr<Comm> comm)
+    {
         // aggregate reports from every node
-        report.seekp(0, std::ios::end);
-        size_t buffer_size = (size_t) report.tellp();
-        report.seekp(0, std::ios::beg);
+        size_t buffer_size = host_report.size();
         std::vector<char> report_buffer;
         std::vector<size_t> buffer_size_array;
         std::vector<off_t> buffer_displacement;
@@ -296,7 +324,7 @@ namespace geopm
         comm->gather(&buffer_size, sizeof(size_t), buffer_size_array.data(),
                      sizeof(size_t), 0);
 
-        if (!rank) {
+        if (comm->rank() == 0) {
             int full_report_size = std::accumulate(buffer_size_array.begin(), buffer_size_array.end(), 0) + 1;
             report_buffer.resize(full_report_size);
             buffer_displacement[0] = 0;
@@ -305,15 +333,10 @@ namespace geopm
             }
         }
 
-        comm->gatherv((void *) (report.str().data()), sizeof(char) * buffer_size,
+        comm->gatherv((void *) (host_report.c_str()), sizeof(char) * buffer_size,
                       (void *) report_buffer.data(), buffer_size_array, buffer_displacement, 0);
-
-        if (!rank) {
-            report_buffer.back() = '\0';
-            common_report << report_buffer.data();
-            common_report << std::endl;
-            common_report.close();
-        }
+        report_buffer.back() = '\0';
+        return report_buffer.data();
     }
 
     void ReporterImp::init_sync_fields(void)
