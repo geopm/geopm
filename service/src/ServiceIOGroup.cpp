@@ -67,10 +67,11 @@ namespace geopm
         , m_signal_info(service_signal_info(m_service_proxy))
         , m_control_info(service_control_info(m_service_proxy))
         , m_batch_client(batch_client_mock)
-        , m_session_pid(getpid())
+        , m_session_pid(-1)
         , m_is_batch_active(false)
     {
         m_service_proxy->platform_open_session();
+        m_session_pid = getpid();
     }
 
     ServiceIOGroup::~ServiceIOGroup()

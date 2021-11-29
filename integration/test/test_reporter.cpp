@@ -30,37 +30,40 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MOCKREPORTER_HPP_INCLUDE
-#define MOCKREPORTER_HPP_INCLUDE
+#include "geopm_reporter.h"
+#include "geopm_pio.h"
+#include "geopm_error.h"
+#include <iostream>
+#include <unistd.h>
 
-#include "gmock/gmock.h"
-
-#include "ApplicationIO.hpp"
-#include "Comm.hpp"
-#include "Reporter.hpp"
-#include "TreeComm.hpp"
-
-class MockReporter : public geopm::Reporter
+int main(int argc, char **argv)
 {
-    public:
-        MOCK_METHOD(void, init, (), (override));
-        MOCK_METHOD(void, update, (), (override));
-        MOCK_METHOD(void, generate,
-                    (const std::string &agent_name,
-                     (const std::vector<std::pair<std::string, std::string> > &agent_report_header),
-                     (const std::vector<std::pair<std::string, std::string> > &agent_host_report),
-                     (const std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > &agent_region_report),
-                     const geopm::ApplicationIO &application_io,
-                     std::shared_ptr<geopm::Comm> comm,
-                     const geopm::TreeComm &tree_comm),
-                    (override));
-        MOCK_METHOD(std::string, generate,
-                    (const std::string &profile_name,
-                     const std::string &agent_name,
-                     (const std::vector<std::pair<std::string, std::string> > &agent_report_header),
-                     (const std::vector<std::pair<std::string, std::string> > &agent_host_report),
-                     (const std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > &agent_region_report)),
-                    (override));
-};
+    constexpr int report_max = 2 * 1024 * 1024;
+    char report[report_max];
 
-#endif
+    int err = geopm_reporter_init();
+    if (!err) {
+        err = geopm_pio_read_batch();
+    }
+    if (!err) {
+        err = geopm_reporter_update();
+    }
+    if (!err) {
+        sleep(1);
+        err = geopm_pio_read_batch();
+    }
+    if (!err) {
+        err = geopm_reporter_update();
+    }
+    if (!err) {
+        err = geopm_reporter_generate("profile_hello", "agent_hello", report_max, report);
+    }
+    if (!err) {
+        std::cout << report;
+    }
+    else {
+        geopm_error_message(err, report, report_max);
+        std::cerr << report;
+    }
+    return err;
+}

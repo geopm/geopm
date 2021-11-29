@@ -274,12 +274,9 @@ class Controller:
             raise ValueError('agent must be a subclass of Agent.')
         if timeout < 0:
             raise ValueError('timeout must be >= 0')
-        pio.save_control()
         self._agent = agent
         self._signals = agent.get_signals()
         self._controls = agent.get_controls()
-        self._signals_idx = [pio.push_signal(*ss) for ss in self._signals]
-        self._controls_idx = [pio.push_control(*cc) for cc in self._controls]
         self._update_period = agent.get_period()
         self._num_update = None
         if timeout != 0:
@@ -322,6 +319,9 @@ class Controller:
         """
         sys.stderr.write('<geopmdpy> RUN BEGIN\n')
         try:
+            pio.save_control()
+            self._signals_idx = [pio.push_signal(*ss) for ss in self._signals]
+            self._controls_idx = [pio.push_control(*cc) for cc in self._controls]
             pid = subprocess.Popen(argv)
             self._agent.run_begin(policy)
             for loop_idx in TimedLoop(self._update_period, self._num_update):
