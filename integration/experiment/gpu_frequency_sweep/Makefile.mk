@@ -31,7 +31,6 @@
 
 EXTRA_DIST += integration/experiment/gpu_frequency_sweep/__init__.py \
               integration/experiment/gpu_frequency_sweep/gpu_frequency_sweep.py \
-              integration/experiment/gpu_frequency_sweep/gen_region_summary.py \
               integration/experiment/gpu_frequency_sweep/README.md \
               integration/experiment/gpu_frequency_sweep/run_gpu_frequency_sweep_parres_dgemm.py \
               integration/experiment/gpu_frequency_sweep/run_gpu_frequency_sweep_parres_nstream.py \
