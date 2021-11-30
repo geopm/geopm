@@ -67,7 +67,7 @@ namespace geopm
 
         // We are assuming a local version of DCGM.  This could transition to a
         // dcgmStartEmbedded at a later date.
-        char *host_ip = "127.0.0.1";
+        char host_ip[] = "127.0.0.1";
         result = dcgmConnect(host_ip, &m_dcgm_handle);
         check_dcgm_result(result, "Error connecting to standalone DCGM instance", __LINE__);
 
@@ -144,7 +144,7 @@ namespace geopm
     double DCGMDevicePoolImp::sample_field_value(int accel_idx, int geopm_field_id) const {
         double result = NAN;
 
-        if (m_dcgm_field_values.at(accel_idx).at(geopm_field_id).status == DCGM_ST_OK); {
+        if (m_dcgm_field_values.at(accel_idx).at(geopm_field_id).status == DCGM_ST_OK) {
             result = m_dcgm_field_values.at(accel_idx).at(geopm_field_id).value.dbl;
         }
         return result;
