@@ -51,3 +51,7 @@ the uncore frequency.
 
 ## Analysis Scripts to Produce Summary Tables and Visualizations
 
+#### `gen_region_summary.py`:
+
+  Various Region and Application summary tables.
+
