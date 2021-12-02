@@ -103,9 +103,7 @@ def setup_uncore_frequency_bounds(mach, min_uncore_freq, max_uncore_freq,
 
 
 def report_signals():
-    return uncore_frequency_sweep.report_signals() + \
-        ["NVML::FREQUENCY@board_accelerator", "NVML::POWER@board_accelerator",
-         "NVML::UTILIZATION_ACCELERATOR@board_accelerator","NVML::TOTAL_ENERGY_CONSUMPTION@board_accelerator"]
+    return uncore_frequency_sweep.report_signals() 
 
 
 def trace_signals():
