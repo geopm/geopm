@@ -69,6 +69,7 @@ class GPUActivityAgentTest : public :: testing :: Test
         enum mock_pio_idx_e {
             FREQUENCY_ACCELERATOR_IDX,
             ACCELERATOR_COMPUTE_ACTIVITY_IDX,
+            UTILIZATION_ACCELERATOR_IDX,
             ENERGY_ACCELERATOR_IDX,
             FREQUENCY_ACCELERATOR_CONTROL_IDX,
             //REGION_HASH_IDX,
@@ -110,6 +111,8 @@ void GPUActivityAgentTest::SetUp()
         .WillByDefault(Return(FREQUENCY_ACCELERATOR_IDX));
     ON_CALL(*m_platform_io, push_signal("ACCELERATOR_COMPUTE_ACTIVITY", _, _))
         .WillByDefault(Return(ACCELERATOR_COMPUTE_ACTIVITY_IDX));
+    ON_CALL(*m_platform_io, push_signal("UTILIZATION_ACCELERATOR", _, _))
+        .WillByDefault(Return(UTILIZATION_ACCELERATOR_IDX));
     ON_CALL(*m_platform_io, push_signal("ENERGY_ACCELERATOR", _, _))
         .WillByDefault(Return(ENERGY_ACCELERATOR_IDX));
     ON_CALL(*m_platform_io, push_control("FREQUENCY_ACCELERATOR_CONTROL", _, _))
@@ -261,8 +264,11 @@ TEST_F(GPUActivityAgentTest, adjust_platform_high)
     //Sample
     std::vector<double> tmp;
     double mock_active = 1.0;
+    double mock_util = 1.0;
     EXPECT_CALL(*m_platform_io, sample(ACCELERATOR_COMPUTE_ACTIVITY_IDX))
                 .WillRepeatedly(Return(mock_active));
+    EXPECT_CALL(*m_platform_io, sample(UTILIZATION_ACCELERATOR_IDX))
+                .WillRepeatedly(Return(mock_util));
     EXPECT_CALL(*m_platform_io, sample(FREQUENCY_ACCELERATOR_IDX))
                 .WillRepeatedly(Return(m_freq_max - 1)); //Any non-m_freq_max value will work here
     EXPECT_CALL(*m_platform_io, sample(ENERGY_ACCELERATOR_IDX))
@@ -293,8 +299,11 @@ TEST_F(GPUActivityAgentTest, adjust_platform_medium)
     //Sample
     std::vector<double> tmp;
     double mock_active = 0.5;
+    double mock_util = 1.0;
     EXPECT_CALL(*m_platform_io, sample(ACCELERATOR_COMPUTE_ACTIVITY_IDX))
                 .WillRepeatedly(Return(mock_active));
+    EXPECT_CALL(*m_platform_io, sample(UTILIZATION_ACCELERATOR_IDX))
+                .WillRepeatedly(Return(mock_util));
     EXPECT_CALL(*m_platform_io, sample(FREQUENCY_ACCELERATOR_IDX))
                 .WillRepeatedly(Return(m_freq_max-1)); //Any non-m_freq_max value will work here
     EXPECT_CALL(*m_platform_io, sample(ENERGY_ACCELERATOR_IDX))
@@ -327,8 +336,11 @@ TEST_F(GPUActivityAgentTest, adjust_platform_low)
     //Sample
     std::vector<double> tmp;
     double mock_active = 0.1;
+    double mock_util = 1.0;
     EXPECT_CALL(*m_platform_io, sample(ACCELERATOR_COMPUTE_ACTIVITY_IDX))
                 .WillRepeatedly(Return(mock_active));
+    EXPECT_CALL(*m_platform_io, sample(UTILIZATION_ACCELERATOR_IDX))
+                .WillRepeatedly(Return(mock_util));
     EXPECT_CALL(*m_platform_io, sample(FREQUENCY_ACCELERATOR_IDX))
                 .WillRepeatedly(Return(m_freq_max-1)); //Any non-m_freq_max value will work here
 
@@ -361,8 +373,11 @@ TEST_F(GPUActivityAgentTest, adjust_platform_zero)
     //Sample
     std::vector<double> tmp;
     double mock_active = 0.0;
+    double mock_util = 1.0;
     EXPECT_CALL(*m_platform_io, sample(ACCELERATOR_COMPUTE_ACTIVITY_IDX))
                 .WillRepeatedly(Return(mock_active));
+    EXPECT_CALL(*m_platform_io, sample(UTILIZATION_ACCELERATOR_IDX))
+                .WillRepeatedly(Return(mock_util));
     EXPECT_CALL(*m_platform_io, sample(FREQUENCY_ACCELERATOR_IDX))
                 .WillRepeatedly(Return(m_freq_max)); //Any non-m_freq_min value will work here
     EXPECT_CALL(*m_platform_io, sample(ENERGY_ACCELERATOR_IDX))
@@ -394,8 +409,11 @@ TEST_F(GPUActivityAgentTest, adjust_platform_signal_out_of_bounds)
     //Sample
     std::vector<double> tmp;
     double mock_active = 987654321;
+    double mock_util = 1.0;
     EXPECT_CALL(*m_platform_io, sample(ACCELERATOR_COMPUTE_ACTIVITY_IDX))
                 .WillRepeatedly(Return(mock_active));
+    EXPECT_CALL(*m_platform_io, sample(UTILIZATION_ACCELERATOR_IDX))
+                .WillRepeatedly(Return(mock_util));
     EXPECT_CALL(*m_platform_io, sample(FREQUENCY_ACCELERATOR_IDX))
                 .WillRepeatedly(Return(m_freq_max)); //Any non-m_freq_min value will work here
     EXPECT_CALL(*m_platform_io, sample(ENERGY_ACCELERATOR_IDX))
@@ -412,8 +430,11 @@ TEST_F(GPUActivityAgentTest, adjust_platform_signal_out_of_bounds)
 
     //Sample
     mock_active = -12345;
+    mock_util = 1.0;
     EXPECT_CALL(*m_platform_io, sample(ACCELERATOR_COMPUTE_ACTIVITY_IDX))
                 .WillRepeatedly(Return(mock_active));
+    EXPECT_CALL(*m_platform_io, sample(UTILIZATION_ACCELERATOR_IDX))
+                .WillRepeatedly(Return(mock_util));
     EXPECT_CALL(*m_platform_io, sample(FREQUENCY_ACCELERATOR_IDX))
                 .WillRepeatedly(Return(m_freq_max)); //Any non-m_freq_min value will work here
     EXPECT_CALL(*m_platform_io, sample(ENERGY_ACCELERATOR_IDX))
