@@ -458,6 +458,182 @@ TEST_F(BatchServerTest, run_batch_write_empty)
 }
 
 /**
+ * @throws geopm Exception to simulate failure of read(2) system call in BatchStatusImp::receive_message()
+ */
+ACTION(batch_status_read_EINTR)
+{
+    throw geopm::Exception(
+        "BatchStatusImp: System call failed: " "read(2)",
+        EINTR,
+        __FILE__,
+        __LINE__
+    );
+}
+
+/**
+ * @test Testing BatchStatus::receive_message() to throw an exception inside of BatchServerImp::read_message()
+ *       This is needed to activate the catch blocks in BatchServerImp::read_message() and BatchServerImp::run_batch()
+ */
+TEST_F(BatchServerTest, receive_message_exception)
+{
+    InSequence sequence;
+
+    int idx = 0;
+    std::vector<double> result = {240.042, 250.052};
+
+    for (const auto &request : m_signal_config) {
+        EXPECT_CALL(*m_pio_ptr, push_signal(request.name, request.domain,
+                                            request.domain_idx))
+            .WillOnce(Return(idx))
+            .RetiresOnSaturation();
+        ++idx;
+    }
+
+    for (const auto &request : m_control_config) {
+        EXPECT_CALL(*m_pio_ptr, push_control(request.name, request.domain,
+                                             request.domain_idx))
+            .WillOnce(Return(idx))
+            .RetiresOnSaturation();
+        ++idx;
+    }
+
+    // This is where it throws the message.
+    EXPECT_CALL(
+        *m_batch_status.get(),
+        receive_message()
+    )
+    .Times(1)
+    .WillRepeatedly(batch_status_read_EINTR());
+
+    GEOPM_EXPECT_THROW_MESSAGE(
+        m_batch_server->run_batch(),
+        EINTR,
+        "BatchStatusImp: System call failed: " "read(2)"
+    );
+}
+
+/**
+ * @throws geopm Exception to simulate failure of write(2) system call in BatchStatusImp::send_message()
+ */
+ACTION(batch_status_write_EINTR)
+{
+    throw geopm::Exception(
+        "BatchStatusImp: System call failed: " "write(2)",
+        EINTR,
+        __FILE__,
+        __LINE__
+    );
+}
+
+/**
+ * @test Testing BatchStatusImp::send_message() to throw an exception inside of BatchServerImp::write_message()
+ *       This is needed to activate the catch blocks in BatchServerImp::write_message() and BatchServerImp::run_batch()
+ */
+TEST_F(BatchServerTest, write_message_exception)
+{
+    InSequence sequence;
+
+    int idx = 0;
+    std::vector<double> result = {240.042, 250.052};
+
+    for (const auto &request : m_signal_config) {
+        EXPECT_CALL(*m_pio_ptr, push_signal(request.name, request.domain,
+                                            request.domain_idx))
+            .WillOnce(Return(idx))
+            .RetiresOnSaturation();
+        ++idx;
+    }
+
+    for (const auto &request : m_control_config) {
+        EXPECT_CALL(*m_pio_ptr, push_control(request.name, request.domain,
+                                             request.domain_idx))
+            .WillOnce(Return(idx))
+            .RetiresOnSaturation();
+        ++idx;
+    }
+
+    EXPECT_CALL(*m_batch_status, receive_message())
+        .WillOnce(Return(BatchStatus::M_MESSAGE_QUIT))
+        .RetiresOnSaturation();
+
+    // This is where it throws the message.
+    EXPECT_CALL(
+        *m_batch_status.get(),
+        send_message(BatchStatus::M_MESSAGE_QUIT)
+    )
+    .Times(1)
+    .WillRepeatedly(batch_status_write_EINTR());
+
+    EXPECT_CALL(*m_batch_status,
+                send_message(BatchStatus::M_MESSAGE_QUIT))
+        .Times(1)
+        .RetiresOnSaturation();
+
+    GEOPM_EXPECT_THROW_MESSAGE(
+        m_batch_server->run_batch(),
+        EINTR,
+        "BatchStatusImp: System call failed: " "write(2)"
+    );
+}
+
+/**
+ * @throws geopm Exception to simulate failure of ioctl(2) system call in SSTIoctlImp::mbox() in SSTIOImp::read_batch()
+ */
+ACTION(read_batch_mbox_failed_EINVAL)
+{
+    throw geopm::Exception(
+        "SSTIOImp::read_batch() mbox read failed",
+        EINVAL,
+        __FILE__,
+        __LINE__
+    );
+}
+
+/**
+ * @test Testing SSTIOImp::read_batch() to throw an exception inside of BatchServerImp::read_and_update()
+ *       This is needed to activate if (m_is_client_waiting) branch inside the catch block in BatchServerImp::run_batch()
+ */
+TEST_F(BatchServerTest, read_batch_exception)
+{
+    InSequence sequence;
+
+    int idx = 0;
+    std::vector<double> result = {240.042, 250.052};
+
+    for (const auto &request : m_signal_config) {
+        EXPECT_CALL(*m_pio_ptr, push_signal(request.name, request.domain,
+                                            request.domain_idx))
+            .WillOnce(Return(idx))
+            .RetiresOnSaturation();
+        ++idx;
+    }
+
+    for (const auto &request : m_control_config) {
+        EXPECT_CALL(*m_pio_ptr, push_control(request.name, request.domain,
+                                             request.domain_idx))
+            .WillOnce(Return(idx))
+            .RetiresOnSaturation();
+        ++idx;
+    }
+
+    // m_is_client_waiting = true;
+    EXPECT_CALL(*m_batch_status, receive_message())
+        .WillOnce(Return(BatchStatus::M_MESSAGE_READ))
+        .RetiresOnSaturation();
+
+    // This is where it throws the message.
+    EXPECT_CALL(*m_pio_ptr, read_batch())
+        .Times(1)
+        .WillRepeatedly(read_batch_mbox_failed_EINVAL());
+
+    GEOPM_EXPECT_THROW_MESSAGE(
+        m_batch_server->run_batch(),
+        EINVAL,
+        "SSTIOImp::read_batch() mbox read failed"
+    );
+}
+
+/**
  * @test Check if we can create the shared memory.
  *       Check if the shared memory files for both the signals and controls were created in the /dev/shm/
  *       Check the sizes of the files match the number of signals and controls.
