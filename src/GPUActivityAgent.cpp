@@ -63,6 +63,7 @@ namespace geopm
         , m_last_wait{{0, 0}}
         , M_WAIT_SEC(0.020) // 20ms Wait
         , M_POLICY_PHI_DEFAULT(0.5)
+        , M_GPU_ACTIVITY_CUTOFF(0.05)
         , m_do_write_batch(false)
         // This agent approach is meant to allow for quick prototyping through simplifying
         // signal & control addition and usage.  Most changes to signals and controls
@@ -80,9 +81,19 @@ namespace geopm
                                   true,
                                   {}
                                   }},
+                              {"UTILIZATION_ACCELERATOR", {
+                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                  true,
+                                  {}
+                                  }},
                               {"ENERGY_ACCELERATOR", {
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   true,
+                                  {}
+                                  }},
+                              {"TIME", {
+                                  GEOPM_DOMAIN_BOARD,
+                                  false,
                                   {}
                                   }},
                              })
@@ -104,14 +115,12 @@ namespace geopm
         m_f_max_resolved = 0;
         m_f_efficient_resolved = 0;
         m_f_range_resolved = 0;
-#ifdef GEOPM_DEBUG
-        m_accelerator_passive_freq_agg = 0;
-        m_accelerator_passive_samples = 0;
-        m_accelerator_passive_energy = 0;
-        m_accelerator_active_freq_agg = 0;
-        m_accelerator_active_samples = 0;
-        m_accelerator_active_energy = 0;
-#endif
+        for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR); ++domain_idx) {
+            m_accelerator_active_region_start.push_back(0.0);
+            m_accelerator_active_region_stop.push_back(0.0);
+            m_accelerator_active_energy_start.push_back(0.0);
+            m_accelerator_active_energy_stop.push_back(0.0);
+        }
 
         if (level == 0) {
             init_platform_io();
@@ -142,14 +151,11 @@ namespace geopm
 
         auto all_names = m_platform_io.signal_names();
         if (all_names.find("DCGM::FIELD_UPDATE_RATE") != all_names.end()) {
-            // While DCGM documentation indicates that users should 'generally' query no faster
-            // than 100ms, the interface allows for setting the polling rate in the us range.
-            // This agent intended for use with workloads with short phases & is intended to react
-            // only to the last sample taken), so a 1ms polling rate is used.  This has been shown
-            // to work for a small number of profiling metrics queried from DCGM.
-            // If this leads to undesired behavior these settings may be changed at the cost of
-            // performance on workloads with short phases of high GPU activity
-            m_platform_io.write_control("DCGM::FIELD_UPDATE_RATE", GEOPM_DOMAIN_BOARD, 0, 1000);
+            // DCGM documentation indicates that users should query no faster than 100ms
+            // even though the interface allows for setting the polling rate in the us range.
+            // In practice reducing below the 100ms value has proven functional, but should only
+            // be attempted if there is a strong need to catch short phase behavior.
+            m_platform_io.write_control("DCGM::FIELD_UPDATE_RATE", GEOPM_DOMAIN_BOARD, 0, 100000);
             m_platform_io.write_control("DCGM::MAX_STORAGE_TIME", GEOPM_DOMAIN_BOARD, 0, 1);
             m_platform_io.write_control("DCGM::MAX_SAMPLES", GEOPM_DOMAIN_BOARD, 0, 100);
         }
@@ -250,11 +256,10 @@ namespace geopm
 
         // Primary signal used for frequency recommendation
         auto gpu_active_itr = m_signal_available.find("ACCELERATOR_COMPUTE_ACTIVITY");
+        auto gpu_utilization_itr = m_signal_available.find("UTILIZATION_ACCELERATOR");
 
-#ifdef GEOPM_DEBUG
         // Track energy in the active and passive case for reporting
         auto energy_itr = m_signal_available.find("ENERGY_ACCELERATOR");
-#endif
 
         // Per GPU freq
         std::vector<double> board_accelerator_freq_request;
@@ -290,19 +295,23 @@ namespace geopm
         for (int domain_idx = 0; domain_idx < (int) gpu_active_itr->second.signals.size(); ++domain_idx) {
             // Accelerator Comppute Activity
             double accelerator_compute_activity = gpu_active_itr->second.signals.at(domain_idx).m_last_signal;
-
-#ifdef GEOPM_DEBUG
-            // Energy consumed from the last sample to this sample
-            double energy_accelerator = energy_itr->second.signals.at(domain_idx).m_last_sample;
-#endif
+            double accelerator_utilization = gpu_utilization_itr->second.signals.at(domain_idx).m_last_signal;
 
             // Default to F_max
             double f_request = f_max;
 
             if (!std::isnan(accelerator_compute_activity)) {
+                accelerator_compute_activity = std::min(accelerator_compute_activity, 1.0);
+
                 // Frequency selection is based upon the accelerator compute activity.
                 // For active regions this means that we scale with the amount of work
                 // being done (such as SM_ACTIVE for NVIDIA GPUs).
+                //
+                // The compute activity is scaled by the GPU Utilization, to help
+                // address the issues that come from workloads have short phases that are
+                // frequency sensitive.  If a workload has a compute activity of 0.5, and
+                // is resident on the GPU for 50% of cycles (0.5) it is treated as having
+                // a 1.0 compute activity value
                 //
                 // For inactive regions the frequency selection is simply the efficient
                 // frequency from system characterization.
@@ -316,28 +325,32 @@ namespace geopm
                 // achieved through tracking the GPU Utilization signal and setting frequency
                 // to a separate idle value (f_idle) during regions where GPU Utilizaiton is
                 // zero (or below some bar).
-                f_request = f_efficient + f_range * std::min(1.0, accelerator_compute_activity);
+                if (!std::isnan(accelerator_utilization) &&
+                    accelerator_utilization > 0) {
+                    accelerator_utilization = std::min(accelerator_utilization, 1.0);
+                    f_request = f_efficient + f_range * (accelerator_compute_activity / accelerator_utilization);
+                }
+                else {
+                    f_request = f_efficient + f_range * accelerator_compute_activity;
+                }
 
-#ifdef GEOPM_DEBUG
+                auto time_itr = m_signal_available.find("TIME");
+                double time = time_itr->second.signals.at(0).m_last_sample;
                 // Tracking logic.  This is not needed for any performance reason,
                 // but does provide useful metrics for tracking agent behavior
-                if (accelerator_compute_activity != 0) {
-                    // Active region tracking
-                    ++m_accelerator_active_samples;
-                    m_accelerator_active_freq_agg += f_request;
-                    if (!std::isnan(energy_accelerator)) {
-                        m_accelerator_active_energy += energy_accelerator;
+                if (accelerator_compute_activity >= M_GPU_ACTIVITY_CUTOFF) {
+                    m_accelerator_active_region_stop.at(domain_idx) = 0;
+                    if (m_accelerator_active_region_start.at(domain_idx) == 0) {
+                        m_accelerator_active_region_start.at(domain_idx) = time;
+                        m_accelerator_active_energy_start.at(domain_idx) = energy_itr->second.signals.at(domain_idx).m_last_signal;
                     }
                 }
                 else {
-                    // Passive region tracking
-                    ++m_accelerator_passive_samples;
-                    m_accelerator_passive_freq_agg += f_request;
-                    if (!std::isnan(energy_accelerator)) {
-                        m_accelerator_passive_energy += energy_accelerator;
+                    if (m_accelerator_active_region_stop.at(domain_idx) == 0) {
+                        m_accelerator_active_region_stop.at(domain_idx) = time;
+                        m_accelerator_active_energy_stop.at(domain_idx) = energy_itr->second.signals.at(domain_idx).m_last_signal;
                     }
                 }
-#endif
             }
 
             // Frequency bound checking
@@ -420,14 +433,20 @@ namespace geopm
         result.push_back({"Resolved Efficient Frequency", std::to_string(m_f_efficient_resolved)});
         result.push_back({"Resolved Frequency Range", std::to_string(m_f_range_resolved)});
 
-#ifdef GEOPM_DEBUG
-        result.push_back({"Accelerator Passive Energy", std::to_string(m_accelerator_passive_energy)});
-        result.push_back({"Accelerator Passive Samples", std::to_string(m_accelerator_passive_samples)});
-        result.push_back({"Accelerator Passive Freq Request Avg", std::to_string(m_accelerator_passive_freq_agg/m_accelerator_passive_samples)});
-        result.push_back({"Accelerator Active Energy", std::to_string(m_accelerator_active_energy)});
-        result.push_back({"Accelerator Active Samples", std::to_string(m_accelerator_active_samples)});
-        result.push_back({"Accelerator Active Freq Request Avg", std::to_string(m_accelerator_active_freq_agg/m_accelerator_active_samples)});
-#endif
+        for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR); ++domain_idx) {
+            double energy_stop = m_accelerator_active_energy_stop.at(domain_idx);
+            double energy_start = m_accelerator_active_energy_start.at(domain_idx);
+            double region_stop = m_accelerator_active_region_stop.at(domain_idx);
+            double region_start =  m_accelerator_active_region_start.at(domain_idx);
+            result.push_back({"Accelerator " + std::to_string(domain_idx) +
+                              " Active Region Energy", std::to_string(energy_stop - energy_start)});
+            result.push_back({"Accelerator " + std::to_string(domain_idx) +
+                              " Active Region Time", std::to_string(region_stop - region_start)});
+            result.push_back({"Accelerator " + std::to_string(domain_idx) +
+                              " Active Region Start Time", std::to_string(region_start)});
+            result.push_back({"Accelerator " + std::to_string(domain_idx) +
+                              " Active Region Stop Time", std::to_string(region_stop)});
+        }
 
         return result;
     }

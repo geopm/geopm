@@ -80,6 +80,7 @@ namespace geopm
             geopm_time_s m_last_wait;
             const double M_WAIT_SEC;
             const double M_POLICY_PHI_DEFAULT;
+            const double M_GPU_ACTIVITY_CUTOFF;
             bool m_do_write_batch;
 
             struct signal
@@ -128,14 +129,10 @@ namespace geopm
             double m_f_max_resolved;
             double m_f_efficient_resolved;
             double m_f_range_resolved;
-#ifdef GEOPM_DEBUG
-            double m_accelerator_passive_energy;
-            double m_accelerator_passive_samples;
-            double m_accelerator_passive_freq_agg;
-            double m_accelerator_active_energy;
-            double m_accelerator_active_samples;
-            double m_accelerator_active_freq_agg;
-#endif
+            std::vector<double> m_accelerator_active_region_start;
+            std::vector<double> m_accelerator_active_region_stop;
+            std::vector<double> m_accelerator_active_energy_start;
+            std::vector<double> m_accelerator_active_energy_stop;
 
             void init_platform_io(void);
     };
