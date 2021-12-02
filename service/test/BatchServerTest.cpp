@@ -39,6 +39,7 @@
 #include "MockPOSIXSignal.hpp"
 #include "MockSharedMemory.hpp"
 #include "geopm/Helper.hpp"
+#include "geopm_test.hpp"
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -46,6 +47,8 @@
 #include <sys/stat.h>
 #include <sys/mman.h>
 #include <unistd.h>
+
+#include <string>     // for std::string
 
 using testing::InSequence;
 using testing::Return;
@@ -152,6 +155,9 @@ void BatchServerTest::TearDown()
     m_batch_server_pid.reset();
 }
 
+/**
+ * @test BatchServerImp::server_pid() in isolation
+ */
 TEST_F(BatchServerTest, get_server_pid)
 {
     EXPECT_EQ(m_server_pid, m_batch_server->server_pid());
@@ -160,12 +166,18 @@ TEST_F(BatchServerTest, get_server_pid)
     EXPECT_EQ(m_server_pid, server_pid);
 }
 
+/**
+ * @test BatchServerImp::get_server_key() in isolation
+ */
 TEST_F(BatchServerTest, get_server_key)
 {
     std::string key = m_batch_server->server_key();
     EXPECT_EQ(std::to_string(m_client_pid), key);
 }
 
+/**
+ * @test Check BatchServerImp::stop_batch() to send SIGTERM signal to the server.
+ */
 TEST_F(BatchServerTest, stop_batch)
 {
     EXPECT_TRUE(m_batch_server->is_active());
@@ -177,6 +189,14 @@ TEST_F(BatchServerTest, stop_batch)
     EXPECT_FALSE(m_batch_server->is_active());
 }
 
+/**
+ * @test Check BatchServerImp::run_batch() under normal operation, given a sequence of read requests.
+ *       First the requests signals and controls are filled up.
+ *       Second the server recieves a message to read the batch.
+ *       It then samples both signals, and writes the results into the shared memory buffer.
+ *       The server sends a message for the client to continue.
+ *       The server recieved a message from the client to quit.
+ */
 TEST_F(BatchServerTest, run_batch_read)
 {
     InSequence sequence;
@@ -187,7 +207,6 @@ TEST_F(BatchServerTest, run_batch_read)
     for (const auto &request : m_signal_config) {
         EXPECT_CALL(*m_pio_ptr, push_signal(request.name, request.domain,
                                             request.domain_idx))
-
             .WillOnce(Return(idx))
             .RetiresOnSaturation();
         ++idx;
@@ -235,6 +254,14 @@ TEST_F(BatchServerTest, run_batch_read)
     EXPECT_EQ(result[1], data_ptr[1]);
 }
 
+/**
+ * @test Check BatchServerImp::run_batch() when there are no signals and you try to read.
+ *       First the requests only controls are filled up.
+ *       Second the server recieves a message to read the batch.
+ *       However there are no signals, so it does nothing.
+ *       The server sends a message for the client to continue.
+ *       The server recieved a message from the client to quit.
+ */
 TEST_F(BatchServerTest, run_batch_read_empty)
 {
     InSequence sequence;
@@ -271,6 +298,14 @@ TEST_F(BatchServerTest, run_batch_read_empty)
     m_batch_server_controls->run_batch();
 }
 
+/**
+ * @test Check BatchServerImp::run_batch() under normal operation, given a sequence of write requests.
+ *       First the requests signals and controls are filled up.
+ *       Second the server recieves a message to write the batch.
+ *       It then reads the values from the shared memory and writes all of the pushed controls to the platform.
+ *       The server sends a message for the client to continue.
+ *       The server recieved a message from the client to quit.
+ */
 TEST_F(BatchServerTest, run_batch_write)
 {
     InSequence sequence;
@@ -324,6 +359,14 @@ TEST_F(BatchServerTest, run_batch_write)
     m_batch_server->run_batch();
 }
 
+/**
+ * @test Check BatchServerImp::run_batch() when there are no controls and you try to write.
+ *       First the requests only signals are filled up.
+ *       Second the server recieves a message to write the batch.
+ *       However there are no controls, so it does nothing.
+ *       The server sends a message for the client to continue.
+ *       The server recieved a message from the client to quit.
+ */
 TEST_F(BatchServerTest, run_batch_write_empty)
 {
     InSequence sequence;
@@ -359,6 +402,12 @@ TEST_F(BatchServerTest, run_batch_write_empty)
     m_batch_server_signals->run_batch();
 }
 
+/**
+ * @test Check if we can create the shared memory.
+ *       Check if the shared memory files for both the signals and controls were created in the /dev/shm/
+ *       Check the sizes of the files match the number of signals and controls.
+ *       Check the uid and gid permissions of the files.
+ */
 TEST_F(BatchServerTest, create_shmem)
 {
     int this_pid = getpid();
@@ -391,6 +440,11 @@ TEST_F(BatchServerTest, create_shmem)
     EXPECT_EQ(0, unlink(shmem_prefix_control.c_str()));
 }
 
+/**
+ * @test Check forking the batch server process.
+ *       Check that the setup() function is called prior to the run() function.
+ *       Check that the message came over the pipe used for synchronization.
+ */
 TEST_F(BatchServerTest, fork_with_setup)
 {
     size_t *counter_mem = (size_t*) mmap(
