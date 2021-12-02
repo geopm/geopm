@@ -48,10 +48,6 @@ def prepare(df):
     # Drop unneeded data columns
     extra_cols = ['Start Time', 'GEOPM Version']
     df = df.drop(extra_cols, axis=1)
-    df['gpu freq (Hz)'] = df.filter(regex='NVML::FREQUENCY@board_accelerator').mean(1)
-    df['gpu power (W)'] = df.filter(regex='NVML::POWER@board_accelerator').sum(1)
-    df['gpu energy (J)'] = df.filter(regex='NVML::TOTAL_ENERGY_CONSUMPTION@board_accelerator').sum(1)
-    df['uncore freq (Hz)'] = df.filter(regex='MSR::UNCORE_PERF_STATUS:FREQ@package').mean(1)
     
     # Rename confusing fields
     new_names = {"CORE_FREQUENCY" : "core_mhz",
@@ -84,8 +80,8 @@ def region_summary_analysis(report_collection, analysis_dir):
         df = prepare(df)
     adf = prepare(adf)
 
-    field_list = ['count', 'runtime (s)', 'sync-runtime (s)', 'time-hint-network (s)', 'package-energy (J)', 'power (W)', 'core freq (%)', 'core freq (Hz)', 'gpu freq (Hz)', 'gpu power (W)', 'gpu energy (J)', 'uncore freq (Hz)']
-    adf_field_list = ['runtime (s)', 'time-hint-network (s)', 'time-hint-ignore (s)', 'package-energy (J)', 'dram-energy (J)', 'power (W)', 'gpu power (W)', 'gpu energy (J)']
+    field_list = ['count', 'runtime (s)', 'sync-runtime (s)', 'time-hint-network (s)', 'package-energy (J)', 'power (W)', 'core freq (%)', 'core freq (Hz)', 'accelerator-energy (J)', 'accelerator-power (W)', 'accelerator-frequency (HZ)']
+    adf_field_list = ['runtime (s)', 'time-hint-network (s)', 'time-hint-ignore (s)', 'package-energy (J)', 'dram-energy (J)', 'power (W)', 'core freq (%)', 'core freq (Hz)', 'accelerator-energy (J)', 'accelerator-power (W)', 'accelerator-frequency (HZ)']
 
     if edf[:1]['count'].item() > 0.0:
         # Write Epoch stats
