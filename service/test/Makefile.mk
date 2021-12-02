@@ -45,6 +45,7 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
               test/gtest_links/BatchServerTest.get_server_pid \
               test/gtest_links/BatchServerTest.get_server_key \
               test/gtest_links/BatchServerTest.stop_batch \
+              test/gtest_links/BatchServerTest.stop_batch_exception \
               test/gtest_links/BatchServerTest.run_batch_read \
               test/gtest_links/BatchServerTest.run_batch_read_empty \
               test/gtest_links/BatchServerTest.run_batch_write \

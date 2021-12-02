@@ -79,6 +79,7 @@ class BatchServerTest : public ::testing::Test
         std::shared_ptr<BatchServerImp> m_batch_server_signals;
         std::shared_ptr<BatchServerImp> m_batch_server_controls;
         std::shared_ptr<BatchServerImp> m_batch_server_pid;
+        std::shared_ptr<BatchServerImp> m_batch_server_child_process;
 
 };
 
@@ -133,6 +134,16 @@ void BatchServerTest::SetUp()
                                                           m_signal_shmem,
                                                           m_control_shmem,
                                                           m_server_pid);
+
+    m_batch_server_child_process = std::make_shared<BatchServerImp>(getpid(),
+                                                                    m_signal_config,
+                                                                    m_control_config,
+                                                                    *m_pio_ptr,
+                                                                    m_batch_status,
+                                                                    m_posix_signal,
+                                                                    m_signal_shmem,
+                                                                    m_control_shmem,
+                                                                    0);
 }
 
 
@@ -153,6 +164,7 @@ void BatchServerTest::TearDown()
     m_batch_server_signals.reset();
     m_batch_server_controls.reset();
     m_batch_server_pid.reset();
+    m_batch_server_child_process.reset();
 }
 
 /**
@@ -187,6 +199,49 @@ TEST_F(BatchServerTest, stop_batch)
                           BatchStatus::M_MESSAGE_TERMINATE));
     m_batch_server->stop_batch();
     EXPECT_FALSE(m_batch_server->is_active());
+}
+
+/**
+ * @throws geopm Exception to simulate failure of sigqueue(2) system call in POSIXSignalImp::sig_queue()
+ */
+ACTION(sig_queue_SIGTERM)
+{
+    throw geopm::Exception(
+        "POSIXSignal(): POSIX signal function call "
+        "sigqueue()"
+        " returned an error",
+        EINVAL,
+        __FILE__,
+        __LINE__
+    );
+}
+
+/**
+ * @test First check that BatchServerImp::stop_batch() throws an exception if it is called from child process.
+ *       Then check that activate the catch block in BatchServerImp::stop_batch() by failure of POSIXSignalImp::sig_queue()
+ */
+TEST_F(BatchServerTest, stop_batch_exception)
+{
+    GEOPM_EXPECT_THROW_MESSAGE(
+        m_batch_server_child_process->stop_batch(),
+        GEOPM_ERROR_RUNTIME,
+        "BatchServerImp::stop_batch(): must be called from parent process, not child process"
+    );
+
+    EXPECT_CALL(
+        *m_posix_signal.get(),
+        sig_queue(m_server_pid, SIGTERM, BatchStatus::M_MESSAGE_TERMINATE)
+    )
+    .Times(1)
+    .WillRepeatedly(sig_queue_SIGTERM());
+
+    GEOPM_EXPECT_THROW_MESSAGE(
+        m_batch_server->stop_batch(),
+        EINVAL,
+        "POSIXSignal(): POSIX signal function call "
+        "sigqueue()"
+        " returned an error"
+    );
 }
 
 /**
