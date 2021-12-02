@@ -48,7 +48,10 @@
 #include <sys/mman.h>
 #include <unistd.h>
 
+#include <cstring>    // for strlen(), strncmp()
 #include <string>     // for std::string
+#include <sstream>    // for std::stringstream
+#include <iostream>   // for std::streambuf, std::cerr, std::flush
 
 using testing::InSequence;
 using testing::Return;
@@ -710,4 +713,165 @@ TEST_F(BatchServerTest, fork_with_setup)
 
     munmap(counter_mem, sizeof(size_t));
     counter_mem = nullptr;
+}
+
+/**
+ * @class cerr_redirect
+ *
+ * @details This class facilitates redirect the stderr to an internal buffer for recording purposes.
+ */
+class cerr_redirect {
+    public:
+        /**
+         * @brief The redirect is NOT active when the object is created.
+         */
+        cerr_redirect()
+        {
+            cerr_backup = nullptr;
+            is_active = false;
+        }
+
+        /**
+         * @brief Restore the backup streambuf if it was not restored already.
+         */
+        ~cerr_redirect()
+        {
+            if (cerr_backup) {
+                std::cerr.rdbuf(cerr_backup);
+            }
+            is_active = false;
+        }
+
+        /**
+         * @brief Call this function first. Activates the redirect.
+         *
+         * @details After calling this function, all std::cerr will be redirected to the internal stringstream.
+         *          This function saves the backup streambuf of std::cerr, and resets it to the internal stringstream buffer.
+         */
+        void open_redirect(void)
+        {
+            if (!is_active) {
+                // Flush the remaining stderr into the terminal.
+                std::cerr << std::flush;
+                // Clear the stringstream
+                buffer.clear();
+                buffer.str(std::string());
+                // Set the streambuf of the std::cerr equivalent to the streambuf of the stringstream.
+                // Return the former streambuf of the std::cerr prior to the change.
+                cerr_backup = std::cerr.rdbuf( buffer.rdbuf() );
+                is_active = true;
+            }
+        }
+
+        /**
+         * @brief This function deactivates the redirect. It should be called after open_redirect().
+         *
+         * @details This function restores the backup streambuf associated with the stderr, and closes the stringstream redirect.
+         *
+         * @return The internal string of the stringstream, which recorded the redirected output.
+         */
+        std::string close_redirect(void)
+        {
+            if (is_active)
+            {
+                // Flush the remaining stderr into the streambuf.
+                std::cerr << std::flush;
+                // Restore the streambuf of the std::cerr to it's original state.
+                std::cerr.rdbuf(cerr_backup);
+                is_active = false;
+
+                return buffer.str();
+            } else {
+                return std::string();
+            }
+        }
+    private:
+        /// records the redirected stderr into it's own streambuf
+        std::stringstream buffer;
+        /// the backup streambuf associated with the stderr
+        std::streambuf* cerr_backup;
+        /// is true if the redirect is active
+        bool is_active;
+};
+
+/**
+ * @throws (int)2 to simulate failure of sigqueue(2) system call in POSIXSignalImp::sig_queue()
+ */
+ACTION(sig_queue_throw_2)
+{
+    throw 2;
+}
+
+/**
+ * @test Check coverage of BatchServerImp::~BatchServerImp()
+ *       Create new BatchServer objects, and have BatchServerImp::stop_batch() throw exceptions in the destructor.
+ */
+TEST_F(BatchServerTest, destructor_exceptions)
+{
+    ///
+    /// Testing catch (const Exception &ex) {}
+    ///
+
+    // Create new BatchServer object
+    std::shared_ptr<BatchServerImp> m_batch_server_exception = std::make_shared<BatchServerImp>(
+        m_client_pid,
+        m_signal_config,
+        m_control_config,
+        *m_pio_ptr,
+        m_batch_status,
+        m_posix_signal,
+        m_signal_shmem,
+        m_control_shmem,
+        m_server_pid
+    );
+
+    EXPECT_CALL(
+        *m_posix_signal.get(),
+        sig_queue(m_server_pid, SIGTERM, BatchStatus::M_MESSAGE_TERMINATE)
+    )
+    .Times(1)
+    .WillRepeatedly(sig_queue_SIGTERM());
+
+    const char* expected_stderr_1 = "Warning: <geopm> BatchServerImp::~BatchServerImp(): Exception thrown in destructor: ";
+    size_t stderr_1_length = strlen(expected_stderr_1);
+
+    cerr_redirect c_redirect;
+    c_redirect.open_redirect();
+    m_batch_server_exception.reset();  // calling BatchServerImp::~BatchServerImp()
+    std::string actual_stderr_1 = c_redirect.close_redirect();
+    // Compare if the recorded stderr matches the expected stderr.
+    EXPECT_EQ(0, strncmp(expected_stderr_1, actual_stderr_1.c_str(), stderr_1_length));
+
+    ///
+    /// Testing catch (...) {}
+    ///
+
+    // Create new BatchServer object
+    m_batch_server_exception.reset(new BatchServerImp(
+        m_client_pid,
+        m_signal_config,
+        m_control_config,
+        *m_pio_ptr,
+        m_batch_status,
+        m_posix_signal,
+        m_signal_shmem,
+        m_control_shmem,
+        m_server_pid
+    ));
+
+    EXPECT_CALL(
+        *m_posix_signal.get(),
+        sig_queue(m_server_pid, SIGTERM, BatchStatus::M_MESSAGE_TERMINATE)
+    )
+    .Times(1)
+    .WillRepeatedly(sig_queue_throw_2());
+
+    expected_stderr_1 = "Warning: <geopm> BatchServerImp::~BatchServerImp(): Non-GEOPM exception thrown in destructor\n";
+    stderr_1_length = strlen(expected_stderr_1);
+
+    c_redirect.open_redirect();
+    m_batch_server_exception.reset();  // calling BatchServerImp::~BatchServerImp()
+    actual_stderr_1 = c_redirect.close_redirect();
+    // Compare if the recorded stderr matches the expected stderr.
+    EXPECT_EQ(0, strncmp(expected_stderr_1, actual_stderr_1.c_str(), stderr_1_length));
 }
