@@ -31,7 +31,7 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-"""EE_SHORT_REGION_SLOP
+"""FMAP_SHORT_REGION_SLOP
 
 Integration test that executes a scaling region and a timed scaling
 region back to back in a loop.  This pattern of execution is repeated
@@ -84,7 +84,7 @@ g_plot_ipc_lim = [0.0, 2.4]
 
 class AppConf(object):
     """Class that is used by the test launcher in place of a
-    geopmpy.io.BenchConf when running the ee_short_region_slop benchmark.
+    geopmpy.io.BenchConf when running the fmap_short_region_slop benchmark.
 
     """
     def write(self):
@@ -99,7 +99,7 @@ class AppConf(object):
 
         """
         script_dir = os.path.dirname(os.path.realpath(__file__))
-        return os.path.join(script_dir, '.libs', 'test_ee_short_region_slop')
+        return os.path.join(script_dir, '.libs', 'test_fmap_short_region_slop')
 
     def get_exec_args(self):
         """Returns a list of strings representing the command line arguments
@@ -111,7 +111,7 @@ class AppConf(object):
         return []
 
 
-class TestIntegration_ee_short_region_slop(unittest.TestCase):
+class TestIntegration_fmap_short_region_slop(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """Create launcher, execute benchmark and set up class variables.
@@ -119,7 +119,7 @@ class TestIntegration_ee_short_region_slop(unittest.TestCase):
         """
         sys.stdout.write('(' + os.path.basename(__file__).split('.')[0] +
                          '.' + cls.__name__ + ') ...')
-        cls._test_name = 'ee_short_region_slop'
+        cls._test_name = 'fmap_short_region_slop'
         cls._report_path_fixed = 'test_{}_fixed.report'.format(cls._test_name)
         cls._report_path_dynamic = 'test_{}_dynamic.report'.format(cls._test_name)
         cls._trace_path_fixed = 'test_{}_fixed.trace'.format(cls._test_name)
@@ -372,7 +372,7 @@ def generate_report_subplot(report_df, region_type, xaxis, yaxis, ylim=None):
 
     """
     for policy_type in ('fixed', 'dynamic'):
-        prof_name = 'ee_short_region_slop-{}'.format(policy_type)
+        prof_name = 'fmap_short_region_slop-{}'.format(policy_type)
         level = ('profile-name', 'region-name')
         key = (prof_name, region_type)
         selected_data = report_df.xs(key=key, level=level).groupby('count')
