@@ -250,6 +250,7 @@ namespace geopm
                     out_message = BatchStatus::M_MESSAGE_QUIT;
                     break;
                 case BatchStatus::M_MESSAGE_TERMINATE:
+                    out_message = BatchStatus::M_MESSAGE_TERMINATE;
                     break;
                 default:
                     throw Exception("BatchServerImp::run_batch(): Received unknown response from client: " +

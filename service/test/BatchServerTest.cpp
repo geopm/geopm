@@ -461,6 +461,78 @@ TEST_F(BatchServerTest, run_batch_write_empty)
 }
 
 /**
+ * @test Provides coverage for the case when BatchStatus::M_MESSAGE_TERMINATE is read message
+ *       by the server in BatchServerImp::event_loop()
+ */
+TEST_F(BatchServerTest, receive_message_terminate)
+{
+    InSequence sequence;
+
+    int idx = 0;
+    std::vector<double> result = {240.042, 250.052};
+
+    for (const auto &request : m_signal_config) {
+        EXPECT_CALL(*m_pio_ptr, push_signal(request.name, request.domain,
+                                            request.domain_idx))
+            .WillOnce(Return(idx))
+            .RetiresOnSaturation();
+        ++idx;
+    }
+
+    for (const auto &request : m_control_config) {
+        EXPECT_CALL(*m_pio_ptr, push_control(request.name, request.domain,
+                                             request.domain_idx))
+            .WillOnce(Return(idx))
+            .RetiresOnSaturation();
+        ++idx;
+    }
+
+    EXPECT_CALL(*m_batch_status, receive_message())
+        .WillOnce(Return(BatchStatus::M_MESSAGE_TERMINATE))
+        .RetiresOnSaturation();
+
+    m_batch_server->run_batch();
+}
+
+/**
+ * @test Provides coverage for the case when not a valid message is read
+ *       by the server in BatchServerImp::event_loop()
+ */
+TEST_F(BatchServerTest, receive_message_default)
+{
+    InSequence sequence;
+
+    int idx = 0;
+    std::vector<double> result = {240.042, 250.052};
+
+    for (const auto &request : m_signal_config) {
+        EXPECT_CALL(*m_pio_ptr, push_signal(request.name, request.domain,
+                                            request.domain_idx))
+            .WillOnce(Return(idx))
+            .RetiresOnSaturation();
+        ++idx;
+    }
+
+    for (const auto &request : m_control_config) {
+        EXPECT_CALL(*m_pio_ptr, push_control(request.name, request.domain,
+                                             request.domain_idx))
+            .WillOnce(Return(idx))
+            .RetiresOnSaturation();
+        ++idx;
+    }
+
+    EXPECT_CALL(*m_batch_status, receive_message())
+        .WillOnce(Return(127))  // a "random" number
+        .RetiresOnSaturation();
+
+    GEOPM_EXPECT_THROW_MESSAGE(
+        m_batch_server->run_batch(),
+        GEOPM_ERROR_RUNTIME,
+        "BatchServerImp::run_batch(): Received unknown response from client: "
+    );
+}
+
+/**
  * @throws geopm Exception to simulate failure of read(2) system call in BatchStatusImp::receive_message()
  */
 ACTION(batch_status_read_EINTR)
