@@ -52,6 +52,8 @@ integration/apps/README.md
 integration/experiment/frequency_sweep/README.md
 integration/experiment/monitor/README.md
 integration/experiment/power_sweep/README.md
+integration/experiment/parres_dgemm_frequency_sweep.sh
+integration/experiment/parres_nstream_frequency_sweep.sh
 integration/experiment/README.md
 integration/experiment/trace_analysis/README.md
 integration/experiment/gpu_frequency_sweep/README.md
