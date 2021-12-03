@@ -50,6 +50,8 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
               test/gtest_links/BatchServerTest.run_batch_read_empty \
               test/gtest_links/BatchServerTest.run_batch_write \
               test/gtest_links/BatchServerTest.run_batch_write_empty \
+              test/gtest_links/BatchServerTest.receive_message_terminate \
+              test/gtest_links/BatchServerTest.receive_message_default \
               test/gtest_links/BatchServerTest.receive_message_exception \
               test/gtest_links/BatchServerTest.write_message_exception \
               test/gtest_links/BatchServerTest.read_batch_exception \
