@@ -58,6 +58,8 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
               test/gtest_links/BatchServerTest.create_shmem \
               test/gtest_links/BatchServerTest.fork_with_setup \
               test/gtest_links/BatchServerTest.destructor_exceptions \
+              test/gtest_links/BatchServerTest.fork_and_terminate_child \
+              test/gtest_links/BatchServerTest.fork_and_terminate_parent \
               test/gtest_links/BatchStatusTest.client_send_to_server_fifo_expect \
               test/gtest_links/BatchStatusTest.server_send_to_client_fifo_expect \
               test/gtest_links/BatchStatusTest.server_send_to_client_fifo \
