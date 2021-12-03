@@ -69,6 +69,7 @@ class BatchServerTest : public ::testing::Test
     protected:
         void SetUp();
         void TearDown();
+        int fork_other(std::function<void(int, int)> child_process_func, std::function<void(int, int)> parent_process_func, bool child_is_server);
         std::shared_ptr<MockPlatformIO> m_pio_ptr;
         std::shared_ptr<MockBatchStatus> m_batch_status;
         std::shared_ptr<MockPOSIXSignal> m_posix_signal;
@@ -701,6 +702,9 @@ TEST_F(BatchServerTest, read_batch_exception)
         .Times(1)
         .WillRepeatedly(read_batch_mbox_failed_EINVAL());
 
+    EXPECT_CALL(*m_batch_status, send_message(BatchStatus::M_MESSAGE_QUIT))
+        .Times(1);
+
     GEOPM_EXPECT_THROW_MESSAGE(
         m_batch_server->run_batch(),
         EINVAL,
@@ -946,4 +950,274 @@ TEST_F(BatchServerTest, destructor_exceptions)
     actual_stderr_1 = c_redirect.close_redirect();
     // Compare if the recorded stderr matches the expected stderr.
     EXPECT_EQ(0, strncmp(expected_stderr_1, actual_stderr_1.c_str(), stderr_1_length));
+}
+
+/**
+ * @brief Similar to the function in BatchStatusTest.cpp it forks a child process and sets up the
+ *        synchronization mechanism via pipes to ensure that the process with the server configures itself
+ *        first before the process with the client sends it a signal.
+ *
+ * @param child_process_func  Run this function after forking the child process and setting up the IPC.
+ *                            This function holds the body of the child process, what it should do.
+ *                            Takes the end of pipe and PID of parent process as parameters.
+ *                            It is the write end of pipe if it's a server, and read end of pipe if it's a client.
+ *
+ * @param parent_process_func Similarly, this function holds the body of the parent process, what it should do after the fork.
+ *                            Takes the end of pipe and PID of child process as parameters.
+ *
+ * @param child_is_server true if the child process is a server, false if the parent process is a server.
+ *
+ * @return int  The PID of the forked child process.
+ */
+int BatchServerTest::fork_other(std::function<void(int, int)> child_process_func,
+                                std::function<void(int, int)> parent_process_func,
+                                bool child_is_server)
+{
+    int main_pid = getpid();
+    int pipe_fd[2];
+    pipe(pipe_fd);
+    int &write_pipe_fd = pipe_fd[1];
+    int &read_pipe_fd  = pipe_fd[0];
+    int result = fork();
+    // child process //
+    if (result == 0) {
+        if (child_is_server) {
+            close(read_pipe_fd);  // close read end of pipe
+            child_process_func(write_pipe_fd, main_pid);  // pass write end of pipe
+            close(write_pipe_fd);  // close write end of pipe
+        } else {  // parent is server
+            close(write_pipe_fd);  // close write end of pipe
+            child_process_func(read_pipe_fd, main_pid);  // pass read end of pipe
+            close(read_pipe_fd);  // close read end of pipe
+        }
+        exit(EXIT_SUCCESS);
+    // parent process //
+    } else {
+        if (child_is_server) {
+            close(write_pipe_fd);  // close write end of pipe
+            parent_process_func(read_pipe_fd, result);  // pass read end of pipe
+            close(read_pipe_fd);  // close read end of pipe
+        } else {  // parent is server
+            close(read_pipe_fd);  // close read end of pipe
+            parent_process_func(write_pipe_fd, result);  // pass write end of pipe
+            close(write_pipe_fd);  // close write end of pipe
+        }
+    }
+    return result;
+}
+
+/**
+ * @test Simulates the usual way that the BatchServer gets a terminate message from the user.
+ *       This is via sending the SIGTERM signal which activates the action_sigterm()
+ *       So this test represents a more accurate use case than BatchServerTest.receive_message_terminate
+ *       This test forks a new child process, and creates a new BatchServer object in that child process,
+ *       and then the parent process sends a terminate message to the BatchServer.
+ */
+TEST_F(BatchServerTest, fork_and_terminate_child)
+{
+    /// This function contains the child process, which is the server.
+    /// It takes the write_pipe_fd and the PID of the parent process, which is the client.
+    std::function<void(int, int)> child_process_func = [this](int write_pipe_fd, int client_pid)
+    {
+        // Create new BatchServer object
+        std::shared_ptr<BatchServerImp> m_batch_server_test = std::make_shared<BatchServerImp>(
+            client_pid,
+            m_signal_config,
+            m_control_config,
+            *m_pio_ptr,
+            m_batch_status,
+            nullptr,           // Create a real POSIXSignal because we want to use sig_action()
+            m_signal_shmem,
+            m_control_shmem,
+            m_server_pid
+        );
+
+        // There is no EXPECT_CALL for m_posix_signal->make_sigset() and m_posix_signal->sig_action()
+        // because we are using the real POSIXSignal instead of the mock object.
+
+        // register the action_sigterm()
+        // This uses the real POSIXSignal instead of the mock object.
+        m_batch_server_test->child_register_handler();
+
+        int idx = 0;
+
+        for (const auto &request : m_signal_config) {
+        EXPECT_CALL(*m_pio_ptr, push_signal(request.name, request.domain,
+                                            request.domain_idx))
+            .WillOnce(Return(idx))
+            .RetiresOnSaturation();
+        ++idx;
+        }
+
+        for (const auto &request : m_control_config) {
+        EXPECT_CALL(*m_pio_ptr, push_control(request.name, request.domain,
+                                             request.domain_idx))
+            .WillOnce(Return(idx))
+            .RetiresOnSaturation();
+        ++idx;
+        }
+
+        // m_batch_status->receive_message() is called in BatchServerImp::read_message()
+        // Internally it is blocking on the read() call, waiting on a message from the client.
+        // Then the client sends it a SIGTERM, which activates action_sigterm()
+        // and receive_message() throws an exception in the check_return().
+        // This exception is caught in the BatchServerImp::read_message()
+        // and char in_message = BatchStatus::M_MESSAGE_TERMINATE is returned to BatchServerImp::event_loop()
+        EXPECT_CALL(*m_batch_status, receive_message())
+        .WillOnce(
+            [&write_pipe_fd](){
+                /* Extra code for synchronizing the server. */
+               char unique_char = '!';
+               write(write_pipe_fd, &unique_char, sizeof(unique_char));
+
+                sleep(1024);
+                throw geopm::Exception(
+                    "BatchStatusImp: System call failed: " "read(2)",
+                    EINTR,
+                    __FILE__,
+                    __LINE__
+                );
+                // This is irrelevant, it doesn't get returned because of the throw statement.
+                // This is just to match the return type of BatchStatusImp::receive_message()
+                return '$';
+            }
+        )
+        .RetiresOnSaturation();
+
+        // The server process is stopped at BatchStatus::receive_message() inside BatchServerImp::read_message()
+        m_batch_server_test->run_batch();
+
+        // Allow Leak the mock objects in the child process.
+        testing::Mock::AllowLeak(m_pio_ptr.get());
+        testing::Mock::AllowLeak(m_batch_status.get());
+        testing::Mock::AllowLeak(m_signal_shmem.get());
+        testing::Mock::AllowLeak(m_control_shmem.get());
+    };
+
+    /// This function contains the parent process, which is the client.
+    /// It takes the read_pipe_fd and the PID of the child process, which is the server.
+    std::function<void(int, int)> parent_process_func = [](int read_pipe_fd, int server_pid)
+    {
+        /* Extra code for synchronizing the client. */
+        char unique_char;
+        int ret = read(read_pipe_fd, &unique_char, sizeof(unique_char));
+        if (ret == -1) {
+            ret = errno;
+        }
+
+        /* Terminate the server process */
+        sigval value;
+        value.sival_int = BatchStatus::M_MESSAGE_TERMINATE;
+        sigqueue(server_pid, SIGTERM, value);
+    };
+
+    int forked_pid = fork_other(child_process_func, parent_process_func, true);
+    waitpid(forked_pid, NULL, 0);
+}
+
+/**
+ * @test Simulates the usual way that the BatchServer gets a terminate message from the user.
+ *       This is via sending the SIGTERM signal which activates the action_sigterm()
+ *       So this test represents a more accurate use case than BatchServerTest.receive_message_terminate
+ *       Unlike BatchServerTest.fork_and_terminate_child, this test the server is in the parent process,
+ *       which enables LCOV to accurately mark the coverage lines.
+ */
+TEST_F(BatchServerTest, fork_and_terminate_parent)
+{
+    /// This function contains the child process, which is the client.
+    /// It takes the read_pipe_fd and the PID of the parent process, which is the server.
+    std::function<void(int, int)> child_process_func = [](int read_pipe_fd, int server_pid)
+    {
+        /* Extra code for synchronizing the client. */
+        char unique_char = 'a';
+        int ret = read(read_pipe_fd, &unique_char, sizeof(unique_char));
+        if (ret == -1) {
+            ret = errno;
+        }
+
+        /* Terminate the server */
+        sigval value;
+        value.sival_int = BatchStatus::M_MESSAGE_TERMINATE;
+        sigqueue(server_pid, SIGTERM, value);
+
+        // Allow Leak the mock shared memory objects in the child process.
+        testing::Mock::AllowLeak(m_signal_shmem.get());
+        testing::Mock::AllowLeak(m_control_shmem.get());
+    };
+
+    /// This function contains the parent process, which is the server.
+    /// It takes the write_pipe_fd and the PID of the child process, which is the client.
+    std::function<void(int, int)> parent_process_func = [this](int write_pipe_fd, int client_pid)
+    {
+        // Create new BatchServer object
+        std::shared_ptr<BatchServerImp> m_batch_server_test = std::make_shared<BatchServerImp>(
+            client_pid,
+            m_signal_config,
+            m_control_config,
+            *m_pio_ptr,
+            m_batch_status,
+            nullptr,           // Create a real POSIXSignal because we want to use sig_action()
+            m_signal_shmem,
+            m_control_shmem,
+            m_server_pid
+        );
+
+        // There is no EXPECT_CALL for m_posix_signal->make_sigset() and m_posix_signal->sig_action()
+        // because we are using the real POSIXSignal instead of the mock object.
+
+        // register the action_sigterm()
+        // This uses the real POSIXSignal instead of the mock object.
+        m_batch_server_test->child_register_handler();
+
+        int idx = 0;
+
+        for (const auto &request : m_signal_config) {
+        EXPECT_CALL(*m_pio_ptr, push_signal(request.name, request.domain,
+                                            request.domain_idx))
+            .WillOnce(Return(idx))
+            .RetiresOnSaturation();
+        ++idx;
+        }
+
+        for (const auto &request : m_control_config) {
+        EXPECT_CALL(*m_pio_ptr, push_control(request.name, request.domain,
+                                             request.domain_idx))
+            .WillOnce(Return(idx))
+            .RetiresOnSaturation();
+        ++idx;
+        }
+
+        // m_batch_status->receive_message() is called in BatchServerImp::read_message()
+        // Internally it is blocking on the read() call, waiting on a message from the client.
+        // Then the client sends it a SIGTERM, which activates action_sigterm()
+        // and receive_message() throws an exception in the check_return().
+        // This exception is caught in the BatchServerImp::read_message()
+        // and char in_message = BatchStatus::M_MESSAGE_TERMINATE is returned to BatchServerImp::event_loop()
+        EXPECT_CALL(*m_batch_status, receive_message())
+        .WillOnce(
+            [&write_pipe_fd](){
+                /* Extra code for synchronizing the server. */
+               char unique_char = '!';
+               write(write_pipe_fd, &unique_char, sizeof(unique_char));
+
+                sleep(1024);
+                throw geopm::Exception(
+                    "BatchStatusImp: System call failed: " "read(2)",
+                    EINTR,
+                    __FILE__,
+                    __LINE__
+                );
+                // This is irrelevant, it doesn't get returned because of the throw statement.
+                // This is just to match the return type of BatchStatusImp::receive_message()
+                return '$';
+            }
+        )
+        .RetiresOnSaturation();
+
+        // The server process is stopped at BatchStatus::receive_message() inside BatchServerImp::read_message()
+        m_batch_server_test->run_batch();
+    };
+
+    int forked_pid = fork_other(child_process_func, parent_process_func, false);
+    waitpid(forked_pid, NULL, 0);
 }

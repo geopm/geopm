@@ -140,12 +140,13 @@ namespace geopm
             ///        block until the first function completes.
             int fork_with_setup(std::function<void(void)> setup,
                                 std::function<void(void)> run);
+            void child_register_handler(void);
+            void parent_register_handler(void);
+
         private:
             void push_requests(void);
             void read_and_update(void);
             void update_and_write(void);
-            void parent_register_handler(void);
-            void child_register_handler(void);
             void check_invalid_signal(void);
             void check_return(int ret, const std::string &func_name) const;
             char read_message(void);
