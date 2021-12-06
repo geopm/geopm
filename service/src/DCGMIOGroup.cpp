@@ -394,7 +394,7 @@ namespace geopm
         }
 
         if (control_name == "DCGM::FIELD_UPDATE_RATE") {
-            m_dcgm_device_pool.field_update_rate(setting*1e3);
+            m_dcgm_device_pool.field_update_rate(setting*1e6);
         }
         else if (control_name == "DCGM::MAX_STORAGE_TIME") {
             m_dcgm_device_pool.max_storage_time(setting);
