@@ -95,6 +95,7 @@ EXTRA_DIST = .gitignore \
              geopmdpy/access.py \
              geopmdpy/dbus_xml.py \
              geopmdpy/error.py \
+             geopmdpy/gffi.py \
              geopmdpy/pio.py \
              geopmdpy/runtime.py \
              geopmdpy/service.py \
