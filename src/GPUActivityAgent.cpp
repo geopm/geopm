@@ -149,13 +149,14 @@ namespace geopm
             }
         }
 
-        auto all_names = m_platform_io.signal_names();
+        auto all_names = m_platform_io.control_names();
         if (all_names.find("DCGM::FIELD_UPDATE_RATE") != all_names.end()) {
             // DCGM documentation indicates that users should query no faster than 100ms
             // even though the interface allows for setting the polling rate in the us range.
             // In practice reducing below the 100ms value has proven functional, but should only
             // be attempted if there is a strong need to catch short phase behavior.
-            m_platform_io.write_control("DCGM::FIELD_UPDATE_RATE", GEOPM_DOMAIN_BOARD, 0, 100000);
+            m_platform_io.write_control("DCGM::FIELD_UPDATE_RATE", GEOPM_DOMAIN_BOARD, 0, 0.1); //100ms
+            //m_platform_io.write_control("DCGM::FIELD_UPDATE_RATE", GEOPM_DOMAIN_BOARD, 0, 0.001); //1ms
             m_platform_io.write_control("DCGM::MAX_STORAGE_TIME", GEOPM_DOMAIN_BOARD, 0, 1);
             m_platform_io.write_control("DCGM::MAX_SAMPLES", GEOPM_DOMAIN_BOARD, 0, 100);
         }
