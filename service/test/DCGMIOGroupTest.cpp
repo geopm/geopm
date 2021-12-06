@@ -137,7 +137,7 @@ TEST_F(DCGMIOGroupTest, push_control_adjust_write_batch)
     batch_value[(dcgm_io.push_control("DCGM::FIELD_UPDATE_RATE",
                                     GEOPM_DOMAIN_BOARD, 0))] = mock_rate;
     EXPECT_CALL(*m_device_pool,
-                field_update_rate(mock_rate*1e3)).Times(1);
+                field_update_rate(mock_rate*1e6)).Times(1);
 
     batch_value[(dcgm_io.push_control("DCGM::MAX_STORAGE_TIME",
                                     GEOPM_DOMAIN_BOARD, 0))] = mock_time;
@@ -165,7 +165,7 @@ TEST_F(DCGMIOGroupTest, write_control)
     double mock_samples = 60000;
 
     EXPECT_CALL(*m_device_pool,
-                field_update_rate(mock_rate*1e3)).Times(1);
+                field_update_rate(mock_rate*1e6)).Times(1);
     EXPECT_NO_THROW(dcgm_io.write_control("DCGM::FIELD_UPDATE_RATE",
                                           GEOPM_DOMAIN_BOARD, 0,
                                           mock_rate));
