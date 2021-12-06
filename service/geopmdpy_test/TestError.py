@@ -36,10 +36,12 @@ from __future__ import absolute_import
 import unittest
 from importlib import reload
 from geopmdpy import error
+from geopmdpy import gffi
 
 
 class TestError(unittest.TestCase):
     def setUp(self):
+        reload(gffi)
         reload(error) # Ensures that the mocked dlopen call does not leak into this test
 
     def test_error_message(self):

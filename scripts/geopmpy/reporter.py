@@ -31,12 +31,12 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-import cffi
+from geopmdpy.gffi import gffi
+from geopmdpy.gffi import get_dl_geopmpolicy
 from geopmdpy import error
 
 
-_ffi = cffi.FFI()
-_ffi.cdef("""
+gffi.cdef("""
 int geopm_reporter_init(void);
 int geopm_reporter_update(void);
 int geopm_reporter_generate(const char *profile_name,
@@ -44,7 +44,7 @@ int geopm_reporter_generate(const char *profile_name,
                             size_t result_max,
                             char *result);
 """)
-_dl = _ffi.dlopen('libgeopmpolicy.so', _ffi.RTLD_GLOBAL|_ffi.RTLD_LAZY)
+_dl = get_dl_geopmpolicy()
 
 def init():
     '''Initialize reporter object
@@ -88,14 +88,14 @@ def generate(profile_name, agent_name):
              aggregated measurements made during execution.
 
     '''
-    global _ffi
+    global gffi
     global _dl
-    profile_name_cstr = _ffi.new("char[]", profile_name.encode())
-    agent_name_cstr = _ffi.new("char[]", agent_name.encode())
+    profile_name_cstr = gffi.new("char[]", profile_name.encode())
+    agent_name_cstr = gffi.new("char[]", agent_name.encode())
     result_max = 2 * 1024 * 1024
-    result_cstr = _ffi.new("char[]", result_max)
+    result_cstr = gffi.new("char[]", result_max)
     err = _dl.geopm_reporter_generate(profile_name_cstr, agent_name_cstr,
                                       result_max, result_cstr)
     if err != 0:
         raise RuntimeError('geopm_reporter_generate() failed: {}'.format(error.message(err)))
-    return _ffi.string(result_cstr).decode()
+    return gffi.string(result_cstr).decode()
