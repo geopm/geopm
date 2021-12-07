@@ -93,6 +93,7 @@ namespace geopm
         auto setup = [this]() {
             this->child_register_handler();
             this->create_shmem();
+            return BatchStatus::M_MESSAGE_CONTINUE;
         };
         auto run = [this]() {
             this->run_batch();
@@ -369,7 +370,7 @@ namespace geopm
         m_posix_signal->sig_action(signo, &action, nullptr);
     }
 
-    int BatchServerImp::fork_with_setup(std::function<void(void)> setup,
+    int BatchServerImp::fork_with_setup(std::function<char(void)> setup,
                                         std::function<void(void)> run)
     {
         int pipe_fd[2];
@@ -378,8 +379,7 @@ namespace geopm
         check_return(forked_pid, "fork(2)");
         if (forked_pid == 0) {
             check_return(close(pipe_fd[0]), "close(2)");
-            setup();
-            char msg = BatchStatus::M_MESSAGE_CONTINUE;
+            char msg = setup();  // BatchStatus::M_MESSAGE_CONTINUE
             check_return(write(pipe_fd[1], &msg, 1), "write(2)");
             check_return(close(pipe_fd[1]), "close(2)");
             run();

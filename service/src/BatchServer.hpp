@@ -138,7 +138,7 @@ namespace geopm
             void create_shmem(void);
             /// @brief Fork a process that runs two functions and
             ///        block until the first function completes.
-            int fork_with_setup(std::function<void(void)> setup,
+            int fork_with_setup(std::function<char(void)> setup,
                                 std::function<void(void)> run);
             void child_register_handler(void);
             void parent_register_handler(void);

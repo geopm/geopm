@@ -57,6 +57,7 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
               test/gtest_links/BatchServerTest.read_batch_exception \
               test/gtest_links/BatchServerTest.create_shmem \
               test/gtest_links/BatchServerTest.fork_with_setup \
+              test/gtest_links/BatchServerTest.fork_with_setup_exception \
               test/gtest_links/BatchServerTest.destructor_exceptions \
               test/gtest_links/BatchServerTest.fork_and_terminate_child \
               test/gtest_links/BatchServerTest.fork_and_terminate_parent \

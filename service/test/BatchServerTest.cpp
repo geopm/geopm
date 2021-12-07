@@ -767,11 +767,12 @@ TEST_F(BatchServerTest, fork_with_setup)
     size_t &counter = *counter_mem;
     counter = 0;
 
-    std::function<void(void)> setup = [&counter](void)
+    std::function<char(void)> setup = [&counter](void)
     {
         if (counter == 0u) {
             ++counter;
         }
+        return BatchStatus::M_MESSAGE_CONTINUE;
     };
 
     std::function<void(void)> run = [&counter, this](void)
@@ -789,6 +790,36 @@ TEST_F(BatchServerTest, fork_with_setup)
 
     munmap(counter_mem, sizeof(size_t));
     counter_mem = nullptr;
+}
+
+/**
+ * @test This is similar to BatchServerTest.fork_with_setup, except that it checks an error case.
+ *       In the BatchServerImp::fork_with_setup() if the parent process received something other than
+ *       BatchStatus::M_MESSAGE_CONTINUE over the pipe, it would cause an Exception to be thrown.
+ *       This test guarantees coverage of the error case.
+ */
+TEST_F(BatchServerTest, fork_with_setup_exception)
+{
+    std::function<char(void)> setup = [](void)
+    {
+        // return something other than BatchStatus::M_MESSAGE_CONTINUE
+        // so that it would write that bad message to the pipe in the child process
+        // and the parent process would throw the Exception.
+        return BatchStatus::M_MESSAGE_QUIT;
+    };
+
+    std::function<void(void)> run = [](void)
+    {
+    };
+
+    // wait for any child process unless it gets overwritten with the actual PID of the child process.
+    int forked_pid = 0;
+    GEOPM_EXPECT_THROW_MESSAGE(
+        (forked_pid = m_batch_server_pid->fork_with_setup(setup, run)),
+        GEOPM_ERROR_RUNTIME,
+        "BatchServerImp: Receivied unexpected message from batch server at startup: \""
+    );
+    waitpid(forked_pid, NULL, 0);
 }
 
 /**
