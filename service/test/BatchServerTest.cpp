@@ -775,12 +775,11 @@ TEST_F(BatchServerTest, fork_with_setup)
         return BatchStatus::M_MESSAGE_CONTINUE;
     };
 
-    std::function<void(void)> run = [&counter, this](void)
+    std::function<void(void)> run = [&counter](void)
     {
         if (counter == 1u) {
             ++counter;
         }
-        this->TearDown();
     };
 
     int forked_pid = m_batch_server_pid->fork_with_setup(setup, run);
@@ -1021,7 +1020,9 @@ int BatchServerTest::fork_other(std::function<void(int, int)> child_process_func
             child_process_func(read_pipe_fd, main_pid);  // pass read end of pipe
             close(read_pipe_fd);  // close read end of pipe
         }
-        exit(EXIT_SUCCESS);
+        // Use _Exit() instead of exit() to prevent Google Test from complaining about
+        // leaked mock objects.
+        _Exit(EXIT_SUCCESS);
     // parent process //
     } else {
         if (child_is_server) {
@@ -1117,12 +1118,6 @@ TEST_F(BatchServerTest, fork_and_terminate_child)
 
         // The server process is stopped at BatchStatus::receive_message() inside BatchServerImp::read_message()
         m_batch_server_test->run_batch();
-
-        // Allow Leak the mock objects in the child process.
-        testing::Mock::AllowLeak(m_pio_ptr.get());
-        testing::Mock::AllowLeak(m_batch_status.get());
-        testing::Mock::AllowLeak(m_signal_shmem.get());
-        testing::Mock::AllowLeak(m_control_shmem.get());
     };
 
     /// This function contains the parent process, which is the client.
@@ -1170,10 +1165,6 @@ TEST_F(BatchServerTest, fork_and_terminate_parent)
         sigval value;
         value.sival_int = BatchStatus::M_MESSAGE_TERMINATE;
         sigqueue(server_pid, SIGTERM, value);
-
-        // Allow Leak the mock shared memory objects in the child process.
-        testing::Mock::AllowLeak(m_signal_shmem.get());
-        testing::Mock::AllowLeak(m_control_shmem.get());
     };
 
     /// This function contains the parent process, which is the server.
