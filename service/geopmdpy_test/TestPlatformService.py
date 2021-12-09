@@ -439,13 +439,15 @@ default
         client_pid = session_data['client_pid']
         watch_id = session_data['watch_id']
         with mock.patch('geopmdpy.pio.save_control') as mock_save_control, \
-             mock.patch('geopmdpy.pio.write_control') as mock_write_control:
+             mock.patch('geopmdpy.pio.write_control') as mock_write_control, \
+             mock.patch('os.getsid', return_value=client_pid) as mock_getsid:
             self._platform_service.write_control(client_pid, 'geopm', 'board', 0, 42.024)
             mock_save_control.assert_called_once()
             mock_write_control.assert_called_once_with('geopm', 'board', 0, 42.024)
 
         with mock.patch('gi.repository.GLib.source_remove', return_value=[]) as mock_source_remove, \
-             mock.patch('geopmdpy.pio.restore_control', return_value=[]) as mock_restore_control:
+             mock.patch('geopmdpy.pio.restore_control', return_value=[]) as mock_restore_control, \
+             mock.patch('os.getsid', return_value=client_pid) as mock_getsid:
             self._platform_service.close_session(client_pid)
             mock_restore_control.assert_called_once()
             save_dir = os.path.join(self._platform_service._VAR_PATH,
@@ -494,7 +496,8 @@ default
         setting = 777
         self.open_mock_session('other', other_pid)
         with mock.patch('geopmdpy.pio.write_control', return_value=[]) as mock_write_control, \
-             mock.patch('geopmdpy.pio.save_control', return_value=[]):
+             mock.patch('geopmdpy.pio.save_control', return_value=[]), \
+             mock.patch('os.getsid', return_value=other_pid) as mock_getsid:
             self._platform_service.write_control(other_pid, control_name, domain, domain_idx, setting)
             mock_write_control.assert_called_once_with(control_name, domain, domain_idx, setting)
 
@@ -503,9 +506,10 @@ default
         valid_controls = session_data['controls']
         signal_config = [(0, 0, sig) for sig in valid_signals]
         control_config = [(0, 0, con) for con in valid_controls]
-        err_msg = f'The PID {client_pid} requested write access, but the geopm service already has write mode client with PID {other_pid}'
+        err_msg = f'The PID {client_pid} requested write access, but the geopm service already has write mode client with SID {other_pid}'
         with self.assertRaisesRegex(RuntimeError, err_msg), \
-             mock.patch('geopmdpy.pio.start_batch_server', return_value = (2345, "2345")):
+             mock.patch('geopmdpy.pio.start_batch_server', return_value = (2345, "2345")), \
+             mock.patch('os.getsid', return_value=client_pid) as mock_getsid:
             self._platform_service.start_batch(client_pid, signal_config,
                                                control_config)
 
@@ -521,7 +525,8 @@ default
 
         expected_result = (1234, "1234")
         with mock.patch('geopmdpy.pio.start_batch_server', return_value=expected_result), \
-             mock.patch('geopmdpy.pio.save_control', return_value=[]):
+             mock.patch('geopmdpy.pio.save_control', return_value=[]), \
+             mock.patch('os.getsid', return_value=client_pid) as mock_getsid:
             actual_result = self._platform_service.start_batch(client_pid, signal_config,
                                                                control_config)
         self.assertEqual(expected_result, actual_result,
@@ -604,7 +609,8 @@ default
         domain_idx = 42
         setting = 777
         with mock.patch('geopmdpy.pio.write_control', return_value=[]) as mock_write_control, \
-             mock.patch('geopmdpy.pio.save_control', return_value=[]):
+             mock.patch('geopmdpy.pio.save_control', return_value=[]), \
+             mock.patch('os.getsid', return_value=client_pid) as mock_getsid:
             self._platform_service.write_control(client_pid, control_name, domain, domain_idx, setting)
             mock_write_control.assert_called_once_with(control_name, domain, domain_idx, setting)
 

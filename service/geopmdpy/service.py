@@ -751,11 +751,18 @@ class PlatformService(object):
         return [grp.getgrgid(gid).gr_name for gid in all_gid]
 
     def _write_mode(self, client_pid):
-        if self._write_pid != client_pid:
+        client_sid = os.getsid(client_pid)
+        if self._write_pid != client_sid:
             if self._write_pid is not None:
-                raise RuntimeError(f'The PID {client_pid} requested write access, but the geopm service already has write mode client with PID {self._write_pid}')
-            self._active_sessions.set_write_client(client_pid)
-            self._write_pid = client_pid
+                raise RuntimeError(f'The PID {client_pid} requested write access, but the geopm service already has write mode client with SID {self._write_pid}')
+            if client_sid != client_pid:
+                self._active_sessions.add_client(
+                    client_sid,
+                    self._active_sessions.get_signals(client_pid),
+                    self._active_sessions.get_controls(client_pid),
+                    self._watch_client(client_sid))
+            self._active_sessions.set_write_client(client_sid)
+            self._write_pid = client_sid
             save_dir = os.path.join(self._VAR_PATH, self._SAVE_DIR)
             os.makedirs(save_dir)
             # TODO: Will need to save to disk in order to support
