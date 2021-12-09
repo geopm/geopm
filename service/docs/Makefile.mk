@@ -38,6 +38,7 @@ EXTRA_DIST += docs/geninfo.sh \
               docs/source/contrib.rst \
               docs/source/controls_SKX.rst \
               docs/source/devel.rst \
+              docs/source/controls_LevelZero.rst \
               docs/source/index.rst \
               docs/source/info.rst \
               docs/source/readme.rst \
@@ -45,6 +46,7 @@ EXTRA_DIST += docs/geninfo.sh \
               docs/source/requires.rst \
               docs/source/runtime.rst \
               docs/source/signals_SKX.rst \
+              docs/source/signals_LevelZero.rst \
               # end
 
 docs: libgeopmd.la $(abs_srcdir)/geopmdpy/version.py
