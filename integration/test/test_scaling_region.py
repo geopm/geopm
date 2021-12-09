@@ -137,10 +137,10 @@ class TestIntegrationScalingRegion(unittest.TestCase):
             for rn in region_names:
                 region = report.raw_region(host, rn)
                 freq = report.get_field(region, 'frequency', 'Hz')
-                time = report.get_field(region, 'runtime', 'sec')
+                time = report.get_field(region, 'runtime', 's')
                 freq_time.append((freq, time))
             freq_time.sort()
-            time = list(zip(*freq_time)[1])
+            time = list(list(zip(*freq_time))[1])
             paired_time = zip(time[0:-1], time[1:])
             for pt in paired_time:
                 self.assertGreater(pt[0], pt[1])
