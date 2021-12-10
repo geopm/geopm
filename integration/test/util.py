@@ -15,6 +15,9 @@ import subprocess
 from io import StringIO
 import argparse
 
+from docutils.nodes import literal_block
+from docutils.core import publish_doctree
+
 from integration.test import geopm_test_launcher
 
 
@@ -299,3 +302,15 @@ def assertNotNear(self, a, b, epsilon=0.05, msg=''):
     denom = a if a != 0 else 1
     if abs((a - b) / denom) < epsilon:
         self.fail('The fractional difference between {a} and {b} is less than {epsilon}.  {msg}'.format(a=a, b=b, epsilon=epsilon, msg=msg))
+
+
+def get_scripts_from_readme(rst_readme_path):
+    """Return a list of the sh-formatted scripts that are embedded in a .rst file.
+    """
+    script_bodies = list()
+    with open(rst_readme_path) as f:
+        doctree = publish_doctree(f.read())
+        for code_block in doctree.traverse(literal_block):
+            if 'sh' in code_block['classes']:
+                script_bodies.append(code_block.astext())
+    return script_bodies

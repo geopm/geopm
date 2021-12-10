@@ -171,4 +171,5 @@ compile_commands.json
 /tutorial/tutorial_[0-9]*_report-*
 /tutorial/tutorial_[0-9]*_trace-*
 /tutorial/tutorial_4_imbalance.conf
+/tutorial/python_agents/*.report
 /VERSION
