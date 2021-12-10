@@ -54,7 +54,7 @@ import util
 
 class AppConf(object):
     """Class that is used by the test launcher as a geopmpy.io.BenchConf
-    when running the test_scaling_region benchmark.
+    when running the test_timed_scaling_region benchmark.
 
     """
     def write(self):
@@ -76,7 +76,7 @@ class AppConf(object):
 
 @util.skip_unless_cpufreq()
 @util.skip_unless_optimized()
-class TestIntegrationScalingRegion(unittest.TestCase):
+class TestIntegrationTimedsScalingRegion(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """Create launcher, execute benchmark and set up class variables.
