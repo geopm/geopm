@@ -35,14 +35,19 @@ geopm_agent_gpu_activity(7) -- agent for selecting GPU frequency based on GPU co
 
 The goal of this Agent is to save GPU energy by scaling GPU frequency based upon
 the compute activity of each GPU as provided by the ACCELERATOR_COMPUTE_ACTIVITY
-signal.
+signal and modified by the UTILIZATION_ACCELERATOR signal.
 
 The GPUActivityAgent scales frequency in the range of Fe to Fmax, where Fmax
 is provided via the policy as ACCELERATROR_FREQ_MAX and Fe is provided via
 the policy as ACCELERATOR_FREQ_EFFICIENT.  Low activity regions (compute activity
 of 0.0) run at the Fe frequency, high activity regions (compute activity of 1.0)
 run at the Fmax frequency, and regions in between the extremes run at a frequency
-selected via F = = Fe + (Fmax - Fe) * ACCELERATOR_COMPUTE_ACTIVITY.
+selected via
+F = = Fe + (Fmax - Fe) * ACCELERATOR_COMPUTE_ACTIVITY/UTILIZATION_ACCELERATOR.
+UTILIZATION_ACCELERATOR is used to scale the ACCELERATOR_COMPUTE_ACTIVITY in order
+to scale frequency selection with the percentage of time a kernel is runnning on
+the GPU.  This tends to help with workloads that contain short but highly
+scalable GPU phases.
 
 Fe is intended to be an energy efficient frequency that is selected via system
 characterization.  The recommended approach to selecting Fe is to perform a
@@ -62,14 +67,14 @@ In the extreme case (phi of 0) Fe will be raised to Fmax.  A phi value greater t
 by the policy.  In the extreme case (phi of 1.0) Fmax will be lowered to Fe.
 
 For NVIDIA based systems the GPUActivityAgent attempts to set the
-DCGM::FIELD_UPDATE_RATE to 1ms, DCGM::MAX_STORAGE_TIME to 1s, and DCGM::MAX_SAMPLES
+DCGM::FIELD_UPDATE_RATE to 100ms, DCGM::MAX_STORAGE_TIME to 1s, and DCGM::MAX_SAMPLES
 to 100.  While the DCGM documentation indicates that users should 'generally' query
 no faster than 100ms, the interface allows for setting the polling rate in the
-microsecond range.  This agent intended for use with workloads with short phases and
-is intended to react only to the last sample taken, so a 1ms polling rate is used.
+microsecond range. If the agent is intended to be used with workloads that exhibit
+extremely short phase behavioor a 1ms polling rate can be used.
 This has been shown to work for a small number of profiling metrics queried from DCGM.
-If this leads to undesired behavior these settings may be changed, but may result in a
-reduction in performance on workloads with short phases of high GPU activity
+As the 1ms polling rate is not officially recommended by the DCGM API the 100ms
+setting is used by default.
 
 ## AGENT BEHAVIOR HIGHLIGHTS
 Policies and samples are vectors of double precision values where each
@@ -107,6 +112,8 @@ reports and traces with additional Agent-specific information.
 * `Trace Column Extensions`:
   `ACCELERATOR_COMPUTE_ACTIVITY`: A measurement of the amount of execution occuring
                                   on an accelerator
+  `UTILIZATION_ACCELERATOR_COMPUTE_ACTIVITY`: Fraction of time the accelerator operated
+                                              on a kernel in the last set of driver samples
   `FREQUENCY_ACCELERATOR`: The frequency of the accelerator
   `ENERGY_ACCELERATOR`: The energy consumption of the accelerator
 
@@ -121,19 +128,22 @@ reports and traces with additional Agent-specific information.
 
   Debug builds will add the following additional values to the report, which may
   aid in debugging agent behavior without traces:
-  `Accelerator Passive Energy`: Aggregate GPU energy reading during regions of 0
-                                ACCELERATOR_COMPUTE_ACTIVITY
-  `Accelerator Passive Samples`: Total number of samples taken during regions of
-                                 0 ACCELERATOR_COMPUTE_ACTIVITY
-  `Accelerator Passive Freq Request Avg`: Average frequency requested during regions
-                                          of 0 ACCELERATOR_COMPUTE_ACTIVITY.
-  `Accelerator Active Energy`: Aggregate GPU energy reading during regions of non-zero
-                               ACCELERATOR_COMPUTE_ACTIVITY
-  `Accelerator Active Samples`: Total number of samples taken during regions of
-                                non-zero ACCELERATOR_COMPUTE_ACTIVITY
-  `Accelerator Active Freq Request Avg`: Average frequency requested during regions
-                                         of non-zero ACCELERATOR_COMPUTE_ACTIVITY.
-
+  `Accelerator # Active Region Energy`: Per Accelerator GPU energy reading during the Region
+                                        of Interest (ROI) where ROI is determined as the
+                                        first sample of GPU activity to the last sample of GPU
+                                        activity.
+  `Accelerator # Active Region Time`: Per Accelerator GPU time during the Region
+                                      of Interest (ROI) where ROI is determined as the
+                                      first sample of GPU activity to the last sample of GPU
+                                      activity.
+  `Accelerator # Active Region Start Time`: Per Accelerator GPU start time for the Region
+                                            of Interest (ROI) where ROI is determined as the
+                                            first sample of GPU activity to the last sample of GPU
+                                            activity.
+  `Accelerator # Active Region Start Time`: Per Accelerator GPU stop time for the Region
+                                            of Interest (ROI) where ROI is determined as the
+                                            first sample of GPU activity to the last sample of GPU
+                                            activity.
 * `Control Loop Gate`:
   The agent gates the Controller's control loop to a cadence of 20ms.
 
