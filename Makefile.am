@@ -275,6 +275,9 @@ TUTORIAL_DIST = tutorial/Makefile \
                 tutorial/plugin_load/bob/BobIOGroup.cpp \
                 tutorial/plugin_load/bob/BobIOGroup.hpp \
                 tutorial/plugin_load/README.md \
+                tutorial/python_agents/README.rst \
+                tutorial/python_agents/__init__.py \
+                tutorial/python_agents/static_agent.py \
                 tutorial/tutorial_0.c \
                 tutorial/tutorial_0.sh \
                 tutorial/tutorial_1.c \
