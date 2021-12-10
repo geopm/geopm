@@ -68,7 +68,7 @@ SIGNAL_LIST = \
       0, "incr", 'Total DRAM energy:    {:.1f}j'),
     ]
 
-class MLAgentGPU(base_agent.BaseAgent):
+class MLAgent(base_agent.BaseAgent):
     '''
     This GEOPM Agent controls the GPU frequency based on a neural net provided
     as a user input.
@@ -432,13 +432,13 @@ def parse_common_args(parser=None):
 
 
 def create_instance(args):
-    return MLAgentGPU(cpu_model=args.cpu_model,
-                      gpu_model=args.gpu_model,
-                      period=args.control_period,
-                      freq_controls=not args.no_freq_controls,
-                      freq_core=args.freq_core,
-                      freq_gpu=args.freq_gpu,
-                      phi=args.phi)
+    return MLAgent(cpu_model=args.cpu_model,
+                   gpu_model=args.gpu_model,
+                   period=args.control_period,
+                   freq_controls=not args.no_freq_controls,
+                   freq_core=args.freq_core,
+                   freq_gpu=args.freq_gpu,
+                   phi=args.phi)
 
 
 def main():
