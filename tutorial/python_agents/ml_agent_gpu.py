@@ -62,14 +62,10 @@ SIGNAL_LIST = \
       0, "avg", 'Avg dram power:       {:.1f}W'),
      ('FREQUENCY', geopmdpy.topo.DOMAIN_BOARD,
       0, "avg", lambda x: f'Avg core frequency:   {x / 1e9:.2f}GHz'),
-     ('MSR::UNCORE_PERF_STATUS:FREQ', geopmdpy.topo.DOMAIN_BOARD,
-      0, "avg", lambda x: f'Avg uncore frequency: {x / 1e9:.2f}GHz'),
      ('TEMPERATURE_CORE', geopmdpy.topo.DOMAIN_BOARD,
       0, "avg", 'Avg core temperature:   {:.1f}C'),
      ('ENERGY_DRAM', geopmdpy.topo.DOMAIN_BOARD_MEMORY,
       0, "incr", 'Total DRAM energy:    {:.1f}j'),
-     ('ENERGY_PACKAGE', geopmdpy.topo.DOMAIN_BOARD,
-      0, "incr", 'Total package energy: {:.1f}j'),
     ]
 
 class MLAgentGPU(base_agent.BaseAgent):
@@ -81,17 +77,21 @@ class MLAgentGPU(base_agent.BaseAgent):
     is read via tensorflow.keras.models.load_model(). Input should be a
     directory, not an HDF compressed file.
     '''
-    def __init__(self, model, period, freq_controls=True, freq_gpu=None,
-                 phi=0.0):
+    def __init__(self, cpu_model, gpu_model, period, freq_controls=True,
+                 freq_core=None, freq_gpu=None, phi=0.0):
         '''
         Initialize the ML agent. Setting the initial frequency to a value
         covered by NN training may help converge to the target output.
 
         Args:
-        model (str): Path to the saved NN.
+        cpu_model (str): Path to the saved CPU NN.
+        gpu_model (str): Path to the saved GPU NN.
         period (double): Agent sampling and control period.
         freq_controls (bool): Enforce NN output frequencies if True. If False,
                               monitor only.
+        freq_core (float): Initial CPU core frequency in GHz. Core frequency
+                           will not be set if this is left undefined. Set at
+                           the beginning of each run in run_begin.
         freq_gpu (float): Initial GPU frequency in GHz. GPU frequency will not
                           be set if this is left undefined. Set at the
                           beginning of each run in run_begin.
@@ -100,21 +100,34 @@ class MLAgentGPU(base_agent.BaseAgent):
                      performance. 1 indicates that the agent should focus on
                      improving energy consumption.
         '''
+        self._cpu_model_path = cpu_model
+        self._gpu_model_path = gpu_model
+
         tf.config.experimental.set_visible_devices(devices=[], device_type='GPU')
         with tf.device("/cpu:0"):
-            self._model = tf.keras.models.load_model(model)
+            self._cpu_model = tf.keras.models.load_model(cpu_model) if cpu_model is not None else None
+            self._gpu_model = tf.keras.models.load_model(gpu_model) if gpu_model is not None else None
         self._freq_controls = freq_controls
 
         self._gpu_count = geopmdpy.topo.num_domain(geopmdpy.topo.DOMAIN_BOARD_ACCELERATOR)
-        if (self._gpu_count == 0):
+        if (self._gpu_count == 0 and self._gpu_model is not None):
             print('Warning: Running a GEOPM GPU agent, but no GPUs are seen by GEOPM',
                   sys.stderr)
+        self._pkg_count = geopmdpy.topo.num_domain(geopmdpy.topo.DOMAIN_PACKAGE)
+
+        self._freq_core = freq_core
         self._freq_gpu = freq_gpu
 
-        self._frequency_control_accumulator = None
+        self._gpu_frequency_control_accumulator = None
+        self._cpu_frequency_control_accumulator = None
         self._phi = phi
 
         # Raw signals used in neural network tensors
+        self._board_pkg_power_idx = 0
+        self._board_dram_power_idx = 1
+        self._board_pkg_frequency_idx = 2
+        self._board_temperature_core_idx = 3
+        self._board_dram_energy_idx = 4
         self._model_signal_idx_by_gpu = list()
 
         # Signals that indicate gpu activity
@@ -122,14 +135,43 @@ class MLAgentGPU(base_agent.BaseAgent):
         self._gpu_frequency_signal_idx = list()
         self._gpu_energy_signal_idx = list()
 
+        self._uncore_freq_idx_by_package = list()
+        self._mem_bw_idx_by_package = list()
+        self._instructions_retired_idx_by_package = list()
+        self._energy_idx_by_package = list()
+        self._acnt_idx_by_package = list()
+        self._mcnt_idx_by_package = list()
+        self._pcnt_idx_by_package = list()
+
         signal_list = SIGNAL_LIST
-        self._cpu_energy_signal_idx = [[element[0] for element in signal_list].index('ENERGY_PACKAGE')]
         signal_list.extend([
             ('INSTRUCTIONS_RETIRED', geopmdpy.topo.DOMAIN_BOARD,
              0, "incr", lambda x: f'Total Instructions:   {int(x):.2e}'),
             ('CYCLES_REFERENCE', geopmdpy.topo.DOMAIN_BOARD,
              0, "incr", lambda x: f'Reference Cycles:   {int(x):.2e}'),
         ])
+
+        for pkg_idx in range(self._pkg_count):
+            signal_list.extend([
+                ("MSR::UNCORE_PERF_STATUS:FREQ", geopmdpy.topo.DOMAIN_PACKAGE, pkg_idx, "avg",
+                 lambda x: f'Avg uncore frequency {pkg_idx}: {x/1e9:.2f}GHz'),
+                ("QM_CTR_SCALED_RATE", geopmdpy.topo.DOMAIN_PACKAGE, pkg_idx, "avg",
+                 lambda x: f'Avg Mem BW {pkg_idx}:   {x/1e9:.1f}GB/s'),
+                ("INSTRUCTIONS_RETIRED", geopmdpy.topo.DOMAIN_PACKAGE, pkg_idx, "incr",
+                 lambda x: f'Instructions {pkg_idx}:   {int(x):.1e}'),
+                ("ENERGY_PACKAGE", geopmdpy.topo.DOMAIN_PACKAGE, pkg_idx, "incr",
+                 f'Energy {pkg_idx}:    {{:.1f}}j'),
+                ("MSR::APERF:ACNT", geopmdpy.topo.DOMAIN_PACKAGE, pkg_idx, "incr"),
+                ("MSR::MPERF:MCNT", geopmdpy.topo.DOMAIN_PACKAGE, pkg_idx, "incr"),
+                ("MSR::PPERF:PCNT", geopmdpy.topo.DOMAIN_PACKAGE, pkg_idx, "incr"),
+            ])
+            self._uncore_freq_idx_by_package.append(len(signal_list) - 7)
+            self._mem_bw_idx_by_package.append(len(signal_list) - 6)
+            self._instructions_retired_idx_by_package.append(len(signal_list) - 5)
+            self._energy_idx_by_package.append(len(signal_list) - 4)
+            self._acnt_idx_by_package.append(len(signal_list) - 3)
+            self._mcnt_idx_by_package.append(len(signal_list) - 2)
+            self._pcnt_idx_by_package.append(len(signal_list) - 1)
 
         for gpu_idx in range(self._gpu_count):
             old_len = len(signal_list)
@@ -171,7 +213,8 @@ class MLAgentGPU(base_agent.BaseAgent):
         super().__init__(period=period, signal_list=signal_list)
 
     def run_begin(self, policy):
-        self._frequency_control_accumulator = [0] * self._gpu_count
+        self._gpu_frequency_control_accumulator = [0] * self._gpu_count
+        self._cpu_frequency_control_accumulator = 0
         self._is_roi = False
         self._roi_start_time = None
         self._roi_end_time = None
@@ -181,6 +224,11 @@ class MLAgentGPU(base_agent.BaseAgent):
         self._roi_start_cpu_energies = None
         self._roi_end_cpu_energies = None
 
+        if self._cpu_model is not None:
+            # Set up MSRs for bandwidth accounting, used by the CPU model
+            os.system("geopmwrite MSR::QM_EVTSEL:RMID board 0 0")
+            os.system("geopmwrite MSR::PQR_ASSOC:RMID board 0 0")
+            os.system("geopmwrite MSR::QM_EVTSEL:EVENT_ID board 0 2")
         # Track both the frequencies between start and end of ROI as well
         # as the frequencies from the start until now. The latter may be 
         # needed since we don't know if current inactivity is post-ROI or just
@@ -190,33 +238,46 @@ class MLAgentGPU(base_agent.BaseAgent):
 
         if self._freq_gpu is not None:
             os.system(f'geopmwrite NVML::FREQUENCY_CONTROL board 0 {self._freq_gpu}')
+        if self._freq_core is not None:
+            os.system(f"geopmwrite CPU_FREQUENCY_CONTROL board 0 {self._freq_core}")
 
         super().run_begin(policy)
 
     def get_controls(self):
-        if self._freq_controls:
-            return [('NVML::FREQUENCY_CONTROL', geopmdpy.topo.DOMAIN_BOARD_ACCELERATOR, gpu_idx)
-                    for gpu_idx in range(self._gpu_count)]
-        else:
-            return []
+        controls = list()
+        if self._gpu_model is not None:
+            controls.extend([
+                ('NVML::FREQUENCY_CONTROL', geopmdpy.topo.DOMAIN_BOARD_ACCELERATOR, gpu_idx)
+                for gpu_idx in range(self._gpu_count)])
+        if self._cpu_model is not None:
+                controls.append(("CPU_FREQUENCY_CONTROL", geopmdpy.topo.DOMAIN_BOARD, 0))
+        return controls
 
     def agent_update(self, delta_signals, delta_time, signals, time):
-        if self._freq_controls:
-            # Defaults for the first update loop.
-            if self._freq_gpu is not None:
-                controls = [self._freq_gpu] * self._gpu_count
-            else:
-                controls = [DEFAULT_INITIAL_GPU_FREQUENCY] * self._gpu_count
-        else:
-            controls = []
-
+        controls = []
         trace_fields = []
         debug_fields = []
 
-        if self.loop_idx() > 0:
+        if self.loop_idx() == 0:
+            if self._gpu_model is not None:
+                # Only control GPU freqs if we have a GPU model
+                if self._freq_gpu is not None:
+                    controls = [self._freq_gpu] * self._gpu_count
+                else:
+                    controls = [DEFAULT_INITIAL_GPU_FREQUENCY] * self._gpu_count
+
+            if self._cpu_model is not None:
+                # Only control CPU freqs if we have a CPU model
+                controls += [
+                    signals[self._board_pkg_frequency_idx]
+                    if self._freq_core is None else self._freq_core]
+        else:
             gpu_activities = [signals[activity_idx] for activity_idx in self._gpu_activity_signal_idx]
             gpu_energies = [signals[energy_idx] for energy_idx in self._gpu_energy_signal_idx]
-            cpu_energies = [signals[energy_idx] for energy_idx in self._cpu_energy_signal_idx]
+            cpu_energies = (
+                [signals[energy_idx] for energy_idx in self._energy_idx_by_package] +
+                [signals[self._board_dram_energy_idx]]
+            )
             gpu_cycles = [signals[frequency_idx] * delta_time for frequency_idx in self._gpu_frequency_signal_idx]
             self._last_time = time
 
@@ -249,15 +310,49 @@ class MLAgentGPU(base_agent.BaseAgent):
                 if self._roi_gpu_cycle_sums is None:
                     self._roi_gpu_cycle_sums = self._gpu_cycle_sums_since_start_of_roi
 
-            for gpu_idx in range(self._gpu_count):
-                tensor = ([signals[signal_idx] for signal_idx in self._model_signal_idx_by_gpu[gpu_idx]] +
-                          [self._phi])
-                if self._freq_controls and not len(tensor) == 0:
-                    with tf.device("/cpu:0"):
-                        desired_freq = 1e9 * self._model(np.array([tensor])).numpy().tolist()[0][0]
-                        controls[gpu_idx] = desired_freq
-                        debug_fields.append(desired_freq)
-                    self._frequency_control_accumulator[gpu_idx] += controls[gpu_idx]
+            if self._gpu_model is not None:
+                for gpu_idx in range(self._gpu_count):
+                    gpu_tensor = ([signals[signal_idx] for signal_idx in self._model_signal_idx_by_gpu[gpu_idx]] +
+                                  [self._phi])
+                    if self._freq_controls and not len(gpu_tensor) == 0:
+                        with tf.device("/cpu:0"):
+                            desired_freq = 1e9 * self._gpu_model(np.array([gpu_tensor])).numpy().tolist()[0][0]
+                            controls.append(desired_freq)
+                            debug_fields.append(desired_freq)
+                        self._gpu_frequency_control_accumulator[gpu_idx] += controls[-1]
+
+            if self._cpu_model is not None:
+                cpu_tensor = [
+                    signals[self._board_pkg_power_idx],
+                    signals[self._board_dram_power_idx],
+                    signals[self._board_pkg_frequency_idx],
+                    signals[self._board_temperature_core_idx],
+                    signals[self._uncore_freq_idx_by_package[0]],
+                    signals[self._uncore_freq_idx_by_package[1]],
+                    signals[self._mem_bw_idx_by_package[0]],
+                    signals[self._mem_bw_idx_by_package[1]],
+                    delta_signals[self._board_dram_energy_idx] / delta_time,
+                    delta_signals[self._instructions_retired_idx_by_package[0]] / delta_time,
+                    delta_signals[self._instructions_retired_idx_by_package[1]] / delta_time,
+                    delta_signals[self._energy_idx_by_package[0]]  / delta_time,
+                    delta_signals[self._energy_idx_by_package[1]]  / delta_time,
+                    delta_signals[self._acnt_idx_by_package[0]] / delta_signals[self._mcnt_idx_by_package[0]],
+                    delta_signals[self._acnt_idx_by_package[1]] / delta_signals[self._mcnt_idx_by_package[1]],
+                    delta_signals[self._pcnt_idx_by_package[0]] / delta_signals[self._mcnt_idx_by_package[0]],
+                    delta_signals[self._pcnt_idx_by_package[1]] / delta_signals[self._mcnt_idx_by_package[1]],
+                    delta_signals[self._pcnt_idx_by_package[0]] / delta_signals[self._acnt_idx_by_package[0]],
+                    delta_signals[self._pcnt_idx_by_package[1]] / delta_signals[self._acnt_idx_by_package[1]],
+                    1 - self._phi, # TODO: re-train model to avoid complementing this
+                ]
+
+                with tf.device("/cpu:0"):
+                    core_freq, uncore_freq = [
+                        freq * 1e9
+                        for freq in self._cpu_model(np.array([cpu_tensor])).numpy().tolist()[0]
+                    ]
+                controls.append(core_freq)
+                self._cpu_frequency_control_accumulator += core_freq
+                # Not using uncore controls at this time
             trace_fields = signals
 
         return controls, [delta_time] + trace_fields, debug_fields
@@ -294,31 +389,41 @@ class MLAgentGPU(base_agent.BaseAgent):
                 for gpu_idx, gpu_frequency in enumerate(gpu_frequencies):
                     report.append(f'GPU-{gpu_idx} Average Frequency in ROI: {gpu_frequency}')
 
-        if self._freq_controls:
+        if self._gpu_model is not None:
             report.extend([
                 'Avg requested GPU-{} freq: {:.2f}GHz'.format(
                     gpu_idx,
-                    self._frequency_control_accumulator[gpu_idx] / (self.loop_idx() - 1) / 1e9)
+                    self._gpu_frequency_control_accumulator[gpu_idx] / (self.loop_idx() - 1) / 1e9)
                 for gpu_idx in range(self._gpu_count)])
+        if self._cpu_model is not None:
+            report.append(
+                'Avg requested CPU freq: {:.2f}GHz'.format(
+                    self._cpu_frequency_control_accumulator / (self.loop_idx() - 1) / 1e9)
+            )
+        report.append(f'CPU Model: {self._cpu_model_path}')
+        report.append(f'GPU Model: {self._gpu_model_path}')
+        report.append(f'phi: {self._phi}')
 
         return '\n'.join(report)
 
 def add_args(parser):
-    parser.add_argument('--model', '-m', default="nn_mixbench",
-                        help='Path to the tensorflow model directory.')
+    parser.add_argument('--cpu-model', help='CPU NN model.')
+    parser.add_argument('--gpu-model', help='GPU NN model.')
     parser.add_argument('--no-freq-controls', '-n', dest='no_freq_controls', action='store_true',
                         help='Turn off frequency controls (only monitoring).')
     parser.add_argument('--phi', type=float, default=0.0,
                         help='Balance between energy and performance importance.')
-    parser.add_argument('--freq-gpu', '-g', dest='freq_gpu', type=float,
+    parser.add_argument('--freq-core', type=float,
+                        help='Set CPU core frequency in GHz at run startup.')
+    parser.add_argument('--freq-gpu', type=float,
                         help='Set GPU frequency in GHz at run startup.')
 
 def parse_common_args(parser=None):
     if parser is None:
         help_text = (
             "Run GEOPM ML agent controller with an app. App arguments should come after "
-            "-- safe execution.\nExample:\n"
-            f"    ./{os.path.basename(__file__)} srun -N 1 -n 4 -- echo Hello World")
+            f"--\nExample:\n    ./{os.path.basename(__file__)} srun -N 1 -n 4 -- "
+            "echo Hello World")
         parser = argparse.ArgumentParser(
             description=help_text,
             formatter_class=argparse.RawTextHelpFormatter)
@@ -327,9 +432,13 @@ def parse_common_args(parser=None):
 
 
 def create_instance(args):
-    return MLAgentGPU(model=args.model, period=args.control_period,
+    return MLAgentGPU(cpu_model=args.cpu_model,
+                      gpu_model=args.gpu_model,
+                      period=args.control_period,
                       freq_controls=not args.no_freq_controls,
-                      freq_gpu=args.freq_gpu, phi=args.phi)
+                      freq_core=args.freq_core,
+                      freq_gpu=args.freq_gpu,
+                      phi=args.phi)
 
 
 def main():
