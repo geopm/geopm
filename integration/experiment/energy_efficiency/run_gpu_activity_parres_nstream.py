@@ -1,4 +1,6 @@
-#  Copyright (c) 2015 - 2022, Intel Corporation
+#!/usr/bin/env python
+#
+#  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
 #  modification, are permitted provided that the following conditions
@@ -29,17 +31,22 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += integration/experiment/energy_efficiency/barrier_frequency_sweep.py \
-              integration/experiment/energy_efficiency/gen_plot_profile_comparison.py \
-              integration/experiment/energy_efficiency/gpu_activity.py \
-              integration/experiment/energy_efficiency/__init__.py \
-              integration/experiment/energy_efficiency/power_balancer_energy.py \
-              integration/experiment/energy_efficiency/run_barrier_frequency_sweep_nekbone.py \
-              integration/experiment/energy_efficiency/run_gpu_activity_parres_dgemm.py \
-              integration/experiment/energy_efficiency/run_power_balancer_energy_amg.py \
-              integration/experiment/energy_efficiency/run_power_balancer_energy_dgemm.py \
-              integration/experiment/energy_efficiency/run_power_balancer_energy_hpcg.py \
-              integration/experiment/energy_efficiency/run_power_balancer_energy_minife.py \
-              integration/experiment/energy_efficiency/run_power_balancer_energy_nasft.py \
-              integration/experiment/energy_efficiency/run_power_balancer_energy_nekbone.py \
-              # end
+'''
+Run ParRes nstream with the gpu_activity agent.
+'''
+import argparse
+
+from experiment import machine
+from experiment.energy_efficiency import gpu_activity
+from apps.parres import parres
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    gpu_activity.setup_run_args(parser)
+    parres.setup_run_args(parser)
+    args, extra_args = parser.parse_known_args()
+    mach = machine.init_output_dir(args.output_dir)
+    app_conf = parres.create_nstream_appconf(mach, args)
+    gpu_activity.launch(app_conf=app_conf, args=args,
+                   experiment_cli_args=extra_args)
