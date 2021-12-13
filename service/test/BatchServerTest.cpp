@@ -48,13 +48,13 @@
 #include <sys/mman.h>
 #include <unistd.h>
 
-#include <cstring>    // for strlen(), strncmp()
-#include <string>     // for std::string
-#include <sstream>    // for std::stringstream
-#include <iostream>   // for std::streambuf, std::cerr, std::flush
+#include <string>
+#include <sstream>
+#include <iostream>
 
 using testing::InSequence;
 using testing::Return;
+using testing::Throw;
 using testing::_;
 using geopm::BatchServer;
 using geopm::BatchServerImp;
@@ -69,7 +69,9 @@ class BatchServerTest : public ::testing::Test
     protected:
         void SetUp();
         void TearDown();
-        int fork_other(std::function<void(int, int)> child_process_func, std::function<void(int, int)> parent_process_func, bool child_is_server);
+        int fork_other(std::function<void(int, int)> child_process_func,
+                       std::function<void(int, int)> parent_process_func,
+                       bool child_is_server);
         std::shared_ptr<MockPlatformIO> m_pio_ptr;
         std::shared_ptr<MockBatchStatus> m_batch_status;
         std::shared_ptr<MockPOSIXSignal> m_posix_signal;
@@ -155,15 +157,11 @@ void BatchServerTest::TearDown()
 {
     if (m_batch_server->is_active()) {
         EXPECT_CALL(*m_posix_signal,
-                    sig_queue(m_server_pid,
-                              SIGTERM,
-                              BatchStatus::M_MESSAGE_TERMINATE));
+                    sig_queue(m_server_pid, SIGTERM, BatchStatus::M_MESSAGE_TERMINATE));
         m_batch_server.reset();
     }
     EXPECT_CALL(*m_posix_signal,
-                sig_queue(m_server_pid,
-                          SIGTERM,
-                          BatchStatus::M_MESSAGE_TERMINATE))
+                sig_queue(m_server_pid, SIGTERM, BatchStatus::M_MESSAGE_TERMINATE))
         .Times(3);
     m_batch_server_signals.reset();
     m_batch_server_controls.reset();
@@ -172,7 +170,7 @@ void BatchServerTest::TearDown()
 }
 
 /**
- * @test BatchServerImp::server_pid() in isolation
+ * @test Check BatchServerImp::server_pid() in isolation
  */
 TEST_F(BatchServerTest, get_server_pid)
 {
@@ -183,7 +181,7 @@ TEST_F(BatchServerTest, get_server_pid)
 }
 
 /**
- * @test BatchServerImp::get_server_key() in isolation
+ * @test Check BatchServerImp::get_server_key() in isolation
  */
 TEST_F(BatchServerTest, get_server_key)
 {
@@ -192,60 +190,37 @@ TEST_F(BatchServerTest, get_server_key)
 }
 
 /**
- * @test Check BatchServerImp::stop_batch() to send SIGTERM signal to the server.
+ * @test Check that BatchServerImp::stop_batch() sends a SIGTERM signal to the server.
  */
 TEST_F(BatchServerTest, stop_batch)
 {
     EXPECT_TRUE(m_batch_server->is_active());
     EXPECT_CALL(*m_posix_signal,
-                sig_queue(m_server_pid,
-                          SIGTERM,
-                          BatchStatus::M_MESSAGE_TERMINATE));
+                sig_queue(m_server_pid, SIGTERM, BatchStatus::M_MESSAGE_TERMINATE));
     m_batch_server->stop_batch();
     EXPECT_FALSE(m_batch_server->is_active());
 }
 
 /**
- * @throws geopm Exception to simulate failure of sigqueue(2) system call in POSIXSignalImp::sig_queue()
- */
-ACTION(sig_queue_SIGTERM)
-{
-    throw geopm::Exception(
-        "POSIXSignal(): POSIX signal function call "
-        "sigqueue()"
-        " returned an error",
-        EINVAL,
-        __FILE__,
-        __LINE__
-    );
-}
-
-/**
- * @test First check that BatchServerImp::stop_batch() throws an exception if it is called from child process.
- *       Then check that activate the catch block in BatchServerImp::stop_batch() by failure of POSIXSignalImp::sig_queue()
+ * @test Check that BatchServerImp::stop_batch() throws an exception if it is called from the child process.
+ *       Then check the catch block in BatchServerImp::stop_batch() by forcing a failure of POSIXSignalImp::sig_queue().
  */
 TEST_F(BatchServerTest, stop_batch_exception)
 {
-    GEOPM_EXPECT_THROW_MESSAGE(
-        m_batch_server_child_process->stop_batch(),
-        GEOPM_ERROR_RUNTIME,
-        "BatchServerImp::stop_batch(): must be called from parent process, not child process"
-    );
+    GEOPM_EXPECT_THROW_MESSAGE(m_batch_server_child_process->stop_batch(),
+                               GEOPM_ERROR_RUNTIME,
+                               "BatchServerImp::stop_batch(): must be called from parent process, not child process");
 
-    EXPECT_CALL(
-        *m_posix_signal.get(),
-        sig_queue(m_server_pid, SIGTERM, BatchStatus::M_MESSAGE_TERMINATE)
-    )
-    .Times(1)
-    .WillRepeatedly(sig_queue_SIGTERM());
+    EXPECT_CALL(*m_posix_signal,
+                sig_queue(m_server_pid, SIGTERM, BatchStatus::M_MESSAGE_TERMINATE))
+        .Times(1)
+        /// @throws geopm::Exception to simulate a failure of the sigqueue(2) system call in POSIXSignalImp::sig_queue()
+        .WillRepeatedly(Throw(geopm::Exception("POSIXSignal(): POSIX signal function call sigqueue() returned an error",
+                              EINVAL, __FILE__, __LINE__)));
 
-    GEOPM_EXPECT_THROW_MESSAGE(
-        m_batch_server->stop_batch(),
-        EINVAL,
-        "POSIXSignal(): POSIX signal function call "
-        "sigqueue()"
-        " returned an error"
-    );
+    GEOPM_EXPECT_THROW_MESSAGE(m_batch_server->stop_batch(),
+                               EINVAL,
+                               "POSIXSignal(): POSIX signal function call sigqueue() returned an error");
 }
 
 /**
@@ -260,9 +235,9 @@ TEST_F(BatchServerTest, run_batch_read)
 {
     InSequence sequence;
 
-    int idx = 0;
     std::vector<double> result = {240.042, 250.052};
 
+    int idx = 0;
     for (const auto &request : m_signal_config) {
         EXPECT_CALL(*m_pio_ptr, push_signal(request.name, request.domain,
                                             request.domain_idx))
@@ -271,6 +246,7 @@ TEST_F(BatchServerTest, run_batch_read)
         ++idx;
     }
 
+    idx = 0;
     for (const auto &request : m_control_config) {
         EXPECT_CALL(*m_pio_ptr, push_control(request.name, request.domain,
                                              request.domain_idx))
@@ -315,7 +291,7 @@ TEST_F(BatchServerTest, run_batch_read)
 
 /**
  * @test Check BatchServerImp::run_batch() when there are no signals and you try to read.
- *       First the requests only controls are filled up.
+ *       First the control requests are populated.
  *       Second the server recieves a message to read the batch.
  *       However there are no signals, so it does nothing.
  *       The server sends a message for the client to continue.
@@ -326,8 +302,6 @@ TEST_F(BatchServerTest, run_batch_read_empty)
     InSequence sequence;
 
     int idx = 0;
-    std::vector<double> result = {};
-
     for (const auto &request : m_control_config) {
         EXPECT_CALL(*m_pio_ptr, push_control(request.name, request.domain,
                                              request.domain_idx))
@@ -370,8 +344,7 @@ TEST_F(BatchServerTest, run_batch_write)
     InSequence sequence;
 
     int idx = 0;
-
-     for (const auto &request : m_signal_config) {
+    for (const auto &request : m_signal_config) {
         EXPECT_CALL(*m_pio_ptr, push_signal(request.name, request.domain,
                                             request.domain_idx))
             .WillOnce(Return(idx))
@@ -379,7 +352,8 @@ TEST_F(BatchServerTest, run_batch_write)
         ++idx;
     }
 
-     for (const auto &request : m_control_config) {
+    // idx should be the same when we use write_batch()
+    for (const auto &request : m_control_config) {
         EXPECT_CALL(*m_pio_ptr, push_control(request.name, request.domain,
                                              request.domain_idx))
             .WillOnce(Return(idx))
@@ -431,7 +405,6 @@ TEST_F(BatchServerTest, run_batch_write_empty)
     InSequence sequence;
 
     int idx = 0;
-
     for (const auto &request : m_signal_config) {
         EXPECT_CALL(*m_pio_ptr, push_signal(request.name, request.domain,
                                             request.domain_idx))
@@ -470,8 +443,6 @@ TEST_F(BatchServerTest, receive_message_terminate)
     InSequence sequence;
 
     int idx = 0;
-    std::vector<double> result = {240.042, 250.052};
-
     for (const auto &request : m_signal_config) {
         EXPECT_CALL(*m_pio_ptr, push_signal(request.name, request.domain,
                                             request.domain_idx))
@@ -480,6 +451,7 @@ TEST_F(BatchServerTest, receive_message_terminate)
         ++idx;
     }
 
+    idx = 0;
     for (const auto &request : m_control_config) {
         EXPECT_CALL(*m_pio_ptr, push_control(request.name, request.domain,
                                              request.domain_idx))
@@ -496,16 +468,14 @@ TEST_F(BatchServerTest, receive_message_terminate)
 }
 
 /**
- * @test Provides coverage for the case when not a valid message is read
- *       by the server in BatchServerImp::event_loop()
+ * @test Provides coverage for the case when an invalid message is read
+ *       by the server in the BatchServerImp::event_loop().
  */
 TEST_F(BatchServerTest, receive_message_default)
 {
     InSequence sequence;
 
     int idx = 0;
-    std::vector<double> result = {240.042, 250.052};
-
     for (const auto &request : m_signal_config) {
         EXPECT_CALL(*m_pio_ptr, push_signal(request.name, request.domain,
                                             request.domain_idx))
@@ -514,6 +484,7 @@ TEST_F(BatchServerTest, receive_message_default)
         ++idx;
     }
 
+    idx = 0;
     for (const auto &request : m_control_config) {
         EXPECT_CALL(*m_pio_ptr, push_control(request.name, request.domain,
                                              request.domain_idx))
@@ -522,28 +493,14 @@ TEST_F(BatchServerTest, receive_message_default)
         ++idx;
     }
 
+    int ret_val = 127;  // a "random" number
     EXPECT_CALL(*m_batch_status, receive_message())
-        .WillOnce(Return(127))  // a "random" number
+        .WillOnce(Return(ret_val))
         .RetiresOnSaturation();
 
-    GEOPM_EXPECT_THROW_MESSAGE(
-        m_batch_server->run_batch(),
-        GEOPM_ERROR_RUNTIME,
-        "BatchServerImp::run_batch(): Received unknown response from client: "
-    );
-}
-
-/**
- * @throws geopm Exception to simulate failure of read(2) system call in BatchStatusImp::receive_message()
- */
-ACTION(batch_status_read_EINTR)
-{
-    throw geopm::Exception(
-        "BatchStatusImp: System call failed: " "read(2)",
-        EINTR,
-        __FILE__,
-        __LINE__
-    );
+    GEOPM_EXPECT_THROW_MESSAGE(m_batch_server->run_batch(),
+                               GEOPM_ERROR_RUNTIME,
+                               (std::string("BatchServerImp::run_batch(): Received unknown response from client: ") + std::to_string(ret_val)));
 }
 
 /**
@@ -555,8 +512,6 @@ TEST_F(BatchServerTest, receive_message_exception)
     InSequence sequence;
 
     int idx = 0;
-    std::vector<double> result = {240.042, 250.052};
-
     for (const auto &request : m_signal_config) {
         EXPECT_CALL(*m_pio_ptr, push_signal(request.name, request.domain,
                                             request.domain_idx))
@@ -565,6 +520,7 @@ TEST_F(BatchServerTest, receive_message_exception)
         ++idx;
     }
 
+    idx = 0;
     for (const auto &request : m_control_config) {
         EXPECT_CALL(*m_pio_ptr, push_control(request.name, request.domain,
                                              request.domain_idx))
@@ -574,31 +530,18 @@ TEST_F(BatchServerTest, receive_message_exception)
     }
 
     // This is where it throws the message.
-    EXPECT_CALL(
-        *m_batch_status.get(),
-        receive_message()
-    )
-    .Times(1)
-    .WillRepeatedly(batch_status_read_EINTR());
+    EXPECT_CALL(*m_batch_status, receive_message())
+        .Times(1)
+        /// @throws geopm::Exception() to simulate a failure of the read(2) system call in BatchStatusImp::receive_message().
+        .WillRepeatedly([](){
+            throw geopm::Exception("BatchStatusImp: System call failed: read(2)",
+                                   EINTR, __FILE__, __LINE__);
+            return '\0';
+        });
 
-    GEOPM_EXPECT_THROW_MESSAGE(
-        m_batch_server->run_batch(),
-        EINTR,
-        "BatchStatusImp: System call failed: " "read(2)"
-    );
-}
-
-/**
- * @throws geopm Exception to simulate failure of write(2) system call in BatchStatusImp::send_message()
- */
-ACTION(batch_status_write_EINTR)
-{
-    throw geopm::Exception(
-        "BatchStatusImp: System call failed: " "write(2)",
-        EINTR,
-        __FILE__,
-        __LINE__
-    );
+    GEOPM_EXPECT_THROW_MESSAGE(m_batch_server->run_batch(),
+                               EINTR,
+                               "BatchStatusImp: System call failed: read(2)");
 }
 
 /**
@@ -610,8 +553,6 @@ TEST_F(BatchServerTest, write_message_exception)
     InSequence sequence;
 
     int idx = 0;
-    std::vector<double> result = {240.042, 250.052};
-
     for (const auto &request : m_signal_config) {
         EXPECT_CALL(*m_pio_ptr, push_signal(request.name, request.domain,
                                             request.domain_idx))
@@ -620,6 +561,7 @@ TEST_F(BatchServerTest, write_message_exception)
         ++idx;
     }
 
+    idx = 0;
     for (const auto &request : m_control_config) {
         EXPECT_CALL(*m_pio_ptr, push_control(request.name, request.domain,
                                              request.domain_idx))
@@ -633,36 +575,21 @@ TEST_F(BatchServerTest, write_message_exception)
         .RetiresOnSaturation();
 
     // This is where it throws the message.
-    EXPECT_CALL(
-        *m_batch_status.get(),
-        send_message(BatchStatus::M_MESSAGE_QUIT)
-    )
-    .Times(1)
-    .WillRepeatedly(batch_status_write_EINTR());
+    EXPECT_CALL(*m_batch_status,
+                send_message(BatchStatus::M_MESSAGE_QUIT))
+        .Times(1)
+        /// @throws geopm::Exception to simulate failure of write(2) system call in BatchStatusImp::send_message()
+        .WillRepeatedly(Throw(geopm::Exception("BatchStatusImp: System call failed: write(2)",
+                              EINTR, __FILE__, __LINE__)));
 
     EXPECT_CALL(*m_batch_status,
                 send_message(BatchStatus::M_MESSAGE_QUIT))
         .Times(1)
         .RetiresOnSaturation();
 
-    GEOPM_EXPECT_THROW_MESSAGE(
-        m_batch_server->run_batch(),
-        EINTR,
-        "BatchStatusImp: System call failed: " "write(2)"
-    );
-}
-
-/**
- * @throws geopm Exception to simulate failure of ioctl(2) system call in SSTIoctlImp::mbox() in SSTIOImp::read_batch()
- */
-ACTION(read_batch_mbox_failed_EINVAL)
-{
-    throw geopm::Exception(
-        "SSTIOImp::read_batch() mbox read failed",
-        EINVAL,
-        __FILE__,
-        __LINE__
-    );
+    GEOPM_EXPECT_THROW_MESSAGE(m_batch_server->run_batch(),
+                               EINTR,
+                               "BatchStatusImp: System call failed: write(2)");
 }
 
 /**
@@ -674,8 +601,6 @@ TEST_F(BatchServerTest, read_batch_exception)
     InSequence sequence;
 
     int idx = 0;
-    std::vector<double> result = {240.042, 250.052};
-
     for (const auto &request : m_signal_config) {
         EXPECT_CALL(*m_pio_ptr, push_signal(request.name, request.domain,
                                             request.domain_idx))
@@ -684,6 +609,7 @@ TEST_F(BatchServerTest, read_batch_exception)
         ++idx;
     }
 
+    idx = 0;
     for (const auto &request : m_control_config) {
         EXPECT_CALL(*m_pio_ptr, push_control(request.name, request.domain,
                                              request.domain_idx))
@@ -700,21 +626,23 @@ TEST_F(BatchServerTest, read_batch_exception)
     // This is where it throws the message.
     EXPECT_CALL(*m_pio_ptr, read_batch())
         .Times(1)
-        .WillRepeatedly(read_batch_mbox_failed_EINVAL());
+        /// @throws geopm::Exception to simulate failure of ioctl(2) system call in SSTIoctlImp::mbox() in SSTIOImp::read_batch()
+        .WillRepeatedly(Throw(geopm::Exception("SSTIOImp::read_batch() mbox read failed",
+                              EINVAL, __FILE__, __LINE__)));
 
-    EXPECT_CALL(*m_batch_status, send_message(BatchStatus::M_MESSAGE_QUIT))
-        .Times(1);
+    EXPECT_CALL(*m_batch_status,
+                send_message(BatchStatus::M_MESSAGE_QUIT))
+        .Times(1)
+        .RetiresOnSaturation();
 
-    GEOPM_EXPECT_THROW_MESSAGE(
-        m_batch_server->run_batch(),
-        EINVAL,
-        "SSTIOImp::read_batch() mbox read failed"
-    );
+    GEOPM_EXPECT_THROW_MESSAGE(m_batch_server->run_batch(),
+                               EINVAL,
+                               "SSTIOImp::read_batch() mbox read failed");
 }
 
 /**
  * @test Check if we can create the shared memory.
- *       Check if the shared memory files for both the signals and controls were created in the /dev/shm/
+ *       Check if the shared memory files for both the signals and controls were created in the /dev/shm/.
  *       Check the sizes of the files match the number of signals and controls.
  *       Check the uid and gid permissions of the files.
  */
@@ -801,9 +729,6 @@ TEST_F(BatchServerTest, fork_with_setup_exception)
 {
     std::function<char(void)> setup = [](void)
     {
-        // return something other than BatchStatus::M_MESSAGE_CONTINUE
-        // so that it would write that bad message to the pipe in the child process
-        // and the parent process would throw the Exception.
         return BatchStatus::M_MESSAGE_QUIT;
     };
 
@@ -813,39 +738,37 @@ TEST_F(BatchServerTest, fork_with_setup_exception)
 
     // wait for any child process unless it gets overwritten with the actual PID of the child process.
     int forked_pid = 0;
-    GEOPM_EXPECT_THROW_MESSAGE(
-        (forked_pid = m_batch_server_pid->fork_with_setup(setup, run)),
-        GEOPM_ERROR_RUNTIME,
-        "BatchServerImp: Receivied unexpected message from batch server at startup: \""
-    );
+    GEOPM_EXPECT_THROW_MESSAGE((forked_pid = m_batch_server_pid->fork_with_setup(setup, run)),
+                               GEOPM_ERROR_RUNTIME,
+                               "BatchServerImp: Receivied unexpected message from batch server at startup: \"113\"");
     waitpid(forked_pid, NULL, 0);
 }
 
 /**
- * @class cerr_redirect
+ * @class CerrRedirect
  *
  * @details This class facilitates redirect the stderr to an internal buffer for recording purposes.
  */
-class cerr_redirect {
+class CerrRedirect {
     public:
         /**
          * @brief The redirect is NOT active when the object is created.
          */
-        cerr_redirect()
+        CerrRedirect()
         {
-            cerr_backup = nullptr;
-            is_active = false;
+            m_cerr_backup = nullptr;
+            m_is_active = false;
         }
 
         /**
          * @brief Restore the backup streambuf if it was not restored already.
          */
-        ~cerr_redirect()
+        ~CerrRedirect()
         {
-            if (cerr_backup) {
-                std::cerr.rdbuf(cerr_backup);
+            if (m_cerr_backup) {
+                std::cerr.rdbuf(m_cerr_backup);
             }
-            is_active = false;
+            m_is_active = false;
         }
 
         /**
@@ -856,16 +779,16 @@ class cerr_redirect {
          */
         void open_redirect(void)
         {
-            if (!is_active) {
+            if (!m_is_active) {
                 // Flush the remaining stderr into the terminal.
                 std::cerr << std::flush;
                 // Clear the stringstream
-                buffer.clear();
-                buffer.str(std::string());
+                m_buffer.clear();
+                m_buffer.str(std::string());
                 // Set the streambuf of the std::cerr equivalent to the streambuf of the stringstream.
                 // Return the former streambuf of the std::cerr prior to the change.
-                cerr_backup = std::cerr.rdbuf( buffer.rdbuf() );
-                is_active = true;
+                m_cerr_backup = std::cerr.rdbuf(m_buffer.rdbuf());
+                m_is_active = true;
             }
         }
 
@@ -878,35 +801,27 @@ class cerr_redirect {
          */
         std::string close_redirect(void)
         {
-            if (is_active)
-            {
+            if (m_is_active) {
                 // Flush the remaining stderr into the streambuf.
                 std::cerr << std::flush;
                 // Restore the streambuf of the std::cerr to it's original state.
-                std::cerr.rdbuf(cerr_backup);
-                is_active = false;
+                std::cerr.rdbuf(m_cerr_backup);
+                m_is_active = false;
 
-                return buffer.str();
-            } else {
+                return m_buffer.str();
+            }
+            else {
                 return std::string();
             }
         }
     private:
-        /// records the redirected stderr into it's own streambuf
-        std::stringstream buffer;
-        /// the backup streambuf associated with the stderr
-        std::streambuf* cerr_backup;
-        /// is true if the redirect is active
-        bool is_active;
+        // records the redirected stderr into it's own streambuf
+        std::stringstream m_buffer;
+        // the backup streambuf associated with the stderr
+        std::streambuf* m_cerr_backup;
+        // is true if the redirect is active
+        bool m_is_active;
 };
-
-/**
- * @throws (int)2 to simulate failure of sigqueue(2) system call in POSIXSignalImp::sig_queue()
- */
-ACTION(sig_queue_throw_2)
-{
-    throw 2;
-}
 
 /**
  * @test Check coverage of BatchServerImp::~BatchServerImp()
@@ -919,41 +834,38 @@ TEST_F(BatchServerTest, destructor_exceptions)
     ///
 
     // Create new BatchServer object
-    std::shared_ptr<BatchServerImp> m_batch_server_exception = std::make_shared<BatchServerImp>(
-        m_client_pid,
-        m_signal_config,
-        m_control_config,
-        *m_pio_ptr,
-        m_batch_status,
-        m_posix_signal,
-        m_signal_shmem,
-        m_control_shmem,
-        m_server_pid
-    );
+    std::shared_ptr<BatchServerImp> batch_server_exception = std::make_shared<BatchServerImp>(m_client_pid,
+                                                                                              m_signal_config,
+                                                                                              m_control_config,
+                                                                                              *m_pio_ptr,
+                                                                                              m_batch_status,
+                                                                                              m_posix_signal,
+                                                                                              m_signal_shmem,
+                                                                                              m_control_shmem,
+                                                                                              m_server_pid);
 
-    EXPECT_CALL(
-        *m_posix_signal.get(),
-        sig_queue(m_server_pid, SIGTERM, BatchStatus::M_MESSAGE_TERMINATE)
-    )
-    .Times(1)
-    .WillRepeatedly(sig_queue_SIGTERM());
+    EXPECT_CALL(*m_posix_signal,
+                sig_queue(m_server_pid, SIGTERM, BatchStatus::M_MESSAGE_TERMINATE))
+        .Times(1)
+        /// @throws geopm::Exception to simulate a failure of the sigqueue(2) system call in POSIXSignalImp::sig_queue()
+        .WillRepeatedly(Throw(geopm::Exception("POSIXSignal(): POSIX signal function call sigqueue() returned an error",
+                              EINVAL, __FILE__, __LINE__)));
 
-    const char* expected_stderr_1 = "Warning: <geopm> BatchServerImp::~BatchServerImp(): Exception thrown in destructor: ";
-    size_t stderr_1_length = strlen(expected_stderr_1);
+    std::string expected_stderr_1 = "Warning: <geopm> BatchServerImp::~BatchServerImp(): Exception thrown in destructor: ";
 
-    cerr_redirect c_redirect;
+    CerrRedirect c_redirect;
     c_redirect.open_redirect();
-    m_batch_server_exception.reset();  // calling BatchServerImp::~BatchServerImp()
+    batch_server_exception.reset();  // calling BatchServerImp::~BatchServerImp()
     std::string actual_stderr_1 = c_redirect.close_redirect();
     // Compare if the recorded stderr matches the expected stderr.
-    EXPECT_EQ(0, strncmp(expected_stderr_1, actual_stderr_1.c_str(), stderr_1_length));
+    EXPECT_TRUE(geopm::string_begins_with(actual_stderr_1, expected_stderr_1));
 
     ///
     /// Testing catch (...) {}
     ///
 
     // Create new BatchServer object
-    m_batch_server_exception.reset(new BatchServerImp(
+    batch_server_exception.reset(new BatchServerImp(
         m_client_pid,
         m_signal_config,
         m_control_config,
@@ -962,24 +874,21 @@ TEST_F(BatchServerTest, destructor_exceptions)
         m_posix_signal,
         m_signal_shmem,
         m_control_shmem,
-        m_server_pid
-    ));
+        m_server_pid));
 
-    EXPECT_CALL(
-        *m_posix_signal.get(),
-        sig_queue(m_server_pid, SIGTERM, BatchStatus::M_MESSAGE_TERMINATE)
-    )
-    .Times(1)
-    .WillRepeatedly(sig_queue_throw_2());
+    EXPECT_CALL(*m_posix_signal,
+                sig_queue(m_server_pid, SIGTERM, BatchStatus::M_MESSAGE_TERMINATE))
+        .Times(1)
+        /// @throws (int)2 to simulate failure of sigqueue(2) system call in POSIXSignalImp::sig_queue()
+        .WillRepeatedly(Throw(2));
 
     expected_stderr_1 = "Warning: <geopm> BatchServerImp::~BatchServerImp(): Non-GEOPM exception thrown in destructor\n";
-    stderr_1_length = strlen(expected_stderr_1);
 
     c_redirect.open_redirect();
-    m_batch_server_exception.reset();  // calling BatchServerImp::~BatchServerImp()
+    batch_server_exception.reset();  // calling BatchServerImp::~BatchServerImp()
     actual_stderr_1 = c_redirect.close_redirect();
     // Compare if the recorded stderr matches the expected stderr.
-    EXPECT_EQ(0, strncmp(expected_stderr_1, actual_stderr_1.c_str(), stderr_1_length));
+    EXPECT_EQ(expected_stderr_1, actual_stderr_1);
 }
 
 /**
@@ -1015,7 +924,8 @@ int BatchServerTest::fork_other(std::function<void(int, int)> child_process_func
             close(read_pipe_fd);  // close read end of pipe
             child_process_func(write_pipe_fd, main_pid);  // pass write end of pipe
             close(write_pipe_fd);  // close write end of pipe
-        } else {  // parent is server
+        }
+        else {  // parent is server
             close(write_pipe_fd);  // close write end of pipe
             child_process_func(read_pipe_fd, main_pid);  // pass read end of pipe
             close(read_pipe_fd);  // close read end of pipe
@@ -1024,12 +934,14 @@ int BatchServerTest::fork_other(std::function<void(int, int)> child_process_func
         // leaked mock objects.
         _Exit(EXIT_SUCCESS);
     // parent process //
-    } else {
+    }
+    else {
         if (child_is_server) {
             close(write_pipe_fd);  // close write end of pipe
             parent_process_func(read_pipe_fd, result);  // pass read end of pipe
             close(read_pipe_fd);  // close read end of pipe
-        } else {  // parent is server
+        }
+        else {  // parent is server
             close(read_pipe_fd);  // close read end of pipe
             parent_process_func(write_pipe_fd, result);  // pass write end of pipe
             close(write_pipe_fd);  // close write end of pipe
@@ -1052,41 +964,39 @@ TEST_F(BatchServerTest, fork_and_terminate_child)
     std::function<void(int, int)> child_process_func = [this](int write_pipe_fd, int client_pid)
     {
         // Create new BatchServer object
-        std::shared_ptr<BatchServerImp> m_batch_server_test = std::make_shared<BatchServerImp>(
-            client_pid,
-            m_signal_config,
-            m_control_config,
-            *m_pio_ptr,
-            m_batch_status,
-            nullptr,           // Create a real POSIXSignal because we want to use sig_action()
-            m_signal_shmem,
-            m_control_shmem,
-            m_server_pid
-        );
+        std::shared_ptr<BatchServerImp> batch_server_test = std::make_shared<BatchServerImp>(client_pid,
+                                                                                             m_signal_config,
+                                                                                             m_control_config,
+                                                                                             *m_pio_ptr,
+                                                                                             m_batch_status,
+                        /* Create a real POSIXSignal because we want to use sig_action() */  nullptr,
+                                                                                             m_signal_shmem,
+                                                                                             m_control_shmem,
+                                                                                             m_server_pid);
 
         // There is no EXPECT_CALL for m_posix_signal->make_sigset() and m_posix_signal->sig_action()
         // because we are using the real POSIXSignal instead of the mock object.
 
         // register the action_sigterm()
         // This uses the real POSIXSignal instead of the mock object.
-        m_batch_server_test->child_register_handler();
+        batch_server_test->child_register_handler();
 
         int idx = 0;
-
         for (const auto &request : m_signal_config) {
-        EXPECT_CALL(*m_pio_ptr, push_signal(request.name, request.domain,
-                                            request.domain_idx))
-            .WillOnce(Return(idx))
-            .RetiresOnSaturation();
-        ++idx;
+            EXPECT_CALL(*m_pio_ptr, push_signal(request.name, request.domain,
+                                                request.domain_idx))
+                .WillOnce(Return(idx))
+                .RetiresOnSaturation();
+            ++idx;
         }
 
+        idx = 0;
         for (const auto &request : m_control_config) {
-        EXPECT_CALL(*m_pio_ptr, push_control(request.name, request.domain,
-                                             request.domain_idx))
-            .WillOnce(Return(idx))
-            .RetiresOnSaturation();
-        ++idx;
+            EXPECT_CALL(*m_pio_ptr, push_control(request.name, request.domain,
+                                                 request.domain_idx))
+                .WillOnce(Return(idx))
+                .RetiresOnSaturation();
+            ++idx;
         }
 
         // m_batch_status->receive_message() is called in BatchServerImp::read_message()
@@ -1096,28 +1006,20 @@ TEST_F(BatchServerTest, fork_and_terminate_child)
         // This exception is caught in the BatchServerImp::read_message()
         // and char in_message = BatchStatus::M_MESSAGE_TERMINATE is returned to BatchServerImp::event_loop()
         EXPECT_CALL(*m_batch_status, receive_message())
-        .WillOnce(
-            [&write_pipe_fd](){
+            .WillOnce([&write_pipe_fd](){
                 /* Extra code for synchronizing the server. */
-               char unique_char = '!';
-               write(write_pipe_fd, &unique_char, sizeof(unique_char));
-
+                char unique_char = '!';
+                write(write_pipe_fd, &unique_char, sizeof(unique_char));
                 sleep(1024);
-                throw geopm::Exception(
-                    "BatchStatusImp: System call failed: " "read(2)",
-                    EINTR,
-                    __FILE__,
-                    __LINE__
-                );
+                throw geopm::Exception("BatchStatusImp: System call failed: read(2)",
+                                       EINTR, __FILE__, __LINE__);
                 // This is irrelevant, it doesn't get returned because of the throw statement.
                 // This is just to match the return type of BatchStatusImp::receive_message()
                 return '$';
-            }
-        )
-        .RetiresOnSaturation();
+            }).RetiresOnSaturation();
 
         // The server process is stopped at BatchStatus::receive_message() inside BatchServerImp::read_message()
-        m_batch_server_test->run_batch();
+        batch_server_test->run_batch();
     };
 
     /// This function contains the parent process, which is the client.
@@ -1172,41 +1074,39 @@ TEST_F(BatchServerTest, fork_and_terminate_parent)
     std::function<void(int, int)> parent_process_func = [this](int write_pipe_fd, int client_pid)
     {
         // Create new BatchServer object
-        std::shared_ptr<BatchServerImp> m_batch_server_test = std::make_shared<BatchServerImp>(
-            client_pid,
-            m_signal_config,
-            m_control_config,
-            *m_pio_ptr,
-            m_batch_status,
-            nullptr,           // Create a real POSIXSignal because we want to use sig_action()
-            m_signal_shmem,
-            m_control_shmem,
-            m_server_pid
-        );
+        std::shared_ptr<BatchServerImp> batch_server_test = std::make_shared<BatchServerImp>(client_pid,
+                                                                                             m_signal_config,
+                                                                                             m_control_config,
+                                                                                             *m_pio_ptr,
+                                                                                             m_batch_status,
+                        /* Create a real POSIXSignal because we want to use sig_action() */  nullptr,
+                                                                                             m_signal_shmem,
+                                                                                             m_control_shmem,
+                                                                                             m_server_pid);
 
         // There is no EXPECT_CALL for m_posix_signal->make_sigset() and m_posix_signal->sig_action()
         // because we are using the real POSIXSignal instead of the mock object.
 
         // register the action_sigterm()
         // This uses the real POSIXSignal instead of the mock object.
-        m_batch_server_test->child_register_handler();
+        batch_server_test->child_register_handler();
 
         int idx = 0;
-
         for (const auto &request : m_signal_config) {
-        EXPECT_CALL(*m_pio_ptr, push_signal(request.name, request.domain,
-                                            request.domain_idx))
-            .WillOnce(Return(idx))
-            .RetiresOnSaturation();
-        ++idx;
+            EXPECT_CALL(*m_pio_ptr, push_signal(request.name, request.domain,
+                                                request.domain_idx))
+                .WillOnce(Return(idx))
+                .RetiresOnSaturation();
+            ++idx;
         }
 
+        idx = 0;
         for (const auto &request : m_control_config) {
-        EXPECT_CALL(*m_pio_ptr, push_control(request.name, request.domain,
-                                             request.domain_idx))
-            .WillOnce(Return(idx))
-            .RetiresOnSaturation();
-        ++idx;
+            EXPECT_CALL(*m_pio_ptr, push_control(request.name, request.domain,
+                                                 request.domain_idx))
+                .WillOnce(Return(idx))
+                .RetiresOnSaturation();
+            ++idx;
         }
 
         // m_batch_status->receive_message() is called in BatchServerImp::read_message()
@@ -1216,28 +1116,20 @@ TEST_F(BatchServerTest, fork_and_terminate_parent)
         // This exception is caught in the BatchServerImp::read_message()
         // and char in_message = BatchStatus::M_MESSAGE_TERMINATE is returned to BatchServerImp::event_loop()
         EXPECT_CALL(*m_batch_status, receive_message())
-        .WillOnce(
-            [&write_pipe_fd](){
+            .WillOnce([&write_pipe_fd](){
                 /* Extra code for synchronizing the server. */
-               char unique_char = '!';
-               write(write_pipe_fd, &unique_char, sizeof(unique_char));
-
+                char unique_char = '!';
+                write(write_pipe_fd, &unique_char, sizeof(unique_char));
                 sleep(1024);
-                throw geopm::Exception(
-                    "BatchStatusImp: System call failed: " "read(2)",
-                    EINTR,
-                    __FILE__,
-                    __LINE__
-                );
+                throw geopm::Exception("BatchStatusImp: System call failed: read(2)",
+                                       EINTR, __FILE__, __LINE__);
                 // This is irrelevant, it doesn't get returned because of the throw statement.
                 // This is just to match the return type of BatchStatusImp::receive_message()
                 return '$';
-            }
-        )
-        .RetiresOnSaturation();
+            }).RetiresOnSaturation();
 
         // The server process is stopped at BatchStatus::receive_message() inside BatchServerImp::read_message()
-        m_batch_server_test->run_batch();
+        batch_server_test->run_batch();
     };
 
     int forked_pid = fork_other(child_process_func, parent_process_func, false);

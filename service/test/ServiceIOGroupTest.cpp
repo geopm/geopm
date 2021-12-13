@@ -184,32 +184,24 @@ TEST_F(ServiceIOGroupTest, read_signal_behavior)
 TEST_F(ServiceIOGroupTest, read_signal_exception)
 {
     // !is_valid_signal(signal_name)
-    GEOPM_EXPECT_THROW_MESSAGE(
-        m_serviceio_group->read_signal("NUM_VACCUM_TUBES", 4, 0),
-        GEOPM_ERROR_INVALID,
-        "ServiceIOGroup::read_signal(): signal name \""
-    );
+    GEOPM_EXPECT_THROW_MESSAGE(m_serviceio_group->read_signal("NUM_VACUUM_TUBES", 4, 0),
+                               GEOPM_ERROR_INVALID,
+                               "ServiceIOGroup::read_signal(): signal name \"NUM_VACUUM_TUBES\" not found");
 
     // domain_type != signal_domain_type(signal_name)
-    GEOPM_EXPECT_THROW_MESSAGE(
-        m_serviceio_group->read_signal(m_expected_signals[0], 80, 0),
-        GEOPM_ERROR_INVALID,
-        "ServiceIOGroup::read_signal(): domain_type requested does not match the domain of the signal ("
-    );
+    GEOPM_EXPECT_THROW_MESSAGE(m_serviceio_group->read_signal(m_expected_signals[0], 80, 0),
+                               GEOPM_ERROR_INVALID,
+                               "ServiceIOGroup::read_signal(): domain_type requested does not match the domain of the signal (");
 
     // domain_idx < 0
-    GEOPM_EXPECT_THROW_MESSAGE(
-        m_serviceio_group->read_signal(m_expected_signals[0], 0, -8),
-        GEOPM_ERROR_INVALID,
-        "ServiceIOGroup::read_signal(): domain_idx out of range"
-    );
+    GEOPM_EXPECT_THROW_MESSAGE(m_serviceio_group->read_signal(m_expected_signals[0], 0, -8),
+                               GEOPM_ERROR_INVALID,
+                               "ServiceIOGroup::read_signal(): domain_idx out of range");
 
     // domain_idx >= m_platform_topo.num_domain(domain_type)
-    GEOPM_EXPECT_THROW_MESSAGE(
-        m_serviceio_group->read_signal(m_expected_signals[0], 0, 80),
-        GEOPM_ERROR_INVALID,
-        "ServiceIOGroup::read_signal(): domain_idx out of range"
-    );
+    GEOPM_EXPECT_THROW_MESSAGE(m_serviceio_group->read_signal(m_expected_signals[0], 0, 80),
+                               GEOPM_ERROR_INVALID,
+                               "ServiceIOGroup::read_signal(): domain_idx out of range");
 }
 
 TEST_F(ServiceIOGroupTest, write_control)
@@ -226,34 +218,24 @@ TEST_F(ServiceIOGroupTest, write_control)
 TEST_F(ServiceIOGroupTest, write_control_exception)
 {
     // !is_valid_control(control_name)
-    GEOPM_EXPECT_THROW_MESSAGE(
-        m_serviceio_group->write_control("NUM_VACCUM_TUBES", 4, 0, 7.0),
-        GEOPM_ERROR_INVALID,
-        "ServiceIOGroup::write_control(): control name \""
-        "NUM_VACCUM_TUBES"
-        "\" not found"
-    );
+    GEOPM_EXPECT_THROW_MESSAGE(m_serviceio_group->write_control("NUM_VACUUM_TUBES", 4, 0, 7.0),
+                               GEOPM_ERROR_INVALID,
+                               "ServiceIOGroup::write_control(): control name \"NUM_VACUUM_TUBES\" not found");
 
     // domain_type != control_domain_type(control_name)
-    GEOPM_EXPECT_THROW_MESSAGE(
-        m_serviceio_group->write_control(m_expected_controls[0], 80, 0, 7.0),
-        GEOPM_ERROR_INVALID,
-        "ServiceIOGroup::write_control(): domain_type does not match the domain of the control."
-    );
+    GEOPM_EXPECT_THROW_MESSAGE(m_serviceio_group->write_control(m_expected_controls[0], 80, 0, 7.0),
+                               GEOPM_ERROR_INVALID,
+                               "ServiceIOGroup::write_control(): domain_type does not match the domain of the control.");
 
     // domain_idx < 0
-    GEOPM_EXPECT_THROW_MESSAGE(
-        m_serviceio_group->write_control(m_expected_controls[0], 0, -8, 7.0),
-        GEOPM_ERROR_INVALID,
-        "ServiceIOGroup::write_control(): domain_idx out of range"
-    );
+    GEOPM_EXPECT_THROW_MESSAGE(m_serviceio_group->write_control(m_expected_controls[0], 0, -8, 7.0),
+                               GEOPM_ERROR_INVALID,
+                               "ServiceIOGroup::write_control(): domain_idx out of range");
 
     // domain_idx >= m_platform_topo.num_domain(domain_type)
-    GEOPM_EXPECT_THROW_MESSAGE(
-        m_serviceio_group->write_control(m_expected_controls[0], 0, 80, 7.0),
-        GEOPM_ERROR_INVALID,
-        "ServiceIOGroup::write_control(): domain_idx out of range"
-    );
+    GEOPM_EXPECT_THROW_MESSAGE(m_serviceio_group->write_control(m_expected_controls[0], 0, 80, 7.0),
+                               GEOPM_ERROR_INVALID,
+                               "ServiceIOGroup::write_control(): domain_idx out of range");
 }
 
 TEST_F(ServiceIOGroupTest, valid_signal_aggregation)
