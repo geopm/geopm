@@ -292,18 +292,18 @@ def create_report_trial_df(raw_report, trial_idx, num_duration):
 
     """
     cols = ['count',
-            'package-energy (joules)',
+            'package-energy (J)',
             'requested-online-frequency',
-            'power (watts)',
-            'runtime (sec)',
+            'power (W)',
+            'runtime (s)',
             'frequency (Hz)']
     # Extract data frame for regions
     scaling_data = create_report_region_df(raw_report, cols, 'scaling', num_duration)
     timed_data = create_report_region_df(raw_report, cols, 'timed', num_duration)
-    dur = scaling_data['runtime (sec)'] / scaling_data['count']
-    scaling_data['duration (sec)'] = dur
-    dur = timed_data['runtime (sec)'] / timed_data['count']
-    timed_data['duration (sec)'] = dur
+    dur = scaling_data['runtime (s)'] / scaling_data['count']
+    scaling_data['duration (s)'] = dur
+    dur = timed_data['runtime (s)'] / timed_data['count']
+    timed_data['duration (s)'] = dur
     prof_name = raw_report.meta_data()['Profile']
     scaling_data['profile-name'] = prof_name
     timed_data['profile-name'] = prof_name
@@ -347,9 +347,9 @@ def generate_report_plot(report_df, out_path):
     """
     plt.figure(figsize=(11,16))
     region_names = ['scaling', 'timed']
-    yaxis_names = ['package-energy (joules)',
+    yaxis_names = ['package-energy (J)',
                    'frequency (Hz)',
-                   'runtime (sec)']
+                   'runtime (s)']
     ylim_list = [g_plot_energy_lim,
                  g_plot_freq_lim,
                  g_plot_time_lim]
@@ -358,7 +358,7 @@ def generate_report_plot(report_df, out_path):
         for rn in region_names:
             ax = plt.subplot(3, 2, plot_idx)
             ax.set_xscale('log')
-            generate_report_subplot(report_df, rn, 'duration (sec)', ya)
+            generate_report_subplot(report_df, rn, 'duration (s)', ya)
             plot_idx += 1
         plt.ylim(ylim)
         plt.subplot(3, 2, plot_idx - 2)
@@ -470,12 +470,12 @@ def generate_trace_overlay_plot(trace, out_path, region_name, region_count):
         plt.subplot(2, 1, 1)
         plt.plot(time.iloc[:-1], ipc.iloc[1:], '.-')
         plt.ylim(g_plot_ipc_lim)
-        plt.xlabel('time since region start (sec)')
+        plt.xlabel('time since region start (s)')
         plt.ylabel('IPC')
         ipc_legend.append('count {}'.format(rc))
         plt.subplot(2, 1, 2)
         plt.plot(time.iloc[:-1], freq.iloc[1:], '.-')
-        plt.xlabel('time since region start (sec)')
+        plt.xlabel('time since region start (s)')
         plt.ylabel('CPU freq (Hz)')
         plt.ylim(g_plot_freq_lim)
         freq_legend.append('count {}'.format(rc))
@@ -502,7 +502,7 @@ def generate_trace_plot(trace, out_path, delta_time, begin_time=0):
             time = selected_trace['TIME']
             plt.plot(time, ydata, '.')
             plt.ylim(ylim)
-            plt.xlabel('time (sec)')
+            plt.xlabel('time (s)')
             plt.ylabel(ylabel)
     plt.savefig(out_path)
     plt.close()
