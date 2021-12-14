@@ -68,7 +68,7 @@ class PassthroughAgent(Agent):
     def run_end(self):
         pass
 
-    def get_report(self):
+    def get_report(self, profile):
         return self._report_data
 
 
@@ -99,7 +99,7 @@ class TestController(unittest.TestCase):
         with self.assertRaisesRegex(NotImplementedError, err_msg):
             ca.get_period()
         with self.assertRaisesRegex(NotImplementedError, err_msg):
-            ca.get_report()
+            ca.get_report('test_profile')
 
     def test_controller_construction_invalid(self):
         err_msg = 'agent must be a subclass of Agent.'
