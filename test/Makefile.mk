@@ -406,7 +406,6 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
                           test/MockFrequencyLimitDetector.hpp \
                           test/MockFrequencyGovernor.hpp \
                           test/MockIOGroup.hpp \
-                          test/MockNVMLDevicePool.hpp \
                           test/MockPlatformTopo.cpp \
                           test/MockPlatformTopo.hpp \
                           test/MockPlatformIO.hpp \
