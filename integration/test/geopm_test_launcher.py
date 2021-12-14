@@ -185,7 +185,7 @@ class TestLauncher(object):
                     self.msr_restore()
                 raise
 
-    def get_report(self):
+    def get_report(self, profile):
         return Report(self._report_path)
 
     def get_trace(self):
