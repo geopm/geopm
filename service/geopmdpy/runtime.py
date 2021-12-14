@@ -41,6 +41,7 @@ import math
 import time
 import subprocess
 import sys
+import shlex
 from . import pio
 
 
@@ -235,7 +236,7 @@ class Agent:
         """
         raise NotImplementedError('Agent is an abstract base class')
 
-    def get_report(self):
+    def get_report(self, profile):
         """Summary of all data collected by calls to update()
 
         The report covers the interval of time between the last two calls to
@@ -243,6 +244,9 @@ class Agent:
         Agent.begin_run(), the same report will be returned by this method.
         The Controller.run() method will return this report upon completion of
         the run.
+
+        Args:
+            profile (str): Profile name to associate with the report
 
         Returns:
             str: Human readable report
@@ -309,7 +313,7 @@ class Controller:
             raise RuntimeError('App process is still running')
         return self._returncode
 
-    def run(self, argv, policy=None):
+    def run(self, argv, policy=None, profile=None):
         """Execute control loop defined by agent
 
         Interfaces with PlatformIO directly through the geopmdpy.pio module.
@@ -345,4 +349,6 @@ class Controller:
             self._agent.run_end()
         self._returncode = pid.returncode
         sys.stderr.write(f'<geopmdpy> RUN END, return: {self._returncode}\n')
-        return self._agent.get_report()
+        if profile is None:
+            profile = ' '.join([shlex.quote(arg) for arg in argv])
+        return self._agent.get_report(profile)
