@@ -69,7 +69,6 @@ class LocalAgent(geopmdpy.runtime.Agent):
     def run_end(self):
         self._loop_idx = 0
         self._cpu_freq = geopmdpy.pio.read_signal('CPU_FREQUENCY_MAX', 'board', 0)
-        self._report = geopmpy.reporter.generate('test_profile_name', 'test_agent')
 
     def update(self, signals):
         if self._loop_idx == 0:
@@ -83,8 +82,8 @@ class LocalAgent(geopmdpy.runtime.Agent):
     def get_period(self):
         return 0.005
 
-    def get_report(self):
-        return self._report
+    def get_report(self, profile):
+        return geopmpy.reporter.generate(profile, 'test_agent')
 
 def main():
     """Run the LocalAgent
@@ -100,7 +99,7 @@ def main():
     cpu_frequency_max = float(sys.argv[1])
     agent = LocalAgent()
     controller = geopmdpy.runtime.Controller(agent)
-    report = controller.run(sys.argv[2:], cpu_frequency_max)
+    report = controller.run(sys.argv[2:], cpu_frequency_max, profile='test_profile_name')
     with open('geopm.report', 'w') as fid:
         fid.write(report)
     return controller.returncode()
