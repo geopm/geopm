@@ -32,7 +32,7 @@ class TestAgent(unittest.TestCase):
     def test_agent_names(self):
         agent_names = set(geopmpy.agent.names())
         expected_agent_names = {'power_balancer', 'power_governor',
-                                'frequency_map', 'monitor'}
+                                'frequency_map', 'monitor', 'gpu_activity'}
         if geopmpy.version.__beta__:
             expected_agent_names.add('cpu_activity')
         self.assertEqual(expected_agent_names, agent_names)
