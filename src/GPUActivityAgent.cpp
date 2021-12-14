@@ -71,10 +71,10 @@ namespace geopm
         // init_platform_io, sample_platform, etc).  Signal & control usage is still
         // handled in adjust_platform per usual.
         , m_signal_available({
-                              {"FREQUENCY_ACCELERATOR", {
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
-                                  true,
-                                  {}
+                              {"FREQUENCY_ACCELERATOR", {         // Name of signal to be queried
+                                  GEOPM_DOMAIN_BOARD_ACCELERATOR, // Domain for the signal
+                                  true,                           // Should the signal appear in the trace
+                                  {}                              // Empty Vector to contain the signal info
                                   }},
                               {"ACCELERATOR_COMPUTE_ACTIVITY", {
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
@@ -154,7 +154,8 @@ namespace geopm
             // DCGM documentation indicates that users should query no faster than 100ms
             // even though the interface allows for setting the polling rate in the us range.
             // In practice reducing below the 100ms value has proven functional, but should only
-            // be attempted if there is a strong need to catch short phase behavior.
+            // be attempted if there is a proven need to catch short phase behavior that cannot
+            // be accomplished with the default settings.
             m_platform_io.write_control("DCGM::FIELD_UPDATE_RATE", GEOPM_DOMAIN_BOARD, 0, 0.1); //100ms
             //m_platform_io.write_control("DCGM::FIELD_UPDATE_RATE", GEOPM_DOMAIN_BOARD, 0, 0.001); //1ms
             m_platform_io.write_control("DCGM::MAX_STORAGE_TIME", GEOPM_DOMAIN_BOARD, 0, 1);
@@ -458,7 +459,7 @@ namespace geopm
         return {};
     }
 
-    // Adds trace columns samples and signals of interest
+    // Adds trace columns signals of interest
     std::vector<std::string> GPUActivityAgent::trace_names(void) const
     {
         std::vector<std::string> names;
@@ -486,12 +487,12 @@ namespace geopm
 
     }
 
-    // Updates the trace with values for samples and signals from this Agent
+    // Updates the trace with values for signals from this Agent
     void GPUActivityAgent::trace_values(std::vector<double> &values)
     {
         int values_idx = 0;
 
-        //default assumption is that every signal added should be in the trace
+        //Signal values are added to the trace by this agent, not sample values.
         for (auto &sv : m_signal_available) {
             if (sv.second.trace_signal) {
                 for (int domain_idx = 0; domain_idx < (int) sv.second.signals.size(); ++domain_idx) {
