@@ -43,9 +43,9 @@ the policy as ACCELERATOR_FREQ_EFFICIENT.  Low activity regions (compute activit
 of 0.0) run at the Fe frequency, high activity regions (compute activity of 1.0)
 run at the Fmax frequency, and regions in between the extremes run at a frequency
 selected via
-F = = Fe + (Fmax - Fe) * ACCELERATOR_COMPUTE_ACTIVITY/UTILIZATION_ACCELERATOR.
+F = Fe + (Fmax - Fe) * ACCELERATOR_COMPUTE_ACTIVITY/UTILIZATION_ACCELERATOR.
 UTILIZATION_ACCELERATOR is used to scale the ACCELERATOR_COMPUTE_ACTIVITY in order
-to scale frequency selection with the percentage of time a kernel is runnning on
+to scale frequency selection with the percentage of time a kernel is running on
 the GPU.  This tends to help with workloads that contain short but highly
 scalable GPU phases.
 
@@ -84,8 +84,8 @@ reports and traces with additional Agent-specific information.
 
 * `Agent Name`:
   Set the `--geopm-agent` launch option or `GEOPM_AGENT` environment
-  variable to "energy_efficient" and the Controller will select the
-  EnergyEfficientAgent for its control handler.  See
+  variable to "gpu_activity" and the Controller will select the
+  GpuActivityAgent for its control handler.  See
   **geopm_launch(1)** and **geopm(7)** for more information about
   launch options and environment variables.
 
@@ -110,11 +110,11 @@ reports and traces with additional Agent-specific information.
   N/A
 
 * `Trace Column Extensions`:
+  `FREQUENCY_ACCELERATOR`: The frequency of the accelerator
   `ACCELERATOR_COMPUTE_ACTIVITY`: A measurement of the amount of execution occuring
                                   on an accelerator
-  `UTILIZATION_ACCELERATOR_COMPUTE_ACTIVITY`: Fraction of time the accelerator operated
-                                              on a kernel in the last set of driver samples
-  `FREQUENCY_ACCELERATOR`: The frequency of the accelerator
+  `UTILIZATION_ACCELERATOR`: Fraction of time the accelerator operated
+                             on a kernel in the last set of driver samples
   `ENERGY_ACCELERATOR`: The energy consumption of the accelerator
 
 * `Report Extensions`:
