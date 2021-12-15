@@ -54,37 +54,37 @@ namespace geopm
         , m_max_keep_age(1.0)      // 1 second
         , m_max_keep_sample(100)   // 100 samples
     {
-        // Guarantee geopm_dcgm_field_ids_e order is used
-        m_dcgm_field_ids[M_SM_ACTIVE] = DCGM_FI_PROF_SM_ACTIVE;
-        m_dcgm_field_ids[M_SM_OCCUPANCY] = DCGM_FI_PROF_SM_OCCUPANCY;
-        m_dcgm_field_ids[M_DRAM_ACTIVE] = DCGM_FI_PROF_DRAM_ACTIVE;
+        m_dcgm_field_ids[M_FIELD_ID_SM_ACTIVE] = DCGM_FI_PROF_SM_ACTIVE;
+        m_dcgm_field_ids[M_FIELD_ID_SM_OCCUPANCY] = DCGM_FI_PROF_SM_OCCUPANCY;
+        m_dcgm_field_ids[M_FIELD_ID_SM_DRAM_ACTIVE] = DCGM_FI_PROF_DRAM_ACTIVE;
 
         dcgmReturn_t result;
 
         //Initialize DCGM
         result = dcgmInit();
-        check_dcgm_result(result, "Error Initializing DCGM.", __LINE__);
+        check_result(result, "Error Initializing DCGM.", __LINE__);
 
         // We are assuming a local version of DCGM.  This could transition to a
         // dcgmStartEmbedded at a later date.
-        char host_ip[] = "127.0.0.1";
+        const char *host_ip = "127.0.0.1";
         result = dcgmConnect(host_ip, &m_dcgm_handle);
-        check_dcgm_result(result, "Error connecting to standalone DCGM instance", __LINE__);
+        check_result(result, "Error connecting to standalone DCGM instance", __LINE__);
 
         //Check all devices are DCGM enabled
         unsigned int dcgm_dev_id_list[DCGM_MAX_NUM_DEVICES];
         result = dcgmGetAllSupportedDevices(m_dcgm_handle, dcgm_dev_id_list, &m_dcgm_dev_count);
-        check_dcgm_result(result, "Error fetching DCGM supported devices.", __LINE__);
+        check_result(result, "Error fetching DCGM supported devices.", __LINE__);
 
-        for (int i = 0; i < m_dcgm_dev_count; ++i) {
-            std::vector<dcgmFieldValue_v1> field_values(sizeof(m_dcgm_field_ids)/sizeof(m_dcgm_field_ids[0]));
-            m_dcgm_field_values.push_back(field_values);
-        }
+        dcgmFieldValue_v1 init_val = {};
+        init_val.dbl = NAN;
+        init_val.status = DCGM_ST_UNINITIALIZED;
+        std::vector<dcgmFieldValue_v1> field_values(M_NUM_FIELD_ID, init_val);
+        m_dgcm_field_values.resize(m_dcgm_dev_count, field_values)
 
         //Setup Field Group
 
-        char geopm_group[] = "geopm_field_group";
-        result = dcgmFieldGroupCreate(m_dcgm_handle, sizeof(m_dcgm_field_ids)/sizeof(m_dcgm_field_ids[0]), &m_dcgm_field_ids[0],
+        const char *geopm_group = "geopm_field_group";
+        result = dcgmFieldGroupCreate(m_dcgm_handle, M_NUM_FIELD_ID, m_dcgm_field_ids,
                                       geopm_group, &m_field_group_id);
 
         //Retry case
@@ -94,13 +94,13 @@ namespace geopm
                          ": Duplicate field group found. " << std::endl;
 #endif
             result = dcgmFieldGroupDestroy(m_dcgm_handle, m_field_group_id);
-            check_dcgm_result(result, "Error destroying DCGM geopm_fields group.", __LINE__);
-            result = dcgmFieldGroupCreate(m_dcgm_handle, sizeof(m_dcgm_field_ids)/sizeof(m_dcgm_field_ids[0]), &m_dcgm_field_ids[0],
+            check_result(result, "Error destroying DCGM geopm_fields group.", __LINE__);
+            result = dcgmFieldGroupCreate(m_dcgm_handle, M_NUM_FIELD_ID, m_dcgm_field_ids,
                                           geopm_group, &m_field_group_id);
-            check_dcgm_result(result, "Error re-creating DCGM geopm_fields group.", __LINE__);
+            check_result(result, "Error re-creating DCGM geopm_fields group.", __LINE__);
         }
         else {
-            check_dcgm_result(result, "Error creating DCGM geopm_fields group.", __LINE__);
+            check_result(result, "Error creating DCGM geopm_fields group.", __LINE__);
         }
 
         // Note: Currently we are using dcgmWatchFields, but may transition to using
@@ -108,7 +108,7 @@ namespace geopm
         result = dcgmWatchFields(m_dcgm_handle, DCGM_GROUP_ALL_GPUS, m_field_group_id, m_update_freq,
                                  m_max_keep_age, m_max_keep_sample);
 
-        check_dcgm_result(result, "Error setting default watch field configuration.", __LINE__);
+        check_result(result, "Error setting default watch field configuration.", __LINE__);
 
         for (auto dcgm_field_id : m_dcgm_field_ids) {
             DcgmFieldGetById(dcgm_field_id);
@@ -128,7 +128,7 @@ namespace geopm
         dcgmGroupDestroy(m_dcgm_handle, DCGM_GROUP_ALL_GPUS);
     }
 
-    void DCGMDevicePoolImp::check_dcgm_result(const dcgmReturn_t result, const std::string error, const int line)
+    void DCGMDevicePoolImp::check_result(const dcgmReturn_t result, const std::string error, const int line)
     {
         if (result != DCGM_ST_OK) {
             throw Exception("DCGMDevicePool::" + std::string(__func__) + ": "
@@ -137,11 +137,13 @@ namespace geopm
         }
     }
 
-    int DCGMDevicePoolImp::dcgm_device() const {
+    int DCGMDevicePoolImp::num_device() const
+    {
         return m_dcgm_dev_count;
     }
 
-    double DCGMDevicePoolImp::sample_field_value(int accel_idx, int geopm_field_id) const {
+    double DCGMDevicePoolImp::sample(int accel_idx, int geopm_field_id) const
+    {
         double result = NAN;
 
         if (m_dcgm_field_values.at(accel_idx).at(geopm_field_id).status == DCGM_ST_OK) {
@@ -150,22 +152,22 @@ namespace geopm
         return result;
     }
 
-    void DCGMDevicePoolImp::update_field_value(int accel_idx)
+    void DCGMDevicePoolImp::update(int accel_idx)
     {
         dcgmReturn_t result;
         result = dcgmGetLatestValuesForFields(m_dcgm_handle, accel_idx,
-                        &m_dcgm_field_ids[0], sizeof(m_dcgm_field_ids)/sizeof(m_dcgm_field_ids[0]),
+                        &m_dcgm_field_ids[0], M_NUM_FIELD_ID,
                         &(m_dcgm_field_values.at(accel_idx))[0]);
-        check_dcgm_result(result, "Error getting latest values for fields in read_batch", __LINE__);
+        check_result(result, "Error getting latest values for fields in read_batch", __LINE__);
     }
 
-    void DCGMDevicePoolImp::field_update_rate(int field_update_rate)
+    void DCGMDevicePoolImp::update_rate(int field_update_rate)
     {
         dcgmReturn_t result;
         m_update_freq = field_update_rate;
         result = dcgmWatchFields(m_dcgm_handle, DCGM_GROUP_ALL_GPUS, m_field_group_id, m_update_freq,
                                  m_max_keep_age, m_max_keep_sample);
-        check_dcgm_result(result, "Error setting Field Update Rate", __LINE__);
+        check_result(result, "Error setting Field Update Rate", __LINE__);
     }
 
     void DCGMDevicePoolImp::max_storage_time(int max_storage_time)
@@ -174,7 +176,7 @@ namespace geopm
         m_max_keep_age = max_storage_time;
         result = dcgmWatchFields(m_dcgm_handle, DCGM_GROUP_ALL_GPUS, m_field_group_id, m_update_freq,
                                  m_max_keep_age, m_max_keep_sample);
-        check_dcgm_result(result, "Error setting Max Storage Time", __LINE__);
+        check_result(result, "Error setting Max Storage Time", __LINE__);
     }
 
     void DCGMDevicePoolImp::max_samples(int max_samples)
@@ -183,6 +185,6 @@ namespace geopm
         m_max_keep_sample = max_samples;
         result = dcgmWatchFields(m_dcgm_handle, DCGM_GROUP_ALL_GPUS, m_field_group_id, m_update_freq,
                                  m_max_keep_age, m_max_keep_sample);
-        check_dcgm_result(result, "Error setting Max Samples", __LINE__);
+        check_result(result, "Error setting Max Samples", __LINE__);
     }
 }

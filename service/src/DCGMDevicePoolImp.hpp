@@ -48,15 +48,15 @@ namespace geopm
             DCGMDevicePoolImp();
             virtual ~DCGMDevicePoolImp();
 
-            virtual int dcgm_device() const override;
-            virtual double sample_field_value(int accel_idx, int geopm_field_id) const override;
-            virtual void update_field_value(int accel_idx) override;
-            virtual void field_update_rate(int field_update_rate) override;
+            virtual int num_device() const override;
+            virtual double sample(int accel_idx, int field_id) const override;
+            virtual void update(int accel_idx) override;
+            virtual void update_rate(int field_update_rate) override;
             virtual void max_storage_time(int max_storage_time) override;
             virtual void max_samples(int max_samples) override;
 
         private:
-            virtual void check_dcgm_result(const dcgmReturn_t result, const std::string error, const int line);
+            virtual void check_result(const dcgmReturn_t result, const std::string &error, int line);
 
             long long m_update_freq;
             double m_max_keep_age;
@@ -66,7 +66,7 @@ namespace geopm
             dcgmHandle_t m_dcgm_handle;
             dcgmFieldGrp_t m_field_group_id;
 
-            unsigned short m_dcgm_field_ids[M_FIELD_IDS];
+            unsigned short m_dcgm_field_ids[M_NUM_FIELD_ID];
 
             // Accelerator indexed vector of vector of field values
             std::vector<std::vector<dcgmFieldValue_v1>> m_dcgm_field_values;
