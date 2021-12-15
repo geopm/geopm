@@ -56,7 +56,7 @@ namespace geopm
             virtual void max_samples(int max_samples) override;
 
         private:
-            virtual void check_result(const dcgmReturn_t result, const std::string &error, int line);
+            virtual void check_result(const dcgmReturn_t result, const std::string error, const int line);
 
             long long m_update_freq;
             double m_max_keep_age;
