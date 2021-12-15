@@ -56,7 +56,7 @@ namespace geopm
     {
         m_dcgm_field_ids[M_FIELD_ID_SM_ACTIVE] = DCGM_FI_PROF_SM_ACTIVE;
         m_dcgm_field_ids[M_FIELD_ID_SM_OCCUPANCY] = DCGM_FI_PROF_SM_OCCUPANCY;
-        m_dcgm_field_ids[M_FIELD_ID_SM_DRAM_ACTIVE] = DCGM_FI_PROF_DRAM_ACTIVE;
+        m_dcgm_field_ids[M_FIELD_ID_DRAM_ACTIVE] = DCGM_FI_PROF_DRAM_ACTIVE;
 
         dcgmReturn_t result;
 
@@ -66,8 +66,7 @@ namespace geopm
 
         // We are assuming a local version of DCGM.  This could transition to a
         // dcgmStartEmbedded at a later date.
-        const char *host_ip = "127.0.0.1";
-        result = dcgmConnect(host_ip, &m_dcgm_handle);
+        result = dcgmConnect((char*)"127.0.0.1", &m_dcgm_handle);
         check_result(result, "Error connecting to standalone DCGM instance", __LINE__);
 
         //Check all devices are DCGM enabled
@@ -76,14 +75,14 @@ namespace geopm
         check_result(result, "Error fetching DCGM supported devices.", __LINE__);
 
         dcgmFieldValue_v1 init_val = {};
-        init_val.dbl = NAN;
+        init_val.value.dbl = NAN;
         init_val.status = DCGM_ST_UNINITIALIZED;
         std::vector<dcgmFieldValue_v1> field_values(M_NUM_FIELD_ID, init_val);
-        m_dgcm_field_values.resize(m_dcgm_dev_count, field_values)
+        m_dcgm_field_values.resize(m_dcgm_dev_count, field_values);
 
         //Setup Field Group
 
-        const char *geopm_group = "geopm_field_group";
+        char geopm_group[] = "geopm_field_group";
         result = dcgmFieldGroupCreate(m_dcgm_handle, M_NUM_FIELD_ID, m_dcgm_field_ids,
                                       geopm_group, &m_field_group_id);
 
