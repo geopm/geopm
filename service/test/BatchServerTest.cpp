@@ -38,6 +38,7 @@
 #include "MockPlatformIO.hpp"
 #include "MockPOSIXSignal.hpp"
 #include "MockSharedMemory.hpp"
+#include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm_test.hpp"
 
@@ -48,6 +49,7 @@
 #include <sys/mman.h>
 #include <unistd.h>
 
+#include <cerrno>
 #include <string>
 #include <sstream>
 #include <iostream>
@@ -865,16 +867,15 @@ TEST_F(BatchServerTest, destructor_exceptions)
     ///
 
     // Create new BatchServer object
-    batch_server_exception.reset(new BatchServerImp(
-        m_client_pid,
-        m_signal_config,
-        m_control_config,
-        *m_pio_ptr,
-        m_batch_status,
-        m_posix_signal,
-        m_signal_shmem,
-        m_control_shmem,
-        m_server_pid));
+    batch_server_exception.reset(new BatchServerImp(m_client_pid,
+                                                    m_signal_config,
+                                                    m_control_config,
+                                                    *m_pio_ptr,
+                                                    m_batch_status,
+                                                    m_posix_signal,
+                                                    m_signal_shmem,
+                                                    m_control_shmem,
+                                                    m_server_pid));
 
     EXPECT_CALL(*m_posix_signal,
                 sig_queue(m_server_pid, SIGTERM, BatchStatus::M_MESSAGE_TERMINATE))
@@ -1133,5 +1134,135 @@ TEST_F(BatchServerTest, fork_and_terminate_parent)
     };
 
     int forked_pid = fork_other(child_process_func, parent_process_func, false);
+    waitpid(forked_pid, NULL, 0);
+}
+
+/**
+ * @test Enables coverage for the path of the SIGCHLD handler upon normal operation,
+ *       when a forked child process terminates, and sends a SIGCHLD to the server.
+ */
+TEST_F(BatchServerTest, action_sigchld)
+{
+    /// This function contains the child process, which is the client.
+    /// It takes the read_pipe_fd and the PID of the parent process, which is the server.
+    std::function<void(int, int)> child_process_func = [](int read_pipe_fd, int server_pid)
+    {
+        /* Extra code for synchronizing the client. */
+        char unique_char = 'a';
+        int ret = read(read_pipe_fd, &unique_char, sizeof(unique_char));
+        if (ret == -1) {
+            ret = errno;
+        }
+
+        // When the child process exits, it sends a SIGCHLD to the parent process.
+    };
+
+    /// This function contains the parent process, which is the server.
+    /// It takes the write_pipe_fd and the PID of the child process, which is the client.
+    std::function<void(int, int)> parent_process_func = [this](int write_pipe_fd, int client_pid)
+    {
+        // Create new BatchServer object
+        std::shared_ptr<BatchServerImp> batch_server_test = std::make_shared<BatchServerImp>(client_pid,
+                                                                                             m_signal_config,
+                                                                                             m_control_config,
+                                                                                             *m_pio_ptr,
+                                                                                             m_batch_status,
+                        /* Create a real POSIXSignal because we want to use sig_action() */  nullptr,
+                                                                                             m_signal_shmem,
+                                                                                             m_control_shmem,
+                                                                                             m_server_pid);
+
+        // There is no EXPECT_CALL for m_posix_signal->make_sigset() and m_posix_signal->sig_action()
+        // because we are using the real POSIXSignal instead of the mock object.
+
+        // register the action_sigchld()
+        // This uses the real POSIXSignal instead of the mock object.
+        batch_server_test->parent_register_handler();
+
+        EXPECT_TRUE(batch_server_test->is_active());
+
+        /* Extra code for synchronizing the server. */
+        char unique_char = '!';
+        write(write_pipe_fd, &unique_char, sizeof(unique_char));
+
+        errno = 0;
+        sleep(UINT_MAX);  // exits the sleep when it is interrupted by a signal
+
+        EXPECT_FALSE(batch_server_test->is_active());
+    };
+
+    int forked_pid = fork_other(child_process_func, parent_process_func, false);
+    waitpid(forked_pid, NULL, 0);
+}
+
+/**
+ * @test Enables coverage for the path of the SIGCHLD handler upon abnormal operation,
+ *       when the server gets a SIGCHLD signal from a process which is not a child.
+ *       This test sets g_sigchld_status to GEOPM_ERROR_RUNTIME.
+ */
+TEST_F(BatchServerTest, action_sigchld_error)
+{
+    /// This function contains the child process, which is the server.
+    /// It takes the write_pipe_fd and the PID of the parent process, which is the client.
+    std::function<void(int, int)> child_process_func = [this](int write_pipe_fd, int client_pid)
+    {
+        // Create new BatchServer object
+        std::shared_ptr<BatchServerImp> batch_server_test = std::make_shared<BatchServerImp>(client_pid,
+                                                                                             m_signal_config,
+                                                                                             m_control_config,
+                                                                                             *m_pio_ptr,
+                                                                                             m_batch_status,
+                        /* Create a real POSIXSignal because we want to use sig_action() */  nullptr,
+                                                                                             m_signal_shmem,
+                                                                                             m_control_shmem,
+                                                                                             m_server_pid);
+
+        // There is no EXPECT_CALL for m_posix_signal->make_sigset() and m_posix_signal->sig_action()
+        // because we are using the real POSIXSignal instead of the mock object.
+
+        // register the action_sigchld()
+        // This uses the real POSIXSignal instead of the mock object.
+        batch_server_test->parent_register_handler();
+
+        EXPECT_TRUE(batch_server_test->is_active());
+
+        /* Extra code for synchronizing the server. */
+        char unique_char = '!';
+        write(write_pipe_fd, &unique_char, sizeof(unique_char));
+
+        errno = 0;
+        sleep(UINT_MAX);  // exits the sleep when it is interrupted by a signal
+
+        CerrRedirect c_redirect;
+        c_redirect.open_redirect();
+        EXPECT_FALSE(batch_server_test->is_active());
+        std::string actual_stderr = c_redirect.close_redirect();
+
+        int error_value = ECHILD; // <geopm> No child processes
+        std::string expected_stderr = " :  The batch server child process ended with non-zero status: ";
+        expected_stderr += std::to_string(error_value) + " : \"" + geopm::error_message(error_value) + "\"\n";
+
+        // Compare if the recorded stderr matches the expected stderr.
+        EXPECT_TRUE(actual_stderr.find(expected_stderr) != std::string::npos);
+    };
+
+    /// This function contains the parent process, which is the client.
+    /// It takes the read_pipe_fd and the PID of the child process, which is the server.
+    std::function<void(int, int)> parent_process_func = [](int read_pipe_fd, int server_pid)
+    {
+        /* Extra code for synchronizing the client. */
+        char unique_char;
+        int ret = read(read_pipe_fd, &unique_char, sizeof(unique_char));
+        if (ret == -1) {
+            ret = errno;
+        }
+
+        // Send a SIGCHLD to the server process, from the parent process, not from a child process,
+        // triggering an error condition.
+        sigval value;
+        sigqueue(server_pid, SIGCHLD, value);
+    };
+
+    int forked_pid = fork_other(child_process_func, parent_process_func, true);
     waitpid(forked_pid, NULL, 0);
 }
