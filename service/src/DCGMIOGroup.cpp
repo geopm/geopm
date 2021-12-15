@@ -420,6 +420,10 @@ namespace geopm
     // platform settings
     void DCGMIOGroup::restore_control(void)
     {
+        m_dcgm_device_pool.field_update_rate(1*1e6); //1 second
+        m_dcgm_device_pool.max_samples(0); //0 = no limit
+        // TODO: determine better default
+        m_dcgm_device_pool.max_storage_time(10); //10 seconds.
     }
 
     void DCGMIOGroup::save_control(const std::string &save_path)
