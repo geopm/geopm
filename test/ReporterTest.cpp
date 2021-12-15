@@ -101,6 +101,9 @@ class ReporterTest : public testing::Test
             M_ENERGY_PKG_ENV_IDX_0,
             M_ENERGY_PKG_ENV_IDX_1,
             M_EPOCH_COUNT_IDX,
+            M_ENERGY_ACCELERATOR_IDX,
+            M_POWER_ACCELERATOR_IDX,
+            M_FREQUENCY_ACCELERATOR_IDX,
         };
         ReporterTest();
         void TearDown(void);
@@ -153,6 +156,20 @@ class ReporterTest : public testing::Test
             {GEOPM_REGION_HASH_UNMARKED, 222},
             {GEOPM_REGION_HASH_EPOCH, 334},
             {GEOPM_REGION_HASH_APP, 4444}
+        };
+        std::map<uint64_t, double> m_region_frequency_accelerator = {
+            {geopm_crc32_str("all2all"), 567},
+            {geopm_crc32_str("model-init"), 890},
+            {GEOPM_REGION_HASH_UNMARKED, 123},
+            {GEOPM_REGION_HASH_EPOCH, 456},
+            {GEOPM_REGION_HASH_APP, 74489}
+        };
+        std::map<uint64_t, double> m_region_power_accelerator = {
+            {geopm_crc32_str("all2all"), 764},
+            {geopm_crc32_str("model-init"), 653},
+            {GEOPM_REGION_HASH_UNMARKED, 211},
+            {GEOPM_REGION_HASH_EPOCH, 432},
+            {GEOPM_REGION_HASH_APP, 8992}
         };
         std::map<uint64_t, double> m_region_clk_core = {
             {geopm_crc32_str("all2all"), 4545},
@@ -228,17 +245,6 @@ ReporterTest::ReporterTest()
         .WillOnce(Return(1.0));
 
     m_comm = std::make_shared<ReporterTestMockComm>();
-    m_reporter = geopm::make_unique<ReporterImp>(m_start_time,
-                                                 m_report_name,
-                                                 m_platform_io,
-                                                 m_platform_topo,
-                                                 0,
-                                                 m_sample_agg,
-                                                 m_region_agg,
-                                                 "ENERGY_PACKAGE@package",
-                                                 "",
-                                                 true);
-    m_reporter->init();
 }
 
 void ReporterTest::TearDown(void)
@@ -250,6 +256,21 @@ void check_report(std::istream &expected, std::istream &result);
 
 TEST_F(ReporterTest, generate)
 {
+    std::set<std::string> signal_names = {};
+    EXPECT_CALL(m_platform_io, signal_names()).WillOnce(Return(signal_names));
+
+    m_reporter = geopm::make_unique<ReporterImp>(m_start_time,
+                                                 m_report_name,
+                                                 m_platform_io,
+                                                 m_platform_topo,
+                                                 0,
+                                                 m_sample_agg,
+                                                 m_region_agg,
+                                                 "ENERGY_PACKAGE@package",
+                                                 "",
+                                                 true);
+    m_reporter->init();
+
     // ApplicationIO calls: to be removed
     EXPECT_CALL(m_application_io, report_name()).WillOnce(Return(m_report_name));
     EXPECT_CALL(m_application_io, profile_name());
@@ -301,6 +322,7 @@ TEST_F(ReporterTest, generate)
         EXPECT_CALL(*m_sample_agg, sample_region(M_ENERGY_PKG_ENV_IDX_1, rid.first))
             .WillRepeatedly(Return(rid.second/4.0));
     }
+
     for (auto rid : m_region_clk_core) {
         EXPECT_CALL(*m_sample_agg, sample_region(M_CLK_CORE_IDX, rid.first))
             .WillRepeatedly(Return(rid.second));
@@ -309,6 +331,22 @@ TEST_F(ReporterTest, generate)
         EXPECT_CALL(*m_sample_agg, sample_region(M_CLK_REF_IDX, rid.first))
             .WillRepeatedly(Return(rid.second));
     }
+
+    for (auto rid : m_region_energy) {
+        EXPECT_CALL(*m_sample_agg, sample_region(M_ENERGY_ACCELERATOR_IDX, rid.first))
+            .WillRepeatedly(Return(rid.second/1.0));
+    }
+
+    for (auto rid : m_region_frequency_accelerator) {
+        EXPECT_CALL(*m_sample_agg, sample_region(M_FREQUENCY_ACCELERATOR_IDX, rid.first))
+            .WillRepeatedly(Return(rid.second/1.0));
+    }
+
+    for (auto rid : m_region_power_accelerator) {
+        EXPECT_CALL(*m_sample_agg, sample_region(M_POWER_ACCELERATOR_IDX, rid.first))
+            .WillRepeatedly(Return(rid.second/1.0));
+    }
+
 
     // same hint values for all regions
     EXPECT_CALL(*m_sample_agg, sample_region(M_TIME_COMPUTE_IDX, _))
@@ -328,7 +366,7 @@ TEST_F(ReporterTest, generate)
 
     // Other calls
     EXPECT_CALL(m_tree_comm, overhead_send()).WillOnce(Return(678 * 56));
-    EXPECT_CALL(*m_comm, rank()).WillRepeatedly(Return(0));
+    EXPECT_CALL(*m_comm, rank()).WillOnce(Return(0));
     EXPECT_CALL(*m_comm, num_rank()).WillOnce(Return(1));
 
     std::vector<std::pair<std::string, std::string> > agent_header {
@@ -457,6 +495,282 @@ TEST_F(ReporterTest, generate)
         "      time-hint-parallel (s): 0.6\n"
         "      time-hint-unknown (s): 0.7\n"
         "      time-hint-unset (s): 0.8\n"
+        "      ENERGY_PACKAGE@package-0: 1111\n"
+        "      ENERGY_PACKAGE@package-1: 1111\n"
+        "      geopmctl memory HWM (B): @ANY_STRING@\n"
+        "      geopmctl network BW (B/s): 678\n\n";
+
+    std::istringstream exp_stream(expected);
+
+    m_reporter->update();
+    m_reporter->generate("my_agent", agent_header, agent_node_report, m_region_agent_detail,
+                         m_application_io,
+                         m_comm, m_tree_comm);
+    std::ifstream report(m_report_name);
+    check_report(exp_stream, report);
+}
+
+TEST_F(ReporterTest, generate_accelerator)
+{
+
+    // accelerator signals
+    EXPECT_CALL(*m_sample_agg, push_signal("ENERGY_ACCELERATOR", GEOPM_DOMAIN_BOARD, 0))
+        .WillOnce(Return(M_ENERGY_ACCELERATOR_IDX));
+    EXPECT_CALL(*m_sample_agg, push_signal("POWER_ACCELERATOR", GEOPM_DOMAIN_BOARD, 0))
+        .WillOnce(Return(M_POWER_ACCELERATOR_IDX));
+    EXPECT_CALL(*m_sample_agg, push_signal("FREQUENCY_ACCELERATOR", GEOPM_DOMAIN_BOARD, 0))
+        .WillOnce(Return(M_FREQUENCY_ACCELERATOR_IDX));
+
+    std::set<std::string> signal_names = {"ENERGY_ACCELERATOR","POWER_ACCELERATOR","FREQUENCY_ACCELERATOR"};
+    EXPECT_CALL(m_platform_io, signal_names()).WillOnce(Return(signal_names));
+
+    m_reporter = geopm::make_unique<ReporterImp>(m_start_time,
+                                                 m_report_name,
+                                                 m_platform_io,
+                                                 m_platform_topo,
+                                                 0,
+                                                 m_sample_agg,
+                                                 m_region_agg,
+                                                 "ENERGY_PACKAGE@package",
+                                                 "",
+                                                 true);
+    m_reporter->init();
+
+    // ApplicationIO calls: to be removed
+    EXPECT_CALL(m_application_io, report_name()).WillOnce(Return(m_report_name));
+    EXPECT_CALL(m_application_io, profile_name());
+    EXPECT_CALL(m_application_io, region_name_set());
+
+    // ProcessRegionAgregator
+    EXPECT_CALL(*m_region_agg, update);
+    for (auto rid : m_region_runtime) {
+        EXPECT_CALL(*m_region_agg, get_runtime_average(rid.first))
+            .WillOnce(Return(rid.second));
+    }
+    for (auto rid : m_region_count) {
+        if (GEOPM_REGION_HASH_EPOCH == rid.first) {
+            EXPECT_CALL(m_platform_io, sample(M_EPOCH_COUNT_IDX))
+                .WillOnce(Return(rid.second));
+        }
+        else {
+            EXPECT_CALL(*m_region_agg, get_count_average(rid.first))
+                .WillOnce(Return(rid.second));
+        }
+    }
+
+    // SampleAggregator
+    EXPECT_CALL(*m_sample_agg, update);
+    for (auto rid : m_region_network_time) {
+        EXPECT_CALL(*m_sample_agg, sample_region(M_TIME_NETWORK_IDX, rid.first))
+            .WillRepeatedly(Return(rid.second));
+    }
+    for (auto rid : m_region_ignore_time) {
+        EXPECT_CALL(*m_sample_agg, sample_region(M_TIME_IGNORE_IDX, rid.first))
+            .WillRepeatedly(Return(rid.second));
+    }
+    for (auto rid : m_region_sync_rt) {
+        EXPECT_CALL(*m_sample_agg, sample_region(M_TIME_IDX, rid.first))
+            .WillRepeatedly(Return(rid.second));
+    }
+    EXPECT_CALL(*m_sample_agg, sample_application(M_TIME_IDX))
+        .WillRepeatedly(Return(56));
+    EXPECT_CALL(*m_sample_agg, sample_epoch(M_TIME_IDX))
+        .WillRepeatedly(Return(70));
+
+    for (auto rid : m_region_energy) {
+        EXPECT_CALL(*m_sample_agg, sample_region(M_ENERGY_PKG_IDX, rid.first))
+            .WillRepeatedly(Return(rid.second/2.0));
+        EXPECT_CALL(*m_sample_agg, sample_region(M_ENERGY_DRAM_IDX, rid.first))
+            .WillRepeatedly(Return(rid.second/2.0));
+        EXPECT_CALL(*m_sample_agg, sample_region(M_ENERGY_PKG_ENV_IDX_0, rid.first))
+            .WillRepeatedly(Return(rid.second/4.0));
+        EXPECT_CALL(*m_sample_agg, sample_region(M_ENERGY_PKG_ENV_IDX_1, rid.first))
+            .WillRepeatedly(Return(rid.second/4.0));
+        EXPECT_CALL(*m_sample_agg, sample_region(M_ENERGY_ACCELERATOR_IDX, rid.first))
+            .WillRepeatedly(Return(rid.second/1.0));
+    }
+
+    for (auto rid : m_region_frequency_accelerator) {
+        EXPECT_CALL(*m_sample_agg, sample_region(M_FREQUENCY_ACCELERATOR_IDX, rid.first))
+            .WillRepeatedly(Return(rid.second/1.0));
+    }
+
+    for (auto rid : m_region_power_accelerator) {
+        EXPECT_CALL(*m_sample_agg, sample_region(M_POWER_ACCELERATOR_IDX, rid.first))
+            .WillRepeatedly(Return(rid.second/1.0));
+    }
+
+    for (auto rid : m_region_clk_core) {
+        EXPECT_CALL(*m_sample_agg, sample_region(M_CLK_CORE_IDX, rid.first))
+            .WillRepeatedly(Return(rid.second));
+    }
+    for (auto rid : m_region_clk_ref) {
+        EXPECT_CALL(*m_sample_agg, sample_region(M_CLK_REF_IDX, rid.first))
+            .WillRepeatedly(Return(rid.second));
+    }
+
+    // same hint values for all regions
+    EXPECT_CALL(*m_sample_agg, sample_region(M_TIME_COMPUTE_IDX, _))
+        .WillRepeatedly(Return(0.2));
+    EXPECT_CALL(*m_sample_agg, sample_region(M_TIME_MEMORY_IDX, _))
+        .WillRepeatedly(Return(0.3));
+    EXPECT_CALL(*m_sample_agg, sample_region(M_TIME_IO_IDX, _))
+        .WillRepeatedly(Return(0.4));
+    EXPECT_CALL(*m_sample_agg, sample_region(M_TIME_SERIAL_IDX, _))
+        .WillRepeatedly(Return(0.5));
+    EXPECT_CALL(*m_sample_agg, sample_region(M_TIME_PARALLEL_IDX, _))
+        .WillRepeatedly(Return(0.6));
+    EXPECT_CALL(*m_sample_agg, sample_region(M_TIME_UNKNOWN_IDX, _))
+        .WillRepeatedly(Return(0.7));
+    EXPECT_CALL(*m_sample_agg, sample_region(M_TIME_UNSET_IDX, _))
+        .WillRepeatedly(Return(0.8));
+
+    // Other calls
+    EXPECT_CALL(m_tree_comm, overhead_send()).WillOnce(Return(678 * 56));
+    EXPECT_CALL(*m_comm, rank()).WillRepeatedly(Return(0));
+    EXPECT_CALL(*m_comm, num_rank()).WillOnce(Return(1));
+
+    std::vector<std::pair<std::string, std::string> > agent_header {
+        {"one", "1"},
+        {"two", "2"} };
+    std::vector<std::pair<std::string, std::string> > agent_node_report {
+        {"three", "3"},
+        {"four", "4"} };
+
+    std::string expected = "GEOPM Version: " + std::string(geopm_version()) + "\n"
+        "Start Time: " + m_start_time + "\n"
+        "Profile: " + m_profile_name + "\n"
+        "Agent: my_agent\n"
+        "Policy: DYNAMIC\n"
+        "one: 1\n"
+        "two: 2\n"
+        "\n"
+        "Hosts:\n"
+        "  " + geopm::hostname() + ":\n"
+        "    three: 3\n"
+        "    four: 4\n"
+        "    Regions:\n"
+        "    -\n"
+        "      region: \"all2all\"\n"
+        "      hash: 0x3ddc81bf\n"
+        "      runtime (s): 33.33\n"
+        "      count: 20\n"
+        "      sync-runtime (s): 555\n"
+        "      package-energy (J): 388.5\n"
+        "      dram-energy (J): 388.5\n"
+        "      power (W): 0.7\n"
+        "      frequency (%): 81.8182\n"
+        "      frequency (Hz): 0.818182\n"
+        "      time-hint-network (s): 3.4\n"
+        "      time-hint-ignore (s): 3.5\n"
+        "      time-hint-compute (s): 0.2\n"
+        "      time-hint-memory (s): 0.3\n"
+        "      time-hint-io (s): 0.4\n"
+        "      time-hint-serial (s): 0.5\n"
+        "      time-hint-parallel (s): 0.6\n"
+        "      time-hint-unknown (s): 0.7\n"
+        "      time-hint-unset (s): 0.8\n"
+        "      accelerator-energy (J): 777\n"
+        "      accelerator-power (W): 764\n"
+        "      accelerator-frequency (HZ): 567\n"
+        "      ENERGY_PACKAGE@package-0: 194.25\n"
+        "      ENERGY_PACKAGE@package-1: 194.25\n"
+        "      agent stat: 1\n"
+        "      agent other stat: 2\n"
+        "    -\n"
+        "      region: \"model-init\"\n"
+        "      hash: 0x644f9787\n"
+        "      runtime (s): 22.11\n"
+        "      count: 1\n"
+        "      sync-runtime (s): 333\n"
+        "      package-energy (J): 444\n"
+        "      dram-energy (J): 444\n"
+        "      power (W): 1.33333\n"
+        "      frequency (%): 84.8485\n"
+        "      frequency (Hz): 0.848485\n"
+        "      time-hint-network (s): 5.6\n"
+        "      time-hint-ignore (s): 5.7\n"
+        "      time-hint-compute (s): 0.2\n"
+        "      time-hint-memory (s): 0.3\n"
+        "      time-hint-io (s): 0.4\n"
+        "      time-hint-serial (s): 0.5\n"
+        "      time-hint-parallel (s): 0.6\n"
+        "      time-hint-unknown (s): 0.7\n"
+        "      time-hint-unset (s): 0.8\n"
+        "      accelerator-energy (J): 888\n"
+        "      accelerator-power (W): 653\n"
+        "      accelerator-frequency (HZ): 890\n"
+        "      ENERGY_PACKAGE@package-0: 222\n"
+        "      ENERGY_PACKAGE@package-1: 222\n"
+        "      agent stat: 2\n"
+        "    Unmarked Totals:\n"
+        "      runtime (s): 0.56\n"
+        "      count: 0\n"
+        "      sync-runtime (s): 444\n"
+        "      package-energy (J): 111\n"
+        "      dram-energy (J): 111\n"
+        "      power (W): 0.25\n"
+        "      frequency (%): 77.2727\n"
+        "      frequency (Hz): 0.772727\n"
+        "      time-hint-network (s): 1.2\n"
+        "      time-hint-ignore (s): 1.3\n"
+        "      time-hint-compute (s): 0.2\n"
+        "      time-hint-memory (s): 0.3\n"
+        "      time-hint-io (s): 0.4\n"
+        "      time-hint-serial (s): 0.5\n"
+        "      time-hint-parallel (s): 0.6\n"
+        "      time-hint-unknown (s): 0.7\n"
+        "      time-hint-unset (s): 0.8\n"
+        "      accelerator-energy (J): 222\n"
+        "      accelerator-power (W): 211\n"
+        "      accelerator-frequency (HZ): 123\n"
+        "      ENERGY_PACKAGE@package-0: 55.5\n"
+        "      ENERGY_PACKAGE@package-1: 55.5\n"
+        "      agent stat: 3\n"
+        "    Epoch Totals:\n"
+        "      runtime (s): 70\n"
+        "      count: 66\n"
+        "      sync-runtime (s): 70\n"
+        "      package-energy (J): 167\n"
+        "      dram-energy (J): 167\n"
+        "      power (W): 2.38571\n"
+        "      frequency (%): 88.6364\n"
+        "      frequency (Hz): 0.886364\n"
+        "      time-hint-network (s): 4.2\n"
+        "      time-hint-ignore (s): 4.3\n"
+        "      time-hint-compute (s): 0.2\n"
+        "      time-hint-memory (s): 0.3\n"
+        "      time-hint-io (s): 0.4\n"
+        "      time-hint-serial (s): 0.5\n"
+        "      time-hint-parallel (s): 0.6\n"
+        "      time-hint-unknown (s): 0.7\n"
+        "      time-hint-unset (s): 0.8\n"
+        "      accelerator-energy (J): 334\n"
+        "      accelerator-power (W): 432\n"
+        "      accelerator-frequency (HZ): 456\n"
+        "      ENERGY_PACKAGE@package-0: 83.5\n"
+        "      ENERGY_PACKAGE@package-1: 83.5\n"
+        "    Application Totals:\n"
+        "      runtime (s): 56\n"
+        "      count: 0\n"
+        "      sync-runtime (s): 56\n"
+        "      package-energy (J): 2222\n"
+        "      dram-energy (J): 2222\n"
+        "      power (W): 39.6786\n"
+        "      frequency (%): 66.6447\n"
+        "      frequency (Hz): 0.666447\n"
+        "      time-hint-network (s): 45\n"
+        "      time-hint-ignore (s): 46\n"
+        "      time-hint-compute (s): 0.2\n"
+        "      time-hint-memory (s): 0.3\n"
+        "      time-hint-io (s): 0.4\n"
+        "      time-hint-serial (s): 0.5\n"
+        "      time-hint-parallel (s): 0.6\n"
+        "      time-hint-unknown (s): 0.7\n"
+        "      time-hint-unset (s): 0.8\n"
+        "      accelerator-energy (J): 4444\n"
+        "      accelerator-power (W): 8992\n"
+        "      accelerator-frequency (HZ): 74489\n"
         "      ENERGY_PACKAGE@package-0: 1111\n"
         "      ENERGY_PACKAGE@package-1: 1111\n"
         "      geopmctl memory HWM (B): @ANY_STRING@\n"
