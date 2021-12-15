@@ -43,23 +43,23 @@ namespace geopm
     class DCGMDevicePool
     {
         public:
-            enum geopm_dcgm_field_ids_e {
+            enum m_field_id_e {
                 /*!
                  * @brief Field ID associated with DCGM SM Active metrics
                  */
-                M_SM_ACTIVE,
+                M_FIELD_ID_SM_ACTIVE,
                 /*!
                  * @brief Field ID associated with SM Occupancy metrics
                  */
-                M_SM_OCCUPANCY,
+                M_FIELD_ID_SM_OCCUPANCY,
                 /*!
                  * @brief Field ID associated with DCGM DRAM Active metrics
                  */
-                M_DRAM_ACTIVE,
+                M_FIELD_ID_DRAM_ACTIVE,
                 /*!
                  * @brief Number of valid field ids
                  */
-                M_FIELD_IDS
+                M_NUM_FIELD_ID
             };
 
             DCGMDevicePool() = default;
@@ -67,14 +67,19 @@ namespace geopm
 
             /// @brief Number of accelerators that support DCGM on the platform.
             /// @return Number of accelerators.
-            virtual int dcgm_device() const = 0;
+            virtual int num_device() const = 0;
             /// @brief Get the value for the provided geopm_field_id.
-            ///        This value should not change unless update_field_value
-            //         has been called
+            ///
+            /// This value should not change unless update_field_value
+            /// has been called
+            ///
             /// @param [in] accel_idx The index indicating a particular
             ///        accelerator.
+            ///
+            /// @param [in] field_id One of the m_field_id_e values
+            ///
             /// @return The value for the specified field
-            virtual double sample_field_value(int accel_idx, int geopm_field_id) const = 0;
+            virtual double sample(int accel_idx, int field_id) const = 0;
 
             /// @brief Query DCGM for the latest value for an accelerator.
             ///        Note that this is the last value DCGM cahced.  This
@@ -82,10 +87,10 @@ namespace geopm
             //         via the sample_field_value function
             /// @param [in] accel_idx The index indicating a particular
             ///        accelerator.
-            virtual void update_field_value(int accel_idx) = 0;
+            virtual void update(int accel_idx) = 0;
             /// @brief Set field update rate for DCGM devices.
             /// @param [in] field_update_rate DCGM update rate in microseconds.
-            virtual void field_update_rate(int field_update_rate) = 0;
+            virtual void update_rate(int field_update_rate) = 0;
             /// @brief Set maximum storage time for for DCGM devices.
             /// @param [in] max_storage_time maximum storage time in seconds
             virtual void max_storage_time(int max_storage_time) = 0;
