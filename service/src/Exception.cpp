@@ -80,6 +80,10 @@ extern "C"
 
 namespace geopm
 {
+    std::string error_message(int error_value)
+    {
+        return geopm::ErrorMessage::get().message_fixed(error_value);
+    }
 
     int exception_handler(std::exception_ptr eptr, bool do_print)
     {

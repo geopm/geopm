@@ -69,6 +69,9 @@ static void action_sigchld(int signo, siginfo_t *siginfo, void *context)
             g_sigchld_status = child_status;
         }
     }
+    if (child_pid == -1) {
+        g_sigchld_status = errno ? errno : GEOPM_ERROR_RUNTIME;
+    }
     ++g_sigchld_count;
 }
 
