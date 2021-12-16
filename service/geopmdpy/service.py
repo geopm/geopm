@@ -752,15 +752,24 @@ class PlatformService(object):
 
     def _write_mode(self, client_pid):
         client_sid = os.getsid(client_pid)
-        if self._write_pid != client_sid:
+        # If the session leader is an active process then tie the write lock
+        # to the session leader, otherwise the write lock is associated with
+        # the requesting process.
+        if psutil.pid_exists(client_sid):
+            write_pid = client_sid
+        else:
+            write_pid = client_pid
+        if self._write_pid != write_pid:
             if self._write_pid is not None:
-                raise RuntimeError(f'The PID {client_pid} requested write access, but the geopm service already has write mode client with SID {self._write_pid}')
-            if client_sid != client_pid:
-                uid = os.stat(f'/proc/{client_sid}/status').st_uid
-                user = pwd.getpwuid(uid).pw_name
-                self.open_session(user, client_sid)
-            self._active_sessions.set_write_client(client_sid)
-            self._write_pid = client_sid
+                raise RuntimeError(f'The PID {client_pid} requested write access, but the geopm service already has write mode client with PID or SID of {self._write_pid}')
+            if write_pid != client_pid:
+                # If the write lock is associated with the session leader
+                # process, then open a session for the session leader
+                session_uid = os.stat(f'/proc/{write_pid}/status').st_uid
+                session_user = pwd.getpwuid(session_uid).pw_name
+                self.open_session(session_user, write_pid)
+            self._active_sessions.set_write_client(write_pid)
+            self._write_pid = write_pid
             save_dir = os.path.join(self._VAR_PATH, self._SAVE_DIR)
             os.makedirs(save_dir)
             # TODO: Will need to save to disk in order to support

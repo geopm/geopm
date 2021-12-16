@@ -506,7 +506,7 @@ default
         valid_controls = session_data['controls']
         signal_config = [(0, 0, sig) for sig in valid_signals]
         control_config = [(0, 0, con) for con in valid_controls]
-        err_msg = f'The PID {client_pid} requested write access, but the geopm service already has write mode client with SID {other_pid}'
+        err_msg = f'The PID {client_pid} requested write access, but the geopm service already has write mode client with PID or SID of {other_pid}'
         with self.assertRaisesRegex(RuntimeError, err_msg), \
              mock.patch('geopmdpy.pio.start_batch_server', return_value = (2345, "2345")), \
              mock.patch('os.getsid', return_value=client_pid) as mock_getsid:
