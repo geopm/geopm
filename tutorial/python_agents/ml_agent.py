@@ -217,7 +217,7 @@ class MLAgent(base_agent.BaseAgent):
             os.system("geopmwrite MSR::PQR_ASSOC:RMID board 0 0")
             os.system("geopmwrite MSR::QM_EVTSEL:EVENT_ID board 0 2")
         # Track both the frequencies between start and end of ROI as well
-        # as the frequencies from the start until now. The latter may be 
+        # as the frequencies from the start until now. The latter may be
         # needed since we don't know if current inactivity is post-ROI or just
         # a period of non-utilization within the ROI.
         self._gpu_cycle_sums_since_start_of_roi = [0] * self._gpu_count # Sum of cycles since the start of the ROI
@@ -332,14 +332,14 @@ class MLAgent(base_agent.BaseAgent):
                     delta_signals[self._pcnt_idx_by_package[1]] / delta_signals[self._mcnt_idx_by_package[1]],
                     delta_signals[self._pcnt_idx_by_package[0]] / delta_signals[self._acnt_idx_by_package[0]],
                     delta_signals[self._pcnt_idx_by_package[1]] / delta_signals[self._acnt_idx_by_package[1]],
-                    1 - self._phi, # TODO: re-train model to avoid complementing this
+                    self._phi,
                 ]
 
                 with tf.device("/cpu:0"):
-                    core_freq, uncore_freq = [
+                    core_freq = [
                         freq * 1e9
                         for freq in self._cpu_model(np.array([cpu_tensor])).numpy().tolist()[0]
-                    ]
+                    ][0]
                 controls.append(core_freq)
                 self._cpu_frequency_control_accumulator += core_freq
                 # Not using uncore controls at this time
