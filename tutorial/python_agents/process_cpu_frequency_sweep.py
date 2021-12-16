@@ -50,11 +50,8 @@ def process_report_files(input_dir, nodename, app_index):
         experiment_name = os.path.splitext(os.path.basename(report_path))[0]
         avx_level = os.path.basename(os.path.dirname(report_path))
 
-        #arithmetic_intensity_frequency_map_2.1e+09c_2.6e+09u_0.report
-        #                                   <f_core>_<f_unco>_<trial>
         name_parts = experiment_name.split('_')
         core_string, uncore_string, trial_string = name_parts[-3:]
-        #TODO: consider checking for c, u, and no letter
         core_freq = float(core_string[:-1])
         uncore_freq = float(uncore_string[:-1])
         trial = int(trial_string)
@@ -63,7 +60,6 @@ def process_report_files(input_dir, nodename, app_index):
             region_dict['cpu-frequency'] = core_freq
             region_dict['uncore-frequency'] = uncore_freq
             region_dict['trial'] = trial
-            #TODO: check region_dict['hash'] conversion in yaml vs trace in read_trace_files
             region_dict['app-config'] = "arithmetic_intensity-" + avx_level + '-' + hex(region_dict['hash'])
             reports.append(region_dict)
 
@@ -79,7 +75,6 @@ def read_trace_files(sweep_dir, nodename, app_index):
         trace_df['app-index'] = app_index
         name_parts = experiment_name.split('_')
         core_string, uncore_string, trial_string = name_parts[-3:]
-        #TODO: consider checking for c, u, and no letter
         core_freq = float(core_string[:-1])
         uncore_freq = float(uncore_string[:-1])
         trial = int(trial_string)
@@ -89,7 +84,6 @@ def read_trace_files(sweep_dir, nodename, app_index):
         trace_df['trial'] = trial
 
         # Help uniquely identify different configurations of a single app
-        #TODO: check region_dict['hash'] conversion in yaml vs report in process_report_files
         config_name = "arithmetic_intensity-" + avx_level + '-' + trace_df['REGION_HASH']
         trace_df['app-config'] = config_name
 
@@ -105,11 +99,10 @@ if __name__ == "__main__":
         'and .trace-{node_name}. The parts of the file names before the file '
         'extensions contain a series of key/value pairs identifying the report '
         'and trace. An example expected report name is: '
-        'dgemm.gpufreq_<freq_in_GHz>.memratio_<mem_ratio>.precision_<precision>.trial_<trial>.report' #TODO: UPDATE
+        'arithmetic_intensity_frequency_map_<corefreq_in_GHz>e+09c_<uncorefreq_in_GHz>e+09u_<trial>.report'
         'Explanations of the parts are:\n'
-        'freq_in_GHz: GPU core frequency limit applied on this report.\n' #TODO: UPDATE
-        'memratio: mem ratio for runs of the mixbench benchmark, or NaN.\n'
-        'precision: precision for runs of the mixbench benchmark, or NaN.\n'
+        'corefreq_in_GHz: CPU frequency limit applied on this report.\n'
+        'uncorefreq_in_GHz: Uncore frequency limit applied on this report.\n'
         'trial: number of the trial of repeated executions.\n'
     )
     parser.add_argument('nodename', help='Which node to analyze.')
@@ -126,7 +119,6 @@ if __name__ == "__main__":
     processed_sweeps = list()
     for app_index, full_sweep_dir in enumerate(args.frequency_sweep_dirs):
         reports_df = process_report_files(full_sweep_dir, nodename, app_index)
-        #TODO: check df, each row is summary of regions from reports.
         #Effectively splitting each report into sub reports based on avx level, region, trial
 
         config_groups = reports_df.groupby('app-config', group_keys=False, dropna=False)

@@ -50,8 +50,6 @@ def main():
 
     df_traces = pd.read_hdf(args.input)
 
-    #y_columns = ['core', 'uncore']
-    # TODO: need phi-freq and phi-uncore-freq or something like that. Second doesn't exist yet.
     y_columns = ['phi-freq']
     X_columns = ['POWER_PACKAGE',
                  'POWER_DRAM',
