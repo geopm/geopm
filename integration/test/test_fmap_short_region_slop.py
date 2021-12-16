@@ -393,15 +393,15 @@ def read_trace(path):
        integers.
 
     """
-    converters={'REGION_HASH': lambda xx: int(xx, 16)}
-    skiprows = 0
-    with open(path) as fid:
-        for ll in fid:
-            if ll.startswith('#'):
-                skiprows += 1
-            else:
-                break
-    return pandas.read_csv(path, sep='|', skiprows=skiprows, converters=converters)
+    def convert_hash(region_hash):
+        try:
+            return int(region_hash, 16)
+        except ValueError: # For handling NANs
+            return 0
+
+    trace_output = geopmpy.io.AppOutput(path).get_trace_df()
+    trace_output['REGION_HASH'] = trace_output['REGION_HASH'].apply(convert_hash)
+    return trace_output
 
 
 def get_ipc(trace):
