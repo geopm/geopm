@@ -66,8 +66,8 @@ namespace geopm
                                   {},
                                   [this](unsigned int domain_idx) -> double
                                   {
-                                      return this->m_dcgm_device_pool.sample_field_value(
-                                                   domain_idx, geopm::DCGMDevicePool::M_SM_ACTIVE);
+                                      return this->m_dcgm_device_pool.sample(
+                                                   domain_idx, geopm::DCGMDevicePool::M_FIELD_ID_SM_ACTIVE);
                                   },
                                   Agg::average,
                                   string_format_double
@@ -77,8 +77,8 @@ namespace geopm
                                   {},
                                   [this](unsigned int domain_idx) -> double
                                   {
-                                      return this->m_dcgm_device_pool.sample_field_value(
-                                                   domain_idx, geopm::DCGMDevicePool::M_SM_OCCUPANCY);
+                                      return this->m_dcgm_device_pool.sample(
+                                                   domain_idx, geopm::DCGMDevicePool::M_FIELD_ID_SM_OCCUPANCY);
                                   },
                                   Agg::average,
                                   string_format_double
@@ -88,8 +88,8 @@ namespace geopm
                                   {},
                                   [this](unsigned int domain_idx) -> double
                                   {
-                                      return this->m_dcgm_device_pool.sample_field_value(
-                                                   domain_idx, geopm::DCGMDevicePool::M_DRAM_ACTIVE);
+                                      return this->m_dcgm_device_pool.sample(
+                                                   domain_idx, geopm::DCGMDevicePool::M_FIELD_ID_DRAM_ACTIVE);
                                   },
                                   Agg::average,
                                   string_format_double
@@ -116,7 +116,7 @@ namespace geopm
                               })
     {
         // confirm all DCGM devices correspond to a board_accelerator
-        if (m_dcgm_device_pool.dcgm_device() != m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR)) {
+        if (m_dcgm_device_pool.num_device() != m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR)) {
             throw Exception("DCGMIOGroup::" + std::string(__func__) + ": "
                             "DCGM enabled device count does not match BOARD_ACCELERATOR count",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -288,7 +288,7 @@ namespace geopm
             for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(
                  GEOPM_DOMAIN_BOARD_ACCELERATOR); ++domain_idx) {
 
-                m_dcgm_device_pool.update_field_value(domain_idx);
+                m_dcgm_device_pool.update(domain_idx);
 
                 for (auto &sv : m_signal_available) {
                     if (sv.second.m_signals.at(domain_idx)->m_do_read) {
@@ -360,7 +360,7 @@ namespace geopm
         }
 
         double result = NAN;
-        m_dcgm_device_pool.update_field_value(domain_idx);
+        m_dcgm_device_pool.update(domain_idx);
 
         auto it = m_signal_available.find(signal_name);
         if (it != m_signal_available.end()) {
@@ -394,7 +394,7 @@ namespace geopm
         }
 
         if (control_name == "DCGM::FIELD_UPDATE_RATE") {
-            m_dcgm_device_pool.field_update_rate(setting*1e6);
+            m_dcgm_device_pool.update_rate(setting*1e6);
         }
         else if (control_name == "DCGM::MAX_STORAGE_TIME") {
             m_dcgm_device_pool.max_storage_time(setting);
@@ -420,9 +420,8 @@ namespace geopm
     // platform settings
     void DCGMIOGroup::restore_control(void)
     {
-        m_dcgm_device_pool.field_update_rate(1*1e6); //1 second
+        m_dcgm_device_pool.update_rate(1*1e6); //1 second
         m_dcgm_device_pool.max_samples(0); //0 = no limit
-        // TODO: determine better default
         m_dcgm_device_pool.max_storage_time(10); //10 seconds.
     }
 
