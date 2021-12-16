@@ -66,7 +66,7 @@ namespace geopm
             virtual ~DCGMDevicePool() = default;
 
             /// @brief Number of accelerators that support DCGM on the platform.
-            /// @return Number of accelerators.
+            /// @return Number of accelerators supported by DCGM.
             virtual int num_device() const = 0;
             /// @brief Get the value for the provided geopm_field_id.
             ///
@@ -82,19 +82,23 @@ namespace geopm
             virtual double sample(int accel_idx, int field_id) const = 0;
 
             /// @brief Query DCGM for the latest value for an accelerator.
-            ///        Note that this is the last value DCGM cahced.  This
-            //         updates the DCGM device pool stored value that is provided
-            //         via the sample_field_value function
+            ///        Note that this is the last value DCGM cached.  This
+            ///        updates the DCGM device pool stored value that is provided
+            ///        via the sample_field_value function
             /// @param [in] accel_idx The index indicating a particular
             ///        accelerator.
             virtual void update(int accel_idx) = 0;
-            /// @brief Set field update rate for DCGM devices.
+            /// @brief Set field update rate for DCGM devices.  This is the rate
+            //         at which the DCGM engine will poll for metrics
             /// @param [in] field_update_rate DCGM update rate in microseconds.
             virtual void update_rate(int field_update_rate) = 0;
-            /// @brief Set maximum storage time for for DCGM devices.
+            /// @brief Set maximum storage time for for DCGM devices.  This is
+            ///        the maximum time a DCGM sample will be kept.
             /// @param [in] max_storage_time maximum storage time in seconds
             virtual void max_storage_time(int max_storage_time) = 0;
-            /// @brief Set maximum samples to store for for DCGM devices.
+            /// @brief Set maximum samples to store for for DCGM devices. This is
+            ///       the maximum number of DCGM samples that will be kept.
+            ///       0 indicates no limit
             /// @param [in] max_samples maximun number of samples to store
             virtual void max_samples(int max_samples) = 0;
     };
