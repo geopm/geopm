@@ -366,7 +366,12 @@ namespace geopm
 
         comm->gatherv((void *) (host_report.c_str()), sizeof(char) * buffer_size,
                       (void *) report_buffer.data(), buffer_size_array, buffer_displacement, 0);
-        report_buffer.back() = '\0';
+        if (report_buffer.size() != 0) {
+            report_buffer.back() = '\0';
+        }
+        else {
+            report_buffer.push_back('\0');
+        }
         return report_buffer.data();
     }
 
