@@ -332,22 +332,6 @@ TEST_F(ReporterTest, generate)
             .WillRepeatedly(Return(rid.second));
     }
 
-    for (auto rid : m_region_energy) {
-        EXPECT_CALL(*m_sample_agg, sample_region(M_ENERGY_ACCELERATOR_IDX, rid.first))
-            .WillRepeatedly(Return(rid.second/1.0));
-    }
-
-    for (auto rid : m_region_frequency_accelerator) {
-        EXPECT_CALL(*m_sample_agg, sample_region(M_FREQUENCY_ACCELERATOR_IDX, rid.first))
-            .WillRepeatedly(Return(rid.second/1.0));
-    }
-
-    for (auto rid : m_region_power_accelerator) {
-        EXPECT_CALL(*m_sample_agg, sample_region(M_POWER_ACCELERATOR_IDX, rid.first))
-            .WillRepeatedly(Return(rid.second/1.0));
-    }
-
-
     // same hint values for all regions
     EXPECT_CALL(*m_sample_agg, sample_region(M_TIME_COMPUTE_IDX, _))
         .WillRepeatedly(Return(0.2));
@@ -366,7 +350,7 @@ TEST_F(ReporterTest, generate)
 
     // Other calls
     EXPECT_CALL(m_tree_comm, overhead_send()).WillOnce(Return(678 * 56));
-    EXPECT_CALL(*m_comm, rank()).WillOnce(Return(0));
+    EXPECT_CALL(*m_comm, rank()).WillRepeatedly(Return(0));
     EXPECT_CALL(*m_comm, num_rank()).WillOnce(Return(1));
 
     std::vector<std::pair<std::string, std::string> > agent_header {
