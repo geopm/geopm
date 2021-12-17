@@ -51,14 +51,12 @@ def process_report_files(input_dir, nodename, app_index):
         avx_level = os.path.basename(os.path.dirname(report_path))
 
         name_parts = experiment_name.split('_')
-        core_string, uncore_string, trial_string = name_parts[-3:]
-        core_freq = float(core_string[:-1])
-        uncore_freq = float(uncore_string[:-1])
+        core_string, trial_string = name_parts[-2:]
+        core_freq = float(core_string)
         trial = int(trial_string)
 
         for region_dict in report["Hosts"][nodename]["Regions"]:
             region_dict['cpu-frequency'] = core_freq
-            region_dict['uncore-frequency'] = uncore_freq
             region_dict['trial'] = trial
             region_dict['app-config'] = "arithmetic_intensity-" + avx_level + '-' + hex(region_dict['hash'])
             reports.append(region_dict)
@@ -74,13 +72,11 @@ def read_trace_files(sweep_dir, nodename, app_index):
         avx_level = os.path.basename(os.path.dirname(trace_file))
         trace_df['app-index'] = app_index
         name_parts = experiment_name.split('_')
-        core_string, uncore_string, trial_string = name_parts[-3:]
-        core_freq = float(core_string[:-1])
-        uncore_freq = float(uncore_string[:-1])
+        core_string, trial_string = name_parts[-2:]
+        core_freq = float(core_string)
         trial = int(trial_string)
 
         trace_df['cpu-frequency'] = core_freq
-        trace_df['uncore-frequency'] = uncore_freq
         trace_df['trial'] = trial
 
         # Help uniquely identify different configurations of a single app
@@ -99,10 +95,9 @@ if __name__ == "__main__":
         'and .trace-{node_name}. The parts of the file names before the file '
         'extensions contain a series of key/value pairs identifying the report '
         'and trace. An example expected report name is: '
-        'arithmetic_intensity_frequency_map_<corefreq_in_GHz>e+09c_<uncorefreq_in_GHz>e+09u_<trial>.report'
+        'arithmetic_intensity_frequency_map_<corefreq_in_GHz>e+09_<trial>.report'
         'Explanations of the parts are:\n'
         'corefreq_in_GHz: CPU frequency limit applied on this report.\n'
-        'uncorefreq_in_GHz: Uncore frequency limit applied on this report.\n'
         'trial: number of the trial of repeated executions.\n'
     )
     parser.add_argument('nodename', help='Which node to analyze.')
