@@ -44,7 +44,7 @@ def process_report_files(input_dir, nodename, app_index):
         with open(report_path) as f:
             report = yaml.safe_load(f)
         experiment_name = os.path.splitext(os.path.basename(report_path))[0]
-        avx_level = os.path.basename(os.path.dirname(report_path))
+        directory_name = os.path.basename(os.path.dirname(report_path))
 
         name_parts = experiment_name.split('_')
         app_name = name_parts[0]
@@ -56,14 +56,14 @@ def process_report_files(input_dir, nodename, app_index):
             for region_dict in report["Hosts"][nodename]["Regions"]:
                 region_dict['cpu-frequency'] = core_freq
                 region_dict['trial'] = trial
-                region_dict['app-config'] = app_name + '-' + avx_level + '-' + hex(region_dict['hash'])
+                region_dict['app-config'] = app_name + '-' + directory_name + '-' + hex(region_dict['hash'])
                 reports.append(region_dict)
         else:
             # Handle sweeps done with python infrastructure that does not have regions or a region hash
             region_dict = report["Hosts"][nodename]["Application Totals"]
             region_dict['cpu-frequency'] = core_freq
             region_dict['trial'] = trial
-            region_dict['app-config'] = app_name + '-' + avx_level + '-' + "0xDEADBEEF"
+            region_dict['app-config'] = app_name + '-' + directory_name + '-' + "0xDEADBEEF"
             reports.append(region_dict)
 
     return pd.DataFrame(reports)
@@ -74,7 +74,7 @@ def read_trace_files(sweep_dir, nodename, app_index):
         trace_df = pd.read_csv(trace_file, sep='|', comment='#', na_values='NAN')
         trace_df['node'] = nodename
         experiment_name = os.path.splitext(os.path.basename(trace_file))[0]
-        avx_level = os.path.basename(os.path.dirname(trace_file))
+        directory_name = os.path.basename(os.path.dirname(trace_file))
         trace_df['app-index'] = app_index
         name_parts = experiment_name.split('_')
         app_name = name_parts[0]
@@ -88,9 +88,21 @@ def read_trace_files(sweep_dir, nodename, app_index):
         # Handle sweeps done with python infrastructure that does not have a region hash
         if "REGION_HASH" not in trace_df.columns:
             trace_df['REGION_HASH'] = "0xDEADBEEF"
+        if 'ENERGY_DRAM' not in trace_df.columns:
+            trace_df['ENERGY_DRAM'] = trace_df['ENERGY_DRAM-board_memory-0']
+        if 'POWER_PACKAGE' not in trace_df:
+            trace_df['POWER_PACKAGE'] = trace_df['POWER_PACKAGE-board-0']
+        if 'POWER_DRAM' not in trace_df:
+            trace_df['POWER_DRAM'] = trace_df['POWER_DRAM-board_memory-0']
+        if 'FREQUENCY' not in trace_df:
+            trace_df['FREQUENCY'] = trace_df['FREQUENCY-board-0']
+        if 'TIME' not in trace_df:
+            trace_df['TIME'] = trace_df['TIME-board-0']
+        if 'TEMPERATURE_CORE' not in trace_df:
+            trace_df['TEMPERATURE_CORE'] = trace_df['TEMPERATURE_CORE-board-0']
 
         # Help uniquely identify different configurations of a single app
-        config_name = app_name + "-" + avx_level + '-' + trace_df['REGION_HASH']
+        config_name = app_name + "-" + directory_name + '-' + trace_df['REGION_HASH']
 
         trace_df['app-config'] = config_name
 
