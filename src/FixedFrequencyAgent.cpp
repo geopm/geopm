@@ -101,6 +101,50 @@ namespace geopm
     void FixedFrequencyAgent::validate_policy(std::vector<double> &in_policy) const
     {
         assert(in_policy.size() == M_NUM_POLICY);
+        double accel_min_freq = m_platform_io.read_signal("NVML::FREQUENCY_MIN", GEOPM_DOMAIN_BOARD, 0);
+        double accel_max_freq = m_platform_io.read_signal("NVML::FREQUENCY_MAX", GEOPM_DOMAIN_BOARD, 0);
+        double core_freq_min = m_platform_io.read_signal("FREQUENCY_MIN", GEOPM_DOMAIN_BOARD, 0);
+        double core_freq_max = m_platform_io.read_signal("FREQUENCY_MAX", GEOPM_DOMAIN_BOARD, 0);
+
+	if (!std::isnan(in_policy[M_POLICY_ACCELERATOR_FREQUENCY])) {
+	    if (in_policy[M_POLICY_ACCELERATOR_FREQUENCY] > accel_max_freq ||
+	        in_policy[M_POLICY_ACCELERATOR_FREQUENCY] < accel_min_freq) {
+	        throw Exception("FixedFrequenyAgent::" + std::string(__func__) +
+                                "(): accelerator frequency out of range: " +
+                                std::to_string(in_policy[M_POLICY_ACCELERATOR_FREQUENCY]) + ".",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+	  }
+	}
+
+	if (!std::isnan(in_policy[M_POLICY_CPU_FREQUENCY])) {
+	    if (in_policy[M_POLICY_CPU_FREQUENCY] > core_freq_max ||
+	        in_policy[M_POLICY_CPU_FREQUENCY] < core_freq_min) {
+                throw Exception("FixedFrequencyAgent::" + std::string(__func__) +
+                               "(): cpu frequency out of range: " +
+                               std::to_string(in_policy[M_POLICY_CPU_FREQUENCY]) + ".",
+                               GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+	  }
+	}
+
+	if (!std::isnan(in_policy[M_POLICY_UNCORE_MIN_FREQUENCY]) &&
+	    !std::isnan(in_policy[M_POLICY_UNCORE_MAX_FREQUENCY])) {
+	    if (in_policy[M_POLICY_UNCORE_MIN_FREQUENCY] > in_policy[M_POLICY_UNCORE_MAX_FREQUENCY]){
+                throw Exception("FixedFrequencyAgent::" + std::string(__func__) +
+                                "(): min uncore frequency cannot be larger than max uncore frequency: " +
+                                std::to_string(in_policy[M_POLICY_UNCORE_MIN_FREQUENCY]) + " " +
+                                std::to_string(in_policy[M_POLICY_UNCORE_MAX_FREQUENCY]) + ".",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+	    }
+	}
+	else if (!(std::isnan(in_policy[M_POLICY_UNCORE_MIN_FREQUENCY]) &&
+		   std::isnan(in_policy[M_POLICY_UNCORE_MAX_FREQUENCY]))) {
+	         throw Exception("FixedFrequencyAgent::" + std::string(__func__) +
+                                "(): when using NAN for uncore frequency, both min and max must be NAN: " +
+                                std::to_string(in_policy[M_POLICY_UNCORE_MIN_FREQUENCY]) + " " +
+                                std::to_string(in_policy[M_POLICY_UNCORE_MAX_FREQUENCY]) + ".",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+
+	}
     }
 
     // Distribute incoming policy to children
