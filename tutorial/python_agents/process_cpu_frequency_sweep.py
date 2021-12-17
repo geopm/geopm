@@ -51,6 +51,7 @@ def process_report_files(input_dir, nodename, app_index):
         avx_level = os.path.basename(os.path.dirname(report_path))
 
         name_parts = experiment_name.split('_')
+        app_name = name_parts[0]
         core_string, trial_string = name_parts[-2:]
         core_freq = float(core_string)
         trial = int(trial_string)
@@ -58,7 +59,7 @@ def process_report_files(input_dir, nodename, app_index):
         for region_dict in report["Hosts"][nodename]["Regions"]:
             region_dict['cpu-frequency'] = core_freq
             region_dict['trial'] = trial
-            region_dict['app-config'] = "arithmetic_intensity-" + avx_level + '-' + hex(region_dict['hash'])
+            region_dict['app-config'] = app_name + '-' + avx_level + '-' + hex(region_dict['hash'])
             reports.append(region_dict)
 
     return pd.DataFrame(reports)
@@ -72,6 +73,7 @@ def read_trace_files(sweep_dir, nodename, app_index):
         avx_level = os.path.basename(os.path.dirname(trace_file))
         trace_df['app-index'] = app_index
         name_parts = experiment_name.split('_')
+        app_name = name_parts[0]
         core_string, trial_string = name_parts[-2:]
         core_freq = float(core_string)
         trial = int(trial_string)
@@ -80,7 +82,7 @@ def read_trace_files(sweep_dir, nodename, app_index):
         trace_df['trial'] = trial
 
         # Help uniquely identify different configurations of a single app
-        config_name = "arithmetic_intensity-" + avx_level + '-' + trace_df['REGION_HASH']
+        config_name = app_name "-" + avx_level + '-' + trace_df['REGION_HASH']
         trace_df['app-config'] = config_name
 
         all_dfs.append(trace_df)
