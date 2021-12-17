@@ -39,10 +39,6 @@ import argparse
 import code
 
 def process_report_files(input_dir, nodename, app_index):
-    REGIONS = ["intensity_0", "intensity_0.25", "intensity_0.5",
-               "intensity_1", "intensity_2", "intensity_4",
-               "intensity_8", "intensity_16", "intensity_32"]
-
     reports = list()
     for report_path in glob.iglob(os.path.join(input_dir, "*", '*.report')):
         with open(report_path) as f:
@@ -56,10 +52,18 @@ def process_report_files(input_dir, nodename, app_index):
         core_freq = float(core_string)
         trial = int(trial_string)
 
-        for region_dict in report["Hosts"][nodename]["Regions"]:
+        if "Regions" in report["Hosts"][nodename]:
+            for region_dict in report["Hosts"][nodename]["Regions"]:
+                region_dict['cpu-frequency'] = core_freq
+                region_dict['trial'] = trial
+                region_dict['app-config'] = app_name + '-' + avx_level + '-' + hex(region_dict['hash'])
+                reports.append(region_dict)
+        else:
+            # Handle sweeps done with python infrastructure that does not have regions or a region hash
+            region_dict = report["Hosts"][nodename]["Application Totals"]
             region_dict['cpu-frequency'] = core_freq
             region_dict['trial'] = trial
-            region_dict['app-config'] = app_name + '-' + avx_level + '-' + hex(region_dict['hash'])
+            region_dict['app-config'] = app_name + '-' + avx_level + '-' + "0xDEADBEEF"
             reports.append(region_dict)
 
     return pd.DataFrame(reports)
@@ -81,8 +85,13 @@ def read_trace_files(sweep_dir, nodename, app_index):
         trace_df['cpu-frequency'] = core_freq
         trace_df['trial'] = trial
 
+        # Handle sweeps done with python infrastructure that does not have a region hash
+        if "REGION_HASH" not in trace_df.columns:
+            trace_df['REGION_HASH'] = "0xDEADBEEF"
+
         # Help uniquely identify different configurations of a single app
-        config_name = app_name "-" + avx_level + '-' + trace_df['REGION_HASH']
+        config_name = app_name + "-" + avx_level + '-' + trace_df['REGION_HASH']
+
         trace_df['app-config'] = config_name
 
         all_dfs.append(trace_df)
