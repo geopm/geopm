@@ -37,10 +37,13 @@ import glob
 import yaml
 import argparse
 import code
+from itertools import chain
 
 def process_report_files(input_dir, nodename, app_index):
     reports = list()
-    for report_path in glob.iglob(os.path.join(input_dir, "*", '*.report')):
+    for report_path in chain(
+            glob.iglob(os.path.join(input_dir, "*", '*.report')),
+            glob.iglob(os.path.join(input_dir, '*.report'))):
         with open(report_path) as f:
             report = yaml.safe_load(f)
         experiment_name = os.path.splitext(os.path.basename(report_path))[0]
@@ -48,9 +51,24 @@ def process_report_files(input_dir, nodename, app_index):
 
         name_parts = experiment_name.split('_')
         app_name = name_parts[0]
-        core_string, trial_string = name_parts[-2:]
-        core_freq = float(core_string)
-        trial = int(trial_string)
+        for part in name_parts:
+            if part.endswith('c'):
+                try:
+                    core_freq = float(part[:-1])
+                except:
+                    pass
+            if part.endswith('u'):
+                try:
+                    uncore_freq = float(part[:-1])
+                except:
+                    pass
+        freq_index = name_parts.index('frequency')
+        if name_parts[freq_index + 1] == 'map':
+            try:
+                core_freq = float(name_parts[freq_index + 2])
+            except:
+                pass
+        trial = int(name_parts[-1])
 
         if "Regions" in report["Hosts"][nodename]:
             for region_dict in report["Hosts"][nodename]["Regions"]:
@@ -70,7 +88,11 @@ def process_report_files(input_dir, nodename, app_index):
 
 def read_trace_files(sweep_dir, nodename, app_index):
     all_dfs = []
-    for trace_file in glob.iglob(os.path.join(sweep_dir, "*", f'*.trace-{nodename}')):
+    gtf = None
+    for trace_file in chain(
+            glob.iglob(os.path.join(sweep_dir, "*", f'*.trace-{nodename}')),
+            glob.iglob(os.path.join(sweep_dir, f'*.trace-{nodename}'))):
+        gtf = trace_file
         trace_df = pd.read_csv(trace_file, sep='|', comment='#', na_values='NAN')
         trace_df['node'] = nodename
         experiment_name = os.path.splitext(os.path.basename(trace_file))[0]
@@ -78,9 +100,24 @@ def read_trace_files(sweep_dir, nodename, app_index):
         trace_df['app-index'] = app_index
         name_parts = experiment_name.split('_')
         app_name = name_parts[0]
-        core_string, trial_string = name_parts[-2:]
-        core_freq = float(core_string)
-        trial = int(trial_string)
+        for part in name_parts:
+            if part.endswith('c'):
+                try:
+                    core_freq = float(part[:-1])
+                except:
+                    pass
+            if part.endswith('u'):
+                try:
+                    uncore_freq = float(part[:-1])
+                except:
+                    pass
+        freq_index = name_parts.index('frequency')
+        if name_parts[freq_index + 1] == 'map':
+            try:
+                core_freq = float(name_parts[freq_index + 2])
+            except:
+                pass
+        trial = int(name_parts[-1])
 
         trace_df['cpu-frequency'] = core_freq
         trace_df['trial'] = trial
