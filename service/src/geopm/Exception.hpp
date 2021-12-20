@@ -119,6 +119,13 @@ namespace geopm
             /// The error code associated with the exception.
             int m_err;
     };
+
+    /// @brief Function that converts an error code into an error message.
+    ///
+    /// @param error_value The error code associated with the exception.
+    ///
+    /// @return string The error message associated with the error code.
+    std::string error_message(int error_value);
 }
 
 #endif

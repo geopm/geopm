@@ -81,16 +81,6 @@ class TestSession(unittest.TestCase):
         # Constructed in setUp
         self.assertIs(self._geopm_proxy, self._session._geopm_proxy)
 
-    def test_read_signals(self):
-        requests = [('power', 0, 0), ('energy', 1, 1), ('frequency', 2, 2)]
-        return_value = 42
-        self._geopm_proxy.PlatformReadSignal.return_value = return_value
-        result = self._session.read_signals(requests)
-
-        calls = [mock.call.PlatformReadSignal(*cc) for cc in requests]
-        self._geopm_proxy.assert_has_calls(calls)
-        self.assertEqual([return_value] * len(requests), result)
-
     def test_format_signals_invalid(self):
         err_msg = 'Number of signal values does not match the number of requests'
         with self.assertRaisesRegex(RuntimeError, err_msg):
@@ -108,33 +98,40 @@ class TestSession(unittest.TestCase):
             pfs.assert_has_calls(calls)
 
     def test_run_read(self):
-        reqs_return_value = [1, 2, 3]
-        requests = mock.MagicMock(return_value=reqs_return_value)
-
-        format_return_value = [4, 5, 6]
-        requests.get_formats.return_value = format_return_value
-
         duration = 2
         period = 1
         num_period = int(duration / period)
         out_stream = mock.MagicMock()
 
-        with mock.patch('geopmdpy.runtime.TimedLoop', return_value=[0, 1]) as rtl, \
-             mock.patch('geopmdpy.session.Session.read_signals',
-                        return_value=reqs_return_value) as srs, \
-             mock.patch('geopmdpy.session.Session.format_signals',
-                        return_value=format_return_value) as sfs:
-            self._session.run_read(requests, duration, period, out_stream)
+        user_requests = [('power', 0, 0), ('SERVICE::energy', 1, 1), ('frequency', 2, 2)]
+        pio_requests = [('SERVICE::power', 0, 0), ('SERVICE::energy', 1, 1), ('SERVICE::frequency', 2, 2)]
 
-            self._geopm_proxy.PlatformOpenSession.assert_called_once_with()
-            rtl.assert_called_once_with(period, num_period)
-            srs.assert_has_calls([mock.call(requests)] * num_period)
-            sfs.assert_has_calls([mock.call(reqs_return_value, format_return_value)] * num_period)
-            out_stream.write.assert_has_calls([mock.call(format_return_value)] * num_period)
-            self._geopm_proxy.PlatformCloseSession.assert_called_once_with()
+        mock_requests = mock.MagicMock()
+        mock_requests.__iter__.return_value = user_requests
+        format_return_value = "1.234, 2.345, 3.456"
+        mock_requests.get_formats.return_value = format_return_value
+        signal_handle = list(range(3))
+        signal_expect = num_period * [1.234, 2.345, 3.456]
+
+        with mock.patch('geopmdpy.runtime.TimedLoop', return_value=[0, 1]) as mock_timed_loop, \
+             mock.patch('geopmdpy.pio.push_signal', side_effect=signal_handle) as mock_push_signal, \
+             mock.patch('geopmdpy.pio.read_batch') as mock_read_batch, \
+             mock.patch('geopmdpy.pio.sample', side_effect=signal_expect) as mock_sample, \
+             mock.patch('geopmdpy.session.Session.format_signals', return_value=format_return_value):
+            # Call tested method
+            self._session.run_read(mock_requests, duration, period, out_stream)
+            # Check mocks calls
+            calls = [mock.call(*req) for req in pio_requests]
+            mock_push_signal.assert_has_calls(calls)
+            calls = num_period * [mock.call()]
+            mock_read_batch.assert_has_calls(calls)
+            calls = num_period * [mock.call(idx) for idx in signal_handle]
+            mock_sample.assert_has_calls(calls)
+            calls = num_period * [mock.call(format_return_value)]
+            out_stream.write.assert_has_calls(calls)
 
     def test_run_write(self):
-        requests = [('one', 2, 3), ('four', 5, 6)]
+        requests = [('one', 2, 3, 1.0), ('four', 5, 6, 4.0)]
         duration = 42
         with mock.patch('time.sleep') as ts:
             self._session.run_write(requests, duration)

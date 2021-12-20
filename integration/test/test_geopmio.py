@@ -169,6 +169,7 @@ class TestIntegrationGeopmio(unittest.TestCase):
                 self.check_output_range([signal_name, "board", "0"], *val_range)
 
     @util.skip_unless_batch()
+    @util.skip_unless_msr_access()
     def test_geopmread_custom_msr(self):
         '''
         Check that MSRIOGroup picks up additional MSRs in path.
@@ -194,6 +195,7 @@ class TestIntegrationGeopmio(unittest.TestCase):
             sys.stderr.write('{}\n'.format(ex.output))
         self.assertIn(b'MSR::CORE_PERF_LIMIT_REASONS#', all_signals)
 
+    @util.skip_unless_msr_access()
     def test_geopmwrite_command_line(self):
         '''
         Check that geopmwrite commandline arguments work.

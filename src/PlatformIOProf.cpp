@@ -69,7 +69,6 @@ namespace geopm
         catch (const geopm::Exception &ex) {
             print_load_warning("EpochIOGroup", ex.what());
         }
-
     }
     void PlatformIOProf::print_load_warning(const std::string &io_group_name,
                                             const std::string &what) const

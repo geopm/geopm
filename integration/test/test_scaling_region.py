@@ -46,6 +46,7 @@ import glob
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import geopm_context
 import geopmpy.io
+import geopmpy.agent
 import geopmdpy.error
 import geopmpy.hash
 import geopm_test_launcher
@@ -136,10 +137,10 @@ class TestIntegrationScalingRegion(unittest.TestCase):
             for rn in region_names:
                 region = report.raw_region(host, rn)
                 freq = report.get_field(region, 'frequency', 'Hz')
-                time = report.get_field(region, 'runtime', 'sec')
+                time = report.get_field(region, 'runtime', 's')
                 freq_time.append((freq, time))
             freq_time.sort()
-            time = list(zip(*freq_time)[1])
+            time = list(list(zip(*freq_time))[1])
             paired_time = zip(time[0:-1], time[1:])
             for pt in paired_time:
                 self.assertGreater(pt[0], pt[1])

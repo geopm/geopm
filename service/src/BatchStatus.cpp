@@ -71,8 +71,7 @@ namespace geopm
      ***********************************/
 
     BatchStatusImp::BatchStatusImp(int m_read_fd, int m_write_fd)
-        : BatchStatus{}
-        , m_read_fd{m_read_fd}
+        : m_read_fd{m_read_fd}
         , m_write_fd{m_write_fd}
     {
 
@@ -157,8 +156,8 @@ namespace geopm
             check_return(close(m_write_fd), "close(2)");
         }
 
-        check_return(unlink(m_read_fifo_path.c_str()),  "unlink(2)");
-        check_return(unlink(m_write_fifo_path.c_str()), "unlink(2)");
+        (void)unlink(m_read_fifo_path.c_str());
+        (void)unlink(m_write_fifo_path.c_str());
     }
 
     void BatchStatusServer::open_fifo(void)
@@ -168,6 +167,9 @@ namespace geopm
             check_return(m_write_fd, "open(2)");
             m_read_fd = open(m_read_fifo_path.c_str(), O_RDONLY);
             check_return(m_read_fd, "open(2)");
+
+            check_return(unlink(m_read_fifo_path.c_str()),  "unlink(2)");
+            check_return(unlink(m_write_fifo_path.c_str()), "unlink(2)");
         }
     }
 

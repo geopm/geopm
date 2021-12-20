@@ -82,7 +82,12 @@ namespace geopm
         , m_signal_shmem(signal_shmem)
         , m_control_shmem(control_shmem)
     {
-
+        if (m_signal_shmem != nullptr) {
+            m_signal_shmem->unlink();
+        }
+        if (m_control_shmem != nullptr) {
+            m_control_shmem->unlink();
+        }
     }
 
     std::vector<double> BatchClientImp::read_batch(void)

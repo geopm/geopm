@@ -38,15 +38,19 @@ EXTRA_DIST += integration/test/check_trace.py \
               integration/test/__main__.py \
               integration/test/README.md \
               integration/test/short_region/plot_margin_sweep.py \
+              integration/test/test_controller.py \
+              integration/test/test_controller.sh \
               integration/test/test_plugin_static_policy.py \
+              integration/test/test_reporter.py \
+              integration/test/test_reporter.cpp \
               integration/test/test_template.cpp.in \
               integration/test/test_template.mk.in \
               integration/test/test_template.py.in \
               integration/test/util.py \
               # end
 
-include integration/test/test_ee_short_region_slop.mk
 include integration/test/test_ee_timed_scaling_mix.mk
+include integration/test/test_fmap_short_region_slop.mk
 include integration/test/test_enforce_policy.mk
 include integration/test/test_omp_outer_loop.mk
 include integration/test/test_profile_policy.mk

@@ -29,38 +29,39 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#include <iostream>
+#include <unistd.h>
+#include <vector>
 
-#ifndef MOCKREPORTER_HPP_INCLUDE
-#define MOCKREPORTER_HPP_INCLUDE
+#include "BatchServer.hpp"
+#include "BatchClient.hpp"
+#include "geopm/PlatformIO.hpp"
+#include "geopm_topo.h"
 
-#include "gmock/gmock.h"
+using geopm::BatchServer;
+using geopm::BatchClient;
 
-#include "ApplicationIO.hpp"
-#include "Comm.hpp"
-#include "Reporter.hpp"
-#include "TreeComm.hpp"
-
-class MockReporter : public geopm::Reporter
+void run(void)
 {
-    public:
-        MOCK_METHOD(void, init, (), (override));
-        MOCK_METHOD(void, update, (), (override));
-        MOCK_METHOD(void, generate,
-                    (const std::string &agent_name,
-                     (const std::vector<std::pair<std::string, std::string> > &agent_report_header),
-                     (const std::vector<std::pair<std::string, std::string> > &agent_host_report),
-                     (const std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > &agent_region_report),
-                     const geopm::ApplicationIO &application_io,
-                     std::shared_ptr<geopm::Comm> comm,
-                     const geopm::TreeComm &tree_comm),
-                    (override));
-        MOCK_METHOD(std::string, generate,
-                    (const std::string &profile_name,
-                     const std::string &agent_name,
-                     (const std::vector<std::pair<std::string, std::string> > &agent_report_header),
-                     (const std::vector<std::pair<std::string, std::string> > &agent_host_report),
-                     (const std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > &agent_region_report)),
-                    (override));
-};
+    int client_pid = getpid();
+    geopm_request_s request = {GEOPM_DOMAIN_CPU, 0, "TIME"};
+    std::shared_ptr<BatchServer> batch_server =
+        BatchServer::make_unique(client_pid, {request}, {});
+    std::string server_key = batch_server->server_key();
+    std::shared_ptr<BatchClient> batch_client =
+        BatchClient::make_unique(server_key, 1.0, 1, 0);
 
-#endif
+    for (int idx = 0; idx < 10; ++idx) {
+        std::vector<double> sample = batch_client->read_batch();
+        std::cout << sample.at(0) << "\n";
+        sleep(1);
+    }
+    batch_client->stop_batch();
+}
+
+
+int main (int argc, char **argv)
+{
+    run();
+    return 0;
+}

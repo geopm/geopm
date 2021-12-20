@@ -29,38 +29,26 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#include <iostream>
+#include <unistd.h>
+#include "geopm/PlatformIO.hpp"
+#include "geopm_topo.h"
 
-#ifndef MOCKREPORTER_HPP_INCLUDE
-#define MOCKREPORTER_HPP_INCLUDE
-
-#include "gmock/gmock.h"
-
-#include "ApplicationIO.hpp"
-#include "Comm.hpp"
-#include "Reporter.hpp"
-#include "TreeComm.hpp"
-
-class MockReporter : public geopm::Reporter
+void run(void)
 {
-    public:
-        MOCK_METHOD(void, init, (), (override));
-        MOCK_METHOD(void, update, (), (override));
-        MOCK_METHOD(void, generate,
-                    (const std::string &agent_name,
-                     (const std::vector<std::pair<std::string, std::string> > &agent_report_header),
-                     (const std::vector<std::pair<std::string, std::string> > &agent_host_report),
-                     (const std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > &agent_region_report),
-                     const geopm::ApplicationIO &application_io,
-                     std::shared_ptr<geopm::Comm> comm,
-                     const geopm::TreeComm &tree_comm),
-                    (override));
-        MOCK_METHOD(std::string, generate,
-                    (const std::string &profile_name,
-                     const std::string &agent_name,
-                     (const std::vector<std::pair<std::string, std::string> > &agent_report_header),
-                     (const std::vector<std::pair<std::string, std::string> > &agent_host_report),
-                     (const std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > &agent_region_report)),
-                    (override));
-};
+    geopm::PlatformIO &pio = geopm::platform_io();
+    int signal_idx = pio.push_signal("SERVICE::TIME", GEOPM_DOMAIN_CPU, 0);
+    for (int idx = 0; idx < 10; ++idx) {
+        pio.read_batch();
+        double tt = pio.sample(signal_idx);
+        std::cerr << tt << "\n";
+        sleep(1);
+    }
+}
 
-#endif
+
+int main (int argc, char **argv)
+{
+    run();
+    return 0;
+}

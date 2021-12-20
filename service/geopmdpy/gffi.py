@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 #
 #  Copyright (c) 2015 - 2021, Intel Corporation
 #
@@ -31,30 +31,59 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-from __future__ import absolute_import
+'''The gffi module provides a wrapper around the cffi interface
 
-from geopmdpy.gffi import gffi
-from geopmdpy.gffi import get_dl_geopmpolicy
+This module enables a single cffi.FFI() object to be used throughout
+all of the GEOPM python modules and also enables us to enforce that
+the libgeopmpolicy.so dynamic library is opened prior to libgeopmd.so.
+This is required because libgeopmd.so allocates static objects that
+depend on static objects defined in libgeopmpolicy.so (in particular
+the geopm::ApplicationSampler).
 
-gffi.cdef("""
-uint64_t geopm_crc32_str(const char *key);
-""")
-try:
-    _dl = get_dl_geopmpolicy()
-except OSError as ee:
-    raise OSError('This module requires libgeopmpolicy.so to be present in your LD_LIBRARY_PATH.') from ee
+'''
 
-def crc32_str(key):
-    """Return the geopm hash of a string
-    Args:
-        key (int): String to hash
+import cffi
+
+'''gffi is the global FFI object used by all geopm python modules
+
+'''
+gffi = cffi.FFI()
+
+def get_dl_geopmd():
+    '''Get the FFILibrary instance for libgeopmd.so
 
     Returns:
-        int: Hash of string
+        FFILibrary: Object used to call functions defined in
+                    libgeopmd.so
 
-    """
-    global gffi
-    global _dl
+    '''
+    global _dl_geopmd
+    if type(_dl_geopmd) is OSError:
+        raise _dl_geopmd
+    return _dl_geopmd
 
-    key_name_cstr = gffi.new("char[]", key.encode())
-    return _dl.geopm_crc32_str(key_name_cstr)
+def get_dl_geopmpolicy():
+    '''Get the FFILibrary instance for libgeopmpolicy.so
+
+    Returns:
+        FFILibrary: Object used to call functions defined in
+                    libgeopmpolicy.so
+
+    '''
+    global _dl_geopmpolicy
+    if type(_dl_geopmpolicy) is OSError:
+        raise _dl_geopmpolicy
+    return _dl_geopmpolicy
+
+# Enforce load order of libgeopmpolicy.so and libgeopmd.so
+try:
+    _dl_geopmpolicy = gffi.dlopen('libgeopmpolicy.so',
+                                  gffi.RTLD_GLOBAL|gffi.RTLD_LAZY)
+except OSError as err:
+    _dl_geopmpolicy = err
+
+try:
+    _dl_geopmd =  gffi.dlopen('libgeopmd.so',
+                              gffi.RTLD_GLOBAL|gffi.RTLD_LAZY)
+except OSError as err:
+    _dl_geopmd = err

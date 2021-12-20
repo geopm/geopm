@@ -33,12 +33,11 @@
 
 from __future__ import absolute_import
 
-import cffi
+from . import gffi
 from . import error
 
 
-_ffi = cffi.FFI()
-_ffi.cdef("""
+gffi.gffi.cdef("""
 enum geopm_domain_e {
     GEOPM_DOMAIN_INVALID = -1,
     GEOPM_DOMAIN_BOARD = 0,
@@ -76,7 +75,7 @@ int geopm_topo_domain_type(const char *domain_name);
 
 int geopm_topo_create_cache(void);
 """)
-_dl = _ffi.dlopen('libgeopmd.so', _ffi.RTLD_GLOBAL|_ffi.RTLD_LAZY)
+_dl = gffi.get_dl_geopmd()
 
 DOMAIN_INVALID = _dl.GEOPM_DOMAIN_INVALID
 DOMAIN_BOARD = _dl.GEOPM_DOMAIN_BOARD
@@ -155,7 +154,6 @@ def domain_nested(inner_domain, outer_domain, outer_idx):
             within the specified outer domain.
 
     """
-    global _ffi
     global _dl
     inner_domain = domain_type(inner_domain)
     outer_domain = domain_type(outer_domain)
@@ -163,7 +161,7 @@ def domain_nested(inner_domain, outer_domain, outer_idx):
     if (num_domain_nested < 0):
         raise RuntimeError("geopm_topo_num_domain_nested() failed: {}".format(
             error.message(num_domain_nested)))
-    domain_nested_carr = _ffi.new("int[]", num_domain_nested)
+    domain_nested_carr = gffi.gffi.new("int[]", num_domain_nested)
     _dl.geopm_topo_domain_nested(inner_domain, outer_domain, outer_idx,
                                  num_domain_nested, domain_nested_carr)
     result = []
@@ -185,16 +183,15 @@ def domain_name(domain):
         str: Domain name string associated with input.
 
     """
-    global _ffi
     global _dl
     domain = domain_type(domain)
     name_max = 1024
-    result_cstr = _ffi.new("char[]", name_max)
+    result_cstr = gffi.gffi.new("char[]", name_max)
     err = _dl.geopm_topo_domain_name(domain, name_max, result_cstr)
     if err < 0:
         raise RuntimeError("geopm_topo_domain_name() failed: {}".format(
                            error.message(err)))
-    return _ffi.string(result_cstr).decode()
+    return gffi.gffi.string(result_cstr).decode()
 
 def domain_type(domain):
     """Returns the domain type that is associated with the provided domain
@@ -220,7 +217,7 @@ def domain_type(domain):
             raise RuntimeError("domain_type is out of range: {}".format(domain))
     else:
         global _dl
-        domain_cstr = _ffi.new("char[]", domain.encode())
+        domain_cstr = gffi.gffi.new("char[]", domain.encode())
         result = _dl.geopm_topo_domain_type(domain_cstr)
         if result < 0:
             raise RuntimeError("geopm_topo_domain_type() failed: {}".format(
