@@ -271,7 +271,7 @@ def skip_unless_library_in_ldconfig(library):
     return lambda func: func
 
 
-def skip_unless_msr_access():
+def skip_unless_msr_access(msg=None):
     """Skip the test if the user does not have direct access to msr-safe
     """
     if not g_util.skip_launch():
@@ -281,7 +281,9 @@ def skip_unless_msr_access():
             with open('/dev/null', 'w') as dev_null:
                 geopm_test_launcher.allocation_node_test(test_exec, dev_null, dev_null)
         except subprocess.CalledProcessError:
-            return unittest.skip('No msr-safe access.  Cannot write to ' + try_path)
+            if msg is None:
+                msg = 'No msr-safe access.  Cannot write to ' + try_path
+            return unittest.skip(msg)
     return lambda func: func
 
 
