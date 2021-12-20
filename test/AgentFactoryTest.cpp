@@ -11,6 +11,7 @@
 #include "MonitorAgent.hpp"
 #include "PowerBalancerAgent.hpp"
 #include "PowerGovernorAgent.hpp"
+#include "FixedFrequencyAgent.hpp"
 #include "FrequencyMapAgent.hpp"
 
 using geopm::Agent;
@@ -77,7 +78,7 @@ TEST(AgentFactoryTest, static_info_governor)
     EXPECT_EQ(exp_policy, Agent::policy_names(agent_name));
 }
 
-TEST(AgentFactoryTest, DISABLED_static_fixed_frequency)
+TEST(AgentFactoryTest, DISABLED_static_info_fixed_frequency)
 {
     auto &factory = geopm::agent_factory();
     std::string agent_name = geopm::FixedFrequencyAgent::plugin_name();
