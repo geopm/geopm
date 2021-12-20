@@ -222,6 +222,7 @@ class TestIntegrationGeopmio(unittest.TestCase):
         self.check_output(['INVALID', 'board', '0', '0'], ['cannot write control'])
         self.check_output(['--domain', '--info'], ['info about domain not implemented'])
 
+    @util.skip_unless_msr_access()
     @util.skip_unless_batch()
     @util.skip_unless_stressng()
     def test_geopmwrite_set_freq(self):
