@@ -39,13 +39,12 @@ import unittest
 import subprocess
 import io
 import json
-
-import geopm_context
-import geopmpy.agent
-import geopm_test_launcher
 import util
 import time
+
+import geopmpy.agent
 import geopmdpy.topo
+from integration.test import geopm_test_launcher
 
 
 @util.skip_unless_levelzero()

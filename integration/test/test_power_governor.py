@@ -36,12 +36,11 @@ import unittest
 import os
 import pandas
 
-import geopm_context
 import geopmpy.io
 import geopmpy.agent
 
-import util
-import geopm_test_launcher
+from integration.test import util
+from integration.test import geopm_test_launcher
 
 
 class TestIntegration_power_governor(unittest.TestCase):

@@ -36,12 +36,11 @@ import unittest
 import os
 import json
 
-from integration.test import geopm_context
 import geopmpy.io
 import geopmpy.agent
 
-import util
-import geopm_test_launcher
+from integration.test import util
+from integration.test import geopm_test_launcher
 
 environment_default_path = os.path.join(util.get_config_value('GEOPM_CONFIG_PATH'), 'environment-default.json')
 environment_override_path = os.path.join(util.get_config_value('GEOPM_CONFIG_PATH'), 'environment-override.json')

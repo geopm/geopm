@@ -1,5 +1,4 @@
-#
-#  Copyright (c) 2015 - 2021, Intel Corporation
+#  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
 #  modification, are permitted provided that the following conditions
@@ -30,24 +29,4 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-import sys
-import os
-
-def modify_path():
-    scripts_dir = os.path.join(
-                  os.path.dirname(
-                  os.path.dirname(
-                  os.path.dirname(
-                  os.path.realpath(__file__)))), 'scripts')
-    if scripts_dir not in sys.path:
-        sys.path.insert(0, scripts_dir)
-    service_dir = os.path.join(
-                  os.path.dirname(
-                  os.path.dirname(
-                  os.path.dirname(
-                  os.path.realpath(__file__)))), 'service')
-    if service_dir not in sys.path:
-        sys.path.insert(0, service_dir)
-
-
-modify_path()
+EXTRA_DIST += integration/test_skipped/test_levelzero_signals.py

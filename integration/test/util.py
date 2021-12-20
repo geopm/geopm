@@ -43,7 +43,7 @@ import subprocess
 from io import StringIO
 import argparse
 
-import geopm_test_launcher
+from integration.test import geopm_test_launcher
 
 
 # the global singleton

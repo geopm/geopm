@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-#
 #  Copyright (c) 2015 - 2021, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -31,47 +29,19 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-from __future__ import absolute_import
+EXTRA_DIST += integration/test_skipped/test_fmap_short_region_slop.py \
+              integration/test_skipped/test_fmap_short_region_slop.sbatch \
+              # end
 
-import sys
-import os
-import unittest
-
-from test_omp_outer_loop import *
-from test_enforce_policy import *
-from test_profile_policy import *
-from test_plugin_static_policy import *
-from test_tutorial_base import *
-from test_frequency_hint_usage import *
-from test_profile_overflow import *
-from test_trace import *
-from test_monitor import *
-from test_geopmio import *
-from test_ompt import *
-from test_launch_application import *
-from test_launch_pthread import *
-from test_geopmagent import *
-from test_environment import *
-from test_frequency_map import *
-from test_hint_time import *
-from test_progress import *
-from test_programmable_counters import *
-
-if 'GEOPM_RUN_LONG_TESTS' in os.environ:
-    from test_ee_timed_scaling_mix import *
-    from test_power_balancer import *
-    from test_power_governor import *
-    from test_scaling_region import *
-    from test_timed_scaling_region import *
-else:
-    skipped_modules = ['test_ee_timed_scaling_mix',
-                       'test_power_balancer',
-                       'test_power_governor',
-                       'test_scaling_region',
-                       'test_timed_scaling_region',
-                       ]
-    for sm in skipped_modules:
-        sys.stderr.write("* ({}.*) ... skipped 'Requires GEOPM_RUN_LONG_TESTS environment variable'\n".format(sm))
-
-if __name__ == '__main__':
-    unittest.main()
+if ENABLE_OPENMP
+if ENABLE_MPI
+noinst_PROGRAMS += integration/test_skipped/test_fmap_short_region_slop
+integration_test_skipped_test_fmap_short_region_slop_SOURCES = integration/test_skipped/test_fmap_short_region_slop.cpp
+integration_test_skipped_test_fmap_short_region_slop_SOURCES += $(model_source_files)
+integration_test_skipped_test_fmap_short_region_slop_LDADD = libgeopm.la $(MATH_LIB) $(MPI_CLIBS)
+integration_test_skipped_test_fmap_short_region_slop_LDFLAGS = $(AM_LDFLAGS) $(MPI_CLDFLAGS) $(MATH_CLDFLAGS)
+integration_test_skipped_test_fmap_short_region_slop_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS) -D_GNU_SOURCE -std=c++11 $(MATH_CFLAGS)
+endif
+else
+EXTRA_DIST += integration/test_skipped/test_fmap_short_region_slop.cpp
+endif
