@@ -47,6 +47,7 @@ import util
 import geopmdpy.topo
 
 
+@util.skip_unless_msr_access('Skipped pending resolution of issue #2017.')
 @util.skip_unless_do_launch()
 @util.skip_unless_batch()
 class TestIntegrationEnforcePolicy(unittest.TestCase):
