@@ -33,12 +33,13 @@
 #include "config.h"
 
 #include "Reporter.hpp"
+#include "geopm_reporter.h"
 
 #include <unistd.h>
 #include <string.h>
 #include <fcntl.h>
 #include <limits.h>
-#include <math.h>
+#include <cmath>
 
 #include <sstream>
 #include <fstream>
@@ -59,8 +60,10 @@
 #include "geopm.h"
 #include "geopm_hash.h"
 #include "geopm_version.h"
+#include "geopm_debug.hpp"
 #include "Environment.hpp"
 #include "geopm_debug.hpp"
+#include "PlatformIOProf.hpp"
 
 namespace geopm
 {
@@ -139,7 +142,9 @@ namespace geopm
     void ReporterImp::update()
     {
         m_sample_agg->update();
-        m_proc_region_agg->update();
+        if (m_proc_region_agg != nullptr) {
+            m_proc_region_agg->update();
+        }
     }
 
     void ReporterImp::generate(const std::string &agent_name,
@@ -162,37 +167,85 @@ namespace geopm
             if (!common_report.good()) {
                 throw Exception("Failed to open report file", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
-            // make header
-            std::string policy_str = "{}";
-            if (m_do_endpoint) {
-                policy_str = "DYNAMIC";
-            }
-            else if (m_policy_path.size() > 0) {
-                try {
-                    policy_str = read_file(m_policy_path);
-                }
-                catch(...) {
-                    policy_str = m_policy_path;
-                }
-            }
-            std::vector<std::pair<std::string, std::string> > header {
-                {"GEOPM Version", geopm_version()},
-                {"Start Time", m_start_time},
-                {"Profile", application_io.profile_name()},
-                {"Agent", agent_name},
-                {"Policy", policy_str}
-            };
-            yaml_write(common_report, M_INDENT_HEADER, header);
-            yaml_write(common_report, M_INDENT_HEADER, agent_report_header);
-            common_report << "\n";
-            yaml_write(common_report, M_INDENT_HOST, "Hosts:");
+            common_report << create_header(agent_name, application_io.profile_name(), agent_report_header);
         }
 
+        std::string host_report = create_report(application_io.region_name_set(),
+                                                get_max_memory(),
+                                                tree_comm.overhead_send(),
+                                                agent_host_report,
+                                                agent_region_report);
+        std::string full_report = gather_report(host_report, comm);
+
+        if (!rank) {
+            common_report << full_report;
+            common_report << std::endl;
+            common_report.close();
+        }
+    }
+
+    std::string ReporterImp::generate(const std::string &profile_name,
+                                      const std::string &agent_name,
+                                      const std::vector<std::pair<std::string, std::string> > &agent_report_header,
+                                      const std::vector<std::pair<std::string, std::string> > &agent_host_report,
+                                      const std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > &agent_region_report)
+    {
+        std::ostringstream common_report;
+        common_report << create_header(agent_name, profile_name, agent_report_header);
+
+        common_report << create_report({},
+                                       get_max_memory(),
+                                       0.0,
+                                       agent_host_report,
+                                       agent_region_report);
+        common_report << std::endl;
+        return common_report.str();
+    }
+
+    std::string ReporterImp::create_header(const std::string &agent_name,
+                                           const std::string &profile_name,
+                                           const std::vector<std::pair<std::string, std::string> > &agent_report_header)
+    {
+        std::ostringstream common_report;
+        // make header
+        std::string policy_str = "{}";
+        if (m_do_endpoint) {
+            policy_str = "DYNAMIC";
+        }
+        else if (m_policy_path.size() > 0) {
+            try {
+                policy_str = read_file(m_policy_path);
+            }
+            catch(...) {
+                policy_str = m_policy_path;
+            }
+        }
+        std::vector<std::pair<std::string, std::string> > header {
+            {"GEOPM Version", geopm_version()},
+            {"Start Time", m_start_time},
+            {"Profile", profile_name},
+            {"Agent", agent_name},
+            {"Policy", policy_str}
+        };
+        yaml_write(common_report, M_INDENT_HEADER, header);
+        yaml_write(common_report, M_INDENT_HEADER, agent_report_header);
+        common_report << "\n";
+        yaml_write(common_report, M_INDENT_HOST, "Hosts:");
+        return common_report.str();
+    }
+
+
+    std::string ReporterImp::create_report(const std::set<std::string> &region_name_set, double max_memory, double comm_overhead,
+                                           const std::vector<std::pair<std::string, std::string> > &agent_host_report,
+                                           const std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > &agent_region_report)
+    {
         // per-host report
         std::ostringstream report;
         yaml_write(report, M_INDENT_HOST_NAME, hostname() + ":");
         yaml_write(report, M_INDENT_HOST_AGENT, agent_host_report);
-        yaml_write(report, M_INDENT_REGION, "Regions:");
+        if (region_name_set.size() != 0) {
+            yaml_write(report, M_INDENT_REGION, "Regions:");
+        }
 
         // vector of region data, in descending order by runtime
         struct region_info {
@@ -203,7 +256,9 @@ namespace geopm
         };
 
         std::vector<region_info> region_ordered;
-        auto region_name_set = application_io.region_name_set();
+        GEOPM_DEBUG_ASSERT(region_name_set.size() == 0 ||
+                           m_proc_region_agg != nullptr,
+                           "ReporterImp::create_report(): region set is not empty, but region aggregator pointer is null");
         for (const auto &region : region_name_set) {
             uint64_t region_hash = geopm_crc32_str(region.c_str());
             int count = m_proc_region_agg->get_count_average(region_hash);
@@ -245,28 +300,31 @@ namespace geopm
             total_marked_runtime += region.per_rank_avg_runtime;
         }
 
-        yaml_write(report, M_INDENT_UNMARKED, "Unmarked Totals:");
-        double unmarked_time = m_sample_agg->sample_application(m_sync_signal_idx["TIME"]) -
-                               total_marked_runtime;
-        yaml_write(report, M_INDENT_UNMARKED_FIELD,
-                   {{"runtime (s)", unmarked_time},
-                    {"count", 0}});
-        auto unmarked_data = get_region_data(GEOPM_REGION_HASH_UNMARKED);
-        yaml_write(report, M_INDENT_UNMARKED_FIELD, unmarked_data);
-        // agent extensions for unmarked
-        const auto &it = agent_region_report.find(GEOPM_REGION_HASH_UNMARKED);
-        if (it != agent_region_report.end()) {
-            yaml_write(report, M_INDENT_UNMARKED_FIELD, agent_region_report.at(GEOPM_REGION_HASH_UNMARKED));
-        }
+        double epoch_count = m_platform_io.sample(m_epoch_count_idx);
+        // Do not add epoch or unmarked section if no application attached
+        if (!std::isnan(epoch_count)) {
+            yaml_write(report, M_INDENT_UNMARKED, "Unmarked Totals:");
+            double unmarked_time = m_sample_agg->sample_application(m_sync_signal_idx["TIME"]) -
+                                   total_marked_runtime;
+            yaml_write(report, M_INDENT_UNMARKED_FIELD,
+                       {{"runtime (s)", unmarked_time},
+                        {"count", 0}});
+            auto unmarked_data = get_region_data(GEOPM_REGION_HASH_UNMARKED);
+            yaml_write(report, M_INDENT_UNMARKED_FIELD, unmarked_data);
+            // agent extensions for unmarked
+            const auto &it = agent_region_report.find(GEOPM_REGION_HASH_UNMARKED);
+            if (it != agent_region_report.end()) {
+                yaml_write(report, M_INDENT_UNMARKED_FIELD, agent_region_report.at(GEOPM_REGION_HASH_UNMARKED));
+            }
 
-        yaml_write(report, M_INDENT_EPOCH, "Epoch Totals:");
-        double epoch_runtime = m_sample_agg->sample_epoch(m_sync_signal_idx["TIME"]);
-        int epoch_count = m_platform_io.sample(m_epoch_count_idx);
-        yaml_write(report, M_INDENT_EPOCH_FIELD,
-                   {{"runtime (s)", epoch_runtime},
-                    {"count", epoch_count}});
-        auto epoch_data = get_region_data(GEOPM_REGION_HASH_EPOCH);
-        yaml_write(report, M_INDENT_EPOCH_FIELD, epoch_data);
+            yaml_write(report, M_INDENT_EPOCH, "Epoch Totals:");
+            double epoch_runtime = m_sample_agg->sample_epoch(m_sync_signal_idx["TIME"]);
+            yaml_write(report, M_INDENT_EPOCH_FIELD,
+                       {{"runtime (s)", epoch_runtime},
+                        {"count", (int)epoch_count}});
+            auto epoch_data = get_region_data(GEOPM_REGION_HASH_EPOCH);
+            yaml_write(report, M_INDENT_EPOCH_FIELD, epoch_data);
+        }
 
         yaml_write(report, M_INDENT_TOTALS, "Application Totals:");
         double total_runtime = m_sample_agg->sample_application(m_sync_signal_idx["TIME"]);
@@ -275,18 +333,19 @@ namespace geopm
                     {"count", 0}});
         auto region_data = get_region_data(GEOPM_REGION_HASH_APP);
         yaml_write(report, M_INDENT_TOTALS_FIELD, region_data);
-
         // Controller overhead
         std::vector<std::pair<std::string, double> > overhead {
-            {"geopmctl memory HWM (B)", get_max_memory()},
-            {"geopmctl network BW (B/s)", tree_comm.overhead_send() / total_runtime}
+            {"geopmctl memory HWM (B)", max_memory},
+            {"geopmctl network BW (B/s)", comm_overhead / total_runtime}
         };
         yaml_write(report, M_INDENT_TOTALS_FIELD, overhead);
+        return report.str();
+    }
 
+    std::string ReporterImp::gather_report(const std::string &host_report, std::shared_ptr<Comm> comm)
+    {
         // aggregate reports from every node
-        report.seekp(0, std::ios::end);
-        size_t buffer_size = (size_t) report.tellp();
-        report.seekp(0, std::ios::beg);
+        size_t buffer_size = host_report.size();
         std::vector<char> report_buffer;
         std::vector<size_t> buffer_size_array;
         std::vector<off_t> buffer_displacement;
@@ -296,7 +355,7 @@ namespace geopm
         comm->gather(&buffer_size, sizeof(size_t), buffer_size_array.data(),
                      sizeof(size_t), 0);
 
-        if (!rank) {
+        if (comm->rank() == 0) {
             int full_report_size = std::accumulate(buffer_size_array.begin(), buffer_size_array.end(), 0) + 1;
             report_buffer.resize(full_report_size);
             buffer_displacement[0] = 0;
@@ -305,15 +364,15 @@ namespace geopm
             }
         }
 
-        comm->gatherv((void *) (report.str().data()), sizeof(char) * buffer_size,
+        comm->gatherv((void *) (host_report.c_str()), sizeof(char) * buffer_size,
                       (void *) report_buffer.data(), buffer_size_array, buffer_displacement, 0);
-
-        if (!rank) {
+        if (report_buffer.size() != 0) {
             report_buffer.back() = '\0';
-            common_report << report_buffer.data();
-            common_report << std::endl;
-            common_report.close();
         }
+        else {
+            report_buffer.push_back('\0');
+        }
+        return report_buffer.data();
     }
 
     void ReporterImp::init_sync_fields(void)
@@ -400,7 +459,10 @@ namespace geopm
 
         // sync fields as initialized in init_sync_fields
         for (auto &field : m_sync_fields) {
-            result.push_back({field.field_label, field.func(region_hash, field.supporting_signals)});
+            double value = field.func(region_hash, field.supporting_signals);
+            if (!std::isnan(value)) { // Remove nan fields
+                result.push_back({field.field_label, value});
+            }
         }
 
         // signals added by user through environment
@@ -489,4 +551,70 @@ namespace geopm
         }
     }
 
+    static Reporter &basic_reporter(const std::string &start_time)
+    {
+        static ReporterImp instance(start_time,
+                                    "",
+                                    PlatformIOProf::platform_io(),
+                                    platform_topo(),
+                                    0);
+        return instance;
+    }
+
+    static Reporter &basic_reporter(void)
+    {
+        return basic_reporter("");
+    }
+
+}
+
+int geopm_reporter_init(void)
+{
+    char start_time[NAME_MAX];
+    int err = geopm_time_string(NAME_MAX, start_time);
+    if (!err) {
+        try {
+            geopm::basic_reporter(start_time);
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+            err = err < 0 ? err : GEOPM_ERROR_RUNTIME;
+        }
+    }
+    return err;
+}
+
+int geopm_reporter_update(void)
+{
+    int err = 0;
+    try {
+        geopm::basic_reporter().update();
+    }
+    catch (...) {
+        err = geopm::exception_handler(std::current_exception());
+        err = err < 0 ? err : GEOPM_ERROR_RUNTIME;
+    }
+    return err;
+}
+
+int geopm_reporter_generate(const char *profile_name,
+                            const char *agent_name,
+                            size_t result_max,
+                            char *result)
+{
+    int err = 0;
+    try {
+        std::string result_cxx = geopm::basic_reporter().generate(profile_name, agent_name, {}, {}, {});
+        result[result_max - 1] = '\0';
+        strncpy(result, result_cxx.c_str(), result_max);
+        if (result[result_max - 1] != '\0') {
+            err = GEOPM_ERROR_INVALID;
+            result[result_max - 1] = '\0';
+        }
+    }
+    catch (...) {
+        err = geopm::exception_handler(std::current_exception());
+        err = err < 0 ? err : GEOPM_ERROR_RUNTIME;
+    }
+    return err;
 }

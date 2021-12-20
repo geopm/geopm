@@ -30,37 +30,20 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MOCKREPORTER_HPP_INCLUDE
-#define MOCKREPORTER_HPP_INCLUDE
+#include "config.h"
+#include <string>
 
-#include "gmock/gmock.h"
+#include "geopm/Exception.hpp"
 
-#include "ApplicationIO.hpp"
-#include "Comm.hpp"
-#include "Reporter.hpp"
-#include "TreeComm.hpp"
-
-class MockReporter : public geopm::Reporter
+namespace geopm
 {
-    public:
-        MOCK_METHOD(void, init, (), (override));
-        MOCK_METHOD(void, update, (), (override));
-        MOCK_METHOD(void, generate,
-                    (const std::string &agent_name,
-                     (const std::vector<std::pair<std::string, std::string> > &agent_report_header),
-                     (const std::vector<std::pair<std::string, std::string> > &agent_host_report),
-                     (const std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > &agent_region_report),
-                     const geopm::ApplicationIO &application_io,
-                     std::shared_ptr<geopm::Comm> comm,
-                     const geopm::TreeComm &tree_comm),
-                    (override));
-        MOCK_METHOD(std::string, generate,
-                    (const std::string &profile_name,
-                     const std::string &agent_name,
-                     (const std::vector<std::pair<std::string, std::string> > &agent_report_header),
-                     (const std::vector<std::pair<std::string, std::string> > &agent_host_report),
-                     (const std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > &agent_region_report)),
-                    (override));
-};
+    class DCGMDevicePool;
 
-#endif
+    const DCGMDevicePool &dcgm_device_pool()
+    {
+        throw Exception("DCGMDevicePoolThrow::" + std::string(__func__) +
+                        ": GEOPM configured without dcgm library support.  Please configure with --enable-dcgm",
+                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+    }
+
+}

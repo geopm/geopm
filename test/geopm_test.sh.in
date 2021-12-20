@@ -37,10 +37,10 @@ unset GEOPM_TRACE
 
 test_name=$(basename $0)
 obj_dir=@abs_top_builddir@
-test_dir=${obj_dir}/test
+link_dir=${obj_dir}/test/gtest_links
 lib_path=${obj_dir}/.libs
 exec_path=${obj_dir}/test/.libs
-xml_dir=${test_dir}
+xml_dir=${link_dir}
 run_test=true
 
 
@@ -64,7 +64,7 @@ if [ "${run_test}" == "true" ]; then
     if [[ ${test_name} =~ ^MPIInterface ]]; then
         exec_name=geopm_mpi_test_api
     fi
-    log_file=${test_dir}/${test_name}.log
+    log_file=${link_dir}/${test_name}.log
     ${exec_path}/${exec_name} \
         --gtest_filter=${test_name} \
         --gtest_output=xml:${xml_dir}/${test_name}.xml >& ${log_file}

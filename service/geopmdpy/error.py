@@ -33,11 +33,10 @@
 
 from __future__ import absolute_import
 
-import cffi
 import sys
+from . import gffi
 
-_ffi = cffi.FFI()
-_ffi.cdef("""
+gffi.gffi.cdef("""
 enum geopm_error_e {
     GEOPM_ERROR_RUNTIME = -1,
     GEOPM_ERROR_LOGIC = -2,
@@ -57,7 +56,7 @@ enum geopm_error_e {
 void geopm_error_message(int err, char *msg, size_t size);
 
 """)
-_dl = _ffi.dlopen('libgeopmd.so', _ffi.RTLD_GLOBAL|_ffi.RTLD_LAZY)
+_dl = gffi.get_dl_geopmd()
 
 ERROR_RUNTIME = _dl.GEOPM_ERROR_RUNTIME
 ERROR_LOGIC = _dl.GEOPM_ERROR_LOGIC
@@ -85,10 +84,9 @@ def message(err_number):
         str: Error message associated with error code.
 
     """
-    global _ffi
     global _dl
 
     name_max = 1024
-    result_cstr = _ffi.new("char[]", name_max)
+    result_cstr = gffi.gffi.new("char[]", name_max)
     _dl.geopm_error_message(err_number, result_cstr, name_max)
-    return _ffi.string(result_cstr).decode()
+    return gffi.gffi.string(result_cstr).decode()

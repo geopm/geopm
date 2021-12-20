@@ -182,8 +182,7 @@ namespace geopm
     void ApplicationSamplerImp::update(const geopm_time_s &curr_time)
     {
         if (!m_status || !m_sampler) {
-            throw Exception("ApplicationSamplerImp::" + std::string(__func__) + "(): cannot read process info before connect().",
-                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            return;
         }
         // TODO: temporary until handshake fixed
         m_sampler->check_sample_end();
@@ -286,8 +285,7 @@ namespace geopm
     uint64_t ApplicationSamplerImp::cpu_region_hash(int cpu_idx) const
     {
         if (!m_status) {
-            throw Exception("ApplicationSamplerImp::" + std::string(__func__) + "(): cannot read process info before connect().",
-                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            return GEOPM_REGION_HASH_UNMARKED;
         }
         return m_status->get_hash(cpu_idx);
     }
@@ -295,8 +293,7 @@ namespace geopm
     uint64_t ApplicationSamplerImp::cpu_hint(int cpu_idx) const
     {
         if (!m_status) {
-            throw Exception("ApplicationSamplerImp::" + std::string(__func__) + "(): cannot read process info before connect().",
-                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            return GEOPM_REGION_HINT_INACTIVE;
         }
         return m_status->get_hint(cpu_idx);
     }
@@ -325,8 +322,7 @@ namespace geopm
     double ApplicationSamplerImp::cpu_progress(int cpu_idx) const
     {
         if (!m_status) {
-            throw Exception("ApplicationSamplerImp::" + std::string(__func__) + "(): cannot read process info before connect().",
-                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            return 0;
         }
         return m_status->get_progress_cpu(cpu_idx);
     }
@@ -341,8 +337,7 @@ namespace geopm
 #if 0
         /// @todo code below will work *after* the handshake is complete
         if (!m_status) {
-            throw Exception("ApplicationSamplerImp::" + std::string(__func__) + "(): cannot read process info before connect().",
-                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            return 0;
         }
         std::vector<int> result(m_num_cpu);
         for (int cpu_idx = 0; cpu_idx != m_num_cpu; ++cpu_idx) {

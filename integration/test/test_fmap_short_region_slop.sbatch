@@ -1,5 +1,11 @@
 #!/bin/bash
-#  Copyright (c) 2015 - 2021, Intel Corporation
+#SBATCH -N 1
+#SBATCH -J test_fmap_short_region_slop
+#SBATCH -t 36:00:00
+#SBATCH --reservation fmap_slop
+#SBATCH -o %j.out
+#
+#  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
 #  modification, are permitted provided that the following conditions
@@ -30,34 +36,35 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-err=0
+export OMP_NUM_THREADS=21
+set -x
+hostname
+source $HOME/build/geopm-env.sh
+out_dir_0=$HOME/public_html/$SLURM_JOB_ID/ucore-1.0-2.4
+out_dir_1=$HOME/public_html/$SLURM_JOB_ID/ucore-2.4-2.4
+out_dir_2=$HOME/public_html/$SLURM_JOB_ID/freq-1.6-2.0
+mkdir -p $out_dir_0/data
+mkdir -p $out_dir_1/data
+mkdir -p $out_dir_2/data
 
-test_name=$(basename $0)
-link_dir=$(dirname $0)
-obj_dir=$(readlink -f ${link_dir}/../..)
-lib_path=${obj_dir}/.libs
-exec_path=${obj_dir}/test/.libs
-real_path=$(dirname $(readlink -f $0))
-top_dir=$(readlink -f ${real_path}/..)
-xml_dir=${link_dir}
+# Run full range for CPU and uncore
+python3 ./test_fmap_short_region_slop.py
+mv *.png $out_dir_0
+mv *.report* *.log *.json *trace* $out_dir_0/data
 
-if [[ ${GTEST_XML_DIR} ]]; then
-    xml_dir=${GTEST_XML_DIR}
-fi
+# Fix uncore at max
+max_uncore_freq=$(geopmread MSR::UNCORE_RATIO_LIMIT:MAX_RATIO board 0)
+geopmwrite MSR::UNCORE_RATIO_LIMIT:MIN_RATIO board 0 $max_uncore_freq
 
-export LD_LIBRARY_PATH=${lib_path}:${LD_LIBRARY_PATH}
+# Run full range for CPU and fixed uncore
+python3 ./test_fmap_short_region_slop.py
+mv *.png $out_dir_1
+mv *.report* *.log *.json *trace* $out_dir_1/data
 
-exec_name=geopm_test
-log_file=${link_dir}/${test_name}.log
-${exec_path}/${exec_name} \
-    --gtest_filter=${test_name} \
-    --gtest_output=xml:${xml_dir}/${test_name}.xml >& ${log_file}
-err=$?
+# Run limited range for CPU and fixed uncore
+GEOPM_SLOP_FREQ_MIN=1.6e9 \
+GEOPM_SLOP_FREQ_MAX=2.0e9 \
+python3 ./test_fmap_short_region_slop.py
+mv *.png $out_dir_2
+mv *.report* *.log *.json *trace* $out_dir_2/data
 
-# Parse output log to see if the test actually ran.
-if (grep -Fq "[==========] Running 0 tests" ${log_file}); then
-    echo "ERROR: Test ${test_name} does not exist!"
-    err=1
-fi
-
-exit ${err}

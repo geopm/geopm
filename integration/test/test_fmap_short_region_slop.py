@@ -31,7 +31,7 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-"""EE_SHORT_REGION_SLOP
+"""FMAP_SHORT_REGION_SLOP
 
 Integration test that executes a scaling region and a timed scaling
 region back to back in a loop.  This pattern of execution is repeated
@@ -84,7 +84,7 @@ g_plot_ipc_lim = [0.0, 2.4]
 
 class AppConf(object):
     """Class that is used by the test launcher in place of a
-    geopmpy.io.BenchConf when running the ee_short_region_slop benchmark.
+    geopmpy.io.BenchConf when running the fmap_short_region_slop benchmark.
 
     """
     def write(self):
@@ -99,7 +99,7 @@ class AppConf(object):
 
         """
         script_dir = os.path.dirname(os.path.realpath(__file__))
-        return os.path.join(script_dir, '.libs', 'test_ee_short_region_slop')
+        return os.path.join(script_dir, '.libs', 'test_fmap_short_region_slop')
 
     def get_exec_args(self):
         """Returns a list of strings representing the command line arguments
@@ -111,7 +111,7 @@ class AppConf(object):
         return []
 
 
-class TestIntegration_ee_short_region_slop(unittest.TestCase):
+class TestIntegration_fmap_short_region_slop(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """Create launcher, execute benchmark and set up class variables.
@@ -119,7 +119,7 @@ class TestIntegration_ee_short_region_slop(unittest.TestCase):
         """
         sys.stdout.write('(' + os.path.basename(__file__).split('.')[0] +
                          '.' + cls.__name__ + ') ...')
-        cls._test_name = 'ee_short_region_slop'
+        cls._test_name = 'fmap_short_region_slop'
         cls._report_path_fixed = 'test_{}_fixed.report'.format(cls._test_name)
         cls._report_path_dynamic = 'test_{}_dynamic.report'.format(cls._test_name)
         cls._trace_path_fixed = 'test_{}_fixed.trace'.format(cls._test_name)
@@ -292,18 +292,18 @@ def create_report_trial_df(raw_report, trial_idx, num_duration):
 
     """
     cols = ['count',
-            'package-energy (joules)',
+            'package-energy (J)',
             'requested-online-frequency',
-            'power (watts)',
-            'runtime (sec)',
+            'power (W)',
+            'runtime (s)',
             'frequency (Hz)']
     # Extract data frame for regions
     scaling_data = create_report_region_df(raw_report, cols, 'scaling', num_duration)
     timed_data = create_report_region_df(raw_report, cols, 'timed', num_duration)
-    dur = scaling_data['runtime (sec)'] / scaling_data['count']
-    scaling_data['duration (sec)'] = dur
-    dur = timed_data['runtime (sec)'] / timed_data['count']
-    timed_data['duration (sec)'] = dur
+    dur = scaling_data['runtime (s)'] / scaling_data['count']
+    scaling_data['duration (s)'] = dur
+    dur = timed_data['runtime (s)'] / timed_data['count']
+    timed_data['duration (s)'] = dur
     prof_name = raw_report.meta_data()['Profile']
     scaling_data['profile-name'] = prof_name
     timed_data['profile-name'] = prof_name
@@ -347,9 +347,9 @@ def generate_report_plot(report_df, out_path):
     """
     plt.figure(figsize=(11,16))
     region_names = ['scaling', 'timed']
-    yaxis_names = ['package-energy (joules)',
+    yaxis_names = ['package-energy (J)',
                    'frequency (Hz)',
-                   'runtime (sec)']
+                   'runtime (s)']
     ylim_list = [g_plot_energy_lim,
                  g_plot_freq_lim,
                  g_plot_time_lim]
@@ -358,7 +358,7 @@ def generate_report_plot(report_df, out_path):
         for rn in region_names:
             ax = plt.subplot(3, 2, plot_idx)
             ax.set_xscale('log')
-            generate_report_subplot(report_df, rn, 'duration (sec)', ya)
+            generate_report_subplot(report_df, rn, 'duration (s)', ya)
             plot_idx += 1
         plt.ylim(ylim)
         plt.subplot(3, 2, plot_idx - 2)
@@ -372,7 +372,7 @@ def generate_report_subplot(report_df, region_type, xaxis, yaxis, ylim=None):
 
     """
     for policy_type in ('fixed', 'dynamic'):
-        prof_name = 'ee_short_region_slop-{}'.format(policy_type)
+        prof_name = 'fmap_short_region_slop-{}'.format(policy_type)
         level = ('profile-name', 'region-name')
         key = (prof_name, region_type)
         selected_data = report_df.xs(key=key, level=level).groupby('count')
@@ -393,15 +393,15 @@ def read_trace(path):
        integers.
 
     """
-    converters={'REGION_HASH': lambda xx: int(xx, 16)}
-    skiprows = 0
-    with open(path) as fid:
-        for ll in fid:
-            if ll.startswith('#'):
-                skiprows += 1
-            else:
-                break
-    return pandas.read_csv(path, sep='|', skiprows=skiprows, converters=converters)
+    def convert_hash(region_hash):
+        try:
+            return int(region_hash, 16)
+        except ValueError: # For handling NANs
+            return 0
+
+    trace_output = geopmpy.io.AppOutput(path).get_trace_df()
+    trace_output['REGION_HASH'] = trace_output['REGION_HASH'].apply(convert_hash)
+    return trace_output
 
 
 def get_ipc(trace):
@@ -470,12 +470,12 @@ def generate_trace_overlay_plot(trace, out_path, region_name, region_count):
         plt.subplot(2, 1, 1)
         plt.plot(time.iloc[:-1], ipc.iloc[1:], '.-')
         plt.ylim(g_plot_ipc_lim)
-        plt.xlabel('time since region start (sec)')
+        plt.xlabel('time since region start (s)')
         plt.ylabel('IPC')
         ipc_legend.append('count {}'.format(rc))
         plt.subplot(2, 1, 2)
         plt.plot(time.iloc[:-1], freq.iloc[1:], '.-')
-        plt.xlabel('time since region start (sec)')
+        plt.xlabel('time since region start (s)')
         plt.ylabel('CPU freq (Hz)')
         plt.ylim(g_plot_freq_lim)
         freq_legend.append('count {}'.format(rc))
@@ -502,7 +502,7 @@ def generate_trace_plot(trace, out_path, delta_time, begin_time=0):
             time = selected_trace['TIME']
             plt.plot(time, ydata, '.')
             plt.ylim(ylim)
-            plt.xlabel('time (sec)')
+            plt.xlabel('time (s)')
             plt.ylabel(ylabel)
     plt.savefig(out_path)
     plt.close()

@@ -34,7 +34,7 @@
 import sys
 import geopmdpy.runtime
 import geopmdpy.topo
-
+import geopmpy.reporter
 
 class LocalAgent(geopmdpy.runtime.Agent):
     """Simple example that uses the geopmdpy.runtime module
@@ -47,7 +47,9 @@ class LocalAgent(geopmdpy.runtime.Agent):
 
     """
     def __init__(self):
-        self.run_end()
+        self._loop_idx = 0
+        self._cpu_freq = geopmdpy.pio.read_signal('CPU_FREQUENCY_MAX', 'board', 0)
+        geopmpy.reporter.init()
 
     def get_signals(self):
         result = [("TIME", geopmdpy.topo.DOMAIN_BOARD, 0)]
@@ -67,6 +69,7 @@ class LocalAgent(geopmdpy.runtime.Agent):
     def run_end(self):
         self._loop_idx = 0
         self._cpu_freq = geopmdpy.pio.read_signal('CPU_FREQUENCY_MAX', 'board', 0)
+        self._report = geopmpy.reporter.generate('test_profile_name', 'test_agent')
 
     def update(self, signals):
         if self._loop_idx == 0:
@@ -74,21 +77,14 @@ class LocalAgent(geopmdpy.runtime.Agent):
         self._signals_last = list(signals)
         print(signals)
         self._loop_idx += 1
+        geopmpy.reporter.update()
         return [self._cpu_freq]
 
     def get_period(self):
         return 0.005
 
     def get_report(self):
-        delta = [ee - bb for (bb, ee) in
-                 zip(self._signals_begin,
-                     self._signals_last)]
-        lines = ['', '', f'Total time: {delta[0]}']
-        for pkg, dd in enumerate(delta[1:]):
-            lines.append(f'Total instructions package {pkg}: {dd}')
-        lines.append('')
-        return '\n'.join(lines)
-
+        return self._report
 
 def main():
     """Run the LocalAgent
@@ -104,7 +100,9 @@ def main():
     cpu_frequency_max = float(sys.argv[1])
     agent = LocalAgent()
     controller = geopmdpy.runtime.Controller(agent)
-    print(controller.run(sys.argv[2:], cpu_frequency_max))
+    report = controller.run(sys.argv[2:], cpu_frequency_max)
+    with open('geopm.report', 'w') as fid:
+        fid.write(report)
     return controller.returncode()
 
 if __name__ == '__main__':

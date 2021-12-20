@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-#
 #  Copyright (c) 2015 - 2021, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -31,44 +30,52 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-from __future__ import absolute_import
-
-import unittest
-from importlib import reload
+from time import time
+from time import sleep
+from geopmdpy import pio
 from geopmdpy import topo
-from geopmdpy import gffi
 
-class TestTopo(unittest.TestCase):
-    def setUp(self):
-        reload(gffi)
-        reload(topo) # Ensures that the mocked dlopen call does not leak into this test
 
-    def test_num_domain(self):
-        num_cpu_str = topo.num_domain("cpu")
-        self.assertLess(0, num_cpu_str)
-        num_cpu_int = topo.num_domain(topo.DOMAIN_CPU)
-        self.assertEqual(num_cpu_str, num_cpu_int)
+def get_all_msrs():
+    return [nn for nn in pio.signal_names()
+            if nn.startswith('MSR::') and
+            pio.signal_domain_type(nn) == topo.domain_type('core')]
 
-    def test_domain_domain_nested(self):
-        num_cpu = topo.num_domain("cpu")
-        num_pkg = topo.num_domain("package")
-        pkg_cpu_map = [[] for pkg_idx in range(num_pkg)]
-        for cpu_idx in range(num_cpu):
-            pkg_idx_str = topo.domain_idx("package", cpu_idx)
-            pkg_idx_int = topo.domain_idx(topo.DOMAIN_PACKAGE, cpu_idx)
-            self.assertEqual(pkg_idx_int, pkg_idx_str)
-            pkg_cpu_map[pkg_idx_str].append(cpu_idx)
-        for pkg_idx in range(num_pkg):
-            self.assertEqual(pkg_cpu_map[pkg_idx], topo.domain_nested('cpu', 'package', pkg_idx))
-            self.assertEqual(pkg_cpu_map[pkg_idx], topo.domain_nested(topo.DOMAIN_CPU, topo.DOMAIN_PACKAGE, pkg_idx))
+def get_signals(signal_idx):
+    result = []
+    for idx in signal_idx:
+        result.append(pio.sample(idx))
+    return result
 
-    def test_domain_name_type(self):
-        self.assertEqual('cpu', topo.domain_name(topo.DOMAIN_CPU))
-        self.assertEqual(topo.DOMAIN_CPU, topo.domain_type('cpu'))
-        with self.assertRaises(RuntimeError):
-            topo.num_domain('non-domain')
-        with self.assertRaises(RuntimeError):
-            topo.num_domain(100)
+
+def push_msrs(all_msrs):
+    signal_idx = []
+    for cc in range(topo.num_domain('core')):
+        for msr in all_msrs:
+            idx = pio.push_signal('SERVICE::' + msr, 'core', cc)
+            signal_idx.append(idx)
+    return signal_idx
+
+def main():
+    ta = time()
+    all_msrs = get_all_msrs()
+    tb = time()
+    print(f'pio.signal_names(): {tb - ta} sec')
+    ta = time()
+    signal_idx = push_msrs(all_msrs)
+    tb = time()
+    print(f'pio.push_signal(): {tb - ta} sec')
+    for trial in range(3):
+        print(f'Trial {trial}')
+        ta = time()
+        pio.read_batch()
+        tb = time()
+        print(f'pio.read_batch(): {tb - ta} sec')
+        ta = time()
+        signal = get_signals(signal_idx)
+        tb = time()
+        print(f'pio.sample(): {tb - ta} sec')
+        sleep(0.05)
 
 if __name__ == '__main__':
-    unittest.main()
+    main()

@@ -116,49 +116,22 @@ class TestController(unittest.TestCase):
         period = 42
 
         argv = 'data'
-        with mock.patch('geopmdpy.pio.push_signal', side_effect = itertools.count()) as pps, \
-             mock.patch('geopmdpy.pio.push_control', side_effect = itertools.count()) as ppc, \
-             mock.patch('geopmdpy.pio.save_control') as psc, \
-             mock.patch('geopmdpy.topo.num_domain', return_value=1) as pnd:
+        with mock.patch('geopmdpy.topo.num_domain', return_value=1) as pnd:
             pa = PassthroughAgent(signals, controls, period)
             con = Controller(pa) # No timeout
 
-            psc.assert_called_once()
             self.assertIs(pa, con._agent)
-            self.assertEqual(signals, con._signals)
-            self.assertEqual(controls, con._controls)
-            self.assertEqual(list(range(len(signals))), con._signals_idx)
-            self.assertEqual(list(range(len(controls))), con._controls_idx)
             self.assertEqual(period, con._update_period)
             self.assertIsNone(con._num_update)
             self.assertIsNone(con._returncode)
 
-            calls = [mock.call(*cc) for cc in signals]
-            pps.assert_has_calls(calls)
-            calls = [mock.call(*cc) for cc in controls]
-            ppc.assert_has_calls(calls)
-
         # Again, with timeout, same expectations otherwise
         timeout = 10
-        with mock.patch('geopmdpy.pio.push_signal', side_effect = itertools.count()) as pps, \
-             mock.patch('geopmdpy.pio.push_control', side_effect = itertools.count()) as ppc, \
-             mock.patch('geopmdpy.pio.save_control') as psc:
-            con = Controller(pa, timeout)
-
-            psc.assert_called_once()
-            self.assertIs(pa, con._agent)
-            self.assertEqual(signals, con._signals)
-            self.assertEqual(controls, con._controls)
-            self.assertEqual(list(range(len(signals))), con._signals_idx)
-            self.assertEqual(list(range(len(controls))), con._controls_idx)
-            self.assertEqual(period, con._update_period)
-            self.assertEqual(math.ceil(timeout / period), con._num_update)
-            self.assertIsNone(con._returncode)
-
-            calls = [mock.call(*cc) for cc in signals]
-            pps.assert_has_calls(calls)
-            calls = [mock.call(*cc) for cc in controls]
-            ppc.assert_has_calls(calls)
+        con = Controller(pa, timeout)
+        self.assertIs(pa, con._agent)
+        self.assertEqual(period, con._update_period)
+        self.assertEqual(math.ceil(timeout / period), con._num_update)
+        self.assertIsNone(con._returncode)
 
     def _controller_run_helper(self, return_code = None, subprocess_error = False):
         signals = [('power', 1, 2), ('energy', 3, 4)]
@@ -181,8 +154,6 @@ class TestController(unittest.TestCase):
              mock.patch('subprocess.Popen') as sp:
 
             con = Controller(pa)
-            psc.assert_called_once()
-            self.assertEqual(list(range(len(signals))), con.read_all_signals())
 
             sp().poll.return_value = return_code
             sp().returncode = return_code
@@ -192,8 +163,10 @@ class TestController(unittest.TestCase):
                 sp.side_effect = RuntimeError(sp_err_msg)
                 with self.assertRaisesRegex(RuntimeError, sp_err_msg):
                     con.run(argv)
+                psc.assert_called_once()
             else:
                 result = con.run(argv)
+                psc.assert_called_once()
 
                 calls = [mock.call(argv)] + [mock.call().poll()] * loops
                 sp.assert_has_calls(calls)

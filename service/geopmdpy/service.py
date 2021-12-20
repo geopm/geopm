@@ -36,6 +36,7 @@ exposed by geopmd."""
 
 from __future__ import absolute_import
 import os
+import sys
 import pwd
 import grp
 import json
@@ -55,6 +56,94 @@ except ImportError as ee:
     https://github.com/rhinstaller/dasbus/pull/57'''
     raise ImportError(err_msg) from ee
 
+
+GEOPM_SERVICE_VAR_PATH = '/var/run/geopm-service'
+
+class ActiveSessions(object):
+    def __init__(self):
+        self._sessions = dict()
+        self._VAR_PATH = GEOPM_SERVICE_VAR_PATH
+
+    def is_client_active(self, client_pid):
+        result = client_pid in self._sessions
+        session_file = self._get_session_file(client_pid)
+        if not result and os.path.isfile(session_file):
+            raise RuntimeError(f'Session file exists, but client {client_pid} is not tracked: {session_file}')
+        return result
+
+    def check_client_active(self, client_pid, msg=''):
+        if not self.is_client_active(client_pid):
+            raise RuntimeError(f"Operation '{msg}' not allowed without an open session. Client PID: {client_pid}")
+
+    def add_client(self, client_pid, signals, controls, watch_id):
+        if self.is_client_active(client_pid):
+            return
+        session_data = {'client_pid': client_pid,
+                        'mode': 'r',
+                        'signals': list(signals),
+                        'controls': list(controls),
+                        'watch_id': watch_id,
+                        'batch_server': None}
+        self._sessions[client_pid] = session_data
+        self._update_session_file(client_pid)
+
+    def remove_client(self, client_pid):
+        self.check_client_active(client_pid, 'remove_client')
+        session_file = self._get_session_file(client_pid)
+        os.remove(session_file)
+        self._sessions.pop(client_pid)
+
+    def get_clients(self):
+        return list(self._sessions.keys())
+
+    def get_mode(self, client_pid):
+        self.check_client_active(client_pid, 'get_mode')
+        return self._sessions[client_pid]['mode']
+
+    def get_signals(self, client_pid):
+        self.check_client_active(client_pid, 'get_signals')
+        return self._sessions[client_pid]['signals']
+
+    def get_controls(self, client_pid):
+        self.check_client_active(client_pid, 'get_controls')
+        return self._sessions[client_pid]['controls']
+
+    def get_watch_id(self, client_pid):
+        self.check_client_active(client_pid, 'get_watch_id')
+        return self._sessions[client_pid]['watch_id']
+
+    def get_batch_server(self, client_pid):
+        self.check_client_active(client_pid, 'get_batch_server')
+        return self._sessions[client_pid]['batch_server']
+
+    def set_write_client(self, client_pid):
+        self.check_client_active(client_pid, 'set_write_client')
+        self._sessions[client_pid]['mode'] = 'rw'
+        self._update_session_file(client_pid)
+
+    def set_batch_server(self, client_pid, batch_pid):
+        self.check_client_active(client_pid, 'set_batch_server')
+        current_server = self._sessions[client_pid]['batch_server']
+        if current_server is not None:
+            raise RuntimeError(f'Client {client_pid} has already started a batch server: {current_server}')
+        self._sessions[client_pid]['batch_server'] = batch_pid
+        self._update_session_file(client_pid)
+
+    def remove_batch_server(self, client_pid):
+        self.check_client_active(client_pid, 'remove_batch_server')
+        self._sessions[client_pid]['batch_server'] = None
+        self._update_session_file(client_pid)
+
+    def _get_session_file(self, client_pid):
+        return os.path.join(self._VAR_PATH, 'session-{}.json'.format(client_pid))
+
+    def _update_session_file(self, client_pid):
+        session_file = self._get_session_file(client_pid)
+        os.makedirs(self._VAR_PATH, exist_ok=True)
+        with open(session_file, 'w') as fid:
+            json.dump(self._sessions[client_pid], fid)
+
+
 class PlatformService(object):
     """Provides the concrete implementation for all of the GEOPM DBus
     interfaces that use PlatformIO.  This class is used by the
@@ -67,14 +156,14 @@ class PlatformService(object):
 
         """
         self._pio = pio
+        self._VAR_PATH = GEOPM_SERVICE_VAR_PATH
         self._CONFIG_PATH = '/etc/geopm-service'
-        self._VAR_PATH = '/var/run/geopm-service'
         self._ALL_GROUPS = [gg.gr_name for gg in grp.getgrall()]
         self._DEFAULT_ACCESS = '0.DEFAULT_ACCESS'
         self._SAVE_DIR = 'SAVE_FILES'
         self._WATCH_INTERVAL_MSEC = 1000
         self._write_pid = None
-        self._sessions = dict()
+        self._active_sessions = ActiveSessions()
 
     def get_group_access(self, group):
         """Get the signals and controls in the allowed lists.
@@ -374,20 +463,11 @@ class PlatformService(object):
                               the session.
 
         """
+        if self._active_sessions.is_client_active(client_pid):
+            return
         signals, controls = self.get_user_access(user)
-        os.makedirs(self._VAR_PATH, exist_ok=True)
-        session_file = self._get_session_file(client_pid)
-        if os.path.isfile(session_file):
-            raise RuntimeError('Session file for connecting process already exists: {}'.format(session_file))
         watch_id = self._watch_client(client_pid)
-        session_data = {'client_pid': client_pid,
-                        'mode': 'r',
-                        'signals': signals,
-                        'controls': controls,
-                        'watch_id': watch_id}
-        self._sessions[client_pid] = session_data
-        with open(session_file, 'w') as fid:
-            json.dump(session_data, fid)
+        self._active_sessions.add_client(client_pid, signals, controls, watch_id)
 
     def close_session(self, client_pid):
         """Close an active session for the client process.
@@ -416,16 +496,20 @@ class PlatformService(object):
             client_pid (int): Linux PID of the client thread
 
         """
-        session = self._get_session(client_pid, 'PlatformCloseSession')
+        self._active_sessions.check_client_active(client_pid, 'PlatformCloseSession')
+        batch_pid = self._active_sessions.get_batch_server(client_pid)
+        if batch_pid is not None:
+            try:
+                self._pio.stop_batch_server(batch_pid)
+            except ex:
+                sys.stderr.write(f'Failed to stop batch server {batch_pid}: {ex}')
         if client_pid == self._write_pid:
             save_dir = os.path.join(self._VAR_PATH, self._SAVE_DIR)
             self._pio.restore_control() # TODO Make this call restore_control_dir()
             shutil.rmtree(save_dir)
             self._write_pid = None
-        GLib.source_remove(session['watch_id'])
-        self._sessions.pop(client_pid)
-        session_file = self._get_session_file(client_pid)
-        os.remove(session_file)
+        GLib.source_remove(self._active_sessions.get_watch_id(client_pid))
+        self._active_sessions.remove_client(client_pid)
 
     def start_batch(self, client_pid, signal_config, control_config):
         """Start a batch server to support a client session.
@@ -483,18 +567,25 @@ class PlatformService(object):
                                   inter-process shared memory.
 
         """
-        session = self._get_session(client_pid, 'PlatformStartBatch')
+        self._active_sessions.check_client_active(client_pid, 'PlatformStartBatch')
         sig_req = {cc[2] for cc in signal_config}
         cont_req = {cc[2] for cc in control_config}
-        if not sig_req.issubset(session['signals']):
+        supported_signals = self._active_sessions.get_signals(client_pid)
+        supported_controls = self._active_sessions.get_controls(client_pid)
+        if not sig_req.issubset(supported_signals):
             raise RuntimeError('Requested signals that are not in allowed list: {}' \
-                               .format(sorted(sig_req.difference(session['signals']))))
-        elif not cont_req.issubset(session['controls']):
+                               .format(sorted(sig_req.difference(supported_signals))))
+        elif not cont_req.issubset(supported_controls):
             raise RuntimeError('Requested controls that are not in allowed list: {}' \
-                               .format(sorted(cont_req.difference(session['controls']))))
+                               .format(sorted(cont_req.difference(supported_controls))))
         if len(control_config) != 0:
             self._write_mode(client_pid)
-        return self._pio.start_batch_server(client_pid, signal_config, control_config)
+        batch_pid = self._active_sessions.get_batch_server(client_pid)
+        if batch_pid is not None:
+            raise RuntimeError(f'Client {client_pid} has already started a batch server: {batch_pid}')
+        batch_pid , batch_key = self._pio.start_batch_server(client_pid, signal_config, control_config)
+        self._active_sessions.set_batch_server(client_pid, batch_pid)
+        return batch_pid, batch_key
 
     def stop_batch(self, client_pid, server_pid):
         """End a batch server previously started by the client.
@@ -519,7 +610,10 @@ class PlatformService(object):
                               start_batch().
 
         """
-        _ = self._get_session(client_pid, 'StopBatch')
+        self._active_sessions.check_client_active(client_pid, 'StopBatch')
+        actual_server_pid = self._active_sessions.get_batch_server(client_pid)
+        if server_pid != actual_server_pid:
+            raise RuntimeError(f'Client PID: {client_pid} requested to stop batch server PID: {server_pid}, actual batch server PID: {actual_server_pid}')
         self._pio.stop_batch_server(server_pid)
 
     def read_signal(self, client_pid, signal_name, domain, domain_idx):
@@ -552,8 +646,9 @@ class PlatformService(object):
             (float): The value of the signal in SI units.
 
         """
-        session = self._get_session(client_pid, 'PlatformReadSignal')
-        if not signal_name in session['signals']:
+        self._active_sessions.check_client_active(client_pid, 'PlatformReadSignal')
+        signal_avail = self._active_sessions.get_signals(client_pid)
+        if not signal_name in signal_avail:
             raise RuntimeError('Requested signal that is not in allowed list: {}'.format(signal_name))
         return self._pio.read_signal(signal_name, domain, domain_idx)
 
@@ -590,8 +685,11 @@ class PlatformService(object):
             setting (float): Value of the control to be written.
 
         """
-        session = self._get_session(client_pid, 'PlatformWriteControl')
-        if not control_name in session['controls']:
+
+
+        self._active_sessions.check_client_active(client_pid, 'PlatformWriteControl')
+        control_avail = self._active_sessions.get_controls(client_pid)
+        if not control_name in control_avail:
             raise RuntimeError('Requested control that is not in allowed list: {}'.format(control_name))
         self._write_mode(client_pid)
         self._pio.write_control(control_name, domain, domain_idx, setting)
@@ -652,25 +750,26 @@ class PlatformService(object):
         all_gid = os.getgrouplist(user, user_gid)
         return [grp.getgrgid(gid).gr_name for gid in all_gid]
 
-    def _get_session(self, client_pid, operation):
-        try:
-            session = self._sessions[client_pid]
-        except KeyError:
-            raise RuntimeError("Operation '{}' not allowed without an open session".format(operation))
-        return session
-
-    def _get_session_file(self, client_pid):
-        return os.path.join(self._VAR_PATH, 'session-{}.json'.format(client_pid))
-
     def _write_mode(self, client_pid):
-        if self._sessions[client_pid]['mode'] != 'rw':
+        client_sid = os.getsid(client_pid)
+        # If the session leader is an active process then tie the write lock
+        # to the session leader, otherwise the write lock is associated with
+        # the requesting process.
+        if psutil.pid_exists(client_sid):
+            write_pid = client_sid
+        else:
+            write_pid = client_pid
+        if self._write_pid != write_pid:
             if self._write_pid is not None:
-                raise RuntimeError('The geopm service already has a connected "rw" mode client')
-            session_file = self._get_session_file(client_pid)
-            self._sessions[client_pid]['mode'] = 'rw'
-            with open(session_file, 'w') as fid:
-                json.dump(self._sessions[client_pid], fid)
-            self._write_pid = client_pid
+                raise RuntimeError(f'The PID {client_pid} requested write access, but the geopm service already has write mode client with PID or SID of {self._write_pid}')
+            if write_pid != client_pid:
+                # If the write lock is associated with the session leader
+                # process, then open a session for the session leader
+                session_uid = os.stat(f'/proc/{write_pid}/status').st_uid
+                session_user = pwd.getpwuid(session_uid).pw_name
+                self.open_session(session_user, write_pid)
+            self._active_sessions.set_write_client(write_pid)
+            self._write_pid = write_pid
             save_dir = os.path.join(self._VAR_PATH, self._SAVE_DIR)
             os.makedirs(save_dir)
             # TODO: Will need to save to disk in order to support
@@ -681,7 +780,7 @@ class PlatformService(object):
         return GLib.timeout_add(self._WATCH_INTERVAL_MSEC, self.check_client, client_pid)
 
     def check_client(self, client_pid):
-        if client_pid in self._sessions and not psutil.pid_exists(client_pid):
+        if client_pid in self._active_sessions.get_clients() and not psutil.pid_exists(client_pid):
             self.close_session(client_pid)
             return False
         return True
@@ -741,7 +840,6 @@ class GEOPMService(object):
                  platform=PlatformService()):
         self._topo = topo
         self._platform = platform
-        self._write_pid = None
         self._dbus_proxy = SystemMessageBus().get_proxy('org.freedesktop.DBus',
                                                         '/org/freedesktop/DBus')
 

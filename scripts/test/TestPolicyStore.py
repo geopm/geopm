@@ -43,16 +43,18 @@ except ImportError:
 
 mock_c = mock.MagicMock()
 import geopmpy.policy_store
-
+import geopmdpy.gffi
 
 class TestPolicyStore(unittest.TestCase):
     def setUp(self):
         mock_c.reset_mock()
         with mock.patch('cffi.FFI.dlopen', return_value=mock_c):
+            reload(geopmdpy.gffi)
             reload(geopmpy.policy_store)
 
     def tearDown(self):
         # Reset the mocked interface for other tests
+        reload(geopmdpy.gffi)
         reload(geopmpy.policy_store)
 
     def test_connect(self):

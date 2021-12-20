@@ -30,37 +30,24 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MOCKREPORTER_HPP_INCLUDE
-#define MOCKREPORTER_HPP_INCLUDE
+#ifndef GEOPM_REPORTER_H_INCLUDE
+#define GEOPM_REPORTER_H_INCLUDE
 
-#include "gmock/gmock.h"
+#include <cstdlib>
 
-#include "ApplicationIO.hpp"
-#include "Comm.hpp"
-#include "Reporter.hpp"
-#include "TreeComm.hpp"
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-class MockReporter : public geopm::Reporter
-{
-    public:
-        MOCK_METHOD(void, init, (), (override));
-        MOCK_METHOD(void, update, (), (override));
-        MOCK_METHOD(void, generate,
-                    (const std::string &agent_name,
-                     (const std::vector<std::pair<std::string, std::string> > &agent_report_header),
-                     (const std::vector<std::pair<std::string, std::string> > &agent_host_report),
-                     (const std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > &agent_region_report),
-                     const geopm::ApplicationIO &application_io,
-                     std::shared_ptr<geopm::Comm> comm,
-                     const geopm::TreeComm &tree_comm),
-                    (override));
-        MOCK_METHOD(std::string, generate,
-                    (const std::string &profile_name,
-                     const std::string &agent_name,
-                     (const std::vector<std::pair<std::string, std::string> > &agent_report_header),
-                     (const std::vector<std::pair<std::string, std::string> > &agent_host_report),
-                     (const std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > &agent_region_report)),
-                    (override));
-};
 
+int geopm_reporter_init(void);
+int geopm_reporter_update(void);
+int geopm_reporter_generate(const char *profile_name,
+                            const char *agent_name,
+                            size_t result_max,
+                            char *result);
+
+#ifdef __cplusplus
+}
+#endif
 #endif

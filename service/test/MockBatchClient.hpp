@@ -30,37 +30,18 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MOCKREPORTER_HPP_INCLUDE
-#define MOCKREPORTER_HPP_INCLUDE
+#ifndef MOCKSBATCHCLIENT_HPP_INCLUDE
+#define MOCKSBATCHCLIENT_HPP_INCLUDE
 
 #include "gmock/gmock.h"
 
-#include "ApplicationIO.hpp"
-#include "Comm.hpp"
-#include "Reporter.hpp"
-#include "TreeComm.hpp"
+#include "BatchClient.hpp"
 
-class MockReporter : public geopm::Reporter
-{
+class MockBatchClient : public geopm::BatchClient {
     public:
-        MOCK_METHOD(void, init, (), (override));
-        MOCK_METHOD(void, update, (), (override));
-        MOCK_METHOD(void, generate,
-                    (const std::string &agent_name,
-                     (const std::vector<std::pair<std::string, std::string> > &agent_report_header),
-                     (const std::vector<std::pair<std::string, std::string> > &agent_host_report),
-                     (const std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > &agent_region_report),
-                     const geopm::ApplicationIO &application_io,
-                     std::shared_ptr<geopm::Comm> comm,
-                     const geopm::TreeComm &tree_comm),
-                    (override));
-        MOCK_METHOD(std::string, generate,
-                    (const std::string &profile_name,
-                     const std::string &agent_name,
-                     (const std::vector<std::pair<std::string, std::string> > &agent_report_header),
-                     (const std::vector<std::pair<std::string, std::string> > &agent_host_report),
-                     (const std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > &agent_region_report)),
-                    (override));
+        MOCK_METHOD(std::vector<double>, read_batch, (), (override));
+        MOCK_METHOD(void, write_batch, (std::vector<double> settings), (override));
+        MOCK_METHOD(void, stop_batch, (), (override));
 };
 
 #endif

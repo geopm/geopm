@@ -129,7 +129,7 @@ int geopm_pio_signal_info(const char *signal_name,
 
 struct geopm_request_s;
 
-// Call through to DBusServer::start_batch()
+// Call through to BatchServer::start_batch()
 int geopm_pio_start_batch_server(int client_pid,
                                  int num_signal,
                                  const struct geopm_request_s *signal_config,
@@ -139,7 +139,7 @@ int geopm_pio_start_batch_server(int client_pid,
                                  int key_size,
                                  char *server_key);
 
-// Call through to DBusServer::stop_batch()
+// Call through to BatchServer::stop_batch()
 int geopm_pio_stop_batch_server(int server_pid);
 
 int geopm_pio_format_signal(double signal,
