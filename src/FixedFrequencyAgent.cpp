@@ -60,12 +60,7 @@ namespace geopm
         , M_WAIT_SEC(0.05) // 50mS wait
         , m_do_write_batch(false)
         , m_is_adjust_initialized(false)
-        , m_signal_available({{"FREQUENCY_ACCELERATOR", {}},
-                              {"POWER_ACCELERATOR", {}},
-                              {"NVML::TOTAL_ENERGY_CONSUMPTION", {}},
-                              {"MSR::UNCORE_PERF_STATUS:FREQ", {}},
-                              {"FREQUENCY", {}},
-    					     })
+	, m_signal_available({})
         , m_control_available({{"FREQUENCY_ACCELERATOR_CONTROL", {}},
                                {"CPU_FREQUENCY_CONTROL", {}},
                                {"MSR::UNCORE_RATIO_LIMIT:MIN_RATIO", {}},
