@@ -60,6 +60,7 @@ using ::testing::Invoke;
 using ::testing::Sequence;
 using ::testing::Return;
 using ::testing::AtLeast;
+using ::testing::AnyNumber;
 using geopm::FixedFrequencyAgent;
 using geopm::PlatformTopo;
 
@@ -67,7 +68,6 @@ class FixedFrequencyAgentTest : public :: testing :: Test
 {
     protected:
       enum mock_pio_idx_e {
-           FREQUENCY_ACCELERATOR_IDX,
 	   FREQUENCY_ACCELERATOR_CONTROL_IDX,
            FREQ_CONTROL_IDX,
            UNCORE_MIN_CTL_IDX,
@@ -108,11 +108,11 @@ void FixedFrequencyAgentTest::SetUp()
     ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR))
         .WillByDefault(Return(M_NUM_BOARD_ACCELERATOR));
 
-    ON_CALL(*m_platform_io, push_signal("FREQUENCY_ACCELERATOR", _, _))
-        .WillByDefault(Return(FREQUENCY_ACCELERATOR_IDX));
     ON_CALL(*m_platform_io, push_control("FREQUENCY_ACCELERATOR_CONTROL", _, _))
         .WillByDefault(Return(FREQUENCY_ACCELERATOR_CONTROL_IDX));
     ON_CALL(*m_platform_io, push_control("FREQUENCY", _, _))
+        .WillByDefault(Return(FREQ_CONTROL_IDX));
+    ON_CALL(*m_platform_io, push_control("CPU_FREQUENCY_CONTROL", _, _))
         .WillByDefault(Return(FREQ_CONTROL_IDX));
     ON_CALL(*m_platform_io, push_control("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO", _, _))
         .WillByDefault(Return(UNCORE_MIN_CTL_IDX));
@@ -137,8 +137,7 @@ void FixedFrequencyAgentTest::SetUp()
     m_freq_max = 2200000000.0;
     m_freq_uncore_min = 1700000000;
     m_freq_uncore_max = 2100000000;
-    ON_CALL(*m_platform_io, control_domain_type("FREQUENCY"))
-      .WillByDefault(Return(GEOPM_DOMAIN_BOARD));
+
     ON_CALL(*m_platform_io, read_signal("FREQUENCY_MIN", GEOPM_DOMAIN_BOARD, 0))
       .WillByDefault(Return(m_freq_min));
     ON_CALL(*m_platform_io, read_signal("FREQUENCY_MAX", GEOPM_DOMAIN_BOARD, 0))
@@ -177,6 +176,16 @@ TEST_F(FixedFrequencyAgentTest, validate_policy)
 {
     const std::vector<double> empty(m_num_policy, NAN);
     std::vector<double> policy;
+
+    EXPECT_CALL(*m_platform_io, read_signal("NVML::FREQUENCY_MIN", _, _)).WillRepeatedly(
+                Return(m_freq_accelerator_min));
+    EXPECT_CALL(*m_platform_io, read_signal("NVML::FREQUENCY_MAX", _, _)).WillRepeatedly(
+                Return(m_freq_accelerator_max));
+    EXPECT_CALL(*m_platform_io, read_signal("FREQUENCY_MIN", _, _)).WillRepeatedly(
+                Return(m_freq_min));
+    EXPECT_CALL(*m_platform_io, read_signal("FREQUENCY_MAX", _, _)).WillRepeatedly(
+                Return(m_freq_max));
+
 
     // default policy is accepted
     // load default policy
@@ -226,25 +235,28 @@ TEST_F(FixedFrequencyAgentTest, validate_policy)
 
 TEST_F(FixedFrequencyAgentTest, adjust_platform)
 {
+    EXPECT_CALL(*m_platform_io, read_signal("NVML::FREQUENCY_MIN", _, _)).WillRepeatedly(
+                Return(m_freq_accelerator_min));
     EXPECT_CALL(*m_platform_io, read_signal("NVML::FREQUENCY_MAX", _, _)).WillRepeatedly(
                 Return(m_freq_accelerator_max));
     EXPECT_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_BOARD)).WillRepeatedly(Return(M_NUM_BOARD));
-    EXPECT_CALL(*m_platform_io, read_signal("MSR::PERF_CTL:FREQ", _, _))
-      .WillOnce(Return(m_freq_max));
-    EXPECT_CALL(*m_platform_io, adjust(FREQ_CONTROL_IDX, m_freq_max));
-    EXPECT_CALL(*m_platform_io, adjust(UNCORE_MIN_CTL_IDX, m_freq_uncore_min));
-    EXPECT_CALL(*m_platform_io, adjust(UNCORE_MAX_CTL_IDX, m_freq_uncore_max));
+    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_CONTROL", _, _)).WillRepeatedly(Return(m_freq_max));
+											  
+    EXPECT_CALL(*m_platform_io, adjust(FREQUENCY_ACCELERATOR_CONTROL_IDX, m_freq_accelerator_max)).Times(AnyNumber());
+    EXPECT_CALL(*m_platform_io, read_signal("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO", _, _)).WillRepeatedly(Return(m_freq_uncore_min));
+    EXPECT_CALL(*m_platform_io, read_signal("MSR::UNCORE_RATIO_LIMIT:MAX_RATIO", _, _)).WillRepeatedly(Return(m_freq_uncore_max));
+    EXPECT_CALL(*m_platform_io, adjust(FREQ_CONTROL_IDX, m_freq_max)).Times(AnyNumber());
+    EXPECT_CALL(*m_platform_io, adjust(UNCORE_MIN_CTL_IDX, m_freq_uncore_min)).Times(AnyNumber());
+    EXPECT_CALL(*m_platform_io, adjust(UNCORE_MAX_CTL_IDX, m_freq_uncore_max)).Times(AnyNumber());
 
     const std::vector<double> empty(m_num_policy, NAN);
     std::vector<double> policy;
 
     policy = empty;
-    m_agent->validate_policy(policy);
     m_agent->adjust_platform(policy);
     EXPECT_TRUE(m_agent->do_write_batch());
 
     policy = m_default_policy;
-    m_agent->validate_policy(policy);
     m_agent->adjust_platform(policy);
     EXPECT_TRUE(m_agent->do_write_batch());
     
