@@ -780,6 +780,8 @@ class RawReport(object):
         return list(self._raw_dict['Hosts'].keys())
 
     def region_names(self, host_name):
+        if self._raw_dict['Hosts'][host_name]['Regions'] == None:
+            return []
         return [rr['region'] for rr in self._raw_dict['Hosts'][host_name]['Regions']]
 
     def raw_region(self, host_name, region_name):
@@ -889,8 +891,11 @@ class RawReportCollection(object):
             try:
                 if verbose:
                     sys.stdout.write('Attempting to read {}...\n'.format(self._report_h5_name))
-                # load dataframes from cache
-                self._reports_df = pandas.read_hdf(self._report_h5_name, 'report')
+                # load dataframes from cache -- if fails maybe because there are no regions
+                try:
+                    self._reports_df = pandas.read_hdf(self._report_h5_name, 'report')
+                except:
+                    self._reports_df = pandas.DataFrame()
                 self._app_reports_df = pandas.read_hdf(self._report_h5_name, 'app_report')
                 # temporary workaround since old format cache is missing unmarked_data
                 try:
@@ -1065,9 +1070,12 @@ class RawReportCollection(object):
                 app_row.update(app_data)
                 app_df_list.append(pandas.DataFrame(app_row, index=[0]))
         # reorder the columns to order of first appearance
-        df = pandas.concat(region_df_list, ignore_index=True)
-        df = df.reindex(columns=self._columns_order['region'])
-        self._reports_df = df
+        try:
+            df = pandas.concat(region_df_list, ignore_index=True)
+            df = df.reindex(columns=self._columns_order['region'])
+            self._reports_df = df
+        except:
+            pass
         unmarked_df = pandas.concat(unmarked_df_list, ignore_index=True)
         unmarked_df = unmarked_df.reindex(columns=self._columns_order['unmarked'])
         self._unmarked_reports_df = unmarked_df
