@@ -41,13 +41,12 @@ import subprocess
 import io
 import json
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-import geopm_context
 import geopmpy.io
-import util
 import geopmdpy.topo
 import geopmdpy.pio
-import geopm_test_launcher
+
+from integration.test import geopm_test_launcher
+from integration.test import util
 
 
 def getSystemConfig():

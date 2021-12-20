@@ -57,16 +57,15 @@ import unittest
 import os
 import glob
 
-import geopm_context
 import geopmpy.io
 import geopmpy.agent
 import geopmdpy.error
 
-import util
+from integration.test import util
 if util.do_launch():
     # Note: this import may be moved outside of do_launch if needed to run
     # commands on compute nodes such as geopm_test_launcher.geopmread
-    import geopm_test_launcher
+    from integration.test import geopm_test_launcher
 
 
 class AppConf(object):

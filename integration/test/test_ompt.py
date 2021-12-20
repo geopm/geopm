@@ -34,13 +34,11 @@ import sys
 import unittest
 import os
 
-
-from integration.test import geopm_context
 import geopmpy.io
 import geopmpy.agent
 import geopmdpy.error
-import util
-import geopm_test_launcher
+from integration.test import util
+from integration.test import geopm_test_launcher
 
 
 @util.skip_unless_config_enable('ompt')

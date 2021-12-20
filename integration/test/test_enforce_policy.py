@@ -40,11 +40,10 @@ import subprocess
 import io
 import json
 
-import geopm_context
 import geopmpy.agent
-import geopm_test_launcher
-import util
 import geopmdpy.topo
+from integration.test import geopm_test_launcher
+from integration.test import util
 
 
 @util.skip_unless_msr_access('Skipped pending resolution of issue #2017.')

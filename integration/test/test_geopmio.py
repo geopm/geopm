@@ -40,9 +40,8 @@ import time
 import signal
 from contextlib import contextmanager
 
-import geopm_context
-import geopm_test_launcher
-import util
+from integration.test import geopm_test_launcher
+from integration.test import util
 
 
 @util.skip_unless_do_launch()

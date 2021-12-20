@@ -40,13 +40,11 @@ import sys
 import unittest
 import os
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-from integration.test import geopm_context
 import geopmpy.io
 import geopmpy.agent
 import geopmdpy.error
-import util
-import geopm_test_launcher
+from integration.test import util
+from integration.test import geopm_test_launcher
 
 
 class TestIntegration_monitor(unittest.TestCase):

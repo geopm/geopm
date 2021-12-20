@@ -31,18 +31,12 @@
 
 EXTRA_DIST += integration/test/check_trace.py \
               integration/test/configure_test_template.sh \
-              integration/test/geopm_context.py \
               integration/test/geopm_test_launcher.py \
               integration/test/geopm_test_loop.sh \
               integration/test/__init__.py \
-              integration/test/__main__.py \
               integration/test/README.md \
               integration/test/short_region/plot_margin_sweep.py \
-              integration/test/test_controller.py \
-              integration/test/test_controller.sh \
               integration/test/test_plugin_static_policy.py \
-              integration/test/test_reporter.py \
-              integration/test/test_reporter.cpp \
               integration/test/test_template.cpp.in \
               integration/test/test_template.mk.in \
               integration/test/test_template.py.in \
@@ -50,7 +44,6 @@ EXTRA_DIST += integration/test/check_trace.py \
               # end
 
 include integration/test/test_ee_timed_scaling_mix.mk
-include integration/test/test_fmap_short_region_slop.mk
 include integration/test/test_enforce_policy.mk
 include integration/test/test_omp_outer_loop.mk
 include integration/test/test_profile_policy.mk
@@ -58,7 +51,6 @@ include integration/test/test_scaling_region.mk
 include integration/test/test_timed_scaling_region.mk
 include integration/test/test_tutorial_base.mk
 include integration/test/test_frequency_hint_usage.mk
-include integration/test/test_epoch_inference.mk
 include integration/test/test_power_balancer.mk
 include integration/test/test_profile_overflow.mk
 include integration/test/test_trace.mk
@@ -67,7 +59,6 @@ include integration/test/test_ompt.mk
 include integration/test/test_geopmio.mk
 include integration/test/test_launch_application.mk
 include integration/test/test_launch_pthread.mk
-include integration/test/test_levelzero_signals.mk
 include integration/test/test_geopmagent.mk
 include integration/test/test_environment.mk
 include integration/test/test_power_governor.mk

@@ -49,6 +49,7 @@ integration/apps/parres/README.md
 integration/apps/pennant/README.md
 integration/apps/qe/README.md
 integration/apps/README.md
+integration/config/README.md
 integration/experiment/frequency_sweep/README.md
 integration/experiment/monitor/README.md
 integration/experiment/power_sweep/README.md

@@ -53,21 +53,10 @@ import matplotlib.pyplot as plt
 import pandas
 
 # Put integration test directory into the path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-try:
-    # Try to load geopmpy without modifiying the path
-    import geopmpy.io
-    import geopmpy.agent
-    import geopmdpy.error
-    import geopmpy.hash
-except ImportError:
-    # If geopmpy is not installed in the PYTHONPATH then add local
-    # copy to path
-    from integration.test import geopm_context
-    import geopmpy.io
-    import geopmpy.agent
-    import geopmdpy.error
-    import geopmpy.hash
+import geopmpy.io
+import geopmpy.agent
+import geopmdpy.error
+import geopmpy.hash
 
 from integration.test import util
 if util.do_launch():
