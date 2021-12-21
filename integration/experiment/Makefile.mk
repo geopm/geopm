@@ -34,6 +34,8 @@ EXTRA_DIST += integration/experiment/common_args.py \
               integration/experiment/gen_slurm.sh \
               integration/experiment/launch_util.py \
               integration/experiment/machine.py \
+              integration/experiment/parres_dgemm_frequency_sweep.sh
+              integration/experiment/parres_nstream_frequency_sweep.sh
               integration/experiment/plotting.py \
               integration/experiment/README.md \
               integration/experiment/report.py \
