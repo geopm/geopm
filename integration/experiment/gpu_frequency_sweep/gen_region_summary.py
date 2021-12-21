@@ -80,7 +80,7 @@ def region_summary_analysis(report_collection, analysis_dir):
         df = prepare(df)
     adf = prepare(adf)
 
-    field_list = ['count', 'runtime (s)', 'sync-runtime (s)', 'time-hint-network (s)', 'package-energy (J)', 'power (W)', 'core freq (%)', 'core freq (Hz)', 'accelerator-energy (J)', 'accelerator-power (W)', 'accelerator-frequency (HZ)']
+    field_list = ['count', 'runtime (s)', 'sync-runtime (s)', 'time-hint-network (s)', 'package-energy (J)', 'power (W)', 'core freq (%)', 'core freq (Hz)', 'accelerator-energy (J)']
     adf_field_list = ['runtime (s)', 'time-hint-network (s)', 'time-hint-ignore (s)', 'package-energy (J)', 'dram-energy (J)', 'power (W)', 'core freq (%)', 'core freq (Hz)', 'accelerator-energy (J)', 'accelerator-power (W)', 'accelerator-frequency (HZ)']
 
     if edf[:1]['count'].item() > 0.0:

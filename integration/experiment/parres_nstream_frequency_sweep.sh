@@ -18,8 +18,8 @@ OUTPUT_DIR=${GEOPM_WORKDIR}/parres_nstream_100_freq_sweep
     --parres-args="100 1000000000" \
     --geopm-trace-signals=NVML::FREQUENCY@board_accelerator,NVML::POWER@board_accelerator,NVML::UTILIZATION_ACCELERATOR@board_accelerator,NVML::TOTAL_ENERGY_CONSUMPTION@board_accelerator,NVML::UTILIZATION_MEMORY@board_accelerator,POWER_PACKAGE@package,POWER_DRAM@board_memory,FREQUENCY@core,TEMPERATURE_CORE@core,MSR::UNCORE_PERF_STATUS:FREQ@package,QM_CTR_SCALED_RATE@package,ENERGY_DRAM@board_memory,ENERGY_PACKAGE@package,MSR::PPERF:PCNT@package,MSR::MPERF:MCNT@package,MSR::APERF:ACNT@package,INSTRUCTIONS_RETIRED@core,CYCLES_THREAD@core,MSR::IA32_PMC0:PERFCTR@core,MSR::IA32_PMC1:PERFCTR@core,MSR::IA32_PMC2:PERFCTR@core,MSR::IA32_PMC3:PERFCTR@core,NVML::CPU_ACCELERATOR_ACTIVE_AFFINITIZATION@core 
 
-mkdir -p ${OUTPUT_DIR}/results
-python3 gpu_frequency_sweep/gen_region_summary.py --output-dir ${OUTPUT_DIR} --analysis-dir ${OUTPUT_DIR}/results
+#mkdir -p ${OUTPUT_DIR}/results
+#python3 gpu_frequency_sweep/gen_region_summary.py --output-dir ${OUTPUT_DIR} --analysis-dir ${OUTPUT_DIR}/results
     
 
 OUTPUT_DIR=${GEOPM_WORKDIR}/parres_nstream_1_freq_sweep
@@ -39,6 +39,6 @@ OUTPUT_DIR=${GEOPM_WORKDIR}/parres_nstream_1_freq_sweep
     --parres-args="1 1000000000" \
     --geopm-trace-signals=NVML::FREQUENCY@board_accelerator,NVML::POWER@board_accelerator,NVML::UTILIZATION_ACCELERATOR@board_accelerator,NVML::TOTAL_ENERGY_CONSUMPTION@board_accelerator,NVML::UTILIZATION_MEMORY@board_accelerator,POWER_PACKAGE@package,POWER_DRAM@board_memory,FREQUENCY@core,TEMPERATURE_CORE@core,MSR::UNCORE_PERF_STATUS:FREQ@package,QM_CTR_SCALED_RATE@package,ENERGY_DRAM@board_memory,ENERGY_PACKAGE@package,MSR::PPERF:PCNT@package,MSR::MPERF:MCNT@package,MSR::APERF:ACNT@package,INSTRUCTIONS_RETIRED@core,CYCLES_THREAD@core,MSR::IA32_PMC0:PERFCTR@core,MSR::IA32_PMC1:PERFCTR@core,MSR::IA32_PMC2:PERFCTR@core,MSR::IA32_PMC3:PERFCTR@core,NVML::CPU_ACCELERATOR_ACTIVE_AFFINITIZATION@core 
 
-mkdir -p ${OUTPUT_DIR}/results
-python3 gpu_frequency_sweep/gen_region_summary.py --output-dir ${OUTPUT_DIR} --analysis-dir ${OUTPUT_DIR}/results
+#mkdir -p ${OUTPUT_DIR}/results
+#python3 gpu_frequency_sweep/gen_region_summary.py --output-dir ${OUTPUT_DIR} --analysis-dir ${OUTPUT_DIR}/results
     
