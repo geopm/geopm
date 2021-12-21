@@ -259,11 +259,13 @@ listed below.
   used by the GEOPM runtime.  Available agents are: "monitor" (default
   if option not specified; enables profiling features only),
   "power_balancer" (optimizes runtime under a power cap),
-  "power_governor" (enforces a uniform power cap), "frequency_map"
-  (runs each region at a specifed frequency), and "energy_efficient"
-  (saves energy).  See **geopm_agent_monitor(7)**,
+  "power_governor" (enforces a uniform power cap), "fixed_frequency",
+  (runs accelerator, cpu, and uncore at a specified frequency),
+  "frequency_map" (runs each region at a specifed frequency), and
+  "energy_efficient" (saves energy).  See **geopm_agent_monitor(7)**,
   **geopm_agent_power_balancer(7)**,
-  **geopm_agent_power_governor(7)**, **geopm_agent_frequency_map(7)**
+  **geopm_agent_power_governor(7)**, **geopm_agent_fixed_frequency(7)**,
+  **geopm_agent_frequency_map(7)**
   and **geopm_agent_energy_efficient(7)** for descriptions of each
   agent.  For more details on the responsibilities of the Agent, see
   **geopm::Agent(3)**.  This option is used by the launcher to set the

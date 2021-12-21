@@ -52,8 +52,11 @@ integration/apps/README.md
 integration/experiment/frequency_sweep/README.md
 integration/experiment/monitor/README.md
 integration/experiment/power_sweep/README.md
+integration/experiment/parres_dgemm_frequency_sweep.sh
+integration/experiment/parres_nstream_frequency_sweep.sh
 integration/experiment/README.md
 integration/experiment/trace_analysis/README.md
+integration/experiment/gpu_frequency_sweep/README.md
 integration/experiment/uncore_frequency_sweep/README.md
 integration/README.md
 integration/test/README.md
@@ -66,6 +69,7 @@ ronn/geopmadmin.1.ronn
 ronn/geopmagent.1.ronn
 ronn/geopm_agent_c.3.ronn
 ronn/geopm_agent_energy_efficient.7.ronn
+ronn/geopm_agent_fixed_frequency.7.ronn
 ronn/geopm_agent_frequency_map.7.ronn
 ronn/geopm_agent_monitor.7.ronn
 ronn/geopm_agent_power_balancer.7.ronn
@@ -84,6 +88,7 @@ ronn/GEOPM_CXX_MAN_Endpoint.3.ronn
 ronn/GEOPM_CXX_MAN_EnergyEfficientAgent.3.ronn
 ronn/GEOPM_CXX_MAN_EnergyEfficientRegion.3.ronn
 ronn/GEOPM_CXX_MAN_Exception.3.ronn
+ronn/GEOPM_CXX_MAN_FixedFrequencyAgent.3.ronn
 ronn/GEOPM_CXX_MAN_Helper.3.ronn
 ronn/GEOPM_CXX_MAN_IOGroup.3.ronn
 ronn/GEOPM_CXX_MAN_MonitorAgent.3.ronn

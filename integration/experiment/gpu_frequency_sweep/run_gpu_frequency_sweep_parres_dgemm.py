@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+#
 #  Copyright (c) 2015 - 2021, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -29,23 +31,23 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += integration/experiment/common_args.py \
-              integration/experiment/__init__.py \
-              integration/experiment/gen_slurm.sh \
-              integration/experiment/launch_util.py \
-              integration/experiment/machine.py \
-              integration/experiment/parres_dgemm_frequency_sweep.sh
-              integration/experiment/parres_nstream_frequency_sweep.sh
-              integration/experiment/plotting.py \
-              integration/experiment/README.md \
-              integration/experiment/report.py \
-              integration/experiment/util.py \
-              # end
+'''
+Run ParRes dgemm with the gpu frequency sweep using the fixed frequency agent.
+'''
 
-include integration/experiment/energy_efficiency/Makefile.mk
-include integration/experiment/gpu_frequency_sweep/Makefile.mk
-include integration/experiment/frequency_sweep/Makefile.mk
-include integration/experiment/monitor/Makefile.mk
-include integration/experiment/power_sweep/Makefile.mk
-include integration/experiment/trace_analysis/Makefile.mk
-include integration/experiment/uncore_frequency_sweep/Makefile.mk
+import argparse
+
+from experiment.gpu_frequency_sweep import gpu_frequency_sweep
+from experiment import machine
+from apps.parres import parres
+
+if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser()
+    gpu_frequency_sweep.setup_run_args(parser)
+    parres.setup_run_args(parser)
+    args, extra_args = parser.parse_known_args()
+    mach = machine.init_output_dir(args.output_dir)
+    app_conf = parres.create_dgemm_appconf(mach, args)
+    gpu_frequency_sweep.launch(app_conf=app_conf, args=args,
+                               experiment_cli_args=extra_args)
