@@ -759,6 +759,7 @@ class PlatformService(object):
             write_pid = client_sid
         else:
             write_pid = client_pid
+        self.check_client(self._write_pid)
         if self._write_pid != write_pid:
             if self._write_pid is not None:
                 raise RuntimeError(f'The PID {client_pid} requested write access, but the geopm service already has write mode client with PID or SID of {self._write_pid}')

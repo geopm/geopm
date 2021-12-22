@@ -489,6 +489,7 @@ default
 
     def test_start_batch_write_blocked(self):
         client_pid = -999
+        client_sid = -333
         other_pid = -666
         control_name = 'geopm'
         domain = 7
@@ -497,7 +498,7 @@ default
         self.open_mock_session('other', other_pid)
         with mock.patch('geopmdpy.pio.write_control', return_value=[]) as mock_write_control, \
              mock.patch('geopmdpy.pio.save_control', return_value=[]), \
-             mock.patch('os.getsid', return_value=other_pid) as mock_getsid:
+             mock.patch('os.getsid', return_value=client_sid) as mock_getsid:
             self._platform_service.write_control(other_pid, control_name, domain, domain_idx, setting)
             mock_write_control.assert_called_once_with(control_name, domain, domain_idx, setting)
 
@@ -509,7 +510,8 @@ default
         err_msg = f'The PID {client_pid} requested write access, but the geopm service already has write mode client with PID or SID of {other_pid}'
         with self.assertRaisesRegex(RuntimeError, err_msg), \
              mock.patch('geopmdpy.pio.start_batch_server', return_value = (2345, "2345")), \
-             mock.patch('os.getsid', return_value=client_pid) as mock_getsid:
+             mock.patch('os.getsid', return_value=client_sid) as mock_getsid, \
+             mock.patch('psutil.pid_exists', return_value=True) as mock_pid_exists:
             self._platform_service.start_batch(client_pid, signal_config,
                                                control_config)
 
