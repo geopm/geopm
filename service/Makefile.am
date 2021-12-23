@@ -195,6 +195,8 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/POSIXSignal.hpp \
                        src/RawMSRSignal.cpp \
                        src/RawMSRSignal.hpp \
+                       src/SaveControl.cpp \
+                       src/SaveControl.hpp \
                        src/SDBus.hpp \
                        src/SDBusMessage.hpp \
                        src/ServiceIOGroup.cpp \
