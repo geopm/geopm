@@ -270,6 +270,13 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
               test/gtest_links/RawMSRSignalTest.read \
               test/gtest_links/RawMSRSignalTest.read_batch \
               test/gtest_links/RawMSRSignalTest.setup_batch \
+              test/gtest_links/SaveControlTest.static_json \
+              test/gtest_links/SaveControlTest.static_settings \
+              test/gtest_links/SaveControlTest.make_from_struct \
+              test/gtest_links/SaveControlTest.make_from_string \
+              test/gtest_links/SaveControlTest.make_from_io_group \
+              test/gtest_links/SaveControlTest.write_file \
+              test/gtest_links/SaveControlTest.bad_json \
               test/gtest_links/ServiceIOGroupTest.signal_control_info \
               test/gtest_links/ServiceIOGroupTest.domain_type \
               test/gtest_links/ServiceIOGroupTest.read_signal_behavior \
@@ -398,6 +405,7 @@ test_geopm_test_SOURCES = test/AcceleratorTopoNullTest.cpp \
                           test/PlatformTopoTest.cpp \
                           test/RawMSRSignalTest.cpp \
                           test/SharedMemoryTest.cpp \
+                          test/SaveControlTest.cpp \
                           test/ServiceIOGroupTest.cpp \
                           test/ServiceProxyTest.cpp \
                           test/SSTControlTest.cpp \
