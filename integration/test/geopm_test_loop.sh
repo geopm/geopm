@@ -38,18 +38,23 @@ while [ ${ERR} -eq 0 -a ${COUNT} -lt 10 ];
 do
     COUNT=$((COUNT+1))
     echo "TEST LOOPER: Beginning loop ${COUNT}..." > >(tee -a ${LOG_FILE})
-    GEOPM_RUN_LONG_TESTS=true python3 . -v $1 > >(tee -a ${LOG_FILE}) 2>&1
+    python3 -m unittest discover \
+            --top-level-directory ${GEOPM_SOURCE} \
+            --start-directory ${GEOPM_SOURCE}/integration/test \
+            --pattern 'test_*.py' \
+            --verbose &> >(tee -a ${LOG_FILE})
     ERR=$?
 
     if [ ${ERR} -eq 0 ]; then
-        pushd ${GEOPM_SOURCE}/service/integration/test
         # Requirements for service testing
-        srun -N${SLURM_NNODES} -- sudo /usr/sbin/install_service.sh $(cat ../../VERSION) ${USER}
-        python3 . &> ${GEOPM_SOURCE}/integration/test/service_tests.log
+        srun -N${SLURM_NNODES} -- sudo /usr/sbin/install_service.sh $(cat ${GEOPM_SOURCE}/VERSION) ${USER}
+        python3 -m unittest discover \
+                --top-level-directory ${GEOPM_SOURCE} \
+                --start-directory ${GEOPM_SOURCE}/service/integration/test \
+                --pattern 'test_*.py' \
+                --verbose &> >(tee -a service_${LOG_FILE})
         ERR=$?
-        # TODO Run legacy tests through service after removing msr-safe privs
-        srun -N4 -- sudo /usr/sbin/install_service.sh --remove
-        popd
+        srun -N${SLURM_NNODES} -- sudo /usr/sbin/install_service.sh --remove
     fi
 done
 
