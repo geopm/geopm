@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-
+#
 #  Copyright (c) 2015 - 2021, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -31,9 +30,3 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-import unittest
-
-from TestBashExamples import *
-
-if __name__ == '__main__':
-    unittest.main()
