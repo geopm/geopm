@@ -33,7 +33,7 @@ EXTRA_DIST += integration/README.md \
               integration/build_dasbus.sh \
               integration/install_service.sh \
               integration/test/__init__.py \
-              integration/test/TestBashExamples.py \
+              integration/test/test_bash_examples.py \
               integration/test/check_write_session.sh \
               integration/test/test_batch_performance.py \
               integration/test/test_sst_priority.sh \
