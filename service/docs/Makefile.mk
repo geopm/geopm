@@ -42,6 +42,8 @@ EXTRA_DIST += docs/geninfo.sh \
               docs/source/info.rst \
               docs/source/overview.rst \
               docs/source/publications.rst \
+              docs/source/manpages.rst \
+              docs/source/readme.rst \
               docs/source/reference.rst \
               docs/source/requires.rst \
               docs/source/runtime.rst \
@@ -51,13 +53,23 @@ EXTRA_DIST += docs/geninfo.sh \
               docs/source/use_cases.rst \
               # end
 
-docs: libgeopmd.la $(abs_srcdir)/geopmdpy/version.py
+docs: docs_man docs_html
+
+docs_html: libgeopmd.la $(abs_srcdir)/geopmdpy/version.py
 	LD_LIBRARY_PATH=.libs:$(LD_LIBRARY_PATH) \
 	PYTHONPATH=$(abs_srcdir):$(PYTHONPATH) \
-	sphinx-build -M html $(abs_srcdir)/docs/source docs/build
+	sphinx-build -M html  $(abs_srcdir)/docs/source docs/build
+	rm -rf ~/public_html/html
+	cp -r $(abs_srcdir)/docs/build/html ~/public_html/html
+
+docs_man: libgeopmd.la $(abs_srcdir)/geopmdpy/version.py
+	LD_LIBRARY_PATH=.libs:$(LD_LIBRARY_PATH) \
+	PYTHONPATH=$(abs_srcdir):$(PYTHONPATH) \
+	sphinx-build -M man  $(abs_srcdir)/docs/source docs/build
+
 
 clean-local-docs:
 	rm -rf docs/build
 
 CLEAN_LOCAL_TARGETS += clean-local-docs
-PHONY_TARGETS += docs clean-local-docs
+PHONY_TARGETS += docs docs_html docs_man clean-local-docs

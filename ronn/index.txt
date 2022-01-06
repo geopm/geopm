@@ -85,6 +85,7 @@ geopm::RegionAggregator(3)       GEOPM_CXX_MAN_RegionAggregator.3
 geopm::SharedMemory(3)           GEOPM_CXX_MAN_SharedMemory.3
 geopm::TimeIOGroup(3)            GEOPM_CXX_MAN_TimeIOGroup.3
 
+
 #external pages
 CPU_SET(3)                      http://man7.org/linux/man-pages/man3/CPU_SET.3.html
 pthread_attr_setaffinity_np(3)  http://man7.org/linux/man-pages/man3/pthread_attr_setaffinity_np.3.html

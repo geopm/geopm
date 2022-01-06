@@ -142,6 +142,8 @@ service/docs/source/index.rst
 service/docs/source/info.rst
 service/docs/source/overview.rst
 service/docs/source/publications.rst
+service/docs/source/manpages.rst
+service/docs/source/readme.rst
 service/docs/source/reference.rst
 service/docs/source/requires.rst
 service/docs/source/runtime.rst
