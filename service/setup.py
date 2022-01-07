@@ -41,7 +41,7 @@ from setuptools import setup
 
 if os.getcwd() != os.path.dirname(os.path.abspath(__file__)):
     sys.stderr.write('ERROR:  script must be run in the directory that contains it\n')
-    exit(1)
+    sys.exit(1)
 
 try:
     # use excfile rather than import so that setup.py can be executed

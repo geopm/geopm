@@ -318,4 +318,4 @@ def main():
     return err
 
 if __name__ == '__main__':
-    exit(main())
+    sys.exit(main())
