@@ -71,7 +71,7 @@ test ${SETTING} != ${START_VALUE} ||
     test_error "Start value for the control is the same as the test value"
 
 # START A SESSION THAT WRITES THE CONTROL VALUE
-echo "${REQUEST} ${SETTING}" | geopmsession -w -t 10 &
+echo "${REQUEST} ${SETTING}" | setsid geopmsession -w -t 10 &
 SESSION_ID=$!
 sleep 1
 
