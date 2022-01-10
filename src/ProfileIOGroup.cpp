@@ -487,6 +487,11 @@ namespace geopm
 
     }
 
+    std::string ProfileIOGroup::name(void) const
+    {
+        return plugin_name();
+    }
+
     std::string ProfileIOGroup::plugin_name(void)
     {
         return GEOPM_PROFILE_IO_GROUP_PLUGIN_NAME;

@@ -763,6 +763,11 @@ namespace geopm
         return M_PLUGIN_NAME;
     }
 
+    std::string MSRIOGroup::name(void) const
+    {
+        return plugin_name();
+    }
+
     std::unique_ptr<IOGroup> MSRIOGroup::make_plugin(void)
     {
         return geopm::make_unique<MSRIOGroup>();

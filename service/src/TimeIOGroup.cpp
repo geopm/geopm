@@ -180,6 +180,11 @@ namespace geopm
 
     }
 
+    std::string TimeIOGroup::name(void) const
+    {
+        return plugin_name();
+    }
+
     std::string TimeIOGroup::plugin_name(void)
     {
         return GEOPM_TIME_IO_GROUP_PLUGIN_NAME;

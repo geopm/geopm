@@ -879,6 +879,11 @@ namespace geopm
         return m_control_available.at(control_name).m_description;
     }
 
+    std::string LevelZeroIOGroup::name(void) const
+    {
+        return plugin_name();
+    }
+
     // Name used for registration with the IOGroup factory
     std::string LevelZeroIOGroup::plugin_name(void)
     {

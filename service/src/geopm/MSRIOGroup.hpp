@@ -104,6 +104,7 @@ namespace geopm
             int signal_behavior(const std::string &signal_name) const override;
             void save_control(const std::string &save_path) override;
             void restore_control(const std::string &save_path) override;
+            std::string name(void) const override;
 
             /// @brief Parse a JSON string and add any raw MSRs and
             ///        fields as available signals and controls.
