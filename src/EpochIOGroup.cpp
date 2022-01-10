@@ -223,6 +223,11 @@ namespace geopm
 
     }
 
+    std::string EpochIOGroup::name(void) const
+    {
+        return plugin_name();
+    }
+
     std::string EpochIOGroup::plugin_name(void)
     {
         return "EPOCH";

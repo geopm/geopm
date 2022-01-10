@@ -684,6 +684,11 @@ namespace geopm
                         GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
     }
 
+    std::string NVMLIOGroup::name(void) const
+    {
+        return plugin_name();
+    }
+
     // Name used for registration with the IOGroup factory
     std::string NVMLIOGroup::plugin_name(void)
     {

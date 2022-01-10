@@ -430,6 +430,11 @@ namespace geopm
         return result;
     }
 
+    std::string ServiceIOGroup::name(void) const
+    {
+        return plugin_name();
+    }
+
     std::string ServiceIOGroup::plugin_name(void)
     {
         return M_PLUGIN_NAME;

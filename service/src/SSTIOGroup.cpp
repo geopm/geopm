@@ -528,6 +528,11 @@ namespace geopm
         }
     }
 
+    std::string SSTIOGroup::name(void) const
+    {
+        return plugin_name();
+    }
+
     std::string SSTIOGroup::plugin_name(void)
     {
         return "SST";

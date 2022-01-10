@@ -81,6 +81,8 @@ class MockIOGroup : public geopm::IOGroup
                     (const std::string &control_name), (const, override));
         MOCK_METHOD(int, signal_behavior, (const std::string &signal_name),
                     (const, override));
+        MOCK_METHOD(std::string, name, (),
+                    (const, override));
 };
 
 #endif
