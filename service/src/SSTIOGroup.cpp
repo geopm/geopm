@@ -51,6 +51,7 @@
 #include "SSTSignal.hpp"
 #include "geopm_debug.hpp"
 #include "geopm_topo.h"
+#include "SaveControl.hpp"
 
 namespace geopm
 {
@@ -245,7 +246,13 @@ namespace geopm
             { { "ASSOCIATION", { 16, 17, 1.0, M_UNITS_NONE, "Assigned core priority level"  } } } } },
     };
 
-    SSTIOGroup::SSTIOGroup(const PlatformTopo &topo, std::shared_ptr<SSTIO> sstio)
+    SSTIOGroup::SSTIOGroup()
+        : SSTIOGroup(platform_topo(), nullptr, nullptr)
+    {
+
+    }
+
+    SSTIOGroup::SSTIOGroup(const PlatformTopo &topo, std::shared_ptr<SSTIO> sstio, std::shared_ptr<SaveControl> save_control)
         : m_topo(topo)
         , m_sstio(sstio)
         , m_is_read(false)
@@ -253,6 +260,7 @@ namespace geopm
         , m_control_available()
         , m_signal_pushed()
         , m_control_pushed()
+        , m_mock_save_ctl(save_control)
     {
         if (m_sstio == nullptr) {
             m_sstio = SSTIO::make_shared(m_topo.num_domain(GEOPM_DOMAIN_CPU));
@@ -540,7 +548,7 @@ namespace geopm
 
     std::unique_ptr<IOGroup> SSTIOGroup::make_plugin(void)
     {
-        return geopm::make_unique<SSTIOGroup>(platform_topo(), nullptr);
+        return geopm::make_unique<SSTIOGroup>();
     }
 
     std::function<double(const std::vector<double> &)> SSTIOGroup::agg_function(const std::string &signal_name) const
@@ -619,14 +627,20 @@ namespace geopm
 
     void SSTIOGroup::save_control(const std::string &save_path)
     {
-        throw Exception("SSTIOGroup::save_control()",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        std::shared_ptr<SaveControl> save_ctl = m_mock_save_ctl;
+        if (save_ctl == nullptr) {
+            save_ctl = SaveControl::make_unique(*this);
+        }
+        save_ctl->write_json(save_path);
     }
 
     void SSTIOGroup::restore_control(const std::string &save_path)
     {
-        throw Exception("SSTIOGroup::restore_control()",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        std::shared_ptr<SaveControl> save_ctl = m_mock_save_ctl;
+        if (save_ctl == nullptr) {
+            save_ctl = SaveControl::make_unique(geopm::read_file(save_path));
+        }
+        save_ctl->restore(*this);
     }
 
     void SSTIOGroup::add_mbox_signals(

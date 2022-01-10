@@ -65,6 +65,7 @@
 #include "geopm/PlatformTopo.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm_debug.hpp"
+#include "SaveControl.hpp"
 
 using json11::Json;
 
@@ -84,12 +85,12 @@ namespace geopm
     const std::string MSRIOGroup::M_NAME_PREFIX = M_PLUGIN_NAME + "::";
 
     MSRIOGroup::MSRIOGroup()
-        : MSRIOGroup(platform_topo(), std::make_shared<MSRIOImp>(), cpuid(), geopm_sched_num_cpu())
+        : MSRIOGroup(platform_topo(), std::make_shared<MSRIOImp>(), cpuid(), geopm_sched_num_cpu(), nullptr)
     {
 
     }
 
-    MSRIOGroup::MSRIOGroup(const PlatformTopo &topo, std::shared_ptr<MSRIO> msrio, int cpuid, int num_cpu)
+    MSRIOGroup::MSRIOGroup(const PlatformTopo &topo, std::shared_ptr<MSRIO> msrio, int cpuid, int num_cpu, std::shared_ptr<SaveControl> save_control)
         : m_platform_topo(topo)
         , m_msrio(std::move(msrio))
         , m_cpuid(cpuid)
@@ -103,6 +104,7 @@ namespace geopm
         , m_pmc_bit_width(get_pmc_bit_width())
         , m_derivative_window(8)
         , m_sleep_time(0.005)  // 5000 us
+        , m_mock_save_ctl(save_control)
     {
         // Load available signals and controls from files
         parse_json_msrs(arch_msr_json());
@@ -155,6 +157,8 @@ namespace geopm
         register_signal_alias("POWER_PACKAGE_MIN", "MSR::PKG_POWER_INFO:MIN_POWER");
         register_signal_alias("POWER_PACKAGE_MAX", "MSR::PKG_POWER_INFO:MAX_POWER");
         register_signal_alias("POWER_PACKAGE_TDP", "MSR::PKG_POWER_INFO:THERMAL_SPEC_POWER");
+        register_signal_alias("POWER_PACKAGE_LIMIT", "MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT");
+        register_signal_alias("POWER_PACKAGE_TIME_WINDOW", "MSR::PKG_POWER_LIMIT:PL1_TIME_WINDOW");
 
         register_temperature_signals();
         register_power_signals();
@@ -910,14 +914,20 @@ namespace geopm
 
     void MSRIOGroup::save_control(const std::string &save_path)
     {
-        throw Exception("MSRIOGroup::save_control()",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        std::shared_ptr<SaveControl> save_ctl = m_mock_save_ctl;
+        if (save_ctl == nullptr) {
+            save_ctl = SaveControl::make_unique(*this);
+        }
+        save_ctl->write_json(save_path);
     }
 
     void MSRIOGroup::restore_control(const std::string &save_path)
     {
-        throw Exception("MSRIOGroup::restore_control()",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        std::shared_ptr<SaveControl> save_ctl = m_mock_save_ctl;
+        if (save_ctl == nullptr) {
+            save_ctl = SaveControl::make_unique(geopm::read_file(save_path));
+        }
+        save_ctl->restore(*this);
     }
 
     std::string MSRIOGroup::platform_data(int cpu_id)

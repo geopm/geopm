@@ -150,6 +150,7 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
               test/gtest_links/LevelZeroIOGroupTest.read_signal_and_batch \
               test/gtest_links/LevelZeroIOGroupTest.read_timestamp_batch \
               test/gtest_links/LevelZeroIOGroupTest.read_timestamp_batch_reverse \
+              test/gtest_links/LevelZeroIOGroupTest.save_restore_control \
               test/gtest_links/MSRIOGroupTest.adjust \
               test/gtest_links/MSRIOGroupTest.control_error \
               test/gtest_links/MSRIOGroupTest.cpuid \
@@ -176,6 +177,7 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
               test/gtest_links/MSRIOGroupTest.allowlist \
               test/gtest_links/MSRIOGroupTest.write_control \
               test/gtest_links/MSRIOGroupTest.batch_calls_no_push \
+              test/gtest_links/MSRIOGroupTest.save_restore_control \
               test/gtest_links/MSRIOTest.read_aligned \
               test/gtest_links/MSRIOTest.read_batch \
               test/gtest_links/MSRIOTest.read_unaligned \
@@ -322,6 +324,7 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
               test/gtest_links/SSTIOGroupTest.valid_control_names \
               test/gtest_links/SSTIOGroupTest.valid_signal_domains \
               test/gtest_links/SSTIOGroupTest.valid_signal_names \
+              test/gtest_links/SSTIOGroupTest.save_restore_control \
               test/gtest_links/SSTSignalTest.mailbox_read_batch \
               test/gtest_links/SSTSignalTest.mmio_read_batch \
               test/gtest_links/SSTIOTest.mbox_batch_reads \
@@ -390,6 +393,7 @@ test_geopm_test_SOURCES = test/AcceleratorTopoNullTest.cpp \
                           test/MockPlatformIO.hpp \
                           test/MockPlatformTopo.cpp \
                           test/MockPlatformTopo.hpp \
+                          test/MockSaveControl.hpp \
                           test/MockSDBus.hpp \
                           test/MockSDBusMessage.hpp \
                           test/MockServiceProxy.hpp \

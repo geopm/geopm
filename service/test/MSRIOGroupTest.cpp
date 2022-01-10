@@ -41,7 +41,9 @@
 #include <fstream>
 #include <string>
 #include <map>
+#include <set>
 #include <libgen.h>
+#include <algorithm>
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "geopm/json11.hpp"
@@ -58,6 +60,7 @@
 #include "geopm/MSRIOGroup.hpp"
 #include "MockPlatformTopo.hpp"
 #include "MockMSRIO.hpp"
+#include "MockSaveControl.hpp"
 #include "geopm_test.hpp"
 
 using geopm::MSRIOGroup;
@@ -79,6 +82,7 @@ class MSRIOGroupTest : public :: testing :: Test
         std::unique_ptr<MSRIOGroup> m_msrio_group;
         std::shared_ptr<MockPlatformTopo> m_topo;
         std::shared_ptr<MockMSRIO> m_msrio;
+        std::shared_ptr<MockSaveControl> m_mock_save_ctl;
         int m_num_package = 2;
         int m_num_core = 4;
         int m_num_cpu = 16;
@@ -89,15 +93,19 @@ void MSRIOGroupTest::SetUp()
 {
     m_topo = make_topo(m_num_package, m_num_core, m_num_cpu);
     m_msrio = std::make_shared<MockMSRIO>();
+    m_mock_save_ctl = std::make_shared<MockSaveControl>();
 
     // suppress warnings about num_domain and domain_nested calls
     EXPECT_CALL(*m_topo, num_domain(_)).Times(AtLeast(0));
     EXPECT_CALL(*m_topo, domain_nested(_, _, _)).Times(AtLeast(0));
-    // suppress mock calls from initalizing counter enables
+    // suppress mock calls from initializing counter enables
     EXPECT_CALL(*m_msrio, write_msr(_, _, _, _)).Times(AtLeast(0));
+    // suppress mock calls from initializing rdt signals
+    EXPECT_CALL(*m_msrio, read_msr(_, _)).Times(AtLeast(0));
     m_msrio_group = geopm::make_unique<MSRIOGroup>(*m_topo, m_msrio,
                                                    MSRIOGroup::M_CPUID_SKX,
-                                                   m_num_cpu);
+                                                   m_num_cpu,
+                                                   m_mock_save_ctl);
 }
 
 TEST_F(MSRIOGroupTest, supported_cpuid)
@@ -114,7 +122,7 @@ TEST_F(MSRIOGroupTest, supported_cpuid)
     };
     for (auto id : cpuids) {
         try {
-            MSRIOGroup(*m_topo, m_msrio, id, m_num_cpu);
+            MSRIOGroup(*m_topo, m_msrio, id, m_num_cpu, nullptr);
         }
         catch (const std::exception &ex) {
             FAIL() << "Could not construct MSRIOGroup for cpuid 0x"
@@ -1294,4 +1302,29 @@ TEST_F(MSRIOGroupTest, batch_calls_no_push)
     EXPECT_CALL(*m_msrio, write_batch()).Times(0);
     m_msrio_group->read_batch();
     m_msrio_group->write_batch();
+}
+
+TEST_F(MSRIOGroupTest, save_restore_control)
+{
+    // Verify that all controls can be read as signals
+    auto control_set = m_msrio_group->control_names();
+    auto signal_set = m_msrio_group->signal_names();
+    std::vector<std::string> difference(control_set.size());
+
+    auto it = std::set_difference(control_set.cbegin(), control_set.cend(),
+                                  signal_set.cbegin(), signal_set.cend(),
+                                  difference.begin());
+    difference.resize(it - difference.begin());
+
+    std::string err_msg = "The following controls are not readable as signals: \n";
+    for (auto &sig : difference) {
+        err_msg += "    " + sig + '\n';
+    }
+    EXPECT_EQ((unsigned int) 0, difference.size()) << err_msg;
+
+    std::string file_name = "tmp_file";
+    EXPECT_CALL(*m_mock_save_ctl, write_json(file_name));
+    m_msrio_group->save_control(file_name);
+    EXPECT_CALL(*m_mock_save_ctl, restore(_));
+    m_msrio_group->restore_control(file_name);
 }
