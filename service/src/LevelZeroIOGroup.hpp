@@ -46,6 +46,7 @@ namespace geopm
 {
     class PlatformTopo;
     class LevelZeroDevicePool;
+    class SaveControl;
 
     /// @brief IOGroup that provides signals and controls for Accelerators
     class LevelZeroIOGroup : public IOGroup
@@ -53,7 +54,8 @@ namespace geopm
         public:
             LevelZeroIOGroup();
             LevelZeroIOGroup(const PlatformTopo &platform_topo,
-                             const LevelZeroDevicePool &device_pool);
+                             const LevelZeroDevicePool &device_pool,
+                             std::shared_ptr<SaveControl> save_control);
             virtual ~LevelZeroIOGroup() = default;
             std::set<std::string> signal_names(void) const override;
             std::set<std::string> control_names(void) const override;
@@ -144,6 +146,8 @@ namespace geopm
 
             //GEOPM Domain indexed
             std::vector<std::pair<double,double> > m_frequency_range;
+
+            std::shared_ptr<SaveControl> m_mock_save_ctl;
     };
 }
 #endif

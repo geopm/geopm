@@ -52,6 +52,7 @@
 #include "geopm/Agg.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm_debug.hpp"
+#include "SaveControl.hpp"
 
 namespace geopm
 {
@@ -60,13 +61,14 @@ namespace geopm
     const std::string LevelZeroIOGroup::M_NAME_PREFIX = M_PLUGIN_NAME + "::";
 
     LevelZeroIOGroup::LevelZeroIOGroup()
-        : LevelZeroIOGroup(platform_topo(), levelzero_device_pool())
+        : LevelZeroIOGroup(platform_topo(), levelzero_device_pool(), nullptr)
     {
     }
 
     // Set up mapping between signal and control names and corresponding indices
     LevelZeroIOGroup::LevelZeroIOGroup(const PlatformTopo &platform_topo,
-                                       const LevelZeroDevicePool &device_pool)
+                                       const LevelZeroDevicePool &device_pool,
+                                       std::shared_ptr<SaveControl> save_control)
         : m_platform_topo(platform_topo)
         , m_levelzero_device_pool(device_pool)
         , m_is_batch_read(false)
@@ -435,6 +437,7 @@ namespace geopm
                     M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME_COPY",
                     M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME_COPY_TIMESTAMP"}},
         })
+        , m_mock_save_ctl(save_control)
     {
         // populate signals for each domain
         for (auto &sv : m_signal_available) {
@@ -1026,13 +1029,20 @@ namespace geopm
 
     void LevelZeroIOGroup::save_control(const std::string &save_path)
     {
-        throw Exception("LevelZeroIOGroup::save_control()",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        std::shared_ptr<SaveControl> save_ctl = m_mock_save_ctl;
+        if (save_ctl == nullptr) {
+            save_ctl = SaveControl::make_unique(*this);
+        }
+        save_ctl->write_json(save_path);
     }
+
     void LevelZeroIOGroup::restore_control(const std::string &save_path)
     {
-        throw Exception("LevelZeroIOGroup::save_control()",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        std::shared_ptr<SaveControl> save_ctl = m_mock_save_ctl;
+        if (save_ctl == nullptr) {
+            save_ctl = SaveControl::make_unique(geopm::read_file(save_path));
+        }
+        save_ctl->restore(*this);
     }
 
 }

@@ -50,11 +50,14 @@
 #include "MockLevelZeroDevicePool.hpp"
 #include "MockLevelZero.hpp"
 #include "MockPlatformTopo.hpp"
+#include "MockSaveControl.hpp"
 
 using geopm::LevelZeroIOGroup;
 using geopm::PlatformTopo;
 using geopm::Exception;
 using testing::Return;
+using testing::AtLeast;
+using testing::_;
 
 class LevelZeroIOGroupTest : public :: testing :: Test
 {
@@ -65,6 +68,7 @@ class LevelZeroIOGroupTest : public :: testing :: Test
 
         std::unique_ptr<MockPlatformTopo> m_platform_topo;
         std::shared_ptr<MockLevelZeroDevicePool> m_device_pool;
+        std::shared_ptr<MockSaveControl> m_mock_save_ctl;
 };
 
 void LevelZeroIOGroupTest::SetUp()
@@ -78,6 +82,7 @@ void LevelZeroIOGroupTest::SetUp()
 
     m_device_pool = std::make_shared<MockLevelZeroDevicePool>();
     m_platform_topo = geopm::make_unique<MockPlatformTopo>();
+    m_mock_save_ctl = std::make_shared<MockSaveControl>();
 
     //Platform Topo prep
     ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_BOARD))
@@ -92,6 +97,8 @@ void LevelZeroIOGroupTest::SetUp()
         .WillByDefault(Return(num_cpu));
     ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_CORE))
         .WillByDefault(Return(num_core));
+
+    EXPECT_CALL(*m_platform_topo, num_domain(_)).Times(AtLeast(0));
 
     for (int cpu_idx = 0; cpu_idx < num_cpu; ++cpu_idx) {
         if (cpu_idx < 10) {
@@ -158,7 +165,7 @@ void LevelZeroIOGroupTest::TearDown()
 
 TEST_F(LevelZeroIOGroupTest, valid_signals)
 {
-    LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool);
+    LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool, nullptr);
     for (const auto &sig : levelzero_io.signal_names()) {
         EXPECT_TRUE(levelzero_io.is_valid_signal(sig));
         EXPECT_NE(GEOPM_DOMAIN_INVALID, levelzero_io.signal_domain_type(sig));
@@ -171,7 +178,7 @@ TEST_F(LevelZeroIOGroupTest, save_restore)
 {
     const int num_accelerator_subdevice = m_platform_topo->num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP);
     std::map<int, double> batch_value;
-    LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool);
+    LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool, nullptr);
 
     std::vector<std::pair<double,double> > mock_freq_range = {{0,1530}, {1000,1320}, {30,420}, {130,135},
                                                               {20,400}, {53,123}, {1600,1700}, {500,500}};
@@ -188,7 +195,7 @@ TEST_F(LevelZeroIOGroupTest, push_control_adjust_write_batch)
 {
     const int num_accelerator_subdevice = m_platform_topo->num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP);
     std::map<int, double> batch_value;
-    LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool);
+    LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool, nullptr);
 
     std::vector<double> mock_freq = {1530, 1320, 420, 135, 1620, 812, 199, 1700};
 
@@ -211,7 +218,7 @@ TEST_F(LevelZeroIOGroupTest, push_control_adjust_write_batch)
 TEST_F(LevelZeroIOGroupTest, write_control)
 {
     const int num_accelerator_subdevice = m_platform_topo->num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP);
-    LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool);
+    LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool, nullptr);
 
     std::vector<double> mock_freq = {1530, 1320, 420, 135, 900, 9001, 8010, 4500};
 
@@ -238,7 +245,7 @@ TEST_F(LevelZeroIOGroupTest, read_signal_and_batch)
     std::vector<double> mock_energy = {9000000, 11000000, 2300000, 5341000000};
     std::vector<int> batch_idx;
 
-    LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool);
+    LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool, nullptr);
 
     for (int sub_idx = 0; sub_idx < num_accelerator_subdevice; ++sub_idx) {
         EXPECT_CALL(*m_device_pool, frequency_status(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE)).WillRepeatedly(Return(mock_freq.at(sub_idx)));
@@ -315,7 +322,7 @@ TEST_F(LevelZeroIOGroupTest, read_timestamp_batch_reverse)
     std::vector<int> active_time_compute_batch_idx;
     std::vector<int> active_time_copy_batch_idx;
 
-    LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool);
+    LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool, nullptr);
 
     for (int sub_idx = 0; sub_idx < num_accelerator_subdevice; ++sub_idx) {
         EXPECT_CALL(*m_device_pool, active_time(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL)).WillRepeatedly(Return(mock_active_time.at(sub_idx)));
@@ -387,7 +394,7 @@ TEST_F(LevelZeroIOGroupTest, read_timestamp_batch)
     std::vector<int> active_time_compute_batch_idx;
     std::vector<int> active_time_copy_batch_idx;
 
-    LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool);
+    LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool, nullptr);
 
     for (int sub_idx = 0; sub_idx < num_accelerator_subdevice; ++sub_idx) {
         EXPECT_CALL(*m_device_pool, active_time(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL)).WillRepeatedly(Return(mock_active_time.at(sub_idx)));
@@ -483,7 +490,7 @@ TEST_F(LevelZeroIOGroupTest, read_signal)
         EXPECT_CALL(*m_device_pool, energy(GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx, MockLevelZero::M_DOMAIN_ALL)).WillRepeatedly(Return(mock_energy.at(accel_idx)));
     }
 
-    LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool);
+    LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool, nullptr);
 
     for (int sub_idx = 0; sub_idx < num_accelerator_subdevice; ++sub_idx) {
         //Frequency
@@ -551,7 +558,7 @@ TEST_F(LevelZeroIOGroupTest, error_path)
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
         EXPECT_CALL(*m_device_pool, frequency_status(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, accel_idx, MockLevelZero::M_DOMAIN_COMPUTE)).WillRepeatedly(Return(mock_freq.at(accel_idx)));
     }
-    LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool);
+    LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool, nullptr);
 
     GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.push_signal("LEVELZERO::GPUCHIP_FREQUENCY_STATUS", GEOPM_DOMAIN_BOARD, 0),
                                GEOPM_ERROR_INVALID, "domain_type must be");
@@ -599,4 +606,31 @@ TEST_F(LevelZeroIOGroupTest, error_path)
     GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::GPUCHIP_ACTIVE_TIME_COPY_TIMESTAMP", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, 0), GEOPM_ERROR_INVALID, "TIMESTAMP Signals are for batch use only.");
     GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::GPUCHIP_ACTIVE_TIME_COMPUTE_TIMESTAMP", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, 0), GEOPM_ERROR_INVALID, "TIMESTAMP Signals are for batch use only.");
     GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::GPU_ENERGY_TIMESTAMP", GEOPM_DOMAIN_BOARD_ACCELERATOR, 0), GEOPM_ERROR_INVALID, "TIMESTAMP Signals are for batch use only.");
+}
+
+TEST_F(LevelZeroIOGroupTest, save_restore_control)
+{
+    LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool, m_mock_save_ctl);
+
+    // Verify that all controls can be read as signals
+    auto control_set = levelzero_io.control_names();
+    auto signal_set = levelzero_io.signal_names();
+    std::vector<std::string> difference(control_set.size());
+
+    auto it = std::set_difference(control_set.cbegin(), control_set.cend(),
+                                  signal_set.cbegin(), signal_set.cend(),
+                                  difference.begin());
+    difference.resize(it - difference.begin());
+
+    std::string err_msg = "The following controls are not readable as signals: \n";
+    for (auto &sig : difference) {
+        err_msg += "    " + sig + '\n';
+    }
+    EXPECT_EQ((unsigned int) 0, difference.size()) << err_msg;
+
+    std::string file_name = "tmp_file";
+    EXPECT_CALL(*m_mock_save_ctl, write_json(file_name));
+    levelzero_io.save_control(file_name);
+    EXPECT_CALL(*m_mock_save_ctl, restore(_));
+    levelzero_io.restore_control(file_name);
 }
