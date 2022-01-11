@@ -683,7 +683,7 @@ namespace geopm
                             "not valid for NVMLIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        return it->second.m_agg_function;
+        return it->second.agg_function;
     }
 
     // Specifies how to print signals from this IOGroup
@@ -695,7 +695,7 @@ namespace geopm
                             "not valid for NVMLIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        return it->second.m_format_function;
+        return it->second.format_function;
     }
 
     // A user-friendly description of each signal
@@ -728,7 +728,7 @@ namespace geopm
                             " not valid for NVMLIOGroup.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        return m_signal_available.at(signal_name).m_behavior;
+        return m_signal_available.at(signal_name).behavior;
     }
 
     void NVMLIOGroup::save_control(const std::string &save_path)

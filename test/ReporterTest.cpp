@@ -107,6 +107,7 @@ class ReporterTest : public testing::Test
         };
         ReporterTest();
         void TearDown(void);
+        void generate_setup(void);
         std::string m_report_name = "test_reporter.out";
 
         MockPlatformIO m_platform_io;
@@ -254,27 +255,13 @@ void ReporterTest::TearDown(void)
 
 void check_report(std::istream &expected, std::istream &result);
 
-TEST_F(ReporterTest, generate)
+// Common settings for generate* tests
+void ReporterTest::generate_setup(void)
 {
-    std::set<std::string> signal_names = {};
-    EXPECT_CALL(m_platform_io, signal_names()).WillOnce(Return(signal_names));
-
-    m_reporter = geopm::make_unique<ReporterImp>(m_start_time,
-                                                 m_report_name,
-                                                 m_platform_io,
-                                                 m_platform_topo,
-                                                 0,
-                                                 m_sample_agg,
-                                                 m_region_agg,
-                                                 "ENERGY_PACKAGE@package",
-                                                 "",
-                                                 true);
-    m_reporter->init();
-
     // ApplicationIO calls: to be removed
     EXPECT_CALL(m_application_io, report_name()).WillOnce(Return(m_report_name));
-    EXPECT_CALL(m_application_io, profile_name());
-    EXPECT_CALL(m_application_io, region_name_set());
+    EXPECT_CALL(m_application_io, profile_name()).WillOnce(Return(m_profile_name));
+    EXPECT_CALL(m_application_io, region_name_set()).WillOnce(Return(m_region_set));
 
     // ProcessRegionAgregator
     EXPECT_CALL(*m_region_agg, update);
@@ -352,6 +339,27 @@ TEST_F(ReporterTest, generate)
     EXPECT_CALL(m_tree_comm, overhead_send()).WillOnce(Return(678 * 56));
     EXPECT_CALL(*m_comm, rank()).WillRepeatedly(Return(0));
     EXPECT_CALL(*m_comm, num_rank()).WillOnce(Return(1));
+}
+
+TEST_F(ReporterTest, generate)
+{
+    std::set<std::string> signal_names = {};
+    EXPECT_CALL(m_platform_io, signal_names()).WillOnce(Return(signal_names));
+
+    //setup default values for 'generate' tests
+    generate_setup();
+
+    m_reporter = geopm::make_unique<ReporterImp>(m_start_time,
+                                                 m_report_name,
+                                                 m_platform_io,
+                                                 m_platform_topo,
+                                                 0,
+                                                 m_sample_agg,
+                                                 m_region_agg,
+                                                 "ENERGY_PACKAGE@package",
+                                                 "",
+                                                 true);
+    m_reporter->init();
 
     std::vector<std::pair<std::string, std::string> > agent_header {
         {"one", "1"},
@@ -508,6 +516,9 @@ TEST_F(ReporterTest, generate_accelerator)
     std::set<std::string> signal_names = {"ENERGY_ACCELERATOR","POWER_ACCELERATOR","FREQUENCY_ACCELERATOR"};
     EXPECT_CALL(m_platform_io, signal_names()).WillOnce(Return(signal_names));
 
+    //setup default values for 'generate' tests
+    generate_setup();
+
     m_reporter = geopm::make_unique<ReporterImp>(m_start_time,
                                                  m_report_name,
                                                  m_platform_io,
@@ -520,56 +531,7 @@ TEST_F(ReporterTest, generate_accelerator)
                                                  true);
     m_reporter->init();
 
-    // ApplicationIO calls: to be removed
-    EXPECT_CALL(m_application_io, report_name()).WillOnce(Return(m_report_name));
-    EXPECT_CALL(m_application_io, profile_name());
-    EXPECT_CALL(m_application_io, region_name_set());
-
-    // ProcessRegionAgregator
-    EXPECT_CALL(*m_region_agg, update);
-    for (auto rid : m_region_runtime) {
-        EXPECT_CALL(*m_region_agg, get_runtime_average(rid.first))
-            .WillOnce(Return(rid.second));
-    }
-    for (auto rid : m_region_count) {
-        if (GEOPM_REGION_HASH_EPOCH == rid.first) {
-            EXPECT_CALL(m_platform_io, sample(M_EPOCH_COUNT_IDX))
-                .WillOnce(Return(rid.second));
-        }
-        else {
-            EXPECT_CALL(*m_region_agg, get_count_average(rid.first))
-                .WillOnce(Return(rid.second));
-        }
-    }
-
-    // SampleAggregator
-    EXPECT_CALL(*m_sample_agg, update);
-    for (auto rid : m_region_network_time) {
-        EXPECT_CALL(*m_sample_agg, sample_region(M_TIME_NETWORK_IDX, rid.first))
-            .WillRepeatedly(Return(rid.second));
-    }
-    for (auto rid : m_region_ignore_time) {
-        EXPECT_CALL(*m_sample_agg, sample_region(M_TIME_IGNORE_IDX, rid.first))
-            .WillRepeatedly(Return(rid.second));
-    }
-    for (auto rid : m_region_sync_rt) {
-        EXPECT_CALL(*m_sample_agg, sample_region(M_TIME_IDX, rid.first))
-            .WillRepeatedly(Return(rid.second));
-    }
-    EXPECT_CALL(*m_sample_agg, sample_application(M_TIME_IDX))
-        .WillRepeatedly(Return(56));
-    EXPECT_CALL(*m_sample_agg, sample_epoch(M_TIME_IDX))
-        .WillRepeatedly(Return(70));
-
     for (auto rid : m_region_energy) {
-        EXPECT_CALL(*m_sample_agg, sample_region(M_ENERGY_PKG_IDX, rid.first))
-            .WillRepeatedly(Return(rid.second/2.0));
-        EXPECT_CALL(*m_sample_agg, sample_region(M_ENERGY_DRAM_IDX, rid.first))
-            .WillRepeatedly(Return(rid.second/2.0));
-        EXPECT_CALL(*m_sample_agg, sample_region(M_ENERGY_PKG_ENV_IDX_0, rid.first))
-            .WillRepeatedly(Return(rid.second/4.0));
-        EXPECT_CALL(*m_sample_agg, sample_region(M_ENERGY_PKG_ENV_IDX_1, rid.first))
-            .WillRepeatedly(Return(rid.second/4.0));
         EXPECT_CALL(*m_sample_agg, sample_region(M_ENERGY_ACCELERATOR_IDX, rid.first))
             .WillRepeatedly(Return(rid.second/1.0));
     }
@@ -583,36 +545,6 @@ TEST_F(ReporterTest, generate_accelerator)
         EXPECT_CALL(*m_sample_agg, sample_region(M_POWER_ACCELERATOR_IDX, rid.first))
             .WillRepeatedly(Return(rid.second/1.0));
     }
-
-    for (auto rid : m_region_clk_core) {
-        EXPECT_CALL(*m_sample_agg, sample_region(M_CLK_CORE_IDX, rid.first))
-            .WillRepeatedly(Return(rid.second));
-    }
-    for (auto rid : m_region_clk_ref) {
-        EXPECT_CALL(*m_sample_agg, sample_region(M_CLK_REF_IDX, rid.first))
-            .WillRepeatedly(Return(rid.second));
-    }
-
-    // same hint values for all regions
-    EXPECT_CALL(*m_sample_agg, sample_region(M_TIME_COMPUTE_IDX, _))
-        .WillRepeatedly(Return(0.2));
-    EXPECT_CALL(*m_sample_agg, sample_region(M_TIME_MEMORY_IDX, _))
-        .WillRepeatedly(Return(0.3));
-    EXPECT_CALL(*m_sample_agg, sample_region(M_TIME_IO_IDX, _))
-        .WillRepeatedly(Return(0.4));
-    EXPECT_CALL(*m_sample_agg, sample_region(M_TIME_SERIAL_IDX, _))
-        .WillRepeatedly(Return(0.5));
-    EXPECT_CALL(*m_sample_agg, sample_region(M_TIME_PARALLEL_IDX, _))
-        .WillRepeatedly(Return(0.6));
-    EXPECT_CALL(*m_sample_agg, sample_region(M_TIME_UNKNOWN_IDX, _))
-        .WillRepeatedly(Return(0.7));
-    EXPECT_CALL(*m_sample_agg, sample_region(M_TIME_UNSET_IDX, _))
-        .WillRepeatedly(Return(0.8));
-
-    // Other calls
-    EXPECT_CALL(m_tree_comm, overhead_send()).WillOnce(Return(678 * 56));
-    EXPECT_CALL(*m_comm, rank()).WillRepeatedly(Return(0));
-    EXPECT_CALL(*m_comm, num_rank()).WillOnce(Return(1));
 
     std::vector<std::pair<std::string, std::string> > agent_header {
         {"one", "1"},
