@@ -128,6 +128,8 @@ namespace geopm
                 std::string m_time_name;
             };
 
+            static const std::string M_PLUGIN_NAME;
+            static const std::string M_NAME_PREFIX;
             const PlatformTopo &m_platform_topo;
             const LevelZeroDevicePool &m_levelzero_device_pool;
             bool m_is_batch_read;

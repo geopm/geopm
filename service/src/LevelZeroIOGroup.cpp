@@ -56,6 +56,9 @@
 namespace geopm
 {
 
+    const std::string LevelZeroIOGroup::M_PLUGIN_NAME = "LEVELZERO";
+    const std::string LevelZeroIOGroup::M_NAME_PREFIX = M_PLUGIN_NAME + "::";
+
     LevelZeroIOGroup::LevelZeroIOGroup()
         : LevelZeroIOGroup(platform_topo(), levelzero_device_pool())
     {
@@ -67,7 +70,7 @@ namespace geopm
         : m_platform_topo(platform_topo)
         , m_levelzero_device_pool(device_pool)
         , m_is_batch_read(false)
-        , m_signal_available({{"LEVELZERO::FREQUENCY_GPU", {
+        , m_signal_available({{M_NAME_PREFIX + "FREQUENCY_GPU", {
                                   "Accelerator compute/GPU domain frequency in hertz",
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
                                   Agg::average,
@@ -88,7 +91,7 @@ namespace geopm
                                   },
                                   1e6
                                   }},
-                              {"LEVELZERO::FREQUENCY_MAX_GPU", {
+                              {M_NAME_PREFIX + "FREQUENCY_MAX_GPU", {
                                   "Accelerator compute/GPU domain maximum frequency in hertz",
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
                                   Agg::average,
@@ -103,7 +106,7 @@ namespace geopm
                                   },
                                   1e6
                                   }},
-                              {"LEVELZERO::FREQUENCY_MIN_GPU", {
+                              {M_NAME_PREFIX + "FREQUENCY_MIN_GPU", {
                                   "Accelerator compute/GPU domain minimum frequency in hertz",
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
                                   Agg::average,
@@ -118,7 +121,7 @@ namespace geopm
                                   },
                                   1e6
                                   }},
-                              {"LEVELZERO::ENERGY", {
+                              {M_NAME_PREFIX + "ENERGY", {
                                   "Accelerator energy in Joules",
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::average,
@@ -133,7 +136,7 @@ namespace geopm
                                   },
                                   1 / 1e6
                                   }},
-                              {"LEVELZERO::ENERGY_TIMESTAMP", {
+                              {M_NAME_PREFIX + "ENERGY_TIMESTAMP", {
                                   "Accelerator energy timestamp in seconds"
                                   "\nValue cached on LEVELZERO::ENERGY read",
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
@@ -149,7 +152,7 @@ namespace geopm
                                   },
                                   1 / 1e6
                                   }},
-                              {"LEVELZERO::FREQUENCY_MEMORY", {
+                              {M_NAME_PREFIX + "FREQUENCY_MEMORY", {
                                   "Accelerator memory domain frequency in hertz",
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
                                   Agg::average,
@@ -164,7 +167,7 @@ namespace geopm
                                   },
                                   1e6
                                   }},
-                              {"LEVELZERO::FREQUENCY_MAX_MEMORY", {
+                              {M_NAME_PREFIX + "FREQUENCY_MAX_MEMORY", {
                                   "Accelerator memory domain maximum frequency in hertz",
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
                                   Agg::average,
@@ -179,7 +182,7 @@ namespace geopm
                                   },
                                   1e6
                                   }},
-                              {"LEVELZERO::FREQUENCY_MIN_MEMORY", {
+                              {M_NAME_PREFIX + "FREQUENCY_MIN_MEMORY", {
                                   "Accelerator memory domain minimum frequency in hertz",
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
                                   Agg::average,
@@ -194,7 +197,7 @@ namespace geopm
                                   },
                                   1e6
                                   }},
-                              {"LEVELZERO::POWER_LIMIT_DEFAULT", {
+                              {M_NAME_PREFIX + "POWER_LIMIT_DEFAULT", {
                                   "Default power limit in Watts",
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::average,
@@ -209,7 +212,7 @@ namespace geopm
                                   },
                                   1 / 1e3
                                   }},
-                              {"LEVELZERO::POWER_LIMIT_MIN", {
+                              {M_NAME_PREFIX + "POWER_LIMIT_MIN", {
                                   "Minimum power limit in Watts",
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::average,
@@ -224,7 +227,7 @@ namespace geopm
                                   },
                                   1 / 1e3
                                   }},
-                              {"LEVELZERO::POWER_LIMIT_MAX", {
+                              {M_NAME_PREFIX + "POWER_LIMIT_MAX", {
                                   "Maximum power limit in Watts",
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::average,
@@ -239,7 +242,7 @@ namespace geopm
                                   },
                                   1 / 1e3
                                   }},
-                              {"LEVELZERO::ACTIVE_TIME", {
+                              {M_NAME_PREFIX + "ACTIVE_TIME", {
                                   "GPU active time",
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
                                   Agg::average,
@@ -254,7 +257,7 @@ namespace geopm
                                   },
                                   1 / 1e6
                                   }},
-                              {"LEVELZERO::ACTIVE_TIME_TIMESTAMP", {
+                              {M_NAME_PREFIX + "ACTIVE_TIME_TIMESTAMP", {
                                   "GPU active time reading timestamp"
                                   "\nValue cached on LEVELZERO::ACTIVE_TIME read",
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
@@ -270,7 +273,7 @@ namespace geopm
                                   },
                                   1 / 1e6
                                   }},
-                              {"LEVELZERO::ACTIVE_TIME_COMPUTE", {
+                              {M_NAME_PREFIX + "ACTIVE_TIME_COMPUTE", {
                                   "GPU Compute engine active time",
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
                                   Agg::average,
@@ -285,7 +288,7 @@ namespace geopm
                                   },
                                   1 / 1e6
                                   }},
-                              {"LEVELZERO::ACTIVE_TIME_COMPUTE_TIMESTAMP", {
+                              {M_NAME_PREFIX + "ACTIVE_TIME_COMPUTE_TIMESTAMP", {
                                   "GPU Compute engine active time reading timestamp"
                                   "\nValue cached on LEVELZERO::ACTIVE_TIME_COMPUTE read",
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
@@ -301,7 +304,7 @@ namespace geopm
                                   },
                                   1 / 1e6
                                   }},
-                              {"LEVELZERO::ACTIVE_TIME_COPY", {
+                              {M_NAME_PREFIX + "ACTIVE_TIME_COPY", {
                                   "GPU Copy engine active time",
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
                                   Agg::average,
@@ -316,7 +319,7 @@ namespace geopm
                                   },
                                   1 / 1e6
                                   }},
-                              {"LEVELZERO::ACTIVE_TIME_COPY_TIMESTAMP", {
+                              {M_NAME_PREFIX + "ACTIVE_TIME_COPY_TIMESTAMP", {
                                   "GPU Copy engine active time timestamp"
                                   "\nValue cached on LEVELZERO::ACTIVE_TIME_COPY read",
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
@@ -333,7 +336,7 @@ namespace geopm
                                   1 / 1e6
                                   }}
                              })
-        , m_control_available({{"LEVELZERO::FREQUENCY_GPU_CONTROL", {
+        , m_control_available({{M_NAME_PREFIX + "FREQUENCY_GPU_CONTROL", {
                                     "Sets accelerator frequency (in hertz)",
                                     {},
                                     GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
@@ -341,34 +344,34 @@ namespace geopm
                                     string_format_double
                                     }}
                               })
-        , m_special_signal_set({"LEVELZERO::ENERGY",
-                                "LEVELZERO::ACTIVE_TIME",
-                                "LEVELZERO::ACTIVE_TIME_COMPUTE",
-                                "LEVELZERO::ACTIVE_TIME_COPY"})
+        , m_special_signal_set({M_NAME_PREFIX + "ENERGY",
+                                M_NAME_PREFIX + "ACTIVE_TIME",
+                                M_NAME_PREFIX + "ACTIVE_TIME_COMPUTE",
+                                M_NAME_PREFIX + "ACTIVE_TIME_COPY"})
 
         , m_derivative_signal_map ({
-            {"LEVELZERO::POWER",
+            {M_NAME_PREFIX + "POWER",
                     {"Average accelerator power over 40 ms or 8 control loop iterations",
-                    "LEVELZERO::ENERGY",
-                    "LEVELZERO::ENERGY_TIMESTAMP"}},
-            {"LEVELZERO::UTILIZATION",
+                    M_NAME_PREFIX + "ENERGY",
+                    M_NAME_PREFIX + "ENERGY_TIMESTAMP"}},
+            {M_NAME_PREFIX + "UTILIZATION",
                     {"GPU utilization"
                         "n  Level Zero logical engines may map to the same hardware"
                         "\n  resulting in a reduced signal range (i.e. not 0 to 1)",
-                    "LEVELZERO::ACTIVE_TIME",
-                    "LEVELZERO::ACTIVE_TIME_TIMESTAMP"}},
-            {"LEVELZERO::UTILIZATION_COMPUTE",
+                    M_NAME_PREFIX + "ACTIVE_TIME",
+                    M_NAME_PREFIX + "ACTIVE_TIME_TIMESTAMP"}},
+            {M_NAME_PREFIX + "UTILIZATION_COMPUTE",
                     {"Compute engine utilization"
                         "n  Level Zero logical engines may map to the same hardware"
                         "\n  resulting in a reduced signal range (i.e. not 0 to 1)",
-                    "LEVELZERO::ACTIVE_TIME_COMPUTE",
-                    "LEVELZERO::ACTIVE_TIME_COMPUTE_TIMESTAMP"}},
-            {"LEVELZERO::UTILIZATION_COPY",
+                    M_NAME_PREFIX + "ACTIVE_TIME_COMPUTE",
+                    M_NAME_PREFIX + "ACTIVE_TIME_COMPUTE_TIMESTAMP"}},
+            {M_NAME_PREFIX + "UTILIZATION_COPY",
                     {"Copy engine utilization"
                         "n  Level Zero logical engines may map to the same hardware"
                         "\n  resulting in a reduced signal range (i.e. not 0 to 1)",
-                    "LEVELZERO::ACTIVE_TIME_COPY",
-                    "LEVELZERO::ACTIVE_TIME_COPY_TIMESTAMP"}},
+                    M_NAME_PREFIX + "ACTIVE_TIME_COPY",
+                    M_NAME_PREFIX + "ACTIVE_TIME_COPY_TIMESTAMP"}},
         })
     {
         // populate signals for each domain
@@ -387,10 +390,10 @@ namespace geopm
 
         register_derivative_signals();
 
-        register_signal_alias("FREQUENCY_ACCELERATOR", "LEVELZERO::FREQUENCY_GPU");
-        register_signal_alias("POWER_ACCELERATOR", "LEVELZERO::POWER");
+        register_signal_alias("FREQUENCY_ACCELERATOR", M_NAME_PREFIX + "FREQUENCY_GPU");
+        register_signal_alias("POWER_ACCELERATOR", M_NAME_PREFIX + "POWER");
         register_control_alias("FREQUENCY_ACCELERATOR_CONTROL",
-                               "LEVELZERO::FREQUENCY_GPU_CONTROL");
+                               M_NAME_PREFIX + "FREQUENCY_GPU_CONTROL");
 
         // populate controls for each domain
         for (auto &sv : m_control_available) {
@@ -765,7 +768,7 @@ namespace geopm
                             __FILE__, __LINE__);
         }
 
-        if (control_name == "LEVELZERO::FREQUENCY_GPU_CONTROL" ||
+        if (control_name == M_NAME_PREFIX + "FREQUENCY_GPU_CONTROL" ||
             control_name == "FREQUENCY_ACCELERATOR_CONTROL") {
             m_levelzero_device_pool.frequency_control(domain_type, domain_idx,
                                                       geopm::LevelZero::M_DOMAIN_COMPUTE,
@@ -887,7 +890,7 @@ namespace geopm
     // Name used for registration with the IOGroup factory
     std::string LevelZeroIOGroup::plugin_name(void)
     {
-        return "LEVELZERO";
+        return M_PLUGIN_NAME;
     }
 
     int LevelZeroIOGroup::signal_behavior(const std::string &signal_name) const
