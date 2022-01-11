@@ -426,10 +426,10 @@ default
         watch_id = session_data['watch_id']
 
         with mock.patch('gi.repository.GLib.source_remove', return_value=[]) as mock_source_remove, \
-             mock.patch('geopmdpy.pio.restore_control', return_value=[]) as mock_restore_control, \
+             mock.patch('geopmdpy.pio.restore_control_dir') as mock_restore_control_dir, \
              mock.patch('shutil.rmtree', return_value=[]) as mock_rmtree:
             self._platform_service.close_session(client_pid)
-            mock_restore_control.assert_not_called()
+            mock_restore_control_dir.assert_not_called()
             mock_rmtree.assert_not_called()
             mock_source_remove.assert_called_once_with(watch_id)
             self.assertFalse(self._platform_service._active_sessions.is_client_active(client_pid))
@@ -438,18 +438,18 @@ default
         session_data = self.open_mock_session('')
         client_pid = session_data['client_pid']
         watch_id = session_data['watch_id']
-        with mock.patch('geopmdpy.pio.save_control') as mock_save_control, \
+        with mock.patch('geopmdpy.pio.save_control_dir') as mock_save_control_dir, \
              mock.patch('geopmdpy.pio.write_control') as mock_write_control, \
              mock.patch('os.getsid', return_value=client_pid) as mock_getsid:
             self._platform_service.write_control(client_pid, 'geopm', 'board', 0, 42.024)
-            mock_save_control.assert_called_once()
+            mock_save_control_dir.assert_called_once()
             mock_write_control.assert_called_once_with('geopm', 'board', 0, 42.024)
 
         with mock.patch('gi.repository.GLib.source_remove', return_value=[]) as mock_source_remove, \
-             mock.patch('geopmdpy.pio.restore_control', return_value=[]) as mock_restore_control, \
+             mock.patch('geopmdpy.pio.restore_control_dir', return_value=[]) as mock_restore_control_dir, \
              mock.patch('os.getsid', return_value=client_pid) as mock_getsid:
             self._platform_service.close_session(client_pid)
-            mock_restore_control.assert_called_once()
+            mock_restore_control_dir.assert_called_once()
             save_dir = os.path.join(self._platform_service._VAR_PATH,
                                     self._platform_service._SAVE_DIR)
             mock_source_remove.assert_called_once_with(watch_id)
@@ -497,7 +497,7 @@ default
         setting = 777
         self.open_mock_session('other', other_pid)
         with mock.patch('geopmdpy.pio.write_control', return_value=[]) as mock_write_control, \
-             mock.patch('geopmdpy.pio.save_control', return_value=[]), \
+             mock.patch('geopmdpy.pio.save_control_dir'), \
              mock.patch('os.getsid', return_value=client_sid) as mock_getsid:
             self._platform_service.write_control(other_pid, control_name, domain, domain_idx, setting)
             mock_write_control.assert_called_once_with(control_name, domain, domain_idx, setting)
@@ -527,7 +527,7 @@ default
 
         expected_result = (1234, "1234")
         with mock.patch('geopmdpy.pio.start_batch_server', return_value=expected_result), \
-             mock.patch('geopmdpy.pio.save_control', return_value=[]), \
+             mock.patch('geopmdpy.pio.save_control_dir'), \
              mock.patch('os.getsid', return_value=client_pid) as mock_getsid:
             actual_result = self._platform_service.start_batch(client_pid, signal_config,
                                                                control_config)
@@ -611,7 +611,7 @@ default
         domain_idx = 42
         setting = 777
         with mock.patch('geopmdpy.pio.write_control', return_value=[]) as mock_write_control, \
-             mock.patch('geopmdpy.pio.save_control', return_value=[]), \
+             mock.patch('geopmdpy.pio.save_control_dir'), \
              mock.patch('os.getsid', return_value=client_pid) as mock_getsid:
             self._platform_service.write_control(client_pid, control_name, domain, domain_idx, setting)
             mock_write_control.assert_called_once_with(control_name, domain, domain_idx, setting)

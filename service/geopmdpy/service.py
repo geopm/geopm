@@ -505,7 +505,7 @@ class PlatformService(object):
                 sys.stderr.write(f'Failed to stop batch server {batch_pid}: {ex}')
         if client_pid == self._write_pid:
             save_dir = os.path.join(self._VAR_PATH, self._SAVE_DIR)
-            self._pio.restore_control() # TODO Make this call restore_control_dir()
+            self._pio.restore_control_dir(save_dir)
             shutil.rmtree(save_dir)
             self._write_pid = None
         GLib.source_remove(self._active_sessions.get_watch_id(client_pid))
@@ -773,9 +773,7 @@ class PlatformService(object):
             self._write_pid = write_pid
             save_dir = os.path.join(self._VAR_PATH, self._SAVE_DIR)
             os.makedirs(save_dir)
-            # TODO: Will need to save to disk in order to support
-            # daemon restart
-            self._pio.save_control()
+            self._pio.save_control_dir(save_dir)
 
     def _watch_client(self, client_pid):
         return GLib.timeout_add(self._WATCH_INTERVAL_MSEC, self.check_client, client_pid)

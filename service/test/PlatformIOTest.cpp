@@ -288,8 +288,6 @@ TEST_F(PlatformIOTest, push_control)
 
     EXPECT_CALL(*m_control_iogroup, control_domain_type("FREQ"));
     EXPECT_CALL(*m_control_iogroup, push_control("FREQ", GEOPM_DOMAIN_CPU, 0));
-    EXPECT_CALL(*m_control_iogroup, save_control());
-    m_platio->save_control();
     int idx = m_platio->push_control("FREQ", GEOPM_DOMAIN_CPU, 0);
     EXPECT_EQ(0, idx);
     EXPECT_EQ(idx, m_platio->push_control("FREQ", GEOPM_DOMAIN_CPU, 0));
@@ -299,6 +297,44 @@ TEST_F(PlatformIOTest, push_control)
     EXPECT_EQ(1, m_platio->num_control_pushed());
 }
 
+TEST_F(PlatformIOTest, save_restore)
+{
+    GEOPM_EXPECT_THROW_MESSAGE(m_platio->restore_control(),
+                               GEOPM_ERROR_INVALID, "Called prior to save_control()");
+    EXPECT_CALL(*m_time_iogroup, save_control());
+    EXPECT_CALL(*m_control_iogroup, save_control());
+    EXPECT_CALL(*m_override_iogroup, save_control());
+    m_platio->save_control();
+    EXPECT_CALL(*m_time_iogroup, restore_control());
+    EXPECT_CALL(*m_control_iogroup, restore_control());
+    EXPECT_CALL(*m_override_iogroup, restore_control());
+    m_platio->restore_control();
+    std::string test_path = "/TEST/PATH";
+    EXPECT_CALL(*m_time_iogroup, name())
+        .WillOnce(Return("TIME"))
+        .WillOnce(Return("TIME"));
+    EXPECT_CALL(*m_control_iogroup, name())
+        .WillOnce(Return("CONTROL"))
+        .WillOnce(Return("CONTROL"));
+    EXPECT_CALL(*m_override_iogroup, name())
+        .WillOnce(Return("OVERRIDE"))
+        .WillOnce(Return("OVERRIDE"));
+    EXPECT_CALL(*m_time_iogroup,
+                save_control(test_path + "/TIME-save-control.json"));
+    EXPECT_CALL(*m_control_iogroup,
+                save_control(test_path + "/CONTROL-save-control.json"));
+    EXPECT_CALL(*m_override_iogroup,
+                save_control(test_path + "/OVERRIDE-save-control.json"));
+    m_platio->save_control(test_path);
+    EXPECT_CALL(*m_time_iogroup,
+                restore_control(test_path + "/TIME-save-control.json"));
+    EXPECT_CALL(*m_control_iogroup,
+                restore_control(test_path + "/CONTROL-save-control.json"));
+    EXPECT_CALL(*m_override_iogroup,
+                restore_control(test_path + "/OVERRIDE-save-control.json"));
+    m_platio->restore_control(test_path);
+}
+
 TEST_F(PlatformIOTest, push_control_agg)
 {
     EXPECT_CALL(*m_topo, is_nested_domain(GEOPM_DOMAIN_CPU,
@@ -306,8 +342,6 @@ TEST_F(PlatformIOTest, push_control_agg)
     EXPECT_CALL(*m_topo, domain_nested(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_PACKAGE, 0));
     EXPECT_EQ(0, m_platio->num_control_pushed());
     EXPECT_CALL(*m_control_iogroup, control_domain_type("FREQ")).Times(AtLeast(1));
-    EXPECT_CALL(*m_control_iogroup, save_control());
-    m_platio->save_control();
     for (auto cpu : m_cpu_set0) {
         EXPECT_CALL(*m_control_iogroup, push_control("FREQ", GEOPM_DOMAIN_CPU, cpu));
     }
@@ -380,8 +414,6 @@ TEST_F(PlatformIOTest, adjust)
 {
     EXPECT_CALL(*m_control_iogroup, control_domain_type("FREQ"));
     EXPECT_CALL(*m_control_iogroup, push_control("FREQ", _, _));
-    EXPECT_CALL(*m_control_iogroup, save_control());
-    m_platio->save_control();
     int freq_idx = m_platio->push_control("FREQ", GEOPM_DOMAIN_CPU, 0);
     EXPECT_EQ(0, freq_idx);
 
@@ -403,8 +435,6 @@ TEST_F(PlatformIOTest, adjust_agg)
     EXPECT_CALL(*m_topo, domain_nested(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_PACKAGE, 0));
     double value = 1.23e9;
     EXPECT_CALL(*m_control_iogroup, control_domain_type("FREQ")).Times(AtLeast(1));
-    EXPECT_CALL(*m_control_iogroup, save_control());
-    m_platio->save_control();
     for (auto cpu : m_cpu_set0) {
         EXPECT_CALL(*m_control_iogroup, push_control("FREQ", GEOPM_DOMAIN_CPU, cpu))
             .WillOnce(Return(cpu));
