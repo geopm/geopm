@@ -84,6 +84,8 @@ namespace geopm
             std::map<pid_t, double> accelerator_process_map(void) const;
             double cpu_accelerator_affinity(int cpu_idx, std::map<pid_t, double> process_map) const;
 
+            static const std::string M_PLUGIN_NAME;
+            static const std::string M_NAME_PREFIX;
             const PlatformTopo &m_platform_topo;
             const NVMLDevicePool &m_nvml_device_pool;
             bool m_is_batch_read;
