@@ -60,7 +60,7 @@ REPORT FORMAT
 -------------
 
 
-* 
+*
   ``Header Fields``\ :
 
   ``GEOPM Version``\ : The version of the GEOPM library and tools used
@@ -226,6 +226,13 @@ The fields in each of these sections are described below:
                          unnested region (i.e. when a CPU is in the
                          unmarked region).
 
+  ``accelerator-energy (J)``\: Total energy in joules consumed by all
+                            accelerators.
+
+  ``accelerator-power (W)``\: Average power for the accelerators.
+
+  ``accelerator-frequency (Hz)``\: Achieved frequency for the accelerators in
+                                hertz.
 
 * ``Report Extensions``\ :
 
