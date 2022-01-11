@@ -423,13 +423,13 @@ namespace geopm
         };
 
         auto all_names = m_platform_io.signal_names();
-        if (all_names.find("ENERGY_ACCELERATOR") != all_names.end()) {
+        if (all_names.count("ENERGY_ACCELERATOR") != 0) {
             m_sync_fields.push_back({"accelerator-energy (J)", {"ENERGY_ACCELERATOR"}, sample_only});
         }
-        if (all_names.find("POWER_ACCELERATOR") != all_names.end()) {
+        if (all_names.count("POWER_ACCELERATOR") != 0) {
             m_sync_fields.push_back({"accelerator-power (W)", {"POWER_ACCELERATOR"}, sample_only});
         }
-        if (all_names.find("FREQUENCY_ACCELERATOR") != all_names.end()) {
+        if (all_names.count("FREQUENCY_ACCELERATOR") != 0) {
             m_sync_fields.push_back({"accelerator-frequency (HZ)", {"FREQUENCY_ACCELERATOR"}, sample_only});
         }
 
