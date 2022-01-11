@@ -427,14 +427,11 @@ namespace geopm
 
     void DCGMIOGroup::save_control(const std::string &save_path)
     {
-        throw Exception("DCGMIOGroup::save_control()",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
     }
 
     void DCGMIOGroup::restore_control(const std::string &save_path)
     {
-        throw Exception("DCGMIOGroup::restore_control()",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        restore_control();
     }
 
     // Hint to Agent about how to aggregate signals from this IOGroup
@@ -492,7 +489,7 @@ namespace geopm
     // Name used for registration with the IOGroup factory
     std::string DCGMIOGroup::plugin_name(void)
     {
-        return "dcgm";
+        return "DCGM";
     }
 
     // Function used by the factory to create objects of this type
