@@ -882,7 +882,7 @@ namespace geopm
     // Name used for registration with the IOGroup factory
     std::string LevelZeroIOGroup::plugin_name(void)
     {
-        return "levelzero";
+        return "LEVELZERO";
     }
 
     int LevelZeroIOGroup::signal_behavior(const std::string &signal_name) const

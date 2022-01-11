@@ -687,7 +687,7 @@ namespace geopm
     // Name used for registration with the IOGroup factory
     std::string NVMLIOGroup::plugin_name(void)
     {
-        return "nvml";
+        return "NVML";
     }
 
     // Function used by the factory to create objects of this type
