@@ -1,84 +1,92 @@
 
-GEOPM Systemd Service
-=====================
+GEOPM Service
+=============
+
+Features
+--------
+
+Linux Integration
+~~~~~~~~~~~~~~~~~
+  Linux Systemd Service with vendor agnostic DBus interface for
+  user-level access to hardware features on hetergenous systems
 
 
-*
-  Fine grained access management system for hardware features: read
-  hardware "signals" and write hardware "controls".
+Hardware Telemetry
+~~~~~~~~~~~~~~~~~~
+  Users read telemetry from hardware components on heterogeneous
+  systems
 
-*
-  System administrator configures access permissions based on Unix
-  group.
 
-*
-  Save / restore of hardware controls based on client process lifetime.
+Hardware Configuration
+~~~~~~~~~~~~~~~~~~~~~~
+  Users make ephemeral configurations to hardware component device
+  settings on heterogeneous systems
 
-*
-  A high performance interface enabling batch access to validated sets
-  of signals/controls.
 
-*
+Quality of Service
+~~~~~~~~~~~~~~~~~~
+  GEOPM Service reverts any changes made to hardware configurations
+  after the client's Linux process session ends
+
+
+Security
+~~~~~~~~
+  Linux system administrators manage fine-grained access permissions
+  for capabilities exposed by the GEOPM Service
+
+
+Performance
+~~~~~~~~~~~
+  Users may call a DBus interface to create a batch server which
+  provides a higher performance interface with a single permissions
+  validation when server is created
+
+
+Extensibility
+~~~~~~~~~~~~~
   Supports extensibility for heterogenous environments through C++
   plugin infrastructure (IOGroups).
 
-*
-  `Overview slides <https://geopm.github.io/pdf/geopm-service.pdf>`_
 
 Overview
 --------
 
-The GEOPM service enables a client to make measurements from the
-hardware platform and set hardware control parameters.  Fine grained
-permissions management for both measurements (signals) and controls is
-configurable by system administrators with the ``geopmaccess`` command
-line tool.  The service can support many simultaneous client sessions
-that make measurements, but only one client session is granted write
-permission to set hardware control values at any time.  When a client
-session is granted write access it will retain that permission until
-the session ends.  When the client session ends, all hardware settings
-that are managed by the GEOPM service are restored to the value they
-had prior to the client opening a write session.
+The GEOPM Service provides a user-level interface to read telemetry
+and configure settings of heterogeneous hardware platforms. Linux
+system administrators may manage permissions for user access to
+telemetry and configuration at a fine granularity.
 
-The ``geopmd`` daemon is started by the GEOPM systemd service and uses
-D-Bus for communication with client processes and for administrator
-configuration.  The GEOPM service is used to extend the
-``geopm::PlatformIO`` features of libgeopm and libgeopmpolicy.  The
-PlatformIO interface of GEOPM is extensible through IOGroup plugins
-and the GEOPM service enables the ServiceIOGroup.  The ServiceIOGroup
-is implemented to provide the requirements of the IOGroup class by
-interfacing with ``geopmd`` over the D-Bus interface.  The
-ServiceIOGroup plugin is loaded first by PlatformIO in libgeopm and
-libgeopmpolicy, and is not loaded by the PlatformIO implementation in
-libgeopmd.  For a libgeopm or libgeopmpolicy user, any IOGroup other
-than the ServiceIOGroup that provides a requested signal or control
-will be used.  The ServiceIOGroup will only be used when a user
-requests a signal or control that cannot be provided by any of the
-native IOGroup plugins loaded by the unprivileged user process.  The
-geopmd process loads PlatformIO through libgeopmd as a root user which
-has permissions to load all signals and controls from all IOGroups but
-does not load the ProfileIOGroup that provides signals derived from
-the user application.  The PlatformIO loaded by geopmd provides the
-implementation for the GEOPM service D-Bus interfaces.
+Clients use the GEOPM Service DBus interface to interact with the
+service.  The GEOPM Service package provides access to the DBus
+interfaces from the command line, or programatically with library
+interfaces for C, C++ and Python.
 
-Architecture Diagram
---------------------
+The service can support many simultaneous client sessions that make
+measurements, but only clients from within one Linux process session
+are granted write permission to configure hardware control values at
+any time.  When a client process session is granted write access it
+will retain that permission until the Linux session process leader of
+that client process terminates.  When the process session leader
+terminates all hardware settings that are managed by the GEOPM Service
+are restored to the values they had prior to the first client write
+request.  See `setsid(2) <https://man7.org/linux/man-pages/man2/setsid.2.html>`_
+manual for more information about the Linux session leader processs.
 
 
-.. image:: https://geopm.github.io/images/geopm-service-diagram.svg
-   :target: https://geopm.github.io/pdf/geopm-service-diagram.pdf
-   :alt:
+*
+  `Overview slides <https://geopm.github.io/pdf/geopm-service.pdf>`_
 
 
 Status
 ------
 
 The GEOPM systemd service is a new feature.  What exists currently is
-a proof of concept / prototype, and there are many outstanding issues
-that must be resolved before the GEOPM service is ready for release.
-These issues are tracked on github with the "geopm-service" tag:
+a work in progress, and there are several outstanding issues that must
+be resolved before the GEOPM Service is ready for release with GEOPM
+version 2.0.  These
+`issues <https://github.com/geopm/geopm/issues?q=is%3Aissue+is%3Aopen+label%3Ageopm-service>`_
+are tracked on github with the "geopm-service" tag.
 
-https://github.com/geopm/geopm/issues?q=is%3Aissue+is%3Aopen+label%3Ageopm-service
 
 Signals and Controls
 --------------------
@@ -97,7 +105,7 @@ end-user when access is granted to a signal or control.
 Access Management
 -----------------
 
-Access to signals and controls through the GEOPM service is configured
+Access to signals and controls through the GEOPM Service is configured
 by the system administrator.  The administrator controls a default
 access list that applies to all users of the system.  This list can be
 augmented based on Unix group associations.  The default lists are
@@ -120,9 +128,9 @@ both of the files
 
 Any missing files are inferred to be empty lists, including the
 default access files.  A signal or control will not be available to
-non-root users through the GEOPM service until a system administrator
+non-root users through the GEOPM Service until a system administrator
 enables access through these allow lists.  It is recommended that all
-manipulation of these files should be done through the GEOPM service
+manipulation of these files should be done through the GEOPM Service
 with the ``geopmaccess`` command line tool.
 
 Some filtering may be applied to the raw signals provided by the
@@ -134,7 +142,7 @@ session, which is reported as zero.
 Opening a Session
 -----------------
 
-A client process opens a session with the GEOPM service each time a
+A client process opens a session with the GEOPM Service each time a
 PlatformIO object is created with libgeopm or libgeopmpolicy while the
 GEOPM systemd service is active.  This session is initially opened in
 read-only mode.  Calls into the D-Bus APIs that modify control values:
@@ -172,26 +180,26 @@ provides the control requested by the user since all IOGroups are
 loaded by the PlatformIO factory after the ServiceIOGroup.
 
 Note that if any control adjustments are made during a session through
-the GEOPM service then every control supported by GEOPM will be
+the GEOPM Service then every control supported by GEOPM will be
 reverted when the session ends.  One consequence of this is that when
-a control is exposed to a user only through the GEOPM service, then
+a control is exposed to a user only through the GEOPM Service, then
 the geopmwrite command line tool will not be effective (the value will
 be written, but reverted when the geopmwrite process ends).  The
 geopmsession command line tool can be used to write any number of the
 GEOPM supported controls and keep a session open for a specified
 duration (or until the geopmsession process is killed).
 
-In addition to saving the state of controls, the GEOPM service will
+In addition to saving the state of controls, the GEOPM Service will
 also lock access to controls for any other client until the
 controlling session ends.  When the controlling session ends the saved
 state is used to restore the values for all controls supported by the
-GEOPM service to the values they had prior to enabling the client to
+GEOPM Service to the values they had prior to enabling the client to
 modify a control.  The controlling session may end by an explicit
 D-Bus call by the client, or when the process that initiated the
-client session ends.  The GEOPM service will use the ``pidfd_open(2)``
+client session ends.  The GEOPM Service will use the ``pidfd_open(2)``
 mechanism for notification of the end of the client process if this is
 supported by the Linux kernel, otherwise it will poll procfs for the
-process ID.  The GEOPM service provides an interface that enables a
+process ID.  The GEOPM Service provides an interface that enables a
 privileged user to end any currently running write mode session, and
 block any access to controls by other clients.  There is a
 corresponding unlock interface that will enable write mode sessions to
@@ -200,7 +208,7 @@ begin again.
 Batch Server
 ------------
 
-The GEOPM service provides the implementation for the ServiceIOGroup
+The GEOPM Service provides the implementation for the ServiceIOGroup
 which accesses this implementation through the DBus interface.  When a
 user program calls ``read_signal()`` or ``write_control()`` on a
 PlatformIO object provided by libgeopm or libgeopmpolicy and the only
@@ -218,7 +226,7 @@ ServiceIOGroup.
 The batch server is configured to allow access to exactly the signals
 and controls that were pushed onto the stack for the ServiceIOGroup
 prior to the first ``read_batch()`` or ``write_batch()`` call.  Through
-the D-Bus implementation, the GEOPM service verifies that the client
+the D-Bus implementation, the GEOPM Service verifies that the client
 user has appropriate permissions for the requested signals and
 controls.  When the first call to ``read_batch()`` or ``write_batch()`` is
 made to user's PlatformIO object, the geopmd process forks the batch

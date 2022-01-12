@@ -40,11 +40,15 @@ EXTRA_DIST += docs/geninfo.sh \
               docs/source/devel.rst \
               docs/source/index.rst \
               docs/source/info.rst \
-              docs/source/readme.rst \
+              docs/source/intro.rst \
+              docs/source/overview.rst \
+              docs/source/publications.rst \
+              docs/source/service_readme.rst \
               docs/source/reference.rst \
               docs/source/requires.rst \
               docs/source/runtime.rst \
               docs/source/signals_SKX.rst \
+              docs/source/use_cases.rst \
               # end
 
 docs: libgeopmd.la $(abs_srcdir)/geopmdpy/version.py
