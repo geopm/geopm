@@ -226,13 +226,13 @@ The fields in each of these sections are described below:
                          unnested region (i.e. when a CPU is in the
                          unmarked region).
 
-  ``accelerator-energy (J)``\: Total energy in joules consumed by all
-                            accelerators.
+  ``gpu-energy (J)``\: Total energy in joules consumed by all
+                    accelerators.
 
-  ``accelerator-power (W)``\: Average power for the accelerators.
+  ``gpu-power (W)``\: Average power for the accelerators in watts.
 
-  ``accelerator-frequency (Hz)``\: Achieved frequency for the accelerators in
-                                hertz.
+  ``gpu-frequency (Hz)``\: Achieved frequency for the accelerators in
+                        hertz.
 
 * ``Report Extensions``\ :
 
