@@ -70,8 +70,8 @@ namespace geopm
         : m_platform_topo(platform_topo)
         , m_levelzero_device_pool(device_pool)
         , m_is_batch_read(false)
-        , m_signal_available({{M_NAME_PREFIX + "FREQUENCY_GPU", {
-                                  "Accelerator compute/GPU domain frequency in hertz",
+        , m_signal_available({{M_NAME_PREFIX + "GPUCHIP_FREQUENCY_STATUS", {
+                                  "Compute/GPU chip domain current frequency in hertz",
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
                                   Agg::average,
                                   string_format_double,
@@ -91,8 +91,8 @@ namespace geopm
                                   },
                                   1e6
                                   }},
-                              {M_NAME_PREFIX + "FREQUENCY_MAX_GPU", {
-                                  "Accelerator compute/GPU domain maximum frequency in hertz",
+                              {M_NAME_PREFIX + "GPUCHIP_FREQUENCY_MAX_AVAIL", {
+                                  "Compute/GPU chip domain maximum available frequency in hertz",
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
                                   Agg::average,
                                   string_format_double,
@@ -106,8 +106,8 @@ namespace geopm
                                   },
                                   1e6
                                   }},
-                              {M_NAME_PREFIX + "FREQUENCY_MIN_GPU", {
-                                  "Accelerator compute/GPU domain minimum frequency in hertz",
+                              {M_NAME_PREFIX + "GPUCHIP_FREQUENCY_MIN_AVAIL", {
+                                  "Compute/GPU chip domain minimum available frequency in hertz",
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
                                   Agg::average,
                                   string_format_double,
@@ -121,8 +121,38 @@ namespace geopm
                                   },
                                   1e6
                                   }},
-                              {M_NAME_PREFIX + "ENERGY", {
-                                  "Accelerator energy in Joules",
+                              {M_NAME_PREFIX + "GPUCHIP_FREQUENCY_MAX_CONTROL", {
+                                  "Compute/GPU chip domain current maximum frequency requested in hertz",
+                                  GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                  Agg::average,
+                                  string_format_double,
+                                  {},
+                                  [this](unsigned int domain_idx) -> double
+                                  {
+                                      return (this->m_levelzero_device_pool.frequency_range(
+                                                   GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                                   domain_idx,
+                                                   geopm::LevelZero::M_DOMAIN_COMPUTE)).second;
+                                  },
+                                  1e6
+                                  }},
+                              {M_NAME_PREFIX + "GPUCHIP_FREQUENCY_MIN_CONTROL", {
+                                  "Compute/GPU chip domain current minimum frequency requested in hertz",
+                                  GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                  Agg::average,
+                                  string_format_double,
+                                  {},
+                                  [this](unsigned int domain_idx) -> double
+                                  {
+                                      return (this->m_levelzero_device_pool.frequency_range(
+                                                   GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                                   domain_idx,
+                                                   geopm::LevelZero::M_DOMAIN_COMPUTE)).first;
+                                  },
+                                  1e6
+                                  }},
+                              {M_NAME_PREFIX + "GPU_ENERGY", {
+                                  "GPU energy in Joules",
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::average,
                                   string_format_double,
@@ -136,8 +166,8 @@ namespace geopm
                                   },
                                   1 / 1e6
                                   }},
-                              {M_NAME_PREFIX + "ENERGY_TIMESTAMP", {
-                                  "Accelerator energy timestamp in seconds"
+                              {M_NAME_PREFIX + "GPU_ENERGY_TIMESTAMP", {
+                                  "GPU energy timestamp in seconds"
                                   "\nValue cached on LEVELZERO::ENERGY read",
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::average,
@@ -152,8 +182,8 @@ namespace geopm
                                   },
                                   1 / 1e6
                                   }},
-                              {M_NAME_PREFIX + "FREQUENCY_MEMORY", {
-                                  "Accelerator memory domain frequency in hertz",
+                              {M_NAME_PREFIX + "GPUCHIP_MEMORY_FREQUENCY_STATUS", {
+                                  "Compute/GPU chip domain memory current frequency in hertz",
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
                                   Agg::average,
                                   string_format_double,
@@ -167,8 +197,8 @@ namespace geopm
                                   },
                                   1e6
                                   }},
-                              {M_NAME_PREFIX + "FREQUENCY_MAX_MEMORY", {
-                                  "Accelerator memory domain maximum frequency in hertz",
+                              {M_NAME_PREFIX + "GPUCHIP_MEMORY_FREQUENCY_MAX_AVAIL", {
+                                  "Compute/GPU chip domain memory maximum frequency available in hertz",
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
                                   Agg::average,
                                   string_format_double,
@@ -182,8 +212,8 @@ namespace geopm
                                   },
                                   1e6
                                   }},
-                              {M_NAME_PREFIX + "FREQUENCY_MIN_MEMORY", {
-                                  "Accelerator memory domain minimum frequency in hertz",
+                              {M_NAME_PREFIX + "GPUCHIP_MEMORY_FREQUENCY_MIN_AVAIL", {
+                                  "Compute/GPU chip domain memory minimum frequency in hertz",
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
                                   Agg::average,
                                   string_format_double,
@@ -197,7 +227,7 @@ namespace geopm
                                   },
                                   1e6
                                   }},
-                              {M_NAME_PREFIX + "POWER_LIMIT_DEFAULT", {
+                              {M_NAME_PREFIX + "GPU_POWER_LIMIT_DEFAULT", {
                                   "Default power limit in Watts",
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::average,
@@ -212,8 +242,8 @@ namespace geopm
                                   },
                                   1 / 1e3
                                   }},
-                              {M_NAME_PREFIX + "POWER_LIMIT_MIN", {
-                                  "Minimum power limit in Watts",
+                              {M_NAME_PREFIX + "GPU_POWER_LIMIT_MIN_AVAIL", {
+                                  "Minimum available power limit in Watts",
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::average,
                                   string_format_double,
@@ -227,8 +257,8 @@ namespace geopm
                                   },
                                   1 / 1e3
                                   }},
-                              {M_NAME_PREFIX + "POWER_LIMIT_MAX", {
-                                  "Maximum power limit in Watts",
+                              {M_NAME_PREFIX + "GPU_POWER_LIMIT_MAX_AVAIL", {
+                                  "Maximum available power limit in Watts",
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::average,
                                   string_format_double,
@@ -242,8 +272,8 @@ namespace geopm
                                   },
                                   1 / 1e3
                                   }},
-                              {M_NAME_PREFIX + "ACTIVE_TIME", {
-                                  "GPU active time",
+                              {M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME", {
+                                  "Compute/GPU chip active time",
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
                                   Agg::average,
                                   string_format_double,
@@ -257,9 +287,9 @@ namespace geopm
                                   },
                                   1 / 1e6
                                   }},
-                              {M_NAME_PREFIX + "ACTIVE_TIME_TIMESTAMP", {
-                                  "GPU active time reading timestamp"
-                                  "\nValue cached on LEVELZERO::ACTIVE_TIME read",
+                              {M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME_TIMESTAMP", {
+                                  "Compute/GPU chip active time reading timestamp"
+                                  "\nValue cached on LEVELZERO::GPUCHIP_ACTIVE_TIME read",
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
                                   Agg::average,
                                   string_format_double,
@@ -273,8 +303,8 @@ namespace geopm
                                   },
                                   1 / 1e6
                                   }},
-                              {M_NAME_PREFIX + "ACTIVE_TIME_COMPUTE", {
-                                  "GPU Compute engine active time",
+                              {M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME_COMPUTE", {
+                                  "Compute/GPU chip domain compute engine active time",
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
                                   Agg::average,
                                   string_format_double,
@@ -288,9 +318,9 @@ namespace geopm
                                   },
                                   1 / 1e6
                                   }},
-                              {M_NAME_PREFIX + "ACTIVE_TIME_COMPUTE_TIMESTAMP", {
-                                  "GPU Compute engine active time reading timestamp"
-                                  "\nValue cached on LEVELZERO::ACTIVE_TIME_COMPUTE read",
+                              {M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME_COMPUTE_TIMESTAMP", {
+                                  "Compute/GPU chip domain compute engine active time reading timestamp"
+                                  "\nValue cached on LEVELZERO::GPUCHIP_ACTIVE_TIME_COMPUTE read",
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
                                   Agg::average,
                                   string_format_double,
@@ -304,8 +334,8 @@ namespace geopm
                                   },
                                   1 / 1e6
                                   }},
-                              {M_NAME_PREFIX + "ACTIVE_TIME_COPY", {
-                                  "GPU Copy engine active time",
+                              {M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME_COPY", {
+                                  "Compute/GPU chip domain copy engine active time",
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
                                   Agg::average,
                                   string_format_double,
@@ -319,9 +349,9 @@ namespace geopm
                                   },
                                   1 / 1e6
                                   }},
-                              {M_NAME_PREFIX + "ACTIVE_TIME_COPY_TIMESTAMP", {
-                                  "GPU Copy engine active time timestamp"
-                                  "\nValue cached on LEVELZERO::ACTIVE_TIME_COPY read",
+                              {M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME_COPY_TIMESTAMP", {
+                                  "Compute/GPU chip domain copy engine active time timestamp"
+                                  "\nValue cached on LEVELZERO::GPUCHIP_ACTIVE_TIME_COPY read",
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
                                   Agg::average,
                                   string_format_double,
@@ -334,44 +364,76 @@ namespace geopm
                                                    geopm::LevelZero::M_DOMAIN_MEMORY);
                                   },
                                   1 / 1e6
+                                  }},
+                              {M_NAME_PREFIX + "GPUCHIP_FREQUENCY_CONTROL", {
+                                  "Compute/GPU chip domain current requested frequency in hertz"
+                                  "\nReadings are valid only after writing to this control",
+                                  GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                  Agg::average,
+                                  string_format_double,
+                                  {},
+                                  [this](unsigned int domain_idx) -> double
+                                  {
+                                      auto range_pair =  this->m_levelzero_device_pool.frequency_range(
+                                                               GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                                               domain_idx,
+                                                               geopm::LevelZero::M_DOMAIN_COMPUTE);
+                                      return range_pair.first == range_pair.second ? range_pair.first
+                                                              : NAN;
+                                  },
+                                  1e6
                                   }}
                              })
-        , m_control_available({{M_NAME_PREFIX + "FREQUENCY_GPU_CONTROL", {
-                                    "Sets accelerator frequency (in hertz)",
+        , m_control_available({{M_NAME_PREFIX + "GPUCHIP_FREQUENCY_MIN_CONTROL", {
+                                    "Sets the compute/GPU chip domain frequency minimum in hertz",
+                                    {},
+                                    GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                    Agg::average,
+                                    string_format_double
+                                    }},
+                               {M_NAME_PREFIX + "GPUCHIP_FREQUENCY_MAX_CONTROL", {
+                                    "Sets the compute/GPU chip domain frequency maximum in hertz",
+                                    {},
+                                    GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                    Agg::average,
+                                    string_format_double
+                                    }},
+                               {M_NAME_PREFIX + "GPUCHIP_FREQUENCY_CONTROL", {
+                                    "Sets the compute/GPU chip fomain frequency both min and max in hertz",
                                     {},
                                     GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
                                     Agg::average,
                                     string_format_double
                                     }}
                               })
-        , m_special_signal_set({M_NAME_PREFIX + "ENERGY",
-                                M_NAME_PREFIX + "ACTIVE_TIME",
-                                M_NAME_PREFIX + "ACTIVE_TIME_COMPUTE",
-                                M_NAME_PREFIX + "ACTIVE_TIME_COPY"})
+        , m_special_signal_set({M_NAME_PREFIX + "GPU_ENERGY",
+                                M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME",
+                                M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME_COMPUTE",
+                                M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME_COPY"})
 
         , m_derivative_signal_map ({
-            {M_NAME_PREFIX + "POWER",
-                    {"Average accelerator power over 40 ms or 8 control loop iterations",
-                    M_NAME_PREFIX + "ENERGY",
-                    M_NAME_PREFIX + "ENERGY_TIMESTAMP"}},
-            {M_NAME_PREFIX + "UTILIZATION",
+            {M_NAME_PREFIX + "GPU_POWER",
+                    {"Average GPU power over 40 ms or 8 control loop iterations",
+                    M_NAME_PREFIX + "GPU_ENERGY",
+                    M_NAME_PREFIX + "GPU_ENERGY_TIMESTAMP"}},
+            {M_NAME_PREFIX + "GPU_UTILIZATION",
                     {"GPU utilization"
                         "n  Level Zero logical engines may map to the same hardware"
                         "\n  resulting in a reduced signal range (i.e. not 0 to 1)",
-                    M_NAME_PREFIX + "ACTIVE_TIME",
-                    M_NAME_PREFIX + "ACTIVE_TIME_TIMESTAMP"}},
-            {M_NAME_PREFIX + "UTILIZATION_COMPUTE",
+                    M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME",
+                    M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME_TIMESTAMP"}},
+            {M_NAME_PREFIX + "GPU_UTILIZATION_COMPUTE",
                     {"Compute engine utilization"
                         "n  Level Zero logical engines may map to the same hardware"
                         "\n  resulting in a reduced signal range (i.e. not 0 to 1)",
-                    M_NAME_PREFIX + "ACTIVE_TIME_COMPUTE",
-                    M_NAME_PREFIX + "ACTIVE_TIME_COMPUTE_TIMESTAMP"}},
-            {M_NAME_PREFIX + "UTILIZATION_COPY",
+                    M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME_COMPUTE",
+                    M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME_COMPUTE_TIMESTAMP"}},
+            {M_NAME_PREFIX + "GPU_UTILIZATION_COPY",
                     {"Copy engine utilization"
                         "n  Level Zero logical engines may map to the same hardware"
                         "\n  resulting in a reduced signal range (i.e. not 0 to 1)",
-                    M_NAME_PREFIX + "ACTIVE_TIME_COPY",
-                    M_NAME_PREFIX + "ACTIVE_TIME_COPY_TIMESTAMP"}},
+                    M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME_COPY",
+                    M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME_COPY_TIMESTAMP"}},
         })
     {
         // populate signals for each domain
@@ -390,10 +452,12 @@ namespace geopm
 
         register_derivative_signals();
 
-        register_signal_alias("FREQUENCY_ACCELERATOR", M_NAME_PREFIX + "FREQUENCY_GPU");
-        register_signal_alias("POWER_ACCELERATOR", M_NAME_PREFIX + "POWER");
-        register_control_alias("FREQUENCY_ACCELERATOR_CONTROL",
-                               M_NAME_PREFIX + "FREQUENCY_GPU_CONTROL");
+        register_signal_alias("GPUCHIP_FREQUENCY_STATUS", M_NAME_PREFIX + "GPUCHIP_FREQUENCY_STATUS");
+        register_signal_alias("GPU_POWER", M_NAME_PREFIX + "GPU_POWER");
+        register_signal_alias("GPUCHIP_FREQUENCY_CONTROL",
+                               M_NAME_PREFIX + "GPUCHIP_FREQUENCY_CONTROL");
+        register_control_alias("GPUCHIP_FREQUENCY_CONTROL",
+                               M_NAME_PREFIX + "GPUCHIP_FREQUENCY_CONTROL");
 
         // populate controls for each domain
         for (auto &sv : m_control_available) {
@@ -768,11 +832,25 @@ namespace geopm
                             __FILE__, __LINE__);
         }
 
-        if (control_name == M_NAME_PREFIX + "FREQUENCY_GPU_CONTROL" ||
-            control_name == "FREQUENCY_ACCELERATOR_CONTROL") {
+        if (control_name == M_NAME_PREFIX + "GPUCHIP_FREQUENCY_CONTROL" ||
+            control_name == "GPUCHIP_FREQUENCY_CONTROL") {
             m_levelzero_device_pool.frequency_control(domain_type, domain_idx,
                                                       geopm::LevelZero::M_DOMAIN_COMPUTE,
                                                       setting / 1e6, setting / 1e6);
+        }
+        else if(control_name == M_NAME_PREFIX + "GPUCHIP_FREQUENCY_MIN_CONTROL") {
+            double curr_max = read_signal(M_NAME_PREFIX + "GPUCHIP_FREQUENCY_MAX_CONTROL",
+                                          domain_type, domain_idx);
+            m_levelzero_device_pool.frequency_control(domain_type, domain_idx,
+                                                      geopm::LevelZero::M_DOMAIN_COMPUTE,
+                                                      setting / 1e6, curr_max / 1e6);
+        }
+        else if(control_name == M_NAME_PREFIX + "GPUCHIP_FREQUENCY_MAX_CONTROL") {
+            double curr_min = read_signal(M_NAME_PREFIX + "GPUCHIP_FREQUENCY_MIN_CONTROL",
+                                          domain_type, domain_idx);
+            m_levelzero_device_pool.frequency_control(domain_type, domain_idx,
+                                                      geopm::LevelZero::M_DOMAIN_COMPUTE,
+                                                      curr_min / 1e6, setting / 1e6);
         }
         else {
     #ifdef GEOPM_DEBUG
