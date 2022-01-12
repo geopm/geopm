@@ -71,8 +71,8 @@ class TestIntegrationLevelZeroSignals(unittest.TestCase):
     def test_power(self):
         #Query
         power = geopm_test_launcher.geopmread("LEVELZERO::POWER board_accelerator 0")
-        power_limit_max = geopm_test_launcher.geopmread("LEVELZERO::POWER_LIMIT_MAX board_accelerator 0")
-        power_limit_min = geopm_test_launcher.geopmread("LEVELZERO::POWER_LIMIT_MIN board_accelerator 0")
+        power_limit_max = geopm_test_launcher.geopmread("LEVELZERO::GPU_POWER_LIMIT_MAX_AVAIL board_accelerator 0")
+        power_limit_min = geopm_test_launcher.geopmread("LEVELZERO::GPU_POWER_LIMIT_MIN_AVAIL board_accelerator 0")
 
         #Info
         sys.stdout.write("Power:\n");
@@ -110,20 +110,20 @@ class TestIntegrationLevelZeroSignals(unittest.TestCase):
     def test_frequency(self):
         sys.stdout.write("Running LevelZero Frequency Test\n");
         #Query
-        frequency_gpu = geopm_test_launcher.geopmread("LEVELZERO::FREQUENCY_GPU board_accelerator 0")
-        frequency_min_gpu = geopm_test_launcher.geopmread("LEVELZERO::FREQUENCY_MIN_GPU board_accelerator 0")
-        frequency_max_gpu = geopm_test_launcher.geopmread("LEVELZERO::FREQUENCY_MAX_GPU board_accelerator 0")
+        frequency_gpu = geopm_test_launcher.geopmread("LEVELZERO::GPUCHIP_FREQUENCY board_accelerator 0")
+        gpu_min_frequency_limit = geopm_test_launcher.geopmread("LEVELZERO::GPUCHIP_FREQUENCY_MIN_AVAIL board_accelerator 0")
+        gpu_max_frequency_limit = geopm_test_launcher.geopmread("LEVELZERO::GPUCHIP_FREQUENCY_MAX_AVAIL board_accelerator 0")
 
         #Info
         sys.stdout.write("Frequency:\n");
         sys.stdout.write("\tFrequency GPU: {}\n".format(frequency_gpu));
-        sys.stdout.write("\tFrequency GPU Min: {}\n".format(frequency_min_gpu));
-        sys.stdout.write("\tFrequency GPU Max: {}\n".format(frequency_max_gpu));
+        sys.stdout.write("\tFrequency GPU Min Limit: {}\n".format(gpu_min_frequency_limit));
+        sys.stdout.write("\tFrequency GPU Max Limit: {}\n".format(gpu_max_frequency_limit));
 
         #TODO: standby mode check
-        self.assertGreaterEqual(frequency_gpu, frequency_min_gpu)
-        if(frequency_max_gpu > 0): #Negative value indicates max was not supported
-            self.assertLessEqual(frequency_gpu, frequency_max_gpu)
+        self.assertGreaterEqual(frequency_gpu, gpu_min_frequency_limit)
+        if(gpu_max_frequency_limit > 0): #Negative value indicates max was not supported
+            self.assertLessEqual(frequency_gpu, gpu_max_frequency_limit)
 
 
 if __name__ == '__main__':
