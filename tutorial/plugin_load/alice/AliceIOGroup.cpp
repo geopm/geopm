@@ -50,6 +50,11 @@ static void __attribute__((constructor)) example_iogroup_load(void)
                                              AliceIOGroup::make_plugin);
 }
 
+std::string AliceIOGroup::name(void) const
+{
+    return plugin_name();
+}
+
 // Name used for registration with the IOGroup factory
 std::string AliceIOGroup::plugin_name(void)
 {
