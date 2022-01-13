@@ -65,8 +65,7 @@ static int stream_profiled_omp(uint64_t region_id, size_t num_stream, double sca
 
     return err;
 }
-#endif
-
+#else
 static int stream_profiled_serial(uint64_t region_id, size_t num_stream, double scalar, double *a, double *b, double *c)
 {
     const size_t block = 256;
@@ -86,6 +85,7 @@ static int stream_profiled_serial(uint64_t region_id, size_t num_stream, double 
 
     return 0;
 }
+#endif
 
 int tutorial_stream_profiled(double big_o, int do_report)
 {
@@ -122,7 +122,7 @@ int tutorial_stream_profiled(double big_o, int do_report)
             }
 
             if (do_report) {
-                printf("Executing profiled STREAM triad on length %d vectors.\n", num_stream);
+                printf("Executing profiled STREAM triad on length %ld vectors.\n", num_stream);
                 fflush(stdout);
             }
             err = geopm_prof_enter(stream_rid);
@@ -143,4 +143,5 @@ int tutorial_stream_profiled(double big_o, int do_report)
             free(a);
         }
     }
+    return err;
 }

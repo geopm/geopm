@@ -469,6 +469,11 @@ int ExampleIOGroup::signal_behavior(const std::string &signal_name) const
     return M_SIGNAL_BEHAVIOR_MONOTONE;
 }
 
+std::string ExampleIOGroup::name(void) const
+{
+    return plugin_name();
+}
+
 // Name used for registration with the IOGroup factory
 std::string ExampleIOGroup::plugin_name(void)
 {

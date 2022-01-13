@@ -162,7 +162,7 @@ int tutorial_stream(double big_o, int do_report)
             }
 
             if (do_report) {
-                printf("Executing STREAM triad on length %d vectors.\n", num_stream);
+                printf("Executing STREAM triad on length %ld vectors.\n", num_stream);
                 fflush(stdout);
             }
 
@@ -202,7 +202,7 @@ int tutorial_all2all(double big_o, int do_report)
         }
         if (!err) {
             if (do_report) {
-                printf("Executing all2all of %d byte buffer on %d ranks.\n",
+                printf("Executing all2all of %ld byte buffer on %d ranks.\n",
                        num_send * sizeof(char), num_rank);
                 fflush(stdout);
             }
