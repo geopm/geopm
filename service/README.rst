@@ -38,7 +38,7 @@ Security
 Performance
 ~~~~~~~~~~~
   Users may call a DBus interface to create a batch server which
-  provides a higher performance interface with a single permissions
+  provides a lower-latency interface with a single permissions
   validation when server is created
 
 
@@ -61,13 +61,13 @@ service.  The GEOPM Service package provides access to the DBus
 interfaces from the command line, or programatically with library
 interfaces for C, C++ and Python.
 
-The service can support many simultaneous client sessions that make
+The service supports many simultaneous client sessions that make
 measurements, but only clients from within one Linux process session
 are granted write permission to configure hardware control values at
 any time.  When a client process session is granted write access it
 will retain that permission until the Linux session process leader of
 that client process terminates.  When the process session leader
-terminates all hardware settings that are managed by the GEOPM Service
+terminates, all hardware settings that are managed by the GEOPM Service
 are restored to the values they had prior to the first client write
 request.  See `setsid(2) <https://man7.org/linux/man-pages/man2/setsid.2.html>`_
 manual for more information about the Linux session leader processs.

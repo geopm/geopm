@@ -2,6 +2,11 @@
 Use Cases
 ---------
 
+GEOPM comes with tools and software interfaces to access its
+features. This page outlines some of the use cases that are available
+across those interfaces.
+
+
 Hardware Telemetry
 ~~~~~~~~~~~~~~~~~~
 
