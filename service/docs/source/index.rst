@@ -13,9 +13,13 @@ dynamically coordinating hardware settings across all compute nodes used by a
 distributed application is response to the application's behavior and requests
 from the resource manager.
 
-For access to the latest
-`source code <https://github.com/geopm/geopm>`_ ,
-clone the git repo:
+
+.. image:: https://geopm.github.io/images/github-button.png
+   :target: https://github.com/geopm/geopm
+   :width: 200
+   :alt: View on Github
+
+For access to the latest source code clone the git repo:
 
 .. code-block:: bash
 
