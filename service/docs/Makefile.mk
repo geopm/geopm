@@ -40,7 +40,6 @@ EXTRA_DIST += docs/geninfo.sh \
               docs/source/devel.rst \
               docs/source/index.rst \
               docs/source/info.rst \
-              docs/source/intro.rst \
               docs/source/overview.rst \
               docs/source/publications.rst \
               docs/source/reference.rst \
