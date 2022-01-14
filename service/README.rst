@@ -109,14 +109,16 @@ useful for end-users, and it also provides information for system
 administrators that will help them understand what is enabled for an
 end-user when access is granted to a signal or control.
 
+
 Access Management
 -----------------
 
 Access to signals and controls through the GEOPM Service is configured
 by the system administrator.  The administrator controls a default
-access list that applies to all users of the system.  This list can be
-augmented based on Unix group associations.  The default lists are
-stored in:
+access list that applies to all users of the system.  This list
+accessible signals and controls for all users may be augmented so that
+users who are members of particular Unix groups may have enhanced
+access.  The default lists are stored in:
 
 .. code-block::
 
@@ -124,8 +126,8 @@ stored in:
    /etc/geopm-service/0.DEFAULT_ACCESS/allowed_controls
 
 
-Each Unix ``<GROUP>`` that has extended permissions can maintain one or
-both of the files
+Each Unix group name ``<GROUP>`` that has extended permissions can
+maintain one or both of the files
 
 .. code-block::
 
