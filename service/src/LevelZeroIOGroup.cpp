@@ -187,7 +187,7 @@ namespace geopm
                               {M_NAME_PREFIX + "GPU_ENERGY", {
                                   "GPU energy in Joules",
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
-                                  Agg::average,
+                                  Agg::sum,
                                   string_format_double,
                                   {},
                                   [this](unsigned int domain_idx) -> double
@@ -203,7 +203,7 @@ namespace geopm
                                   "GPU energy timestamp in seconds"
                                   "\nValue cached on LEVELZERO::GPU_ENERGY read",
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
-                                  Agg::average,
+                                  Agg::sum,
                                   string_format_double,
                                   {},
                                   [this](unsigned int domain_idx) -> double
