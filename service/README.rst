@@ -76,6 +76,13 @@ manual for more information about the Linux session leader processs.
 *
   `Overview slides <https://geopm.github.io/pdf/geopm-service.pdf>`_
 
+Architecture Diagram
+--------------------
+
+.. image:: https://geopm.github.io/images/geopm-service-diagram.svg
+   :target: https://geopm.github.io/pdf/geopm-service-diagram.pdf
+   :alt:
+
 
 Status
 ------
