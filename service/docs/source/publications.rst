@@ -9,4 +9,4 @@ Publications
 * `GEOPM ISC 2017 <https://link.springer.com/chapter/10.1007/978-3-319-58667-0_21>`_
 
 * `GEOPM Data Archive <https://reports.alcf.anl.gov/data/GEOPM.html>`_
-
+* `Introducing Application Awareness Into a Unified Power Management Stack (IPDPS'21) <https://ieeexplore.ieee.org/abstract/document/9460501>`_
