@@ -7,20 +7,20 @@ Features
 
 Linux Integration
 ~~~~~~~~~~~~~~~~~
-  Linux Systemd Service with vendor agnostic DBus interface for
-  user-level access to hardware features on hetergenous systems
+  Linux Systemd Service with DBus interface for user-level access to
+  hardware features on hetergenous systems
 
 
 Hardware Telemetry
 ~~~~~~~~~~~~~~~~~~
   Users read telemetry from hardware components on heterogeneous
-  systems
+  systems with a vendor agnostic interface
 
 
 Hardware Configuration
 ~~~~~~~~~~~~~~~~~~~~~~
-  Users make ephemeral configurations to hardware component device
-  settings on heterogeneous systems
+  Users configure hardware component device settings on heterogeneous
+  systems with a vendor agnostic interface
 
 
 Quality of Service
