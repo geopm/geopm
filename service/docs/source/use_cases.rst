@@ -42,7 +42,7 @@ to choose optimal settings for hardware.
 Access Management
 ~~~~~~~~~~~~~~~~~
 
-Provide system administrators with fine-grained access management interface
-that will enable permissions to individual telemetry readings and control
-settings to be granted based on Linux membership in user group, cgroup or
+Provide system administrators with a fine-grained access management interface
+that grants permissions to individual telemetry readings and control
+settings based on Linux membership in user group, cgroup or
 capability.
