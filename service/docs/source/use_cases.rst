@@ -10,15 +10,20 @@ across those interfaces.
 Hardware Telemetry
 ~~~~~~~~~~~~~~~~~~
 
-Provide user-level access to hardware telemetry with high bandwidth and low
-latency.
+Provide user-level access to hardware telemetry from hetergenous components
+with high bandwidth and low latency.  Examples of the telemetry accessble on
+some systems include hardware performance counters, thermal measurements, and
+energy meters.
 
 
 Hardware Configuration
 ~~~~~~~~~~~~~~~~~~~~~~
 
 Provide user-level configuration of hardware settings without impacting
-quality of service for other users of a shared system.
+quality of service for other users of a shared system.  Examples of some
+system configurations that are possible include setting limits for CPU or GPU
+frequency, limiting power used by processors, or configuring priority cores
+for turbo frequency enhancement.
 
 
 Software Telemetry
@@ -36,7 +41,9 @@ Runtime Tools
 
 Run a process on each compute node used by a distributed High Performance
 Computing (HPC) workload.  This process uses hardware and software telemetry
-to choose optimal settings for hardware.
+to choose optimal settings for hardware.  The algorithm used for optimization
+is a plugin interface that can be extended to reflect site or user
+requirements.
 
 
 Access Management
