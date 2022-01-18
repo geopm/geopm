@@ -8,7 +8,7 @@ Features
 Linux Integration
 ~~~~~~~~~~~~~~~~~
   Linux Systemd Service with DBus interface for user-level access to
-  hardware features on hetergenous systems
+  hardware features on heterogeneous systems
 
 
 Hardware Telemetry
@@ -44,7 +44,7 @@ Performance
 
 Extensibility
 ~~~~~~~~~~~~~
-  Supports extensibility for heterogenous environments through C++
+  Supports extensibility for heterogeneous environments through C++
   plugin infrastructure (IOGroups).
 
 
@@ -70,7 +70,7 @@ that client process terminates.  When the process session leader
 terminates, all hardware settings that are managed by the GEOPM Service
 are restored to the values they had prior to the first client write
 request.  See `setsid(2) <https://man7.org/linux/man-pages/man2/setsid.2.html>`_
-manual for more information about the Linux session leader processs.
+manual for more information about the Linux session leader process.
 
 
 *
