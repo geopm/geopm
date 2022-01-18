@@ -10,8 +10,8 @@ across those interfaces.
 Hardware Telemetry
 ~~~~~~~~~~~~~~~~~~
 
-Provide user-level access to hardware telemetry from hetergenous components
-with high bandwidth and low latency.  Examples of the telemetry accessble on
+Provide user-level access to hardware telemetry from heterogeneous components
+with high bandwidth and low latency.  Examples of the telemetry accessible on
 some systems include hardware performance counters, thermal measurements, and
 energy meters.
 
