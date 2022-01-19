@@ -168,6 +168,7 @@ TEST_F(LevelZeroDevicePoolTest, device_function_check)
     const int num_gpu = 4;
 
     EXPECT_CALL(*m_levelzero, num_gpu(GEOPM_DOMAIN_GPU)).WillRepeatedly(Return(num_gpu));
+    EXPECT_CALL(*m_levelzero, num_gpu(GEOPM_DOMAIN_GPU_CHIP)).WillRepeatedly(Return(num_gpu));
 
     int value = 1500;
     int offset = 0;
@@ -177,6 +178,9 @@ TEST_F(LevelZeroDevicePoolTest, device_function_check)
         EXPECT_CALL(*m_levelzero, power_limit_max(dev_idx)).WillOnce(Return(value+offset+num_gpu*20));
         EXPECT_CALL(*m_levelzero, energy(dev_idx)).WillOnce(Return(value+offset+num_gpu*30));
         EXPECT_CALL(*m_levelzero, energy_timestamp(dev_idx)).WillOnce(Return(value+offset+num_gpu*40));
+
+        EXPECT_CALL(*m_levelzero, power_domain_count(GEOPM_DOMAIN_GPU_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL)).WillRepeatedly(Return(1));
+        EXPECT_CALL(*m_levelzero, energy(dev_idx, MockLevelZero::M_DOMAIN_ALL, 0)).WillOnce(Return(value+offset+num_gpu*31));
         ++offset;
     }
     LevelZeroDevicePoolImp m_device_pool(*m_levelzero);
@@ -187,5 +191,6 @@ TEST_F(LevelZeroDevicePoolTest, device_function_check)
         EXPECT_EQ(value+dev_idx+num_gpu*20, m_device_pool.power_limit_max(GEOPM_DOMAIN_GPU, dev_idx, MockLevelZero::M_DOMAIN_ALL));
         EXPECT_EQ((uint64_t)(value+dev_idx+num_gpu*30), m_device_pool.energy(GEOPM_DOMAIN_GPU, dev_idx, MockLevelZero::M_DOMAIN_ALL));
         EXPECT_EQ((uint64_t)(value+dev_idx+num_gpu*40), m_device_pool.energy_timestamp(GEOPM_DOMAIN_GPU, dev_idx, MockLevelZero::M_DOMAIN_ALL));
+        EXPECT_EQ((uint64_t)(value+dev_idx+num_gpu*31), m_device_pool.energy(GEOPM_DOMAIN_GPU_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL));
     }
 }

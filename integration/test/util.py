@@ -93,16 +93,13 @@ def skip_unless_workload_exists(path):
 
     return lambda func: func
 
-def skip_unless_levelzero_power():
-    #try/catch read signal for levelzero
+def skip_unless_geopmread(signal_and_domain):
+    #try/catch geopmread of signal
     try:
-        power = geopm_test_launcher.geopmread("LEVELZERO::GPU_POWER gpu 0")
+        read = geopm_test_launcher.geopmread(signal_and_domain)
     except subprocess.CalledProcessError:
-        return unittest.skip("Read of LEVELZERO::GPU_POWER not supported, skipping test.")
+        return unittest.skip("geopmread {} not supported, skipping test.".format(signal_and_domain))
     return lambda func: func
-
-def skip_unless_levelzero():
-    return skip_unless_config_enable('levelzero');
 
 def skip_unless_platform_bdx():
     fam, mod = geopm_test_launcher.get_platform()

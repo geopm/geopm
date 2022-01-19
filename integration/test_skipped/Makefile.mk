@@ -10,4 +10,3 @@ EXTRA_DIST += integration/test_skipped/test_controller.py \
 
 include integration/test_skipped/test_epoch_inference.mk
 include integration/test_skipped/test_fmap_short_region_slop.mk
-include integration/test_skipped/test_levelzero_signals.mk
