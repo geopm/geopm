@@ -90,11 +90,6 @@ for information about interpreting them as json strings.
   GEOPM_ERROR_DATA_STORE if any data store errors occur.  Returns zero on
   success.
 
-COPYRIGHT
----------
-
-Copyright (c) 2015 - 2021, Intel Corporation. All rights reserved.
-
 SEE ALSO
 --------
 

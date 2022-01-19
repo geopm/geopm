@@ -26,11 +26,6 @@ The behavior of this agent is described in more detail in the
 For more details, see the doxygen
 page at https://geopm.github.io/dox/classgeopm_1_1_monitor_agent.html.
 
-COPYRIGHT
----------
-
-Copyright (c) 2015 - 2021, Intel Corporation. All rights reserved.
-
 SEE ALSO
 --------
 

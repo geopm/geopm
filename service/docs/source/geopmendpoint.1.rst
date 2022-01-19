@@ -146,11 +146,6 @@ Destroy endpoints "job-123" and "job-321":
 
 
 
-COPYRIGHT
----------
-
-Copyright (c) 2015 - 2021, Intel Corporation. All rights reserved.
-
 SEE ALSO
 --------
 

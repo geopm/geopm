@@ -531,11 +531,6 @@ because the launcher configures the ``OMP_PROC_BIND`` environment
 variable to support applications compiled with a non-Intel
 implementation of OpenMP.
 
-COPYRIGHT
----------
-
-Copyright (c) 2015 - 2021, Intel Corporation. All rights reserved.
-
 SEE ALSO
 --------
 

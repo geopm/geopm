@@ -26,11 +26,6 @@ to enforce power limits.
 For more details, see the doxygen
 page at https://geopm.github.io/dox/classgeopm_1_1_power_governor.html.
 
-COPYRIGHT
----------
-
-Copyright (c) 2015 - 2021, Intel Corporation. All rights reserved.
-
 SEE ALSO
 --------
 

@@ -95,11 +95,6 @@ CLASS METHODS
   out of scope.  This method should be called before accessing the
   memory with ``pointer``\ ().
 
-COPYRIGHT
----------
-
-Copyright (c) 2015 - 2021, Intel Corporation. All rights reserved.
-
 SEE ALSO
 --------
 

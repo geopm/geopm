@@ -113,11 +113,6 @@ ERROR NUMBERS
   ``GEOPM_ERROR_DATA_STORE = -14``\ :
   Encountered a data store error
 
-COPYRIGHT
----------
-
-Copyright (c) 2015 - 2021, Intel Corporation. All rights reserved.
-
 SEE ALSO
 --------
 

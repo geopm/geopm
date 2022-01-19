@@ -375,11 +375,6 @@ EXAMPLE
 Please see the `Agent tutorial <https://github.com/geopm/geopm/tree/dev/tutorial/agent>`_ for more
 information.  This code is located in the GEOPM source under tutorial/agent.
 
-COPYRIGHT
----------
-
-Copyright (c) 2015 - 2021, Intel Corporation. All rights reserved.
-
 SEE ALSO
 --------
 

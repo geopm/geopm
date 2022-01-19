@@ -91,11 +91,6 @@ Configure a system to force the use of the energy efficient agent:
    echo "{$agent,$policy}" > $(geopmadmin --config-override)
 
 
-COPYRIGHT
----------
-
-Copyright (c) 2015 - 2021, Intel Corporation. All rights reserved.
-
 SEE ALSO
 --------
 

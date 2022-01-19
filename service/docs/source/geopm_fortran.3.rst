@@ -112,11 +112,6 @@ where ``<LIBDIR>`` is the install location for libraries (e.g.
 (e.g. gfortran), and ``<ARCH>`` is the processor architecture
 (e.g. x86_64).
 
-COPYRIGHT
----------
-
-Copyright (c) 2015 - 2021, Intel Corporation. All rights reserved.
-
 SEE ALSO
 --------
 

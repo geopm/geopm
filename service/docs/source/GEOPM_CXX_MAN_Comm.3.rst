@@ -291,11 +291,6 @@ CLASS METHODS
   Clean up resources held by the comm.
   This allows static global objects to be cleaned up before the destructor is called.
 
-COPYRIGHT
----------
-
-Copyright (c) 2015 - 2021, Intel Corporation. All rights reserved.
-
 SEE ALSO
 --------
 

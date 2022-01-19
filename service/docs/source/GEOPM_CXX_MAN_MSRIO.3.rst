@@ -132,11 +132,6 @@ CLASS METHODS
   ``make_shared()``:
   Returns a ``shared_ptr`` to a concrete object constructed using the underlying implementation
 
-COPYRIGHT
----------
-
-Copyright (c) 2015 - 2021, Intel Corporation. All rights reserved.
-
 SEE ALSO
 --------
 

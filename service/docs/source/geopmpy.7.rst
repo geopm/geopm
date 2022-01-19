@@ -84,11 +84,6 @@ autogen.sh.
 The version file will be removed if the ``dist-clean`` Makefile target is invoked.
 This is also remedied by rerunning autogen.sh.
 
-COPYRIGHT
----------
-
-Copyright (c) 2015 - 2021, Intel Corporation. All rights reserved.
-
 SEE ALSO
 --------
 

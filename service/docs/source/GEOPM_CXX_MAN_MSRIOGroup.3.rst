@@ -326,11 +326,6 @@ will also be searched.  The MSRIOGroup will attempt to load additional
 MSR definitions from any JSON file it finds.  Refer to the
 documentation for ``--geopm-plugin-path`` in `geopmlaunch(1) <geopmlaunch.1.html>`_.
 
-COPYRIGHT
----------
-
-Copyright (c) 2015 - 2021, Intel Corporation. All rights reserved.
-
 SEE ALSO
 --------
 

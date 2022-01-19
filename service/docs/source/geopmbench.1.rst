@@ -115,11 +115,6 @@ If "-progress" is appended to any region name in the
 configuration, then progress for the region will be
 reported through the geopm\ *tprof*\ * API.
 
-COPYRIGHT
----------
-
-Copyright (c) 2015 - 2021, Intel Corporation. All rights reserved.
-
 SEE ALSO
 --------
 

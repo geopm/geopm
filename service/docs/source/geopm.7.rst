@@ -373,11 +373,6 @@ specified regardless of the values set in the calling environment.
   enforce the required override of the MPI interface symbols and the
   LD_DYNAMIC_WEAK environment variable is not required at runtime.
 
-COPYRIGHT
----------
-
-Copyright (c) 2015 - 2021, Intel Corporation. All rights reserved.
-
 SEE ALSO
 --------
 

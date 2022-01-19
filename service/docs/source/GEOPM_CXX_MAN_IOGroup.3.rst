@@ -338,11 +338,6 @@ information.  That code is located in the GEOPM source under tutorial/iogroup.
 Further documentation for this module can be found here:
 https://geopm.github.io/dox/classgeopm_1_1_i_o_group.html
 
-COPYRIGHT
----------
-
-Copyright (c) 2015 - 2021, Intel Corporation. All rights reserved.
-
 SEE ALSO
 --------
 

@@ -247,11 +247,6 @@ All functions described on this man page return an error code.  See
 `geopm_error(3) <geopm_error.3.html>`_ for a full description of the error numbers and how
 to convert them to strings.
 
-COPYRIGHT
----------
-
-Copyright (c) 2015 - 2021, Intel Corporation. All rights reserved.
-
 SEE ALSO
 --------
 
