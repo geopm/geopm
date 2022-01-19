@@ -68,7 +68,7 @@ namespace geopm
                                    uint64_t raw_value,
                                    uint64_t write_mask) = 0;
             /// @brief Extend the set of MSRs for batch read with a single offset.
-            /// @param [in] cpu_idx logical Linux PU index to read from when
+            /// @param [in] cpu_idx logical Linux CPU index to read from when
             ///         read_batch() method is called.
             /// @param [in] offset MSR offset to be read when
             ///        read_batch() is called.
