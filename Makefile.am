@@ -371,6 +371,8 @@ TUTORIAL_DIST = tutorial/Makefile \
                 tutorial/python_agents/ml_agent.py \
                 tutorial/python_agents/process_gpu_frequency_sweep.py \
                 tutorial/python_agents/train_gpu_model.py \
+		tutorial/python_agents/process_cpu_frequency_sweep.py \
+                tutorial/python_agents/train_cpu_model.py \
                 tutorial/tutorial_0.c \
                 tutorial/tutorial_0.sh \
                 tutorial/tutorial_1.c \
