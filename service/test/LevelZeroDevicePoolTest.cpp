@@ -165,8 +165,6 @@ TEST_F(LevelZeroDevicePoolTest, domain_error)
     GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.active_time_pair(GEOPM_DOMAIN_BOARD_ACCELERATOR, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "domain "+std::to_string(GEOPM_DOMAIN_BOARD_ACCELERATOR)+" is not supported for the engine domain");
 
     //Energy & Power
-    //GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.energy(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "domain "+std::to_string(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP)+" is not supported for the power domain");
-    //GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.energy_timestamp(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "domain "+std::to_string(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP)+" is not supported for the power domain");
     GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.energy_pair(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "domain "+std::to_string(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP)+" is not supported for the power domain");
     GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.power_limit_tdp(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "domain "+std::to_string(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP)+" is not supported for the power domain");
     GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.power_limit_min(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "domain "+std::to_string(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP)+" is not supported for the power domain");
@@ -197,6 +195,7 @@ TEST_F(LevelZeroDevicePoolTest, device_function_check)
     const int num_accelerator = 4;
 
     EXPECT_CALL(*m_levelzero, num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR)).WillRepeatedly(Return(num_accelerator));
+    EXPECT_CALL(*m_levelzero, num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP)).WillRepeatedly(Return(num_accelerator));
 
     int value = 1500;
     int offset = 0;
@@ -206,6 +205,10 @@ TEST_F(LevelZeroDevicePoolTest, device_function_check)
         EXPECT_CALL(*m_levelzero, power_limit_max(dev_idx)).WillOnce(Return(value+offset+num_accelerator*20));
         EXPECT_CALL(*m_levelzero, energy(dev_idx)).WillOnce(Return(value+offset+num_accelerator*30));
         EXPECT_CALL(*m_levelzero, energy_timestamp(dev_idx)).WillOnce(Return(value+offset+num_accelerator*40));
+
+        EXPECT_CALL(*m_levelzero, power_domain_count(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL)).WillRepeatedly(Return(1));
+        EXPECT_CALL(*m_levelzero, energy(dev_idx, MockLevelZero::M_DOMAIN_ALL, 0)).WillOnce(Return(value+offset+num_accelerator*31));
+
         ++offset;
     }
     LevelZeroDevicePoolImp m_device_pool(*m_levelzero);
@@ -216,5 +219,6 @@ TEST_F(LevelZeroDevicePoolTest, device_function_check)
         EXPECT_EQ(value+dev_idx+num_accelerator*20, m_device_pool.power_limit_max(GEOPM_DOMAIN_BOARD_ACCELERATOR, dev_idx, MockLevelZero::M_DOMAIN_ALL));
         EXPECT_EQ((uint64_t)(value+dev_idx+num_accelerator*30), m_device_pool.energy(GEOPM_DOMAIN_BOARD_ACCELERATOR, dev_idx, MockLevelZero::M_DOMAIN_ALL));
         EXPECT_EQ((uint64_t)(value+dev_idx+num_accelerator*40), m_device_pool.energy_timestamp(GEOPM_DOMAIN_BOARD_ACCELERATOR, dev_idx, MockLevelZero::M_DOMAIN_ALL));
+        EXPECT_EQ((uint64_t)(value+dev_idx+num_accelerator*31), m_device_pool.energy(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL));
     }
 }

@@ -573,6 +573,7 @@ namespace geopm
         return m_devices.at(l0_device_idx).subdevice.cached_energy_timestamp.at(l0_domain_idx);
     }
 
+    // TODO: Collapse with package level energy
     uint64_t LevelZeroImp::energy(unsigned int l0_device_idx,
                                   int l0_domain, int l0_domain_idx) const
     {
@@ -581,6 +582,7 @@ namespace geopm
         return energy_pair(l0_device_idx, l0_domain_idx).first;
     }
 
+    // TODO: Collapse with package level energy_pair
     std::pair<uint64_t,uint64_t> LevelZeroImp::energy_pair(unsigned int l0_device_idx,
                                                            int l0_domain_idx) const
     {
@@ -605,6 +607,7 @@ namespace geopm
         return {result_energy, result_timestamp};
     }
 
+    // TODO: Collapse with package level energy_pair
     std::pair<uint64_t,uint64_t> LevelZeroImp::energy_pair(unsigned int l0_device_idx) const
     {
         ze_result_t ze_result;

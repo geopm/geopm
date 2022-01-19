@@ -29,4 +29,4 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += integration/test_skipped/test_levelzero_signals.py
+EXTRA_DIST += integration/test/test_levelzero_signals.py
