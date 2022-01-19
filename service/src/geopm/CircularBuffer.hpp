@@ -65,6 +65,8 @@ namespace geopm
             /// @param [in] size Requested capacity for the buffer.
             void set_capacity(const unsigned int size);
             /// @brief Clears all entries from the buffer.
+            ///
+            /// @details The size becomes 0, but the capacity is unchanged.
             void clear(void);
             /// @brief Size of the buffer contents.
             ///
@@ -105,7 +107,7 @@ namespace geopm
             ///
             /// @return Value from the specified buffer index.
             const type& value(const unsigned int index) const;
-            /// @brief Create a vector from the circular buffer contents.
+            /// @brief Create a vector from the entire circular buffer contents.
             ///
             /// @return Vector containing the circular buffer contents.
             std::vector<type> make_vector(void) const;
@@ -113,8 +115,11 @@ namespace geopm
             ///
             /// @param [in] start Start index (inclusive).
             /// @param [in] end End index (exclusive).
-
+            ///
             /// @return Vector containing the circular buffer contents at [start, end).
+            ///
+            /// @throw geopm::Exception if start or end index is out of bounds
+            ///        or if end index is smaller than start index
             std::vector<type> make_vector(const unsigned int start, const unsigned int end) const;
         private:
             /// @brief Vector holding the buffer data.
