@@ -46,7 +46,8 @@ sys.path.insert(0, os.path.abspath('../..'))
 # -- Project information -----------------------------------------------------
 
 project = 'GEOPM'
-copyright = '2021, Intel (R) Corporation'
+copyright = '2015 - 2021, Intel Corporation. All rights reserved.'
+
 author = 'Intel (R) Corporation'
 
 # -- Data structures ---------------------------------------------------------
@@ -77,6 +78,7 @@ def adjust_links(line):
         format_text = f"**{a}**"
         format_link = f"`{a} <{href}>`_"
         line = line.replace(format_text, format_link)
+    
     return line
 
 # remove the extra lines copyright leftovers from the rst files
@@ -190,11 +192,11 @@ rst_files = get_rst_files_list(ronn_files)
 
 fill_links_table(ronn_dir)
 
-create_rst_files(ronn_files, rst_files)
+# create_rst_files(ronn_files, rst_files)
 
 rst_files = [ rf.replace(".rst", "") for rf in rst_files ]
 
-authors = ["Christopher Cantalupo", "Brad Geltz"]
+authors = ["Christopher Cantalupo", "Brad Geltz", "Konstantin Rebrov"]
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = []

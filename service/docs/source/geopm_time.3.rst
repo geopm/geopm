@@ -94,11 +94,6 @@ structure is used to hold time values.
   ``geopm_time_since``\ ():
   Returns the number of seconds elapsed between the current time and *begin*.
 
-COPYRIGHT
----------
-
-Copyright (c) 2015 - 2021, Intel Corporation. All rights reserved.
-
 SEE ALSO
 --------
 

@@ -103,11 +103,6 @@ CLASS METHODS
   very short-running regions may not be detected through sampling
   the REGION_HASH signal.
 
-COPYRIGHT
----------
-
-Copyright (c) 2015 - 2021, Intel Corporation. All rights reserved.
-
 SEE ALSO
 --------
 

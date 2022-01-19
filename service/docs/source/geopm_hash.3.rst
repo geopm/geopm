@@ -71,11 +71,6 @@ stored as doubles.
   Convert a 64-bit *field* into a double representation appropriate
   for a signal returned by an IOGroup.
 
-COPYRIGHT
----------
-
-Copyright (c) 2015 - 2021, Intel Corporation. All rights reserved.
-
 SEE ALSO
 --------
 

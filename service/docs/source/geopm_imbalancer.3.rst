@@ -58,11 +58,6 @@ by a space.
   ``geopm_imbalancer_exit``\ ():
   Spins until the region has been extended by the previously specified delay.
 
-COPYRIGHT
----------
-
-Copyright (c) 2015 - 2021, Intel Corporation. All rights reserved.
-
 SEE ALSO
 --------
 

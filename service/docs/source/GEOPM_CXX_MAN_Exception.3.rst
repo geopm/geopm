@@ -101,11 +101,6 @@ CLASS METHODS
   description of all error codes can be obtained with
   the ``geopm_error_message()`` interface.
 
-COPYRIGHT
----------
-
-Copyright (c) 2015 - 2021, Intel Corporation. All rights reserved.
-
 SEE ALSO
 --------
 

@@ -189,11 +189,6 @@ CLASS METHODS
   one of the ``Agg:m_type_e`` enum values.  If the
   *agg_type* is out of range, it throws an error.
 
-COPYRIGHT
----------
-
-Copyright (c) 2015 - 2021, Intel Corporation. All rights reserved.
-
 SEE ALSO
 --------
 

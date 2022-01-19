@@ -27,11 +27,6 @@ enforced using the `geopm::PowerGovernor(3) <GEOPM_CXX_MAN_PowerGovernor.3.html>
 For more details, see the doxygen
 page at https://geopm.github.io/dox/classgeopm_1_1_power_governor_agent.html.
 
-COPYRIGHT
----------
-
-Copyright (c) 2015 - 2021, Intel Corporation. All rights reserved.
-
 SEE ALSO
 --------
 

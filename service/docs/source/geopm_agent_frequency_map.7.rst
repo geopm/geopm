@@ -206,11 +206,6 @@ frequency to the maximum the following commands can be used:
 
 
 
-COPYRIGHT
----------
-
-Copyright (c) 2015 - 2021, Intel Corporation. All rights reserved.
-
 SEE ALSO
 --------
 

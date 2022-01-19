@@ -220,11 +220,6 @@ reports and traces with additional Agent-specific information.
   The agent gates the Controller's control loop to a cadence of 5
   milliseconds.
 
-COPYRIGHT
----------
-
-Copyright (c) 2015 - 2021, Intel Corporation. All rights reserved.
-
 SEE ALSO
 --------
 

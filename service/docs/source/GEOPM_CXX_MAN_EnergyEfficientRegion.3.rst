@@ -59,11 +59,6 @@ CLASS METHODS
 
 **TODO**
 
-COPYRIGHT
----------
-
-Copyright (c) 2015 - 2021, Intel Corporation. All rights reserved.
-
 SEE ALSO
 --------
 

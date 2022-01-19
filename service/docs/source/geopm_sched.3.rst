@@ -98,11 +98,6 @@ the linux scheduler.
   Note that opening a child process will result in the MPI runtime killing the job
   with MPICH and possibly other implementations of MPI.
 
-COPYRIGHT
----------
-
-Copyright (c) 2015 - 2021, Intel Corporation. All rights reserved.
-
 SEE ALSO
 --------
 

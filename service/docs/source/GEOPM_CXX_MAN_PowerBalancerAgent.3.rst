@@ -27,11 +27,6 @@ is implemented using the `geopm::PowerBalancer(3) <GEOPM_CXX_MAN_PowerBalancer.3
 For more details, see the doxygen
 page at https://geopm.github.io/dox/classgeopm_1_1_power_balancer_agent.html.
 
-COPYRIGHT
----------
-
-Copyright (c) 2015 - 2021, Intel Corporation. All rights reserved.
-
 SEE ALSO
 --------
 

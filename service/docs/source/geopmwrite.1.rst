@@ -172,11 +172,6 @@ Set all CPUs on package 0 to 1.5 GHz (cpu 1 is on package 0):
    $ geopmread FREQUENCY cpu 1
    1.5e9
 
-COPYRIGHT
----------
-
-Copyright (c) 2015 - 2021, Intel Corporation. All rights reserved.
-
 SEE ALSO
 --------
 

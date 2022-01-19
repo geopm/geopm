@@ -23,11 +23,6 @@ DESCRIPTION
 For more details, see the doxygen
 page at https://geopm.github.io/dox/classgeopm_1_1_profile_i_o_group.html.
 
-COPYRIGHT
----------
-
-Copyright (c) 2015 - 2021, Intel Corporation. All rights reserved.
-
 SEE ALSO
 --------
 

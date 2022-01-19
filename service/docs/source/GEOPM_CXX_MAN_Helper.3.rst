@@ -179,11 +179,6 @@ The *Helper.hpp* file defines various utility functions.
   Query for the group id assoiciated with the process id.
   Convert the *pid* process id into the *gid* group id.
 
-COPYRIGHT
----------
-
-Copyright (c) 2015 - 2021, Intel Corporation. All rights reserved.
-
 SEE ALSO
 --------
 

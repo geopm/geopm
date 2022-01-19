@@ -347,11 +347,6 @@ information.  This code is located in the GEOPM source under tutorial/agent.
            return "example";
        }
 
-COPYRIGHT
----------
-
-Copyright (c) 2015 - 2021, Intel Corporation. All rights reserved.
-
 SEE ALSO
 --------
 
