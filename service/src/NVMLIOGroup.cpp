@@ -87,7 +87,7 @@ namespace geopm
                                   Agg::sum,
                                   string_format_double
                                   }},
-                              {M_NAME_PREFIX + "GPU_POWER_LIMIT", {
+                              {M_NAME_PREFIX + "GPU_POWER_LIMIT_CONTROL", {
                                   "Accelerator power limit in watts",
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
@@ -531,7 +531,7 @@ namespace geopm
         else if (signal_name == M_NAME_PREFIX + "GPU_POWER" || signal_name == "GPU_POWER") {
             result = (double) m_nvml_device_pool.power(domain_idx) / 1e3;
         }
-        else if (signal_name == M_NAME_PREFIX + "GPU_POWER_LIMIT") {
+        else if (signal_name == M_NAME_PREFIX + "GPU_POWER_LIMIT_CONTROL") {
             result = (double) m_nvml_device_pool.power_limit(domain_idx) / 1e3;
         }
         else if (signal_name == M_NAME_PREFIX + "GPU_MEMORY_FREQUENCY_STATUS") {
