@@ -13,14 +13,15 @@ geopm(7) -- global extensible open power manager
 DESCRIPTION
 -----------
 
-@BLURB@
+The Global Extensible Open Power Manager (GEOPM) is a framework for
+exploring power and energy optimizations on heterogeneous platforms.
 
 JOB LAUNCH
 ----------
 
 `geopmlaunch(1) <geopmlaunch.1.html>`_\ : Application launch wrapper
 
-**geopmreport(7)**\ : Reports produced by launch
+`geopmreport(7) <geopm_report.7.html>`_\ : Reports produced by launch
 
 APPLICATION PROFILING
 ---------------------
@@ -118,7 +119,7 @@ will use the OMPT callbacks to wrap OpenMP parallel regions with calls
 to ``geopm_prof_enter()`` and ``geopm_prof_exit()``.  In this way, any
 OpenMP parallel region not within another application-defined region
 will be reported to the GEOPM runtime.  This will appear in the report
-as a region name beginning with "[OMPT]" and referencing the object
+as a region name beginning with ``"[OMPT]"`` and referencing the object
 file and function name containing the OpenMP parallel region e.g.
 
 ``[OMPT]geopmbench:geopm::StreamModelRegion::run()``
@@ -146,10 +147,10 @@ your system at the github issues page:
 https://github.com/geopm/geopm/issues
 
 Also, consider porting your job launch command into the
-geopmpy.launcher module and submitting a change request as described
-in CONTRIBUTING.md.
+``geopmpy.launcher`` module and submitting a change request as described
+in ``CONTRIBUTING.md``.
 
-If the job launch application is not supported by the geopmpy.launcher
+If the job launch application is not supported by the ``geopmpy.launcher``
 the recommended method is to use the environment variables described
 in this man page including the ``GEOPM_CTL`` environment variable.
 If using the "application" launch method then the `geopmctl(1) <geopmctl.1.html>`_
@@ -185,7 +186,7 @@ environment as described in the ``ENVIRONMENT`` section below.  If not
 specified in the default environment, the location of the endpoint
 should be provided through ``--geopm-endpoint``\ ; this option supercedes
 the use of ``--geopm-policy``.  When GEOPM receives the policy through
-the endpoint, the report will contain "DYNAMIC" for the value of the
+the endpoint, the report will contain ``"DYNAMIC"`` for the value of the
 policy.  The specific values received over time can be viewed through
 use of the optional trace file enabled by
 ``--geopm-trace-endpoint-policy``.
@@ -210,7 +211,7 @@ INTERPRETING THE TRACE
 If the ``GEOPM_TRACE`` environment variable is set (see below) then a
 trace file with time ordered information about the application runtime
 is generated.  A separate trace file is generated for each compute
-node and each file is a pipe (the ``|`` character) delimited ASCII
+node and each file is a pipe (the ``|`` character) delimited **ASCII**
 table. The file begins with a header that is marked by lines that
 start with the ``#`` character.  The header contains information about
 the GEOPM version, job start time, profile name (job description), and
@@ -220,13 +221,13 @@ The first row following the header gives a description of each field.
 A simple method for selecting fields from the trace file is with the
 ``awk`` command:
 
-.. code-block::
+.. code-block:: bash
 
    $ grep -v '^#' geopm.trace-host0 | awk -F\| '{print $1, $2, $11}'
 
 
 will print a subset of the fields in the trace file called
-"geopm.trace-host0".
+``"geopm.trace-host0"``.
 
 ENVIRONMENT
 -----------
@@ -263,7 +264,8 @@ environment.  The ``environment-override.json`` file will enforce that
 any GEOPM process running on the compute node will use the values
 specified regardless of the values set in the calling environment.
 
-``GEOPM ENVIRONMENT VARIABLES``
+GEOPM ENVIRONMENT VARIABLES
+---------------------------
 
 
 * 
@@ -348,30 +350,31 @@ specified regardless of the values set in the calling environment.
 
 * 
   ``GEOPM_OMPT_DISABLE``\ :
-  Disable OpenMP region detection as described in [INTEGRATION WITH OMPT][].
+  Disable OpenMP region detection as described in `INTEGRATION WITH OMPT <INTEGRATION WITH OMPT_>`_.
   See documentation for equivalent command line option to `geopmlaunch(1) <geopmlaunch.1.html>`_
   called ``--geopm-ompt-disable``.
 
-``OTHER ENVIRONMENT VARIABLES``
+OTHER ENVIRONMENT VARIABLES
+---------------------------
 
 
 * 
   ``LD_DYNAMIC_WEAK``\ :
-  The `geopmlaunch(1) <geopmlaunch.1.html>`_ tool will preload libgeopm.so for all
-  applications, so the use of LD_DYNAMIC_WEAK is not required when
+  The `geopmlaunch(1) <geopmlaunch.1.html>`_ tool will preload ``libgeopm.so`` for all
+  applications, so the use of ``LD_DYNAMIC_WEAK`` is not required when
   using `geopmlaunch(1) <geopmlaunch.1.html>`_.  When not using `geopmlaunch(1) <geopmlaunch.1.html>`_
-  setting LD_DYNAMIC_WEAK may be required, see next paragraph for
+  setting ``LD_DYNAMIC_WEAK`` may be required, see next paragraph for
   details.
 
-  When dynamically linking an application to libgeopm for any
+  When dynamically linking an application to ``libgeopm`` for any
   features supported by the PMPI profiling of the MPI runtime it may
-  be required that the LD_DYNAMIC_WEAK environment variable be set
+  be required that the ``LD_DYNAMIC_WEAK`` environment variable be set
   at runtime as is documented in the `ld.so(8) <http://man7.org/linux/man-pages/man8/ld.so.8.html>`_ man page.  When
   dynamically linking an application, if care is taken to link the
-  libgeopm library before linking the library providing the weak MPI
-  symbols, e.g. "-lgeopm -lmpi", linking order precedence will
+  ``libgeopm`` library before linking the library providing the weak MPI
+  symbols, e.g. ``"-lgeopm -lmpi"``, linking order precedence will
   enforce the required override of the MPI interface symbols and the
-  LD_DYNAMIC_WEAK environment variable is not required at runtime.
+  ``LD_DYNAMIC_WEAK`` environment variable is not required at runtime.
 
 SEE ALSO
 --------
