@@ -49,11 +49,14 @@
 #include "geopm_test.hpp"
 #include "MockNVMLDevicePool.hpp"
 #include "MockPlatformTopo.hpp"
+#include "MockSaveControl.hpp"
 
 using geopm::NVMLIOGroup;
 using geopm::PlatformTopo;
 using geopm::Exception;
 using testing::Return;
+using testing::_;
+using testing::AtLeast;
 
 class NVMLIOGroupTest : public :: testing :: Test
 {
@@ -64,6 +67,7 @@ class NVMLIOGroupTest : public :: testing :: Test
 
         std::shared_ptr<MockNVMLDevicePool> m_device_pool;
         std::unique_ptr<MockPlatformTopo> m_platform_topo;
+        std::shared_ptr<MockSaveControl> m_mock_save_ctl;
 };
 
 void NVMLIOGroupTest::SetUp()
@@ -76,6 +80,7 @@ void NVMLIOGroupTest::SetUp()
 
     m_device_pool = std::make_shared<MockNVMLDevicePool>();
     m_platform_topo = geopm::make_unique<MockPlatformTopo>();
+    m_mock_save_ctl = std::make_shared<MockSaveControl>();
 
     //Platform Topo prep
     ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_BOARD))
@@ -88,6 +93,8 @@ void NVMLIOGroupTest::SetUp()
         .WillByDefault(Return(num_cpu));
     ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_CORE))
         .WillByDefault(Return(num_core));
+
+    EXPECT_CALL(*m_platform_topo, num_domain(_)).Times(AtLeast(0));
 
     for (int cpu_idx = 0; cpu_idx < num_cpu; ++cpu_idx) {
         if (cpu_idx < 10) {
@@ -122,7 +129,7 @@ void NVMLIOGroupTest::TearDown()
 
 TEST_F(NVMLIOGroupTest, valid_signals)
 {
-    NVMLIOGroup nvml_io(*m_platform_topo, *m_device_pool);
+    NVMLIOGroup nvml_io(*m_platform_topo, *m_device_pool, nullptr);
     for (const auto &sig : nvml_io.signal_names()) {
         EXPECT_TRUE(nvml_io.is_valid_signal(sig));
         EXPECT_NE(GEOPM_DOMAIN_INVALID, nvml_io.signal_domain_type(sig));
@@ -134,7 +141,7 @@ TEST_F(NVMLIOGroupTest, push_control_adjust_write_batch)
 {
     const int num_accelerator = m_platform_topo->num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR);
     std::map<int, double> batch_value;
-    NVMLIOGroup nvml_io(*m_platform_topo, *m_device_pool);
+    NVMLIOGroup nvml_io(*m_platform_topo, *m_device_pool, nullptr);
 
     std::vector<double> mock_freq = {1530, 1320, 420, 135};
     std::vector<double> mock_power = {153600, 70000, 300000, 50000};
@@ -169,7 +176,7 @@ TEST_F(NVMLIOGroupTest, push_control_adjust_write_batch)
 TEST_F(NVMLIOGroupTest, write_control)
 {
     const int num_accelerator = m_platform_topo->num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR);
-    NVMLIOGroup nvml_io(*m_platform_topo, *m_device_pool);
+    NVMLIOGroup nvml_io(*m_platform_topo, *m_device_pool, nullptr);
 
     std::vector<double> mock_freq = {1530, 1320, 420, 135};
     std::vector<double> mock_power = {153600, 70000, 300000, 50000};
@@ -180,6 +187,11 @@ TEST_F(NVMLIOGroupTest, write_control)
         EXPECT_NO_THROW(nvml_io.write_control("NVML::GPU_FREQUENCY_CONTROL",
                                               GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx,
                                               mock_freq.at(accel_idx) * 1e6));
+        // Verify the write was cached properly
+        double frequency = nvml_io.read_signal("NVML::GPU_FREQUENCY_CONTROL",
+                                               GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
+        EXPECT_DOUBLE_EQ(frequency, mock_freq.at(accel_idx) * 1e6);
+
         EXPECT_NO_THROW(nvml_io.write_control("GPU_FREQUENCY_CONTROL",
                                               GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx,
                                               mock_freq.at(accel_idx) * 1e6));
@@ -205,7 +217,7 @@ TEST_F(NVMLIOGroupTest, read_signal_and_batch)
     std::vector<double> mock_freq = {1530, 1320, 420, 135};
     std::vector<int> batch_idx;
 
-    NVMLIOGroup nvml_io(*m_platform_topo, *m_device_pool);
+    NVMLIOGroup nvml_io(*m_platform_topo, *m_device_pool, nullptr);
 
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
         EXPECT_CALL(*m_device_pool, frequency_status_sm(accel_idx)).WillRepeatedly(Return(mock_freq.at(accel_idx)));
@@ -278,7 +290,7 @@ TEST_F(NVMLIOGroupTest, read_signal)
         EXPECT_CALL(*m_device_pool, active_process_list(cpu_idx)).WillRepeatedly(Return(active_process_list));;
     }
 
-    NVMLIOGroup nvml_io(*m_platform_topo, *m_device_pool);
+    NVMLIOGroup nvml_io(*m_platform_topo, *m_device_pool, nullptr);
     std::sort(mock_supported_freq.begin(), mock_supported_freq.end());
 
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
@@ -324,6 +336,10 @@ TEST_F(NVMLIOGroupTest, read_signal)
 
         double utilization_mem = nvml_io.read_signal("NVML::GPU_MEMORY_UTILIZATION", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
         EXPECT_DOUBLE_EQ(utilization_mem, mock_utilization_mem.at(accel_idx) / 100);
+
+        frequency = nvml_io.read_signal("NVML::GPU_FREQUENCY_CONTROL",
+                                        GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
+        EXPECT_DOUBLE_EQ(frequency, 0); // 0 until first write
     }
 
     for (int cpu_idx = 0; cpu_idx < num_cpu; ++cpu_idx) {
@@ -358,7 +374,8 @@ TEST_F(NVMLIOGroupTest, error_path)
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
         EXPECT_CALL(*m_device_pool, frequency_supported_sm(accel_idx)).WillRepeatedly(Return(mock_supported_freq));
     }
-    GEOPM_EXPECT_THROW_MESSAGE(NVMLIOGroup nvml_io_fail(*m_platform_topo, *m_device_pool), GEOPM_ERROR_INVALID,
+    GEOPM_EXPECT_THROW_MESSAGE(NVMLIOGroup nvml_io_fail(*m_platform_topo, *m_device_pool, nullptr),
+                               GEOPM_ERROR_INVALID,
                                "No supported frequencies found for accelerator");
 
     mock_supported_freq = {135, 142, 407, 414, 760, 882, 1170, 1530};
@@ -366,7 +383,7 @@ TEST_F(NVMLIOGroupTest, error_path)
         EXPECT_CALL(*m_device_pool, frequency_supported_sm(accel_idx)).WillRepeatedly(Return(mock_supported_freq));
     }
 
-    NVMLIOGroup nvml_io(*m_platform_topo, *m_device_pool);
+    NVMLIOGroup nvml_io(*m_platform_topo, *m_device_pool, nullptr);
 
     GEOPM_EXPECT_THROW_MESSAGE(nvml_io.push_signal("NVML::GPU_FREQUENCY_STATUS", GEOPM_DOMAIN_BOARD, 0),
                                GEOPM_ERROR_INVALID, "domain_type must be");
@@ -409,4 +426,20 @@ TEST_F(NVMLIOGroupTest, error_path)
                                GEOPM_ERROR_INVALID, "domain_idx out of range");
     GEOPM_EXPECT_THROW_MESSAGE(nvml_io.write_control("NVML::GPU_FREQUENCY_CONTROL", GEOPM_DOMAIN_BOARD_ACCELERATOR, -1, 1530000000),
                                GEOPM_ERROR_INVALID, "domain_idx out of range");
+}
+
+TEST_F(NVMLIOGroupTest, save_restore_control)
+{
+    NVMLIOGroup nvml_io(*m_platform_topo, *m_device_pool, m_mock_save_ctl);
+
+    const int num_accelerator = m_platform_topo->num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR);
+    for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
+        EXPECT_CALL(*m_device_pool, power_limit(accel_idx)).WillRepeatedly(Return(123));;
+    }
+
+    std::string file_name = "tmp_file";
+    EXPECT_CALL(*m_mock_save_ctl, write_json(file_name));
+    nvml_io.save_control(file_name);
+    EXPECT_CALL(*m_mock_save_ctl, restore(_));
+    nvml_io.restore_control(file_name);
 }

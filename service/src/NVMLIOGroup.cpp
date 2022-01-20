@@ -50,6 +50,7 @@
 #include "geopm/Exception.hpp"
 #include "geopm/Agg.hpp"
 #include "geopm/Helper.hpp"
+#include "SaveControl.hpp"
 
 namespace geopm
 {
@@ -57,12 +58,16 @@ namespace geopm
     const std::string NVMLIOGroup::M_NAME_PREFIX = M_PLUGIN_NAME + "::";
 
     NVMLIOGroup::NVMLIOGroup()
-        : NVMLIOGroup(platform_topo(), nvml_device_pool(platform_topo().num_domain(GEOPM_DOMAIN_CPU)))
+        : NVMLIOGroup(platform_topo(),
+                      nvml_device_pool(platform_topo().num_domain(GEOPM_DOMAIN_CPU)),
+                      nullptr)
     {
     }
 
     // Set up mapping between signal and control names and corresponding indices
-    NVMLIOGroup::NVMLIOGroup(const PlatformTopo &platform_topo, const NVMLDevicePool &device_pool)
+    NVMLIOGroup::NVMLIOGroup(const PlatformTopo &platform_topo,
+                             const NVMLDevicePool &device_pool,
+                             std::shared_ptr<SaveControl> save_control)
         : m_platform_topo(platform_topo)
         , m_nvml_device_pool(device_pool)
         , m_is_batch_read(false)
@@ -206,6 +211,7 @@ namespace geopm
                                     string_format_double
                                     }}
                               })
+        , m_mock_save_ctl(save_control)
     {
         // populate signals for each domain
         for (auto &sv : m_signal_available) {
@@ -229,7 +235,9 @@ namespace geopm
             sv.second.controls = result;
         }
         register_control_alias("GPU_POWER_LIMIT_CONTROL", M_NAME_PREFIX + "GPU_POWER_LIMIT_CONTROL");
+        register_signal_alias("GPU_POWER_LIMIT_CONTROL", M_NAME_PREFIX + "GPU_POWER_LIMIT_CONTROL");
         register_control_alias("GPU_FREQUENCY_CONTROL", M_NAME_PREFIX + "GPU_FREQUENCY_CONTROL");
+        register_signal_alias("GPU_FREQUENCY_CONTROL", M_NAME_PREFIX + "GPU_FREQUENCY_CONTROL");
 
         for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR); ++domain_idx) {
             std::vector<unsigned int> supported_frequency = m_nvml_device_pool.frequency_supported_sm(domain_idx);
@@ -539,7 +547,8 @@ namespace geopm
         else if (signal_name == M_NAME_PREFIX + "GPU_POWER" || signal_name == "GPU_POWER") {
             result = (double) m_nvml_device_pool.power(domain_idx) / 1e3;
         }
-        else if (signal_name == M_NAME_PREFIX + "GPU_POWER_LIMIT_CONTROL") {
+        else if (signal_name == M_NAME_PREFIX + "GPU_POWER_LIMIT_CONTROL" ||
+                 signal_name == "GPU_POWER_LIMIT_CONTROL") {
             result = (double) m_nvml_device_pool.power_limit(domain_idx) / 1e3;
         }
         else if (signal_name == M_NAME_PREFIX + "GPU_MEMORY_FREQUENCY_STATUS") {
@@ -693,14 +702,35 @@ namespace geopm
 
     void NVMLIOGroup::save_control(const std::string &save_path)
     {
-        throw Exception("NVMLIOGroup::save_control()",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        std::vector<SaveControl::m_setting_s> settings;
+        int num_domains = m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR);
+        for (int domain_idx = 0; domain_idx < num_domains; ++domain_idx) {
+            settings.push_back({M_NAME_PREFIX + "GPU_FREQUENCY_RESET_CONTROL",
+                                GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                domain_idx,
+                                0});
+            double curr_value = read_signal(M_NAME_PREFIX + "GPU_POWER_LIMIT_CONTROL",
+                                            GEOPM_DOMAIN_BOARD_ACCELERATOR, domain_idx);
+            settings.push_back({M_NAME_PREFIX + "GPU_POWER_LIMIT_CONTROL",
+                                GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                domain_idx,
+                                curr_value});
+        }
+
+        std::shared_ptr<SaveControl> save_ctl = m_mock_save_ctl;
+        if (save_ctl == nullptr) {
+            save_ctl = SaveControl::make_unique(settings);
+        }
+        save_ctl->write_json(save_path);
     }
 
     void NVMLIOGroup::restore_control(const std::string &save_path)
     {
-        throw Exception("NVMLIOGroup::restore_control()",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        std::shared_ptr<SaveControl> save_ctl = m_mock_save_ctl;
+        if (save_ctl == nullptr) {
+            save_ctl = SaveControl::make_unique(geopm::read_file(save_path));
+        }
+        save_ctl->restore(*this);
     }
 
     std::string NVMLIOGroup::name(void) const
