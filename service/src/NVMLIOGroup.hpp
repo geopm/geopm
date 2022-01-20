@@ -44,13 +44,16 @@ namespace geopm
 {
     class PlatformTopo;
     class NVMLDevicePool;
+    class SaveControl;
 
     /// @brief IOGroup that provides signals and controls for NVML Accelerators
     class NVMLIOGroup : public IOGroup
     {
         public:
             NVMLIOGroup();
-            NVMLIOGroup(const PlatformTopo &platform_topo, const NVMLDevicePool &device_pool);
+            NVMLIOGroup(const PlatformTopo &platform_topo,
+                        const NVMLDevicePool &device_pool,
+                        std::shared_ptr<SaveControl> save_control);
             virtual ~NVMLIOGroup() = default;
             std::set<std::string> signal_names(void) const override;
             std::set<std::string> control_names(void) const override;
@@ -126,6 +129,8 @@ namespace geopm
             std::map<std::string, control_info> m_control_available;
             std::vector<std::shared_ptr<signal_s> > m_signal_pushed;
             std::vector<std::shared_ptr<control_s> > m_control_pushed;
+
+            std::shared_ptr<SaveControl> m_mock_save_ctl;
     };
 }
 #endif
