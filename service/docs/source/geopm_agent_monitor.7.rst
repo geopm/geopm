@@ -28,33 +28,30 @@ reports and traces with additional Agent-specific information.
 
 
 * 
-  ``Agent Name``\ :
-  Set the ``--geopm-agent`` launch option or ``GEOPM_AGENT`` environment
-  variable to "monitor" and the Controller will select the
-  MonitorAgent for its control handler.  See `geopmlaunch(1) <geopmlaunch.1.html>`_ and
-  `geopm(7) <geopm.7.html>`_ for more information about launch options and
-  environment variables.
+  **Agent Name**\ :
+
+      Set the ``--geopm-agent`` launch option or ``GEOPM_AGENT`` environment
+      variable to "monitor" and the Controller will select the
+      ``MonitorAgent`` for its control handler.  See `geopmlaunch(1) <geopmlaunch.1.html>`_ and
+      `geopm(7) <geopm.7.html>`_ for more information about launch options and
+      environment variables.
 
 * 
-  ``Agent Policy Definitions``\ :
-  N/A
+  **Agent Policy Definitions**\ : N/A
 
 * 
-  ``Agent Sample Definitions``\ :
-  N/A
+  **Agent Sample Definitions**\ : N/A
 
 * 
-  ``Trace Column Extensions``\ :
-  N/A
+  **Trace Column Extensions**\ : N/A
 
 * 
-  ``Report Extensions``\ :
-  N/A
+  **Report Extensions**\ : N/A
 
 * 
-  ``Control Loop Gate``\ :
-  The Monitor agent gates the Controller's control loop to a cadence
-  of 5ms.
+  **Control Loop Gate**\ :
+
+      The Monitor agent gates the Controller's control loop to a cadence of *5ms*.
 
 SEE ALSO
 --------

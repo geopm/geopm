@@ -26,73 +26,64 @@ reports and traces with additional Agent-specific information.
 
 
 * 
-  ``Agent Name``\ :
-  Set the ``--geopm-agent`` launch option or ``GEOPM_AGENT`` environment
-  variable to "power_governor" and the Controller will select the
-  PowerGovernorAgent for its control handler.  See `geopmlaunch(1) <geopmlaunch.1.html>`_
-  and `geopm(7) <geopm.7.html>`_ for more information about launch options and
-  environment variables.
+  **Agent Name**\ :
+
+      Set the ``--geopm-agent`` launch option or ``GEOPM_AGENT`` environment
+      variable to ``"power_governor"`` and the Controller will select the
+      PowerGovernorAgent for its control handler.  See `geopmlaunch(1) <geopmlaunch.1.html>`_
+      and `geopm(7) <geopm.7.html>`_ for more information about launch options and
+      environment variables.
 
 * 
-  ``Agent Policy Definitions``\ :
+  **Agent Policy Definitions**\ :
 
-  ``POWER_PACKAGE_LIMIT_TOTAL``\ : Sets the average power cap per compute
-
-  .. code-block::
-
-                              node in units of watts.  If NAN is
-                              passed for the power cap, the value
-                              will default to the thermal design
-                              power (TDP).  Each package on the node
-                              will be given an equal fraction of the
-                              total power.
+  ``POWER_PACKAGE_LIMIT_TOTAL``\ :
+      Sets the average power cap per compute
+      node in units of watts.  If NAN is
+      passed for the power cap, the value
+      will default to the thermal design
+      power (TDP).  Each package on the node
+      will be given an equal fraction of the
+      total power.
 
 * 
-  ``Agent Sample Definitions``\ :
+  **Agent Sample Definitions**\ :
 
-  ``POWER``\ : Median total package and DRAM power for the node in watts
-
-  .. code-block::
-
-          measured over the last epoch.
+  ``POWER``\ :
+      Median total package and DRAM power for the node in watts
+      measured over the last epoch.
 
 
-  ``IS_CONVERGED``\ : Will be 1.0 if the power policy has been
-
-  .. code-block::
-
-                 enforced and the power consumption by all nodes is
-                 within the assigned limits, otherwise it will be
-                 0.0.
+  ``IS_CONVERGED``\ :
+      Will be ``1.0`` if the power policy has been
+      enforced and the power consumption by all nodes is
+      within the assigned limits, otherwise it will be
+      ``0.0``.
 
 
-  ``POWER_AVERAGE_ENFORCED``\ : Enforced power limit averaged over all
-
-  .. code-block::
-
-                           compute nodes.  This value corresponds to
-                           the `POWER_PACKAGE_LIMIT_TOTAL` policy
-                           field and is expected to match unless the
-                           policy is unachievable.
+  ``POWER_AVERAGE_ENFORCED``\ :
+      Enforced power limit averaged over all
+      compute nodes.  This value corresponds to
+      the ``POWER_PACKAGE_LIMIT_TOTAL`` policy
+      field and is expected to match unless the
+      policy is unachievable.
 
 * 
-  ``Trace Column Extensions``\ :
+  **Trace Column Extensions**\ :
 
-  ``power_budget``\ : Power budget assigned to the compute node associated
-
-  .. code-block::
-
-                 with the trace file at time of sampling.
+  ``power_budget``\ :
+      Power budget assigned to the compute node associated
+      with the trace file at time of sampling.
 
 
 * 
-  ``Report Extensions``\ :
+  **Report Extensions**\ :
   N/A
 
 * 
   ``Control Loop Gate``\ :
-  The agent gates the Controller's control loop to a cadence
-  of 5ms.
+
+      The agent gates the Controller's control loop to a cadence of *5ms*.
 
 SEE ALSO
 --------

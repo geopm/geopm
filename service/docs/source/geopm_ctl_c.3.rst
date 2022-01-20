@@ -15,32 +15,26 @@ SYNOPSIS
 
 #include `<geopm_ctl.h> <https://github.com/geopm/geopm/blob/dev/src/geopm_ctl.h>`_\ 
 
-``Link with -lgeopm``
+Link with ``-lgeopm``
 
 
-* 
-  ``int geopm_ctl_create(``\ :
-  ``MPI_Comm`` *comm*\ , :raw-html-m2r:`<br>`
-  `struct geopm_ctl_c **`_ctl_\ ``);``
+.. code-block:: c++
 
-* 
-  ``int geopm_ctl_destroy(``\ :
-  `struct geopm_ctl_c *`_ctl_\ ``);``
+       int geopm_ctl_create(MPI_Comm comm,
+                            struct geopm_ctl_c **ctl);
 
-* 
-  ``int geopm_ctl_run(``\ :
-  `struct geopm_ctl_c *`_ctl_\ ``);``
+       int geopm_ctl_destroy(struct geopm_ctl_c *ctl);
 
-* 
-  ``int geopm_ctl_pthread(``\ :
-  `struct geopm_ctl_c *`_ctl_, :raw-html-m2r:`<br>`
-  `const pthread_attr_t *`_attr_, :raw-html-m2r:`<br>`
-  `pthread_t *`_thread_\ ``);``
+       int geopm_ctl_run(struct geopm_ctl_c *ctl);
+
+       int geopm_ctl_pthread(struct geopm_ctl_c *ctl,
+                             const pthread_attr_t *attr,
+                             pthread_t *thread);
 
 DESCRIPTION
 -----------
 
-The geopm_ctl_c structure is used to launch the global extensible open
+The ``geopm_ctl_c`` structure is used to launch the global extensible open
 power manager algorithm.  There are several ways to enable control:
 running the control algorithm as a distinct processes from the
 application under control, or running the control algorithm as a
@@ -49,8 +43,8 @@ of these methods has different requirements and trade offs.
 
 
 * 
-  ``geopm_ctl_create``\ ():
-  creates a geopm_ctl_c object, *ctl* which is an opaque structure
+  ``geopm_ctl_create()``:
+  creates a ``geopm_ctl_c`` object, *ctl* which is an opaque structure
   that holds the state used to execute the control algorithm with
   one of the other functions described in this man page.  The
   control algorithm relies on feedback about the application
@@ -59,21 +53,21 @@ of these methods has different requirements and trade offs.
   control.
 
 * 
-  ``geopm_ctl_destroy``\ ():
+  ``geopm_ctl_destroy()``:
   destroys all resources associated with the *ctl* structure which
-  allocated by a previous call to ``geopm_ctl_create``\ ().
+  allocated by a previous call to ``geopm_ctl_create()``.
 
 * 
-  ``geopm_ctl_run``\ ():
+  ``geopm_ctl_run()``:
   steps the control algorithm continuously until the application
   signals shutdown.
 
 * 
-  ``geopm_ctl_pthread``\ ():
+  ``geopm_ctl_pthread()``:
   creates a POSIX thread running the control algorithm continuously
   until the application signals shutdown.  With this method of launch
   the supporting MPI implementation must be enabled for
-  ``MPI_THREAD_MULTIPLE`` using ``MPI_Init_thread``\ ().
+  ``MPI_THREAD_MULTIPLE`` using ``MPI_Init_thread()``.
 
 ERRORS
 ------
