@@ -66,6 +66,7 @@ namespace geopm
         : m_platform_topo(platform_topo)
         , m_nvml_device_pool(device_pool)
         , m_is_batch_read(false)
+        , m_frequency_control_request(platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR), 0)
         , m_signal_available({{M_NAME_PREFIX + "GPU_FREQUENCY_STATUS", {
                                   "Streaming multiprocessor frequency in hertz",
                                   {},
@@ -169,6 +170,13 @@ namespace geopm
                                   }},
                               {M_NAME_PREFIX + "GPU_FREQUENCY_MIN_AVAIL", {
                                   "Streaming multiprocessor Minimum frequency in hertz",
+                                  {},
+                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                  Agg::expect_same,
+                                  string_format_double
+                                  }},
+                              {M_NAME_PREFIX + "GPU_FREQUENCY_CONTROL", {
+                                  "Latest frequency control request in hertz",
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::expect_same,
@@ -559,6 +567,9 @@ namespace geopm
             std::map<pid_t, double> process_map = accelerator_process_map();
             result = cpu_accelerator_affinity(domain_idx, process_map);
         }
+        else if (signal_name == M_NAME_PREFIX + "GPU_FREQUENCY_CONTROL") {
+            result = m_frequency_control_request.at(domain_idx);
+        }
         else {
     #ifdef GEOPM_DEBUG
             throw Exception("NVMLIOGroup::" + std::string(__func__) + ": Handling not defined for " +
@@ -589,6 +600,7 @@ namespace geopm
 
         if (control_name == M_NAME_PREFIX + "GPU_FREQUENCY_CONTROL" || control_name == "GPU_FREQUENCY_CONTROL") {
             m_nvml_device_pool.frequency_control_sm(domain_idx, setting / 1e6, setting / 1e6);
+            m_frequency_control_request.at(domain_idx) = setting;
         }
         else if (control_name == M_NAME_PREFIX + "GPU_FREQUENCY_RESET_CONTROL") {
             m_nvml_device_pool.frequency_reset_control(domain_idx);
