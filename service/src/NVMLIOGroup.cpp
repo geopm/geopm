@@ -618,9 +618,13 @@ namespace geopm
     // platform settings
     void NVMLIOGroup::restore_control(void)
     {
-        /// @todo: Usage of the NVML API for setting frequency, power, etc requires root privileges.
-        ///        As such several unit tests will fail when calling restore_control.  Once a non-
-        ///        privileged solution is available this code may be restored
+        // The following calls into the device pool require root privileges
+        for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR); ++domain_idx) {
+            // Write original NVML Power Limit
+            m_nvml_device_pool.power_control(domain_idx, m_initial_power_limit.at(domain_idx));
+            // Reset NVML Frequency Limit
+            m_nvml_device_pool.frequency_reset_control(domain_idx);
+        }
     }
 
     // Hint to Agent about how to aggregate signals from this IOGroup
