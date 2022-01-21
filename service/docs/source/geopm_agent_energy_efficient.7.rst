@@ -40,17 +40,19 @@ reports and traces with additional Agent-specific information.
 
 * 
   **Agent Name**:
-  Set the ``--geopm-agent`` launch option or ``GEOPM_AGENT`` environment
-  variable to ``"energy_efficient"`` and the Controller will select the
-  EnergyEfficientAgent for its control handler.  See
-  `geopm_launch(1) <geopm_launch.1.html>`_ and `geopm(7) <geopm.7.html>`_ for more information about
-  launch options and environment variables.
+
+      Set the ``--geopm-agent`` launch option or ``GEOPM_AGENT`` environment
+      variable to ``"energy_efficient"`` and the Controller will select the
+      EnergyEfficientAgent for its control handler.  See
+      `geopm_launch(1) <geopm_launch.1.html>`_ and `geopm(7) <geopm.7.html>`_ for more information about
+      launch options and environment variables.
 
 * 
   **Agent Policy Definitions**:
-  The minimum and maximum frequency are passed down as policies.
-  Setting both to the same value can be used to force the entire
-  application to run at one frequency.
+
+      The minimum and maximum frequency are passed down as policies.
+      Setting both to the same value can be used to force the entire
+      application to run at one frequency.
 
   ``FREQ_MIN``\ :
       The minimum frequency in hertz that the algorithm is
@@ -89,12 +91,14 @@ reports and traces with additional Agent-specific information.
 
 * 
   **Report Extensions**\ :
-  The per-node learned best-fit frequency for each region is added to
-  the report.
+
+      The per-node learned best-fit frequency for each region is added to
+      the report.
 
 * 
   **Control Loop Gate**\ :
-  The agent gates the Controller's control loop to a cadence of 5ms.
+
+      The agent gates the Controller's control loop to a cadence of 5ms.
 
 SEE ALSO
 --------
