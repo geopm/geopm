@@ -448,10 +448,15 @@ namespace geopm
         m_is_batch_read = true;
         for (auto &sv : m_signal_available) {
             if (sv.first == M_NAME_PREFIX + "GPU_CPU_ACTIVE_AFFINITIZATION") {
-                std::map<pid_t, double> process_map = accelerator_process_map();
+                std::map<pid_t, double> process_map;
+                bool is_map_cached = false;
 
                 for (unsigned int domain_idx = 0; domain_idx < sv.second.signals.size(); ++domain_idx) {
                     if (sv.second.signals.at(domain_idx)->m_do_read) {
+                        if (is_map_cached == false) {
+                            process_map = accelerator_process_map();
+                            is_map_cached = true;
+                        }
                         sv.second.signals.at(domain_idx)->m_value = cpu_accelerator_affinity(domain_idx, process_map);
                     }
                 }
