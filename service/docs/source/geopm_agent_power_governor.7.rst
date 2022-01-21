@@ -81,7 +81,7 @@ reports and traces with additional Agent-specific information.
   N/A
 
 * 
-  ``Control Loop Gate``\ :
+  **Control Loop Gate**\ :
 
       The agent gates the Controller's control loop to a cadence of *5ms*.
 
