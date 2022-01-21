@@ -602,12 +602,12 @@ namespace geopm
                             " not valid for NVMLIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        if (domain_type != GEOPM_DOMAIN_BOARD_ACCELERATOR) {
+        if (domain_type != control_domain_type(control_name)) {
             throw Exception("NVMLIOGroup::" + std::string(__func__) + ": " + control_name + ": domain_type must be " +
                             std::to_string(control_domain_type(control_name)),
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        if (domain_idx < 0 || domain_idx >= m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR)) {
+        if (domain_idx < 0 || domain_idx >= m_platform_topo.num_domain(control_domain_type(control_name))) {
             throw Exception("NVMLIOGroup::" + std::string(__func__) + ": domain_idx out of range.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
