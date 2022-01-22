@@ -102,7 +102,6 @@
 /m4/ltversion.m4
 /Makefile
 /Makefile.in
-/man/*
 /MANIFEST
 /missing
 *.o

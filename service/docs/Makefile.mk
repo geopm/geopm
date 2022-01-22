@@ -53,19 +53,52 @@ EXTRA_DIST += docs/geninfo.sh \
               docs/source/use_cases.rst \
               # end
 
+
+dist_man_MANS = docs/build/man/geopm.7 \
+                docs/build/man/GEOPM_CXX_MAN_Agg.3 \
+                docs/build/man/GEOPM_CXX_MAN_CircularBuffer.3 \
+                docs/build/man/GEOPM_CXX_MAN_CNLIOGroup.3 \
+                docs/build/man/GEOPM_CXX_MAN_CpuinfoIOGroup.3 \
+                docs/build/man/GEOPM_CXX_MAN_Exception.3 \
+                docs/build/man/GEOPM_CXX_MAN_Helper.3 \
+                docs/build/man/GEOPM_CXX_MAN_IOGroup.3 \
+                docs/build/man/GEOPM_CXX_MAN_MSRIO.3 \
+                docs/build/man/GEOPM_CXX_MAN_MSRIOGroup.3 \
+                docs/build/man/GEOPM_CXX_MAN_PlatformIO.3 \
+                docs/build/man/GEOPM_CXX_MAN_PlatformTopo.3 \
+                docs/build/man/GEOPM_CXX_MAN_PluginFactory.3 \
+                docs/build/man/GEOPM_CXX_MAN_SampleAggregator.3 \
+                docs/build/man/GEOPM_CXX_MAN_SharedMemory.3 \
+                docs/build/man/GEOPM_CXX_MAN_TimeIOGroup.3 \
+                docs/build/man/geopm_error.3 \
+                docs/build/man/geopm_hash.3 \
+                docs/build/man/geopm_pio_c.3 \
+                docs/build/man/geopmread.1 \
+                docs/build/man/geopm_report.7 \
+                docs/build/man/geopm_sched.3 \
+                docs/build/man/geopm_time.3 \
+                docs/build/man/geopm_topo_c.3 \
+                docs/build/man/geopm_version.3 \
+                docs/build/man/geopmwrite.1 \
+                # end
+
+
+$(dist_man_MANS): docs/build/man/%: $(top_srcdir)/docs/source/%.rst libgeopmd.la $(abs_srcdir)/geopmdpy/version.py
+	LD_LIBRARY_PATH=.libs:$(LD_LIBRARY_PATH) \
+	PYTHONPATH=$(abs_srcdir):$(PYTHONPATH) \
+	sphinx-build -M man $(abs_srcdir)/docs/source docs/build
+
 docs: docs_man docs_html
 
 docs_html: libgeopmd.la $(abs_srcdir)/geopmdpy/version.py
 	LD_LIBRARY_PATH=.libs:$(LD_LIBRARY_PATH) \
 	PYTHONPATH=$(abs_srcdir):$(PYTHONPATH) \
-	sphinx-build -M html  $(abs_srcdir)/docs/source docs/build
-	rm -rf ~/public_html/html
-	cp -r $(abs_srcdir)/docs/build/html ~/public_html/html
+	sphinx-build -M html $(abs_srcdir)/docs/source docs/build
 
 docs_man: libgeopmd.la $(abs_srcdir)/geopmdpy/version.py
 	LD_LIBRARY_PATH=.libs:$(LD_LIBRARY_PATH) \
 	PYTHONPATH=$(abs_srcdir):$(PYTHONPATH) \
-	sphinx-build -M man  $(abs_srcdir)/docs/source docs/build
+	sphinx-build -M man $(abs_srcdir)/docs/source docs/build
 
 
 clean-local-docs:

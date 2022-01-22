@@ -87,7 +87,7 @@ if ENABLE_BETA
                           # end
 endif
 
-all_local = $(ronn_man_noinst)
+all_local = $(roff_man_noinst)
 
 if ENABLE_MPI
 if ENABLE_FORTRAN
@@ -121,55 +121,29 @@ install-plugin-dir:
 #
 transform='s/GEOPM_CXX_MAN_/geopm::/'
 
-ronn_man_inst = man/GEOPM_CXX_MAN_Agent.3 \
-                man/GEOPM_CXX_MAN_Agg.3 \
-                man/GEOPM_CXX_MAN_CircularBuffer.3 \
-                man/GEOPM_CXX_MAN_CNLIOGroup.3 \
-                man/GEOPM_CXX_MAN_CpuinfoIOGroup.3 \
+roff_man_inst = man/GEOPM_CXX_MAN_Agent.3 \
                 man/GEOPM_CXX_MAN_EnergyEfficientRegion.3 \
-                man/GEOPM_CXX_MAN_Exception.3 \
-                man/GEOPM_CXX_MAN_Helper.3 \
-                man/GEOPM_CXX_MAN_IOGroup.3 \
-                man/GEOPM_CXX_MAN_MSRIO.3 \
-                man/GEOPM_CXX_MAN_MSRIOGroup.3 \
-                man/GEOPM_CXX_MAN_PlatformIO.3 \
-                man/GEOPM_CXX_MAN_PlatformTopo.3 \
-                man/GEOPM_CXX_MAN_PluginFactory.3 \
                 man/GEOPM_CXX_MAN_PowerBalancer.3 \
                 man/GEOPM_CXX_MAN_PowerGovernor.3 \
-                man/GEOPM_CXX_MAN_SampleAggregator.3 \
-                man/GEOPM_CXX_MAN_SharedMemory.3 \
-                man/GEOPM_CXX_MAN_TimeIOGroup.3 \
-                man/geopm.7 \
                 man/geopm_agent_c.3 \
                 man/geopm_agent_energy_efficient.7 \
                 man/geopm_agent_frequency_map.7 \
                 man/geopm_agent_monitor.7 \
                 man/geopm_agent_power_balancer.7 \
                 man/geopm_agent_power_governor.7 \
-                man/geopm_report.7 \
                 man/geopm_ctl_c.3 \
-                man/geopm_error.3 \
                 man/geopm_fortran.3 \
-                man/geopm_hash.3 \
                 man/geopm_imbalancer.3 \
-                man/geopm_pio_c.3 \
                 man/geopm_prof_c.3 \
-                man/geopm_sched.3 \
-                man/geopm_time.3 \
-                man/geopm_topo_c.3 \
-                man/geopm_version.3 \
                 man/geopmadmin.1 \
                 man/geopmagent.1 \
                 man/geopmbench.1 \
                 man/geopmctl.1 \
                 man/geopmlaunch.1 \
                 man/geopmpy.7 \
-                man/geopmread.1 \
-                man/geopmwrite.1 \
                 # end
 
-ronn_man_noinst = man/GEOPM_CXX_MAN_Comm.3 \
+roff_man_noinst = man/GEOPM_CXX_MAN_Comm.3 \
                   man/GEOPM_CXX_MAN_EnergyEfficientAgent.3 \
                   man/GEOPM_CXX_MAN_MonitorAgent.3 \
                   man/GEOPM_CXX_MAN_MPIComm.3 \
@@ -178,7 +152,7 @@ ronn_man_noinst = man/GEOPM_CXX_MAN_Comm.3 \
                   man/GEOPM_CXX_MAN_ProfileIOGroup.3 \
                   # end
 
-ronn_man_beta = man/geopmendpoint.1 \
+roff_man_beta = man/geopmendpoint.1 \
                 man/geopmplotter.1 \
                 man/geopm_daemon_c.3 \
                 man/geopm_endpoint_c.3 \
@@ -188,14 +162,14 @@ ronn_man_beta = man/geopmendpoint.1 \
                 # end
 
 if ENABLE_BETA
-ronn_man_inst += $(ronn_man_beta)
+roff_man_inst += $(roff_man_beta)
 else
-ronn_man_noinst += $(ronn_man_beta)
+roff_man_noinst += $(roff_man_beta)
 endif
 
-ronn_man = $(ronn_man_inst) $(ronn_man_noinst)
+roff_man = $(roff_man_inst) $(roff_man_noinst)
 
-dist_man_MANS = $(ronn_man_inst) \
+dist_man_MANS = $(roff_man_inst) \
                 # end
 
 dist_doc_DATA = COPYING \
@@ -255,69 +229,6 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              indicators/index.html \
              indicators/indicators.py \
              pull_request_template.md \
-             ronn/GEOPM_CXX_MAN_Agent.3.ronn \
-             ronn/GEOPM_CXX_MAN_Agg.3.ronn \
-             ronn/GEOPM_CXX_MAN_CircularBuffer.3.ronn \
-             ronn/GEOPM_CXX_MAN_CNLIOGroup.3.ronn \
-             ronn/GEOPM_CXX_MAN_Comm.3.ronn \
-             ronn/GEOPM_CXX_MAN_CpuinfoIOGroup.3.ronn \
-             ronn/GEOPM_CXX_MAN_Daemon.3.ronn \
-             ronn/GEOPM_CXX_MAN_Endpoint.3.ronn \
-             ronn/GEOPM_CXX_MAN_EnergyEfficientAgent.3.ronn \
-             ronn/GEOPM_CXX_MAN_EnergyEfficientRegion.3.ronn \
-             ronn/GEOPM_CXX_MAN_Exception.3.ronn \
-             ronn/GEOPM_CXX_MAN_Helper.3.ronn \
-             ronn/GEOPM_CXX_MAN_IOGroup.3.ronn \
-             ronn/GEOPM_CXX_MAN_MPIComm.3.ronn \
-             ronn/GEOPM_CXX_MAN_MSRIO.3.ronn \
-             ronn/GEOPM_CXX_MAN_MSRIOGroup.3.ronn \
-             ronn/GEOPM_CXX_MAN_MonitorAgent.3.ronn \
-             ronn/GEOPM_CXX_MAN_PlatformIO.3.ronn \
-             ronn/GEOPM_CXX_MAN_PlatformTopo.3.ronn \
-             ronn/GEOPM_CXX_MAN_PluginFactory.3.ronn \
-             ronn/GEOPM_CXX_MAN_PowerBalancer.3.ronn \
-             ronn/GEOPM_CXX_MAN_PowerBalancerAgent.3.ronn \
-             ronn/GEOPM_CXX_MAN_PowerGovernor.3.ronn \
-             ronn/GEOPM_CXX_MAN_PowerGovernorAgent.3.ronn \
-             ronn/GEOPM_CXX_MAN_ProfileIOGroup.3.ronn \
-             ronn/GEOPM_CXX_MAN_SampleAggregator.3.ronn \
-             ronn/GEOPM_CXX_MAN_SharedMemory.3.ronn \
-             ronn/GEOPM_CXX_MAN_TimeIOGroup.3.ronn \
-             ronn/geopm.7.ronn \
-             ronn/geopm_agent_c.3.ronn \
-             ronn/geopm_agent_energy_efficient.7.ronn \
-             ronn/geopm_agent_frequency_map.7.ronn \
-             ronn/geopm_agent_monitor.7.ronn \
-             ronn/geopm_agent_power_balancer.7.ronn \
-             ronn/geopm_agent_power_governor.7.ronn \
-             ronn/geopm_report.7.ronn \
-             ronn/geopm_ctl_c.3.ronn \
-             ronn/geopm_daemon_c.3.ronn \
-             ronn/geopm_endpoint_c.3.ronn \
-             ronn/geopm_error.3.ronn \
-             ronn/geopm_fortran.3.ronn \
-             ronn/geopm_hash.3.ronn \
-             ronn/geopm_imbalancer.3.ronn \
-             ronn/geopm_pio_c.3.ronn \
-             ronn/geopm_policystore_c.3.ronn \
-             ronn/geopm_prof_c.3.ronn \
-             ronn/geopm_sched.3.ronn \
-             ronn/geopm_time.3.ronn \
-             ronn/geopm_topo_c.3.ronn \
-             ronn/geopm_version.3.ronn \
-             ronn/geopmadmin.1.ronn \
-             ronn/geopmagent.1.ronn \
-             ronn/geopmbench.1.ronn \
-             ronn/geopmctl.1.ronn \
-             ronn/geopmendpoint.1.ronn \
-             ronn/geopmlaunch.1.ronn \
-             ronn/geopmplotter.1.ronn \
-             ronn/geopmpy.7.ronn \
-             ronn/geopmread.1.ronn \
-             ronn/geopmwrite.1.ronn \
-             ronn/header.html \
-             ronn/header.roff \
-             ronn/index.txt \
              scripts/outlier/README.md \
              scripts/outlier/outlier_detection.py \
              scripts/outlier/theta_nodelist_broken.txt \
@@ -742,18 +653,6 @@ dox/Doxyfile: $(top_srcdir)/dox/Doxyfile.in
 doxygen: dox-public/Doxyfile dox/Doxyfile
 	cd $(top_srcdir) && doxygen $(abs_builddir)/dox/Doxyfile
 	cd $(top_srcdir) && doxygen $(abs_builddir)/dox-public/Doxyfile
-
-# MAN TARGET
-$(ronn_man): man/%: $(top_srcdir)/ronn/%.ronn
-	mkdir -p man
-	$(top_srcdir)/gen_man.sh $(top_srcdir) $^ $@
-
-# GH_PAGES TARGET
-gh-pages: doxygen $(dist_man_MANS)
-	mkdir -p gh-pages/dox
-	mkdir -p gh-pages/man
-	cp -rf dox-public/html/* gh-pages/dox/.
-	cp ronn/*.html gh-pages/man/.
 
 geopm-tutorial.tar.gz: $(TUTORIAL_DIST)
 	tar --transform='s|^|geopm-|' -zcf $@ $^
