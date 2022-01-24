@@ -423,14 +423,18 @@ namespace geopm
         };
 
         auto all_names = m_platform_io.signal_names();
-        if (all_names.count("ENERGY_ACCELERATOR") != 0) {
-            m_sync_fields.push_back({"accelerator-energy (J)", {"ENERGY_ACCELERATOR"}, sample_only});
-        }
-        if (all_names.count("POWER_ACCELERATOR") != 0) {
-            m_sync_fields.push_back({"accelerator-power (W)", {"POWER_ACCELERATOR"}, sample_only});
-        }
-        if (all_names.count("FREQUENCY_ACCELERATOR") != 0) {
-            m_sync_fields.push_back({"accelerator-frequency (HZ)", {"FREQUENCY_ACCELERATOR"}, sample_only});
+        std::vector<m_sync_field_s> gpu_sync_fields = {
+            {"gpu-energy (J)", {"GPU_ENERGY"}, sample_only},
+            {"gpu-power (W)", {"GPU_POWER"}, sample_only},
+            {"gpu-frequency (HZ)", {"GPU_FREQUENCY"}, sample_only}
+        };
+
+        for (const auto &field : gpu_sync_fields) {
+            for (const auto &signal : field.supporting_signals) {
+                if (all_names.count(signal) != 0) {
+                    m_sync_fields.push_back(field);
+                }
+            }
         }
 
         for (const auto &field : m_sync_fields) {
