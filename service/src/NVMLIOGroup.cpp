@@ -71,7 +71,7 @@ namespace geopm
         : m_platform_topo(platform_topo)
         , m_nvml_device_pool(device_pool)
         , m_is_batch_read(false)
-        , m_frequency_control_request(platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR), 0)
+        , m_frequency_control_request(m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR), 0)
         , m_signal_available({{M_NAME_PREFIX + "GPU_FREQUENCY_STATUS", {
                                   "Streaming multiprocessor frequency in hertz",
                                   {},
