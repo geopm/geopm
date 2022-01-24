@@ -200,6 +200,7 @@ namespace geopm
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::expect_same,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_CONSTANT,
                                   string_format_double
                                   }}
                              })
@@ -239,10 +240,11 @@ namespace geopm
         }
         register_signal_alias("GPU_POWER", M_NAME_PREFIX + "GPU_POWER");
         register_signal_alias("GPU_FREQUENCY_STATUS", M_NAME_PREFIX + "GPU_FREQUENCY_STATUS");
-        register_signal_alias("FREQUENCY_MIN_ACCELERATOR", "NVML::FREQUENCY_MIN");
-        register_signal_alias("FREQUENCY_MAX_ACCELERATOR", "NVML::FREQUENCY_MAX");
-        register_signal_alias("ENERGY_ACCELERATOR", "NVML::TOTAL_ENERGY_CONSUMPTION");
-        register_signal_alias("UTILIZATION_ACCELERATOR", "NVML::UTILIZATION_ACCELERATOR");
+        register_signal_alias("GPU_FREQUENCY_MIN_AVAIL", M_NAME_PREFIX + "GPU_FREQUENCY_MIN_AVAIL");
+        register_signal_alias("GPU_FREQUENCY_MAX_AVAIL", M_NAME_PREFIX + "GPU_FREQUENCY_MAX_AVAIL");
+        register_signal_alias("GPU_ENERGY", M_NAME_PREFIX + "GPU_ENERGY_CONSUMPTION_TOTAL");
+        register_signal_alias("GPU_TEMPERATURE", M_NAME_PREFIX + "GPU_TEMPERATURE");
+        register_signal_alias("GPU_UTILIZATION", M_NAME_PREFIX + "GPU_UTILIZATION");
 
         // populate controls for each domain
         for (auto &sv : m_control_available) {
@@ -554,17 +556,17 @@ namespace geopm
         if (signal_name == M_NAME_PREFIX + "GPU_FREQUENCY_STATUS" || signal_name == "GPU_FREQUENCY_STATUS") {
             result = (double) m_nvml_device_pool.frequency_status_sm(domain_idx) * 1e6;
         }
-        else if (signal_name == M_NAME_PREFIX + "GPU_FREQUENCY_MIN_AVAIL") {
+        else if (signal_name == M_NAME_PREFIX + "GPU_FREQUENCY_MIN_AVAIL" || signal_name == "GPU_FREQUENCY_MIN_AVAIL") {
             if (m_supported_freq.at(domain_idx).size() != 0) {
                 result = 1e6 * m_supported_freq.at(domain_idx).front();
             }
         }
-        else if (signal_name == M_NAME_PREFIX + "GPU_FREQUENCY_MAX_AVAIL") {
+        else if (signal_name == M_NAME_PREFIX + "GPU_FREQUENCY_MAX_AVAIL" || signal_name == "GPU_FREQUENCY_MAX_AVAIL") {
             if (m_supported_freq.at(domain_idx).size() != 0) {
                 result = 1e6 * m_supported_freq.at(domain_idx).back();
             }
         }
-        else if (signal_name == M_NAME_PREFIX + "GPU_UTILIZATION") {
+        else if (signal_name == M_NAME_PREFIX + "GPU_UTILIZATION" || signal_name == "GPU_UTILIZATION") {
             result = (double) m_nvml_device_pool.utilization(domain_idx) / 100;
         }
         else if (signal_name == M_NAME_PREFIX + "GPU_THROTTLE_REASONS") {
@@ -580,10 +582,10 @@ namespace geopm
         else if (signal_name == M_NAME_PREFIX + "GPU_MEMORY_FREQUENCY_STATUS") {
             result = (double) m_nvml_device_pool.frequency_status_mem(domain_idx) * 1e6;
         }
-        else if (signal_name == M_NAME_PREFIX + "GPU_TEMPERATURE") {
+        else if (signal_name == M_NAME_PREFIX + "GPU_TEMPERATURE" || signal_name == "GPU_TEMPERATURE") {
             result = (double) m_nvml_device_pool.temperature(domain_idx);
         }
-        else if (signal_name == M_NAME_PREFIX + "GPU_ENERGY_CONSUMPTION_TOTAL" || signal_name == "ENERGY_ACCELERATOR") {
+        else if (signal_name == M_NAME_PREFIX + "GPU_ENERGY_CONSUMPTION_TOTAL" || signal_name == "GPU_ENERGY") {
             result = (double) m_nvml_device_pool.energy(domain_idx) / 1e3;
         }
         else if (signal_name == M_NAME_PREFIX + "GPU_PERFORMANCE_STATE") {
@@ -602,7 +604,7 @@ namespace geopm
             std::map<pid_t, double> process_map = accelerator_process_map();
             result = cpu_accelerator_affinity(domain_idx, process_map);
         }
-        else if (signal_name == M_NAME_PREFIX + "GPU_FREQUENCY_CONTROL") {
+        else if (signal_name == M_NAME_PREFIX + "GPU_FREQUENCY_CONTROL" || signal_name == "GPU_FREQUENCY_CONTROL") {
             result = m_frequency_control_request.at(domain_idx);
         }
         else {
