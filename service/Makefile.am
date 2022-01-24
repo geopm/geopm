@@ -72,7 +72,7 @@ geopminclude_HEADERS = contrib/json11/json11.hpp \
                        # end
 
 install-exec-hook: install-python install-plugin-dir
-dist: dist-googletest
+dist: dist-googletest base_man
 
 install-plugin-dir:
 	$(INSTALL) -d $(DESTDIR)/$(pkglibdir)
