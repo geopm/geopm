@@ -28,18 +28,3 @@
 #  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-
-[Unit]
-Description=Global Extensible Open Power Manager Service
-StartLimitIntervalSec=0
-StartLimitBurst=3
-
-[Service]
-Environment=PYTHONUNBUFFERED=true
-Type=dbus
-BusName=io.github.geopm
-ExecStart=/usr/bin/geopmd
-Restart=always
-
-[Install]
-WantedBy=default.target

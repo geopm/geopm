@@ -101,6 +101,7 @@ EXTRA_DIST = .gitignore \
              geopmdpy/service.py \
              geopmdpy/session.py \
              geopmdpy/topo.py \
+             geopmdpy/varrun.py \
              geopmdpy/version.py \
              geopmdpy/version.py.in \
              geopmsession \
