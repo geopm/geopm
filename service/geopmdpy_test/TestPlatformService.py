@@ -368,7 +368,7 @@ default
     def test_open_session_twice(self):
         client_pid = 999
         with mock.patch('geopmdpy.service.PlatformService._get_user_groups', return_value=[]), \
-             mock.patch('geopmdpy.service.PlatformService._watch_client', return_value=[]):
+             mock.patch('geopmdpy.service.PlatformService._watch_client', return_value=888):
             self._platform_service.open_session('', client_pid)
             session_file = self._session_file_format.format(client_pid=client_pid)
             self.assertTrue(os.path.isfile(session_file),
@@ -387,8 +387,7 @@ default
                         'mode': 'r',
                         'signals': signals_default,
                         'controls': controls_default,
-                        'watch_id': watch_id,
-                        'batch_server': None}
+                        'watch_id': watch_id}
         return session_data
 
     def open_mock_session(self, session_key, client_pid=-999):
@@ -553,7 +552,8 @@ default
         self.assertTrue(os.path.isdir(save_dir),
                         msg = 'Directory does not exist: {}'.format(save_dir))
 
-        with mock.patch('geopmdpy.pio.stop_batch_server', return_value=[]) as mock_stop_batch_server:
+        with mock.patch('geopmdpy.pio.stop_batch_server', return_value=[]) as mock_stop_batch_server, \
+             mock.patch('psutil.pid_exists', return_value=True) as mock_pid_exists:
             self._platform_service.stop_batch(client_pid, expected_result[0])
             mock_stop_batch_server.assert_called_once_with(expected_result[0])
 

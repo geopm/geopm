@@ -56,6 +56,7 @@ Requires: python3-gobject
 Requires: python3-gobject-base
 %endif
 Requires: python3-dasbus
+Requires: python3-jsonschema
 
 Prefix: %{_prefix}
 

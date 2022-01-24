@@ -39,7 +39,6 @@ import os
 import sys
 import pwd
 import grp
-import json
 import shutil
 import psutil
 import gi
@@ -48,6 +47,7 @@ from gi.repository import GLib
 from . import pio
 from . import topo
 from . import dbus_xml
+from . import varrun
 from dasbus.connection import SystemMessageBus
 try:
     from dasbus.server.interface import accepts_additional_arguments
@@ -55,93 +55,6 @@ except ImportError as ee:
     err_msg = '''dasbus version greater than 1.5 required:
     https://github.com/rhinstaller/dasbus/pull/57'''
     raise ImportError(err_msg) from ee
-
-
-GEOPM_SERVICE_VAR_PATH = '/var/run/geopm-service'
-
-class ActiveSessions(object):
-    def __init__(self):
-        self._sessions = dict()
-        self._VAR_PATH = GEOPM_SERVICE_VAR_PATH
-
-    def is_client_active(self, client_pid):
-        result = client_pid in self._sessions
-        session_file = self._get_session_file(client_pid)
-        if not result and os.path.isfile(session_file):
-            raise RuntimeError(f'Session file exists, but client {client_pid} is not tracked: {session_file}')
-        return result
-
-    def check_client_active(self, client_pid, msg=''):
-        if not self.is_client_active(client_pid):
-            raise RuntimeError(f"Operation '{msg}' not allowed without an open session. Client PID: {client_pid}")
-
-    def add_client(self, client_pid, signals, controls, watch_id):
-        if self.is_client_active(client_pid):
-            return
-        session_data = {'client_pid': client_pid,
-                        'mode': 'r',
-                        'signals': list(signals),
-                        'controls': list(controls),
-                        'watch_id': watch_id,
-                        'batch_server': None}
-        self._sessions[client_pid] = session_data
-        self._update_session_file(client_pid)
-
-    def remove_client(self, client_pid):
-        self.check_client_active(client_pid, 'remove_client')
-        session_file = self._get_session_file(client_pid)
-        os.remove(session_file)
-        self._sessions.pop(client_pid)
-
-    def get_clients(self):
-        return list(self._sessions.keys())
-
-    def get_mode(self, client_pid):
-        self.check_client_active(client_pid, 'get_mode')
-        return self._sessions[client_pid]['mode']
-
-    def get_signals(self, client_pid):
-        self.check_client_active(client_pid, 'get_signals')
-        return self._sessions[client_pid]['signals']
-
-    def get_controls(self, client_pid):
-        self.check_client_active(client_pid, 'get_controls')
-        return self._sessions[client_pid]['controls']
-
-    def get_watch_id(self, client_pid):
-        self.check_client_active(client_pid, 'get_watch_id')
-        return self._sessions[client_pid]['watch_id']
-
-    def get_batch_server(self, client_pid):
-        self.check_client_active(client_pid, 'get_batch_server')
-        return self._sessions[client_pid]['batch_server']
-
-    def set_write_client(self, client_pid):
-        self.check_client_active(client_pid, 'set_write_client')
-        self._sessions[client_pid]['mode'] = 'rw'
-        self._update_session_file(client_pid)
-
-    def set_batch_server(self, client_pid, batch_pid):
-        self.check_client_active(client_pid, 'set_batch_server')
-        current_server = self._sessions[client_pid]['batch_server']
-        if current_server is not None:
-            raise RuntimeError(f'Client {client_pid} has already started a batch server: {current_server}')
-        self._sessions[client_pid]['batch_server'] = batch_pid
-        self._update_session_file(client_pid)
-
-    def remove_batch_server(self, client_pid):
-        self.check_client_active(client_pid, 'remove_batch_server')
-        self._sessions[client_pid]['batch_server'] = None
-        self._update_session_file(client_pid)
-
-    def _get_session_file(self, client_pid):
-        return os.path.join(self._VAR_PATH, 'session-{}.json'.format(client_pid))
-
-    def _update_session_file(self, client_pid):
-        session_file = self._get_session_file(client_pid)
-        os.makedirs(self._VAR_PATH, exist_ok=True)
-        with open(session_file, 'w') as fid:
-            json.dump(self._sessions[client_pid], fid)
 
 
 class PlatformService(object):
@@ -156,14 +69,22 @@ class PlatformService(object):
 
         """
         self._pio = pio
-        self._VAR_PATH = GEOPM_SERVICE_VAR_PATH
+        self._VAR_PATH = varrun.GEOPM_SERVICE_VAR_PATH
         self._CONFIG_PATH = '/etc/geopm-service'
         self._ALL_GROUPS = [gg.gr_name for gg in grp.getgrall()]
         self._DEFAULT_ACCESS = '0.DEFAULT_ACCESS'
         self._SAVE_DIR = 'SAVE_FILES'
         self._WATCH_INTERVAL_MSEC = 1000
         self._write_pid = None
-        self._active_sessions = ActiveSessions()
+        self._active_sessions = varrun.ActiveSessions()
+        for client_pid in self._active_sessions.get_clients():
+            is_writer = self._active_sessions.is_write_client(client_pid)
+            is_active = self.check_client(client_pid)
+            if is_active:
+                watch_id = self._watch_client(client_pid)
+                self._active_sessions.set_watch_id(client_pid, watch_id)
+                if is_writer:
+                    self._write_pid = client_pid
 
     def get_group_access(self, group):
         """Get the signals and controls in the allowed lists.
@@ -227,6 +148,7 @@ class PlatformService(object):
         self._validate_signals(allowed_signals)
         self._validate_controls(allowed_controls)
         group_dir = os.path.join(self._CONFIG_PATH, group)
+        # TODO: Deal with permissions
         os.makedirs(group_dir, exist_ok=True)
         path = os.path.join(group_dir, 'allowed_signals')
         self._write_allowed(path, allowed_signals)
@@ -498,12 +420,13 @@ class PlatformService(object):
         """
         self._active_sessions.check_client_active(client_pid, 'PlatformCloseSession')
         batch_pid = self._active_sessions.get_batch_server(client_pid)
+        is_writer = self._active_sessions.is_write_client(client_pid)
         if batch_pid is not None:
             try:
                 self._pio.stop_batch_server(batch_pid)
             except ex:
                 sys.stderr.write(f'Failed to stop batch server {batch_pid}: {ex}')
-        if client_pid == self._write_pid:
+        if is_writer:
             save_dir = os.path.join(self._VAR_PATH, self._SAVE_DIR)
             self._pio.restore_control_dir(save_dir)
             shutil.rmtree(save_dir)
@@ -614,7 +537,9 @@ class PlatformService(object):
         actual_server_pid = self._active_sessions.get_batch_server(client_pid)
         if server_pid != actual_server_pid:
             raise RuntimeError(f'Client PID: {client_pid} requested to stop batch server PID: {server_pid}, actual batch server PID: {actual_server_pid}')
-        self._pio.stop_batch_server(server_pid)
+        if psutil.pid_exists(server_pid):
+            self._pio.stop_batch_server(server_pid)
+        self._active_sessions.remove_batch_server(client_pid)
 
     def read_signal(self, client_pid, signal_name, domain, domain_idx):
         """Read a signal from a particular domain.
@@ -772,6 +697,9 @@ class PlatformService(object):
             self._active_sessions.set_write_client(write_pid)
             self._write_pid = write_pid
             save_dir = os.path.join(self._VAR_PATH, self._SAVE_DIR)
+            if os.path.exists(save_dir):
+                sys.stderr.write('Warning: <geopm-service> Removing SAVE_FILES directory which not owned by any active session')
+                shutil.rmtree(save_dir)
             os.makedirs(save_dir)
             self._pio.save_control_dir(save_dir)
 
@@ -779,10 +707,12 @@ class PlatformService(object):
         return GLib.timeout_add(self._WATCH_INTERVAL_MSEC, self.check_client, client_pid)
 
     def check_client(self, client_pid):
-        if client_pid in self._active_sessions.get_clients() and not psutil.pid_exists(client_pid):
+        if (client_pid in self._active_sessions.get_clients() and
+            not psutil.pid_exists(client_pid)):
             self.close_session(client_pid)
             return False
         return True
+
 
 class TopoService(object):
     """Provides the concrete implementation for all of the GEOPM DBus

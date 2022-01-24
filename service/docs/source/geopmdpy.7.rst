@@ -42,6 +42,14 @@ geopmdpy.error
    :undoc-members:
    :show-inheritance:
 
+geopmdpy.gffi
+-------------
+
+.. automodule:: geopmdpy.gffi
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 geopmdpy.pio
 ------------
 
@@ -78,6 +86,14 @@ geopmdpy.topo
 -------------
 
 .. automodule:: geopmdpy.topo
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+geopmdpy.varrun
+---------------
+
+.. automodule:: geopmdpy.varrun
    :members:
    :undoc-members:
    :show-inheritance:
