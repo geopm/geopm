@@ -426,7 +426,7 @@ namespace geopm
         std::vector<m_sync_field_s> gpu_sync_fields = {
             {"gpu-energy (J)", {"GPU_ENERGY"}, sample_only},
             {"gpu-power (W)", {"GPU_POWER"}, sample_only},
-            {"gpu-frequency (Hz)", {"GPU_FREQUENCY"}, sample_only}
+            {"gpu-frequency (Hz)", {"GPU_FREQUENCY_STATUS"}, sample_only}
         };
 
         for (const auto &field : gpu_sync_fields) {
