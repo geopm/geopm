@@ -173,7 +173,10 @@ rst_files = [
     "geopm_time.3",
     "geopm_topo_c.3",
     "geopm_version.3",
-    "geopmwrite.1"
+    "geopmwrite.1",
+    "geopmaccess.1",
+    "geopmsession.1",
+    "geopmdpy.7"
 ]
 
 authors = ["Christopher Cantalupo", "Brad Geltz", "Konstantin Rebrov"]
