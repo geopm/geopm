@@ -420,9 +420,17 @@ namespace geopm
     // platform settings
     void DCGMIOGroup::restore_control(void)
     {
-        m_dcgm_device_pool.update_rate(1*1e6); //1 second
-        m_dcgm_device_pool.max_samples(0); //0 = no limit
-        m_dcgm_device_pool.max_storage_time(10); //10 seconds.
+        // The 1 second update rate used here is the default sample rate discussed
+        // in the DCGM user guide.
+        m_dcgm_device_pool.update_rate(1e6); //1 second
+
+        // The max samples restore value is based upon the defaults used in DCGM
+        // sdk example code for field value access provided as part of the DCGM install
+        m_dcgm_device_pool.max_samples(3600); //3600 samples
+
+        // The max storage time restore value is based upon the defaults used in DCGM
+        // sdk example code for field value access provided as part of the DCGM install
+        m_dcgm_device_pool.max_storage_time(3600); //3600 seconds
     }
 
     void DCGMIOGroup::save_control(const std::string &save_path)
