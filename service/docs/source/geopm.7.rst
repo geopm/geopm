@@ -380,6 +380,7 @@ SEE ALSO
 --------
 
 `geopmpy(7) <geopmpy.7.html>`_\ ,
+`geopmdpy(7) <geopmdpy.7.html>`_\ ,
 `geopm_agent_energy_efficient(7) <geopm_agent_energy_efficient.7.html>`_\ ,
 `geopm_agent_frequency_map(7) <geopm_agent_frequency_map.7.html>`_\ ,
 `geopm_agent_monitor(7) <geopm_agent_monitor.7.html>`_\ ,
@@ -423,4 +424,6 @@ SEE ALSO
 `geopmlaunch(1) <geopmlaunch.1.html>`_\ ,
 `geopmread(1) <geopmread.1.html>`_\ ,
 `geopmwrite(1) <geopmwrite.1.html>`_\ ,
+`geopmaccess(1) <geopmaccess.1.html>`_\ ,
+`geopmsession(1) <geopmsession.1.html>`_\ ,
 `ld.so(8) <http://man7.org/linux/man-pages/man8/ld.so.8.html>`_

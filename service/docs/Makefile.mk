@@ -48,10 +48,8 @@ EXTRA_DIST += docs/geninfo.sh \
               docs/source/controls_SKX.rst \
               docs/source/devel.rst \
               docs/source/index.rst \
-              docs/source/info.rst \
               docs/source/overview.rst \
               docs/source/publications.rst \
-              docs/source/manpages.rst \
               docs/source/reference.rst \
               docs/source/requires.rst \
               docs/source/runtime.rst \
@@ -60,6 +58,7 @@ EXTRA_DIST += docs/geninfo.sh \
               docs/source/signals_SKX.rst \
               docs/source/use_cases.rst \
               docs/source/geopm.7.rst \
+              docs/source/geopmaccess.1.rst \
               docs/source/geopmadmin.1.rst \
               docs/source/geopmagent.1.rst \
               docs/source/geopm_agent_c.3.rst \
@@ -112,7 +111,9 @@ EXTRA_DIST += docs/geninfo.sh \
               docs/source/geopm_policystore_c.3.rst \
               docs/source/geopm_prof_c.3.rst \
               docs/source/geopmpy.7.rst \
+              docs/source/geopmdpy.7.rst \
               docs/source/geopmread.1.rst \
+              docs/source/geopmsession.1.rst \
               docs/source/geopm_report.7.rst \
               docs/source/geopm_sched.3.rst \
               docs/source/geopm_time.3.rst \
@@ -147,6 +148,9 @@ dist_man_MANS = docs/build/man/geopm.7 \
                 docs/build/man/geopm_topo_c.3 \
                 docs/build/man/geopm_version.3 \
                 docs/build/man/geopmwrite.1 \
+                docs/build/man/geopmaccess.1 \
+                docs/build/man/geopmsession.1 \
+                docs/build/man/geopmdpy.7 \
                 # end
 
 base_man = docs/build/man/geopmadmin.1 \

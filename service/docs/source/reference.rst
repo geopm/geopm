@@ -2,132 +2,137 @@
 Reference Manual
 ================
 
-geopmaccess
------------
 
-Access management for the geopm service.
-
-Command line tool for reading and writing the access management lists
-for the geopm service signals and controls.
+This reference manual contains the GEOPM manual pages and the signal and control descriptions.
 
 
-geopmsession
-------------
-
-Command line interface for the geopm service read/write features.
-
-This command can be used to read signals and write controls by opening
-a session with the geopm service.  The user specifies which signals to
-read or which controls to write with standard input. When no command
-line options are provided, a single read of the signals requested
-though standard input is made and the results are printed to the
-screen.
-
-
-The input to the command line tool has one request per line.  A
-request for reading is made of up three strings separated by white
-space.  The first string is the signal name, the second string is the
-domain name, and the third string is the domain index.  An example
-where the entire THERM_STATUS model specific register is read from
-core zero:
-
-.. code-block:: bash
-
-    $ geopmsession
-    MSR::THERM_STATUS# core 0
-
-    0x0000000088430800
-
-
-A request for writing is made up of four strings separated by white
-space.  The first string is the control name, the second string is the
-domain name, and the third string is the domain index.  An example
-where the frequency limit of the PERF_CTL model specific register is
-set to 2.0 GHz for 10 seconds:
-
-
-.. code-block:: bash
-
-    $ geopmsession -w -t 10
-    MSR::PERF_CTL:FREQ core 0 2.0e9
-
-
-The time specified is the duration after the write has completed until
-the process of restoring all written values begins.  The total run
-time for the command will be longer than the time specified because of
-the overhead time spent reading and writing all controls for the
-save/restore feature of the service in addition to the time spent
-writing the requested controls.
-
-
-geopmdpy.service
-----------------
-
-.. automodule:: geopmdpy.service
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-geopmdpy.dbus\_xml
+GEOPM Manual Pages
 ------------------
 
-.. automodule:: geopmdpy.dbus_xml
-   :members:
-   :undoc-members:
-   :show-inheritance:
+.. toctree::
+   :maxdepth: 2
+   :caption: Overview
 
-geopmdpy.pio
-------------
+   geopm.7
 
-.. automodule:: geopmdpy.pio
-   :members:
-   :undoc-members:
-   :show-inheritance:
 
-geopmdpy.topo
--------------
+.. toctree::
+   :maxdepth: 1
+   :caption: Command Line Interfaces
 
-.. automodule:: geopmdpy.topo
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   geopmaccess.1
+   geopmadmin.1
+   geopmagent.1
+   geopmbench.1
+   geopmctl.1
+   geopmendpoint.1
+   geopmlaunch.1
+   geopmplotter.1
+   geopmread.1
+   geopmsession.1
+   geopmwrite.1
 
-geopmdpy.session
-----------------
 
-.. automodule:: geopmdpy.session
-   :members:
-   :undoc-members:
-   :show-inheritance:
+.. toctree::
+   :maxdepth: 2
+   :caption: GEOPM Python Interfaces
 
-geopmdpy.access
----------------
+   geopmdpy.7
+   geopmpy.7
 
-.. automodule:: geopmdpy.access
-   :members:
-   :undoc-members:
-   :show-inheritance:
+* :ref:`genindex`
 
-geopmdpy.runtime
-----------------
 
-.. automodule:: geopmdpy.runtime
-   :members:
-   :undoc-members:
-   :show-inheritance:
+.. toctree::
+   :maxdepth: 1
+   :caption: GEOPM C Interfaces
 
-geopmdpy.error
---------------
+   geopm_agent_c.3
+   geopm_ctl_c.3
+   geopm_daemon_c.3
+   geopm_endpoint_c.3
+   geopm_error.3
+   geopm_fortran.3
+   geopm_hash.3
+   geopm_imbalancer.3
+   geopm_pio_c.3
+   geopm_policystore_c.3
+   geopm_prof_c.3
+   geopm_sched.3
+   geopm_time.3
+   geopm_topo_c.3
+   geopm_version.3
 
-.. automodule:: geopmdpy.error
-   :members:
-   :undoc-members:
-   :show-inheritance:
 
-geopmdpy.version
-----------------
+.. toctree::
+   :maxdepth: 1
+   :caption: GEOPM C++ Interfaces
 
-.. automodule:: geopmdpy.version
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   GEOPM_CXX_MAN_Agent.3
+   GEOPM_CXX_MAN_Agg.3
+   GEOPM_CXX_MAN_CNLIOGroup.3
+   GEOPM_CXX_MAN_CircularBuffer.3
+   GEOPM_CXX_MAN_Comm.3
+   GEOPM_CXX_MAN_CpuinfoIOGroup.3
+   GEOPM_CXX_MAN_Daemon.3
+   GEOPM_CXX_MAN_Endpoint.3
+   GEOPM_CXX_MAN_EnergyEfficientAgent.3
+   GEOPM_CXX_MAN_EnergyEfficientRegion.3
+   GEOPM_CXX_MAN_Exception.3
+   GEOPM_CXX_MAN_Helper.3
+   GEOPM_CXX_MAN_IOGroup.3
+   GEOPM_CXX_MAN_MPIComm.3
+   GEOPM_CXX_MAN_MSRIO.3
+   GEOPM_CXX_MAN_MSRIOGroup.3
+   GEOPM_CXX_MAN_MonitorAgent.3
+   GEOPM_CXX_MAN_PlatformIO.3
+   GEOPM_CXX_MAN_PlatformTopo.3
+   GEOPM_CXX_MAN_PluginFactory.3
+   GEOPM_CXX_MAN_PowerBalancer.3
+   GEOPM_CXX_MAN_PowerBalancerAgent.3
+   GEOPM_CXX_MAN_PowerGovernor.3
+   GEOPM_CXX_MAN_PowerGovernorAgent.3
+   GEOPM_CXX_MAN_ProfileIOGroup.3
+   GEOPM_CXX_MAN_SampleAggregator.3
+   GEOPM_CXX_MAN_SharedMemory.3
+   GEOPM_CXX_MAN_TimeIOGroup.3
+
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Output File Formats
+
+   geopm_report.7
+
+
+.. toctree::
+   :maxdepth: 1
+   :caption: GEOPM HPC Runtime Agents
+
+   geopm_agent_energy_efficient.7
+   geopm_agent_frequency_map.7
+   geopm_agent_monitor.7
+   geopm_agent_power_balancer.7
+   geopm_agent_power_governor.7
+
+
+Signals and Controls
+--------------------
+
+The signals and controls available to be read from the service may vary
+depending on several factors including: the hardware installed on the system,
+the device drivers that are enabled, the configuration of kernel modules and
+other operating system settings.  The information about the signals and
+controls available on one specific GEOPM enabled system is given below.
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Signals:
+
+   signals_SKX
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Controls:
+
+   controls_SKX
