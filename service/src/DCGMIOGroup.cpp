@@ -494,6 +494,11 @@ namespace geopm
         return IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE;
     }
 
+    std::string DCGMIOGroup::name(void) const
+    {
+        return plugin_name();
+    }
+
     // Name used for registration with the IOGroup factory
     std::string DCGMIOGroup::plugin_name(void)
     {
