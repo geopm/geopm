@@ -399,6 +399,11 @@ namespace geopm
         return IOGroup::M_SIGNAL_BEHAVIOR_CONSTANT;
     }
 
+    std::string CpuinfoIOGroup::name(void) const
+    {
+        return plugin_name();
+    }
+
     std::string CpuinfoIOGroup::plugin_name(void)
     {
         return GEOPM_CPUINFO_IO_GROUP_PLUGIN_NAME;

@@ -34,10 +34,11 @@
 from __future__ import absolute_import
 
 import math
-import cffi
+from geopmdpy.gffi import gffi
+from geopmdpy.gffi import get_dl_geopmpolicy
 from geopmdpy import error
-_ffi = cffi.FFI()
-_ffi.cdef("""
+
+gffi.cdef("""
 int geopm_policystore_connect(const char *data_path);
 
 int geopm_policystore_disconnect();
@@ -51,7 +52,7 @@ int geopm_policystore_set_best(const char* agent_name, const char* profile_name,
 int geopm_policystore_set_default(const char* agent_name,
                                   size_t num_policy_vals, const double* policy_vals);
 """)
-_dl = _ffi.dlopen('libgeopmpolicy.so', _ffi.RTLD_GLOBAL|_ffi.RTLD_LAZY)
+_dl = get_dl_geopmpolicy()
 
 
 def connect(database_path):
@@ -61,7 +62,10 @@ def connect(database_path):
     Args:
         database_path (str): Path to the database.
     """
-    database_path_cstr = _ffi.new("char[]", database_path.encode())
+    global gffi
+    global _dl
+
+    database_path_cstr = gffi.new("char[]", database_path.encode())
     err = _dl.geopm_policystore_connect(database_path_cstr)
     if err < 0:
         raise RuntimeError('geopm_policystore_connect() failed: {}'.format(error.message(err)))
@@ -71,6 +75,8 @@ def disconnect():
     """Disconnect the associated database.  No-op if the database has already
     been disconnected.
     """
+    global _dl
+
     err = _dl.geopm_policystore_disconnect()
     if err < 0:
         raise RuntimeError('geopm_policystore_disconnect() failed: {}'.format(error.message(err)))
@@ -87,10 +93,13 @@ def get_best(agent_name, profile_name):
     Returns:
         list of float: Best known policy for the profile and agent.
     """
-    agent_name_cstr = _ffi.new("char[]", agent_name.encode())
-    profile_name_cstr = _ffi.new("char[]", profile_name.encode())
+    global gffi
+    global _dl
+
+    agent_name_cstr = gffi.new("char[]", agent_name.encode())
+    profile_name_cstr = gffi.new("char[]", profile_name.encode())
     policy_max = 1024
-    policy_array = _ffi.new("double[]", policy_max)
+    policy_array = gffi.new("double[]", policy_max)
     err = _dl.geopm_policystore_get_best(agent_name_cstr, profile_name_cstr,
                                          policy_max, policy_array)
     if err < 0:
@@ -107,9 +116,12 @@ def set_best(agent_name, profile_name, policy):
         profile_name (str): Name of the profile.
         policy (list of double): New policy to use.
     """
-    agent_name_cstr = _ffi.new("char[]", agent_name.encode())
-    profile_name_cstr = _ffi.new("char[]", profile_name.encode())
-    policy_array = _ffi.new("double[]", policy)
+    global gffi
+    global _dl
+
+    agent_name_cstr = gffi.new("char[]", agent_name.encode())
+    profile_name_cstr = gffi.new("char[]", profile_name.encode())
+    policy_array = gffi.new("double[]", policy)
     err = _dl.geopm_policystore_set_best(agent_name_cstr, profile_name_cstr,
                                          len(policy), policy_array)
     if err < 0:
@@ -123,8 +135,11 @@ def set_default(agent_name, policy):
         agent_name (str): Name of the agent.
         policy (list of double): Default policy to use with the agent.
     """
-    agent_name_cstr = _ffi.new("char[]", agent_name.encode())
-    policy_array = _ffi.new("double[]", policy)
+    global gffi
+    global _dl
+
+    agent_name_cstr = gffi.new("char[]", agent_name.encode())
+    policy_array = gffi.new("double[]", policy)
     err = _dl.geopm_policystore_set_default(agent_name_cstr, len(policy), policy_array)
     if err < 0:
         raise RuntimeError('geopm_policystore_set_default() failed: {}'.format(error.message(err)))

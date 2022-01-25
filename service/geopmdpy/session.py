@@ -85,26 +85,6 @@ class Session:
                 raise ee
         self._geopm_proxy = geopm_proxy
 
-    def read_signals(self, requests):
-        """Read requested signals from GEOPM D-Bus interface
-
-        All of the signals parsed from the input stream of requests
-        are read and the values returned.
-
-        Args:
-            requests (ReadRequestQueue): Request object parsed from
-                                         user input.
-
-        Returns:
-            list(float): Read signal values: one for each element of
-                         the list of parsed requests.
-
-        """
-        result = []
-        for rr in requests:
-            result.append(self._geopm_proxy.PlatformReadSignal(*rr))
-        return result
-
     def format_signals(self, signals, signal_format):
         """Format a list of signal values for printing
 
@@ -157,15 +137,20 @@ class Session:
                                will be printed (typically sys.stdout).
 
         """
-        self._geopm_proxy.PlatformOpenSession()
         num_period = 0
         if period != 0:
             num_period = math.ceil(duration / period)
+        signal_handles = []
+        for name, dom, dom_idx in requests:
+            if not name.startswith('SERVICE::'):
+                name = f'SERVICE::{name}'
+            signal_handles.append(pio.push_signal(name, dom, dom_idx))
+
         for sample_idx in runtime.TimedLoop(period, num_period):
-            signals = self.read_signals(requests)
+            pio.read_batch()
+            signals = [pio.sample(handle) for handle in signal_handles]
             line = self.format_signals(signals, requests.get_formats())
             out_stream.write(line)
-        self._geopm_proxy.PlatformCloseSession()
 
     def run_write(self, requests, duration):
         """Run a write mode session
@@ -184,8 +169,11 @@ class Session:
 
         """
         self._geopm_proxy.PlatformOpenSession()
-        for rr in requests:
-            self._geopm_proxy.PlatformWriteControl(*rr)
+        key = 'SERVICE::'
+        for name, dom, dom_idx, setting in requests:
+            if name.startswith(key):
+                name = name.replace(key, '', 1)
+            self._geopm_proxy.PlatformWriteControl(name, dom, dom_idx, setting)
         time.sleep(duration)
         self._geopm_proxy.PlatformCloseSession()
 
@@ -288,12 +276,17 @@ class RequestQueue:
     def get_names(self):
         """Get the signal or control names from each request
 
+        Strip off "SERVICE::" prefix from any names in request queue,
+        so that the name can be passed to the proxy.
+
         Returns:
             list(string): The name of the signal or control associated
                            with each user request.
 
         """
-        return [rr[0] for rr in self._requests]
+        key = 'SERVICE::'
+        return [rr[0] if not rr[0].startswith(key) else rr[0].replace(key, '', 1)
+                for rr in self._requests]
 
     def iterate_stream(self, request_stream):
         """Iterate over a stream of requests
@@ -521,4 +514,4 @@ def main():
     return err
 
 if __name__ == '__main__':
-    exit(main())
+    sys.exit(main())

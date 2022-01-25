@@ -370,6 +370,11 @@ namespace geopm
         return result;
     }
 
+    std::string CNLIOGroup::name(void) const
+    {
+        return plugin_name();
+    }
+
     std::string CNLIOGroup::plugin_name(void)
     {
         return "CNL";

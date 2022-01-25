@@ -32,14 +32,15 @@
 #
 import subprocess
 import unittest
-import geopmdpy.pio as pio
-import geopmdpy.topo as topo
 import time
 
-import geopm_context
-import geopm_test_launcher
-import util
+from geopmdpy import pio
+from geopmdpy import topo
 
+from integration.test import geopm_test_launcher
+from integration.test import util
+
+@util.skip_unless_msr_access(msg='Requires test runner to hold the service write lock.  This breaks other tests.')
 @util.skip_unless_batch()
 class TestIntegrationProgrammableCounters(unittest.TestCase):
     '''Tests of programmable counters.'''

@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 #  Copyright (c) 2015 - 2021, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -29,17 +30,52 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += integration/test/test_epoch_inference.py
+from time import time
+from time import sleep
+from geopmdpy import pio
+from geopmdpy import topo
 
-if ENABLE_OPENMP
-if ENABLE_MPI
-noinst_PROGRAMS += integration/test/test_epoch_inference
-integration_test_test_epoch_inference_SOURCES = integration/test/test_epoch_inference.cpp
-integration_test_test_epoch_inference_SOURCES += $(model_source_files)
-integration_test_test_epoch_inference_LDADD = libgeopm.la $(MATH_LIB) $(MPI_CLIBS)
-integration_test_test_epoch_inference_LDFLAGS = $(AM_LDFLAGS) $(MPI_CLDFLAGS) $(MATH_CLDFLAGS)
-integration_test_test_epoch_inference_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS) -D_GNU_SOURCE -std=c++11 $(MATH_CFLAGS)
-endif
-else
-EXTRA_DIST += integration/test/test_epoch_inference.cpp
-endif
+
+def get_all_msrs():
+    return [nn for nn in pio.signal_names()
+            if nn.startswith('MSR::') and
+            pio.signal_domain_type(nn) == topo.domain_type('core')]
+
+def get_signals(signal_idx):
+    result = []
+    for idx in signal_idx:
+        result.append(pio.sample(idx))
+    return result
+
+
+def push_msrs(all_msrs):
+    signal_idx = []
+    for cc in range(topo.num_domain('core')):
+        for msr in all_msrs:
+            idx = pio.push_signal('SERVICE::' + msr, 'core', cc)
+            signal_idx.append(idx)
+    return signal_idx
+
+def main():
+    ta = time()
+    all_msrs = get_all_msrs()
+    tb = time()
+    print(f'pio.signal_names(): {tb - ta} sec')
+    ta = time()
+    signal_idx = push_msrs(all_msrs)
+    tb = time()
+    print(f'pio.push_signal(): {tb - ta} sec')
+    for trial in range(3):
+        print(f'Trial {trial}')
+        ta = time()
+        pio.read_batch()
+        tb = time()
+        print(f'pio.read_batch(): {tb - ta} sec')
+        ta = time()
+        signal = get_signals(signal_idx)
+        tb = time()
+        print(f'pio.sample(): {tb - ta} sec')
+        sleep(0.05)
+
+if __name__ == '__main__':
+    main()

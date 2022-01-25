@@ -35,12 +35,11 @@ import sys
 import unittest
 import os
 
-import geopm_context
 import geopmpy.agent
 import geopmpy.io
 import geopmdpy.error
-import geopm_test_launcher
-import util
+from integration.test import geopm_test_launcher
+from integration.test import util
 
 
 class TestIntegration_launch_application(unittest.TestCase):

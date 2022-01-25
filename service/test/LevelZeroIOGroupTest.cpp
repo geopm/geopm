@@ -50,11 +50,14 @@
 #include "MockLevelZeroDevicePool.hpp"
 #include "MockLevelZero.hpp"
 #include "MockPlatformTopo.hpp"
+#include "MockSaveControl.hpp"
 
 using geopm::LevelZeroIOGroup;
 using geopm::PlatformTopo;
 using geopm::Exception;
 using testing::Return;
+using testing::AtLeast;
+using testing::_;
 
 class LevelZeroIOGroupTest : public :: testing :: Test
 {
@@ -65,6 +68,7 @@ class LevelZeroIOGroupTest : public :: testing :: Test
 
         std::unique_ptr<MockPlatformTopo> m_platform_topo;
         std::shared_ptr<MockLevelZeroDevicePool> m_device_pool;
+        std::shared_ptr<MockSaveControl> m_mock_save_ctl;
 };
 
 void LevelZeroIOGroupTest::SetUp()
@@ -78,6 +82,7 @@ void LevelZeroIOGroupTest::SetUp()
 
     m_device_pool = std::make_shared<MockLevelZeroDevicePool>();
     m_platform_topo = geopm::make_unique<MockPlatformTopo>();
+    m_mock_save_ctl = std::make_shared<MockSaveControl>();
 
     //Platform Topo prep
     ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_BOARD))
@@ -92,6 +97,8 @@ void LevelZeroIOGroupTest::SetUp()
         .WillByDefault(Return(num_cpu));
     ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_CORE))
         .WillByDefault(Return(num_core));
+
+    EXPECT_CALL(*m_platform_topo, num_domain(_)).Times(AtLeast(0));
 
     for (int cpu_idx = 0; cpu_idx < num_cpu; ++cpu_idx) {
         if (cpu_idx < 10) {
@@ -158,7 +165,7 @@ void LevelZeroIOGroupTest::TearDown()
 
 TEST_F(LevelZeroIOGroupTest, valid_signals)
 {
-    LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool);
+    LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool, nullptr);
     for (const auto &sig : levelzero_io.signal_names()) {
         EXPECT_TRUE(levelzero_io.is_valid_signal(sig));
         EXPECT_NE(GEOPM_DOMAIN_INVALID, levelzero_io.signal_domain_type(sig));
@@ -171,7 +178,7 @@ TEST_F(LevelZeroIOGroupTest, save_restore)
 {
     const int num_accelerator_subdevice = m_platform_topo->num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP);
     std::map<int, double> batch_value;
-    LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool);
+    LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool, nullptr);
 
     std::vector<std::pair<double,double> > mock_freq_range = {{0,1530}, {1000,1320}, {30,420}, {130,135},
                                                               {20,400}, {53,123}, {1600,1700}, {500,500}};
@@ -188,14 +195,14 @@ TEST_F(LevelZeroIOGroupTest, push_control_adjust_write_batch)
 {
     const int num_accelerator_subdevice = m_platform_topo->num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP);
     std::map<int, double> batch_value;
-    LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool);
+    LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool, nullptr);
 
     std::vector<double> mock_freq = {1530, 1320, 420, 135, 1620, 812, 199, 1700};
 
     for (int sub_idx = 0; sub_idx < num_accelerator_subdevice; ++sub_idx) {
-        batch_value[(levelzero_io.push_control("LEVELZERO::FREQUENCY_GPU_CONTROL",
+        batch_value[(levelzero_io.push_control("LEVELZERO::GPUCHIP_FREQUENCY_CONTROL",
                                         GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx))] = mock_freq.at(sub_idx)*1e6;
-        batch_value[(levelzero_io.push_control("FREQUENCY_ACCELERATOR_CONTROL",
+        batch_value[(levelzero_io.push_control("GPUCHIP_FREQUENCY_CONTROL",
                                         GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx))] = mock_freq.at(sub_idx)*1e6;
         EXPECT_CALL(*m_device_pool,
                     frequency_control(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE, mock_freq.at(sub_idx), mock_freq.at(sub_idx))).Times(2);
@@ -211,7 +218,7 @@ TEST_F(LevelZeroIOGroupTest, push_control_adjust_write_batch)
 TEST_F(LevelZeroIOGroupTest, write_control)
 {
     const int num_accelerator_subdevice = m_platform_topo->num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP);
-    LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool);
+    LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool, nullptr);
 
     std::vector<double> mock_freq = {1530, 1320, 420, 135, 900, 9001, 8010, 4500};
 
@@ -219,11 +226,11 @@ TEST_F(LevelZeroIOGroupTest, write_control)
         EXPECT_CALL(*m_device_pool,
                     frequency_control(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE, mock_freq.at(sub_idx), mock_freq.at(sub_idx))).Times(2);
 
-        EXPECT_NO_THROW(levelzero_io.write_control("LEVELZERO::FREQUENCY_GPU_CONTROL",
+        EXPECT_NO_THROW(levelzero_io.write_control("LEVELZERO::GPUCHIP_FREQUENCY_CONTROL",
                                               GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx,
                                               mock_freq.at(sub_idx)*1e6));
 
-        EXPECT_NO_THROW(levelzero_io.write_control("FREQUENCY_ACCELERATOR_CONTROL",
+        EXPECT_NO_THROW(levelzero_io.write_control("GPUCHIP_FREQUENCY_CONTROL",
                                               GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx,
                                               mock_freq.at(sub_idx)*1e6));
     }
@@ -238,22 +245,22 @@ TEST_F(LevelZeroIOGroupTest, read_signal_and_batch)
     std::vector<double> mock_energy = {9000000, 11000000, 2300000, 5341000000};
     std::vector<int> batch_idx;
 
-    LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool);
+    LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool, nullptr);
 
     for (int sub_idx = 0; sub_idx < num_accelerator_subdevice; ++sub_idx) {
         EXPECT_CALL(*m_device_pool, frequency_status(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE)).WillRepeatedly(Return(mock_freq.at(sub_idx)));
-        batch_idx.push_back(levelzero_io.push_signal("LEVELZERO::FREQUENCY_GPU", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx));
+        batch_idx.push_back(levelzero_io.push_signal("LEVELZERO::GPUCHIP_FREQUENCY_STATUS", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx));
     }
 
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
         EXPECT_CALL(*m_device_pool, energy(GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx, MockLevelZero::M_DOMAIN_ALL)).WillRepeatedly(Return(mock_energy.at(accel_idx)));
-        batch_idx.push_back(levelzero_io.push_signal("LEVELZERO::ENERGY", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx));
+        batch_idx.push_back(levelzero_io.push_signal("LEVELZERO::GPU_ENERGY", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx));
     }
 
 
     levelzero_io.read_batch();
     for (int sub_idx = 0; sub_idx < num_accelerator_subdevice; ++sub_idx) {
-        double frequency = levelzero_io.read_signal("LEVELZERO::FREQUENCY_GPU", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx);
+        double frequency = levelzero_io.read_signal("LEVELZERO::GPUCHIP_FREQUENCY_STATUS", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx);
         double frequency_batch = levelzero_io.sample(batch_idx.at(sub_idx));
 
         EXPECT_DOUBLE_EQ(frequency, mock_freq.at(sub_idx)*1e6);
@@ -261,7 +268,7 @@ TEST_F(LevelZeroIOGroupTest, read_signal_and_batch)
     }
 
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
-        double energy = levelzero_io.read_signal("LEVELZERO::ENERGY", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
+        double energy = levelzero_io.read_signal("LEVELZERO::GPU_ENERGY", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
         double energy_batch = levelzero_io.sample(batch_idx.at(num_accelerator_subdevice+accel_idx));
 
         EXPECT_DOUBLE_EQ(energy, mock_energy.at(accel_idx)/1e6);
@@ -280,14 +287,14 @@ TEST_F(LevelZeroIOGroupTest, read_signal_and_batch)
 
     levelzero_io.read_batch();
     for (int sub_idx = 0; sub_idx < num_accelerator_subdevice; ++sub_idx) {
-        double frequency = levelzero_io.read_signal("LEVELZERO::FREQUENCY_GPU", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx);
+        double frequency = levelzero_io.read_signal("LEVELZERO::GPUCHIP_FREQUENCY_STATUS", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx);
         double frequency_batch = levelzero_io.sample(batch_idx.at(sub_idx));
 
         EXPECT_DOUBLE_EQ(frequency, mock_freq.at(sub_idx)*1e6);
         EXPECT_DOUBLE_EQ(frequency, frequency_batch);
     }
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
-        double energy = levelzero_io.read_signal("LEVELZERO::ENERGY", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
+        double energy = levelzero_io.read_signal("LEVELZERO::GPU_ENERGY", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
         double energy_batch = levelzero_io.sample(batch_idx.at(num_accelerator_subdevice+accel_idx));
 
         EXPECT_DOUBLE_EQ(energy, mock_energy.at(accel_idx)/1e6);
@@ -315,7 +322,7 @@ TEST_F(LevelZeroIOGroupTest, read_timestamp_batch_reverse)
     std::vector<int> active_time_compute_batch_idx;
     std::vector<int> active_time_copy_batch_idx;
 
-    LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool);
+    LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool, nullptr);
 
     for (int sub_idx = 0; sub_idx < num_accelerator_subdevice; ++sub_idx) {
         EXPECT_CALL(*m_device_pool, active_time(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL)).WillRepeatedly(Return(mock_active_time.at(sub_idx)));
@@ -325,16 +332,16 @@ TEST_F(LevelZeroIOGroupTest, read_timestamp_batch_reverse)
         EXPECT_CALL(*m_device_pool, active_time_timestamp(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE)).WillRepeatedly(Return(mock_active_time_timestamp_compute.at(sub_idx)));
         EXPECT_CALL(*m_device_pool, active_time_timestamp(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx, MockLevelZero::M_DOMAIN_MEMORY)).WillRepeatedly(Return(mock_active_time_timestamp_copy.at(sub_idx)));
 
-        active_time_batch_idx.push_back(levelzero_io.push_signal("LEVELZERO::ACTIVE_TIME_TIMESTAMP", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx));
-        active_time_compute_batch_idx.push_back(levelzero_io.push_signal("LEVELZERO::ACTIVE_TIME_COMPUTE_TIMESTAMP", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx));
-        active_time_copy_batch_idx.push_back(levelzero_io.push_signal("LEVELZERO::ACTIVE_TIME_COPY_TIMESTAMP", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx));
+        active_time_batch_idx.push_back(levelzero_io.push_signal("LEVELZERO::GPUCHIP_ACTIVE_TIME_TIMESTAMP", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx));
+        active_time_compute_batch_idx.push_back(levelzero_io.push_signal("LEVELZERO::GPUCHIP_ACTIVE_TIME_COMPUTE_TIMESTAMP", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx));
+        active_time_copy_batch_idx.push_back(levelzero_io.push_signal("LEVELZERO::GPUCHIP_ACTIVE_TIME_COPY_TIMESTAMP", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx));
     }
 
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
         EXPECT_CALL(*m_device_pool, energy(GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx, MockLevelZero::M_DOMAIN_ALL)).WillRepeatedly(Return(mock_energy.at(accel_idx)));
         EXPECT_CALL(*m_device_pool, energy_timestamp(GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx, MockLevelZero::M_DOMAIN_ALL)).WillRepeatedly(Return(mock_energy_timestamp.at(accel_idx)));
 
-        energy_batch_idx.push_back(levelzero_io.push_signal("LEVELZERO::ENERGY_TIMESTAMP", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx));
+        energy_batch_idx.push_back(levelzero_io.push_signal("LEVELZERO::GPU_ENERGY_TIMESTAMP", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx));
     }
 
     levelzero_io.read_batch();
@@ -387,7 +394,7 @@ TEST_F(LevelZeroIOGroupTest, read_timestamp_batch)
     std::vector<int> active_time_compute_batch_idx;
     std::vector<int> active_time_copy_batch_idx;
 
-    LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool);
+    LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool, nullptr);
 
     for (int sub_idx = 0; sub_idx < num_accelerator_subdevice; ++sub_idx) {
         EXPECT_CALL(*m_device_pool, active_time(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL)).WillRepeatedly(Return(mock_active_time.at(sub_idx)));
@@ -397,16 +404,16 @@ TEST_F(LevelZeroIOGroupTest, read_timestamp_batch)
         EXPECT_CALL(*m_device_pool, active_time_timestamp(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE)).WillRepeatedly(Return(mock_active_time_timestamp_compute.at(sub_idx)));
         EXPECT_CALL(*m_device_pool, active_time_timestamp(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx, MockLevelZero::M_DOMAIN_MEMORY)).WillRepeatedly(Return(mock_active_time_timestamp_copy.at(sub_idx)));
 
-        active_time_batch_idx.push_back(levelzero_io.push_signal("LEVELZERO::ACTIVE_TIME", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx));
-        active_time_compute_batch_idx.push_back(levelzero_io.push_signal("LEVELZERO::ACTIVE_TIME_COMPUTE", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx));
-        active_time_copy_batch_idx.push_back(levelzero_io.push_signal("LEVELZERO::ACTIVE_TIME_COPY", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx));
+        active_time_batch_idx.push_back(levelzero_io.push_signal("LEVELZERO::GPUCHIP_ACTIVE_TIME", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx));
+        active_time_compute_batch_idx.push_back(levelzero_io.push_signal("LEVELZERO::GPUCHIP_ACTIVE_TIME_COMPUTE", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx));
+        active_time_copy_batch_idx.push_back(levelzero_io.push_signal("LEVELZERO::GPUCHIP_ACTIVE_TIME_COPY", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx));
     }
 
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
         EXPECT_CALL(*m_device_pool, energy(GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx, MockLevelZero::M_DOMAIN_ALL)).WillRepeatedly(Return(mock_energy.at(accel_idx)));
         EXPECT_CALL(*m_device_pool, energy_timestamp(GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx, MockLevelZero::M_DOMAIN_ALL)).WillRepeatedly(Return(mock_energy_timestamp.at(accel_idx)));
 
-        energy_batch_idx.push_back(levelzero_io.push_signal("LEVELZERO::ENERGY", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx));
+        energy_batch_idx.push_back(levelzero_io.push_signal("LEVELZERO::GPU_ENERGY", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx));
     }
 
     levelzero_io.read_batch();
@@ -483,53 +490,53 @@ TEST_F(LevelZeroIOGroupTest, read_signal)
         EXPECT_CALL(*m_device_pool, energy(GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx, MockLevelZero::M_DOMAIN_ALL)).WillRepeatedly(Return(mock_energy.at(accel_idx)));
     }
 
-    LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool);
+    LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool, nullptr);
 
     for (int sub_idx = 0; sub_idx < num_accelerator_subdevice; ++sub_idx) {
         //Frequency
-        double frequency = levelzero_io.read_signal("LEVELZERO::FREQUENCY_GPU", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx);
-        double frequency_alias = levelzero_io.read_signal("FREQUENCY_ACCELERATOR", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx);
+        double frequency = levelzero_io.read_signal("LEVELZERO::GPUCHIP_FREQUENCY_STATUS", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx);
+        double frequency_alias = levelzero_io.read_signal("GPUCHIP_FREQUENCY_STATUS", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx);
         EXPECT_DOUBLE_EQ(frequency, frequency_alias);
         EXPECT_DOUBLE_EQ(frequency, mock_freq_gpu.at(sub_idx)*1e6);
-        frequency = levelzero_io.read_signal("LEVELZERO::FREQUENCY_MEMORY", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx);
+        frequency = levelzero_io.read_signal("LEVELZERO::GPUCHIP_MEMORY_FREQUENCY_STATUS", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx);
         EXPECT_DOUBLE_EQ(frequency, mock_freq_mem.at(sub_idx)*1e6);
-        frequency = levelzero_io.read_signal("LEVELZERO::FREQUENCY_MIN_GPU", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx);
+        frequency = levelzero_io.read_signal("LEVELZERO::GPUCHIP_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx);
         EXPECT_DOUBLE_EQ(frequency, mock_freq_min_gpu.at(sub_idx)*1e6);
-        frequency = levelzero_io.read_signal("LEVELZERO::FREQUENCY_MAX_GPU", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx);
+        frequency = levelzero_io.read_signal("LEVELZERO::GPUCHIP_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx);
         EXPECT_DOUBLE_EQ(frequency, mock_freq_max_gpu.at(sub_idx)*1e6);
-        frequency = levelzero_io.read_signal("LEVELZERO::FREQUENCY_MIN_MEMORY", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx);
+        frequency = levelzero_io.read_signal("LEVELZERO::GPUCHIP_MEMORY_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx);
         EXPECT_DOUBLE_EQ(frequency, mock_freq_min_mem.at(sub_idx)*1e6);
-        frequency = levelzero_io.read_signal("LEVELZERO::FREQUENCY_MAX_MEMORY", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx);
+        frequency = levelzero_io.read_signal("LEVELZERO::GPUCHIP_MEMORY_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx);
         EXPECT_DOUBLE_EQ(frequency, mock_freq_max_mem.at(sub_idx)*1e6);
 
         //Active time
-        double active_time = levelzero_io.read_signal("LEVELZERO::ACTIVE_TIME", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx);
+        double active_time = levelzero_io.read_signal("LEVELZERO::GPUCHIP_ACTIVE_TIME", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx);
         EXPECT_DOUBLE_EQ(active_time, mock_active_time.at(sub_idx)/1e6);
-        double active_time_compute = levelzero_io.read_signal("LEVELZERO::ACTIVE_TIME_COMPUTE", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx);
+        double active_time_compute = levelzero_io.read_signal("LEVELZERO::GPUCHIP_ACTIVE_TIME_COMPUTE", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx);
         EXPECT_DOUBLE_EQ(active_time_compute, mock_active_time_compute.at(sub_idx)/1e6);
-        double active_time_copy = levelzero_io.read_signal("LEVELZERO::ACTIVE_TIME_COPY", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx);
+        double active_time_copy = levelzero_io.read_signal("LEVELZERO::GPUCHIP_ACTIVE_TIME_COPY", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx);
         EXPECT_DOUBLE_EQ(active_time_copy, mock_active_time_copy.at(sub_idx)/1e6);
     }
 
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
         //Power & energy
-        double power_lim = levelzero_io.read_signal("LEVELZERO::POWER_LIMIT_MIN", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
+        double power_lim = levelzero_io.read_signal("LEVELZERO::GPU_POWER_LIMIT_MIN_AVAIL", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
         EXPECT_DOUBLE_EQ(power_lim, mock_power_limit_min.at(accel_idx)/1e3);
-        power_lim = levelzero_io.read_signal("LEVELZERO::POWER_LIMIT_MAX", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
+        power_lim = levelzero_io.read_signal("LEVELZERO::GPU_POWER_LIMIT_MAX_AVAIL", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
         EXPECT_DOUBLE_EQ(power_lim, mock_power_limit_max.at(accel_idx)/1e3);
-        power_lim = levelzero_io.read_signal("LEVELZERO::POWER_LIMIT_DEFAULT", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
+        power_lim = levelzero_io.read_signal("LEVELZERO::GPU_POWER_LIMIT_DEFAULT", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
         EXPECT_DOUBLE_EQ(power_lim, mock_power_limit_tdp.at(accel_idx)/1e3);
 
-        double energy = levelzero_io.read_signal("LEVELZERO::ENERGY", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
+        double energy = levelzero_io.read_signal("LEVELZERO::GPU_ENERGY", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
         EXPECT_DOUBLE_EQ(energy, mock_energy.at(accel_idx)/1e6);
     }
 
     // Assume DerivativeSignals class functions as expected
     // Just check validity of derived signals
-    ASSERT_TRUE(levelzero_io.is_valid_signal("LEVELZERO::POWER"));
-    ASSERT_TRUE(levelzero_io.is_valid_signal("LEVELZERO::UTILIZATION"));
-    ASSERT_TRUE(levelzero_io.is_valid_signal("LEVELZERO::UTILIZATION_COMPUTE"));
-    ASSERT_TRUE(levelzero_io.is_valid_signal("LEVELZERO::UTILIZATION_COPY"));
+    ASSERT_TRUE(levelzero_io.is_valid_signal("LEVELZERO::GPU_POWER"));
+    ASSERT_TRUE(levelzero_io.is_valid_signal("LEVELZERO::GPU_UTILIZATION"));
+    ASSERT_TRUE(levelzero_io.is_valid_signal("LEVELZERO::GPU_UTILIZATION_COMPUTE"));
+    ASSERT_TRUE(levelzero_io.is_valid_signal("LEVELZERO::GPU_UTILIZATION_COPY"));
 }
 
 //Test case: Error path testing including:
@@ -551,13 +558,13 @@ TEST_F(LevelZeroIOGroupTest, error_path)
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
         EXPECT_CALL(*m_device_pool, frequency_status(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, accel_idx, MockLevelZero::M_DOMAIN_COMPUTE)).WillRepeatedly(Return(mock_freq.at(accel_idx)));
     }
-    LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool);
+    LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool, nullptr);
 
-    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.push_signal("LEVELZERO::FREQUENCY_GPU", GEOPM_DOMAIN_BOARD, 0),
+    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.push_signal("LEVELZERO::GPUCHIP_FREQUENCY_STATUS", GEOPM_DOMAIN_BOARD, 0),
                                GEOPM_ERROR_INVALID, "domain_type must be");
     GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.sample(0),
                                GEOPM_ERROR_INVALID, "batch_idx 0 out of range");
-    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::FREQUENCY_GPU", GEOPM_DOMAIN_BOARD, 0),
+    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::GPUCHIP_FREQUENCY_STATUS", GEOPM_DOMAIN_BOARD, 0),
                                GEOPM_ERROR_INVALID, "domain_type must be");
 
     GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.push_signal("LEVELZERO::INVALID", GEOPM_DOMAIN_BOARD_ACCELERATOR, 0),
@@ -565,11 +572,11 @@ TEST_F(LevelZeroIOGroupTest, error_path)
     GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::INVALID", GEOPM_DOMAIN_BOARD_ACCELERATOR, 0),
                                GEOPM_ERROR_INVALID, "LEVELZERO::INVALID not valid for LevelZeroIOGroup");
 
-    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.push_control("LEVELZERO::FREQUENCY_GPU_CONTROL", GEOPM_DOMAIN_BOARD, 0),
+    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.push_control("LEVELZERO::GPUCHIP_FREQUENCY_CONTROL", GEOPM_DOMAIN_BOARD, 0),
                                GEOPM_ERROR_INVALID, "domain_type must be");
     GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.adjust(0, 12345.6),
                                GEOPM_ERROR_INVALID, "batch_idx 0 out of range");
-    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.write_control("LEVELZERO::FREQUENCY_GPU_CONTROL", GEOPM_DOMAIN_BOARD, 0, 1530000000),
+    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.write_control("LEVELZERO::GPUCHIP_FREQUENCY_CONTROL", GEOPM_DOMAIN_BOARD, 0, 1530000000),
                                GEOPM_ERROR_INVALID, "domain_type must be");
 
     GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.push_control("LEVELZERO::INVALID", GEOPM_DOMAIN_BOARD_ACCELERATOR, 0),
@@ -577,26 +584,53 @@ TEST_F(LevelZeroIOGroupTest, error_path)
     GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.write_control("LEVELZERO::INVALID", GEOPM_DOMAIN_BOARD_ACCELERATOR, 0, 1530000000),
                                GEOPM_ERROR_INVALID, "LEVELZERO::INVALID not valid for LevelZeroIOGroup");
 
-    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.push_signal("LEVELZERO::FREQUENCY_GPU", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, num_accelerator_subdevice),
+    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.push_signal("LEVELZERO::GPUCHIP_FREQUENCY_STATUS", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, num_accelerator_subdevice),
                                GEOPM_ERROR_INVALID, "domain_idx out of range");
-    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.push_signal("LEVELZERO::FREQUENCY_GPU", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, -1),
+    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.push_signal("LEVELZERO::GPUCHIP_FREQUENCY_STATUS", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, -1),
                                GEOPM_ERROR_INVALID, "domain_idx out of range");
-    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::FREQUENCY_GPU", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, num_accelerator_subdevice),
+    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::GPUCHIP_FREQUENCY_STATUS", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, num_accelerator_subdevice),
                                GEOPM_ERROR_INVALID, "domain_idx out of range");
-    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::FREQUENCY_GPU", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, -1),
-                               GEOPM_ERROR_INVALID, "domain_idx out of range");
-
-    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.push_control("LEVELZERO::FREQUENCY_GPU_CONTROL", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, num_accelerator_subdevice),
-                               GEOPM_ERROR_INVALID, "domain_idx out of range");
-    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.push_control("LEVELZERO::FREQUENCY_GPU_CONTROL", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, -1),
-                               GEOPM_ERROR_INVALID, "domain_idx out of range");
-    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.write_control("LEVELZERO::FREQUENCY_GPU_CONTROL", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, num_accelerator_subdevice, 1530000000),
-                               GEOPM_ERROR_INVALID, "domain_idx out of range");
-    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.write_control("LEVELZERO::FREQUENCY_GPU_CONTROL", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, -1, 1530000000),
+    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::GPUCHIP_FREQUENCY_STATUS", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, -1),
                                GEOPM_ERROR_INVALID, "domain_idx out of range");
 
-    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::ACTIVE_TIME_TIMESTAMP", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, 0), GEOPM_ERROR_INVALID, "TIMESTAMP Signals are for batch use only.");
-    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::ACTIVE_TIME_COPY_TIMESTAMP", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, 0), GEOPM_ERROR_INVALID, "TIMESTAMP Signals are for batch use only.");
-    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::ACTIVE_TIME_COMPUTE_TIMESTAMP", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, 0), GEOPM_ERROR_INVALID, "TIMESTAMP Signals are for batch use only.");
-    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::ENERGY_TIMESTAMP", GEOPM_DOMAIN_BOARD_ACCELERATOR, 0), GEOPM_ERROR_INVALID, "TIMESTAMP Signals are for batch use only.");
+    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.push_control("LEVELZERO::GPUCHIP_FREQUENCY_CONTROL", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, num_accelerator_subdevice),
+                               GEOPM_ERROR_INVALID, "domain_idx out of range");
+    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.push_control("LEVELZERO::GPUCHIP_FREQUENCY_CONTROL", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, -1),
+                               GEOPM_ERROR_INVALID, "domain_idx out of range");
+    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.write_control("LEVELZERO::GPUCHIP_FREQUENCY_CONTROL", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, num_accelerator_subdevice, 1530000000),
+                               GEOPM_ERROR_INVALID, "domain_idx out of range");
+    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.write_control("LEVELZERO::GPUCHIP_FREQUENCY_CONTROL", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, -1, 1530000000),
+                               GEOPM_ERROR_INVALID, "domain_idx out of range");
+
+    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::GPUCHIP_ACTIVE_TIME_TIMESTAMP", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, 0), GEOPM_ERROR_INVALID, "TIMESTAMP Signals are for batch use only.");
+    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::GPUCHIP_ACTIVE_TIME_COPY_TIMESTAMP", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, 0), GEOPM_ERROR_INVALID, "TIMESTAMP Signals are for batch use only.");
+    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::GPUCHIP_ACTIVE_TIME_COMPUTE_TIMESTAMP", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, 0), GEOPM_ERROR_INVALID, "TIMESTAMP Signals are for batch use only.");
+    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::GPU_ENERGY_TIMESTAMP", GEOPM_DOMAIN_BOARD_ACCELERATOR, 0), GEOPM_ERROR_INVALID, "TIMESTAMP Signals are for batch use only.");
+}
+
+TEST_F(LevelZeroIOGroupTest, save_restore_control)
+{
+    LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool, m_mock_save_ctl);
+
+    // Verify that all controls can be read as signals
+    auto control_set = levelzero_io.control_names();
+    auto signal_set = levelzero_io.signal_names();
+    std::vector<std::string> difference(control_set.size());
+
+    auto it = std::set_difference(control_set.cbegin(), control_set.cend(),
+                                  signal_set.cbegin(), signal_set.cend(),
+                                  difference.begin());
+    difference.resize(it - difference.begin());
+
+    std::string err_msg = "The following controls are not readable as signals: \n";
+    for (auto &sig : difference) {
+        err_msg += "    " + sig + '\n';
+    }
+    EXPECT_EQ((unsigned int) 0, difference.size()) << err_msg;
+
+    std::string file_name = "tmp_file";
+    EXPECT_CALL(*m_mock_save_ctl, write_json(file_name));
+    levelzero_io.save_control(file_name);
+    EXPECT_CALL(*m_mock_save_ctl, restore(_));
+    levelzero_io.restore_control(file_name);
 }

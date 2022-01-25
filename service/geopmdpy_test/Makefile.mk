@@ -44,7 +44,6 @@ EXTRA_DIST += geopmdpy_test/__main__.py \
               # end
 
 GEOPMDPY_TESTS = geopmdpy_test/pytest_links/TestPlatformService.test__read_allowed_invalid \
-                 geopmdpy_test/pytest_links/TestPlatformService.test_check_client \
                  geopmdpy_test/pytest_links/TestPlatformService.test_close_session_invalid \
                  geopmdpy_test/pytest_links/TestPlatformService.test_close_session_read \
                  geopmdpy_test/pytest_links/TestPlatformService.test_close_session_write \
@@ -64,7 +63,7 @@ GEOPMDPY_TESTS = geopmdpy_test/pytest_links/TestPlatformService.test__read_allow
                  geopmdpy_test/pytest_links/TestPlatformService.test_get_user_groups_invalid \
                  geopmdpy_test/pytest_links/TestPlatformService.test_lock_control \
                  geopmdpy_test/pytest_links/TestPlatformService.test_open_session \
-                 geopmdpy_test/pytest_links/TestPlatformService.test_open_session_invalid \
+                 geopmdpy_test/pytest_links/TestPlatformService.test_open_session_twice \
                  geopmdpy_test/pytest_links/TestPlatformService.test_read_signal \
                  geopmdpy_test/pytest_links/TestPlatformService.test_read_signal_invalid \
                  geopmdpy_test/pytest_links/TestPlatformService.test_set_group_access_empty \
@@ -72,7 +71,7 @@ GEOPMDPY_TESTS = geopmdpy_test/pytest_links/TestPlatformService.test__read_allow
                  geopmdpy_test/pytest_links/TestPlatformService.test_set_group_access_named \
                  geopmdpy_test/pytest_links/TestPlatformService.test_start_batch \
                  geopmdpy_test/pytest_links/TestPlatformService.test_start_batch_invalid \
-                 geopmdpy_test/pytest_links/TestPlatformService.test_stop_batch \
+                 geopmdpy_test/pytest_links/TestPlatformService.test_start_batch_write_blocked \
                  geopmdpy_test/pytest_links/TestPlatformService.test_stop_batch_invalid \
                  geopmdpy_test/pytest_links/TestPlatformService.test_unlock_control \
                  geopmdpy_test/pytest_links/TestPlatformService.test_write_control \
@@ -110,7 +109,6 @@ GEOPMDPY_TESTS = geopmdpy_test/pytest_links/TestPlatformService.test__read_allow
                  geopmdpy_test/pytest_links/TestSession.test_create_session_invalid \
                  geopmdpy_test/pytest_links/TestSession.test_format_signals \
                  geopmdpy_test/pytest_links/TestSession.test_format_signals_invalid \
-                 geopmdpy_test/pytest_links/TestSession.test_read_signals \
                  geopmdpy_test/pytest_links/TestSession.test_run \
                  geopmdpy_test/pytest_links/TestSession.test_run_read \
                  geopmdpy_test/pytest_links/TestSession.test_run_write \

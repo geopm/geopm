@@ -42,16 +42,15 @@ import glob
 import pandas
 import time
 
-import geopm_context
 import geopmpy.agent
 import geopmpy.io
 import geopmdpy.error
 
-import util
+from integration.test import util
 if util.do_launch():
     # Note: this import may be moved outside of do_launch if needed to run
     # commands on compute nodes such as geopm_test_launcher.geopmread
-    import geopm_test_launcher
+    from integration.test import geopm_test_launcher
 
 
 @util.skip_unless_batch()

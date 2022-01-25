@@ -45,12 +45,16 @@ namespace geopm
     class SSTIO;
     class Signal;
     class Control;
+    class SaveControl;
 
     /// @brief IOGroup that provides a signal for the time since GEOPM startup.
     class SSTIOGroup : public IOGroup
     {
         public:
-            SSTIOGroup(const PlatformTopo &topo, std::shared_ptr<SSTIO> sstio);
+            SSTIOGroup();
+            SSTIOGroup(const PlatformTopo &topo,
+                       std::shared_ptr<SSTIO> sstio,
+                       std::shared_ptr<SaveControl> save_control);
             virtual ~SSTIOGroup() = default;
             std::set<std::string> signal_names(void) const override;
             std::set<std::string> control_names(void) const override;
@@ -75,6 +79,7 @@ namespace geopm
             int signal_behavior(const std::string &signal_name) const override;
             void save_control(const std::string &save_path) override;
             void restore_control(const std::string &save_path) override;
+            std::string name(void) const override;
             static std::string plugin_name(void);
             static std::unique_ptr<IOGroup> make_plugin(void);
 
@@ -281,6 +286,8 @@ namespace geopm
 
             // Mapping of control index to pushed controls
             std::vector<std::shared_ptr<Control> > m_control_pushed;
+
+            std::shared_ptr<SaveControl> m_mock_save_ctl;
     };
 }
 

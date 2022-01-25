@@ -44,13 +44,16 @@ namespace geopm
 {
     class PlatformTopo;
     class NVMLDevicePool;
+    class SaveControl;
 
     /// @brief IOGroup that provides signals and controls for NVML Accelerators
     class NVMLIOGroup : public IOGroup
     {
         public:
             NVMLIOGroup();
-            NVMLIOGroup(const PlatformTopo &platform_topo, const NVMLDevicePool &device_pool);
+            NVMLIOGroup(const PlatformTopo &platform_topo,
+                        const NVMLDevicePool &device_pool,
+                        std::shared_ptr<SaveControl> save_control);
             virtual ~NVMLIOGroup() = default;
             std::set<std::string> signal_names(void) const override;
             std::set<std::string> control_names(void) const override;
@@ -75,6 +78,7 @@ namespace geopm
             int signal_behavior(const std::string &signal_name) const override;
             void save_control(const std::string &save_path) override;
             void restore_control(const std::string &save_path) override;
+            std::string name(void) const override;
             static std::string plugin_name(void);
             static std::unique_ptr<geopm::IOGroup> make_plugin(void);
         private:
@@ -84,9 +88,12 @@ namespace geopm
             std::map<pid_t, double> accelerator_process_map(void) const;
             double cpu_accelerator_affinity(int cpu_idx, std::map<pid_t, double> process_map) const;
 
+            static const std::string M_PLUGIN_NAME;
+            static const std::string M_NAME_PREFIX;
             const PlatformTopo &m_platform_topo;
             const NVMLDevicePool &m_nvml_device_pool;
             bool m_is_batch_read;
+            std::vector<uint64_t> m_frequency_control_request;
             std::vector<uint64_t> m_initial_power_limit;
             std::vector<std::vector<unsigned int> > m_supported_freq;
 
@@ -122,6 +129,8 @@ namespace geopm
             std::map<std::string, control_info> m_control_available;
             std::vector<std::shared_ptr<signal_s> > m_signal_pushed;
             std::vector<std::shared_ptr<control_s> > m_control_pushed;
+
+            std::shared_ptr<SaveControl> m_mock_save_ctl;
     };
 }
 #endif

@@ -122,6 +122,19 @@ fi
 AC_SUBST([enable_nvml])
 AM_CONDITIONAL([ENABLE_NVML], [test "x$enable_nvml" = "x1"])
 
+AC_ARG_ENABLE([dcgm],
+  [AS_HELP_STRING([--enable-dcgm], [Enables use of the DCGM library to support NVIDIA board accelerators])],
+[if test "x$enable_dcgm" = "xno" ; then
+  enable_dcgm="0"
+else
+  enable_dcgm="1"
+fi
+],
+[enable_dcgm="0"]
+)
+AC_SUBST([enable_dcgm])
+AM_CONDITIONAL([ENABLE_DCGM], [test "x$enable_dcgm" = "x1"])
+
 AC_ARG_ENABLE([cnl-iogroup],
   [AS_HELP_STRING([--enable-cnl-iogroup], [Enable the CNL IOGroup])],
 [if test "x$enable_cnl_iogroup" = "xno" ; then
@@ -148,6 +161,11 @@ if test "x$enable_coverage" = "x1" ; then
 fi
 AC_SUBST([enable_coverage])
 
+if test "x$enable_dcgm" = "x1" ; then
+  ENABLE_DCGM=True
+  AC_DEFINE([GEOPM_ENABLE_DCGM], [ ], [Enables use of the DCGM library to support NVIDA board accelerators])
+fi
+
 if test "x$enable_nvml" = "x1" ; then
   ENABLE_NVML=True
   AC_DEFINE([GEOPM_ENABLE_NVML], [ ], [Enables use of the NVML library to support NVML board accelerators])
@@ -172,6 +190,14 @@ if test "x$with_nvml" != x; then
   EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$with_nvml/include"
   LD_LIBRARY_PATH="$with_nvml/lib:$LD_LIBRARY_PATH"
   EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_nvml/lib"
+fi
+
+AC_ARG_WITH([dcgm], [AS_HELP_STRING([--with-dcgm=PATH],
+            [specify directory for installed dcgm package.])])
+if test "x$with_dcgm" != x; then
+  EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$with_dcgm/include"
+  LD_LIBRARY_PATH="$with_dcgm/lib64:$LD_LIBRARY_PATH"
+  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_dcgm/lib64"
 fi
 
 AC_ARG_WITH([levelzero], [AS_HELP_STRING([--with-levelzero=PATH],
@@ -239,6 +265,16 @@ if test "x$enable_systemd" = "x1" ; then
         exit -1])
     AC_CHECK_HEADER([systemd/sd-bus.h], [], [
         echo "missing systemd/sd-bus.h: sd_bus interface is required"
+        exit -1])
+fi
+
+if test "x$enable_dcgm" = "x1" ; then
+    AC_SEARCH_LIBS([dcgmInit], [dcgm])
+    AC_CHECK_LIB([dcgm], [dcgmInit], [], [
+        echo "missing dcgm: DCGM library is required, use --with-dcgm to specify location"
+        exit -1])
+    AC_CHECK_HEADER([dcgm_structs.h], [], [
+        echo "missing dcgm_structs.h: DCGM headers are required, use --with-dcgm to specify location"
         exit -1])
 fi
 
@@ -350,6 +386,7 @@ AC_MSG_RESULT([GEOPM_CONFIG_PATH  : ${GEOPM_CONFIG_PATH}])
 AC_MSG_RESULT([])
 AC_MSG_RESULT([debug              : ${enable_debug}])
 AC_MSG_RESULT([coverage           : ${enable_coverage}])
+AC_MSG_RESULT([dcgm               : ${enable_dcgm}])
 AC_MSG_RESULT([nvml               : ${enable_nvml}])
 AC_MSG_RESULT([levelzero          : ${enable_levelzero}])
 AC_MSG_RESULT([===============================================================================])

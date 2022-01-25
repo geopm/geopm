@@ -88,16 +88,6 @@ EXTRA_DIST = .gitignore \
              geopm-service.spec.in \
              io.github.geopm.conf \
              io.github.geopm.xml \
-             integration/README.md \
-             integration/build_dasbus.sh \
-             integration/install_service.sh \
-             integration/test/__main__.py \
-             integration/test/TestBashExamples.py \
-             integration/test/check_write_session.sh \
-             integration/test/test_controller.py \
-             integration/test/test_controller.sh \
-             integration/test/test_sst_priority.sh \
-             integration/test/test_su_give_access.sh \
              geopmaccess \
              geopmd \
              geopmdpy/__init__.py \
@@ -105,6 +95,7 @@ EXTRA_DIST = .gitignore \
              geopmdpy/access.py \
              geopmdpy/dbus_xml.py \
              geopmdpy/error.py \
+             geopmdpy/gffi.py \
              geopmdpy/pio.py \
              geopmdpy/runtime.py \
              geopmdpy/service.py \
@@ -146,10 +137,10 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/Agg.cpp \
                        src/BatchClient.cpp \
                        src/BatchClient.hpp \
-                       src/BatchStatus.cpp \
-                       src/BatchStatus.hpp \
                        src/BatchServer.cpp \
                        src/BatchServer.hpp \
+                       src/BatchStatus.cpp \
+                       src/BatchStatus.hpp \
                        src/CNLIOGroup.cpp \
                        src/CNLIOGroup.hpp \
                        src/CombinedSignal.cpp \
@@ -161,6 +152,7 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/DerivativeSignal.hpp \
                        src/DifferenceSignal.cpp \
                        src/DifferenceSignal.hpp \
+                       src/DCGMDevicePool.hpp \
                        src/DomainControl.cpp \
                        src/DomainControl.hpp \
                        src/Exception.cpp \
@@ -203,6 +195,8 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/POSIXSignal.hpp \
                        src/RawMSRSignal.cpp \
                        src/RawMSRSignal.hpp \
+                       src/SaveControl.cpp \
+                       src/SaveControl.hpp \
                        src/SDBus.hpp \
                        src/SDBusMessage.hpp \
                        src/ServiceIOGroup.cpp \
@@ -262,10 +256,13 @@ levelzero_source_files = src/LevelZero.cpp \
                          src/LevelZero.hpp \
                          #end
 
+dcgm_source_files = src/DCGMDevicePool.cpp \
+                    src/DCGMDevicePoolImp.hpp \
+                    #end
+
 if ENABLE_LEVELZERO
     libgeopmd_la_SOURCES += $(levelzero_source_files)
     EXTRA_DIST += src/LevelZeroThrow.cpp
-
 else
     libgeopmd_la_SOURCES += src/LevelZeroThrow.cpp
     EXTRA_DIST += $(levelzero_source_files)
@@ -277,6 +274,14 @@ if ENABLE_NVML
 else
     libgeopmd_la_SOURCES += src/NVMLDevicePoolThrow.cpp
     EXTRA_DIST += $(nvml_source_files)
+endif
+
+if ENABLE_DCGM
+    libgeopmd_la_SOURCES += $(dcgm_source_files)
+    EXTRA_DIST += src/DCGMDevicePoolThrow.cpp
+else
+    libgeopmd_la_SOURCES += src/DCGMDevicePoolThrow.cpp
+    EXTRA_DIST += $(dcgm_source_files)
 endif
 
 io.github.geopm.xml:
@@ -345,3 +350,4 @@ DISTCLEANFILES =
 include test/Makefile.mk
 include geopmdpy_test/Makefile.mk
 include docs/Makefile.mk
+include integration/Makefile.mk

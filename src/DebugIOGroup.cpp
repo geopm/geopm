@@ -191,6 +191,11 @@ namespace geopm
 
     }
 
+    std::string DebugIOGroup::name(void) const
+    {
+        return plugin_name();
+    }
+
     std::string DebugIOGroup::plugin_name(void)
     {
         return "DEBUG";

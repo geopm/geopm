@@ -40,9 +40,8 @@ import time
 import signal
 from contextlib import contextmanager
 
-import geopm_context
-import geopm_test_launcher
-import util
+from integration.test import geopm_test_launcher
+from integration.test import util
 
 
 @util.skip_unless_do_launch()
@@ -169,6 +168,7 @@ class TestIntegrationGeopmio(unittest.TestCase):
                 self.check_output_range([signal_name, "board", "0"], *val_range)
 
     @util.skip_unless_batch()
+    @util.skip_unless_msr_access()
     def test_geopmread_custom_msr(self):
         '''
         Check that MSRIOGroup picks up additional MSRs in path.
@@ -194,6 +194,7 @@ class TestIntegrationGeopmio(unittest.TestCase):
             sys.stderr.write('{}\n'.format(ex.output))
         self.assertIn(b'MSR::CORE_PERF_LIMIT_REASONS#', all_signals)
 
+    @util.skip_unless_msr_access()
     def test_geopmwrite_command_line(self):
         '''
         Check that geopmwrite commandline arguments work.
@@ -220,6 +221,7 @@ class TestIntegrationGeopmio(unittest.TestCase):
         self.check_output(['INVALID', 'board', '0', '0'], ['cannot write control'])
         self.check_output(['--domain', '--info'], ['info about domain not implemented'])
 
+    @util.skip_unless_msr_access()
     @util.skip_unless_batch()
     @util.skip_unless_stressng()
     def test_geopmwrite_set_freq(self):

@@ -45,12 +45,24 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
               test/gtest_links/BatchServerTest.get_server_pid \
               test/gtest_links/BatchServerTest.get_server_key \
               test/gtest_links/BatchServerTest.stop_batch \
+              test/gtest_links/BatchServerTest.stop_batch_exception \
               test/gtest_links/BatchServerTest.run_batch_read \
               test/gtest_links/BatchServerTest.run_batch_read_empty \
               test/gtest_links/BatchServerTest.run_batch_write \
               test/gtest_links/BatchServerTest.run_batch_write_empty \
+              test/gtest_links/BatchServerTest.receive_message_terminate \
+              test/gtest_links/BatchServerTest.receive_message_default \
+              test/gtest_links/BatchServerTest.receive_message_exception \
+              test/gtest_links/BatchServerTest.write_message_exception \
+              test/gtest_links/BatchServerTest.read_batch_exception \
               test/gtest_links/BatchServerTest.create_shmem \
               test/gtest_links/BatchServerTest.fork_with_setup \
+              test/gtest_links/BatchServerTest.fork_with_setup_exception \
+              test/gtest_links/BatchServerTest.destructor_exceptions \
+              test/gtest_links/BatchServerTest.fork_and_terminate_child \
+              test/gtest_links/BatchServerTest.fork_and_terminate_parent \
+              test/gtest_links/BatchServerTest.action_sigchld \
+              test/gtest_links/BatchServerTest.action_sigchld_error \
               test/gtest_links/BatchStatusTest.client_send_to_server_fifo_expect \
               test/gtest_links/BatchStatusTest.server_send_to_client_fifo_expect \
               test/gtest_links/BatchStatusTest.server_send_to_client_fifo \
@@ -138,6 +150,7 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
               test/gtest_links/LevelZeroIOGroupTest.read_signal_and_batch \
               test/gtest_links/LevelZeroIOGroupTest.read_timestamp_batch \
               test/gtest_links/LevelZeroIOGroupTest.read_timestamp_batch_reverse \
+              test/gtest_links/LevelZeroIOGroupTest.save_restore_control \
               test/gtest_links/MSRIOGroupTest.adjust \
               test/gtest_links/MSRIOGroupTest.control_error \
               test/gtest_links/MSRIOGroupTest.cpuid \
@@ -164,6 +177,7 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
               test/gtest_links/MSRIOGroupTest.allowlist \
               test/gtest_links/MSRIOGroupTest.write_control \
               test/gtest_links/MSRIOGroupTest.batch_calls_no_push \
+              test/gtest_links/MSRIOGroupTest.save_restore_control \
               test/gtest_links/MSRIOTest.read_aligned \
               test/gtest_links/MSRIOTest.read_batch \
               test/gtest_links/MSRIOTest.read_unaligned \
@@ -218,6 +232,7 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
               test/gtest_links/PlatformIOTest.read_signal_override \
               test/gtest_links/PlatformIOTest.sample \
               test/gtest_links/PlatformIOTest.sample_agg \
+              test/gtest_links/PlatformIOTest.save_restore \
               test/gtest_links/PlatformIOTest.signal_behavior \
               test/gtest_links/PlatformIOTest.signal_control_description \
               test/gtest_links/PlatformIOTest.signal_control_names \
@@ -258,18 +273,27 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
               test/gtest_links/RawMSRSignalTest.read \
               test/gtest_links/RawMSRSignalTest.read_batch \
               test/gtest_links/RawMSRSignalTest.setup_batch \
+              test/gtest_links/SaveControlTest.static_json \
+              test/gtest_links/SaveControlTest.static_settings \
+              test/gtest_links/SaveControlTest.make_from_struct \
+              test/gtest_links/SaveControlTest.make_from_string \
+              test/gtest_links/SaveControlTest.make_from_io_group \
+              test/gtest_links/SaveControlTest.write_file \
+              test/gtest_links/SaveControlTest.bad_json \
               test/gtest_links/ServiceIOGroupTest.signal_control_info \
               test/gtest_links/ServiceIOGroupTest.domain_type \
               test/gtest_links/ServiceIOGroupTest.read_signal_behavior \
+              test/gtest_links/ServiceIOGroupTest.read_signal_exception \
               test/gtest_links/ServiceIOGroupTest.write_control \
+              test/gtest_links/ServiceIOGroupTest.write_control_exception \
               test/gtest_links/ServiceIOGroupTest.valid_signal_aggregation \
               test/gtest_links/ServiceIOGroupTest.valid_format_function \
               test/gtest_links/ServiceIOGroupTest.push_signal \
               test/gtest_links/ServiceIOGroupTest.push_control \
               test/gtest_links/ServiceIOGroupTest.read_batch \
               test/gtest_links/ServiceIOGroupTest.write_batch \
-              test/gtest_links/ServiceIOGroupTest.sample \
-              test/gtest_links/ServiceIOGroupTest.adjust \
+              test/gtest_links/ServiceIOGroupTest.save_control \
+              test/gtest_links/ServiceIOGroupTest.restore_control \
               test/gtest_links/ServiceProxyTest.platform_get_user_access \
               test/gtest_links/ServiceProxyTest.platform_get_signal_info \
               test/gtest_links/ServiceProxyTest.platform_get_control_info \
@@ -301,6 +325,7 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
               test/gtest_links/SSTIOGroupTest.valid_control_names \
               test/gtest_links/SSTIOGroupTest.valid_signal_domains \
               test/gtest_links/SSTIOGroupTest.valid_signal_names \
+              test/gtest_links/SSTIOGroupTest.save_restore_control \
               test/gtest_links/SSTSignalTest.mailbox_read_batch \
               test/gtest_links/SSTSignalTest.mmio_read_batch \
               test/gtest_links/SSTIOTest.mbox_batch_reads \
@@ -358,6 +383,7 @@ test_geopm_test_SOURCES = test/AcceleratorTopoNullTest.cpp \
                           test/MSRFieldControlTest.cpp \
                           test/MSRFieldSignalTest.cpp \
                           test/MockAcceleratorTopo.hpp \
+                          test/MockBatchClient.hpp \
                           test/MockBatchStatus.hpp \
                           test/MockControl.hpp \
                           test/MockIOGroup.hpp \
@@ -368,6 +394,7 @@ test_geopm_test_SOURCES = test/AcceleratorTopoNullTest.cpp \
                           test/MockPlatformIO.hpp \
                           test/MockPlatformTopo.cpp \
                           test/MockPlatformTopo.hpp \
+                          test/MockSaveControl.hpp \
                           test/MockSDBus.hpp \
                           test/MockSDBusMessage.hpp \
                           test/MockServiceProxy.hpp \
@@ -383,6 +410,7 @@ test_geopm_test_SOURCES = test/AcceleratorTopoNullTest.cpp \
                           test/PlatformTopoTest.cpp \
                           test/RawMSRSignalTest.cpp \
                           test/SharedMemoryTest.cpp \
+                          test/SaveControlTest.cpp \
                           test/ServiceIOGroupTest.cpp \
                           test/ServiceProxyTest.cpp \
                           test/SSTControlTest.cpp \

@@ -31,6 +31,8 @@
  */
 
 #include <memory>
+#include <set>
+#include <algorithm>
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -40,6 +42,7 @@
 #include "SSTIOGroup.hpp"
 #include "MockPlatformTopo.hpp"
 #include "MockSSTIO.hpp"
+#include "MockSaveControl.hpp"
 
 using geopm::SSTIOGroup;
 using testing::Return;
@@ -54,6 +57,7 @@ class SSTIOGroupTest : public :: testing :: Test
         std::shared_ptr<MockSSTIO> m_sstio;
         std::unique_ptr<SSTIOGroup> m_group;
         std::shared_ptr<MockPlatformTopo> m_topo;
+        std::shared_ptr<MockSaveControl> m_mock_save_ctl;
         int m_num_package = 2;
         int m_num_core = 4;
         int m_num_cpu = 16;
@@ -66,6 +70,7 @@ void SSTIOGroupTest::SetUp()
     EXPECT_CALL(*m_topo, num_domain(_)).Times(AtLeast(0));
 
     m_sstio = std::make_shared<MockSSTIO>();
+    m_mock_save_ctl = std::make_shared<MockSaveControl>();
 
     for (int i = 0; i < m_num_cpu; ++i) {
         /* Punit index doesn't necessarily equal cpu index. Make them different
@@ -73,8 +78,9 @@ void SSTIOGroupTest::SetUp()
          */
         ON_CALL(*m_sstio, get_punit_from_cpu(i)).WillByDefault(Return(i*2));
     }
+    EXPECT_CALL(*m_sstio, get_punit_from_cpu(_)).Times(m_num_package * m_num_core);
 
-    m_group = geopm::make_unique<SSTIOGroup>(*m_topo, m_sstio);
+    m_group = geopm::make_unique<SSTIOGroup>(*m_topo, m_sstio, m_mock_save_ctl);
 }
 
 TEST_F(SSTIOGroupTest, valid_signal_names)
@@ -333,6 +339,9 @@ TEST_F(SSTIOGroupTest, error_in_save_removes_control)
         .Times(3)
         .WillRepeatedly(Throw(std::runtime_error("Test-injected failure")));
 
+    EXPECT_CALL(*m_sstio, read_mmio_once(_, _)).Times(AtLeast(0));
+    EXPECT_CALL(*m_sstio, read_mbox_once(_, _, _, _)).Times(AtLeast(0));
+
     m_group->save_control();
 
     for (const auto &control_name : broken_controls) {
@@ -341,4 +350,29 @@ TEST_F(SSTIOGroupTest, error_in_save_removes_control)
     }
     EXPECT_TRUE(m_group->is_valid_control(unimpacted_control))
         << unimpacted_control << " after failed save";
+}
+
+TEST_F(SSTIOGroupTest, save_restore_control)
+{
+    // Verify that all controls can be read as signals
+    auto control_set = m_group->control_names();
+    auto signal_set = m_group->signal_names();
+    std::vector<std::string> difference(control_set.size());
+
+    auto it = std::set_difference(control_set.cbegin(), control_set.cend(),
+                                  signal_set.cbegin(), signal_set.cend(),
+                                  difference.begin());
+    difference.resize(it - difference.begin());
+
+    std::string err_msg = "The following controls are not readable as signals: \n";
+    for (auto &sig : difference) {
+        err_msg += "    " + sig + '\n';
+    }
+    EXPECT_EQ((unsigned int) 0, difference.size()) << err_msg;
+
+    std::string file_name = "tmp_file";
+    EXPECT_CALL(*m_mock_save_ctl, write_json(file_name));
+    m_group->save_control(file_name);
+    EXPECT_CALL(*m_mock_save_ctl, restore(_));
+    m_group->restore_control(file_name);
 }

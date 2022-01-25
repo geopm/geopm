@@ -2,61 +2,87 @@ GEOPM Integration Tests
 =======================
 
 This directory contains the integration tests for the GEOPM package.
-These tests are implemented by wrapping the ModelApplication class
-introduced in tutorial 6 with a Python unittest framework.  The
-geopm_test_integration.py wrapper generates input configuration files,
-executes the geopm_test_integration model application one or more
-times and checks that the GEOPM report and trace files demonstrate
-features of the GEOPM runtime.
 
-ENVIRONMENT VARIABLES
----------------------
+Please refer to the [README](../README.md) one directory up for
+information about how to define envirnment variables relevent to these
+scripts in your `.geopmrc` file and how to use the scripts in the
+[config](../config) directory.
+
+The integration tests are built using the python unittest
+infrastructure.  Each of the python test scripts begins with
+the `test_` prefix, and these may be run individually.  When
+running test scripts individually, it is important to add
+the GEOPM source code directory to your python path:
+
+```
+export PYTHONPATH=${GEOPM_SOURCE}:${PYTHONPATH}
+```
+
+Alternatively, the Python unittest discovery mechanism may be used.
+When using this method, the unittest module is executed using the
+discover subcommand.  An example that will execute all of the GEOPM
+HPC runtime integration tests is below:
+
+```
+#!/bin/bash
+
+source ${GEOPM_SOURCE}/config/run_env.sh
+
+# Run all of the GEOPM HPC Runtime integration tests
+python3 -m unittest discover \
+        --top-level-directory ${GEOPM_SOURCE} \
+        --start-directory ${GEOPM_SOURCE}/integration/test
+
+# Execute tests in test_monitor.py and log to file
+PYTHONPATH=${GEOPM_SOURCE}:${PYTHONPATH} \
+python3 ${GEOPM_SOURCE}/test/integration/test_monitor.py \
+    --verbose >& test-monitor.log
+
+# Use discover to execute tests in test_monitor.py log to file
+python3 -m unittest discover \
+        --top-level-directory ${GEOPM_SOURCE} \
+        --start-directory ${GEOPM_SOURCE}/integration/test \
+        --pattern test_monitor.py \
+        --verbose >& test-monitor.log
+
+```
+
+TEST ENVIRONMENT VARIABLES
+--------------------------
+
+The environment variables below may be set by the user to modify test
+execution.
 
 ### GEOPM_LAUNCHER
 Used to force the integration tests to target a specific Launcher
 implementation as supported by the Launcher factory.  See
 **geopmlaunch(1)** for more details.
 
-### GEOPM_RUN_LONG_TESTS
-This variable specifies whether or not to run the integration tests
-that take a considerable amount of time.  The rough rule is that all
-tests running longer than 5 minutes will require this to be set.
-The current list of tests requiring this variable to be set are:
-1. test_region_runtimes
-2. test_scaling
-3. test_power_consumption
-4. test_sample_rate
-5. test_plugin_simple_freq_offline
-6. test_plugin_simple_freq_online
-
 ### GEOPM_EXEC_WRAPPER
 Configure string for GEOPM test launcher to run arbitrary
-application to wrap target job execution.
+application to wrap target job execution.  Some examples
+that use `GEOPM_EXEC_WRAPPER` are given below.
 
-    `$ export GEOPM_EXEC_WRAPPER="numactl -m 1" \
-              ./geopm_test_integration.py -v TestIntegration.test_count`
+```
+#!/bin/bash
 
-    `$ export GEOPM_EXEC_WRAPPER="valgrind --tool=memcheck --vgdb=yes \
-              --vgdb-error=0" \
-              ./geopm_test_integration.py -v TestIntegration.test_count`
+source ${GEOPM_SOURCE}/config/run_env.sh
 
-    `$ export GEOPM_EXEC_WRAPPER="$PATH_TO_DDT_CLIENT_BIN --ddtsessionfile \
-              $PATH_TO_DDT_CLIENT_SESSION_FILE" \
-              ./geopm_test_integration.py -v TestIntegration.test_count`
+GEOPM_EXEC_WRAPPER="numactl -m 1" \
+python3 -m unittest discover \
+        --top-level-directory ${GEOPM_SOURCE} \
+        --start-directory ${GEOPM_SOURCE}/integration/test \
+        --pattern test_monitor.py
 
-EXAMPLES
---------
-Since the log files that are emitted from the individual tests are
-opened and appended to on subsequent runs, it may become necessary to
-periodically clean up the files to avoid conflating experimental data.
-```git clean``` can be used in this instance to clean up all of the
-temporary files:
+GEOPM_EXEC_WRAPPER="valgrind --tool=memcheck --vgdb=yes --vgdb-error=0" \
+python3 -m unittest discover \
+        --top-level-directory ${GEOPM_SOURCE} \
+        --start-directory ${GEOPM_SOURCE}/integration/test \
+        --pattern test_monitor.py
 
-    $ git clean -fd .
-    $ export GEOPM_RUN_LONG_TESTS=true
-    $ ./geopm_test_integration.py -v TestIntegration.test_power_consumption
-
-Or as a one-liner:
-
-    $ git clean -fd . ; GEOPM_RUN_LONG_TESTS=true ./geopm_test_integration.py -v TestIntegration.test_power_consumption
-
+GEOPM_EXEC_WRAPPER="$PATH_TO_DDT_CLIENT_BIN --ddtsessionfile <SESSION_FILE>" \
+python3 -m unittest discover \
+        --top-level-directory ${GEOPM_SOURCE} \
+        --start-directory ${GEOPM_SOURCE}/integration/test \
+        --pattern test_monitor.py
+```

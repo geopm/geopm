@@ -42,7 +42,7 @@ import glob
 import unittest
 import pandas
 
-import util
+from integration.test import util
 
 
 def read_meta_data(trace_file):

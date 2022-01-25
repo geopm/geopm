@@ -40,17 +40,17 @@ import unittest
 import os
 import glob
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-from integration.test import geopm_context
 import geopmpy.io
+import geopmpy.agent
 import geopmdpy.error
 
 from integration.test import util
-from integration.experiment import machine
 if util.do_launch():
     # Note: this import may be moved outside of do_launch if needed to run
     # commands on compute nodes such as geopm_test_launcher.geopmread
     from integration.test import geopm_test_launcher
+
+from integration.experiment import machine
 
 class AppConf(object):
     """Class that is used by the test launcher in place of a

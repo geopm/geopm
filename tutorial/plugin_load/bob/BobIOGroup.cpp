@@ -50,6 +50,11 @@ static void __attribute__((constructor)) example_iogroup_load(void)
                                              BobIOGroup::make_plugin);
 }
 
+std::string BobIOGroup::name(void) const
+{
+    return plugin_name();
+}
+
 // Name used for registration with the IOGroup factory
 std::string BobIOGroup::plugin_name(void)
 {

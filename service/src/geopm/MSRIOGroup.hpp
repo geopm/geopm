@@ -50,6 +50,7 @@ namespace geopm
     class PlatformTopo;
     class Signal;
     class Control;
+    class SaveControl;
 
     /// @brief IOGroup that provides signals and controls based on MSRs.
     class MSRIOGroup : public IOGroup
@@ -69,7 +70,8 @@ namespace geopm
             MSRIOGroup(const PlatformTopo &platform_topo,
                        std::shared_ptr<MSRIO> msrio,
                        int cpuid,
-                       int num_cpu);
+                       int num_cpu,
+                       std::shared_ptr<SaveControl> save_control);
             virtual ~MSRIOGroup() = default;
             std::set<std::string> signal_names(void) const override;
             std::set<std::string> control_names(void) const override;
@@ -104,6 +106,7 @@ namespace geopm
             int signal_behavior(const std::string &signal_name) const override;
             void save_control(const std::string &save_path) override;
             void restore_control(const std::string &save_path) override;
+            std::string name(void) const override;
 
             /// @brief Parse a JSON string and add any raw MSRs and
             ///        fields as available signals and controls.
@@ -264,6 +267,8 @@ namespace geopm
             std::vector<std::shared_ptr<Signal> > m_signal_pushed;
             // Mapping of control index to pushed controls
             std::vector<std::shared_ptr<Control> > m_control_pushed;
+
+            std::shared_ptr<SaveControl> m_mock_save_ctl;
     };
 }
 

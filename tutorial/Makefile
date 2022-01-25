@@ -57,37 +57,37 @@ tutorial_0.o: tutorial_0.c
 	$(MPICC) $(CFLAGS) -c $^ -o $@
 
 tutorial_0: tutorial_0.o
-	$(MPICC) $(LDFLAGS) $^ -o $@
+	$(MPICC) $^ -o $@ $(LDFLAGS)
 
 tutorial_1.o: tutorial_1.c
 	$(MPICC) $(CFLAGS) -c $^ -o $@
 
 tutorial_1: tutorial_1.o tutorial_region.o
-	$(MPICC) $(LDFLAGS) $^ -o $@
+	$(MPICC) $^ -o $@ $(LDFLAGS)
 
 tutorial_2.o: tutorial_2.c
 	$(MPICC) $(CFLAGS) -c $^ -o $@
 
 tutorial_2: tutorial_2.o tutorial_region.o
-	$(MPICC) $(LDFLAGS) -lgeopm $^ -o $@
+	$(MPICC) $^ -o $@ $(LDFLAGS) -lgeopm
 
 tutorial_3.o: tutorial_3.c
 	$(MPICC) $(CFLAGS) -c $^ -o $@
 
 tutorial_3: tutorial_3.o tutorial_region.o
-	$(MPICC) $(LDFLAGS) -lgeopm $^ -o $@
+	$(MPICC) $^ -o $@ $(LDFLAGS) -lgeopm
 
 tutorial_4.o: tutorial_4.c
 	$(MPICC) $(CFLAGS) -c $^ -o $@
 
 tutorial_4: tutorial_4.o tutorial_region.o
-	$(MPICC) $(LDFLAGS) -lgeopm -lstdc++ $^ -o $@
+	$(MPICC) $^ -o $@ $(LDFLAGS) -lgeopm -lstdc++
 
 tutorial_5.o: tutorial_5.c
 	$(MPICC) $(CFLAGS) -c $^ -o $@
 
 tutorial_5: tutorial_5.o tutorial_region.o tutorial_region_prof.o
-	$(MPICC) $(LDFLAGS) -lgeopm -lstdc++ $^ -o $@
+	$(MPICC) $^ -o $@ $(LDFLAGS) -lgeopm -lstdc++
 
 tutorial_region.o: tutorial_region.c tutorial_region.h
 	$(MPICC) $(CFLAGS) -c tutorial_region.c -o $@

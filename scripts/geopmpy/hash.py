@@ -33,14 +33,14 @@
 
 from __future__ import absolute_import
 
-import cffi
+from geopmdpy.gffi import gffi
+from geopmdpy.gffi import get_dl_geopmpolicy
 
-_ffi = cffi.FFI()
-_ffi.cdef("""
+gffi.cdef("""
 uint64_t geopm_crc32_str(const char *key);
 """)
 try:
-    _dl = _ffi.dlopen('libgeopmpolicy.so', _ffi.RTLD_GLOBAL|_ffi.RTLD_LAZY)
+    _dl = get_dl_geopmpolicy()
 except OSError as ee:
     raise OSError('This module requires libgeopmpolicy.so to be present in your LD_LIBRARY_PATH.') from ee
 
@@ -53,8 +53,8 @@ def crc32_str(key):
         int: Hash of string
 
     """
-    global _ffi
+    global gffi
     global _dl
 
-    key_name_cstr = _ffi.new("char[]", key.encode())
+    key_name_cstr = gffi.new("char[]", key.encode())
     return _dl.geopm_crc32_str(key_name_cstr)

@@ -214,6 +214,25 @@ namespace geopm
             virtual int signal_behavior(const std::string &signal_name) const = 0;
             virtual void save_control(const std::string &save_path) = 0;
             virtual void restore_control(const std::string &save_path) = 0;
+            /// @brief Get the IOGroup name
+            ///
+            /// By convention this name is given in all capital
+            /// letters.  This string provides a namespace for the
+            /// IOGroup since all IOGroups loaded by PlatformIO must
+            /// have distinct names.  This unique namespace may be
+            /// used in any context to distinguish IOGroups.
+            ///
+            /// One important use case is that the IOGroup name
+            /// prefixes all low level signal and control names in
+            /// conjunction with "::".  This name prefix may be used
+            /// to distinguish between the high level signals and
+            /// controls (i.e. aliases like CPU_FREQUENCY_CONTROL)
+            /// that do not contain the IOGroup prefix, and the low
+            /// level signals and controls that do
+            /// (e.g. "MSR::PERF_CTL:FREQ").
+            ///
+            /// @return The name of the IOGroup in all caps.
+            virtual std::string name(void) const = 0;
 
             /// @brief Convert a string to the corresponding m_units_e value
             static m_units_e string_to_units(const std::string &str);

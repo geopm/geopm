@@ -36,7 +36,6 @@ import unittest
 import subprocess
 import json
 
-import geopm_context
 import geopmpy.io
 import geopmpy.hash
 

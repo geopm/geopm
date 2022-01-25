@@ -50,76 +50,85 @@
 #include "geopm/Exception.hpp"
 #include "geopm/Agg.hpp"
 #include "geopm/Helper.hpp"
+#include "SaveControl.hpp"
 
 namespace geopm
 {
+    const std::string NVMLIOGroup::M_PLUGIN_NAME = "NVML";
+    const std::string NVMLIOGroup::M_NAME_PREFIX = M_PLUGIN_NAME + "::";
+
     NVMLIOGroup::NVMLIOGroup()
-        : NVMLIOGroup(platform_topo(), nvml_device_pool(platform_topo().num_domain(GEOPM_DOMAIN_CPU)))
+        : NVMLIOGroup(platform_topo(),
+                      nvml_device_pool(platform_topo().num_domain(GEOPM_DOMAIN_CPU)),
+                      nullptr)
     {
     }
 
     // Set up mapping between signal and control names and corresponding indices
-    NVMLIOGroup::NVMLIOGroup(const PlatformTopo &platform_topo, const NVMLDevicePool &device_pool)
+    NVMLIOGroup::NVMLIOGroup(const PlatformTopo &platform_topo,
+                             const NVMLDevicePool &device_pool,
+                             std::shared_ptr<SaveControl> save_control)
         : m_platform_topo(platform_topo)
         , m_nvml_device_pool(device_pool)
         , m_is_batch_read(false)
-        , m_signal_available({{"NVML::FREQUENCY", {
+        , m_frequency_control_request(m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR), 0)
+        , m_signal_available({{M_NAME_PREFIX + "GPU_FREQUENCY_STATUS", {
                                   "Streaming multiprocessor frequency in hertz",
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::average,
                                   string_format_double
                                   }},
-                              {"NVML::UTILIZATION_ACCELERATOR", {
+                              {M_NAME_PREFIX + "GPU_UTILIZATION", {
                                   "Fraction of time the accelerator operated on a kernel in the last set of driver samples",
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::average,
                                   string_format_double
                                   }},
-                              {"NVML::POWER", {
+                              {M_NAME_PREFIX + "GPU_POWER", {
                                   "Accelerator power usage in watts",
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::sum,
                                   string_format_double
                                   }},
-                              {"NVML::POWER_LIMIT", {
+                              {M_NAME_PREFIX + "GPU_POWER_LIMIT_CONTROL", {
                                   "Accelerator power limit in watts",
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::sum,
                                   string_format_double
                                   }},
-                              {"NVML::FREQUENCY_MEMORY", {
+                              {M_NAME_PREFIX + "GPU_MEMORY_FREQUENCY_STATUS", {
                                   "Accelerator memory frequency in hertz",
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::average,
                                   string_format_double
                                   }},
-                              {"NVML::THROTTLE_REASONS", {
+                              {M_NAME_PREFIX + "GPU_THROTTLE_REASONS", {
                                   "Accelerator clock throttling reasons",
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::expect_same,
                                   string_format_double
                                   }},
-                              {"NVML::TEMPERATURE", {
+                              {M_NAME_PREFIX + "GPU_TEMPERATURE", {
                                   "Accelerator temperature in degrees Celsius",
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::average,
                                   string_format_double
                                   }},
-                              {"NVML::TOTAL_ENERGY_CONSUMPTION", {
+                              {M_NAME_PREFIX + "GPU_ENERGY_CONSUMPTION_TOTAL", {
                                   "Accelerator energy consumption in joules since the driver was loaded",
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::sum,
                                   string_format_double
                                   }},
-                              {"NVML::PERFORMANCE_STATE", {
+                              {M_NAME_PREFIX + "GPU_PERFORMANCE_STATE", {
                                   "Accelerator performance state, defined by the NVML API as a value from 0 to 15"
                                   "\n  with 0 being maximum performance, 15 being minimum performance, and 32 being unknown",
                                   {},
@@ -127,21 +136,21 @@ namespace geopm
                                   Agg::expect_same,
                                   string_format_double
                                   }},
-                              {"NVML::PCIE_RX_THROUGHPUT", {
+                              {M_NAME_PREFIX + "GPU_PCIE_RX_THROUGHPUT", {
                                   "Accelerator PCIE receive throughput in bytes per second over a 20 millisecond period",
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::sum,
                                   string_format_double
                                   }},
-                              {"NVML::PCIE_TX_THROUGHPUT", {
+                              {M_NAME_PREFIX + "GPU_PCIE_TX_THROUGHPUT", {
                                   "Accelerator PCIE transmit throughput in bytes per second over a 20 millisecond period",
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::sum,
                                   string_format_double
                                   }},
-                              {"NVML::CPU_ACCELERATOR_ACTIVE_AFFINITIZATION", {
+                              {M_NAME_PREFIX + "GPU_CPU_ACTIVE_AFFINITIZATION", {
                                   "Returns the associated accelerator for a given CPU as determined by running processes."
                                   "\n  If no accelerators map to the CPU then -1 is returned"
                                   "\n  If multiple accelerators map to the CPU NAN is returned",
@@ -150,36 +159,43 @@ namespace geopm
                                   Agg::expect_same,
                                   string_format_double
                                   }},
-                              {"NVML::UTILIZATION_MEMORY", {
+                              {M_NAME_PREFIX + "GPU_MEMORY_UTILIZATION", {
                                   "Fraction of time the accelerator memory was accessed in the last set of driver samples",
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::max,
                                   string_format_double
                                   }},
-                              {"NVML::FREQUENCY_MAX", {
+                              {M_NAME_PREFIX + "GPU_FREQUENCY_MAX_AVAIL", {
                                   "Streaming multiprocessor Maximum frequency in hertz",
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::expect_same,
                                   string_format_double
                                   }},
-                              {"NVML::FREQUENCY_MIN", {
+                              {M_NAME_PREFIX + "GPU_FREQUENCY_MIN_AVAIL", {
                                   "Streaming multiprocessor Minimum frequency in hertz",
+                                  {},
+                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                  Agg::expect_same,
+                                  string_format_double
+                                  }},
+                              {M_NAME_PREFIX + "GPU_FREQUENCY_CONTROL", {
+                                  "Latest frequency control request in hertz",
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::expect_same,
                                   string_format_double
                                   }}
                              })
-        , m_control_available({{"NVML::FREQUENCY_CONTROL", {
+        , m_control_available({{M_NAME_PREFIX + "GPU_FREQUENCY_CONTROL", {
                                     "Sets streaming multiprocessor frequency min and max to the same limit (in hertz)",
                                     {},
                                     GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                     Agg::average,
                                     string_format_double
                                     }},
-                               {"NVML::FREQUENCY_RESET_CONTROL", {
+                               {M_NAME_PREFIX + "GPU_FREQUENCY_RESET_CONTROL", {
                                     "Resets streaming multiprocessor frequency min and max limits to default values."
                                     "\n  Parameter provided is unused.",
                                     {},
@@ -187,7 +203,7 @@ namespace geopm
                                     Agg::average,
                                     string_format_double
                                     }},
-                               {"NVML::POWER_LIMIT_CONTROL", {
+                               {M_NAME_PREFIX + "GPU_POWER_LIMIT_CONTROL", {
                                     "Sets accelerator power limit in watts",
                                     {},
                                     GEOPM_DOMAIN_BOARD_ACCELERATOR,
@@ -195,6 +211,7 @@ namespace geopm
                                     string_format_double
                                     }}
                               })
+        , m_mock_save_ctl(save_control)
     {
         // populate signals for each domain
         for (auto &sv : m_signal_available) {
@@ -205,8 +222,8 @@ namespace geopm
             }
             sv.second.signals = result;
         }
-        register_signal_alias("POWER_ACCELERATOR", "NVML::POWER");
-        register_signal_alias("FREQUENCY_ACCELERATOR", "NVML::FREQUENCY");
+        register_signal_alias("GPU_POWER", M_NAME_PREFIX + "GPU_POWER");
+        register_signal_alias("GPU_FREQUENCY_STATUS", M_NAME_PREFIX + "GPU_FREQUENCY_STATUS");
 
         // populate controls for each domain
         for (auto &sv : m_control_available) {
@@ -217,8 +234,10 @@ namespace geopm
             }
             sv.second.controls = result;
         }
-        register_control_alias("POWER_ACCELERATOR_LIMIT_CONTROL", "NVML::POWER_LIMIT_CONTROL");
-        register_control_alias("FREQUENCY_ACCELERATOR_CONTROL", "NVML::FREQUENCY_CONTROL");
+        register_control_alias("GPU_POWER_LIMIT_CONTROL", M_NAME_PREFIX + "GPU_POWER_LIMIT_CONTROL");
+        register_signal_alias("GPU_POWER_LIMIT_CONTROL", M_NAME_PREFIX + "GPU_POWER_LIMIT_CONTROL");
+        register_control_alias("GPU_FREQUENCY_CONTROL", M_NAME_PREFIX + "GPU_FREQUENCY_CONTROL");
+        register_signal_alias("GPU_FREQUENCY_CONTROL", M_NAME_PREFIX + "GPU_FREQUENCY_CONTROL");
 
         for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR); ++domain_idx) {
             std::vector<unsigned int> supported_frequency = m_nvml_device_pool.frequency_supported_sm(domain_idx);
@@ -428,11 +447,16 @@ namespace geopm
     {
         m_is_batch_read = true;
         for (auto &sv : m_signal_available) {
-            if (sv.first == "NVML::CPU_ACCELERATOR_ACTIVE_AFFINITIZATION") {
-                std::map<pid_t, double> process_map = accelerator_process_map();
+            if (sv.first == M_NAME_PREFIX + "GPU_CPU_ACTIVE_AFFINITIZATION") {
+                std::map<pid_t, double> process_map;
+                bool is_map_cached = false;
 
                 for (unsigned int domain_idx = 0; domain_idx < sv.second.signals.size(); ++domain_idx) {
                     if (sv.second.signals.at(domain_idx)->m_do_read) {
+                        if (is_map_cached == false) {
+                            process_map = accelerator_process_map();
+                            is_map_cached = true;
+                        }
                         sv.second.signals.at(domain_idx)->m_value = cpu_accelerator_affinity(domain_idx, process_map);
                     }
                 }
@@ -506,55 +530,59 @@ namespace geopm
         }
 
         double result = NAN;
-        if (signal_name == "NVML::FREQUENCY" || signal_name == "FREQUENCY_ACCELERATOR") {
+        if (signal_name == M_NAME_PREFIX + "GPU_FREQUENCY_STATUS" || signal_name == "GPU_FREQUENCY_STATUS") {
             result = (double) m_nvml_device_pool.frequency_status_sm(domain_idx) * 1e6;
         }
-        else if (signal_name == "NVML::FREQUENCY_MIN") {
+        else if (signal_name == M_NAME_PREFIX + "GPU_FREQUENCY_MIN_AVAIL") {
             if (m_supported_freq.at(domain_idx).size() != 0) {
                 result = 1e6 * m_supported_freq.at(domain_idx).front();
             }
         }
-        else if (signal_name == "NVML::FREQUENCY_MAX") {
+        else if (signal_name == M_NAME_PREFIX + "GPU_FREQUENCY_MAX_AVAIL") {
             if (m_supported_freq.at(domain_idx).size() != 0) {
                 result = 1e6 * m_supported_freq.at(domain_idx).back();
             }
         }
-        else if (signal_name == "NVML::UTILIZATION_ACCELERATOR") {
+        else if (signal_name == M_NAME_PREFIX + "GPU_UTILIZATION") {
             result = (double) m_nvml_device_pool.utilization(domain_idx) / 100;
         }
-        else if (signal_name == "NVML::THROTTLE_REASONS") {
+        else if (signal_name == M_NAME_PREFIX + "GPU_THROTTLE_REASONS") {
             result = (double) m_nvml_device_pool.throttle_reasons(domain_idx);
         }
-        else if (signal_name == "NVML::POWER" || signal_name == "POWER_ACCELERATOR") {
+        else if (signal_name == M_NAME_PREFIX + "GPU_POWER" || signal_name == "GPU_POWER") {
             result = (double) m_nvml_device_pool.power(domain_idx) / 1e3;
         }
-        else if (signal_name == "NVML::POWER_LIMIT") {
+        else if (signal_name == M_NAME_PREFIX + "GPU_POWER_LIMIT_CONTROL" ||
+                 signal_name == "GPU_POWER_LIMIT_CONTROL") {
             result = (double) m_nvml_device_pool.power_limit(domain_idx) / 1e3;
         }
-        else if (signal_name == "NVML::FREQUENCY_MEMORY") {
+        else if (signal_name == M_NAME_PREFIX + "GPU_MEMORY_FREQUENCY_STATUS") {
             result = (double) m_nvml_device_pool.frequency_status_mem(domain_idx) * 1e6;
         }
-        else if (signal_name == "NVML::TEMPERATURE") {
+        else if (signal_name == M_NAME_PREFIX + "GPU_TEMPERATURE") {
             result = (double) m_nvml_device_pool.temperature(domain_idx);
         }
-        else if (signal_name == "NVML::TOTAL_ENERGY_CONSUMPTION" ) {
+        else if (signal_name == M_NAME_PREFIX + "GPU_ENERGY_CONSUMPTION_TOTAL" ) {
             result = (double) m_nvml_device_pool.energy(domain_idx) / 1e3;
         }
-        else if (signal_name == "NVML::PERFORMANCE_STATE") {
+        else if (signal_name == M_NAME_PREFIX + "GPU_PERFORMANCE_STATE") {
             result = (double) m_nvml_device_pool.performance_state(domain_idx);
         }
-        else if (signal_name == "NVML::PCIE_RX_THROUGHPUT") {
+        else if (signal_name == M_NAME_PREFIX + "GPU_PCIE_RX_THROUGHPUT") {
             result = (double) m_nvml_device_pool.throughput_rx_pcie(domain_idx) * 1024;
         }
-        else if (signal_name == "NVML::PCIE_TX_THROUGHPUT") {
+        else if (signal_name == M_NAME_PREFIX + "GPU_PCIE_TX_THROUGHPUT") {
             result = (double) m_nvml_device_pool.throughput_tx_pcie(domain_idx) * 1024;
         }
-        else if (signal_name == "NVML::UTILIZATION_MEMORY") {
+        else if (signal_name == M_NAME_PREFIX + "GPU_MEMORY_UTILIZATION") {
             result = (double) m_nvml_device_pool.utilization_mem(domain_idx) / 100;
         }
-        else if (signal_name == "NVML::CPU_ACCELERATOR_ACTIVE_AFFINITIZATION") {
+        else if (signal_name == M_NAME_PREFIX + "GPU_CPU_ACTIVE_AFFINITIZATION") {
             std::map<pid_t, double> process_map = accelerator_process_map();
             result = cpu_accelerator_affinity(domain_idx, process_map);
+        }
+        else if (signal_name == M_NAME_PREFIX + "GPU_FREQUENCY_CONTROL") {
+            result = m_frequency_control_request.at(domain_idx);
         }
         else {
     #ifdef GEOPM_DEBUG
@@ -574,23 +602,24 @@ namespace geopm
                             " not valid for NVMLIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        if (domain_type != GEOPM_DOMAIN_BOARD_ACCELERATOR) {
+        if (domain_type != control_domain_type(control_name)) {
             throw Exception("NVMLIOGroup::" + std::string(__func__) + ": " + control_name + ": domain_type must be " +
                             std::to_string(control_domain_type(control_name)),
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        if (domain_idx < 0 || domain_idx >= m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR)) {
+        if (domain_idx < 0 || domain_idx >= m_platform_topo.num_domain(control_domain_type(control_name))) {
             throw Exception("NVMLIOGroup::" + std::string(__func__) + ": domain_idx out of range.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        if (control_name == "NVML::FREQUENCY_CONTROL" || control_name == "FREQUENCY_ACCELERATOR_CONTROL") {
+        if (control_name == M_NAME_PREFIX + "GPU_FREQUENCY_CONTROL" || control_name == "GPU_FREQUENCY_CONTROL") {
             m_nvml_device_pool.frequency_control_sm(domain_idx, setting / 1e6, setting / 1e6);
+            m_frequency_control_request.at(domain_idx) = setting;
         }
-        else if (control_name == "NVML::FREQUENCY_RESET_CONTROL") {
+        else if (control_name == M_NAME_PREFIX + "GPU_FREQUENCY_RESET_CONTROL") {
             m_nvml_device_pool.frequency_reset_control(domain_idx);
         }
-        else if (control_name == "NVML::POWER_LIMIT_CONTROL" || control_name == "POWER_ACCELERATOR_LIMIT_CONTROL") {
+        else if (control_name == M_NAME_PREFIX + "GPU_POWER_LIMIT_CONTROL" || control_name == "GPU_POWER_LIMIT_CONTROL") {
             m_nvml_device_pool.power_control(domain_idx, setting * 1e3);
         }
         else {
@@ -615,9 +644,13 @@ namespace geopm
     // platform settings
     void NVMLIOGroup::restore_control(void)
     {
-        /// @todo: Usage of the NVML API for setting frequency, power, etc requires root privileges.
-        ///        As such several unit tests will fail when calling restore_control.  Once a non-
-        ///        privileged solution is available this code may be restored
+        // The following calls into the device pool require root privileges
+        for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR); ++domain_idx) {
+            // Write original NVML Power Limit
+            m_nvml_device_pool.power_control(domain_idx, m_initial_power_limit.at(domain_idx));
+            // Reset NVML Frequency Limit
+            m_nvml_device_pool.frequency_reset_control(domain_idx);
+        }
     }
 
     // Hint to Agent about how to aggregate signals from this IOGroup
@@ -674,20 +707,46 @@ namespace geopm
 
     void NVMLIOGroup::save_control(const std::string &save_path)
     {
-        throw Exception("NVMLIOGroup::save_control()",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        std::vector<SaveControl::m_setting_s> settings;
+        int num_domains = m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR);
+        for (int domain_idx = 0; domain_idx < num_domains; ++domain_idx) {
+            settings.push_back({M_NAME_PREFIX + "GPU_FREQUENCY_RESET_CONTROL",
+                                GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                domain_idx,
+                                0});
+            double curr_value = read_signal(M_NAME_PREFIX + "GPU_POWER_LIMIT_CONTROL",
+                                            GEOPM_DOMAIN_BOARD_ACCELERATOR, domain_idx);
+            settings.push_back({M_NAME_PREFIX + "GPU_POWER_LIMIT_CONTROL",
+                                GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                domain_idx,
+                                curr_value});
+        }
+
+        std::shared_ptr<SaveControl> save_ctl = m_mock_save_ctl;
+        if (save_ctl == nullptr) {
+            save_ctl = SaveControl::make_unique(settings);
+        }
+        save_ctl->write_json(save_path);
     }
 
     void NVMLIOGroup::restore_control(const std::string &save_path)
     {
-        throw Exception("NVMLIOGroup::restore_control()",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        std::shared_ptr<SaveControl> save_ctl = m_mock_save_ctl;
+        if (save_ctl == nullptr) {
+            save_ctl = SaveControl::make_unique(geopm::read_file(save_path));
+        }
+        save_ctl->restore(*this);
+    }
+
+    std::string NVMLIOGroup::name(void) const
+    {
+        return plugin_name();
     }
 
     // Name used for registration with the IOGroup factory
     std::string NVMLIOGroup::plugin_name(void)
     {
-        return "nvml";
+        return M_PLUGIN_NAME;
     }
 
     // Function used by the factory to create objects of this type

@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 #  Copyright (c) 2015 - 2021, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -31,9 +29,15 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-import unittest
+import geopmpy.reporter
+import geopmdpy.pio
+import time
 
-from TestBashExamples import *
-
-if __name__ == '__main__':
-    unittest.main()
+geopmpy.reporter.init()
+geopmdpy.pio.read_batch()
+geopmpy.reporter.update()
+time.sleep(1)
+geopmdpy.pio.read_batch()
+geopmpy.reporter.update()
+report = geopmpy.reporter.generate("profile_hello", "agent_hello")
+print(report)

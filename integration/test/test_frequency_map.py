@@ -37,14 +37,14 @@ import os
 import pandas
 import socket
 
-import geopm_context
 import geopmpy.agent
 import geopmpy.io
 import geopmpy.hash
 
-import util
-import experiment.machine as machine
-import geopm_test_launcher
+from integration.test import util
+from integration.test import geopm_test_launcher
+
+from integration.experiment import machine
 
 
 class TestIntegration_frequency_map(unittest.TestCase):

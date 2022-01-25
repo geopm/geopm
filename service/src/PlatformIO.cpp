@@ -50,12 +50,10 @@
 #include "geopm/MSRIOGroup.hpp"
 #include "TimeIOGroup.hpp"
 #include "CombinedSignal.hpp"
+#include "BatchServer.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm/Agg.hpp"
-
-// When we support the batch server this include will be required.
-// #include "DBusServer.hpp"
 
 namespace geopm
 {
@@ -281,10 +279,6 @@ namespace geopm
     {
         if (m_is_active) {
             throw Exception("PlatformIOImp::push_control(): pushing controls after read_batch() or adjust().",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-        if (!m_do_restore) {
-            throw Exception("PlatformIOImp::push_control(): pushing controls before calling save_control().",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         if (domain_type < 0 || domain_type >= GEOPM_NUM_DOMAIN) {
@@ -538,23 +532,29 @@ namespace geopm
 
     void PlatformIOImp::restore_control(void)
     {
-        if (m_do_restore) {
-            for (auto &it : m_iogroup_list) {
-                it->restore_control();
-            }
+        if (!m_do_restore) {
+            throw Exception("PlatformIOImp::restore_control(): Called prior to save_control()",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        for (auto &it : m_iogroup_list) {
+            it->restore_control();
         }
     }
 
     void PlatformIOImp::save_control(const std::string &save_dir)
     {
-        throw Exception("PlatformIOImp::save_control()",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        for (auto &it : m_iogroup_list) {
+            std::string save_path = save_dir + '/' + it->name() + "-save-control.json";
+            it->save_control(save_path);
+        }
     }
 
     void PlatformIOImp::restore_control(const std::string &save_dir)
     {
-        throw Exception("PlatformIOImp::save_control()",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        for (auto &it : m_iogroup_list) {
+            std::string save_path = save_dir + '/' + it->name() + "-save-control.json";
+            it->restore_control(save_path);
+        }
     }
 
     std::function<double(const std::vector<double> &)> PlatformIOImp::agg_function(const std::string &signal_name) const
@@ -609,6 +609,43 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return iogroup->signal_behavior(signal_name);
+    }
+
+    void PlatformIOImp::start_batch_server(int client_pid,
+                                           const std::vector<geopm_request_s> &signal_config,
+                                           const std::vector<geopm_request_s> &control_config,
+                                           int &server_pid,
+                                           std::string &server_key)
+    {
+        if (signal_config.size() == 0 && control_config.size() == 0) {
+            throw Exception("PlatformIOImp::start_batch_server(): Requested a batch server, but no signals or controls were specified",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        std::shared_ptr<BatchServer> batch_server =
+            BatchServer::make_unique(client_pid, signal_config, control_config);
+        server_pid = batch_server->server_pid();
+        server_key = batch_server->server_key();
+        if (m_batch_server.find(server_pid) != m_batch_server.end()) {
+            throw Exception("PlatformIOImp::start_batch_server(): Created a server with PID of existing server: " + std::to_string(server_pid),
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        m_batch_server[server_pid] = batch_server;
+    }
+
+    void PlatformIOImp::stop_batch_server(int server_pid)
+    {
+        auto it = m_batch_server.find(server_pid);
+        if (it == m_batch_server.end()) {
+            throw Exception("PlatformIO::stop_batch_server(): Unknown batch server PID: " + std::to_string(server_pid),
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+#ifdef GEOPM_DEBUG
+        if (!it->second->is_active()) {
+            std::cerr << "Warning: <geopm> PlatformIO::stop_batch_server(): Batch server was inactive when it was stopped\n";
+        }
+#endif
+        it->second->stop_batch();
+        m_batch_server.erase(it);
     }
 }
 
@@ -857,6 +894,32 @@ extern "C" {
         return err;
     }
 
+    int geopm_pio_save_control_dir(const char *save_dir)
+    {
+        int err = 0;
+        try {
+            geopm::platform_io().save_control(save_dir);
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+            err = err < 0 ? err : GEOPM_ERROR_RUNTIME;
+        }
+        return err;
+    }
+
+    int geopm_pio_restore_control_dir(const char *save_dir)
+    {
+        int err = 0;
+        try {
+            geopm::platform_io().restore_control(save_dir);
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+            err = err < 0 ? err : GEOPM_ERROR_RUNTIME;
+        }
+        return err;
+    }
+
     int geopm_pio_signal_description(const char *signal_name, size_t description_max,
                                      char *description)
     {
@@ -927,16 +990,26 @@ extern "C" {
                                      int key_size,
                                      char *server_key)
     {
-        // For now just return error code, will call through to DBusServer
-        // when there is an implementation.
-        return GEOPM_ERROR_INVALID;
-#if 0
         int err = 0;
         try {
-            std::vector<struct geopm_request_s> signal_config_vec(signal_config, signal_config + num_signal);
-            std::vector<struct geopm_request_s> control_config_vec(control_config, control_config + num_control);
+            std::vector<geopm_request_s> signal_config_vec(num_signal);
+            if (signal_config != nullptr) {
+                std::copy(signal_config,
+                          signal_config + num_signal,
+                          signal_config_vec.begin());
+            }
+            std::vector<geopm_request_s> control_config_vec(num_control);
+            if (control_config != nullptr) {
+                std::copy(control_config,
+                          control_config + num_control,
+                          control_config_vec.begin());
+            }
             std::string server_key_str;
-            //geopm::DBusServer::start_batch(client_pid, signal_config_vec, control_config_vec, *server_pid, server_key_str);
+            geopm::platform_io().start_batch_server(client_pid,
+                                                    signal_config_vec,
+                                                    control_config_vec,
+                                                    *server_pid,
+                                                    server_key_str);
             strncpy(server_key, server_key_str.c_str(), key_size);
             if (server_key[key_size - 1] != '\0') {
                 server_key[key_size - 1] = '\0';
@@ -948,25 +1021,19 @@ extern "C" {
             err = err < 0 ? err : GEOPM_ERROR_RUNTIME;
         }
         return err;
-#endif
     }
 
     int geopm_pio_stop_batch_server(int server_pid)
     {
-        // For now just return error code, will call through to DBusServer
-        // when there is an implementation.
-        return GEOPM_ERROR_INVALID;
-#if 0
         int err = 0;
         try {
-            //geopm::DBusServer::stop_batch(server_pid);
+            geopm::platform_io().stop_batch_server(server_pid);
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
             err = err < 0 ? err : GEOPM_ERROR_RUNTIME;
         }
         return err;
-#endif
     }
 
     int geopm_pio_format_signal(double signal,
