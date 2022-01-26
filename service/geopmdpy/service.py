@@ -765,10 +765,9 @@ class GEOPMService(object):
     """
     __dbus_xml__ = dbus_xml.geopm_dbus_xml(TopoService, PlatformService)
 
-    def __init__(self, topo=TopoService(),
-                 platform=PlatformService()):
-        self._topo = topo
-        self._platform = platform
+    def __init__(self):
+        self._topo = TopoService()
+        self._platform = PlatformService()
         self._dbus_proxy = SystemMessageBus().get_proxy('org.freedesktop.DBus',
                                                         '/org/freedesktop/DBus')
 
