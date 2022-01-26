@@ -295,19 +295,17 @@ Introducing a new man page requires changes in multiple files:
 
 
 #.
-   The build target (man page) should be added to ronn_man in
-   Makefile.am.
+   The build target (man page) should be added to rst_file in conf.py
 #.
-   The ronn source file should be added to EXTRA_DIST in Makefile.am.
+   The rst source file should be added to EXTRA_DIST in service/docs/Makefile.mk
 #.
-   The ronn source file should be added to MANIFEST.EXEMPT as
+   The build target (man page) should be added to dist_man_MANS in service/docs/Makefile.mk
+#.
+   The ronn source file should be added to copying_headers/MANIFEST.EXEMPT as
    described above.
 #.
    The gzipped installed man page should be listed in the %files section of
-   specs/geopm.spec.in.
+   geopm-service.spec.in
 #.
-   A link from the man page name to the man page file should be added
-   to ronn/index.txt.
-#.
-   A link to the new man page should be added to the SEE ALSO section of
-   geopm.7.ronn and any other related man pages.
+   A link to the new html page should be added to the SEE ALSO section of
+   geopm.7.rst and any other related man pages.
