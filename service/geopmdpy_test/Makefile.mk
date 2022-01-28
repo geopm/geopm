@@ -125,6 +125,8 @@ GEOPMDPY_TESTS = geopmdpy_test/pytest_links/TestPlatformService.test__read_allow
                  geopmdpy_test/pytest_links/TestActiveSessions.test_default_creation \
                  geopmdpy_test/pytest_links/TestActiveSessions.test_creation_bad_perms \
                  geopmdpy_test/pytest_links/TestActiveSessions.test_watch_id \
+                 geopmdpy_test/pytest_links/TestActiveSessions.test_batch_server \
+                 geopmdpy_test/pytest_links/TestActiveSessions.test_write_client \
                  # end
 
 TESTS += $(GEOPMDPY_TESTS)

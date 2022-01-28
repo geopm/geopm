@@ -111,11 +111,9 @@ class TestActiveSessions(unittest.TestCase):
         side_effect = lambda path: 'bad_user' in path and bad_user or good_user
         with mock.patch('os.stat', side_effect=side_effect), \
              mock.patch('stat.S_IMODE', return_value=0o600), \
-             mock.patch('stat.S_ISREG', return_value=True):
+             mock.patch('stat.S_ISREG', return_value=True), \
+             mock.patch('sys.stderr.write', return_value=None) as mock_err:
             act_sess = ActiveSessions(sess_path)
-        with mock.patch('sys.stderr.write', return_value=None) as mock_err:
-            act_sess = ActiveSessions(sess_path)
-            mock_err.assert_called_once_with(f'Warning: <geopm> {sess_path} has wrong permissions, reseting to 0o700, current value: 0o755')
         self.check_dir_perms(sess_path)
 
 
@@ -213,7 +211,21 @@ class TestActiveSessions(unittest.TestCase):
         is_write_client() on the second object.
 
         """
-        pass
+        sess_path = f'{self._TEMP_DIR.name}/geopm-service'
+        act_sess = ActiveSessions(sess_path)
+        client_pid = 1234
+        signals = ['INSTRUCTIONS_RETIRED', 'CPU_FREQUENCY']
+        controls = ['CORE_FREQUENCY', 'POWER_LIMIT']
+        watch_id = 4321
+        act_sess.add_client(client_pid, signals, controls, watch_id)
+        is_writer_actual = act_sess.is_write_client(client_pid)
+        self.assertFalse(is_writer_actual)
+        act_sess.set_write_client(client_pid)
+        is_writer_actual = act_sess.is_write_client(client_pid)
+        self.assertTrue(is_writer_actual)
+        new_act_sess = ActiveSessions(sess_path)
+        is_writer_actual = act_sess.is_write_client(client_pid)
+        self.assertTrue(is_writer_actual)
 
     def test_batch_server(self):
         """Assign the batch server PID to a client session
@@ -225,7 +237,22 @@ class TestActiveSessions(unittest.TestCase):
         get_batch_server() on the second object.
 
         """
-        pass
+        sess_path = f'{self._TEMP_DIR.name}/geopm-service'
+        act_sess = ActiveSessions(sess_path)
+        client_pid = 1234
+        signals = ['INSTRUCTIONS_RETIRED', 'CPU_FREQUENCY']
+        controls = ['CORE_FREQUENCY', 'POWER_LIMIT']
+        watch_id = 4321
+        batch_server = 8765
+        act_sess.add_client(client_pid, signals, controls, watch_id)
+        batch_server_actual = act_sess.get_batch_server(client_pid)
+        self.assertEqual(None, batch_server_actual)
+        act_sess.set_batch_server(client_pid, batch_server)
+        batch_server_actual = act_sess.get_batch_server(client_pid)
+        self.assertEqual(batch_server, batch_server_actual)
+        new_act_sess = ActiveSessions(sess_path)
+        batch_server_actual = new_act_sess.get_batch_server(client_pid)
+        self.assertEqual(batch_server, batch_server_actual)
 
     def test_watch_id(self):
         """Assign the watch_id to a client session
@@ -241,12 +268,12 @@ class TestActiveSessions(unittest.TestCase):
         controls = ['CORE_FREQUENCY', 'POWER_LIMIT']
         watch_id = 4321
         act_sess.add_client(client_pid, signals, controls, watch_id)
-        actual_watch_id = act_sess.get_watch_id(client_pid)
-        self.assertEqual(watch_id, actual_watch_id)
+        watch_id_actual = act_sess.get_watch_id(client_pid)
+        self.assertEqual(watch_id, watch_id_actual)
         watch_id += 1
         act_sess.set_watch_id(client_pid, watch_id)
-        actual_watch_id = act_sess.get_watch_id(client_pid)
-        self.assertEqual(watch_id, actual_watch_id)
+        watch_id_actual = act_sess.get_watch_id(client_pid)
+        self.assertEqual(watch_id, watch_id_actual)
 
 if __name__ == '__main__':
     unittest.main()
