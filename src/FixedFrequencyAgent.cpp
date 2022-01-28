@@ -57,15 +57,9 @@ namespace geopm
         : m_platform_io(plat_io)
         , m_platform_topo(platform_topo())
         , m_last_wait{{0, 0}}
-        , M_WAIT_SEC(0.05) // 50mS wait
+        , M_WAIT_SEC(0.005) // 5mS wait default, override with policy parameter
         , m_do_write_batch(false)
         , m_is_adjust_initialized(false)
-	, m_signal_available({})
-        , m_control_available({{"FREQUENCY_ACCELERATOR_CONTROL", {}},
-                               {"CPU_FREQUENCY_CONTROL", {}},
-                               {"MSR::UNCORE_RATIO_LIMIT:MIN_RATIO", {}},
-                               {"MSR::UNCORE_RATIO_LIMIT:MAX_RATIO", {}},
-                              })
     {
         geopm_time(&m_last_wait);
     }
@@ -80,15 +74,6 @@ namespace geopm
 
     void FixedFrequencyAgent::init_platform_io(void)
     {
-        // Populate signals for each domain with batch idx info, default values, etc
-        for (auto &sv : m_signal_available) {
-            sv.second.m_batch_idx = m_platform_io.push_signal(sv.first, GEOPM_DOMAIN_BOARD, 0);
-        }
-
-        // Populate controls for each domain
-        for (auto &sv : m_control_available) {
-            sv.second.m_batch_idx = m_platform_io.push_control(sv.first, GEOPM_DOMAIN_BOARD, 0);
-        }
 
     }
 
@@ -96,8 +81,8 @@ namespace geopm
     void FixedFrequencyAgent::validate_policy(std::vector<double> &in_policy) const
     {
         assert(in_policy.size() == M_NUM_POLICY);
-        double accel_min_freq = m_platform_io.read_signal("NVML::FREQUENCY_MIN", GEOPM_DOMAIN_BOARD, 0);
-        double accel_max_freq = m_platform_io.read_signal("NVML::FREQUENCY_MAX", GEOPM_DOMAIN_BOARD, 0);
+        double accel_min_freq = m_platform_io.read_signal("NVML::GPU_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0);
+        double accel_max_freq = m_platform_io.read_signal("NVML::GPU_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0);
         double core_freq_min = m_platform_io.read_signal("FREQUENCY_MIN", GEOPM_DOMAIN_BOARD, 0);
         double core_freq_max = m_platform_io.read_signal("FREQUENCY_MAX", GEOPM_DOMAIN_BOARD, 0);
 
@@ -140,6 +125,17 @@ namespace geopm
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
 
 	}
+
+	if (!std::isnan(in_policy[M_POLICY_SAMPLE_PERIOD])) {
+	  if (in_policy[M_POLICY_SAMPLE_PERIOD] <= 0.0) {
+	      throw Exception("FixedFrequencyAgent::" + std::string(__func__) +
+			      "(): sample period must be greater than 0: " +
+			      std::to_string(in_policy[M_POLICY_CPU_FREQUENCY]) + ".",
+			      GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+
+	  }
+	}
+
     }
 
     // Distribute incoming policy to children
@@ -175,70 +171,38 @@ namespace geopm
         assert(in_policy.size() == M_NUM_POLICY);
         m_do_write_batch = false;
 
-        double accel_freq_request = in_policy[M_POLICY_ACCELERATOR_FREQUENCY];
-        double cpu_freq_request = in_policy[M_POLICY_CPU_FREQUENCY];
-        double uncore_min_freq_request = in_policy[M_POLICY_UNCORE_MIN_FREQUENCY];
-        double uncore_max_freq_request = in_policy[M_POLICY_UNCORE_MAX_FREQUENCY];
-
-        // set Accelerator frequency control
-        auto freq_ctl_itr = m_control_available.find("FREQUENCY_ACCELERATOR_CONTROL");
-        if (!std::isnan(in_policy[M_POLICY_ACCELERATOR_FREQUENCY])) {
-            if (accel_freq_request != freq_ctl_itr->second.m_last_setting) {
-                m_platform_io.adjust(freq_ctl_itr->second.m_batch_idx, accel_freq_request);
-                freq_ctl_itr->second.m_last_setting = accel_freq_request;
-                m_do_write_batch = true;
-            }
-        }
-
-        // set CPU frequency control
-        freq_ctl_itr = m_control_available.find("CPU_FREQUENCY_CONTROL");
-        if (!std::isnan(in_policy[M_POLICY_CPU_FREQUENCY])) {
-            if (cpu_freq_request != freq_ctl_itr->second.m_last_setting) {
-                m_platform_io.adjust(freq_ctl_itr->second.m_batch_idx, cpu_freq_request);
-                freq_ctl_itr->second.m_last_setting = cpu_freq_request;
-                m_do_write_batch = true;
-            }
-        }
-
-        // set Uncore frequency controls
-        if (!std::isnan(in_policy[M_POLICY_UNCORE_MIN_FREQUENCY])) {
-            freq_ctl_itr = m_control_available.find("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO");
-            if (uncore_min_freq_request != freq_ctl_itr->second.m_last_setting) {
-                m_platform_io.adjust(freq_ctl_itr->second.m_batch_idx, uncore_min_freq_request);
-                freq_ctl_itr->second.m_last_setting = uncore_min_freq_request;
-                m_do_write_batch = true;
-            }
-	}
-	if (!std::isnan(in_policy[M_POLICY_UNCORE_MAX_FREQUENCY])) {
-            freq_ctl_itr = m_control_available.find("MSR::UNCORE_RATIO_LIMIT:MAX_RATIO");
-            if (uncore_max_freq_request != freq_ctl_itr->second.m_last_setting) {
-                m_platform_io.adjust(freq_ctl_itr->second.m_batch_idx, uncore_max_freq_request);
-                freq_ctl_itr->second.m_last_setting = uncore_max_freq_request;
-                m_do_write_batch = true;
-            }
-        }
-
         if (!m_is_adjust_initialized) {
-            double accel_init_freq = m_platform_io.read_signal("NVML::FREQUENCY_MAX", GEOPM_DOMAIN_BOARD, 0);
-            freq_ctl_itr = m_control_available.find("FREQUENCY_ACCELERATOR_CONTROL");
-            m_platform_io.adjust(freq_ctl_itr->second.m_batch_idx, accel_init_freq);
-            freq_ctl_itr->second.m_last_setting = accel_init_freq;
+	    double accel_freq_request = in_policy[M_POLICY_ACCELERATOR_FREQUENCY];
+	    double cpu_freq_request = in_policy[M_POLICY_CPU_FREQUENCY];
+	    double uncore_min_freq_request = in_policy[M_POLICY_UNCORE_MIN_FREQUENCY];
+	    double uncore_max_freq_request = in_policy[M_POLICY_UNCORE_MAX_FREQUENCY];
+	    double sample_period = in_policy[M_POLICY_SAMPLE_PERIOD];
+	    
+	    if (!std::isnan(sample_period)) {
+		M_WAIT_SEC = sample_period;
+	    }
+	    
+	    // set Accelerator frequency control
+	    if (!std::isnan(accel_freq_request)) {
+	        m_platform_io.write_control("GPU_FREQUENCY_CONTROL",GEOPM_DOMAIN_BOARD,0,accel_freq_request);
+	    }
+	    
+	    // set CPU frequency control
+	    if (!std::isnan(cpu_freq_request)) {
+	        m_platform_io.write_control("CPU_FREQUENCY_CONTROL",GEOPM_DOMAIN_BOARD,0,cpu_freq_request);
+	    }
+	    
+	    // set Uncore frequency controls
+	    if (!std::isnan(uncore_min_freq_request)) {
+	        m_platform_io.write_control("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO",GEOPM_DOMAIN_BOARD,0,uncore_min_freq_request);
+	    }
 
-            double cpu_init_freq = m_platform_io.read_signal("CPU_FREQUENCY_CONTROL", GEOPM_DOMAIN_BOARD, 0);
-            freq_ctl_itr = m_control_available.find("CPU_FREQUENCY_CONTROL");
-            m_platform_io.adjust(freq_ctl_itr->second.m_batch_idx, cpu_init_freq);
-            freq_ctl_itr->second.m_last_setting = cpu_init_freq;
-
-            double uncore_init_min = m_platform_io.read_signal("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO", GEOPM_DOMAIN_BOARD, 0);
-            freq_ctl_itr = m_control_available.find("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO");
-            m_platform_io.adjust(freq_ctl_itr->second.m_batch_idx, uncore_init_min);
-
-            double uncore_init_max = m_platform_io.read_signal("MSR::UNCORE_RATIO_LIMIT:MAX_RATIO", GEOPM_DOMAIN_BOARD, 0);
-            freq_ctl_itr = m_control_available.find("MSR::UNCORE_RATIO_LIMIT:MAX_RATIO");
-            m_platform_io.adjust(freq_ctl_itr->second.m_batch_idx, uncore_init_max);
-
+	    if (!std::isnan(uncore_max_freq_request)) {
+  	        m_platform_io.write_control("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO",GEOPM_DOMAIN_BOARD,0,uncore_min_freq_request); 
+	    }
+	    
             m_is_adjust_initialized = true;
-            m_do_write_batch = true;
+            //m_do_write_batch = true;
         }
 
     }
@@ -252,11 +216,7 @@ namespace geopm
     // Read signals from the platform and calculate samples to be sent up
     void FixedFrequencyAgent::sample_platform(std::vector<double> &out_sample)
     {
-        assert(out_sample.size() == M_NUM_SAMPLE);
-        // Collect latest signal values
-        for (auto &sv : m_signal_available) {
-            sv.second.m_last_signal = m_platform_io.sample(sv.second.m_batch_idx);
-        }
+
     }
 
     // Wait for the remaining cycle time to keep Controller loop cadence at 1 second
@@ -288,34 +248,21 @@ namespace geopm
         return {};
     }
 
-    // Adds trace columns samples and signals of interest
     std::vector<std::string> FixedFrequencyAgent::trace_names(void) const
     {
         std::vector<std::string> names;
-        // Build name in the format: "NVML::FREQUENCY-board-0"
-        for (auto &sv : m_signal_available) {
-            names.push_back(sv.first + "-" + m_platform_topo.domain_type_to_name(GEOPM_DOMAIN_BOARD) + "-0");
-        }
         return names;
     }
 
     // Updates the trace with values for samples and signals from this Agent
     void FixedFrequencyAgent::trace_values(std::vector<double> &values)
     {
-        int values_idx = 0;
-        // Default assumption is that every signal added should be in the trace
-        for (auto &sv : m_signal_available) {
-            values[values_idx] = sv.second.m_last_signal;
-            ++values_idx;
-        }
+
     }
 
     std::vector<std::function<std::string(double)> > FixedFrequencyAgent::trace_formats(void) const
     {
         std::vector<std::function<std::string(double)>> trace_formats;
-        for (auto &sv : m_signal_available) {
-            trace_formats.push_back(m_platform_io.format_function(sv.first));
-        }
         return trace_formats;
     }
 
@@ -338,6 +285,7 @@ namespace geopm
                 "CORE_FREQUENCY",
                 "UNCORE_MIN_FREQUENCY",
                 "UNCORE_MAX_FREQUENCY",
+		"SAMPLE_PERIOD",
                };
     }
 
