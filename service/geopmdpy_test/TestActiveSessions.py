@@ -60,6 +60,14 @@ class TestActiveSessions(unittest.TestCase):
         st = os.stat(path)
         self.assertEqual(0o700, stat.S_IMODE(st.st_mode))
 
+    def check_getters(self, session, client_pid, signals, controls, watch_id):
+        self.assertIn(client_pid, session.get_clients())
+        self.assertEqual(signals, session.get_signals(client_pid))
+        self.assertEqual(controls, session.get_controls(client_pid))
+        self.assertEqual(watch_id, session.get_watch_id(client_pid))
+        self.assertFalse(session.get_batch_server(client_pid))
+        self.assertFalse(session.is_write_client(client_pid))
+
     def test_default_creation(self):
         """Default creation of an ActiveSessions object
 
@@ -179,14 +187,35 @@ class TestActiveSessions(unittest.TestCase):
     def test_update_reload(self):
         """Create add clients and create again
 
-        Create an ActiveSessions object with no directory present.
-        Add two clients to the object.  Create a new ActiveSessions
-        object pointing to the same path and check that the new object
-        returns the same values for the get_*() methods as the first
-        object.
+        Create an ActiveSessions object with a non-existent directory path.
+        The parent directory of said path must exist.  Add two clients to the
+        object.  Create a new ActiveSessions object pointing to the same path
+        and check that the new object returns the same values for the get_*()
+        methods as the first object.
 
         """
-        pass
+        client_pid_1 = 1234
+        signals_1 = ['INSTRUCTIONS_RETIRED', 'CPU_FREQUENCY']
+        controls_1 = ['CORE_FREQUENCY', 'POWER_LIMIT']
+        watch_id_1 = 4321
+
+        client_pid_2 = 4321
+        signals_2 = ['CORE_FREQUENCY', 'POWER_LIMIT']
+        controls_2 = ['INSTRUCTIONS_RETIRED', 'CPU_FREQUENCY']
+        watch_id_2 = 1234
+
+        sess_path = f'{self._TEMP_DIR.name}/geopm-service'
+        act_sess = ActiveSessions(sess_path)
+        self.check_dir_perms(sess_path)
+
+        act_sess.add_client(client_pid_1, signals_1, controls_1, watch_id_1)
+        self.check_getters(act_sess, client_pid_1, signals_1, controls_1, watch_id_1)
+        act_sess.add_client(client_pid_2, signals_2, controls_2, watch_id_2)
+        self.check_getters(act_sess, client_pid_2, signals_2, controls_2, watch_id_2)
+
+        new_act_sess = ActiveSessions(sess_path)
+        self.check_getters(new_act_sess, client_pid_1, signals_1, controls_1, watch_id_1)
+        self.check_getters(new_act_sess, client_pid_2, signals_2, controls_2, watch_id_2)
 
     def test_add_remove_client(self):
         """Add client session and remove it
@@ -199,7 +228,22 @@ class TestActiveSessions(unittest.TestCase):
         returns False.
 
         """
-        pass
+        client_pid = 1234
+        signals = ['INSTRUCTIONS_RETIRED', 'CPU_FREQUENCY']
+        controls = ['CORE_FREQUENCY', 'POWER_LIMIT']
+        watch_id = 4321
+
+        sess_path = f'{self._TEMP_DIR.name}/geopm-service'
+        act_sess = ActiveSessions(sess_path)
+        self.check_dir_perms(sess_path)
+
+        act_sess.add_client(client_pid, signals, controls, watch_id)
+        self.assertTrue(act_sess.is_client_active(client_pid))
+        self.check_getters(act_sess, client_pid, signals, controls, watch_id)
+
+        act_sess.remove_client(client_pid)
+        self.assertNotIn(client_pid, act_sess.get_clients())
+        self.assertFalse(act_sess.is_client_active(client_pid))
 
     def test_write_client(self):
         """Assign the write privileges to a client session
