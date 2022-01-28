@@ -82,6 +82,7 @@ namespace geopm
                 M_POLICY_CPU_FREQUENCY,
                 M_POLICY_UNCORE_MIN_FREQUENCY,
                 M_POLICY_UNCORE_MAX_FREQUENCY,
+		M_POLICY_SAMPLE_PERIOD,
                 M_NUM_POLICY
             };
             // Sample indices; must match sample_names()
@@ -93,26 +94,10 @@ namespace geopm
             const PlatformTopo &m_platform_topo;
 
             geopm_time_s m_last_wait;
-            const double M_WAIT_SEC;
-
+            double M_WAIT_SEC;
             bool m_do_write_batch;
             bool m_is_adjust_initialized;
       
-            struct signal
-            {
-                int m_batch_idx;
-                double m_last_signal;
-            };
-
-            std::map<std::string, signal> m_signal_available;
-
-            struct control
-            {
-                int m_batch_idx;
-                double m_last_setting;
-            };
-
-            std::map<std::string, control> m_control_available;
     };
 }
 
