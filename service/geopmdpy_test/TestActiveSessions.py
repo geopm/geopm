@@ -36,6 +36,7 @@ from unittest import mock
 import os
 import stat
 import tempfile
+from pathlib import Path
 
 from geopmdpy.varrun import ActiveSessions
 
@@ -55,10 +56,16 @@ class TestActiveSessions(unittest.TestCase):
 
     def check_dir_perms(self, path):
         """Assert that the path points to a file with mode 0o700
+        Assert that the user and group have the right permissions.
 
         """
         st = os.stat(path)
-        self.assertEqual(0o700, stat.S_IMODE(st.st_mode))
+        perm_mode = stat.S_IMODE(st.st_mode)
+        user_owner = st.st_uid
+        group_owner = st.st_gid
+        self.assertEqual(0o700, perm_mode)
+        self.assertEqual(os.getuid(), user_owner)
+        self.assertEqual(os.getgid(), group_owner)
 
     def check_getters(self, session, client_pid, signals, controls, watch_id):
         self.assertIn(client_pid, session.get_clients())
@@ -67,6 +74,24 @@ class TestActiveSessions(unittest.TestCase):
         self.assertEqual(watch_id, session.get_watch_id(client_pid))
         self.assertFalse(session.get_batch_server(client_pid))
         self.assertFalse(session.is_write_client(client_pid))
+
+    def create_json_file(self, directory, filename, permissions=0o600):
+        """Create a json file that  matches the ActiveSessions._session_schema
+
+        """
+        json_file_contents = """{
+            "client_pid" : 450,
+            "mode" : "0o700",
+            "signals" : ["ENERGY_DRAM", "FREQUENCY_MAX", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
+            "controls" : ["CPU_FREQUENCY_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
+            "watch_id" : 550
+        }
+        """
+        os.makedirs(directory, exist_ok=True)
+        full_path = os.path.join(directory, filename)
+        file = open(os.open(full_path, os.O_CREAT | os.O_WRONLY, permissions), 'w')
+        file.write(json_file_contents)
+        file.close()
 
     def test_default_creation(self):
         """Default creation of an ActiveSessions object
@@ -79,6 +104,58 @@ class TestActiveSessions(unittest.TestCase):
         act_sess = ActiveSessions(sess_path)
         self.check_dir_perms(sess_path)
 
+    def test_creation_link_not_dir(self):
+        """The path specified is a link not a directory.
+
+        Test creates an ActiveSessions object when the geopm-service
+        provided path is not a directory, but a link. It asserts that
+        a warning message is printed to standard error and that a
+        new directory is created while the link is renamed.
+
+        """
+        sess_path = f'{self._TEMP_DIR.name}/geopm-service-link'
+        os.symlink('/root', sess_path)
+        with mock.patch('os.path.islink', return_value=True), \
+             mock.patch('os.path.isdir', return_value=False), \
+             mock.patch('uuid.uuid4', return_value='uuid4'), \
+             mock.patch('sys.stderr.write', return_value=None) as mock_err:
+            act_sess = ActiveSessions(sess_path)
+            renamed_path = f'{sess_path}-uuid4-INVALID'
+            calls = [
+                mock.call(f'Warning: <geopm-service> {sess_path} is a symbolic link, the link will be renamed to {renamed_path}'),
+                mock.call(f'Warning: <geopm-service> the symbolic link points to /root')
+            ]
+            for cc, mc in zip(calls, mock_err.call_args_list):
+                self.assertEqual(cc, mc)
+        self.assertTrue(os.path.exists(renamed_path))
+        self.check_dir_perms(sess_path)
+
+    def test_creation_file_not_dir(self):
+        """The path specified is a file not a directory.
+
+        Test creates an ActiveSessions object when the geopm-service
+        provided path is not a directory, but a file. It asserts that
+        a warning message is printed to standard error and that a
+        new directory is created while the file is renamed.
+
+        """
+        sess_path = f'{self._TEMP_DIR.name}/geopm-service.txt'
+        filename = Path(sess_path)
+        filename.touch(exist_ok=True)
+        with mock.patch('os.path.islink', return_value=False), \
+             mock.patch('os.path.isdir', return_value=False), \
+             mock.patch('uuid.uuid4', return_value='uuid4'), \
+             mock.patch('sys.stderr.write', return_value=None) as mock_err:
+            act_sess = ActiveSessions(sess_path)
+            renamed_path = f'{sess_path}-uuid4-INVALID'
+            calls = [
+                mock.call(f'Warning: <geopm-service> {sess_path} is not a directory, it will be renamed to {renamed_path}')
+            ]
+            for cc, mc in zip(calls, mock_err.call_args_list):
+                self.assertEqual(cc, mc)
+        self.assertTrue(os.path.exists(renamed_path))
+        self.check_dir_perms(sess_path)
+
     def test_creation_bad_perms(self):
         """Directory exists with bad permissions
 
@@ -89,15 +166,30 @@ class TestActiveSessions(unittest.TestCase):
 
         """
         sess_path = f'{self._TEMP_DIR.name}/geopm-service'
-        os.umask(0o000)
         os.mkdir(sess_path, mode=0o755)
-        with mock.patch('sys.stderr.write', return_value=None) as mock_err:
+        bad_user = mock.MagicMock()
+        bad_user.st_uid = os.getuid()
+        bad_user.st_gid = os.getgid()
+        bad_user.st_mode = 0o755
+        with mock.patch('os.stat', return_value=bad_user), \
+             mock.patch('stat.S_IMODE', return_value=0o755), \
+             mock.patch('os.path.islink', return_value=False), \
+             mock.patch('os.path.isdir', return_value=True), \
+             mock.patch('uuid.uuid4', return_value='uuid4'), \
+             mock.patch('sys.stderr.write', return_value=None) as mock_err:
             act_sess = ActiveSessions(sess_path)
-            mock_err.assert_called_once_with(f'Warning: <geopm> {sess_path} has wrong permissions, reseting to 0o700, current value: 0o755')
+            renamed_path = f'{sess_path}-uuid4-INVALID'
+            calls = [
+                mock.call(f'Warning: <geopm-service> {sess_path} has wrong permissions, it will be renamed to {renamed_path}'),
+                mock.call(f'Warning: <geopm-service> the wrong permissions were {oct(bad_user.st_mode)}')
+            ]
+            for cc, mc in zip(calls, mock_err.call_args_list):
+                self.assertEqual(cc, mc)
+        self.assertTrue(os.path.exists(renamed_path))
         self.check_dir_perms(sess_path)
 
-    def test_creation_bad_owner(self):
-        """Directory exists with wrong owner
+    def test_creation_bad_user_owner(self):
+        """Directory exists with wrong user owner
 
         Test creates an ActiveSessions object when the geopm-service
         directory is present with wrong ownership.  It asserts that
@@ -106,61 +198,130 @@ class TestActiveSessions(unittest.TestCase):
 
         """
         sess_path = f'{self._TEMP_DIR.name}/geopm-service'
-        os.umask(0o077)
         os.mkdir(sess_path, mode=0o700)
         bad_user = mock.MagicMock()
         bad_user.st_uid = os.getuid() + 1
         bad_user.st_gid = os.getgid()
-        bad_user.st_mode = 0o600
-        good_user = mock.MagicMock()
-        good_user.st_uid = os.getuid()
-        good_user.st_gid = os.getgid()
-        good_user.st_mode = 0o600
-        side_effect = lambda path: 'bad_user' in path and bad_user or good_user
-        with mock.patch('os.stat', side_effect=side_effect), \
-             mock.patch('stat.S_IMODE', return_value=0o600), \
-             mock.patch('stat.S_ISREG', return_value=True), \
+        bad_user.st_mode = 0o700
+        with mock.patch('os.stat', return_value=bad_user), \
+             mock.patch('stat.S_IMODE', return_value=0o700), \
+             mock.patch('os.path.islink', return_value=False), \
+             mock.patch('os.path.isdir', return_value=True), \
+             mock.patch('uuid.uuid4', return_value='uuid4'), \
              mock.patch('sys.stderr.write', return_value=None) as mock_err:
             act_sess = ActiveSessions(sess_path)
+            renamed_path = f'{sess_path}-uuid4-INVALID'
+            calls = [
+                mock.call(f'Warning: <geopm-service> {sess_path} has wrong user owner, it will be renamed to {renamed_path}'),
+                mock.call(f'Warning: <geopm-service> the wrong user owner was {bad_user.st_uid}')
+            ]
+            for cc, mc in zip(calls, mock_err.call_args_list):
+                self.assertEqual(cc, mc)
+        self.assertTrue(os.path.exists(renamed_path))
         self.check_dir_perms(sess_path)
 
+    def test_creation_bad_group_owner(self):
+        """Directory exists with wrong group owner
+
+        Test creates an ActiveSessions object when the geopm-service
+        directory is present with wrong ownership.  It asserts that
+        a warning message is printed to standard error and that the
+        ownership is changed.
+
+        """
+        sess_path = f'{self._TEMP_DIR.name}/geopm-service'
+        os.mkdir(sess_path, mode=0o700)
+        bad_user = mock.MagicMock()
+        bad_user.st_uid = os.getuid()
+        bad_user.st_gid = os.getgid() + 1
+        bad_user.st_mode = 0o700
+        with mock.patch('os.stat', return_value=bad_user), \
+             mock.patch('stat.S_IMODE', return_value=0o700), \
+             mock.patch('os.path.islink', return_value=False), \
+             mock.patch('os.path.isdir', return_value=True), \
+             mock.patch('uuid.uuid4', return_value='uuid4'), \
+             mock.patch('sys.stderr.write', return_value=None) as mock_err:
+            act_sess = ActiveSessions(sess_path)
+            renamed_path = f'{sess_path}-uuid4-INVALID'
+            calls = [
+                mock.call(f'Warning: <geopm-service> {sess_path} has wrong group owner, it will be renamed to {renamed_path}'),
+                mock.call(f'Warning: <geopm-service> the wrong group owner was {bad_user.st_gid}')
+            ]
+            for cc, mc in zip(calls, mock_err.call_args_list):
+                self.assertEqual(cc, mc)
+        self.assertTrue(os.path.exists(renamed_path))
+        self.check_dir_perms(sess_path)
 
     def test_creation_sessions(self):
         """Valid session files are present in directory
 
         Test creates an ActiveSessions object when the geopm-service
-        directory has two JSON session files that both have valid
-        contents.  The test calls the get_*() interfaces to verify
-        that the files data reflects the contents of the session
-        files.
+        directory has one JSON session files that has valid contents.
+        The test calls the get_*() interfaces to verify that the files
+        data reflects the contents of the valid session file.
 
         """
-        pass
+        sess_path = f'{self._TEMP_DIR.name}/geopm-service'
+        self.create_json_file(sess_path, "session-1.json", 0o600)
+        with mock.patch('sys.stderr.write', return_value=None) as mock_err:
+            act_sess = ActiveSessions(sess_path)
+            self.check_getters(
+                act_sess,
+                450,
+                ["ENERGY_DRAM", "FREQUENCY_MAX", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
+                ["CPU_FREQUENCY_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
+                550
+            )
 
     def test_creation_bad_session_perms(self):
         """Bad permissions on session file
 
         Test creates an ActiveSessions object when the geopm-service
-        directory has two JSON session files, one that meets all
-        requirements and another that has permissions mode 0o644.  The
-        test asserts that the valid file is parsed properly.  The test
-        also asserts that the invalid file is not used, deleted and a
+        directory has one JSON session files,  that has permissions mode 0o644.
+        The test asserts that the invalid file is not used, deleted and a
         warning message is printed.  This message should contain the
         user and group IDs of the file with invalid permissions as
         well as the file creation time.
 
         """
+        sess_path = f'{self._TEMP_DIR.name}/geopm-service'
+        self.create_json_file(sess_path, "session-2.json", 0o644)
 
-        pass
+        dir_mock = mock.MagicMock()
+        dir_mock.st_uid = os.getuid()
+        dir_mock.st_gid = os.getgid()
+        dir_mock.st_mode = 0o700
 
-    def test_creation_bad_session_owner(self):
-        """Bad owner of session file
+        session_2_mock = mock.MagicMock()
+        session_2_mock.st_uid = os.getuid()
+        session_2_mock.st_gid = os.getgid()
+        session_2_mock.st_mode = 0o644
+
+        # os.stat() is called twice in the test with different parameters types
+        # first time in __init__() it is called with a string to determine the directory
+        # second time in _load_session_file() it is called with a file descriptor to determine the file
+        # based on the data type we use a different mock for the os.stat()
+        side_effect = lambda path: type(path) is int and session_2_mock or dir_mock
+
+        with mock.patch('os.stat', side_effect=side_effect), \
+             mock.patch('os.path.islink', return_value=False), \
+             mock.patch('os.path.isdir', return_value=True), \
+             mock.patch('uuid.uuid4', return_value='uuid4'), \
+             mock.patch('sys.stderr.write', return_value=None) as mock_err:
+            act_sess = ActiveSessions(sess_path)
+            calls = [
+                mock.call(f'Warning: <geopm-service> session file was discovered with invalid permissions, will be ignored and removed: {os.path.join(sess_path, "session-2.json")}'),
+                mock.call(f'Warning: <geopm-service> the wrong permissions were {oct(0o644)}')
+            ]
+            for cc, mc in zip(calls, mock_err.call_args_list):
+                self.assertEqual(cc, mc)
+
+    def test_creation_bad_session_user_owner(self):
+        """Bad user owner of session file
 
         Test creates an ActiveSessions object when the geopm-service
-        directory has two JSON session files, one that meets all
-        requirements and another that apears to be owned by a
+        directory has one JSON session file, that apears to be owned by a
         different user through a mock patch of os.stat().  The test
-        asserts that the valid file is parsed properly.  The test also
         asserts that the invalid file is not used, deleted and a
         warning message is printed.  This message should contain the
         user and group IDs of the file with invalid ownership as well
@@ -168,21 +329,82 @@ class TestActiveSessions(unittest.TestCase):
 
         """
         sess_path = f'{self._TEMP_DIR.name}/geopm-service'
-        # TODO: Add files including one with 'bad_user' in name
-        bad_user = mock.MagicMock()
-        bad_user.st_uid = os.getuid() + 1
-        bad_user.st_gid = os.getgid()
-        bad_user.st_mode = 0o600
-        good_user = mock.MagicMock()
-        good_user.st_uid = os.getuid()
-        good_user.st_gid = os.getgid()
-        good_user.st_mode = 0o600
-        side_effect = lambda path: 'bad_user' in path and bad_user or good_user
+        self.create_json_file(sess_path, "session-3.json", 0o644)
+        full_file_path = os.path.join(sess_path, "session-3.json")
+
+        dir_mock = mock.MagicMock()
+        dir_mock.st_uid = os.getuid()
+        dir_mock.st_gid = os.getgid()
+        dir_mock.st_mode = 0o700
+
+        session_3_mock = mock.MagicMock()
+        session_3_mock.st_uid = os.getuid() + 1
+        session_3_mock.st_gid = os.getgid()
+        session_3_mock.st_mode = 0o600
+
+        # os.stat() is called twice in the test with different parameters types
+        # first time in __init__() it is called with a string to determine the directory
+        # second time in _load_session_file() it is called with a file descriptor to determine the file
+        # based on the data type we use a different mock for the os.stat()
+        side_effect = lambda path: type(path) is int and session_3_mock or dir_mock
+
         with mock.patch('os.stat', side_effect=side_effect), \
-             mock.patch('stat.S_IMODE', return_value=0o600), \
-             mock.patch('stat.S_ISREG', return_value=True):
+             mock.patch('os.path.islink', return_value=False), \
+             mock.patch('os.path.isdir', return_value=True), \
+             mock.patch('uuid.uuid4', return_value='uuid4'), \
+             mock.patch('sys.stderr.write', return_value=None) as mock_err:
             act_sess = ActiveSessions(sess_path)
-        # TODO: Add assertions
+            calls = [
+                mock.call(f'Warning: <geopm-service> session file was discovered with invalid permissions, will be ignored and removed: {full_file_path}'),
+                mock.call(f'Warning: <geopm-service> the wrong user owner was {session_3_mock.st_uid}')
+            ]
+            for cc, mc in zip(calls, mock_err.call_args_list):
+                self.assertEqual(cc, mc)
+
+    def test_creation_bad_session_group_owner(self):
+        """Bad group owner of session file
+
+        Test creates an ActiveSessions object when the geopm-service
+        directory has one JSON session file, that apears to be owned by a
+        different group through a mock patch of os.stat().  The test
+        asserts that the invalid file is not used, deleted and a
+        warning message is printed.  This message should contain the
+        user and group IDs of the file with invalid ownership as well
+        as the file creation time.
+
+        """
+        sess_path = f'{self._TEMP_DIR.name}/geopm-service'
+        self.create_json_file(sess_path, "session-4.json", 0o644)
+        full_file_path = os.path.join(sess_path, "session-4.json")
+
+        dir_mock = mock.MagicMock()
+        dir_mock.st_uid = os.getuid()
+        dir_mock.st_gid = os.getgid()
+        dir_mock.st_mode = 0o700
+
+        session_4_mock = mock.MagicMock()
+        session_4_mock.st_uid = os.getuid()
+        session_4_mock.st_gid = os.getgid() + 1
+        session_4_mock.st_mode = 0o600
+
+        # os.stat() is called twice in the test with different parameters types
+        # first time in __init__() it is called with a string to determine the directory
+        # second time in _load_session_file() it is called with a file descriptor to determine the file
+        # based on the data type we use a different mock for the os.stat()
+        side_effect = lambda path: type(path) is int and session_4_mock or dir_mock
+
+        with mock.patch('os.stat', side_effect=side_effect), \
+             mock.patch('os.path.islink', return_value=False), \
+             mock.patch('os.path.isdir', return_value=True), \
+             mock.patch('uuid.uuid4', return_value='uuid4'), \
+             mock.patch('sys.stderr.write', return_value=None) as mock_err:
+            act_sess = ActiveSessions(sess_path)
+            calls = [
+                mock.call(f'Warning: <geopm-service> session file was discovered with invalid permissions, will be ignored and removed: {full_file_path}'),
+                mock.call(f'Warning: <geopm-service> the wrong group owner was {session_4_mock.st_gid}')
+            ]
+            for cc, mc in zip(calls, mock_err.call_args_list):
+                self.assertEqual(cc, mc)
 
     def test_update_reload(self):
         """Create add clients and create again

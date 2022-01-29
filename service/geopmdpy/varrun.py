@@ -78,9 +78,13 @@ class ActiveSessions(object):
         restricted access permissions (mode: 0o700).
 
         If the path points to a symbolic link, the link will be
-        deleted and a warning is printed to the syslog.  The directory
+        renamed and a warning is printed to the syslog.  The directory
         will then be created in its place.  The warning message will
-        display the user and group permissions of the directory being
+        display the target of the symbolic link. If the path points
+        to a directory which is not accessible, the directory will be
+        renamed and a warning is printed to the syslog. The warning
+        message will display the reason why the directory was not
+        accessible, display the permissions or user and group of the directory being
         deleteted.
 
         When an ActiveSessions object is created and the directory
@@ -126,20 +130,48 @@ class ActiveSessions(object):
             'additionalProperties' : False,
             'required' : ['client_pid', 'mode', 'signals', 'controls']
         }
-        if os.path.islink(self._VAR_PATH):
-            # TODO enhance warning message to provide user and group
-            # ownership of the symbolic link that was deleted
-            sys.stderr.write(f'Warning: <geopm> {self._VAR_PATH} is a symbolic link, the link will be deleted')
-            os.unlink(self._VAR_PATH)
-        if not os.path.isdir(self._VAR_PATH):
-            os.mkdir(self._VAR_PATH, mode=0o700)
+        if os.path.exists(self._VAR_PATH):
+            is_valid = True
+            renamed_path = f'{self._VAR_PATH}-{uuid.uuid4()}-INVALID'
+            # If it's a link
+            if os.path.islink(self._VAR_PATH):
+                is_valid = False
+                sys.stderr.write(f'Warning: <geopm-service> {self._VAR_PATH} is a symbolic link, the link will be renamed to {renamed_path}')
+                sys.stderr.write(f'Warning: <geopm-service> the symbolic link points to {os.readlink(self._VAR_PATH)}')
+            # If it's a so-called "regular file"
+            elif not os.path.isdir(self._VAR_PATH):
+                is_valid = False
+                sys.stderr.write(f'Warning: <geopm-service> {self._VAR_PATH} is not a directory, it will be renamed to {renamed_path}')
+            # If it's a directory
+            else:
+                st = os.stat(self._VAR_PATH)
+                # If the permissions is not what we wanted
+                perm_mode = stat.S_IMODE(st.st_mode)
+                if perm_mode != 0o700:
+                    sys.stderr.write(f'Warning: <geopm-service> {self._VAR_PATH} has wrong permissions, it will be renamed to {renamed_path}')
+                    sys.stderr.write(f'Warning: <geopm-service> the wrong permissions were {oct(perm_mode)}')
+                    is_valid = False
+                # If the user owner is not what we wanted
+                user_owner = st.st_uid
+                if user_owner != os.getuid():
+                    sys.stderr.write(f'Warning: <geopm-service> {self._VAR_PATH} has wrong user owner, it will be renamed to {renamed_path}')
+                    sys.stderr.write(f'Warning: <geopm-service> the wrong user owner was {user_owner}')
+                    is_valid = False
+                # If the group owner is not what we wanted
+                group_owner = st.st_gid
+                if group_owner != os.getgid():
+                    sys.stderr.write(f'Warning: <geopm-service> {self._VAR_PATH} has wrong group owner, it will be renamed to {renamed_path}')
+                    sys.stderr.write(f'Warning: <geopm-service> the wrong group owner was {group_owner}')
+                    is_valid = False
+            # If one of the three above branches revealed invalid file
+            if not is_valid:
+                os.rename(self._VAR_PATH, renamed_path)
+                os.mkdir(self._VAR_PATH, mode=0o700)
+        # If the path doesn't exist
         else:
-            # Do we need a chown? print a warning?
-            st = os.stat(self._VAR_PATH)
-            perm_mode = stat.S_IMODE(st.st_mode)
-            if perm_mode != 0o700:
-                sys.stderr.write(f'Warning: <geopm> {self._VAR_PATH} has wrong permissions, reseting to 0o700, current value: {oct(perm_mode)}')
-                os.chmod(self._VAR_PATH, mode=0o700)
+            os.mkdir(self._VAR_PATH, mode=0o700)
+
+        # Load all session files in the directory
         for sess_path in glob.glob(self._get_session_path('*')):
             self._load_session_file(sess_path)
 
@@ -454,9 +486,14 @@ class ActiveSessions(object):
                     stat.S_IMODE(sess_stat.st_mode) == 0o600 and
                     sess_stat.st_uid == self._daemon_uid and
                     sess_stat.st_gid == self._daemon_gid):
-                # TODO: more verbose logging of user and group id
-                err_msg = f'Warning: <geopm-service> session file was discovered with invalid permissions, will be ignored and removed: {sess_path}\n'
-                sys.stderr.write(err_msg)
+                sys.stderr.write(f'Warning: <geopm-service> session file was discovered with invalid permissions, will be ignored and removed: {sess_path}')
+                if stat.S_IMODE(sess_stat.st_mode) != 0o600:
+                    sys.stderr.write(f'Warning: <geopm-service> the wrong permissions were {oct(sess_stat.st_mode)}')
+                if sess_stat.st_uid != self._daemon_uid:
+                    sys.stderr.write(f'Warning: <geopm-service> the wrong user owner was {sess_stat.st_uid}')
+                if sess_stat.st_gid != self._daemon_gid:
+                    sys.stderr.write(f'Warning: <geopm-service> the wrong group owner was {sess_stat.st_gid}')
+
                 os.unlink(sess_path)
                 return  # Bad permissions return early
             sess = json.load(fid)
