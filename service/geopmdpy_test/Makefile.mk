@@ -122,11 +122,15 @@ GEOPMDPY_TESTS = geopmdpy_test/pytest_links/TestPlatformService.test__read_allow
                  geopmdpy_test/pytest_links/TestTimedLoop.test_timed_loop_fixed \
                  geopmdpy_test/pytest_links/TestTimedLoop.test_timed_loop_infinite \
                  geopmdpy_test/pytest_links/TestTimedLoop.test_timed_loop_invalid \
-                 geopmdpy_test/pytest_links/TestActiveSessions.test_default_creation \
+                 geopmdpy_test/pytest_links/TestActiveSessions.test_creation_link_not_dir \
+                 geopmdpy_test/pytest_links/TestActiveSessions.test_creation_file_not_dir \
                  geopmdpy_test/pytest_links/TestActiveSessions.test_creation_bad_perms \
-                 geopmdpy_test/pytest_links/TestActiveSessions.test_watch_id \
-                 geopmdpy_test/pytest_links/TestActiveSessions.test_batch_server \
-                 geopmdpy_test/pytest_links/TestActiveSessions.test_write_client \
+                 geopmdpy_test/pytest_links/TestActiveSessions.test_creation_bad_user_owner \
+                 geopmdpy_test/pytest_links/TestActiveSessions.test_creation_bad_group_owner \
+                 geopmdpy_test/pytest_links/TestActiveSessions.test_creation_sessions \
+                 geopmdpy_test/pytest_links/TestActiveSessions.test_creation_bad_session_perms \
+                 geopmdpy_test/pytest_links/TestActiveSessions.test_creation_bad_session_user_owner \
+                 geopmdpy_test/pytest_links/TestActiveSessions.test_creation_bad_session_group_owner \
                  # end
 
 TESTS += $(GEOPMDPY_TESTS)
