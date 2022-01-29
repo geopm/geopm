@@ -168,9 +168,9 @@ mkdir -p %{buildroot}%{_sysconfdir}/geopm-service
 
 %files -n python%{python3_pkgversion}-geopmdpy
 %{expand:%{python%{python_major_version}_sitelib}}/*
-%doc ${_mandir}/man1/geopmaccess.1.gz
-%doc ${_mandir}/man1/geopmsession.1.gz
-%doc ${_mandir}/man7/geopmdpy.7.gz
+%doc %{_mandir}/man1/geopmaccess.1.gz
+%doc %{_mandir}/man1/geopmsession.1.gz
+%doc %{_mandir}/man7/geopmdpy.7.gz
 %{_bindir}/geopmaccess
 %{_bindir}/geopmsession
 
