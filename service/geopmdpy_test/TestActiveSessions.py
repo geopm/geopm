@@ -145,7 +145,7 @@ class TestActiveSessions(unittest.TestCase):
         self.assertEqual(signals, session.get_signals(client_pid))
         self.assertEqual(controls, session.get_controls(client_pid))
         self.assertEqual(watch_id, session.get_watch_id(client_pid))
-        self.assertFalse(session.get_batch_server(client_pid))
+        self.assertIsNone(session.get_batch_server(client_pid))
         self.assertFalse(session.is_write_client(client_pid))
 
     def create_json_file(self, directory, filename, contents, permissions=0o600):
@@ -604,9 +604,48 @@ class TestActiveSessions(unittest.TestCase):
         act_sess.set_batch_server(client_pid, batch_server)
         batch_server_actual = act_sess.get_batch_server(client_pid)
         self.assertEqual(batch_server, batch_server_actual)
-        new_act_sess = ActiveSessions(sess_path)
+        with mock.patch('geopmdpy.varrun.ActiveSessions._is_pid_valid', return_value=True) as mock_pid_valid:
+            new_act_sess = ActiveSessions(sess_path)
         batch_server_actual = new_act_sess.get_batch_server(client_pid)
         self.assertEqual(batch_server, batch_server_actual)
+
+    def test_batch_server_service_restart(self):
+        """Verify batch pid is returned if it was previously active
+
+        If a batch server was running when the service was started
+        it should be returned properly when requested.
+
+        """
+        batch_pid = 42
+        client_pid = self.json_good_example['client_pid']
+
+        self.json_good_example['batch_server'] = batch_pid
+        sess_path = f'{self._TEMP_DIR.name}/geopm-service'
+        self.create_json_file(sess_path, 'session-1.json', self.json_good_example, 0o600)
+
+        dir_mock = mock.create_autospec(os.stat_result, spec_set=True)
+        dir_mock.st_uid = os.getuid()
+        dir_mock.st_gid = os.getgid()
+        dir_mock.st_mode = 0o700
+
+        session_mock = mock.create_autospec(os.stat_result, spec_set=True)
+        session_mock.st_uid = os.getuid()
+        session_mock.st_gid = os.getgid()
+        session_mock.st_ctime = 123
+        session_mock.st_mode = 0o600 | stat.S_IFREG
+
+        side_effect = [dir_mock, session_mock]
+
+        with mock.patch('os.stat', side_effect=side_effect), \
+             mock.patch('os.path.islink', return_value=False), \
+             mock.patch('os.path.isdir', return_value=True), \
+             mock.patch('os.path.exists', return_value=True), \
+             mock.patch('geopmdpy.varrun.ActiveSessions._is_pid_valid', return_value=True) as mock_pid_valid:
+            act_sess = ActiveSessions(sess_path)
+            calls = [mock.call(session_mock.st_ctime, client_pid),
+                     mock.call(session_mock.st_ctime, batch_pid)]
+            mock_pid_valid.assert_has_calls(calls)
+        self.assertEqual(batch_pid, act_sess.get_batch_server(client_pid))
 
     def test_watch_id(self):
         """Assign the watch_id to a client session
