@@ -195,7 +195,7 @@ class ActiveSessions(object):
         session_path = self._get_session_path(client_pid)
         if not result and os.path.isfile(session_path):
             # TODO print and delete, dont raise
-            raise RuntimeError(f'Session file exists, but client {client_pid} is not tracked: {session_file}')
+            raise RuntimeError(f'Session file exists, but client {client_pid} is not tracked: {session_path}')
         return result
 
     def check_client_active(self, client_pid, msg=''):
@@ -497,13 +497,13 @@ class ActiveSessions(object):
 
                 os.rename(sess_path, renamed_path)
                 return  # Bad permissions return early
-            sess = json.load(fid)
-        try:
-            jsonschema.validate(sess, schema=self._session_schema)
-        except:
-            sys.stderr.write(f'Warning: <geopm-service> Invalid JSON file, unable to parse, renamed{sess_path} to {renamed_path} and will ignore')
-            os.rename(sess_path, renamed_path)
-            return # Invalid JSON return early
+            try:
+                sess = json.load(fid)
+                jsonschema.validate(sess, schema=self._session_schema)
+            except:
+                sys.stderr.write(f'Warning: <geopm-service> Invalid JSON file, unable to parse, renamed{sess_path} to {renamed_path} and will ignore')
+                os.rename(sess_path, renamed_path)
+                return # Invalid JSON return early
         file_time = sess_stat.st_ctime
         client_pid = sess['client_pid']
         if client_pid != self._INVALID_PID:
