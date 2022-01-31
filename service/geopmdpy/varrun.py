@@ -497,6 +497,19 @@ class ActiveSessions(object):
             json.dump(sess, fid)
         os.rename(session_path_tmp, session_path)
 
+    def _is_pid_valid(self, file_time, pid):
+        result = True
+        try:
+            proc_time = psutil.Process(pid).create_time()
+            # TODO: Write test to check this comparison logic
+            if proc_time >= file_time:
+                # PID has been recycled, return false
+                result = False
+        except psutil.NoSuchProcess:
+            # PID is no longer active
+            result = False
+        return result
+
     def _load_session_file(self, sess_path):
         """Load the session file into memory
 
@@ -536,14 +549,18 @@ class ActiveSessions(object):
         file_time = sess_stat.st_ctime
         client_pid = sess['client_pid']
         if client_pid != self._INVALID_PID:
-            try:
-                proc_time = psutil.Process(client_pid).create_time()
-                # TODO: Write test to check this comparison logic
-                if proc_time >= file_time:
-                    # PID has been recycled, so set it to invalid
-                    sess['client_pid'] = self._INVALID_PID
-            except psutil.NoSuchProcess:
-                # PID is no longer active, so set it to invalid
+            if not self._is_pid_valid(file_time, client_pid):
                 sess['client_pid'] = self._INVALID_PID
+                if sess.get('batch_server') is not None:
+                    sess.pop('batch_server')
+            else: # Valid session; verify batch server
+                batch_pid = sess.get('batch_server')
+                if batch_pid is not None:
+                    if not self._is_pid_valid(file_time, batch_pid):
+                        sess.pop('batch_server')
+        else: # Invalid client PID; Do we need this else?
+            if sess.get('batch_server') is not None:
+                sess.pop('batch_server')
+
         self._sessions[client_pid] = dict(sess)
         self._update_session_file(client_pid)
