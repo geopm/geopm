@@ -73,7 +73,7 @@ test ${SETTING} != ${START_VALUE} ||
 # START A SESSION THAT WRITES THE CONTROL VALUE
 echo "${REQUEST} ${SETTING}" | setsid geopmsession -w -t 10 &
 SESSION_ID=$!
-sleep 1
+sleep 4
 
 # READ THE CONTROLLED REGISTER
 SESSION_VALUE=$(echo ${REQUEST} | geopmsession)

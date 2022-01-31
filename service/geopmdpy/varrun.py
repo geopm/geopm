@@ -479,6 +479,7 @@ class ActiveSessions(object):
         os.rename(session_path_tmp, session_path)
 
     def _load_session_file(self, sess_path):
+        renamed_path = f'{sess_path}-{uuid.uuid4()}-INVALID'
         with open(sess_path) as fid:
             sess_stat = os.stat(fid.fileno())
             # Check required permissions
@@ -494,11 +495,16 @@ class ActiveSessions(object):
                 if sess_stat.st_gid != self._daemon_gid:
                     sys.stderr.write(f'Warning: <geopm-service> the wrong group owner was {sess_stat.st_gid}')
 
-                os.unlink(sess_path)
+                os.rename(sess_path, renamed_path)
                 return  # Bad permissions return early
             sess = json.load(fid)
+        try:
+            jsonschema.validate(sess, schema=self._session_schema)
+        except:
+            sys.stderr.write(f'Warning: <geopm-service> Invalid JSON file, unable to parse, renamed{sess_path} to {renamed_path} and will ignore')
+            os.rename(sess_path, renamed_path)
+            return # Invalid JSON return early
         file_time = sess_stat.st_ctime
-        jsonschema.validate(sess, schema=self._session_schema)
         client_pid = sess['client_pid']
         if client_pid != self._INVALID_PID:
             try:
