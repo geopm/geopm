@@ -35,12 +35,85 @@ import unittest
 from unittest import mock
 import os
 import stat
+import json
 import tempfile
 from pathlib import Path
 
 from geopmdpy.varrun import ActiveSessions
 
 class TestActiveSessions(unittest.TestCase):
+    json_good_example = {
+        "client_pid" : 750,
+        "mode" : "r",
+        "signals" : ["ENERGY_DRAM", "FREQUENCY_MAX", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
+        "controls" : ["CPU_FREQUENCY_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
+        "watch_id" : 754
+    }
+    json_good_example_2 = {
+        "client_pid" : 450,
+        "mode" : "r",
+        "signals" : ["ENERGY_DRAM", "FREQUENCY_MAX", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
+        "controls" : ["CPU_FREQUENCY_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
+        "watch_id" : 550
+    }
+    json_empty_signals_controls = {
+        "client_pid" : 450,
+        "mode" : "r",
+        "signals" : [],
+        "controls" : [],
+        "watch_id" : 550
+    }
+    json_no_mode = {
+        "client_pid" : 450,
+        "signals" : ["ENERGY_DRAM", "FREQUENCY_MAX", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
+        "controls" : ["CPU_FREQUENCY_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
+        "watch_id" : 550
+    }
+    json_bad_mode = {
+        "client_pid" : 450,
+        "mode" : "r",
+        "signals" : ["ENERGY_DRAM", "FREQUENCY_MAX", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
+        "controls" : ["CPU_FREQUENCY_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
+        "watch_id" : 550
+    }
+    json_wrong_data_types = {
+        "client_pid" : "450",
+        "mode" : "r",
+        "signals" : ["ENERGY_DRAM", "FREQUENCY_MAX", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
+        "controls" : ["CPU_FREQUENCY_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
+        "watch_id" : "550"
+    }
+    json_additional_properties = {
+        "client_pid" : 450,
+        "mode" : "r",
+        "signals" : ["ENERGY_DRAM", "FREQUENCY_MAX", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
+        "controls" : ["CPU_FREQUENCY_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
+        "actuators" : ["ENERGY_DRAM", "FREQUENCY_MIN", "MSR::IA32_PERFEVTSEL0:CMASK"],
+        "watch_id" : 550,
+        "batch_id" : 450,
+    }
+    json_list_of_2 = [ json_good_example, json_good_example_2 ]
+    json_empty_dictionary = {}
+    string_empty_file = ""
+    string_typos_json = """{
+        "client_pid" : 450,
+        "mode" : "r"
+        "signals",  ["ENERGY_DRAM", "FREQUENCY_MAX", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
+        "controls" : ["CPU_FREQUENCY_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
+        "watch_id" 550,
+    }
+    """
+    string_c_code = """
+    #include <stdio.h>
+    #include <stdlib.h>
+    int main(void) {
+        int i = 0;
+        for (i = 0; "Hello World"[i] != '\0'; i++)
+            putchar(i["Hello World"]);
+        return i;
+    }
+    """
+
     def setUp(self):
         """Create temporary directory
 
@@ -75,23 +148,19 @@ class TestActiveSessions(unittest.TestCase):
         self.assertFalse(session.get_batch_server(client_pid))
         self.assertFalse(session.is_write_client(client_pid))
 
-    def create_json_file(self, directory, filename, permissions=0o600):
+    def create_json_file(self, directory, filename, contents, permissions=0o600):
         """Create a json file that  matches the ActiveSessions._session_schema
 
         """
-        json_file_contents = """{
-            "client_pid" : 450,
-            "mode" : "0o700",
-            "signals" : ["ENERGY_DRAM", "FREQUENCY_MAX", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
-            "controls" : ["CPU_FREQUENCY_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
-            "watch_id" : 550
-        }
-        """
         os.makedirs(directory, exist_ok=True)
         full_path = os.path.join(directory, filename)
-        file = open(os.open(full_path, os.O_CREAT | os.O_WRONLY, permissions), 'w')
-        file.write(json_file_contents)
-        file.close()
+        with open(os.open(full_path, os.O_CREAT | os.O_WRONLY, permissions), 'w') as file:
+            # write a string to the file
+            if type(contents) is str:
+                file.write(contents)
+            # write a json file as a dictionary
+            else:
+                json.dump(contents, file)
 
     def test_default_creation(self):
         """Default creation of an ActiveSessions object
@@ -252,27 +321,6 @@ class TestActiveSessions(unittest.TestCase):
         self.assertTrue(os.path.exists(renamed_path))
         self.check_dir_perms(sess_path)
 
-    def test_creation_sessions(self):
-        """Valid session files are present in directory
-
-        Test creates an ActiveSessions object when the geopm-service
-        directory has one JSON session files that has valid contents.
-        The test calls the get_*() interfaces to verify that the files
-        data reflects the contents of the valid session file.
-
-        """
-        sess_path = f'{self._TEMP_DIR.name}/geopm-service'
-        self.create_json_file(sess_path, "session-1.json", 0o600)
-        with mock.patch('sys.stderr.write', return_value=None) as mock_err:
-            act_sess = ActiveSessions(sess_path)
-            self.check_getters(
-                act_sess,
-                450,
-                ["ENERGY_DRAM", "FREQUENCY_MAX", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
-                ["CPU_FREQUENCY_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
-                550
-            )
-
     def test_creation_bad_session_perms(self):
         """Bad permissions on session file
 
@@ -285,7 +333,7 @@ class TestActiveSessions(unittest.TestCase):
 
         """
         sess_path = f'{self._TEMP_DIR.name}/geopm-service'
-        self.create_json_file(sess_path, "session-2.json", 0o644)
+        self.create_json_file(sess_path, "session-2.json", self.json_good_example, 0o644)
 
         dir_mock = mock.MagicMock()
         dir_mock.st_uid = os.getuid()
@@ -329,7 +377,7 @@ class TestActiveSessions(unittest.TestCase):
 
         """
         sess_path = f'{self._TEMP_DIR.name}/geopm-service'
-        self.create_json_file(sess_path, "session-3.json", 0o644)
+        self.create_json_file(sess_path, "session-3.json", self.json_good_example, 0o644)
         full_file_path = os.path.join(sess_path, "session-3.json")
 
         dir_mock = mock.MagicMock()
@@ -374,7 +422,7 @@ class TestActiveSessions(unittest.TestCase):
 
         """
         sess_path = f'{self._TEMP_DIR.name}/geopm-service'
-        self.create_json_file(sess_path, "session-4.json", 0o644)
+        self.create_json_file(sess_path, "session-4.json", self.json_good_example, 0o644)
         full_file_path = os.path.join(sess_path, "session-4.json")
 
         dir_mock = mock.MagicMock()
@@ -405,6 +453,61 @@ class TestActiveSessions(unittest.TestCase):
             ]
             for cc, mc in zip(calls, mock_err.call_args_list):
                 self.assertEqual(cc, mc)
+
+    def check_json_file(self, name, contents, is_valid):
+        sess_path = f'{self._TEMP_DIR.name}/geopm-service'
+        self.create_json_file(sess_path, f"session-{name}.json", contents, 0o600)
+        full_file_path = os.path.join(sess_path, f"session-{name}.json")
+        renamed_path = f'{full_file_path}-uuid4-INVALID'
+        with mock.patch('uuid.uuid4', return_value='uuid4'), \
+             mock.patch('sys.stderr.write', return_value=None) as mock_err:
+            act_sess = ActiveSessions(sess_path)
+            calls = [
+                mock.call(f'Warning: <geopm-service> Invalid JSON file, unable to parse, renamed{full_file_path} to {renamed_path} and will ignore')
+            ]
+            if is_valid:
+                self.assertTrue(mock_err.empty())
+                self.check_getters(
+                    act_sess,
+                    contents["client_pid"],
+                    contents["signals"],
+                    contents["controls"],
+                    contents["watch_id"]
+                )
+            else:
+                for cc, mc in zip(calls, mock_err.call_args_list):
+                    self.assertEqual(cc, mc)
+        if os.path.exists(full_file_path):
+            os.unlink(full_file_path)
+        if os.path.exists(renamed_path):
+            os.unlink(renamed_path)
+
+    def test_creation_json(self):
+        """Create various different valid and invalid JSON files
+
+        """
+        # Valid JSON file no batch server field
+        self.check_json_file("good_example", self.json_good_example, True)
+        # Valid JSON file with signals and controls fields are empty lists
+        self.check_json_file("empty_signals_controls", self.json_empty_signals_controls, True)
+        # Invalid JSON file which does not have the mode field
+        self.check_json_file("no_mode", self.json_no_mode, False)
+        # Invalid JSON file which has a value for the mode field not "r" or "rw"
+        self.check_json_file("bad_mode", self.json_bad_mode, False)
+        # Invalid JSON file which has all the right fields, but the data types of the respective values are wrong.
+        self.check_json_file("wrong_data_types", self.json_wrong_data_types, False)
+        # Invalid JSON file which has additional extraneous fields
+        self.check_json_file("additional_properties", self.json_additional_properties, False)
+        # Invalid JSON file having two sessions instead of one, which is not allowed.
+        self.check_json_file("list_of_2", self.json_list_of_2, False)
+        # Invalid JSON file having no sessions at all!
+        self.check_json_file("empty_dictionary", self.json_empty_dictionary, False)
+        # Invalid string file which is an empty file
+        self.check_json_file("string_empty_file", self.string_empty_file, False)
+        # Invalid string file which is a JSON with typos
+        self.check_json_file("string_typos_json", self.string_typos_json, False)
+        # Invalid string file which is a C source code
+        self.check_json_file("string_c_code", self.string_c_code, False)
 
     def test_update_reload(self):
         """Create add clients and create again

@@ -29,7 +29,8 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += geopmdpy_test/__main__.py \
+EXTRA_DIST += geopmdpy_test/__init__.py \
+              geopmdpy_test/__main__.py \
               geopmdpy_test/geopmdpy_test.sh \
               geopmdpy_test/TestAccess.py \
               geopmdpy_test/TestPlatformService.py \
@@ -122,15 +123,16 @@ GEOPMDPY_TESTS = geopmdpy_test/pytest_links/TestPlatformService.test__read_allow
                  geopmdpy_test/pytest_links/TestTimedLoop.test_timed_loop_fixed \
                  geopmdpy_test/pytest_links/TestTimedLoop.test_timed_loop_infinite \
                  geopmdpy_test/pytest_links/TestTimedLoop.test_timed_loop_invalid \
+                 geopmdpy_test/pytest_links/TestActiveSessions.test_default_creation \
                  geopmdpy_test/pytest_links/TestActiveSessions.test_creation_link_not_dir \
                  geopmdpy_test/pytest_links/TestActiveSessions.test_creation_file_not_dir \
                  geopmdpy_test/pytest_links/TestActiveSessions.test_creation_bad_perms \
                  geopmdpy_test/pytest_links/TestActiveSessions.test_creation_bad_user_owner \
                  geopmdpy_test/pytest_links/TestActiveSessions.test_creation_bad_group_owner \
-                 geopmdpy_test/pytest_links/TestActiveSessions.test_creation_sessions \
                  geopmdpy_test/pytest_links/TestActiveSessions.test_creation_bad_session_perms \
                  geopmdpy_test/pytest_links/TestActiveSessions.test_creation_bad_session_user_owner \
                  geopmdpy_test/pytest_links/TestActiveSessions.test_creation_bad_session_group_owner \
+                 geopmdpy_test/pytest_links/TestActiveSessions.test_creation_json \
                  # end
 
 TESTS += $(GEOPMDPY_TESTS)
