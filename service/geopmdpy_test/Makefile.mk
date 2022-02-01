@@ -133,6 +133,11 @@ GEOPMDPY_TESTS = geopmdpy_test/pytest_links/TestPlatformService.test__read_allow
                  geopmdpy_test/pytest_links/TestActiveSessions.test_creation_bad_session_user_owner \
                  geopmdpy_test/pytest_links/TestActiveSessions.test_creation_bad_session_group_owner \
                  geopmdpy_test/pytest_links/TestActiveSessions.test_creation_json \
+                 geopmdpy_test/pytest_links/TestActiveSessions.test_update_reload \
+                 geopmdpy_test/pytest_links/TestActiveSessions.test_add_remove_client \
+                 geopmdpy_test/pytest_links/TestActiveSessions.test_write_client \
+                 geopmdpy_test/pytest_links/TestActiveSessions.test_batch_server \
+                 geopmdpy_test/pytest_links/TestActiveSessions.test_watch_id \
                  # end
 
 TESTS += $(GEOPMDPY_TESTS)
