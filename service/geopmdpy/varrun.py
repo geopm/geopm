@@ -80,17 +80,20 @@ class ActiveSessions(object):
         If the path points to a symbolic link, the link will be
         renamed and a warning is printed to the syslog.  The directory
         will then be created in its place.  The warning message will
-        display the target of the symbolic link. If the path points
-        to a directory which is not accessible, the directory will be
-        renamed and a warning is printed to the syslog. The warning
-        message will display the reason why the directory was not
-        accessible, display the permissions or user and group of the directory being
-        deleteted.
+        display the target of the symbolic link and will appear in the
+        syslog.
+
+        If the path points to a directory which is not accessible, or
+        if the directory is owned by the wrong user or group the
+        directory will be renamed and a warning is printed to the
+        syslog. The warning message will display the reason why the
+        directory was not accessible, or display the permissions or
+        user and group of the directory.
 
         When an ActiveSessions object is created and the directory
-        already exists the owner of the directory will be set to the
-        geopmd user and the permissions will be set to mode 0o700.
-        All files matching the pattern
+        already exists, if the owner of the directory is the geopmd
+        user, and the permissions are set to 0o700 parsing will
+        proceed.  All files matching the pattern
 
             "/var/run/geopm-service/session-*.json"
 
@@ -98,9 +101,9 @@ class ActiveSessions(object):
         session JSON schema, be owned by the geopmd user, and have
         restricted access permissions (mode: 0o600).  Files matching
         the session pattern which do not meet these criterion are not
-        parsed, will be deleted, and a warning is printed to standard
+        parsed, will be renamed, and a warning is printed to the
         syslog.  The warning message will display the user and group
-        permissions of the file being deleted.
+        permissions of the file being renamed.
 
         Args:
             var_path (str): Optional argument to override the default
@@ -121,7 +124,7 @@ class ActiveSessions(object):
             'type' : 'object',
             'properties' : {
                 'client_pid' : {'type' : 'number'},
-                'mode' : {'type' : 'string'},
+                'mode' : {'type' : 'string', "enum" : ["r", "rw"]},
                 'signals' : {'type' : 'array', 'items' : {'type' : 'string'}},
                 'controls' : {'type' : 'array', 'items' : {'type' : 'string'}},
                 'watch_id' : {'type' : 'number'},
@@ -180,9 +183,9 @@ class ActiveSessions(object):
 
         If a session file matching the client_pid exists, but the file
         was not parsed or created by geopmd, then a warning message is
-        printed to syslog and the file is deleted.  The warning
+        printed to syslog and the file is renamed.  The warning
         message will display the user and group permissions of the
-        file being deleteted.  In this case False is returned.
+        file being deleted.  In this case False is returned.
 
         Args:
             client_pid (int): Linux PID to query
@@ -194,8 +197,8 @@ class ActiveSessions(object):
         result = client_pid in self._sessions
         session_path = self._get_session_path(client_pid)
         if not result and os.path.isfile(session_path):
-            # TODO print and delete, dont raise
-            raise RuntimeError(f'Session file exists, but client {client_pid} is not tracked: {session_path}')
+            sys.stderr.write(f'Session file exists, but client {client_pid} is not tracked: {session_path}')
+            # TODO if we got here, the file should be moved to INVALID
         return result
 
     def check_client_active(self, client_pid, msg=''):
@@ -215,7 +218,7 @@ class ActiveSessions(object):
             raise RuntimeError(f"Operation '{msg}' not allowed without an open session. Client PID: {client_pid}")
 
     def add_client(self, client_pid, signals, controls, watch_id):
-        """Add an new client session to be tracked
+        """Add a new client session to be tracked
 
         Create a new session file that contains the JSON data provided
         as the call parameters in a format that conforms to the
@@ -257,6 +260,7 @@ class ActiveSessions(object):
                         'signals': list(signals),
                         'controls': list(controls),
                         'watch_id': watch_id}
+        jsonschema.validate(session_data, schema=self._session_schema)
         self._sessions[client_pid] = session_data
         self._update_session_file(client_pid)
 
@@ -264,7 +268,7 @@ class ActiveSessions(object):
         """Delete the record of an active session
 
         Remove the client session file and delete the state associated
-        with client.  Future requests about this client PID will raise
+        with the client.  Future requests about this client PID will raise
         an exception until another call to add_client() is made.  This
         exception will be raised for a second call to remove_client().
 
@@ -344,7 +348,7 @@ class ActiveSessions(object):
         return list(self._sessions[client_pid]['controls'])
 
     def get_watch_id(self, client_pid):
-        """Query the GLib watch ID for tracking the session lifetime
+        """Query for the GLib watch ID for tracking the session lifetime
 
         The watch ID is not valid in the case where the geopmd process
         restarts.  When a new geopmd process starts it will read files
@@ -465,9 +469,24 @@ class ActiveSessions(object):
         self._update_session_file(client_pid)
 
     def _get_session_path(self, client_pid):
+        """Query for the session file path for client PID
+
+        Args:
+            client_pid (int): Linux PID that opened the session
+
+        Returns:
+            str: Current client's session file path
+
+        """
         return f'{self._VAR_PATH}/session-{client_pid}.json'
 
     def _update_session_file(self, client_pid):
+        """Write the session data to disk for client PID
+
+        Args:
+            client_pid (int): Linux PID that opened the session
+
+        """
         sess = self._sessions[client_pid]
         jsonschema.validate(sess, schema=self._session_schema)
         session_path = self._get_session_path(client_pid)
@@ -479,6 +498,16 @@ class ActiveSessions(object):
         os.rename(session_path_tmp, session_path)
 
     def _load_session_file(self, sess_path):
+        """Load the session file into memory
+
+        If the session file is not valid, it will not be loaded
+        and warnings will be printed.  The invalid file will be
+        renamed and preserved.
+
+        Args:
+            sess_path (str): Current client's session file path
+
+        """
         renamed_path = f'{sess_path}-{uuid.uuid4()}-INVALID'
         with open(sess_path) as fid:
             sess_stat = os.stat(fid.fileno())
@@ -517,3 +546,4 @@ class ActiveSessions(object):
                 # PID is no longer active, so set it to invalid
                 sess['client_pid'] = self._INVALID_PID
         self._sessions[client_pid] = dict(sess)
+        self._update_session_file(client_pid)
