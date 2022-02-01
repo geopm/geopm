@@ -152,7 +152,7 @@ class TestActiveSessions(unittest.TestCase):
         """Create a json file that  matches the ActiveSessions._session_schema
 
         """
-        os.makedirs(directory, exist_ok=True)
+        os.makedirs(directory, mode=0o700, exist_ok=True)
         full_path = os.path.join(directory, filename)
         with open(os.open(full_path, os.O_CREAT | os.O_WRONLY, permissions), 'w') as file:
             # write a string to the file
@@ -466,7 +466,7 @@ class TestActiveSessions(unittest.TestCase):
                 mock.call(f'Warning: <geopm-service> Invalid JSON file, unable to parse, renamed{full_file_path} to {renamed_path} and will ignore')
             ]
             if is_valid:
-                self.assertTrue(mock_err.empty())
+                self.assertEqual(0, len(mock_err.call_args_list))
                 self.check_getters(
                     act_sess,
                     contents["client_pid"],
