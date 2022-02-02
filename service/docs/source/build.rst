@@ -28,9 +28,7 @@ by the GEOPM service build system.
 .. code-block:: bash
 
     git clone git@github.com:geopm/geopm.git
-    cd geopm
-    git checkout geopm-service
-    cd service
+    cd geopm/service
     ./autogen.sh
     ./configure
     make rpm
