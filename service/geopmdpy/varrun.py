@@ -31,12 +31,19 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-"""Interface for /var/run/geopm-service
+"""Manage system files used by the geopm service
 
-Module used to read and write the files in /var/run/geopm-service.
-These files maintain the state used by geopmd to track ongoing client
-sessions.  These files are loaded at geopmd start-up time and enable
-the daemon to cleanly restart.
+Provides secure interfaces for manipulating the files in
+
+    /var/run/geopm-service
+
+that enable the service to be restarted and
+
+   /etc/geopm-service
+
+where the access lists are located.  These interfaces provide
+guarantees about the security of these system files, and an
+abstraction for updating the contents.
 
 """
 
@@ -51,6 +58,7 @@ import uuid
 
 
 GEOPM_SERVICE_VAR_PATH = '/var/run/geopm-service'
+GEOPM_SERVICE_CONFIG_PATH = '/etc/geopm-service'
 
 def secure_make_dirs(path):
     """Securely create a directory
@@ -708,3 +716,58 @@ class ActiveSessions(object):
 
         self._sessions[client_pid] = dict(sess)
         self._update_session_file(client_pid)
+
+
+class AllowedLists(object):
+    """Class that manages the access list files
+
+    """
+    def __init__(self, config_path=GEOPM_SERVICE_CONFIG_PATH):
+        self._CONFIG_PATH = config_path
+        self._DEFAULT_ACCESS = '0.DEFAULT_ACCESS'
+
+    def get_group_access(self, group):
+        """Get signal and control access lists
+
+        Read the list of allowed signals and controls for the
+        specified group.  If the group is None or the empty string
+        then the default lists of allowed signals and controls are
+        returned.
+
+        The values are securely read from files located in
+        /etc/geopm-service using the secure_read_file() interface.
+
+        If no secure file exist for the specified group, then two
+        empty lists are returned.
+
+        Args:
+            group (str): Name of group
+
+        Returns:
+
+            list(str)), list(str): Signal and control allowed lists
+
+        """
+        pass
+
+    def set_group_access(self, group, allowed_signals, allowed_controls):
+        """Set signals and controls in the allowed lists
+
+        Write the list of allowed signals and controls for the
+        specified group.  If the group is None or the empty string
+        then the default lists of allowed signals and controls are
+        updated.
+
+        The values are securely written atomically to files located in
+        /etc/geopm-service using the secure_make_dirs() and
+        secure_write_file() interfaces.
+
+        Args:
+            group (str): Name of group
+
+            allowed_signals (list(str)): Signal names that are allowed
+
+            allowed_controls (list(str)): Control names that are allowed
+
+        """
+        pass
