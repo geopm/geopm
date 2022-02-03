@@ -52,6 +52,107 @@ import uuid
 
 GEOPM_SERVICE_VAR_PATH = '/var/run/geopm-service'
 
+def secure_make_dirs(path):
+    """Securely create a directory
+
+    When the path does not exist a directory is created with
+    permissions 0o700 along with all required parent directories.
+
+    The security of this path is verified if the path exists.  An
+    existing path is considered to be secure only if all of the
+    following conditions are met:
+
+        - The path is a regular directory
+        - The path is not a link
+        - The path is accessible the the caller
+        - The path is a directory owned by the calling process uid
+        - The path is a directory owned by the calling process gid
+        - The permissions for the directory are 0o700
+
+    If the existing path is determined to be insecure, a warning is
+    printed to syslog and the existing file will be renamed to
+    `<path>-<UUID>-INVALID` so that it may be audited later, but not
+    used.  The warning message will display the reason why the
+    directory was not secure.  A new directory with the specified path
+    will be created in place of the renamed file.
+
+    This function will simply return when the directory already exists
+    and is considered secure.
+
+    Args:
+        path (str): The path were the directory is created
+
+    """
+    pass
+
+def secure_make_file(path, contents):
+    """Securely and atomically create a file containing a string
+
+    The file is created by first writing the output to a temporary
+    file with restricted permissions (mode 0o600) within the same
+    directory, and then renaming the file after it is closed.  This
+    temporary file with have the path `<path>-<uuid>-tmp`.
+
+    The rename operation is atomic, and will overwrite any existing
+    file located in the specified path.  The permissions on the output
+    file are mode 0o600 with uid and gid matching the process values.
+
+    Args:
+        path (str): The path where the file is created
+
+        contents (str): The contents of the created file
+
+    """
+    pass
+
+def secure_read_file(path):
+    """Securely read a file into a string
+
+    The security of this path is verified after the file is opened. An
+    existing path is considered to be secure only if all of the
+    following conditions are met:
+
+        - The path is a regular file
+        - The path is not a link
+        - The path is accessible the the caller
+        - The path is a file owned by the calling process uid
+        - The path is a file owned by the calling process gid
+        - The permissions for the file are 0o600
+
+    If the existing path is determined to be insecure, a warning is
+    printed to syslog and the existing file will be renamed to
+    `<path>-<UUID>-INVALID` so that it may be audited later, but not
+    used.  The warning message will display the reason why the file
+    was not secure and a RuntimeError is raised.
+
+    If the path points to an existing file that is determined to be
+    secure then the contents of the file is returned.
+
+    Args:
+        path (str): The path where the file is created
+
+    Returns:
+        str: The contents of the file
+
+    """
+    pass
+
+def secure_remove_file(path):
+    """Rename path to a unique invalid name
+
+    Create a unique name of the form "<path>-<uuid>-INVALID"
+    and rename the path to this unique name.
+
+    Args:
+        path (str): The path to invalid file
+
+    Returns:
+        str: The renamed path
+
+    """
+    pass
+
+
 class ActiveSessions(object):
     """Class that manages the session files for the service
 
@@ -491,10 +592,11 @@ class ActiveSessions(object):
         jsonschema.validate(sess, schema=self._session_schema)
         session_path = self._get_session_path(client_pid)
         tmp_id = uuid.uuid4()
-        session_path_tmp = f'{session_path}-tmp-{tmp_id}'
-        os.umask(0o077)
+        session_path_tmp = f'{session_path}-{tmp_id}-tmp'
+        old_mask = os.umask(0o077)
         with open(session_path_tmp, 'w') as fid:
             json.dump(sess, fid)
+        os.umask(old_mask)
         os.rename(session_path_tmp, session_path)
 
     def _is_pid_valid(self, pid, file_time):
