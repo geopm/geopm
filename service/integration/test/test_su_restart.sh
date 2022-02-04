@@ -1,3 +1,4 @@
+#!/bin/bash
 #  Copyright (c) 2015 - 2021, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -29,24 +30,39 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += integration/README.md \
-              integration/build_dasbus.sh \
-              integration/install_service.sh \
-              integration/test/__init__.py \
-              integration/test/test_bash_examples.py \
-              integration/test/check_write_session.sh \
-              integration/test/test_batch_performance.py \
-              integration/test/test_sst_priority.sh \
-              integration/test/test_su_give_access.sh \
-              integration/test/test_su_restart.sh \
-              # end
+if [[ $# -gt 0 ]] && [[ $1 == '--help' ]]; then
+    echo "
+    Restarting the Service
+    ----------------------
 
-check_PROGRAMS += integration/test/test_batch_server \
-                  integration/test/test_batch_interface \
-                  #end
+    Stop the service while the user has a write session open.
 
-integration_test_test_batch_server_SOURCES = integration/test/test_batch_server.cpp
-integration_test_test_batch_server_LDADD = libgeopmd.la
+"
+    exit 0
+fi
 
-integration_test_test_batch_interface_SOURCES = integration/test/test_batch_interface.cpp
-integration_test_test_batch_interface_LDADD = libgeopmd.la
+# PARAMETERS
+CONTROL=MSR::PERF_CTL:FREQ
+TEST_DIR=$(dirname $(readlink -f $0))
+TEST_USER=test
+if [[ $(whoami) == 'root' ]]; then
+    TEST_SCRIPT="su ${TEST_USER} ${TEST_DIR}/check_write_session.sh"
+else
+    TEST_SCRIPT=${TEST_DIR}/check_write_session.sh
+fi
+
+test_error() {
+    echo "Error: $1" 1>&2
+    exit -1
+}
+
+# RUN WRITE SESSION TEST AND MAKE SURE IT PASSES
+${TEST_SCRIPT} &
+sleep 1
+sudo systemctl stop geopm
+sleep 1
+sudo systemctl start geopm
+wait
+
+echo "SUCCESS"
+exit 0
