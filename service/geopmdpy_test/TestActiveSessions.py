@@ -604,7 +604,7 @@ class TestActiveSessions(unittest.TestCase):
         act_sess.set_batch_server(client_pid, batch_server)
         batch_server_actual = act_sess.get_batch_server(client_pid)
         self.assertEqual(batch_server, batch_server_actual)
-        with mock.patch('geopmdpy.varrun.ActiveSessions._is_pid_valid', return_value=True) as mock_pid_valid:
+        with mock.patch('geopmdpy.varrun.ActiveSessions._is_pid_valid', return_value=True):
             new_act_sess = ActiveSessions(sess_path)
         batch_server_actual = new_act_sess.get_batch_server(client_pid)
         self.assertEqual(batch_server, batch_server_actual)
@@ -642,8 +642,8 @@ class TestActiveSessions(unittest.TestCase):
              mock.patch('os.path.exists', return_value=True), \
              mock.patch('geopmdpy.varrun.ActiveSessions._is_pid_valid', return_value=True) as mock_pid_valid:
             act_sess = ActiveSessions(sess_path)
-            calls = [mock.call(session_mock.st_ctime, client_pid),
-                     mock.call(session_mock.st_ctime, batch_pid)]
+            calls = [mock.call(client_pid, session_mock.st_ctime),
+                     mock.call(batch_pid, session_mock.st_ctime)]
             mock_pid_valid.assert_has_calls(calls)
         self.assertEqual(batch_pid, act_sess.get_batch_server(client_pid))
 

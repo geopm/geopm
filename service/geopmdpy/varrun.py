@@ -497,7 +497,7 @@ class ActiveSessions(object):
             json.dump(sess, fid)
         os.rename(session_path_tmp, session_path)
 
-    def _is_pid_valid(self, file_time, pid):
+    def _is_pid_valid(self, pid, file_time):
         result = True
         try:
             proc_time = psutil.Process(pid).create_time()
@@ -505,7 +505,7 @@ class ActiveSessions(object):
             if proc_time >= file_time:
                 # PID has been recycled, return false
                 result = False
-        except psutil.NoSuchProcess:
+        except (ValueError, psutil.NoSuchProcess):
             # PID is no longer active
             result = False
         return result
@@ -548,18 +548,16 @@ class ActiveSessions(object):
                 return # Invalid JSON return early
         file_time = sess_stat.st_ctime
         client_pid = sess['client_pid']
-        if client_pid != self._INVALID_PID:
-            if not self._is_pid_valid(file_time, client_pid):
-                sess['client_pid'] = self._INVALID_PID
-                if sess.get('batch_server') is not None:
-                    sess.pop('batch_server')
-            else: # Valid session; verify batch server
-                batch_pid = sess.get('batch_server')
-                if batch_pid is not None:
-                    if not self._is_pid_valid(file_time, batch_pid):
-                        sess.pop('batch_server')
-        else: # Invalid client PID; Do we need this else?
-            if sess.get('batch_server') is not None:
+        batch_pid = sess.get('batch_server')
+        if self._is_pid_valid(client_pid, file_time):
+            # Valid session; verify batch server
+            if not (batch_pid is None or
+                    self._is_pid_valid(batch_pid, file_time)):
+                sess.pop('batch_server')
+        else:
+            # Invalid session, remove batch server
+            sess['client_pid'] = self._INVALID_PID
+            if not batch_pid is None:
                 sess.pop('batch_server')
 
         self._sessions[client_pid] = dict(sess)
