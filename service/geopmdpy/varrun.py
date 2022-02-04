@@ -498,10 +498,25 @@ class ActiveSessions(object):
         os.rename(session_path_tmp, session_path)
 
     def _is_pid_valid(self, pid, file_time):
+        """Verify validity of PID
+
+        If the creation time of the process associated with PID
+        is newer than or equal to file_time, or if the PID does not
+        exist, then the PID is not valid.
+
+        Args:
+            pid (int): Linux PID to be verified
+
+            file_time (int): stat.st_ctime to compare against
+
+        Raises:
+           psutil.AccessDenied: Insufficient privileges to query for
+                                process creation time.
+
+        """
         result = True
         try:
             proc_time = psutil.Process(pid).create_time()
-            # TODO: Write test to check this comparison logic
             if proc_time >= file_time:
                 # PID has been recycled, return false
                 result = False
@@ -557,7 +572,7 @@ class ActiveSessions(object):
         else:
             # Invalid session, remove batch server
             sess['client_pid'] = self._INVALID_PID
-            if not batch_pid is None:
+            if batch_pid is not None:
                 sess.pop('batch_server')
 
         self._sessions[client_pid] = dict(sess)
