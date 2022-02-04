@@ -43,6 +43,7 @@ EXTRA_DIST += geopmdpy_test/__init__.py \
               geopmdpy_test/TestTimedLoop.py \
               geopmdpy_test/TestController.py \
               geopmdpy_test/TestActiveSessions.py \
+              geopmdpy_test/TestSecureFiles.py \
               # end
 
 GEOPMDPY_TESTS = geopmdpy_test/pytest_links/TestPlatformService.test__read_allowed_invalid \
@@ -141,6 +142,7 @@ GEOPMDPY_TESTS = geopmdpy_test/pytest_links/TestPlatformService.test__read_allow
                  geopmdpy_test/pytest_links/TestActiveSessions.test_batch_server_bad_service_restart \
                  geopmdpy_test/pytest_links/TestActiveSessions.test_is_pid_valid \
                  geopmdpy_test/pytest_links/TestActiveSessions.test_watch_id \
+                 geopmdpy_test/pytest_links/TestSecureFiles.test_creation_link_not_dir \
                  # end
 
 TESTS += $(GEOPMDPY_TESTS)
