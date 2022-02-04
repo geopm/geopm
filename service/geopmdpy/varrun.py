@@ -57,6 +57,7 @@ import psutil
 import uuid
 import grp
 import pwd
+import fcntl
 
 from . import pio
 
@@ -135,6 +136,7 @@ def secure_make_dirs(path):
     else:
         os.mkdir(path, mode=0o700)
 
+
 def secure_make_file(path, contents):
     """Securely and atomically create a file containing a string
 
@@ -155,10 +157,13 @@ def secure_make_file(path, contents):
     """
     temp_path = f'{path}-{uuid.uuid4()}-tmp'
     old_mask = os.umask(0o077)
-    with open(os.open(temp_path, os.O_CREAT | os.O_WRONLY, 0o600), 'w') as file:
-        file.write(contents)
-    os.rename(temp_path, path)
-    os.umask(old_mask)
+    try:
+        with open(os.open(temp_path, os.O_CREAT | os.O_WRONLY, 0o600), 'w') as file:
+            file.write(contents)
+        os.rename(temp_path, path)
+    finally:
+        os.umask(old_mask)
+
 
 def secure_read_file(path):
     """Securely read a file into a string
@@ -190,64 +195,58 @@ def secure_read_file(path):
         str: The contents of the file if file was opened, None if couldn't open file
 
     """
-    daemon_uid = os.getuid()
-    daemon_gid = os.getgid()
     contents = None
+    if is_secure_path(path):
+        with open(path) as fid:
+            if is_secure_file(path, fid):
+                contents = fid.read()
+    return contents
 
-    # If the path exists
+
+def is_secure_path(path):
+    result = False
     if os.path.exists(path):
         renamed_path = f'{path}-{uuid.uuid4()}-INVALID'
-
-        # If it is a link
         if os.path.islink(path):
             sys.stderr.write(f'Warning: <geopm-service> {path} is a symbolic link, it will be renamed to {renamed_path}\n')
             sys.stderr.write(f'Warning: <geopm-service> the symbolic link points to {os.readlink(path)}\n')
-        # If it is a fifo
         elif not stat.S_ISREG(os.stat(path).st_mode):
             sys.stderr.write(f'Warning: <geopm-service> {path} is not a regular file, it will be renamed to {renamed_path}\n')
-        # If it is not a directory
-        elif not os.path.isdir(path):
-            with open(path) as fid:
-                sess_stat = os.stat(fid.fileno())
-                # If the permissions requirements of the file are not satisfied
-                if not (stat.S_ISREG(sess_stat.st_mode) and
-                        stat.S_IMODE(sess_stat.st_mode) == 0o600 and
-                        sess_stat.st_uid == daemon_uid and
-                        sess_stat.st_gid == daemon_gid):
-                    # If it is not a regular file
-                    if not stat.S_ISREG(sess_stat.st_mode):
-                        sys.stderr.write(f'Warning: <geopm-service> {path} is not a regular file, it will be renamed to {renamed_path}\n')
-                    # If it is a regular file with bad permissions
-                    else:
-                        sys.stderr.write(f'Warning: <geopm-service> {path} was discovered with invalid permissions, it will be renamed to {renamed_path}\n')
-                        # If the permissions are wrong
-                        if stat.S_IMODE(sess_stat.st_mode) != 0o600:
-                            sys.stderr.write(f'Warning: <geopm-service> the wrong permissions were {oct(sess_stat.st_mode)}\n')
-                        # If the user owner is wrong
-                        if sess_stat.st_uid != daemon_uid:
-                            sys.stderr.write(f'Warning: <geopm-service> the wrong user owner was {sess_stat.st_uid}\n')
-                        # If the group owner is wrong
-                        if sess_stat.st_gid != daemon_gid:
-                            sys.stderr.write(f'Warning: <geopm-service> the wrong group owner was {sess_stat.st_gid}\n')
-
-                # If the file satisfies all requirements
-                else:
-                    # Read whole file into the string
-                    contents = fid.read()
-        # If it is a directory
+        elif os.path.isdir(path):
+            sys.stderr.write(f'Warning: <geopm-service> {path} is a directory, it will be renamed to {renamed_path}')
         else:
-            sys.stderr.write(f'Warning: <geopm-service> {path} is a directory, it will be renamed to {renamed_path}\n')
-
-        # If the existing path is determined to be insecure it will be renamed to
-        # `<path>-<UUID>-INVALID` so that it may be audited later, but not used.
-        if contents is None:
+            result = True
+        if not result:
             os.rename(path, renamed_path)
-
-    # If the path does not exist
     else:
         sys.stderr.write(f'Warning: <geopm-service> {path} does not exist\n')
+    return result
 
-    return contents
+
+def is_secure_file(path, fid):
+    result = False
+    daemon_uid = os.getuid()
+    daemon_gid = os.getgid()
+    renamed_path = f'{path}-{uuid.uuid4()}-INVALID'
+    warn_msg = f'Warning: <geopm-service> {path} was discovered with invalid permissions, it will be renamed to {renamed_path}\n'
+    sess_stat = os.stat(fid.fileno())
+    if not stat.S_ISREG(sess_stat.st_mode):
+        sys.stderr.write(warn_msg)
+        sys.stderr.write(f'Warning: <geopm-service> {path} is not a regular file\n')
+    elif stat.S_IMODE(sess_stat.st_mode) != 0o600:
+        sys.stderr.write(warn_msg)
+        sys.stderr.write(f'Warning: <geopm-service> the wrong permissions were {oct(sess_stat.st_mode)}\n')
+    elif sess_stat.st_uid != daemon_uid:
+        sys.stderr.write(warn_msg)
+        sys.stderr.write(f'Warning: <geopm-service> the wrong user owner was {sess_stat.st_uid}\n')
+    elif sess_stat.st_gid != daemon_gid:
+        sys.stderr.write(warn_msg)
+        sys.stderr.write(f'Warning: <geopm-service> the wrong group owner was {sess_stat.st_gid}\n')
+    else:
+        result = True
+    if not result:
+        os.rename(path, renamed_path)
+    return result
 
 
 class ActiveSessions(object):
@@ -314,7 +313,6 @@ class ActiveSessions(object):
 
         """
         self._VAR_PATH = var_path
-        self._INVALID_PID = -1
         self._daemon_uid = os.getuid()
         self._daemon_gid = os.getgid()
         self._sessions = dict()
@@ -322,14 +320,13 @@ class ActiveSessions(object):
             'type' : 'object',
             'properties' : {
                 'client_pid' : {'type' : 'number'},
-                'mode' : {'type' : 'string', "enum" : ["r", "rw"]},
                 'signals' : {'type' : 'array', 'items' : {'type' : 'string'}},
                 'controls' : {'type' : 'array', 'items' : {'type' : 'string'}},
                 'watch_id' : {'type' : 'number'},
                 'batch_server': {'type' : 'number'}
             },
             'additionalProperties' : False,
-            'required' : ['client_pid', 'mode', 'signals', 'controls']
+            'required' : ['client_pid', 'signals', 'controls']
         }
         secure_make_dirs(self._VAR_PATH)
 
@@ -356,8 +353,9 @@ class ActiveSessions(object):
         result = client_pid in self._sessions
         session_path = self._get_session_path(client_pid)
         if not result and os.path.isfile(session_path):
-            sys.stderr.write(f'Session file exists, but client {client_pid} is not tracked: {session_path}\n')
-            # TODO if we got here, the file should be moved to INVALID
+            renamed_path = f'{session_path}-{uuid.uuid4()}-INVALID'
+            sys.stderr.write(f'Session file exists, but client {client_pid} is not tracked: {session_path} will be moved to {renamed_path}\n')
+            os.rename(session_path, renamed_path)
         return result
 
     def check_client_active(self, client_pid, msg=''):
@@ -389,11 +387,9 @@ class ActiveSessions(object):
 
             /var/run/geopm-service/session-*.json
 
-        The session file is created with the JSON object property
-        "mode" set to "r" (read mode) and without the "batch_server"
-        property specified.  These properties may be modified by the
-        set_write_client() or set_batch_server() methods after the
-        client is added.
+        The session file is created without the JSON object property
+        "batch_server" specified.  This properties may be modified by the
+        set_batch_server() method after the client is added.
 
         This operation creates the session file atomically, but does
         not modify the session properties nor the session file if the
@@ -415,7 +411,6 @@ class ActiveSessions(object):
         if self.is_client_active(client_pid):
             return
         session_data = {'client_pid': client_pid,
-                        'mode': 'r',
                         'signals': list(signals),
                         'controls': list(controls),
                         'watch_id': watch_id}
@@ -453,20 +448,6 @@ class ActiveSessions(object):
 
         """
         return list(self._sessions.keys())
-
-    def is_write_client(self, client_pid):
-        """Query if the client PID currently holds the write lock
-
-        Returns:
-            bool: True if the client PID holds the write lock, and
-                  false otherwise
-
-        Raises:
-            RuntimeError: Client does not have an open session
-
-        """
-        self.check_client_active(client_pid, 'get_mode')
-        return self._sessions[client_pid]['mode'] == 'rw'
 
     def get_signals(self, client_pid):
         """Query all signal names that are available
@@ -567,26 +548,6 @@ class ActiveSessions(object):
         """
         self.check_client_active(client_pid, 'get_batch_server')
         return self._sessions[client_pid].get('batch_server')
-
-    def set_write_client(self, client_pid):
-        """Mark a client session as the write mode client
-
-        This method identifies that the client session is able to
-        write through the service.  The file that stores this
-        information about the session will be updated atomically,
-        however it is the user's responsibility to maintain the
-        requirement for one write mode session at any one time.
-
-        Args:
-            client_pid (int): Linux PID that opened the session
-
-        Raises:
-            RuntimeError: Client does not have an open session
-
-        """
-        self.check_client_active(client_pid, 'set_write_client')
-        self._sessions[client_pid]['mode'] = 'rw'
-        self._update_session_file(client_pid)
 
     def set_batch_server(self, client_pid, batch_pid):
         """Set the Linux PID of the batch server supporting a client session
@@ -711,14 +672,10 @@ class ActiveSessions(object):
             if batch_pid is not None and \
                self._is_pid_valid(batch_pid, file_time) == False:
                 sess.pop('batch_server')
+            self._sessions[client_pid] = dict(sess)
+            self._update_session_file(client_pid)
         else:
-            # Invalid session, remove batch server
-            sess['client_pid'] = self._INVALID_PID
-            if batch_pid is not None:
-                sess.pop('batch_server')
-
-        self._sessions[client_pid] = dict(sess)
-        self._update_session_file(client_pid)
+           os.rename(sess_path, renamed_path)
 
 
 class AccessLists(object):
@@ -919,3 +876,94 @@ class AccessLists(object):
 
         """
         return self._pio.signal_names(), self._pio.control_names()
+
+
+class WriteLock(object):
+    def __init__(self, var_path=GEOPM_SERVICE_VAR_PATH):
+        self._VAR_PATH = var_path
+        self._LOCK_PATH = os.path.join(self._VAR_PATH, "CONTROL_LOCK")
+        self._fid = None
+
+    def __enter__(self):
+        old_mask = os.umask(0o077)
+        try:
+            trial_count = 0
+            while self._fid is None and trial_count < 2:
+                if os.path.exists(self._LOCK_PATH):
+                    # Rename exiting file if it is not secure
+                    is_secure_path(self._LOCK_PATH)
+                self._fid = open(self._LOCK_PATH, 'a+')
+                if not is_secure_file(self._LOCK_PATH, self._fid):
+                    # File is insecure and was renamed, try again
+                    self._fid.close()
+                    self._fid = None
+                trial_count += 1
+        finally:
+            os.umask(old_mask)
+        if self._fid == None:
+            raise RuntimeError('Unable to open write lock securely after two tries')
+        fcntl.lockf(self._fid, fcntl.LOCK_EX)
+        return self
+
+    def __exit__(self, type, value, traceback):
+        if self._fid is not None:
+            fcntl.lockf(self._fid, fcntl.LOCK_UN)
+            self._fid.close()
+
+    def try_lock(self, pid=None):
+        """Get the PID that holds the lock or set lock
+
+        Returns the PID that currently holds the lock.  If the user specifies
+        a PID and the lock is not held by another process, then the lock will
+        be assigned, and the input pid will be returned.  The user must check
+        the return value to determine if a request to assign the lock was
+        successful, an error is not raised if the lock is held by another PID.
+
+        None is returned if the write lock is not held by any active session
+        and the user does not specify a pid.
+
+        Args:
+            pid (int): The PID to assign the lock
+
+        Returns:
+            int: The PID of the session that holds the write lock upon return
+                 or None if the write lock is not held
+
+        """
+        file_pid = None
+        self._fid.seek(0, os.SEEK_END)
+        if self._fid.tell() == 0 and pid is not None:
+            self._fid.write(str(pid))
+            file_pid = pid
+        if self._fid.tell() != 0:
+            self._fid.seek(0)
+            contents = self._fid.read(64)
+            file_pid = int(contents)
+        return file_pid
+
+    def unlock(self, pid):
+        """Release the write lock
+
+        Release the write lock from ownership by a specified PID.  If the lock
+        is not currently assigned to the specified PID, then a RuntimeError is
+        raised.
+
+        Args:
+            pid (int): The PID that the lock is assigned to
+
+        Raises:
+            RuntimeError: The specified PID does not currently hold the lock
+
+        """
+        err_str = None
+        self._fid.seek(0, os.SEEK_END)
+        if self._fid.tell() == 0:
+            raise RuntimeError('Lock is not held by any PID')
+        else:
+            self._fid.seek(0)
+            contents = self._fid.read(64)
+            file_pid = int(contents)
+            if file_pid == pid:
+                self._fid.truncate(0)
+            else:
+                raise RuntimeError(f'Lock is held by another PID: {file_pid}')

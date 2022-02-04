@@ -41,6 +41,7 @@ import pwd
 import grp
 import shutil
 import psutil
+import uuid
 import gi
 from gi.repository import GLib
 
@@ -72,17 +73,17 @@ class PlatformService(object):
         self._VAR_PATH = varrun.GEOPM_SERVICE_VAR_PATH
         self._SAVE_DIR = 'SAVE_FILES'
         self._WATCH_INTERVAL_MSEC = 1000
-        self._write_pid = None
         self._active_sessions = varrun.ActiveSessions()
         self._access_lists = varrun.AccessLists()
         for client_pid in self._active_sessions.get_clients():
-            is_writer = self._active_sessions.is_write_client(client_pid)
             is_active = self.check_client(client_pid)
             if is_active:
                 watch_id = self._watch_client(client_pid)
                 self._active_sessions.set_watch_id(client_pid, watch_id)
-                if is_writer:
-                    self._write_pid = client_pid
+        with varrun.WriteLock(self._VAR_PATH) as lock:
+            write_pid = lock.try_lock()
+            if write_pid is not None and not self._active_sessions.is_client_active(write_pid):
+                self._close_session_write(lock, write_pid)
 
     def get_group_access(self, group):
         """Get the signal and control access lists
@@ -385,19 +386,35 @@ class PlatformService(object):
         """
         self._active_sessions.check_client_active(client_pid, 'PlatformCloseSession')
         batch_pid = self._active_sessions.get_batch_server(client_pid)
-        is_writer = self._active_sessions.is_write_client(client_pid)
         if batch_pid is not None:
             try:
                 self._pio.stop_batch_server(batch_pid)
             except ex:
                 sys.stderr.write(f'Failed to stop batch server {batch_pid}: {ex}')
-        if is_writer:
-            save_dir = os.path.join(self._VAR_PATH, self._SAVE_DIR)
-            self._pio.restore_control_dir(save_dir)
-            shutil.rmtree(save_dir)
-            self._write_pid = None
+        with varrun.WriteLock(self._VAR_PATH) as lock:
+            if lock.try_lock() == client_pid:
+                self._close_session_write(lock, client_pid)
         GLib.source_remove(self._active_sessions.get_watch_id(client_pid))
         self._active_sessions.remove_client(client_pid)
+
+    def _close_session_write(self, lock, pid):
+        save_dir = os.path.join(self._VAR_PATH, self._SAVE_DIR)
+        if os.path.isdir(save_dir):
+            is_restored = False
+            try:
+                self._pio.restore_control_dir(save_dir)
+                is_restored = True
+            except:
+                pass
+            del_dir = f'{save_dir}-{pid}-{uuid.uuid4()}-del'
+            os.rename(save_dir, del_dir)
+            if is_restored:
+                shutil.rmtree(del_dir)
+            else:
+                sys.stderr.write(f'Failed to restore controls for PID {client_pid}, moved to {del_dir}')
+        else:
+            sys.stderr.write(f'Failed to restore controls for PID {client_pid}, {save_dir} is not a directory')
+        lock.unlock(pid)
 
     def start_batch(self, client_pid, signal_config, control_config):
         """Start a batch server to support a client session.
@@ -585,32 +602,39 @@ class PlatformService(object):
         self._pio.write_control(control_name, domain, domain_idx, setting)
 
     def _write_mode(self, client_pid):
-        client_sid = os.getsid(client_pid)
+        write_pid = client_pid
+        do_open_session = False
         # If the session leader is an active process then tie the write lock
         # to the session leader, otherwise the write lock is associated with
         # the requesting process.
-        if psutil.pid_exists(client_sid):
+        client_sid = os.getsid(client_pid)
+        if client_sid != client_pid and psutil.pid_exists(client_sid):
             write_pid = client_sid
-        else:
-            write_pid = client_pid
-        self.check_client(self._write_pid)
-        if self._write_pid != write_pid:
-            if self._write_pid is not None:
-                raise RuntimeError(f'The PID {client_pid} requested write access, but the geopm service already has write mode client with PID or SID of {self._write_pid}')
-            if write_pid != client_pid:
-                # If the write lock is associated with the session leader
-                # process, then open a session for the session leader
-                session_uid = os.stat(f'/proc/{write_pid}/status').st_uid
-                session_user = pwd.getpwuid(session_uid).pw_name
-                self.open_session(session_user, write_pid)
-            self._active_sessions.set_write_client(write_pid)
-            self._write_pid = write_pid
-            save_dir = os.path.join(self._VAR_PATH, self._SAVE_DIR)
-            if os.path.exists(save_dir):
-                sys.stderr.write('Warning: <geopm-service> Removing SAVE_FILES directory which not owned by any active session')
-                shutil.rmtree(save_dir)
-            os.makedirs(save_dir)
-            self._pio.save_control_dir(save_dir)
+            do_open_session = True
+        with varrun.WriteLock(self._VAR_PATH) as lock:
+            lock_pid = lock.try_lock()
+            if lock_pid is None:
+                if do_open_session:
+                    # If the write lock is associated with the session leader
+                    # process, then open a session for the session leader
+                    session_uid = os.stat(f'/proc/{write_pid}/status').st_uid
+                    session_user = pwd.getpwuid(session_uid).pw_name
+                    self.open_session(session_user, write_pid)
+                save_dir = os.path.join(self._VAR_PATH, self._SAVE_DIR)
+                # Clean up existing SAVE_FILES directory if it exists
+                if os.path.exists(save_dir):
+                    del_dir = f'{save_dir}-{uuid.uuid4()}-del'
+                    sys.stderr.write(f'Warning: <geopm-service> Renaming SAVE_FILES directory which not owned by any active session to {del_dir}\n')
+                    os.rename(save_dir, del_dir)
+                # Save Control values
+                tmp_dir = f'{save_dir}-{uuid.uuid4()}-tmp'
+                varrun.secure_make_dirs(tmp_dir)
+                self._pio.save_control_dir(tmp_dir)
+                os.rename(tmp_dir, save_dir)
+                # Set the write lock to the writer PID
+                lock.try_lock(write_pid)
+            elif lock_pid != write_pid:
+                raise RuntimeError(f'The PID {client_pid} requested write access, but the geopm service already has write mode client with PID or SID of {lock_pid}')
 
     def _watch_client(self, client_pid):
         return GLib.timeout_add(self._WATCH_INTERVAL_MSEC, self.check_client, client_pid)
