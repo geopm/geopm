@@ -647,6 +647,74 @@ class TestActiveSessions(unittest.TestCase):
             mock_pid_valid.assert_has_calls(calls)
         self.assertEqual(batch_pid, act_sess.get_batch_server(client_pid))
 
+    def test_batch_server_bad_service_restart(self):
+        """Verify batch pid is not returned
+
+        If a batch server was running when the service was initially
+        started, but has completed while the service was not running,
+        it should not be returned when the service is restarted.
+
+        """
+        batch_pid = 42
+        client_pid = self.json_good_example['client_pid']
+
+        self.json_good_example['batch_server'] = batch_pid
+        sess_path = f'{self._TEMP_DIR.name}/geopm-service'
+        self.create_json_file(sess_path, 'session-1.json', self.json_good_example, 0o600)
+
+        dir_mock = mock.create_autospec(os.stat_result, spec_set=True)
+        dir_mock.st_uid = os.getuid()
+        dir_mock.st_gid = os.getgid()
+        dir_mock.st_mode = 0o700
+
+        session_mock = mock.create_autospec(os.stat_result, spec_set=True)
+        session_mock.st_uid = os.getuid()
+        session_mock.st_gid = os.getgid()
+        session_mock.st_ctime = 123
+        session_mock.st_mode = 0o600 | stat.S_IFREG
+
+        side_effect = [dir_mock, session_mock]
+
+        # There are 2 calls into is_pid_valid:  Ths first verifies the client PID
+        # against the session PID.  The second verifies the batch PID against the session PID.
+        # side_effect is used so that the first call returns True (the client PID is valid) and
+        # the second call returns False (the batch PID is *not* valid).
+        with mock.patch('os.stat', side_effect=side_effect), \
+             mock.patch('os.path.islink', return_value=False), \
+             mock.patch('os.path.isdir', return_value=True), \
+             mock.patch('os.path.exists', return_value=True), \
+             mock.patch('geopmdpy.varrun.ActiveSessions._is_pid_valid', side_effect=[True, False]) as mock_pid_valid:
+            act_sess = ActiveSessions(sess_path)
+            calls = [mock.call(client_pid, session_mock.st_ctime),
+                     mock.call(batch_pid, session_mock.st_ctime)]
+            mock_pid_valid.assert_has_calls(calls)
+        self.assertIsNone(act_sess.get_batch_server(client_pid))
+
+    def test_is_pid_valid(self):
+        sess_path = f'{self._TEMP_DIR.name}/geopm-service'
+        act_sess = ActiveSessions(sess_path)
+        fake_pid = 321
+
+        with mock.patch('psutil.Process', autospec=True, spec_set=True) as mock_process:
+            # A psutil.Process instance is created in the real code, so the mock
+            # must be done as follows:
+            instance = mock_process.return_value
+            instance.create_time.return_value = 123
+
+            # Fake PID created before file_time, PID is valid.
+            self.assertTrue(act_sess._is_pid_valid(fake_pid, 222))
+            calls = [mock.call(fake_pid), mock.call().create_time()]
+            mock_process.assert_has_calls(calls)
+
+            # Fake PID created at file_time, PID is invalid.
+            self.assertFalse(act_sess._is_pid_valid(fake_pid, 123))
+            mock_process.assert_has_calls(calls * 2)
+
+            # Fake PID created after file_time, PID is invalid.
+            instance.create_time.return_value = 333
+            self.assertFalse(act_sess._is_pid_valid(fake_pid, 222))
+            mock_process.assert_has_calls(calls * 3)
+
     def test_watch_id(self):
         """Assign the watch_id to a client session
 
