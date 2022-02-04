@@ -45,6 +45,7 @@ EXTRA_DIST += geopmdpy_test/__init__.py \
               geopmdpy_test/TestActiveSessions.py \
               geopmdpy_test/TestSecureFiles.py \
               geopmdpy_test/TestAccessLists.py \
+              geopmdpy_test/TestWriteLock.py \
               # end
 
 GEOPMDPY_TESTS = geopmdpy_test/pytest_links/TestAccessLists.test__read_allowed_invalid \
@@ -128,7 +129,6 @@ GEOPMDPY_TESTS = geopmdpy_test/pytest_links/TestAccessLists.test__read_allowed_i
                  geopmdpy_test/pytest_links/TestActiveSessions.test_creation_json \
                  geopmdpy_test/pytest_links/TestActiveSessions.test_load_clients \
                  geopmdpy_test/pytest_links/TestActiveSessions.test_add_remove_client \
-                 geopmdpy_test/pytest_links/TestActiveSessions.test_write_client \
                  geopmdpy_test/pytest_links/TestActiveSessions.test_batch_server \
                  geopmdpy_test/pytest_links/TestActiveSessions.test_batch_server_service_restart \
                  geopmdpy_test/pytest_links/TestActiveSessions.test_batch_server_bad_service_restart \
@@ -150,6 +150,7 @@ GEOPMDPY_TESTS = geopmdpy_test/pytest_links/TestAccessLists.test__read_allowed_i
                  geopmdpy_test/pytest_links/TestSecureFiles.test_read_file_bad_group_owner \
                  geopmdpy_test/pytest_links/TestSecureFiles.test_read_valid_file \
                  geopmdpy_test/pytest_links/TestSecureFiles.test_secure_make_file \
+                 geopmdpy_test/pytest_links/TestWriteLock.test_default_creation \
                  # end
 
 TESTS += $(GEOPMDPY_TESTS)

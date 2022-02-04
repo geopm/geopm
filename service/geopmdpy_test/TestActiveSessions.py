@@ -45,48 +45,30 @@ from geopmdpy.varrun import ActiveSessions
 class TestActiveSessions(unittest.TestCase):
     json_good_example = {
         "client_pid" : 750,
-        "mode" : "r",
         "signals" : ["ENERGY_DRAM", "FREQUENCY_MAX", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
         "controls" : ["CPU_FREQUENCY_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
         "watch_id" : 754
     }
     json_good_example_2 = {
         "client_pid" : 450,
-        "mode" : "r",
         "signals" : ["ENERGY_DRAM", "FREQUENCY_MAX", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
         "controls" : ["CPU_FREQUENCY_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
         "watch_id" : 550
     }
     json_empty_signals_controls = {
         "client_pid" : 450,
-        "mode" : "r",
         "signals" : [],
         "controls" : [],
         "watch_id" : 550
     }
-    json_no_mode = {
-        "client_pid" : 450,
-        "signals" : ["ENERGY_DRAM", "FREQUENCY_MAX", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
-        "controls" : ["CPU_FREQUENCY_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
-        "watch_id" : 550
-    }
-    json_bad_mode = {
-        "client_pid" : 450,
-        "mode" : "q",
-        "signals" : ["ENERGY_DRAM", "FREQUENCY_MAX", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
-        "controls" : ["CPU_FREQUENCY_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
-        "watch_id" : 550
-    }
     json_wrong_data_types = {
         "client_pid" : "450",
-        "mode" : "r",
         "signals" : ["ENERGY_DRAM", "FREQUENCY_MAX", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
         "controls" : ["CPU_FREQUENCY_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
         "watch_id" : "550"
     }
     json_additional_properties = {
         "client_pid" : 450,
-        "mode" : "r",
         "signals" : ["ENERGY_DRAM", "FREQUENCY_MAX", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
         "controls" : ["CPU_FREQUENCY_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
         "actuators" : ["ENERGY_DRAM", "FREQUENCY_MIN", "MSR::IA32_PERFEVTSEL0:CMASK"],
@@ -98,7 +80,6 @@ class TestActiveSessions(unittest.TestCase):
     string_empty_file = ""
     string_typos_json = """{
         "client_pid" : 450,
-        "mode" : "r"
         "signals",  ["ENERGY_DRAM", "FREQUENCY_MAX", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
         "controls" : ["CPU_FREQUENCY_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
         "watch_id" 550,
@@ -147,7 +128,6 @@ class TestActiveSessions(unittest.TestCase):
         self.assertEqual(controls, session.get_controls(client_pid))
         self.assertEqual(watch_id, session.get_watch_id(client_pid))
         self.assertIsNone(session.get_batch_server(client_pid))
-        self.assertFalse(session.is_write_client(client_pid))
 
     def create_json_file(self, directory, filename, contents, permissions=0o600):
         """Create a json file
@@ -227,10 +207,6 @@ class TestActiveSessions(unittest.TestCase):
         self.check_json_file("good_example", self.json_good_example, True)
         # Valid JSON file with signals and controls fields are empty lists
         self.check_json_file("empty_signals_controls", self.json_empty_signals_controls, True)
-        # Invalid JSON file which does not have the mode field
-        self.check_json_file("no_mode", self.json_no_mode, False)
-        # Invalid JSON file which has a value for the mode field not "r" or "rw"
-        self.check_json_file("bad_mode", self.json_bad_mode, False)
         # Invalid JSON file which has all the right fields, but the data types of the respective values are wrong.
         self.check_json_file("wrong_data_types", self.json_wrong_data_types, False)
         # Invalid JSON file which has additional extraneous fields
@@ -327,51 +303,6 @@ class TestActiveSessions(unittest.TestCase):
             self.assertNotIn(client_pid, act_sess.get_clients())
             self.assertFalse(act_sess.is_client_active(client_pid))
             mock_remove.assert_called_once_with(full_file_path)
-
-    def test_write_client(self):
-        """Assign the write privileges to a client session
-
-        Test that when set_write_client() is called that the result of
-        is_write_client() changes to reflect this.  Checks that a
-        second ApplicationSessions object loaded after the write
-        client was assigned reflects this change when calling
-        is_write_client() on the second object.
-
-        """
-        json_good_example = dict(self.json_good_example)
-        client_pid = json_good_example['client_pid']
-        signals = json_good_example['signals']
-        controls = json_good_example['controls']
-        watch_id = json_good_example['watch_id']
-
-        sess_path = f'{self._TEMP_DIR.name}/geopm-service'
-        full_file_path = os.path.join(sess_path, f"session-{client_pid}.json")
-
-        with mock.patch('geopmdpy.varrun.secure_make_dirs', autospec=True, specset=True) as mock_smd, \
-             mock.patch('geopmdpy.varrun.secure_make_file', autospec=True, specset=True) as mock_smf:
-            act_sess = ActiveSessions(sess_path)
-
-            act_sess.add_client(client_pid, signals, controls, watch_id)
-            is_writer_actual = act_sess.is_write_client(client_pid)
-            self.assertFalse(is_writer_actual)
-            mock_smf.assert_called_once_with(full_file_path, json.dumps(json_good_example))
-
-            act_sess.set_write_client(client_pid)
-            mock_smd.assert_called_once_with(sess_path)
-            is_writer_actual = act_sess.is_write_client(client_pid)
-            self.assertTrue(is_writer_actual)
-
-            # Mock/test that the first act_sess wrote all this data to disk.
-            json_good_example['mode'] = 'rw'
-            with  mock.patch('geopmdpy.varrun.secure_read_file', autospec=True, specset=True,
-                             return_value=json.dumps(json_good_example)) as mock_srf, \
-                  mock.patch('os.stat') as mock_stat, \
-                  mock.patch('glob.glob', return_value=[full_file_path]), \
-                  mock.patch('geopmdpy.varrun.ActiveSessions._is_pid_valid', return_value=True) as mock_pid_valid:
-                new_act_sess = ActiveSessions(sess_path)
-                mock_smd.assert_has_calls([mock.call(sess_path)]*2)
-                is_writer_actual = new_act_sess.is_write_client(client_pid)
-                self.assertTrue(is_writer_actual)
 
     def test_batch_server(self):
         """Assign the batch server PID to a client session
