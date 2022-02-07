@@ -142,7 +142,13 @@ GEOPMDPY_TESTS = geopmdpy_test/pytest_links/TestPlatformService.test__read_allow
                  geopmdpy_test/pytest_links/TestActiveSessions.test_batch_server_bad_service_restart \
                  geopmdpy_test/pytest_links/TestActiveSessions.test_is_pid_valid \
                  geopmdpy_test/pytest_links/TestActiveSessions.test_watch_id \
+                 geopmdpy_test/pytest_links/TestSecureFiles.test_pre_exists \
+                 geopmdpy_test/pytest_links/TestSecureFiles.test_default_creation \
                  geopmdpy_test/pytest_links/TestSecureFiles.test_creation_link_not_dir \
+                 geopmdpy_test/pytest_links/TestSecureFiles.test_creation_file_not_dir \
+                 geopmdpy_test/pytest_links/TestSecureFiles.test_creation_bad_perms \
+                 geopmdpy_test/pytest_links/TestSecureFiles.test_creation_bad_user_owner \
+                 geopmdpy_test/pytest_links/TestSecureFiles.test_creation_bad_group_owner \
                  # end
 
 TESTS += $(GEOPMDPY_TESTS)
