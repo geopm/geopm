@@ -112,16 +112,16 @@ each region.
 
 The fields in each of these sections are described below:
 
-  ``name``\ : Name of the region.  For user-defined regions, this is the
+  ``name``\: Name of the region.  For user-defined regions, this is the
           string passed to ``geopm_region()``\ ; for automatically
           detected OpenMP and MPI regions this is the function name.
           See `geopm_prof_c(3) <geopm_prof_c.3.html>`_ for more information.
 
-  ``hash``\ : The CRC32 hash of the region name.  This value is used by
+  ``hash``\: The CRC32 hash of the region name.  This value is used by
           agents to distinguish regions using the REGION_HASH signal
           and also appears in the trace.
 
-  ``runtime (s)``\ : The average across all processes of the total runtime
+  ``runtime (s)``\: The average across all processes of the total runtime
                  spent in the region.  For epoch totals, this is the
                  time from the first detected epoch to the end of the
                  application.  For application totals, this is the
@@ -134,7 +134,7 @@ The fields in each of these sections are described below:
                  values below; use ``sync-runtime`` for comparisons
                  instead.
 
-  ``count``\ : The total number of times this region was entered and
+  ``count``\: The total number of times this region was entered and
            exited, averaged accross all processes.  Fractional counts
            are possible if some processes entered a region a different
            number of times.  For epoch totals, this is the total
@@ -142,7 +142,7 @@ The fields in each of these sections are described below:
            The count has no meaning for the unmarked region and
            application totals.
 
-  ``sync-runtime (s)``\ : Total time for which the sampled region hash
+  ``sync-runtime (s)``\: Total time for which the sampled region hash
                       matched this region on all CPUs on the compute
                       node.  For epoch and application totals, this
                       value is the same as ``runtime (s)``.  The
@@ -153,74 +153,74 @@ The fields in each of these sections are described below:
                       sampled in the same way as the sync-runtime and
                       can be compared with it.
 
-  ``package-energy (J)``\ : Total energy in joules consumed by all
+  ``package-energy (J)``\: Total energy in joules consumed by all
                         processor packages (sockets).
 
-  ``dram-energy (J)``\ : Total energy in joules consumed by all DRAM on
+  ``dram-energy (J)``\: Total energy in joules consumed by all DRAM on
                      the board.
 
-  ``power (W)``\ : Average power for the processor package, calculated as
+  ``power (W)``\: Average power for the processor package, calculated as
                package-energy divided by sync-runtime.
 
-  ``frequency (%)``\ : Achieved core frequency as a percentage of the
+  ``frequency (%)``\: Achieved core frequency as a percentage of the
                    sticker (base) frequency for the processor.  This
                    frequency is calculated using the ratio of
                    CYCLES_THREAD to CYCLES_REFERENCE.
 
-  ``frequency (Hz)``\ : Achieved core frequency for the processor in
+  ``frequency (Hz)``\: Achieved core frequency for the processor in
                     hertz.  This frequency is calculated using the
                     ratio of CYCLES_THREAD to CYCLES_REFERENCE times
                     the sticker (base) frequency.
 
-  ``time-hint-network (s)``\ : The portion of sync-runtime where the
+  ``time-hint-network (s)``\: The portion of sync-runtime where the
                            region hint was GEOPM_REGION_HINT_NETWORK.
                            The region hint is determined by the hint
                            passed to ``geopm_region()`` for the most
                            nested region.
 
-  ``time-hint-ignore (s)``\ : The portion of sync-runtime where the region
+  ``time-hint-ignore (s)``\: The portion of sync-runtime where the region
                           hint was GEOPM_REGION_HINT_IGNORE.  The
                           region hint is determined by the hint passed
                           to ``geopm_region()`` for the most nested
                           region.
 
-  ``time-hint-compute (s)``\ : The portion of sync-runtime where the
+  ``time-hint-compute (s)``\: The portion of sync-runtime where the
                            region hint was GEOPM_REGION_HINT_COMPUTE.
                            The region hint is determined by the hint
                            passed to ``geopm_region()`` for the most
                            nested region.
 
-  ``time-hint-memory (s)``\ : The portion of sync-runtime where the region
+  ``time-hint-memory (s)``\: The portion of sync-runtime where the region
                           hint was GEOPM_REGION_HINT_MEMORY.  The
                           region hint is determined by the hint passed
                           to ``geopm_region()`` for the most nested
                           region.
 
-  ``time-hint-io (s)``\ : The portion of sync-runtime where the region
+  ``time-hint-io (s)``\: The portion of sync-runtime where the region
                       hint was GEOPM_REGION_HINT_IO.  The region hint
                       is determined by the hint passed to
                       ``geopm_region()`` for the most nested region.
 
-  ``time-hint-serial (s)``\ : The portion of sync-runtime where the region
+  ``time-hint-serial (s)``\: The portion of sync-runtime where the region
                           hint was GEOPM_REGION_HINT_SERIAL.  The
                           region hint is determined by the hint passed
                           to ``geopm_region()`` for the most nested
                           region.
 
-  ``time-hint-parallel (s)``\ : The portion of sync-runtime where the
+  ``time-hint-parallel (s)``\: The portion of sync-runtime where the
                             region hint was
                             GEOPM_REGION_HINT_PARALLEL.  The region
                             hint is determined by the hint passed to
                             ``geopm_region()`` for the most nested
                             region.
 
-  ``time-hint-unknown (s)``\ : The portion of sync-runtime where the
+  ``time-hint-unknown (s)``\: The portion of sync-runtime where the
                            region hint was GEOPM_REGION_HINT_UNKNOWN.
                            The region hint is determined by the hint
                            passed to ``geopm_region()`` for the most
                            nested region.
 
-  ``time-hint-unset (s)``\ : The portion of sync-runtime where the region
+  ``time-hint-unset (s)``\: The portion of sync-runtime where the region
                          hint was GEOPM_REGION_HINT_UNSET.  The region
                          hint also becomes unset when exiting an
                          unnested region (i.e. when a CPU is in the
