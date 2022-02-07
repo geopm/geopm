@@ -33,6 +33,7 @@
 
 import unittest
 from unittest import mock
+import re
 import os
 import stat
 import json
@@ -325,7 +326,7 @@ class TestActiveSessions(unittest.TestCase):
         sess_path = f'{self._TEMP_DIR.name}/geopm-service'
         self.create_json_file(sess_path, "session-2.json", self.json_good_example, 0o644)
         full_file_path = os.path.join(sess_path, "session-2.json")
-        renamed_file_path = f'{full_file_path}-uuid4-INVALID'
+        renamed_path = f'{full_file_path}-uuid4-INVALID'
 
         dir_mock = mock.MagicMock()
         dir_mock.st_uid = os.getuid()
@@ -341,17 +342,21 @@ class TestActiveSessions(unittest.TestCase):
         # first time in __init__() it is called with a string to determine the directory
         # second time in _load_session_file() it is called with a file descriptor to determine the file
         # based on the data type we use a different mock for the os.stat()
-        side_effect = lambda path: type(path) is int and session_2_mock or dir_mock
+        os_stat_effect = lambda path: type(path) is int and session_2_mock or dir_mock
+        # mocks os.path.isdir : if the last element of the path has a dot extension
+        # then it's a file, else it's a directory.
+        os_path_isdir_effect = lambda path: not re.match(".+[.].+", path.split('/')[-1])
 
-        with mock.patch('os.stat', side_effect=side_effect), \
+        with mock.patch('os.stat', side_effect=os_stat_effect), \
              mock.patch('os.path.islink', return_value=False), \
-             mock.patch('os.path.isdir', return_value=True), \
+             mock.patch('os.path.isdir', side_effect=os_path_isdir_effect), \
+             mock.patch('stat.S_ISREG', return_value=True), \
+             mock.patch('stat.S_ISLNK', return_value=False), \
              mock.patch('uuid.uuid4', return_value='uuid4'), \
              mock.patch('sys.stderr.write', return_value=None) as mock_err:
             act_sess = ActiveSessions(sess_path)
             calls = [
-                mock.call(f'Warning: <geopm-service> session file was discovered with invalid permissions, renamed {full_file_path} to {renamed_file_path} and will ignore'),
-                mock.call('Warning: <geopm-service> not a regular file'),
+                mock.call(f'Warning: <geopm-service> {full_file_path} was discovered with invalid permissions, it will be renamed to {renamed_path}'),
                 mock.call(f'Warning: <geopm-service> the wrong permissions were {oct(0o644)}')
             ]
             mock_err.assert_has_calls(calls)
@@ -371,7 +376,7 @@ class TestActiveSessions(unittest.TestCase):
         sess_path = f'{self._TEMP_DIR.name}/geopm-service'
         self.create_json_file(sess_path, "session-3.json", self.json_good_example, 0o644)
         full_file_path = os.path.join(sess_path, "session-3.json")
-        renamed_file_path = f'{full_file_path}-uuid4-INVALID'
+        renamed_path = f'{full_file_path}-uuid4-INVALID'
 
         dir_mock = mock.MagicMock()
         dir_mock.st_uid = os.getuid()
@@ -387,17 +392,21 @@ class TestActiveSessions(unittest.TestCase):
         # first time in __init__() it is called with a string to determine the directory
         # second time in _load_session_file() it is called with a file descriptor to determine the file
         # based on the data type we use a different mock for the os.stat()
-        side_effect = lambda path: type(path) is int and session_3_mock or dir_mock
+        os_stat_effect = lambda path: type(path) is int and session_3_mock or dir_mock
+        # mocks os.path.isdir : if the last element of the path has a dot extension
+        # then it's a file, else it's a directory.
+        os_path_isdir_effect = lambda path: not re.match(".+[.].+", path.split('/')[-1])
 
-        with mock.patch('os.stat', side_effect=side_effect), \
+        with mock.patch('os.stat', side_effect=os_stat_effect), \
              mock.patch('os.path.islink', return_value=False), \
-             mock.patch('os.path.isdir', return_value=True), \
+             mock.patch('os.path.isdir', side_effect=os_path_isdir_effect), \
+             mock.patch('stat.S_ISREG', return_value=True), \
+             mock.patch('stat.S_ISLNK', return_value=False), \
              mock.patch('uuid.uuid4', return_value='uuid4'), \
              mock.patch('sys.stderr.write', return_value=None) as mock_err:
             act_sess = ActiveSessions(sess_path)
             calls = [
-                mock.call(f'Warning: <geopm-service> session file was discovered with invalid permissions, renamed {full_file_path} to {renamed_file_path} and will ignore'),
-                mock.call('Warning: <geopm-service> not a regular file'),
+                mock.call(f'Warning: <geopm-service> {full_file_path} was discovered with invalid permissions, it will be renamed to {renamed_path}'),
                 mock.call(f'Warning: <geopm-service> the wrong user owner was {session_3_mock.st_uid}')
             ]
             mock_err.assert_has_calls(calls)
@@ -417,7 +426,7 @@ class TestActiveSessions(unittest.TestCase):
         sess_path = f'{self._TEMP_DIR.name}/geopm-service'
         self.create_json_file(sess_path, "session-4.json", self.json_good_example, 0o644)
         full_file_path = os.path.join(sess_path, "session-4.json")
-        renamed_file_path = f'{full_file_path}-uuid4-INVALID'
+        renamed_path = f'{full_file_path}-uuid4-INVALID'
 
         dir_mock = mock.MagicMock()
         dir_mock.st_uid = os.getuid()
@@ -433,17 +442,21 @@ class TestActiveSessions(unittest.TestCase):
         # first time in __init__() it is called with a string to determine the directory
         # second time in _load_session_file() it is called with a file descriptor to determine the file
         # based on the data type we use a different mock for the os.stat()
-        side_effect = lambda path: type(path) is int and session_4_mock or dir_mock
+        os_stat_effect = lambda path: type(path) is int and session_4_mock or dir_mock
+        # mocks os.path.isdir : if the last element of the path has a dot extension
+        # then it's a file, else it's a directory.
+        os_path_isdir_effect = lambda path: not re.match(".+[.].+", path.split('/')[-1])
 
-        with mock.patch('os.stat', side_effect=side_effect), \
+        with mock.patch('os.stat', side_effect=os_stat_effect), \
              mock.patch('os.path.islink', return_value=False), \
-             mock.patch('os.path.isdir', return_value=True), \
+             mock.patch('os.path.isdir', side_effect=os_path_isdir_effect), \
+             mock.patch('stat.S_ISREG', return_value=True), \
+             mock.patch('stat.S_ISLNK', return_value=False), \
              mock.patch('uuid.uuid4', return_value='uuid4'), \
              mock.patch('sys.stderr.write', return_value=None) as mock_err:
             act_sess = ActiveSessions(sess_path)
             calls = [
-                mock.call(f'Warning: <geopm-service> session file was discovered with invalid permissions, renamed {full_file_path} to {renamed_file_path} and will ignore'),
-                mock.call('Warning: <geopm-service> not a regular file'),
+                mock.call(f'Warning: <geopm-service> {full_file_path} was discovered with invalid permissions, it will be renamed to {renamed_path}'),
                 mock.call(f'Warning: <geopm-service> the wrong group owner was {session_4_mock.st_gid}')
             ]
             mock_err.assert_has_calls(calls)

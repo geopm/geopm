@@ -41,7 +41,6 @@ from pathlib import Path
 from geopmdpy.varrun import secure_make_dirs
 from geopmdpy.varrun import secure_make_file
 from geopmdpy.varrun import secure_read_file
-from geopmdpy.varrun import secure_remove_file
 
 class TestSecureFiles(unittest.TestCase):
     def setUp(self):

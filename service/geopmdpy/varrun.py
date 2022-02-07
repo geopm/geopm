@@ -162,7 +162,7 @@ def secure_read_file(path):
     printed to syslog and the existing file will be renamed to
     `<path>-<UUID>-INVALID` so that it may be audited later, but not
     used.  The warning message will display the reason why the file
-    was not secure and a RuntimeError is raised.
+    was not secure and None is returned.
 
     If the path points to an existing file that is determined to be
     secure then the contents of the file is returned.
@@ -171,25 +171,65 @@ def secure_read_file(path):
         path (str): The path where the file is created
 
     Returns:
-        str: The contents of the file
+        str: The contents of the file if file was opened, None if couldn't open file
 
     """
-    pass
+    daemon_uid = os.getuid()
+    daemon_gid = os.getgid()
+    contents = None
+    # If the path exists
+    if os.path.exists(path):
+        renamed_path = f'{path}-{uuid.uuid4()}-INVALID'
 
-def secure_remove_file(path):
-    """Rename path to a unique invalid name
+        # If it is a file, not a directory
+        if not os.path.isdir(path):
+            with open(path) as fid:
+                sess_stat = os.stat(fid.fileno())
+                # If the permissions requirements of the file are not satisfied
+                if not (stat.S_ISREG(sess_stat.st_mode) and
+                        stat.S_IMODE(sess_stat.st_mode) == 0o600 and
+                        sess_stat.st_uid == daemon_uid and
+                        sess_stat.st_gid == daemon_gid):
+                    # If it is not a regular file
+                    if not stat.S_ISREG(sess_stat.st_mode):
+                        # If it is a symbolic link
+                        if stat.S_ISLNK(sess_stat.st_mode):
+                            sys.stderr.write(f'Warning: <geopm-service> {path} is a symbolic link, it will be renamed to {renamed_path}')
+                            sys.stderr.write(f'Warning: <geopm-service> the symbolic link points to {os.readlink(path)}')
+                        # If it is not a symbolic link, but not a regular file
+                        else:
+                            sys.stderr.write(f'Warning: <geopm-service> {path} is not a regular file, it will be renamed to {renamed_path}')
+                    # If it is a regular file with bad permissions
+                    else:
+                        sys.stderr.write(f'Warning: <geopm-service> {path} was discovered with invalid permissions, it will be renamed to {renamed_path}')
+                        # If the permissions are wrong
+                        if stat.S_IMODE(sess_stat.st_mode) != 0o600:
+                            sys.stderr.write(f'Warning: <geopm-service> the wrong permissions were {oct(sess_stat.st_mode)}')
+                        # If the user owner is wrong
+                        if sess_stat.st_uid != daemon_uid:
+                            sys.stderr.write(f'Warning: <geopm-service> the wrong user owner was {sess_stat.st_uid}')
+                        # If the group owner is wrong
+                        if sess_stat.st_gid != daemon_gid:
+                            sys.stderr.write(f'Warning: <geopm-service> the wrong group owner was {sess_stat.st_gid}')
 
-    Create a unique name of the form "<path>-<uuid>-INVALID"
-    and rename the path to this unique name.
+                # If the file satisfies all requirements
+                else:
+                    # Read whole file into the string
+                    contents = fid.read()
+        # If it is a directory
+        else:
+            sys.stderr.write(f'Warning: <geopm-service> {path} is a directory, it will be renamed to {renamed_path}')
 
-    Args:
-        path (str): The path to invalid file
+        # If the existing path is determined to be insecure it will be renamed to
+        # `<path>-<UUID>-INVALID` so that it may be audited later, but not used.
+        if contents is None:
+            os.rename(path, renamed_path)
 
-    Returns:
-        str: The renamed path
+    # If the path does not exist
+    else:
+        sys.stderr.write(f'Warning: <geopm-service> {path} does not exist')
 
-    """
-    pass
+    return contents
 
 
 class ActiveSessions(object):
@@ -638,33 +678,19 @@ class ActiveSessions(object):
             sess_path (str): Current client's session file path
 
         """
-        renamed_path = f'{sess_path}-{uuid.uuid4()}-INVALID'
-        with open(sess_path) as fid:
-            sess_stat = os.stat(fid.fileno())
-            # Check required permissions
-            if not (stat.S_ISREG(sess_stat.st_mode) and
-                    stat.S_IMODE(sess_stat.st_mode) == 0o600 and
-                    sess_stat.st_uid == self._daemon_uid and
-                    sess_stat.st_gid == self._daemon_gid):
-                sys.stderr.write(f'Warning: <geopm-service> session file was discovered with invalid permissions, renamed {sess_path} to {renamed_path} and will ignore')
-                if not stat.S_ISREG(sess_stat.st_mode):
-                    sys.stderr.write('Warning: <geopm-service> not a regular file')
-                if stat.S_IMODE(sess_stat.st_mode) != 0o600:
-                    sys.stderr.write(f'Warning: <geopm-service> the wrong permissions were {oct(sess_stat.st_mode)}')
-                if sess_stat.st_uid != self._daemon_uid:
-                    sys.stderr.write(f'Warning: <geopm-service> the wrong user owner was {sess_stat.st_uid}')
-                if sess_stat.st_gid != self._daemon_gid:
-                    sys.stderr.write(f'Warning: <geopm-service> the wrong group owner was {sess_stat.st_gid}')
+        contents = secure_read_file(sess_path)
+        if contents is None:
+            return # Invalid JSON return early
+        try:
+            sess = json.loads(contents)
+            jsonschema.validate(sess, schema=self._session_schema)
+        except:
+            renamed_path = f'{sess_path}-{uuid.uuid4()}-INVALID'
+            sys.stderr.write(f'Warning: <geopm-service> Invalid JSON file, unable to parse, renamed{sess_path} to {renamed_path} and will ignore')
+            os.rename(sess_path, renamed_path)
+            return # Invalid JSON return early
 
-                os.rename(sess_path, renamed_path)
-                return  # Bad permissions return early
-            try:
-                sess = json.load(fid)
-                jsonschema.validate(sess, schema=self._session_schema)
-            except:
-                sys.stderr.write(f'Warning: <geopm-service> Invalid JSON file, unable to parse, renamed{sess_path} to {renamed_path} and will ignore')
-                os.rename(sess_path, renamed_path)
-                return # Invalid JSON return early
+        sess_stat = os.stat(sess_path)
         file_time = sess_stat.st_ctime
         client_pid = sess['client_pid']
         batch_pid = sess.get('batch_server')
