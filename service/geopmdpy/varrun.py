@@ -544,7 +544,7 @@ class ActiveSessions(object):
                     stat.S_IMODE(sess_stat.st_mode) == 0o600 and
                     sess_stat.st_uid == self._daemon_uid and
                     sess_stat.st_gid == self._daemon_gid):
-                sys.stderr.write(f'Warning: <geopm-service> session file was discovered with invalid permissions, will be ignored and removed: {sess_path}')
+                sys.stderr.write(f'Warning: <geopm-service> session file was discovered with invalid permissions, renamed {sess_path} to {renamed_path} and will ignore')
                 if not stat.S_ISREG(sess_stat.st_mode):
                     sys.stderr.write('Warning: <geopm-service> not a regular file')
                 if stat.S_IMODE(sess_stat.st_mode) != 0o600:

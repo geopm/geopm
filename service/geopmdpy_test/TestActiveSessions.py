@@ -324,6 +324,8 @@ class TestActiveSessions(unittest.TestCase):
         """
         sess_path = f'{self._TEMP_DIR.name}/geopm-service'
         self.create_json_file(sess_path, "session-2.json", self.json_good_example, 0o644)
+        full_file_path = os.path.join(sess_path, "session-2.json")
+        renamed_file_path = f'{full_file_path}-uuid4-INVALID'
 
         dir_mock = mock.MagicMock()
         dir_mock.st_uid = os.getuid()
@@ -348,7 +350,7 @@ class TestActiveSessions(unittest.TestCase):
              mock.patch('sys.stderr.write', return_value=None) as mock_err:
             act_sess = ActiveSessions(sess_path)
             calls = [
-                mock.call(f'Warning: <geopm-service> session file was discovered with invalid permissions, will be ignored and removed: {os.path.join(sess_path, "session-2.json")}'),
+                mock.call(f'Warning: <geopm-service> session file was discovered with invalid permissions, renamed {full_file_path} to {renamed_file_path} and will ignore'),
                 mock.call('Warning: <geopm-service> not a regular file'),
                 mock.call(f'Warning: <geopm-service> the wrong permissions were {oct(0o644)}')
             ]
@@ -369,6 +371,7 @@ class TestActiveSessions(unittest.TestCase):
         sess_path = f'{self._TEMP_DIR.name}/geopm-service'
         self.create_json_file(sess_path, "session-3.json", self.json_good_example, 0o644)
         full_file_path = os.path.join(sess_path, "session-3.json")
+        renamed_file_path = f'{full_file_path}-uuid4-INVALID'
 
         dir_mock = mock.MagicMock()
         dir_mock.st_uid = os.getuid()
@@ -393,7 +396,7 @@ class TestActiveSessions(unittest.TestCase):
              mock.patch('sys.stderr.write', return_value=None) as mock_err:
             act_sess = ActiveSessions(sess_path)
             calls = [
-                mock.call(f'Warning: <geopm-service> session file was discovered with invalid permissions, will be ignored and removed: {full_file_path}'),
+                mock.call(f'Warning: <geopm-service> session file was discovered with invalid permissions, renamed {full_file_path} to {renamed_file_path} and will ignore'),
                 mock.call('Warning: <geopm-service> not a regular file'),
                 mock.call(f'Warning: <geopm-service> the wrong user owner was {session_3_mock.st_uid}')
             ]
@@ -414,6 +417,7 @@ class TestActiveSessions(unittest.TestCase):
         sess_path = f'{self._TEMP_DIR.name}/geopm-service'
         self.create_json_file(sess_path, "session-4.json", self.json_good_example, 0o644)
         full_file_path = os.path.join(sess_path, "session-4.json")
+        renamed_file_path = f'{full_file_path}-uuid4-INVALID'
 
         dir_mock = mock.MagicMock()
         dir_mock.st_uid = os.getuid()
@@ -438,7 +442,7 @@ class TestActiveSessions(unittest.TestCase):
              mock.patch('sys.stderr.write', return_value=None) as mock_err:
             act_sess = ActiveSessions(sess_path)
             calls = [
-                mock.call(f'Warning: <geopm-service> session file was discovered with invalid permissions, will be ignored and removed: {full_file_path}'),
+                mock.call(f'Warning: <geopm-service> session file was discovered with invalid permissions, renamed {full_file_path} to {renamed_file_path} and will ignore'),
                 mock.call('Warning: <geopm-service> not a regular file'),
                 mock.call(f'Warning: <geopm-service> the wrong group owner was {session_4_mock.st_gid}')
             ]
