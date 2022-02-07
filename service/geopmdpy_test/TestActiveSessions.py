@@ -349,6 +349,7 @@ class TestActiveSessions(unittest.TestCase):
             act_sess = ActiveSessions(sess_path)
             calls = [
                 mock.call(f'Warning: <geopm-service> session file was discovered with invalid permissions, will be ignored and removed: {os.path.join(sess_path, "session-2.json")}'),
+                mock.call('Warning: <geopm-service> not a regular file'),
                 mock.call(f'Warning: <geopm-service> the wrong permissions were {oct(0o644)}')
             ]
             mock_err.assert_has_calls(calls)
@@ -393,6 +394,7 @@ class TestActiveSessions(unittest.TestCase):
             act_sess = ActiveSessions(sess_path)
             calls = [
                 mock.call(f'Warning: <geopm-service> session file was discovered with invalid permissions, will be ignored and removed: {full_file_path}'),
+                mock.call('Warning: <geopm-service> not a regular file'),
                 mock.call(f'Warning: <geopm-service> the wrong user owner was {session_3_mock.st_uid}')
             ]
             mock_err.assert_has_calls(calls)
@@ -437,6 +439,7 @@ class TestActiveSessions(unittest.TestCase):
             act_sess = ActiveSessions(sess_path)
             calls = [
                 mock.call(f'Warning: <geopm-service> session file was discovered with invalid permissions, will be ignored and removed: {full_file_path}'),
+                mock.call('Warning: <geopm-service> not a regular file'),
                 mock.call(f'Warning: <geopm-service> the wrong group owner was {session_4_mock.st_gid}')
             ]
             mock_err.assert_has_calls(calls)

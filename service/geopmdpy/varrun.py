@@ -545,6 +545,8 @@ class ActiveSessions(object):
                     sess_stat.st_uid == self._daemon_uid and
                     sess_stat.st_gid == self._daemon_gid):
                 sys.stderr.write(f'Warning: <geopm-service> session file was discovered with invalid permissions, will be ignored and removed: {sess_path}')
+                if not stat.S_ISREG(sess_stat.st_mode):
+                    sys.stderr.write('Warning: <geopm-service> not a regular file')
                 if stat.S_IMODE(sess_stat.st_mode) != 0o600:
                     sys.stderr.write(f'Warning: <geopm-service> the wrong permissions were {oct(sess_stat.st_mode)}')
                 if sess_stat.st_uid != self._daemon_uid:
@@ -566,8 +568,8 @@ class ActiveSessions(object):
         batch_pid = sess.get('batch_server')
         if self._is_pid_valid(client_pid, file_time):
             # Valid session; verify batch server
-            if not (batch_pid is None or
-                    self._is_pid_valid(batch_pid, file_time)):
+            if batch_pid is not None and \
+               self._is_pid_valid(batch_pid, file_time) == False:
                 sess.pop('batch_server')
         else:
             # Invalid session, remove batch server
