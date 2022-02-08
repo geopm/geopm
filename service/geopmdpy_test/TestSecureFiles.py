@@ -230,5 +230,263 @@ class TestSecureFiles(unittest.TestCase):
         self.assertTrue(os.path.exists(renamed_path))
         self.check_dir_perms(sess_path)
 
+    def test_read_file_not_exists(self):
+        """File to be securely read in does not exist!
+
+        Creates the geopm-service directory, but does not create the file within.
+        Calls secure_read_file() with a non existent file path.
+
+        """
+        dir_path = f'{self._TEMP_DIR.name}/geopm-service'
+        os.mkdir(dir_path, mode=0o700)
+        self.check_dir_perms(dir_path)
+        file_name = "stuff.json"
+        full_file_path = os.path.join(dir_path, file_name)
+        # do not create the file
+
+        with mock.patch('sys.stderr.write', return_value=None) as mock_err:
+            contents = secure_read_file(full_file_path)
+            self.assertIsNone(contents)
+            mock_err.assert_called_once_with(f'Warning: <geopm-service> {full_file_path} does not exist')
+
+    def test_read_file_is_directory(self):
+        """File to be securely read in is actually a directory!
+
+        Creates the geopm-service directory, and creates another directory within.
+        Calls secure_read_file() with a directory instead of a file.
+
+        """
+        dir_path = f'{self._TEMP_DIR.name}/geopm-service'
+        os.mkdir(dir_path, mode=0o700)
+        self.check_dir_perms(dir_path)
+        file_name = "stuff.json"
+        full_file_path = os.path.join(dir_path, file_name)
+        renamed_path = f'{full_file_path}-uuid4-INVALID'
+        # create full_file_path as a directory instead of creating a file
+        os.mkdir(full_file_path, mode=0o700)
+
+        with mock.patch('uuid.uuid4', return_value='uuid4'), \
+             mock.patch('sys.stderr.write', return_value=None) as mock_err:
+            contents = secure_read_file(full_file_path)
+            self.assertIsNone(contents)
+            mock_err.assert_called_once_with(f'Warning: <geopm-service> {full_file_path} is a directory, it will be renamed to {renamed_path}')
+
+    def test_read_file_is_link(self):
+        """File to be securely read in is actually a link!
+
+        Creates the geopm-service directory, and creates a link within.
+        Calls secure_read_file() with a link instead of a file.
+
+        """
+        dir_path = f'{self._TEMP_DIR.name}/geopm-service'
+        os.mkdir(dir_path, mode=0o700)
+        self.check_dir_perms(dir_path)
+        file_name = "stuff.json"
+        full_file_path = os.path.join(dir_path, file_name)
+        renamed_path = f'{full_file_path}-uuid4-INVALID'
+        # create full_file_path as a link instead of creating a file
+        os.symlink('~', full_file_path)
+
+        link_mock = mock.MagicMock()
+        link_mock.st_uid = os.getuid()
+        link_mock.st_gid = os.getgid()
+        link_mock.st_mode = 0o600
+
+        with mock.patch('os.path.exists', return_value=True), \
+             mock.patch('os.path.isdir', return_value=False), \
+             mock.patch('os.path.islink', return_value=True), \
+             mock.patch('os.readlink', return_value='~'), \
+             mock.patch('os.stat', return_value=link_mock), \
+             mock.patch('stat.S_ISREG', return_value=False), \
+             mock.patch('uuid.uuid4', return_value='uuid4'), \
+             mock.patch('sys.stderr.write', return_value=None) as mock_err:
+            contents = secure_read_file(full_file_path)
+            self.assertIsNone(contents)
+            calls = [
+                mock.call(f'Warning: <geopm-service> {full_file_path} is a symbolic link, it will be renamed to {renamed_path}'),
+                mock.call(f'Warning: <geopm-service> the symbolic link points to ~')
+            ]
+            mock_err.assert_has_calls(calls)
+
+    def test_read_file_is_fifo(self):
+        """File to be securely read in is actually a fifo!
+
+        Creates the geopm-service directory, and creates a fifo within.
+        Calls secure_read_file() with a fifo instead of a file.
+
+        """
+        dir_path = f'{self._TEMP_DIR.name}/geopm-service'
+        os.mkdir(dir_path, mode=0o700)
+        self.check_dir_perms(dir_path)
+        file_name = "stuff.json"
+        full_file_path = os.path.join(dir_path, file_name)
+        renamed_path = f'{full_file_path}-uuid4-INVALID'
+        # If I would create full_file_path as a fifo, when secure_read_file() opens the file, it blocks.
+        # So I create full_file_path as a regular file, and mock out the stat methods.
+        # os.mkfifo(full_file_path)
+        filename = Path(full_file_path)
+        filename.touch(exist_ok=True)
+
+        fifo_mock = mock.MagicMock()
+        fifo_mock.st_uid = os.getuid()
+        fifo_mock.st_gid = os.getgid()
+        fifo_mock.st_mode = 0o600
+
+        with mock.patch('os.path.exists', return_value=True), \
+             mock.patch('os.path.isdir', return_value=False), \
+             mock.patch('os.path.islink', return_value=False), \
+             mock.patch('os.stat', return_value=fifo_mock), \
+             mock.patch('stat.S_ISREG', return_value=False), \
+             mock.patch('uuid.uuid4', return_value='uuid4'), \
+             mock.patch('sys.stderr.write', return_value=None) as mock_err:
+            contents = secure_read_file(full_file_path)
+            self.assertIsNone(contents)
+            mock_err.assert_called_once_with(f'Warning: <geopm-service> {full_file_path} is not a regular file, it will be renamed to {renamed_path}')
+
+    def test_read_file_bad_permissions(self):
+        """File to be securely read in has wrong permissions.
+
+        Creates the geopm-service directory, and creates a regular file with wrong permissions within.
+        Calls secure_read_file() with that file.
+
+        """
+        dir_path = f'{self._TEMP_DIR.name}/geopm-service'
+        os.mkdir(dir_path, mode=0o700)
+        self.check_dir_perms(dir_path)
+        file_name = "stuff.json"
+        full_file_path = os.path.join(dir_path, file_name)
+        renamed_path = f'{full_file_path}-uuid4-INVALID'
+        # Create the full_file_path but with the wrong permissions.
+        filename = Path(full_file_path)
+        filename.touch(mode=0o644, exist_ok=True)
+
+        file_mock = mock.MagicMock()
+        file_mock.st_uid = os.getuid()
+        file_mock.st_gid = os.getgid()
+        file_mock.st_mode = 0o644
+
+        with mock.patch('os.path.exists', return_value=True), \
+             mock.patch('os.path.isdir', return_value=False), \
+             mock.patch('os.path.islink', return_value=False), \
+             mock.patch('os.stat', return_value=file_mock), \
+             mock.patch('stat.S_ISREG', return_value=True), \
+             mock.patch('uuid.uuid4', return_value='uuid4'), \
+             mock.patch('sys.stderr.write', return_value=None) as mock_err:
+            contents = secure_read_file(full_file_path)
+            self.assertIsNone(contents)
+            calls = [
+                mock.call(f'Warning: <geopm-service> {full_file_path} was discovered with invalid permissions, it will be renamed to {renamed_path}'),
+                mock.call(f'Warning: <geopm-service> the wrong permissions were {oct(file_mock.st_mode)}')
+            ]
+            mock_err.assert_has_calls(calls)
+
+    def test_read_file_bad_user_owner(self):
+        """File to be securely read in has wrong user owner.
+
+        Creates the geopm-service directory, and creates a regular file with wrong user owner within.
+        Calls secure_read_file() with that file.
+
+        """
+        dir_path = f'{self._TEMP_DIR.name}/geopm-service'
+        os.mkdir(dir_path, mode=0o700)
+        self.check_dir_perms(dir_path)
+        file_name = "stuff.json"
+        full_file_path = os.path.join(dir_path, file_name)
+        renamed_path = f'{full_file_path}-uuid4-INVALID'
+        # Create the full_file_path
+        filename = Path(full_file_path)
+        filename.touch(mode=0o600, exist_ok=True)
+
+        file_mock = mock.MagicMock()
+        file_mock.st_uid = os.getuid() + 1
+        file_mock.st_gid = os.getgid()
+        file_mock.st_mode = 0o600
+
+        with mock.patch('os.path.exists', return_value=True), \
+             mock.patch('os.path.isdir', return_value=False), \
+             mock.patch('os.path.islink', return_value=False), \
+             mock.patch('os.stat', return_value=file_mock), \
+             mock.patch('stat.S_ISREG', return_value=True), \
+             mock.patch('uuid.uuid4', return_value='uuid4'), \
+             mock.patch('sys.stderr.write', return_value=None) as mock_err:
+            contents = secure_read_file(full_file_path)
+            self.assertIsNone(contents)
+            calls = [
+                mock.call(f'Warning: <geopm-service> {full_file_path} was discovered with invalid permissions, it will be renamed to {renamed_path}'),
+                mock.call(f'Warning: <geopm-service> the wrong user owner was {file_mock.st_uid}')
+            ]
+            mock_err.assert_has_calls(calls)
+
+    def test_read_file_bad_group_owner(self):
+        """File to be securely read in has wrong group owner.
+
+        Creates the geopm-service directory, and creates a regular file with wrong group owner within.
+        Calls secure_read_file() with that file.
+
+        """
+        dir_path = f'{self._TEMP_DIR.name}/geopm-service'
+        os.mkdir(dir_path, mode=0o700)
+        self.check_dir_perms(dir_path)
+        file_name = "stuff.json"
+        full_file_path = os.path.join(dir_path, file_name)
+        renamed_path = f'{full_file_path}-uuid4-INVALID'
+        # Create the full_file_path
+        filename = Path(full_file_path)
+        filename.touch(mode=0o600, exist_ok=True)
+
+        file_mock = mock.MagicMock()
+        file_mock.st_uid = os.getuid()
+        file_mock.st_gid = os.getgid() + 1
+        file_mock.st_mode = 0o600
+
+        with mock.patch('os.path.exists', return_value=True), \
+             mock.patch('os.path.isdir', return_value=False), \
+             mock.patch('os.path.islink', return_value=False), \
+             mock.patch('os.stat', return_value=file_mock), \
+             mock.patch('stat.S_ISREG', return_value=True), \
+             mock.patch('uuid.uuid4', return_value='uuid4'), \
+             mock.patch('sys.stderr.write', return_value=None) as mock_err:
+            contents = secure_read_file(full_file_path)
+            self.assertIsNone(contents)
+            calls = [
+                mock.call(f'Warning: <geopm-service> {full_file_path} was discovered with invalid permissions, it will be renamed to {renamed_path}'),
+                mock.call(f'Warning: <geopm-service> the wrong group owner was {file_mock.st_gid}')
+            ]
+            mock_err.assert_has_calls(calls)
+
+    def test_read_valid_file(self):
+        """Opens and reads in a valid file which passes all checks.
+
+        Creates the geopm-service directory, and creates a regular file within, and write the contents to it.
+        Calls secure_read_file() with that file, verifying that the contents match.
+
+        """
+        dir_path = f'{self._TEMP_DIR.name}/geopm-service'
+        os.mkdir(dir_path, mode=0o700)
+        self.check_dir_perms(dir_path)
+        file_name = "stuff.json"
+        full_file_path = os.path.join(dir_path, file_name)
+        input_contents = """Love is patient, love is kind.
+        It does not envy, it does not boast, it is not proud.
+        1 Corinthians 13:4
+        """
+        # Create the full_file_path, and write the contents into the file.
+        with open(os.open(full_file_path, os.O_CREAT | os.O_WRONLY, 0o600), 'w') as file:
+            file.write(input_contents)
+
+        file_mock = mock.MagicMock()
+        file_mock.st_uid = os.getuid()
+        file_mock.st_gid = os.getgid()
+        file_mock.st_mode = 0o600
+
+        with mock.patch('os.path.exists', return_value=True), \
+             mock.patch('os.path.isdir', return_value=False), \
+             mock.patch('os.path.islink', return_value=False), \
+             mock.patch('os.stat', return_value=file_mock), \
+             mock.patch('stat.S_ISREG', return_value=True), \
+             mock.patch('uuid.uuid4', return_value='uuid4'):
+            output_contents = secure_read_file(full_file_path)
+            self.assertEqual(input_contents, output_contents)
+
 if __name__ == '__main__':
     unittest.main()
