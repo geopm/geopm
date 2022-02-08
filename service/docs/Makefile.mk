@@ -57,7 +57,11 @@ EXTRA_DIST += docs/geninfo.sh \
               docs/source/service.rst \
               docs/source/signals_SKX.rst \
               docs/source/use_cases.rst \
-              docs/source/geopm.7.rst \
+              $(all_man_rst) \
+              $(all_man_target) \
+              # end
+
+all_man_rst = docs/source/geopm.7.rst \
               docs/source/geopmaccess.1.rst \
               docs/source/geopmadmin.1.rst \
               docs/source/geopmagent.1.rst \
@@ -191,10 +195,15 @@ base_man = docs/build/man/geopmadmin.1 \
 
 all_man = $(dist_man_MANS) $(base_man)
 
-$(all_man): docs/build/man/%: $(top_srcdir)/docs/source/%.rst
+all_man_target = docs/build/man/.dirfile
+
+$(all_man_target): $(all_man_rst)
 	LD_LIBRARY_PATH=.libs:$(LD_LIBRARY_PATH) \
 	PYTHONPATH=$(abs_srcdir):$(PYTHONPATH) \
 	sphinx-build -M man $(abs_srcdir)/docs/source docs/build
+	touch $(all_man_target)
+
+$(all_man): docs/build/man/%: $(top_srcdir)/docs/source/%.rst $(all_man_target)
 
 docs: docs_man docs_html
 
