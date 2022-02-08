@@ -157,6 +157,7 @@ GEOPMDPY_TESTS = geopmdpy_test/pytest_links/TestPlatformService.test__read_allow
                  geopmdpy_test/pytest_links/TestSecureFiles.test_read_file_bad_user_owner \
                  geopmdpy_test/pytest_links/TestSecureFiles.test_read_file_bad_group_owner \
                  geopmdpy_test/pytest_links/TestSecureFiles.test_read_valid_file \
+                 geopmdpy_test/pytest_links/TestSecureFiles.test_secure_make_file \
                  # end
 
 TESTS += $(GEOPMDPY_TESTS)

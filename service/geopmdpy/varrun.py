@@ -142,7 +142,10 @@ def secure_make_file(path, contents):
         contents (str): The contents of the created file
 
     """
-    pass
+    temp_path = f'{path}-{uuid.uuid4()}-tmp'
+    with open(os.open(temp_path, os.O_CREAT | os.O_WRONLY, 0o600), 'w') as file:
+        file.write(contents)
+    os.rename(temp_path, path)
 
 def secure_read_file(path):
     """Securely read a file into a string
