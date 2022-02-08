@@ -69,6 +69,19 @@ class TestSecureFiles(unittest.TestCase):
         self.assertEqual(os.getuid(), user_owner)
         self.assertEqual(os.getgid(), group_owner)
 
+    def check_file_perms(self, path):
+        """Assert that the path points to a file with mode 0o600
+        Assert that the user and group have the right permissions.
+
+        """
+        st = os.stat(path)
+        perm_mode = stat.S_IMODE(st.st_mode)
+        user_owner = st.st_uid
+        group_owner = st.st_gid
+        self.assertEqual(0o600, perm_mode)
+        self.assertEqual(os.getuid(), user_owner)
+        self.assertEqual(os.getgid(), group_owner)
+
     def test_pre_exists(self):
         """Usage of pre existing geopm-service directory
 
@@ -544,6 +557,35 @@ class TestSecureFiles(unittest.TestCase):
             # os.stat() is also called internally by system functions like maybe os.path.islink()
             mock_os_stat.assert_called()
             mock_stat_S_ISREG.assert_called_with(file_mock.st_mode)
+
+    def test_secure_make_file(self):
+        """Opens and reads in a valid file which passes all checks.
+
+        Creates the geopm-service directory, and creates a regular file within, and write the contents to it.
+        Calls secure_read_file() with that file, verifying that the contents match.
+
+        """
+        dir_path = f'{self._TEMP_DIR.name}/geopm-service'
+        os.mkdir(dir_path, mode=0o700)
+        self.check_dir_perms(dir_path)
+        file_name = "stuff.json"
+        full_file_path = os.path.join(dir_path, file_name)
+        temp_path = f'{full_file_path}-uuid4-tmp'
+        input_contents = """Love is patient, love is kind.
+        It does not envy, it does not boast, it is not proud.
+        1 Corinthians 13:4
+        """
+
+        with mock.patch('uuid.uuid4', return_value='uuid4'):
+            secure_make_file(full_file_path, input_contents)
+
+        self.assertFalse(os.path.exists(temp_path))
+        self.assertTrue(os.path.exists(full_file_path))
+        self.check_file_perms(full_file_path)
+
+        with open(full_file_path, "r") as file:
+            output_contents = file.read()
+            self.assertEqual(input_contents, output_contents)
 
 if __name__ == '__main__':
     unittest.main()
