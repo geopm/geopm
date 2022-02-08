@@ -514,38 +514,48 @@ class TestActiveSessions(unittest.TestCase):
         # Invalid string file which is a C source code
         self.check_json_file("string_c_code", self.string_c_code, False)
 
-    def test_update_reload(self):
-        """Create add clients and create again
+    def test_load_clients(self):
+        """ Create from existing clients
 
-        Create an ActiveSessions object with a non-existent directory path.
-        The parent directory of said path must exist.  Add two clients to the
-        object.  Create a new ActiveSessions object pointing to the same path
-        and check that the new object returns the same values for the get_*()
-        methods as the first object.
+        Create mocks such that 2 clients are active but the service is down.
+        Verify that when ActiveSessions is created, the clients are loaded
+        properly.
 
         """
-        client_pid_1 = 1234
-        signals_1 = ['INSTRUCTIONS_RETIRED', 'CPU_FREQUENCY']
-        controls_1 = ['CORE_FREQUENCY', 'POWER_LIMIT']
-        watch_id_1 = 4321
+        client_pid_1 = self.json_good_example['client_pid']
+        signals_1 = self.json_good_example['signals']
+        controls_1 = self.json_good_example['controls']
+        watch_id_1 = self.json_good_example['watch_id']
 
-        client_pid_2 = 4321
-        signals_2 = ['CORE_FREQUENCY', 'POWER_LIMIT']
-        controls_2 = ['INSTRUCTIONS_RETIRED', 'CPU_FREQUENCY']
-        watch_id_2 = 1234
+        client_pid_2 = self.json_good_example_2['client_pid']
+        signals_2 = self.json_good_example_2['signals']
+        controls_2 = self.json_good_example_2['controls']
+        watch_id_2 = self.json_good_example_2['watch_id']
 
         sess_path = f'{self._TEMP_DIR.name}/geopm-service'
-        act_sess = ActiveSessions(sess_path)
-        self.check_dir_perms(sess_path)
+        full_file_path_1 = os.path.join(sess_path, f"session-{client_pid_1}.json")
+        full_file_path_2 = os.path.join(sess_path, f"session-{client_pid_2}.json")
 
-        act_sess.add_client(client_pid_1, signals_1, controls_1, watch_id_1)
-        self.check_getters(act_sess, client_pid_1, signals_1, controls_1, watch_id_1)
-        act_sess.add_client(client_pid_2, signals_2, controls_2, watch_id_2)
-        self.check_getters(act_sess, client_pid_2, signals_2, controls_2, watch_id_2)
+        with mock.patch('geopmdpy.varrun.secure_make_dirs', autospec=True, specset=True) as mock_smd, \
+             mock.patch('geopmdpy.varrun.secure_make_file', autospec=True, specset=True) as mock_smf, \
+             mock.patch('geopmdpy.varrun.secure_read_file', autospec=True, specset=True,
+                        side_effect=[json.dumps(self.json_good_example),
+                                     json.dumps(self.json_good_example_2)]) as mock_srf, \
+             mock.patch('os.stat') as mock_stat, \
+             mock.patch('glob.glob', return_value=[full_file_path_1, full_file_path_2]), \
+             mock.patch('geopmdpy.varrun.ActiveSessions._is_pid_valid', return_value=True) as mock_pid_valid:
+            act_sess = ActiveSessions(sess_path)
+            mock_smd.assert_called_once_with(sess_path)
+            calls = [mock.call(full_file_path_1, json.dumps(self.json_good_example)),
+                     mock.call(full_file_path_2, json.dumps(self.json_good_example_2))]
+            mock_smf.assert_has_calls(calls)
 
-        new_act_sess = ActiveSessions(sess_path)
-        self.check_getters(new_act_sess, client_pid_1, signals_1, controls_1, watch_id_1)
-        self.check_getters(new_act_sess, client_pid_2, signals_2, controls_2, watch_id_2)
+            calls = [mock.call(full_file_path_1), mock.call(full_file_path_2)]
+            mock_srf.assert_has_calls(calls)
+            mock_stat.assert_has_calls(calls)
+
+            self.check_getters(act_sess, client_pid_1, signals_1, controls_1, watch_id_1)
+            self.check_getters(act_sess, client_pid_2, signals_2, controls_2, watch_id_2)
 
     def test_add_remove_client(self):
         """Add client session and remove it
@@ -558,22 +568,33 @@ class TestActiveSessions(unittest.TestCase):
         returns False.
 
         """
-        client_pid = 1234
-        signals = ['INSTRUCTIONS_RETIRED', 'CPU_FREQUENCY']
-        controls = ['CORE_FREQUENCY', 'POWER_LIMIT']
-        watch_id = 4321
+        client_pid = self.json_good_example['client_pid']
+        signals = self.json_good_example['signals']
+        controls = self.json_good_example['controls']
+        watch_id = self.json_good_example['watch_id']
 
         sess_path = f'{self._TEMP_DIR.name}/geopm-service'
-        act_sess = ActiveSessions(sess_path)
-        self.check_dir_perms(sess_path)
+        full_file_path = os.path.join(sess_path, f"session-{client_pid}.json")
 
-        act_sess.add_client(client_pid, signals, controls, watch_id)
-        self.assertTrue(act_sess.is_client_active(client_pid))
-        self.check_getters(act_sess, client_pid, signals, controls, watch_id)
+        with mock.patch('geopmdpy.varrun.secure_make_dirs', autospec=True, specset=True) as mock_smd, \
+             mock.patch('geopmdpy.varrun.secure_make_file', autospec=True, specset=True) as mock_smf, \
+             mock.patch('os.remove', autospec=True, specset=True) as mock_remove:
 
-        act_sess.remove_client(client_pid)
-        self.assertNotIn(client_pid, act_sess.get_clients())
-        self.assertFalse(act_sess.is_client_active(client_pid))
+            # TODO _update_session_file has secure file I/O (writing)
+            #   Should this be moved into secure_write_file()?
+
+            act_sess = ActiveSessions(sess_path)
+            mock_smd.assert_called_once_with(sess_path)
+
+            act_sess.add_client(client_pid, signals, controls, watch_id)
+            self.assertTrue(act_sess.is_client_active(client_pid))
+            self.check_getters(act_sess, client_pid, signals, controls, watch_id)
+            mock_smf.assert_called_once_with(full_file_path, json.dumps(self.json_good_example))
+
+            act_sess.remove_client(client_pid)
+            self.assertNotIn(client_pid, act_sess.get_clients())
+            self.assertFalse(act_sess.is_client_active(client_pid))
+            mock_remove.assert_called_once_with(full_file_path)
 
     def test_write_client(self):
         """Assign the write privileges to a client session
@@ -585,49 +606,78 @@ class TestActiveSessions(unittest.TestCase):
         is_write_client() on the second object.
 
         """
+        json_good_example = dict(self.json_good_example)
+        client_pid = json_good_example['client_pid']
+        signals = json_good_example['signals']
+        controls = json_good_example['controls']
+        watch_id = json_good_example['watch_id']
+
         sess_path = f'{self._TEMP_DIR.name}/geopm-service'
-        act_sess = ActiveSessions(sess_path)
-        client_pid = 1234
-        signals = ['INSTRUCTIONS_RETIRED', 'CPU_FREQUENCY']
-        controls = ['CORE_FREQUENCY', 'POWER_LIMIT']
-        watch_id = 4321
-        act_sess.add_client(client_pid, signals, controls, watch_id)
-        is_writer_actual = act_sess.is_write_client(client_pid)
-        self.assertFalse(is_writer_actual)
-        act_sess.set_write_client(client_pid)
-        is_writer_actual = act_sess.is_write_client(client_pid)
-        self.assertTrue(is_writer_actual)
-        new_act_sess = ActiveSessions(sess_path)
-        is_writer_actual = act_sess.is_write_client(client_pid)
-        self.assertTrue(is_writer_actual)
+        full_file_path = os.path.join(sess_path, f"session-{client_pid}.json")
+
+        with mock.patch('geopmdpy.varrun.secure_make_dirs', autospec=True, specset=True) as mock_smd, \
+             mock.patch('geopmdpy.varrun.secure_make_file', autospec=True, specset=True) as mock_smf:
+            act_sess = ActiveSessions(sess_path)
+
+            act_sess.add_client(client_pid, signals, controls, watch_id)
+            is_writer_actual = act_sess.is_write_client(client_pid)
+            self.assertFalse(is_writer_actual)
+            mock_smf.assert_called_once_with(full_file_path, json.dumps(json_good_example))
+
+            act_sess.set_write_client(client_pid)
+            mock_smd.assert_called_once_with(sess_path)
+            is_writer_actual = act_sess.is_write_client(client_pid)
+            self.assertTrue(is_writer_actual)
+
+            # Mock/test that the first act_sess wrote all this data to disk.
+            json_good_example['mode'] = 'rw'
+            with  mock.patch('geopmdpy.varrun.secure_read_file', autospec=True, specset=True,
+                             return_value=json.dumps(json_good_example)) as mock_srf, \
+                  mock.patch('os.stat') as mock_stat, \
+                  mock.patch('glob.glob', return_value=[full_file_path]), \
+                  mock.patch('geopmdpy.varrun.ActiveSessions._is_pid_valid', return_value=True) as mock_pid_valid:
+                new_act_sess = ActiveSessions(sess_path)
+                mock_smd.assert_has_calls([mock.call(sess_path)]*2)
+                is_writer_actual = new_act_sess.is_write_client(client_pid)
+                self.assertTrue(is_writer_actual)
 
     def test_batch_server(self):
         """Assign the batch server PID to a client session
 
         Test that when set_batch_server() is called that the result of
-        get_batch_server() changes to reflect this.  Checks that a
-        second ApplicationSessions object loaded after the batch
-        server was assigned reflects this change when calling
-        get_batch_server() on the second object.
+        get_batch_server() changes to reflect this.
 
         """
+        json_good_example = dict(self.json_good_example)
+        client_pid = json_good_example['client_pid']
+        signals = json_good_example['signals']
+        controls = json_good_example['controls']
+        watch_id = json_good_example['watch_id']
+        batch_pid = 8765
+
         sess_path = f'{self._TEMP_DIR.name}/geopm-service'
-        act_sess = ActiveSessions(sess_path)
-        client_pid = 1234
-        signals = ['INSTRUCTIONS_RETIRED', 'CPU_FREQUENCY']
-        controls = ['CORE_FREQUENCY', 'POWER_LIMIT']
-        watch_id = 4321
-        batch_server = 8765
-        act_sess.add_client(client_pid, signals, controls, watch_id)
-        batch_server_actual = act_sess.get_batch_server(client_pid)
-        self.assertEqual(None, batch_server_actual)
-        act_sess.set_batch_server(client_pid, batch_server)
-        batch_server_actual = act_sess.get_batch_server(client_pid)
-        self.assertEqual(batch_server, batch_server_actual)
-        with mock.patch('geopmdpy.varrun.ActiveSessions._is_pid_valid', return_value=True):
-            new_act_sess = ActiveSessions(sess_path)
-        batch_server_actual = new_act_sess.get_batch_server(client_pid)
-        self.assertEqual(batch_server, batch_server_actual)
+        full_file_path = os.path.join(sess_path, f"session-{client_pid}.json")
+
+        with mock.patch('geopmdpy.varrun.secure_make_dirs', autospec=True, specset=True) as mock_smd, \
+             mock.patch('geopmdpy.varrun.secure_make_file', autospec=True, specset=True) as mock_smf:
+            act_sess = ActiveSessions(sess_path)
+            mock_smd.assert_called_once_with(sess_path)
+
+            # Add client BEFORE adding batch PID
+            act_sess.add_client(client_pid, signals, controls, watch_id)
+            first_smf_call = mock.call(full_file_path, json.dumps(json_good_example))
+            mock_smf.assert_has_calls([first_smf_call])
+            batch_server_actual = act_sess.get_batch_server(client_pid)
+            self.assertEqual(None, batch_server_actual)
+
+            # Add batch PID
+            act_sess.set_batch_server(client_pid, batch_pid)
+            json_good_example['batch_server'] = batch_pid
+            calls = [first_smf_call,
+                     mock.call(full_file_path, json.dumps(json_good_example))]
+            mock_smf.assert_has_calls(calls)
+            batch_pid_actual = act_sess.get_batch_server(client_pid)
+            self.assertEqual(batch_pid, batch_pid_actual)
 
     def test_batch_server_service_restart(self):
         """Verify batch pid is returned if it was previously active
@@ -636,33 +686,35 @@ class TestActiveSessions(unittest.TestCase):
         it should be returned properly when requested.
 
         """
+        # Copy the object to ensure modifications don't leak between tests
+        json_good_example = dict(self.json_good_example)
+        client_pid = json_good_example['client_pid']
+
         batch_pid = 42
-        client_pid = self.json_good_example['client_pid']
-
-        self.json_good_example['batch_server'] = batch_pid
+        json_good_example['batch_server'] = batch_pid
         sess_path = f'{self._TEMP_DIR.name}/geopm-service'
-        self.create_json_file(sess_path, 'session-1.json', self.json_good_example, 0o600)
-
-        dir_mock = mock.create_autospec(os.stat_result, spec_set=True)
-        dir_mock.st_uid = os.getuid()
-        dir_mock.st_gid = os.getgid()
-        dir_mock.st_mode = 0o700
+        full_file_path = os.path.join(sess_path, f"session-{client_pid}.json")
 
         session_mock = mock.create_autospec(os.stat_result, spec_set=True)
-        session_mock.st_uid = os.getuid()
-        session_mock.st_gid = os.getgid()
         session_mock.st_ctime = 123
-        session_mock.st_mode = 0o600 | stat.S_IFREG
 
-        with mock.patch('os.stat', side_effect=[dir_mock, session_mock, session_mock]), \
-             mock.patch('os.path.islink', return_value=False), \
-             mock.patch('os.path.isdir', side_effect=[True, False]), \
-             mock.patch('os.path.exists', return_value=True), \
+        with mock.patch('geopmdpy.varrun.secure_make_dirs', autospec=True, specset=True) as mock_smd, \
+             mock.patch('geopmdpy.varrun.secure_make_file', autospec=True, specset=True) as mock_smf, \
+             mock.patch('geopmdpy.varrun.secure_read_file', autospec=True, specset=True, return_value=json.dumps(json_good_example)) as mock_srf, \
+             mock.patch('os.stat', return_value=session_mock) as mock_stat, \
+             mock.patch('glob.glob', return_value=[full_file_path]), \
              mock.patch('geopmdpy.varrun.ActiveSessions._is_pid_valid', return_value=True) as mock_pid_valid:
             act_sess = ActiveSessions(sess_path)
+            mock_smd.assert_called_once_with(sess_path)
+            mock_srf.assert_called_once_with(full_file_path)
+            mock_stat.assert_called_once_with(full_file_path)
+
             calls = [mock.call(client_pid, session_mock.st_ctime),
                      mock.call(batch_pid, session_mock.st_ctime)]
             mock_pid_valid.assert_has_calls(calls)
+
+            mock_smf.assert_called_once_with(full_file_path, json.dumps(json_good_example))
+
         self.assertEqual(batch_pid, act_sess.get_batch_server(client_pid))
 
     def test_batch_server_bad_service_restart(self):
@@ -673,42 +725,48 @@ class TestActiveSessions(unittest.TestCase):
         it should not be returned when the service is restarted.
 
         """
+        # Copy the object to ensure modifications don't leak between tests
+        json_good_example = dict(self.json_good_example)
+        client_pid = json_good_example['client_pid']
+
         batch_pid = 42
-        client_pid = self.json_good_example['client_pid']
-
-        self.json_good_example['batch_server'] = batch_pid
+        json_good_example['batch_server'] = batch_pid
         sess_path = f'{self._TEMP_DIR.name}/geopm-service'
-        self.create_json_file(sess_path, 'session-1.json', self.json_good_example, 0o600)
-
-        dir_mock = mock.create_autospec(os.stat_result, spec_set=True)
-        dir_mock.st_uid = os.getuid()
-        dir_mock.st_gid = os.getgid()
-        dir_mock.st_mode = 0o700
+        full_file_path = os.path.join(sess_path, f"session-{client_pid}.json")
 
         session_mock = mock.create_autospec(os.stat_result, spec_set=True)
-        session_mock.st_uid = os.getuid()
-        session_mock.st_gid = os.getgid()
         session_mock.st_ctime = 123
-        session_mock.st_mode = 0o600 | stat.S_IFREG
 
         # There are 2 calls into is_pid_valid:  Ths first verifies the client PID
         # against the session PID.  The second verifies the batch PID against the session PID.
         # side_effect is used so that the first call returns True (the client PID is valid) and
         # the second call returns False (the batch PID is *not* valid).
-        with mock.patch('os.stat', side_effect=[dir_mock, session_mock, session_mock]), \
-             mock.patch('os.path.islink', return_value=False), \
-             mock.patch('os.path.isdir', side_effect=[True, False]), \
-             mock.patch('os.path.exists', return_value=True), \
+        with mock.patch('geopmdpy.varrun.secure_make_dirs', autospec=True, specset=True) as mock_smd, \
+             mock.patch('geopmdpy.varrun.secure_make_file', autospec=True, specset=True) as mock_smf, \
+             mock.patch('geopmdpy.varrun.secure_read_file', autospec=True, specset=True, return_value=json.dumps(json_good_example)) as mock_srf, \
+             mock.patch('os.stat', return_value=session_mock) as mock_stat, \
+             mock.patch('glob.glob', return_value=[full_file_path]), \
              mock.patch('geopmdpy.varrun.ActiveSessions._is_pid_valid', side_effect=[True, False]) as mock_pid_valid:
             act_sess = ActiveSessions(sess_path)
+            mock_smd.assert_called_once_with(sess_path)
+            mock_srf.assert_called_once_with(full_file_path)
+            mock_stat.assert_called_once_with(full_file_path)
+
+            # In _load_session_file, the Batch PID will be verified to see if it is still valid
+            json_good_example.pop('batch_server')
+            mock_smf.assert_called_once_with(full_file_path, json.dumps(json_good_example))
+
             calls = [mock.call(client_pid, session_mock.st_ctime),
                      mock.call(batch_pid, session_mock.st_ctime)]
+
             mock_pid_valid.assert_has_calls(calls)
         self.assertIsNone(act_sess.get_batch_server(client_pid))
 
     def test_is_pid_valid(self):
         sess_path = f'{self._TEMP_DIR.name}/geopm-service'
-        act_sess = ActiveSessions(sess_path)
+        with mock.patch('geopmdpy.varrun.secure_make_dirs', autospec=True, specset=True) as mock_smd:
+            act_sess = ActiveSessions(sess_path)
+            mock_smd.assert_called_once_with(sess_path)
         fake_pid = 321
 
         with mock.patch('psutil.Process', autospec=True, spec_set=True) as mock_process:
@@ -738,19 +796,34 @@ class TestActiveSessions(unittest.TestCase):
         get_watch_id() changes to reflect this.
 
         """
+        json_good_example = dict(self.json_good_example)
+        client_pid = json_good_example['client_pid']
+        signals = json_good_example['signals']
+        controls = json_good_example['controls']
+        watch_id = json_good_example['watch_id']
+
         sess_path = f'{self._TEMP_DIR.name}/geopm-service'
-        act_sess = ActiveSessions(sess_path)
-        client_pid = 1234
-        signals = ['INSTRUCTIONS_RETIRED', 'CPU_FREQUENCY']
-        controls = ['CORE_FREQUENCY', 'POWER_LIMIT']
-        watch_id = 4321
-        act_sess.add_client(client_pid, signals, controls, watch_id)
-        watch_id_actual = act_sess.get_watch_id(client_pid)
-        self.assertEqual(watch_id, watch_id_actual)
-        watch_id += 1
-        act_sess.set_watch_id(client_pid, watch_id)
-        watch_id_actual = act_sess.get_watch_id(client_pid)
-        self.assertEqual(watch_id, watch_id_actual)
+        full_file_path = os.path.join(sess_path, f"session-{client_pid}.json")
+
+        with mock.patch('geopmdpy.varrun.secure_make_dirs', autospec=True, specset=True) as mock_smd, \
+             mock.patch('geopmdpy.varrun.secure_make_file', autospec=True, specset=True) as mock_smf:
+            act_sess = ActiveSessions(sess_path)
+            mock_smd.assert_called_once_with(sess_path)
+
+            act_sess.add_client(client_pid, signals, controls, watch_id)
+            calls = [mock.call(full_file_path, json.dumps(json_good_example))]
+            mock_smf.assert_has_calls(calls)
+            watch_id_actual = act_sess.get_watch_id(client_pid)
+            self.assertEqual(watch_id, watch_id_actual)
+
+            watch_id += 1
+            json_good_example['watch_id'] = watch_id
+
+            act_sess.set_watch_id(client_pid, watch_id)
+            calls += [mock.call(full_file_path, json.dumps(json_good_example))]
+            mock_smf.assert_has_calls(calls)
+            watch_id_actual = act_sess.get_watch_id(client_pid)
+            self.assertEqual(watch_id, watch_id_actual)
 
 if __name__ == '__main__':
     unittest.main()
