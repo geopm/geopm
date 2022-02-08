@@ -149,6 +149,14 @@ GEOPMDPY_TESTS = geopmdpy_test/pytest_links/TestPlatformService.test__read_allow
                  geopmdpy_test/pytest_links/TestSecureFiles.test_creation_bad_perms \
                  geopmdpy_test/pytest_links/TestSecureFiles.test_creation_bad_user_owner \
                  geopmdpy_test/pytest_links/TestSecureFiles.test_creation_bad_group_owner \
+                 geopmdpy_test/pytest_links/TestSecureFiles.test_read_file_not_exists \
+                 geopmdpy_test/pytest_links/TestSecureFiles.test_read_file_is_directory \
+                 geopmdpy_test/pytest_links/TestSecureFiles.test_read_file_is_link \
+                 geopmdpy_test/pytest_links/TestSecureFiles.test_read_file_is_fifo \
+                 geopmdpy_test/pytest_links/TestSecureFiles.test_read_file_bad_permissions \
+                 geopmdpy_test/pytest_links/TestSecureFiles.test_read_file_bad_user_owner \
+                 geopmdpy_test/pytest_links/TestSecureFiles.test_read_file_bad_group_owner \
+                 geopmdpy_test/pytest_links/TestSecureFiles.test_read_valid_file \
                  # end
 
 TESTS += $(GEOPMDPY_TESTS)

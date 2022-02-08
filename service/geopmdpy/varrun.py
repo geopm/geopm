@@ -181,8 +181,12 @@ def secure_read_file(path):
     if os.path.exists(path):
         renamed_path = f'{path}-{uuid.uuid4()}-INVALID'
 
-        # If it is a file, not a directory
-        if not os.path.isdir(path):
+        # If it is a link
+        if os.path.islink(path):
+            sys.stderr.write(f'Warning: <geopm-service> {path} is a symbolic link, it will be renamed to {renamed_path}')
+            sys.stderr.write(f'Warning: <geopm-service> the symbolic link points to {os.readlink(path)}')
+        # If it is not a directory
+        elif not os.path.isdir(path):
             with open(path) as fid:
                 sess_stat = os.stat(fid.fileno())
                 # If the permissions requirements of the file are not satisfied
@@ -192,13 +196,7 @@ def secure_read_file(path):
                         sess_stat.st_gid == daemon_gid):
                     # If it is not a regular file
                     if not stat.S_ISREG(sess_stat.st_mode):
-                        # If it is a symbolic link
-                        if stat.S_ISLNK(sess_stat.st_mode):
-                            sys.stderr.write(f'Warning: <geopm-service> {path} is a symbolic link, it will be renamed to {renamed_path}')
-                            sys.stderr.write(f'Warning: <geopm-service> the symbolic link points to {os.readlink(path)}')
-                        # If it is not a symbolic link, but not a regular file
-                        else:
-                            sys.stderr.write(f'Warning: <geopm-service> {path} is not a regular file, it will be renamed to {renamed_path}')
+                        sys.stderr.write(f'Warning: <geopm-service> {path} is not a regular file, it will be renamed to {renamed_path}')
                     # If it is a regular file with bad permissions
                     else:
                         sys.stderr.write(f'Warning: <geopm-service> {path} was discovered with invalid permissions, it will be renamed to {renamed_path}')
