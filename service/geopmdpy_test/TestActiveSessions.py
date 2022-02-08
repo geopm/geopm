@@ -654,11 +654,9 @@ class TestActiveSessions(unittest.TestCase):
         session_mock.st_ctime = 123
         session_mock.st_mode = 0o600 | stat.S_IFREG
 
-        side_effect = [dir_mock, session_mock]
-
-        with mock.patch('os.stat', side_effect=side_effect), \
+        with mock.patch('os.stat', side_effect=[dir_mock, session_mock, session_mock]), \
              mock.patch('os.path.islink', return_value=False), \
-             mock.patch('os.path.isdir', return_value=True), \
+             mock.patch('os.path.isdir', side_effect=[True, False]), \
              mock.patch('os.path.exists', return_value=True), \
              mock.patch('geopmdpy.varrun.ActiveSessions._is_pid_valid', return_value=True) as mock_pid_valid:
             act_sess = ActiveSessions(sess_path)
@@ -693,15 +691,13 @@ class TestActiveSessions(unittest.TestCase):
         session_mock.st_ctime = 123
         session_mock.st_mode = 0o600 | stat.S_IFREG
 
-        side_effect = [dir_mock, session_mock]
-
         # There are 2 calls into is_pid_valid:  Ths first verifies the client PID
         # against the session PID.  The second verifies the batch PID against the session PID.
         # side_effect is used so that the first call returns True (the client PID is valid) and
         # the second call returns False (the batch PID is *not* valid).
-        with mock.patch('os.stat', side_effect=side_effect), \
+        with mock.patch('os.stat', side_effect=[dir_mock, session_mock, session_mock]), \
              mock.patch('os.path.islink', return_value=False), \
-             mock.patch('os.path.isdir', return_value=True), \
+             mock.patch('os.path.isdir', side_effect=[True, False]), \
              mock.patch('os.path.exists', return_value=True), \
              mock.patch('geopmdpy.varrun.ActiveSessions._is_pid_valid', side_effect=[True, False]) as mock_pid_valid:
             act_sess = ActiveSessions(sess_path)
