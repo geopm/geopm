@@ -143,9 +143,11 @@ def secure_make_file(path, contents):
 
     """
     temp_path = f'{path}-{uuid.uuid4()}-tmp'
+    old_mask = os.umask(0o077)
     with open(os.open(temp_path, os.O_CREAT | os.O_WRONLY, 0o600), 'w') as file:
         file.write(contents)
     os.rename(temp_path, path)
+    os.umask(old_mask)
 
 def secure_read_file(path):
     """Securely read a file into a string
@@ -632,13 +634,7 @@ class ActiveSessions(object):
         sess = self._sessions[client_pid]
         jsonschema.validate(sess, schema=self._session_schema)
         session_path = self._get_session_path(client_pid)
-        tmp_id = uuid.uuid4()
-        session_path_tmp = f'{session_path}-{tmp_id}-tmp'
-        old_mask = os.umask(0o077)
-        with open(session_path_tmp, 'w') as fid:
-            json.dump(sess, fid)
-        os.umask(old_mask)
-        os.rename(session_path_tmp, session_path)
+        secure_make_file(session_path, json.dumps(sess))
 
     def _is_pid_valid(self, pid, file_time):
         """Verify validity of PID
