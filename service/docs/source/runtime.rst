@@ -86,22 +86,18 @@ requirement.  This requirement can be met by installing the
 ``openmpi-devel`` package version 1.7 or greater on RHEL and SLES
 Linux, and ``libopenmpi-dev`` on Ubuntu.
 
-Documentation creation including man pages further requires the
-``rubygems`` and ``ruby-devel`` package on RHEL and SLES, or ``ruby``
-and ``ruby-dev`` on Ubuntu.
-
 * Install all requirements on RHEL or CentOS
 
   .. code-block:: bash
 
-      yum install openmpi-devel elfutils-libelf-devel ruby-devel rubygems
+      yum install openmpi-devel elfutils-libelf-devel
 
 
 * Install all requirements on SUSE based distributions
 
   .. code-block:: bash
 
-      zypper install openmpi-devel elfutils-libelf-devel ruby-devel rubygems
+      zypper install openmpi-devel elfutils-libelf-devel
 
 
 * Install all requirements on UBUNTU (as of 18.04.3 LTS)
@@ -109,7 +105,7 @@ and ``ruby-dev`` on Ubuntu.
   .. code-block:: bash
 
       apt install libtool automake libopenmpi-dev build-essential gfortran \
-          libelf-dev ruby ruby-dev python libsqlite3-dev
+          libelf-dev python libsqlite3-dev
 
 
 Requirements that can be avoided by removing features with configure
@@ -124,10 +120,6 @@ option:
 * Remove elfutils library requirement
   ``--disable-ompt``
 
-
-If the ruby requirement is not met, the man page documentation will be
-generated with suboptimal formatting, and the HTML versions of the man
-page documentation will not be created.
 
 For details on how to use non-standard install locations for build
 requirements see

@@ -301,7 +301,7 @@ Introducing a new man page requires changes in multiple files:
 #.
    The build target (man page) should be added to dist_man_MANS in service/docs/Makefile.mk
 #.
-   The ronn source file should be added to copying_headers/MANIFEST.EXEMPT as
+   The rst source file should be added to copying_headers/MANIFEST.EXEMPT as
    described above.
 #.
    The gzipped installed man page should be listed in the %files section of
