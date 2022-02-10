@@ -98,7 +98,7 @@ def secure_make_dirs(path):
         # If it's a directory
         else:
             st = os.stat(path)
-            # If the permissions is not what we wanted
+            # If the permissions are not what we wanted
             perm_mode = stat.S_IMODE(st.st_mode)
             if perm_mode != 0o700:
                 sys.stderr.write(f'Warning: <geopm-service> {path} has wrong permissions, it will be renamed to {renamed_path}')
@@ -116,7 +116,7 @@ def secure_make_dirs(path):
                 sys.stderr.write(f'Warning: <geopm-service> {path} has wrong group owner, it will be renamed to {renamed_path}')
                 sys.stderr.write(f'Warning: <geopm-service> the wrong group owner was {group_owner}')
                 is_valid = False
-        # If one of the three above branches revealed invalid file
+        # If one of the three above branches revealed an invalid file
         if not is_valid:
             os.rename(path, renamed_path)
             os.mkdir(path, mode=0o700)
@@ -170,7 +170,7 @@ def secure_read_file(path):
     was not secure and None is returned.
 
     If the path points to an existing file that is determined to be
-    secure then the contents of the file is returned.
+    secure then the contents of the file are returned.
 
     Args:
         path (str): The path where the file is created
