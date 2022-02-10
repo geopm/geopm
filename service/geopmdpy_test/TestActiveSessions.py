@@ -165,15 +165,44 @@ class TestActiveSessions(unittest.TestCase):
 
     def check_json_file(self, name, contents, is_valid):
         sess_path = f'{self._TEMP_DIR.name}/geopm-service'
-        self.create_json_file(sess_path, f"session-{name}.json", contents, 0o600)
         full_file_path = os.path.join(sess_path, f"session-{name}.json")
         renamed_path = f'{full_file_path}-uuid4-INVALID'
-        with mock.patch('uuid.uuid4', return_value='uuid4'), \
+
+        string_contents = ""
+        if type(contents) is str:
+            string_contents = contents
+        else:
+            string_contents = json.dumps(contents)
+
+        session_mock = mock.create_autospec(os.stat_result, spec_set=True)
+        session_mock.st_ctime = 123
+
+        with mock.patch('geopmdpy.varrun.secure_make_dirs') as mock_smd, \
+             mock.patch('geopmdpy.varrun.secure_read_file', return_value=string_contents) as mock_srf, \
+             mock.patch('geopmdpy.varrun.secure_make_file') as mock_smf, \
+             mock.patch('os.rename', return_value=None) as mock_os_rename, \
+             mock.patch('os.stat', return_value=session_mock) as mock_os_stat, \
+             mock.patch('geopmdpy.varrun.ActiveSessions._is_pid_valid', return_value=True) as mock_pid_valid, \
+             mock.patch('geopmdpy.varrun.ActiveSessions._get_session_path', return_value=full_file_path) as mock_get_session_path, \
+             mock.patch('glob.glob', return_value=[full_file_path]), \
+             mock.patch('uuid.uuid4', return_value='uuid4'), \
              mock.patch('sys.stderr.write', return_value=None) as mock_err:
             act_sess = ActiveSessions(sess_path)
-            msg = f'Warning: <geopm-service> Invalid JSON file, unable to parse, renamed{full_file_path} to {renamed_path} and will ignore'
+            mock_smd.assert_called_once_with(sess_path)
+            mock_srf.assert_called_once_with(full_file_path)
+
             if is_valid:
+                calls = [
+                    mock.call('*'),
+                    mock.call(contents["client_pid"])
+                ]
+                mock_get_session_path.assert_has_calls(calls)
+
+                mock_os_stat.assert_called_once_with(full_file_path)
+                mock_pid_valid.assert_called_once_with(contents["client_pid"], session_mock.st_ctime)
+                mock_smf.assert_called_once_with(full_file_path, string_contents)
                 mock_err.assert_not_called()
+                mock_os_rename.assert_not_called()
                 self.check_getters(
                     act_sess,
                     contents["client_pid"],
@@ -182,12 +211,13 @@ class TestActiveSessions(unittest.TestCase):
                     contents["watch_id"]
                 )
             else:
-                mock_err.assert_called_once_with(msg)
+                mock_get_session_path.assert_called_once_with('*')
 
-        if os.path.exists(full_file_path):
-            os.unlink(full_file_path)
-        if os.path.exists(renamed_path):
-            os.unlink(renamed_path)
+                mock_os_stat.assert_not_called()
+                mock_pid_valid.assert_not_called()
+                mock_smf.assert_not_called()
+                mock_err.assert_called_once_with(f'Warning: <geopm-service> Invalid JSON file, unable to parse, renamed{full_file_path} to {renamed_path} and will ignore')
+                mock_os_rename.assert_called_once_with(full_file_path, renamed_path)
 
     def test_creation_json(self):
         """Create various different valid and invalid JSON files
