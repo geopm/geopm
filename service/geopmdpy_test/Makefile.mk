@@ -125,7 +125,7 @@ GEOPMDPY_TESTS = geopmdpy_test/pytest_links/TestPlatformService.test__read_allow
                  geopmdpy_test/pytest_links/TestTimedLoop.test_timed_loop_infinite \
                  geopmdpy_test/pytest_links/TestTimedLoop.test_timed_loop_invalid \
                  geopmdpy_test/pytest_links/TestActiveSessions.test_creation_json \
-                 geopmdpy_test/pytest_links/TestActiveSessions.test_update_reload \
+                 geopmdpy_test/pytest_links/TestActiveSessions.test_load_clients \
                  geopmdpy_test/pytest_links/TestActiveSessions.test_add_remove_client \
                  geopmdpy_test/pytest_links/TestActiveSessions.test_write_client \
                  geopmdpy_test/pytest_links/TestActiveSessions.test_batch_server \
