@@ -192,8 +192,8 @@ def secure_read_file(path):
             sys.stderr.write(f'Warning: <geopm-service> {path} is a symbolic link, it will be renamed to {renamed_path}')
             sys.stderr.write(f'Warning: <geopm-service> the symbolic link points to {os.readlink(path)}')
         # If it is a fifo
-        elif stat.S_ISFIFO(os.stat(path).st_mode):
-            sys.stderr.write(f'Warning: <geopm-service> {path} is a fifo, it will be renamed to {renamed_path}')
+        elif not stat.S_ISREG(os.stat(path).st_mode):
+            sys.stderr.write(f'Warning: <geopm-service> {path} is not a regular file, it will be renamed to {renamed_path}')
         # If it is not a directory
         elif not os.path.isdir(path):
             with open(path) as fid:
