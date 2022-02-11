@@ -108,6 +108,7 @@ class PlatformService(object):
             RuntimeError: The group name is not valid on the system.
 
         """
+        return NotImplementedError
         group = self._validate_group(group)
         group_dir = os.path.join(self._CONFIG_PATH, group)
         if os.path.isdir(group_dir):
@@ -144,6 +145,7 @@ class PlatformService(object):
             allowed_controls (list(str)): Control names that are allowed
 
         """
+        return NotImplementedError
         group = self._validate_group(group)
         self._validate_signals(allowed_signals)
         self._validate_controls(allowed_controls)
@@ -181,6 +183,7 @@ class PlatformService(object):
             list(str), list(str): Signal and control allowed lists
 
         """
+        # Maybe move this too?
         if user == 'root':
             return self.get_all_access()
         user_groups = []
