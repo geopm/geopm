@@ -903,6 +903,7 @@ class WriteLock(object):
         if self._fid == None:
             raise RuntimeError('Unable to open write lock securely after two tries')
         fcntl.lockf(self._fid, fcntl.LOCK_EX)
+        self._fid.seek(0)
         return self
 
     def __exit__(self, type, value, traceback):
@@ -930,14 +931,15 @@ class WriteLock(object):
                  or None if the write lock is not held
 
         """
-        file_pid = None
-        self._fid.seek(0, os.SEEK_END)
-        if self._fid.tell() == 0 and pid is not None:
-            self._fid.write(str(pid))
+        contents = self._fid.readline(64)
+        self._fid.seek(0)
+        if contents == '':
+            if pid is not None:
+                pid = int(pid)
+                self._fid.write(str(pid))
+                self._fid.seek(0)
             file_pid = pid
-        if self._fid.tell() != 0:
-            self._fid.seek(0)
-            contents = self._fid.read(64)
+        else:
             file_pid = int(contents)
         return file_pid
 
@@ -956,12 +958,11 @@ class WriteLock(object):
 
         """
         err_str = None
-        self._fid.seek(0, os.SEEK_END)
-        if self._fid.tell() == 0:
+        contents = self._fid.readline(64)
+        self._fid.seek(0)
+        if contents == '':
             raise RuntimeError('Lock is not held by any PID')
         else:
-            self._fid.seek(0)
-            contents = self._fid.read(64)
             file_pid = int(contents)
             if file_pid == pid:
                 self._fid.truncate(0)
