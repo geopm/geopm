@@ -348,33 +348,28 @@ class TestSecureFiles(unittest.TestCase):
         file_name = "stuff.json"
         full_file_path = os.path.join(dir_path, file_name)
         renamed_path = f'{full_file_path}-uuid4-INVALID'
-        # If I would create full_file_path as a fifo, when secure_read_file() opens the file, it blocks.
-        # So I create full_file_path as a regular file, and mock out the stat methods.
-        # os.mkfifo(full_file_path)
-        filename = Path(full_file_path)
-        filename.touch(exist_ok=True)
+        # create full_file_path as a fifo instead of creating a regular file
+        os.mkfifo(full_file_path)
 
         fifo_mock = mock.create_autospec(os.stat_result, spec_set=True)
         fifo_mock.st_uid = os.getuid()
         fifo_mock.st_gid = os.getgid()
-        fifo_mock.st_mode = 0o600
+        fifo_mock.st_mode = 0o600 | stat.S_IFIFO
 
         with mock.patch('os.path.exists', wraps=os.path.exists) as mock_os_path_exists, \
-             mock.patch('os.path.isdir', wraps=os.path.isdir) as mock_os_path_isdir, \
              mock.patch('os.path.islink', wraps=os.path.islink) as mock_os_path_islink, \
              mock.patch('os.stat', return_value=fifo_mock) as mock_os_stat, \
-             mock.patch('stat.S_ISREG', return_value=False) as mock_stat_S_ISREG, \
              mock.patch('uuid.uuid4', return_value='uuid4'), \
              mock.patch('sys.stderr.write', return_value=None) as mock_sys_stderr_write:
             contents = secure_read_file(full_file_path)
             self.assertIsNone(contents)
-            mock_sys_stderr_write.assert_called_once_with(f'Warning: <geopm-service> {full_file_path} is not a regular file, it will be renamed to {renamed_path}')
+            mock_sys_stderr_write.assert_called_once_with(f'Warning: <geopm-service> {full_file_path} is a fifo, it will be renamed to {renamed_path}')
             mock_os_path_exists.assert_called_once_with(full_file_path)
-            mock_os_path_isdir.assert_called_once_with(full_file_path)
             mock_os_path_islink.assert_called_once_with(full_file_path)
             # os.stat() is also called internally by system functions like maybe os.path.islink()
+            # also we are calling it explicitly in order to determine if the file is a fifo,
+            # to keep the application from trying to open it, and blocking the process.
             mock_os_stat.assert_called()
-            mock_stat_S_ISREG.assert_called_with(fifo_mock.st_mode)
         self.assertFalse(os.path.exists(full_file_path))
         self.assertTrue(os.path.exists(renamed_path))
 

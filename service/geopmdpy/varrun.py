@@ -182,6 +182,7 @@ def secure_read_file(path):
     daemon_uid = os.getuid()
     daemon_gid = os.getgid()
     contents = None
+
     # If the path exists
     if os.path.exists(path):
         renamed_path = f'{path}-{uuid.uuid4()}-INVALID'
@@ -190,6 +191,9 @@ def secure_read_file(path):
         if os.path.islink(path):
             sys.stderr.write(f'Warning: <geopm-service> {path} is a symbolic link, it will be renamed to {renamed_path}')
             sys.stderr.write(f'Warning: <geopm-service> the symbolic link points to {os.readlink(path)}')
+        # If it is a fifo
+        elif stat.S_ISFIFO(os.stat(path).st_mode):
+            sys.stderr.write(f'Warning: <geopm-service> {path} is a fifo, it will be renamed to {renamed_path}')
         # If it is not a directory
         elif not os.path.isdir(path):
             with open(path) as fid:
