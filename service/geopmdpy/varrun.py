@@ -89,32 +89,32 @@ def secure_make_dirs(path):
         # If it's a link
         if os.path.islink(path):
             is_valid = False
-            sys.stderr.write(f'Warning: <geopm-service> {path} is a symbolic link, the link will be renamed to {renamed_path}')
-            sys.stderr.write(f'Warning: <geopm-service> the symbolic link points to {os.readlink(path)}')
+            sys.stderr.write(f'Warning: <geopm-service> {path} is a symbolic link, the link will be renamed to {renamed_path}\n')
+            sys.stderr.write(f'Warning: <geopm-service> the symbolic link points to {os.readlink(path)}\n')
         # If it's a so-called "regular file"
         elif not os.path.isdir(path):
             is_valid = False
-            sys.stderr.write(f'Warning: <geopm-service> {path} is not a directory, it will be renamed to {renamed_path}')
+            sys.stderr.write(f'Warning: <geopm-service> {path} is not a directory, it will be renamed to {renamed_path}\n')
         # If it's a directory
         else:
             st = os.stat(path)
             # If the permissions are not what we wanted
             perm_mode = stat.S_IMODE(st.st_mode)
             if perm_mode != 0o700:
-                sys.stderr.write(f'Warning: <geopm-service> {path} has wrong permissions, it will be renamed to {renamed_path}')
-                sys.stderr.write(f'Warning: <geopm-service> the wrong permissions were {oct(perm_mode)}')
+                sys.stderr.write(f'Warning: <geopm-service> {path} has wrong permissions, it will be renamed to {renamed_path}\n')
+                sys.stderr.write(f'Warning: <geopm-service> the wrong permissions were {oct(perm_mode)}\n')
                 is_valid = False
             # If the user owner is not what we wanted
             user_owner = st.st_uid
             if user_owner != os.getuid():
-                sys.stderr.write(f'Warning: <geopm-service> {path} has wrong user owner, it will be renamed to {renamed_path}')
-                sys.stderr.write(f'Warning: <geopm-service> the wrong user owner was {user_owner}')
+                sys.stderr.write(f'Warning: <geopm-service> {path} has wrong user owner, it will be renamed to {renamed_path}\n')
+                sys.stderr.write(f'Warning: <geopm-service> the wrong user owner was {user_owner}\n')
                 is_valid = False
             # If the group owner is not what we wanted
             group_owner = st.st_gid
             if group_owner != os.getgid():
-                sys.stderr.write(f'Warning: <geopm-service> {path} has wrong group owner, it will be renamed to {renamed_path}')
-                sys.stderr.write(f'Warning: <geopm-service> the wrong group owner was {group_owner}')
+                sys.stderr.write(f'Warning: <geopm-service> {path} has wrong group owner, it will be renamed to {renamed_path}\n')
+                sys.stderr.write(f'Warning: <geopm-service> the wrong group owner was {group_owner}\n')
                 is_valid = False
         # If one of the three above branches revealed an invalid file
         if not is_valid:
@@ -189,11 +189,11 @@ def secure_read_file(path):
 
         # If it is a link
         if os.path.islink(path):
-            sys.stderr.write(f'Warning: <geopm-service> {path} is a symbolic link, it will be renamed to {renamed_path}')
-            sys.stderr.write(f'Warning: <geopm-service> the symbolic link points to {os.readlink(path)}')
+            sys.stderr.write(f'Warning: <geopm-service> {path} is a symbolic link, it will be renamed to {renamed_path}\n')
+            sys.stderr.write(f'Warning: <geopm-service> the symbolic link points to {os.readlink(path)}\n')
         # If it is a fifo
         elif not stat.S_ISREG(os.stat(path).st_mode):
-            sys.stderr.write(f'Warning: <geopm-service> {path} is not a regular file, it will be renamed to {renamed_path}')
+            sys.stderr.write(f'Warning: <geopm-service> {path} is not a regular file, it will be renamed to {renamed_path}\n')
         # If it is not a directory
         elif not os.path.isdir(path):
             with open(path) as fid:
@@ -205,19 +205,19 @@ def secure_read_file(path):
                         sess_stat.st_gid == daemon_gid):
                     # If it is not a regular file
                     if not stat.S_ISREG(sess_stat.st_mode):
-                        sys.stderr.write(f'Warning: <geopm-service> {path} is not a regular file, it will be renamed to {renamed_path}')
+                        sys.stderr.write(f'Warning: <geopm-service> {path} is not a regular file, it will be renamed to {renamed_path}\n')
                     # If it is a regular file with bad permissions
                     else:
-                        sys.stderr.write(f'Warning: <geopm-service> {path} was discovered with invalid permissions, it will be renamed to {renamed_path}')
+                        sys.stderr.write(f'Warning: <geopm-service> {path} was discovered with invalid permissions, it will be renamed to {renamed_path}\n')
                         # If the permissions are wrong
                         if stat.S_IMODE(sess_stat.st_mode) != 0o600:
-                            sys.stderr.write(f'Warning: <geopm-service> the wrong permissions were {oct(sess_stat.st_mode)}')
+                            sys.stderr.write(f'Warning: <geopm-service> the wrong permissions were {oct(sess_stat.st_mode)}\n')
                         # If the user owner is wrong
                         if sess_stat.st_uid != daemon_uid:
-                            sys.stderr.write(f'Warning: <geopm-service> the wrong user owner was {sess_stat.st_uid}')
+                            sys.stderr.write(f'Warning: <geopm-service> the wrong user owner was {sess_stat.st_uid}\n')
                         # If the group owner is wrong
                         if sess_stat.st_gid != daemon_gid:
-                            sys.stderr.write(f'Warning: <geopm-service> the wrong group owner was {sess_stat.st_gid}')
+                            sys.stderr.write(f'Warning: <geopm-service> the wrong group owner was {sess_stat.st_gid}\n')
 
                 # If the file satisfies all requirements
                 else:
@@ -225,7 +225,7 @@ def secure_read_file(path):
                     contents = fid.read()
         # If it is a directory
         else:
-            sys.stderr.write(f'Warning: <geopm-service> {path} is a directory, it will be renamed to {renamed_path}')
+            sys.stderr.write(f'Warning: <geopm-service> {path} is a directory, it will be renamed to {renamed_path}\n')
 
         # If the existing path is determined to be insecure it will be renamed to
         # `<path>-<UUID>-INVALID` so that it may be audited later, but not used.
@@ -234,7 +234,7 @@ def secure_read_file(path):
 
     # If the path does not exist
     else:
-        sys.stderr.write(f'Warning: <geopm-service> {path} does not exist')
+        sys.stderr.write(f'Warning: <geopm-service> {path} does not exist\n')
 
     return contents
 
@@ -345,7 +345,7 @@ class ActiveSessions(object):
         result = client_pid in self._sessions
         session_path = self._get_session_path(client_pid)
         if not result and os.path.isfile(session_path):
-            sys.stderr.write(f'Session file exists, but client {client_pid} is not tracked: {session_path}')
+            sys.stderr.write(f'Session file exists, but client {client_pid} is not tracked: {session_path}\n')
             # TODO if we got here, the file should be moved to INVALID
         return result
 
@@ -687,7 +687,7 @@ class ActiveSessions(object):
             jsonschema.validate(sess, schema=self._session_schema)
         except:
             renamed_path = f'{sess_path}-{uuid.uuid4()}-INVALID'
-            sys.stderr.write(f'Warning: <geopm-service> Invalid JSON file, unable to parse, renamed{sess_path} to {renamed_path} and will ignore')
+            sys.stderr.write(f'Warning: <geopm-service> Invalid JSON file, unable to parse, renamed{sess_path} to {renamed_path} and will ignore\n')
             os.rename(sess_path, renamed_path)
             return # Invalid JSON return early
 

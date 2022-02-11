@@ -122,8 +122,8 @@ class TestSecureFiles(unittest.TestCase):
             secure_make_dirs(sess_path)
             renamed_path = f'{sess_path}-uuid4-INVALID'
             calls = [
-                mock.call(f'Warning: <geopm-service> {sess_path} is a symbolic link, the link will be renamed to {renamed_path}'),
-                mock.call(f'Warning: <geopm-service> the symbolic link points to /tmp')
+                mock.call(f'Warning: <geopm-service> {sess_path} is a symbolic link, the link will be renamed to {renamed_path}\n'),
+                mock.call(f'Warning: <geopm-service> the symbolic link points to /tmp\n')
             ]
             mock_sys_stderr_write.assert_has_calls(calls)
             mock_os_path_islink.assert_called_once_with(sess_path)
@@ -149,7 +149,7 @@ class TestSecureFiles(unittest.TestCase):
              mock.patch('sys.stderr.write', return_value=None) as mock_sys_stderr_write:
             secure_make_dirs(sess_path)
             renamed_path = f'{sess_path}-uuid4-INVALID'
-            msg = f'Warning: <geopm-service> {sess_path} is not a directory, it will be renamed to {renamed_path}'
+            msg = f'Warning: <geopm-service> {sess_path} is not a directory, it will be renamed to {renamed_path}\n'
             mock_sys_stderr_write.assert_called_once_with(msg)
             mock_os_path_islink.assert_called_once_with(sess_path)
             mock_os_path_isdir.assert_called_once_with(sess_path)
@@ -176,8 +176,8 @@ class TestSecureFiles(unittest.TestCase):
             secure_make_dirs(sess_path)
             renamed_path = f'{sess_path}-uuid4-INVALID'
             calls = [
-                mock.call(f'Warning: <geopm-service> {sess_path} has wrong permissions, it will be renamed to {renamed_path}'),
-                mock.call(f'Warning: <geopm-service> the wrong permissions were 0o755')
+                mock.call(f'Warning: <geopm-service> {sess_path} has wrong permissions, it will be renamed to {renamed_path}\n'),
+                mock.call(f'Warning: <geopm-service> the wrong permissions were 0o755\n')
             ]
             mock_sys_stderr_write.assert_has_calls(calls)
             # os.stat() is also called internally by system functions like maybe os.path.islink()
@@ -212,8 +212,8 @@ class TestSecureFiles(unittest.TestCase):
             secure_make_dirs(sess_path)
             renamed_path = f'{sess_path}-uuid4-INVALID'
             calls = [
-                mock.call(f'Warning: <geopm-service> {sess_path} has wrong user owner, it will be renamed to {renamed_path}'),
-                mock.call(f'Warning: <geopm-service> the wrong user owner was {bad_user.st_uid}')
+                mock.call(f'Warning: <geopm-service> {sess_path} has wrong user owner, it will be renamed to {renamed_path}\n'),
+                mock.call(f'Warning: <geopm-service> the wrong user owner was {bad_user.st_uid}\n')
             ]
             mock_sys_stderr_write.assert_has_calls(calls)
             # os.stat() is also called internally by system functions like maybe os.path.islink()
@@ -248,8 +248,8 @@ class TestSecureFiles(unittest.TestCase):
             secure_make_dirs(sess_path)
             renamed_path = f'{sess_path}-uuid4-INVALID'
             calls = [
-                mock.call(f'Warning: <geopm-service> {sess_path} has wrong group owner, it will be renamed to {renamed_path}'),
-                mock.call(f'Warning: <geopm-service> the wrong group owner was {bad_group.st_gid}')
+                mock.call(f'Warning: <geopm-service> {sess_path} has wrong group owner, it will be renamed to {renamed_path}\n'),
+                mock.call(f'Warning: <geopm-service> the wrong group owner was {bad_group.st_gid}\n')
             ]
             mock_sys_stderr_write.assert_has_calls(calls)
             # os.stat() is also called internally by system functions like maybe os.path.islink()
@@ -276,7 +276,7 @@ class TestSecureFiles(unittest.TestCase):
         with mock.patch('sys.stderr.write', return_value=None) as mock_sys_stderr_write:
             contents = secure_read_file(full_file_path)
             self.assertIsNone(contents)
-            mock_sys_stderr_write.assert_called_once_with(f'Warning: <geopm-service> {full_file_path} does not exist')
+            mock_sys_stderr_write.assert_called_once_with(f'Warning: <geopm-service> {full_file_path} does not exist\n')
         self.assertFalse(os.path.exists(full_file_path))
 
     def test_read_file_is_directory(self):
@@ -299,7 +299,7 @@ class TestSecureFiles(unittest.TestCase):
              mock.patch('sys.stderr.write', return_value=None) as mock_sys_stderr_write:
             contents = secure_read_file(full_file_path)
             self.assertIsNone(contents)
-            mock_sys_stderr_write.assert_called_once_with(f'Warning: <geopm-service> {full_file_path} is not a regular file, it will be renamed to {renamed_path}')
+            mock_sys_stderr_write.assert_called_once_with(f'Warning: <geopm-service> {full_file_path} is not a regular file, it will be renamed to {renamed_path}\n')
         self.assertFalse(os.path.exists(full_file_path))
         self.assertTrue(os.path.exists(renamed_path))
 
@@ -327,8 +327,8 @@ class TestSecureFiles(unittest.TestCase):
             contents = secure_read_file(full_file_path)
             self.assertIsNone(contents)
             calls = [
-                mock.call(f'Warning: <geopm-service> {full_file_path} is a symbolic link, it will be renamed to {renamed_path}'),
-                mock.call(f'Warning: <geopm-service> the symbolic link points to /tmp')
+                mock.call(f'Warning: <geopm-service> {full_file_path} is a symbolic link, it will be renamed to {renamed_path}\n'),
+                mock.call(f'Warning: <geopm-service> the symbolic link points to /tmp\n')
             ]
             mock_sys_stderr_write.assert_has_calls(calls)
             mock_os_path_exists.assert_called_once_with(full_file_path)
@@ -358,7 +358,7 @@ class TestSecureFiles(unittest.TestCase):
              mock.patch('sys.stderr.write', return_value=None) as mock_sys_stderr_write:
             contents = secure_read_file(full_file_path)
             self.assertIsNone(contents)
-            mock_sys_stderr_write.assert_called_once_with(f'Warning: <geopm-service> {full_file_path} is not a regular file, it will be renamed to {renamed_path}')
+            mock_sys_stderr_write.assert_called_once_with(f'Warning: <geopm-service> {full_file_path} is not a regular file, it will be renamed to {renamed_path}\n')
             mock_os_path_exists.assert_called_once_with(full_file_path)
             mock_os_path_islink.assert_called_once_with(full_file_path)
             # os.stat() is also called internally by system functions like maybe os.path.islink()
@@ -396,8 +396,8 @@ class TestSecureFiles(unittest.TestCase):
             contents = secure_read_file(full_file_path)
             self.assertIsNone(contents)
             calls = [
-                mock.call(f'Warning: <geopm-service> {full_file_path} was discovered with invalid permissions, it will be renamed to {renamed_path}'),
-                mock.call(f'Warning: <geopm-service> the wrong permissions were {oct(expected_mode)}')
+                mock.call(f'Warning: <geopm-service> {full_file_path} was discovered with invalid permissions, it will be renamed to {renamed_path}\n'),
+                mock.call(f'Warning: <geopm-service> the wrong permissions were {oct(expected_mode)}\n')
             ]
             mock_sys_stderr_write.assert_has_calls(calls)
             mock_os_path_exists.assert_called_once_with(full_file_path)
@@ -441,8 +441,8 @@ class TestSecureFiles(unittest.TestCase):
             contents = secure_read_file(full_file_path)
             self.assertIsNone(contents)
             calls = [
-                mock.call(f'Warning: <geopm-service> {full_file_path} was discovered with invalid permissions, it will be renamed to {renamed_path}'),
-                mock.call(f'Warning: <geopm-service> the wrong user owner was {file_mock.st_uid}')
+                mock.call(f'Warning: <geopm-service> {full_file_path} was discovered with invalid permissions, it will be renamed to {renamed_path}\n'),
+                mock.call(f'Warning: <geopm-service> the wrong user owner was {file_mock.st_uid}\n')
             ]
             mock_sys_stderr_write.assert_has_calls(calls)
             mock_os_path_exists.assert_called_once_with(full_file_path)
@@ -486,8 +486,8 @@ class TestSecureFiles(unittest.TestCase):
             contents = secure_read_file(full_file_path)
             self.assertIsNone(contents)
             calls = [
-                mock.call(f'Warning: <geopm-service> {full_file_path} was discovered with invalid permissions, it will be renamed to {renamed_path}'),
-                mock.call(f'Warning: <geopm-service> the wrong group owner was {file_mock.st_gid}')
+                mock.call(f'Warning: <geopm-service> {full_file_path} was discovered with invalid permissions, it will be renamed to {renamed_path}\n'),
+                mock.call(f'Warning: <geopm-service> the wrong group owner was {file_mock.st_gid}\n')
             ]
             mock_sys_stderr_write.assert_has_calls(calls)
             mock_os_path_exists.assert_called_once_with(full_file_path)
