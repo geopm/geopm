@@ -216,7 +216,7 @@ class TestActiveSessions(unittest.TestCase):
                 mock_os_stat.assert_not_called()
                 mock_pid_valid.assert_not_called()
                 mock_smf.assert_not_called()
-                mock_err.assert_called_once_with(f'Warning: <geopm-service> Invalid JSON file, unable to parse, renamed{full_file_path} to {renamed_path} and will ignore')
+                mock_err.assert_called_once_with(f'Warning: <geopm-service> Invalid JSON file, unable to parse, renamed{full_file_path} to {renamed_path} and will ignore\n')
                 mock_os_rename.assert_called_once_with(full_file_path, renamed_path)
 
     def test_creation_json(self):
