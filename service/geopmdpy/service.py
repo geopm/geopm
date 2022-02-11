@@ -70,13 +70,11 @@ class PlatformService(object):
         """
         self._pio = pio
         self._VAR_PATH = varrun.GEOPM_SERVICE_VAR_PATH
-        self._CONFIG_PATH = '/etc/geopm-service'
-        self._ALL_GROUPS = [gg.gr_name for gg in grp.getgrall()]
-        self._DEFAULT_ACCESS = '0.DEFAULT_ACCESS'
         self._SAVE_DIR = 'SAVE_FILES'
         self._WATCH_INTERVAL_MSEC = 1000
         self._write_pid = None
         self._active_sessions = varrun.ActiveSessions()
+        self._access_lists = varrun.AccessLists()
         for client_pid in self._active_sessions.get_clients():
             is_writer = self._active_sessions.is_write_client(client_pid)
             is_active = self.check_client(client_pid)
@@ -108,20 +106,7 @@ class PlatformService(object):
             RuntimeError: The group name is not valid on the system.
 
         """
-        return NotImplementedError
-        group = self._validate_group(group)
-        group_dir = os.path.join(self._CONFIG_PATH, group)
-        if os.path.isdir(group_dir):
-            path = os.path.join(group_dir, 'allowed_signals')
-            signals = self._read_allowed(path)
-            signals = self._filter_valid_signals(signals)
-            path = os.path.join(group_dir, 'allowed_controls')
-            controls = self._read_allowed(path)
-            controls = self._filter_valid_controls(controls)
-        else:
-            signals = []
-            controls = []
-        return signals, controls
+        return self._access_lists.get_group_access(group)
 
     def set_group_access(self, group, allowed_signals, allowed_controls):
         """Set the signals and controls in the allowed lists.
@@ -145,17 +130,7 @@ class PlatformService(object):
             allowed_controls (list(str)): Control names that are allowed
 
         """
-        return NotImplementedError
-        group = self._validate_group(group)
-        self._validate_signals(allowed_signals)
-        self._validate_controls(allowed_controls)
-        group_dir = os.path.join(self._CONFIG_PATH, group)
-        # TODO: Deal with permissions
-        os.makedirs(group_dir, exist_ok=True)
-        path = os.path.join(group_dir, 'allowed_signals')
-        self._write_allowed(path, allowed_signals)
-        path = os.path.join(group_dir, 'allowed_controls')
-        self._write_allowed(path, allowed_controls)
+        self._access_lists.set_group_access(group, allowed_signals, allowed_controls)
 
     def get_user_access(self, user):
         """Get the list of all of the signals and controls that are
@@ -183,26 +158,7 @@ class PlatformService(object):
             list(str), list(str): Signal and control allowed lists
 
         """
-        # Maybe move this too?
-        if user == 'root':
-            return self.get_all_access()
-        user_groups = []
-        if user != '':
-            try:
-                user_groups = self._get_user_groups(user)
-            except KeyError as e:
-                raise RuntimeError("Specified user '{}' does not exist.".format(user))
-        user_groups.append('') # Default access list
-        signal_set = set()
-        control_set = set()
-        for group in user_groups:
-            signals, controls = self.get_group_access(group)
-            signal_set.update(signals)
-            control_set.update(controls)
-        signals = sorted(signal_set)
-        controls = sorted(control_set)
-
-        return signals, controls
+        return self._access_lists.get_user_access(user)
 
     def get_all_access(self):
         """Get all of the signals and controls that the service supports.
@@ -216,7 +172,7 @@ class PlatformService(object):
             list(str), list(str): All supported signals and controls
 
         """
-        return self._pio.signal_names(), self._pio.control_names()
+        return self._access_lists.get_all_access()
 
     def get_signal_info(self, signal_names):
         """For each specified signal name, return a tuple of information.
@@ -621,62 +577,6 @@ class PlatformService(object):
             raise RuntimeError('Requested control that is not in allowed list: {}'.format(control_name))
         self._write_mode(client_pid)
         self._pio.write_control(control_name, domain, domain_idx, setting)
-
-    def _read_allowed(self, path):
-        try:
-            with open(path) as fid:
-                result = [line.strip() for line in fid.readlines()
-                          if line.strip() and not line.strip().startswith('#')]
-        except FileNotFoundError:
-            result = []
-        return result
-
-    def _write_allowed(self, path, allowed):
-        allowed.append('')
-        with open(path, 'w') as fid:
-            fid.write('\n'.join(allowed))
-
-    def _validate_group(self, group):
-        if group is None or group == '':
-            group = self._DEFAULT_ACCESS
-        else:
-            group = str(group)
-            if group[0].isdigit():
-                raise RuntimeError('Linux group name cannot begin with a digit: group = "{}"'.format(group))
-            if group not in self._ALL_GROUPS:
-                raise RuntimeError('Linux group is not defined: group = "{}"'.format(group))
-        return group
-
-    def _filter_valid_signals(self, signals):
-        signals = set(signals)
-        all_signals = self._pio.signal_names()
-        return list(signals.intersection(all_signals))
-
-    def _filter_valid_controls(self, controls):
-        controls = set(controls)
-        all_controls = self._pio.control_names()
-        return list(controls.intersection(all_controls))
-
-    def _validate_signals(self, signals):
-        signals = set(signals)
-        all_signals = self._pio.signal_names()
-        if not signals.issubset(all_signals):
-            unmatched = signals.difference(all_signals)
-            err_msg = 'The service does not support any signals that match: "{}"'.format('", "'.join(unmatched))
-            raise RuntimeError(err_msg)
-
-    def _validate_controls(self, controls):
-        controls = set(controls)
-        all_controls = self._pio.control_names()
-        if not controls.issubset(all_controls):
-            unmatched = controls.difference(all_controls)
-            err_msg = 'The service does not support any controls that match: "{}"'.format('", "'.join(unmatched))
-            raise RuntimeError(err_msg)
-
-    def _get_user_groups(self, user):
-        user_gid = pwd.getpwnam(user).pw_gid
-        all_gid = os.getgrouplist(user, user_gid)
-        return [grp.getgrgid(gid).gr_name for gid in all_gid]
 
     def _write_mode(self, client_pid):
         client_sid = os.getsid(client_pid)

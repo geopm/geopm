@@ -31,7 +31,15 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+import unittest
+from unittest import mock
+import tempfile
+import os
+import pwd
+import grp
+
 from geopmdpy.varrun import ActiveSessions
+from geopmdpy.varrun import AccessLists
 
 # Patch dlopen to allow the tests to run when there is no build
 with mock.patch('cffi.FFI.dlopen', return_value=mock.MagicMock()):
@@ -42,11 +50,13 @@ class TestAccessLists(unittest.TestCase):
     def setUp(self):
         self._test_name = 'TestAccessLists'
         self._CONFIG_PATH = tempfile.TemporaryDirectory('{}_config'.format(self._test_name))
-        #  self._platform_service._CONFIG_PATH = self._CONFIG_PATH.name
+        self._access_lists = AccessLists(self._CONFIG_PATH.name)
+        self._bad_group_id = 'GEOPM_TEST_INVALID_GROUP_NAME'
+        self._bad_user_id = 'GEOPM_TEST_INVALID_USER_NAME'
+        self._access_lists._ALL_GROUPS = ['named']
 
     def tearDown(self):
         self._CONFIG_PATH.cleanup()
-        pass
 
     def _write_group_files_helper(self, group, signals, controls):
         group_dir = os.path.join(self._CONFIG_PATH.name,
@@ -105,7 +115,7 @@ default
             fid.write(lines)
         with mock.patch('geopmdpy.pio.signal_names', return_value=signals_expect), \
              mock.patch('geopmdpy.pio.control_names', return_value=controls_expect):
-            signals, controls = self._platform_service.get_group_access('')
+            signals, controls = self._access_lists.get_group_access('')
         self.assertEqual(set(signals_expect), set(signals))
         self.assertEqual(set(controls_expect), set(controls))
 
@@ -120,7 +130,7 @@ default
              mock.patch('geopmdpy.pio.control_names', return_value=all_controls), \
              mock.patch('builtins.open', mock_open):
 
-            self._platform_service.set_group_access(group, ['power'], ['frequency'])
+            self._access_lists.set_group_access(group, ['power'], ['frequency'])
 
             # Were the files written in the proper order?
             test_dir = os.path.join(self._CONFIG_PATH.name,
@@ -148,35 +158,35 @@ default
         self._set_group_access_test_helper('named')
 
     def test_get_group_access_empty(self):
-        signals, controls = self._platform_service.get_group_access('')
+        signals, controls = self._access_lists.get_group_access('')
         self.assertEqual([], signals)
         self.assertEqual([], controls)
 
     def test_get_group_access_invalid(self):
         err_msg = 'Linux group name cannot begin with a digit'
         with self.assertRaisesRegex(RuntimeError, err_msg):
-            self._platform_service.get_group_access('1' + self._bad_group_id)
+            self._access_lists.get_group_access('1' + self._bad_group_id)
         err_msg = 'Linux group is not defined'
         with self.assertRaisesRegex(RuntimeError, err_msg):
-            self._platform_service.get_group_access(self._bad_group_id)
+            self._access_lists.get_group_access(self._bad_group_id)
 
     def test_get_group_access_default(self):
         signals_expect = ['geopm', 'signals', 'default', 'energy']
         controls_expect = ['geopm', 'controls', 'default', 'power']
-        #  self._write_group_files_helper('', signals_expect, controls_expect)
+        self._write_group_files_helper('', signals_expect, controls_expect)
         with mock.patch('geopmdpy.pio.signal_names', return_value=signals_expect), \
              mock.patch('geopmdpy.pio.control_names', return_value=controls_expect):
-            signals, controls = self._platform_service.get_group_access('')
+            signals, controls = self._access_lists.get_group_access('')
         self.assertEqual(set(signals_expect), set(signals))
         self.assertEqual(set(controls_expect), set(controls))
 
     def test_get_group_access_named(self):
         signals_expect = ['geopm', 'signals', 'default', 'energy']
         controls_expect = ['geopm', 'controls', 'named', 'power']
-        #  self._write_group_files_helper('named', [], controls_expect)
+        self._write_group_files_helper('named', [], controls_expect)
         with mock.patch('geopmdpy.pio.signal_names', return_value=signals_expect), \
              mock.patch('geopmdpy.pio.control_names', return_value=controls_expect):
-            signals, controls = self._platform_service.get_group_access('named')
+            signals, controls = self._access_lists.get_group_access('named')
         self.assertEqual([], signals)
         self.assertEqual(set(controls_expect), set(controls))
 
@@ -190,7 +200,7 @@ default
         err_msg = 'The service does not support any signals that match: "{}"'.format(signal[0])
         with mock.patch('geopmdpy.pio.signal_names', return_value=[]), \
              self.assertRaisesRegex(RuntimeError, err_msg):
-            self._platform_service.set_group_access('', signal, [])
+            self._access_lists.set_group_access('', signal, [])
 
         # Test no pio signals or controls
         control = ['power']
@@ -198,10 +208,10 @@ default
         with mock.patch('geopmdpy.pio.signal_names', return_value=[]), \
              mock.patch('geopmdpy.pio.control_names', return_value=[]), \
              self.assertRaisesRegex(RuntimeError, err_msg):
-            self._platform_service.set_group_access('', [], control)
+            self._access_lists.set_group_access('', [], control)
 
     def test_get_user_access_empty(self):
-        signals, controls = self._platform_service.get_user_access('')
+        signals, controls = self._access_lists.get_user_access('')
         self.assertEqual([], signals)
         self.assertEqual([], controls)
 
@@ -209,44 +219,44 @@ default
         bad_user = self._bad_user_id
         err_msg = "Specified user '{}' does not exist.".format(bad_user)
         with self.assertRaisesRegex(RuntimeError, err_msg):
-            self._platform_service.get_user_access(bad_user)
+            self._access_lists.get_user_access(bad_user)
 
     def test_get_user_groups_invalid(self):
         bad_user = self._bad_user_id
         err_msg = r"getpwnam\(\): name not found: '{}'".format(bad_user)
         with self.assertRaisesRegex(KeyError, err_msg):
-            self._platform_service._get_user_groups(bad_user)
+            self._access_lists._get_user_groups(bad_user)
 
         bad_gid = 999999
         fake_pwd = pwd.struct_passwd((None, None, None, bad_gid, None, '', None))
         err_msg = r"getgrgid\(\): gid not found: {}".format(bad_gid)
         with mock.patch('pwd.getpwnam', return_value=fake_pwd), \
              self.assertRaisesRegex(KeyError, err_msg):
-            self._platform_service._get_user_groups(bad_user)
+            self._access_lists._get_user_groups(bad_user)
 
     def test_get_user_groups_current(self):
         current_user = pwd.getpwuid(os.getuid()).pw_name
         expected_groups = [grp.getgrgid(gid).gr_name
                            for gid in os.getgrouplist(current_user, os.getgid())]
-        groups = self._platform_service._get_user_groups(current_user)
+        groups = self._access_lists._get_user_groups(current_user)
         self.assertEqual(set(expected_groups), set(groups))
 
     def test_get_user_access_default(self):
         signals_default = ['frequency', 'energy']
         controls_default = ['geopm', 'controls', 'named', 'power']
-        #  self._write_group_files_helper('', signals_default, controls_default)
+        self._write_group_files_helper('', signals_default, controls_default)
 
         # Create a group with entries that should NOT be included the default
         signals_named = ['power', 'temperature']
         controls_named = ['frequency_uncore', 'power_uncore']
-        #  self._write_group_files_helper('named', signals_named, controls_named)
+        self._write_group_files_helper('named', signals_named, controls_named)
 
 
-        with mock.patch('geopmdpy.service.PlatformService._get_user_groups',
+        with mock.patch('geopmdpy.varrun.AccessLists._get_user_groups',
                         return_value=[]), \
              mock.patch('geopmdpy.pio.signal_names', return_value=signals_default), \
              mock.patch('geopmdpy.pio.control_names', return_value=controls_default):
-            signals, controls = self._platform_service.get_user_access('')
+            signals, controls = self._access_lists.get_user_access('')
 
         self.assertEqual(set(signals_default), set(signals))
         self.assertEqual(set(controls_default), set(controls))
@@ -254,11 +264,11 @@ default
     def test_get_user_access_valid(self):
         signals_default = ['frequency', 'energy', 'power']
         controls_default = ['frequency', 'power']
-        #  self._write_group_files_helper('', signals_default, controls_default)
+        self._write_group_files_helper('', signals_default, controls_default)
 
         signals_named = ['power', 'temperature', 'not-available-anymore']
         controls_named = ['frequency_uncore', 'power_uncore', 'not-available-anymore-either']
-        #  self._write_group_files_helper('named', signals_named, controls_named)
+        self._write_group_files_helper('named', signals_named, controls_named)
 
         signals_avail = ['frequency', 'energy', 'power', 'temperature', 'extra_power',
                          'extra_temperature']
@@ -268,18 +278,18 @@ default
         # The user does not belong to this group, so these should be omitted
         signals_extra = ['extra_power', 'extra_temperature']
         controls_extra = ['extra_frequency_uncore', 'extra_power_uncore']
-        #  self._write_group_files_helper('extra', signals_extra, controls_extra)
+        self._write_group_files_helper('extra', signals_extra, controls_extra)
 
         signals_expect = ['frequency', 'energy', 'power', 'power', 'temperature']
         controls_expect = ['frequency', 'power', 'frequency_uncore', 'power_uncore']
 
         valid_user = 'val'
         groups=['named']
-        with mock.patch('geopmdpy.service.PlatformService._get_user_groups',
+        with mock.patch('geopmdpy.varrun.AccessLists._get_user_groups',
                         return_value=groups), \
              mock.patch('geopmdpy.pio.signal_names', return_value=signals_avail), \
              mock.patch('geopmdpy.pio.control_names', return_value=controls_avail):
-            signals, controls = self._platform_service.get_user_access(valid_user)
+            signals, controls = self._access_lists.get_user_access(valid_user)
 
         self.assertEqual(set(signals_expect), set(signals))
         self.assertEqual(set(controls_expect), set(controls))
@@ -287,21 +297,26 @@ default
     def test_get_user_access_root(self):
         signals_default = ['frequency', 'energy', 'power']
         controls_default = ['frequency', 'power']
-        #  self._write_group_files_helper('', signals_default, controls_default)
+        self._write_group_files_helper('', signals_default, controls_default)
 
         signals_named = ['power', 'temperature']
         controls_named = ['frequency_uncore', 'power_uncore']
-        #  self._write_group_files_helper('named', signals_named, controls_named)
+        self._write_group_files_helper('named', signals_named, controls_named)
 
         all_signals = signals_default + signals_named
         all_controls = controls_default + controls_named
 
         with mock.patch('geopmdpy.pio.signal_names', return_value=all_signals), \
              mock.patch('geopmdpy.pio.control_names', return_value=all_controls):
-            signals, controls = self._platform_service.get_user_access('root')
+            signals, controls = self._access_lists.get_user_access('root')
 
         self.assertEqual(set(all_signals), set(signals))
         self.assertEqual(set(all_controls), set(controls))
+
+    def test__read_allowed_invalid(self):
+        result = self._access_lists._read_allowed('INVALID_PATH')
+        self.assertEqual([], result)
+
 
 if __name__ == '__main__':
     unittest.main()

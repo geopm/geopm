@@ -55,7 +55,10 @@ import jsonschema
 import glob
 import psutil
 import uuid
+import grp
+import pwd
 
+from . import pio
 
 GEOPM_SERVICE_VAR_PATH = '/var/run/geopm-service'
 GEOPM_SERVICE_CONFIG_PATH = '/etc/geopm-service'
@@ -718,13 +721,55 @@ class ActiveSessions(object):
         self._update_session_file(client_pid)
 
 
-class AllowedLists(object):
+class AccessLists(object):
     """Class that manages the access list files
 
     """
     def __init__(self, config_path=GEOPM_SERVICE_CONFIG_PATH):
         self._CONFIG_PATH = config_path
         self._DEFAULT_ACCESS = '0.DEFAULT_ACCESS'
+        self._ALL_GROUPS = [gg.gr_name for gg in grp.getgrall()]
+        self._pio = pio
+
+    def _validate_group(self, group):
+        if group is None or group == '':
+            group = self._DEFAULT_ACCESS
+        else:
+            group = str(group)
+            if group[0].isdigit():
+                raise RuntimeError('Linux group name cannot begin with a digit: group = "{}"'.format(group))
+            if group not in self._ALL_GROUPS:
+                raise RuntimeError('Linux group is not defined: group = "{}"'.format(group))
+        return group
+
+    def _read_allowed(self, path):
+        try:
+            with open(path) as fid:
+                result = [line.strip() for line in fid.readlines()
+                          if line.strip() and not line.strip().startswith('#')]
+        except FileNotFoundError:
+            result = []
+        return result
+
+    def _write_allowed(self, path, allowed):
+        allowed.append('')
+        with open(path, 'w') as fid:
+            fid.write('\n'.join(allowed))
+
+    def _filter_valid_signals(self, signals):
+        signals = set(signals)
+        all_signals = self._pio.signal_names()
+        return list(signals.intersection(all_signals))
+
+    def _filter_valid_controls(self, controls):
+        controls = set(controls)
+        all_controls = self._pio.control_names()
+        return list(controls.intersection(all_controls))
+
+    def _get_user_groups(self, user):
+        user_gid = pwd.getpwnam(user).pw_gid
+        all_gid = os.getgrouplist(user, user_gid)
+        return [grp.getgrgid(gid).gr_name for gid in all_gid]
 
     def get_group_access(self, group):
         """Get signal and control access lists
@@ -748,7 +793,36 @@ class AllowedLists(object):
             list(str)), list(str): Signal and control allowed lists
 
         """
-        pass
+	# TODO Validate docstring differences with service.py
+        group = self._validate_group(group)
+        group_dir = os.path.join(self._CONFIG_PATH, group)
+        if os.path.isdir(group_dir):
+            path = os.path.join(group_dir, 'allowed_signals')
+            signals = self._read_allowed(path)
+            signals = self._filter_valid_signals(signals)
+            path = os.path.join(group_dir, 'allowed_controls')
+            controls = self._read_allowed(path)
+            controls = self._filter_valid_controls(controls)
+        else:
+            signals = []
+            controls = []
+        return signals, controls
+
+    def _validate_signals(self, signals):
+        signals = set(signals)
+        all_signals = self._pio.signal_names()
+        if not signals.issubset(all_signals):
+            unmatched = signals.difference(all_signals)
+            err_msg = 'The service does not support any signals that match: "{}"'.format('", "'.join(unmatched))
+            raise RuntimeError(err_msg)
+
+    def _validate_controls(self, controls):
+        controls = set(controls)
+        all_controls = self._pio.control_names()
+        if not controls.issubset(all_controls):
+            unmatched = controls.difference(all_controls)
+            err_msg = 'The service does not support any controls that match: "{}"'.format('", "'.join(unmatched))
+            raise RuntimeError(err_msg)
 
     def set_group_access(self, group, allowed_signals, allowed_controls):
         """Set signals and controls in the allowed lists
@@ -770,4 +844,75 @@ class AllowedLists(object):
             allowed_controls (list(str)): Control names that are allowed
 
         """
-        pass
+	# TODO Validate docstring differences with service.py
+        group = self._validate_group(group)
+        self._validate_signals(allowed_signals)
+        self._validate_controls(allowed_controls)
+        group_dir = os.path.join(self._CONFIG_PATH, group)
+        # TODO: Deal with permissions
+        os.makedirs(group_dir, exist_ok=True)
+        path = os.path.join(group_dir, 'allowed_signals')
+        self._write_allowed(path, allowed_signals)
+        path = os.path.join(group_dir, 'allowed_controls')
+        self._write_allowed(path, allowed_controls)
+
+    def get_user_access(self, user):
+        """Get the list of all of the signals and controls that are
+        accessible to the specified user.
+
+        Returns the default access lists that apply to all non-root
+        users if the empty string is provided.
+
+        All available signals and controls are returned if the caller
+        specifies the user name 'root'.  A RuntimeError is
+        raised if the user does not exist on the system.
+
+        When a user requests a signal or control through one of the
+        other PlatformService methods, they are restricted to the
+        union of the default allowed lists and the allowed lists for
+        all Unix groups that the user belongs to.  These combined
+        lists are what this method returns.
+
+        Args:
+            user (str): Which Unix user name to query; if the empty
+                        string is provided, the default allowed list
+                        is returned.
+
+        Returns:
+            list(str), list(str): Signal and control allowed lists
+
+        """
+        # Maybe move this too?
+        if user == 'root':
+            return self.get_all_access()
+        user_groups = []
+        if user != '':
+            try:
+                user_groups = self._get_user_groups(user)
+            except KeyError as e:
+                raise RuntimeError("Specified user '{}' does not exist.".format(user))
+        user_groups.append('') # Default access list
+        signal_set = set()
+        control_set = set()
+        for group in user_groups:
+            signals, controls = self.get_group_access(group)
+            signal_set.update(signals)
+            control_set.update(controls)
+        signals = sorted(signal_set)
+        controls = sorted(control_set)
+
+        return signals, controls
+
+    def get_all_access(self):
+        """Get all of the signals and controls that the service supports.
+
+        Returns the list of all signals and controls supported by the
+        service.  The lists returned are independent of the access
+        controls; therefore, calling get_all_access() is equivalent
+        to calling get_user_access('root').
+
+        Returns:
+            list(str), list(str): All supported signals and controls
+
+        """
+        return self._pio.signal_names(), self._pio.control_names()

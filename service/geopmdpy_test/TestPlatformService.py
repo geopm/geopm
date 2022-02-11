@@ -40,6 +40,7 @@ import re
 from unittest import mock
 import tempfile
 from geopmdpy.varrun import ActiveSessions
+from geopmdpy.varrun import AccessLists
 
 # Patch dlopen to allow the tests to run when there is no build
 with mock.patch('cffi.FFI.dlopen', return_value=mock.MagicMock()):
@@ -57,14 +58,13 @@ class TestPlatformService(unittest.TestCase):
         self._mock_active_sessions.check_client_active.side_effect = \
             RuntimeError(self._check_client_active_err_msg) # Until open_mock_session is called
 
-        with mock.patch('geopmdpy.varrun.ActiveSessions', return_value=self._mock_active_sessions):
+        self._mock_access_lists = mock.create_autospec(AccessLists)
+        with mock.patch('geopmdpy.varrun.ActiveSessions', return_value=self._mock_active_sessions), \
+             mock.patch('geopmdpy.varrun.AccessLists', return_value=self._mock_access_lists):
             self._platform_service = PlatformService()
 
         self._platform_service._VAR_PATH = self._VAR_PATH.name
         self._platform_service._active_sessions._VAR_PATH = self._VAR_PATH.name
-        self._platform_service._ALL_GROUPS = ['named']
-        self._bad_user_id = 'GEOPM_TEST_INVALID_USER_NAME'
-        self._bad_group_id = 'GEOPM_TEST_INVALID_GROUP_NAME'
         self._session_file_format = os.path.join(self._VAR_PATH.name, 'session-{client_pid}.json')
 
     def tearDown(self):
@@ -148,16 +148,17 @@ class TestPlatformService(unittest.TestCase):
         self._mock_active_sessions.get_batch_server.return_value = None
         self._mock_active_sessions.is_write_client.return_value = False
 
-        with mock.patch('geopmdpy.service.PlatformService._get_user_groups', return_value=[]), \
-             mock.patch('geopmdpy.service.PlatformService._watch_client', return_value=watch_id), \
-             mock.patch('geopmdpy.service.PlatformService.get_group_access', return_value=(signals, controls)) as mock_gga:
+        self._mock_access_lists.get_user_access.return_value = (signals, controls)
+
+        with mock.patch('geopmdpy.varrun.AccessLists._get_user_groups', return_value=[]), \
+             mock.patch('geopmdpy.service.PlatformService._watch_client', return_value=watch_id):
 
             self._platform_service.open_session(session_key, client_pid)
 
             self._mock_active_sessions.is_client_active.assert_called_with(client_pid)
             if not active:
                 self._mock_active_sessions.add_client.assert_called_with(client_pid, signals, controls, watch_id)
-                mock_gga.assert_called_once_with('')
+                self._mock_access_lists.get_user_access.assert_called_with(session_key)
             else:
                 self._mock_active_sessions.add_client.assert_not_called()
 
@@ -360,10 +361,6 @@ class TestPlatformService(unittest.TestCase):
              mock.patch('os.getsid', return_value=client_pid) as mock_getsid:
             self._platform_service.write_control(client_pid, control_name, domain, domain_idx, setting)
             mock_write_control.assert_called_once_with(control_name, domain, domain_idx, setting)
-
-    def test__read_allowed_invalid(self):
-        result = self._platform_service._read_allowed('INVALID_PATH')
-        self.assertEqual([], result)
 
     def test_get_cache(self):
         topo = mock.MagicMock()

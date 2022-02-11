@@ -44,34 +44,35 @@ EXTRA_DIST += geopmdpy_test/__init__.py \
               geopmdpy_test/TestController.py \
               geopmdpy_test/TestActiveSessions.py \
               geopmdpy_test/TestSecureFiles.py \
+              geopmdpy_test/TestAccessLists.py \
               # end
 
-GEOPMDPY_TESTS = geopmdpy_test/pytest_links/TestPlatformService.test__read_allowed_invalid \
+GEOPMDPY_TESTS = geopmdpy_test/pytest_links/TestAccessLists.test__read_allowed_invalid \
+                 geopmdpy_test/pytest_links/TestAccessLists.test_config_parser \
+                 geopmdpy_test/pytest_links/TestAccessLists.test_get_group_access_default \
+                 geopmdpy_test/pytest_links/TestAccessLists.test_get_group_access_empty \
+                 geopmdpy_test/pytest_links/TestAccessLists.test_get_group_access_invalid \
+                 geopmdpy_test/pytest_links/TestAccessLists.test_get_group_access_named \
+                 geopmdpy_test/pytest_links/TestAccessLists.test_get_user_access_default \
+                 geopmdpy_test/pytest_links/TestAccessLists.test_get_user_access_empty \
+                 geopmdpy_test/pytest_links/TestAccessLists.test_get_user_access_invalid \
+                 geopmdpy_test/pytest_links/TestAccessLists.test_get_user_access_root \
+                 geopmdpy_test/pytest_links/TestAccessLists.test_get_user_access_valid \
+                 geopmdpy_test/pytest_links/TestAccessLists.test_get_user_groups_current \
+                 geopmdpy_test/pytest_links/TestAccessLists.test_get_user_groups_invalid \
+                 geopmdpy_test/pytest_links/TestAccessLists.test_set_group_access_empty \
+                 geopmdpy_test/pytest_links/TestAccessLists.test_set_group_access_invalid \
+                 geopmdpy_test/pytest_links/TestAccessLists.test_set_group_access_named \
                  geopmdpy_test/pytest_links/TestPlatformService.test_close_session_invalid \
                  geopmdpy_test/pytest_links/TestPlatformService.test_close_session_read \
                  geopmdpy_test/pytest_links/TestPlatformService.test_close_session_write \
-                 geopmdpy_test/pytest_links/TestPlatformService.test_config_parser \
                  geopmdpy_test/pytest_links/TestPlatformService.test_get_control_info \
-                 geopmdpy_test/pytest_links/TestPlatformService.test_get_group_access_default \
-                 geopmdpy_test/pytest_links/TestPlatformService.test_get_group_access_empty \
-                 geopmdpy_test/pytest_links/TestPlatformService.test_get_group_access_invalid \
-                 geopmdpy_test/pytest_links/TestPlatformService.test_get_group_access_named \
                  geopmdpy_test/pytest_links/TestPlatformService.test_get_signal_info \
-                 geopmdpy_test/pytest_links/TestPlatformService.test_get_user_access_default \
-                 geopmdpy_test/pytest_links/TestPlatformService.test_get_user_access_empty \
-                 geopmdpy_test/pytest_links/TestPlatformService.test_get_user_access_invalid \
-                 geopmdpy_test/pytest_links/TestPlatformService.test_get_user_access_root \
-                 geopmdpy_test/pytest_links/TestPlatformService.test_get_user_access_valid \
-                 geopmdpy_test/pytest_links/TestPlatformService.test_get_user_groups_current \
-                 geopmdpy_test/pytest_links/TestPlatformService.test_get_user_groups_invalid \
                  geopmdpy_test/pytest_links/TestPlatformService.test_lock_control \
                  geopmdpy_test/pytest_links/TestPlatformService.test_open_session \
                  geopmdpy_test/pytest_links/TestPlatformService.test_open_session_twice \
                  geopmdpy_test/pytest_links/TestPlatformService.test_read_signal \
                  geopmdpy_test/pytest_links/TestPlatformService.test_read_signal_invalid \
-                 geopmdpy_test/pytest_links/TestPlatformService.test_set_group_access_empty \
-                 geopmdpy_test/pytest_links/TestPlatformService.test_set_group_access_invalid \
-                 geopmdpy_test/pytest_links/TestPlatformService.test_set_group_access_named \
                  geopmdpy_test/pytest_links/TestPlatformService.test_start_batch \
                  geopmdpy_test/pytest_links/TestPlatformService.test_start_batch_invalid \
                  geopmdpy_test/pytest_links/TestPlatformService.test_start_batch_write_blocked \
