@@ -103,7 +103,7 @@ def secure_make_dirs(path):
             is_valid = False
             sys.stderr.write(f'Warning: <geopm-service> {path} is a symbolic link, the link will be renamed to {renamed_path}\n')
             sys.stderr.write(f'Warning: <geopm-service> the symbolic link points to {os.readlink(path)}\n')
-        # If it's a so-called "regular file"
+        # If it's not a directory
         elif not os.path.isdir(path):
             is_valid = False
             sys.stderr.write(f'Warning: <geopm-service> {path} is not a directory, it will be renamed to {renamed_path}\n')
@@ -204,16 +204,30 @@ def secure_read_file(path):
 
 
 def is_secure_path(path):
+    """Query if path may be openend safely
+
+    Check if path exists, and refers to a regular file that is not a link.  A
+    warning message is printed if the path is a link, a directory or is not a
+    regular file and the file is renamed to a path of the form
+    `<PATH>-<UUID>-INVALID`.
+
+    Args:
+        path (str): The file path
+
+    Returns:
+        bool: True if the path is a regular file and not a link
+
+    """
     result = False
     if os.path.exists(path):
         renamed_path = f'{path}-{uuid.uuid4()}-INVALID'
         if os.path.islink(path):
             sys.stderr.write(f'Warning: <geopm-service> {path} is a symbolic link, it will be renamed to {renamed_path}\n')
             sys.stderr.write(f'Warning: <geopm-service> the symbolic link points to {os.readlink(path)}\n')
+        elif os.path.isdir(path):
+            sys.stderr.write(f'Warning: <geopm-service> {path} is a directory, it will be renamed to {renamed_path}\n')
         elif not stat.S_ISREG(os.stat(path).st_mode):
             sys.stderr.write(f'Warning: <geopm-service> {path} is not a regular file, it will be renamed to {renamed_path}\n')
-        elif os.path.isdir(path):
-            sys.stderr.write(f'Warning: <geopm-service> {path} is a directory, it will be renamed to {renamed_path}')
         else:
             result = True
         if not result:
@@ -224,6 +238,23 @@ def is_secure_path(path):
 
 
 def is_secure_file(path, fid):
+    """Query if file descriptor may be safely read
+
+    After opening a file this function is called to determine if the file
+    descriptor is a regular file owned by the calling process user and group
+    with restricted permissions (i.e. mode 0o600).  If these conditions are
+    not met then a warning message is printed and the file is renamed to a
+    path of the form `<PATH>-<UUID>-INVALID`.
+
+    Args:
+        path (str): The file path that was passed to open()
+
+        fid (file): File descriptor returned by open()
+
+    Returns:
+        bool: True if regular file with restricted permissions
+
+    """
     result = False
     daemon_uid = os.getuid()
     daemon_gid = os.getgid()
@@ -890,7 +921,7 @@ class WriteLock(object):
             trial_count = 0
             while self._fid is None and trial_count < 2:
                 if os.path.exists(self._LOCK_PATH):
-                    # Rename exiting file if it is not secure
+                    # Rename existing file if it is not secure
                     is_secure_path(self._LOCK_PATH)
                 self._fid = open(self._LOCK_PATH, 'a+')
                 if not is_secure_file(self._LOCK_PATH, self._fid):
