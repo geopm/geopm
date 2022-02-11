@@ -58,6 +58,7 @@ class TestWriteLock(unittest.TestCase):
         orig_pid = 1234
         other_pid = 4321
         with WriteLock(sess_path) as write_lock:
+            self.assertIsNone(write_lock.try_lock())
             out_pid = write_lock.try_lock(orig_pid)
             self.assertEqual(orig_pid, out_pid)
         with WriteLock(sess_path) as other_lock:
