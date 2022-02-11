@@ -351,14 +351,9 @@ class TestSecureFiles(unittest.TestCase):
         # create full_file_path as a fifo instead of creating a regular file
         os.mkfifo(full_file_path)
 
-        fifo_mock = mock.create_autospec(os.stat_result, spec_set=True)
-        fifo_mock.st_uid = os.getuid()
-        fifo_mock.st_gid = os.getgid()
-        fifo_mock.st_mode = 0o600 | stat.S_IFIFO
-
         with mock.patch('os.path.exists', wraps=os.path.exists) as mock_os_path_exists, \
              mock.patch('os.path.islink', wraps=os.path.islink) as mock_os_path_islink, \
-             mock.patch('os.stat', return_value=fifo_mock) as mock_os_stat, \
+             mock.patch('os.stat', wraps=os.stat) as mock_os_stat, \
              mock.patch('uuid.uuid4', return_value='uuid4'), \
              mock.patch('sys.stderr.write', return_value=None) as mock_sys_stderr_write:
             contents = secure_read_file(full_file_path)
