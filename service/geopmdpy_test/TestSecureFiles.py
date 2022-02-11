@@ -299,7 +299,7 @@ class TestSecureFiles(unittest.TestCase):
              mock.patch('sys.stderr.write', return_value=None) as mock_sys_stderr_write:
             contents = secure_read_file(full_file_path)
             self.assertIsNone(contents)
-            mock_sys_stderr_write.assert_called_once_with(f'Warning: <geopm-service> {full_file_path} is a directory, it will be renamed to {renamed_path}')
+            mock_sys_stderr_write.assert_called_once_with(f'Warning: <geopm-service> {full_file_path} is not a regular file, it will be renamed to {renamed_path}')
         self.assertFalse(os.path.exists(full_file_path))
         self.assertTrue(os.path.exists(renamed_path))
 
@@ -358,7 +358,7 @@ class TestSecureFiles(unittest.TestCase):
              mock.patch('sys.stderr.write', return_value=None) as mock_sys_stderr_write:
             contents = secure_read_file(full_file_path)
             self.assertIsNone(contents)
-            mock_sys_stderr_write.assert_called_once_with(f'Warning: <geopm-service> {full_file_path} is a fifo, it will be renamed to {renamed_path}')
+            mock_sys_stderr_write.assert_called_once_with(f'Warning: <geopm-service> {full_file_path} is not a regular file, it will be renamed to {renamed_path}')
             mock_os_path_exists.assert_called_once_with(full_file_path)
             mock_os_path_islink.assert_called_once_with(full_file_path)
             # os.stat() is also called internally by system functions like maybe os.path.islink()
