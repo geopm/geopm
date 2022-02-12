@@ -910,12 +910,48 @@ class AccessLists(object):
 
 
 class WriteLock(object):
+    """Class for interacting with control lock file
+
+    This class provides the interface to query and set the PID that owns the
+    GEOPM Service control write lock.  The state of this lock stored in the
+    file path:
+
+        /var/run/geopm-service/CONTROL_LOCK
+
+    This file is empty when the lock is free, and contains the PID of the
+    controlling process when the lock is held.  The class manages the advisory
+    lock to serialize any attempts read or write the file.  Additionally the
+    class checks that the lock file is a regular file with restricted
+    permissions.  Maniuplations of the control lock file should be done
+    exclusively with the WriteLock object to insure that the advisory lock is
+    effective.
+
+    """
     def __init__(self, var_path=GEOPM_SERVICE_VAR_PATH):
+        """Set up initial state
+
+        The WriteLock must be used within a context manager.  Use a
+        non-default var_path only for testing purposes.  This constructor will
+        securely create the var_path if it does not exist.
+
+        Args:
+            var_path: Directory to create control lock within
+
+        """
         self._VAR_PATH = var_path
         self._LOCK_PATH = os.path.join(self._VAR_PATH, "CONTROL_LOCK")
         self._fid = None
+        secure_make_dirs(var_path)
 
     def __enter__(self):
+        """Enter context management for interacting with write lock
+
+        Securely open the lock file for editing and hold exclusive advisory
+        lock.  The file pointer is rewound after the lock is held.  Two
+        attempts will be made to securely open the file and any insecure files
+        will be renamed.
+
+        """
         old_mask = os.umask(0o077)
         try:
             trial_count = 0
@@ -938,6 +974,11 @@ class WriteLock(object):
         return self
 
     def __exit__(self, type, value, traceback):
+        """Exit context management for interacting with write lock
+
+        Release the advisory lock and close the file.
+
+        """
         if self._fid is not None:
             fcntl.lockf(self._fid, fcntl.LOCK_UN)
             self._fid.close()
@@ -962,13 +1003,10 @@ class WriteLock(object):
                  or None if the write lock is not held
 
         """
-        contents = self._fid.readline(64)
-        self._fid.seek(0)
+        contents = self._read()
         if contents == '':
             if pid is not None:
-                pid = int(pid)
-                self._fid.write(str(pid))
-                self._fid.seek(0)
+                self._write(pid)
             file_pid = pid
         else:
             file_pid = int(contents)
@@ -988,9 +1026,7 @@ class WriteLock(object):
             RuntimeError: The specified PID does not currently hold the lock
 
         """
-        err_str = None
-        contents = self._fid.readline(64)
-        self._fid.seek(0)
+        contents = self._read()
         if contents == '':
             raise RuntimeError('Lock is not held by any PID')
         else:
@@ -999,3 +1035,35 @@ class WriteLock(object):
                 self._fid.truncate(0)
             else:
                 raise RuntimeError(f'Lock is held by another PID: {file_pid}')
+
+    def _read(self):
+        """Read the contents of the lock file
+
+        Rewinds the file pointer after the read.
+
+        Returns:
+           str: contents of the file
+
+        Raises:
+           RuntimeError: WriteLock object not used within a context manager
+
+        """
+
+        if self._fid is None:
+            raise RuntimeError('The WriteLock object must be used within a context manager')
+        contents = self._fid.readline(64)
+        self._fid.seek(0)
+        return contents
+
+    def _write(self, pid):
+        """Write a PID to a lock file
+
+        Rewinds the file pointer after the write.
+
+        Args:
+           pid (int):  PID to write into the lock file
+
+        """
+        pid = int(pid)
+        self._fid.write(str(pid))
+        self._fid.seek(0)
