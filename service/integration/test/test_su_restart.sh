@@ -58,11 +58,14 @@ test_error() {
 
 # RUN WRITE SESSION TEST AND MAKE SURE IT PASSES
 ${TEST_SCRIPT} &
+test_pid=$!
 sleep 1
 sudo systemctl stop geopm
 sleep 1
 sudo systemctl start geopm
-wait
-
-echo "SUCCESS"
-exit 0
+wait $test_pid
+result=$?
+if [ $result -eq 0 ]; then
+    echo "SUCCESS"
+fi
+exit $result
