@@ -59,23 +59,15 @@ class TestAccessLists(unittest.TestCase):
         self._CONFIG_PATH.cleanup()
 
     def _write_group_files_helper(self, group, signals, controls):
-        group_dir = os.path.join(self._CONFIG_PATH.name,
-                                 '0.DEFAULT_ACCESS' if group == '' else group)
-        os.makedirs(group_dir, exist_ok=True)
-        signal_file = os.path.join(group_dir, 'allowed_signals')
-        control_file = os.path.join(group_dir, 'allowed_controls')
+        signal_lines = list(signals)
+        signal_lines.insert(0, '')
+        signal_lines = '\n'.join(signal_lines)
 
-        lines = list(controls)
-        lines.insert(0, '')
-        lines = '\n'.join(lines)
-        with open(control_file, 'w') as fid:
-            fid.write(lines)
+        control_lines = list(controls)
+        control_lines.insert(0, '')
+        control_lines = '\n'.join(control_lines)
 
-        lines = list(signals)
-        lines.insert(0, '')
-        lines = '\n'.join(lines)
-        with open(signal_file, 'w') as fid:
-            fid.write(lines)
+        return signal_lines, control_lines
 
     def test_config_parser(self):
         '''
@@ -85,9 +77,8 @@ class TestAccessLists(unittest.TestCase):
         signals_expect = ['geopm', 'signals', 'default', 'energy']
         controls_expect = ['geopm', 'controls', 'default', 'power']
         default_dir = os.path.join(self._CONFIG_PATH.name, '0.DEFAULT_ACCESS')
-        os.makedirs(default_dir)
         signal_file = os.path.join(default_dir, 'allowed_signals')
-        lines = """# Comment about the file contents
+        signal_lines = """# Comment about the file contents
   geopm
 energy
 \tsignals\t
@@ -96,10 +87,8 @@ default
 
 
 """
-        with open(signal_file, 'w') as fid:
-            fid.write(lines)
         control_file = os.path.join(default_dir, 'allowed_controls')
-        lines = """controls
+        control_lines = """controls
 \t# Inline comment
 geopm
 
@@ -111,11 +100,15 @@ default
 
 
 """
-        with open(control_file, 'w') as fid:
-            fid.write(lines)
+
         with mock.patch('geopmdpy.pio.signal_names', return_value=signals_expect), \
-             mock.patch('geopmdpy.pio.control_names', return_value=controls_expect):
+             mock.patch('geopmdpy.pio.control_names', return_value=controls_expect), \
+             mock.patch('os.path.isdir', return_value=True) as mock_isdir, \
+             mock.patch('geopmdpy.varrun.secure_read_file', side_effect=[signal_lines, control_lines]) as mock_srf:
             signals, controls = self._access_lists.get_group_access('')
+            mock_isdir.assert_called_once_with(default_dir)
+            calls = [mock.call(signal_file), mock.call(control_file)]
+            mock_srf.assert_has_calls(calls)
         self.assertEqual(set(signals_expect), set(signals))
         self.assertEqual(set(controls_expect), set(controls))
 
@@ -125,31 +118,24 @@ default
         '''
         all_signals = ['power', 'energy']
         all_controls = ['power', 'frequency']
-        mock_open = mock.mock_open()
         with mock.patch('geopmdpy.pio.signal_names', return_value=all_signals),  \
              mock.patch('geopmdpy.pio.control_names', return_value=all_controls), \
-             mock.patch('builtins.open', mock_open):
+             mock.patch('geopmdpy.varrun.secure_make_dirs') as mock_smd, \
+             mock.patch('geopmdpy.varrun.secure_make_file') as mock_smf:
 
             self._access_lists.set_group_access(group, ['power'], ['frequency'])
 
             # Were the files written in the proper order?
             test_dir = os.path.join(self._CONFIG_PATH.name,
                                     '0.DEFAULT_ACCESS' if group == '' else group)
+
             signal_file = os.path.join(test_dir, 'allowed_signals')
             control_file = os.path.join(test_dir, 'allowed_controls')
 
-            self.assertTrue(os.path.isdir(test_dir),
-                            msg = 'Directory does not exist: {}'.format(test_dir))
-
-            calls = [mock.call(signal_file, 'w'),
-                     mock.call().__enter__(),
-                     mock.call().write('power\n'),
-                     mock.call().__exit__(None, None, None),
-                     mock.call(control_file, 'w'),
-                     mock.call().__enter__(),
-                     mock.call().write('frequency\n'),
-                     mock.call().__exit__(None, None, None)]
-            mock_open.assert_has_calls(calls)
+            mock_smd.assert_called_once_with(test_dir)
+            calls = [mock.call(signal_file, 'power\n'),
+                     mock.call(control_file, 'frequency\n')]
+            mock_smf.assert_has_calls(calls)
 
     def test_set_group_access_empty(self):
         self._set_group_access_test_helper('')
@@ -171,22 +157,42 @@ default
             self._access_lists.get_group_access(self._bad_group_id)
 
     def test_get_group_access_default(self):
+        default_dir = os.path.join(self._CONFIG_PATH.name, '0.DEFAULT_ACCESS')
+        signal_file = os.path.join(default_dir, 'allowed_signals')
+        control_file = os.path.join(default_dir, 'allowed_controls')
+
         signals_expect = ['geopm', 'signals', 'default', 'energy']
         controls_expect = ['geopm', 'controls', 'default', 'power']
-        self._write_group_files_helper('', signals_expect, controls_expect)
+        signal_lines, control_lines = \
+            self._write_group_files_helper('', signals_expect, controls_expect)
         with mock.patch('geopmdpy.pio.signal_names', return_value=signals_expect), \
-             mock.patch('geopmdpy.pio.control_names', return_value=controls_expect):
+             mock.patch('geopmdpy.pio.control_names', return_value=controls_expect), \
+             mock.patch('os.path.isdir', return_value=True) as mock_isdir, \
+             mock.patch('geopmdpy.varrun.secure_read_file', side_effect=[signal_lines, control_lines]) as mock_srf:
             signals, controls = self._access_lists.get_group_access('')
+            mock_isdir.assert_called_once_with(default_dir)
+            calls = [mock.call(signal_file), mock.call(control_file)]
+            mock_srf.assert_has_calls(calls)
         self.assertEqual(set(signals_expect), set(signals))
         self.assertEqual(set(controls_expect), set(controls))
 
     def test_get_group_access_named(self):
+        named_dir = os.path.join(self._CONFIG_PATH.name, 'named')
+        signal_file = os.path.join(named_dir, 'allowed_signals')
+        control_file = os.path.join(named_dir, 'allowed_controls')
+
         signals_expect = ['geopm', 'signals', 'default', 'energy']
         controls_expect = ['geopm', 'controls', 'named', 'power']
-        self._write_group_files_helper('named', [], controls_expect)
+        signal_lines, control_lines = self._write_group_files_helper('named', [], controls_expect)
+
         with mock.patch('geopmdpy.pio.signal_names', return_value=signals_expect), \
-             mock.patch('geopmdpy.pio.control_names', return_value=controls_expect):
+             mock.patch('geopmdpy.pio.control_names', return_value=controls_expect), \
+             mock.patch('os.path.isdir', return_value=True) as mock_isdir, \
+             mock.patch('geopmdpy.varrun.secure_read_file', side_effect=[signal_lines, control_lines]) as mock_srf:
             signals, controls = self._access_lists.get_group_access('named')
+            mock_isdir.assert_called_once_with(named_dir)
+            calls = [mock.call(signal_file), mock.call(control_file)]
+            mock_srf.assert_has_calls(calls)
         self.assertEqual([], signals)
         self.assertEqual(set(controls_expect), set(controls))
 
@@ -242,54 +248,74 @@ default
         self.assertEqual(set(expected_groups), set(groups))
 
     def test_get_user_access_default(self):
+        default_dir = os.path.join(self._CONFIG_PATH.name, '0.DEFAULT_ACCESS')
+        signal_file = os.path.join(default_dir, 'allowed_signals')
+        control_file = os.path.join(default_dir, 'allowed_controls')
+
         signals_default = ['frequency', 'energy']
         controls_default = ['geopm', 'controls', 'named', 'power']
-        self._write_group_files_helper('', signals_default, controls_default)
-
-        # Create a group with entries that should NOT be included the default
-        signals_named = ['power', 'temperature']
-        controls_named = ['frequency_uncore', 'power_uncore']
-        self._write_group_files_helper('named', signals_named, controls_named)
-
+        signal_lines, control_lines = \
+            self._write_group_files_helper('', signals_default, controls_default)
 
         with mock.patch('geopmdpy.varrun.AccessLists._get_user_groups',
                         return_value=[]), \
              mock.patch('geopmdpy.pio.signal_names', return_value=signals_default), \
-             mock.patch('geopmdpy.pio.control_names', return_value=controls_default):
+             mock.patch('geopmdpy.pio.control_names', return_value=controls_default), \
+             mock.patch('os.path.isdir', return_value=True) as mock_isdir, \
+             mock.patch('geopmdpy.varrun.secure_read_file', side_effect=[signal_lines, control_lines]) as mock_srf:
             signals, controls = self._access_lists.get_user_access('')
+            mock_isdir.assert_called_once_with(default_dir)
+            calls = [mock.call(signal_file), mock.call(control_file)]
+            mock_srf.assert_has_calls(calls)
 
         self.assertEqual(set(signals_default), set(signals))
         self.assertEqual(set(controls_default), set(controls))
 
     def test_get_user_access_valid(self):
+        named_dir = os.path.join(self._CONFIG_PATH.name, 'named')
+        named_signal_file = os.path.join(named_dir, 'allowed_signals')
+        named_control_file = os.path.join(named_dir, 'allowed_controls')
+
+        default_dir = os.path.join(self._CONFIG_PATH.name, '0.DEFAULT_ACCESS')
+        default_signal_file = os.path.join(default_dir, 'allowed_signals')
+        default_control_file = os.path.join(default_dir, 'allowed_controls')
+
         signals_default = ['frequency', 'energy', 'power']
         controls_default = ['frequency', 'power']
-        self._write_group_files_helper('', signals_default, controls_default)
+        default_signal_lines, default_control_lines = \
+            self._write_group_files_helper('', signals_default, controls_default)
 
         signals_named = ['power', 'temperature', 'not-available-anymore']
         controls_named = ['frequency_uncore', 'power_uncore', 'not-available-anymore-either']
-        self._write_group_files_helper('named', signals_named, controls_named)
+        named_signal_lines, named_control_lines = \
+            self._write_group_files_helper('named', signals_named, controls_named)
 
         signals_avail = ['frequency', 'energy', 'power', 'temperature', 'extra_power',
                          'extra_temperature']
         controls_avail = ['frequency', 'power', 'frequency_uncore', 'power_uncore',
                           'extra_frequency_uncore', 'extra_power_uncore']
 
-        # The user does not belong to this group, so these should be omitted
-        signals_extra = ['extra_power', 'extra_temperature']
-        controls_extra = ['extra_frequency_uncore', 'extra_power_uncore']
-        self._write_group_files_helper('extra', signals_extra, controls_extra)
-
-        signals_expect = ['frequency', 'energy', 'power', 'power', 'temperature']
-        controls_expect = ['frequency', 'power', 'frequency_uncore', 'power_uncore']
+        all_signals = set(signals_named).union(set(signals_default))
+        signals_expect = all_signals.intersection(signals_avail)
+        all_controls = set(controls_named).union(set(controls_default))
+        controls_expect = all_controls.intersection(controls_avail)
 
         valid_user = 'val'
         groups=['named']
         with mock.patch('geopmdpy.varrun.AccessLists._get_user_groups',
                         return_value=groups), \
              mock.patch('geopmdpy.pio.signal_names', return_value=signals_avail), \
-             mock.patch('geopmdpy.pio.control_names', return_value=controls_avail):
+             mock.patch('geopmdpy.pio.control_names', return_value=controls_avail), \
+             mock.patch('os.path.isdir', return_value=True) as mock_isdir, \
+             mock.patch('geopmdpy.varrun.secure_read_file',
+                        side_effect=[named_signal_lines, named_control_lines,
+                                     default_signal_lines, default_control_lines]) as mock_srf:
             signals, controls = self._access_lists.get_user_access(valid_user)
+            calls = [mock.call(named_dir), mock.call(default_dir)]
+            mock_isdir.assert_has_calls(calls)
+            calls = [mock.call(named_signal_file), mock.call(named_control_file),
+                     mock.call(default_signal_file), mock.call(default_control_file)]
+            mock_srf.assert_has_calls(calls)
 
         self.assertEqual(set(signals_expect), set(signals))
         self.assertEqual(set(controls_expect), set(controls))
