@@ -85,19 +85,21 @@ class PlatformService(object):
                     self._write_pid = client_pid
 
     def get_group_access(self, group):
-        """Get the signals and controls in the allowed lists.
+        """Get the signal and control access lists
 
-        Provides the default allowed lists or the allowed lists for a
-        particular Unix group.  These lists correspond to values
-        stored in the GEOPM service configuration files.  The
-        configuration files are read with each call to this method.
-        If no files exist that match the query, empty lists are
-        returned.  Empty lines and lines that begin with the '#'
-        character are ignored.
+        Read the list of allowed signals and controls for the
+        specified group.  If the group is None or the empty string
+        then the default lists of allowed signals and controls are
+        returned.
+
+        The values are securely read from files located in
+        /etc/geopm-service using the secure_read_file() interface.
+
+        If no secure file exist for the specified group, then two
+        empty lists are returned.
 
         Args:
-            group (str): Unix group name to query. The default allowed
-                lists are returned if group is the empty string.
+            group (str): Name of group
 
         Returns:
             list(str), list(str): Signal and control allowed lists
@@ -109,25 +111,26 @@ class PlatformService(object):
         return self._access_lists.get_group_access(group)
 
     def set_group_access(self, group, allowed_signals, allowed_controls):
-        """Set the signals and controls in the allowed lists.
+        """Set signals and controls in the allowed lists
 
-        Writes the configuration files that control the default
-        allowed lists or the allowed lists for a particular Unix
-        group.  These lists restrict user access to signals or
-        controls provided by the service.  If the user specifies a
-        list that contains signals or controls that are not currently
-        supported, the request will raise a RuntimeError without
-        modifying any configuration files.  A RuntimeError will also
-        be raised if the group name is not valid on the system.
+        Write the list of allowed signals and controls for the
+        specified group.  If the group is None or the empty string
+        then the default lists of allowed signals and controls are
+        updated.
+
+        The values are securely written atomically to files located in
+        /etc/geopm-service using the secure_make_dirs() and
+        secure_make_file() interfaces.
 
         Args:
-            group (str): Which Unix group name to query; if this is
-                         the empty string, the default allowed
-                         lists are written.
+            group (str): Name of group
 
             allowed_signals (list(str)): Signal names that are allowed
 
             allowed_controls (list(str)): Control names that are allowed
+
+        Raises:
+            RuntimeError: The group name is not valid on the system.
 
         """
         self._access_lists.set_group_access(group, allowed_signals, allowed_controls)
@@ -156,6 +159,9 @@ class PlatformService(object):
 
         Returns:
             list(str), list(str): Signal and control allowed lists
+
+        Raises:
+            RuntimeError: The user does not exist.
 
         """
         return self._access_lists.get_user_access(user)

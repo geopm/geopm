@@ -771,7 +771,7 @@ class AccessLists(object):
         return [grp.getgrgid(gid).gr_name for gid in all_gid]
 
     def get_group_access(self, group):
-        """Get signal and control access lists
+        """Get the signal and control access lists
 
         Read the list of allowed signals and controls for the
         specified group.  If the group is None or the empty string
@@ -788,11 +788,12 @@ class AccessLists(object):
             group (str): Name of group
 
         Returns:
-
             list(str)), list(str): Signal and control allowed lists
 
+        Raises:
+            RuntimeError: The group name is not valid on the system.
+
         """
-	# TODO Validate docstring differences with service.py
         group = self._validate_group(group)
         group_dir = os.path.join(self._CONFIG_PATH, group)
         if os.path.isdir(group_dir):
@@ -833,7 +834,7 @@ class AccessLists(object):
 
         The values are securely written atomically to files located in
         /etc/geopm-service using the secure_make_dirs() and
-        secure_write_file() interfaces.
+        secure_make_file() interfaces.
 
         Args:
             group (str): Name of group
@@ -842,8 +843,10 @@ class AccessLists(object):
 
             allowed_controls (list(str)): Control names that are allowed
 
+        Raises:
+            RuntimeError: The group name is not valid on the system.
+
         """
-	# TODO Validate docstring differences with service.py
         group = self._validate_group(group)
         self._validate_signals(allowed_signals)
         self._validate_controls(allowed_controls)
@@ -879,8 +882,10 @@ class AccessLists(object):
         Returns:
             list(str), list(str): Signal and control allowed lists
 
+        Raises:
+            RuntimeError: The user does not exist.
+
         """
-        # Maybe move this too?
         if user == 'root':
             return self.get_all_access()
         user_groups = []
