@@ -743,18 +743,17 @@ class AccessLists(object):
         return group
 
     def _read_allowed(self, path):
-        try:
-            with open(path) as fid:
-                result = [line.strip() for line in fid.readlines()
-                          if line.strip() and not line.strip().startswith('#')]
-        except FileNotFoundError:
-            result = []
+        contents = secure_read_file(path)
+        result = []
+        if contents is not None:
+            result = [line.strip() for line in contents.splitlines()
+                      if line.strip() and not line.strip().startswith('#')]
         return result
 
     def _write_allowed(self, path, allowed):
         allowed.append('')
-        with open(path, 'w') as fid:
-            fid.write('\n'.join(allowed))
+        contents = '\n'.join(allowed)
+        secure_make_file(path, contents)
 
     def _filter_valid_signals(self, signals):
         signals = set(signals)
@@ -849,8 +848,7 @@ class AccessLists(object):
         self._validate_signals(allowed_signals)
         self._validate_controls(allowed_controls)
         group_dir = os.path.join(self._CONFIG_PATH, group)
-        # TODO: Deal with permissions
-        os.makedirs(group_dir, exist_ok=True)
+        secure_make_dirs(group_dir)
         path = os.path.join(group_dir, 'allowed_signals')
         self._write_allowed(path, allowed_signals)
         path = os.path.join(group_dir, 'allowed_controls')
