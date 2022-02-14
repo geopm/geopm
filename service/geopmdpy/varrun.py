@@ -941,7 +941,7 @@ class WriteLock(object):
         self._VAR_PATH = var_path
         self._LOCK_PATH = os.path.join(self._VAR_PATH, "CONTROL_LOCK")
         self._fid = None
-        secure_make_dirs(var_path)
+        secure_make_dirs(self._VAR_PATH)
 
     def __enter__(self):
         """Enter context management for interacting with write lock
@@ -952,6 +952,7 @@ class WriteLock(object):
         will be renamed.
 
         """
+        self._rpc_lock()
         old_mask = os.umask(0o077)
         try:
             trial_count = 0
@@ -968,6 +969,7 @@ class WriteLock(object):
         finally:
             os.umask(old_mask)
         if self._fid == None:
+            self._rpc_unlock()
             raise RuntimeError('Unable to open write lock securely after two tries')
         fcntl.lockf(self._fid, fcntl.LOCK_EX)
         self._fid.seek(0)
@@ -982,6 +984,20 @@ class WriteLock(object):
         if self._fid is not None:
             fcntl.lockf(self._fid, fcntl.LOCK_UN)
             self._fid.close()
+            self._rpc_unlock()
+
+    _is_file_active = False
+    @classmethod
+    def _rpc_lock(cls):
+        if cls._is_file_active:
+            raise RuntimeError('Attempt to modify control lock file concurrently')
+        cls._is_file_active = True
+
+    @classmethod
+    def _rpc_unlock(cls):
+        if not cls._is_file_active:
+            raise RuntimeError('Unlock failed, file is not active')
+        cls._is_file_active = False
 
     def try_lock(self, pid=None):
         """Get the PID that holds the lock or set lock
@@ -1065,5 +1081,7 @@ class WriteLock(object):
 
         """
         pid = int(pid)
+        self._fid.truncate(0)
         self._fid.write(str(pid))
+        self._fid.flush()
         self._fid.seek(0)

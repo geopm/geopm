@@ -43,6 +43,9 @@ class TestWriteLock(unittest.TestCase):
         """
         self._test_name = 'TestWriteLock'
         self._TEMP_DIR = tempfile.TemporaryDirectory(self._test_name)
+        self._sess_path = f'{self._TEMP_DIR.name}'
+        self._orig_pid = 1234
+        self._other_pid = 4321
 
     def tearDown(self):
         """Clean up temporary directory
@@ -54,21 +57,53 @@ class TestWriteLock(unittest.TestCase):
         """Default creation of an WriteLock object
 
         """
-        sess_path = f'{self._TEMP_DIR.name}'
-        orig_pid = 1234
-        other_pid = 4321
-        with WriteLock(sess_path) as write_lock:
+        with WriteLock(self._sess_path) as write_lock:
             self.assertIsNone(write_lock.try_lock())
-            out_pid = write_lock.try_lock(orig_pid)
-            self.assertEqual(orig_pid, out_pid)
-        with WriteLock(sess_path) as other_lock:
-            out_pid = other_lock.try_lock(other_pid)
-            self.assertEqual(orig_pid, out_pid)
-            other_lock.unlock(orig_pid)
-            out_pid = other_lock.try_lock(other_pid)
-            self.assertEqual(other_pid, out_pid)
-            other_lock.unlock(other_pid)
+            out_pid = write_lock.try_lock(self._orig_pid)
+            self.assertEqual(self._orig_pid, out_pid)
+        with WriteLock(self._sess_path) as other_lock:
+            out_pid = other_lock.try_lock(self._other_pid)
+            self.assertEqual(self._orig_pid, out_pid)
+            other_lock.unlock(self._orig_pid)
+            out_pid = other_lock.try_lock(self._other_pid)
+            self.assertEqual(self._other_pid, out_pid)
+            other_lock.unlock(self._other_pid)
             self.assertIsNone(other_lock.try_lock())
+
+    def test_nested_creation(self):
+        """Nested creation of an WriteLock object
+
+        """
+        with WriteLock(self._sess_path) as write_lock:
+            self.assertIsNone(write_lock.try_lock())
+            out_pid = write_lock.try_lock(self._orig_pid)
+            self.assertEqual(self._orig_pid, out_pid)
+            try:
+                with WriteLock(self._sess_path) as other_lock:
+                    self.fail('Able to create nested WriteLock context')
+            except RuntimeError as ex:
+                self.assertEqual('Attempt to modify control lock file concurrently', str(ex))
+
+    def test_creation_bad_path(self):
+        """Create WriteLock with invalid path
+
+        Test that if the lock file is a directory at creation time that it is
+        renamed, and the created object has a functioning try_lock() and
+        unlock() method.
+
+        """
+        pass
+
+    def test_creation_bad_file(self):
+        """Create WriteLock with invalid file
+
+        Test that if the lock file is a file with permissions 0o644 at
+        creation time that it is renamed, and the created object has a
+        functioning try_lock() and unlock() method and the contents of the
+        existing file to not change the behavior of the WriteLock.
+
+        """
+        pass
 
 if __name__ == '__main__':
     unittest.main()
