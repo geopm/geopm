@@ -151,6 +151,9 @@ GEOPMDPY_TESTS = geopmdpy_test/pytest_links/TestAccessLists.test__read_allowed_i
                  geopmdpy_test/pytest_links/TestSecureFiles.test_read_valid_file \
                  geopmdpy_test/pytest_links/TestSecureFiles.test_secure_make_file \
                  geopmdpy_test/pytest_links/TestWriteLock.test_default_creation \
+                 geopmdpy_test/pytest_links/TestWriteLock.test_nested_creation \
+                 geopmdpy_test/pytest_links/TestWriteLock.test_creation_bad_path \
+                 geopmdpy_test/pytest_links/TestWriteLock.test_creation_bad_file \
                  # end
 
 TESTS += $(GEOPMDPY_TESTS)
