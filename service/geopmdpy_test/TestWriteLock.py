@@ -36,7 +36,7 @@ import unittest
 from unittest import mock
 import tempfile
 
-from geopmdpy.varrun import WriteLock
+from geopmdpy.system_files import WriteLock
 
 class TestWriteLock(unittest.TestCase):
     def setUp(self):
