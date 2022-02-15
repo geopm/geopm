@@ -682,6 +682,7 @@ class ActiveSessions(object):
             sess_path (str): Current client's session file path
 
         """
+        renamed_path = f'{sess_path}-{uuid.uuid4()}-INVALID'
         contents = secure_read_file(sess_path)
         if contents is None:
             return # Invalid JSON return early
@@ -689,7 +690,6 @@ class ActiveSessions(object):
             sess = json.loads(contents)
             jsonschema.validate(sess, schema=self._session_schema)
         except:
-            renamed_path = f'{sess_path}-{uuid.uuid4()}-INVALID'
             sys.stderr.write(f'Warning: <geopm-service> Invalid JSON file, unable to parse, renamed{sess_path} to {renamed_path} and will ignore\n')
             os.rename(sess_path, renamed_path)
             return # Invalid JSON return early
