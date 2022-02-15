@@ -59,7 +59,7 @@ test_error() {
 # RUN WRITE SESSION TEST AND MAKE SURE IT PASSES
 ${TEST_SCRIPT} &
 test_pid=$!
-sleep 1
+sleep 2
 sudo systemctl stop geopm
 sleep 1
 sudo systemctl start geopm
