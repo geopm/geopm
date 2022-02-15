@@ -226,12 +226,11 @@ The fields in each of these sections are described below:
                          unnested region (i.e. when a CPU is in the
                          unmarked region).
 
-  ``gpu-energy (J)``\: Total energy in joules consumed by all gpus.
+  ``gpu-energy (J)``\: Total energy in joules consumed by all GPUs.
 
+  ``gpu-power (W)``\: Average power for the GPUs in watts.
 
-  ``gpu-power (W)``\: Average power for the gpus in watts.
-
-  ``gpu-frequency (Hz)``\: Achieved frequency for the gpus in hertz.
+  ``gpu-frequency (Hz)``\: Achieved frequency for the GPUs in hertz.
 
 * ``Report Extensions``\ :
 
