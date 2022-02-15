@@ -31,7 +31,9 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+import os
 import unittest
+import mock
 import tempfile
 
 from geopmdpy.varrun import WriteLock
@@ -73,6 +75,10 @@ class TestWriteLock(unittest.TestCase):
     def test_nested_creation(self):
         """Nested creation of an WriteLock object
 
+        Mimic case where concurrent DBus calls are handled by asyncio or some
+        form of thread concurrency by creating a write lock within a context
+        where the write lock is already held.
+
         """
         with WriteLock(self._sess_path) as write_lock:
             self.assertIsNone(write_lock.try_lock())
@@ -92,7 +98,15 @@ class TestWriteLock(unittest.TestCase):
         unlock() method.
 
         """
-        pass
+        lock_path = os.path.join(self._sess_path, 'CONTROL_LOCK')
+        os.makedirs(lock_path)
+        with mock.patch('sys.stderr.write') as mock_stderr, \
+             mock.patch('uuid.uuid4', return_value='uuid'):
+            with WriteLock(self._sess_path) as write_lock:
+                self.assertIsNone(write_lock.try_lock())
+                out_pid = write_lock.try_lock(self._orig_pid)
+                self.assertEqual(self._orig_pid, out_pid)
+            mock_stderr.assert_called_once_with(f'Warning: <geopm-service> {lock_path} is a directory, it will be renamed to {lock_path}-uuid-INVALID\n')
 
     def test_creation_bad_file(self):
         """Create WriteLock with invalid file
@@ -103,7 +117,20 @@ class TestWriteLock(unittest.TestCase):
         existing file to not change the behavior of the WriteLock.
 
         """
-        pass
+        lock_path = os.path.join(self._sess_path, 'CONTROL_LOCK')
+        orig_mask = os.umask(0)
+        with open(os.open(lock_path, os.O_CREAT | os.O_WRONLY, 0o644), 'w') as fid:
+            fid.write('9999')
+        os.umask(orig_mask)
+        with mock.patch('sys.stderr.write') as mock_stderr, \
+             mock.patch('uuid.uuid4', return_value='uuid'):
+            with WriteLock(self._sess_path) as write_lock:
+                self.assertIsNone(write_lock.try_lock())
+                out_pid = write_lock.try_lock(self._orig_pid)
+                self.assertEqual(self._orig_pid, out_pid)
+            mock_stderr.assert_has_calls([mock.call(f'Warning: <geopm-service> {lock_path} was discovered with invalid permissions, it will be renamed to {lock_path}-uuid-INVALID\n'),
+                                          mock.call(f'Warning: <geopm-service> the wrong permissions were 0o100644\n')])
+
 
 if __name__ == '__main__':
     unittest.main()
