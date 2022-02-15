@@ -90,10 +90,10 @@ geopmdpy.topo
    :undoc-members:
    :show-inheritance:
 
-geopmdpy.varrun
+geopmdpy.system_files
 ---------------
 
-.. automodule:: geopmdpy.varrun
+.. automodule:: geopmdpy.system_files
    :members:
    :undoc-members:
    :show-inheritance:

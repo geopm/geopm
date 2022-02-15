@@ -38,9 +38,9 @@ import stat
 import tempfile
 from pathlib import Path
 
-from geopmdpy.varrun import secure_make_dirs
-from geopmdpy.varrun import secure_make_file
-from geopmdpy.varrun import secure_read_file
+from geopmdpy.system_files import secure_make_dirs
+from geopmdpy.system_files import secure_make_file
+from geopmdpy.system_files import secure_read_file
 
 class TestSecureFiles(unittest.TestCase):
     def setUp(self):

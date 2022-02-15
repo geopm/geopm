@@ -48,7 +48,7 @@ from gi.repository import GLib
 from . import pio
 from . import topo
 from . import dbus_xml
-from . import varrun
+from . import system_files
 from dasbus.connection import SystemMessageBus
 try:
     from dasbus.server.interface import accepts_additional_arguments
@@ -70,17 +70,17 @@ class PlatformService(object):
 
         """
         self._pio = pio
-        self._VAR_PATH = varrun.GEOPM_SERVICE_VAR_PATH
+        self._VAR_PATH = system_files.GEOPM_SERVICE_VAR_PATH
         self._SAVE_DIR = 'SAVE_FILES'
         self._WATCH_INTERVAL_MSEC = 1000
-        self._active_sessions = varrun.ActiveSessions()
-        self._access_lists = varrun.AccessLists()
+        self._active_sessions = system_files.ActiveSessions()
+        self._access_lists = system_files.AccessLists()
         for client_pid in self._active_sessions.get_clients():
             is_active = self.check_client(client_pid)
             if is_active:
                 watch_id = self._watch_client(client_pid)
                 self._active_sessions.set_watch_id(client_pid, watch_id)
-        with varrun.WriteLock(self._VAR_PATH) as lock:
+        with system_files.WriteLock(self._VAR_PATH) as lock:
             write_pid = lock.try_lock()
             if write_pid is not None and not self._active_sessions.is_client_active(write_pid):
                 self._close_session_write(lock, write_pid)
@@ -391,7 +391,7 @@ class PlatformService(object):
                 self._pio.stop_batch_server(batch_pid)
             except ex:
                 sys.stderr.write(f'Failed to stop batch server {batch_pid}: {ex}')
-        with varrun.WriteLock(self._VAR_PATH) as lock:
+        with system_files.WriteLock(self._VAR_PATH) as lock:
             if lock.try_lock() == client_pid:
                 self._close_session_write(lock, client_pid)
         GLib.source_remove(self._active_sessions.get_watch_id(client_pid))
@@ -611,7 +611,7 @@ class PlatformService(object):
         if client_sid != client_pid and psutil.pid_exists(client_sid):
             write_pid = client_sid
             do_open_session = True
-        with varrun.WriteLock(self._VAR_PATH) as lock:
+        with system_files.WriteLock(self._VAR_PATH) as lock:
             lock_pid = lock.try_lock()
             if lock_pid is None:
                 if do_open_session:
@@ -628,7 +628,7 @@ class PlatformService(object):
                     os.rename(save_dir, del_dir)
                 # Save Control values
                 tmp_dir = f'{save_dir}-{uuid.uuid4()}-tmp'
-                varrun.secure_make_dirs(tmp_dir)
+                system_files.secure_make_dirs(tmp_dir)
                 self._pio.save_control_dir(tmp_dir)
                 os.rename(tmp_dir, save_dir)
                 # Set the write lock to the writer PID

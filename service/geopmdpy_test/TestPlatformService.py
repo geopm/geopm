@@ -40,7 +40,7 @@ import re
 import stat
 from unittest import mock
 import tempfile
-from geopmdpy.varrun import ActiveSessions, AccessLists, WriteLock
+from geopmdpy.system_files import ActiveSessions, AccessLists, WriteLock
 
 # Patch dlopen to allow the tests to run when there is no build
 with mock.patch('cffi.FFI.dlopen', return_value=mock.MagicMock()):
@@ -63,9 +63,9 @@ class TestPlatformService(unittest.TestCase):
         self._mock_write_lock.try_lock.return_value = None
         self._mock_write_lock.unlock.return_value = None
 
-        with mock.patch('geopmdpy.varrun.ActiveSessions', return_value=self._mock_active_sessions), \
-             mock.patch('geopmdpy.varrun.AccessLists', return_value=self._mock_access_lists), \
-             mock.patch('geopmdpy.varrun.WriteLock', return_value=self._mock_write_lock):
+        with mock.patch('geopmdpy.system_files.ActiveSessions', return_value=self._mock_active_sessions), \
+             mock.patch('geopmdpy.system_files.AccessLists', return_value=self._mock_access_lists), \
+             mock.patch('geopmdpy.system_files.WriteLock', return_value=self._mock_write_lock):
             self._platform_service = PlatformService()
 
         self._platform_service._VAR_PATH = self._VAR_PATH.name
@@ -154,7 +154,7 @@ class TestPlatformService(unittest.TestCase):
 
         self._mock_access_lists.get_user_access.return_value = (signals, controls)
 
-        with mock.patch('geopmdpy.varrun.AccessLists._get_user_groups', return_value=[]), \
+        with mock.patch('geopmdpy.system_files.AccessLists._get_user_groups', return_value=[]), \
              mock.patch('geopmdpy.service.PlatformService._watch_client', return_value=watch_id):
 
             self._platform_service.open_session(session_key, client_pid)

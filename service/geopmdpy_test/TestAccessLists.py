@@ -38,8 +38,8 @@ import os
 import pwd
 import grp
 
-from geopmdpy.varrun import ActiveSessions
-from geopmdpy.varrun import AccessLists
+from geopmdpy.system_files import ActiveSessions
+from geopmdpy.system_files import AccessLists
 
 # Patch dlopen to allow the tests to run when there is no build
 with mock.patch('cffi.FFI.dlopen', return_value=mock.MagicMock()):
@@ -104,7 +104,7 @@ default
         with mock.patch('geopmdpy.pio.signal_names', return_value=signals_expect), \
              mock.patch('geopmdpy.pio.control_names', return_value=controls_expect), \
              mock.patch('os.path.isdir', return_value=True) as mock_isdir, \
-             mock.patch('geopmdpy.varrun.secure_read_file', side_effect=[signal_lines, control_lines]) as mock_srf:
+             mock.patch('geopmdpy.system_files.secure_read_file', side_effect=[signal_lines, control_lines]) as mock_srf:
             signals, controls = self._access_lists.get_group_access('')
             mock_isdir.assert_called_once_with(default_dir)
             calls = [mock.call(signal_file), mock.call(control_file)]
@@ -120,8 +120,8 @@ default
         all_controls = ['power', 'frequency']
         with mock.patch('geopmdpy.pio.signal_names', return_value=all_signals),  \
              mock.patch('geopmdpy.pio.control_names', return_value=all_controls), \
-             mock.patch('geopmdpy.varrun.secure_make_dirs') as mock_smd, \
-             mock.patch('geopmdpy.varrun.secure_make_file') as mock_smf:
+             mock.patch('geopmdpy.system_files.secure_make_dirs') as mock_smd, \
+             mock.patch('geopmdpy.system_files.secure_make_file') as mock_smf:
 
             self._access_lists.set_group_access(group, ['power'], ['frequency'])
 
@@ -168,7 +168,7 @@ default
         with mock.patch('geopmdpy.pio.signal_names', return_value=signals_expect), \
              mock.patch('geopmdpy.pio.control_names', return_value=controls_expect), \
              mock.patch('os.path.isdir', return_value=True) as mock_isdir, \
-             mock.patch('geopmdpy.varrun.secure_read_file', side_effect=[signal_lines, control_lines]) as mock_srf:
+             mock.patch('geopmdpy.system_files.secure_read_file', side_effect=[signal_lines, control_lines]) as mock_srf:
             signals, controls = self._access_lists.get_group_access('')
             mock_isdir.assert_called_once_with(default_dir)
             calls = [mock.call(signal_file), mock.call(control_file)]
@@ -188,7 +188,7 @@ default
         with mock.patch('geopmdpy.pio.signal_names', return_value=signals_expect), \
              mock.patch('geopmdpy.pio.control_names', return_value=controls_expect), \
              mock.patch('os.path.isdir', return_value=True) as mock_isdir, \
-             mock.patch('geopmdpy.varrun.secure_read_file', side_effect=[signal_lines, control_lines]) as mock_srf:
+             mock.patch('geopmdpy.system_files.secure_read_file', side_effect=[signal_lines, control_lines]) as mock_srf:
             signals, controls = self._access_lists.get_group_access('named')
             mock_isdir.assert_called_once_with(named_dir)
             calls = [mock.call(signal_file), mock.call(control_file)]
@@ -257,12 +257,12 @@ default
         signal_lines, control_lines = \
             self._write_group_files_helper('', signals_default, controls_default)
 
-        with mock.patch('geopmdpy.varrun.AccessLists._get_user_groups',
+        with mock.patch('geopmdpy.system_files.AccessLists._get_user_groups',
                         return_value=[]), \
              mock.patch('geopmdpy.pio.signal_names', return_value=signals_default), \
              mock.patch('geopmdpy.pio.control_names', return_value=controls_default), \
              mock.patch('os.path.isdir', return_value=True) as mock_isdir, \
-             mock.patch('geopmdpy.varrun.secure_read_file', side_effect=[signal_lines, control_lines]) as mock_srf:
+             mock.patch('geopmdpy.system_files.secure_read_file', side_effect=[signal_lines, control_lines]) as mock_srf:
             signals, controls = self._access_lists.get_user_access('')
             mock_isdir.assert_called_once_with(default_dir)
             calls = [mock.call(signal_file), mock.call(control_file)]
@@ -302,12 +302,12 @@ default
 
         valid_user = 'val'
         groups=['named']
-        with mock.patch('geopmdpy.varrun.AccessLists._get_user_groups',
+        with mock.patch('geopmdpy.system_files.AccessLists._get_user_groups',
                         return_value=groups), \
              mock.patch('geopmdpy.pio.signal_names', return_value=signals_avail), \
              mock.patch('geopmdpy.pio.control_names', return_value=controls_avail), \
              mock.patch('os.path.isdir', return_value=True) as mock_isdir, \
-             mock.patch('geopmdpy.varrun.secure_read_file',
+             mock.patch('geopmdpy.system_files.secure_read_file',
                         side_effect=[named_signal_lines, named_control_lines,
                                      default_signal_lines, default_control_lines]) as mock_srf:
             signals, controls = self._access_lists.get_user_access(valid_user)
