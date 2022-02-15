@@ -971,6 +971,9 @@ class WriteLock(object):
         if self._fid == None:
             self._rpc_unlock()
             raise RuntimeError('Unable to open write lock securely after two tries')
+        # Advisory lock protects against simultanious multi-process
+        # modifications to the file, although we expect only one geopmd
+        # process using this class.
         fcntl.lockf(self._fid, fcntl.LOCK_EX)
         self._fid.seek(0)
         return self
@@ -986,15 +989,22 @@ class WriteLock(object):
             self._fid.close()
             self._rpc_unlock()
 
+
     _is_file_active = False
     @classmethod
     def _rpc_lock(cls):
+        """Lock to protect against nested use of the write lock within one process
+
+        """
         if cls._is_file_active:
             raise RuntimeError('Attempt to modify control lock file concurrently')
         cls._is_file_active = True
 
     @classmethod
     def _rpc_unlock(cls):
+        """Unlock single process mutex
+
+        """
         if not cls._is_file_active:
             raise RuntimeError('Unlock failed, file is not active')
         cls._is_file_active = False
