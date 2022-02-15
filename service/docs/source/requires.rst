@@ -86,7 +86,7 @@ The man pages are included in a distribution tarball created with the
 sphinx.  This requirement may also be satisfied with PIP if installing the RPM
 packages for sphinx is an issue on your system:
 
-.. code-block:: bah
+.. code-block:: bash
 
     python3 -m pip install --user sphinx sphinx_rtd_theme
     export PATH=$HOME/.local/bin:$PATH
