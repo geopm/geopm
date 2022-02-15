@@ -88,7 +88,7 @@ class TestWriteLock(unittest.TestCase):
                 with WriteLock(self._sess_path) as other_lock:
                     self.fail('Able to create nested WriteLock context')
             except RuntimeError as ex:
-                self.assertEqual('Attempt to modify control lock file concurrently', str(ex))
+                self.assertEqual('Attempt to modify control lock file while file lock is held by the same process', str(ex))
 
     def test_creation_bad_path(self):
         """Create WriteLock with invalid path

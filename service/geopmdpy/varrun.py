@@ -997,7 +997,7 @@ class WriteLock(object):
 
         """
         if cls._is_file_active:
-            raise RuntimeError('Attempt to modify control lock file concurrently')
+            raise RuntimeError('Attempt to modify control lock file while file lock is held by the same process')
         cls._is_file_active = True
 
     @classmethod
