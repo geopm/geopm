@@ -76,12 +76,29 @@ manual for more information about the Linux session leader process.
 *
   `Overview slides <https://geopm.github.io/pdf/geopm-service.pdf>`_
 
-Architecture Diagram
---------------------
+Architecture
+------------
 
 .. image:: https://geopm.github.io/images/geopm-service-diagram.svg
    :target: https://geopm.github.io/pdf/geopm-service-diagram.pdf
    :alt:
+
+The architecture diagram shows the relationship between the IOGroups
+and the GEOPM Service.  IOGroups are the C++ classes that abstract
+hardware interfaces like the LevelZeroIOGroup for interfacing with
+Intel hardware through the LevelZero library API, or the MSRIOGroup
+for interacting with the Model Specific Register device driver.  These
+IOGroups provide a plugin mechanism for extending GEOPM.
+
+The PlatformIO interface is a container for all IOGroups, and is the
+primary interface for users interacting with hardware through GEOPM.
+The PlatformIO interface may be accessed through language bindings
+with Python, C, and C++ as well as command line tools like `geopmread`
+and `geopmwrite`.  The GEOPM DBus interface, `io.github.geopm`,
+provides the secure gateway to privileged PlatformIO features.  The
+administrator uses the `geopmaccess` command line tool to configure
+the DBus interface to enable user level access to any subset of the
+privileged PlatformIO features.
 
 
 Status
