@@ -3,7 +3,7 @@ From: Fuat Keceli <fuat.keceli@intel.com>
 Date: Tue, 9 Feb 2021 10:33:36 -0800
 Subject: [PATCH 5/6] Added command line arg to stop execution earlier.
 
-#  Copyright (c) 2015 - 2021, Intel Corporation
+#  Copyright (c) 2015 - 2022, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
 #  modification, are permitted provided that the following conditions
