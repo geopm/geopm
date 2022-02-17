@@ -93,12 +93,12 @@ IOGroups provide a plugin mechanism for extending GEOPM.
 The PlatformIO interface is a container for all IOGroups, and is the
 primary interface for users interacting with hardware through GEOPM.
 The PlatformIO interface may be accessed through language bindings
-with Python, C, and C++ as well as command line tools like `geopmread`
-and `geopmwrite`.  The GEOPM DBus interface, `io.github.geopm`,
-provides the secure gateway to privileged PlatformIO features.  The
-administrator uses the `geopmaccess` command line tool to configure
-the DBus interface to enable user level access to any subset of the
-privileged PlatformIO features.
+with Python, C, and C++ as well as command line tools like
+``geopmread`` and ``geopmwrite``.  The GEOPM DBus interface,
+``io.github.geopm``, provides the secure gateway to privileged
+PlatformIO features.  The administrator uses the ``geopmaccess``
+command line tool to configure the DBus interface to enable user level
+access to any subset of the privileged PlatformIO features.
 
 
 Status
