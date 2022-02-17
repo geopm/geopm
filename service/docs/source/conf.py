@@ -1,4 +1,4 @@
-#  Copyright (c) 2015 - 2021, Intel Corporation
+#  Copyright (c) 2015 - 2022, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
 #  modification, are permitted provided that the following conditions
@@ -46,7 +46,7 @@ sys.path.insert(0, os.path.abspath('../..'))
 # -- Project information -----------------------------------------------------
 
 project = 'GEOPM'
-copyright = '2015 - 2021, Intel Corporation. All rights reserved.'
+copyright = '2015 - 2022, Intel Corporation. All rights reserved.'
 
 author = 'Intel (R) Corporation'
 
