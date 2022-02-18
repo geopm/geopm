@@ -29,107 +29,188 @@ hidden by the singleton accessor.
 SYNOPSIS
 --------
 
-#include `<geopm/PlatformIO.hpp> <https://github.com/geopm/geopm/blob/dev/src/PlatformIO.hpp>`_\ 
+#include `<geopm/PlatformIO.hpp> <https://github.com/geopm/geopm/blob/dev/src/PlatformIO.hpp>`_\
 
-``Link with -lgeopm``
+Link with ``-lgeopmd``
 
 
-* 
-  ``PlatformIO &platform_io(``\ :
-  ``void);``
+.. code-block:: c++
 
-* 
-  ``virtual set<string> PlatformIO::signal_names(``\ :
-  ``void) const = 0;``
+struct geopm_request_s {
+    int domain;
+    int domain_idx;
+    char name[NAME_MAX];
+};
 
-* 
-  ``virtual set<string> PlatformIO::control_names(``\ :
-  ``void) const = 0;``
+namespace geopm
+{
+    PlatformIO &platform_io(
+        void)
 
-* 
-  ``virtual string PlatformIO::signal_description(``\ :
-  `const string &`_signal\ *name*\ ``) const = 0;``
+    PlatformIO::PlatformIO(
+        std::list<std::shared_ptr<IOGroup> > iogroup_list,
+        const PlatformTopo &topo);
 
-* 
-  ``virtual string PlatformIO::control_description(``\ :
-  `const string &`_control\ *name*\ ``) const = 0;``
+    void PlatformIO::register_iogroup(
+        std::shared_ptr<IOGroup> iogroup);
 
-* 
-  ``virtual int PlatformIO::signal_domain_type(``\ :
-  `const string &`_signal\ *name*\ ``) const = 0;``
+    std::shared_ptr<IOGroup>
+    PlatformIO::find_signal_iogroup(
+        const std::string &signal_name) const;
 
-* 
-  ``virtual int PlatformIO::control_domain_type(``\ :
-  `const string &`_control\ *name*\ ``) const = 0;``
+    std::set<std::string>
+    PlatformIO::signal_names(
+        void) const;
 
-* 
-  ``virtual double PlatformIO::read_signal(``\ :
-  `const string &`_signal\ *name*\ ``,`` :raw-html-m2r:`<br>`
-  ``int`` _domain\ *type*\ ``,`` :raw-html-m2r:`<br>`
-  ``int`` _domain\ *idx*\ ``) = 0;``
+    std::set<std::string>
+    PlatformIO::control_names(
+        void) const;
 
-* 
-  ``virtual void PlatformIO::write_control(``\ :
-  `const string &`_control\ *name*\ ``,`` :raw-html-m2r:`<br>`
-  ``int`` _domain\ *type*\ ``,`` :raw-html-m2r:`<br>`
-  ``int`` _domain\ *idx*\ ``,`` :raw-html-m2r:`<br>`
-  ``double`` *setting*\ ``) = 0;``
+    int
+    PlatformIO::signal_domain_type(
+        const std::string &signal_name) const;
 
-* 
-  ``virtual void PlatformIO::save_control(``\ :
-  ``void) = 0;``
+    int
+    PlatformIO::control_domain_type(
+        const std::string &control_name) const;
 
-* 
-  ``virtual void PlatformIO::restore_control(``\ :
-  ``void) = 0;``
+    int
+    PlatformIO::push_signal(
+        const std::string &signal_name,
+        int domain_type,
+        int domain_idx);
 
-* 
-  ``virtual int PlatformIO::push_signal(``\ :
-  `const string &`_signal\ *name*\ ``,`` :raw-html-m2r:`<br>`
-  ``int`` _domain\ *type*\ ``,``
-  ``int`` _domain\ *idx*\ ``) = 0;``
+    int
+    PlatformIO::push_signal_convert_domain(
+        const std::string &signal_name,
+        int domain_type,
+        int domain_idx);
 
-* 
-  ``virtual int PlatformIO::push_control(``\ :
-  `const string &`_control\ *name*\ ``,`` :raw-html-m2r:`<br>`
-  ``int`` _domain\ *type*\ ``,`` :raw-html-m2r:`<br>`
-  ``int`` _domain\ *idx*\ ``) = 0;``
+    int
+    PlatformIO::push_combined_signal(
+        const std::string &signal_name,
+        int domain_type,
+        int domain_idx,
+        const std::vector<int> &sub_signal_idx);
 
-* 
-  ``virtual double PlatformIO::sample(``\ :
-  ``int`` _signal\ *idx*\ ``) = 0;``
+    void
+    PlatformIO::register_combined_signal(
+        int signal_idx,
+        std::vector<int> operands,
+        std::unique_ptr<CombinedSignal> signal);
 
-* 
-  ``virtual void PlatformIO::adjust(``\ :
-  ``int`` _control\ *idx*\ ``,``
-  ``double`` *setting*\ ``) = 0;``
+    int
+    PlatformIO::push_control(
+        const std::string &control_name,
+        int domain_type,
+        int domain_idx);
 
-* 
-  ``virtual void PlatformIO::read_batch(``\ :
-  ``void) = 0;``
+    int
+    PlatformIO::push_control_convert_domain(
+        const std::string &control_name,
+        int domain_type,
+        int domain_idx);
 
-* 
-  ``virtual void PlatformIO::write_batch(``\ :
-  ``void) = 0;``
+    int
+    PlatformIO::num_signal_pushed(
+        void) const;
 
-* 
-  ``virtual function<double(const vector<double> &)> PlatformIO::agg_function(``\ :
-  `const string &`_signal\ *name*\ ``) const = 0;``
+    int
+    PlatformIO::num_control_pushed(
+        void) const;
 
-* 
-  ``virtual string signal_behavior(``\ :
-  `const string &`_signal\ *name*\ ``) const = 0;``
+    double
+    PlatformIO::sample(
+        int signal_idx);
 
-* 
-  ``virtual void PlatformIO::register_iogroup(``\ :
-  ``shared_ptr<IOGroup>`` *iogroup*\ ``) = 0;``
+    double
+    PlatformIO::sample_combined(
+        int signal_idx);
 
-* 
-  ``struct PlatformIO::m_request_s {``\ :
-  ``string`` *name*\ ``;`` :raw-html-m2r:`<br>`
-  ``int`` _domain\ *type*\ ``;`` :raw-html-m2r:`<br>`
-  ``int`` _domain\ *idx*\ ``;`` :raw-html-m2r:`<br>`
-  ``};``
+    void
+    PlatformIO::adjust(
+        int control_idx,
+        double setting);
+
+    void
+    PlatformIO::read_batch(
+        void);
+
+    void
+    PlatformIO::write_batch(
+        void);
+
+    double
+    PlatformIO::read_signal(
+        const std::string &signal_name,
+        int domain_type,
+        int domain_idx);
+
+    double
+    PlatformIO::read_signal_convert_domain(
+        const std::string &signal_name,
+        int domain_type,
+        int domain_idx);
+
+    void
+    PlatformIO::write_control(
+        const std::string &control_name,
+        int domain_type,
+        int domain_idx,
+        double setting);
+
+    void
+    PlatformIO::write_control_convert_domain(
+        const std::string &control_name,
+        int domain_type,
+        int domain_idx,
+        double setting);
+
+    void
+    PlatformIO::save_control(
+        void);
+
+    void
+    PlatformIO::restore_control(
+        void);
+
+    void
+    PlatformIO::save_control(
+        const std::string &save_dir);
+
+    void PlatformIO::restore_control(
+        const std::string &save_dir);
+
+    std::function<double(const std::vector<double> &)>
+    PlatformIO::agg_function(
+        const std::string &signal_name) const;
+
+    std::string
+    PlatformIO::signal_description(
+        const std::string &signal_name) const;
+
+    std::string
+    PlatformIO::control_description(
+        const std::string &control_name) const;
+
+    int
+    PlatformIO::signal_behavior(
+        const std::string &signal_name) const;
+
+    void
+    PlatformIO::start_batch_server(
+        int client_pid,
+        const std::vector<geopm_request_s> &signal_config,
+        const std::vector<geopm_request_s> &control_config,
+        int &server_pid,
+        std::string &server_key);
+
+    void
+    PlatformIO::stop_batch_server(
+        int server_pid);
+
+}
+
 
 DESCRIPTION
 -----------
@@ -191,22 +272,22 @@ decode the 64-bit integer from the double use
 encoded in this way.
 
 
-* 
+*
   ``TIME``\ :
   Time elapsed since the beginning of execution.
 
-* 
+*
   ``EPOCH_COUNT``\ :
   Number of completed executions of an epoch.  Prior to the first call
   by the application to ``geopm_prof_epoch()`` the signal returns as -1.
   With each call to ``geopm_prof_epoch()`` the count increases by one.
 
-* 
+*
   ``REGION_HASH``\ :
   The hash of the region of code (see `geopm_prof_c(3) <geopm_prof_c.3.html>`_\ ) currently being
   run by all ranks, otherwise GEOPM_REGION_HASH_UNMARKED.
 
-* 
+*
   ``REGION_HINT``\ :
   The region hint (see `geopm_prof_c(3) <geopm_prof_c.3.html>`_\ ) associated with the currently
   running region.  For any interval when all ranks are within an MPI
@@ -218,55 +299,55 @@ encoded in this way.
   MPI time in the report files.  It will be instead attributed to the time
   spent in the region as a whole.
 
-* 
+*
   ``REGION_PROGRESS``\ :
   Minimum per-rank reported progress through the current region.
 
-* 
+*
   ``REGION_RUNTIME``\ :
   Maximum per-rank of the last recorded runtime for the current
   region.
 
-* 
+*
   ``ENERGY_PACKAGE``\ :
   Total energy aggregated over the processor package.
 
-* 
+*
   ``POWER_PACKAGE``\ :
   Total power aggregated over the processor package.
 
-* 
+*
   ``FREQUENCY``\ :
   Average CPU frequency over the specified domain.
 
-* 
+*
   ``ENERGY_DRAM``\ :
   Total energy aggregated over the DRAM DIMMs associated with a NUMA
   node.
 
-* 
+*
   ``POWER_DRAM``\ :
   Total power aggregated over the DRAM DIMMs associated with a NUMA
   node.
 
-* 
+*
   ``POWER_PACKAGE_MIN``\ :
   Minimum setting for package power over the given domain.
 
-* 
+*
   ``POWER_PACKAGE_MAX``\ :
   Maximum setting for package power over the given domain.
 
-* 
+*
   ``POWER_PACKAGE_TDP``\ :
   Maximum sustainable setting for package power over the given domain.
 
-* 
+*
   ``CYCLES_THREAD``\ :
   Average over the domain of clock cycles executed by cores since
   the beginning of execution.
 
-* 
+*
   ``CYCLES_REFERENCE``\ :
   Average over the domain of clock reference cycles since the
   beginning of execution.
@@ -286,7 +367,7 @@ INSPECTION CLASS METHODS
 ------------------------
 
 
-* 
+*
   ``signal_names()``\ :
   Returns the names of all available signals that can be requested.
   This includes all signals and aliases provided through ``IOGroup``
@@ -295,7 +376,7 @@ INSPECTION CLASS METHODS
   to all ``PlatformIO`` methods that accept a signal name input
   parameter.
 
-* 
+*
   ``control_names()``\ :
   Returns the names of all available controls.  This includes all
   controls and aliases provided by IOGroups as well as controls
@@ -303,17 +384,17 @@ INSPECTION CLASS METHODS
   can be passed as a _control\ *name* to all ``PlatformIO`` methods that
   accept a control name input parameter.
 
-* 
+*
   ``signal_description()``\ :
   Returns the description of the signal as defined by the IOGroup that
   provides this signal.
 
-* 
+*
   ``control_description()``\ :
   Returns the description of the control as defined by the IOGroup that
   provides this control.
 
-* 
+*
   ``signal_domain_type()``\ :
   Query the domain for the signal with name _signal\ *name*.  Returns
   one of the ``geopm_domain_e`` values signifying the
@@ -321,7 +402,7 @@ INSPECTION CLASS METHODS
   ``GEOPM_DOMAIN_INVALID`` if the signal name is not
   supported.
 
-* 
+*
   ``control_domain_type()``\ :
   Query the domain for the control with the name _control\ *name*.
   Returns one of the ``geopm_domain_e`` values
@@ -329,13 +410,13 @@ INSPECTION CLASS METHODS
   Will return ``GEOPM_DOMAIN_INVALID`` if the control
   name is not supported.
 
-* 
+*
   ``agg_function``\ ():
   Returns the function that should be used to aggregate
   _signal\ *name*.  If one was not previously specified by this class,
   the default function is select_first from `geopm::Agg(3) <GEOPM_CXX_MAN_Agg.3.html>`_.
 
-* 
+*
   ``signal_behavior``\ ():
   Returns one of the IOGroup::signal_behavior_e values which
   describes about how a signal will change as a function of time.
@@ -346,24 +427,24 @@ SERIAL CLASS METHODS
 --------------------
 
 
-* 
+*
   ``read_signal()``\ :
   Read from the platform and interpret into SI units a signal
   given its name and domain.  Does not modify values stored by
   calling ``read_batch()``.
 
-* 
+*
   ``write_control()``\ :
   Interpret the setting and write it to the platform.  Does not
   modify the values stored by calling ``adjust()``.
 
-* 
+*
   ``save_control()``\ :
   Save the state of all controls so that any subsequent changes
   made through PlatformIO may be reverted with a call to
   ``restore_control()``.
 
-* 
+*
   ``restore_control()``\ :
   Restore all controls to values recorded in previous call to
   ``save_control()``.
@@ -372,7 +453,7 @@ BATCH CLASS METHODS
 -------------------
 
 
-* 
+*
   ``push_signal()``\ :
   Push a signal onto the stack of batch access signals.  The signal
   is defined by selecting a _signal\ *name* from the set returned by
@@ -393,7 +474,7 @@ BATCH CLASS METHODS
   in a thrown ``geopm::Exception`` with error number
   ``GEOPM_ERROR_INVALID``.
 
-* 
+*
   ``push_control()``\ :
   Push a control onto the stack of batch access controls.  The
   control is defined by selecting a _control\ *name* from the set
@@ -414,24 +495,24 @@ BATCH CLASS METHODS
   ``control_names()`` will result in a thrown ``geopm::Exception`` with
   error number ``GEOPM_ERROR_INVALID``.
 
-* 
+*
   ``sample()``\ :
   Samples cached value of a single signal that has been pushed via
   ``push_signal()`` cached value is upated at the time of call to
   ``read_batch()``.
 
-* 
+*
   ``adjust()``\ :
   Updates cached value for single control that has been pushed via
   ``push_control()`` cached value will be written to the platform at
   time of call to ``write_batch()``.
 
-* 
+*
   ``read_batch()``\ :
   Read all push signals from the platform so that the next call to ``sample()``
   will reflect the updated data.
 
-* 
+*
   ``write_batch()``\ :
   Write all pushed controls so that values provided to ``adjust()``
   are written to the platform.
