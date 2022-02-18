@@ -15,13 +15,14 @@ SYNOPSIS
 
 #include `<geopm_error.h> <https://github.com/geopm/geopm/blob/dev/src/geopm_error.h>`_\ 
 
-``Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)``
+Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
 
 
-* ``void geopm_error_message(``\ :
-  ``int`` *err*\ , :raw-html-m2r:`<br>`
-  `char *`_msg_, :raw-html-m2r:`<br>`
-  ``size_t`` *size*\ ``);``
+.. code-block:: c
+
+       void geopm_error_message(int err,
+                                char *msg,
+                                size_t size);
 
 DESCRIPTION
 -----------
@@ -34,12 +35,12 @@ error codes.  A returned error number of zero by a GEOPM API indicates
 success.  If the error number returned by a GEOPM API is positive then
 this indicates a generic system error, and if the error number is
 negative this indicates a `geopm(7) <geopm.7.html>`_ specific error has occurred.
-The GEOPM specific error numbers are enumerated in the _geopm\ *error.h*
+The GEOPM specific error numbers are enumerated in the `geopm_error.h <https://github.com/geopm/geopm/blob/dev/src/geopm_error.h>`_
 header file and they are described below.  The system error numbers
 are documented in the `errno(3) <http://man7.org/linux/man-pages/man3/errno.3.html>`_ man page.
 
 Any non-zero error number can be passed as the *err* parameter to the
-**geopm_error_message()** function and it will be converted into a
+``geopm_error_message()`` function and it will be converted into a
 descriptive string *msg*.  The string *msg* is user allocated buffer
 of length *size* bytes.  The result, *msg* will always be NULL
 terminated even if the message is truncated to fit in the *msg*
@@ -47,7 +48,7 @@ buffer.
 
 When a geopm C interface returns a non-zero value and this value is
 subsequently passed as the *err* argument to
-**geopm_error_message()**\ , the message may contain detailed
+``geopm_error_message()``\ , the message may contain detailed
 information about the failure that most recently occurred.  The
 details may include the source file, line number, and a detailed
 description of the error condition.  If possible, please provide this
