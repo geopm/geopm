@@ -36,180 +36,180 @@ Link with ``-lgeopmd``
 
 .. code-block:: c++
 
-struct geopm_request_s {
-    int domain;
-    int domain_idx;
-    char name[NAME_MAX];
-};
+    struct geopm_request_s {
+        int domain;
+        int domain_idx;
+        char name[NAME_MAX];
+    };
 
-namespace geopm
-{
-    PlatformIO &platform_io(
-        void)
+    namespace geopm
+    {
+        PlatformIO &platform_io(
+            void)
 
-    PlatformIO::PlatformIO(
-        std::list<std::shared_ptr<IOGroup> > iogroup_list,
-        const PlatformTopo &topo);
+        PlatformIO::PlatformIO(
+            std::list<std::shared_ptr<IOGroup> > iogroup_list,
+            const PlatformTopo &topo);
 
-    void PlatformIO::register_iogroup(
-        std::shared_ptr<IOGroup> iogroup);
+        void PlatformIO::register_iogroup(
+            std::shared_ptr<IOGroup> iogroup);
 
-    std::shared_ptr<IOGroup>
-    PlatformIO::find_signal_iogroup(
-        const std::string &signal_name) const;
+        std::shared_ptr<IOGroup>
+        PlatformIO::find_signal_iogroup(
+            const std::string &signal_name) const;
 
-    std::set<std::string>
-    PlatformIO::signal_names(
-        void) const;
+        std::set<std::string>
+        PlatformIO::signal_names(
+            void) const;
 
-    std::set<std::string>
-    PlatformIO::control_names(
-        void) const;
+        std::set<std::string>
+        PlatformIO::control_names(
+            void) const;
 
-    int
-    PlatformIO::signal_domain_type(
-        const std::string &signal_name) const;
+        int
+        PlatformIO::signal_domain_type(
+            const std::string &signal_name) const;
 
-    int
-    PlatformIO::control_domain_type(
-        const std::string &control_name) const;
+        int
+        PlatformIO::control_domain_type(
+            const std::string &control_name) const;
 
-    int
-    PlatformIO::push_signal(
-        const std::string &signal_name,
-        int domain_type,
-        int domain_idx);
+        int
+        PlatformIO::push_signal(
+            const std::string &signal_name,
+            int domain_type,
+            int domain_idx);
 
-    int
-    PlatformIO::push_signal_convert_domain(
-        const std::string &signal_name,
-        int domain_type,
-        int domain_idx);
+        int
+        PlatformIO::push_signal_convert_domain(
+            const std::string &signal_name,
+            int domain_type,
+            int domain_idx);
 
-    int
-    PlatformIO::push_combined_signal(
-        const std::string &signal_name,
-        int domain_type,
-        int domain_idx,
-        const std::vector<int> &sub_signal_idx);
+        int
+        PlatformIO::push_combined_signal(
+            const std::string &signal_name,
+            int domain_type,
+            int domain_idx,
+            const std::vector<int> &sub_signal_idx);
 
-    void
-    PlatformIO::register_combined_signal(
-        int signal_idx,
-        std::vector<int> operands,
-        std::unique_ptr<CombinedSignal> signal);
+        void
+        PlatformIO::register_combined_signal(
+            int signal_idx,
+            std::vector<int> operands,
+            std::unique_ptr<CombinedSignal> signal);
 
-    int
-    PlatformIO::push_control(
-        const std::string &control_name,
-        int domain_type,
-        int domain_idx);
+        int
+        PlatformIO::push_control(
+            const std::string &control_name,
+            int domain_type,
+            int domain_idx);
 
-    int
-    PlatformIO::push_control_convert_domain(
-        const std::string &control_name,
-        int domain_type,
-        int domain_idx);
+        int
+        PlatformIO::push_control_convert_domain(
+            const std::string &control_name,
+            int domain_type,
+            int domain_idx);
 
-    int
-    PlatformIO::num_signal_pushed(
-        void) const;
+        int
+        PlatformIO::num_signal_pushed(
+            void) const;
 
-    int
-    PlatformIO::num_control_pushed(
-        void) const;
+        int
+        PlatformIO::num_control_pushed(
+            void) const;
 
-    double
-    PlatformIO::sample(
-        int signal_idx);
+        double
+        PlatformIO::sample(
+            int signal_idx);
 
-    double
-    PlatformIO::sample_combined(
-        int signal_idx);
+        double
+        PlatformIO::sample_combined(
+            int signal_idx);
 
-    void
-    PlatformIO::adjust(
-        int control_idx,
-        double setting);
+        void
+        PlatformIO::adjust(
+            int control_idx,
+            double setting);
 
-    void
-    PlatformIO::read_batch(
-        void);
+        void
+        PlatformIO::read_batch(
+            void);
 
-    void
-    PlatformIO::write_batch(
-        void);
+        void
+        PlatformIO::write_batch(
+            void);
 
-    double
-    PlatformIO::read_signal(
-        const std::string &signal_name,
-        int domain_type,
-        int domain_idx);
+        double
+        PlatformIO::read_signal(
+            const std::string &signal_name,
+            int domain_type,
+            int domain_idx);
 
-    double
-    PlatformIO::read_signal_convert_domain(
-        const std::string &signal_name,
-        int domain_type,
-        int domain_idx);
+        double
+        PlatformIO::read_signal_convert_domain(
+            const std::string &signal_name,
+            int domain_type,
+            int domain_idx);
 
-    void
-    PlatformIO::write_control(
-        const std::string &control_name,
-        int domain_type,
-        int domain_idx,
-        double setting);
+        void
+        PlatformIO::write_control(
+            const std::string &control_name,
+            int domain_type,
+            int domain_idx,
+            double setting);
 
-    void
-    PlatformIO::write_control_convert_domain(
-        const std::string &control_name,
-        int domain_type,
-        int domain_idx,
-        double setting);
+        void
+        PlatformIO::write_control_convert_domain(
+            const std::string &control_name,
+            int domain_type,
+            int domain_idx,
+            double setting);
 
-    void
-    PlatformIO::save_control(
-        void);
+        void
+        PlatformIO::save_control(
+            void);
 
-    void
-    PlatformIO::restore_control(
-        void);
+        void
+        PlatformIO::restore_control(
+            void);
 
-    void
-    PlatformIO::save_control(
-        const std::string &save_dir);
+        void
+        PlatformIO::save_control(
+            const std::string &save_dir);
 
-    void PlatformIO::restore_control(
-        const std::string &save_dir);
+        void PlatformIO::restore_control(
+            const std::string &save_dir);
 
-    std::function<double(const std::vector<double> &)>
-    PlatformIO::agg_function(
-        const std::string &signal_name) const;
+        std::function<double(const std::vector<double> &)>
+        PlatformIO::agg_function(
+            const std::string &signal_name) const;
 
-    std::string
-    PlatformIO::signal_description(
-        const std::string &signal_name) const;
+        std::string
+        PlatformIO::signal_description(
+            const std::string &signal_name) const;
 
-    std::string
-    PlatformIO::control_description(
-        const std::string &control_name) const;
+        std::string
+        PlatformIO::control_description(
+            const std::string &control_name) const;
 
-    int
-    PlatformIO::signal_behavior(
-        const std::string &signal_name) const;
+        int
+        PlatformIO::signal_behavior(
+            const std::string &signal_name) const;
 
-    void
-    PlatformIO::start_batch_server(
-        int client_pid,
-        const std::vector<geopm_request_s> &signal_config,
-        const std::vector<geopm_request_s> &control_config,
-        int &server_pid,
-        std::string &server_key);
+        void
+        PlatformIO::start_batch_server(
+            int client_pid,
+            const std::vector<geopm_request_s> &signal_config,
+            const std::vector<geopm_request_s> &control_config,
+            int &server_pid,
+            std::string &server_key);
 
-    void
-    PlatformIO::stop_batch_server(
-        int server_pid);
+        void
+        PlatformIO::stop_batch_server(
+            int server_pid);
 
-}
+    }
 
 
 DESCRIPTION
