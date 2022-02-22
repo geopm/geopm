@@ -49,13 +49,15 @@ extern "C"
 /// @return uint64_t The result is returned as a 64-bit integer.
 uint64_t geopm_crc32_u64(uint64_t begin, uint64_t key);
 
-/// @brief This function is used to produce unique region IDs for named regions.
+/// @brief This function is used to produce unique region IDs for
+///        named regions.
 ///
-/// @details An Agent implementation with specialized behavior for specific
-///          region names can use this function to figure out the region ID to
-///          expect for the desired region.  As this uses the CRC32 algorithm,
-///          only the bottom 32 bits will be filled in, reserving the top 32
-///          bits for hints and other information.
+/// @details An Agent implementation with specialized behavior for
+///          specific region names can use this function to figure out
+///          the region ID to expect for the desired region.  As this
+///          uses the CRC32 algorithm, only the bottom 32 bits will be
+///          filled in, reserving the top 32 bits for hints and other
+///          information.
 ///
 /// @param [in] key This string is hashed to produce a 64-bit value.
 ///
