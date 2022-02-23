@@ -498,6 +498,8 @@ namespace geopm
         register_signal_alias("GPUCHIP_ENERGY", M_NAME_PREFIX + "GPUCHIP_ENERGY");
         register_signal_alias("GPUCHIP_FREQUENCY_MIN_AVAIL", M_NAME_PREFIX + "GPUCHIP_FREQUENCY_MIN_AVAIL");
         register_signal_alias("GPUCHIP_FREQUENCY_MAX_AVAIL", M_NAME_PREFIX + "GPUCHIP_FREQUENCY_MAX_AVAIL");
+        register_signal_alias("GPUCHIP_FREQUENCY_CONTROL",
+                              M_NAME_PREFIX + "GPUCHIP_FREQUENCY_CONTROL");
         register_control_alias("GPUCHIP_FREQUENCY_CONTROL",
                                M_NAME_PREFIX + "GPUCHIP_FREQUENCY_CONTROL");
 
