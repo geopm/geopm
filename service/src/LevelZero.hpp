@@ -122,7 +122,11 @@ namespace geopm
             virtual uint64_t active_time_timestamp(unsigned int l0_device_idx,
                                                    int l0_domain, int l0_domain_idx) const = 0;
 
-            /// TODO: Document
+            /// @brief Get the number of LevelZero power domains of a certain type
+            /// @param [in] geopm_domain The GEOPM domain being targeted
+            /// @param [in] l0_device_idx The LevelZero device being targeted
+            /// @param [in] l0_domain The LevelZero domain type being targeted
+            /// @return Accelerator frequency domain count.
             virtual int power_domain_count(int geopm_domain,
                                            unsigned int l0_device_idx,
                                            int l0_domain) const = 0;
@@ -144,30 +148,36 @@ namespace geopm
 
             /// @brief Get the LevelZero device energy and timestamp
             ///        in microjoules and microseconds
+            /// @param [in] geopm_domain The GEOPM domain being targeted
             /// @param [in] l0_device_idx The index indicating a particular
             ///        Level Zero GPU.
+            /// @param [in] l0_domain_idx The index indicating a particular
+            ///        Level Zero domain.
             /// @return GPU energy in microjoules and timestamp in microseconds
-            virtual std::pair<uint64_t, uint64_t> energy_pair(unsigned int l0_device_idx) const = 0;
-            /// @brief Get the LevelZero device energy in microjoules.
-            /// @param [in] l0_device_idx The index indicating a particular
-            ///        Level Zero GPU.
-            /// @return GPU energy in microjoules.
-            virtual uint64_t energy(unsigned int l0_device_idx) const = 0;
-
-            /// TODO: document & collapse
-            virtual uint64_t energy(unsigned int l0_device_idx, int l0_domain,
-                                    int l0_domain_idx) const = 0;
-            /// TODO: document & collapse
-            virtual uint64_t energy_timestamp(unsigned int l0_device_idx, int l0_domain,
-                                              int l0_domain_idx) const = 0;
-            /// TODO: document & collapse
-            virtual std::pair<uint64_t, uint64_t> energy_pair(unsigned int l0_device_idx,
+            virtual std::pair<uint64_t, uint64_t> energy_pair(int geopm_domain, unsigned int l0_device_idx,
                                                               int l0_domain_idx) const = 0;
-            /// @brief Get the LevelZero device energy cached timestamp in microseconds
+            /// @brief Get the LevelZero device energy in microjoules.
+            /// @param [in] geopm_domain The GEOPM domain being targeted
             /// @param [in] l0_device_idx The index indicating a particular
             ///        Level Zero GPU.
-            /// @return GPU energy timestamp in microseconds
-            virtual uint64_t energy_timestamp(unsigned int l0_device_idx) const = 0;
+            /// @param [in] l0_domain The LevelZero domain type being targeted
+            /// @param [in] l0_domain_idx The index indicating a particular
+            ///        Level Zero domain.
+            /// @return GPU energy in microjoules.
+            /// TODO: document & collapse
+            virtual uint64_t energy(int geopm_domain, unsigned int l0_device_idx, int l0_domain,
+                                    int l0_domain_idx) const = 0;
+            /// @brief Get the LevelZero device energy cached timestamp in microseconds
+            /// @param [in] geopm_domain The GEOPM domain being targeted
+            /// @param [in] l0_device_idx The index indicating a particular
+            ///        Level Zero GPU.
+            /// @param [in] l0_domain The LevelZero domain type being targeted
+            /// @param [in] l0_domain_idx The index indicating a particular
+            ///        Level Zero domain.
+            /// @return Accelerator energy timestamp in microseconds
+            /// TODO: document & collapse
+            virtual uint64_t energy_timestamp(int geopm_domain, unsigned int l0_device_idx, int l0_domain,
+                                              int l0_domain_idx) const = 0;
 
             /// @brief Set min and max frequency for LevelZero device.
             /// @param [in] l0_device_idx The index indicating a particular

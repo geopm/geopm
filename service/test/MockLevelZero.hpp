@@ -43,17 +43,11 @@ class MockLevelZero : public geopm::LevelZero
         MOCK_METHOD(int, power_domain_count, (int, unsigned int, int),
                     (const, override));
         MOCK_METHOD((std::pair<uint64_t, uint64_t>), energy_pair,
-                    (unsigned int), (const, override));
+                    (int, unsigned int, int), (const, override));
         MOCK_METHOD(uint64_t, energy,
-                    (unsigned int), (const, override));
+                    (int, unsigned int, int, int), (const, override));
         MOCK_METHOD(uint64_t, energy_timestamp,
-                    (unsigned int), (const, override));
-        MOCK_METHOD((std::pair<uint64_t, uint64_t>), energy_pair,
-                    (unsigned int, int), (const, override));
-        MOCK_METHOD(uint64_t, energy,
-                    (unsigned int, int, int), (const, override));
-        MOCK_METHOD(uint64_t, energy_timestamp,
-                    (unsigned int, int, int), (const, override));
+                    (int, unsigned int, int, int), (const, override));
         MOCK_METHOD(int32_t, power_limit_tdp,
                     (unsigned int), (const, override));
         MOCK_METHOD(int32_t, power_limit_min,
