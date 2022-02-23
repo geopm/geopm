@@ -555,67 +555,47 @@ namespace geopm
         return {result_active, result_timestamp};
     }
 
-    uint64_t LevelZeroImp::energy_timestamp(unsigned int l0_device_idx) const
+    uint64_t LevelZeroImp::energy_timestamp(int geopm_domain,
+                                            unsigned int l0_device_idx,
+                                            int l0_domain,
+                                            int l0_domain_idx) const
     {
-        return m_devices.at(l0_device_idx).cached_energy_timestamp;
-    }
-
-    uint64_t LevelZeroImp::energy(unsigned int l0_device_idx) const
-    {
-        return energy_pair(l0_device_idx).first;
-    }
-
-    uint64_t LevelZeroImp::energy_timestamp(unsigned int l0_device_idx,
-                                            int l0_domain, int l0_domain_idx) const
-    {
+        uint64_t timestamp = 0;
+        //PACKAGE
+        if(geopm_domain == GEOPM_DOMAIN_BOARD_ACCELERATOR) {
+            timestamp = m_devices.at(l0_device_idx).cached_energy_timestamp;
+        }
+        else if(geopm_domain == GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP) {
+        //TILE
+            timestamp = m_devices.at(l0_device_idx).subdevice.cached_energy_timestamp.at(l0_domain_idx);
+        }
         //TODO: either check l0_domain, or move to treating it the same
         //      as all other signals (i.e. All, Compute, and Mem)
-        return m_devices.at(l0_device_idx).subdevice.cached_energy_timestamp.at(l0_domain_idx);
+        return timestamp;
     }
 
     // TODO: Collapse with package level energy
-    uint64_t LevelZeroImp::energy(unsigned int l0_device_idx,
+    uint64_t LevelZeroImp::energy(int geopm_domain, unsigned int l0_device_idx,
                                   int l0_domain, int l0_domain_idx) const
     {
         //TODO: either check l0_domain, or move to treating it the same
         //      as all other signals (i.e. All, Compute, and Mem)
-        return energy_pair(l0_device_idx, l0_domain_idx).first;
+        return energy_pair(geopm_domain, l0_device_idx, l0_domain_idx).first;
     }
 
-    // TODO: Collapse with package level energy_pair
-    std::pair<uint64_t,uint64_t> LevelZeroImp::energy_pair(unsigned int l0_device_idx,
+    std::pair<uint64_t,uint64_t> LevelZeroImp::energy_pair(int geopm_domain,
+                                                           unsigned int l0_device_idx,
                                                            int l0_domain_idx) const
     {
         ze_result_t ze_result;
         uint64_t result_energy = 0;
         uint64_t result_timestamp = 0;
 
-        if (power_domain_count(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
-                               l0_device_idx,
-                               M_DOMAIN_ALL) >= l0_domain_idx) {
-            zes_pwr_handle_t handle = m_devices.at(l0_device_idx).subdevice.power_domain.at(l0_domain_idx);
-
-            zes_power_energy_counter_t energy_counter;
-            ze_result = zesPowerGetEnergyCounter(handle, &energy_counter);
-            check_ze_result(ze_result, GEOPM_ERROR_RUNTIME, "LevelZero::"
-                            + std::string(__func__) +
-                            ": Sysman failed to get energy_counter values", __LINE__);
-            result_energy += energy_counter.energy;
-            result_timestamp += energy_counter.timestamp;
-            m_devices.at(l0_device_idx).subdevice.cached_energy_timestamp.at(l0_domain_idx) = result_timestamp;
-        }
-        return {result_energy, result_timestamp};
-    }
-
-    // TODO: Collapse with package level energy_pair
-    std::pair<uint64_t,uint64_t> LevelZeroImp::energy_pair(unsigned int l0_device_idx) const
-    {
-        ze_result_t ze_result;
-        uint64_t result_energy = 0;
-        uint64_t result_timestamp = 0;
-
-        if (power_domain_count(GEOPM_DOMAIN_BOARD_ACCELERATOR,
-                               l0_device_idx, M_DOMAIN_ALL)  == 1) {
+        if (geopm_domain == GEOPM_DOMAIN_BOARD_ACCELERATOR &&
+                            power_domain_count(GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                               l0_device_idx,
+                                               M_DOMAIN_ALL) == 1) {
+            //DEVICE LEVEL
             zes_pwr_handle_t handle = m_devices.at(l0_device_idx).power_domain;
             zes_power_energy_counter_t energy_counter;
             ze_result = zesPowerGetEnergyCounter(handle, &energy_counter);
@@ -625,6 +605,21 @@ namespace geopm
             result_energy += energy_counter.energy;
             result_timestamp += energy_counter.timestamp;
             m_devices.at(l0_device_idx).cached_energy_timestamp = result_timestamp;
+        }
+        else if (geopm_domain == GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP &&
+                                 power_domain_count(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                    l0_device_idx,
+                                    M_DOMAIN_ALL) >= l0_domain_idx) {
+            //SUBDEVICE LEVEL
+            zes_pwr_handle_t handle = m_devices.at(l0_device_idx).subdevice.power_domain.at(l0_domain_idx);
+            zes_power_energy_counter_t energy_counter;
+            ze_result = zesPowerGetEnergyCounter(handle, &energy_counter);
+            check_ze_result(ze_result, GEOPM_ERROR_RUNTIME, "LevelZero::"
+                            + std::string(__func__) +
+                            ": Sysman failed to get energy_counter values", __LINE__);
+            result_energy += energy_counter.energy;
+            result_timestamp += energy_counter.timestamp;
+            m_devices.at(l0_device_idx).subdevice.cached_energy_timestamp.at(l0_domain_idx) = result_timestamp;
         }
         return {result_energy, result_timestamp};
     }

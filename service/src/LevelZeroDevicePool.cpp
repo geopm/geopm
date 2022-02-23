@@ -298,14 +298,26 @@ namespace geopm
                                                                       unsigned int domain_idx,
                                                                       int l0_domain) const
     {
+        std::pair<uint64_t, uint64_t> result = {0,0};
+
         if (domain != GEOPM_DOMAIN_BOARD_ACCELERATOR) {
             throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
                             ": domain " + std::to_string(domain) +
                             " is not supported for the power domain.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            check_idx_range(domain, domain_idx);
+            result = m_levelzero.energy_pair(domain, domain_idx, -1);
         }
-        check_idx_range(domain, domain_idx);
-        return m_levelzero.energy_pair(domain_idx);
+        else if (domain == GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP){
+            std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
+            dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
+            check_domain_exists(m_levelzero.power_domain_count(domain,
+                                            dev_subdev_idx_pair.first, l0_domain),
+                                            __func__, __LINE__);
+            result = m_levelzero.energy_pair(domain, dev_subdev_idx_pair.first,
+                                             dev_subdev_idx_pair.second);
+        }
+        return result;
     }
 
     uint64_t LevelZeroDevicePoolImp::energy_timestamp(int domain,
@@ -315,7 +327,8 @@ namespace geopm
         uint64_t energy_timestamp = 0;
         if (domain == GEOPM_DOMAIN_BOARD_ACCELERATOR) {
             check_idx_range(domain, domain_idx);
-            energy_timestamp = m_levelzero.energy_timestamp(domain_idx);
+            energy_timestamp = m_levelzero.energy_timestamp(domain, domain_idx,
+                                                            -1, -1);
         }
         else if (domain == GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP){
             std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
@@ -326,7 +339,9 @@ namespace geopm
                                             dev_subdev_idx_pair.first, l0_domain),
                                             __func__, __LINE__);
 
-            energy_timestamp = m_levelzero.energy_timestamp(dev_subdev_idx_pair.first, l0_domain,
+            energy_timestamp = m_levelzero.energy_timestamp(domain,
+                                                            dev_subdev_idx_pair.first,
+                                                            l0_domain,
                                                             dev_subdev_idx_pair.second);
         }
         else {
@@ -345,7 +360,7 @@ namespace geopm
         uint64_t energy = 0;
         if (domain == GEOPM_DOMAIN_BOARD_ACCELERATOR) {
             check_idx_range(domain, domain_idx);
-            energy = m_levelzero.energy(domain_idx);
+            energy = m_levelzero.energy(domain, domain_idx, -1, -1);
         }
         else if (domain == GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP){
             std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
@@ -356,7 +371,8 @@ namespace geopm
                                             dev_subdev_idx_pair.first, l0_domain),
                                             __func__, __LINE__);
 
-            energy = m_levelzero.energy(dev_subdev_idx_pair.first, l0_domain,
+            energy = m_levelzero.energy(domain, dev_subdev_idx_pair.first,
+                                        l0_domain,
                                         dev_subdev_idx_pair.second);
         }
         else {

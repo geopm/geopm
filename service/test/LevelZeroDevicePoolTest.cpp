@@ -203,11 +203,13 @@ TEST_F(LevelZeroDevicePoolTest, device_function_check)
         EXPECT_CALL(*m_levelzero, power_limit_tdp(dev_idx)).WillOnce(Return(value+offset));
         EXPECT_CALL(*m_levelzero, power_limit_min(dev_idx)).WillOnce(Return(value+offset+num_accelerator*10));
         EXPECT_CALL(*m_levelzero, power_limit_max(dev_idx)).WillOnce(Return(value+offset+num_accelerator*20));
-        EXPECT_CALL(*m_levelzero, energy(dev_idx)).WillOnce(Return(value+offset+num_accelerator*30));
-        EXPECT_CALL(*m_levelzero, energy_timestamp(dev_idx)).WillOnce(Return(value+offset+num_accelerator*40));
+        EXPECT_CALL(*m_levelzero, energy(GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                         dev_idx, -1, -1)).WillOnce(Return(value+offset+num_accelerator*30));
+        EXPECT_CALL(*m_levelzero, energy_timestamp(GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                                   dev_idx, -1, -1)).WillOnce(Return(value+offset+num_accelerator*40));
 
         EXPECT_CALL(*m_levelzero, power_domain_count(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL)).WillRepeatedly(Return(1));
-        EXPECT_CALL(*m_levelzero, energy(dev_idx, MockLevelZero::M_DOMAIN_ALL, 0)).WillOnce(Return(value+offset+num_accelerator*31));
+        EXPECT_CALL(*m_levelzero, energy(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL, 0)).WillOnce(Return(value+offset+num_accelerator*31));
 
         ++offset;
     }
