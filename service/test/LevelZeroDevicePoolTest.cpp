@@ -178,6 +178,8 @@ TEST_F(LevelZeroDevicePoolTest, device_function_check)
         EXPECT_CALL(*m_levelzero, power_limit_max(dev_idx)).WillOnce(Return(value+offset+num_gpu*20));
         EXPECT_CALL(*m_levelzero, energy(dev_idx)).WillOnce(Return(value+offset+num_gpu*30));
         EXPECT_CALL(*m_levelzero, energy_timestamp(dev_idx)).WillOnce(Return(value+offset+num_gpu*40));
+        EXPECT_CALL(*m_levelzero, power_domain_count(GEOPM_DOMAIN_GPU_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL)).WillRepeatedly(Return(1));
+        EXPECT_CALL(*m_levelzero, energy(GEOPM_DOMAIN_GPU_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL, 0)).WillOnce(Return(value+offset+num_gpu*31));
 
         EXPECT_CALL(*m_levelzero, power_domain_count(GEOPM_DOMAIN_GPU_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL)).WillRepeatedly(Return(1));
         EXPECT_CALL(*m_levelzero, energy(dev_idx, MockLevelZero::M_DOMAIN_ALL, 0)).WillOnce(Return(value+offset+num_gpu*31));

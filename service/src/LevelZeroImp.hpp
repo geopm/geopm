@@ -49,14 +49,12 @@ namespace geopm
 
             int power_domain_count(int geopm_domain, unsigned int l0_device_idx,
                                    int l0_domain) const override;
-            std::pair<uint64_t, uint64_t> energy_pair(unsigned int l0_device_idx) const override;
-            uint64_t energy(unsigned int l0_device_idx) const override;
-            uint64_t energy_timestamp(unsigned int l0_device_idx) const override;
-            std::pair<uint64_t, uint64_t> energy_pair(unsigned int l0_device_idx,
+            std::pair<uint64_t, uint64_t> energy_pair(int geopm_domain, unsigned int l0_device_idx,
                                                       int l0_domain_idx) const override;
-            uint64_t energy(unsigned int l0_device_idx,
+            uint64_t energy(int geopm_domain, unsigned int l0_device_idx,
                             int l0_domain, int l0_domain_idx) const override;
-            uint64_t energy_timestamp(unsigned int l0_device_idx,
+            uint64_t energy_timestamp(int geopm_domain,
+                                      unsigned int l0_device_idx,
                                       int l0_domain,
                                       int l0_domain_idx) const override;
             int32_t power_limit_tdp(unsigned int l0_device_idx) const override;
