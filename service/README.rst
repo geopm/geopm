@@ -251,29 +251,35 @@ ServiceIOGroup.
 
 The batch server is configured to allow access to exactly the signals
 and controls that were pushed onto the stack for the ServiceIOGroup
-prior to the first ``read_batch()`` or ``write_batch()`` call.  Through
-the D-Bus implementation, the GEOPM Service verifies that the client
-user has appropriate permissions for the requested signals and
-controls.  When the first call to ``read_batch()`` or ``write_batch()`` is
-made to user's PlatformIO object, the geopmd process forks the batch
-server process and no more updates can be made to the configured
-requests.  The batch server uses inter-process shared memory and POSIX
-signals to enable fast access to the configured stack of GEOPM signals
-and controls.  In this documentation we will call always refer to
-"POSIX signals" to differentiate from the GEOPM signal concept which
-is unrelated to the POSIX signal as defined in the signal(7) man page.
+prior to the first ``read_batch()`` or ``write_batch()`` call.
+Through the D-Bus implementation, the GEOPM Service verifies that the
+client user has appropriate permissions for the requested signals and
+controls.  When the first call to ``read_batch()`` or
+``write_batch()`` is made to user's PlatformIO object, the geopmd
+process forks the batch server process and no more updates can be made
+to the configured requests.  The batch server uses inter-process
+shared memory and FIFO special files in tmpfs to enable fast access to
+the configured stack of GEOPM signals and controls.
 
-To implement the ``read_batch()`` method, the ServiceIOGroup sends a
-POSIX signal to notify the batch server that it would like the
-configured GEOPM signals to be updated in shared memory.  The batch
-server reads all GEOPM signals that are being supported by the
-client's ServiceIOGroup using the batch server's instance of the
-PlatformIO object.  GEOPM signals are copied into the shared memory
-buffer and a SIGCONT POSIX signal is sent from the batch server to the
-client process when the buffer is ready.  To implement the
-``write_batch()`` method, the client process's ServiceIOGroup prepares
-the shared memory buffer with all control settings that it is
-supporting.  The client sends a SIGCONT POSIX signal to the batch
-server to notify it to write the settings.  The batch server then
-reads the clients settings from a shared memory buffer and writes the
-values through the server process's PlatformIO instance.
+To implement the ``read_batch()`` method, the ServiceIOGroup writes a
+character to a FIFO to notify the batch server that it would like the
+configured GEOPM signals to be updated in shared memory.  The client
+process then waits on a FIFO for a message from the server that the
+request is ready.  The batch server proceeds to read all GEOPM signals
+that are supported by the client's ServiceIOGroup using the batch
+server's instance of the PlatformIO object.  GEOPM signals are copied
+into the shared memory buffer and when the buffer is ready, a
+character is written into the FIFO that the client process is waiting
+on.
+
+To implement the ``write_batch()`` method, the client process's
+ServiceIOGroup prepares the shared memory buffer with all control
+settings that the batch server is supporting.  The client then writes
+a character into a FIFO to notify the batch server that it would like
+the configured GEOPM controls to be written.  The client process then
+waits on a FIFO for a message from the server that the controls have
+been written.  The batch server proceeds to read the clients settings
+from the shared memory buffer and writes the values through the server
+process's PlatformIO instance.  When the write has completed, a
+character is written into the FIFO that the client process is waiting
+on.
