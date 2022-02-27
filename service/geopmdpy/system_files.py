@@ -416,7 +416,7 @@ class ActiveSessions(object):
         is interrupted before the session file is ready to be used,
         then no file will be present that matches load pattern below.
 
-            /var/run/geopm-service/session-*.json
+            ``/var/run/geopm-service/session-*.json``
 
         The session file is created without the JSON object property
         "batch_server" specified.  This properties may be modified by the

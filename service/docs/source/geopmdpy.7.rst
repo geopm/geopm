@@ -91,7 +91,7 @@ geopmdpy.topo
    :show-inheritance:
 
 geopmdpy.system_files
----------------
+---------------------
 
 .. automodule:: geopmdpy.system_files
    :members:
