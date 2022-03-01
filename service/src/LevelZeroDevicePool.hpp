@@ -157,6 +157,10 @@ namespace geopm
             virtual uint64_t energy_timestamp(int domain, unsigned int domain_idx,
                                               int l0_domain) const = 0;
 
+            virtual double metric_sample(int domain, unsigned int domain_idx,
+                                         std::string metric) const = 0;
+            virtual void metric_read(int domain, unsigned int domain_idx) const = 0;
+
             // FREQUENCY CONTROL FUNCTIONS
             /// @brief Set min and max frequency for LevelZero device.
             /// @param [in] domain The GEOPM domain type being targeted

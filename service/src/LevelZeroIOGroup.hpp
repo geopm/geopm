@@ -146,6 +146,7 @@ namespace geopm
 
             //GEOPM Domain indexed
             std::vector<std::pair<double,double> > m_frequency_range;
+            std::vector<bool> m_metric_signal_pushed;
 
             std::shared_ptr<SaveControl> m_mock_save_ctl;
     };

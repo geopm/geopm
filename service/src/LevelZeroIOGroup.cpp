@@ -415,7 +415,37 @@ namespace geopm
                                                               : NAN;
                                   },
                                   1e6
-                                  }}
+                                  }},
+                              {M_NAME_PREFIX + "METRIC:XVE_ACTIVE", {
+                                  "Percentage of time in which at least one pipe is active in XVE", //TODO: pull from L0 metrics programatically
+                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                  Agg::average,
+                                  string_format_double,
+                                  {},
+                                  [this](unsigned int domain_idx) -> double
+                                  {
+                                      return this->m_levelzero_device_pool.metric_sample(
+                                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                                   domain_idx,
+                                                   "XVE_ACTIVE");
+                                  },
+                                  1
+                                  }},
+                              {M_NAME_PREFIX + "METRIC:XVE_STALL", {
+                                  "Percentage of time in which any threads are loaded but not even a single pipe is active in XVE", //TODO: pull from L0 metrics programatically
+                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                  Agg::average,
+                                  string_format_double,
+                                  {},
+                                  [this](unsigned int domain_idx) -> double
+                                  {
+                                      return this->m_levelzero_device_pool.metric_sample(
+                                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                                   domain_idx,
+                                                   "XVE_STALL");
+                                  },
+                                  1
+                                  }},
                              })
         , m_control_available({{M_NAME_PREFIX + "GPUCHIP_FREQUENCY_MIN_CONTROL", {
                                     "Sets the compute/GPU chip domain frequency minimum in hertz",
@@ -517,6 +547,12 @@ namespace geopm
 
         // Cache the initial min and max frequencies
         save_control();
+
+        // popluate tracking structure for L0 metrics
+        for (int domain_idx = 0; domain_idx <
+             m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR); ++domain_idx) {
+            m_metric_signal_pushed.push_back(false);
+        }
     }
 
     void LevelZeroIOGroup::register_derivative_signals(void) {
@@ -648,6 +684,14 @@ namespace geopm
         int result = -1;
         bool is_found = false;
 
+        if (signal_name.find(":METRIC:") != std::string::npos &&
+            domain_type == GEOPM_DOMAIN_BOARD_ACCELERATOR) {
+            //TODO: do L0 devpool metric initialization here!
+
+            //Set flag so read_batch polls for new data
+            m_metric_signal_pushed.at(domain_idx) = true;
+        }
+
         // Guarantee base signal was pushed before any timestamp signals
         if (string_ends_with(signal_name, "_TIMESTAMP")) {
             std::string base_signal_name =
@@ -762,6 +806,18 @@ namespace geopm
                 m_signal_pushed[ii]->set_sample(m_signal_pushed[ii]->read());
             }
         }
+
+        for (int domain_idx = 0; domain_idx <
+             m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR); ++domain_idx) {
+            if (m_metric_signal_pushed.at(domain_idx)) {
+                m_levelzero_device_pool.metric_read(GEOPM_DOMAIN_BOARD_ACCELERATOR, domain_idx);
+            }
+        }
+        //if(signal_name contains ("::METRIC:") {
+        //    devpool.synchronize()
+        //    return data or cached
+        //}
+
     }
 
     // Write all controls that have been pushed and adjusted
@@ -840,6 +896,11 @@ namespace geopm
                             ": TIMESTAMP Signals are for batch use only.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
+
+        if (signal_name.find(":METRIC:") != std::string::npos) {
+            m_levelzero_device_pool.metric_read(domain_type, domain_idx);
+        }
+
         double result = NAN;
         auto it = m_signal_available.find(signal_name);
         if (it != m_signal_available.end()) {

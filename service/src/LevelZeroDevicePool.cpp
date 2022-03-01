@@ -34,6 +34,8 @@
 
 #include <string>
 #include <cstdint>
+#include <numeric>
+#include <iostream>
 
 #include "geopm/Exception.hpp"
 #include "geopm/Agg.hpp"
@@ -382,6 +384,40 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return energy;
+    }
+
+    //TODO: consider adding 'group_name' parameter?
+    void LevelZeroDevicePoolImp::metric_read(int domain, unsigned int domain_idx) const
+    {
+        if (domain != GEOPM_DOMAIN_BOARD_ACCELERATOR) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for metrics.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        m_levelzero.metric_read(domain_idx);
+    }
+
+    double LevelZeroDevicePoolImp::metric_sample(int domain, unsigned int domain_idx,
+                                                 std::string metric_name) const
+    {
+        double result = NAN;
+        if (domain != GEOPM_DOMAIN_BOARD_ACCELERATOR) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for metrics.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
+        std::vector<double> data = m_levelzero.metric_sample(domain_idx, metric_name);
+
+        if (data.size() > 0) {
+            //TODO: add min, max, avg etc.
+            result = std::accumulate(data.begin(), data.end(), 0.0) / data.size();
+        }
+
+        std::cout << "LevelZeroDevicePool metric average " << metric_name << ": " << std::to_string(result) << std::endl;
+        return result;
     }
 
     void LevelZeroDevicePoolImp::frequency_control(int domain, unsigned int domain_idx,

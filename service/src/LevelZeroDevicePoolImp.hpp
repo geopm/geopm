@@ -80,6 +80,10 @@ namespace geopm
             uint64_t energy_timestamp(int domain, unsigned int domain_idx,
                                       int l0_domain) const override;
 
+            double metric_sample(int domain, unsigned int domain_idx,
+                                 std::string metric_name) const override;
+            void metric_read(int domain, unsigned int domain_idx) const override;
+
             void frequency_control(int domain, unsigned int domain_idx,
                                    int l0_domain, double range_min,
                                    double range_max) const override;

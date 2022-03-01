@@ -198,6 +198,10 @@ namespace geopm
             virtual uint64_t energy_timestamp(int geopm_domain, unsigned int l0_device_idx, int l0_domain,
                                               int l0_domain_idx) const = 0;
 
+            virtual std::vector<double> metric_sample(unsigned int l0_device_idx,
+                                                      std::string metric_name) const = 0;
+            virtual void metric_read(unsigned int l0_device_idx) const = 0;
+
             /// @brief Set min and max frequency for LevelZero device.
             /// @param [in] l0_device_idx The index indicating a particular
             ///        Level Zero accelerator.

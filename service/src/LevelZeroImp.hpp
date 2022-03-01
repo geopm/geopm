@@ -37,6 +37,7 @@
 
 #include <level_zero/ze_api.h>
 #include <level_zero/zes_api.h>
+#include <level_zero/zet_api.h>
 
 #include "LevelZero.hpp"
 
@@ -86,6 +87,10 @@ namespace geopm
             int32_t power_limit_min(unsigned int l0_device_idx) const override;
             int32_t power_limit_max(unsigned int l0_device_idx) const override;
 
+            std::vector<double> metric_sample(unsigned int l0_device_idx,
+                                              std::string metric_name) const override;
+            void metric_read(unsigned int l0_device_idx) const override;
+
             void frequency_control(unsigned int l0_device_idx, int l0_domain,
                                    int l0_domain_idx, double range_min,
                                    double range_max) const override;
@@ -122,6 +127,9 @@ namespace geopm
                 uint32_t m_num_subdevice;
                 std::vector<zes_device_handle_t> subdevice_handle;
 
+                // required for L0 metric querying
+                ze_context_handle_t context;
+
                 // Sub-Device domain tracking.  Because levelzero returns ALL handles for a
                 // 'class' (freq, power, etc) regardless of subdevice it is easier to track
                 // this as class.domain.subdevice where domain is compute/memory.  This avoids
@@ -132,10 +140,23 @@ namespace geopm
                 uint32_t num_device_power_domain;
                 zes_pwr_handle_t power_domain;
                 mutable uint64_t cached_energy_timestamp;
+
+                // required for L0 metric result tracking
+                mutable std::map<std::string, std::vector<double>> m_metric_data;
+
+                // required for L0 metric querying
+                ze_event_handle_t event;
+                zet_metric_streamer_handle_t metric_streamer;
+                zet_metric_group_handle_t metric_group_handle; //compute basic only
+                uint32_t num_metric;
             };
 
 
             void domain_cache(unsigned int l0_device_idx);
+            void metric_group_cache(unsigned int l0_device_idx);
+            void metric_calc(unsigned int l0_device_idx,
+                             zet_metric_streamer_handle_t metric_streamer) const;
+
             void check_ze_result(ze_result_t ze_result, int error, std::string message,
                                  int line) const;
 
