@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 - 2021, Intel Corporation
+ * Copyright (c) 2015 - 2022, Intel Corporation
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -77,6 +77,7 @@ namespace geopm
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::average,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
                               {M_NAME_PREFIX + "GPU_UTILIZATION", {
@@ -84,6 +85,7 @@ namespace geopm
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::average,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
                               {M_NAME_PREFIX + "GPU_POWER", {
@@ -91,6 +93,7 @@ namespace geopm
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::sum,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
                               {M_NAME_PREFIX + "GPU_POWER_LIMIT_CONTROL", {
@@ -98,6 +101,7 @@ namespace geopm
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::sum,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
                               {M_NAME_PREFIX + "GPU_MEMORY_FREQUENCY_STATUS", {
@@ -105,6 +109,7 @@ namespace geopm
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::average,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
                               {M_NAME_PREFIX + "GPU_THROTTLE_REASONS", {
@@ -112,6 +117,7 @@ namespace geopm
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::expect_same,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
                               {M_NAME_PREFIX + "GPU_TEMPERATURE", {
@@ -119,6 +125,7 @@ namespace geopm
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::average,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
                               {M_NAME_PREFIX + "GPU_ENERGY_CONSUMPTION_TOTAL", {
@@ -126,6 +133,7 @@ namespace geopm
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::sum,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
                                   string_format_double
                                   }},
                               {M_NAME_PREFIX + "GPU_PERFORMANCE_STATE", {
@@ -134,6 +142,7 @@ namespace geopm
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::expect_same,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
                               {M_NAME_PREFIX + "GPU_PCIE_RX_THROUGHPUT", {
@@ -141,6 +150,7 @@ namespace geopm
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::sum,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
                               {M_NAME_PREFIX + "GPU_PCIE_TX_THROUGHPUT", {
@@ -148,6 +158,7 @@ namespace geopm
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::sum,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
                               {M_NAME_PREFIX + "GPU_CPU_ACTIVE_AFFINITIZATION", {
@@ -157,6 +168,7 @@ namespace geopm
                                   {},
                                   GEOPM_DOMAIN_CPU,
                                   Agg::expect_same,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
                               {M_NAME_PREFIX + "GPU_MEMORY_UTILIZATION", {
@@ -164,6 +176,7 @@ namespace geopm
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::max,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
                               {M_NAME_PREFIX + "GPU_FREQUENCY_MAX_AVAIL", {
@@ -171,6 +184,7 @@ namespace geopm
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::expect_same,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_CONSTANT,
                                   string_format_double
                                   }},
                               {M_NAME_PREFIX + "GPU_FREQUENCY_MIN_AVAIL", {
@@ -178,6 +192,7 @@ namespace geopm
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::expect_same,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_CONSTANT,
                                   string_format_double
                                   }},
                               {M_NAME_PREFIX + "GPU_FREQUENCY_CONTROL", {
@@ -185,6 +200,7 @@ namespace geopm
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::expect_same,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_CONSTANT,
                                   string_format_double
                                   }}
                              })
@@ -224,6 +240,11 @@ namespace geopm
         }
         register_signal_alias("GPU_POWER", M_NAME_PREFIX + "GPU_POWER");
         register_signal_alias("GPU_FREQUENCY_STATUS", M_NAME_PREFIX + "GPU_FREQUENCY_STATUS");
+        register_signal_alias("GPU_FREQUENCY_MIN_AVAIL", M_NAME_PREFIX + "GPU_FREQUENCY_MIN_AVAIL");
+        register_signal_alias("GPU_FREQUENCY_MAX_AVAIL", M_NAME_PREFIX + "GPU_FREQUENCY_MAX_AVAIL");
+        register_signal_alias("GPU_ENERGY", M_NAME_PREFIX + "GPU_ENERGY_CONSUMPTION_TOTAL");
+        register_signal_alias("GPU_TEMPERATURE", M_NAME_PREFIX + "GPU_TEMPERATURE");
+        register_signal_alias("GPU_UTILIZATION", M_NAME_PREFIX + "GPU_UTILIZATION");
 
         // populate controls for each domain
         for (auto &sv : m_control_available) {
@@ -249,6 +270,8 @@ namespace geopm
                                 ": No supported frequencies found for accelerator " + std::to_string(domain_idx),
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
+
+            // sort guarantees the ordering for min & max calls
             std::sort(supported_frequency.begin(), supported_frequency.end());
             m_supported_freq.push_back(supported_frequency);
         }
@@ -533,17 +556,17 @@ namespace geopm
         if (signal_name == M_NAME_PREFIX + "GPU_FREQUENCY_STATUS" || signal_name == "GPU_FREQUENCY_STATUS") {
             result = (double) m_nvml_device_pool.frequency_status_sm(domain_idx) * 1e6;
         }
-        else if (signal_name == M_NAME_PREFIX + "GPU_FREQUENCY_MIN_AVAIL") {
+        else if (signal_name == M_NAME_PREFIX + "GPU_FREQUENCY_MIN_AVAIL" || signal_name == "GPU_FREQUENCY_MIN_AVAIL") {
             if (m_supported_freq.at(domain_idx).size() != 0) {
                 result = 1e6 * m_supported_freq.at(domain_idx).front();
             }
         }
-        else if (signal_name == M_NAME_PREFIX + "GPU_FREQUENCY_MAX_AVAIL") {
+        else if (signal_name == M_NAME_PREFIX + "GPU_FREQUENCY_MAX_AVAIL" || signal_name == "GPU_FREQUENCY_MAX_AVAIL") {
             if (m_supported_freq.at(domain_idx).size() != 0) {
                 result = 1e6 * m_supported_freq.at(domain_idx).back();
             }
         }
-        else if (signal_name == M_NAME_PREFIX + "GPU_UTILIZATION") {
+        else if (signal_name == M_NAME_PREFIX + "GPU_UTILIZATION" || signal_name == "GPU_UTILIZATION") {
             result = (double) m_nvml_device_pool.utilization(domain_idx) / 100;
         }
         else if (signal_name == M_NAME_PREFIX + "GPU_THROTTLE_REASONS") {
@@ -559,10 +582,10 @@ namespace geopm
         else if (signal_name == M_NAME_PREFIX + "GPU_MEMORY_FREQUENCY_STATUS") {
             result = (double) m_nvml_device_pool.frequency_status_mem(domain_idx) * 1e6;
         }
-        else if (signal_name == M_NAME_PREFIX + "GPU_TEMPERATURE") {
+        else if (signal_name == M_NAME_PREFIX + "GPU_TEMPERATURE" || signal_name == "GPU_TEMPERATURE") {
             result = (double) m_nvml_device_pool.temperature(domain_idx);
         }
-        else if (signal_name == M_NAME_PREFIX + "GPU_ENERGY_CONSUMPTION_TOTAL" ) {
+        else if (signal_name == M_NAME_PREFIX + "GPU_ENERGY_CONSUMPTION_TOTAL" || signal_name == "GPU_ENERGY") {
             result = (double) m_nvml_device_pool.energy(domain_idx) / 1e3;
         }
         else if (signal_name == M_NAME_PREFIX + "GPU_PERFORMANCE_STATE") {
@@ -581,7 +604,7 @@ namespace geopm
             std::map<pid_t, double> process_map = accelerator_process_map();
             result = cpu_accelerator_affinity(domain_idx, process_map);
         }
-        else if (signal_name == M_NAME_PREFIX + "GPU_FREQUENCY_CONTROL") {
+        else if (signal_name == M_NAME_PREFIX + "GPU_FREQUENCY_CONTROL" || signal_name == "GPU_FREQUENCY_CONTROL") {
             result = m_frequency_control_request.at(domain_idx);
         }
         else {
@@ -662,7 +685,7 @@ namespace geopm
                             "not valid for NVMLIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        return it->second.m_agg_function;
+        return it->second.agg_function;
     }
 
     // Specifies how to print signals from this IOGroup
@@ -674,7 +697,7 @@ namespace geopm
                             "not valid for NVMLIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        return it->second.m_format_function;
+        return it->second.format_function;
     }
 
     // A user-friendly description of each signal
@@ -702,7 +725,12 @@ namespace geopm
 
     int NVMLIOGroup::signal_behavior(const std::string &signal_name) const
     {
-        return IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE;
+        if (!is_valid_signal(signal_name)) {
+            throw Exception("NVMLIOGroup::" + std::string(__func__) + ": signal_name " + signal_name +
+                            " not valid for NVMLIOGroup.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return m_signal_available.at(signal_name).behavior;
     }
 
     void NVMLIOGroup::save_control(const std::string &save_path)

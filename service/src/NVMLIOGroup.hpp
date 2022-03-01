@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 - 2021, Intel Corporation
+ * Copyright (c) 2015 - 2022, Intel Corporation
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -113,16 +113,17 @@ namespace geopm
                 std::string m_description;
                 std::vector<std::shared_ptr<signal_s> > signals;
                 int domain;
-                std::function<double(const std::vector<double> &)> m_agg_function;
-                std::function<std::string(double)> m_format_function;
+                std::function<double(const std::vector<double> &)> agg_function;
+                int behavior;
+                std::function<std::string(double)> format_function;
             };
 
             struct control_info {
                 std::string m_description;
                 std::vector<std::shared_ptr<control_s> > controls;
                 int domain;
-                std::function<double(const std::vector<double> &)> m_agg_function;
-                std::function<std::string(double)> m_format_function;
+                std::function<double(const std::vector<double> &)> agg_function;
+                std::function<std::string(double)> format_function;
             };
 
             std::map<std::string, signal_info> m_signal_available;

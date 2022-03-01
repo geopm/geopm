@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 - 2021, Intel Corporation
+ * Copyright (c) 2015 - 2022, Intel Corporation
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -61,6 +61,7 @@ namespace geopm
             Comm(const Comm &in_comm) = default;
             /// @brief Default destructor
             virtual ~Comm() = default;
+            /// @return a list of all valid plugin names in the Comm interface
             static std::vector<std::string> comm_names(void);
             static std::unique_ptr<Comm> make_unique(const std::string &comm_name);
             static std::unique_ptr<Comm> make_unique(void);
@@ -101,8 +102,8 @@ namespace geopm
             /// @param [out] base Address of allocated memory.
             virtual void alloc_mem(size_t size, void **base) = 0;
             /// @brief Create window for message passing and RMA
-            ///        returns window handle for subsequent operations
-            ///        on the window.
+            ///
+            /// @return window handle for subsequent operations on the window.
             ///
             /// @param [in] size Size of the memory area backing the RMA window.
             ///
@@ -196,7 +197,7 @@ namespace geopm
             ///
             /// @param [in] send_buf Starting address of buffer to be transmitted via window.
             ///
-            /// @param [in] send_size Size if bytes of buffer to be sent.
+            /// @param [in] send_size Size in bytes of buffer to be sent.
             ///
             /// @param [in] rank Target rank of the transmission.
             ///

@@ -1,4 +1,4 @@
-#  Copyright (c) 2015 - 2021, Intel Corporation
+#  Copyright (c) 2015 - 2022, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
 #  modification, are permitted provided that the following conditions
@@ -72,7 +72,7 @@ geopminclude_HEADERS = contrib/json11/json11.hpp \
                        # end
 
 install-exec-hook: install-python install-plugin-dir
-dist: dist-googletest
+dist: dist-googletest base_man
 
 install-plugin-dir:
 	$(INSTALL) -d $(DESTDIR)/$(pkglibdir)
@@ -101,6 +101,7 @@ EXTRA_DIST = .gitignore \
              geopmdpy/service.py \
              geopmdpy/session.py \
              geopmdpy/topo.py \
+             geopmdpy/system_files.py \
              geopmdpy/version.py \
              geopmdpy/version.py.in \
              geopmsession \

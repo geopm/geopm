@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 - 2021, Intel Corporation
+ * Copyright (c) 2015 - 2022, Intel Corporation
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -37,8 +37,12 @@ extern "C"
 {
 #endif
 
+    /// @brief Used to set a delay frac that will sleep for the given fraction
+    ///        of the region runtime.
     int geopm_imbalancer_frac(double frac);
+    /// @brief Sets the entry time for the imbalanced region.
     int geopm_imbalancer_enter(void);
+    /// @brief Spins until the region has been extended by the previously specified delay.
     int geopm_imbalancer_exit(void);
 
 #ifdef __cplusplus

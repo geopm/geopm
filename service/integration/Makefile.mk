@@ -1,4 +1,4 @@
-#  Copyright (c) 2015 - 2021, Intel Corporation
+#  Copyright (c) 2015 - 2022, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
 #  modification, are permitted provided that the following conditions
@@ -38,6 +38,8 @@ EXTRA_DIST += integration/README.md \
               integration/test/test_batch_performance.py \
               integration/test/test_sst_priority.sh \
               integration/test/test_su_give_access.sh \
+              integration/test/test_su_restart.sh \
+              integration/test/do_write.sh \
               # end
 
 check_PROGRAMS += integration/test/test_batch_server \

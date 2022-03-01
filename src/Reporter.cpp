@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 - 2021, Intel Corporation
+ * Copyright (c) 2015 - 2022, Intel Corporation
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -421,6 +421,21 @@ namespace geopm
             {"time-hint-unknown (s)", {"TIME_HINT_UNKNOWN"}, sample_only},
             {"time-hint-unset (s)", {"TIME_HINT_UNSET"}, sample_only},
         };
+
+        auto all_names = m_platform_io.signal_names();
+        std::vector<m_sync_field_s> gpu_sync_fields = {
+            {"gpu-energy (J)", {"GPU_ENERGY"}, sample_only},
+            {"gpu-power (W)", {"GPU_POWER"}, sample_only},
+            {"gpu-frequency (Hz)", {"GPU_FREQUENCY_STATUS"}, sample_only}
+        };
+
+        for (const auto &field : gpu_sync_fields) {
+            for (const auto &signal : field.supporting_signals) {
+                if (all_names.count(signal) != 0) {
+                    m_sync_fields.push_back(field);
+                }
+            }
+        }
 
         for (const auto &field : m_sync_fields) {
             for (const auto &signal : field.supporting_signals) {

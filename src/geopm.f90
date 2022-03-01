@@ -1,5 +1,5 @@
 !
-! Copyright (c) 2015 - 2021, Intel Corporation
+! Copyright (c) 2015 - 2022, Intel Corporation
 !
 ! Redistribution and use in source and binary forms, with or without
 ! modification, are permitted provided that the following conditions
@@ -41,7 +41,7 @@ module geopm
     INTEGER(8), PARAMETER :: GEOPM_REGION_HINT_NETWORK = 34359738368
     INTEGER(8), PARAMETER :: GEOPM_REGION_HINT_IO =      68719476736
     INTEGER(8), PARAMETER :: GEOPM_REGION_HINT_SERIAL =  137438953472
-    INTEGER(8), PARAMETER :: GEOPM_REGION_HINT_PARALL =  274877906944
+    INTEGER(8), PARAMETER :: GEOPM_REGION_HINT_PARALLEL =  274877906944
     INTEGER(8), PARAMETER :: GEOPM_REGION_HINT_IGNORE =  549755813888
 
     interface

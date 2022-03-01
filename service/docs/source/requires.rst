@@ -16,7 +16,7 @@ Build Requirements
 
 There are several packages that are required to run the GEOPM service
 build.  These packages are available from standard Linux distributions.
-The following commands can be used to installe them using several RPM
+The following commands can be used to install them using several RPM
 based Linux distributions.
 
 
@@ -25,7 +25,9 @@ Upstream RHEL and CentOS Package Requirements
 
 .. code-block:: bash
 
-    yum install python3 python3-devel python3-gobject-base systemd-devel
+    yum install python3 python3-devel python3-gobject-base \
+                python3-Sphinx python3-sphinx_rtd_theme \
+                systemd-devel
 
 
 
@@ -34,7 +36,9 @@ Upstream SLES and OpenSUSE Package Requirements
 
 .. code-block:: bash
 
-    zypper install python3 python3-devel python3-gobject systemd-devel
+    zypper install python3 python3-devel python3-gobject \
+                   python3-sphinx python3-sphinx_rtd_theme \
+                   systemd-devel
 
 
 Dasbus Requirement
@@ -70,6 +74,27 @@ PlatformIO interface will not access signals or controls provided by
 the GEOPM Systemd Service.  Providing ``--disable-systemd`` configure
 option will have no impact on the end user of GEOPM unless the GEOPM
 Systemd Service is installed and active in the running Linux OS.
+
+
+Sphinx Requirement
+^^^^^^^^^^^^^^^^^^
+
+The sphinx python package is used to generate man pages and HTML
+documentation.  The generated man pages are required when running the build.
+The man pages are included in a distribution tarball created with the
+`make dist` target, so building from such an archive does not explicitly require
+sphinx.  This requirement may also be satisfied with PIP if installing the RPM
+packages for sphinx is an issue on your system:
+
+.. code-block:: bash
+
+    python3 -m pip install --user sphinx sphinx_rtd_theme
+    export PATH=$HOME/.local/bin:$PATH
+
+
+These commands will install sphinx into your user's local python packages and
+add the the local python package bin directory to your path for access to the
+sphinx-build script.
 
 
 Run Requirements

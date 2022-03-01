@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-#  Copyright (c) 2015 - 2021, Intel Corporation
+#  Copyright (c) 2015 - 2022, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
 #  modification, are permitted provided that the following conditions
@@ -43,6 +43,8 @@ from TestRequestQueue import *
 from TestSession import *
 from TestTimedLoop import *
 from TestTopo import *
+from TestActiveSessions import *
+from TestSecureFiles import *
 
 if __name__ == '__main__':
     unittest.main()

@@ -34,5 +34,4 @@ For access to the latest source code clone the git repo:
    runtime
    contrib
    devel
-   info
    reference

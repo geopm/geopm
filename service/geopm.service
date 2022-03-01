@@ -1,4 +1,4 @@
-#  Copyright (c) 2015 - 2021, Intel Corporation
+#  Copyright (c) 2015 - 2022, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
 #  modification, are permitted provided that the following conditions
@@ -31,12 +31,15 @@
 
 [Unit]
 Description=Global Extensible Open Power Manager Service
+StartLimitIntervalSec=0
+StartLimitBurst=3
 
 [Service]
 Environment=PYTHONUNBUFFERED=true
 Type=dbus
 BusName=io.github.geopm
 ExecStart=/usr/bin/geopmd
+Restart=always
 
 [Install]
 WantedBy=default.target

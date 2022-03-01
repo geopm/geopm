@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-#  Copyright (c) 2015 - 2021, Intel Corporation
+#  Copyright (c) 2015 - 2022, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
 #  modification, are permitted provided that the following conditions
@@ -76,7 +76,8 @@ install_requires = ['cffi>=1.6.0',
                     'setuptools>=39.2.0',
                     'future>=0.17.1',
                     'psutil>=5.6.2',
-                    'dasbus>=1.5.0']
+                    'dasbus>=1.5.0',
+                    'jsonschema>=2.6.0']
 
 setup(name='geopmdpy',
       version=__version__,

@@ -1,4 +1,4 @@
-#  Copyright (c) 2015 - 2021, Intel Corporation
+#  Copyright (c) 2015 - 2022, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
 #  modification, are permitted provided that the following conditions
@@ -56,6 +56,7 @@ Requires: python3-gobject
 Requires: python3-gobject-base
 %endif
 Requires: python3-dasbus
+Requires: python3-jsonschema
 
 Prefix: %{_prefix}
 
@@ -133,17 +134,46 @@ mkdir -p %{buildroot}%{_sysconfdir}/geopm-service
 %{_libdir}/libgeopmd.so
 %dir %{_libdir}/geopm-service
 %{_bindir}/geopmd
-%{_bindir}/geopmaccess
 %{_bindir}/geopmread
-%{_bindir}/geopmsession
 %{_bindir}/geopmwrite
 %{_sysconfdir}/dbus-1/system.d/io.github.geopm.conf
 %{_sysconfdir}/dbus-1/interfaces/io.github.geopm.xml
 %{_unitdir}/geopm.service
 %dir %{_sysconfdir}/geopm-service
+%doc %{_mandir}/man1/geopmread.1.gz
+%doc %{_mandir}/man1/geopmwrite.1.gz
+%doc %{_mandir}/man3/geopm::Agg.3.gz
+%doc %{_mandir}/man3/geopm::CircularBuffer.3.gz
+%doc %{_mandir}/man3/geopm::CNLIOGroup.3.gz
+%doc %{_mandir}/man3/geopm::CpuinfoIOGroup.3.gz
+%doc %{_mandir}/man3/geopm::Exception.3.gz
+%doc %{_mandir}/man3/geopm::Helper.3.gz
+%doc %{_mandir}/man3/geopm::IOGroup.3.gz
+%doc %{_mandir}/man3/geopm::MSRIO.3.gz
+%doc %{_mandir}/man3/geopm::MSRIOGroup.3.gz
+%doc %{_mandir}/man3/geopm::PlatformIO.3.gz
+%doc %{_mandir}/man3/geopm::PlatformTopo.3.gz
+%doc %{_mandir}/man3/geopm::PluginFactory.3.gz
+%doc %{_mandir}/man3/geopm::SampleAggregator.3.gz
+%doc %{_mandir}/man3/geopm::SharedMemory.3.gz
+%doc %{_mandir}/man3/geopm::TimeIOGroup.3.gz
+%doc %{_mandir}/man3/geopm_error.3.gz
+%doc %{_mandir}/man3/geopm_hash.3.gz
+%doc %{_mandir}/man3/geopm_pio_c.3.gz
+%doc %{_mandir}/man3/geopm_sched.3.gz
+%doc %{_mandir}/man3/geopm_time.3.gz
+%doc %{_mandir}/man3/geopm_topo_c.3.gz
+%doc %{_mandir}/man3/geopm_version.3.gz
+%doc %{_mandir}/man7/geopm.7.gz
+%doc %{_mandir}/man7/geopm_report.7.gz
 
 %files -n python%{python3_pkgversion}-geopmdpy
 %{expand:%{python%{python_major_version}_sitelib}}/*
+%doc %{_mandir}/man1/geopmaccess.1.gz
+%doc %{_mandir}/man1/geopmsession.1.gz
+%doc %{_mandir}/man7/geopmdpy.7.gz
+%{_bindir}/geopmaccess
+%{_bindir}/geopmsession
 
 %files devel
 %dir %{_includedir}/geopm

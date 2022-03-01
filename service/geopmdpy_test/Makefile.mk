@@ -1,4 +1,4 @@
-#  Copyright (c) 2015 - 2021, Intel Corporation
+#  Copyright (c) 2015 - 2022, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
 #  modification, are permitted provided that the following conditions
@@ -29,7 +29,8 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += geopmdpy_test/__main__.py \
+EXTRA_DIST += geopmdpy_test/__init__.py \
+              geopmdpy_test/__main__.py \
               geopmdpy_test/geopmdpy_test.sh \
               geopmdpy_test/TestAccess.py \
               geopmdpy_test/TestPlatformService.py \
@@ -41,34 +42,38 @@ EXTRA_DIST += geopmdpy_test/__main__.py \
               geopmdpy_test/TestSession.py \
               geopmdpy_test/TestTimedLoop.py \
               geopmdpy_test/TestController.py \
+              geopmdpy_test/TestActiveSessions.py \
+              geopmdpy_test/TestSecureFiles.py \
+              geopmdpy_test/TestAccessLists.py \
+              geopmdpy_test/TestWriteLock.py \
               # end
 
-GEOPMDPY_TESTS = geopmdpy_test/pytest_links/TestPlatformService.test__read_allowed_invalid \
+GEOPMDPY_TESTS = geopmdpy_test/pytest_links/TestAccessLists.test__read_allowed_invalid \
+                 geopmdpy_test/pytest_links/TestAccessLists.test_config_parser \
+                 geopmdpy_test/pytest_links/TestAccessLists.test_get_group_access_default \
+                 geopmdpy_test/pytest_links/TestAccessLists.test_get_group_access_empty \
+                 geopmdpy_test/pytest_links/TestAccessLists.test_get_group_access_invalid \
+                 geopmdpy_test/pytest_links/TestAccessLists.test_get_group_access_named \
+                 geopmdpy_test/pytest_links/TestAccessLists.test_get_user_access_default \
+                 geopmdpy_test/pytest_links/TestAccessLists.test_get_user_access_empty \
+                 geopmdpy_test/pytest_links/TestAccessLists.test_get_user_access_invalid \
+                 geopmdpy_test/pytest_links/TestAccessLists.test_get_user_access_root \
+                 geopmdpy_test/pytest_links/TestAccessLists.test_get_user_access_valid \
+                 geopmdpy_test/pytest_links/TestAccessLists.test_get_user_groups_current \
+                 geopmdpy_test/pytest_links/TestAccessLists.test_get_user_groups_invalid \
+                 geopmdpy_test/pytest_links/TestAccessLists.test_set_group_access_empty \
+                 geopmdpy_test/pytest_links/TestAccessLists.test_set_group_access_invalid \
+                 geopmdpy_test/pytest_links/TestAccessLists.test_set_group_access_named \
                  geopmdpy_test/pytest_links/TestPlatformService.test_close_session_invalid \
                  geopmdpy_test/pytest_links/TestPlatformService.test_close_session_read \
                  geopmdpy_test/pytest_links/TestPlatformService.test_close_session_write \
-                 geopmdpy_test/pytest_links/TestPlatformService.test_config_parser \
                  geopmdpy_test/pytest_links/TestPlatformService.test_get_control_info \
-                 geopmdpy_test/pytest_links/TestPlatformService.test_get_group_access_default \
-                 geopmdpy_test/pytest_links/TestPlatformService.test_get_group_access_empty \
-                 geopmdpy_test/pytest_links/TestPlatformService.test_get_group_access_invalid \
-                 geopmdpy_test/pytest_links/TestPlatformService.test_get_group_access_named \
                  geopmdpy_test/pytest_links/TestPlatformService.test_get_signal_info \
-                 geopmdpy_test/pytest_links/TestPlatformService.test_get_user_access_default \
-                 geopmdpy_test/pytest_links/TestPlatformService.test_get_user_access_empty \
-                 geopmdpy_test/pytest_links/TestPlatformService.test_get_user_access_invalid \
-                 geopmdpy_test/pytest_links/TestPlatformService.test_get_user_access_root \
-                 geopmdpy_test/pytest_links/TestPlatformService.test_get_user_access_valid \
-                 geopmdpy_test/pytest_links/TestPlatformService.test_get_user_groups_current \
-                 geopmdpy_test/pytest_links/TestPlatformService.test_get_user_groups_invalid \
                  geopmdpy_test/pytest_links/TestPlatformService.test_lock_control \
                  geopmdpy_test/pytest_links/TestPlatformService.test_open_session \
                  geopmdpy_test/pytest_links/TestPlatformService.test_open_session_twice \
                  geopmdpy_test/pytest_links/TestPlatformService.test_read_signal \
                  geopmdpy_test/pytest_links/TestPlatformService.test_read_signal_invalid \
-                 geopmdpy_test/pytest_links/TestPlatformService.test_set_group_access_empty \
-                 geopmdpy_test/pytest_links/TestPlatformService.test_set_group_access_invalid \
-                 geopmdpy_test/pytest_links/TestPlatformService.test_set_group_access_named \
                  geopmdpy_test/pytest_links/TestPlatformService.test_start_batch \
                  geopmdpy_test/pytest_links/TestPlatformService.test_start_batch_invalid \
                  geopmdpy_test/pytest_links/TestPlatformService.test_start_batch_write_blocked \
@@ -121,6 +126,34 @@ GEOPMDPY_TESTS = geopmdpy_test/pytest_links/TestPlatformService.test__read_allow
                  geopmdpy_test/pytest_links/TestTimedLoop.test_timed_loop_fixed \
                  geopmdpy_test/pytest_links/TestTimedLoop.test_timed_loop_infinite \
                  geopmdpy_test/pytest_links/TestTimedLoop.test_timed_loop_invalid \
+                 geopmdpy_test/pytest_links/TestActiveSessions.test_creation_json \
+                 geopmdpy_test/pytest_links/TestActiveSessions.test_load_clients \
+                 geopmdpy_test/pytest_links/TestActiveSessions.test_add_remove_client \
+                 geopmdpy_test/pytest_links/TestActiveSessions.test_batch_server \
+                 geopmdpy_test/pytest_links/TestActiveSessions.test_batch_server_service_restart \
+                 geopmdpy_test/pytest_links/TestActiveSessions.test_batch_server_bad_service_restart \
+                 geopmdpy_test/pytest_links/TestActiveSessions.test_is_pid_valid \
+                 geopmdpy_test/pytest_links/TestActiveSessions.test_watch_id \
+                 geopmdpy_test/pytest_links/TestSecureFiles.test_pre_exists \
+                 geopmdpy_test/pytest_links/TestSecureFiles.test_default_creation \
+                 geopmdpy_test/pytest_links/TestSecureFiles.test_creation_link_not_dir \
+                 geopmdpy_test/pytest_links/TestSecureFiles.test_creation_file_not_dir \
+                 geopmdpy_test/pytest_links/TestSecureFiles.test_creation_bad_perms \
+                 geopmdpy_test/pytest_links/TestSecureFiles.test_creation_bad_user_owner \
+                 geopmdpy_test/pytest_links/TestSecureFiles.test_creation_bad_group_owner \
+                 geopmdpy_test/pytest_links/TestSecureFiles.test_read_file_not_exists \
+                 geopmdpy_test/pytest_links/TestSecureFiles.test_read_file_is_directory \
+                 geopmdpy_test/pytest_links/TestSecureFiles.test_read_file_is_link \
+                 geopmdpy_test/pytest_links/TestSecureFiles.test_read_file_is_fifo \
+                 geopmdpy_test/pytest_links/TestSecureFiles.test_read_file_bad_permissions \
+                 geopmdpy_test/pytest_links/TestSecureFiles.test_read_file_bad_user_owner \
+                 geopmdpy_test/pytest_links/TestSecureFiles.test_read_file_bad_group_owner \
+                 geopmdpy_test/pytest_links/TestSecureFiles.test_read_valid_file \
+                 geopmdpy_test/pytest_links/TestSecureFiles.test_secure_make_file \
+                 geopmdpy_test/pytest_links/TestWriteLock.test_default_creation \
+                 geopmdpy_test/pytest_links/TestWriteLock.test_nested_creation \
+                 geopmdpy_test/pytest_links/TestWriteLock.test_creation_bad_path \
+                 geopmdpy_test/pytest_links/TestWriteLock.test_creation_bad_file \
                  # end
 
 TESTS += $(GEOPMDPY_TESTS)

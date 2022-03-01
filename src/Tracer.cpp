@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 - 2021, Intel Corporation
+ * Copyright (c) 2015 - 2022, Intel Corporation
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -82,7 +82,7 @@ namespace geopm
         , m_region_runtime_idx(-1)
     {
         if (m_is_trace_enabled) {
-            m_csv = make_unique<CSVImp>(file_path, hostname, start_time, M_BUFFER_SIZE);
+            m_csv = geopm::make_unique<CSVImp>(file_path, hostname, start_time, M_BUFFER_SIZE);
         }
     }
 

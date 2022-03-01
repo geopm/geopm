@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-#  Copyright (c) 2015 - 2021, Intel Corporation
+#  Copyright (c) 2015 - 2022, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
 #  modification, are permitted provided that the following conditions
@@ -39,15 +39,16 @@ import os
 import sys
 import pwd
 import grp
-import json
 import shutil
 import psutil
+import uuid
 import gi
 from gi.repository import GLib
 
 from . import pio
 from . import topo
 from . import dbus_xml
+from . import system_files
 from dasbus.connection import SystemMessageBus
 try:
     from dasbus.server.interface import accepts_additional_arguments
@@ -55,93 +56,6 @@ except ImportError as ee:
     err_msg = '''dasbus version greater than 1.5 required:
     https://github.com/rhinstaller/dasbus/pull/57'''
     raise ImportError(err_msg) from ee
-
-
-GEOPM_SERVICE_VAR_PATH = '/var/run/geopm-service'
-
-class ActiveSessions(object):
-    def __init__(self):
-        self._sessions = dict()
-        self._VAR_PATH = GEOPM_SERVICE_VAR_PATH
-
-    def is_client_active(self, client_pid):
-        result = client_pid in self._sessions
-        session_file = self._get_session_file(client_pid)
-        if not result and os.path.isfile(session_file):
-            raise RuntimeError(f'Session file exists, but client {client_pid} is not tracked: {session_file}')
-        return result
-
-    def check_client_active(self, client_pid, msg=''):
-        if not self.is_client_active(client_pid):
-            raise RuntimeError(f"Operation '{msg}' not allowed without an open session. Client PID: {client_pid}")
-
-    def add_client(self, client_pid, signals, controls, watch_id):
-        if self.is_client_active(client_pid):
-            return
-        session_data = {'client_pid': client_pid,
-                        'mode': 'r',
-                        'signals': list(signals),
-                        'controls': list(controls),
-                        'watch_id': watch_id,
-                        'batch_server': None}
-        self._sessions[client_pid] = session_data
-        self._update_session_file(client_pid)
-
-    def remove_client(self, client_pid):
-        self.check_client_active(client_pid, 'remove_client')
-        session_file = self._get_session_file(client_pid)
-        os.remove(session_file)
-        self._sessions.pop(client_pid)
-
-    def get_clients(self):
-        return list(self._sessions.keys())
-
-    def get_mode(self, client_pid):
-        self.check_client_active(client_pid, 'get_mode')
-        return self._sessions[client_pid]['mode']
-
-    def get_signals(self, client_pid):
-        self.check_client_active(client_pid, 'get_signals')
-        return self._sessions[client_pid]['signals']
-
-    def get_controls(self, client_pid):
-        self.check_client_active(client_pid, 'get_controls')
-        return self._sessions[client_pid]['controls']
-
-    def get_watch_id(self, client_pid):
-        self.check_client_active(client_pid, 'get_watch_id')
-        return self._sessions[client_pid]['watch_id']
-
-    def get_batch_server(self, client_pid):
-        self.check_client_active(client_pid, 'get_batch_server')
-        return self._sessions[client_pid]['batch_server']
-
-    def set_write_client(self, client_pid):
-        self.check_client_active(client_pid, 'set_write_client')
-        self._sessions[client_pid]['mode'] = 'rw'
-        self._update_session_file(client_pid)
-
-    def set_batch_server(self, client_pid, batch_pid):
-        self.check_client_active(client_pid, 'set_batch_server')
-        current_server = self._sessions[client_pid]['batch_server']
-        if current_server is not None:
-            raise RuntimeError(f'Client {client_pid} has already started a batch server: {current_server}')
-        self._sessions[client_pid]['batch_server'] = batch_pid
-        self._update_session_file(client_pid)
-
-    def remove_batch_server(self, client_pid):
-        self.check_client_active(client_pid, 'remove_batch_server')
-        self._sessions[client_pid]['batch_server'] = None
-        self._update_session_file(client_pid)
-
-    def _get_session_file(self, client_pid):
-        return os.path.join(self._VAR_PATH, 'session-{}.json'.format(client_pid))
-
-    def _update_session_file(self, client_pid):
-        session_file = self._get_session_file(client_pid)
-        os.makedirs(self._VAR_PATH, exist_ok=True)
-        with open(session_file, 'w') as fid:
-            json.dump(self._sessions[client_pid], fid)
 
 
 class PlatformService(object):
@@ -156,29 +70,37 @@ class PlatformService(object):
 
         """
         self._pio = pio
-        self._VAR_PATH = GEOPM_SERVICE_VAR_PATH
-        self._CONFIG_PATH = '/etc/geopm-service'
-        self._ALL_GROUPS = [gg.gr_name for gg in grp.getgrall()]
-        self._DEFAULT_ACCESS = '0.DEFAULT_ACCESS'
+        self._VAR_PATH = system_files.GEOPM_SERVICE_VAR_PATH
         self._SAVE_DIR = 'SAVE_FILES'
         self._WATCH_INTERVAL_MSEC = 1000
-        self._write_pid = None
-        self._active_sessions = ActiveSessions()
+        self._active_sessions = system_files.ActiveSessions()
+        self._access_lists = system_files.AccessLists()
+        for client_pid in self._active_sessions.get_clients():
+            is_active = self.check_client(client_pid)
+            if is_active:
+                watch_id = self._watch_client(client_pid)
+                self._active_sessions.set_watch_id(client_pid, watch_id)
+        with system_files.WriteLock(self._VAR_PATH) as lock:
+            write_pid = lock.try_lock()
+            if write_pid is not None and not self._active_sessions.is_client_active(write_pid):
+                self._close_session_write(lock, write_pid)
 
     def get_group_access(self, group):
-        """Get the signals and controls in the allowed lists.
+        """Get the signal and control access lists
 
-        Provides the default allowed lists or the allowed lists for a
-        particular Unix group.  These lists correspond to values
-        stored in the GEOPM service configuration files.  The
-        configuration files are read with each call to this method.
-        If no files exist that match the query, empty lists are
-        returned.  Empty lines and lines that begin with the '#'
-        character are ignored.
+        Read the list of allowed signals and controls for the
+        specified group.  If the group is None or the empty string
+        then the default lists of allowed signals and controls are
+        returned.
+
+        The values are securely read from files located in
+        /etc/geopm-service using the secure_read_file() interface.
+
+        If no secure file exist for the specified group, then two
+        empty lists are returned.
 
         Args:
-            group (str): Unix group name to query. The default allowed
-                lists are returned if group is the empty string.
+            group (str): Name of group
 
         Returns:
             list(str), list(str): Signal and control allowed lists
@@ -187,51 +109,32 @@ class PlatformService(object):
             RuntimeError: The group name is not valid on the system.
 
         """
-        group = self._validate_group(group)
-        group_dir = os.path.join(self._CONFIG_PATH, group)
-        if os.path.isdir(group_dir):
-            path = os.path.join(group_dir, 'allowed_signals')
-            signals = self._read_allowed(path)
-            signals = self._filter_valid_signals(signals)
-            path = os.path.join(group_dir, 'allowed_controls')
-            controls = self._read_allowed(path)
-            controls = self._filter_valid_controls(controls)
-        else:
-            signals = []
-            controls = []
-        return signals, controls
+        return self._access_lists.get_group_access(group)
 
     def set_group_access(self, group, allowed_signals, allowed_controls):
-        """Set the signals and controls in the allowed lists.
+        """Set signals and controls in the allowed lists
 
-        Writes the configuration files that control the default
-        allowed lists or the allowed lists for a particular Unix
-        group.  These lists restrict user access to signals or
-        controls provided by the service.  If the user specifies a
-        list that contains signals or controls that are not currently
-        supported, the request will raise a RuntimeError without
-        modifying any configuration files.  A RuntimeError will also
-        be raised if the group name is not valid on the system.
+        Write the list of allowed signals and controls for the
+        specified group.  If the group is None or the empty string
+        then the default lists of allowed signals and controls are
+        updated.
+
+        The values are securely written atomically to files located in
+        /etc/geopm-service using the secure_make_dirs() and
+        secure_make_file() interfaces.
 
         Args:
-            group (str): Which Unix group name to query; if this is
-                         the empty string, the default allowed
-                         lists are written.
+            group (str): Name of group
 
             allowed_signals (list(str)): Signal names that are allowed
 
             allowed_controls (list(str)): Control names that are allowed
 
+        Raises:
+            RuntimeError: The group name is not valid on the system.
+
         """
-        group = self._validate_group(group)
-        self._validate_signals(allowed_signals)
-        self._validate_controls(allowed_controls)
-        group_dir = os.path.join(self._CONFIG_PATH, group)
-        os.makedirs(group_dir, exist_ok=True)
-        path = os.path.join(group_dir, 'allowed_signals')
-        self._write_allowed(path, allowed_signals)
-        path = os.path.join(group_dir, 'allowed_controls')
-        self._write_allowed(path, allowed_controls)
+        self._access_lists.set_group_access(group, allowed_signals, allowed_controls)
 
     def get_user_access(self, user):
         """Get the list of all of the signals and controls that are
@@ -258,26 +161,11 @@ class PlatformService(object):
         Returns:
             list(str), list(str): Signal and control allowed lists
 
-        """
-        if user == 'root':
-            return self.get_all_access()
-        user_groups = []
-        if user != '':
-            try:
-                user_groups = self._get_user_groups(user)
-            except KeyError as e:
-                raise RuntimeError("Specified user '{}' does not exist.".format(user))
-        user_groups.append('') # Default access list
-        signal_set = set()
-        control_set = set()
-        for group in user_groups:
-            signals, controls = self.get_group_access(group)
-            signal_set.update(signals)
-            control_set.update(controls)
-        signals = sorted(signal_set)
-        controls = sorted(control_set)
+        Raises:
+            RuntimeError: The user does not exist.
 
-        return signals, controls
+        """
+        return self._access_lists.get_user_access(user)
 
     def get_all_access(self):
         """Get all of the signals and controls that the service supports.
@@ -291,7 +179,7 @@ class PlatformService(object):
             list(str), list(str): All supported signals and controls
 
         """
-        return self._pio.signal_names(), self._pio.control_names()
+        return self._access_lists.get_all_access()
 
     def get_signal_info(self, signal_names):
         """For each specified signal name, return a tuple of information.
@@ -503,13 +391,30 @@ class PlatformService(object):
                 self._pio.stop_batch_server(batch_pid)
             except ex:
                 sys.stderr.write(f'Failed to stop batch server {batch_pid}: {ex}')
-        if client_pid == self._write_pid:
-            save_dir = os.path.join(self._VAR_PATH, self._SAVE_DIR)
-            self._pio.restore_control_dir(save_dir)
-            shutil.rmtree(save_dir)
-            self._write_pid = None
+        with system_files.WriteLock(self._VAR_PATH) as lock:
+            if lock.try_lock() == client_pid:
+                self._close_session_write(lock, client_pid)
         GLib.source_remove(self._active_sessions.get_watch_id(client_pid))
         self._active_sessions.remove_client(client_pid)
+
+    def _close_session_write(self, lock, pid):
+        save_dir = os.path.join(self._VAR_PATH, self._SAVE_DIR)
+        if os.path.isdir(save_dir):
+            is_restored = False
+            try:
+                self._pio.restore_control_dir(save_dir)
+                is_restored = True
+            except:
+                pass
+            del_dir = f'{save_dir}-{pid}-{uuid.uuid4()}-del'
+            os.rename(save_dir, del_dir)
+            if is_restored:
+                shutil.rmtree(del_dir)
+            else:
+                sys.stderr.write(f'Failed to restore controls for PID {client_pid}, moved to {del_dir}')
+        else:
+            sys.stderr.write(f'Failed to restore controls for PID {client_pid}, {save_dir} is not a directory')
+        lock.unlock(pid)
 
     def start_batch(self, client_pid, signal_config, control_config):
         """Start a batch server to support a client session.
@@ -614,7 +519,9 @@ class PlatformService(object):
         actual_server_pid = self._active_sessions.get_batch_server(client_pid)
         if server_pid != actual_server_pid:
             raise RuntimeError(f'Client PID: {client_pid} requested to stop batch server PID: {server_pid}, actual batch server PID: {actual_server_pid}')
-        self._pio.stop_batch_server(server_pid)
+        if psutil.pid_exists(server_pid):
+            self._pio.stop_batch_server(server_pid)
+        self._active_sessions.remove_batch_server(client_pid)
 
     def read_signal(self, client_pid, signal_name, domain, domain_idx):
         """Read a signal from a particular domain.
@@ -694,95 +601,51 @@ class PlatformService(object):
         self._write_mode(client_pid)
         self._pio.write_control(control_name, domain, domain_idx, setting)
 
-    def _read_allowed(self, path):
-        try:
-            with open(path) as fid:
-                result = [line.strip() for line in fid.readlines()
-                          if line.strip() and not line.strip().startswith('#')]
-        except FileNotFoundError:
-            result = []
-        return result
-
-    def _write_allowed(self, path, allowed):
-        allowed.append('')
-        with open(path, 'w') as fid:
-            fid.write('\n'.join(allowed))
-
-    def _validate_group(self, group):
-        if group is None or group == '':
-            group = self._DEFAULT_ACCESS
-        else:
-            group = str(group)
-            if group[0].isdigit():
-                raise RuntimeError('Linux group name cannot begin with a digit: group = "{}"'.format(group))
-            if group not in self._ALL_GROUPS:
-                raise RuntimeError('Linux group is not defined: group = "{}"'.format(group))
-        return group
-
-    def _filter_valid_signals(self, signals):
-        signals = set(signals)
-        all_signals = self._pio.signal_names()
-        return list(signals.intersection(all_signals))
-
-    def _filter_valid_controls(self, controls):
-        controls = set(controls)
-        all_controls = self._pio.control_names()
-        return list(controls.intersection(all_controls))
-
-    def _validate_signals(self, signals):
-        signals = set(signals)
-        all_signals = self._pio.signal_names()
-        if not signals.issubset(all_signals):
-            unmatched = signals.difference(all_signals)
-            err_msg = 'The service does not support any signals that match: "{}"'.format('", "'.join(unmatched))
-            raise RuntimeError(err_msg)
-
-    def _validate_controls(self, controls):
-        controls = set(controls)
-        all_controls = self._pio.control_names()
-        if not controls.issubset(all_controls):
-            unmatched = controls.difference(all_controls)
-            err_msg = 'The service does not support any controls that match: "{}"'.format('", "'.join(unmatched))
-            raise RuntimeError(err_msg)
-
-    def _get_user_groups(self, user):
-        user_gid = pwd.getpwnam(user).pw_gid
-        all_gid = os.getgrouplist(user, user_gid)
-        return [grp.getgrgid(gid).gr_name for gid in all_gid]
-
     def _write_mode(self, client_pid):
-        client_sid = os.getsid(client_pid)
+        write_pid = client_pid
+        do_open_session = False
         # If the session leader is an active process then tie the write lock
         # to the session leader, otherwise the write lock is associated with
         # the requesting process.
-        if psutil.pid_exists(client_sid):
+        client_sid = os.getsid(client_pid)
+        if client_sid != client_pid and psutil.pid_exists(client_sid):
             write_pid = client_sid
-        else:
-            write_pid = client_pid
-        self.check_client(self._write_pid)
-        if self._write_pid != write_pid:
-            if self._write_pid is not None:
-                raise RuntimeError(f'The PID {client_pid} requested write access, but the geopm service already has write mode client with PID or SID of {self._write_pid}')
-            if write_pid != client_pid:
-                # If the write lock is associated with the session leader
-                # process, then open a session for the session leader
-                session_uid = os.stat(f'/proc/{write_pid}/status').st_uid
-                session_user = pwd.getpwuid(session_uid).pw_name
-                self.open_session(session_user, write_pid)
-            self._active_sessions.set_write_client(write_pid)
-            self._write_pid = write_pid
-            save_dir = os.path.join(self._VAR_PATH, self._SAVE_DIR)
-            os.makedirs(save_dir)
-            self._pio.save_control_dir(save_dir)
+            do_open_session = True
+        with system_files.WriteLock(self._VAR_PATH) as lock:
+            lock_pid = lock.try_lock()
+            if lock_pid is None:
+                if do_open_session:
+                    # If the write lock is associated with the session leader
+                    # process, then open a session for the session leader
+                    session_uid = os.stat(f'/proc/{write_pid}/status').st_uid
+                    session_user = pwd.getpwuid(session_uid).pw_name
+                    self.open_session(session_user, write_pid)
+                save_dir = os.path.join(self._VAR_PATH, self._SAVE_DIR)
+                # Clean up existing SAVE_FILES directory if it exists
+                if os.path.exists(save_dir):
+                    del_dir = f'{save_dir}-{uuid.uuid4()}-del'
+                    sys.stderr.write(f'Warning: <geopm-service> Renaming SAVE_FILES directory which not owned by any active session to {del_dir}\n')
+                    os.rename(save_dir, del_dir)
+                # Save Control values
+                tmp_dir = f'{save_dir}-{uuid.uuid4()}-tmp'
+                system_files.secure_make_dirs(tmp_dir)
+                self._pio.save_control_dir(tmp_dir)
+                os.rename(tmp_dir, save_dir)
+                # Set the write lock to the writer PID
+                lock.try_lock(write_pid)
+            elif lock_pid != write_pid:
+                raise RuntimeError(f'The PID {client_pid} requested write access, but the geopm service already has write mode client with PID or SID of {lock_pid}')
 
     def _watch_client(self, client_pid):
         return GLib.timeout_add(self._WATCH_INTERVAL_MSEC, self.check_client, client_pid)
 
     def check_client(self, client_pid):
-        if client_pid in self._active_sessions.get_clients() and not psutil.pid_exists(client_pid):
+        if (client_pid in self._active_sessions.get_clients() and
+            not psutil.pid_exists(client_pid)):
             self.close_session(client_pid)
             return False
         return True
+
 
 class TopoService(object):
     """Provides the concrete implementation for all of the GEOPM DBus
@@ -835,10 +698,9 @@ class GEOPMService(object):
     """
     __dbus_xml__ = dbus_xml.geopm_dbus_xml(TopoService, PlatformService)
 
-    def __init__(self, topo=TopoService(),
-                 platform=PlatformService()):
-        self._topo = topo
-        self._platform = platform
+    def __init__(self):
+        self._topo = TopoService()
+        self._platform = PlatformService()
         self._dbus_proxy = SystemMessageBus().get_proxy('org.freedesktop.DBus',
                                                         '/org/freedesktop/DBus')
 

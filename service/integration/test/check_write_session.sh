@@ -1,5 +1,5 @@
 #!/bin/bash
-#  Copyright (c) 2015 - 2021, Intel Corporation
+#  Copyright (c) 2015 - 2022, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
 #  modification, are permitted provided that the following conditions
@@ -36,8 +36,8 @@ if [[ $# -gt 0 ]] && [[ $1 == '--help' ]]; then
     -------------------------
 
     This test shows the GEOPM service being used to set the maximum
-    CPU frequency of core zero to 2 GHz.  The test uses the
-    geopmsession command line tool to read and write from/to the
+    CPU frequency of core zero to 2 GHz.  The test uses the geopmread
+    and geopmwrite command line tools to read and write from/to the
     MSR_PERF_CTL register to control the maximum frequency of the
     core.  The test first reads the value of the register, then opens
     a write session to set it to 2 GHz and reads the register again.
@@ -63,28 +63,27 @@ test_error() {
 }
 
 # READ START VALUE OF CONTROL REGISTER
-START_VALUE=$(echo ${REQUEST} | geopmsession) ||
-    test_error "Call to read ${CONTROL} through geopmsession failed"
+START_VALUE=$(geopmread ${REQUEST}) ||
+    test_error "Call to read ${CONTROL} through geopmread failed"
 
 # CHECK THAT IT IS DIFFERENT THAN THE TEST VALUE
 test ${SETTING} != ${START_VALUE} ||
     test_error "Start value for the control is the same as the test value"
 
 # START A SESSION THAT WRITES THE CONTROL VALUE
-echo "${REQUEST} ${SETTING}" | setsid geopmsession -w -t 10 &
+setsid ./do_write.sh SERVICE::${REQUEST} ${SETTING} &
 SESSION_ID=$!
-sleep 1
+sleep 4
 
 # READ THE CONTROLLED REGISTER
-SESSION_VALUE=$(echo ${REQUEST} | geopmsession)
+SESSION_VALUE=$(geopmread ${REQUEST})
 
-# END THE SESSION
-kill -9 ${SESSION_ID} ||
-    test_error "Failed to kill session"
+wait ${SESSION_ID} ||
+    test_error "Call to geopmwrite failed"
 sleep 1
 
 # READ THE RESTORED REGISTER
-END_VALUE=$(echo ${REQUEST} | geopmsession)
+END_VALUE=$(geopmread ${REQUEST})
 
 # CHECK THAT THE REGISTER WAS CHANGED DURING THE SESSION
 test ${SETTING} == ${SESSION_VALUE} ||
