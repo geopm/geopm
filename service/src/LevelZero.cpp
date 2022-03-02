@@ -140,7 +140,6 @@ namespace geopm
                                         "LevelZero::" + std::string(__func__) +
                                         ": LevelZero context creation failed",
                                         __LINE__);
-                        std::cout << "Post Context creation" << std::endl;
 
                         //NOTE: We're only supporting Board GPUs to start with
                         m_devices.push_back({
@@ -193,16 +192,16 @@ namespace geopm
 
         // TODO: When additional device types such as FPGA, MCA, and Integrated GPU are supported by GEOPM
         // This should be changed to a more general loop iterating over type and caching appropriately
-        for (unsigned int board_gpu_idx = 0; board_gpu_idx < m_num_board_gpu; board_gpu_idx++) {
-            domain_cache(board_gpu_idx);
-
-            metric_group_cache(board_gpu_idx);
-       }
+        for (unsigned int l0_device_idx = 0; l0_device_idx < m_num_board_gpu; l0_device_idx++) {
+            domain_cache(l0_device_idx);
+            metric_group_cache(l0_device_idx);
+            metric_init(l0_device_idx);
+            m_devices.at(l0_device_idx).metrics_initialized = true;
+        }
     }
 
     void LevelZeroImp::metric_group_cache(unsigned int device_idx) {
         ze_result_t ze_result;
-        ze_context_handle_t context = m_devices.at(device_idx).context;
 
         //Metric groups
         uint32_t num_metric_group = 0;
@@ -213,9 +212,6 @@ namespace geopm
                         "LevelZero::" + std::string(__func__) +
                         ": LevelZero Metric Group enumeration failed.",
                          __LINE__);
-
-        std::cout << "\tDevice " << std::to_string(device_idx) << " has "
-                  << std::to_string(num_metric_group) << " metric groups" << std::endl;
 
         std::vector<zet_metric_group_handle_t> metric_group_handle(num_metric_group);
 
@@ -245,15 +241,6 @@ namespace geopm
                 //cache compute basic metric group
                 m_devices.at(device_idx).metric_group_handle = metric_group_handle.at(metric_group_idx);
 
-                std::cout << "\t\tMetric Group: " << metric_group_properties.name
-                          << ", Desc: " << metric_group_properties.description
-                          << std::endl;
-                std::cout << "\t\t\tsamplingType: " << metric_group_properties.samplingType
-                          << std::endl;
-                std::cout << "\t\t\tmetric count (from prop): " << metric_group_properties.metricCount
-                          << std::endl;
-                //TODO: Track per GPU?  Fail if mismatch?
-
                 // could likely use metric_group_properties.metricCount instead
                 uint32_t num_metric = 0;
                 ze_result = zetMetricGet(metric_group_handle.at(metric_group_idx), &num_metric, nullptr );
@@ -261,8 +248,6 @@ namespace geopm
                                 "LevelZero::" + std::string(__func__) +
                                 ": LevelZero Metric Count query failed",
                                 __LINE__);
-                std::cout << "\t\t\tmetric count (from get): " << num_metric << std::endl
-                             << std::endl;
 
                 //Cache compute basic number of metrics
                 m_devices.at(device_idx).num_metric = num_metric;
@@ -287,66 +272,87 @@ namespace geopm
                         m_devices.at(device_idx).m_metric_data[metric_name] = {};
                     }
                 }
-
-                //TODO: we may not want to do this at initialization time, or may
-                //      want to provide an activate/deactivate control and status signal!
-                ze_result = zetContextActivateMetricGroups(context, m_devices.at(device_idx).device_handle,
-                                                           1, &metric_group_handle.at(metric_group_idx));
-
-                //TODO: save these per GPU.  Especially the zeEventPoolCreate event_pool_handle.
-                ze_event_pool_handle_t event_pool_handle = nullptr;
-                ze_event_pool_desc_t event_pool_desc = {ZE_STRUCTURE_TYPE_EVENT_POOL_DESC, nullptr, 0, 1};
-
-                ze_result = zeEventPoolCreate(context, &event_pool_desc, 1,
-                                              &m_devices.at(device_idx).device_handle,
-                                              &event_pool_handle);
-
-                check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
-                                "LevelZero::" + std::string(__func__) +
-                                ": LevelZero Event Pool Create failed",
-                                __LINE__);
-                std::cout << "\t\t\t\tCreated Event Pool" << std::endl;
-
-                ze_event_desc_t event_desc = {ZE_STRUCTURE_TYPE_EVENT_DESC};
-                event_desc.index = 0;
-                event_desc.signal = ZE_EVENT_SCOPE_FLAG_HOST;
-                event_desc.wait = ZE_EVENT_SCOPE_FLAG_HOST;
-
-                //TODO: save these per GPU.  We can reuse an event, right?
-                ze_event_handle_t event = nullptr;
-                ze_result = zeEventCreate(event_pool_handle, &event_desc, &event);
-                check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
-                                "LevelZero::" + std::string(__func__) +
-                                ": LevelZero Event Create failed",
-                                __LINE__);
-                std::cout << "\t\t\t\tCreated Event" << std::endl;
-
-                m_devices.at(device_idx).event = event;
-
-                /////////////////////////////
-                //        MOVE ME!         //
-                /////////////////////////////
-                zet_metric_streamer_desc_t metric_streamer_desc = {
-                    ZET_STRUCTURE_TYPE_METRIC_STREAMER_DESC,
-                    nullptr,
-                    32768, /* reports to collect before notify */
-                    1000000 /* sampling period in nanoseconds */}; //1ms
-                    //5000000 /* sampling period in nanoseconds */}; //5ms
-                    //10000000 /* sampling period in nanoseconds */}; //10ms
-                zet_metric_streamer_handle_t metric_streamer = nullptr;
-
-                //TODO: save the relevant per GPU pointers
-                ze_result = zetMetricStreamerOpen(context, m_devices.at(device_idx).device_handle, metric_group_handle.at(metric_group_idx), &metric_streamer_desc, event, &metric_streamer);
-
-                check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
-                                "LevelZero::" + std::string(__func__) +
-                                ": LevelZero Metric Streamer Open failed",
-                                __LINE__);
-                std::cout << "\t\t\t\tOpened Metric Streamer" << std::endl;
-
-                m_devices.at(device_idx).metric_streamer = metric_streamer;
             }
         }
+    }
+
+    //TODO: need metric destory
+    void LevelZeroImp::metric_destroy(unsigned int l0_device_idx)
+    {
+        //ze_result_t ze_result; //TODO: check the result of all of these
+
+        // Close metric streamer
+        zetMetricStreamerClose(m_devices.at(l0_device_idx).metric_streamer);
+        zeEventDestroy(m_devices.at(l0_device_idx).event);
+        zeEventPoolDestroy(m_devices.at(l0_device_idx).event_pool);
+
+        // Deconfigure the device
+        ze_context_handle_t context = m_devices.at(l0_device_idx).context;
+        zetContextActivateMetricGroups(context,
+                                       m_devices.at(l0_device_idx).device_handle,
+                                       0, nullptr);
+    }
+
+
+    void LevelZeroImp::metric_init(unsigned int l0_device_idx)
+    {
+        //TODO: we may not want to do this at initialization time, or may
+        //      want to provide an activate/deactivate control and status signal!
+        ze_result_t ze_result;
+        ze_context_handle_t context = m_devices.at(l0_device_idx).context;
+        ze_result = zetContextActivateMetricGroups(context, m_devices.at(l0_device_idx).device_handle,
+                                                   1, &m_devices.at(l0_device_idx).metric_group_handle);
+
+        ze_event_pool_handle_t event_pool_handle = nullptr;
+        ze_event_pool_desc_t event_pool_desc = {ZE_STRUCTURE_TYPE_EVENT_POOL_DESC, nullptr, 0, 1};
+
+        ze_result = zeEventPoolCreate(context, &event_pool_desc, 1,
+                                      &m_devices.at(l0_device_idx).device_handle,
+                                      &event_pool_handle);
+
+        check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
+                        "LevelZero::" + std::string(__func__) +
+                        ": LevelZero Event Pool Create failed",
+                        __LINE__);
+        m_devices.at(l0_device_idx).event_pool = event_pool_handle;
+
+        ze_event_desc_t event_desc = {ZE_STRUCTURE_TYPE_EVENT_DESC};
+        event_desc.index = 0;
+        event_desc.signal = ZE_EVENT_SCOPE_FLAG_HOST;
+        event_desc.wait = ZE_EVENT_SCOPE_FLAG_HOST;
+
+        //TODO: save these per GPU.  We can reuse an event, right?
+        ze_event_handle_t event = nullptr;
+        ze_result = zeEventCreate(event_pool_handle, &event_desc, &event);
+        check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
+                        "LevelZero::" + std::string(__func__) +
+                        ": LevelZero Event Create failed",
+                        __LINE__);
+
+        m_devices.at(l0_device_idx).event = event;
+
+        /////////////////////////////
+        //        MOVE ME!         //
+        /////////////////////////////
+        zet_metric_streamer_desc_t metric_streamer_desc = {
+            ZET_STRUCTURE_TYPE_METRIC_STREAMER_DESC,
+            nullptr,
+            32768, /* reports to collect before notify */
+            1000000 /* sampling period in nanoseconds */}; //1ms
+            //5000000 /* sampling period in nanoseconds */}; //5ms
+            //10000000 /* sampling period in nanoseconds */}; //10ms
+        zet_metric_streamer_handle_t metric_streamer = nullptr;
+
+        //TODO: move to 'init' function
+        ze_result = zetMetricStreamerOpen(context, m_devices.at(l0_device_idx).device_handle, m_devices.at(l0_device_idx).metric_group_handle, &metric_streamer_desc, event, &metric_streamer);
+
+        check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
+                        "LevelZero::" + std::string(__func__) +
+                        ": LevelZero Metric Streamer Open failed",
+                        __LINE__);
+
+        m_devices.at(l0_device_idx).metric_streamer = metric_streamer;
+        m_devices.at(l0_device_idx).metrics_initialized = true;
     }
 
     void LevelZeroImp::metric_calc(unsigned int l0_device_idx, zet_metric_streamer_handle_t metric_streamer) const
@@ -361,7 +367,6 @@ namespace geopm
                         "LevelZero::" + std::string(__func__) +
                         ": LevelZero Read Data get size failed",
                         __LINE__);
-        std::cout << "\t\t\t\tGot Data Size for Data Read" << std::endl;
 
         std::vector<uint8_t> data(data_size);
         zetMetricStreamerReadData(metric_streamer, UINT32_MAX, &data_size, data.data());
@@ -369,7 +374,6 @@ namespace geopm
                         "LevelZero::" + std::string(__func__) +
                         ": LevelZero Read Data failed",
                         __LINE__);
-        std::cout << "\t\t\t\tData Read Successful" << std::endl;
 
         /////////////////////////////////////
         // Calculate & convert metric data //
@@ -381,7 +385,6 @@ namespace geopm
                         "LevelZero::" + std::string(__func__) +
                         ": LevelZero Metric group calculate metric values to find num metrics failed",
                         __LINE__);
-        std::cout << "\t\t\t\tNum metric values from calculate metric values: " << std::to_string(num_metric_values) << std::endl;
 
         std::vector<zet_typed_value_t> metric_values(num_metric_values);
         ze_result = zetMetricGroupCalculateMetricValues(m_devices.at(l0_device_idx).metric_group_handle, calculation_type, data_size, data.data(), &num_metric_values, metric_values.data());
@@ -391,8 +394,6 @@ namespace geopm
                         __LINE__);
 
         uint32_t num_metric = m_devices.at(l0_device_idx).num_metric;
-        std::cout << "\t\t\t\tmetric group calculate metric values: " << std::to_string(num_metric_values) << std::endl;
-        std::cout << "\t\t\t\tnumber of metric reports: " << std::to_string(num_metric_values/num_metric) << std::endl;
 
         unsigned int num_reports = num_metric_values/num_metric;
         for (unsigned int report_idx = 0; report_idx < num_reports; report_idx++)
@@ -443,6 +444,12 @@ namespace geopm
 
     void LevelZeroImp::metric_read(unsigned int l0_device_idx) const
     {
+        if(!m_devices.at(l0_device_idx).metrics_initialized) {
+            //TODO: call metric_init(l0_device_idx) here
+            //metric_init(l0_device_idx);
+            //m_devices.at(l0_device_idx).metrics_initialized = true;
+        }
+
         ze_result_t ze_host_result = zeEventHostSynchronize(m_devices.at(l0_device_idx).event, 0);
         if (ze_host_result != ZE_RESULT_NOT_READY) {
             metric_calc(l0_device_idx, m_devices.at(l0_device_idx).metric_streamer);

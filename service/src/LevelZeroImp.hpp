@@ -90,6 +90,8 @@ namespace geopm
             std::vector<double> metric_sample(unsigned int l0_device_idx,
                                               std::string metric_name) const override;
             void metric_read(unsigned int l0_device_idx) const override;
+            void metric_init(unsigned int l0_device_idx) override;
+            void metric_destroy(unsigned int l0_device_idx) override;
 
             void frequency_control(unsigned int l0_device_idx, int l0_domain,
                                    int l0_domain_idx, double range_min,
@@ -143,12 +145,14 @@ namespace geopm
 
                 // required for L0 metric result tracking
                 mutable std::map<std::string, std::vector<double>> m_metric_data;
+                mutable bool metrics_initialized;
 
                 // required for L0 metric querying
-                ze_event_handle_t event;
+                uint32_t num_metric;
+                ze_event_pool_handle_t event_pool;
+                ze_event_handle_t event; //TODO: rename metric_notification_event?
                 zet_metric_streamer_handle_t metric_streamer;
                 zet_metric_group_handle_t metric_group_handle; //compute basic only
-                uint32_t num_metric;
             };
 
 

@@ -416,7 +416,7 @@ namespace geopm
             result = std::accumulate(data.begin(), data.end(), 0.0) / data.size();
         }
 
-        std::cout << "LevelZeroDevicePool metric average " << metric_name << ": " << std::to_string(result) << std::endl;
+        //std::cout << "LevelZeroDevicePool metric average " << metric_name << ": " << std::to_string(result) << std::endl;
         return result;
     }
 
