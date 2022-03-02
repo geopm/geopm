@@ -46,6 +46,7 @@ do
     ERR=$?
 
     if [ ${ERR} -eq 0 ]; then
+        echo "TEST LOOPER: Continuing loop ${COUNT} service tests..." > >(tee -a ${LOG_FILE})
         # Requirements for service testing
         srun -N${SLURM_NNODES} -- sudo /usr/sbin/install_service.sh $(cat ${GEOPM_SOURCE}/VERSION) ${USER}
         python3 -m unittest discover \
@@ -56,6 +57,7 @@ do
         ERR=$?
         srun -N${SLURM_NNODES} -- sudo /usr/sbin/install_service.sh --remove
     fi
+    echo "TEST LOOPER: Loop ${COUNT} done." > >(tee -a ${LOG_FILE})
 done
 
 #Do email only if there was a failure

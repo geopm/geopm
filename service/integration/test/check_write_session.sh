@@ -71,7 +71,7 @@ test ${SETTING} != ${START_VALUE} ||
     test_error "Start value for the control is the same as the test value"
 
 # START A SESSION THAT WRITES THE CONTROL VALUE
-setsid ./do_write.sh SERVICE::${REQUEST} ${SETTING} &
+setsid $(dirname ${0})/do_write.sh SERVICE::${REQUEST} ${SETTING} &
 SESSION_ID=$!
 sleep 4
 
