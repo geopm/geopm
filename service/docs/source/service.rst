@@ -18,3 +18,4 @@ administrator, and how to interact with the service as an unprivileged user.
    build
    admin
    client
+   security

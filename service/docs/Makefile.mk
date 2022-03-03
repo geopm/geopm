@@ -53,6 +53,7 @@ EXTRA_DIST += docs/geninfo.sh \
               docs/source/reference.rst \
               docs/source/requires.rst \
               docs/source/runtime.rst \
+              docs/source/security.rst \
               docs/source/service_readme.rst \
               docs/source/service.rst \
               docs/source/signals_SKX.rst \
