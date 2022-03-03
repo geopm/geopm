@@ -175,7 +175,7 @@ BIOS support, execute the following on a compute node:
 
 If the script output contains:
 
-.. code-block::
+.. code-block:: none
 
     WARNING: The lock bit for the PKG_POWER_LIMIT MSR is set.  The power_balancer
              and power_governor agents will not function properly until this is cleared.

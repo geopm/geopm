@@ -146,6 +146,7 @@ service/docs/source/publications.rst
 service/docs/source/reference.rst
 service/docs/source/requires.rst
 service/docs/source/runtime.rst
+service/docs/source/security.rst
 service/docs/source/service_readme.rst
 service/docs/source/service.rst
 service/docs/source/signals_SKX.rst
