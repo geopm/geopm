@@ -34,26 +34,21 @@
 
 #include "PlatformIOImp.hpp"
 
-#include <cpuid.h>
-#include <unistd.h>
-#include <iomanip>
 #include <cmath>
 #include <algorithm>
-#include <numeric>
 #include <iostream>
+#include <string.h>
+#include <sys/types.h>
+#include <tuple>
 
-#include "geopm_sched.h"
-#include "geopm_internal.h"
-#include "geopm.h"
 #include "geopm_pio.h"
 #include "geopm/PlatformTopo.hpp"
-#include "geopm/MSRIOGroup.hpp"
-#include "TimeIOGroup.hpp"
 #include "CombinedSignal.hpp"
 #include "BatchServer.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm/Agg.hpp"
+#include "geopm/IOGroup.hpp"
 
 namespace geopm
 {
