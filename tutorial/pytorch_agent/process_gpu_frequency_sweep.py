@@ -36,7 +36,6 @@ import os
 import glob
 import yaml
 import argparse
-import code
 
 def process_report_files(input_dir, nodename, app_index):
     reports = list()
@@ -145,19 +144,30 @@ if __name__ == "__main__":
         reports_df['runtime-vs-maxfreq'] = relative_runtime.T if config_groups.ngroups == 1 else relative_runtime
 
         max_gpu_freq = reports_df['gpu-frequency'].max()
+
         # Note that these are all trained against GPU 0. If more GPUs are
         # used at inference time, the model is replicated across the GPUs.
 
-        code.interact(local=locals())
         relative_energy = config_groups.apply(
-            lambda x: x['GPU_ENERGY-board_accelerator-0'] / (x.loc[x['gpu-frequency'] == max_gpu_freq,
-                        'GPU_ENERGY-board_accelerator-0']).mean())
+            #single gpu version
+            #lambda x: x['GPU_ENERGY@board_accelerator-0'] / (x.loc[x['gpu-frequency'] == max_gpu_freq,
+            #            'GPU_ENERGY@board_accelerator-0']).mean())
+
+            #all gpu sum of energy and all gpu max
+            lambda x: x['gpu-energy (J)'] / (x.loc[x['gpu-frequency'] == max_gpu_freq,
+                        'gpu-energy (J)']).mean())
         reports_df['energy-vs-max'] = relative_energy.T if config_groups.ngroups == 1 else relative_energy
         reports_df['performance-loss'] = reports_df['runtime-vs-maxfreq'] - 1
 
         # Get the min-energy frequency for each config
         min_energy_frequencies = reports_df.pivot_table(
-                values='GPU_ENERGY-board_accelerator-0',
+                #for gpu 0 only
+                #values='GPU_ENERGY@board_accelerator-0',
+                #index=['app-config'],
+                #columns='gpu-frequency').idxmin(axis=1).rename('Min-Energy GPU Frequency')
+
+                #all gpu sum
+                values='gpu-energy (J)',
                 index=['app-config'],
                 columns='gpu-frequency').idxmin(axis=1).rename('Min-Energy GPU Frequency')
 
