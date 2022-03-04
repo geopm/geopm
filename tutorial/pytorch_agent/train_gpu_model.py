@@ -54,11 +54,11 @@ def main():
     df_traces = df_traces.loc[df_traces['is-roi']]
 
     X_columns = [
-            'NVML::FREQUENCY-board_accelerator-0',
-            'NVML::POWER-board_accelerator-0',
-            'NVML::UTILIZATION_ACCELERATOR-board_accelerator-0',
-            'DCGM::SM_ACTIVE-board_accelerator-0',
-            'DCGM::DRAM_ACTIVE-board_accelerator-0',
+            'GPU_FREQUENCY_STATUS-board_accelerator-0',
+            'GPU_POWER-board_accelerator-0',
+            'GPU_UTILIZATION-board_accelerator-0',
+            'GPU_COMPUTE_ACTIVITY-board_accelerator-0',
+            'GPU_MEMORY_ACTIVITY-board_accelerator-0',
             'phi',
             ]
 
