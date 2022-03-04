@@ -34,21 +34,22 @@
 
 #include "PlatformIOImp.hpp"
 
-#include <cmath>
-#include <algorithm>
-#include <iostream>
 #include <string.h>
 #include <sys/types.h>
+#include <algorithm>
+#include <cmath>
+#include <iostream>
 #include <tuple>
 
-#include "geopm_pio.h"
-#include "geopm/PlatformTopo.hpp"
-#include "CombinedSignal.hpp"
-#include "BatchServer.hpp"
+#include "geopm/Agg.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
-#include "geopm/Agg.hpp"
 #include "geopm/IOGroup.hpp"
+#include "geopm/PlatformTopo.hpp"
+
+#include "geopm_pio.h"
+#include "BatchServer.hpp"
+#include "CombinedSignal.hpp"
 
 namespace geopm
 {
