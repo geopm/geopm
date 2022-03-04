@@ -448,7 +448,6 @@ void TorchAgent::adjust_platform(const std::vector<double>& in_policy)
             xs[3] = gpu_compute_active;
             xs[4] = gpu_mem_active;
             xs[5] = in_policy[M_POLICY_GPU_PHI];
-                std::cout << "phi is: " << std::to_string(in_policy[M_POLICY_GPU_PHI]) << std::endl;
 
             std::vector<torch::jit::IValue>temp_op;
             temp_op.push_back(xs);
