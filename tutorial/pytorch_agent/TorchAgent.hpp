@@ -130,7 +130,7 @@ class TorchAgent : public geopm::Agent
         double m_accelerator_frequency_requests;
         std::string m_gpu_nn_path;
         std::string m_cpu_nn_path;
-        torch::jit::script::Module m_gpu_neural_net;
+        std::vector<torch::jit::script::Module> m_gpu_neural_net;
         torch::jit::script::Module m_cpu_neural_net;
 
         bool m_gpu_nn_exists;
