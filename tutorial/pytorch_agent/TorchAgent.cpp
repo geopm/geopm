@@ -58,7 +58,6 @@ static void __attribute__((constructor)) torch_agent_load(void)
                                            TorchAgent::make_plugin,
                                            Agent::make_dictionary(TorchAgent::policy_names(),
                                                                   TorchAgent::sample_names()));
-    std::cout << "TorchAgent registered" << std::endl;
 }
 
 
@@ -111,8 +110,74 @@ TorchAgent::TorchAgent(geopm::PlatformIO &plat_io, const geopm::PlatformTopo &to
                               true,
                               {}
                               }},
-                          {"TIME", {
+                          ///CPU SIGNALS BELOW
+                          {"POWER_PACKAGE", {
                               GEOPM_DOMAIN_BOARD,
+                              true,
+                              {}
+                              }},
+                          {"POWER_DRAM", {
+                              GEOPM_DOMAIN_BOARD_MEMORY,
+                              true,
+                              {}
+                              }},
+                          {"FREQUENCY", { //TODO: should move to CPU_FREQUENCY_STATUS
+                              GEOPM_DOMAIN_BOARD,
+                              true,
+                              {}
+                              }},
+                          {"TEMPERATURE_PACKAGE", {
+                              GEOPM_DOMAIN_BOARD,
+                              true,
+                              {}
+                              }},
+                          {"ENERGY_DRAM", {
+                              GEOPM_DOMAIN_BOARD_MEMORY,
+                              true,
+                              {}
+                              }},
+                          {"INSTRUCTIONS_RETIRED", {
+                              GEOPM_DOMAIN_BOARD,
+                              true,
+                              {}
+                              }},
+                          {"INSTRUCTIONS_RETIRED", {
+                              GEOPM_DOMAIN_PACKAGE,
+                              true,
+                              {}
+                              }},
+                          {"CYCLES_REFERENCE", {
+                              GEOPM_DOMAIN_BOARD,
+                              true,
+                              {}
+                              }},
+                          {"MSR::UNCORE_PERF_STATUS:FREQ", {
+                              GEOPM_DOMAIN_PACKAGE,
+                              true,
+                              {}
+                              }},
+                          {"QM_CTR_SCALED_RATE", {
+                              GEOPM_DOMAIN_PACKAGE,
+                              true,
+                              {}
+                              }},
+                          {"ENERGY_PACKAGE", {
+                              GEOPM_DOMAIN_PACKAGE,
+                              true,
+                              {}
+                              }},
+                          {"MSR::APERF:ACNT", {
+                              GEOPM_DOMAIN_PACKAGE,
+                              true,
+                              {}
+                              }},
+                          {"MSR::MPERF:MCNT", {
+                              GEOPM_DOMAIN_PACKAGE,
+                              true,
+                              {}
+                              }},
+                          {"MSR::PPERF:PCNT", {
+                              GEOPM_DOMAIN_PACKAGE,
                               false,
                               {}
                               }},
@@ -123,7 +188,8 @@ TorchAgent::TorchAgent(geopm::PlatformIO &plat_io, const geopm::PlatformTopo &to
                                 false,
                                 {}
                                 }},
-                          })
+                            //TODO: Add CPU controls
+                         })
     , m_cpu_nn_exists(true)
     , m_cpu_nn_path("cpu_control.kt")
     , m_gpu_nn_exists(true)
@@ -142,7 +208,12 @@ void TorchAgent::init(int level, const std::vector<int> &fan_in, bool is_level_r
 
     //TODO: check that GPU NN path exits, then try to load
     try {
-        m_gpu_neural_net = torch::jit::load(m_gpu_nn_path);
+        //m_gpu_neural_net = torch::jit::load(m_gpu_nn_path);
+
+        //Using a NN per GPU.
+        for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR); ++domain_idx) {
+            m_gpu_neural_net.push_back(torch::jit::load(m_gpu_nn_path));
+        }
     }
     catch (const c10::Error& e) {
         m_gpu_nn_exists = false;
@@ -217,7 +288,7 @@ void TorchAgent::init_platform_io(void)
 
     auto all_names = m_platform_io.control_names();
     if (all_names.find("DCGM::FIELD_UPDATE_RATE") != all_names.end()) {
-        // DCGM documentation indicates that users should query no faster than 102ms
+        // DCGM documentation indicates that users should query no faster than 100ms
         // even though the interface allows for setting the polling rate in the us range.
         // In practice reducing below the 100ms value has proven functional, but should only
         // be attempted if there is a proven need to catch short phase behavior that cannot
@@ -340,69 +411,72 @@ void TorchAgent::adjust_platform(const std::vector<double>& in_policy)
     // Per GPU freq
     std::vector<double> gpu_freq_request;
 
-    // Primary signal used for frequency recommendation
-    auto gpu_frequency_itr = m_signal_available.find("GPU_FREQUENCY_STATUS");
-    auto gpu_power_itr = m_signal_available.find("GPU_POWER");
-    auto gpu_utilization_itr = m_signal_available.find("GPU_UTILIZATION");
-    auto gpu_compute_active_itr = m_signal_available.find("GPU_COMPUTE_ACTIVITY");
-    auto gpu_mem_active_itr = m_signal_available.find("GPU_MEMORY_ACTIVITY");
+    if (m_gpu_nn_exists) {
+        // Primary signal used for frequency recommendation
+        auto gpu_frequency_itr = m_signal_available.find("GPU_FREQUENCY_STATUS");
+        auto gpu_power_itr = m_signal_available.find("GPU_POWER");
+        auto gpu_utilization_itr = m_signal_available.find("GPU_UTILIZATION");
+        auto gpu_compute_active_itr = m_signal_available.find("GPU_COMPUTE_ACTIVITY");
+        auto gpu_mem_active_itr = m_signal_available.find("GPU_MEMORY_ACTIVITY");
 
-    double gpu_freq = 0;
-    double gpu_power = 0;
-    double gpu_util = 0;
-    double gpu_compute_active = 0;
-    double gpu_mem_active = 0;
+        double gpu_freq = 0;
+        double gpu_power = 0;
+        double gpu_util = 0;
+        double gpu_compute_active = 0;
+        double gpu_mem_active = 0;
 
-    for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR); ++domain_idx) {
-        if (m_gpu_coarse_metrics) {
-            gpu_freq = gpu_frequency_itr->second.signals.at(domain_idx).m_last_sample;
-            //std::cout << "freq: " << std::to_string(gpu_freq) << std::endl;
-            gpu_power = gpu_power_itr->second.signals.at(domain_idx).m_last_sample;
-            //std::cout << "power: " << std::to_string(gpu_power) << std::endl;
-            gpu_util = gpu_utilization_itr->second.signals.at(domain_idx).m_last_sample;
-            //std::cout << "util: " << std::to_string(gpu_util) << std::endl;
-        }
-        if (m_gpu_fine_metrics) {
-            gpu_compute_active = gpu_compute_active_itr->second.signals.at(domain_idx).m_last_sample;
-            //std::cout << "compute: " << std::to_string(gpu_compute_active) << std::endl;
-            gpu_mem_active = gpu_mem_active_itr->second.signals.at(domain_idx).m_last_sample;
-            //std::cout << "mem: " << std::to_string(gpu_mem_active) << std::endl;
-        }
-
-        torch::Tensor xs = torch::zeros({6});
-        xs[0] = gpu_freq;
-        xs[1] = gpu_power;
-        xs[2] = gpu_util;
-        xs[3] = gpu_compute_active;
-        xs[4] = gpu_mem_active;
-        xs[5] = in_policy[M_POLICY_GPU_PHI];
-
-        std::vector<torch::jit::IValue>temp_op;
-        temp_op.push_back(xs);
-
-        at::Tensor output = m_gpu_neural_net.forward(temp_op).toTensor();
-        gpu_freq_request.push_back(output[0].item<double>() * 1e9); // Just assuming we need to convert
-        //std::cout << "GPU" << std::to_string(domain_idx) << " recommended freq is " << std::to_string(gpu_freq_request.at(domain_idx)) << std::endl;
-    }
-
-    if (!gpu_freq_request.empty() && m_gpu_controls) {
-        // set frequency control per accelerator
-        auto freq_ctl_itr = m_control_available.find("GPU_FREQUENCY_CONTROL");
-        for (int domain_idx = 0; domain_idx < (int) freq_ctl_itr->second.controls.size(); ++domain_idx) {
-            if (gpu_freq_request.at(domain_idx) !=
-                freq_ctl_itr->second.controls.at(domain_idx).m_last_setting &&
-                !std::isnan(gpu_freq_request.at(domain_idx))) {
-                //Adjust
-                m_platform_io.adjust(freq_ctl_itr->second.controls.at(domain_idx).m_batch_idx,
-                                     gpu_freq_request.at(domain_idx));
-
-                //save the value for future comparison
-                freq_ctl_itr->second.controls.at(domain_idx).m_last_setting =
-                                     gpu_freq_request.at(domain_idx);
-                ++m_accelerator_frequency_requests;
+        for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR); ++domain_idx) {
+            if (m_gpu_coarse_metrics) {
+                gpu_freq = gpu_frequency_itr->second.signals.at(domain_idx).m_last_sample;
+                //std::cout << "freq: " << std::to_string(gpu_freq) << std::endl;
+                gpu_power = gpu_power_itr->second.signals.at(domain_idx).m_last_sample;
+                //std::cout << "power: " << std::to_string(gpu_power) << std::endl;
+                gpu_util = gpu_utilization_itr->second.signals.at(domain_idx).m_last_sample;
+                //std::cout << "util: " << std::to_string(gpu_util) << std::endl;
             }
+            if (m_gpu_fine_metrics) {
+                gpu_compute_active = gpu_compute_active_itr->second.signals.at(domain_idx).m_last_sample;
+                //std::cout << "compute: " << std::to_string(gpu_compute_active) << std::endl;
+                gpu_mem_active = gpu_mem_active_itr->second.signals.at(domain_idx).m_last_sample;
+                //std::cout << "mem: " << std::to_string(gpu_mem_active) << std::endl;
+            }
+
+            torch::Tensor xs = torch::zeros({6});
+            xs[0] = gpu_freq;
+            xs[1] = gpu_power;
+            xs[2] = gpu_util;
+            xs[3] = gpu_compute_active;
+            xs[4] = gpu_mem_active;
+            xs[5] = in_policy[M_POLICY_GPU_PHI];
+                std::cout << "phi is: " << std::to_string(in_policy[M_POLICY_GPU_PHI]) << std::endl;
+
+            std::vector<torch::jit::IValue>temp_op;
+            temp_op.push_back(xs);
+
+            at::Tensor output = m_gpu_neural_net.at(domain_idx).forward(temp_op).toTensor();
+            gpu_freq_request.push_back(output[0].item<double>() * 1e9); // Just assuming we need to convert
+            //std::cout << "GPU" << std::to_string(domain_idx) << " recommended freq is " << std::to_string(gpu_freq_request.at(domain_idx)) << std::endl;
         }
-        m_do_write_batch = true;
+
+        if (!gpu_freq_request.empty() && m_gpu_controls) {
+            // set frequency control per accelerator
+            auto freq_ctl_itr = m_control_available.find("GPU_FREQUENCY_CONTROL");
+            for (int domain_idx = 0; domain_idx < (int) freq_ctl_itr->second.controls.size(); ++domain_idx) {
+                if (gpu_freq_request.at(domain_idx) !=
+                    freq_ctl_itr->second.controls.at(domain_idx).m_last_setting &&
+                    !std::isnan(gpu_freq_request.at(domain_idx))) {
+                    //Adjust
+                    m_platform_io.adjust(freq_ctl_itr->second.controls.at(domain_idx).m_batch_idx,
+                                         gpu_freq_request.at(domain_idx));
+
+                    //save the value for future comparison
+                    freq_ctl_itr->second.controls.at(domain_idx).m_last_setting =
+                                         gpu_freq_request.at(domain_idx);
+                    ++m_accelerator_frequency_requests;
+                }
+            }
+            m_do_write_batch = true;
+        }
     }
 }
 
@@ -422,7 +496,9 @@ void TorchAgent::sample_platform(std::vector<double> &out_sample)
         for (int domain_idx = 0; domain_idx < (int) sv.second.signals.size(); ++domain_idx) {
             double curr_value = m_platform_io.sample(sv.second.signals.at(domain_idx).m_batch_idx);
 
-            if (sv.first == "GPU_ENERGY") {
+            if (sv.first == "GPU_ENERGY" ||
+                sv.first == "ENERGY_PACKAGE" ||
+                sv.first == "ENERGY_DRAM") {
                 sv.second.signals.at(domain_idx).m_last_sample = curr_value -
                                                                  sv.second.signals.at(domain_idx).m_last_signal;
             }
