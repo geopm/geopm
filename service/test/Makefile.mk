@@ -229,6 +229,8 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
               test/gtest_links/PlatformIOTest.push_signal_agg \
               test/gtest_links/PlatformIOTest.read_signal \
               test/gtest_links/PlatformIOTest.read_signal_agg \
+              test/gtest_links/PlatformIOTest.read_signal_iogroup_fallback_domain_change \
+              test/gtest_links/PlatformIOTest.read_signal_iogroup_fallback \
               test/gtest_links/PlatformIOTest.read_signal_override \
               test/gtest_links/PlatformIOTest.sample \
               test/gtest_links/PlatformIOTest.sample_agg \

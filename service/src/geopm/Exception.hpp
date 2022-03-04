@@ -33,7 +33,7 @@
 #define EXCEPTION_HPP_INCLUDE
 
 #include <string>
-#include <system_error>
+#include <stdexcept>
 #include "geopm_error.h"
 
 namespace geopm
