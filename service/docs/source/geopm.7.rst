@@ -50,6 +50,8 @@ BUILT-IN AGENTS
 
 `geopm_agent_energy_efficient(7) <geopm_agent_energy_efficient.7.html>`_\ : Agent for saving energy, also finds optimal region frequencies
 
+`geopm_agent_fixed_frequency(7) <geopm_agent_fixed_frequency.7.html>`_\ : Agent for running at user selected fixed frequencies
+
 `geopm_agent_frequency_map(7) <geopm_agent_frequency_map.7.html>`_\ : Agent for running regions at user selected frequencies
 
 `geopm_agent_power_balancer(7) <geopm_agent_power_balancer.7.html>`_\ : Agent that optimizes performance under a power cap
@@ -382,6 +384,7 @@ SEE ALSO
 `geopmpy(7) <geopmpy.7.html>`_\ ,
 `geopmdpy(7) <geopmdpy.7.html>`_\ ,
 `geopm_agent_energy_efficient(7) <geopm_agent_energy_efficient.7.html>`_\ ,
+`geopm_agent_fixed_frequency(7) <geopm_agent_fixed_frequency.7.html>`_\ ,
 `geopm_agent_frequency_map(7) <geopm_agent_frequency_map.7.html>`_\ ,
 `geopm_agent_monitor(7) <geopm_agent_monitor.7.html>`_\ ,
 `geopm_agent_power_balancer(7) <geopm_agent_power_balancer.7.html>`_\ ,

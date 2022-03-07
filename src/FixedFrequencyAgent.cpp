@@ -81,8 +81,8 @@ namespace geopm
     void FixedFrequencyAgent::validate_policy(std::vector<double> &in_policy) const
     {
         assert(in_policy.size() == M_NUM_POLICY);
-        double accel_min_freq = m_platform_io.read_signal("NVML::GPU_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0);
-        double accel_max_freq = m_platform_io.read_signal("NVML::GPU_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0);
+        double accel_min_freq = m_platform_io.read_signal("GPU_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0);
+        double accel_max_freq = m_platform_io.read_signal("GPU_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0);
         double core_freq_min = m_platform_io.read_signal("FREQUENCY_MIN", GEOPM_DOMAIN_BOARD, 0);
         double core_freq_max = m_platform_io.read_signal("FREQUENCY_MAX", GEOPM_DOMAIN_BOARD, 0);
 
@@ -202,7 +202,6 @@ namespace geopm
 	    }
 	    
             m_is_adjust_initialized = true;
-            //m_do_write_batch = true;
         }
 
     }
@@ -285,7 +284,7 @@ namespace geopm
                 "CORE_FREQUENCY",
                 "UNCORE_MIN_FREQUENCY",
                 "UNCORE_MAX_FREQUENCY",
-		"SAMPLE_PERIOD",
+                "SAMPLE_PERIOD",
                };
     }
 

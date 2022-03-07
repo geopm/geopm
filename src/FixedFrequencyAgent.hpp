@@ -82,7 +82,7 @@ namespace geopm
                 M_POLICY_CPU_FREQUENCY,
                 M_POLICY_UNCORE_MIN_FREQUENCY,
                 M_POLICY_UNCORE_MAX_FREQUENCY,
-		M_POLICY_SAMPLE_PERIOD,
+                M_POLICY_SAMPLE_PERIOD,
                 M_NUM_POLICY
             };
             // Sample indices; must match sample_names()

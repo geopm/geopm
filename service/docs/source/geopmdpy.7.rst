@@ -9,7 +9,6 @@ geopmdpy(7) -- global extensible open power manager python daemon package
 
 
 
-
 DESCRIPTION
 -----------
 
@@ -91,7 +90,7 @@ geopmdpy.topo
    :show-inheritance:
 
 geopmdpy.system_files
----------------
+----------------
 
 .. automodule:: geopmdpy.system_files
    :members:
