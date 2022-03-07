@@ -101,31 +101,27 @@ namespace geopm
         m_iogroup_list.push_back(iogroup);
     }
 
-    std::shared_ptr<IOGroup> PlatformIOImp::find_signal_iogroup(const std::string &signal_name) const
+    std::vector<std::shared_ptr<IOGroup> > PlatformIOImp::find_signal_iogroup(const std::string &signal_name) const
     {
-        std::shared_ptr<IOGroup> result = nullptr;
-        bool is_found = false;
+        std::vector<std::shared_ptr<IOGroup> > result;
         for (auto it = m_iogroup_list.rbegin();
-             !is_found && it != m_iogroup_list.rend();
+             it != m_iogroup_list.rend();
              ++it) {
             if ((*it)->is_valid_signal(signal_name)) {
-                result = *it;
-                is_found = true;
+                result.push_back(*it);
             }
         }
         return result;
     }
 
-    std::shared_ptr<IOGroup> PlatformIOImp::find_control_iogroup(const std::string &control_name) const
+    std::vector<std::shared_ptr<IOGroup> > PlatformIOImp::find_control_iogroup(const std::string &control_name) const
     {
-        std::shared_ptr<IOGroup> result = nullptr;
-        bool is_found = false;
+        std::vector<std::shared_ptr<IOGroup> > result;
         for (auto it = m_iogroup_list.rbegin();
-             !is_found && it != m_iogroup_list.rend();
+             it != m_iogroup_list.rend();
              ++it) {
             if ((*it)->is_valid_control(control_name)) {
-                result = *it;
-                is_found = true;
+                result.push_back(*it);
             }
         }
         return result;
