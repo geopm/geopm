@@ -72,7 +72,7 @@ class FixedFrequencyAgentTest : public :: testing :: Test
            FREQ_CONTROL_IDX,
            UNCORE_MIN_CTL_IDX,
            UNCORE_MAX_CTL_IDX,
-	   SAMPLE_PERIOD_IDX
+           SAMPLE_PERIOD_IDX
         };
         enum policy_idx_e {
             ACCELERATOR_FREQUENCY = 0, 
@@ -127,9 +127,9 @@ void FixedFrequencyAgentTest::SetUp()
     m_freq_accelerator_max = 1530000000.0;
     ON_CALL(*m_platform_io, control_domain_type("FREQUENCY_ACCELERATOR_CONTROL"))
         .WillByDefault(Return(GEOPM_DOMAIN_BOARD_ACCELERATOR));
-    ON_CALL(*m_platform_io, read_signal("NVML::GPU_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0))
+    ON_CALL(*m_platform_io, read_signal("GPU_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0))
         .WillByDefault(Return(m_freq_accelerator_min));
-    ON_CALL(*m_platform_io, read_signal("NVML::GPU_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0))
+    ON_CALL(*m_platform_io, read_signal("GPU_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0))
         .WillByDefault(Return(m_freq_accelerator_max));
 
     ASSERT_LT(m_freq_accelerator_min, 0.2e9);
@@ -179,9 +179,9 @@ TEST_F(FixedFrequencyAgentTest, validate_policy)
     const std::vector<double> empty(m_num_policy, NAN);
     std::vector<double> policy;
 
-    EXPECT_CALL(*m_platform_io, read_signal("NVML::GPU_FREQUENCY_MIN_AVAIL", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("GPU_FREQUENCY_MIN_AVAIL", _, _)).WillRepeatedly(
                 Return(m_freq_accelerator_min));
-    EXPECT_CALL(*m_platform_io, read_signal("NVML::GPU_FREQUENCY_MAX_AVAIL", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("GPU_FREQUENCY_MAX_AVAIL", _, _)).WillRepeatedly(
                 Return(m_freq_accelerator_max));
     EXPECT_CALL(*m_platform_io, read_signal("FREQUENCY_MIN", _, _)).WillRepeatedly(
                 Return(m_freq_min));

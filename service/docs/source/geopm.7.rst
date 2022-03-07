@@ -104,6 +104,7 @@ Built-In Agents
 GEOPM comes packaged with several built-in power management algorithms (*agents*):
 
 * :doc:`geopm_agent_monitor(7) <geopm_agent_monitor.7>`: An agent implementation that enforces no policies.
+* :doc:`geopm_agent_fixed_frequency(7) <geopm_agent_fixed_frequency.7>`: Agent for running at user selected fixed frequencies
 * :doc:`geopm_agent_frequency_map(7) <geopm_agent_frequency_map.7>`: An agent that applies user-selected frequencies at specific regions in the launched application.
 * :doc:`geopm_agent_power_balancer(7) <geopm_agent_power_balancer.7>`: An agent that optimizes performance under a power cap across multiple CPU packages.
 * :doc:`geopm_agent_power_governor(7) <geopm_agent_power_governor.7>`: An agent that enforces a power cap.
@@ -376,8 +377,10 @@ Misc
 
 See Also
 --------
+<<<<<<< HEAD
 :doc:`geopmpy(7) <geopmpy.7>`,
 :doc:`geopmdpy(7) <geopmdpy.7>`,
+:doc:`geopm_agent_fixed_frequency(7) <geopm_agent_fixed_frequency.7>`,
 :doc:`geopm_agent_frequency_map(7) <geopm_agent_frequency_map.7>`,
 :doc:`geopm_agent_monitor(7) <geopm_agent_monitor.7>`,
 :doc:`geopm_agent_power_balancer(7) <geopm_agent_power_balancer.7>`,
