@@ -54,6 +54,8 @@ namespace geopm
             virtual void update_rate(int field_update_rate) override;
             virtual void max_storage_time(int max_storage_time) override;
             virtual void max_samples(int max_samples) override;
+            virtual void polling_enable(void) override;
+            virtual void polling_disable(void) override;
 
         private:
             virtual void check_result(const dcgmReturn_t result, const std::string error, const int line);
@@ -62,6 +64,7 @@ namespace geopm
             double m_max_keep_age;
             int m_max_keep_sample;
             int m_dcgm_dev_count;
+            bool m_dcgm_polling;
 
             dcgmHandle_t m_dcgm_handle;
             dcgmFieldGrp_t m_field_group_id;
