@@ -71,7 +71,7 @@ TorchAgent::TorchAgent(geopm::PlatformIO &plat_io, const geopm::PlatformTopo &to
     : m_platform_io(plat_io)
     , m_platform_topo(topo)
     , m_last_wait{{0, 0}}
-    , M_WAIT_SEC(0.020) // 20ms Wait
+    , M_WAIT_SEC(0.050) // 50ms Wait
     , M_POLICY_PHI_DEFAULT(0.5)
     , m_do_write_batch(false)
     // This agent approach is meant to allow for quick prototyping through simplifying
@@ -206,7 +206,6 @@ void TorchAgent::init(int level, const std::vector<int> &fan_in, bool is_level_r
 {
     m_accelerator_frequency_requests = 0;
 
-    //TODO: check that GPU NN path exits, then try to load
     try {
         //m_gpu_neural_net = torch::jit::load(m_gpu_nn_path);
 
@@ -219,8 +218,6 @@ void TorchAgent::init(int level, const std::vector<int> &fan_in, bool is_level_r
         m_gpu_nn_exists = false;
         std::cerr << "Failed to load GPU NN" << std::endl;
     }
-
-    //TODO: check that CPU NN path exits, then try to load
 
     try {
         m_cpu_neural_net = torch::jit::load(m_cpu_nn_path);
@@ -408,10 +405,9 @@ void TorchAgent::adjust_platform(const std::vector<double>& in_policy)
 
     m_do_write_batch = false;
 
-    // Per GPU freq
-    std::vector<double> gpu_freq_request;
-
     if (m_gpu_nn_exists) {
+        // Per GPU freq
+        std::vector<double> gpu_freq_request;
         // Primary signal used for frequency recommendation
         auto gpu_frequency_itr = m_signal_available.find("GPU_FREQUENCY_STATUS");
         auto gpu_power_itr = m_signal_available.find("GPU_POWER");
@@ -428,42 +424,38 @@ void TorchAgent::adjust_platform(const std::vector<double>& in_policy)
         for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR); ++domain_idx) {
             if (m_gpu_coarse_metrics) {
                 gpu_freq = gpu_frequency_itr->second.signals.at(domain_idx).m_last_sample;
-                //std::cout << "freq: " << std::to_string(gpu_freq) << std::endl;
                 gpu_power = gpu_power_itr->second.signals.at(domain_idx).m_last_sample;
-                //std::cout << "power: " << std::to_string(gpu_power) << std::endl;
                 gpu_util = gpu_utilization_itr->second.signals.at(domain_idx).m_last_sample;
-                //std::cout << "util: " << std::to_string(gpu_util) << std::endl;
             }
             if (m_gpu_fine_metrics) {
                 gpu_compute_active = gpu_compute_active_itr->second.signals.at(domain_idx).m_last_sample;
-                //std::cout << "compute: " << std::to_string(gpu_compute_active) << std::endl;
                 gpu_mem_active = gpu_mem_active_itr->second.signals.at(domain_idx).m_last_sample;
-                //std::cout << "mem: " << std::to_string(gpu_mem_active) << std::endl;
             }
+            torch::Tensor xs = torch::tensor({{gpu_freq,
+                                              gpu_power,
+                                              gpu_util,
+                                              gpu_compute_active,
+                                              gpu_mem_active,
+                                              in_policy[M_POLICY_GPU_PHI]}});
 
-            torch::Tensor xs = torch::zeros({6});
-            xs[0] = gpu_freq;
-            xs[1] = gpu_power;
-            xs[2] = gpu_util;
-            xs[3] = gpu_compute_active;
-            xs[4] = gpu_mem_active;
-            xs[5] = in_policy[M_POLICY_GPU_PHI];
+            std::vector<torch::jit::IValue> model_input;
+            model_input.push_back(xs);
 
-            std::vector<torch::jit::IValue>temp_op;
-            temp_op.push_back(xs);
-
-            at::Tensor output = m_gpu_neural_net.at(domain_idx).forward(temp_op).toTensor();
+            at::Tensor output = m_gpu_neural_net.at(domain_idx).forward(model_input).toTensor();
             gpu_freq_request.push_back(output[0].item<double>() * 1e9); // Just assuming we need to convert
-            //std::cout << "GPU" << std::to_string(domain_idx) << " recommended freq is " << std::to_string(gpu_freq_request.at(domain_idx)) << std::endl;
         }
 
         if (!gpu_freq_request.empty() && m_gpu_controls) {
             // set frequency control per accelerator
             auto freq_ctl_itr = m_control_available.find("GPU_FREQUENCY_CONTROL");
             for (int domain_idx = 0; domain_idx < (int) freq_ctl_itr->second.controls.size(); ++domain_idx) {
+                //NAN --> Max Frequency
+                if(std::isnan(gpu_freq_request.at(domain_idx))) {
+                    gpu_freq_request.at(domain_idx) = in_policy[M_POLICY_GPU_FREQ_MAX];
+                }
+
                 if (gpu_freq_request.at(domain_idx) !=
-                    freq_ctl_itr->second.controls.at(domain_idx).m_last_setting &&
-                    !std::isnan(gpu_freq_request.at(domain_idx))) {
+                    freq_ctl_itr->second.controls.at(domain_idx).m_last_setting) {
                     //Adjust
                     m_platform_io.adjust(freq_ctl_itr->second.controls.at(domain_idx).m_batch_idx,
                                          gpu_freq_request.at(domain_idx));
@@ -472,9 +464,9 @@ void TorchAgent::adjust_platform(const std::vector<double>& in_policy)
                     freq_ctl_itr->second.controls.at(domain_idx).m_last_setting =
                                          gpu_freq_request.at(domain_idx);
                     ++m_accelerator_frequency_requests;
+                    m_do_write_batch = true;
                 }
             }
-            m_do_write_batch = true;
         }
     }
 }
