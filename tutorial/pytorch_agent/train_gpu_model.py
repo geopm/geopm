@@ -110,7 +110,7 @@ def main():
     x_train = torch.tensor(df_x_train.to_numpy()).float()
     y_train = torch.tensor(df_y_train.to_numpy()).float()
 
-    batch_size = 32
+    batch_size = 1000
     epoch_count = 5
 
     #Closer to TF version
@@ -119,11 +119,9 @@ def main():
     train_tensor = torch.utils.data.TensorDataset(x_train, y_train)
     train_loader = torch.utils.data.DataLoader(dataset = train_tensor, batch_size = batch_size, shuffle = True)
 
-    print("batch_size:{}, epoch_count:{}, learning_rate={}".format(batch_size, epoch_count, learning_rate))
-    message_interval = 1000
+    message_interval = round((len(df_x_train)/batch_size)/5)
+    print("batch_size:{}, epoch_count:{}, learning_rate={}, message_interval={}".format(batch_size, epoch_count, learning_rate, message_interval))
     for epoch in range(epoch_count):
-        # enumerate mini batches
-        print("enumerate training batches")
         train_loss = 0
         for idx, (inputs, target_control) in enumerate(train_loader):
             model.train()
@@ -141,15 +139,16 @@ def main():
             train_loss += loss.item()
 
             if (idx % message_interval == message_interval-1):
-                print("\te:{:.2f}, idx:{} - loss: {:.3f}".format(epoch, idx, train_loss/(message_interval)))
+                print("\te:{}, idx:{} - loss: {:.3f}".format(epoch, idx, train_loss/(message_interval)))
                 train_loss = 0.0
 
         model.eval()
         with torch.no_grad():
+            print("\tEvaluate vs semi-random inputs (phi is fixed):".format(epoch, idx, train_loss/(message_interval)))
             debug_input = [
-                           [uniform(0,2)*1e9, uniform(0,300), uniform(0,1), uniform(0,1), uniform(0,1), 0.0],
-                           [uniform(0,2)*1e9, uniform(0,300), uniform(0,1), uniform(0,1), uniform(0,1), 0.5],
-                           [uniform(0,2)*1e9, uniform(0,300), uniform(0,1), uniform(0,1), uniform(0,1), 1.0],
+                           [round(uniform(0,2)*1e9,0), round(uniform(0,300),0), round(uniform(0,1),2), round(uniform(0,1),2), round(uniform(0,1),2), 0.0],
+                           [round(uniform(0,2)*1e9,0), round(uniform(0,300),0), round(uniform(0,1),2), round(uniform(0,1),2), round(uniform(0,1),2), 0.5],
+                           [round(uniform(0,2)*1e9,0), round(uniform(0,300),0), round(uniform(0,1),2), round(uniform(0,1),2), round(uniform(0,1),2), 1.0],
                           ]
             for phi in debug_input:
                 output = model(torch.tensor([phi]))
