@@ -33,10 +33,12 @@
 
 import torch
 from torch import nn
+from random import uniform
 import sys
 
 import pandas as pd
 import argparse
+import code
 
 def main():
     parser = argparse.ArgumentParser(
@@ -64,6 +66,9 @@ def main():
 
     y_columns = ['phi-freq']
 
+    #Print phi to phi-freq mapping
+    print(df_traces.pivot_table('phi-freq', 'phi', 'app-config'))
+
     # Exclude rows missing data in any of the columns of interest. Otherwise,
     # NaN values propagate into every weight in the model.
     is_missing_data = df_traces[X_columns + y_columns].isna().sum(axis=1) > 0
@@ -82,20 +87,14 @@ def main():
             exit(1)
         df_traces = df_traces.loc[df_traces['app-config'] != args.leave_app_out]
 
+    #Randomization of training data (if not using DataLoader)
     df_train = df_traces
     df_x_train = df_train[X_columns]
     df_y_train = df_train[y_columns]
     df_y_train /= 1e9
 
-    # The Normalization() function standardizes the input columns, so that
-    # mean=0 and variance=1 for all columns of data. The linear transformation
-    # to achieve those properties is saved as part of the model, and applied to
-    # all incoming data automatically.
-    #normalize_layer = preprocessing.Normalization()
-    #normalize_layer.adapt(df_x_train)
-
     model = nn.Sequential(
-                    nn.LayerNorm(len(X_columns)),
+                    nn.BatchNorm1d(len(X_columns)),
                     nn.Linear(len(X_columns), len(X_columns)),
                     nn.Sigmoid(),
                     nn.Linear(len(X_columns), len(X_columns)),
@@ -105,44 +104,58 @@ def main():
                     nn.Linear(len(X_columns), 1)
             )
 
-    loss_fn = nn.MSELoss()
-    learning_rate = 1e-4
+    learning_rate = 1e-3
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
-    #model.fit(df_x_train, df_y_train, epochs=5)
     x_train = torch.tensor(df_x_train.to_numpy()).float()
     y_train = torch.tensor(df_y_train.to_numpy()).float()
 
-    n_samples, _ = x_train.shape
+    batch_size = 32
+    epoch_count = 5
 
-    #ML tutorial tensorflow setting equivalent
-    bs = 32
-    epoch_range = 5
+    #Closer to TF version
+    loss_fn = nn.MSELoss()
 
-    #bs = 50000
-    #epoch_range = 1500
-    print("bs:{}, epochs:{}, lr={}".format(bs, epoch_range, learning_rate))
-    for epoch in range(epoch_range):
-        model.train = True
+    train_tensor = torch.utils.data.TensorDataset(x_train, y_train)
+    train_loader = torch.utils.data.DataLoader(dataset = train_tensor, batch_size = batch_size, shuffle = True)
+
+    print("batch_size:{}, epoch_count:{}, learning_rate={}".format(batch_size, epoch_count, learning_rate))
+    message_interval = 1000
+    for epoch in range(epoch_count):
+        # enumerate mini batches
+        print("enumerate training batches")
         train_loss = 0
-        for i in range((n_samples-1)//bs + 1):
-            start_i = i*bs
-            end_i = start_i + bs
-            xb = x_train[start_i:end_i]
-            yb = y_train[start_i:end_i]
-            loss = loss_fn(model(xb), yb)
-            train_loss += loss * len(xb)
-            train_loss.detach()
-
-            loss.backward()
-            optimizer.step()
+        for idx, (inputs, target_control) in enumerate(train_loader):
+            model.train()
+            # Clear gradient
             optimizer.zero_grad()
-        model.train = False
-        if (epoch_range > 100 and epoch%50 == 0) or (epoch_range < 100):
-            print(epoch, train_loss/n_samples)
-        sys.stdout.flush()
-    #print(",".join(), train_loss/n_samples, total_loss/n_test_samples)
+            # Get model output
+            predicted_control = model(inputs)
+            # loss calculation vs target
+            loss = loss_fn(predicted_control, target_control)
+            loss.backward()
 
+            # update model weights
+            optimizer.step()
+            # print statistics
+            train_loss += loss.item()
+
+            if (idx % message_interval == message_interval-1):
+                print("\te:{:.2f}, idx:{} - loss: {:.3f}".format(epoch, idx, train_loss/(message_interval)))
+                train_loss = 0.0
+
+        model.eval()
+        with torch.no_grad():
+            debug_input = [
+                           [uniform(0,2)*1e9, uniform(0,300), uniform(0,1), uniform(0,1), uniform(0,1), 0.0],
+                           [uniform(0,2)*1e9, uniform(0,300), uniform(0,1), uniform(0,1), uniform(0,1), 0.5],
+                           [uniform(0,2)*1e9, uniform(0,300), uniform(0,1), uniform(0,1), uniform(0,1), 1.0],
+                          ]
+            for phi in debug_input:
+                output = model(torch.tensor([phi]))
+                print('\t\tphi:{} -> recommended: {}'.format(phi, output[0]))
+
+    model.eval()
     model_scripted = torch.jit.script(model)
     model_scripted.save(args.output)
 
