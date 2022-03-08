@@ -81,17 +81,17 @@ namespace geopm
     void FixedFrequencyAgent::validate_policy(std::vector<double> &in_policy) const
     {
         assert(in_policy.size() == M_NUM_POLICY);
-        double accel_min_freq = m_platform_io.read_signal("GPU_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0);
-        double accel_max_freq = m_platform_io.read_signal("GPU_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0);
+        double gpu_min_freq = m_platform_io.read_signal("GPU_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0);
+        double gpu_max_freq = m_platform_io.read_signal("GPU_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0);
         double core_freq_min = m_platform_io.read_signal("FREQUENCY_MIN", GEOPM_DOMAIN_BOARD, 0);
         double core_freq_max = m_platform_io.read_signal("FREQUENCY_MAX", GEOPM_DOMAIN_BOARD, 0);
 
-	if (!std::isnan(in_policy[M_POLICY_ACCELERATOR_FREQUENCY])) {
-	    if (in_policy[M_POLICY_ACCELERATOR_FREQUENCY] > accel_max_freq ||
-	        in_policy[M_POLICY_ACCELERATOR_FREQUENCY] < accel_min_freq) {
+	if (!std::isnan(in_policy[M_POLICY_GPU_FREQUENCY])) {
+	    if (in_policy[M_POLICY_GPU_FREQUENCY] > gpu_max_freq ||
+	        in_policy[M_POLICY_GPU_FREQUENCY] < gpu_min_freq) {
 	        throw Exception("FixedFrequenyAgent::" + std::string(__func__) +
-                                "(): accelerator frequency out of range: " +
-                                std::to_string(in_policy[M_POLICY_ACCELERATOR_FREQUENCY]) + ".",
+                                "(): gpu frequency out of range: " +
+                                std::to_string(in_policy[M_POLICY_GPU_FREQUENCY]) + ".",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
 	  }
 	}
@@ -172,7 +172,7 @@ namespace geopm
         m_do_write_batch = false;
 
         if (!m_is_adjust_initialized) {
-	    double accel_freq_request = in_policy[M_POLICY_ACCELERATOR_FREQUENCY];
+	    double gpu_freq_request = in_policy[M_POLICY_GPU_FREQUENCY];
 	    double cpu_freq_request = in_policy[M_POLICY_CPU_FREQUENCY];
 	    double uncore_min_freq_request = in_policy[M_POLICY_UNCORE_MIN_FREQUENCY];
 	    double uncore_max_freq_request = in_policy[M_POLICY_UNCORE_MAX_FREQUENCY];
@@ -182,9 +182,9 @@ namespace geopm
 		M_WAIT_SEC = sample_period;
 	    }
 	    
-	    // set Accelerator frequency control
-	    if (!std::isnan(accel_freq_request)) {
-	        m_platform_io.write_control("GPU_FREQUENCY_CONTROL",GEOPM_DOMAIN_BOARD,0,accel_freq_request);
+	    // set gpu frequency control
+	    if (!std::isnan(gpu_freq_request)) {
+	        m_platform_io.write_control("GPU_FREQUENCY_CONTROL",GEOPM_DOMAIN_BOARD,0,gpu_freq_request);
 	    }
 	    
 	    // set CPU frequency control
@@ -280,7 +280,7 @@ namespace geopm
     // Describes expected policies to be provided by the resource manager or user
     std::vector<std::string> FixedFrequencyAgent::policy_names(void)
     {
-        return {"ACCELERATOR_FREQUENCY",
+        return {"GPU_FREQUENCY",
                 "CORE_FREQUENCY",
                 "UNCORE_MIN_FREQUENCY",
                 "UNCORE_MAX_FREQUENCY",

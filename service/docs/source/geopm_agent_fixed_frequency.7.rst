@@ -35,30 +35,35 @@ POLICY PARAMETERS
 -----------------
 
 
-  ``ACCELERATOR_FREQUENCY``\ : The operating frequency in units of *Hz* for the
-                           Board Accelerators.  Setting it to a NAN will
-                           result in the system default value.
-  ``CPU_FREQUENCY``\ : The operating frequency in units of *Hz* for all CPUs.
-                   Setting it to a NAN will result in the system default
-                   value.
-  ``UNCORE_MIN_FREQUENCY``\ : The min operating frequency in units of *Hz* for the uncore
-                          domain.  If specified the uncore clock will operate
-                          with lower min range of the fixed frequency provided.  If the parameter is
-                          NAN, then the system default range of uncore frequency
-                          will be allowed.
-  ``UNCORE_MAX_FREQUENCY``\ : The max operating frequency in units of *Hz* for the uncore
-                          domain.  If specified the uncore clock will operate
-                          with upper max range of the fixed frequency provided.  If the parameter is
-                          NAN, then the system default range of uncore frequency
-                          will be allowed.
-  ``SAMPLE_PERIOD``\ : The sample period in units of seconds.  If the parameter is NAN,
-                   then the default period is 5e-3 (.005) (5ms).
+  ``GPU_FREQUENCY``\ :
+      The operating frequency in units of *Hz* for the
+      Board Accelerators.  Setting it to a NAN will
+      result in the system default value.
+  ``CPU_FREQUENCY``\ :
+      The operating frequency in units of *Hz* for all CPUs.
+      Setting it to a NAN will result in the system default
+      value.
+  ``UNCORE_MIN_FREQUENCY``\ :
+      The min operating frequency in units of *Hz* for the uncore
+      domain.  If specified the uncore clock will operate
+      with lower min range of the fixed frequency provided.  If the parameter is
+      NAN, then the system default range of uncore frequency
+      will be allowed.
+  ``UNCORE_MAX_FREQUENCY``\ :
+      The max operating frequency in units of *Hz* for the uncore
+      domain.  If specified the uncore clock will operate
+      with upper max range of the fixed frequency provided.  If the parameter is
+      NAN, then the system default range of uncore frequency
+      will be allowed.
+  ``SAMPLE_PERIOD``\ :
+      The sample period in units of seconds.  If the parameter is NAN,
+      then the default period is 5e-3 (.005) (5ms).
 
 
 POLICY REQUIREMENTS
 -------------------
 
-The fixed frequency values must be in the order of ACCELERATOR_FREQUENCY,
+The fixed frequency values must be in the order of GPU_FREQUENCY,
 CPU_FREQUENCY, UNCORE_MIN_FREQUENCY, UNCORE_MAX_FREQUENCY, SAMPLE_PERIOD.
 A value must be provided, but can be NAN.
 
@@ -93,7 +98,7 @@ For example, the above policy json is:
 
 .. code-block:: json
 
-    {"ACCELERATOR_FREQUENCY": 1530000000,
+    {"GPU_FREQUENCY": 1530000000,
      "CORE_FREQUENCY": 3100000000,
      "UNCORE_MIN_FREQUENCY": 2000000000,
      "UNCORE_MAX_FREQUENCY": 2700000000,
