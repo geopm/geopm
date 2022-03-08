@@ -101,6 +101,14 @@ namespace geopm
             ///       0 indicates no limit
             /// @param [in] max_samples maximun number of samples to store
             virtual void max_samples(int max_samples) = 0;
+
+            /// @brief Enable DCGM data polling through setting the watch fields
+            //         This function may be called repeatedly with updated polling
+            //         rate or storage settings.
+            virtual void polling_enable(void) = 0;
+
+            /// @brief Disable DCGM data polling through calling unwatchfields
+            virtual void polling_disable(void) = 0;
     };
 
     DCGMDevicePool &dcgm_device_pool();

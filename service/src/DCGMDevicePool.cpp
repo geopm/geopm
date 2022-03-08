@@ -53,6 +53,7 @@ namespace geopm
         : m_update_freq(100000)    // 100 millisecond
         , m_max_keep_age(1.0)      // 1 second
         , m_max_keep_sample(100)   // 100 samples
+        , m_dcgm_polling(false)
     {
         m_dcgm_field_ids[M_FIELD_ID_SM_ACTIVE] = DCGM_FI_PROF_SM_ACTIVE;
         m_dcgm_field_ids[M_FIELD_ID_SM_OCCUPANCY] = DCGM_FI_PROF_SM_OCCUPANCY;
@@ -101,23 +102,6 @@ namespace geopm
         else {
             check_result(result, "Error creating DCGM geopm_fields group.", __LINE__);
         }
-
-        // Note: Currently we are using dcgmWatchFields, but may transition to using
-        //       dcgmProfWatchFields at a later date
-        result = dcgmWatchFields(m_dcgm_handle, DCGM_GROUP_ALL_GPUS, m_field_group_id, m_update_freq,
-                                 m_max_keep_age, m_max_keep_sample);
-
-        check_result(result, "Error setting default watch field configuration.", __LINE__);
-
-        for (auto dcgm_field_id : m_dcgm_field_ids) {
-            DcgmFieldGetById(dcgm_field_id);
-            if (DcgmFieldGetById(dcgm_field_id)->fieldType != DCGM_FT_DOUBLE) {
-                throw Exception("DCGMDevicePool::" + std::string(__func__) + ": "
-                                "DCGM Field ID " + std::to_string(dcgm_field_id) +
-                                " field type is not double",
-                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-            }
-        }
     }
 
     DCGMDevicePoolImp::~DCGMDevicePoolImp()
@@ -145,7 +129,7 @@ namespace geopm
     {
         double result = NAN;
 
-        if (m_dcgm_field_values.at(accel_idx).at(geopm_field_id).status == DCGM_ST_OK) {
+        if (m_dcgm_polling && m_dcgm_field_values.at(accel_idx).at(geopm_field_id).status == DCGM_ST_OK) {
             result = m_dcgm_field_values.at(accel_idx).at(geopm_field_id).value.dbl;
         }
         return result;
@@ -153,6 +137,10 @@ namespace geopm
 
     void DCGMDevicePoolImp::update(int accel_idx)
     {
+        if(!m_dcgm_polling) {
+            //Lazy init, only enable polling on the first read.
+            polling_enable();
+        }
         dcgmReturn_t result;
         result = dcgmGetLatestValuesForFields(m_dcgm_handle, accel_idx,
                         &m_dcgm_field_ids[0], M_NUM_FIELD_ID,
@@ -162,28 +150,48 @@ namespace geopm
 
     void DCGMDevicePoolImp::update_rate(int field_update_rate)
     {
-        dcgmReturn_t result;
         m_update_freq = field_update_rate;
-        result = dcgmWatchFields(m_dcgm_handle, DCGM_GROUP_ALL_GPUS, m_field_group_id, m_update_freq,
-                                 m_max_keep_age, m_max_keep_sample);
-        check_result(result, "Error setting Field Update Rate", __LINE__);
+        polling_enable();
     }
 
     void DCGMDevicePoolImp::max_storage_time(int max_storage_time)
     {
-        dcgmReturn_t result;
         m_max_keep_age = max_storage_time;
-        result = dcgmWatchFields(m_dcgm_handle, DCGM_GROUP_ALL_GPUS, m_field_group_id, m_update_freq,
-                                 m_max_keep_age, m_max_keep_sample);
-        check_result(result, "Error setting Max Storage Time", __LINE__);
+        polling_enable();
     }
 
     void DCGMDevicePoolImp::max_samples(int max_samples)
     {
-        dcgmReturn_t result;
         m_max_keep_sample = max_samples;
+        polling_enable();
+    }
+
+    void DCGMDevicePoolImp::polling_enable(void)
+    {
+        dcgmReturn_t result;
+        // Note: Currently we are using dcgmWatchFields, but may transition to using
+        //       dcgmProfWatchFields at a later date
         result = dcgmWatchFields(m_dcgm_handle, DCGM_GROUP_ALL_GPUS, m_field_group_id, m_update_freq,
                                  m_max_keep_age, m_max_keep_sample);
-        check_result(result, "Error setting Max Samples", __LINE__);
+        check_result(result, "Error setting watch field configuration.", __LINE__);
+
+        for (auto dcgm_field_id : m_dcgm_field_ids) {
+            DcgmFieldGetById(dcgm_field_id);
+            if (DcgmFieldGetById(dcgm_field_id)->fieldType != DCGM_FT_DOUBLE) {
+                throw Exception("DCGMDevicePool::" + std::string(__func__) + ": "
+                                "DCGM Field ID " + std::to_string(dcgm_field_id) +
+                                " field type is not double",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+        }
+        m_dcgm_polling = true;
+    }
+
+    void DCGMDevicePoolImp::polling_disable(void)
+    {
+        dcgmReturn_t result;
+        result = dcgmUnwatchFields(m_dcgm_handle, DCGM_GROUP_ALL_GPUS, m_field_group_id);
+        check_result(result, "Error disabling watch field configuration.", __LINE__);
+        m_dcgm_polling = false;
     }
 }
