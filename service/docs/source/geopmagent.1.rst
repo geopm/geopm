@@ -56,6 +56,7 @@ List all available agents on the system:
 .. code-block:: console
 
    $ geopmagent
+   fixed_frequency
    frequency_map
    monitor
    power_balancer
@@ -104,6 +105,7 @@ See Also
 --------
 
 :doc:`geopm(7) <geopm.7>`,
+:doc:`geopm_agent_fixed_frequency(7) <geopm_agent_fixed_frequency.7>`,
 :doc:`geopm_agent_frequency_map(7) <geopm_agent_frequency_map.7>`,
 :doc:`geopm_agent_monitor(7) <geopm_agent_monitor.7>`,
 :doc:`geopm_agent_power_balancer(7) <geopm_agent_power_balancer.7>`,
