@@ -74,6 +74,20 @@ fi
 [enable_coverage="0"]
 )
 
+AC_ARG_ENABLE([docs],
+  [AS_HELP_STRING([--disable-docs], [Disable the use of the Python sphinx tool to generate documentation])],
+[if test "x$enable_docs" = "xno" ; then
+  enable_docs="0"
+else
+  enable_docs="1"
+fi
+],
+[enable_docs="1"]
+)
+
+AC_SUBST([enable_docs])
+AM_CONDITIONAL([ENABLE_DOCS], [test "x$enable_docs" = "x1"])
+
 AC_ARG_ENABLE([systemd],
   [AS_HELP_STRING([--disable-systemd], [Disable the use of the sd_bus interface of libsystemd to support the ServiceIOGroup])],
 [if test "x$enable_systemd" = "xno" ; then
@@ -386,6 +400,7 @@ AC_MSG_RESULT([GEOPM_CONFIG_PATH  : ${GEOPM_CONFIG_PATH}])
 AC_MSG_RESULT([])
 AC_MSG_RESULT([debug              : ${enable_debug}])
 AC_MSG_RESULT([coverage           : ${enable_coverage}])
+AC_MSG_RESULT([docs               : ${enable_docs}])
 AC_MSG_RESULT([dcgm               : ${enable_dcgm}])
 AC_MSG_RESULT([nvml               : ${enable_nvml}])
 AC_MSG_RESULT([levelzero          : ${enable_levelzero}])
