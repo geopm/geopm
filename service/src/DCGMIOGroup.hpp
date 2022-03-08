@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 - 2021, Intel Corporation
+ * Copyright (c) 2015 - 2022, Intel Corporation
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -58,7 +58,7 @@ namespace geopm
             bool is_valid_control(const std::string &control_name) const override;
             int signal_domain_type(const std::string &signal_name) const override;
             int control_domain_type(const std::string &control_name) const override;
-            int push_signal(const std::string &signal_name, int domain_type, int domain_idx)  override;
+            int push_signal(const std::string &signal_name, int domain_type, int domain_idx) override;
             int push_control(const std::string &control_name, int domain_type, int domain_idx) override;
             void read_batch(void) override;
             void write_batch(void) override;

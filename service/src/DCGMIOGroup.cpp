@@ -62,7 +62,7 @@ namespace geopm
         , m_dcgm_device_pool(device_pool)
         , m_is_batch_read(false)
         , m_signal_available({{"DCGM::SM_ACTIVE", {
-                                  "SM activity expressed as a ratio of cycles",
+                                  "Streaming Multiprocessor activity expressed as a ratio of cycles",
                                   {},
                                   [this](unsigned int domain_idx) -> double
                                   {
@@ -73,7 +73,7 @@ namespace geopm
                                   string_format_double
                                   }},
                               {"DCGM::SM_OCCUPANCY", {
-                                  "Warp residency expressed as a ratio of maximum warps per cycles",
+                                  "Warp residency expressed as a ratio of maximum warps",
                                   {},
                                   [this](unsigned int domain_idx) -> double
                                   {
@@ -84,7 +84,7 @@ namespace geopm
                                   string_format_double
                                   }},
                               {"DCGM::DRAM_ACTIVE", {
-                                  "DRAM Send & Receive expresed as a ratio of cycles",
+                                  "DRAM send & receive expressed as a ratio of cycles",
                                   {},
                                   [this](unsigned int domain_idx) -> double
                                   {
@@ -420,17 +420,7 @@ namespace geopm
     // platform settings
     void DCGMIOGroup::restore_control(void)
     {
-        // The 1 second update rate used here is the default sample rate discussed
-        // in the DCGM user guide.
-        m_dcgm_device_pool.update_rate(1e6); //1 second
-
-        // The max samples restore value is based upon the defaults used in DCGM
-        // sdk example code for field value access provided as part of the DCGM install
-        m_dcgm_device_pool.max_samples(3600); //3600 samples
-
-        // The max storage time restore value is based upon the defaults used in DCGM
-        // sdk example code for field value access provided as part of the DCGM install
-        m_dcgm_device_pool.max_storage_time(3600); //3600 seconds
+        m_dcgm_device_pool.polling_disable();
     }
 
     void DCGMIOGroup::save_control(const std::string &save_path)
