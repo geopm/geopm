@@ -88,7 +88,7 @@ TEST(AgentFactoryTest, DISABLED_static_info_fixed_frequency)
     EXPECT_EQ(5, Agent::num_policy(agent_name));
     EXPECT_EQ(0, Agent::num_sample(agent_name));
     std::vector<std::string> exp_sample = {};
-    std::vector<std::string> exp_policy = {"ACCELERATOR_FREQUENCY",
+    std::vector<std::string> exp_policy = {"GPU_FREQUENCY",
                                            "CORE_FREQUENCY",
                                            "UNCORE_MIN_FREQUENCY",
                                            "UNCORE_MAX_FREQUENCY",

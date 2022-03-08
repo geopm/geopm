@@ -78,7 +78,7 @@ namespace geopm
 
             // Policy indices; must match policy_names()
             enum m_policy_e {
-                M_POLICY_ACCELERATOR_FREQUENCY,
+                M_POLICY_GPU_FREQUENCY,
                 M_POLICY_CPU_FREQUENCY,
                 M_POLICY_UNCORE_MIN_FREQUENCY,
                 M_POLICY_UNCORE_MAX_FREQUENCY,

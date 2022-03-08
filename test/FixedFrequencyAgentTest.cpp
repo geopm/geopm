@@ -68,18 +68,18 @@ class FixedFrequencyAgentTest : public :: testing :: Test
 {
     protected:
       enum mock_pio_idx_e {
-	   FREQUENCY_ACCELERATOR_CONTROL_IDX,
+           FREQUENCY_GPU_CONTROL_IDX,
            FREQ_CONTROL_IDX,
            UNCORE_MIN_CTL_IDX,
            UNCORE_MAX_CTL_IDX,
            SAMPLE_PERIOD_IDX
         };
         enum policy_idx_e {
-            ACCELERATOR_FREQUENCY = 0, 
-            CPU_FREQUENCY = 1,
-            UNCORE_MIN_FREQUENCY = 2,
-            UNCORE_MAX_FREQUENCY = 3,
-	    SAMPLE_PERIOD = 4
+             GPU_FREQUENCY = 0, 
+             CPU_FREQUENCY = 1,
+             UNCORE_MIN_FREQUENCY = 2,
+             UNCORE_MAX_FREQUENCY = 3,
+             SAMPLE_PERIOD = 4
         };
 
         void SetUp();
@@ -90,8 +90,8 @@ class FixedFrequencyAgentTest : public :: testing :: Test
         std::unique_ptr<FixedFrequencyAgent> m_agent;
         std::vector<double> m_default_policy;
         size_t m_num_policy;
-        double m_freq_accelerator_min;
-        double m_freq_accelerator_max;
+        double m_freq_gpu_min;
+        double m_freq_gpu_max;
         double m_freq_min;
         double m_freq_max;
         double m_freq_uncore_min;
@@ -110,8 +110,8 @@ void FixedFrequencyAgentTest::SetUp()
     ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR))
         .WillByDefault(Return(M_NUM_BOARD_ACCELERATOR));
 
-    ON_CALL(*m_platform_io, push_control("FREQUENCY_ACCELERATOR_CONTROL", _, _))
-        .WillByDefault(Return(FREQUENCY_ACCELERATOR_CONTROL_IDX));
+    ON_CALL(*m_platform_io, push_control("FREQUENCY_GPU_CONTROL", _, _))
+        .WillByDefault(Return(FREQUENCY_GPU_CONTROL_IDX));
     ON_CALL(*m_platform_io, push_control("FREQUENCY", _, _))
         .WillByDefault(Return(FREQ_CONTROL_IDX));
     ON_CALL(*m_platform_io, push_control("CPU_FREQUENCY_CONTROL", _, _))
@@ -123,17 +123,17 @@ void FixedFrequencyAgentTest::SetUp()
     ON_CALL(*m_platform_io, agg_function(_))
         .WillByDefault(Return(geopm::Agg::average));
 
-    m_freq_accelerator_min = 0135000000.0;
-    m_freq_accelerator_max = 1530000000.0;
-    ON_CALL(*m_platform_io, control_domain_type("FREQUENCY_ACCELERATOR_CONTROL"))
+    m_freq_gpu_min = 0135000000.0;
+    m_freq_gpu_max = 1530000000.0;
+    ON_CALL(*m_platform_io, control_domain_type("FREQUENCY_GPU_CONTROL"))
         .WillByDefault(Return(GEOPM_DOMAIN_BOARD_ACCELERATOR));
     ON_CALL(*m_platform_io, read_signal("GPU_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0))
-        .WillByDefault(Return(m_freq_accelerator_min));
+        .WillByDefault(Return(m_freq_gpu_min));
     ON_CALL(*m_platform_io, read_signal("GPU_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0))
-        .WillByDefault(Return(m_freq_accelerator_max));
+        .WillByDefault(Return(m_freq_gpu_max));
 
-    ASSERT_LT(m_freq_accelerator_min, 0.2e9);
-    ASSERT_LT(1.4e9, m_freq_accelerator_max);
+    ASSERT_LT(m_freq_gpu_min, 0.2e9);
+    ASSERT_LT(1.4e9, m_freq_gpu_max);
 
     m_freq_min = 1800000000.0;
     m_freq_max = 2200000000.0;
@@ -157,7 +157,7 @@ void FixedFrequencyAgentTest::SetUp()
     m_agent = geopm::make_unique<FixedFrequencyAgent>(*m_platform_io, *m_platform_topo);
     m_num_policy = m_agent->policy_names().size();
 
-    m_default_policy = {m_freq_accelerator_max, m_freq_max, m_freq_uncore_min, m_freq_uncore_max, 0.05};
+    m_default_policy = {m_freq_gpu_max, m_freq_max, m_freq_uncore_min, m_freq_uncore_max, 0.05};
 
     // leaf agent
     m_agent->init(0, {}, false);
@@ -180,9 +180,9 @@ TEST_F(FixedFrequencyAgentTest, validate_policy)
     std::vector<double> policy;
 
     EXPECT_CALL(*m_platform_io, read_signal("GPU_FREQUENCY_MIN_AVAIL", _, _)).WillRepeatedly(
-                Return(m_freq_accelerator_min));
+                Return(m_freq_gpu_min));
     EXPECT_CALL(*m_platform_io, read_signal("GPU_FREQUENCY_MAX_AVAIL", _, _)).WillRepeatedly(
-                Return(m_freq_accelerator_max));
+                Return(m_freq_gpu_max));
     EXPECT_CALL(*m_platform_io, read_signal("FREQUENCY_MIN", _, _)).WillRepeatedly(
                 Return(m_freq_min));
     EXPECT_CALL(*m_platform_io, read_signal("FREQUENCY_MAX", _, _)).WillRepeatedly(
@@ -195,7 +195,7 @@ TEST_F(FixedFrequencyAgentTest, validate_policy)
     m_agent->validate_policy(policy);
     // validate policy is unmodified 
     ASSERT_EQ(m_num_policy, policy.size());
-    EXPECT_EQ(m_freq_accelerator_max, policy[ACCELERATOR_FREQUENCY]);
+    EXPECT_EQ(m_freq_gpu_max, policy[GPU_FREQUENCY]);
     EXPECT_EQ(m_freq_max, policy[CPU_FREQUENCY]);
     EXPECT_EQ(m_freq_uncore_min, policy[UNCORE_MIN_FREQUENCY]);
     EXPECT_EQ(m_freq_uncore_max, policy[UNCORE_MAX_FREQUENCY]);
@@ -204,16 +204,16 @@ TEST_F(FixedFrequencyAgentTest, validate_policy)
     // setup & load NAN policy
     policy = empty;
     m_agent->validate_policy(policy);
-    EXPECT_TRUE(std::isnan(policy[ACCELERATOR_FREQUENCY]));
+    EXPECT_TRUE(std::isnan(policy[GPU_FREQUENCY]));
 
-    // check for accelerator frequency out of range
-    policy[ACCELERATOR_FREQUENCY] = m_freq_accelerator_max + 1;
+    // check for gpu frequency out of range
+    policy[GPU_FREQUENCY] = m_freq_gpu_max + 1;
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->validate_policy(policy), GEOPM_ERROR_INVALID,
-			       "accelerator frequency out of range");
+			       "gpu frequency out of range");
 
-    policy[ACCELERATOR_FREQUENCY] = m_freq_accelerator_min - 1;
+    policy[GPU_FREQUENCY] = m_freq_gpu_min - 1;
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->validate_policy(policy), GEOPM_ERROR_INVALID,
-			       "accelerator frequency out of range");
+			       "gpu frequency out of range");
 
     // check for cpu frequency out of range
     policy = empty;
