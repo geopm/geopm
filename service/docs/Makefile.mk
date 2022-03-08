@@ -196,6 +196,10 @@ base_man = docs/build/man/geopmadmin.1 \
 
 all_man = $(dist_man_MANS) $(base_man)
 
+docs: docs_man docs_html
+
+if ENABLE_DOCS
+
 all_man_target = docs/build/man/.dirfile
 
 $(all_man_target): $(all_man_rst)
@@ -206,7 +210,6 @@ $(all_man_target): $(all_man_rst)
 
 $(all_man): docs/build/man/%: $(top_srcdir)/docs/source/%.rst $(all_man_target)
 
-docs: docs_man docs_html
 
 docs_html: libgeopmd.la $(abs_srcdir)/geopmdpy/version.py
 	LD_LIBRARY_PATH=.libs:$(LD_LIBRARY_PATH) \
@@ -218,6 +221,15 @@ docs_man: libgeopmd.la $(abs_srcdir)/geopmdpy/version.py
 	PYTHONPATH=$(abs_srcdir):$(PYTHONPATH) \
 	sphinx-build -M man $(abs_srcdir)/docs/source docs/build
 
+else
+
+$(all_man): docs/build/man/%: $(top_srcdir)/docs/source/%.rst
+	mkdir -p docs/build/man
+	cp $^ $@
+
+docs_html:
+
+endif
 
 clean-local-docs:
 	rm -rf docs/build
