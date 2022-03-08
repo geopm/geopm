@@ -2,8 +2,8 @@
    :format: html
 
 
-geopm_agent_frequency_map(7) --  agent for setting fixed CPU, Uncore, and Accelerator frequencies
-=================================================================================================
+geopm_agent_fixed_frequency(7) --  agent for setting fixed CPU, Uncore, and Accelerator frequencies
+===================================================================================================
 
 
 
