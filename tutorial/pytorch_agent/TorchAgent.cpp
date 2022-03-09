@@ -75,7 +75,7 @@ TorchAgent::TorchAgent(geopm::PlatformIO &plat_io, const geopm::PlatformTopo &to
     , M_POLICY_PHI_DEFAULT(0.5)
     , M_NUM_GPU(m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR))
     , m_do_write_batch(false)
-    , m_gpu_nn_path("gpu_control.kt")
+    , m_gpu_nn_path("gpu_control.pt")
 {
     geopm_time(&m_last_wait);
 }
