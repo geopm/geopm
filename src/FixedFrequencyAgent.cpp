@@ -58,7 +58,6 @@ namespace geopm
         , m_platform_topo(platform_topo())
         , m_last_wait{{0, 0}}
         , M_WAIT_SEC(0.005) // 5mS wait default, override with policy parameter
-        , m_do_write_batch(false)
         , m_is_adjust_initialized(false)
     {
         geopm_time(&m_last_wait);
@@ -119,19 +118,19 @@ namespace geopm
 	else if (!(std::isnan(in_policy[M_POLICY_UNCORE_MIN_FREQUENCY]) &&
 		   std::isnan(in_policy[M_POLICY_UNCORE_MAX_FREQUENCY]))) {
 	         throw Exception("FixedFrequencyAgent::" + std::string(__func__) +
-                                "(): when using NAN for uncore frequency, both min and max must be NAN: " +
-                                std::to_string(in_policy[M_POLICY_UNCORE_MIN_FREQUENCY]) + " " +
-                                std::to_string(in_policy[M_POLICY_UNCORE_MAX_FREQUENCY]) + ".",
-                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                                 "(): when using NAN for uncore frequency, both min and max must be NAN: " +
+                                 std::to_string(in_policy[M_POLICY_UNCORE_MIN_FREQUENCY]) + " " +
+                                 std::to_string(in_policy[M_POLICY_UNCORE_MAX_FREQUENCY]) + ".",
+                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
 
 	}
 
 	if (!std::isnan(in_policy[M_POLICY_SAMPLE_PERIOD])) {
-	  if (in_policy[M_POLICY_SAMPLE_PERIOD] <= 0.0) {
-	      throw Exception("FixedFrequencyAgent::" + std::string(__func__) +
-			      "(): sample period must be greater than 0: " +
-			      std::to_string(in_policy[M_POLICY_CPU_FREQUENCY]) + ".",
-			      GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+	    if (in_policy[M_POLICY_SAMPLE_PERIOD] <= 0.0) {
+	        throw Exception("FixedFrequencyAgent::" + std::string(__func__) +
+                                "(): sample period must be greater than 0: " +
+			        std::to_string(in_policy[M_POLICY_CPU_FREQUENCY]) + ".",
+			        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
 
 	  }
 	}
@@ -169,38 +168,37 @@ namespace geopm
     void FixedFrequencyAgent::adjust_platform(const std::vector<double>& in_policy)
     {
         assert(in_policy.size() == M_NUM_POLICY);
-        m_do_write_batch = false;
-
+	
         if (!m_is_adjust_initialized) {
-	    double gpu_freq_request = in_policy[M_POLICY_GPU_FREQUENCY];
-	    double cpu_freq_request = in_policy[M_POLICY_CPU_FREQUENCY];
-	    double uncore_min_freq_request = in_policy[M_POLICY_UNCORE_MIN_FREQUENCY];
-	    double uncore_max_freq_request = in_policy[M_POLICY_UNCORE_MAX_FREQUENCY];
-	    double sample_period = in_policy[M_POLICY_SAMPLE_PERIOD];
-	    
-	    if (!std::isnan(sample_period)) {
-		M_WAIT_SEC = sample_period;
-	    }
-	    
-	    // set gpu frequency control
-	    if (!std::isnan(gpu_freq_request)) {
-	        m_platform_io.write_control("GPU_FREQUENCY_CONTROL",GEOPM_DOMAIN_BOARD,0,gpu_freq_request);
-	    }
-	    
-	    // set CPU frequency control
-	    if (!std::isnan(cpu_freq_request)) {
-	        m_platform_io.write_control("CPU_FREQUENCY_CONTROL",GEOPM_DOMAIN_BOARD,0,cpu_freq_request);
-	    }
-	    
-	    // set Uncore frequency controls
-	    if (!std::isnan(uncore_min_freq_request)) {
-	        m_platform_io.write_control("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO",GEOPM_DOMAIN_BOARD,0,uncore_min_freq_request);
-	    }
+            double gpu_freq_request = in_policy[M_POLICY_GPU_FREQUENCY];
+            double cpu_freq_request = in_policy[M_POLICY_CPU_FREQUENCY];
+            double uncore_min_freq_request = in_policy[M_POLICY_UNCORE_MIN_FREQUENCY];
+            double uncore_max_freq_request = in_policy[M_POLICY_UNCORE_MAX_FREQUENCY];
+            double sample_period = in_policy[M_POLICY_SAMPLE_PERIOD];
 
-	    if (!std::isnan(uncore_max_freq_request)) {
-  	        m_platform_io.write_control("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO",GEOPM_DOMAIN_BOARD,0,uncore_min_freq_request); 
-	    }
-	    
+            if (!std::isnan(sample_period)) {
+                M_WAIT_SEC = sample_period;
+            }
+    
+            // set gpu frequency control
+            if (!std::isnan(gpu_freq_request)) {
+                m_platform_io.write_control("GPU_FREQUENCY_CONTROL",GEOPM_DOMAIN_BOARD,0,gpu_freq_request);
+            }
+
+            // set CPU frequency control
+            if (!std::isnan(cpu_freq_request)) {
+                m_platform_io.write_control("CPU_FREQUENCY_CONTROL",GEOPM_DOMAIN_BOARD,0,cpu_freq_request);
+            }
+
+            // set Uncore frequency controls
+            if (!std::isnan(uncore_min_freq_request)) {
+                m_platform_io.write_control("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO",GEOPM_DOMAIN_BOARD,0,uncore_min_freq_request);
+            }
+
+            if (!std::isnan(uncore_max_freq_request)) {
+                m_platform_io.write_control("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO",GEOPM_DOMAIN_BOARD,0,uncore_min_freq_request); 
+            }
+
             m_is_adjust_initialized = true;
         }
 
@@ -209,7 +207,7 @@ namespace geopm
     //If new values have been adjusted, write
     bool FixedFrequencyAgent::do_write_batch(void) const
     {
-        return m_do_write_batch;
+        return false;
     }
 
     // Read signals from the platform and calculate samples to be sent up

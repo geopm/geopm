@@ -111,10 +111,10 @@ The minimum and maximum accelerator frequencies are queried as below:
 
 .. code-block:: bash
 
-    $ geopmread NVML::FREQUENCY_MIN board 0
+    $ geopmread GPU_FREQUENCY_MIN_AVAIL board 0
     135000000
 
-    $ geopmread NVML::FREQUENCY_MAX board 0
+    $ geopmread GPU_FREQUENCY_MAX_AVAIL board 0
     1530000000
 
 The minimum, sticker, and maximum CPU frequencies are queried as below:
