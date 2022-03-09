@@ -73,130 +73,9 @@ TorchAgent::TorchAgent(geopm::PlatformIO &plat_io, const geopm::PlatformTopo &to
     , m_last_wait{{0, 0}}
     , M_WAIT_SEC(0.050) // 50ms Wait
     , M_POLICY_PHI_DEFAULT(0.5)
+    , M_NUM_GPU(m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR))
     , m_do_write_batch(false)
-    // This agent approach is meant to allow for quick prototyping through simplifying
-    // signal & control addition and usage.  Most changes to signals and controls
-    // should be accomplishable with changes to the declaration below (instead of updating
-    // init_platform_io, sample_platform, etc).  Signal & control usage is still
-    // handled in adjust_platform per usual.
-    , m_signal_available({
-                          {"GPU_FREQUENCY_STATUS", {         // Name of signal to be queried
-                              GEOPM_DOMAIN_BOARD_ACCELERATOR, // Domain for the signal
-                              true,                           // Should the signal appear in the trace
-                              {}                              // Empty Vector to contain the signal info
-                              }},
-                          {"GPU_COMPUTE_ACTIVITY", {
-                              GEOPM_DOMAIN_BOARD_ACCELERATOR,
-                              true,
-                              {}
-                              }},
-                          {"GPU_MEMORY_ACTIVITY", {
-                              GEOPM_DOMAIN_BOARD_ACCELERATOR,
-                              true,
-                              {}
-                              }},
-                          {"GPU_UTILIZATION", {
-                              GEOPM_DOMAIN_BOARD_ACCELERATOR,
-                              true,
-                              {}
-                              }},
-                          {"GPU_ENERGY", {
-                              GEOPM_DOMAIN_BOARD_ACCELERATOR,
-                              true,
-                              {}
-                              }},
-                          {"GPU_POWER", {
-                              GEOPM_DOMAIN_BOARD_ACCELERATOR,
-                              true,
-                              {}
-                              }},
-                          ///CPU SIGNALS BELOW
-                          {"POWER_PACKAGE", {
-                              GEOPM_DOMAIN_BOARD,
-                              true,
-                              {}
-                              }},
-                          {"POWER_DRAM", {
-                              GEOPM_DOMAIN_BOARD_MEMORY,
-                              true,
-                              {}
-                              }},
-                          {"FREQUENCY", { //TODO: should move to CPU_FREQUENCY_STATUS
-                              GEOPM_DOMAIN_BOARD,
-                              true,
-                              {}
-                              }},
-                          {"TEMPERATURE_PACKAGE", {
-                              GEOPM_DOMAIN_BOARD,
-                              true,
-                              {}
-                              }},
-                          {"ENERGY_DRAM", {
-                              GEOPM_DOMAIN_BOARD_MEMORY,
-                              true,
-                              {}
-                              }},
-                          {"INSTRUCTIONS_RETIRED", {
-                              GEOPM_DOMAIN_BOARD,
-                              true,
-                              {}
-                              }},
-                          {"INSTRUCTIONS_RETIRED", {
-                              GEOPM_DOMAIN_PACKAGE,
-                              true,
-                              {}
-                              }},
-                          {"CYCLES_REFERENCE", {
-                              GEOPM_DOMAIN_BOARD,
-                              true,
-                              {}
-                              }},
-                          {"MSR::UNCORE_PERF_STATUS:FREQ", {
-                              GEOPM_DOMAIN_PACKAGE,
-                              true,
-                              {}
-                              }},
-                          {"QM_CTR_SCALED_RATE", {
-                              GEOPM_DOMAIN_PACKAGE,
-                              true,
-                              {}
-                              }},
-                          {"ENERGY_PACKAGE", {
-                              GEOPM_DOMAIN_PACKAGE,
-                              true,
-                              {}
-                              }},
-                          {"MSR::APERF:ACNT", {
-                              GEOPM_DOMAIN_PACKAGE,
-                              true,
-                              {}
-                              }},
-                          {"MSR::MPERF:MCNT", {
-                              GEOPM_DOMAIN_PACKAGE,
-                              true,
-                              {}
-                              }},
-                          {"MSR::PPERF:PCNT", {
-                              GEOPM_DOMAIN_PACKAGE,
-                              false,
-                              {}
-                              }},
-                         })
-    , m_control_available({
-                           {"GPU_FREQUENCY_CONTROL", {
-                                GEOPM_DOMAIN_BOARD_ACCELERATOR,
-                                false,
-                                {}
-                                }},
-                            //TODO: Add CPU controls
-                         })
-    , m_cpu_nn_exists(true)
-    , m_cpu_nn_path("cpu_control.kt")
-    , m_gpu_nn_exists(true)
     , m_gpu_nn_path("gpu_control.kt")
-    , m_gpu_coarse_metrics(true)
-    , m_gpu_fine_metrics(true)
-    , m_gpu_controls(true)
 {
     geopm_time(&m_last_wait);
 }
@@ -204,34 +83,17 @@ TorchAgent::TorchAgent(geopm::PlatformIO &plat_io, const geopm::PlatformTopo &to
 // Push signals and controls for future batch read/write
 void TorchAgent::init(int level, const std::vector<int> &fan_in, bool is_level_root)
 {
-    m_accelerator_frequency_requests = 0;
+    m_gpu_frequency_requests = 0;
 
     try {
-        //m_gpu_neural_net = torch::jit::load(m_gpu_nn_path);
-
-        //Using a NN per GPU.
-        for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR); ++domain_idx) {
+        for (int domain_idx = 0; domain_idx < M_NUM_GPU; ++domain_idx) {
             m_gpu_neural_net.push_back(torch::jit::load(m_gpu_nn_path));
         }
     }
     catch (const c10::Error& e) {
-        m_gpu_nn_exists = false;
-        std::cerr << "Failed to load GPU NN" << std::endl;
-    }
-
-    try {
-        m_cpu_neural_net = torch::jit::load(m_cpu_nn_path);
-    }
-    catch (const c10::Error& e) {
-        m_cpu_nn_exists = false;
-        std::cerr << "Failed to load CPU NN" << std::endl;
-    }
-
-    if (!m_cpu_nn_exists && !m_gpu_nn_exists) {
         throw geopm::Exception("TorchAgent::" + std::string(__func__) +
                                "(): Failed to load GPU Neural Net: " +
-                               m_gpu_nn_path + " and CPU Neural Net: " +
-                               m_cpu_nn_path + ".",
+                               m_gpu_nn_path + ".",
                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
 
@@ -240,56 +102,34 @@ void TorchAgent::init(int level, const std::vector<int> &fan_in, bool is_level_r
 
 void TorchAgent::init_platform_io(void)
 {
-    // populate signals for each domain with batch idx info, default values, etc
-    for (auto &sv : m_signal_available) {
-        //confirm signal exists, push back for future usage if it does
-        auto all_names = m_platform_io.signal_names();
-        if (all_names.find(sv.first) != all_names.end()) {
-            for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(sv.second.domain); ++domain_idx) {
-                signal sgnl = signal{m_platform_io.push_signal(sv.first,
-                                                               sv.second.domain,
-                                                               domain_idx), NAN, NAN};
-                sv.second.signals.push_back(sgnl);
-            }
-        }
-        else {
-            std::cerr << "Skipping signal: " << sv.first << std::endl;
-            if(sv.first == "GPU_POWER") {
-                m_gpu_coarse_metrics = false;
-            }
-            else if(sv.first == "GPU_COMPUTE_ACTIVITY") {
-                m_gpu_fine_metrics = false;
-            }
-        }
+
+    for (int domain_idx = 0; domain_idx < M_NUM_GPU; ++domain_idx) {
+        m_gpu_freq_status.push_back({m_platform_io.push_signal("GPU_FREQUENCY_STATUS",
+                                     GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                     domain_idx), NAN});
+        m_gpu_compute_activity.push_back({m_platform_io.push_signal("GPU_COMPUTE_ACTIVITY",
+                                          GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                          domain_idx), NAN});
+        m_gpu_memory_activity.push_back({m_platform_io.push_signal("GPU_MEMORY_ACTIVITY",
+                                          GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                          domain_idx), NAN});
+        m_gpu_utilization.push_back({m_platform_io.push_signal("GPU_UTILIZATION",
+                                     GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                     domain_idx), NAN});
+        m_gpu_power.push_back({m_platform_io.push_signal("GPU_POWER",
+                                GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                domain_idx), NAN});
     }
 
-    // populate controls for each domain
-    for (auto &sv : m_control_available) {
-        //confirm signal exists, push back for future usage if it does
-        auto all_names = m_platform_io.control_names();
-        if (all_names.find(sv.first) != all_names.end()) {
-            for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(sv.second.domain); ++domain_idx) {
-                control ctrl = control{m_platform_io.push_control(sv.first,
-                                                                  sv.second.domain,
-                                                                  domain_idx), NAN};
-                sv.second.controls.push_back(ctrl);
-            }
-        }
-        else {
-            std::cerr << "Skipping control: " << sv.first << std::endl;
-            if(sv.first == "GPU_FREQUENCY_CONTROL") {
-                m_gpu_controls = false;
-            }
-        }
+    for (int domain_idx = 0; domain_idx < M_NUM_GPU; ++domain_idx) {
+        m_gpu_freq_control.push_back({m_platform_io.push_control("GPU_FREQUENCY_CONTROL",
+                                     GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                     domain_idx), NAN});
     }
 
     auto all_names = m_platform_io.control_names();
     if (all_names.find("DCGM::FIELD_UPDATE_RATE") != all_names.end()) {
-        // DCGM documentation indicates that users should query no faster than 100ms
-        // even though the interface allows for setting the polling rate in the us range.
-        // In practice reducing below the 100ms value has proven functional, but should only
-        // be attempted if there is a proven need to catch short phase behavior that cannot
-        // be accomplished with the default settings.
+        //Configuration of DCGM to recommended values for this agent
         m_platform_io.write_control("DCGM::FIELD_UPDATE_RATE", GEOPM_DOMAIN_BOARD, 0, 0.1); //100ms
         m_platform_io.write_control("DCGM::MAX_STORAGE_TIME", GEOPM_DOMAIN_BOARD, 0, 1);
         m_platform_io.write_control("DCGM::MAX_SAMPLES", GEOPM_DOMAIN_BOARD, 0, 100);
@@ -353,22 +193,6 @@ void TorchAgent::validate_policy(std::vector<double> &in_policy) const
                                std::to_string(in_policy[M_POLICY_GPU_PHI]) + ".",
                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
-
-    ///////////////////////
-    //CPU POLICY CHECKING//
-    ///////////////////////
-    // If no phi value is provided assume the default behavior.
-    if (std::isnan(in_policy[M_POLICY_CPU_PHI])) {
-        in_policy[M_POLICY_CPU_PHI] = M_POLICY_PHI_DEFAULT;
-    }
-
-    if (in_policy[M_POLICY_CPU_PHI] < 0.0 ||
-        in_policy[M_POLICY_CPU_PHI] > 1.0) {
-        throw geopm::Exception("TorchAgent::" + std::string(__func__) +
-                               "(): POLICY_CPU_PHI value out of range: " +
-                               std::to_string(in_policy[M_POLICY_CPU_PHI]) + ".",
-                               GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-    }
 }
 
 // Distribute incoming policy to children
@@ -405,68 +229,47 @@ void TorchAgent::adjust_platform(const std::vector<double>& in_policy)
 
     m_do_write_batch = false;
 
-    if (m_gpu_nn_exists) {
-        // Per GPU freq
-        std::vector<double> gpu_freq_request;
-        // Primary signal used for frequency recommendation
-        auto gpu_frequency_itr = m_signal_available.find("GPU_FREQUENCY_STATUS");
-        auto gpu_power_itr = m_signal_available.find("GPU_POWER");
-        auto gpu_utilization_itr = m_signal_available.find("GPU_UTILIZATION");
-        auto gpu_compute_active_itr = m_signal_available.find("GPU_COMPUTE_ACTIVITY");
-        auto gpu_mem_active_itr = m_signal_available.find("GPU_MEMORY_ACTIVITY");
+    // Per GPU freq
+    std::vector<double> gpu_freq_request;
 
-        double gpu_freq = 0;
-        double gpu_power = 0;
-        double gpu_util = 0;
-        double gpu_compute_active = 0;
-        double gpu_mem_active = 0;
+    for (int domain_idx = 0; domain_idx < M_NUM_GPU; ++domain_idx) {
+        //Create an input tensor
+        torch::Tensor xs = torch::tensor({{m_gpu_freq_status.at(domain_idx).value,
+                                          m_gpu_power.at(domain_idx).value,
+                                          m_gpu_utilization.at(domain_idx).value,
+                                          m_gpu_compute_activity.at(domain_idx).value,
+                                          m_gpu_memory_activity.at(domain_idx).value,
+                                          in_policy[M_POLICY_GPU_PHI]}});
 
-        for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR); ++domain_idx) {
-            if (m_gpu_coarse_metrics) {
-                gpu_freq = gpu_frequency_itr->second.signals.at(domain_idx).m_last_sample;
-                gpu_power = gpu_power_itr->second.signals.at(domain_idx).m_last_sample;
-                gpu_util = gpu_utilization_itr->second.signals.at(domain_idx).m_last_sample;
-            }
-            if (m_gpu_fine_metrics) {
-                gpu_compute_active = gpu_compute_active_itr->second.signals.at(domain_idx).m_last_sample;
-                gpu_mem_active = gpu_mem_active_itr->second.signals.at(domain_idx).m_last_sample;
-            }
-            torch::Tensor xs = torch::tensor({{gpu_freq,
-                                              gpu_power,
-                                              gpu_util,
-                                              gpu_compute_active,
-                                              gpu_mem_active,
-                                              in_policy[M_POLICY_GPU_PHI]}});
+        //Push tensor into IValue vector
+        std::vector<torch::jit::IValue> model_input;
+        model_input.push_back(xs);
 
-            std::vector<torch::jit::IValue> model_input;
-            model_input.push_back(xs);
+        //Evaluate
+        at::Tensor output = m_gpu_neural_net.at(domain_idx).forward(model_input).toTensor();
 
-            at::Tensor output = m_gpu_neural_net.at(domain_idx).forward(model_input).toTensor();
-            gpu_freq_request.push_back(output[0].item<double>() * 1e9); // Just assuming we need to convert
+        //Save recommendation and convert to SI units for later application
+        gpu_freq_request.push_back(output[0].item<double>() * 1e9);
+    }
+
+    // set frequency control per accelerator
+    for (int domain_idx = 0; domain_idx < M_NUM_GPU; ++domain_idx) {
+        //NAN --> Max Frequency
+        if(std::isnan(gpu_freq_request.at(domain_idx))) {
+            gpu_freq_request.at(domain_idx) = in_policy[M_POLICY_GPU_FREQ_MAX];
         }
 
-        if (!gpu_freq_request.empty() && m_gpu_controls) {
-            // set frequency control per accelerator
-            auto freq_ctl_itr = m_control_available.find("GPU_FREQUENCY_CONTROL");
-            for (int domain_idx = 0; domain_idx < (int) freq_ctl_itr->second.controls.size(); ++domain_idx) {
-                //NAN --> Max Frequency
-                if(std::isnan(gpu_freq_request.at(domain_idx))) {
-                    gpu_freq_request.at(domain_idx) = in_policy[M_POLICY_GPU_FREQ_MAX];
-                }
+        if (gpu_freq_request.at(domain_idx) !=
+            m_gpu_freq_control.at(domain_idx).last_setting) {
+            //Adjust
+            m_platform_io.adjust(m_gpu_freq_control.at(domain_idx).batch_idx,
+                                 gpu_freq_request.at(domain_idx));
 
-                if (gpu_freq_request.at(domain_idx) !=
-                    freq_ctl_itr->second.controls.at(domain_idx).m_last_setting) {
-                    //Adjust
-                    m_platform_io.adjust(freq_ctl_itr->second.controls.at(domain_idx).m_batch_idx,
-                                         gpu_freq_request.at(domain_idx));
+            //save the value for future comparison
+            m_gpu_freq_control.at(domain_idx).last_setting = gpu_freq_request.at(domain_idx);
 
-                    //save the value for future comparison
-                    freq_ctl_itr->second.controls.at(domain_idx).m_last_setting =
-                                         gpu_freq_request.at(domain_idx);
-                    ++m_accelerator_frequency_requests;
-                    m_do_write_batch = true;
-                }
-            }
+            ++m_gpu_frequency_requests;
+            m_do_write_batch = true;
         }
     }
 }
@@ -483,21 +286,17 @@ void TorchAgent::sample_platform(std::vector<double> &out_sample)
     assert(out_sample.size() == M_NUM_SAMPLE);
 
     // Collect latest signal values
-    for (auto &sv : m_signal_available) {
-        for (int domain_idx = 0; domain_idx < (int) sv.second.signals.size(); ++domain_idx) {
-            double curr_value = m_platform_io.sample(sv.second.signals.at(domain_idx).m_batch_idx);
-
-            if (sv.first == "GPU_ENERGY" ||
-                sv.first == "ENERGY_PACKAGE" ||
-                sv.first == "ENERGY_DRAM") {
-                sv.second.signals.at(domain_idx).m_last_sample = curr_value -
-                                                                 sv.second.signals.at(domain_idx).m_last_signal;
-            }
-            else {
-                sv.second.signals.at(domain_idx).m_last_sample = sv.second.signals.at(domain_idx).m_last_signal;
-            }
-            sv.second.signals.at(domain_idx).m_last_signal = curr_value;
-        }
+    for (int domain_idx = 0; domain_idx < M_NUM_GPU; ++domain_idx) {
+        m_gpu_freq_status.at(domain_idx).value = m_platform_io.sample(m_gpu_freq_status.at(
+                                                                      domain_idx).batch_idx);
+        m_gpu_compute_activity.at(domain_idx).value = m_platform_io.sample(m_gpu_compute_activity.at(
+                                                                           domain_idx).batch_idx);
+        m_gpu_memory_activity.at(domain_idx).value = m_platform_io.sample(m_gpu_memory_activity.at(
+                                                                           domain_idx).batch_idx);
+        m_gpu_utilization.at(domain_idx).value = m_platform_io.sample(m_gpu_utilization.at(
+                                                                      domain_idx).batch_idx);
+        m_gpu_power.at(domain_idx).value = m_platform_io.sample(m_gpu_power.at(
+                                                                 domain_idx).batch_idx);
     }
 }
 
@@ -523,7 +322,7 @@ std::vector<std::pair<std::string, std::string> > TorchAgent::report_host(void) 
 {
     std::vector<std::pair<std::string, std::string> > result;
 
-    result.push_back({"Accelerator Frequency Requests", std::to_string(m_accelerator_frequency_requests)});
+    result.push_back({"Accelerator Frequency Requests", std::to_string(m_gpu_frequency_requests)});
     return result;
 }
 
@@ -536,76 +335,17 @@ std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > TorchAgen
 // Adds trace columns signals of interest
 std::vector<std::string> TorchAgent::trace_names(void) const
 {
-    std::vector<std::string> names;
-
-    // Signals
-    // Automatically build name in the format: "FREQUENCY_ACCELERATOR-board_accelerator-0"
-    for (auto &sv : m_signal_available) {
-        if (sv.second.trace_signal) {
-            for (int domain_idx = 0; domain_idx < (int) sv.second.signals.size(); ++domain_idx) {
-                names.push_back(sv.first + "-" + m_platform_topo.domain_type_to_name(sv.second.domain) + "-" + std::to_string(domain_idx));
-            }
-        }
-    }
-    // Controls
-    // Automatically build name in the format: "FREQUENCY_ACCELERATOR_CONTROL-board_accelerator-0"
-    for (auto &sv : m_control_available) {
-        if (sv.second.trace_control) {
-            for (int domain_idx = 0; domain_idx < (int) sv.second.controls.size(); ++domain_idx) {
-                names.push_back(sv.first + "-" + m_platform_topo.domain_type_to_name(sv.second.domain) + "-" + std::to_string(domain_idx));
-            }
-        }
-    }
-
-    return names;
-
+    return {};
 }
 
 // Updates the trace with values for signals from this Agent
 void TorchAgent::trace_values(std::vector<double> &values)
 {
-    int values_idx = 0;
-
-    //Signal values are added to the trace by this agent, not sample values.
-    for (auto &sv : m_signal_available) {
-        if (sv.second.trace_signal) {
-            for (int domain_idx = 0; domain_idx < (int) sv.second.signals.size(); ++domain_idx) {
-                values[values_idx] = sv.second.signals.at(domain_idx).m_last_signal;
-                ++values_idx;
-            }
-        }
-    }
-
-    for (auto &sv : m_control_available) {
-        if (sv.second.trace_control) {
-            for (int domain_idx = 0; domain_idx < (int) sv.second.controls.size(); ++domain_idx) {
-                values[values_idx] = sv.second.controls.at(domain_idx).m_last_setting;
-                ++values_idx;
-            }
-        }
-    }
 }
 
 std::vector<std::function<std::string(double)> > TorchAgent::trace_formats(void) const
 {
-    std::vector<std::function<std::string(double)>> trace_formats;
-    for (auto &sv : m_signal_available) {
-        if (sv.second.trace_signal) {
-            for (int domain_idx = 0; domain_idx < (int) sv.second.signals.size(); ++domain_idx) {
-                trace_formats.push_back(m_platform_io.format_function(sv.first));
-            }
-        }
-    }
-
-    for (auto &sv : m_control_available) {
-        if (sv.second.trace_control) {
-            for (int domain_idx = 0; domain_idx < (int) sv.second.controls.size(); ++domain_idx) {
-                trace_formats.push_back(m_platform_io.format_function(sv.first));
-            }
-        }
-    }
-
-    return trace_formats;
+    return {};
 }
 
 // Name used for registration with the Agent factory
@@ -623,7 +363,7 @@ std::unique_ptr<Agent> TorchAgent::make_plugin(void)
 // Describes expected policies to be provided by the resource manager or user
 std::vector<std::string> TorchAgent::policy_names(void)
 {
-    return {"GPU_FREQ_MIN", "GPU_FREQ_MAX", "GPU_PHI", "CPU_PHI"};
+    return {"GPU_FREQ_MIN", "GPU_FREQ_MAX", "GPU_PHI"};
 }
 
 // Describes samples to be provided to the resource manager or user
