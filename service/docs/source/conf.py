@@ -140,6 +140,7 @@ rst_files = [
     "GEOPM_CXX_MAN_EnergyEfficientAgent.3",
     "GEOPM_CXX_MAN_EnergyEfficientRegion.3",
     "GEOPM_CXX_MAN_Exception.3",
+    "GEOPM_CXX_MAN_GPUActivityAgent.3",
     "GEOPM_CXX_MAN_Helper.3",
     "GEOPM_CXX_MAN_IOGroup.3",
     "GEOPM_CXX_MAN_MonitorAgent.3",

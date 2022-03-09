@@ -246,6 +246,7 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              man/GEOPM_CXX_MAN_Endpoint.3 \
              man/GEOPM_CXX_MAN_EnergyEfficientAgent.3 \
              man/GEOPM_CXX_MAN_EnergyEfficientRegion.3 \
+             man/GEOPM_CXX_MAN_GPUActivityAgent.3 \
              man/GEOPM_CXX_MAN_MonitorAgent.3 \
              man/GEOPM_CXX_MAN_MPIComm.3 \
              man/GEOPM_CXX_MAN_PowerBalancer.3 \

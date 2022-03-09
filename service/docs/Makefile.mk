@@ -69,6 +69,7 @@ all_man_rst = docs/source/geopm.7.rst \
               docs/source/geopm_agent_c.3.rst \
               docs/source/geopm_agent_energy_efficient.7.rst \
               docs/source/geopm_agent_frequency_map.7.rst \
+              docs/source/geopm_agent_gpu_activity.7.rst \
               docs/source/geopm_agent_monitor.7.rst \
               docs/source/geopm_agent_power_balancer.7.rst \
               docs/source/geopm_agent_power_governor.7.rst \
@@ -86,6 +87,7 @@ all_man_rst = docs/source/geopm.7.rst \
               docs/source/GEOPM_CXX_MAN_EnergyEfficientAgent.3.rst \
               docs/source/GEOPM_CXX_MAN_EnergyEfficientRegion.3.rst \
               docs/source/GEOPM_CXX_MAN_Exception.3.rst \
+              docs/source/GEOPM_CXX_MAN_GPUActivityAgent.3.rst \
               docs/source/GEOPM_CXX_MAN_Helper.3.rst \
               docs/source/GEOPM_CXX_MAN_IOGroup.3.rst \
               docs/source/GEOPM_CXX_MAN_MonitorAgent.3.rst \
@@ -175,6 +177,7 @@ base_man = docs/build/man/geopmadmin.1 \
            docs/build/man/GEOPM_CXX_MAN_Endpoint.3 \
            docs/build/man/GEOPM_CXX_MAN_EnergyEfficientAgent.3 \
            docs/build/man/GEOPM_CXX_MAN_EnergyEfficientRegion.3 \
+           docs/build/man/GEOPM_CXX_MAN_GPUActivityAgent.3 \
            docs/build/man/GEOPM_CXX_MAN_MonitorAgent.3 \
            docs/build/man/GEOPM_CXX_MAN_MPIComm.3 \
            docs/build/man/GEOPM_CXX_MAN_PowerBalancer.3 \

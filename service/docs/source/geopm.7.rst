@@ -268,87 +268,87 @@ GEOPM ENVIRONMENT VARIABLES
 ---------------------------
 
 
-* 
+*
   ``GEOPM_REPORT``\ :
   See documentation for equivalent command line option to
   `geopmlaunch(1) <geopmlaunch.1.html>`_ called ``--geopm-report``.
 
-* 
+*
   ``GEOPM_REPORT_SIGNALS``\ :
   See documentation for equivalent command line option to
   `geopmlaunch(1) <geopmlaunch.1.html>`_ called ``--geopm-report-signals``.
 
-* 
+*
   ``GEOPM_TRACE``\ :
   See documentation for equivalent command line option to
   `geopmlaunch(1) <geopmlaunch.1.html>`_ called ``--geopm-trace``.
 
-* 
+*
   ``GEOPM_TRACE_SIGNALS``\ :
   See documentation for equivalent command line option to
   `geopmlaunch(1) <geopmlaunch.1.html>`_ called ``--geopm-trace-signals``.
 
-* 
+*
   ``GEOPM_TRACE_PROFILE``\ :
   See documentation for equivalent command line option to
   `geopmlaunch(1) <geopmlaunch.1.html>`_ called ``--geopm-trace-profile``.
 
-* 
+*
   ``GEOPM_TRACE_ENDPOINT_POLICY``\ :
   See documentation for equivalent command line option to
   `geopmlaunch(1) <geopmlaunch.1.html>`_ called ``--geopm-trace-endpoint-policy``.
 
-* 
+*
   ``GEOPM_PROFILE``\ :
   See documentation for equivalent command line option to
   `geopmlaunch(1) <geopmlaunch.1.html>`_ called ``--geopm-profile``.
 
-* 
+*
   ``GEOPM_CTL``\ :
   See documentation for equivalent command line option to
   `geopmlaunch(1) <geopmlaunch.1.html>`_ called ``--geopm-ctl``.
 
-* 
+*
   ``GEOPM_AGENT``\ :
   See documentation for equivalent command line option to
   `geopmlaunch(1) <geopmlaunch.1.html>`_ called ``--geopm-agent``.
 
-* 
+*
   ``GEOPM_POLICY``\ :
   See documentation for equivalent command line option to
   `geopmlaunch(1) <geopmlaunch.1.html>`_ called ``--geopm-policy``.
 
-* 
+*
   ``GEOPM_ENDPOINT``\ :
   See documentation for equivalent command line option to
   `geopmlaunch(1) <geopmlaunch.1.html>`_ called ``--geopm-endpoint``.
 
-* 
+*
   ``GEOPM_SHMKEY``\ :
   See documentation for equivalent command line option to
   `geopmlaunch(1) <geopmlaunch.1.html>`_ called ``--geopm-shmkey``.
 
-* 
+*
   ``GEOPM_TIMEOUT``\ :
   See documentation for equivalent command line option to
   `geopmlaunch(1) <geopmlaunch.1.html>`_ called ``--geopm-timeout``.
 
-* 
+*
   ``GEOPM_PLUGIN_PATH``\ :
   See documentation for equivalent command line option to
   `geopmlaunch(1) <geopmlaunch.1.html>`_ called ``--geopm-plugin-path``.
 
-* 
+*
   ``GEOPM_DEBUG_ATTACH``\ :
   See documentation for equivalent command line option to
   `geopmlaunch(1) <geopmlaunch.1.html>`_ called ``--geopm-debug-attach``.
 
-* 
+*
   ``GEOPM_DISABLE_HYPERTHREADS``\ :
   See documentation for equivalent command line option to
   `geopmlaunch(1) <geopmlaunch.1.html>`_ called ``--geopm-hyperthreads-disable``.
 
-* 
+*
   ``GEOPM_OMPT_DISABLE``\ :
   Disable OpenMP region detection as described in `INTEGRATION WITH OMPT <INTEGRATION WITH OMPT_>`_.
   See documentation for equivalent command line option to `geopmlaunch(1) <geopmlaunch.1.html>`_
@@ -358,7 +358,7 @@ OTHER ENVIRONMENT VARIABLES
 ---------------------------
 
 
-* 
+*
   ``LD_DYNAMIC_WEAK``\ :
   The `geopmlaunch(1) <geopmlaunch.1.html>`_ tool will preload ``libgeopm.so`` for all
   applications, so the use of ``LD_DYNAMIC_WEAK`` is not required when
@@ -383,6 +383,7 @@ SEE ALSO
 `geopmdpy(7) <geopmdpy.7.html>`_\ ,
 `geopm_agent_energy_efficient(7) <geopm_agent_energy_efficient.7.html>`_\ ,
 `geopm_agent_frequency_map(7) <geopm_agent_frequency_map.7.html>`_\ ,
+`geopm_agent_gpu_activity(7) <geopm_agent_gpu_activity_agent.7.html>`_\ ,
 `geopm_agent_monitor(7) <geopm_agent_monitor.7.html>`_\ ,
 `geopm_agent_power_balancer(7) <geopm_agent_power_balancer.7.html>`_\ ,
 `geopm_agent_power_governor(7) <geopm_agent_power_governor.7.html>`_\ ,
