@@ -35,5 +35,6 @@ EXE=${GEOPM_SOURCE}/geopm/integration/apps/parres/Kernels/Cxx11/dgemm-mpi-cublas
 APPOPTS="10 16000"
 GPUS=4 #used as number of ranks
 
-GEOPM_PLUGIN_PATH=${GEOPM_SOURCE}/geopm_public_lhlawson/tutorial/pytorch_agent geopmlaunch impi -ppn ${GPUS} -n ${GPUS} --geopm-policy=${GEOPM_SOURCE}/geopm_public_lhlawson/tutorial/phi0.policy --geopm-ctl=process --geopm-report=dgemm-16000-torch.report --geopm-agent=torch -- $EXE $APPOPTS
+geopmagent -a torch -pNAN,NAN,0 > phi0.policy
+GEOPM_PLUGIN_PATH=${GEOPM_SOURCE}/tutorial/pytorch_agent geopmlaunch impi -ppn ${GPUS} -n ${GPUS} --geopm-policy=phi0.policy --geopm-ctl=process --geopm-report=dgemm-16000-torch.report --geopm-agent=torch -- $EXE $APPOPTS
 ```
