@@ -99,9 +99,9 @@ namespace geopm
 	    if (in_policy[M_POLICY_CPU_FREQUENCY] > core_freq_max ||
 	        in_policy[M_POLICY_CPU_FREQUENCY] < core_freq_min) {
                 throw Exception("FixedFrequencyAgent::" + std::string(__func__) +
-                               "(): cpu frequency out of range: " +
-                               std::to_string(in_policy[M_POLICY_CPU_FREQUENCY]) + ".",
-                               GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                                "(): cpu frequency out of range: " +
+                                std::to_string(in_policy[M_POLICY_CPU_FREQUENCY]) + ".",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
 	  }
 	}
 
