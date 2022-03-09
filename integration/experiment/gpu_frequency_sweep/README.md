@@ -47,7 +47,10 @@ the uncore frequency.
 
   - `--step-gpu-frequency`: the step size in hertz between gpu
                             frequency settings for the sweep.
-			       
+
+  - `--sample-period`: the sample period in units of seconds,
+                       the default is 0.05 seconds
+
 
 ## Analysis Scripts to Produce Summary Tables and Visualizations
 
