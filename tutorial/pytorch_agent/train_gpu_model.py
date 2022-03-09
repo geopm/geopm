@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 #  Copyright (c) 2015 - 2021, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -144,14 +143,14 @@ def main():
 
         model.eval()
         with torch.no_grad():
-            print("\tEvaluate vs semi-random inputs (phi is fixed):".format(epoch, idx, train_loss/(message_interval)))
-            debug_input = [
-                           [round(uniform(0,2)*1e9,0), round(uniform(0,300),0), round(uniform(0,1),2), round(uniform(0,1),2), round(uniform(0,1),2), 0.0],
-                           [round(uniform(0,2)*1e9,0), round(uniform(0,300),0), round(uniform(0,1),2), round(uniform(0,1),2), round(uniform(0,1),2), 0.5],
-                           [round(uniform(0,2)*1e9,0), round(uniform(0,300),0), round(uniform(0,1),2), round(uniform(0,1),2), round(uniform(0,1),2), 1.0],
-                          ]
-            for phi in debug_input:
-                output = model(torch.tensor([phi]))
+            print("\tEvaluate vs semi-random inputs:".format(epoch, idx, train_loss/(message_interval)))
+            eval_gpu_freq = round(uniform(0,2)*1e9,0)
+            eval_gpu_power = round(uniform(0,300),0)
+            eval_gpu_util = round(uniform(0,1),2)
+            eval_gpu_ca = round(uniform(0,1),2)
+            eval_gpu_ma = round(uniform(0,1),2)
+            for phi in [0, 0.5, 1.0]:
+                output = model(torch.tensor([[eval_gpu_freq, eval_gpu_power, eval_gpu_util, eval_gpu_ca, eval_gpu_ma, phi]]))
                 print('\t\tphi:{} -> recommended: {}'.format(phi, output[0]))
 
     model.eval()
