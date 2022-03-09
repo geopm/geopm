@@ -50,8 +50,8 @@ recent).  The script located in the subdirectory of the geopm repo:
 
 ``service/integration/build_dasbus.sh``
 
-can be executed to create the required rpm based on dasbus version 1.6.
-the script will print how to install the generated RPM upon successful
+can be executed to create the required RPM based on dasbus version 1.6.
+The script will print how to install the generated RPM upon successful
 completion.
 
 The ``python-dasbus`` requirement is explicitly stated in the
@@ -113,7 +113,7 @@ correctly.  For this reason, MSR support is a hard requirement for the
 GEOPM HPC Runtime.
 
 There may be some problematic settings for systemd which could lead to
-interprocess communication issues for both the GEOPM Service and the
+inter-process communication issues for both the GEOPM Service and the
 GEOPM HPC Runtime.
 
 

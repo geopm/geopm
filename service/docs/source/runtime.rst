@@ -30,8 +30,8 @@ included in the GEOPM installation.  See the GEOPM overview man page
 for further documentation and links:
 `geopm(7) <https://geopm.github.io/man/geopm.7.html>`_.
 
-The GEOPM HPC Runtime provides some build in algorithms, each is
-called an "Agent" that implements the geopm::Agent(3) class interface.
+The GEOPM HPC Runtime provides some built-in algorithms, each as an
+"Agent" that implements the geopm::Agent(3) class interface.
 A developer may extend these algorithm features by writing an Agent
 plugin.  A new implementation of this class can be dynamically loaded
 at runtime by the GEOPM Controller.  The Agent class defines which
@@ -157,14 +157,14 @@ MPI Requirements
 
 Using the GEOPM HPC Runtime requires that the package was built
 against the same MPI implementation that is used at runtime to launch
-the user's applicaiton.
+the user's application.
 
 
 BIOS Configuration
 ^^^^^^^^^^^^^^^^^^
 
 If power governing or power balancing is the intended use case
-for GEOPM deployment then there is an additional dependency on
+for GEOPM deployment, then there is an additional dependency on
 the BIOS being configured to support RAPL control. To check for
 BIOS support, execute the following on a compute node:
 
@@ -268,7 +268,7 @@ geopmlaunch(1)).
 While the GEOPM control thread connects to the application it will
 automatically affinitize itself to the highest indexed core not used
 by the application if the application is not affinitized to a CPU on
-every core.  In the case were the application is utilizing all cores
+every core.  In the case where the application is utilizing all cores
 of the system, the GEOPM control thread will be pinned to the highest
 logical CPU.
 
@@ -319,7 +319,7 @@ the prologue is:
 
 
 and this call (see geopm_agent_c(3)) enforces the configured policy
-such as a power cap or a limit on CPU frequency by a one time
+such as a power cap or a limit on CPU frequency by a one-time
 adjustment of hardware settings.  In the epilogue, the resource
 manager calls:
 

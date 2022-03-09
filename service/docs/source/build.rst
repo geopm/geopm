@@ -61,7 +61,7 @@ executing the ``install_service.sh`` script located in the
 Installing the GEOPM Service Development Package
 ------------------------------------------------
 
-A system administrator that would like enable users of the system to
+A system administrator that would like to enable users of the system to
 link to the C or C++ interfaces provided by libgeopmd.so should
 install the GEOPM Service Development Package.  This provides the C
 and C++ header files, and will occur as part of running the

@@ -17,12 +17,15 @@ including: the ``libgeopmd.so`` library, the C and C++ public
 interface header files for that library, and the ``geopmdpy`` Python
 module.
 
+Prior to following the build steps, it's recommended to get familiar with
+the build requirements for the :doc:`GEOPM service<requires>` and the
+:doc:`GEOPM HPC runtime<runtime>`.
 
 Developer Build Process
 -----------------------
 
 The basic procedure for building all of the software in the GEOPM
-repository is to run the following commands with the base of the GEOPM
+repository is to run the following commands within the base of the GEOPM
 repository:
 
 .. code-block:: bash
@@ -41,8 +44,8 @@ repository:
 
 
 After the build is complete, a developer may wish to execute the unit
-tests.  Each of the two builds have a ``check`` target for their
-makefiles.  The test programs may be build separately from the
+tests.  Each of the two builds has a ``check`` target for their
+makefiles.  The test programs may be built separately from the
 ``check`` target by specifying the ``checkprogs`` make target.
 
 .. code-block:: bash
@@ -115,11 +118,11 @@ these scripts manage the GEOPM version that is imbedded in the build
 artifacts, and create the two ``configure`` scripts using the
 autotools package.
 
-Running the configure scripts generate a number of output files,
+Running the configure scripts generates a number of output files,
 including the ``Makefile`` that is used for the rest of the build
-steps.  The ``configure`` scripts accept a large number of command
-line options, and environment variables that affect the behavior.
-Each of configure script will provide user documentation through the
+steps.  The ``configure`` scripts accept a large number of command line
+options, and environment variables that affect the behavior.
+Each configure script will provide user documentation through the
 ``./configure --help`` command.  Some important options and
 environment variables are listed below.
 
