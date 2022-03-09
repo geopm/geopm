@@ -187,6 +187,30 @@ namespace geopm
                             std::to_string(in_policy[M_POLICY_GPU_PHI]) + ".",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
+
+        // Policy provided initial values
+        double f_max = in_policy[M_POLICY_GPU_FREQ_MAX];
+        double f_efficient = in_policy[M_POLICY_GPU_FREQ_EFFICIENT];
+        double phi = in_policy[M_POLICY_GPU_PHI];
+
+        // initial range is needed to apply phi
+        double f_range = f_max - f_efficient;
+
+        if (phi > 0.5) {
+            //Energy Biased.  Scale F_max down to F_efficient based upon phi value
+            //Active region phi usage
+            f_max = std::max(f_efficient, f_max - f_range * (phi-0.5) / 0.5);
+        }
+        else if (phi < 0.5) {
+            //Perf Biased.  Scale F_efficient up to F_max based upon phi value
+            //Active region phi usage
+            f_efficient = std::min(f_max, f_efficient + f_range * (0.5-phi) / 0.5);
+        }
+
+        //Update Policy
+        in_policy[M_POLICY_GPU_FREQ_MAX] = f_max;
+        in_policy[M_POLICY_GPU_FREQ_EFFICIENT] = f_efficient;
+
     }
 
     // Distribute incoming policy to children
@@ -221,36 +245,15 @@ namespace geopm
     {
         assert(in_policy.size() == M_NUM_POLICY);
 
-        // Policy provided initial values
-        double f_max = in_policy[M_POLICY_GPU_FREQ_MAX];
-        double f_efficient = in_policy[M_POLICY_GPU_FREQ_EFFICIENT];
-        double phi = in_policy[M_POLICY_GPU_PHI];
-
-        // initial range is needed to apply phi
-        double f_range = f_max - f_efficient;
-
-        if (phi > 0.5) {
-            //Energy Biased.  Scale F_max down to F_efficient based upon phi value
-            //Active region phi usage
-            f_max = std::max(f_efficient, f_max - f_range * (phi-0.5) / 0.5);
-        }
-        else if (phi < 0.5) {
-            //Perf Biased.  Scale F_efficient up to F_max based upon phi value
-            //Active region phi usage
-            f_efficient = std::min(f_max, f_efficient + f_range * (0.5-phi) / 0.5);
-        }
-
-        // Recalculate range after phi has been applied
-        f_range = f_max - f_efficient;
-
-        m_f_max = f_max;
-        m_f_efficient = f_efficient;
-        m_f_range = f_range;
-
         m_do_write_batch = false;
 
         // Per GPU freq
         std::vector<double> gpu_freq_request;
+
+        // Values after phi has been applied
+        m_f_max = in_policy[M_POLICY_GPU_FREQ_MAX];
+        m_f_efficient = in_policy[M_POLICY_GPU_FREQ_EFFICIENT];
+        m_f_range = m_f_max - m_f_efficient;
 
         // Per GPU Frequency Selection
         for (int domain_idx = 0; domain_idx < M_NUM_GPU; ++domain_idx) {
@@ -291,10 +294,10 @@ namespace geopm
                 if (!std::isnan(gpu_utilization) &&
                     gpu_utilization > 0) {
                     gpu_utilization = std::min(gpu_utilization, 1.0);
-                    f_request = f_efficient + m_f_range * (gpu_compute_activity / gpu_utilization);
+                    f_request = m_f_efficient + m_f_range * (gpu_compute_activity / gpu_utilization);
                 }
                 else {
-                    f_request = f_efficient + m_f_range * gpu_compute_activity;
+                    f_request = m_f_efficient + m_f_range * gpu_compute_activity;
                 }
 
                 // Tracking logic.  This is not needed for any performance reason,

@@ -14,17 +14,19 @@ DESCRIPTION
 -----------
 
 The goal of this Agent is to save GPU energy by scaling GPU frequency based upon
-the compute activity of each GPU as provided by the ACCELERATOR_COMPUTE_ACTIVITY
-signal and modified by the UTILIZATION_ACCELERATOR signal.
+the compute activity of each GPU as provided by the GPU_COMPUTE_ACTIVITY
+signal and modified by the GPU_UTILIZATIOR signal.
 
 The **GPUActivityAgent** scales frequency in the range of Fe to Fmax, where Fmax
-is provided via the policy as ``ACCELERATROR_FREQ_MAX`` and Fe is provided via
-the policy as ``ACCELERATOR_FREQ_EFFICIENT``.  Low activity regions (compute activity
+is provided via the policy as ``GPU_FREQ_MAX`` and Fe is provided via
+the policy as ``GPU_FREQ_EFFICIENT``.  Low activity regions (compute activity
 of 0.0) run at the Fe frequency, high activity regions (compute activity of 1.0)
 run at the Fmax frequency, and regions in between the extremes run at a frequency
-selected via
-F = Fe + (Fmax - Fe) * ACCELERATOR_COMPUTE_ACTIVITY/UTILIZATION_ACCELERATOR.
-``UTILIZATION_ACCELERATOR`` is used to scale the ``ACCELERATOR_COMPUTE_ACTIVITY`` in order
+selected using the equation
+
+``F = Fe + (Fmax - Fe) * GPU_COMPUTE_ACTIVITY/GPU_UTILIZATION``
+
+``GPU_UTILIZATION`` is used to scale the ``GPU_COMPUTE_ACTIVITY`` in order
 to scale frequency selection with the percentage of time a kernel is running on
 the GPU.  This tends to help with workloads that contain short but highly
 scalable GPU phases.
@@ -80,17 +82,17 @@ reports and traces with additional Agent-specific information.
       Setting both to the same value can be used to force the entire
       application to run at one frequency.
 
-  ``ACCELERATOR_FREQ_MAX``\ :
+  ``GPU_FREQ_MAX``\ :
       The maximum frequency in hertz that the algorithm is
       allowed to choose.  If NAN is passed, it will use the
       maximum available frequency by default.
 
-  ``ACCELERATOR_FREQ_EFFICIENT``\ :
+  ``GPU_FREQ_EFFICIENT``\ :
       The minimum frequency in hertz that the algorithm is
       allowed to choose.  If NAN is passed, it will use
       (maximum frequency + minimum frequency) / 2 by default.
 
-  ``ACCELERATOR_PHI``\ :
+  ``GPU_PHI``\ :
       The performance bias knob.  The value must be between
       0.0 and 1.0. If NAN is passed, it will use 0.5 by default.
 
@@ -105,41 +107,39 @@ reports and traces with additional Agent-specific information.
 *
   **Report Extensions**\ :
 
-      Per node extensions added to the report:
-  ``Accelerator Frequency Requests``\ :
+  ``GPU Frequency Requests``\ :
       The number of frequency requests made by the agent
 
-   ``Resolved Max Frequency``\ :
-      Fmax after phi has been taken into account
+  ``Resolved Max Frequency``\ :
+     Fmax after phi has been taken into account
 
-   ``Resolved Efficient Frequency``\ :
-      Fe after phi has been taken into account
+  ``Resolved Efficient Frequency``\ :
+     Fe after phi has been taken into account
 
-   ``Resolved Frequency Range``\ :
-      The selection range of the agent after phi has been taken
-      into account
+  ``Resolved Frequency Range``\ :
+     The frequency selection range of the agent after phi has
+     been taken into account
 
-      Per GPU extensions added to the report:
-   ``Accelerator # Active Region Energy``\ :
-       Per Accelerator GPU energy reading during the Region
-       of Interest (ROI) where ROI is determined as the
-       first sample of GPU activity to the last sample of GPU
-       activity.
-   ``Accelerator # Active Region Time``\ :
-       Per Accelerator GPU time during the Region
-       of Interest (ROI) where ROI is determined as the
-       first sample of GPU activity to the last sample of GPU
-       activity.
-   ``Accelerator # Active Region Start Time``\ :
-       Per Accelerator GPU start time for the Region
-       of Interest (ROI) where ROI is determined as the
-       first sample of GPU activity to the last sample of GPU
-       activity.
-   ``Accelerator # Active Region Start Time``\ :
-       Per Accelerator GPU stop time for the Region
-       of Interest (ROI) where ROI is determined as the
-       first sample of GPU activity to the last sample of GPU
-       activity.
+  ``GPU # Active Region Energy``\ :
+     Per GPU energy reading during the Region
+     of Interest (ROI) where ROI is determined as the
+     first sample of GPU activity to the last sample of GPU
+     activity.
+  ``GPU # Active Region Time``\ :
+     Per GPU time during the Region
+     of Interest (ROI) where ROI is determined as the
+     first sample of GPU activity to the last sample of GPU
+     activity.
+  ``GPU # Active Region Start Time``\ :
+     Per GPU start time for the Region
+     of Interest (ROI) where ROI is determined as the
+     first sample of GPU activity to the last sample of GPU
+     activity.
+  ``GPU # Active Region Start Time``\ :
+     Per GPU stop time for the Region
+     of Interest (ROI) where ROI is determined as the
+     first sample of GPU activity to the last sample of GPU
+     activity.
 *
   **Control Loop Gate**\ :
 
