@@ -189,10 +189,13 @@ TEST_F(GPUActivityAgentTest, validate_policy)
     policy[FREQ_EFFICIENT] = m_freq_max / 2;
     policy[PHI] = 0.1;
     m_agent->validate_policy(policy);
-    // validate policy is unmodified
+
+    // validate policy is modified as expected
+    // as phi --> 0 FREQ_EFFICIENT --> FREQ_MAX
     ASSERT_EQ(m_num_policy, policy.size());
     EXPECT_EQ(m_freq_max, policy[FREQ_MAX]);
-    EXPECT_EQ(m_freq_max / 2, policy[FREQ_EFFICIENT]);
+    EXPECT_GE(policy[FREQ_EFFICIENT], m_freq_max / 2);
+    EXPECT_LE(policy[FREQ_EFFICIENT], m_freq_max);
     EXPECT_EQ(0.1, policy[PHI]);
 
     //Fe > Fmax --> Error
