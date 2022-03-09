@@ -218,7 +218,7 @@ AC_DEFINE_UNQUOTED([GEOPM_CONFIG_PATH],
           [The prefix to the path where GEOPM config files are stored])
 
 [EXTRA_CFLAGS="$EXTRA_CFLAGS -std=c99 -msse4.2"]
-[EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS -std=c++14 -msse4.2"]
+[EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS -std=c++11 -msse4.2"]
 
 [LDFLAGS="$EXTRA_LDFLAGS $LDFLAGS"]
 [CFLAGS="$EXTRA_CFLAGS $CFLAGS"]
