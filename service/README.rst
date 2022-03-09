@@ -133,9 +133,8 @@ Access Management
 Access to signals and controls through the GEOPM Service is configured
 by the system administrator.  The administrator controls a default
 access list that applies to all users of the system.  This list
-accessible signals and controls for all users may be augmented so that
-users who are members of particular Unix groups may have enhanced
-access.  The default lists are stored in:
+may be augmented so that users who are members of particular Unix groups may
+have enhanced access.  The default lists are stored in:
 
 .. code-block::
 
