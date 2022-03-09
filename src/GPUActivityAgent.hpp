@@ -81,40 +81,26 @@ namespace geopm
             const double M_WAIT_SEC;
             const double M_POLICY_PHI_DEFAULT;
             const double M_GPU_ACTIVITY_CUTOFF;
+            const int M_NUM_GPU;
             bool m_do_write_batch;
 
             struct signal
             {
-                int m_batch_idx;
-                double m_last_signal;
-                double m_last_sample;
+                int batch_idx;
+                double value;
             };
-
-            struct signal_info {
-                int domain;
-                bool trace_signal;
-                std::vector<signal> signals;
-            };
-            std::map<std::string, signal_info> m_signal_available;
 
             struct control
             {
-                int m_batch_idx;
-                double m_last_setting;
+                int batch_idx;
+                double last_setting;
             };
-
-            struct control_info {
-                int domain;
-                bool trace_control;
-                std::vector<control> controls;
-            };
-            std::map<std::string, control_info> m_control_available;
 
             // Policy indices; must match policy_names()
             enum m_policy_e {
-                M_POLICY_ACCELERATOR_FREQ_MAX,
-                M_POLICY_ACCELERATOR_FREQ_EFFICIENT,
-                M_POLICY_ACCELERATOR_PHI,
+                M_POLICY_GPU_FREQ_MAX,
+                M_POLICY_GPU_FREQ_EFFICIENT,
+                M_POLICY_GPU_PHI,
                 M_NUM_POLICY
             };
 
@@ -125,14 +111,22 @@ namespace geopm
 
             std::map<std::string, double> m_policy_available;
 
-            double m_accelerator_frequency_requests;
-            double m_f_max_resolved;
-            double m_f_efficient_resolved;
-            double m_f_range_resolved;
-            std::vector<double> m_accelerator_active_region_start;
-            std::vector<double> m_accelerator_active_region_stop;
-            std::vector<double> m_accelerator_active_energy_start;
-            std::vector<double> m_accelerator_active_energy_stop;
+            double m_gpu_frequency_requests;
+            double m_f_max;
+            double m_f_efficient;
+            double m_f_range;
+            std::vector<double> m_gpu_active_region_start;
+            std::vector<double> m_gpu_active_region_stop;
+            std::vector<double> m_gpu_active_energy_start;
+            std::vector<double> m_gpu_active_energy_stop;
+
+            std::vector<signal> m_gpu_freq_status;
+            std::vector<signal> m_gpu_compute_activity;
+            std::vector<signal> m_gpu_utilization;
+            std::vector<signal> m_gpu_energy;
+            signal m_time;
+
+            std::vector<control> m_gpu_freq_control;
 
             void init_platform_io(void);
     };

@@ -67,15 +67,11 @@ class GPUActivityAgentTest : public :: testing :: Test
 {
     protected:
         enum mock_pio_idx_e {
-            FREQUENCY_ACCELERATOR_IDX,
-            ACCELERATOR_COMPUTE_ACTIVITY_IDX,
-            UTILIZATION_ACCELERATOR_IDX,
-            ENERGY_ACCELERATOR_IDX,
-            FREQUENCY_ACCELERATOR_CONTROL_IDX,
-            //REGION_HASH_IDX,
-            //FREQ_CONTROL_IDX,
-            //UNCORE_MIN_CTL_IDX,
-            //UNCORE_MAX_CTL_IDX
+            GPU_FREQUENCY_IDX,
+            GPU_COMPUTE_ACTIVITY_IDX,
+            GPU_UTILIZATION_IDX,
+            GPU_ENERGY_IDX,
+            GPU_FREQUENCY_CONTROL_IDX,
         };
         enum policy_idx_e {
             FREQ_MAX = 0,
@@ -87,7 +83,7 @@ class GPUActivityAgentTest : public :: testing :: Test
         void TearDown();
         static const int M_NUM_CPU = 1;
         static const int M_NUM_BOARD = 1;
-        static const int M_NUM_BOARD_ACCELERATOR = 1; //TODO: Increase
+        static const int M_NUM_BOARD_ACCELERATOR = 1;
         std::unique_ptr<GPUActivityAgent> m_agent;
         std::vector<double> m_default_policy;
         size_t m_num_policy;
@@ -107,28 +103,28 @@ void GPUActivityAgentTest::SetUp()
     ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR))
         .WillByDefault(Return(M_NUM_BOARD_ACCELERATOR));
 
-    ON_CALL(*m_platform_io, push_signal("FREQUENCY_ACCELERATOR", _, _))
-        .WillByDefault(Return(FREQUENCY_ACCELERATOR_IDX));
-    ON_CALL(*m_platform_io, push_signal("ACCELERATOR_COMPUTE_ACTIVITY", _, _))
-        .WillByDefault(Return(ACCELERATOR_COMPUTE_ACTIVITY_IDX));
-    ON_CALL(*m_platform_io, push_signal("UTILIZATION_ACCELERATOR", _, _))
-        .WillByDefault(Return(UTILIZATION_ACCELERATOR_IDX));
-    ON_CALL(*m_platform_io, push_signal("ENERGY_ACCELERATOR", _, _))
-        .WillByDefault(Return(ENERGY_ACCELERATOR_IDX));
-    ON_CALL(*m_platform_io, push_control("FREQUENCY_ACCELERATOR_CONTROL", _, _))
-        .WillByDefault(Return(FREQUENCY_ACCELERATOR_CONTROL_IDX));
+    ON_CALL(*m_platform_io, push_signal("GPU_FREQUENCY_STATUS", _, _))
+        .WillByDefault(Return(GPU_FREQUENCY_IDX));
+    ON_CALL(*m_platform_io, push_signal("GPU_COMPUTE_ACTIVITY", _, _))
+        .WillByDefault(Return(GPU_COMPUTE_ACTIVITY_IDX));
+    ON_CALL(*m_platform_io, push_signal("GPU_UTILIZATION", _, _))
+        .WillByDefault(Return(GPU_UTILIZATION_IDX));
+    ON_CALL(*m_platform_io, push_signal("GPU_ENERGY", _, _))
+        .WillByDefault(Return(GPU_ENERGY_IDX));
+    ON_CALL(*m_platform_io, push_control("GPU_FREQUENCY_CONTROL", _, _))
+        .WillByDefault(Return(GPU_FREQUENCY_CONTROL_IDX));
     ON_CALL(*m_platform_io, agg_function(_))
         .WillByDefault(Return(geopm::Agg::average));
 
     m_freq_min = 0135000000.0;
     m_freq_max = 1530000000.0;
-    ON_CALL(*m_platform_io, control_domain_type("FREQUENCY_ACCELERATOR_CONTROL"))
+    ON_CALL(*m_platform_io, control_domain_type("GPU_FREQUENCY_CONTROL"))
         .WillByDefault(Return(GEOPM_DOMAIN_BOARD_ACCELERATOR));
-    ON_CALL(*m_platform_io, signal_domain_type("ACCELERATOR_COMPUTE_ACTIVITY"))
+    ON_CALL(*m_platform_io, signal_domain_type("GPU_COMPUTE_ACTIVITY"))
         .WillByDefault(Return(GEOPM_DOMAIN_BOARD_ACCELERATOR));
-    ON_CALL(*m_platform_io, read_signal("FREQUENCY_MIN_ACCELERATOR", GEOPM_DOMAIN_BOARD, 0))
+    ON_CALL(*m_platform_io, read_signal("GPU_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0))
         .WillByDefault(Return(m_freq_min));
-    ON_CALL(*m_platform_io, read_signal("FREQUENCY_MAX_ACCELERATOR", GEOPM_DOMAIN_BOARD, 0))
+    ON_CALL(*m_platform_io, read_signal("GPU_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0))
         .WillByDefault(Return(m_freq_max));
 
     ASSERT_LT(m_freq_min, 0.2e9);
@@ -157,9 +153,9 @@ TEST_F(GPUActivityAgentTest, name)
 TEST_F(GPUActivityAgentTest, validate_policy)
 {
     //Called as part of validate
-    EXPECT_CALL(*m_platform_io, read_signal("FREQUENCY_MIN_ACCELERATOR", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("GPU_FREQUENCY_MIN_AVAIL", _, _)).WillRepeatedly(
                 Return(m_freq_min));
-    EXPECT_CALL(*m_platform_io, read_signal("FREQUENCY_MAX_ACCELERATOR", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("GPU_FREQUENCY_MAX_AVAIL", _, _)).WillRepeatedly(
                 Return(m_freq_max));
     EXPECT_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_BOARD)).WillRepeatedly(Return(M_NUM_BOARD));
 
@@ -204,57 +200,57 @@ TEST_F(GPUActivityAgentTest, validate_policy)
     policy[FREQ_EFFICIENT] = m_freq_max + 1;
     policy[PHI] = NAN;
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->validate_policy(policy), GEOPM_ERROR_INVALID,
-                               "ACCELERATOR_FREQ_EFFICIENT out of range");
+                              "GPU_FREQ_EFFICIENT out of range");
 
     //Fe < Fmin --> Error
     policy[FREQ_MAX] = NAN;
     policy[FREQ_EFFICIENT] = m_freq_min - 1;
     policy[PHI] = NAN;
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->validate_policy(policy), GEOPM_ERROR_INVALID,
-                               "ACCELERATOR_FREQ_EFFICIENT out of range");
+                               "GPU_FREQ_EFFICIENT out of range");
 
     //Fe > Policy Fmax --> Error
     policy[FREQ_MAX] = m_freq_max - 2;
     policy[FREQ_EFFICIENT] = m_freq_max - 1;
     policy[PHI] = NAN;
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->validate_policy(policy), GEOPM_ERROR_INVALID,
-                               "value exceeds ACCELERATOR_FREQ_MAX");
+                               "value exceeds GPU_FREQ_MAX");
 
     //Policy Fmax > Fmax --> Error
     policy[FREQ_MAX] = m_freq_max + 1;
     policy[FREQ_EFFICIENT] = NAN;
     policy[PHI] = NAN;
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->validate_policy(policy), GEOPM_ERROR_INVALID,
-                               "ACCELERATOR_FREQ_MAX out of range");
+                               "GPU_FREQ_MAX out of range");
 
     //Policy Fmax < Fmin --> Error
     policy[FREQ_MAX] = m_freq_min - 1;
     policy[FREQ_EFFICIENT] = NAN;
     policy[PHI] = NAN;
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->validate_policy(policy), GEOPM_ERROR_INVALID,
-                               "ACCELERATOR_FREQ_MAX out of range");
+                               "GPU_FREQ_MAX out of range");
 
     //Policy Phi < 0 --> Error
     policy[FREQ_MAX] = NAN;
     policy[FREQ_EFFICIENT] = NAN;
     policy[PHI] = -1;
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->validate_policy(policy), GEOPM_ERROR_INVALID,
-                               "POLICY_ACCELERATOR_PHI value out of range");
+                               "POLICY_GPU_PHI value out of range");
 
     //Policy Phi > 1.0 --> Error
     policy[FREQ_MAX] = NAN;
     policy[FREQ_EFFICIENT] = NAN;
     policy[PHI] = 1.1;
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->validate_policy(policy), GEOPM_ERROR_INVALID,
-                               "POLICY_ACCELERATOR_PHI value out of range");
+                               "POLICY_GPU_PHI value out of range");
 }
 
 TEST_F(GPUActivityAgentTest, adjust_platform_high)
 {
     //TODO: Setup f_max, min etc...via read
-    EXPECT_CALL(*m_platform_io, read_signal("FREQUENCY_MIN_ACCELERATOR", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("GPU_FREQUENCY_MIN_AVAIL", _, _)).WillRepeatedly(
                 Return(m_freq_min));
-    EXPECT_CALL(*m_platform_io, read_signal("FREQUENCY_MAX_ACCELERATOR", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("GPU_FREQUENCY_MAX_AVAIL", _, _)).WillRepeatedly(
                 Return(m_freq_max));
     EXPECT_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_BOARD)).WillRepeatedly(Return(M_NUM_BOARD));
     std::vector<double> policy;
@@ -265,19 +261,19 @@ TEST_F(GPUActivityAgentTest, adjust_platform_high)
     std::vector<double> tmp;
     double mock_active = 1.0;
     double mock_util = 1.0;
-    EXPECT_CALL(*m_platform_io, sample(ACCELERATOR_COMPUTE_ACTIVITY_IDX))
+    EXPECT_CALL(*m_platform_io, sample(GPU_COMPUTE_ACTIVITY_IDX))
                 .WillRepeatedly(Return(mock_active));
-    EXPECT_CALL(*m_platform_io, sample(UTILIZATION_ACCELERATOR_IDX))
+    EXPECT_CALL(*m_platform_io, sample(GPU_UTILIZATION_IDX))
                 .WillRepeatedly(Return(mock_util));
-    EXPECT_CALL(*m_platform_io, sample(FREQUENCY_ACCELERATOR_IDX))
+    EXPECT_CALL(*m_platform_io, sample(GPU_FREQUENCY_IDX))
                 .WillRepeatedly(Return(m_freq_max - 1)); //Any non-m_freq_max value will work here
-    EXPECT_CALL(*m_platform_io, sample(ENERGY_ACCELERATOR_IDX))
+    EXPECT_CALL(*m_platform_io, sample(GPU_ENERGY_IDX))
                 .WillRepeatedly(Return(123456789));
     m_agent->sample_platform(tmp);
 
     //Adjust
     //Check frequency
-    EXPECT_CALL(*m_platform_io, adjust(FREQUENCY_ACCELERATOR_CONTROL_IDX, m_freq_max)).Times(M_NUM_BOARD_ACCELERATOR);
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_IDX, m_freq_max)).Times(M_NUM_BOARD_ACCELERATOR);
     m_agent->adjust_platform(policy);
 
     //Check a frequency decision resulted in write batch being true
@@ -287,9 +283,9 @@ TEST_F(GPUActivityAgentTest, adjust_platform_high)
 TEST_F(GPUActivityAgentTest, adjust_platform_medium)
 {
     //TODO: Setup f_max, min etc...via read
-    EXPECT_CALL(*m_platform_io, read_signal("FREQUENCY_MIN_ACCELERATOR", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("GPU_FREQUENCY_MIN_AVAIL", _, _)).WillRepeatedly(
                 Return(m_freq_min));
-    EXPECT_CALL(*m_platform_io, read_signal("FREQUENCY_MAX_ACCELERATOR", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("GPU_FREQUENCY_MAX_AVAIL", _, _)).WillRepeatedly(
                 Return(m_freq_max));
     EXPECT_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_BOARD)).WillRepeatedly(Return(M_NUM_BOARD));
     std::vector<double> policy;
@@ -300,20 +296,20 @@ TEST_F(GPUActivityAgentTest, adjust_platform_medium)
     std::vector<double> tmp;
     double mock_active = 0.5;
     double mock_util = 1.0;
-    EXPECT_CALL(*m_platform_io, sample(ACCELERATOR_COMPUTE_ACTIVITY_IDX))
+    EXPECT_CALL(*m_platform_io, sample(GPU_COMPUTE_ACTIVITY_IDX))
                 .WillRepeatedly(Return(mock_active));
-    EXPECT_CALL(*m_platform_io, sample(UTILIZATION_ACCELERATOR_IDX))
+    EXPECT_CALL(*m_platform_io, sample(GPU_UTILIZATION_IDX))
                 .WillRepeatedly(Return(mock_util));
-    EXPECT_CALL(*m_platform_io, sample(FREQUENCY_ACCELERATOR_IDX))
+    EXPECT_CALL(*m_platform_io, sample(GPU_FREQUENCY_IDX))
                 .WillRepeatedly(Return(m_freq_max-1)); //Any non-m_freq_max value will work here
-    EXPECT_CALL(*m_platform_io, sample(ENERGY_ACCELERATOR_IDX))
+    EXPECT_CALL(*m_platform_io, sample(GPU_ENERGY_IDX))
                 .WillRepeatedly(Return(123456789));
     m_agent->sample_platform(tmp);
 
     //Adjust
     //Check frequency
     double expected_freq = policy[FREQ_EFFICIENT] + (m_freq_max - policy[FREQ_EFFICIENT]) * mock_active;
-    EXPECT_CALL(*m_platform_io, adjust(FREQUENCY_ACCELERATOR_CONTROL_IDX, expected_freq)).Times(M_NUM_BOARD_ACCELERATOR);
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_IDX, expected_freq)).Times(M_NUM_BOARD_ACCELERATOR);
 
     m_agent->adjust_platform(policy);
 
@@ -324,9 +320,9 @@ TEST_F(GPUActivityAgentTest, adjust_platform_medium)
 TEST_F(GPUActivityAgentTest, adjust_platform_low)
 {
     //TODO: Setup f_max, min etc...via read
-    EXPECT_CALL(*m_platform_io, read_signal("FREQUENCY_MIN_ACCELERATOR", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("GPU_FREQUENCY_MIN_AVAIL", _, _)).WillRepeatedly(
                 Return(m_freq_min));
-    EXPECT_CALL(*m_platform_io, read_signal("FREQUENCY_MAX_ACCELERATOR", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("GPU_FREQUENCY_MAX_AVAIL", _, _)).WillRepeatedly(
                 Return(m_freq_max));
     EXPECT_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_BOARD)).WillRepeatedly(Return(M_NUM_BOARD));
     std::vector<double> policy;
@@ -337,21 +333,21 @@ TEST_F(GPUActivityAgentTest, adjust_platform_low)
     std::vector<double> tmp;
     double mock_active = 0.1;
     double mock_util = 1.0;
-    EXPECT_CALL(*m_platform_io, sample(ACCELERATOR_COMPUTE_ACTIVITY_IDX))
+    EXPECT_CALL(*m_platform_io, sample(GPU_COMPUTE_ACTIVITY_IDX))
                 .WillRepeatedly(Return(mock_active));
-    EXPECT_CALL(*m_platform_io, sample(UTILIZATION_ACCELERATOR_IDX))
+    EXPECT_CALL(*m_platform_io, sample(GPU_UTILIZATION_IDX))
                 .WillRepeatedly(Return(mock_util));
-    EXPECT_CALL(*m_platform_io, sample(FREQUENCY_ACCELERATOR_IDX))
+    EXPECT_CALL(*m_platform_io, sample(GPU_FREQUENCY_IDX))
                 .WillRepeatedly(Return(m_freq_max-1)); //Any non-m_freq_max value will work here
 
-    EXPECT_CALL(*m_platform_io, sample(ENERGY_ACCELERATOR_IDX))
+    EXPECT_CALL(*m_platform_io, sample(GPU_ENERGY_IDX))
                 .WillRepeatedly(Return(123456789));
     m_agent->sample_platform(tmp);
 
     //Adjust
     //Check frequency
     double expected_freq = policy[FREQ_EFFICIENT] + (m_freq_max - policy[FREQ_EFFICIENT]) * mock_active;
-    EXPECT_CALL(*m_platform_io, adjust(FREQUENCY_ACCELERATOR_CONTROL_IDX, expected_freq)).Times(M_NUM_BOARD_ACCELERATOR);
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_IDX, expected_freq)).Times(M_NUM_BOARD_ACCELERATOR);
     m_agent->adjust_platform(policy);
     //Check a frequency decision resulted in write batch being true
     EXPECT_TRUE(m_agent->do_write_batch());
@@ -360,9 +356,9 @@ TEST_F(GPUActivityAgentTest, adjust_platform_low)
 TEST_F(GPUActivityAgentTest, adjust_platform_zero)
 {
     //TODO: Setup f_max, min etc...via read
-    EXPECT_CALL(*m_platform_io, read_signal("FREQUENCY_MIN_ACCELERATOR", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("GPU_FREQUENCY_MIN_AVAIL", _, _)).WillRepeatedly(
                 Return(m_freq_min));
-    EXPECT_CALL(*m_platform_io, read_signal("FREQUENCY_MAX_ACCELERATOR", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("GPU_FREQUENCY_MAX_AVAIL", _, _)).WillRepeatedly(
                 Return(m_freq_max));
     EXPECT_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_BOARD)).WillRepeatedly(Return(M_NUM_BOARD));
     std::vector<double> policy;
@@ -374,19 +370,19 @@ TEST_F(GPUActivityAgentTest, adjust_platform_zero)
     std::vector<double> tmp;
     double mock_active = 0.0;
     double mock_util = 1.0;
-    EXPECT_CALL(*m_platform_io, sample(ACCELERATOR_COMPUTE_ACTIVITY_IDX))
+    EXPECT_CALL(*m_platform_io, sample(GPU_COMPUTE_ACTIVITY_IDX))
                 .WillRepeatedly(Return(mock_active));
-    EXPECT_CALL(*m_platform_io, sample(UTILIZATION_ACCELERATOR_IDX))
+    EXPECT_CALL(*m_platform_io, sample(GPU_UTILIZATION_IDX))
                 .WillRepeatedly(Return(mock_util));
-    EXPECT_CALL(*m_platform_io, sample(FREQUENCY_ACCELERATOR_IDX))
+    EXPECT_CALL(*m_platform_io, sample(GPU_FREQUENCY_IDX))
                 .WillRepeatedly(Return(m_freq_max)); //Any non-m_freq_min value will work here
-    EXPECT_CALL(*m_platform_io, sample(ENERGY_ACCELERATOR_IDX))
+    EXPECT_CALL(*m_platform_io, sample(GPU_ENERGY_IDX))
                 .WillRepeatedly(Return(123456789));
     m_agent->sample_platform(tmp);
 
     //Adjust
     //Check frequency
-    EXPECT_CALL(*m_platform_io, adjust(FREQUENCY_ACCELERATOR_CONTROL_IDX, m_freq_min)).Times(M_NUM_BOARD_ACCELERATOR);
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_IDX, m_freq_min)).Times(M_NUM_BOARD_ACCELERATOR);
     m_agent->adjust_platform(policy);
 
     //Check a frequency decision resulted in write batch being true
@@ -397,9 +393,9 @@ TEST_F(GPUActivityAgentTest, adjust_platform_zero)
 TEST_F(GPUActivityAgentTest, adjust_platform_signal_out_of_bounds)
 {
     //TODO: Setup f_max, min etc...via read
-    EXPECT_CALL(*m_platform_io, read_signal("FREQUENCY_MIN_ACCELERATOR", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("GPU_FREQUENCY_MIN_AVAIL", _, _)).WillRepeatedly(
                 Return(m_freq_min));
-    EXPECT_CALL(*m_platform_io, read_signal("FREQUENCY_MAX_ACCELERATOR", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("GPU_FREQUENCY_MAX_AVAIL", _, _)).WillRepeatedly(
                 Return(m_freq_max));
     EXPECT_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_BOARD)).WillRepeatedly(Return(M_NUM_BOARD));
     std::vector<double> policy;
@@ -410,19 +406,19 @@ TEST_F(GPUActivityAgentTest, adjust_platform_signal_out_of_bounds)
     std::vector<double> tmp;
     double mock_active = 987654321;
     double mock_util = 1.0;
-    EXPECT_CALL(*m_platform_io, sample(ACCELERATOR_COMPUTE_ACTIVITY_IDX))
+    EXPECT_CALL(*m_platform_io, sample(GPU_COMPUTE_ACTIVITY_IDX))
                 .WillRepeatedly(Return(mock_active));
-    EXPECT_CALL(*m_platform_io, sample(UTILIZATION_ACCELERATOR_IDX))
+    EXPECT_CALL(*m_platform_io, sample(GPU_UTILIZATION_IDX))
                 .WillRepeatedly(Return(mock_util));
-    EXPECT_CALL(*m_platform_io, sample(FREQUENCY_ACCELERATOR_IDX))
+    EXPECT_CALL(*m_platform_io, sample(GPU_FREQUENCY_IDX))
                 .WillRepeatedly(Return(m_freq_max)); //Any non-m_freq_min value will work here
-    EXPECT_CALL(*m_platform_io, sample(ENERGY_ACCELERATOR_IDX))
+    EXPECT_CALL(*m_platform_io, sample(GPU_ENERGY_IDX))
                 .WillRepeatedly(Return(123456789));
     m_agent->sample_platform(tmp);
 
     //Adjust
     //Check frequency
-    EXPECT_CALL(*m_platform_io, adjust(FREQUENCY_ACCELERATOR_CONTROL_IDX, m_freq_max)).Times(M_NUM_BOARD_ACCELERATOR);
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_IDX, m_freq_max)).Times(M_NUM_BOARD_ACCELERATOR);
     m_agent->adjust_platform(policy);
 
     //Check a frequency decision resulted in write batch being true
@@ -431,19 +427,19 @@ TEST_F(GPUActivityAgentTest, adjust_platform_signal_out_of_bounds)
     //Sample
     mock_active = -12345;
     mock_util = 1.0;
-    EXPECT_CALL(*m_platform_io, sample(ACCELERATOR_COMPUTE_ACTIVITY_IDX))
+    EXPECT_CALL(*m_platform_io, sample(GPU_COMPUTE_ACTIVITY_IDX))
                 .WillRepeatedly(Return(mock_active));
-    EXPECT_CALL(*m_platform_io, sample(UTILIZATION_ACCELERATOR_IDX))
+    EXPECT_CALL(*m_platform_io, sample(GPU_UTILIZATION_IDX))
                 .WillRepeatedly(Return(mock_util));
-    EXPECT_CALL(*m_platform_io, sample(FREQUENCY_ACCELERATOR_IDX))
+    EXPECT_CALL(*m_platform_io, sample(GPU_FREQUENCY_IDX))
                 .WillRepeatedly(Return(m_freq_max)); //Any non-m_freq_min value will work here
-    EXPECT_CALL(*m_platform_io, sample(ENERGY_ACCELERATOR_IDX))
+    EXPECT_CALL(*m_platform_io, sample(GPU_ENERGY_IDX))
                 .WillRepeatedly(Return(123456789));
     m_agent->sample_platform(tmp);
 
     //Adjust
     //Check frequency
-    EXPECT_CALL(*m_platform_io, adjust(FREQUENCY_ACCELERATOR_CONTROL_IDX, m_freq_min)).Times(M_NUM_BOARD_ACCELERATOR);
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_IDX, m_freq_min)).Times(M_NUM_BOARD_ACCELERATOR);
     m_agent->adjust_platform(policy);
 
     //Check a frequency decision resulted in write batch being true
