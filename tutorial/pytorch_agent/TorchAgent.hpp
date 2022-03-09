@@ -82,41 +82,26 @@ class TorchAgent : public geopm::Agent
         geopm_time_s m_last_wait;
         const double M_WAIT_SEC;
         const double M_POLICY_PHI_DEFAULT;
+        const int M_NUM_GPU;
         bool m_do_write_batch;
 
         struct signal
         {
-            int m_batch_idx;
-            double m_last_signal;
-            double m_last_sample;
+            int batch_idx;
+            double value;
         };
-
-        struct signal_info {
-            int domain;
-            bool trace_signal;
-            std::vector<signal> signals;
-        };
-        std::map<std::string, signal_info> m_signal_available;
 
         struct control
         {
-            int m_batch_idx;
-            double m_last_setting;
+            int batch_idx;
+            double last_setting;
         };
-
-        struct control_info {
-            int domain;
-            bool trace_control;
-            std::vector<control> controls;
-        };
-        std::map<std::string, control_info> m_control_available;
 
         // Policy indices; must match policy_names()
         enum m_policy_e {
             M_POLICY_GPU_FREQ_MIN,
             M_POLICY_GPU_FREQ_MAX,
             M_POLICY_GPU_PHI,
-            M_POLICY_CPU_PHI,
             M_NUM_POLICY
         };
 
@@ -127,17 +112,17 @@ class TorchAgent : public geopm::Agent
 
         std::map<std::string, double> m_policy_available;
 
-        double m_accelerator_frequency_requests;
+        double m_gpu_frequency_requests;
         std::string m_gpu_nn_path;
-        std::string m_cpu_nn_path;
         std::vector<torch::jit::script::Module> m_gpu_neural_net;
         torch::jit::script::Module m_cpu_neural_net;
 
-        bool m_gpu_nn_exists;
-        bool m_cpu_nn_exists;
-        bool m_gpu_coarse_metrics;
-        bool m_gpu_fine_metrics;
-        bool m_gpu_controls;
+        std::vector<signal> m_gpu_freq_status;
+        std::vector<signal> m_gpu_compute_activity;
+        std::vector<signal> m_gpu_memory_activity;
+        std::vector<signal> m_gpu_utilization;
+        std::vector<signal> m_gpu_power;
+        std::vector<control> m_gpu_freq_control;
 
         void init_platform_io(void);
 };
