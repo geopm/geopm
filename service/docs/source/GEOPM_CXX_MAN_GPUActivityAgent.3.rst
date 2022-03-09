@@ -83,7 +83,7 @@ The behavior of this agent is described in more detail in the
 `geopm_agent_gpu_activity(7) <geopm_agent_gpu_activity.7.html>`_ man page.
 
 For more details on the implementation, see the doxygen
-page at <https://geopm.github.io/dox/classgeopm_1_1_gpu_activity_agent.html>.
+page at <https://geopm.github.io/dox/classgeopm_1_1_gpu_activity.html>.
 
 CLASS METHODS
 -------------

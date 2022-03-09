@@ -52,6 +52,8 @@ BUILT-IN AGENTS
 
 `geopm_agent_frequency_map(7) <geopm_agent_frequency_map.7.html>`_\ : Agent for running regions at user selected frequencies
 
+`geopm_agent_gpu_activity(7) <geopm_agent_gpu_activity.7.html>`_\ : Agent that sets GPU frequency based on GPU compute activity
+
 `geopm_agent_power_balancer(7) <geopm_agent_power_balancer.7.html>`_\ : Agent that optimizes performance under a power cap
 
 `geopm_agent_power_governor(7) <geopm_agent_power_governor.7.html>`_\ : Agent that enforces a power cap
@@ -383,7 +385,7 @@ SEE ALSO
 `geopmdpy(7) <geopmdpy.7.html>`_\ ,
 `geopm_agent_energy_efficient(7) <geopm_agent_energy_efficient.7.html>`_\ ,
 `geopm_agent_frequency_map(7) <geopm_agent_frequency_map.7.html>`_\ ,
-`geopm_agent_gpu_activity(7) <geopm_agent_gpu_activity_agent.7.html>`_\ ,
+`geopm_agent_gpu_activity(7) <geopm_agent_gpu_activity.7.html>`_\ ,
 `geopm_agent_monitor(7) <geopm_agent_monitor.7.html>`_\ ,
 `geopm_agent_power_balancer(7) <geopm_agent_power_balancer.7.html>`_\ ,
 `geopm_agent_power_governor(7) <geopm_agent_power_governor.7.html>`_\ ,
