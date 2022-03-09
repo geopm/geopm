@@ -1,6 +1,6 @@
 # Pytorch C++ Agent Tutorial
 
-This tutorial demonstrates how to implement a liborch based C++ agent in GEOPM.
+This tutorial demonstrates how to implement a libtorch based C++ agent in GEOPM.
 Specifically, the tutorial shows how to create a C++ agent that can use a pytorch model
 to select frequency controls on a system with CPUs and GPUs.
 
@@ -20,13 +20,20 @@ wget https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-de
 ```
 
 ## 2) Build the GEOPM C++ TorchAgent
-Assuming the libtorch bundle has been unziped into $HOME/libtorch, you should be able to use the
-provided makefile.
+Assuming the libtorch bundle has been unziped into $HOME/libtorch and a $HOME/.geopmrc file is setup
+as specified in the GEOPM documentation you should be able to use the provided makefile.
 
 ## 3-5) Follow the existing GEOPM ML Tutorial.
 Use the process_gpu_sweeps.py and train_gpu_model.py scripts in this tutorial as you would for
-the existing ML tutorial.
-TODO: Actually write this
+the existing ML tutorial, or use the geomp integration experiment infrastructure
 
 ## 6) Execute the agent with a trained model
-TODO: build this into the integration infrastructure!
+The NN modle must be in the directory the job is being launched from and must be named gpu_control.pt
+
+```
+EXE=${GEOPM_SOURCE}/geopm/integration/apps/parres/Kernels/Cxx11/dgemm-mpi-cublas
+APPOPTS="10 16000"
+GPUS=4 #used as number of ranks
+
+GEOPM_PLUGIN_PATH=${GEOPM_SOURCE}/geopm_public_lhlawson/tutorial/pytorch_agent geopmlaunch impi -ppn ${GPUS} -n ${GPUS} --geopm-policy=${GEOPM_SOURCE}/geopm_public_lhlawson/tutorial/phi0.policy --geopm-ctl=process --geopm-report=dgemm-16000-torch.report --geopm-agent=torch -- $EXE $APPOPTS
+```
