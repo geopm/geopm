@@ -148,6 +148,7 @@ rst_files = [
     "GEOPM_CXX_MAN_Daemon.3",
     "GEOPM_CXX_MAN_Endpoint.3",
     "GEOPM_CXX_MAN_Exception.3",
+    "GEOPM_CXX_MAN_GPUActivityAgent.3",
     "GEOPM_CXX_MAN_Helper.3",
     "GEOPM_CXX_MAN_IOGroup.3",
     "GEOPM_CXX_MAN_MonitorAgent.3",
