@@ -61,6 +61,10 @@ def setup_run_args(parser):
                         action='store', type=float, default=None,
                         help='increment in hertz between gpu frequency settings for the sweep')
 
+    parser.add_argument('--sample-period', dest='sample_period',
+                        action='store', type=float, default=0.05,
+                        help='sample period in seconds used by geopm, default 0.05s')
+
 
 def setup_gpu_frequency_bounds(mach, min_gpu_freq, max_gpu_freq, step_gpu_freq):
     gclk_results = subprocess.Popen(['nvidia-smi', '-q', '-d', 'SUPPORTED_CLOCKS', '-i', '0'],universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -80,6 +84,10 @@ def setup_gpu_frequency_bounds(mach, min_gpu_freq, max_gpu_freq, step_gpu_freq):
         max_gpu_freq = gpu_max
     if step_gpu_freq is None:
         step_gpu_freq = 100000000
+    if min_gpu_freq < gpu_min or max_gpu_freq > gpu_max:
+        raise RuntimeError('GPU frequency bounds are out of range for this system')
+    if min_gpu_freq > max_gpu_freq:
+        raise RuntimeError('GPU frequency min is greater than max')
 
     gpu_freqs = []
     if step_gpu_freq < 10000000:
@@ -108,21 +116,22 @@ def report_signals():
 
 def trace_signals():
     return uncore_frequency_sweep.trace_signals() + \
-        ['NVML::FREQUENCY@board_accelerator', 'NVML::POWER@board_accelerator',
-         'NVML::UTILIZATION_ACCELERATOR@board_accelerator', 'NVML::TOTAL_ENERGY_CONSUMPTION@board_accelerator']
+        ['GPU_FREQUENCY_STATUS@board_accelerator', 'GPU_POWER@board_accelerator',
+         'GPU_UTILIZATION@board_accelerator', 'GPU_ENERGY@board_accelerator']
 
 
-def launch_configs(app_conf, core_freq_range, uncore_freq_range, gpu_freq_range):
+def launch_configs(app_conf, core_freq_range, uncore_freq_range, gpu_freq_range, sample_period):
     agent = 'fixed_frequency'
     targets = []
     for freq in core_freq_range:
         for uncore_freq in uncore_freq_range:
             for gpu_freq in gpu_freq_range:
                 name = '{:.3e}g_{:.1e}c_{:.1e}u'.format(gpu_freq, freq, uncore_freq)
-                options = {'ACCELERATOR_FREQUENCY': gpu_freq,
+                options = {'GPU_FREQUENCY': gpu_freq,
                            'CORE_FREQUENCY': freq,
                            'UNCORE_MIN_FREQUENCY': uncore_freq,
-                           'UNCORE_MAX_FREQUENCY': uncore_freq}
+                           'UNCORE_MAX_FREQUENCY': uncore_freq,
+                           'SAMPLE_PERIOD': sample_period}
                            
                 agent_conf = geopmpy.agent.AgentConf('{}_agent_{}g_{}c_{}u.config'.format(agent, gpu_freq, freq, uncore_freq), agent, options)
                 targets.append(launch_util.LaunchConfig(app_conf=app_conf,
@@ -149,7 +158,7 @@ def launch(app_conf, args, experiment_cli_args):
                                                 args.min_gpu_frequency,
                                                 args.max_gpu_frequency,
                                                 args.step_gpu_frequency)
-    targets = launch_configs(app_conf, core_freq_range, uncore_freq_range, gpu_freq_range)
+    targets = launch_configs(app_conf, core_freq_range, uncore_freq_range, gpu_freq_range, args.sample_period)
     extra_cli_args = launch_util.geopm_signal_args(report_signals=report_signals(),
                                                     trace_signals=trace_signals())
     extra_cli_args += list(experiment_cli_args)
