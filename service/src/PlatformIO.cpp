@@ -219,7 +219,8 @@ namespace geopm
             for (auto ii : iogroups) {
                 try {
                     if (domain_type == ii->signal_domain_type(signal_name)) {
-                        // TODO: Try to read signal to ensure there's no permissions problem?
+                        // Attempt to read before pushing to ensure batch reads will succeed
+                        (void)ii->read_signal(signal_name, domain_type, domain_idx);
                         int group_signal_idx = ii->push_signal(signal_name, domain_type, domain_idx);
                         result = m_active_signal.size();
                         m_existing_signal[sig_tup] = result;

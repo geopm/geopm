@@ -258,10 +258,12 @@ TEST_F(PlatformIOTest, push_signal)
     EXPECT_EQ(0, m_platio->num_signal_pushed());
     EXPECT_CALL(*m_control_iogroup, signal_domain_type("FREQ")).Times(2);
     EXPECT_CALL(*m_control_iogroup, push_signal("FREQ", GEOPM_DOMAIN_CPU, 0));
+    EXPECT_CALL(*m_control_iogroup, read_signal("FREQ", GEOPM_DOMAIN_CPU, 0));
     idx = m_platio->push_signal("FREQ", GEOPM_DOMAIN_CPU, 0);
     EXPECT_EQ(0, idx);
     EXPECT_CALL(*m_time_iogroup, signal_domain_type("TIME")).Times(2);
     EXPECT_CALL(*m_time_iogroup, push_signal("TIME", GEOPM_DOMAIN_BOARD, 0));
+    EXPECT_CALL(*m_time_iogroup, read_signal("TIME", GEOPM_DOMAIN_BOARD, 0));
     idx = m_platio->push_signal("TIME", GEOPM_DOMAIN_BOARD, 0);
     EXPECT_EQ(1, idx);
     EXPECT_EQ(idx, m_platio->push_signal("TIME", GEOPM_DOMAIN_BOARD, 0));
@@ -288,6 +290,7 @@ TEST_F(PlatformIOTest, push_signal_agg)
     EXPECT_CALL(*m_control_iogroup, signal_domain_type("FREQ")).Times(AtLeast(1));
     for (auto cpu : m_cpu_set0) {
         EXPECT_CALL(*m_control_iogroup, push_signal("FREQ", GEOPM_DOMAIN_CPU, cpu));
+        EXPECT_CALL(*m_control_iogroup, read_signal("FREQ", GEOPM_DOMAIN_CPU, cpu));
     }
     EXPECT_CALL(*m_control_iogroup, agg_function("FREQ"))
         .WillOnce(Return(geopm::Agg::average));
@@ -377,8 +380,10 @@ TEST_F(PlatformIOTest, sample)
 {
     EXPECT_CALL(*m_control_iogroup, signal_domain_type("FREQ")).Times(2);
     EXPECT_CALL(*m_control_iogroup, push_signal("FREQ", _, _));
+    EXPECT_CALL(*m_control_iogroup, read_signal("FREQ", _, _));
     EXPECT_CALL(*m_time_iogroup, signal_domain_type("TIME")).Times(2);
     EXPECT_CALL(*m_time_iogroup, push_signal("TIME", _, _));
+    EXPECT_CALL(*m_time_iogroup, read_signal("TIME", _, _));
     int freq_idx = m_platio->push_signal("FREQ", GEOPM_DOMAIN_CPU, 0);
     int time_idx = m_platio->push_signal("TIME", GEOPM_DOMAIN_BOARD, 0);
 
@@ -414,6 +419,7 @@ TEST_F(PlatformIOTest, sample_agg)
     for (auto cpu : m_cpu_set0) {
         EXPECT_CALL(*m_control_iogroup, push_signal("FREQ", GEOPM_DOMAIN_CPU, cpu))
             .WillOnce(Return(cpu));
+        EXPECT_CALL(*m_control_iogroup, read_signal("FREQ", GEOPM_DOMAIN_CPU, cpu));
     }
     int freq_idx = m_platio->push_signal("FREQ", GEOPM_DOMAIN_PACKAGE, 0);
 
