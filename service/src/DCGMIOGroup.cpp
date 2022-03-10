@@ -414,12 +414,17 @@ namespace geopm
     // to adjust them
     void DCGMIOGroup::save_control(void)
     {
+        // There is no explicit saved stated for this IOGroup.
+        // Prior to its usage no GEOPM specific DCGM field group
+        // should be in use/watched by DCGM.
     }
 
     // Implemented to allow an IOGroup to restore previously saved
     // platform settings
     void DCGMIOGroup::restore_control(void)
     {
+        // Restore the to 'saved' initial state of no
+        // GEOPM specific DCGM field group being watched
         m_dcgm_device_pool.polling_disable();
     }
 
