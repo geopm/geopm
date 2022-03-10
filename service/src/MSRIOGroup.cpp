@@ -250,7 +250,8 @@ namespace geopm
                                          GEOPM_DOMAIN_BOARD,
                                          IOGroup::M_UNITS_SECONDS,
                                          Agg::select_first,
-                                         "Time in seconds used to calculate power"};
+                                         "Time in seconds used to calculate power",
+                                         IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE};
 
         // Mapping of high-level signal name to description and
         // underlying energy MSR.  The domain will match that of the
@@ -346,7 +347,8 @@ namespace geopm
                                          GEOPM_DOMAIN_BOARD,
                                          IOGroup::M_UNITS_SECONDS,
                                          Agg::select_first,
-                                         "Time in seconds"};
+                                         "Time in seconds",
+                                         IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE};
 
         msr_name = "QM_CTR_SCALED";
         signal_name = "QM_CTR_SCALED_RATE";
