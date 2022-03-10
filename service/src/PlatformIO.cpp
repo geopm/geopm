@@ -73,7 +73,7 @@ namespace geopm
         , m_iogroup_list(iogroup_list)
         , m_do_restore(false)
     {
-        if (m_iogroup_list.size() == 0) {
+        if (m_iogroup_list.empty()) {
             for (const auto &it : IOGroup::iogroup_names()) {
                 try {
                     register_iogroup(IOGroup::make_unique(it));
@@ -110,7 +110,7 @@ namespace geopm
              it != m_iogroup_list.rend();
              ++it) {
             if ((*it)->is_valid_signal(signal_name)) {
-                if (result.size() == 0) {
+                if (result.empty()) {
                     result.push_back(*it);
                     native_domain = (*it)->signal_domain_type(signal_name);
                 }
@@ -133,7 +133,7 @@ namespace geopm
              it != m_iogroup_list.rend();
              ++it) {
             if ((*it)->is_valid_control(control_name)) {
-                if (result.size() == 0) {
+                if (result.empty()) {
                     result.push_back(*it);
                     native_domain = (*it)->control_domain_type(control_name);
                 }
@@ -171,7 +171,7 @@ namespace geopm
     int PlatformIOImp::signal_domain_type(const std::string &signal_name) const
     {
         auto iogroups = find_signal_iogroup(signal_name);
-        if (iogroups.size() == 0) {
+        if (iogroups.empty()) {
             throw Exception("PlatformIOImp::signal_domain_type(): signal name \"" +
                             signal_name + "\" not found",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -182,7 +182,7 @@ namespace geopm
     int PlatformIOImp::control_domain_type(const std::string &control_name) const
     {
         auto iogroups = find_control_iogroup(control_name);
-        if (iogroups.size() == 0) {
+        if (iogroups.empty()) {
             throw Exception("PlatformIOImp::control_domain_type(): control name \"" +
                             control_name + "\" not found",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -467,7 +467,7 @@ namespace geopm
 
         double result = NAN;
         auto iogroups = find_signal_iogroup(signal_name);
-        if (iogroups.size() == 0) {
+        if (iogroups.empty()) {
             throw Exception("PlatformIOImp::read_signal(): signal name \"" + signal_name + "\" not found",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
@@ -539,7 +539,7 @@ namespace geopm
         }
 
         auto iogroups = find_control_iogroup(control_name);
-        if (iogroups.size() == 0) {
+        if (iogroups.empty()) {
             throw Exception("PlatformIOImp::write_control(): control name \"" + control_name + "\" not found",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
@@ -633,7 +633,7 @@ namespace geopm
     {
         // Special signals from PlatformIOImp are aggregated by underlying signals
         auto iogroups = find_signal_iogroup(signal_name);
-        if (iogroups.size() == 0) {
+        if (iogroups.empty()) {
             throw Exception("PlatformIOImp::agg_function(): unknown how to aggregate \"" + signal_name + "\"",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
@@ -646,7 +646,7 @@ namespace geopm
         std::function<std::string(double)> result;
         // PlatformIOImp forwards formatting request to underlying IOGroup
         auto iogroups = find_signal_iogroup(signal_name);
-        if (iogroups.size() == 0) {
+        if (iogroups.empty()) {
             throw Exception("PlatformIOImp::format_function(): unknown how to format \"" + signal_name + "\"",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
@@ -656,7 +656,7 @@ namespace geopm
     std::string PlatformIOImp::signal_description(const std::string &signal_name) const
     {
         auto iogroups = find_signal_iogroup(signal_name);
-        if (iogroups.size() == 0) {
+        if (iogroups.empty()) {
             throw Exception("PlatformIOImp::signal_description(): unknown signal \"" + signal_name + "\"",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
@@ -666,7 +666,7 @@ namespace geopm
     std::string PlatformIOImp::control_description(const std::string &control_name) const
     {
         auto iogroups = find_control_iogroup(control_name);
-        if (iogroups.size() == 0) {
+        if (iogroups.empty()) {
             throw Exception("PlatformIOImp::control_description(): unknown control \"" + control_name + "\"",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
@@ -676,7 +676,7 @@ namespace geopm
     int PlatformIOImp::signal_behavior(const std::string &signal_name) const
     {
         auto iogroups = find_signal_iogroup(signal_name);
-        if (iogroups.size() == 0) {
+        if (iogroups.empty()) {
             throw Exception("PlatformIOImp::signal_behavior(): unknown signal \"" + signal_name + "\"",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
@@ -689,7 +689,7 @@ namespace geopm
                                            int &server_pid,
                                            std::string &server_key)
     {
-        if (signal_config.size() == 0 && control_config.size() == 0) {
+        if (signal_config.empty() && control_config.empty()) {
             throw Exception("PlatformIOImp::start_batch_server(): Requested a batch server, but no signals or controls were specified",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
