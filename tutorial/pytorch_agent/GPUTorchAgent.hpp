@@ -30,15 +30,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef TORCHAGENT_HPP_INCLUDE
-#define TORCHAGENT_HPP_INCLUDE
+#ifndef GPUTORCHAGENT_HPP_INCLUDE
+#define GPUTORCHAGENT_HPP_INCLUDE
 
 #include <torch/script.h>
 #include <vector>
 
 #include "geopm/Agent.hpp"
 #include "geopm_time.h"
-//#include "geopm/config.h"
 
 namespace geopm
 {
@@ -47,12 +46,12 @@ namespace geopm
 }
 
 /// @brief Agent
-class TorchAgent : public geopm::Agent
+class GPUTorchAgent : public geopm::Agent
 {
     public:
-        TorchAgent();
-        TorchAgent(geopm::PlatformIO &plat_io, const geopm::PlatformTopo &topo);
-        virtual ~TorchAgent() = default;
+        GPUTorchAgent();
+        GPUTorchAgent(geopm::PlatformIO &plat_io, const geopm::PlatformTopo &topo);
+        virtual ~GPUTorchAgent() = default;
         void init(int level, const std::vector<int> &fan_in, bool is_level_root) override;
         void validate_policy(std::vector<double> &in_policy) const override;
         void split_policy(const std::vector<double> &in_policy,
