@@ -318,7 +318,9 @@ namespace geopm
             for (auto ii : iogroups) {
                 try {
                     if (ii->control_domain_type(control_name) == domain_type) {
-                        // TODO: Try to read then write to ensure there's no permissions problem?
+                        // Attempt to read then write the control to ensure batch writes will succeed
+                        int val = ii->read_signal(control_name, domain_type, domain_idx);
+                        ii->write_control(control_name, domain_type, domain_idx, val);
                         int group_control_idx = ii->push_control(control_name, domain_type, domain_idx);
                         result = m_active_control.size();
                         m_existing_control[ctl_tup] = result;
