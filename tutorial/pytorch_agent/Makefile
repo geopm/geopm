@@ -30,10 +30,9 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-TUTORIAL_LIB = libgeopmagent_torch_agent.so.0.0.0 \
+TUTORIAL_LIB = libgeopmagent_gpu_torch_agent.so.0.0.0 \
                # end
 
-TORCH_ROOT=${HOME}/libtorch
 GEOPM_PLUGIN_FLAGS=-fPIC -shared
 
 #CC ?= gcc
@@ -57,8 +56,8 @@ EXTRA_CPPFLAGS:=$(LIBTORCH_CPPFLAGS) $(EXTRA_CPPFLAGS)
 CXXFLAGS=$(GEOPM_CFLAGS) $(OMP_FLAGS)
 LDFLAGS=$(GEOPM_LDFLAGS) $(OMP_FLAGS)
 
-libgeopmagent_torch_agent.so.0.0.0: TorchAgent.cpp TorchAgent.hpp
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(GEOPM_PLUGIN_FLAGS) $(EXTRA_CPPFLAGS) TorchAgent.cpp -o $@
+libgeopmagent_gpu_torch_agent.so.0.0.0: GPUTorchAgent.cpp GPUTorchAgent.hpp
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(GEOPM_PLUGIN_FLAGS) $(EXTRA_CPPFLAGS) GPUTorchAgent.cpp -o $@
 
 clean:
 	rm -f $(TUTORIAL_LIB) *.o
