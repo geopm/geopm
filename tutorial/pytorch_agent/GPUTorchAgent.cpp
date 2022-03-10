@@ -30,7 +30,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "TorchAgent.hpp"
+#include "GPUTorchAgent.hpp"
 
 #include <cmath>
 #include <cassert>
@@ -54,20 +54,20 @@ using geopm::PlatformTopo;
 // to the Controller when the plugin is first loaded.
 static void __attribute__((constructor)) torch_agent_load(void)
 {
-    geopm::agent_factory().register_plugin(TorchAgent::plugin_name(),
-                                           TorchAgent::make_plugin,
-                                           Agent::make_dictionary(TorchAgent::policy_names(),
-                                                                  TorchAgent::sample_names()));
+    geopm::agent_factory().register_plugin(GPUTorchAgent::plugin_name(),
+                                           GPUTorchAgent::make_plugin,
+                                           Agent::make_dictionary(GPUTorchAgent::policy_names(),
+                                                                  GPUTorchAgent::sample_names()));
 }
 
 
-TorchAgent::TorchAgent()
-    : TorchAgent(geopm::platform_io(), geopm::platform_topo())
+GPUTorchAgent::GPUTorchAgent()
+    : GPUTorchAgent(geopm::platform_io(), geopm::platform_topo())
 {
 
 }
 
-TorchAgent::TorchAgent(geopm::PlatformIO &plat_io, const geopm::PlatformTopo &topo)
+GPUTorchAgent::GPUTorchAgent(geopm::PlatformIO &plat_io, const geopm::PlatformTopo &topo)
     : m_platform_io(plat_io)
     , m_platform_topo(topo)
     , m_last_wait{{0, 0}}
@@ -81,7 +81,7 @@ TorchAgent::TorchAgent(geopm::PlatformIO &plat_io, const geopm::PlatformTopo &to
 }
 
 // Push signals and controls for future batch read/write
-void TorchAgent::init(int level, const std::vector<int> &fan_in, bool is_level_root)
+void GPUTorchAgent::init(int level, const std::vector<int> &fan_in, bool is_level_root)
 {
     m_gpu_frequency_requests = 0;
 
@@ -91,7 +91,7 @@ void TorchAgent::init(int level, const std::vector<int> &fan_in, bool is_level_r
         }
     }
     catch (const c10::Error& e) {
-        throw geopm::Exception("TorchAgent::" + std::string(__func__) +
+        throw geopm::Exception("GPUTorchAgent::" + std::string(__func__) +
                                "(): Failed to load GPU Neural Net: " +
                                m_gpu_nn_path + ".",
                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -100,7 +100,7 @@ void TorchAgent::init(int level, const std::vector<int> &fan_in, bool is_level_r
     init_platform_io();
 }
 
-void TorchAgent::init_platform_io(void)
+void GPUTorchAgent::init_platform_io(void)
 {
 
     for (int domain_idx = 0; domain_idx < M_NUM_GPU; ++domain_idx) {
@@ -137,7 +137,7 @@ void TorchAgent::init_platform_io(void)
 }
 
 // Validate incoming policy and configure default policy requests.
-void TorchAgent::validate_policy(std::vector<double> &in_policy) const
+void GPUTorchAgent::validate_policy(std::vector<double> &in_policy) const
 {
     assert(in_policy.size() == M_NUM_POLICY);
     double gpu_min_freq = m_platform_io.read_signal("GPU_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0);
@@ -153,7 +153,7 @@ void TorchAgent::validate_policy(std::vector<double> &in_policy) const
 
     if (in_policy[M_POLICY_GPU_FREQ_MAX] > gpu_max_freq ||
         in_policy[M_POLICY_GPU_FREQ_MAX] < gpu_min_freq ) {
-        throw geopm::Exception("TorchAgent::" + std::string(__func__) +
+        throw geopm::Exception("GPUTorchAgent::" + std::string(__func__) +
                         "(): GPU_FREQ_MAX out of range: " +
                         std::to_string(in_policy[M_POLICY_GPU_FREQ_MAX]) +
                         ".", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -166,14 +166,14 @@ void TorchAgent::validate_policy(std::vector<double> &in_policy) const
 
     if (in_policy[M_POLICY_GPU_FREQ_MIN] > gpu_max_freq ||
         in_policy[M_POLICY_GPU_FREQ_MIN] < gpu_min_freq ) {
-        throw geopm::Exception("TorchAgent::" + std::string(__func__) +
+        throw geopm::Exception("GPUTorchAgent::" + std::string(__func__) +
                         "(): GPU_FREQ_MIN out of range: " +
                         std::to_string(in_policy[M_POLICY_GPU_FREQ_MIN]) +
                         ".", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
 
     if (in_policy[M_POLICY_GPU_FREQ_MIN] > in_policy[M_POLICY_GPU_FREQ_MAX]) {
-        throw geopm::Exception("TorchAgent::" + std::string(__func__) +
+        throw geopm::Exception("GPUTorchAgent::" + std::string(__func__) +
                         "(): GPU_FREQ_MIN (" +
                         std::to_string(in_policy[M_POLICY_GPU_FREQ_MIN]) +
                         ") value exceeds GPU_FREQ_MAX (" +
@@ -188,7 +188,7 @@ void TorchAgent::validate_policy(std::vector<double> &in_policy) const
 
     if (in_policy[M_POLICY_GPU_PHI] < 0.0 ||
         in_policy[M_POLICY_GPU_PHI] > 1.0) {
-        throw geopm::Exception("TorchAgent::" + std::string(__func__) +
+        throw geopm::Exception("GPUTorchAgent::" + std::string(__func__) +
                                "(): POLICY_GPU_PHI value out of range: " +
                                std::to_string(in_policy[M_POLICY_GPU_PHI]) + ".",
                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -196,7 +196,7 @@ void TorchAgent::validate_policy(std::vector<double> &in_policy) const
 }
 
 // Distribute incoming policy to children
-void TorchAgent::split_policy(const std::vector<double>& in_policy,
+void GPUTorchAgent::split_policy(const std::vector<double>& in_policy,
                                 std::vector<std::vector<double> >& out_policy)
 {
     assert(in_policy.size() == M_NUM_POLICY);
@@ -206,24 +206,24 @@ void TorchAgent::split_policy(const std::vector<double>& in_policy,
 }
 
 // Indicate whether to send the policy down to children
-bool TorchAgent::do_send_policy(void) const
+bool GPUTorchAgent::do_send_policy(void) const
 {
     return true;
 }
 
-void TorchAgent::aggregate_sample(const std::vector<std::vector<double> > &in_sample,
+void GPUTorchAgent::aggregate_sample(const std::vector<std::vector<double> > &in_sample,
                                     std::vector<double>& out_sample)
 {
 
 }
 
 // Indicate whether to send samples up to the parent
-bool TorchAgent::do_send_sample(void) const
+bool GPUTorchAgent::do_send_sample(void) const
 {
     return false;
 }
 
-void TorchAgent::adjust_platform(const std::vector<double>& in_policy)
+void GPUTorchAgent::adjust_platform(const std::vector<double>& in_policy)
 {
     assert(in_policy.size() == M_NUM_POLICY);
 
@@ -275,13 +275,13 @@ void TorchAgent::adjust_platform(const std::vector<double>& in_policy)
 }
 
 // If controls have a valid updated value write them.
-bool TorchAgent::do_write_batch(void) const
+bool GPUTorchAgent::do_write_batch(void) const
 {
     return m_do_write_batch;
 }
 
 // Read signals from the platform and calculate samples to be sent up
-void TorchAgent::sample_platform(std::vector<double> &out_sample)
+void GPUTorchAgent::sample_platform(std::vector<double> &out_sample)
 {
     assert(out_sample.size() == M_NUM_SAMPLE);
 
@@ -301,7 +301,7 @@ void TorchAgent::sample_platform(std::vector<double> &out_sample)
 }
 
 // Wait for the remaining cycle time to keep Controller loop cadence
-void TorchAgent::wait(void)
+void GPUTorchAgent::wait(void)
 {
     geopm_time_s current_time;
     do {
@@ -312,13 +312,13 @@ void TorchAgent::wait(void)
 }
 
 // Adds the wait time to the top of the report
-std::vector<std::pair<std::string, std::string> > TorchAgent::report_header(void) const
+std::vector<std::pair<std::string, std::string> > GPUTorchAgent::report_header(void) const
 {
     return {{"Wait time (sec)", std::to_string(M_WAIT_SEC)}};
 }
 
 // Adds number of frquency requests to the per-node section of the report
-std::vector<std::pair<std::string, std::string> > TorchAgent::report_host(void) const
+std::vector<std::pair<std::string, std::string> > GPUTorchAgent::report_host(void) const
 {
     std::vector<std::pair<std::string, std::string> > result;
 
@@ -327,47 +327,47 @@ std::vector<std::pair<std::string, std::string> > TorchAgent::report_host(void) 
 }
 
 // This Agent does not add any per-region details
-std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > TorchAgent::report_region(void) const
+std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > GPUTorchAgent::report_region(void) const
 {
     return {};
 }
 
 // Adds trace columns signals of interest
-std::vector<std::string> TorchAgent::trace_names(void) const
+std::vector<std::string> GPUTorchAgent::trace_names(void) const
 {
     return {};
 }
 
 // Updates the trace with values for signals from this Agent
-void TorchAgent::trace_values(std::vector<double> &values)
+void GPUTorchAgent::trace_values(std::vector<double> &values)
 {
 }
 
-std::vector<std::function<std::string(double)> > TorchAgent::trace_formats(void) const
+std::vector<std::function<std::string(double)> > GPUTorchAgent::trace_formats(void) const
 {
     return {};
 }
 
 // Name used for registration with the Agent factory
-std::string TorchAgent::plugin_name(void)
+std::string GPUTorchAgent::plugin_name(void)
 {
-    return "torch";
+    return "gpu_torch";
 }
 
 // Used by the factory to create objects of this type
-std::unique_ptr<Agent> TorchAgent::make_plugin(void)
+std::unique_ptr<Agent> GPUTorchAgent::make_plugin(void)
 {
-    return geopm::make_unique<TorchAgent>();
+    return geopm::make_unique<GPUTorchAgent>();
 }
 
 // Describes expected policies to be provided by the resource manager or user
-std::vector<std::string> TorchAgent::policy_names(void)
+std::vector<std::string> GPUTorchAgent::policy_names(void)
 {
     return {"GPU_FREQ_MIN", "GPU_FREQ_MAX", "GPU_PHI"};
 }
 
 // Describes samples to be provided to the resource manager or user
-std::vector<std::string> TorchAgent::sample_names(void)
+std::vector<std::string> GPUTorchAgent::sample_names(void)
 {
     return {};
 }
