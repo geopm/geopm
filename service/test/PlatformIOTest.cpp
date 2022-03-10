@@ -305,6 +305,8 @@ TEST_F(PlatformIOTest, push_control)
     EXPECT_EQ(0, m_platio->num_control_pushed());
 
     EXPECT_CALL(*m_control_iogroup, control_domain_type("FREQ")).Times(2);
+    EXPECT_CALL(*m_control_iogroup, read_signal("FREQ", GEOPM_DOMAIN_CPU, 0));
+    EXPECT_CALL(*m_control_iogroup, write_control("FREQ", GEOPM_DOMAIN_CPU, 0, _));
     EXPECT_CALL(*m_control_iogroup, push_control("FREQ", GEOPM_DOMAIN_CPU, 0));
     int idx = m_platio->push_control("FREQ", GEOPM_DOMAIN_CPU, 0);
     EXPECT_EQ(0, idx);
@@ -370,6 +372,8 @@ TEST_F(PlatformIOTest, push_control_agg)
     EXPECT_EQ(0, m_platio->num_control_pushed());
     EXPECT_CALL(*m_control_iogroup, control_domain_type("FREQ")).Times(AtLeast(1));
     for (auto cpu : m_cpu_set0) {
+        EXPECT_CALL(*m_control_iogroup, read_signal("FREQ", GEOPM_DOMAIN_CPU, cpu));
+        EXPECT_CALL(*m_control_iogroup, write_control("FREQ", GEOPM_DOMAIN_CPU, cpu, _));
         EXPECT_CALL(*m_control_iogroup, push_control("FREQ", GEOPM_DOMAIN_CPU, cpu));
     }
     m_platio->push_control("FREQ", GEOPM_DOMAIN_PACKAGE, 0);
@@ -443,6 +447,8 @@ TEST_F(PlatformIOTest, sample_agg)
 TEST_F(PlatformIOTest, adjust)
 {
     EXPECT_CALL(*m_control_iogroup, control_domain_type("FREQ")).Times(2);
+    EXPECT_CALL(*m_control_iogroup, read_signal("FREQ", GEOPM_DOMAIN_CPU, 0));
+    EXPECT_CALL(*m_control_iogroup, write_control("FREQ", GEOPM_DOMAIN_CPU, 0, _));
     EXPECT_CALL(*m_control_iogroup, push_control("FREQ", _, _));
     int freq_idx = m_platio->push_control("FREQ", GEOPM_DOMAIN_CPU, 0);
     EXPECT_EQ(0, freq_idx);
@@ -466,6 +472,8 @@ TEST_F(PlatformIOTest, adjust_agg)
     double value = 1.23e9;
     EXPECT_CALL(*m_control_iogroup, control_domain_type("FREQ")).Times(AtLeast(1));
     for (auto cpu : m_cpu_set0) {
+        EXPECT_CALL(*m_control_iogroup, read_signal("FREQ", GEOPM_DOMAIN_CPU, cpu));
+        EXPECT_CALL(*m_control_iogroup, write_control("FREQ", GEOPM_DOMAIN_CPU, cpu, _));
         EXPECT_CALL(*m_control_iogroup, push_control("FREQ", GEOPM_DOMAIN_CPU, cpu))
             .WillOnce(Return(cpu));
     }
