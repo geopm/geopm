@@ -86,7 +86,6 @@ def main():
             exit(1)
         df_traces = df_traces.loc[df_traces['app-config'] != args.leave_app_out]
 
-    #Randomization of training data (if not using DataLoader)
     df_train = df_traces
     df_x_train = df_train[X_columns]
     df_y_train = df_train[y_columns]
@@ -112,7 +111,6 @@ def main():
     batch_size = 1000
     epoch_count = 5
 
-    #Closer to TF version
     loss_fn = nn.MSELoss()
 
     train_tensor = torch.utils.data.TensorDataset(x_train, y_train)
