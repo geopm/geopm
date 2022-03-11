@@ -1435,6 +1435,7 @@ namespace geopm
                     string_begins_with(msr_field_name,
                                        "TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_")) {
                     is_control = true;
+                    behavior = IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE;
                 }
 
                 add_msr_field_signal(msr_name, sig_ctl_name, domain_type,
