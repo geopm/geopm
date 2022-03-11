@@ -582,7 +582,8 @@ TEST_F(PlatformIOTest, read_signal_override)
 TEST_F(PlatformIOTest, read_signal_iogroup_fallback_domain_change)
 {
     // Test that if the initial call to the override_iogroup fails (e.g. because of permissions)
-    // the fallback logic is enforced and the call is routed appropriately to the control_iogroup.
+    // the fallback logic is enforced and the call is routed to the appropriate iogroup as long
+    // as the domain matches.  It does not in this case..
     EXPECT_CALL(*m_override_iogroup, signal_domain_type("MODE")).Times(2);
     EXPECT_CALL(*m_override_iogroup, read_signal("MODE", GEOPM_DOMAIN_BOARD, 0))
         .WillOnce(Throw(geopm::Exception("injected exception", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__)));
@@ -597,7 +598,8 @@ TEST_F(PlatformIOTest, read_signal_iogroup_fallback_domain_change)
 TEST_F(PlatformIOTest, read_signal_iogroup_fallback)
 {
     // Test that if the initial call to the override_iogroup fails (e.g. because of permissions)
-    // the fallback logic is enforced and the call is routed appropriately to the control_iogroup.
+    // the fallback logic is enforced and the call is routed to the appropriate iogroup as long
+    // as the domain matches.
     EXPECT_CALL(*m_override_iogroup, signal_domain_type("TEMP")).Times(2);
     EXPECT_CALL(*m_override_iogroup, read_signal("TEMP", GEOPM_DOMAIN_BOARD, 0))
         .WillOnce(Throw(geopm::Exception("injected exception", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__)));
@@ -658,6 +660,39 @@ TEST_F(PlatformIOTest, write_control_override)
 
     EXPECT_THROW(m_platio->write_control("MODE", GEOPM_DOMAIN_PACKAGE, 0, value),
                  geopm::Exception);
+}
+
+TEST_F(PlatformIOTest, write_control_iogroup_fallback)
+{
+    double value = 3e9;
+    // Test that if the initial call to the override_iogroup fails (e.g. because of permissions)
+    // the fallback logic is enforced and the call is routed to the appropriate iogroup as long
+    // as the domain matches.
+    EXPECT_CALL(*m_override_iogroup, control_domain_type("TEMP")).Times(2);
+    EXPECT_CALL(*m_override_iogroup, write_control("TEMP", GEOPM_DOMAIN_BOARD, 0, value))
+        .WillOnce(Throw(geopm::Exception("injected exception", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__)));
+
+    EXPECT_CALL(*m_fallback_iogroup, control_domain_type("TEMP")).Times(2);
+    EXPECT_CALL(*m_fallback_iogroup, write_control("TEMP", GEOPM_DOMAIN_BOARD, 0, value));
+
+    m_platio->write_control("TEMP", GEOPM_DOMAIN_BOARD, 0, value);
+}
+
+TEST_F(PlatformIOTest, write_control_iogroup_fallback_domain_change)
+{
+    double value = 3e9;
+    // Test that if the initial call to the override_iogroup fails (e.g. because of permissions)
+    // the fallback logic is enforced and the call is routed to the appropriate iogroup as long
+    // as the domain matches.  It does not in this case..
+    EXPECT_CALL(*m_override_iogroup, control_domain_type("MODE")).Times(2);
+    EXPECT_CALL(*m_override_iogroup, write_control("MODE", GEOPM_DOMAIN_BOARD, 0, value))
+        .WillOnce(Throw(geopm::Exception("injected exception", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__)));
+
+    // This IOGroup should should be pruned because the native domain of the control changed.
+    EXPECT_CALL(*m_control_iogroup, control_domain_type("MODE")).Times(1);
+
+    GEOPM_EXPECT_THROW_MESSAGE(m_platio->write_control("MODE", GEOPM_DOMAIN_BOARD, 0, value),
+                               GEOPM_ERROR_INVALID, "no support for control name \"MODE\"");
 }
 
 TEST_F(PlatformIOTest, agg_function)
