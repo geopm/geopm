@@ -89,7 +89,7 @@ namespace geopm
 
             std::vector<double> metric_sample(unsigned int l0_device_idx,
                                               std::string metric_name) const override;
-            void metric_read(unsigned int l0_device_idx) const override;
+            void metric_read(unsigned int l0_device_idx) override;
             void metric_init(unsigned int l0_device_idx) override;
             void metric_destroy(unsigned int l0_device_idx) override;
 

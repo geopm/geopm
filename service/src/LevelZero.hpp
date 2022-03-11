@@ -200,9 +200,9 @@ namespace geopm
 
             virtual std::vector<double> metric_sample(unsigned int l0_device_idx,
                                                       std::string metric_name) const = 0;
-            virtual void metric_read(unsigned int l0_device_idx) const = 0;
-            virtual void metric_destroy(unsigned int l0_device_idx) = 0;
+            virtual void metric_read(unsigned int l0_device_idx) = 0;
             virtual void metric_init(unsigned int l0_device_idx) = 0;
+            virtual void metric_destroy(unsigned int l0_device_idx) = 0;
 
             /// @brief Set min and max frequency for LevelZero device.
             /// @param [in] l0_device_idx The index indicating a particular
@@ -215,6 +215,6 @@ namespace geopm
                                            double range_max) const = 0;
     };
 
-    const LevelZero &levelzero();
+    LevelZero &levelzero();
 }
 #endif

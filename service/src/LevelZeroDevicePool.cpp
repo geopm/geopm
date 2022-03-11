@@ -46,13 +46,13 @@
 
 namespace geopm
 {
-    const LevelZeroDevicePool &levelzero_device_pool()
+    LevelZeroDevicePool &levelzero_device_pool()
     {
         static LevelZeroDevicePoolImp instance(levelzero());
         return instance;
     }
 
-    LevelZeroDevicePoolImp::LevelZeroDevicePoolImp(const LevelZero &levelzero)
+    LevelZeroDevicePoolImp::LevelZeroDevicePoolImp(LevelZero &levelzero)
         : m_levelzero(levelzero)
     {
     }
@@ -395,6 +395,7 @@ namespace geopm
                             " is not supported for metrics.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
+
         m_levelzero.metric_read(domain_idx);
     }
 
@@ -412,12 +413,19 @@ namespace geopm
         std::vector<double> data = m_levelzero.metric_sample(domain_idx, metric_name);
 
         if (data.size() > 0) {
-            //TODO: add min, max, avg etc.
+            //TODO: add min, max, avg etc handling.
             result = std::accumulate(data.begin(), data.end(), 0.0) / data.size();
         }
 
-        //std::cout << "LevelZeroDevicePool metric average " << metric_name << ": " << std::to_string(result) << std::endl;
         return result;
+    }
+
+    void LevelZeroDevicePoolImp::metric_polling_disable()
+    {
+        unsigned int num_device = num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR);
+        for (unsigned int l0_device_idx = 0; l0_device_idx < num_device; l0_device_idx++) {
+            m_levelzero.metric_destroy(l0_device_idx);
+        }
     }
 
     void LevelZeroDevicePoolImp::frequency_control(int domain, unsigned int domain_idx,

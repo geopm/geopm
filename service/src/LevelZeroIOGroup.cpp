@@ -67,7 +67,7 @@ namespace geopm
 
     // Set up mapping between signal and control names and corresponding indices
     LevelZeroIOGroup::LevelZeroIOGroup(const PlatformTopo &platform_topo,
-                                       const LevelZeroDevicePool &device_pool,
+                                       LevelZeroDevicePool &device_pool,
                                        std::shared_ptr<SaveControl> save_control_test)
         : m_platform_topo(platform_topo)
         , m_levelzero_device_pool(device_pool)
@@ -1025,6 +1025,7 @@ namespace geopm
                              << std::endl;
 #endif
             }
+            m_levelzero_device_pool.metric_polling_disable();
         }
     }
 

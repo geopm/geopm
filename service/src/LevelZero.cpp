@@ -44,7 +44,7 @@
 
 namespace geopm
 {
-    const LevelZero &levelzero()
+    LevelZero &levelzero()
     {
         static LevelZeroImp instance;
         return instance;
@@ -53,6 +53,8 @@ namespace geopm
     LevelZeroImp::LevelZeroImp()
     {
         setenv("ZES_ENABLE_SYSMAN", "1", 1);
+
+        //TODO: consider moving to lazy init?
         setenv("ZET_ENABLE_METRICS", "1", 1);
 
         ze_result_t ze_result;
@@ -195,8 +197,8 @@ namespace geopm
         for (unsigned int l0_device_idx = 0; l0_device_idx < m_num_board_gpu; l0_device_idx++) {
             domain_cache(l0_device_idx);
             metric_group_cache(l0_device_idx);
-            metric_init(l0_device_idx);
-            m_devices.at(l0_device_idx).metrics_initialized = true;
+            //metric_init(l0_device_idx);
+            //m_devices.at(l0_device_idx).metrics_initialized = true;
         }
     }
 
@@ -279,18 +281,22 @@ namespace geopm
     //TODO: need metric destory
     void LevelZeroImp::metric_destroy(unsigned int l0_device_idx)
     {
-        //ze_result_t ze_result; //TODO: check the result of all of these
+        //TODO: Check the result of all of these?
+        //      If they fail what's the resolution?
+        //ze_result_t ze_result;
 
-        // Close metric streamer
-        zetMetricStreamerClose(m_devices.at(l0_device_idx).metric_streamer);
-        zeEventDestroy(m_devices.at(l0_device_idx).event);
-        zeEventPoolDestroy(m_devices.at(l0_device_idx).event_pool);
+        if (m_devices.at(l0_device_idx).metrics_initialized) {
+            // Close metric streamer
+            zetMetricStreamerClose(m_devices.at(l0_device_idx).metric_streamer);
+            zeEventDestroy(m_devices.at(l0_device_idx).event);
+            zeEventPoolDestroy(m_devices.at(l0_device_idx).event_pool);
 
-        // Deconfigure the device
-        ze_context_handle_t context = m_devices.at(l0_device_idx).context;
-        zetContextActivateMetricGroups(context,
-                                       m_devices.at(l0_device_idx).device_handle,
-                                       0, nullptr);
+            // Deconfigure the device
+            ze_context_handle_t context = m_devices.at(l0_device_idx).context;
+            zetContextActivateMetricGroups(context,
+                                           m_devices.at(l0_device_idx).device_handle,
+                                           0, nullptr);
+        }
     }
 
 
@@ -338,7 +344,8 @@ namespace geopm
             ZET_STRUCTURE_TYPE_METRIC_STREAMER_DESC,
             nullptr,
             32768, /* reports to collect before notify */
-            1000000 /* sampling period in nanoseconds */}; //1ms
+            //1000000 /* sampling period in nanoseconds */}; //1ms
+            2000000 /* sampling period in nanoseconds */}; //2ms
             //5000000 /* sampling period in nanoseconds */}; //5ms
             //10000000 /* sampling period in nanoseconds */}; //10ms
         zet_metric_streamer_handle_t metric_streamer = nullptr;
@@ -442,17 +449,19 @@ namespace geopm
         }
     }
 
-    void LevelZeroImp::metric_read(unsigned int l0_device_idx) const
+    void LevelZeroImp::metric_read(unsigned int l0_device_idx)
     {
         if(!m_devices.at(l0_device_idx).metrics_initialized) {
-            //TODO: call metric_init(l0_device_idx) here
-            //metric_init(l0_device_idx);
-            //m_devices.at(l0_device_idx).metrics_initialized = true;
+            metric_init(l0_device_idx);
+            m_devices.at(l0_device_idx).metrics_initialized = true;
         }
 
         ze_result_t ze_host_result = zeEventHostSynchronize(m_devices.at(l0_device_idx).event, 0);
         if (ze_host_result != ZE_RESULT_NOT_READY) {
             metric_calc(l0_device_idx, m_devices.at(l0_device_idx).metric_streamer);
+        }
+        else {
+            metric_read(l0_device_idx);
         }
     }
 

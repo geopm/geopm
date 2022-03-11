@@ -47,7 +47,7 @@ namespace geopm
     {
         public:
             LevelZeroDevicePoolImp();
-            LevelZeroDevicePoolImp(const LevelZero &levelzero);
+            LevelZeroDevicePoolImp(LevelZero &levelzero);
             virtual ~LevelZeroDevicePoolImp() = default;
             int num_accelerator(int domain_type) const override;
 
@@ -83,13 +83,14 @@ namespace geopm
             double metric_sample(int domain, unsigned int domain_idx,
                                  std::string metric_name) const override;
             void metric_read(int domain, unsigned int domain_idx) const override;
+            void metric_polling_disable(void) override;
 
             void frequency_control(int domain, unsigned int domain_idx,
                                    int l0_domain, double range_min,
                                    double range_max) const override;
 
         private:
-            const LevelZero &m_levelzero;
+            LevelZero &m_levelzero;
 
             void check_idx_range(int domain, unsigned int domain_idx) const;
             void check_domain_exists(int size, const char *func, int line) const;
