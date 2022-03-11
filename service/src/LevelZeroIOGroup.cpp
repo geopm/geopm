@@ -417,7 +417,8 @@ namespace geopm
                                   1e6
                                   }},
                               {M_NAME_PREFIX + "METRIC:XVE_ACTIVE", {
-                                  "Percentage of time in which at least one pipe is active in XVE", //TODO: pull from L0 metrics programatically
+                                  //TODO: pull from L0 metrics programatically
+                                  "Percentage of time in which at least one pipe is active in XVE",
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::average,
                                   string_format_double,
@@ -429,10 +430,11 @@ namespace geopm
                                                    domain_idx,
                                                    "XVE_ACTIVE");
                                   },
-                                  1
+                                  1 / 100
                                   }},
                               {M_NAME_PREFIX + "METRIC:XVE_STALL", {
-                                  "Percentage of time in which any threads are loaded but not even a single pipe is active in XVE", //TODO: pull from L0 metrics programatically
+                                  //TODO: pull from L0 metrics programatically
+                                  "Percentage of time in which any threads are loaded but not even a single pipe is active in XVE",
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::average,
                                   string_format_double,
@@ -444,7 +446,7 @@ namespace geopm
                                                    domain_idx,
                                                    "XVE_STALL");
                                   },
-                                  1
+                                  1 / 100
                                   }},
                              })
         , m_control_available({{M_NAME_PREFIX + "GPUCHIP_FREQUENCY_MIN_CONTROL", {
@@ -532,6 +534,9 @@ namespace geopm
                               M_NAME_PREFIX + "GPUCHIP_FREQUENCY_CONTROL");
         register_control_alias("GPUCHIP_FREQUENCY_CONTROL",
                                M_NAME_PREFIX + "GPUCHIP_FREQUENCY_CONTROL");
+
+        register_signal_alias("GPU_COMPUTE_ACTIVITY", M_NAME_PREFIX + "METRIC:XVE_ACTIVE");
+        register_signal_alias("GPU_STALL_ACTIVITY", M_NAME_PREFIX + "METRIC:XVE_STALL");
 
         // populate controls for each domain
         for (auto &sv : m_control_available) {
