@@ -1328,3 +1328,60 @@ TEST_F(MSRIOGroupTest, save_restore_control)
     EXPECT_CALL(*m_mock_save_ctl, restore(_));
     m_msrio_group->restore_control(file_name);
 }
+
+TEST_F(MSRIOGroupTest, turbo_ratio_limit_writability)
+{
+    static const uint64_t platform_info_offset = 0xce;
+    static const uint64_t trl_writable_bit_in_platform_info = 28;
+
+    { // All domains are writable. Expect that there is a control
+        EXPECT_CALL(*m_msrio, read_msr(_, platform_info_offset))
+            .Times(m_num_package)
+            .WillRepeatedly(Return(1 << trl_writable_bit_in_platform_info));
+
+        m_msrio_group = geopm::make_unique<MSRIOGroup>(
+            *m_topo, m_msrio, MSRIOGroup::M_CPUID_ICX, m_num_cpu, m_mock_save_ctl);
+        for (int i = 0; i < 7; ++i) {
+            std::ostringstream signal_name_oss;
+            signal_name_oss << "MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_" << i;
+            EXPECT_TRUE(m_msrio_group->is_valid_signal(signal_name_oss.str()))
+                << "Expected signal for " << signal_name_oss.str();
+            EXPECT_TRUE(m_msrio_group->is_valid_control(signal_name_oss.str()))
+                << "Expected control for " << signal_name_oss.str();
+        }
+    }
+
+    { // No domains are writable. Expect that there is not a control
+        EXPECT_CALL(*m_msrio, read_msr(_, platform_info_offset))
+            .Times(m_num_package)
+            .WillRepeatedly(Return(0 << trl_writable_bit_in_platform_info));
+
+        m_msrio_group = geopm::make_unique<MSRIOGroup>(
+            *m_topo, m_msrio, MSRIOGroup::M_CPUID_ICX, m_num_cpu, m_mock_save_ctl);
+        for (int i = 0; i < 7; ++i) {
+            std::ostringstream signal_name_oss;
+            signal_name_oss << "MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_" << i;
+            EXPECT_TRUE(m_msrio_group->is_valid_signal(signal_name_oss.str()))
+                << "Expected signal for " << signal_name_oss.str();
+            EXPECT_FALSE(m_msrio_group->is_valid_control(signal_name_oss.str()))
+                << "Expected no control for " << signal_name_oss.str();
+        }
+    }
+
+    { // Some domains are writable. Expect that there is not a control
+        EXPECT_CALL(*m_msrio, read_msr(_, platform_info_offset))
+            .WillOnce(Return(1 << trl_writable_bit_in_platform_info))
+            .WillRepeatedly(Return(0 << trl_writable_bit_in_platform_info));
+
+        m_msrio_group = geopm::make_unique<MSRIOGroup>(
+            *m_topo, m_msrio, MSRIOGroup::M_CPUID_ICX, m_num_cpu, m_mock_save_ctl);
+        for (int i = 0; i < 7; ++i) {
+            std::ostringstream signal_name_oss;
+            signal_name_oss << "MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_" << i;
+            EXPECT_TRUE(m_msrio_group->is_valid_signal(signal_name_oss.str()))
+                << "Expected signal for " << signal_name_oss.str();
+            EXPECT_FALSE(m_msrio_group->is_valid_control(signal_name_oss.str()))
+                << "Expected no control for " << signal_name_oss.str();
+        }
+    }
+}
