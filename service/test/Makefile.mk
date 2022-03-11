@@ -241,6 +241,8 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
               test/gtest_links/PlatformIOTest.signal_control_description \
               test/gtest_links/PlatformIOTest.signal_control_names \
               test/gtest_links/PlatformIOTest.write_control \
+              test/gtest_links/PlatformIOTest.write_control_iogroup_fallback_domain_change \
+              test/gtest_links/PlatformIOTest.write_control_iogroup_fallback \
               test/gtest_links/PlatformIOTest.write_control_override \
               test/gtest_links/PlatformIOTest.write_control_agg \
               test/gtest_links/PlatformTopoTest.bdx_domain_idx \
