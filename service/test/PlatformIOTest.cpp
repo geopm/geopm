@@ -300,6 +300,39 @@ TEST_F(PlatformIOTest, push_signal_agg)
     EXPECT_EQ(1 + m_cpu_set0.size(), (unsigned int)m_platio->num_signal_pushed());
 }
 
+TEST_F(PlatformIOTest, push_signal_iogroup_fallback)
+{
+    int idx = -1;
+    EXPECT_EQ(0, m_platio->num_signal_pushed());
+
+    EXPECT_CALL(*m_override_iogroup, signal_domain_type("TEMP")).Times(2);
+    EXPECT_CALL(*m_override_iogroup, read_signal("TEMP", GEOPM_DOMAIN_BOARD, 0))
+        .WillOnce(Throw(geopm::Exception("injected exception", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__)));
+
+    EXPECT_CALL(*m_fallback_iogroup, signal_domain_type("TEMP")).Times(2);
+    EXPECT_CALL(*m_fallback_iogroup, read_signal("TEMP", GEOPM_DOMAIN_BOARD, 0));
+    EXPECT_CALL(*m_fallback_iogroup, push_signal("TEMP", GEOPM_DOMAIN_BOARD, 0));
+
+    idx = m_platio->push_signal("TEMP", GEOPM_DOMAIN_BOARD, 0);
+    EXPECT_EQ(1, m_platio->num_signal_pushed());
+    EXPECT_EQ(0, idx);
+}
+
+TEST_F(PlatformIOTest, push_signal_iogroup_fallback_domain_change)
+{
+    // Test that if the initial call to the override_iogroup fails (e.g. because of permissions)
+    // the fallback logic is enforced and the call is routed appropriately to the control_iogroup.
+    EXPECT_CALL(*m_override_iogroup, signal_domain_type("MODE")).Times(2);
+    EXPECT_CALL(*m_override_iogroup, read_signal("MODE", GEOPM_DOMAIN_BOARD, 0))
+        .WillOnce(Throw(geopm::Exception("injected exception", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__)));
+
+    // This IOGroup should should be pruned because the native domain of the signal changed.
+    EXPECT_CALL(*m_control_iogroup, signal_domain_type("MODE")).Times(1);
+
+    GEOPM_EXPECT_THROW_MESSAGE(m_platio->push_signal("MODE", GEOPM_DOMAIN_BOARD, 0),
+                               GEOPM_ERROR_INVALID, "no support for signal name \"MODE\"");
+}
+
 TEST_F(PlatformIOTest, push_control)
 {
     EXPECT_EQ(0, m_platio->num_control_pushed());
