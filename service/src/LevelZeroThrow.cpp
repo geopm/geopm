@@ -37,7 +37,7 @@
 
 namespace geopm
 {
-    const LevelZero &levelzero()
+    LevelZero &levelzero()
     {
         throw Exception("LevelZeroThrow::" + std::string(__func__) +
                         ": GEOPM configured without Level Zero library support.  Please configure with --enable-levelzero",
