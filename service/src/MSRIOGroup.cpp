@@ -84,6 +84,67 @@ namespace geopm
     const std::string MSRIOGroup::M_PLUGIN_NAME = "MSR";
     const std::string MSRIOGroup::M_NAME_PREFIX = M_PLUGIN_NAME + "::";
 
+    // Return true if turbo ratio limits are writable in all domains that
+    // report writability.  Return false otherwise. In debug builds, print a
+    // warning if there is mixed writability across domains.
+    static bool is_trl_writable_in_all_domains(const Json &msr_json,
+                                               const PlatformTopo &topo,
+                                               std::shared_ptr<MSRIO> msrio)
+    {
+        bool is_writable = false;
+        const auto &msr_obj = msr_json.object_items();
+        auto platform_info_obj_it = msr_obj.find("PLATFORM_INFO");
+
+        if (platform_info_obj_it != msr_obj.end()) {
+            auto platform_info_obj = platform_info_obj_it->second.object_items();
+            auto platform_info_offset = std::stoull(
+                platform_info_obj["offset"].string_value(), 0, 16);
+            auto domain_type = PlatformTopo::domain_name_to_type(
+                platform_info_obj["domain"].string_value());
+            auto trl_mode_it =
+                platform_info_obj["fields"].object_items().find("PROGRAMMABLE_RATIO_LIMITS_TURBO_MODE");
+
+            if (trl_mode_it != platform_info_obj.end()) {
+                auto begin_bit = (int)(trl_mode_it->second["begin_bit"].number_value());
+                auto end_bit = (int)(trl_mode_it->second["end_bit"].number_value());
+                int function = MSR::string_to_function(
+                    trl_mode_it->second["function"].string_value());
+                double scalar = trl_mode_it->second["scalar"].number_value();
+
+                int num_domain = topo.num_domain(domain_type);
+                int num_domain_with_writable_trl = 0;
+                for (int domain_idx = 0; domain_idx < num_domain; ++domain_idx) {
+                    std::set<int> cpus = topo.domain_nested(
+                        GEOPM_DOMAIN_CPU, domain_type, domain_idx);
+                    int cpu_idx = *(cpus.begin());
+                    auto platform_info_msr = std::make_shared<RawMSRSignal>(
+                        msrio, cpu_idx, platform_info_offset);
+                    auto trl_mode_signal = geopm::make_unique<MSRFieldSignal>(
+                        platform_info_msr, begin_bit, end_bit, function, scalar);
+
+                    num_domain_with_writable_trl += trl_mode_signal->read() != 0;
+                }
+
+                if (num_domain_with_writable_trl == num_domain) {
+                    is_writable = true;
+                }
+                else if (num_domain_with_writable_trl != 0) {
+#ifdef GEOPM_DEBUG
+                    std::cerr
+                        << "Warning: <geopm> " << num_domain_with_writable_trl
+                        << " out of " << num_domain
+                        << " entries for PROGRAMMABLE_RATIO_LIMITS_TURBO_MODE "
+                           "indicate writable turbo ratio limits; defaulting "
+                           "to no writable turbo ratio limits"
+                        << std::endl;
+#endif
+                }
+            }
+        }
+
+        return is_writable;
+    }
+
     MSRIOGroup::MSRIOGroup()
         : MSRIOGroup(platform_topo(), std::make_shared<MSRIOImp>(), cpuid(), geopm_sched_num_cpu(), nullptr)
     {
@@ -1303,6 +1364,8 @@ namespace geopm
         check_top_level(root);
 
         auto msr_obj = root["msrs"].object_items();
+        bool is_trl_writable = is_trl_writable_in_all_domains(root["msrs"], m_platform_topo, m_msrio);
+
         for (const auto &msr : msr_obj) {
             std::string msr_name = msr.first;
             Json msr_root = msr.second;
@@ -1366,6 +1429,12 @@ namespace geopm
                                   << (end_bit - begin_bit + 1) << std::endl;
                     }
 #endif
+                }
+
+                if (is_trl_writable &&
+                    string_begins_with(msr_field_name,
+                                       "TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_")) {
+                    is_control = true;
                 }
 
                 add_msr_field_signal(msr_name, sig_ctl_name, domain_type,

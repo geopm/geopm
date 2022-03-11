@@ -61,7 +61,8 @@ namespace geopm
                     "units":     "none",
                     "scalar":    1,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Indicates whether the MSR::TURBO_RATIO_LIMIT:* signals are also available as controls."
                 },
                 "PROGRAMMABLE_TDP_LIMITS_TURBO_MODE": {
                     "begin_bit": 29,
@@ -161,7 +162,8 @@ namespace geopm
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Maximum turbo frequency with up to MSR::TURBO_RATIO_LIMIT_CORES:NUMCORE_0 active cores."
                 },
                 "MAX_RATIO_LIMIT_1": {
                     "begin_bit": 8,
@@ -170,7 +172,8 @@ namespace geopm
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Maximum turbo frequency with more than MSR::TURBO_RATIO_LIMIT_CORES:NUMCORE_0 and up to MSR::TURBO_RATIO_LIMIT_CORES:NUMCORE_1 active cores."
                 },
                 "MAX_RATIO_LIMIT_2": {
                     "begin_bit": 16,
@@ -179,7 +182,8 @@ namespace geopm
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Maximum turbo frequency with more than MSR::TURBO_RATIO_LIMIT_CORES:NUMCORE_1 and up to MSR::TURBO_RATIO_LIMIT_CORES:NUMCORE_2 active cores."
                 },
                 "MAX_RATIO_LIMIT_3": {
                     "begin_bit": 24,
@@ -188,7 +192,8 @@ namespace geopm
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Maximum turbo frequency with more than MSR::TURBO_RATIO_LIMIT_CORES:NUMCORE_2 and up to MSR::TURBO_RATIO_LIMIT_CORES:NUMCORE_3 active cores."
                 },
                 "MAX_RATIO_LIMIT_4": {
                     "begin_bit": 32,
@@ -197,7 +202,8 @@ namespace geopm
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Maximum turbo frequency with more than MSR::TURBO_RATIO_LIMIT_CORES:NUMCORE_3 and up to MSR::TURBO_RATIO_LIMIT_CORES:NUMCORE_4 active cores."
                 },
                 "MAX_RATIO_LIMIT_5": {
                     "begin_bit": 40,
@@ -206,7 +212,8 @@ namespace geopm
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Maximum turbo frequency with more than MSR::TURBO_RATIO_LIMIT_CORES:NUMCORE_4 and up to MSR::TURBO_RATIO_LIMIT_CORES:NUMCORE_5 active cores."
                 },
                 "MAX_RATIO_LIMIT_6": {
                     "begin_bit": 48,
@@ -215,7 +222,8 @@ namespace geopm
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Maximum turbo frequency with more than MSR::TURBO_RATIO_LIMIT_CORES:NUMCORE_5 and up to MSR::TURBO_RATIO_LIMIT_CORES:NUMCORE_6 active cores."
                 },
                 "MAX_RATIO_LIMIT_7": {
                     "begin_bit": 56,
@@ -224,7 +232,8 @@ namespace geopm
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Maximum turbo frequency with more than MSR::TURBO_RATIO_LIMIT_CORES:NUMCORE_6 and up to MSR::TURBO_RATIO_LIMIT_CORES:NUMCORE_7 active cores."
                 }
             }
         },
@@ -239,7 +248,8 @@ namespace geopm
                     "units":     "none",
                     "scalar":    1,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Maximum number of active cores for a maximum turbo frequency of MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_0."
                 },
                 "NUMCORE_1": {
                     "begin_bit": 8,
@@ -248,7 +258,8 @@ namespace geopm
                     "units":     "none",
                     "scalar":    1,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Maximum number of active cores for a maximum turbo frequency of MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_1."
                 },
                 "NUMCORE_2": {
                     "begin_bit": 16,
@@ -257,7 +268,8 @@ namespace geopm
                     "units":     "none",
                     "scalar":    1,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Maximum number of active cores for a maximum turbo frequency of MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_2."
                 },
                 "NUMCORE_3": {
                     "begin_bit": 24,
@@ -266,7 +278,8 @@ namespace geopm
                     "units":     "none",
                     "scalar":    1,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Maximum number of active cores for a maximum turbo frequency of MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_3."
                 },
                 "NUMCORE_4": {
                     "begin_bit": 32,
@@ -275,7 +288,8 @@ namespace geopm
                     "units":     "none",
                     "scalar":    1,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Maximum number of active cores for a maximum turbo frequency of MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_4."
                 },
                 "NUMCORE_5": {
                     "begin_bit": 40,
@@ -284,7 +298,8 @@ namespace geopm
                     "units":     "none",
                     "scalar":    1,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Maximum number of active cores for a maximum turbo frequency of MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_5."
                 },
                 "NUMCORE_6": {
                     "begin_bit": 48,
@@ -293,7 +308,8 @@ namespace geopm
                     "units":     "none",
                     "scalar":    1,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Maximum number of active cores for a maximum turbo frequency of MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_6."
                 },
                 "NUMCORE_7": {
                     "begin_bit": 56,
@@ -302,7 +318,8 @@ namespace geopm
                     "units":     "none",
                     "scalar":    1,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Maximum number of active cores for a maximum turbo frequency of MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_7."
                 }
             }
         },

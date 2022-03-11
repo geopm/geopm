@@ -178,6 +178,7 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
               test/gtest_links/MSRIOGroupTest.write_control \
               test/gtest_links/MSRIOGroupTest.batch_calls_no_push \
               test/gtest_links/MSRIOGroupTest.save_restore_control \
+              test/gtest_links/MSRIOGroupTest.turbo_ratio_limit_writability \
               test/gtest_links/MSRIOTest.read_aligned \
               test/gtest_links/MSRIOTest.read_batch \
               test/gtest_links/MSRIOTest.read_unaligned \

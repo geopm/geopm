@@ -1026,7 +1026,7 @@ MSR::PLATFORM_INFO:MAX_NON_TURBO_RATIO
     - domain: package
     - iogroup: MSRIOGroup
 MSR::PLATFORM_INFO:PROGRAMMABLE_RATIO_LIMITS_TURBO_MODE
-    - description: Refer to the Intel(R) 64 and IA-32 Architectures Software Developer's Manual for information about this MSR
+    - description: Indicates whether the MSR::TURBO_RATIO_LIMIT:* signals are also available as controls.
     - units: none
     - aggregation: select_first
     - domain: package
@@ -1272,49 +1272,49 @@ MSR::TURBO_RATIO_LIMIT#
     - domain: package
     - iogroup: MSRIOGroup
 MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_0
-    - description: Refer to the Intel(R) 64 and IA-32 Architectures Software Developer's Manual for information about this MSR
+    - description: Maximum turbo frequency with up to MSR::TURBO_RATIO_LIMIT_CORES:NUMCORE_0 active cores.
     - units: hertz
     - aggregation: select_first
     - domain: package
     - iogroup: MSRIOGroup
 MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_1
-    - description: Refer to the Intel(R) 64 and IA-32 Architectures Software Developer's Manual for information about this MSR
+    - description: Maximum turbo frequency with more than MSR::TURBO_RATIO_LIMIT_CORES:NUMCORE_0 and up to MSR::TURBO_RATIO_LIMIT_CORES:NUMCORE_1 active cores.
     - units: hertz
     - aggregation: select_first
     - domain: package
     - iogroup: MSRIOGroup
 MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_2
-    - description: Refer to the Intel(R) 64 and IA-32 Architectures Software Developer's Manual for information about this MSR
+    - description: Maximum turbo frequency with more than MSR::TURBO_RATIO_LIMIT_CORES:NUMCORE_1 and up to MSR::TURBO_RATIO_LIMIT_CORES:NUMCORE_2 active cores.
     - units: hertz
     - aggregation: select_first
     - domain: package
     - iogroup: MSRIOGroup
 MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_3
-    - description: Refer to the Intel(R) 64 and IA-32 Architectures Software Developer's Manual for information about this MSR
+    - description: Maximum turbo frequency with more than MSR::TURBO_RATIO_LIMIT_CORES:NUMCORE_2 and up to MSR::TURBO_RATIO_LIMIT_CORES:NUMCORE_3 active cores.
     - units: hertz
     - aggregation: select_first
     - domain: package
     - iogroup: MSRIOGroup
 MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_4
-    - description: Refer to the Intel(R) 64 and IA-32 Architectures Software Developer's Manual for information about this MSR
+    - description: Maximum turbo frequency with more than MSR::TURBO_RATIO_LIMIT_CORES:NUMCORE_3 and up to MSR::TURBO_RATIO_LIMIT_CORES:NUMCORE_4 active cores.
     - units: hertz
     - aggregation: select_first
     - domain: package
     - iogroup: MSRIOGroup
 MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_5
-    - description: Refer to the Intel(R) 64 and IA-32 Architectures Software Developer's Manual for information about this MSR
+    - description: Maximum turbo frequency with more than MSR::TURBO_RATIO_LIMIT_CORES:NUMCORE_4 and up to MSR::TURBO_RATIO_LIMIT_CORES:NUMCORE_5 active cores.
     - units: hertz
     - aggregation: select_first
     - domain: package
     - iogroup: MSRIOGroup
 MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_6
-    - description: Refer to the Intel(R) 64 and IA-32 Architectures Software Developer's Manual for information about this MSR
+    - description: Maximum turbo frequency with more than MSR::TURBO_RATIO_LIMIT_CORES:NUMCORE_5 and up to MSR::TURBO_RATIO_LIMIT_CORES:NUMCORE_6 active cores.
     - units: hertz
     - aggregation: select_first
     - domain: package
     - iogroup: MSRIOGroup
 MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_7
-    - description: Refer to the Intel(R) 64 and IA-32 Architectures Software Developer's Manual for information about this MSR
+    - description: Maximum turbo frequency with more than MSR::TURBO_RATIO_LIMIT_CORES:NUMCORE_6 and up to MSR::TURBO_RATIO_LIMIT_CORES:NUMCORE_7 active cores.
     - units: hertz
     - aggregation: select_first
     - domain: package
@@ -1326,49 +1326,49 @@ MSR::TURBO_RATIO_LIMIT_CORES#
     - domain: package
     - iogroup: MSRIOGroup
 MSR::TURBO_RATIO_LIMIT_CORES:NUMCORE_0
-    - description: Refer to the Intel(R) 64 and IA-32 Architectures Software Developer's Manual for information about this MSR
+    - description: Maximum number of active cores for a maximum turbo frequency of MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_0.
     - units: none
     - aggregation: select_first
     - domain: package
     - iogroup: MSRIOGroup
 MSR::TURBO_RATIO_LIMIT_CORES:NUMCORE_1
-    - description: Refer to the Intel(R) 64 and IA-32 Architectures Software Developer's Manual for information about this MSR
+    - description: Maximum number of active cores for a maximum turbo frequency of MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_1.
     - units: none
     - aggregation: select_first
     - domain: package
     - iogroup: MSRIOGroup
 MSR::TURBO_RATIO_LIMIT_CORES:NUMCORE_2
-    - description: Refer to the Intel(R) 64 and IA-32 Architectures Software Developer's Manual for information about this MSR
+    - description: Maximum number of active cores for a maximum turbo frequency of MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_2.
     - units: none
     - aggregation: select_first
     - domain: package
     - iogroup: MSRIOGroup
 MSR::TURBO_RATIO_LIMIT_CORES:NUMCORE_3
-    - description: Refer to the Intel(R) 64 and IA-32 Architectures Software Developer's Manual for information about this MSR
+    - description: Maximum number of active cores for a maximum turbo frequency of MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_3.
     - units: none
     - aggregation: select_first
     - domain: package
     - iogroup: MSRIOGroup
 MSR::TURBO_RATIO_LIMIT_CORES:NUMCORE_4
-    - description: Refer to the Intel(R) 64 and IA-32 Architectures Software Developer's Manual for information about this MSR
+    - description: Maximum number of active cores for a maximum turbo frequency of MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_4.
     - units: none
     - aggregation: select_first
     - domain: package
     - iogroup: MSRIOGroup
 MSR::TURBO_RATIO_LIMIT_CORES:NUMCORE_5
-    - description: Refer to the Intel(R) 64 and IA-32 Architectures Software Developer's Manual for information about this MSR
+    - description: Maximum number of active cores for a maximum turbo frequency of MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_5.
     - units: none
     - aggregation: select_first
     - domain: package
     - iogroup: MSRIOGroup
 MSR::TURBO_RATIO_LIMIT_CORES:NUMCORE_6
-    - description: Refer to the Intel(R) 64 and IA-32 Architectures Software Developer's Manual for information about this MSR
+    - description: Maximum number of active cores for a maximum turbo frequency of MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_6.
     - units: none
     - aggregation: select_first
     - domain: package
     - iogroup: MSRIOGroup
 MSR::TURBO_RATIO_LIMIT_CORES:NUMCORE_7
-    - description: Refer to the Intel(R) 64 and IA-32 Architectures Software Developer's Manual for information about this MSR
+    - description: Maximum number of active cores for a maximum turbo frequency of MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_7.
     - units: none
     - aggregation: select_first
     - domain: package
