@@ -73,6 +73,11 @@ class MockLevelZeroDevicePool : public geopm::LevelZeroDevicePool
         MOCK_METHOD(uint64_t, energy_timestamp,
                     (int, unsigned int, int), (const, override));
 
+        MOCK_METHOD(double, metric_sample,
+                    (int, unsigned int, std::string), (const, override));
+        MOCK_METHOD(void, metric_read, (int, unsigned int), (const, override));
+        MOCK_METHOD(void, metric_polling_disable, (), (override));
+
         MOCK_METHOD(void, frequency_control,
                     (int, unsigned int, int, double, double),(const, override));
 };

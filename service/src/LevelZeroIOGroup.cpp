@@ -430,7 +430,7 @@ namespace geopm
                                                    domain_idx,
                                                    "XVE_ACTIVE");
                                   },
-                                  1 / 100
+                                  .01
                                   }},
                               {M_NAME_PREFIX + "METRIC:XVE_STALL", {
                                   //TODO: pull from L0 metrics programatically
@@ -446,7 +446,7 @@ namespace geopm
                                                    domain_idx,
                                                    "XVE_STALL");
                                   },
-                                  1 / 100
+                                  .01
                                   }},
                              })
         , m_control_available({{M_NAME_PREFIX + "GPUCHIP_FREQUENCY_MIN_CONTROL", {
@@ -818,11 +818,6 @@ namespace geopm
                 m_levelzero_device_pool.metric_read(GEOPM_DOMAIN_BOARD_ACCELERATOR, domain_idx);
             }
         }
-        //if(signal_name contains ("::METRIC:") {
-        //    devpool.synchronize()
-        //    return data or cached
-        //}
-
     }
 
     // Write all controls that have been pushed and adjusted
