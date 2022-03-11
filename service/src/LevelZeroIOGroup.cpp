@@ -473,6 +473,26 @@ namespace geopm
             }
             sv.second.m_controls = result;
         }
+
+        // Cache the initial min and max frequencies
+        for (int domain_idx = 0;
+             domain_idx < m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP);
+             ++domain_idx) {
+
+            try {
+                // Currently only the levelzero compute domain control is supported.
+                // As new controls are added they should be included
+                m_frequency_range.push_back(m_levelzero_device_pool.frequency_range(
+                                            GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, domain_idx,
+                                            geopm::LevelZero::M_DOMAIN_COMPUTE));
+            }
+            catch (const geopm::Exception &ex) {
+                throw Exception("LevelZeroIOGroup::" + std::string(__func__) + ": "
+                                + " Failed to fetch frequency control range for "
+                                " BOARD_ACCELERATOR_CHIP domain " + std::to_string(domain_idx),
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+        }
     }
 
     void LevelZeroIOGroup::register_derivative_signals(void) {
@@ -837,9 +857,17 @@ namespace geopm
 
         if (control_name == M_NAME_PREFIX + "GPUCHIP_FREQUENCY_CONTROL" ||
             control_name == "GPUCHIP_FREQUENCY_CONTROL") {
-            m_levelzero_device_pool.frequency_control(domain_type, domain_idx,
-                                                      geopm::LevelZero::M_DOMAIN_COMPUTE,
-                                                      setting / 1e6, setting / 1e6);
+            if (std::isnan(setting)) {
+                // At initialization before this control has ever been written the "signal"
+                // version of this control will return NAN.  If this NAN is later used as the
+                // setting, intercept it and instead restore the values cached at startup.
+                restore_control();
+            }
+            else {
+                m_levelzero_device_pool.frequency_control(domain_type, domain_idx,
+                                                          geopm::LevelZero::M_DOMAIN_COMPUTE,
+                                                          setting / 1e6, setting / 1e6);
+            }
         }
         else if(control_name == M_NAME_PREFIX + "GPUCHIP_FREQUENCY_MIN_CONTROL") {
             double curr_max = read_signal(M_NAME_PREFIX + "GPUCHIP_FREQUENCY_MAX_CONTROL",
@@ -868,24 +896,7 @@ namespace geopm
     // to adjust them
     void LevelZeroIOGroup::save_control(void)
     {
-        for (int domain_idx = 0;
-             domain_idx < m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP);
-             ++domain_idx) {
-
-            try {
-                // Currently only the levelzero compute domain control is supported.
-                // As new controls are added they should be included
-                m_frequency_range.push_back(m_levelzero_device_pool.frequency_range(
-                                            GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, domain_idx,
-                                            geopm::LevelZero::M_DOMAIN_COMPUTE));
-            }
-            catch (const geopm::Exception &ex) {
-                throw Exception("LevelZeroIOGroup::" + std::string(__func__) + ": "
-                                + " Failed to fetch frequency control range for "
-                                " BOARD_ACCELERATOR_CHIP domain " + std::to_string(domain_idx),
-                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-            }
-        }
+        // No-op here as the initial frequency values are cached in the constructor
     }
 
     // Implemented to allow an IOGroup to restore previously saved

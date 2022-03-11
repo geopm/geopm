@@ -202,6 +202,14 @@ namespace geopm
                                   Agg::expect_same,
                                   IOGroup::M_SIGNAL_BEHAVIOR_CONSTANT,
                                   string_format_double
+                                  }},
+                              {M_NAME_PREFIX + "GPU_FREQUENCY_RESET_CONTROL", {
+                                  "Resets streaming multiprocessor frequency min and max limits to default values.",
+                                  {},
+                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                  Agg::average,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_CONSTANT,
+                                  string_format_double
                                   }}
                              })
         , m_control_available({{M_NAME_PREFIX + "GPU_FREQUENCY_CONTROL", {
@@ -606,6 +614,9 @@ namespace geopm
         }
         else if (signal_name == M_NAME_PREFIX + "GPU_FREQUENCY_CONTROL" || signal_name == "GPU_FREQUENCY_CONTROL") {
             result = m_frequency_control_request.at(domain_idx);
+        }
+        else if (signal_name == M_NAME_PREFIX + "GPU_FREQUENCY_RESET_CONTROL") {
+            ; // No-op.  Nothing to return.
         }
         else {
     #ifdef GEOPM_DEBUG
