@@ -32,7 +32,7 @@
 
 program timed_loop
 
-use geopm
+use geopm_prof
 use, intrinsic :: ISO_C_BINDING
 
 implicit none

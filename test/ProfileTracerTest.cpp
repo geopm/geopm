@@ -36,9 +36,9 @@
 #include "ProfileTracerImp.hpp"
 #include "geopm/Helper.hpp"
 #include "record.hpp"
-#include "geopm.h"
+#include "geopm_prof.h"
 #include "geopm_time.h"
-#include "geopm_internal.h"
+#include "geopm_hint.h"
 
 using testing::Return;
 using geopm::ProfileTracer;

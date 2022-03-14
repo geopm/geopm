@@ -43,9 +43,8 @@
 #include <mpi.h>
 #include "geopm_ctl.h"
 #endif
-#include "geopm.h"
 #include "geopm_error.h"
-#include "geopm_internal.h"
+#include "geopm_hint.h"
 #include "geopm_pmpi.h"
 #include "geopm_sched.h"
 #include "geopm_mpi_comm_split.h"

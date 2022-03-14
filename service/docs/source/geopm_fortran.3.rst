@@ -13,7 +13,7 @@ geopm_fortran(3) -- geopm fortran interface
 SYNOPSIS
 --------
 
-``use geopm``
+``use geopm_prof``
 
 Link with ``-lgeopmfort``
 
@@ -103,7 +103,7 @@ converting Fortran strings.
 ENUM TYPE
 ---------
 
-This fortran code has access to several enum values, which are defined in `geopm.h <https://github.com/geopm/geopm/blob/dev/service/src/geopm.h>`_\ :
+This fortran code has access to several enum values, which are defined in `geopm_hint.h <https://github.com/geopm/geopm/blob/dev/service/src/geopm_hint.h>`_\ :
 
 * ``GEOPM_REGION_HINT_UNKNOWN``
 * ``GEOPM_REGION_HINT_COMPUTE``
@@ -118,7 +118,7 @@ FORTRAN MODULE
 --------------
 
 The GEOPM package installs a Fortran 90 module file which defines
-these interfaces and can be imported with the ``use geopm`` command.
+these interfaces and can be imported with the ``use geopm_prof`` command.
 The install path for such modules has not been GNU standardized.  We
 install the geopm Fortran 90 module to:
 

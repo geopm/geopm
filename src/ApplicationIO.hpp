@@ -41,7 +41,7 @@
 #include <map>
 #include <list>
 
-#include "geopm_internal.h"
+#include "geopm_hint.h"
 
 namespace geopm
 {

@@ -48,7 +48,8 @@
 #include <time.h>
 #include <mpi.h>
 
-#include "geopm.h"
+#include "geopm_prof.h"
+#include "geopm_hint.h"
 #include "geopm_time.h"
 #include "synthetic_benchmark.hpp"
 

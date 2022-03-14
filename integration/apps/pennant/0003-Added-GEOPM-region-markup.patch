@@ -66,7 +66,7 @@ index c75da82..6339f31 100644
 +++ b/src/Driver.cc
 @@ -31,9 +31,11 @@
  #ifdef USEGEOPM
- #include "geopm.h"
+ #include "geopm_prof.h"
  #endif
 +#include "PennantGeopm.hh"
  
@@ -115,7 +115,7 @@ index 23fab68..4427352 100644
  #include "HydroBC.hh"
  
 +#ifdef USEGEOPM
-+#include "geopm.h"
++#include "geopm_prof.h"
 +#endif
 +#include "PennantGeopm.hh"
 +
@@ -264,7 +264,7 @@ index 0000000..49d1af5
 +++ b/src/PennantGeopm.cc
 @@ -0,0 +1,46 @@
 +#ifdef USEGEOPM
-+#include "geopm.h"
++#include "geopm_prof.h"
 +#include "PennantGeopm.hh"
 +#endif
 +

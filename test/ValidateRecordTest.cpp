@@ -36,7 +36,8 @@
 
 #include "ValidateRecord.hpp"
 #include "record.hpp"
-#include "geopm.h"
+#include "geopm_prof.h"
+#include "geopm_hint.h"
 
 using geopm::ValidateRecord;
 using geopm::record_s;

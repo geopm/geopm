@@ -30,50 +30,36 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "config.h"
+#ifndef GEOPM_PROF_H_INCLUDE
+#define GEOPM_PROF_H_INCLUDE
 
-#include <mpi.h>
-#include <cmath>
-#include <string>
-#include <vector>
-#include <memory>
+#include <stddef.h>
+#include <stdint.h>
 
-#include "Profile.hpp"
-#include "Exception.hpp"
-#include "ModelRegion.hpp"
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-int main(int argc, char **argv)
-{
-    // Start MPI
-    int comm_rank;
-    MPI_Init(&argc, &argv);
-    MPI_Comm_rank(MPI_COMM_WORLD, &comm_rank);
-    // Parse command line option for verbosity
-    bool is_verbose = false;
-    if (comm_rank == 0) {
-        for (int arg_idx = 1; arg_idx < argc; ++arg_idx) {
-            std::string arg(argv[arg_idx]);
-            if (arg == "--verbose" || arg == "-v") {
-                is_verbose = true;
-            }
-        }
-    }
-    // Create a model region
-    std::unique_ptr<geopm::ModelRegion> model(
-        geopm::ModelRegion::model_region("spin", 0.005, is_verbose));
+/*************************/
+/* APPLICATION PROFILING */
+/*************************/
+int geopm_prof_region(const char *region_name,
+                      uint64_t hint,
+                      uint64_t *region_id);
 
-    // Rename model region to the test name
-    geopm::Profile &prof = geopm::Profile::default_profile();
-    std::string region_name = "@test_name@";
-    uint64_t rid = prof.region(region_name, GEOPM_REGION_HINT_UNKNOWN);
-    // Loop over 1000 iterations of executing the renamed region
-    int num_step = 1000;
-    for (int idx = 0; idx != num_step; ++idx) {
-        prof.enter(rid);
-        model->run();
-        prof.exit(rid);
-    }
-    // Shutdown MPI
-    MPI_Finalize();
-    return 0;
+int geopm_prof_enter(uint64_t region_id);
+
+int geopm_prof_exit(uint64_t region_id);
+
+int geopm_prof_epoch(void);
+
+int geopm_prof_shutdown(void);
+
+int geopm_tprof_init(uint32_t num_work_unit);
+
+int geopm_tprof_post(void);
+
+#ifdef __cplusplus
 }
+#endif
+#endif

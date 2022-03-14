@@ -48,8 +48,9 @@ extern "C" {
 #ifndef GEOPM_TEST
 #include "geopm_ctl.h"
 #endif
-#include "geopm.h"
+#include "geopm_prof.h"
 #include "geopm_error.h"
+#include "geopm_hint.h"
 #include "geopm_internal.h"
 #include "geopm_pmpi.h"
 #include "geopm_sched.h"

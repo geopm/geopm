@@ -210,6 +210,7 @@ rm -f %{buildroot}/%{_bindir}/geopmlaunch
 %{_includedir}/geopm/SampleAggregator.hpp
 %{_includedir}/geopm_agent.h
 %{_includedir}/geopm_imbalancer.h
+%{_includedir}/geopm_prof.h
 
 %files -n python%{python_major_version}-geopmpy
 %{expand:%{python%{python_major_version}_sitelib}}/*

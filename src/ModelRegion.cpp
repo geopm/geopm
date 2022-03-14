@@ -33,7 +33,8 @@
 #include "config.h"
 #include "ModelRegion.hpp"
 
-#include "geopm.h"
+#include "geopm_prof.h"
+#include "geopm_hint.h"
 #include "geopm_imbalancer.h"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"

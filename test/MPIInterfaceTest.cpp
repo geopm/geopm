@@ -41,6 +41,7 @@
 #include "gtest/gtest.h"
 
 #include "config.h"
+#include "geopm_internal.h"
 
 extern "C"
 {
@@ -154,7 +155,7 @@ extern "C"
         return 0;
     }
 
-#include "geopm_internal.h"
+#include "geopm_hint.h"
 
     void geopm_mpi_region_enter(uint64_t func_rid)
     {

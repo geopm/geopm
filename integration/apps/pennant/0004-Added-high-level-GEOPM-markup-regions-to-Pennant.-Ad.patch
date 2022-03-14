@@ -184,7 +184,7 @@ index c62b97f..84532a6 100644
  #include "Driver.hh"
  
 +#ifdef USEGEOPM
-+#include "geopm.h"
++#include "geopm_prof.h"
 +#endif
  #include "PennantGeopm.hh"
  

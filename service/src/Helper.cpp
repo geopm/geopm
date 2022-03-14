@@ -47,7 +47,6 @@
 #include <algorithm>
 #include <sstream>
 #include <map>
-#include "geopm.h"
 #include "geopm_internal.h"
 #include "geopm/Exception.hpp"
 #include "config.h"

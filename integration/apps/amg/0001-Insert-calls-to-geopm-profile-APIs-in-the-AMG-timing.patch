@@ -83,7 +83,7 @@ index 2492dae..3d1bc42 100644
  #include "krylov.h"
  #include "_hypre_utilities.h"
 +#ifdef GEOPM
-+#include <geopm.h>
++#include <geopm_prof.h>
 +#endif
  
  /*--------------------------------------------------------------------------
@@ -108,7 +108,7 @@ index 2ada3e4..c946211 100644
  #include "_hypre_utilities.h"
  #include "timing.h"
 +#ifdef GEOPM
-+#include "geopm.h"
++#include "geopm_prof.h"
 +#endif
  
  /*-------------------------------------------------------

@@ -30,24 +30,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef GEOPM_H_INCLUDE
-#define GEOPM_H_INCLUDE
-
-#include <stddef.h>
+#ifndef GEOPM_HINT_H_INCLUDE
+#define GEOPM_HINT_H_INCLUDE
 #include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/***************************/
-/* APPLICATION REGION HASH */
-/***************************/
-enum geopm_region_hash_e {
-    GEOPM_REGION_HASH_INVALID  = 0x0ULL,
-    GEOPM_REGION_HASH_UNMARKED = 0x725e8066ULL, /* Note the value is the geopm_crc32_str() of the stringified enum */
-    GEOPM_U64_SENTINEL_REGION_HASH = UINT64_MAX, /* Force enum type to uint64_t */
-};
 
 /****************************/
 /* APPLICATION REGION HINTS */
@@ -74,37 +63,6 @@ enum geopm_region_hint_e {
                                   GEOPM_REGION_HINT_INACTIVE,
     GEOPM_U64_SENTINEL_REGION_HINT = UINT64_MAX, /* Force enum type to uint64_t */
 };
-
-/*!
- * @brief Used to pass information about regions entered and exited
- * from the application to the tracer.
- */
-struct geopm_region_info_s
-{
-    uint64_t hash;
-    uint64_t hint;
-    double progress;
-    double runtime;
-};
-
-/*************************/
-/* APPLICATION PROFILING */
-/*************************/
-int geopm_prof_region(const char *region_name,
-                      uint64_t hint,
-                      uint64_t *region_id);
-
-int geopm_prof_enter(uint64_t region_id);
-
-int geopm_prof_exit(uint64_t region_id);
-
-int geopm_prof_epoch(void);
-
-int geopm_prof_shutdown(void);
-
-int geopm_tprof_init(uint32_t num_work_unit);
-
-int geopm_tprof_post(void);
 
 #ifdef __cplusplus
 }

@@ -50,8 +50,7 @@
 #include "PlatformIOProf.hpp"
 #include "geopm_hash.h"
 #include "geopm_version.h"
-#include "geopm.h"
-#include "geopm_internal.h"
+#include "geopm_hint.h"
 #include "config.h"
 
 namespace geopm

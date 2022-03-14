@@ -50,7 +50,7 @@ index 724e2d1..597eb96 100644
  extern "C" void HPM_Stop(char *);
  #endif
 +#ifdef GEOPM
-+#include "geopm.h"
++#include "geopm_prof.h"
 +#endif
  using namespace std;
  

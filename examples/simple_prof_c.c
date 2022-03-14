@@ -38,7 +38,8 @@
 #include <mpi.h>
 #include <omp.h>
 
-#include "geopm.h"
+#include "geopm_prof.h"
+#include "geopm_hint.h"
 
 
 int main(int argc, char **argv)

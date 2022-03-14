@@ -40,7 +40,8 @@
 #include <algorithm>
 #include <stdlib.h>
 
-#include "geopm.h"
+#include "geopm_prof.h"
+#include "geopm_hint.h"
 #include "geopm_time.h"
 #include "geopm/Exception.hpp"
 #include "Profile.hpp"

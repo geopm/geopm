@@ -35,7 +35,8 @@
 
 #include <iostream>
 
-#include "geopm.h"
+#include "geopm_prof.h"
+#include "geopm_hint.h"
 #include "geopm/Exception.hpp"
 #include "Profile.hpp"
 #include "geopm/Helper.hpp"

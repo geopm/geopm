@@ -115,7 +115,7 @@ namespace geopm
             static double hint_to_signal(uint64_t hint);
             /// @brief Converts a m_signal_type for the IOGroup to the
             ///        corresponding geopm_region_hint_e defined in
-            ///        geopm.h.  The signal_type must be one of the
+            ///        geopm_prof.h.  The signal_type must be one of the
             ///        M_SIGNAL_TIME_HINT* signals.
             static uint64_t signal_type_to_hint(int signal_type);
 

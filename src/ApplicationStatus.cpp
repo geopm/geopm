@@ -35,7 +35,7 @@
 
 #include <cmath>
 
-#include "geopm.h"
+#include "geopm_internal.h"
 #include "geopm/SharedMemory.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm/Exception.hpp"

@@ -54,7 +54,7 @@ index f9c4f6d..1e79d3b 100644
        subroutine cg(x,f,g,c,r,w,p,z,n,niter,flop_cg)
 +#else
 +      subroutine cg(x,f,g,c,r,w,p,z,n,niter,flop_cg,do_geopm)
-+      use geopm
++      use geopm_prof
 +#endif
  
  #if defined(XSMM_DISPATCH)
