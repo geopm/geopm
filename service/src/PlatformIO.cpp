@@ -117,9 +117,16 @@ namespace geopm
                 else if ((*it)->signal_domain_type(signal_name) == native_domain) {
                     result.push_back(*it);
                 }
-                // GEOPM_DEBUG: If there is a mismatch, print a warning
-                // else {
-                // }
+#ifdef GEOPM_DEBUG
+                else {
+                    std::cerr << "Warning: <geopm> PlatformIO::find_signal_iogroup(): "
+                              << "Native domain changed between IOGroups for signal name \""
+                              << signal_name << "\".  Current cached domain is " << native_domain
+                              << ". Ignoring IOGroup \"" << (*it)->name() << "\" at domain "
+                              << (*it)->signal_domain_type(signal_name) << "."
+                              << std::endl;
+                }
+#endif
             }
         }
         return result;
@@ -140,9 +147,16 @@ namespace geopm
                 else if ((*it)->control_domain_type(control_name) == native_domain) {
                     result.push_back(*it);
                 }
-                // GEOPM_DEBUG: If there is a mismatch, print a warning
-                // else {
-                // }
+#ifdef GEOPM_DEBUG
+                else {
+                    std::cerr << "Warning: <geopm> PlatformIO::find_control_iogroup(): "
+                              << "Native domain changed between IOGroups for control name \""
+                              << control_name << "\".  Current cached domain is " << native_domain
+                              << ". Ignoring IOGroup \"" << (*it)->name() << "\" at domain "
+                              << (*it)->control_domain_type(control_name) << "."
+                              << std::endl;
+                }
+#endif
             }
         }
         return result;
