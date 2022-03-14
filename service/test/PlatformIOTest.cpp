@@ -142,15 +142,21 @@ void PlatformIOTest::SetUp()
 {
     // Basic IOGroup
     m_time_iogroup = std::make_shared<PlatformIOTestMockIOGroup>();
+    ON_CALL(*m_time_iogroup, name()).WillByDefault(Return("TIME"));
+    EXPECT_CALL(*m_time_iogroup, name()).Times(AtLeast(0));
     m_time_iogroup->set_valid_signals({{"TIME", GEOPM_DOMAIN_BOARD}});
 
     // Fallback IOGroup
     m_fallback_iogroup = std::make_shared<PlatformIOTestMockIOGroup>();
+    ON_CALL(*m_fallback_iogroup, name()).WillByDefault(Return("FALLBACK"));
+    EXPECT_CALL(*m_fallback_iogroup, name()).Times(AtLeast(0));
     m_fallback_iogroup->set_valid_signals({{"TEMP", GEOPM_DOMAIN_BOARD}});
     m_fallback_iogroup->set_valid_controls({{"TEMP", GEOPM_DOMAIN_BOARD}});
 
     // IOGroup with signals and controls with the same name
     m_control_iogroup = std::make_shared<PlatformIOTestMockIOGroup>();
+    ON_CALL(*m_control_iogroup, name()).WillByDefault(Return("CONTROL"));
+    EXPECT_CALL(*m_control_iogroup, name()).Times(AtLeast(0));
     m_control_iogroup->set_valid_signals({
             {"FREQ", GEOPM_DOMAIN_CPU},
             {"MODE", GEOPM_DOMAIN_PACKAGE}});
@@ -160,6 +166,8 @@ void PlatformIOTest::SetUp()
 
     // IOGroup that overrides previously registered signals and controls
     m_override_iogroup = std::make_shared<PlatformIOTestMockIOGroup>();
+    ON_CALL(*m_override_iogroup, name()).WillByDefault(Return("OVERRIDE"));
+    EXPECT_CALL(*m_override_iogroup, name()).Times(AtLeast(0));
     m_override_iogroup->set_valid_signals({{"MODE", GEOPM_DOMAIN_BOARD},
                                            {"TEMP", GEOPM_DOMAIN_BOARD}});
     m_override_iogroup->set_valid_controls({{"MODE", GEOPM_DOMAIN_BOARD},
@@ -327,7 +335,7 @@ TEST_F(PlatformIOTest, push_signal_iogroup_fallback_domain_change)
         .WillOnce(Throw(geopm::Exception("injected exception", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__)));
 
     // This IOGroup should should be pruned because the native domain of the signal changed.
-    EXPECT_CALL(*m_control_iogroup, signal_domain_type("MODE")).Times(1);
+    EXPECT_CALL(*m_control_iogroup, signal_domain_type("MODE")).Times(AtLeast(1));
 
     GEOPM_EXPECT_THROW_MESSAGE(m_platio->push_signal("MODE", GEOPM_DOMAIN_BOARD, 0),
                                GEOPM_ERROR_INVALID, "no support for signal name \"MODE\"");
@@ -563,8 +571,8 @@ TEST_F(PlatformIOTest, read_signal_agg)
 
 TEST_F(PlatformIOTest, read_signal_override)
 {
-    // overridden IOGroup will not be used
-    EXPECT_CALL(*m_control_iogroup, signal_domain_type("MODE")).Times(3); // Inspected for potential IOGroup fallback
+    // overridden IOGroup will not be used except to be inspected as a potential fallback
+    EXPECT_CALL(*m_control_iogroup, signal_domain_type("MODE")).Times(AtLeast(3));
     EXPECT_CALL(*m_control_iogroup, read_signal(_, _, _)).Times(0);
 
     EXPECT_CALL(*m_topo, is_nested_domain(_, _));
@@ -589,7 +597,7 @@ TEST_F(PlatformIOTest, read_signal_iogroup_fallback_domain_change)
         .WillOnce(Throw(geopm::Exception("injected exception", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__)));
 
     // This IOGroup should should be pruned because the native domain of the signal changed.
-    EXPECT_CALL(*m_control_iogroup, signal_domain_type("MODE")).Times(1);
+    EXPECT_CALL(*m_control_iogroup, signal_domain_type("MODE")).Times(AtLeast(1));
 
     GEOPM_EXPECT_THROW_MESSAGE(m_platio->read_signal("MODE", GEOPM_DOMAIN_BOARD, 0),
                                GEOPM_ERROR_INVALID, "no support for signal name \"MODE\"");
@@ -689,7 +697,7 @@ TEST_F(PlatformIOTest, write_control_iogroup_fallback_domain_change)
         .WillOnce(Throw(geopm::Exception("injected exception", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__)));
 
     // This IOGroup should should be pruned because the native domain of the control changed.
-    EXPECT_CALL(*m_control_iogroup, control_domain_type("MODE")).Times(1);
+    EXPECT_CALL(*m_control_iogroup, control_domain_type("MODE")).Times(AtLeast(1));
 
     GEOPM_EXPECT_THROW_MESSAGE(m_platio->write_control("MODE", GEOPM_DOMAIN_BOARD, 0, value),
                                GEOPM_ERROR_INVALID, "no support for control name \"MODE\"");
@@ -697,7 +705,7 @@ TEST_F(PlatformIOTest, write_control_iogroup_fallback_domain_change)
 
 TEST_F(PlatformIOTest, agg_function)
 {
-    EXPECT_CALL(*m_control_iogroup, signal_domain_type("MODE")).Times(1);
+    EXPECT_CALL(*m_control_iogroup, signal_domain_type("MODE")).Times(AtLeast(1));
     EXPECT_CALL(*m_override_iogroup, signal_domain_type("MODE")).Times(1);
 
     double value = 12.3456;
