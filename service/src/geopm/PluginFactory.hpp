@@ -51,10 +51,13 @@ namespace geopm
             PluginFactory(const PluginFactory &other) = delete;
             PluginFactory &operator=(const PluginFactory &other) = delete;
             /// @brief Add a plugin to the factory.
+            ///
             /// @param [in] plugin_name Name used to request plugins
             ///        of the registered type.
+            ///
             /// @param [in] make_plugin Function that returns a new
             ///        object of the registered type.
+            ///
             /// @param [in] dictionary Optional dictionary of static
             ///        information about the registered type.
             void register_plugin(const std::string &plugin_name,
@@ -72,8 +75,10 @@ namespace geopm
             }
             /// @brief Create an object of the requested type.  If the
             ///        type was not registered, throws an exception.
+            ///
             /// @param [in] plugin_name Name used to look up the
             ///        constructor function used to create the object.
+            ///
             /// @return A unique_ptr to the created object.  The
             ///         caller owns the created object.
             std::unique_ptr<T> make_plugin(const std::string &plugin_name) const
@@ -89,6 +94,7 @@ namespace geopm
             /// @brief Returns a list of all valid plugin names
             ///        registered with the factory in the order they
             ///        were registered.
+            ///
             /// @return List of valid plugin names.
             std::vector<std::string> plugin_names(void) const
             {
@@ -97,7 +103,9 @@ namespace geopm
             /// @brief Returns the dictionary of static metadata about
             ///        a registered type.  If the type was not
             ///        registered, throws an exception.
+            ///
             /// @param [in] plugin_name Name of the registered type.
+            ///
             /// @return Dictionary of metadata.
             const std::map<std::string, std::string> &dictionary(const std::string &plugin_name) const
             {
