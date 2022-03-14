@@ -214,27 +214,32 @@ namespace geopm
             result = sig_tup_it->second;
         }
         std::string err_msg;
+        bool read_signal_ok = false;
         if (result == -1) {
             auto iogroups = find_signal_iogroup(signal_name);
             for (auto ii : iogroups) {
-                try {
-                    if (domain_type == ii->signal_domain_type(signal_name)) {
+                if (domain_type == ii->signal_domain_type(signal_name)) {
+                    try {
                         // Attempt to read before pushing to ensure batch reads will succeed
                         (void)ii->read_signal(signal_name, domain_type, domain_idx);
+                        read_signal_ok = true;
+                    }
+                    catch (const geopm::Exception &ex) {
+                        err_msg += std::string(ex.what()) + "\n";
+                        // TODO Modify EpochIOGroup to throw a known code so that push will succeed below
+                    }
+                    if (read_signal_ok == true) {
                         int group_signal_idx = ii->push_signal(signal_name, domain_type, domain_idx);
                         result = m_active_signal.size();
                         m_existing_signal[sig_tup] = result;
                         m_active_signal.emplace_back(ii, group_signal_idx);
                         break;
                     }
-                    else {
-                        result = push_signal_convert_domain(signal_name, domain_type, domain_idx);
-                        m_existing_signal[sig_tup] = result;
-                        break;
-                    }
                 }
-                catch (const geopm::Exception &ex) {
-                    err_msg += std::string(ex.what()) + "\n";
+                else {
+                    result = push_signal_convert_domain(signal_name, domain_type, domain_idx);
+                    m_existing_signal[sig_tup] = result;
+                    break;
                 }
             }
         }
@@ -313,13 +318,22 @@ namespace geopm
             result = ctl_tup_it->second;
         }
         std::string err_msg;
+        bool read_signal_ok = false;
         if (result == -1) {
             auto iogroups = find_control_iogroup(control_name);
             for (auto ii : iogroups) {
-                try {
-                    if (ii->control_domain_type(control_name) == domain_type) {
+                if (ii->control_domain_type(control_name) == domain_type) {
+                    int val;
+                    try {
                         // Attempt to read then write the control to ensure batch writes will succeed
-                        int val = ii->read_signal(control_name, domain_type, domain_idx);
+                        val = ii->read_signal(control_name, domain_type, domain_idx);
+                        read_signal_ok = true;
+                    }
+                    catch (const geopm::Exception &ex) {
+                        err_msg += std::string(ex.what()) + "\n";
+                        // TODO Modify EpochIOGroup to throw a known code so that push will succeed below
+                    }
+                    if (read_signal_ok == true) {
                         ii->write_control(control_name, domain_type, domain_idx, val);
                         int group_control_idx = ii->push_control(control_name, domain_type, domain_idx);
                         result = m_active_control.size();
@@ -327,15 +341,12 @@ namespace geopm
                         m_active_control.emplace_back(ii, group_control_idx);
                         break;
                     }
-                    else {
-                        // Handle aggregated controls
-                        result = push_control_convert_domain(control_name, domain_type, domain_idx);
-                        m_existing_control[ctl_tup] = result;
-                        break;
-                    }
                 }
-                catch (const geopm::Exception &ex) {
-                    err_msg += std::string(ex.what()) + "\n";
+                else {
+                    // Handle aggregated controls
+                    result = push_control_convert_domain(control_name, domain_type, domain_idx);
+                    m_existing_control[ctl_tup] = result;
+                    break;
                 }
             }
         }
