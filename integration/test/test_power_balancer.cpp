@@ -38,7 +38,7 @@
 #include <vector>
 #include <memory>
 
-#include "geopm.h"
+#include "geopm_prof.h"
 #include "geopm/Exception.hpp"
 #include "ModelRegion.hpp"
 #include "geopm/PlatformTopo.hpp"

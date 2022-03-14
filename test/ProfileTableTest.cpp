@@ -36,7 +36,7 @@
 
 #include "gtest/gtest.h"
 
-#include "geopm_internal.h"
+#include "geopm_hint.h"
 #include "geopm/Exception.hpp"
 #include "ProfileTable.hpp"
 #include "geopm/Helper.hpp"

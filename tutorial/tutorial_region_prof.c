@@ -39,7 +39,7 @@
 #ifdef _OPENMP
 #include <omp.h>
 #endif
-#include <geopm.h>
+#include <geopm_prof.h>
 
 #include "tutorial_region.h"
 

@@ -43,8 +43,8 @@
 #include "MockPlatformTopo.hpp"
 #include "Scheduler.hpp"
 #include "record.hpp"
-#include "geopm.h"
-#include "geopm_internal.h"
+#include "geopm_prof.h"
+#include "geopm_hint.h"
 #include "geopm_test.hpp"
 #include "config.h"
 

@@ -191,9 +191,8 @@ mkdir -p %{buildroot}%{_sysconfdir}/geopm-service
 %{_includedir}/geopm/SharedMemoryScopedLock.hpp
 %{_includedir}/geopm_debug.hpp
 %{_includedir}/geopm_error.h
-%{_includedir}/geopm.h
 %{_includedir}/geopm_hash.h
-%{_includedir}/geopm_internal.h
+%{_includedir}/geopm_hint.h
 %{_includedir}/geopm_pio.h
 %{_includedir}/geopm_plugin.hpp
 %{_includedir}/geopm_sched.h

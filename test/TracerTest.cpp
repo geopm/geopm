@@ -43,7 +43,7 @@
 #include "geopm/PlatformTopo.hpp"
 #include "MockPlatformIO.hpp"
 #include "MockPlatformTopo.hpp"
-#include "geopm_internal.h"
+#include "geopm_hint.h"
 #include "geopm_hash.h"
 #include "geopm_version.h"
 #include "geopm_test.hpp"

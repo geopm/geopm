@@ -52,8 +52,8 @@
 #include "Scheduler.hpp"
 #include "record.hpp"
 #include "geopm_debug.hpp"
-#include "geopm.h"
 #include "geopm_hash.h"
+#include "geopm_internal.h"
 
 namespace geopm
 {

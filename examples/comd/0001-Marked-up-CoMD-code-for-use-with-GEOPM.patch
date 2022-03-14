@@ -181,7 +181,7 @@ index 12466c8..d4dec78 100644
  #include <strings.h>
  #include <unistd.h>
  #include <assert.h>
-+#include <geopm.h>
++#include <geopm_prof.h>
  
  #include "CoMDTypes.h"
  #include "decomposition.h"
@@ -425,7 +425,7 @@ index a200618..e4522d6 100644
  #include "linkCells.h"
  #include "parallel.h"
  #include "performanceTimers.h"
-+#include <geopm.h>
++#include <geopm_prof.h>
  
  static void advanceVelocity(SimFlat* s, int nBoxes, real_t dt);
  static void advancePosition(SimFlat* s, int nBoxes, real_t dt);

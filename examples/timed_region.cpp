@@ -32,7 +32,8 @@
 
 #include <mpi.h>
 
-#include "geopm.h"
+#include "geopm_prof.h"
+#include "geopm_hint.h"
 #include "geopm_time.h"
 
 int main(int argc, char**argv)

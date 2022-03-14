@@ -41,8 +41,8 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-#include "geopm.h"
-#include "geopm_internal.h"
+#include "geopm_prof.h"
+#include "geopm_hint.h"
 #include "Profile.hpp"
 #include "config.h"
 

@@ -41,7 +41,7 @@
 #include "geopm/PlatformIO.hpp"
 #include "geopm/PlatformTopo.hpp"
 #include "geopm/Helper.hpp"
-#include "geopm_internal.h"
+#include "geopm_hint.h"
 #include "Environment.hpp"
 #include "geopm/Exception.hpp"
 #include "CSV.hpp"

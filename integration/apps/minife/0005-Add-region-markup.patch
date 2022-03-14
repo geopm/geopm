@@ -49,7 +49,7 @@ index 876f4ad..b598181 100644
  #include <mytimer.hpp>
 
 +#ifndef NO_GEOPM
-+#include "geopm.h"
++#include "geopm_prof.h"
 +#endif
 +
  #ifdef MINIFE_HAVE_TBB
@@ -112,7 +112,7 @@ index cdf9b15..4f54069 100644
  #endif
 
 +#ifndef NO_GEOPM
-+#include "geopm.h"
++#include "geopm_prof.h"
 +#endif
 +
  #ifdef MINIFE_HAVE_TBB

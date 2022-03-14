@@ -40,7 +40,7 @@
 #include <memory>
 #include <functional>
 
-#include "geopm.h"
+#include "geopm_prof.h"
 #include "geopm_time.h"
 
 #include "Agent.hpp"

@@ -44,8 +44,6 @@
 #include "geopm/PlatformIO.hpp"
 #include "CSV.hpp"
 
-struct geopm_region_info_s;
-
 namespace geopm
 {
     /// @brief Abstract base class for the Tracer object defines the interface.

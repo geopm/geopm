@@ -34,7 +34,7 @@
 #include <unistd.h>
 #include <string.h>
 
-#include "geopm.h"
+#include "geopm_prof.h"
 #include "geopm/Exception.hpp"
 
 #include "config.h"

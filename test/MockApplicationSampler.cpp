@@ -39,7 +39,7 @@
 #include "record.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm/Exception.hpp"
-#include "geopm.h"
+#include "geopm_prof.h"
 
 void MockApplicationSampler::update_time(double time)
 {

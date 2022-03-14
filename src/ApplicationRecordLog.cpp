@@ -32,7 +32,7 @@
 
 #include "config.h"
 
-#include "geopm.h"
+#include "geopm_internal.h"
 #include "ApplicationRecordLog.hpp"
 #include "geopm/SharedMemory.hpp"
 #include "geopm/Exception.hpp"

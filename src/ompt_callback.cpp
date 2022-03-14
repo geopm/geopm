@@ -32,7 +32,7 @@
 
 #include "config.h"
 #include "OMPT.hpp"
-#include "geopm.h"
+#include "geopm_prof.h"
 #include <omp-tools.h>
 
 

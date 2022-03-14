@@ -39,7 +39,7 @@
 #include "geopm/PlatformTopo.hpp"
 #include "MockPlatformTopo.hpp"
 #include "MockApplicationSampler.hpp"
-#include "geopm.h"
+#include "geopm_prof.h"
 
 using geopm::Exception;
 using geopm::record_s;

@@ -13,7 +13,7 @@ geopm_prof_c(3) -- application profiling interfaces
 SYNOPSIS
 --------
 
-#include `<geopm.h> <https://github.com/geopm/geopm/blob/dev/src/geopm.h>`_\ 
+#include `<geopm_prof.h> <https://github.com/geopm/geopm/blob/dev/src/geopm_prof.h>`_\ 
 
 ``Link with -lgeopm``
 
@@ -89,7 +89,7 @@ initialized.
   _region\ *name* is used to determine the output _region\ *id* and is
   also displayed in the profiling report to identify the region.
   The *hint* is one of the values given by the geopm_region_hint_e
-  enum defined in *geopm.h* which determines the initial control
+  enum defined in *geopm_hint.h* which determines the initial control
   settings.  The following hints are supported:
 
   ``GEOPM_REGION_HINT_UNKNOWN``\ : :raw-html-m2r:`<br>`
@@ -181,7 +181,8 @@ EXAMPLE
    #include <mpi.h>
    #include <omp.h>
 
-   #include "geopm.h"
+   #include "geopm_prof.h"
+   #include "geopm_hint.h"
 
 
    int main(int argc, char **argv)

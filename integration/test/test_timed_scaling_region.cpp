@@ -38,7 +38,7 @@
 #include <vector>
 #include <memory>
 
-#include "geopm.h"
+#include "geopm_hint.h"
 #include "Profile.hpp"
 #include "geopm/PlatformIO.hpp"
 #include "geopm/PlatformTopo.hpp"

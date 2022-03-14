@@ -39,7 +39,7 @@
 #include <unistd.h>
 #include <limits.h>
 
-#include "geopm.h"
+#include "geopm_prof.h"
 #include "ModelRegion.hpp"
 #include "geopm/Exception.hpp"
 #include "config.h"

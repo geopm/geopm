@@ -78,7 +78,7 @@
 !---------------------------------------------------------------------
 
       program ft
-      use geopm
+      use geopm_prof
       use, intrinsic :: ISO_C_BINDING
 
 
@@ -289,7 +289,7 @@
 ! evolve u0 -> u1 (t time steps) in fourier space
 !---------------------------------------------------------------------
 
-      use geopm
+      use geopm_prof
       use, intrinsic :: ISO_C_BINDING
       implicit none
       include 'global.fi'
@@ -779,7 +779,7 @@
 ! for time evolution exponent.
 !---------------------------------------------------------------------
 
-      use geopm
+      use geopm_prof
       use, intrinsic :: ISO_C_BINDING
       implicit none
       include 'mpinpb.fi'
@@ -1071,7 +1071,7 @@
 !---------------------------------------------------------------------
 !---------------------------------------------------------------------
 
-      use geopm
+      use geopm_prof
       use, intrinsic :: ISO_C_BINDING
       implicit none
 
@@ -1152,7 +1152,7 @@
 !---------------------------------------------------------------------
 !---------------------------------------------------------------------
 
-      use geopm
+      use geopm_prof
       use, intrinsic :: ISO_C_BINDING
       implicit none
 
@@ -1228,7 +1228,7 @@
 !---------------------------------------------------------------------
 !---------------------------------------------------------------------
 
-      use geopm
+      use geopm_prof
       use, intrinsic :: ISO_C_BINDING
       implicit none
 
@@ -1540,7 +1540,7 @@
 
 !---------------------------------------------------------------------
 !---------------------------------------------------------------------
-      use geopm
+      use geopm_prof
       use, intrinsic :: ISO_C_BINDING
       implicit none
       include 'global.fi'
@@ -1637,7 +1637,7 @@
 !---------------------------------------------------------------------
 !---------------------------------------------------------------------
 
-      use geopm
+      use geopm_prof
       use, intrinsic :: ISO_C_BINDING
       implicit none
       include 'global.fi'
@@ -1674,7 +1674,7 @@
 !---------------------------------------------------------------------
 !---------------------------------------------------------------------
 
-      use geopm
+      use geopm_prof
       use, intrinsic :: ISO_C_BINDING
       implicit none
       include 'global.fi'
@@ -1830,7 +1830,7 @@
 !---------------------------------------------------------------------
 !---------------------------------------------------------------------
 
-      use geopm
+      use geopm_prof
       use, intrinsic :: ISO_C_BINDING
       implicit none
       include 'global.fi'
@@ -1976,7 +1976,7 @@
 !---------------------------------------------------------------------
 !---------------------------------------------------------------------
 
-      use geopm
+      use geopm_prof
       use, intrinsic :: ISO_C_BINDING
       implicit none
       include 'global.fi'

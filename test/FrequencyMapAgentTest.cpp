@@ -42,7 +42,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "geopm_agent.h"
-#include "geopm_internal.h"
+#include "geopm_hint.h"
 #include "geopm_hash.h"
 
 #include "Agent.hpp"
@@ -53,7 +53,7 @@
 #include "MockPlatformIO.hpp"
 #include "MockPlatformTopo.hpp"
 #include "geopm/PlatformTopo.hpp"
-#include "geopm.h"
+#include "geopm_prof.h"
 #include "geopm_test.hpp"
 
 using ::testing::_;

@@ -36,7 +36,7 @@
 #include <mpi.h>
 #include <iostream>
 
-#include "geopm.h"
+#include "geopm_hint.h"
 #include "geopm_time.h"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"

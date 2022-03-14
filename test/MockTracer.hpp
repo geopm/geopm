@@ -36,7 +36,7 @@
 #include "gmock/gmock.h"
 
 #include "Tracer.hpp"
-#include "geopm.h"
+#include "geopm_prof.h"
 
 class MockTracer : public geopm::Tracer
 {

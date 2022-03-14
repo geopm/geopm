@@ -64,6 +64,7 @@ dist: dist-googletest
 include_HEADERS = src/geopm_agent.h \
                   src/geopm_ctl.h \
                   src/geopm_imbalancer.h \
+                  src/geopm_prof.h \
                   # end
 if ENABLE_BETA
     include_HEADERS += src/geopm_daemon.h \
@@ -92,11 +93,11 @@ all_local = $(roff_man_noinst)
 if ENABLE_MPI
 if ENABLE_FORTRAN
 
-all_local += geopm.mod
+all_local += geopm_prof.mod
 
 install-fortran:
 	$(INSTALL) -d $(DESTDIR)/$(libdir)/$(FC)/modules/geopm-`uname -m`
-	$(INSTALL) geopm.mod $(DESTDIR)/$(libdir)/$(FC)/modules/geopm-`uname -m`
+	$(INSTALL) geopm_prof.mod $(DESTDIR)/$(libdir)/$(FC)/modules/geopm-`uname -m`
 else
 
 install-fortran:
@@ -483,6 +484,7 @@ libgeopmpolicy_la_SOURCES = src/Accumulator.cpp \
                             src/ValidateRecord.cpp \
                             src/ValidateRecord.hpp \
                             src/geopm_agent.h \
+                            src/geopm_prof.h \
                             src/geopm_endpoint.h \
                             src/geopm_imbalancer.h \
                             src/geopm_policystore.h \
@@ -525,7 +527,7 @@ ompt_source_files = src/OMPT.cpp \
                     src/OMPT.hpp \
                     src/ompt_callback.cpp \
                     # end
-fortran_source_files = src/geopm.f90 \
+fortran_source_files = src/geopm_prof.f90 \
                        src/geopm_pmpi_fortran.c \
                        # end
 geopmctl_source_files = src/geopmctl_main.c \
@@ -626,7 +628,7 @@ clean-local-man:
 	rm -rf man
 
 clean-local-fortran:
-	rm -rf geopm.mod
+	rm -rf geopm_prof.mod
 
 distclean-local-ruby:
 	rm -rf ruby
@@ -634,8 +636,8 @@ distclean-local-ruby:
 # FORTRAN MODULE TARGET
 if ENABLE_MPI
 if ENABLE_FORTRAN
-BUILT_SOURCES = geopm.mod
-geopm.mod: src/geopm.f90
+BUILT_SOURCES = geopm_prof.mod
+geopm_prof.mod: src/geopm_prof.f90
 	$(FC) $(AM_FCFLAGS) $(FCFLAGS) $(MPI_FCFLAGS) -c $<
 else
 BUILT_SOURCES =

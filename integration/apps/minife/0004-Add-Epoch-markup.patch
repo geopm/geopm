@@ -48,7 +48,7 @@ index 69812c4..d43c6cd 100644
  #include <outstream.hpp>
 
 +#ifndef NO_GEOPM
-+#include "geopm.h"
++#include "geopm_prof.h"
 +#endif
 +
  namespace miniFE {

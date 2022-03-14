@@ -42,7 +42,7 @@
 #include "geopm/Agg.hpp"
 #include "MockPlatformIO.hpp"
 #include "geopm/IOGroup.hpp"
-#include "geopm.h"
+#include "geopm_prof.h"
 #include "geopm_hash.h"
 #include "geopm_internal.h"
 #include "geopm_hash.h"

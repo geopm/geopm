@@ -32,7 +32,7 @@
 
 #include <mpi.h>
 #include <vector>
-#include "geopm.h"
+#include "geopm_prof.h"
 #include "ModelRegion.hpp"
 
 

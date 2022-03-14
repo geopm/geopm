@@ -39,7 +39,8 @@
 #include <limits.h>
 #include <algorithm>
 
-#include "geopm.h"
+#include "geopm_prof.h"
+#include "geopm_hint.h"
 #include "geopm_error.h"
 #include "ModelApplication.hpp"
 #include "ModelParse.hpp"

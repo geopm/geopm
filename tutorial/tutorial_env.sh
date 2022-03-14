@@ -76,7 +76,7 @@ if [ ! "$GEOPMPY_PKGDIR" ]; then
     fi
 fi
 
-# GEOPM_INC: Directory containing geopm.h.
+# GEOPM_INC: Directory containing geopm_prof.h.
 if [ ! "$GEOPM_INC" ]; then
     GEOPM_INC=$GEOPM_INSTALL/include
 fi

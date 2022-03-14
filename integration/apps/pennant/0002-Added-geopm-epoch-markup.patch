@@ -66,7 +66,7 @@ index 2b919df..c75da82 100644
  #include "Hydro.hh"
  
 +#ifdef USEGEOPM
-+#include "geopm.h"
++#include "geopm_prof.h"
 +#endif
 +
  using namespace std;

@@ -34,7 +34,7 @@
 
 #include <cstdint>
 
-#include "geopm.h"
+#include "geopm_internal.h"
 #include "ValidateRecord.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"

@@ -40,7 +40,7 @@
 #include "gmock/gmock.h"
 
 #include "EnergyEfficientAgent.hpp"
-#include "geopm.h"
+#include "geopm_prof.h"
 #include "MockPlatformIO.hpp"
 #include "MockPlatformTopo.hpp"
 #include "MockFrequencyGovernor.hpp"

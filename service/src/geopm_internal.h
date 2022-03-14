@@ -35,12 +35,21 @@
 #include <stdint.h>
 #include <limits.h>
 
-#include "geopm.h"
 #include "geopm_time.h"
+#include "geopm_hint.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/***************************/
+/* APPLICATION REGION HASH */
+/***************************/
+enum geopm_region_hash_e {
+    GEOPM_REGION_HASH_INVALID  = 0x0ULL,
+    GEOPM_REGION_HASH_UNMARKED = 0x725e8066ULL, /* Note the value is the geopm_crc32_str() of the stringified enum */
+    GEOPM_U64_SENTINEL_REGION_HASH = UINT64_MAX, /* Force enum type to uint64_t */
+};
 
 /*!
  * @brief Enum for internally defined region hashes.
@@ -53,7 +62,7 @@ enum geopm_region_hash_epoch_e {
 
 /*!
  * Region id enums go from bit 63 and work their way down.
- * Hint enums in geopm.h go from bit 32 and work their way up.
+ * Hint GEOPM_REGION_HINT_* enums in go from bit 32 and work their way up.
  * There is a possibility of a conflict sometime in the future if they overlap.
  */
 enum geopm_region_id_e {
