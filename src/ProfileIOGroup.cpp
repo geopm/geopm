@@ -328,7 +328,7 @@ namespace geopm
     void ProfileIOGroup::write_control(const std::string &control_name, int domain_type, int domain_idx, double setting)
     {
         throw Exception("ProfileIOGroup::write_control() there are no controls supported by the ProfileIOGroup",
-                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
     }
 
     void ProfileIOGroup::save_control(void)
