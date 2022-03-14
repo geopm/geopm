@@ -19,8 +19,7 @@ function are members of ``namespace geopm``\ , but the full names,
 abbreviated in this manual.  Similarly, the ``std::`` namespace
 specifier has been omitted from the interface definitions for the
 following standard types: ``std::vector``\ , ``std::string``\ , and
-``std::set``\ , to enable better rendering of this manual.  This manual
-sometimes omits the class scope PlatformTopo:: for brevity.
+``std::set``\ , to enable better rendering of this manual.
 
 Note that ``PlatformTopo`` class is an abstract base class that the
 user interacts with.  The concrete implementation, ``PlatformTopoImp``\ , is
@@ -31,40 +30,30 @@ SYNOPSIS
 
 #include `<geopm/PlatformTopo.hpp> <https://github.com/geopm/geopm/blob/dev/src/PlatformTopo.hpp>`_\ 
 
-``Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)``
+Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
 
 
-* 
-  ``PlatformTopo &platform_topo(``\ :
-  ``void);``
+.. code-block:: c++
 
-* 
-  ``int PlatformTopo::num_domain(``\ :
-  ``int`` _domain\ *type*\ ``) const = 0;``
+       PlatformTopo &platform_topo(void);
 
-* 
-  ``int PlatformTopo::domain_idx(``\ :
-  ``int`` _domain\ *type*\ ``,`` :raw-html-m2r:`<br>`
-  ``int`` _cpu\ *idx*\ ``) const = 0;``
+       int PlatformTopo::num_domain(int domain_type) const = 0;
 
-* 
-  ``bool PlatformTopo::is_nested_domain(``\ :
-  ``int`` _inner\ *domain*\ ``,`` :raw-html-m2r:`<br>`
-  ``int`` _outer\ *domain*\ ``) const = 0;``
+       int PlatformTopo::domain_idx(int domain_type,
+                                    int cpu_idx) const = 0;
 
-* 
-  ``set<int> PlatformTopo::domain_nested(``\ :
-  ``int`` _inner\ *domain*\ ``,`` :raw-html-m2r:`<br>`
-  ``int`` _outer\ *domain*\ ``,`` :raw-html-m2r:`<br>`
-  ``int`` _outer\ *idx*\ ``) const = 0;``
+       bool PlatformTopo::is_nested_domain(int inner_domain,
+                                           int outer_domain) const = 0;
 
-* 
-  ``static string PlatformTopo::domain_type_to_name(``\ :
-  ``int`` _domain\ *type*\ ``);``
+       set<int> PlatformTopo::domain_nested(int inner_domain,
+                                            int outer_domain,
+                                            int outer_idx) const = 0;
 
-* 
-  ``static int PlatformTopo::domain_name_to_type(``\ :
-  `const std::string &`_domain\ *name*\ ``);``
+       static string PlatformTopo::domain_type_to_name(int domain_type);
+
+       static int PlatformTopo::domain_name_to_type(const string &domain_name);
+
+       static void PlatformTopo::create_cache(void);
 
 DESCRIPTION
 -----------
@@ -73,7 +62,7 @@ This class describes the number and arrangement of cores, sockets,
 logical CPUs, memory banks, and other components.  This information is
 used when calling methods of the `geopm::PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3.html>`_ interface.  The
 topology of the current platform is available using the singleton
-geopm::platform_topo().  The remaining methods are accessed through
+``geopm::platform_topo()``.  The remaining methods are accessed through
 this singleton.
 
 Most methods in the ``PlatformTopo`` interface return or require as an
@@ -95,31 +84,31 @@ SINGLETON ACCESSOR
 ------------------
 
 
-* ``platform_topo``\ ():
-  Returns the singleton accessor for the PlatformTopo interface.
+* ``platform_topo()``:
+  Returns the singleton accessor for the ``PlatformTopo`` interface.
 
 CLASS METHODS
 -------------
 
 
 * 
-  ``num_domain``\ ():
-  Number of domains on the platform of a particular _domain\ *type*.
-  Refer to the list of domain types in **platform_topo_c(3)**.
+  ``num_domain()``:
+  Number of domains on the platform of a particular *domain_type*.
+  Refer to the list of domain types in `platform_topo_c(3) <platform_topo_c.3.html>`_.
 
 * 
-  ``domain_idx``\ ():
-  Get the domain index for a particular _domain\ *type* that contains
-  the given Linux logical CPU with index _cpu\ *idx*.
+  ``domain_idx()``:
+  Get the domain index for a particular *domain_type* that contains
+  the given Linux logical CPU with index *cpu_idx*.
 
 * 
-  ``is_nested_domain``\ ():
-  Check if _inner\ *domain* is contained within _outer\ *domain*.
-  GEOPM_DOMAIN_BOARD is the outermost domain representing the entire
+  ``is_nested_domain()``:
+  Check if *inner_domain* is contained within *outer_domain*.
+  ``GEOPM_DOMAIN_BOARD`` is the outermost domain representing the entire
   node.  All other domains are contained within *board*.
-  GEOPM_DOMAIN_CORE, GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_PACKAGE_MEMORY, and
-  GEOPM_DOMAIN_PACKAGE_ACCELERATOR are contained within package.
-  GEOPM_DOMAIN_CPU is contained within GEOPM_DOMAIN_CORE.  The following
+  ``GEOPM_DOMAIN_CORE``, ``GEOPM_DOMAIN_CPU``, ``GEOPM_DOMAIN_PACKAGE_MEMORY``, and
+  ``GEOPM_DOMAIN_PACKAGE_ACCELERATOR`` are contained within package.
+  ``GEOPM_DOMAIN_CPU`` is contained within ``GEOPM_DOMAIN_CORE``.  The following
   outline summarizes the hierarchy of containing domains, where each
   domain is also contained in parents of its parent domain.
 
@@ -138,52 +127,56 @@ CLASS METHODS
 
 
 * 
-  ``domain_nested``\ ():
-  Returns the set of smaller domains of type _inner\ *domain*
-  contained with a larger domain of type _outer\ *domain* at
-  _outer\ *idx*.  If the inner domain is not the same as or contained
+  ``domain_nested()``:
+  Returns the set of smaller domains of type *inner_domain*
+  contained with a larger domain of type *outer_domain* at
+  *outer_idx*.  If the inner domain is not the same as or contained
   within the outer domain, it throws an exception.
 
 * 
-  ``domain_type_to_name``\ ():
-  Convert a _domain\ *type* integer to a string.  These strings are
-  used by the `geopmread(1) <geopmread.1.html>`_ and geopmwrite(1)** tools.
+  ``domain_type_to_name()``:
+  Convert a *domain_type* integer to a string.  These strings are
+  used by the `geopmread(1) <geopmread.1.html>`_ and `geopmwrite(1) <geopmwrite.1.html>`_ tools.
 
 * 
-  ``domain_name_to_type``\ ():
-  Convert a _domain\ *name* string to the corresponding integer domain type.
-  This method is the inverse of domain_type_to_name().
+  ``domain_name_to_type()``:
+  Convert a *domain_name* string to the corresponding integer domain type.
+  This method is the inverse of ``domain_type_to_name()``.
+
+* 
+  ``create_cache()``:
+  Create cache file in ``tmpfs`` that can be read instead of ``popen()`` call.
 
 EXAMPLES
 --------
 
-The following example program queries the PlatformTopo to calculate various
+The following example program queries the ``PlatformTopo`` to calculate various
 information of interest about the platform.
 
-.. code-block::
+.. code-block:: c++
 
-   #include <iostream>
+       #include <iostream>
 
-   #include <geopm/PlatformTopo.hpp>
+       #include <geopm/PlatformTopo.hpp>
 
-   using geopm::PlatformTopo;
+       using geopm::PlatformTopo;
 
-   int main() {
-       const PlatformTopo &topo = geopm::platform_topo();
+       int main() {
+           const PlatformTopo &topo = geopm::platform_topo();
 
-       int num_cores = topo.num_domain(GEOPM_DOMAIN_CORE);
-       int num_cpus = topo.num_domain(GEOPM_DOMAIN_CPU);
-       int num_pkgs = topo.num_domain(GEOPM_DOMAIN_PACKAGE);
+           int num_cores = topo.num_domain(GEOPM_DOMAIN_CORE);
+           int num_cpus = topo.num_domain(GEOPM_DOMAIN_CPU);
+           int num_pkgs = topo.num_domain(GEOPM_DOMAIN_PACKAGE);
 
-       // Print counts of various domains
-       std::cout << "Domain      Count      " << std::endl;
-       std::cout << "-----------------------" << std::endl;
-       std::cout << "cores       " << num_cores << std::endl;
-       std::cout << "packages    " << num_pkgs << std::endl;
-       std::cout << "core/pkg    " << num_cores / num_pkgs << std::endl;
-       std::cout << "cpu/core    " << num_cpus / num_cores << std::endl;
-       std::cout << "cpu/pkg     " << num_cpus / num_pkgs << std::endl;
-   }
+           // Print counts of various domains
+           std::cout << "Domain      Count      " << std::endl;
+           std::cout << "-----------------------" << std::endl;
+           std::cout << "cores       " << num_cores << std::endl;
+           std::cout << "packages    " << num_pkgs << std::endl;
+           std::cout << "core/pkg    " << num_cores / num_pkgs << std::endl;
+           std::cout << "cpu/core    " << num_cpus / num_cores << std::endl;
+           std::cout << "cpu/pkg     " << num_cpus / num_pkgs << std::endl;
+       }
 
 For example, when run on a system with 2 sockets, 4 cores per socket,
 and 3 hyperthreads per core, the following would be printed to
@@ -201,7 +194,7 @@ standard output:
 
 This loop, inserted into the above program, prints the Linux CPUs on each package:
 
-.. code-block::
+.. code-block:: c++
 
        for (int pkg_idx = 0; pkg_idx < num_pkgs; ++pkg_idx) {
            std::cout << "CPUs on package " << pkg_idx << ": ";
@@ -222,7 +215,7 @@ The output for the same system would be:
 
 To check which logical CPUs are on the same core as CPU 1:
 
-.. code-block::
+.. code-block:: c++
 
        int my_cpu = 8;
        int cpu_core = topo.domain_idx(GEOPM_DOMAIN_CORE, my_cpu);
@@ -234,12 +227,16 @@ To check which logical CPUs are on the same core as CPU 1:
        }
        std::cout << std::endl;
 
-The output for the same system would be:  0 16
+The output for the same system would be:
+
+.. code-block::
+
+   0 16
 
 The number of domains can also be use to check if a hardware feature, such as
 on-package memory, is present or absent:
 
-.. code-block::
+.. code-block:: c++
 
        if (topo.num_domain(GEOPM_DOMAIN_PACKAGE_MEMORY) > 0) {
            std::cout << "On-package memory is present." << std::endl;
