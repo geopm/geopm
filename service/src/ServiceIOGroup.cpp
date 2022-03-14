@@ -190,7 +190,7 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         geopm_request_s request;
-        request.domain = domain_type;
+        request.domain_type = domain_type;
         request.domain_idx = domain_idx;
         request.name[NAME_MAX - 1] = '\0';
         strncpy(request.name, signal_name_strip.c_str(), NAME_MAX - 1);
@@ -221,7 +221,7 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         geopm_request_s request;
-        request.domain = domain_type;
+        request.domain_type = domain_type;
         request.domain_idx = domain_idx;
         request.name[NAME_MAX - 1] = '\0';
         strncpy(request.name, control_name_strip.c_str(), NAME_MAX - 1);

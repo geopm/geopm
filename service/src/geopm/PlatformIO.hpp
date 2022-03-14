@@ -43,7 +43,7 @@
 #include "geopm_pio.h"
 
 struct geopm_request_s {
-    int domain;
+    int domain_type;
     int domain_idx;
     char name[NAME_MAX];
 };
@@ -63,6 +63,10 @@ namespace geopm
             /// @brief Registers an IOGroup with the PlatformIO so
             ///        that its signals and controls are available
             ///        through the PlatformIO interface.
+            ///
+            /// @details This method provides the mechanism for extending
+            ///          the PlatformIO interface at runtime.
+            ///
             /// @param [in] iogroup Shared pointer to the IOGroup
             ///        object.
             virtual void register_iogroup(std::shared_ptr<IOGroup> iogroup) = 0;
@@ -77,28 +81,36 @@ namespace geopm
             ///        PlatformIO itself.
             virtual std::set<std::string> control_names(void) const = 0;
             /// @brief Query the domain for a named signal.
+            ///
             /// @param [in] signal_name The name of the signal.
-            /// @return One of the PlatformTopo::m_domain_e values
+            ///
+            /// @return One of the geopm_domain_e values
             ///         signifying the granularity at which the signal
-            ///         is measured.  Will return M_DOMAIN_INVALID if
+            ///         is measured.  Will return GEOPM_DOMAIN_INVALID if
             ///         the signal name is not supported.
             virtual int signal_domain_type(const std::string &signal_name) const = 0;
             /// @brief Query the domain for a named control.
+            ///
             /// @param [in] control_name The name of the control.
-            /// @return One of the PlatformTopo::m_domain_e values
+            ///
+            /// @return One of the geopm_domain_e values
             ///         signifying the granularity at which the
             ///         control can be adjusted.  Will return
-            ///         M_DOMAIN_INVALID if the signal name is not
+            ///         GEOPM_DOMAIN_INVALID if the signal name is not
             ///         supported.
             virtual int control_domain_type(const std::string &control_name) const = 0;
             /// @brief Push a signal onto the end of the vector that
             ///        can be sampled.
+            ///
             /// @param [in] signal_name Name of the signal requested.
+            ///
             /// @param [in] domain_type One of the values from the
-            ///        m_domain_e enum described in PlatformTopo.hpp.
+            ///        geopm_domain_e enum described in geopm_topo.h
+            ///
             /// @param [in] domain_idx The index of the domain within
             ///        the set of domains of the same type on the
             ///        platform.
+            ///
             /// @return Index of signal when sample() method is called
             ///         or throws if the signal is not valid
             ///         on the platform.  Returned signal index will be
@@ -109,12 +121,16 @@ namespace geopm
                                     int domain_idx) = 0;
             /// @brief Push a control onto the end of the vector that
             ///        can be adjusted.
+            ///
             /// @param [in] control_name Name of the control requested.
+            ///
             /// @param [in] domain_type One of the values from the
-            ///        m_domain_e enum described in PlatformTopo.hpp.
+            ///        geopm_domain_e enum described in geopm_topo.h
+            ///
             /// @param [in] domain_idx The index of the domain within
             ///        the set of domains of the same type on the
             ///        platform.
+            ///
             /// @return Index of the control if the requested control
             ///         is valid, otherwise throws.  Returned control index
             ///         will be repeated for each unique tuple of the push_control
@@ -126,16 +142,20 @@ namespace geopm
             ///        to the signal stack.  Must be called after a call
             ///        to read_batch(void) method which updates the state
             ///        of all signals.
+            ///
             /// @param [in] signal_idx index returned by a previous call
             ///        to the push_signal() method.
+            ///
             /// @return Signal value measured from the platform in SI units.
             virtual double sample(int signal_idx) = 0;
             /// @brief Adjust a single control that has been pushed on
             ///        to the control stack.  This control will not
             ///        take effect until the next call to
             ///        write_batch(void).
+            ///
             /// @param [in] control_idx Index of control to be adjusted
             ///        returned by a previous call to the push_control() method.
+            ///
             /// @param [in] setting Value of control parameter in SI units.
             virtual void adjust(int control_idx,
                                 double setting) = 0;
@@ -150,13 +170,17 @@ namespace geopm
             ///        a signal given its name and domain.  Does not
             ///        modify the values stored by calling
             ///        read_batch().
+            ///
             /// @param [in] signal_name Name of the signal requested.
+            ///
             /// @param [in] domain_type One of the values from the
-            ///        PlatformTopo::m_domain_e enum described in
-            ///        PlatformTopo.hpp.
+            ///        geopm_domain_e enum described in
+            ///        geopm_topo.h
+            ///
             /// @param [in] domain_idx The index of the domain within
             ///        the set of domains of the same type on the
             ///        platform.
+            ///
             /// @return The value in SI units of the signal.
             virtual double read_signal(const std::string &signal_name,
                                        int domain_type,
@@ -164,13 +188,17 @@ namespace geopm
             /// @brief Interpret the setting and write setting to the
             ///        platform.  Does not modify the values stored by
             ///        calling adjust().
+            ///
             /// @param [in] control_name Name of the control requested.
+            ///
             /// @param [in] domain_type One of the values from the
-            ///        PlatformTopo::m_domain_e enum described in
-            ///        PlatformTopo.hpp.
+            ///        geopm_domain_e enum described in
+            ///        geopm_topo.h
+            ///
             /// @param [in] domain_idx The index of the domain within
             ///        the set of domains of the same type on the
             ///        platform.
+            ///
             /// @param [in] setting Value in SI units of the setting
             ///        for the control.
             virtual void write_control(const std::string &control_name,
@@ -188,13 +216,17 @@ namespace geopm
             /// @brief Returns a function appropriate for aggregating
             ///        multiple values of the given signal into a
             ///        single value.
+            ///
             /// @param [in] signal_name Name of the signal.
+            ///
             /// @return A function from vector<double> to double.
             virtual std::function<double(const std::vector<double> &)> agg_function(const std::string &signal_name) const = 0;
             /// @brief Returns a function that can be used to convert
             ///        a signal of the given name into a printable
             ///        string.
+            ///
             /// @param [in] signal_name Name of the signal.
+            ///
             /// @return A function from double to formatted std::string.
             virtual std::function<std::string(double)> format_function(const std::string &signal_name) const = 0;
             /// @brief Returns a description of the signal.  This
@@ -213,6 +245,7 @@ namespace geopm
             /// application run.
             ///
             /// @param [in] signal_name Name of the signal.
+            ///
             /// @return One of the IOGroup::m_signal_behavior_e enum
             ///         values that identifies the signal behavior
             virtual int signal_behavior(const std::string &signal_name) const = 0;
@@ -223,6 +256,7 @@ namespace geopm
             ///        will populate one file in the save directory
             ///        that contains the saved state and name the file
             ///        after the IOGroup name.
+            ///
             /// @param [in] save_dir Directory to be populated with
             ///        save files.
             virtual void save_control(const std::string &save_dir) = 0;
@@ -230,9 +264,11 @@ namespace geopm
             ///        previous call to the save_control(save_dir)
             ///        method.  The directory provided contains the
             ///        result of the previous saved state.
+            ///
             /// @param [in] save_dir Directory populated with save
             ///        files.
             virtual void restore_control(const std::string &save_dir) = 0;
+            ///
             virtual void start_batch_server(int client_pid,
                                             const std::vector<geopm_request_s> &signal_config,
                                             const std::vector<geopm_request_s> &control_config,

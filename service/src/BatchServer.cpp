@@ -289,11 +289,11 @@ namespace geopm
     {
         for (const auto &req : m_signal_config) {
             m_signal_handle.push_back(
-                m_pio.push_signal(req.name, req.domain, req.domain_idx));
+                m_pio.push_signal(req.name, req.domain_type, req.domain_idx));
         }
         for (const auto &req : m_control_config) {
             m_control_handle.push_back(
-                m_pio.push_control(req.name, req.domain, req.domain_idx));
+                m_pio.push_control(req.name, req.domain_type, req.domain_idx));
         }
     }
 
