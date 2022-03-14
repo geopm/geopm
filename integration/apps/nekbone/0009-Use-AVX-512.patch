@@ -1,0 +1,28 @@
+From 57723db514e4ba042a497c63a6e50c78f2d35a48 Mon Sep 17 00:00:00 2001
+From: Brad Geltz <brad.geltz@intel.com>
+Date: Tue, 6 Apr 2021 13:46:22 -0700
+Subject: [PATCH 9/9] Use AVX-512
+
+Signed-off-by: Brad Geltz <brad.geltz@intel.com>
+---
+ test/example1/makenek-intel | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/test/example1/makenek-intel b/test/example1/makenek-intel
+index eb80bf5..aadaef6 100755
+--- a/test/example1/makenek-intel
++++ b/test/example1/makenek-intel
+@@ -38,8 +38,8 @@ if [ ! -z "${GEOPM_BARRIER+x}" ]; then
+ fi
+ 
+ # optimization flags
+-OPT_FLAGS_STD="-qopenmp -O3 -g -xCORE-AVX2 -mcmodel=medium -shared-intel"
+-OPT_FLAGS_MAG="-qopenmp -O3 -g -xCORE-AVX2 -mcmodel=medium -shared-intel"
++OPT_FLAGS_STD="-qopenmp -O3 -g -xCORE-AVX512 -mcmodel=medium -shared-intel"
++OPT_FLAGS_MAG="-qopenmp -O3 -g -xCORE-AVX512 -mcmodel=medium -shared-intel"
+ 
+ ###############################################################################
+ # DONT'T TOUCH WHAT FOLLOWS !!!
+-- 
+1.8.3.1
+
