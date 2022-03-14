@@ -225,8 +225,13 @@ namespace geopm
                         read_signal_ok = true;
                     }
                     catch (const geopm::Exception &ex) {
-                        err_msg += std::string(ex.what()) + "\n";
-                        // TODO Modify EpochIOGroup to throw a known code so that push will succeed below
+                        if (ex.err_value() == GEOPM_ERROR_NOT_IMPLEMENTED) {
+                            // IOGroups may not support read_signal()
+                            read_signal_ok = true;
+                        }
+                        else {
+                            err_msg += std::string(ex.what()) + "\n";
+                        }
                     }
                     if (read_signal_ok == true) {
                         int group_signal_idx = ii->push_signal(signal_name, domain_type, domain_idx);
@@ -327,14 +332,19 @@ namespace geopm
                     try {
                         // Attempt to read then write the control to ensure batch writes will succeed
                         val = ii->read_signal(control_name, domain_type, domain_idx);
+                        ii->write_control(control_name, domain_type, domain_idx, val);
                         read_signal_ok = true;
                     }
                     catch (const geopm::Exception &ex) {
-                        err_msg += std::string(ex.what()) + "\n";
-                        // TODO Modify EpochIOGroup to throw a known code so that push will succeed below
+                        if (ex.err_value() == GEOPM_ERROR_NOT_IMPLEMENTED) {
+                            // IOGroups may not support read_signal()/write_control()
+                            read_signal_ok = true;
+                        }
+                        else {
+                            err_msg += std::string(ex.what()) + "\n";
+                        }
                     }
                     if (read_signal_ok == true) {
-                        ii->write_control(control_name, domain_type, domain_idx, val);
                         int group_control_idx = ii->push_control(control_name, domain_type, domain_idx);
                         result = m_active_control.size();
                         m_existing_control[ctl_tup] = result;

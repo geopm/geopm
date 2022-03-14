@@ -204,13 +204,13 @@ namespace geopm
     double EpochIOGroup::read_signal(const std::string &signal_name, int domain_type, int domain_idx)
     {
         throw Exception("EpochIOGroup: read_signal() is not supported for this IOGroup.",
-                        GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
     }
 
     void EpochIOGroup::write_control(const std::string &control_name, int domain_type, int domain_idx, double setting)
     {
         throw Exception("EpochIOGroup::write_control(): there are no controls supported by the EpochIOGroup",
-                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
     }
 
     void EpochIOGroup::save_control(void)
