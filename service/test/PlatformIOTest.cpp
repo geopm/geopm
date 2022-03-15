@@ -358,6 +358,57 @@ TEST_F(PlatformIOTest, push_control)
     EXPECT_EQ(1, m_platio->num_control_pushed());
 }
 
+TEST_F(PlatformIOTest, push_control_agg)
+{
+    EXPECT_CALL(*m_topo, is_nested_domain(GEOPM_DOMAIN_CPU,
+                                         GEOPM_DOMAIN_PACKAGE));
+    EXPECT_CALL(*m_topo, domain_nested(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_PACKAGE, 0));
+    EXPECT_EQ(0, m_platio->num_control_pushed());
+    EXPECT_CALL(*m_control_iogroup, control_domain_type("FREQ")).Times(AtLeast(1));
+    for (auto cpu : m_cpu_set0) {
+        EXPECT_CALL(*m_control_iogroup, read_signal("FREQ", GEOPM_DOMAIN_CPU, cpu));
+        EXPECT_CALL(*m_control_iogroup, write_control("FREQ", GEOPM_DOMAIN_CPU, cpu, _));
+        EXPECT_CALL(*m_control_iogroup, push_control("FREQ", GEOPM_DOMAIN_CPU, cpu));
+    }
+    m_platio->push_control("FREQ", GEOPM_DOMAIN_PACKAGE, 0);
+    EXPECT_EQ(1 + m_cpu_set0.size(), (unsigned int)m_platio->num_control_pushed());
+}
+
+TEST_F(PlatformIOTest, push_control_iogroup_fallback)
+{
+    int idx = -1;
+    EXPECT_EQ(0, m_platio->num_control_pushed());
+
+    EXPECT_CALL(*m_override_iogroup, control_domain_type("TEMP")).Times(2);
+    EXPECT_CALL(*m_override_iogroup, read_signal("TEMP", GEOPM_DOMAIN_BOARD, 0))
+        .WillOnce(Throw(geopm::Exception("injected exception", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__)));
+    EXPECT_CALL(*m_override_iogroup, write_control("TEMP", GEOPM_DOMAIN_BOARD, 0, _)).Times(0);
+
+    EXPECT_CALL(*m_fallback_iogroup, control_domain_type("TEMP")).Times(2);
+    EXPECT_CALL(*m_fallback_iogroup, read_signal("TEMP", GEOPM_DOMAIN_BOARD, 0)).WillOnce(Return(123));
+    EXPECT_CALL(*m_fallback_iogroup, write_control("TEMP", GEOPM_DOMAIN_BOARD, 0, 123));
+    EXPECT_CALL(*m_fallback_iogroup, push_control("TEMP", GEOPM_DOMAIN_BOARD, 0));
+
+    idx = m_platio->push_control("TEMP", GEOPM_DOMAIN_BOARD, 0);
+    EXPECT_EQ(1, m_platio->num_control_pushed());
+    EXPECT_EQ(0, idx);
+}
+
+TEST_F(PlatformIOTest, push_control_iogroup_fallback_domain_change)
+{
+    // Test that if the initial call to the override_iogroup fails (e.g. because of permissions)
+    // the fallback logic is enforced and the call is routed appropriately to the control_iogroup.
+    EXPECT_CALL(*m_override_iogroup, control_domain_type("MODE")).Times(2);
+    EXPECT_CALL(*m_override_iogroup, read_signal("MODE", GEOPM_DOMAIN_BOARD, 0))
+        .WillOnce(Throw(geopm::Exception("injected exception", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__)));
+
+    // This IOGroup should should be pruned because the native domain of the control changed.
+    EXPECT_CALL(*m_control_iogroup, control_domain_type("MODE")).Times(AtLeast(1));
+
+    GEOPM_EXPECT_THROW_MESSAGE(m_platio->push_control("MODE", GEOPM_DOMAIN_BOARD, 0),
+                               GEOPM_ERROR_INVALID, "no support for control name \"MODE\"");
+}
+
 TEST_F(PlatformIOTest, save_restore)
 {
     GEOPM_EXPECT_THROW_MESSAGE(m_platio->restore_control(),
@@ -403,22 +454,6 @@ TEST_F(PlatformIOTest, save_restore)
     EXPECT_CALL(*m_override_iogroup,
                 restore_control(test_path + "/OVERRIDE-save-control.json"));
     m_platio->restore_control(test_path);
-}
-
-TEST_F(PlatformIOTest, push_control_agg)
-{
-    EXPECT_CALL(*m_topo, is_nested_domain(GEOPM_DOMAIN_CPU,
-                                         GEOPM_DOMAIN_PACKAGE));
-    EXPECT_CALL(*m_topo, domain_nested(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_PACKAGE, 0));
-    EXPECT_EQ(0, m_platio->num_control_pushed());
-    EXPECT_CALL(*m_control_iogroup, control_domain_type("FREQ")).Times(AtLeast(1));
-    for (auto cpu : m_cpu_set0) {
-        EXPECT_CALL(*m_control_iogroup, read_signal("FREQ", GEOPM_DOMAIN_CPU, cpu));
-        EXPECT_CALL(*m_control_iogroup, write_control("FREQ", GEOPM_DOMAIN_CPU, cpu, _));
-        EXPECT_CALL(*m_control_iogroup, push_control("FREQ", GEOPM_DOMAIN_CPU, cpu));
-    }
-    m_platio->push_control("FREQ", GEOPM_DOMAIN_PACKAGE, 0);
-    EXPECT_EQ(1 + m_cpu_set0.size(), (unsigned int)m_platio->num_control_pushed());
 }
 
 TEST_F(PlatformIOTest, sample)
