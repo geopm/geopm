@@ -55,7 +55,7 @@ else
 fi
 
 print_install_command() {
-    RPM_DIR=/home/${USER}/rpmbuild/RPMS
+    local RPM_DIR=$(rpm --eval "%_rpmdir")
     PACKAGES="$(ls ${RPM_DIR}/noarch/python3-dasbus-1.6*.noarch.rpm)"
     echo
     echo "Run the following command as root to install the packages:"
@@ -64,13 +64,16 @@ print_install_command() {
 }
 
 build_dasbus() {
-   mkdir -p $HOME/rpmbuild/SOURCES &&
-   mkdir -p $HOME/rpmbuild/SPECS &&
+   local RPM_SOURCEDIR=$(rpm --eval "%_sourcedir")
+   local RPM_SPECDIR=$(rpm --eval "%_specdir")
+
+   mkdir -p $RPM_SOURCEDIR &&
+   mkdir -p $RPM_SPECDIR &&
    wget https://github.com/rhinstaller/dasbus/releases/download/v1.6/dasbus-1.6.tar.gz \
-       -O $HOME/rpmbuild/SOURCES/dasbus-1.6.tar.gz &&
+       -O $RPM_SOURCEDIR/dasbus-1.6.tar.gz &&
    wget https://raw.githubusercontent.com/rhinstaller/dasbus/v1.6/python-dasbus.spec \
-       -O $HOME/rpmbuild/SPECS/python-dasbus.spec &&
-   rpmbuild -ba $HOME/rpmbuild/SPECS/python-dasbus.spec &&
+       -O $RPM_SPECDIR/python-dasbus.spec &&
+   rpmbuild -ba $RPM_SPECDIR/python-dasbus.spec &&
    echo '[SUCCESS]' ||
    install_error "Unable to build dasbus package"
 }
