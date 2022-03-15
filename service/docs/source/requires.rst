@@ -37,7 +37,7 @@ Upstream SLES and OpenSUSE Package Requirements
 .. code-block:: bash
 
     zypper install python3 python3-devel python3-gobject \
-                   python3-sphinx python3-sphinx_rtd_theme \
+                   python3-Sphinx python3-sphinx_rtd_theme \
                    systemd-devel
 
 
