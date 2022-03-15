@@ -120,10 +120,13 @@ namespace geopm
 #ifdef GEOPM_DEBUG
                 else {
                     std::cerr << "Warning: <geopm> PlatformIO::find_signal_iogroup(): "
-                              << "Native domain changed between IOGroups for signal name \""
-                              << signal_name << "\".  Current cached domain is " << native_domain
-                              << ". Ignoring IOGroup \"" << (*it)->name() << "\" at domain "
-                              << (*it)->signal_domain_type(signal_name) << "."
+                              << "Native domain differs for the same signal provided by another "
+                              << "IOGroup.  The current implementation does not support fallback "
+                              << "using an IOGroup that provides a signal with a different native "
+                              << "domain.  If this is an issue for your use case, please request "
+                              << "this feature.  The signal \""
+                              << signal_name << "\" will not use the \"" << (*it)->name()
+                              << "\" IOGroup for fallback if the read fails."
                               << std::endl;
                 }
 #endif
@@ -150,10 +153,13 @@ namespace geopm
 #ifdef GEOPM_DEBUG
                 else {
                     std::cerr << "Warning: <geopm> PlatformIO::find_control_iogroup(): "
-                              << "Native domain changed between IOGroups for control name \""
-                              << control_name << "\".  Current cached domain is " << native_domain
-                              << ". Ignoring IOGroup \"" << (*it)->name() << "\" at domain "
-                              << (*it)->control_domain_type(control_name) << "."
+                              << "Native domain differs for the same control provided by another "
+                              << "IOGroup.  The current implementation does not support fallback "
+                              << "using an IOGroup that provides a control with a different native "
+                              << "domain.  If this is an issue for your use case, please request "
+                              << "this feature.  The control \""
+                              << control_name << "\" will not use the \"" << (*it)->name()
+                              << "\" IOGroup for fallback if the read fails."
                               << std::endl;
                 }
 #endif
@@ -228,36 +234,36 @@ namespace geopm
             result = sig_tup_it->second;
         }
         std::string err_msg;
-        bool read_signal_ok = false;
         if (result == -1) {
-            auto iogroups = find_signal_iogroup(signal_name);
-            for (auto ii : iogroups) {
+            for (auto ii : find_signal_iogroup(signal_name)) {
                 if (domain_type == ii->signal_domain_type(signal_name)) {
+                    bool do_push_signal = false;
                     try {
                         // Attempt to read before pushing to ensure batch reads will succeed
                         (void)ii->read_signal(signal_name, domain_type, domain_idx);
-                        read_signal_ok = true;
+                        do_push_signal = true;
                     }
                     catch (const geopm::Exception &ex) {
                         if (ex.err_value() == GEOPM_ERROR_NOT_IMPLEMENTED) {
                             // IOGroups may not support read_signal()
-                            read_signal_ok = true;
+                            do_push_signal = true;
                         }
                         else {
                             err_msg += std::string(ex.what()) + "\n";
                         }
                     }
-                    if (read_signal_ok == true) {
+                    if (do_push_signal == true) {
                         int group_signal_idx = ii->push_signal(signal_name, domain_type, domain_idx);
                         result = m_active_signal.size();
                         m_existing_signal[sig_tup] = result;
                         m_active_signal.emplace_back(ii, group_signal_idx);
-                        break;
                     }
                 }
                 else {
                     result = push_signal_convert_domain(signal_name, domain_type, domain_idx);
                     m_existing_signal[sig_tup] = result;
+                }
+                if (result != -1) {
                     break;
                 }
             }
@@ -337,39 +343,39 @@ namespace geopm
             result = ctl_tup_it->second;
         }
         std::string err_msg;
-        bool read_signal_ok = false;
         if (result == -1) {
-            auto iogroups = find_control_iogroup(control_name);
-            for (auto ii : iogroups) {
+            for (auto ii : find_control_iogroup(control_name)) {
                 if (ii->control_domain_type(control_name) == domain_type) {
+                    bool do_push_control = false;
                     int val;
                     try {
                         // Attempt to read then write the control to ensure batch writes will succeed
                         val = ii->read_signal(control_name, domain_type, domain_idx);
                         ii->write_control(control_name, domain_type, domain_idx, val);
-                        read_signal_ok = true;
+                        do_push_control = true;
                     }
                     catch (const geopm::Exception &ex) {
                         if (ex.err_value() == GEOPM_ERROR_NOT_IMPLEMENTED) {
-                            // IOGroups may not support read_signal()/write_control()
-                            read_signal_ok = true;
+                            // IOGroups may not support read_signal() / write_control()
+                            do_push_control = true;
                         }
                         else {
                             err_msg += std::string(ex.what()) + "\n";
                         }
                     }
-                    if (read_signal_ok == true) {
+                    if (do_push_control == true) {
                         int group_control_idx = ii->push_control(control_name, domain_type, domain_idx);
                         result = m_active_control.size();
                         m_existing_control[ctl_tup] = result;
                         m_active_control.emplace_back(ii, group_control_idx);
-                        break;
                     }
                 }
                 else {
                     // Handle aggregated controls
                     result = push_control_convert_domain(control_name, domain_type, domain_idx);
                     m_existing_control[ctl_tup] = result;
+                }
+                if (result != -1) {
                     break;
                 }
             }
@@ -504,6 +510,7 @@ namespace geopm
         }
 
         double result = NAN;
+        bool is_read_successful = false;
         auto iogroups = find_signal_iogroup(signal_name);
         if (iogroups.empty()) {
             throw Exception("PlatformIOImp::read_signal(): signal name \"" + signal_name + "\" not found",
@@ -514,19 +521,22 @@ namespace geopm
         for (auto ii : iogroups) {
             if (ii->signal_domain_type(signal_name) != domain_type) {
                 result = read_signal_convert_domain(signal_name, domain_type, domain_idx);
-                break;
+                is_read_successful = true;
             }
             else {
                 try {
                     result = ii->read_signal(signal_name, domain_type, domain_idx);
-                    break;
+                    is_read_successful = true;
                 }
                 catch (const geopm::Exception &ex) {
                     err_msg += std::string(ex.what()) + "\n";
                 }
             }
+            if (is_read_successful == true) {
+                break;
+            }
         }
-        if (std::isnan(result)) {
+        if (is_read_successful == false) {
             std::string msg = "PlatformIOImp::read_signal(): no support for signal name \"" +
                               signal_name + "\" and domain type \"" +
                               std::to_string(domain_type) + "\"";
@@ -583,25 +593,26 @@ namespace geopm
         }
 
         std::string err_msg;
-        bool write_complete = false;
+        bool is_write_complete = false;
         for (auto ii : iogroups) {
             if (ii->control_domain_type(control_name) != domain_type) {
                 write_control_convert_domain(control_name, domain_type, domain_idx, setting);
-                write_complete = true;
-                break;
+                is_write_complete = true;
             }
             else {
                 try {
                     ii->write_control(control_name, domain_type, domain_idx, setting);
-                    write_complete = true;
-                    break;
+                    is_write_complete = true;
                 }
                 catch (const geopm::Exception &ex) {
                     err_msg += std::string(ex.what()) + "\n";
                 }
             }
+            if (is_write_complete == true) {
+                break;
+            }
         }
-        if (write_complete == false) {
+        if (is_write_complete == false) {
             std::string msg = "PlatformIOImp::write_control(): no support for control name \"" +
                               control_name + "\" and domain type \"" +
                               std::to_string(domain_type) + "\"";
