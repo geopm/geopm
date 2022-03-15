@@ -55,7 +55,7 @@ namespace geopm
             LevelZeroIOGroup();
             LevelZeroIOGroup(const PlatformTopo &platform_topo,
                              const LevelZeroDevicePool &device_pool,
-                             std::shared_ptr<SaveControl> save_control);
+                             std::shared_ptr<SaveControl> save_control_test);
             virtual ~LevelZeroIOGroup() = default;
             std::set<std::string> signal_names(void) const override;
             std::set<std::string> control_names(void) const override;

@@ -68,7 +68,7 @@ namespace geopm
     // Set up mapping between signal and control names and corresponding indices
     LevelZeroIOGroup::LevelZeroIOGroup(const PlatformTopo &platform_topo,
                                        const LevelZeroDevicePool &device_pool,
-                                       std::shared_ptr<SaveControl> save_control)
+                                       std::shared_ptr<SaveControl> save_control_test)
         : m_platform_topo(platform_topo)
         , m_levelzero_device_pool(device_pool)
         , m_is_batch_read(false)
@@ -437,7 +437,7 @@ namespace geopm
                     M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME_COPY",
                     M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME_COPY_TIMESTAMP"}},
         })
-        , m_mock_save_ctl(save_control)
+        , m_mock_save_ctl(save_control_test)
     {
         // populate signals for each domain
         for (auto &sv : m_signal_available) {
@@ -475,24 +475,7 @@ namespace geopm
         }
 
         // Cache the initial min and max frequencies
-        for (int domain_idx = 0;
-             domain_idx < m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP);
-             ++domain_idx) {
-
-            try {
-                // Currently only the levelzero compute domain control is supported.
-                // As new controls are added they should be included
-                m_frequency_range.push_back(m_levelzero_device_pool.frequency_range(
-                                            GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, domain_idx,
-                                            geopm::LevelZero::M_DOMAIN_COMPUTE));
-            }
-            catch (const geopm::Exception &ex) {
-                throw Exception("LevelZeroIOGroup::" + std::string(__func__) + ": "
-                                + " Failed to fetch frequency control range for "
-                                " BOARD_ACCELERATOR_CHIP domain " + std::to_string(domain_idx),
-                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-            }
-        }
+        save_control();
     }
 
     void LevelZeroIOGroup::register_derivative_signals(void) {
@@ -896,7 +879,24 @@ namespace geopm
     // to adjust them
     void LevelZeroIOGroup::save_control(void)
     {
-        // No-op here as the initial frequency values are cached in the constructor
+        for (int domain_idx = 0;
+             domain_idx < m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP);
+             ++domain_idx) {
+
+            try {
+                // Currently only the levelzero compute domain control is supported.
+                // As new controls are added they should be included
+                m_frequency_range.push_back(m_levelzero_device_pool.frequency_range(
+                                            GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, domain_idx,
+                                            geopm::LevelZero::M_DOMAIN_COMPUTE));
+            }
+            catch (const geopm::Exception &ex) {
+                throw Exception("LevelZeroIOGroup::" + std::string(__func__) + ": "
+                                + " Failed to fetch frequency control range for "
+                                " BOARD_ACCELERATOR_CHIP domain " + std::to_string(domain_idx),
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+        }
     }
 
     // Implemented to allow an IOGroup to restore previously saved
