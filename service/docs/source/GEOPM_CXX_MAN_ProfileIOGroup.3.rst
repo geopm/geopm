@@ -15,7 +15,7 @@ SYNOPSIS
 
 #include `<geopm/ProfileIOGroup.hpp> <https://github.com/geopm/geopm/blob/dev/src/ProfileIOGroup.hpp>`_\ 
 
-``Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)``
+Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
 
 DESCRIPTION
 -----------
