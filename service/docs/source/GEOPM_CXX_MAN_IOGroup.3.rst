@@ -37,61 +37,61 @@ Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
 
        static unique_ptr<IOGroup> IOGroup::make_unique(const string &iogroup_name);
 
-       virtual set<string> IOGroup::signal_names(void) const = 0;
+       set<string> IOGroup::signal_names(void) const;
 
-       virtual set<string> IOGroup::control_names(void) const = 0;
+       set<string> IOGroup::control_names(void) const;
 
-       virtual bool IOGroup::is_valid_signal(const string &signal_name) const = 0;
+       bool IOGroup::is_valid_signal(const string &signal_name) const;
 
-       virtual bool IOGroup::is_valid_control(const string &control_name) const = 0;
+       bool IOGroup::is_valid_control(const string &control_name) const;
 
-       virtual int IOGroup::signal_domain_type(const string &signal_name) const = 0;
+       int IOGroup::signal_domain_type(const string &signal_name) const;
 
-       virtual int IOGroup::control_domain_type(const string &control_name) const = 0;
+       int IOGroup::control_domain_type(const string &control_name) const;
 
-       virtual int IOGroup::push_signal(const string &signal_name,
-                                        int domain_type,
-                                        int domain_idx) = 0;
+       int IOGroup::push_signal(const string &signal_name,
+                                int domain_type,
+                                int domain_idx0;
 
-       virtual int IOGroup::push_control(const string &control_name,
-                                         int domain_type,
-                                         int domain_idx) = 0;
+       int IOGroup::push_control(const string &control_name,
+                                 int domain_type,
+                                 int domain_idx);
 
-       virtual void IOGroup::read_batch(void) = 0;
+       void IOGroup::read_batch(void);
 
-       virtual void IOGroup::write_batch(void) = 0;
+       void IOGroup::write_batch(void);
 
-       virtual double IOGroup::sample(int sample_idx) = 0;
+       double IOGroup::sample(int sample_idx);
 
-       virtual void IOGroup::adjust(int control_idx,
-                                    double setting) = 0;
+       void IOGroup::adjust(int control_idx,
+                            double setting);
 
-       virtual double IOGroup::read_signal(const string &signal_name,
-                                           int domain_type,
-                                           int domain_idx) = 0;
+       double IOGroup::read_signal(const string &signal_name,
+                                   int domain_type,
+                                   int domain_idx);
 
-       virtual void IOGroup::write_control(const string &control_name,
-                                           int domain_type,
-                                           int domain_idx,
-                                           double setting) = 0;
+       void IOGroup::write_control(const string &control_name,
+                                   int domain_type,
+                                   int domain_idx,
+                                   double setting);
 
-       virtual void IOGroup::save_control(void) = 0;
+       void IOGroup::save_control(void);
 
-       virtual void IOGroup::restore_control(void) = 0;
+       void IOGroup::restore_control(void);
 
-       virtual function<double(const vector<double> &)> IOGroup::agg_function(const string &signal_name) const = 0;
+       function<double(const vector<double> &)> IOGroup::agg_function(const string &signal_name) const;
 
-       virtual function<string(double)> IOGroup::format_function(const string &signal_name) const;
+       function<string(double)> IOGroup::format_function(const string &signal_name) const;
 
-       virtual string IOGroup::signal_description(const string &signal_name) const = 0;
+       string IOGroup::signal_description(const string &signal_name) const;
 
-       virtual string IOGroup::control_description(const string &control_name) const = 0;
+       string IOGroup::control_description(const string &control_name) const;
 
-       virtual int IOGroup::signal_behavior(const string &signal_name) const = 0;
+       int IOGroup::signal_behavior(const string &signal_name) const;
 
-       virtual void IOGroup::save_control(const string &save_path) = 0;
+       void IOGroup::save_control(const string &save_path);
 
-       virtual void IOGroup::restore_control(const string &save_path) = 0;
+       void IOGroup::restore_control(const string &save_path);
 
        static IOGroup::m_units_e IOGroup::string_to_units(const string &str);
 
@@ -119,8 +119,7 @@ can have empty or degenerate implementations; the reverse is also true if an
 IOGroup only provides controls.  In these cases, ensure that ``is_valid_signal()``
 or ``is_valid_control()`` returns false as appropriate, and that ``signal_names()`` or
 ``control_names()`` returns an empty set.
-
-GEOPM provides a number of built-in IOGroups for the most common
+EOPM provides a number of built-in IOGroups for the most cn
 usages.  The list of built-in IOGroups is as follows:
 
 
