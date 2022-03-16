@@ -139,6 +139,14 @@ namespace geopm
             virtual int power_domain_count(int geopm_domain,
                                            unsigned int l0_device_idx,
                                            int l0_domain) const = 0;
+            /// @brief Get the number of LevelZero perf domains of a certain type
+            /// @param [in] geopm_domain The GEOPM domain being targeted
+            /// @param [in] l0_device_idx The LevelZero device being targeted
+            /// @param [in] l0_domain The LevelZero domain type being targeted
+            /// @return perf domain count.
+            virtual int perf_domain_count(int geopm_domain, unsigned int l0_device_idx,
+                                          int l0_domain) const = 0;
+
             /// @brief Get the LevelZero device default power limit in milliwatts
             /// @param [in] l0_device_idx The index indicating a particular
             ///        Level Zero GPU.
@@ -190,11 +198,23 @@ namespace geopm
             /// @param [in] l0_device_idx The index indicating a particular
             ///        Level Zero GPU.
             /// @param [in] domain The domain type being targeted
+            /// @param [in] domain_idx The domain being targeted
             /// @param [in] range_min Min target frequency in MHz.
             /// @param [in] range_max Max target frequency in MHz.
             virtual void frequency_control(unsigned int l0_device_idx, int l0_domain,
                                            int l0_domain_idx, double range_min,
                                            double range_max) const = 0;
+
+            /// @brief Set the performance factor for the LevelZero device.
+            /// @param [in] l0_device_idx The index indicating a particular
+            ///        Level Zero accelerator.
+            /// @param [in] domain The domain type being targeted
+            /// @param [in] domain_idx The domain being targeted
+            /// @param [in] iseting The performance factor value, 0-1
+            virtual void performance_factor_control(unsigned int l0_device_idx,
+                                                    int l0_domain,
+                                                    int l0_domain_idx,
+                                                    double setting) const = 0;
     };
 
     const LevelZero &levelzero();

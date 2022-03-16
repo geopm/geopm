@@ -59,6 +59,9 @@ namespace geopm
                                       unsigned int l0_device_idx,
                                       int l0_domain,
                                       int l0_domain_idx) const override;
+            int perf_domain_count(int geopm_domain, unsigned int l0_device_idx,
+                                  int l0_domain) const override;
+
             int32_t power_limit_tdp(unsigned int l0_device_idx) const override;
             int32_t power_limit_min(unsigned int l0_device_idx) const override;
             int32_t power_limit_max(unsigned int l0_device_idx) const override;
@@ -66,6 +69,11 @@ namespace geopm
             void frequency_control(unsigned int l0_device_idx, int l0_domain,
                                    int l0_domain_idx, double range_min,
                                    double range_max) const override;
+
+            void performance_factor_control(unsigned int l0_device_idx,
+                                            int l0_domain,
+                                            int l0_domain_idx,
+                                            double setting) const override;
 
         private:
             struct m_frequency_s {
@@ -87,10 +95,13 @@ namespace geopm
                 std::vector<std::vector<zes_freq_handle_t> > freq_domain;
                 std::vector<std::vector<zes_engine_handle_t> > engine_domain;
                 mutable std::vector<std::vector<uint64_t> > cached_timestamp;
+                //uint32_t num_subdevice_perf_domain;
+                std::vector<std::vector<zes_perf_handle_t>> perf_domain;
 
                 uint32_t num_subdevice_power_domain;
                 std::vector<zes_pwr_handle_t> power_domain;
                 mutable std::vector<uint64_t> cached_energy_timestamp;
+
             };
 
             struct m_device_info_s {
@@ -108,6 +119,8 @@ namespace geopm
                 // Device/Package domains
                 uint32_t num_device_power_domain;
                 zes_pwr_handle_t power_domain;
+                //uint32_t num_device_perf_domain;
+                std::vector<zes_perf_handle_t> perf_domain;
                 mutable uint64_t cached_energy_timestamp;
             };
 

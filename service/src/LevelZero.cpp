@@ -297,6 +297,98 @@ namespace geopm
                       cached_energy_timestamp.resize(m_devices.at(device_idx).subdevice.power_domain.size());
         }
 
+        //Cache performance domains
+        num_domain = 0;
+        ze_result = zesDeviceEnumPerformanceFactorDomains(m_devices.at(
+                    device_idx).device_handle, &num_domain, nullptr);
+        if (ze_result == ZE_RESULT_ERROR_UNSUPPORTED_FEATURE) {
+#ifdef GEOPM_DEBUG
+            std::cerr << "Warning: <geopm> LevelZero: Performance domain detection is "
+                         "not supported.\n";
+#endif
+        }
+        else {
+            check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
+                            "LevelZero::" + std::string(__func__) +
+                            ": Sysman failed to get number of domains", __LINE__);
+
+            std::vector<zes_perf_handle_t> perf_domain(num_domain);
+
+            ze_result = zesDeviceEnumPerformanceFactorDomains(m_devices.at(
+                            device_idx).device_handle, &num_domain, perf_domain.data());
+            check_ze_result(ze_result, GEOPM_ERROR_RUNTIME, "LevelZero::"
+                            + std::string(__func__) +
+                            ": Sysman failed to get domain handle(s).", __LINE__);
+
+            m_devices.at(device_idx).subdevice.
+                      perf_domain.resize(geopm::LevelZero::M_DOMAIN_SIZE);
+            m_devices.at(device_idx).
+                      perf_domain.resize(geopm::LevelZero::M_DOMAIN_SIZE);
+
+            //int num_device_perf_domain = 0;
+            //int num_subdevice_perf_domain = 0;
+            for (auto handle : perf_domain) {
+                zes_perf_properties_t property;
+                ze_result = zesPerformanceFactorGetProperties(handle, &property);
+                check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
+                                "LevelZero::" + std::string(__func__) +
+                                ": Sysman failed to get domain performance factor properties",
+                                __LINE__);
+
+                //Finding non-subdevice domain.
+                if (property.onSubdevice == 0) {
+                    //std::cout << "\tDebug: levelZero device " <<
+                    //             std::to_string(num_device_perf_domain) <<
+                    //             ": engine_type - " << std::to_string(property.engines) << std::endl;
+                    //++num_device_perf_domain;
+
+                    if (property.engines == ZES_ENGINE_TYPE_FLAG_COMPUTE) {
+                        m_devices.at(device_idx).perf_domain.at(geopm::LevelZero::M_DOMAIN_COMPUTE) = handle;
+                    }
+                    else if (property.engines == ZES_ENGINE_TYPE_FLAG_MEDIA) { //TODO: should this be _DMA?
+                        m_devices.at(device_idx).perf_domain.at(geopm::LevelZero::M_DOMAIN_MEMORY) = handle;
+                    }
+                    else if (property.engines == ZES_ENGINE_TYPE_FLAG_OTHER) {
+                        m_devices.at(device_idx).perf_domain.at(geopm::LevelZero::M_DOMAIN_ALL) = handle;
+                    }
+                    else {
+                        throw Exception("LevelZero::" + std::string(__func__) +
+                                        ": Unsupported device level performance factor domain "
+                                        " factor domain ()" + std::to_string(property.engines) +
+                                        " detected.", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                    }
+                }
+                else {
+                    if (property.engines == ZES_ENGINE_TYPE_FLAG_COMPUTE) {
+                        m_devices.at(device_idx).subdevice.perf_domain.at(
+                                 geopm::LevelZero::M_DOMAIN_COMPUTE).push_back(handle);
+                    }
+                    else if (property.engines == ZES_ENGINE_TYPE_FLAG_MEDIA) { //TODO: should this be _DMA?
+                        m_devices.at(device_idx).subdevice.perf_domain.at(
+                                 geopm::LevelZero::M_DOMAIN_MEMORY).push_back(handle);
+                    }
+                    else {
+                        throw Exception("LevelZero::" + std::string(__func__) +
+                                        ": Unsupported subdevice level performance factor domain "
+                                        " factor domain ()" + std::to_string(property.engines) +
+                                        " detected.", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                    }
+                    //std::cout << "\tDebug: levelZero sub device " <<
+                    //             std::to_string(property.subdeviceId) <<
+                    //             ": engine_type - " << std::to_string(property.engines) << std::endl;
+                    //++num_subdevice_perf_domain;
+                }
+            }
+
+            //std::cout << "Debug: levelZero device performance factor domains: " <<
+            //             std::to_string(num_device_perf_domain) << std::endl;
+            //std::cout << "Debug: levelZero sub device performance factor domains: " <<
+            //             std::to_string(num_subdevice_perf_domain) << std::endl;
+
+            //m_devices.at(device_idx).num_device_perf_domain = num_device_perf_domain;
+        }
+
+
         //Cache engine domains
         num_domain = 0;
         ze_result = zesDeviceEnumEngineGroups(m_devices.at(device_idx).device_handle,
@@ -436,6 +528,18 @@ namespace geopm
     int LevelZeroImp::engine_domain_count(unsigned int l0_device_idx, int l0_domain) const
     {
         return m_devices.at(l0_device_idx).subdevice.engine_domain.at(l0_domain).size();
+    }
+
+    int LevelZeroImp::perf_domain_count(int geopm_domain, unsigned int l0_device_idx, int l0_domain) const
+    {
+        int result = 0;
+        if (geopm_domain == GEOPM_DOMAIN_BOARD_ACCELERATOR) {
+            result = m_devices.at(l0_device_idx).perf_domain.size();
+        }
+        else if (geopm_domain == GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP) {
+            result = m_devices.at(l0_device_idx).subdevice.perf_domain.at(l0_domain).size();
+        }
+        return result;
     }
 
     double LevelZeroImp::frequency_status(unsigned int l0_device_idx,
@@ -673,7 +777,6 @@ namespace geopm
         return result_power;
     }
 
-    //TODO: frequency_control_min and frequency_control_max capability will be required in some form for save/restore
     void LevelZeroImp::frequency_control(unsigned int l0_device_idx, int l0_domain,
                                          int l0_domain_idx, double range_min,
                                          double range_max) const
@@ -701,6 +804,15 @@ namespace geopm
         check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
                         "LevelZero::" + std::string(__func__) +
                         ": Sysman failed to set frequency.", __LINE__);
+    }
+
+    void LevelZeroImp::performance_factor_control(unsigned int l0_device_idx,
+                                                  int l0_domain,
+                                                  int l0_domain_idx,
+                                                  double setting) const
+    {
+        //ze_result_t ze_result;
+        //double performance_factor;
     }
 
     void LevelZeroImp::check_ze_result(ze_result_t ze_result, int error,
