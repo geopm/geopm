@@ -439,13 +439,27 @@ namespace geopm
                                   {},
                                   [this](unsigned int domain_idx) -> double
                                   {
-                                      //return this->m_levelzero_device_pool.performance_factor(
-                                      //             GEOPM_DOMAIN_BOARD_ACCELERATOR,
-                                      //             domain_idx,
-                                      //             geopm::LevelZero::M_DOMAIN_ALL);
-                                      return 0;
+                                      return this->m_levelzero_device_pool.performance_factor(
+                                                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                                                  domain_idx,
+                                                                  geopm::LevelZero::M_DOMAIN_ALL);
                                   },
-                                  1
+                                  .01
+                                  }},
+                              {M_NAME_PREFIX + "GPUCHIP_PERFORMANCE_FACTOR_COMPUTE", {
+                                  "Performance Factor of the Per Tile compute domain",
+                                  GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                  Agg::average,
+                                  string_format_double,
+                                  {},
+                                  [this](unsigned int domain_idx) -> double
+                                  {
+                                      return this->m_levelzero_device_pool.performance_factor(
+                                                                  GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                                                  domain_idx,
+                                                                  geopm::LevelZero::M_DOMAIN_COMPUTE);
+                                  },
+                                  .01
                                   }}
                              })
         , m_control_available({{M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_CONTROL", {
@@ -462,14 +476,14 @@ namespace geopm
                                     Agg::expect_same,
                                     string_format_double
                                     }},
-                               {M_NAME_PREFIX + "GPU_PERFORMANCE_FACTOR", {
+                               {M_NAME_PREFIX + "GPU_PERFORMANCE_FACTOR_CONTROL", {
                                     "Performance Factor",
                                     {},
                                     GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                     Agg::average,
                                     string_format_double
                                     }},
-                               {M_NAME_PREFIX + "GPUCHIP_PERFORMANCE_FACTOR_COMPUTE", {
+                               {M_NAME_PREFIX + "GPUCHIP_PERFORMANCE_FACTOR_COMPUTE_CONTROL", {
                                     "Performance Factor",
                                     {},
                                     GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
@@ -1030,15 +1044,15 @@ namespace geopm
                                                       geopm::LevelZero::M_DOMAIN_COMPUTE,
                                                       curr_min / 1e6, setting / 1e6);
         }
-        else if(control_name == M_NAME_PREFIX + "GPU_PERFORMANCE_FACTOR") {
-            //m_levelzero_device_pool.performance_factor(domain_type, domain_idx,
-            //                                           geopm::LevelZero::M_DOMAIN_ALL,
-            //                                           setting);
+        else if(control_name == M_NAME_PREFIX + "GPU_PERFORMANCE_FACTOR_CONTROL") {
+            m_levelzero_device_pool.performance_factor_control(domain_type, domain_idx,
+                                                               geopm::LevelZero::M_DOMAIN_ALL,
+                                                               setting*100);
         }
-        else if(control_name == M_NAME_PREFIX + "GPUCHIP_PERFORMANCE_FACTOR_COMPUTE") {
-            //m_levelzero_device_pool.performance_factor(domain_type, domain_idx,
-            //                                           geopm::LevelZero::M_DOMAIN_COMPUTE,
-            //                                           setting);
+        else if(control_name == M_NAME_PREFIX + "GPUCHIP_PERFORMANCE_FACTOR_COMPUTE_CONTROL") {
+            m_levelzero_device_pool.performance_factor_control(domain_type, domain_idx,
+                                                               geopm::LevelZero::M_DOMAIN_COMPUTE,
+                                                               setting*100);
         }
         else {
     #ifdef GEOPM_DEBUG

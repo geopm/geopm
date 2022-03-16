@@ -56,10 +56,16 @@ namespace geopm
             uint64_t energy(int domain, unsigned int domain_idx, int l0_domain) const override;
             uint64_t energy_timestamp(int domain, unsigned int domain_idx,
                                       int l0_domain) const override;
+            double performance_factor(int domain,
+                                      unsigned int domain_idx,
+                                      int l0_domain) const override;
 
             void frequency_control(int domain, unsigned int domain_idx,
                                    int l0_domain, double range_min,
                                    double range_max) const override;
+            void performance_factor_control(int domain, unsigned int domain_idx,
+                                            int l0_domain,
+                                            double setting) const override;
 
         private:
             const LevelZero &m_levelzero;

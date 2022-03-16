@@ -325,8 +325,6 @@ namespace geopm
             m_devices.at(device_idx).
                       perf_domain.resize(geopm::LevelZero::M_DOMAIN_SIZE);
 
-            //int num_device_perf_domain = 0;
-            //int num_subdevice_perf_domain = 0;
             for (auto handle : perf_domain) {
                 zes_perf_properties_t property;
                 ze_result = zesPerformanceFactorGetProperties(handle, &property);
@@ -337,18 +335,13 @@ namespace geopm
 
                 //Finding non-subdevice domain.
                 if (property.onSubdevice == 0) {
-                    //std::cout << "\tDebug: levelZero device " <<
-                    //             std::to_string(num_device_perf_domain) <<
-                    //             ": engine_type - " << std::to_string(property.engines) << std::endl;
-                    //++num_device_perf_domain;
-
                     if (property.engines == ZES_ENGINE_TYPE_FLAG_COMPUTE) {
                         m_devices.at(device_idx).perf_domain.at(geopm::LevelZero::M_DOMAIN_COMPUTE) = handle;
                     }
                     else if (property.engines == ZES_ENGINE_TYPE_FLAG_MEDIA) { //TODO: should this be _DMA?
                         m_devices.at(device_idx).perf_domain.at(geopm::LevelZero::M_DOMAIN_MEMORY) = handle;
                     }
-                    else if (property.engines == ZES_ENGINE_TYPE_FLAG_OTHER) {
+                    else if (property.engines == ZES_ENGINE_TYPE_FLAG_OTHER) { //TODO: Update to not rely on OTHER
                         m_devices.at(device_idx).perf_domain.at(geopm::LevelZero::M_DOMAIN_ALL) = handle;
                     }
                     else {
@@ -373,19 +366,8 @@ namespace geopm
                                         " factor domain ()" + std::to_string(property.engines) +
                                         " detected.", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
                     }
-                    //std::cout << "\tDebug: levelZero sub device " <<
-                    //             std::to_string(property.subdeviceId) <<
-                    //             ": engine_type - " << std::to_string(property.engines) << std::endl;
-                    //++num_subdevice_perf_domain;
                 }
             }
-
-            //std::cout << "Debug: levelZero device performance factor domains: " <<
-            //             std::to_string(num_device_perf_domain) << std::endl;
-            //std::cout << "Debug: levelZero sub device performance factor domains: " <<
-            //             std::to_string(num_subdevice_perf_domain) << std::endl;
-
-            //m_devices.at(device_idx).num_device_perf_domain = num_device_perf_domain;
         }
 
 
@@ -539,6 +521,33 @@ namespace geopm
         else if (geopm_domain == GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP) {
             result = m_devices.at(l0_device_idx).subdevice.perf_domain.at(l0_domain).size();
         }
+        return result;
+    }
+
+    double LevelZeroImp::performance_factor(int geopm_domain, unsigned int l0_device_idx,
+                                            int l0_domain, int l0_domain_idx) const
+    {
+        double result = NAN;
+        zes_perf_handle_t handle;
+        ze_result_t ze_result;
+
+        if (geopm_domain == GEOPM_DOMAIN_BOARD_ACCELERATOR) {
+            handle = m_devices.at(l0_device_idx).perf_domain.at(l0_domain);
+
+            ze_result = zesPerformanceFactorGetConfig(handle, &result);
+            check_ze_result(ze_result, GEOPM_ERROR_RUNTIME, "LevelZero::"
+                            + std::string(__func__) +
+                            ": Sysman failed to get performance factor values", __LINE__);
+        }
+        else if (geopm_domain == GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP) {
+            handle = m_devices.at(l0_device_idx).subdevice.perf_domain.at(l0_domain).at(l0_domain_idx);
+
+            ze_result = zesPerformanceFactorGetConfig(handle, &result);
+            check_ze_result(ze_result, GEOPM_ERROR_RUNTIME, "LevelZero::"
+                            + std::string(__func__) +
+                            ": Sysman failed to get performance factor values", __LINE__);
+        }
+
         return result;
     }
 
@@ -806,13 +815,32 @@ namespace geopm
                         ": Sysman failed to set frequency.", __LINE__);
     }
 
-    void LevelZeroImp::performance_factor_control(unsigned int l0_device_idx,
+    void LevelZeroImp::performance_factor_control(int geopm_domain,
+                                                  unsigned int l0_device_idx,
                                                   int l0_domain,
                                                   int l0_domain_idx,
                                                   double setting) const
     {
-        //ze_result_t ze_result;
-        //double performance_factor;
+        zes_perf_handle_t handle;
+        ze_result_t ze_result;
+
+        if (geopm_domain == GEOPM_DOMAIN_BOARD_ACCELERATOR) {
+            handle = m_devices.at(l0_device_idx).perf_domain.at(l0_domain);
+        }
+        else if (geopm_domain == GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP) {
+            handle = m_devices.at(l0_device_idx).subdevice.perf_domain.at(l0_domain).at(l0_domain_idx);
+        }
+        else {
+            throw Exception("LevelZero::" + std::string(__func__) +
+                            ": domain type " + std::to_string(geopm_domain) +
+                            " is not supported.", GEOPM_ERROR_INVALID,
+                             __FILE__, __LINE__);
+        }
+
+        ze_result = zesPerformanceFactorSetConfig(handle, setting);
+        check_ze_result(ze_result, GEOPM_ERROR_RUNTIME, "LevelZero::"
+                        + std::string(__func__) +
+                        ": Sysman failed to set performance factor values", __LINE__);
     }
 
     void LevelZeroImp::check_ze_result(ze_result_t ze_result, int error,
