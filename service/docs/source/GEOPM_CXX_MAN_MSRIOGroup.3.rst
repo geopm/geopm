@@ -147,13 +147,13 @@ CLASS METHODS
   ``signal_names``\ ():
   Returns the list of signal names provided by this IOGroup.  This
   includes aliases for common hardware-based signals such as
-  FREQUENCY, as well as the supported MSRs for the current platform.
+  CPU_FREQUENCY_STATUS, as well as the supported MSRs for the current platform.
 
 * 
   ``control_names``\ ():
   Returns the list of control names provided by this IOGroup.  This
   includes aliases for common hardware-based controls such as
-  FREQUENCY, as well as the supported MSRs for the current platform.
+  CPU_FREQUENCY_CONTROL, as well as the supported MSRs for the current platform.
 
 * 
   ``is_valid_signal``\ ():

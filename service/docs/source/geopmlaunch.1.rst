@@ -175,7 +175,7 @@ GEOPM OPTIONS
   The signals available and their descriptions are documented in the
   **PlatformIO(3)** man page.  "TIME", "REGION_HASH", "REGION_HINT",
   "REGION_PROGRESS", "REGION_RUNTIME", "ENERGY_PACKAGE",
-  "POWER_PACKAGE", and "FREQUENCY" are included in the trace by
+  "POWER_PACKAGE", and "CPU_FREQUENCY_STATUS" are included in the trace by
   default.  A domain other than board can be specified by appending
   the signal name with an "@" character and then specifying one of the
   domains, e.g:

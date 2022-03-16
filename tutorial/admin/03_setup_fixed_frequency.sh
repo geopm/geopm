@@ -43,7 +43,7 @@
 set -x
 
 # Calculate the desired fixed frequency
-FREQ_FIXED=$(($(geopmread FREQUENCY_STICKER board 0)-300000000))
+FREQ_FIXED=$(($(geopmread CPU_FREQUENCY_STICKER board 0)-300000000))
 
 # Remove any existing configuration
 rm -rf /etc/geopm

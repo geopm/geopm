@@ -7,12 +7,6 @@ CPU_FREQUENCY_CONTROL
     - units: hertz
     - domain: core
     - iogroup: MSRIOGroup
-FREQUENCY
-    - description: Target operating frequency of the CPU based on the control register.
-    - alias_for: MSR::PERF_CTL:FREQ
-    - units: hertz
-    - domain: core
-    - iogroup: MSRIOGroup
 MSR::DRAM_POWER_LIMIT:ENABLE
     - description: Refer to the Intel(R) 64 and IA-32 Architectures Software Developer's Manual for information about this MSR
     - units: none

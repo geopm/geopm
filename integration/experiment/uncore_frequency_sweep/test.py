@@ -40,7 +40,7 @@ from experiment.uncore_frequency_sweep import uncore_frequency_sweep
 class TestUncoreFrequencySweep(unittest.TestCase):
     def setUp(self):
         self.mach = machine.Machine()
-        self.mach.signals = {'FREQUENCY_STEP': 1.0e8}
+        self.mach.signals = {'CPU_FREQUENCY_STEP': 1.0e8}
 
     def test_full_range(self):
         freqs = uncore_frequency_sweep.setup_uncore_frequency_bounds(self.mach, None, None, None)
