@@ -104,7 +104,7 @@ void TracerTest::SetUp(void)
         {"ENERGY_DRAM", GEOPM_DOMAIN_BOARD, 0, geopm::string_format_double},
         {"POWER_PACKAGE", GEOPM_DOMAIN_BOARD, 0, geopm::string_format_double},
         {"POWER_DRAM", GEOPM_DOMAIN_BOARD, 0, geopm::string_format_double},
-        {"FREQUENCY", GEOPM_DOMAIN_BOARD, 0, geopm::string_format_double},
+        {"CPU_FREQUENCY_STATUS", GEOPM_DOMAIN_BOARD, 0, geopm::string_format_double},
         {"CYCLES_THREAD", GEOPM_DOMAIN_BOARD, 0, geopm::string_format_integer},
         {"CYCLES_REFERENCE", GEOPM_DOMAIN_BOARD, 0, geopm::string_format_integer},
         {"TEMPERATURE_CORE", GEOPM_DOMAIN_BOARD, 0, geopm::string_format_double},
@@ -164,7 +164,7 @@ TEST_F(TracerTest, columns)
                                   "# agent:\n";
     std::string expected_str = expected_header +
         "TIME|EPOCH_COUNT|REGION_HASH|REGION_HINT|REGION_PROGRESS|ENERGY_PACKAGE|ENERGY_DRAM|"
-        "POWER_PACKAGE|POWER_DRAM|FREQUENCY|CYCLES_THREAD|CYCLES_REFERENCE|TEMPERATURE_CORE|"
+        "POWER_PACKAGE|POWER_DRAM|CPU_FREQUENCY_STATUS|CYCLES_THREAD|CYCLES_REFERENCE|TEMPERATURE_CORE|"
         "EXTRA|EXTRA_SPECIAL-cpu-0|EXTRA_SPECIAL-cpu-1|"
         "col1|col2\n";
     std::istringstream expected(expected_str);

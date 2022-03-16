@@ -158,8 +158,8 @@ else
 fi
 
 CURRENT_FREQ=$(geopmread MSR::PERF_CTL:FREQ package 0)
-STICKER_FREQ=$(geopmread FREQUENCY_STICKER board 0)
-TEST_FREQ="$(( ${STICKER_FREQ} - $(geopmread FREQUENCY_STEP board 0) ))"
+STICKER_FREQ=$(geopmread CPU_FREQUENCY_STICKER board 0)
+TEST_FREQ="$(( ${STICKER_FREQ} - $(geopmread CPU_FREQUENCY_STEP board 0) ))"
 if ! geopmwrite MSR::PERF_CTL:FREQ package 0 ${TEST_FREQ}; then
     echo "ERROR: Unable to set frequency with geopmwrite."
     RC=1

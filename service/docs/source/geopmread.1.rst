@@ -142,7 +142,7 @@ List all available signals on the system:
    ENERGY_DRAM
    POWER_PACKAGE
    POWER_DRAM
-   FREQUENCY
+   CPU_FREQUENCY_STATUS
 
 
 Show the description for a signal:

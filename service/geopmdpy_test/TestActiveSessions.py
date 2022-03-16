@@ -45,13 +45,13 @@ from geopmdpy.system_files import ActiveSessions
 class TestActiveSessions(unittest.TestCase):
     json_good_example = {
         "client_pid" : 750,
-        "signals" : ["ENERGY_DRAM", "FREQUENCY_MAX", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
+        "signals" : ["ENERGY_DRAM", "CPU_FREQUENCY_MAX", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
         "controls" : ["CPU_FREQUENCY_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
         "watch_id" : 754
     }
     json_good_example_2 = {
         "client_pid" : 450,
-        "signals" : ["ENERGY_DRAM", "FREQUENCY_MAX", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
+        "signals" : ["ENERGY_DRAM", "CPU_FREQUENCY_MAX", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
         "controls" : ["CPU_FREQUENCY_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
         "watch_id" : 550
     }
@@ -63,13 +63,13 @@ class TestActiveSessions(unittest.TestCase):
     }
     json_wrong_data_types = {
         "client_pid" : "450",
-        "signals" : ["ENERGY_DRAM", "FREQUENCY_MAX", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
+        "signals" : ["ENERGY_DRAM", "CPU_FREQUENCY_MAX", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
         "controls" : ["CPU_FREQUENCY_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
         "watch_id" : "550"
     }
     json_additional_properties = {
         "client_pid" : 450,
-        "signals" : ["ENERGY_DRAM", "FREQUENCY_MAX", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
+        "signals" : ["ENERGY_DRAM", "CPU_FREQUENCY_MAX", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
         "controls" : ["CPU_FREQUENCY_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
         "actuators" : ["ENERGY_DRAM", "FREQUENCY_MIN", "MSR::IA32_PERFEVTSEL0:CMASK"],
         "watch_id" : 550,
@@ -80,7 +80,7 @@ class TestActiveSessions(unittest.TestCase):
     string_empty_file = ""
     string_typos_json = """{
         "client_pid" : 450,
-        "signals",  ["ENERGY_DRAM", "FREQUENCY_MAX", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
+        "signals",  ["ENERGY_DRAM", "CPU_FREQUENCY_MAX", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
         "controls" : ["CPU_FREQUENCY_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
         "watch_id" 550,
     }

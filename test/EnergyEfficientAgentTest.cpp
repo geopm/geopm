@@ -133,7 +133,7 @@ TEST_F(EnergyEfficientAgentTest, validate_policy_default)
     std::vector<double> in_policy {NAN, NAN, NAN, NAN};
     std::vector<double> expected {M_SYS_MIN, M_SYS_MAX, 0.10, M_SYS_MAX};
     ASSERT_EQ(in_policy.size(), m_agent0->policy_names().size());
-    EXPECT_CALL(m_platio, read_signal("FREQUENCY_MAX", GEOPM_DOMAIN_BOARD, 0))
+    EXPECT_CALL(m_platio, read_signal("CPU_FREQUENCY_MAX", GEOPM_DOMAIN_BOARD, 0))
         .WillOnce(Return(M_SYS_MAX));
     m_agent0->validate_policy(in_policy);
     EXPECT_EQ(expected, in_policy);
@@ -250,7 +250,7 @@ TEST_F(EnergyEfficientAgentTest, enforce_policy)
     const std::vector<double> policy{0, dynamic_limit, 0.15, static_limit};
     const std::vector<double> bad_policy{100, 200, 300, 400, 500, 600};
 
-    EXPECT_CALL(m_platio, write_control("FREQUENCY", GEOPM_DOMAIN_BOARD, 0, static_limit));
+    EXPECT_CALL(m_platio, write_control("CPU_FREQUENCY_CONTROL", GEOPM_DOMAIN_BOARD, 0, static_limit));
 
     ASSERT_EQ(policy.size(), m_agent0->policy_names().size());
     m_agent0->enforce_policy(policy);

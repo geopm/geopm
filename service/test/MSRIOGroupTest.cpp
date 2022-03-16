@@ -154,9 +154,9 @@ TEST_F(MSRIOGroupTest, valid_signal_names)
     //// frequency signals
     ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::PERF_STATUS:FREQ"));
     ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_0"));
-    signal_aliases.push_back("FREQUENCY");
-    signal_aliases.push_back("FREQUENCY_MAX");
-    // note: FREQUENCY_MIN and FREQUENCY_STICKER come from CpuinfoIOGroup.
+    signal_aliases.push_back("CPU_FREQUENCY_STATUS");
+    signal_aliases.push_back("CPU_FREQUENCY_MAX");
+    // note: CPU_FREQUENCY_MIN and CPU_FREQUENCY_STICKER come from CpuinfoIOGroup.
 
     //// temperature signals
     ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::TEMPERATURE_TARGET:PROCHOT_MIN"));
@@ -203,8 +203,8 @@ TEST_F(MSRIOGroupTest, valid_signal_domains)
     EXPECT_EQ(GEOPM_DOMAIN_CPU, m_msrio_group->signal_domain_type("TIMESTAMP_COUNTER"));
 
     // frequency
-    EXPECT_EQ(GEOPM_DOMAIN_CPU, m_msrio_group->signal_domain_type("FREQUENCY"));
-    EXPECT_EQ(GEOPM_DOMAIN_PACKAGE, m_msrio_group->signal_domain_type("FREQUENCY_MAX"));
+    EXPECT_EQ(GEOPM_DOMAIN_CPU, m_msrio_group->signal_domain_type("CPU_FREQUENCY_STATUS"));
+    EXPECT_EQ(GEOPM_DOMAIN_PACKAGE, m_msrio_group->signal_domain_type("CPU_FREQUENCY_MAX"));
 
     // temperature
     EXPECT_EQ(GEOPM_DOMAIN_CORE,
@@ -247,10 +247,10 @@ TEST_F(MSRIOGroupTest, valid_signal_aggregation)
     //EXPECT_TRUE(is_agg_sum(func));
 
     // frequency
-    func = m_msrio_group->agg_function("FREQUENCY");
+    func = m_msrio_group->agg_function("CPU_FREQUENCY_STATUS");
     EXPECT_TRUE(is_agg_average(func));
     /// @todo: what should this be?
-    //func = m_msrio_group->agg_function("FREQUENCY_MAX");
+    //func = m_msrio_group->agg_function("CPU_FREQUENCY_MAX");
     //EXPECT_TRUE(is_agg_expect_same(func));
 
     // temperature
@@ -282,7 +282,7 @@ TEST_F(MSRIOGroupTest, valid_signal_format)
     // most SI signals are printed as double
     std::vector<std::string> si_alias = {
         "ENERGY_PACKAGE", "ENERGY_DRAM",
-        "FREQUENCY", "FREQUENCY_MAX",
+        "CPU_FREQUENCY_STATUS", "CPU_FREQUENCY_MAX",
         "TEMPERATURE_CORE", "TEMPERATURE_PACKAGE",
         "POWER_PACKAGE_MIN", "POWER_PACKAGE_MAX", "POWER_PACKAGE_TDP",
         "POWER_PACKAGE", "POWER_DRAM"
@@ -550,13 +550,13 @@ TEST_F(MSRIOGroupTest, read_signal_frequency)
         .WillOnce(Return(0xE00));
     result = m_msrio_group->read_signal("MSR::PERF_STATUS:FREQ", GEOPM_DOMAIN_CPU, 0);
     EXPECT_EQ(1.3e9, result);
-    result = m_msrio_group->read_signal("FREQUENCY", GEOPM_DOMAIN_CPU, 0);
+    result = m_msrio_group->read_signal("CPU_FREQUENCY_STATUS", GEOPM_DOMAIN_CPU, 0);
     EXPECT_EQ(1.4e9, result);
 
     // For SKX: MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_0 0:7
     EXPECT_CALL(*m_msrio, read_msr(0, limit_offset))
         .WillOnce(Return(0xF));
-    result = m_msrio_group->read_signal("FREQUENCY_MAX", GEOPM_DOMAIN_PACKAGE, 0);
+    result = m_msrio_group->read_signal("CPU_FREQUENCY_MAX", GEOPM_DOMAIN_PACKAGE, 0);
     EXPECT_EQ(1.5e9, result);
 }
 
@@ -721,7 +721,7 @@ TEST_F(MSRIOGroupTest, push_control)
     EXPECT_EQ(freq_idx_0, idx2);
 
     // pushing alias gives same index
-    int idx3 = m_msrio_group->push_control("FREQUENCY", GEOPM_DOMAIN_CORE, 0);
+    int idx3 = m_msrio_group->push_control("CPU_FREQUENCY_CONTROL", GEOPM_DOMAIN_CORE, 0);
     EXPECT_EQ(freq_idx_0, idx3);
 
     uint64_t pl1_limit_offset = 0x610;

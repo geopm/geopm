@@ -235,8 +235,8 @@ A control represents a request for a hardware domain to operate such
 that a related signal measured from the hardware domain will track the
 request.  For example, the user can set a ``POWER_PACKAGE_LIMIT`` in
 units of watts and the related signal, ``POWER_PACKAGE``\ , will remain
-below the limit.  Similarly the user can set a CPU ``FREQUENCY`` in
-hertz and the related signal, ``FREQUENCY`` will show the CPU operating
+below the limit.  Similarly the user can set a ``CPU_FREQUENCY_CONTROL`` in
+hertz and the related signal, ``CPU_FREQUENCY_STATUS`` will show the CPU operating
 at the value set.
 
 ALIASING SIGNALS AND CONTROLS
@@ -317,7 +317,7 @@ encoded in this way.
   Total power aggregated over the processor package.
 
 *
-  ``FREQUENCY``\ :
+  ``CPU_FREQUENCY_STATUS``\ :
   Average CPU frequency over the specified domain.
 
 *

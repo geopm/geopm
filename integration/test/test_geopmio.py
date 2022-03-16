@@ -153,7 +153,7 @@ class TestIntegrationGeopmio(unittest.TestCase):
         self.exec_name = "geopmread"
         signal_range = {
             "POWER_PACKAGE": (20, 400),
-            "FREQUENCY": (1.0e8, 5.0e9),
+            "CPU_FREQUENCY_STATUS": (1.0e8, 5.0e9),
             "TIME": (0, 10),  # time in sec to start geopmread
             "TEMPERATURE_CORE": (0, 100)
         }
@@ -228,7 +228,7 @@ class TestIntegrationGeopmio(unittest.TestCase):
         '''
         Check that geopmwrite can be used to set frequency.
         '''
-        def read_current_freq(domain, signal='FREQUENCY'):
+        def read_current_freq(domain, signal='CPU_FREQUENCY_STATUS'):
             return geopm_test_launcher.geopmread('{} {} {}'.format(signal, domain, '0'))
 
         def read_min_sticker_freq():

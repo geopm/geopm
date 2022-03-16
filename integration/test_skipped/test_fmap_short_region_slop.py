@@ -400,7 +400,7 @@ def get_ipc(trace):
 
 
 def get_freq(trace):
-    return trace['FREQUENCY']
+    return trace['CPU_FREQUENCY_STATUS']
 
 
 def get_temperature(trace):

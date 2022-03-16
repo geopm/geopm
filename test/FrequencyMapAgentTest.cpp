@@ -110,7 +110,7 @@ void FrequencyMapAgentTest::SetUp()
         .WillByDefault(Return(1));
     ON_CALL(*m_platform_io, push_signal("REGION_HASH", _, _))
         .WillByDefault(Return(REGION_HASH_IDX));
-    ON_CALL(*m_platform_io, push_control("FREQUENCY", _, _))
+    ON_CALL(*m_platform_io, push_control("CPU_FREQUENCY_CONTROL", _, _))
         .WillByDefault(Return(FREQ_CONTROL_IDX));
     ON_CALL(*m_platform_io, push_control("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO", _, _))
         .WillByDefault(Return(UNCORE_MIN_CTL_IDX));
@@ -124,13 +124,13 @@ void FrequencyMapAgentTest::SetUp()
     m_freq_step = 100000000.0;
     m_freq_uncore_min = 1700000000;
     m_freq_uncore_max = 2100000000;
-    ON_CALL(*m_platform_io, control_domain_type("FREQUENCY"))
+    ON_CALL(*m_platform_io, control_domain_type("CPU_FREQUENCY_CONTROL"))
         .WillByDefault(Return(GEOPM_DOMAIN_BOARD));
-    ON_CALL(*m_platform_io, read_signal("FREQUENCY_MIN", GEOPM_DOMAIN_BOARD, 0))
+    ON_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MIN", GEOPM_DOMAIN_BOARD, 0))
         .WillByDefault(Return(m_freq_min));
-    ON_CALL(*m_platform_io, read_signal("FREQUENCY_MAX", GEOPM_DOMAIN_BOARD, 0))
+    ON_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MAX", GEOPM_DOMAIN_BOARD, 0))
         .WillByDefault(Return(m_freq_max));
-    ON_CALL(*m_platform_io, read_signal("FREQUENCY_STEP", GEOPM_DOMAIN_BOARD, 0))
+    ON_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_STEP", GEOPM_DOMAIN_BOARD, 0))
         .WillByDefault(Return(m_freq_step));
     ON_CALL(*m_platform_io, read_signal("MSR::PERF_CTL:FREQ", _, _))
         .WillByDefault(Return(m_freq_max));
@@ -162,14 +162,14 @@ void FrequencyMapAgentTest::SetUp()
     m_agent = geopm::make_unique<FrequencyMapAgent>(*m_platform_io, *m_platform_topo);
     m_num_policy = m_agent->policy_names().size();
 
-    EXPECT_CALL(*m_platform_io, control_domain_type("FREQUENCY"));
+    EXPECT_CALL(*m_platform_io, control_domain_type("CPU_FREQUENCY_CONTROL"));
     EXPECT_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_BOARD));
     EXPECT_CALL(*m_platform_io, push_signal("REGION_HASH", _, _));
-    EXPECT_CALL(*m_platform_io, push_control("FREQUENCY", _, _));
+    EXPECT_CALL(*m_platform_io, push_control("CPU_FREQUENCY_CONTROL", _, _));
     EXPECT_CALL(*m_platform_io, push_control("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO", _, _));
     EXPECT_CALL(*m_platform_io, push_control("MSR::UNCORE_RATIO_LIMIT:MAX_RATIO", _, _));
-    EXPECT_CALL(*m_platform_io, read_signal("FREQUENCY_MIN", _, _));
-    EXPECT_CALL(*m_platform_io, read_signal("FREQUENCY_MAX", _, _));
+    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MIN", _, _));
+    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MAX", _, _));
     EXPECT_CALL(*m_platform_io, read_signal("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO", _, _));
     EXPECT_CALL(*m_platform_io, read_signal("MSR::UNCORE_RATIO_LIMIT:MAX_RATIO", _, _));
 
@@ -348,7 +348,7 @@ TEST_F(FrequencyMapAgentTest, enforce_policy)
     {
         policy[DEFAULT] = core_limit;
         EXPECT_CALL(*m_platform_io,
-                    write_control("FREQUENCY", GEOPM_DOMAIN_BOARD, 0, core_limit));
+                    write_control("CPU_FREQUENCY_CONTROL", GEOPM_DOMAIN_BOARD, 0, core_limit));
         EXPECT_CALL(*m_platform_io,
                     write_control("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO", _, _, _))
             .Times(0);
@@ -363,7 +363,7 @@ TEST_F(FrequencyMapAgentTest, enforce_policy)
         policy[DEFAULT] = core_limit;
         policy[UNCORE] = uncore_limit;
         EXPECT_CALL(*m_platform_io,
-                    write_control("FREQUENCY", GEOPM_DOMAIN_BOARD, 0, core_limit));
+                    write_control("CPU_FREQUENCY_CONTROL", GEOPM_DOMAIN_BOARD, 0, core_limit));
         EXPECT_CALL(*m_platform_io,
                     write_control("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO",
                                   GEOPM_DOMAIN_BOARD, 0, uncore_limit));

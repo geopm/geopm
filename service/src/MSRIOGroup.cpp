@@ -183,7 +183,6 @@ namespace geopm
         }
 
         register_signal_alias("TIMESTAMP_COUNTER", "MSR::TIME_STAMP_COUNTER:TIMESTAMP_COUNT");
-        register_signal_alias("FREQUENCY", "MSR::PERF_STATUS:FREQ"); // TODO: Remove @ v2.0
         register_signal_alias("CPU_FREQUENCY_STATUS", "MSR::PERF_STATUS:FREQ");
         register_signal_alias("CPU_FREQUENCY_CONTROL", "MSR::PERF_CTL:FREQ");
 
@@ -204,8 +203,6 @@ namespace geopm
                 break;
         }
         if (max_turbo_name != "") {
-            register_signal_alias("FREQUENCY_MAX", max_turbo_name); // TODO: Remove @ v2.0
-            set_signal_description("FREQUENCY_MAX", "Maximum processor frequency."); // TODO: Remove @ v2.0
             register_signal_alias("CPU_FREQUENCY_MAX", max_turbo_name);
             set_signal_description("CPU_FREQUENCY_MAX", "Maximum processor frequency.");
         }
@@ -226,7 +223,6 @@ namespace geopm
         register_rdt_signals();
 
         register_control_alias("POWER_PACKAGE_LIMIT", "MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT");
-        register_control_alias("FREQUENCY", "MSR::PERF_CTL:FREQ"); // TODO: Remove @ v2.0
         register_control_alias("CPU_FREQUENCY_CONTROL", "MSR::PERF_CTL:FREQ");
         register_control_alias("POWER_PACKAGE_TIME_WINDOW", "MSR::PKG_POWER_LIMIT:PL1_TIME_WINDOW");
     }
@@ -1047,7 +1043,7 @@ namespace geopm
         static const std::set<std::string> FREQ_CONTROL_SET {
             "POWER_PACKAGE_LIMIT",
             "MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT",
-            "FREQUENCY",
+            "CPU_FREQUENCY_CONTROL",
             "MSR::PERF_CTL:FREQ"};
         static bool do_check_governor = true;
 

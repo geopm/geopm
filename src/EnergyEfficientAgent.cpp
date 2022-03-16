@@ -145,7 +145,7 @@ namespace geopm
                                          policy[M_POLICY_FREQ_MAX]);
 
         if (std::isnan(policy[M_POLICY_FREQ_FIXED])) {
-            policy[M_POLICY_FREQ_FIXED] = m_platform_io.read_signal("FREQUENCY_MAX",
+            policy[M_POLICY_FREQ_FIXED] = m_platform_io.read_signal("CPU_FREQUENCY_MAX",
                                                                     GEOPM_DOMAIN_BOARD, 0);
         }
     }
@@ -354,7 +354,7 @@ namespace geopm
             throw Exception("EnergyEfficientAgent::enforce_policy(): policy vector incorrectly sized.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        m_platform_io.write_control("FREQUENCY", GEOPM_DOMAIN_BOARD, 0, policy[M_POLICY_FREQ_FIXED]);
+        m_platform_io.write_control("CPU_FREQUENCY_CONTROL", GEOPM_DOMAIN_BOARD, 0, policy[M_POLICY_FREQ_FIXED]);
     }
 
     void EnergyEfficientAgent::init_platform_io(void)

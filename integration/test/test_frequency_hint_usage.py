@@ -103,7 +103,7 @@ class TestIntegration_frequency_hint_usage(unittest.TestCase):
 
         cls._freq_min = geopm_test_launcher.geopmread("CPUINFO::FREQ_MIN board 0")
         cls._freq_sticker = geopm_test_launcher.geopmread("CPUINFO::FREQ_STICKER board 0")
-        cls._freq_step = geopm_test_launcher.geopmread("FREQUENCY_STEP board 0")
+        cls._freq_step = geopm_test_launcher.geopmread("CPU_FREQUENCY_STEP board 0")
         cls._freq_default = cls._freq_sticker - cls._freq_step
 
         if not cls._skip_launch:
