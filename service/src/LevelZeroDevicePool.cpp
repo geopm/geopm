@@ -5,6 +5,7 @@
 
 #include "config.h"
 
+#include <iostream>
 #include <string>
 #include <cstdint>
 
@@ -411,6 +412,30 @@ namespace geopm
         return energy;
     }
 
+    double LevelZeroDevicePoolImp::performance_factor(int domain,
+                                                      unsigned int domain_idx,
+                                                      int l0_domain) const
+    {
+        double result = NAN;
+        if (domain == GEOPM_DOMAIN_BOARD_ACCELERATOR) {
+            check_idx_range(domain, domain_idx);
+
+            result = m_levelzero.performance_factor(domain, domain_idx, l0_domain, 0);
+        }
+        else if (domain == GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP) {
+            std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
+            dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
+
+            check_domain_exists(m_levelzero.perf_domain_count(domain,
+                                            dev_subdev_idx_pair.first, l0_domain),
+                                            __func__, __LINE__);
+
+            result = m_levelzero.performance_factor(domain, dev_subdev_idx_pair.first,
+                                                    l0_domain, dev_subdev_idx_pair.second);
+        }
+        return result;
+    }
+
     void LevelZeroDevicePoolImp::frequency_control(int domain, unsigned int domain_idx,
                                                    int l0_domain, double range_min,
                                                    double range_max) const
@@ -430,5 +455,25 @@ namespace geopm
         m_levelzero.frequency_control(dev_subdev_idx_pair.first, l0_domain,
                                       dev_subdev_idx_pair.second, range_min,
                                       range_max);
+    }
+
+    void LevelZeroDevicePoolImp::performance_factor_control(int domain, unsigned int domain_idx,
+                                                            int l0_domain, double setting) const
+    {
+        if (domain == GEOPM_DOMAIN_BOARD_ACCELERATOR) {
+            check_idx_range(domain, domain_idx);
+            m_levelzero.performance_factor_control(domain, domain_idx, l0_domain, 0, setting);
+        }
+        else if (domain == GEOPM_DOMAIN_BOARD_ACCELERATOR) {
+            std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
+            dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
+
+            check_domain_exists(m_levelzero.perf_domain_count(domain,
+                                            dev_subdev_idx_pair.first, l0_domain),
+                                            __func__, __LINE__);
+
+            m_levelzero.performance_factor_control(domain, dev_subdev_idx_pair.first,
+                                                   l0_domain, dev_subdev_idx_pair.second, setting);
+        }
     }
 }

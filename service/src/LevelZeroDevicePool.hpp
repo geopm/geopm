@@ -146,6 +146,10 @@ namespace geopm
             virtual uint64_t energy_timestamp(int domain, unsigned int domain_idx,
                                               int l0_domain) const = 0;
 
+            virtual double performance_factor(int domain,
+                                              unsigned int domain_idx,
+                                              int l0_domain) const = 0;
+
             // FREQUENCY CONTROL FUNCTIONS
             /// @brief Set min and max frequency for LevelZero device.
             /// @param [in] domain The GEOPM domain type being targeted
@@ -158,6 +162,9 @@ namespace geopm
                                            int l0_domain, double range_min,
                                            double range_max) const = 0;
 
+            virtual void performance_factor_control(int domain, unsigned int domain_idx,
+                                                    int l0_domain,
+                                                    double setting) const = 0;
         private:
     };
 
