@@ -74,9 +74,12 @@ namespace geopm
             void trace_values(std::vector<double> &values) override;
             void enforce_policy(const std::vector<double> &policy) const override;
 
+            /// @return "energy_efficient"
             static std::string plugin_name(void);
             static std::unique_ptr<Agent> make_plugin(void);
+            /// @return a list of policy names
             static std::vector<std::string> policy_names(void);
+            /// @return a list of sample names
             static std::vector<std::string> sample_names(void);
         private:
             struct geopm_time_s m_last_wait;

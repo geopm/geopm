@@ -10,6 +10,17 @@ geopm::MonitorAgent -- agent that enforces no policies
 
 
 
+NAMESPACES
+----------
+
+The ``MonitorAgent`` class and the ``Agent`` class are members of the ``namespace geopm``\ , but
+the full names, ``geopm::MonitorAgent`` and ``geopm::Agent``, have been abbreviated in this
+manual.  Similarly, the ``std::`` namespace specifier has been omitted from the
+interface definitions for the following standard types: ``std::vector``\ ,
+``std::string``\ , ``std::unique_ptr``\ , and ``std::function``\ , to enable better rendering of
+this manual.
+
+
 SYNOPSIS
 --------
 
@@ -17,14 +28,80 @@ SYNOPSIS
 
 Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
 
+
+.. code-block:: c++
+
+       void MonitorAgent::init(int level,
+                               const vector<int> &fan_in,
+                               bool is_level_root) override;
+
+       void MonitorAgent::validate_policy(vector<double> &policy) const override;
+
+       void MonitorAgent::split_policy(const vector<double> &in_policy,
+                                       vector<vector<double> > &out_policy) override;
+
+       bool MonitorAgent::do_send_policy(void) const override;
+
+       void MonitorAgent::aggregate_sample(const vector<vector<double> > &in_sample,
+                                           vector<double> &out_sample) override;
+
+       bool MonitorAgent::do_send_sample(void) const override;
+
+       void MonitorAgent::adjust_platform(const vector<double> &in_policy) override;
+
+       bool MonitorAgent::do_write_batch(void) const override;
+
+       void MonitorAgent::sample_platform(vector<double> &out_sample) override;
+
+       void MonitorAgent::wait(void) override;
+
+       vector<pair<string, string> > MonitorAgent::report_header(void) const override;
+
+       vector<pair<string, string> > MonitorAgent::report_host(void) const override;
+
+       map<uint64_t, vector<pair<string, string> > > MonitorAgent::report_region(void) const override;
+
+       vector<string> MonitorAgent::trace_names(void) const override;
+
+       vector<function<string(double)> > MonitorAgent::trace_formats(void) const override;
+
+       void MonitorAgent::trace_values(vector<double> &values) override;
+
+       void MonitorAgent::enforce_policy(const vector<double> &policy) const override;
+
 DESCRIPTION
 -----------
+
+The ``MonitorAgent`` class is a derived implementation of `geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3.html>`_ that is used to do sampling only; no policy will be enforced.
+Consequently, it inherits and overrides many of the methods of the ``Agent`` class.
+These overridden methods are described in the ``Agent`` man page.
+Only the methods unique to the ``MonitorAgent`` class are described here.
 
 The behavior of this agent is described in more detail in the
 `geopm_agent_monitor(7) <geopm_agent_monitor.7.html>`_ man page.
 
 For more details, see the doxygen
 page at https://geopm.github.io/dox/classgeopm_1_1_monitor_agent.html.
+
+CLASS METHODS
+-------------
+
+
+* 
+  ``plugin_name()``:
+  Returns the name of the plugin; for ``MonitorAgent`` it appears to be ``"energy_efficient"``.
+
+* 
+  ``make_plugin()``:
+  Creates a new ``unique_ptr<MonitorAgent>`` and returns it.
+
+* 
+  ``policy_names()``:
+  Returns a list of policy names.
+
+* 
+  ``sample_names()``:
+  Returns a list of sample names.
 
 SEE ALSO
 --------
