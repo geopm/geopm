@@ -101,7 +101,7 @@ Agent is responsible for making decisions about how and what control the
 runtime should exert based on readings of system values.  By default
 the `geopm_agent_monitor(7) <geopm_agent_monitor.7.html>`_ is used, but other agents can be
 selected with the ``--geopm-agent`` command line option to the
-**geopm_launcher(1)** or ``GEOPM_AGENT`` environment variable.  Exactly
+`geopm_launcher(1) <geopm_launcher.1.html>`_ or ``GEOPM_AGENT`` environment variable.  Exactly
 one agent type is used during each execution of the GEOPM runtime.
 
 The `geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3.html>`_ man page gives a general overview of
@@ -169,7 +169,7 @@ CLASS METHODS
   between ``self`` and any leaf ``Agent``.  Only when *level* is zero
   will the ``sample_platform()`` and ``adjust_platform()`` methods be
   called.  If the *level* is zero then the ``init()`` method should
-  push all signals and controls for **PlatformIO(3)**.  The *fan_in**
+  push all signals and controls for `PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3.html>`_.  The *fan_in**
   is a vector indexed by *level* that describes the number of
   siblings that an ``Agent`` at *level* has which share a parent.  The
   figure below represents a tree with ``fan_in == {4,3,2}`` where each
