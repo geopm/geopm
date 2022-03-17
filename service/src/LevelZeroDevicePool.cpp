@@ -464,7 +464,7 @@ namespace geopm
             check_idx_range(domain, domain_idx);
             m_levelzero.performance_factor_control(domain, domain_idx, l0_domain, 0, setting);
         }
-        else if (domain == GEOPM_DOMAIN_BOARD_ACCELERATOR) {
+        else if (domain == GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP) {
             std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
             dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
 
