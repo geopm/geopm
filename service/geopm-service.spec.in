@@ -28,37 +28,41 @@
 #  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+
+# Packages: geopm-service, geopm-service-devel, libgeopmd0, python3-geopmdpy
+
 Summary: Global Extensible Open Power Manager Service
 Name: geopm-service
 Version: @VERSION@
 Release: 1
 License: BSD-3-Clause
-Group: System Environment/Libraries
+%if 0%{?rhel_version} || 0%{?centos_version}
+# Deprecated for RHEL and CentOS
+Group: System Environment/Daemons
+%else
+Group: System/Daemons
+%endif
 Vendor: Intel Corporation
 URL: https://geopm.github.io
 Source0: geopm-service.tar.gz
 BuildRoot: %{_tmppath}/geopm-service-%{version}-%{release}-root
+Prefix: %{_prefix}
+
 BuildRequires: gcc-c++
 BuildRequires: unzip
 BuildRequires: libtool
-BuildRequires: systemd-devel
-
-%global debug_package %{nil}
-
-%define python_major_version 3
+BuildRequires: systemd-devel >= 221
 BuildRequires: python3
 BuildRequires: python3-devel
-%define python_bin %{__python3}
-
+BuildRequires: python3-setuptools
 %if 0%{?suse_version}
-Requires: python3-gobject
-%else
-Requires: python3-gobject-base
+BuildRequires: fdupes
+BuildRequires: libdbus-1-3
+BuildRequires: systemd-rpm-macros
+BuildRequires: python-rpm-macros
 %endif
-Requires: python3-dasbus
-Requires: python3-jsonschema
 
-Prefix: %{_prefix}
+%global debug_package %{nil}
 
 %if %{defined suse_version}
 %define docdir %{_defaultdocdir}/geopm
@@ -66,31 +70,90 @@ Prefix: %{_prefix}
 %define docdir %{_defaultdocdir}/geopm-%{version}
 %endif
 
+%define python_bin %{__python3}
+
 %{!?python3_pkgversion:%global python3_pkgversion 3}
 
+%define python_major_version 3
+
+Requires: python%{python3_pkgversion}-geopmdpy
+
 %description
-The service package for GEOPM that runs the geopmd daemon.
 
-%prep
+The GEOPM Service provides a user-level interface to read telemetry
+and configure settings of heterogeneous hardware platforms. Linux
+system administrators may manage permissions for user access to
+telemetry and configuration at a fine granularity.  This package
+includes the geopm systemd service unit that provides a DBus interface
+io.github.geopm.  Additionally the libgeopmd.so shared object library
+is installed with this package.
 
-%setup -n geopm-service-%{version}
+
+%package devel
+
+Summary: Global Extensible Open Power Manager Service - development
+%if 0%{?rhel_version} || 0%{?centos_version}
+# Deprecated for RHEL and CentOS
+Group: Development/Libraries
+%else
+Group: Development/Libraries/C and C++
+%endif
+Requires: libgeopmd0 == %{version}
+Requires: geopm-service == %{version}
+
+%description devel
+
+Development package for the GEOPM Service.  This provides the
+programing interface to libgeopmd.so.  The package includes the C and
+C++ header files, maunuals for these interfaces and the unversioned
+libgeopmd.so shared object symbolic link.
+
+%package -n libgeopmd0
+
+Summary: Provides libgeopmd shared object library
+%if 0%{?rhel_version} || 0%{?centos_version}
+# Deprecated for RHEL and CentOS
+Group: System Environment/Libraries
+%else
+Group: System/Libraries
+%endif
+
+%description -n libgeopmd0
+
+Library supporting the GEOPM Service.  This provides the libgeopmd
+library which provides C and C++ interfaces.
 
 %package -n python%{python3_pkgversion}-geopmdpy
-Summary: Global Extensible Open Power Manager Service - python %{python_major_version}
+
+Summary: The geopmdpy Python package for the GEOPM Service
+%if 0%{?rhel_version} || 0%{?centos_version}
+# Deprecated for RHEL and CentOS
 Group: System Environment/Libraries
-Requires: geopm-service
+%else
+Group: Development/Libraries/Python
+%endif
+
+%if 0%{?suse_version}
+Requires: python3-gobject
+%else
+Requires: python3-gobject-base
+%endif
+Requires: python3-dasbus >= 1.6
+Requires: python3-jsonschema
+Requires: python3-psutil
+Requires: libgeopmd0
+
 %{?python_provide:%python_provide python%{python3_pkgversion}-geopmdpy}
 
 %description -n python%{python3_pkgversion}-geopmdpy
-Python %{python_major_version} package for GEOPM service.
 
-%package devel
-Summary: Global Extensible Open Power Manager Service - development
-Group: System Environment/Libraries
-Requires: geopm-service
+Python %{python_major_version} package for GEOPM service.  Provides
+the implementation for the geopmd service daemon and interfaces for
+configuring the service.
 
-%description devel
-Development package for the GEOPM Service.
+# Steps for all packages
+%prep
+%setup
 
 %build
 ./autogen.sh
@@ -108,70 +171,77 @@ CFLAGS= CXXFLAGS= CC=gcc CXX=g++ \
 %{__make} DESTDIR=%{buildroot} install
 rm -f $(find %{buildroot}/%{_libdir} -name '*.a'; \
         find %{buildroot}/%{_libdir} -name '*.la')
-
 install -Dp -m644 geopm.service %{buildroot}%{_unitdir}/geopm.service
-install -Dp -m644 io.github.geopm.conf %{buildroot}%{_sysconfdir}/dbus-1/system.d/io.github.geopm.conf
-install -Dp -m644 io.github.geopm.xml %{buildroot}%{_sysconfdir}/dbus-1/interfaces/io.github.geopm.xml
+install -Dp -m644 io.github.geopm.conf %{buildroot}%{_datadir}/dbus-1/system.d/io.github.geopm.conf
+install -Dp -m644 io.github.geopm.xml %{buildroot}%{_datadir}/dbus-1/interfaces/io.github.geopm.xml
 mkdir -p %{buildroot}%{_sysconfdir}/geopm-service
+mkdir -p %{buildroot}%{_sbindir}
+ln -s /usr/sbin/service %{buildroot}%{_sbindir}/rcgeopm
+%if 0%{?suse_version}
+%python_expand %fdupes %{buildroot}%{python3_sitelib}
+%endif
 
 %clean
 
-%post
-/sbin/ldconfig
+%pre -n geopm-service
+%if 0%{?suse_version}
+%service_add_pre geopm.service
+%endif
+
+%post -n geopm-service
+%if 0%{?rhel_version} || 0%{?centos_version}
 %systemd_post geopm.service
+%else
+%service_add_post geopm.service
+%endif
 
-%preun
-%systemd_preun geopm.service
-
-%postun
+%post -n libgeopmd0
 /sbin/ldconfig
+
+%preun -n geopm-service
+%if 0%{?rhel_version} || 0%{?centos_version}
+%systemd_preun geopm.service
+%else
+%service_del_preun geopm.service
+%endif
+
+%postun -n geopm-service
+%if 0%{?rhel_version} || 0%{?centos_version}
 %systemd_postun_with_restart geopm.service
+%else
+%service_del_postun geopm.service
+%endif
+
+%postun -n libgeopmd0
+/sbin/ldconfig
+
+# Installed files
 
 %files
-%defattr(-,root,root,-)
-%{_libdir}/libgeopmd.so.0.0.0
-%{_libdir}/libgeopmd.so.0
-%{_libdir}/libgeopmd.so
-%dir %{_libdir}/geopm-service
-%{_bindir}/geopmd
+%{_sbindir}/rcgeopm
 %{_bindir}/geopmread
 %{_bindir}/geopmwrite
-%{_sysconfdir}/dbus-1/system.d/io.github.geopm.conf
-%{_sysconfdir}/dbus-1/interfaces/io.github.geopm.xml
+%{_datadir}/dbus-1/system.d/io.github.geopm.conf
+%{_datadir}/dbus-1/interfaces/io.github.geopm.xml
 %{_unitdir}/geopm.service
 %dir %{_sysconfdir}/geopm-service
 %doc %{_mandir}/man1/geopmread.1.gz
 %doc %{_mandir}/man1/geopmwrite.1.gz
-%doc %{_mandir}/man3/geopm::Agg.3.gz
-%doc %{_mandir}/man3/geopm::CircularBuffer.3.gz
-%doc %{_mandir}/man3/geopm::CNLIOGroup.3.gz
-%doc %{_mandir}/man3/geopm::CpuinfoIOGroup.3.gz
-%doc %{_mandir}/man3/geopm::Exception.3.gz
-%doc %{_mandir}/man3/geopm::Helper.3.gz
-%doc %{_mandir}/man3/geopm::IOGroup.3.gz
-%doc %{_mandir}/man3/geopm::MSRIO.3.gz
-%doc %{_mandir}/man3/geopm::MSRIOGroup.3.gz
-%doc %{_mandir}/man3/geopm::PlatformIO.3.gz
-%doc %{_mandir}/man3/geopm::PlatformTopo.3.gz
-%doc %{_mandir}/man3/geopm::PluginFactory.3.gz
-%doc %{_mandir}/man3/geopm::SampleAggregator.3.gz
-%doc %{_mandir}/man3/geopm::SharedMemory.3.gz
-%doc %{_mandir}/man3/geopm::TimeIOGroup.3.gz
-%doc %{_mandir}/man3/geopm_error.3.gz
-%doc %{_mandir}/man3/geopm_hash.3.gz
-%doc %{_mandir}/man3/geopm_pio_c.3.gz
-%doc %{_mandir}/man3/geopm_sched.3.gz
-%doc %{_mandir}/man3/geopm_time.3.gz
-%doc %{_mandir}/man3/geopm_topo_c.3.gz
-%doc %{_mandir}/man3/geopm_version.3.gz
 %doc %{_mandir}/man7/geopm.7.gz
 %doc %{_mandir}/man7/geopm_report.7.gz
+
+%files -n libgeopmd0
+%defattr(-,root,root,-)
+%{_libdir}/libgeopmd.so.0.0.0
+%{_libdir}/libgeopmd.so.0
+%dir %{_libdir}/geopm-service
 
 %files -n python%{python3_pkgversion}-geopmdpy
 %{expand:%{python%{python_major_version}_sitelib}}/*
 %doc %{_mandir}/man1/geopmaccess.1.gz
 %doc %{_mandir}/man1/geopmsession.1.gz
 %doc %{_mandir}/man7/geopmdpy.7.gz
+%{_bindir}/geopmd
 %{_bindir}/geopmaccess
 %{_bindir}/geopmsession
 
@@ -199,3 +269,31 @@ mkdir -p %{buildroot}%{_sysconfdir}/geopm-service
 %{_includedir}/geopm_time.h
 %{_includedir}/geopm_topo.h
 %{_includedir}/geopm_version.h
+%{_libdir}/libgeopmd.so
+%doc %{_mandir}/man3/geopm::Agg.3.gz
+%doc %{_mandir}/man3/geopm::CircularBuffer.3.gz
+%doc %{_mandir}/man3/geopm::CNLIOGroup.3.gz
+%doc %{_mandir}/man3/geopm::CpuinfoIOGroup.3.gz
+%doc %{_mandir}/man3/geopm::Exception.3.gz
+%doc %{_mandir}/man3/geopm::Helper.3.gz
+%doc %{_mandir}/man3/geopm::IOGroup.3.gz
+%doc %{_mandir}/man3/geopm::MSRIO.3.gz
+%doc %{_mandir}/man3/geopm::MSRIOGroup.3.gz
+%doc %{_mandir}/man3/geopm::PlatformIO.3.gz
+%doc %{_mandir}/man3/geopm::PlatformTopo.3.gz
+%doc %{_mandir}/man3/geopm::PluginFactory.3.gz
+%doc %{_mandir}/man3/geopm::SampleAggregator.3.gz
+%doc %{_mandir}/man3/geopm::SharedMemory.3.gz
+%doc %{_mandir}/man3/geopm::TimeIOGroup.3.gz
+%doc %{_mandir}/man3/geopm_error.3.gz
+%doc %{_mandir}/man3/geopm_hash.3.gz
+%doc %{_mandir}/man3/geopm_pio_c.3.gz
+%doc %{_mandir}/man3/geopm_sched.3.gz
+%doc %{_mandir}/man3/geopm_time.3.gz
+%doc %{_mandir}/man3/geopm_topo_c.3.gz
+%doc %{_mandir}/man3/geopm_version.3.gz
+
+
+%changelog
+* Fri Mar 18 2022 <christopher.m.cantalupo@intel.com> v2.0.0-rc
+- Work on spec file for GEOPM v2.0 release candidate.
