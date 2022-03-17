@@ -483,13 +483,12 @@ namespace geopm
                                       int &core_per_package,
                                       int &thread_per_core)
     {
-        const std::string keys[6] = {"CPU(s)",
-                                     "Thread(s) per core",
-                                     "Core(s) per socket",
-                                     "Socket(s)",
-                                     "NUMA node(s)",
-                                     "On-line CPU(s) mask"};
-        std::vector<std::string> values(6);
+        std::vector<std::string> keys = {"CPU(s)",
+                                         "Thread(s) per core",
+                                         "Core(s) per socket",
+                                         "Socket(s)",
+                                         "On-line CPU(s) mask"};
+        std::vector<std::string> values(keys.size());
 
         for (size_t i = 0; i < values.size(); ++i) {
             auto it = lscpu_map.find(keys[i]);
@@ -511,7 +510,7 @@ namespace geopm
         int total_cores_expected_online = num_package * core_per_package * thread_per_core;
         if (total_cores_expected_online != atoi(values[0].c_str())) {
             // Check how many CPUs are actually online
-            std::string online_cpu_mask = values[5];
+            std::string online_cpu_mask = values[4];
             if (online_cpu_mask.substr(0,2) == "0x") {
                 online_cpu_mask = online_cpu_mask.substr(2);
             }
