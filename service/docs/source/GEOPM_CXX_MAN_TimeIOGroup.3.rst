@@ -10,222 +10,229 @@ geopm::TimeIOGroup(3) -- IOGroup providing time signals
 
 
 
+NAMESPACES
+----------
+
+The ``TimeIOGroup`` class and the ``IOGroup`` class are members of the ``namespace geopm``\ , but
+the full names, ``geopm::TimeIOGroup`` and ``geopm::IOGroup``, have been abbreviated in this
+manual.  Similarly, the ``std::`` namespace specifier has been omitted from the
+interface definitions for the following standard types: ``std::vector``\ ,
+``std::string``\ , ``std::set``\ , ``std::unique_ptr``\ , and ``std::function``\ , to enable better rendering of
+this manual.
+
+
 SYNOPSIS
 --------
 
 #include `<geopm/TimeIOGroup.hpp> <https://github.com/geopm/geopm/blob/dev/src/TimeIOGroup.hpp>`_\ 
 
-``Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)``
+Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
 
 
-* 
-  ``virtual set<string> signal_names(``\ :
-  ``void) const = 0``\ ;
+.. code-block:: c++
 
-* 
-  ``virtual set<string> control_names(``\ :
-  ``void) const = 0``\ ;
+       set<string> TimeIOGroup::signal_names(void) const override;
 
-* 
-  ``virtual bool is_valid_signal(``\ :
-  `const string &`_signal\ *name*\ ``) const = 0;``
+       set<string> TimeIOGroup::control_names(void) const override;
 
-* 
-  ``virtual bool is_valid_control(``\ :
-  `const string &`_control\ *name*\ ``) const = 0;``
+       bool TimeIOGroup::is_valid_signal(const string &signal_name) const override;
 
-* 
-  ``virtual int signal_domain_type(``\ :
-  `const string &`_signal\ *name*\ ``) const = 0;``
+       bool TimeIOGroup::is_valid_control(const string &control_name) const override;
 
-* 
-  ``virtual int control_domain_type(``\ :
-  `const string &`_control\ *name*\ ``) const = 0;``
+       int TimeIOGroup::signal_domain_type(const string &signal_name) const override;
 
-* 
-  ``virtual int push_signal(``\ :
-  `const string &`_signal\ *name*\ ``,`` :raw-html-m2r:`<br>`
-  ``int`` _domain\ *type*\ ``,`` :raw-html-m2r:`<br>`
-  ``int`` _domain\ *idx*\ ``) = 0``\ ;
+       int TimeIOGroup::control_domain_type(const string &control_name) const override;
 
-* 
-  ``virtual int push_control(``\ :
-  `const string &`_control\ *name*\ ``,`` :raw-html-m2r:`<br>`
-  ``int`` _domain\ *type*\ ``,`` :raw-html-m2r:`<br>`
-  ``int`` _domain\ *idx*\ ``) = 0``\ ;
+       int TimeIOGroup::push_signal(const string &signal_name,
+                                    int domain_type,
+                                    int domain_idx) override;
 
-* 
-  ``virtual void read_batch(``\ :
-  ``void) = 0``\ ;
+       int TimeIOGroup::push_control(const string &control_name,
+                                     int domain_type,
+                                     int domain_idx) override;
 
-* 
-  ``virtual void write_batch(``\ :
-  ``void) = 0``\ ;
+       void TimeIOGroup::read_batch(void) override;
 
-* 
-  ``virtual double sample(``\ :
-  ``int`` _sample\ *idx*\ ``) = 0;``
+       void TimeIOGroup::write_batch(void) override;
 
-* 
-  ``virtual void adjust(``\ :
-  ``int`` _control\ *idx*\ ``,`` :raw-html-m2r:`<br>`
-  ``double`` *setting*\ ``) = 0;``
+       double TimeIOGroup::sample(int batch_idx) override;
 
-* 
-  ``virtual double read_signal(``\ :
-  `const string &`_signal\ *name*\ ``,`` :raw-html-m2r:`<br>`
-  ``int`` _domain\ *type*\ ``,`` :raw-html-m2r:`<br>`
-  ``int`` _domain\ *idx*\ ``) = 0;``
+       void TimeIOGroup::adjust(int batch_idx,
+                                double setting) override;
 
-* 
-  ``virtual void write_control(``\ :
-  `const string &`_control\ *name*\ ``,`` :raw-html-m2r:`<br>`
-  ``int`` _domain\ *type*\ ``,`` :raw-html-m2r:`<br>`
-  ``int`` _domain\ *idx*\ ``,`` :raw-html-m2r:`<br>`
-  ``double`` *setting*\ ``) = 0;``
+       double TimeIOGroup::read_signal(const string &signal_name,
+                                       int domain_type,
+                                       int domain_idx) override;
 
-* 
-  ``virtual void save_control(``\ :
-  ``void) = 0``\ ;
+       void TimeIOGroup::write_control(const string &control_name,
+                                       int domain_type,
+                                       int domain_idx,
+                                       double setting) override;
 
-* 
-  ``virtual void restore_control(``\ :
-  ``void) = 0``\ ;
+       void TimeIOGroup::save_control(void) override;
 
-* 
-  ``virtual function<double(const vector<double> &)> agg_function(``\ :
-  `const string &`_signal\ *name*\ ``) const = 0;``
+       void TimeIOGroup::restore_control(void) override;
 
-* 
-  ``virtual string signal_description(``\ :
-  `const string &`_signal\ *name*\ ``) const = 0;``
+       function<double(const vector<double> &)> TimeIOGroup::agg_function(const string &signal_name) const override;
 
-* 
-  ``virtual string control_description(``\ :
-  `const string &`_control\ *name*\ ``) const = 0;``
+       function<string(double)> TimeIOGroup::format_function(const string &signal_name) const override;
 
-* 
-  ``static std::string plugin_name(``\ :
-  ``void);``
+       string TimeIOGroup::signal_description(const string &signal_name) const override;
 
-* 
-  ``static std::unique_ptr<IOGroup> make_plugin(``\ :
-  ``void);``
+       string TimeIOGroup::control_description(const string &control_name) const override;
+
+       int TimeIOGroup::signal_behavior(const string &signal_name) const override;
+
+       void TimeIOGroup::save_control(const string &save_path) override;
+
+       void TimeIOGroup::restore_control(const string &save_path) override;
+
+       string TimeIOGroup::name(void) const override;
+
+       static string TimeIOGroup::plugin_name(void);
+
+       static unique_ptr<IOGroup> TimeIOGroup::make_plugin(void);
 
 DESCRIPTION
 -----------
 
-This IOGroup provides an implementation of the TIME signal for the
-time since GEOPM startup.
+The ``TimeIOGroup`` class is a derived implementation of `geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3.html>`_
+that provides an implementation of the ``TIME`` signal for the time since GEOPM startup.
 
 CLASS METHODS
 -------------
 
 
 * 
-  ``signal_names``\ ():
-  Returns the time signal name, "TIME::ELAPSED", and its alias, "TIME".
+  ``signal_names()``:
+  Returns the time signal name, ``"TIME::ELAPSED"``, and its alias, ``"TIME"``.
 
 * 
-  ``control_names``\ ():
-  Does nothing; this IOGroup does not provide any controls.
+  ``control_names()``:
+  Does nothing; this ``IOGroup`` does not provide any controls.
 
 * 
-  ``is_valid_signal``\ ():
-  Returns true if the _signal_name is one from the list returned by
-  signal_names().
+  ``is_valid_signal()``:
+  Returns ``true`` if the *signal_name* is one from the list returned by
+  ``signal_names()``.
 
 * 
-  ``is_valid_control``\ ():
-  Returns false; this IOGroup does not provide any controls.
+  ``is_valid_control()``:
+  Returns ``false``; this ``IOGroup`` does not provide any controls.
 
 * 
-  ``signal_domain_type``\ ():
-  If the _signal\ *name* is valid for this IOGroup, returns
-  M_DOMAIN_BOARD.
+  ``signal_domain_type()``:
+  If the *signal_name* is valid for this ``IOGroup``, returns
+  ``GEOPM_DOMAIN_CPU``, returns ``GEOPM_DOMAIN_INVALID``.
 
 * 
-  ``control_domain_type``\ ():
-  Returns M_DOMAIN_INVALID; this IOGroup does not provide any controls.
+  ``control_domain_type()``:
+  Returns ``GEOPM_DOMAIN_INVALID``; this ``IOGroup`` does not provide any controls.
 
 * 
-  ``push_signal``\ ():
-  Since this IOGroup only provides one signal, returns 0 if the _signal\ *name*
-  is valid.  The _domain\ *type* and _domain\ *idx* are ignored.
+  ``push_signal()``:
+  Since this ``IOGroup`` only provides one signal, returns ``0`` if the *signal_name*
+  is valid. Throws a variety of exceptions if the parameters do not check out.
+  The *domain_idx* parameter is ignored.
 
 * 
-  ``push_control``\ ():
-  Should not be called; this IOGroup does not provide any controls.
+  ``push_control()``:
+  Should not be called; this ``IOGroup`` does not provide any controls.
+  Throws an exception always.
 
 * 
-  ``read_batch``\ ():
+  ``read_batch()``:
   If a time signal has been pushed, updates the time since the
-  TimeIOGroup was created.
+  ``TimeIOGroup`` was created.
 
 * 
-  ``write_batch``\ ():
-  Does nothing; this IOGroup does not provide any controls.
+  ``write_batch()``:
+  Does nothing; this ``IOGroup`` does not provide any controls.
 
 * 
-  ``sample``\ ():
-  Returns the value of the signal specified by a _signal\ *idx*
-  returned from push_signal().  The value will have been updated by
-  the most recent call to read_batch().
+  ``sample()``:
+  Returns the value of the signal specified by a *batch_idx*
+  returned from ``push_signal()``.  The value will have been updated by
+  the most recent call to ``read_batch()``.
+  Throws a variety of exceptions to distinguish between error conditions.
 
 * 
-  ``adjust``\ ():
-  Should not be called; this IOGroup does not provide any controls.
+  ``adjust()``:
+  Should not be called; this ``IOGroup`` does not provide any controls.
+  Throws an exception always.
 
 * 
-  ``read_signal``\ ():
-  If _signal\ *name* is valid, immediately return the time since the
-  TimeIOGroup was created.
+  ``read_signal()``:
+  If *signal_name* is valid, immediately return the time since the
+  ``TimeIOGroup`` was created.
+  Throws a variety of exceptions if the parameters do not check out.
+  The *domain_idx* parameter is ignored.
 
 * 
-  ``write_control``\ ():
-  Should not be called; this IOGroup does not provide any controls.
+  ``write_control()``:
+  Should not be called; this ``IOGroup`` does not provide any controls.
+  Throws an exception always.
 
 * 
-  ``save_control``\ ():
-  Does nothing; this IOGroup does not provide any controls.
+  ``save_control()``:
+  This function also has an overload form that takes the *save_path* parameter.
+  Does nothing in both of its forms; this ``IOGroup`` does not provide any controls.
 
 * 
-  ``restore_control``\ ():
-  Does nothing; this IOGroup does not provide any controls.
+  ``restore_control()``:
+  This function also has an overload form that takes the *save_path* parameter.
+  Does nothing in both of its forms; this ``IOGroup`` does not provide any controls.
 
 * 
-  ``agg_function``\ ():
-  The TIME signal provided by this IOGroup is aggregated using the
-  average() function from `geopm::Agg(3) <GEOPM_CXX_MAN_Agg.3.html>`_.
+  ``agg_function()``:
+  The ``TIME`` signal provided by this ``IOGroup`` is aggregated using the
+  ``average()`` function from `geopm::Agg(3) <GEOPM_CXX_MAN_Agg.3.html>`_.
+  Throws an exception if the *signal_name* is invalid.
 
 * 
-  ``signal_description``\ ():
-  Returns a string description for _signal\ *name*\ , if defined.
+  ``format_function()``:
+  Returns a function which formats a string to best represent a signal encoding a
+  double precision floating point number. The function takes the *signal*,
+  a real number that requires a few significant digits to accurately represent.
+  The function returns a well formatted string representation of the signal.
+  Throws an exception if the *signal_name* is invalid.
 
 * 
-  ``control_description``\ ():
-  Does nothing; this IOGroup does not provide any controls.
+  ``signal_description()``:
+  Returns a string description for *signal_name*\ , if defined.
 
 * 
-  ``signal_behavior``\ ():
-  Returns one of the IOGroup::signal_behavior_e values which
+  ``control_description()``:
+  Should not be called; this ``IOGroup`` does not provide any controls.
+  Throws an exception always.
+
+* 
+  ``signal_behavior()``:
+  Returns one of the ``IOGroup::signal_behavior_e`` values which
   describes about how a signal will change as a function of time.
   This can be used when generating reports to decide how to
   summarize a signal's value for the entire application run.
+  Throws an exception if the *signal_name* is invalid.
 
 * 
-  ``plugin_name``\ ():
+  ``name()``:
+  Just calls ``plugin_name()`` under the hood.
+
+* 
+  ``plugin_name()``:
   Returns the name of the plugin to use when this plugin is
-  registered with the IOGroup factory; see
+  registered with the ``IOGroup`` factory; see
   `geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3.html>`_ for more details.
 
 * 
-  ``make_plugin``\ ():
-  Returns a pointer to a new TimeIOGroup object; see
+  ``make_plugin()``:
+  Returns a pointer to a new ``TimeIOGroup`` object; see
   `geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3.html>`_ for more details.
 
 SEE ALSO
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,
-`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3.html>`_
+`geopm::Agg(3) <GEOPM_CXX_MAN_Agg.3.html>`_\ ,
+`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3.html>`_\ ,
+`geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3.html>`_
