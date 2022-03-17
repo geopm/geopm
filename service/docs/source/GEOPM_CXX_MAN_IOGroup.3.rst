@@ -51,7 +51,7 @@ Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
 
        int IOGroup::push_signal(const string &signal_name,
                                 int domain_type,
-                                int domain_idx0;
+                                int domain_idx);
 
        int IOGroup::push_control(const string &control_name,
                                  int domain_type,
