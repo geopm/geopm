@@ -17,8 +17,8 @@ The ``MSRIO`` class is a member of the ``namespace geopm``\ , but the
 full name, ``geopm::MSRIO``\ , has been abbreviated in this manual.
 Similarly, the ``std::`` namespace specifier has been omitted from the
 interface definitions for the following standard types: ``std::vector``\ ,
-``std::string``\ , and ``std::set``\ , to enable better rendering of this
-manual.
+``std::string``\ , ``std::set``\ , ``std::unique_ptr``\ , ``std::shared_ptr``
+to enable better rendering of this manual.
 
 SYNOPSIS
 --------
@@ -63,6 +63,8 @@ The MSRIO class handles reading and writing to Model-Specific Registers (MSRs).
 The implementation uses msr-safe, found at https://github.com/LLNL/msr-safe
 to allow access to a controlled set of MSRs from user space.
 Refer to `geopm::MSR(3) <GEOPM_CXX_MAN_MSR.3.html>`_ for more details.
+
+This class is an abstract base class.
 
 CLASS METHODS
 -------------
