@@ -432,15 +432,15 @@ namespace geopm
                                   }},
                               {M_NAME_PREFIX + "GPU_PERFORMANCE_FACTOR", {
                                   "Performance Factor of the Domain",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                  GEOPM_DOMAIN_GPU,
                                   Agg::average,
-                                  IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
                                   {},
                                   [this](unsigned int domain_idx) -> double
                                   {
                                       return this->m_levelzero_device_pool.performance_factor(
-                                                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                                                  GEOPM_DOMAIN_GPU,
                                                                   domain_idx,
                                                                   geopm::LevelZero::M_DOMAIN_ALL);
                                   },
@@ -448,19 +448,36 @@ namespace geopm
                                   }},
                               {M_NAME_PREFIX + "GPUCHIP_PERFORMANCE_FACTOR_COMPUTE", {
                                   "Performance Factor of the Per Tile compute domain",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                  GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
                                   {},
                                   [this](unsigned int domain_idx) -> double
                                   {
                                       return this->m_levelzero_device_pool.performance_factor(
-                                                                  GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                                                  GEOPM_DOMAIN_GPU_CHIP,
                                                                   domain_idx,
                                                                   geopm::LevelZero::M_DOMAIN_COMPUTE);
                                   },
                                   .01
-                                  }}
+                                  }},
+                              {M_NAME_PREFIX + "GPUCHIP_PERFORMANCE_FACTOR_MEMORY", {
+                                  "Performance Factor of the Per Tile memory domain",
+                                  GEOPM_DOMAIN_GPU_CHIP,
+                                  Agg::average,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
+                                  string_format_double,
+                                  {},
+                                  [this](unsigned int domain_idx) -> double
+                                  {
+                                      return this->m_levelzero_device_pool.performance_factor(
+                                                                  GEOPM_DOMAIN_GPU_CHIP,
+                                                                  domain_idx,
+                                                                  geopm::LevelZero::M_DOMAIN_MEMORY);
+                                  },
+                                  .01
+                                  }},
                              })
         , m_control_available({{M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_CONTROL", {
                                     "Sets the minimum frequency request for the GPU Compute Hardware.",
@@ -479,14 +496,21 @@ namespace geopm
                                {M_NAME_PREFIX + "GPU_PERFORMANCE_FACTOR_CONTROL", {
                                     "Performance Factor",
                                     {},
-                                    GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                    GEOPM_DOMAIN_GPU,
                                     Agg::average,
                                     string_format_double
                                     }},
                                {M_NAME_PREFIX + "GPUCHIP_PERFORMANCE_FACTOR_COMPUTE_CONTROL", {
                                     "Performance Factor",
                                     {},
-                                    GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                    GEOPM_DOMAIN_GPU_CHIP,
+                                    Agg::average,
+                                    string_format_double
+                                    }},
+                               {M_NAME_PREFIX + "GPUCHIP_PERFORMANCE_FACTOR_MEMORY_CONTROL", {
+                                    "Performance Factor",
+                                    {},
+                                    GEOPM_DOMAIN_GPU_CHIP,
                                     Agg::average,
                                     string_format_double
                                     }}
@@ -1052,6 +1076,11 @@ namespace geopm
         else if(control_name == M_NAME_PREFIX + "GPUCHIP_PERFORMANCE_FACTOR_COMPUTE_CONTROL") {
             m_levelzero_device_pool.performance_factor_control(domain_type, domain_idx,
                                                                geopm::LevelZero::M_DOMAIN_COMPUTE,
+                                                               setting*100);
+        }
+        else if(control_name == M_NAME_PREFIX + "GPUCHIP_PERFORMANCE_FACTOR_MEMORY_CONTROL") {
+            m_levelzero_device_pool.performance_factor_control(domain_type, domain_idx,
+                                                               geopm::LevelZero::M_DOMAIN_MEMORY,
                                                                setting*100);
         }
         else {
