@@ -265,6 +265,7 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
               test/gtest_links/PlatformTopoTest.hsw_num_domain \
               test/gtest_links/PlatformTopoTest.knl_num_domain \
               test/gtest_links/PlatformTopoTest.no0x_num_domain \
+              test/gtest_links/PlatformTopoTest.no_numa_num_domain \
               test/gtest_links/PlatformTopoTest.parse_error \
               test/gtest_links/PlatformTopoTest.ppc_num_domain \
               test/gtest_links/PlatformTopoTest.singleton_construction \
