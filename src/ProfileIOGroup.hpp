@@ -75,8 +75,11 @@ namespace geopm
             void save_control(const std::string &save_path) override;
             void restore_control(const std::string &save_path) override;
             std::string name(void) const override;
+            /// @return GEOPM_PROFILE_IO_GROUP_PLUGIN_NAME, which expands to "PROFILE".
             static std::string plugin_name(void);
             static std::unique_ptr<IOGroup> make_plugin(void);
+            /// @brief Connect to the application via
+            ///        shared memory.
             void connect(void);
 
         private:
