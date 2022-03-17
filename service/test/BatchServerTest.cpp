@@ -241,7 +241,7 @@ TEST_F(BatchServerTest, run_batch_read)
 
     int idx = 0;
     for (const auto &request : m_signal_config) {
-        EXPECT_CALL(*m_pio_ptr, push_signal(request.name, request.domain,
+        EXPECT_CALL(*m_pio_ptr, push_signal(request.name, request.domain_type,
                                             request.domain_idx))
             .WillOnce(Return(idx))
             .RetiresOnSaturation();
@@ -250,7 +250,7 @@ TEST_F(BatchServerTest, run_batch_read)
 
     idx = 0;
     for (const auto &request : m_control_config) {
-        EXPECT_CALL(*m_pio_ptr, push_control(request.name, request.domain,
+        EXPECT_CALL(*m_pio_ptr, push_control(request.name, request.domain_type,
                                              request.domain_idx))
             .WillOnce(Return(idx))
             .RetiresOnSaturation();
@@ -305,7 +305,7 @@ TEST_F(BatchServerTest, run_batch_read_empty)
 
     int idx = 0;
     for (const auto &request : m_control_config) {
-        EXPECT_CALL(*m_pio_ptr, push_control(request.name, request.domain,
+        EXPECT_CALL(*m_pio_ptr, push_control(request.name, request.domain_type,
                                              request.domain_idx))
             .WillOnce(Return(idx))
             .RetiresOnSaturation();
@@ -347,7 +347,7 @@ TEST_F(BatchServerTest, run_batch_write)
 
     int idx = 0;
     for (const auto &request : m_signal_config) {
-        EXPECT_CALL(*m_pio_ptr, push_signal(request.name, request.domain,
+        EXPECT_CALL(*m_pio_ptr, push_signal(request.name, request.domain_type,
                                             request.domain_idx))
             .WillOnce(Return(idx))
             .RetiresOnSaturation();
@@ -356,7 +356,7 @@ TEST_F(BatchServerTest, run_batch_write)
 
     // idx should be the same when we use write_batch()
     for (const auto &request : m_control_config) {
-        EXPECT_CALL(*m_pio_ptr, push_control(request.name, request.domain,
+        EXPECT_CALL(*m_pio_ptr, push_control(request.name, request.domain_type,
                                              request.domain_idx))
             .WillOnce(Return(idx))
             .RetiresOnSaturation();
@@ -408,7 +408,7 @@ TEST_F(BatchServerTest, run_batch_write_empty)
 
     int idx = 0;
     for (const auto &request : m_signal_config) {
-        EXPECT_CALL(*m_pio_ptr, push_signal(request.name, request.domain,
+        EXPECT_CALL(*m_pio_ptr, push_signal(request.name, request.domain_type,
                                             request.domain_idx))
             .WillOnce(Return(idx))
             .RetiresOnSaturation();
@@ -446,7 +446,7 @@ TEST_F(BatchServerTest, receive_message_terminate)
 
     int idx = 0;
     for (const auto &request : m_signal_config) {
-        EXPECT_CALL(*m_pio_ptr, push_signal(request.name, request.domain,
+        EXPECT_CALL(*m_pio_ptr, push_signal(request.name, request.domain_type,
                                             request.domain_idx))
             .WillOnce(Return(idx))
             .RetiresOnSaturation();
@@ -455,7 +455,7 @@ TEST_F(BatchServerTest, receive_message_terminate)
 
     idx = 0;
     for (const auto &request : m_control_config) {
-        EXPECT_CALL(*m_pio_ptr, push_control(request.name, request.domain,
+        EXPECT_CALL(*m_pio_ptr, push_control(request.name, request.domain_type,
                                              request.domain_idx))
             .WillOnce(Return(idx))
             .RetiresOnSaturation();
@@ -479,7 +479,7 @@ TEST_F(BatchServerTest, receive_message_default)
 
     int idx = 0;
     for (const auto &request : m_signal_config) {
-        EXPECT_CALL(*m_pio_ptr, push_signal(request.name, request.domain,
+        EXPECT_CALL(*m_pio_ptr, push_signal(request.name, request.domain_type,
                                             request.domain_idx))
             .WillOnce(Return(idx))
             .RetiresOnSaturation();
@@ -488,7 +488,7 @@ TEST_F(BatchServerTest, receive_message_default)
 
     idx = 0;
     for (const auto &request : m_control_config) {
-        EXPECT_CALL(*m_pio_ptr, push_control(request.name, request.domain,
+        EXPECT_CALL(*m_pio_ptr, push_control(request.name, request.domain_type,
                                              request.domain_idx))
             .WillOnce(Return(idx))
             .RetiresOnSaturation();
@@ -515,7 +515,7 @@ TEST_F(BatchServerTest, receive_message_exception)
 
     int idx = 0;
     for (const auto &request : m_signal_config) {
-        EXPECT_CALL(*m_pio_ptr, push_signal(request.name, request.domain,
+        EXPECT_CALL(*m_pio_ptr, push_signal(request.name, request.domain_type,
                                             request.domain_idx))
             .WillOnce(Return(idx))
             .RetiresOnSaturation();
@@ -524,7 +524,7 @@ TEST_F(BatchServerTest, receive_message_exception)
 
     idx = 0;
     for (const auto &request : m_control_config) {
-        EXPECT_CALL(*m_pio_ptr, push_control(request.name, request.domain,
+        EXPECT_CALL(*m_pio_ptr, push_control(request.name, request.domain_type,
                                              request.domain_idx))
             .WillOnce(Return(idx))
             .RetiresOnSaturation();
@@ -556,7 +556,7 @@ TEST_F(BatchServerTest, write_message_exception)
 
     int idx = 0;
     for (const auto &request : m_signal_config) {
-        EXPECT_CALL(*m_pio_ptr, push_signal(request.name, request.domain,
+        EXPECT_CALL(*m_pio_ptr, push_signal(request.name, request.domain_type,
                                             request.domain_idx))
             .WillOnce(Return(idx))
             .RetiresOnSaturation();
@@ -565,7 +565,7 @@ TEST_F(BatchServerTest, write_message_exception)
 
     idx = 0;
     for (const auto &request : m_control_config) {
-        EXPECT_CALL(*m_pio_ptr, push_control(request.name, request.domain,
+        EXPECT_CALL(*m_pio_ptr, push_control(request.name, request.domain_type,
                                              request.domain_idx))
             .WillOnce(Return(idx))
             .RetiresOnSaturation();
@@ -604,7 +604,7 @@ TEST_F(BatchServerTest, read_batch_exception)
 
     int idx = 0;
     for (const auto &request : m_signal_config) {
-        EXPECT_CALL(*m_pio_ptr, push_signal(request.name, request.domain,
+        EXPECT_CALL(*m_pio_ptr, push_signal(request.name, request.domain_type,
                                             request.domain_idx))
             .WillOnce(Return(idx))
             .RetiresOnSaturation();
@@ -613,7 +613,7 @@ TEST_F(BatchServerTest, read_batch_exception)
 
     idx = 0;
     for (const auto &request : m_control_config) {
-        EXPECT_CALL(*m_pio_ptr, push_control(request.name, request.domain,
+        EXPECT_CALL(*m_pio_ptr, push_control(request.name, request.domain_type,
                                              request.domain_idx))
             .WillOnce(Return(idx))
             .RetiresOnSaturation();
@@ -984,7 +984,7 @@ TEST_F(BatchServerTest, fork_and_terminate_child)
 
         int idx = 0;
         for (const auto &request : m_signal_config) {
-            EXPECT_CALL(*m_pio_ptr, push_signal(request.name, request.domain,
+            EXPECT_CALL(*m_pio_ptr, push_signal(request.name, request.domain_type,
                                                 request.domain_idx))
                 .WillOnce(Return(idx))
                 .RetiresOnSaturation();
@@ -993,7 +993,7 @@ TEST_F(BatchServerTest, fork_and_terminate_child)
 
         idx = 0;
         for (const auto &request : m_control_config) {
-            EXPECT_CALL(*m_pio_ptr, push_control(request.name, request.domain,
+            EXPECT_CALL(*m_pio_ptr, push_control(request.name, request.domain_type,
                                                  request.domain_idx))
                 .WillOnce(Return(idx))
                 .RetiresOnSaturation();
@@ -1094,7 +1094,7 @@ TEST_F(BatchServerTest, fork_and_terminate_parent)
 
         int idx = 0;
         for (const auto &request : m_signal_config) {
-            EXPECT_CALL(*m_pio_ptr, push_signal(request.name, request.domain,
+            EXPECT_CALL(*m_pio_ptr, push_signal(request.name, request.domain_type,
                                                 request.domain_idx))
                 .WillOnce(Return(idx))
                 .RetiresOnSaturation();
@@ -1103,7 +1103,7 @@ TEST_F(BatchServerTest, fork_and_terminate_parent)
 
         idx = 0;
         for (const auto &request : m_control_config) {
-            EXPECT_CALL(*m_pio_ptr, push_control(request.name, request.domain,
+            EXPECT_CALL(*m_pio_ptr, push_control(request.name, request.domain_type,
                                                  request.domain_idx))
                 .WillOnce(Return(idx))
                 .RetiresOnSaturation();
