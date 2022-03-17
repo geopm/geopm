@@ -535,7 +535,6 @@ namespace geopm
     void PlatformTopoImp::parse_lscpu_numa(std::map<std::string, std::string> lscpu_map,
                                            std::vector<std::set<int> > &numa_map)
     {
-        // TODO: what to do if there are no numa node lines?
         bool is_node_found = true;
         for (int node_idx = 0; is_node_found; ++node_idx) {
             std::ostringstream numa_key;
@@ -562,6 +561,13 @@ namespace geopm
                         ++cpu_idx;
                     }
                 }
+            }
+        }
+        if (numa_map.empty()) {
+            int num_cpu = m_num_package * m_core_per_package * m_thread_per_core;
+            numa_map.push_back({});
+            for (int cpu_idx = 0; cpu_idx != num_cpu; ++cpu_idx) {
+                numa_map[0].insert(cpu_idx);
             }
         }
     }
