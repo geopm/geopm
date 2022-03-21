@@ -119,3 +119,49 @@ jobs:
            cat service/geopmdpy_test/pytest_links/*.log || true
            cat test/gtest_links/*.log || true
            cat service/test/gtest_links/*.log || true
+
+  publish_obs:
+    if: github.event_name == 'push'
+    needs: build_and_test
+    name: "publish_obs"
+    runs-on: ubuntu-20.04
+    env:
+      CC: "gcc-9"
+      CXX: "g++-9"
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    - uses: actions/setup-python@v3
+      with:
+        python-version: "3.7"
+    - name: install system dependencies
+      run: sudo apt-get update && sudo apt-get install libsystemd-dev libgirepository1.0-dev osc python3-m2crypto
+    - name: install base and service dir python dependencies
+      run: |
+           python3 -m pip install --upgrade pip setuptools wheel pep517
+           python3 -m pip install -r service/requirements.txt
+    - name: configure service dir
+      working-directory: service
+      run: ./autogen.sh && ./configure
+    - name: make service dist
+      working-directory: service
+      run: make -j2 dist
+    - name: set OSC credentials
+      run: |
+           echo -e "[general]\n\n[https://api.opensuse.org]\ncredentials_mgr_class=osc.credentials.ObfuscatedConfigFileCredentialsManager" > ~/.oscrc
+           echo "user = ${{ github.actor }}" >> ~/.oscrc
+           echo "pass = ${{ secrets.OSC_CREDENTIALS }}" >> ~/.oscrc
+           if [[ "${{ github.ref_name }}" == "release-v2.0-candidate" ]]; then
+               echo "OSC_PACKAGE=home:${{ github.actor }}:${{ github.ref_name }}/geopm-service" >> ${GITHUB_ENV}
+           else
+               echo "OSC_PACKAGE=home:${{ github.actor }}/geopm-service" >> ${GITHUB_ENV}
+           fi
+    - name: publish
+      working-directory: service
+      run: |
+           osc co ${OSC_PACKAGE}
+           cp geopm-service.spec ${OSC_PACKAGE}
+           cp geopm-service*.tar.gz ${OSC_PACKAGE}/geopm-service.tar.gz
+           osc add ${OSC_PACKAGE}/geopm-service.spec ${OSC_PACKAGE}/geopm-service.tar.gz
+           osc ci -m ${{ github.sha }} ${OSC_PACKAGE}
