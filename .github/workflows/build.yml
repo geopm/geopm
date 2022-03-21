@@ -36,11 +36,9 @@ on:
   push:
     branches:
       - dev
-      - geopm-service
   pull_request:
     branches:
       - dev
-      - geopm-service
 
 concurrency:
   group: ci-${{ github.ref }}-${{ github.head_ref }}
