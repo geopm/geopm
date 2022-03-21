@@ -141,11 +141,13 @@ class TestAccess(unittest.TestCase):
                         self._controls_expect)
         self._geopm_proxy.PlatformSetGroupAccess = mock.Mock()
         self._geopm_proxy.PlatformGetGroupAccess = mock.Mock(return_value=return_value)
+        self._geopm_proxy.PlatformGetAllAccess = mock.Mock(return_value=return_value)
         with mock.patch('sys.stdin.readlines', return_value=self._signals_expect):
             self._access.run(True, False, False, '')
             self._geopm_proxy.PlatformGetGroupAccess.assert_called_once_with('')
             self._geopm_proxy.PlatformSetGroupAccess.assert_called_once_with('',
                 self._signals_expect, self._controls_expect)
+            self._geopm_proxy.PlatformGetAllAccess.assert_called_once()
 
     def test_write_default_controls(self):
         """Test command to write to default control access list
@@ -157,11 +159,47 @@ class TestAccess(unittest.TestCase):
                         self._controls_expect)
         self._geopm_proxy.PlatformSetGroupAccess = mock.Mock()
         self._geopm_proxy.PlatformGetGroupAccess = mock.Mock(return_value=return_value)
+        self._geopm_proxy.PlatformGetAllAccess = mock.Mock(return_value=return_value)
         with mock.patch('sys.stdin.readlines', return_value=self._controls_expect):
             self._access.run(True, False, True, '')
             self._geopm_proxy.PlatformGetGroupAccess.assert_called_once_with('')
             self._geopm_proxy.PlatformSetGroupAccess.assert_called_once_with('',
                 self._signals_expect, self._controls_expect)
+            self._geopm_proxy.PlatformGetAllAccess.assert_called_once()
+
+    def test_write_invalid_signals(self):
+        """Test command to write invalid default signal access list
+
+        Test the run() method equivalent to 'geopmaccess -w'
+
+        """
+        return_value = (self._signals_expect,
+                        self._controls_expect)
+        self._geopm_proxy.PlatformGetGroupAccess = mock.Mock(return_value=return_value)
+        self._geopm_proxy.PlatformGetAllAccess = mock.Mock(return_value=([], []))
+        err_msg = f'Requested access to signals that are not available: {", ".join(sorted(self._signals_expect))}'
+        with mock.patch('sys.stdin.readlines', return_value=self._signals_expect):
+            with self.assertRaisesRegex(RuntimeError, err_msg):
+                self._access.run(True, False, False, '')
+            self._geopm_proxy.PlatformGetGroupAccess.assert_called_once_with('')
+            self._geopm_proxy.PlatformGetAllAccess.assert_called_once()
+
+    def test_write_invalid_controls(self):
+        """Test command to write invalid default control access list
+
+        Test the run() method equivalent to 'geopmaccess -w -c'
+
+        """
+        return_value = (self._signals_expect,
+                        self._controls_expect)
+        self._geopm_proxy.PlatformGetGroupAccess = mock.Mock(return_value=return_value)
+        self._geopm_proxy.PlatformGetAllAccess = mock.Mock(return_value=([], []))
+        err_msg = f'Requested access to controls that are not available: {", ".join(sorted(self._controls_expect))}'
+        with mock.patch('sys.stdin.readlines', return_value=self._controls_expect):
+            with self.assertRaisesRegex(RuntimeError, err_msg):
+                self._access.run(True, False, True, '')
+            self._geopm_proxy.PlatformGetGroupAccess.assert_called_once_with('')
+            self._geopm_proxy.PlatformGetAllAccess.assert_called_once()
 
     def test_write_group_signals(self):
         """Test command to write to group signal access list
@@ -173,11 +211,13 @@ class TestAccess(unittest.TestCase):
                         self._controls_expect)
         self._geopm_proxy.PlatformSetGroupAccess = mock.Mock()
         self._geopm_proxy.PlatformGetGroupAccess = mock.Mock(return_value=return_value)
+        self._geopm_proxy.PlatformGetAllAccess = mock.Mock(return_value=return_value)
         with mock.patch('sys.stdin.readlines', return_value=self._signals_expect):
             self._access.run(True, False, False, 'test')
             self._geopm_proxy.PlatformGetGroupAccess.assert_called_once_with('test')
             self._geopm_proxy.PlatformSetGroupAccess.assert_called_once_with('test',
                 self._signals_expect, self._controls_expect)
+            self._geopm_proxy.PlatformGetAllAccess.assert_called_once()
 
     def test_write_group_controls(self):
         """Test command to write to group control access list
@@ -189,12 +229,13 @@ class TestAccess(unittest.TestCase):
                         self._controls_expect)
         self._geopm_proxy.PlatformSetGroupAccess = mock.Mock()
         self._geopm_proxy.PlatformGetGroupAccess = mock.Mock(return_value=return_value)
+        self._geopm_proxy.PlatformGetAllAccess = mock.Mock(return_value=return_value)
         with mock.patch('sys.stdin.readlines', return_value=self._controls_expect):
             self._access.run(True, False, True, 'test')
             self._geopm_proxy.PlatformGetGroupAccess.assert_called_once_with('test')
             self._geopm_proxy.PlatformSetGroupAccess.assert_called_once_with('test',
                 self._signals_expect, self._controls_expect)
-
+            self._geopm_proxy.PlatformGetAllAccess.assert_called_once()
 
 if __name__ == '__main__':
     unittest.main()
