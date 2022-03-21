@@ -40,6 +40,7 @@
 #include <omp.h>
 #endif
 #include <geopm_prof.h>
+#include <geopm_hint.h>
 
 #include "tutorial_region.h"
 
