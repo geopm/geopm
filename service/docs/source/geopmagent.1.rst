@@ -68,6 +68,7 @@ List all available agents on the system:
 
    $ geopmagent
    energy_efficient
+   fixed_frequency
    frequency_map
    monitor
    power_balancer
@@ -135,6 +136,7 @@ SEE ALSO
 
 `geopm(7) <geopm.7.html>`_\ ,
 `geopm_agent_energy_efficient(7) <geopm_agent_energy_efficient.7.html>`_\ ,
+`geopm_agent_fixed_frequency(7) <geopm_agent_fixed_frequency.7.html>`_\ ,
 `geopm_agent_frequency_map(7) <geopm_agent_frequency_map.7.html>`_\ ,
 `geopm_agent_monitor(7) <geopm_agent_monitor.7.html>`_\ ,
 `geopm_agent_power_balancer(7) <geopm_agent_power_balancer.7.html>`_\ ,

@@ -110,6 +110,7 @@ GEOPM Manual Pages
    :caption: GEOPM HPC Runtime Agents
 
    geopm_agent_energy_efficient.7
+   geopm_agent_fixed_frequency.7
    geopm_agent_frequency_map.7
    geopm_agent_monitor.7
    geopm_agent_power_balancer.7

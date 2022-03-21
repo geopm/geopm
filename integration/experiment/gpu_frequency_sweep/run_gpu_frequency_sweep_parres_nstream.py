@@ -31,41 +31,23 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-from __future__ import absolute_import
+'''
+Run ParRes nstream with the gpu frequency sweep using the fixed frequency agent.
+'''
 
-import unittest
-import json
-import geopmpy.agent
+import argparse
 
-
-class TestAgent(unittest.TestCase):
-    def test_policy_names(self):
-        for agent in geopmpy.agent.names():
-            policy = geopmpy.agent.policy_names(agent)
-            self.assertTrue(type(policy) is list)
-
-    def test_sample_names(self):
-        for agent in geopmpy.agent.names():
-            sample = geopmpy.agent.sample_names(agent)
-            self.assertTrue(type(sample) is list)
-
-    def test_agent_names(self):
-        names = geopmpy.agent.names()
-        expected = set(['power_balancer', 'power_governor',
-                        'fixed_frequency', 'frequency_map', 'monitor'])
-        self.assertEqual(expected, set(names))
-
-    def test_json(self):
-        for agent in geopmpy.agent.names():
-            policy_names = geopmpy.agent.policy_names(agent)
-            exp_policy = {}
-            for pp in policy_names:
-                exp_policy[pp] = 'NAN'
-            policy_val = [float('nan')] * len(policy_names)
-            json_str = geopmpy.agent.policy_json(agent, policy_val)
-            res_policy = json.loads(json_str)
-            self.assertEqual(exp_policy, res_policy)
-
+from experiment.gpu_frequency_sweep import gpu_frequency_sweep
+from experiment import machine
+from apps.parres import parres
 
 if __name__ == '__main__':
-    unittest.main()
+
+    parser = argparse.ArgumentParser()
+    gpu_frequency_sweep.setup_run_args(parser)
+    parres.setup_run_args(parser)
+    args, extra_args = parser.parse_known_args()
+    mach = machine.init_output_dir(args.output_dir)
+    app_conf = parres.create_nstream_appconf(mach, args)
+    gpu_frequency_sweep.launch(app_conf=app_conf, args=args,
+                               experiment_cli_args=extra_args)

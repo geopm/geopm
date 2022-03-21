@@ -264,7 +264,9 @@ GEOPM OPTIONS
   (runs each region at a specifed frequency), and "energy_efficient"
   (saves energy).  See `geopm_agent_monitor(7) <geopm_agent_monitor.7.html>`_\ ,
   `geopm_agent_power_balancer(7) <geopm_agent_power_balancer.7.html>`_\ ,
-  `geopm_agent_power_governor(7) <geopm_agent_power_governor.7.html>`_\ , `geopm_agent_frequency_map(7) <geopm_agent_frequency_map.7.html>`_
+  `geopm_agent_power_governor(7) <geopm_agent_power_governor.7.html>`_\ ,
+  `geopm_agent_fixed_frequency(7) <geopm_agent_fixed_frequency.7.html>`_\,
+  `geopm_agent_frequency_map(7) <geopm_agent_frequency_map.7.html>`_\,
   and `geopm_agent_energy_efficient(7) <geopm_agent_energy_efficient.7.html>`_ for descriptions of each
   agent.  For more details on the responsibilities of the Agent, see
   `geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3.html>`_.  This option is used by the launcher to set the
