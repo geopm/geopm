@@ -36,9 +36,11 @@ on:
   push:
     branches:
       - dev
+      - release-v2.0-candidate
   pull_request:
     branches:
       - dev
+      - release-v2.0-candidate
 
 concurrency:
   group: ci-${{ github.ref }}-${{ github.head_ref }}
