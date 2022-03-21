@@ -34,6 +34,7 @@
 #include <stdio.h>
 #include <mpi.h>
 #include <geopm_prof.h>
+#include <geopm_hint.h>
 
 #include "geopm_imbalancer.h"
 #include "tutorial_region.h"
