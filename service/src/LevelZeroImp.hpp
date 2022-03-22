@@ -61,6 +61,8 @@ namespace geopm
                                       int l0_domain_idx) const override;
             int perf_domain_count(int geopm_domain, unsigned int l0_device_idx,
                                   int l0_domain) const override;
+            int performance_domain_count(int geopm_domain, unsigned int l0_device_idx,
+                                         int l0_domain) const override;
             double performance_factor(int geopm_domain, unsigned int l0_device_idx,
                                       int l0_domain, int l0_domain_idx) const override;
 
