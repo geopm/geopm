@@ -26,7 +26,7 @@ SYNOPSIS
 
 #include `<geopm/TimeIOGroup.hpp> <https://github.com/geopm/geopm/blob/dev/src/TimeIOGroup.hpp>`_\ 
 
-Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
+Link with ``-lgeopmd``
 
 
 .. code-block:: c++
