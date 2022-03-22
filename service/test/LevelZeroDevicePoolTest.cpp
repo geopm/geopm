@@ -64,11 +64,21 @@ TEST_F(LevelZeroDevicePoolTest, subdevice_conversion_and_function)
     EXPECT_CALL(*m_levelzero, num_gpu(GEOPM_DOMAIN_GPU_CHIP)).WillRepeatedly(Return(num_gpu_subdevice));
 
     int value = 1500;
+    std::vector<double> perf_value_accel = {0.12, 0.23, 0.34, 0.77};
+    std::vector<double> perf_value_chip_compute = {0.50, 0.51, 0.52, 0.53, 0.54, 0.55, 0.56, 0.57};
+    std::vector<double> perf_value_chip_mem = {0.40, 0.41, 0.42, 0.43, 0.44, 0.45, 0.46, 0.47};
     int offset = 0;
     int domain_count = 1; //any non-zero number to ensure we don't throw
     for (int dev_idx = 0; dev_idx < num_gpu; ++dev_idx) {
         EXPECT_CALL(*m_levelzero, frequency_domain_count(dev_idx, MockLevelZero::M_DOMAIN_COMPUTE)).WillRepeatedly(Return(domain_count));
         EXPECT_CALL(*m_levelzero, engine_domain_count(dev_idx, MockLevelZero::M_DOMAIN_COMPUTE)).WillRepeatedly(Return(domain_count));
+        EXPECT_CALL(*m_levelzero, performance_domain_count(GEOPM_DOMAIN_BOARD_ACCELERATOR, dev_idx, MockLevelZero::M_DOMAIN_ALL)).WillRepeatedly(Return(domain_count));
+
+        EXPECT_CALL(*m_levelzero, performance_domain_count(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, dev_idx, MockLevelZero::M_DOMAIN_COMPUTE)).WillRepeatedly(Return(domain_count));
+        EXPECT_CALL(*m_levelzero, performance_domain_count(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, dev_idx, MockLevelZero::M_DOMAIN_MEMORY)).WillRepeatedly(Return(domain_count));
+
+        EXPECT_CALL(*m_levelzero, performance_factor(GEOPM_DOMAIN_BOARD_ACCELERATOR, dev_idx, MockLevelZero::M_DOMAIN_ALL, 0)).WillOnce(Return(perf_value_accel[dev_idx]));
+
         for (int sub_idx = 0; sub_idx < num_subdevice_per_device; ++sub_idx) {
             EXPECT_CALL(*m_levelzero, frequency_status(dev_idx, MockLevelZero::M_DOMAIN_COMPUTE, sub_idx)).WillOnce(Return(value+offset));
             EXPECT_CALL(*m_levelzero, frequency_efficient(dev_idx, MockLevelZero::M_DOMAIN_COMPUTE, sub_idx)).WillOnce(Return(value+offset+num_gpu_subdevice*10));
@@ -77,10 +87,18 @@ TEST_F(LevelZeroDevicePoolTest, subdevice_conversion_and_function)
 
             EXPECT_CALL(*m_levelzero, active_time(dev_idx, MockLevelZero::M_DOMAIN_COMPUTE, sub_idx)).WillOnce(Return(value+offset+num_gpu_subdevice*40));
             EXPECT_CALL(*m_levelzero, active_time_timestamp(dev_idx, MockLevelZero::M_DOMAIN_COMPUTE, sub_idx)).WillOnce(Return(value+offset+num_gpu_subdevice*50));
+
+            EXPECT_CALL(*m_levelzero, performance_factor(GEOPM_DOMAIN_GPU_CHIP, dev_idx, MockLevelZero::M_DOMAIN_COMPUTE, sub_idx)).WillOnce(Return(perf_value_chip_compute[offset]));
+            EXPECT_CALL(*m_levelzero, performance_factor(GEOPM_DOMAIN_GPU_CHIP, dev_idx, MockLevelZero::M_DOMAIN_MEMORY, sub_idx)).WillOnce(Return(perf_value_chip_mem[offset]));
             ++offset;
         }
     }
     LevelZeroDevicePoolImp m_device_pool(*m_levelzero);
+
+    for (int dev_idx = 0; dev_idx < num_gpu; ++dev_idx) {
+        EXPECT_EQ(perf_value_accel[dev_idx], m_device_pool.performance_factor(GEOPM_DOMAIN_GPU, dev_idx, MockLevelZero::M_DOMAIN_ALL));
+        EXPECT_NO_THROW(m_device_pool.performance_factor_control(GEOPM_DOMAIN_GPU, dev_idx, MockLevelZero::M_DOMAIN_ALL, 0.5));
+    }
 
     for (int sub_idx = 0; sub_idx < num_gpu_subdevice; ++sub_idx) {
         EXPECT_EQ(value+sub_idx, m_device_pool.frequency_status(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE));
@@ -92,6 +110,12 @@ TEST_F(LevelZeroDevicePoolTest, subdevice_conversion_and_function)
         EXPECT_EQ((uint64_t)(value+sub_idx+num_gpu_subdevice*50), m_device_pool.active_time_timestamp(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE));
 
         EXPECT_NO_THROW(m_device_pool.frequency_control(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE, value, value));
+
+        EXPECT_EQ(perf_value_chip_compute[sub_idx], m_device_pool.performance_factor(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE));
+        EXPECT_EQ(perf_value_chip_mem[sub_idx], m_device_pool.performance_factor(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_MEMORY));
+
+        EXPECT_NO_THROW(m_device_pool.performance_factor_control(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE, 0.5));
+        EXPECT_NO_THROW(m_device_pool.performance_factor_control(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_MEMORY, 0.5));
     }
 }
 
