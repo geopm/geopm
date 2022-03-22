@@ -426,7 +426,7 @@ namespace geopm
             std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
             dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
 
-            check_domain_exists(m_levelzero.perf_domain_count(domain,
+            check_domain_exists(m_levelzero.performance_domain_count(domain,
                                             dev_subdev_idx_pair.first, l0_domain),
                                             __func__, __LINE__);
 
@@ -468,7 +468,7 @@ namespace geopm
             std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
             dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
 
-            check_domain_exists(m_levelzero.perf_domain_count(domain,
+            check_domain_exists(m_levelzero.performance_domain_count(domain,
                                             dev_subdev_idx_pair.first, l0_domain),
                                             __func__, __LINE__);
 
