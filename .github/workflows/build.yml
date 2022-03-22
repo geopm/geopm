@@ -150,12 +150,12 @@ jobs:
     - name: set OSC credentials
       run: |
            echo -e "[general]\n\n[https://api.opensuse.org]\ncredentials_mgr_class=osc.credentials.ObfuscatedConfigFileCredentialsManager" > ~/.oscrc
-           echo "user = ${{ github.actor }}" >> ~/.oscrc
+           echo "user = ${{ github.repository_owner }}" >> ~/.oscrc
            echo "pass = ${{ secrets.OSC_CREDENTIALS }}" >> ~/.oscrc
            if [[ "${{ github.ref_name }}" == "release-v2.0-candidate" ]]; then
-               echo "OSC_PACKAGE=home:${{ github.actor }}:${{ github.ref_name }}/geopm-service" >> ${GITHUB_ENV}
+               echo "OSC_PACKAGE=home:${{ github.repository_owner }}:${{ github.ref_name }}/geopm-service" >> ${GITHUB_ENV}
            else
-               echo "OSC_PACKAGE=home:${{ github.actor }}/geopm-service" >> ${GITHUB_ENV}
+               echo "OSC_PACKAGE=home:${{ github.repository_owner }}/geopm-service" >> ${GITHUB_ENV}
            fi
     - name: publish
       working-directory: service
