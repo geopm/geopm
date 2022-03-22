@@ -25,7 +25,7 @@ SYNOPSIS
 
 #include `<geopm/SharedMemory.hpp> <https://github.com/geopm/geopm/blob/dev/src/SharedMemory.hpp>`_\ 
 
-Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
+Link with ``-lgeopmd``
 
 
 .. code-block:: c++

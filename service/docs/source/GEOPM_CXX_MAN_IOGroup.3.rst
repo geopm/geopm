@@ -119,7 +119,7 @@ can have empty or degenerate implementations; the reverse is also true if an
 IOGroup only provides controls.  In these cases, ensure that ``is_valid_signal()``
 or ``is_valid_control()`` returns false as appropriate, and that ``signal_names()`` or
 ``control_names()`` returns an empty set.
-EOPM provides a number of built-in IOGroups for the most cn
+GEOPM provides a number of built-in IOGroups for the most common
 usages.  The list of built-in IOGroups is as follows:
 
 
