@@ -52,7 +52,7 @@
 #include "MockPlatformIO.hpp"
 #include "MockPlatformTopo.hpp"
 #include "geopm/PlatformTopo.hpp"
-#include "geopm.h"
+#include "geopm_prof.h"
 #include "geopm_test.hpp"
 
 using ::testing::_;
