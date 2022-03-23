@@ -42,6 +42,7 @@ directory:
     $HOME/rpmbuild/RPMS/x86_64/geopm-service-<VERSION>-1.x86_64.rpm
     $HOME/rpmbuild/RPMS/x86_64/geopm-service-devel-<VERSION>-1.x86_64.rpm
     $HOME/rpmbuild/RPMS/x86_64/python3-geopmdpy-<VERSION>-1.x86_64.rpm
+    $HOME/rpmbuild/RPMS/x86_64/libgeopmd0-<VERSION>-1.x86_64.rpm
 
 
 Installing and Starting the GEOPM Service
@@ -64,7 +65,8 @@ Installing the GEOPM Service Development Package
 A system administrator that would like to enable users of the system to
 link to the C or C++ interfaces provided by libgeopmd.so should
 install the GEOPM Service Development Package.  This provides the C
-and C++ header files, and will occur as part of running the
+and C++ header files.  Installation of this package must be done
+manually as it is **not** installed as part of running the
 `install_service.sh` script documented above.
 
 
