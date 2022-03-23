@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation
+ * Copyright (c) 2015 - 2022, Intel Corporation
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -33,11 +33,11 @@
 #ifndef GPUACTIVITYAGENT_HPP_INCLUDE
 #define GPUACTIVITYAGENT_HPP_INCLUDE
 
+#include <functional>
 #include <vector>
 
-#include "Agent.hpp"
 #include "geopm_time.h"
-#include "config.h"
+#include "Agent.hpp"
 
 namespace geopm
 {
