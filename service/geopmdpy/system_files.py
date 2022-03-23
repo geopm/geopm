@@ -713,6 +713,7 @@ class AccessLists(object):
     """
     def __init__(self, config_path=GEOPM_SERVICE_CONFIG_PATH):
         self._CONFIG_PATH = config_path
+        secure_make_dirs(self._CONFIG_PATH)
         self._DEFAULT_ACCESS = '0.DEFAULT_ACCESS'
         self._pio = pio
 
@@ -784,6 +785,7 @@ class AccessLists(object):
         group = self._validate_group(group)
         group_dir = os.path.join(self._CONFIG_PATH, group)
         if os.path.isdir(group_dir):
+            secure_make_dirs(group_dir)
             path = os.path.join(group_dir, 'allowed_signals')
             signals = self._read_allowed(path)
             signals = self._filter_valid_signals(signals)
