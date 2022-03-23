@@ -112,6 +112,7 @@ GEOPM Manual Pages
 
    geopm_agent_energy_efficient.7
    geopm_agent_frequency_map.7
+   geopm_agent_gpu_activity.7
    geopm_agent_monitor.7
    geopm_agent_power_balancer.7
    geopm_agent_power_governor.7

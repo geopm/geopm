@@ -15,14 +15,14 @@ DESCRIPTION
 
 The goal of this Agent is to save GPU energy by scaling GPU frequency based upon
 the compute activity of each GPU as provided by the GPU_COMPUTE_ACTIVITY
-signal and modified by the GPU_UTILIZATIOR signal.
+signal and modified by the GPU_UTILIZATION signal.
 
-The **GPUActivityAgent** scales frequency in the range of Fe to Fmax, where Fmax
-is provided via the policy as ``GPU_FREQ_MAX`` and Fe is provided via
+The **GPUActivityAgent** scales frequency in the range of ``Fe`` to ``Fmax``, where ``Fmax``
+is provided via the policy as ``GPU_FREQ_MAX`` and ``Fe`` is provided via
 the policy as ``GPU_FREQ_EFFICIENT``.  Low activity regions (compute activity
-of 0.0) run at the Fe frequency, high activity regions (compute activity of 1.0)
-run at the Fmax frequency, and regions in between the extremes run at a frequency
-selected using the equation
+of 0.0) run at the ``Fe`` frequency, high activity regions (compute activity of 1.0)
+run at the ``Fmax`` frequency, and regions in between the extremes run at a frequency (F)
+selected using the equation:
 
 ``F = Fe + (Fmax - Fe) * GPU_COMPUTE_ACTIVITY/GPU_UTILIZATION``
 
@@ -31,31 +31,31 @@ to scale frequency selection with the percentage of time a kernel is running on
 the GPU.  This tends to help with workloads that contain short but highly
 scalable GPU phases.
 
-Fe is intended to be an energy efficient frequency that is selected via system
-characterization.  The recommended approach to selecting Fe is to perform a
+``Fe`` is intended to be an energy efficient frequency that is selected via system
+characterization.  The recommended approach to selecting ``Fe`` is to perform a
 frequency sweep on the GPUs of interest using a workload that scales strongly with
-frequency.  With this approach, Fe will be the frequency that provides the lowest
+frequency.  With this approach, ``Fe`` will be the frequency that provides the lowest
 GPU energy consumption for the workload.
 
-Fmax is intended to be the maximum allowable frequency, and may be set as the
+``Fmax`` is intended to be the maximum allowable frequency, and may be set as the
 default GPU maximum frequency, or limited based upon user/admin preference.
 
-The GPUActivityAgent provides an optional input of phi that allows for biasing the
-frequency range used by the agent.  The default phi value of 0.5 provides frequency
-selection in the full range from Fe to Fmax.  A phi value less than 0.5 biases the
-agent towards higher frequencies by increasing the Fe value provided by the policy.
-In the extreme case (phi of 0) Fe will be raised to Fmax.  A phi value greater than
-0.5 biases the agent towards lower frequencies by reducing the Fmax value provided
-by the policy.  In the extreme case (phi of 1.0) Fmax will be lowered to Fe.
+The GPUActivityAgent provides an optional input of ``phi`` that allows for biasing the
+frequency range used by the agent.  The default ``phi`` value of 0.5 provides frequency
+selection in the full range from ``Fe`` to ``Fmax``.  A ``phi`` value less than 0.5 biases the
+agent towards higher frequencies by increasing the ``Fe`` value provided by the policy.
+In the extreme case (``phi`` of 0) ``Fe`` will be raised to ``Fmax``.  A ``phi`` value greater than
+0.5 biases the agent towards lower frequencies by reducing the ``Fmax`` value provided
+by the policy.  In the extreme case (``phi`` of 1.0) ``Fmax`` will be lowered to ``Fe``.
 
 For NVIDIA based systems the GPUActivityAgent attempts to set the
-DCGM::FIELD_UPDATE_RATE to 100ms, DCGM::MAX_STORAGE_TIME to 1s, and DCGM::MAX_SAMPLES
-to 100.  While the DCGM documentation indicates that users should 'generally' query
-no faster than 100ms, the interface allows for setting the polling rate in the
+``DCGM::FIELD_UPDATE_RATE`` to 100 ms, ``DCGM::MAX_STORAGE_TIME`` to 1 s, and ``DCGM::MAX_SAMPLES``
+to 100.  While the DCGM documentation indicates that users should generally query
+no faster than 100 ms, the interface allows for setting the polling rate in the
 microsecond range. If the agent is intended to be used with workloads that exhibit
-extremely short phase behavioor a 1ms polling rate can be used.
+extremely short phase behavior a 1 ms polling rate can be used.
 This has been shown to work for a small number of profiling metrics queried from DCGM.
-As the 1ms polling rate is not officially recommended by the DCGM API the 100ms
+As the 1 ms polling rate is not officially recommended by the DCGM API the 100 ms
 setting is used by default.
 
 AGENT BEHAVIOR HIGHLIGHTS
@@ -78,7 +78,7 @@ reports and traces with additional Agent-specific information.
 *
   **Agent Policy Definitions**:
 
-      The Fe, Fmax, and  and maximum frequency are policy values.
+      The ``Fe``, ``Fmax``, and  and maximum frequency are policy values.
       Setting both to the same value can be used to force the entire
       application to run at one frequency.
 
@@ -111,13 +111,13 @@ reports and traces with additional Agent-specific information.
       The number of frequency requests made by the agent
 
   ``Resolved Max Frequency``\ :
-     Fmax after phi has been taken into account
+     ``Fmax`` after ``phi`` has been taken into account
 
   ``Resolved Efficient Frequency``\ :
-     Fe after phi has been taken into account
+     ``Fe`` after ``phi`` has been taken into account
 
   ``Resolved Frequency Range``\ :
-     The frequency selection range of the agent after phi has
+     The frequency selection range of the agent after ``phi`` has
      been taken into account
 
   ``GPU # Active Region Energy``\ :
@@ -135,7 +135,7 @@ reports and traces with additional Agent-specific information.
      of Interest (ROI) where ROI is determined as the
      first sample of GPU activity to the last sample of GPU
      activity.
-  ``GPU # Active Region Start Time``\ :
+  ``GPU # Active Region Stop Time``\ :
      Per GPU stop time for the Region
      of Interest (ROI) where ROI is determined as the
      first sample of GPU activity to the last sample of GPU
