@@ -714,7 +714,6 @@ class AccessLists(object):
     def __init__(self, config_path=GEOPM_SERVICE_CONFIG_PATH):
         self._CONFIG_PATH = config_path
         self._DEFAULT_ACCESS = '0.DEFAULT_ACCESS'
-        self._ALL_GROUPS = [gg.gr_name for gg in grp.getgrall()]
         self._pio = pio
 
     def _validate_group(self, group):
@@ -724,7 +723,9 @@ class AccessLists(object):
             group = str(group)
             if group[0].isdigit():
                 raise RuntimeError('Linux group name cannot begin with a digit: group = "{}"'.format(group))
-            if group not in self._ALL_GROUPS:
+            try:
+                grp.getgrnam(group)
+            except KeyError:
                 raise RuntimeError('Linux group is not defined: group = "{}"'.format(group))
         return group
 
