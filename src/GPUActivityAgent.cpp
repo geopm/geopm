@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation
+ * Copyright (c) 2015 - 2022, Intel Corporation
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -30,23 +30,23 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "config.h"
 #include "GPUActivityAgent.hpp"
 
-#include <cmath>
-#include <cassert>
 #include <algorithm>
-
-#include "PlatformIOProf.hpp"
-#include "geopm/PluginFactory.hpp"
-#include "geopm/PlatformIO.hpp"
-#include "geopm/PlatformTopo.hpp"
-#include "geopm/Helper.hpp"
-#include "geopm/Exception.hpp"
-#include "geopm/Agg.hpp"
-
+#include <cassert>
+#include <cmath>
+#include <iostream>
 #include <string>
 
-#include <iostream>
+#include "geopm/Agg.hpp"
+#include "geopm/Exception.hpp"
+#include "geopm/Helper.hpp"
+#include "geopm/PlatformIO.hpp"
+#include "geopm/PlatformTopo.hpp"
+#include "geopm/PluginFactory.hpp"
+
+#include "PlatformIOProf.hpp"
 
 namespace geopm
 {
@@ -196,14 +196,15 @@ namespace geopm
         // initial range is needed to apply phi
         double f_range = f_max - f_efficient;
 
+        // If phi is not 0.5 we move into the energy or performance biased regions
         if (phi > 0.5) {
-            //Energy Biased.  Scale F_max down to F_efficient based upon phi value
-            //Active region phi usage
+            // Energy Biased.  Scale F_max down to F_efficient based upon phi value
+            // Active region phi usage
             f_max = std::max(f_efficient, f_max - f_range * (phi-0.5) / 0.5);
         }
         else if (phi < 0.5) {
-            //Perf Biased.  Scale F_efficient up to F_max based upon phi value
-            //Active region phi usage
+            // Perf Biased.  Scale F_efficient up to F_max based upon phi value
+            // Active region phi usage
             f_efficient = std::min(f_max, f_efficient + f_range * (0.5-phi) / 0.5);
         }
 
@@ -215,7 +216,7 @@ namespace geopm
 
     // Distribute incoming policy to children
     void GPUActivityAgent::split_policy(const std::vector<double>& in_policy,
-                                    std::vector<std::vector<double> >& out_policy)
+                                        std::vector<std::vector<double> >& out_policy)
     {
         assert(in_policy.size() == M_NUM_POLICY);
         for (auto &child_pol : out_policy) {
@@ -284,7 +285,7 @@ namespace geopm
                 //
                 // This approach assumes the efficient frequency is suitable as both a
                 // baseline for active regions and and inactive regions. This is generally
-                // true of the efficient frequency is low power enough at idle due to clock
+                // true when the efficient frequency consumes low power at idle due to clock
                 // gating or other hardware PM techniques.
                 //
                 // If f_efficient does not meet these criteria this behavior can still be
