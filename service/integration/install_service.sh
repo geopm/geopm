@@ -78,8 +78,7 @@ install_packages() {
     PACKAGES="\
 ${RPM_DIR}/x86_64/libgeopmd0-${VERSION}-1.x86_64.rpm
 ${RPM_DIR}/x86_64/python3-geopmdpy-${VERSION}-1.x86_64.rpm
-${RPM_DIR}/x86_64/geopm-service-${VERSION}-1.x86_64.rpm
-${RPM_DIR}/x86_64/geopm-service-devel-${VERSION}-1.x86_64.rpm"
+${RPM_DIR}/x86_64/geopm-service-${VERSION}-1.x86_64.rpm"
     for PKG in ${PACKAGES}; do
         test -f ${PKG} ||
             install_error "File does not exist: ${PKG}"
@@ -96,7 +95,7 @@ start_service() {
 remove_service() {
     systemctl stop geopm ||
         echo "Warning: Failed to stop geopm service" 1>&2
-    for pkg in geopm-service-devel geopm-service python3-geopmdpy libgeopmd0; do
+    for pkg in geopm-service python3-geopmdpy libgeopmd0; do
         ${PKG_REMOVE} $pkg ||
             echo "Warning: Failed to remove geopm service package: $pkg" 1>&2
     done
