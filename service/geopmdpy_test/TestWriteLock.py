@@ -36,7 +36,8 @@ import unittest
 from unittest import mock
 import tempfile
 
-from geopmdpy.system_files import WriteLock
+with mock.patch('cffi.FFI.dlopen', return_value=mock.MagicMock()):
+    from geopmdpy.system_files import WriteLock
 
 class TestWriteLock(unittest.TestCase):
     def setUp(self):
