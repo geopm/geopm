@@ -34,11 +34,7 @@
 
 import unittest
 from unittest import mock
-try:
-    from importlib import reload
-except ImportError:
-    # reload is built-in in python 2, and is part of importlib in Python 3.4+
-    pass
+from importlib import reload
 
 mock_c = mock.MagicMock()
 import geopmpy.policy_store

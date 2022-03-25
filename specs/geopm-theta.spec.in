@@ -43,7 +43,7 @@ CXXFLAGS='-xCORE-AVX2' \
 FCFLAGS='-dynamic -xCORE-AVX2' \
 FFLAGS='-dynamic -xCORE-AVX2' \
 ./configure --prefix=%{install_prefix} \
-            --with-python=%{__python2} \
+            --with-python=%{__python3} \
             || ( cat config.log && false )
 %{__make}
 
