@@ -1018,8 +1018,7 @@ namespace geopm
             "\n    alias_for: " + signal_name;
 
         auto der_it = m_derivative_signal_map.find(signal_name);
-        if (der_it != m_derivative_signal_map.end())
-        {
+        if (der_it != m_derivative_signal_map.end()) {
             m_derivative_signal_map[alias_name] = der_it->second;
         }
     }
