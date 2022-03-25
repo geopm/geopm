@@ -35,8 +35,10 @@ import unittest
 from unittest import mock
 import tempfile
 import os
+import stat
 import pwd
 import grp
+import shutil
 
 # Patch dlopen to allow the tests to run when there is no build
 with mock.patch('cffi.FFI.dlopen', return_value=mock.MagicMock()):
@@ -346,6 +348,37 @@ default
     def test__read_allowed_invalid(self):
         result = self._access_lists._read_allowed('INVALID_PATH')
         self.assertEqual([], result)
+
+    def test_existing_dir_perms_wrong(self):
+        CONFIG_PATH = tempfile.TemporaryDirectory('{}_config'.format(self._test_name))
+        os.chmod(CONFIG_PATH.name, 0o755)
+        renamed_path = f'{CONFIG_PATH.name}-uuid4-INVALID'
+
+        with mock.patch('sys.stderr.write', return_value=None) as mock_err, \
+             mock.patch('uuid.uuid4', return_value='uuid4'):
+            self._access_lists = AccessLists(CONFIG_PATH.name)
+
+            calls = [
+                mock.call(f'Warning: <geopm-service> {CONFIG_PATH.name} has wrong permissions, it will be renamed to {renamed_path}\n'),
+                mock.call('Warning: <geopm-service> the wrong permissions were 0o755\n')
+            ]
+            mock_err.assert_has_calls(calls)
+
+        group_dir_stat = os.stat(CONFIG_PATH.name)
+        self.assertEqual(0o700, stat.S_IMODE(group_dir_stat.st_mode))
+        CONFIG_PATH.cleanup()
+        shutil.rmtree(renamed_path)
+
+    def test_existing_dir_perms_ok(self):
+        CONFIG_PATH = tempfile.TemporaryDirectory('{}_config'.format(self._test_name))
+        os.chmod(CONFIG_PATH.name, 0o700)
+        renamed_path = f'{CONFIG_PATH.name}-uuid4-INVALID'
+
+        with mock.patch('sys.stderr.write', return_value=None) as mock_err, \
+             mock.patch('uuid.uuid4', return_value='uuid4'):
+            self._access_lists = AccessLists(CONFIG_PATH.name)
+            mock_err.assert_not_called()
+        CONFIG_PATH.cleanup()
 
 
 if __name__ == '__main__':

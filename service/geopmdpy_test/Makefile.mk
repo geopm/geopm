@@ -50,6 +50,8 @@ EXTRA_DIST += geopmdpy_test/__init__.py \
 
 GEOPMDPY_TESTS = geopmdpy_test/pytest_links/TestAccessLists.test__read_allowed_invalid \
                  geopmdpy_test/pytest_links/TestAccessLists.test_config_parser \
+                 geopmdpy_test/pytest_links/TestAccessLists.test_existing_dir_perms_wrong \
+                 geopmdpy_test/pytest_links/TestAccessLists.test_existing_dir_perms_ok \
                  geopmdpy_test/pytest_links/TestAccessLists.test_get_group_access_default \
                  geopmdpy_test/pytest_links/TestAccessLists.test_get_group_access_empty \
                  geopmdpy_test/pytest_links/TestAccessLists.test_get_group_access_invalid \
