@@ -36,7 +36,6 @@ signals and writing controls from system components.
 
 """
 
-from __future__ import absolute_import
 
 from . import gffi
 from . import topo

@@ -33,8 +33,6 @@
 GEOPM Plotter - Used to produce plots and other analysis files from report and/or trace files.
 """
 
-from __future__ import absolute_import
-from __future__ import division
 
 from builtins import round
 import sys
