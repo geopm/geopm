@@ -38,9 +38,10 @@ import stat
 import tempfile
 from pathlib import Path
 
-from geopmdpy.system_files import secure_make_dirs
-from geopmdpy.system_files import secure_make_file
-from geopmdpy.system_files import secure_read_file
+with mock.patch('cffi.FFI.dlopen', return_value=mock.MagicMock()):
+    from geopmdpy.system_files import secure_make_dirs
+    from geopmdpy.system_files import secure_make_file
+    from geopmdpy.system_files import secure_read_file
 
 class TestSecureFiles(unittest.TestCase):
     def setUp(self):

@@ -40,7 +40,8 @@ import json
 import tempfile
 from pathlib import Path
 
-from geopmdpy.system_files import ActiveSessions
+with mock.patch('cffi.FFI.dlopen', return_value=mock.MagicMock()):
+    from geopmdpy.system_files import ActiveSessions
 
 class TestActiveSessions(unittest.TestCase):
     json_good_example = {

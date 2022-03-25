@@ -38,11 +38,10 @@ import os
 import pwd
 import grp
 
-from geopmdpy.system_files import ActiveSessions
-from geopmdpy.system_files import AccessLists
-
 # Patch dlopen to allow the tests to run when there is no build
 with mock.patch('cffi.FFI.dlopen', return_value=mock.MagicMock()):
+    from geopmdpy.system_files import ActiveSessions
+    from geopmdpy.system_files import AccessLists
     from geopmdpy.service import PlatformService
     from geopmdpy.service import TopoService
 
