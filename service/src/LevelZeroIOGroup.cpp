@@ -1010,11 +1010,18 @@ namespace geopm
             // skip adding an alias if underlying signal is not found
             return;
         }
+
         // copy signal info but append to description
         m_signal_available[alias_name] = it->second;
         m_signal_available[alias_name].m_description =
             m_signal_available[signal_name].m_description +
             "\n    alias_for: " + signal_name;
+
+        auto der_it = m_derivative_signal_map.find(signal_name);
+        if (der_it != m_derivative_signal_map.end())
+        {
+            m_derivative_signal_map[alias_name] = der_it->second;
+        }
     }
 
     void LevelZeroIOGroup::register_control_alias(const std::string &alias_name,

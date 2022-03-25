@@ -141,7 +141,7 @@ namespace geopm
             std::vector<std::shared_ptr<Signal> > m_signal_pushed;
             std::vector<std::shared_ptr<control_s> > m_control_pushed;
             const std::set<std::string> m_special_signal_set;
-            const std::map<std::string, derivative_signal_info> m_derivative_signal_map;
+            std::map<std::string, derivative_signal_info> m_derivative_signal_map;
             std::set<int> m_derivative_signal_pushed_set;
 
             //GEOPM Domain indexed
