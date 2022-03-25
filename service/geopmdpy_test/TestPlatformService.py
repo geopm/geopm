@@ -40,7 +40,8 @@ import re
 import stat
 from unittest import mock
 import tempfile
-from geopmdpy.system_files import ActiveSessions, AccessLists, WriteLock
+with mock.patch('cffi.FFI.dlopen', return_value=mock.MagicMock()):
+    from geopmdpy.system_files import ActiveSessions, AccessLists, WriteLock
 
 # Patch dlopen to allow the tests to run when there is no build
 with mock.patch('cffi.FFI.dlopen', return_value=mock.MagicMock()):

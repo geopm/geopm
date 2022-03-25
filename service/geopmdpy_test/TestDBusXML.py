@@ -31,11 +31,13 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+from unittest import mock
 import sys
 import unittest
 import xml.etree.ElementTree as ET
 from geopmdpy import dbus_xml
-from geopmdpy import service
+with mock.patch('cffi.FFI.dlopen', return_value=mock.MagicMock()):
+    from geopmdpy import service
 
 class TestDBusXML(unittest.TestCase):
     def setUp(self):
