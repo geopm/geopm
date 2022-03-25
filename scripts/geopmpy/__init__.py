@@ -35,7 +35,6 @@ topo, agent, and version.
 
 """
 
-from __future__ import absolute_import
 import os
 
 __all__ = ['agent', 'error', 'hash', 'io', 'launcher',

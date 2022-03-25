@@ -30,7 +30,6 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-from __future__ import absolute_import
 
 """The GEOPM DBus API enables a client to make measurements from the
 hardware platform and set hardware control parameters.  Fine grained
