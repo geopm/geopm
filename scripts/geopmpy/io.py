@@ -33,8 +33,6 @@
 GEOPM IO - Helper module for parsing/processing report and trace files.
 """
 
-from __future__ import absolute_import
-from __future__ import division
 
 from builtins import str
 from collections import OrderedDict

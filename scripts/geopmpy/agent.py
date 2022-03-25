@@ -30,7 +30,6 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-from __future__ import absolute_import
 
 from geopmdpy.gffi import gffi
 from geopmdpy.gffi import get_dl_geopmpolicy

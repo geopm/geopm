@@ -29,7 +29,6 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-from __future__ import absolute_import
 from dasbus.loop import EventLoop
 from dasbus.connection import SystemMessageBus
 from . import service
