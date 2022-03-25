@@ -31,8 +31,6 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-# python 2 compatibility
-
 import math
 import numpy as np
 import sys

@@ -36,7 +36,7 @@
 %define pname geopm
 %define PNAME GEOPM
 
-%define python_family python2
+%define python_family python3
 %define install_prefix %{install_parent_dir}/%{pname}/%{pname}-%{version}-%{compiler_name}-%{compiler_version}-%{mpi_name}-%{mpi_version}
 %define module_prefix %{module_parent_dir}/%{compiler_name}/%{compiler_version}/%{mpi_name}/%{mpi_version}/%{pname}
 %define module_name %{version}
