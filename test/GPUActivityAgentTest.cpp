@@ -77,6 +77,7 @@ class GPUActivityAgentTest : public :: testing :: Test
             FREQ_MAX = 0,
             FREQ_EFFICIENT = 1,
             PHI = 2,
+            PERIOD = 3,
         };
 
         void SetUp();
@@ -89,6 +90,7 @@ class GPUActivityAgentTest : public :: testing :: Test
         size_t m_num_policy;
         double m_freq_min;
         double m_freq_max;
+        double m_sample_period;
         std::unique_ptr<MockPlatformIO> m_platform_io;
         std::unique_ptr<MockPlatformTopo> m_platform_topo;
 };
@@ -133,7 +135,9 @@ void GPUActivityAgentTest::SetUp()
     m_agent = geopm::make_unique<GPUActivityAgent>(*m_platform_io, *m_platform_topo);
     m_num_policy = m_agent->policy_names().size();
 
-    m_default_policy = {m_freq_max, m_freq_min, NAN};
+    m_sample_period = 0.020;
+
+    m_default_policy = {m_freq_max, m_freq_min, NAN, NAN};
 
     // leaf agent
     m_agent->init(0, {}, false);
@@ -172,6 +176,7 @@ TEST_F(GPUActivityAgentTest, validate_policy)
     EXPECT_EQ(m_freq_min, policy[FREQ_EFFICIENT]);
     // Default value when NAN is passed is 0.5
     EXPECT_EQ(0.5, policy[PHI]);
+    EXPECT_EQ(m_sample_period, policy[PERIOD]);
 
     // all-NAN policy is accepted
     // setup & load NAN policy
@@ -182,12 +187,14 @@ TEST_F(GPUActivityAgentTest, validate_policy)
     EXPECT_EQ(m_freq_max, policy[FREQ_MAX]);
     EXPECT_EQ((policy[FREQ_MAX] + m_freq_min) / 2, policy[FREQ_EFFICIENT]);
     EXPECT_EQ(0.5, policy[PHI]);
+    EXPECT_EQ(m_sample_period, policy[PERIOD]);
 
     // non-default policy is accepted
     // setup & load policy
     policy[FREQ_MAX] = m_freq_max;
     policy[FREQ_EFFICIENT] = m_freq_max / 2;
     policy[PHI] = 0.1;
+    policy[PERIOD] = 0.005;
     m_agent->validate_policy(policy);
 
     // validate policy is modified as expected
@@ -197,6 +204,7 @@ TEST_F(GPUActivityAgentTest, validate_policy)
     EXPECT_GE(policy[FREQ_EFFICIENT], m_freq_max / 2);
     EXPECT_LE(policy[FREQ_EFFICIENT], m_freq_max);
     EXPECT_EQ(0.1, policy[PHI]);
+    EXPECT_EQ(0.005, policy[PERIOD]);
 
     //Fe > Fmax --> Error
     policy[FREQ_MAX] = NAN;
@@ -246,6 +254,14 @@ TEST_F(GPUActivityAgentTest, validate_policy)
     policy[PHI] = 1.1;
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->validate_policy(policy), GEOPM_ERROR_INVALID,
                                "POLICY_GPU_PHI value out of range");
+
+    policy[FREQ_MAX] = NAN;
+    policy[FREQ_EFFICIENT] = NAN;
+    policy[PHI] = 1.0;
+    policy[PERIOD] = -1.0;
+    GEOPM_EXPECT_THROW_MESSAGE(m_agent->validate_policy(policy), GEOPM_ERROR_INVALID,
+                               "Sample period must be greater than 0.");
+
 }
 
 TEST_F(GPUActivityAgentTest, adjust_platform_high)
