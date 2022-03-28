@@ -49,29 +49,23 @@ def main():
                         help='Leave the named app out of the training set')
     args = parser.parse_args()
 
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     df_traces = pd.read_hdf(args.input)
 
     y_columns = ['phi-freq']
-    X_columns = ['POWER_PACKAGE',
-                 'POWER_DRAM',
-                 'FREQUENCY',
-                 'TEMPERATURE_CORE',
+    X_columns = ['POWER_PACKAGE-package-0',
+                 'POWER_DRAM-package-0',
+                 'CPU_FREQUENCY_STATUS-package-0',          #TODO: consider native
+                 'TEMPERATURE_CORE-package-0',              #TODO: consider native
                  'MSR::UNCORE_PERF_STATUS:FREQ-package-0',
-                 'MSR::UNCORE_PERF_STATUS:FREQ-package-1',
-                 'QM_CTR_SCALED_RATE-package-0',
-                 'QM_CTR_SCALED_RATE-package-1']
+                 'QM_CTR_SCALED_RATE-package-0']
 
-    ratios = [['ENERGY_DRAM', 'TIME'],
-              ['INSTRUCTIONS_RETIRED-package-0', 'TIME'],
-              ['INSTRUCTIONS_RETIRED-package-1', 'TIME'],
+    ratios = [['ENERGY_DRAM-package-0', 'TIME'],                          #TODO: consider native
+              ['INSTRUCTIONS_RETIRED-package-0', 'TIME'],                 #TODO: consider native
               ['ENERGY_PACKAGE-package-0', 'TIME'],
-              ['ENERGY_PACKAGE-package-1', 'TIME'],
-              ['MSR::APERF:ACNT-package-0', 'MSR::MPERF:MCNT-package-0'],
-              ['MSR::APERF:ACNT-package-1', 'MSR::MPERF:MCNT-package-1'],
-              ['MSR::PPERF:PCNT-package-0', 'MSR::MPERF:MCNT-package-0'],
-              ['MSR::PPERF:PCNT-package-1', 'MSR::MPERF:MCNT-package-1'],
-              ['MSR::PPERF:PCNT-package-0', 'MSR::APERF:ACNT-package-0'],
-              ['MSR::PPERF:PCNT-package-1', 'MSR::APERF:ACNT-package-1']]
+              ['MSR::APERF:ACNT-package-0', 'MSR::MPERF:MCNT-package-0'], #TODO: consider native
+              ['MSR::PPERF:PCNT-package-0', 'MSR::MPERF:MCNT-package-0'], #TODO: consider native
+              ['MSR::PPERF:PCNT-package-0', 'MSR::APERF:ACNT-package-0']] #TODO: consider native
 
     for num,den in ratios:
         name = 'delta_{}/delta_{}'.format(num, den)
@@ -116,6 +110,8 @@ def main():
                     nn.Linear(len(X_columns), 1)
             )
 
+    model.to(device)
+
     learning_rate = 1e-3
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
@@ -135,6 +131,7 @@ def main():
     for epoch in range(epoch_count):
         train_loss = 0
         for idx, (inputs, target_control) in enumerate(train_loader):
+            inputs, target_control = inputs.to(device), target_control.to(device)
             model.train()
             # Clear gradient
             optimizer.zero_grad()
