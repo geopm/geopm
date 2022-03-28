@@ -113,6 +113,7 @@ namespace geopm
             std::map<std::string, double> m_policy_available;
 
             double m_gpu_frequency_requests;
+            double m_gpu_frequency_clipped;
             double m_f_max;
             double m_f_efficient;
             double m_f_range;
