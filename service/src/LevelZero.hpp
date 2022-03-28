@@ -164,7 +164,6 @@ namespace geopm
             /// @param [in] l0_domain_idx The index indicating a particular
             ///        Level Zero domain.
             /// @return GPU energy in microjoules.
-            /// TODO: document & collapse
             virtual uint64_t energy(int geopm_domain, unsigned int l0_device_idx, int l0_domain,
                                     int l0_domain_idx) const = 0;
             /// @brief Get the LevelZero device energy cached timestamp in microseconds
@@ -175,7 +174,6 @@ namespace geopm
             /// @param [in] l0_domain_idx The index indicating a particular
             ///        Level Zero domain.
             /// @return Accelerator energy timestamp in microseconds
-            /// TODO: document & collapse
             virtual uint64_t energy_timestamp(int geopm_domain, unsigned int l0_device_idx, int l0_domain,
                                               int l0_domain_idx) const = 0;
 
