@@ -555,7 +555,6 @@ namespace geopm
         return timestamp;
     }
 
-    // TODO: Collapse with package level energy
     uint64_t LevelZeroImp::energy(int geopm_domain, unsigned int l0_device_idx,
                                   int l0_domain, int l0_domain_idx) const
     {
