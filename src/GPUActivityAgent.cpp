@@ -61,7 +61,7 @@ namespace geopm
         : m_platform_io(plat_io)
         , m_platform_topo(topo)
         , m_last_wait{{0, 0}}
-        , M_WAIT_SEC(0.020) // 20ms Wait
+        , M_WAIT_SEC(0.020) // 20ms wait default
         , M_POLICY_PHI_DEFAULT(0.5)
         , M_GPU_ACTIVITY_CUTOFF(0.05)
         , M_NUM_GPU(m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR))
@@ -188,6 +188,20 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
+        // If no sample period is provided assume the default behavior
+        if (std::isnan(in_policy[M_POLICY_SAMPLE_PERIOD])) {
+            in_policy[M_POLICY_SAMPLE_PERIOD] = M_WAIT_SEC;
+        }
+
+        if (!std::isnan(in_policy[M_POLICY_SAMPLE_PERIOD])) {
+            if (in_policy[M_POLICY_SAMPLE_PERIOD] <= 0.0) {
+                throw Exception("GPUActivityAgent::" + std::string(__func__) +
+                                "(): Sample period must be greater than 0.",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+
+            }
+        }
+
         // Policy provided initial values
         double f_max = in_policy[M_POLICY_GPU_FREQ_MAX];
         double f_efficient = in_policy[M_POLICY_GPU_FREQ_EFFICIENT];
@@ -211,7 +225,6 @@ namespace geopm
         //Update Policy
         in_policy[M_POLICY_GPU_FREQ_MAX] = f_max;
         in_policy[M_POLICY_GPU_FREQ_EFFICIENT] = f_efficient;
-
     }
 
     // Distribute incoming policy to children
@@ -245,6 +258,11 @@ namespace geopm
     void GPUActivityAgent::adjust_platform(const std::vector<double>& in_policy)
     {
         assert(in_policy.size() == M_NUM_POLICY);
+
+        // Update wait time based on policy
+        if (in_policy[M_POLICY_SAMPLE_PERIOD] != M_WAIT_SEC)  {
+            M_WAIT_SEC = in_policy[M_POLICY_SAMPLE_PERIOD];
+        }
 
         m_do_write_batch = false;
 
@@ -451,7 +469,7 @@ namespace geopm
     // Describes expected policies to be provided by the resource manager or user
     std::vector<std::string> GPUActivityAgent::policy_names(void)
     {
-        return {"GPU_FREQ_MAX", "GPU_FREQ_EFFICIENT", "GPU_PHI"};
+        return {"GPU_FREQ_MAX", "GPU_FREQ_EFFICIENT", "GPU_PHI", "SAMPLE_PERIOD"};
     }
 
     // Describes samples to be provided to the resource manager or user

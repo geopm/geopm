@@ -78,7 +78,7 @@ namespace geopm
             PlatformIO &m_platform_io;
             const PlatformTopo &m_platform_topo;
             geopm_time_s m_last_wait;
-            const double M_WAIT_SEC;
+            double M_WAIT_SEC;
             const double M_POLICY_PHI_DEFAULT;
             const double M_GPU_ACTIVITY_CUTOFF;
             const int M_NUM_GPU;
@@ -101,6 +101,7 @@ namespace geopm
                 M_POLICY_GPU_FREQ_MAX,
                 M_POLICY_GPU_FREQ_EFFICIENT,
                 M_POLICY_GPU_PHI,
+                M_POLICY_SAMPLE_PERIOD,
                 M_NUM_POLICY
             };
 
