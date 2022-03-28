@@ -36,6 +36,10 @@ import unittest
 from unittest import mock
 import tempfile
 
+from geopmdpy.system_files import WriteLock
+from geopmdpy.system_files import secure_make_dirs
+from geopmdpy.system_files import GEOPM_SERVICE_VAR_PATH_PERM
+
 with mock.patch('cffi.FFI.dlopen', return_value=mock.MagicMock()):
     from geopmdpy.system_files import WriteLock
 
@@ -49,6 +53,8 @@ class TestWriteLock(unittest.TestCase):
         self._sess_path = f'{self._TEMP_DIR.name}'
         self._orig_pid = 1234
         self._other_pid = 4321
+
+        secure_make_dirs(self._sess_path, GEOPM_SERVICE_VAR_PATH_PERM)
 
     def tearDown(self):
         """Clean up temporary directory
