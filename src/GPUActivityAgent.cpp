@@ -74,6 +74,7 @@ namespace geopm
     void GPUActivityAgent::init(int level, const std::vector<int> &fan_in, bool is_level_root)
     {
         m_gpu_frequency_requests = 0;
+        m_gpu_frequency_clipped = 0;
         m_f_max = 0;
         m_f_efficient = 0;
         m_f_range = 0;
@@ -337,6 +338,11 @@ namespace geopm
             }
 
             // Frequency clamping
+#ifdef GEOPM_DEBUG
+            if (f_request > m_f_max || f_request < m_f_efficient) {
+                ++m_gpu_frequency_clipped;
+            }
+#endif
             f_request = std::min(f_request, m_f_max);
             f_request = std::max(f_request, m_f_efficient);
 
@@ -410,6 +416,9 @@ namespace geopm
         std::vector<std::pair<std::string, std::string> > result;
 
         result.push_back({"GPU Frequency Requests", std::to_string(m_gpu_frequency_requests)});
+#ifdef GEOPM_DEBUG
+        result.push_back({"GPU Clipped Frequency Requests", std::to_string(m_gpu_frequency_clipped)});
+#endif
         result.push_back({"Resolved Max Frequency", std::to_string(m_f_max)});
         result.push_back({"Resolved Efficient Frequency", std::to_string(m_f_efficient)});
         result.push_back({"Resolved Frequency Range", std::to_string(m_f_range)});
@@ -423,10 +432,13 @@ namespace geopm
                               " Active Region Energy", std::to_string(energy_stop - energy_start)});
             result.push_back({"GPU " + std::to_string(domain_idx) +
                               " Active Region Time", std::to_string(region_stop - region_start)});
+#ifdef GEOPM_DEBUG
+            // Region time is generally sufficient for non-debug cases
             result.push_back({"GPU " + std::to_string(domain_idx) +
                               " Active Region Start Time", std::to_string(region_start)});
             result.push_back({"GPU " + std::to_string(domain_idx) +
                               " Active Region Stop Time", std::to_string(region_stop)});
+#endif
         }
 
         return result;
