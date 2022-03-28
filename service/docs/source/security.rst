@@ -472,11 +472,19 @@ When making directories, if the path already exists checks are
 performed to ensure: the path is a regular directory, the path is not
 a link, the path is accessible by the caller, the path is owned by the
 calling process UID/GID, and the permissions on the directory are set
-to 0o700 (i.e. rwx only for the owner). If the path is determined to
-be insecure, the existing path is renamed to indicate it is invalid
-and preserved for later auditing. In this case a new directory will be
-created at the specified path. If the path did not already exist, a
-new directory is created with 0o700 permissions.
+to the right permissions (chosen to be as restrictive as possible). If
+the path is determined to be insecure, the existing path is renamed to
+indicate it is invalid and preserved for later auditing. In this case
+a new directory will be created at the specified path. If the path did
+not already exist, a new directory is created with the proper
+permissions.
+
+By default, directories are created with 0o700 permissions (i.e. rwx
+only for the owner). Some directories, for example
+``/var/run/geopm-service``, also require execution permissions (i.e.
+0o711). For more details on how directories are created and default
+permissions, please see the `system_files.py <http://geopm.github.io/geopmdpy.7.html#module-geopmdpy.system_files>`__
+documentation
 
 When making files, a temporary file is first created with 0o600 or
 owner rw only permissions. The desired contents are then written to

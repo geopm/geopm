@@ -59,14 +59,25 @@ import fcntl
 
 from . import pio
 
+
 GEOPM_SERVICE_VAR_PATH = '/var/run/geopm-service'
 GEOPM_SERVICE_CONFIG_PATH = '/etc/geopm-service'
 
-def secure_make_dirs(path):
+GEOPM_SERVICE_VAR_PATH_PERM = 0o711
+"""Default permissions for the GEOPM service var path
+
+"""
+
+GEOPM_SERVICE_CONFIG_PATH_PERM = 0o700
+"""Default permissions for the GEOPM service config path
+
+"""
+
+def secure_make_dirs(path, perm_mode=0o700):
     """Securely create a directory
 
-    When the path does not exist a directory is created with
-    permissions 0o700 along with all required parent directories.
+    When the path does not exist a directory is created with permissions
+    0o700 by default along with all required parent directories.
 
     The security of this path is verified if the path exists.  An
     existing path is considered to be secure only if all of the
@@ -77,7 +88,7 @@ def secure_make_dirs(path):
         - The path is accessible the the caller
         - The path is a directory owned by the calling process uid
         - The path is a directory owned by the calling process gid
-        - The permissions for the directory are 0o700
+        - The permissions for the directory are 0o700 by default
 
     If the existing path is determined to be insecure, a warning is
     printed to syslog and the existing file will be renamed to
@@ -109,10 +120,10 @@ def secure_make_dirs(path):
         else:
             st = os.stat(path)
             # If the permissions are not what we wanted
-            perm_mode = stat.S_IMODE(st.st_mode)
-            if perm_mode != 0o700:
+            set_perm_mode = stat.S_IMODE(st.st_mode)
+            if set_perm_mode != perm_mode:
                 sys.stderr.write(f'Warning: <geopm-service> {path} has wrong permissions, it will be renamed to {renamed_path}\n')
-                sys.stderr.write(f'Warning: <geopm-service> the wrong permissions were {oct(perm_mode)}\n')
+                sys.stderr.write(f'Warning: <geopm-service> the wrong permissions were {oct(set_perm_mode)}\n')
                 is_valid = False
             # If the user owner is not what we wanted
             user_owner = st.st_uid
@@ -129,10 +140,10 @@ def secure_make_dirs(path):
         # If one of the three above branches revealed an invalid file
         if not is_valid:
             os.rename(path, renamed_path)
-            os.mkdir(path, mode=0o700)
+            os.mkdir(path, mode=perm_mode)
     # If the path doesn't exist
     else:
-        os.mkdir(path, mode=0o700)
+        os.mkdir(path, mode=perm_mode)
 
 
 def secure_make_file(path, contents):
@@ -301,7 +312,7 @@ class ActiveSessions(object):
         by default, but the user may specify a different path.  The
         creation of an ActiveSessions object will make the directory
         if it does not exist.  This directory is created with
-        restricted access permissions (mode: 0o700).
+        restricted access permissions (mode: GEOPM_SERVICE_VAR_PATH_PERM).
 
         If the path points to a symbolic link, the link will be
         renamed and a warning is printed to the syslog.  The directory
@@ -318,8 +329,8 @@ class ActiveSessions(object):
 
         When an ActiveSessions object is created and the directory
         already exists, if the owner of the directory is the geopmd
-        user, and the permissions are set to 0o700 parsing will
-        proceed.  All files matching the pattern
+        user, and the permissions are set to GEOPM_SERVICE_VAR_PATH_PERM
+        parsing will proceed.  All files matching the pattern
 
             "/var/run/geopm-service/session-*.json"
 
@@ -357,7 +368,8 @@ class ActiveSessions(object):
             'additionalProperties' : False,
             'required' : ['client_pid', 'signals', 'controls']
         }
-        secure_make_dirs(self._VAR_PATH)
+        secure_make_dirs(self._VAR_PATH,
+                         perm_mode=GEOPM_SERVICE_VAR_PATH_PERM)
 
         # Load all session files in the directory
         for sess_path in glob.glob(self._get_session_path('*')):
@@ -840,7 +852,8 @@ class AccessLists(object):
         self._validate_signals(allowed_signals)
         self._validate_controls(allowed_controls)
         group_dir = os.path.join(self._CONFIG_PATH, group)
-        secure_make_dirs(group_dir)
+        secure_make_dirs(group_dir,
+                         perm_mode=GEOPM_SERVICE_CONFIG_PATH_PERM)
         path = os.path.join(group_dir, 'allowed_signals')
         self._write_allowed(path, allowed_signals)
         path = os.path.join(group_dir, 'allowed_controls')
@@ -914,7 +927,7 @@ class WriteLock(object):
     """Class for interacting with control lock file
 
     This class provides the interface to query and set the PID that owns the
-    GEOPM Service control write lock.  The state of this lock stored in the
+    GEOPM Service control write lock.  The state of this lock is stored in the
     file path:
 
         /var/run/geopm-service/CONTROL_LOCK
@@ -942,7 +955,8 @@ class WriteLock(object):
         self._VAR_PATH = var_path
         self._LOCK_PATH = os.path.join(self._VAR_PATH, "CONTROL_LOCK")
         self._fid = None
-        secure_make_dirs(self._VAR_PATH)
+        secure_make_dirs(self._VAR_PATH,
+                         perm_mode=GEOPM_SERVICE_VAR_PATH_PERM)
 
     def __enter__(self):
         """Enter context management for interacting with write lock

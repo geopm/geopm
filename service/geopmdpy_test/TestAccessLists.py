@@ -132,7 +132,7 @@ default
             signal_file = os.path.join(test_dir, 'allowed_signals')
             control_file = os.path.join(test_dir, 'allowed_controls')
 
-            mock_smd.assert_called_once_with(test_dir)
+            mock_smd.assert_called_once_with(test_dir, perm_mode=0o700)
             calls = [mock.call(signal_file, 'power\n'),
                      mock.call(control_file, 'frequency\n')]
             mock_smf.assert_has_calls(calls)

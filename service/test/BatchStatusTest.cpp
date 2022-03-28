@@ -51,6 +51,8 @@ class BatchStatusTest : public ::testing::Test
         void SetUp(void);
         void TearDown(void);
         int fork_other(std::function<void(int)> child_process_func);
+        std::unique_ptr<BatchStatus> make_test_server(int client_pid);
+        std::unique_ptr<BatchStatus> make_test_client();
         std::string m_server_prefix;
         std::string m_server_key;
         std::string m_status_path_in;
@@ -59,7 +61,7 @@ class BatchStatusTest : public ::testing::Test
 
 void BatchStatusTest::SetUp(void)
 {
-    m_server_prefix = BatchStatus::M_FIFO_PREFIX;
+    m_server_prefix = "/tmp/geopm-service-batch-status-";
     m_server_key = "test-key";
 
     // Explicitly force the fifo to be removed if it is already existing.
@@ -101,6 +103,18 @@ int BatchStatusTest::fork_other(std::function<void(int)> child_process_func)
     return result;
 }
 
+std::unique_ptr<BatchStatus> BatchStatusTest::make_test_server(int client_pid)
+{
+        return BatchStatus::make_unique_server(client_pid,
+                                               m_server_key,
+                                               m_server_prefix);
+}
+
+std::unique_ptr<BatchStatus> BatchStatusTest::make_test_client()
+{
+        return BatchStatus::make_unique_client(m_server_key, m_server_prefix);
+}
+
 
 /************************************
  * Test Fixtures of BatchStatusTest *
@@ -111,9 +125,7 @@ TEST_F(BatchStatusTest, client_send_to_server_fifo_expect)
     int client_pid = getpid();
     std::function<void(int)> child_process_func = [this, client_pid](int write_pipe_fd)
     {
-        auto server_status = BatchStatus::make_unique_server(
-            client_pid, this->m_server_key
-        );
+        auto server_status = this->make_test_server(client_pid);
         /* Extra code for synchronizing the server process. */
         char unique_char = '!';
         write(write_pipe_fd, &unique_char, sizeof(unique_char));
@@ -122,7 +134,7 @@ TEST_F(BatchStatusTest, client_send_to_server_fifo_expect)
     };
     int server_pid = fork_other(child_process_func);
 
-    auto client_status = BatchStatus::make_unique_client(m_server_key);
+    auto client_status = make_test_client();
     client_status->send_message(BatchStatus::M_MESSAGE_READ);
     waitpid(server_pid, nullptr, 0);  // reap child process
 }
@@ -132,9 +144,7 @@ TEST_F(BatchStatusTest, server_send_to_client_fifo_expect)
     int client_pid = getpid();
     std::function<void(int)> child_process_func = [this, client_pid](int write_pipe_fd)
     {
-        auto server_status = BatchStatus::make_unique_server(
-            client_pid, this->m_server_key
-        );
+        auto server_status = this->make_test_server(client_pid);
         /* Extra code for synchronizing the server process. */
         char unique_char = '!';
         write(write_pipe_fd, &unique_char, sizeof(unique_char));
@@ -143,7 +153,7 @@ TEST_F(BatchStatusTest, server_send_to_client_fifo_expect)
     };
     int server_pid = fork_other(child_process_func);
 
-    auto client_status = BatchStatus::make_unique_client(m_server_key);
+    auto client_status = make_test_client();
     client_status->receive_message(BatchStatus::M_MESSAGE_READ);
     waitpid(server_pid, nullptr, 0);  // reap child process
 }
@@ -153,9 +163,7 @@ TEST_F(BatchStatusTest, server_send_to_client_fifo)
     int client_pid = getpid();
     std::function<void(int)> child_process_func = [this, client_pid](int write_pipe_fd)
     {
-        auto server_status = BatchStatus::make_unique_server(
-            client_pid, this->m_server_key
-        );
+        auto server_status = this->make_test_server(client_pid);
         /* Extra code for synchronizing the server process. */
         char unique_char = '!';
         write(write_pipe_fd, &unique_char, sizeof(unique_char));
@@ -164,7 +172,7 @@ TEST_F(BatchStatusTest, server_send_to_client_fifo)
     };
     int server_pid = fork_other(child_process_func);
 
-    auto client_status = BatchStatus::make_unique_client(m_server_key);
+    auto client_status = make_test_client();
     char result = client_status->receive_message();
     char expected = BatchStatus::M_MESSAGE_READ;
     EXPECT_EQ(result, expected);
@@ -176,9 +184,7 @@ TEST_F(BatchStatusTest, both_send_at_once_fifo_expect)
     int client_pid = getpid();
     std::function<void(int)> child_process_func = [this, client_pid](int write_pipe_fd)
     {
-        auto server_status = BatchStatus::make_unique_server(
-            client_pid, this->m_server_key
-        );
+        auto server_status = this->make_test_server(client_pid);
         /* Extra code for synchronizing the server process. */
         char unique_char = '!';
         write(write_pipe_fd, &unique_char, sizeof(unique_char));
@@ -188,7 +194,7 @@ TEST_F(BatchStatusTest, both_send_at_once_fifo_expect)
     };
     int server_pid = fork_other(child_process_func);
 
-    auto client_status = BatchStatus::make_unique_client(m_server_key);
+    auto client_status = make_test_client();
     client_status->receive_message(BatchStatus::M_MESSAGE_WRITE);
     client_status->send_message(BatchStatus::M_MESSAGE_READ);
     waitpid(server_pid, nullptr, 0);  // reap child process
@@ -199,16 +205,14 @@ TEST_F(BatchStatusTest, server_and_client_do_nothing)
     int client_pid = getpid();
     std::function<void(int)> child_process_func = [this, client_pid](int write_pipe_fd)
     {
-        auto server_status = BatchStatus::make_unique_server(
-            client_pid, this->m_server_key
-        );
+        auto server_status = this->make_test_server(client_pid);
         /* Extra code for synchronizing the server process. */
         char unique_char = '!';
         write(write_pipe_fd, &unique_char, sizeof(unique_char));
     };
     int server_pid = fork_other(child_process_func);
 
-    auto client_status = BatchStatus::make_unique_client(m_server_key);
+    auto client_status = make_test_client();
     waitpid(server_pid, nullptr, 0);  // reap child process
 }
 
@@ -217,9 +221,7 @@ TEST_F(BatchStatusTest, client_send_to_server_fifo_incorrect_expect)
     int client_pid = getpid();
     std::function<void(int)> child_process_func = [this, client_pid](int write_pipe_fd)
     {
-        auto server_status = BatchStatus::make_unique_server(
-            client_pid, this->m_server_key
-        );
+        auto server_status = this->make_test_server(client_pid);
         /* Extra code for synchronizing the server process. */
         char unique_char = '!';
         write(write_pipe_fd, &unique_char, sizeof(unique_char));
@@ -232,7 +234,7 @@ TEST_F(BatchStatusTest, client_send_to_server_fifo_incorrect_expect)
     };
     int server_pid = fork_other(child_process_func);
 
-    auto client_status = BatchStatus::make_unique_client(m_server_key);
+    auto client_status = make_test_client();
     client_status->send_message(BatchStatus::M_MESSAGE_READ);
     waitpid(server_pid, nullptr, 0);  // reap child process
 }
@@ -242,16 +244,15 @@ TEST_F(BatchStatusTest, bad_client_key)
     int client_pid = getpid();
     std::function<void(int)> child_process_func = [this, client_pid](int write_pipe_fd)
     {
-        auto server_status = BatchStatus::make_unique_server(
-            client_pid, this->m_server_key
-        );
+        auto server_status = this->make_test_server(client_pid);
         /* Extra code for synchronizing the server process. */
         char unique_char = '!';
         write(write_pipe_fd, &unique_char, sizeof(unique_char));
     };
     int server_pid = fork_other(child_process_func);
 
-    auto client_status = BatchStatus::make_unique_client("bad_key");
+    auto client_status = BatchStatus::make_unique_client("bad_key",
+                                                         m_server_prefix);
     GEOPM_EXPECT_THROW_MESSAGE(
         client_status->send_message(BatchStatus::M_MESSAGE_READ),
         ENOENT,
