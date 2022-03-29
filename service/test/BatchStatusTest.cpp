@@ -65,7 +65,7 @@ class BatchStatusTest : public ::testing::Test
 
 void BatchStatusTest::SetUp(void)
 {
-    m_server_prefix = "/tmp/geopm-service-batch-status-";
+    m_server_prefix = "/tmp/geopm-test-service-batch-status-";
     m_server_key = "test-key";
 
     // Explicitly force the fifo to be removed if it is already existing.
