@@ -123,7 +123,7 @@ class CPUTorchAgent : public geopm::Agent
         std::vector<signal> m_package_uncore_freq_status;
         std::vector<signal> m_package_qm_rate;
         std::vector<signal> m_package_inst_retired;
-        std::vector<signal> m_package_time;
+        std::vector<signal> m_package_cycles_unhalted;
         std::vector<signal> m_package_energy;
         std::vector<signal> m_package_acnt;
         std::vector<signal> m_package_mcnt;
