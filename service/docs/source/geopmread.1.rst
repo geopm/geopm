@@ -1,38 +1,57 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
-
-
 geopmread(1) -- query platform information
 ==========================================
-
-
-
-
 
 
 SYNOPSIS
 --------
 
-PRINT ALL SIGNAL NAMES :raw-html-m2r:`<br>`
-``geopmread``
+PRINT ALL SIGNAL NAMES
 
-PRINT DOMAIN NAME AND SIZE :raw-html-m2r:`<br>`
-``geopmread`` --domain
+.. code-block:: bash
 
-PRINT SIGNAL DESCRIPTION :raw-html-m2r:`<br>`
-``geopmread`` --info SIGNAL_NAME
+    geopmread
 
-PRINT ALL SIGNAL DESCRIPTIONS :raw-html-m2r:`<br>`
-``geopmread`` --info-all
 
-READ SIGNAL :raw-html-m2r:`<br>`
-``geopmread`` SIGNAL_NAME DOMAIN_TYPE DOMAIN_INDEX
+PRINT DOMAIN NAME AND SIZE
 
-CREATE CACHE :raw-html-m2r:`<br>`
-``geopmread`` --cache
+.. code-block:: bash
 
-GET HELP OR VERSION :raw-html-m2r:`<br>`
-``geopmread`` --help | --version
+    geopmread --domain
+
+
+PRINT SIGNAL DESCRIPTION
+
+.. code-block:: bash
+
+    geopmread --info SIGNAL_NAME
+
+
+PRINT ALL SIGNAL DESCRIPTIONS
+
+.. code-block:: bash
+
+    geopmread --info-all
+
+
+READ SIGNAL
+
+.. code-block:: bash
+
+    geopmread SIGNAL_NAME DOMAIN_TYPE DOMAIN_INDEX
+
+
+CREATE CACHE
+
+.. code-block:: bash
+
+    geopmread --cache
+
+
+GET HELP OR VERSION
+
+.. code-block:: bash
+
+    geopmread --help | --version
 
 DESCRIPTION
 -----------
@@ -81,20 +100,20 @@ OPTIONS
 -------
 
 
-* 
+*
   ``-d``\ , ``--domain``\ :
   Print a list of all domains on the system.
 
-* 
+*
   ``-i``\ , ``--info``\ :
   Print description of the provided SIGNAL_NAME.
 
-* 
+*
   ``-I``\ , ``--info-all``\ :
   Print a list of all available signals with their descriptions,
   if any.
 
-* 
+*
   ``-c``\ , ``--cache``\ :
   Create a cache file for the geopm::PlatformTopo object if one does
   not exist.  File permissions of the cache file are set to
@@ -103,12 +122,12 @@ OPTIONS
   performed.  To force the creation of a new cache file, remove the
   existing cache file prior to executing this command.
 
-* 
+*
   ``-h``\ , ``--help``\ :
   Print brief summary of the command line usage information,
   then exit.
 
-* 
+*
   ``-v``\ , ``--version``\ :
   Print version of `geopm(7) <geopm.7.html>`_ to standard output, then exit.
 
