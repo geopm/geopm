@@ -140,6 +140,7 @@ GEOPMDPY_TESTS = geopmdpy_test/pytest_links/TestAccessLists.test__read_allowed_i
                  geopmdpy_test/pytest_links/TestActiveSessions.test_watch_id \
                  geopmdpy_test/pytest_links/TestSecureFiles.test_pre_exists \
                  geopmdpy_test/pytest_links/TestSecureFiles.test_default_creation \
+                 geopmdpy_test/pytest_links/TestSecureFiles.test_creation_with_perm \
                  geopmdpy_test/pytest_links/TestSecureFiles.test_creation_link_not_dir \
                  geopmdpy_test/pytest_links/TestSecureFiles.test_creation_file_not_dir \
                  geopmdpy_test/pytest_links/TestSecureFiles.test_creation_bad_perms \
