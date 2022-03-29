@@ -51,7 +51,8 @@ GET HELP OR VERSION
 
 .. code-block:: bash
 
-    geopmread --help | --version
+    geopmread --help
+    geopmread --version
 
 DESCRIPTION
 -----------
