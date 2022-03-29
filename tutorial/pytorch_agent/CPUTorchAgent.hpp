@@ -30,8 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef GPUTORCHAGENT_HPP_INCLUDE
-#define GPUTORCHAGENT_HPP_INCLUDE
+#ifndef CPUTORCHAGENT_HPP_INCLUDE
+#define CPUTORCHAGENT_HPP_INCLUDE
 
 #include <torch/script.h>
 #include <vector>
@@ -46,12 +46,12 @@ namespace geopm
 }
 
 /// @brief Agent
-class GPUTorchAgent : public geopm::Agent
+class CPUTorchAgent : public geopm::Agent
 {
     public:
-        GPUTorchAgent();
-        GPUTorchAgent(geopm::PlatformIO &plat_io, const geopm::PlatformTopo &topo);
-        virtual ~GPUTorchAgent() = default;
+        CPUTorchAgent();
+        CPUTorchAgent(geopm::PlatformIO &plat_io, const geopm::PlatformTopo &topo);
+        virtual ~CPUTorchAgent() = default;
         void init(int level, const std::vector<int> &fan_in, bool is_level_root) override;
         void validate_policy(std::vector<double> &in_policy) const override;
         void split_policy(const std::vector<double> &in_policy,
@@ -81,7 +81,7 @@ class GPUTorchAgent : public geopm::Agent
         geopm_time_s m_last_wait;
         const double M_WAIT_SEC;
         const double M_POLICY_PHI_DEFAULT;
-        const int M_NUM_GPU;
+        const int M_NUM_PACKAGE;
         bool m_do_write_batch;
 
         struct signal
@@ -98,9 +98,9 @@ class GPUTorchAgent : public geopm::Agent
 
         // Policy indices; must match policy_names()
         enum m_policy_e {
-            M_POLICY_GPU_FREQ_MIN,
-            M_POLICY_GPU_FREQ_MAX,
-            M_POLICY_GPU_PHI,
+            M_POLICY_CPU_FREQ_MIN,
+            M_POLICY_CPU_FREQ_MAX,
+            M_POLICY_CPU_PHI,
             M_NUM_POLICY
         };
 
@@ -111,17 +111,23 @@ class GPUTorchAgent : public geopm::Agent
 
         std::map<std::string, double> m_policy_available;
 
-        double m_gpu_frequency_requests;
-        std::string m_gpu_nn_path;
-        std::vector<torch::jit::script::Module> m_gpu_neural_net;
-        torch::jit::script::Module m_cpu_neural_net;
+        double m_package_frequency_requests;
+        std::string m_package_nn_path;
+        std::vector<torch::jit::script::Module> m_package_neural_net;
 
-        std::vector<signal> m_gpu_freq_status;
-        std::vector<signal> m_gpu_compute_activity;
-        std::vector<signal> m_gpu_memory_activity;
-        std::vector<signal> m_gpu_utilization;
-        std::vector<signal> m_gpu_power;
-        std::vector<control> m_gpu_freq_control;
+        std::vector<control> m_package_freq_control;
+        std::vector<signal> m_package_power;
+        std::vector<signal> m_package_power_dram;
+        std::vector<signal> m_package_freq_status;
+        std::vector<signal> m_package_temperature;
+        std::vector<signal> m_package_uncore_freq_status;
+        std::vector<signal> m_package_qm_rate;
+        std::vector<signal> m_package_inst_retired;
+        std::vector<signal> m_package_time;
+        std::vector<signal> m_package_energy;
+        std::vector<signal> m_package_acnt;
+        std::vector<signal> m_package_mcnt;
+        std::vector<signal> m_package_pcnt;
 
         void init_platform_io(void);
 };

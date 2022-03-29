@@ -60,12 +60,11 @@ def main():
                  'MSR::UNCORE_PERF_STATUS:FREQ-package-0',
                  'QM_CTR_SCALED_RATE-package-0']
 
-    ratios = [['ENERGY_DRAM-package-0', 'TIME'],                          #TODO: consider native
-              ['INSTRUCTIONS_RETIRED-package-0', 'TIME'],                 #TODO: consider native
-              ['ENERGY_PACKAGE-package-0', 'TIME'],
-              ['MSR::APERF:ACNT-package-0', 'MSR::MPERF:MCNT-package-0'], #TODO: consider native
-              ['MSR::PPERF:PCNT-package-0', 'MSR::MPERF:MCNT-package-0'], #TODO: consider native
-              ['MSR::PPERF:PCNT-package-0', 'MSR::APERF:ACNT-package-0']] #TODO: consider native
+    ratios = [['INSTRUCTIONS_RETIRED-package-0', 'TIME'],
+              ['INSTRUCTIONS_RETIRED-package-0', 'ENERGY_PACKAGE-package-0'],
+              ['MSR::APERF:ACNT-package-0', 'MSR::MPERF:MCNT-package-0'],
+              ['MSR::PPERF:PCNT-package-0', 'MSR::MPERF:MCNT-package-0'],
+              ['MSR::PPERF:PCNT-package-0', 'MSR::APERF:ACNT-package-0']]
 
     for num,den in ratios:
         name = 'delta_{}/delta_{}'.format(num, den)
