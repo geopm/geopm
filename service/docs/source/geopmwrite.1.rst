@@ -1,7 +1,3 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
-
-
 geopmwrite(1) -- modify platform state
 ======================================
 
@@ -13,26 +9,53 @@ geopmwrite(1) -- modify platform state
 SYNOPSIS
 --------
 
-PRINT ALL CONTROL NAMES :raw-html-m2r:`<br>`
-``geopmwrite``
+PRINT ALL CONTROL NAMES
 
-PRINT DOMAIN NAME AND SIZE :raw-html-m2r:`<br>`
-``geopmwrite`` --domain
+.. code-block:: bash
 
-PRINT CONTOL DESCRIPTION :raw-html-m2r:`<br>`
-``geopmwrite`` --info CONTROL_NAME
+    geopmwrite
 
-PRINT ALL CONTROL DESCRIPTIONS :raw-html-m2r:`<br>`
-``geopmwrite`` --info-all
 
-WRITE CONTROL :raw-html-m2r:`<br>`
-``geopmwrite`` CONTROL_NAME DOMAIN_TYPE DOMAIN_INDEX VALUE
+PRINT DOMAIN NAME AND SIZE
 
-CREATE CACHE :raw-html-m2r:`<br>`
-``geopmwrite`` --cache
+.. code-block:: bash
 
-GET HELP OR VERSION :raw-html-m2r:`<br>`
-``geopmwrite`` --help | --version
+    geopmwrite --domain
+
+
+PRINT CONTOL DESCRIPTION
+
+.. code-block:: bash
+
+    geopmwrite --info CONTROL_NAME
+
+
+PRINT ALL CONTROL DESCRIPTIONS
+
+.. code-block:: bash
+
+    geopmwrite --info-all
+
+
+WRITE CONTROL
+
+.. code-block:: bash
+
+    geopmwrite CONTROL_NAME DOMAIN_TYPE DOMAIN_INDEX VALUE
+
+
+CREATE CACHE
+
+.. code-block:: bash
+
+    geopmwrite --cache
+
+
+GET HELP OR VERSION
+
+.. code-block:: bash
+
+    geopmwrite --help | --version
 
 DESCRIPTION
 -----------
@@ -59,16 +82,16 @@ subdomain.  Refer to the domain hierarchy described in
 `geopm::PlatformTopo(3) <GEOPM_CXX_MAN_PlatformTopo.3.html>`_ for the descriptions of the domains and how
 they are contained within one another.
 
-``board`` - domain for node-wide signals and controls :raw-html-m2r:`<br>`
-++\ ``package`` - socket :raw-html-m2r:`<br>`
-++++\ ``core`` - physical core :raw-html-m2r:`<br>`
-++++++\ ``cpu`` - Linux logical CPU :raw-html-m2r:`<br>`
-++++\ ``package_memory`` - on-package memory :raw-html-m2r:`<br>`
-++++\ ``package_nic`` - NIC within the package :raw-html-m2r:`<br>`
-++++\ ``package_accelerator`` - domain for accelerators within the package :raw-html-m2r:`<br>`
-++\ ``board_memory`` - other memory outside the package :raw-html-m2r:`<br>`
-++\ ``board_nic`` - NIC attached to the board :raw-html-m2r:`<br>`
-++\ ``board_accelerator`` - domain for accelerators on the board
+| ``board`` - domain for node-wide signals and controls
+| ++ ``package`` - socket
+| ++++ ``core`` - physical core
+| ++++++ ``cpu`` - Linux logical CPU
+| ++++ ``package_memory`` - on-package memory
+| ++++ ``package_nic`` - NIC within the package
+| ++++ ``package_accelerator`` - domain for accelerators within the package
+| ++ ``board_memory`` - other memory outside the package
+| ++ ``board_nic`` - NIC attached to the board
+| ++ ``board_accelerator`` - domain for accelerators on the board
 
 This utility can be used to create a geopm::PlatformTopo cache file in
 the tmpfs.  When this file is not present the `geopmread(1) <geopmread.1.html>`_\ ,
@@ -81,20 +104,20 @@ OPTIONS
 -------
 
 
-* 
+*
   ``-d``\ , ``--domain``\ :
   Print a list of all domains on the system.
 
-* 
+*
   ``-i``\ , ``--info``\ :
   Print description of the provided CONTROL_NAME.
 
-* 
+*
   ``-I``\ , ``--info-all``\ :
   Print a list of all available controls with their descriptions,
   if any.
 
-* 
+*
   ``-c``\ , ``--cache``\ :
   Create a cache file for the geopm::PlatformTopo object if one does
   not exist.  File permissions of the cache file are set to
@@ -103,12 +126,12 @@ OPTIONS
   performed.  To force the creation of a new cache file, remove the
   existing cache file prior to executing this command.
 
-* 
+*
   ``-h``\ , ``--help``\ :
   Print brief summary of the command line usage information,
   then exit.
 
-* 
+*
   ``-v``\ , ``--version``\ :
   Print version of `geopm(7) <geopm.7.html>`_ to standard output, then exit.
 
@@ -168,9 +191,12 @@ Set the frequency of CPU 2 to 1.9 GHz:
 
 Set all CPUs on package 0 to 1.5 GHz (cpu 1 is on package 0):
 
+.. code-block::
+
    $ geopmwrite CPU_FREQUENCY_CONTROL package 0 1.5e9
    $ geopmread CPU_FREQUENCY_CONTROL cpu 1
    1.5e9
+
 
 SEE ALSO
 --------
