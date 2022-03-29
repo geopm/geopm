@@ -34,6 +34,8 @@
 
 #include "BatchStatus.hpp"
 
+#include "geopm/Helper.hpp"
+
 #include "gtest/gtest.h"
 #include "geopm_test.hpp"
 
@@ -53,6 +55,8 @@ class BatchStatusTest : public ::testing::Test
         int fork_other(std::function<void(int)> child_process_func);
         std::unique_ptr<BatchStatus> make_test_server(int client_pid);
         std::unique_ptr<BatchStatus> make_test_client();
+        std::unique_ptr<BatchStatus> make_test_client(
+            const std::string &server_key);
         std::string m_server_prefix;
         std::string m_server_key;
         std::string m_status_path_in;
@@ -105,14 +109,21 @@ int BatchStatusTest::fork_other(std::function<void(int)> child_process_func)
 
 std::unique_ptr<BatchStatus> BatchStatusTest::make_test_server(int client_pid)
 {
-        return BatchStatus::make_unique_server(client_pid,
-                                               m_server_key,
-                                               m_server_prefix);
+    return geopm::make_unique<geopm::BatchStatusServer>(client_pid,
+                                                        m_server_key,
+                                                        m_server_prefix);
 }
 
 std::unique_ptr<BatchStatus> BatchStatusTest::make_test_client()
 {
-        return BatchStatus::make_unique_client(m_server_key, m_server_prefix);
+    return make_test_client(m_server_key);
+}
+
+std::unique_ptr<BatchStatus> BatchStatusTest::make_test_client(
+    const std::string &server_key)
+{
+    return geopm::make_unique<geopm::BatchStatusClient>(server_key,
+                                                        m_server_prefix);
 }
 
 
@@ -251,8 +262,7 @@ TEST_F(BatchStatusTest, bad_client_key)
     };
     int server_pid = fork_other(child_process_func);
 
-    auto client_status = BatchStatus::make_unique_client("bad_key",
-                                                         m_server_prefix);
+    auto client_status = make_test_client("bad_key");
     GEOPM_EXPECT_THROW_MESSAGE(
         client_status->send_message(BatchStatus::M_MESSAGE_READ),
         ENOENT,
