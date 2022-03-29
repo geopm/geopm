@@ -53,20 +53,17 @@ namespace geopm
 
     std::unique_ptr<BatchStatus>
     BatchStatus::make_unique_server(int client_pid,
-                                    const std::string &server_key,
-                                    const std::string &fifo_prefix)
+                                    const std::string &server_key)
     {
         // calling the server constructor
-        return geopm::make_unique<BatchStatusServer>(client_pid, server_key,
-                                                     fifo_prefix);
+        return geopm::make_unique<BatchStatusServer>(client_pid, server_key);
     }
 
     std::unique_ptr<BatchStatus>
-    BatchStatus::make_unique_client(const std::string &server_key,
-                                    const std::string &fifo_prefix)
+    BatchStatus::make_unique_client(const std::string &server_key)
     {
         // calling the client constructor
-        return geopm::make_unique<BatchStatusClient>(server_key, fifo_prefix);
+        return geopm::make_unique<BatchStatusClient>(server_key);
     }
 
     /***********************************
@@ -121,6 +118,12 @@ namespace geopm
      **************************************/
 
     // The constructor which is called by the server.
+    BatchStatusServer::BatchStatusServer(int client_pid,
+                                         const std::string &server_key)
+        : BatchStatusServer(client_pid, server_key, M_DEFAULT_FIFO_PREFIX)
+    {
+    }
+
     BatchStatusServer::BatchStatusServer(int client_pid,
                                          const std::string &server_key,
                                          const std::string &fifo_prefix)
@@ -182,6 +185,11 @@ namespace geopm
      **************************************/
 
     // The constructor which is called by the client.
+    BatchStatusClient::BatchStatusClient(const std::string &server_key)
+        : BatchStatusClient(server_key, M_DEFAULT_FIFO_PREFIX)
+    {
+    }
+
     BatchStatusClient::BatchStatusClient(const std::string &server_key,
                                          const std::string &fifo_prefix)
         : BatchStatusImp(-1, -1)
