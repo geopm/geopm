@@ -54,7 +54,7 @@ def main():
 
     y_columns = ['phi-freq']
     X_columns = ['POWER_PACKAGE-package-0',
-                 'POWER_DRAM-package-0',
+                 #'POWER_DRAM-package-0',
                  'CPU_FREQUENCY_STATUS-package-0',          #TODO: consider native
                  'TEMPERATURE_CORE-package-0',              #TODO: consider native
                  'MSR::UNCORE_PERF_STATUS:FREQ-package-0',
@@ -74,6 +74,7 @@ def main():
 
     #Print phi to phi-freq mapping
     print(df_traces.pivot_table('phi-freq', 'phi', 'app-config'))
+    code.interact(local=locals())
 
     # Exclude rows missing data in any of the columns of interest. Otherwise,
     # NaN values propagate into every weight in the model.
@@ -93,6 +94,7 @@ def main():
             exit(1)
         df_traces = df_traces.loc[df_traces['app-config'] != args.leave_app_out]
 
+    code.interact(local=locals())
     df_train = df_traces
     df_x_train = df_train[X_columns]
     df_y_train = df_train[y_columns]

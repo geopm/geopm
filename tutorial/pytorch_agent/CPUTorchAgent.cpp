@@ -106,9 +106,9 @@ void CPUTorchAgent::init_platform_io(void)
         m_package_power.push_back({m_platform_io.push_signal("POWER_PACKAGE",
                                    GEOPM_DOMAIN_PACKAGE,
                                    domain_idx), NAN});
-        m_package_power_dram.push_back({m_platform_io.push_signal("POWER_DRAM",
-                                        GEOPM_DOMAIN_PACKAGE,
-                                        domain_idx), NAN});
+        //m_package_power_dram.push_back({m_platform_io.push_signal("POWER_DRAM",
+        //                                GEOPM_DOMAIN_PACKAGE,
+        //                                domain_idx), NAN});
         m_package_freq_status.push_back({m_platform_io.push_signal("CPU_FREQUENCY_STATUS",
                                          GEOPM_DOMAIN_PACKAGE,
                                          domain_idx), NAN});
@@ -252,7 +252,7 @@ void CPUTorchAgent::adjust_platform(const std::vector<double>& in_policy)
     for (int domain_idx = 0; domain_idx < M_NUM_PACKAGE; ++domain_idx) {
         //Create an input tensor
         torch::Tensor xs = torch::tensor({{m_package_power.at(domain_idx).value,
-                                           m_package_power_dram.at(domain_idx).value,
+                                           //m_package_power_dram.at(domain_idx).value,
                                            m_package_freq_status.at(domain_idx).value,
                                            m_package_temperature.at(domain_idx).value,
                                            m_package_uncore_freq_status.at(domain_idx).value,
@@ -311,7 +311,7 @@ void CPUTorchAgent::sample_platform(std::vector<double> &out_sample)
     // Collect latest signal values
     for (int domain_idx = 0; domain_idx < M_NUM_PACKAGE; ++domain_idx) {
         m_package_power.at(domain_idx).value = m_platform_io.sample(m_package_power.at(domain_idx).batch_idx);
-        m_package_power_dram.at(domain_idx).value = m_platform_io.sample(m_package_power_dram.at(domain_idx).batch_idx);
+        //m_package_power_dram.at(domain_idx).value = m_platform_io.sample(m_package_power_dram.at(domain_idx).batch_idx);
         m_package_freq_status.at(domain_idx).value = m_platform_io.sample(m_package_freq_status.at(domain_idx).batch_idx);
         m_package_temperature.at(domain_idx).value = m_platform_io.sample(m_package_temperature.at(domain_idx).batch_idx);
         m_package_uncore_freq_status.at(domain_idx).value = m_platform_io.sample(m_package_uncore_freq_status.at(domain_idx).batch_idx);
