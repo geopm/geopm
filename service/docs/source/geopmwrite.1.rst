@@ -23,7 +23,7 @@ PRINT DOMAIN NAME AND SIZE
     geopmwrite --domain
 
 
-PRINT CONTOL DESCRIPTION
+PRINT CONTROL DESCRIPTION
 
 .. code-block:: bash
 
@@ -55,7 +55,8 @@ GET HELP OR VERSION
 
 .. code-block:: bash
 
-    geopmwrite --help | --version
+    geopmwrite --help
+    geopmwrite --version
 
 DESCRIPTION
 -----------
