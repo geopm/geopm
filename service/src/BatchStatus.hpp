@@ -54,11 +54,9 @@ namespace geopm
             virtual ~BatchStatus() = default;
             static std::unique_ptr<BatchStatus> make_unique_server(
                 int client_pid,
-                const std::string &server_key,
-                const std::string &fifo_prefix = M_DEFAULT_FIFO_PREFIX);
+                const std::string &server_key);
             static std::unique_ptr<BatchStatus> make_unique_client(
-                const std::string &server_key,
-                const std::string &fifo_prefix = M_DEFAULT_FIFO_PREFIX);
+                const std::string &server_key);
 
             /// @brief Send an integer to the other process
             ///
@@ -77,11 +75,6 @@ namespace geopm
             /// @throw Exception if a message is received, but the
             ///        message does not match the expected_message.
             virtual void receive_message(char expect) = 0;
-
-            // This is the single place where the server prefix is located,
-            // which is also accessed by BatchStatusTest.
-            static constexpr const char* M_DEFAULT_FIFO_PREFIX =
-                "/var/run/geopm-service/geopm-service-batch-status-";
     };
 
     class BatchStatusImp : public BatchStatus
@@ -98,6 +91,11 @@ namespace geopm
             void check_return(int ret, const std::string &func_name);
             int m_read_fd;
             int m_write_fd;
+
+            // This is the single place where the server prefix is located,
+            // which is also accessed by BatchStatusTest.
+            static constexpr const char* M_DEFAULT_FIFO_PREFIX =
+                "/var/run/geopm-service/geopm-service-batch-status-";
     };
 
     class BatchStatusServer : public BatchStatusImp
@@ -106,6 +104,7 @@ namespace geopm
             ///
             /// The constructor which is called by the server.
             ///
+            BatchStatusServer(int other_pid, const std::string &server_key);
             BatchStatusServer(int other_pid, const std::string &server_key,
                               const std::string &fifo_prefix);
             virtual ~BatchStatusServer();
@@ -122,6 +121,7 @@ namespace geopm
             ///
             /// The constructor which is called by the client.
             ///
+            BatchStatusClient(const std::string &server_key);
             BatchStatusClient(const std::string &server_key,
                               const std::string &fifo_prefix);
             virtual ~BatchStatusClient();
