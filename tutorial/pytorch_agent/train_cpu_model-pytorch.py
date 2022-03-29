@@ -60,7 +60,7 @@ def main():
                  'MSR::UNCORE_PERF_STATUS:FREQ-package-0',
                  'QM_CTR_SCALED_RATE-package-0']
 
-    ratios = [['INSTRUCTIONS_RETIRED-package-0', 'TIME'],
+    ratios = [['INSTRUCTIONS_RETIRED-package-0', 'CYCLES_THREAD-package-0'],
               ['INSTRUCTIONS_RETIRED-package-0', 'ENERGY_PACKAGE-package-0'],
               ['MSR::APERF:ACNT-package-0', 'MSR::MPERF:MCNT-package-0'],
               ['MSR::PPERF:PCNT-package-0', 'MSR::MPERF:MCNT-package-0'],

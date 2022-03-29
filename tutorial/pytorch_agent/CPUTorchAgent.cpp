@@ -103,10 +103,10 @@ void CPUTorchAgent::init(int level, const std::vector<int> &fan_in, bool is_leve
 void CPUTorchAgent::init_platform_io(void)
 {
     for (int domain_idx = 0; domain_idx < M_NUM_PACKAGE; ++domain_idx) {
-        m_package_power.push_back({m_platform_io.push_signal("POWER_PACKAGE-package-0",
+        m_package_power.push_back({m_platform_io.push_signal("POWER_PACKAGE",
                                    GEOPM_DOMAIN_PACKAGE,
                                    domain_idx), NAN});
-        m_package_power_dram.push_back({m_platform_io.push_signal("POWER_DRAM-package-0",
+        m_package_power_dram.push_back({m_platform_io.push_signal("POWER_DRAM",
                                         GEOPM_DOMAIN_PACKAGE,
                                         domain_idx), NAN});
         m_package_freq_status.push_back({m_platform_io.push_signal("CPU_FREQUENCY_STATUS",
@@ -121,22 +121,22 @@ void CPUTorchAgent::init_platform_io(void)
         m_package_qm_rate.push_back({m_platform_io.push_signal("QM_CTR_SCALED_RATE",
                                      GEOPM_DOMAIN_PACKAGE,
                                      domain_idx), NAN});
-        m_package_inst_retired.push_back({m_platform_io.push_signal("INSTRUCTIONS_RETIRED-package-0",
+        m_package_inst_retired.push_back({m_platform_io.push_signal("INSTRUCTIONS_RETIRED",
                                           GEOPM_DOMAIN_PACKAGE,
                                           domain_idx), NAN});
-        m_package_time.push_back({m_platform_io.push_signal("TIME",
-                          GEOPM_DOMAIN_PACKAGE,
-                          domain_idx), NAN});
-        m_package_energy.push_back({m_platform_io.push_signal("ENERGY_PACKAGE-package-0",
+        m_package_cycles_unhalted.push_back({m_platform_io.push_signal("CYCLES_THREAD",
+                                             GEOPM_DOMAIN_PACKAGE,
+                                             domain_idx), NAN});
+        m_package_energy.push_back({m_platform_io.push_signal("ENERGY_PACKAGE",
                                     GEOPM_DOMAIN_PACKAGE,
                                     domain_idx), NAN});
-        m_package_acnt.push_back({m_platform_io.push_signal("MSR::APERF:ACNT-package-0",
+        m_package_acnt.push_back({m_platform_io.push_signal("MSR::APERF:ACNT",
                                   GEOPM_DOMAIN_PACKAGE,
                                   domain_idx), NAN});
-        m_package_mcnt.push_back({m_platform_io.push_signal("MSR::MPERF:MCNT-package-0",
+        m_package_mcnt.push_back({m_platform_io.push_signal("MSR::MPERF:MCNT",
                                   GEOPM_DOMAIN_PACKAGE,
                                   domain_idx), NAN});
-        m_package_pcnt.push_back({m_platform_io.push_signal("MSR::PPERF:PCNT-package-0",
+        m_package_pcnt.push_back({m_platform_io.push_signal("MSR::PPERF:PCNT",
                                   GEOPM_DOMAIN_PACKAGE,
                                   domain_idx), NAN});
     }
@@ -147,8 +147,10 @@ void CPUTorchAgent::init_platform_io(void)
                                           domain_idx), NAN});
     }
 
-    //Configuration of QM_CTR
-    //m_platform_io.write_control("DCGM::FIELD_UPDATE_RATE", GEOPM_DOMAIN_BOARD, 0, 0.1); //100ms
+    //Configuration of QM_CTR must match QM_CTR config used for training data
+    m_platform_io.write_control("MSR::PQR_ASSOC:RMID", GEOPM_DOMAIN_BOARD, 0, 0);
+    m_platform_io.write_control("MSR::QM_EVTSEL:RMID", GEOPM_DOMAIN_BOARD, 0, 0);
+    m_platform_io.write_control("MSR::QM_EVTSEL:EVENT_ID", GEOPM_DOMAIN_BOARD, 0, 2);
 }
 
 // Validate incoming policy and configure default policy requests.
@@ -255,7 +257,7 @@ void CPUTorchAgent::adjust_platform(const std::vector<double>& in_policy)
                                            m_package_temperature.at(domain_idx).value,
                                            m_package_uncore_freq_status.at(domain_idx).value,
                                            m_package_qm_rate.at(domain_idx).value,
-                                           m_package_inst_retired.at(domain_idx).value / m_package_time.at(domain_idx).value,
+                                           m_package_inst_retired.at(domain_idx).value / m_package_cycles_unhalted.at(domain_idx).value,
                                            m_package_inst_retired.at(domain_idx).value / m_package_energy.at(domain_idx).value,
                                            m_package_acnt.at(domain_idx).value / m_package_mcnt.at(domain_idx).value,
                                            m_package_pcnt.at(domain_idx).value / m_package_mcnt.at(domain_idx).value,
@@ -314,11 +316,17 @@ void CPUTorchAgent::sample_platform(std::vector<double> &out_sample)
         m_package_temperature.at(domain_idx).value = m_platform_io.sample(m_package_temperature.at(domain_idx).batch_idx);
         m_package_uncore_freq_status.at(domain_idx).value = m_platform_io.sample(m_package_uncore_freq_status.at(domain_idx).batch_idx);
         m_package_qm_rate.at(domain_idx).value = m_platform_io.sample(m_package_qm_rate.at(domain_idx).batch_idx);
-        m_package_time.at(domain_idx).value = m_platform_io.sample(m_package_time.at(domain_idx).batch_idx);
+        m_package_cycles_unhalted.at(domain_idx).value = m_platform_io.sample(m_package_cycles_unhalted.at(domain_idx).batch_idx);
         m_package_inst_retired.at(domain_idx).value = m_platform_io.sample(m_package_inst_retired.at(domain_idx).batch_idx);
         m_package_acnt.at(domain_idx).value = m_platform_io.sample(m_package_acnt.at(domain_idx).batch_idx);
         m_package_mcnt.at(domain_idx).value = m_platform_io.sample(m_package_mcnt.at(domain_idx).batch_idx);
         m_package_pcnt.at(domain_idx).value = m_platform_io.sample(m_package_pcnt.at(domain_idx).batch_idx);
+
+        //running counter
+        m_package_energy.at(domain_idx).value = m_platform_io.sample(m_package_energy.at(domain_idx).batch_idx);
+
+        //diffed energy
+        //m_package_energy.at(domain_idx).value = m_platform_io.sample(m_package_energy.at(domain_idx).batch_idx) - m_package_energy.at(domain_idx).value;
     }
 }
 
