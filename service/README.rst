@@ -257,8 +257,8 @@ controls.  When the first call to ``read_batch()`` or
 ``write_batch()`` is made to user's PlatformIO object, the geopmd
 process forks the batch server process and no more updates can be made
 to the configured requests.  The batch server uses inter-process
-shared memory and FIFO special files in tmpfs to enable fast access to
-the configured stack of GEOPM signals and controls.
+shared memory and FIFO special files to enable fast access to the
+configured stack of GEOPM signals and controls.
 
 To implement the ``read_batch()`` method, the ServiceIOGroup writes a
 character to a FIFO to notify the batch server that it would like the

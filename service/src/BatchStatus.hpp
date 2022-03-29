@@ -95,7 +95,7 @@ namespace geopm
             // This is the single place where the server prefix is located,
             // which is also accessed by BatchStatusTest.
             static constexpr const char* M_DEFAULT_FIFO_PREFIX =
-                "/var/run/geopm-service/geopm-service-batch-status-";
+                "/var/run/geopm-service/batch-status-";
     };
 
     class BatchStatusServer : public BatchStatusImp

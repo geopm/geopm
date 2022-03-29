@@ -57,16 +57,16 @@ class TestSecureFiles(unittest.TestCase):
         """
         self._TEMP_DIR.cleanup()
 
-    def check_dir_perms(self, path):
+    def check_dir_perms(self, path, perm_mode=0o700):
         """Assert that the path points to a file with mode 0o700
         Assert that the user and group have the right permissions.
 
         """
         st = os.stat(path)
-        perm_mode = stat.S_IMODE(st.st_mode)
+        set_perm_mode = stat.S_IMODE(st.st_mode)
         user_owner = st.st_uid
         group_owner = st.st_gid
-        self.assertEqual(0o700, perm_mode)
+        self.assertEqual(perm_mode, set_perm_mode)
         self.assertEqual(os.getuid(), user_owner)
         self.assertEqual(os.getgid(), group_owner)
 
@@ -105,6 +105,19 @@ class TestSecureFiles(unittest.TestCase):
         sess_path = f'{self._TEMP_DIR.name}/geopm-service'
         secure_make_dirs(sess_path)
         self.check_dir_perms(sess_path)
+
+    def test_creation_with_perm(self):
+        """Creation of geopm-service directory with permissions
+
+        Test calls secure_make_dirs() when the geopm-service
+        directory is not present and specifies the permissions
+        to set.
+
+        """
+        sess_path = f'{self._TEMP_DIR.name}/geopm-service'
+        perm_mode = 0o711
+        secure_make_dirs(sess_path, perm_mode)
+        self.check_dir_perms(sess_path, perm_mode)
 
     def test_creation_link_not_dir(self):
         """The path specified is a link not a directory.
