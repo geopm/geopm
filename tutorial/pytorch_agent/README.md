@@ -72,9 +72,9 @@ EXE=${GEOPM_SOURCE}/geopm/integration/apps/parres/Kernels/Cxx11/dgemm-mpi-cublas
 APPOPTS="10 16000"
 GPUS=4 #used as number of ranks
 
-geopmagent -a torch -pNAN,NAN,0 > phi0.policy
-GEOPM_PLUGIN_PATH=${GEOPM_SOURCE}/tutorial/pytorch_agent GEOPM_GPU_TORCH_MODEL=gpu_control.py geopmlaunch impi -ppn ${GPUS} -n ${GPUS} --geopm-policy=phi0.policy --geopm-ctl=process --geopm-report=dgemm-16000-torch-phi0.report --geopm-agent=torch -- $EXE $APPOPTS
+geopmagent -a gpu_torch -pNAN,NAN,0 > phi0.policy
+GEOPM_PLUGIN_PATH=${GEOPM_SOURCE}/tutorial/pytorch_agent geopmlaunch impi -ppn ${GPUS} -n ${GPUS} --geopm-policy=phi0.policy --geopm-ctl=process --geopm-report=dgemm-16000-torch-phi0.report --geopm-agent=gpu_torch -- $EXE $APPOPTS
 
-geopmagent -a torch -pNAN,NAN,0 > phi40.policy
-GEOPM_PLUGIN_PATH=${GEOPM_SOURCE}/tutorial/pytorch_agent GEOPM_GPU_TORCH_MODEL=gpu_control.py geopmlaunch impi -ppn ${GPUS} -n ${GPUS} --geopm-policy=phi40.policy --geopm-ctl=process --geopm-report=dgemm-16000-torch-phi40.report --geopm-agent=torch -- $EXE $APPOPTS
+geopmagent -a gpu_torch -pNAN,NAN,0.4 > phi40.policy
+GEOPM_PLUGIN_PATH=${GEOPM_SOURCE}/tutorial/pytorch_agent geopmlaunch impi -ppn ${GPUS} -n ${GPUS} --geopm-policy=phi40.policy --geopm-ctl=process --geopm-report=dgemm-16000-torch-phi40.report --geopm-agent=gpu_torch -- $EXE $APPOPTS
 ```
