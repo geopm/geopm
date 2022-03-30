@@ -49,14 +49,12 @@ def main():
                         help='Leave the named app out of the training set')
     args = parser.parse_args()
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     df_traces = pd.read_hdf(args.input)
 
     y_columns = ['phi-freq']
     X_columns = ['POWER_PACKAGE-package-0',
-                 #'POWER_DRAM-package-0',
-                 'CPU_FREQUENCY_STATUS-package-0',          #TODO: consider native
-                 'TEMPERATURE_CORE-package-0',              #TODO: consider native
+                 'CPU_FREQUENCY_STATUS-package-0',
+                 'TEMPERATURE_CORE-package-0',
                  'MSR::UNCORE_PERF_STATUS:FREQ-package-0',
                  'QM_CTR_SCALED_RATE-package-0']
 
@@ -74,7 +72,6 @@ def main():
 
     #Print phi to phi-freq mapping
     print(df_traces.pivot_table('phi-freq', 'phi', 'app-config'))
-    code.interact(local=locals())
 
     # Exclude rows missing data in any of the columns of interest. Otherwise,
     # NaN values propagate into every weight in the model.
@@ -94,7 +91,6 @@ def main():
             exit(1)
         df_traces = df_traces.loc[df_traces['app-config'] != args.leave_app_out]
 
-    code.interact(local=locals())
     df_train = df_traces
     df_x_train = df_train[X_columns]
     df_y_train = df_train[y_columns]
@@ -110,8 +106,6 @@ def main():
                     nn.Sigmoid(),
                     nn.Linear(len(X_columns), 1)
             )
-
-    model.to(device)
 
     learning_rate = 1e-3
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
@@ -132,7 +126,6 @@ def main():
     for epoch in range(epoch_count):
         train_loss = 0
         for idx, (inputs, target_control) in enumerate(train_loader):
-            inputs, target_control = inputs.to(device), target_control.to(device)
             model.train()
             # Clear gradient
             optimizer.zero_grad()
@@ -151,17 +144,12 @@ def main():
                 print("\te:{}, idx:{} - loss: {:.3f}".format(epoch, idx, train_loss/(message_interval)))
                 train_loss = 0.0
 
-        #model.eval()
-        #with torch.no_grad():
-        #    print("\tEvaluate vs semi-random inputs:".format(epoch, idx, train_loss/(message_interval)))
-        #    eval_gpu_freq = round(uniform(0,2)*1e9,0)
-        #    eval_gpu_power = round(uniform(0,300),0)
-        #    eval_gpu_util = round(uniform(0,1),2)
-        #    eval_gpu_ca = round(uniform(0,1),2)
-        #    eval_gpu_ma = round(uniform(0,1),2)
-        #    for phi in [0, 0.5, 1.0]:
-        #        output = model(torch.tensor([[eval_gpu_freq, eval_gpu_power, eval_gpu_util, eval_gpu_ca, eval_gpu_ma, phi]]))
-        #        print('\t\tphi:{} -> recommended: {}'.format(phi, output[0]))
+        model.eval()
+        with torch.no_grad():
+            print("\tEvaluate vs arbitrary inputs:".format(epoch, idx, train_loss/(message_interval)))
+            for phi in [0, 0.5, 1.0]:
+                output = model(torch.tensor([[150,2800000000, 70, 2400000000, 1.2, 1.0, 1.0, 1.0, 1.0, 1.0, phi]]))
+                print('\t\tphi:{} -> recommended: {}'.format(phi, output[0]))
 
     model.eval()
     model_scripted = torch.jit.script(model)

@@ -106,16 +106,13 @@ void CPUTorchAgent::init_platform_io(void)
         m_package_power.push_back({m_platform_io.push_signal("POWER_PACKAGE",
                                    GEOPM_DOMAIN_PACKAGE,
                                    domain_idx), NAN});
-        //m_package_power_dram.push_back({m_platform_io.push_signal("POWER_DRAM",
-        //                                GEOPM_DOMAIN_PACKAGE,
-        //                                domain_idx), NAN});
         m_package_freq_status.push_back({m_platform_io.push_signal("CPU_FREQUENCY_STATUS",
                                          GEOPM_DOMAIN_PACKAGE,
                                          domain_idx), NAN});
         m_package_temperature.push_back({m_platform_io.push_signal("TEMPERATURE_CORE",
                                           GEOPM_DOMAIN_PACKAGE,
                                           domain_idx), NAN});
-        m_package_uncore_freq_status.push_back({m_platform_io.push_signal("MSR::UNCORE_PERF_STATU:FREQ",
+        m_package_uncore_freq_status.push_back({m_platform_io.push_signal("MSR::UNCORE_PERF_STATUS:FREQ",
                                                 GEOPM_DOMAIN_PACKAGE,
                                                 domain_idx), NAN});
         m_package_qm_rate.push_back({m_platform_io.push_signal("QM_CTR_SCALED_RATE",
@@ -157,8 +154,8 @@ void CPUTorchAgent::init_platform_io(void)
 void CPUTorchAgent::validate_policy(std::vector<double> &in_policy) const
 {
     assert(in_policy.size() == M_NUM_POLICY);
-    double min_freq = m_platform_io.read_signal("CPU_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0);
-    double max_freq = m_platform_io.read_signal("CPU_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0);
+    double min_freq = m_platform_io.read_signal("CPU_FREQUENCY_MIN", GEOPM_DOMAIN_BOARD, 0);
+    double max_freq = m_platform_io.read_signal("CPU_FREQUENCY_MAX", GEOPM_DOMAIN_BOARD, 0);
 
     ///////////////////////
     //CPU POLICY CHECKING//
@@ -248,11 +245,9 @@ void CPUTorchAgent::adjust_platform(const std::vector<double>& in_policy)
 
     // Per freq
     std::vector<double> package_freq_request;
-
     for (int domain_idx = 0; domain_idx < M_NUM_PACKAGE; ++domain_idx) {
         //Create an input tensor
         torch::Tensor xs = torch::tensor({{m_package_power.at(domain_idx).value,
-                                           //m_package_power_dram.at(domain_idx).value,
                                            m_package_freq_status.at(domain_idx).value,
                                            m_package_temperature.at(domain_idx).value,
                                            m_package_uncore_freq_status.at(domain_idx).value,
@@ -311,22 +306,16 @@ void CPUTorchAgent::sample_platform(std::vector<double> &out_sample)
     // Collect latest signal values
     for (int domain_idx = 0; domain_idx < M_NUM_PACKAGE; ++domain_idx) {
         m_package_power.at(domain_idx).value = m_platform_io.sample(m_package_power.at(domain_idx).batch_idx);
-        //m_package_power_dram.at(domain_idx).value = m_platform_io.sample(m_package_power_dram.at(domain_idx).batch_idx);
         m_package_freq_status.at(domain_idx).value = m_platform_io.sample(m_package_freq_status.at(domain_idx).batch_idx);
         m_package_temperature.at(domain_idx).value = m_platform_io.sample(m_package_temperature.at(domain_idx).batch_idx);
         m_package_uncore_freq_status.at(domain_idx).value = m_platform_io.sample(m_package_uncore_freq_status.at(domain_idx).batch_idx);
         m_package_qm_rate.at(domain_idx).value = m_platform_io.sample(m_package_qm_rate.at(domain_idx).batch_idx);
         m_package_cycles_unhalted.at(domain_idx).value = m_platform_io.sample(m_package_cycles_unhalted.at(domain_idx).batch_idx);
         m_package_inst_retired.at(domain_idx).value = m_platform_io.sample(m_package_inst_retired.at(domain_idx).batch_idx);
+        m_package_energy.at(domain_idx).value = m_platform_io.sample(m_package_energy.at(domain_idx).batch_idx);
         m_package_acnt.at(domain_idx).value = m_platform_io.sample(m_package_acnt.at(domain_idx).batch_idx);
         m_package_mcnt.at(domain_idx).value = m_platform_io.sample(m_package_mcnt.at(domain_idx).batch_idx);
         m_package_pcnt.at(domain_idx).value = m_platform_io.sample(m_package_pcnt.at(domain_idx).batch_idx);
-
-        //running counter
-        m_package_energy.at(domain_idx).value = m_platform_io.sample(m_package_energy.at(domain_idx).batch_idx);
-
-        //diffed energy
-        //m_package_energy.at(domain_idx).value = m_platform_io.sample(m_package_energy.at(domain_idx).batch_idx) - m_package_energy.at(domain_idx).value;
     }
 }
 
