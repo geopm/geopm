@@ -117,7 +117,6 @@ class CPUTorchAgent : public geopm::Agent
 
         std::vector<control> m_package_freq_control;
         std::vector<signal> m_package_power;
-        //std::vector<signal> m_package_power_dram;
         std::vector<signal> m_package_freq_status;
         std::vector<signal> m_package_temperature;
         std::vector<signal> m_package_uncore_freq_status;

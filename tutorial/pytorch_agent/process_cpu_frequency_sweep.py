@@ -231,7 +231,6 @@ if __name__ == "__main__":
         # columns and increases in height by the number of columns generated in
         # the loop before this block.
         df_traces = read_trace_files(full_sweep_dir, nodename, app_index)
-        code.interact(local=locals())
 
         if reports_df['app-config'].count().max() > 0:
             # We did not group the traces based on REGION_HASH, however we are merging them
