@@ -247,17 +247,17 @@ void CPUTorchAgent::adjust_platform(const std::vector<double>& in_policy)
     std::vector<double> package_freq_request;
     for (int domain_idx = 0; domain_idx < M_NUM_PACKAGE; ++domain_idx) {
         //Create an input tensor
-        torch::Tensor xs = torch::tensor({{m_package_power.at(domain_idx).value,
-                                           m_package_freq_status.at(domain_idx).value,
-                                           m_package_temperature.at(domain_idx).value,
-                                           m_package_uncore_freq_status.at(domain_idx).value,
-                                           m_package_qm_rate.at(domain_idx).value,
-                                           m_package_inst_retired.at(domain_idx).value / m_package_cycles_unhalted.at(domain_idx).value,
-                                           m_package_inst_retired.at(domain_idx).value / m_package_energy.at(domain_idx).value,
-                                           m_package_acnt.at(domain_idx).value / m_package_mcnt.at(domain_idx).value,
-                                           m_package_pcnt.at(domain_idx).value / m_package_mcnt.at(domain_idx).value,
-                                           m_package_pcnt.at(domain_idx).value / m_package_acnt.at(domain_idx).value,
-                                           in_policy[M_POLICY_CPU_PHI]}});
+        torch::Tensor xs = torch::tensor({{(double) m_package_power.at(domain_idx).value,
+                                           (double) m_package_freq_status.at(domain_idx).value,
+                                           (double) m_package_temperature.at(domain_idx).value,
+                                           (double) m_package_uncore_freq_status.at(domain_idx).value,
+                                           (double) m_package_qm_rate.at(domain_idx).value,
+                                           (double) m_package_inst_retired.at(domain_idx).value / m_package_cycles_unhalted.at(domain_idx).value,
+                                           (double) m_package_inst_retired.at(domain_idx).value / m_package_energy.at(domain_idx).value,
+                                           (double) m_package_acnt.at(domain_idx).value / m_package_mcnt.at(domain_idx).value,
+                                           (double) m_package_pcnt.at(domain_idx).value / m_package_mcnt.at(domain_idx).value,
+                                           (double) m_package_pcnt.at(domain_idx).value / m_package_acnt.at(domain_idx).value,
+                                           (double) in_policy[M_POLICY_CPU_PHI]}});
 
         //Push tensor into IValue vector
         std::vector<torch::jit::IValue> model_input;
