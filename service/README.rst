@@ -108,8 +108,8 @@ The GEOPM systemd service is a new feature.  What exists currently is
 a work in progress, and there are several outstanding issues that must
 be resolved before the GEOPM Service is ready for release with GEOPM
 version 2.0.  These
-`issues <https://github.com/geopm/geopm/issues?q=is%3Aissue+is%3Aopen+label%3Ageopm-service>`_
-are tracked on github with the "geopm-service" tag.
+`issues <https://github.com/geopm/geopm/issues?q=is%3Aissue+is%3Aopen+label%3A2.0>`_
+are tracked on github with the "2.0" tag.
 
 
 Signals and Controls
@@ -158,11 +158,6 @@ enables access through these allow lists.  It is recommended that all
 manipulation of these files should be done through the GEOPM Service
 with the ``geopmaccess`` command line tool.
 
-Some filtering may be applied to the raw signals provided by the
-IOGroups before being exposed to the client session.  In particular,
-all monotonic signals (e.g. hardware counters) are reported with
-respect to the value they had when they were first read in the
-session, which is reported as zero.
 
 Opening a Session
 -----------------
