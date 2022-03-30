@@ -48,6 +48,7 @@ EXTRA_DIST += docs/geninfo.sh \
               docs/source/controls_SKX.rst \
               docs/source/devel.rst \
               docs/source/index.rst \
+              docs/source/istall.rst \
               docs/source/overview.rst \
               docs/source/publications.rst \
               docs/source/reference.rst \

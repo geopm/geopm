@@ -14,6 +14,7 @@ administrator, and how to interact with the service as an unprivileged user.
    :maxdepth: 1
 
    service_readme
+   install
    requires
    build
    admin

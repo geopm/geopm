@@ -141,6 +141,7 @@ service/docs/source/geopm_topo_c.3.rst
 service/docs/source/geopm_version.3.rst
 service/docs/source/geopmwrite.1.rst
 service/docs/source/index.rst
+service/docs/source/install.rst
 service/docs/source/overview.rst
 service/docs/source/publications.rst
 service/docs/source/reference.rst
