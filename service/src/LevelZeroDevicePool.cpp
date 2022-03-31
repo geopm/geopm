@@ -420,12 +420,37 @@ namespace geopm
         return result;
     }
 
+    uint32_t LevelZeroDevicePoolImp::metric_update_rate(int domain, unsigned int domain_idx) const
+    {
+        if (domain != GEOPM_DOMAIN_BOARD_ACCELERATOR) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for metrics.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
+        return m_levelzero.metric_update_rate(domain_idx);
+    }
+
     void LevelZeroDevicePoolImp::metric_polling_disable()
     {
         unsigned int num_device = num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR);
         for (unsigned int l0_device_idx = 0; l0_device_idx < num_device; l0_device_idx++) {
             m_levelzero.metric_destroy(l0_device_idx);
         }
+    }
+
+    void LevelZeroDevicePoolImp::metric_update_rate_control(int domain, unsigned int domain_idx,
+                                                            uint32_t setting) const
+    {
+        if (domain != GEOPM_DOMAIN_BOARD_ACCELERATOR) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for metrics.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
+        m_levelzero.metric_update_rate_control(domain_idx, setting);
     }
 
     void LevelZeroDevicePoolImp::frequency_control(int domain, unsigned int domain_idx,

@@ -159,8 +159,11 @@ namespace geopm
 
             virtual double metric_sample(int domain, unsigned int domain_idx,
                                          std::string metric) const = 0;
+            virtual uint32_t metric_update_rate(int domain, unsigned int domain_idx) const = 0;
             virtual void metric_read(int domain, unsigned int domain_idx) const = 0;
             virtual void metric_polling_disable(void) = 0;
+            virtual void metric_update_rate_control(int domain, unsigned int domain_idx,
+                                                    uint32_t setting) const = 0;
 
             // FREQUENCY CONTROL FUNCTIONS
             /// @brief Set min and max frequency for LevelZero device.

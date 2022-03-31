@@ -448,6 +448,19 @@ namespace geopm
                                   },
                                   .01
                                   }},
+                              {M_NAME_PREFIX + "METRIC:UPDATE_RATE", {
+                                  "Polling rate of the GPU metric gathering event in seconds.  Can sample faster than the control loop",
+                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                  Agg::average,
+                                  string_format_double,
+                                  {},
+                                  [this](unsigned int domain_idx) -> double
+                                  {
+                                      return this->m_levelzero_device_pool.metric_update_rate(
+                                                   GEOPM_DOMAIN_BOARD_ACCELERATOR, domain_idx);
+                                  },
+                                  0.000000001
+                                  }},
                              })
         , m_control_available({{M_NAME_PREFIX + "GPUCHIP_FREQUENCY_MIN_CONTROL", {
                                     "Sets the compute/GPU chip domain frequency minimum in hertz",
@@ -469,7 +482,15 @@ namespace geopm
                                     GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
                                     Agg::average,
                                     string_format_double
-                                    }}
+                                    }},
+                               {M_NAME_PREFIX + "METRIC:UPDATE_RATE_CONTROL", {
+                                    "Polling rate of the GPU metric gathering event in seconds.  Can sample faster than the control loop\n"
+                                    "Update rates faster than the control loop rate will result in aggregation of metric data",
+                                    {},
+                                    GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                    Agg::average,
+                                    string_format_double
+                                    }},
                               })
         , m_special_signal_set({M_NAME_PREFIX + "GPU_ENERGY",
                                 M_NAME_PREFIX + "GPUCHIP_ENERGY",
@@ -967,6 +988,11 @@ namespace geopm
             m_levelzero_device_pool.frequency_control(domain_type, domain_idx,
                                                       geopm::LevelZero::M_DOMAIN_COMPUTE,
                                                       curr_min / 1e6, setting / 1e6);
+        }
+        else if (control_name == M_NAME_PREFIX + "METRIC:UPDATE_RATE_CONTROL") {
+            m_levelzero_device_pool.metric_update_rate_control(domain_type,
+                                                               domain_idx,
+                                                               setting * 1e9);
         }
         else {
     #ifdef GEOPM_DEBUG

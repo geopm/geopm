@@ -82,8 +82,12 @@ namespace geopm
 
             double metric_sample(int domain, unsigned int domain_idx,
                                  std::string metric_name) const override;
+            uint32_t metric_update_rate(int domain, unsigned int domain_idx) const override;
+
             void metric_read(int domain, unsigned int domain_idx) const override;
             void metric_polling_disable(void) override;
+            void metric_update_rate_control(int domain, unsigned int domain_idx,
+                                            uint32_t setting) const override;
 
             void frequency_control(int domain, unsigned int domain_idx,
                                    int l0_domain, double range_min,

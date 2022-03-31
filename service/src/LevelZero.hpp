@@ -200,6 +200,7 @@ namespace geopm
 
             virtual std::vector<double> metric_sample(unsigned int l0_device_idx,
                                                       std::string metric_name) const = 0;
+            virtual uint32_t metric_update_rate(unsigned int l0_device_idx) const = 0;
             virtual void metric_read(unsigned int l0_device_idx) = 0;
             virtual void metric_init(unsigned int l0_device_idx) = 0;
             virtual void metric_destroy(unsigned int l0_device_idx) = 0;
@@ -213,6 +214,8 @@ namespace geopm
             virtual void frequency_control(unsigned int l0_device_idx, int l0_domain,
                                            int l0_domain_idx, double range_min,
                                            double range_max) const = 0;
+
+            virtual void metric_update_rate_control(unsigned int l0_device_idx, uint32_t setting) = 0;
     };
 
     LevelZero &levelzero();

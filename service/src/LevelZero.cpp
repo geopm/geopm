@@ -254,6 +254,9 @@ namespace geopm
                 //Cache compute basic number of metrics
                 m_devices.at(device_idx).num_metric = num_metric;
 
+                //sampling period in nanoseconds
+                m_devices.at(device_idx).metric_sampling_period = 2000000; //2ms
+
                 //Build metric map
                 for (unsigned int metric_idx = 0; metric_idx < num_metric; metric_idx++)
                 {
@@ -337,20 +340,13 @@ namespace geopm
 
         m_devices.at(l0_device_idx).event = event;
 
-        /////////////////////////////
-        //        MOVE ME!         //
-        /////////////////////////////
         zet_metric_streamer_desc_t metric_streamer_desc = {
             ZET_STRUCTURE_TYPE_METRIC_STREAMER_DESC,
             nullptr,
             32768, /* reports to collect before notify */
-            //1000000 /* sampling period in nanoseconds */}; //1ms
-            2000000 /* sampling period in nanoseconds */}; //2ms
-            //5000000 /* sampling period in nanoseconds */}; //5ms
-            //10000000 /* sampling period in nanoseconds */}; //10ms
+            m_devices.at(l0_device_idx).metric_sampling_period};
         zet_metric_streamer_handle_t metric_streamer = nullptr;
 
-        //TODO: move to 'init' function
         ze_result = zetMetricStreamerOpen(context, m_devices.at(l0_device_idx).device_handle, m_devices.at(l0_device_idx).metric_group_handle, &metric_streamer_desc, event, &metric_streamer);
 
         check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
@@ -997,6 +993,16 @@ namespace geopm
         check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
                         "LevelZero::" + std::string(__func__) +
                         ": Sysman failed to set frequency.", __LINE__);
+    }
+
+    uint32_t LevelZeroImp::metric_update_rate(unsigned int l0_device_idx) const
+    {
+        return m_devices.at(l0_device_idx).metric_sampling_period;
+    }
+
+    void LevelZeroImp::metric_update_rate_control(unsigned int l0_device_idx, uint32_t setting)
+    {
+        m_devices.at(l0_device_idx).metric_sampling_period = setting;
     }
 
     void LevelZeroImp::check_ze_result(ze_result_t ze_result, int error,
