@@ -1,6 +1,6 @@
 
-Building from Source
-====================
+Guide to Source Builds
+======================
 
 These are build instructions for an administrator that would like to
 install the GEOPM Service based on a checkout of the GEOPM git
