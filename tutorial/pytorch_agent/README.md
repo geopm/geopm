@@ -30,14 +30,14 @@ The following steps are required to build and use this agent:
 6. Execute the agent with a trained model.
 
 
-## 1) Acquire libtorch
+## 1) Acquire libtorch - CPU or GPU Agent
 The latest install information can be found here: https://pytorch.org/get-started/locally/
 
 ```
 wget https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.10.2%2Bcpu.zip
 ```
 
-## 2) Build the GEOPM C++ Torch Agent
+## 2) Build the GEOPM C++ Torch Agents
 Assuming the libtorch bundle has been unziped into $HOME/libtorch and a $HOME/.geopmrc file is setup
 as specified in the general GEOPM documentation you should be able to use the provided tutorial
 makefile after building GEOPM.
@@ -48,9 +48,9 @@ export TORCH_ROOT=$HOME/libtorch
 make
 ```
 
-This will build the GPU Torch Agent.
+This will build both the CPU and GPU Torch Agent.
 
-## 3) Perform GPU frequency sweeps to generate data for model training.
+## 3a) Perform GPU frequency sweeps to generate data for model training.
 Run the parres dgemm and stream frequency sweeps using the geopm/integration/experiment/
 infrastructure as covered in PR 2024.
 
@@ -68,19 +68,53 @@ Modify the output test.sbatch to enable traces, set frequency range, and set per
 ```
 Min and max frequency may vary from system to system
 
-## 4) Process the GPU frequency sweeps to condition the data for model training.
+## 3b) Perform CPU frequency sweeps to generate data for model training.
+Use the ${GEOPM_SOURCE}/integration/experiments/gen_slurm.sh script.  Example:
+
+```
+./gen_slurm.sh 1 dgemm frequency_sweep
+./gen_slurm.sh 1 arithmetic_intensity frequency_sweep
+
+```
+
+Modify the output test.sbatch to enable traces, set frequency range, and set per package CPU signals
+```
+    --enable-traces \
+    --step-frequency=100000000 \
+    --min-frequency=1000000000 \
+    --max-frequency=2800000000 \
+    --trial-count=3 \
+    --geopm-trace-signals=POWER_PACKAGE@package,POWER_DRAM,CPU_FREQUENCY_STATUS@package,TEMPERATURE_CORE@package,MSR::UNCORE_PERF_STATUS:FREQ@package,QM_CTR_SCALED_RATE@package,INSTRUCTIONS_RETIRED@package,CYCLES_THREAD@package,ENERGY_PACKAGE@package,MSR::APERF:ACNT@package,MSR::MPERF:MCNT@package,MSR::PPERF:PCNT@package,TIME@package,ENERGY_DRAM\
+
+```
+Min and max frequency may vary from system to system
+
+## 4a) Process the GPU frequency sweeps to condition the data for model training.
 For the GPU Agent use the geopm/tutorial/ml/process_gpu_sweeps.py to process the dgemm and stream frequency sweeps
 ```
 ./process_gpu_frequency_sweep.py <node_name> --domain node processed_gpu_sweep training_data/dgemm/ training_data/stream/
 ```
 This will result in a processed_gpu_sweep.h5 output.
 
+## 4b) Process the CPU frequency sweeps to condition the data for model training.
+For the CPU Agent use the local process_cpu_sweeps.py on the sweep folders (paths may vary):
+```
+./process_cpu_frequency_sweep.py mcfly processed_cpu_sweep ${GEOPM_WORKDIR}/dgemm_frequency_sweep ${GEOPM_WORKDIR}arithmetic_intensity_frequency_sweep/
+```
+This will result in a processed_cpu_sweep.h5 output.
 
-## 5) Train a neural network model for the GPU using the processed trace data.
+## 5a) Train a neural network model for the GPU using the processed trace data.
 For GPU:
     Use the geopm/tutorial/pytorch_agent/train_gpu_model-pytorch.py to create a model with the name gpu_control.pt
     ```
      ./train_gpu_model-pytorch.py processed_gpu_sweep.h5 gpu_control.pt
+    ```
+
+## 5b) Train a neural network model for the CPU using the processed trace data.
+For CPU:
+    Use the geopm/tutorial/pytorch_agent/train_gpu_model-pytorch.py to create a model with the name gpu_control.pt
+    ```
+     ./train_cpu_model-pytorch.py processed_cpu_sweep.h5 cpu_control.pt
     ```
 
 ## 6a) Execute the GPU agent with a trained model
@@ -99,8 +133,27 @@ geopmagent -a gpu_torch -pNAN,NAN,0.4 > phi40.policy
 geopmlaunch impi -ppn ${GPUS} -n ${GPUS} --geopm-policy=phi40.policy --geopm-ctl=process --geopm-report=dgemm-16000-torch-phi40.report --geopm-agent=gpu_torch -- $EXE $APPOPTS
 ```
 
-#7) Running GPU Agent Integration tests
+## 6b) Execute the CPU agent with a trained model
+The NN model must be in the directory the job is being launched from and must be named cpu_control.pt
+A geopmbench config of interest should be provided as bench.config.  See GEOPM documentation on how to generate this.
+```
+EXE=geopmbench
+APPOPTS=bench.config
+RANKS=
 
+geopmagent -a gpu_torch -pNAN,NAN,0 > phi0.policy
+GEOPM_PLUGIN_PATH=${GEOPM_SOURCE}/tutorial/pytorch_agent geopmlaunch impi -ppn ${RANKS} -n ${RANKS} --geopm-policy=phi0.policy --geopm-ctl=process --geopm-report=dgemm-16000-torch-phi0.report --geopm-agent=gpu_torch -- $EXE $APPOPTS
+
+geopmagent -a gpu_torch -pNAN,NAN,0.4 > phi40.policy
+GEOPM_PLUGIN_PATH=${GEOPM_SOURCE}/tutorial/pytorch_agent geopmlaunch impi -ppn ${RANKS} -n ${RANKS} --geopm-policy=phi40.policy --geopm-ctl=process --geopm-report=dgemm-16000-torch-phi40.report --geopm-agent=gpu_torch -- $EXE $APPOPTS
+
+#7) Running Pytorch Agent Integration tests
+GPU Agent:
 ```
 PYTHONPATH=${PWD}:${GEOPM_SOURCE}:${PYTHONPATH} /home/lhlawson/geopm_public_lhlawson-pytorch/tutorial/pytorch_agent/test/test_gpu_torch_agent.py
+```
+
+CPU Agent:
+```
+PYTHONPATH=${PWD}:${GEOPM_SOURCE}:${PYTHONPATH} /home/lhlawson/geopm_public_lhlawson-pytorch/tutorial/pytorch_agent/test/test_cpu_torch_agent.py
 ```
