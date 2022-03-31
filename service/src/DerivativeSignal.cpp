@@ -97,9 +97,12 @@ namespace geopm
                 C += sig;
                 D += time * time;
             }
+
             double ssxx = D - B * B * E;
             double ssxy = A - B * C * E;
-            result = ssxy / ssxx;
+            if (ssxx != 0) {
+                result = ssxy / ssxx;
+            }
         }
         return result;
     }
