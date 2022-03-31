@@ -1,6 +1,6 @@
 
-Install
-=======
+Guide to Installation
+=====================
 
 Continuous integration creates packages for a variety of Linux
 distributions each time certain branches hosted on GitHub are updated.
@@ -31,8 +31,8 @@ that we support.  By installing the GEOPM Service packages from the
 download repositories, version 1.6 of dasbus will also be installed.
 
 
-Download Repositories
----------------------
+Package Repositories
+--------------------
 
 The OBS builds currently support six distributions and two branches
 for a total of twelve download repositories.  The links to the twelve
@@ -73,8 +73,8 @@ This will enable ``zypper`` or ``yum`` to be used to install and
 update the GEOPM Service packages.
 
 
-Usage
------
+Install Commands
+----------------
 
 The following bash commands will add the development branch OBS build
 repository and install the GEOPM Service.

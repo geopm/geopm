@@ -1,5 +1,5 @@
 
-External Requirements
+Guide to Requirements
 =====================
 
 There are several external dependencies that GEOPM requires to enable
