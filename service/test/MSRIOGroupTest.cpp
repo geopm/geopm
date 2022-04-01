@@ -194,7 +194,7 @@ TEST_F(MSRIOGroupTest, valid_signal_domains)
 {
     // energy
     EXPECT_EQ(GEOPM_DOMAIN_PACKAGE, m_msrio_group->signal_domain_type("ENERGY_PACKAGE"));
-    EXPECT_EQ(GEOPM_DOMAIN_BOARD_MEMORY, m_msrio_group->signal_domain_type("ENERGY_DRAM"));
+    EXPECT_EQ(GEOPM_DOMAIN_PACKAGE, m_msrio_group->signal_domain_type("ENERGY_DRAM"));
 
     // counter
     EXPECT_EQ(GEOPM_DOMAIN_CPU, m_msrio_group->signal_domain_type("INSTRUCTIONS_RETIRED"));
@@ -221,7 +221,7 @@ TEST_F(MSRIOGroupTest, valid_signal_domains)
               m_msrio_group->signal_domain_type("POWER_PACKAGE_TDP"));
     EXPECT_EQ(GEOPM_DOMAIN_PACKAGE,
               m_msrio_group->signal_domain_type("POWER_PACKAGE"));
-    EXPECT_EQ(GEOPM_DOMAIN_BOARD_MEMORY,
+    EXPECT_EQ(GEOPM_DOMAIN_PACKAGE,
               m_msrio_group->signal_domain_type("POWER_DRAM"));
 }
 
@@ -494,7 +494,7 @@ TEST_F(MSRIOGroupTest, read_signal_energy)
 
     value = 3276799;  // 15uJ units
     EXPECT_CALL(*m_msrio, read_msr(0, dram_energy_offset)).WillOnce(Return(value));
-    result = m_msrio_group->read_signal("ENERGY_DRAM", GEOPM_DOMAIN_BOARD_MEMORY, 0);
+    result = m_msrio_group->read_signal("ENERGY_DRAM", GEOPM_DOMAIN_PACKAGE, 0);
     EXPECT_NEAR(50, result, 0.0001);
 }
 
