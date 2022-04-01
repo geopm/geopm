@@ -132,9 +132,7 @@ namespace geopm
 
 
                         //TODO: This may need to be per GPU...
-                        ze_context_handle_t context;
-                        //TODO: I have no idea if this should be per GPU, per driver, per...
-                        //      but in initial testing per driver seemed fine!
+                        ze_context_handle_t context = nullptr;
 
                         ze_context_desc_t context_desc = {};
                         ze_result = zeContextCreate(m_levelzero_driver.at(driver), &context_desc, &context);
@@ -196,9 +194,15 @@ namespace geopm
         // This should be changed to a more general loop iterating over type and caching appropriately
         for (unsigned int l0_device_idx = 0; l0_device_idx < m_num_board_gpu; l0_device_idx++) {
             domain_cache(l0_device_idx);
-            metric_group_cache(l0_device_idx);
-            //metric_init(l0_device_idx);
-            //m_devices.at(l0_device_idx).metrics_initialized = true;
+
+            char *zet_enable_metrics = getenv("ZET_ENABLE_METRICS");
+            if (zet_enable_metrics == NULL || strcmp(zet_enable_metrics, "1") != 0) {
+                std::cout << "GEOPM Debug: ZET_ENABLE_METRICS not set to 1.  Skipping metric caching" <<
+                             " for device " << std::to_string(l0_device_idx) << std::endl;
+            }
+            else {
+                metric_group_cache(l0_device_idx);
+            }
         }
     }
 
@@ -305,8 +309,6 @@ namespace geopm
 
     void LevelZeroImp::metric_init(unsigned int l0_device_idx)
     {
-        //TODO: we may not want to do this at initialization time, or may
-        //      want to provide an activate/deactivate control and status signal!
         ze_result_t ze_result;
         ze_context_handle_t context = m_devices.at(l0_device_idx).context;
         ze_result = zetContextActivateMetricGroups(context, m_devices.at(l0_device_idx).device_handle,
@@ -330,7 +332,7 @@ namespace geopm
         event_desc.signal = ZE_EVENT_SCOPE_FLAG_HOST;
         event_desc.wait = ZE_EVENT_SCOPE_FLAG_HOST;
 
-        //TODO: save these per GPU.  We can reuse an event, right?
+        //TODO: save these per GPU.  The event should be reusable.
         ze_event_handle_t event = nullptr;
         ze_result = zeEventCreate(event_pool_handle, &event_desc, &event);
         check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
@@ -362,7 +364,7 @@ namespace geopm
     {
         ze_result_t ze_result;
         //////////////////////
-        // CONVERT RAW DATA //
+        // Convert Raw Data //
         //////////////////////
         size_t data_size = 0;
         ze_result = zetMetricStreamerReadData(metric_streamer, UINT32_MAX, &data_size, nullptr );
@@ -399,48 +401,60 @@ namespace geopm
         uint32_t num_metric = m_devices.at(l0_device_idx).num_metric;
 
         unsigned int num_reports = num_metric_values/num_metric;
-        for (unsigned int report_idx = 0; report_idx < num_reports; report_idx++)
+
+        for (unsigned int metric_idx = 0; metric_idx < num_metric; metric_idx++)
         {
+            std::vector<zet_metric_handle_t> metric_handle(num_metric);
+            ze_result = zetMetricGet(m_devices.at(l0_device_idx).metric_group_handle,
+                                     &num_metric, metric_handle.data());
+            check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
+                            "LevelZero::" + std::string(__func__) +
+                            ": LevelZero Metric handle acquisition failed",
+                            __LINE__);
 
-            for (unsigned int metric_idx = 0; metric_idx < num_metric; metric_idx++)
-            {
+            zet_metric_properties_t metric_properties;
+            ze_result = zetMetricGetProperties(metric_handle.at(metric_idx), &metric_properties);
+            check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
+                            "LevelZero::" + std::string(__func__) +
+                            ": LevelZero Metric propery acquisition failed",
+                            __LINE__);
 
-                std::vector<zet_metric_handle_t> metric_handle(num_metric);
-                ze_result = zetMetricGet(m_devices.at(l0_device_idx).metric_group_handle,
-                                         &num_metric, metric_handle.data());
+            std::string metric_name (metric_properties.name);
 
-                check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
-                                "LevelZero::" + std::string(__func__) +
-                                ": LevelZero Metric handle acquisition failed",
-                                __LINE__);
-                zet_metric_properties_t metric_properties;
-                ze_result = zetMetricGetProperties(metric_handle.at(metric_idx), &metric_properties);
-                std::string metric_name (metric_properties.name);
-
-                //This is the actual gathering of the data
-                zet_typed_value_t data = metric_values.at(report_idx*num_metric + metric_idx);
-                double data_double = NAN;
-                switch( data.type )
+            //TODO: check timing impact of only processing metrics supported by IOGroup
+            if(metric_name.compare("XVE_ACTIVE") == 0 ||
+               metric_name.compare("XVE_STALL") == 0) {
+                for (unsigned int report_idx = 0; report_idx < num_reports; report_idx++)
                 {
-                case ZET_VALUE_TYPE_UINT32:
-                    data_double = data.value.ui32;
-                    break;
-                case ZET_VALUE_TYPE_UINT64:
-                    data_double = data.value.ui64;
-                    break;
-                case ZET_VALUE_TYPE_FLOAT32:
-                    data_double = data.value.fp32;
-                    break;
-                case ZET_VALUE_TYPE_FLOAT64:
-                    data_double = data.value.fp64;
-                    break;
-                case ZET_VALUE_TYPE_BOOL8:
-                    data_double = data.value.ui32;
-                    break;
-                default:
-                    break;
-                };
-                m_devices.at(l0_device_idx).m_metric_data.at(metric_name).push_back(data_double);
+                    //This is the actual gathering of the data
+                    zet_typed_value_t data = metric_values.at(report_idx*num_metric + metric_idx);
+                    double data_double = NAN;
+                    switch( data.type )
+                    {
+                    case ZET_VALUE_TYPE_UINT32:
+                        data_double = data.value.ui32;
+                        break;
+                    case ZET_VALUE_TYPE_UINT64:
+                        data_double = data.value.ui64;
+                        break;
+                    case ZET_VALUE_TYPE_FLOAT32:
+                        data_double = data.value.fp32;
+                        break;
+                    case ZET_VALUE_TYPE_FLOAT64:
+                        data_double = data.value.fp64;
+                        break;
+                    case ZET_VALUE_TYPE_BOOL8:
+                        data_double = data.value.ui32;
+                        break;
+                    default:
+                        break;
+                    };
+                    //Clear cached values
+                    if(report_idx == 0) {
+                        m_devices.at(l0_device_idx).m_metric_data.at(metric_name) = {};
+                    }
+                    m_devices.at(l0_device_idx).m_metric_data.at(metric_name).push_back(data_double);
+                }
             }
         }
     }
