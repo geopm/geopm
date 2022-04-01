@@ -52,8 +52,6 @@ namespace geopm
 
     LevelZeroImp::LevelZeroImp()
     {
-        setenv("ZES_ENABLE_SYSMAN", "1", 1);
-
         ze_result_t ze_result;
         //Initialize
         ze_result = zeInit(0);
