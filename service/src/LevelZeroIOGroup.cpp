@@ -559,6 +559,12 @@ namespace geopm
         register_signal_alias("GPU_COMPUTE_ACTIVITY", M_NAME_PREFIX + "METRIC:XVE_ACTIVE");
         register_signal_alias("GPU_STALL_ACTIVITY", M_NAME_PREFIX + "METRIC:XVE_STALL");
 
+        register_signal_alias("GPU_FREQUENCY_STATUS", M_NAME_PREFIX + "GPU_FREQUENCY_STATUS");
+        register_signal_alias("GPU_FREQUENCY_CONTROL",
+                              M_NAME_PREFIX + "GPUCHIP_FREQUENCY_CONTROL");
+        register_control_alias("GPU_FREQUENCY_CONTROL",
+                               M_NAME_PREFIX + "GPUCHIP_FREQUENCY_CONTROL");
+
         // populate controls for each domain
         for (auto &sv : m_control_available) {
             std::vector<std::shared_ptr<control_s> > result;
@@ -962,7 +968,8 @@ namespace geopm
         }
 
         if (control_name == M_NAME_PREFIX + "GPUCHIP_FREQUENCY_CONTROL" ||
-            control_name == "GPUCHIP_FREQUENCY_CONTROL") {
+            control_name == "GPUCHIP_FREQUENCY_CONTROL" ||
+            control_name == "GPU_FREQUENCY_CONTROL") {
             if (std::isnan(setting)) {
                 // At initialization before this control has ever been written the "signal"
                 // version of this control will return NAN.  If this NAN is later used as the
