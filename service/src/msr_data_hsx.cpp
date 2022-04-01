@@ -570,7 +570,7 @@ namespace geopm
         },
         "DRAM_ENERGY_STATUS": {
             "offset": "0x619",
-            "domain": "board_memory",
+            "domain": "package",
             "fields": {
                 "ENERGY": {
                     "begin_bit": 0,
