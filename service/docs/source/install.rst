@@ -5,18 +5,9 @@ Guide to Installation
 Continuous integration creates packages for a variety of Linux
 distributions each time certain branches hosted on GitHub are updated.
 This is supported by GitHub Actions, in conjunction with the OpenSUSE
-Build Service.  The ``dev`` branch, which is the default branch
-containing the most up to date stable development, is published here:
+Build Service.
 
-    https://download.opensuse.org/repositories/home:/geopm/
-
-Until the version 2.0.0 version of GEOPM is tagged, packages
-reflecting the latest ``release-v2.0-candidate`` branch will be
-published here:
-
-    https://download.opensuse.org/repositories/home:/geopm:/release-v2.0-candidate/
-
-The packages built from this service are named:
+The packages built from this service with each update are:
 
 - ``geopm-service``
 - ``geopm-service-devel``
@@ -26,55 +17,35 @@ The packages built from this service are named:
 In addition to these packages that are built each time a tracked
 branch is updated, the download repositories also provide
 ``python3-dasbus`` version 1.6.  This version of dasbus is required by
-``python3-geopmdpy``, and is not provided by the Linux distributions
-that we support.  By installing the GEOPM Service packages from the
-download repositories, version 1.6 of dasbus will also be installed.
+``python3-geopmdpy``, and is not provided by the supported Linux
+distributions.
+
+Installing the ``geopm-service`` package will also install the
+``libgeopmd0``, ``python3-geopmdpy`` and ``python3-dasbus`` dependency
+packages.  The ``geopm-service-devel`` package must be explicitly
+installed if it is required.
 
 
-Package Repositories
---------------------
+Download Repositories
+---------------------
 
-The OBS builds currently support six distributions and two branches
-for a total of twelve download repositories.  The links to the twelve
-repo data URLs are provided in the list below.
+The ``dev`` branch is the default branch containing the most up to
+date stable development.  The ``release-v2.0-candidate`` branch will
+point to a historical commit in the ``dev`` branch, and the release
+candidate branch will be updated much less frequently than the
+development branch.  The builds from these two branches have the
+following download repository pages:
 
-- SLES 15-SP2
-   + `dev <https://download.opensuse.org/repositories/home:/geopm/SLE_15_SP2/home:geopm.repo>`__
-   + `release-v2.0-candidate <https://download.opensuse.org/repositories/home:/geopm:/release-v2.0-candidate/SLE_15_SP2/home:geopm:release-v2.0-candidate.repo>`__
-- OpenSUSE 15.3
-   + `dev <https://download.opensuse.org/repositories/home:/geopm/15.3/home:geopm.repo>`__
-   + `release-v2.0-candidate <https://download.opensuse.org/repositories/home:/geopm:/release-v2.0-candidate/15.3/home:geopm:release-v2.0-candidate.repo>`__
-- OpenSUSE 15.4
-   + `dev <https://download.opensuse.org/repositories/home:/geopm/15.4/home:geopm.repo>`__
-   + `release-v2.0-candidate <https://download.opensuse.org/repositories/home:/geopm:/release-v2.0-candidate/15.4/home:geopm:release-v2.0-candidate.repo>`__
-- Fedora 35
-   + `dev <https://download.opensuse.org/repositories/home:/geopm/Fedora_35/home:geopm.repo>`__
-   + `release-v2.0-candidate <https://download.opensuse.org/repositories/home:/geopm:/release-v2.0-candidate/Fedora_35/home:geopm:release-v2.0-candidate.repo>`__
-- CentOS 8
-   + `dev <https://download.opensuse.org/repositories/home:/geopm/CentOS_8/home:geopm.repo>`__
-   + `release-v2.0-candidate <https://download.opensuse.org/repositories/home:/geopm:/release-v2.0-candidate/CentOS_8/home:geopm:release-v2.0-candidate.repo>`__
-- CentOS 8-Stream
-   + `dev <https://download.opensuse.org/repositories/home:/geopm/CentOS_8_Stream/home:geopm.repo>`__
-   + `release-v2.0-candidate <https://download.opensuse.org/repositories/home:/geopm:/release-v2.0-candidate/CentOS_8_Stream/home:geopm:release-v2.0-candidate.repo>`__
+- ``dev``
+   + `Install Development Packages <https://software.opensuse.org/download.html?project=home%3Ageopm&package=geopm-service>`__
+- ``release-v2.0-candidate``
+   + `Install Release Candidate Packages <https://software.opensuse.org/download.html?project=home%3Ageopm%3Arelease-v2.0-candidate&package=geopm-service>`__
 
-One of these URLs should be added to the package configuration by
-running one of the two commands below depending on the package
-management system for the operating system:
-
-.. code-block:: bash
-
-    # On SUSE based distros
-    zypper addrepo <URL>
-
-    # On RH based distros
-    yum-config-manager --add-repo <URL>
-
-This will enable ``zypper`` or ``yum`` to be used to install and
-update the GEOPM Service packages.
+Use one of these links to install the GEOPM Service on your system.
 
 
-Install Commands
-----------------
+Examples
+--------
 
 The following bash commands will add the development branch OBS build
 repository and install the GEOPM Service.
@@ -84,11 +55,17 @@ repository and install the GEOPM Service.
     # On SUSE based distros (e.g. dev branch - OpenSUSE 15.3)
     REPO_URL=https://download.opensuse.org/repositories/home:/geopm/15.3/home:geopm.repo
     zypper addrepo ${REPO_URL}
+    zypper refresh
     zypper install -y geopm-service
 
+
+.. code-block:: bash
+
     # On RH based distros (e.g. dev branch - CentOS 8)
-    REPO_URL=https://download.opensuse.org/repositories/home:/geopm/CentOS_8/home:geopm.repo
-    yum-config-manager --add-repo ${REPO_URL}
+    REPO_URL=https://download.opensuse.org/repositories/home:geopm/CentOS_8/home:geopm.repo
+    pushd /etc/yum.repos.d/
+    wget ${REPO_URL}
+    popd
     yum install -y geopm-service
 
 
@@ -102,12 +79,15 @@ you update all the packages built from the GEOPM source.
     # On SUSE based distros
     zypper update -y geopm-service libgeopmd0 python3-geopmdpy
 
+
+.. code-block:: bash
+
     # On RH based distros
     yum update -y geopm-service libgeopmd0 python3-geopmdpy
 
 
-Note that the development branch always has a version which is at
-least as recent as the release candidate branch.  For this reason, if
-both the development branch repository and the release candidate
-repository are added to your package configuration, updates will
-always come from the development branch repository.
+Note that the development branch always provides a version which is at
+least as recent as the release candidate branch.  For this reason,
+updates will always come from the development branch download
+repository if both the development repository and the release
+candidate repository are added to your package configuration,
