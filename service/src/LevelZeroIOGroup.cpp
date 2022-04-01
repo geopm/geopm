@@ -507,19 +507,19 @@ namespace geopm
                     {"Average accelerator power over 40 ms or 8 control loop iterations",
                     M_NAME_PREFIX + "GPUCHIP_ENERGY",
                     M_NAME_PREFIX + "GPUCHIP_ENERGY_TIMESTAMP"}},
-            {M_NAME_PREFIX + "GPU_UTILIZATION",
+            {M_NAME_PREFIX + "GPUCHIP_UTILIZATION",
                     {"GPU utilization"
                         "n  Level Zero logical engines may map to the same hardware"
                         "\n  resulting in a reduced signal range (i.e. not 0 to 1)",
                     M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME",
                     M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME_TIMESTAMP"}},
-            {M_NAME_PREFIX + "GPU_UTILIZATION_COMPUTE",
+            {M_NAME_PREFIX + "GPUCHIP_UTILIZATION_COMPUTE",
                     {"Compute engine utilization"
                         "n  Level Zero logical engines may map to the same hardware"
                         "\n  resulting in a reduced signal range (i.e. not 0 to 1)",
                     M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME_COMPUTE",
                     M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME_COMPUTE_TIMESTAMP"}},
-            {M_NAME_PREFIX + "GPU_UTILIZATION_COPY",
+            {M_NAME_PREFIX + "GPUCHIP_UTILIZATION_COPY",
                     {"Copy engine utilization"
                         "n  Level Zero logical engines may map to the same hardware"
                         "\n  resulting in a reduced signal range (i.e. not 0 to 1)",
@@ -559,7 +559,12 @@ namespace geopm
         register_signal_alias("GPU_COMPUTE_ACTIVITY", M_NAME_PREFIX + "METRIC:XVE_ACTIVE");
         register_signal_alias("GPU_STALL_ACTIVITY", M_NAME_PREFIX + "METRIC:XVE_STALL");
 
-        register_signal_alias("GPU_FREQUENCY_STATUS", M_NAME_PREFIX + "GPU_FREQUENCY_STATUS");
+        register_signal_alias("GPU_UTILIZATION", M_NAME_PREFIX + "GPUCHIP_UTILIZATION");
+        register_signal_alias("GPU_UTILIZATION_COPY", M_NAME_PREFIX + "GPUCHIP_UTILIZATION_COPY");
+        register_signal_alias("GPU_UTILIZATION_COMPUTE", M_NAME_PREFIX + "GPUCHIP_UTILIZATION_COMPUTE");
+        register_signal_alias("GPU_FREQUENCY_STATUS", M_NAME_PREFIX + "GPUCHIP_FREQUENCY_STATUS");
+        register_signal_alias("GPU_FREQUENCY_MIN_AVAIL", M_NAME_PREFIX + "GPUCHIP_FREQUENCY_MIN_AVAIL");
+        register_signal_alias("GPU_FREQUENCY_MAX_AVAIL", M_NAME_PREFIX + "GPUCHIP_FREQUENCY_MAX_AVAIL");
         register_signal_alias("GPU_FREQUENCY_CONTROL",
                               M_NAME_PREFIX + "GPUCHIP_FREQUENCY_CONTROL");
         register_control_alias("GPU_FREQUENCY_CONTROL",
