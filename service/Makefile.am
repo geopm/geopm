@@ -335,6 +335,10 @@ rpm: dist
 
 checkprogs: gtest-checkprogs geopmdpy-checkprogs $(check_PROGRAMS) $(check_LTLIBRARIES)
 
+all-local: $(all_local)
+
+all_local =
+
 CLEAN_LOCAL_TARGETS = clean-local-python
 
 clean-local: $(CLEAN_LOCAL_TARGETS)

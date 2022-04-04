@@ -195,14 +195,13 @@ base_man = docs/build/man/geopmadmin.1 \
            docs/build/man/geopmpy.7 \
            # end
 
+all_man_target = docs/build/man/.dirfile
 all_man = $(dist_man_MANS) $(base_man)
+all_local += $(all_man_target)
 
 docs: docs_man docs_html
 
 if ENABLE_DOCS
-
-all_man_target = docs/build/man/.dirfile
-
 $(all_man_target): $(all_man_rst)
 	LD_LIBRARY_PATH=.libs:$(LD_LIBRARY_PATH) \
 	PYTHONPATH=$(abs_srcdir):$(PYTHONPATH) \
@@ -223,6 +222,9 @@ docs_man: libgeopmd.la $(abs_srcdir)/geopmdpy/version.py
 	sphinx-build -M man $(abs_srcdir)/docs/source docs/build
 
 else
+
+$(all_man_target): $(all_man)
+	touch $(all_man_target)
 
 $(all_man): docs/build/man/%: $(top_srcdir)/docs/source/%.rst
 	mkdir -p docs/build/man
