@@ -1063,8 +1063,8 @@ namespace geopm
                              << std::endl;
 #endif
             }
-            m_levelzero_device_pool.metric_polling_disable();
         }
+        m_levelzero_device_pool.metric_polling_disable();
     }
 
     // Hint to Agent about how to aggregate signals from this IOGroup
