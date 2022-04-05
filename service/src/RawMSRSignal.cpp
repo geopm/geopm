@@ -34,7 +34,7 @@
 
 #include "RawMSRSignal.hpp"
 
-#include "geopm_internal.h"
+#include "geopm_field.h"
 #include "geopm_debug.hpp"
 #include "MSRIO.hpp"
 #include "geopm/Exception.hpp"

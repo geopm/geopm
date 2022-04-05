@@ -48,6 +48,7 @@
 #include "gmock/gmock.h"
 #include "geopm_test.hpp"
 
+#include "geopm_field.h"
 #include "geopm_time.h"
 #include "geopm_endpoint.h"
 #include "MockSharedMemory.hpp"

@@ -36,7 +36,7 @@
 #include "gmock/gmock.h"
 
 #include "geopm_hash.h"
-#include "geopm_internal.h"
+#include "geopm_field.h"
 #include "SSTSignal.hpp"
 #include "MockSSTIO.hpp"
 

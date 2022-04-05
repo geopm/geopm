@@ -40,7 +40,6 @@
 #include <forward_list>
 #include <memory>
 
-#include "geopm_internal.h"
 
 namespace geopm
 {
@@ -117,7 +116,6 @@ namespace geopm
             virtual void controller_ready(void) = 0;
             /// @brief Signal application of failure.
             virtual void abort(void) = 0;
-            virtual std::vector<struct geopm_prof_message_s> sample_cache(void) = 0;
 
             virtual void check_sample_end(void) = 0;
     };
@@ -218,7 +216,6 @@ namespace geopm
             std::string profile_name(void) const override;
             void controller_ready(void) override;
             void abort(void) override;
-            std::vector<struct geopm_prof_message_s> sample_cache(void) override;
             void check_sample_end(void) override;
         private:
             /// Holds the shared memory region used for application coordination
@@ -238,7 +235,6 @@ namespace geopm
             std::string m_profile_name;
             bool m_do_report;
             int m_rank_per_node;
-            std::vector<struct geopm_prof_message_s> m_cache;
     };
 }
 

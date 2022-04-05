@@ -29,6 +29,9 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
+#include "config.h"
+
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
@@ -44,18 +47,23 @@
 #ifndef GEOPM_TEST
 #include <mpi.h>
 #endif
-extern "C" {
+
+extern "C"
+{
 #ifndef GEOPM_TEST
 #include "geopm_ctl.h"
 #endif
 #include "geopm_prof.h"
 #include "geopm_error.h"
 #include "geopm_hint.h"
-#include "geopm_internal.h"
 #include "geopm_pmpi.h"
 #include "geopm_sched.h"
 #include "geopm_mpi_comm_split.h"
-#include "config.h"
+    /**
+     * Helper that creates the DefaultProfile signleton (if not already created)
+     * and catches all exceptions.
+     */
+    int geopm_prof_init(void);
 }
 
 

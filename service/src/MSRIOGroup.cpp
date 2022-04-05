@@ -47,7 +47,6 @@
 #include "geopm/json11.hpp"
 
 #include "geopm_sched.h"
-#include "geopm_internal.h"
 #include "geopm/Exception.hpp"
 #include "geopm/Agg.hpp"
 #include "MSRIOImp.hpp"

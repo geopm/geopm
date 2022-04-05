@@ -41,6 +41,7 @@
 #include <algorithm>
 #include <string>
 
+#include "geopm_time.h"
 #include "geopm_hint.h"
 #include "geopm_hash.h"
 #include "geopm/Exception.hpp"

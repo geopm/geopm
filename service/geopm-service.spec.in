@@ -267,6 +267,7 @@ ln -s /usr/sbin/service %{buildroot}%{_sbindir}/rcgeopm
 %{_includedir}/geopm/SharedMemoryScopedLock.hpp
 %{_includedir}/geopm_debug.hpp
 %{_includedir}/geopm_error.h
+%{_includedir}/geopm_field.h
 %{_includedir}/geopm_hash.h
 %{_includedir}/geopm_hint.h
 %{_includedir}/geopm_pio.h

@@ -33,6 +33,8 @@
 #include "config.h"
 
 #include "geopm/Agg.hpp"
+#include "geopm_hint.h"
+#include "geopm_hash.h"
 
 #include <cmath>
 
@@ -40,7 +42,6 @@
 #include <numeric>
 #include <map>
 
-#include "geopm_internal.h"
 #include "geopm/Exception.hpp"
 
 namespace geopm

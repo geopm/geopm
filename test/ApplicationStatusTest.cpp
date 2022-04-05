@@ -36,7 +36,7 @@
 
 #include "geopm_prof.h"
 #include "geopm_hint.h"
-#include "geopm_internal.h"
+#include "geopm_hash.h"
 #include "ApplicationStatus.hpp"
 #include "MockSharedMemory.hpp"
 

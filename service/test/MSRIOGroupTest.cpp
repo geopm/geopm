@@ -50,7 +50,7 @@
 
 #include "geopm_sched.h"
 #include "geopm_hash.h"
-#include "geopm_internal.h"
+#include "geopm_field.h"
 #include "geopm/Helper.hpp"
 #include "geopm/PlatformTopo.hpp"
 #include "MSRIOImp.hpp"

@@ -38,7 +38,30 @@
 #include <set>
 #include <string>
 
-#include "geopm_internal.h"
+#include "geopm_time.h"
+
+/*!
+ * @brief Structure used to hold single profiling
+ * messages obtained from the application.
+ */
+struct geopm_prof_message_s {
+    /*!
+     * @brief Rank identifier.
+     */
+    int rank;
+    /*!
+     * @brief 64-bit unique application region identifier.
+     */
+    uint64_t region_id;
+    /*!
+     * @brief Time stamp of when the sample was taken.
+     */
+    struct geopm_time_s timestamp;
+    /*!
+     * @brief Progress of the rank within the current region.
+     */
+    double progress;
+};
 
 namespace geopm
 {
