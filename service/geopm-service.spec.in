@@ -222,7 +222,10 @@ ln -s /usr/sbin/service %{buildroot}%{_sbindir}/rcgeopm
 %{_sbindir}/rcgeopm
 %{_bindir}/geopmread
 %{_bindir}/geopmwrite
+%dir %{_datadir}/dbus-1
+%dir %{_datadir}/dbus-1/system.d
 %{_datadir}/dbus-1/system.d/io.github.geopm.conf
+%dir %{_datadir}/dbus-1/interfaces
 %{_datadir}/dbus-1/interfaces/io.github.geopm.xml
 %{_unitdir}/geopm.service
 %dir %{_sysconfdir}/geopm-service
