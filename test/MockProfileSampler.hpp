@@ -52,8 +52,6 @@ class MockProfileSampler : public geopm::ProfileSampler
         MOCK_METHOD(std::string, profile_name, (), (const, override));
         MOCK_METHOD(void, controller_ready, (), (override));
         MOCK_METHOD(void, abort, (), (override));
-        MOCK_METHOD(std::vector<struct geopm_prof_message_s>, sample_cache, (),
-                    (override));
         MOCK_METHOD(void, check_sample_end, (), (override));
 };
 

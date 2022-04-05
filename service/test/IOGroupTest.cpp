@@ -43,7 +43,6 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-#include "geopm_internal.h"
 #include "geopm/PluginFactory.hpp"
 #include "geopm/IOGroup.hpp"
 #include "geopm/PlatformTopo.hpp"

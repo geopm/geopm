@@ -49,7 +49,6 @@
 #include "MockTreeComm.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm_prof.h"
-#include "geopm_internal.h"
 #include "geopm_hash.h"
 #include "geopm_version.h"
 

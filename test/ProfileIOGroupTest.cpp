@@ -34,7 +34,7 @@
 
 #include "geopm_prof.h"
 #include "geopm_hint.h"
-#include "geopm_internal.h"
+#include "geopm_hash.h"
 #include "ProfileIOGroup.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"

@@ -45,9 +45,9 @@
 
 #include "geopm/json11.hpp"
 
-#include "geopm_internal.h"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
+#include "geopm_prof.h"
 
 #include "config.h"
 

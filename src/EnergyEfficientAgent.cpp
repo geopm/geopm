@@ -40,7 +40,6 @@
 #include "geopm/json11.hpp"
 
 #include "geopm_hash.h"
-#include "geopm_internal.h"
 
 #include "ApplicationSampler.hpp"
 #include "EnergyEfficientRegion.hpp"
