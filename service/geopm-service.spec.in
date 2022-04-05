@@ -57,7 +57,6 @@ BuildRequires: python3-devel
 BuildRequires: python3-setuptools
 %if 0%{?suse_version}
 BuildRequires: fdupes
-BuildRequires: libdbus-1-3
 BuildRequires: systemd-rpm-macros
 BuildRequires: python-rpm-macros
 %endif
@@ -76,7 +75,8 @@ BuildRequires: python-rpm-macros
 
 %define python_major_version 3
 
-Requires: python%{python3_pkgversion}-geopmdpy
+Requires: python%{python3_pkgversion}-geopmdpy == %{version}
+Requires: libgeopmd0 == %{version}
 
 %description
 
@@ -142,7 +142,7 @@ Requires: python3-dasbus >= 1.6
 Requires: python3-jsonschema
 Requires: python3-psutil
 Requires: python3-cffi
-Requires: libgeopmd0
+Requires: libgeopmd0 == %{version}
 
 %{?python_provide:%python_provide python%{python3_pkgversion}-geopmdpy}
 
