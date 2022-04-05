@@ -49,19 +49,7 @@ The ``dev`` branch is frequently updated, and the
 ``release-v2.0-candidate`` branch will be updated several times prior
 to the ``v2.0.0`` release.  At a later date, after the initial
 install, it may be useful to update the installation to match the
-upstream branch.  To do this it is recommended that you update all of
-the installed packages built from the GEOPM source (including the
-optional ``geopm-service-devel`` package if it is installed):
-
-.. code-block:: bash
-    # On SUSE based distros
-    zypper update -y geopm-service libgeopmd0 python3-geopmdpy
-
-
-.. code-block:: bash
-    # On RH based distros
-    yum update -y geopm-service libgeopmd0 python3-geopmdpy
-
+upstream branch.
 
 Note that the development branch always provides a version which is at
 least as recent as the release candidate branch.  For this reason,
