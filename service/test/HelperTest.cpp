@@ -37,8 +37,8 @@
 #include <unistd.h>
 
 #include "geopm/Helper.hpp"
+#include "geopm_hint.h"
 #include "geopm_test.hpp"
-#include "geopm_internal.h"
 
 TEST(HelperTest, string_split)
 {

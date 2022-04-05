@@ -34,11 +34,13 @@
 
 #include <cstdint>
 
-#include "geopm_internal.h"
 #include "ValidateRecord.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
 #include "record.hpp"
+#include "geopm_hash.h"
+#include "geopm_hint.h"
+
 
 namespace geopm
 {

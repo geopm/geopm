@@ -41,7 +41,6 @@
 #include "gtest/gtest.h"
 
 #include "config.h"
-#include "geopm_internal.h"
 
 extern "C"
 {
@@ -67,6 +66,8 @@ extern "C"
     #define MPI_MAX_OBJECT_NAME 16
     #define MPI_INFO_NULL 0
 
+    // Special region id for tests
+    static const uint64_t REGION_ID_MPI = 1ULL << 60;
     static int g_is_geopm_pmpi_ctl_enabled = 0;
     static MPI_Comm g_geopm_comm_world_swap = MPI_COMM_WORLD;
     static MPI_Comm g_ppn1_comm = MPI_COMM_NULL;
@@ -162,12 +163,12 @@ extern "C"
         if (func_rid) {
             geopm_prof_enter(func_rid);
         }
-        geopm_prof_enter(GEOPM_REGION_ID_MPI);
+        geopm_prof_enter(REGION_ID_MPI);
     }
 
     void geopm_mpi_region_exit(uint64_t func_rid)
     {
-        geopm_prof_exit(GEOPM_REGION_ID_MPI);
+        geopm_prof_exit(REGION_ID_MPI);
         if (func_rid) {
             geopm_prof_exit(func_rid);
         }
@@ -201,7 +202,7 @@ class MPIInterfaceTest: public :: testing :: Test
 
 MPIInterfaceTest::MPIInterfaceTest()
 {
-    G_EXPECTED_REGION_ID = GEOPM_REGION_ID_MPI;
+    G_EXPECTED_REGION_ID = REGION_ID_MPI;
     reset();
 }
 
@@ -228,8 +229,8 @@ void MPIInterfaceTest::reset()
 
 void MPIInterfaceTest::mpi_prof_check()
 {
-    EXPECT_EQ(GEOPM_REGION_ID_MPI, g_test_curr_region_enter_id);
-    EXPECT_EQ(GEOPM_REGION_ID_MPI, g_test_curr_region_exit_id);
+    EXPECT_EQ(REGION_ID_MPI, g_test_curr_region_enter_id);
+    EXPECT_EQ(REGION_ID_MPI, g_test_curr_region_exit_id);
     EXPECT_EQ(2, g_test_curr_region_enter_count);
     EXPECT_EQ(2, g_test_curr_region_exit_count);
     reset();
@@ -258,14 +259,14 @@ TEST_F(MPIInterfaceTest, geopm_api)
     reset();
 
     geopm_mpi_region_enter(0);
-    EXPECT_EQ(GEOPM_REGION_ID_MPI, g_test_curr_region_enter_id);
+    EXPECT_EQ(REGION_ID_MPI, g_test_curr_region_enter_id);
     EXPECT_EQ(1, g_test_curr_region_enter_count);
     EXPECT_EQ((uint64_t)0, g_test_curr_region_exit_id);
     EXPECT_EQ(0, g_test_curr_region_exit_count);
     reset();
 
     geopm_mpi_region_exit(0);
-    EXPECT_EQ(GEOPM_REGION_ID_MPI, g_test_curr_region_exit_id);
+    EXPECT_EQ(REGION_ID_MPI, g_test_curr_region_exit_id);
     EXPECT_EQ(1, g_test_curr_region_exit_count);
     EXPECT_EQ((uint64_t)0, g_test_curr_region_enter_id);
     EXPECT_EQ(0, g_test_curr_region_enter_count);

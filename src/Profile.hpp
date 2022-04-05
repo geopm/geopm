@@ -41,7 +41,63 @@
 #include <stack>
 #include <set>
 
+#include "geopm_hash.h"
+#include "geopm_hint.h"
 #include "config.h"
+
+
+/****************************************/
+/* Encode/decode function for region_id */
+/****************************************/
+
+enum geopm_region_id_e {
+    GEOPM_REGION_ID_EPOCH =        1ULL << 63, /* Signaling the start of an epoch, no associated Region */
+    GEOPM_REGION_ID_MPI =          1ULL << 62, /* Execution of MPI calls */
+};
+
+static inline uint64_t geopm_region_id_hash(uint64_t region_id)
+{
+    uint64_t ret = ((region_id << 32) >> 32);
+
+    if (GEOPM_REGION_HASH_INVALID == ret) {
+        ret = GEOPM_REGION_HASH_UNMARKED;
+    }
+    return ret;
+}
+
+static inline int geopm_region_id_is_mpi(uint64_t region_id)
+{
+    return (region_id & GEOPM_REGION_ID_MPI) ? 1 : 0;
+}
+
+static inline uint64_t geopm_region_id_hint(uint64_t region_id)
+{
+    uint64_t ret;
+    if (GEOPM_REGION_HASH_UNMARKED == region_id) {
+        ret = GEOPM_REGION_HINT_UNKNOWN;
+    }
+    else if (geopm_region_id_is_mpi(region_id)) {
+        ret = GEOPM_REGION_HINT_NETWORK;
+    }
+    else {
+        ret = region_id & GEOPM_MASK_REGION_HINT;
+        if (!ret) {
+            ret = GEOPM_REGION_HINT_UNKNOWN;
+        }
+    }
+    return ret;
+}
+
+static inline uint64_t geopm_region_id_set_hint(uint64_t hint_type, uint64_t region_id)
+{
+    return (region_id | hint_type);
+}
+
+static inline int geopm_region_id_hint_is_equal(uint64_t hint_type, uint64_t region_id)
+{
+    return (region_id & hint_type) ? 1 : 0;
+}
+
 
 namespace geopm
 {

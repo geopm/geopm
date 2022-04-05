@@ -40,6 +40,13 @@
 extern "C" {
 #endif
 
+/// @brief Enum for controller launch methods
+enum geopm_ctl_e {
+    GEOPM_CTL_NONE,
+    GEOPM_CTL_PROCESS,
+    GEOPM_CTL_PTHREAD,
+};
+
 /*************************/
 /* APPLICATION PROFILING */
 /*************************/

@@ -40,6 +40,26 @@ extern "C"
 {
 #endif
 
+
+/***************************/
+/* APPLICATION REGION HASH */
+/***************************/
+enum geopm_region_hash_e {
+    GEOPM_REGION_HASH_INVALID  = 0x0ULL,
+    GEOPM_REGION_HASH_UNMARKED = 0x725e8066ULL, /* Note the value is the geopm_crc32_str() of the stringified enum */
+    GEOPM_U64_SENTINEL_REGION_HASH = UINT64_MAX, /* Force enum type to uint64_t */
+};
+
+/*!
+ * @brief Enum for internally defined region hashes.
+ * Note the value is the geopm_crc32_str() of the stringified enum
+ */
+enum geopm_region_hash_epoch_e {
+    GEOPM_REGION_HASH_EPOCH = 0x66c91423ULL,
+    GEOPM_REGION_HASH_APP = 0x9d540c53ULL,
+};
+
+
 /// @brief Implements the CRC32 hashing algorithm
 ///
 /// @param [in] begin Algorithm starts with this value

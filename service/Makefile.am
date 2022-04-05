@@ -44,6 +44,7 @@ bin_PROGRAMS = geopmread \
 
 include_HEADERS = src/geopm_debug.hpp \
                   src/geopm_error.h \
+                  src/geopm_field.h \
                   src/geopm_hash.h \
                   src/geopm_hint.h \
                   src/geopm_pio.h \
@@ -227,7 +228,6 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/TimeSignal.hpp \
                        src/TimeZero.cpp \
                        src/geopm_hash.c \
-                       src/geopm_internal.h \
                        src/geopm_plugin.cpp \
                        src/geopm_sched.c \
                        src/geopm_version.c \

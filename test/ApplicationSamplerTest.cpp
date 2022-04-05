@@ -45,6 +45,7 @@
 #include "record.hpp"
 #include "geopm_prof.h"
 #include "geopm_hint.h"
+#include "geopm_hash.h"
 #include "geopm_test.hpp"
 #include "config.h"
 

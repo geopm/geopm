@@ -32,12 +32,13 @@
 
 #include "config.h"
 
-#include "geopm_internal.h"
 #include "ApplicationRecordLog.hpp"
 #include "geopm/SharedMemory.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm_debug.hpp"
+#include "geopm_hint.h"
+#include "geopm_hash.h"
 
 
 namespace geopm

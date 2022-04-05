@@ -47,6 +47,7 @@
 #include <iostream>
 
 #include "geopm_hint.h"
+#include "geopm_hash.h"
 #include "geopm_time.h"
 #include "geopm_sched.h"
 #include "Environment.hpp"
@@ -60,6 +61,7 @@
 #include "Comm.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm_debug.hpp"
+
 
 namespace geopm
 {

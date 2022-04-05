@@ -59,11 +59,11 @@
 #include "geopm/Helper.hpp"
 #include "geopm_hash.h"
 #include "geopm_version.h"
-#include "geopm_internal.h"
 #include "geopm_debug.hpp"
 #include "Environment.hpp"
 #include "geopm_debug.hpp"
 #include "PlatformIOProf.hpp"
+#include "geopm_time.h"
 
 namespace geopm
 {

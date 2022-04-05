@@ -34,7 +34,6 @@
 
 #include "SampleAggregatorImp.hpp"
 
-#include "geopm_internal.h"
 #include "geopm_hash.h"
 #include "geopm_debug.hpp"
 #include "geopm/PlatformIO.hpp"

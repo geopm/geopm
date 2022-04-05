@@ -218,11 +218,6 @@ namespace geopm
         m_ctl_msg->abort();
     }
 
-    std::vector<geopm_prof_message_s> ProfileSamplerImp::sample_cache(void)
-    {
-        return m_cache;
-    }
-
     ProfileRankSamplerImp::ProfileRankSamplerImp(const std::string &shm_key, size_t table_size)
         : m_table_shmem(nullptr)
         , m_table(nullptr)

@@ -40,8 +40,8 @@
 #include "geopm/Exception.hpp"
 #include "geopm/Agg.hpp"
 #include "geopm_hash.h"
+#include "geopm_hint.h"
 #include "geopm_time.h"
-#include "geopm_internal.h"
 #include "geopm_debug.hpp"
 
 #define GEOPM_PROFILE_IO_GROUP_PLUGIN_NAME "PROFILE"
