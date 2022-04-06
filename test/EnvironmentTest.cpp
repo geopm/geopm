@@ -40,7 +40,6 @@
 #include "gtest/gtest.h"
 #include "geopm_error.h"
 #include "geopm_field.h"
-#include "geopm_prof.h"
 #include "Environment.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
