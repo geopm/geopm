@@ -305,15 +305,15 @@ namespace geopm
 
     int EnvironmentImp::pmpi_ctl(void) const
     {
-        int ret = GEOPM_CTL_NONE;
+        int ret = Environment::M_CTL_NONE;
         auto it = m_name_value_map.find("GEOPM_CTL");
         if (it != m_name_value_map.end()) {
             std::string pmpi_ctl_str = it->second;
             if (pmpi_ctl_str == "process") {
-                ret = GEOPM_CTL_PROCESS;
+                ret = Environment::M_CTL_PROCESS;
             }
             else if (pmpi_ctl_str == "pthread") {
-                ret = GEOPM_CTL_PTHREAD;
+                ret = Environment::M_CTL_PTHREAD;
             }
             else {
                 throw Exception("EnvironmentImp::EnvironmentImp(): " + pmpi_ctl_str +

@@ -139,8 +139,8 @@ void EnvironmentTest::SetUp()
               {"GEOPM_REPORT_SIGNALS", "best1,best2,best3"},
              };
 
-    m_pmpi_ctl_map["process"] = (int)GEOPM_CTL_PROCESS;
-    m_pmpi_ctl_map["pthread"] = (int)GEOPM_CTL_PTHREAD;
+    m_pmpi_ctl_map["process"] = (int)Environment::M_CTL_PROCESS;
+    m_pmpi_ctl_map["pthread"] = (int)Environment::M_CTL_PTHREAD;
 }
 
 void EnvironmentTest::TearDown()
