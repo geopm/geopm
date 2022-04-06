@@ -99,7 +99,6 @@ Group: Development/Libraries
 Group: Development/Libraries/C and C++
 %endif
 Requires: libgeopmd0 == %{version}
-Requires: geopm-service == %{version}
 
 %description devel
 
@@ -219,6 +218,7 @@ ln -s /usr/sbin/service %{buildroot}%{_sbindir}/rcgeopm
 # Installed files
 
 %files
+%defattr(-,root,root,-)
 %{_sbindir}/rcgeopm
 %{_bindir}/geopmread
 %{_bindir}/geopmwrite
@@ -241,6 +241,7 @@ ln -s /usr/sbin/service %{buildroot}%{_sbindir}/rcgeopm
 %dir %{_libdir}/geopm-service
 
 %files -n python%{python3_pkgversion}-geopmdpy
+%defattr(-,root,root,-)
 %{expand:%{python%{python_major_version}_sitelib}}/*
 %doc %{_mandir}/man1/geopmaccess.1.gz
 %doc %{_mandir}/man1/geopmsession.1.gz
@@ -250,6 +251,7 @@ ln -s /usr/sbin/service %{buildroot}%{_sbindir}/rcgeopm
 %{_bindir}/geopmsession
 
 %files devel
+%defattr(-,root,root,-)
 %dir %{_includedir}/geopm
 %{_includedir}/geopm/Agg.hpp
 %{_includedir}/geopm/CircularBuffer.hpp

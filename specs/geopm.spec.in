@@ -41,7 +41,7 @@ BuildRoot: %{_tmppath}/geopm-%{version}-%{release}-root
 BuildRequires: gcc-c++
 BuildRequires: unzip
 BuildRequires: libtool
-BuildRequires: geopm-service
+BuildRequires: geopm-service-devel
 
 %if 0%{?suse_version}
 BuildRequires: libelf-devel
@@ -213,6 +213,7 @@ rm -f %{buildroot}/%{_bindir}/geopmlaunch
 %{_includedir}/geopm_prof.h
 
 %files -n python%{python_major_version}-geopmpy
+%defattr(-,root,root,-)
 %{expand:%{python%{python_major_version}_sitelib}}/*
 %doc %{_mandir}/man7/geopmpy.7.gz
 %changelog
