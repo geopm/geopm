@@ -67,7 +67,7 @@ repository.  Please refer to the `service/README.rst` file for further
 documentation about the GEOPM Service.  Additionally a comprehensive
 overview of the GEOPM service is posted here:
 
-https://geopm.github.io/
+https://geopm.github.io/service.html
 
 
 GEOPM HPC Runtime
