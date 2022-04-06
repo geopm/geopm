@@ -204,6 +204,15 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/FrequencyMapAgentTest.split_policy \
               test/gtest_links/FrequencyMapAgentTest.validate_policy \
               test/gtest_links/FrequencyMapAgentTest.validate_policy_nogpu \
+              test/gtest_links/FrequencyTimeBalancerTest.balance_when_current_frequencies_are_all_unlimited \
+              test/gtest_links/FrequencyTimeBalancerTest.balance_when_all_frequencies_should_go_unlimited \
+              test/gtest_links/FrequencyTimeBalancerTest.does_not_change_when_already_balanced \
+              test/gtest_links/FrequencyTimeBalancerTest.does_not_use_capped_cores_as_balance_reference \
+              test/gtest_links/FrequencyTimeBalancerTest.resets_to_baseline_if_invariants_are_violated \
+              test/gtest_links/FrequencyTimeBalancerTest.no_time_spent_in_balancing_regions \
+              test/gtest_links/FrequencyTimeBalancerTest.negative_time_spent_in_balancing_regions \
+              test/gtest_links/FrequencyTimeBalancerTest.selects_high_priority_critical_path \
+              test/gtest_links/FrequencyTimeBalancerTest.selects_low_priority_critical_path \
               test/gtest_links/InitControlTest.parse_valid_file \
               test/gtest_links/InitControlTest.parse_valid_file_2 \
               test/gtest_links/InitControlTest.parse_empty_file \
@@ -479,6 +488,7 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
                           test/FilePolicyTest.cpp \
                           test/FrequencyGovernorTest.cpp \
                           test/FrequencyMapAgentTest.cpp \
+                          test/FrequencyTimeBalancerTest.cpp \
                           test/InitControlTest.cpp \
                           test/LocalNeuralNetTest.cpp \
                           test/MockAgent.hpp \
@@ -495,6 +505,7 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
                           test/MockEndpointUser.hpp \
                           test/MockFrequencyLimitDetector.hpp \
                           test/MockFrequencyGovernor.hpp \
+                          test/MockFrequencyTimeBalancer.hpp \
                           test/MockLocalNeuralNet.hpp \
                           test/MockIOGroup.hpp \
                           test/MockInitControl.hpp \

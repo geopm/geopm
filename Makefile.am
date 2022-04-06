@@ -434,6 +434,8 @@ libgeopm_la_SOURCES = src/Accumulator.cpp \
                       src/TRLFrequencyLimitDetector.hpp \
                       src/FrequencyMapAgent.cpp \
                       src/FrequencyMapAgent.hpp \
+                      src/FrequencyTimeBalancer.cpp \
+                      src/FrequencyTimeBalancer.hpp \
                       src/Imbalancer.cpp \
                       src/InitControl.cpp \
                       src/InitControl.hpp \
