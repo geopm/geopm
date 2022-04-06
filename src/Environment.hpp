@@ -37,12 +37,6 @@
 #include <set>
 #include <string>
 
-/// @brief Enum for controller launch methods
-enum geopm_ctl_e {
-    GEOPM_CTL_NONE,
-    GEOPM_CTL_PROCESS,
-    GEOPM_CTL_PTHREAD,
-};
 
 namespace geopm
 {
@@ -51,6 +45,15 @@ namespace geopm
     class Environment
     {
         public:
+            /// @brief Enum for controller launch methods
+            ///
+            /// The return value from pmpi_ctl() is one of these.
+            enum m_ctl_e {
+                M_CTL_NONE,
+                M_CTL_PROCESS,
+                M_CTL_PTHREAD,
+            };
+
             Environment() = default;
             virtual ~Environment() = default;
             virtual std::string report(void) const = 0;
