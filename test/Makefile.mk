@@ -219,6 +219,16 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/FrequencyMapAgentTest.policy_to_json \
               test/gtest_links/FrequencyMapAgentTest.split_policy \
               test/gtest_links/FrequencyMapAgentTest.validate_policy \
+              test/gtest_links/FrequencyTimeBalancerTest.balance_when_current_frequencies_are_all_unlimited \
+              test/gtest_links/FrequencyTimeBalancerTest.balance_when_all_frequencies_should_go_unlimited \
+              test/gtest_links/FrequencyTimeBalancerTest.does_not_change_when_already_balanced \
+              test/gtest_links/FrequencyTimeBalancerTest.detects_nearly_balanced \
+              test/gtest_links/FrequencyTimeBalancerTest.independently_balances_subdomains \
+              test/gtest_links/FrequencyTimeBalancerTest.can_ignore_control_domain_indices \
+              test/gtest_links/FrequencyTimeBalancerTest.does_not_use_capped_cores_as_balance_reference \
+              test/gtest_links/FrequencyTimeBalancerTest.resets_to_baseline_if_invariants_are_violated \
+              test/gtest_links/FrequencyTimeBalancerTest.no_time_spent_in_balancing_regions \
+              test/gtest_links/FrequencyTimeBalancerTest.negative_time_spent_in_balancing_regions \
               test/gtest_links/ModelApplicationTest.parse_config_errors \
               test/gtest_links/MonitorAgentTest.policy_names \
               test/gtest_links/MonitorAgentTest.sample_names \
@@ -404,6 +414,7 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
                           test/FilePolicyTest.cpp \
                           test/FrequencyGovernorTest.cpp \
                           test/FrequencyMapAgentTest.cpp \
+                          test/FrequencyTimeBalancerTest.cpp \
                           test/MockAgent.hpp \
                           test/MockApplicationIO.hpp \
                           test/MockApplicationRecordLog.hpp \
