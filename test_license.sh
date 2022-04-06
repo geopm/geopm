@@ -34,4 +34,8 @@
 set -e
 dir_name=$(dirname $0)
 cd $dir_name
-./copying_headers/test-license
+if [ -d ".git" ]; then
+    ./copying_headers/test-license
+else
+    ./copying_headers/test-license --ignore-service
+fi
