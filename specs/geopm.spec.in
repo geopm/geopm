@@ -113,6 +113,7 @@ Development package for GEOPM.
 Summary: Global Extensible Open Power Manager - python %{python_major_version}
 Group: System Environment/Libraries
 Requires: geopmpolicy
+Requires: python%{python_major_version}-geopmdpy
 %{?python_provide:%python_provide python%{python_major_version}-geopmpy}
 
 %description -n python%{python_major_version}-geopmpy
