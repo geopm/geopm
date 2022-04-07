@@ -721,11 +721,10 @@ namespace geopm
         int result = -1;
         bool is_found = false;
 
-        if (signal_name.find(":METRIC:") != std::string::npos &&
+        if ((signal_name.find(":METRIC:") != std::string::npos ||
+            m_metric_alias_set.find(signal_name) != m_metric_alias_set.end()) &&
             domain_type == GEOPM_DOMAIN_BOARD_ACCELERATOR) {
-            //TODO: do L0 devpool metric initialization here!
 
-            //Set flag so read_batch polls for new data
             m_metric_signal_pushed.at(domain_idx) = true;
         }
 
@@ -929,7 +928,8 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        if (signal_name.find(":METRIC:") != std::string::npos) {
+        if (signal_name.find(":METRIC:") != std::string::npos ||
+            m_metric_alias_set.find(signal_name) != m_metric_alias_set.end()) {
             m_levelzero_device_pool.metric_read(domain_type, domain_idx);
         }
 
@@ -1162,6 +1162,11 @@ namespace geopm
         if (der_it != m_derivative_signal_map.end()) {
             m_derivative_signal_map[alias_name] = der_it->second;
         }
+
+        if (signal_name.find(":METRIC:") != std::string::npos) {
+            m_metric_alias_set.insert(alias_name);
+        }
+
     }
 
     void LevelZeroIOGroup::register_control_alias(const std::string &alias_name,
