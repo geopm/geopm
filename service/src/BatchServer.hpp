@@ -77,8 +77,8 @@ namespace geopm
             /// for signals and one for controls.  The shm keys
             /// created will be of the form:
             ///
-            ///     "/geopm-service-batch-buffer-<KEY>-signals"
-            ///     "/geopm-service-batch-buffer-<KEY>-controls"
+            ///     "<prefix>/geopm-service-batch-buffer-<KEY>-signals"
+            ///     "<prefix>/geopm-service-batch-buffer-<KEY>-controls"
             ///
             /// where <KEY> is the "server_key".  This key is used by
             /// the client side with the
@@ -95,6 +95,14 @@ namespace geopm
             static std::unique_ptr<BatchServer> make_unique(int client_pid,
                                                             const std::vector<geopm_request_s> &signal_config,
                                                             const std::vector<geopm_request_s> &control_config);
+            /// @return The shm key to use for the signal shared memory
+            ///         region.
+            static std::string get_signal_shmem_key(
+                const std::string &server_key);
+            /// @return The shm key to use for the control shared memory
+            ///         region.
+            static std::string get_control_shmem_key(
+                const std::string &server_key);
             /// @return The Unix process ID of the server process
             ///        created.
             virtual int server_pid(void) const = 0;
@@ -111,7 +119,10 @@ namespace geopm
             virtual void stop_batch(void) = 0;
             /// @brief Returns true if the batch server is running
             virtual bool is_active(void) = 0;
-            static constexpr const char* M_SHMEM_PREFIX = "/geopm-service-batch-buffer-";
+
+        protected:
+            static constexpr const char* M_SHMEM_PREFIX =
+                "/var/run/geopm-service/geopm-service-batch-buffer-";
     };
 
     class BatchServerImp : public BatchServer
@@ -123,6 +134,8 @@ namespace geopm
             BatchServerImp(int client_pid,
                            const std::vector<geopm_request_s> &signal_config,
                            const std::vector<geopm_request_s> &control_config,
+                           const std::string &signal_shmem_key,
+                           const std::string &control_shmem_key,
                            PlatformIO &pio,
                            std::shared_ptr<BatchStatus> batch_status,
                            std::shared_ptr<POSIXSignal> posix_signal,
@@ -157,6 +170,8 @@ namespace geopm
             const std::string m_server_key;
             const std::vector<geopm_request_s> m_signal_config;
             const std::vector<geopm_request_s> m_control_config;
+            const std::string m_signal_shmem_key;
+            const std::string m_control_shmem_key;
             PlatformIO &m_pio;
             std::shared_ptr<SharedMemory> m_signal_shmem;
             std::shared_ptr<SharedMemory> m_control_shmem;

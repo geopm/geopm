@@ -37,6 +37,8 @@
 
 #include <pthread.h>
 
+#include <functional>
+
 namespace geopm
 {
     class SharedMemoryImp : public SharedMemory
@@ -74,6 +76,25 @@ namespace geopm
             /// @param [in] gid Group ID to become owner.
             void chown(const unsigned int uid, const unsigned int gid) override;
         private:
+            /// @brief Helper struct to track the key functions for the
+            ///        particular shared memory object implementation being
+            ///        used: shmem or file.
+            struct SharedMemFunc
+            {
+                SharedMemFunc() = default;
+                SharedMemFunc(
+                    std::function<int(const char *, int, mode_t)> open_fn,
+                    std::function<int(const char *)> unlink_fn);
+
+                std::function<int(const char *, int, mode_t)> open;
+                std::function<int(const char *)> unlink;
+            };
+
+            /// @brief Construct a SharedMemFunc object based on the type of
+            ///        shared memory key: shmem key or file path.
+            static SharedMemFunc make_shared_mem_func(
+                const std::string &key);
+            
             /// @brief Shared memory key for the region.
             std::string m_shm_key;
             /// @brief Size of the region.
@@ -87,6 +108,8 @@ namespace geopm
             ///        through make_unique_owner() may be unlinked in other
             ///        objects' destructors, and should not throw.
             bool m_do_unlink_check;
+
+            SharedMemFunc shm_func;
     };
 }
 
