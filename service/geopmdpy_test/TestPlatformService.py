@@ -32,12 +32,8 @@
 #
 
 import os
-import pwd
-import grp
-import json
 import unittest
 import re
-import stat
 from unittest import mock
 import tempfile
 with mock.patch('cffi.FFI.dlopen', return_value=mock.MagicMock()):
