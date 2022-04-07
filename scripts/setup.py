@@ -108,7 +108,6 @@ install_requires = ['pandas>=0.23.0',
                     'numpy>=1.14.3',
                     'setuptools>=39.2.0',
                     'pyyaml>=5.1.0',
-                    'future>=0.17.1',
                     'geopmdpy']
 
 setup(name='geopmpy',
