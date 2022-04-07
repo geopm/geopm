@@ -60,13 +60,13 @@ namespace geopm
         : BatchClientImp(num_signal, num_control,
                          BatchStatus::make_unique_client(server_key),
                          num_signal == 0 ? nullptr :
-                         SharedMemory::make_unique_user(BatchServer::M_SHMEM_PREFIX +
-                                                        server_key + "-signal",
-                                                        timeout),
+                            SharedMemory::make_unique_user(
+                                BatchServer::get_signal_shmem_key(
+                                    server_key), timeout),
                          num_control == 0 ? nullptr :
-                         SharedMemory::make_unique_user(BatchServer::M_SHMEM_PREFIX +
-                                                        server_key + "-control",
-                                                        timeout))
+                            SharedMemory::make_unique_user(
+                                BatchServer::get_control_shmem_key(
+                                    server_key), timeout))
     {
 
     }

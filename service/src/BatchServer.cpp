@@ -86,10 +86,23 @@ namespace geopm
                                                   control_config);
     }
 
-    BatchServerImp::BatchServerImp(int client_pid,
-                                   const std::vector<geopm_request_s> &signal_config,
-                                   const std::vector<geopm_request_s> &control_config)
-        : BatchServerImp(client_pid, signal_config, control_config,
+    std::string BatchServer::get_signal_shmem_key(
+        const std::string &server_key)
+    {
+        return M_SHMEM_PREFIX + server_key + "-signal";
+    }
+
+    std::string BatchServer::get_control_shmem_key(
+        const std::string &server_key)
+    {
+        return M_SHMEM_PREFIX + server_key + "-control";
+    }
+
+    BatchServerImp::BatchServerImp(
+        int client_pid,
+        const std::vector<geopm_request_s> &signal_config,
+        const std::vector<geopm_request_s> &control_config)
+        : BatchServerImp(client_pid, signal_config, control_config, "", "",
                          platform_io(), nullptr, nullptr, nullptr, nullptr, 0)
     {
         // Fork the server when calling real constructor.
@@ -105,19 +118,29 @@ namespace geopm
         m_server_pid = fork_with_setup(setup, run);
     }
 
-    BatchServerImp::BatchServerImp(int client_pid,
-                                   const std::vector<geopm_request_s> &signal_config,
-                                   const std::vector<geopm_request_s> &control_config,
-                                   PlatformIO &pio,
-                                   std::shared_ptr<BatchStatus> batch_status,
-                                   std::shared_ptr<POSIXSignal> posix_signal,
-                                   std::shared_ptr<SharedMemory> signal_shmem,
-                                   std::shared_ptr<SharedMemory> control_shmem,
-                                   int server_pid)
+    BatchServerImp::BatchServerImp(
+        int client_pid,
+        const std::vector<geopm_request_s> &signal_config,
+        const std::vector<geopm_request_s> &control_config,
+        const std::string &signal_shmem_key,
+        const std::string &control_shmem_key,
+        PlatformIO &pio,
+        std::shared_ptr<BatchStatus> batch_status,
+        std::shared_ptr<POSIXSignal> posix_signal,
+        std::shared_ptr<SharedMemory> signal_shmem,
+        std::shared_ptr<SharedMemory> control_shmem,
+        int server_pid)
         : m_client_pid(client_pid)
         , m_server_key(std::to_string(m_client_pid))
         , m_signal_config(signal_config)
         , m_control_config(control_config)
+        , m_signal_shmem_key(!signal_shmem_key.empty() ? signal_shmem_key :
+                              BatchServer::get_signal_shmem_key(
+                                  m_server_key))
+        , m_control_shmem_key(!control_shmem_key.empty() ?
+                               control_shmem_key :
+                               BatchServer::get_control_shmem_key(
+                                  m_server_key))
         , m_pio(pio)
         , m_signal_shmem(signal_shmem)
         , m_control_shmem(control_shmem)
@@ -327,25 +350,22 @@ namespace geopm
         m_pio.write_batch();
     }
 
-
     void BatchServerImp::create_shmem(void)
     {
         // Create shared memory regions
         size_t signal_size  = m_signal_config.size()  * sizeof(double);
         size_t control_size = m_control_config.size() * sizeof(double);
-        std::string shmem_prefix_signal  = M_SHMEM_PREFIX + m_server_key + "-signal";
-        std::string shmem_prefix_control = M_SHMEM_PREFIX + m_server_key + "-control";
         int uid = pid_to_uid(m_client_pid);
         int gid = pid_to_gid(m_client_pid);
         if (signal_size != 0) {
             m_signal_shmem = SharedMemory::make_unique_owner_secure(
-                shmem_prefix_signal, signal_size);
+                m_signal_shmem_key, signal_size);
             // Requires a chown if server is different user than client
             m_signal_shmem->chown(uid, gid);
         }
         if (control_size != 0) {
             m_control_shmem = SharedMemory::make_unique_owner_secure(
-                shmem_prefix_control, control_size);
+                m_control_shmem_key, control_size);
             // Requires a chown if server is different user than client
             m_control_shmem->chown(uid, gid);
         }
