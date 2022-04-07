@@ -89,10 +89,31 @@ class BatchServerTest : public ::testing::Test
         std::shared_ptr<BatchServerImp> m_batch_server_pid;
         std::shared_ptr<BatchServerImp> m_batch_server_child_process;
 
+        static const std::string M_SHMEM_PREFIX;
+        std::string m_shmem_prefix_signal;
+        std::string m_shmem_prefix_control;
 };
+
+class BatchServerNameTest : public BatchServer, public ::testing::Test
+{
+    public:
+        MOCK_METHOD(int, server_pid, (), (const, override));
+        MOCK_METHOD(std::string, server_key, (), (const, override));
+        MOCK_METHOD(void, stop_batch, (), (override));
+        MOCK_METHOD(bool, is_active, (), (override));
+};
+
+const std::string BatchServerTest::M_SHMEM_PREFIX =
+    "/dev/shm/geopm-service-batch-buffer-";
 
 void BatchServerTest::SetUp()
 {
+    int this_pid = getpid();
+    m_shmem_prefix_signal = M_SHMEM_PREFIX + std::to_string(this_pid) +
+        "-signal";
+    m_shmem_prefix_control = M_SHMEM_PREFIX + std::to_string(this_pid) +
+        "-control";
+
     m_pio_ptr = std::make_shared<MockPlatformIO>();
     m_batch_status = std::make_shared<MockBatchStatus>();
     m_posix_signal = std::make_shared<MockPOSIXSignal>();
@@ -103,9 +124,12 @@ void BatchServerTest::SetUp()
     m_signal_config = {geopm_request_s {1, 0, "CPU_FREQUENCY"},
                        geopm_request_s {2, 1, "TEMPERATURE"}};
     m_control_config = {geopm_request_s {1, 0, "MAX_CPU_FREQUENCY"}};
+
     m_batch_server = std::make_shared<BatchServerImp>(m_client_pid,
                                                       m_signal_config,
                                                       m_control_config,
+                                                      "",
+                                                      "",
                                                       *m_pio_ptr,
                                                       m_batch_status,
                                                       m_posix_signal,
@@ -113,45 +137,57 @@ void BatchServerTest::SetUp()
                                                       m_control_shmem,
                                                       m_server_pid);
 
-    m_batch_server_signals = std::make_shared<BatchServerImp>(m_client_pid,
-                                                              m_signal_config,
-                                                              std::vector<geopm_request_s>{},
-                                                              *m_pio_ptr,
-                                                              m_batch_status,
-                                                              m_posix_signal,
-                                                              m_signal_shmem,
-                                                              nullptr,
-                                                              m_server_pid);
+    m_batch_server_signals = std::make_shared<BatchServerImp>(
+        m_client_pid,
+        m_signal_config,
+        std::vector<geopm_request_s>{},
+        "",
+        "",
+        *m_pio_ptr,
+        m_batch_status,
+        m_posix_signal,
+        m_signal_shmem,
+        nullptr,
+        m_server_pid);
 
-    m_batch_server_controls = std::make_shared<BatchServerImp>(m_client_pid,
-                                                               std::vector<geopm_request_s>{},
-                                                               m_control_config,
-                                                               *m_pio_ptr,
-                                                               m_batch_status,
-                                                               m_posix_signal,
-                                                               nullptr,
-                                                               m_control_shmem,
-                                                               m_server_pid);
+    m_batch_server_controls = std::make_shared<BatchServerImp>(
+        m_client_pid,
+        std::vector<geopm_request_s>{},
+        m_control_config,
+        "",
+        "",
+        *m_pio_ptr,
+        m_batch_status,
+        m_posix_signal,
+        nullptr,
+        m_control_shmem,
+        m_server_pid);
 
-    m_batch_server_pid = std::make_shared<BatchServerImp>(getpid(),
-                                                          m_signal_config,
-                                                          m_control_config,
-                                                          *m_pio_ptr,
-                                                          m_batch_status,
-                                                          m_posix_signal,
-                                                          m_signal_shmem,
-                                                          m_control_shmem,
-                                                          m_server_pid);
+    m_batch_server_pid = std::make_shared<BatchServerImp>(
+        this_pid,
+        m_signal_config,
+        m_control_config,
+        m_shmem_prefix_signal,
+        m_shmem_prefix_control,
+        *m_pio_ptr,
+        m_batch_status,
+        m_posix_signal,
+        m_signal_shmem,
+        m_control_shmem,
+        m_server_pid);
 
-    m_batch_server_child_process = std::make_shared<BatchServerImp>(getpid(),
-                                                                    m_signal_config,
-                                                                    m_control_config,
-                                                                    *m_pio_ptr,
-                                                                    m_batch_status,
-                                                                    m_posix_signal,
-                                                                    m_signal_shmem,
-                                                                    m_control_shmem,
-                                                                    0);
+    m_batch_server_child_process = std::make_shared<BatchServerImp>(
+        this_pid,
+        m_signal_config,
+        m_control_config,
+        "",
+        "",
+        *m_pio_ptr,
+        m_batch_status,
+        m_posix_signal,
+        m_signal_shmem,
+        m_control_shmem,
+        0);
 }
 
 
@@ -654,30 +690,32 @@ TEST_F(BatchServerTest, create_shmem)
     uid_t uid = pid_to_uid(this_pid);
     gid_t gid = pid_to_gid(this_pid);
 
-    const size_t signal_shmem_size  = (m_signal_config.size()  * sizeof(double)) + geopm::hardware_destructive_interference_size;
-    const size_t control_shmem_size = (m_control_config.size() * sizeof(double)) + geopm::hardware_destructive_interference_size;
-
-    const std::string shmem_dir = "/dev/shm/";
-    const std::string shmem_prefix_signal  = shmem_dir + std::string(BatchServer::M_SHMEM_PREFIX) + std::to_string(this_pid) + "-signal";
-    const std::string shmem_prefix_control = shmem_dir + std::string(BatchServer::M_SHMEM_PREFIX) + std::to_string(this_pid) + "-control";
+    const size_t signal_shmem_size  =
+        (m_signal_config.size()  * sizeof(double)) +
+        geopm::hardware_destructive_interference_size;
+    const size_t control_shmem_size =
+        (m_control_config.size() * sizeof(double)) +
+        geopm::hardware_destructive_interference_size;
 
     m_batch_server_pid->create_shmem();
 
     struct stat data;
-    int result = stat((shmem_prefix_signal).c_str(), &data);
-    ASSERT_EQ(0, result);                                // check that the file exists
-    EXPECT_EQ(signal_shmem_size, (size_t)data.st_size);  // check the size of the file
-    EXPECT_EQ(uid, data.st_uid);                         // check the chown succeeded in uid
-    EXPECT_EQ(gid, data.st_gid);                         // check the chown succeeded in gid
+    int result = stat((m_shmem_prefix_signal).c_str(), &data);
+    ASSERT_EQ(0, result); // check that the file exists
+    // check the size of the file
+    EXPECT_EQ(signal_shmem_size, (size_t)data.st_size);
+    EXPECT_EQ(uid, data.st_uid); // check the chown succeeded in uid
+    EXPECT_EQ(gid, data.st_gid); // check the chown succeeded in gid
 
-    result = stat(shmem_prefix_control.c_str(), &data);
-    ASSERT_EQ(0, result);                                 // check that the file exists
-    EXPECT_EQ(control_shmem_size, (size_t)data.st_size);  // check the size of the file
-    EXPECT_EQ(uid, data.st_uid);                          // check the chown succeeded in uid
-    EXPECT_EQ(gid, data.st_gid);                          // check the chown succeeded in gid
+    result = stat(m_shmem_prefix_control.c_str(), &data);
+    ASSERT_EQ(0, result); // check that the file exists
+    // check the size of the file
+    EXPECT_EQ(control_shmem_size, (size_t)data.st_size);
+    EXPECT_EQ(uid, data.st_uid); // check the chown succeeded in uid
+    EXPECT_EQ(gid, data.st_gid); // check the chown succeeded in gid
 
-    EXPECT_EQ(0, unlink(shmem_prefix_signal.c_str()));
-    EXPECT_EQ(0, unlink(shmem_prefix_control.c_str()));
+    EXPECT_EQ(0, unlink(m_shmem_prefix_signal.c_str()));
+    EXPECT_EQ(0, unlink(m_shmem_prefix_control.c_str()));
 }
 
 /**
@@ -836,24 +874,32 @@ TEST_F(BatchServerTest, destructor_exceptions)
     ///
 
     // Create new BatchServer object
-    std::shared_ptr<BatchServerImp> batch_server_exception = std::make_shared<BatchServerImp>(m_client_pid,
-                                                                                              m_signal_config,
-                                                                                              m_control_config,
-                                                                                              *m_pio_ptr,
-                                                                                              m_batch_status,
-                                                                                              m_posix_signal,
-                                                                                              m_signal_shmem,
-                                                                                              m_control_shmem,
-                                                                                              m_server_pid);
+    std::shared_ptr<BatchServerImp> batch_server_exception =
+        std::make_shared<BatchServerImp>(m_client_pid,
+                                         m_signal_config,
+                                         m_control_config,
+                                         "",
+                                         "",
+                                         *m_pio_ptr,
+                                         m_batch_status,
+                                         m_posix_signal,
+                                         m_signal_shmem,
+                                         m_control_shmem,
+                                         m_server_pid);
 
     EXPECT_CALL(*m_posix_signal,
-                sig_queue(m_server_pid, SIGTERM, BatchStatus::M_MESSAGE_TERMINATE))
+                sig_queue(m_server_pid, SIGTERM,
+                BatchStatus::M_MESSAGE_TERMINATE))
         .Times(1)
         /// @throws geopm::Exception to simulate a failure of the sigqueue(2) system call in POSIXSignalImp::sig_queue()
-        .WillRepeatedly(Throw(geopm::Exception("POSIXSignal(): POSIX signal function call sigqueue() returned an error",
-                              EINVAL, __FILE__, __LINE__)));
+        .WillRepeatedly(Throw(
+            geopm::Exception("POSIXSignal(): POSIX signal function call "
+                             "sigqueue() returned an error", EINVAL, __FILE__,
+                             __LINE__)));
 
-    std::string expected_stderr_1 = "Warning: <geopm> BatchServerImp::~BatchServerImp(): Exception thrown in destructor: ";
+    std::string expected_stderr_1 = "Warning: <geopm> "
+                                    "BatchServerImp::~BatchServerImp(): "
+                                    "Exception thrown in destructor: ";
 
     CerrRedirect c_redirect;
     c_redirect.open_redirect();
@@ -870,6 +916,8 @@ TEST_F(BatchServerTest, destructor_exceptions)
     batch_server_exception.reset(new BatchServerImp(m_client_pid,
                                                     m_signal_config,
                                                     m_control_config,
+                                                    "",
+                                                    "",
                                                     *m_pio_ptr,
                                                     m_batch_status,
                                                     m_posix_signal,
@@ -878,12 +926,14 @@ TEST_F(BatchServerTest, destructor_exceptions)
                                                     m_server_pid));
 
     EXPECT_CALL(*m_posix_signal,
-                sig_queue(m_server_pid, SIGTERM, BatchStatus::M_MESSAGE_TERMINATE))
+                sig_queue(m_server_pid, SIGTERM,
+                BatchStatus::M_MESSAGE_TERMINATE))
         .Times(1)
         /// @throws (int)2 to simulate failure of sigqueue(2) system call in POSIXSignalImp::sig_queue()
         .WillRepeatedly(Throw(2));
 
-    expected_stderr_1 = "Warning: <geopm> BatchServerImp::~BatchServerImp(): Non-GEOPM exception thrown in destructor\n";
+    expected_stderr_1 = "Warning: <geopm> BatchServerImp::~BatchServerImp(): "
+                        "Non-GEOPM exception thrown in destructor\n";
 
     c_redirect.open_redirect();
     batch_server_exception.reset();  // calling BatchServerImp::~BatchServerImp()
@@ -962,18 +1012,25 @@ TEST_F(BatchServerTest, fork_and_terminate_child)
 {
     /// This function contains the child process, which is the server.
     /// It takes the write_pipe_fd and the PID of the parent process, which is the client.
-    std::function<void(int, int)> child_process_func = [this](int write_pipe_fd, int client_pid)
+    std::function<void(int, int)> child_process_func =
+        [this](int write_pipe_fd, int client_pid)
     {
         // Create new BatchServer object
-        std::shared_ptr<BatchServerImp> batch_server_test = std::make_shared<BatchServerImp>(client_pid,
-                                                                                             m_signal_config,
-                                                                                             m_control_config,
-                                                                                             *m_pio_ptr,
-                                                                                             m_batch_status,
-                        /* Create a real POSIXSignal because we want to use sig_action() */  nullptr,
-                                                                                             m_signal_shmem,
-                                                                                             m_control_shmem,
-                                                                                             m_server_pid);
+        std::shared_ptr<BatchServerImp> batch_server_test =
+            std::make_shared<BatchServerImp>(
+                client_pid,
+                m_signal_config,
+                m_control_config,
+                "",
+                "",
+                *m_pio_ptr,
+                m_batch_status,
+                /* Create a real POSIXSignal because we want to use
+                sig_action() */
+                nullptr,
+                m_signal_shmem,
+                m_control_shmem,
+                m_server_pid);
 
         // There is no EXPECT_CALL for m_posix_signal->make_sigset() and m_posix_signal->sig_action()
         // because we are using the real POSIXSignal instead of the mock object.
@@ -984,7 +1041,8 @@ TEST_F(BatchServerTest, fork_and_terminate_child)
 
         int idx = 0;
         for (const auto &request : m_signal_config) {
-            EXPECT_CALL(*m_pio_ptr, push_signal(request.name, request.domain_type,
+            EXPECT_CALL(*m_pio_ptr, push_signal(request.name,
+                                                request.domain_type,
                                                 request.domain_idx))
                 .WillOnce(Return(idx))
                 .RetiresOnSaturation();
@@ -993,7 +1051,8 @@ TEST_F(BatchServerTest, fork_and_terminate_child)
 
         idx = 0;
         for (const auto &request : m_control_config) {
-            EXPECT_CALL(*m_pio_ptr, push_control(request.name, request.domain_type,
+            EXPECT_CALL(*m_pio_ptr, push_control(request.name,
+                                                 request.domain_type,
                                                  request.domain_idx))
                 .WillOnce(Return(idx))
                 .RetiresOnSaturation();
@@ -1012,8 +1071,8 @@ TEST_F(BatchServerTest, fork_and_terminate_child)
                 char unique_char = '!';
                 write(write_pipe_fd, &unique_char, sizeof(unique_char));
                 sleep(1024);
-                throw geopm::Exception("BatchStatusImp: System call failed: read(2)",
-                                       EINTR, __FILE__, __LINE__);
+                throw geopm::Exception("BatchStatusImp: System call failed: "
+                                       "read(2)", EINTR, __FILE__, __LINE__);
                 // This is irrelevant, it doesn't get returned because of the throw statement.
                 // This is just to match the return type of BatchStatusImp::receive_message()
                 return '$';
@@ -1025,7 +1084,8 @@ TEST_F(BatchServerTest, fork_and_terminate_child)
 
     /// This function contains the parent process, which is the client.
     /// It takes the read_pipe_fd and the PID of the child process, which is the server.
-    std::function<void(int, int)> parent_process_func = [](int read_pipe_fd, int server_pid)
+    std::function<void(int, int)> parent_process_func =
+        [](int read_pipe_fd, int server_pid)
     {
         /* Extra code for synchronizing the client. */
         char unique_char;
@@ -1055,7 +1115,8 @@ TEST_F(BatchServerTest, fork_and_terminate_parent)
 {
     /// This function contains the child process, which is the client.
     /// It takes the read_pipe_fd and the PID of the parent process, which is the server.
-    std::function<void(int, int)> child_process_func = [](int read_pipe_fd, int server_pid)
+    std::function<void(int, int)> child_process_func =
+        [](int read_pipe_fd, int server_pid)
     {
         /* Extra code for synchronizing the client. */
         char unique_char = 'a';
@@ -1072,18 +1133,25 @@ TEST_F(BatchServerTest, fork_and_terminate_parent)
 
     /// This function contains the parent process, which is the server.
     /// It takes the write_pipe_fd and the PID of the child process, which is the client.
-    std::function<void(int, int)> parent_process_func = [this](int write_pipe_fd, int client_pid)
+    std::function<void(int, int)> parent_process_func =
+        [this](int write_pipe_fd, int client_pid)
     {
         // Create new BatchServer object
-        std::shared_ptr<BatchServerImp> batch_server_test = std::make_shared<BatchServerImp>(client_pid,
-                                                                                             m_signal_config,
-                                                                                             m_control_config,
-                                                                                             *m_pio_ptr,
-                                                                                             m_batch_status,
-                        /* Create a real POSIXSignal because we want to use sig_action() */  nullptr,
-                                                                                             m_signal_shmem,
-                                                                                             m_control_shmem,
-                                                                                             m_server_pid);
+        std::shared_ptr<BatchServerImp> batch_server_test =
+            std::make_shared<BatchServerImp>(
+                client_pid,
+                m_signal_config,
+                m_control_config,
+                "",
+                "",
+                *m_pio_ptr,
+                m_batch_status,
+                /* Create a real POSIXSignal because we want to use
+                sig_action() */
+                nullptr,
+                m_signal_shmem,
+                m_control_shmem,
+                m_server_pid);
 
         // There is no EXPECT_CALL for m_posix_signal->make_sigset() and m_posix_signal->sig_action()
         // because we are using the real POSIXSignal instead of the mock object.
@@ -1094,7 +1162,8 @@ TEST_F(BatchServerTest, fork_and_terminate_parent)
 
         int idx = 0;
         for (const auto &request : m_signal_config) {
-            EXPECT_CALL(*m_pio_ptr, push_signal(request.name, request.domain_type,
+            EXPECT_CALL(*m_pio_ptr, push_signal(request.name,
+                                                request.domain_type,
                                                 request.domain_idx))
                 .WillOnce(Return(idx))
                 .RetiresOnSaturation();
@@ -1103,7 +1172,8 @@ TEST_F(BatchServerTest, fork_and_terminate_parent)
 
         idx = 0;
         for (const auto &request : m_control_config) {
-            EXPECT_CALL(*m_pio_ptr, push_control(request.name, request.domain_type,
+            EXPECT_CALL(*m_pio_ptr, push_control(request.name,
+                                                 request.domain_type,
                                                  request.domain_idx))
                 .WillOnce(Return(idx))
                 .RetiresOnSaturation();
@@ -1122,8 +1192,8 @@ TEST_F(BatchServerTest, fork_and_terminate_parent)
                 char unique_char = '!';
                 write(write_pipe_fd, &unique_char, sizeof(unique_char));
                 sleep(1024);
-                throw geopm::Exception("BatchStatusImp: System call failed: read(2)",
-                                       EINTR, __FILE__, __LINE__);
+                throw geopm::Exception("BatchStatusImp: System call failed: "
+                                       "read(2)", EINTR, __FILE__, __LINE__);
                 // This is irrelevant, it doesn't get returned because of the throw statement.
                 // This is just to match the return type of BatchStatusImp::receive_message()
                 return '$';
@@ -1133,7 +1203,8 @@ TEST_F(BatchServerTest, fork_and_terminate_parent)
         batch_server_test->run_batch();
     };
 
-    int forked_pid = fork_other(child_process_func, parent_process_func, false);
+    int forked_pid = fork_other(child_process_func, parent_process_func,
+                                false);
     waitpid(forked_pid, NULL, 0);
 }
 
@@ -1145,7 +1216,8 @@ TEST_F(BatchServerTest, action_sigchld)
 {
     /// This function contains the child process, which is the client.
     /// It takes the read_pipe_fd and the PID of the parent process, which is the server.
-    std::function<void(int, int)> child_process_func = [](int read_pipe_fd, int server_pid)
+    std::function<void(int, int)> child_process_func =
+        [](int read_pipe_fd, int server_pid)
     {
         /* Extra code for synchronizing the client. */
         char unique_char = 'a';
@@ -1159,18 +1231,25 @@ TEST_F(BatchServerTest, action_sigchld)
 
     /// This function contains the parent process, which is the server.
     /// It takes the write_pipe_fd and the PID of the child process, which is the client.
-    std::function<void(int, int)> parent_process_func = [this](int write_pipe_fd, int client_pid)
+    std::function<void(int, int)> parent_process_func =
+        [this](int write_pipe_fd, int client_pid)
     {
         // Create new BatchServer object
-        std::shared_ptr<BatchServerImp> batch_server_test = std::make_shared<BatchServerImp>(client_pid,
-                                                                                             m_signal_config,
-                                                                                             m_control_config,
-                                                                                             *m_pio_ptr,
-                                                                                             m_batch_status,
-                        /* Create a real POSIXSignal because we want to use sig_action() */  nullptr,
-                                                                                             m_signal_shmem,
-                                                                                             m_control_shmem,
-                                                                                             m_server_pid);
+        std::shared_ptr<BatchServerImp> batch_server_test =
+            std::make_shared<BatchServerImp>(
+                client_pid,
+                m_signal_config,
+                m_control_config,
+                "",
+                "",
+                *m_pio_ptr,
+                m_batch_status,
+                /* Create a real POSIXSignal because we want to use
+                sig_action() */
+                nullptr,
+                m_signal_shmem,
+                m_control_shmem,
+                m_server_pid);
 
         // There is no EXPECT_CALL for m_posix_signal->make_sigset() and m_posix_signal->sig_action()
         // because we are using the real POSIXSignal instead of the mock object.
@@ -1191,7 +1270,8 @@ TEST_F(BatchServerTest, action_sigchld)
         EXPECT_FALSE(batch_server_test->is_active());
     };
 
-    int forked_pid = fork_other(child_process_func, parent_process_func, false);
+    int forked_pid = fork_other(child_process_func, parent_process_func,
+                                false);
     waitpid(forked_pid, NULL, 0);
 }
 
@@ -1204,18 +1284,25 @@ TEST_F(BatchServerTest, action_sigchld_error)
 {
     /// This function contains the child process, which is the server.
     /// It takes the write_pipe_fd and the PID of the parent process, which is the client.
-    std::function<void(int, int)> child_process_func = [this](int write_pipe_fd, int client_pid)
+    std::function<void(int, int)> child_process_func =
+        [this](int write_pipe_fd, int client_pid)
     {
         // Create new BatchServer object
-        std::shared_ptr<BatchServerImp> batch_server_test = std::make_shared<BatchServerImp>(client_pid,
-                                                                                             m_signal_config,
-                                                                                             m_control_config,
-                                                                                             *m_pio_ptr,
-                                                                                             m_batch_status,
-                        /* Create a real POSIXSignal because we want to use sig_action() */  nullptr,
-                                                                                             m_signal_shmem,
-                                                                                             m_control_shmem,
-                                                                                             m_server_pid);
+        std::shared_ptr<BatchServerImp> batch_server_test =
+            std::make_shared<BatchServerImp>(
+                client_pid,
+                m_signal_config,
+                m_control_config,
+                "",
+                "",
+                *m_pio_ptr,
+                m_batch_status,
+                /* Create a real POSIXSignal because we want to use
+                sig_action() */
+                nullptr,
+                m_signal_shmem,
+                m_control_shmem,
+                m_server_pid);
 
         // There is no EXPECT_CALL for m_posix_signal->make_sigset() and m_posix_signal->sig_action()
         // because we are using the real POSIXSignal instead of the mock object.
@@ -1239,8 +1326,10 @@ TEST_F(BatchServerTest, action_sigchld_error)
         std::string actual_stderr = c_redirect.close_redirect();
 
         int error_value = ECHILD; // <geopm> No child processes
-        std::string expected_stderr = " :  The batch server child process ended with non-zero status: ";
-        expected_stderr += std::to_string(error_value) + " : \"" + geopm::error_message(error_value) + "\"\n";
+        std::string expected_stderr = " :  The batch server child process "
+                                      "ended with non-zero status: ";
+        expected_stderr += std::to_string(error_value) + " : \"" +
+                           geopm::error_message(error_value) + "\"\n";
 
         // Compare if the recorded stderr matches the expected stderr.
         EXPECT_TRUE(actual_stderr.find(expected_stderr) != std::string::npos);
@@ -1248,7 +1337,8 @@ TEST_F(BatchServerTest, action_sigchld_error)
 
     /// This function contains the parent process, which is the client.
     /// It takes the read_pipe_fd and the PID of the child process, which is the server.
-    std::function<void(int, int)> parent_process_func = [](int read_pipe_fd, int server_pid)
+    std::function<void(int, int)> parent_process_func =
+        [](int read_pipe_fd, int server_pid)
     {
         /* Extra code for synchronizing the client. */
         char unique_char;
@@ -1265,4 +1355,22 @@ TEST_F(BatchServerTest, action_sigchld_error)
 
     int forked_pid = fork_other(child_process_func, parent_process_func, true);
     waitpid(forked_pid, NULL, 0);
+}
+
+TEST_F(BatchServerNameTest, signal_shmem_key)
+{
+    const std::string server_key = "test";
+    const std::string expected_shmem_key = M_SHMEM_PREFIX + server_key +
+        "-signal";
+    std::string signal_shmem_key = get_signal_shmem_key(server_key);
+    EXPECT_EQ(expected_shmem_key, signal_shmem_key);
+}
+
+TEST_F(BatchServerNameTest, control_shmem_key)
+{
+    const std::string server_key = "test";
+    const std::string expected_shmem_key = M_SHMEM_PREFIX + server_key +
+        "-control";
+    std::string control_shmem_key = get_control_shmem_key(server_key);
+    EXPECT_EQ(expected_shmem_key, control_shmem_key);
 }

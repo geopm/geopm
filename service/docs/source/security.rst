@@ -171,9 +171,8 @@ this interface may enable the creation of a batch server. The access
 rights of this batch server are verified prior to its creation, and
 the user may then interact with this batch server through faster
 mechanisms than DBus provides. In particular, the user interfaces with
-the batch server over inter-process shared memory through the
-``/dev/shm`` device, and sends commands through FIFO special files in
-``/tmp``.
+the batch server over inter-process shared memory and FIFO special files,
+both of which are created in ``/var/run/geopm-service``.
 
 The DBus interface provides a layer of security that is leveraged
 throughout Linux services to verify the user identity of requests made

@@ -63,6 +63,8 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
               test/gtest_links/BatchServerTest.fork_and_terminate_parent \
               test/gtest_links/BatchServerTest.action_sigchld \
               test/gtest_links/BatchServerTest.action_sigchld_error \
+              test/gtest_links/BatchServerNameTest.signal_shmem_key \
+              test/gtest_links/BatchServerNameTest.control_shmem_key \
               test/gtest_links/BatchStatusTest.client_send_to_server_fifo_expect \
               test/gtest_links/BatchStatusTest.server_send_to_client_fifo_expect \
               test/gtest_links/BatchStatusTest.server_send_to_client_fifo \
@@ -319,14 +321,21 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
               test/gtest_links/ServiceProxyTest.platform_stop_batch \
               test/gtest_links/ServiceProxyTest.platform_read_signal \
               test/gtest_links/ServiceProxyTest.platform_write_control \
-              test/gtest_links/SharedMemoryTest.fd_check \
+              test/gtest_links/SharedMemoryTest.fd_check_shm \
+              test/gtest_links/SharedMemoryTest.fd_check_file \
               test/gtest_links/SharedMemoryTest.invalid_construction \
-              test/gtest_links/SharedMemoryTest.lock_shmem \
-              test/gtest_links/SharedMemoryTest.lock_shmem_u \
-              test/gtest_links/SharedMemoryTest.share_data \
-              test/gtest_links/SharedMemoryTest.share_data_ipc \
-              test/gtest_links/SharedMemoryTest.default_permissions \
-              test/gtest_links/SharedMemoryTest.secure_permissions \
+              test/gtest_links/SharedMemoryTest.lock_shmem_shm \
+              test/gtest_links/SharedMemoryTest.lock_shmem_file \
+              test/gtest_links/SharedMemoryTest.lock_shmem_u_shm \
+              test/gtest_links/SharedMemoryTest.lock_shmem_u_file \
+              test/gtest_links/SharedMemoryTest.share_data_shm \
+              test/gtest_links/SharedMemoryTest.share_data_file \
+              test/gtest_links/SharedMemoryTest.share_data_ipc_shm \
+              test/gtest_links/SharedMemoryTest.share_data_ipc_file \
+              test/gtest_links/SharedMemoryTest.default_permissions_shm \
+              test/gtest_links/SharedMemoryTest.default_permissions_file \
+              test/gtest_links/SharedMemoryTest.secure_permissions_shm \
+              test/gtest_links/SharedMemoryTest.secure_permissions_file \
               test/gtest_links/SSTControlTest.mailbox_adjust_batch \
               test/gtest_links/SSTControlTest.mmio_adjust_batch \
               test/gtest_links/SSTControlTest.save_restore_mmio \
