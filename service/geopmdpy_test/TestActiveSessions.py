@@ -49,30 +49,49 @@ with mock.patch('cffi.FFI.dlopen', return_value=mock.MagicMock()):
 class TestActiveSessions(unittest.TestCase):
     json_good_example = {
         "client_pid" : 750,
+        "reference_count" : 1,
         "signals" : ["ENERGY_DRAM", "CPU_FREQUENCY_MAX", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
         "controls" : ["CPU_FREQUENCY_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
         "watch_id" : 754
     }
     json_good_example_2 = {
         "client_pid" : 450,
+        "reference_count" : 1,
         "signals" : ["ENERGY_DRAM", "CPU_FREQUENCY_MAX", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
         "controls" : ["CPU_FREQUENCY_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
         "watch_id" : 550
     }
     json_empty_signals_controls = {
         "client_pid" : 450,
+        "reference_count" : 1,
         "signals" : [],
         "controls" : [],
         "watch_id" : 550
     }
+    json_negative_reference_count = {
+        "client_pid" : 750,
+        "reference_count" : -2,
+        "signals" : ["ENERGY_DRAM", "CPU_FREQUENCY_MAX", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
+        "controls" : ["CPU_FREQUENCY_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
+        "watch_id" : 754
+    }
+    json_float_reference_count = {
+        "client_pid" : 750,
+        "reference_count" : 2.5,
+        "signals" : ["ENERGY_DRAM", "CPU_FREQUENCY_MAX", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
+        "controls" : ["CPU_FREQUENCY_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
+        "watch_id" : 754
+    }
     json_wrong_data_types = {
         "client_pid" : "450",
+        "reference_count" : 1,
         "signals" : ["ENERGY_DRAM", "CPU_FREQUENCY_MAX", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
         "controls" : ["CPU_FREQUENCY_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
         "watch_id" : "550"
     }
     json_additional_properties = {
         "client_pid" : 450,
+        "reference_count" : 1,
         "signals" : ["ENERGY_DRAM", "CPU_FREQUENCY_MAX", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
         "controls" : ["CPU_FREQUENCY_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
         "actuators" : ["ENERGY_DRAM", "FREQUENCY_MIN", "MSR::IA32_PERFEVTSEL0:CMASK"],
@@ -126,8 +145,9 @@ class TestActiveSessions(unittest.TestCase):
         self.assertEqual(os.getuid(), user_owner)
         self.assertEqual(os.getgid(), group_owner)
 
-    def check_getters(self, session, client_pid, signals, controls, watch_id):
+    def check_getters(self, session, client_pid, reference_count, signals, controls, watch_id):
         self.assertIn(client_pid, session.get_clients())
+        self.assertEqual(reference_count, session.get_reference_count(client_pid))
         self.assertEqual(signals, session.get_signals(client_pid))
         self.assertEqual(controls, session.get_controls(client_pid))
         self.assertEqual(watch_id, session.get_watch_id(client_pid))
@@ -192,6 +212,7 @@ class TestActiveSessions(unittest.TestCase):
                 self.check_getters(
                     act_sess,
                     contents["client_pid"],
+                    contents["reference_count"],
                     contents["signals"],
                     contents["controls"],
                     contents["watch_id"]
@@ -213,6 +234,10 @@ class TestActiveSessions(unittest.TestCase):
         self.check_json_file("good_example", self.json_good_example, True)
         # Valid JSON file with signals and controls fields are empty lists
         self.check_json_file("empty_signals_controls", self.json_empty_signals_controls, True)
+        # Invalid JSON file which has a negative number for the reference_count
+        self.check_json_file("negative_reference_count", self.json_negative_reference_count, False)
+        # Invalid JSON file which has a floating point number for the reference_count
+        self.check_json_file("float_reference_count", self.json_float_reference_count, False)
         # Invalid JSON file which has all the right fields, but the data types of the respective values are wrong.
         self.check_json_file("wrong_data_types", self.json_wrong_data_types, False)
         # Invalid JSON file which has additional extraneous fields
@@ -237,11 +262,13 @@ class TestActiveSessions(unittest.TestCase):
 
         """
         client_pid_1 = self.json_good_example['client_pid']
+        refcount_1 = self.json_good_example['reference_count']
         signals_1 = self.json_good_example['signals']
         controls_1 = self.json_good_example['controls']
         watch_id_1 = self.json_good_example['watch_id']
 
         client_pid_2 = self.json_good_example_2['client_pid']
+        refcount_2 = self.json_good_example['reference_count']
         signals_2 = self.json_good_example_2['signals']
         controls_2 = self.json_good_example_2['controls']
         watch_id_2 = self.json_good_example_2['watch_id']
@@ -269,8 +296,8 @@ class TestActiveSessions(unittest.TestCase):
             mock_srf.assert_has_calls(calls)
             mock_stat.assert_has_calls(calls)
 
-            self.check_getters(act_sess, client_pid_1, signals_1, controls_1, watch_id_1)
-            self.check_getters(act_sess, client_pid_2, signals_2, controls_2, watch_id_2)
+            self.check_getters(act_sess, client_pid_1, refcount_1, signals_1, controls_1, watch_id_1)
+            self.check_getters(act_sess, client_pid_2, refcount_2, signals_2, controls_2, watch_id_2)
 
     def test_add_remove_client(self):
         """Add client session and remove it
@@ -284,6 +311,7 @@ class TestActiveSessions(unittest.TestCase):
 
         """
         client_pid = self.json_good_example['client_pid']
+        refcount = self.json_good_example['reference_count']
         signals = self.json_good_example['signals']
         controls = self.json_good_example['controls']
         watch_id = self.json_good_example['watch_id']
@@ -304,7 +332,7 @@ class TestActiveSessions(unittest.TestCase):
 
             act_sess.add_client(client_pid, signals, controls, watch_id)
             self.assertTrue(act_sess.is_client_active(client_pid))
-            self.check_getters(act_sess, client_pid, signals, controls, watch_id)
+            self.check_getters(act_sess, client_pid, refcount, signals, controls, watch_id)
             mock_smf.assert_called_once_with(full_file_path, json.dumps(self.json_good_example))
 
             act_sess.remove_client(client_pid)
@@ -500,6 +528,79 @@ class TestActiveSessions(unittest.TestCase):
             mock_smf.assert_has_calls(calls)
             watch_id_actual = act_sess.get_watch_id(client_pid)
             self.assertEqual(watch_id, watch_id_actual)
+
+    def test_reference_count(self):
+        """Test the set_reference_count() and get_reference_count() methods
+
+        Create a session with the default reference count,
+        then set the reference count to something else,
+        then get the reference count and check that it matches.
+
+        """
+        # Copy the object to ensure modifications don't leak between tests
+        session_json = dict(self.json_good_example)
+        client_pid = session_json['client_pid']
+        signals = session_json['signals']
+        controls = session_json['controls']
+        watch_id = session_json['watch_id']
+
+        sess_path = f'{self._TEMP_DIR.name}/geopm-service'
+        full_file_path = os.path.join(sess_path, f"session-{client_pid}.json")
+
+        with mock.patch('geopmdpy.system_files.secure_make_dirs', autospec=True, specset=True) as mock_smd, \
+             mock.patch('geopmdpy.system_files.secure_make_file', autospec=True, specset=True) as mock_smf:
+            act_sess = ActiveSessions(sess_path)
+            mock_smd.assert_called_once_with(sess_path,
+                                             GEOPM_SERVICE_VAR_PATH_PERM)
+
+            act_sess.add_client(client_pid, signals, controls, watch_id)
+            calls = [mock.call(full_file_path, json.dumps(session_json))]
+            mock_smf.assert_has_calls(calls)
+
+            reference_count_actual = act_sess.get_reference_count(client_pid)
+            self.assertEqual(1, reference_count_actual)
+
+            act_sess.set_reference_count(client_pid, 8)
+            reference_count_actual = act_sess.get_reference_count(client_pid)
+            self.assertEqual(8, reference_count_actual)
+
+    def increment_reference_count(self):
+        """Test the increment_reference_count() and decrement_reference_count() methods
+
+        Create a session with a custom reference count,
+        then increment the reference count and check that it matches,
+        then decrement the reference count and check that it matches.
+
+        """
+        # Copy the object to ensure modifications don't leak between tests
+        session_json = dict(self.json_good_example)
+        client_pid = session_json['client_pid']
+        signals = session_json['signals']
+        controls = session_json['controls']
+        watch_id = session_json['watch_id']
+
+        sess_path = f'{self._TEMP_DIR.name}/geopm-service'
+        full_file_path = os.path.join(sess_path, f"session-{client_pid}.json")
+
+        with mock.patch('geopmdpy.system_files.secure_make_dirs', autospec=True, specset=True) as mock_smd, \
+             mock.patch('geopmdpy.system_files.secure_make_file', autospec=True, specset=True) as mock_smf:
+            act_sess = ActiveSessions(sess_path)
+            mock_smd.assert_called_once_with(sess_path,
+                                             GEOPM_SERVICE_VAR_PATH_PERM)
+
+            act_sess.add_client(client_pid, signals, controls, watch_id)
+            calls = [mock.call(full_file_path, json.dumps(session_json))]
+            mock_smf.assert_has_calls(calls)
+
+            act_sess.set_reference_count(client_pid, 7)
+            reference_count_actual = act_sess.get_reference_count(client_pid)
+            self.assertEqual(7, reference_count_actual)
+            act_sess.increment_reference_count(client_pid)
+            reference_count_actual = act_sess.get_reference_count(client_pid)
+            self.assertEqual(8, reference_count_actual)
+            act_sess.decrement_reference_count(client_pid)
+            reference_count_actual = act_sess.get_reference_count(client_pid)
+            self.assertEqual(7, reference_count_actual)
 
 if __name__ == '__main__':
     unittest.main()
