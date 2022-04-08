@@ -40,8 +40,9 @@ _module_doc=__doc__
 try:
     from docstring_parser import google
     _use_docstring_parser = True
-except ImportError:
+except ImportError as ex:
     _use_docstring_parser = False
+    _use_docstring_parser_err = str(ex)
 
 def geopm_dbus_xml(TopoService=None, PlatformService=None):
     do_parse_docs = _use_docstring_parser
@@ -470,6 +471,9 @@ def _remove_doc(xml_str):
 
 if __name__ == '__main__':
     from . import service
+
+    if not _use_docstring_parser:
+        raise ImportError(f'{_use_docstring_parser_err}: The docstring_parser python package is required to use CLI')
 
     print("""<!DOCTYPE node PUBLIC
     "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"
