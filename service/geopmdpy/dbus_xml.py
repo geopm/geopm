@@ -242,15 +242,15 @@ def geopm_dbus_xml(TopoService=None, PlatformService=None):
     <method name="PlatformCloseSessionAdmin">
       <arg direction="in" name="client_pid" type="i">
         <doc:doc>
-          <doc:summary>{PlatformCloseSession_params0_description}
+          <doc:summary>{PlatformCloseSessionAdmin_params0_description}
           </doc:summary>
         </doc:doc>
       </arg>
       <doc:doc>
         <doc:description>
-          <doc:summary>{PlatformCloseSession_short_description}
+          <doc:summary>{PlatformCloseSessionAdmin_short_description}
           </doc:summary>
-          <doc:para>{PlatformCloseSession_long_description}
+          <doc:para>{PlatformCloseSessionAdmin_long_description}
           </doc:para>
         </doc:description>
       </doc:doc>
@@ -382,6 +382,7 @@ def geopm_dbus_xml(TopoService=None, PlatformService=None):
         PlatformUnlockControl = google.parse(PlatformService.unlock_control.__doc__)
         PlatformOpenSession = google.parse(PlatformService.open_session.__doc__)
         PlatformCloseSession = google.parse(PlatformService.close_session.__doc__)
+        PlatformCloseSessionAdmin = google.parse(PlatformService.close_session_admin.__doc__)
         PlatformStartBatch = google.parse(PlatformService.start_batch.__doc__)
         PlatformStopBatch = google.parse(PlatformService.stop_batch.__doc__)
         PlatformReadSignal = google.parse(PlatformService.read_signal.__doc__)
@@ -423,6 +424,9 @@ def geopm_dbus_xml(TopoService=None, PlatformService=None):
             PlatformCloseSession_params0_description=PlatformCloseSession.params[0].description,
             PlatformCloseSession_short_description=PlatformCloseSession.short_description,
             PlatformCloseSession_long_description=PlatformCloseSession.long_description,
+            PlatformCloseSessionAdmin_params0_description=PlatformCloseSessionAdmin.params[0].description,
+            PlatformCloseSessionAdmin_short_description=PlatformCloseSessionAdmin.short_description,
+            PlatformCloseSessionAdmin_long_description=PlatformCloseSessionAdmin.long_description,
             PlatformStartBatch_params0_description=PlatformStartBatch.params[1].description,
             PlatformStartBatch_params1_description=PlatformStartBatch.params[2].description,
             PlatformStartBatch_returns_description=PlatformStartBatch.returns.description,

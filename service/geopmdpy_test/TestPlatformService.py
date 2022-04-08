@@ -72,6 +72,26 @@ class TestPlatformService(unittest.TestCase):
     def tearDown(self):
         self._VAR_PATH.cleanup()
 
+    def test_close_already_closed(self):
+        # We already have two independent componenets with the session.
+        client_pid = -999
+        self.open_mock_session('user_name', client_pid, True, 2)  # 2
+        self._platform_service.close_session(client_pid)              # 1
+        self._platform_service.close_session(client_pid)              # 0
+        self._platform_service._active_sessions.check_client_active = mock.MagicMock(side_effect=RuntimeError)
+        with self.assertRaises(RuntimeError):
+            self._platform_service.close_session(client_pid) # error here
+
+    def test_read_already_closed(self):
+        # We already have two independent componenets with the session.
+        client_pid = -999
+        self.open_mock_session('user_name', client_pid, True, 2)  # 2
+        self._platform_service.close_session(client_pid)              # 1
+        self._platform_service.close_session(client_pid)              # 0
+        self._platform_service._active_sessions.check_client_active = mock.MagicMock(side_effect=RuntimeError)
+        with self.assertRaises(RuntimeError):
+            self._platform_service.read_signal(client_pid, 'CPU_FREQUENCY', 0, 0) # error here
+
     def test_get_signal_info(self):
         signals = ['energy', 'frequency', 'power']
         descriptions = ['desc0', 'desc1', 'desc2']
@@ -123,22 +143,24 @@ class TestPlatformService(unittest.TestCase):
     def test_open_session_twice(self):
         self.open_mock_session('', active=True)
 
-    def _gen_session_data_helper(self, client_pid=-999):
+    def _gen_session_data_helper(self, client_pid, reference_count):
         signals_default = ['energy', 'frequency']
         controls_default = ['controls', 'geopm', 'named', 'power']
 
         watch_id = 888
         session_data = {'client_pid': client_pid,
+                        'reference_count': reference_count,
                         'mode': 'r',
                         'signals': signals_default,
                         'controls': controls_default,
                         'watch_id': watch_id}
         return session_data
 
-    def open_mock_session(self, session_key, client_pid=-999, active=False):
+    def open_mock_session(self, session_user, client_pid=-999, active=False, reference_count=1):
 
-        session_data = self._gen_session_data_helper(client_pid)
+        session_data = self._gen_session_data_helper(client_pid, reference_count)
         client_pid = session_data['client_pid']
+        reference_count = session_data['reference_count']
         watch_id = session_data['watch_id']
         signals = session_data['signals']
         controls = session_data['controls']
@@ -146,6 +168,7 @@ class TestPlatformService(unittest.TestCase):
         self._mock_active_sessions.is_client_active.return_value = active
         self._mock_active_sessions.get_controls.return_value = controls
         self._mock_active_sessions.get_signals.return_value = signals
+        self._mock_active_sessions.get_reference_count.return_value = reference_count
         self._mock_active_sessions.get_watch_id.return_value = watch_id
         self._mock_active_sessions.get_batch_server.return_value = None
 
@@ -154,12 +177,12 @@ class TestPlatformService(unittest.TestCase):
         with mock.patch('geopmdpy.system_files.AccessLists._get_user_groups', return_value=[]), \
              mock.patch('geopmdpy.service.PlatformService._watch_client', return_value=watch_id):
 
-            self._platform_service.open_session(session_key, client_pid)
+            self._platform_service.open_session(session_user, client_pid)
 
             self._mock_active_sessions.is_client_active.assert_called_with(client_pid)
             if not active:
                 self._mock_active_sessions.add_client.assert_called_with(client_pid, signals, controls, watch_id)
-                self._mock_access_lists.get_user_access.assert_called_with(session_key)
+                self._mock_access_lists.get_user_access.assert_called_with(session_user)
             else:
                 self._mock_active_sessions.add_client.assert_not_called()
 
