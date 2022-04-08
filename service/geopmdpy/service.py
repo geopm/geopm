@@ -310,7 +310,7 @@ class PlatformService(object):
         raise NotImplementedError('PlatformService: Implementation incomplete')
 
     def open_session(self, user, client_pid):
-        """Open a new session session for the client thread.
+        """Open a new session for the client thread.
 
         The creation of a session is the first step that a client
         thread makes to interact with the GEOPM service.  Each Linux
@@ -320,8 +320,28 @@ class PlatformService(object):
         session will also be ended if the client thread terminates for
         any reason.
 
-        No action is taken and no error is raised if there is an existing
-        session associated with the client PID.
+        This method supports creating multiple nested open sessions.
+        After creating a session a new session can be created on top of it.
+
+        There is however a one to one mapping between client pid and open sessions,
+        and we couple the lifetime of our session to the lifetime of the connection.
+        A single client pid can have only one single connection, but this single
+        connection can be shared among multiple independent components.
+        The reference count keeps track of the number of open sessions,
+        or the number of independent components that are using the same connection.
+
+        So open_session() is like a singleton.
+        The first time you call this method, it creates a new connection.
+        Any subsequent calls to open_session() will just reuse the existing connection,
+        they will just increment the reference count of the session.
+        This is because generator prevents to add the same client pid twice.
+
+        So incrementing the reference count is basically just an abstraction for the client.
+        The client itself cannot have more than a single open connection at once,
+        so when requesting a new session, other than incrementing the counter,
+        nothing else happens. The reference count can be thought of as a shared pointers
+        abstraction, because the connection is a kind of shared resource among
+        the multiple different independent components that a client can have.
 
         All sessions are opened in read-mode, and may later be
         promoted to write-mode.  This promotion will occur with the
@@ -349,14 +369,75 @@ class PlatformService(object):
                               the session.
 
         """
+        # if the connection already exists
         if self._active_sessions.is_client_active(client_pid):
+            self._active_sessions.increment_reference_count(client_pid)
             return
+        # Establish the connection and add an active session with
+        # the initial reference count of 1.
         signals, controls = self.get_user_access(user)
         watch_id = self._watch_client(client_pid)
         self._active_sessions.add_client(client_pid, signals, controls, watch_id)
 
     def close_session(self, client_pid):
         """Close an active session for the client process.
+
+        This method takes into account multiple nested open sessions,
+        meaning that it checks the reference count.
+        If the reference count is zero, the session is closed already.
+        If the reference count is one, then we really close the session,
+        so close_session_admin() gets called.
+        And if the reference count is more than one, then it means that there are
+        multiple independent components attached to the singleton session,
+        so we would just decrement the reference count to consider the
+        independent component that just detached from the session.
+
+        We have a process that is contingent based on the client_pid being alive of not.
+        When the pid disappears, the connection itself disappears, and we need to
+        clean up all the resources. The lifetime of our session is coupled to the
+        lifetime of the connection.
+
+        There are two possibilities of how the session can end:
+        - all independent components in the process volunarily close their connections,
+          using close_session(), while the process is still alive.
+        - involuntary crash of the process, the process dies,
+          the connection is closed automatically by the check_client(),
+          in which case close_session() is obviously not called by the client,
+          because there is no client to call.
+
+        A RuntimeError is raised if the client_pid does not have an
+        open session.
+
+        Args:
+            client_pid (int): Linux PID of the client thread
+
+        """
+        self._active_sessions.check_client_active(client_pid, 'PlatformCloseSession')
+        reference_count = self._active_sessions.get_reference_count(client_pid)
+        # A negative reference_count is impossible because this condition
+        # is enforced by the _session_schema.
+        if reference_count == 0:
+            # you should call _close_session_completely() to remove
+            # all the resources associated with the client.
+            # it's not really an error
+            # this is the case that the geopm daemon was killed while that
+            # in the process of close_Session_completely so we need to call close_Session_completely again
+            # was cleaning up, the daemon died
+            # started up and found a sesison with zero reference count.
+            # The session is closed already
+            self._close_session_completely(client_pid)
+        elif reference_count == 1:
+            # last reference, close the session completely
+            self._active_sessions.decrement_reference_count(client_pid)
+            self._close_session_completely(client_pid)
+        else:  # reference_count > 1:
+            # more than one reference, decrement the reference count
+            self._active_sessions.decrement_reference_count(client_pid)
+
+    def close_session_admin(self, client_pid):
+        """Close an active session for the client process completely.
+
+        This function is normally used by the admin.
 
         After closing a session, the client process is required to
         call open_session() again before using any of the client-facing
@@ -374,6 +455,41 @@ class PlatformService(object):
         interfaces that are used to close a session.  The client DBus
         interface only allows users to close sessions that were created
         with their user ID.
+
+        This method is called internally by close_session() and it is
+        also called explicitly by check_client() when the process dies.
+
+        A RuntimeError is raised if the client_pid does not have an
+        open session.
+
+        Args:
+            client_pid (int): Linux PID of the client thread
+
+        """
+        self._close_session_completely(client_pid)
+
+    def _close_session_completely(self, client_pid):
+        """Close an active session for the client process completely.
+
+        After closing a session, the client process is required to
+        call open_session() again before using any of the client-facing
+        member functions.
+
+        Closing an active session will remove the record of which
+        signals and controls the client process has access to; thus,
+        this record is updated to reflect changes to the policy when the
+        next session is opened by the process.
+
+        When closing a write-mode session, the control values that were
+        recorded when the session was promoted to write-mode are restored.
+
+        This method supports both the client and administrative DBus
+        interfaces that are used to close a session.  The client DBus
+        interface only allows users to close sessions that were created
+        with their user ID.
+
+        This method is called internally by close_session() and it is
+        also called explicitly by check_client() when the process dies.
 
         A RuntimeError is raised if the client_pid does not have an
         open session.
@@ -409,9 +525,9 @@ class PlatformService(object):
             if is_restored:
                 shutil.rmtree(del_dir)
             else:
-                sys.stderr.write(f'Failed to restore controls for PID {client_pid}, moved to {del_dir}')
+                sys.stderr.write(f'Failed to restore controls for PID {pid}, moved to {del_dir}')
         else:
-            sys.stderr.write(f'Failed to restore controls for PID {client_pid}, {save_dir} is not a directory')
+            sys.stderr.write(f'Failed to restore controls for PID {pid}, {save_dir} is not a directory')
         lock.unlock(pid)
 
     def start_batch(self, client_pid, signal_config, control_config):
@@ -638,9 +754,25 @@ class PlatformService(object):
         return GLib.timeout_add(self._WATCH_INTERVAL_MSEC, self.check_client, client_pid)
 
     def check_client(self, client_pid):
+        """Is called by GLib every  every some number of seconds, to notify us if the client crahsed.
+
+        GLib queries check_client() to see if the process is still alive.
+
+        This method gets triggered upon abnormal termination of the session,
+        such as when the client process unexpectedly crashes or if the service gets killed.
+
+        Upon involuntary crash of the process, the process dies,
+        the connection is closed automatically by the check_client(),
+        in which case close_session() is obviously not called by the client,
+        because there is no client, and there are no independent components.
+
+        check_client() if statement gets activated when the client process itself dies,
+        and obviously when that happens we want to close the connection entirely,
+        instead of just decrementing the reference count, so we call _close_session_completely()
+        """
         if (client_pid in self._active_sessions.get_clients() and
             not psutil.pid_exists(client_pid)):
-            self.close_session(client_pid)
+            self._close_session_completely(client_pid)
             return False
         return True
 
@@ -747,7 +879,7 @@ class GEOPMService(object):
     @accepts_additional_arguments
     def PlatformCloseSessionAdmin(self, client_pid, **call_info):
         self._check_cap_sys_admin(call_info, "PlatformCloseSessionAdmin")
-        self._platform.close_session(client_pid)
+        self._platform.close_session_admin(client_pid)
 
     @accepts_additional_arguments
     def PlatformStartBatch(self, signal_config, control_config, **call_info):

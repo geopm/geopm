@@ -360,6 +360,7 @@ class ActiveSessions(object):
             'type' : 'object',
             'properties' : {
                 'client_pid' : {'type' : 'number'},
+                'reference_count' : {'type' : 'integer', 'minimum' : 0},
                 'signals' : {'type' : 'array', 'items' : {'type' : 'string'}},
                 'controls' : {'type' : 'array', 'items' : {'type' : 'string'}},
                 'watch_id' : {'type' : 'number'},
@@ -452,6 +453,7 @@ class ActiveSessions(object):
         if self.is_client_active(client_pid):
             return
         session_data = {'client_pid': client_pid,
+                        'reference_count': 1,
                         'signals': list(signals),
                         'controls': list(controls),
                         'watch_id': watch_id}
@@ -570,6 +572,91 @@ class ActiveSessions(object):
         self._sessions[client_pid]['watch_id'] = watch_id
         self._update_session_file(client_pid)
 
+    def get_reference_count(self, client_pid):
+        """Query the reference count for the client session.
+
+        The reference count is basically just an abstraction for the client.
+        The client itself cannot have more than a single open session at once,
+        since there is a one to one mapping between client pid and open sessions,
+        and lifetime of our session is coupled to the lifetime of the connection.
+
+        The reference count is used when in the client process, we have independent components,
+        which all may request that same connection as a kind of shared resource.
+        We want to provide that same connection as a singleton, and keep track of
+        how many independent components have access to that same connection as a resource,
+        in order to know when to deallocate that resource when all these components
+        have disconnected from the session.
+
+        Args:
+            client_pid (int): Linux PID that opened the session
+
+        Returns:
+            int: GLib watch ID to track the session lifetime
+
+        Raises:
+            RuntimeError: Client does not have an open session
+
+        """
+        self.check_client_active(client_pid, 'get_reference_count')
+        return self._sessions[client_pid]['reference_count']
+
+    def set_reference_count(self, client_pid, reference_count):
+        """Set the reference count for the session
+
+        This method is used whenever we want to update the reference_count to
+        reflect the number of independent components that have connected to the session.
+
+        Args:
+            client_pid (int): Linux PID that opened the session
+
+            reference_count (int): The new reference count value
+
+        Raises:
+            RuntimeError: Client does not have an open session
+
+        """
+        self.check_client_active(client_pid, 'set_reference_count')
+        self._sessions[client_pid]['reference_count'] = reference_count
+        self._update_session_file(client_pid)
+
+    def increment_reference_count(self, client_pid):
+        """Increment the reference_count value by one
+
+        This method is called when a new independent component calls open_session()
+        a subsequent time after the connection has already been opened.
+
+        Args:
+            client_pid (int): Linux PID that opened the session
+
+        Raises:
+            RuntimeError: Client does not have an open session
+
+        """
+        self.check_client_active(client_pid, 'increment_reference_count')
+        self._sessions[client_pid]['reference_count'] += 1
+        self._update_session_file(client_pid)
+
+    def decrement_reference_count(self, client_pid):
+        """Decrement the reference_count value by one
+
+        This method is called when an independent component of the client
+        calls close_session() and the connection is still open.
+        For example when there are multiple independent components using that
+        open connection, and one of them wants to close the session, we just
+        decrement the reference count, we do not close the connection, as that
+        would impact the other independent components which are using the connection.
+
+        Args:
+            client_pid (int): Linux PID that opened the session
+
+        Raises:
+            RuntimeError: Client does not have an open session
+
+        """
+        self.check_client_active(client_pid, 'decrement_reference_count')
+        self._sessions[client_pid]['reference_count'] -= 1
+        self._update_session_file(client_pid)
+
     def get_batch_server(self, client_pid):
         """Query the batch server for the client session
 
@@ -686,7 +773,7 @@ class ActiveSessions(object):
 
         If the session file is not valid, it will not be loaded
         and warnings will be printed.  The invalid file will be
-        renamed and preserved.
+        renamed and retained.
 
         Args:
             sess_path (str): Current client's session file path
