@@ -87,7 +87,8 @@ class CPUTorchAgent : public geopm::Agent
         struct signal
         {
             int batch_idx;
-            double value;
+            double signal;
+            double sample;
         };
 
         struct control
