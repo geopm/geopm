@@ -120,21 +120,19 @@ namespace geopm
             throw Exception("SharedMemoryImp: Cannot create shared memory region of zero size", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         m_shm_key = shm_key;
+        m_shm_path = construct_shm_path(shm_key);
         m_size = size + M_LOCK_SIZE;
-        shm_func = make_shared_mem_func(shm_key);
 
         mode_t old_mask = umask(0);
         int shm_id = 0;
         if (is_secure) {
-            shm_id = shm_func.open(m_shm_key.c_str(),
-                                   O_RDWR | O_CREAT | O_EXCL,
-                                   S_IRUSR | S_IWUSR);
+            shm_id = open(m_shm_path.c_str(), O_RDWR | O_CREAT | O_EXCL,
+                          S_IRUSR | S_IWUSR);
         }
         else {
-            shm_id = shm_func.open(m_shm_key.c_str(),
-                                   O_RDWR | O_CREAT | O_EXCL,
-                                   S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP |
-                                   S_IROTH | S_IWOTH);
+            shm_id = open(m_shm_path.c_str(), O_RDWR | O_CREAT | O_EXCL,
+                          S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP |
+                          S_IROTH | S_IWOTH);
         }
         if (shm_id < 0) {
             std::ostringstream ex_str;
@@ -144,7 +142,7 @@ namespace geopm
         int err = ftruncate(shm_id, m_size);
         if (err) {
             (void) close(shm_id);
-            (void) shm_func.unlink(m_shm_key.c_str());
+            (void) ::unlink(m_shm_path.c_str());
             (void) umask(old_mask);
             std::ostringstream ex_str;
             ex_str << "SharedMemoryImp: Could not extend shared memory to size " << m_size;
@@ -153,7 +151,7 @@ namespace geopm
         m_ptr = mmap(NULL, m_size, PROT_READ | PROT_WRITE, MAP_SHARED, shm_id, 0);
         if (m_ptr == MAP_FAILED) {
             (void) close(shm_id);
-            (void) shm_func.unlink(m_shm_key.c_str());
+            (void) ::unlink(m_shm_path.c_str());
             (void) umask(old_mask);
             throw Exception("SharedMemoryImp: Could not mmap shared memory region", errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
@@ -186,10 +184,10 @@ namespace geopm
         // ProfileSampler destructor calls unlink, so don't throw if constructed
         // as owner
         if (m_is_linked) {
-            int err = shm_func.unlink(m_shm_key.c_str());
+            int err = ::unlink(m_shm_path.c_str());
             if (err && m_do_unlink_check) {
                 std::ostringstream tmp_str;
-                tmp_str << "SharedMemoryImp::unlink() Call to shm_unlink(" << m_shm_key  << ") failed";
+                tmp_str << "SharedMemoryImp::unlink() Call to unlink(" << m_shm_path  << ") failed";
                 throw Exception(tmp_str.str(), errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
             m_is_linked = false;
@@ -219,15 +217,15 @@ namespace geopm
     void SharedMemoryImp::attach_memory_region(const std::string &shm_key, unsigned int timeout)
     {
         m_shm_key = shm_key;
+        m_shm_path = construct_shm_path(shm_key);
         m_is_linked = false;
 
         int shm_id = -1;
         struct stat stat_struct;
         int err = 0;
-        shm_func = make_shared_mem_func(shm_key);
 
         if (!timeout) {
-            shm_id = shm_func.open(shm_key.c_str(), O_RDWR, 0);
+            shm_id = open(m_shm_path.c_str(), O_RDWR, 0);
             if (shm_id < 0) {
                 std::ostringstream ex_str;
                 ex_str << "SharedMemoryImp: Could not open shared memory with key \""  <<  shm_key << "\"";
@@ -252,7 +250,7 @@ namespace geopm
             struct geopm_time_s begin_time;
             geopm_time(&begin_time);
             while (shm_id < 0 && geopm_time_since(&begin_time) < (double)timeout) {
-                shm_id = shm_func.open(shm_key.c_str(), O_RDWR, 0);
+                shm_id = open(m_shm_path.c_str(), O_RDWR, 0);
             }
             if (shm_id < 0) {
                 std::ostringstream ex_str;
@@ -290,7 +288,7 @@ namespace geopm
         int err = 0;
         int shm_id = -1;
         if (m_is_linked) {
-            shm_id = shm_func.open(m_shm_key.c_str(), O_RDWR, 0);
+            shm_id = open(m_shm_path.c_str(), O_RDWR, 0);
         }
         else {
             throw Exception("SharedMemoryImp: Cannot chown shm that has been unlinked.", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
@@ -305,7 +303,7 @@ namespace geopm
         err = fchown(shm_id, uid, gid);
         if (err) {
             std::ostringstream ex_str;
-            ex_str << "SharedMemoryImp: Could not chown shmem key (" << m_shm_key
+            ex_str << "SharedMemoryImp: Could not chown shmem with key (" << m_shm_key
                    << ") to UID (" << std::to_string(uid)
                    << "), GID (" << std::to_string(gid) + ")";
             throw Exception(ex_str.str(), errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
@@ -317,33 +315,27 @@ namespace geopm
         }
     }
 
-    SharedMemoryImp::SharedMemFunc::SharedMemFunc(
-        std::function<int(const char *, int, mode_t)> open_fn,
-        std::function<int(const char *)> unlink_fn)
-        : open(open_fn),
-          unlink(unlink_fn)
+    std::string SharedMemoryImp::construct_shm_path(const std::string &key)
     {
-    }
+        std::string path;
+        if (key.length() > 1 && key[0] == '/' &&
+            key.find('/', 1) == std::string::npos) {
+            // shmem key
 
-    SharedMemoryImp::SharedMemFunc SharedMemoryImp::make_shared_mem_func(
-        const std::string &key)
-    {
-        std::function<int(const char *, int, mode_t)> open_fn;
-        std::function<int(const char *name)> unlink_fn;
-        if (key.length() > 1) {
-            if (key[0] == '/' && key.find('/', 1) == std::string::npos) {
-                open_fn = &shm_open;
-                unlink_fn = &shm_unlink;
+            // pam_systemd/logind enabled?
+            std::string usr_run_dir = "/var/run/user/" +
+                                      std::to_string(getuid());
+            if (access(usr_run_dir.c_str(), F_OK) == 0) {
+                path = usr_run_dir + key;
             }
             else {
-                open_fn = &open;
-                unlink_fn = &::unlink;
+                path = "/dev/shm" + key;
             }
+        } else {
+            // regular file path
+            path = key;
         }
-        else {
-            open_fn = &open;
-            unlink_fn = &::unlink;
-        }
-        return SharedMemFunc(open_fn, unlink_fn);
+
+        return path;
     }
 }
