@@ -33,6 +33,7 @@
 import torch
 from torch import nn
 from random import uniform
+import numpy as np
 import sys
 
 import pandas as pd
@@ -75,6 +76,8 @@ def main():
 
     # Exclude rows missing data in any of the columns of interest. Otherwise,
     # NaN values propagate into every weight in the model.
+    # And replace Inf with NaN
+    df_traces.replace([np.inf, -np.inf], np.nan, inplace=True)
     is_missing_data = df_traces[X_columns + y_columns].isna().sum(axis=1) > 0
     df_traces = df_traces.loc[~is_missing_data]
 
