@@ -87,7 +87,14 @@ Modify the output test.sbatch to enable traces, set frequency range, and set per
     --geopm-trace-signals=POWER_PACKAGE@package,POWER_DRAM,CPU_FREQUENCY_STATUS@package,TEMPERATURE_CORE@package,MSR::UNCORE_PERF_STATUS:FREQ@package,QM_CTR_SCALED_RATE@package,INSTRUCTIONS_RETIRED@package,CYCLES_THREAD@package,ENERGY_PACKAGE@package,MSR::APERF:ACNT@package,MSR::MPERF:MCNT@package,MSR::PPERF:PCNT@package,TIME@package,ENERGY_DRAM\
 
 ```
-Min and max frequency may vary from system to system
+Min and max frequency may vary from system to system.
+
+Additionally modify the test.sbatch script to set-up the QM signals:
+```
+geopmwrite MSR::PQR_ASSOC:RMID board 0 0
+geopmwrite MSR::QM_EVTSEL:RMID board 0 0
+geopmwrite MSR::QM_EVTSEL:EVENT_ID board 0 2
+```
 
 ## 4a) Process the GPU frequency sweeps to condition the data for model training.
 For the GPU Agent use the geopm/tutorial/ml/process_gpu_sweeps.py to process the dgemm and stream frequency sweeps
@@ -99,7 +106,7 @@ This will result in a processed_gpu_sweep.h5 output.
 ## 4b) Process the CPU frequency sweeps to condition the data for model training.
 For the CPU Agent use the local process_cpu_sweeps.py on the sweep folders (paths may vary):
 ```
-./process_cpu_frequency_sweep.py mcfly processed_cpu_sweep ${GEOPM_WORKDIR}/dgemm_frequency_sweep ${GEOPM_WORKDIR}arithmetic_intensity_frequency_sweep/
+./process_cpu_frequency_sweep.py <node_name> processed_cpu_sweep ${GEOPM_WORKDIR}/dgemm_frequency_sweep ${GEOPM_WORKDIR}/arithmetic_intensity_frequency_sweep/
 ```
 This will result in a processed_cpu_sweep.h5 output.
 
