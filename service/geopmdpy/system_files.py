@@ -591,7 +591,7 @@ class ActiveSessions(object):
             client_pid (int): Linux PID that opened the session
 
         Returns:
-            int: GLib watch ID to track the session lifetime
+            int: The reference count
 
         Raises:
             RuntimeError: Client does not have an open session
