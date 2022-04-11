@@ -48,7 +48,7 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - name: install system dependencies
-      run: sudo apt-get update && sudo apt-get install libelf-dev mpich libmpich-dev libomp-11-dev libsystemd-dev libgirepository1.0-dev
+      run: sudo apt-get update && sudo apt-get install libelf-dev mpich libmpich-dev libomp-11-dev libsystemd-dev python3-gi
     - name: install base and service dir python dependencies
       run: |
            python3 -m pip install --upgrade pip setuptools wheel pep517
