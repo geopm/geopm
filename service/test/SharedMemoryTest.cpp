@@ -41,13 +41,15 @@
 #include "geopm_error.h"
 #include "geopm/Exception.hpp"
 #include "geopm/SharedMemory.hpp"
+#include "SharedMemoryImp.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm_test.hpp"
 
 using geopm::SharedMemory;
+using geopm::SharedMemoryImp;
 using testing::Throw;
 
-class SharedMemoryTest : public ::testing::Test
+class SharedMemoryTest : public ::testing::Test, public SharedMemoryImp
 {
     protected:
         void SetUp();
@@ -130,13 +132,13 @@ void SharedMemoryTest::fd_check_test(const std::string &shm_key,
 
 TEST_F(SharedMemoryTest, fd_check_shm)
 {
-    std::string key_path = "/dev/shm" + m_key_shm;
+    std::string key_path = construct_shm_path(m_key_shm);
     fd_check_test(m_key_shm, key_path);
 }
 
 TEST_F(SharedMemoryTest, fd_check_file)
 {
-    std::string key_path = m_key_file;
+    std::string key_path = construct_shm_path(m_key_file);
     fd_check_test(m_key_file, key_path);
 }
 
@@ -341,13 +343,13 @@ void SharedMemoryTest::default_permissions_test(const std::string &shm_key,
 
 TEST_F(SharedMemoryTest, default_permissions_shm)
 {
-    std::string key_path = "/dev/shm" + m_key_shm;
+    std::string key_path = construct_shm_path(m_key_shm);
     default_permissions_test(m_key_shm, key_path);
 }
 
 TEST_F(SharedMemoryTest, default_permissions_file)
 {
-    std::string key_path = m_key_file;
+    std::string key_path = construct_shm_path(m_key_file);
     default_permissions_test(m_key_file, key_path);
 }
 
@@ -371,12 +373,12 @@ void SharedMemoryTest::secure_permissions_test(const std::string &shm_key,
 
 TEST_F(SharedMemoryTest, secure_permissions_shm)
 {
-    std::string key_path = "/dev/shm" + m_key_shm;
+    std::string key_path = construct_shm_path(m_key_shm);
     secure_permissions_test(m_key_shm, key_path);
 }
 
 TEST_F(SharedMemoryTest, secure_permissions_file)
 {
-    std::string key_path = m_key_file;
+    std::string key_path = construct_shm_path(m_key_file);
     secure_permissions_test(m_key_file, key_path);
 }

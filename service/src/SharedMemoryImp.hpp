@@ -75,28 +75,16 @@ namespace geopm
             /// @param [in] uid User ID to become owner.
             /// @param [in] gid Group ID to become owner.
             void chown(const unsigned int uid, const unsigned int gid) override;
+
+        protected:
+            /// @brief Construct the file path to use for the provided key.
+            static std::string construct_shm_path(const std::string &key);
+
         private:
-            /// @brief Helper struct to track the key functions for the
-            ///        particular shared memory object implementation being
-            ///        used: shmem or file.
-            struct SharedMemFunc
-            {
-                SharedMemFunc() = default;
-                SharedMemFunc(
-                    std::function<int(const char *, int, mode_t)> open_fn,
-                    std::function<int(const char *)> unlink_fn);
-
-                std::function<int(const char *, int, mode_t)> open;
-                std::function<int(const char *)> unlink;
-            };
-
-            /// @brief Construct a SharedMemFunc object based on the type of
-            ///        shared memory key: shmem key or file path.
-            static SharedMemFunc make_shared_mem_func(
-                const std::string &key);
-            
             /// @brief Shared memory key for the region.
             std::string m_shm_key;
+            /// @brief file path for shared memory object.
+            std::string m_shm_path;
             /// @brief Size of the region.
             size_t m_size;
             /// @brief Pointer to the region.
@@ -108,8 +96,6 @@ namespace geopm
             ///        through make_unique_owner() may be unlinked in other
             ///        objects' destructors, and should not throw.
             bool m_do_unlink_check;
-
-            SharedMemFunc shm_func;
     };
 }
 
