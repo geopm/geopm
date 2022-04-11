@@ -36,8 +36,7 @@ with CPUs.
     <method name="PlatformGetGroupAccess">
       <arg direction="in" name="group" type="s">
         <doc:doc>
-          <doc:summary>Unix group name to query. The default allowed
-lists are returned if group is the empty string.
+          <doc:summary>Name of group
           </doc:summary>
         </doc:doc>
       </arg>
@@ -49,16 +48,18 @@ lists are returned if group is the empty string.
       </arg>
       <doc:doc>
         <doc:description>
-          <doc:summary>Get the signals and controls in the allowed lists.
+          <doc:summary>Get the signal and control access lists
           </doc:summary>
-          <doc:para>Provides the default allowed lists or the allowed lists for a
-particular Unix group.  These lists correspond to values
-stored in the GEOPM service configuration files.  The
-configuration files are read with each call to this method.
-If no files exist that match the query, empty lists are
-returned.  Empty lines and lines that begin with the '#'
-character are ignored.  If the group name is not valid on the
-system a RuntimeError is raised.
+          <doc:para>Read the list of allowed signals and controls for the
+specified group.  If the group is None or the empty string
+then the default lists of allowed signals and controls are
+returned.
+
+The values are securely read from files located in
+/etc/geopm-service using the secure_read_file() interface.
+
+If no secure file exist for the specified group, then two
+empty lists are returned.
           </doc:para>
         </doc:description>
       </doc:doc>
@@ -66,9 +67,7 @@ system a RuntimeError is raised.
     <method name="PlatformSetGroupAccess">
       <arg direction="in" name="group" type="s">
         <doc:doc>
-          <doc:summary>Which Unix group name to query; if this is
-the empty string, the default allowed
-lists are written.
+          <doc:summary>Name of group
           </doc:summary>
         </doc:doc>
       </arg>
@@ -86,16 +85,18 @@ lists are written.
       </arg>
       <doc:doc>
         <doc:description>
-          <doc:summary>Get the signals and controls in the allowed lists.
+          <doc:summary>Get the signal and control access lists
           </doc:summary>
-          <doc:para>Provides the default allowed lists or the allowed lists for a
-particular Unix group.  These lists correspond to values
-stored in the GEOPM service configuration files.  The
-configuration files are read with each call to this method.
-If no files exist that match the query, empty lists are
-returned.  Empty lines and lines that begin with the '#'
-character are ignored.  If the group name is not valid on the
-system a RuntimeError is raised.
+          <doc:para>Read the list of allowed signals and controls for the
+specified group.  If the group is None or the empty string
+then the default lists of allowed signals and controls are
+returned.
+
+The values are securely read from files located in
+/etc/geopm-service using the secure_read_file() interface.
+
+If no secure file exist for the specified group, then two
+empty lists are returned.
           </doc:para>
         </doc:description>
       </doc:doc>
@@ -290,7 +291,7 @@ enabled when this method is called.
     <method name="PlatformOpenSession">
      <doc:doc>
         <doc:description>
-          <doc:summary>Open a new session session for the client process.
+          <doc:summary>Open a new session session for the client thread.
           </doc:summary>
           <doc:para>The creation of a session is the first step that a client
 thread makes to interact with the GEOPM service.  Each Linux
@@ -409,7 +410,7 @@ signal_name (str): The name of the signal to read.
 domain_idx (int): Specifies the particular domain
                   index to write to.
 
-signal_name (str): The name of the signal to read.
+control_name (str): The name of the control to write.
           </doc:summary>
         </doc:doc>
       </arg>
