@@ -358,12 +358,9 @@ class PlatformService(object):
                               the session.
 
         """
-        # if the connection already exists
         if self._active_sessions.is_client_active(client_pid):
             self._active_sessions.increment_reference_count(client_pid)
         else:
-            # Establish the connection and add an active session with
-            # the initial reference count of 1.
             signals, controls = self.get_user_access(user)
             watch_id = self._watch_client(client_pid)
             self._active_sessions.add_client(client_pid, signals, controls, watch_id)
@@ -399,21 +396,14 @@ class PlatformService(object):
         """
         self._active_sessions.check_client_active(client_pid, 'PlatformCloseSession')
         reference_count = self._active_sessions.get_reference_count(client_pid)
-        # A negative reference_count is impossible because this condition
-        # is enforced by the _session_schema.
         if reference_count == 0:
-            # this is the case that the geopm daemon was killed while
-            # that in the process of _close_Session_completely so we
-            # need to call _close_Session_completely() again. The
-            # daemon died, was restarted, and found a session with
+            # The daemon died, restarted, and found a session with
             # zero reference count.
             self._close_session_completely(client_pid)
         elif reference_count == 1:
-            # last reference, close the session completely
             self._active_sessions.decrement_reference_count(client_pid)
             self._close_session_completely(client_pid)
         else:  # reference_count > 1:
-            # more than one reference, decrement the reference count
             self._active_sessions.decrement_reference_count(client_pid)
 
     def close_session_admin(self, client_pid):
