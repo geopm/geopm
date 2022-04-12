@@ -153,6 +153,7 @@ namespace geopm
                 // required for L0 metric querying
                 uint32_t num_metric;
                 uint32_t metric_sampling_period;
+                bool metric_domain_cached;
                 ze_event_pool_handle_t event_pool;
                 ze_event_handle_t event; //TODO: rename metric_notification_event?
                 zet_metric_streamer_handle_t metric_streamer;

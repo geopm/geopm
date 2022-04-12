@@ -54,9 +54,6 @@ namespace geopm
     {
         //setenv("ZES_ENABLE_SYSMAN", "1", 1);
 
-        ////TODO: consider moving to lazy init?
-        //setenv("ZET_ENABLE_METRICS", "1", 1);
-
         ze_result_t ze_result;
         //Initialize
         ze_result = zeInit(0);
@@ -195,6 +192,9 @@ namespace geopm
     }
 
     void LevelZeroImp::metric_group_cache(unsigned int device_idx) {
+        //assume false
+        m_devices.at(device_idx).metric_domain_cached = false;
+
         char *zet_enable_metrics = getenv("ZET_ENABLE_METRICS");
         if (zet_enable_metrics == NULL || strcmp(zet_enable_metrics, "1") != 0) {
 #ifdef GEOPM_DEBUG
@@ -279,6 +279,7 @@ namespace geopm
                     }
                 }
             }
+            m_devices.at(device_idx).metric_domain_cached = true;
         }
     }
 
@@ -476,17 +477,19 @@ namespace geopm
 
     void LevelZeroImp::metric_read(unsigned int l0_device_idx)
     {
-        if(!m_devices.at(l0_device_idx).metrics_initialized) {
-            metric_init(l0_device_idx);
-            m_devices.at(l0_device_idx).metrics_initialized = true;
-        }
+        if (m_devices.at(l0_device_idx).metric_domain_cached) {
+            if (!m_devices.at(l0_device_idx).metrics_initialized) {
+                metric_init(l0_device_idx);
+                m_devices.at(l0_device_idx).metrics_initialized = true;
+            }
 
-        ze_result_t ze_host_result = zeEventHostSynchronize(m_devices.at(l0_device_idx).event, 0);
-        if (ze_host_result != ZE_RESULT_NOT_READY) {
-            metric_calc(l0_device_idx, m_devices.at(l0_device_idx).metric_streamer);
-        }
-        else {
-            metric_read(l0_device_idx);
+            ze_result_t ze_host_result = zeEventHostSynchronize(m_devices.at(l0_device_idx).event, 0);
+            if (ze_host_result != ZE_RESULT_NOT_READY) {
+                metric_calc(l0_device_idx, m_devices.at(l0_device_idx).metric_streamer);
+            }
+            else {
+                metric_read(l0_device_idx);
+            }
         }
     }
 
