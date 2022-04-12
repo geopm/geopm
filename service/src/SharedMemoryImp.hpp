@@ -37,7 +37,6 @@
 
 #include <pthread.h>
 
-#include <functional>
 
 namespace geopm
 {
