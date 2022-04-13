@@ -152,6 +152,7 @@ dist_doc_DATA = COPYING \
                 # end
 
 EXTRA_DIST = $(TUTORIAL_DIST) \
+             .git-blame-ignore-revs \
              .github/include_guards.sh \
              .github/workflows/build.yml \
              .github/ISSUE_TEMPLATE/bug_report.md \
