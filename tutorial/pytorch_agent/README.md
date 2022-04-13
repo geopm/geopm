@@ -14,12 +14,34 @@ An additional user input knob "GPU_PHI" is also taken as an input.  This control
 input ranging from 0 to 1 with 0 skewing the agent toward performance oriented frequency selection
 and 1 skewing the agent towards energy efficient frequency selection.
 
+This tutorial also shows how to create a C++ agent that uses a pytorch model to select frequency
+controls for a CPU enabled system based on the following signals:
+```
+POWER_PACKAGE
+CPU_FREQUENCY_STATUS
+TEMPERATURE_CORE
+MSR::UNCORE_PERF_STATUS:FREQ
+QM_CTR_SCALED_RATE
+INSTRUCTIONS_RETIRED
+CYCLES_THREAD
+INSTRUCTIONS_RETIRED
+ENERGY_PACKAGE
+MSR::APERF:ACNT
+MSR::MPERF:MCNT
+MSR::PPERF:PCNT
+```
+An additioanl user input knob "CPU_PHI" is also taken as an input.  It operates similarly to the
+"GPU_PHI" signal discussed above.  Some of the signals may be modified through basic diffing or
+division prior to training or use in an agent.
+
 This tutorial is intended to show how this type of agent may be implemented, compiled, trained,
 and used alongside a workload.  For this purpose two GPU benchmarks integrated into the GEOPM
-experiment infrastructure, PARRES DGEMM and PARRES NSTREAM, are sufficient for training.
-For a fully realized pytorch agent an expanded workload list  should be used.  Similarly an
-expanded telemetry list may be beneficial.
+experiment infrastructure, PARRES DGEMM and PARRES NSTREAM, are sufficient for training.  For the
+CPU work the geopmbench benchmark is sufficient for training, though the integrated
+arithmetic_intensity benchmark may also be used.
 
+For a fully realized pytorch agent an expanded workload list should be used.  Similarly an
+expanded telemetry list may be beneficial.
 
 The following steps are required to build and use this agent:
 1. Acquire libtorch with CX11 ABI
@@ -28,7 +50,6 @@ The following steps are required to build and use this agent:
 4. Process the frequency sweeps to condition the data for model training.
 5. Train a neural network model using the processed trace data.
 6. Execute the agent with a trained model.
-
 
 ## 1) Acquire libtorch - CPU or GPU Agent
 The latest install information can be found here: https://pytorch.org/get-started/locally/
@@ -143,14 +164,15 @@ geopmlaunch impi -ppn ${GPUS} -n ${GPUS} --geopm-policy=phi40.policy --geopm-ctl
 ## 6b) Execute the CPU agent with a trained model
 The NN model must be in the directory the job is being launched from and must be named cpu_control.pt
 A geopmbench config of interest should be provided as bench.config.  See GEOPM documentation on how to generate this.
+Ranks has been left empty in the example code below and should be provided by the user.
 ```
 EXE=geopmbench
 APPOPTS=bench.config
 RANKS=
 
-geopmagent -a gpu_torch -pNAN,NAN,0 > phi0.policy
-GEOPM_PLUGIN_PATH=${GEOPM_SOURCE}/tutorial/pytorch_agent geopmlaunch impi -ppn ${RANKS} -n ${RANKS} --geopm-policy=phi0.policy --geopm-ctl=process --geopm-report=dgemm-16000-torch-phi0.report --geopm-agent=gpu_torch -- $EXE $APPOPTS
+geopmagent -a cpu_torch -pNAN,NAN,0 > phi0.policy
+GEOPM_PLUGIN_PATH=${GEOPM_SOURCE}/tutorial/pytorch_agent geopmlaunch impi -ppn ${RANKS} -n ${RANKS} --geopm-policy=phi0.policy --geopm-ctl=process --geopm-report=dgemm-cpu-torch-phi0.report --geopm-agent=cpu_torch -- $EXE $APPOPTS
 
-geopmagent -a gpu_torch -pNAN,NAN,0.4 > phi40.policy
-GEOPM_PLUGIN_PATH=${GEOPM_SOURCE}/tutorial/pytorch_agent geopmlaunch impi -ppn ${RANKS} -n ${RANKS} --geopm-policy=phi40.policy --geopm-ctl=process --geopm-report=dgemm-16000-torch-phi40.report --geopm-agent=gpu_torch -- $EXE $APPOPTS
+geopmagent -a cpu_torch -pNAN,NAN,0.4 > phi40.policy
+GEOPM_PLUGIN_PATH=${GEOPM_SOURCE}/tutorial/pytorch_agent geopmlaunch impi -ppn ${RANKS} -n ${RANKS} --geopm-policy=phi40.policy --geopm-ctl=process --geopm-report=dgemm-cpu-torch-phi40.report --geopm-agent=cpu_torch -- $EXE $APPOPTS
 ```
