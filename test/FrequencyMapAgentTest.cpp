@@ -377,6 +377,26 @@ TEST_F(FrequencyMapAgentTest, policy_to_json)
               get_freq_map_json_from_policy({ 0, 1e-40 }));
 }
 
+TEST_F(FrequencyMapAgentTest, test_hash_freq_map)
+{
+    m_agent->set_maps(
+        {
+            {0x000000003ddc81bf, 1.0000000000000000e+09},
+            {0x00000000a74bbf35, 1.2000000000000000e+09},
+            {0x00000000d691da00, 1.9000000000000000e+09},
+            {0x00000000644f9787, 2.1000000000000000e+09},
+            {0x00000000725e8066, 2.1000000000000000e+09},
+            {0x000000007b561f45, 2.1000000000000000e+09},
+            {0x8000000000000000, 2.1000000000000000e+09}
+        },
+        {}
+    );
+    auto result = m_agent->report_host();
+    for (const auto& key_value : result) {
+        std::cout << key_value.first << " : " << key_value.second << std::endl;
+    }
+}
+
 TEST_F(FrequencyMapAgentTest, validate_policy)
 {
     using ::testing::Pointwise;
