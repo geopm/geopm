@@ -337,22 +337,24 @@ namespace geopm
     std::vector<std::pair<std::string, std::string> > FrequencyMapAgent::report_host(void) const
     {
         std::vector<std::pair<std::string, std::string> > result;
-        std::ostringstream oss;
-        oss << std::setprecision(M_PRECISION) << std::scientific;
-        for (const auto &region : m_hash_freq_map) {
-            oss << "\n    0x" << std::hex << std::setfill('0') << std::setw(16) << std::fixed;
+
+        std::map<uint64_t, double> full_map(m_hash_freq_map);
+        std::for_each(m_default_freq_hash.begin(), m_default_freq_hash.end(), [&](auto key)
+        {
+            full_map.insert({ key, m_default_freq });
+        });
+
+        std::map<std::string, Json> temp_map;
+        for (const auto &region : full_map)
+        {
+            std::ostringstream oss;
+            oss << "0x" << std::hex << std::setfill('0') << std::setw(16) << std::fixed;
             oss << region.first;
-            oss << std::setfill('\0') << std::setw(0) << std::scientific;
-            oss << ": " << region.second;
+            temp_map[oss.str()] = region.second;
         }
-        for (const auto &region : m_default_freq_hash) {
-            oss << "\n    0x" << std::hex << std::setfill('0') << std::setw(16) << std::fixed;
-            oss << region;
-            oss << std::setfill('\0') << std::setw(0) << std::scientific;
-            oss << ": " << m_default_freq;
-        }
-        oss << "\n";
-        result.push_back(std::make_pair("Frequency map", oss.str()));
+        Json my_json = Json(temp_map);
+
+        result.push_back(std::make_pair("Frequency map", my_json.dump()));
 
         return result;
     }
