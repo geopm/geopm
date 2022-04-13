@@ -168,7 +168,7 @@ namespace geopm
     void FixedFrequencyAgent::adjust_platform(const std::vector<double>& in_policy)
     {
         assert(in_policy.size() == M_NUM_POLICY);
-	
+
         if (!m_is_adjust_initialized) {
             double gpu_freq_request = in_policy[M_POLICY_GPU_FREQUENCY];
             double cpu_freq_request = in_policy[M_POLICY_CPU_FREQUENCY];
@@ -179,7 +179,7 @@ namespace geopm
             if (!std::isnan(sample_period)) {
                 M_WAIT_SEC = sample_period;
             }
-    
+
             // set gpu frequency control
             if (!std::isnan(gpu_freq_request)) {
                 m_platform_io.write_control("GPU_FREQUENCY_CONTROL",GEOPM_DOMAIN_BOARD,0,gpu_freq_request);

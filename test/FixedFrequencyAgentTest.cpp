@@ -75,7 +75,7 @@ class FixedFrequencyAgentTest : public :: testing :: Test
            SAMPLE_PERIOD_IDX
         };
         enum policy_idx_e {
-             GPU_FREQUENCY = 0, 
+             GPU_FREQUENCY = 0,
              CPU_FREQUENCY = 1,
              UNCORE_MIN_FREQUENCY = 2,
              UNCORE_MAX_FREQUENCY = 3,
@@ -153,7 +153,7 @@ void FixedFrequencyAgentTest::SetUp()
     ASSERT_LT(2.1e9, m_freq_max);
     ASSERT_LT(m_freq_uncore_min, 1.9e9);
     ASSERT_LT(2.0e9, m_freq_uncore_max);
-    
+
     m_agent = geopm::make_unique<FixedFrequencyAgent>(*m_platform_io, *m_platform_topo);
     m_num_policy = m_agent->policy_names().size();
 
@@ -193,7 +193,7 @@ TEST_F(FixedFrequencyAgentTest, validate_policy)
     // load default policy
     policy = m_default_policy;
     m_agent->validate_policy(policy);
-    // validate policy is unmodified 
+    // validate policy is unmodified
     ASSERT_EQ(m_num_policy, policy.size());
     EXPECT_EQ(m_freq_gpu_max, policy[GPU_FREQUENCY]);
     EXPECT_EQ(m_freq_max, policy[CPU_FREQUENCY]);
@@ -237,8 +237,6 @@ TEST_F(FixedFrequencyAgentTest, validate_policy)
     policy[SAMPLE_PERIOD] = 0.0;
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->validate_policy(policy), GEOPM_ERROR_INVALID,
 			       "sample period must be greater than 0");
-    
-
 }
 
 TEST_F(FixedFrequencyAgentTest, adjust_platform)
@@ -253,10 +251,8 @@ TEST_F(FixedFrequencyAgentTest, adjust_platform)
     policy = m_default_policy;
     m_agent->adjust_platform(policy);
     EXPECT_FALSE(m_agent->do_write_batch());
-    
 
     m_agent->adjust_platform(policy);
     EXPECT_FALSE(m_agent->do_write_batch());
-    
 }
 
