@@ -41,7 +41,6 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "geopm_agent.h"
-#include "geopm_internal.h"
 #include "geopm_hash.h"
 
 #include "Agent.hpp"
