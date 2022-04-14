@@ -339,7 +339,7 @@ namespace geopm
         std::vector<std::pair<std::string, std::string> > result;
 
         std::map<uint64_t, double> full_map(m_hash_freq_map);
-        std::for_each(m_default_freq_hash.begin(), m_default_freq_hash.end(), [&](auto key)
+        std::for_each(m_default_freq_hash.begin(), m_default_freq_hash.end(), [&](uint64_t key)
         {
             full_map.insert({ key, m_default_freq });
         });
@@ -347,10 +347,19 @@ namespace geopm
         std::map<std::string, Json> temp_map;
         for (const auto &region : full_map)
         {
-            std::ostringstream oss;
-            oss << "0x" << std::hex << std::setfill('0') << std::setw(16) << std::fixed;
-            oss << region.first;
-            temp_map[oss.str()] = region.second;
+            // Json object(int(region.first));
+            // std::string key_string = object.dump();
+            // key_string.erase(std::remove(key_string.begin(), key_string.end(), '"'), key_string.end());
+            // temp_map[key_string] = region.second;
+            std::ostringstream key_ss;
+            key_ss << "0x" << std::hex << std::setfill('0') << std::setw(16) << std::fixed;
+            key_ss << region.first;
+            std::ostringstream value_ss;
+            value_ss << std::setfill('\0') << std::setw(0) << std::scientific;
+            value_ss << region.second;
+            std::string key_string = key_ss.str();
+            key_string.erase(std::remove(key_string.begin(), key_string.end(), '"'), key_string.end());
+            temp_map[key_string] = value_ss.str();
         }
         Json my_json = Json(temp_map);
 
