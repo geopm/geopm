@@ -95,9 +95,9 @@ def read_trace_files(sweep_dir, nodename, app_index):
         # Apply a heuristic to ignore setup/teardown parts of workloads. Treat
         # the region of interest as the section of the trace between the first
         # and last observed instance of moderate GPU activity.
-        is_gpu_util = trace_df['DCGM::SM_ACTIVE-board_accelerator-0'] > 0.05
+        is_gpu_util = trace_df['GPU_COMPUTE_ACTIVITY-board_accelerator-0'] > 0.05
         if is_gpu_util.sum() == 0:
-            is_gpu_util = trace_df['NVML::UTILIZATION_ACCELERATOR-board_accelerator-0'] > 0.05
+            is_gpu_util = trace_df['GPU_UTILIZATION-board_accelerator-0'] > 0.05
         first_util = trace_df.loc[is_gpu_util].index[0]
         last_util = trace_df.loc[is_gpu_util].index[-1]
         trace_df['is-roi'] = False
@@ -123,6 +123,9 @@ if __name__ == "__main__":
         'trial: number of the trial of repeated executions.\n'
     )
     parser.add_argument('nodename', help='Which node to analyze.')
+    parser.add_argument('domain', default='gpu',
+                        choices=['gpu', 'node'],
+                        help='Analyze gpu energy at node (all gpu) or single gpu level. default: gpu')
     parser.add_argument('output',
                         help='Name of the HDF file to write the output. '
                              'The h5 extension will be added')
@@ -144,19 +147,35 @@ if __name__ == "__main__":
         reports_df['runtime-vs-maxfreq'] = relative_runtime.T if config_groups.ngroups == 1 else relative_runtime
 
         max_gpu_freq = reports_df['gpu-frequency'].max()
+
         # Note that these are all trained against GPU 0. If more GPUs are
         # used at inference time, the model is replicated across the GPUs.
-        relative_energy = config_groups.apply(
-            lambda x: x['NVML::TOTAL_ENERGY_CONSUMPTION-board_accelerator-0'] / (x.loc[x['gpu-frequency'] == max_gpu_freq,
-                        'NVML::TOTAL_ENERGY_CONSUMPTION-board_accelerator-0']).mean())
+
+        if args.domain == 'node':
+            relative_energy = config_groups.apply(
+                lambda x: x['gpu-energy (J)'] / (x.loc[x['gpu-frequency'] == max_gpu_freq,
+                            'gpu-energy (J)']).mean())
+        elif args.domain == 'gpu':
+            relative_energy = config_groups.apply(
+                lambda x: x['GPU_ENERGY@board_accelerator-0'] / (x.loc[x['gpu-frequency'] == max_gpu_freq,
+                            'GPU_ENERGY@board_accelerator-0']).mean())
+
         reports_df['energy-vs-max'] = relative_energy.T if config_groups.ngroups == 1 else relative_energy
         reports_df['performance-loss'] = reports_df['runtime-vs-maxfreq'] - 1
 
         # Get the min-energy frequency for each config
-        min_energy_frequencies = reports_df.pivot_table(
-                values='NVML::TOTAL_ENERGY_CONSUMPTION-board_accelerator-0',
-                index=['app-config'],
-                columns='gpu-frequency').idxmin(axis=1).rename('Min-Energy GPU Frequency')
+        if args.domain == 'node':
+            min_energy_frequencies = reports_df.pivot_table(
+                    #all gpu sum
+                    values='gpu-energy (J)',
+                    index=['app-config'],
+                    columns='gpu-frequency').idxmin(axis=1).rename('Min-Energy GPU Frequency')
+        elif args.domain == 'gpu':
+            min_energy_frequencies = reports_df.pivot_table(
+                    #for gpu 0 only
+                    values='GPU_ENERGY@board_accelerator-0',
+                    index=['app-config'],
+                    columns='gpu-frequency').idxmin(axis=1).rename('Min-Energy GPU Frequency')
 
         # Generate mulitple columns of data. Each column represents a different
         # weighted importance of performance and energy objectives. The values
