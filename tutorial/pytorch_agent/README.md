@@ -170,9 +170,10 @@ EXE=geopmbench
 APPOPTS=bench.config
 RANKS=
 
+export GEOPM_PLUGIN_PATH=${GEOPM_SOURCE}/tutorial/pytorch_agent
 geopmagent -a cpu_torch -pNAN,NAN,0 > phi0.policy
-GEOPM_PLUGIN_PATH=${GEOPM_SOURCE}/tutorial/pytorch_agent geopmlaunch impi -ppn ${RANKS} -n ${RANKS} --geopm-policy=phi0.policy --geopm-ctl=process --geopm-report=dgemm-cpu-torch-phi0.report --geopm-agent=cpu_torch -- $EXE $APPOPTS
+geopmlaunch impi -ppn ${RANKS} -n ${RANKS} --geopm-policy=phi0.policy --geopm-ctl=process --geopm-report=dgemm-cpu-torch-phi0.report --geopm-agent=cpu_torch -- $EXE $APPOPTS
 
 geopmagent -a cpu_torch -pNAN,NAN,0.4 > phi40.policy
-GEOPM_PLUGIN_PATH=${GEOPM_SOURCE}/tutorial/pytorch_agent geopmlaunch impi -ppn ${RANKS} -n ${RANKS} --geopm-policy=phi40.policy --geopm-ctl=process --geopm-report=dgemm-cpu-torch-phi40.report --geopm-agent=cpu_torch -- $EXE $APPOPTS
+geopmlaunch impi -ppn ${RANKS} -n ${RANKS} --geopm-policy=phi40.policy --geopm-ctl=process --geopm-report=dgemm-cpu-torch-phi40.report --geopm-agent=cpu_torch -- $EXE $APPOPTS
 ```
