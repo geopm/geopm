@@ -17,15 +17,10 @@ if os.getcwd() != os.path.dirname(os.path.abspath(__file__)):
     sys.exit(1)
 
 try:
-    # use excfile rather than import so that setup.py can be executed
-    # on a system missing dependencies required to import geopmpy.
-    version_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'geopmdpy/version.py')
-    with open(version_file) as fid:
-        exec(compile(fid.read(), version_file, 'exec'))
+    from geopmdpy import __version__
 except IOError:
     sys.stderr.write('WARNING:  geopmpy/version.py not found, setting version to 0.0.0\n')
     __version__ = '0.0.0'
-    __beta__ = False
 
 long_description = """\
 The python implementation for the GEOPM daemon"""
