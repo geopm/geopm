@@ -869,7 +869,10 @@ Warning: <geopm> geopmpy.launcher: Incompatible CPU frequency governor
         Returns a list of the names of compute nodes that are currently
         available to run jobs.
         """
-        raise NotImplementedError('<geopm> geopmpy.launcher: Launcher.get_idle_nodes() undefined in the base class')
+        if self.is_slurm_enabled:
+            return list(set(subprocess.check_output(['sinfo', '-t', 'idle', '-hNo', '%N']).decode().splitlines()))
+        else:
+            raise NotImplementedError('<geopm> geopmpy.launcher: Idle nodes feature requires SLURM')
 
 
     def get_alloc_nodes(self):
@@ -880,9 +883,11 @@ Warning: <geopm> geopmpy.launcher: Incompatible CPU frequency governor
 
         """
         if self.is_slurm_enabled:
-            return subprocess.check_output('sinfo -t alloc -hNo %N', shell=True).decode().splitlines()
+            # Use scontrol instead of sinfo -t alloc since sinfo will show all nodes currently allocated, not just
+            # the nodes associted with the current job context.
+            return list(set(subprocess.check_output(['scontrol', 'show', 'hostname']).decode().splitlines()))
         else:
-            raise NotImplementedError('Idle nodes feature requires use with SLURM')
+            raise NotImplementedError('<geopm> geopmpy.launcher: Allocated nodes feature requires SLURM')
 
     def node_list_delim(self):
         """
@@ -1097,22 +1102,6 @@ class SrunLauncher(Launcher):
         if self.governor is not None:
             result = ['--cpu-freq={}'.format(self.governor)]
         return result
-
-    def get_idle_nodes(self):
-        """
-        Returns a list of the names of compute nodes that are currently
-        available to run jobs using the sinfo command.
-        """
-        return list(set(subprocess.check_output('sinfo -t idle -hNo %N', shell=True).decode().splitlines()))
-
-    def get_alloc_nodes(self):
-        """
-        Returns a list of the names of compute nodes that have been
-        reserved by a scheduler for current job context using the
-        sinfo command.
-
-        """
-        return list(set(subprocess.check_output('scontrol show hostname', shell=True).decode().splitlines()))
 
     def preload_option(self):
         result = []
@@ -1466,16 +1455,6 @@ class IMPIExecLauncher(Launcher):
 
     def exclude_list_option(self):
         return []
-
-    def get_idle_nodes(self):
-        """
-        Returns a list of the names of compute nodes that are currently
-        available to run jobs using the sinfo command.
-        """
-        if self.is_slurm_enabled:
-            return subprocess.check_output('sinfo -t idle -hNo %N | uniq', shell=True).decode().splitlines()
-        else:
-            raise NotImplementedError('<geopm> geopmpy.launcher: Idle nodes feature requires use with SLURM')
 
 
 class AprunLauncher(Launcher):
