@@ -76,6 +76,10 @@ def main():
     is_missing_data = df_traces[X_columns + y_columns].isna().sum(axis=1) > 0
     df_traces = df_traces.loc[~is_missing_data]
 
+    # Assume no test traces to start.  Testing will be handled via running
+    # applications with the gpu_torch agent
+    df_test = None
+
     # Ignore applications that are requested to be ignored by the user. This
     # may be useful for a case where the training data includes many
     # application sweeps. Then, a single sweep output can be re-used for many
@@ -84,10 +88,21 @@ def main():
     # that application from the training set so we can get a better idea about
     # how the model might generalize to unseen workloads.
     if args.leave_app_out is not None:
-        if args.leave_app_out not in df_traces['app-config'].unique():
+        app_config_list = [e for e in df_traces['app-config'].unique() if args.leave_app_out in e]
+        if app_config_list is None:
             print('Error: {args.leave_app_out} not in the available training sets')
             exit(1)
-        df_traces = df_traces.loc[df_traces['app-config'] != args.leave_app_out]
+        else:
+            df_test_list = []
+            for app_config in app_config_list:
+                #If we exclude it from training we should save it for testing
+                df_test_list.append(df_traces.loc[df_traces['app-config'] == app_config])
+
+                #exclude from training
+                df_traces = df_traces.loc[df_traces['app-config'] != app_config]
+
+            #If using leave one out only use those cases for the test case
+            df_test = pd.concat(df_test_list)
 
     df_train = df_traces
     df_x_train = df_train[X_columns]
@@ -142,21 +157,37 @@ def main():
                 print("\te:{}, idx:{} - loss: {:.3f}".format(epoch, idx, train_loss/(message_interval)))
                 train_loss = 0.0
 
-        model.eval()
-        with torch.no_grad():
-            print("\tEvaluate vs semi-random inputs:".format(epoch, idx, train_loss/(message_interval)))
-            eval_gpu_freq = round(uniform(0,2)*1e9,0)
-            eval_gpu_power = round(uniform(0,300),0)
-            eval_gpu_util = round(uniform(0,1),2)
-            eval_gpu_ca = round(uniform(0,1),2)
-            eval_gpu_ma = round(uniform(0,1),2)
-            for phi in [0, 0.5, 1.0]:
-                output = model(torch.tensor([[eval_gpu_freq, eval_gpu_power, eval_gpu_util, eval_gpu_ca, eval_gpu_ma, phi]]))
-                print('\t\tphi:{} -> recommended: {}'.format(phi, output[0]))
-
     model.eval()
     model_scripted = torch.jit.script(model)
     model_scripted.save(args.output)
+    print("Model saved to {}".format(args.output))
+
+    if df_test is not None:
+        print("Beginning testing")
+        df_x_test = df_test[X_columns]
+        df_y_test = df_test[y_columns]
+        df_y_test /= 1e9
+
+        x_test = torch.tensor(df_x_test.to_numpy()).float()
+        y_test = torch.tensor(df_y_test.to_numpy()).float()
+
+        test_tensor = torch.utils.data.TensorDataset(x_test, y_test)
+        test_loader = torch.utils.data.DataLoader(dataset = test_tensor, batch_size = batch_size, shuffle = True)
+
+        prediction_correct = 0
+        prediction_total = 0
+        with torch.no_grad():
+            for idx, (inputs, target_control) in enumerate(test_loader):
+                prediction_total += inputs.size(0)
+
+                # Run inputs through model, save prediction
+                predicted_control = model(inputs)
+                # Round to nearest 100 MHz increment
+                predicted_control = np.round(predicted_control,1)
+
+                prediction_correct = (target_control == predicted_control).sum().item()
+
+        print('Total Predictions: {}.  Accurate Prediction: {}.  Accuracy: {:.2f}%'.format(prediction_total, prediction_correct, 100*(prediction_correct/prediction_total)))
 
 if __name__ == "__main__":
     main()
