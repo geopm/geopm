@@ -592,8 +592,7 @@ def start_batch_server(client_pid, signal_config, control_config):
                          server protocol.
 
     Raises:
-        NotImplementedError: This function has not yet been
-                             implemented.
+        RuntimeError: Failure to start the batch server.
 
     """
 
@@ -649,11 +648,12 @@ def stop_batch_server(server_pid):
                           function.
 
     Raises:
-        NotImplementedError: This function has not yet been
-                             implemented.
+        RuntimeError: Failure to stop the batch server.
 
     """
-    _dl.geopm_pio_stop_batch_server(server_pid)
+    err = _dl.geopm_pio_stop_batch_server(server_pid)
+    if err < 0:
+        raise RuntimeError('geopm_pio_stop_batch_server() failed: {}'.format(error.message(err)))
 
 def format_signal(signal, format_type):
     """Convert a signal into a string representation

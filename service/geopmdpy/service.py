@@ -417,7 +417,7 @@ class PlatformService(object):
         if batch_pid is not None:
             try:
                 self._pio.stop_batch_server(batch_pid)
-            except ex:
+            except RuntimeError as ex:
                 sys.stderr.write(f'Failed to stop batch server {batch_pid}: {ex}')
         with system_files.WriteLock(self._VAR_PATH) as lock:
             if lock.try_lock() == client_pid:
@@ -432,8 +432,8 @@ class PlatformService(object):
             try:
                 self._pio.restore_control_dir(save_dir)
                 is_restored = True
-            except:
-                pass
+            except RuntimeError as ex:
+                sys.stderr.write(f'Failed to restore control settings for client {pid}: {ex}')
             del_dir = f'{save_dir}-{pid}-{uuid.uuid4()}-del'
             os.rename(save_dir, del_dir)
             if is_restored:
