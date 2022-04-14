@@ -16,6 +16,7 @@ __all__ = ['agent', 'error', 'hash', 'io', 'launcher',
 
 try:
     from geopmpy.version import __version__
+    from geopmpy.version import __beta__
 except ImportError:
     try:
         # Look for VERSION file in git repository
