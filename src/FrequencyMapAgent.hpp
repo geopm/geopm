@@ -27,6 +27,9 @@ namespace geopm
         public:
             FrequencyMapAgent();
             FrequencyMapAgent(PlatformIO &plat_io, const PlatformTopo &topo);
+            FrequencyMapAgent(const std::map<uint64_t, double>& hash_freq_map,
+                              const std::set<uint64_t>& default_freq_hash,
+                              PlatformIO &plat_io, const PlatformTopo &topo);
             virtual ~FrequencyMapAgent() = default;
             void init(int level, const std::vector<int> &fan_in, bool is_level_root) override;
             void validate_policy(std::vector<double> &policy) const override;
@@ -52,11 +55,7 @@ namespace geopm
             static std::unique_ptr<Agent> make_plugin(void);
             static std::vector<std::string> policy_names(void);
             static std::vector<std::string> sample_names(void);
-            void set_maps(const std::map<uint64_t, double>& hash_freq_map,
-                          const std::set<uint64_t>& default_freq_hash) {
-                m_hash_freq_map = hash_freq_map;
-                m_default_freq_hash = default_freq_hash;
-            }
+
         private:
             void update_policy(const std::vector<double> &policy);
             void init_platform_io(void);
