@@ -33,6 +33,8 @@ def main():
     parser.add_argument('output', help='Output directory for the tensorflow model.')
     parser.add_argument('--leave-app-out',
                         help='Leave the named app out of the training set')
+    parser.add_argument('--train-hyperparams',
+                        help='Train model hyper parameters')
     args = parser.parse_args()
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -70,8 +72,8 @@ def main():
     df_traces = df_traces.loc[~is_missing_data]
 
     # Assume all traces for testing to start.  This is a simplification for
-    # the hyperparameter tuning.  In the future a full breakout of train, val
-    # and test sets should be provided
+    # the hyperparameter tuning work.
+    # TODO: A full breakout of train, val, and test sets should be provided
     df_test = df_traces
 
     # Ignore applications that are requested to be ignored by the user. This
@@ -125,36 +127,49 @@ def main():
     test_tensor = torch.utils.data.TensorDataset(x_test, y_test)
     test_loader = torch.utils.data.DataLoader(dataset = test_tensor, batch_size = BATCH_SIZE, shuffle = True)
 
-    config = {
-        "width_fc" : tune.sample_from(lambda _: 2**np.random.randint(2, 7)),
-        "depth_fc" : tune.randint(2,11),
-        "lr" : tune.loguniform(1e-4, 1e-1)
-    }
+    if args.train_hyperparams is not None:
+        config = {
+            "width_fc" : tune.sample_from(lambda _: 2**np.random.randint(2, 7)),
+            "depth_fc" : tune.randint(2,11),
+            "lr" : tune.loguniform(1e-4, 1e-1)
+        }
 
-    scheduler = ASHAScheduler(
-        metric="accuracy",
-        mode="max",
-        max_t=EPOCH_SIZE,
-        grace_period=1,
-        reduction_factor=2)
+        scheduler = ASHAScheduler(
+            metric="accuracy",
+            mode="max",
+            #max_t=100, #maximum time for a trial
+            grace_period=1,
+            reduction_factor=2)
 
-    reporter = CLIReporter(
-        metric_columns=["accuracy"])
+        reporter = CLIReporter(
+            metric_columns=["accuracy"]) #TODO: we may want to switch to using loss from the validation set when we add it
 
-    result = tune.run(
-        tune.with_parameters(training_loop, input_size=len(X_columns), train_loader=train_loader, test_loader=test_loader),
-        #resources_per_trial={"cpu":, "gpu":},
-        config = config,
-        num_samples=TUNE_SAMPLES,
-        scheduler = scheduler,
-        progress_reporter=reporter,
-        )
+        result = tune.run(
+            tune.with_parameters(training_loop, input_size=len(X_columns), train_loader=train_loader, test_loader=test_loader),
+            #resources_per_trial={"cpu":, "gpu":}, #TODO: specificying CPu availability
+            config = config,
+            num_samples=TUNE_SAMPLES,
+            scheduler = scheduler,
+            progress_reporter=reporter,
+            )
 
-    best_trial = result.get_best_trial("accuracy", "max", "last")
-    print("Best config: {}".format(best_trial.config))
-    print("\taccuracy: {}".format(best_trial.last_result["accuracy"]))
-    best_model = P3Net(width_input=len(X_columns), width_fc=best_trial.config["width_fc"], depth_fc=best_trial.config["depth_fc"])
+        best_trial = result.get_best_trial("accuracy", "max", "last")
+        print("Best config: {}".format(best_trial.config))
+        print("\taccuracy: {}".format(best_trial.last_result["accuracy"]))
+        best_model = P3Net(width_input=len(X_columns), width_fc=best_trial.config["width_fc"], depth_fc=best_trial.config["depth_fc"])
+    else:
+        best_model = P3Net(width_input=len(X_columns), width_fc=len(X_columns), depth_fc=2)
+        learning_rate = 1e-3
+        optimizer = torch.optim.Adam(best_model.parameters(), lr=learning_rate)
 
+        print("batch_size:{}, epoch_count:{}, learning_rate={}".format(BATCH_SIZE, EPOCH_SIZE, learning_rate))
+        for epoch in range(EPOCH_SIZE):
+            train(best_model, optimizer, train_loader)
+
+        accuracy = test(best_model, test_loader);
+        print('\tAccuracy: {:.2f}%.'.format(accuracy))
+
+    best_model.eval()
     model_scripted = torch.jit.script(best_model)
     model_scripted.save(args.output)
     print("Model saved to {}".format(args.output))
@@ -229,7 +244,6 @@ class P3Net(nn.Module):
         self.norm1 = nn.BatchNorm1d(width_input)
         self.fc1 = nn.Linear(width_input, width_fc)
         self.fc2 = nn.Linear(width_fc, width_fc)
-        #self.fc3 = nn.Linear(width_fc, width_fc)
         self.sigmoid = nn.Sigmoid()
         self.linear_output = nn.Linear(width_fc, 1)
 
@@ -240,9 +254,6 @@ class P3Net(nn.Module):
         for d in range(self.depth_fc):
             x = self.fc2(x)
             x = self.sigmoid(x)
-        #x = self.sigmoid(x)
-        #x = self.fc3(x)
-        #x = self.sigmoid(x)
         x = self.linear_output(x)
         return x
 
