@@ -44,18 +44,23 @@ For a fully realized pytorch agent an expanded workload list should be used.  Si
 expanded telemetry list may be beneficial.
 
 The following steps are required to build and use this agent:
-1. Acquire libtorch with CX11 ABI
+1. Acquire libtorch with CX11 ABI and other dependencies
 2. Build the GEOPM C++ GPUTorchAgent
 3. Perform frequency sweeps to generate data for model training.
 4. Process the frequency sweeps to condition the data for model training.
 5. Train a neural network model using the processed trace data.
 6. Execute the agent with a trained model.
 
-## 1) Acquire libtorch - CPU or GPU Agent
+## 1) Acquire libtorch and other dependencies - CPU or GPU Agent
 The latest install information can be found here: https://pytorch.org/get-started/locally/
 
 ```
 wget https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.10.2%2Bcpu.zip
+```
+
+Some python packages are also required if they are not already provided by the administrator
+```
+python3 -m pip install --user ray torch torchvision tabulate numpy
 ```
 
 ## 2) Build the GEOPM C++ Torch Agents
