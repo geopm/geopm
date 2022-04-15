@@ -13,6 +13,18 @@ import pandas as pd
 import argparse
 import code
 
+from ray import tune
+from ray.tune import CLIReporter
+from ray.tune.schedulers import ASHAScheduler
+
+from functools import partial
+
+BATCH_SIZE = 1000
+EPOCH_SIZE = 5
+DEPTH_FC_MIN = 2
+DEPTH_FC_MAX = 11
+TUNE_SAMPLES = 40
+
 def main():
     parser = argparse.ArgumentParser(
         description='Run ML training based on CPU frequency sweep data.')
@@ -57,9 +69,10 @@ def main():
     is_missing_data = df_traces[X_columns + y_columns].isna().sum(axis=1) > 0
     df_traces = df_traces.loc[~is_missing_data]
 
-    # Assume no test traces to start.  Testing will be handled via running
-    # applications with the cpu_torch agent
-    df_test = None
+    # Assume all traces for testing to start.  This is a simplification for
+    # the hyperparameter tuning.  In the future a full breakout of train, val
+    # and test sets should be provided
+    df_test = df_traces
 
     # Ignore applications that are requested to be ignored by the user. This
     # may be useful for a case where the training data includes many
@@ -90,22 +103,6 @@ def main():
     df_y_train = df_train[y_columns]
     df_y_train /= 1e9
 
-    model = nn.Sequential(
-                    nn.BatchNorm1d(len(X_columns)),
-                    nn.Linear(len(X_columns), len(X_columns)),
-                    nn.Sigmoid(),
-                    nn.Linear(len(X_columns), len(X_columns)),
-                    nn.Sigmoid(),
-                    nn.Linear(len(X_columns), len(X_columns)),
-                    nn.Sigmoid(),
-                    nn.Linear(len(X_columns), 1)
-            )
-
-    model.to(device)
-
-    learning_rate = 1e-3
-    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
-
     x_train = torch.tensor(df_x_train.to_numpy()).float()
     y_train = torch.tensor(df_y_train.to_numpy()).float()
     # TODO: test this vs sending input and target
@@ -113,82 +110,141 @@ def main():
     x_train = x_train.to(device)
     y_train = y_train.to(device)
 
-    batch_size = 1000
-    epoch_count = 5
-
-    loss_fn = nn.MSELoss()
-
     train_tensor = torch.utils.data.TensorDataset(x_train, y_train)
-    train_loader = torch.utils.data.DataLoader(dataset = train_tensor, batch_size = batch_size, shuffle = True)
+    train_loader = torch.utils.data.DataLoader(dataset = train_tensor, batch_size = BATCH_SIZE, shuffle = True)
 
-    message_interval = round((len(df_x_train)/batch_size)/5)
-    print("batch_size:{}, epoch_count:{}, learning_rate={}, message_interval={}".format(batch_size, epoch_count, learning_rate, message_interval))
-    for epoch in range(epoch_count):
-        train_loss = 0
-        for idx, (inputs, target_control) in enumerate(train_loader):
-            model.train()
-            # Clear gradient
-            optimizer.zero_grad()
-            # Get model output
-            predicted_control = model(inputs)
-            # loss calculation vs target
-            loss = loss_fn(predicted_control, target_control)
-            loss.backward()
+    df_x_test = df_test[X_columns]
+    df_y_test = df_test[y_columns]
+    df_y_test /= 1e9
 
-            # update model weights
-            optimizer.step()
-            # print statistics
-            train_loss += loss.item()
+    x_test = torch.tensor(df_x_test.to_numpy()).float()
+    y_test = torch.tensor(df_y_test.to_numpy()).float()
+    x_test = x_test.to(device)
+    y_test = y_test.to(device)
 
-            if (idx % message_interval == message_interval-1):
-                print("\te:{}, idx:{} - loss: {:.3f}".format(epoch, idx, train_loss/(message_interval)))
-                train_loss = 0.0
+    test_tensor = torch.utils.data.TensorDataset(x_test, y_test)
+    test_loader = torch.utils.data.DataLoader(dataset = test_tensor, batch_size = BATCH_SIZE, shuffle = True)
+
+    config = {
+        "width_fc" : tune.sample_from(lambda _: 2**np.random.randint(2, 7)),
+        "depth_fc" : tune.randint(2,11),
+        "lr" : tune.loguniform(1e-4, 1e-1)
+    }
+
+    scheduler = ASHAScheduler(
+        metric="accuracy",
+        mode="max",
+        max_t=EPOCH_SIZE,
+        grace_period=1,
+        reduction_factor=2)
+
+    reporter = CLIReporter(
+        metric_columns=["accuracy"])
+
+    result = tune.run(
+        tune.with_parameters(training_loop, input_size=len(X_columns), train_loader=train_loader, test_loader=test_loader),
+        #resources_per_trial={"cpu":, "gpu":},
+        config = config,
+        num_samples=TUNE_SAMPLES,
+        scheduler = scheduler,
+        progress_reporter=reporter,
+        )
+
+    best_trial = result.get_best_trial("accuracy", "max", "last")
+    print("Best config: {}".format(best_trial.config))
+    print("\taccuracy: {}".format(best_trial.last_result["accuracy"]))
+    best_model = P3Net(width_input=len(X_columns), width_fc=best_trial.config["width_fc"], depth_fc=best_trial.config["depth_fc"])
+
+    model_scripted = torch.jit.script(best_model)
+    model_scripted.save(args.output)
+    print("Model saved to {}".format(args.output))
+
+
+def training_loop(config, input_size, train_loader, test_loader):
+    model = P3Net(width_input=input_size, width_fc=config["width_fc"], depth_fc=config["depth_fc"])
+    model.to(device)
+    learning_rate = config["lr"]
+    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+
+    print("batch_size:{}, epoch_count:{}, learning_rate={}".format(BATCH_SIZE, EPOCH_SIZE, learning_rate))
+    for epoch in range(EPOCH_SIZE):
+        # TODO: We're using the test case here to help determine accuracy, as opposed to
+        #       having a separate validation case that is evaluated as part of the training
+        #       loop.  This is an implementation simplification and there may be benefit
+        #       to introducing a proper validation set and using its accuracy instead
+        train(model, optimizer, train_loader)
+        accuracy = test(model, test_loader);
+
+        # Send the current training result back to Tune
+        tune.report(accuracy=accuracy)
 
     # Inference is going to be handled on the CPU
     # using a pytorch GEOPM agent.
     model.to(torch.device('cpu'))
     model.eval()
-    model_scripted = torch.jit.script(model)
-    model_scripted.save(args.output)
-    print("Model saved to {}".format(args.output))
 
-    # Testing should be handled on GPUs if available
+def train(model, optimizer, train_loader):
     model.to(device)
     if df_test is not None:
-        print("Beginning testing")
-        df_x_test = df_test[X_columns]
-        df_y_test = df_test[y_columns]
-        df_y_test /= 1e9
+    loss_fn = nn.MSELoss()
+    for idx, (inputs, target_control) in enumerate(train_loader):
+        model.train()
+        # Clear gradient
+        optimizer.zero_grad()
+        # Get model output
+        predicted_control = model(inputs)
+        # loss calculation vs target
+        loss = loss_fn(predicted_control, target_control)
+        loss.backward()
 
-        x_test = torch.tensor(df_x_test.to_numpy()).float()
-        y_test = torch.tensor(df_y_test.to_numpy()).float()
-        x_test = x_test.to(device)
-        y_test = y_test.to(device)
+        # update model weights
+        optimizer.step()
 
-        test_tensor = torch.utils.data.TensorDataset(x_test, y_test)
-        test_loader = torch.utils.data.DataLoader(dataset = test_tensor, batch_size = batch_size, shuffle = True)
+def test(model, test_loader):
+    model.to(device)
+    if df_test is not None:
+    model.eval()
+    prediction_total = 0
+    prediction_correct = 0
+    tolerance = 0.05
+    prediction_within_tolerance = 0
+    with torch.no_grad():
+        for idx, (inputs, target_control) in enumerate(test_loader):
+            prediction_total += inputs.size(0)
 
-        prediction_correct = 0
-        prediction_total = 0
-        tolerance = 0.05
-        prediction_within_tolerance = 0
-        with torch.no_grad():
-            for idx, (inputs, target_control) in enumerate(test_loader):
-                prediction_total += inputs.size(0)
+            # Run inputs through model, save prediction
+            predicted_control = model(inputs)
+            # Round to nearest 100 MHz increment
+            predicted_control = np.round(predicted_control.cpu(),1)
+            target_control = np.round(target_control.cpu(),1)
 
-                # Run inputs through model, save prediction
-                predicted_control = model(inputs)
-                # Round to nearest 100 MHz increment
-                predicted_control = np.round(predicted_control.cpu(),1)
-                target_control = np.round(target_control.cpu(),1)
+            prediction_correct += (target_control == predicted_control).sum().item()
 
-                prediction_correct += (target_control == predicted_control).sum().item()
-                prediction_within_tolerance += ((target_control <= predicted_control + tolerance) & (target_control >= predicted_control - tolerance)).sum().item()
-        accuracy = 100*(prediction_correct/prediction_total)
-        accuracy_within_tolerance = 100*(prediction_within_tolerance/prediction_total)
-        print('Total Predictions: {}.'.format(prediction_total))
-        print('\tAccurate Prediction: {}.  Within Tolerance: {}.'.format(prediction_correct, prediction_within_tolerance))
-        print('\tAccuracy: {:.2f}%.  Accuracy within tolerance: {:.2f}%'.format(accuracy, accuracy_within_tolerance))
+    return prediction_correct/prediction_total
+
+class P3Net(nn.Module):
+    def __init__(self, width_input, width_fc, depth_fc):
+        super(P3Net, self).__init__()
+        self.depth_fc = depth_fc
+        self.norm1 = nn.BatchNorm1d(width_input)
+        self.fc1 = nn.Linear(width_input, width_fc)
+        self.fc2 = nn.Linear(width_fc, width_fc)
+        #self.fc3 = nn.Linear(width_fc, width_fc)
+        self.sigmoid = nn.Sigmoid()
+        self.linear_output = nn.Linear(width_fc, 1)
+
+    def forward(self, x):
+        x = self.norm1(x)
+        x = self.fc1(x)
+        x = self.sigmoid(x)
+        for d in range(self.depth_fc):
+            x = self.fc2(x)
+            x = self.sigmoid(x)
+        #x = self.sigmoid(x)
+        #x = self.fc3(x)
+        #x = self.sigmoid(x)
+        x = self.linear_output(x)
+        return x
 
 if __name__ == "__main__":
     main()
