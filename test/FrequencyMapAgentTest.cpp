@@ -461,7 +461,7 @@ TEST_F(FrequencyMapAgentTest, validate_policy)
 
 TEST_F(FrequencyMapAgentTest, test_hash_freq_map)
 {
-    m_agent->set_maps(
+    FrequencyMapAgent frequency_agent(
         {
             {0x000000003ddc81bf, 1.000000e+09},
             {0x00000000644f9787, 2.100000e+09},
@@ -471,7 +471,8 @@ TEST_F(FrequencyMapAgentTest, test_hash_freq_map)
             {0x00000000d691da00, 1.900000e+09},
             {0x8000000000000000, 2.100000e+09}
         },
-        {}
+        {},
+        *m_platform_io, *m_platform_topo
     );
     std::string reference_map =  "{0x000000003ddc81bf: 1.000000e+09, "
                                   "0x00000000644f9787: 2.100000e+09, "
@@ -481,7 +482,7 @@ TEST_F(FrequencyMapAgentTest, test_hash_freq_map)
                                   "0x00000000d691da00: 1.900000e+09, "
                                   "0x8000000000000000: 2.100000e+09}";
 
-    auto result = m_agent->report_host();
+    auto result = frequency_agent.report_host();
     for (auto& key_value : result) {
         key_value.second.erase(std::remove(key_value.second.begin(), key_value.second.end(), '"'), key_value.second.end());
         // std::cerr << key_value.first << " : " << key_value.second << std::endl;
@@ -492,19 +493,20 @@ TEST_F(FrequencyMapAgentTest, test_hash_freq_map)
 
 TEST_F(FrequencyMapAgentTest, test_default_freq_hash)
 {
-    m_agent->set_maps(
+    FrequencyMapAgent frequency_agent(
         {},
         {
             {0x00000000a74bbf35,
              0x00000000d691da00,
              0x8000000000000000}
-        }
+        },
+        *m_platform_io, *m_platform_topo
     );
     std::string reference_map =  "{0x00000000a74bbf35: nan, "
                                   "0x00000000d691da00: nan, "
                                   "0x8000000000000000: nan}";
 
-    auto result = m_agent->report_host();
+    auto result = frequency_agent.report_host();
     for (auto& key_value : result) {
         key_value.second.erase(std::remove(key_value.second.begin(), key_value.second.end(), '"'), key_value.second.end());
         // std::cerr << key_value.first << " : " << key_value.second << std::endl;
@@ -515,7 +517,7 @@ TEST_F(FrequencyMapAgentTest, test_default_freq_hash)
 
 TEST_F(FrequencyMapAgentTest, test_both_map_and_set)
 {
-    m_agent->set_maps(
+    FrequencyMapAgent frequency_agent(
         {
             {0x000000003ddc81bf, 1.000000e+09},
             {0x00000000644f9787, 2.100000e+09},
@@ -529,7 +531,8 @@ TEST_F(FrequencyMapAgentTest, test_both_map_and_set)
             {0x00000000644f9789,
              0x000000007b561f47,
              0x00000000d691da02}
-        }
+        },
+        *m_platform_io, *m_platform_topo
     );
     std::string reference_map =  "{0x000000003ddc81bf: 1.000000e+09, "
                                   "0x00000000644f9787: 2.100000e+09, "
@@ -542,7 +545,7 @@ TEST_F(FrequencyMapAgentTest, test_both_map_and_set)
                                   "0x00000000d691da02: nan, "
                                   "0x8000000000000000: 2.100000e+09}";
 
-    auto result = m_agent->report_host();
+    auto result = frequency_agent.report_host();
     for (auto& key_value : result) {
         key_value.second.erase(std::remove(key_value.second.begin(), key_value.second.end(), '"'), key_value.second.end());
         // std::cerr << key_value.first << " : " << key_value.second << std::endl;
@@ -553,13 +556,14 @@ TEST_F(FrequencyMapAgentTest, test_both_map_and_set)
 
 TEST_F(FrequencyMapAgentTest, test_neither_map_nor_set)
 {
-    m_agent->set_maps(
+    FrequencyMapAgent frequency_agent(
         {},
-        {}
+        {},
+        *m_platform_io, *m_platform_topo
     );
     std::string reference_map =  "{}";
 
-    auto result = m_agent->report_host();
+    auto result = frequency_agent.report_host();
     for (auto& key_value : result) {
         key_value.second.erase(std::remove(key_value.second.begin(), key_value.second.end(), '"'), key_value.second.end());
         // std::cerr << key_value.first << " : " << key_value.second << std::endl;
