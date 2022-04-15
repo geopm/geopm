@@ -33,7 +33,7 @@ def main():
     parser.add_argument('output', help='Output directory for the tensorflow model.')
     parser.add_argument('--leave-app-out',
                         help='Leave the named app out of the training set')
-    parser.add_argument('--train-hyperparams',
+    parser.add_argument('--train-hyperparams', action='store_true',
                         help='Train model hyper parameters')
     args = parser.parse_args()
 
@@ -127,7 +127,7 @@ def main():
     test_tensor = torch.utils.data.TensorDataset(x_test, y_test)
     test_loader = torch.utils.data.DataLoader(dataset = test_tensor, batch_size = BATCH_SIZE, shuffle = True)
 
-    if args.train_hyperparams is not None:
+    if args.train_hyperparams:
         config = {
             "width_fc" : tune.sample_from(lambda _: 2**np.random.randint(2, 7)),
             "depth_fc" : tune.randint(2,11),
@@ -146,7 +146,7 @@ def main():
 
         result = tune.run(
             tune.with_parameters(training_loop, input_size=len(X_columns), train_loader=train_loader, test_loader=test_loader),
-            #resources_per_trial={"cpu":, "gpu":}, #TODO: specificying CPu availability
+            #resources_per_trial={"cpu":, "gpu":}, #TODO: specifying CPU availability
             config = config,
             num_samples=TUNE_SAMPLES,
             scheduler = scheduler,
@@ -164,10 +164,15 @@ def main():
 
         print("batch_size:{}, epoch_count:{}, learning_rate={}".format(BATCH_SIZE, EPOCH_SIZE, learning_rate))
         for epoch in range(EPOCH_SIZE):
+            print("\tepoch:{}".format(epoch))
             train(best_model, optimizer, train_loader)
 
+        print("Begin Testing:")
         accuracy = test(best_model, test_loader);
-        print('\tAccuracy: {:.2f}%.'.format(accuracy))
+        print('\tAccuracy: {:.2f}%.'.format(accuracy*100))
+
+    print('Saving model (non-scripted and in training mode) as a precaution here: {}'.format(args.output + '-pre-torchscript'))
+    torch.save(best_model.state_dict(), "{}".format(args.output + '-pre-torchscript'))
 
     best_model.eval()
     model_scripted = torch.jit.script(best_model)
