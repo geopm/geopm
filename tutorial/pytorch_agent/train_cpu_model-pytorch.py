@@ -180,8 +180,10 @@ def main():
         test_tensor = torch.utils.data.TensorDataset(x_test, y_test)
         test_loader = torch.utils.data.DataLoader(dataset = test_tensor, batch_size = batch_size, shuffle = True)
 
-        prediction_correct = 0
         prediction_total = 0
+        prediction_correct = 0
+        tolerance = 0.05
+        prediction_within_tolerance = 0
         with torch.no_grad():
             for idx, (inputs, target_control) in enumerate(test_loader):
                 prediction_total += inputs.size(0)
@@ -191,9 +193,13 @@ def main():
                 # Round to nearest 100 MHz increment
                 predicted_control = np.round(predicted_control,1)
 
-                prediction_correct = (target_control == predicted_control).sum().item()
-
-        print('Total Predictions: {}.  Accurate Prediction: {}.  Accuracy: {:.2f}%'.format(prediction_total, prediction_correct, 100*(prediction_correct/prediction_total)))
+                prediction_correct += (target_control == predicted_control).sum().item()
+                prediction_within_tolerance += ((target_control <= predicted_control + tolerance) & (target_control >= predicted_control - tolerance)).sum().item()
+        accuracy = 100*(prediction_correct/prediction_total)
+        accuracy_within_tolerance = 100*(prediction_within_tolerance/prediction_total)
+        print('Total Predictions: {}.'.format(prediction_total))
+        print('\tAccurate Prediction: {}.  Within Tolerance: {}.'.format(prediction_correct, prediction_within_tolerance))
+        print('\tAccuracy: {:.2f}%.  Accuracy within tolerance: {:.2f}%'.format(accuracy, accuracy_within_tolerance))
 
 if __name__ == "__main__":
     main()
