@@ -36,6 +36,15 @@ namespace geopm
 
     }
 
+    FrequencyMapAgent::FrequencyMapAgent(const std::map<uint64_t, double>& hash_freq_map,
+                                         const std::set<uint64_t>& default_freq_hash,
+                                         PlatformIO &plat_io, const PlatformTopo &topo)
+        : FrequencyMapAgent(plat_io, topo)
+    {
+        m_hash_freq_map = hash_freq_map;
+        m_default_freq_hash = default_freq_hash;
+    }
+
     FrequencyMapAgent::FrequencyMapAgent(PlatformIO &plat_io, const PlatformTopo &topo)
         : M_PRECISION(16)
         , M_WAIT_SEC(0.002)
