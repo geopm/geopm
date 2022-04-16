@@ -5,6 +5,7 @@
 
 import torch
 from torch import nn
+import torch.utils.data as data
 from random import uniform
 import numpy as np
 import sys
@@ -19,11 +20,10 @@ from ray.tune.schedulers import ASHAScheduler
 
 from functools import partial
 
-BATCH_SIZE = 1000
 EPOCH_SIZE = 5
 DEPTH_FC_MIN = 2
 DEPTH_FC_MAX = 11
-TUNE_SAMPLES = 40
+TUNE_SAMPLES = 20
 
 def main():
     parser = argparse.ArgumentParser(
@@ -71,10 +71,8 @@ def main():
     is_missing_data = df_traces[X_columns + y_columns].isna().sum(axis=1) > 0
     df_traces = df_traces.loc[~is_missing_data]
 
-    # Assume all traces for testing to start.  This is a simplification for
-    # the hyperparameter tuning work.
-    # TODO: A full breakout of train, val, and test sets should be provided
-    df_test = df_traces
+    # Assume no test traces to start
+    df_test = None
 
     # Ignore applications that are requested to be ignored by the user. This
     # may be useful for a case where the training data includes many
@@ -89,7 +87,7 @@ def main():
             print('Error: {args.leave_app_out} not in the available training sets')
             exit(1)
         else:
-            df_test_list = []
+            df_test_list = [df_test]
             for app_config in app_config_list:
                 #If we exclude it from training we should save it for testing
                 df_test_list.append(df_traces.loc[df_traces['app-config'] == app_config])
@@ -99,6 +97,9 @@ def main():
 
             #If using leave one out only use those cases for the test case
             df_test = pd.concat(df_test_list)
+
+    train_size = int(0.8 * len(df_traces))
+    val_size = len(df_traces) - train_size
 
     df_train = df_traces
     df_x_train = df_train[X_columns]
@@ -112,40 +113,32 @@ def main():
     x_train = x_train.to(device)
     y_train = y_train.to(device)
 
-    train_tensor = torch.utils.data.TensorDataset(x_train, y_train)
-    train_loader = torch.utils.data.DataLoader(dataset = train_tensor, batch_size = BATCH_SIZE, shuffle = True)
+    train_set = torch.utils.data.TensorDataset(x_train, y_train)
+    train_set, val_set = data.random_split(train_set, [train_size, val_size])
 
-    df_x_test = df_test[X_columns]
-    df_y_test = df_test[y_columns]
-    df_y_test /= 1e9
-
-    x_test = torch.tensor(df_x_test.to_numpy()).float()
-    y_test = torch.tensor(df_y_test.to_numpy()).float()
-    x_test = x_test.to(device)
-    y_test = y_test.to(device)
-
-    test_tensor = torch.utils.data.TensorDataset(x_test, y_test)
-    test_loader = torch.utils.data.DataLoader(dataset = test_tensor, batch_size = BATCH_SIZE, shuffle = True)
+    batch_size = 1000
 
     if args.train_hyperparams:
+        #TODO: evaluate sample mechanism used for each setting
         config = {
             "width_fc" : tune.sample_from(lambda _: 2**np.random.randint(2, 7)),
             "depth_fc" : tune.randint(2,11),
+            "batch_size": tune.randint(500,3000),
             "lr" : tune.loguniform(1e-4, 1e-1)
         }
 
         scheduler = ASHAScheduler(
-            metric="accuracy",
+            metric="accuracy", #TODO: we may want to switch to using metric="loss", mode="min"
             mode="max",
             #max_t=100, #maximum time for a trial
             grace_period=1,
             reduction_factor=2)
 
         reporter = CLIReporter(
-            metric_columns=["accuracy"]) #TODO: we may want to switch to using loss from the validation set when we add it
+            metric_columns=["loss", "accuracy"])
 
         result = tune.run(
-            tune.with_parameters(training_loop, input_size=len(X_columns), train_loader=train_loader, test_loader=test_loader),
+            tune.with_parameters(training_loop, input_size=len(X_columns), train_set=train_set, val_set=val_set),
             #resources_per_trial={"cpu":, "gpu":}, #TODO: specifying CPU availability
             config = config,
             num_samples=TUNE_SAMPLES,
@@ -157,22 +150,37 @@ def main():
         print("Best config: {}".format(best_trial.config))
         print("\taccuracy: {}".format(best_trial.last_result["accuracy"]))
         best_model = P3Net(width_input=len(X_columns), width_fc=best_trial.config["width_fc"], depth_fc=best_trial.config["depth_fc"])
+        batch_size = best_trial.config['batch_size']
     else:
+        train_loader = torch.utils.data.DataLoader(dataset = train_set, batch_size = batch_size, shuffle = True)
+        val_loader = torch.utils.data.DataLoader(dataset = val_set, batch_size = batch_size, shuffle = True)
         best_model = P3Net(width_input=len(X_columns), width_fc=len(X_columns), depth_fc=2)
         learning_rate = 1e-3
         optimizer = torch.optim.Adam(best_model.parameters(), lr=learning_rate)
 
-        print("batch_size:{}, epoch_count:{}, learning_rate={}".format(BATCH_SIZE, EPOCH_SIZE, learning_rate))
+        print("batch_size:{}, epoch_count:{}, learning_rate={}".format(batch_size, EPOCH_SIZE, learning_rate))
         for epoch in range(EPOCH_SIZE):
             print("\tepoch:{}".format(epoch))
-            train(best_model, optimizer, train_loader)
-
-        print("Begin Testing:")
-        accuracy = test(best_model, test_loader);
-        print('\tAccuracy: {:.2f}%.'.format(accuracy*100))
+            train(best_model, optimizer, train_loader, val_loader)
 
     print('Saving model (non-scripted and in training mode) as a precaution here: {}'.format(args.output + '-pre-torchscript'))
     torch.save(best_model.state_dict(), "{}".format(args.output + '-pre-torchscript'))
+
+    if df_test is not None:
+        df_x_test = df_test[X_columns]
+        df_y_test = df_test[y_columns]
+        df_y_test /= 1e9
+
+        x_test = torch.tensor(df_x_test.to_numpy()).float()
+        y_test = torch.tensor(df_y_test.to_numpy()).float()
+        x_test = x_test.to(device)
+        y_test = y_test.to(device)
+
+        test_tensor = torch.utils.data.TensorDataset(x_test, y_test)
+        test_loader = torch.utils.data.DataLoader(dataset = test_tensor, batch_size = batch_size , shuffle = True)
+        print("Begin Testing:")
+        accuracy = test(best_model, test_loader);
+        print('\tAccuracy vs test set: {:.2f}%.'.format(accuracy*100))
 
     best_model.eval()
     model_scripted = torch.jit.script(best_model)
@@ -180,33 +188,35 @@ def main():
     print("Model saved to {}".format(args.output))
 
 
-def training_loop(config, input_size, train_loader, test_loader):
+def training_loop(config, input_size, train_set, val_set):
+    train_loader = torch.utils.data.DataLoader(dataset = train_set, batch_size = config['batch_size'], shuffle = True)
+    val_loader = torch.utils.data.DataLoader(dataset = val_set, batch_size = config['batch_size'], shuffle = True)
+
     model = P3Net(width_input=input_size, width_fc=config["width_fc"], depth_fc=config["depth_fc"])
-    model.to(device)
     learning_rate = config["lr"]
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
-    print("batch_size:{}, epoch_count:{}, learning_rate={}".format(BATCH_SIZE, EPOCH_SIZE, learning_rate))
     for epoch in range(EPOCH_SIZE):
-        # TODO: We're using the test case here to help determine accuracy, as opposed to
-        #       having a separate validation case that is evaluated as part of the training
-        #       loop.  This is an implementation simplification and there may be benefit
-        #       to introducing a proper validation set and using its accuracy instead
-        train(model, optimizer, train_loader)
-        accuracy = test(model, test_loader);
+        loss, accuracy = train(model, optimizer, train_loader, val_loader)
+
+        # TODO: Initially the test set was used for accuracy determination, instead of reserving
+        #       it for final testing.  This may provide better overall models, however it is likely
+        #       better in the long term to rely on a train, validation, test set separation.
+        #       This should be evaluated.  Simply not using --leave-app-out may help here.
+        #accuracy = test(model, test_loader);
 
         # Send the current training result back to Tune
-        tune.report(accuracy=accuracy)
+        tune.report(loss=loss, accuracy=accuracy)
 
     # Inference is going to be handled on the CPU
     # using a pytorch GEOPM agent.
     model.to(torch.device('cpu'))
     model.eval()
 
-def train(model, optimizer, train_loader):
+def train(model, optimizer, train_loader, val_loader):
     model.to(device)
-    if df_test is not None:
     loss_fn = nn.MSELoss()
+
     for idx, (inputs, target_control) in enumerate(train_loader):
         model.train()
         # Clear gradient
@@ -216,9 +226,29 @@ def train(model, optimizer, train_loader):
         # loss calculation vs target
         loss = loss_fn(predicted_control, target_control)
         loss.backward()
-
         # update model weights
         optimizer.step()
+
+    model.eval()
+    prediction_total = 0
+    prediction_correct = 0
+    val_loss = 0
+    val_steps = 0
+    with torch.no_grad():
+        for idx, (inputs, target_control) in enumerate(val_loader):
+            prediction_total += inputs.size(0)
+
+            # Run inputs through model, save prediction
+            predicted_control = model(inputs)
+            # Round to nearest 100 MHz increment
+            predicted_control = np.round(predicted_control,1)
+            prediction_correct += (target_control == predicted_control).sum().item()
+
+            loss = loss_fn(predicted_control, target_control)
+            val_loss += loss.numpy()
+            val_steps += 1;
+
+    return val_loss/val_steps, prediction_correct/prediction_total
 
 def test(model, test_loader):
     model.to(device)
@@ -226,8 +256,6 @@ def test(model, test_loader):
     model.eval()
     prediction_total = 0
     prediction_correct = 0
-    tolerance = 0.05
-    prediction_within_tolerance = 0
     with torch.no_grad():
         for idx, (inputs, target_control) in enumerate(test_loader):
             prediction_total += inputs.size(0)
