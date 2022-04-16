@@ -36,6 +36,7 @@ import torch.utils.data as data
 from random import uniform
 import numpy as np
 import sys
+import os
 
 import pandas as pd
 import argparse
@@ -50,7 +51,6 @@ from functools import partial
 EPOCH_SIZE = 5
 DEPTH_FC_MIN = 2
 DEPTH_FC_MAX = 11
-TUNE_SAMPLES = 20
 
 def main():
     parser = argparse.ArgumentParser(
@@ -62,6 +62,9 @@ def main():
                         help='Leave the named app out of the training set')
     parser.add_argument('--train-hyperparams', action='store_true',
                         help='Train model hyper parameters')
+    parser.add_argument('--train-hp-samples', type=int, default=20,
+                        help='Numer of hyperparameter samples (tasks to execute).  '
+                             'Only used when --train-hyperparams is specified.')
     args = parser.parse_args()
 
     df_traces = pd.read_hdf(args.input)
@@ -161,19 +164,26 @@ def main():
             tune.with_parameters(training_loop, input_size=len(X_columns), train_set=train_set, val_set=val_set),
             #resources_per_trial={"cpu":, "gpu":}, #TODO: specifying CPU availability
             config = config,
-            num_samples=TUNE_SAMPLES,
+            num_samples=args.train_hp_samples,
             scheduler = scheduler,
             progress_reporter=reporter,
+            checkpoint_at_end=True
             )
 
         best_trial = result.get_best_trial("accuracy", "max", "last")
         print("Best config: {}".format(best_trial.config))
         print("\taccuracy: {}".format(best_trial.last_result["accuracy"]))
         best_model = P3Net(width_input=len(X_columns), width_fc=best_trial.config["width_fc"], depth_fc=best_trial.config["depth_fc"])
+
+        best_checkpoint_dir = best_trial.checkpoint.value
+        model_state, optimizer_state = torch.load(os.path.join(
+            best_checkpoint_dir, "checkpoint"))
+        best_model.load_state_dict(model_state)
+
         batch_size = best_trial.config['batch_size']
     else:
-        train_loader = torch.utils.data.DataLoader(dataset = train_set, batch_size = batch_size, shuffle = True)
-        val_loader = torch.utils.data.DataLoader(dataset = val_set, batch_size = batch_size, shuffle = True)
+        train_loader = torch.utils.data.DataLoader(dataset = train_set, batch_size = batch_size, shuffle = False)
+        val_loader = torch.utils.data.DataLoader(dataset = val_set, batch_size = batch_size, shuffle = False)
         best_model = P3Net(width_input=len(X_columns), width_fc=len(X_columns), depth_fc=2)
         learning_rate = 1e-3
         optimizer = torch.optim.Adam(best_model.parameters(), lr=learning_rate)
@@ -186,6 +196,7 @@ def main():
     print('Saving model (non-scripted and in training mode) as a precaution here: {}'.format(args.output + '-pre-torchscript'))
     torch.save(best_model.state_dict(), "{}".format(args.output + '-pre-torchscript'))
 
+    best_model.eval()
     if df_test is not None:
         df_x_test = df_test[X_columns]
         df_y_test = df_test[y_columns]
@@ -194,21 +205,20 @@ def main():
         x_test = torch.tensor(df_x_test.to_numpy()).float()
         y_test = torch.tensor(df_y_test.to_numpy()).float()
 
-        test_tensor = torch.utils.data.TensorDataset(x_test, y_test)
-        test_loader = torch.utils.data.DataLoader(dataset = test_tensor, batch_size = batch_size , shuffle = True)
+        test_set = torch.utils.data.TensorDataset(x_test, y_test)
+        test_loader = torch.utils.data.DataLoader(dataset = test_set, batch_size = batch_size , shuffle = False)
+
         print("Begin Testing:")
         accuracy = test(best_model, test_loader);
         print('\tAccuracy vs test set: {:.2f}%.'.format(accuracy*100))
 
-    best_model.eval()
     model_scripted = torch.jit.script(best_model)
     model_scripted.save(args.output)
     print("Model saved to {}".format(args.output))
 
-
 def training_loop(config, input_size, train_set, val_set):
-    train_loader = torch.utils.data.DataLoader(dataset = train_set, batch_size = config['batch_size'], shuffle = True)
-    val_loader = torch.utils.data.DataLoader(dataset = val_set, batch_size = config['batch_size'], shuffle = True)
+    train_loader = torch.utils.data.DataLoader(dataset = train_set, batch_size = config['batch_size'], shuffle = False)
+    val_loader = torch.utils.data.DataLoader(dataset = val_set, batch_size = config['batch_size'], shuffle = False)
 
     model = P3Net(width_input=input_size, width_fc=config["width_fc"], depth_fc=config["depth_fc"])
     learning_rate = config["lr"]
@@ -216,17 +226,18 @@ def training_loop(config, input_size, train_set, val_set):
 
     for epoch in range(EPOCH_SIZE):
         loss, accuracy = train(model, optimizer, train_loader, val_loader)
-
         # TODO: Initially the test set was used for accuracy determination, instead of reserving
         #       it for final testing.  This may provide better overall models, however it is likely
         #       better in the long term to rely on a train, validation, test set separation.
         #       This should be evaluated.  Simply not using --leave-app-out may help here.
-        #accuracy = test(model, test_loader);
+        #test_accuracy = test(model, test_loader);
+        #print('During training loop: Accuracy vs test set: {:.2f}%.'.format(test_accuracy*100))
+        with tune.checkpoint_dir(epoch) as checkpoint_dir:
+            path = os.path.join(checkpoint_dir, "checkpoint")
+            torch.save((model.state_dict(), optimizer.state_dict()), path)
 
         # Send the current training result back to Tune
         tune.report(loss=loss, accuracy=accuracy)
-
-    model.eval()
 
 def train(model, optimizer, train_loader, val_loader):
     loss_fn = nn.MSELoss()
@@ -262,23 +273,35 @@ def train(model, optimizer, train_loader, val_loader):
             val_loss += loss.numpy()
             val_steps += 1;
 
+
     return val_loss/val_steps, prediction_correct/prediction_total
 
 def test(model, test_loader):
-    model.eval()
     prediction_total = 0
     prediction_correct = 0
+    prediction_min = 0
+    prediction_max = 0
     with torch.no_grad():
         for idx, (inputs, target_control) in enumerate(test_loader):
             prediction_total += inputs.size(0)
-
             # Run inputs through model, save prediction
             predicted_control = model(inputs)
             # Round to nearest 100 MHz increment
             predicted_control = np.round(predicted_control,1)
 
+            # Generate stats
             prediction_correct += (target_control == predicted_control).sum().item()
 
+            if (idx == 0):
+                prediction_max = predicted_control.max()
+                prediction_min = predicted_control.min()
+            else:
+                if (prediction_max < predicted_control.max()):
+                    prediction_max = predicted_control.max()
+                if (prediction_min > predicted_control.min()):
+                    prediction_min = predicted_control.min()
+
+        print('\ttest output min: {:.2f}, max: {:.2f}.'.format(prediction_min, prediction_max))
     return prediction_correct/prediction_total
 
 class P3Net(nn.Module):
@@ -287,18 +310,26 @@ class P3Net(nn.Module):
         self.depth_fc = depth_fc
         self.norm1 = nn.BatchNorm1d(width_input)
         self.fc1 = nn.Linear(width_input, width_fc)
+        # This approach doesn't work for torchscript - torch.jit.script(best_model)
+        #self.fc_list = []
+        #for d in range(self.depth_fc):
+        #    self.fc_list.append(nn.Linear(width_fc, width_fc))
         self.fc2 = nn.Linear(width_fc, width_fc)
         self.sigmoid = nn.Sigmoid()
-        self.linear_output = nn.Linear(width_fc, 1)
+        self.fc_out = nn.Linear(width_fc, 1)
 
     def forward(self, x):
         x = self.norm1(x)
         x = self.fc1(x)
         x = self.sigmoid(x)
+        # This approach doesn't work for torchscript - torch.jit.script(best_model)
+        #for d in range(self.depth_fc):
+        #    x = (self.fc_list[d])(x)
+        #    x = self.sigmoid(x)
         for d in range(self.depth_fc):
             x = self.fc2(x)
             x = self.sigmoid(x)
-        x = self.linear_output(x)
+        x = self.fc_out(x)
         return x
 
 if __name__ == "__main__":
