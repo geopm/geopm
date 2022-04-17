@@ -226,12 +226,6 @@ def training_loop(config, input_size, train_set, val_set):
 
     for epoch in range(EPOCH_SIZE):
         loss, accuracy = train(model, optimizer, train_loader, val_loader)
-        # TODO: Initially the test set was used for accuracy determination, instead of reserving
-        #       it for final testing.  This may provide better overall models, however it is likely
-        #       better in the long term to rely on a train, validation, test set separation.
-        #       This should be evaluated.  Simply not using --leave-app-out may help here.
-        #test_accuracy = test(model, test_loader);
-        #print('During training loop: Accuracy vs test set: {:.2f}%.'.format(test_accuracy*100))
         with tune.checkpoint_dir(epoch) as checkpoint_dir:
             path = os.path.join(checkpoint_dir, "checkpoint")
             torch.save((model.state_dict(), optimizer.state_dict()), path)
@@ -308,29 +302,28 @@ class P3Net(nn.Module):
     def __init__(self, width_input, width_fc, depth_fc):
         super(P3Net, self).__init__()
         self.depth_fc = depth_fc
-        self.norm1 = nn.BatchNorm1d(width_input)
-        self.fc1 = nn.Linear(width_input, width_fc)
-        # This approach doesn't work for torchscript - torch.jit.script(best_model)
-        #self.fc_list = []
-        #for d in range(self.depth_fc):
-        #    self.fc_list.append(nn.Linear(width_fc, width_fc))
-        self.fc2 = nn.Linear(width_fc, width_fc)
-        self.sigmoid = nn.Sigmoid()
-        self.fc_out = nn.Linear(width_fc, 1)
+
+        # Normalization and input layer
+        layer_list = [
+            nn.BatchNorm1d(width_input),
+            nn.Linear(width_input, width_fc),
+            nn.Sigmoid()
+            ]
+
+        # Hidden layers
+        for d in range(1, self.depth_fc):
+            layer_list.append(nn.Linear(width_fc, width_fc))
+            layer_list.append(nn.Sigmoid())
+
+        # Output layer
+        layer_list.append(nn.Linear(width_fc, 1))
+
+        self.p3Model = nn.Sequential(
+            *layer_list
+        )
 
     def forward(self, x):
-        x = self.norm1(x)
-        x = self.fc1(x)
-        x = self.sigmoid(x)
-        # This approach doesn't work for torchscript - torch.jit.script(best_model)
-        #for d in range(self.depth_fc):
-        #    x = (self.fc_list[d])(x)
-        #    x = self.sigmoid(x)
-        for d in range(self.depth_fc):
-            x = self.fc2(x)
-            x = self.sigmoid(x)
-        x = self.fc_out(x)
-        return x
+        return self.p3Model(x)
 
 if __name__ == "__main__":
     main()
