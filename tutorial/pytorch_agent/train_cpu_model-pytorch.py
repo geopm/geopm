@@ -110,7 +110,7 @@ def main():
     # how the model might generalize to unseen workloads.
     if args.leave_app_out is not None:
         app_config_list = [e for e in df_traces['app-config'].unique() if args.leave_app_out in e]
-        if app_config_list is None:
+        if len(app_config_list) == 0:
             print('Error: {args.leave_app_out} not in the available training sets')
             exit(1)
         else:
