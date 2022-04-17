@@ -65,6 +65,12 @@ def main():
     parser.add_argument('--train-hp-samples', type=int, default=20,
                         help='Numer of hyperparameter samples (tasks to execute).  '
                              'Only used when --train-hyperparams is specified.')
+    parser.add_argument('--convert-model', type=str,
+                        help='Reload the model specified and try to convert to script')
+    parser.add_argument('--width', type=int,
+                        help='Specify model width')
+    parser.add_argument('--depth', type=int,
+                        help='Specify model depth')
     args = parser.parse_args()
 
     df_traces = pd.read_hdf(args.input)
@@ -90,6 +96,12 @@ def main():
 
     #Print phi to phi-freq mapping
     print(df_traces.pivot_table('phi-freq', 'phi', 'app-config'))
+
+    if args.convert_model is not None:
+        model = P3Net(width_input=len(X_columns), width_fc=args.width, depth_fc=args.depth)
+        model.load_state_dict(torch.load(args.convert_model))
+        model_to_script(model, args.output)
+        exit(1)
 
     # Exclude rows missing data in any of the columns of interest. Otherwise,
     # NaN values propagate into every weight in the model.
@@ -162,7 +174,7 @@ def main():
 
         result = tune.run(
             tune.with_parameters(training_loop, input_size=len(X_columns), train_set=train_set, val_set=val_set),
-            #resources_per_trial={"cpu":, "gpu":}, #TODO: specifying CPU availability
+            #resources_per_trial={"cpu":, "gpu":}, #TODO: specifying CPU availability as a command line option
             config = config,
             num_samples=args.train_hp_samples,
             scheduler = scheduler,
@@ -184,7 +196,15 @@ def main():
     else:
         train_loader = torch.utils.data.DataLoader(dataset = train_set, batch_size = batch_size, shuffle = False)
         val_loader = torch.utils.data.DataLoader(dataset = val_set, batch_size = batch_size, shuffle = False)
-        best_model = P3Net(width_input=len(X_columns), width_fc=len(X_columns), depth_fc=2)
+
+        width = len(X_columns)
+        depth = 2
+        if args.width is not None:
+            width = args.width
+        if args.depth is not None:
+            depth = args.depth
+
+        best_model = P3Net(width_input=len(X_columns), width_fc=width, depth_fc=depth)
         learning_rate = 1e-3
         optimizer = torch.optim.Adam(best_model.parameters(), lr=learning_rate)
 
@@ -212,9 +232,13 @@ def main():
         accuracy = test(best_model, test_loader);
         print('\tAccuracy vs test set: {:.2f}%.'.format(accuracy*100))
 
-    model_scripted = torch.jit.script(best_model)
-    model_scripted.save(args.output)
-    print("Model saved to {}".format(args.output))
+    model_to_script(best_model, args.output)
+
+def model_to_script(model, output):
+    model.eval()
+    model_scripted = torch.jit.script(model)
+    model_scripted.save(output)
+    print("Model saved to {}".format(output))
 
 def training_loop(config, input_size, train_set, val_set):
     train_loader = torch.utils.data.DataLoader(dataset = train_set, batch_size = config['batch_size'], shuffle = False)
@@ -226,6 +250,7 @@ def training_loop(config, input_size, train_set, val_set):
 
     for epoch in range(EPOCH_SIZE):
         loss, accuracy = train(model, optimizer, train_loader, val_loader)
+
         with tune.checkpoint_dir(epoch) as checkpoint_dir:
             path = os.path.join(checkpoint_dir, "checkpoint")
             torch.save((model.state_dict(), optimizer.state_dict()), path)
