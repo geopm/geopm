@@ -124,6 +124,7 @@ namespace geopm
                          posix_signal : POSIXSignal::make_unique())
         , m_server_pid(server_pid)
         , m_is_active(true)
+        , m_is_client_attached(false)
         , m_is_client_waiting(false)
     {
 
@@ -192,6 +193,16 @@ namespace geopm
                 g_sigterm_count == 0) {
                 throw;
             }
+        }
+        if (!m_is_client_attached) {
+            if (m_signal_shmem != nullptr) {
+                m_signal_shmem->unlink();
+            }
+
+            if (m_control_shmem != nullptr) {
+                m_control_shmem->unlink();
+            }
+            m_is_client_attached = true;
         }
         return in_message;
     }
