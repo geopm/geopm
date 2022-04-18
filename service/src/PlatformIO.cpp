@@ -630,8 +630,10 @@ namespace geopm
             throw Exception("PlatformIOImp::restore_control(): Called prior to save_control()",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        for (auto &it : m_iogroup_list) {
-            it->restore_control();
+        for (auto it = m_iogroup_list.rbegin();
+             it != m_iogroup_list.rend();
+             ++it) {
+            (*it)->restore_control();
         }
     }
 
