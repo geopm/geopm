@@ -507,14 +507,13 @@ class Launcher(object):
         if is_geopmctl:
             # Need to set OMP_NUM_THREADS to 1 in the env before the run
             self.config.set_omp_num_threads(1)
-            geopm_pid = subprocess.Popen(geopm_argv, env=self.environ(),
-                                         stdout=popen_stdout, stderr=popen_stderr,
-                                         shell=True)
+            geopm_pid = subprocess.Popen(shlex.split(geopm_argv, posix=False), env=self.environ(),
+                                         stdout=popen_stdout, stderr=popen_stderr)
         if self.is_geopm_enabled:
             self.config.set_omp_num_threads(self.cpu_per_rank)
-        pid = subprocess.Popen(argv_mod, env=self.environ(),
-                               stdout=popen_stdout, stderr=popen_stderr,
-                               shell=True)
+
+        pid = subprocess.Popen(shlex.split(argv_mod, posix=False), env=self.environ(),
+                               stdout=popen_stdout, stderr=popen_stderr)
         stdout_bytes, stderr_bytes = pid.communicate()
         if subprocess.PIPE in (popen_stdout, popen_stderr):
             try:
