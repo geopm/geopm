@@ -46,8 +46,7 @@ namespace geopm
     }
 
     FrequencyMapAgent::FrequencyMapAgent(PlatformIO &plat_io, const PlatformTopo &topo)
-        : M_PRECISION(16)
-        , M_WAIT_SEC(0.002)
+        : M_WAIT_SEC(0.002)
         , m_platform_io(plat_io)
         , m_platform_topo(topo)
         , m_wait_time(time_zero())
@@ -348,31 +347,24 @@ namespace geopm
         std::vector<std::pair<std::string, std::string> > result;
 
         std::map<uint64_t, double> full_map(m_hash_freq_map);
-        std::for_each(m_default_freq_hash.begin(), m_default_freq_hash.end(), [&](uint64_t key)
-        {
-            full_map.insert({ key, m_default_freq });
-        });
+        for (const auto &region : m_default_freq_hash) {
+            full_map.insert({region, m_default_freq});
+        }
 
         std::map<std::string, Json> temp_map;
         for (const auto &region : full_map)
         {
-            // Json object(int(region.first));
-            // std::string key_string = object.dump();
-            // key_string.erase(std::remove(key_string.begin(), key_string.end(), '"'), key_string.end());
-            // temp_map[key_string] = region.second;
             std::ostringstream key_ss;
             key_ss << "0x" << std::hex << std::setfill('0') << std::setw(16) << std::fixed;
             key_ss << region.first;
-            std::ostringstream value_ss;
-            value_ss << std::setfill('\0') << std::setw(0) << std::scientific;
-            value_ss << region.second;
             std::string key_string = key_ss.str();
-            key_string.erase(std::remove(key_string.begin(), key_string.end(), '"'), key_string.end());
-            temp_map[key_string] = value_ss.str();
+            temp_map[key_string] = region.second;
         }
         Json my_json = Json(temp_map);
 
-        result.push_back(std::make_pair("Frequency map", my_json.dump()));
+        std::string frequency_map_data = my_json.dump();
+        frequency_map_data.erase(std::remove(frequency_map_data.begin(), frequency_map_data.end(), '"'), frequency_map_data.end());
+        result.push_back(std::make_pair("Frequency map", frequency_map_data));
 
         return result;
     }
