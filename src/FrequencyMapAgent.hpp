@@ -71,7 +71,6 @@ namespace geopm
                 M_NUM_POLICY = 64,
             };
 
-            const int M_PRECISION;
             const double M_WAIT_SEC;
             PlatformIO &m_platform_io;
             const PlatformTopo &m_platform_topo;
