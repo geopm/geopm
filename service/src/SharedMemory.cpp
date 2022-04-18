@@ -275,6 +275,7 @@ namespace geopm
 
         err = fchown(shm_id, uid, gid);
         if (err) {
+            (void) close(shm_id);
             std::ostringstream ex_str;
             ex_str << "SharedMemoryImp: Could not chown shmem with key (" << m_shm_key
                    << ") to UID (" << std::to_string(uid)
