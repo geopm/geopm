@@ -96,7 +96,7 @@ namespace geopm
                         int rank,
                         std::shared_ptr<SampleAggregator> sample_agg,
                         std::shared_ptr<ProcessRegionAggregator> proc_agg,
-                        const std::string &env_signal,
+                        const std::vector<std::pair<std::string, int> > &env_signal,
                         const std::string &policy_path,
                         bool do_endpoint);
             virtual ~ReporterImp() = default;
@@ -165,7 +165,7 @@ namespace geopm
             const PlatformTopo &m_platform_topo;
             std::shared_ptr<SampleAggregator> m_sample_agg;
             std::shared_ptr<ProcessRegionAggregator> m_proc_region_agg;
-            const std::string m_env_signals;
+            const std::vector<std::pair<std::string, int> > m_env_signals;
             const std::string m_policy_path;
             bool m_do_endpoint;
             int m_rank;

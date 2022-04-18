@@ -6,9 +6,11 @@
 #ifndef ENVIRONMENT_HPP_INCLUDE
 #define ENVIRONMENT_HPP_INCLUDE
 
+#include <string>
+#include <vector>
+#include <utility>
 #include <map>
 #include <set>
-#include <string>
 
 
 namespace geopm
@@ -40,8 +42,9 @@ namespace geopm
             virtual std::string profile(void) const = 0;
             virtual std::string frequency_map(void) const = 0;
             virtual std::string agent(void) const = 0;
-            virtual std::string trace_signals(void) const = 0;
-            virtual std::string report_signals(void) const = 0;
+            virtual std::vector<std::pair<std::string, int> > trace_signals(void) const = 0;
+            virtual std::vector<std::pair<std::string, int> > report_signals(void) const = 0;
+            virtual std::vector<std::pair<std::string, int> > signal_parser(std::string environment_variable_contents) const = 0;
             virtual int max_fan_out(void) const = 0;
             virtual int pmpi_ctl(void) const = 0;
             virtual bool do_policy(void) const = 0;
@@ -79,8 +82,9 @@ namespace geopm
             std::string profile(void) const override;
             std::string frequency_map(void) const override;
             std::string agent(void) const override;
-            std::string trace_signals(void) const override;
-            std::string report_signals(void) const override;
+            std::vector<std::pair<std::string, int> > trace_signals(void) const override;
+            std::vector<std::pair<std::string, int> > report_signals(void) const override;
+            std::vector<std::pair<std::string, int> > signal_parser(std::string environment_variable_contents) const override;
             int max_fan_out(void) const override;
             int pmpi_ctl(void) const override;
             bool do_policy(void) const override;
