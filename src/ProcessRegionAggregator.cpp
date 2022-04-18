@@ -7,8 +7,8 @@
 
 #include "ApplicationSampler.hpp"
 #include "geopm/Helper.hpp"
+#include "geopm/Exception.hpp"
 #include "record.hpp"
-#include "geopm_debug.hpp"
 
 namespace geopm
 {
@@ -60,11 +60,15 @@ namespace geopm
                 uint64_t region_hash = rec.signal;
                 double exit_time = rec.time;
                 auto proc = m_region_info.find(process);
-                GEOPM_DEBUG_ASSERT(proc != m_region_info.end(),
-                                   "ProcessRegionAggregator: region exit without entry");
+                if (proc == m_region_info.end()) {
+                    throw Exception("ProcessRegionAggregator: region exit without entry",
+                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                }
                 auto region = proc->second.find(region_hash);
-                GEOPM_DEBUG_ASSERT(region != proc->second.end(),
-                                   "ProcessRegionAggregator: region exit without entry");
+                if (region == proc->second.end()) {
+                    throw Exception("ProcessRegionAggregator: region exit without entry",
+                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                }
                 region->second.total_runtime += exit_time - region->second.last_entry_time;
                 region->second.total_count += 1;
             }
