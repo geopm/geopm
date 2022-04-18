@@ -121,6 +121,40 @@ namespace geopm
         return result.str();
     }
 
+    bool replace_all_substrings(std::string &source_dest,
+                                const std::string &old_substring,
+                                const std::string &new_substring)
+    {
+        size_t source_size        = source_dest.size(),
+               old_substring_size = old_substring.size(),
+               new_substring_size = new_substring.size();
+        size_t current_index = 0;
+
+        if (source_dest.empty() && old_substring.empty()) {
+            source_dest = new_substring;
+            return true;
+        } else if (!source_dest.empty() && old_substring.empty()) {
+            return false;
+        }
+
+        bool replacement_made = false;
+        while (current_index < source_size) {
+            // string::npos is defined with a value of -1,
+            // which because size_t is an unsigned integral type,
+            // it is the largest possible representable value for this type.
+            current_index = source_dest.find(old_substring, current_index);
+            if (current_index == std::string::npos) {
+                break;
+            }
+            source_dest.replace(current_index, old_substring_size, new_substring);
+            source_size = source_dest.size();
+            replacement_made = true;
+            current_index += new_substring_size;
+        }
+
+        return replacement_made;
+    }
+
     std::string hostname(void)
     {
         char hostname[NAME_MAX];

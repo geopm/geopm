@@ -62,6 +62,16 @@ namespace geopm
     std::string string_join(const std::vector<std::string> &string_list,
                             const std::string &delim);
 
+    /// @brief Finds all occurences of the old substring in a string,
+    ///        and replaces them with the new substring.
+    /// @param [in, out] source_dest The string within which to replace the substring.
+    /// @param [in] old_substring The substring to be replaced.
+    /// @param [in] new_substring The new substring to replace the old one with.
+    /// @return bool True if one or more replacements have been made.
+    bool replace_all_substrings(std::string &source_dest,
+                                const std::string &old_substring,
+                                const std::string &new_substring);
+
     /// @brief Returns the current hostname as a string.
     std::string hostname(void);
 
