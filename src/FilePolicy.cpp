@@ -73,7 +73,7 @@ namespace geopm
     {
         if (m_policy_names.size() > 0 && m_policy.size() == 0) {
             std::map<std::string, double> policy_value_map = parse_json(m_policy_path);
-            for (auto name : m_policy_names) {
+            for (const auto &name : m_policy_names) {
                 auto it = policy_value_map.find(name);
                 if (it != policy_value_map.end()) {
                     m_policy.emplace_back(policy_value_map.at(name));
