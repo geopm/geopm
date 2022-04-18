@@ -446,7 +446,7 @@ namespace geopm
         std::vector<std::pair<std::string, double> > result;
 
         // sync fields as initialized in init_sync_fields
-        for (auto &field : m_sync_fields) {
+        for (const auto &field : m_sync_fields) {
             double value = field.func(region_hash, field.supporting_signals);
             if (!std::isnan(value)) { // Remove nan fields
                 result.push_back({field.field_label, value});
@@ -534,7 +534,7 @@ namespace geopm
                                  const std::vector<std::pair<std::string, double> > &data)
     {
         std::string indent(indent_level * M_SPACES_INDENT, ' ');
-        for (auto kv: data) {
+        for (const auto &kv: data) {
             os << indent << kv.first << ": " << kv.second << std::endl;
         }
     }
