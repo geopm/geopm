@@ -59,7 +59,7 @@ namespace geopm
             m_csv = geopm::make_unique<CSVImp>(file_name, "", time_cstr, buffer_size);
 
             m_csv->add_column("timestamp", "double");
-            for (auto col : policy_names) {
+            for (const auto &col : policy_names) {
                 m_csv->add_column(col);
             }
             m_csv->activate();
