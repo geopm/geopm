@@ -144,17 +144,14 @@ namespace geopm
             throw geopm::Exception("model_parse_config(): array length mismatch",
                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-
-        if (hostname.size()) {
-            std::string this_hostname = geopm::hostname();
-            auto hostname_it = hostname.begin();
-            for (auto imbalance_it = imbalance.begin(); imbalance_it != imbalance.end(); ++imbalance_it, ++hostname_it) {
-                if (this_hostname == *hostname_it) {
-                    int err = geopm_imbalancer_frac(*imbalance_it);
-                    if (err) {
-                        throw geopm::Exception("model_parse_confg(): imbalance fraction is negative",
-                                               GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-                    }
+        int num_host = hostname.size();
+        std::string this_hostname = geopm::hostname();
+        for (int host_idx = 0; host_idx != num_host; ++host_idx) {
+            if (hostname.at(host_idx) == this_hostname) {
+                int err = geopm_imbalancer_frac(imbalance.at(host_idx));
+                if (err) {
+                    throw geopm::Exception("model_parse_confg(): imbalance fraction is negative",
+                                           GEOPM_ERROR_INVALID, __FILE__, __LINE__);
                 }
             }
         }
