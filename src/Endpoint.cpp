@@ -15,6 +15,7 @@
 #include <fstream>
 #include <thread>
 #include <chrono>
+#include <stdexcept>
 
 #include "Environment.hpp"
 #include "geopm/SharedMemory.hpp"
@@ -388,15 +389,18 @@ int geopm_endpoint_node_name(struct geopm_endpoint_c *endpoint,
                              char *node_name)
 {
     int err = 0;
-    geopm::EndpointImp *end = (geopm::EndpointImp*)endpoint;
     try {
+        geopm::EndpointImp *end = (geopm::EndpointImp*)endpoint;
         std::set<std::string> temp = end->get_hostnames();
         std::vector<std::string> hostlist{temp.begin(), temp.end()};
-        if (node_idx >= 0 && (size_t)node_idx < hostlist.size()) {
-            strncpy(node_name, hostlist[node_idx].c_str(), node_name_max);
+        try {
+            const std::string &host = hostlist.at(node_idx);
+            strncpy(node_name, host.c_str(), node_name_max - 1);
+            node_name[node_name_max - 1] = '\0';
         }
-        else {
-            err = GEOPM_ERROR_INVALID;
+        catch (const std::out_of_range& ex) {
+            throw geopm::Exception("Parameter node_idx is out of range: " + std::to_string(node_idx),
+                                   GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
     }
     catch (...) {
