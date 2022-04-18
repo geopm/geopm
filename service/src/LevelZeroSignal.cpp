@@ -6,6 +6,8 @@
 #include "config.h"
 
 #include "LevelZeroSignal.hpp"
+
+#include <cmath>
 #include "geopm/Exception.hpp"
 
 namespace geopm
@@ -16,6 +18,7 @@ namespace geopm
         , m_domain_idx(domain_idx)
         , m_scalar(scalar)
         , m_is_batch_ready(false)
+        , m_value(NAN)
     {
     }
 
