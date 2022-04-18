@@ -688,6 +688,7 @@ class ActiveSessions(object):
         self.check_client_active(client_pid, 'remove_batch_server')
         self._sessions[client_pid].pop('batch_server')
         self._update_session_file(client_pid)
+        # TODO: Unlink any shared memory files left around
 
     def _get_session_path(self, client_pid):
         """Query for the session file path for client PID
