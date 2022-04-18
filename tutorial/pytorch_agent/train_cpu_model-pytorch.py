@@ -98,10 +98,10 @@ def main():
     print(df_traces.pivot_table('phi-freq', 'phi', 'app-config'))
 
     if args.convert_model is not None:
-        model = P3Net(width_input=len(X_columns), width_fc=args.width, depth_fc=args.depth)
+        model = FFNet(width_input=len(X_columns), width_fc=args.width, depth_fc=args.depth)
         model.load_state_dict(torch.load(args.convert_model))
         model_to_script(model, args.output)
-        exit(1)
+        sys.exit(0)
 
     # Exclude rows missing data in any of the columns of interest. Otherwise,
     # NaN values propagate into every weight in the model.
@@ -124,7 +124,7 @@ def main():
         app_config_list = [e for e in df_traces['app-config'].unique() if args.leave_app_out in e]
         if len(app_config_list) == 0:
             print('Error: {args.leave_app_out} not in the available training sets')
-            exit(1)
+            sys.exit(1)
         else:
             df_test_list = [df_test]
             for app_config in app_config_list:
@@ -159,7 +159,9 @@ def main():
             "width_fc" : tune.sample_from(lambda _: 2**np.random.randint(2, 7)),
             "depth_fc" : tune.randint(2,11),
             "batch_size": tune.randint(500,3000),
-            "lr" : tune.loguniform(1e-4, 1e-1)
+            "net_type" : tune.choice(['Feed-Forward']),
+            "criterion" : tune.choice([nn.MSELoss(), nn.L1Loss()]),
+            "lr" : tune.loguniform(1e-3, 1e-3)
         }
 
         scheduler = ASHAScheduler(
@@ -184,8 +186,9 @@ def main():
 
         best_trial = result.get_best_trial("accuracy", "max", "last")
         print("Best config: {}".format(best_trial.config))
-        print("\taccuracy: {}".format(best_trial.last_result["accuracy"]))
-        best_model = P3Net(width_input=len(X_columns), width_fc=best_trial.config["width_fc"], depth_fc=best_trial.config["depth_fc"])
+        print("\tValidation Set Accuracy: {:.2f}%".format(100*best_trial.last_result["accuracy"]))
+        print("\tValidation Set Loss: {:.2f}%".format(100*best_trial.last_result["loss"]))
+        best_model = FFNet(width_input=len(X_columns), width_fc=best_trial.config["width_fc"], depth_fc=best_trial.config["depth_fc"])
 
         best_checkpoint_dir = best_trial.checkpoint.value
         model_state, optimizer_state = torch.load(os.path.join(
@@ -194,6 +197,7 @@ def main():
 
         batch_size = best_trial.config['batch_size']
     else:
+        criterion = nn.MSELoss()
         train_loader = torch.utils.data.DataLoader(dataset = train_set, batch_size = batch_size, shuffle = False)
         val_loader = torch.utils.data.DataLoader(dataset = val_set, batch_size = batch_size, shuffle = False)
 
@@ -204,14 +208,15 @@ def main():
         if args.depth is not None:
             depth = args.depth
 
-        best_model = P3Net(width_input=len(X_columns), width_fc=width, depth_fc=depth)
+        best_model = FFNet(width_input=len(X_columns), width_fc=width, depth_fc=depth)
         learning_rate = 1e-3
         optimizer = torch.optim.Adam(best_model.parameters(), lr=learning_rate)
 
         print("batch_size:{}, epoch_count:{}, learning_rate={}".format(batch_size, EPOCH_SIZE, learning_rate))
         for epoch in range(EPOCH_SIZE):
             print("\tepoch:{}".format(epoch))
-            train(best_model, optimizer, train_loader, val_loader)
+            train(best_model, optimizer, criterion, train_loader)
+            val_loss, val_accuracy, pred_min, pred_max = evaluate(best_model, val_loader, criterion);
 
     print('Saving model (non-scripted and in training mode) as a precaution here: {}'.format(args.output + '-pre-torchscript'))
     torch.save(best_model.state_dict(), "{}".format(args.output + '-pre-torchscript'))
@@ -229,8 +234,11 @@ def main():
         test_loader = torch.utils.data.DataLoader(dataset = test_set, batch_size = batch_size , shuffle = False)
 
         print("Begin Testing:")
-        accuracy = test(best_model, test_loader);
-        print('\tAccuracy vs test set: {:.2f}%.'.format(accuracy*100))
+        val_loss, val_accuracy, pred_min, pred_max = evaluate(best_model, test_loader, criterion);
+        print('\tAccuracy vs Test Set: {:.2f}%.'.format(val_accuracy*100))
+        print('\tLoss vs Test Set: {:.2f}%.'.format(val_loss*100))
+        print('\tModel Min Prediction vs Test Set: {:.2f} GHz.'.format(pred_min))
+        print('\tModel Max Prediction vs Test Set: {:.2f} GHz.'.format(pred_max))
 
     model_to_script(best_model, args.output)
 
@@ -244,23 +252,37 @@ def training_loop(config, input_size, train_set, val_set):
     train_loader = torch.utils.data.DataLoader(dataset = train_set, batch_size = config['batch_size'], shuffle = False)
     val_loader = torch.utils.data.DataLoader(dataset = val_set, batch_size = config['batch_size'], shuffle = False)
 
-    model = P3Net(width_input=input_size, width_fc=config["width_fc"], depth_fc=config["depth_fc"])
+    net_type=config['net_type']
+    if(net_type == 'Feed-Forward'):
+        model = FFNet(width_input=input_size, width_fc=config["width_fc"], depth_fc=config["depth_fc"])
+    else:
+        #TODO: Add additional NN types of interest!
+        print('Error: Invalid net type specified: {}'.format(net_type))
+        sys.exit(1)
+
+    criterion=config['criterion']
+
     learning_rate = config["lr"]
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
     for epoch in range(EPOCH_SIZE):
-        loss, accuracy = train(model, optimizer, train_loader, val_loader)
+        if(net_type == 'Feed-Forward'):
+            train(model, optimizer, criterion, train_loader)
+            # Prediction min and max aren't used here, they're for test sets
+            val_loss, val_accuracy, _, _ = evaluate(model, val_loader, criterion);
+        else:
+            #TODO: Add additional NN types of interest!
+            print('Error: Invalid net type specified: {}'.format(net_type))
+            sys.exit(1)
 
         with tune.checkpoint_dir(epoch) as checkpoint_dir:
             path = os.path.join(checkpoint_dir, "checkpoint")
             torch.save((model.state_dict(), optimizer.state_dict()), path)
 
         # Send the current training result back to Tune
-        tune.report(loss=loss, accuracy=accuracy)
+        tune.report(loss=val_loss, accuracy=val_accuracy)
 
-def train(model, optimizer, train_loader, val_loader):
-    loss_fn = nn.MSELoss()
-
+def train(model, optimizer, criterion, train_loader):
     for idx, (inputs, target_control) in enumerate(train_loader):
         model.train()
         # Clear gradient
@@ -268,38 +290,19 @@ def train(model, optimizer, train_loader, val_loader):
         # Get model output
         predicted_control = model(inputs)
         # loss calculation vs target
-        loss = loss_fn(predicted_control, target_control)
+        loss = criterion(predicted_control, target_control)
         loss.backward()
         # update model weights
         optimizer.step()
 
-    model.eval()
-    prediction_total = 0
-    prediction_correct = 0
-    val_loss = 0
-    val_steps = 0
-    with torch.no_grad():
-        for idx, (inputs, target_control) in enumerate(val_loader):
-            prediction_total += inputs.size(0)
-
-            # Run inputs through model, save prediction
-            predicted_control = model(inputs)
-            # Round to nearest 100 MHz increment
-            predicted_control = np.round(predicted_control,1)
-            prediction_correct += (target_control == predicted_control).sum().item()
-
-            loss = loss_fn(predicted_control, target_control)
-            val_loss += loss.numpy()
-            val_steps += 1;
-
-
-    return val_loss/val_steps, prediction_correct/prediction_total
-
-def test(model, test_loader):
+def evaluate(model, test_loader, criterion):
     prediction_total = 0
     prediction_correct = 0
     prediction_min = 0
     prediction_max = 0
+    val_loss = 0
+    val_steps = 0
+    model.eval()
     with torch.no_grad():
         for idx, (inputs, target_control) in enumerate(test_loader):
             prediction_total += inputs.size(0)
@@ -310,6 +313,9 @@ def test(model, test_loader):
 
             # Generate stats
             prediction_correct += (target_control == predicted_control).sum().item()
+            loss = criterion(predicted_control, target_control)
+            val_loss += loss.numpy()
+            val_steps += 1;
 
             if (idx == 0):
                 prediction_max = predicted_control.max()
@@ -320,12 +326,11 @@ def test(model, test_loader):
                 if (prediction_min > predicted_control.min()):
                     prediction_min = predicted_control.min()
 
-        print('\ttest output min: {:.2f}, max: {:.2f}.'.format(prediction_min, prediction_max))
-    return prediction_correct/prediction_total
+    return val_loss/val_steps, prediction_correct/prediction_total, prediction_min, prediction_max
 
-class P3Net(nn.Module):
+class FFNet(nn.Module):
     def __init__(self, width_input, width_fc, depth_fc):
-        super(P3Net, self).__init__()
+        super().__init__()
         self.depth_fc = depth_fc
 
         # Normalization and input layer
