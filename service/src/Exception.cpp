@@ -43,10 +43,10 @@ extern "C"
 {
     void geopm_error_message(int error_value, char *error_message, size_t message_size)
     {
-        std::string msg(geopm::ErrorMessage::get().message_last(error_value));
-        strncpy(error_message, msg.c_str(), message_size - 1);
-        if (msg.size() >= message_size) {
+        if (message_size != 0) {
+            std::string msg(geopm::ErrorMessage::get().message_last(error_value));
             error_message[message_size - 1] = '\0';
+            strncpy(error_message, msg.c_str(), message_size - 1);
         }
     }
 }
