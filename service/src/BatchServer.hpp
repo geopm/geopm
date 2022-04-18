@@ -152,6 +152,7 @@ namespace geopm
             std::shared_ptr<POSIXSignal> m_posix_signal;
             int m_server_pid;
             bool m_is_active;
+            bool m_is_client_attached;
             bool m_is_client_waiting;
             /// @brief Stores the PlatformIO batch handles for all pushed
             ///        signals
