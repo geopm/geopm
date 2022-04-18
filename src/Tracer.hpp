@@ -58,7 +58,7 @@ namespace geopm
                       bool do_trace,
                       PlatformIO &platform_io,
                       const PlatformTopo &platform_topo,
-                      const std::string &env_column);
+                      const std::vector<std::pair<std::string, int> > &env_column);
             /// @brief TracerImp destructor, virtual.
             virtual ~TracerImp() = default;
             void columns(const std::vector<std::string> &agent_cols,
@@ -84,7 +84,7 @@ namespace geopm
 
             PlatformIO &m_platform_io;
             const PlatformTopo &m_platform_topo;
-            std::string m_env_column; // extra columns from environment
+            std::vector<std::pair<std::string, int> > m_env_column; // extra columns from environment
             std::vector<int> m_column_idx; // columns sampled by TracerImp
             std::vector<double> m_last_telemetry;
             const size_t M_BUFFER_SIZE;

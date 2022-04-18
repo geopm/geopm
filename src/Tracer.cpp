@@ -42,7 +42,7 @@ namespace geopm
                          bool do_trace,
                          PlatformIO &platform_io,
                          const PlatformTopo &platform_topo,
-                         const std::string &env_column)
+                         const std::vector<std::pair<std::string, int> > &env_column)
         : m_is_trace_enabled(do_trace)
         , m_platform_io(platform_io)
         , m_platform_topo(platform_topo)
@@ -178,9 +178,8 @@ namespace geopm
     std::vector<std::string> TracerImp::env_signals(void)
     {
         std::vector<std::string> result;
-        for (const auto &extra_signal : string_split(m_env_column, ",")) {
-            std::vector<std::string> signal_domain = string_split(extra_signal, "@");
-            result.push_back(signal_domain[0]);
+        for (const auto& signal_domain_pair : m_env_column) {
+            result.push_back(signal_domain_pair.first);
         }
         return result;
     }
@@ -188,18 +187,8 @@ namespace geopm
     std::vector<int> TracerImp::env_domains(void)
     {
         std::vector<int> result;
-        for (const auto &extra_signal : string_split(m_env_column, ",")) {
-            std::vector<std::string> signal_domain = string_split(extra_signal, "@");
-            if (signal_domain.size() == 2) {
-                result.push_back(PlatformTopo::domain_name_to_type(signal_domain[1]));
-            }
-            else if (signal_domain.size() == 1) {
-                result.push_back(GEOPM_DOMAIN_BOARD);
-            }
-            else {
-                throw Exception("TracerImp::columns(): Environment trace extension contains signals with multiple \"@\" characters.",
-                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-            }
+        for (const auto& signal_domain_pair : m_env_column) {
+            result.push_back(signal_domain_pair.second);
         }
         return result;
     }

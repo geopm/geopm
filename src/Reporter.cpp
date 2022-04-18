@@ -66,7 +66,7 @@ namespace geopm
                              int rank,
                              std::shared_ptr<SampleAggregator> sample_agg,
                              std::shared_ptr<ProcessRegionAggregator> proc_agg,
-                             const std::string &env_signals,
+                             const std::vector<std::pair<std::string, int> > &env_signals,
                              const std::string &policy_path,
                              bool do_endpoint)
         : m_start_time(start_time)
@@ -419,24 +419,23 @@ namespace geopm
 
     void ReporterImp::init_environment_signals(void)
     {
-        for (const std::string &signal_name : string_split(m_env_signals, ",")) {
-            std::vector<std::string> signal_name_domain = string_split(signal_name, "@");
-            if (signal_name_domain.size() == 2) {
-                int domain_type = m_platform_topo.domain_name_to_type(signal_name_domain[1]);
-                for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(domain_type); ++domain_idx) {
-                    m_env_signal_name_idx.emplace_back(
-                        signal_name + '-' + std::to_string(domain_idx),
-                        m_sample_agg->push_signal(signal_name_domain[0], domain_type, domain_idx));
-                }
-            }
-            else if (signal_name_domain.size() == 1) {
+        for (const auto& signal_domain_pair : m_env_signals) {
+            if (signal_domain_pair.second == GEOPM_DOMAIN_BOARD) {
                 m_env_signal_name_idx.emplace_back(
-                    signal_name,
-                    m_sample_agg->push_signal(signal_name, GEOPM_DOMAIN_BOARD, 0));
-            }
-            else {
-                throw Exception("ReporterImp::init(): Environment report extension contains signals with multiple \"@\" characters.",
-                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                    signal_domain_pair.first,
+                    m_sample_agg->push_signal(signal_domain_pair.first, GEOPM_DOMAIN_BOARD, 0));
+            } else {
+                std::string full_signal_name;
+                const int& domain_type = signal_domain_pair.second;
+                const int num_domains = m_platform_topo.num_domain(domain_type);
+                for (int domain_idx = 0; domain_idx < num_domains; ++domain_idx) {
+                    full_signal_name = signal_domain_pair.first + "@" + m_platform_topo.domain_type_to_name(signal_domain_pair.second);
+                    full_signal_name += '-';
+                    full_signal_name += std::to_string(domain_idx);
+                    m_env_signal_name_idx.emplace_back(
+                        full_signal_name,
+                        m_sample_agg->push_signal(signal_domain_pair.first, domain_type, domain_idx));
+                }
             }
         }
     }

@@ -14,10 +14,12 @@
 #include <algorithm>
 #include <string>
 #include <vector>
+#include <utility>
 #include <set>
 
 #include "geopm/json11.hpp"
 
+#include "geopm/PlatformTopo.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm_prof.h"
@@ -261,14 +263,37 @@ namespace geopm
         return lookup("GEOPM_FREQUENCY_MAP");
     }
 
-    std::string EnvironmentImp::trace_signals(void) const
+    std::vector<std::pair<std::string, int> > EnvironmentImp::trace_signals(void) const
     {
-        return lookup("GEOPM_TRACE_SIGNALS");
+        return signal_parser(lookup("GEOPM_TRACE_SIGNALS"));
     }
 
-    std::string EnvironmentImp::report_signals(void) const
+    std::vector<std::pair<std::string, int> > EnvironmentImp::report_signals(void) const
     {
-        return lookup("GEOPM_REPORT_SIGNALS");
+        return signal_parser(lookup("GEOPM_REPORT_SIGNALS"));
+    }
+
+    std::vector<std::pair<std::string, int> > EnvironmentImp::signal_parser(std::string environment_variable_contents) const
+    {
+        std::vector<std::pair<std::string, int> > result_data_structure;
+
+        auto individual_signals = geopm::string_split(environment_variable_contents, ",");
+        for (const auto& signal : individual_signals) {
+            auto signal_domain = geopm::string_split(signal, "@");
+            if (signal_domain.size() == 2) {
+                result_data_structure.push_back(std::make_pair(
+                    signal_domain[0],
+                    geopm::PlatformTopo::domain_name_to_type(signal_domain[1])
+                ));
+            } else if (signal_domain.size() == 1) {
+                result_data_structure.push_back(std::make_pair(signal_domain[0], GEOPM_DOMAIN_BOARD));
+            } else{
+                throw Exception("EnvironmentImp::signal_parser(): Environment trace extension contains signals with multiple \"@\" characters.",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+        }
+
+        return result_data_structure;
     }
 
     int EnvironmentImp::max_fan_out(void) const
