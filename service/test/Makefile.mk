@@ -102,7 +102,6 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
               test/gtest_links/HelperTest.string_ends_with \
               test/gtest_links/HelperTest.string_join \
               test/gtest_links/HelperTest.string_split \
-              test/gtest_links/HelperTest.replace_all_substrings \
               test/gtest_links/HelperTest.pid_to \
               test/gtest_links/IOGroupTest.control_names_are_valid \
               test/gtest_links/IOGroupTest.controls_have_descriptions \
