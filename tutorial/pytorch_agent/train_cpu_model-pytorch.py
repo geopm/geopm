@@ -22,8 +22,6 @@ from ray.tune.schedulers import ASHAScheduler
 from functools import partial
 
 EPOCH_SIZE = 5
-DEPTH_FC_MIN = 2
-DEPTH_FC_MAX = 11
 
 def main():
     parser = argparse.ArgumentParser(
@@ -74,7 +72,7 @@ def main():
     print(df_traces.pivot_table('phi-freq', 'phi', 'app-config'))
 
     if args.convert_model is not None:
-        model = FFNet(width_input=len(X_columns), width_fc=args.width, depth_fc=args.depth)
+        model = FFNet(width_input=len(X_columns), fc_width=args.width, fc_depth=args.depth)
         model.load_state_dict(torch.load(args.convert_model))
         model_to_script(model, args.output)
         sys.exit(0)
@@ -113,6 +111,7 @@ def main():
             #If using leave one out only use those cases for the test case
             df_test = pd.concat(df_test_list)
 
+    # Setup training and validation sets
     train_size = int(0.8 * len(df_traces))
     val_size = len(df_traces) - train_size
 
@@ -132,13 +131,11 @@ def main():
     train_set = torch.utils.data.TensorDataset(x_train, y_train)
     train_set, val_set = data.random_split(train_set, [train_size, val_size])
 
-    batch_size = 1000
-
     if args.train_hyperparams:
         #TODO: evaluate sample mechanism used for each setting
         config = {
-            "width_fc" : tune.sample_from(lambda _: 2**np.random.randint(2, 7)),
-            "depth_fc" : tune.randint(2,11),
+            "fc_width" : tune.sample_from(lambda _: 2**np.random.randint(2, 7)),
+            "fc_depth" : tune.randint(2,11),
             "batch_size": tune.randint(500,3000),
             "net_type" : tune.choice(['Feed-Forward']),
             "criterion" : tune.choice([nn.MSELoss(), nn.L1Loss()]),
@@ -146,9 +143,10 @@ def main():
         }
 
         scheduler = ASHAScheduler(
-            metric="accuracy", #TODO: we may want to switch to using metric="loss", mode="min"
+            #TODO: Evaluate using metric="loss", mode="min" vs metric="accuracy", mode="max"
+            metric="accuracy",
             mode="max",
-            #max_t=100, #maximum time for a trial
+            #max_t=100, #TODO: define a maximum time for trials
             grace_period=1,
             reduction_factor=2)
 
@@ -169,7 +167,8 @@ def main():
         print("Best config: {}".format(best_trial.config))
         print("\tValidation Set Accuracy: {:.2f}%".format(100*best_trial.last_result["accuracy"]))
         print("\tValidation Set Loss: {:.2f}%".format(100*best_trial.last_result["loss"]))
-        best_model = FFNet(width_input=len(X_columns), width_fc=best_trial.config["width_fc"], depth_fc=best_trial.config["depth_fc"])
+        best_model = FFNet(width_input=len(X_columns), fc_width=best_trial.config["fc_width"], fc_depth=best_trial.config["fc_depth"])
+        criterion = best_trial.config['criterion']
 
         best_checkpoint_dir = best_trial.checkpoint.value
         model_state, optimizer_state = torch.load(os.path.join(
@@ -178,7 +177,11 @@ def main():
 
         batch_size = best_trial.config['batch_size']
     else:
+        # Default case
+        batch_size = 1000
+        learning_rate = 1e-3
         criterion = nn.MSELoss()
+
         train_loader = torch.utils.data.DataLoader(dataset = train_set, batch_size = batch_size, shuffle = False)
         val_loader = torch.utils.data.DataLoader(dataset = val_set, batch_size = batch_size, shuffle = False)
 
@@ -189,8 +192,7 @@ def main():
         if args.depth is not None:
             depth = args.depth
 
-        best_model = FFNet(width_input=len(X_columns), width_fc=width, depth_fc=depth)
-        learning_rate = 1e-3
+        best_model = FFNet(width_input=len(X_columns), fc_width=width, fc_depth=depth)
         optimizer = torch.optim.Adam(best_model.parameters(), lr=learning_rate)
 
         print("batch_size:{}, epoch_count:{}, learning_rate={}".format(batch_size, EPOCH_SIZE, learning_rate))
@@ -223,7 +225,15 @@ def main():
         print('\tModel Min Prediction vs Test Set: {:.2f} GHz.'.format(pred_min))
         print('\tModel Max Prediction vs Test Set: {:.2f} GHz.'.format(pred_max))
 
-    model_to_script(best_model, args.output)
+    for retry in range(3):
+        try:
+            model_to_script(best_model, args.output)
+            break
+        except Exception as e:
+            print("Exception on convertion to torch.jit.script")
+            print("{}".format(e))
+            print("Retrying {}/3".format(retry+1))
+
 
 def model_to_script(model, output):
     model.eval()
@@ -237,7 +247,7 @@ def training_loop(config, input_size, train_set, val_set):
 
     net_type=config['net_type']
     if(net_type == 'Feed-Forward'):
-        model = FFNet(width_input=input_size, width_fc=config["width_fc"], depth_fc=config["depth_fc"])
+        model = FFNet(width_input=input_size, fc_width=config["fc_width"], fc_depth=config["fc_depth"])
         model.to(device)
     else:
         #TODO: Add additional NN types of interest!
@@ -314,24 +324,24 @@ def evaluate(model, test_loader, criterion):
     return val_loss/val_steps, prediction_correct/prediction_total, prediction_min, prediction_max
 
 class FFNet(nn.Module):
-    def __init__(self, width_input, width_fc, depth_fc):
-        super().__init__()
-        self.depth_fc = depth_fc
+    def __init__(self, width_input, fc_width, fc_depth):
+        super(FFNet, self).__init__()
+        self.fc_depth = fc_depth
 
         # Normalization and input layer
         layer_list = [
             nn.BatchNorm1d(width_input),
-            nn.Linear(width_input, width_fc),
+            nn.Linear(width_input, fc_width),
             nn.Sigmoid()
             ]
 
         # Hidden layers
-        for d in range(1, self.depth_fc):
-            layer_list.append(nn.Linear(width_fc, width_fc))
+        for d in range(1, self.fc_depth):
+            layer_list.append(nn.Linear(fc_width, fc_width))
             layer_list.append(nn.Sigmoid())
 
         # Output layer
-        layer_list.append(nn.Linear(width_fc, 1))
+        layer_list.append(nn.Linear(fc_width, 1))
 
         self.p3Model = nn.Sequential(
             *layer_list
