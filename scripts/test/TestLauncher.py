@@ -90,6 +90,8 @@ class TestLauncher(unittest.TestCase):
 
         if srun_kwargs.get('shell', False):
             srun_args = shlex.split(srun_args[0])
+        else:
+            srun_args = srun_args[0]
 
         self.assertIn('-N', srun_args)
         self.assertEqual('1', srun_args[srun_args.index('-N') + 1])
@@ -125,6 +127,8 @@ class TestLauncher(unittest.TestCase):
 
         if srun_kwargs.get('shell', False):
             srun_args = shlex.split(srun_args[0])
+        else:
+            srun_args = srun_args[0]
 
         self.assertIn('-N', srun_args)
         self.assertEqual('2', srun_args[srun_args.index('-N') + 1])
@@ -145,6 +149,7 @@ class TestLauncher(unittest.TestCase):
         # [0][0] gets the first positional arg to Popen(), which is a string
         # containing the entire srun command
         srun_popen_args = mock_popen.call_args[0][0]
+        srun_popen_args = ' '.join(srun_popen_args)
 
         # GEOPM modified some of the launcher's args. Just make sure the
         # launched command matches.
