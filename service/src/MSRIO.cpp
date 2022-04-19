@@ -275,19 +275,23 @@ namespace geopm
         }
         GEOPM_DEBUG_ASSERT(m_write_batch.numops == m_write_batch_op.size() &&
                            m_write_batch.ops == m_write_batch_op.data(),
-                           "Batch operations not updated prior to calling MSRIOImp::msr_ioctl_write()");
+                           "MSRIOImp::msr_ioctl_write(): Batch operations not updated prior to calling");
+        if (m_write_val.size() != m_write_batch.numops ||
+            m_write_mask.size() != m_write_batch.numops ||
+            m_write_batch_op.size() != m_write_batch.numops) {
+            throw Exception("MSRIOImp::msr_ioctl_write(): Invalid operations stored in object, incorrectly sized",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
         msr_ioctl(m_write_batch);
         // Modify with write mask
-        auto val_it = m_write_val.begin();
-        auto mask_it = m_write_mask.begin();
+        int op_idx = 0;
         for (auto &op_it : m_write_batch_op) {
             op_it.isrdmsr = 0;
-            op_it.msrdata &= ~*mask_it;
-            op_it.msrdata |= *val_it;
-            GEOPM_DEBUG_ASSERT((~op_it.wmask & *mask_it) == 0ULL,
-                               "Write mask violation at write time");
-            ++val_it;
-            ++mask_it;
+            op_it.msrdata &= ~m_write_mask[op_idx];
+            op_it.msrdata |= m_write_val[op_idx];
+            GEOPM_DEBUG_ASSERT((~op_it.wmask & m_write_mask[op_idx]) == 0ULL,
+                               "MSRIOImp::msr_ioctl_write(): Write mask violation at write time");
+            ++op_idx;
         }
         msr_ioctl(m_write_batch);
         for (auto &op_it : m_write_batch_op) {
