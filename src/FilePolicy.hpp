@@ -17,6 +17,7 @@ namespace geopm
         public:
             FilePolicy() = delete;
             FilePolicy(const FilePolicy &other) = delete;
+            FilePolicy &operator=(const FilePolicy &other) = delete;
             FilePolicy(const std::string &policy_path,
                        const std::vector<std::string> &policy_names);
             virtual ~FilePolicy() = default;
