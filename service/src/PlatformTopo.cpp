@@ -19,6 +19,7 @@
 
 #include "geopm_sched.h"
 #include "geopm/Exception.hpp"
+#include "geopm/Helper.hpp"
 #include "AcceleratorTopo.hpp"
 
 #include "config.h"
@@ -57,7 +58,8 @@ int geopm_read_cpuid(void)
 
 namespace geopm
 {
-    const std::string PlatformTopoImp::M_CACHE_FILE_NAME = "/tmp/geopm-topo-cache";
+    const std::string PlatformTopoImp::M_CACHE_FILE_NAME = "/tmp/geopm-topo-cache-" + std::to_string(getuid());
+    const std::string PlatformTopoImp::M_SERVICE_CACHE_FILE_NAME = "/run/geopm-service/geopm-topo-cache";
 
     const PlatformTopo &platform_topo(void)
     {
@@ -418,9 +420,19 @@ namespace geopm
         PlatformTopoImp::create_cache();
     }
 
+    void PlatformTopo::create_cache_service(void)
+    {
+        PlatformTopoImp::create_cache_service();
+    }
+
     void PlatformTopoImp::create_cache(void)
     {
         PlatformTopoImp::create_cache(M_CACHE_FILE_NAME);
+    }
+
+    void PlatformTopoImp::create_cache_service(void)
+    {
+        PlatformTopoImp::create_cache(M_SERVICE_CACHE_FILE_NAME);
     }
 
     void PlatformTopoImp::create_cache(const std::string &cache_file_name)
@@ -430,7 +442,7 @@ namespace geopm
         if (stat(cache_file_name.c_str(), &cache_stat)) {
             std::string cmd = "out=" + cache_file_name + ";"
                               "lscpu -x > $out && "
-                              "chmod a+rw $out";
+                              "chmod 644 $out";
             FILE *pid;
             int err = geopm_sched_popen(cmd.c_str(), &pid);
             if (err) {
@@ -544,77 +556,57 @@ namespace geopm
         }
     }
 
-    FILE *PlatformTopoImp::open_lscpu(void)
+    std::string PlatformTopoImp::read_lscpu(void)
     {
-        FILE *result = nullptr;
+        std::string result;
+        // TODO
+        // 1. Determine cache file name.  One of: TEST_CACHE, SERVICE_CACHE, or CACHE
+        // 2. Determine age of cache file.
+        // 3. Compare against uptime.
+        // 4. If file is old, regenerate.
+
         if (M_TEST_CACHE_FILE_NAME.size()) {
-            result = fopen(M_TEST_CACHE_FILE_NAME.c_str(), "r");
-            if (!result) {
-                throw Exception("PlatformTopoImp::open_lscpu(): Could not open test lscpu file",
-                                errno ? errno : GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
-            }
+            result = geopm::read_file(M_TEST_CACHE_FILE_NAME);
         }
         else {
-            result = fopen(M_CACHE_FILE_NAME.c_str(), "r");
-            if (!result) {
-                int err = geopm_sched_popen("lscpu -x", &result);
-                if (err) {
-                    throw Exception("PlatformTopoImp::open_lscpu(): Could not popen lscpu command",
-                                    errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            try {
+                result = geopm::read_file(M_SERVICE_CACHE_FILE_NAME);
+            }
+            catch (const geopm::Exception &ex) {
+                try {
+                    result = geopm::read_file(M_CACHE_FILE_NAME);
                 }
-                m_do_fclose = false;
+                catch (const geopm::Exception &ex) {
+                    create_cache(M_CACHE_FILE_NAME);
+                    result = geopm::read_file(M_CACHE_FILE_NAME);
+                }
             }
         }
         return result;
     }
 
-    void PlatformTopoImp::close_lscpu(FILE *fid)
-    {
-        if (m_do_fclose) {
-            int err = fclose(fid);
-            if (err) {
-                throw Exception("PlatformTopoImp::close_lscpu(): Could not fclose lscpu file",
-                                errno ? errno : GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
-            }
-        }
-        else {
-            int err = pclose(fid);
-            if (err) {
-                throw Exception("PlatformTopoImp::close_lscpu(): Could not pclose lscpu file",
-                                errno ? errno : GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
-            }
-        }
-    }
-
     void PlatformTopoImp::lscpu(std::map<std::string, std::string> &lscpu_map)
     {
-        std::string result;
-
-        FILE *fid = open_lscpu();
+        std::string lscpu_contents = read_lscpu();
+        std::istringstream lscpu_stream (lscpu_contents);
 
         std::string line;
-        while (!feof(fid)) {
-            char cline[1024] = {};
-            if (fgets(cline, 1024, fid)) {
-                line = cline;
-                size_t colon_pos = line.find(":");
-                if (colon_pos != std::string::npos) {
-                    std::string key(line.substr(0, colon_pos));
-                    std::string value(line.substr(colon_pos + 1));
-                    size_t ws_pos = value.find_first_not_of(" \t");
-                    if (ws_pos &&
-                        ws_pos < value.size() - 1 &&
-                        ws_pos != std::string::npos) {
-                        // Trim leading white space and '\n' from end of line
-                        value = value.substr(ws_pos, value.size() - ws_pos - 1);
-                    }
-                    if (key.size()) {
-                        lscpu_map.emplace(key, value);
-                    }
+        while (std::getline(lscpu_stream, line)) {
+            size_t colon_pos = line.find(":");
+            if (colon_pos != std::string::npos) {
+                std::string key(line.substr(0, colon_pos));
+                std::string value(line.substr(colon_pos + 1));
+                size_t data_pos = value.find_first_not_of(" \t");
+                if (data_pos &&
+                    data_pos != std::string::npos) {
+                    // Trim leading white space
+                    value = value.substr(data_pos);
+                }
+                if (key.size()) {
+                    lscpu_map.emplace(key, value);
                 }
             }
         }
-        close_lscpu(fid);
     }
 }
 
@@ -734,6 +726,19 @@ extern "C"
         int err = 0;
         try {
             geopm::PlatformTopo::create_cache();
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+            err = err < 0 ? err : GEOPM_ERROR_RUNTIME;
+        }
+        return err;
+    }
+
+    int geopm_topo_create_cache_service(void)
+    {
+        int err = 0;
+        try {
+            geopm::PlatformTopo::create_cache_service();
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());

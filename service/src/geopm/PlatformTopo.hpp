@@ -78,6 +78,7 @@ namespace geopm
             /// @brief Create cache file in tmpfs that can be read
             ///        instead of popen() call.
             static void create_cache(void);
+            static void create_cache_service(void);
         private:
             static std::vector<std::string> domain_names(void);
             static std::map<std::string, int> domain_types(void);
