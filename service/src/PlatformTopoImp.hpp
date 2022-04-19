@@ -26,9 +26,11 @@ namespace geopm
             bool is_nested_domain(int inner_domain, int outer_domain) const override;
             std::set<int> domain_nested(int inner_domain, int outer_domain, int outer_idx) const override;
             static void create_cache();
+            static void create_cache_service();
             static void create_cache(const std::string &cache_file_name);
         private:
             static const std::string M_CACHE_FILE_NAME;
+            static const std::string M_SERVICE_CACHE_FILE_NAME;
             /// @brief Get the set of Linux logical CPUs associated
             ///        with the indexed domain.
             std::set<int> domain_cpus(int domain_type,
@@ -41,8 +43,7 @@ namespace geopm
                              int &thread_per_core);
             void parse_lscpu_numa(std::map<std::string, std::string> lscpu_map,
                                   std::vector<std::set<int> > &numa_map);
-            FILE *open_lscpu(void);
-            void close_lscpu(FILE *fid);
+            std::string read_lscpu(void);
 
             const std::string M_TEST_CACHE_FILE_NAME;
             bool m_do_fclose;
