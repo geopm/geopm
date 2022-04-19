@@ -15,6 +15,7 @@
 #include <map>
 #include <sstream>
 #include <string>
+#include <stdexcept>
 
 #include "geopm_sched.h"
 #include "geopm/Exception.hpp"
@@ -475,11 +476,16 @@ namespace geopm
                                 GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
         }
-        num_package = atoi(values[3].c_str());
-        int num_core = atoi(values[2].c_str()) * num_package;
-        core_per_package = num_core / num_package;
-        thread_per_core = atoi(values[1].c_str());
-
+        try {
+            num_package = std::stoi(values[3].c_str());
+            int num_core = std::stoi(values[2].c_str()) * num_package;
+            core_per_package = num_core / num_package;
+            thread_per_core = std::stoi(values[1].c_str());
+        }
+        catch (const std::invalid_argument &ex) {
+            throw Exception("PlatformTopoImp: Unable to convert strings to numbers when parsing lscpu output: " + std::string(ex.what()),
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
         int total_cores_expected_online = num_package * core_per_package * thread_per_core;
         if (total_cores_expected_online != atoi(values[0].c_str())) {
             // Check how many CPUs are actually online
