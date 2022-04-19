@@ -42,6 +42,7 @@ namespace geopm
     {
         public:
             EndpointUserImp() = delete;
+            EndpointUserImp &operator=(const EndpointUserImp &other) = delete;
             EndpointUserImp(const EndpointUserImp &other) = delete;
             EndpointUserImp(const std::string &data_path,
                               const std::set<std::string> &hosts);
