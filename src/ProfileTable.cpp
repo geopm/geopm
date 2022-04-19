@@ -91,8 +91,12 @@ namespace geopm
         if (!is_inserted) {
             // check for overflow
             if (m_table->curr_size >= m_table->max_size) {
-                (void) pthread_mutex_unlock(&(m_table->lock));
-                throw Exception("ProfileTableImp::insert(): table overflowed.",
+                err = pthread_mutex_unlock(&(m_table->lock));
+                std::string err_msg = "ProfileTableImp::insert(): table overflowed";
+                if (err != 0) {
+                    err_msg += ", when throwing exception, failed pthread_mutex_unlock()";
+                }
+                throw Exception(err_msg,
                                 GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
 
