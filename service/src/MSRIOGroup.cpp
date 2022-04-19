@@ -226,6 +226,11 @@ namespace geopm
     {
         std::string max_name = "MSR::TEMPERATURE_TARGET:PROCHOT_MIN";
         auto max_it = m_signal_available.find(max_name);
+        if (max_it == m_signal_available.end()) {
+            throw Exception("MSRIOGroup::register_temperature_signals(): " +
+                            max_name + " not found",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
         int max_domain = max_it->second.domain;
         // mapping of high-level signal name to description and
         // underlying digital readout MSR
