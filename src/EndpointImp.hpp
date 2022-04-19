@@ -66,6 +66,7 @@ namespace geopm
         public:
             EndpointImp() = delete;
             EndpointImp(const EndpointImp &other) = delete;
+            Endpoint &operator=(const EndpointImp &other) = delete;
 
             EndpointImp(const std::string &data_path);
             EndpointImp(const std::string &data_path,
