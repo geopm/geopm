@@ -759,25 +759,27 @@ extern "C" {
     }
 
     static int geopm_pio_name_set_idx(int name_idx, size_t result_max,
-                                      const std::set<std::string> name_set, char *result)
+                                      const std::set<std::string> &name_set, char *result)
     {
-        int err = 0;
-        if (name_idx >= 0 &&
-            (size_t)name_idx < name_set.size() &&
-            result_max > 0) {
-            auto ns_it = name_set.begin();
-            for (int name_count = 0; name_count < name_idx; ++name_count) {
-                ++ns_it;
-            }
-            result[result_max - 1] = '\0';
-            strncpy(result, ns_it->c_str(), result_max );
-            if (result[result_max - 1] != '\0') {
-                err = GEOPM_ERROR_INVALID;
-                result[result_max - 1] = '\0';
-            }
+        // Check user inputs
+        if (name_idx < 0 ||
+            (size_t)name_idx >= name_set.size() ||
+            result_max == 0) {
+            return GEOPM_ERROR_INVALID;
         }
-        else {
-            err = GEOPM_ERROR_INVALID;
+        int err = 0;
+        int name_count = 0;
+        for (const auto &ns_it : name_set) {
+            if (name_count == name_idx) {
+                result[result_max - 1] = '\0';
+                strncpy(result, ns_it.c_str(), result_max);
+                if (result[result_max - 1] != '\0') {
+                    err = GEOPM_ERROR_INVALID;
+                    result[result_max - 1] = '\0';
+                }
+                break;
+            }
+            ++name_count;
         }
         return err;
     }
