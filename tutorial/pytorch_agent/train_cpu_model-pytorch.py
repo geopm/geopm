@@ -100,7 +100,7 @@ def main():
             print('Error: {args.leave_app_out} not in the available training sets')
             sys.exit(1)
         else:
-            df_test_list = [df_test]
+            df_test_list = []
             for app_config in app_config_list:
                 #If we exclude it from training we should save it for testing
                 df_test_list.append(df_traces.loc[df_traces['app-config'] == app_config])
@@ -111,35 +111,17 @@ def main():
             #If using leave one out only use those cases for the test case
             df_test = pd.concat(df_test_list)
 
-    # Setup training and validation sets
-    train_size = int(0.8 * len(df_traces))
-    val_size = len(df_traces) - train_size
-
-    df_train = df_traces
-    df_x_train = df_train[X_columns]
-    df_y_train = df_train[y_columns]
-    df_y_train /= 1e9
-
-    x_train = torch.tensor(df_x_train.to_numpy()).float()
-    y_train = torch.tensor(df_y_train.to_numpy()).float()
-
-    # TODO: test this vs sending input and target
-    #       this might be more performant overall, or easier
-    x_train = x_train.to(device)
-    y_train = y_train.to(device)
-
-    train_set = torch.utils.data.TensorDataset(x_train, y_train)
-    train_set, val_set = data.random_split(train_set, [train_size, val_size])
+    train_set, val_set = data_prep(df_traces, X_columns, y_columns)
 
     if args.train_hyperparams:
         #TODO: evaluate sample mechanism used for each setting
         config = {
             "fc_width" : tune.sample_from(lambda _: 2**np.random.randint(2, 7)),
-            "fc_depth" : tune.randint(2,11),
-            "batch_size": tune.randint(500,3000),
+            "fc_depth" : tune.randint(2,11), #TODO: move to a power of 2, per raytune FAQ recommendations
+            "batch_size": tune.randint(500,3000), #TODO: move to a power of 2, per raytune FAQ recommendations
             "net_type" : tune.choice(['Feed-Forward']),
             "criterion" : tune.choice([nn.MSELoss(), nn.L1Loss()]),
-            "lr" : tune.loguniform(1e-3, 1e-3)
+            "lr" : tune.loguniform(1e-3, 1e-3) #TODO: move to 1e-5 to 1e-1 range, per raytune FAQ recommendations
         }
 
         scheduler = ASHAScheduler(
@@ -240,6 +222,26 @@ def model_to_script(model, output):
     model_scripted = torch.jit.script(model)
     model_scripted.save(output)
     print("Model saved to {}".format(output))
+
+def data_prep(input_trace, input_names, output_name):
+    # Setup training and validation sets
+    train_size = int(0.8 * len(input_trace))
+    val_size = len(input_trace) - train_size
+
+    df_train = input_trace
+    df_x_train = df_train[input_names]
+    df_y_train = df_train[output_name]
+    df_y_train /= 1e9
+
+    x_train = torch.tensor(df_x_train.to_numpy()).float()
+    y_train = torch.tensor(df_y_train.to_numpy()).float()
+    x_train = x_train.to(device)
+    y_train = y_train.to(device)
+
+    train_set = torch.utils.data.TensorDataset(x_train, y_train)
+    train_set, val_set = data.random_split(train_set, [train_size, val_size])
+
+    return train_set, val_set
 
 def training_loop(config, input_size, train_set, val_set):
     train_loader = torch.utils.data.DataLoader(dataset = train_set, batch_size = config['batch_size'], shuffle = False)
