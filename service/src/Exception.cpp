@@ -103,6 +103,12 @@ namespace geopm
 
     }
 
+    Exception &Exception::operator=(const Exception &other)
+    {
+        m_err = other.m_err;
+        return *this;
+    }
+
     Exception::Exception(const std::string &what, int err, const char *file, int line)
         : std::runtime_error(ErrorMessage::get().message_fixed(err) + (
                                  what.size() != 0 ? (std::string(": ") + what) : std::string("")) + (

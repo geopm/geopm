@@ -51,6 +51,7 @@ namespace geopm
             /// GEOPM_ERROR_RUNTIME (-1) is used for the error code.
             Exception();
             Exception(const Exception &other);
+            Exception &operator=(const Exception &other);
             /// @brief Message, error number, file and line
             ///        constructor.
             ///
