@@ -2,11 +2,10 @@
  * Copyright (c) 2015 - 2022, Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
-
-#include "geopm/SharedMemoryScopedLock.hpp"
-
-#include "geopm/Exception.hpp"
 #include "config.h"
+#include "geopm/SharedMemoryScopedLock.hpp"
+#include <iostream>
+#include "geopm/Exception.hpp"
 
 namespace geopm
 {
@@ -25,6 +24,12 @@ namespace geopm
 
     SharedMemoryScopedLock::~SharedMemoryScopedLock()
     {
-        pthread_mutex_unlock(m_mutex);
+        int err = pthread_mutex_unlock(m_mutex);
+        if (err != 0) {
+#ifdef GEOPM_DEBUG
+            std::cerr << "Warning: <geopm> pthread_mutex_unlock() failed with error: "
+                      << geopm::error_message(err) << std::endl;
+#endif
+        }
     }
 }

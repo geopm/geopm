@@ -135,8 +135,13 @@ namespace geopm
                 throw Exception("ProfileTableImp::key(): pthread_mutex_lock()", err, __FILE__, __LINE__);
             }
             if (m_key_set.find(result) != m_key_set.end()) {
-                pthread_mutex_unlock(&(m_key_map_lock));
-                throw Exception("ProfileTableImp::key(): String hash collision", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                std::string err_msg = "ProfileTableImp::key(): String hash collision";
+                err = pthread_mutex_unlock(&(m_key_map_lock));
+                if (err != 0) {
+                    err_msg += ": pthread_mutex_unlock() also failed with error: "
+                               + geopm::error_message(err);
+                }
+                throw Exception(err_msg, GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
             m_key_set.insert(result);
             m_key_map.insert(std::pair<const std::string, uint64_t>(name, result));
