@@ -105,6 +105,7 @@ namespace geopm
 
     Exception &Exception::operator=(const Exception &other)
     {
+        std::runtime_error::operator=(other);
         m_err = other.m_err;
         return *this;
     }
