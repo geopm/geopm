@@ -21,6 +21,7 @@ namespace geopm
         public:
             SharedMemory() = default;
             SharedMemory(const SharedMemory &other) = default;
+            SharedMemory &operator=(const SharedMemory &other) = default;
             virtual ~SharedMemory() = default;
             /// @brief Retrieve a pointer to the shared memory region.
             ///

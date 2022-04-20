@@ -114,6 +114,7 @@ namespace geopm
         public:
             Profile() = default;
             Profile(const Profile &other) = default;
+            Profile &operator=(const Profile &other) = default;
             virtual ~Profile() = default;
             static Profile &default_profile(void);
 
