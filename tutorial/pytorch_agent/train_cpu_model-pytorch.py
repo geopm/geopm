@@ -145,6 +145,7 @@ def main():
     train_set, val_set = data_prep(df_traces, X_columns, y_columns)
 
     seq_length = None
+    net_type = None
     if args.train_hyperparams:
         #TODO: evaluate sample mechanism used for each setting
         config = {
@@ -226,6 +227,7 @@ def main():
         learning_rate = 1e-3
         criterion = nn.MSELoss()
         seq_length = None
+        net_type = "FF"
 
         train_loader = torch.utils.data.DataLoader(dataset = train_set, batch_size = batch_size, shuffle = False)
         val_loader = torch.utils.data.DataLoader(dataset = val_set, batch_size = batch_size, shuffle = False)
@@ -269,7 +271,10 @@ def main():
         print('\tModel Min Prediction vs Test Set: {:.2f} GHz.'.format(pred_min))
         print('\tModel Max Prediction vs Test Set: {:.2f} GHz.'.format(pred_max))
 
-    model_to_script(best_model, args.output)
+    # Our libtorch C++ implementation only supports FF nets currently
+    if (net_type == "FF"):
+        model_to_script(best_model, args.output)
+
 
 def model_to_script(model, output):
     model.eval()
@@ -309,7 +314,6 @@ def training_loop(config, input_size, train_set, val_set):
         assert(config['batch_size'] % config['seq_length'] == 0), "LSTM batch size must be divisibly by sequence length"
         model = RecNet(width_input=input_size, hidden_dim=config["layer_width"], layer_count=config["layer_count"])
     else:
-        #TODO: Add additional NN types of interest!
         print('Error: Invalid net type specified: {}'.format(net_type))
         sys.exit(1)
 
