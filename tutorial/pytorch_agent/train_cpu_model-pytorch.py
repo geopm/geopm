@@ -10,6 +10,7 @@ from random import uniform
 import numpy as np
 import sys
 import os
+import math
 
 import pandas as pd
 import argparse
@@ -37,11 +38,17 @@ def main():
                         help='Numer of hyperparameter samples (tasks to execute).  '
                              'Only used when --train-hyperparams is specified.')
     parser.add_argument('--convert-model', type=str,
-                        help='Reload the model specified and try to convert to script')
-    parser.add_argument('--width', type=int,
-                        help='Specify model width')
-    parser.add_argument('--depth', type=int,
-                        help='Specify model depth')
+                        help='Reload the model specified and try to convert to script.')
+    parser.add_argument('--layer-width', type=int,
+                        help='Specify model layer width (hidden dimensions for LSTM or RNN).')
+    parser.add_argument('--layer-count', type=int,
+                        help='Specify model layer count')
+    parser.add_argument('--net-types', nargs='+', default=['FF'], type=str,
+                        choices=['FF', 'LSTM', 'RNN'],
+                        help='Space seperated list of NN to train against.')
+    parser.add_argument('--scheduler-metric', default='accuracy', type=str,
+                        choices=['loss', 'accuracy'],
+                        help='Specify scheduler metric.')
     args = parser.parse_args()
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -72,7 +79,7 @@ def main():
     print(df_traces.pivot_table('phi-freq', 'phi', 'app-config'))
 
     if args.convert_model is not None:
-        model = FFNet(width_input=len(X_columns), fc_width=args.width, fc_depth=args.depth)
+        model = FFNet(width_input=len(X_columns), layer_width=args.layer_width, layer_count=args.layer_count)
         model.load_state_dict(torch.load(args.convert_model))
         model_to_script(model, args.output)
         sys.exit(0)
@@ -113,14 +120,22 @@ def main():
 
     train_set, val_set = data_prep(df_traces, X_columns, y_columns)
 
+    seq_length = None
     if args.train_hyperparams:
         #TODO: evaluate sample mechanism used for each setting
         config = {
-            "fc_width" : tune.sample_from(lambda _: 2**np.random.randint(2, 7)),
-            "fc_depth" : tune.randint(2,11), #TODO: move to a power of 2, per raytune FAQ recommendations
-            "batch_size": tune.randint(500,3000), #TODO: move to a power of 2, per raytune FAQ recommendations
-            "net_type" : tune.choice(['Feed-Forward']),
+            #"net_type" : tune.choice(['FF','LSTM']),
+            "net_type" : tune.choice(args.net_types),
             "criterion" : tune.choice([nn.MSELoss(), nn.L1Loss()]),
+            # If batch size is not evenly divisible by sequence length then LSTM training time will significanly
+            # suffer.  See the mini_batch function
+            "batch_size": tune.sample_from(lambda _: 2**np.random.randint(8, 13)),
+            "seq_length" : tune.sample_from(lambda spec:
+                2**np.random.randint(5, math.log2(spec.config.batch_size)) if
+                spec.config.net_type in ['RNN','LSTM'] else None),
+            "layer_width" : tune.sample_from(lambda _: 2**np.random.randint(2, 8)), #TODO: change based on NN type?
+            "layer_count" : tune.sample_from(lambda spec:
+                2**np.random.randint(2, 5) if spec.config.net_type=="FF" else np.random.randint(2,4)),
             "lr" : tune.loguniform(1e-3, 1e-3) #TODO: move to 1e-5 to 1e-1 range, per raytune FAQ recommendations
         }
 
@@ -149,8 +164,21 @@ def main():
         print("Best config: {}".format(best_trial.config))
         print("\tValidation Set Accuracy: {:.2f}%".format(100*best_trial.last_result["accuracy"]))
         print("\tValidation Set Loss: {:.2f}%".format(100*best_trial.last_result["loss"]))
-        best_model = FFNet(width_input=len(X_columns), fc_width=best_trial.config["fc_width"], fc_depth=best_trial.config["fc_depth"])
+
+        net_type = best_trial.config['net_type']
+        if(net_type == 'FF'):
+            best_model = FFNet(width_input=len(X_columns), layer_width=best_trial.config["layer_width"], layer_count=best_trial.config["layer_count"])
+        elif(net_type == 'LSTM'):
+            best_model = LSTMNet(width_input=len(X_columns),
+                hidden_dim=best_trial.config["layer_width"],
+                layer_count=best_trial.config["layer_count"])
+        elif(net_type == 'RNN'):
+            best_model = RecNet(width_input=len(X_columns),
+                hidden_dim=best_trial.config["layer_width"],
+                layer_count=best_trial.config["layer_count"])
+
         criterion = best_trial.config['criterion']
+        seq_length = best_trial.config['seq_length']
 
         best_checkpoint_dir = best_trial.checkpoint.value
         model_state, optimizer_state = torch.load(os.path.join(
@@ -160,28 +188,29 @@ def main():
         batch_size = best_trial.config['batch_size']
     else:
         # Default case
-        batch_size = 1000
+        batch_size = 1024
         learning_rate = 1e-3
         criterion = nn.MSELoss()
+        seq_length = None
 
         train_loader = torch.utils.data.DataLoader(dataset = train_set, batch_size = batch_size, shuffle = False)
         val_loader = torch.utils.data.DataLoader(dataset = val_set, batch_size = batch_size, shuffle = False)
 
-        width = len(X_columns)
-        depth = 2
-        if args.width is not None:
-            width = args.width
-        if args.depth is not None:
-            depth = args.depth
+        layer_width = len(X_columns)
+        layer_count = 2
+        if args.layer_width is not None:
+            layer_width = args.layer_width
+        if args.layer_count is not None:
+            layer_count = args.layer_count
 
-        best_model = FFNet(width_input=len(X_columns), fc_width=width, fc_depth=depth)
+        best_model = FFNet(width_input=len(X_columns), layer_width=layer_width, layer_count=layer_count)
         optimizer = torch.optim.Adam(best_model.parameters(), lr=learning_rate)
 
         print("batch_size:{}, epoch_count:{}, learning_rate={}".format(batch_size, EPOCH_SIZE, learning_rate))
         for epoch in range(EPOCH_SIZE):
             print("\tepoch:{}".format(epoch))
-            train(best_model, optimizer, criterion, train_loader)
-            val_loss, val_accuracy, pred_min, pred_max = evaluate(best_model, val_loader, criterion);
+            train(best_model, optimizer, criterion, train_loader, seq_length)
+            val_loss, val_accuracy, pred_min, pred_max = evaluate(best_model, val_loader, criterion, seq_length)
 
     print('Saving model (non-scripted and in training mode) as a precaution here: {}'.format(args.output + '-pre-torchscript'))
     torch.save(best_model.state_dict(), "{}".format(args.output + '-pre-torchscript'))
@@ -201,21 +230,13 @@ def main():
         test_loader = torch.utils.data.DataLoader(dataset = test_set, batch_size = batch_size , shuffle = False)
 
         print("Begin Testing:")
-        val_loss, val_accuracy, pred_min, pred_max = evaluate(best_model, test_loader, criterion);
+        val_loss, val_accuracy, pred_min, pred_max = evaluate(best_model, test_loader, criterion, seq_length=seq_length)
         print('\tAccuracy vs Test Set: {:.2f}%.'.format(val_accuracy*100))
         print('\tLoss vs Test Set: {:.2f}%.'.format(val_loss*100))
         print('\tModel Min Prediction vs Test Set: {:.2f} GHz.'.format(pred_min))
         print('\tModel Max Prediction vs Test Set: {:.2f} GHz.'.format(pred_max))
 
-    for retry in range(3):
-        try:
-            model_to_script(best_model, args.output)
-            break
-        except Exception as e:
-            print("Exception on convertion to torch.jit.script")
-            print("{}".format(e))
-            print("Retrying {}/3".format(retry+1))
-
+    model_to_script(best_model, args.output)
 
 def model_to_script(model, output):
     model.eval()
@@ -250,26 +271,32 @@ def training_loop(config, input_size, train_set, val_set):
     net_type=config['net_type']
     if(net_type == 'Feed-Forward'):
         model = FFNet(width_input=input_size, fc_width=config["fc_width"], fc_depth=config["fc_depth"])
-        model.to(device)
+    if(net_type == 'FF'):
+        model = FFNet(width_input=input_size, layer_width=config["layer_width"], layer_count=config["layer_count"])
+    elif(net_type == 'LSTM'):
+        assert(config['batch_size'] % config['seq_length'] == 0), "LSTM batch size must be divisibly by sequence length"
+        model = LSTMNet(width_input=input_size, hidden_dim=config["layer_width"], layer_count=config["layer_count"])
+    elif(net_type == 'RNN'):
+        assert(config['batch_size'] % config['seq_length'] == 0), "LSTM batch size must be divisibly by sequence length"
+        model = RecNet(width_input=input_size, hidden_dim=config["layer_width"], layer_count=config["layer_count"])
     else:
         #TODO: Add additional NN types of interest!
         print('Error: Invalid net type specified: {}'.format(net_type))
         sys.exit(1)
+    model.to(device)
 
     criterion=config['criterion']
 
     learning_rate = config["lr"]
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
+    seq_length = config['seq_length']
+
     for epoch in range(EPOCH_SIZE):
-        if(net_type == 'Feed-Forward'):
-            train(model, optimizer, criterion, train_loader)
-            # Prediction min and max aren't used here, they're for test sets
-            val_loss, val_accuracy, _, _ = evaluate(model, val_loader, criterion);
-        else:
-            #TODO: Add additional NN types of interest!
-            print('Error: Invalid net type specified: {}'.format(net_type))
-            sys.exit(1)
+        train(model, optimizer, criterion, train_loader, seq_length)
+
+        # Prediction min and max aren't used here, they're for test sets
+        val_loss, val_accuracy, _, _ = evaluate(model, val_loader, criterion, seq_length);
 
         with tune.checkpoint_dir(epoch) as checkpoint_dir:
             path = os.path.join(checkpoint_dir, "checkpoint")
@@ -278,8 +305,13 @@ def training_loop(config, input_size, train_set, val_set):
         # Send the current training result back to Tune
         tune.report(loss=val_loss, accuracy=val_accuracy)
 
-def train(model, optimizer, criterion, train_loader):
+def train(model, optimizer, criterion, train_loader, seq_length=None):
+    flag = False
     for idx, (inputs, target_control) in enumerate(train_loader):
+        # Check if mini batches are required (i.e. RNN, LSTM)
+        if seq_length is not None:
+            inputs, target_control = mini_batch(inputs, target_control, inputs.size(1), seq_length)
+
         model.train()
         # Clear gradient
         optimizer.zero_grad()
@@ -291,7 +323,40 @@ def train(model, optimizer, criterion, train_loader):
         # update model weights
         optimizer.step()
 
-def evaluate(model, test_loader, criterion):
+# This function is used to convert batches into mini_batches of the form
+# [MINI_BATCH_SIZE, SEQUENCE_LENGTH, # SIGNALS], as required by the
+# LSTM Net.  tensor.view() is the function responsible for this, but it requires
+# that the input tensor size (which is BATCH_SIZE * # Signals) be exactly convertible
+# to the new 3D tensor form.  As such BATCH_SIZE * # Signals must be evenly divisible
+# by MINI_BATCH_SIZE * SEQUENCE_LENGTH * # Signals.  As such if batch_size is not
+# easily divisible by seq_length torch.cat will be called often and slow down training
+def mini_batch(input_batch, target_batch, input_size, seq_length):
+    if(input_batch.size(0) % seq_length == 0):
+        inputs = input_batch.view(-1, seq_length, input_size)
+        target = target_batch
+
+    #TODO: eventually this should move into a custom data loader for
+    #      the RNN style models.
+    #      This is likely a computationally expensive solution compared
+    #      to a custom dataloader due to the usage of torch.cat()
+    elif(input_batch.size(0) > seq_length):
+        padding = (seq_length - input_batch.size(0)%seq_length)
+        inputs = torch.cat((input_batch, input_batch[0:padding]))
+        inputs = inputs.view(-1, seq_length, input_size)
+        target = torch.cat((target_batch, target_batch[0:padding]))
+    else:
+        padding = (seq_length-input_batch.size(0))
+        repeat = math.ceil(padding/input_batch.size(0)) + 1
+        inputs = input_batch.repeat(repeat,1)
+        inputs = inputs[0:seq_length]
+        inputs = inputs.view(-1, seq_length, input_size)
+
+        target = target_batch.repeat(repeat,1)
+        target = target[0:seq_length]
+
+    return inputs, target
+
+def evaluate(model, test_loader, criterion, seq_length=None):
     prediction_total = 0
     prediction_correct = 0
     prediction_min = 0
@@ -301,7 +366,12 @@ def evaluate(model, test_loader, criterion):
     model.eval()
     with torch.no_grad():
         for idx, (inputs, target_control) in enumerate(test_loader):
-            prediction_total += inputs.size(0)
+            # Check if mini batches are used (i.e. RNN, LSTM)
+            if seq_length is not None:
+                inputs, target_control = mini_batch(inputs, target_control, inputs.size(1), seq_length)
+
+            prediction_total += target_control.size(0)
+
             # Run inputs through model, save prediction
             predicted_control = model(inputs)
             # Round to nearest 100 MHz increment
@@ -314,6 +384,7 @@ def evaluate(model, test_loader, criterion):
             val_loss += loss.numpy()
             val_steps += 1;
 
+            # Stats for test case
             if (idx == 0):
                 prediction_max = predicted_control.max()
                 prediction_min = predicted_control.min()
@@ -326,24 +397,24 @@ def evaluate(model, test_loader, criterion):
     return val_loss/val_steps, prediction_correct/prediction_total, prediction_min, prediction_max
 
 class FFNet(nn.Module):
-    def __init__(self, width_input, fc_width, fc_depth):
+    def __init__(self, width_input, layer_width, layer_count):
         super(FFNet, self).__init__()
-        self.fc_depth = fc_depth
+        self.layer_count = layer_count
 
         # Normalization and input layer
         layer_list = [
             nn.BatchNorm1d(width_input),
-            nn.Linear(width_input, fc_width),
+            nn.Linear(width_input, layer_width),
             nn.Sigmoid()
             ]
 
         # Hidden layers
-        for d in range(1, self.fc_depth):
-            layer_list.append(nn.Linear(fc_width, fc_width))
+        for d in range(1, self.layer_count):
+            layer_list.append(nn.Linear(layer_width, layer_width))
             layer_list.append(nn.Sigmoid())
 
         # Output layer
-        layer_list.append(nn.Linear(fc_width, 1))
+        layer_list.append(nn.Linear(layer_width, 1))
 
         self.p3Model = nn.Sequential(
             *layer_list
@@ -351,6 +422,67 @@ class FFNet(nn.Module):
 
     def forward(self, x):
         return self.p3Model(x)
+
+class LSTMNet(nn.Module):
+    def __init__(self, width_input, hidden_dim, layer_count):
+        super(LSTMNet, self).__init__()
+
+        # Hyper parameters
+        self.hidden_dim = hidden_dim
+        self.layer_count = layer_count
+
+        #TODO: Normalization Layer?
+
+        # LSTM Definition
+        self.lstm = nn.LSTM(width_input, hidden_dim, layer_count, batch_first=True)
+
+        # Output layer definition
+        self.fc_out = nn.Linear(hidden_dim, 1)
+
+    def forward(self, x):
+        batch_size = x.size(0)
+        # Initialize hidden state
+        hidden = torch.zeros(self.layer_count, batch_size, self.hidden_dim)
+        c = torch.zeros(self.layer_count, batch_size, self.hidden_dim)
+
+        # Passing batch input and hidden state into the LSTM
+        x, hidden = self.lstm(x, (hidden, c))
+
+        # Output layer
+        x = x.contiguous().view(-1, self.hidden_dim)
+        x = self.fc_out(x)
+
+        return x
+
+class RecNet(nn.Module):
+    def __init__(self, width_input, hidden_dim, layer_count):
+        super(RecNet, self).__init__()
+
+        # Hyper parameters
+        self.hidden_dim = hidden_dim
+        self.layer_count = layer_count
+
+        #TODO: Normalization Layer?
+
+        # RNN Definition
+        self.rnn = nn.RNN(width_input, hidden_dim, layer_count, batch_first=True)
+
+        # Output layer definition
+        self.fc_out = nn.Linear(hidden_dim, 1)
+
+    def forward(self, x):
+        batch_size = x.size(0)
+        # Initialize hidden state
+        hidden = torch.zeros(self.layer_count, batch_size, self.hidden_dim)
+
+        # Passing batch input and hidden state into the RNN
+        x, hidden = self.rnn(x, hidden)
+
+        # Output layer
+        x = x.contiguous().view(-1, self.hidden_dim)
+        x = self.fc_out(x)
+
+        return x
 
 if __name__ == "__main__":
     main()
