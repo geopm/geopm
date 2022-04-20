@@ -31,6 +31,7 @@ namespace geopm
                             int function,
                             double scalar);
             MSRFieldControl(const MSRFieldControl &other) = delete;
+            MSRFieldControl &operator=(const MSRFieldControl &other) = delete;
             virtual ~MSRFieldControl() = default;
             void setup_batch(void) override;
             void adjust(double value) override;

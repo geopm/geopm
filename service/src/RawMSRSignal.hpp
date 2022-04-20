@@ -26,6 +26,7 @@ namespace geopm
                          int cpu,
                          uint64_t offset);
             RawMSRSignal(const RawMSRSignal &other) = delete;
+            RawMSRSignal &operator=(const RawMSRSignal &other) = delete;
             virtual ~RawMSRSignal() = default;
             void setup_batch(void) override;
             double sample(void) override;

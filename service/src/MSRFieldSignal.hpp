@@ -30,6 +30,7 @@ namespace geopm
                            int function,
                            double scalar);
             MSRFieldSignal(const MSRFieldSignal &other) = delete;
+            MSRFieldSignal &operator=(const MSRFieldSignal &other) = delete;
             virtual ~MSRFieldSignal() = default;
             void setup_batch(void) override;
             double sample(void) override;

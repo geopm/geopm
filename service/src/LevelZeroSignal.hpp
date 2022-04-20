@@ -23,6 +23,7 @@ namespace geopm
             LevelZeroSignal(std::function<double (unsigned int)> devpool_func,
                          unsigned int accelerator, double scalar);
             LevelZeroSignal(const LevelZeroSignal &other) = delete;
+            LevelZeroSignal &operator=(const LevelZeroSignal &other) = delete;
             void setup_batch(void) override;
             double sample(void) override;
             double read(void) const override;
