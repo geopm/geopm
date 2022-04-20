@@ -711,7 +711,7 @@ class TopoService(object):
 
         """
         self._topo.create_cache()
-        with open('/tmp/geopm-topo-cache') as fid:
+        with open('/run/geopm-service/geopm-topo-cache') as fid:
             result = fid.read()
         return result
 

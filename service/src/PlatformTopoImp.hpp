@@ -44,14 +44,16 @@ namespace geopm
             void parse_lscpu_numa(std::map<std::string, std::string> lscpu_map,
                                   std::vector<std::set<int> > &numa_map);
             std::string read_lscpu(void);
+            static bool check_file(const std::string &file_name);
 
             const std::string M_TEST_CACHE_FILE_NAME;
-            bool m_do_fclose;
             int m_num_package;
             int m_core_per_package;
             int m_thread_per_core;
             std::vector<std::set<int> > m_numa_map;
             const AcceleratorTopo &m_accelerator_topo;
     };
+
 }
+
 #endif
