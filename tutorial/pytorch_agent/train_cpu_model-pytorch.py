@@ -163,10 +163,18 @@ def main():
             "lr" : tune.loguniform(1e-3, 1e-3) #TODO: move to 1e-5 to 1e-1 range, per raytune FAQ recommendations
         }
 
+        scheduler_metric = args.scheduler_metric
+        if(scheduler_metric == "accuracy"):
+            scheduler_mode = "max"
+        elif(scheduler_metric == "loss"):
+            scheduler_mode = "min"
+        else:
+            print('Error: Specified scheduler metric {} does not have a mode'.format(scheduler_metric))
+            sys.exit(1)
+
         scheduler = ASHAScheduler(
-            #TODO: Evaluate using metric="loss", mode="min" vs metric="accuracy", mode="max"
-            metric="accuracy",
-            mode="max",
+            metric=scheduler_metric,
+            mode=scheduler_mode,
             #max_t=100, #TODO: define a maximum time for trials
             grace_period=1,
             reduction_factor=2)
@@ -184,14 +192,16 @@ def main():
             checkpoint_at_end=True
             )
 
-        best_trial = result.get_best_trial("accuracy", "max", "last")
+        best_trial = result.get_best_trial(scheduler_metric, scheduler_mode, "last")
         print("Best config: {}".format(best_trial.config))
         print("\tValidation Set Accuracy: {:.2f}%".format(100*best_trial.last_result["accuracy"]))
         print("\tValidation Set Loss: {:.2f}%".format(100*best_trial.last_result["loss"]))
 
         net_type = best_trial.config['net_type']
         if(net_type == 'FF'):
-            best_model = FFNet(width_input=len(X_columns), layer_width=best_trial.config["layer_width"], layer_count=best_trial.config["layer_count"])
+            best_model = FFNet(width_input=len(X_columns),
+                layer_width=best_trial.config["layer_width"],
+                layer_count=best_trial.config["layer_count"])
         elif(net_type == 'LSTM'):
             best_model = LSTMNet(width_input=len(X_columns),
                 hidden_dim=best_trial.config["layer_width"],
@@ -234,7 +244,7 @@ def main():
         for epoch in range(EPOCH_SIZE):
             print("\tepoch:{}".format(epoch))
             train(best_model, optimizer, criterion, train_loader, seq_length)
-            val_loss, val_accuracy, pred_min, pred_max = evaluate(best_model, val_loader, criterion, seq_length)
+            val_loss, val_accuracy, pred_min, pred_max = evaluate(best_model, val_loader, criterion, seq_length, rounding=1)
 
     print('Saving model (non-scripted and in training mode) as a precaution here: {}'.format(args.output + '-pre-torchscript'))
     torch.save(best_model.state_dict(), "{}".format(args.output + '-pre-torchscript'))
@@ -252,7 +262,8 @@ def main():
         test_loader = torch.utils.data.DataLoader(dataset = test_set, batch_size = batch_size , shuffle = False)
 
         print("Begin Testing:")
-        val_loss, val_accuracy, pred_min, pred_max = evaluate(best_model, test_loader, criterion, seq_length=seq_length)
+        val_loss, val_accuracy, pred_min, pred_max = evaluate(
+            best_model, test_loader, criterion, seq_length=seq_length, rounding=1)
         print('\tAccuracy vs Test Set: {:.2f}%.'.format(val_accuracy*100))
         print('\tLoss vs Test Set: {:.2f}%.'.format(val_loss*100))
         print('\tModel Min Prediction vs Test Set: {:.2f} GHz.'.format(pred_min))
@@ -313,7 +324,7 @@ def training_loop(config, input_size, train_set, val_set):
         train(model, optimizer, criterion, train_loader, seq_length)
 
         # Prediction min and max aren't used here, they're for test sets
-        val_loss, val_accuracy, _, _ = evaluate(model, val_loader, criterion, seq_length);
+        val_loss, val_accuracy, _, _ = evaluate(model, val_loader, criterion, seq_length, rounding=1);
 
         with tune.checkpoint_dir(epoch) as checkpoint_dir:
             path = os.path.join(checkpoint_dir, "checkpoint")
@@ -373,7 +384,7 @@ def mini_batch(input_batch, target_batch, input_size, seq_length):
 
     return inputs, target
 
-def evaluate(model, test_loader, criterion, seq_length=None):
+def evaluate(model, test_loader, criterion, seq_length=None, rounding=None):
     prediction_total = 0
     prediction_correct = 0
     prediction_min = 0
@@ -391,8 +402,10 @@ def evaluate(model, test_loader, criterion, seq_length=None):
 
             # Run inputs through model, save prediction
             predicted_control = model(inputs)
-            # Round to nearest 100 MHz increment
-            predicted_control = np.round(predicted_control,1)
+
+            if rounding is not None:
+                # Round to number of decimals specified
+                predicted_control = np.round(predicted_control, rounding)
 
             # Generate stats
             prediction_correct += (target_control == predicted_control).sum().item()
