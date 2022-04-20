@@ -31,7 +31,8 @@ namespace geopm
 
             /// @brief Constructor for global communicator
             Comm() = default;
-            Comm(const Comm &in_comm) = default;
+            Comm(const Comm &other) = default;
+            Comm &operator=(const Comm &other) = default;
             /// @brief Default destructor
             virtual ~Comm() = default;
             /// @return a list of all valid plugin names in the Comm interface
