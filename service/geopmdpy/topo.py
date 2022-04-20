@@ -200,14 +200,18 @@ def create_cache():
     exist.  This cache file will be used by any calls to the other
     functions in the topo module as well as any use of the GEOPM
     runtime.  File permissions of the cache file are set to
-    "-rw-rw-rw-", i.e. 666. The path for the cache file is
-    /tmp/geopm-topo-cache.  If the file exists no operation will be
-    performed.  To force the creation of a new cache file call
-    os.unlink('/tmp/geopm-topo-cache') prior to calling this function.
+    "-rw-r--r--", i.e. 644. The path for the cache file is
+    /run/geopm-service/geopm-topo-cache.  If thie file is older than
+    the last boot it will be rengerated.  If the file exists but has
+    improper permissions is will be regenerated.  If the file has been
+    created since the last boot with the correct permissions, no
+    operation will be performed.  To force the creation of a new cache
+    file call os.unlink('/run/geopm-service/geopm-topo-cache') prior
+    to calling this function.
 
     """
     global _dl
-    err = _dl.geopm_topo_create_cache()
+    err = _dl.geopm_topo_create_cache_service()
     if err < 0:
-        raise RuntimeError("geopm_topo_create_cache() failed: {}".format(
+        raise RuntimeError("geopm_topo_create_cache_service() failed: {}".format(
             error.message(err)))

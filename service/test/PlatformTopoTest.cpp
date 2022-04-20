@@ -5,6 +5,9 @@
 
 #include <unistd.h>
 #include <limits.h>
+#include <utime.h>
+#include <sys/sysinfo.h>
+#include <sys/stat.h>
 
 #include <fstream>
 #include <string>
@@ -19,6 +22,7 @@
 #include "config.h"
 #include "LevelZero.hpp"
 #include "geopm_test.hpp"
+#include "geopm_time.h"
 
 using geopm::PlatformTopo;
 using geopm::PlatformTopoImp;
@@ -261,6 +265,9 @@ void PlatformTopoTest::write_lscpu(const std::string &lscpu_str)
     lscpu_fid << lscpu_str;
     lscpu_fid.close();
     m_do_unlink = true;
+    // Set perms to 0o600 to ensure test file is used and not regenerated
+    mode_t default_perms = S_IRUSR | S_IWUSR;
+    chmod(m_lscpu_file_name.c_str(), default_perms);
 }
 
 TEST_F(PlatformTopoTest, hsw_num_domain)
@@ -891,4 +898,53 @@ TEST_F(PlatformTopoTest, call_c_wrappers)
     EXPECT_GT(0, geopm_topo_domain_type("raspberry"));
     // simple test for domain_type()
     EXPECT_EQ(GEOPM_DOMAIN_CPU, geopm_topo_domain_type("cpu"));
+}
+
+TEST_F(PlatformTopoTest, check_file_too_old)
+{
+    write_lscpu(m_hsw_lscpu_str);
+
+    struct sysinfo si;
+    sysinfo(&si);
+    struct geopm_time_s current_time;
+    geopm_time_real(&current_time);
+    unsigned int last_boot_time = current_time.t.tv_sec - si.uptime;
+
+    // Modify the last modified time to be prior to the last boot
+    unsigned int old_time = last_boot_time - 600; // 10 minutes before boot
+    struct utimbuf file_times = {old_time, old_time};
+    utime(m_lscpu_file_name.c_str(), &file_times);
+
+    // Verify the modification worked
+    struct stat file_stat;
+    stat(m_lscpu_file_name.c_str(), &file_stat);
+    ASSERT_EQ(old_time, file_stat.st_mtime);
+
+    PlatformTopoImp topo(m_lscpu_file_name, *m_accelerator_topo);
+
+    // Verify the cache was regenerated because it was too old
+    stat(m_lscpu_file_name.c_str(), &file_stat);
+    ASSERT_LT(last_boot_time, file_stat.st_mtime);
+}
+
+TEST_F(PlatformTopoTest, check_file_bad_perms)
+{
+    write_lscpu(m_hsw_lscpu_str);
+    // Override the permissions to a known bad state
+    mode_t bad_perms = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
+    chmod(m_lscpu_file_name.c_str(), bad_perms);
+
+    // Verify initial state
+    struct stat file_stat;
+    stat(m_lscpu_file_name.c_str(), &file_stat);
+    mode_t actual_perms = file_stat.st_mode & ~S_IFMT;
+    ASSERT_EQ(bad_perms, actual_perms);
+
+    PlatformTopoImp topo(m_lscpu_file_name, *m_accelerator_topo);
+
+    // Verify that the cache was regenerated because it had the wrong permissions
+    stat(m_lscpu_file_name.c_str(), &file_stat);
+    mode_t expected_perms = S_IRUSR | S_IWUSR; // 0o600 by default
+    actual_perms = file_stat.st_mode & ~S_IFMT;
+    ASSERT_EQ(expected_perms, actual_perms);
 }

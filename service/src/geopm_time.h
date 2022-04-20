@@ -41,6 +41,11 @@ static inline int geopm_time(struct geopm_time_s *time)
     return clock_gettime(CLOCK_MONOTONIC_RAW, &(time->t));
 }
 
+static inline int geopm_time_real(struct geopm_time_s *time)
+{
+    return clock_gettime(CLOCK_REALTIME, &(time->t));
+}
+
 static inline double geopm_time_diff(const struct geopm_time_s *begin, const struct geopm_time_s *end)
 {
     return (end->t.tv_sec - begin->t.tv_sec) +
