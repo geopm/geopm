@@ -26,7 +26,7 @@ namespace geopm
             PlatformIOImp(std::list<std::shared_ptr<IOGroup> > iogroup_list,
                           const PlatformTopo &topo);
             PlatformIOImp(const PlatformIOImp &other) = delete;
-            PlatformIOImp & operator=(const PlatformIOImp&) = delete;
+            PlatformIOImp &operator=(const PlatformIOImp &other) = delete;
             virtual ~PlatformIOImp() = default;
             void register_iogroup(std::shared_ptr<IOGroup> iogroup) override;
             std::set<std::string> signal_names(void) const override;

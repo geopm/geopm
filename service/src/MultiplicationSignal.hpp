@@ -20,6 +20,7 @@ namespace geopm
             MultiplicationSignal(std::shared_ptr<Signal> multiplier,
                            double multiplicand);
             MultiplicationSignal(const MultiplicationSignal &other) = delete;
+            MultiplicationSignal &operator=(const MultiplicationSignal &other) = delete;
             virtual ~MultiplicationSignal() = default;
             void setup_batch(void) override;
             double sample(void) override;

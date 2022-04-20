@@ -20,6 +20,7 @@ namespace geopm
                              std::shared_ptr<Signal> y_sig,
                              int read_loops, double sleep_time);
             DerivativeSignal(const DerivativeSignal &other) = delete;
+            DerivativeSignal &operator=(const DerivativeSignal &other) = delete;
             virtual ~DerivativeSignal() = default;
             void setup_batch(void) override;
             double sample(void) override;

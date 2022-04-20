@@ -18,6 +18,7 @@ namespace geopm
         public:
             DomainControl(const std::vector<std::shared_ptr<Control> > &controls);
             DomainControl(const DomainControl &other) = delete;
+            DomainControl &operator=(const DomainControl &other) = delete;
             virtual ~DomainControl() = default;
             void setup_batch(void) override;
             void adjust(double value) override;

@@ -20,6 +20,7 @@ namespace geopm
             DifferenceSignal(std::shared_ptr<Signal> minuend,
                              std::shared_ptr<Signal> subtrahend);
             DifferenceSignal(const DifferenceSignal &other) = delete;
+            DifferenceSignal &operator=(const DifferenceSignal &other) = delete;
             virtual ~DifferenceSignal() = default;
             void setup_batch(void) override;
             double sample(void) override;

@@ -21,6 +21,7 @@ namespace geopm
         public:
             ProfileRankSampler() = default;
             ProfileRankSampler(const ProfileRankSampler &other) = default;
+            ProfileRankSampler &operator=(const ProfileRankSampler &other) = default;
             virtual ~ProfileRankSampler() = default;
             /// @brief Retrieve region names from the application process.
             ///
@@ -42,6 +43,7 @@ namespace geopm
         public:
             ProfileSampler() = default;
             ProfileSampler(const ProfileSampler &other) = default;
+            ProfileSampler &operator=(const ProfileSampler &other) = default;
             virtual ~ProfileSampler() = default;
             /// @brief Check if the application is shutting down.
             ///
