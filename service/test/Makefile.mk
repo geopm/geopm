@@ -233,6 +233,9 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
               test/gtest_links/PlatformTopoTest.bdx_is_nested_domain \
               test/gtest_links/PlatformTopoTest.bdx_domain_nested \
               test/gtest_links/PlatformTopoTest.bdx_num_domain \
+              test/gtest_links/PlatformTopoTest.call_c_wrappers \
+              test/gtest_links/PlatformTopoTest.check_file_bad_perms \
+              test/gtest_links/PlatformTopoTest.check_file_too_old \
               test/gtest_links/PlatformTopoTest.construction \
               test/gtest_links/PlatformTopoTest.create_cache \
               test/gtest_links/PlatformTopoTest.domain_name_to_type \
@@ -244,7 +247,6 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
               test/gtest_links/PlatformTopoTest.parse_error \
               test/gtest_links/PlatformTopoTest.ppc_num_domain \
               test/gtest_links/PlatformTopoTest.singleton_construction \
-              test/gtest_links/PlatformTopoTest.call_c_wrappers \
               test/gtest_links/POSIXSignalTest.make_sigset_correct \
               test/gtest_links/POSIXSignalTest.make_sigset_EINVAL \
               test/gtest_links/POSIXSignalTest.make_sigset_zeroed \

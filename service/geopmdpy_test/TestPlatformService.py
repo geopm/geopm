@@ -372,7 +372,7 @@ class TestPlatformService(unittest.TestCase):
         topo_service = TopoService(topo=topo)
 
         mock_open = mock.mock_open(read_data='data')
-        cache_file = '/tmp/geopm-topo-cache'
+        cache_file = '/run/geopm-service/geopm-topo-cache'
         with mock.patch('builtins.open', mock_open):
             cache_data = topo_service.get_cache()
             self.assertEqual('data', cache_data)
