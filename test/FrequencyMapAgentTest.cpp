@@ -459,7 +459,7 @@ TEST_F(FrequencyMapAgentTest, validate_policy)
                                "policy maps a NaN region with frequency");
 }
 
-TEST_F(FrequencyMapAgentTest, test_hash_freq_map)
+TEST_F(FrequencyMapAgentTest, report_hash_freq_map)
 {
     FrequencyMapAgent frequency_agent(
         {
@@ -488,7 +488,7 @@ TEST_F(FrequencyMapAgentTest, test_hash_freq_map)
     }
 }
 
-TEST_F(FrequencyMapAgentTest, test_default_freq_hash)
+TEST_F(FrequencyMapAgentTest, report_default_freq_hash)
 {
     FrequencyMapAgent frequency_agent(
         {},
@@ -509,7 +509,7 @@ TEST_F(FrequencyMapAgentTest, test_default_freq_hash)
     }
 }
 
-TEST_F(FrequencyMapAgentTest, test_both_map_and_set)
+TEST_F(FrequencyMapAgentTest, report_both_map_and_set)
 {
     FrequencyMapAgent frequency_agent(
         {
@@ -545,7 +545,7 @@ TEST_F(FrequencyMapAgentTest, test_both_map_and_set)
     }
 }
 
-TEST_F(FrequencyMapAgentTest, test_neither_map_nor_set)
+TEST_F(FrequencyMapAgentTest, report_neither_map_nor_set)
 {
     FrequencyMapAgent frequency_agent(
         {},

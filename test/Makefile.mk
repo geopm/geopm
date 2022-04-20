@@ -190,12 +190,12 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/FrequencyMapAgentTest.name \
               test/gtest_links/FrequencyMapAgentTest.enforce_policy \
               test/gtest_links/FrequencyMapAgentTest.policy_to_json \
+              test/gtest_links/FrequencyMapAgentTest.report_both_map_and_set \
+              test/gtest_links/FrequencyMapAgentTest.report_default_freq_hash \
+              test/gtest_links/FrequencyMapAgentTest.report_hash_freq_map \
+              test/gtest_links/FrequencyMapAgentTest.report_neither_map_nor_set \
               test/gtest_links/FrequencyMapAgentTest.split_policy \
               test/gtest_links/FrequencyMapAgentTest.validate_policy \
-              test/gtest_links/FrequencyMapAgentTest.test_hash_freq_map \
-              test/gtest_links/FrequencyMapAgentTest.test_default_freq_hash \
-              test/gtest_links/FrequencyMapAgentTest.test_both_map_and_set \
-              test/gtest_links/FrequencyMapAgentTest.test_neither_map_nor_set \
               test/gtest_links/ModelApplicationTest.parse_config_errors \
               test/gtest_links/MonitorAgentTest.policy_names \
               test/gtest_links/MonitorAgentTest.sample_names \
