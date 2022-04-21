@@ -230,80 +230,74 @@ namespace geopm
 
         int core_idx = 0;
         int numa_idx = 0;
-        if (cpu_idx >= 0 && cpu_idx < num_cpu) {
-            switch (domain_type) {
-                case GEOPM_DOMAIN_BOARD:
-                    result = 0;
-                    break;
-                case GEOPM_DOMAIN_PACKAGE:
-                    core_idx = cpu_idx % (m_num_package * m_core_per_package);
-                    result = core_idx / m_core_per_package;
-                    break;
-                case GEOPM_DOMAIN_CORE:
-                    result = cpu_idx % (m_num_package * m_core_per_package);
-                    break;
-                case GEOPM_DOMAIN_CPU:
-                    result = cpu_idx;
-                    break;
-                case GEOPM_DOMAIN_BOARD_MEMORY:
-                    numa_idx = 0;
-                    for (const auto &set_it : m_numa_map) {
-                        for (const auto &cpu_it : set_it) {
-                            if (cpu_it == cpu_idx) {
-                                result = numa_idx;
-                                // Find the lowest index numa node that contains the cpu.
-                                break;
-                            }
-                        }
-                        if (result != -1) {
+        switch (domain_type) {
+            case GEOPM_DOMAIN_BOARD:
+                result = 0;
+                break;
+            case GEOPM_DOMAIN_PACKAGE:
+                core_idx = cpu_idx % (m_num_package * m_core_per_package);
+                result = core_idx / m_core_per_package;
+                break;
+            case GEOPM_DOMAIN_CORE:
+                result = cpu_idx % (m_num_package * m_core_per_package);
+                break;
+            case GEOPM_DOMAIN_CPU:
+                result = cpu_idx;
+                break;
+            case GEOPM_DOMAIN_BOARD_MEMORY:
+                numa_idx = 0;
+                for (const auto &set_it : m_numa_map) {
+                    for (const auto &cpu_it : set_it) {
+                        if (cpu_it == cpu_idx) {
+                            result = numa_idx;
                             // Find the lowest index numa node that contains the cpu.
                             break;
                         }
-                        ++numa_idx;
                     }
-                    break;
-                case GEOPM_DOMAIN_BOARD_ACCELERATOR:
-                    for(int accel_idx = 0; (accel_idx <
-                        m_accelerator_topo.num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR))
+                    if (result != -1) {
+                        // Find the lowest index numa node that contains the cpu.
+                        break;
+                    }
+                    ++numa_idx;
+                }
+                break;
+            case GEOPM_DOMAIN_BOARD_ACCELERATOR:
+                for(int accel_idx = 0; (accel_idx <
+                                        m_accelerator_topo.num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR))
                         && (result == -1); ++accel_idx) {
-                        std::set<int> affin = m_accelerator_topo.cpu_affinity_ideal(
-                                              GEOPM_DOMAIN_BOARD_ACCELERATOR,
-                                              accel_idx);
-                        if (affin.find(cpu_idx) != affin.end()) {
-                            result = accel_idx;
-                        }
+                    std::set<int> affin = m_accelerator_topo.cpu_affinity_ideal(
+                        GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                        accel_idx);
+                    if (affin.find(cpu_idx) != affin.end()) {
+                        result = accel_idx;
                     }
-                    break;
-                case GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP:
-                    for(int accel_sub_idx = 0; (accel_sub_idx <
-                        m_accelerator_topo.num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP))
+                }
+                break;
+            case GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP:
+                for(int accel_sub_idx = 0; (accel_sub_idx <
+                                            m_accelerator_topo.num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP))
                         && (result == -1); ++accel_sub_idx) {
-                        std::set<int> affin = m_accelerator_topo.cpu_affinity_ideal(
-                                              GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
-                                              accel_sub_idx);
-                        if (affin.find(cpu_idx) != affin.end()) {
-                            result = accel_sub_idx;
-                        }
+                    std::set<int> affin = m_accelerator_topo.cpu_affinity_ideal(
+                        GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                        accel_sub_idx);
+                    if (affin.find(cpu_idx) != affin.end()) {
+                        result = accel_sub_idx;
                     }
-                    break;
-                case GEOPM_DOMAIN_PACKAGE_MEMORY:
-                case GEOPM_DOMAIN_BOARD_NIC:
-                case GEOPM_DOMAIN_PACKAGE_NIC:
-                case GEOPM_DOMAIN_PACKAGE_ACCELERATOR:
-                    /// @todo Add support for package memory NIC and package accelerators to domain_idx() method.
-                    throw Exception("PlatformTopoImp::domain_idx() no support yet for PACKAGE_MEMORY, NIC, or ACCELERATOR",
-                                    GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
-                    break;
-                case GEOPM_DOMAIN_INVALID:
-                default:
-                    throw Exception("PlatformTopoImp::domain_idx() invalid domain specified",
-                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-                    break;
-            }
-        }
-        else {
-            throw Exception("PlatformTopoImp::domain_idx() cpu index (cpu_idx) out of range",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                }
+                break;
+            case GEOPM_DOMAIN_PACKAGE_MEMORY:
+            case GEOPM_DOMAIN_BOARD_NIC:
+            case GEOPM_DOMAIN_PACKAGE_NIC:
+            case GEOPM_DOMAIN_PACKAGE_ACCELERATOR:
+                /// @todo Add support for package memory NIC and package accelerators to domain_idx() method.
+                throw Exception("PlatformTopoImp::domain_idx() no support yet for PACKAGE_MEMORY, NIC, or ACCELERATOR",
+                                GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+                break;
+            case GEOPM_DOMAIN_INVALID:
+            default:
+                throw Exception("PlatformTopoImp::domain_idx() invalid domain specified",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                break;
         }
         return result;
     }
