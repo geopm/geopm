@@ -36,6 +36,7 @@ int main(int argc, char**argv)
     iterations = 0;
     while (iterations < total_iterations) {
         geopm_tprof_post();
+        ++iterations;
     }
     geopm_prof_exit(region_id[1]);
 
@@ -46,6 +47,7 @@ int main(int argc, char**argv)
     iterations = 0;
     while (iterations < total_iterations) {
         geopm_tprof_post();
+        ++iterations;
     }
     geopm_prof_exit(region_id[2]);
 
