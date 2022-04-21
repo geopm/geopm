@@ -61,9 +61,6 @@ jobs:
            python3 -m pip install --upgrade pip setuptools wheel pep517
            python3 -m pip install -r service/requirements.txt
            python3 -m pip install -r scripts/requirements.txt
-    - name: check include guards
-      shell: bash
-      run: .github/include_guards.sh
     - name: configure service dir
       working-directory: service
       run: ./autogen.sh && ./configure --${{ matrix.debug-flag }}
@@ -74,31 +71,5 @@ jobs:
       run: ./autogen.sh && ./configure --enable-beta --disable-openmp --with-geopmd-lib=./service/.libs --with-geopmd-include=./service/src --${{ matrix.debug-flag }}
     - name: make base dir
       run: make -j2
-    - name: make checkprogs service
-      working-directory: service
-      run: make checkprogs -j2
-    - name: make checkprogs base dir
-      run: make checkprogs -j2
-    - name: make check service
-      working-directory: service
-      env:
-        LD_LIBRARY_PATH: .libs:${LD_LIBRARY_PATH}
-      run: make check
-    - name: make check basedir
-      run: make check
-      env:
-        LD_LIBRARY_PATH: .libs:./service/.libs:${LD_LIBRARY_PATH}
-        PYTHONPATH: scripts:${PYTHONPATH}
-    - name: test-dist
-      run: ./copying_headers/test-dist
-    - name: show failure logs
-      if: ${{ failure() }}
-      run: |
-           cat scripts/py3k_lint.log || true
-           cat scripts/test/pytest_links/*.log || true
-           cat service/geopmdpy_test/pytest_links/*.log || true
-           cat test/gtest_links/*.log || true
-           cat service/test/gtest_links/*.log || true
-
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
