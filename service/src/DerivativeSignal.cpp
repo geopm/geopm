@@ -63,12 +63,12 @@ namespace geopm
             for (size_t buf_off = buf_size - num_fit;
                  buf_off < buf_size; ++buf_off) {
                 double tt = history.value(buf_off).time;
-                double time = tt - time_0;
+                double dt = tt - time_0;
                 double sig = history.value(buf_off).sample - sig_0;
-                A += time * sig;
-                B += time;
+                A += dt * sig;
+                B += dt;
                 C += sig;
-                D += time * time;
+                D += dt * dt;
             }
 
             double ssxx = D - B * B * E;
