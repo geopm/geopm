@@ -107,6 +107,11 @@ class TestSession(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, err_msg):
             self._session.check_read_args(1, 2)
 
+        day = 24 * 60 * 60
+        err_msg = 'Specified a period greater than 24 hours'
+        with self.assertRaisesRegex(RuntimeError, err_msg):
+            self._session.check_read_args(7 * day, day + 1,)
+
         err_msg = 'Specified a negative run time or period'
         with self.assertRaisesRegex(RuntimeError, err_msg):
             self._session.check_read_args(-1, -1)
