@@ -121,31 +121,6 @@ class Session:
             line = self.format_signals(signals, requests.get_formats())
             out_stream.write(line)
 
-    def run_write(self, requests, duration):
-        """Run a write mode session
-
-        Use the GEOPM D-Bus interface to write the requested set of
-        controls.  The control settings will be held for the specified
-        duration of time and the call to this method blocks until the
-        duration of time has elapsed.
-
-        Args:
-            requests (WriteRequestQueue): Request object parsed from
-                                          user input.
-
-            duration (float): Length of time to hold the requested
-                              control settings in units of seconds.
-
-        """
-        self._geopm_proxy.PlatformOpenSession()
-        key = 'SERVICE::'
-        for name, dom, dom_idx, setting in requests:
-            if name.startswith(key):
-                name = name.replace(key, '', 1)
-            self._geopm_proxy.PlatformWriteControl(name, dom, dom_idx, setting)
-        time.sleep(duration)
-        self._geopm_proxy.PlatformCloseSession()
-
     def check_read_args(self, run_time, period):
         """Check that the run time and period are valid for a read session
 
@@ -166,25 +141,7 @@ class Session:
         if period < 0.0 or run_time < 0.0:
             raise RuntimeError('Specified a negative run time or period')
 
-    def check_write_args(self, run_time, period):
-        """Check that the run time and period are valid for a write session
-
-        Args:
-            run_time (float): Time duration of the session in seconds.
-
-            period (float): The user specified period between samples
-                            in units of seconds.
-
-        Raises:
-            RuntimeError: The period is non-zero or total time is negative.
-
-        """
-        if run_time <= 0.0:
-            raise RuntimeError('When opening a write mode session, a time greater than zero must be specified')
-        if period != 0.0:
-            raise RuntimeError('Cannot specify period with write mode session')
-
-    def run(self, is_write, run_time, period,
+    def run(self, run_time, period,
             request_stream=sys.stdin, out_stream=sys.stdout):
         """"Create a GEOPM session with values parsed from the command line
 
@@ -193,48 +150,37 @@ class Session:
         line provided by the user.
 
         Args:
-            is_write (bool): True for write mode session requests, and
-                             False for read mode session requests.
-
             run_time (float): Time duration of the session in seconds.
 
-            period (float): Time interval for each line of output for
-                            a read session.  Value must be zero for a
-                            write mode session.
+            period (float): Time interval for each line of output for.
+                            Value must be zero for a write mode
+                            session.
 
             request_stream (file): Input from user describing the
-                                   requests to read or write values.
+                                   requests to read.
 
-            out_stream (file): Stream where output from a read mode
-                               session will be printed.  This
-                               parameter is not used for a write mode
-                               session.
+            out_stream (file): Stream where output from will be
+                               printed.
 
         """
-        if is_write:
-            requests = WriteRequestQueue(request_stream)
-            self.check_write_args(run_time, period)
-            self.run_write(requests, run_time)
-        else:
-            requests = ReadRequestQueue(request_stream, self._geopm_proxy)
-            self.check_read_args(run_time, period)
-            self.run_read(requests, run_time, period, out_stream)
+        requests = ReadRequestQueue(request_stream, self._geopm_proxy)
+        self.check_read_args(run_time, period)
+        self.run_read(requests, run_time, period, out_stream)
 
 
 class RequestQueue:
     """Object derived from user input that provides request information
 
-    The geopmsession command line tool parses requests for reading or
-    writing from standard input.  The RequestQueue object holds the
-    logic for parsing the input stream upon construction.  The
-    resulting object may be iterated upon to retrieve the requested
-    signals/controls that the user would like to read/write.  The
-    Request object also provides the enum used to format signal values
-    into strings (for read mode sessions).
+    The geopmsession command line tool parses requests for reading
+    from standard input.  The RequestQueue object holds the logic for
+    parsing the input stream upon construction.  The resulting object
+    may be iterated upon to retrieve the requested signals that the
+    user would like to read.  The Request object also provides the
+    enum used to format signal values into strings.
 
     """
     def __init__(self):
-        raise NotImplementedError('RequestQueue class is an abstract base class for ReadRequestQueue and WriteRequestQueue')
+        raise NotImplementedError('RequestQueue class is an abstract base class for ReadRequestQueue')
 
     def __iter__(self):
         """Iterate over list of requests
@@ -388,83 +334,15 @@ class ReadRequestQueue(RequestQueue):
         """
         return self._formats
 
-
-class WriteRequestQueue(RequestQueue):
-    def __init__(self, request_stream):
-        """Constructor for RequestQueue object
-
-        Args:
-            request_stream (file): Input from user describing the
-                                   requests to write controls.
-
-        Raises:
-            RuntimeError: The geopm systemd service is not running
-
-        """
-        self._requests = self.parse_requests(request_stream)
-
-    def parse_requests(self, request_stream):
-        """Parse input stream and return list of write requests
-
-        Parse a user supplied stream into a list of tuples
-        representing write requests.  The tuples are of the form
-        (control_name, domain_type, domain_idx, setting) and are parsed
-        one from each line of the stream.  Each of the values in the
-        stream is separated by white space.
-
-        Each control_name should match one of the control names
-        provided by the service.  The domain_type is specified as the
-        name string, i.e one of the following strings: "board",
-        "package", "core", "cpu", "board_memory", "package_memory",
-        "board_nic", "package_nic", "board_accelerator",
-        "package_accelerator".  The domain index is a positive integer
-        indexing the specific domain.  The setting is the requested
-        control value.
-
-        Args:
-            request_stream (file): Input stream to parse for write
-                                   requests
-
-        Returns:
-            list((str, int, int, float)): List of request tuples. Each
-                request comprises a signal name, domain type, domain
-                index, and setting value.
-
-        Raises:
-            RuntimeError: Line from stream does not split into four
-                          words and is also not a comment or empty
-                          line.
-
-        """
-        requests = []
-        for line in self.iterate_stream(request_stream):
-            words = line.split()
-            if len(words) != 4:
-                raise RuntimeError('Write request must be four words: "{}"'.format(line))
-            try:
-                control_name = words[0]
-                domain_type = topo.domain_type(words[1])
-                domain_idx = int(words[2])
-                setting = float(words[3])
-            except (RuntimeError, ValueError):
-                raise RuntimeError('Unable to convert values into a write request: "{}"'.format(line))
-            requests.append((control_name, domain_type, domain_idx, setting))
-        if len(requests) == 0:
-            raise RuntimeError('Empty request stream.')
-        return requests
-
-
 def main():
-    """Command line interface for the geopm service read/write features.
+    """Command line interface for the geopm service batch read features.
 
-    This command can be used to read signals and write controls by
-    opening a session with the geopm service.
+    This command can be used to read signals by opening a session with
+    the geopm service.
 
     """
     err = 0
     parser = ArgumentParser(description=main.__doc__)
-    parser.add_argument('-w', '--write', dest='write', action='store_true', default=False,
-                        help='Open a write mode session to adjust control values.')
     parser.add_argument('-t', '--time', dest='time', type=float, default=0.0,
                         help='Total run time of the session to be opened in seconds')
     parser.add_argument('-p', '--period', dest='period', type=float, default = 0.0,
@@ -473,7 +351,7 @@ def main():
     try:
         sess = Session(SystemMessageBus().get_proxy('io.github.geopm',
                                                     '/io/github/geopm'))
-        sess.run(args.write, args.time, args.period)
+        sess.run(args.time, args.period)
     except RuntimeError as ee:
         if 'GEOPM_DEBUG' in os.environ:
             # Do not handle exception if GEOPM_DEBUG is set
