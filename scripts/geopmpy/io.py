@@ -26,7 +26,6 @@ import hashlib
 from distutils.spawn import find_executable
 from natsort import natsorted
 from . import __version__
-from . import update_report
 
 try:
     _, os.environ['COLUMNS'] = subprocess.check_output(['stty', 'size']).decode().split()
@@ -693,7 +692,6 @@ imbalance : {imbalance}
 
 class RawReport(object):
     def __init__(self, path):
-        update_report.update_report(path)
         # Fix issue with python yaml module where it is confused
         # about floating point numbers of the form "1e+10" where
         # the decimal point is missing.

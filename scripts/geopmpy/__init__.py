@@ -12,7 +12,7 @@ import os
 
 __all__ = ['agent', 'error', 'hash', 'io', 'launcher',
            'pio', 'plotter', 'policy_store', 'topo',
-           'update_report', 'version']
+           'version']
 
 try:
     from geopmpy.version import __version__

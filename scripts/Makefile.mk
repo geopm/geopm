@@ -19,7 +19,6 @@ EXTRA_DIST += scripts/MANIFEST.in \
               scripts/geopmpy/plotter.py \
               scripts/geopmpy/policy_store.py \
               scripts/geopmpy/reporter.py \
-              scripts/geopmpy/update_report.py \
               scripts/geopmpy/version.py \
               scripts/requirements.txt \
               scripts/setup.py \
@@ -81,7 +80,6 @@ PYTEST_TESTS = scripts/test/pytest_links/TestAffinity.test_affinity_0 \
                scripts/test/pytest_links/TestIO.test_raw_report_collection_app_totals \
                scripts/test/pytest_links/TestIO.test_raw_report_collection_epoch_totals \
                scripts/test/pytest_links/TestIO.test_raw_report_collection_unmarked_totals \
-               scripts/test/pytest_links/TestIO.test_convert \
                scripts/test/pytest_links/TestLauncher.test_process_count \
                scripts/test/pytest_links/TestLauncher.test_non_file_output \
                scripts/test/pytest_links/TestLauncher.test_main \
