@@ -14,7 +14,6 @@ from collections import Counter
 from contextlib import contextmanager
 
 import geopmpy.io
-import geopmpy.update_report
 
 
 def touch_file(file_path):
@@ -1389,15 +1388,6 @@ class TestIO(unittest.TestCase):
         self.assertEqual(set(unmarked_mcfly11.keys()), set(df.columns))
         actual = df.loc[(df['host'] == 'mcfly11')].to_dict('records')[0]
         self.assertEqual(unmarked_mcfly11, actual)
-
-    def test_convert(self):
-        new_report = geopmpy.update_report.update_report_str(test_report_data_old)
-        line_number = 1
-        for (expected_line, actual_line) in zip(test_report_data.splitlines(), new_report.splitlines()):
-            self.assertEqual(expected_line, actual_line,
-                             msg="'{}' != '{}', line: {}".format(
-                             expected_line, actual_line, line_number))
-            line_number += 1
 
 
 if __name__ == '__main__':
