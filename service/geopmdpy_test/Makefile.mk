@@ -83,17 +83,13 @@ GEOPMDPY_TESTS = geopmdpy_test/pytest_links/TestAccessLists.test__read_allowed_i
                  geopmdpy_test/pytest_links/TestRequestQueue.test_read_request_queue \
                  geopmdpy_test/pytest_links/TestRequestQueue.test_read_request_queue_invalid \
                  geopmdpy_test/pytest_links/TestRequestQueue.test_request_queue_invalid \
-                 geopmdpy_test/pytest_links/TestRequestQueue.test_write_request_queue \
-                 geopmdpy_test/pytest_links/TestRequestQueue.test_write_request_queue_invalid \
                  geopmdpy_test/pytest_links/TestSession.test_check_read_args \
-                 geopmdpy_test/pytest_links/TestSession.test_check_write_args \
                  geopmdpy_test/pytest_links/TestSession.test_create_session \
                  geopmdpy_test/pytest_links/TestSession.test_create_session_invalid \
                  geopmdpy_test/pytest_links/TestSession.test_format_signals \
                  geopmdpy_test/pytest_links/TestSession.test_format_signals_invalid \
                  geopmdpy_test/pytest_links/TestSession.test_run \
                  geopmdpy_test/pytest_links/TestSession.test_run_read \
-                 geopmdpy_test/pytest_links/TestSession.test_run_write \
                  geopmdpy_test/pytest_links/TestController.test_agent \
                  geopmdpy_test/pytest_links/TestController.test_controller_construction \
                  geopmdpy_test/pytest_links/TestController.test_controller_construction_invalid \

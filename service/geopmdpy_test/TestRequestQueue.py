@@ -13,7 +13,6 @@ from dasbus.error import DBusError
 with mock.patch('cffi.FFI.dlopen', return_value=mock.MagicMock()):
     from geopmdpy.session import RequestQueue
     from geopmdpy.session import ReadRequestQueue
-    from geopmdpy.session import WriteRequestQueue
 
 class TestRequestQueue(unittest.TestCase):
     def setUp(self):
@@ -24,7 +23,7 @@ class TestRequestQueue(unittest.TestCase):
         self._geopm_proxy.reset_mock(return_value=True, side_effect=True)
 
     def test_request_queue_invalid(self):
-        err_msg = 'RequestQueue class is an abstract base class for ReadRequestQueue and WriteRequestQueue'
+        err_msg = 'RequestQueue class is an abstract base class for ReadRequestQueue'
         with self.assertRaisesRegex(RuntimeError, err_msg):
             RequestQueue()
 
@@ -90,49 +89,6 @@ class TestRequestQueue(unittest.TestCase):
 
             parsed_reqs = []
             for req in rrq:
-                parsed_reqs += [req]
-            self.assertEqual(requests, parsed_reqs)
-
-    def test_write_request_queue_invalid(self):
-        err_msg = 'Empty request stream.'
-        with self.assertRaisesRegex(RuntimeError, err_msg):
-            wrq = WriteRequestQueue(StringIO(''))
-
-        data = 'not_enough_data'
-        err_msg = 'Write request must be four words: "{}"'.format(data)
-        with self.assertRaisesRegex(RuntimeError, err_msg):
-            wrq = WriteRequestQueue(StringIO(data))
-
-        data = 'Bad data provided here'
-        err_msg = 'Unable to convert values into a write request: "{}"'.format(data)
-        with mock.patch('geopmdpy.topo.domain_type', return_value = 42), \
-             self.assertRaisesRegex(RuntimeError, err_msg):
-            wrq = WriteRequestQueue(StringIO(data))
-
-        data = 'Bad data 123 456'
-        err_msg = 'Unable to convert values into a write request: "{}"'.format(data)
-        with mock.patch('geopmdpy.topo.domain_type', side_effect = ValueError('bad')), \
-             self.assertRaisesRegex(RuntimeError, err_msg):
-            wrq = WriteRequestQueue(StringIO(data))
-
-    def test_write_request_queue(self):
-        power_req = ('power', 42, 0, 5.55)
-        energy_req = ('energy', 42, 1, 6.66)
-        frequency_req = ('frequency', 42, 2, 7.77)
-        requests = [power_req, energy_req, frequency_req]
-        names = [power_req[0], energy_req[0], frequency_req[0]]
-
-        request_stream = ''
-        for rr in requests:
-            request_stream += ' '.join(map(str, rr)) + '\n'
-        request_stream = StringIO(request_stream)
-
-        with mock.patch('geopmdpy.topo.domain_type', return_value = 42) as pdt:
-            wrq = WriteRequestQueue(request_stream)
-
-            self.assertEqual(requests, wrq._requests)
-            parsed_reqs = []
-            for req in wrq:
                 parsed_reqs += [req]
             self.assertEqual(requests, parsed_reqs)
 

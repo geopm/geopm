@@ -15,7 +15,6 @@ with mock.patch('cffi.FFI.dlopen', return_value=mock.MagicMock()):
     from geopmdpy.session import Session
     from geopmdpy.session import RequestQueue
     from geopmdpy.session import ReadRequestQueue
-    from geopmdpy.session import WriteRequestQueue
 
 class TestSession(unittest.TestCase):
     def setUp(self):
@@ -103,18 +102,6 @@ class TestSession(unittest.TestCase):
             calls = num_period * [mock.call(format_return_value)]
             out_stream.write.assert_has_calls(calls)
 
-    def test_run_write(self):
-        requests = [('one', 2, 3, 1.0), ('four', 5, 6, 4.0)]
-        duration = 42
-        with mock.patch('time.sleep') as ts:
-            self._session.run_write(requests, duration)
-
-            self._geopm_proxy.PlatformOpenSession.assert_called_once_with()
-            calls = [mock.call(*cc) for cc in requests]
-            self._geopm_proxy.PlatformWriteControl.assert_has_calls(calls)
-            ts.assert_called_once_with(duration)
-            self._geopm_proxy.PlatformCloseSession.assert_called_once_with()
-
     def test_check_read_args(self):
         err_msg = 'Specified a period that is greater than the total run time'
         with self.assertRaisesRegex(RuntimeError, err_msg):
@@ -130,52 +117,22 @@ class TestSession(unittest.TestCase):
 
         self._session.check_read_args(1, 1)
 
-    def test_check_write_args(self):
-        err_msg = 'When opening a write mode session, a time greater than zero must be specified'
-        with self.assertRaisesRegex(RuntimeError, err_msg):
-            self._session.check_write_args(-1, 2)
-
-        err_msg = 'Cannot specify period with write mode session'
-        with self.assertRaisesRegex(RuntimeError, err_msg):
-            self._session.check_write_args(1, 2)
-
-        self._session.check_write_args(10, 0)
-
     def test_run(self):
-        is_write = True
+        period = 7
         runtime = 42
         period = 0
         request_stream = [1, 2, 3, 4, 5]
         out_stream = mock.MagicMock()
-        wrq_return_value = [0, 1, 2]
         rrq_return_value = [4, 5, 6]
-        with mock.patch('geopmdpy.session.WriteRequestQueue',
-                        return_value=wrq_return_value) as swrq, \
-             mock.patch('geopmdpy.session.ReadRequestQueue',
-                        return_value=rrq_return_value) as srrq, \
-             mock.patch('geopmdpy.session.Session.check_write_args') as scwa, \
-             mock.patch('geopmdpy.session.Session.run_write') as srw:
-            self._session.run(is_write, runtime, period, request_stream, out_stream)
-
-            swrq.assert_called_once_with(request_stream)
-            scwa.assert_called_once_with(runtime, period)
-            srw.assert_called_once_with(wrq_return_value, runtime)
-            srrq.assert_not_called()
-
-        is_write = False
-        period = 7
-        with mock.patch('geopmdpy.session.WriteRequestQueue',
-                        return_value=wrq_return_value) as swrq, \
-             mock.patch('geopmdpy.session.ReadRequestQueue',
+        with mock.patch('geopmdpy.session.ReadRequestQueue',
                         return_value=rrq_return_value) as srrq, \
              mock.patch('geopmdpy.session.Session.check_read_args') as scra, \
              mock.patch('geopmdpy.session.Session.run_read') as srr:
-            self._session.run(is_write, runtime, period, request_stream, out_stream)
+            self._session.run(runtime, period, request_stream, out_stream)
 
             srrq.assert_called_once_with(request_stream, self._geopm_proxy)
             scra.assert_called_once_with(runtime, period)
             srr.assert_called_once_with(rrq_return_value, runtime, period, out_stream)
-            swrq.assert_not_called()
 
 
 if __name__ == '__main__':

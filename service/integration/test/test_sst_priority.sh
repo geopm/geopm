@@ -61,9 +61,9 @@ sleep 1
 cat ${READ_REQUEST} | geopmsession > ${SESSION_LOG}
 
 # Open a write session with the GEOPM service configuring SST
-cat ${WRITE_REQUEST} | geopmsession -w -t 600 &
-SESSION_ID=$!
-sleep 1
+for req in $(cat ${WRITE_REQUEST}); do
+    geopmwrite ${req}
+done
 
 # Read the CPU frequencies again and note different values
 cat ${READ_REQUEST} | geopmsession >> ${SESSION_LOG}
@@ -82,7 +82,6 @@ err=$?
 
 # Kill the benchmark and the write session
 kill -9 ${BENCH_ID}
-kill -9 ${SESSION_ID}
 rm ${BENCH_LOG}
 rm ${SESSION_LOG}
 rm ${READ_REQUEST}
