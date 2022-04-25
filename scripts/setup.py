@@ -55,8 +55,6 @@ launching the runtime and postprocessing the output data."""
 
 
 scripts = ["geopmlaunch"]
-if __beta__:
-    scripts += ["geopmplotter"]
 
 classifiers = ['Development Status :: 5 - Production/Stable',
                'License :: OSI Approved :: BSD License',
@@ -73,7 +71,6 @@ classifiers = ['Development Status :: 5 - Production/Stable',
 
 install_requires = ['pandas>=0.23.0',
                     'natsort>=5.3.2',
-                    'matplotlib>=2.2.2',
                     'cycler>=0.10.0',
                     'tables>=3.4.3',
                     'psutil>=5.4.8',

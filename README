@@ -137,8 +137,8 @@ Some new features of GEOPM are still under development, and their
 interfaces may change before they are included in official releases.
 To enable these features in the GEOPM install location, configure
 GEOPM with the `--enable-beta` configure flag.  The features currently
-considered unfinalized are the endpoint interface, the `geopmendpoint`
-application, and the `geopmplotter` application.
+considered unfinalized are the endpoint interface, and the
+`geopmendpoint` application.
 
 
 License

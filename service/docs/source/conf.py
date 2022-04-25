@@ -139,7 +139,6 @@ rst_files = [
     "geopm_imbalancer.3",
     "geopmlaunch.1",
     "geopm_pio_c.3",
-    "geopmplotter.1",
     "geopm_policystore_c.3",
     "geopm_prof_c.3",
     "geopmpy.7",

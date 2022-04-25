@@ -86,7 +86,6 @@ all_man_rst = docs/source/geopm.7.rst \
               docs/source/geopm_imbalancer.3.rst \
               docs/source/geopmlaunch.1.rst \
               docs/source/geopm_pio_c.3.rst \
-              docs/source/geopmplotter.1.rst \
               docs/source/geopm_policystore_c.3.rst \
               docs/source/geopm_prof_c.3.rst \
               docs/source/geopmpy.7.rst \
@@ -162,7 +161,6 @@ base_man = docs/build/man/geopmadmin.1 \
            docs/build/man/geopm_fortran.3 \
            docs/build/man/geopm_imbalancer.3 \
            docs/build/man/geopmlaunch.1 \
-           docs/build/man/geopmplotter.1 \
            docs/build/man/geopm_policystore_c.3 \
            docs/build/man/geopm_prof_c.3 \
            docs/build/man/geopmpy.7 \

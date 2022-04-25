@@ -27,7 +27,6 @@ GEOPM Manual Pages
    geopmctl.1
    geopmendpoint.1
    geopmlaunch.1
-   geopmplotter.1
    geopmread.1
    geopmsession.1
    geopmwrite.1
