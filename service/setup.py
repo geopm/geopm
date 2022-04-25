@@ -40,11 +40,11 @@ classifiers = ['Development Status :: 5 - Production/Stable',
                'Programming Language :: Python :: 3.6',
 ]
 
-install_requires = ['cffi>=1.6.0',
-                    'setuptools>=39.2.0',
-                    'psutil>=5.6.2',
+install_requires = ['cffi>=1.15.0',
+                    'setuptools>=59.6.0',
+                    'psutil>=5.9.0',
                     'dasbus>=1.6.0',
-                    'jsonschema>=2.6.0']
+                    'jsonschema>=3.2.0']
 
 setup(name='geopmdpy',
       version=__version__,
