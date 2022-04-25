@@ -60,6 +60,7 @@ integration/experiment/README.md
 integration/experiment/trace_analysis/README.md
 integration/experiment/uncore_frequency_sweep/README.md
 integration/README.md
+integration/requirements.txt
 integration/test/README.md
 MANIFEST
 pull_request_template.md
@@ -128,7 +129,6 @@ service/docs/source/geopm_hash.3.rst
 service/docs/source/geopm_imbalancer.3.rst
 service/docs/source/geopmlaunch.1.rst
 service/docs/source/geopm_pio_c.3.rst
-service/docs/source/geopmplotter.1.rst
 service/docs/source/geopm_policystore_c.3.rst
 service/docs/source/geopm_prof_c.3.rst
 service/docs/source/geopmpy.7.rst

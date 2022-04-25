@@ -13,6 +13,7 @@ EXTRA_DIST += integration/README.md \
               integration/config/run_env.sh \
               integration/config/smng_env.sh \
               integration/config/theta_env.sh \
+              integration/requirements.txt \
               # end
 
 include integration/apps/Makefile.mk
