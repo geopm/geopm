@@ -34,7 +34,7 @@ except subprocess.CalledProcessError:
 
 pandas.set_option('display.width', int(os.environ['COLUMNS']))
 pandas.set_option('display.max_colwidth', 80)
-pandas.set_option('max_columns', 100)
+pandas.set_option('display.max_columns', 100)
 
 
 class AppOutput(object):
