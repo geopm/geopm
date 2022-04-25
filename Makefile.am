@@ -127,7 +127,6 @@ roff_man_noinst = man/GEOPM_CXX_MAN_Comm.3 \
                   # end
 
 roff_man_beta = man/geopmendpoint.1 \
-                man/geopmplotter.1 \
                 man/geopm_daemon_c.3 \
                 man/geopm_endpoint_c.3 \
                 man/geopm_policystore_c.3 \
@@ -231,7 +230,6 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              man/geopm_fortran.3 \
              man/geopm_imbalancer.3 \
              man/geopmlaunch.1 \
-             man/geopmplotter.1 \
              man/geopm_policystore_c.3 \
              man/geopm_prof_c.3 \
              man/geopmpy.7 \
