@@ -34,7 +34,6 @@ jobs:
           name: gcc-9,
           cc: "gcc-9", cxx: "g++-9"
         }
-        python-version: [3.7]
         debug-flag: ["enable-debug", "disable-debug"]
     env:
       CC: ${{ matrix.config.cc }}
@@ -44,9 +43,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
     - name: install system dependencies
       run: sudo apt-get update && sudo apt-get install libelf-dev mpich libmpich-dev libomp-11-dev libsystemd-dev python3-gi
     - name: install base and service dir python dependencies
@@ -105,9 +101,6 @@ jobs:
     - uses: actions/checkout@v3
       with:
         fetch-depth: 0
-    - uses: actions/setup-python@v3
-      with:
-        python-version: "3.7"
     - name: install system dependencies
       run: sudo apt-get update && sudo apt-get install libsystemd-dev libgirepository1.0-dev osc python3-m2crypto
     - name: install base and service dir python dependencies
