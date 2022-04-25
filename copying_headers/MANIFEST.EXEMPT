@@ -53,6 +53,8 @@ integration/apps/README.md
 integration/config/README.md
 integration/experiment/frequency_sweep/README.md
 integration/experiment/monitor/README.md
+integration/experiment/outlier/README.md
+integration/experiment/outlier/theta_nodelist_broken.txt
 integration/experiment/power_sweep/README.md
 integration/experiment/README.md
 integration/experiment/trace_analysis/README.md
@@ -64,8 +66,6 @@ pull_request_template.md
 README
 README.md
 scripts/MANIFEST.in
-scripts/outlier/README.md
-scripts/outlier/theta_nodelist_broken.txt
 scripts/requirements.txt
 scripts/test/test_io_experiment.report
 service/contrib/json11/LICENSE.txt

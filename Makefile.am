@@ -236,9 +236,6 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              man/geopm_prof_c.3 \
              man/geopmpy.7 \
              pull_request_template.md \
-             scripts/outlier/README.md \
-             scripts/outlier/outlier_detection.py \
-             scripts/outlier/theta_nodelist_broken.txt \
              specs/geopm.spec \
              specs/geopm.spec.in \
              specs/geopm-dudley.spec \
