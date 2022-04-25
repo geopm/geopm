@@ -44,7 +44,6 @@ namespace geopm
             virtual std::string agent(void) const = 0;
             virtual std::vector<std::pair<std::string, int> > trace_signals(void) const = 0;
             virtual std::vector<std::pair<std::string, int> > report_signals(void) const = 0;
-            virtual std::vector<std::pair<std::string, int> > signal_parser(std::string environment_variable_contents) const = 0;
             virtual int max_fan_out(void) const = 0;
             virtual int pmpi_ctl(void) const = 0;
             virtual bool do_policy(void) const = 0;
@@ -84,7 +83,7 @@ namespace geopm
             std::string agent(void) const override;
             std::vector<std::pair<std::string, int> > trace_signals(void) const override;
             std::vector<std::pair<std::string, int> > report_signals(void) const override;
-            std::vector<std::pair<std::string, int> > signal_parser(std::string environment_variable_contents) const override;
+            std::vector<std::pair<std::string, int> > signal_parser(std::string environment_variable_contents) const;
             int max_fan_out(void) const override;
             int pmpi_ctl(void) const override;
             bool do_policy(void) const override;

@@ -47,8 +47,6 @@ class TracerTest : public ::testing::Test
         std::string m_hostname = "myhost";
         std::string m_start_time = "Tue Nov  6 08:00:00 2018";
         std::vector<struct m_request_s> m_default_cols;
-        std::vector<std::string> m_extra_cols;
-        std::string m_extra_cols_str;
         const int m_num_extra_cols = 3;
         std::unique_ptr<geopm::TracerImp> m_tracer;
 };
@@ -82,8 +80,9 @@ void TracerTest::SetUp(void)
         {"CYCLES_REFERENCE", GEOPM_DOMAIN_BOARD, 0, geopm::string_format_integer},
         {"TEMPERATURE_CORE", GEOPM_DOMAIN_BOARD, 0, geopm::string_format_double},
     };
-    m_extra_cols_str = "EXTRA,EXTRA_SPECIAL@cpu";
-    m_extra_cols = geopm::string_split(m_extra_cols_str, ",");
+    const std::vector<std::pair<std::string, int> > env_signals = {
+        {"ENERGY_PACKAGE", geopm_domain_e::GEOPM_DOMAIN_PACKAGE}
+    };
 
     int idx = 0;
     for (auto cc : m_default_cols) {
@@ -112,7 +111,7 @@ void TracerTest::SetUp(void)
     }
 
     m_tracer = geopm::make_unique<TracerImp>(m_start_time, m_path, m_hostname, true,
-                                             m_platform_io, m_platform_topo, m_extra_cols_str);
+                                             m_platform_io, m_platform_topo, env_signals);
 }
 
 void TracerTest::TearDown(void)
