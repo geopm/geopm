@@ -13,6 +13,8 @@
 #include "gtest/gtest.h"
 #include "geopm_error.h"
 #include "geopm_field.h"
+#include "geopm_topo.h"  // for geopm_domain_e
+#include "geopm_test.hpp" // for GEOPM_EXPECT_THROW_MESSAGE
 #include "Environment.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
@@ -39,12 +41,16 @@ class EnvironmentTest: public :: testing :: Test
         void TearDown();
         static void vars_to_json(std::map<std::string, std::string> vars, const std::string &path);
         void expect_vars(std::map<std::string, std::string> exp_vars) const;
+        void check_trace_report_signals(const std::vector<std::pair<std::string, int> >& expected_trace_signals,
+                                        const std::vector<std::pair<std::string, int> >& expected_report_signals) const;
         void cache_env_value(const std::string &key);
         const std::string M_DEFAULT_PATH = "env_test_default.json";
         const std::string M_OVERRIDE_PATH = "env_test_override.json";
         std::map<std::string, std::string> m_user;
         std::map<std::string, int> m_pmpi_ctl_map;
         std::map<std::string, std::string> m_env_restore;
+        std::vector<std::pair<std::string, int> > m_trace_signals;
+        std::vector<std::pair<std::string, int> > m_report_signals;
         std::unique_ptr<Environment> m_env;
 };
 
@@ -88,8 +94,29 @@ void EnvironmentTest::expect_vars(std::map<std::string, std::string> exp_vars) c
     EXPECT_EQ(exp_vars["GEOPM_MAX_FAN_OUT"], std::to_string(m_env->max_fan_out()));
     EXPECT_EQ(exp_vars["GEOPM_TIMEOUT"], std::to_string(m_env->timeout()));
     EXPECT_EQ(exp_vars["GEOPM_DEBUG_ATTACH"], std::to_string(m_env->debug_attach_process()));
-    EXPECT_EQ(exp_vars["GEOPM_TRACE_SIGNALS"], m_env->trace_signals());
-    EXPECT_EQ(exp_vars["GEOPM_REPORT_SIGNALS"], m_env->report_signals());
+}
+
+void EnvironmentTest::check_trace_report_signals(const std::vector<std::pair<std::string, int> >& expected_trace_signals,
+                                                 const std::vector<std::pair<std::string, int> >& expected_report_signals) const
+{
+    auto actual_trace_signals  = m_env->trace_signals();
+    auto actual_report_signals = m_env->report_signals();
+
+    EXPECT_EQ(actual_trace_signals.size(), expected_trace_signals.size());
+    EXPECT_EQ(actual_report_signals.size(), expected_report_signals.size());
+    size_t trace_signals_size = actual_trace_signals.size();
+    size_t report_signals_size = actual_report_signals.size();
+    size_t counter = 0;
+
+    for (counter = 0; counter < trace_signals_size; ++counter) {
+        EXPECT_EQ(actual_trace_signals[counter].first, expected_trace_signals[counter].first);
+        EXPECT_EQ(actual_trace_signals[counter].second, expected_trace_signals[counter].second);
+    }
+
+    for (counter = 0; counter < report_signals_size; ++counter) {
+        EXPECT_EQ(actual_report_signals[counter].first, expected_report_signals[counter].first);
+        EXPECT_EQ(actual_report_signals[counter].second, expected_report_signals[counter].second);
+    }
 }
 
 void EnvironmentTest::SetUp()
@@ -111,6 +138,18 @@ void EnvironmentTest::SetUp()
               {"GEOPM_TRACE_SIGNALS", "test1,test2,test3"},
               {"GEOPM_REPORT_SIGNALS", "best1,best2,best3"},
              };
+    // Contains the same information as the GEOPM_TRACE_SIGNALS and GEOPM_REPORT_SIGNALS,
+    // but in the format of a data structure, as inputs to check_trace_report_signals()
+    m_trace_signals = {
+        {"test1", geopm_domain_e::GEOPM_DOMAIN_BOARD},
+        {"test2", geopm_domain_e::GEOPM_DOMAIN_BOARD},
+        {"test3", geopm_domain_e::GEOPM_DOMAIN_BOARD}
+    };
+    m_report_signals = {
+        {"best1", geopm_domain_e::GEOPM_DOMAIN_BOARD},
+        {"best2", geopm_domain_e::GEOPM_DOMAIN_BOARD},
+        {"best3", geopm_domain_e::GEOPM_DOMAIN_BOARD}
+    };
 
     m_pmpi_ctl_map["process"] = (int)Environment::M_CTL_PROCESS;
     m_pmpi_ctl_map["pthread"] = (int)Environment::M_CTL_PTHREAD;
@@ -237,6 +276,16 @@ TEST_F(EnvironmentTest, default_only)
               {"GEOPM_TRACE_SIGNALS", "default-test1,test2,test3"},
               {"GEOPM_REPORT_SIGNALS", "default-best1,best2,best3"},
              };
+    m_trace_signals = {
+        {"default-test1", geopm_domain_e::GEOPM_DOMAIN_BOARD},
+        {"test2", geopm_domain_e::GEOPM_DOMAIN_BOARD},
+        {"test3", geopm_domain_e::GEOPM_DOMAIN_BOARD}
+    };
+    m_report_signals = {
+        {"default-best1", geopm_domain_e::GEOPM_DOMAIN_BOARD},
+        {"best2", geopm_domain_e::GEOPM_DOMAIN_BOARD},
+        {"best3", geopm_domain_e::GEOPM_DOMAIN_BOARD}
+    };
     vars_to_json(default_vars, M_DEFAULT_PATH);
 
     m_env = geopm::make_unique<EnvironmentImp>(M_DEFAULT_PATH, "");
@@ -244,6 +293,7 @@ TEST_F(EnvironmentTest, default_only)
     exp_vars["GEOPM_SHMKEY"] = "/" + exp_vars["GEOPM_SHMKEY"];
 
     expect_vars(exp_vars);
+    check_trace_report_signals(m_trace_signals, m_report_signals);
 }
 
 TEST_F(EnvironmentTest, override_only)
@@ -265,12 +315,23 @@ TEST_F(EnvironmentTest, override_only)
               {"GEOPM_TRACE_SIGNALS", "override-test1,test2,test3"},
               {"GEOPM_REPORT_SIGNALS", "override-best1,best2,best3"},
              };
+    m_trace_signals = {
+        {"override-test1", geopm_domain_e::GEOPM_DOMAIN_BOARD},
+        {"test2", geopm_domain_e::GEOPM_DOMAIN_BOARD},
+        {"test3", geopm_domain_e::GEOPM_DOMAIN_BOARD}
+    };
+    m_report_signals = {
+        {"override-best1", geopm_domain_e::GEOPM_DOMAIN_BOARD},
+        {"best2", geopm_domain_e::GEOPM_DOMAIN_BOARD},
+        {"best3", geopm_domain_e::GEOPM_DOMAIN_BOARD}
+    };
     vars_to_json(override_vars, M_OVERRIDE_PATH);
 
     m_env = geopm::make_unique<EnvironmentImp>("", M_OVERRIDE_PATH);
     std::map<std::string, std::string> exp_vars = override_vars;
 
     expect_vars(exp_vars);
+    check_trace_report_signals(m_trace_signals, m_report_signals);
 }
 
 TEST_F(EnvironmentTest, default_and_override)
@@ -314,8 +375,23 @@ TEST_F(EnvironmentTest, default_and_override)
     vars_to_json(override_vars, M_OVERRIDE_PATH);
 
     m_env = geopm::make_unique<EnvironmentImp>(M_DEFAULT_PATH, M_OVERRIDE_PATH);
+
     std::map<std::string, std::string> exp_vars = override_vars;
+    m_trace_signals = {
+        {"override-test1", geopm_domain_e::GEOPM_DOMAIN_BOARD},
+        {"test2", geopm_domain_e::GEOPM_DOMAIN_BOARD},
+        {"test3", geopm_domain_e::GEOPM_DOMAIN_BOARD}
+    };
+    m_report_signals = {
+        {"override-best1", geopm_domain_e::GEOPM_DOMAIN_BOARD},
+        {"best2", geopm_domain_e::GEOPM_DOMAIN_BOARD},
+        {"best3", geopm_domain_e::GEOPM_DOMAIN_BOARD}
+    };
+
+    // Uses the override_vars
     expect_vars(exp_vars);
+    // Uses the m_trace_signals, m_report_signals corresponding to the override_vars
+    check_trace_report_signals(m_trace_signals, m_report_signals);
 }
 
 TEST_F(EnvironmentTest, user_default_and_override)
@@ -363,7 +439,10 @@ TEST_F(EnvironmentTest, user_default_and_override)
         {"GEOPM_TRACE_SIGNALS", m_user["GEOPM_TRACE_SIGNALS"]},
         {"GEOPM_REPORT_SIGNALS", m_user["GEOPM_REPORT_SIGNALS"]},
     };
+    // Uses the m_user values from the SetUp() method.
     expect_vars(exp_vars);
+    // Uses the m_trace_signals, m_report_signals values from the SetUp() method.
+    check_trace_report_signals(m_trace_signals, m_report_signals);
 }
 
 TEST_F(EnvironmentTest, invalid_ctl)
@@ -466,4 +545,47 @@ TEST_F(EnvironmentTest, record_filter_off)
 
     EXPECT_FALSE(m_env->do_record_filter());
     EXPECT_EQ("", m_env->record_filter());
+}
+
+TEST_F(EnvironmentTest, signal_parser)
+{
+    std::vector<std::pair<std::string, int> >& expected_signals = m_trace_signals;
+    std::vector<std::pair<std::string, int> > actual_signals;
+    std::string environment_variable_contents;
+
+    expected_signals = {
+        {"CPU_FREQUENCY", geopm_domain_e::GEOPM_DOMAIN_BOARD},
+        {"NUM_CORES", geopm_domain_e::GEOPM_DOMAIN_BOARD},
+        {"NUM_VACUUM_TUBES", geopm_domain_e::GEOPM_DOMAIN_BOARD}
+    };
+    environment_variable_contents = "CPU_FREQUENCY,NUM_CORES,NUM_VACUUM_TUBES";
+    actual_signals = ((EnvironmentImp*)m_env.get())->signal_parser(environment_variable_contents);
+    EXPECT_EQ(expected_signals, actual_signals);
+
+    expected_signals = {
+        {"CPU_FREQUENCY", geopm_domain_e::GEOPM_DOMAIN_BOARD},
+        {"NUM_CORES", geopm_domain_e::GEOPM_DOMAIN_PACKAGE},
+        {"NUM_VACUUM_TUBES", geopm_domain_e::GEOPM_DOMAIN_CORE}
+    };
+    environment_variable_contents = "CPU_FREQUENCY,NUM_CORES@package,NUM_VACUUM_TUBES@core";
+    actual_signals = ((EnvironmentImp*)m_env.get())->signal_parser(environment_variable_contents);
+    EXPECT_EQ(expected_signals, actual_signals);
+
+    expected_signals = {
+        {"NUM_CORES", geopm_domain_e::GEOPM_DOMAIN_INVALID},
+        {"NUM_VACUUM_TUBES", geopm_domain_e::GEOPM_DOMAIN_INVALID}
+    };
+    environment_variable_contents = "NUM_CORES@invalid,NUM_VACUUM_TUBES@invalid";
+    GEOPM_EXPECT_THROW_MESSAGE(
+        ((EnvironmentImp*)m_env.get())->signal_parser(environment_variable_contents),
+        GEOPM_ERROR_INVALID,
+        (std::string("PlatformTopo::domain_name_to_type(): unrecognized domain_name: ") + std::string("invalid"))
+    );
+
+    environment_variable_contents = "CPU_FREQUENCY,NUM_CORES@package@core,NUM_VACUUM_TUBES@core";
+    GEOPM_EXPECT_THROW_MESSAGE(
+        ((EnvironmentImp*)m_env.get())->signal_parser(environment_variable_contents),
+        GEOPM_ERROR_INVALID,
+        (std::string("EnvironmentImp::signal_parser(): Environment trace extension contains signals with multiple \"@\" characters."))
+    );
 }

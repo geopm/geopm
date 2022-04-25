@@ -287,7 +287,7 @@ namespace geopm
                 ));
             } else if (signal_domain.size() == 1) {
                 result_data_structure.push_back(std::make_pair(signal_domain[0], GEOPM_DOMAIN_BOARD));
-            } else{
+            } else {
                 throw Exception("EnvironmentImp::signal_parser(): Environment trace extension contains signals with multiple \"@\" characters.",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }

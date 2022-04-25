@@ -321,6 +321,9 @@ TEST_F(ReporterTest, generate)
     //setup default values for 'generate' tests
     generate_setup();
 
+    const std::vector<std::pair<std::string, int> > env_signals = {
+        {"ENERGY_PACKAGE", geopm_domain_e::GEOPM_DOMAIN_PACKAGE}
+    };
     m_reporter = geopm::make_unique<ReporterImp>(m_start_time,
                                                  m_report_name,
                                                  m_platform_io,
@@ -328,7 +331,7 @@ TEST_F(ReporterTest, generate)
                                                  0,
                                                  m_sample_agg,
                                                  m_region_agg,
-                                                 "ENERGY_PACKAGE@package",
+                                                 env_signals,
                                                  "",
                                                  true);
     m_reporter->init();
@@ -491,6 +494,9 @@ TEST_F(ReporterTest, generate_gpu)
     //setup default values for 'generate' tests
     generate_setup();
 
+    const std::vector<std::pair<std::string, int> > env_signals = {
+        {"ENERGY_PACKAGE", geopm_domain_e::GEOPM_DOMAIN_PACKAGE}
+    };
     m_reporter = geopm::make_unique<ReporterImp>(m_start_time,
                                                  m_report_name,
                                                  m_platform_io,
@@ -498,7 +504,7 @@ TEST_F(ReporterTest, generate_gpu)
                                                  0,
                                                  m_sample_agg,
                                                  m_region_agg,
-                                                 "ENERGY_PACKAGE@package",
+                                                 env_signals,
                                                  "",
                                                  true);
     m_reporter->init();
