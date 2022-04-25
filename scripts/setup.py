@@ -56,7 +56,7 @@ launching the runtime and postprocessing the output data."""
 
 scripts = ["geopmlaunch"]
 if __beta__:
-    scripts += ["geopmplotter", "geopmconvertreport"]
+    scripts += ["geopmplotter"]
 
 classifiers = ['Development Status :: 5 - Production/Stable',
                'License :: OSI Approved :: BSD License',
