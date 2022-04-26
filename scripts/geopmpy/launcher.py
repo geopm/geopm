@@ -474,12 +474,10 @@ class Launcher(object):
 
         # Re-quote the arguments before concatenating them so we don't treat
         # any quoted words as separate args
-        argv_mod = ' '.join(pipes.quote(arg) for arg in argv_mod)
         if self.is_geopm_enabled and self.config.get_ctl() == 'application':
             geopm_argv = [self.launcher_command()]
             geopm_argv.extend(self.launcher_argv(True))
             geopm_argv.append('geopmctl')
-            geopm_argv = ' '.join(pipes.quote(arg) for arg in geopm_argv)
             is_geopmctl = True
         else:
             is_geopmctl = False
@@ -507,12 +505,12 @@ class Launcher(object):
         if is_geopmctl:
             # Need to set OMP_NUM_THREADS to 1 in the env before the run
             self.config.set_omp_num_threads(1)
-            geopm_pid = subprocess.Popen(shlex.split(geopm_argv), env=self.environ(),
+            geopm_pid = subprocess.Popen(geopm_argv, env=self.environ(),
                                          stdout=popen_stdout, stderr=popen_stderr)
         if self.is_geopm_enabled:
             self.config.set_omp_num_threads(self.cpu_per_rank)
 
-        pid = subprocess.Popen(shlex.split(argv_mod), env=self.environ(),
+        pid = subprocess.Popen(argv_mod, env=self.environ(),
                                stdout=popen_stdout, stderr=popen_stderr)
         stdout_bytes, stderr_bytes = pid.communicate()
         if subprocess.PIPE in (popen_stdout, popen_stderr):
