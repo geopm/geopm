@@ -16,7 +16,7 @@ import pandas
 import numpy
 import glob
 import sys
-import subprocess
+import subprocess # nosec
 import psutil
 import copy
 import yaml

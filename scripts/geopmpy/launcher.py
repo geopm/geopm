@@ -17,7 +17,7 @@ page for details about the command line interface.
 import sys
 import os
 import argparse
-import subprocess
+import subprocess # nosec
 import math
 import signal
 import itertools

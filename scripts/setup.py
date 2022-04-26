@@ -6,7 +6,7 @@
 import os
 import sys
 import shutil
-import subprocess
+import subprocess # nosec
 
 try:
     from setuptools import setup

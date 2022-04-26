@@ -8,7 +8,7 @@
 
 import math
 import time
-import subprocess
+import subprocess # nosec
 import sys
 import shlex
 from . import pio
