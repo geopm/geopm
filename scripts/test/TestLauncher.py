@@ -149,12 +149,7 @@ class TestLauncher(unittest.TestCase):
         # [0][0] gets the first positional arg to Popen(), which is a string
         # containing the entire srun command
         srun_popen_args = mock_popen.call_args[0][0]
-        srun_popen_args = ' '.join(srun_popen_args)
-
-        # GEOPM modified some of the launcher's args. Just make sure the
-        # launched command matches.
-        self.assertEqual(workload_command,
-                         srun_popen_args.split('-- ')[1])
+        self.assertEqual(srun_popen_args[-3:], ['--', 'unittest_workload', 'multiple words'])
 
 if __name__ == '__main__':
     unittest.main()
