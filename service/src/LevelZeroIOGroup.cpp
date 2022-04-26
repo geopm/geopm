@@ -611,6 +611,13 @@ namespace geopm
         register_signal_alias("GPU_CORE_FREQUENCY_MAX_CONTROL",
                               M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_CONTROL");
 
+        register_signal_alias(M_NAME_PREFIX + "GPUCHIP_PERFORMANCE_FACTOR_COMPUTE_CONTROL",
+                              M_NAME_PREFIX + "GPUCHIP_PERFORMANCE_FACTOR_COMPUTE");
+        register_signal_alias(M_NAME_PREFIX + "GPUCHIP_PERFORMANCE_FACTOR_MEMORY_CONTROL",
+                              M_NAME_PREFIX + "GPUCHIP_PERFORMANCE_FACTOR_MEMORY");
+        register_signal_alias(M_NAME_PREFIX + "GPU_PERFORMANCE_FACTOR_CONTROL",
+                              M_NAME_PREFIX + "GPU_PERFORMANCE_FACTOR");
+
         // populate controls for each domain
         for (auto &sv : m_control_available) {
             std::vector<std::shared_ptr<control_s> > result;
