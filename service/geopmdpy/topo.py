@@ -201,8 +201,8 @@ def create_cache():
     functions in the topo module as well as any use of the GEOPM
     runtime.  File permissions of the cache file are set to
     "-rw-r--r--", i.e. 644. The path for the cache file is
-    /run/geopm-service/geopm-topo-cache.  If thie file is older than
-    the last boot it will be rengerated.  If the file exists but has
+    /run/geopm-service/geopm-topo-cache.  If this file is older than
+    the last boot it will be regenerated.  If the file exists but has
     improper permissions is will be regenerated.  If the file has been
     created since the last boot with the correct permissions, no
     operation will be performed.  To force the creation of a new cache

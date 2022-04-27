@@ -90,9 +90,9 @@ int geopm_topo_popen(const char *cmd, FILE **fid)
         }
         g_is_popen_complete = 0;
         sigaction(SIGCHLD, &save_action, NULL);
-    }
-    if (!err && *fid == NULL) {
-        err = errno ? errno : GEOPM_ERROR_RUNTIME;
+        if (*fid == NULL) {
+            err = errno ? errno : GEOPM_ERROR_RUNTIME;
+        }
     }
     return err;
 }
@@ -508,6 +508,7 @@ namespace geopm
             }
             int err = fchmod(tmp_fd, perms);
             if (err) {
+                close(tmp_fd);
                 throw Exception("PlatformTopo::create_cache(): Could not chmod tmp_path: ",
                                 errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
@@ -660,7 +661,7 @@ namespace geopm
         }
         else {
             mode_t expected_perms;
-            if (file_path.c_str() == M_SERVICE_CACHE_FILE_NAME) {
+            if (file_path == M_SERVICE_CACHE_FILE_NAME) {
                 expected_perms = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH; // 0o644
             }
             else {
