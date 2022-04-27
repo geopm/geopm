@@ -53,7 +53,5 @@ namespace geopm
             std::vector<std::set<int> > m_numa_map;
             const AcceleratorTopo &m_accelerator_topo;
     };
-
 }
-
 #endif
