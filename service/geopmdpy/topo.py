@@ -211,7 +211,7 @@ def create_cache():
 
     """
     global _dl
-    err = _dl.geopm_topo_create_cache_service()
+    err = _dl.geopm_topo_create_cache()
     if err < 0:
-        raise RuntimeError("geopm_topo_create_cache_service() failed: {}".format(
+        raise RuntimeError("geopm_topo_create_cache() failed: {}".format(
             error.message(err)))
