@@ -460,11 +460,6 @@ namespace geopm
         PlatformTopoImp::create_cache();
     }
 
-    void PlatformTopo::create_cache_service(void)
-    {
-        PlatformTopoImp::create_cache_service();
-    }
-
     void PlatformTopoImp::create_cache(void)
     {
         try {
@@ -473,11 +468,6 @@ namespace geopm
         catch (const geopm::Exception &ex) {
             PlatformTopoImp::create_cache(M_CACHE_FILE_NAME);
         }
-    }
-
-    void PlatformTopoImp::create_cache_service(void)
-    {
-        PlatformTopoImp::create_cache(M_SERVICE_CACHE_FILE_NAME);
     }
 
     void PlatformTopoImp::create_cache(const std::string &cache_file_name)
@@ -844,19 +834,6 @@ extern "C"
         int err = 0;
         try {
             geopm::PlatformTopo::create_cache();
-        }
-        catch (...) {
-            err = geopm::exception_handler(std::current_exception());
-            err = err < 0 ? err : GEOPM_ERROR_RUNTIME;
-        }
-        return err;
-    }
-
-    int geopm_topo_create_cache_service(void)
-    {
-        int err = 0;
-        try {
-            geopm::PlatformTopo::create_cache_service();
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
