@@ -467,7 +467,12 @@ namespace geopm
 
     void PlatformTopoImp::create_cache(void)
     {
-        PlatformTopoImp::create_cache(M_CACHE_FILE_NAME);
+        try {
+            PlatformTopoImp::create_cache(M_SERVICE_CACHE_FILE_NAME);
+        }
+        catch (const geopm::Exception &ex) {
+            PlatformTopoImp::create_cache(M_CACHE_FILE_NAME);
+        }
     }
 
     void PlatformTopoImp::create_cache_service(void)
