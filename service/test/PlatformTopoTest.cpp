@@ -902,6 +902,7 @@ TEST_F(PlatformTopoTest, call_c_wrappers)
 
 TEST_F(PlatformTopoTest, check_file_too_old)
 {
+    spoof_lscpu();
     write_lscpu(m_hsw_lscpu_str);
 
     struct sysinfo si;
@@ -925,12 +926,18 @@ TEST_F(PlatformTopoTest, check_file_too_old)
     // Verify the cache was regenerated because it was too old
     stat(m_lscpu_file_name.c_str(), &file_stat);
     ASSERT_LT(last_boot_time, file_stat.st_mtime);
+
+    // Verify the new file contents
+    std::string new_file_contents = geopm::read_file(m_lscpu_file_name);
+    ASSERT_EQ(m_hsw_lscpu_str, new_file_contents);
 }
 
 TEST_F(PlatformTopoTest, check_file_bad_perms)
 {
+    spoof_lscpu();
     write_lscpu(m_hsw_lscpu_str);
-    // Override the permissions to a known bad state
+
+    // Override the permissions to a known bad state: 0o644
     mode_t bad_perms = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
     chmod(m_lscpu_file_name.c_str(), bad_perms);
 
@@ -947,4 +954,8 @@ TEST_F(PlatformTopoTest, check_file_bad_perms)
     mode_t expected_perms = S_IRUSR | S_IWUSR; // 0o600 by default
     actual_perms = file_stat.st_mode & ~S_IFMT;
     ASSERT_EQ(expected_perms, actual_perms);
+
+    // Verify the new file contents
+    std::string new_file_contents = geopm::read_file(m_lscpu_file_name);
+    ASSERT_EQ(m_hsw_lscpu_str, new_file_contents);
 }
