@@ -90,6 +90,12 @@ GTEST_TESTS = test/gtest_links/GPUTopoNullTest.default_config \
               test/gtest_links/DifferenceSignalTest.read \
               test/gtest_links/DifferenceSignalTest.read_batch \
               test/gtest_links/DifferenceSignalTest.setup_batch \
+              test/gtest_links/DivisionSignalTest.errors \
+              test/gtest_links/DivisionSignalTest.read \
+              test/gtest_links/DivisionSignalTest.read_div_by_zero \
+              test/gtest_links/DivisionSignalTest.read_batch \
+              test/gtest_links/DivisionSignalTest.read_batch_div_by_zero \
+              test/gtest_links/DivisionSignalTest.setup_batch \
               test/gtest_links/DomainControlTest.errors \
               test/gtest_links/DomainControlTest.save_restore \
               test/gtest_links/DomainControlTest.setup_batch \
@@ -148,6 +154,7 @@ GTEST_TESTS = test/gtest_links/GPUTopoNullTest.default_config \
               test/gtest_links/MSRIOGroupTest.read_signal_energy \
               test/gtest_links/MSRIOGroupTest.read_signal_frequency \
               test/gtest_links/MSRIOGroupTest.read_signal_power \
+              test/gtest_links/MSRIOGroupTest.read_signal_scalability \
               test/gtest_links/MSRIOGroupTest.read_signal_temperature \
               test/gtest_links/MSRIOGroupTest.sample \
               test/gtest_links/MSRIOGroupTest.sample_raw \
@@ -373,6 +380,7 @@ test_geopm_test_SOURCES = test/GPUTopoNullTest.cpp \
                           test/DCGMIOGroupTest.cpp \
                           test/DerivativeSignalTest.cpp \
                           test/DifferenceSignalTest.cpp \
+                          test/DivisionSignalTest.cpp \
                           test/DomainControlTest.cpp \
                           test/ExceptionTest.cpp \
                           test/geopm_test.cpp \
