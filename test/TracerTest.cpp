@@ -81,7 +81,8 @@ void TracerTest::SetUp(void)
         {"TEMPERATURE_CORE", GEOPM_DOMAIN_BOARD, 0, geopm::string_format_double},
     };
     const std::vector<std::pair<std::string, int> > env_signals = {
-        {"ENERGY_PACKAGE", geopm_domain_e::GEOPM_DOMAIN_PACKAGE}
+        {"EXTRA", geopm_domain_e::GEOPM_DOMAIN_BOARD},
+        {"EXTRA_SPECIAL", geopm_domain_e::GEOPM_DOMAIN_CPU}
     };
 
     int idx = 0;
