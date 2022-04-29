@@ -64,11 +64,15 @@ namespace geopm
             static std::map<std::string, std::string> parse_environment_file(const std::string &env_file_path);
     };
 
+    class PlatformIO;
+
     class EnvironmentImp : public Environment
     {
         public:
             EnvironmentImp();
-            EnvironmentImp(const std::string &default_settings_path, const std::string &override_settings_path);
+            EnvironmentImp(const std::string &default_settings_path,
+                           const std::string &override_settings_path,
+                           PlatformIO &platform_io);
             virtual ~EnvironmentImp() = default;
             std::string report(void) const override;
             std::string comm(void) const override;
@@ -116,6 +120,7 @@ namespace geopm
             std::map<std::string, std::string> m_name_value_map;
             const std::string m_default_config_path;
             const std::string m_override_config_path;
+            PlatformIO &m_platform_io;
     };
 
     const Environment &environment(void);
