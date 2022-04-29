@@ -19,9 +19,11 @@
 
 #include "geopm/json11.hpp"
 
+#include "geopm/PlatformIO.hpp"
 #include "geopm/PlatformTopo.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
+#include "PlatformIOProf.hpp"
 #include "geopm_prof.h"
 
 #include "config.h"
@@ -63,12 +65,14 @@ namespace geopm
     }
 
     EnvironmentImp::EnvironmentImp()
-        : EnvironmentImp(DEFAULT_CONFIG_PATH, OVERRIDE_CONFIG_PATH)
+        : EnvironmentImp(DEFAULT_CONFIG_PATH, OVERRIDE_CONFIG_PATH, PlatformIOProf::platform_io())
     {
 
     }
 
-    EnvironmentImp::EnvironmentImp(const std::string &default_config_path, const std::string &override_config_path)
+    EnvironmentImp::EnvironmentImp(const std::string &default_config_path,
+                                   const std::string &override_config_path,
+                                   PlatformIO &platform_io)
         : m_all_names(get_all_vars())
         , m_runtime_names({"GEOPM_PROFILE",
                            "GEOPM_REPORT",
@@ -83,6 +87,7 @@ namespace geopm
                              {"GEOPM_DEBUG_ATTACH", "-1"}})
         , m_default_config_path(default_config_path)
         , m_override_config_path(override_config_path)
+        , m_platform_io(platform_io)
     {
         parse_environment_file(m_default_config_path, m_all_names, m_user_defined_names, m_name_value_map);
         // Special handling for GEOPM_POLICY and
