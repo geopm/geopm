@@ -285,6 +285,11 @@ namespace geopm
         auto individual_signals = geopm::string_split(environment_variable_contents, ",");
         for (const auto& signal : individual_signals) {
             auto signal_domain = geopm::string_split(signal, "@");
+            if (!m_platform_io.signal_exists(signal_domain[0])) {
+                std::cerr << "Warning: <geopm> Invalid signal : " << signal_domain[0] << std::endl;
+                continue;
+            }
+
             if (signal_domain.size() == 2) {
                 result_data_structure.push_back(std::make_pair(
                     signal_domain[0],
