@@ -743,6 +743,11 @@ namespace geopm
         it->second->stop_batch();
         m_batch_server.erase(it);
     }
+
+    bool PlatformIOImp::signal_exists(const std::string &signal_name) const
+    {
+        return find_signal_iogroup(signal_name).size();
+    }
 }
 
 extern "C" {

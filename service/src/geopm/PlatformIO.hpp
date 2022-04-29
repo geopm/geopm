@@ -248,6 +248,10 @@ namespace geopm
                                             int &server_pid,
                                             std::string &server_key) = 0;
             virtual void stop_batch_server(int server_pid) = 0;
+            /// @brief Query to see if the signal is valid.
+            ///
+            /// @param [in] name Signal to verify.
+            virtual bool signal_exists(const std::string &signal_name) const = 0;
     };
 
     PlatformIO &platform_io(void);
