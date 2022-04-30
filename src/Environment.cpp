@@ -65,14 +65,14 @@ namespace geopm
     }
 
     EnvironmentImp::EnvironmentImp()
-        : EnvironmentImp(DEFAULT_CONFIG_PATH, OVERRIDE_CONFIG_PATH, PlatformIOProf::platform_io())
+        : EnvironmentImp(DEFAULT_CONFIG_PATH, OVERRIDE_CONFIG_PATH, nullptr)
     {
 
     }
 
     EnvironmentImp::EnvironmentImp(const std::string &default_config_path,
                                    const std::string &override_config_path,
-                                   PlatformIO &platform_io)
+                                   std::shared_ptr<PlatformIO> platform_io)
         : m_all_names(get_all_vars())
         , m_runtime_names({"GEOPM_PROFILE",
                            "GEOPM_REPORT",
@@ -87,7 +87,7 @@ namespace geopm
                              {"GEOPM_DEBUG_ATTACH", "-1"}})
         , m_default_config_path(default_config_path)
         , m_override_config_path(override_config_path)
-        , m_platform_io(platform_io)
+        , m_platform_io(std::move(platform_io))
     {
         parse_environment_file(m_default_config_path, m_all_names, m_user_defined_names, m_name_value_map);
         // Special handling for GEOPM_POLICY and
@@ -278,14 +278,23 @@ namespace geopm
         return signal_parser(lookup("GEOPM_REPORT_SIGNALS"));
     }
 
-    std::vector<std::pair<std::string, int> > EnvironmentImp::signal_parser(std::string environment_variable_contents) const
+    std::vector<std::pair<std::string, int> > EnvironmentImp::signal_parser(std::string environment_variable_contents)
     {
+        // Lazy init must be done here since the Environment singleton is used in MPI_Init
+        if (m_platform_io == nullptr) {
+            // m_platform_io = std::move(geopm::make_unique<PlatformIOProf>(&PlatformIOProf::platform_io()));
+            // m_platform_io = std::make_shared<PlatformIOProf>(&PlatformIOProf::platform_io());
+            auto platform_io_prof_ptr = &(PlatformIOProf::platform_io());
+            m_platform_io.reset(platform_io_prof_ptr);
+            // std::shared_ptr<PlatformIOProf> test = std::make_shared<PlatformIOProf>(platform_io_prof_ptr);
+        }
+
         std::vector<std::pair<std::string, int> > result_data_structure;
 
         auto individual_signals = geopm::string_split(environment_variable_contents, ",");
         for (const auto& signal : individual_signals) {
             auto signal_domain = geopm::string_split(signal, "@");
-            if (!m_platform_io.signal_exists(signal_domain[0])) {
+            if (!m_platform_io->signal_exists(signal_domain[0])) {
                 std::cerr << "Warning: <geopm> Invalid signal : " << signal_domain[0] << std::endl;
                 continue;
             }
