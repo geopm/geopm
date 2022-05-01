@@ -1,0 +1,70 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "https://geopm.github.io/msrs.schema.json",
+    "title": "MSR specification",
+    "definitions" : {
+      "msrFields": {
+        "type": "object",
+        "properties": {
+          "begin_bit": {
+            "type": "integer"
+          },
+          "end_bit": {
+            "type": "integer"
+          },
+          "function": {
+            "enum": ["scale", "log_half", "7_bit_float", "overflow"]
+          },
+          "units": {
+            "enum": ["none", "seconds", "hertz", "watts", "joules", "celsius"]
+          },
+          "scalar": {
+            "type": "number"
+          },
+          "behavior": {
+            "enum": ["constant", "monotone", "variable", "label"]
+          },
+          "writeable": {
+            "type": "boolean"
+          },
+          "aggregation": {
+            "enum": ["sum", "average", "median", "logical_and", "logical_or", "region_hash", "region_hint", "min", "max", "stddev", "select_first", "expect_same"]
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": ["begin_bit", "end_bit", "function", "scalar", "units", "writeable", "behavior"],
+        "additionalProperties": false
+      },
+      "msrObject": {
+        "type": "object",
+        "properties": {
+          "offest": {
+            "type": "string"
+          },
+          "domain": {
+            "enum": ["board", "package", "core", "cpu", "board_memory", "package_memory", "board_nic", "package_nic", "board_accelerator", "package_accelerator", "board_accelerator_chip"]
+          },
+          "fields": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/definitions/msrFields"
+            }
+          },
+        },
+        "required": ["offset", "domain", "fields"],
+        "additionalProperties": false
+      },
+    },
+    "type": "object",
+    "properties": {
+      "msrs": {
+        "type": "object",
+        "additionalProperties": {
+          "$ref": "#/definitions/msrObject"
+        }
+      }
+    },
+    "additionalProperties": false
+}
