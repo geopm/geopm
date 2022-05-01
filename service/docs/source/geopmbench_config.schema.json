@@ -1,0 +1,41 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "https://geopm.github.io/geopmbench_config.schema.json",
+    "title": "geopmbench config",
+    "type": "object",
+	"properties": {
+      "loop-count": {
+        "description": "Set the number of loops to execute",
+        "type": "integer"
+      },
+      "region": {
+        "description": "The regions to execute in each loop: 'sleep', 'spin', 'dgemm', 'stream', 'all2all', 'nested', 'ignore'. Append '-imbalance' to a region to apply imbalance settings.",
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "big-o": {
+        "description": "Provide a problem size for reach region. It's designed such that a value of 1.0 will run on the order of one second, and run time will scale linearly with big-o",
+        "type": "array",
+        "items": {
+          "type": "number"
+        }
+      },
+      "hostname": {
+        "description": "Specify on which hosts to apply imbalance setttings",
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "imbalance": {
+        "description": "Specify imbalance settings for each host (specified as a ratio)",
+        "type": "array",
+        "items": {
+          "type": "number"
+        }
+      }
+    },
+    "additionalProperties": false
+}

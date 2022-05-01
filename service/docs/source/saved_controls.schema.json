@@ -1,0 +1,25 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "https://geopm.github.io/saved_controls.schema.json",
+    "title": "Saved IOGroup controls",
+    "type": "array",
+    "items": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "domain_type": {
+          "type": "integer"
+        },
+        "domain_idx": {
+          "type": "integer"
+        },
+        "setting": {
+          "type": "number"
+        }
+      },
+      "required": ["name", "domain_type", "domain_idx", "setting"],
+      "additionalProperties": false
+    }
+}
