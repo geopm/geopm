@@ -73,7 +73,7 @@ namespace geopm
             EnvironmentImp();
             EnvironmentImp(const std::string &default_settings_path,
                            const std::string &override_settings_path,
-                           std::shared_ptr<PlatformIO> platform_io);
+                           std::shared_ptr<PlatformIO> platform_io = nullptr);
             virtual ~EnvironmentImp() = default;
             std::string report(void) const override;
             std::string comm(void) const override;
@@ -88,7 +88,7 @@ namespace geopm
             std::string agent(void) const override;
             std::vector<std::pair<std::string, int> > trace_signals(void) const override;
             std::vector<std::pair<std::string, int> > report_signals(void) const override;
-            std::vector<std::pair<std::string, int> > signal_parser(std::string environment_variable_contents);
+            std::vector<std::pair<std::string, int> > signal_parser(std::string environment_variable_contents) const;
             int max_fan_out(void) const override;
             int pmpi_ctl(void) const override;
             bool do_policy(void) const override;
@@ -121,7 +121,7 @@ namespace geopm
             std::map<std::string, std::string> m_name_value_map;
             const std::string m_default_config_path;
             const std::string m_override_config_path;
-            std::shared_ptr<PlatformIO> m_platform_io;
+            mutable std::shared_ptr<PlatformIO> m_platform_io;
     };
 
     const Environment &environment(void);
