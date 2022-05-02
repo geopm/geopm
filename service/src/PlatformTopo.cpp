@@ -495,7 +495,8 @@ namespace geopm
 
             std::string tmp_string = cache_file_name + "XXXXXX";
             char tmp_path[NAME_MAX];
-            strncpy(tmp_path, tmp_string.c_str(), NAME_MAX);
+            tmp_path[NAME_MAX - 1] = '\0';
+            strncpy(tmp_path, tmp_string.c_str(), NAME_MAX - 1);
             int tmp_fd = mkstemp(tmp_path);
             if (tmp_fd == -1) {
                 throw Exception("PlatformTopo::create_cache(): Could not create temp file: ",
