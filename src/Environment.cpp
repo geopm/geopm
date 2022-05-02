@@ -278,15 +278,12 @@ namespace geopm
         return signal_parser(lookup("GEOPM_REPORT_SIGNALS"));
     }
 
-    std::vector<std::pair<std::string, int> > EnvironmentImp::signal_parser(std::string environment_variable_contents)
+    std::vector<std::pair<std::string, int> > EnvironmentImp::signal_parser(std::string environment_variable_contents) const
     {
         // Lazy init must be done here since the Environment singleton is used in MPI_Init
         if (m_platform_io == nullptr) {
-            // m_platform_io = std::move(geopm::make_unique<PlatformIOProf>(&PlatformIOProf::platform_io()));
-            // m_platform_io = std::make_shared<PlatformIOProf>(&PlatformIOProf::platform_io());
             auto platform_io_prof_ptr = &(PlatformIOProf::platform_io());
             m_platform_io.reset(platform_io_prof_ptr);
-            // std::shared_ptr<PlatformIOProf> test = std::make_shared<PlatformIOProf>(platform_io_prof_ptr);
         }
 
         std::vector<std::pair<std::string, int> > result_data_structure;
