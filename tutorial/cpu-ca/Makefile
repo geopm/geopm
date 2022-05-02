@@ -30,16 +30,10 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-TUTORIAL_LIB = libgeopmagent_cpu_activity_agent.so.0.0.0 \
-               libgeopmagent_cpu_region_activity_agent.so.0.0.0 \
+TUTORIAL_LIB = libgeopmagent_cpu_region_activity_agent.so.0.0.0 \
                # end
 
 GEOPM_PLUGIN_FLAGS=-fPIC -shared
-
-#CC ?= gcc
-#CXX ?= g++
-#MPICC ?= mpicc
-#MPICXX ?= mpicxx
 
 all: $(TUTORIAL_LIB)
 
@@ -52,8 +46,6 @@ GEOPM_CFLAGS=-I$(GEOPM_INC)
 CXXFLAGS=$(GEOPM_CFLAGS) $(OMP_FLAGS)
 LDFLAGS=$(GEOPM_LDFLAGS) $(OMP_FLAGS)
 
-libgeopmagent_cpu_activity_agent.so.0.0.0: CPUActivityAgent.cpp CPUActivityAgent.hpp
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(GEOPM_PLUGIN_FLAGS) $(EXTRA_CPPFLAGS) CPUActivityAgent.cpp -o $@
 libgeopmagent_cpu_region_activity_agent.so.0.0.0: CPURegionActivityAgent.cpp CPURegionActivityAgent.hpp
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(GEOPM_PLUGIN_FLAGS) $(EXTRA_CPPFLAGS) CPURegionActivityAgent.cpp -o $@
 
