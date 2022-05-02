@@ -11,6 +11,7 @@
 #include "geopm/json11.hpp"
 
 #include "gtest/gtest.h"
+#include "gmock/gmock.h"
 #include "geopm_error.h"
 #include "geopm_field.h"
 #include "geopm_topo.h"  // for geopm_domain_e
@@ -19,9 +20,13 @@
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
 
+#include "MockPlatformIO.hpp"
+
 using json11::Json;
 using geopm::Environment;
 using geopm::EnvironmentImp;
+using testing::_;
+using testing::Return;
 
 static bool get_env(const std::string &name, std::string &env_string)
 {
@@ -52,6 +57,7 @@ class EnvironmentTest: public :: testing :: Test
         std::vector<std::pair<std::string, int> > m_trace_signals;
         std::vector<std::pair<std::string, int> > m_report_signals;
         std::unique_ptr<Environment> m_env;
+        MockPlatformIO m_platform_io;
 };
 
 void EnvironmentTest::vars_to_json(std::map<std::string, std::string> vars, const std::string &path)
@@ -153,6 +159,9 @@ void EnvironmentTest::SetUp()
 
     m_pmpi_ctl_map["process"] = (int)Environment::M_CTL_PROCESS;
     m_pmpi_ctl_map["pthread"] = (int)Environment::M_CTL_PTHREAD;
+
+    EXPECT_CALL(m_platform_io, signal_exists(_))
+        .WillRepeatedly(Return(true));
 }
 
 void EnvironmentTest::TearDown()
@@ -181,7 +190,7 @@ TEST_F(EnvironmentTest, internal_defaults)
               {"GEOPM_DEBUG_ATTACH", "-1"},
              };
 
-    m_env = geopm::make_unique<EnvironmentImp>("", "");
+    m_env = geopm::make_unique<EnvironmentImp>("", "", &m_platform_io);
     std::map<std::string, std::string> exp_vars = internal_default_vars;
     expect_vars(exp_vars);
 }
@@ -200,7 +209,7 @@ TEST_F(EnvironmentTest, user_only)
         setenv(kv.first.c_str(), kv.second.c_str(), 1);
     }
 
-    m_env = geopm::make_unique<EnvironmentImp>("", "");
+    m_env = geopm::make_unique<EnvironmentImp>("", "", &m_platform_io);
     std::map<std::string, std::string> exp_vars = m_user;
     exp_vars["GEOPM_PROFILE"] = std::string(program_invocation_name);
     exp_vars["GEOPM_SHMKEY"] = internal_default_vars["GEOPM_SHMKEY"];
@@ -224,7 +233,7 @@ TEST_F(EnvironmentTest, user_only_do_profile)
         setenv(kv.first.c_str(), kv.second.c_str(), 1);
     }
 
-    m_env = geopm::make_unique<EnvironmentImp>("", "");
+    m_env = geopm::make_unique<EnvironmentImp>("", "", &m_platform_io);
     std::map<std::string, std::string> exp_vars = m_user;
     exp_vars["GEOPM_PROFILE"] = std::string(program_invocation_name);
     exp_vars["GEOPM_SHMKEY"] = internal_default_vars["GEOPM_SHMKEY"];
@@ -248,7 +257,7 @@ TEST_F(EnvironmentTest, user_only_do_profile_name)
         setenv(kv.first.c_str(), kv.second.c_str(), 1);
     }
 
-    m_env = geopm::make_unique<EnvironmentImp>("", "");
+    m_env = geopm::make_unique<EnvironmentImp>("", "", &m_platform_io);
     std::map<std::string, std::string> exp_vars = m_user;
     exp_vars["GEOPM_PROFILE"] = "profile-test_value";
     exp_vars["GEOPM_SHMKEY"] = internal_default_vars["GEOPM_SHMKEY"];
@@ -288,7 +297,7 @@ TEST_F(EnvironmentTest, default_only)
     };
     vars_to_json(default_vars, M_DEFAULT_PATH);
 
-    m_env = geopm::make_unique<EnvironmentImp>(M_DEFAULT_PATH, "");
+    m_env = geopm::make_unique<EnvironmentImp>(M_DEFAULT_PATH, "", &m_platform_io);
     std::map<std::string, std::string> exp_vars = default_vars;
     exp_vars["GEOPM_SHMKEY"] = "/" + exp_vars["GEOPM_SHMKEY"];
 
@@ -327,7 +336,7 @@ TEST_F(EnvironmentTest, override_only)
     };
     vars_to_json(override_vars, M_OVERRIDE_PATH);
 
-    m_env = geopm::make_unique<EnvironmentImp>("", M_OVERRIDE_PATH);
+    m_env = geopm::make_unique<EnvironmentImp>("", M_OVERRIDE_PATH, &m_platform_io);
     std::map<std::string, std::string> exp_vars = override_vars;
 
     expect_vars(exp_vars);
@@ -374,7 +383,7 @@ TEST_F(EnvironmentTest, default_and_override)
     vars_to_json(default_vars, M_DEFAULT_PATH);
     vars_to_json(override_vars, M_OVERRIDE_PATH);
 
-    m_env = geopm::make_unique<EnvironmentImp>(M_DEFAULT_PATH, M_OVERRIDE_PATH);
+    m_env = geopm::make_unique<EnvironmentImp>(M_DEFAULT_PATH, M_OVERRIDE_PATH, &m_platform_io);
 
     std::map<std::string, std::string> exp_vars = override_vars;
     m_trace_signals = {
@@ -421,7 +430,7 @@ TEST_F(EnvironmentTest, user_default_and_override)
     // override
     vars_to_json(override_vars, M_OVERRIDE_PATH);
 
-    m_env = geopm::make_unique<EnvironmentImp>(M_DEFAULT_PATH, M_OVERRIDE_PATH);
+    m_env = geopm::make_unique<EnvironmentImp>(M_DEFAULT_PATH, M_OVERRIDE_PATH, &m_platform_io);
     std::map<std::string, std::string> exp_vars = {
         {"GEOPM_REPORT", m_user["GEOPM_REPORT"]},
         {"GEOPM_COMM", override_vars["GEOPM_COMM"]},
@@ -449,7 +458,7 @@ TEST_F(EnvironmentTest, invalid_ctl)
 {
     setenv("GEOPM_CTL", "program", 1);
 
-    m_env = geopm::make_unique<EnvironmentImp>("", "");
+    m_env = geopm::make_unique<EnvironmentImp>("", "", &m_platform_io);
 
     EXPECT_THROW(m_env->pmpi_ctl(), geopm::Exception);
 }
@@ -464,7 +473,7 @@ TEST_F(EnvironmentTest, default_endpoint_user_policy)
     vars_to_json(default_vars, M_DEFAULT_PATH);
     vars_to_json(override_vars, M_OVERRIDE_PATH);
 
-    m_env = geopm::make_unique<EnvironmentImp>(M_DEFAULT_PATH, M_OVERRIDE_PATH);
+    m_env = geopm::make_unique<EnvironmentImp>(M_DEFAULT_PATH, M_OVERRIDE_PATH, &m_platform_io);
 
     EXPECT_EQ("", m_env->endpoint());
     EXPECT_EQ("policy-user_value", m_env->policy());
@@ -482,7 +491,7 @@ TEST_F(EnvironmentTest, default_endpoint_user_policy_override_endpoint)
     vars_to_json(default_vars, M_DEFAULT_PATH);
     vars_to_json(override_vars, M_OVERRIDE_PATH);
 
-    m_env = geopm::make_unique<EnvironmentImp>(M_DEFAULT_PATH, M_OVERRIDE_PATH);
+    m_env = geopm::make_unique<EnvironmentImp>(M_DEFAULT_PATH, M_OVERRIDE_PATH, &m_platform_io);
 
     EXPECT_EQ("endpoint-override_value", m_env->endpoint());
     EXPECT_EQ("policy-user_value", m_env->policy());
@@ -498,7 +507,7 @@ TEST_F(EnvironmentTest, user_policy_and_endpoint)
     vars_to_json(default_vars, M_DEFAULT_PATH);
     vars_to_json(override_vars, M_OVERRIDE_PATH);
 
-    m_env = geopm::make_unique<EnvironmentImp>(M_DEFAULT_PATH, M_OVERRIDE_PATH);
+    m_env = geopm::make_unique<EnvironmentImp>(M_DEFAULT_PATH, M_OVERRIDE_PATH, &m_platform_io);
 
     EXPECT_EQ("endpoint-user_value", m_env->endpoint());
     EXPECT_EQ("policy-user_value", m_env->policy());
@@ -513,7 +522,7 @@ TEST_F(EnvironmentTest, user_disable_ompt)
     vars_to_json(default_vars, M_DEFAULT_PATH);
     vars_to_json(override_vars, M_OVERRIDE_PATH);
 
-    m_env = geopm::make_unique<EnvironmentImp>(M_DEFAULT_PATH, M_OVERRIDE_PATH);
+    m_env = geopm::make_unique<EnvironmentImp>(M_DEFAULT_PATH, M_OVERRIDE_PATH, &m_platform_io);
 
     EXPECT_FALSE(m_env->do_ompt());
 }
@@ -527,7 +536,7 @@ TEST_F(EnvironmentTest, record_filter_on)
     vars_to_json(default_vars, M_DEFAULT_PATH);
     vars_to_json(override_vars, M_OVERRIDE_PATH);
 
-    m_env = geopm::make_unique<EnvironmentImp>(M_DEFAULT_PATH, M_OVERRIDE_PATH);
+    m_env = geopm::make_unique<EnvironmentImp>(M_DEFAULT_PATH, M_OVERRIDE_PATH, &m_platform_io);
 
     EXPECT_TRUE(m_env->do_record_filter());
     EXPECT_EQ("proxy_epoch,0xabcd1234", m_env->record_filter());
@@ -541,7 +550,7 @@ TEST_F(EnvironmentTest, record_filter_off)
     vars_to_json(default_vars, M_DEFAULT_PATH);
     vars_to_json(override_vars, M_OVERRIDE_PATH);
 
-    m_env = geopm::make_unique<EnvironmentImp>(M_DEFAULT_PATH, M_OVERRIDE_PATH);
+    m_env = geopm::make_unique<EnvironmentImp>(M_DEFAULT_PATH, M_OVERRIDE_PATH, &m_platform_io);
 
     EXPECT_FALSE(m_env->do_record_filter());
     EXPECT_EQ("", m_env->record_filter());
