@@ -72,7 +72,7 @@ namespace geopm
 
     EnvironmentImp::EnvironmentImp(const std::string &default_config_path,
                                    const std::string &override_config_path,
-                                   std::shared_ptr<PlatformIO> platform_io)
+                                   const PlatformIO* platform_io)
         : m_all_names(get_all_vars())
         , m_runtime_names({"GEOPM_PROFILE",
                            "GEOPM_REPORT",
@@ -87,7 +87,7 @@ namespace geopm
                              {"GEOPM_DEBUG_ATTACH", "-1"}})
         , m_default_config_path(default_config_path)
         , m_override_config_path(override_config_path)
-        , m_platform_io(std::move(platform_io))
+        , m_platform_io(platform_io)
     {
         parse_environment_file(m_default_config_path, m_all_names, m_user_defined_names, m_name_value_map);
         // Special handling for GEOPM_POLICY and
@@ -282,8 +282,7 @@ namespace geopm
     {
         // Lazy init must be done here since the Environment singleton is used in MPI_Init
         if (m_platform_io == nullptr) {
-            auto platform_io_prof_ptr = &(PlatformIOProf::platform_io());
-            m_platform_io.reset(platform_io_prof_ptr);
+            m_platform_io = &PlatformIOProf::platform_io();
         }
 
         std::vector<std::pair<std::string, int> > result_data_structure;

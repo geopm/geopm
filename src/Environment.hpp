@@ -73,7 +73,7 @@ namespace geopm
             EnvironmentImp();
             EnvironmentImp(const std::string &default_settings_path,
                            const std::string &override_settings_path,
-                           std::shared_ptr<PlatformIO> platform_io = nullptr);
+                           const PlatformIO *platform_io);
             virtual ~EnvironmentImp() = default;
             std::string report(void) const override;
             std::string comm(void) const override;
@@ -121,7 +121,10 @@ namespace geopm
             std::map<std::string, std::string> m_name_value_map;
             const std::string m_default_config_path;
             const std::string m_override_config_path;
-            mutable std::shared_ptr<PlatformIO> m_platform_io;
+            // Pointer used here to avoid calling the singleton too
+            // early as the Environment is used in the top of
+            // geopm_pmpi_init(). Do *NOT* delete this pointer.
+            mutable const PlatformIO *m_platform_io;
     };
 
     const Environment &environment(void);
