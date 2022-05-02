@@ -3,6 +3,7 @@
 #
 
 EXTRA_DIST += integration/experiment/energy_efficiency/barrier_frequency_sweep.py \
+              integration/experiment/energy_efficiency/cpu_activity.py \
               integration/experiment/energy_efficiency/gen_plot_profile_comparison.py \
               integration/experiment/energy_efficiency/__init__.py \
               integration/experiment/energy_efficiency/power_balancer_energy.py \
