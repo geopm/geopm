@@ -95,7 +95,7 @@ namespace geopm
 
         protected:
             static constexpr const char* M_SHMEM_PREFIX =
-                "/var/run/geopm-service/geopm-service-batch-buffer-";
+                "/run/geopm-service/geopm-service-batch-buffer-";
     };
 
     class BatchServerImp : public BatchServer

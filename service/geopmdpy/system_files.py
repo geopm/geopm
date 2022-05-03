@@ -6,7 +6,7 @@
 
 Provides secure interfaces for manipulating the files in
 
-    /var/run/geopm-service
+    /run/geopm-service
 
 that enable the service to be restarted and
 
@@ -33,7 +33,7 @@ import fcntl
 from . import pio
 
 
-GEOPM_SERVICE_VAR_PATH = '/var/run/geopm-service'
+GEOPM_SERVICE_VAR_PATH = '/run/geopm-service'
 GEOPM_SERVICE_CONFIG_PATH = '/etc/geopm-service'
 
 GEOPM_SERVICE_VAR_PATH_PERM = 0o711
@@ -266,7 +266,7 @@ class ActiveSessions(object):
     """Class that manages the session files for the service
 
     The state about active sessions opened with geopmd by a client
-    processes is stored in files in /var/run/geopm-service.  These
+    processes is stored in files in /run/geopm-service.  These
     files are loaded when the geopmd process starts.  The files are
     modified each time a client opens a session, closes a session,
     requests write permission, or starts a batch server.  The class is
@@ -280,7 +280,7 @@ class ActiveSessions(object):
 
         The geopmd session files are stored in the directory
 
-            "/var/run/geopm-service"
+            "/run/geopm-service"
 
         by default, but the user may specify a different path.  The
         creation of an ActiveSessions object will make the directory
@@ -305,7 +305,7 @@ class ActiveSessions(object):
         user, and the permissions are set to GEOPM_SERVICE_VAR_PATH_PERM
         parsing will proceed.  All files matching the pattern
 
-            "/var/run/geopm-service/session-*.json"
+            "/run/geopm-service/session-*.json"
 
         will be parsed and verified. These files must conform to the
         session JSON schema, be owned by the geopmd user, and have
@@ -318,7 +318,7 @@ class ActiveSessions(object):
         Args:
             var_path (str): Optional argument to override the default
                             path to the session files which is
-                            "/var/run/geopm-service"
+                            "/run/geopm-service"
 
         Returns:
             ActiveSessions: Object containing all valid sessions data
@@ -400,7 +400,7 @@ class ActiveSessions(object):
         is interrupted before the session file is ready to be used,
         then no file will be present that matches load pattern below.
 
-            ``/var/run/geopm-service/session-*.json``
+            ``/run/geopm-service/session-*.json``
 
         The session file is created without the JSON object property
         "batch_server" specified.  This properties may be modified by the
@@ -991,7 +991,7 @@ class WriteLock(object):
     GEOPM Service control write lock.  The state of this lock is stored in the
     file path:
 
-        /var/run/geopm-service/CONTROL_LOCK
+        /run/geopm-service/CONTROL_LOCK
 
     This file is empty when the lock is free, and contains the PID of the
     controlling process when the lock is held.  The class manages the advisory

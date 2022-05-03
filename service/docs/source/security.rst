@@ -100,7 +100,7 @@ configuration settings to disk prior to enabling a user session to
 write. When the user's write session terminates, all configuration
 settings are restored to their previous value. The storage location
 for the saved state is in the directory
-``/var/run/geopm-service/SAVE_FILES``.
+``/run/geopm-service/SAVE_FILES``.
 
 Note that all configuration settings are restored regardless of
 whether or not they were adjusted during the session through the
@@ -172,7 +172,7 @@ rights of this batch server are verified prior to its creation, and
 the user may then interact with this batch server through faster
 mechanisms than DBus provides. In particular, the user interfaces with
 the batch server over inter-process shared memory and FIFO special files,
-both of which are created in ``/var/run/geopm-service``.
+both of which are created in ``/run/geopm-service``.
 
 The DBus interface provides a layer of security that is leveraged
 throughout Linux services to verify the user identity of requests made
@@ -326,7 +326,7 @@ The state used to manage access permissions, track open sessions, and
 store control settings for reset is stored in system files. The files
 controlling access permissions are located in the
 ``/etc/geopm-service`` directory. The state required to support active
-user sessions is stored in ``/var/run/geopm-service``. Protecting
+user sessions is stored in ``/run/geopm-service``. Protecting
 these files is paramount to the integrity of the GEOPM Service
 security model.  In general these files have root access permissions
 only, and are modified by calling into GEOPM Service interfaces, or by
@@ -464,7 +464,7 @@ A secure API for dealing with files and directories resides in
 `system_files.py <https://github.com/geopm/geopm/blob/dev/service/geopmdpy/system_files.py>`__.
 The functions that match the pattern system_files.secure_*() are the
 only interfaces called by the GEOPM Service to access files located in
-``/etc`` and ``/var/run``. These secure functions are used to make
+``/etc`` and ``/run``. These secure functions are used to make
 directories and any input or output to these system files.
 
 When making directories, if the path already exists checks are
@@ -480,7 +480,7 @@ permissions.
 
 By default, directories are created with 0o700 permissions (i.e. rwx
 only for the owner). Some directories, for example
-``/var/run/geopm-service``, also require execution permissions (i.e.
+``/run/geopm-service``, also require execution permissions (i.e.
 0o711). For more details on how directories are created and default
 permissions, please see the `system_files.py <http://geopm.github.io/geopmdpy.7.html#module-geopmdpy.system_files>`__
 documentation
