@@ -182,7 +182,7 @@ service is configured to support are recorded to a save directory in:
 
 .. code-block::
 
-   /var/run/geopm-service/SAVE_FILES
+   /run/geopm-service/SAVE_FILES
 
 
 When a write mode session ends, all of these saved controls are

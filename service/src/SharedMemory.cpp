@@ -297,7 +297,7 @@ namespace geopm
             // shmem key
 
             // pam_systemd/logind enabled?
-            std::string usr_run_dir = "/var/run/user/" +
+            std::string usr_run_dir = "/run/user/" +
                                       std::to_string(getuid());
             if (access(usr_run_dir.c_str(), F_OK) == 0) {
                 path = usr_run_dir + key;
