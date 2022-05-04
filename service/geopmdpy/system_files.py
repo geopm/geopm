@@ -33,11 +33,11 @@ import fcntl
 from . import pio
 
 
-GEOPM_SERVICE_VAR_PATH = '/run/geopm-service'
+GEOPM_SERVICE_RUN_PATH = '/run/geopm-service'
 GEOPM_SERVICE_CONFIG_PATH = '/etc/geopm-service'
 
-GEOPM_SERVICE_VAR_PATH_PERM = 0o711
-"""Default permissions for the GEOPM service var path
+GEOPM_SERVICE_RUN_PATH_PERM = 0o711
+"""Default permissions for the GEOPM service run path
 
 """
 
@@ -275,7 +275,7 @@ class ActiveSessions(object):
 
     """
 
-    def __init__(self, var_path=GEOPM_SERVICE_VAR_PATH):
+    def __init__(self, run_path=GEOPM_SERVICE_RUN_PATH):
         """Create an ActiveSessions object that tracks geopmd session files
 
         The geopmd session files are stored in the directory
@@ -285,7 +285,7 @@ class ActiveSessions(object):
         by default, but the user may specify a different path.  The
         creation of an ActiveSessions object will make the directory
         if it does not exist.  This directory is created with
-        restricted access permissions (mode: GEOPM_SERVICE_VAR_PATH_PERM).
+        restricted access permissions (mode: GEOPM_SERVICE_RUN_PATH_PERM).
 
         If the path points to a symbolic link, the link will be
         renamed and a warning is printed to the syslog.  The directory
@@ -302,7 +302,7 @@ class ActiveSessions(object):
 
         When an ActiveSessions object is created and the directory
         already exists, if the owner of the directory is the geopmd
-        user, and the permissions are set to GEOPM_SERVICE_VAR_PATH_PERM
+        user, and the permissions are set to GEOPM_SERVICE_RUN_PATH_PERM
         parsing will proceed.  All files matching the pattern
 
             "/run/geopm-service/session-*.json"
@@ -316,16 +316,16 @@ class ActiveSessions(object):
         permissions of the file being renamed.
 
         Args:
-            var_path (str): Optional argument to override the default
+            run_path (str): Optional argument to override the default
                             path to the session files which is
                             "/run/geopm-service"
 
         Returns:
             ActiveSessions: Object containing all valid sessions data
-                            read from the var_path directory
+                            read from the run_path directory
 
         """
-        self._VAR_PATH = var_path
+        self._RUN_PATH = run_path
         self._daemon_uid = os.getuid()
         self._daemon_gid = os.getgid()
         self._sessions = dict()
@@ -342,8 +342,8 @@ class ActiveSessions(object):
             'additionalProperties' : False,
             'required' : ['client_pid', 'signals', 'controls']
         }
-        secure_make_dirs(self._VAR_PATH,
-                         perm_mode=GEOPM_SERVICE_VAR_PATH_PERM)
+        secure_make_dirs(self._RUN_PATH,
+                         perm_mode=GEOPM_SERVICE_RUN_PATH_PERM)
 
         # Load all session files in the directory
         for sess_path in glob.glob(self._get_session_path('*')):
@@ -700,7 +700,7 @@ class ActiveSessions(object):
             str: Current client's session file path
 
         """
-        return f'{self._VAR_PATH}/session-{client_pid}.json'
+        return f'{self._RUN_PATH}/session-{client_pid}.json'
 
     def _update_session_file(self, client_pid):
         """Write the session data to disk for client PID
@@ -1002,22 +1002,22 @@ class WriteLock(object):
     effective.
 
     """
-    def __init__(self, var_path=GEOPM_SERVICE_VAR_PATH):
+    def __init__(self, run_path=GEOPM_SERVICE_RUN_PATH):
         """Set up initial state
 
         The WriteLock must be used within a context manager.  Use a
-        non-default var_path only for testing purposes.  This constructor will
-        securely create the var_path if it does not exist.
+        non-default run_path only for testing purposes.  This constructor will
+        securely create the run_path if it does not exist.
 
         Args:
-            var_path: Directory to create control lock within
+            run_path: Directory to create control lock within
 
         """
-        self._VAR_PATH = var_path
-        self._LOCK_PATH = os.path.join(self._VAR_PATH, "CONTROL_LOCK")
+        self._RUN_PATH = run_path
+        self._LOCK_PATH = os.path.join(self._RUN_PATH, "CONTROL_LOCK")
         self._fid = None
-        secure_make_dirs(self._VAR_PATH,
-                         perm_mode=GEOPM_SERVICE_VAR_PATH_PERM)
+        secure_make_dirs(self._RUN_PATH,
+                         perm_mode=GEOPM_SERVICE_RUN_PATH_PERM)
 
     def __enter__(self):
         """Enter context management for interacting with write lock

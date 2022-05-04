@@ -20,7 +20,7 @@ with mock.patch('cffi.FFI.dlopen', return_value=mock.MagicMock()):
 class TestPlatformService(unittest.TestCase):
     def setUp(self):
         self._test_name = 'TestPlatformService'
-        self._VAR_PATH = tempfile.TemporaryDirectory('{}_var'.format(self._test_name))
+        self._RUN_PATH = tempfile.TemporaryDirectory('{}_run'.format(self._test_name))
 
         self._mock_active_sessions = mock.create_autospec(ActiveSessions)
         self._mock_active_sessions.get_clients.return_value = []
@@ -38,12 +38,12 @@ class TestPlatformService(unittest.TestCase):
              mock.patch('geopmdpy.system_files.WriteLock', return_value=self._mock_write_lock):
             self._platform_service = PlatformService()
 
-        self._platform_service._VAR_PATH = self._VAR_PATH.name
-        self._platform_service._active_sessions._VAR_PATH = self._VAR_PATH.name
-        self._session_file_format = os.path.join(self._VAR_PATH.name, 'session-{client_pid}.json')
+        self._platform_service._RUN_PATH = self._RUN_PATH.name
+        self._platform_service._active_sessions._RUN_PATH = self._RUN_PATH.name
+        self._session_file_format = os.path.join(self._RUN_PATH.name, 'session-{client_pid}.json')
 
     def tearDown(self):
-        self._VAR_PATH.cleanup()
+        self._RUN_PATH.cleanup()
 
     def test_close_already_closed(self):
         # We already have two independent componenets with the session.
@@ -204,7 +204,7 @@ class TestPlatformService(unittest.TestCase):
              mock.patch('os.getsid', return_value=client_pid) as mock_getsid:
             self._platform_service.close_session(client_pid)
             mock_restore_control_dir.assert_called_once()
-            save_dir = os.path.join(self._platform_service._VAR_PATH,
+            save_dir = os.path.join(self._platform_service._RUN_PATH,
                                     self._platform_service._SAVE_DIR)
             mock_source_remove.assert_called_once_with(watch_id)
             self.assertFalse(self._platform_service._active_sessions.is_client_active(client_pid))
@@ -302,7 +302,7 @@ class TestPlatformService(unittest.TestCase):
         self.assertEqual(expected_result, actual_result,
                          msg='start_batch() did not pass back correct result')
 
-        save_dir = os.path.join(self._platform_service._VAR_PATH,
+        save_dir = os.path.join(self._platform_service._RUN_PATH,
                                 self._platform_service._SAVE_DIR)
         self.assertTrue(os.path.isdir(save_dir),
                         msg = 'Directory does not exist: {}'.format(save_dir))
