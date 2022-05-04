@@ -41,7 +41,7 @@ class PlatformService(object):
 
         """
         self._pio = pio
-        self._VAR_PATH = system_files.GEOPM_SERVICE_VAR_PATH
+        self._RUN_PATH = system_files.GEOPM_SERVICE_RUN_PATH
         self._SAVE_DIR = 'SAVE_FILES'
         self._WATCH_INTERVAL_MSEC = 1000
         self._active_sessions = system_files.ActiveSessions()
@@ -51,7 +51,7 @@ class PlatformService(object):
             if is_active:
                 watch_id = self._watch_client(client_pid)
                 self._active_sessions.set_watch_id(client_pid, watch_id)
-        with system_files.WriteLock(self._VAR_PATH) as lock:
+        with system_files.WriteLock(self._RUN_PATH) as lock:
             write_pid = lock.try_lock()
             if write_pid is not None and not self._active_sessions.is_client_active(write_pid):
                 self._close_session_write(lock, write_pid)
@@ -419,14 +419,14 @@ class PlatformService(object):
                 self._pio.stop_batch_server(batch_pid)
             except RuntimeError as ex:
                 sys.stderr.write(f'Failed to stop batch server {batch_pid}: {ex}')
-        with system_files.WriteLock(self._VAR_PATH) as lock:
+        with system_files.WriteLock(self._RUN_PATH) as lock:
             if lock.try_lock() == client_pid:
                 self._close_session_write(lock, client_pid)
         GLib.source_remove(self._active_sessions.get_watch_id(client_pid))
         self._active_sessions.remove_client(client_pid)
 
     def _close_session_write(self, lock, pid):
-        save_dir = os.path.join(self._VAR_PATH, self._SAVE_DIR)
+        save_dir = os.path.join(self._RUN_PATH, self._SAVE_DIR)
         if os.path.isdir(save_dir):
             is_restored = False
             try:
@@ -639,7 +639,7 @@ class PlatformService(object):
         if client_sid != client_pid and psutil.pid_exists(client_sid):
             write_pid = client_sid
             do_open_session = True
-        with system_files.WriteLock(self._VAR_PATH) as lock:
+        with system_files.WriteLock(self._RUN_PATH) as lock:
             lock_pid = lock.try_lock()
             if lock_pid is None:
                 if do_open_session:
@@ -648,7 +648,7 @@ class PlatformService(object):
                     session_uid = os.stat(f'/proc/{write_pid}/status').st_uid
                     session_user = pwd.getpwuid(session_uid).pw_name
                     self.open_session(session_user, write_pid)
-                save_dir = os.path.join(self._VAR_PATH, self._SAVE_DIR)
+                save_dir = os.path.join(self._RUN_PATH, self._SAVE_DIR)
                 # Clean up existing SAVE_FILES directory if it exists
                 if os.path.exists(save_dir):
                     del_dir = f'{save_dir}-{uuid.uuid4()}-del'
