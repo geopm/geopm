@@ -154,6 +154,12 @@ zero upon success; see `ERRORS <ERRORS_>`_ section below for details.
   set all nodes to the same power limit, and those limits will not
   vary with time.
 
+For functions dealing with GEOPM agent policy configuration, the JSON data
+follows this schema:
+
+.. literalinclude:: geopmagent_policy.schema.json
+    :language: json
+
 ERRORS
 ------
 
