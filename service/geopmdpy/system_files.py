@@ -332,12 +332,12 @@ class ActiveSessions(object):
         self._session_schema = {
             'type' : 'object',
             'properties' : {
-                'client_pid' : {'type' : 'number'},
+                'client_pid' : {'type' : 'integer'},
                 'reference_count' : {'type' : 'integer', 'minimum' : 0},
                 'signals' : {'type' : 'array', 'items' : {'type' : 'string'}},
                 'controls' : {'type' : 'array', 'items' : {'type' : 'string'}},
-                'watch_id' : {'type' : 'number'},
-                'batch_server': {'type' : 'number'}
+                'watch_id' : {'type' : 'integer'},
+                'batch_server': {'type' : 'integer'}
             },
             'additionalProperties' : False,
             'required' : ['client_pid', 'signals', 'controls']

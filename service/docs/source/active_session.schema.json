@@ -5,7 +5,7 @@
     "type": "object",
     "properties": {
       "client_pid": {
-        "type": "number"
+        "type": "integer"
       },
       "reference_count": {
         "type": "integer",
@@ -24,10 +24,10 @@
         }
       },
       "watch_id": {
-        "type": "number"
+        "type": "integer"
       },
       "batch_server": {
-        "type": "number"
+        "type": "integer"
       },
     },
     "required": ["client_pid", "signals", "controls"],
