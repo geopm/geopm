@@ -1,13 +1,6 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
-
 
 geopmaccess(1) -- Access management for the geopm service
 =========================================================
-
-
-
-
 
 
 DESCRIPTION
