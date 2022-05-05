@@ -1,35 +1,36 @@
-From 3ebeb9799662a3414e74aff5e0e95884e83945ee Mon Sep 17 00:00:00 2001
+From 03b8ad88c1c8d02f472bb535e044d366654e2abf Mon Sep 17 00:00:00 2001
 From: Brad Geltz <brad.geltz@intel.com>
-Date: Wed, 7 Oct 2020 15:54:58 -0700
-Subject: [PATCH 4/5] Add Epoch markup
+Date: Wed, 7 Oct 2020 15:50:07 -0700
+Subject: [PATCH 3/5] Link GEOPM
 #
 #  Copyright (c) 2015 - 2022, Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
-Signed-off-by: Brad Geltz <brad.geltz@intel.com>
+Signed-off-by: Lowren Lawson <lowren.h.lawson@intel.com>
 ---
- src/cg_solve.hpp | 7 +++++++
- 1 file changed, 7 insertions(+)
+ src/cg_solve.hpp | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
 diff --git a/src/cg_solve.hpp b/src/cg_solve.hpp
-index 69812c4..d43c6cd 100644
+index 69812c4..5cee1f0 100644
 --- a/src/cg_solve.hpp
 +++ b/src/cg_solve.hpp
-@@ -36,6 +36,10 @@
-
+@@ -36,6 +36,11 @@
+ 
  #include <outstream.hpp>
-
+ 
 +#ifndef NO_GEOPM
 +#include "geopm_prof.h"
++#include "geopm_hint.h"
 +#endif
 +
  namespace miniFE {
-
+ 
  template<typename Scalar>
-@@ -150,6 +154,9 @@ cg_solve(OperatorType& A,
+@@ -150,6 +155,9 @@ cg_solve(OperatorType& A,
  #endif
-
+ 
    for(LocalOrdinalType k=1; k <= max_iter && normr > tolerance; ++k) {
 +#ifndef NO_GEOPM
 +    geopm_prof_epoch();
@@ -37,6 +38,6 @@ index 69812c4..d43c6cd 100644
      if (k == 1) {
        TICK(); waxpby(one, r, zero, r, p); TOCK(tWAXPY);
      }
---
-2.23.0
+-- 
+2.26.2
 

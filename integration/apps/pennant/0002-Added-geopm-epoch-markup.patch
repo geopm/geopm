@@ -1,7 +1,7 @@
-From 400205e54d19c8646ad3179e5d575627ee57f35c Mon Sep 17 00:00:00 2001
+From 3f1fcf33ea37d7e25b4f09eb01317b90e886e243 Mon Sep 17 00:00:00 2001
 From: Fuat Keceli <fuat.keceli@intel.com>
 Date: Wed, 4 Nov 2020 06:55:51 -0800
-Subject: [PATCH 2/6] Added geopm epoch markup.
+Subject: [PATCH 2/7] Added geopm epoch markup.
 
 #  Copyright (c) 2015 - 2022, Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
@@ -31,7 +31,7 @@ index e05e812..a0611ef 100644
  # the following assumes the existence of an mpi compiler
  # wrapper called mpicxx
 diff --git a/src/Driver.cc b/src/Driver.cc
-index 2b919df..c75da82 100644
+index 2b919df..921e321 100644
 --- a/src/Driver.cc
 +++ b/src/Driver.cc
 @@ -28,6 +28,10 @@
@@ -61,5 +61,5 @@ index 2b919df..c75da82 100644
  
          // get timestep
 -- 
-1.8.3.1
+2.26.2
 

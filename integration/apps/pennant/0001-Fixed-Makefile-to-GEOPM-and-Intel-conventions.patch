@@ -1,7 +1,7 @@
-From 507a5a2ac234f7d91b2f329af00a0a3b200c900d Mon Sep 17 00:00:00 2001
+From 5a823c1b00a0ecdd28cbeb3630ac427effae008f Mon Sep 17 00:00:00 2001
 From: Fuat Keceli <fuat.keceli@intel.com>
 Date: Sat, 24 Oct 2020 15:04:43 -0700
-Subject: [PATCH 1/6] Fixed Makefile to GEOPM and Intel conventions.
+Subject: [PATCH 1/7] Fixed Makefile to GEOPM and Intel conventions.
 
 #  Copyright (c) 2015 - 2022, Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
@@ -39,5 +39,5 @@ index 83cf0b2..e05e812 100644
  
  # add openmp flags (comment out for serial build)
 -- 
-1.8.3.1
+2.26.2
 

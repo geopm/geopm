@@ -1,7 +1,7 @@
-From a839df697328f003b756b356308d15f75a5c66d3 Mon Sep 17 00:00:00 2001
+From da3baa93e816010276164a79b3a1c8ecfd594e3e Mon Sep 17 00:00:00 2001
 From: Fuat Keceli <fuat.keceli@intel.com>
 Date: Tue, 1 Dec 2020 17:44:13 -0800
-Subject: [PATCH 3/6] Added GEOPM region markup
+Subject: [PATCH 3/7] Added GEOPM region markup
 
 #  Copyright (c) 2015 - 2022, Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
@@ -10,10 +10,10 @@ Subject: [PATCH 3/6] Added GEOPM region markup
 Signed-off-by: Fuat Keceli <fuat.keceli@intel.com>
 ---
  Makefile            |  3 ++
- src/Driver.cc       | 15 +++++++++-
- src/Hydro.cc        | 85 ++++++++++++++++++++++++++++++++++++++++++++++++++++-
- src/PennantGeopm.cc | 46 +++++++++++++++++++++++++++++
- src/PennantGeopm.hh | 28 ++++++++++++++++++
+ src/Driver.cc       | 15 +++++++-
+ src/Hydro.cc        | 85 ++++++++++++++++++++++++++++++++++++++++++++-
+ src/PennantGeopm.cc | 46 ++++++++++++++++++++++++
+ src/PennantGeopm.hh | 28 +++++++++++++++
  src/main.cc         |  3 ++
  6 files changed, 178 insertions(+), 2 deletions(-)
  create mode 100644 src/PennantGeopm.cc
@@ -34,7 +34,7 @@ index a0611ef..ba33a1d 100644
  
  # add mpi to compile (comment out for serial build)
 diff --git a/src/Driver.cc b/src/Driver.cc
-index c75da82..6339f31 100644
+index 921e321..380907a 100644
 --- a/src/Driver.cc
 +++ b/src/Driver.cc
 @@ -31,9 +31,11 @@
@@ -80,7 +80,7 @@ index c75da82..6339f31 100644
          hydro->doCycle(dt);
  
 diff --git a/src/Hydro.cc b/src/Hydro.cc
-index 23fab68..4427352 100644
+index 23fab68..fcee6a9 100644
 --- a/src/Hydro.cc
 +++ b/src/Hydro.cc
 @@ -30,8 +30,15 @@
@@ -232,7 +232,7 @@ index 23fab68..4427352 100644
          const double2* px0,
 diff --git a/src/PennantGeopm.cc b/src/PennantGeopm.cc
 new file mode 100644
-index 0000000..49d1af5
+index 0000000..54c4ae4
 --- /dev/null
 +++ b/src/PennantGeopm.cc
 @@ -0,0 +1,46 @@
@@ -339,5 +339,5 @@ index 5c41673..c62b97f 100644
      if (argc != 2) {
          if (Parallel::mype == 0)
 -- 
-1.8.3.1
+2.26.2
 

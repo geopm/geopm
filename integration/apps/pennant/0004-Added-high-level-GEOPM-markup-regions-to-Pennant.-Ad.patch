@@ -1,7 +1,7 @@
-From 07401c5add450062c0ab82fa652d73f9ee9d51b0 Mon Sep 17 00:00:00 2001
+From 229ca9fb444fa9ccb7b6cbebc83d6f9fb6eaf844 Mon Sep 17 00:00:00 2001
 From: Fuat Keceli <fuat.keceli@intel.com>
 Date: Thu, 21 Jan 2021 09:45:50 -0800
-Subject: [PATCH 4/6] Added high level GEOPM markup regions to Pennant. Added
+Subject: [PATCH 4/7] Added high level GEOPM markup regions to Pennant. Added
  better hints and ignored regions.
 
 #  Copyright (c) 2015 - 2022, Intel Corporation
@@ -17,7 +17,7 @@ Signed-off-by: Fuat Keceli <fuat.keceli@intel.com>
  5 files changed, 65 insertions(+), 5 deletions(-)
 
 diff --git a/src/Driver.cc b/src/Driver.cc
-index 6339f31..418f162 100644
+index 380907a..c8e50a4 100644
 --- a/src/Driver.cc
 +++ b/src/Driver.cc
 @@ -99,6 +99,12 @@ void Driver::run() {
@@ -63,7 +63,7 @@ index 6339f31..418f162 100644
  
          // get stopping timestamp
 diff --git a/src/Hydro.cc b/src/Hydro.cc
-index 4427352..2bdbf35 100644
+index fcee6a9..2d64efd 100644
 --- a/src/Hydro.cc
 +++ b/src/Hydro.cc
 @@ -273,6 +273,8 @@ void Hydro::doCycle(
@@ -85,7 +85,7 @@ index 4427352..2bdbf35 100644
  #endif
  
 diff --git a/src/PennantGeopm.cc b/src/PennantGeopm.cc
-index 49d1af5..fe65c0c 100644
+index 54c4ae4..266693c 100644
 --- a/src/PennantGeopm.cc
 +++ b/src/PennantGeopm.cc
 @@ -8,6 +8,13 @@ namespace PennantGeopm {
@@ -149,7 +149,7 @@ index 31bbd87..31d60a8 100644
      extern uint64_t region_id_doCycle_omp1;
      extern uint64_t region_id_doCycle_omp2;
 diff --git a/src/main.cc b/src/main.cc
-index c62b97f..84532a6 100644
+index c62b97f..7f3a713 100644
 --- a/src/main.cc
 +++ b/src/main.cc
 @@ -18,16 +18,26 @@
@@ -193,5 +193,5 @@ index c62b97f..84532a6 100644
  
  }
 -- 
-1.8.3.1
+2.26.2
 
