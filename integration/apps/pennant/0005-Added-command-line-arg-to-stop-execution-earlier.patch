@@ -1,20 +1,20 @@
-From 7920567084011b4d7f996ddf7cc392865cf37eea Mon Sep 17 00:00:00 2001
+From f2d5ce6cddee36e0fbc44615852721bb56a13734 Mon Sep 17 00:00:00 2001
 From: Fuat Keceli <fuat.keceli@intel.com>
 Date: Tue, 9 Feb 2021 10:33:36 -0800
-Subject: [PATCH 5/6] Added command line arg to stop execution earlier.
+Subject: [PATCH 5/7] Added command line arg to stop execution earlier.
 
 #  Copyright (c) 2015 - 2022, Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
 
 Signed-off-by: Fuat Keceli <fuat.keceli@intel.com>
 ---
- src/Driver.cc |  6 ++++--
+ src/Driver.cc |  5 ++++-
  src/Driver.hh |  2 +-
  src/main.cc   | 13 ++++++++++---
- 3 files changed, 15 insertions(+), 6 deletions(-)
+ 3 files changed, 15 insertions(+), 5 deletions(-)
 
 diff --git a/src/Driver.cc b/src/Driver.cc
-index 418f162..fd2af0d 100644
+index c8e50a4..8fb8014 100644
 --- a/src/Driver.cc
 +++ b/src/Driver.cc
 @@ -37,7 +37,7 @@ using namespace std;
@@ -26,7 +26,7 @@ index 418f162..fd2af0d 100644
          : probname(pname) {
      using Parallel::numpe;
      using Parallel::mype;
-@@ -58,7 +58,10 @@ Driver::Driver(const InputFile* inp, const string& pname)
+@@ -58,6 +58,9 @@ Driver::Driver(const InputFile* inp, const string& pname)
      }  // if mype == 0
  
      cstop = inp->getInt("cstop", 999999);
@@ -36,7 +36,6 @@ index 418f162..fd2af0d 100644
      tstop = inp->getDouble("tstop", 1.e99);
      if (cstop == 999999 && tstop == 1.e99) {
          if (mype == 0)
-             cerr << "Must specify either cstop or tstop" << endl;
 diff --git a/src/Driver.hh b/src/Driver.hh
 index ffc3746..d049aed 100644
 --- a/src/Driver.hh
@@ -51,7 +50,7 @@ index ffc3746..d049aed 100644
  
      void run();
 diff --git a/src/main.cc b/src/main.cc
-index 84532a6..239aad9 100644
+index 7f3a713..f80b231 100644
 --- a/src/main.cc
 +++ b/src/main.cc
 @@ -38,9 +38,9 @@ int main(const int argc, const char** argv)
@@ -83,5 +82,5 @@ index 84532a6..239aad9 100644
      drv.run();
  
 -- 
-1.8.3.1
+2.26.2
 

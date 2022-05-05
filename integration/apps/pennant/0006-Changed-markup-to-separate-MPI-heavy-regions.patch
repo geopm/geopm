@@ -1,7 +1,7 @@
-From 996895ac2ffdf4a77673ef4a651ffb6c3e1f3d94 Mon Sep 17 00:00:00 2001
+From 4572b3ecc98531dc58d37ccf2c0eaab8214f9676 Mon Sep 17 00:00:00 2001
 From: Fuat Keceli <fuat.keceli@intel.com>
 Date: Wed, 10 Feb 2021 10:16:00 -0800
-Subject: [PATCH 6/6] Changed markup to separate MPI heavy regions.
+Subject: [PATCH 6/7] Changed markup to separate MPI heavy regions.
 
 #  Copyright (c) 2015 - 2022, Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
@@ -15,10 +15,10 @@ Signed-off-by: Fuat Keceli <fuat.keceli@intel.com>
  4 files changed, 7 insertions(+), 18 deletions(-)
 
 diff --git a/src/Driver.cc b/src/Driver.cc
-index fd2af0d..e76ea29 100644
+index 8fb8014..3d2d037 100644
 --- a/src/Driver.cc
 +++ b/src/Driver.cc
-@@ -122,7 +122,6 @@ void Driver::run() {
+@@ -123,7 +123,6 @@ void Driver::run() {
  
  #ifdef USEGEOPM
  #ifdef USEGEOPMMARKUP
@@ -26,7 +26,7 @@ index fd2af0d..e76ea29 100644
          geopm_prof_enter(region_id_calcGlobalDt);
  #endif // USEGEOPMMARKUP
  #endif // USEGEOPM
-@@ -133,6 +132,7 @@ void Driver::run() {
+@@ -134,6 +133,7 @@ void Driver::run() {
  #ifdef USEGEOPM
  #ifdef USEGEOPMMARKUP
          geopm_prof_exit(region_id_calcGlobalDt);
@@ -35,7 +35,7 @@ index fd2af0d..e76ea29 100644
  #endif // USEGEOPM
  
 diff --git a/src/Hydro.cc b/src/Hydro.cc
-index 2bdbf35..c907ff2 100644
+index 2d64efd..81a9411 100644
 --- a/src/Hydro.cc
 +++ b/src/Hydro.cc
 @@ -274,26 +274,18 @@ void Hydro::doCycle(
@@ -69,7 +69,7 @@ index 2bdbf35..c907ff2 100644
  #endif
  #endif
 diff --git a/src/PennantGeopm.cc b/src/PennantGeopm.cc
-index fe65c0c..7fa3635 100644
+index 266693c..adb3d29 100644
 --- a/src/PennantGeopm.cc
 +++ b/src/PennantGeopm.cc
 @@ -19,8 +19,7 @@ uint64_t region_id_calcGlobalDt;
@@ -107,5 +107,5 @@ index 31d60a8..e522861 100644
      extern uint64_t region_id_doCycle_resetDtHydro;
      extern uint64_t region_id_doCycle_omp4;
 -- 
-1.8.3.1
+2.26.2
 

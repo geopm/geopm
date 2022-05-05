@@ -1,37 +1,74 @@
-From 1aa92708e95ffb39815759f588d0371c508613c7 Mon Sep 17 00:00:00 2001
+From 03b8ad88c1c8d02f472bb535e044d366654e2abf Mon Sep 17 00:00:00 2001
 From: Brad Geltz <brad.geltz@intel.com>
-Date: Wed, 7 Oct 2020 15:55:14 -0700
-Subject: [PATCH 5/5] Add region markup
+Date: Wed, 7 Oct 2020 15:50:07 -0700
+Subject: [PATCH 3/5] Link GEOPM
 #
 #  Copyright (c) 2015 - 2022, Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
-Signed-off-by: Brad Geltz <brad.geltz@intel.com>
+Signed-off-by: Lowren Lawson <lowren.h.lawson@intel.com>
 ---
- src/SparseMatrix_functions.hpp | 24 ++++++++++++++++++++++++
- src/Vector_functions.hpp       | 24 ++++++++++++++++++++++++
- 2 files changed, 48 insertions(+)
+ src/SparseMatrix_functions.hpp | 33 ++++++++++++++++++++++++++++----
+ src/Vector_functions.hpp       | 35 +++++++++++++++++++++++++++++-----
+ 2 files changed, 59 insertions(+), 9 deletions(-)
 
 diff --git a/src/SparseMatrix_functions.hpp b/src/SparseMatrix_functions.hpp
-index 876f4ad..b598181 100644
+index 876f4ad..4255ef3 100644
 --- a/src/SparseMatrix_functions.hpp
 +++ b/src/SparseMatrix_functions.hpp
-@@ -43,6 +43,10 @@
+@@ -43,6 +43,11 @@
  #include <exchange_externals.hpp>
  #include <mytimer.hpp>
-
+ 
 +#ifndef NO_GEOPM
 +#include "geopm_prof.h"
++#include "geopm_hint.h"
 +#endif
 +
  #ifdef MINIFE_HAVE_TBB
  #include <LockingMatrix.hpp>
  #endif
-@@ -515,6 +519,13 @@ void operator()(MatrixType& A,
+@@ -96,7 +101,7 @@ void sort_with_companions(ptrdiff_t len, T* array, U* companions)
+ }
+ 
+ template<typename MatrixType>
+-void write_matrix(const std::string& filename, 
++void write_matrix(const std::string& filename,
+                   MatrixType& mat)
+ {
+   typedef typename MatrixType::LocalOrdinalType LocalOrdinalType;
+@@ -200,7 +205,7 @@ sum_in_symm_elem_matrix(size_t num,
+   bool flag = false;
+   for(size_t i=0; i<num; ++i) {
+     GlobalOrdinal row = indices[i];
+- 
++
+     const Scalar* row_coefs = &coefs[row_offset];
+     const GlobalOrdinal* row_col_inds = &indices[i];
+     size_t row_len = num - i;
+@@ -209,7 +214,7 @@ sum_in_symm_elem_matrix(size_t num,
+     size_t mat_row_len = 0;
+     GlobalOrdinal* mat_row_cols = NULL;
+     Scalar* mat_row_coefs = NULL;
+-  
++
+     mat.get_row_pointers(row, mat_row_len, mat_row_cols, mat_row_coefs);
+     if (mat_row_len == 0) continue;
+ 
+@@ -421,7 +426,7 @@ zero_row_and_put_1_on_diagonal(MatrixType& A, typename MatrixType::GlobalOrdinal
+   GlobalOrdinal* cols = NULL;
+   Scalar* coefs = NULL;
+   A.get_row_pointers(row, row_len, cols, coefs);
+-  
++
+   for(size_t i=0; i<row_len; ++i) {
+     if (cols[i] == row) coefs[i] = 1;
+     else coefs[i] = 0;
+@@ -515,6 +520,13 @@ void operator()(MatrixType& A,
          ScalarType* ycoefs                        = &y.coefs[0];
          const ScalarType beta                     = 0;
-
+ 
 +#ifndef NO_GEOPM
 +        static uint64_t R_ID = 0;
 +        if (R_ID == 0) {
@@ -42,8 +79,8 @@ index 876f4ad..b598181 100644
          #pragma omp parallel for
          for(MINIFE_GLOBAL_ORDINAL row = 0; row < rows_size; ++row) {
                  const MINIFE_GLOBAL_ORDINAL row_start = Arowoffsets[row];
-@@ -529,6 +540,9 @@ void operator()(MatrixType& A,
-
+@@ -529,6 +541,9 @@ void operator()(MatrixType& A,
+ 
                  ycoefs[row] = sum;
          }
 +#ifndef NO_GEOPM
@@ -52,10 +89,10 @@ index 876f4ad..b598181 100644
  }
  };
  #elif defined(MINIFE_ELL_MATRIX)
-@@ -553,6 +567,13 @@ void operator()(MatrixType& A,
+@@ -553,6 +568,13 @@ void operator()(MatrixType& A,
          ScalarType* ycoefs = &y.coefs[0];
    ScalarType beta = 0;
-
+ 
 +#ifndef NO_GEOPM
 +  static uint64_t R_ID = 0;
 +  if (R_ID == 0) {
@@ -66,8 +103,8 @@ index 876f4ad..b598181 100644
    #pragma omp parallel for
    for(int row=0; row<n; ++row) {
      ScalarType sum = beta*ycoefs[row];
-@@ -566,6 +587,9 @@ void operator()(MatrixType& A,
-
+@@ -566,6 +588,9 @@ void operator()(MatrixType& A,
+ 
      ycoefs[row] = sum;
    }
 +#ifndef NO_GEOPM
@@ -77,24 +114,34 @@ index 876f4ad..b598181 100644
  };
  #endif
 diff --git a/src/Vector_functions.hpp b/src/Vector_functions.hpp
-index cdf9b15..4f54069 100644
+index cdf9b15..d8507d0 100644
 --- a/src/Vector_functions.hpp
 +++ b/src/Vector_functions.hpp
-@@ -36,6 +36,10 @@
+@@ -36,6 +36,11 @@
  #include <mpi.h>
  #endif
-
+ 
 +#ifndef NO_GEOPM
 +#include "geopm_prof.h"
++#include "geopm_hint.h"
 +#endif
 +
  #ifdef MINIFE_HAVE_TBB
  #include <LockingVector.hpp>
  #endif
-@@ -152,6 +156,13 @@ void
+@@ -71,7 +76,7 @@ void write_vector(const std::string& filename,
+       if (p == 0) {
+         ofs << vec.local_size << std::endl;
+       }
+-  
++
+       typename VectorType::GlobalOrdinalType first = vec.startIndex;
+       for(size_t i=0; i<vec.local_size; ++i) {
+         ofs << first+i << " " << coefs[i] << std::endl;
+@@ -152,6 +157,13 @@ void
    const ScalarType*  ycoefs = &y.coefs[0];
          ScalarType*  wcoefs = &w.coefs[0];
-
+ 
 +#ifndef NO_GEOPM
 +  static uint64_t R_ID = 0;
 +  if (R_ID == 0) {
@@ -105,20 +152,32 @@ index cdf9b15..4f54069 100644
    if(beta == 0.0) {
  	if(alpha == 1.0) {
    		#pragma omp parallel for
-@@ -177,6 +188,9 @@ void
+@@ -177,6 +189,9 @@ void
    		}
    	}
    }
 +#ifndef NO_GEOPM
 +  geopm_prof_exit( R_ID);
 +#endif
-
+ 
  #ifdef MINIFE_DEBUG_OPENMP
    std::cout << "Finished WAXPBY." << std::endl;
-@@ -245,10 +259,20 @@ typename TypeTraits<typename Vector::ScalarType>::magnitude_type
+@@ -185,9 +200,9 @@ void
+ 
+ template<typename VectorType>
+ void
+-  daxpby(const MINIFE_SCALAR alpha, 
++  daxpby(const MINIFE_SCALAR alpha,
+ 	const VectorType& x,
+-	const MINIFE_SCALAR beta, 
++	const MINIFE_SCALAR beta,
+ 	VectorType& y)
+ {
+ 
+@@ -245,14 +260,24 @@ typename TypeTraits<typename Vector::ScalarType>::magnitude_type
    const Scalar*  ycoefs = &y.coefs[0];
    MINIFE_SCALAR result = 0;
-
+ 
 +#ifndef NO_GEOPM
 +  static uint64_t R_ID = 0;
 +  if (R_ID == 0) {
@@ -133,9 +192,23 @@ index cdf9b15..4f54069 100644
 +#ifndef NO_GEOPM
 +  geopm_prof_exit( R_ID);
 +#endif
-
+ 
  #ifdef HAVE_MPI
    magnitude local_dot = result, global_dot = 0;
---
-2.23.0
+-  MPI_Datatype mpi_dtype = TypeTraits<magnitude>::mpi_type();  
++  MPI_Datatype mpi_dtype = TypeTraits<magnitude>::mpi_type();
+   MPI_Allreduce(&local_dot, &global_dot, 1, mpi_dtype, MPI_SUM, MPI_COMM_WORLD);
+   return global_dot;
+ #else
+@@ -292,7 +317,7 @@ typename TypeTraits<typename Vector::ScalarType>::magnitude_type
+ 
+ #ifdef HAVE_MPI
+   magnitude local_dot = result, global_dot = 0;
+-  MPI_Datatype mpi_dtype = TypeTraits<magnitude>::mpi_type();  
++  MPI_Datatype mpi_dtype = TypeTraits<magnitude>::mpi_type();
+   MPI_Allreduce(&local_dot, &global_dot, 1, mpi_dtype, MPI_SUM, MPI_COMM_WORLD);
+ 
+ #ifdef MINIFE_DEBUG_OPENMP
+-- 
+2.26.2
 
