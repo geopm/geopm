@@ -34,6 +34,12 @@ file to be used as the ``GEOPM_POLICY`` as described in `geopm(7) <geopm.7.html>
 provide a static input policy for the GEOPM controller.  If ``-p`` is
 given but ``-a`` is not, an error is reported.
 
+The JSON output generated when using the ``-a`` and ``-p`` options follows
+this schema:
+
+.. literalinclude:: geopmagent_policy.schema.json
+    :language: json
+
 OPTIONS
 -------
 

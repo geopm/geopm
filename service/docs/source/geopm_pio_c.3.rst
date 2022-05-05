@@ -285,6 +285,12 @@ SERIAL FUNCTIONS
   are reverted to their previous settings.  If an error occurs then
   negative error code is returned.  Zero is returned upon success.
 
+When controls are saved, the data is stored in JSON format with the following
+schema:
+
+.. literalinclude:: saved_controls.schema.json
+    :language: json
+
 BATCH FUNCTIONS
 ---------------
 
