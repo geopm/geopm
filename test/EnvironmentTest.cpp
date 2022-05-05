@@ -7,6 +7,7 @@
 #include <iostream>
 #include <memory>
 #include <fstream>
+#include <set>
 
 #include "geopm/json11.hpp"
 
@@ -161,7 +162,32 @@ void EnvironmentTest::SetUp()
     m_pmpi_ctl_map["pthread"] = (int)Environment::M_CTL_PTHREAD;
 
     EXPECT_CALL(m_platform_io, signal_exists(_))
-        .WillRepeatedly(Return(true));
+        .WillRepeatedly([](const std::string &signal_name)
+        {
+            std::set<std::string> valid_signal_names = {
+                "CPUINFO::FREQ_MAX",
+                "CPUINFO::FREQ_MIN",
+                "CPUINFO::FREQ_STEP",
+                "CPUINFO::FREQ_STICKER",
+                "CPU_FREQUENCY_MIN",
+                "CPU_FREQUENCY_STEP",
+                "CPU_FREQUENCY_STICKER",
+                "TIME",
+                "TIME::ELAPSED",
+                "test1",
+                "default-test1",
+                "override-test1",
+                "best1",
+                "default-best1",
+                "override-best1",
+                "test2",
+                "best2",
+                "test3",
+                "best3",
+            };
+
+            return valid_signal_names.find(signal_name) != valid_signal_names.end();
+        });
 }
 
 void EnvironmentTest::TearDown()
@@ -562,39 +588,49 @@ TEST_F(EnvironmentTest, signal_parser)
     std::vector<std::pair<std::string, int> > actual_signals;
     std::string environment_variable_contents;
 
+    m_env = geopm::make_unique<EnvironmentImp>("", "", &m_platform_io);
+
     expected_signals = {
-        {"CPU_FREQUENCY", geopm_domain_e::GEOPM_DOMAIN_BOARD},
-        {"NUM_CORES", geopm_domain_e::GEOPM_DOMAIN_BOARD},
-        {"NUM_VACUUM_TUBES", geopm_domain_e::GEOPM_DOMAIN_BOARD}
+        {"CPU_FREQUENCY_MIN", geopm_domain_e::GEOPM_DOMAIN_BOARD},
+        {"CPUINFO::FREQ_STEP", geopm_domain_e::GEOPM_DOMAIN_BOARD},
+        {"TIME", geopm_domain_e::GEOPM_DOMAIN_BOARD}
     };
-    environment_variable_contents = "CPU_FREQUENCY,NUM_CORES,NUM_VACUUM_TUBES";
+    environment_variable_contents = "CPU_FREQUENCY_MIN,CPUINFO::FREQ_STEP,TIME";
     actual_signals = ((EnvironmentImp*)m_env.get())->signal_parser(environment_variable_contents);
     EXPECT_EQ(expected_signals, actual_signals);
 
     expected_signals = {
-        {"CPU_FREQUENCY", geopm_domain_e::GEOPM_DOMAIN_BOARD},
-        {"NUM_CORES", geopm_domain_e::GEOPM_DOMAIN_PACKAGE},
-        {"NUM_VACUUM_TUBES", geopm_domain_e::GEOPM_DOMAIN_CORE}
+        {"CPU_FREQUENCY_MIN", geopm_domain_e::GEOPM_DOMAIN_BOARD},
+        {"CPUINFO::FREQ_STEP", geopm_domain_e::GEOPM_DOMAIN_PACKAGE},
+        {"TIME", geopm_domain_e::GEOPM_DOMAIN_CORE}
     };
-    environment_variable_contents = "CPU_FREQUENCY,NUM_CORES@package,NUM_VACUUM_TUBES@core";
+    environment_variable_contents = "CPU_FREQUENCY_MIN,CPUINFO::FREQ_STEP@package,TIME@core";
     actual_signals = ((EnvironmentImp*)m_env.get())->signal_parser(environment_variable_contents);
     EXPECT_EQ(expected_signals, actual_signals);
 
     expected_signals = {
-        {"NUM_CORES", geopm_domain_e::GEOPM_DOMAIN_INVALID},
-        {"NUM_VACUUM_TUBES", geopm_domain_e::GEOPM_DOMAIN_INVALID}
+        {"CPUINFO::FREQ_STEP", geopm_domain_e::GEOPM_DOMAIN_INVALID},
+        {"TIME", geopm_domain_e::GEOPM_DOMAIN_INVALID}
     };
-    environment_variable_contents = "NUM_CORES@invalid,NUM_VACUUM_TUBES@invalid";
+    environment_variable_contents = "CPUINFO::FREQ_STEP@invalid,TIME@invalid";
     GEOPM_EXPECT_THROW_MESSAGE(
         ((EnvironmentImp*)m_env.get())->signal_parser(environment_variable_contents),
         GEOPM_ERROR_INVALID,
         (std::string("PlatformTopo::domain_name_to_type(): unrecognized domain_name: ") + std::string("invalid"))
     );
 
-    environment_variable_contents = "CPU_FREQUENCY,NUM_CORES@package@core,NUM_VACUUM_TUBES@core";
+    environment_variable_contents = "CPU_FREQUENCY_MIN,CPUINFO::FREQ_STEP@package@core,TIME@core";
     GEOPM_EXPECT_THROW_MESSAGE(
         ((EnvironmentImp*)m_env.get())->signal_parser(environment_variable_contents),
         GEOPM_ERROR_INVALID,
         (std::string("EnvironmentImp::signal_parser(): Environment trace extension contains signals with multiple \"@\" characters."))
     );
+
+    expected_signals = {
+        {"CPU_FREQUENCY_MIN", geopm_domain_e::GEOPM_DOMAIN_BOARD},
+        {"TIME", geopm_domain_e::GEOPM_DOMAIN_CORE}
+    };
+    environment_variable_contents = "CPU_FREQUENCY_MIN,NUM_VACUUM_TUBES@package,TIME@core";
+    actual_signals = ((EnvironmentImp*)m_env.get())->signal_parser(environment_variable_contents);
+    EXPECT_EQ(expected_signals, actual_signals);
 }
