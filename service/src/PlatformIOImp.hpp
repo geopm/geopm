@@ -65,7 +65,6 @@ namespace geopm
                                     int &server_pid,
                                     std::string &server_key) override;
             void stop_batch_server(int server_pid) override;
-            bool signal_exists(const std::string &signal_name) const override;
 
             int num_signal_pushed(void) const;  // Used for testing only
             int num_control_pushed(void) const; // Used for testing only

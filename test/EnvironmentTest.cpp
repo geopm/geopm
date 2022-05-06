@@ -161,33 +161,30 @@ void EnvironmentTest::SetUp()
     m_pmpi_ctl_map["process"] = (int)Environment::M_CTL_PROCESS;
     m_pmpi_ctl_map["pthread"] = (int)Environment::M_CTL_PTHREAD;
 
-    EXPECT_CALL(m_platform_io, signal_exists(_))
-        .WillRepeatedly([](const std::string &signal_name)
-        {
-            std::set<std::string> valid_signal_names = {
-                "CPUINFO::FREQ_MAX",
-                "CPUINFO::FREQ_MIN",
-                "CPUINFO::FREQ_STEP",
-                "CPUINFO::FREQ_STICKER",
-                "CPU_FREQUENCY_MIN",
-                "CPU_FREQUENCY_STEP",
-                "CPU_FREQUENCY_STICKER",
-                "TIME",
-                "TIME::ELAPSED",
-                "test1",
-                "default-test1",
-                "override-test1",
-                "best1",
-                "default-best1",
-                "override-best1",
-                "test2",
-                "best2",
-                "test3",
-                "best3",
-            };
+    std::set<std::string> valid_signal_names = {
+        "CPUINFO::FREQ_MAX",
+        "CPUINFO::FREQ_MIN",
+        "CPUINFO::FREQ_STEP",
+        "CPUINFO::FREQ_STICKER",
+        "CPU_FREQUENCY_MIN",
+        "CPU_FREQUENCY_STEP",
+        "CPU_FREQUENCY_STICKER",
+        "TIME",
+        "TIME::ELAPSED",
+        "test1",
+        "default-test1",
+        "override-test1",
+        "best1",
+        "default-best1",
+        "override-best1",
+        "test2",
+        "best2",
+        "test3",
+        "best3",
+    };
 
-            return valid_signal_names.find(signal_name) != valid_signal_names.end();
-        });
+    EXPECT_CALL(m_platform_io, signal_names())
+        .WillRepeatedly(Return(valid_signal_names));
 }
 
 void EnvironmentTest::TearDown()
@@ -626,11 +623,10 @@ TEST_F(EnvironmentTest, signal_parser)
         (std::string("EnvironmentImp::signal_parser(): Environment trace extension contains signals with multiple \"@\" characters."))
     );
 
-    expected_signals = {
-        {"CPU_FREQUENCY_MIN", geopm_domain_e::GEOPM_DOMAIN_BOARD},
-        {"TIME", geopm_domain_e::GEOPM_DOMAIN_CORE}
-    };
     environment_variable_contents = "CPU_FREQUENCY_MIN,NUM_VACUUM_TUBES@package,TIME@core";
-    actual_signals = ((EnvironmentImp*)m_env.get())->signal_parser(environment_variable_contents);
-    EXPECT_EQ(expected_signals, actual_signals);
+    GEOPM_EXPECT_THROW_MESSAGE(
+        ((EnvironmentImp*)m_env.get())->signal_parser(environment_variable_contents),
+        GEOPM_ERROR_INVALID,
+        (std::string("Invalid signal : ").append("NUM_VACUUM_TUBES"))
+    );
 }
