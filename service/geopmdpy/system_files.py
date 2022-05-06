@@ -273,7 +273,14 @@ class ActiveSessions(object):
     responsible for managing file access permissions, and atomic file
     creation.
 
+    The session files are stored in JSON format and follow this schema:
+
+    .. literalinclude:: ../../geopmdpy/active_sessions.schema.json
+        :language: json
+
     """
+
+    SESSION_SCHEMA = "active_sessions.schema.json"
 
     def __init__(self, run_path=GEOPM_SERVICE_RUN_PATH):
         """Create an ActiveSessions object that tracks geopmd session files
@@ -329,19 +336,8 @@ class ActiveSessions(object):
         self._daemon_uid = os.getuid()
         self._daemon_gid = os.getgid()
         self._sessions = dict()
-        self._session_schema = {
-            'type' : 'object',
-            'properties' : {
-                'client_pid' : {'type' : 'integer'},
-                'reference_count' : {'type' : 'integer', 'minimum' : 0},
-                'signals' : {'type' : 'array', 'items' : {'type' : 'string'}},
-                'controls' : {'type' : 'array', 'items' : {'type' : 'string'}},
-                'watch_id' : {'type' : 'integer'},
-                'batch_server': {'type' : 'integer'}
-            },
-            'additionalProperties' : False,
-            'required' : ['client_pid', 'signals', 'controls']
-        }
+        session_schema_str = secure_read_file(self.SESSION_SCHEMA)
+        self._session_schema = json.loads(session_schema_str)
         secure_make_dirs(self._RUN_PATH,
                          perm_mode=GEOPM_SERVICE_RUN_PATH_PERM)
 
