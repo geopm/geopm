@@ -72,7 +72,7 @@ namespace geopm
 
     EnvironmentImp::EnvironmentImp(const std::string &default_config_path,
                                    const std::string &override_config_path,
-                                   const PlatformIO* platform_io)
+                                   const PlatformIO *platform_io)
         : m_all_names(get_all_vars())
         , m_runtime_names({"GEOPM_PROFILE",
                            "GEOPM_REPORT",
@@ -287,12 +287,13 @@ namespace geopm
 
         std::vector<std::pair<std::string, int> > result_data_structure;
 
+        auto signals_avail = m_platform_io->signal_names();
         auto individual_signals = geopm::string_split(environment_variable_contents, ",");
-        for (const auto& signal : individual_signals) {
+        for (const auto &signal : individual_signals) {
             auto signal_domain = geopm::string_split(signal, "@");
-            if (!m_platform_io->signal_exists(signal_domain[0])) {
-                std::cerr << "Warning: <geopm> Invalid signal : " << signal_domain[0] << std::endl;
-                continue;
+            if (signals_avail.find(signal_domain[0]) == signals_avail.end()) {
+                throw Exception("Invalid signal : " + signal_domain[0],
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
 
             if (signal_domain.size() == 2) {
@@ -300,9 +301,11 @@ namespace geopm
                     signal_domain[0],
                     geopm::PlatformTopo::domain_name_to_type(signal_domain[1])
                 ));
-            } else if (signal_domain.size() == 1) {
+            }
+            else if (signal_domain.size() == 1) {
                 result_data_structure.push_back(std::make_pair(signal_domain[0], GEOPM_DOMAIN_BOARD));
-            } else {
+            }
+            else {
                 throw Exception("EnvironmentImp::signal_parser(): Environment trace extension contains signals with multiple \"@\" characters.",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }

@@ -424,7 +424,8 @@ namespace geopm
                 m_env_signal_name_idx.emplace_back(
                     signal_domain_pair.first,
                     m_sample_agg->push_signal(signal_domain_pair.first, GEOPM_DOMAIN_BOARD, 0));
-            } else {
+            }
+            else {
                 std::string full_signal_name;
                 const int& domain_type = signal_domain_pair.second;
                 const int num_domains = m_platform_topo.num_domain(domain_type);
