@@ -21,7 +21,7 @@ namespace geopm
     class LevelZeroDevicePool;
     class SaveControl;
 
-    /// @brief IOGroup that provides signals and controls for Accelerators
+    /// @brief IOGroup that provides signals and controls for GPUs
     class LevelZeroIOGroup : public IOGroup
     {
         public:

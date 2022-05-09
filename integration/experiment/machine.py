@@ -80,23 +80,23 @@ class Machine:
     def num_cpu(self):
         return int(self.topo['cpu'])
 
-    def num_board_memory(self):
-        return int(self.topo['board_memory'])
+    def num_memory(self):
+        return int(self.topo['memory'])
 
-    def num_package_memory(self):
-        return int(self.topo['package_memory'])
+    def num_package_integrated_memory(self):
+        return int(self.topo['package_integrated_memory'])
 
-    def num_board_nic(self):
-        return int(self.topo['board_nic'])
+    def num_nic(self):
+        return int(self.topo['nic'])
 
-    def num_package_nic(self):
-        return int(self.topo['package_nic'])
+    def num_package_integrated_nic(self):
+        return int(self.topo['package_integrated_nic'])
 
-    def num_board_accelerator(self):
-        return int(self.topo['board_accelerator'])
+    def num_gpu(self):
+        return int(self.topo['gpu'])
 
-    def num_package_accelerator(self):
-        return int(self.topo['package_accelerator'])
+    def num_package_integrated_gpu(self):
+        return int(self.topo['package_integrated_gpu'])
 
     def total_node_memory_bytes(self):
         return float(self.meminfo['MemTotal'])

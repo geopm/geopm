@@ -22,8 +22,8 @@ namespace geopm
         public:
             LevelZeroImp();
             virtual ~LevelZeroImp() = default;
-            int num_accelerator(void) const override;
-            int num_accelerator(int domain) const override;
+            int num_gpu(void) const override;
+            int num_gpu(int domain) const override;
 
             int frequency_domain_count(unsigned int l0_device_idx,
                                        int domain) const override;
@@ -107,8 +107,8 @@ namespace geopm
             m_frequency_s frequency_status_helper(unsigned int l0_device_idx,
                                                   int l0_domain, int l0_domain_idx) const;
 
-            uint32_t m_num_board_gpu;
-            uint32_t m_num_board_gpu_subdevice;
+            uint32_t m_num_gpu;
+            uint32_t m_num_gpu_subdevice;
 
             std::vector<ze_driver_handle_t> m_levelzero_driver;
             std::vector<m_device_info_s> m_devices;

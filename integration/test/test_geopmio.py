@@ -69,9 +69,9 @@ class TestIntegrationGeopmio(unittest.TestCase):
 
         # domain flag
         self.check_output(['--domain'], ['board', 'package', 'core', 'cpu',
-                                         'board_memory', 'package_memory',
-                                         'board_nic', 'package_nic',
-                                         'board_accelerator', 'package_accelerator'])
+                                         'memory', 'package_integrated_memory',
+                                         'nic', 'package_integrated_nic',
+                                         'gpu', 'package_integrated_gpu'])
         # read signal
         self.check_no_error(['TIME', 'board', '0'])
 
@@ -179,9 +179,9 @@ class TestIntegrationGeopmio(unittest.TestCase):
 
         # domain flag
         self.check_output(['--domain'], ['board', 'package', 'core', 'cpu',
-                                         'board_memory', 'package_memory',
-                                         'board_nic', 'package_nic',
-                                         'board_accelerator', 'package_accelerator'])
+                                         'memory', 'package_integrated_memory',
+                                         'nic', 'package_integrated_nic',
+                                         'gpu', 'package_integrated_gpu'])
         # errors
         write_err = 'domain type, domain index, and value are required'
         self.check_output(['CPU_FREQUENCY_CONTROL'], [write_err])
@@ -190,7 +190,7 @@ class TestIntegrationGeopmio(unittest.TestCase):
         self.check_output(['CPU_FREQUENCY_CONTROL', 'board', 'bad', '0'], ['invalid domain index'])
         self.check_output(['CPU_FREQUENCY_CONTROL', 'board', '0', 'bad'], ['invalid write value'])
         self.check_output(['CPU_FREQUENCY_CONTROL', 'package', '111', '0'], ['cannot write control'])
-        self.check_output(['CPU_FREQUENCY_CONTROL', 'board_nic', '0', '0'], ['cannot write control'])
+        self.check_output(['CPU_FREQUENCY_CONTROL', 'nic', '0', '0'], ['cannot write control'])
         self.check_output(['INVALID', 'board', '0', '0'], ['cannot write control'])
         self.check_output(['--domain', '--info'], ['info about domain not implemented'])
 

@@ -44,100 +44,100 @@ namespace geopm
         : m_platform_topo(platform_topo)
         , m_nvml_device_pool(device_pool)
         , m_is_batch_read(false)
-        , m_frequency_control_request(m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR), 0)
+        , m_frequency_control_request(m_platform_topo.num_domain(GEOPM_DOMAIN_GPU), 0)
         , m_signal_available({{M_NAME_PREFIX + "GPU_FREQUENCY_STATUS", {
                                   "Streaming multiprocessor frequency in hertz",
                                   {},
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                  GEOPM_DOMAIN_GPU,
                                   Agg::average,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
                               {M_NAME_PREFIX + "GPU_UTILIZATION", {
-                                  "Fraction of time the accelerator operated on a kernel in the last set of driver samples",
+                                  "Fraction of time the gpu operated on a kernel in the last set of driver samples",
                                   {},
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                  GEOPM_DOMAIN_GPU,
                                   Agg::average,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
                               {M_NAME_PREFIX + "GPU_POWER", {
-                                  "Accelerator power usage in watts",
+                                  "GPU power usage in watts",
                                   {},
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                  GEOPM_DOMAIN_GPU,
                                   Agg::sum,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
                               {M_NAME_PREFIX + "GPU_POWER_LIMIT_CONTROL", {
-                                  "Accelerator power limit in watts",
+                                  "GPU power limit in watts",
                                   {},
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                  GEOPM_DOMAIN_GPU,
                                   Agg::sum,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
                               {M_NAME_PREFIX + "GPU_MEMORY_FREQUENCY_STATUS", {
-                                  "Accelerator memory frequency in hertz",
+                                  "GPU memory frequency in hertz",
                                   {},
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                  GEOPM_DOMAIN_GPU,
                                   Agg::average,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
                               {M_NAME_PREFIX + "GPU_THROTTLE_REASONS", {
-                                  "Accelerator clock throttling reasons",
+                                  "GPU clock throttling reasons",
                                   {},
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                  GEOPM_DOMAIN_GPU,
                                   Agg::expect_same,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
                               {M_NAME_PREFIX + "GPU_TEMPERATURE", {
-                                  "Accelerator temperature in degrees Celsius",
+                                  "GPU temperature in degrees Celsius",
                                   {},
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                  GEOPM_DOMAIN_GPU,
                                   Agg::average,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
                               {M_NAME_PREFIX + "GPU_ENERGY_CONSUMPTION_TOTAL", {
-                                  "Accelerator energy consumption in joules since the driver was loaded",
+                                  "GPU energy consumption in joules since the driver was loaded",
                                   {},
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                  GEOPM_DOMAIN_GPU,
                                   Agg::sum,
                                   IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
                                   string_format_double
                                   }},
                               {M_NAME_PREFIX + "GPU_PERFORMANCE_STATE", {
-                                  "Accelerator performance state, defined by the NVML API as a value from 0 to 15"
+                                  "GPU performance state, defined by the NVML API as a value from 0 to 15"
                                   "\n  with 0 being maximum performance, 15 being minimum performance, and 32 being unknown",
                                   {},
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                  GEOPM_DOMAIN_GPU,
                                   Agg::expect_same,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
                               {M_NAME_PREFIX + "GPU_PCIE_RX_THROUGHPUT", {
-                                  "Accelerator PCIE receive throughput in bytes per second over a 20 millisecond period",
+                                  "GPU PCIE receive throughput in bytes per second over a 20 millisecond period",
                                   {},
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                  GEOPM_DOMAIN_GPU,
                                   Agg::sum,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
                               {M_NAME_PREFIX + "GPU_PCIE_TX_THROUGHPUT", {
-                                  "Accelerator PCIE transmit throughput in bytes per second over a 20 millisecond period",
+                                  "GPU PCIE transmit throughput in bytes per second over a 20 millisecond period",
                                   {},
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                  GEOPM_DOMAIN_GPU,
                                   Agg::sum,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
                               {M_NAME_PREFIX + "GPU_CPU_ACTIVE_AFFINITIZATION", {
-                                  "Returns the associated accelerator for a given CPU as determined by running processes."
-                                  "\n  If no accelerators map to the CPU then -1 is returned"
-                                  "\n  If multiple accelerators map to the CPU NAN is returned",
+                                  "Returns the associated gpu for a given CPU as determined by running processes."
+                                  "\n  If no gpus map to the CPU then -1 is returned"
+                                  "\n  If multiple gpus map to the CPU NAN is returned",
                                   {},
                                   GEOPM_DOMAIN_CPU,
                                   Agg::expect_same,
@@ -145,9 +145,9 @@ namespace geopm
                                   string_format_double
                                   }},
                               {M_NAME_PREFIX + "GPU_MEMORY_UTILIZATION", {
-                                  "Fraction of time the accelerator memory was accessed in the last set of driver samples",
+                                  "Fraction of time the gpu memory was accessed in the last set of driver samples",
                                   {},
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                  GEOPM_DOMAIN_GPU,
                                   Agg::max,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
@@ -155,7 +155,7 @@ namespace geopm
                               {M_NAME_PREFIX + "GPU_FREQUENCY_MAX_AVAIL", {
                                   "Streaming multiprocessor Maximum frequency in hertz",
                                   {},
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                  GEOPM_DOMAIN_GPU,
                                   Agg::expect_same,
                                   IOGroup::M_SIGNAL_BEHAVIOR_CONSTANT,
                                   string_format_double
@@ -163,7 +163,7 @@ namespace geopm
                               {M_NAME_PREFIX + "GPU_FREQUENCY_MIN_AVAIL", {
                                   "Streaming multiprocessor Minimum frequency in hertz",
                                   {},
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                  GEOPM_DOMAIN_GPU,
                                   Agg::expect_same,
                                   IOGroup::M_SIGNAL_BEHAVIOR_CONSTANT,
                                   string_format_double
@@ -171,7 +171,7 @@ namespace geopm
                               {M_NAME_PREFIX + "GPU_FREQUENCY_CONTROL", {
                                   "Latest frequency control request in hertz",
                                   {},
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                  GEOPM_DOMAIN_GPU,
                                   Agg::expect_same,
                                   IOGroup::M_SIGNAL_BEHAVIOR_CONSTANT,
                                   string_format_double
@@ -179,7 +179,7 @@ namespace geopm
                               {M_NAME_PREFIX + "GPU_FREQUENCY_RESET_CONTROL", {
                                   "Resets streaming multiprocessor frequency min and max limits to default values.",
                                   {},
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                  GEOPM_DOMAIN_GPU,
                                   Agg::average,
                                   IOGroup::M_SIGNAL_BEHAVIOR_CONSTANT,
                                   string_format_double
@@ -188,7 +188,7 @@ namespace geopm
         , m_control_available({{M_NAME_PREFIX + "GPU_FREQUENCY_CONTROL", {
                                     "Sets streaming multiprocessor frequency min and max to the same limit (in hertz)",
                                     {},
-                                    GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                    GEOPM_DOMAIN_GPU,
                                     Agg::average,
                                     string_format_double
                                     }},
@@ -196,14 +196,14 @@ namespace geopm
                                     "Resets streaming multiprocessor frequency min and max limits to default values."
                                     "\n  Parameter provided is unused.",
                                     {},
-                                    GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                    GEOPM_DOMAIN_GPU,
                                     Agg::average,
                                     string_format_double
                                     }},
                                {M_NAME_PREFIX + "GPU_POWER_LIMIT_CONTROL", {
-                                    "Sets accelerator power limit in watts",
+                                    "Sets gpu power limit in watts",
                                     {},
-                                    GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                    GEOPM_DOMAIN_GPU,
                                     Agg::sum,
                                     string_format_double
                                     }}
@@ -241,14 +241,14 @@ namespace geopm
         register_control_alias("GPU_FREQUENCY_CONTROL", M_NAME_PREFIX + "GPU_FREQUENCY_CONTROL");
         register_signal_alias("GPU_FREQUENCY_CONTROL", M_NAME_PREFIX + "GPU_FREQUENCY_CONTROL");
 
-        for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR); ++domain_idx) {
+        for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(GEOPM_DOMAIN_GPU); ++domain_idx) {
             std::vector<unsigned int> supported_frequency = m_nvml_device_pool.frequency_supported_sm(domain_idx);
             if (supported_frequency.size() == 0) {
                 // TODO: Long term this should simply hide the FREQUENCY_MIN and FREQUENCY_MAX signals,
                 //       not prevent loading of the IO Group
 
                 throw Exception("NVMLIOGroup::" + std::string(__func__) +
-                                ": No supported frequencies found for accelerator " + std::to_string(domain_idx),
+                                ": No supported frequencies found for gpu " + std::to_string(domain_idx),
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
 
@@ -396,30 +396,30 @@ namespace geopm
     }
 
     // The active process list NVML call can be costly, 0.5-2ms per call was seen in early testing on average,
-    // with a worst case of 8ms per call.  Because of this we cache the processes in a PID <-> Accelerator map
+    // with a worst case of 8ms per call.  Because of this we cache the processes in a PID <-> GPU map
     // before using them elsewhere
-    std::map<pid_t, double> NVMLIOGroup::accelerator_process_map(void) const
+    std::map<pid_t, double> NVMLIOGroup::gpu_process_map(void) const
     {
-        std::map<pid_t,double> accelerator_pid_map;
+        std::map<pid_t,double> gpu_pid_map;
 
-        for (int accel_idx = 0; accel_idx < m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR); ++accel_idx) {
-            std::vector<int> active_process_list = m_nvml_device_pool.active_process_list(accel_idx);
+        for (int gpu_idx = 0; gpu_idx < m_platform_topo.num_domain(GEOPM_DOMAIN_GPU); ++gpu_idx) {
+            std::vector<int> active_process_list = m_nvml_device_pool.active_process_list(gpu_idx);
             for (auto proc_itr : active_process_list) {
-                // If a process is associated with multiple accelerators we have no good means of
+                // If a process is associated with multiple gpus we have no good means of
                 // signaling the user beyond providing an error value (NAN).
-                if (!accelerator_pid_map.count((pid_t)proc_itr)) {
-                    accelerator_pid_map[(pid_t)proc_itr] = accel_idx;
+                if (!gpu_pid_map.count((pid_t)proc_itr)) {
+                    gpu_pid_map[(pid_t)proc_itr] = gpu_idx;
                 }
                 else {
-                    accelerator_pid_map[(pid_t)proc_itr] = NAN;
+                    gpu_pid_map[(pid_t)proc_itr] = NAN;
                 }
             }
         }
-        return accelerator_pid_map;
+        return gpu_pid_map;
     }
 
-    // Parse PID to CPU affinitzation and use process list --> accelerator map to get CPU --> accelerator
-    double NVMLIOGroup::cpu_accelerator_affinity(int cpu_idx, std::map<pid_t, double> process_map) const
+    // Parse PID to CPU affinitzation and use process list --> gpu map to get CPU --> gpu
+    double NVMLIOGroup::cpu_gpu_affinity(int cpu_idx, std::map<pid_t, double> process_map) const
     {
         double result = -1;
         size_t num_cpu = m_platform_topo.num_domain(GEOPM_DOMAIN_CPU);
@@ -458,10 +458,10 @@ namespace geopm
                 for (unsigned int domain_idx = 0; domain_idx < sv.second.signals.size(); ++domain_idx) {
                     if (sv.second.signals.at(domain_idx)->m_do_read) {
                         if (is_map_cached == false) {
-                            process_map = accelerator_process_map();
+                            process_map = gpu_process_map();
                             is_map_cached = true;
                         }
-                        sv.second.signals.at(domain_idx)->m_value = cpu_accelerator_affinity(domain_idx, process_map);
+                        sv.second.signals.at(domain_idx)->m_value = cpu_gpu_affinity(domain_idx, process_map);
                     }
                 }
             }
@@ -582,8 +582,8 @@ namespace geopm
             result = (double) m_nvml_device_pool.utilization_mem(domain_idx) / 100;
         }
         else if (signal_name == M_NAME_PREFIX + "GPU_CPU_ACTIVE_AFFINITIZATION") {
-            std::map<pid_t, double> process_map = accelerator_process_map();
-            result = cpu_accelerator_affinity(domain_idx, process_map);
+            std::map<pid_t, double> process_map = gpu_process_map();
+            result = cpu_gpu_affinity(domain_idx, process_map);
         }
         else if (signal_name == M_NAME_PREFIX + "GPU_FREQUENCY_CONTROL" || signal_name == "GPU_FREQUENCY_CONTROL") {
             result = m_frequency_control_request.at(domain_idx);
@@ -642,7 +642,7 @@ namespace geopm
     void NVMLIOGroup::save_control(void)
     {
         // Read NVML Power Limit
-        for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR); ++domain_idx) {
+        for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(GEOPM_DOMAIN_GPU); ++domain_idx) {
             m_initial_power_limit.push_back(m_nvml_device_pool.power_limit(domain_idx));
         }
     }
@@ -652,7 +652,7 @@ namespace geopm
     void NVMLIOGroup::restore_control(void)
     {
         // The following calls into the device pool require root privileges
-        for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR); ++domain_idx) {
+        for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(GEOPM_DOMAIN_GPU); ++domain_idx) {
             // Write original NVML Power Limit
             m_nvml_device_pool.power_control(domain_idx, m_initial_power_limit.at(domain_idx));
             // Reset NVML Frequency Limit
@@ -720,16 +720,16 @@ namespace geopm
     void NVMLIOGroup::save_control(const std::string &save_path)
     {
         std::vector<SaveControl::m_setting_s> settings;
-        int num_domains = m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR);
+        int num_domains = m_platform_topo.num_domain(GEOPM_DOMAIN_GPU);
         for (int domain_idx = 0; domain_idx < num_domains; ++domain_idx) {
             settings.push_back({M_NAME_PREFIX + "GPU_FREQUENCY_RESET_CONTROL",
-                                GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                GEOPM_DOMAIN_GPU,
                                 domain_idx,
                                 0});
             double curr_value = read_signal(M_NAME_PREFIX + "GPU_POWER_LIMIT_CONTROL",
-                                            GEOPM_DOMAIN_BOARD_ACCELERATOR, domain_idx);
+                                            GEOPM_DOMAIN_GPU, domain_idx);
             settings.push_back({M_NAME_PREFIX + "GPU_POWER_LIMIT_CONTROL",
-                                GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                GEOPM_DOMAIN_GPU,
                                 domain_idx,
                                 curr_value});
         }

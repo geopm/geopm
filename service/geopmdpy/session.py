@@ -260,8 +260,8 @@ class ReadRequestQueue(RequestQueue):
         Each signal_name should match one of the signal names provided
         by the service.  The domain_type is specified as the name
         string, i.e one of the following strings: "board", "package",
-        "core", "cpu", "board_memory", "package_memory", "board_nic",
-        "package_nic", "board_accelerator", "package_accelerator".
+        "core", "cpu", "memory", "package_integrated_memory", "nic",
+        "package_integrated_nic", "gpu", "package_integrated_gpu".
         The domain index is a positive integer indexing the specific
         domain.
 

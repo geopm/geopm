@@ -8,34 +8,34 @@
 #include <geopm/Helper.hpp>
 
 #include "geopm/Exception.hpp"
-#include "AcceleratorTopoNull.hpp"
+#include "GPUTopoNull.hpp"
 
-#include "NVMLAcceleratorTopo.hpp"
-#include "LevelZeroAcceleratorTopo.hpp"
+#include "NVMLGPUTopo.hpp"
+#include "LevelZeroGPUTopo.hpp"
 
 namespace geopm
 {
-    static std::unique_ptr<AcceleratorTopo> make_unique_accelerator_topo(void)
+    static std::unique_ptr<GPUTopo> make_unique_gpu_topo(void)
     {
-        std::unique_ptr<AcceleratorTopo> result;
+        std::unique_ptr<GPUTopo> result;
         try {
 #ifdef GEOPM_ENABLE_NVML
-            result = geopm::make_unique<NVMLAcceleratorTopo>();
+            result = geopm::make_unique<NVMLGPUTopo>();
 #elif defined(GEOPM_ENABLE_LEVELZERO)
-            result = geopm::make_unique<LevelZeroAcceleratorTopo>();
+            result = geopm::make_unique<LevelZeroGPUTopo>();
 #else
-            result = geopm::make_unique<AcceleratorTopoNull>();
+            result = geopm::make_unique<GPUTopoNull>();
 #endif
         }
         catch (const Exception &ex) {
-            result = geopm::make_unique<AcceleratorTopoNull>();
+            result = geopm::make_unique<GPUTopoNull>();
         }
         return result;
     }
 
-    const AcceleratorTopo &accelerator_topo(void)
+    const GPUTopo &gpu_topo(void)
     {
-        static std::unique_ptr<AcceleratorTopo> instance = make_unique_accelerator_topo();
+        static std::unique_ptr<GPUTopo> instance = make_unique_gpu_topo();
         return *instance;
     }
 

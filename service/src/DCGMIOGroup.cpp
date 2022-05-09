@@ -88,10 +88,10 @@ namespace geopm
                                     }}
                               })
     {
-        // confirm all DCGM devices correspond to a board_accelerator
-        if (m_dcgm_device_pool.num_device() != m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR)) {
+        // confirm all DCGM devices correspond to a gpu
+        if (m_dcgm_device_pool.num_device() != m_platform_topo.num_domain(GEOPM_DOMAIN_GPU)) {
             throw Exception("DCGMIOGroup::" + std::string(__func__) + ": "
-                            "DCGM enabled device count does not match BOARD_ACCELERATOR count",
+                            "DCGM enabled device count does not match GPU count",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
@@ -157,7 +157,7 @@ namespace geopm
     // Return domain for all valid signals
     int DCGMIOGroup::signal_domain_type(const std::string &signal_name) const
     {
-        return is_valid_signal(signal_name) ? GEOPM_DOMAIN_BOARD_ACCELERATOR : GEOPM_DOMAIN_INVALID;
+        return is_valid_signal(signal_name) ? GEOPM_DOMAIN_GPU : GEOPM_DOMAIN_INVALID;
     }
 
     // Return domain for all valid controls
@@ -255,11 +255,11 @@ namespace geopm
         m_is_batch_read = true;
         if(!m_signal_pushed.empty()) {
             // NOTE: Doing this requires all signals to operate at the
-            //       GEOPM_BOARD_ACCELERATOR domain, but it means
+            //       GEOPM_GPU domain, but it means
             //       dcgmGetLatestValuesForFields only has to be called
-            //       once per GEOPM_BOARD_ACCELERATOR domain.
+            //       once per GEOPM_GPU domain.
             for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(
-                 GEOPM_DOMAIN_BOARD_ACCELERATOR); ++domain_idx) {
+                 GEOPM_DOMAIN_GPU); ++domain_idx) {
 
                 m_dcgm_device_pool.update(domain_idx);
 

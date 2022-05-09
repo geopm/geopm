@@ -104,10 +104,10 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        $(geopminclude_HEADERS) \
                        contrib/json11/json11.cpp \
                        contrib/json11/json11.hpp \
-                       src/AcceleratorTopo.cpp \
-                       src/AcceleratorTopo.hpp \
-                       src/AcceleratorTopoNull.cpp \
-                       src/AcceleratorTopoNull.hpp \
+                       src/GPUTopo.cpp \
+                       src/GPUTopo.hpp \
+                       src/GPUTopoNull.cpp \
+                       src/GPUTopoNull.hpp \
                        src/Agg.cpp \
                        src/BatchClient.cpp \
                        src/BatchClient.hpp \
@@ -134,8 +134,8 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/Exception.cpp \
                        src/Helper.cpp \
                        src/IOGroup.cpp \
-                       src/LevelZeroAcceleratorTopo.cpp \
-                       src/LevelZeroAcceleratorTopo.hpp \
+                       src/LevelZeroGPUTopo.cpp \
+                       src/LevelZeroGPUTopo.hpp \
                        src/LevelZeroDevicePool.cpp \
                        src/LevelZeroDevicePool.hpp \
                        src/LevelZeroDevicePoolImp.hpp \
@@ -158,8 +158,8 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/MSRPath.hpp \
                        src/MultiplicationSignal.cpp \
                        src/MultiplicationSignal.hpp \
-                       src/NVMLAcceleratorTopo.cpp \
-                       src/NVMLAcceleratorTopo.hpp \
+                       src/NVMLGPUTopo.cpp \
+                       src/NVMLGPUTopo.hpp \
                        src/NVMLDevicePool.hpp \
                        src/NVMLIOGroup.cpp \
                        src/NVMLIOGroup.hpp \

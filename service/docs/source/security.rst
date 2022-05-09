@@ -283,7 +283,7 @@ LevelZero sysman library interface
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The LevelZero sysman library interface enables users to monitor and
-control Intel accelerator devices. These signals and controls include
+control Intel gpu devices. These signals and controls include
 setting bounds on GPU operating frequency and reading performance
 counters from GPU devices. Access to the LevelZero sysman interface is
 restricted because it provides ability to modify the performance of

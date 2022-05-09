@@ -75,9 +75,9 @@ class ParresDgemmAppConf(apps.AppConf):
             raise RuntimeError('ParRes Dgemm is only setup for 1 node not {}'.format(node_count))
         
         if gpus_per_node is None:
-            gpus_per_node = mach.num_board_accelerator()
+            gpus_per_node = mach.num_gpu()
         else:
-            if (gpus_per_node != mach.num_board_accelerator()):
+            if (gpus_per_node != mach.num_gpu()):
                 raise RuntimeError('Number of requested gpus must be the same as the available # of gpus')
 
         if not ( self._cores_per_node // self.get_cpu_per_rank() == gpus_per_node):           
@@ -197,7 +197,7 @@ class ParresNstreamAppConf(apps.AppConf):
         if gpus_per_node is None:
             gpus_per_node = 1
         else:
-            if (gpus_per_node > mach.num_board_accelerator()):
+            if (gpus_per_node > mach.num_gpu()):
                 raise RuntimeError('Number of requested gpus is more than the number ' +
                                    'of available gpus: {}'.format(gpus_per_node))
 

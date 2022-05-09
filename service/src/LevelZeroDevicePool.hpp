@@ -20,34 +20,34 @@ namespace geopm
         public:
             LevelZeroDevicePool() = default;
             virtual ~LevelZeroDevicePool() = default;
-            /// @brief Number of accelerators on the platform.
-            /// @return Number of LevelZero accelerators.
+            /// @brief Number of gpus on the platform.
+            /// @return Number of LevelZero gpus.
             /// @param [in] domain The GEOPM domain type being targeted
-            virtual int num_accelerator(int domain_type) const = 0;
+            virtual int num_gpu(int domain_type) const = 0;
 
             // FREQUENCY SIGNAL FUNCTIONS
             /// @brief Get the LevelZero device actual frequency in MHz
             /// @param [in] domain The GEOPM domain type being targeted
             /// @param [in] domain_idx The GEOPM domain index
-            ///             (i.e. accelerator being targeted)
+            ///             (i.e. gpu being targeted)
             /// @param [in] l0_domain The LevelZero domain type being targeted
-            /// @return Accelerator device core clock rate in MHz.
+            /// @return GPU device core clock rate in MHz.
             virtual double frequency_status(int domain, unsigned int domain_idx,
                                             int l0_domain) const = 0;
             /// @brief Get the LevelZero device mininmum frequency in MHz
             /// @param [in] domain The GEOPM domain type being targeted
             /// @param [in] domain_idx The GEOPM domain index
-            ///             (i.e. accelerator being targeted)
+            ///             (i.e. gpu being targeted)
             /// @param [in] l0_domain The LevelZero domain type being targeted
-            /// @return Accelerator minimum frequency in MHz.
+            /// @return GPU minimum frequency in MHz.
             virtual double frequency_min(int domain, unsigned int domain_idx,
                                          int l0_domain) const = 0;
             /// @brief Get the LevelZero device maximum frequency in MHz
             /// @param [in] domain The GEOPM domain type being targeted
             /// @param [in] domain_idx The GEOPM domain index
-            ///             (i.e. accelerator being targeted)
+            ///             (i.e. gpu being targeted)
             /// @param [in] l0_domain The LevelZero domain type being targeted
-            /// @return Accelerator maximum frequency in MHz.
+            /// @return GPU maximum frequency in MHz.
             virtual double frequency_max(int domain, unsigned int domain_idx,
                                          int l0_domain) const = 0;
             virtual std::pair<double, double> frequency_range(int domain,
@@ -58,23 +58,23 @@ namespace geopm
             /// @brief Get the LevelZero device active time and timestamp in microseconds
             /// @param [in] domain The GEOPM domain type being targeted
             /// @param [in] domain_idx The GEOPM domain index
-            ///             (i.e. accelerator being targeted)
+            ///             (i.e. gpu being targeted)
             /// @param [in] l0_domain The LevelZero domain type being targeted
-            /// @return Accelerator active time and timestamp in microseconds.
+            /// @return GPU active time and timestamp in microseconds.
             virtual std::pair<uint64_t, uint64_t> active_time_pair(int domain,
                                                                    unsigned int domain_idx,
                                                                    int l0_domain) const = 0;
             /// @brief Get the LevelZero device timestamp for the active time value in microseconds
             /// @brief Get the LevelZero device active time in microseconds
-            /// @return Accelerator active time in microseconds.
+            /// @return GPU active time in microseconds.
             virtual uint64_t active_time(int domain, unsigned int domain_idx,
                                          int l0_domain) const = 0;
             /// @brief Get the LevelZero device timestamp for the active time value in microseconds
             /// @param [in] domain The GEOPM domain type being targeted
             /// @param [in] domain_idx The GEOPM domain index
-            ///             (i.e. accelerator being targeted)
+            ///             (i.e. gpu being targeted)
             /// @param [in] l0_domain The LevelZero domain type being targeted
-            /// @return Accelerator device timestamp for the active time value in microseconds.
+            /// @return GPU device timestamp for the active time value in microseconds.
             virtual uint64_t active_time_timestamp(int domain, unsigned int domain_idx,
                                                    int l0_domain) const = 0;
 
@@ -82,25 +82,25 @@ namespace geopm
             /// @brief Get the LevelZero device default power limit in milliwatts
             /// @param [in] domain The GEOPM domain type being targeted
             /// @param [in] domain_idx The GEOPM domain index
-            ///             (i.e. accelerator being targeted)
+            ///             (i.e. gpu being targeted)
             /// @param [in] l0_domain The LevelZero domain type being targeted
-            /// @return Accelerator default power limit in milliwatts
+            /// @return GPU default power limit in milliwatts
             virtual int32_t power_limit_tdp(int domain, unsigned int domain_idx,
                                             int l0_domain) const = 0;
             /// @brief Get the LevelZero device minimum power limit in milliwatts
             /// @param [in] domain The GEOPM domain type being targeted
             /// @param [in] domain_idx The GEOPM domain index
-            ///             (i.e. accelerator being targeted)
+            ///             (i.e. gpu being targeted)
             /// @param [in] l0_domain The LevelZero domain type being targeted
-            /// @return Accelerator minimum power limit in milliwatts
+            /// @return GPU minimum power limit in milliwatts
             virtual int32_t power_limit_min(int domain, unsigned int domain_idx,
                                             int l0_domain) const = 0;
             /// @brief Get the LevelZero device maximum power limit in milliwatts
             /// @param [in] domain The GEOPM domain type being targeted
             /// @param [in] domain_idx The GEOPM domain index
-            ///             (i.e. accelerator being targeted)
+            ///             (i.e. gpu being targeted)
             /// @param [in] l0_domain The LevelZero domain type being targeted
-            /// @return Accelerator maximum power limit in milliwatts
+            /// @return GPU maximum power limit in milliwatts
             virtual int32_t power_limit_max(int domain, unsigned int domain_idx,
                                             int l0_domain) const = 0;
 
@@ -108,25 +108,25 @@ namespace geopm
             /// @brief Get the LevelZero device energy in microjoules and timestamp in microseconds.
             /// @param [in] domain The GEOPM domain type being targeted
             /// @param [in] domain_idx The GEOPM domain index
-            ///             (i.e. accelerator being targeted)
+            ///             (i.e. gpu being targeted)
             /// @param [in] l0_domain The LevelZero domain type being targeted
-            /// @return Accelerator energy in microjoules and timestamp in microseconds.
+            /// @return GPU energy in microjoules and timestamp in microseconds.
             virtual std::pair<uint64_t, uint64_t> energy_pair(int domain, unsigned int domain_idx,
                                                               int l0_domain) const = 0;
             /// @brief Get the LevelZero device energy in microjoules.
             /// @param [in] domain The GEOPM domain type being targeted
             /// @param [in] domain_idx The GEOPM domain index
-            ///             (i.e. accelerator being targeted)
+            ///             (i.e. gpu being targeted)
             /// @param [in] l0_domain The LevelZero domain type being targeted
-            /// @return Accelerator energy in microjoules.
+            /// @return GPU energy in microjoules.
             virtual uint64_t energy(int domain, unsigned int domain_idx,
                                     int l0_domain) const = 0;
             /// @brief Get the LevelZero device energy timestamp in microseconds
             /// @param [in] domain The GEOPM domain type being targeted
             /// @param [in] domain_idx The GEOPM domain index
-            ///             (i.e. accelerator being targeted)
+            ///             (i.e. gpu being targeted)
             /// @param [in] l0_domain The LevelZero domain type being targeted
-            /// @return Accelerator energy timestamp in microseconds
+            /// @return GPU energy timestamp in microseconds
             virtual uint64_t energy_timestamp(int domain, unsigned int domain_idx,
                                               int l0_domain) const = 0;
 
@@ -134,7 +134,7 @@ namespace geopm
             /// @brief Set min and max frequency for LevelZero device.
             /// @param [in] domain The GEOPM domain type being targeted
             /// @param [in] domain_idx The GEOPM domain index
-            ///             (i.e. accelerator being targeted)
+            ///             (i.e. gpu being targeted)
             /// @param [in] l0_domain The LevelZero domain type being targeted
             /// @param [in] range_min Min target frequency in MHz.
             /// @param [in] range_max Max target frequency in MHz.

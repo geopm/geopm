@@ -144,12 +144,12 @@ List domains and size:
    package              2
    core                 64
    cpu                  128
-   board_memory         2
-   package_memory       1
-   board_nic            1
-   package_nic          0
-   board_accelerator    0
-   package_accelerator  0
+   memory         2
+   package_integrated_memory       1
+   nic            1
+   package_integrated_nic          0
+   gpu    0
+   package_integrated_gpu  0
 
 
 List all available signals on the system:
@@ -178,7 +178,7 @@ Show domain type for ENERGY_DRAM signal:
 .. code-block::
 
    $ geopmread --domain ENERGY_DRAM
-   board_memory
+   memory
 
 
 Read the current energy for package 1:

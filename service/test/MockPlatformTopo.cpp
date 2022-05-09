@@ -24,7 +24,7 @@ std::shared_ptr<MockPlatformTopo> make_topo(int num_package, int num_core, int n
         .WillByDefault(Return(1));
     ON_CALL(*topo, num_domain(GEOPM_DOMAIN_PACKAGE))
         .WillByDefault(Return(num_package));
-    ON_CALL(*topo, num_domain(GEOPM_DOMAIN_BOARD_MEMORY))
+    ON_CALL(*topo, num_domain(GEOPM_DOMAIN_MEMORY))
         .WillByDefault(Return(num_package));
     ON_CALL(*topo, num_domain(GEOPM_DOMAIN_CORE))
         .WillByDefault(Return(num_core));
@@ -34,7 +34,7 @@ std::shared_ptr<MockPlatformTopo> make_topo(int num_package, int num_core, int n
     // expectations for is_nested_domain
     ON_CALL(*topo, is_nested_domain(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_BOARD))
         .WillByDefault(Return(true));
-    ON_CALL(*topo, is_nested_domain(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_BOARD_MEMORY))
+    ON_CALL(*topo, is_nested_domain(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_MEMORY))
         .WillByDefault(Return(true));
     ON_CALL(*topo, is_nested_domain(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_PACKAGE))
         .WillByDefault(Return(true));
@@ -46,7 +46,7 @@ std::shared_ptr<MockPlatformTopo> make_topo(int num_package, int num_core, int n
         .WillByDefault(Return(true));
     ON_CALL(*topo, is_nested_domain(GEOPM_DOMAIN_PACKAGE, GEOPM_DOMAIN_BOARD))
         .WillByDefault(Return(true));
-    ON_CALL(*topo, is_nested_domain(GEOPM_DOMAIN_BOARD_MEMORY, GEOPM_DOMAIN_BOARD))
+    ON_CALL(*topo, is_nested_domain(GEOPM_DOMAIN_MEMORY, GEOPM_DOMAIN_BOARD))
         .WillByDefault(Return(true));
 
     // expectations for domain_nested
@@ -77,8 +77,8 @@ std::shared_ptr<MockPlatformTopo> make_topo(int num_package, int num_core, int n
         .WillByDefault(Return(all_cores));
     ON_CALL(*topo, domain_nested(GEOPM_DOMAIN_PACKAGE, GEOPM_DOMAIN_BOARD, 0))
         .WillByDefault(Return(all_pkgs));
-    // for now assume board_memory is the same as package
-    ON_CALL(*topo, domain_nested(GEOPM_DOMAIN_BOARD_MEMORY, GEOPM_DOMAIN_BOARD, 0))
+    // for now assume memory is the same as package
+    ON_CALL(*topo, domain_nested(GEOPM_DOMAIN_MEMORY, GEOPM_DOMAIN_BOARD, 0))
         .WillByDefault(Return(all_pkgs));
 
     for (int package_idx = 0; package_idx < num_package; ++package_idx) {

@@ -55,7 +55,7 @@ namespace geopm
                                    NAN,
                                    M_UNITS_JOULES,
                                    IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE}},
-                              {"CNL::POWER_BOARD_MEMORY", {
+                              {"CNL::POWER_MEMORY", {
                                    "Point in time memory power",
                                    Agg::average,
                                    string_format_integer,
@@ -64,7 +64,7 @@ namespace geopm
                                    NAN,
                                    M_UNITS_WATTS,
                                    IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE}},
-                              {"CNL::ENERGY_BOARD_MEMORY", {
+                              {"CNL::ENERGY_MEMORY", {
                                    "Accumulated memory energy",
                                    Agg::sum,
                                    string_format_integer,
@@ -130,8 +130,8 @@ namespace geopm
 
         register_signal_alias("POWER_BOARD", "CNL::POWER_BOARD");
         register_signal_alias("ENERGY_BOARD", "CNL::ENERGY_BOARD");
-        register_signal_alias("POWER_BOARD_MEMORY", "CNL::POWER_BOARD_MEMORY");
-        register_signal_alias("ENERGY_BOARD_MEMORY", "CNL::ENERGY_BOARD_MEMORY");
+        register_signal_alias("POWER_MEMORY", "CNL::POWER_MEMORY");
+        register_signal_alias("ENERGY_MEMORY", "CNL::ENERGY_MEMORY");
         register_signal_alias("POWER_BOARD_CPU", "CNL::POWER_BOARD_CPU");
         register_signal_alias("ENERGY_BOARD_CPU", "CNL::ENERGY_BOARD_CPU");
     }

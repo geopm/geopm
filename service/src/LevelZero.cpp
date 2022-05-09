@@ -92,12 +92,12 @@ namespace geopm
 #endif
                 if (property.type == ZE_DEVICE_TYPE_GPU) {
                     if ((property.flags & ZE_DEVICE_PROPERTY_FLAG_INTEGRATED) == 0) {
-                        ++m_num_board_gpu;
-                        m_num_board_gpu_subdevice += num_subdevice;
+                        ++m_num_gpu;
+                        m_num_gpu_subdevice += num_subdevice;
                         if (num_subdevice == 0) {
                             // If there are no subdevices we are going to treat the
                             // device as a subdevice.
-                            m_num_board_gpu_subdevice += 1;
+                            m_num_gpu_subdevice += 1;
                         }
 
                         //NOTE: We're only supporting Board GPUs to start with
@@ -132,13 +132,13 @@ namespace geopm
                 else if (property.type == ZE_DEVICE_TYPE_MCA) {
                     // MCA functionality is not currently supported by GEOPM, but should not cause
                     // an error if the devices are present
-                    std::cerr << "Warning: <geopm> LevelZero: Memory Copy Accelerators "
+                    std::cerr << "Warning: <geopm> LevelZero: Memory Copy GPUs "
                                  "are not currently supported by GEOPM.\n";
                 }
 #endif
             }
 
-            if (m_num_board_gpu_subdevice % m_num_board_gpu != 0) {
+            if (m_num_gpu_subdevice % m_num_gpu != 0) {
                 throw Exception("LevelZero::" + std::string(__func__) +
                                 ": GEOPM Requires the number of subdevices to be" +
                                 " evenly divisible by the number of devices. " +
@@ -149,8 +149,8 @@ namespace geopm
 
         // TODO: When additional device types such as FPGA, MCA, and Integrated GPU are supported by GEOPM
         // This should be changed to a more general loop iterating over type and caching appropriately
-        for (unsigned int board_gpu_idx = 0; board_gpu_idx < m_num_board_gpu; board_gpu_idx++) {
-            domain_cache(board_gpu_idx);
+        for (unsigned int gpu_idx = 0; gpu_idx < m_num_gpu; gpu_idx++) {
+            domain_cache(gpu_idx);
        }
     }
 
@@ -350,24 +350,24 @@ namespace geopm
         }
     }
 
-    int LevelZeroImp::num_accelerator() const
+    int LevelZeroImp::num_gpu() const
     {
-        //  TODO: this should be expanded to return all supported accel types.
-        //  Right now that is only board_gpus
-        return num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR);
+        //  TODO: this should be expanded to return all supported gpu types.
+        //  Right now that is only gpus
+        return num_gpu(GEOPM_DOMAIN_GPU);
     }
 
-    int LevelZeroImp::num_accelerator(int domain_type) const
+    int LevelZeroImp::num_gpu(int domain_type) const
     {
-        //  TODO: this should be expanded to return all supported accel types.
-        //  Right now that is only board_gpus
+        //  TODO: this should be expanded to return all supported gpu types.
+        //  Right now that is only gpus
         int result = -1;
         switch(domain_type) {
-            case GEOPM_DOMAIN_BOARD_ACCELERATOR:
-                result = m_num_board_gpu;
+            case GEOPM_DOMAIN_GPU:
+                result = m_num_gpu;
                 break;
-            case GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP:
-                result = m_num_board_gpu_subdevice;
+            case GEOPM_DOMAIN_GPU_CHIP:
+                result = m_num_gpu_subdevice;
                 break;
             default :
                 throw Exception("LevelZero::" + std::string(__func__) +

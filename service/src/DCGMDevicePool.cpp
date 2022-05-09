@@ -98,26 +98,26 @@ namespace geopm
         return m_dcgm_dev_count;
     }
 
-    double DCGMDevicePoolImp::sample(int accel_idx, int geopm_field_id) const
+    double DCGMDevicePoolImp::sample(int gpu_idx, int geopm_field_id) const
     {
         double result = NAN;
 
-        if (m_dcgm_polling && m_dcgm_field_values.at(accel_idx).at(geopm_field_id).status == DCGM_ST_OK) {
-            result = m_dcgm_field_values.at(accel_idx).at(geopm_field_id).value.dbl;
+        if (m_dcgm_polling && m_dcgm_field_values.at(gpu_idx).at(geopm_field_id).status == DCGM_ST_OK) {
+            result = m_dcgm_field_values.at(gpu_idx).at(geopm_field_id).value.dbl;
         }
         return result;
     }
 
-    void DCGMDevicePoolImp::update(int accel_idx)
+    void DCGMDevicePoolImp::update(int gpu_idx)
     {
         if(!m_dcgm_polling) {
             //Lazy init, only enable polling on the first read.
             polling_enable();
         }
         dcgmReturn_t result;
-        result = dcgmGetLatestValuesForFields(m_dcgm_handle, accel_idx,
+        result = dcgmGetLatestValuesForFields(m_dcgm_handle, gpu_idx,
                         &m_dcgm_field_ids[0], M_NUM_FIELD_ID,
-                        &(m_dcgm_field_values.at(accel_idx))[0]);
+                        &(m_dcgm_field_values.at(gpu_idx))[0]);
         check_result(result, "Error getting latest values for fields in read_batch", __LINE__);
     }
 

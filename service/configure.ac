@@ -84,7 +84,7 @@ fi
 
 
 AC_ARG_ENABLE([levelzero],
-  [AS_HELP_STRING([--enable-levelzero], [Enables use of the levelzero library to support levelzero board accelerators])],
+  [AS_HELP_STRING([--enable-levelzero], [Enables use of the levelzero library to support levelzero board gpus])],
 [if test "x$enable_levelzero" = "xno" ; then
   enable_levelzero="0"
 else
@@ -97,7 +97,7 @@ AC_SUBST([enable_levelzero])
 AM_CONDITIONAL([ENABLE_LEVELZERO], [test "x$enable_levelzero" = "x1"])
 
 AC_ARG_ENABLE([nvml],
-  [AS_HELP_STRING([--enable-nvml], [Enables use of the NVML library to support NVML board accelerators])],
+  [AS_HELP_STRING([--enable-nvml], [Enables use of the NVML library to support NVML board gpus])],
 [if test "x$enable_nvml" = "xno" ; then
   enable_nvml="0"
 else
@@ -110,7 +110,7 @@ AC_SUBST([enable_nvml])
 AM_CONDITIONAL([ENABLE_NVML], [test "x$enable_nvml" = "x1"])
 
 AC_ARG_ENABLE([dcgm],
-  [AS_HELP_STRING([--enable-dcgm], [Enables use of the DCGM library to support NVIDIA board accelerators])],
+  [AS_HELP_STRING([--enable-dcgm], [Enables use of the DCGM library to support NVIDIA board gpus])],
 [if test "x$enable_dcgm" = "xno" ; then
   enable_dcgm="0"
 else
@@ -150,17 +150,17 @@ AC_SUBST([enable_coverage])
 
 if test "x$enable_dcgm" = "x1" ; then
   ENABLE_DCGM=True
-  AC_DEFINE([GEOPM_ENABLE_DCGM], [ ], [Enables use of the DCGM library to support NVIDA board accelerators])
+  AC_DEFINE([GEOPM_ENABLE_DCGM], [ ], [Enables use of the DCGM library to support NVIDA board gpus])
 fi
 
 if test "x$enable_nvml" = "x1" ; then
   ENABLE_NVML=True
-  AC_DEFINE([GEOPM_ENABLE_NVML], [ ], [Enables use of the NVML library to support NVML board accelerators])
+  AC_DEFINE([GEOPM_ENABLE_NVML], [ ], [Enables use of the NVML library to support NVML board gpus])
 else
   ENABLE_NVML=False
     if test "x$enable_levelzero" = "x1" ; then
         ENABLE_LEVELZERO=True
-        AC_DEFINE([GEOPM_ENABLE_LEVELZERO], [ ], [Enables use of the levelzero library to support levelzero board accelerators])
+        AC_DEFINE([GEOPM_ENABLE_LEVELZERO], [ ], [Enables use of the levelzero library to support levelzero board gpus])
     else
         ENABLE_LEVELZERO=False
     fi

@@ -86,28 +86,28 @@ hardware components on the system:
   hyperthread visible to the operating system.
 
 * 
-  ``GEOPM_DOMAIN_BOARD_MEMORY`` = 4:
+  ``GEOPM_DOMAIN_MEMORY`` = 4:
   Standard off-package DIMM (DRAM or NAND).
 
 * 
-  ``GEOPM_DOMAIN_PACKAGE_MEMORY`` = 5:
+  ``GEOPM_DOMAIN_PACKAGE_INTEGRATED_MEMORY`` = 5:
   On-package memory (MCDRAM).
 
 * 
-  ``GEOPM_DOMAIN_BOARD_NIC`` = 6:
+  ``GEOPM_DOMAIN_NIC`` = 6:
   Peripheral network interface controller not on the processor package.
 
 * 
-  ``GEOPM_DOMAIN_PACKAGE_NIC`` = 7:
+  ``GEOPM_DOMAIN_PACKAGE_INTEGRATED_NIC`` = 7:
   Network interface controller on the processor package.
 
 * 
-  ``GEOPM_DOMAIN_BOARD_ACCELERATOR`` = 8:
-  Peripheral accelerator card not on the processor package.
+  ``GEOPM_DOMAIN_GPU`` = 8:
+  Peripheral gpu card not on the processor package.
 
 * 
-  ``GEOPM_DOMAIN_PACKAGE_ACCELERATOR`` = 9:
-  Accelerator unit on the package (e.g on-package graphics).
+  ``GEOPM_DOMAIN_PACKAGE_INTEGRATED_GPU`` = 9:
+  GPU unit on the package (e.g on-package graphics).
 
 * 
   ``GEOPM_NUM_DOMAIN`` = 10:

@@ -35,34 +35,34 @@ enum geopm_domain_e {
     /*!
      * @brief Standard off package DIMM (DRAM or NAND)
      */
-    GEOPM_DOMAIN_BOARD_MEMORY = 4,
+    GEOPM_DOMAIN_MEMORY = 4,
     /*!
      * @brief On package memory (MCDRAM)
      */
-    GEOPM_DOMAIN_PACKAGE_MEMORY = 5,
+    GEOPM_DOMAIN_PACKAGE_INTEGRATED_MEMORY = 5,
     /*!
      * @brief Network interface controller on the PCI bus
      */
-    GEOPM_DOMAIN_BOARD_NIC = 6,
+    GEOPM_DOMAIN_NIC = 6,
     /*!
      * @brief Network interface controller on the
      *        processor package
      */
-    GEOPM_DOMAIN_PACKAGE_NIC = 7,
+    GEOPM_DOMAIN_PACKAGE_INTEGRATED_NIC = 7,
     /*!
-     * @brief Accelerator card on the PCI bus
+     * @brief GPU card on the PCI bus
      */
-    GEOPM_DOMAIN_BOARD_ACCELERATOR = 8,
+    GEOPM_DOMAIN_GPU = 8,
     /*!
-     * @brief Accelerator unit on the package (e.g
+     * @brief GPU unit on the package (e.g
      *        on-package graphics)
      */
-    GEOPM_DOMAIN_PACKAGE_ACCELERATOR = 9,
+    GEOPM_DOMAIN_PACKAGE_INTEGRATED_GPU = 9,
     /*!
-     * @brief Accelerator card chips within a package on
+     * @brief GPU card chips within a package on
      *        the PCI Bus (e.g Level Zero subdevices)
      */
-    GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP = 10,
+    GEOPM_DOMAIN_GPU_CHIP = 10,
     /*!
      * @brief Number of valid domains.
      */

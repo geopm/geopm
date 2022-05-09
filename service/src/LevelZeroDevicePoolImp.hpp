@@ -22,7 +22,7 @@ namespace geopm
             LevelZeroDevicePoolImp();
             LevelZeroDevicePoolImp(const LevelZero &levelzero);
             virtual ~LevelZeroDevicePoolImp() = default;
-            int num_accelerator(int domain_type) const override;
+            int num_gpu(int domain_type) const override;
 
             double frequency_status(int domain, unsigned int domain_idx,
                                     int l0_domain) const override;

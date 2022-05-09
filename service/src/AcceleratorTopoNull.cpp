@@ -9,27 +9,27 @@
 #include <string>
 
 #include "geopm/Exception.hpp"
-#include "AcceleratorTopoNull.hpp"
+#include "GPUTopoNull.hpp"
 #include "geopm_topo.h"
 
 namespace geopm
 {
-    int AcceleratorTopoNull::num_accelerator(void) const
+    int GPUTopoNull::num_gpu(void) const
     {
-        return num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR);
+        return num_gpu(GEOPM_DOMAIN_GPU);
     }
 
-    int AcceleratorTopoNull::num_accelerator(int domain_type) const
+    int GPUTopoNull::num_gpu(int domain_type) const
     {
         return 0;
     }
 
-    std::set<int> AcceleratorTopoNull::cpu_affinity_ideal(int domain_idx) const
+    std::set<int> GPUTopoNull::cpu_affinity_ideal(int domain_idx) const
     {
-        return cpu_affinity_ideal(GEOPM_DOMAIN_BOARD_ACCELERATOR, domain_idx);
+        return cpu_affinity_ideal(GEOPM_DOMAIN_GPU, domain_idx);
     }
 
-    std::set<int> AcceleratorTopoNull::cpu_affinity_ideal(int domain_type, int domain_idx) const
+    std::set<int> GPUTopoNull::cpu_affinity_ideal(int domain_type, int domain_idx) const
     {
         return {};
     }

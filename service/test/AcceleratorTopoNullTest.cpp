@@ -15,20 +15,20 @@
 #include "config.h"
 #include "geopm/Helper.hpp"
 #include "geopm/Exception.hpp"
-#include "AcceleratorTopoNull.hpp"
+#include "GPUTopoNull.hpp"
 #include "geopm_topo.h"
 
-using geopm::AcceleratorTopo;
-using geopm::AcceleratorTopoNull;
+using geopm::GPUTopo;
+using geopm::GPUTopoNull;
 using geopm::Exception;
 using testing::Return;
 
-TEST(AcceleratorTopoNullTest, default_config)
+TEST(GPUTopoNullTest, default_config)
 {
-    std::unique_ptr<AcceleratorTopoNull> topo;
-    topo = geopm::make_unique<AcceleratorTopoNull>();
-    EXPECT_EQ(0, topo->num_accelerator());
-    EXPECT_EQ(0, topo->num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP));
+    std::unique_ptr<GPUTopoNull> topo;
+    topo = geopm::make_unique<GPUTopoNull>();
+    EXPECT_EQ(0, topo->num_gpu());
+    EXPECT_EQ(0, topo->num_gpu(GEOPM_DOMAIN_GPU_CHIP));
     EXPECT_EQ(topo->cpu_affinity_ideal(0), std::set<int>{});
-    EXPECT_EQ(topo->cpu_affinity_ideal(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, 0), std::set<int>{});
+    EXPECT_EQ(topo->cpu_affinity_ideal(GEOPM_DOMAIN_GPU_CHIP, 0), std::set<int>{});
 }

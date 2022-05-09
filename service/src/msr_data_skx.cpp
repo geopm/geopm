@@ -485,7 +485,7 @@ namespace geopm
         },
         "DRAM_POWER_LIMIT": {
             "offset": "0x618",
-            "domain": "board_memory",
+            "domain": "memory",
             "fields": {
                 "POWER_LIMIT": {
                     "begin_bit": 0,
@@ -544,7 +544,7 @@ namespace geopm
         },
         "DRAM_PERF_STATUS": {
             "offset": "0x61B",
-            "domain": "board_memory",
+            "domain": "memory",
             "fields": {
                 "THROTTLE_TIME": {
                     "begin_bit": 0,
@@ -559,7 +559,7 @@ namespace geopm
         },
         "DRAM_POWER_INFO": {
             "offset": "0x61C",
-            "domain": "board_memory",
+            "domain": "memory",
             "fields": {
                 "THERMAL_SPEC_POWER": {
                     "begin_bit": 0,

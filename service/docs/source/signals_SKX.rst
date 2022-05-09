@@ -86,7 +86,7 @@ ENERGY_DRAM
     - alias_for: MSR::DRAM_ENERGY_STATUS:ENERGY
     - units: joules
     - aggregation: sum
-    - domain: board_memory
+    - domain: memory
     - iogroup: MSRIOGroup
 ENERGY_PACKAGE
     - description: An increasing meter of energy consumed by the package over time.  It will reset periodically due to roll-over.
@@ -118,85 +118,85 @@ MSR::DRAM_ENERGY_STATUS#
     - description: Refer to the Intel(R) 64 and IA-32 Architectures Software Developer's Manual for information about this MSR
     - units: none
     - aggregation: select_first
-    - domain: board_memory
+    - domain: memory
     - iogroup: MSRIOGroup
 MSR::DRAM_ENERGY_STATUS:ENERGY
     - description: An increasing meter of energy consumed by the DRAM over time.  It will reset periodically due to roll-over.
     - units: joules
     - aggregation: sum
-    - domain: board_memory
+    - domain: memory
     - iogroup: MSRIOGroup
 MSR::DRAM_PERF_STATUS#
     - description: Refer to the Intel(R) 64 and IA-32 Architectures Software Developer's Manual for information about this MSR
     - units: none
     - aggregation: select_first
-    - domain: board_memory
+    - domain: memory
     - iogroup: MSRIOGroup
 MSR::DRAM_PERF_STATUS:THROTTLE_TIME
     - description: Refer to the Intel(R) 64 and IA-32 Architectures Software Developer's Manual for information about this MSR
     - units: seconds
     - aggregation: select_first
-    - domain: board_memory
+    - domain: memory
     - iogroup: MSRIOGroup
 MSR::DRAM_POWER_INFO#
     - description: Refer to the Intel(R) 64 and IA-32 Architectures Software Developer's Manual for information about this MSR
     - units: none
     - aggregation: select_first
-    - domain: board_memory
+    - domain: memory
     - iogroup: MSRIOGroup
 MSR::DRAM_POWER_INFO:MAX_POWER
     - description: Refer to the Intel(R) 64 and IA-32 Architectures Software Developer's Manual for information about this MSR
     - units: watts
     - aggregation: select_first
-    - domain: board_memory
+    - domain: memory
     - iogroup: MSRIOGroup
 MSR::DRAM_POWER_INFO:MAX_TIME_WINDOW
     - description: Refer to the Intel(R) 64 and IA-32 Architectures Software Developer's Manual for information about this MSR
     - units: seconds
     - aggregation: select_first
-    - domain: board_memory
+    - domain: memory
     - iogroup: MSRIOGroup
 MSR::DRAM_POWER_INFO:MIN_POWER
     - description: Refer to the Intel(R) 64 and IA-32 Architectures Software Developer's Manual for information about this MSR
     - units: watts
     - aggregation: select_first
-    - domain: board_memory
+    - domain: memory
     - iogroup: MSRIOGroup
 MSR::DRAM_POWER_INFO:THERMAL_SPEC_POWER
     - description: Refer to the Intel(R) 64 and IA-32 Architectures Software Developer's Manual for information about this MSR
     - units: watts
     - aggregation: select_first
-    - domain: board_memory
+    - domain: memory
     - iogroup: MSRIOGroup
 MSR::DRAM_POWER_LIMIT#
     - description: Refer to the Intel(R) 64 and IA-32 Architectures Software Developer's Manual for information about this MSR
     - units: none
     - aggregation: select_first
-    - domain: board_memory
+    - domain: memory
     - iogroup: MSRIOGroup
 MSR::DRAM_POWER_LIMIT:ENABLE
     - description: Refer to the Intel(R) 64 and IA-32 Architectures Software Developer's Manual for information about this MSR
     - units: none
     - aggregation: select_first
-    - domain: board_memory
+    - domain: memory
     - iogroup: MSRIOGroup
 MSR::DRAM_POWER_LIMIT:LOCK
     - description: Refer to the Intel(R) 64 and IA-32 Architectures Software Developer's Manual for information about this MSR
     - units: none
     - aggregation: select_first
-    - domain: board_memory
+    - domain: memory
     - iogroup: MSRIOGroup
 MSR::DRAM_POWER_LIMIT:POWER_LIMIT
     - description: Refer to the Intel(R) 64 and IA-32 Architectures Software Developer's Manual for information about this MSR
     - units: watts
     - aggregation: select_first
-    - domain: board_memory
+    - domain: memory
     - iogroup: MSRIOGroup
 MSR::DRAM_POWER_LIMIT:TIME_WINDOW
     - description: Refer to the Intel(R) 64 and IA-32 Architectures Software Developer's Manual for information about this MSR
     - units: seconds
     - aggregation: select_first
-    - domain: board_memory
+    - domain: memory
     - iogroup: MSRIOGroup
 MSR::FIXED_CTR0#
     - description: Refer to the Intel(R) 64 and IA-32 Architectures Software Developer's Manual for information about this MSR
@@ -1373,7 +1373,7 @@ POWER_DRAM
     - alias_for: ENERGY_DRAM rate of change
     - units: watts
     - aggregation: sum
-    - domain: board_memory
+    - domain: memory
     - iogroup: MSRIOGroup
 POWER_PACKAGE
     - description: Average package power over 40 ms or 8 control loop iterations
