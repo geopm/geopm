@@ -43,7 +43,7 @@ void DCGMIOGroupTest::SetUp()
 {
     const int num_board = 1;
     const int num_package = 2;
-    const int num_board_accelerator = 4;
+    const int num_gpu = 4;
     const int num_core = 20;
     const int num_cpu = 40;
 
@@ -55,8 +55,8 @@ void DCGMIOGroupTest::SetUp()
         .WillByDefault(Return(num_board));
     ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_PACKAGE))
         .WillByDefault(Return(num_package));
-    ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR))
-        .WillByDefault(Return(num_board_accelerator));
+    ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_GPU))
+        .WillByDefault(Return(num_gpu));
     ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_CPU))
         .WillByDefault(Return(num_cpu));
     ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_CORE))
@@ -64,24 +64,24 @@ void DCGMIOGroupTest::SetUp()
 
     for (int cpu_idx = 0; cpu_idx < num_cpu; ++cpu_idx) {
         if (cpu_idx < 10) {
-            ON_CALL(*m_platform_topo, domain_idx(GEOPM_DOMAIN_BOARD_ACCELERATOR, cpu_idx))
+            ON_CALL(*m_platform_topo, domain_idx(GEOPM_DOMAIN_GPU, cpu_idx))
                 .WillByDefault(Return(0));
         }
         else if (cpu_idx < 20) {
-            ON_CALL(*m_platform_topo, domain_idx(GEOPM_DOMAIN_BOARD_ACCELERATOR, cpu_idx))
+            ON_CALL(*m_platform_topo, domain_idx(GEOPM_DOMAIN_GPU, cpu_idx))
                 .WillByDefault(Return(1));
         }
         else if (cpu_idx < 30) {
-            ON_CALL(*m_platform_topo, domain_idx(GEOPM_DOMAIN_BOARD_ACCELERATOR, cpu_idx))
+            ON_CALL(*m_platform_topo, domain_idx(GEOPM_DOMAIN_GPU, cpu_idx))
                 .WillByDefault(Return(2));
         }
         else {
-            ON_CALL(*m_platform_topo, domain_idx(GEOPM_DOMAIN_BOARD_ACCELERATOR, cpu_idx))
+            ON_CALL(*m_platform_topo, domain_idx(GEOPM_DOMAIN_GPU, cpu_idx))
                 .WillByDefault(Return(3));
         }
     }
 
-    EXPECT_CALL(*m_device_pool, num_device()).WillRepeatedly(Return(num_board_accelerator));
+    EXPECT_CALL(*m_device_pool, num_device()).WillRepeatedly(Return(num_gpu));
 }
 
 void DCGMIOGroupTest::TearDown()
@@ -158,7 +158,7 @@ TEST_F(DCGMIOGroupTest, write_control)
 
 TEST_F(DCGMIOGroupTest, read_signal_and_batch)
 {
-    const int num_accelerator = m_platform_topo->num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR);
+    const int num_gpu = m_platform_topo->num_domain(GEOPM_DOMAIN_GPU);
 
     std::vector<double> mock_sm_active = {1, 0.75, 0.5, 0.25};
     std::vector<double> mock_sm_occupancy = {0.8, 0.64, 0.35, 0.27};
@@ -167,39 +167,39 @@ TEST_F(DCGMIOGroupTest, read_signal_and_batch)
 
     DCGMIOGroup dcgm_io(*m_platform_topo, *m_device_pool);
 
-    for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
-        EXPECT_CALL(*m_device_pool, sample(accel_idx, geopm::DCGMDevicePool::M_FIELD_ID_SM_ACTIVE)).WillRepeatedly(Return(mock_sm_active.at(accel_idx)));
+    for (int gpu_idx = 0; gpu_idx < num_gpu; ++gpu_idx) {
+        EXPECT_CALL(*m_device_pool, sample(gpu_idx, geopm::DCGMDevicePool::M_FIELD_ID_SM_ACTIVE)).WillRepeatedly(Return(mock_sm_active.at(gpu_idx)));
     }
-    for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
-        batch_idx.push_back(dcgm_io.push_signal("DCGM::SM_ACTIVE", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx));
+    for (int gpu_idx = 0; gpu_idx < num_gpu; ++gpu_idx) {
+        batch_idx.push_back(dcgm_io.push_signal("DCGM::SM_ACTIVE", GEOPM_DOMAIN_GPU, gpu_idx));
     }
     dcgm_io.read_batch();
-    for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
-        double sm = dcgm_io.read_signal("DCGM::SM_ACTIVE", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
-        double sm_batch = dcgm_io.sample(batch_idx.at(accel_idx));
+    for (int gpu_idx = 0; gpu_idx < num_gpu; ++gpu_idx) {
+        double sm = dcgm_io.read_signal("DCGM::SM_ACTIVE", GEOPM_DOMAIN_GPU, gpu_idx);
+        double sm_batch = dcgm_io.sample(batch_idx.at(gpu_idx));
 
-        EXPECT_DOUBLE_EQ(sm, mock_sm_active.at(accel_idx));
+        EXPECT_DOUBLE_EQ(sm, mock_sm_active.at(gpu_idx));
         EXPECT_DOUBLE_EQ(sm, sm_batch);
     }
 
     mock_sm_active = {0.9, 0.45, 0.3, 0.29};
     //second round of testing with a modified value
-    for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
-        EXPECT_CALL(*m_device_pool, sample(accel_idx, geopm::DCGMDevicePool::M_FIELD_ID_SM_ACTIVE)).WillRepeatedly(Return(mock_sm_active.at(accel_idx)));
+    for (int gpu_idx = 0; gpu_idx < num_gpu; ++gpu_idx) {
+        EXPECT_CALL(*m_device_pool, sample(gpu_idx, geopm::DCGMDevicePool::M_FIELD_ID_SM_ACTIVE)).WillRepeatedly(Return(mock_sm_active.at(gpu_idx)));
     }
     dcgm_io.read_batch();
-    for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
-        double sm = dcgm_io.read_signal("DCGM::SM_ACTIVE", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
-        double sm_batch = dcgm_io.sample(batch_idx.at(accel_idx));
+    for (int gpu_idx = 0; gpu_idx < num_gpu; ++gpu_idx) {
+        double sm = dcgm_io.read_signal("DCGM::SM_ACTIVE", GEOPM_DOMAIN_GPU, gpu_idx);
+        double sm_batch = dcgm_io.sample(batch_idx.at(gpu_idx));
 
-        EXPECT_DOUBLE_EQ(sm, (mock_sm_active.at(accel_idx)));
+        EXPECT_DOUBLE_EQ(sm, (mock_sm_active.at(gpu_idx)));
         EXPECT_DOUBLE_EQ(sm, sm_batch);
     }
 }
 
 TEST_F(DCGMIOGroupTest, read_signal)
 {
-    const int num_accelerator = m_platform_topo->num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR);
+    const int num_gpu = m_platform_topo->num_domain(GEOPM_DOMAIN_GPU);
 
     std::vector<double> mock_sm_active = {1, 0.75, 0.5, 0.25};
     std::vector<double> mock_sm_occupancy = {0.8, 0.64, 0.35, 0.27};
@@ -207,27 +207,27 @@ TEST_F(DCGMIOGroupTest, read_signal)
 
     std::vector<int> active_process_list = {40961, 40962, 40963};
 
-    for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
-        EXPECT_CALL(*m_device_pool, sample(accel_idx, geopm::DCGMDevicePool::M_FIELD_ID_SM_ACTIVE)).WillRepeatedly(Return(mock_sm_active.at(accel_idx)));
-        EXPECT_CALL(*m_device_pool, sample(accel_idx, geopm::DCGMDevicePool::M_FIELD_ID_SM_OCCUPANCY)).WillRepeatedly(Return(mock_sm_occupancy.at(accel_idx)));
-        EXPECT_CALL(*m_device_pool, sample(accel_idx, geopm::DCGMDevicePool::M_FIELD_ID_DRAM_ACTIVE)).WillRepeatedly(Return(mock_dram_active.at(accel_idx)));;
+    for (int gpu_idx = 0; gpu_idx < num_gpu; ++gpu_idx) {
+        EXPECT_CALL(*m_device_pool, sample(gpu_idx, geopm::DCGMDevicePool::M_FIELD_ID_SM_ACTIVE)).WillRepeatedly(Return(mock_sm_active.at(gpu_idx)));
+        EXPECT_CALL(*m_device_pool, sample(gpu_idx, geopm::DCGMDevicePool::M_FIELD_ID_SM_OCCUPANCY)).WillRepeatedly(Return(mock_sm_occupancy.at(gpu_idx)));
+        EXPECT_CALL(*m_device_pool, sample(gpu_idx, geopm::DCGMDevicePool::M_FIELD_ID_DRAM_ACTIVE)).WillRepeatedly(Return(mock_dram_active.at(gpu_idx)));;
     }
 
     DCGMIOGroup dcgm_io(*m_platform_topo, *m_device_pool);
 
-    for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
-        double sm_active = dcgm_io.read_signal("DCGM::SM_ACTIVE", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
-        double sm_active_alias = dcgm_io.read_signal("GPU_COMPUTE_ACTIVITY", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
+    for (int gpu_idx = 0; gpu_idx < num_gpu; ++gpu_idx) {
+        double sm_active = dcgm_io.read_signal("DCGM::SM_ACTIVE", GEOPM_DOMAIN_GPU, gpu_idx);
+        double sm_active_alias = dcgm_io.read_signal("GPU_COMPUTE_ACTIVITY", GEOPM_DOMAIN_GPU, gpu_idx);
         EXPECT_DOUBLE_EQ(sm_active, sm_active_alias);
-        EXPECT_DOUBLE_EQ(sm_active, mock_sm_active.at(accel_idx));
+        EXPECT_DOUBLE_EQ(sm_active, mock_sm_active.at(gpu_idx));
 
-        double sm_occupancy = dcgm_io.read_signal("DCGM::SM_OCCUPANCY", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
-        EXPECT_DOUBLE_EQ(sm_occupancy, mock_sm_occupancy.at(accel_idx));
+        double sm_occupancy = dcgm_io.read_signal("DCGM::SM_OCCUPANCY", GEOPM_DOMAIN_GPU, gpu_idx);
+        EXPECT_DOUBLE_EQ(sm_occupancy, mock_sm_occupancy.at(gpu_idx));
 
-        double dram_active = dcgm_io.read_signal("DCGM::DRAM_ACTIVE", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
-        double dram_active_alias = dcgm_io.read_signal("GPU_MEMORY_ACTIVITY", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
+        double dram_active = dcgm_io.read_signal("DCGM::DRAM_ACTIVE", GEOPM_DOMAIN_GPU, gpu_idx);
+        double dram_active_alias = dcgm_io.read_signal("GPU_MEMORY_ACTIVITY", GEOPM_DOMAIN_GPU, gpu_idx);
         EXPECT_DOUBLE_EQ(dram_active, dram_active_alias);
-        EXPECT_DOUBLE_EQ(dram_active, mock_dram_active.at(accel_idx));
+        EXPECT_DOUBLE_EQ(dram_active, mock_dram_active.at(gpu_idx));
     }
 }
 
@@ -241,18 +241,18 @@ TEST_F(DCGMIOGroupTest, read_signal)
 //              - Attempt to write a control at an invalid domain level
 TEST_F(DCGMIOGroupTest, error_path)
 {
-    const int num_accelerator = m_platform_topo->num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR);
+    const int num_gpu = m_platform_topo->num_domain(GEOPM_DOMAIN_GPU);
 
     std::vector<int> batch_idx;
 
     std::vector<double> mock_sm_active = {0.22, 0.79, 0.65, 0.37};
-    for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
-        EXPECT_CALL(*m_device_pool, sample(accel_idx, geopm::DCGMDevicePool::M_FIELD_ID_SM_ACTIVE)).WillRepeatedly(Return(mock_sm_active.at(accel_idx)));
+    for (int gpu_idx = 0; gpu_idx < num_gpu; ++gpu_idx) {
+        EXPECT_CALL(*m_device_pool, sample(gpu_idx, geopm::DCGMDevicePool::M_FIELD_ID_SM_ACTIVE)).WillRepeatedly(Return(mock_sm_active.at(gpu_idx)));
     }
 
-    EXPECT_CALL(*m_device_pool, num_device()).WillOnce(Return(num_accelerator-1));
-    GEOPM_EXPECT_THROW_MESSAGE(DCGMIOGroup dcgm_io_fail(*m_platform_topo, *m_device_pool), GEOPM_ERROR_INVALID, "DCGM enabled device count does not match BOARD_ACCELERATOR count");
-    EXPECT_CALL(*m_device_pool, num_device()).WillRepeatedly(Return(num_accelerator));
+    EXPECT_CALL(*m_device_pool, num_device()).WillOnce(Return(num_gpu-1));
+    GEOPM_EXPECT_THROW_MESSAGE(DCGMIOGroup dcgm_io_fail(*m_platform_topo, *m_device_pool), GEOPM_ERROR_INVALID, "DCGM enabled device count does not match GPU count");
+    EXPECT_CALL(*m_device_pool, num_device()).WillRepeatedly(Return(num_gpu));
 
     DCGMIOGroup dcgm_io(*m_platform_topo, *m_device_pool);
 
@@ -263,37 +263,37 @@ TEST_F(DCGMIOGroupTest, error_path)
     GEOPM_EXPECT_THROW_MESSAGE(dcgm_io.read_signal("DCGM::SM_ACTIVE", GEOPM_DOMAIN_BOARD, 0),
                                GEOPM_ERROR_INVALID, "domain_type must be");
 
-    GEOPM_EXPECT_THROW_MESSAGE(dcgm_io.push_signal("DCGM::INVALID", GEOPM_DOMAIN_BOARD_ACCELERATOR, 0),
+    GEOPM_EXPECT_THROW_MESSAGE(dcgm_io.push_signal("DCGM::INVALID", GEOPM_DOMAIN_GPU, 0),
                                GEOPM_ERROR_INVALID, "signal_name DCGM::INVALID not valid for DCGMIOGroup");
-    GEOPM_EXPECT_THROW_MESSAGE(dcgm_io.read_signal("DCGM::INVALID", GEOPM_DOMAIN_BOARD_ACCELERATOR, 0),
+    GEOPM_EXPECT_THROW_MESSAGE(dcgm_io.read_signal("DCGM::INVALID", GEOPM_DOMAIN_GPU, 0),
                                GEOPM_ERROR_INVALID, "DCGM::INVALID not valid for DCGMIOGroup");
 
-    GEOPM_EXPECT_THROW_MESSAGE(dcgm_io.push_control("DCGM::FIELD_UPDATE_RATE", GEOPM_DOMAIN_BOARD_ACCELERATOR, 0),
+    GEOPM_EXPECT_THROW_MESSAGE(dcgm_io.push_control("DCGM::FIELD_UPDATE_RATE", GEOPM_DOMAIN_GPU, 0),
                                GEOPM_ERROR_INVALID, "domain_type must be");
     GEOPM_EXPECT_THROW_MESSAGE(dcgm_io.adjust(0, 12345.6),
                                GEOPM_ERROR_INVALID, "batch_idx 0 out of range");
-    GEOPM_EXPECT_THROW_MESSAGE(dcgm_io.write_control("DCGM::FIELD_UPDATE_RATE", GEOPM_DOMAIN_BOARD_ACCELERATOR, 0, 1530000000),
+    GEOPM_EXPECT_THROW_MESSAGE(dcgm_io.write_control("DCGM::FIELD_UPDATE_RATE", GEOPM_DOMAIN_GPU, 0, 1530000000),
                                GEOPM_ERROR_INVALID, "domain_type must be");
 
-    GEOPM_EXPECT_THROW_MESSAGE(dcgm_io.push_control("DCGM::INVALID", GEOPM_DOMAIN_BOARD_ACCELERATOR, 0),
+    GEOPM_EXPECT_THROW_MESSAGE(dcgm_io.push_control("DCGM::INVALID", GEOPM_DOMAIN_GPU, 0),
                                GEOPM_ERROR_INVALID, "control_name DCGM::INVALID not valid for DCGMIOGroup");
-    GEOPM_EXPECT_THROW_MESSAGE(dcgm_io.write_control("DCGM::INVALID", GEOPM_DOMAIN_BOARD_ACCELERATOR, 0, 1530000000),
+    GEOPM_EXPECT_THROW_MESSAGE(dcgm_io.write_control("DCGM::INVALID", GEOPM_DOMAIN_GPU, 0, 1530000000),
                                GEOPM_ERROR_INVALID, "DCGM::INVALID not valid for DCGMIOGroup");
 
-    GEOPM_EXPECT_THROW_MESSAGE(dcgm_io.push_signal("DCGM::SM_ACTIVE", GEOPM_DOMAIN_BOARD_ACCELERATOR, num_accelerator),
+    GEOPM_EXPECT_THROW_MESSAGE(dcgm_io.push_signal("DCGM::SM_ACTIVE", GEOPM_DOMAIN_GPU, num_gpu),
                                GEOPM_ERROR_INVALID, "domain_idx out of range");
-    GEOPM_EXPECT_THROW_MESSAGE(dcgm_io.push_signal("DCGM::SM_ACTIVE", GEOPM_DOMAIN_BOARD_ACCELERATOR, -1),
+    GEOPM_EXPECT_THROW_MESSAGE(dcgm_io.push_signal("DCGM::SM_ACTIVE", GEOPM_DOMAIN_GPU, -1),
                                GEOPM_ERROR_INVALID, "domain_idx out of range");
-    GEOPM_EXPECT_THROW_MESSAGE(dcgm_io.read_signal("DCGM::SM_ACTIVE", GEOPM_DOMAIN_BOARD_ACCELERATOR, num_accelerator),
+    GEOPM_EXPECT_THROW_MESSAGE(dcgm_io.read_signal("DCGM::SM_ACTIVE", GEOPM_DOMAIN_GPU, num_gpu),
                                GEOPM_ERROR_INVALID, "domain_idx out of range");
-    GEOPM_EXPECT_THROW_MESSAGE(dcgm_io.read_signal("DCGM::SM_ACTIVE", GEOPM_DOMAIN_BOARD_ACCELERATOR, -1),
+    GEOPM_EXPECT_THROW_MESSAGE(dcgm_io.read_signal("DCGM::SM_ACTIVE", GEOPM_DOMAIN_GPU, -1),
                                GEOPM_ERROR_INVALID, "domain_idx out of range");
 
-    GEOPM_EXPECT_THROW_MESSAGE(dcgm_io.push_control("DCGM::MAX_SAMPLES", GEOPM_DOMAIN_BOARD, num_accelerator),
+    GEOPM_EXPECT_THROW_MESSAGE(dcgm_io.push_control("DCGM::MAX_SAMPLES", GEOPM_DOMAIN_BOARD, num_gpu),
                                GEOPM_ERROR_INVALID, "domain_idx out of range");
     GEOPM_EXPECT_THROW_MESSAGE(dcgm_io.push_control("DCGM::MAX_SAMPLES", GEOPM_DOMAIN_BOARD, -1),
                                GEOPM_ERROR_INVALID, "domain_idx out of range");
-    GEOPM_EXPECT_THROW_MESSAGE(dcgm_io.write_control("DCGM::MAX_SAMPLES", GEOPM_DOMAIN_BOARD, num_accelerator, 1530000000),
+    GEOPM_EXPECT_THROW_MESSAGE(dcgm_io.write_control("DCGM::MAX_SAMPLES", GEOPM_DOMAIN_BOARD, num_gpu, 1530000000),
                                GEOPM_ERROR_INVALID, "domain_idx out of range");
     GEOPM_EXPECT_THROW_MESSAGE(dcgm_io.write_control("DCGM::MAX_SAMPLES", GEOPM_DOMAIN_BOARD, -1, 1530000000),
                                GEOPM_ERROR_INVALID, "domain_idx out of range");

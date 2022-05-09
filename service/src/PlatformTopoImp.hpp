@@ -11,14 +11,14 @@
 
 namespace geopm
 {
-    class AcceleratorTopo;
+    class GPUTopo;
 
     class PlatformTopoImp : public PlatformTopo
     {
         public:
             PlatformTopoImp();
             PlatformTopoImp(const std::string &test_cache_file_name);
-            PlatformTopoImp(const std::string &test_cache_file_name, const AcceleratorTopo &accelerator_topo);
+            PlatformTopoImp(const std::string &test_cache_file_name, const GPUTopo &gpu_topo);
             virtual ~PlatformTopoImp() = default;
             int num_domain(int domain_type) const override;
             int domain_idx(int domain_type,
@@ -50,7 +50,7 @@ namespace geopm
             int m_core_per_package;
             int m_thread_per_core;
             std::vector<std::set<int> > m_numa_map;
-            const AcceleratorTopo &m_accelerator_topo;
+            const GPUTopo &m_gpu_topo;
     };
 }
 #endif

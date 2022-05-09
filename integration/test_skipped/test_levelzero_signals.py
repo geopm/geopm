@@ -42,9 +42,9 @@ class TestIntegrationLevelZeroSignals(unittest.TestCase):
 
     def test_power(self):
         #Query
-        power = geopm_test_launcher.geopmread("LEVELZERO::POWER board_accelerator 0")
-        power_limit_max = geopm_test_launcher.geopmread("LEVELZERO::GPU_POWER_LIMIT_MAX_AVAIL board_accelerator 0")
-        power_limit_min = geopm_test_launcher.geopmread("LEVELZERO::GPU_POWER_LIMIT_MIN_AVAIL board_accelerator 0")
+        power = geopm_test_launcher.geopmread("LEVELZERO::POWER gpu 0")
+        power_limit_max = geopm_test_launcher.geopmread("LEVELZERO::GPU_POWER_LIMIT_MAX_AVAIL gpu 0")
+        power_limit_min = geopm_test_launcher.geopmread("LEVELZERO::GPU_POWER_LIMIT_MIN_AVAIL gpu 0")
 
         #Info
         sys.stdout.write("Power:\n");
@@ -65,11 +65,11 @@ class TestIntegrationLevelZeroSignals(unittest.TestCase):
     def test_energy(self):
         sys.stdout.write("Running LevelZero Energy Test\n");
         #Query
-        energy_prev = geopm_test_launcher.geopmread("LEVELZERO::ENERGY board_accelerator 0")
-        energy_timestamp_prev = geopm_test_launcher.geopmread("LEVELZERO::ENERGY_TIMESTAMP board_accelerator 0")
+        energy_prev = geopm_test_launcher.geopmread("LEVELZERO::ENERGY gpu 0")
+        energy_timestamp_prev = geopm_test_launcher.geopmread("LEVELZERO::ENERGY_TIMESTAMP gpu 0")
         time.sleep(5)
-        energy_curr = geopm_test_launcher.geopmread("LEVELZERO::ENERGY board_accelerator 0")
-        energy_timestamp_curr = geopm_test_launcher.geopmread("LEVELZERO::ENERGY_TIMESTAMP board_accelerator 0")
+        energy_curr = geopm_test_launcher.geopmread("LEVELZERO::ENERGY gpu 0")
+        energy_timestamp_curr = geopm_test_launcher.geopmread("LEVELZERO::ENERGY_TIMESTAMP gpu 0")
 
         sys.stdout.write("Energy:\n");
         sys.stdout.write("\tEnergy Sample 0: {}\n".format(energy_prev));
@@ -82,9 +82,9 @@ class TestIntegrationLevelZeroSignals(unittest.TestCase):
     def test_frequency(self):
         sys.stdout.write("Running LevelZero Frequency Test\n");
         #Query
-        frequency_gpu = geopm_test_launcher.geopmread("LEVELZERO::GPUCHIP_FREQUENCY board_accelerator 0")
-        gpu_min_frequency_limit = geopm_test_launcher.geopmread("LEVELZERO::GPUCHIP_FREQUENCY_MIN_AVAIL board_accelerator 0")
-        gpu_max_frequency_limit = geopm_test_launcher.geopmread("LEVELZERO::GPUCHIP_FREQUENCY_MAX_AVAIL board_accelerator 0")
+        frequency_gpu = geopm_test_launcher.geopmread("LEVELZERO::GPUCHIP_FREQUENCY gpu 0")
+        gpu_min_frequency_limit = geopm_test_launcher.geopmread("LEVELZERO::GPUCHIP_FREQUENCY_MIN_AVAIL gpu 0")
+        gpu_max_frequency_limit = geopm_test_launcher.geopmread("LEVELZERO::GPUCHIP_FREQUENCY_MAX_AVAIL gpu 0")
 
         #Info
         sys.stdout.write("Frequency:\n");

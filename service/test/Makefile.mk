@@ -4,7 +4,7 @@
 
 check_PROGRAMS += test/geopm_test
 
-GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
+GTEST_TESTS = test/gtest_links/GPUTopoNullTest.default_config \
               test/gtest_links/AggTest.agg_function \
               test/gtest_links/AggTest.function_strings \
               test/gtest_links/BatchClientTest.read_batch \
@@ -110,11 +110,11 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
               test/gtest_links/IOGroupTest.signals_have_descriptions \
               test/gtest_links/IOGroupTest.signals_have_format_functions \
               test/gtest_links/IOGroupTest.string_to_behavior \
-              test/gtest_links/LevelZeroAcceleratorTopoTest.no_gpu_config \
-              test/gtest_links/LevelZeroAcceleratorTopoTest.four_forty_config \
-              test/gtest_links/LevelZeroAcceleratorTopoTest.eight_fiftysix_affinitization_config \
-              test/gtest_links/LevelZeroAcceleratorTopoTest.uneven_affinitization_config \
-              test/gtest_links/LevelZeroAcceleratorTopoTest.high_cpu_count_config \
+              test/gtest_links/LevelZeroGPUTopoTest.no_gpu_config \
+              test/gtest_links/LevelZeroGPUTopoTest.four_forty_config \
+              test/gtest_links/LevelZeroGPUTopoTest.eight_fiftysix_affinitization_config \
+              test/gtest_links/LevelZeroGPUTopoTest.uneven_affinitization_config \
+              test/gtest_links/LevelZeroGPUTopoTest.high_cpu_count_config \
               test/gtest_links/LevelZeroDevicePoolTest.device_count \
               test/gtest_links/LevelZeroDevicePoolTest.subdevice_conversion_and_function \
               test/gtest_links/LevelZeroDevicePoolTest.subdevice_conversion_error \
@@ -185,16 +185,16 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoNullTest.default_config \
               test/gtest_links/MSRFieldSignalTest.real_counter \
               test/gtest_links/MSRFieldSignalTest.setup_batch \
               test/gtest_links/MSRFieldSignalTest.errors \
-              test/gtest_links/NVMLAcceleratorTopoTest.hpe_sx40_default_config \
-              test/gtest_links/NVMLAcceleratorTopoTest.no_gpu_config \
-              test/gtest_links/NVMLAcceleratorTopoTest.mutex_affinitization_config \
-              test/gtest_links/NVMLAcceleratorTopoTest.equidistant_affinitization_config \
-              test/gtest_links/NVMLAcceleratorTopoTest.n1_superset_n_affinitization_config \
-              test/gtest_links/NVMLAcceleratorTopoTest.greedbuster_affinitization_config \
-              test/gtest_links/NVMLAcceleratorTopoTest.hpe_6500_affinitization_config \
-              test/gtest_links/NVMLAcceleratorTopoTest.uneven_affinitization_config \
-              test/gtest_links/NVMLAcceleratorTopoTest.high_cpu_count_config \
-              test/gtest_links/NVMLAcceleratorTopoTest.high_cpu_count_gaps_config \
+              test/gtest_links/NVMLGPUTopoTest.hpe_sx40_default_config \
+              test/gtest_links/NVMLGPUTopoTest.no_gpu_config \
+              test/gtest_links/NVMLGPUTopoTest.mutex_affinitization_config \
+              test/gtest_links/NVMLGPUTopoTest.equidistant_affinitization_config \
+              test/gtest_links/NVMLGPUTopoTest.n1_superset_n_affinitization_config \
+              test/gtest_links/NVMLGPUTopoTest.greedbuster_affinitization_config \
+              test/gtest_links/NVMLGPUTopoTest.hpe_6500_affinitization_config \
+              test/gtest_links/NVMLGPUTopoTest.uneven_affinitization_config \
+              test/gtest_links/NVMLGPUTopoTest.high_cpu_count_config \
+              test/gtest_links/NVMLGPUTopoTest.high_cpu_count_gaps_config \
               test/gtest_links/NVMLIOGroupTest.read_signal \
               test/gtest_links/NVMLIOGroupTest.read_signal_and_batch \
               test/gtest_links/NVMLIOGroupTest.write_control \
@@ -357,7 +357,7 @@ EXTRA_DIST += test/legacy_allowlist.out \
               test/geopm_test.sh \
               # end
 
-test_geopm_test_SOURCES = test/AcceleratorTopoNullTest.cpp \
+test_geopm_test_SOURCES = test/GPUTopoNullTest.cpp \
                           test/AggTest.cpp \
                           test/BatchClientTest.cpp \
                           test/BatchServerTest.cpp \
@@ -376,14 +376,14 @@ test_geopm_test_SOURCES = test/AcceleratorTopoNullTest.cpp \
                           test/geopm_test_helper.cpp \
                           test/HelperTest.cpp \
                           test/IOGroupTest.cpp \
-                          test/LevelZeroAcceleratorTopoTest.cpp \
+                          test/LevelZeroGPUTopoTest.cpp \
                           test/LevelZeroDevicePoolTest.cpp \
                           test/LevelZeroIOGroupTest.cpp \
                           test/MSRIOGroupTest.cpp \
                           test/MSRIOTest.cpp \
                           test/MSRFieldControlTest.cpp \
                           test/MSRFieldSignalTest.cpp \
-                          test/MockAcceleratorTopo.hpp \
+                          test/MockGPUTopo.hpp \
                           test/MockBatchClient.hpp \
                           test/MockBatchStatus.hpp \
                           test/MockControl.hpp \
@@ -405,7 +405,7 @@ test_geopm_test_SOURCES = test/AcceleratorTopoNullTest.cpp \
                           test/MockSSTIO.hpp \
                           test/MockSSTIoctl.hpp \
                           test/MockPOSIXSignal.hpp \
-                          test/NVMLAcceleratorTopoTest.cpp \
+                          test/NVMLGPUTopoTest.cpp \
                           test/NVMLIOGroupTest.cpp \
                           test/POSIXSignalTest.cpp \
                           test/PlatformIOTest.cpp \

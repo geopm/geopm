@@ -87,12 +87,12 @@ they are contained within one another.
 | ++ ``package`` - socket
 | ++++ ``core`` - physical core
 | ++++++ ``cpu`` - Linux logical CPU
-| ++++ ``package_memory`` - on-package memory
-| ++++ ``package_nic`` - NIC within the package
-| ++++ ``package_accelerator`` - domain for accelerators within the package
-| ++ ``board_memory`` - other memory outside the package
-| ++ ``board_nic`` - NIC attached to the board
-| ++ ``board_accelerator`` - domain for accelerators on the board
+| ++++ ``package_integrated_memory`` - on-package memory
+| ++++ ``package_integrated_nic`` - NIC within the package
+| ++++ ``package_integrated_gpu`` - domain for gpus within the package
+| ++ ``memory`` - other memory outside the package
+| ++ ``nic`` - NIC attached to the board
+| ++ ``gpu`` - domain for gpus on the board
 
 This utility can be used to create a geopm::PlatformTopo cache file in
 the tmpfs.  When this file is not present the `geopmread(1) <geopmread.1.html>`_\ ,
@@ -148,12 +148,12 @@ List domains and size:
    package              2
    core                 64
    cpu                  128
-   board_memory         2
-   package_memory       1
-   board_nic            1
-   package_nic          0
-   board_accelerator    0
-   package_accelerator  0
+   memory         2
+   package_integrated_memory       1
+   nic            1
+   package_integrated_nic          0
+   gpu    0
+   package_integrated_gpu  0
 
 
 List all available controls on the system with domain type and number:

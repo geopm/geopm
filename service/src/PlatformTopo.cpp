@@ -28,7 +28,7 @@
 #include "geopm_time.h"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
-#include "AcceleratorTopo.hpp"
+#include "GPUTopo.hpp"
 
 
 int geopm_read_cpuid(void)
@@ -115,7 +115,7 @@ namespace geopm
     }
 
     PlatformTopoImp::PlatformTopoImp(const std::string &test_cache_file_name)
-        : PlatformTopoImp(test_cache_file_name, accelerator_topo())
+        : PlatformTopoImp(test_cache_file_name, gpu_topo())
     {
         std::map<std::string, std::string> lscpu_map;
         lscpu(lscpu_map);
@@ -124,9 +124,9 @@ namespace geopm
     }
 
     PlatformTopoImp::PlatformTopoImp(const std::string &test_cache_file_name,
-                                     const AcceleratorTopo &accelerator_topo)
+                                     const GPUTopo &gpu_topo)
         : M_TEST_CACHE_FILE_NAME(test_cache_file_name)
-        , m_accelerator_topo(accelerator_topo)
+        , m_gpu_topo(gpu_topo)
     {
         std::map<std::string, std::string> lscpu_map;
         lscpu(lscpu_map);
@@ -150,35 +150,35 @@ namespace geopm
             case GEOPM_DOMAIN_CPU:
                 result = m_num_package * m_core_per_package * m_thread_per_core;
                 break;
-            case GEOPM_DOMAIN_BOARD_MEMORY:
+            case GEOPM_DOMAIN_MEMORY:
                 for (const auto &it : m_numa_map) {
                     if (it.size()) {
                         ++result;
                     }
                 }
                 break;
-            case GEOPM_DOMAIN_PACKAGE_MEMORY:
+            case GEOPM_DOMAIN_PACKAGE_INTEGRATED_MEMORY:
                 for (const auto &it : m_numa_map) {
                     if (!it.size()) {
                         ++result;
                     }
                 }
                 break;
-            case GEOPM_DOMAIN_BOARD_NIC:
-            case GEOPM_DOMAIN_PACKAGE_NIC:
+            case GEOPM_DOMAIN_NIC:
+            case GEOPM_DOMAIN_PACKAGE_INTEGRATED_NIC:
                 // @todo Add support for NIC to PlatformTopo.
                 result = 0;
                 break;
-            case GEOPM_DOMAIN_BOARD_ACCELERATOR:
-                result = m_accelerator_topo.num_accelerator(
-                         GEOPM_DOMAIN_BOARD_ACCELERATOR);
+            case GEOPM_DOMAIN_GPU:
+                result = m_gpu_topo.num_gpu(
+                         GEOPM_DOMAIN_GPU);
                 break;
-            case GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP:
-                result = m_accelerator_topo.num_accelerator(
-                         GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP);
+            case GEOPM_DOMAIN_GPU_CHIP:
+                result = m_gpu_topo.num_gpu(
+                         GEOPM_DOMAIN_GPU_CHIP);
                 break;
-            case GEOPM_DOMAIN_PACKAGE_ACCELERATOR:
-                // @todo Add support for package accelerators to PlatformTopo.
+            case GEOPM_DOMAIN_PACKAGE_INTEGRATED_GPU:
+                // @todo Add support for package gpus to PlatformTopo.
                 result = 0;
                 break;
             case GEOPM_DOMAIN_INVALID:
@@ -213,13 +213,13 @@ namespace geopm
                     cpu_idx.insert(numa_cpus.begin(), numa_cpus.end());
                 }
                 break;
-            case GEOPM_DOMAIN_BOARD_ACCELERATOR:
-                cpu_idx = m_accelerator_topo.cpu_affinity_ideal(
-                          GEOPM_DOMAIN_BOARD_ACCELERATOR, domain_idx);
+            case GEOPM_DOMAIN_GPU:
+                cpu_idx = m_gpu_topo.cpu_affinity_ideal(
+                          GEOPM_DOMAIN_GPU, domain_idx);
                 break;
-            case GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP:
-                cpu_idx = m_accelerator_topo.cpu_affinity_ideal(
-                          GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, domain_idx);
+            case GEOPM_DOMAIN_GPU_CHIP:
+                cpu_idx = m_gpu_topo.cpu_affinity_ideal(
+                          GEOPM_DOMAIN_GPU_CHIP, domain_idx);
                 break;
             case GEOPM_DOMAIN_PACKAGE:
                 for (int thread_idx = 0;
@@ -242,7 +242,7 @@ namespace geopm
             case GEOPM_DOMAIN_CPU:
                 cpu_idx.insert(domain_idx);
                 break;
-            case GEOPM_DOMAIN_BOARD_MEMORY:
+            case GEOPM_DOMAIN_MEMORY:
                 cpu_idx = m_numa_map[domain_idx];
                 break;
             default:
@@ -286,7 +286,7 @@ namespace geopm
             case GEOPM_DOMAIN_CPU:
                 result = cpu_idx;
                 break;
-            case GEOPM_DOMAIN_BOARD_MEMORY:
+            case GEOPM_DOMAIN_MEMORY:
                 numa_idx = 0;
                 for (const auto &set_it : m_numa_map) {
                     for (const auto &cpu_it : set_it) {
@@ -303,36 +303,36 @@ namespace geopm
                     ++numa_idx;
                 }
                 break;
-            case GEOPM_DOMAIN_BOARD_ACCELERATOR:
-                for(int accel_idx = 0; (accel_idx <
-                                        m_accelerator_topo.num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR))
-                        && (result == -1); ++accel_idx) {
-                    std::set<int> affin = m_accelerator_topo.cpu_affinity_ideal(
-                        GEOPM_DOMAIN_BOARD_ACCELERATOR,
-                        accel_idx);
+            case GEOPM_DOMAIN_GPU:
+                for(int gpu_idx = 0; (gpu_idx <
+                                        m_gpu_topo.num_gpu(GEOPM_DOMAIN_GPU))
+                        && (result == -1); ++gpu_idx) {
+                    std::set<int> affin = m_gpu_topo.cpu_affinity_ideal(
+                        GEOPM_DOMAIN_GPU,
+                        gpu_idx);
                     if (affin.find(cpu_idx) != affin.end()) {
-                        result = accel_idx;
+                        result = gpu_idx;
                     }
                 }
                 break;
-            case GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP:
-                for(int accel_sub_idx = 0; (accel_sub_idx <
-                                            m_accelerator_topo.num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP))
-                        && (result == -1); ++accel_sub_idx) {
-                    std::set<int> affin = m_accelerator_topo.cpu_affinity_ideal(
-                        GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
-                        accel_sub_idx);
+            case GEOPM_DOMAIN_GPU_CHIP:
+                for(int gpu_sub_idx = 0; (gpu_sub_idx <
+                                            m_gpu_topo.num_gpu(GEOPM_DOMAIN_GPU_CHIP))
+                        && (result == -1); ++gpu_sub_idx) {
+                    std::set<int> affin = m_gpu_topo.cpu_affinity_ideal(
+                        GEOPM_DOMAIN_GPU_CHIP,
+                        gpu_sub_idx);
                     if (affin.find(cpu_idx) != affin.end()) {
-                        result = accel_sub_idx;
+                        result = gpu_sub_idx;
                     }
                 }
                 break;
-            case GEOPM_DOMAIN_PACKAGE_MEMORY:
-            case GEOPM_DOMAIN_BOARD_NIC:
-            case GEOPM_DOMAIN_PACKAGE_NIC:
-            case GEOPM_DOMAIN_PACKAGE_ACCELERATOR:
-                /// @todo Add support for package memory NIC and package accelerators to domain_idx() method.
-                throw Exception("PlatformTopoImp::domain_idx() no support yet for PACKAGE_MEMORY, NIC, or ACCELERATOR",
+            case GEOPM_DOMAIN_PACKAGE_INTEGRATED_MEMORY:
+            case GEOPM_DOMAIN_NIC:
+            case GEOPM_DOMAIN_PACKAGE_INTEGRATED_NIC:
+            case GEOPM_DOMAIN_PACKAGE_INTEGRATED_GPU:
+                /// @todo Add support for package memory NIC and package gpus to domain_idx() method.
+                throw Exception("PlatformTopoImp::domain_idx() no support yet for PACKAGE_INTEGRATED_MEMORY, NIC, or GPU",
                                 GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
                 break;
             case GEOPM_DOMAIN_INVALID:
@@ -350,9 +350,9 @@ namespace geopm
         static const std::set<int> package_domain = {
             GEOPM_DOMAIN_CPU,
             GEOPM_DOMAIN_CORE,
-            GEOPM_DOMAIN_PACKAGE_MEMORY,
-            GEOPM_DOMAIN_PACKAGE_NIC,
-            GEOPM_DOMAIN_PACKAGE_ACCELERATOR,
+            GEOPM_DOMAIN_PACKAGE_INTEGRATED_MEMORY,
+            GEOPM_DOMAIN_PACKAGE_INTEGRATED_NIC,
+            GEOPM_DOMAIN_PACKAGE_INTEGRATED_GPU,
         };
         if (inner_domain == outer_domain) {
             result = true;
@@ -371,24 +371,24 @@ namespace geopm
             // Everything under the package scope is in the package_domain set.
             result = true;
         }
-        else if (outer_domain == GEOPM_DOMAIN_BOARD_MEMORY &&
+        else if (outer_domain == GEOPM_DOMAIN_MEMORY &&
                  inner_domain == GEOPM_DOMAIN_CPU) {
             // To support mapping CPU signals to DRAM domain (e.g. power)
             result = true;
         }
-        else if (outer_domain == GEOPM_DOMAIN_BOARD_ACCELERATOR &&
+        else if (outer_domain == GEOPM_DOMAIN_GPU &&
                  inner_domain == GEOPM_DOMAIN_CPU) {
-            // To support mapping CPU signals to ACCELERATOR domain
+            // To support mapping CPU signals to GPU domain
             result = true;
         }
-        else if (outer_domain == GEOPM_DOMAIN_BOARD_ACCELERATOR &&
-                 inner_domain == GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP) {
-            // To support mapping ACCELERATOR SUBDEVICE signals to ACCELERATOR domain
+        else if (outer_domain == GEOPM_DOMAIN_GPU &&
+                 inner_domain == GEOPM_DOMAIN_GPU_CHIP) {
+            // To support mapping GPU SUBDEVICE signals to GPU domain
             result = true;
         }
-        else if (outer_domain == GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP &&
+        else if (outer_domain == GEOPM_DOMAIN_GPU_CHIP &&
                  inner_domain == GEOPM_DOMAIN_CPU) {
-            // To support mapping CPU signals to ACCELERATOR SUBDEVICE domain
+            // To support mapping CPU signals to GPU SUBDEVICE domain
             result = true;
         }
         return result;
@@ -425,13 +425,13 @@ namespace geopm
             {"package", GEOPM_DOMAIN_PACKAGE},
             {"core", GEOPM_DOMAIN_CORE},
             {"cpu", GEOPM_DOMAIN_CPU},
-            {"board_memory", GEOPM_DOMAIN_BOARD_MEMORY},
-            {"package_memory", GEOPM_DOMAIN_PACKAGE_MEMORY},
-            {"board_nic", GEOPM_DOMAIN_BOARD_NIC},
-            {"package_nic", GEOPM_DOMAIN_PACKAGE_NIC},
-            {"board_accelerator", GEOPM_DOMAIN_BOARD_ACCELERATOR},
-            {"package_accelerator", GEOPM_DOMAIN_PACKAGE_ACCELERATOR},
-            {"board_accelerator_chip", GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP},
+            {"memory", GEOPM_DOMAIN_MEMORY},
+            {"package_integrated_memory", GEOPM_DOMAIN_PACKAGE_INTEGRATED_MEMORY},
+            {"nic", GEOPM_DOMAIN_NIC},
+            {"package_integrated_nic", GEOPM_DOMAIN_PACKAGE_INTEGRATED_NIC},
+            {"gpu", GEOPM_DOMAIN_GPU},
+            {"package_integrated_gpu", GEOPM_DOMAIN_PACKAGE_INTEGRATED_GPU},
+            {"gpu_chip", GEOPM_DOMAIN_GPU_CHIP},
         };
     }
 

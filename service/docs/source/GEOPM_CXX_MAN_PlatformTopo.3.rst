@@ -106,8 +106,8 @@ CLASS METHODS
   Check if *inner_domain* is contained within *outer_domain*.
   ``GEOPM_DOMAIN_BOARD`` is the outermost domain representing the entire
   node.  All other domains are contained within *board*.
-  ``GEOPM_DOMAIN_CORE``, ``GEOPM_DOMAIN_CPU``, ``GEOPM_DOMAIN_PACKAGE_MEMORY``, and
-  ``GEOPM_DOMAIN_PACKAGE_ACCELERATOR`` are contained within package.
+  ``GEOPM_DOMAIN_CORE``, ``GEOPM_DOMAIN_CPU``, ``GEOPM_DOMAIN_PACKAGE_INTEGRATED_MEMORY``, and
+  ``GEOPM_DOMAIN_PACKAGE_INTEGRATED_GPU`` are contained within package.
   ``GEOPM_DOMAIN_CPU`` is contained within ``GEOPM_DOMAIN_CORE``.  The following
   outline summarizes the hierarchy of containing domains, where each
   domain is also contained in parents of its parent domain.
@@ -118,12 +118,12 @@ CLASS METHODS
         +---`GEOPM_DOMAIN_PACKAGE`
              +---`GEOPM_DOMAIN_CORE`
                   +---`GEOPM_DOMAIN_CPU`
-             +---`GEOPM_DOMAIN_PACKAGE_MEMORY`
-             +---`GEOPM_DOMAIN_PACKAGE_NIC`
-             +---`GEOPM_DOMAIN_PACKAGE_ACCELERATOR`
-        +---`GEOPM_DOMAIN_BOARD_MEMORY`
-        +---`GEOPM_DOMAIN_BOARD_NIC`
-        +---`GEOPM_DOMAIN_BOARD_ACCELERATOR`
+             +---`GEOPM_DOMAIN_PACKAGE_INTEGRATED_MEMORY`
+             +---`GEOPM_DOMAIN_PACKAGE_INTEGRATED_NIC`
+             +---`GEOPM_DOMAIN_PACKAGE_INTEGRATED_GPU`
+        +---`GEOPM_DOMAIN_MEMORY`
+        +---`GEOPM_DOMAIN_NIC`
+        +---`GEOPM_DOMAIN_GPU`
 
 
 * 
@@ -238,7 +238,7 @@ on-package memory, is present or absent:
 
 .. code-block:: c++
 
-       if (topo.num_domain(GEOPM_DOMAIN_PACKAGE_MEMORY) > 0) {
+       if (topo.num_domain(GEOPM_DOMAIN_PACKAGE_INTEGRATED_MEMORY) > 0) {
            std::cout << "On-package memory is present." << std::endl;
        }
        else {

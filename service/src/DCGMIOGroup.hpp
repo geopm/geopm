@@ -18,7 +18,7 @@ namespace geopm
     class PlatformTopo;
     class DCGMDevicePool;
 
-    /// @brief IOGroup that provides signals and controls for DCGM Accelerators
+    /// @brief IOGroup that provides signals and controls for DCGM GPUs
     class DCGMIOGroup : public IOGroup
     {
         public:

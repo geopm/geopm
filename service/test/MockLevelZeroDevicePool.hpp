@@ -13,7 +13,7 @@
 class MockLevelZeroDevicePool : public geopm::LevelZeroDevicePool
 {
     public:
-        MOCK_METHOD(int, num_accelerator,
+        MOCK_METHOD(int, num_gpu,
                     (int), (const, override));
 
         MOCK_METHOD(double, frequency_status,

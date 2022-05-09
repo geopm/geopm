@@ -10,17 +10,17 @@ CPU_FREQUENCY_CONTROL
 MSR::DRAM_POWER_LIMIT:ENABLE
     - description: Refer to the Intel(R) 64 and IA-32 Architectures Software Developer's Manual for information about this MSR
     - units: none
-    - domain: board_memory
+    - domain: memory
     - iogroup: MSRIOGroup
 MSR::DRAM_POWER_LIMIT:POWER_LIMIT
     - description: Refer to the Intel(R) 64 and IA-32 Architectures Software Developer's Manual for information about this MSR
     - units: watts
-    - domain: board_memory
+    - domain: memory
     - iogroup: MSRIOGroup
 MSR::DRAM_POWER_LIMIT:TIME_WINDOW
     - description: Refer to the Intel(R) 64 and IA-32 Architectures Software Developer's Manual for information about this MSR
     - units: seconds
-    - domain: board_memory
+    - domain: memory
     - iogroup: MSRIOGroup
 MSR::FIXED_CTR_CTRL:EN0_OS
     - description: Refer to the Intel(R) 64 and IA-32 Architectures Software Developer's Manual for information about this MSR

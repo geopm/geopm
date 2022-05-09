@@ -19,7 +19,7 @@ namespace geopm
     class NVMLDevicePool;
     class SaveControl;
 
-    /// @brief IOGroup that provides signals and controls for NVML Accelerators
+    /// @brief IOGroup that provides signals and controls for NVML GPUs
     class NVMLIOGroup : public IOGroup
     {
         public:
@@ -58,8 +58,8 @@ namespace geopm
             void register_signal_alias(const std::string &alias_name, const std::string &signal_name);
             void register_control_alias(const std::string &alias_name, const std::string &control_name);
 
-            std::map<pid_t, double> accelerator_process_map(void) const;
-            double cpu_accelerator_affinity(int cpu_idx, std::map<pid_t, double> process_map) const;
+            std::map<pid_t, double> gpu_process_map(void) const;
+            double cpu_gpu_affinity(int cpu_idx, std::map<pid_t, double> process_map) const;
 
             static const std::string M_PLUGIN_NAME;
             static const std::string M_NAME_PREFIX;

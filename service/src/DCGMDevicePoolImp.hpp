@@ -22,8 +22,8 @@ namespace geopm
             virtual ~DCGMDevicePoolImp();
 
             virtual int num_device() const override;
-            virtual double sample(int accel_idx, int field_id) const override;
-            virtual void update(int accel_idx) override;
+            virtual double sample(int gpu_idx, int field_id) const override;
+            virtual void update(int gpu_idx) override;
             virtual void update_rate(int field_update_rate) override;
             virtual void max_storage_time(int max_storage_time) override;
             virtual void max_samples(int max_samples) override;
@@ -44,7 +44,7 @@ namespace geopm
 
             unsigned short m_dcgm_field_ids[M_NUM_FIELD_ID];
 
-            // Accelerator indexed vector of vector of field values
+            // GPU indexed vector of vector of field values
             std::vector<std::vector<dcgmFieldValue_v1>> m_dcgm_field_values;
     };
 }

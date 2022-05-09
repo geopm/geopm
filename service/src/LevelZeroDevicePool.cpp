@@ -33,20 +33,20 @@ namespace geopm
     {
     }
 
-    int LevelZeroDevicePoolImp::num_accelerator(int domain) const
+    int LevelZeroDevicePoolImp::num_gpu(int domain) const
     {
-        if (domain != GEOPM_DOMAIN_BOARD_ACCELERATOR
-            && domain != GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP) {
+        if (domain != GEOPM_DOMAIN_GPU
+            && domain != GEOPM_DOMAIN_GPU_CHIP) {
             throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
                             ": domain " + std::to_string(domain) + " is not supported.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        return m_levelzero.num_accelerator(domain);
+        return m_levelzero.num_gpu(domain);
     }
 
     void LevelZeroDevicePoolImp::check_idx_range(int domain, unsigned int domain_idx) const
     {
-        if (domain_idx >= (unsigned int) num_accelerator(domain)) {
+        if (domain_idx >= (unsigned int) num_gpu(domain)) {
             throw Exception("LevelZeroDevicePool::" + std::string(__func__) + ": domain "
                             + std::to_string(domain) + " idx " + std::to_string(domain_idx) +
                             " is out of range.", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -65,24 +65,24 @@ namespace geopm
 
     std::pair<unsigned int, unsigned int> LevelZeroDevicePoolImp::subdevice_device_conversion(unsigned int sub_idx) const
     {
-        check_idx_range(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx);
+        check_idx_range(GEOPM_DOMAIN_GPU_CHIP, sub_idx);
         unsigned int device_idx = 0;
         int subdevice_idx = 0;
 
         // TODO: this assumes a simple split of subdevice to device.
         // This may need to be adjusted based upon user preference or use case
-        if (num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP) %
-            num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR) != 0) {
+        if (num_gpu(GEOPM_DOMAIN_GPU_CHIP) %
+            num_gpu(GEOPM_DOMAIN_GPU) != 0) {
             throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
                             ": GEOPM Requires the number" +
                             " of subdevices to be evenly divisible by the number of devices. ",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        int num_subdevice_per_device = num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP) /
-                                       num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR);
+        int num_subdevice_per_device = num_gpu(GEOPM_DOMAIN_GPU_CHIP) /
+                                       num_gpu(GEOPM_DOMAIN_GPU);
 
         device_idx = sub_idx / num_subdevice_per_device;
-        check_idx_range(GEOPM_DOMAIN_BOARD_ACCELERATOR, device_idx);
+        check_idx_range(GEOPM_DOMAIN_GPU, device_idx);
         subdevice_idx = sub_idx % num_subdevice_per_device;
         return {device_idx, subdevice_idx};
     }
@@ -90,7 +90,7 @@ namespace geopm
     double LevelZeroDevicePoolImp::frequency_status(int domain, unsigned int domain_idx,
                                                     int l0_domain) const
     {
-        if (domain != GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP) {
+        if (domain != GEOPM_DOMAIN_GPU_CHIP) {
             throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
                             ": domain " + std::to_string(domain) +
                             " is not supported for the frequency domain.",
@@ -109,7 +109,7 @@ namespace geopm
     double LevelZeroDevicePoolImp::frequency_min(int domain, unsigned int domain_idx,
                                                  int l0_domain) const
     {
-        if (domain != GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP) {
+        if (domain != GEOPM_DOMAIN_GPU_CHIP) {
             throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
                             ": domain " + std::to_string(domain) +
                             " is not supported for the frequency domain.",
@@ -127,7 +127,7 @@ namespace geopm
     double LevelZeroDevicePoolImp::frequency_max(int domain, unsigned int domain_idx,
                                                  int l0_domain) const
     {
-        if (domain != GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP) {
+        if (domain != GEOPM_DOMAIN_GPU_CHIP) {
             throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
                              ": domain " + std::to_string(domain) +
                             " is not supported for the frequency domain.",
@@ -146,7 +146,7 @@ namespace geopm
                                                                       unsigned int domain_idx,
                                                                       int l0_domain) const
     {
-        if (domain != GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP) {
+        if (domain != GEOPM_DOMAIN_GPU_CHIP) {
             throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
                             ": domain " + std::to_string(domain) +
                             " is not supported for the frequency domain.",
@@ -166,7 +166,7 @@ namespace geopm
                                                                            unsigned int domain_idx,
                                                                            int l0_domain) const
     {
-        if (domain != GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP) {
+        if (domain != GEOPM_DOMAIN_GPU_CHIP) {
             throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
                             ": domain " + std::to_string(domain) +
                             " is not supported for the engine domain.",
@@ -188,7 +188,7 @@ namespace geopm
                                                            unsigned int domain_idx,
                                                            int l0_domain) const
     {
-        if (domain != GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP) {
+        if (domain != GEOPM_DOMAIN_GPU_CHIP) {
             throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
                              ": domain " + std::to_string(domain) +
                             " is not supported for the engine domain.",
@@ -209,7 +209,7 @@ namespace geopm
     uint64_t LevelZeroDevicePoolImp::active_time(int domain, unsigned int domain_idx,
                                                  int l0_domain) const
     {
-        if (domain != GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP) {
+        if (domain != GEOPM_DOMAIN_GPU_CHIP) {
             throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
                             ": domain " +std::to_string(domain) +
                             " is not supported for the engine domain.",
@@ -229,7 +229,7 @@ namespace geopm
     int32_t LevelZeroDevicePoolImp::power_limit_min(int domain, unsigned int domain_idx,
                                                     int l0_domain) const
     {
-        if (domain != GEOPM_DOMAIN_BOARD_ACCELERATOR) {
+        if (domain != GEOPM_DOMAIN_GPU) {
             throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
                             ": domain " + std::to_string(domain) +
                             " is not supported for the power domain.",
@@ -243,7 +243,7 @@ namespace geopm
                                                     unsigned int domain_idx,
                                                     int l0_domain) const
     {
-        if (domain != GEOPM_DOMAIN_BOARD_ACCELERATOR) {
+        if (domain != GEOPM_DOMAIN_GPU) {
             throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
                             ": domain " + std::to_string(domain) +
                             " is not supported for the power domain.",
@@ -257,7 +257,7 @@ namespace geopm
                                                     unsigned int domain_idx,
                                                     int l0_domain) const
     {
-        if (domain != GEOPM_DOMAIN_BOARD_ACCELERATOR) {
+        if (domain != GEOPM_DOMAIN_GPU) {
             throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
                             ": domain " + std::to_string(domain) +
                             " is not supported for the power domain.",
@@ -271,7 +271,7 @@ namespace geopm
                                                                       unsigned int domain_idx,
                                                                       int l0_domain) const
     {
-        if (domain != GEOPM_DOMAIN_BOARD_ACCELERATOR) {
+        if (domain != GEOPM_DOMAIN_GPU) {
             throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
                             ": domain " + std::to_string(domain) +
                             " is not supported for the power domain.",
@@ -285,7 +285,7 @@ namespace geopm
                                                       unsigned int domain_idx,
                                                       int l0_domain) const
     {
-        if (domain != GEOPM_DOMAIN_BOARD_ACCELERATOR) {
+        if (domain != GEOPM_DOMAIN_GPU) {
             throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
                             ": domain " + std::to_string(domain) +
                             " is not supported for the power domain.",
@@ -298,7 +298,7 @@ namespace geopm
     uint64_t LevelZeroDevicePoolImp::energy(int domain, unsigned int domain_idx,
                                             int l0_domain) const
     {
-        if (domain != GEOPM_DOMAIN_BOARD_ACCELERATOR) {
+        if (domain != GEOPM_DOMAIN_GPU) {
             throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
                             ": domain " + std::to_string(domain) +
                             " is not supported for the power domain.",
@@ -312,7 +312,7 @@ namespace geopm
                                                    int l0_domain, double range_min,
                                                    double range_max) const
     {
-        if (domain != GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP) {
+        if (domain != GEOPM_DOMAIN_GPU_CHIP) {
             throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
                             ": domain " + std::to_string(domain) +
                             " is not supported for the frequency domain.",

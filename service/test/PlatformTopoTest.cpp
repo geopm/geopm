@@ -16,7 +16,7 @@
 #include "gmock/gmock.h"
 
 #include "geopm/Helper.hpp"
-#include "MockAcceleratorTopo.hpp"
+#include "MockGPUTopo.hpp"
 #include "PlatformTopoImp.hpp"
 #include "geopm/Exception.hpp"
 #include "config.h"
@@ -45,7 +45,7 @@ class PlatformTopoTest : public :: testing :: Test
         std::string m_no0x_lscpu_str;
         std::string m_no_numa_lscpu_str;
         bool m_do_unlink;
-        std::shared_ptr<MockAcceleratorTopo> m_accelerator_topo;
+        std::shared_ptr<MockGPUTopo> m_gpu_topo;
 };
 
 void PlatformTopoTest::spoof_lscpu(void)
@@ -244,9 +244,9 @@ void PlatformTopoTest::SetUp()
         "Flags:                 fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf eagerfpu pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 fma cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch epb cat_l3 cdp_l3 invpcid_single intel_pt spec_ctrl ibpb_support tpr_shadow vnmi flexpriority ept vpid fsgsbase tsc_adjust bmi1 hle avx2 smep bmi2 erms invpcid rtm cqm rdt_a rdseed adx smap xsaveopt cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local dtherm ida arat pln pts\n";
     m_do_unlink = false;
 
-    m_accelerator_topo = std::make_shared<MockAcceleratorTopo>();
-    ON_CALL(*m_accelerator_topo, num_accelerator()).WillByDefault(Return(0));
-    ON_CALL(*m_accelerator_topo, num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP)).WillByDefault(Return(0));
+    m_gpu_topo = std::make_shared<MockGPUTopo>();
+    ON_CALL(*m_gpu_topo, num_gpu()).WillByDefault(Return(0));
+    ON_CALL(*m_gpu_topo, num_gpu(GEOPM_DOMAIN_GPU_CHIP)).WillByDefault(Return(0));
 }
 
 void PlatformTopoTest::TearDown()
@@ -272,29 +272,29 @@ void PlatformTopoTest::write_lscpu(const std::string &lscpu_str)
 
 TEST_F(PlatformTopoTest, hsw_num_domain)
 {
-    const int num_accelerator = 4;
-    const int num_accelerator_subdevice = 8;
-    EXPECT_CALL(*m_accelerator_topo, num_accelerator())
-                .WillRepeatedly(Return(num_accelerator));
-    EXPECT_CALL(*m_accelerator_topo, num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR))
-                .WillRepeatedly(Return(num_accelerator));
-    EXPECT_CALL(*m_accelerator_topo, num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP))
-                .WillRepeatedly(Return(num_accelerator_subdevice));
+    const int num_gpu = 4;
+    const int num_gpu_subdevice = 8;
+    EXPECT_CALL(*m_gpu_topo, num_gpu())
+                .WillRepeatedly(Return(num_gpu));
+    EXPECT_CALL(*m_gpu_topo, num_gpu(GEOPM_DOMAIN_GPU))
+                .WillRepeatedly(Return(num_gpu));
+    EXPECT_CALL(*m_gpu_topo, num_gpu(GEOPM_DOMAIN_GPU_CHIP))
+                .WillRepeatedly(Return(num_gpu_subdevice));
     write_lscpu(m_hsw_lscpu_str);
-    PlatformTopoImp topo(m_lscpu_file_name, *m_accelerator_topo);
+    PlatformTopoImp topo(m_lscpu_file_name, *m_gpu_topo);
     EXPECT_EQ(1, topo.num_domain(GEOPM_DOMAIN_BOARD));
     EXPECT_EQ(1, topo.num_domain(GEOPM_DOMAIN_PACKAGE));
     EXPECT_EQ(2, topo.num_domain(GEOPM_DOMAIN_CORE));
     EXPECT_EQ(2, topo.num_domain(GEOPM_DOMAIN_CPU));
-    EXPECT_EQ(1, topo.num_domain(GEOPM_DOMAIN_BOARD_MEMORY));
-    EXPECT_EQ(0, topo.num_domain(GEOPM_DOMAIN_PACKAGE_MEMORY));
+    EXPECT_EQ(1, topo.num_domain(GEOPM_DOMAIN_MEMORY));
+    EXPECT_EQ(0, topo.num_domain(GEOPM_DOMAIN_PACKAGE_INTEGRATED_MEMORY));
 
     /// @todo when implemented, add tests for each platform
-    EXPECT_EQ(0, topo.num_domain(GEOPM_DOMAIN_BOARD_NIC));
-    EXPECT_EQ(0, topo.num_domain(GEOPM_DOMAIN_PACKAGE_NIC));
-    EXPECT_EQ(num_accelerator, topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR));
-    EXPECT_EQ(0, topo.num_domain(GEOPM_DOMAIN_PACKAGE_ACCELERATOR));
-    EXPECT_EQ(num_accelerator_subdevice, topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP));
+    EXPECT_EQ(0, topo.num_domain(GEOPM_DOMAIN_NIC));
+    EXPECT_EQ(0, topo.num_domain(GEOPM_DOMAIN_PACKAGE_INTEGRATED_NIC));
+    EXPECT_EQ(num_gpu, topo.num_domain(GEOPM_DOMAIN_GPU));
+    EXPECT_EQ(0, topo.num_domain(GEOPM_DOMAIN_PACKAGE_INTEGRATED_GPU));
+    EXPECT_EQ(num_gpu_subdevice, topo.num_domain(GEOPM_DOMAIN_GPU_CHIP));
 
     EXPECT_THROW(topo.num_domain(GEOPM_DOMAIN_INVALID), geopm::Exception);
 }
@@ -302,68 +302,68 @@ TEST_F(PlatformTopoTest, hsw_num_domain)
 TEST_F(PlatformTopoTest, knl_num_domain)
 {
     write_lscpu(m_knl_lscpu_str);
-    PlatformTopoImp topo(m_lscpu_file_name, *m_accelerator_topo);
+    PlatformTopoImp topo(m_lscpu_file_name, *m_gpu_topo);
     EXPECT_EQ(1, topo.num_domain(GEOPM_DOMAIN_BOARD));
     EXPECT_EQ(1, topo.num_domain(GEOPM_DOMAIN_PACKAGE));
     EXPECT_EQ(64, topo.num_domain(GEOPM_DOMAIN_CORE));
     EXPECT_EQ(256, topo.num_domain(GEOPM_DOMAIN_CPU));
-    EXPECT_EQ(1, topo.num_domain(GEOPM_DOMAIN_BOARD_MEMORY));
-    EXPECT_EQ(1, topo.num_domain(GEOPM_DOMAIN_PACKAGE_MEMORY));
+    EXPECT_EQ(1, topo.num_domain(GEOPM_DOMAIN_MEMORY));
+    EXPECT_EQ(1, topo.num_domain(GEOPM_DOMAIN_PACKAGE_INTEGRATED_MEMORY));
 }
 
 TEST_F(PlatformTopoTest, bdx_num_domain)
 {
-    const int num_accelerator = 4;
-    const int num_accelerator_subdevice = 4;
-    EXPECT_CALL(*m_accelerator_topo, num_accelerator()).WillRepeatedly(Return(num_accelerator));
-    EXPECT_CALL(*m_accelerator_topo, num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR)).WillRepeatedly(Return(num_accelerator_subdevice));
-    EXPECT_CALL(*m_accelerator_topo, num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP)).WillRepeatedly(Return(num_accelerator_subdevice));
+    const int num_gpu = 4;
+    const int num_gpu_subdevice = 4;
+    EXPECT_CALL(*m_gpu_topo, num_gpu()).WillRepeatedly(Return(num_gpu));
+    EXPECT_CALL(*m_gpu_topo, num_gpu(GEOPM_DOMAIN_GPU)).WillRepeatedly(Return(num_gpu_subdevice));
+    EXPECT_CALL(*m_gpu_topo, num_gpu(GEOPM_DOMAIN_GPU_CHIP)).WillRepeatedly(Return(num_gpu_subdevice));
     write_lscpu(m_bdx_lscpu_str);
-    PlatformTopoImp topo(m_lscpu_file_name, *m_accelerator_topo);
+    PlatformTopoImp topo(m_lscpu_file_name, *m_gpu_topo);
     EXPECT_EQ(1, topo.num_domain(GEOPM_DOMAIN_BOARD));
     EXPECT_EQ(2, topo.num_domain(GEOPM_DOMAIN_PACKAGE));
     EXPECT_EQ(36, topo.num_domain(GEOPM_DOMAIN_CORE));
     EXPECT_EQ(72, topo.num_domain(GEOPM_DOMAIN_CPU));
-    EXPECT_EQ(2, topo.num_domain(GEOPM_DOMAIN_BOARD_MEMORY));
-    EXPECT_EQ(0, topo.num_domain(GEOPM_DOMAIN_PACKAGE_MEMORY));
-    EXPECT_EQ(num_accelerator, topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR));
-    EXPECT_EQ(num_accelerator_subdevice, topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP));
+    EXPECT_EQ(2, topo.num_domain(GEOPM_DOMAIN_MEMORY));
+    EXPECT_EQ(0, topo.num_domain(GEOPM_DOMAIN_PACKAGE_INTEGRATED_MEMORY));
+    EXPECT_EQ(num_gpu, topo.num_domain(GEOPM_DOMAIN_GPU));
+    EXPECT_EQ(num_gpu_subdevice, topo.num_domain(GEOPM_DOMAIN_GPU_CHIP));
 }
 
 TEST_F(PlatformTopoTest, ppc_num_domain)
 {
     write_lscpu(m_ppc_lscpu_str);
-    PlatformTopoImp topo(m_lscpu_file_name, *m_accelerator_topo);
+    PlatformTopoImp topo(m_lscpu_file_name, *m_gpu_topo);
     EXPECT_EQ(1, topo.num_domain(GEOPM_DOMAIN_BOARD));
     EXPECT_EQ(2, topo.num_domain(GEOPM_DOMAIN_PACKAGE));
     EXPECT_EQ(20, topo.num_domain(GEOPM_DOMAIN_CORE));
     EXPECT_EQ(20, topo.num_domain(GEOPM_DOMAIN_CPU));
-    EXPECT_EQ(2, topo.num_domain(GEOPM_DOMAIN_BOARD_MEMORY));
-    EXPECT_EQ(0, topo.num_domain(GEOPM_DOMAIN_PACKAGE_MEMORY));
+    EXPECT_EQ(2, topo.num_domain(GEOPM_DOMAIN_MEMORY));
+    EXPECT_EQ(0, topo.num_domain(GEOPM_DOMAIN_PACKAGE_INTEGRATED_MEMORY));
 }
 
 TEST_F(PlatformTopoTest, no0x_num_domain)
 {
     write_lscpu(m_no0x_lscpu_str);
-    PlatformTopoImp topo(m_lscpu_file_name, *m_accelerator_topo);
+    PlatformTopoImp topo(m_lscpu_file_name, *m_gpu_topo);
     EXPECT_EQ(1, topo.num_domain(GEOPM_DOMAIN_BOARD));
     EXPECT_EQ(2, topo.num_domain(GEOPM_DOMAIN_PACKAGE));
     EXPECT_EQ(36, topo.num_domain(GEOPM_DOMAIN_CORE));
     EXPECT_EQ(72, topo.num_domain(GEOPM_DOMAIN_CPU));
-    EXPECT_EQ(2, topo.num_domain(GEOPM_DOMAIN_BOARD_MEMORY));
-    EXPECT_EQ(0, topo.num_domain(GEOPM_DOMAIN_PACKAGE_MEMORY));
+    EXPECT_EQ(2, topo.num_domain(GEOPM_DOMAIN_MEMORY));
+    EXPECT_EQ(0, topo.num_domain(GEOPM_DOMAIN_PACKAGE_INTEGRATED_MEMORY));
 }
 
 TEST_F(PlatformTopoTest, no_numa_num_domain)
 {
     write_lscpu(m_no_numa_lscpu_str);
-    PlatformTopoImp topo(m_lscpu_file_name, *m_accelerator_topo);
+    PlatformTopoImp topo(m_lscpu_file_name, *m_gpu_topo);
     EXPECT_EQ(1, topo.num_domain(GEOPM_DOMAIN_BOARD));
     EXPECT_EQ(2, topo.num_domain(GEOPM_DOMAIN_PACKAGE));
     EXPECT_EQ(36, topo.num_domain(GEOPM_DOMAIN_CORE));
     EXPECT_EQ(72, topo.num_domain(GEOPM_DOMAIN_CPU));
-    EXPECT_EQ(1, topo.num_domain(GEOPM_DOMAIN_BOARD_MEMORY));
-    EXPECT_EQ(0, topo.num_domain(GEOPM_DOMAIN_PACKAGE_MEMORY));
+    EXPECT_EQ(1, topo.num_domain(GEOPM_DOMAIN_MEMORY));
+    EXPECT_EQ(0, topo.num_domain(GEOPM_DOMAIN_PACKAGE_INTEGRATED_MEMORY));
 }
 
 TEST_F(PlatformTopoTest, construction)
@@ -373,8 +373,8 @@ TEST_F(PlatformTopoTest, construction)
     EXPECT_LT(0, topo.num_domain(GEOPM_DOMAIN_PACKAGE));
     EXPECT_LT(0, topo.num_domain(GEOPM_DOMAIN_CORE));
     EXPECT_LT(0, topo.num_domain(GEOPM_DOMAIN_CPU));
-    EXPECT_LT(0, topo.num_domain(GEOPM_DOMAIN_BOARD_MEMORY));
-    EXPECT_LT(-1, topo.num_domain(GEOPM_DOMAIN_PACKAGE_MEMORY));
+    EXPECT_LT(0, topo.num_domain(GEOPM_DOMAIN_MEMORY));
+    EXPECT_LT(-1, topo.num_domain(GEOPM_DOMAIN_PACKAGE_INTEGRATED_MEMORY));
 }
 
 TEST_F(PlatformTopoTest, singleton_construction)
@@ -384,42 +384,42 @@ TEST_F(PlatformTopoTest, singleton_construction)
     EXPECT_LT(0, topo.num_domain(GEOPM_DOMAIN_PACKAGE));
     EXPECT_LT(0, topo.num_domain(GEOPM_DOMAIN_CORE));
     EXPECT_LT(0, topo.num_domain(GEOPM_DOMAIN_CPU));
-    EXPECT_LT(0, topo.num_domain(GEOPM_DOMAIN_BOARD_MEMORY));
-    EXPECT_LT(-1, topo.num_domain(GEOPM_DOMAIN_PACKAGE_MEMORY));
+    EXPECT_LT(0, topo.num_domain(GEOPM_DOMAIN_MEMORY));
+    EXPECT_LT(-1, topo.num_domain(GEOPM_DOMAIN_PACKAGE_INTEGRATED_MEMORY));
 }
 
 TEST_F(PlatformTopoTest, bdx_domain_idx)
 {
-    const int num_accelerator = 4;
-    const int num_accelerator_subdevice = 8;
-    EXPECT_CALL(*m_accelerator_topo, num_accelerator()).
-                WillRepeatedly(Return(num_accelerator));
-    EXPECT_CALL(*m_accelerator_topo, num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR)).
-                WillRepeatedly(Return(num_accelerator_subdevice));
-    EXPECT_CALL(*m_accelerator_topo, num_accelerator(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP)).
-                WillRepeatedly(Return(num_accelerator_subdevice));
-    std::set<int> cpu_affin[num_accelerator];
-    std::set<int> cpu_affin_sub[num_accelerator_subdevice];
-    for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
-        for (int cpu_idx = 0; cpu_idx < 72/num_accelerator; ++cpu_idx) {
-            cpu_affin[accel_idx].insert(cpu_idx+(accel_idx*(72/num_accelerator)));
+    const int num_gpu = 4;
+    const int num_gpu_subdevice = 8;
+    EXPECT_CALL(*m_gpu_topo, num_gpu()).
+                WillRepeatedly(Return(num_gpu));
+    EXPECT_CALL(*m_gpu_topo, num_gpu(GEOPM_DOMAIN_GPU)).
+                WillRepeatedly(Return(num_gpu_subdevice));
+    EXPECT_CALL(*m_gpu_topo, num_gpu(GEOPM_DOMAIN_GPU_CHIP)).
+                WillRepeatedly(Return(num_gpu_subdevice));
+    std::set<int> cpu_affin[num_gpu];
+    std::set<int> cpu_affin_sub[num_gpu_subdevice];
+    for (int gpu_idx = 0; gpu_idx < num_gpu; ++gpu_idx) {
+        for (int cpu_idx = 0; cpu_idx < 72/num_gpu; ++cpu_idx) {
+            cpu_affin[gpu_idx].insert(cpu_idx+(gpu_idx*(72/num_gpu)));
         }
-        EXPECT_CALL(*m_accelerator_topo,
-                    cpu_affinity_ideal(GEOPM_DOMAIN_BOARD_ACCELERATOR,
-                    accel_idx)).WillRepeatedly(Return(cpu_affin[accel_idx]));
-        EXPECT_CALL(*m_accelerator_topo,
-                    cpu_affinity_ideal(accel_idx)).WillRepeatedly(Return(cpu_affin[accel_idx]));
+        EXPECT_CALL(*m_gpu_topo,
+                    cpu_affinity_ideal(GEOPM_DOMAIN_GPU,
+                    gpu_idx)).WillRepeatedly(Return(cpu_affin[gpu_idx]));
+        EXPECT_CALL(*m_gpu_topo,
+                    cpu_affinity_ideal(gpu_idx)).WillRepeatedly(Return(cpu_affin[gpu_idx]));
     }
-    for (int sub_idx = 0; sub_idx < num_accelerator_subdevice; ++sub_idx) {
-        for (int cpu_idx = 0; cpu_idx < 72/num_accelerator_subdevice; ++cpu_idx) {
-            cpu_affin_sub[sub_idx].insert(cpu_idx+(sub_idx*(72/num_accelerator_subdevice)));
+    for (int sub_idx = 0; sub_idx < num_gpu_subdevice; ++sub_idx) {
+        for (int cpu_idx = 0; cpu_idx < 72/num_gpu_subdevice; ++cpu_idx) {
+            cpu_affin_sub[sub_idx].insert(cpu_idx+(sub_idx*(72/num_gpu_subdevice)));
         }
-        EXPECT_CALL(*m_accelerator_topo,
-                    cpu_affinity_ideal(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, sub_idx)).
+        EXPECT_CALL(*m_gpu_topo,
+                    cpu_affinity_ideal(GEOPM_DOMAIN_GPU_CHIP, sub_idx)).
                     WillRepeatedly(Return(cpu_affin_sub[sub_idx]));
     }
     write_lscpu(m_bdx_lscpu_str);
-    PlatformTopoImp topo(m_lscpu_file_name, *m_accelerator_topo);
+    PlatformTopoImp topo(m_lscpu_file_name, *m_gpu_topo);
     EXPECT_EQ(0, topo.domain_idx(GEOPM_DOMAIN_BOARD, 0));
     EXPECT_EQ(0, topo.domain_idx(GEOPM_DOMAIN_PACKAGE, 0));
     EXPECT_EQ(1, topo.domain_idx(GEOPM_DOMAIN_PACKAGE, 18));
@@ -444,66 +444,66 @@ TEST_F(PlatformTopoTest, bdx_domain_idx)
     std::set<int> cpu_set_node1 = {18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35,
                                    54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71};
     for (auto cpu_idx : cpu_set_node0) {
-        EXPECT_EQ(0, topo.domain_idx(GEOPM_DOMAIN_BOARD_MEMORY, cpu_idx));
+        EXPECT_EQ(0, topo.domain_idx(GEOPM_DOMAIN_MEMORY, cpu_idx));
     }
     for (auto cpu_idx : cpu_set_node1) {
-        EXPECT_EQ(1, topo.domain_idx(GEOPM_DOMAIN_BOARD_MEMORY, cpu_idx));
+        EXPECT_EQ(1, topo.domain_idx(GEOPM_DOMAIN_MEMORY, cpu_idx));
     }
 
     for (int cpu_idx = 0; cpu_idx < 72; ++cpu_idx) {
         if (cpu_idx < 18) {
-            EXPECT_EQ(0, topo.domain_idx(GEOPM_DOMAIN_BOARD_ACCELERATOR, cpu_idx));
+            EXPECT_EQ(0, topo.domain_idx(GEOPM_DOMAIN_GPU, cpu_idx));
         }
         else if (cpu_idx < 36) {
-            EXPECT_EQ(1, topo.domain_idx(GEOPM_DOMAIN_BOARD_ACCELERATOR, cpu_idx));
+            EXPECT_EQ(1, topo.domain_idx(GEOPM_DOMAIN_GPU, cpu_idx));
         }
         else if (cpu_idx < 54) {
-            EXPECT_EQ(2, topo.domain_idx(GEOPM_DOMAIN_BOARD_ACCELERATOR, cpu_idx));
+            EXPECT_EQ(2, topo.domain_idx(GEOPM_DOMAIN_GPU, cpu_idx));
         }
         else {
-            EXPECT_EQ(3, topo.domain_idx(GEOPM_DOMAIN_BOARD_ACCELERATOR, cpu_idx));
+            EXPECT_EQ(3, topo.domain_idx(GEOPM_DOMAIN_GPU, cpu_idx));
         }
     }
 
     for (int cpu_idx = 0; cpu_idx < 72; ++cpu_idx) {
         if (cpu_idx < 9) {
-            EXPECT_EQ(0, topo.domain_idx(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, cpu_idx));
+            EXPECT_EQ(0, topo.domain_idx(GEOPM_DOMAIN_GPU_CHIP, cpu_idx));
         }
         else if (cpu_idx < 18) {
-            EXPECT_EQ(1, topo.domain_idx(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, cpu_idx));
+            EXPECT_EQ(1, topo.domain_idx(GEOPM_DOMAIN_GPU_CHIP, cpu_idx));
         }
         else if (cpu_idx < 27) {
-            EXPECT_EQ(2, topo.domain_idx(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, cpu_idx));
+            EXPECT_EQ(2, topo.domain_idx(GEOPM_DOMAIN_GPU_CHIP, cpu_idx));
         }
         else if (cpu_idx < 36) {
-            EXPECT_EQ(3, topo.domain_idx(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, cpu_idx));
+            EXPECT_EQ(3, topo.domain_idx(GEOPM_DOMAIN_GPU_CHIP, cpu_idx));
         }
         else if (cpu_idx < 45) {
-            EXPECT_EQ(4, topo.domain_idx(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, cpu_idx));
+            EXPECT_EQ(4, topo.domain_idx(GEOPM_DOMAIN_GPU_CHIP, cpu_idx));
         }
         else if (cpu_idx < 54) {
-            EXPECT_EQ(5, topo.domain_idx(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, cpu_idx));
+            EXPECT_EQ(5, topo.domain_idx(GEOPM_DOMAIN_GPU_CHIP, cpu_idx));
         }
         else if (cpu_idx < 63) {
-            EXPECT_EQ(6, topo.domain_idx(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, cpu_idx));
+            EXPECT_EQ(6, topo.domain_idx(GEOPM_DOMAIN_GPU_CHIP, cpu_idx));
         }
         else {
-            EXPECT_EQ(7, topo.domain_idx(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, cpu_idx));
+            EXPECT_EQ(7, topo.domain_idx(GEOPM_DOMAIN_GPU_CHIP, cpu_idx));
         }
     }
 
-    EXPECT_THROW(topo.domain_idx(GEOPM_DOMAIN_PACKAGE_MEMORY, 0), geopm::Exception);
+    EXPECT_THROW(topo.domain_idx(GEOPM_DOMAIN_PACKAGE_INTEGRATED_MEMORY, 0), geopm::Exception);
 
-    EXPECT_THROW(topo.domain_idx(GEOPM_DOMAIN_PACKAGE_MEMORY, 0), geopm::Exception);
-    EXPECT_THROW(topo.domain_idx(GEOPM_DOMAIN_BOARD_NIC, 0), geopm::Exception);
-    EXPECT_THROW(topo.domain_idx(GEOPM_DOMAIN_PACKAGE_NIC, 0), geopm::Exception);
-    EXPECT_THROW(topo.domain_idx(GEOPM_DOMAIN_PACKAGE_ACCELERATOR, 0), geopm::Exception);
+    EXPECT_THROW(topo.domain_idx(GEOPM_DOMAIN_PACKAGE_INTEGRATED_MEMORY, 0), geopm::Exception);
+    EXPECT_THROW(topo.domain_idx(GEOPM_DOMAIN_NIC, 0), geopm::Exception);
+    EXPECT_THROW(topo.domain_idx(GEOPM_DOMAIN_PACKAGE_INTEGRATED_NIC, 0), geopm::Exception);
+    EXPECT_THROW(topo.domain_idx(GEOPM_DOMAIN_PACKAGE_INTEGRATED_GPU, 0), geopm::Exception);
 }
 
 TEST_F(PlatformTopoTest, bdx_is_nested_domain)
 {
     write_lscpu(m_bdx_lscpu_str);
-    PlatformTopoImp topo(m_lscpu_file_name, *m_accelerator_topo);
+    PlatformTopoImp topo(m_lscpu_file_name, *m_gpu_topo);
 
     // domains containing CPUs
     EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_BOARD));
@@ -511,7 +511,7 @@ TEST_F(PlatformTopoTest, bdx_is_nested_domain)
     EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_CORE));
     EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_CPU));
     // needed to support POWER_DRAM signal
-    EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_BOARD_MEMORY));
+    EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_MEMORY));
 
     // domains containing cores
     EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_CORE, GEOPM_DOMAIN_BOARD));
@@ -532,44 +532,44 @@ TEST_F(PlatformTopoTest, bdx_is_nested_domain)
     EXPECT_FALSE(topo.is_nested_domain(GEOPM_DOMAIN_BOARD, GEOPM_DOMAIN_CPU));
 
     // other domains in the board
-    EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_BOARD_NIC, GEOPM_DOMAIN_BOARD));
-    EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR, GEOPM_DOMAIN_BOARD));
-    EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_BOARD_MEMORY, GEOPM_DOMAIN_BOARD));
-    EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_PACKAGE_NIC, GEOPM_DOMAIN_BOARD));
-    EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_PACKAGE_ACCELERATOR, GEOPM_DOMAIN_BOARD));
-    EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_PACKAGE_MEMORY, GEOPM_DOMAIN_BOARD));
+    EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_NIC, GEOPM_DOMAIN_BOARD));
+    EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_GPU, GEOPM_DOMAIN_BOARD));
+    EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_MEMORY, GEOPM_DOMAIN_BOARD));
+    EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_PACKAGE_INTEGRATED_NIC, GEOPM_DOMAIN_BOARD));
+    EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_PACKAGE_INTEGRATED_GPU, GEOPM_DOMAIN_BOARD));
+    EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_PACKAGE_INTEGRATED_MEMORY, GEOPM_DOMAIN_BOARD));
 
     // other domains in the package
-    EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_PACKAGE_NIC, GEOPM_DOMAIN_PACKAGE));
-    EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_PACKAGE_ACCELERATOR, GEOPM_DOMAIN_PACKAGE));
-    EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_PACKAGE_MEMORY, GEOPM_DOMAIN_PACKAGE));
+    EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_PACKAGE_INTEGRATED_NIC, GEOPM_DOMAIN_PACKAGE));
+    EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_PACKAGE_INTEGRATED_GPU, GEOPM_DOMAIN_PACKAGE));
+    EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_PACKAGE_INTEGRATED_MEMORY, GEOPM_DOMAIN_PACKAGE));
 
-    /// @todo: Add accelerator & subdevice
+    /// @todo: Add gpu & subdevice
 
 }
 
 TEST_F(PlatformTopoTest, bdx_domain_nested)
 {
-    /// @todo: Add accelerator & subdevice
-    const int num_accelerator = 4;
-    EXPECT_CALL(*m_accelerator_topo, num_accelerator()).
-                WillRepeatedly(Return(num_accelerator));
-    EXPECT_CALL(*m_accelerator_topo, num_accelerator(
-                GEOPM_DOMAIN_BOARD_ACCELERATOR)).WillRepeatedly(Return(num_accelerator));
-    std::set<int> cpu_affin[num_accelerator];
-    for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
-        for (int cpu_idx = 0; cpu_idx < 72/num_accelerator; ++cpu_idx) {
-            cpu_affin[accel_idx].insert(cpu_idx+(accel_idx*18));
+    /// @todo: Add gpu & subdevice
+    const int num_gpu = 4;
+    EXPECT_CALL(*m_gpu_topo, num_gpu()).
+                WillRepeatedly(Return(num_gpu));
+    EXPECT_CALL(*m_gpu_topo, num_gpu(
+                GEOPM_DOMAIN_GPU)).WillRepeatedly(Return(num_gpu));
+    std::set<int> cpu_affin[num_gpu];
+    for (int gpu_idx = 0; gpu_idx < num_gpu; ++gpu_idx) {
+        for (int cpu_idx = 0; cpu_idx < 72/num_gpu; ++cpu_idx) {
+            cpu_affin[gpu_idx].insert(cpu_idx+(gpu_idx*18));
         }
-        EXPECT_CALL(*m_accelerator_topo,
-                    cpu_affinity_ideal(accel_idx)).
-                    WillRepeatedly(Return(cpu_affin[accel_idx]));
-        EXPECT_CALL(*m_accelerator_topo,
-                    cpu_affinity_ideal(GEOPM_DOMAIN_BOARD_ACCELERATOR,
-                    accel_idx)).WillRepeatedly(Return(cpu_affin[accel_idx]));
+        EXPECT_CALL(*m_gpu_topo,
+                    cpu_affinity_ideal(gpu_idx)).
+                    WillRepeatedly(Return(cpu_affin[gpu_idx]));
+        EXPECT_CALL(*m_gpu_topo,
+                    cpu_affinity_ideal(GEOPM_DOMAIN_GPU,
+                    gpu_idx)).WillRepeatedly(Return(cpu_affin[gpu_idx]));
     }
     write_lscpu(m_bdx_lscpu_str);
-    PlatformTopoImp topo(m_lscpu_file_name, *m_accelerator_topo);
+    PlatformTopoImp topo(m_lscpu_file_name, *m_gpu_topo);
 
     std::set<int> cpu_set_board;
     std::set<int> core_set_board;
@@ -623,12 +623,12 @@ TEST_F(PlatformTopoTest, bdx_domain_nested)
 
     idx_set_expect = cpu_set_socket[0];
     idx_set_actual = topo.domain_nested(GEOPM_DOMAIN_CPU,
-                                        GEOPM_DOMAIN_BOARD_MEMORY, 0);
+                                        GEOPM_DOMAIN_MEMORY, 0);
     EXPECT_EQ(idx_set_expect, idx_set_actual);
 
     idx_set_expect = cpu_set_socket[1];
     idx_set_actual = topo.domain_nested(GEOPM_DOMAIN_CPU,
-                                        GEOPM_DOMAIN_BOARD_MEMORY, 1);
+                                        GEOPM_DOMAIN_MEMORY, 1);
     EXPECT_EQ(idx_set_expect, idx_set_actual);
 
     // Core
@@ -680,21 +680,21 @@ TEST_F(PlatformTopoTest, bdx_domain_nested)
 
     // Board Memory
     idx_set_expect = {0, 1};
-    idx_set_actual = topo.domain_nested(GEOPM_DOMAIN_BOARD_MEMORY,
+    idx_set_actual = topo.domain_nested(GEOPM_DOMAIN_MEMORY,
                                         GEOPM_DOMAIN_BOARD, 0);
     EXPECT_EQ(idx_set_expect, idx_set_actual);
 
     idx_set_expect = {0};
-    idx_set_actual = topo.domain_nested(GEOPM_DOMAIN_BOARD_MEMORY,
-                                        GEOPM_DOMAIN_BOARD_MEMORY, 0);
+    idx_set_actual = topo.domain_nested(GEOPM_DOMAIN_MEMORY,
+                                        GEOPM_DOMAIN_MEMORY, 0);
     EXPECT_EQ(idx_set_expect, idx_set_actual);
 
     idx_set_expect = {1};
-    idx_set_actual = topo.domain_nested(GEOPM_DOMAIN_BOARD_MEMORY,
-                                        GEOPM_DOMAIN_BOARD_MEMORY, 1);
+    idx_set_actual = topo.domain_nested(GEOPM_DOMAIN_MEMORY,
+                                        GEOPM_DOMAIN_MEMORY, 1);
     EXPECT_EQ(idx_set_expect, idx_set_actual);
 
-    EXPECT_THROW(topo.domain_nested(GEOPM_DOMAIN_BOARD_MEMORY,
+    EXPECT_THROW(topo.domain_nested(GEOPM_DOMAIN_MEMORY,
                                     GEOPM_DOMAIN_CPU, 0),
                  Exception);
 
@@ -704,21 +704,21 @@ TEST_F(PlatformTopoTest, bdx_domain_nested)
                                         GEOPM_DOMAIN_BOARD, 0);
     EXPECT_EQ(idx_set_expect, idx_set_actual);
 
-    // Board Accelerator
-    for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
+    // Board GPU
+    for (int gpu_idx = 0; gpu_idx < num_gpu; ++gpu_idx) {
         EXPECT_EQ(topo.domain_nested(GEOPM_DOMAIN_CPU,
-                                           GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx), cpu_affin[accel_idx]);
+                                           GEOPM_DOMAIN_GPU, gpu_idx), cpu_affin[gpu_idx]);
     }
 
     // TODO: still to be implemented
     EXPECT_THROW(topo.domain_nested(GEOPM_DOMAIN_CPU,
-                                    GEOPM_DOMAIN_PACKAGE_MEMORY, 0), Exception);
+                                    GEOPM_DOMAIN_PACKAGE_INTEGRATED_MEMORY, 0), Exception);
     EXPECT_THROW(topo.domain_nested(GEOPM_DOMAIN_CPU,
-                                    GEOPM_DOMAIN_PACKAGE_ACCELERATOR, 0), Exception);
+                                    GEOPM_DOMAIN_PACKAGE_INTEGRATED_GPU, 0), Exception);
     EXPECT_THROW(topo.domain_nested(GEOPM_DOMAIN_CPU,
-                                    GEOPM_DOMAIN_PACKAGE_NIC, 0), Exception);
+                                    GEOPM_DOMAIN_PACKAGE_INTEGRATED_NIC, 0), Exception);
     EXPECT_THROW(topo.domain_nested(GEOPM_DOMAIN_CPU,
-                                    GEOPM_DOMAIN_BOARD_NIC, 0), Exception);
+                                    GEOPM_DOMAIN_NIC, 0), Exception);
 }
 
 TEST_F(PlatformTopoTest, parse_error)
@@ -755,15 +755,15 @@ TEST_F(PlatformTopoTest, parse_error)
         "On-line CPU(s) mask:   0x1\n";
 
     write_lscpu(lscpu_missing_cpu);
-    EXPECT_THROW(PlatformTopoImp topo(m_lscpu_file_name, *m_accelerator_topo), Exception);
+    EXPECT_THROW(PlatformTopoImp topo(m_lscpu_file_name, *m_gpu_topo), Exception);
     write_lscpu(lscpu_missing_thread);
-    EXPECT_THROW(PlatformTopoImp topo(m_lscpu_file_name, *m_accelerator_topo), Exception);
+    EXPECT_THROW(PlatformTopoImp topo(m_lscpu_file_name, *m_gpu_topo), Exception);
     write_lscpu(lscpu_missing_cores);
-    EXPECT_THROW(PlatformTopoImp topo(m_lscpu_file_name, *m_accelerator_topo), Exception);
+    EXPECT_THROW(PlatformTopoImp topo(m_lscpu_file_name, *m_gpu_topo), Exception);
     write_lscpu(lscpu_missing_sockets);
-    EXPECT_THROW(PlatformTopoImp topo(m_lscpu_file_name, *m_accelerator_topo), Exception);
+    EXPECT_THROW(PlatformTopoImp topo(m_lscpu_file_name, *m_gpu_topo), Exception);
     write_lscpu(lscpu_missing_numa);
-    PlatformTopoImp topo(m_lscpu_file_name, *m_accelerator_topo);
+    PlatformTopoImp topo(m_lscpu_file_name, *m_gpu_topo);
 
     std::string lscpu_non_number =
         "CPU(s):                xx\n"
@@ -772,7 +772,7 @@ TEST_F(PlatformTopoTest, parse_error)
         "Socket(s):             1\n"
         "NUMA node(s):          1\n";
     write_lscpu(lscpu_non_number);
-    EXPECT_THROW(PlatformTopoImp topo(m_lscpu_file_name, *m_accelerator_topo), Exception);
+    EXPECT_THROW(PlatformTopoImp topo(m_lscpu_file_name, *m_gpu_topo), Exception);
 
     std::string lscpu_invalid =
         "CPU(s):                2\n"
@@ -781,7 +781,7 @@ TEST_F(PlatformTopoTest, parse_error)
         "Socket(s):             2\n"
         "NUMA node(s):          1\n";
     write_lscpu(lscpu_invalid);
-    EXPECT_THROW(PlatformTopoImp topo(m_lscpu_file_name, *m_accelerator_topo), Exception);
+    EXPECT_THROW(PlatformTopoImp topo(m_lscpu_file_name, *m_gpu_topo), Exception);
 }
 
 TEST_F(PlatformTopoTest, domain_type_to_name)
@@ -793,13 +793,13 @@ TEST_F(PlatformTopoTest, domain_type_to_name)
     EXPECT_EQ("package", PlatformTopo::domain_type_to_name(GEOPM_DOMAIN_PACKAGE));
     EXPECT_EQ("core", PlatformTopo::domain_type_to_name(GEOPM_DOMAIN_CORE));
     EXPECT_EQ("cpu", PlatformTopo::domain_type_to_name(GEOPM_DOMAIN_CPU));
-    EXPECT_EQ("board_memory", PlatformTopo::domain_type_to_name(GEOPM_DOMAIN_BOARD_MEMORY));
-    EXPECT_EQ("package_memory", PlatformTopo::domain_type_to_name(GEOPM_DOMAIN_PACKAGE_MEMORY));
-    EXPECT_EQ("board_nic", PlatformTopo::domain_type_to_name(GEOPM_DOMAIN_BOARD_NIC));
-    EXPECT_EQ("package_nic", PlatformTopo::domain_type_to_name(GEOPM_DOMAIN_PACKAGE_NIC));
-    EXPECT_EQ("board_accelerator", PlatformTopo::domain_type_to_name(GEOPM_DOMAIN_BOARD_ACCELERATOR));
-    EXPECT_EQ("package_accelerator", PlatformTopo::domain_type_to_name(GEOPM_DOMAIN_PACKAGE_ACCELERATOR));
-    EXPECT_EQ("board_accelerator_chip", PlatformTopo::domain_type_to_name(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP));
+    EXPECT_EQ("memory", PlatformTopo::domain_type_to_name(GEOPM_DOMAIN_MEMORY));
+    EXPECT_EQ("package_integrated_memory", PlatformTopo::domain_type_to_name(GEOPM_DOMAIN_PACKAGE_INTEGRATED_MEMORY));
+    EXPECT_EQ("nic", PlatformTopo::domain_type_to_name(GEOPM_DOMAIN_NIC));
+    EXPECT_EQ("package_integrated_nic", PlatformTopo::domain_type_to_name(GEOPM_DOMAIN_PACKAGE_INTEGRATED_NIC));
+    EXPECT_EQ("gpu", PlatformTopo::domain_type_to_name(GEOPM_DOMAIN_GPU));
+    EXPECT_EQ("package_integrated_gpu", PlatformTopo::domain_type_to_name(GEOPM_DOMAIN_PACKAGE_INTEGRATED_GPU));
+    EXPECT_EQ("gpu_chip", PlatformTopo::domain_type_to_name(GEOPM_DOMAIN_GPU_CHIP));
 }
 
 TEST_F(PlatformTopoTest, domain_name_to_type)
@@ -810,13 +810,13 @@ TEST_F(PlatformTopoTest, domain_name_to_type)
     EXPECT_EQ(GEOPM_DOMAIN_PACKAGE, PlatformTopo::domain_name_to_type("package"));
     EXPECT_EQ(GEOPM_DOMAIN_CORE, PlatformTopo::domain_name_to_type("core"));
     EXPECT_EQ(GEOPM_DOMAIN_CPU, PlatformTopo::domain_name_to_type("cpu"));
-    EXPECT_EQ(GEOPM_DOMAIN_BOARD_MEMORY, PlatformTopo::domain_name_to_type("board_memory"));
-    EXPECT_EQ(GEOPM_DOMAIN_PACKAGE_MEMORY, PlatformTopo::domain_name_to_type("package_memory"));
-    EXPECT_EQ(GEOPM_DOMAIN_BOARD_NIC, PlatformTopo::domain_name_to_type("board_nic"));
-    EXPECT_EQ(GEOPM_DOMAIN_PACKAGE_NIC, PlatformTopo::domain_name_to_type("package_nic"));
-    EXPECT_EQ(GEOPM_DOMAIN_BOARD_ACCELERATOR, PlatformTopo::domain_name_to_type("board_accelerator"));
-    EXPECT_EQ(GEOPM_DOMAIN_PACKAGE_ACCELERATOR, PlatformTopo::domain_name_to_type("package_accelerator"));
-    EXPECT_EQ(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, PlatformTopo::domain_name_to_type("board_accelerator_chip"));
+    EXPECT_EQ(GEOPM_DOMAIN_MEMORY, PlatformTopo::domain_name_to_type("memory"));
+    EXPECT_EQ(GEOPM_DOMAIN_PACKAGE_INTEGRATED_MEMORY, PlatformTopo::domain_name_to_type("package_integrated_memory"));
+    EXPECT_EQ(GEOPM_DOMAIN_NIC, PlatformTopo::domain_name_to_type("nic"));
+    EXPECT_EQ(GEOPM_DOMAIN_PACKAGE_INTEGRATED_NIC, PlatformTopo::domain_name_to_type("package_integrated_nic"));
+    EXPECT_EQ(GEOPM_DOMAIN_GPU, PlatformTopo::domain_name_to_type("gpu"));
+    EXPECT_EQ(GEOPM_DOMAIN_PACKAGE_INTEGRATED_GPU, PlatformTopo::domain_name_to_type("package_integrated_gpu"));
+    EXPECT_EQ(GEOPM_DOMAIN_GPU_CHIP, PlatformTopo::domain_name_to_type("gpu_chip"));
 }
 
 TEST_F(PlatformTopoTest, create_cache)
@@ -921,7 +921,7 @@ TEST_F(PlatformTopoTest, check_file_too_old)
     stat(m_lscpu_file_name.c_str(), &file_stat);
     ASSERT_EQ(old_time, file_stat.st_mtime);
 
-    PlatformTopoImp topo(m_lscpu_file_name, *m_accelerator_topo);
+    PlatformTopoImp topo(m_lscpu_file_name, *m_gpu_topo);
 
     // Verify the cache was regenerated because it was too old
     stat(m_lscpu_file_name.c_str(), &file_stat);
@@ -947,7 +947,7 @@ TEST_F(PlatformTopoTest, check_file_bad_perms)
     mode_t actual_perms = file_stat.st_mode & ~S_IFMT;
     ASSERT_EQ(bad_perms, actual_perms);
 
-    PlatformTopoImp topo(m_lscpu_file_name, *m_accelerator_topo);
+    PlatformTopoImp topo(m_lscpu_file_name, *m_gpu_topo);
 
     // Verify that the cache was regenerated because it had the wrong permissions
     stat(m_lscpu_file_name.c_str(), &file_stat);

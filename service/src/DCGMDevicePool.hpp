@@ -38,29 +38,29 @@ namespace geopm
             DCGMDevicePool() = default;
             virtual ~DCGMDevicePool() = default;
 
-            /// @brief Number of accelerators that support DCGM on the platform.
-            /// @return Number of accelerators supported by DCGM.
+            /// @brief Number of gpus that support DCGM on the platform.
+            /// @return Number of gpus supported by DCGM.
             virtual int num_device() const = 0;
             /// @brief Get the value for the provided geopm_field_id.
             ///
             /// This value should not change unless update_field_value
             /// has been called
             ///
-            /// @param [in] accel_idx The index indicating a particular
-            ///        accelerator.
+            /// @param [in] gpu_idx The index indicating a particular
+            ///        gpu.
             ///
             /// @param [in] field_id One of the m_field_id_e values
             ///
             /// @return The value for the specified field
-            virtual double sample(int accel_idx, int field_id) const = 0;
+            virtual double sample(int gpu_idx, int field_id) const = 0;
 
-            /// @brief Query DCGM for the latest value for an accelerator.
+            /// @brief Query DCGM for the latest value for an gpu.
             ///        Note that this is the last value DCGM cached.  This
             ///        updates the DCGM device pool stored value that is provided
             ///        via the sample_field_value function
-            /// @param [in] accel_idx The index indicating a particular
-            ///        accelerator.
-            virtual void update(int accel_idx) = 0;
+            /// @param [in] gpu_idx The index indicating a particular
+            ///        gpu.
+            virtual void update(int gpu_idx) = 0;
             /// @brief Set field update rate for DCGM devices.  This is the rate
             //         at which the DCGM engine will poll for metrics
             /// @param [in] field_update_rate DCGM update rate in microseconds.

@@ -47,7 +47,7 @@ namespace geopm
         , m_is_batch_read(false)
         , m_signal_available({{M_NAME_PREFIX + "GPUCHIP_FREQUENCY_STATUS", {
                                   "Compute/GPU chip domain current frequency in hertz",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                  GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
                                   string_format_double,
                                   {},
@@ -60,7 +60,7 @@ namespace geopm
                                       //       declaration and does not change per
                                       //       signal.
                                       return this->m_levelzero_device_pool.frequency_status(
-                                                   GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                                   GEOPM_DOMAIN_GPU_CHIP,
                                                    domain_idx,
                                                    geopm::LevelZero::M_DOMAIN_COMPUTE);
                                   },
@@ -68,14 +68,14 @@ namespace geopm
                                   }},
                               {M_NAME_PREFIX + "GPUCHIP_FREQUENCY_MAX_AVAIL", {
                                   "Compute/GPU chip domain maximum available frequency in hertz",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                  GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
                                   string_format_double,
                                   {},
                                   [this](unsigned int domain_idx) -> double
                                   {
                                       return this->m_levelzero_device_pool.frequency_max(
-                                                   GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                                   GEOPM_DOMAIN_GPU_CHIP,
                                                    domain_idx,
                                                    geopm::LevelZero::M_DOMAIN_COMPUTE);
                                   },
@@ -83,14 +83,14 @@ namespace geopm
                                   }},
                               {M_NAME_PREFIX + "GPUCHIP_FREQUENCY_MIN_AVAIL", {
                                   "Compute/GPU chip domain minimum available frequency in hertz",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                  GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
                                   string_format_double,
                                   {},
                                   [this](unsigned int domain_idx) -> double
                                   {
                                       return this->m_levelzero_device_pool.frequency_min(
-                                                   GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                                   GEOPM_DOMAIN_GPU_CHIP,
                                                    domain_idx,
                                                    geopm::LevelZero::M_DOMAIN_COMPUTE);
                                   },
@@ -98,14 +98,14 @@ namespace geopm
                                   }},
                               {M_NAME_PREFIX + "GPUCHIP_FREQUENCY_MAX_CONTROL", {
                                   "Compute/GPU chip domain current maximum frequency requested in hertz",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                  GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
                                   string_format_double,
                                   {},
                                   [this](unsigned int domain_idx) -> double
                                   {
                                       return (this->m_levelzero_device_pool.frequency_range(
-                                                   GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                                   GEOPM_DOMAIN_GPU_CHIP,
                                                    domain_idx,
                                                    geopm::LevelZero::M_DOMAIN_COMPUTE)).second;
                                   },
@@ -113,14 +113,14 @@ namespace geopm
                                   }},
                               {M_NAME_PREFIX + "GPUCHIP_FREQUENCY_MIN_CONTROL", {
                                   "Compute/GPU chip domain current minimum frequency requested in hertz",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                  GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
                                   string_format_double,
                                   {},
                                   [this](unsigned int domain_idx) -> double
                                   {
                                       return (this->m_levelzero_device_pool.frequency_range(
-                                                   GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                                   GEOPM_DOMAIN_GPU_CHIP,
                                                    domain_idx,
                                                    geopm::LevelZero::M_DOMAIN_COMPUTE)).first;
                                   },
@@ -128,14 +128,14 @@ namespace geopm
                                   }},
                               {M_NAME_PREFIX + "GPU_ENERGY", {
                                   "GPU energy in Joules",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                  GEOPM_DOMAIN_GPU,
                                   Agg::average,
                                   string_format_double,
                                   {},
                                   [this](unsigned int domain_idx) -> double
                                   {
                                       return this->m_levelzero_device_pool.energy(
-                                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                                   GEOPM_DOMAIN_GPU,
                                                    domain_idx,
                                                    geopm::LevelZero::M_DOMAIN_ALL);
                                   },
@@ -144,14 +144,14 @@ namespace geopm
                               {M_NAME_PREFIX + "GPU_ENERGY_TIMESTAMP", {
                                   "GPU energy timestamp in seconds"
                                   "\nValue cached on LEVELZERO::ENERGY read",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                  GEOPM_DOMAIN_GPU,
                                   Agg::average,
                                   string_format_double,
                                   {},
                                   [this](unsigned int domain_idx) -> double
                                   {
                                       return this->m_levelzero_device_pool.energy_timestamp(
-                                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                                   GEOPM_DOMAIN_GPU,
                                                    domain_idx,
                                                    geopm::LevelZero::M_DOMAIN_ALL);
                                   },
@@ -159,14 +159,14 @@ namespace geopm
                                   }},
                               {M_NAME_PREFIX + "GPUCHIP_MEMORY_FREQUENCY_STATUS", {
                                   "Compute/GPU chip domain memory current frequency in hertz",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                  GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
                                   string_format_double,
                                   {},
                                   [this](unsigned int domain_idx) -> double
                                   {
                                       return this->m_levelzero_device_pool.frequency_status(
-                                                   GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                                   GEOPM_DOMAIN_GPU_CHIP,
                                                    domain_idx,
                                                    geopm::LevelZero::M_DOMAIN_MEMORY);
                                   },
@@ -174,14 +174,14 @@ namespace geopm
                                   }},
                               {M_NAME_PREFIX + "GPUCHIP_MEMORY_FREQUENCY_MAX_AVAIL", {
                                   "Compute/GPU chip domain memory maximum frequency available in hertz",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                  GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
                                   string_format_double,
                                   {},
                                   [this](unsigned int domain_idx) -> double
                                   {
                                       return this->m_levelzero_device_pool.frequency_max(
-                                                   GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                                   GEOPM_DOMAIN_GPU_CHIP,
                                                    domain_idx,
                                                    geopm::LevelZero::M_DOMAIN_MEMORY);
                                   },
@@ -189,14 +189,14 @@ namespace geopm
                                   }},
                               {M_NAME_PREFIX + "GPUCHIP_MEMORY_FREQUENCY_MIN_AVAIL", {
                                   "Compute/GPU chip domain memory minimum frequency in hertz",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                  GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
                                   string_format_double,
                                   {},
                                   [this](unsigned int domain_idx) -> double
                                   {
                                       return this->m_levelzero_device_pool.frequency_min(
-                                                   GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                                   GEOPM_DOMAIN_GPU_CHIP,
                                                    domain_idx,
                                                    geopm::LevelZero::M_DOMAIN_MEMORY);
                                   },
@@ -204,14 +204,14 @@ namespace geopm
                                   }},
                               {M_NAME_PREFIX + "GPU_POWER_LIMIT_DEFAULT", {
                                   "Default power limit in Watts",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                  GEOPM_DOMAIN_GPU,
                                   Agg::average,
                                   string_format_double,
                                   {},
                                   [this](unsigned int domain_idx) -> double
                                   {
                                       return this->m_levelzero_device_pool.power_limit_tdp(
-                                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                                   GEOPM_DOMAIN_GPU,
                                                    domain_idx,
                                                    geopm::LevelZero::M_DOMAIN_ALL);
                                   },
@@ -219,14 +219,14 @@ namespace geopm
                                   }},
                               {M_NAME_PREFIX + "GPU_POWER_LIMIT_MIN_AVAIL", {
                                   "Minimum available power limit in Watts",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                  GEOPM_DOMAIN_GPU,
                                   Agg::average,
                                   string_format_double,
                                   {},
                                   [this](unsigned int domain_idx) -> double
                                   {
                                       return this->m_levelzero_device_pool.power_limit_min(
-                                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                                   GEOPM_DOMAIN_GPU,
                                                    domain_idx,
                                                    geopm::LevelZero::M_DOMAIN_ALL);
                                   },
@@ -234,14 +234,14 @@ namespace geopm
                                   }},
                               {M_NAME_PREFIX + "GPU_POWER_LIMIT_MAX_AVAIL", {
                                   "Maximum available power limit in Watts",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                  GEOPM_DOMAIN_GPU,
                                   Agg::average,
                                   string_format_double,
                                   {},
                                   [this](unsigned int domain_idx) -> double
                                   {
                                       return this->m_levelzero_device_pool.power_limit_max(
-                                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                                   GEOPM_DOMAIN_GPU,
                                                    domain_idx,
                                                    geopm::LevelZero::M_DOMAIN_ALL);
                                   },
@@ -249,14 +249,14 @@ namespace geopm
                                   }},
                               {M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME", {
                                   "Compute/GPU chip active time",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                  GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
                                   string_format_double,
                                   {},
                                   [this](unsigned int domain_idx) -> double
                                   {
                                       return this->m_levelzero_device_pool.active_time(
-                                                   GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                                   GEOPM_DOMAIN_GPU_CHIP,
                                                    domain_idx,
                                                    geopm::LevelZero::M_DOMAIN_ALL);
                                   },
@@ -265,14 +265,14 @@ namespace geopm
                               {M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME_TIMESTAMP", {
                                   "Compute/GPU chip active time reading timestamp"
                                   "\nValue cached on LEVELZERO::GPUCHIP_ACTIVE_TIME read",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                  GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
                                   string_format_double,
                                   {},
                                   [this](unsigned int domain_idx) -> double
                                   {
                                       return this->m_levelzero_device_pool.active_time_timestamp(
-                                                   GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                                   GEOPM_DOMAIN_GPU_CHIP,
                                                    domain_idx,
                                                    geopm::LevelZero::M_DOMAIN_ALL);
                                   },
@@ -280,14 +280,14 @@ namespace geopm
                                   }},
                               {M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME_COMPUTE", {
                                   "Compute/GPU chip domain compute engine active time",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                  GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
                                   string_format_double,
                                   {},
                                   [this](unsigned int domain_idx) -> double
                                   {
                                       return this->m_levelzero_device_pool.active_time(
-                                                   GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                                   GEOPM_DOMAIN_GPU_CHIP,
                                                    domain_idx,
                                                    geopm::LevelZero::M_DOMAIN_COMPUTE);
                                   },
@@ -296,14 +296,14 @@ namespace geopm
                               {M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME_COMPUTE_TIMESTAMP", {
                                   "Compute/GPU chip domain compute engine active time reading timestamp"
                                   "\nValue cached on LEVELZERO::GPUCHIP_ACTIVE_TIME_COMPUTE read",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                  GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
                                   string_format_double,
                                   {},
                                   [this](unsigned int domain_idx) -> double
                                   {
                                       return this->m_levelzero_device_pool.active_time_timestamp(
-                                                   GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                                   GEOPM_DOMAIN_GPU_CHIP,
                                                    domain_idx,
                                                    geopm::LevelZero::M_DOMAIN_COMPUTE);
                                   },
@@ -311,14 +311,14 @@ namespace geopm
                                   }},
                               {M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME_COPY", {
                                   "Compute/GPU chip domain copy engine active time",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                  GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
                                   string_format_double,
                                   {},
                                   [this](unsigned int domain_idx) -> double
                                   {
                                       return this->m_levelzero_device_pool.active_time(
-                                                   GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                                   GEOPM_DOMAIN_GPU_CHIP,
                                                    domain_idx,
                                                    geopm::LevelZero::M_DOMAIN_MEMORY);
                                   },
@@ -327,14 +327,14 @@ namespace geopm
                               {M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME_COPY_TIMESTAMP", {
                                   "Compute/GPU chip domain copy engine active time timestamp"
                                   "\nValue cached on LEVELZERO::GPUCHIP_ACTIVE_TIME_COPY read",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                  GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
                                   string_format_double,
                                   {},
                                   [this](unsigned int domain_idx) -> double
                                   {
                                       return this->m_levelzero_device_pool.active_time_timestamp(
-                                                   GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                                   GEOPM_DOMAIN_GPU_CHIP,
                                                    domain_idx,
                                                    geopm::LevelZero::M_DOMAIN_MEMORY);
                                   },
@@ -343,14 +343,14 @@ namespace geopm
                               {M_NAME_PREFIX + "GPUCHIP_FREQUENCY_CONTROL", {
                                   "Compute/GPU chip domain current requested frequency in hertz"
                                   "\nReadings are valid only after writing to this control",
-                                  GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                  GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
                                   string_format_double,
                                   {},
                                   [this](unsigned int domain_idx) -> double
                                   {
                                       auto range_pair =  this->m_levelzero_device_pool.frequency_range(
-                                                               GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                                               GEOPM_DOMAIN_GPU_CHIP,
                                                                domain_idx,
                                                                geopm::LevelZero::M_DOMAIN_COMPUTE);
                                       return range_pair.first == range_pair.second ? range_pair.first
@@ -362,21 +362,21 @@ namespace geopm
         , m_control_available({{M_NAME_PREFIX + "GPUCHIP_FREQUENCY_MIN_CONTROL", {
                                     "Sets the compute/GPU chip domain frequency minimum in hertz",
                                     {},
-                                    GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                    GEOPM_DOMAIN_GPU_CHIP,
                                     Agg::average,
                                     string_format_double
                                     }},
                                {M_NAME_PREFIX + "GPUCHIP_FREQUENCY_MAX_CONTROL", {
                                     "Sets the compute/GPU chip domain frequency maximum in hertz",
                                     {},
-                                    GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                    GEOPM_DOMAIN_GPU_CHIP,
                                     Agg::average,
                                     string_format_double
                                     }},
                                {M_NAME_PREFIX + "GPUCHIP_FREQUENCY_CONTROL", {
                                     "Sets the compute/GPU chip fomain frequency both min and max in hertz",
                                     {},
-                                    GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                                    GEOPM_DOMAIN_GPU_CHIP,
                                     Agg::average,
                                     string_format_double
                                     }}
@@ -853,20 +853,20 @@ namespace geopm
     void LevelZeroIOGroup::save_control(void)
     {
         for (int domain_idx = 0;
-             domain_idx < m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP);
+             domain_idx < m_platform_topo.num_domain(GEOPM_DOMAIN_GPU_CHIP);
              ++domain_idx) {
 
             try {
                 // Currently only the levelzero compute domain control is supported.
                 // As new controls are added they should be included
                 m_frequency_range.push_back(m_levelzero_device_pool.frequency_range(
-                                            GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP, domain_idx,
+                                            GEOPM_DOMAIN_GPU_CHIP, domain_idx,
                                             geopm::LevelZero::M_DOMAIN_COMPUTE));
             }
             catch (const geopm::Exception &ex) {
                 throw Exception("LevelZeroIOGroup::" + std::string(__func__) + ": "
                                 + " Failed to fetch frequency control range for "
-                                " BOARD_ACCELERATOR_CHIP domain " + std::to_string(domain_idx),
+                                " GPU_CHIP domain " + std::to_string(domain_idx),
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
         }
@@ -877,12 +877,12 @@ namespace geopm
     void LevelZeroIOGroup::restore_control(void)
     {
         for (int domain_idx = 0;
-             domain_idx < m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP);
+             domain_idx < m_platform_topo.num_domain(GEOPM_DOMAIN_GPU_CHIP);
              ++domain_idx) {
             try {
                 // Currently only the levelzero compute domain control is supported.
                 // As new controls are added they should be included
-                m_levelzero_device_pool.frequency_control(GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP,
+                m_levelzero_device_pool.frequency_control(GEOPM_DOMAIN_GPU_CHIP,
                                         domain_idx, geopm::LevelZero::M_DOMAIN_COMPUTE,
                                         m_frequency_range.at(domain_idx).first,
                                         m_frequency_range.at(domain_idx).second);
@@ -891,7 +891,7 @@ namespace geopm
 #ifdef GEOPM_DEBUG
                 std::cerr << "Warning: <geopm> LevelZeroIOGroup: Failed to "
                              "restore frequency control settings for "
-                             "BOARD_ACCELERATOR_CHIP domain " << std::to_string(domain_idx)
+                             "GPU_CHIP domain " << std::to_string(domain_idx)
                              << ".  Exception: " << ex.what()
                              << std::endl;
 #endif
