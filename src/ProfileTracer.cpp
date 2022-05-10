@@ -78,9 +78,6 @@ namespace geopm
                 case EVENT_EPOCH_COUNT:
                     result = string_format_integer(value);
                     break;
-                case EVENT_HINT:
-                    result = hint_name(value);
-                    break;
                 default:
                     result = "INVALID";
                     GEOPM_DEBUG_ASSERT(false, "ProfileTracer::event_format(): event out of range");

@@ -29,7 +29,6 @@ class ProxyEpochRecordFilterTest : public ::testing::Test
 void ProxyEpochRecordFilterTest::SetUp()
 {
     m_in_events = {
-        geopm::EVENT_HINT,
         geopm::EVENT_REGION_ENTRY,
         geopm::EVENT_REGION_EXIT,
         geopm::EVENT_PROFILE,

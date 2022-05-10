@@ -277,12 +277,10 @@ TEST_F(ApplicationSamplerTest, string_conversion)
     EXPECT_EQ("REGION_ENTRY", geopm::event_name(geopm::EVENT_REGION_ENTRY));
     EXPECT_EQ("REGION_EXIT", geopm::event_name(geopm::EVENT_REGION_EXIT));
     EXPECT_EQ("EPOCH_COUNT", geopm::event_name(geopm::EVENT_EPOCH_COUNT));
-    EXPECT_EQ("HINT", geopm::event_name(geopm::EVENT_HINT));
 
     EXPECT_EQ(geopm::EVENT_REGION_ENTRY, geopm::event_type("REGION_ENTRY"));
     EXPECT_EQ(geopm::EVENT_REGION_EXIT, geopm::event_type("REGION_EXIT"));
     EXPECT_EQ(geopm::EVENT_EPOCH_COUNT, geopm::event_type("EPOCH_COUNT"));
-    EXPECT_EQ(geopm::EVENT_HINT, geopm::event_type("HINT"));
 
     EXPECT_THROW(geopm::event_name(99), geopm::Exception);
     EXPECT_THROW(geopm::event_type("INVALID"), geopm::Exception);

@@ -300,7 +300,6 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/TreeCommTest.send_receive \
               test/gtest_links/ValidateRecordTest.valid_stream \
               test/gtest_links/ValidateRecordTest.process_change \
-              test/gtest_links/ValidateRecordTest.hint_invalid \
               test/gtest_links/ValidateRecordTest.entry_exit_paired \
               test/gtest_links/ValidateRecordTest.entry_exit_unpaired \
               test/gtest_links/ValidateRecordTest.double_entry \

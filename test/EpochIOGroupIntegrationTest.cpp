@@ -53,7 +53,6 @@ enum {
     REGION_ENTRY = geopm::EVENT_REGION_ENTRY,
     REGION_EXIT = geopm::EVENT_REGION_EXIT,
     EPOCH_COUNT = geopm::EVENT_EPOCH_COUNT,
-    HINT = geopm::EVENT_HINT,
 };
 
 TEST_F(EpochIOGroupIntegrationTest, read_batch_count)
