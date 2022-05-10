@@ -613,20 +613,20 @@ TEST_F(EnvironmentTest, signal_parser)
     GEOPM_EXPECT_THROW_MESSAGE(
         ((EnvironmentImp*)m_env.get())->signal_parser(environment_variable_contents),
         GEOPM_ERROR_INVALID,
-        (std::string("PlatformTopo::domain_name_to_type(): unrecognized domain_name: ") + std::string("invalid"))
+        "PlatformTopo::domain_name_to_type(): unrecognized domain_name: invalid"
     );
 
     environment_variable_contents = "CPU_FREQUENCY_MIN,CPUINFO::FREQ_STEP@package@core,TIME@core";
     GEOPM_EXPECT_THROW_MESSAGE(
         ((EnvironmentImp*)m_env.get())->signal_parser(environment_variable_contents),
         GEOPM_ERROR_INVALID,
-        (std::string("EnvironmentImp::signal_parser(): Environment trace extension contains signals with multiple \"@\" characters."))
+        "EnvironmentImp::signal_parser(): Environment trace extension contains signals with multiple \"@\" characters."
     );
 
     environment_variable_contents = "CPU_FREQUENCY_MIN,NUM_VACUUM_TUBES@package,TIME@core";
     GEOPM_EXPECT_THROW_MESSAGE(
         ((EnvironmentImp*)m_env.get())->signal_parser(environment_variable_contents),
         GEOPM_ERROR_INVALID,
-        (std::string("Invalid signal : ").append("NUM_VACUUM_TUBES"))
+        "Invalid signal : NUM_VACUUM_TUBES"
     );
 }
