@@ -593,7 +593,7 @@ TEST_F(EnvironmentTest, signal_parser)
         {"TIME", geopm_domain_e::GEOPM_DOMAIN_BOARD}
     };
     environment_variable_contents = "CPU_FREQUENCY_MIN,CPUINFO::FREQ_STEP,TIME";
-    actual_signals = ((EnvironmentImp*)m_env.get())->signal_parser(environment_variable_contents);
+    actual_signals = dynamic_cast<EnvironmentImp*>(m_env.get())->signal_parser(environment_variable_contents);
     EXPECT_EQ(expected_signals, actual_signals);
 
     expected_signals = {
@@ -602,7 +602,7 @@ TEST_F(EnvironmentTest, signal_parser)
         {"TIME", geopm_domain_e::GEOPM_DOMAIN_CORE}
     };
     environment_variable_contents = "CPU_FREQUENCY_MIN,CPUINFO::FREQ_STEP@package,TIME@core";
-    actual_signals = ((EnvironmentImp*)m_env.get())->signal_parser(environment_variable_contents);
+    actual_signals = dynamic_cast<EnvironmentImp*>(m_env.get())->signal_parser(environment_variable_contents);
     EXPECT_EQ(expected_signals, actual_signals);
 
     expected_signals = {
@@ -611,21 +611,21 @@ TEST_F(EnvironmentTest, signal_parser)
     };
     environment_variable_contents = "CPUINFO::FREQ_STEP@invalid,TIME@invalid";
     GEOPM_EXPECT_THROW_MESSAGE(
-        ((EnvironmentImp*)m_env.get())->signal_parser(environment_variable_contents),
+        dynamic_cast<EnvironmentImp*>(m_env.get())->signal_parser(environment_variable_contents),
         GEOPM_ERROR_INVALID,
         "PlatformTopo::domain_name_to_type(): unrecognized domain_name: invalid"
     );
 
     environment_variable_contents = "CPU_FREQUENCY_MIN,CPUINFO::FREQ_STEP@package@core,TIME@core";
     GEOPM_EXPECT_THROW_MESSAGE(
-        ((EnvironmentImp*)m_env.get())->signal_parser(environment_variable_contents),
+        dynamic_cast<EnvironmentImp*>(m_env.get())->signal_parser(environment_variable_contents),
         GEOPM_ERROR_INVALID,
         "EnvironmentImp::signal_parser(): Environment trace extension contains signals with multiple \"@\" characters."
     );
 
     environment_variable_contents = "CPU_FREQUENCY_MIN,NUM_VACUUM_TUBES@package,TIME@core";
     GEOPM_EXPECT_THROW_MESSAGE(
-        ((EnvironmentImp*)m_env.get())->signal_parser(environment_variable_contents),
+        dynamic_cast<EnvironmentImp*>(m_env.get())->signal_parser(environment_variable_contents),
         GEOPM_ERROR_INVALID,
         "Invalid signal : NUM_VACUUM_TUBES"
     );
