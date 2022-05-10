@@ -281,41 +281,7 @@ class ActiveSessions(object):
     """
 
     SESSION_SCHEMA = """
-{
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "id": "https://geopm.github.io/active_session.schema.json",
-    "title": "ActiveSession",
-    "type": "object",
-    "properties": {
-      "client_pid": {
-        "type": "integer"
-      },
-      "reference_count": {
-        "type": "integer",
-        "minimum": 0
-      },
-      "signals": {
-        "type": "array",
-        "items": {
-          "type": "string"
-        }
-      },
-      "controls": {
-        "type": "array",
-        "items": {
-          "type": "string"
-        }
-      },
-      "watch_id": {
-        "type": "integer"
-      },
-      "batch_server": {
-        "type": "integer"
-      }
-    },
-    "required": ["client_pid", "signals", "controls"],
-    "additionalProperties": false
-}
+    @JSON_SCHEMA_ACTIVE_SESSIONS@
     """
 
     def __init__(self, run_path=GEOPM_SERVICE_RUN_PATH):

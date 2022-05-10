@@ -1,6 +1,6 @@
 {
     "$schema": "http://json-schema.org/draft-04/schema#",
-    "id": "https://geopm.github.io/active_session.schema.json",
+    "id": "https://geopm.github.io/active_sessions.schema.json",
     "title": "ActiveSession",
     "type": "object",
     "properties": {
@@ -28,7 +28,7 @@
       },
       "batch_server": {
         "type": "integer"
-      },
+      }
     },
     "required": ["client_pid", "signals", "controls"],
     "additionalProperties": false
