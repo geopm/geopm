@@ -37,7 +37,7 @@ class Access:
                 raise ee
         self._geopm_proxy = geopm_proxy
 
-    def set_group_signals(self, group, signals):
+    def set_group_signals(self, group, signals, is_dry_run, skip_check):
         """Call GEOPM D-Bus API to set signal access
 
         Sets the signal access list for a group while leaving the
@@ -53,6 +53,10 @@ class Access:
             signals (list(str)): List of all signal names that are
                                  allowed for the group or for the
                                  defaults.
+            is_dry_run (bool): True to run error checking without file
+                               modification
+            skip_check (bool): True if error checking is disabled
+
 
         Raises:
             RuntimeError: The user is not root, the group provided is
@@ -64,17 +68,19 @@ class Access:
             _, current_controls = self._geopm_proxy.PlatformGetGroupAccess(group)
         except DBusError as ee:
             raise RuntimeError('Failed to read group signal access list for specified group: {}'.format(group)) from ee
-        signals_supported, _ = self._geopm_proxy.PlatformGetAllAccess()
-        signals_requested = set(signals)
-        if not signals_requested.issubset(signals_supported):
-            missing = ', '.join(sorted(signals_requested.difference(signals_supported)))
-            raise RuntimeError(f'Requested access to signals that are not available: {missing}')
-        try:
-            self._geopm_proxy.PlatformSetGroupAccess(group, signals, current_controls)
-        except DBusError as ee:
-            raise RuntimeError('Failed to set group signal access list, try with sudo or as "root" user (requires CAP_SYS_ADMIN)') from ee
+        if not skip_check:
+            signals_supported, _ = self._geopm_proxy.PlatformGetAllAccess()
+            signals_requested = set(signals)
+            if not signals_requested.issubset(signals_supported):
+                missing = ', '.join(sorted(signals_requested.difference(signals_supported)))
+                raise RuntimeError(f'Requested access to signals that are not available: {missing}')
+        if not is_dry_run:
+            try:
+                self._geopm_proxy.PlatformSetGroupAccess(group, signals, current_controls)
+            except DBusError as ee:
+                raise RuntimeError('Failed to set group signal access list, try with sudo or as "root" user (requires CAP_SYS_ADMIN)') from ee
 
-    def set_group_controls(self, group, controls):
+    def set_group_controls(self, group, controls, is_dry_run, skip_check):
         """Call GEOPM D-Bus API to set control access
 
         Sets the control access list for a group while leaving the
@@ -90,6 +96,9 @@ class Access:
             controls (list(str)): List of all control names that are
                                  allowed for the group or for the
                                  defaults.
+            is_dry_run (bool): True to run error checking without file
+                               modification
+            skip_check (bool): True if error checking is disabled
 
         Raises:
             RuntimeError: The user is not root, the group provided is
@@ -101,15 +110,17 @@ class Access:
             current_signals, _ = self._geopm_proxy.PlatformGetGroupAccess(group)
         except DBusError as ee:
             raise RuntimeError('Failed to read group control access list for specified group: {}'.format(group)) from ee
-        _, controls_supported = self._geopm_proxy.PlatformGetAllAccess()
-        controls_requested = set(controls)
-        if not controls_requested.issubset(controls_supported):
-            missing = ', '.join(sorted(controls_requested.difference(controls_supported)))
-            raise RuntimeError(f'Requested access to controls that are not available: {missing}')
-        try:
-            self._geopm_proxy.PlatformSetGroupAccess(group, current_signals, controls)
-        except DBusError as ee:
-            raise RuntimeError('Failed to set group control access list, try with sudo or as "root" user (requires CAP_SYS_ADMIN)') from ee
+        if not skip_check:
+            _, controls_supported = self._geopm_proxy.PlatformGetAllAccess()
+            controls_requested = set(controls)
+            if not controls_requested.issubset(controls_supported):
+                missing = ', '.join(sorted(controls_requested.difference(controls_supported)))
+                raise RuntimeError(f'Requested access to controls that are not available: {missing}')
+        if not dry_run:
+            try:
+                self._geopm_proxy.PlatformSetGroupAccess(group, current_signals, controls)
+            except DBusError as ee:
+                raise RuntimeError('Failed to set group control access list, try with sudo or as "root" user (requires CAP_SYS_ADMIN)') from ee
 
     def get_all_signals(self):
         """Call GEOPM D-Bus API and return all supported signal names
@@ -213,7 +224,8 @@ class Access:
         """
         return [ll.strip() for ll in sys.stdin.readlines() if ll.strip()]
 
-    def run(self, is_write, is_all, is_control, group):
+    def run(self, is_write, is_all, is_control, group, is_user, is_delete,
+            is_dry_run, skip_check):
         """Execute geopmaccess command line interface
 
         The inputs to this method are parsed from the command line
@@ -239,24 +251,37 @@ class Access:
                          then the default access list is used,
                          otherwise the parameter specifies the Unix
                          group.
+            is_user (bool): True if the default user access list
+                            should be printed rather than the calling
+                            process' access list.
+            is_delete (bool): True to remove an access list file.
+            is_dry_run (bool): True to run error checking without file
+                               modification
+            skip_check (bool): True if error checking is disabled
 
         """
         output = None
         if is_write:
-            if is_all:
-                raise RuntimeError('Option -a/--all is not allowed if -w/--write is provided')
+            if is_all or is_delete:
+                raise RuntimeError('Option -a/--all and -D/--delete are not valid when -w/--write is provided')
             else:
                 if is_control:
-                    self.set_group_controls(group, self.read_stdin())
+                    self.set_group_controls(group, self.read_stdin(),
+                                            is_dry_run, skip_check)
                 else:
-                    self.set_group_signals(group, self.read_stdin())
+                    self.set_group_signals(group, self.read_stdin(),
+                                           is_dry_run, skip_check)
         else:
+            if is_dry_run or skip_check:
+                raise RuntimeError('-n/--dry-run, and -E/--skip-check not valid unless -w/--write is provided')
             if is_all:
                 if is_control:
                     output = self.get_all_controls()
                 else:
                     output = self.get_all_signals()
             else:
+                if is_user:
+                    group = ''
                 if is_control:
                     output = self.get_group_controls(group)
                 else:
@@ -274,19 +299,29 @@ def main():
     parser = ArgumentParser(description=main.__doc__)
     parser.add_argument('-c', '--controls', dest='controls', action='store_true', default=False,
                         help='Get or set access for controls, not signals')
-    parser_group_ga = parser.add_mutually_exclusive_group(required=False)
-    parser_group_ga.add_argument('-g', '--group', dest='group', type=str, default='',
-                                help='Read or write access for a Unix group (default is for all users)')
-    parser_group_ga.add_argument('-a', '--all', dest='all', action='store_true', default=False,
-                                 help='Print all available signals or controls on the system (invalid with -w)')
-    parser.add_argument('-w', '--write', dest='write', action='store_true', default=False,
-                        help='Write restricted access list for default user or a particular Unix group from standard input')
+    parser_group_uga = parser.add_mutually_exclusive_group(required=False)
+    parser_group_uga.add_argument('-u', '--user', dest='user', action='store_true', default=False,
+                                  help='Print default user access list')
+    parser_group_uga.add_argument('-g', '--group', dest='group', type=str, default='',
+                                 help='Read or write access for a Unix group (default is for all users)')
+    parser_group_uga.add_argument('-a', '--all', dest='all', action='store_true', default=False,
+                                  help='Print all available signals or controls on the system (invalid with -w)')
+    parser_group_wD = parser.add_mutually_exclusive_group(required=False)
+    parser_group_wD.add_argument('-w', '--write', dest='write', action='store_true', default=False,
+                                 help='Write restricted access list for default user or a particular Unix group')
+    parser_group_wD.add_argument('-D', '--delete', dest='delete', action='store_true', default=False,
+                                 help='Remove an access list for default user or a particular Unix Group')
+    parser_group_nE = parser.add_mutually_exclusive_group(required=False)
+    parser_group_nE.add_argument('-n', '--dry-run', dest='dry_run', action='store_true', default=False,
+                                 help='Do error checking on all user input, but do not modify configuration files')
+    parser_group_nE.add_argument('-E', '--skip-check', dest='skip_check', action='store_true', default=False,
+                                 help='Write access list to disk without error checking')
     args = parser.parse_args()
-
     try:
         acc = Access(SystemMessageBus().get_proxy('io.github.geopm',
                                                   '/io/github/geopm'))
-        output = acc.run(args.write, args.all, args.controls, args.group)
+        output = acc.run(args.write, args.all, args.controls, args.group,
+                         args.user, args.delete, args.dry_run, args.skip_check)
         if output:
             print(output)
     except RuntimeError as ee:

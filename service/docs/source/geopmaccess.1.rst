@@ -162,10 +162,10 @@ configuration files are modified when this option is specified.
 
 The ``-E`` / ``--skip-check`` option enables the creation of access
 lists in ``/etc/geopm-service`` without checking that the names in the
-access list correspond to signals or controls supported by an active
-GEOPM Service, or that any Unix user group provided is valid.  This
-enables the creation of the configuration file on a system where the
-GEOPM Service is not running.
+access list correspond to signals or controls supported by the active
+GEOPM Service.  This enables the creation of the configuration file on
+a system where the GEOPM Service does not support some signals or
+controls.
 
 Note that having signal or control names in an access list in
 ``/etc/geopm-service`` which are not valid on a particular system is
