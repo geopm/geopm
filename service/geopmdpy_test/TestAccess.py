@@ -29,7 +29,7 @@ class TestAccess(unittest.TestCase):
         return_value = (self._signals_expect,
                         self._controls_expect)
         self._geopm_proxy.PlatformGetGroupAccess = mock.Mock(return_value=return_value)
-        actual_result = self._access.run(False, False, False, '')
+        actual_result = self._access.run(False, False, False, '', False, False, False, False)
         self._geopm_proxy.PlatformGetGroupAccess.assert_called_once_with('')
         expected_result = '\n'.join(self._signals_expect)
         self.assertEqual(expected_result, actual_result)
@@ -43,7 +43,7 @@ class TestAccess(unittest.TestCase):
         return_value = (self._signals_expect,
                         self._controls_expect)
         self._geopm_proxy.PlatformGetGroupAccess = mock.Mock(return_value=return_value)
-        actual_result = self._access.run(False, False, True, '')
+        actual_result = self._access.run(False, False, True, '', False, False, False, False)
         self._geopm_proxy.PlatformGetGroupAccess.assert_called_once_with('')
         expected_result = '\n'.join(self._controls_expect)
         self.assertEqual(expected_result, actual_result)
@@ -57,7 +57,7 @@ class TestAccess(unittest.TestCase):
         return_value = (self._signals_expect,
                         self._controls_expect)
         self._geopm_proxy.PlatformGetGroupAccess = mock.Mock(return_value=return_value)
-        actual_result = self._access.run(False, False, False, 'test')
+        actual_result = self._access.run(False, False, False, 'test', False, False, False, False)
         self._geopm_proxy.PlatformGetGroupAccess.assert_called_once_with('test')
         expected_result = '\n'.join(self._signals_expect)
         self.assertEqual(expected_result, actual_result)
@@ -71,7 +71,7 @@ class TestAccess(unittest.TestCase):
         return_value = (self._signals_expect,
                         self._controls_expect)
         self._geopm_proxy.PlatformGetGroupAccess = mock.Mock(return_value=return_value)
-        actual_result = self._access.run(False, False, True, 'test')
+        actual_result = self._access.run(False, False, True, 'test', False, False, False, False)
         self._geopm_proxy.PlatformGetGroupAccess.assert_called_once_with('test')
         expected_result = '\n'.join(self._controls_expect)
         self.assertEqual(expected_result, actual_result)
@@ -85,7 +85,7 @@ class TestAccess(unittest.TestCase):
         return_value = (self._signals_expect,
                         self._controls_expect)
         self._geopm_proxy.PlatformGetAllAccess = mock.Mock(return_value=return_value)
-        actual_result = self._access.run(False, True, False, '')
+        actual_result = self._access.run(False, True, False, '', False, False, False, False)
         self._geopm_proxy.PlatformGetAllAccess.assert_called_once()
         expected_result = '\n'.join(self._signals_expect)
         self.assertEqual(expected_result, actual_result)
@@ -99,7 +99,7 @@ class TestAccess(unittest.TestCase):
         return_value = (self._signals_expect,
                         self._controls_expect)
         self._geopm_proxy.PlatformGetAllAccess = mock.Mock(return_value=return_value)
-        actual_result = self._access.run(False, True, True, '')
+        actual_result = self._access.run(False, True, True, '', False, False, False, False)
         self._geopm_proxy.PlatformGetAllAccess.assert_called_once()
         expected_result = '\n'.join(self._controls_expect)
         self.assertEqual(expected_result, actual_result)
@@ -116,7 +116,7 @@ class TestAccess(unittest.TestCase):
         self._geopm_proxy.PlatformGetGroupAccess = mock.Mock(return_value=return_value)
         self._geopm_proxy.PlatformGetAllAccess = mock.Mock(return_value=return_value)
         with mock.patch('sys.stdin.readlines', return_value=self._signals_expect):
-            self._access.run(True, False, False, '')
+            self._access.run(True, False, False, '', False, False, False, False)
             self._geopm_proxy.PlatformGetGroupAccess.assert_called_once_with('')
             self._geopm_proxy.PlatformSetGroupAccess.assert_called_once_with('',
                 self._signals_expect, self._controls_expect)
@@ -134,7 +134,7 @@ class TestAccess(unittest.TestCase):
         self._geopm_proxy.PlatformGetGroupAccess = mock.Mock(return_value=return_value)
         self._geopm_proxy.PlatformGetAllAccess = mock.Mock(return_value=return_value)
         with mock.patch('sys.stdin.readlines', return_value=self._controls_expect):
-            self._access.run(True, False, True, '')
+            self._access.run(True, False, True, '', False, False, False, False)
             self._geopm_proxy.PlatformGetGroupAccess.assert_called_once_with('')
             self._geopm_proxy.PlatformSetGroupAccess.assert_called_once_with('',
                 self._signals_expect, self._controls_expect)
@@ -153,7 +153,7 @@ class TestAccess(unittest.TestCase):
         err_msg = f'Requested access to signals that are not available: {", ".join(sorted(self._signals_expect))}'
         with mock.patch('sys.stdin.readlines', return_value=self._signals_expect):
             with self.assertRaisesRegex(RuntimeError, err_msg):
-                self._access.run(True, False, False, '')
+                self._access.run(True, False, False, '', False, False, False, False)
             self._geopm_proxy.PlatformGetGroupAccess.assert_called_once_with('')
             self._geopm_proxy.PlatformGetAllAccess.assert_called_once()
 
@@ -170,7 +170,7 @@ class TestAccess(unittest.TestCase):
         err_msg = f'Requested access to controls that are not available: {", ".join(sorted(self._controls_expect))}'
         with mock.patch('sys.stdin.readlines', return_value=self._controls_expect):
             with self.assertRaisesRegex(RuntimeError, err_msg):
-                self._access.run(True, False, True, '')
+                self._access.run(True, False, True, '', False, False, False, False)
             self._geopm_proxy.PlatformGetGroupAccess.assert_called_once_with('')
             self._geopm_proxy.PlatformGetAllAccess.assert_called_once()
 
@@ -186,7 +186,7 @@ class TestAccess(unittest.TestCase):
         self._geopm_proxy.PlatformGetGroupAccess = mock.Mock(return_value=return_value)
         self._geopm_proxy.PlatformGetAllAccess = mock.Mock(return_value=return_value)
         with mock.patch('sys.stdin.readlines', return_value=self._signals_expect):
-            self._access.run(True, False, False, 'test')
+            self._access.run(True, False, False, 'test', False, False, False, False)
             self._geopm_proxy.PlatformGetGroupAccess.assert_called_once_with('test')
             self._geopm_proxy.PlatformSetGroupAccess.assert_called_once_with('test',
                 self._signals_expect, self._controls_expect)
@@ -204,7 +204,7 @@ class TestAccess(unittest.TestCase):
         self._geopm_proxy.PlatformGetGroupAccess = mock.Mock(return_value=return_value)
         self._geopm_proxy.PlatformGetAllAccess = mock.Mock(return_value=return_value)
         with mock.patch('sys.stdin.readlines', return_value=self._controls_expect):
-            self._access.run(True, False, True, 'test')
+            self._access.run(True, False, True, 'test', False, False, False, False)
             self._geopm_proxy.PlatformGetGroupAccess.assert_called_once_with('test')
             self._geopm_proxy.PlatformSetGroupAccess.assert_called_once_with('test',
                 self._signals_expect, self._controls_expect)

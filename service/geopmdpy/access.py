@@ -116,7 +116,7 @@ class Access:
             if not controls_requested.issubset(controls_supported):
                 missing = ', '.join(sorted(controls_requested.difference(controls_supported)))
                 raise RuntimeError(f'Requested access to controls that are not available: {missing}')
-        if not dry_run:
+        if not is_dry_run:
             try:
                 self._geopm_proxy.PlatformSetGroupAccess(group, current_signals, controls)
             except DBusError as ee:

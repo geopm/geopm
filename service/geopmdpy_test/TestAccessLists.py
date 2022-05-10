@@ -173,26 +173,6 @@ default
         self.assertEqual([], signals)
         self.assertEqual(set(controls_expect), set(controls))
 
-    def test_set_group_access_invalid(self):
-        '''
-        Test that errors are encountered when there are no
-        allowed signals or controls.
-        '''
-        # Test no pio signals
-        signal = ['power']
-        err_msg = 'The service does not support any signals that match: "{}"'.format(signal[0])
-        with mock.patch('geopmdpy.pio.signal_names', return_value=[]), \
-             self.assertRaisesRegex(RuntimeError, err_msg):
-            self._access_lists.set_group_access('', signal, [])
-
-        # Test no pio signals or controls
-        control = ['power']
-        err_msg = 'The service does not support any controls that match: "{}"'.format(control[0])
-        with mock.patch('geopmdpy.pio.signal_names', return_value=[]), \
-             mock.patch('geopmdpy.pio.control_names', return_value=[]), \
-             self.assertRaisesRegex(RuntimeError, err_msg):
-            self._access_lists.set_group_access('', [], control)
-
     def test_get_user_access_empty(self):
         signals, controls = self._access_lists.get_user_access('')
         self.assertEqual([], signals)
