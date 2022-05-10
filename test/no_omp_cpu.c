@@ -34,7 +34,7 @@ int main(int argc, char **argv)
     int i, num_cpu = sysconf(_SC_NPROCESSORS_ONLN);
     cpu_set_t *no_omp = CPU_ALLOC(num_cpu);
     no_omp_cpu(num_cpu, no_omp);
-    printf("Free cpu list: ");
+    printf("Free CPU list: ");
     for (i = 0; i < num_cpu; ++i) {
         if (CPU_ISSET(i, no_omp)) {
             printf("%i ", i);

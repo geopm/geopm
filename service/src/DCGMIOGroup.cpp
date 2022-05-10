@@ -88,7 +88,7 @@ namespace geopm
                                     }}
                               })
     {
-        // confirm all DCGM devices correspond to a gpu
+        // confirm all DCGM devices correspond to a GPU
         if (m_dcgm_device_pool.num_device() != m_platform_topo.num_domain(GEOPM_DOMAIN_GPU)) {
             throw Exception("DCGMIOGroup::" + std::string(__func__) + ": "
                             "DCGM enabled device count does not match GPU count",

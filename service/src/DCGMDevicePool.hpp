@@ -38,8 +38,8 @@ namespace geopm
             DCGMDevicePool() = default;
             virtual ~DCGMDevicePool() = default;
 
-            /// @brief Number of gpus that support DCGM on the platform.
-            /// @return Number of gpus supported by DCGM.
+            /// @brief Number of GPUs that support DCGM on the platform.
+            /// @return Number of GPUs supported by DCGM.
             virtual int num_device() const = 0;
             /// @brief Get the value for the provided geopm_field_id.
             ///
@@ -47,19 +47,19 @@ namespace geopm
             /// has been called
             ///
             /// @param [in] gpu_idx The index indicating a particular
-            ///        gpu.
+            ///        GPU.
             ///
             /// @param [in] field_id One of the m_field_id_e values
             ///
             /// @return The value for the specified field
             virtual double sample(int gpu_idx, int field_id) const = 0;
 
-            /// @brief Query DCGM for the latest value for an gpu.
+            /// @brief Query DCGM for the latest value for an GPU.
             ///        Note that this is the last value DCGM cached.  This
             ///        updates the DCGM device pool stored value that is provided
             ///        via the sample_field_value function
             /// @param [in] gpu_idx The index indicating a particular
-            ///        gpu.
+            ///        GPU.
             virtual void update(int gpu_idx) = 0;
             /// @brief Set field update rate for DCGM devices.  This is the rate
             //         at which the DCGM engine will poll for metrics

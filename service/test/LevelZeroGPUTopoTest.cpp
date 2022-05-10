@@ -143,7 +143,7 @@ TEST_F(LevelZeroGPUTopoTest, eight_fiftysix_affinitization_config)
     }
 }
 
-//Test case: CPU count that is not evenly divisible by the gpu count
+//Test case: CPU count that is not evenly divisible by the GPU count
 TEST_F(LevelZeroGPUTopoTest, uneven_affinitization_config)
 {
     const int num_gpu = 3;

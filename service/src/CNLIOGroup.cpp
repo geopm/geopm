@@ -74,7 +74,7 @@ namespace geopm
                                    M_UNITS_JOULES,
                                    IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE}},
                               {"CNL::POWER_BOARD_CPU", {
-                                   "Point in time cpu power",
+                                   "Point in time CPU power",
                                    Agg::average,
                                    string_format_integer,
                                    get_formatted_file_reader(cpu_info_path + "/cpu_power", "W"),
@@ -83,7 +83,7 @@ namespace geopm
                                    M_UNITS_WATTS,
                                    IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE}},
                               {"CNL::ENERGY_BOARD_CPU", {
-                                   "Accumulated cpu energy",
+                                   "Accumulated CPU energy",
                                    Agg::sum,
                                    string_format_integer,
                                    get_formatted_file_reader(cpu_info_path + "/cpu_energy", "J"),

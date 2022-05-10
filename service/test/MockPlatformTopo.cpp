@@ -13,7 +13,7 @@ using ::testing::Return;
 std::shared_ptr<MockPlatformTopo> make_topo(int num_package, int num_core, int num_cpu)
 {
     if (num_core % num_package != 0 || num_cpu % num_core != 0) {
-        throw Exception("Cannot make MockPlatformTopo unless packages/cores/cpus divide evenly.",
+        throw Exception("Cannot make MockPlatformTopo unless packages/cores/CPUs divide evenly.",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
 

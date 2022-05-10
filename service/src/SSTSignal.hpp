@@ -28,7 +28,7 @@ namespace geopm
             /// @brief Create an SSTIO Signal.
             /// @param [in] sstio Interface through which SST interactions are handled.
             /// @param [in] signal_type Which SST interface to use.
-            /// @param [in] cpu_index Index of the cpu to which the mailbox
+            /// @param [in] cpu_index Index of the CPU to which the mailbox
             ///             read is being issued.
             /// @param [in] command Which SST interface command to issue.
             /// @param [in] subcommand Which SST interface subcommand to issue

@@ -544,13 +544,13 @@ TEST_F(PlatformTopoTest, bdx_is_nested_domain)
     EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_PACKAGE_INTEGRATED_GPU, GEOPM_DOMAIN_PACKAGE));
     EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_PACKAGE_INTEGRATED_MEMORY, GEOPM_DOMAIN_PACKAGE));
 
-    /// @todo: Add gpu & subdevice
+    /// @todo: Add GPU & subdevice
 
 }
 
 TEST_F(PlatformTopoTest, bdx_domain_nested)
 {
-    /// @todo: Add gpu & subdevice
+    /// @todo: Add GPU & subdevice
     const int num_gpu = 4;
     EXPECT_CALL(*m_gpu_topo, num_gpu()).
                 WillRepeatedly(Return(num_gpu));
@@ -866,7 +866,7 @@ TEST_F(PlatformTopoTest, call_c_wrappers)
     ASSERT_GT(0, geopm_topo_domain_idx(GEOPM_DOMAIN_BOARD, -1));
     // simple test for domain_idx()
     ASSERT_EQ(0, geopm_topo_domain_idx(GEOPM_DOMAIN_BOARD, 0));
-    // check that the cpus are indexed properly
+    // check that the CPUs are indexed properly
     int num_cpu = geopm_topo_num_domain(GEOPM_DOMAIN_CPU);
     ASSERT_LE(1, num_cpu);
     EXPECT_EQ(0, geopm_topo_domain_idx(GEOPM_DOMAIN_BOARD, num_cpu - 1));

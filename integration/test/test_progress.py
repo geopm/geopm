@@ -209,7 +209,7 @@ class TestIntegration_progress(unittest.TestCase):
             grouped_df = df.groupby(group_name)
             triad_post_df = grouped_df.get_group(triad_post_hash)
             name = 'REGION_PROGRESS-cpu-{}'.format(cpu)
-            err_msg = 'Bad fit for triad cpu {} progress'.format(cpu)
+            err_msg = 'Bad fit for triad CPU {} progress'.format(cpu)
             self.check_monotone(triad_post_df[name], err_msg)
             self.check_progress(triad_post_df['TIME'],
                                 triad_post_df[name],
@@ -230,7 +230,7 @@ class TestIntegration_progress(unittest.TestCase):
             grouped_df = df.groupby(group_name)
             dgemm_post_df = grouped_df.get_group(dgemm_post_hash)
             name = 'REGION_PROGRESS-cpu-{}'.format(cpu)
-            err_msg = 'Bad fit for dgemm cpu {} progress'.format(cpu)
+            err_msg = 'Bad fit for dgemm CPU {} progress'.format(cpu)
             self.check_monotone(dgemm_post_df[name], err_msg)
             self.check_progress(dgemm_post_df['TIME'],
                                 dgemm_post_df[name],

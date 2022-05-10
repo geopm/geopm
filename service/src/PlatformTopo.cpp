@@ -178,7 +178,7 @@ namespace geopm
                          GEOPM_DOMAIN_GPU_CHIP);
                 break;
             case GEOPM_DOMAIN_PACKAGE_INTEGRATED_GPU:
-                // @todo Add support for package gpus to PlatformTopo.
+                // @todo Add support for package GPUs to PlatformTopo.
                 result = 0;
                 break;
             case GEOPM_DOMAIN_INVALID:
@@ -292,12 +292,12 @@ namespace geopm
                     for (const auto &cpu_it : set_it) {
                         if (cpu_it == cpu_idx) {
                             result = numa_idx;
-                            // Find the lowest index numa node that contains the cpu.
+                            // Find the lowest index numa node that contains the CPU.
                             break;
                         }
                     }
                     if (result != -1) {
-                        // Find the lowest index numa node that contains the cpu.
+                        // Find the lowest index numa node that contains the CPU.
                         break;
                     }
                     ++numa_idx;
@@ -331,7 +331,7 @@ namespace geopm
             case GEOPM_DOMAIN_NIC:
             case GEOPM_DOMAIN_PACKAGE_INTEGRATED_NIC:
             case GEOPM_DOMAIN_PACKAGE_INTEGRATED_GPU:
-                /// @todo Add support for package memory NIC and package gpus to domain_idx() method.
+                /// @todo Add support for package memory NIC and package GPUs to domain_idx() method.
                 throw Exception("PlatformTopoImp::domain_idx() no support yet for PACKAGE_INTEGRATED_MEMORY, NIC, or GPU",
                                 GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
                 break;

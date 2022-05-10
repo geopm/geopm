@@ -124,7 +124,7 @@ class TestAffinity(unittest.TestCase):
 
     def test_affinity_4(self):
         '''
-        Tests that with 1 cpu per rank, app runs on all the cores, and
+        Tests that with 1 CPU per rank, app runs on all the cores, and
         geopm runs on a hyperthread of core 0.
         '''
         topo = self.xeon_topo
@@ -142,7 +142,7 @@ class TestAffinity(unittest.TestCase):
 
     def test_affinity_5(self):
         '''
-        Tests that with 2 cpus per rank, app runs on all the cores and
+        Tests that with 2 CPUs per rank, app runs on all the cores and
         first hyperthread, and geopm runs on core 0.
         '''
         topo = self.xeon_topo
@@ -160,7 +160,7 @@ class TestAffinity(unittest.TestCase):
 
     def test_affinity_6(self):
         '''
-        Tests that with 2 cpus per rank, app runs on all the cores and
+        Tests that with 2 CPUs per rank, app runs on all the cores and
         first hyperthread, and geopm runs on core 0.
         '''
         topo = self.default_topo

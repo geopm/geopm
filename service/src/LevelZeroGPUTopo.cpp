@@ -40,7 +40,7 @@ namespace geopm
             m_cpu_affinity_ideal_chip.resize(num_gpu_chip);
             unsigned int num_chip_per_gpu = num_gpu_chip / num_gpu;
 
-            // TODO: Add ideal cpu to gpu affinitization that isn't a simple split if needed.
+            // TODO: Add ideal CPU to GPU affinitization that isn't a simple split if needed.
             //       This may come from a call to oneAPI, LevelZero, etc
             for (unsigned int gpu_idx = 0; gpu_idx <  num_gpu; ++gpu_idx) {
                 int chip_idx = 0;

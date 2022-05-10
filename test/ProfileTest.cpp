@@ -217,6 +217,6 @@ TEST_F(ProfileTest, progress_multithread)
     }
     // TODO: make it an error to set values for other CPUs not
     // assigned to this process.  Does it also make sense to provide
-    // an API without cpu that calls through to all CPUs in cpu_set
+    // an API without CPU that calls through to all CPUs in cpu_set
     // for the Profile object?
 }

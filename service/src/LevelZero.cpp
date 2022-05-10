@@ -352,15 +352,15 @@ namespace geopm
 
     int LevelZeroImp::num_gpu() const
     {
-        //  TODO: this should be expanded to return all supported gpu types.
-        //  Right now that is only gpus
+        //  TODO: this should be expanded to return all supported GPU types.
+        //  Right now that is only GPUs
         return num_gpu(GEOPM_DOMAIN_GPU);
     }
 
     int LevelZeroImp::num_gpu(int domain_type) const
     {
-        //  TODO: this should be expanded to return all supported gpu types.
-        //  Right now that is only gpus
+        //  TODO: this should be expanded to return all supported GPU types.
+        //  Right now that is only GPUs
         int result = -1;
         switch(domain_type) {
             case GEOPM_DOMAIN_GPU:

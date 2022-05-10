@@ -45,8 +45,8 @@ void SSTIOGroupTest::SetUp()
     m_mock_save_ctl = std::make_shared<MockSaveControl>();
 
     for (int i = 0; i < m_num_cpu; ++i) {
-        /* Punit index doesn't necessarily equal cpu index. Make them different
-         * to make sure we calculate offsets based on punit instead of cpu.
+        /* Punit index doesn't necessarily equal CPU index. Make them different
+         * to make sure we calculate offsets based on punit instead of CPU.
          */
         ON_CALL(*m_sstio, get_punit_from_cpu(i)).WillByDefault(Return(i*2));
     }

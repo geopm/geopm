@@ -54,7 +54,7 @@ namespace geopm
                                   string_format_double
                                   }},
                               {M_NAME_PREFIX + "GPU_UTILIZATION", {
-                                  "Fraction of time the gpu operated on a kernel in the last set of driver samples",
+                                  "Fraction of time the GPU operated on a kernel in the last set of driver samples",
                                   {},
                                   GEOPM_DOMAIN_GPU,
                                   Agg::average,
@@ -135,9 +135,9 @@ namespace geopm
                                   string_format_double
                                   }},
                               {M_NAME_PREFIX + "GPU_CPU_ACTIVE_AFFINITIZATION", {
-                                  "Returns the associated gpu for a given CPU as determined by running processes."
-                                  "\n  If no gpus map to the CPU then -1 is returned"
-                                  "\n  If multiple gpus map to the CPU NAN is returned",
+                                  "Returns the associated GPU for a given CPU as determined by running processes."
+                                  "\n  If no GPUs map to the CPU then -1 is returned"
+                                  "\n  If multiple GPUs map to the CPU NAN is returned",
                                   {},
                                   GEOPM_DOMAIN_CPU,
                                   Agg::expect_same,
@@ -145,7 +145,7 @@ namespace geopm
                                   string_format_double
                                   }},
                               {M_NAME_PREFIX + "GPU_MEMORY_UTILIZATION", {
-                                  "Fraction of time the gpu memory was accessed in the last set of driver samples",
+                                  "Fraction of time the GPU memory was accessed in the last set of driver samples",
                                   {},
                                   GEOPM_DOMAIN_GPU,
                                   Agg::max,
@@ -201,7 +201,7 @@ namespace geopm
                                     string_format_double
                                     }},
                                {M_NAME_PREFIX + "GPU_POWER_LIMIT_CONTROL", {
-                                    "Sets gpu power limit in watts",
+                                    "Sets GPU power limit in watts",
                                     {},
                                     GEOPM_DOMAIN_GPU,
                                     Agg::sum,
@@ -248,7 +248,7 @@ namespace geopm
                 //       not prevent loading of the IO Group
 
                 throw Exception("NVMLIOGroup::" + std::string(__func__) +
-                                ": No supported frequencies found for gpu " + std::to_string(domain_idx),
+                                ": No supported frequencies found for GPU " + std::to_string(domain_idx),
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
 
@@ -405,7 +405,7 @@ namespace geopm
         for (int gpu_idx = 0; gpu_idx < m_platform_topo.num_domain(GEOPM_DOMAIN_GPU); ++gpu_idx) {
             std::vector<int> active_process_list = m_nvml_device_pool.active_process_list(gpu_idx);
             for (auto proc_itr : active_process_list) {
-                // If a process is associated with multiple gpus we have no good means of
+                // If a process is associated with multiple GPUs we have no good means of
                 // signaling the user beyond providing an error value (NAN).
                 if (!gpu_pid_map.count((pid_t)proc_itr)) {
                     gpu_pid_map[(pid_t)proc_itr] = gpu_idx;
@@ -418,7 +418,7 @@ namespace geopm
         return gpu_pid_map;
     }
 
-    // Parse PID to CPU affinitzation and use process list --> gpu map to get CPU --> gpu
+    // Parse PID to CPU affinitzation and use process list --> GPU map to get CPU --> GPU
     double NVMLIOGroup::cpu_gpu_affinity(int cpu_idx, std::map<pid_t, double> process_map) const
     {
         double result = -1;

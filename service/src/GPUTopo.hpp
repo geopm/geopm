@@ -17,14 +17,14 @@ namespace geopm
         public:
             GPUTopo() = default;
             virtual ~GPUTopo() = default;
-            /// @brief Number of gpus on the platform.
+            /// @brief Number of GPUs on the platform.
             /// @param [in] domain The GEOPM domain type
             virtual int num_gpu(void) const = 0;
             virtual int num_gpu(int domain) const = 0;
-            /// @brief CPU Affinitization set for a particular gpu
+            /// @brief CPU Affinitization set for a particular GPU
             /// @param [in] domain The GEOPM domain type
             /// @param [in] domain_idx The index indicating a particular
-            ///        gpu
+            ///        GPU
             virtual std::set<int> cpu_affinity_ideal(int domain_idx) const = 0;
             virtual std::set<int> cpu_affinity_ideal(int domain, int domain_idx) const = 0;
     };

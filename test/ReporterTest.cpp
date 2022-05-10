@@ -477,7 +477,7 @@ TEST_F(ReporterTest, generate)
 TEST_F(ReporterTest, generate_gpu)
 {
 
-    // gpu signals
+    // GPU signals
     EXPECT_CALL(*m_sample_agg, push_signal("GPU_ENERGY", GEOPM_DOMAIN_BOARD, 0))
         .WillOnce(Return(M_ENERGY_GPU_IDX));
     EXPECT_CALL(*m_sample_agg, push_signal("GPU_POWER", GEOPM_DOMAIN_BOARD, 0))

@@ -55,7 +55,7 @@ class TestPIO(unittest.TestCase):
         try:
             pio.write_control('CPU_FREQUENCY_CONTROL', 'package', 0, 1.0e9)
         except RuntimeError:
-            sys.stdout.write('<warning> failed to write cpu frequency\n')
+            sys.stdout.write('<warning> failed to write CPU frequency\n')
 
 if __name__ == '__main__':
     unittest.main()

@@ -27,7 +27,7 @@ namespace geopm
     {
         unsigned int num_gpu = m_nvml_device_pool.num_gpu();
         if (num_gpu == 0) {
-            std::cerr << "Warning: <geopm> NVMLGPUTopo: No NVML gpus detected.\n";
+            std::cerr << "Warning: <geopm> NVMLGPUTopo: No NVML GPUs detected.\n";
         }
         else {
             int cpu_remaining = 0;
@@ -49,8 +49,8 @@ namespace geopm
                 for (int cpu_idx = 0; cpu_idx < num_cpu; cpu_idx++) {
                     if (CPU_ISSET(cpu_idx, ideal_affinitization_mask_vec.at(gpu_idx))) {
                         if (CPU_ISSET(cpu_idx, affinitized_cpuset) == 0) {
-                            //if this is in this gpu mask and has not
-                            //been picked by another gpu
+                            //if this is in this GPU mask and has not
+                            //been picked by another GPU
                             CPU_SET(cpu_idx, affinitized_cpuset);
                             ++cpu_remaining;
                         }
@@ -67,9 +67,9 @@ namespace geopm
                     num_cpu_per_gpu = cpu_remaining % num_gpu;
                 }
 
-                // This is a greedy approach for mapping CPUs to gpus, and as such may result in some CPUs
+                // This is a greedy approach for mapping CPUs to GPUs, and as such may result in some CPUs
                 // not being affinitized at all.  A potential improvement is to always determine affinity
-                // for the gpu with the fewest possible CPUs in the gpu mask
+                // for the GPU with the fewest possible CPUs in the GPU mask
                 for (unsigned int gpu_idx = 0; gpu_idx <  num_gpu; ++gpu_idx) {
                     unsigned int gpu_cpu_count = 0;
                     for (int cpu_idx = 0;
@@ -93,7 +93,7 @@ namespace geopm
             if (cpu_remaining != 0) {
                 throw Exception("NVMLGPUTopo::" + std::string(__func__) +
                                 ": Failed to affinitize all valid CPUs to GPUs.  " +
-                                std::to_string(cpu_remaining) + " CPUs remain unassociated with any gpu.",
+                                std::to_string(cpu_remaining) + " CPUs remain unassociated with any GPU.",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
         }
