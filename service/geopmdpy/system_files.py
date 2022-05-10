@@ -31,7 +31,7 @@ import pwd
 import fcntl
 
 from . import pio
-
+from . import schemas
 
 GEOPM_SERVICE_RUN_PATH = '/run/geopm-service'
 GEOPM_SERVICE_CONFIG_PATH = '/etc/geopm-service'
@@ -46,9 +46,6 @@ GEOPM_SERVICE_CONFIG_PATH_PERM = 0o700
 
 """
 
-GEOPM_ACTIVE_SESSIONS_SCHEMA = """
-@JSON_SCHEMA_ACTIVE_SESSIONS@
-"""
 
 def secure_make_dirs(path, perm_mode=0o700):
     """Securely create a directory
@@ -277,11 +274,8 @@ class ActiveSessions(object):
     responsible for managing file access permissions, and atomic file
     creation.
 
-    The session files are stored in JSON format and follow this schema:
-
-    .. code-block:: json
-
-        @JSON_SCHEMA_ACTIVE_SESSIONS@
+    The session files are stored in JSON format and follow the
+    active session schema in geopmdpy.schemas.GEOPM_ACTIVE_SESSION_SCHEMA.
 
     """
 
@@ -340,7 +334,7 @@ class ActiveSessions(object):
         self._daemon_uid = os.getuid()
         self._daemon_gid = os.getgid()
         self._sessions = dict()
-        self._session_schema = json.loads(GEOPM_ACTIVE_SESSIONS_SCHEMA)
+        self._session_schema = json.loads(schemas.GEOPM_ACTIVE_SESSIONS_SCHEMA)
         secure_make_dirs(self._RUN_PATH,
                          perm_mode=GEOPM_SERVICE_RUN_PATH_PERM)
 
