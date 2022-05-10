@@ -438,7 +438,7 @@ SERIAL CLASS METHODS
 When controls are saved, the data is stored in JSON format with the following
 schema:
 
-.. literalinclude:: saved_controls.schema.json
+.. literalinclude:: ../../json_schemas/saved_controls.schema.json
     :language: json
 
 BATCH CLASS METHODS

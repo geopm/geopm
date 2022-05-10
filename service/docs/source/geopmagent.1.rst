@@ -37,7 +37,7 @@ given but ``-a`` is not, an error is reported.
 The JSON output generated when using the ``-a`` and ``-p`` options follows
 this schema:
 
-.. literalinclude:: geopmagent_policy.schema.json
+.. literalinclude:: ../../../json_schemas/geopmagent_policy.schema.json
     :language: json
 
 OPTIONS
