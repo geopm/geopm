@@ -74,8 +74,9 @@ EXTRA_DIST = .gitignore \
              geopmdpy/service.py \
              geopmdpy/session.py \
              geopmdpy/topo.py \
+             geopmdpy/schemas.py \
+             geopmdpy/schemas.py.in \
              geopmdpy/system_files.py \
-             geopmdpy/system_files.py.in \
              geopmdpy/version.py \
              geopmdpy/version.py.in \
              json_schemas/active_sessions.schema.json \
