@@ -147,18 +147,16 @@ deleted if the ``-g`` / ``--group`` option is not specified.
 Shared File Systems
 ~~~~~~~~~~~~~~~~~~~
 
-There are use cases where the ``/etc/geopm-service`` directory must
-be configured on a system where the GEOPM service is not active, or
-where the signals and controls available at configuration-time do not
-match what is available at run-time.  This is particularly common when
-the ``/etc/geopm-service`` directory is located on a shared file
-system to support distributed servers.
+There are use cases where the ``/etc/geopm-service`` directory must be
+configured on a system where the signals and controls available at
+configuration-time do not match what is available at run-time.  This
+is particularly common when the ``/etc/geopm-service`` directory is
+located on a shared file system to support distributed servers.
 
 The ``-n`` / ``--dry-run`` option may be specified to check the
 validity of a configuration at run-time without modifying files in the
 ``/etc`` file system.  This option will check the names provided to
-standard input, and will verify any Unix group name specified.  No
-configuration files are modified when this option is specified.
+standard input, however no files are opened for writing.
 
 The ``-E`` / ``--skip-check`` option enables the creation of access
 lists in ``/etc/geopm-service`` without checking that the names in the
