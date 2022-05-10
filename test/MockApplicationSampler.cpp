@@ -86,9 +86,6 @@ void MockApplicationSampler::inject_records(const std::string &record_trace)
             case geopm::EVENT_EPOCH_COUNT:
                 signal = std::stoi(cols[3]);
                 break;
-            case geopm::EVENT_HINT:
-                signal = geopm::hint_type(cols[3]);
-                break;
         }
         m_records.push_back({time, process, event, signal});
     }

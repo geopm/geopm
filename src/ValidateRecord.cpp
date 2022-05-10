@@ -55,14 +55,6 @@ namespace geopm
         }
         m_time = record.time;
         switch (record.event) {
-            case EVENT_HINT:
-                if ((record.signal == 0ULL) || // check that the hint is not empty
-                    (record.signal & (record.signal - 1)) || // check that only one bit is set
-                    (record.signal & ~GEOPM_MASK_REGION_HINT)) { // check that the hint is in the mask
-                    throw Exception("ValidateRecord::filter(): Hint out of range",
-                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-                }
-                break;
             case EVENT_REGION_ENTRY:
                 validate_hash(record.signal);
                 if (m_region_hash != GEOPM_REGION_HASH_INVALID) {

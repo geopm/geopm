@@ -28,7 +28,7 @@ void ValidateRecordTest::SetUp()
 {
     m_record.time = 2020.0;
     m_record.process = 42;
-    m_record.event = geopm::EVENT_HINT;
+    m_record.event = -1;
     m_record.signal = GEOPM_REGION_HINT_UNKNOWN;
 }
 
@@ -63,19 +63,6 @@ TEST_F(ValidateRecordTest, process_change)
     GEOPM_EXPECT_THROW_MESSAGE(m_filter.check(m_record),
                                GEOPM_ERROR_INVALID,
                                "Process has changed");
-}
-
-TEST_F(ValidateRecordTest, hint_invalid)
-{
-    m_record.signal = 1ULL;
-    GEOPM_EXPECT_THROW_MESSAGE(m_filter.check(m_record),
-                               GEOPM_ERROR_INVALID,
-                               "Hint out of range");
-    m_record.signal = GEOPM_REGION_HINT_NETWORK |
-                      GEOPM_REGION_HINT_COMPUTE;
-    GEOPM_EXPECT_THROW_MESSAGE(m_filter.check(m_record),
-                               GEOPM_ERROR_INVALID,
-                               "Hint out of range");
 }
 
 TEST_F(ValidateRecordTest, entry_exit_paired)

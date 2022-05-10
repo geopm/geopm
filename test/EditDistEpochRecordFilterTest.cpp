@@ -41,7 +41,6 @@ class EditDistEpochRecordFilterTest : public ::testing::Test
 void EditDistEpochRecordFilterTest::SetUp()
 {
     m_in_events = {
-        geopm::EVENT_HINT,
         geopm::EVENT_REGION_ENTRY,
         geopm::EVENT_REGION_EXIT,
         geopm::EVENT_PROFILE,

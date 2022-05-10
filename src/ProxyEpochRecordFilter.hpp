@@ -64,14 +64,11 @@ namespace geopm
             ///        the proxy-region matching the construction
             ///        arguments, then the output will be a vector of
             ///        length one containing the inferred
-            ///        M_EVENT_EPOCH_COUNT event.  If the input record
-            ///        is of type M_EVENT_HINT, then returned vector
-            ///        will be a vector of length one containing this
-            ///        record.  In all other cases the method returns
-            ///        an empty vector.
+            ///        M_EVENT_EPOCH_COUNT event.  In all other cases
+            ///        the method returns an empty vector.
             ///
             /// @return An empty vector or a vector of length one
-            ///         containing a record of an epoch or hint event.
+            ///         containing a record of an epoch event.
             std::vector<record_s> filter(const record_s &record);
             /// @brief Static function that will parse the filter
             ///        string for the proxy_epoch into the constructor
