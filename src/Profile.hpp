@@ -202,7 +202,7 @@ namespace geopm
             ///        calling thread is executing on, and caches the
             ///        result to be used in future calls.  This method
             ///        should be used by callers to report the correct
-            ///        cpu to thread_init() and thread_post().
+            ///        CPU to thread_init() and thread_post().
             static int get_cpu(void);
     };
 
@@ -321,7 +321,7 @@ namespace geopm
             ///        runtime.
             std::shared_ptr<ControlMessage> m_ctl_msg;
             int m_num_cpu;
-            /// @brief Holds the set of cpus that the rank process is
+            /// @brief Holds the set of CPUs that the rank process is
             ///        bound to.
             std::set<int> m_cpu_set;
             /// @brief Attaches to the shared memory region for

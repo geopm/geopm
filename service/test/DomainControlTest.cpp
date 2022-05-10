@@ -64,7 +64,7 @@ TEST_F(DomainControlTest, setup_batch)
 
 TEST_F(DomainControlTest, errors)
 {
-    // cannot construct if any cpu controls are null
+    // cannot construct if any CPU controls are null
     GEOPM_EXPECT_THROW_MESSAGE(DomainControl({m_cpu_0, nullptr}), GEOPM_ERROR_INVALID,
                                "internal controls cannot be null");
     // cannot call adjust before setup_batch

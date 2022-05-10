@@ -344,7 +344,7 @@ TEST_F(MSRIOGroupTest, push_signal)
     int idx3 = m_msrio_group->push_signal("INSTRUCTIONS_RETIRED", GEOPM_DOMAIN_CPU, 0);
     EXPECT_EQ(inst_idx_0, idx3);
 
-    // pushing same signal for another cpu gives different index
+    // pushing same signal for another CPU gives different index
     int inst_idx_1 = m_msrio_group->push_signal("MSR::FIXED_CTR0:INST_RETIRED_ANY", GEOPM_DOMAIN_CPU, 1);
     EXPECT_NE(inst_idx_0, inst_idx_1);
 
@@ -770,12 +770,12 @@ TEST_F(MSRIOGroupTest, adjust)
     uint64_t encoded_freq = 0xA00ULL;
     uint64_t encoded_power = 0x500ULL;
     {
-    // all cpus on core 0
+    // all CPUs on core 0
     EXPECT_CALL(*m_msrio, adjust(PERF_CTL_0, encoded_freq, perf_ctl_mask));
     EXPECT_CALL(*m_msrio, adjust(PERF_CTL_1, encoded_freq, perf_ctl_mask));
     EXPECT_CALL(*m_msrio, adjust(PERF_CTL_2, encoded_freq, perf_ctl_mask));
     EXPECT_CALL(*m_msrio, adjust(PERF_CTL_3, encoded_freq, perf_ctl_mask));
-    // all cpus on package 0
+    // all CPUs on package 0
     EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_0, encoded_power, pl1_limit_mask));
     EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_1, encoded_power, pl1_limit_mask));
     EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_2, encoded_power, pl1_limit_mask));
@@ -798,12 +798,12 @@ TEST_F(MSRIOGroupTest, adjust)
     {
     EXPECT_CALL(*m_msrio, write_batch()).Times(0);
 
-    // all cpus on core 0
+    // all CPUs on core 0
     EXPECT_CALL(*m_msrio, adjust(PERF_CTL_0, encoded_freq, perf_ctl_mask));
     EXPECT_CALL(*m_msrio, adjust(PERF_CTL_1, encoded_freq, perf_ctl_mask));
     EXPECT_CALL(*m_msrio, adjust(PERF_CTL_2, encoded_freq, perf_ctl_mask));
     EXPECT_CALL(*m_msrio, adjust(PERF_CTL_3, encoded_freq, perf_ctl_mask));
-    // all cpus on package 0
+    // all CPUs on package 0
     EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_0, encoded_power, pl1_limit_mask));
     EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_1, encoded_power, pl1_limit_mask));
     EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_2, encoded_power, pl1_limit_mask));
@@ -819,12 +819,12 @@ TEST_F(MSRIOGroupTest, adjust)
 
     // Set frequency to 5 GHz, power to 200W
     {
-    // all cpus on core 0
+    // all CPUs on core 0
     EXPECT_CALL(*m_msrio, adjust(PERF_CTL_0, encoded_freq, perf_ctl_mask));
     EXPECT_CALL(*m_msrio, adjust(PERF_CTL_1, encoded_freq, perf_ctl_mask));
     EXPECT_CALL(*m_msrio, adjust(PERF_CTL_2, encoded_freq, perf_ctl_mask));
     EXPECT_CALL(*m_msrio, adjust(PERF_CTL_3, encoded_freq, perf_ctl_mask));
-    // all cpus on package 0
+    // all CPUs on package 0
     EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_0, encoded_power, pl1_limit_mask));
     EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_1, encoded_power, pl1_limit_mask));
     EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_2, encoded_power, pl1_limit_mask));
@@ -849,7 +849,7 @@ TEST_F(MSRIOGroupTest, write_control)
     // Set frequency to 3 GHz immediately
     uint64_t perf_ctl_offset = 0x199;
     uint64_t perf_ctl_mask = 0xFF00;
-    // all cpus on core 0
+    // all CPUs on core 0
     {
     EXPECT_CALL(*m_msrio, write_msr(0, perf_ctl_offset, 0x1E00ULL, perf_ctl_mask));
     EXPECT_CALL(*m_msrio, write_msr(4, perf_ctl_offset, 0x1E00ULL, perf_ctl_mask));
@@ -858,7 +858,7 @@ TEST_F(MSRIOGroupTest, write_control)
     m_msrio_group->write_control("MSR::PERF_CTL:FREQ", GEOPM_DOMAIN_CORE, 0, 3e9);
     }
 
-    // all cpus on core 1
+    // all CPUs on core 1
     {
     EXPECT_CALL(*m_msrio, write_msr(1, perf_ctl_offset, 0x1E00ULL, perf_ctl_mask));
     EXPECT_CALL(*m_msrio, write_msr(5, perf_ctl_offset, 0x1E00ULL, perf_ctl_mask));
@@ -871,7 +871,7 @@ TEST_F(MSRIOGroupTest, write_control)
     {
     uint64_t pl1_limit_offset = 0x610;
     uint64_t pl1_limit_mask = 0x7FFF;
-    // all cpus on package 0
+    // all CPUs on package 0
     EXPECT_CALL(*m_msrio, write_msr(0, pl1_limit_offset, 0x960ULL, pl1_limit_mask));
     EXPECT_CALL(*m_msrio, write_msr(4, pl1_limit_offset, 0x960ULL, pl1_limit_mask));
     EXPECT_CALL(*m_msrio, write_msr(8, pl1_limit_offset, 0x960ULL, pl1_limit_mask));
@@ -888,7 +888,7 @@ TEST_F(MSRIOGroupTest, write_control)
     uint64_t uncore_ratio_offset = 0x620;
     uint64_t uncore_min_mask = 0x7F00;
     uint64_t uncore_max_mask = 0x7F;
-    // all cpus on package 0
+    // all CPUs on package 0
     EXPECT_CALL(*m_msrio, write_msr(0, uncore_ratio_offset, 0xF00ULL, uncore_min_mask));
     EXPECT_CALL(*m_msrio, write_msr(4, uncore_ratio_offset, 0xF00ULL, uncore_min_mask));
     EXPECT_CALL(*m_msrio, write_msr(8, uncore_ratio_offset, 0xF00ULL, uncore_min_mask));

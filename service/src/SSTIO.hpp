@@ -17,7 +17,7 @@ namespace geopm
     {
         public:
             /// @brief Interact with the mailbox on commands that are expected to return data
-            /// @param [in] cpu_index Index of the cpu to which the mailbox
+            /// @param [in] cpu_index Index of the CPU to which the mailbox
             ///             read is being issued
             /// @param [in] command Which SST mailbox command to issue
             /// @param [in] subcommand Which SST mailbox subcommand to issue
@@ -27,7 +27,7 @@ namespace geopm
                                       uint16_t subcommand, uint32_t subcommand_arg) = 0;
 
             /// @brief Interact with the mailbox on commands that are not expected to return data
-            /// @param [in] cpu_index Index of the cpu to which the mailbox
+            /// @param [in] cpu_index Index of the CPU to which the mailbox
             ///             read is being issued
             /// @param [in] command Which SST mailbox command to issue
             /// @param [in] subcommand Which SST mailbox subcommand to issue
@@ -45,13 +45,13 @@ namespace geopm
                                        uint32_t read_mask) = 0;
 
             /// @brief Interact with the mmio interface on commands that are expected to return data
-            /// @param [in] cpu_index Index of the cpu to which the MMIO
+            /// @param [in] cpu_index Index of the CPU to which the MMIO
             ///             read is being issued
             /// @param [in] register_offset Which SST MMIO register offset to use
             virtual int add_mmio_read(uint32_t cpu_index, uint16_t register_offset) = 0;
 
             /// @brief Interact with the mmio interface on commands that are not expected to return data
-            /// @param [in] cpu_index Index of the cpu to which the MMIO
+            /// @param [in] cpu_index Index of the CPU to which the MMIO
             ///             write is being issued
             /// @param [in] register_offset Which SST MMIO register offset to use
             /// @param [in] register_value Which SST MMIO register value to set
@@ -74,7 +74,7 @@ namespace geopm
             virtual void write_batch(void) = 0;
 
             /// @brief Immediately query the SST mailbox for a read operation.
-            /// @param [in] cpu_index Index of the cpu to which the mailbox
+            /// @param [in] cpu_index Index of the CPU to which the mailbox
             ///             read is being issued
             /// @param [in] command Which SST mailbox command to issue
             /// @param [in] subcommand Which SST mailbox subcommand to issue
@@ -84,7 +84,7 @@ namespace geopm
                                             uint16_t subcommand, uint32_t subcommand_arg) = 0;
 
             /// @brief Immediately query the SST mailbox for a write operation.
-            /// @param [in] cpu_index Index of the cpu to which the mailbox
+            /// @param [in] cpu_index Index of the CPU to which the mailbox
             ///             read is being issued
             /// @param [in] command Which SST mailbox command to issue
             /// @param [in] subcommand Which SST mailbox subcommand to issue
@@ -106,13 +106,13 @@ namespace geopm
                                          uint64_t write_mask) = 0;
 
             /// @brief Immediately read a value from the SST MMIO interface.
-            /// @param [in] cpu_index Index of the cpu to which the MMIO
+            /// @param [in] cpu_index Index of the CPU to which the MMIO
             ///             read is being issued
             /// @param [in] register_offset Which SST MMIO register offset to use
             virtual uint32_t read_mmio_once(uint32_t cpu_index, uint16_t register_offset) = 0;
 
             /// @brief Immediately write a value to the SST MMIO interface.
-            /// @param [in] cpu_index Index of the cpu to which the MMIO
+            /// @param [in] cpu_index Index of the CPU to which the MMIO
             ///             write is being issued
             /// @param [in] register_offset Which SST MMIO register offset to use
             /// @param [in] register_value Which SST MMIO register value to set

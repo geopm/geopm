@@ -34,7 +34,7 @@ def setup_run_args(parser):
                              'If not defined, app-type will determine setting.')
     parser.add_argument('--parres-gpus-per-node', dest='parres_gpus_per_node',
                         action='store', type=int,
-                        help='Number of physical gpus to reserve for the app. ' +
+                        help='Number of physical GPUs to reserve for the app. ' +
                              'If not defined, app-type will determine setting.')
     parser.add_argument('--parres-cores-per-rank', dest='parres_cores_per_rank',
                         action='store', type=int, default=1,
@@ -78,10 +78,10 @@ class ParresDgemmAppConf(apps.AppConf):
             gpus_per_node = mach.num_gpu()
         else:
             if (gpus_per_node != mach.num_gpu()):
-                raise RuntimeError('Number of requested gpus must be the same as the available # of gpus')
+                raise RuntimeError('Number of requested GPUs must be the same as the available # of GPUs')
 
         if not ( self._cores_per_node // self.get_cpu_per_rank() == gpus_per_node):           
-            raise RunTimeError('Can currently only handle the same # of ranks and gpus per node')
+            raise RunTimeError('Can currently only handle the same # of ranks and GPUs per node')
                 
         benchmark_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -198,11 +198,11 @@ class ParresNstreamAppConf(apps.AppConf):
             gpus_per_node = 1
         else:
             if (gpus_per_node > mach.num_gpu()):
-                raise RuntimeError('Number of requested gpus is more than the number ' +
-                                   'of available gpus: {}'.format(gpus_per_node))
+                raise RuntimeError('Number of requested GPUs is more than the number ' +
+                                   'of available GPUs: {}'.format(gpus_per_node))
 
         if not ( ( self._cores_per_node // self.get_cpu_per_rank() == 1 ) and gpus_per_node == 1):           
-            raise RunTimeError('Can currently only handle 1 ranks per node and 1 gpus per node')
+            raise RunTimeError('Can currently only handle 1 ranks per node and 1 GPUs per node')
                 
         benchmark_dir = os.path.dirname(os.path.abspath(__file__))
 

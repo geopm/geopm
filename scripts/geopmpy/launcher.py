@@ -1238,8 +1238,8 @@ class OMPIExecLauncher(Launcher):
             # Disable other affinity mechanisms
             aff_list = self.affinity_list(is_geopmctl)
             # affinity_list assumes that the second half of the available logical
-            # cpus are hyperthreads.  mpiexec from ompi encodes hyperthreads as
-            # odd numbered cpu id's.  We create a map below to address this mismatch
+            # CPUs are hyperthreads.  mpiexec from ompi encodes hyperthreads as
+            # odd numbered CPU id's.  We create a map below to address this mismatch
             # in location of hyperthreads
             core_to_slot_map = list()
             physical_cores = list(range(0, self.num_linux_cpu, self.thread_per_core))

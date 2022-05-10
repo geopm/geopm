@@ -74,7 +74,7 @@ the linux scheduler.
   returned by `sched_getaffinity(2) <http://man7.org/linux/man-pages/man2/sched_getaffinity.2.html>`_ but not affinitized by an
   OpenMP thread then the returned mask will have all bits set,
   allowing the Linux scheduler to dynamically affinitize the thread.
-  The cpu mask *woomp* that is created by this function can be used
+  The CPU mask *woomp* that is created by this function can be used
   with `pthread_attr_setaffinity_np(3) <http://man7.org/linux/man-pages/man3/pthread_attr_setaffinity_np.3.html>`_ to modify the attributes
   passed to ``geopm_ctl_pthread``\ () so that the pthread created is
   affinitized to CPUs that do not have an OpenMP thread affinity.

@@ -145,7 +145,7 @@ void PlatformIOTest::SetUp()
     m_override_iogroup->set_valid_controls({{"MODE", GEOPM_DOMAIN_BOARD},
                                             {"TEMP", GEOPM_DOMAIN_BOARD}});
 
-    // Settings for PlatformTopo: 2 socket, 4 cpus each
+    // Settings for PlatformTopo: 2 socket, 4 CPUs each
     m_topo = make_topo(2, 4, 8);
     m_cpu_set_board = {0, 1, 2, 3, 4, 5, 6, 7};
     m_cpu_set0 = {0, 1, 4, 5};

@@ -146,7 +146,7 @@ TEST_F(ServiceProxyTest, platform_get_control_info)
         .WillOnce(Return(false));
     EXPECT_CALL(*m_bus_reply, read_string())
         .WillOnce(Return("frequency"))
-        .WillOnce(Return("Maximum cpu frequency"))
+        .WillOnce(Return("Maximum CPU frequency"))
         .WillOnce(Return("power"))
         .WillOnce(Return("Maximum power cap"));
     EXPECT_CALL(*m_bus_reply, read_integer())
@@ -163,7 +163,7 @@ TEST_F(ServiceProxyTest, platform_get_control_info)
     std::vector<control_info_s> info_actual = m_proxy->platform_get_control_info(input_names);
 
     std::vector<control_info_s> info_expect = {{"frequency",
-                                               "Maximum cpu frequency",
+                                               "Maximum CPU frequency",
                                                 1},
                                               {"power",
                                                "Maximum power cap",

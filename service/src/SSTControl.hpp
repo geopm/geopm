@@ -28,7 +28,7 @@ namespace geopm
             /// @brief Create an SSTIO Control.
             /// @param [in] sstio Interface through which SST interactions are handled.
             /// @param [in] control_type Which SST interface to use.
-            /// @param [in] cpu_index Index of the cpu to which the interface
+            /// @param [in] cpu_index Index of the CPU to which the interface
             ///             write is being issued.
             /// @param [in] command Which SST interface command to issue.
             /// @param [in] subcommand Which SST interface subcommand to issue.

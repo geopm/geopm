@@ -329,7 +329,7 @@ TEST_F(NVMLIOGroupTest, read_signal)
     }
 
     for (int cpu_idx = 0; cpu_idx < num_cpu; ++cpu_idx) {
-        // FIXME: The most complex signal is the cpu gpu active afifinitzation signal, which is currently
+        // FIXME: The most complex signal is the CPU GPU active afifinitzation signal, which is currently
         //        not fully testable due to needing a running process for get affinity.  For now using a no throw check
         double affin = NAN;
         EXPECT_NO_THROW(affin = nvml_io.read_signal(M_NAME_PREFIX + "GPU_CPU_ACTIVE_AFFINITIZATION", GEOPM_DOMAIN_CPU, cpu_idx));
@@ -362,7 +362,7 @@ TEST_F(NVMLIOGroupTest, error_path)
     }
     GEOPM_EXPECT_THROW_MESSAGE(NVMLIOGroup nvml_io_fail(*m_platform_topo, *m_device_pool, nullptr),
                                GEOPM_ERROR_INVALID,
-                               "No supported frequencies found for gpu");
+                               "No supported frequencies found for GPU");
 
     mock_supported_freq = {135, 142, 407, 414, 760, 882, 1170, 1530};
     for (int gpu_idx = 0; gpu_idx < num_gpu; ++gpu_idx) {

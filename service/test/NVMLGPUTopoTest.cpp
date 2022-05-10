@@ -91,7 +91,7 @@ TEST_F(NVMLGPUTopoTest, hpe_sx40_default_config)
     }
 }
 
-//Test case: All cpus are associated with one and only one GPUs
+//Test case: All CPUs are associated with one and only one GPUs
 TEST_F(NVMLGPUTopoTest, mutex_affinitization_config)
 {
     const int num_gpu = 4;
@@ -121,7 +121,7 @@ TEST_F(NVMLGPUTopoTest, mutex_affinitization_config)
     }
 }
 
-//Test case: All cpus are associated with all GPUs
+//Test case: All CPUs are associated with all GPUs
 TEST_F(NVMLGPUTopoTest, equidistant_affinitization_config)
 {
     const int num_gpu = 4;
@@ -183,7 +183,7 @@ TEST_F(NVMLGPUTopoTest, n1_superset_n_affinitization_config)
     }
 }
 
-//Test case:  Last gpu has the smallest map, and the entire map will be 'stolen' to cause starvation
+//Test case:  Last GPU has the smallest map, and the entire map will be 'stolen' to cause starvation
 TEST_F(NVMLGPUTopoTest, greedbuster_affinitization_config)
 {
     const int num_gpu = 4;
@@ -243,7 +243,7 @@ TEST_F(NVMLGPUTopoTest, hpe_6500_affinitization_config)
     }
 }
 
-//Test case: CPU count that is not evenly divisible by the gpu count
+//Test case: CPU count that is not evenly divisible by the GPU count
 TEST_F(NVMLGPUTopoTest, uneven_affinitization_config)
 {
     const int num_gpu = 3;

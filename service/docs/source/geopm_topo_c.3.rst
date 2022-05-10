@@ -103,7 +103,7 @@ hardware components on the system:
 
 * 
   ``GEOPM_DOMAIN_GPU`` = 8:
-  Peripheral gpu card not on the processor package.
+  Peripheral GPU card not on the processor package.
 
 * 
   ``GEOPM_DOMAIN_PACKAGE_INTEGRATED_GPU`` = 9:

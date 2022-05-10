@@ -52,7 +52,7 @@ namespace geopm
             nvml_result = nvmlDeviceGetHandleByIndex(gpu_idx,
                                                      &m_nvml_device.at(gpu_idx));
             check_nvml_result(nvml_result, GEOPM_ERROR_RUNTIME, "NVMLDevicePool::" + std::string(__func__) +
-                              ": NVML failed to get handle for gpu " +
+                              ": NVML failed to get handle for GPU " +
                               std::to_string(gpu_idx) + ".", __LINE__);
         }
     }
@@ -106,7 +106,7 @@ namespace geopm
         nvmlReturn_t nvml_result = nvmlDeviceGetCpuAffinity(m_nvml_device.at(gpu_idx), cpu_set_size,
                                                             (unsigned long *)gpu_cpuset);
         check_nvml_result(nvml_result, GEOPM_ERROR_RUNTIME, "NVMLDevicePool::" + std::string(__func__) +
-                          ": NVML failed to get CPU Affinity bitmask for gpu " +
+                          ": NVML failed to get CPU Affinity bitmask for GPU " +
                           std::to_string(gpu_idx) + ".", __LINE__);
         return gpu_cpuset;
     }
@@ -119,7 +119,7 @@ namespace geopm
         nvmlReturn_t nvml_result = nvmlDeviceGetClock(m_nvml_device.at(gpu_idx), NVML_CLOCK_SM, NVML_CLOCK_ID_CURRENT,
                                          &result);
         check_nvml_result(nvml_result, GEOPM_ERROR_RUNTIME, "NVMLDevicePool::" + std::string(__func__) +
-                          ": NVML failed to get SM Frequency for gpu " +
+                          ": NVML failed to get SM Frequency for GPU " +
                           std::to_string(gpu_idx) + ".", __LINE__);
         return (uint64_t)result;
     }
@@ -141,7 +141,7 @@ namespace geopm
                                                                &count, supported_freqs.data());
         }
         check_nvml_result(nvml_result, GEOPM_ERROR_RUNTIME, "NVMLDevicePool::" + std::string(__func__) +
-                          ": NVML failed to get SM Frequency for gpu " +
+                          ": NVML failed to get SM Frequency for GPU " +
                           std::to_string(gpu_idx) + ".", __LINE__);
 
         return supported_freqs;
@@ -155,7 +155,7 @@ namespace geopm
 
         nvmlReturn_t nvml_result =  nvmlDeviceGetUtilizationRates(m_nvml_device.at(gpu_idx), &result);
         check_nvml_result(nvml_result, GEOPM_ERROR_RUNTIME, "NVMLDevicePool::" + std::string(__func__) +
-                          ": NVML failed to get GPU Utilization for gpu " +
+                          ": NVML failed to get GPU Utilization for GPU " +
                           std::to_string(gpu_idx) + ".", __LINE__);
         return (uint64_t)result.gpu;
     }
@@ -167,7 +167,7 @@ namespace geopm
 
         nvmlReturn_t nvml_result = nvmlDeviceGetPowerUsage(m_nvml_device.at(gpu_idx), &result);
         check_nvml_result(nvml_result, GEOPM_ERROR_RUNTIME, "NVMLDevicePool::" + std::string(__func__) +
-                          ": NVML failed to get power for gpu " +
+                          ": NVML failed to get power for GPU " +
                           std::to_string(gpu_idx) + ".", __LINE__);
 
         return (uint64_t)result;
@@ -180,7 +180,7 @@ namespace geopm
 
         nvmlReturn_t nvml_result = nvmlDeviceGetPowerManagementLimit(m_nvml_device.at(gpu_idx), &result);
         check_nvml_result(nvml_result, GEOPM_ERROR_RUNTIME, "NVMLDevicePool::" + std::string(__func__) +
-                          ": NVML failed to get power limit for gpu " +
+                          ": NVML failed to get power limit for GPU " +
                           std::to_string(gpu_idx) + ".", __LINE__);
 
         return (uint64_t)result;
@@ -193,7 +193,7 @@ namespace geopm
 
         nvmlReturn_t nvml_result = nvmlDeviceGetClock(m_nvml_device.at(gpu_idx), NVML_CLOCK_MEM, NVML_CLOCK_ID_CURRENT, &result);
         check_nvml_result(nvml_result, GEOPM_ERROR_RUNTIME, "NVMLDevicePool::" + std::string(__func__) +
-                          ": NVML failed to get Memory Frequency for gpu " +
+                          ": NVML failed to get Memory Frequency for GPU " +
                           std::to_string(gpu_idx) + ".", __LINE__);
 
         return (uint64_t)result;
@@ -206,7 +206,7 @@ namespace geopm
 
         nvmlReturn_t nvml_result = nvmlDeviceGetCurrentClocksThrottleReasons(m_nvml_device.at(gpu_idx), &result);
         check_nvml_result(nvml_result, GEOPM_ERROR_RUNTIME, "NVMLDevicePool::" + std::string(__func__) +
-                          ": NVML failed to get current clock throttle reasosn for gpu " +
+                          ": NVML failed to get current clock throttle reasosn for GPU " +
                           std::to_string(gpu_idx) + ".", __LINE__);
 
         return (uint64_t)result;
@@ -219,7 +219,7 @@ namespace geopm
 
         nvmlReturn_t nvml_result =  nvmlDeviceGetTemperature(m_nvml_device.at(gpu_idx), NVML_TEMPERATURE_GPU, &result);
         check_nvml_result(nvml_result, GEOPM_ERROR_RUNTIME, "NVMLDevicePool::" + std::string(__func__) +
-                          ": NVML failed to get temperature for gpu " +
+                          ": NVML failed to get temperature for GPU " +
                           std::to_string(gpu_idx) + ".", __LINE__);
 
         return (uint64_t)result;
@@ -232,7 +232,7 @@ namespace geopm
 
         nvmlReturn_t nvml_result =  nvmlDeviceGetTotalEnergyConsumption(m_nvml_device.at(gpu_idx), &result);
         check_nvml_result(nvml_result, GEOPM_ERROR_RUNTIME, "NVMLDevicePool::" + std::string(__func__) +
-                          ": NVML failed to get energy for gpu " +
+                          ": NVML failed to get energy for GPU " +
                           std::to_string(gpu_idx) + ".", __LINE__);
 
         return (uint64_t)result;
@@ -245,7 +245,7 @@ namespace geopm
 
         nvmlReturn_t nvml_result = nvmlDeviceGetPerformanceState(m_nvml_device.at(gpu_idx), &result);
         check_nvml_result(nvml_result, GEOPM_ERROR_RUNTIME, "NVMLDevicePool::" + std::string(__func__) +
-                          ": NVML failed to get performance state for gpu " +
+                          ": NVML failed to get performance state for GPU " +
                           std::to_string(gpu_idx) + ".", __LINE__);
 
         return (uint64_t)result;
@@ -258,7 +258,7 @@ namespace geopm
 
         nvmlReturn_t nvml_result = nvmlDeviceGetPcieThroughput(m_nvml_device.at(gpu_idx), NVML_PCIE_UTIL_RX_BYTES, &result);
         check_nvml_result(nvml_result, GEOPM_ERROR_RUNTIME, "NVMLDevicePool::" + std::string(__func__) +
-                          ": NVML failed to get PCIE received throughput rate for gpu " +
+                          ": NVML failed to get PCIE received throughput rate for GPU " +
                           std::to_string(gpu_idx) + ".", __LINE__);
 
         return (uint64_t)result;
@@ -271,7 +271,7 @@ namespace geopm
 
         nvmlReturn_t nvml_result = nvmlDeviceGetPcieThroughput(m_nvml_device.at(gpu_idx), NVML_PCIE_UTIL_TX_BYTES, &result);
         check_nvml_result(nvml_result, GEOPM_ERROR_RUNTIME, "NVMLDevicePool::" + std::string(__func__) +
-                          ": NVML failed to get PCIE transmitted throughput rate for gpu " +
+                          ": NVML failed to get PCIE transmitted throughput rate for GPU " +
                           std::to_string(gpu_idx) + ".", __LINE__);
 
         return (uint64_t)result;
@@ -284,7 +284,7 @@ namespace geopm
 
         nvmlReturn_t nvml_result =  nvmlDeviceGetUtilizationRates(m_nvml_device.at(gpu_idx), &result);
         check_nvml_result(nvml_result, GEOPM_ERROR_RUNTIME, "NVMLDevicePool::" + std::string(__func__) +
-                          ": NVML failed to get memory utilization for gpu " +
+                          ": NVML failed to get memory utilization for GPU " +
                           std::to_string(gpu_idx) + ".", __LINE__);
 
         return (uint64_t)result.memory;
@@ -315,12 +315,12 @@ namespace geopm
 
             if (nvml_result == NVML_ERROR_INSUFFICIENT_SIZE) {
                 throw Exception("NVMLDevicePool::" + std::string(__func__) +
-                                ": NVML failed to acquire running processes for gpu " +
+                                ": NVML failed to acquire running processes for GPU " +
                                 std::to_string(gpu_idx) + ".  Increase M_MAX_CONTEXTS to resolve: " +
                                 nvmlErrorString(nvml_result), GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
             check_nvml_result(nvml_result, GEOPM_ERROR_RUNTIME, "NVMLDevicePool::" + std::string(__func__) +
-                              ": NVML failed to acquire running processes for gpu " +
+                              ": NVML failed to acquire running processes for GPU " +
                               std::to_string(gpu_idx) + ".", __LINE__);
 
             for (unsigned int i = 0; i<temp; i++) {
@@ -329,7 +329,7 @@ namespace geopm
         }
         else {
             check_nvml_result(nvml_result, GEOPM_ERROR_RUNTIME, "NVMLDevicePool::" + std::string(__func__) +
-                              ": NVML failed to acquire running processes for gpu " +
+                              ": NVML failed to acquire running processes for GPU " +
                               std::to_string(gpu_idx) + ".", __LINE__);
         }
         return result;
@@ -341,7 +341,7 @@ namespace geopm
 
         nvmlReturn_t nvml_result = nvmlDeviceSetGpuLockedClocks(m_nvml_device[gpu_idx], (unsigned int) min_freq, (unsigned int) max_freq);
         check_nvml_result(nvml_result, GEOPM_ERROR_RUNTIME, "NVMLDevicePool::" + std::string(__func__) +
-                          ": NVML failed to set sm frequency for gpu " +
+                          ": NVML failed to set sm frequency for GPU " +
                           std::to_string(gpu_idx) + ".", __LINE__);
     }
 
@@ -351,7 +351,7 @@ namespace geopm
 
         nvmlReturn_t nvml_result =  nvmlDeviceResetGpuLockedClocks(m_nvml_device[gpu_idx]);
         check_nvml_result(nvml_result, GEOPM_ERROR_RUNTIME, "NVMLDevicePool::" + std::string(__func__) +
-                          ": NVML failed to reset sm frequency for gpu " +
+                          ": NVML failed to reset sm frequency for GPU " +
                           std::to_string(gpu_idx) + ".", __LINE__);
     }
 
@@ -361,7 +361,7 @@ namespace geopm
 
         nvmlReturn_t nvml_result = nvmlDeviceSetPowerManagementLimit(m_nvml_device.at(gpu_idx), (unsigned int) (setting));
         check_nvml_result(nvml_result, GEOPM_ERROR_RUNTIME, "NVMLDevicePool::" + std::string(__func__) +
-                          ": NVML failed to set power limit for gpu " +
+                          ": NVML failed to set power limit for GPU " +
                           std::to_string(gpu_idx) + ".", __LINE__);
     }
 }

@@ -89,10 +89,10 @@ they are contained within one another.
 | ++++++ ``cpu`` - Linux logical CPU
 | ++++ ``package_integrated_memory`` - on-package memory
 | ++++ ``package_integrated_nic`` - NIC within the package
-| ++++ ``package_integrated_gpu`` - domain for gpus within the package
+| ++++ ``package_integrated_gpu`` - domain for GPUs within the package
 | ++ ``memory`` - other memory outside the package
 | ++ ``nic`` - NIC attached to the board
-| ++ ``gpu`` - domain for gpus on the board
+| ++ ``gpu`` - domain for GPUs on the board
 
 This utility can be used to create a geopm::PlatformTopo cache file in
 the tmpfs.  When this file is not present the `geopmread(1) <geopmread.1.html>`_\ ,
