@@ -200,6 +200,8 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              geopm-tutorial.tar.gz \
              indicators/index.html \
              indicators/indicators.py \
+             json_schemas/geopmagent_policy.schema.json \
+             json_schemas/geopmbench_config.schema.json \
              man/geopmadmin.1 \
              man/geopmagent.1 \
              man/geopm_agent_c.3 \

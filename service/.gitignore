@@ -20,6 +20,7 @@
 /build
 /geopmdpy.egg-info
 /geopmdpy/version.py
+/geopmdpy/system_files.py
 /libgeopmd.la
 /libtool
 /CODE_OF_CONDUCT.md
