@@ -186,3 +186,8 @@ tutorial/plugin_load/README.md
 tutorial/README.md
 tutorial/tutorial_6_config.json
 tutorial/tutorial_power_policy.json
+json_schemas/geopmbench_config.schema.json
+json_schemas/geopmagent_policy.schema.json
+service/json_schemas/saved_controls.schema.json
+service/json_schemas/msrs.schema.json
+service/json_schemas/active_sessions.schema.json

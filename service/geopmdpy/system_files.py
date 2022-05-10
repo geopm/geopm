@@ -275,7 +275,7 @@ class ActiveSessions(object):
 
     The session files are stored in JSON format and follow this schema:
 
-    .. literalinclude:: ../../geopmdpy/active_sessions.schema.json
+    .. literalinclude:: ../../json_schemas/active_sessions.schema.json
         :language: json
 
     """
