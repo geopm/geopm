@@ -8,6 +8,8 @@
 
 import sys
 import os
+import tempfile
+import subprocess # nosec
 from argparse import ArgumentParser
 from dasbus.connection import SystemMessageBus
 from dasbus.error import DBusError
@@ -37,7 +39,7 @@ class Access:
                 raise ee
         self._geopm_proxy = geopm_proxy
 
-    def set_group_signals(self, group, signals, is_dry_run, skip_check):
+    def set_group_signals(self, group, signals, is_dry_run, is_force):
         """Call GEOPM D-Bus API to set signal access
 
         Sets the signal access list for a group while leaving the
@@ -55,7 +57,7 @@ class Access:
                                  defaults.
             is_dry_run (bool): True to run error checking without file
                                modification
-            skip_check (bool): True if error checking is disabled
+            is_force (bool): True if error checking is disabled
 
 
         Raises:
@@ -68,7 +70,7 @@ class Access:
             _, current_controls = self._geopm_proxy.PlatformGetGroupAccess(group)
         except DBusError as ee:
             raise RuntimeError('Failed to read group signal access list for specified group: {}'.format(group)) from ee
-        if not skip_check:
+        if not is_force:
             signals_supported, _ = self._geopm_proxy.PlatformGetAllAccess()
             signals_requested = set(signals)
             if not signals_requested.issubset(signals_supported):
@@ -80,7 +82,7 @@ class Access:
             except DBusError as ee:
                 raise RuntimeError('Failed to set group signal access list, try with sudo or as "root" user (requires CAP_SYS_ADMIN)') from ee
 
-    def set_group_controls(self, group, controls, is_dry_run, skip_check):
+    def set_group_controls(self, group, controls, is_dry_run, is_force):
         """Call GEOPM D-Bus API to set control access
 
         Sets the control access list for a group while leaving the
@@ -98,7 +100,7 @@ class Access:
                                  defaults.
             is_dry_run (bool): True to run error checking without file
                                modification
-            skip_check (bool): True if error checking is disabled
+            is_force (bool): True if error checking is disabled
 
         Raises:
             RuntimeError: The user is not root, the group provided is
@@ -110,7 +112,7 @@ class Access:
             current_signals, _ = self._geopm_proxy.PlatformGetGroupAccess(group)
         except DBusError as ee:
             raise RuntimeError('Failed to read group control access list for specified group: {}'.format(group)) from ee
-        if not skip_check:
+        if not is_force:
             _, controls_supported = self._geopm_proxy.PlatformGetAllAccess()
             controls_requested = set(controls)
             if not controls_requested.issubset(controls_supported):
@@ -218,14 +220,33 @@ class Access:
         _, all_controls = self._geopm_proxy.PlatformGetGroupAccess(group)
         return '\n'.join(all_controls)
 
-    def read_stdin(self):
-        """Parse list of signals or controls from standard input
+    def edited_names_path(self, initial_names):
+        default_editor = '/usr/bin/vi'
+        if not os.path.exists(default_editor):
+            default_editor = '/bin/vi'
+        editor = os.environ.get('EDITOR', default_editor)
+        fid, path = tempfile.mkstemp('geopm-service-access-tmp')
+        os.close(fid)
+        with open(path, 'w') as fid:
+            fid.write(initial_names)
+        try:
+            subprocess.run([editor, path], check=True)
+        except subprocess.CalledProcessError:
+            os.unlink(path)
+            raise
+        return path
+
+    def read_names(self, fid):
+        """Returns list names from user
+
+        Parse list of signals or controls from standard input or edit
+        existing list.
 
         """
-        return [ll.strip() for ll in sys.stdin.readlines() if ll.strip()]
+        return [ll.strip() for ll in fid.readlines() if ll.strip()]
 
-    def run(self, is_write, is_all, is_control, group, is_user, is_delete,
-            is_dry_run, skip_check):
+    def run(self, is_write, is_all, is_control, group, is_default, is_delete,
+            is_dry_run, is_force, is_edit):
         """Execute geopmaccess command line interface
 
         The inputs to this method are parsed from the command line
@@ -251,36 +272,57 @@ class Access:
                          then the default access list is used,
                          otherwise the parameter specifies the Unix
                          group.
-            is_user (bool): True if the default user access list
-                            should be printed rather than the calling
-                            process' access list.
+            is_default (bool): True if the default user access list
+                               should be printed rather than the calling
+                               process' access list.
             is_delete (bool): True to remove an access list file.
             is_dry_run (bool): True to run error checking without file
                                modification
-            skip_check (bool): True if error checking is disabled
+            is_force (bool): True if error checking is disabled
 
         """
         output = None
-        if is_write:
+        if is_write or is_edit:
             if is_all or is_delete:
-                raise RuntimeError('Option -a/--all and -D/--delete are not valid when -w/--write is provided')
+                raise RuntimeError('Option -a/--all and -D/--delete are not valid when -w/--write or -e/--edit is provided')
+            elif is_edit and (is_force or is_dry_run):
+                raise RuntimeError('Option -e/--edit is not valid with -n/--dry-run or -F/--force')
             else:
-                if is_control:
-                    self.set_group_controls(group, self.read_stdin(),
-                                            is_dry_run, skip_check)
+                if is_edit:
+                    if is_control:
+                        initial_names = self.get_group_controls(group)
+                    else:
+                        initial_names = self.get_group_signals(group)
+                    edit_path = self.edited_names_path(initial_names)
+                    try:
+                        with open(edit_path) as fid:
+                            names = self.read_names(fid)
+                    finally:
+                        os.unlink(edit_path)
+
                 else:
-                    self.set_group_signals(group, self.read_stdin(),
-                                           is_dry_run, skip_check)
+                    names = self.read_names(sys.stdin)
+                if is_control:
+                    self.set_group_controls(group, names, is_dry_run, is_force)
+                else:
+                    self.set_group_signals(group, names, is_dry_run, is_force)
+        elif is_delete:
+            if is_dry_run:
+                raise RuntimeError('Option -d/--delete is not valid with -n/--dry-run')
+            if is_control:
+                self.set_group_controls(group, [], is_dry_run, is_force)
+            else:
+                self.set_group_signals(group, [], is_dry_run, is_force)
         else:
-            if is_dry_run or skip_check:
-                raise RuntimeError('-n/--dry-run, and -E/--skip-check not valid unless -w/--write is provided')
+            if is_dry_run or is_force:
+                raise RuntimeError('-n/--dry-run, and -F/--force not valid unless -w/--write is provided')
             if is_all:
                 if is_control:
                     output = self.get_all_controls()
                 else:
                     output = self.get_all_signals()
             else:
-                if is_user:
+                if is_default:
                     group = ''
                 if is_control:
                     output = self.get_group_controls(group)
@@ -289,39 +331,43 @@ class Access:
         return output
 
 def main():
-    """Access management for the geopm service.  Command line tool for
-    reading and writing the access management lists for the geopm
-    service signals and controls.
+    """Access management for the GEOPM Service.
+
+    Command line tool for reading and writing the access management
+    lists for the GEOPM Service signals and controls.
 
     """
 
     err = 0
     parser = ArgumentParser(description=main.__doc__)
     parser.add_argument('-c', '--controls', dest='controls', action='store_true', default=False,
-                        help='Get or set access for controls, not signals')
+                        help='Command applies to controls not signals')
     parser_group_uga = parser.add_mutually_exclusive_group(required=False)
-    parser_group_uga.add_argument('-u', '--user', dest='user', action='store_true', default=False,
-                                  help='Print default user access list')
+    parser_group_uga.add_argument('-u', '--default', dest='default', action='store_true', default=False,
+                                  help='Print the default user access list')
     parser_group_uga.add_argument('-g', '--group', dest='group', type=str, default='',
-                                 help='Read or write access for a Unix group (default is for all users)')
+                                 help='Read or write the access list for a specific Unix GROUP')
     parser_group_uga.add_argument('-a', '--all', dest='all', action='store_true', default=False,
-                                  help='Print all available signals or controls on the system (invalid with -w)')
-    parser_group_wD = parser.add_mutually_exclusive_group(required=False)
-    parser_group_wD.add_argument('-w', '--write', dest='write', action='store_true', default=False,
-                                 help='Write restricted access list for default user or a particular Unix group')
-    parser_group_wD.add_argument('-D', '--delete', dest='delete', action='store_true', default=False,
-                                 help='Remove an access list for default user or a particular Unix Group')
-    parser_group_nE = parser.add_mutually_exclusive_group(required=False)
-    parser_group_nE.add_argument('-n', '--dry-run', dest='dry_run', action='store_true', default=False,
+                                  help='Print all signals or controls supported by the service system')
+    parser_group_weD = parser.add_mutually_exclusive_group(required=False)
+    parser_group_weD.add_argument('-w', '--write', dest='write', action='store_true', default=False,
+                                  help='Use standard input to write an access list')
+    parser_group_weD.add_argument('-e', '--edit', dest='edit', action='store_true', default=False,
+                                  help='Edit an access list using EDITOR environment variable, default vi')
+    parser_group_weD.add_argument('-D', '--delete', dest='delete', action='store_true', default=False,
+                                  help='Remove an access list for default user or a particular Unix Group')
+    parser_group_nF = parser.add_mutually_exclusive_group(required=False)
+    parser_group_nF.add_argument('-n', '--dry-run', dest='dry_run', action='store_true', default=False,
                                  help='Do error checking on all user input, but do not modify configuration files')
-    parser_group_nE.add_argument('-E', '--skip-check', dest='skip_check', action='store_true', default=False,
-                                 help='Write access list to disk without error checking')
+    parser_group_nF.add_argument('-F', '--force', dest='force', action='store_true', default=False,
+                                 help='Write access list without validating GEOPM Service support for names')
     args = parser.parse_args()
     try:
         acc = Access(SystemMessageBus().get_proxy('io.github.geopm',
                                                   '/io/github/geopm'))
         output = acc.run(args.write, args.all, args.controls, args.group,
-                         args.user, args.delete, args.dry_run, args.skip_check)
+                         args.default, args.delete, args.dry_run, args.force,
+                         args.edit)
         if output:
             print(output)
     except RuntimeError as ee:
