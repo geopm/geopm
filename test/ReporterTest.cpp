@@ -76,6 +76,7 @@ class ReporterTest : public testing::Test
             M_ENERGY_GPU_IDX,
             M_POWER_GPU_IDX,
             M_FREQUENCY_GPU_IDX,
+            M_FREQUENCY_CPU_UNCORE_IDX,
         };
         ReporterTest();
         void TearDown(void);
@@ -129,6 +130,13 @@ class ReporterTest : public testing::Test
             {GEOPM_REGION_HASH_UNMARKED, 222},
             {GEOPM_REGION_HASH_EPOCH, 334},
             {GEOPM_REGION_HASH_APP, 4444}
+        };
+        std::map<uint64_t, double> m_region_frequency_cpu_uncore = {
+            {geopm_crc32_str("all2all"), 755},
+            {geopm_crc32_str("model-init"), 198},
+            {GEOPM_REGION_HASH_UNMARKED, 421},
+            {GEOPM_REGION_HASH_EPOCH, 653},
+            {GEOPM_REGION_HASH_APP, 121213}
         };
         std::map<uint64_t, double> m_region_frequency_gpu = {
             {geopm_crc32_str("all2all"), 567},
@@ -477,7 +485,7 @@ TEST_F(ReporterTest, generate)
     check_report(exp_stream, report);
 }
 
-TEST_F(ReporterTest, generate_gpu)
+TEST_F(ReporterTest, generate_conditional)
 {
 
     // GPU signals
@@ -487,8 +495,10 @@ TEST_F(ReporterTest, generate_gpu)
         .WillOnce(Return(M_POWER_GPU_IDX));
     EXPECT_CALL(*m_sample_agg, push_signal("GPU_FREQUENCY_STATUS", GEOPM_DOMAIN_BOARD, 0))
         .WillOnce(Return(M_FREQUENCY_GPU_IDX));
+    EXPECT_CALL(*m_sample_agg, push_signal("CPU_UNCORE_FREQUENCY_STATUS", GEOPM_DOMAIN_BOARD, 0))
+        .WillOnce(Return(M_FREQUENCY_CPU_UNCORE_IDX));
 
-    std::set<std::string> signal_names = {"GPU_ENERGY","GPU_POWER","GPU_FREQUENCY_STATUS"};
+    std::set<std::string> signal_names = {"GPU_ENERGY","GPU_POWER","GPU_FREQUENCY_STATUS","CPU_UNCORE_FREQUENCY_STATUS"};
     EXPECT_CALL(m_platform_io, signal_names()).WillOnce(Return(signal_names));
 
     //setup default values for 'generate' tests
@@ -514,6 +524,10 @@ TEST_F(ReporterTest, generate_gpu)
             .WillRepeatedly(Return(rid.second/1.0));
     }
 
+    for (auto rid : m_region_frequency_cpu_uncore) {
+        EXPECT_CALL(*m_sample_agg, sample_region(M_FREQUENCY_CPU_UNCORE_IDX, rid.first))
+            .WillRepeatedly(Return(rid.second/1.0));
+    }
     for (auto rid : m_region_frequency_gpu) {
         EXPECT_CALL(*m_sample_agg, sample_region(M_FREQUENCY_GPU_IDX, rid.first))
             .WillRepeatedly(Return(rid.second/1.0));
@@ -567,6 +581,7 @@ TEST_F(ReporterTest, generate_gpu)
         "      gpu-energy (J): 777\n"
         "      gpu-power (W): 764\n"
         "      gpu-frequency (Hz): 567\n"
+        "      uncore-frequency (Hz): 755\n"
         "      ENERGY_PACKAGE@package-0: 194.25\n"
         "      ENERGY_PACKAGE@package-1: 194.25\n"
         "      agent stat: 1\n"
@@ -594,6 +609,7 @@ TEST_F(ReporterTest, generate_gpu)
         "      gpu-energy (J): 888\n"
         "      gpu-power (W): 653\n"
         "      gpu-frequency (Hz): 890\n"
+        "      uncore-frequency (Hz): 198\n"
         "      ENERGY_PACKAGE@package-0: 222\n"
         "      ENERGY_PACKAGE@package-1: 222\n"
         "      agent stat: 2\n"
@@ -618,6 +634,7 @@ TEST_F(ReporterTest, generate_gpu)
         "      gpu-energy (J): 222\n"
         "      gpu-power (W): 211\n"
         "      gpu-frequency (Hz): 123\n"
+        "      uncore-frequency (Hz): 421\n"
         "      ENERGY_PACKAGE@package-0: 55.5\n"
         "      ENERGY_PACKAGE@package-1: 55.5\n"
         "      agent stat: 3\n"
@@ -642,6 +659,7 @@ TEST_F(ReporterTest, generate_gpu)
         "      gpu-energy (J): 334\n"
         "      gpu-power (W): 432\n"
         "      gpu-frequency (Hz): 456\n"
+        "      uncore-frequency (Hz): 653\n"
         "      ENERGY_PACKAGE@package-0: 83.5\n"
         "      ENERGY_PACKAGE@package-1: 83.5\n"
         "    Application Totals:\n"
@@ -665,6 +683,7 @@ TEST_F(ReporterTest, generate_gpu)
         "      gpu-energy (J): 4444\n"
         "      gpu-power (W): 8992\n"
         "      gpu-frequency (Hz): 74489\n"
+        "      uncore-frequency (Hz): 121213\n"
         "      ENERGY_PACKAGE@package-0: 1111\n"
         "      ENERGY_PACKAGE@package-1: 1111\n"
         "      geopmctl memory HWM (B): @ANY_STRING@\n"
