@@ -5,13 +5,12 @@ geopmaccess(1) -- Access management for the GEOPM Service
 SYNOPSIS
 --------
 
-
 Read Access List
 ~~~~~~~~~~~~~~~~
 
 .. code-block:: none
 
-    geopmaccess [-c] [-g GROUP | -a]
+    geopmaccess [-c] [-u | -g GROUP | -a]
 
 
 Write Access List
@@ -19,7 +18,14 @@ Write Access List
 
 .. code-block:: none
 
-    geopmaccess -w [-c] [-g GROUP] [-n | -s]
+    geopmaccess -w [-c] [-g GROUP] [-n | -f]
+
+Edit Access List
+~~~~~~~~~~~~~~~~~
+
+.. code-block:: none
+
+    geopmaccess -e [-c] [-g GROUP]
 
 
 Remove Access List
@@ -27,7 +33,7 @@ Remove Access List
 
 .. code-block:: none
 
-    geopmaccess -D [-c] [-g GROUP] [-n]
+    geopmaccess -D [-c] [-g GROUP]
 
 
 
@@ -53,46 +59,49 @@ Options
 
 *
   ``-c``, ``--controls``:
-  Command applies to controls not signals.
+  Command applies to controls not signals
 
-
-* ``-u``, ``--user``:
-  Read the default user access list.
+* ``-u``, ``--default``:
+  Print the default user access list
 
 *
   ``-g``, ``--group``:
-  Read or write the access list for a specific Unix GROUP.
+  Read or write the access list for a specific Unix GROUP
 
 *
   ``-a``, ``--all``:
-  Print all signals or controls supported by the service system (not
-  valid with ``-w`` option).
+  Print all signals or controls supported by the service system
 
 *
   ``-w``, ``--write``:
-  Write default access list, or the access list for a particular Unix
-  group.
+  Use standard input to write an access list
+
+*
+  ``-e``, ``--edit``:
+  Edit an access list using EDITOR environment variable, default ``vi``
 
 *
   ``-D``, ``--delete``:
-  Remove an access list for default user or a particular Unix Group.
+  Remove an access list for default user or a particular Unix Group
+
 *
   ``-n``, ``--dry-run``:
   Do error checking on all user input, but do not modify configuration
   files
 
 *
-  ``-E``, ``--skip-check``:
-  Write access list to disk without error checking.
+  ``-F``, ``--force``:
+  Write access list without validating GEOPM Service support for names
 
 *
   ``-h``, ``--help``:
-  Print brief summary of the command line usage information,
-  then exit.
+  Print brief summary of the command line usage information, then
+  exit
 
 *
   ``-v``, ``--version``:
-  Print version of `geopm(7) <geopm.7.html>`_ to standard output, then exit.
+  Print version of `geopm(7) <geopm.7.html>`_ to standard output, then
+  exit
 
 
 
@@ -132,16 +141,27 @@ system administrator, but only a process with the Linux capability
 The administrator may execute ``geopmaccess`` to write to an access
 list by providing the ``-w`` / ``--write`` command line option.  The
 ``-D`` / ``--delete`` option will remove all signals or controls from
-the configuration.
+the configuration.  An access list can be modified in a text editor
+when the ``-e`` / ``--edit`` option is provided.
 
-The access list created is derived from standard input by reading one
-name per line.  Standard input lines that begin with the ``#``
-character are ignored, and an empty line or EOF (end of file) will
-cause parsing of standard input to stop.
+When writing an access list with the ``-w`` / ``--write`` command line
+option, the list of names is provided to standard input.  Typically,
+this is piped in from an existing file.  When the ``-e`` / ``--edit``
+option is provided, the existing access list is openend in an editor
+for modification.  The default editor is ``vi`` but the user may
+override this with the ``EDITOR`` environment variable.
 
-Note that the ``-a`` / ``--all`` options are not valid when writing or
-deleting an access list.  The default access list will be written or
-deleted if the ``-g`` / ``--group`` option is not specified.
+The access list created is derived from standard input or the edited
+file by reading one name per line.  Standard input lines that begin
+with the ``#`` character are ignored, and an empty line or ``EOF``
+*(end of file)* will cause parsing of standard input to stop.
+
+Note that the ``-a`` / ``--all`` options are not valid when writing,
+editing, or deleting an access list.  The default access list will be
+written or deleted if the ``-g`` / ``--group`` option is not
+specified.  This differs from the default behavior when reading an
+access list: the default behavior when writing equivalent to the
+``-u`` / ``--default`` option when reading.
 
 
 Shared File Systems
@@ -158,7 +178,7 @@ validity of a configuration at run-time without modifying files in the
 ``/etc`` file system.  This option will check the names provided to
 standard input, however no files are opened for writing.
 
-The ``-E`` / ``--skip-check`` option enables the creation of access
+The ``-F`` / ``--force`` option enables the creation of access
 lists in ``/etc/geopm-service`` without checking that the names in the
 access list correspond to signals or controls supported by the active
 GEOPM Service.  This enables the creation of the configuration file on
@@ -169,6 +189,11 @@ Note that having signal or control names in an access list in
 ``/etc/geopm-service`` which are not valid on a particular system is
 not an error.  This enables access list files to be mounted on
 multiple systems which may have non-overlapping support.
+
+EXIT STATUS
+-----------
+
+*TODO*
 
 SEE ALSO
 --------
