@@ -158,6 +158,11 @@ namespace geopm
         register_signal_alias("CPU_FREQUENCY_STATUS", "MSR::PERF_STATUS:FREQ");
         register_signal_alias("CPU_FREQUENCY_CONTROL", "MSR::PERF_CTL:FREQ");
 
+        auto all_names = signal_names();
+        if (all_names.count("MSR::UNCORE_PERF_STATUS:FREQ") != 0) {
+            register_signal_alias("CPU_UNCORE_FREQUENCY_STATUS", "MSR::UNCORE_PERF_STATUS:FREQ");
+        }
+
         std::string max_turbo_name;
         switch (m_cpuid) {
             case MSRIOGroup::M_CPUID_KNL:
