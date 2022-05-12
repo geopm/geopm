@@ -248,13 +248,13 @@ maximum frequency of the core.
 
     # SAVE INITIAL ACCESS SETTINGS
     geopmaccess > ${ACCESS_SIGNALS}
-    geopmaccess -c > ${ACCESS_CONTROLS}
+    geopmaccess --controls > ${ACCESS_CONTROLS}
 
     # ADD THE CONTROL INTO ACCESS LIST FOR READING AND WRITING
     echo ${CONTROL} >> ${ACCESS_SIGNALS}
     echo ${CONTROL} >> ${ACCESS_CONTROLS}
-    geopmaccess -w < ${ACCESS_SIGNALS}
-    geopmaccess -w -c < ${ACCESS_CONTROLS}
+    geopmaccess --write < ${ACCESS_SIGNALS}
+    geopmaccess --write --controls < ${ACCESS_CONTROLS}
 
     # CLEAN UP TEMPORARY FILES
     rm ${ACCESS_SIGNALS} ${ACCESS_CONTROLS}
@@ -268,7 +268,8 @@ control for a subset of your users.  This can be accomplished by
 creating a Unix user group containing the users that should be
 provided this privilege.  This mechanism may also be used to extend
 permissions for one particular user if the user-name-specific group is
-provided.
+provided.  This can also be accomplished interactively using the
+``-e`` / ``--edit`` option.
 
 
 .. code-block:: bash
@@ -283,11 +284,11 @@ provided.
     ACCESS_SIGNALS=$(mktemp)
 
     # SAVE INITIAL ACCESS SETTINGS
-    geopmaccess -g ${GROUP_NAME} > ${ACCESS_SIGNALS}
+    geopmaccess --group ${GROUP_NAME} > ${ACCESS_SIGNALS}
 
     # ADD THE SIGNAL INTO ACCESS LIST FOR READING
     echo ${SIGNAL} >> ${ACCESS_SIGNALS}
-    geopmaccess -g ${GROUP_NAME} -w < ${ACCESS_SIGNALS}
+    geopmaccess --group ${GROUP_NAME} --write < ${ACCESS_SIGNALS}
 
     # CLEAN UP TEMPORARY FILE
     rm ${ACCESS_SIGNALS}
@@ -367,7 +368,19 @@ and combine access lists when writing to a shared mount point.
 EXIT STATUS
 -----------
 
-*TODO*
+The ``geopmaccess`` command will return 0 upon success and -1 on
+failure.  For all failures, an error message describing the failure
+will be printed.  Setting the ``GEOPM_DEBUG`` environment variable
+will enable more verbose error messages.
+
+Use of the ``geopmaccess`` command line tool requires the GEOPM
+Service systemd unit to be active.  A process must have
+``CAP_SYS_ADMIN`` in order to modify any access lists.  Failures will
+occur if the user specifies incompatible command line options, like
+``--all`` and ``--write``.  Attempts to set configurations using
+unsupported names will fail unless the ``-F`` / ``--force`` option is
+provided.
+
 
 SEE ALSO
 --------
