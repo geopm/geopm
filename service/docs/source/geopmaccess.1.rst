@@ -147,7 +147,7 @@ when the ``-e`` / ``--edit`` option is provided.
 When writing an access list with the ``-w`` / ``--write`` command line
 option, the list of names is provided to standard input.  Typically,
 this is piped in from an existing file.  When the ``-e`` / ``--edit``
-option is provided, the existing access list is openend in an editor
+option is provided, the existing access list is opened in an editor
 for modification.  The default editor is ``vi`` but the user may
 override this with the ``EDITOR`` environment variable.
 
@@ -175,8 +175,8 @@ located on a shared file system to support distributed servers.
 
 The ``-n`` / ``--dry-run`` option may be specified to check the
 validity of a configuration at run-time without modifying files in the
-``/etc`` file system.  This option will check the names provided to
-standard input, however no files are opened for writing.
+``/etc`` directory.  This option will check the names provided
+to standard input, however no files are opened for writing.
 
 The ``-F`` / ``--force`` option enables the creation of access
 lists in ``/etc/geopm-service`` without checking that the names in the
@@ -189,6 +189,56 @@ Note that having signal or control names in an access list in
 ``/etc/geopm-service`` which are not valid on a particular system is
 not an error.  This enables access list files to be mounted on
 multiple systems which may have non-overlapping support.
+
+EXAMPLES
+--------
+
+This example demonstrates how to create and check access lists when
+the ``/etc/geopm-service`` directory must be modified on a system with
+incomplete support for signals and controls.
+
+In this example, the access lists created contain all signals and
+controls supported by two different systems.  Similar steps would be
+followed if the input lists were derived in a different way.  This
+example also shows how to validate access lists on multiple systems
+and combine access lists when writing to a shared mount point.
+
+
+.. code-block :: bash
+
+    # Log onto one of the systems
+    ssh system1
+
+    # Create a lists of signals and controls on shared mount
+    geopmaccess --all > system1-signals.txt
+    geopmaccess --all --controls > system1-controls.txt
+
+    # Check validity of created lists
+    geopmaccess --write --dry-run < system1-signals.txt
+    geopmaccess --write --controls --dry-run < system1-controls.txt
+
+    # Log onto a system with non-overlapping support
+    ssh system2
+
+    # Create lists of signals and controls on shared mount
+    geopmaccess --all > system2-signals.txt
+    geopmaccess --all --controls > system2-controls.txt
+
+    # Check validity of created lists
+    geopmaccess --write --dry-run < system2-signals.txt
+    geopmaccess --write --controls --dry-run < system2-controls.txt
+
+    # Log onto node where /etc/geopm-service is writable
+    ssh admin-system
+
+    # Combine the created lists, duplicates are okay
+    cat system1-signals.txt system2-signals.txt > all-signals.txt
+    cat system1-controls.txt system2-controls.txt > all-controls.txt
+
+    # Modify configuration without checking names
+    sudo geopmaccess --write --force < all-signals.txt
+    sudo geopmaccess --write --controls --force < all-controls.txt
+
 
 EXIT STATUS
 -----------
