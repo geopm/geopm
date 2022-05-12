@@ -5,6 +5,13 @@
 
 """Json schemas used by geopmdpy
 
+GEOPM_ACTIVE_SESSIONS_SCHEMA:
+
+.. code-block:: json
+
+    @JSON_SCHEMA_ACTIVE_SESSIONS@
+
+
 """
 
 GEOPM_ACTIVE_SESSIONS_SCHEMA = """

@@ -66,6 +66,14 @@ geopmdpy.runtime
    :undoc-members:
    :show-inheritance:
 
+geopmdpy.schemas
+----------------
+
+.. automodule:: geopmdpy.schemas
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 geopmdpy.service
 ----------------
 
@@ -82,18 +90,18 @@ geopmdpy.session
    :undoc-members:
    :show-inheritance:
 
-geopmdpy.topo
--------------
-
-.. automodule:: geopmdpy.topo
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 geopmdpy.system_files
 ---------------------
 
 .. automodule:: geopmdpy.system_files
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+geopmdpy.topo
+-------------
+
+.. automodule:: geopmdpy.topo
    :members:
    :undoc-members:
    :show-inheritance:
