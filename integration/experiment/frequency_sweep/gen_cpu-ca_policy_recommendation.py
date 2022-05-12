@@ -94,15 +94,15 @@ def system_memory_bandwidth_characterization(df):
     df['uncore-frequency (GHz)'] = (df['uncore-frequency (Hz)']/1e09).round(decimals=1)
     uncore_freq_set = sorted(set(df['uncore-frequency (GHz)'].to_list()))
 
-    mem_bw_mean = []
+    mem_bw_dict = {}
     for k in uncore_freq_set:
         mem_df = df.groupby('uncore-frequency (GHz)').get_group(k)
         #TODO: use both packages!  This will skew in favor of package-0, which
         #      is not optimal
-        mem_bw_char_avg.append(mem_df['QM_CTR_SCALED_RATE@package-0'].mean())
+        mem_bw_dict[k] = mem_df['QM_CTR_SCALED_RATE@package-0'].mean()
 
     #code.interact(local=locals())
-    return mem_bw_mean
+    return mem_bw_dict
 
 def policy_perf_deg(df, tolerance, domain):
     #if domain == "UNCORE":
@@ -167,7 +167,11 @@ def main(full_df, region_filter, tolerance, min_energy, max_degradation):
                 "UNCORE_FREQ_EFFICIENT" : uncore_freq_efficient,
                 "CPU_PHI" : 0.5,
                 "SAMPLE_PERIOD" : 0.1}
-    #CPU_FREQ_MAX,CPU_FREQ_EFFICIENT,UNCORE_FREQ_MAX,UNCORE_FREQ_EFFICIENT,CPU_PHI,SAMPLE_PERIOD
+
+    for k,v in mem_bw_characterization.items():
+        policy['MAX_MBM_UNCORE_FREQ_' + str(k)] = v
+
+    #code.interact(local=locals())
     return policy
 
 if __name__ == '__main__':
