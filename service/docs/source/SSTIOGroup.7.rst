@@ -13,16 +13,18 @@ interface to provide hardware signals and controls for key Intel Speed Select
 Technology features on supported Intel platforms with Linux Kernel versions >=5.3
 
 
-* 
-  **SST-CP**:
+SST-CP: Core Power
+~~~~~~~~~~~~~~~~~~~
+
 SST Core Power feature enables the user to specify priority of cores for
 power distribution in a power-constrained scenario. Cores are assigned
 to different Class Level of Service (CLOS). Each CLOS has a defined
 min/max frequency and weight, which determines how the frequency is allocated.
 
 
-* 
-  **SST-TF**:
+SST-TF: Turbo Frequency
+~~~~~~~~~~~~~~~~~~~~~~~
+
 SST Turbo Frequency feature enables the user to dynamically set different
 turbo ratio limits for different cores. Cores are specified as high-priority
 or low-priority via the SST-CP feature. Cores in CLOS 0 or 1 are high priority
@@ -37,13 +39,13 @@ SYSTEM INFO
 ~~~~~~~~~~~
 
 * ``SST::CONFIG_LEVEL``:
-   (Package scope) Returns the system's configuration level (SST-PP feature)
+  (Package scope) Returns the system's configuration level (SST-PP feature)
 
 * ``SST::COREPRIORITY_SUPPORT``:
-   (Package scope) Returns 1 if SST-CP feature is supported, 0 if unsupported.
+  (Package scope) Returns 1 if SST-CP feature is supported, 0 if unsupported.
 
 * ``SST::TURBOFREQ_SUPPORT``:
-   (Package scope) Returns 1 if SST-TF feature is supported, 0 if unsupported.
+  (Package scope) Returns 1 if SST-TF feature is supported, 0 if unsupported.
 
 * ``SST::HIGHPRIORITY_NCORES:n``:
   (Package scope)  Returns the count of high priority turbo frequency cores 
@@ -128,24 +130,28 @@ EXAMPLE
 
 The following example uses geopmread and geopmwrite command-line tools.
 These steps can also be followed within an agent. Enabling steps are also
-taken care of in the SSTFrequencyGovernor.
+in the ``SSTFrequencyGovernor``.
 
 ENABLING SST-TF 
 ~~~~~~~~~~~~~~~
 
-The following must be done in the order specified to enable SST-TF.
-
 * Enable SST-CP:
+  
   ``geopmwrite SST::COREPRIORITY_ENABLE:ENABLE board 0 1``
 
 * Enable SST-TF:
+   
   ``geopmwrite SST::TURBO_ENABLE:ENABLE board 0 1``
 
 * Ensure that the turbo ratio limit MSR has been overwritten to allow higher
   all-core turbo frequencies. 
+  
   ``geopmwrite MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_0 board 0 255e8``
+
   ``geopmwrite MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_1 board 0 255e8``
+
     ...
+
   ``geopmwrite MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_7 board 0 255e8``
 
 CONFIGURING CLOS
@@ -155,13 +161,17 @@ CONFIGURING CLOS
   to achieve decent behavior. 
 
   ``geopmwrite SST::COREPRIORITY:0:WEIGHT board 0 0``
+
   ``geopmwrite SST::COREPRIORITY:1:WEIGHT board 0 5``
+
   ``geopmwrite SST::COREPRIORITY:2:WEIGHT board 0 10``
+
   ``geopmwrite SST::COREPRIORITY:3:WEIGHT board 0 15``
 
 * Set the min and max frequencies per CLOS.
 
   ``geopmwrite SST::COREPRIORITY:0:MIN_FREQUENCY board 0 1.5e9``
+
   ``geopmwrite SST::COREPRIORITY:0:MAX_FREQUENCY board 0 3.6e9``
 
 
