@@ -83,6 +83,7 @@ all_man_rst = docs/source/geopm.7.rst \
               docs/source/geopm_imbalancer.3.rst \
               docs/source/geopmlaunch.1.rst \
               docs/source/geopm_pio_c.3.rst \
+              docs/source/geopm_pio_sst.7.rst \
               docs/source/geopm_policystore_c.3.rst \
               docs/source/geopm_prof_c.3.rst \
               docs/source/geopmpy.7.rst \
@@ -116,6 +117,7 @@ dist_man_MANS = docs/build/man/geopm.7 \
                 docs/build/man/geopm_error.3 \
                 docs/build/man/geopm_hash.3 \
                 docs/build/man/geopm_pio_c.3 \
+                docs/build/man/geopm_pio_sst.7 \
                 docs/build/man/geopmread.1 \
                 docs/build/man/geopm_report.7 \
                 docs/build/man/geopm_sched.3 \

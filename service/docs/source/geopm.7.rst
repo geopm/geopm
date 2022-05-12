@@ -1,13 +1,6 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
-
 
 geopm(7) -- global extensible open power manager
 ================================================
-
-
-
-
 
 
 DESCRIPTION
@@ -266,87 +259,87 @@ GEOPM ENVIRONMENT VARIABLES
 ---------------------------
 
 
-* 
+*
   ``GEOPM_REPORT``\ :
   See documentation for equivalent command line option to
   `geopmlaunch(1) <geopmlaunch.1.html>`_ called ``--geopm-report``.
 
-* 
+*
   ``GEOPM_REPORT_SIGNALS``\ :
   See documentation for equivalent command line option to
   `geopmlaunch(1) <geopmlaunch.1.html>`_ called ``--geopm-report-signals``.
 
-* 
+*
   ``GEOPM_TRACE``\ :
   See documentation for equivalent command line option to
   `geopmlaunch(1) <geopmlaunch.1.html>`_ called ``--geopm-trace``.
 
-* 
+*
   ``GEOPM_TRACE_SIGNALS``\ :
   See documentation for equivalent command line option to
   `geopmlaunch(1) <geopmlaunch.1.html>`_ called ``--geopm-trace-signals``.
 
-* 
+*
   ``GEOPM_TRACE_PROFILE``\ :
   See documentation for equivalent command line option to
   `geopmlaunch(1) <geopmlaunch.1.html>`_ called ``--geopm-trace-profile``.
 
-* 
+*
   ``GEOPM_TRACE_ENDPOINT_POLICY``\ :
   See documentation for equivalent command line option to
   `geopmlaunch(1) <geopmlaunch.1.html>`_ called ``--geopm-trace-endpoint-policy``.
 
-* 
+*
   ``GEOPM_PROFILE``\ :
   See documentation for equivalent command line option to
   `geopmlaunch(1) <geopmlaunch.1.html>`_ called ``--geopm-profile``.
 
-* 
+*
   ``GEOPM_CTL``\ :
   See documentation for equivalent command line option to
   `geopmlaunch(1) <geopmlaunch.1.html>`_ called ``--geopm-ctl``.
 
-* 
+*
   ``GEOPM_AGENT``\ :
   See documentation for equivalent command line option to
   `geopmlaunch(1) <geopmlaunch.1.html>`_ called ``--geopm-agent``.
 
-* 
+*
   ``GEOPM_POLICY``\ :
   See documentation for equivalent command line option to
   `geopmlaunch(1) <geopmlaunch.1.html>`_ called ``--geopm-policy``.
 
-* 
+*
   ``GEOPM_ENDPOINT``\ :
   See documentation for equivalent command line option to
   `geopmlaunch(1) <geopmlaunch.1.html>`_ called ``--geopm-endpoint``.
 
-* 
+*
   ``GEOPM_SHMKEY``\ :
   See documentation for equivalent command line option to
   `geopmlaunch(1) <geopmlaunch.1.html>`_ called ``--geopm-shmkey``.
 
-* 
+*
   ``GEOPM_TIMEOUT``\ :
   See documentation for equivalent command line option to
   `geopmlaunch(1) <geopmlaunch.1.html>`_ called ``--geopm-timeout``.
 
-* 
+*
   ``GEOPM_PLUGIN_PATH``\ :
   See documentation for equivalent command line option to
   `geopmlaunch(1) <geopmlaunch.1.html>`_ called ``--geopm-plugin-path``.
 
-* 
+*
   ``GEOPM_DEBUG_ATTACH``\ :
   See documentation for equivalent command line option to
   `geopmlaunch(1) <geopmlaunch.1.html>`_ called ``--geopm-debug-attach``.
 
-* 
+*
   ``GEOPM_DISABLE_HYPERTHREADS``\ :
   See documentation for equivalent command line option to
   `geopmlaunch(1) <geopmlaunch.1.html>`_ called ``--geopm-hyperthreads-disable``.
 
-* 
+*
   ``GEOPM_OMPT_DISABLE``\ :
   Disable OpenMP region detection as described in `INTEGRATION WITH OMPT <INTEGRATION WITH OMPT_>`_.
   See documentation for equivalent command line option to `geopmlaunch(1) <geopmlaunch.1.html>`_
@@ -356,7 +349,7 @@ OTHER ENVIRONMENT VARIABLES
 ---------------------------
 
 
-* 
+*
   ``LD_DYNAMIC_WEAK``\ :
   The `geopmlaunch(1) <geopmlaunch.1.html>`_ tool will preload ``libgeopm.so`` for all
   applications, so the use of ``LD_DYNAMIC_WEAK`` is not required when
@@ -384,6 +377,7 @@ SEE ALSO
 `geopm_agent_power_balancer(7) <geopm_agent_power_balancer.7.html>`_\ ,
 `geopm_agent_power_governor(7) <geopm_agent_power_governor.7.html>`_\ ,
 `geopm_report(7) <geopm_report.7.html>`_\ ,
+`geopm_pio_sst(7) <geopm_pio_sst.7.html>`_\ ,
 `geopm_agent_c(3) <geopm_agent_c.3.html>`_\ ,
 `geopm_ctl_c(3) <geopm_ctl_c.3.html>`_\ ,
 `geopm_error(3) <geopm_error.3.html>`_\ ,
