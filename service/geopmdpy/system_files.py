@@ -275,7 +275,8 @@ class ActiveSessions(object):
     creation.
 
     The session files are stored in JSON format and follow the
-    active session schema in geopmdpy.schemas.GEOPM_ACTIVE_SESSION_SCHEMA.
+    GEOPM_ACTIVE_SESSIONS_SCHEMA documented in the
+    ``geopmdpy.schemas`` module.
 
     """
 
