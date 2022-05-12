@@ -286,17 +286,17 @@ class TestAffinity(unittest.TestCase):
         }
         launcher = TestAffinityLauncher(self.process_argv, **launch_args)
         err_msg = 'Cores cannot be shared between MPI ranks'
-        with self.assertRaisesRegexp(RuntimeError, err_msg):
+        with self.assertRaisesRegex(RuntimeError, err_msg):
             launcher.affinity_list(False)
 
         launcher = TestAffinityLauncher(self.pthread_argv, **launch_args)
         err_msg = 'Cores cannot be shared between MPI ranks'
-        with self.assertRaisesRegexp(RuntimeError, err_msg):
+        with self.assertRaisesRegex(RuntimeError, err_msg):
             launcher.affinity_list(False)
 
         launcher = TestAffinityLauncher(self.application_argv, **launch_args)
         err_msg = 'Cores cannot be shared between MPI ranks'
-        with self.assertRaisesRegexp(RuntimeError, err_msg):
+        with self.assertRaisesRegex(RuntimeError, err_msg):
             launcher.affinity_list(False)
 
     def test_affinity_13(self):
@@ -412,19 +412,19 @@ class TestAffinity(unittest.TestCase):
         launcher = TestAffinityLauncher(self.process_argv + add_args, **launch_args)
         err_msg = 'Hyperthreads needed to satisfy ranks/threads configuration, but forbidden by'\
                   ' --geopm-hyperthreads-disable.'
-        with self.assertRaisesRegexp(RuntimeError, err_msg):
+        with self.assertRaisesRegex(RuntimeError, err_msg):
             launcher.affinity_list(False)
 
         launcher = TestAffinityLauncher(self.pthread_argv + add_args, **launch_args)
         err_msg = 'Hyperthreads needed to satisfy ranks/threads configuration, but forbidden by'\
                   ' --geopm-hyperthreads-disable.'
-        with self.assertRaisesRegexp(RuntimeError, err_msg):
+        with self.assertRaisesRegex(RuntimeError, err_msg):
             launcher.affinity_list(False)
 
         launcher = TestAffinityLauncher(self.application_argv + add_args, **launch_args)
         err_msg = 'Hyperthreads needed to satisfy ranks/threads configuration, but forbidden by'\
                   ' --geopm-hyperthreads-disable.'
-        with self.assertRaisesRegexp(RuntimeError, err_msg):
+        with self.assertRaisesRegex(RuntimeError, err_msg):
             launcher.affinity_list(False)
 
     def test_affinity_tutorial_knl(self):
