@@ -7,10 +7,18 @@
 
 import unittest
 import json
+from importlib import reload
+
 import geopmpy.agent
+from geopmdpy import gffi
 
 
 class TestAgent(unittest.TestCase):
+    def setUp(self):
+        # Ensures that mocks do not leak into this test
+        reload(gffi)
+        reload(geopmpy.agent)
+
     def test_policy_names(self):
         for agent in geopmpy.agent.names():
             policy = geopmpy.agent.policy_names(agent)
