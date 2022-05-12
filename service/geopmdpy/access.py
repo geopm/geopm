@@ -236,6 +236,19 @@ class Access:
             raise
         return path
 
+    def edited_names(self, is_control, group):
+        if is_control:
+            initial_names = self.get_group_controls(group)
+        else:
+            initial_names = self.get_group_signals(group)
+        edit_path = self.edited_names_path(initial_names)
+        try:
+            with open(edit_path) as fid:
+                names = self.read_names(fid)
+        finally:
+            os.unlink(edit_path)
+        return names
+
     def read_names(self, fid):
         """Returns list names from user
 
@@ -282,48 +295,38 @@ class Access:
 
         """
         output = None
-        if is_write or is_edit:
-            if is_all or is_delete:
-                raise RuntimeError('Option -a/--all and -D/--delete are not valid when -w/--write or -e/--edit is provided')
-            elif is_edit and (is_force or is_dry_run):
-                raise RuntimeError('Option -e/--edit is not valid with -n/--dry-run or -F/--force')
-            else:
-                if is_edit:
-                    if is_control:
-                        initial_names = self.get_group_controls(group)
-                    else:
-                        initial_names = self.get_group_signals(group)
-                    edit_path = self.edited_names_path(initial_names)
-                    try:
-                        with open(edit_path) as fid:
-                            names = self.read_names(fid)
-                    finally:
-                        os.unlink(edit_path)
+        if is_all and (is_write or is_edit or is_delete):
+            raise RuntimeError('Option -a/--all is not valid when writing a configuration')
+        if is_dry_run and (is_edit or is_delete):
+            raise RuntimeError('Option -n/--dry-run not valid with -e/--edit or -D/--delete')
+        if is_force and is_edit:
+            raise RuntimeError('Option -F/--force is not valid with -e/--edit')
+        if group != '' and is_default:
+            raise RuntimeError('Option -g/--group is not valid with -u/--default')
+        if not (is_edit or is_write or is_delete) and (is_dry_run or is_force):
+            raise RuntimeError('-n/--dry-run, and -F/--force not valid when reading')
 
-                else:
-                    names = self.read_names(sys.stdin)
-                if is_control:
-                    self.set_group_controls(group, names, is_dry_run, is_force)
-                else:
-                    self.set_group_signals(group, names, is_dry_run, is_force)
+        names = None
+        if is_edit:
+            names = self.edited_names(is_control, group)
+        elif is_write:
+            names = self.read_names(sys.stdin)
         elif is_delete:
-            if is_dry_run:
-                raise RuntimeError('Option -d/--delete is not valid with -n/--dry-run')
+            names = []
+        if names is not None:
+            # Set access list
             if is_control:
-                self.set_group_controls(group, [], is_dry_run, is_force)
+                self.set_group_controls(group, names, is_dry_run, is_force)
             else:
-                self.set_group_signals(group, [], is_dry_run, is_force)
+                self.set_group_signals(group, names, is_dry_run, is_force)
         else:
-            if is_dry_run or is_force:
-                raise RuntimeError('-n/--dry-run, and -F/--force not valid unless -w/--write is provided')
+            # Get access list
             if is_all:
                 if is_control:
                     output = self.get_all_controls()
                 else:
                     output = self.get_all_signals()
             else:
-                if is_default:
-                    group = ''
                 if is_control:
                     output = self.get_group_controls(group)
                 else:
