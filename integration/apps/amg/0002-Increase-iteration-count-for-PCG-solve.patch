@@ -1,7 +1,7 @@
-From 6d49442a0cae9020c019bc43af63053b79b98534 Mon Sep 17 00:00:00 2001
+From 68974e0717172c13d8ef0b03f4c2a92a12f748df Mon Sep 17 00:00:00 2001
 From: "Christopher M. Cantalupo" <christopher.m.cantalupo@intel.com>
 Date: Tue, 6 Oct 2020 17:08:13 -0700
-Subject: [PATCH 2/2] Increase iteration count for PCG solve
+Subject: [PATCH 2/3] Increase iteration count for PCG solve
 
 - Increase mg_max_iter from 100 to 500
 - Decrease error tolerence to zero to avoid
@@ -39,5 +39,5 @@ index 18811ea..842f636 100644
  
     HYPRE_Real   wall_time;
 -- 
-1.8.3.1
+2.26.2
 

@@ -1,7 +1,8 @@
-From 03b8ad88c1c8d02f472bb535e044d366654e2abf Mon Sep 17 00:00:00 2001
+From 51a26efa4e33a05a10c24aaef1acf263094e9288 Mon Sep 17 00:00:00 2001
 From: Brad Geltz <brad.geltz@intel.com>
 Date: Wed, 7 Oct 2020 15:50:07 -0700
-Subject: [PATCH 3/5] Link GEOPM
+Subject: [PATCH 3/6] Link GEOPM
+
 #
 #  Copyright (c) 2015 - 2022, Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
@@ -17,22 +18,22 @@ index df085d9..1f1a964 100644
 --- a/src/Makefile.intel.openmp
 +++ b/src/Makefile.intel.openmp
 @@ -16,13 +16,13 @@ MINIFE_MATRIX_TYPE = -DMINIFE_CSR_MATRIX
-
+ 
  #-----------------------------------------------------------------------
-
+ 
 -CFLAGS = -O3 -fopenmp
 +CFLAGS = -O3 -fopenmp $(GEOPM_CFLAGS)
  CXXFLAGS = $(CFLAGS)
-
+ 
  CPPFLAGS = -I. -I../utils -I../fem $(MINIFE_TYPES) $(MINIFE_MATRIX_TYPE) -DHAVE_MPI
-
+ 
 -LDFLAGS=
 -LIBS=
 +LDFLAGS=$(GEOPM_LDFLAGS)
 +LIBS=$(GEOPM_LDLIBS)
-
+ 
  CXX=$(MPICXX)
  CC=$(MPICC)
---
-2.23.0
+-- 
+2.26.2
 
