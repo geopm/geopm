@@ -37,7 +37,7 @@ namespace geopm
         , M_WAIT_SEC(0.020) // 20ms wait default
         , M_POLICY_PHI_DEFAULT(0.5)
         , M_GPU_ACTIVITY_CUTOFF(0.05)
-        , M_NUM_GPU(m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR))
+        , M_NUM_GPU(m_platform_topo.num_domain(GEOPM_DOMAIN_GPU))
         , m_do_write_batch(false)
     {
         geopm_time(&m_last_wait);
@@ -69,16 +69,16 @@ namespace geopm
 
         for (int domain_idx = 0; domain_idx < M_NUM_GPU; ++domain_idx) {
             m_gpu_freq_status.push_back({m_platform_io.push_signal("GPU_FREQUENCY_STATUS",
-                                         GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                         GEOPM_DOMAIN_GPU,
                                          domain_idx), NAN});
             m_gpu_compute_activity.push_back({m_platform_io.push_signal("GPU_COMPUTE_ACTIVITY",
-                                              GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                              GEOPM_DOMAIN_GPU,
                                               domain_idx), NAN});
             m_gpu_utilization.push_back({m_platform_io.push_signal("GPU_UTILIZATION",
-                                         GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                         GEOPM_DOMAIN_GPU,
                                          domain_idx), NAN});
             m_gpu_energy.push_back({m_platform_io.push_signal("GPU_ENERGY",
-                                    GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                    GEOPM_DOMAIN_GPU,
                                     domain_idx), NAN});
         }
 
@@ -86,7 +86,7 @@ namespace geopm
 
         for (int domain_idx = 0; domain_idx < M_NUM_GPU; ++domain_idx) {
             m_gpu_freq_control.push_back(control{m_platform_io.push_control("GPU_FREQUENCY_CONTROL",
-                                         GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                         GEOPM_DOMAIN_GPU,
                                          domain_idx), NAN});
         }
 
@@ -108,16 +108,16 @@ namespace geopm
     void GPUActivityAgent::validate_policy(std::vector<double> &in_policy) const
     {
         assert(in_policy.size() == M_NUM_POLICY);
-        double accel_min_freq = m_platform_io.read_signal("GPU_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0);
-        double accel_max_freq = m_platform_io.read_signal("GPU_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0);
+        double gpu_min_freq = m_platform_io.read_signal("GPU_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0);
+        double gpu_max_freq = m_platform_io.read_signal("GPU_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0);
 
         // Check for NAN to set default values for policy
         if (std::isnan(in_policy[M_POLICY_GPU_FREQ_MAX])) {
-            in_policy[M_POLICY_GPU_FREQ_MAX] = accel_max_freq;
+            in_policy[M_POLICY_GPU_FREQ_MAX] = gpu_max_freq;
         }
 
-        if (in_policy[M_POLICY_GPU_FREQ_MAX] > accel_max_freq ||
-            in_policy[M_POLICY_GPU_FREQ_MAX] < accel_min_freq ) {
+        if (in_policy[M_POLICY_GPU_FREQ_MAX] > gpu_max_freq ||
+            in_policy[M_POLICY_GPU_FREQ_MAX] < gpu_min_freq ) {
             throw Exception("GPUActivityAgent::" + std::string(__func__) +
                             "(): GPU_FREQ_MAX out of range: " +
                             std::to_string(in_policy[M_POLICY_GPU_FREQ_MAX]) +
@@ -129,11 +129,11 @@ namespace geopm
         // f_efficient as midway between F_min and F_max is reasonable.
         if (std::isnan(in_policy[M_POLICY_GPU_FREQ_EFFICIENT])) {
             in_policy[M_POLICY_GPU_FREQ_EFFICIENT] = (in_policy[M_POLICY_GPU_FREQ_MAX]
-                                                             + accel_min_freq) / 2;
+                                                             + gpu_min_freq) / 2;
         }
 
-        if (in_policy[M_POLICY_GPU_FREQ_EFFICIENT] > accel_max_freq ||
-            in_policy[M_POLICY_GPU_FREQ_EFFICIENT] < accel_min_freq ) {
+        if (in_policy[M_POLICY_GPU_FREQ_EFFICIENT] > gpu_max_freq ||
+            in_policy[M_POLICY_GPU_FREQ_EFFICIENT] < gpu_min_freq ) {
             throw Exception("GPUActivityAgent::" + std::string(__func__) +
                             "(): GPU_FREQ_EFFICIENT out of range: " +
                             std::to_string(in_policy[M_POLICY_GPU_FREQ_EFFICIENT]) +

@@ -56,7 +56,7 @@ class GPUActivityAgentTest : public :: testing :: Test
         void TearDown();
         static const int M_NUM_CPU = 1;
         static const int M_NUM_BOARD = 1;
-        static const int M_NUM_BOARD_ACCELERATOR = 1;
+        static const int M_NUM_GPU = 1;
         std::unique_ptr<GPUActivityAgent> m_agent;
         std::vector<double> m_default_policy;
         size_t m_num_policy;
@@ -74,8 +74,8 @@ void GPUActivityAgentTest::SetUp()
 
     ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_BOARD))
         .WillByDefault(Return(M_NUM_BOARD));
-    ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR))
-        .WillByDefault(Return(M_NUM_BOARD_ACCELERATOR));
+    ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_GPU))
+        .WillByDefault(Return(M_NUM_GPU));
 
     ON_CALL(*m_platform_io, push_signal("GPU_FREQUENCY_STATUS", _, _))
         .WillByDefault(Return(GPU_FREQUENCY_IDX));
@@ -93,9 +93,9 @@ void GPUActivityAgentTest::SetUp()
     m_freq_min = 0135000000.0;
     m_freq_max = 1530000000.0;
     ON_CALL(*m_platform_io, control_domain_type("GPU_FREQUENCY_CONTROL"))
-        .WillByDefault(Return(GEOPM_DOMAIN_BOARD_ACCELERATOR));
+        .WillByDefault(Return(GEOPM_DOMAIN_GPU));
     ON_CALL(*m_platform_io, signal_domain_type("GPU_COMPUTE_ACTIVITY"))
-        .WillByDefault(Return(GEOPM_DOMAIN_BOARD_ACCELERATOR));
+        .WillByDefault(Return(GEOPM_DOMAIN_GPU));
     ON_CALL(*m_platform_io, read_signal("GPU_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0))
         .WillByDefault(Return(m_freq_min));
     ON_CALL(*m_platform_io, read_signal("GPU_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0))
@@ -264,7 +264,7 @@ TEST_F(GPUActivityAgentTest, adjust_platform_high)
 
     //Adjust
     //Check frequency
-    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_IDX, m_freq_max)).Times(M_NUM_BOARD_ACCELERATOR);
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_IDX, m_freq_max)).Times(M_NUM_GPU);
     m_agent->adjust_platform(policy);
 
     //Check a frequency decision resulted in write batch being true
@@ -300,7 +300,7 @@ TEST_F(GPUActivityAgentTest, adjust_platform_medium)
     //Adjust
     //Check frequency
     double expected_freq = policy[FREQ_EFFICIENT] + (m_freq_max - policy[FREQ_EFFICIENT]) * mock_active;
-    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_IDX, expected_freq)).Times(M_NUM_BOARD_ACCELERATOR);
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_IDX, expected_freq)).Times(M_NUM_GPU);
 
     m_agent->adjust_platform(policy);
 
@@ -338,7 +338,7 @@ TEST_F(GPUActivityAgentTest, adjust_platform_low)
     //Adjust
     //Check frequency
     double expected_freq = policy[FREQ_EFFICIENT] + (m_freq_max - policy[FREQ_EFFICIENT]) * mock_active;
-    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_IDX, expected_freq)).Times(M_NUM_BOARD_ACCELERATOR);
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_IDX, expected_freq)).Times(M_NUM_GPU);
     m_agent->adjust_platform(policy);
     //Check a frequency decision resulted in write batch being true
     EXPECT_TRUE(m_agent->do_write_batch());
@@ -373,7 +373,7 @@ TEST_F(GPUActivityAgentTest, adjust_platform_zero)
 
     //Adjust
     //Check frequency
-    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_IDX, m_freq_min)).Times(M_NUM_BOARD_ACCELERATOR);
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_IDX, m_freq_min)).Times(M_NUM_GPU);
     m_agent->adjust_platform(policy);
 
     //Check a frequency decision resulted in write batch being true
@@ -409,7 +409,7 @@ TEST_F(GPUActivityAgentTest, adjust_platform_signal_out_of_bounds)
 
     //Adjust
     //Check frequency
-    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_IDX, m_freq_max)).Times(M_NUM_BOARD_ACCELERATOR);
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_IDX, m_freq_max)).Times(M_NUM_GPU);
     m_agent->adjust_platform(policy);
 
     //Check a frequency decision resulted in write batch being true
@@ -430,7 +430,7 @@ TEST_F(GPUActivityAgentTest, adjust_platform_signal_out_of_bounds)
 
     //Adjust
     //Check frequency
-    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_IDX, m_freq_min)).Times(M_NUM_BOARD_ACCELERATOR);
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_IDX, m_freq_min)).Times(M_NUM_GPU);
     m_agent->adjust_platform(policy);
 
     //Check a frequency decision resulted in write batch being true
