@@ -1,7 +1,8 @@
-From c50eaca4728143ab891dde5598be05d7a401d6ee Mon Sep 17 00:00:00 2001
+From 49768acf612e111147ea8c7fc57055f1ae10238b Mon Sep 17 00:00:00 2001
 From: Brad Geltz <brad.geltz@intel.com>
 Date: Wed, 7 Oct 2020 12:03:55 -0700
-Subject: [PATCH 1/5] Cleanup and add gitignore
+Subject: [PATCH 1/6] Cleanup and add gitignore
+
 #
 #  Copyright (c) 2015 - 2022, Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
@@ -43,6 +44,6 @@ index 918839c..0000000
 -#define MINIFE_CXXFLAGS "'-qlist -qsource  -g -O3 -qsmp=omp'"
 -
 -#endif
---
-2.23.0
+-- 
+2.26.2
 

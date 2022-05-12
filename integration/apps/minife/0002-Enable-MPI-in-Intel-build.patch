@@ -1,7 +1,7 @@
-From 83b90a1fb6c9b8d3ecc089d15b3292087ca88a24 Mon Sep 17 00:00:00 2001
+From d924fe1e0d428cf56f301cccf3f0e7848a5a93c8 Mon Sep 17 00:00:00 2001
 From: Brad Geltz <brad.geltz@intel.com>
 Date: Wed, 7 Oct 2020 12:17:19 -0700
-Subject: [PATCH 2/5] Enable MPI in Intel build
+Subject: [PATCH 2/6] Enable MPI in Intel build
 
 #
 #  Copyright (c) 2015 - 2022, Intel Corporation
@@ -37,5 +37,5 @@ index 390f163..df085d9 100644
  #-----------------------------------------------------------------------
  
 -- 
-2.23.0
+2.26.2
 

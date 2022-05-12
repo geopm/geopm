@@ -1,0 +1,38 @@
+From 41d764ad10b9c7e53dfd16e40200fb2bd2efa4fd Mon Sep 17 00:00:00 2001
+From: Lowren Lawson <lowren.h.lawson@intel.com>
+Date: Thu, 12 May 2022 16:01:47 -0700
+Subject: [PATCH 3/3] Added geopm hint header
+
+Signed-off-by: Lowren Lawson <lowren.h.lawson@intel.com>
+---
+ krylov/pcg.c       | 1 +
+ utilities/timing.c | 1 +
+ 2 files changed, 2 insertions(+)
+
+diff --git a/krylov/pcg.c b/krylov/pcg.c
+index c98fa15..93d18fd 100644
+--- a/krylov/pcg.c
++++ b/krylov/pcg.c
+@@ -33,6 +33,7 @@
+ #include "krylov.h"
+ #include "_hypre_utilities.h"
+ #ifdef GEOPM
++#include <geopm_hint.h>
+ #include <geopm_prof.h>
+ #endif
+ 
+diff --git a/utilities/timing.c b/utilities/timing.c
+index f0b224f..5dfac29 100644
+--- a/utilities/timing.c
++++ b/utilities/timing.c
+@@ -26,6 +26,7 @@
+ #include "_hypre_utilities.h"
+ #include "timing.h"
+ #ifdef GEOPM
++#include "geopm_hint.h"
+ #include "geopm_prof.h"
+ #endif
+ 
+-- 
+2.26.2
+

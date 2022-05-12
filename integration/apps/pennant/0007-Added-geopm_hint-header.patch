@@ -1,0 +1,62 @@
+From 4265219bd70cccb01c7887fcdfb960696d2f25c2 Mon Sep 17 00:00:00 2001
+From: Lowren Lawson <lowren.h.lawson@intel.com>
+Date: Thu, 12 May 2022 16:06:41 -0700
+Subject: [PATCH 7/7] Added geopm_hint header
+
+Signed-off-by: Lowren Lawson <lowren.h.lawson@intel.com>
+---
+ src/Driver.cc       | 1 +
+ src/Hydro.cc        | 1 +
+ src/PennantGeopm.cc | 1 +
+ src/main.cc         | 1 +
+ 4 files changed, 4 insertions(+)
+
+diff --git a/src/Driver.cc b/src/Driver.cc
+index 3d2d037..bb2357b 100644
+--- a/src/Driver.cc
++++ b/src/Driver.cc
+@@ -29,6 +29,7 @@
+ #include "Hydro.hh"
+ 
+ #ifdef USEGEOPM
++#include "geopm_hint.h"
+ #include "geopm_prof.h"
+ #endif
+ #include "PennantGeopm.hh"
+diff --git a/src/Hydro.cc b/src/Hydro.cc
+index 81a9411..f067281 100644
+--- a/src/Hydro.cc
++++ b/src/Hydro.cc
+@@ -31,6 +31,7 @@
+ #include "HydroBC.hh"
+ 
+ #ifdef USEGEOPM
++#include "geopm_hint.h"
+ #include "geopm_prof.h"
+ #endif
+ #include "PennantGeopm.hh"
+diff --git a/src/PennantGeopm.cc b/src/PennantGeopm.cc
+index adb3d29..88ff626 100644
+--- a/src/PennantGeopm.cc
++++ b/src/PennantGeopm.cc
+@@ -1,4 +1,5 @@
+ #ifdef USEGEOPM
++#include "geopm_hint.h"
+ #include "geopm_prof.h"
+ #include "PennantGeopm.hh"
+ #endif
+diff --git a/src/main.cc b/src/main.cc
+index f80b231..accc1b6 100644
+--- a/src/main.cc
++++ b/src/main.cc
+@@ -19,6 +19,7 @@
+ #include "Driver.hh"
+ 
+ #ifdef USEGEOPM
++#include "geopm_hint.h"
+ #include "geopm_prof.h"
+ #endif
+ #include "PennantGeopm.hh"
+-- 
+2.26.2
+
