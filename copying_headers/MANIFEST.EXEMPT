@@ -127,6 +127,7 @@ service/docs/source/geopm_hash.3.rst
 service/docs/source/geopm_imbalancer.3.rst
 service/docs/source/geopmlaunch.1.rst
 service/docs/source/geopm_pio_c.3.rst
+service/docs/source/geopm_pio_sst.7.rst
 service/docs/source/geopm_policystore_c.3.rst
 service/docs/source/geopm_prof_c.3.rst
 service/docs/source/geopmpy.7.rst
