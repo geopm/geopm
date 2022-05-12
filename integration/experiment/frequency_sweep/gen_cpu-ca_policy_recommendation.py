@@ -42,12 +42,16 @@ def extract_columns(df, region_filter = None):
                                 'package-energy (J)',
                                 'dram-energy (J)',
                                 'frequency (Hz)',
+                                'QM_CTR_SCALED_RATE@package-0',
+                                'QM_CTR_SCALED_RATE@package-1',
                                 'uncore-frequency (Hz)',]]
     except:
         df_cols = df_filtered[['region',
                                 'runtime (s)',
                                 'package-energy (J)',
                                 'dram-energy (J)',
+                                'QM_CTR_SCALED_RATE@package-0',
+                                'QM_CTR_SCALED_RATE@package-1',
                                 'frequency (Hz)']]
 
         df_cols['uncore-frequency (Hz)'] = (df_filtered['MSR::UNCORE_PERF_STATUS:FREQ@package-0'] +
@@ -86,6 +90,20 @@ def policy_efficient_energy(df, tolerance, domain):
 
     return recommended_frequency
 
+def system_memory_bandwidth_characterization(df):
+    df['uncore-frequency (GHz)'] = (df['uncore-frequency (Hz)']/1e09).round(decimals=1)
+    uncore_freq_set = sorted(set(df['uncore-frequency (GHz)'].to_list()))
+
+    mem_bw_mean = []
+    for k in uncore_freq_set:
+        mem_df = df.groupby('uncore-frequency (GHz)').get_group(k)
+        #TODO: use both packages!  This will skew in favor of package-0, which
+        #      is not optimal
+        mem_bw_char_avg.append(mem_df['QM_CTR_SCALED_RATE@package-0'].mean())
+
+    #code.interact(local=locals())
+    return mem_bw_mean
+
 def policy_perf_deg(df, tolerance, domain):
     #if domain == "UNCORE":
     #    freq_col = 'uncore-frequency (Hz)'
@@ -118,11 +136,16 @@ def main(full_df, region_filter, tolerance, min_energy, max_degradation):
     """
     df = extract_columns(full_df, region_filter)
     df_region_group = df.groupby('region')
+
+    # Characterize MBM metrics
+    df = df_region_group.get_group('intensity_0')
+    mem_bw_characterization = system_memory_bandwidth_characterization(df)
+
     # A two pass approoach is used, first analyze
     # the most uncore sensitive region (intensity_0)
     # to find the efficient uncore frequency
     # (or a lower frequency if tolerance is not 0%)
-    df = df_region_group.get_group('intensity_0')
+
     uncore_freq_efficient = policy_efficient_energy(df, tolerance, "UNCORE")
     uncore_freq_max = 2.4e9 #system max
     #TODO find max intensity_32 perf deg within bounds, may replace tolerance calc
