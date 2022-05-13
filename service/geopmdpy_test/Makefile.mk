@@ -79,6 +79,10 @@ GEOPMDPY_TESTS = geopmdpy_test/pytest_links/TestAccessLists.test__read_allowed_i
                  geopmdpy_test/pytest_links/TestAccess.test_write_default_controls \
                  geopmdpy_test/pytest_links/TestAccess.test_write_group_signals \
                  geopmdpy_test/pytest_links/TestAccess.test_write_group_controls \
+                 geopmdpy_test/pytest_links/TestAccess.test_write_invalid_signals_force \
+                 geopmdpy_test/pytest_links/TestAccess.test_write_signals_dry_run \
+                 geopmdpy_test/pytest_links/TestAccess.test_write_invalid_signals_dry_run \
+                 geopmdpy_test/pytest_links/TestAccess.test_edit_signals \
                  geopmdpy_test/pytest_links/TestRequestQueue.test_read_request_queue \
                  geopmdpy_test/pytest_links/TestRequestQueue.test_read_request_queue_invalid \
                  geopmdpy_test/pytest_links/TestRequestQueue.test_request_queue_invalid \

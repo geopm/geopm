@@ -5,6 +5,8 @@
 #
 
 import unittest
+import os
+import tempfile
 from unittest import mock
 
 from geopmdpy.access import Access
@@ -157,6 +159,21 @@ class TestAccess(unittest.TestCase):
             self._geopm_proxy.PlatformGetGroupAccess.assert_called_once_with('')
             self._geopm_proxy.PlatformGetAllAccess.assert_called_once()
 
+    def test_write_invalid_signals_force(self):
+        """Test command to write invalid default signal access list with force
+
+        Test the run() method equivalent to 'geopmaccess -w -F'
+
+        """
+        empty_access = ([], [])
+        self._geopm_proxy.PlatformSetGroupAccess = mock.Mock()
+        self._geopm_proxy.PlatformGetGroupAccess = mock.Mock(return_value=empty_access)
+        with mock.patch('sys.stdin.readlines', return_value=self._signals_expect):
+            self._access.run(True, False, False, '', False, False, False, True, False)
+            self._geopm_proxy.PlatformGetGroupAccess.assert_called_once_with('')
+            self._geopm_proxy.PlatformSetGroupAccess.assert_called_once_with('',
+                self._signals_expect, [])
+
     def test_write_invalid_controls(self):
         """Test command to write invalid default control access list
 
@@ -171,6 +188,38 @@ class TestAccess(unittest.TestCase):
         with mock.patch('sys.stdin.readlines', return_value=self._controls_expect):
             with self.assertRaisesRegex(RuntimeError, err_msg):
                 self._access.run(True, False, True, '', False, False, False, False, False)
+            self._geopm_proxy.PlatformGetGroupAccess.assert_called_once_with('')
+            self._geopm_proxy.PlatformGetAllAccess.assert_called_once()
+
+    def test_write_signals_dry_run(self):
+        """Test command to dry-run write to default signal access list
+
+        Test the run() method equivalent to 'geopmaccess -w -n'
+
+        """
+        return_value = (self._signals_expect,
+                        self._controls_expect)
+        self._geopm_proxy.PlatformGetGroupAccess = mock.Mock(return_value=return_value)
+        self._geopm_proxy.PlatformGetAllAccess = mock.Mock(return_value=return_value)
+        with mock.patch('sys.stdin.readlines', return_value=self._signals_expect):
+            self._access.run(True, False, False, '', False, False, True, False, False)
+            self._geopm_proxy.PlatformGetGroupAccess.assert_called_once_with('')
+            self._geopm_proxy.PlatformGetAllAccess.assert_called_once()
+
+    def test_write_invalid_signals_dry_run(self):
+        """Test command to dry-run write invalid default signal access list
+
+        Test the run() method equivalent to 'geopmaccess -w -n'
+
+        """
+        return_value = (self._signals_expect,
+                        self._controls_expect)
+        self._geopm_proxy.PlatformGetGroupAccess = mock.Mock(return_value=return_value)
+        self._geopm_proxy.PlatformGetAllAccess = mock.Mock(return_value=([], []))
+        err_msg = f'Requested access to signals that are not available: {", ".join(sorted(self._signals_expect))}'
+        with mock.patch('sys.stdin.readlines', return_value=self._signals_expect):
+            with self.assertRaisesRegex(RuntimeError, err_msg):
+                self._access.run(True, False, False, '', False, False, True, False, False)
             self._geopm_proxy.PlatformGetGroupAccess.assert_called_once_with('')
             self._geopm_proxy.PlatformGetAllAccess.assert_called_once()
 
@@ -209,6 +258,48 @@ class TestAccess(unittest.TestCase):
             self._geopm_proxy.PlatformSetGroupAccess.assert_called_once_with('test',
                 self._signals_expect, self._controls_expect)
             self._geopm_proxy.PlatformGetAllAccess.assert_called_once()
+
+    def test_edit_signals(self):
+        """Test command to edit access list
+
+        Test the run() method equivalent to 'geopmaccess -w -e'
+
+        """
+        edit_script=f"""\
+#!/bin/bash
+echo >> $1
+echo {self._signals_expect[0]} >> $1
+"""
+        suffix = 'geopm-test-access-edit-script'
+        orig_editor = os.environ.get('EDITOR')
+        edit_script_path = None
+        try:
+            with tempfile.NamedTemporaryFile(mode='w', suffix=suffix, delete=False) as fid:
+                edit_script_path = fid.name
+                fid.write(edit_script)
+            os.chmod(edit_script_path, 0o700)
+            os.environ['EDITOR'] = edit_script_path
+            all_return = (self._signals_expect,
+                          self._controls_expect)
+            start_return = (self._signals_expect[1:],
+                            self._controls_expect)
+            self._geopm_proxy.PlatformSetGroupAccess = mock.Mock()
+            self._geopm_proxy.PlatformGetGroupAccess = mock.Mock(return_value=start_return)
+            self._geopm_proxy.PlatformGetAllAccess = mock.Mock(return_value=all_return)
+            self._access.run(True, False, False, '', False, False, False, False, True)
+            self._geopm_proxy.PlatformGetGroupAccess.assert_called_with('')
+            set_signals = self._signals_expect[1:]
+            set_signals.append(self._signals_expect[0])
+            self._geopm_proxy.PlatformSetGroupAccess.assert_called_once_with('',
+                set_signals, self._controls_expect)
+            self._geopm_proxy.PlatformGetAllAccess.assert_called_once()
+        finally:
+            if orig_editor is None:
+                os.environ.pop('EDITOR')
+            else:
+                os.environ['EDITOR'] = orig_editor
+            if edit_script_path is not None:
+                os.unlink(edit_script_path)
 
 if __name__ == '__main__':
     unittest.main()
