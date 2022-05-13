@@ -396,13 +396,14 @@ namespace geopm
         };
 
         auto all_names = m_platform_io.signal_names();
-        std::vector<m_sync_field_s> gpu_sync_fields = {
+        std::vector<m_sync_field_s> conditional_sync_fields = {
             {"gpu-energy (J)", {"GPU_ENERGY"}, sample_only},
             {"gpu-power (W)", {"GPU_POWER"}, sample_only},
-            {"gpu-frequency (Hz)", {"GPU_FREQUENCY_STATUS"}, sample_only}
+            {"gpu-frequency (Hz)", {"GPU_FREQUENCY_STATUS"}, sample_only},
+            {"uncore-frequency (Hz)", {"CPU_UNCORE_FREQUENCY_STATUS"}, sample_only}
         };
 
-        for (const auto &field : gpu_sync_fields) {
+        for (const auto &field : conditional_sync_fields) {
             for (const auto &signal : field.supporting_signals) {
                 if (all_names.count(signal) != 0) {
                     m_sync_fields.push_back(field);
