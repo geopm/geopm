@@ -29,10 +29,10 @@ class Topo():
             self.socket_cores[sock] = [sock*self._core_per_socket + cc for cc in range(self._core_per_socket)]
 
 
-class TestAffinityLauncher(geopmpy.launcher.Launcher):
+class ExampleAffinityLauncher(geopmpy.launcher.Launcher):
     def __init__(self, argv, num_rank, num_node, cpu_per_rank, topo):
         self.topo = topo
-        super(TestAffinityLauncher, self).__init__(argv, num_rank, num_node, cpu_per_rank)
+        super(ExampleAffinityLauncher, self).__init__(argv, num_rank, num_node, cpu_per_rank)
 
     def init_topo(self):
         self.thread_per_core = self.topo._hthread_per_core
@@ -70,7 +70,7 @@ class TestAffinity(unittest.TestCase):
     def check_process_mode(self, geopm_cpus, app_cpus, launch_args):
         args = launch_args.copy()
         self.process_argv += args.pop('add_args', [])
-        launcher = TestAffinityLauncher(self.process_argv, **args)
+        launcher = ExampleAffinityLauncher(self.process_argv, **args)
         actual = launcher.affinity_list(False)
         expect = [geopm_cpus] + app_cpus
         self.assertEqual(expect, actual)
@@ -78,7 +78,7 @@ class TestAffinity(unittest.TestCase):
     def check_pthread_mode(self, geopm_cpus, app_cpus, launch_args):
         args = launch_args.copy()
         self.pthread_argv += args.pop('add_args', [])
-        launcher = TestAffinityLauncher(self.pthread_argv, **args)
+        launcher = ExampleAffinityLauncher(self.pthread_argv, **args)
         actual = launcher.affinity_list(False)
         expect = app_cpus
         self.assertEqual(expect, actual)
@@ -86,7 +86,7 @@ class TestAffinity(unittest.TestCase):
     def check_application_mode(self, geopm_cpus, app_cpus, launch_args):
         args = launch_args.copy()
         self.application_argv += args.pop('add_args', [])
-        launcher = TestAffinityLauncher(self.application_argv, **args)
+        launcher = ExampleAffinityLauncher(self.application_argv, **args)
         actual = launcher.affinity_list(True)
         expect = [geopm_cpus]
         self.assertEqual(expect, actual)
@@ -284,19 +284,19 @@ class TestAffinity(unittest.TestCase):
             'num_node': 1,
             'cpu_per_rank': 5,
         }
-        launcher = TestAffinityLauncher(self.process_argv, **launch_args)
+        launcher = ExampleAffinityLauncher(self.process_argv, **launch_args)
         err_msg = 'Cores cannot be shared between MPI ranks'
-        with self.assertRaisesRegexp(RuntimeError, err_msg):
+        with self.assertRaisesRegex(RuntimeError, err_msg):
             launcher.affinity_list(False)
 
-        launcher = TestAffinityLauncher(self.pthread_argv, **launch_args)
+        launcher = ExampleAffinityLauncher(self.pthread_argv, **launch_args)
         err_msg = 'Cores cannot be shared between MPI ranks'
-        with self.assertRaisesRegexp(RuntimeError, err_msg):
+        with self.assertRaisesRegex(RuntimeError, err_msg):
             launcher.affinity_list(False)
 
-        launcher = TestAffinityLauncher(self.application_argv, **launch_args)
+        launcher = ExampleAffinityLauncher(self.application_argv, **launch_args)
         err_msg = 'Cores cannot be shared between MPI ranks'
-        with self.assertRaisesRegexp(RuntimeError, err_msg):
+        with self.assertRaisesRegex(RuntimeError, err_msg):
             launcher.affinity_list(False)
 
     def test_affinity_13(self):
@@ -409,22 +409,22 @@ class TestAffinity(unittest.TestCase):
             'cpu_per_rank': 40,
         }
         add_args = ['--geopm-hyperthreads-disable']
-        launcher = TestAffinityLauncher(self.process_argv + add_args, **launch_args)
+        launcher = ExampleAffinityLauncher(self.process_argv + add_args, **launch_args)
         err_msg = 'Hyperthreads needed to satisfy ranks/threads configuration, but forbidden by'\
                   ' --geopm-hyperthreads-disable.'
-        with self.assertRaisesRegexp(RuntimeError, err_msg):
+        with self.assertRaisesRegex(RuntimeError, err_msg):
             launcher.affinity_list(False)
 
-        launcher = TestAffinityLauncher(self.pthread_argv + add_args, **launch_args)
+        launcher = ExampleAffinityLauncher(self.pthread_argv + add_args, **launch_args)
         err_msg = 'Hyperthreads needed to satisfy ranks/threads configuration, but forbidden by'\
                   ' --geopm-hyperthreads-disable.'
-        with self.assertRaisesRegexp(RuntimeError, err_msg):
+        with self.assertRaisesRegex(RuntimeError, err_msg):
             launcher.affinity_list(False)
 
-        launcher = TestAffinityLauncher(self.application_argv + add_args, **launch_args)
+        launcher = ExampleAffinityLauncher(self.application_argv + add_args, **launch_args)
         err_msg = 'Hyperthreads needed to satisfy ranks/threads configuration, but forbidden by'\
                   ' --geopm-hyperthreads-disable.'
-        with self.assertRaisesRegexp(RuntimeError, err_msg):
+        with self.assertRaisesRegex(RuntimeError, err_msg):
             launcher.affinity_list(False)
 
     def test_affinity_tutorial_knl(self):
