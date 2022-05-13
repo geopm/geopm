@@ -210,23 +210,29 @@ signals and controls are provided by the GEOPM Service on your system.
 
 .. code-block:: bash
 
-    # LIST ALL SIGNALS PROVIDED
-    geopmaccess -a
-
-    # LIST ALL CONTROLS PROVIDED
-    geopmaccess -a -c
-
-    # LIST DEFAULT SIGNAL ACCESS LIST
+    # PRINT ALLOWED SIGNALS FOR CALLING USER
     geopmaccess
 
-    # LIST DEFAULT CONTROL ACCESS LIST
-    geopmaccess -c
+    # PRINT ALLOWED CONTROLS FOR CALLING USER
+    geopmaccess --controls
 
-    # LIST SIGNAL ACCESS FOR A UNIX GROUP: "power"
-    geopmaccess -g power
+    # PRINT ALL SIGNALS PROVIDED
+    geopmaccess --all
 
-    # LIST CONTROL ACCESS FOR A UNIX GROUP: "power"
-    geopmaccess -c -g power
+    # PRINT ALL CONTROLS PROVIDED
+    geopmaccess --all --controls
+
+    # PRINT DEFAULT SIGNAL ACCESS LIST
+    geopmaccess --default
+
+    # PRINT DEFAULT CONTROL ACCESS LIST
+    geopmaccess --default --controls
+
+    # PRINT SIGNAL ACCESS FOR UNIX GROUP "power"
+    geopmaccess --group power
+
+    # PRINT CONTROL ACCESS FOR UNIX GROUP "power"
+    geopmaccess --controls --group power
 
 
 Enabling User Access
@@ -234,7 +240,8 @@ Enabling User Access
 
 This example configures the GEOPM Service to enable any user to read
 and write to bits 8-15 of the MSR_PERF_CTL register which controls the
-maximum frequency of the core.
+maximum frequency of the core.  This could also be accomplished
+interactively using the ``-e`` / ``--edit`` option.
 
 
 .. code-block:: bash
@@ -315,8 +322,8 @@ the service can then be added to the geopm Unix group.
     geopmaccess -a -c | geopmaccess -g ${GROUP_NAME} -w -c
 
 
-Supporting Heterogeneous Systems
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Supporting Heterogeneous Clusters
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This example demonstrates how to create and check access lists when
 the ``/etc/geopm-service`` directory must be modified on a system with
@@ -374,12 +381,22 @@ will be printed.  Setting the ``GEOPM_DEBUG`` environment variable
 will enable more verbose error messages.
 
 Use of the ``geopmaccess`` command line tool requires the GEOPM
-Service systemd unit to be active.  A process must have
-``CAP_SYS_ADMIN`` in order to modify any access lists.  Failures will
-occur if the user specifies incompatible command line options, like
-``--all`` and ``--write``.  Attempts to set configurations using
-unsupported names will fail unless the ``-F`` / ``--force`` option is
-provided.
+Service systemd unit to be active.  This can be checked with the
+command ``systemctl status geopm``.  A failure will occur if the GEOPM
+Service is not active.
+
+Modification of access lists is typically is done by the root user or
+with the ``sudo`` command.  A process is required to have the Linux
+`capabilities(7) <http://man7.org/linux/man-pages/man7/capabilities.7.html>`_
+``CAP_SYS_ADMIN`` in order to modify any access lists, and a failure
+will occur otherwise.
+
+Some command line options cannot be used together, for example, a
+failures will occur if the user specifies both ``--all`` and
+``--write``.
+
+Attempts to set configurations using unsupported names will fail
+unless the ``-F`` / ``--force`` option is provided.
 
 
 SEE ALSO
