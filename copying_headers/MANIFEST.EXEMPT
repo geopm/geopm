@@ -151,6 +151,7 @@ service/docs/source/security.rst
 service/docs/source/service_readme.rst
 service/docs/source/service.rst
 service/docs/source/signals_SKX.rst
+service/docs/source/SSTIOGroup.7.rst
 service/docs/source/use_cases.rst
 service/dox/blurb.md
 service/dox/Doxyfile.in
