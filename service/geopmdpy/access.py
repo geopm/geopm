@@ -154,6 +154,36 @@ class Access:
         _, all_controls = self._geopm_proxy.PlatformGetAllAccess()
         return '\n'.join(all_controls)
 
+    def get_user_signals(self):
+        """Call GEOPM D-Bus API and return user allowed signal names
+
+        Returns a human readable list of user allowed signal names on
+        the platform.  The returned string has one signal name on each
+        line.  The PlatformGetUserAccess D-Bus API of the
+        io.github.geopm interface is used.
+
+        Returns:
+            str: User allowed signals, one on each line
+
+        """
+        user_signals, _ = self._geopm_proxy.PlatformGetUserAccess()
+        return '\n'.join(user_signals)
+
+    def get_user_controls(self):
+        """Call GEOPM D-Bus API and return user allowed control names
+
+        Returns a human readable list of user allowed controls on the
+        platform.  The returned string has one control name on each
+        line.  The PlatformGetAllAccess D-Bus API of the
+        io.github.geopm interface is used.
+
+        Returns:
+            str: User allowed controls, one on each line
+
+        """
+        _, user_controls = self._geopm_proxy.PlatformGetUserAccess()
+        return '\n'.join(user_controls)
+
     def get_group_signals(self, group):
         """Call GEOPM D-Bus API and return the group's signal access list
 
@@ -295,16 +325,25 @@ class Access:
 
         """
         output = None
+        # Determine if user provided -g option
+        if group is None:
+            is_group = False
+            # Empty string is for default access list
+            group = ''
+        else:
+            is_group = True
+
         if is_all and (is_write or is_edit or is_delete):
             raise RuntimeError('Option -a/--all is not valid when writing a configuration')
         if is_dry_run and (is_edit or is_delete):
             raise RuntimeError('Option -n/--dry-run not valid with -e/--edit or -D/--delete')
         if is_force and is_edit:
             raise RuntimeError('Option -F/--force is not valid with -e/--edit')
-        if group != '' and is_default:
-            raise RuntimeError('Option -g/--group is not valid with -u/--default')
+        if is_group and (is_default or is_all):
+            raise RuntimeError('Option -g/--group is not valid with -u/--default or -a/--all')
         if not (is_edit or is_write or is_delete) and (is_dry_run or is_force):
             raise RuntimeError('-n/--dry-run, and -F/--force not valid when reading')
+
 
         names = None
         if is_edit:
@@ -326,11 +365,16 @@ class Access:
                     output = self.get_all_controls()
                 else:
                     output = self.get_all_signals()
-            else:
+            elif is_default or is_group:
                 if is_control:
                     output = self.get_group_controls(group)
                 else:
                     output = self.get_group_signals(group)
+            else:
+                if is_control:
+                    output = self.get_user_controls()
+                else:
+                    output = self.get_user_signals()
         return output
 
 def main():
@@ -348,7 +392,7 @@ def main():
     parser_group_uga = parser.add_mutually_exclusive_group(required=False)
     parser_group_uga.add_argument('-u', '--default', dest='default', action='store_true', default=False,
                                   help='Print the default user access list')
-    parser_group_uga.add_argument('-g', '--group', dest='group', type=str, default='',
+    parser_group_uga.add_argument('-g', '--group', dest='group', type=str, default=None,
                                  help='Read or write the access list for a specific Unix GROUP')
     parser_group_uga.add_argument('-a', '--all', dest='all', action='store_true', default=False,
                                   help='Print all signals or controls supported by the service system')

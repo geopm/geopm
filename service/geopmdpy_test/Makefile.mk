@@ -67,6 +67,8 @@ GEOPMDPY_TESTS = geopmdpy_test/pytest_links/TestAccessLists.test__read_allowed_i
                  geopmdpy_test/pytest_links/TestTopo.test_num_domain \
                  geopmdpy_test/pytest_links/TestTopo.test_domain_domain_nested \
                  geopmdpy_test/pytest_links/TestTopo.test_domain_name_type \
+                 geopmdpy_test/pytest_links/TestAccess.test_signals_query \
+                 geopmdpy_test/pytest_links/TestAccess.test_controls_query \
                  geopmdpy_test/pytest_links/TestAccess.test_default_signals_query \
                  geopmdpy_test/pytest_links/TestAccess.test_default_controls_query \
                  geopmdpy_test/pytest_links/TestAccess.test_group_signals_query \
@@ -83,6 +85,7 @@ GEOPMDPY_TESTS = geopmdpy_test/pytest_links/TestAccessLists.test__read_allowed_i
                  geopmdpy_test/pytest_links/TestAccess.test_write_signals_dry_run \
                  geopmdpy_test/pytest_links/TestAccess.test_write_invalid_signals_dry_run \
                  geopmdpy_test/pytest_links/TestAccess.test_edit_signals \
+                 geopmdpy_test/pytest_links/TestAccess.test_delete_default_signals \
                  geopmdpy_test/pytest_links/TestRequestQueue.test_read_request_queue \
                  geopmdpy_test/pytest_links/TestRequestQueue.test_read_request_queue_invalid \
                  geopmdpy_test/pytest_links/TestRequestQueue.test_request_queue_invalid \
