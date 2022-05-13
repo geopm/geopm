@@ -26,7 +26,7 @@ namespace geopm
             bool is_nested_domain(int inner_domain, int outer_domain) const override;
             std::set<int> domain_nested(int inner_domain, int outer_domain, int outer_idx) const override;
             static void create_cache();
-            static void create_cache(const std::string &cache_file_name);
+            static std::string create_cache(const std::string &cache_file_name);
         private:
             static const std::string M_CACHE_FILE_NAME;
             static const std::string M_SERVICE_CACHE_FILE_NAME;
@@ -43,7 +43,7 @@ namespace geopm
             void parse_lscpu_numa(std::map<std::string, std::string> lscpu_map,
                                   std::vector<std::set<int> > &numa_map);
             std::string read_lscpu(void);
-            static bool check_file(const std::string &file_name);
+            static bool check_file(const int fd, const mode_t expected_perms);
 
             const std::string M_TEST_CACHE_FILE_NAME;
             int m_num_package;

@@ -18,6 +18,7 @@
 #include <errno.h>
 #include <limits.h>
 #include <stdio.h>
+#include <fcntl.h>
 
 #include <map>
 #include <sstream>
@@ -463,28 +464,56 @@ namespace geopm
     void PlatformTopoImp::create_cache(void)
     {
         try {
-            PlatformTopoImp::create_cache(M_SERVICE_CACHE_FILE_NAME);
+            // TODO: Handle return string?
+            (void) PlatformTopoImp::create_cache(M_SERVICE_CACHE_FILE_NAME);
         }
         catch (const geopm::Exception &ex) {
-            PlatformTopoImp::create_cache(M_CACHE_FILE_NAME);
+            // TODO: Handle return string?
+            (void) PlatformTopoImp::create_cache(M_CACHE_FILE_NAME);
         }
     }
 
-    void PlatformTopoImp::create_cache(const std::string &cache_file_name)
+    std::string PlatformTopoImp::create_cache(const std::string &cache_file_name)
     {
-        // If cache file is not present, or is too old, create it
+        std::string contents;
         bool is_file_ok = false;
-        try {
-            is_file_ok = check_file(cache_file_name);
+
+        // Open fd
+        // if err, goto create
+        // if no err, pass to check_file
+        // if no err, return contents, else create and return contents
+
+        int cache_fd = open(cache_file_name.c_str(), O_RDWR);
+        if (cache_fd < 0) {
+            if (errno != ENOENT) {
+                throw Exception("PlatformTopoImp: Could not open cache file " + cache_file_name,
+                                errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
         }
-        catch (const geopm::Exception &ex) {
-            // sysinfo or stat failed; file does not exist (2) or permission denied (13)
-            if (ex.err_value() == EACCES) {
-                throw; // Permission was denied; Cannot create files at the desired path
+        else {
+            try {
+                mode_t expected_perms;
+                if (cache_file_name == M_SERVICE_CACHE_FILE_NAME) {
+                    expected_perms = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH; // 0o644
+                }
+                else {
+                    expected_perms = S_IRUSR | S_IWUSR; // 0o600
+                }
+                is_file_ok = check_file(cache_fd, expected_perms);
+            }
+            catch (const geopm::Exception &ex) {
+                (void) close(cache_fd);
+                // sysinfo or stat failed; file does not exist (2) or permission denied (13)
+                throw;
             }
         }
 
+        // If cache file is not present, or is too old, create it
         if (is_file_ok == false) {
+            if (cache_fd > 0) {
+                (void) close(cache_fd); // cache_fd opened OK but failed check_file()
+            }
+
             mode_t perms;
             if (cache_file_name == M_SERVICE_CACHE_FILE_NAME) {
                 perms = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH; // 0o644
@@ -497,32 +526,51 @@ namespace geopm
             char tmp_path[NAME_MAX];
             tmp_path[NAME_MAX - 1] = '\0';
             strncpy(tmp_path, tmp_string.c_str(), NAME_MAX - 1);
-            int tmp_fd = mkstemp(tmp_path);
+            int tmp_fd = mkstemp(tmp_path); // Hold this fd open until we read the contents
             if (tmp_fd == -1) {
                 throw Exception("PlatformTopo::create_cache(): Could not create temp file: ",
                                 errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
             int err = fchmod(tmp_fd, perms);
             if (err) {
-                close(tmp_fd);
+                (void) close(tmp_fd);
                 throw Exception("PlatformTopo::create_cache(): Could not chmod tmp_path: ",
                                 errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
-            close(tmp_fd);
 
             std::ostringstream cmd;
-            cmd << "lscpu -x >> " << tmp_path << ";";
+            cmd << "lscpu -x > " << tmp_path << ";";
 
             FILE *pid;
             err = geopm_topo_popen(cmd.str().c_str(), &pid);
             if (err) {
-                unlink(cache_file_name.c_str());
+                (void) close(tmp_fd);
+                (void) unlink(cache_file_name.c_str());
+                (void) unlink(tmp_path);
                 throw Exception("PlatformTopo::create_cache(): Could not popen lscpu command: ",
                                 err, __FILE__, __LINE__);
             }
             if (pclose(pid)) {
-                unlink(cache_file_name.c_str());
+                (void) close(tmp_fd);
+                (void) unlink(cache_file_name.c_str());
+                (void) unlink(tmp_path);
                 throw Exception("PlatformTopo::create_cache(): Could not pclose lscpu command: ",
+                                errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
+
+            try {
+                contents = geopm::read_file(tmp_fd);
+            }
+            catch (const geopm::Exception &ex) {
+                (void) close(tmp_fd);
+                (void) unlink(cache_file_name.c_str());
+                (void) unlink(tmp_path);
+                throw;
+            }
+
+            err = close(tmp_fd);
+            if (err) {
+                throw Exception("PlatformTopo::create_cache(): Could not close tmp_fd: ",
                                 errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
 
@@ -531,7 +579,25 @@ namespace geopm
                 throw Exception("PlatformTopo::create_cache(): Could not rename tmp_path: ",
                                 errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
+
         }
+        else { // cache_fd is open and OK
+            try {
+                contents = geopm::read_file(cache_fd);
+            }
+            catch (const geopm::Exception &ex) {
+                (void) unlink(cache_file_name.c_str());
+                (void) close(cache_fd);
+                throw;
+            }
+            int err = close(cache_fd);
+            if (err) {
+                throw Exception("PlatformTopo::create_cache(): Could not close cache_fd: ",
+                                errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
+        }
+
+        return contents;
     }
 
     void PlatformTopoImp::parse_lscpu(const std::map<std::string, std::string> &lscpu_map,
@@ -632,7 +698,7 @@ namespace geopm
         }
     }
 
-    bool PlatformTopoImp::check_file(const std::string &file_path)
+    bool PlatformTopoImp::check_file(const int fd, const mode_t expected_perms)
     {
         struct sysinfo si;
         int err = sysinfo(&si);
@@ -642,7 +708,7 @@ namespace geopm
         }
 
         struct stat file_stat;
-        err = stat(file_path.c_str(), &file_stat);
+        err = fstat(fd, &file_stat);
         if (err) {
             throw Exception("PlatformTopoImp::create_cache(): stat failure:",
                             errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
@@ -656,14 +722,6 @@ namespace geopm
             return false; // file is older than last boot
         }
         else {
-            mode_t expected_perms;
-            if (file_path == M_SERVICE_CACHE_FILE_NAME) {
-                expected_perms = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH; // 0o644
-            }
-            else {
-                expected_perms = S_IRUSR | S_IWUSR; // 0o600
-            }
-
             mode_t actual_perms = file_stat.st_mode & ~S_IFMT;
             if (expected_perms == actual_perms) {
                 return true; // file has been created since boot with the right permissions
@@ -678,17 +736,14 @@ namespace geopm
     {
         std::string result;
         if (M_TEST_CACHE_FILE_NAME.size()) {
-            create_cache(M_TEST_CACHE_FILE_NAME);
-            result = geopm::read_file(M_TEST_CACHE_FILE_NAME);
+            result = create_cache(M_TEST_CACHE_FILE_NAME);
         }
         else {
             try {
-                create_cache(M_SERVICE_CACHE_FILE_NAME);
-                result = geopm::read_file(M_SERVICE_CACHE_FILE_NAME);
+                result = create_cache(M_SERVICE_CACHE_FILE_NAME);
             }
             catch (const geopm::Exception &ex) {
-                create_cache(M_CACHE_FILE_NAME);
-                result = geopm::read_file(M_CACHE_FILE_NAME);
+                result = create_cache(M_CACHE_FILE_NAME);
             }
         }
         return result;
@@ -834,7 +889,8 @@ extern "C"
     {
         int err = 0;
         try {
-            geopm::PlatformTopo::create_cache();
+            // TODO Plumb through cffi wrappers?
+            (void) geopm::PlatformTopo::create_cache();
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());

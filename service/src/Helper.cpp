@@ -49,6 +49,28 @@ namespace geopm
         return contents;
     }
 
+    std::string read_file(const int fd)
+    {
+        std::string contents;
+        struct stat file_stat;
+
+        int err = fstat(fd, &file_stat);
+        if (err < 0) {
+            throw Exception("Helper::" + std::string(__func__) + "(): ",
+                            errno ? errno : GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        contents.resize(file_stat.st_size);
+
+        ssize_t num_read = read(fd, (char *)(contents.data()), file_stat.st_size);
+        if (num_read == -1) {
+            throw Exception("Helper::" + std::string(__func__) + "(): ",
+                            errno ? errno : GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        contents[num_read] = '0';
+
+        return contents;
+    }
+
     double read_double_from_file(const std::string &path, const std::string &expected_units)
     {
         const std::string separators(" \t\n\0", 4);

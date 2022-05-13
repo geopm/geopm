@@ -30,6 +30,11 @@ namespace geopm
     /// @return The contents of the file at path.
     std::string read_file(const std::string &path);
 
+    /// @brief Reads the specified file and returns the contents in a string.
+    /// @param [in] path The open file descriptor to read.  The caller must close on exception..
+    /// @return The contents of the file at path.
+    std::string read_file(const int fd);
+
     /// @brief Read a file and return a double read from the file.
     /// @details If a double cannot be read from the file or the units reported
     ///          in the file do not match the expected units, an exception is
