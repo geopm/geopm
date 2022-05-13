@@ -13,5 +13,5 @@ EXTRA_DIST += integration/apps/pennant/pennant.py \
               integration/apps/pennant/0004-Added-high-level-GEOPM-markup-regions-to-Pennant.-Ad.patch \
               integration/apps/pennant/0005-Added-command-line-arg-to-stop-execution-earlier.patch \
               integration/apps/pennant/0006-Changed-markup-to-separate-MPI-heavy-regions.patch \
-              integration/apps/pennant/0007-Updated-header-includes-with-geopm_hint.h.patch \
+              integration/apps/pennant/0007-Added-geopm_hint-header.patch \
               # end
