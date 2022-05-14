@@ -70,10 +70,6 @@ class TestIntegration_frequency_hint_usage(unittest.TestCase):
         cls._fmap_trace_path = 'test_{}_fmap.trace'.format(test_name)
         cls._fmap_agent_conf_path = 'test_' + test_name + '-fmap-agent-config.json'
 
-        cls._ee_report_path = 'test_{}_ee.report'.format(test_name)
-        cls._ee_trace_path = 'test_{}_ee.trace'.format(test_name)
-        cls._ee_agent_conf_path = 'test_' + test_name + '-ee-agent-config.json'
-
         cls._freq_min = geopm_test_launcher.geopmread("CPUINFO::FREQ_MIN board 0")
         cls._freq_sticker = geopm_test_launcher.geopmread("CPUINFO::FREQ_STICKER board 0")
         cls._freq_step = geopm_test_launcher.geopmread("CPU_FREQUENCY_STEP board 0")
@@ -92,11 +88,6 @@ class TestIntegration_frequency_hint_usage(unittest.TestCase):
             fmap_agent_conf = geopmpy.agent.AgentConf(cls._fmap_agent_conf_path,
                                                       'frequency_map',
                                                       agent_conf_dict)
-            agent_conf_dict = {'FREQ_MIN': cls._freq_min,
-                               'FREQ_MAX': cls._freq_default}
-            ee_agent_conf = geopmpy.agent.AgentConf(cls._ee_agent_conf_path,
-                                                    'energy_efficient',
-                                                    agent_conf_dict)
 
             trace_signals = 'REGION_HASH@core,MSR::PERF_CTL:FREQ@core,MSR::PERF_STATUS:FREQ@core'
             # Fmap run
@@ -109,17 +100,6 @@ class TestIntegration_frequency_hint_usage(unittest.TestCase):
             launcher.set_num_node(num_node)
             launcher.set_num_rank(num_rank)
             launcher.run('test_' + test_name)
-
-            # EE run - Not available; Removed from Agent factory.
-            #  launcher = geopm_test_launcher.TestLauncher(app_conf,
-            #                                              ee_agent_conf,
-            #                                              cls._ee_report_path,
-            #                                              cls._ee_trace_path,
-            #                                              time_limit=time_limit)
-            #  launcher.set_num_node(num_node)
-            #  launcher.set_num_rank(num_rank)
-            #  launcher.run(test_name)
-
 
     def tearDown(self):
         if sys.exc_info() != (None, None, None):

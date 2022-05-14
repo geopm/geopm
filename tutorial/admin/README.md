@@ -16,13 +16,12 @@ Table of Contents
 1. [GEOPM+SLURM static policy plugin](#1-geopmslurm-static-policy-plugin)
 2. [GEOPM runtime capabilities](#2-geopm-runtime-capabilities)
 3. [Limiting the frequency for non-GEOPM jobs](#3-limiting-the-frequency-for-non-geopm-jobs)
-4. [Set the energy efficient agent as the default agent](#4-set-the-energy-efficient-agent-as-the-default-agent)
+4. [Set the frequency map agent as the default agent](#4-set-the-frequency-map-agent-as-the-default-agent)
 5. [Limiting power for non-GEOPM jobs](#5-limiting-power-for-non-geopm-jobs)
 6. [Set the power balancing agent as the default](#6-set-the-power-balancing-agent-as-the-default)
-7. [Restrict CPU frequency OR enforce the energy efficient agent](#7-restrict-cpu-frequency-or-enforce-energy-efficient-agent)
-8. [Restrict the power cap or enforce the power balancing agent](#8-restrict-power-cap-or-enforce-power-balancing-agent)
-9. [Control location of GEOPM runtime output (TBD)](#9-control-location-of-report-and-trace-file-output)
-10. [Restrict maximum trace file size (TBD)](#10-restrict-the-maximum-size-of-trace-files)
+7. [Restrict the power cap or enforce the power balancing agent](#7-restrict-power-cap-or-enforce-power-balancing-agent)
+8. [Control location of GEOPM runtime output (TBD)](#9-control-location-of-report-and-trace-file-output)
+9. [Restrict maximum trace file size (TBD)](#10-restrict-the-maximum-size-of-trace-files)
 
 ## 0. Verify GEOPM pre-requisites
 Run [`./00_test_prereqs.sh`](./00_test_prereqs.sh) on a compute node as an
@@ -122,11 +121,11 @@ below the sticker frequency. The test script
 [`integration/test/test_plugin_static_policy.py`](../../integration/test/test_plugin_static_policy.py)
 can be used to verify that this setup is working.
 
-## 4. Set the energy efficient agent as the default agent
+## 4. Set the frequency map agent as the default agent
 When users run jobs with GEOPM, the default agent is the monitor (no controls,
-monitoring only). To change this default to the energy efficient agent so that
-jobs launched with GEOPM optimize energy efficiency, see the script
-[`04_setup_default_energy_efficient.sh`](04_setup_default_energy_efficient.sh). In
+monitoring only). To change this default to the frequency map agent so that
+jobs launched with GEOPM use a fixed frequency, see the script
+[`04_setup_default_frequency_map.sh`](04_setup_default_frequency_map.sh). In
 this example, jobs not using GEOPM will run without having their frequency
 changed. The test script
 [`integration/test/test_plugin_static_policy.py`](../../integration/test/test_plugin_static_policy.py)
@@ -153,37 +152,24 @@ across all nodes. The test script
 [`integration/test/test_plugin_static_policy.py`](../../integration/test/test_plugin_static_policy.py)
 can be used to verify that this setup is working.
 
-## 7. Restrict CPU frequency OR enforce energy efficient agent
-In this scenario, the CPU frequency of all jobs will be capped to a specified
-maximum, but jobs executed with GEOPM using the `geopmlaunch` tool will have a
-higher CPU frequency range available to them. This is achieved by setting the
-override environment values such that all GEOPM users must use the energy
-efficient agent.
-
-To make this change, refer to the script
-[`07_setup_override_energy_efficient.sh`](07_setup_override_energy_efficient.sh).
-The test script
-[`integration/test/test_plugin_static_policy.py`](../../integration/test/test_plugin_static_policy.py)
-can be used to verify that this setup is working.
-
-## 8. Restrict power cap or enforce power balancing agent
+## 7. Restrict power cap or enforce power balancing agent
 In this scenario, the average power of all jobs will be constrained to a
 specified limit, but jobs executed with GEOPM using the `geopmlaunch` tool can
 achieve better performance using the power balancer agent while staying under
 the same average power cap.
 
 To make this change, refer to the script
-[`08_setup_override_power_balancer.sh`](08_setup_override_power_balancer.sh).  The
+[`07_setup_override_power_balancer.sh`](07_setup_override_power_balancer.sh).  The
 test script
 [`integration/test/test_plugin_static_policy.py`](../../integration/test/test_plugin_static_policy.py)
 can be used to verify that this setup is working.
 
-## 9. Control location of report and trace file output
+## 8. Control location of report and trace file output
 This is a planned feature of GEOPM that is not yet available. To be notified
 when this is completed or to participate in its development, please refer to
 the corresponding issue ([#912](https://github.com/geopm/geopm/issues/912)).
 
-## 10. Restrict the maximum size of trace files
+## 9. Restrict the maximum size of trace files
 This is a planned feature of GEOPM that is not yet available. To be notified
 when this is completed or to participate in its development, please refer to
 the corresponding issue ([#913](https://github.com/geopm/geopm/issues/913)).

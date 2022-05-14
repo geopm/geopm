@@ -64,13 +64,13 @@ def skip_if_geopmadmin_check_fails():
     return lambda func: func
 
 
-def skip_unless_energy_agent():
+def skip_unless_freq_agent():
     agent = ''
     try:
         agent = getSystemConfigAgent()
     except BaseException as ex:
         return unittest.skip('geopmadmin check failed: {}'.format(ex))
-    if agent not in ['frequency_map', 'energy_efficient']:
+    if agent not in ['frequency_map']:
         return unittest.skip('Requires environment default/override to be configured to cap frequency.')
     return lambda func: func
 
@@ -99,13 +99,11 @@ class TestIntegrationPluginStaticPolicy(unittest.TestCase):
         cls._geopmadminagent = getSystemConfigAgent()
         cls._geopmadminagentpolicy = getSystemConfigPolicy()
 
-    @skip_unless_energy_agent()
+    @skip_unless_freq_agent()
     def test_frequency_cap_enforced(self):
         policy_name = None
         if self._geopmadminagent == 'frequency_map':
             policy_name = 'FREQ_MAX'
-        elif self._geopmadminagent == 'energy_efficient':
-            policy_name = 'FREQ_FIXED'
         try:
             test_freq = self._geopmadminagentpolicy[policy_name]
             current_freq = geopmdpy.pio.read_signal("MSR::PERF_CTL:FREQ", "board", 0)

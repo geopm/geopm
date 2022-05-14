@@ -362,10 +362,7 @@ The system administrator selects the agent based on the site
 requirements.  If the site requires that the average CPU power draw
 per compute node remains under a cap across the system, then they
 would choose the power_balancer agent (see
-geopm_agent_power_balancer(7)).  If saving as much energy as possible
-with a limited impact on performance is the site requirement, then the
-energy_efficient agent would be selected (see
-geopm_agent_energy_efficient(7)).  If the site would like to restrict
+geopm_agent_power_balancer(7)).  If the site would like to restrict
 applications to run below a particular CPU frequency unless they are
 executing a high priority optimized subroutine that has been granted
 permission by the site administration to run at an elevated CPU

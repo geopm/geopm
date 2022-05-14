@@ -24,24 +24,21 @@ rm -rf /etc/geopm
 # Create the policy file in a location accessible to the compute node
 mkdir -p /etc/geopm
 POLICY_FILE_PATH="/etc/geopm/fixed_freq_policy.json"
-geopmagent -a energy_efficient -p NAN,NAN,NAN,$FREQ_FIXED > $POLICY_FILE_PATH
+geopmagent -a frequency_map -p $FREQ_FIXED > $POLICY_FILE_PATH
 # This file should look similar to:
 #   {
-#     "FREQ_MIN": "NAN",
-#     "FREQ_MAX": "NAN",
-#     "PERF_MARGIN": "NAN",
-#     "FREQ_FIXED": 1800000000
+#     "FREQ_DEFAULT": 1800000000
 #   }
 # for a system where the sticker frequency is 2.1 GHz and the target
 # frequency is 1.8 GHz.
 
 # Set the GEOPM configuration to use this policy file and the
-# energy efficient agent.
-echo "{\"GEOPM_AGENT\": \"energy_efficient\", \"GEOPM_POLICY\": \"$POLICY_FILE_PATH\"}" > $(geopmadmin --config-default)
+# frequency map agent.
+echo "{\"GEOPM_AGENT\": \"frequency_map\", \"GEOPM_POLICY\": \"$POLICY_FILE_PATH\"}" > $(geopmadmin --config-default)
 
 # This file should look similar to the following:
 # {
-#    "GEOPM_AGENT": "energy_efficient",
+#    "GEOPM_AGENT": "frequency_map",
 #    "GEOPM_POLICY": "/etc/geopm/fixed_freq_policy.json"
 # }
 
@@ -51,6 +48,6 @@ echo "{\"GEOPM_AGENT\": \"energy_efficient\", \"GEOPM_POLICY\": \"$POLICY_FILE_P
 #   > srun geopmread MSR::PERF_CTL:FREQ board 0
 #   1800000000
 #
-# GEOPM jobs use energy efficient agent with above policy (no restrictions on algorithm)
+# GEOPM jobs use frequency map agent with above policy (no restrictions on algorithm)
 #   > geopmlaunch srun -N1 -n1 --geopm-report=plugin_test.report -- geopmbench ~/short.conf > geopm_stdout 2>&1 && grep Policy plugin_test.report
-#   Policy: {"FREQ_MIN": "NAN", "FREQ_MAX": "NAN", "PERF_MARGIN": "NAN", "FREQ_FIXED": 1800000000}
+#   Policy: {"FREQ_DEFAULT": 1800000000}

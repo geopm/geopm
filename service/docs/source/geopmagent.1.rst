@@ -73,7 +73,6 @@ List all available agents on the system:
 .. code-block::
 
    $ geopmagent
-   energy_efficient
    frequency_map
    monitor
    power_balancer
@@ -107,24 +106,6 @@ budget and other policies set to default:
    {"POWER_CAP" : 250}
 
 
-Create policy for energy_efficient agent with minimum frequency of 1.2
-GHz and maximum frequency of 2.4 GHz:
-
-.. code-block::
-
-   $ geopmagent -a energy_efficient -p 1.2e9,2.4e9
-   {"FREQ_MIN" : 1.2e+09, "FREQ_MAX" : 2.4e+09}
-
-
-Create policy for energy_efficient agent with default minimum and
-maximum frequency, with a performance margin of 5%:
-
-.. code-block::
-
-   $ geopmagent -a energy_efficient -p NAN,NAN,0.05
-   {"FREQ_MIN" : "NAN", "FREQ_MAX" : "NAN", "PERF_MARGIN": 0.05}
-
-
 Create policy for monitor agent which does not require any policies.
 Note that GEOPM uses the monitor agent by default, in which case
 specifying ``--geopm-agent`` and ``--geopm-policy`` are optional.
@@ -140,7 +121,6 @@ SEE ALSO
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,
-`geopm_agent_energy_efficient(7) <geopm_agent_energy_efficient.7.html>`_\ ,
 `geopm_agent_frequency_map(7) <geopm_agent_frequency_map.7.html>`_\ ,
 `geopm_agent_monitor(7) <geopm_agent_monitor.7.html>`_\ ,
 `geopm_agent_power_balancer(7) <geopm_agent_power_balancer.7.html>`_\ ,

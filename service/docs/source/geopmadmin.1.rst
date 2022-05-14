@@ -81,16 +81,6 @@ on a legacy msr-safe system:
    geopmadmin --allowlist > /dev/cpu/msr_whitelist
 
 
-Configure a system to force the use of the energy efficient agent:
-
-.. code-block::
-
-   geopmagent -a energy_efficient -p 1.2e9,1.7e9,0.1,1.5e9 > /etc/geopm/policy.json
-   agent='"GEOPM_AGENT":"energy_efficient"'
-   policy='"GEOPM_POLICY":"/etc/geopm/policy.json"'
-   echo "{$agent,$policy}" > $(geopmadmin --config-override)
-
-
 SEE ALSO
 --------
 

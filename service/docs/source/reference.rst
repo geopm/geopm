@@ -75,8 +75,6 @@ GEOPM Manual Pages
    GEOPM_CXX_MAN_CpuinfoIOGroup.3
    GEOPM_CXX_MAN_Daemon.3
    GEOPM_CXX_MAN_Endpoint.3
-   GEOPM_CXX_MAN_EnergyEfficientAgent.3
-   GEOPM_CXX_MAN_EnergyEfficientRegion.3
    GEOPM_CXX_MAN_Exception.3
    GEOPM_CXX_MAN_Helper.3
    GEOPM_CXX_MAN_IOGroup.3
@@ -108,7 +106,6 @@ GEOPM Manual Pages
    :maxdepth: 1
    :caption: GEOPM HPC Runtime Agents
 
-   geopm_agent_energy_efficient.7
    geopm_agent_frequency_map.7
    geopm_agent_monitor.7
    geopm_agent_power_balancer.7

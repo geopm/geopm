@@ -19,7 +19,6 @@
 #include "MonitorAgent.hpp"
 #include "PowerBalancerAgent.hpp"
 #include "PowerGovernorAgent.hpp"
-#include "EnergyEfficientAgent.hpp"
 #include "FrequencyMapAgent.hpp"
 #include "Environment.hpp"
 #include "geopm/Helper.hpp"

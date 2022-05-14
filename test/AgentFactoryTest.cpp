@@ -11,7 +11,6 @@
 #include "MonitorAgent.hpp"
 #include "PowerBalancerAgent.hpp"
 #include "PowerGovernorAgent.hpp"
-#include "EnergyEfficientAgent.hpp"
 #include "FrequencyMapAgent.hpp"
 
 using geopm::Agent;
@@ -71,27 +70,6 @@ TEST(AgentFactoryTest, static_info_governor)
                                            "IS_CONVERGED",
                                            "POWER_AVERAGE_ENFORCED"};
     std::vector<std::string> exp_policy = {"POWER_PACKAGE_LIMIT_TOTAL"};
-    EXPECT_EQ(exp_sample, Agent::sample_names(dict));
-    EXPECT_EQ(exp_policy, Agent::policy_names(dict));
-
-    EXPECT_EQ(exp_sample, Agent::sample_names(agent_name));
-    EXPECT_EQ(exp_policy, Agent::policy_names(agent_name));
-}
-
-TEST(AgentFactoryTest, DISABLED_static_info_energy_efficient)
-{
-    auto &factory = geopm::agent_factory();
-    std::string agent_name = geopm::EnergyEfficientAgent::plugin_name();
-    auto &dict = factory.dictionary(agent_name);
-    EXPECT_EQ(4, Agent::num_policy(dict));
-    EXPECT_EQ(0, Agent::num_sample(dict));
-    EXPECT_EQ(4, Agent::num_policy(agent_name));
-    EXPECT_EQ(0, Agent::num_sample(agent_name));
-    std::vector<std::string> exp_sample = {};
-    std::vector<std::string> exp_policy = {"FREQ_MIN",
-                                           "FREQ_MAX",
-                                           "PERF_MARGIN",
-                                           "FREQ_FIXED"};
     EXPECT_EQ(exp_sample, Agent::sample_names(dict));
     EXPECT_EQ(exp_policy, Agent::policy_names(dict));
 

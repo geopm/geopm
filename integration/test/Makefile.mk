@@ -16,7 +16,6 @@ EXTRA_DIST += integration/test/check_trace.py \
               integration/test/util.py \
               # end
 
-include integration/test/test_ee_timed_scaling_mix.mk
 include integration/test/test_enforce_policy.mk
 include integration/test/test_omp_outer_loop.mk
 include integration/test/test_profile_policy.mk

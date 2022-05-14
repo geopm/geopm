@@ -260,17 +260,18 @@ GEOPM OPTIONS
   used by the GEOPM runtime.  Available agents are: "monitor" (default
   if option not specified; enables profiling features only),
   "power_balancer" (optimizes runtime under a power cap),
-  "power_governor" (enforces a uniform power cap), "frequency_map"
-  (runs each region at a specifed frequency), and "energy_efficient"
-  (saves energy).  See `geopm_agent_monitor(7) <geopm_agent_monitor.7.html>`_\ ,
+  "power_governor" (enforces a uniform power cap), and "frequency_map"
+  (runs each region at a specifed frequency).  See
+  `geopm_agent_monitor(7) <geopm_agent_monitor.7.html>`_\ ,
   `geopm_agent_power_balancer(7) <geopm_agent_power_balancer.7.html>`_\ ,
-  `geopm_agent_power_governor(7) <geopm_agent_power_governor.7.html>`_\ , `geopm_agent_frequency_map(7) <geopm_agent_frequency_map.7.html>`_
-  and `geopm_agent_energy_efficient(7) <geopm_agent_energy_efficient.7.html>`_ for descriptions of each
-  agent.  For more details on the responsibilities of the Agent, see
-  `geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3.html>`_.  This option is used by the launcher to set the
-  GEOPM_AGENT environment variable.  The command line option will
-  override any value currently set in the environment.  See the
-  ENVIRONMENT section of `geopm(7) <geopm.7.html>`_.
+  `geopm_agent_power_governor(7) <geopm_agent_power_governor.7.html>`_\ ,
+  and `geopm_agent_frequency_map(7) <geopm_agent_frequency_map.7.html>`_
+  for descriptions of each agent.  For more details on the responsibilities
+  of the Agent, see `geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3.html>`_.
+  This option is used by the launcher to set the GEOPM_AGENT environment
+  variable.  The command line option will override any value currently set
+  in the environment.  See the ENVIRONMENT section of
+  `geopm(7) <geopm.7.html>`_.
 
 * 
   ``--geopm-policy`` policy:
@@ -536,7 +537,6 @@ SEE ALSO
 
 `geopm(7) <geopm.7.html>`_\ ,
 `geopmpy(7) <geopmpy.7.html>`_\ ,
-`geopm_agent_energy_efficient(7) <geopm_agent_energy_efficient.7.html>`_\ ,
 `geopm_agent_monitor(7) <geopm_agent_monitor.7.html>`_\ ,
 `geopm_agent_power_balancer(7) <geopm_agent_power_balancer.7.html>`_\ ,
 `geopm_agent_power_governor(7) <geopm_agent_power_governor.7.html>`_\ ,

@@ -197,7 +197,6 @@ SEE ALSO
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,
-`geopm_agent_energy_efficient(7) <geopm_agent_energy_efficient.7.html>`_\ ,
 `geopm_agent_monitor(7) <geopm_agent_monitor.7.html>`_\ ,
 `geopm_agent_power_governor(7) <geopm_agent_power_governor.7.html>`_\ ,
 `geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3.html>`_\ ,

@@ -172,7 +172,7 @@ class AgentConf(object):
 
     """
     def __init__(self, path, agent='monitor', options=dict()):
-        supported_agents = {'monitor', 'power_governor', 'power_balancer', 'energy_efficient',
+        supported_agents = {'monitor', 'power_governor', 'power_balancer',
                             'frequency_map'}
         self._path = path
         if agent not in supported_agents:
@@ -204,7 +204,7 @@ class AgentConf(object):
         old_names = []
         if self._agent in ['power_governor', 'power_balancer']:
             old_names = ['power_budget']
-        elif self._agent in ['frequency_map', 'energy_efficient']:
+        elif self._agent in ['frequency_map']:
             old_names = ['frequency_min', 'frequency_max']
         policy_dict = self._options.copy()
         for offset, name in enumerate(old_names):

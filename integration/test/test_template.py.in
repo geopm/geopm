@@ -73,15 +73,7 @@ class TestIntegration_@test_name@(unittest.TestCase):
             # Configure the test application
             app_conf = AppConf()
             # Configure the agent
-            # Query for the min and sticker frequency and run the
-            # energy efficient agent over this range.
-            freq_min = geopm_test_launcher.geopmread("CPUINFO::FREQ_MIN board 0")
-            freq_sticker = geopm_test_launcher.geopmread("CPUINFO::FREQ_STICKER board 0")
-            agent_conf_dict = {'FREQ_MIN': freq_min,
-                               'FREQ_MAX': freq_sticker}
-            agent_conf = geopmpy.agent.AgentConf(cls._agent_conf_path,
-                                              'energy_efficient',
-                                              agent_conf_dict)
+            agent_conf = geopmpy.agent.AgentConf(cls._agent_conf_path)
             # Create the test launcher with the above configuration
             launcher = geopm_test_launcher.TestLauncher(app_conf,
                                                         agent_conf,
