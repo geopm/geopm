@@ -76,7 +76,7 @@ if __name__ == '__main__':
         agent = read_meta_data(tt)
         # TODO: check these for all agents, or just make this a CLI
         # option? what if different agent traces are in this glob?
-        if agent in ['energy_efficient', 'frequency_map']:
+        if agent in ['frequency_map']:
             sample_rate = 0.002
         else:
             sample_rate = default_sample_rate

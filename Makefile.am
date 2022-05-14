@@ -47,7 +47,6 @@ if ENABLE_BETA
 endif
 
 pkginclude_HEADERS = src/Agent.hpp \
-                     src/EnergyEfficientRegion.hpp \
                      src/FrequencyGovernor.hpp \
                      src/PlatformIOProf.hpp \
                      src/PowerBalancer.hpp \
@@ -96,11 +95,9 @@ install-plugin-dir:
 transform='s/GEOPM_CXX_MAN_/geopm::/'
 
 roff_man_inst = man/GEOPM_CXX_MAN_Agent.3 \
-                man/GEOPM_CXX_MAN_EnergyEfficientRegion.3 \
                 man/GEOPM_CXX_MAN_PowerBalancer.3 \
                 man/GEOPM_CXX_MAN_PowerGovernor.3 \
                 man/geopm_agent_c.3 \
-                man/geopm_agent_energy_efficient.7 \
                 man/geopm_agent_frequency_map.7 \
                 man/geopm_agent_monitor.7 \
                 man/geopm_agent_power_balancer.7 \
@@ -118,7 +115,6 @@ roff_man_inst = man/GEOPM_CXX_MAN_Agent.3 \
                 # end
 
 roff_man_noinst = man/GEOPM_CXX_MAN_Comm.3 \
-                  man/GEOPM_CXX_MAN_EnergyEfficientAgent.3 \
                   man/GEOPM_CXX_MAN_MonitorAgent.3 \
                   man/GEOPM_CXX_MAN_MPIComm.3 \
                   man/GEOPM_CXX_MAN_PowerBalancerAgent.3 \
@@ -205,7 +201,6 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              man/geopmadmin.1 \
              man/geopmagent.1 \
              man/geopm_agent_c.3 \
-             man/geopm_agent_energy_efficient.7 \
              man/geopm_agent_frequency_map.7 \
              man/geopm_agent_monitor.7 \
              man/geopm_agent_power_balancer.7 \
@@ -217,8 +212,6 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              man/GEOPM_CXX_MAN_Comm.3 \
              man/GEOPM_CXX_MAN_Daemon.3 \
              man/GEOPM_CXX_MAN_Endpoint.3 \
-             man/GEOPM_CXX_MAN_EnergyEfficientAgent.3 \
-             man/GEOPM_CXX_MAN_EnergyEfficientRegion.3 \
              man/GEOPM_CXX_MAN_MonitorAgent.3 \
              man/GEOPM_CXX_MAN_MPIComm.3 \
              man/GEOPM_CXX_MAN_PowerBalancer.3 \
@@ -261,11 +254,10 @@ TUTORIAL_DIST = tutorial/Makefile \
                 tutorial/admin/00_check_allowlist.sh \
                 tutorial/admin/00_test_prereqs.sh \
                 tutorial/admin/03_setup_fixed_frequency.sh \
-                tutorial/admin/04_setup_default_energy_efficient.sh \
+                tutorial/admin/04_setup_default_frequency_map.sh \
                 tutorial/admin/05_setup_fixed_power_cap.sh \
                 tutorial/admin/06_setup_default_power_balancer.sh \
-                tutorial/admin/07_setup_override_energy_efficient.sh \
-                tutorial/admin/08_setup_override_power_balancer.sh \
+                tutorial/admin/07_setup_override_power_balancer.sh \
                 tutorial/agent/ExampleAgent.cpp \
                 tutorial/agent/ExampleAgent.hpp \
                 tutorial/agent/README.md \
@@ -389,10 +381,6 @@ libgeopmpolicy_la_SOURCES = src/Accumulator.cpp \
                             src/EndpointPolicyTracerImp.hpp \
                             src/EndpointUser.cpp \
                             src/EndpointUser.hpp \
-                            src/EnergyEfficientAgent.cpp \
-                            src/EnergyEfficientAgent.hpp \
-                            src/EnergyEfficientRegion.cpp \
-                            src/EnergyEfficientRegion.hpp \
                             src/Environment.cpp \
                             src/Environment.hpp \
                             src/EpochIOGroup.cpp \

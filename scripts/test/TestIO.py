@@ -40,8 +40,8 @@ def self_cleaning_raw_report_collection(path):
 test_report_data_old = """\
 ##### geopm 1.0.0+dev30g4cccfda #####
 Start Time: Thu May 30 14:38:17 2019
-Profile: test_ee_stream_dgemm_mix
-Agent: energy_efficient
+Profile: test_fm_stream_dgemm_mix
+Agent: frequency_map
 Policy: {}
 
 
@@ -431,8 +431,8 @@ Application Totals:
 test_report_data = """\
 GEOPM Version: 1.0.0+dev30g4cccfda
 Start Time: Thu May 30 14:38:17 2019
-Profile: test_ee_stream_dgemm_mix
-Agent: energy_efficient
+Profile: test_fm_stream_dgemm_mix
+Agent: frequency_map
 Policy: {}
 
 Hosts:
@@ -1272,8 +1272,8 @@ class TestIO(unittest.TestCase):
         df = rrc.get_df()
         sleep_region_mcfly11 = {'GEOPM Version': '1.0.0+dev30g4cccfda',
                                 'Start Time': 'Thu May 30 14:38:17 2019',
-                                'Profile': 'test_ee_stream_dgemm_mix',
-                                'Agent': 'energy_efficient',
+                                'Profile': 'test_fm_stream_dgemm_mix',
+                                'Agent': 'frequency_map',
                                 'host': 'mcfly11',
                                 'region': 'sleep',
                                 'hash': 0x536c798f,
@@ -1305,8 +1305,8 @@ class TestIO(unittest.TestCase):
         df = rrc.get_app_df()
         app_totals_mcfly12 = {'GEOPM Version': '1.0.0+dev30g4cccfda',
                               'Start Time': 'Thu May 30 14:38:17 2019',
-                              'Profile': 'test_ee_stream_dgemm_mix',
-                              'Agent': 'energy_efficient',
+                              'Profile': 'test_fm_stream_dgemm_mix',
+                              'Agent': 'frequency_map',
                               'host': 'mcfly12',
                               'runtime (s)': 541.505,
                               'sync-runtime (s)': 541.505,
@@ -1335,8 +1335,8 @@ class TestIO(unittest.TestCase):
         df = rrc.get_epoch_df()
         epoch_totals_mcfly12 = {'GEOPM Version': '1.0.0+dev30g4cccfda',
                                 'Start Time': 'Thu May 30 14:38:17 2019',
-                                'Profile': 'test_ee_stream_dgemm_mix',
-                                'Agent': 'energy_efficient',
+                                'Profile': 'test_fm_stream_dgemm_mix',
+                                'Agent': 'frequency_map',
                                 'host': 'mcfly12',
                                 'runtime (s)': 0,
                                 'sync-runtime (s)': 0,
@@ -1364,8 +1364,8 @@ class TestIO(unittest.TestCase):
         df = rrc.get_unmarked_df()
         unmarked_mcfly11 = {'GEOPM Version': '1.0.0+dev30g4cccfda',
                             'Start Time': 'Thu May 30 14:38:17 2019',
-                            'Profile': 'test_ee_stream_dgemm_mix',
-                            'Agent': 'energy_efficient',
+                            'Profile': 'test_fm_stream_dgemm_mix',
+                            'Agent': 'frequency_map',
                             'host': 'mcfly11',
                             'runtime (s)': 6.07865,
                             'sync-runtime (s)': 6.13216,

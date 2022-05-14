@@ -119,15 +119,6 @@ class TestIntegrationEnforcePolicy(unittest.TestCase):
         current_freq = geopm_test_launcher.geopmread("MSR::PERF_CTL:FREQ board 0")
         self.assertEqual(test_freq, current_freq)
 
-    @unittest.skip('Disabled pending overhaul of agent.')
-    def test_energy_efficient_max_freq(self):
-        test_freq = self._sticker_freq - 2 * self._step_freq
-        current_freq = geopm_test_launcher.geopmread("MSR::PERF_CTL:FREQ board 0")
-        self.assertNotEqual(test_freq, current_freq)
-        self.run_tool('energy_efficient', {'FREQ_FIXED': test_freq})
-        current_freq = geopm_test_launcher.geopmread("MSR::PERF_CTL:FREQ board 0")
-        self.assertEqual(test_freq, current_freq)
-
     def test_power_governor_power_cap(self):
         num_pkg = geopmdpy.topo.num_domain('package')
         test_power = self._tdp_power * num_pkg - 20

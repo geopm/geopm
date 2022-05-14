@@ -89,7 +89,7 @@ CLASS METHODS
 
 * 
   ``plugin_name()``:
-  Returns the name of the plugin; for ``MonitorAgent`` it appears to be ``"energy_efficient"``.
+  Returns the name of the plugin.
 
 * 
   ``make_plugin()``:

@@ -48,8 +48,6 @@ BUILT-IN AGENTS
 
 `geopm_agent_monitor(7) <geopm_agent_monitor.7.html>`_\ : Agent implementation that enforces no policies
 
-`geopm_agent_energy_efficient(7) <geopm_agent_energy_efficient.7.html>`_\ : Agent for saving energy, also finds optimal region frequencies
-
 `geopm_agent_frequency_map(7) <geopm_agent_frequency_map.7.html>`_\ : Agent for running regions at user selected frequencies
 
 `geopm_agent_power_balancer(7) <geopm_agent_power_balancer.7.html>`_\ : Agent that optimizes performance under a power cap
@@ -381,7 +379,6 @@ SEE ALSO
 
 `geopmpy(7) <geopmpy.7.html>`_\ ,
 `geopmdpy(7) <geopmdpy.7.html>`_\ ,
-`geopm_agent_energy_efficient(7) <geopm_agent_energy_efficient.7.html>`_\ ,
 `geopm_agent_frequency_map(7) <geopm_agent_frequency_map.7.html>`_\ ,
 `geopm_agent_monitor(7) <geopm_agent_monitor.7.html>`_\ ,
 `geopm_agent_power_balancer(7) <geopm_agent_power_balancer.7.html>`_\ ,
@@ -402,7 +399,6 @@ SEE ALSO
 `geopm::Agg(3) <GEOPM_CXX_MAN_Agg.3.html>`_\ ,
 `geopm::CircularBuffer(3) <GEOPM_CXX_MAN_CircularBuffer.3.html>`_\ ,
 `geopm::CpuinfoIOGroup(3) <GEOPM_CXX_MAN_CpuinfoIOGroup.3.html>`_\ ,
-`geopm::EnergyEfficientRegion(3) <GEOPM_CXX_MAN_EnergyEfficientRegion.3.html>`_\ ,
 `geopm::Exception(3) <GEOPM_CXX_MAN_Exception.3.html>`_\ ,
 `geopm::Helper(3) <GEOPM_CXX_MAN_Helper.3.html>`_\ ,
 `geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3.html>`_\ ,

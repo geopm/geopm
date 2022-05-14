@@ -32,7 +32,7 @@ geopmagent -a power_balancer -p $POWER_CAP > $POLICY_FILE_PATH
 # for a system where the TDP is 140 W per package or 280 W total.
 
 # Set the GEOPM configuration to use this policy file and the
-# energy efficient agent.
+# power balancer agent.
 echo "{\"GEOPM_AGENT\": \"power_balancer\", \"GEOPM_POLICY\": \"$POLICY_FILE_PATH\"}" > $(geopmadmin --config-default)
 
 # This file should look similar to the following:

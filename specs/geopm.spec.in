@@ -160,13 +160,11 @@ rm -f %{buildroot}/%{_bindir}/geopmlaunch
 %doc %{_mandir}/man1/geopmadmin.1.gz
 %doc %{_mandir}/man1/geopmagent.1.gz
 %doc %{_mandir}/man3/geopm::Agent.3.gz
-%doc %{_mandir}/man3/geopm::EnergyEfficientRegion.3.gz
 %doc %{_mandir}/man3/geopm::PowerBalancer.3.gz
 %doc %{_mandir}/man3/geopm::PowerGovernor.3.gz
 %doc %{_mandir}/man3/geopm_agent_c.3.gz
 %doc %{_mandir}/man3/geopm_imbalancer.3.gz
 %doc %{_mandir}/man3/geopm_prof_c.3.gz
-%doc %{_mandir}/man7/geopm_agent_energy_efficient.7.gz
 %doc %{_mandir}/man7/geopm_agent_frequency_map.7.gz
 %doc %{_mandir}/man7/geopm_agent_monitor.7.gz
 %doc %{_mandir}/man7/geopm_agent_power_balancer.7.gz
@@ -176,7 +174,6 @@ rm -f %{buildroot}/%{_bindir}/geopmlaunch
 %defattr(-,root,root,-)
 %dir %{_includedir}/geopm
 %{_includedir}/geopm/Agent.hpp
-%{_includedir}/geopm/EnergyEfficientRegion.hpp
 %{_includedir}/geopm/FrequencyGovernor.hpp
 %{_includedir}/geopm/PlatformIOProf.hpp
 %{_includedir}/geopm/PowerBalancer.hpp

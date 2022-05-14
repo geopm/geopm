@@ -83,7 +83,6 @@ service/docs/source/geopmaccess.1.rst
 service/docs/source/geopmadmin.1.rst
 service/docs/source/geopmagent.1.rst
 service/docs/source/geopm_agent_c.3.rst
-service/docs/source/geopm_agent_energy_efficient.7.rst
 service/docs/source/geopm_agent_frequency_map.7.rst
 service/docs/source/geopm_agent_monitor.7.rst
 service/docs/source/geopm_agent_power_balancer.7.rst
@@ -99,8 +98,6 @@ service/docs/source/GEOPM_CXX_MAN_Comm.3.rst
 service/docs/source/GEOPM_CXX_MAN_CpuinfoIOGroup.3.rst
 service/docs/source/GEOPM_CXX_MAN_Daemon.3.rst
 service/docs/source/GEOPM_CXX_MAN_Endpoint.3.rst
-service/docs/source/GEOPM_CXX_MAN_EnergyEfficientAgent.3.rst
-service/docs/source/GEOPM_CXX_MAN_EnergyEfficientRegion.3.rst
 service/docs/source/GEOPM_CXX_MAN_Exception.3.rst
 service/docs/source/GEOPM_CXX_MAN_Helper.3.rst
 service/docs/source/GEOPM_CXX_MAN_IOGroup.3.rst

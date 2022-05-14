@@ -72,11 +72,9 @@ class TestIntegration_profile_overflow(unittest.TestCase):
         time_limit = 600
         # Configure the test application
         app_conf = AppConf()
+        # Configure the agent
         agent_conf = geopmpy.agent.AgentConf(cls._agent_conf_path)
 
-        # Configure the agent
-        # Query for the min and sticker frequency and run the
-        # energy efficient agent over this range.
         # Create the test launcher with the above configuration
         launcher = geopm_test_launcher.TestLauncher(app_conf,
                                                     agent_conf,
