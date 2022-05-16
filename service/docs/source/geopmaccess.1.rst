@@ -136,13 +136,15 @@ Access Management
 ~~~~~~~~~~~~~~~~~
 
 Reading access lists may be done by an unprivileged client or by the
-system administrator, but only a process with the Linux capability
+system administrator, but only a process with the Linux
+`capabilities(7) <http://man7.org/linux/man-pages/man7/capabilities.7.html>`_
 ``CAP_SYS_ADMIN`` has permission to write or delete an access list.
-The administrator may execute ``geopmaccess`` to write to an access
-list by providing the ``-w`` / ``--write`` command line option.  The
-``-D`` / ``--delete`` option will remove all signals or controls from
-the configuration.  An access list can be modified in a text editor
-when the ``-e`` / ``--edit`` option is provided.
+Typically is done by the root user or with the ``sudo`` command.  The
+administrator may execute ``geopmaccess`` to write to an access list
+by providing the ``-w`` / ``--write`` command line option.  The ``-D``
+/ ``--delete`` option will remove all signals or controls from the
+configuration.  An access list can be modified in a text editor when
+the ``-e`` / ``--edit`` option is provided.
 
 When writing an access list with the ``-w`` / ``--write`` command line
 option, the list of names is provided to standard input.  Typically,
