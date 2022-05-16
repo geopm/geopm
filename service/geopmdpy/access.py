@@ -250,34 +250,26 @@ class Access:
         _, all_controls = self._geopm_proxy.PlatformGetGroupAccess(group)
         return '\n'.join(all_controls)
 
-    def edited_names_path(self, initial_names):
+    def _edited_names_helper(self, initial_names):
         default_editor = '/usr/bin/vi'
         if not os.path.exists(default_editor):
             default_editor = '/bin/vi'
         editor = os.environ.get('EDITOR', default_editor)
-        fid, path = tempfile.mkstemp('geopm-service-access-tmp')
-        os.close(fid)
-        with open(path, 'w') as fid:
+        with tempfile.NamedTemporaryFile(mode='w+', suffix='geopm-service-access-tmp') as fid:
+            path = fid.name
             fid.write(initial_names)
-        try:
+            fid.flush()
             subprocess.run([editor, path], check=True)
-        except subprocess.CalledProcessError:
-            os.unlink(path)
-            raise
-        return path
+            fid.seek(0)
+            names = self.read_names(fid)
+        return names
 
     def edited_names(self, is_control, group):
         if is_control:
             initial_names = self.get_group_controls(group)
         else:
             initial_names = self.get_group_signals(group)
-        edit_path = self.edited_names_path(initial_names)
-        try:
-            with open(edit_path) as fid:
-                names = self.read_names(fid)
-        finally:
-            os.unlink(edit_path)
-        return names
+        return self._edited_names_helper(initial_names)
 
     def read_names(self, fid):
         """Returns list names from user
