@@ -138,7 +138,7 @@ Building the GEOPM HPC Runtime
 
 The best recommendation for building the GEOPM HPC Runtime is to follow
 the developer documentation posted
-`here <https://geopm.github.io/geopmpy/devel.html>`__.  This will
+`here <devel.html>`__.  This will
 enable the use of the GEOPM Service and will also provide the latest
 development in the GEOPM repository.
 
