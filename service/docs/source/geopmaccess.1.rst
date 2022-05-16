@@ -392,7 +392,7 @@ with the ``sudo`` command.  A process is required to have the Linux
 will occur otherwise.
 
 Some command line options cannot be used together, for example, a
-failures will occur if the user specifies both ``--all`` and
+failure will occur if the user specifies both ``--all`` and
 ``--write``.
 
 Attempts to set configurations using unsupported names will fail
