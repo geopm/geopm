@@ -185,8 +185,7 @@ namespace geopm
             { SSTIOGroup::SSTMailboxCommand::M_CORE_PRIORITY,
                 // Control
                 0x02, 0x100,
-                {{ "ENABLE", { 0x01, 1, 1, M_UNITS_NONE, "SST-CP is enabled" } },
-                 { "DISABLE_RMID_REPORTING", { 0x01, 0, 0, M_UNITS_NONE, "SST RMID reporting is disabled"  } }},
+                {{ "ENABLE", { 0x01, 1, 1, M_UNITS_NONE, "SST-CP is enabled" } }},
                 // Signal
                 0x02, 0x00
             },
