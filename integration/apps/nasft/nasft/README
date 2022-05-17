@@ -1,12 +1,10 @@
 See geopm/integration/apps/nasft/nasft/COPYING-NAS for license
 information for the NAS Parallel Benchmarks.  This license applies
 only to the files within the geopm/integration/apps/nasft/nasft
-sub-directory.  The NAS Parallel Benchmarks download site refers to
-this generic license, but no text is given with the blanks filled in
-for the particular use by NAS Parallel Benchmarks.
+sub-directory.
 
 A variation on NPB FT hybrid version that uses dynamic memory
-allocation and creates a single binary that can used with multiple
+allocation and creates a single binary that can be used with multiple
 numbers of MPI ranks.  The original version builds specific binaries
 (ft.C.2, ft.C.4, etc.) for different MPI runs.
 
