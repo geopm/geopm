@@ -58,8 +58,20 @@ void EndpointUserTest::TearDown()
 
 void EndpointUserTestIntegration::TearDown()
 {
-    unlink(("/dev/shm/" + m_shm_path + "-policy").c_str());
-    unlink(("/dev/shm/" + m_shm_path + "-sample").c_str());
+    int uid = getuid();
+    std::stringstream policy_path_user;
+    std::stringstream policy_path_shm;
+    std::stringstream sample_path_user;
+    std::stringstream sample_path_shm;
+
+    policy_path_user << "/run/user/" << uid << "/" << m_shm_path << "-policy";
+    policy_path_shm << "/dev/shm/" << m_shm_path << "-policy";
+    sample_path_user << "/run/user/" << uid << "/" << m_shm_path << "-sample";
+    sample_path_shm << "/dev/shm/" << m_shm_path << "-sample";
+    unlink(policy_path_user.str().c_str());
+    unlink(policy_path_shm.str().c_str());
+    unlink(sample_path_user.str().c_str());
+    unlink(sample_path_shm.str().c_str());
 }
 
 TEST_F(EndpointUserTest, attach)
