@@ -1,8 +1,17 @@
 GEOPM Third Party Programs File
 
-This file contains the list of third party software (“third party programs”) contained in the Intel software and their required notices and/or license terms. This third party software, even if included with the distribution of the Intel software, may be governed by separate license terms, including without limitation, third party license terms, other Intel software license terms, and open source software license terms. These separate license terms govern your use of the third party programs as set forth in the “third-party-programs.txt” or other similarly-named text file.
+This file contains the list of third party software (“third party
+programs”) contained in the Intel software and their required notices
+and/or license terms. This third party software, even if included with
+the distribution of the Intel software, may be governed by separate
+license terms, including without limitation, third party license
+terms, other Intel software license terms, and open source software
+license terms. These separate license terms govern your use of the
+third party programs as set forth in the “third-party-programs.txt” or
+other similarly-named text file.
 
-Third party programs and their corresponding required notices and/or license terms are listed below.
+Third party programs and their corresponding required notices and/or
+license terms are listed below.
 
 -------------------------------------------------------------------------------
 
@@ -37,54 +46,9 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
 -------------------------------------------------------------------------------
-2. GEOPM unit tests
-   geopmadmin
-   geopmagent
-   geopmbench
-   geopmctl
-   geopmlaunch
-   geopmpolicy
-   geopmpy
-   geopmread
-   geopmwrite
-   libgeopm
-   libgeopmpolicy
 
-
-Copyright (c) 2015 - 2022, Intel Corporation
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions
-are met:
-
-    * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
-
-    * Redistributions in binary form must reproduce the above copyright
-      notice, this list of conditions and the following disclaimer in
-      the documentation and/or other materials provided with the
-      distribution.
-
-    * Neither the name of Intel Corporation nor the names of its
-      contributors may be used to endorse or promote products derived
-      from this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
--------------------------------------------------------------------------------
-3. json11
+2. json11
 
 Copyright (c) 2013 Dropbox, Inc.
 
@@ -107,26 +71,27 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 -------------------------------------------------------------------------------
-4. NAS Parallel Benchmarks
+
+3. NAS Parallel Benchmarks
 
 !-------------------------------------------------------------------------!
 !                                                                         !
-!        N  A  S     P A R A L L E L     B E N C H M A R K S  3.4         !
+!        N  A  S     P A R A L L E L     B E N C H M A R K S  3.3         !
 !                                                                         !
-!                                   B T                                   !
+!                                   F T                                   !
 !                                                                         !
 !-------------------------------------------------------------------------!
 !                                                                         !
-!    This benchmark is part of the NAS Parallel Benchmark 3.4 suite.      !
-!    It is described in NAS Technical Reports 95-020 and 02-007.          !
+!    This benchmark is part of the NAS Parallel Benchmark 3.3 suite.      !
+!    It is described in NAS Technical Reports 95-020 and 02-007           !
 !                                                                         !
 !    Permission to use, copy, distribute and modify this software         !
 !    for any purpose with or without fee is hereby granted.  We           !
 !    request, however, that all derived work reference the NAS            !
-!    Parallel Benchmarks 3.4. This software is provided "as is"           !
+!    Parallel Benchmarks 3.3. This software is provided "as is"           !
 !    without express or implied warranty.                                 !
 !                                                                         !
-!    Information on NPB 3.4, including the technical report, the          !
+!    Information on NPB 3.3, including the technical report, the          !
 !    original specifications, source code, results and information        !
 !    on how to submit new results, is available at:                       !
 !                                                                         !
@@ -144,10 +109,36 @@ THE SOFTWARE.
 !                                                                         !
 !-------------------------------------------------------------------------!
 
-!---------------------------------------------------------------------
-!
-! Authors: R. F. Van der Wijngaart
-!          T. Harris
-!          M. Yarrow
-!
-!---------------------------------------------------------------------
+-------------------------------------------------------------------------------
+
+4. MPI m4 macro
+
+# Copyright (c) 2010, Lawrence Livermore National Security, LLC.
+# Produced at the Lawrence Livermore National Laboratory
+# Written by Todd Gamblin, tgamblin@llnl.gov.
+# LLNL-CODE-417602
+# All rights reserved.
+#
+# This file is part of Libra. For details, see http://github.com/tgamblin/libra.
+# Please also read the LICENSE file for further information.
+#
+# Redistribution and use in source and binary forms, with or without modification, are
+# permitted provided that the following conditions are met:
+#
+#  * Redistributions of source code must retain the above copyright notice, this list of
+#    conditions and the disclaimer below.
+#  * Redistributions in binary form must reproduce the above copyright notice, this list of
+#    conditions and the disclaimer (as noted below) in the documentation and/or other materials
+#    provided with the distribution.
+#  * Neither the name of the LLNS/LLNL nor the names of its contributors may be used to endorse
+#    or promote products derived from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
+# OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+# LAWRENCE LIVERMORE NATIONAL SECURITY, LLC, THE U.S. DEPARTMENT OF ENERGY OR CONTRIBUTORS BE
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+# WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
