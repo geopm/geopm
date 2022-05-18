@@ -73,7 +73,7 @@ static void geopm_topo_popen_complete(int signum)
     }
 }
 
-int geopm_topo_popen(const char *cmd, FILE **fid)
+static int geopm_topo_popen(const char *cmd, FILE **fid)
 {
     int err = 0;
     *fid = NULL;
