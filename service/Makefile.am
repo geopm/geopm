@@ -50,6 +50,12 @@ dist: dist-googletest base_man
 install-plugin-dir:
 	$(INSTALL) -d $(DESTDIR)/$(pkglibdir)
 
+dist_doc_DATA = COPYING \
+                COPYING-TPP \
+                README.rst \
+                VERSION \
+                # end
+
 EXTRA_DIST = .gitignore \
              Makefile.am \
              autogen.sh \
@@ -90,9 +96,6 @@ EXTRA_DIST = .gitignore \
              AUTHORS \
              CODE_OF_CONDUCT.md \
              CONTRIBUTING.rst \
-             COPYING \
-             README.rst \
-             VERSION \
              # end
 
 geopmread_SOURCES = src/geopmread_main.cpp

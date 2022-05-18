@@ -37,9 +37,9 @@ BuildRequires: python-rpm-macros
 %global debug_package %{nil}
 
 %if %{defined suse_version}
-%define docdir %{_defaultdocdir}/geopm
+%define docdir %{_defaultdocdir}/geopm-service
 %else
-%define docdir %{_defaultdocdir}/geopm-%{version}
+%define docdir %{_defaultdocdir}/geopm-service-%{version}
 %endif
 
 %define python_bin %{__python3}
@@ -202,6 +202,11 @@ ln -s /usr/sbin/service %{buildroot}%{_sbindir}/rcgeopm
 %{_datadir}/dbus-1/interfaces/io.github.geopm.xml
 %{_unitdir}/geopm.service
 %dir %{_sysconfdir}/geopm-service
+%dir %{docdir}
+%doc %{docdir}/COPYING
+%doc %{docdir}/COPYING-TPP
+%doc %{docdir}/README.rst
+%doc %{docdir}/VERSION
 %doc %{_mandir}/man1/geopmread.1.gz
 %doc %{_mandir}/man1/geopmwrite.1.gz
 %doc %{_mandir}/man7/geopm.7.gz
