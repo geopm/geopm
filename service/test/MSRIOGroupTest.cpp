@@ -975,26 +975,6 @@ TEST_F(MSRIOGroupTest, allowlist)
     }
 }
 
-TEST_F(MSRIOGroupTest, cpuid)
-{
-    FILE *pid = NULL;
-    std::string command = "lscpu | grep 'Model name:' | grep 'Intel'";
-    EXPECT_EQ(0, geopm_topo_popen(command.c_str(), &pid));
-    if (pclose(pid) == 0) {
-        command = "printf '%.2x%x\n' $(lscpu | grep 'CPU family:' | awk -F: '{print $2}') $(lscpu | grep 'Model:' | awk -F: '{print $2}')";
-        int expected_cpuid = 0;
-        pid = NULL;
-        EXPECT_EQ(0, geopm_topo_popen(command.c_str(), &pid));
-        EXPECT_EQ(1, fscanf(pid, "%x", &expected_cpuid));
-        EXPECT_EQ(0, pclose(pid));
-        int cpuid = m_msrio_group->cpuid();
-        EXPECT_EQ(expected_cpuid, cpuid);
-   }
-   else {
-       std::cerr << "Warning: skipping MSRIOGroupTest.cpuid because non-intel architecture detected" << std::endl;
-   }
-}
-
 TEST_F(MSRIOGroupTest, parse_json_msrs_error_top_level)
 {
     GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->parse_json_msrs("{}}"),
