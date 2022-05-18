@@ -726,6 +726,303 @@ namespace geopm
                     "writeable": false
                 }
             }
+        },
+        "PM_ENABLE": {
+            "offset": "0x770",
+            "domain": "package",
+            "fields": {
+                "ENABLE": {
+                    "begin_bit": 0,
+                    "end_bit":   0,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "behavior":  "variable",
+                    "writeable": false
+                }
+            }
+        },
+        "HWP_CAPABILITIES": {
+            "offset": "0x771",
+            "domain": "package",
+            "fields": {
+                "HIGHEST_PERFORMANCE": {
+                    "begin_bit": 0,
+                    "end_bit":   7,
+                    "function":  "scale",
+                    "units":     "hertz",
+                    "scalar":    1e8,
+                    "behavior":  "variable",
+                    "writeable": false
+                },
+                "GUARANTEED_PERFORMANCE": {
+                    "begin_bit": 8,
+                    "end_bit":   15,
+                    "function":  "scale",
+                    "units":     "hertz",
+                    "scalar":    1e8,
+                    "behavior":  "variable",
+                    "writeable": false
+                },
+                "MOST_EFFICIENT_PERFORMANCE": {
+                    "begin_bit": 16,
+                    "end_bit":   23,
+                    "function":  "scale",
+                    "units":     "hertz",
+                    "scalar":    1e8,
+                    "behavior":  "variable",
+                    "writeable": false
+                },
+                "LOWEST_PERFORMANCE": {
+                    "begin_bit": 24,
+                    "end_bit":   31,
+                    "function":  "scale",
+                    "units":     "hertz",
+                    "scalar":    1e8,
+                    "behavior":  "variable",
+                    "writeable": false
+                }
+            }
+        },
+        "HWP_REQUEST_PKG": {
+            "offset": "0x772",
+            "domain": "package",
+            "fields": {
+                "MINIMUM_PERFORMANCE": {
+                    "begin_bit": 0,
+                    "end_bit":   7,
+                    "function":  "scale",
+                    "units":     "hertz",
+                    "scalar":    1e8,
+                    "behavior":  "variable",
+                    "writeable": true
+                },
+                "MAXIMUM_PERFORMANCE": {
+                    "begin_bit": 8,
+                    "end_bit":   15,
+                    "function":  "scale",
+                    "units":     "hertz",
+                    "scalar":    1e8,
+                    "behavior":  "variable",
+                    "writeable": true
+                },
+                "DESIRED_PERFORMANCE": {
+                    "begin_bit": 16,
+                    "end_bit":   23,
+                    "function":  "scale",
+                    "units":     "hertz",
+                    "scalar":    1e8,
+                    "behavior":  "variable",
+                    "writeable": true
+                },
+                "ENERGY_PERFORMANCE_PREFERENCE": {
+                    "begin_bit": 24,
+                    "end_bit":   31,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "behavior":  "variable",
+                    "writeable": true
+                },
+                "ACTIVITY_WINDOW": {
+                    "begin_bit": 32,
+                    "end_bit":   41,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "behavior":  "variable",
+                    "writeable": true
+                }
+            }
+        },
+        "HWP_INTERRUPT": {
+            "offset": "0x773",
+            "domain": "cpu",
+            "fields": {
+                "EN_GUARANTEED_PERFORMANCE_CHANGE": {
+                    "begin_bit": 0,
+                    "end_bit":   0,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "behavior":  "variable",
+                    "writeable": true
+                },
+                "EN_EXCURSION_MINIMUM": {
+                    "begin_bit": 1,
+                    "end_bit":   1,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "behavior":  "variable",
+                    "writeable": true
+                },
+                "EN_HIGHEST_CHANGE": {
+                    "begin_bit": 2,
+                    "end_bit":   2,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "behavior":  "variable",
+                    "writeable": true
+                },
+                "EN_PECI_OVERRIDE": {
+                    "begin_bit": 3,
+                    "end_bit":   3,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "behavior":  "variable",
+                    "writeable": true
+                }
+            }
+        },
+        "HWP_REQUEST": {
+            "offset": "0x774",
+            "domain": "cpu",
+            "fields": {
+                "MINIMUM_PERFORMANCE": {
+                    "begin_bit": 0,
+                    "end_bit":   7,
+                    "function":  "scale",
+                    "units":     "hertz",
+                    "scalar":    1e8,
+                    "behavior":  "variable",
+                    "writeable": true
+                },
+                "MAXIMUM_PERFORMANCE": {
+                    "begin_bit": 8,
+                    "end_bit":   15,
+                    "function":  "scale",
+                    "units":     "hertz",
+                    "scalar":    1e8,
+                    "behavior":  "variable",
+                    "writeable": true
+                },
+                "DESIRED_PERFORMANCE": {
+                    "begin_bit": 16,
+                    "end_bit":   23,
+                    "function":  "scale",
+                    "units":     "hertz",
+                    "scalar":    1e8,
+                    "behavior":  "variable",
+                    "writeable": true
+                },
+                "ENERGY_PERFORMANCE_PREFERENCE": {
+                    "begin_bit": 24,
+                    "end_bit":   31,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "behavior":  "variable",
+                    "writeable": true
+                },
+                "ACTIVITY_WINDOW": {
+                    "begin_bit": 32,
+                    "end_bit":   41,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "behavior":  "variable",
+                    "writeable": true
+                },
+                "PACKAGE_CONTROL": {
+                    "begin_bit": 42,
+                    "end_bit":   42,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "behavior":  "variable",
+                    "writeable": true
+                },
+                "EPP_VALID": {
+                    "begin_bit": 60,
+                    "end_bit":   60,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "behavior":  "variable",
+                    "writeable": true
+                },
+                "DESIRED_VALID": {
+                    "begin_bit": 61,
+                    "end_bit":   61,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "behavior":  "variable",
+                    "writeable": true
+                },
+                "MAXIMUM_VALID": {
+                    "begin_bit": 62,
+                    "end_bit":   62,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "behavior":  "variable",
+                    "writeable": true
+                },
+                "MINIMUM_VALID": {
+                    "begin_bit": 63,
+                    "end_bit":   63,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "behavior":  "variable",
+                    "writeable": true
+                }
+            }
+        },
+        "HWP_STATUS": {
+            "offset": "0x777",
+            "domain": "cpu",
+            "fields": {
+                "GUARANTEED_PERFORMANCE_CHANGE": {
+                    "begin_bit": 0,
+                    "end_bit":   0,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "behavior":  "variable",
+                    "writeable": true
+                },
+                "EXCURSION_TO_MINIMUM": {
+                    "begin_bit": 2,
+                    "end_bit":   2,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "behavior":  "variable",
+                    "writeable": true
+                },
+                "HIGHEST_CHANGE": {
+                    "begin_bit": 3,
+                    "end_bit":   3,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "behavior":  "variable",
+                    "writeable": true
+                },
+                "PECI_OVERRIDE_ENTRY": {
+                    "begin_bit": 4,
+                    "end_bit":   4,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "behavior":  "variable",
+                    "writeable": true
+                },
+                "PECI_OVERRIDE_EXIT": {
+                    "begin_bit": 5,
+                    "end_bit":   5,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "behavior":  "variable",
+                    "writeable": true
+                }
+            }
         }
     }
 }

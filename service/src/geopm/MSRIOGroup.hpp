@@ -135,6 +135,12 @@ namespace geopm
             /// @brief Add support for Intel Resource Director signals if
             ///        underlying signals are available.
             void register_rdt_signals(void);
+            /// @brief Add support for frequency signal aliases if underlying
+            ///        signals are available.
+            void register_frequency_signals(void);
+            /// @brief Add support for frequency control aliases if underlying
+            ///        controls are available.
+            void register_frequency_controls(void);
             /// @brief Write to enable bits for all fixed counters.
             void enable_fixed_counters(void);
             /// @brief Check system configuration and warn if it ma
@@ -190,6 +196,11 @@ namespace geopm
             // time for derivative signals
             std::shared_ptr<geopm_time_s> m_time_zero;
             std::shared_ptr<double> m_time_batch;
+
+            /// @brief Return the Intel Hardware P-States
+            ///        enabled information
+            bool get_hwp_enabled(void);
+            bool m_hwp_is_enabled;
 
             struct rdt_info
             {
