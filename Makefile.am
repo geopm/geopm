@@ -146,6 +146,7 @@ dist_man_MANS = $(roff_man_inst) \
                 # end
 
 dist_doc_DATA = COPYING \
+                COPYING-TPP \
                 README \
                 VERSION \
                 # end
@@ -196,7 +197,6 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              copying_headers/header.NAS \
              copying_headers/test-dist \
              copying_headers/test-license \
-             COPYING-TPP \
              dox/Doxyfile.in \
              geopm-tutorial.tar.gz \
              indicators/index.html \

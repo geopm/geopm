@@ -155,6 +155,7 @@ rm -f %{buildroot}/%{_bindir}/geopmlaunch
 %{compdir}
 %dir %{docdir}
 %doc %{docdir}/COPYING
+%doc %{docdir}/COPYING-TPP
 %doc %{docdir}/README
 %doc %{docdir}/VERSION
 %doc %{_mandir}/man1/geopmadmin.1.gz

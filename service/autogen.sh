@@ -20,7 +20,7 @@ elif [ ! -f VERSION ]; then
     echo "0.0.0" > VERSION
 fi
 
-for ff in AUTHORS CODE_OF_CONDUCT.md CONTRIBUTING.rst COPYING; do
+for ff in AUTHORS CODE_OF_CONDUCT.md CONTRIBUTING.rst COPYING COPYING-TPP; do
     if [ ! -f $ff ]; then
         cp ../$ff .
     fi
