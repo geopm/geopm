@@ -31,8 +31,6 @@ bool is_agg_stddev(std::function<double(const std::vector<double> &)> func);
 bool is_agg_select_first(std::function<double(const std::vector<double> &)> func);
 bool is_agg_expect_same(std::function<double(const std::vector<double> &)> func);
 
-int geopm_topo_popen(const char *cmd, FILE **fid);
-
 /// Checks that the given statement throws a geopm::Exception with the
 /// right error code and message.  The message must be a substring of
 /// the thrown Exception's what() string.  Additional details may be

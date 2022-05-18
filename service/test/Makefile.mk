@@ -134,7 +134,6 @@ GTEST_TESTS = test/gtest_links/GPUTopoNullTest.default_config \
               test/gtest_links/LevelZeroIOGroupTest.save_restore_control \
               test/gtest_links/MSRIOGroupTest.adjust \
               test/gtest_links/MSRIOGroupTest.control_error \
-              test/gtest_links/MSRIOGroupTest.cpuid \
               test/gtest_links/MSRIOGroupTest.parse_json_msrs \
               test/gtest_links/MSRIOGroupTest.parse_json_msrs_error_fields \
               test/gtest_links/MSRIOGroupTest.parse_json_msrs_error_msrs \
