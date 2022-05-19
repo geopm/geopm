@@ -1,19 +1,12 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
-
 
 geopm_pio_c(3) -- interfaces to query and modify platform
 =========================================================
 
 
-
-
-
-
 SYNOPSIS
 --------
 
-#include `<geopm_pio.h> <https://github.com/geopm/geopm/blob/dev/src/geopm_pio.h>`_\ 
+#include `<geopm_pio.h> <https://github.com/geopm/geopm/blob/dev/src/geopm_pio.h>`_\
 
 Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
 
@@ -120,14 +113,14 @@ INSPECTION FUNCTIONS
 --------------------
 
 
-* 
+*
   ``geopm_pio_num_signal_name()``:
   Returns the number of signal names that can be indexed with the
   *name_idx* parameter to the ``geopm_pio_signal_name()`` function.
   Any error in loading the platform will result in a negative error
   code describing the failure.
 
-* 
+*
   ``geopm_pio_signal_name()``:
   Sets the *result* string to the name of the signal indexed by
   *name_idx*.  At most *result_max* bytes are written to the
@@ -140,14 +133,14 @@ INSPECTION FUNCTIONS
   on success and a negative error code is returned if any error
   occurs.
 
-* 
+*
   ``geopm_pio_num_control_name()``:
   Returns the number of control names that can be indexed with the
   *name_idx* parameter to the ``geopm_pio_control_name()`` function.
   Any error in loading the platform will result in a negative error
   code describing the failure.
 
-* 
+*
   ``geopm_pio_control_name()``:
   Sets the *result* string to the name of the control indexed by
   *name_idx*.  At most *result_max* bytes are written to the
@@ -160,7 +153,7 @@ INSPECTION FUNCTIONS
   on success and a negative error code is returned if any error
   occurs.
 
-* 
+*
   ``geopm_pio_signal_description()``:
   Sets the *description* string to the signal description associated with
   *signal_name*.  At most *description_max* bytes are written to the
@@ -170,7 +163,7 @@ INSPECTION FUNCTIONS
   occur.  Zero is returned on success and a negative error code is
   returned if any error occurs.
 
-* 
+*
   ``geopm_pio_control_description()``:
   Sets the *description* string to the control description associated with
   *control_name*.  At most *description_max* bytes are written to the
@@ -180,7 +173,7 @@ INSPECTION FUNCTIONS
   occur.  Zero is returned on success and a negative error code is
   returned if any error occurs.
 
-* 
+*
   ``geopm_pio_signal_domain_type()``:
   Query the domain for the signal with name *signal_name*.  Returns
   one of the ``geopm_domain_e`` values signifying the granularity at
@@ -188,7 +181,7 @@ INSPECTION FUNCTIONS
   if any error occurs, e.g. a request for a *signal_name* that
   is not supported by the platform.
 
-* 
+*
   ``geopm_pio_control_domain_type()``:
   Query the domain for the control with the name *control_name*.
   Returns one of the ``geopm_domain_e`` values signifying the
@@ -196,7 +189,7 @@ INSPECTION FUNCTIONS
   negative error code if any error occurs, e.g. a request for a
   *control_name* that is not supported by the platform.
 
-* 
+*
   ``geopm_pio_signal_info()``:
   **C** interface to get enums associated with a signal name.
   This interface supports **DBus** ``PlatformGetSignalInfo`` method.  This **C**
@@ -211,7 +204,7 @@ INSPECTION FUNCTIONS
   the signals behavior over time.
   Returns zero on success, error value on failure.
 
-* 
+*
   ``geopm_pio_format_signal()``:
   Format the *signal* according to the format type specified,
   and write the output into the *result* string.
@@ -228,7 +221,7 @@ SERIAL FUNCTIONS
 ----------------
 
 
-* 
+*
   ``geopm_pio_read_signal()``:
   Read from the platform and interpret into SI units a signal
   associated with *signal_name* and store the value in *result*.
@@ -240,7 +233,7 @@ SERIAL FUNCTIONS
   If an error occurs then negative error code is returned.  Zero is
   returned upon success.
 
-* 
+*
   ``geopm_pio_write_control()``:
   Interpret the *setting* in SI units associated with *control_name*
   and write it to the platform.  This value is written to the
@@ -251,7 +244,7 @@ SERIAL FUNCTIONS
   ``geopm_pio_adjust()``.  If an error occurs then negative error code
   is returned.  Zero is returned upon success.
 
-* 
+*
   ``geopm_pio_save_control()``:
   Save the state of all controls so that any subsequent changes made
   through ``geopm_pio_write_control()`` or ``geopm_pio_write_batch()``
@@ -260,7 +253,7 @@ SERIAL FUNCTIONS
   error occurs then negative error code is returned.  Zero is
   returned upon success.
 
-* 
+*
   ``geopm_pio_restore_control()``:
   Restore the state recorded by the last call to
   ``geopm_pio_save_control()`` so that all subsequent changes made
@@ -268,7 +261,7 @@ SERIAL FUNCTIONS
   are reverted to their previous settings.  If an error occurs then
   negative error code is returned.  Zero is returned upon success.
 
-* 
+*
   ``geopm_pio_save_control_dir()``:
   Save the state of all controls in the directory *save_dir* so that any subsequent changes made
   through ``geopm_pio_write_control()`` or ``geopm_pio_write_batch()``
@@ -277,7 +270,7 @@ SERIAL FUNCTIONS
   error occurs then negative error code is returned.  Zero is
   returned upon success.
 
-* 
+*
   ``geopm_pio_restore_control_dir()``:
   Restore the state recorded by the last call to
   ``geopm_pio_save_control()`` in the directory *save_dir* so that all subsequent changes made
@@ -295,7 +288,7 @@ BATCH FUNCTIONS
 ---------------
 
 
-* 
+*
   ``geopm_pio_push_signal()``:
   Push a signal onto the stack of batch access signals.  The signal
   is defined by selecting a *signal_name* from one of the values
@@ -317,7 +310,7 @@ BATCH FUNCTIONS
   is not a value provided by ``geopm_pio_signal_name()`` will result
   in a negative return value.
 
-* 
+*
   ``geopm_pio_push_control()``:
   Push a control onto the stack of batch access controls.  The
   control is defined by selecting a *control_name* from one of the
@@ -339,7 +332,7 @@ BATCH FUNCTIONS
   that is not a value provided by ``geopm_pio_control_name()`` will
   result in a negative return value.
 
-* 
+*
   ``geopm_pio_sample()``:
   Samples cached value of a single signal that has been pushed via
   ``geopm_pio_push_signal()`` and writes the value into *result*.  The
@@ -347,7 +340,7 @@ BATCH FUNCTIONS
   ``geopm_pio_push_signal()`` when the signal was pushed. The cached
   value is updated at the time of call to ``geopm_pio_read_batch()``.
 
-* 
+*
   ``geopm_pio_adjust()``:
   Updates cached value for single control that has been pushed via
   ``geopm_pio_push_control()`` to the value *setting*.  The
@@ -356,17 +349,17 @@ BATCH FUNCTIONS
   cached value will be written to the platform at time of call to
   ``geopm_pio_write_batch()``.
 
-* 
+*
   ``geopm_pio_read_batch()``:
   Read all push signals from the platform so that the next call to
   ``geopm_pio_sample()`` will reflect the updated data.
 
-* 
+*
   ``geopm_pio_write_batch()``:
   Write all pushed controls so that values provided to
   ``geopm_pio_adjust()`` are written to the platform.
 
-* 
+*
   ``geopm_pio_start_batch_server()``:
   Creates a batch server with the following signals and controls.
   The list of signals is represented by the array *signal_config* of *num_signal* elements.
@@ -382,7 +375,7 @@ BATCH FUNCTIONS
   occur.  Zero is returned on success and a negative error code is
   returned if any error occurs.
 
-* 
+*
   ``geopm_pio_stop_batch_server()``:
   This function is called directly by geopmd in order to
   end a batch session and kill the batch server process
