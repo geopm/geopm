@@ -17,6 +17,7 @@
 
 using geopm::DivisionSignal;
 using testing::Return;
+using testing::IsNan;
 
 class DivisionSignalTest : public ::testing::Test
 {
@@ -50,11 +51,10 @@ TEST_F(DivisionSignalTest, read_div_by_zero)
 {
     double num = 67.8;
     double den = 0;
-    double expected = 0;
     EXPECT_CALL(*m_numerator, read()).WillOnce(Return(num));
     EXPECT_CALL(*m_denominator, read()).WillOnce(Return(den));
     double result = m_sig->read();
-    EXPECT_NEAR(expected, result, 0.00001);
+    EXPECT_THAT(result, IsNan());
 }
 
 TEST_F(DivisionSignalTest, read_batch)
@@ -80,11 +80,10 @@ TEST_F(DivisionSignalTest, read_batch_div_by_zero)
 
     double num = 67.8;
     double den = 0;
-    double expected = 0;
     EXPECT_CALL(*m_numerator, sample()).WillOnce(Return(num));
     EXPECT_CALL(*m_denominator, sample()).WillOnce(Return(den));
     double result = m_sig->sample();
-    EXPECT_NEAR(expected, result, 0.00001);
+    EXPECT_THAT(result, IsNan());
 }
 
 TEST_F(DivisionSignalTest, setup_batch)
