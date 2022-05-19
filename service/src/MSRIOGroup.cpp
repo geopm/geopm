@@ -407,22 +407,27 @@ namespace geopm
 
     void MSRIOGroup::register_pcnt_scalability_signals(void)
     {
+        // Tracking for intermediate signals that will not
+        // be exposed to the user but will be used to 
+        // generate user visible signals
+        std::map<std::string, signal_info> signal_hidden;
+
         // register time signal; domain board
         std::string time_name = "MSR::TIME";
         std::shared_ptr<Signal> time_sig = std::make_shared<TimeSignal>(m_time_zero, m_time_batch);
-        m_signal_available[time_name] = {std::vector<std::shared_ptr<Signal> >({time_sig}),
-                                         GEOPM_DOMAIN_CPU,
-                                         IOGroup::M_UNITS_SECONDS,
-                                         Agg::select_first,
-                                         "Time in seconds used to calculate pcnt_rate, acnt_rate",
-                                         IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
-                                         string_format_double};
+        signal_hidden[time_name] = {std::vector<std::shared_ptr<Signal> >({time_sig}),
+                                    GEOPM_DOMAIN_CPU,
+                                    IOGroup::M_UNITS_SECONDS,
+                                    Agg::select_first,
+                                    "Time in seconds used to calculate pcnt_rate, acnt_rate",
+                                    IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
+                                    string_format_double};
         int derivative_window = 8;
         double sleep_time = 0.005;  // 5000 us
 
         // Mapping of high-level signal name to description and
-        // underlying energy MSR.  The domain will match that of the
-        // energy signal.
+        // underlying CNT MSRs.  The domain will match that of the
+        // CNT signals.
         struct cnt_data
         {
             std::string cnt_name;
@@ -456,20 +461,20 @@ namespace geopm
                                                            derivative_window,
                                                            sleep_time);
                 }
-                m_signal_available[signal_name] = {result,
-                                                   cnt_domain,
-                                                   IOGroup::M_UNITS_HERTZ,
-                                                   Agg::average,
-                                                   ps.description + "\n    alias_for: " + ps.msr_name + " rate of change",
-                                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
-                                                   string_format_double};
+                signal_hidden[signal_name] = {result,
+                                              cnt_domain,
+                                              IOGroup::M_UNITS_HERTZ,
+                                              Agg::average,
+                                              ps.description + "\n    alias_for: " + ps.msr_name + " rate of change",
+                                              IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
+                                              string_format_double};
             }
         }
 
         std::string signal_name = "MSR::CPU_SCALABILITY_RATIO";
         std::string msr_name = "MSR::PCNT_RATE";
-        auto read_it = m_signal_available.find(msr_name);
-        if (read_it != m_signal_available.end()) {
+        auto read_it = signal_hidden.find(msr_name);
+        if (read_it != signal_hidden.end()) {
             auto readings = read_it->second.signals;
             int cnt_domain = read_it->second.domain;
             int num_domain = m_platform_topo.num_domain(cnt_domain);
@@ -478,11 +483,11 @@ namespace geopm
                                " does not match number of signals available.");
             std::vector<std::shared_ptr<Signal> > result(num_domain);
             for (int domain_idx = 0; domain_idx < num_domain; ++domain_idx) {
-                auto numer_it = m_signal_available.find("MSR::PCNT_RATE");
+                auto numer_it = signal_hidden.find("MSR::PCNT_RATE");
                 auto numers = numer_it->second.signals;
                 auto numer = numers[domain_idx];
 
-                auto denom_it = m_signal_available.find("MSR::ACNT_RATE");
+                auto denom_it = signal_hidden.find("MSR::ACNT_RATE");
                 auto denoms = denom_it->second.signals;
                 auto denom = denoms[domain_idx];
 
@@ -494,7 +499,9 @@ namespace geopm
                                                cnt_domain,
                                                IOGroup::M_UNITS_NONE,
                                                Agg::average,
-                                               "Measure of CPU Scalability as determined by PCNT over ACNT\n    alias_for: MSR::PCNT_RATE/MSR::ACNT_RATE",
+                                               "Measure of CPU Scalability as determined " 
+                                               "by the derivative of PCNT divided by the " 
+                                               "derivative of ACNT over 8 samples",
                                                IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                                string_format_double};
         }

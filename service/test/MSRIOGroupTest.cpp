@@ -197,8 +197,6 @@ TEST_F(MSRIOGroupTest, valid_signal_names)
 
     //// scalability signals
     ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::PPERF:PCNT"));
-    ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::PCNT_RATE"));
-    ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::ACNT_RATE"));
     ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::CPU_SCALABILITY_RATIO"));
 
     auto signal_names = m_msrio_group->signal_names();
@@ -253,10 +251,6 @@ TEST_F(MSRIOGroupTest, valid_signal_domains)
     // scalability
     EXPECT_EQ(GEOPM_DOMAIN_CPU,
             m_msrio_group->signal_domain_type("MSR::PPERF:PCNT"));
-    EXPECT_EQ(GEOPM_DOMAIN_CPU,
-            m_msrio_group->signal_domain_type("MSR::PCNT_RATE"));
-    EXPECT_EQ(GEOPM_DOMAIN_CPU,
-            m_msrio_group->signal_domain_type("MSR::ACNT_RATE"));
     EXPECT_EQ(GEOPM_DOMAIN_CPU,
             m_msrio_group->signal_domain_type("MSR::CPU_SCALABILITY_RATIO"));
 
@@ -317,10 +311,6 @@ TEST_F(MSRIOGroupTest, valid_signal_aggregation)
     func = m_msrio_group->agg_function("MSR::PPERF:PCNT");
     EXPECT_TRUE(is_agg_sum(func));
 
-    func = m_msrio_group->agg_function("MSR::PCNT_RATE");
-    EXPECT_TRUE(is_agg_average(func));
-    func = m_msrio_group->agg_function("MSR::ACNT_RATE");
-    EXPECT_TRUE(is_agg_average(func));
     func = m_msrio_group->agg_function("MSR::CPU_SCALABILITY_RATIO");
     EXPECT_TRUE(is_agg_average(func));
 
