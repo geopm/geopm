@@ -119,6 +119,9 @@ service/docs/source/GEOPM_CXX_MAN_ProfileIOGroup.3.rst
 service/docs/source/GEOPM_CXX_MAN_SampleAggregator.3.rst
 service/docs/source/GEOPM_CXX_MAN_SharedMemory.3.rst
 service/docs/source/GEOPM_CXX_MAN_TimeIOGroup.3.rst
+service/docs/source/DCGMIOGroup.7.rst
+service/docs/source/NVMLIOGroup.7.rst
+service/docs/source/LevelZeroIOGroup.7.rst
 service/docs/source/geopm_daemon_c.3.rst
 service/docs/source/geopmdpy.7.rst
 service/docs/source/geopmendpoint.1.rst
