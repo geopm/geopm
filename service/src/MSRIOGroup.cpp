@@ -236,7 +236,10 @@ namespace geopm
 
     void MSRIOGroup::register_frequency_controls(void) {
         if (m_hwp_is_enabled) {
-            // TODO: should control set min, max, and desired?
+            // TODO: It may be better to have this alias use desired_performance or 
+            //       set min = max = desired, to make it more closely match the legacy 
+            //       p-state behavior and avoid surprising users, however this may 
+            //       limit the benefits gained from using HWP
             register_control_alias("CPU_FREQUENCY_CONTROL", "MSR::HWP_REQUEST:MAXIMUM_PERFORMANCE");
 
             register_control_alias("CPU_FREQUENCY_MIN_CONTROL", "MSR::HWP_REQUEST:MINIMUM_PERFORMANCE");
@@ -779,7 +782,7 @@ namespace geopm
                 try {
                     pkg_enable += read_signal("MSR::PM_ENABLE:ENABLE", domain, dom_idx);
                 } 
-                catch (...) { //TODO: should this be restricted to GEOPM_ERROR_MSR_READ?
+                catch (...) { // This may be restricted to GEOPM_ERROR_MSR_READ.
                     pkg_enable = 0;
                     break; 
                 } 
