@@ -86,6 +86,9 @@ all_man_rst = docs/source/geopm.7.rst \
               docs/source/geopm_imbalancer.3.rst \
               docs/source/geopmlaunch.1.rst \
               docs/source/geopm_pio_c.3.rst \
+              docs/source/geopm_pio_dcgm.7.rst \
+              docs/source/geopm_pio_levelzero.7.rst \
+              docs/source/geopm_pio_nvml.7.rst \
               docs/source/geopm_policystore_c.3.rst \
               docs/source/geopm_prof_c.3.rst \
               docs/source/geopmpy.7.rst \
@@ -98,9 +101,6 @@ all_man_rst = docs/source/geopm.7.rst \
               docs/source/geopm_topo_c.3.rst \
               docs/source/geopm_version.3.rst \
               docs/source/geopmwrite.1.rst \
-              docs/source/NVMLIOGroup.7.rst \
-              docs/source/DCGMIOGroup.7.rst \
-              docs/source/LevelZeroIOGroup.7.rst \
               # end
 
 dist_man_MANS = docs/build/man/geopm.7 \
@@ -122,6 +122,9 @@ dist_man_MANS = docs/build/man/geopm.7 \
                 docs/build/man/geopm_error.3 \
                 docs/build/man/geopm_hash.3 \
                 docs/build/man/geopm_pio_c.3 \
+                docs/build/man/geopm_pio_dcgm.7 \
+                docs/build/man/geopm_pio_levelzero.7 \
+                docs/build/man/geopm_pio_nvml.7 \
                 docs/build/man/geopmread.1 \
                 docs/build/man/geopm_report.7 \
                 docs/build/man/geopm_sched.3 \
@@ -132,9 +135,6 @@ dist_man_MANS = docs/build/man/geopm.7 \
                 docs/build/man/geopmaccess.1 \
                 docs/build/man/geopmsession.1 \
                 docs/build/man/geopmdpy.7 \
-                docs/build/man/NVMLIOGroup.7 \
-                docs/build/man/DCGMIOGroup.7 \
-                docs/build/man/LevelZeroIOGroup.7 \
                 # end
 
 base_man = docs/build/man/geopmadmin.1 \
