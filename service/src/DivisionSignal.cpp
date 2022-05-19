@@ -11,6 +11,8 @@
 #include "geopm/Helper.hpp"
 #include "geopm_debug.hpp"
 
+#include <limits>
+
 namespace geopm
 {
     DivisionSignal::DivisionSignal(std::shared_ptr<Signal> numerator,
@@ -39,7 +41,7 @@ namespace geopm
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
 
-        double result = 0;
+        double result = std::numeric_limits<double>::quiet_NaN();
         double numer = m_numerator->sample();
         double denom = m_denominator->sample();
 
@@ -51,7 +53,7 @@ namespace geopm
 
     double DivisionSignal::read(void) const
     {
-        double result = 0;
+        double result = std::numeric_limits<double>::quiet_NaN();
         double numer = m_numerator->read();
         double denom = m_denominator->read();
 
