@@ -1,14 +1,6 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
-
 
 geopm::IOGroup(3) -- provides system values and settings
 ========================================================
-
-
-
-
-
 
 NAMESPACES
 ----------
@@ -24,7 +16,7 @@ to enable better rendering of this manual.
 SYNOPSIS
 --------
 
-#include `<geopm/IOGroup.hpp> <https://github.com/geopm/geopm/blob/dev/src/IOGroup.hpp>`_\ 
+#include `<geopm/IOGroup.hpp> <https://github.com/geopm/geopm/blob/dev/src/IOGroup.hpp>`_\
 
 Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
 
@@ -123,22 +115,22 @@ GEOPM provides a number of built-in IOGroups for the most common
 usages.  The list of built-in IOGroups is as follows:
 
 
-* 
+*
   ``CpuinfoIOGroup``\ :
   Provides constants for CPU frequency limits.  Discussed in
   `geopm::CpuinfoIOGroup(3) <GEOPM_CXX_MAN_CpuinfoIOGroup.3.html>`_.
 
-* 
+*
   ``MSRIOGroup``\ :
   Provides signals and controls based on MSRs.  Discussed in
   `geopm::MSRIOGroup(3) <GEOPM_CXX_MAN_MSRIOGroup.3.html>`_.
 
-* 
+*
   ``ProfileIOGroup``\ :
   Provides signals from the application. Discussed in
   `geopm::ProfileIOGroup(3) <GEOPM_CXX_MAN_ProfileIOGroup.3.html>`_.
 
-* 
+*
   ``TimeIOGroup``\ :
   Provides a signal for the current time.  Discussed in
   `geopm::TimeIOGroup(3) <GEOPM_CXX_MAN_TimeIOGroup.3.html>`_.
@@ -160,15 +152,15 @@ of the IOGroup interface.  Understanding these terms will help to interpret the
 documentation about how to extend IOGroups.
 
 
-* 
+*
   *signal*\ :
   Named parameter in SI units that can be measured.
 
-* 
+*
   *control* :
   Named parameter in SI units that can be set.
 
-* 
+*
   *domain*\ :
   The discrete component within a compute node where a signal or control is
   applicable.  For more information see `geopm::PlatformTopo(3) <GEOPM_CXX_MAN_PlatformTopo.3.html>`_.
@@ -188,142 +180,142 @@ CLASS METHODS
 -------------
 
 
-* 
+*
   ``iogroup_names()``:
   Provides the list of the IOGroups that are available in the factory.
 
-* 
+*
   ``make_unique()``:
   Returns a ``unique_ptr`` to a new IOGroup object,
   uses the IOGroup factory to create an object of that type.
 
-* 
+*
   ``signal_names()``:
   Provides the list of all signals provided by the ``IOGroup``.  The
   set of strings that are returned can be passed as a ``signal_name``
   to all of the ``IOGroup`` methods that accept a ``signal_name`` as an
   input parameter.
 
-* 
+*
   ``control_names()``:
   Provides the list of all controls provided by the ``IOGroup``.  The set of
   strings that are returned can be passed as a ``control_name`` to all of the
   ``IOGroup`` methods that accept a ``control_name`` as an input parameter.
 
-* 
+*
   ``is_valid_signal()``:
   Tests if the *signal_name* refers to a signal supported by the
   ``IOGroup``.
 
-* 
+*
   ``is_valid_control()``:
   Test if the *control_name* refers to a control supported by the
   ``IOGroup``.
 
-* 
+*
   ``signal_domain_type()``:
   Query the domain for a named signal.
 
-* 
+*
   ``control_domain_type()``:
   Query the domain for a named control.
 
-* 
+*
   ``push_signal()``:
   Add a signal to the list of signals that is read by ``read_batch()``
   and sampled by ``sample()``.  This method should return a unique index
   for each signal that can be utilized when calling ``sample()``.
 
-* 
+*
   ``push_control()``:
   Add a control to the list of controls that is written by
   ``write_batch()`` and configured with ``adjust()``.  This method should
   return a unique index for each control that can be utilized when calling
   ``control()``.
 
-* 
+*
   ``read_batch()``:
   Read all pushed signals from the platform so that the next call to
   ``sample()`` will reflect the updated data.  The intention is that
   ``read_batch()`` will read the all of the ``IOGroup``\ 's signals into memory once
   per call.
 
-* 
+*
   ``write_batch()``:
   Write all of the pushed controls so that values previously given
   to ``adjust()`` are written to the platform.
 
-* 
+*
   ``sample()``:
   Retrieve a signal value from the data read by the last call to
   ``read_batch()`` for a particular signal previously pushed with
   ``push_signal()``.
 
-* 
+*
   ``adjust()``:
   Adjust a setting for a particular control that was previously
   pushed with ``push_control()``. This adjustment will be written to
   the platform on the next call to ``write_batch()``.
 
-* 
+*
   ``read_signal()``:
   Read from platform and interpret into SI units a signal given its
   name and domain. Does *not* modify the values stored by calling
   ``read_batch()``.
 
-* 
+*
   ``write_control()``:
   Interpret the setting and write setting to the platform.  Does *not*
   modify the values stored by calling ``adjust()``.
 
-* 
+*
   ``save_control()``:
   Save the state of all controls so that any subsequent changes made
   through the IOGroup can be undone with a call to the ``restore()`` method.
   Also has an overloaded version which takes the *save_path*.
 
-* 
+*
   ``restore_control()``:
   Restore all controls to values recorded in previous call to the ``save()`` method.
   Also has an overloaded version which takes the *save_path*.
 
-* 
+*
   ``agg_function()``:
   Returns a function that should be used when aggregating a signal
   of the type *signal_name*.  For more information see
   `geopm::Agg(3) <GEOPM_CXX_MAN_Agg.3.html>`_.
 
-* 
+*
   ``format_function()``:
   Returns a function that can be used to convert a signal of the
   type *signal_name* into a human readable string representation.
 
-* 
+*
   ``signal_description()``:
   Returns a description of the signal. This string can be used by
   tools to generate help text for users of the IOGroup.
 
-* 
+*
   ``control_description()``:
   Returns a description of the control. This string can be used by
   tools to generate help text for users of the IOGroup.
 
-* 
+*
   ``signal_behavior()``:
   Returns one of the ``IOGroup::signal_behavior_e`` values which
   describes about how a signal will change as a function of time.
   This can be used when generating reports to decide how to
   summarize a signal's value for the entire application run.
 
-* 
+*
   ``string_to_units()``:
   Convert a ``string`` to the corresponding ``m_units_e`` value
 
-* 
+*
   ``units_to_string()``:
   Convert the ``m_units_e`` value to the corresponding ``string``.
 
-* 
+*
   ``string_to_behavior()``:
   Convert a ``string`` to the corresponding ``m_signal_behavior_e`` value
 
