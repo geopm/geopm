@@ -10,7 +10,6 @@
 
 #include "geopm_time.h"
 #include "Agent.hpp"
-#include "geopm/CircularBuffer.hpp"
 
 namespace geopm
 {
@@ -54,6 +53,7 @@ namespace geopm
             double M_WAIT_SEC;
             const double M_POLICY_PHI_DEFAULT;
             const int M_NUM_PACKAGE;
+            const int M_NUM_CORE;
             bool m_do_write_batch;
 
             struct signal
@@ -87,21 +87,20 @@ namespace geopm
 
             std::map<std::string, double> m_policy_available;
 
-            double m_frequency_requests;
+            double m_core_frequency_requests;
             double m_uncore_frequency_requests;
+            double m_network_normalized_frequency_requests;
             double m_freq_uncore_min;
             double m_freq_uncore_max;
             std::map<double,double> m_qm_max_rate;
 
+            std::vector<signal> m_core_scal;
             std::vector<control> m_core_freq_control;
+
+            std::vector<signal> m_qm_rate;
+            std::vector<signal> m_uncore_freq_status;
             std::vector<control> m_uncore_freq_min_control;
             std::vector<control> m_uncore_freq_max_control;
-            std::vector<signal> m_freq_status;
-            std::vector<signal> m_uncore_freq_status;
-            std::vector<signal> m_qm_rate;
-            std::vector<signal> m_scal;
-            std::vector<signal> m_time_network;
-            std::vector<std::unique_ptr<CircularBuffer<double> > > m_network_time_samples;
 
             void init_platform_io(void);
     };
