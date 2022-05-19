@@ -231,11 +231,11 @@ if __name__ == '__main__':
                         default=0.00, type=float, dest='cross_region_degradation',
                         help='maximum allowed runtime degradation in the cross region '
                             'evaluation step.  NOTE: This is not the maximum possible '
-                            'degradation for the policy default is 0.00 (i.e., 0%)')
+                            'degradation for the policy default is 0.0 (i.e., 0%)')
     parser.add_argument('--min-energy-tolerance',
-                        default=0.05, type=float, dest='min_energy_tolerance',
+                        default=0.0, type=float, dest='min_energy_tolerance',
                         help='maximum allowed runtime degradation, default is '
-                             '0.05 (i.e., 5%)')
+                             '0.0 (i.e., 0%)')
     parser.add_argument('--region-list', default="intensity_0,intensity_32", dest='region_list',
                         help='comma-separated list of the two regions to use, '
                              'default is intensity_0,intensity_32')

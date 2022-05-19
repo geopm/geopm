@@ -38,14 +38,35 @@ def launch_configs(output_dir, app_conf):
                     "CPU_PHI": 0.5,
                     "SAMPLE_PERIOD": 0.01},
                    {"CPU_FREQ_MAX": 3700000000,
-                    "CPU_FREQ_EFFICIENT": 1000000000,
+                    "CPU_FREQ_EFFICIENT": 2000000000,
                     "UNCORE_FREQ_MAX": 2400000000,
-                    "UNCORE_FREQ_EFFICIENT": 1200000000,
+                    "UNCORE_FREQ_EFFICIENT": 2000000000,
                     "CPU_PHI": 0.5,
                     "SAMPLE_PERIOD": 0.01},
+                   #{"CPU_FREQ_MAX": 3700000000,
+                   # "CPU_FREQ_EFFICIENT": 1600000000,
+                   # "UNCORE_FREQ_MAX": 2400000000,
+                   # "UNCORE_FREQ_EFFICIENT": 2000000000,
+                   # "CPU_PHI": 0.5,
+                   # "SAMPLE_PERIOD": 0.01},
+                   #{"CPU_FREQ_MAX": 3700000000,
+                   # "CPU_FREQ_EFFICIENT": 1900000000,
+                   # "UNCORE_FREQ_MAX": 2400000000,
+                   # "UNCORE_FREQ_EFFICIENT": 1700000000,
+                   # "CPU_PHI": 0.5,
+                   # "SAMPLE_PERIOD": 0.01},
+                   #{"CPU_FREQ_MAX": 3700000000,
+                   # "CPU_FREQ_EFFICIENT": 1000000000,
+                   # "UNCORE_FREQ_MAX": 2400000000,
+                   # "UNCORE_FREQ_EFFICIENT": 1200000000,
+                   # "CPU_PHI": 0.5,
+                   # "SAMPLE_PERIOD": 0.01},
                   ]
-    config_names=['phi50',
-                  'phi50-unconstrained']
+    config_names=['16_17_phi50',
+                  '20_20_phi50',
+                  '16_20_phi50',
+                  '19_17_phi50',]
+                  #'unconstrained']
 
     targets = []
     agent = 'cpu_activity'
