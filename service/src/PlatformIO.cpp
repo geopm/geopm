@@ -39,6 +39,22 @@ namespace geopm
 
     }
 
+
+    const std::map<const std::string, const std::string>
+    PlatformIOImp::m_signal_descriptions = {
+        {"TIMESTAMP_COUNTER",
+         "An always running, monotonically increasing counter that is "
+         "incremented at a constant rate.  For use as a wall clock "
+         "timer."},
+    };
+
+    const std::map<const std::string, const std::string>
+    PlatformIOImp::m_control_descriptions = {
+        {"CPU_FREQUENCY_CONTROL",
+         "Target operating frequency of the CPU based on the control register."},
+    };
+
+
     PlatformIOImp::PlatformIOImp(std::list<std::shared_ptr<IOGroup> > iogroup_list,
                                  const PlatformTopo &topo)
         : m_is_active(false)
@@ -679,22 +695,38 @@ namespace geopm
 
     std::string PlatformIOImp::signal_description(const std::string &signal_name) const
     {
-        auto iogroups = find_signal_iogroup(signal_name);
-        if (iogroups.empty()) {
-            throw Exception("PlatformIOImp::signal_description(): unknown signal \"" + signal_name + "\"",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        std::string result;
+        auto desc = m_signal_descriptions.find(signal_name);
+        if (desc != m_signal_descriptions.end()) {
+            result = desc->second;
         }
-        return iogroups.at(0)->signal_description(signal_name);
+        else {
+            auto iogroups = find_signal_iogroup(signal_name);
+            if (iogroups.empty()) {
+                throw Exception("PlatformIOImp::signal_description(): unknown signal \"" + signal_name + "\"",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+            result = iogroups.at(0)->signal_description(signal_name);
+        }
+        return result;
     }
 
     std::string PlatformIOImp::control_description(const std::string &control_name) const
     {
-        auto iogroups = find_control_iogroup(control_name);
-        if (iogroups.empty()) {
-            throw Exception("PlatformIOImp::control_description(): unknown control \"" + control_name + "\"",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        std::string result;
+        auto desc = m_control_descriptions.find(control_name);
+        if (desc != m_control_descriptions.end()) {
+            result = desc->second;
         }
-        return iogroups.at(0)->control_description(control_name);
+        else {
+            auto iogroups = find_control_iogroup(control_name);
+            if (iogroups.empty()) {
+                throw Exception("PlatformIOImp::control_description(): unknown control \"" + control_name + "\"",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+            result = iogroups.at(0)->control_description(control_name);
+        }
+        return result;
     }
 
     int PlatformIOImp::signal_behavior(const std::string &signal_name) const

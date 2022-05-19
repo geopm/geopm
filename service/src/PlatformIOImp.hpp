@@ -129,6 +129,8 @@ namespace geopm
             std::map<int, std::vector<int> > m_combined_control;
             bool m_do_restore;
             std::map<int, std::shared_ptr<BatchServer> > m_batch_server;
+            static const std::map<const std::string, const std::string> m_signal_descriptions;
+            static const std::map<const std::string, const std::string> m_control_descriptions;
     };
 }
 
