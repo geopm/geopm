@@ -158,6 +158,7 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/EnvironmentTest.internal_defaults \
               test/gtest_links/EnvironmentTest.user_only \
               test/gtest_links/EnvironmentTest.user_only_do_profile \
+              test/gtest_links/EnvironmentTest.user_only_do_profile_custom \
               test/gtest_links/EnvironmentTest.user_only_do_profile_name \
               test/gtest_links/EnvironmentTest.default_only \
               test/gtest_links/EnvironmentTest.override_only \

@@ -228,7 +228,9 @@ GEOPM OPTIONS
   default profile name is the name of the compute application
   executable.  This option is used by the launcher to set the
   GEOPM_PROFILE environment variable.  The command line option will
-  override any value currently set in the environment.  See the
+  override any value currently set in the environment.  Note that
+  the name may not contain carriage returns nor double qoutes, but
+  it may be surrounded by double quotes to preserve spaces.  See the
   ENVIRONMENT section of `geopm(7) <geopm.7.html>`_.
 
 * 

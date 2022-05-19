@@ -260,6 +260,21 @@ namespace geopm
         if (do_profile() && ret.empty()) {
             ret = std::string(program_invocation_name);
         }
+        else if (!ret.empty()) {
+            // Sanitize the input: No carriage returns nor double quotes
+            ret.erase(std::remove_if(ret.begin(), ret.end(),
+                                     [](char &c) {
+                                         if ( c == '\n' || c == '"') {
+                                             std::cerr << "Warning: <geopm> Erased invalid value \"" << c << "\"  from \"GEOPM_PROFILE\"\n";
+                                             return true;
+                                         }
+                                         else {
+                                             return false;
+                                         }
+                                     }),
+                      ret.end());
+            ret = "\"" + ret + "\""; // Add quotes for later YAML parsing
+        }
         return ret;
     }
 
