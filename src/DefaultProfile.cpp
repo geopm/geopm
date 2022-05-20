@@ -63,7 +63,7 @@ extern "C"
             geopm::Profile::default_profile().enable_pmpi();
         }
         catch (...) {
-            err = geopm::exception_handler(std::current_exception());
+            err = geopm::exception_handler(std::current_exception(), true);
         }
         return err;
     }
@@ -76,7 +76,7 @@ extern "C"
                 *region_id = geopm::Profile::default_profile().region(std::string(region_name), hint);
             }
             catch (...) {
-                err = geopm::exception_handler(std::current_exception());
+                err = geopm::exception_handler(std::current_exception(), true);
             }
         }
         else {
@@ -93,7 +93,7 @@ extern "C"
                 geopm::Profile::default_profile().enter(region_id);
             }
             catch (...) {
-                err = geopm::exception_handler(std::current_exception());
+                err = geopm::exception_handler(std::current_exception(), true);
             }
         }
         else {
@@ -110,7 +110,7 @@ extern "C"
                 geopm::Profile::default_profile().exit(region_id);
             }
             catch (...) {
-                err = geopm::exception_handler(std::current_exception());
+                err = geopm::exception_handler(std::current_exception(), true);
             }
         }
         else {
@@ -127,7 +127,7 @@ extern "C"
                 geopm::Profile::default_profile().epoch();
             }
             catch (...) {
-                err = geopm::exception_handler(std::current_exception());
+                err = geopm::exception_handler(std::current_exception(), true);
             }
         }
         else {
@@ -144,7 +144,7 @@ extern "C"
                 geopm::Profile::default_profile().shutdown();
             }
             catch (...) {
-                err = geopm::exception_handler(std::current_exception());
+                err = geopm::exception_handler(std::current_exception(), true);
             }
         }
         else {
@@ -162,7 +162,7 @@ extern "C"
                 geopm::Profile::default_profile().thread_init(num_work_unit);
             }
             catch (...) {
-                err = geopm::exception_handler(std::current_exception());
+                err = geopm::exception_handler(std::current_exception(), true);
             }
         }
         return err;
@@ -178,7 +178,7 @@ extern "C"
                 geopm::Profile::default_profile().thread_post(cpu);
             }
             catch (...) {
-                err = geopm::exception_handler(std::current_exception());
+                err = geopm::exception_handler(std::current_exception(), true);
             }
         }
         return err;
