@@ -753,6 +753,7 @@ namespace geopm
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "variable",
+                    "aggregation": "expect_same",
                     "writeable": false
                 },
                 "GUARANTEED_PERFORMANCE": {
@@ -762,6 +763,7 @@ namespace geopm
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "variable",
+                    "aggregation": "expect_same",
                     "writeable": false
                 },
                 "MOST_EFFICIENT_PERFORMANCE": {
@@ -771,6 +773,7 @@ namespace geopm
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "variable",
+                    "aggregation": "expect_same",
                     "writeable": false
                 },
                 "LOWEST_PERFORMANCE": {
@@ -780,6 +783,7 @@ namespace geopm
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "variable",
+                    "aggregation": "expect_same",
                     "writeable": false
                 }
             }
@@ -795,6 +799,7 @@ namespace geopm
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "variable",
+                    "aggregation": "average",
                     "writeable": true
                 },
                 "MAXIMUM_PERFORMANCE": {
@@ -804,6 +809,7 @@ namespace geopm
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "variable",
+                    "aggregation": "average",
                     "writeable": true
                 },
                 "DESIRED_PERFORMANCE": {
@@ -813,6 +819,7 @@ namespace geopm
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "variable",
+                    "aggregation": "average",
                     "writeable": true
                 },
                 "ENERGY_PERFORMANCE_PREFERENCE": {
@@ -822,6 +829,7 @@ namespace geopm
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
+                    "aggregation": "average",
                     "writeable": true
                 },
                 "ACTIVITY_WINDOW": {
@@ -831,6 +839,7 @@ namespace geopm
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
+                    "aggregation": "average",
                     "writeable": true
                 }
             }
@@ -846,6 +855,7 @@ namespace geopm
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
+                    "aggregation": "average",
                     "writeable": true
                 },
                 "EN_EXCURSION_MINIMUM": {
@@ -855,6 +865,7 @@ namespace geopm
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
+                    "aggregation": "average",
                     "writeable": true
                 },
                 "EN_HIGHEST_CHANGE": {
@@ -864,6 +875,7 @@ namespace geopm
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
+                    "aggregation": "average",
                     "writeable": true
                 },
                 "EN_PECI_OVERRIDE": {
@@ -873,6 +885,7 @@ namespace geopm
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
+                    "aggregation": "average",
                     "writeable": true
                 }
             }
@@ -888,6 +901,7 @@ namespace geopm
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "variable",
+                    "aggregation": "average",
                     "writeable": true
                 },
                 "MAXIMUM_PERFORMANCE": {
@@ -897,6 +911,7 @@ namespace geopm
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "variable",
+                    "aggregation": "average",
                     "writeable": true
                 },
                 "DESIRED_PERFORMANCE": {
@@ -906,6 +921,7 @@ namespace geopm
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "variable",
+                    "aggregation": "average",
                     "writeable": true
                 },
                 "ENERGY_PERFORMANCE_PREFERENCE": {
@@ -915,6 +931,7 @@ namespace geopm
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
+                    "aggregation": "average",
                     "writeable": true
                 },
                 "ACTIVITY_WINDOW": {
@@ -924,6 +941,7 @@ namespace geopm
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
+                    "aggregation": "average",
                     "writeable": true
                 },
                 "PACKAGE_CONTROL": {
@@ -933,6 +951,7 @@ namespace geopm
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
+                    "aggregation": "average",
                     "writeable": true
                 },
                 "EPP_VALID": {
@@ -942,6 +961,7 @@ namespace geopm
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
+                    "aggregation": "average",
                     "writeable": true
                 },
                 "DESIRED_VALID": {
@@ -951,6 +971,7 @@ namespace geopm
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
+                    "aggregation": "average",
                     "writeable": true
                 },
                 "MAXIMUM_VALID": {
@@ -960,6 +981,7 @@ namespace geopm
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
+                    "aggregation": "average",
                     "writeable": true
                 },
                 "MINIMUM_VALID": {
@@ -969,6 +991,7 @@ namespace geopm
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
+                    "aggregation": "average",
                     "writeable": true
                 }
             }
@@ -984,6 +1007,7 @@ namespace geopm
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
+                    "aggregation": "average",
                     "writeable": true
                 },
                 "EXCURSION_TO_MINIMUM": {
@@ -993,6 +1017,7 @@ namespace geopm
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
+                    "aggregation": "average",
                     "writeable": true
                 },
                 "HIGHEST_CHANGE": {
@@ -1002,6 +1027,7 @@ namespace geopm
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
+                    "aggregation": "average",
                     "writeable": true
                 },
                 "PECI_OVERRIDE_ENTRY": {
@@ -1011,6 +1037,7 @@ namespace geopm
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
+                    "aggregation": "average",
                     "writeable": true
                 },
                 "PECI_OVERRIDE_EXIT": {
@@ -1020,6 +1047,7 @@ namespace geopm
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
+                    "aggregation": "average",
                     "writeable": true
                 }
             }
