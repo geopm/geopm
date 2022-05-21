@@ -40,11 +40,15 @@ SIGNALS
 
 SIGNAL ALIASES
 ~~~~~~~~~~~~~~~~
-Several high level aliases are provided.  Their mapping  to
+Several high level aliases are provided.  Their descirption and mapping to
 underlying IO Group signals is provided below.
 
-* ``GPU_COMPUTE_ACTIVITY``: DCGM::SM_ACTIVE
-* ``GPU_MEMORY_ACTIVITY``: DCGM::DRAM_ACTIVE
+* ``GPU_CORE_ACTIVITY``: GPU Compute core activity expressed as a ratio of cycles.
+
+  * ``Aliased Signal``: DCGM::SM_ACTIVE
+* ``GPU_UNCORE_ACTIVITY``: GPU memory access activity (i.e. send & receive) expressed as a ratio of cycles.
+
+  * ``Aliased Signal``: DCGM::DRAM_ACTIVE
 
 CONTROLS
 --------

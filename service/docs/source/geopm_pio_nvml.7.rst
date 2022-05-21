@@ -25,7 +25,7 @@ SIGNALS
   *  ``Format``: Double
   
   *  ``Unit``: Hertz
-* ``NVML::GPU_UTILIZATION``: Fraction of time the accelerator operated on a kernel in the last set of driver samples
+* ``NVML::GPU_UTILIZATION``: Fraction of time the GPU operated on a kernel in the last set of driver samples
   
   *  ``Aggregation``: Average
   
@@ -116,7 +116,7 @@ SIGNALS
   *  ``Format``: Double
   
   *  ``Unit``: Hertz
-* ``NVML::GPU_FREQUENCY_MIN_AVAIL``: Stremaing Multiprocessor minimum frequency in hertz
+* ``NVML::GPU_FREQUENCY_MIN_AVAIL``: Streaming Multiprocessor minimum frequency in hertz
   
   *  ``Aggregation``: Expect_same
   
@@ -140,18 +140,44 @@ SIGNALS
 
 SIGNAL ALIASES
 ~~~~~~~~~~~~~~~~
-Several high level aliases are provided.  Their mapping  to
+Several high level aliases are provided.  Their description and mapping to
 underlying IO Group signals is provided below.
 
-* ``GPU_POWER``: NVML::GPU_POWER
-* ``GPU_FREQUENCY_STATUS``: NVML::GPU_FREQUENCY_STATUS
-* ``GPU_FREQUENCY_MIN_AVAIL``: NVML::GPU_FREQUENCY_MIN_AVAIL
-* ``GPU_FREQUENCY_MAX_AVAIL``: NVML::GPU_FREQUENCY_MAX_AVAIL
-* ``GPU_ENERGY``: NVML::GPU_ENERGY_CONSUMPTION_TOTAL
-* ``GPU_TEMPERATURE``: NVML::GPU_TEMPERATURE
-* ``GPU_UTILIZATION``: NVML::GPU_UTILIZATION
-* ``GPU_POWER_LIMIT_CONTROL``: NVML::GPU_POWER_LIMIT_CONTROL
-* ``GPU_FREQUENCY_CONTROL``: NVML::GPU_FREQUENCY_CONTROL
+* ``GPU_POWER``: Average power usage for the GPU.
+
+  * ``Aliased Signal``: NVML::GPU_POWER
+
+* ``GPU_CORE_FREQUENCY_STATUS``: Current frequency of the compute cores of the GPU.  The compute core type may vary from vendor to vendor (i.e. streaming multiprocessor/CUDA cores vs executions units)
+
+  * ``Aliased Signal``: NVML::GPU_FREQUENCY_STATUS
+
+* ``GPU_CORE_FREQUENCY_MIN_AVAIL``: The minimum supported frequency of the GPU compute cores.   The compute core type may vary from vendor to vendor (i.e. streaming multiprocessor/CUDA cores vs executions units)
+
+  * ``Aliased Signal``: NVML::GPU_FREQUENCY_MIN_AVAIL
+
+* ``GPU_CORE_FREQUENCY_MAX_AVAIL``: The maximum supported frequency of the GPU compute cores.   The compute core type may vary from vendor to vendor (i.e. streaming multiprocessor/CUDA cores vs executions units)
+
+  * ``Aliased Signal``: NVML::GPU_FREQUENCY_MAX_AVAIL
+
+* ``GPU_ENERGY``: Total energy consumption of the GPU
+
+  * ``Aliased Signal``: NVML::GPU_ENERGY_CONSUMPTION_TOTAL
+
+* ``GPU_TEMPERATURE``: Temperature of the GPU
+
+  * ``Aliased Signal``: NVML::GPU_TEMPERATURE
+
+* ``GPU_UTILIZATION``: Total GPU Activity expressed as a ratio of cycles.  
+
+  * ``Aliased Signal``: NVML::GPU_UTILIZATION
+
+* ``GPU_POWER_LIMIT_CONTROL``: The average power usage limit
+
+  * ``Aliased Signal``: NVML::GPU_POWER_LIMIT_CONTROL
+
+* ``GPU_CORE_FREQUENCY_CONTROL``: Frequency of the compute cores of the GPU.  The compute core type may vary from vendor to vendor (i.e. streaming multiprocessor/cuda cores vs executions units)
+
+  * ``Aliased Signal``: NVML::GPU_FREQUENCY_CONTROL
 
 CONTROLS
 --------
@@ -181,10 +207,16 @@ CONTROLS
 
 CONTROL ALIASES
 ~~~~~~~~~~~~~~~~
-Several high level aliases are provided.  Their mapping  to
+Several high level aliases are provided.  Their description and mapping to
 underlying IO Group signals is provided below.
-* ``GPU_POWER_LIMIT_CONTROL``: NVML::GPU_POWER_LIMIT_CONTROL
-* ``GPU_FREQUENCY_CONTROL``: NVML::GPU_FREQUENCY_CONTROL
+
+* ``GPU_POWER_LIMIT_CONTROL``: The average power usage limit
+
+  * ``Aliased Control``: NVML::GPU_POWER_LIMIT_CONTROL
+
+* ``GPU_CORE_FREQUENCY_CONTROL``: Frequency of the compute cores of the GPU.  The compute core type may vary from vendor to vendor (i.e. streaming multiprocessor/cuda cores vs executions units)
+
+  * ``Aliased Control``: NVML::GPU_FREQUENCY_CONTROL
 
 
 SEE ALSO

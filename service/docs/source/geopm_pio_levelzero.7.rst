@@ -43,14 +43,14 @@ SIGNALS
   *  ``Format``: Double
   
   *  ``Unit``: Hertz
-* ``LEVELZERO::GPU_CORE_FREQUENCY_MAX_CONTROL``: The maximum supported frequency of the GPU Compute Hardware 
+* ``LEVELZERO::GPU_CORE_FREQUENCY_MAX_CONTROL``: The maximum requested frequency of the GPU Compute Hardware 
   
   *  ``Aggregation``: Average
   
   *  ``Format``: Double
   
   *  ``Unit``: Hertz
-* ``LEVELZERO::GPU_CORE_FREQUENCY_MIN_CONTROL``: The minimum supported frequency of the GPU Compute Hardware 
+* ``LEVELZERO::GPU_CORE_FREQUENCY_MIN_CONTROL``: The minimum requested frequency of the GPU Compute Hardware 
   
   *  ``Aggregation``: Average
   
@@ -207,12 +207,21 @@ SIGNALS
 
 SIGNAL ALIASES
 ~~~~~~~~~~~~~~~~
-Several high level aliases are provided.  Their mapping  to
+Several high level aliases are provided.  Their description and mapping  to
 underlying IO Group signals is provided below.
 
-* ``GPU_ENERGY``: LEVELZERO::GPU_ENERGY
-* ``GPU_POWER``: LEVELZERO::GPU_POWER
-* ``GPU_CORE_FREQUENCY_CONTROL``: LEVELZERO::GPU_CORE_FREQUENCY_CONTROL
+* ``GPU_ENERGY``: Total energy consumption of the GPU
+
+  * ``Aliased Signal``: LEVELZERO::GPU_ENERGY
+
+* ``GPU_POWER``: Average power usage for the GPU.
+
+  * ``Aliased Signal``:  LEVELZERO::GPU_POWER
+
+* ``GPU_CORE_FREQUENCY_CONTROL``: Frequency of the compute cores of the GPU.  The compute core type may vary from vendor to vendor (i.e. streaming multiprocessor/cuda cores vs executions units)
+
+  * ``Aliased Signal``: LEVELZERO::GPU_CORE_FREQUENCY_CONTROL
+
 
 CONTROLS
 --------
@@ -241,9 +250,12 @@ CONTROLS
 
 CONTROL ALIASES
 ~~~~~~~~~~~~~~~~
-Several high level aliases are provided.  Their mapping  to
+Several high level aliases are provided.  Their description and mapping to
 underlying IO Group signals is provided below.
-* ``GPU_CORE_FREQUENCY_CONTROL``: LEVELZERO::GPU_CORE_FREQUENCY_CONTROL
+
+* ``GPU_CORE_FREQUENCY_CONTROL``: Frequency of the compute cores of the GPU.  The compute core type may vary from vendor to vendor (i.e. streaming multiprocessor/cuda cores vs executions units)
+
+  * ``Aliased Control``: LEVELZERO::GPU_CORE_FREQUENCY_CONTROL
 
 
 SEE ALSO
