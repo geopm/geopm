@@ -26,12 +26,14 @@ SIGNALS
 
   *  ``Unit``: None
 * ``DCGM::SM_OCCUPANCY``: Warp residency expressed as a ratio of maximum warps.
+
   *  ``Aggregation``: Average
 
   *  ``Format``: Double
 
   *  ``Unit``: None
 * ``DCGM::DRAM_ACTIVE``: DRAM send and receive metrics expressed as a ration of cycles
+
   *  ``Aggregation``: Average
 
   *  ``Format``: Double
@@ -54,18 +56,21 @@ CONTROLS
 --------
 
 * ``DCGM::FIELD_UPDATE_RATE``: Rate at which field data is polled
+
   *  ``Aggregation``: Expect_same
 
   *  ``Format``: Double
 
   *  ``Unit``: Seconds
 * ``DCGM::MAX_STORAGE_TIME``: The maximum time field data will be stored
+  
   *  ``Aggregation``: Expect_same
 
   *  ``Format``: Double
 
   *  ``Unit``: Seconds
 * ``DCGM::MAX_SAMPLES``: The maximum number of samples to be stored.  0 implies no limit
+
   *  ``Aggregation``: Expect_same
 
   *  ``Format``: Integer
