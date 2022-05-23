@@ -3,12 +3,14 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <cstdlib>
 #include <stdint.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/mman.h>
+#include <sys/stat.h>
 #include <limits.h>
 #include <sstream>
 #include <fstream>
@@ -60,6 +62,37 @@ class MSRIOGroupTest : public :: testing :: Test
         int m_num_core = 4;
         int m_num_cpu = 16;
         void mock_enable_fixed_counters(void);
+};
+
+class ScopedPluginPath final
+{
+    public:
+        ScopedPluginPath()
+            : m_path(testing::TempDir() + "/" + "MSRIOGroupTestPluginPath")
+            , m_old_path(geopm::get_env("GEOPM_PLUGIN_PATH"))
+        {
+            int err = mkdir(m_path.c_str(), S_IRWXU);
+            if (err != 0 && errno != EEXIST) {
+                throw Exception("ScopedPluginPath: mkdir " + m_path,
+                                errno, __FILE__, __LINE__);
+            }
+
+            setenv("GEOPM_PLUGIN_PATH", m_path.c_str(), true);
+        }
+
+        ~ScopedPluginPath()
+        {
+            setenv("GEOPM_PLUGIN_PATH", m_old_path.c_str(), true);
+        }
+
+        std::string get_path()
+        {
+            return m_path;
+        }
+
+    private:
+        std::string m_path;
+        std::string m_old_path;
 };
 
 void MSRIOGroupTest::SetUp()
@@ -913,6 +946,7 @@ TEST_F(MSRIOGroupTest, write_control)
 
 TEST_F(MSRIOGroupTest, allowlist)
 {
+    ScopedPluginPath scoped_plugin_path;
     char file_name[NAME_MAX] = __FILE__;
     std::ifstream file(std::string(dirname(file_name)) + "/legacy_allowlist.out");
     std::string line;
@@ -933,6 +967,33 @@ TEST_F(MSRIOGroupTest, allowlist)
         iss >> comment;// #
         iss >> comment;// comment
         legacy_map[offset] = mask;
+    }
+
+    uint64_t user_added_offset = 0x123;
+    {
+        std::string user_msr_json_path = scoped_plugin_path.get_path() + "/msr_test.json";
+        geopm::write_file(user_msr_json_path, R"JSON({
+            "msrs": {
+                "FAKE_MSR": {
+                    "offset": "0x123",
+                    "domain": "package",
+                    "fields": {
+                        "FIELD" : {
+                            "begin_bit": 0,
+                            "end_bit": 31,
+                            "function": "overflow",
+                            "units": "none",
+                            "scalar": 1.0,
+                            "behavior": "monotone",
+                            "writeable": false,
+                            "aggregation": "sum",
+                            "description": "This is a test!"
+                        }
+                    }
+                }
+            }
+        }
+        )JSON");
     }
 
     std::string allowlist = MSRIOGroup::msr_allowlist(MSRIOGroup::M_CPUID_SKX);
@@ -959,7 +1020,7 @@ TEST_F(MSRIOGroupTest, allowlist)
         auto leg_it = legacy_map.find(offset);
         if (leg_it == legacy_map.end()) {
             //not found error
-            if (!mask) {
+            if (!mask && offset != user_added_offset) {
                 FAIL() << std::setfill('0') << std::hex << "new read offset 0x"
                        << std::setw(8) << offset << " introduced";
             }

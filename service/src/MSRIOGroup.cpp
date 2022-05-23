@@ -1505,7 +1505,7 @@ namespace geopm
         }
         auto custom = msr_data_files();
         for (const auto &filename : custom) {
-            parse_json_msrs_allowlist(filename, allowlist_data);
+            parse_json_msrs_allowlist(read_file(filename), allowlist_data);
         }
         return format_allowlist(allowlist_data);
     }
