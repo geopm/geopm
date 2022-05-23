@@ -383,6 +383,7 @@ SEE ALSO
 `geopm_agent_monitor(7) <geopm_agent_monitor.7.html>`_\ ,
 `geopm_agent_power_balancer(7) <geopm_agent_power_balancer.7.html>`_\ ,
 `geopm_agent_power_governor(7) <geopm_agent_power_governor.7.html>`_\ ,
+`geopm_pio_msr(7) <geopm_pio_msr.7.html>`_\ ,
 `geopm_report(7) <geopm_report.7.html>`_\ ,
 `geopm_agent_c(3) <geopm_agent_c.3.html>`_\ ,
 `geopm_ctl_c(3) <geopm_ctl_c.3.html>`_\ ,
