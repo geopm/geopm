@@ -286,7 +286,7 @@ TEST_F(SSTIOGroupTest, error_in_save_removes_control)
     auto names = m_group->control_names();
     int pkg_0_cpu = 0;
     const std::array<std::string, 3> broken_controls{ {
-        "SST::COREPRIORITY:1:WEIGHT",
+        "SST::COREPRIORITY:1:PRIORITY",
         "SST::COREPRIORITY:1:FREQUENCY_MIN",
         "SST::COREPRIORITY:1:FREQUENCY_MAX",
     } };
