@@ -141,6 +141,7 @@ rst_files = [
     "geopm_pio_levelzero.7",
     "geopm_pio_nvml.7",
     "geopm_pio_sst.7",
+    "geopm_pio_msr.7",
     "geopm_policystore_c.3",
     "geopm_prof_c.3",
     "geopmpy.7",

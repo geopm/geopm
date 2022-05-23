@@ -378,6 +378,7 @@ SEE ALSO
 `geopm_agent_power_governor(7) <geopm_agent_power_governor.7.html>`_\ ,
 `geopm_pio_dcgm(7) <geopm_pio_dcgm.7.html>`_\ ,
 `geopm_pio_levelzero(7) <geopm_pio_levelzero.7.html>`_\ ,
+`geopm_pio_msr(7) <geopm_pio_msr.7.html>`_\ ,
 `geopm_pio_nvml(7) <geopm_pio_nvml.7.html>`_\ ,
 `geopm_report(7) <geopm_report.7.html>`_\ ,
 `geopm_pio_sst(7) <geopm_pio_sst.7.html>`_\ ,
