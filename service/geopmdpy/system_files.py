@@ -18,6 +18,7 @@ abstraction for updating the contents.
 
 """
 
+import re
 import os
 import sys
 import stat
@@ -332,6 +333,8 @@ class ActiveSessions(object):
 
         """
         self._RUN_PATH = run_path
+        self._M_SHMEM_PREFIX = os.path.join(self._RUN_PATH, "geopm-service-batch-buffer-")
+        self._M_DEFAULT_FIFO_PREFIX = os.path.join(self._RUN_PATH, "batch-status-")
         self._daemon_uid = os.getuid()
         self._daemon_gid = os.getgid()
         self._sessions = dict()
@@ -682,7 +685,21 @@ class ActiveSessions(object):
         self.check_client_active(client_pid, 'remove_batch_server')
         self._sessions[client_pid].pop('batch_server')
         self._update_session_file(client_pid)
-        # TODO: Unlink any shared memory files left around
+
+        # Unlink any temporary files left around from the Batch Server
+        # This includes shared memory files, fifo files, and the lock file.
+        if (os.path.exists(self._LOCK_PATH)):
+            sys.stderr.write(f'Warning: {self._LOCK_PATH} file was left over, deleting it now.\n')
+            os.unlink(self._LOCK_PATH)
+
+        directory_contents = os.listdir(self._RUN_PATH)
+        match_shmem = self._M_SHMEM_PREFIX + '.?'
+        match_fifo = self._M_DEFAULT_FIFO_PREFIX + '.?'
+
+        for file in directory_contents:
+            if (re.match(match_shmem, file) or re.match(match_fifo, file)):
+                sys.stderr.write(f'Warning: {file} file was left over, deleting it now.\n')
+                os.unlink(file)
 
     def _get_session_path(self, client_pid):
         """Query for the session file path for client PID
