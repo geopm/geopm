@@ -210,6 +210,7 @@ ln -s /usr/sbin/service %{buildroot}%{_sbindir}/rcgeopm
 %doc %{_mandir}/man1/geopmread.1.gz
 %doc %{_mandir}/man1/geopmwrite.1.gz
 %doc %{_mandir}/man7/geopm.7.gz
+%doc %{_mandir}/man7/geopm_pio_msr.7.gz
 %doc %{_mandir}/man7/geopm_report.7.gz
 %doc %{_mandir}/man7/geopm_report.7.gz
 %doc %{_mandir}/man7/geopm_pio_dcgm.7.gz
