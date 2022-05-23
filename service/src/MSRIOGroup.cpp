@@ -154,7 +154,7 @@ namespace geopm
             parse_json_msrs(data);
         }
 
-        // HWP enable is checked via an MSR, so we cannot do this as part of 
+        // HWP enable is checked via an MSR, so we cannot do this as part of
         // the initializer if we want to use read_signal to determine capabilities
         m_hwp_is_enabled = get_hwp_enabled();
 
@@ -202,7 +202,7 @@ namespace geopm
         if (m_hwp_is_enabled)
         {
             max_turbo_name = "MSR::HWP_CAPABILITIES:HIGHEST_PERFORMANCE";
-        } 
+        }
         else {
             switch (m_cpuid) {
                 case MSRIOGroup::M_CPUID_KNL:
@@ -236,9 +236,9 @@ namespace geopm
 
     void MSRIOGroup::register_frequency_controls(void) {
         if (m_hwp_is_enabled) {
-            // TODO: It may be better to have this alias use desired_performance or 
-            //       set min = max = desired, to make it more closely match the legacy 
-            //       p-state behavior and avoid surprising users, however this may 
+            // TODO: It may be better to have this alias use desired_performance or
+            //       set min = max = desired, to make it more closely match the legacy
+            //       p-state behavior and avoid surprising users, however this may
             //       limit the benefits gained from using HWP
             register_control_alias("CPU_FREQUENCY_CONTROL", "MSR::HWP_REQUEST:MAXIMUM_PERFORMANCE");
 
@@ -781,13 +781,22 @@ namespace geopm
             for (int dom_idx = 0; dom_idx < num_domain; ++dom_idx) {
                 try {
                     pkg_enable += read_signal("MSR::PM_ENABLE:ENABLE", domain, dom_idx);
-                } 
-                catch (...) { // This may be restricted to GEOPM_ERROR_MSR_READ.
-                    pkg_enable = 0;
-                    break; 
-                } 
+                }
+                catch (const geopm::Exception &ex) {
+                    if (ex.err_value() != GEOPM_ERROR_MSR_READ) {
+                        throw;
+                    }
+                    else {
+#ifdef GEOPM_DEBUG
+                        std::cerr << "Warning: <geopm> MSRIOGroup::" << std::string(__func__)
+                                  << "(): Intel Hardware Performance states are not supported.  "
+                                  << "Using legacy P-States for signal and control aliases." << std::endl;
+#endif
+                    }
+                    break;
+                }
             }
-            if (pkg_enable == 1.0*num_domain) {
+            if (pkg_enable == 1.0 * num_domain) {
                 enabled = true;
             }
         }
