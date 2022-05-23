@@ -335,7 +335,7 @@ void synthetic_benchmark_main(int nranks, int rank)
         geopm_tprof_post();
     }
     GET_TIME(tEnd);
-    fprintf(stderr, "%.2fs: Rank %d finished\n", tEnd-tStart, rank);
+    fprintf(stderr, "%.2fs: Rank %d finished. x = %f\n", tEnd-tStart, rank, x);
 
     geopm_time(&curr);
     geopm_prof_exit(region_id[0]);
