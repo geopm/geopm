@@ -196,22 +196,34 @@ namespace geopm
     const std::map<std::string, SSTIOGroup::sst_control_mmio_raw_s> SSTIOGroup::sst_control_mmio_info = {
         { "SST::COREPRIORITY:0",
           { GEOPM_DOMAIN_PACKAGE, 0x08,
-            { { "WEIGHT", { 4, 7, 1.0, M_UNITS_NONE, "Proportional priority for core priority level 0"  } },
+            { { "PRIORITY", { 4, 7, 15.0, M_UNITS_NONE, "Proportional priority for core priority level 0, "
+                                                        "ranging from 0 to 1. A lower value indicates a "
+                                                        "desire to receive a greater share of surplus power "
+                                                        "than priority groups with a higher value." } },
               { "FREQUENCY_MIN", { 8, 15, 1e-8, M_UNITS_HERTZ, "Minimum frequency of core priority level 0"  } },
               { "FREQUENCY_MAX", { 16, 23, 1e-8, M_UNITS_HERTZ, "Maximum frequency of core priority level 0"  } } } } },
         { "SST::COREPRIORITY:1",
           { GEOPM_DOMAIN_PACKAGE, 0x0c,
-            { { "WEIGHT", { 4, 7, 1.0, M_UNITS_NONE, "Proportional priority for core priority level 1"  } },
+            { { "PRIORITY", { 4, 7, 15.0, M_UNITS_NONE, "Proportional priority for core priority level 1, "
+                                                        "ranging from 0 to 1. A lower value indicates a "
+                                                        "desire to receive a greater share of surplus power "
+                                                        "than priority groups with a higher value." } },
               { "FREQUENCY_MIN", { 8, 15, 1e-8, M_UNITS_HERTZ, "Minimum frequency of core priority level 1"  } },
               { "FREQUENCY_MAX", { 16, 23, 1e-8, M_UNITS_HERTZ, "Maximum frequency of core priority level 1"  } } } } },
         { "SST::COREPRIORITY:2",
           { GEOPM_DOMAIN_PACKAGE, 0x10,
-            { { "WEIGHT", { 4, 7, 1.0, M_UNITS_NONE, "Proportional priority for core priority level 2"  } },
+            { { "PRIORITY", { 4, 7, 15.0, M_UNITS_NONE, "Proportional priority for core priority level 2, "
+                                                        "ranging from 0 to 1. A lower value indicates a "
+                                                        "desire to receive a greater share of surplus power "
+                                                        "than priority groups with a higher value." } },
               { "FREQUENCY_MIN", { 8, 15, 1e-8, M_UNITS_HERTZ, "Minimum frequency of core priority level 2"  } },
               { "FREQUENCY_MAX", { 16, 23, 1e-8, M_UNITS_HERTZ, "Maximum frequency of core priority level 2"  } } } } },
         { "SST::COREPRIORITY:3",
           { GEOPM_DOMAIN_PACKAGE, 0x14,
-            { { "WEIGHT", { 4, 7, 1.0, M_UNITS_NONE, "Proportional priority for core priority level 3"  } },
+            { { "PRIORITY", { 4, 7, 15.0, M_UNITS_NONE, "Proportional priority for core priority level 3, "
+                                                        "ranging from 0 to 1. A lower value indicates a "
+                                                        "desire to receive a greater share of surplus power "
+                                                        "than priority groups with a higher value." } },
               { "FREQUENCY_MIN", { 8, 15, 1e-8, M_UNITS_HERTZ, "Minimum frequency of core priority level 3"  } },
               { "FREQUENCY_MAX", { 16, 23, 1e-8, M_UNITS_HERTZ, "Maximum frequency of core priority level 3"  } } } } },
         { "SST::COREPRIORITY",
