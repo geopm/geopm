@@ -193,7 +193,7 @@ DESCRIPTIONS OF HIGH LEVEL ALIASES
 *
   ``GPU_UTILIZATION``:
 
-      Avcerage GPU utilization expressed as a ratio of cycles.
+      Average GPU utilization expressed as a ratio of cycles.
 
 *
   ``GPU_TEMPERATURE``:
