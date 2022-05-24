@@ -1,5 +1,3 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
 
 
 geopm::LevelZeroIOGroup(7) -- IOGroup providing signals and controls for Intel GPUs
@@ -11,13 +9,9 @@ DESCRIPTION
 The LevelZeroIOGroup implements the `geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3.html>`_
 interface to provide hardware signals and controls for Intel GPUs.
 
-ENABLING LevelZero
-~~~~~~~~~~~~~~~
-To enable the LevelZeroIOGroup geopm must be configured with --enable-levelzero.
-
-USING LevelZero
-~~~~~~~~~~~~~~~
-The LevelZerorIOGroup uses Sysman to access GPU signals and controls.  Due to this the user must export ZES_ENABLE_SYSMAN=1 as specified by the Intel oneAPI Level Zero Sysman documentation.  See the Sysman specification for more info on related environment variables and their usage.
+REQUIREMENTS
+~~~~~~~~~~~~
+To use the GEOPM LevelZero signals and controls GEOPM must be compiled against the oneAPI LevelZero libraries and must be run on a system with discrete GPUs supported by LevelZero.  In addition the user must export ZES_ENABLE_SYSMAN=1 as specified by the Intel oneAPI Level Zero Sysman documentation.  See the Sysman specification for more info on related environment variables and their usage.
 
 SIGNALS
 -------

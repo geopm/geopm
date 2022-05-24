@@ -67,25 +67,25 @@ DESCRIPTIONS OF HIGH LEVEL ALIASES
 ----------------------------------
 
 *
-  ``TIME``\ :
+  ``TIME``:
 
       Time elapsed since the beginning of execution.
 
 *
-  ``EPOCH_COUNT``\ :
+  ``EPOCH_COUNT``:
 
       Number of completed executions of an epoch.  Prior to the first call
       by the application to ``geopm_prof_epoch()`` the signal returns as ``-1``.
       With each call to ``geopm_prof_epoch()`` the count increases by one.
 
 *
-  ``REGION_HASH``\ :
+  ``REGION_HASH``:
 
       The hash of the region of code (see `geopm_prof_c(3) <geopm_prof_c.3.html>`_\ ) currently being
       run by all ranks, otherwise ``GEOPM_REGION_HASH_UNMARKED``.
 
 *
-  ``REGION_HINT``\ :
+  ``REGION_HINT``:
 
       The region hint (see `geopm_prof_c(3) <geopm_prof_c.3.html>`_\ ) associated with the currently
       running region.  For any interval when all ranks are within an MPI
@@ -98,120 +98,120 @@ DESCRIPTIONS OF HIGH LEVEL ALIASES
       spent in the region as a whole.
 
 *
-  ``REGION_PROGRESS``\ :
+  ``REGION_PROGRESS``:
 
       Minimum per-rank reported progress through the current region.
 
 *
-  ``REGION_RUNTIME``\ :
+  ``REGION_RUNTIME``:
 
       Maximum per-rank of the last recorded runtime for the current
       region.
 
 *
-  ``ENERGY_PACKAGE``\ :
+  ``ENERGY_PACKAGE``:
 
       Total energy aggregated over the processor package.
 
 *
-  ``POWER_PACKAGE``\ :
+  ``POWER_PACKAGE``:
 
       Total power aggregated over the processor package.
 
 *
-  ``CPU_FREQUENCY_STATUS``\ :
+  ``CPU_FREQUENCY_STATUS``:
 
       Average CPU frequency over the specified domain.
 
 *
-  ``ENERGY_DRAM``\ :
+  ``ENERGY_DRAM``:
 
       Total energy aggregated over the DRAM DIMMs associated with a NUMA node.
 
 *
-  ``POWER_DRAM``\ :
+  ``POWER_DRAM``:
 
       Total power aggregated over the DRAM DIMMs associated with a NUMA node.
 
 *
-  ``POWER_PACKAGE_MIN``\ :
+  ``POWER_PACKAGE_MIN``:
 
       Minimum setting for package power over the given domain.
 
 *
-  ``POWER_PACKAGE_MAX``\ :
+  ``POWER_PACKAGE_MAX``:
 
       Maximum setting for package power over the given domain.
 
 *
-  ``POWER_PACKAGE_TDP``\ :
+  ``POWER_PACKAGE_TDP``:
 
       Maximum sustainable setting for package power over the given domain.
 
 *
-  ``CYCLES_THREAD``\ :
+  ``CYCLES_THREAD``:
 
       Average over the domain of clock cycles executed by cores since
       the beginning of execution.
 
 *
-  ``CYCLES_REFERENCE``\ :
+  ``CYCLES_REFERENCE``:
 
       Average over the domain of clock reference cycles since the
       beginning of execution.
 
 *
-  ``GPU_ENERGY``\ :
+  ``GPU_ENERGY``:
 
       Total energy aggregated over the GPU package.
 
 *
-  ``GPU_POWER``\ :
+  ``GPU_POWER``:
 
       Total power aggregated over the GPU package.
 
 *
-  ``GPU_CORE_FREQUENCY_STATUS``\ :
+  ``GPU_CORE_FREQUENCY_STATUS``:
 
       Average achieved GPU core frequency over the specified domain.
 
 *
-  ``GPU_CORE_FREQUENCY_CONTROL``\ :
+  ``GPU_CORE_FREQUENCY_CONTROL``:
 
       Average requested GPU core frequency over the specified domain.
 
 *
-  ``GPU_CORE_FREQENCY_MIN_AVAIL``\ :
+  ``GPU_CORE_FREQENCY_MIN_AVAIL``:
 
       Minimum supported GPU core frequency over the specified domain.
 
 *
-  ``GPU_CORE_FREQENCY_MAX_AVAIL``\ :
+  ``GPU_CORE_FREQENCY_MAX_AVAIL``:
 
       Maximum supported GPU core frequency over the specified domain.
 
 *
-  ``GPU_UTILIZATION``\ :
+  ``GPU_UTILIZATION``:
 
       Avcerage GPU utilization expressed as a ratio of cycles.
 
 *
-  ``GPU_TEMPERATURE``\ :
+  ``GPU_TEMPERATURE``:
 
       Average GPU temperature in degrees Celsius.
 
 *
-  ``GPU_POWER_LIMIT_CONTROL``\ :
+  ``GPU_POWER_LIMIT_CONTROL``:
 
       Average GPU power usage limit.
 
 *
-  ``GPU_CORE_ACTIVITY``\ :
+  ``GPU_CORE_ACTIVITY``:
 
       GPU compute core activity expressed as a ratio of cycles.
 
 *
-  ``GPU_UNCORE_ACTIVITY``\ :
+  ``GPU_UNCORE_ACTIVITY``:
 
       GPU memory access activity expressed as a ratio of cycles.
 

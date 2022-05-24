@@ -1,5 +1,3 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
 
 
 geopm::NVMLIOGroup(7) -- IOGroup providing signals and controls for NVIDIA GPUs
@@ -11,9 +9,9 @@ DESCRIPTION
 The NVMLIOGroup implements the `geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3.html>`_
 interface to provide hardware signals and controls for NVIDIA GPUs.
 
-ENABLING NVML
-~~~~~~~~~~~~~~~
-To enable the NVMLIOGroup geopm must be configured with --enable-nvml
+REQUIREMENTS
+~~~~~~~~~~~~
+To use the GEOPM NVML signals and controls GEOPM must be compiled against the NVML libraries and must be run on a system with hardware supported by NVML.
 
 SIGNALS
 -------
