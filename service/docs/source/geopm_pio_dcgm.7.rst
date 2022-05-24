@@ -2,18 +2,18 @@
    :format: html
 
 
-geopm::DCGMIOGroup(7) -- IOGroup providing signals and controls for NVIDIA GPUs 
+geopm::DCGMIOGroup(7) -- IOGroup providing signals and controls for NVIDIA GPUs
 =================================================================================================
 
 DESCRIPTION
 -----------
 
-The DCGMIOGroup implements the `geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3.html>`_ 
+The DCGMIOGroup implements the `geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3.html>`_
 interface to provide hardware signals for NVIDIA GPUs from the NVIDIA Datacenter GPU Manager.  This IO Group is intended for use with the `NVMLIOGroup <NVMLIOGroup.7.html>`
 
 ENABLING DCGM
 ~~~~~~~~~~~~~~~
-To enable the DCGMIOGroup geopm must be configured with --enable-dcgm --enable-nvml 
+To enable the DCGMIOGroup geopm must be configured with --enable-dcgm --enable-nvml
 
 SIGNALS
 -------
@@ -22,12 +22,16 @@ SIGNALS
 
   *  ``Aggregation``: Average.
 
+  *  ``Domain``: gpu
+
   *  ``Format``: Double.
 
   *  ``Unit``: None
 * ``DCGM::SM_OCCUPANCY``: Warp residency expressed as a ratio of maximum warps.
 
   *  ``Aggregation``: Average
+
+  *  ``Domain``: gpu
 
   *  ``Format``: Double
 
@@ -36,21 +40,20 @@ SIGNALS
 
   *  ``Aggregation``: Average
 
+  *  ``Domain``: gpu
+
   *  ``Format``: Double
 
   *  ``Unit``: None
 
 SIGNAL ALIASES
 ~~~~~~~~~~~~~~~~
-Several high level aliases are provided.  Their descirption and mapping to
+Several high level aliases are provided.  Their mapping to
 underlying IO Group signals is provided below.
 
-* ``GPU_CORE_ACTIVITY``: GPU Compute core activity expressed as a ratio of cycles.
+* ``GPU_CORE_ACTIVITY``: Aliases to DCGM::SM_ACTIVE
 
-  * ``Aliased Signal``: DCGM::SM_ACTIVE
-* ``GPU_UNCORE_ACTIVITY``: GPU memory access activity (i.e. send & receive) expressed as a ratio of cycles.
-
-  * ``Aliased Signal``: DCGM::DRAM_ACTIVE
+* ``GPU_UNCORE_ACTIVITY``: Aliases to DCGM::DRAM_ACTIVE
 
 CONTROLS
 --------
@@ -59,12 +62,16 @@ CONTROLS
 
   *  ``Aggregation``: Expect_same
 
+  *  ``Domain``: board
+
   *  ``Format``: Double
 
   *  ``Unit``: Seconds
 * ``DCGM::MAX_STORAGE_TIME``: The maximum time field data will be stored
-  
+
   *  ``Aggregation``: Expect_same
+
+  *  ``Domain``: board
 
   *  ``Format``: Double
 
@@ -72,6 +79,8 @@ CONTROLS
 * ``DCGM::MAX_SAMPLES``: The maximum number of samples to be stored.  0 implies no limit
 
   *  ``Aggregation``: Expect_same
+
+  *  ``Domain``: board
 
   *  ``Format``: Integer
 
