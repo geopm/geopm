@@ -20,7 +20,7 @@ SIGNALS
 
   *  ``Aggregation``: Average
 
-  *  ``Domain``: gpu
+  *  ``Domain``: GPU
 
   *  ``Format``: Double
 
@@ -29,7 +29,7 @@ SIGNALS
 
   *  ``Aggregation``: Average
 
-  *  ``Domain``: gpu
+  *  ``Domain``: GPU
 
   *  ``Format``: Double
 
@@ -38,7 +38,7 @@ SIGNALS
 
   *  ``Aggregation``: Sum
 
-  *  ``Domain``: gpu
+  *  ``Domain``: GPU
 
   *  ``Format``: Double
 
@@ -47,7 +47,7 @@ SIGNALS
 
   *  ``Aggregation``: Sum
 
-  *  ``Domain``: gpu
+  *  ``Domain``: GPU
 
   *  ``Format``: Double
 
@@ -56,7 +56,7 @@ SIGNALS
 
   *  ``Aggregation``: Average
 
-  *  ``Domain``: gpu
+  *  ``Domain``: GPU
 
   *  ``Format``: Double
 
@@ -65,7 +65,7 @@ SIGNALS
 
   *  ``Aggregation``: Expect_same (note: this is incorrect.  File bug and fix)
 
-  *  ``Domain``: gpu
+  *  ``Domain``: GPU
 
   *  ``Format``: Double
 
@@ -74,7 +74,7 @@ SIGNALS
 
   *  ``Aggregation``: Average
 
-  *  ``Domain``: gpu
+  *  ``Domain``: GPU
 
   *  ``Format``: Double
 
@@ -83,7 +83,7 @@ SIGNALS
 
   *  ``Aggregation``: Sum
 
-  *  ``Domain``: gpu
+  *  ``Domain``: GPU
 
   *  ``Format``: Double
 
@@ -92,7 +92,7 @@ SIGNALS
 
   *  ``Aggregation``: expect same
 
-  *  ``Domain``: gpu
+  *  ``Domain``: GPU
 
   *  ``Format``: Double
 
@@ -101,7 +101,7 @@ SIGNALS
 
   *  ``Aggregation``: Sum
 
-  *  ``Domain``: gpu
+  *  ``Domain``: GPU
 
   *  ``Format``: Double
 
@@ -110,7 +110,7 @@ SIGNALS
 
   *  ``Aggregation``: Sum
 
-  *  ``Domain``: gpu
+  *  ``Domain``: GPU
 
   *  ``Format``: Double
 
@@ -119,7 +119,7 @@ SIGNALS
 
   *  ``Aggregation``: Expect_same
 
-  *  ``Domain``: gpu
+  *  ``Domain``: CPU
 
   *  ``Format``: Double
 
@@ -128,7 +128,7 @@ SIGNALS
 
   *  ``Aggregation``:
 
-  *  ``Domain``: gpu
+  *  ``Domain``: GPU
 
   *  ``Format``: Double
 
@@ -137,7 +137,7 @@ SIGNALS
 
   *  ``Aggregation``: Expect_same
 
-  *  ``Domain``: gpu
+  *  ``Domain``: GPU
 
   *  ``Format``: Double
 
@@ -146,7 +146,7 @@ SIGNALS
 
   *  ``Aggregation``: Expect_same
 
-  *  ``Domain``: gpu
+  *  ``Domain``: GPU
 
   *  ``Format``: Double
 
@@ -155,7 +155,7 @@ SIGNALS
 
   *  ``Aggregation``: Average
 
-  *  ``Domain``: gpu
+  *  ``Domain``: GPU
 
   *  ``Format``: Double
 
@@ -164,7 +164,7 @@ SIGNALS
 
   *  ``Aggregation``: Average
 
-  *  ``Domain``: gpu
+  *  ``Domain``: GPU
 
   *  ``Format``: Double
 
@@ -200,7 +200,7 @@ CONTROLS
 
   *  ``Aggregation``: Average
 
-  *  ``Domain``: gpu
+  *  ``Domain``: GPU
 
   *  ``Format``: Double
 
@@ -210,7 +210,7 @@ CONTROLS
 
   *  ``Aggregation``: Average
 
-  *  ``Domain``: gpu
+  *  ``Domain``: GPU
 
   *  ``Format``: Double
 
@@ -219,7 +219,7 @@ CONTROLS
 
   *  ``Aggregation``: Double
 
-  *  ``Domain``: gpu
+  *  ``Domain``: GPU
 
   *  ``Format``: Sum
 
