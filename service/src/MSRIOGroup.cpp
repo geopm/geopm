@@ -156,7 +156,7 @@ namespace geopm
 
         // HWP enable is checked via an MSR, so we cannot do this as part of
         // the initializer if we want to use read_signal to determine capabilities
-        m_hwp_is_enabled = get_hwp_enabled();
+        m_is_hwp_enabled = get_hwp_enabled();
 
         register_frequency_signals();
         register_frequency_controls();
@@ -185,7 +185,7 @@ namespace geopm
     void MSRIOGroup::register_frequency_signals(void)
     {
         // HWP vs P-State signals
-        if (m_hwp_is_enabled){
+        if (m_is_hwp_enabled){
             register_signal_alias("CPU_FREQUENCY_STATUS", "MSR::PERF_STATUS:FREQ");
 
             register_signal_alias("CPU_FREQUENCY_CONTROL", "MSR::HWP_REQUEST:MAXIMUM_PERFORMANCE");
@@ -199,7 +199,7 @@ namespace geopm
         }
 
         std::string max_turbo_name;
-        if (m_hwp_is_enabled)
+        if (m_is_hwp_enabled)
         {
             max_turbo_name = "MSR::HWP_CAPABILITIES:HIGHEST_PERFORMANCE";
         }
@@ -235,7 +235,7 @@ namespace geopm
     }
 
     void MSRIOGroup::register_frequency_controls(void) {
-        if (m_hwp_is_enabled) {
+        if (m_is_hwp_enabled) {
             // TODO: It may be better to have this alias use desired_performance or
             //       set min = max = desired, to make it more closely match the legacy
             //       p-state behavior and avoid surprising users, however this may

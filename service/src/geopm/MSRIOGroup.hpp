@@ -200,7 +200,7 @@ namespace geopm
             /// @brief Return the Intel Hardware P-States
             ///        enabled information
             bool get_hwp_enabled(void);
-            bool m_hwp_is_enabled;
+            bool m_is_hwp_enabled;
 
             struct rdt_info
             {
