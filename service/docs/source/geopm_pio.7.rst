@@ -160,6 +160,60 @@ DESCRIPTIONS OF HIGH LEVEL ALIASES
       Average over the domain of clock reference cycles since the
       beginning of execution.
 
+*
+  ``GPU_ENERGY``\ :
+
+      Total energy aggregated over the GPU package.
+
+*
+  ``GPU_POWER``\ :
+
+      Total power aggregated over the GPU package.
+
+*
+  ``GPU_CORE_FREQUENCY_STATUS``\ :
+
+      Average achieved GPU core frequency over the specified domain.
+
+*
+  ``GPU_CORE_FREQUENCY_CONTROL``\ :
+
+      Average requested GPU core frequency over the specified domain.
+
+*
+  ``GPU_CORE_FREQENCY_MIN_AVAIL``\ :
+
+      Minimum supported GPU core frequency over the specified domain.
+
+*
+  ``GPU_CORE_FREQENCY_MAX_AVAIL``\ :
+
+      Maximum supported GPU core frequency over the specified domain.
+
+*
+  ``GPU_UTILIZATION``\ :
+
+      Avcerage GPU utilization expressed as a ratio of cycles.
+
+*
+  ``GPU_TEMPERATURE``\ :
+
+      Average GPU temperature in degrees Celsius.
+
+*
+  ``GPU_POWER_LIMIT_CONTROL``\ :
+
+      Average GPU power usage limit.
+
+*
+  ``GPU_CORE_ACTIVITY``\ :
+
+      GPU compute core activity expressed as a ratio of cycles.
+
+*
+  ``GPU_UNCORE_ACTIVITY``\ :
+
+      GPU memory access activity expressed as a ratio of cycles.
 
 
 SEE ALSO
