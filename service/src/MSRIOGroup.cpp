@@ -775,29 +775,30 @@ namespace geopm
         supported = (bool)((eax & hwp_mask) >> 7);
 
         if (supported) {
-            int domain = signal_domain_type("MSR::PM_ENABLE:ENABLE");
+            std::string signal_name = "MSR::PM_ENABLE:HWP_ENABLE";
+            int domain = signal_domain_type(signal_name);
             int num_domain = m_platform_topo.num_domain(domain);
             double pkg_enable = 0.0;
             for (int dom_idx = 0; dom_idx < num_domain; ++dom_idx) {
                 try {
-                    pkg_enable += read_signal("MSR::PM_ENABLE:ENABLE", domain, dom_idx);
+                    pkg_enable += read_signal(signal_name, domain, dom_idx);
                 }
                 catch (const geopm::Exception &ex) {
                     if (ex.err_value() != GEOPM_ERROR_MSR_READ) {
                         throw;
-                    }
-                    else {
-#ifdef GEOPM_DEBUG
-                        std::cerr << "Warning: <geopm> MSRIOGroup::" << std::string(__func__)
-                                  << "(): Intel Hardware Performance states are not supported.  "
-                                  << "Using legacy P-States for signal and control aliases." << std::endl;
-#endif
                     }
                     break;
                 }
             }
             if (pkg_enable == 1.0 * num_domain) {
                 enabled = true;
+            }
+            else {
+#ifdef GEOPM_DEBUG
+                std::cerr << "Warning: <geopm> MSRIOGroup::" << std::string(__func__)
+                          << "(): Intel Hardware Performance states are not supported.  "
+                          << "Using legacy P-States for signal and control aliases." << std::endl;
+#endif
             }
         }
 

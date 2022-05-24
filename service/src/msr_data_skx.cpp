@@ -731,14 +731,15 @@ namespace geopm
             "offset": "0x770",
             "domain": "package",
             "fields": {
-                "ENABLE": {
+                "HWP_ENABLE": {
                     "begin_bit": 0,
                     "end_bit":   0,
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Indicates HWP enabled status.  Once enabled a system reset is required to disable."
                 }
             }
         },
@@ -754,7 +755,8 @@ namespace geopm
                     "scalar":    1e8,
                     "behavior":  "variable",
                     "aggregation": "expect_same",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Maximum non-guaranteed performance level when using HWP."
                 },
                 "GUARANTEED_PERFORMANCE": {
                     "begin_bit": 8,
@@ -764,7 +766,8 @@ namespace geopm
                     "scalar":    1e8,
                     "behavior":  "variable",
                     "aggregation": "expect_same",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Current guaranteed performance level.  This may change dynamically based on various system constraints."
                 },
                 "MOST_EFFICIENT_PERFORMANCE": {
                     "begin_bit": 16,
@@ -774,7 +777,8 @@ namespace geopm
                     "scalar":    1e8,
                     "behavior":  "variable",
                     "aggregation": "expect_same",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Current value of the most efficient performance level.  May change dynamically."
                 },
                 "LOWEST_PERFORMANCE": {
                     "begin_bit": 24,
@@ -784,7 +788,8 @@ namespace geopm
                     "scalar":    1e8,
                     "behavior":  "variable",
                     "aggregation": "expect_same",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Minimum performance level when using HWP."
                 }
             }
         },
@@ -800,7 +805,8 @@ namespace geopm
                     "scalar":    1e8,
                     "behavior":  "variable",
                     "aggregation": "average",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "A hint to HWP on the minimum performance level required."
                 },
                 "MAXIMUM_PERFORMANCE": {
                     "begin_bit": 8,
@@ -810,7 +816,8 @@ namespace geopm
                     "scalar":    1e8,
                     "behavior":  "variable",
                     "aggregation": "average",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "A hint to HWP on the maximum performance level required."
                 },
                 "DESIRED_PERFORMANCE": {
                     "begin_bit": 16,
@@ -820,7 +827,8 @@ namespace geopm
                     "scalar":    1e8,
                     "behavior":  "variable",
                     "aggregation": "average",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "An explicit performance request.  Setting to zero enables HWP Autonomous states.  Any other value effectively disables HW Autonomous selection."
                 },
                 "ENERGY_PERFORMANCE_PREFERENCE": {
                     "begin_bit": 24,
@@ -830,7 +838,8 @@ namespace geopm
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "aggregation": "average",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Influences rate of performance increase/decrease.  0x00 = performance, 0xFF = energy efficiency."
                 },
                 "ACTIVITY_WINDOW": {
                     "begin_bit": 32,
@@ -840,7 +849,8 @@ namespace geopm
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "aggregation": "average",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "A hint to HWP indicating the observation window for performance/frequency optimizations."
                 }
             }
         },
@@ -856,7 +866,8 @@ namespace geopm
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "aggregation": "average",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "If set an interrupt will be generated on a GUARANTEED_PERFORMANCE_CHANGE."
                 },
                 "EN_EXCURSION_MINIMUM": {
                     "begin_bit": 1,
@@ -866,7 +877,8 @@ namespace geopm
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "aggregation": "average",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "If set an interrupt will be generated on an excursion below the minimum requested performance."
                 },
                 "EN_HIGHEST_CHANGE": {
                     "begin_bit": 2,
@@ -876,7 +888,8 @@ namespace geopm
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "aggregation": "average",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "if set an interrupt will be generated on an change to the highest performance value."
                 },
                 "EN_PECI_OVERRIDE": {
                     "begin_bit": 3,
@@ -886,7 +899,8 @@ namespace geopm
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "aggregation": "average",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "If set an interrupt will be generated when PECI override entry or exit occurs."
                 }
             }
         },
@@ -902,7 +916,8 @@ namespace geopm
                     "scalar":    1e8,
                     "behavior":  "variable",
                     "aggregation": "average",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "A hint to HWP on the minimum performance level required."
                 },
                 "MAXIMUM_PERFORMANCE": {
                     "begin_bit": 8,
@@ -912,7 +927,8 @@ namespace geopm
                     "scalar":    1e8,
                     "behavior":  "variable",
                     "aggregation": "average",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "A hint to HWP on the maximum performance level required."
                 },
                 "DESIRED_PERFORMANCE": {
                     "begin_bit": 16,
@@ -922,7 +938,8 @@ namespace geopm
                     "scalar":    1e8,
                     "behavior":  "variable",
                     "aggregation": "average",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "An explicit performance request.  Setting to zero enables HWP Autonomous states.  Any other value effectively disables HWP Autonomous selection."
                 },
                 "ENERGY_PERFORMANCE_PREFERENCE": {
                     "begin_bit": 24,
@@ -932,7 +949,8 @@ namespace geopm
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "aggregation": "average",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Influences rate of performance increase/decrease.  0x00 = performance, 0xFF = energy efficiency."
                 },
                 "ACTIVITY_WINDOW": {
                     "begin_bit": 32,
@@ -942,7 +960,8 @@ namespace geopm
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "aggregation": "average",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "A hint to HWP indicating the observation window for performance/frequency optimizations."
                 },
                 "PACKAGE_CONTROL": {
                     "begin_bit": 42,
@@ -952,7 +971,8 @@ namespace geopm
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "aggregation": "average",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "If set overrides requests with the package level request."
                 },
                 "EPP_VALID": {
                     "begin_bit": 60,
@@ -962,7 +982,8 @@ namespace geopm
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "aggregation": "average",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "If set indicates HWP should use the related cpu MSR field value regardless of the PACKAGE_CONTROL bit setting."
                 },
                 "DESIRED_VALID": {
                     "begin_bit": 61,
@@ -972,7 +993,8 @@ namespace geopm
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "aggregation": "average",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "If set indicates HWP should use the related cpu MSR field value regardless of the PACKAGE_CONTROL bit setting."
                 },
                 "MAXIMUM_VALID": {
                     "begin_bit": 62,
@@ -982,7 +1004,8 @@ namespace geopm
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "aggregation": "average",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "If set indicates HWP should use the related cpu MSR field value regardless of the PACKAGE_CONTROL bit setting."
                 },
                 "MINIMUM_VALID": {
                     "begin_bit": 63,
@@ -992,7 +1015,8 @@ namespace geopm
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "aggregation": "average",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "If set indicates HWP should use the related cpu MSR field value regardless of the PACKAGE_CONTROL bit setting."
                 }
             }
         },
@@ -1008,7 +1032,8 @@ namespace geopm
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "aggregation": "average",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Log bit indicating if a GUARANTEED_PERFORMANCE change has occured.  Software responsible to clear via write to 0."
                 },
                 "EXCURSION_TO_MINIMUM": {
                     "begin_bit": 2,
@@ -1018,7 +1043,8 @@ namespace geopm
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "aggregation": "average",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Log bit indicating if an excursion below the minimum requested performance has occured.  Software responsible to clear via write to 0."
                 },
                 "HIGHEST_CHANGE": {
                     "begin_bit": 3,
@@ -1028,7 +1054,8 @@ namespace geopm
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "aggregation": "average",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Log bit indicating if a HIGHEST_PEROFRMANCE change has occured.  Software responsible to clear via write to 0."
                 },
                 "PECI_OVERRIDE_ENTRY": {
                     "begin_bit": 4,
@@ -1038,7 +1065,8 @@ namespace geopm
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "aggregation": "average",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Indicates a PECI override request that will override the HWP MSR values has started.  Software responsible to clear via write to 0"
                 },
                 "PECI_OVERRIDE_EXIT": {
                     "begin_bit": 5,
@@ -1048,7 +1076,8 @@ namespace geopm
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "aggregation": "average",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Indicates a PECI override request that will override the HWP MSR values has ended.  Software responsible to clear via write to 0"
                 }
             }
         }
