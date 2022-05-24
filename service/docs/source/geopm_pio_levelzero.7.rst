@@ -20,7 +20,7 @@ SIGNALS
 
   *  ``Aggregation``: Average
 
-  *  ``Domain``: gpu_chip
+  *  ``Domain``: GPU_CHIP
 
   *  ``Format``: Double
 
@@ -29,7 +29,7 @@ SIGNALS
 
   *  ``Aggregation``: Average
 
-  *  ``Domain``: gpu_chip
+  *  ``Domain``: GPU_CHIP
 
   *  ``Format``: Double
 
@@ -38,7 +38,7 @@ SIGNALS
 
   *  ``Aggregation``: Average
 
-  *  ``Domain``: gpu_chip
+  *  ``Domain``: GPU_CHIP
 
   *  ``Format``: Double
 
@@ -47,7 +47,7 @@ SIGNALS
 
   *  ``Aggregation``: Average
 
-  *  ``Domain``: gpu_chip
+  *  ``Domain``: GPU_CHIP
 
   *  ``Format``: Double
 
@@ -56,7 +56,7 @@ SIGNALS
 
   *  ``Aggregation``: Average
 
-  *  ``Domain``: gpu_chip
+  *  ``Domain``: GPU_CHIP
 
   *  ``Format``: Double
 
@@ -65,7 +65,7 @@ SIGNALS
 
   *  ``Aggregation``: Average (TODO: ensure NVML and LEVELZERO use the same Aggregation)
 
-  *  ``Domain``: gpu
+  *  ``Domain``: GPU
 
   *  ``Format``: Double
 
@@ -74,7 +74,7 @@ SIGNALS
 
   *  ``Aggregation``: Average
 
-  *  ``Domain``: gpu
+  *  ``Domain``: GPU
 
   *  ``Format``: Double
 
@@ -83,7 +83,7 @@ SIGNALS
 
   *  ``Aggregation``: Average
 
-  *  ``Domain``: gpu_chip
+  *  ``Domain``: GPU_CHIP
 
   *  ``Format``: Double
 
@@ -92,7 +92,7 @@ SIGNALS
 
   *  ``Aggregation``: Average
 
-  *  ``Domain``: gpu_chip
+  *  ``Domain``: GPU_CHIP
 
   *  ``Format``: Double
 
@@ -101,7 +101,7 @@ SIGNALS
 
   *  ``Aggregation``: Average
 
-  *  ``Domain``: gpu_chip
+  *  ``Domain``: GPU_CHIP
 
   *  ``Format``: Double
 
@@ -110,7 +110,7 @@ SIGNALS
 
   *  ``Aggregation``: Average (TODO: confirm consistency with NVML Aggregation)
 
-  *  ``Domain``: gpu
+  *  ``Domain``: GPU
 
   *  ``Format``: Double
 
@@ -119,7 +119,7 @@ SIGNALS
 
   *  ``Aggregation``: Average
 
-  *  ``Domain``: gpu
+  *  ``Domain``: GPU
 
   *  ``Format``: Double
 
@@ -128,7 +128,7 @@ SIGNALS
 
   *  ``Aggregation``: Average
 
-  *  ``Domain``: gpu
+  *  ``Domain``: GPU
 
   *  ``Format``: Double
 
@@ -137,7 +137,7 @@ SIGNALS
 
   *  ``Aggregation``: Average
 
-  *  ``Domain``: gpu_chip
+  *  ``Domain``: GPU_CHIP
 
   *  ``Format``: Double
 
@@ -146,7 +146,7 @@ SIGNALS
 
   *  ``Aggregation``: Average
 
-  *  ``Domain``: gpu_chip
+  *  ``Domain``: GPU_CHIP
 
   *  ``Format``: Double
 
@@ -155,7 +155,7 @@ SIGNALS
 
   *  ``Aggregation``: Average
 
-  *  ``Domain``: gpu_chip
+  *  ``Domain``: GPU_CHIP
 
   *  ``Format``: Double
 
@@ -164,7 +164,7 @@ SIGNALS
 
   *  ``Aggregation``: Average
 
-  *  ``Domain``: gpu_chip
+  *  ``Domain``: GPU_CHIP
 
   *  ``Format``: Double
 
@@ -173,7 +173,7 @@ SIGNALS
 
   *  ``Aggregation``: Average
 
-  *  ``Domain``: gpu_chip
+  *  ``Domain``: GPU_CHIP
 
   *  ``Format``: Double
 
@@ -182,7 +182,7 @@ SIGNALS
 
   *  ``Aggregation``: Average
 
-  *  ``Domain``: gpu_chip
+  *  ``Domain``: GPU_CHIP
 
   *  ``Format``: Double
 
@@ -191,7 +191,7 @@ SIGNALS
 
   *  ``Aggregation``: Average
 
-  *  ``Domain``: gpu_chip
+  *  ``Domain``: GPU_CHIP
 
   *  ``Format``: Double
 
@@ -200,7 +200,7 @@ SIGNALS
 
   *  ``Aggregation``: Average
 
-  *  ``Domain``: gpu_chip
+  *  ``Domain``: GPU_CHIP
 
   *  ``Format``: Double
 
@@ -209,7 +209,7 @@ SIGNALS
 
   *  ``Aggregation``: Average
 
-  *  ``Domain``: gpu_chip
+  *  ``Domain``: GPU_CHIP
 
   *  ``Format``: Double
 
@@ -218,7 +218,7 @@ SIGNALS
 
   *  ``Aggregation``: Average
 
-  *  ``Domain``: gpu
+  *  ``Domain``: GPU
 
   *  ``Format``: Double
 
@@ -227,7 +227,7 @@ SIGNALS
 
   *  ``Aggregation``: Average
 
-  *  ``Domain``: gpu
+  *  ``Domain``: GPU
 
   *  ``Format``: Double
 
@@ -236,7 +236,7 @@ SIGNALS
 
   *  ``Aggregation``: Average
 
-  *  ``Domain``: gpu_chip
+  *  ``Domain``: GPU_CHIP
 
   *  ``Format``: Double
 
@@ -245,7 +245,7 @@ SIGNALS
 
   *  ``Aggregation``: Average
 
-  *  ``Domain``: gpu_chip
+  *  ``Domain``: GPU_CHIP
 
   *  ``Format``: Double
 
@@ -271,7 +271,7 @@ CONTROLS
 
   *  ``Aggregation``: Average
 
-  *  ``Domain``: gpu_chip
+  *  ``Domain``: GPU_CHIP
 
   *  ``Format``: Double
 
@@ -280,7 +280,7 @@ CONTROLS
 
   *  ``Aggregation``: Average
 
-  *  ``Domain``: gpu_chip
+  *  ``Domain``: GPU_CHIP
 
   *  ``Format``: Double
 
@@ -289,7 +289,7 @@ CONTROLS
 
   *  ``Aggregation``: Average
 
-  *  ``Domain``: gpu_chip
+  *  ``Domain``: GPU_CHIP
 
   *  ``Format``: Double
 

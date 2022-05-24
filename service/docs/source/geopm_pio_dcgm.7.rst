@@ -20,7 +20,7 @@ SIGNALS
 
   *  ``Aggregation``: Average.
 
-  *  ``Domain``: gpu
+  *  ``Domain``: GPU
 
   *  ``Format``: Double.
 
@@ -29,7 +29,7 @@ SIGNALS
 
   *  ``Aggregation``: Average
 
-  *  ``Domain``: gpu
+  *  ``Domain``: GPU
 
   *  ``Format``: Double
 
@@ -38,7 +38,7 @@ SIGNALS
 
   *  ``Aggregation``: Average
 
-  *  ``Domain``: gpu
+  *  ``Domain``: GPU
 
   *  ``Format``: Double
 
@@ -60,7 +60,7 @@ CONTROLS
 
   *  ``Aggregation``: Expect_same
 
-  *  ``Domain``: board
+  *  ``Domain``: Board
 
   *  ``Format``: Double
 
@@ -69,7 +69,7 @@ CONTROLS
 
   *  ``Aggregation``: Expect_same
 
-  *  ``Domain``: board
+  *  ``Domain``: Board
 
   *  ``Format``: Double
 
@@ -78,7 +78,7 @@ CONTROLS
 
   *  ``Aggregation``: Expect_same
 
-  *  ``Domain``: board
+  *  ``Domain``: Board
 
   *  ``Format``: Integer
 
