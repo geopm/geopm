@@ -54,6 +54,7 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx_rtd_theme',
     'sphinx.ext.autosectionlabel',
+    'sphinxemoji.sphinxemoji',
 ]
 
 # The suffix(es) of source filenames.
