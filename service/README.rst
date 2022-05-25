@@ -104,12 +104,11 @@ access to any subset of the privileged PlatformIO features.
 Status
 ------
 
-The GEOPM systemd service is a new feature.  What exists currently is
-a work in progress, and there are several outstanding issues that must
-be resolved before the GEOPM Service is ready for release with GEOPM
-version 2.0.  These
+The GEOPM systemd service is a new feature for version 2.0.  The
+``v2.0.0-rc1`` tag is the first release candidate and for 2.0 and
+provides the GEOPM Service feature.  Tagging ``v2.0.0`` will not occur
+until all issues with the "2.0" label are closed or relabeled:
 `issues <https://github.com/geopm/geopm/issues?q=is%3Aissue+is%3Aopen+label%3A2.0>`_
-are tracked on github with the "2.0" tag.
 
 
 Signals and Controls
@@ -190,25 +189,6 @@ restored to the value they had when the session was converted,
 regardless of whether or not they were adjusted during the session
 through the service.
 
-The request to open a session is done in the ServiceIOGroup
-constructor, and the request to close the session is made by the
-ServiceIOGroup destructor.  Calls to the ServiceIOGroup's
-``write_control()`` or ``push_control()`` methods will trigger the
-conversion of the session to write mode.  Calls to these methods will
-only occur when the ServiceIOGroup is the only loaded IOGroup that
-provides the control requested by the user since all IOGroups are
-loaded by the PlatformIO factory after the ServiceIOGroup.
-
-Note that if any control adjustments are made during a session through
-the GEOPM Service then every control supported by GEOPM will be
-reverted when the session ends.  One consequence of this is that when
-a control is exposed to a user only through the GEOPM Service, then
-the geopmwrite command line tool will not be effective (the value will
-be written, but reverted when the geopmwrite process ends).  The
-geopmsession command line tool can be used to write any number of the
-GEOPM supported controls and keep a session open for a specified
-duration (or until the geopmsession process is killed).
-
 In addition to saving the state of controls, the GEOPM Service will
 also lock access to controls for any other client until the
 controlling session ends.  When the controlling session ends the saved
@@ -219,11 +199,8 @@ D-Bus call by the client, or when the process that initiated the
 client session ends.  The GEOPM Service will use the ``pidfd_open(2)``
 mechanism for notification of the end of the client process if this is
 supported by the Linux kernel, otherwise it will poll procfs for the
-process ID.  The GEOPM Service provides an interface that enables a
-privileged user to end any currently running write mode session, and
-block any access to controls by other clients.  There is a
-corresponding unlock interface that will enable write mode sessions to
-begin again.
+process ID.
+
 
 Batch Server
 ------------
