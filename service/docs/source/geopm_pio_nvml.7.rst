@@ -16,7 +16,9 @@ To use the GEOPM NVML signals and controls GEOPM must be compiled against the NV
 SIGNALS
 -------
 
-* ``NVML::GPU_FREQUENCY_STATUS``: NVIDIA Streaming Multiprocessor (SM) frequency in hertz.
+* ``NVML::GPU_FREQUENCY_STATUS``:
+
+    NVIDIA Streaming Multiprocessor (SM) frequency in hertz.
 
   *  ``Aggregation``: Average
 
@@ -25,7 +27,9 @@ SIGNALS
   *  ``Format``: Double
 
   *  ``Unit``: Hertz
-* ``NVML::GPU_UTILIZATION``: Fraction of time the GPU operated on a kernel in the last set of driver samples
+* ``NVML::GPU_UTILIZATION``:
+
+    Fraction of time the GPU operated on a kernel in the last set of driver samples
 
   *  ``Aggregation``: Average
 
@@ -34,7 +38,9 @@ SIGNALS
   *  ``Format``: Double
 
   *  ``Unit``: None
-* ``NVML::GPU_POWER``: GPU Power usage in watts
+* ``NVML::GPU_POWER``:
+
+    GPU Power usage in watts
 
   *  ``Aggregation``: Sum
 
@@ -43,16 +49,9 @@ SIGNALS
   *  ``Format``: Double
 
   *  ``Unit``: Watts
-* ``NVML::GPU_POWER_LIMIT_CONTROL``: GPU Power limit in watts
+* ``NVML::GPU_MEMORY_FREQUENCY_STATUS``:
 
-  *  ``Aggregation``: Sum
-
-  *  ``Domain``: GPU
-
-  *  ``Format``: Double
-
-  *  ``Unit``: Watts
-* ``NVML::GPU_MEMORY_FREQUENCY_STATUS``: GPU memory frequency in Hertz
+    GPU memory frequency in Hertz
 
   *  ``Aggregation``: Average
 
@@ -61,7 +60,9 @@ SIGNALS
   *  ``Format``: Double
 
   *  ``Unit``: Hertz
-* ``NVML::GPU_THROTTLE_REASONS``: GPU clock throttling reasons.  Refer to NVIDIA NVML documentation for encoding information.
+* ``NVML::GPU_THROTTLE_REASONS``:
+
+    GPU clock throttling reasons.  Refer to NVIDIA NVML documentation for encoding information.
 
   *  ``Aggregation``: Expect_same (note: this is incorrect.  File bug and fix)
 
@@ -70,7 +71,9 @@ SIGNALS
   *  ``Format``: Double
 
   *  ``Unit``: None
-* ``NVML::GPU_TEMPERATURE``: GPU Temperature in degrees Celsius
+* ``NVML::GPU_TEMPERATURE``:
+
+    GPU Temperature in degrees Celsius
 
   *  ``Aggregation``: Average
 
@@ -79,7 +82,9 @@ SIGNALS
   *  ``Format``: Double
 
   *  ``Unit``: Celsius
-* ``NVML::GPU_ENERGY_CONSUMPTION_TOTAL``: GPU energy consumptoin in joules since the driver was loaded
+* ``NVML::GPU_ENERGY_CONSUMPTION_TOTAL``:
+
+    GPU energy consumptoin in joules since the driver was loaded
 
   *  ``Aggregation``: Sum
 
@@ -88,7 +93,9 @@ SIGNALS
   *  ``Format``: Double
 
   *  ``Unit``: Joules
-* ``NVML::GPU_PERFORMANCE_STATE``: GPU performance state, defined by the NVML API as a value from 0 to 15
+* ``NVML::GPU_PERFORMANCE_STATE``:
+
+    GPU performance state, defined by the NVML API as a value from 0 to 15
 
   *  ``Aggregation``: expect same
 
@@ -97,7 +104,9 @@ SIGNALS
   *  ``Format``: Double
 
   *  ``Unit``: None
-* ``NVML::GPU_PCIE_RX_THROUGHPUT``: GPU PCIE receive throughput in Bytes per Second over a 20 millisecond period
+* ``NVML::GPU_PCIE_RX_THROUGHPUT``:
+
+    GPU PCIE receive throughput in Bytes per Second over a 20 millisecond period
 
   *  ``Aggregation``: Sum
 
@@ -106,7 +115,9 @@ SIGNALS
   *  ``Format``: Double
 
   *  ``Unit``: Bytes/Second
-* ``NVML::GPU_PCIE_TX_THROUGHPUT``: GPU PCIE transmit throughput in Bytes per Second over a 20 millisecond period
+* ``NVML::GPU_PCIE_TX_THROUGHPUT``:
+
+    GPU PCIE transmit throughput in Bytes per Second over a 20 millisecond period
 
   *  ``Aggregation``: Sum
 
@@ -115,7 +126,9 @@ SIGNALS
   *  ``Format``: Double
 
   *  ``Unit``: Bytes/Second
-* ``NVML::GPU_CPU_ACTIVE_AFFINITIZATION``: GPU associated with the specified cpu as determined by querying active processes on the GPU.  If no GPUs map to the CPU -1 is returned.  If multiple GPU map to the CPU NAN is returned.
+* ``NVML::GPU_CPU_ACTIVE_AFFINITIZATION``:
+
+    GPU associated with the specified cpu as determined by querying active processes on the GPU.  If no GPUs map to the CPU -1 is returned.  If multiple GPU map to the CPU NAN is returned.
 
   *  ``Aggregation``: Expect_same
 
@@ -124,7 +137,9 @@ SIGNALS
   *  ``Format``: Double
 
   *  ``Unit``: None
-* ``NVML::GPU_MEMORY_UTILIZATION``: Fraction of time the GPU memory was accessed in the last set of driver samples
+* ``NVML::GPU_MEMORY_UTILIZATION``:
+
+    Fraction of time the GPU memory was accessed in the last set of driver samples
 
   *  ``Aggregation``:
 
@@ -133,7 +148,9 @@ SIGNALS
   *  ``Format``: Double
 
   *  ``Unit``: None
-* ``NVML::GPU_FREQUENCY_MAX_AVAIL``: Streaming Multiprocessor maximum frequency in hertz
+* ``NVML::GPU_FREQUENCY_MAX_AVAIL``:
+
+    Streaming Multiprocessor maximum frequency in hertz
 
   *  ``Aggregation``: Expect_same
 
@@ -142,7 +159,9 @@ SIGNALS
   *  ``Format``: Double
 
   *  ``Unit``: Hertz
-* ``NVML::GPU_FREQUENCY_MIN_AVAIL``: Streaming Multiprocessor minimum frequency in hertz
+* ``NVML::GPU_FREQUENCY_MIN_AVAIL``:
+
+    Streaming Multiprocessor minimum frequency in hertz
 
   *  ``Aggregation``: Expect_same
 
@@ -151,52 +170,47 @@ SIGNALS
   *  ``Format``: Double
 
   *  ``Unit``: Hertz
-* ``NVML::GPU_FREQUENCY_CONTROL``: Latest frequency control request in hertz
-
-  *  ``Aggregation``: Average
-
-  *  ``Domain``: GPU
-
-  *  ``Format``: Double
-
-  *  ``Unit``: Hertz
-* ``NVML::GPU_FREQUENCY_RESET_CONTROL``: Resets streaming Multiprocessor frequency min and max limits to default values
-
-  *  ``Aggregation``: Average
-
-  *  ``Domain``: GPU
-
-  *  ``Format``: Double
-
-  *  ``Unit``: None
 
 SIGNAL ALIASES
 ~~~~~~~~~~~~~~~~
 Several high level aliases are provided.  Their mapping to
 underlying IO Group signals is provided below.
 
-* ``GPU_POWER``: NVML::GPU_POWER
+* ``GPU_POWER``:
 
-* ``GPU_CORE_FREQUENCY_STATUS``: NVML::GPU_FREQUENCY_STATUS
+    Aliases to NVML::GPU_POWER
 
-* ``GPU_CORE_FREQUENCY_MIN_AVAIL``: NVML::GPU_FREQUENCY_MIN_AVAIL
+* ``GPU_CORE_FREQUENCY_STATUS``:
 
-* ``GPU_CORE_FREQUENCY_MAX_AVAIL``: NVML::GPU_FREQUENCY_MAX_AVAIL
+    Aliases to NVML::GPU_FREQUENCY_STATUS
 
-* ``GPU_ENERGY``: NVML::GPU_ENERGY_CONSUMPTION_TOTAL
+* ``GPU_CORE_FREQUENCY_MIN_AVAIL``:
 
-* ``GPU_TEMPERATURE``: NVML::GPU_TEMPERATURE
+    Aliases to NVML::GPU_FREQUENCY_MIN_AVAIL
 
-* ``GPU_UTILIZATION``: NVML::GPU_UTILIZATION
+* ``GPU_CORE_FREQUENCY_MAX_AVAIL``:
 
-* ``GPU_POWER_LIMIT_CONTROL``: NVML::GPU_POWER_LIMIT_CONTROL
+    Aliases to NVML::GPU_FREQUENCY_MAX_AVAIL
 
-* ``GPU_CORE_FREQUENCY_CONTROL``: NVML::GPU_FREQUENCY_CONTROL
+* ``GPU_ENERGY``:
+
+    Aliases to NVML::GPU_ENERGY_CONSUMPTION_TOTAL
+
+* ``GPU_TEMPERATURE``:
+
+    Aliases to NVML::GPU_TEMPERATURE
+
+* ``GPU_UTILIZATION``:
+
+    Aliases to NVML::GPU_UTILIZATION
 
 CONTROLS
 --------
+Every control is exposed as a signal with the same name.  The relevant signal aggregation information is provided below.
 
-* ``NVML::GPU_FREQUENCY_CONTROL``: Sets Streaming Multiprocessor frequency min and max to the same limit (in hertz)
+* ``NVML::GPU_FREQUENCY_CONTROL``:
+
+    Sets Streaming Multiprocessor frequency min and max to the same limit (in hertz)
 
   *  ``Aggregation``: Average
 
@@ -205,8 +219,9 @@ CONTROLS
   *  ``Format``: Double
 
   *  ``Unit``: Hertz
-* ``NVML::GPU_FREQUENCY_RESET_CONTROL``: Resets Streaming Multiprocessor frequency min and max limits to default values.  Parameter provided is unused.
+* ``NVML::GPU_FREQUENCY_RESET_CONTROL``:
 
+    Resets Streaming Multiprocessor frequency min and max limits to default values.  Parameter provided is unused.
 
   *  ``Aggregation``: Average
 
@@ -215,7 +230,9 @@ CONTROLS
   *  ``Format``: Double
 
   *  ``Unit``: None
-* ``NVML::GPU_POWER_LIMIT_CONTROL``: Sets GPU power limit in watts
+* ``NVML::GPU_POWER_LIMIT_CONTROL``:
+
+    Sets GPU power limit in watts
 
   *  ``Aggregation``: Double
 
@@ -230,9 +247,14 @@ CONTROL ALIASES
 Several high level aliases are provided.  Their mapping to
 underlying IO Group signals is provided below.
 
-* ``GPU_POWER_LIMIT_CONTROL``:  NVML::GPU_POWER_LIMIT_CONTROL
+* ``GPU_POWER_LIMIT_CONTROL``:
 
-* ``GPU_CORE_FREQUENCY_CONTROL``: NVML::GPU_FREQUENCY_CONTROL
+    Aliases to NVML::GPU_POWER_LIMIT_CONTROL
+
+* ``GPU_CORE_FREQUENCY_CONTROL``:
+
+    Aliases to NVML::GPU_FREQUENCY_CONTROL
+
 
 SEE ALSO
 --------
