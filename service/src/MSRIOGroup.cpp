@@ -157,6 +157,21 @@ namespace geopm
         // HWP enable is checked via an MSR, so we cannot do this as part of
         // the initializer if we want to use read_signal to determine capabilities
         m_is_hwp_enabled = get_hwp_enabled();
+        // If HWP is not enabled, prune all related signals/controls
+        if (!m_is_hwp_enabled) {
+            auto all_signal_names = signal_names();
+            for(const auto &name : all_signal_names) {
+                if (string_begins_with(name, "MSR::HWP")) {
+                    m_signal_available.erase(name);
+                }
+            }
+            auto all_control_names = control_names();
+            for(const auto &name : all_control_names) {
+                if (string_begins_with(name, "MSR::HWP")) {
+                    m_control_available.erase(name);
+                }
+            }
+        }
 
         register_frequency_signals();
         register_frequency_controls();

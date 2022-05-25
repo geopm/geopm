@@ -11,6 +11,7 @@
 #include <memory>
 #include <functional>
 #include <string>
+#include <set>
 
 #include "geopm/json11.hpp"
 
