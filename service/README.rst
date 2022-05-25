@@ -5,45 +5,45 @@ GEOPM Service
 Features
 --------
 
-Linux Integration
-~~~~~~~~~~~~~~~~~
+|:penguin:| Linux Integration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Linux Systemd Service with DBus interface for user-level access to
   hardware features on heterogeneous systems
 
 
-Hardware Telemetry
-~~~~~~~~~~~~~~~~~~
+|:telescope:| Hardware Telemetry
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Users read telemetry from hardware components on heterogeneous
   systems with a vendor agnostic interface
 
 
-Hardware Configuration
-~~~~~~~~~~~~~~~~~~~~~~
+|:gear:| Hardware Configuration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Users configure hardware component device settings on heterogeneous
   systems with a vendor agnostic interface
 
 
-Quality of Service
-~~~~~~~~~~~~~~~~~~
+|:medal_sports:| Quality of Service
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   GEOPM Service reverts any changes made to hardware configurations
   after the client's Linux process session ends
 
 
-Security
-~~~~~~~~
+|:lock:| Security
+~~~~~~~~~~~~~~~~~
   Linux system administrators manage fine-grained access permissions
   for capabilities exposed by the GEOPM Service
 
 
-Performance
-~~~~~~~~~~~
+|:rocket:| Performance
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Users may call a DBus interface to create a batch server which
   provides a lower-latency interface with a single permissions
   validation when server is created
 
 
-Extensibility
-~~~~~~~~~~~~~
+|:jigsaw:| Extensibility
+~~~~~~~~~~~~~~~~~~~~~~~~
   Supports extensibility for heterogeneous environments through C++
   plugin infrastructure (IOGroups).
 
