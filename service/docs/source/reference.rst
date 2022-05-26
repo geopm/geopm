@@ -10,10 +10,12 @@ GEOPM Manual Pages
 ------------------
 
 .. toctree::
+   :glob:
    :maxdepth: 2
    :caption: Overview
 
    geopm.7
+   geopm_pio*.7
 
 
 .. toctree::
