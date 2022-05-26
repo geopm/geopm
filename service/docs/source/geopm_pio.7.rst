@@ -161,17 +161,40 @@ DESCRIPTIONS OF HIGH LEVEL ALIASES
 ``GPU_UNCORE_ACTIVITY``
     GPU memory access activity expressed as a ratio of cycles.
 
+``BOARD_POWER`` (**TODO**: currently ``POWER_BOARD``)
+    Power measured on the server's board. See :ref:`geopm_pio_cnl(7)
+    <cnl-requirements>` for signal availability requirements.
 
+``BOARD_ENERGY`` (**TODO**: currently ``ENERGY_BOARD``)
+    Total energy measured on the server's board. See :ref:`geopm_pio_cnl(7)
+    <cnl-requirements>` for signal availability requirements.
 
+``BOARD_MEMORY_POWER`` (**TODO**: currently ``POWER_MEMORY``)
+    Current power consumption of memory components, as measured by the server's
+    board. See :ref:`geopm_pio_cnl(7) <cnl-requirements>` for signal
+    availability requirements.
 
+``BOARD_MEMORY_ENERGY`` (**TODO**: currently ``ENERGY_MEMORY``)
+    Current total energy of memory components, as measured by the server's
+    board. See :ref:`geopm_pio_cnl(7) <cnl-requirements>` for signal
+    availability requirements.
 
+``BOARD_CPU_POWER`` (**TODO**: currently ``POWER_BOARD_CPU``)
+    Current power consumption of CPU components, as measured by the server's
+    board. See :ref:`geopm_pio_cnl(7) <cnl-requirements>` for signal
+    availability requirements.
 
+``BOARD_CPU_ENERGY`` (**TODO**: currently ``ENERGY_BOARD_CPU``)
+    Current total energy of CPU components, as measured by the server's board.
+    See :ref:`geopm_pio_cnl(7) <cnl-requirements>` for signal availability
+    requirements.
 
 
 SEE ALSO
 --------
 
-`geopm(7) <geopm.7.html>`_\ ,
-`geopm_pio_c(3) <geopm_pio_c.3.html>`_\ ,
-`geopm_prof_c(3) <geopm_prof_c.3.html>`_\ ,
-`geopm_topo_c(3) <geopm_topo_c.3.html>`_\ ,
+`geopm(7) <geopm.7.html>`_,
+`geopm_pio_cnl(7) <geopm_pio_cnl.7.html>`_,
+`geopm_pio_c(3) <geopm_pio_c.3.html>`_,
+`geopm_prof_c(3) <geopm_prof_c.3.html>`_,
+`geopm_topo_c(3) <geopm_topo_c.3.html>`_,
