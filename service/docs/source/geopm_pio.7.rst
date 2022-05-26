@@ -66,154 +66,106 @@ encoded in this way.
 DESCRIPTIONS OF HIGH LEVEL ALIASES
 ----------------------------------
 
-*
-  ``TIME``:
+``TIME``
+    Time elapsed since the beginning of execution.
 
-      Time elapsed since the beginning of execution.
+``EPOCH_COUNT``
+    Number of completed executions of an epoch.  Prior to the first call
+    by the application to ``geopm_prof_epoch()`` the signal returns as ``-1``.
+    With each call to ``geopm_prof_epoch()`` the count increases by one.
 
-*
-  ``EPOCH_COUNT``:
+``REGION_HASH``
+    The hash of the region of code (see `geopm_prof_c(3) <geopm_prof_c.3.html>`_\ ) currently being
+    run by all ranks, otherwise ``GEOPM_REGION_HASH_UNMARKED``.
 
-      Number of completed executions of an epoch.  Prior to the first call
-      by the application to ``geopm_prof_epoch()`` the signal returns as ``-1``.
-      With each call to ``geopm_prof_epoch()`` the count increases by one.
+``REGION_HINT``
+    The region hint (see `geopm_prof_c(3) <geopm_prof_c.3.html>`_\ ) associated with the currently
+    running region.  For any interval when all ranks are within an MPI
+    function inside of a user defined region, the hint will change from the
+    hint associated with the user defined region to ``GEOPM_REGION_HINT_NETWORK``.
+    If the user defined region was defined with ``GEOPM_REGION_HINT_NETWORK`` and
+    there is an interval within the region when all ranks are within an MPI
+    function, GEOPM will not attribute the time spent within the MPI function as
+    MPI time in the report files.  It will be instead attributed to the time
+    spent in the region as a whole.
 
-*
-  ``REGION_HASH``:
+``REGION_PROGRESS``
+    Minimum per-rank reported progress through the current region.
 
-      The hash of the region of code (see `geopm_prof_c(3) <geopm_prof_c.3.html>`_\ ) currently being
-      run by all ranks, otherwise ``GEOPM_REGION_HASH_UNMARKED``.
+``REGION_RUNTIME``
+    Maximum per-rank of the last recorded runtime for the current
+    region.
 
-*
-  ``REGION_HINT``:
+``ENERGY_PACKAGE``
+    Total energy aggregated over the processor package.
 
-      The region hint (see `geopm_prof_c(3) <geopm_prof_c.3.html>`_\ ) associated with the currently
-      running region.  For any interval when all ranks are within an MPI
-      function inside of a user defined region, the hint will change from the
-      hint associated with the user defined region to ``GEOPM_REGION_HINT_NETWORK``.
-      If the user defined region was defined with ``GEOPM_REGION_HINT_NETWORK`` and
-      there is an interval within the region when all ranks are within an MPI
-      function, GEOPM will not attribute the time spent within the MPI function as
-      MPI time in the report files.  It will be instead attributed to the time
-      spent in the region as a whole.
+``POWER_PACKAGE``
+    Total power aggregated over the processor package.
 
-*
-  ``REGION_PROGRESS``:
+``CPU_FREQUENCY_STATUS``
+    Average CPU frequency over the specified domain.
 
-      Minimum per-rank reported progress through the current region.
+``ENERGY_DRAM``
+    Total energy aggregated over the DRAM DIMMs associated with a NUMA node.
 
-*
-  ``REGION_RUNTIME``:
+``POWER_DRAM``
+    Total power aggregated over the DRAM DIMMs associated with a NUMA node.
 
-      Maximum per-rank of the last recorded runtime for the current
-      region.
+``POWER_PACKAGE_MIN``
+    Minimum setting for package power over the given domain.
 
-*
-  ``ENERGY_PACKAGE``:
+``POWER_PACKAGE_MAX``
+    Maximum setting for package power over the given domain.
 
-      Total energy aggregated over the processor package.
+``POWER_PACKAGE_TDP``
+    Maximum sustainable setting for package power over the given domain.
 
-*
-  ``POWER_PACKAGE``:
+``CYCLES_THREAD``
+    Average over the domain of clock cycles executed by cores since
+    the beginning of execution.
 
-      Total power aggregated over the processor package.
+``CYCLES_REFERENCE``
+    Average over the domain of clock reference cycles since the
+    beginning of execution.
 
-*
-  ``CPU_FREQUENCY_STATUS``:
+``GPU_ENERGY``
+    Total energy aggregated over the GPU package.
 
-      Average CPU frequency over the specified domain.
+``GPU_POWER``
+    Total power aggregated over the GPU package.
 
-*
-  ``ENERGY_DRAM``:
+``GPU_CORE_FREQUENCY_STATUS``
+    Average achieved GPU core frequency over the specified domain.
 
-      Total energy aggregated over the DRAM DIMMs associated with a NUMA node.
+``GPU_CORE_FREQUENCY_CONTROL``
+    Average requested GPU core frequency over the specified domain.
 
-*
-  ``POWER_DRAM``:
+``GPU_CORE_FREQENCY_MIN_AVAIL``
+    Minimum supported GPU core frequency over the specified domain.
 
-      Total power aggregated over the DRAM DIMMs associated with a NUMA node.
+``GPU_CORE_FREQENCY_MAX_AVAIL``
+    Maximum supported GPU core frequency over the specified domain.
 
-*
-  ``POWER_PACKAGE_MIN``:
+``GPU_UTILIZATION``
+    Average GPU utilization expressed as a ratio of cycles.
 
-      Minimum setting for package power over the given domain.
+``GPU_TEMPERATURE``
+    Average GPU temperature in degrees Celsius.
 
-*
-  ``POWER_PACKAGE_MAX``:
+``GPU_POWER_LIMIT_CONTROL``
+    Average GPU power usage limit.
 
-      Maximum setting for package power over the given domain.
+``GPU_CORE_ACTIVITY``
+    GPU compute core activity expressed as a ratio of cycles.
 
-*
-  ``POWER_PACKAGE_TDP``:
+``GPU_UNCORE_ACTIVITY``
+    GPU memory access activity expressed as a ratio of cycles.
 
-      Maximum sustainable setting for package power over the given domain.
 
-*
-  ``CYCLES_THREAD``:
 
-      Average over the domain of clock cycles executed by cores since
-      the beginning of execution.
 
-*
-  ``CYCLES_REFERENCE``:
 
-      Average over the domain of clock reference cycles since the
-      beginning of execution.
 
-*
-  ``GPU_ENERGY``:
-
-      Total energy aggregated over the GPU package.
-
-*
-  ``GPU_POWER``:
-
-      Total power aggregated over the GPU package.
-
-*
-  ``GPU_CORE_FREQUENCY_STATUS``:
-
-      Average achieved GPU core frequency over the specified domain.
-
-*
-  ``GPU_CORE_FREQUENCY_CONTROL``:
-
-      Average requested GPU core frequency over the specified domain.
-
-*
-  ``GPU_CORE_FREQENCY_MIN_AVAIL``:
-
-      Minimum supported GPU core frequency over the specified domain.
-
-*
-  ``GPU_CORE_FREQENCY_MAX_AVAIL``:
-
-      Maximum supported GPU core frequency over the specified domain.
-
-*
-  ``GPU_UTILIZATION``:
-
-      Average GPU utilization expressed as a ratio of cycles.
-
-*
-  ``GPU_TEMPERATURE``:
-
-      Average GPU temperature in degrees Celsius.
-
-*
-  ``GPU_POWER_LIMIT_CONTROL``:
-
-      Average GPU power usage limit.
-
-*
-  ``GPU_CORE_ACTIVITY``:
-
-      GPU compute core activity expressed as a ratio of cycles.
-
-*
-  ``GPU_UNCORE_ACTIVITY``:
-
-      GPU memory access activity expressed as a ratio of cycles.
 
 
 SEE ALSO
