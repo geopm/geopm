@@ -16,7 +16,7 @@ Service.  Additional information is available on other pages:
 Linux Integration
 -----------------
 
-The GEOPM service integrates with the Linux OS through Systemd as a
+The GEOPM Service integrates with the Linux OS through Systemd as a
 unit that is installed with the geopm-service RPM.  The ``sytemctl``
 command can be used to interact with the ``geopm`` Systemd Unit.
 
@@ -25,10 +25,15 @@ GEOPM Service Files
 -------------------
 
 In addition to the files provided by the installation packages, the
-GEOPM service may create and modify files at run-time.  These include
-files in ``/etc/geopm-service`` that control access settings and files
-in ``/run/geopm-service`` that track information about clients that
-are actively using the service.
+GEOPM Service may create and modify files while active.  The files
+created by the GEOPM Service are located within two directories.  The
+files in ``/etc/geopm-service`` hold the access control lists.  These
+files persist across reboots and restarts of the service.  The files
+in ``/run/geopm-service`` track information about clients that are
+actively using the service.  These files save the state of the GEOPM
+Service and if the service is stopped for any reason the files will be
+used when the service is started again.  The files in ``/run`` are
+erased upon reboot.
 
 All files and directories within ``/etc/geopm-service`` or
 ``/run/geopm-service`` are created by the GEOPM Service with
@@ -45,7 +50,8 @@ It is recommended that these GEOPM Service system files are always
 manipulated using GEOPM tools like ``geopmaccess``, however, any
 administrator that manipulates the GEOPM system files without using a
 GEOPM interface should be aware of the permission and ownership
-requirements for these files.
+requirements for these files.  For more information about the GEOPM
+security model please refer to the `Security Guide <security.html>`_.
 
 
 Configuring Access Lists
