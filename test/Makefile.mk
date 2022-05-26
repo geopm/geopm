@@ -91,6 +91,14 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/ControllerTest.two_level_controller_0 \
               test/gtest_links/ControllerTest.two_level_controller_1 \
               test/gtest_links/ControllerTest.two_level_controller_2 \
+              test/gtest_links/CPUActivityAgentTest.name \
+              test/gtest_links/CPUActivityAgentTest.validate_policy \
+              test/gtest_links/CPUActivityAgentTest.adjust_platform_high \
+              test/gtest_links/CPUActivityAgentTest.adjust_platform_medium \
+              test/gtest_links/CPUActivityAgentTest.adjust_platform_low \
+              test/gtest_links/CPUActivityAgentTest.adjust_platform_zero \
+              test/gtest_links/CPUActivityAgentTest.adjust_platform_nan \
+              test/gtest_links/CPUActivityAgentTest.adjust_platform_signal_out_of_bounds \
               test/gtest_links/CSVTest.buffer \
               test/gtest_links/CSVTest.columns \
               test/gtest_links/CSVTest.header \
@@ -353,6 +361,7 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
                           test/CommMPIImpTest.cpp \
                           test/ControlMessageTest.cpp \
                           test/ControllerTest.cpp \
+                          test/CPUActivityAgentTest.cpp \
                           test/CSVTest.cpp \
                           test/DebugIOGroupTest.cpp \
                           test/EditDistEpochRecordFilterTest.cpp \
