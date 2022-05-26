@@ -25,6 +25,7 @@
 volatile static sig_atomic_t g_sigterm_count = 0;
 volatile static sig_atomic_t g_sigchld_count = 0;
 volatile static sig_atomic_t g_sigchld_status = 0;
+volatile static sig_atomic_t g_wait_status = 0;
 
 static void action_sigterm(int signo, siginfo_t *siginfo, void *context)
 {
@@ -37,13 +38,13 @@ static void action_sigchld(int signo, siginfo_t *siginfo, void *context)
 {
     int child_status = 0;
     int child_pid = 0;
-    while ((child_pid = waitpid(-1, &child_status, WNOHANG)) > 0) {
-        if (child_status != 0) {
-            g_sigchld_status = child_status;
-        }
-    }
+    child_pid = wait(&child_status);
     if (child_pid == -1) {
-        g_sigchld_status = errno ? errno : GEOPM_ERROR_RUNTIME;
+        g_wait_status = errno ? errno : GEOPM_ERROR_RUNTIME;
+        g_sigchld_status = GEOPM_ERROR_RUNTIME;
+    }
+    else if (child_status != 0) {
+        g_sigchld_status = child_status;
     }
     ++g_sigchld_count;
 }
@@ -280,12 +281,19 @@ namespace geopm
         if (g_sigchld_count != 0) {
             m_is_active = false;
             --g_sigchld_count;
-            if (g_sigchld_status != 0) {
+            if (g_wait_status != 0) {
                 char err_msg[NAME_MAX];
-                geopm_error_message(g_sigchld_status, err_msg, NAME_MAX);
+                geopm_error_message(g_wait_status, err_msg, NAME_MAX);
+                std::cerr << "Warning: <geopm> " << __FILE__ << ":" << __LINE__
+                          << " :  Received SIGCHLD but wait() failed: "
+                          << g_wait_status << " : \"" << err_msg << "\"\n";
+                g_wait_status = 0;
+                g_sigchld_status = 0;
+            }
+            else if (g_sigchld_status != 0) {
                 std::cerr << "Warning: <geopm> " << __FILE__ << ":" << __LINE__
                           << " :  The batch server child process ended with non-zero status: "
-                          << g_sigchld_status << " : \"" << err_msg << "\"\n";
+                          << g_sigchld_status << "\n";
                 g_sigchld_status = 0;
             }
         }
@@ -389,6 +397,7 @@ namespace geopm
             char msg = setup();  // BatchStatus::M_MESSAGE_CONTINUE
             check_return(write(pipe_fd[1], &msg, 1), "write(2)");
             check_return(close(pipe_fd[1]), "close(2)");
+            // TODO : Reset all signal handlers to defaults
             run();
             m_signal_shmem.reset();
             m_control_shmem.reset();
