@@ -1,14 +1,5 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
-
-
 geopm::CNLIOGroup(3) -- IOGroup for interaction with Compute Node Linux
 =======================================================================
-
-
-
-
-
 
 NAMESPACES
 ----------
@@ -17,14 +8,14 @@ The ``CNLIOGroup`` class and the ``IOGroup`` class are members of
 the ``namespace geopm``, but the full names, ``geopm::CNLIOGroup`` and
 ``geopm::IOGroup``, have been abbreviated in this manual.
 Similarly, the ``std::`` namespace specifier has been omitted from the
-interface definitions for the following standard types: ``std::vector``\ ,
-``std::pair``\ , ``std::string``\ , ``std::map``\ , and ``std::function``\ , to enable
+interface definitions for the following standard types: ``std::vector``,
+``std::pair``, ``std::string``, ``std::map``, and ``std::function``, to enable
 better rendering of this manual.
 
 SYNOPSIS
 --------
 
-#include `<geopm/CNLIOGroup.hpp> <https://github.com/geopm/geopm/blob/dev/src/CNLIOGroup.hpp>`_\ 
+#include `<geopm/CNLIOGroup.hpp> <https://github.com/geopm/geopm/blob/dev/service/src/CNLIOGroup.hpp>`_
 
 Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
 
@@ -91,130 +82,108 @@ DESCRIPTION
 -----------
 
 The CNLIOGroup provides board-level energy counters from Compute Node Linux
-as signals.  These values are obtained through the `proc(5) <http://man7.org/linux/man-pages/man5/proc.5.html>`_ filesystem.
+as signals. These values are obtained through the ``/sys/cray/pm_counters`` on
+Compute Node Linux systems.
 
 CLASS METHODS
 -------------
 
-
-* 
-  ``signal_names()``:
+* ``signal_names()``:
   Returns the list of signal names provided by this IOGroup.
 
-* 
-  ``control_names()``:
+* ``control_names()``:
   Does nothing; this IOGroup does not provide any controls.
 
-* 
-  ``is_valid_signal()``:
+* ``is_valid_signal()``:
   Returns whether the given *signal_name* is supported by the
   CNLIOGroup for the current platform.
 
-* 
-  ``is_valid_control()``:
+* ``is_valid_control()``:
   Returns false; this IOGroup does not provide any controls.
 
-* 
-  ``signal_domain_type()``:
+* ``signal_domain_type()``:
   If the *signal_name* is valid for this IOGroup, returns ``GEOPM_DOMAIN_BOARD``.
   Otherwise, returns ``GEOPM_DOMAIN_INVALID``.
 
-* 
-  ``control_domain_type()``:
+* ``control_domain_type()``:
   Returns ``GEOPM_DOMAIN_INVALID``; this IOGroup does not provide any controls.
 
-* 
-  ``push_signal()``:
+* ``push_signal()``:
   Adds the signal specified by *signal_name* to the list of signals
-  to be read during ``read_batch()``.  If *domain_type* is not
-  ``GEOPM_DOMAIN_BOARD``, throws an error.  The *domain_idx* is ignored.
+  to be read during ``read_batch()``.  Throws an error if *domain_type* is not
+  ``GEOPM_DOMAIN_BOARD``.  The *domain_idx* is ignored.
 
-* 
-  ``push_control()``:
+* ``push_control()``:
   Should not be called; this IOGroup does not provide any controls.
-  throws an error
+  Always throws an error.
 
-* 
-  ``read_batch()``:
+* ``read_batch()``:
   Read all pushed signals from the platform so that the next call to
   ``sample()`` will reflect the updated data.  The intention is that
-  ``read_batch()`` will read the all of the ``IOGroup``\ 's signals into memory once
+  ``read_batch()`` will read the all of the ``IOGroup``'s signals into memory once
   per call.
 
-* 
-  ``write_batch()``:
+* ``write_batch()``:
   Does nothing; this IOGroup does not provide any controls.
 
-* 
-  ``sample()``:
+* ``sample()``:
   Returns the value of the signal specified by a *signal_idx*
   returned from ``push_signal()``.  The value will have been updated by
   the most recent call to ``read_batch()``.
 
-* 
-  ``adjust()``:
+* ``adjust()``:
   Should not be called; this IOGroup does not provide any controls.
-  throws an error
+  Always throws an error.
 
-* 
-  ``read_signal()``:
+* ``read_signal()``:
   Immediately return the stored value for the given *signal_name*.
-  If *domain_type* is not ``GEOPM_DOMAIN_BOARD``, throws an error.  The *domain_idx*
-  is ignored.
+  Throws an error if *domain_type* is not ``GEOPM_DOMAIN_BOARD``.  The
+  *domain_idx* is ignored.
 
-* 
-  ``write_control()``:
+* ``write_control()``:
   Should not be called; this IOGroup does not provide any controls.
-  throws an error
+  Always throws an error.
 
-* 
-  ``save_control()``:
+* ``save_control()``:
   Does nothing; this IOGroup does not provide any controls.
 
-* 
-  ``restore_control()``:
+* ``restore_control()``:
   Does nothing; this IOGroup does not provide any controls.
 
-* 
-  ``agg_function()``:
+* ``agg_function()``:
   Return a function that should be used when aggregating the given
   signal.  For more information see `geopm::Agg(3) <GEOPM_CXX_MAN_Agg.3.html>`_.
 
-* 
-  ``format_function()``:
+* ``format_function()``:
   Return a function that should be used when formatting the given
   signal.  For more information see `geopm::Agg(3) <GEOPM_CXX_MAN_Agg.3.html>`_.
 
-* 
-  ``signal_description()``:
+* ``signal_description()``:
   Returns a string description for *signal_name*, if defined.
 
-* 
-  ``control_description()``:
+* ``control_description()``:
   Should not be called; this IOGroup does not provide any controls.
-  throws an error
+  Always throws an error.
 
-* 
-  ``signal_behavior()``:
+* ``signal_behavior()``:
   Returns one of the ``IOGroup::signal_behavior_e`` values which
   describes about how a signal will change as a function of time.
   This can be used when generating reports to decide how to
   summarize a signal's value for the entire application run.
 
-* 
-  ``plugin_name()``:
+* ``plugin_name()``:
   Returns the name of the plugin to use when this plugin is
   registered with the IOGroup factory; see
   `geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3.html>`_ for more details.
 
-* 
-  ``make_plugin()``:
+* ``make_plugin()``:
   Returns a pointer to a new CNLIOGroup object; see
   `geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3.html>`_ for more details.
 
 SEE ALSO
 --------
 
-`geopm(7) <geopm.7.html>`_\ ,
-`proc(5) <http://man7.org/linux/man-pages/man5/proc.5.html>`_\ ,
+`geopm(7) <geopm.7.html>`_,
+`geopm_pio_cnl(7) <geopm_pio_cnl.7.html>`_,
+`proc(5) <http://man7.org/linux/man-pages/man5/proc.5.html>`_,
 `geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3.html>`_
