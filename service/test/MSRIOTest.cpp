@@ -6,6 +6,7 @@
 #include <fcntl.h>
 #include <limits.h>
 #include <unistd.h>
+#include <cstdlib>
 #include <sstream>
 #include <string>
 #include <vector>
