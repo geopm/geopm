@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <cstdlib>
 #include <stdint.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -12,6 +11,7 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <limits.h>
+#include <cstdlib>
 #include <sstream>
 #include <fstream>
 #include <string>
@@ -68,9 +68,17 @@ class ScopedPluginPath final
 {
     public:
         ScopedPluginPath()
-            : m_path(testing::TempDir() + "/" + "MSRIOGroupTestPluginPath")
-            , m_old_path(geopm::get_env("GEOPM_PLUGIN_PATH"))
+            : m_old_path(geopm::get_env("GEOPM_PLUGIN_PATH"))
         {
+            char tmp_path[NAME_MAX] = "/tmp/MSRIOGroupTestPluginPath_XXXXXX";
+            char *rc = mkdtemp(tmp_path);
+            if (rc == nullptr) {
+                throw geopm::Exception("MSRIOGroupTest:ScopedPluginPath: mkdtemp() failed",
+                                       errno ? errno : GEOPM_ERROR_RUNTIME,
+                                       __FILE__, __LINE__);
+            }
+            m_path = tmp_path;
+
             int err = mkdir(m_path.c_str(), S_IRWXU);
             if (err != 0 && errno != EEXIST) {
                 throw Exception("ScopedPluginPath: mkdir " + m_path,
@@ -83,16 +91,22 @@ class ScopedPluginPath final
         ~ScopedPluginPath()
         {
             setenv("GEOPM_PLUGIN_PATH", m_old_path.c_str(), true);
+            for (auto &name : m_files) {
+                (void)unlink(name.c_str());
+            }
+            (void)rmdir(m_path.c_str());
         }
 
-        std::string get_path()
+        void write_file(const std::string &file_name, const std::string &contents)
         {
-            return m_path;
+            geopm::write_file(m_path + '/' + file_name, contents);
+            m_files.push_back(m_path + '/' + file_name);
         }
 
     private:
         std::string m_path;
         std::string m_old_path;
+        std::vector<std::string> m_files;
 };
 
 void MSRIOGroupTest::SetUp()
@@ -971,8 +985,7 @@ TEST_F(MSRIOGroupTest, allowlist)
 
     uint64_t user_added_offset = 0x123;
     {
-        std::string user_msr_json_path = scoped_plugin_path.get_path() + "/msr_test.json";
-        geopm::write_file(user_msr_json_path, R"JSON({
+        std::string contents = R"JSON({
             "msrs": {
                 "FAKE_MSR": {
                     "offset": "0x123",
@@ -993,7 +1006,8 @@ TEST_F(MSRIOGroupTest, allowlist)
                 }
             }
         }
-        )JSON");
+        )JSON";
+        scoped_plugin_path.write_file("msr_test.json", contents);
     }
 
     std::string allowlist = MSRIOGroup::msr_allowlist(MSRIOGroup::M_CPUID_SKX);
