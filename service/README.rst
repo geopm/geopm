@@ -106,8 +106,8 @@ Status
 
 The GEOPM systemd service is a new feature for version 2.0.  The
 ``v2.0.0-rc1`` tag is the first release candidate and for 2.0 and
-provides the GEOPM Service feature.  Tagging ``v2.0.0`` will not occur
-until all issues with the "2.0" label are closed or relabeled:
+provides the GEOPM Service feature.  Work for ``v2.0.0`` is ongoing
+and will be complete when all issues labeled "2.0" are addressed:
 `issues <https://github.com/geopm/geopm/issues?q=is%3Aissue+is%3Aopen+label%3A2.0>`_
 
 
