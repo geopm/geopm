@@ -213,13 +213,14 @@ def main(full_df, region_list, min_energy_tolerance, cross_region_degradation):
 
     policy = {"CPU_FREQ_MAX" : float('nan'),
                 "CPU_FREQ_EFFICIENT" : core_freq_recommendation,
-                "UNCORE_FREQ_MAX" : float('nan'),
-                "UNCORE_FREQ_EFFICIENT" : uncore_freq_recommendation,
+                "CPU_UNCORE_FREQ_MAX" : float('nan'),
+                "CPU_UNCORE_FREQ_EFFICIENT" : uncore_freq_recommendation,
                 "CPU_PHI" : float('nan'),
                 "SAMPLE_PERIOD" : float('nan')}
 
-    for k,v in mem_bw_characterization.items():
-        policy['MAX_MBM_UNCORE_FREQ_' + str(k)] = v
+    for idx, (k,v) in enumerate(mem_bw_characterization.items()):
+        policy['CPU_UNCORE_FREQ_' + str(idx)] = k
+        policy['MAX_MEMORY_BANDWIDTH_' + str(idx)] = v
 
     return policy
 

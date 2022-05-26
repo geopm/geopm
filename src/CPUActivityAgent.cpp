@@ -17,6 +17,7 @@
 #include "geopm/PlatformIO.hpp"
 #include "geopm/PlatformTopo.hpp"
 #include "geopm/PluginFactory.hpp"
+#include "geopm_debug.hpp"
 
 #include "PlatformIOProf.hpp"
 
@@ -37,23 +38,7 @@ namespace geopm
         , M_NUM_PACKAGE(m_platform_topo.num_domain(GEOPM_DOMAIN_PACKAGE))
         , M_NUM_CORE(m_platform_topo.num_domain(GEOPM_DOMAIN_CORE))
         , m_do_write_batch(false)
-        //TODO: change to a policy as this is not guaranteed across SKUs
-        //      and families
-        , m_qm_max_rate({
-                                {1.2e9, 4.56E+10},
-                                {1.3e9, 6.53E+10},
-                                {1.4e9, 7.42E+10},
-                                {1.5e9, 7.71E+10},
-                                {1.6e9, 8.40E+10},
-                                {1.7e9, 8.87E+10},
-                                {1.8e9, 9.28E+10},
-                                {1.9e9, 9.80E+10},
-                                {2.0e9, 1.02E+11},
-                                {2.1e9, 1.01E+11},
-                                {2.2e9, 1.04E+11},
-                                {2.3e9, 1.04E+11},
-                                {2.4e9, 1.05E+11}
-                                })
+        , m_update_qm_max_rate(true)
     {
         geopm_time(&m_last_wait);
     }
@@ -112,7 +97,10 @@ namespace geopm
     // Validate incoming policy and configure default policy requests.
     void CPUActivityAgent::validate_policy(std::vector<double> &in_policy) const
     {
-        assert(in_policy.size() == M_NUM_POLICY);
+        GEOPM_DEBUG_ASSERT(in_policy.size() == M_NUM_POLICY,
+                           "CPUActivityAgent::" + std::string(__func__) +
+                           "(): policy vector not correctly sized.");
+
         ///////////////////////
         //CPU POLICY CHECKING//
         ///////////////////////
@@ -166,9 +154,9 @@ namespace geopm
 
         if (in_policy[M_POLICY_UNCORE_FREQ_EFFICIENT] > in_policy[M_POLICY_UNCORE_FREQ_MAX]) {
             throw Exception("CPUActivityAgent::" + std::string(__func__) +
-                            "():UNCORE_FREQ_EFFICIENT (" +
+                            "():CPU_UNCORE_FREQ_EFFICIENT (" +
                             std::to_string(in_policy[M_POLICY_UNCORE_FREQ_EFFICIENT]) +
-                            ") value exceeds UNCORE_FREQ_MAX (" +
+                            ") value exceeds CPU_UNCORE_FREQ_MAX (" +
                             std::to_string(in_policy[M_POLICY_UNCORE_FREQ_MAX]) +
                             ").", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
@@ -229,13 +217,44 @@ namespace geopm
                                                         f_uncore_range * (0.5-phi) / 0.5);
         }
 
+        // Validate all (uncore frequency, max memory bandwidth) pairs
+        std::set<double> policy_uncore_freqs;
+        for (auto it = in_policy.begin() + M_POLICY_FIRST_UNCORE_FREQ;
+             it != in_policy.end() && std::next(it) != in_policy.end(); std::advance(it, 2)) {
+            auto mapped_mem_bw = *(it + 1);
+            if (!std::isnan(*it)) {
+                // We are using a static cast rather than reinterpreting the
+                // memory so that regions can be input to this policy in the
+                // same form they are output from a report.
+                auto uncore_freq = static_cast<uint64_t>(*it);
+                if (std::isnan(mapped_mem_bw)) {
+                    throw Exception("CPUActivityAgent::" + std::string(__func__) +
+                                    "(): mapped CPU_UNCORE_FREQUENCY with no max memory bandwidth.",
+                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                }
+                // Just make sure the frequency does not have multiple definitions.
+                if (!policy_uncore_freqs.insert(uncore_freq).second) {
+                    throw Exception("CPUActivityAgent::" + std::string(__func__) +
+                                    " policy has multiple entries for CPU_UNCORE_FREQUENCY " +
+                                    std::to_string(uncore_freq),
+                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                }
+            }
+            else if (!std::isnan(mapped_mem_bw)) {
+                throw Exception("CPUActivityAgent::" + std::string(__func__) +
+                                " policy maps a NaN CPU_UNCORE_FREQUENCY with max memory bandwidth: " +
+                                std::to_string(mapped_mem_bw),
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+
+            }
+        }
+
     }
 
     // Distribute incoming policy to children
     void CPUActivityAgent::split_policy(const std::vector<double>& in_policy,
                                     std::vector<std::vector<double> >& out_policy)
     {
-        assert(in_policy.size() == M_NUM_POLICY);
         for (auto &child_pol : out_policy) {
             child_pol = in_policy;
         }
@@ -261,18 +280,34 @@ namespace geopm
 
     void CPUActivityAgent::adjust_platform(const std::vector<double>& in_policy)
     {
-        assert(in_policy.size() == M_NUM_POLICY);
-
         m_do_write_batch = false;
 
-        // Per core freq
-        std::vector<double> core_freq_request;
+        if (m_update_qm_max_rate) {
+            for (auto it = in_policy.begin() + M_POLICY_FIRST_UNCORE_FREQ;
+                 it != in_policy.end() && std::next(it) != in_policy.end();
+                 std::advance(it, 2)) {
+
+                if (!std::isnan(*it)) {
+                    auto uncore_freq = static_cast<uint64_t>(*it);
+                    auto max_mem_bw = *(it + 1);
+                    // Not valid to have NAN maxm mem bw for uncore freq.
+                    GEOPM_DEBUG_ASSERT(!std::isnan(max_mem_bw),
+                                       "mapped CPU_UNCORE_FREQUENCY with no max memory bandwidth assigned.");
+                    m_qm_max_rate[uncore_freq] = max_mem_bw;
+                }
+            }
+            // Warn the user if they have not entered a policy with memory bandwidth characterization.
+            // In this case the maximum uncore frequency will be used.  This can easily be converted
+            // to an assertion if it should be considered a failure case.
+            if (m_qm_max_rate.size() == 0) {
+                std::cerr << "Warning: <geopm> CPUActivityAgent did not receive a policy containing memory " <<
+                             "bandwidth characterization.  This may negatively impact agent performance." << std::endl;
+            }
+            m_update_qm_max_rate = false;
+        }
 
         // Per package freq
         std::vector<double> uncore_freq_request;
-        double f_core_efficient = in_policy[M_POLICY_CPU_FREQ_EFFICIENT];
-        double f_core_range = in_policy[M_POLICY_CPU_FREQ_MAX] - in_policy[M_POLICY_CPU_FREQ_EFFICIENT];
-
         double f_uncore_efficient = in_policy[M_POLICY_UNCORE_FREQ_EFFICIENT];
         double f_uncore_range = in_policy[M_POLICY_UNCORE_FREQ_MAX] - in_policy[M_POLICY_UNCORE_FREQ_EFFICIENT];
 
@@ -288,6 +323,9 @@ namespace geopm
             }
             double qm_normalized = (double) m_qm_rate.at(domain_idx).signal /
                                             qm_max_itr->second;
+            if (std::isnan(qm_normalized)) {
+                qm_normalized = 1.0;
+            }
 
             // L3 usage, Network Traffic, HBM, and PCIE (GPUs) all use the uncore.
             // Eventually all these components should be considered when scaling
@@ -303,6 +341,11 @@ namespace geopm
             uncore_req = std::min(in_policy[M_POLICY_UNCORE_FREQ_MAX], uncore_req);
             uncore_freq_request.push_back(uncore_req);
         }
+
+        // Per core freq
+        std::vector<double> core_freq_request;
+        double f_core_efficient = in_policy[M_POLICY_CPU_FREQ_EFFICIENT];
+        double f_core_range = in_policy[M_POLICY_CPU_FREQ_MAX] - in_policy[M_POLICY_CPU_FREQ_EFFICIENT];
 
         for (int domain_idx = 0; domain_idx < M_NUM_CORE; ++domain_idx) {
             //////////////////////////////////
@@ -320,6 +363,7 @@ namespace geopm
             core_freq_request.push_back(core_req);
         }
 
+        // set per core controls
         for (int domain_idx = 0; domain_idx < M_NUM_CORE; ++domain_idx) {
             if(std::isnan(core_freq_request.at(domain_idx))) {
                 core_freq_request.at(domain_idx) = in_policy[M_POLICY_CPU_FREQ_MAX];
@@ -336,7 +380,7 @@ namespace geopm
             }
         }
 
-        // set frequency control per package
+        // set per package controls
         for (int domain_idx = 0; domain_idx < M_NUM_PACKAGE; ++domain_idx) {
             if(std::isnan(uncore_freq_request.at(domain_idx))) {
                 uncore_freq_request.at(domain_idx) = in_policy[M_POLICY_UNCORE_FREQ_MAX];
@@ -454,7 +498,16 @@ namespace geopm
     // Describes expected policies to be provided by the resource manager or user
     std::vector<std::string> CPUActivityAgent::policy_names(void)
     {
-        return {"CPU_FREQ_MAX", "CPU_FREQ_EFFICIENT", "UNCORE_FREQ_MAX", "UNCORE_FREQ_EFFICIENT", "CPU_PHI", "SAMPLE_PERIOD"};
+        std::vector<std::string> names{"CPU_FREQ_MAX", "CPU_FREQ_EFFICIENT", "CPU_UNCORE_FREQ_MAX",
+                                       "CPU_UNCORE_FREQ_EFFICIENT", "CPU_PHI", "SAMPLE_PERIOD"};
+        names.reserve(M_NUM_POLICY);
+        for (size_t i = 0; names.size() < M_NUM_POLICY; ++i) {
+            names.emplace_back("CPU_UNCORE_FREQ_" + std::to_string(i));
+            names.emplace_back("MAX_MEMORY_BANDWIDTH_" + std::to_string(i));
+        }
+
+        return names;
+
     }
 
     // Describes samples to be provided to the resource manager or user

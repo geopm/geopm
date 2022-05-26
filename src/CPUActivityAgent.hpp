@@ -55,6 +55,7 @@ namespace geopm
             const int M_NUM_PACKAGE;
             const int M_NUM_CORE;
             bool m_do_write_batch;
+            bool m_update_qm_max_rate;
 
             struct signal
             {
@@ -77,7 +78,11 @@ namespace geopm
                 M_POLICY_UNCORE_FREQ_EFFICIENT,
                 M_POLICY_CPU_PHI,
                 M_POLICY_SAMPLE_PERIOD,
-                M_NUM_POLICY
+                M_POLICY_FIRST_UNCORE_FREQ,
+                M_POLICY_FIRST_MAX_MEM_BW,
+                // The remainder of policy values can be additional pairs of
+                // (uncore freq, max memory bandwidth)
+                M_NUM_POLICY = 64,
             };
 
             // Sample indices; must match sample_names()
