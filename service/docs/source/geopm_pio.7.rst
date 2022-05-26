@@ -1,6 +1,6 @@
 
-geopm_pio: GEOPM PlatformIO interface
-=====================================
+geopm_pio(7) -- GEOPM PlatformIO interface
+==========================================
 
 DESCRIPTION
 -----------
