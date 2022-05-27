@@ -44,88 +44,65 @@ Please consult the following for further information and guidelines for
 sharing access to MSRs: Performance Monitoring Unit Sharing Guide (Intel white
 paper).
 
-Signals
--------
+SIGNAL ALIASES
+--------------
 
-* ``TIMESTAMP_COUNTER``:
-  An always running, monotonically increasing counter that is incremented at
-  a constant rate. For use as a wall clock timer. This is an alias for:
-  "MSR::TIME_STAMP_COUNTER:TIMESTAMP_COUNT".
+``CPU_FREQUENCY_CONTROL``
+    Aliases to MSR::PERF_CTL:FREQ
 
-* ``CPU_FREQUENCY_STATUS`` (hertz):
-  The current operating frequency of the CPU. This is an alias for:
-  "MSR::PERF_STATUS:FREQ".
+``CPU_FREQUENCY_STATUS``
+    Aliases to MSR::PERF_STATUS:FREQ
 
-* ``CPU_FREQUENCY_CONTROL`` (hertz):
-  Target operating frequency of the CPU based on the control register. This is
-  an alias for: "MSR::PERF_CTL:FREQ".
+``CPU_UNCORE_FREQUENCY_STATUS``
+    Aliases to MSR::UNCORE_PERF_STATUS:FREQ
+ 
+``CPU_FREQUENCY_MAX``
+    Aliases to MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_0
 
-* ``CPU_UNCORE_FREQUENCY_STATUS``:
-  Target operating frequency of the uncore. This is an alias for:
-  "MSR::UNCORE_PERF_STATUS:FREQ"
+``CYCLES_REFERENCE``
+    Aliases to MSR::FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC
 
-* ``CPU_FREQUENCY_MAX`` (hertz):
-  Maximum processor frequency. This is an alias for:
-  "MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_0".
+``CYCLES_THREAD``
+    Aliases to MSR::FIXED_CTR1:CPU_CLK_UNHALTED_THREAD
 
-* ``ENERGY_PACKAGE`` (joules):
-  An increasing meter of energy consumed by the package over time. It will
-  reset periodically due to roll-over. This is an alias for:
-  "MSR::PKG_ENERGY_STATUS:ENERGY".
+``ENERGY_DRAM``
+    Aliases to MSR::DRAM_ENERGY_STATUS:ENERGY
 
-* ``ENERGY_DRAM`` (joules):
-  An increasing meter of energy consumed by the DRAM over time. It will reset
-  periodically due to roll-over. This is an alias for:
-  "MSR::DRAM_ENERGY_STATUS:ENERGY".
+``ENERGY_PACKAGE``
+    Aliases to MSR::PKG_ENERGY_STATUS:ENERGY
 
-* ``INSTRUCTIONS_RETIRED``:
-  The count of the number of instructions executed. This is an alias for:
-  "MSR::FIXED_CTR0:INST_RETIRED_ANY".
+``INSTRUCTIONS_RETIRED``
+    Aliases to MSR::FIXED_CTR0:INST_RETIRED_ANY
 
-* ``CYCLES_THREAD``:
-  The count of the number of cycles while the logical processor is not in a
-  halt state.  The count rate may change based on core frequency. This is an
-  alias for: "MSR::FIXED_CTR1:CPU_CLK_UNHALTED_THREAD".
+``POWER_PACKAGE_LIMIT``
+    Aliases to MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT
 
-* ``CYCLES_REFERENCE``:
-  The count of the number of cycles while the logical processor is not in a
-  halt state and not in a stop-clock state. The count rate is fixed at the
-  TIMESTAMP_COUNT rate. This is an alias for:
-  "MSR::FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC".
+``POWER_PACKAGE_MAX``
+    Aliases to MSR::PKG_POWER_INFO:MAX_POWER
 
-* ``POWER_PACKAGE_MIN`` (watts):
-  The minimum power limit based on the electrical specification. This is an
-  alias for: "MSR::PKG_POWER_INFO:MIN_POWER".
+``POWER_PACKAGE_MIN``
+    Aliases to MSR::PKG_POWER_INFO:MIN_POWER
 
-* ``POWER_PACKAGE_MAX`` (watts):
-  The maximum power limit based on the electrical specification. This is an
-  alias for: "MSR::PKG_POWER_INFO:MAX_POWER".
+``POWER_PACKAGE_TDP``
+    Aliases to MSR::PKG_POWER_INFO:THERMAL_SPEC_POWER
 
-* ``POWER_PACKAGE_TDP`` (watts):
-  Maximum power to stay within the thermal limits based on the design (TDP).
-  This is an alias for: "MSR::PKG_POWER_INFO:THERMAL_SPEC_POWER".
+``POWER_PACKAGE_TIME_WINDOW``
+    Aliases to MSR::PKG_POWER_LIMIT:PL1_TIME_WINDOW
 
-* ``POWER_PACKAGE_LIMIT`` (watts):
-  The average power usage limit over the time window specified in
-  PL1_TIME_WINDOW. This is an alias for:
-  "MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT".
+``TIMESTAMP_COUNTER``
+    Aliases to MSR::TIME_STAMP_COUNTER:TIMESTAMP_COUNT
 
-* ``POWER_PACKAGE_TIME_WINDOW`` (seconds):
-  The time window associated with power limit 1. This is an alias for:
-  "MSR::PKG_POWER_LIMIT:PL1_TIME_WINDOW".
+CONTROL ALIASES
+---------------
 
-Controls
---------
+``CPU_FREQUENCY_CONTROL``
+    Aliases to MSR::PERF_CTL:FREQ
 
-* ``CPU_FREQUENCY_CONTROL`` (hertz):
-  Set the target operating frequency of the CPU based on the control register.
+``POWER_PACKAGE_LIMIT``
+    Aliases to MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT
 
-* ``POWER_PACKAGE_LIMIT`` (watts):
-  Set the average power usage limit over the time window specified in
-  PL1_TIME_WINDOW.
-
-* ``POWER_PACKAGE_TIME_WINDOW`` (seconds):
-  Set the time window associated with power limit 1.
+``POWER_PACKAGE_TIME_WINDOW``
+    Aliases to MSR::PKG_POWER_LIMIT:PL1_TIME_WINDOW
 
 Example
 -------
@@ -161,6 +138,7 @@ Setting A Power Limit
 See Also
 --------
 
+`geopm_pio(7) <geopm_pio.7.html>`_\ ,
 `geopm(7) <geopm.7.html>`_\ ,
 `geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3.html>`_\ ,
 `geopmwrite(1) <geopmwrite.1.html>`_\ ,
