@@ -189,6 +189,58 @@ Descriptions Of High Level Aliases
     See :ref:`geopm_pio_cnl(7) <geopm_pio_cnl.7:Requirements>` for signal availability
     requirements.
 
+``TIMESTAMP_COUNTER``
+    An always running, monotonically increasing counter that is incremented at
+    a constant rate. For use as a wall clock timer.
+
+``CPU_FREQUENCY_STATUS``
+    The current operating frequency of the CPU.
+
+``CPU_FREQUENCY_CONTROL``
+    Target operating frequency of the CPU based on the control register.
+
+``CPU_UNCORE_FREQUENCY_STATUS``
+    Target operating frequency of the uncore.
+
+``CPU_FREQUENCY_MAX``
+    Maximum processor frequency.
+
+``ENERGY_PACKAGE``
+    An increasing meter of energy consumed by the package over time. It will
+    reset periodically due to roll-over.
+
+``ENERGY_DRAM``
+    An increasing meter of energy consumed by the DRAM over time. It will reset
+    periodically due to roll-over.
+
+``INSTRUCTIONS_RETIRED``
+    The count of the number of instructions executed.
+
+``CYCLES_THREAD``
+    The count of the number of cycles while the logical processor is not in a
+    halt state.  The count rate may change based on core frequency.
+
+``CYCLES_REFERENCE``
+    The count of the number of cycles while the logical processor is not in a
+    halt state and not in a stop-clock state. The count rate is fixed at the
+    TIMESTAMP_COUNT rate.
+
+``POWER_PACKAGE_MIN``
+    The minimum power limit based on the electrical specification.
+
+``POWER_PACKAGE_MAX``
+    The maximum power limit based on the electrical specification.
+
+``POWER_PACKAGE_TDP``
+    Maximum power to stay within the thermal limits based on the design (TDP).
+
+``POWER_PACKAGE_LIMIT``
+    The average power usage limit over the time window specified in
+    PL1_TIME_WINDOW.
+ 
+``POWER_PACKAGE_TIME_WINDOW``
+    The time window associated with power limit 1.
+ 
 
 See Also
 --------
