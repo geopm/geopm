@@ -8,8 +8,6 @@ The CNLIOGroup implements the `geopm::IOGroup(3)
 <GEOPM_CXX_MAN_IOGroup.3.html>`_ interface to provide signals and controls for
 board-level energy and power metrics on Compute Node Linux (CNL).
 
-.. _cnl-requirements:
-
 Requirements
 ------------
 This IOGroup's signals are only exposed when GEOPM is compiled with the
