@@ -90,9 +90,9 @@ Configuration
 * ``SST::COREPRIORITY:ASSOCIATION``:
   (Core scope) Returns the core's assigned CLOS.
 
-* ``SST::COREPRIORITY:n:WEIGHT``:
+* ``SST::COREPRIORITY:n:PRIORITY``:
   (Package scope) Returns proportional priority for CLOS n. A lower
-  weight indicates a higher priority. Weight ranges from 0-15 and is
+  value indicates a higher importance. Priority ranges from 0-1 and is
   used to distribute power amongst cores.
 
 * ``SST::COREPRIORITY:n:FREQUENCY_MIN``:
@@ -116,9 +116,9 @@ Controls
 * ``SST::COREPRIORITY:ASSOCIATION``:
   (Core scope) Assign a core to a CLOS.
 
-* ``SST::COREPRIORITY:n:WEIGHT``:
-  (Package scope) Set proportional priority for CLOS n. A lower weight
-  indicates a higher priority. Weight ranges from 0-15 and is used to
+* ``SST::COREPRIORITY:n:PRIORITY``:
+  (Package scope) Set proportional priority for CLOS n. A lower value
+  indicates a higher importance. Weight ranges from 0-1 and is used to
   distribute power amongst cores.
 
 * ``SST::COREPRIORITY:n:FREQUENCY_MIN``:
@@ -162,17 +162,17 @@ Enabling SST-TF
 Configuring CLOS
 ~~~~~~~~~~~~~~~~
 
-* Set the weight 0-15. Lower weight indicates higher priority. CLOS
+* Set the weight 0-1. Lower weight indicates higher priority. CLOS
   priority decreases as the CLOS number increases and weights should
   indicate that to achieve decent behavior.
 
-  ``geopmwrite SST::COREPRIORITY:0:WEIGHT board 0 0``
+  ``geopmwrite SST::COREPRIORITY:0:PRIORITY board 0 0``
 
-  ``geopmwrite SST::COREPRIORITY:1:WEIGHT board 0 5``
+  ``geopmwrite SST::COREPRIORITY:1:PRIORITY board 0 0.34``
 
-  ``geopmwrite SST::COREPRIORITY:2:WEIGHT board 0 10``
+  ``geopmwrite SST::COREPRIORITY:2:PRIORITY board 0 0.67``
 
-  ``geopmwrite SST::COREPRIORITY:3:WEIGHT board 0 15``
+  ``geopmwrite SST::COREPRIORITY:3:PRIORITY board 0 1``
 
 * Set the min and max frequencies per CLOS.
 
