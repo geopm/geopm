@@ -3,7 +3,7 @@ geopm_pio_c(3) -- interfaces to query and modify platform
 =========================================================
 
 
-SYNOPSIS
+Synopsis
 --------
 
 #include `<geopm_pio.h> <https://github.com/geopm/geopm/blob/dev/src/geopm_pio.h>`_\
@@ -94,7 +94,7 @@ Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
                                    size_t result_max,
                                    char *result);
 
-DESCRIPTION
+Description
 -----------
 
 The interfaces described in this man page are the **C** language bindings
@@ -109,7 +109,7 @@ enum for the *domain_type* parameter to many functions in the
 ``geopm_pio_signal_domain_type()`` and ``geopm_pio_control_domain_type()``
 is also a value from the ``geopm_domain_e`` enum.
 
-INSPECTION FUNCTIONS
+Inspection Functions
 --------------------
 
 
@@ -217,7 +217,7 @@ INSPECTION FUNCTIONS
   Providing a string of ``NAME_MAX`` length (from ``limits.h``\ ) will be sufficient for storing any *result*.
   Returns zero on success, error value on failure.
 
-SERIAL FUNCTIONS
+Serial Functions
 ----------------
 
 
@@ -284,7 +284,7 @@ schema:
 .. literalinclude:: ../../json_schemas/saved_controls.schema.json
     :language: json
 
-BATCH FUNCTIONS
+Batch Functions
 ---------------
 
 
@@ -384,7 +384,7 @@ BATCH FUNCTIONS
   and this function returns a negative error code.
   Call through to ``BatchServer::stop_batch()``.
 
-RETURN VALUE
+Return Value
 ------------
 
 If an error occurs in any call to an interface documented here, the
@@ -392,7 +392,7 @@ return value of the function will be a negative integer
 corresponding to one of the error codes documented in
 `geopm_error(3) <geopm_error.3.html>`_.
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

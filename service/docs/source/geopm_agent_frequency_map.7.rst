@@ -10,7 +10,7 @@ geopm_agent_frequency_map(7) -- agent for running regions at user selected frequ
 
 
 
-DESCRIPTION
+Description
 -----------
 
 The frequency map agent adjusts CPU frequency in response to changes
@@ -35,7 +35,7 @@ Note: this agent can be used to control the application CPUs and
 optionally the uncore to run at fixed frequencies if no region
 frequency map is provided.
 
-AGENT NAME
+Agent Name
 ----------
 
 The agent described in this manual is selected in many geopm
@@ -45,7 +45,7 @@ option, or the ``GEOPM_AGENT`` environment variable can be set to this
 name (see `geopm(7) <geopm.7.html>`_\ ).  This name can also be passed to the
 `geopmagent(1) <geopmagent.1.html>`_ as the argument to the ``'-a'`` option.
 
-POLICY PARAMETERS
+Policy Parameters
 -----------------
 
   ``FREQ_DEFAULT``\ :
@@ -107,7 +107,7 @@ POLICY PARAMETERS
 
 
 
-POLICY REQUIREMENTS
+Policy Requirements
 -------------------
 
 The frequency map index values can be in the range of 0 to 30,
@@ -118,20 +118,20 @@ CPU or uncore frequency specified in the policy is not allowed by the
 system at runtime, an error will occur and an exception will be
 raised.
 
-REPORT EXTENSIONS
+Report Extensions
 -----------------
 
 The assigned frequency is added to each region's section of the report
 if that region was explicitly assigned a frequency in the policy map.
 
-CONTROL LOOP RATE
+Control Loop Rate
 -----------------
 
 The agent gates the control loop to sample the region hash and control
 CPU frequency at 2 millisecond intervals.  If the uncore frequency is
 specified in the policy, then it is set at agent start up time.
 
-EXAMPLES
+Examples
 --------
 
 Besides the default CPU frequency and uncore frequency parameters, the
@@ -214,7 +214,7 @@ frequency to the maximum the following commands can be used:
 
 
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

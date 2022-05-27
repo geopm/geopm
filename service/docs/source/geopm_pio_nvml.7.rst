@@ -3,17 +3,17 @@
 geopm::NVMLIOGroup(7) -- IOGroup providing signals and controls for NVIDIA GPUs
 =================================================================================================
 
-DESCRIPTION
+Description
 -----------
 
 The NVMLIOGroup implements the `geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3.html>`_
 interface to provide hardware signals and controls for NVIDIA GPUs.
 
-REQUIREMENTS
+Requirements
 ~~~~~~~~~~~~
 To use the GEOPM NVML signals and controls GEOPM must be compiled against the NVML libraries and must be run on a system with hardware supported by NVML.
 
-SIGNALS
+Signals
 -------
 
 * ``NVML::GPU_FREQUENCY_STATUS``:
@@ -171,7 +171,7 @@ SIGNALS
 
   *  ``Unit``: Hertz
 
-SIGNAL ALIASES
+Signal Aliases
 ~~~~~~~~~~~~~~~~
 Several high level aliases are provided.  Their mapping to
 underlying IO Group signals is provided below.
@@ -204,7 +204,7 @@ underlying IO Group signals is provided below.
 
     Aliases to NVML::GPU_UTILIZATION
 
-CONTROLS
+Controls
 --------
 Every control is exposed as a signal with the same name.  The relevant signal aggregation information is provided below.
 
@@ -242,7 +242,7 @@ Every control is exposed as a signal with the same name.  The relevant signal ag
 
   *  ``Unit``: Watts
 
-CONTROL ALIASES
+Control Aliases
 ~~~~~~~~~~~~~~~~
 Several high level aliases are provided.  Their mapping to
 underlying IO Group signals is provided below.
@@ -256,7 +256,7 @@ underlying IO Group signals is provided below.
     Aliases to NVML::GPU_FREQUENCY_CONTROL
 
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

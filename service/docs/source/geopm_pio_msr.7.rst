@@ -2,14 +2,14 @@
 geopm_pio_msr(7) -- Signals and controls for Model Specific Registers (MSRs) 
 ============================================================================
 
-DESCRIPTION
+Description
 -----------
 
 The MSR IOGroup implements the
 `geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3.html>`_ interface to provide
 hardware signals and controls for Model Specific Registers (MSRs).
 
-CONFIGURATION
+Configuration
 ~~~~~~~~~~~~~
 
 The set of signals and controls supported by the MSR IOGroup is configurable,
@@ -29,7 +29,7 @@ This manual includes a list of signals and controls that are more commonly
 available. Use geopmread and geopmwrite to query the full set of signals and
 controls that are available on a particular system.
 
-CONCURRENT ACCESS
+Concurrent Access
 ~~~~~~~~~~~~~~~~~
 
 Usage and access to most MSRs is restricted to ring 0. However, there is
@@ -44,7 +44,7 @@ Please consult the following for further information and guidelines for
 sharing access to MSRs: Performance Monitoring Unit Sharing Guide (Intel white
 paper).
 
-SIGNALS
+Signals
 -------
 
 * ``TIMESTAMP_COUNTER``:
@@ -114,7 +114,7 @@ SIGNALS
   The time window associated with power limit 1. This is an alias for:
   "MSR::PKG_POWER_LIMIT:PL1_TIME_WINDOW".
 
-CONTROLS
+Controls
 --------
 
 * ``CPU_FREQUENCY_CONTROL`` (hertz):
@@ -127,13 +127,13 @@ CONTROLS
 * ``POWER_PACKAGE_TIME_WINDOW`` (seconds):
   Set the time window associated with power limit 1.
 
-EXAMPLE
+Example
 -------
 
 The following example uses geopmread and geopmwrite command-line tools.
 These steps can also be followed within an agent.
 
-SETTING FREQUENCY
+Setting Frequency
 ~~~~~~~~~~~~~~~~~
 
 * Set target operating frequency:
@@ -145,7 +145,7 @@ SETTING FREQUENCY
 ``geopmread CPU_FREQUENCY_CONTROL core 0``
 ``geopmread CPU_FREQUENCY_STATUS core 0``
 
-SETTING A POWER LIMIT
+Setting A Power Limit
 ~~~~~~~~~~~~~~~~~~~~~
 
 * Set power limit
@@ -158,7 +158,7 @@ SETTING A POWER LIMIT
 ``geopmread POWER_PACKAGE package 0``
 
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

@@ -10,12 +10,12 @@ geopmagent(1) -- query agent information and create static policies
 
 
 
-SYNOPSIS
+Synopsis
 --------
 
 ``geopmagent`` [\ ``-a`` *AGENT*\ ] [\ ``-p`` *POLICY0*\ [,\ *POLICY1*\ ,...] ]
 
-DESCRIPTION
+Description
 -----------
 
 Used to get information about GEOPM agents on a system and create
@@ -40,7 +40,7 @@ this schema:
 .. literalinclude:: ../../../json_schemas/geopmagent_policy.schema.json
     :language: json
 
-OPTIONS
+Options
 -------
 
 
@@ -65,7 +65,7 @@ OPTIONS
   default value.  If the agent does not require any policy values
   this option must be specified as "None" or "none".
 
-EXAMPLES
+Examples
 --------
 
 List all available agents on the system:
@@ -117,7 +117,7 @@ specifying ``--geopm-agent`` and ``--geopm-policy`` are optional.
 
 
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

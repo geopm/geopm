@@ -10,7 +10,7 @@ geopm_fortran(3) -- geopm fortran interface
 
 
 
-SYNOPSIS
+Synopsis
 --------
 
 ``use geopm_prof``
@@ -58,7 +58,7 @@ Link with ``-lgeopmfort``
        integer(kind=c_int) function geopm_tprof_post()
        end function geopm_tprof_post
 
-DESCRIPTION
+Description
 -----------
 
 This is the Fortran interface to the GEOPM library.  The documentation
@@ -100,7 +100,7 @@ translation of the communicator from Fortran to C is done
 transparently.  In the future similar techniques may be used for
 converting Fortran strings.
 
-ENUM TYPE
+Enum Type
 ---------
 
 This fortran code has access to several enum values, which are defined in `geopm_hint.h <https://github.com/geopm/geopm/blob/dev/service/src/geopm_hint.h>`_\ :
@@ -114,7 +114,7 @@ This fortran code has access to several enum values, which are defined in `geopm
 * ``GEOPM_REGION_HINT_PARALLEL``
 * ``GEOPM_REGION_HINT_IGNORE``
 
-FORTRAN MODULE
+Fortran Module
 --------------
 
 The GEOPM package installs a Fortran 90 module file which defines
@@ -131,7 +131,7 @@ where ``<LIBDIR>`` is the install location for libraries (e.g.
 (e.g. gfortran), and ``<ARCH>`` is the processor architecture
 (e.g. x86_64).
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

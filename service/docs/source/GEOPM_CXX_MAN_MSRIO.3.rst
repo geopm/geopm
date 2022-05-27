@@ -10,7 +10,7 @@ geopm::MSRIO(3) -- methods for reading and writing MSRs
 
 
 
-NAMESPACES
+Namespaces
 ----------
 
 The ``MSRIO`` class is a member of the ``namespace geopm``\ , but the
@@ -20,7 +20,7 @@ interface definitions for the following standard types: ``std::vector``\ ,
 ``std::string``\ , ``std::set``\ , ``std::unique_ptr``\ , ``std::shared_ptr``
 to enable better rendering of this manual.
 
-SYNOPSIS
+Synopsis
 --------
 
 #include `<geopm/MSRIO.hpp> <https://github.com/geopm/geopm/blob/dev/src/MSRIO.hpp>`_\ 
@@ -56,7 +56,7 @@ Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
 
        static shared_ptr<MSRIO> MSRIO::make_shared(void);
 
-DESCRIPTION
+Description
 -----------
 
 The MSRIO class handles reading and writing to Model-Specific Registers (MSRs).
@@ -66,7 +66,7 @@ Refer to `geopm::MSR(3) <GEOPM_CXX_MAN_MSR.3.html>`_ for more details.
 
 This class is an abstract base class.
 
-CLASS METHODS
+Class Methods
 -------------
 
 
@@ -134,7 +134,7 @@ CLASS METHODS
   ``make_shared()``:
   Returns a ``shared_ptr`` to a concrete object constructed using the underlying implementation
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

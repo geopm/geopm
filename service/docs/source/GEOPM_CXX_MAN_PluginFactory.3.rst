@@ -10,7 +10,7 @@ geopm::PluginFactory(3) -- abstract factory for plugins
 
 
 
-NAMESPACES
+Namespaces
 ----------
 
 The ``PluginFactory`` class template is a member of the ``namespace geopm``\ , but
@@ -20,7 +20,7 @@ interface definitions for the following standard types: ``std::vector``\ ,
 ``std::string``\ , ``std::set``\ , and ``std::function``\ , to enable better rendering of
 this manual.
 
-SYNOPSIS
+Synopsis
 --------
 
 #include `<geopm/PluginFactory.hpp> <https://github.com/geopm/geopm/blob/dev/src/PluginFactory.hpp>`_\ 
@@ -40,7 +40,7 @@ Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
 
        const map<string, string>& PluginFactory<T>::dictionary(const string &plugin_name) const;
 
-DESCRIPTION
+Description
 -----------
 
 GEOPM can be extended though ``Agent``\ , ``IOGroup``\ , and ``Comm`` plugins.
@@ -72,7 +72,7 @@ the `IOGroup tutorial <https://github.com/geopm/geopm/tree/dev/tutorial/iogroup>
 This code is located in the GEOPM source under ``tutorial/agent`` and
 ``tutorial/iogroup`` respectively.
 
-TERMS
+Terms
 -----
 
 Below are some definitions of terms that are used to describe
@@ -142,7 +142,7 @@ down to the lowest levels of abstraction.
   **control**\ :
   Named parameter in SI units that can be set using ``PlatformIO``.
 
-FACTORY CLASS METHODS
+Factory Class Methods
 ---------------------
 
 
@@ -170,7 +170,7 @@ FACTORY CLASS METHODS
   a registered type.  If the type was not registered, an exception is thrown.
   The *plugin_name* parameter is used to look up the desired dictionary.
 
-BUILDING A PLUGIN SHARED OBJECT
+Building A Plugin Shared Object
 -------------------------------
 
 A GEOPM plugin is a shared object file that is loaded at runtime by
@@ -197,7 +197,7 @@ this will cause a circular link dependency.  Compile the shared object
 with flags appropriate for a dynamically loaded library, e.g. for
 ``g++`` and ``icpc`` you must provide the ``-fPIC`` and ``-shared`` options.
 
-PLUGIN SEARCH PATH AND LOAD ORDER
+Plugin Search Path And Load Order
 ---------------------------------
 
 The ``GEOPM_PLUGIN_PATH`` is a colon-separated list of directories
@@ -229,7 +229,7 @@ detailed example of plugin load order can be found in
        export GEOPM_PLUGIN_PATH=$GEOPM_HOME/tutorial/iogroup
        export GEOPM_PLUGIN_PATH=$HOME/plugin/iogroup:$GEOPM_PLUGIN_PATH
 
-PLUGIN LOAD CONSTRUCTOR FUNCTION
+Plugin Load Constructor Function
 --------------------------------
 
 The shared object file must provide a function that is decorated with
@@ -239,7 +239,7 @@ by a call to `dlopen(3) <http://man7.org/linux/man-pages/man3/dlopen.3.html>`_.
 Please see the ``gcc`` documentation for the
 `constructor attribute <https://gcc.gnu.org/onlinedocs/gcc-4.3.0/gcc/Function-Attributes.html>`_.
 
-PLUGIN CLASS STATIC METHODS
+Plugin Class Static Methods
 ---------------------------
 
 It is recommended that each class deriving from one of the GEOPM
@@ -338,7 +338,7 @@ information.  This code is located in the GEOPM source under ``tutorial/agent``.
            return "example";
        }
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

@@ -2,7 +2,7 @@ geopmread(1) -- query platform information
 ==========================================
 
 
-SYNOPSIS
+Synopsis
 --------
 
 PRINT ALL SIGNAL NAMES
@@ -54,7 +54,7 @@ GET HELP OR VERSION
     geopmread --help
     geopmread --version
 
-DESCRIPTION
+Description
 -----------
 
 Provides a command line interface to PlatformIO and PlatformTopo.
@@ -97,7 +97,7 @@ the tmpfs.  When this file is not present `geopmread(1) <geopmread.1.html>`_\ ,
 information.  This subprocess will not be created if the cache file
 exists.  See the ``--cache`` option below for more information.
 
-OPTIONS
+Options
 -------
 
 
@@ -132,7 +132,7 @@ OPTIONS
   ``-v``\ , ``--version``\ :
   Print version of `geopm(7) <geopm.7.html>`_ to standard output, then exit.
 
-EXAMPLES
+Examples
 --------
 
 List domains and size:
@@ -197,7 +197,7 @@ Read the total energy for both packages:
    56789
 
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

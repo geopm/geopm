@@ -10,7 +10,7 @@ geopm::Agent(3) -- geopm agent plugin interface
 
 
 
-NAMESPACES
+Namespaces
 ----------
 
 The ``Agent`` class and the ``agent_factory()`` function are members of
@@ -21,7 +21,7 @@ interface definitions for the following standard types: ``std::vector``\ ,
 ``std::pair``\ , ``std::string``\ , ``std::map``\ , and ``std::function``\ , to enable
 better rendering of this manual.
 
-SYNOPSIS
+Synopsis
 --------
 
 #include `<geopm/Agent.hpp> <https://github.com/geopm/geopm/blob/dev/src/Agent.hpp>`_\ 
@@ -92,7 +92,7 @@ Link with ``-lgeopm``
                                            const vector<function<double(const vector<double>&)> > &agg_func,
                                            vector<double> &out_sample);
 
-DESCRIPTION
+Description
 -----------
 
 The ``Agent`` class is an abstract pure virtual class that defines the
@@ -146,7 +146,7 @@ extension of ``Agent`` algorithms to new hardware architectures, a
 mapping of application behavior to hardware domains, and code reuse of
 I/O implementations by different ``Agent`` classes.
 
-FACTORY ACCESSOR
+Factory Accessor
 ----------------
 
 
@@ -156,7 +156,7 @@ FACTORY ACCESSOR
   If this method is creating the factory, loading of the built-in Agents
   will be attempted.  For more information see `geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3.html>`_.
 
-CLASS METHODS
+Class Methods
 -------------
 
 
@@ -363,19 +363,19 @@ CLASS METHODS
   output sample vector resulting from the applying the aggregation
   across child samples.  Note this is a static helper function.
 
-ERRORS
+Errors
 ------
 
 All functions described on this man page throw `geopm::Exception(3) <GEOPM_CXX_MAN_Exception.3.html>`_
 on error.
 
-EXAMPLE
+Example
 -------
 
 Please see the `Agent tutorial <https://github.com/geopm/geopm/tree/dev/tutorial/agent>`_ for more
 information.  This code is located in the GEOPM source under tutorial/agent.
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_

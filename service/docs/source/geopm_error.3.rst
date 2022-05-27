@@ -10,7 +10,7 @@ geopm_error(3) -- error code descriptions
 
 
 
-SYNOPSIS
+Synopsis
 --------
 
 #include `<geopm_error.h> <https://github.com/geopm/geopm/blob/dev/src/geopm_error.h>`_\ 
@@ -24,7 +24,7 @@ Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
                                 char *msg,
                                 size_t size);
 
-DESCRIPTION
+Description
 -----------
 
 All `geopm(7) <geopm.7.html>`_ C and Fortran APIs that can have an error condition
@@ -54,7 +54,7 @@ details may include the source file, line number, and a detailed
 description of the error condition.  If possible, please provide this
 message when reporting a bug to the GEOPM developers.
 
-ERROR NUMBERS
+Error Numbers
 -------------
 
 
@@ -114,7 +114,7 @@ ERROR NUMBERS
   ``GEOPM_ERROR_DATA_STORE = -14``\ :
   Encountered a data store error
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

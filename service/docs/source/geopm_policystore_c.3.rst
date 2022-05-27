@@ -10,7 +10,7 @@ geopm_policystore_c(3) -- geopm resource policy store interface
 
 
 
-SYNOPSIS
+Synopsis
 --------
 
 #include `<geopm_policystore.h> <https://github.com/geopm/geopm/blob/dev/src/geopm_policystore.h>`_\ 
@@ -45,7 +45,7 @@ SYNOPSIS
   `size_t `_num_policy\ *vals*\ ``,``\ :raw-html-m2r:`<br>`
   `const double *`_policy\ *vals*\ ``);``
 
-DESCRIPTION
+Description
 -----------
 
 These interfaces expose records of best known policies for profiles used with agents.
@@ -90,7 +90,7 @@ for information about interpreting them as json strings.
   GEOPM_ERROR_DATA_STORE if any data store errors occur.  Returns zero on
   success.
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

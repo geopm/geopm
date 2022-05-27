@@ -6,7 +6,7 @@ geopmwrite(1) -- modify platform state
 
 
 
-SYNOPSIS
+Synopsis
 --------
 
 PRINT ALL CONTROL NAMES
@@ -58,7 +58,7 @@ GET HELP OR VERSION
     geopmwrite --help
     geopmwrite --version
 
-DESCRIPTION
+Description
 -----------
 
 Provides a command line interface to PlatformIO and PlatformTopo.
@@ -101,7 +101,7 @@ the tmpfs.  When this file is not present the `geopmread(1) <geopmread.1.html>`_
 information.  This subprocess will not be created if the cache file
 exists.  See the ``--cache`` option below for more information.
 
-OPTIONS
+Options
 -------
 
 
@@ -136,7 +136,7 @@ OPTIONS
   ``-v``\ , ``--version``\ :
   Print version of `geopm(7) <geopm.7.html>`_ to standard output, then exit.
 
-EXAMPLES
+Examples
 --------
 
 List domains and size:
@@ -199,7 +199,7 @@ Set all CPUs on package 0 to 1.5 GHz (cpu 1 is on package 0):
    1.5e9
 
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

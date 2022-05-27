@@ -10,14 +10,14 @@ geopmadmin(1) -- tool for geopm system administrators
 
 
 
-SYNOPSIS
+Synopsis
 --------
 
 ``geopmadmin`` [\ ``--config-default``\ |\ ``--config-override``\ |\ ``--msr-allowlist``\ ] [\ ``--cpuid``\ ]
 
 ``geopmadmin`` [\ ``--help``\ |\ ``--version``\ ]
 
-DESCRIPTION
+Description
 -----------
 
 The ``geopmadmin`` command line tool facilitates the administration of
@@ -29,7 +29,7 @@ by GEOPM.  When run with no arguments ``geopmadmin`` will parse the
 default and override configuration files on the system and print out
 in a human readable format the values determined by these files.
 
-OPTIONS
+Options
 -------
 
 
@@ -64,7 +64,7 @@ OPTIONS
   specified the architecture where the application is running will
   be used.
 
-EXAMPLES
+Examples
 --------
 
 Set the msr-safe allowlist to enable GEOPM:
@@ -81,7 +81,7 @@ on a legacy msr-safe system:
    geopmadmin --allowlist > /dev/cpu/msr_whitelist
 
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

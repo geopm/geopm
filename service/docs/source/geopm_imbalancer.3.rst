@@ -10,7 +10,7 @@ geopm_imbalancer.h(3) -- set artificial runtime imbalance
 
 
 
-SYNOPSIS
+Synopsis
 --------
 
 #include `<geopm_imbalancer.h> <https://github.com/geopm/geopm/blob/dev/src/geopm_imbalancer.h>`_\ 
@@ -26,7 +26,7 @@ Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
 
        int geopm_imbalancer_exit(void);
 
-DESCRIPTION
+Description
 -----------
 
 The `geopm_imbalancer.h <https://github.com/geopm/geopm/blob/dev/src/geopm_imbalancer.h>`_ header defines interfaces for accessing the
@@ -54,7 +54,7 @@ by a space.
   ``geopm_imbalancer_exit()``:
   Spins until the region has been extended by the previously specified delay.
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

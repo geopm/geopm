@@ -10,7 +10,7 @@ geopm_prof_c(3) -- application profiling interfaces
 
 
 
-SYNOPSIS
+Synopsis
 --------
 
 #include `<geopm_prof.h> <https://github.com/geopm/geopm/blob/dev/src/geopm_prof.h>`_\ 
@@ -44,7 +44,7 @@ SYNOPSIS
   ``int geopm_tprof_post(``\ :
   ``void);``
 
-DESCRIPTION
+Description
 -----------
 
 The functions described here enable application feedback to the GEOPM
@@ -168,7 +168,7 @@ initialized.
   progress.  This method signals the completion of one work unit out
   of the total passed to ``geopm_tprof_init()``.
 
-EXAMPLE
+Example
 -------
 
 .. code-block::
@@ -241,14 +241,14 @@ EXAMPLE
    }
 
 
-ERRORS
+Errors
 ------
 
 All functions described on this man page return an error code.  See
 `geopm_error(3) <geopm_error.3.html>`_ for a full description of the error numbers and how
 to convert them to strings.
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

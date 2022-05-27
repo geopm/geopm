@@ -2,7 +2,7 @@
 geopm_report(7) -- geopm summary report file
 ============================================
 
-DESCRIPTION
+Description
 -----------
 
 The GEOPM report is a YAML file containing summarized information
@@ -24,7 +24,7 @@ is not provided to ``geopmlaunch``\ ). Alternatively, epochs may be
 inserted automatically when ``--geopm-record-filter`` is used, as
 described in `geopmlaunch(1) <geopmlaunch.1.html>`_.
 
-NOTES ON SAMPLING
+Notes On Sampling
 -----------------
 
 Most data in the report is derived from PlatformIO signals (described
@@ -56,7 +56,7 @@ values should not be compared with the per-process average runtime
 
 Refer to the EXAMPLES section below.
 
-REPORT FORMAT
+Report Format
 -------------
 
 
@@ -246,7 +246,7 @@ region sections using the ``report_header()``\ , ``report_host()`` or
 ``report_region()`` methods respectively.  See `geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3.html>`_ for
 more information about the report extensions available to agents.
 
-EXAMPLES
+Examples
 --------
 
 Suppose we have a system with 2 sockets per node and 2 CPUs per
@@ -322,7 +322,7 @@ fields are averaged across the 4 CPUs.  The user extensions for
     "TIME@package-0": 0.006,  // 3 samples in unmarked for package 0
     "TIME@package-1": 0.004,  // 2 samples in unmarked for package 1
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

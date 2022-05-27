@@ -10,7 +10,7 @@ geopm_version(3) -- geopm library version
 
 
 
-SYNOPSIS
+Synopsis
 --------
 
 #include `<geopm_prof.h> <https://github.com/geopm/geopm/blob/dev/src/geopm_prof.h>`_\ 
@@ -19,7 +19,7 @@ SYNOPSIS
 
 ``const char *geopm_version(void);``
 
-DESCRIPTION
+Description
 -----------
 
 .. code-block::
@@ -35,7 +35,7 @@ DESCRIPTION
    that begins with "986987f".
 
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_

@@ -10,7 +10,7 @@ geopm::MonitorAgent -- agent that enforces no policies
 
 
 
-NAMESPACES
+Namespaces
 ----------
 
 The ``MonitorAgent`` class and the ``Agent`` class are members of the ``namespace geopm``\ , but
@@ -21,7 +21,7 @@ interface definitions for the following standard types: ``std::vector``\ ,
 this manual.
 
 
-SYNOPSIS
+Synopsis
 --------
 
 #include `<geopm/MonitorAgent.hpp> <https://github.com/geopm/geopm/blob/dev/src/MonitorAgent.hpp>`_\ 
@@ -69,7 +69,7 @@ Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
 
        void MonitorAgent::enforce_policy(const vector<double> &policy) const override;
 
-DESCRIPTION
+Description
 -----------
 
 The ``MonitorAgent`` class is a derived implementation of `geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3.html>`_ that is used to do sampling only; no policy will be enforced.
@@ -83,7 +83,7 @@ The behavior of this agent is described in more detail in the
 For more details, see the doxygen
 page at https://geopm.github.io/dox/classgeopm_1_1_monitor_agent.html.
 
-CLASS METHODS
+Class Methods
 -------------
 
 
@@ -103,7 +103,7 @@ CLASS METHODS
   ``sample_names()``:
   Returns a list of sample names.
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,
