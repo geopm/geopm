@@ -10,14 +10,14 @@ geopm::PowerBalancer(3) -- balances power according to epoch runtime
 
 
 
-SYNOPSIS
+Synopsis
 --------
 
 #include `<geopm/PowerBalancer.hpp> <https://github.com/geopm/geopm/blob/dev/src/PowerBalancer.hpp>`_\ 
 
 ``Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)``
 
-DESCRIPTION
+Description
 -----------
 
 This class is used by the PowerBalancerAgent to implement the power
@@ -26,7 +26,7 @@ balancing algorithm.
 For more details, see the doxygen
 page at https://geopm.github.io/dox/classgeopm_1_1_power_balancer.html.
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

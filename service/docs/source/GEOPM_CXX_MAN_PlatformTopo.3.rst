@@ -10,7 +10,7 @@ geopm::PlatformTopo(3) -- platform topology information
 
 
 
-NAMESPACES
+Namespaces
 ----------
 
 The ``PlatformTopo`` class and ``platform_topo()`` singleton accessor
@@ -25,7 +25,7 @@ Note that ``PlatformTopo`` class is an abstract base class that the
 user interacts with.  The concrete implementation, ``PlatformTopoImp``\ , is
 hidden by the singleton accessor.
 
-SYNOPSIS
+Synopsis
 --------
 
 #include `<geopm/PlatformTopo.hpp> <https://github.com/geopm/geopm/blob/dev/src/PlatformTopo.hpp>`_\ 
@@ -55,7 +55,7 @@ Link with ``-lgeopmd``
 
        static void PlatformTopo::create_cache(void);
 
-DESCRIPTION
+Description
 -----------
 
 This class describes the number and arrangement of cores, sockets,
@@ -80,14 +80,14 @@ at the leaves of the hierarchy.  These are the set of CPUs that can
 most efficiently issue instructions to read signals from or write
 controls to the domain.
 
-SINGLETON ACCESSOR
+Singleton Accessor
 ------------------
 
 
 * ``platform_topo()``:
   Returns the singleton accessor for the ``PlatformTopo`` interface.
 
-CLASS METHODS
+Class Methods
 -------------
 
 
@@ -147,7 +147,7 @@ CLASS METHODS
   ``create_cache()``:
   Create cache file in ``tmpfs`` that can be read instead of ``popen()`` call.
 
-EXAMPLES
+Examples
 --------
 
 The following example program queries the ``PlatformTopo`` to calculate various
@@ -245,7 +245,7 @@ on-package memory, is present or absent:
            std::cout << "No on-package memory." << std::endl;
        }
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

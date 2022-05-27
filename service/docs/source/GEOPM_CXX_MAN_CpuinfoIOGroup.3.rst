@@ -10,7 +10,7 @@ geopm::CpuinfoIOGroup(3) -- IOGroup for CPU frequency limits
 
 
 
-NAMESPACES
+Namespaces
 ----------
 
 The ``CpuinfoIOGroup`` class and the ``IOGroup`` class are members of
@@ -21,7 +21,7 @@ interface definitions for the following standard types: ``std::vector``\ ,
 ``std::pair``\ , ``std::string``\ , ``std::map``\ , and ``std::function``\ , to enable
 better rendering of this manual.
 
-SYNOPSIS
+Synopsis
 --------
 
 #include `<geopm/CpuinfoIOGroup.hpp> <https://github.com/geopm/geopm/blob/dev/src/CpuinfoIOGroup.hpp>`_\ 
@@ -81,13 +81,13 @@ Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
 
        static unique_ptr<IOGroup> CpuinfoIOGroup::make_plugin(void);
 
-DESCRIPTION
+Description
 -----------
 
 The ``CpuinfoIOGroup`` provides constants for CPU frequency limits as
 signals.  These values are obtained through the `proc(5) <http://man7.org/linux/man-pages/man5/proc.5.html>`_ filesystem.
 
-CLASS METHODS
+Class Methods
 -------------
 
 
@@ -205,7 +205,7 @@ CLASS METHODS
   Returns a pointer to a new CpuinfoIOGroup object; see
   `geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3.html>`_ for more details.
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

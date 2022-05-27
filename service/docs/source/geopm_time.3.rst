@@ -10,7 +10,7 @@ geopm_time.h(3) -- helper methods for time
 
 
 
-SYNOPSIS
+Synopsis
 --------
 
 #include `<geopm_time.h> <https://github.com/geopm/geopm/blob/dev/src/geopm_time.h>`_\ 
@@ -53,7 +53,7 @@ SYNOPSIS
   ``double geopm_time_since(``\ :
   `const struct geopm_time_s *`_begin_\ ``);``
 
-DESCRIPTION
+Description
 -----------
 
 The _geopm\ *time.h* header defines GEOPM interfaces for measuring time
@@ -94,7 +94,7 @@ structure is used to hold time values.
   ``geopm_time_since``\ ():
   Returns the number of seconds elapsed between the current time and *begin*.
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

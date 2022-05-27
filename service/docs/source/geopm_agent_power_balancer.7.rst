@@ -10,7 +10,7 @@ geopm_agent_power_balancer(7) -- agent optimizes performance under a power cap
 
 
 
-DESCRIPTION
+Description
 -----------
 
 The PowerBalancerAgent is designed to enforce an application wide
@@ -50,7 +50,7 @@ recorded by each rank, and then the maximum of these median filtered
 values across all MPI ranks running on each compute node is used as
 the measure of the inverse of compute node performance.
 
-AGENT BEHAVIOR HIGHLIGHTS
+Agent Behavior Highlights
 -------------------------
 
 Policies and samples are vectors of double precision values where each
@@ -193,7 +193,7 @@ reports and traces with additional Agent-specific information.
       The agent gates the Controller's control loop to a cadence of 5
       milliseconds.
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

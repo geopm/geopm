@@ -1,7 +1,7 @@
 geopm::CNLIOGroup(3) -- IOGroup for interaction with Compute Node Linux
 =======================================================================
 
-NAMESPACES
+Namespaces
 ----------
 
 The ``CNLIOGroup`` class and the ``IOGroup`` class are members of
@@ -12,7 +12,7 @@ interface definitions for the following standard types: ``std::vector``,
 ``std::pair``, ``std::string``, ``std::map``, and ``std::function``, to enable
 better rendering of this manual.
 
-SYNOPSIS
+Synopsis
 --------
 
 #include `<geopm/CNLIOGroup.hpp> <https://github.com/geopm/geopm/blob/dev/service/src/CNLIOGroup.hpp>`_
@@ -78,14 +78,14 @@ Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
 
        static unique_ptr<IOGroup> CNLIOGroup::make_plugin(void);
 
-DESCRIPTION
+Description
 -----------
 
 The CNLIOGroup provides board-level energy counters from Compute Node Linux
 as signals. These values are obtained through the ``/sys/cray/pm_counters`` on
 Compute Node Linux systems.
 
-CLASS METHODS
+Class Methods
 -------------
 
 * ``signal_names()``:
@@ -180,7 +180,7 @@ CLASS METHODS
   Returns a pointer to a new CNLIOGroup object; see
   `geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3.html>`_ for more details.
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_,

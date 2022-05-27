@@ -10,13 +10,13 @@ geopmctl(1) -- geopm runtime control application
 
 
 
-SYNOPSIS
+Synopsis
 --------
 
 
 * ``geopmctl`` [\ ``--help``\ ] [\ ``--version``\ ]:
 
-DESCRIPTION
+Description
 -----------
 
 .. code-block::
@@ -26,7 +26,7 @@ DESCRIPTION
    computation MPI application.
 
 
-OPTIONS
+Options
 -------
 
 
@@ -38,7 +38,7 @@ OPTIONS
   ``--version``\ :
   Print version of GEOPM to standard output, then exit.
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

@@ -10,7 +10,7 @@ geopm::Comm(3) -- communication abstractions
 
 
 
-NAMESPACES
+Namespaces
 ----------
 
 The ``Comm`` class and the ``CommFactory`` class are members of
@@ -21,7 +21,7 @@ interface definitions for the following standard types: ``std::vector``\ ,
 ``std::pair``\ , ``std::string``\ , ``std::map``\ , and ``std::function``\ , to enable
 better rendering of this manual.
 
-SYNOPSIS
+Synopsis
 --------
 
 #include `<geopm/Comm.hpp> <https://github.com/geopm/geopm/blob/dev/src/Comm.hpp>`_\ 
@@ -91,14 +91,14 @@ Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
 
        virtual void Comm::tear_down(void) = 0;
 
-DESCRIPTION
+Description
 -----------
 
 The ``Comm`` class is abstract base class for interprocess communication in geopm.
 
 The ``CommFactory`` class is a specialization of ``PluginFactory`` class which creates instances of ``Comm`` class.
 
-ENUM TYPE
+Enum Type
 ---------
 
 There are two ``enum``\ s defined in the `<geopm/Comm.hpp> <https://github.com/geopm/geopm/blob/dev/src/Comm.hpp>`_\ . 
@@ -116,7 +116,7 @@ There are two ``enum``\ s defined in the `<geopm/Comm.hpp> <https://github.com/g
            M_SPLIT_COLOR_UNDEFINED = -16,
        };
 
-FACTORY ACCESSOR
+Factory Accessor
 ----------------
 
 .. code-block:: c++
@@ -134,7 +134,7 @@ FACTORY ACCESSOR
   Calling this method will create the factory if it does not already exist.
 
 
-CLASS METHODS
+Class Methods
 -------------
 
 * 
@@ -291,7 +291,7 @@ CLASS METHODS
   Clean up resources held by the comm.
   This allows static global objects to be cleaned up before the destructor is called.
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_

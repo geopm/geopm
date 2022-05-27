@@ -10,12 +10,12 @@ geopmlaunch(1) -- application launch wrapper
 
 
 
-SYNOPSIS
+Synopsis
 --------
 
 ``geopmlaunch`` *launcher* [_launcher\ *opt*\ ] [_geopm\ *opt*\ ] ``--`` *executable* [_executable\ *opt*\ ]
 
-DESCRIPTION
+Description
 -----------
 
 The ``geopmlaunch`` application enables execution of the GEOPM runtime
@@ -56,7 +56,7 @@ arguments to the right of the first ``--`` sequence and will pass the
 arguments that follow unaltered while removing the first ``--`` from the
 command line.  Refer to the EXAMPLES section below.
 
-SUPPORTED LAUNCHERS
+Supported Launchers
 -------------------
 
 The launcher is selected by specifying the *launcher* as the first
@@ -98,7 +98,7 @@ listed below.
   computing center.  The ``--cpu_bind`` and ``--cpu-bind`` options are
   reserved for use by GEOPM; do not specify when using ``geopmlaunch``.
 
-GEOPM OPTIONS
+Geopm Options
 -------------
 
 
@@ -460,7 +460,7 @@ GEOPM OPTIONS
   Disable OMPT detection of OpenMP regions.  See the INTEGRATION WITH OMPT
   section of `geopm(7) <geopm.7.html>`_ for more information about OpenMP region detection.
 
-EXAMPLES
+Examples
 --------
 
 Use geopmlaunch to queue a job using geopmbench on a SLURM managed system
@@ -485,7 +485,7 @@ but on an ALPS managed system:
                      -- ./miniFE.x -nx 256 -ny 256 -nz 256
 
 
-ENVIRONMENT
+Environment
 -----------
 
 Every command line option to the launcher can also be specified as an
@@ -534,7 +534,7 @@ because the launcher configures the ``OMP_PROC_BIND`` environment
 variable to support applications compiled with a non-Intel
 implementation of OpenMP.
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

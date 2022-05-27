@@ -10,7 +10,7 @@ geopm_hash.h(3) -- helper methods for encoding
 
 
 
-SYNOPSIS
+Synopsis
 --------
 
 #include `<geopm_hash.h> <https://github.com/geopm/geopm/blob/dev/src/geopm_hash.h>`_\ 
@@ -25,7 +25,7 @@ Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
 
        uint64_t geopm_crc32_str(const char *key);
 
-DESCRIPTION
+Description
 -----------
 
 The `geopm_hash.h <https://github.com/geopm/geopm/blob/dev/src/geopm_hash.h>`_ 
@@ -50,7 +50,7 @@ stored as doubles.
   only the bottom 32 bits will be filled in, reserving the top 32
   bits for hints and other information.
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

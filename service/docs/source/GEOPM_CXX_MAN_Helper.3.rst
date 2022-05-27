@@ -10,7 +10,7 @@ geopm::Helper -- common helper methods
 
 
 
-SYNOPSIS
+Synopsis
 --------
 
 #include `<geopm/Helper.hpp> <https://github.com/geopm/geopm/blob/dev/src/Helper.hpp>`_\ 
@@ -66,7 +66,7 @@ Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
 
        unsigned int pid_to_gid(const int pid);
 
-DESCRIPTION
+Description
 -----------
 
 The *Helper.hpp* file defines various utility functions.
@@ -179,7 +179,7 @@ The *Helper.hpp* file defines various utility functions.
   Query for the group id assoiciated with the process id.
   Convert the *pid* process id into the *gid* group id.
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_

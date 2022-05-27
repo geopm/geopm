@@ -10,7 +10,7 @@ geopm::SharedMemory(3) -- abstractions for shared memory
 
 
 
-NAMESPACES
+Namespaces
 ----------
 
 The ``SharedMemory`` is a member of the ``namespace geopm``,
@@ -20,7 +20,7 @@ interface definitions for the following standard types: ``std::vector``\ ,
 ``std::string``\ , ``std::unique_ptr``\ , ``std::vector``\ , and ``std::function``\ , to enable
 better rendering of this manual.
 
-SYNOPSIS
+Synopsis
 --------
 
 #include `<geopm/SharedMemory.hpp> <https://github.com/geopm/geopm/blob/dev/src/SharedMemory.hpp>`_\ 
@@ -52,7 +52,7 @@ Link with ``-lgeopmd``
        void SharedMemory::chown(const unsigned int uid,
                                 const unsigned int gid);
 
-DESCRIPTION
+Description
 -----------
 
 The ``SharedMemory`` class encapsulates the creation and use of
@@ -63,7 +63,7 @@ running on the same node.
 
 ``SharedMemory`` is a pure virtual abstract base class.
 
-CLASS METHODS
+Class Methods
 -------------
 
 
@@ -114,7 +114,7 @@ CLASS METHODS
   Modifies the shared memory to be owned by the specified gid
   and uid if current permissions allow for the change.
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_

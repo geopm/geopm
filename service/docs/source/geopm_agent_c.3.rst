@@ -10,7 +10,7 @@ geopm_agent_c(3) -- query information about available agents
 
 
 
-SYNOPSIS
+Synopsis
 --------
 
 #include `<geopm_agent.h> <https://github.com/geopm/geopm/blob/dev/src/geopm_agent.h>`_\ 
@@ -57,7 +57,7 @@ Link with ``-lgeopm``
 
        int geopm_agent_enforce_policy(void);
 
-DESCRIPTION
+Description
 -----------
 
 The ``geopm_agent_c`` interface is used to query GEOPM about agents on a
@@ -160,14 +160,14 @@ follows this schema:
 .. literalinclude:: ../../../json_schemas/geopmagent_policy.schema.json
     :language: json
 
-ERRORS
+Errors
 ------
 
 All functions described on this man page return an error code.  See
 `geopm_error(3) <geopm_error.3.html>`_ for a full description of the error numbers and how
 to convert them to strings.
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

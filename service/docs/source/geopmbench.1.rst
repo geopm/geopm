@@ -10,12 +10,12 @@ geopmbench(1) -- synthetic benchmark application
 
 
 
-SYNOPSIS
+Synopsis
 --------
 
 ``geopmbench`` [_CONFIG\ *FILE*\ ]
 
-DESCRIPTION
+Description
 -----------
 
 The GEOPM model application is provided as an example application
@@ -72,7 +72,7 @@ The JSON config file must follow this schema:
 .. literalinclude:: ../../../json_schemas/geopmbench_config.schema.json
     :language: json
 
-EXAMPLES
+Examples
 --------
 
 Use `geopmlaunch(1) <geopmlaunch.1.html>`_ to launch geopmbench with a given configuration provided as
@@ -120,7 +120,7 @@ If "-progress" is appended to any region name in the
 configuration, then progress for the region will be
 reported through the geopm\ *tprof*\ * API.
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

@@ -10,7 +10,7 @@ geopm::Daemon(3) -- geopm daemon helper methods
 
 
 
-NAMESPACES
+Namespaces
 ----------
 
 The ``Daemon`` class is a member of the ``namespace geopm``\ , but the
@@ -23,7 +23,7 @@ manual.
 Note that the ``Daemon`` class is an abstract base class.  There is one
 concrete implementation, ``DaemonImp``.
 
-SYNOPSIS
+Synopsis
 --------
 
 #include `<geopm/Daemon.hpp> <https://github.com/geopm/geopm/blob/dev/src/Daemon.hpp>`_\ 
@@ -42,7 +42,7 @@ Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
        static unique_ptr<Daemon> Daemon::make_unique(const string &endpoint_name,
                                                      const string &db_path);
 
-DESCRIPTION
+Description
 -----------
 
 The ``Daemon`` class is the underlying **C++** implementation for the
@@ -50,7 +50,7 @@ The ``Daemon`` class is the underlying **C++** implementation for the
 `geopm_daemon_c(3) <geopm_daemon_c.3.html>`_ man page for a general description of the
 purpose, goals, and use cases for this interface.
 
-FACTORY METHOD
+Factory Method
 --------------
 
 
@@ -61,7 +61,7 @@ FACTORY METHOD
   in *endpoint_name*.  The path to the PolicyStore should be given
   in *db_path*.
 
-CLASS METHODS
+Class Methods
 -------------
 
 
@@ -83,13 +83,13 @@ CLASS METHODS
   ``reset_wait_loop()``:
   Resets the Daemon's endpoint to prepare for a future wait loop.
 
-ERRORS
+Errors
 ------
 
 All functions described on this man page throw `geopm::Exception(3) <GEOPM_CXX_MAN_Exception.3.html>`_
 on error.
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

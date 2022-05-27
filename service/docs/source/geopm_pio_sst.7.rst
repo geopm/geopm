@@ -2,7 +2,7 @@
 geopm_pio_sst(7) -- Signals and controls for Intel Speed Select Technology
 ==========================================================================
 
-DESCRIPTION
+Description
 -----------
 
 The SSTIOGroup implements the `geopm::IOGroup(3)
@@ -32,10 +32,10 @@ ratio limit when there is sufficient power headroom. Cores in CLOS 2
 or 3 are constrained below the all-core turbo ratio limit. This
 feature only works when SST-CP is enabled.
 
-SIGNALS
+Signals
 -------
 
-SYSTEM INFO
+System Info
 ~~~~~~~~~~~
 
 * ``SST::CONFIG_LEVEL``:
@@ -76,7 +76,7 @@ SYSTEM INFO
   on the number of high priority cores.
 
 
-CONFIGURATION
+Configuration
 ~~~~~~~~~~~~~
 
 * ``SST::TURBO_ENABLE``:
@@ -104,7 +104,7 @@ CONFIGURATION
   (Package scope) Returns the maximum frequency of CLOS n. Power will
   not be distributed to cores beyond this maximum frequency.
 
-CONTROLS
+Controls
 --------
 
 * ``SST::TURBO_ENABLE``:
@@ -130,14 +130,14 @@ CONTROLS
   (Package scope) Set the maximum frequency of CLOS n. Power will not
   be distributed to cores beyond this maximum frequency.
 
-EXAMPLE
+Example
 -------
 
 The following example uses geopmread and geopmwrite command-line
 tools.  These steps can also be followed within an agent. Enabling
 steps are also in the ``SSTFrequencyGovernor``.
 
-ENABLING SST-TF
+Enabling SST-TF
 ~~~~~~~~~~~~~~~
 
 * Enable SST-CP:
@@ -159,7 +159,7 @@ ENABLING SST-TF
 
   ``geopmwrite MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_7 board 0 255e8``
 
-CONFIGURING CLOS
+Configuring CLOS
 ~~~~~~~~~~~~~~~~
 
 * Set the weight 0-15. Lower weight indicates higher priority. CLOS
@@ -181,14 +181,14 @@ CONFIGURING CLOS
   ``geopmwrite SST::COREPRIORITY:0:MAX_FREQUENCY board 0 3.6e9``
 
 
-SETTING CORE PRIORITIES
+Setting Core Priorities
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 To assign core 3 to CLOS 1:
 
   ``geopmwrite SST::COREPRIORITY:ASSOCIATION core 3 1``
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

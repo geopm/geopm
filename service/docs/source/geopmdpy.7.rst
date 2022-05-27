@@ -10,12 +10,12 @@ geopmdpy(7) -- global extensible open power manager python daemon package
 
 
 
-DESCRIPTION
+Description
 -----------
 
 This document describes the Python APIs provided by the geopmdpy package.
 
-SYNOPSIS
+Synopsis
 --------
 
 geopmdpy.access
@@ -115,7 +115,7 @@ geopmdpy.version
    :show-inheritance:
 
 
-SEE ALSO
+See Also
 --------
 
 `geopmpy(7) <geopmpy.7.html>`_\ ,

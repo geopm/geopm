@@ -2,7 +2,7 @@
 geopm::IOGroup(3) -- provides system values and settings
 ========================================================
 
-NAMESPACES
+Namespaces
 ----------
 
 The ``IOGroup`` class and the ``iogroup_factory()`` singleton accessor
@@ -13,7 +13,7 @@ omitted from the interface definitions for the following standard
 types: ``std::vector``\ , ``std::string``\ , ``std::set``\ , and ``std::function``\ ,
 to enable better rendering of this manual.
 
-SYNOPSIS
+Synopsis
 --------
 
 #include `<geopm/IOGroup.hpp> <https://github.com/geopm/geopm/blob/dev/src/IOGroup.hpp>`_\
@@ -91,7 +91,7 @@ Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
 
        static IOGroup::m_signal_behavior_e IOGroup::string_to_behavior(const string &str);
 
-DESCRIPTION
+Description
 -----------
 
 The ``IOGroup`` class is an abstract pure virtual class that defines the high
@@ -144,7 +144,7 @@ IOGroup that is loaded last will override the others.  This effectively means
 that the last loaded IOGroup that defines a signal or control will fulfill
 requests for that signal or control.
 
-TERMS
+Terms
 -----
 
 Below are some definitions of terms that are used to describe different parts
@@ -165,7 +165,7 @@ documentation about how to extend IOGroups.
   The discrete component within a compute node where a signal or control is
   applicable.  For more information see `geopm::PlatformTopo(3) <GEOPM_CXX_MAN_PlatformTopo.3.html>`_.
 
-FACTORY ACCESSOR
+Factory Accessor
 ----------------
 
 
@@ -176,7 +176,7 @@ FACTORY ACCESSOR
   will be attempted.  For more information see `geopm::PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3.html>`_
   and/or `geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3.html>`_.
 
-CLASS METHODS
+Class Methods
 -------------
 
 
@@ -319,7 +319,7 @@ CLASS METHODS
   ``string_to_behavior()``:
   Convert a ``string`` to the corresponding ``m_signal_behavior_e`` value
 
-EXAMPLE
+Example
 -------
 
 Please see the `GEOPM IOGroup
@@ -329,7 +329,7 @@ information.  That code is located in the GEOPM source under tutorial/iogroup.
 Further documentation for this module can be found here:
 https://geopm.github.io/dox/classgeopm_1_1_i_o_group.html
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

@@ -1,7 +1,7 @@
 geopm_pio_cnl(7) -- Signals and controls for Compute Node Linux Board-Level Metrics
 ===================================================================================
 
-DESCRIPTION
+Description
 -----------
 
 The CNLIOGroup implements the `geopm::IOGroup(3)
@@ -10,13 +10,13 @@ board-level energy and power metrics on Compute Node Linux (CNL).
 
 .. _cnl-requirements:
 
-REQUIREMENTS
+Requirements
 ------------
 This IOGroup's signals are only exposed when GEOPM is compiled with the
 ``--enable-cnl-iogroup`` build configuration option, and GEOPM can read
 files in ``/sys/cray/pm_counters``.
 
-SIGNALS
+Signals
 -------
 
 All signals are available with board-level scope, on systems that expose the
@@ -119,12 +119,12 @@ All signals are available with board-level scope, on systems that expose the
 
     **Unit**: Seconds
 
-CONTROLS
+Controls
 --------
 
 This IOGroup does not expose any controls.
 
-SIGNAL ALIASES
+Signal Aliases
 --------------
 
 This IOGroup exposes the following high-level aliases:
@@ -136,7 +136,7 @@ This IOGroup exposes the following high-level aliases:
 * ``BOARD_CPU_POWER`` (**TODO**: currently ``POWER_BOARD_CPU``) maps to ``CNL::POWER_BOARD_CPU``
 * ``BOARD_CPU_ENERGY`` (**TODO**: currently ``ENERGY_BOARD_CPU``) maps to ``CNL::ENERGY_BOARD_CPU``
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_,
