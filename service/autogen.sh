@@ -10,7 +10,7 @@ if [ -f VERSION_OVERRIDE ]; then
 elif git describe --long > /dev/null 2>&1; then
     sha=$(git describe --long | awk -F- '{print $(NF)}')
     release=$(git describe --long | awk -F- '{print $(NF-1)}')
-    version=$(git describe --long | sed -e "s|\(.*\)-$release-$sha|\1|" -e "s|-|+|g" -e "s|^v||")
+    version=$(git describe --long | sed -e "s|+rc|~rc|" -e "s|\(.*\)-$release-$sha|\1|" -e "s|-|+|g" -e "s|^v||")
     if [ "${release}" != "0" ]; then
         version=${version}+dev${release}${sha}
     fi
