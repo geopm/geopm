@@ -88,7 +88,7 @@ packages for sphinx is an issue on your system:
 
 .. code-block:: bash
 
-    python3 -m pip install --user sphinx sphinx_rtd_theme
+    python3 -m pip install --user sphinx sphinx_rtd_theme sphinxemoji
     export PATH=$HOME/.local/bin:$PATH
 
 
