@@ -1,3 +1,11 @@
+* Fri May 27 2022 Christopher M Cantalupo <christopher.m.cantalupo@intel.com> v2.0.0+rc1
+- Release candidate 1 for version 2.0
+- This is a pre-release version of GEOPM that has all features that will be present in the v2.0.0 release.
+- Ongoing work for the v2.0.0 release is described in these issues: <https://github.com/geopm/geopm/issues?q=is%3Aissue+is%3Aopen+label%3A2.0>
+- This is the first tagged version of GEOPM that provides the GEOPM Systemd Service: <https://geopm.github.io/service.html>
+- Instructions on how to install the release candidate packages that provide the GEOPM Service are here: <https://geopm.github.io/install.html>
+- The names of signals and controls provided by the PIO interface are expected to change prior to the next release to conform with the requirements described here: <https://github.com/geopm/geopm/issues/1671>
+- All feedback about this release candidate is appreciated: <https://geopm.github.io/contrib.html>
 * Tue Nov 5 2019 Diana Guttman <diana.r.guttman@intel.com> v1.1.0
 - Release overview:
 - Support for Python 3.6 has been added.
