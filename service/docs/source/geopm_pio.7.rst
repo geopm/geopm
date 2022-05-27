@@ -2,7 +2,7 @@
 geopm_pio(7) -- GEOPM PlatformIO interface
 ==========================================
 
-DESCRIPTION
+Description
 -----------
 
 The ``PlatformIO`` class provides a high-level interface for signals
@@ -30,7 +30,7 @@ the limit.  Similarly the user can set a ``CPU_FREQUENCY_CONTROL`` in
 *hertz* and the related signal, ``CPU_FREQUENCY_STATUS`` will show the
 CPU operating at the value set.
 
-ALIASING SIGNALS AND CONTROLS
+Aliasing Signals And Controls
 -----------------------------
 
 There are two classes of signals and control names: "low level" and
@@ -63,7 +63,7 @@ decode the 64-bit integer from the double use
 encoded in this way.
 
 
-DESCRIPTIONS OF HIGH LEVEL ALIASES
+Descriptions Of High Level Aliases
 ----------------------------------
 
 ``TIME``
@@ -190,7 +190,7 @@ DESCRIPTIONS OF HIGH LEVEL ALIASES
     requirements.
 
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_,

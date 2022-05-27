@@ -2,7 +2,7 @@
 geopm::PlatformIO(3) -- geopm platform interface
 ================================================
 
-NAMESPACES
+Namespaces
 ----------
 
 The ``PlatformIO`` class, the ``IOGroup`` class, and the ``platform_io()``
@@ -18,7 +18,7 @@ Note that the ``PlatformIO`` class is an abstract base class that the
 user interacts with.  The concrete implementation, ``PlatformIOImp``\ , is
 hidden by the singleton accessor.
 
-SYNOPSIS
+Synopsis
 --------
 
 #include `<geopm/PlatformIO.hpp> <https://github.com/geopm/geopm/blob/dev/src/PlatformIO.hpp>`_\
@@ -145,13 +145,13 @@ Link with ``-lgeopmd``
            int server_pid);
 
 
-DESCRIPTION
+Description
 -----------
 
 The C++ bindings for the `geopm_pio(7) <geopm_pio.7.html>`_ interface.
 
 
-STRUCTURE TYPE
+Structure Type
 --------------
 
 
@@ -167,7 +167,7 @@ and the domain index. This structure is used as a parameter to interface functio
            char name[NAME_MAX];
        };
 
-SINGLETON ACCESSOR
+Singleton Accessor
 ------------------
 
 
@@ -178,7 +178,7 @@ SINGLETON ACCESSOR
   all of the `CLASS METHODS <INSPECTION CLASS METHODS_>`_ described below.  See `EXAMPLE <EXAMPLE_>`_ section
   below.
 
-INSPECTION CLASS METHODS
+Inspection Class Methods
 ------------------------
 
 
@@ -244,7 +244,7 @@ INSPECTION CLASS METHODS
   a signal of the given *signal_name* into a printable string.
   The returned function takes the *double* value of the signal and returns a formatted string.
 
-SERIAL CLASS METHODS
+Serial Class Methods
 --------------------
 
 
@@ -285,7 +285,7 @@ schema:
 .. literalinclude:: ../../json_schemas/saved_controls.schema.json
     :language: json
 
-BATCH CLASS METHODS
+Batch Class Methods
 -------------------
 
 
@@ -379,7 +379,7 @@ BATCH CLASS METHODS
   Call through to ``BatchServer::stop_batch()``.
 
 
-PLUGIN CLASS METHODS
+Plugin Class Methods
 --------------------
 
 
@@ -391,7 +391,7 @@ PLUGIN CLASS METHODS
   provides the mechanism for extending the ``PlatformIO`` interface at
   runtime.
 
-EXAMPLE
+Example
 -------
 
 .. code-block:: c++
@@ -426,13 +426,13 @@ EXAMPLE
 
 
 
-ERRORS
+Errors
 ------
 
 All functions described on this man page throw `geopm::Exception(3) <GEOPM_CXX_MAN_Exception.3.html>`_
 on error.
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

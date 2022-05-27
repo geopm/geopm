@@ -10,7 +10,7 @@ geopm::TimeIOGroup(3) -- IOGroup providing time signals
 
 
 
-NAMESPACES
+Namespaces
 ----------
 
 The ``TimeIOGroup`` class and the ``IOGroup`` class are members of the ``namespace geopm``\ , but
@@ -21,7 +21,7 @@ interface definitions for the following standard types: ``std::vector``\ ,
 this manual.
 
 
-SYNOPSIS
+Synopsis
 --------
 
 #include `<geopm/TimeIOGroup.hpp> <https://github.com/geopm/geopm/blob/dev/src/TimeIOGroup.hpp>`_\ 
@@ -93,13 +93,13 @@ Link with ``-lgeopmd``
 
        static unique_ptr<IOGroup> TimeIOGroup::make_plugin(void);
 
-DESCRIPTION
+Description
 -----------
 
 The ``TimeIOGroup`` class is a derived implementation of `geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3.html>`_
 that provides an implementation of the ``TIME`` signal for the time since GEOPM startup.
 
-CLASS METHODS
+Class Methods
 -------------
 
 
@@ -229,7 +229,7 @@ CLASS METHODS
   Returns a pointer to a new ``TimeIOGroup`` object; see
   `geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3.html>`_ for more details.
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

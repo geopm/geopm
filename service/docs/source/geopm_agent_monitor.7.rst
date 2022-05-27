@@ -10,7 +10,7 @@ geopm_agent_monitor(7) -- agent implementation for aggregating statistics
 
 
 
-DESCRIPTION
+Description
 -----------
 
 An implementation of the Agent interface that enforces no policies and
@@ -18,7 +18,7 @@ is intended for application tracing and profiling only.  It collects
 statistics from each node and aggregates them over the whole
 application run.
 
-AGENT BEHAVIOR HIGHLIGHTS
+Agent Behavior Highlights
 -------------------------
 
 Policies and samples are vectors of double precision values where each
@@ -53,7 +53,7 @@ reports and traces with additional Agent-specific information.
 
       The Monitor agent gates the Controller's control loop to a cadence of *5ms*.
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

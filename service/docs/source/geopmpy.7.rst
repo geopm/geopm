@@ -10,7 +10,7 @@ geopmpy(7) -- global extensible open power manager python package
 
 
 
-DESCRIPTION
+Description
 -----------
 
 An extension to the Global Extensible Open Power Manager (GEOPM), the
@@ -32,7 +32,7 @@ any number of files, and houses structures that can be queried for said data.
 This module also houses certain analysis functions in the Trace class for
 extracting specific data.  See the in-file docstrings for more info.
 
-INSTALLATION
+Installation
 ------------
 
 
@@ -53,7 +53,7 @@ INSTALLATION
 
     pip install --user geopmpy
 
-ENVIRONMENT
+Environment
 -----------
 
 
@@ -73,7 +73,7 @@ ENVIRONMENT
 
   It is recommended to do this in your login script (e.g. .bashrc).
 
-TROUBLESHOOTING
+Troubleshooting
 ---------------
 
 If you have an existing clone of the GEOPM GitHub repo and are experiencing
@@ -84,7 +84,7 @@ autogen.sh.
 The version file will be removed if the ``dist-clean`` Makefile target is invoked.
 This is also remedied by rerunning autogen.sh.
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

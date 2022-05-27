@@ -3,17 +3,17 @@
 geopm::LevelZeroIOGroup(7) -- IOGroup providing signals and controls for Intel GPUs
 =================================================================================================
 
-DESCRIPTION
+Description
 -----------
 
 The LevelZeroIOGroup implements the `geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3.html>`_
 interface to provide hardware signals and controls for Intel GPUs.
 
-REQUIREMENTS
+Requirements
 ~~~~~~~~~~~~
 To use the GEOPM LevelZero signals and controls GEOPM must be compiled against the oneAPI LevelZero libraries and must be run on a system with discrete GPUs supported by LevelZero.  In addition the user must export ZES_ENABLE_SYSMAN=1 as specified by the Intel oneAPI Level Zero Sysman documentation.  See the Sysman specification for more info on related environment variables and their usage.
 
-SIGNALS
+Signals
 -------
 
 ``LEVELZERO::GPU_CORE_FREQUENCY_STATUS``
@@ -192,7 +192,7 @@ SIGNALS
       *  ``Format``: Double
       *  ``Unit``: None
 
-SIGNAL ALIASES
+Signal Aliases
 ~~~~~~~~~~~~~~~~
 Several high level aliases are provided.  Their mapping  to
 underlying IO Group signals is provided below.
@@ -206,7 +206,7 @@ underlying IO Group signals is provided below.
 ``GPU_CORE_FREQUENCY_STATUS``
     Aliases to LEVELZERO::GPU_CORE_FREQUENCY_STATUS
 
-CONTROLS
+Controls
 --------
 Every control is exposed as a signal with the same name.  The relevant signal aggregation information is provided below.
 
@@ -235,7 +235,7 @@ Every control is exposed as a signal with the same name.  The relevant signal ag
       *  ``Format``: Double
       *  ``Unit``: Hertz
 
-CONTROL ALIASES
+Control Aliases
 ~~~~~~~~~~~~~~~~
 Several high level aliases are provided.  Their mapping to
 underlying IO Group signals is provided below.
@@ -243,7 +243,7 @@ underlying IO Group signals is provided below.
 ``GPU_CORE_FREQUENCY_CONTROL``
     Aliases to LEVELZERO::GPU_CORE_FREQUENCY_CONTROL
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

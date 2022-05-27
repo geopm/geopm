@@ -3,7 +3,7 @@ geopmsession(1) -- Command line interface for the geopm service batch read featu
 ===================================================================================
 
 
-DESCRIPTION
+Description
 -----------
 
 Command line interface for the geopm service read features.
@@ -28,7 +28,7 @@ core zero:
     0x0000000088430800
 
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

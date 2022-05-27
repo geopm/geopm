@@ -10,7 +10,7 @@ geopm_endpoint_c(3) -- dynamic policy control for resource management
 
 
 
-SYNOPSIS
+Synopsis
 --------
 
 #include `<geopm_endpoint.h> <https://github.com/geopm/geopm/blob/dev/src/geopm_endpoint.h>`_\ 
@@ -61,7 +61,7 @@ Link with ``-lgeopmpolicy``
                                       double *sample_array,
                                       double *sample_age_sec);
 
-DESCRIPTION
+Description
 -----------
 
 The ``geopm_endpoint_c`` interface can be utilized by a system resource manager
@@ -196,14 +196,14 @@ zero upon success; see `ERRORS <ERRORS_>`_ section below for details.
   otherwise an error code is returned.  If no shmem region has been
   created with ``geopm_endpoint_open()``\ , an error code is returned.
 
-ERRORS
+Errors
 ------
 
 All functions described on this man page return an error code.  See
 `geopm_error(3) <geopm_error.3.html>`_ for a full description of the error numbers and how
 to convert them to strings.
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

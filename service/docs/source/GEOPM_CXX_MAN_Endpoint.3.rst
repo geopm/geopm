@@ -10,7 +10,7 @@ geopm::Endpoint(3) -- geopm endpoint interface
 
 
 
-NAMESPACES
+Namespaces
 ----------
 
 The ``Endpoint`` class is a member of the ``namespace geopm``\ , but the
@@ -24,7 +24,7 @@ Note that the ``Endpoint`` class is an abstract base class.  There is one
 concrete implementation, ``EndpointImp``\ , which uses shared memory to
 implement the Endpoint interface functionality.
 
-SYNOPSIS
+Synopsis
 --------
 
 #include `<geopm/Endpoint.hpp> <https://github.com/geopm/geopm/blob/dev/src/Endpoint.hpp>`_\ 
@@ -58,7 +58,7 @@ Link with ``-lgeopm``
 
        virtual set<string> Endpoint::get_hostnames(void);
 
-DESCRIPTION
+Description
 -----------
 
 The ``Endpoint`` class is the underlying **C++** implementation for the
@@ -66,7 +66,7 @@ The ``Endpoint`` class is the underlying **C++** implementation for the
 `geopm_endpoint_c(3) <geopm_endpoint_c.3.html>`_ man page for a general description of the
 purpose, goals, and use cases for this interface.
 
-FACTORY METHOD
+Factory Method
 --------------
 
 
@@ -75,7 +75,7 @@ FACTORY METHOD
   ``EndpointImp`` object.  The shared memory prefix should be given in
   *data_path*.
 
-CLASS METHODS
+Class Methods
 -------------
 
 
@@ -140,13 +140,13 @@ CLASS METHODS
   returns the set of hostnames used by the Controller attached to
   this endpoint, or empty if no Controller is attached.
 
-ERRORS
+Errors
 ------
 
 All functions described on this man page throw `geopm::Exception(3) <GEOPM_CXX_MAN_Exception.3.html>`_
 on error.
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

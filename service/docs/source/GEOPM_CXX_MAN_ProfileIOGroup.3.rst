@@ -10,7 +10,7 @@ geopm::ProfileIOGroup(3) -- IOGroup providing application signals
 
 
 
-NAMESPACES
+Namespaces
 ----------
 
 The ``ProfileIOGroup`` class and the ``IOGroup`` class are members of the ``namespace geopm``\ , but
@@ -21,7 +21,7 @@ interface definitions for the following standard types: ``std::vector``\ ,
 this manual.
 
 
-SYNOPSIS
+Synopsis
 --------
 
 #include `<geopm/ProfileIOGroup.hpp> <https://github.com/geopm/geopm/blob/dev/src/ProfileIOGroup.hpp>`_\ 
@@ -93,7 +93,7 @@ Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
 
        void ProfileIOGroup::connect(void);
 
-DESCRIPTION
+Description
 -----------
 
 The ``ProfileIOGroup`` class is a derived implementation of `geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3.html>`_ that provides signals from the application.
@@ -104,7 +104,7 @@ Only the methods unique to the ``ProfileIOGroup`` class are described here.
 For more details, see the doxygen
 page at https://geopm.github.io/dox/classgeopm_1_1_profile_i_o_group.html.
 
-CLASS METHODS
+Class Methods
 -------------
 
 
@@ -121,7 +121,7 @@ CLASS METHODS
   ``connect()``:
   Connect to the application via shared memory.
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

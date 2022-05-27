@@ -10,13 +10,13 @@ geopm_agent_power_governor(7) -- agent enforces a power cap
 
 
 
-DESCRIPTION
+Description
 -----------
 
 The PowerGovernorAgent enforces a per-compute-node power cap of the
 total power of all packages (sockets).
 
-AGENT BEHAVIOR HIGHLIGHTS
+Agent Behavior Highlights
 -------------------------
 
 Policies and samples are vectors of double precision values where each
@@ -85,7 +85,7 @@ reports and traces with additional Agent-specific information.
 
       The agent gates the Controller's control loop to a cadence of *5ms*.
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

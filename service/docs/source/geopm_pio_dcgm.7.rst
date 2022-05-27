@@ -3,17 +3,17 @@
 geopm::DCGMIOGroup(7) -- IOGroup providing signals and controls for NVIDIA GPUs
 =================================================================================================
 
-DESCRIPTION
+Description
 -----------
 
 The DCGMIOGroup implements the `geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3.html>`_
 interface to provide hardware signals for NVIDIA GPUs from the NVIDIA Datacenter GPU Manager.  This IO Group is intended for use with the `NVMLIOGroup <NVMLIOGroup.7.html>`
 
-REQUIREMENTS
+Requirements
 ~~~~~~~~~~~~
 To use the GEOPM DCGM signals and controls GEOPM must be compiled against the DCGM libraries and must be run on a system with hardware supported by DCGM.
 
-SIGNALS
+Signals
 -------
 
 * ``DCGM::SM_ACTIVE``:
@@ -50,7 +50,7 @@ SIGNALS
 
   *  ``Unit``: None
 
-SIGNAL ALIASES
+Signal Aliases
 ~~~~~~~~~~~~~~~~
 Several high level aliases are provided.  Their mapping to
 underlying IO Group signals is provided below.
@@ -63,7 +63,7 @@ underlying IO Group signals is provided below.
 
     Aliases to DCGM::DRAM_ACTIVE
 
-CONTROLS
+Controls
 --------
 Every control is exposed as a signal with the same name.  The relevant signal aggregation information is provided below.
 
@@ -101,11 +101,11 @@ Every control is exposed as a signal with the same name.  The relevant signal ag
 
   *  ``Unit``: Seconds
 
-CONTROL ALIASES
+Control Aliases
 ~~~~~~~~~~~~~~~~
 No control aliases are provided.
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

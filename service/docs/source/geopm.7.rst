@@ -3,27 +3,27 @@ geopm(7) -- global extensible open power manager
 ================================================
 
 
-DESCRIPTION
+Description
 -----------
 
 The Global Extensible Open Power Manager (GEOPM) is a framework for
 exploring power and energy optimizations on heterogeneous platforms.
 
-JOB LAUNCH
+Job Launch
 ----------
 
 `geopmlaunch(1) <geopmlaunch.1.html>`_\ : Application launch wrapper
 
 `geopmreport(7) <geopm_report.7.html>`_\ : Reports produced by launch
 
-APPLICATION PROFILING
+Application Profiling
 ---------------------
 
 `geopm_prof_c(3) <geopm_prof_c.3.html>`_\ : Application profiling interfaces
 
 `geopm_fortran(3) <geopm_fortran.3.html>`_\ : GEOPM Fortran interfaces
 
-ANALYSIS TOOLS
+Analysis Tools
 --------------
 
 `geopmread(1) <geopmread.1.html>`_\ : Query platform information
@@ -36,7 +36,7 @@ ANALYSIS TOOLS
 
 `geopmbench(1) <geopmbench.1.html>`_\ : Synthetic benchmark application
 
-BUILT-IN AGENTS
+Built-In Agents
 ---------------
 
 `geopm_agent_monitor(7) <geopm_agent_monitor.7.html>`_\ : Agent implementation that enforces no policies
@@ -47,7 +47,7 @@ BUILT-IN AGENTS
 
 `geopm_agent_power_governor(7) <geopm_agent_power_governor.7.html>`_\ : Agent that enforces a power cap
 
-RUNTIME CONTROL
+Runtime Control
 ---------------
 
 `geopm_ctl_c(3) <geopm_ctl_c.3.html>`_\ : GEOPM runtime control thread
@@ -60,7 +60,7 @@ RUNTIME CONTROL
 
 `geopmadmin(1) <geopmadmin.1.html>`_\ : Configure and check system wide GEOPM settings
 
-MISC
+Misc
 ----
 
 `geopm_error(3) <geopm_error.3.html>`_\ : Error code descriptions
@@ -73,7 +73,7 @@ MISC
 
 `geopm_hash(3) <geopm_hash.3.html>`_\ : Numerical encoding helper functions
 
-PLUGIN EXTENSION
+Plugin Extension
 ----------------
 
 `geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3.html>`_\ : Plugin developer guide
@@ -84,7 +84,7 @@ PLUGIN EXTENSION
 
 `geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3.html>`_\ : Plugin interface for monitor/control
 
-INTEGRATION WITH PMPI
+Integration With PMPI
 ---------------------
 
 Linking to libgeopm will define symbols that intercept the MPI
@@ -100,7 +100,7 @@ of power resources.  The report and trace generation are controlled by
 the environment variables ``GEOPM_REPORT`` and ``GEOPM_TRACE``\ ; see
 description below.
 
-INTEGRATION WITH OMPT
+Integration With OMPT
 ---------------------
 
 Unless the GEOPM runtime is configured to disable OpenMP, the library
@@ -125,7 +125,7 @@ This feature can be disabled on a per-run basis by setting the
 ``GEOPM_OMPT_DISABLE`` environment variable, or by using the
 ``--geopm-ompt-disable`` option in `geopmlaunch(1) <geopmlaunch.1.html>`_
 
-LAUNCHING THE RUNTIME
+Launching The Runtime
 ---------------------
 
 The recommended method for launching the GEOPM runtime is the job
@@ -152,7 +152,7 @@ These are documented in `geopm_ctl_c(3) <geopm_ctl_c.3.html>`_\ , but are deprec
 application-facing interface because their use within an application
 is incompatible with the GEOPM launcher script.
 
-CHOOSING AN AGENT AND POLICY
+Choosing An Agent And Policy
 ----------------------------
 
 The Agent determines the optimization algorithm performed by the
@@ -188,7 +188,7 @@ details on the behavior of the agents and their policies.  See
 ``--geopm-policy``\ , ``--geopm-endpoint``\ , and
 ``--geopm-trace-endpoint-policy`` options.
 
-INTERPRETING THE REPORT
+Interpreting The Report
 -----------------------
 
 If the ``GEOPM_REPORT`` environment variable is set then a report will
@@ -196,7 +196,7 @@ be generated.  There is one report file generated for each run.  The
 format of the report, the data contained in it, and the controller's
 sampling are described in `geopm_report(7) <geopm_report.7.html>`_.
 
-INTERPRETING THE TRACE
+Interpreting The Trace
 ----------------------
 
 If the ``GEOPM_TRACE`` environment variable is set (see below) then a
@@ -220,7 +220,7 @@ A simple method for selecting fields from the trace file is with the
 will print a subset of the fields in the trace file called
 ``"geopm.trace-host0"``.
 
-ENVIRONMENT
+Environment
 -----------
 
 When using the launcher wrapper script `geopmlaunch(1) <geopmlaunch.1.html>`_\ , the
@@ -255,7 +255,7 @@ environment.  The ``environment-override.json`` file will enforce that
 any GEOPM process running on the compute node will use the values
 specified regardless of the values set in the calling environment.
 
-GEOPM ENVIRONMENT VARIABLES
+GEOPM Environment Variables
 ---------------------------
 
 
@@ -345,7 +345,7 @@ GEOPM ENVIRONMENT VARIABLES
   See documentation for equivalent command line option to `geopmlaunch(1) <geopmlaunch.1.html>`_
   called ``--geopm-ompt-disable``.
 
-OTHER ENVIRONMENT VARIABLES
+Other Environment Variables
 ---------------------------
 
 
@@ -367,7 +367,7 @@ OTHER ENVIRONMENT VARIABLES
   enforce the required override of the MPI interface symbols and the
   ``LD_DYNAMIC_WEAK`` environment variable is not required at runtime.
 
-SEE ALSO
+See Also
 --------
 
 `geopmpy(7) <geopmpy.7.html>`_\ ,

@@ -10,12 +10,12 @@ geopmendpoint(1) -- command line tool for dynamic policy control
 
 
 
-SYNOPSIS
+Synopsis
 --------
 
 ``geopmendpoint`` [\ ``-c`` | ``-d`` | ``-a`` | ``-p`` *POLICY0*\ ,\ *POLICY1*\ ,...] *ENDPOINT*
 
-DESCRIPTION
+Description
 -----------
 
 Command line interface to create, query, read, write, and destroy a
@@ -32,7 +32,7 @@ given compute node (coherent shared memory).  If the ``geopmendpoint``
 executable is run with no arguments then a list of all policy
 endpoints available on the system is printed to standard output.
 
-OPTIONS
+Options
 -------
 
 
@@ -72,7 +72,7 @@ OPTIONS
   specified.  The return value will be non-zero if an agent has not
   yet attached to the endpoint.
 
-EXAMPLES
+Examples
 --------
 
 List all endpoints on a system when none are open:
@@ -146,7 +146,7 @@ Destroy endpoints "job-123" and "job-321":
 
 
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

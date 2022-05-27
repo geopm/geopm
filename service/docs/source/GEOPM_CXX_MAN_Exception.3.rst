@@ -10,7 +10,7 @@ geopm::Exception(3) -- custom geopm exceptions
 
 
 
-NAMESPACES
+Namespaces
 ----------
 
 The ``Exception`` class and the ``exception_handler()`` function are members of
@@ -23,7 +23,7 @@ better rendering of this manual.
 
 Note that the ``geopm::Exception`` class is derived from ``std::runtime_error`` class.
 
-SYNOPSIS
+Synopsis
 --------
 
 #include `<geopm/Exception.hpp> <https://github.com/geopm/geopm/blob/dev/src/Exception.hpp>`_\ 
@@ -45,7 +45,7 @@ Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
 
        int Exception::err_value(void) const;
 
-DESCRIPTION
+Description
 -----------
 
 This class is used to format error messages for the GEOPM runtime
@@ -54,7 +54,7 @@ according to the error code.  The list of errors is described in
 `errno(3) <http://man7.org/linux/man-pages/man3/errno.3.html>`_\ ), negative values are GEOPM errors.  If zero is specified
 for the error code, ``GEOPM_ERROR_RUNTIME`` (-1) is assumed.
 
-FUNCTIONS
+Functions
 ---------
 
 
@@ -71,7 +71,7 @@ FUNCTIONS
   specific information than the message produced by
   ``geopm_error_message()``.
 
-CLASS METHODS
+Class Methods
 -------------
 
 
@@ -101,7 +101,7 @@ CLASS METHODS
   description of all error codes can be obtained with
   the ``geopm_error_message()`` interface.
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

@@ -10,7 +10,7 @@ geopm::RegionAggregator(3) -- per-region aggregated signal data
 
 
 
-SYNOPSIS
+Synopsis
 --------
 
 #include `<geopm/RegionAggregator.hpp> <https://github.com/geopm/geopm/blob/dev/src/RegionAggregator.hpp>`_\ 
@@ -41,7 +41,7 @@ SYNOPSIS
   ``std::set<uint64_t> tracked_region_hash(``\ :
   ``void) const;``
 
-DESCRIPTION
+Description
 -----------
 
 The RegionAggregator is used to store running totals of various
@@ -51,7 +51,7 @@ the epoch.  The set of signals to be tracked is determined by pushing
 signals similar to the ``push_signal()`` method of
 `geopm::PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3.html>`_.
 
-CLASS METHODS
+Class Methods
 -------------
 
 
@@ -103,7 +103,7 @@ CLASS METHODS
   very short-running regions may not be detected through sampling
   the REGION_HASH signal.
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_

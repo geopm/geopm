@@ -10,7 +10,7 @@ geopm::CircularBuffer(3) -- generic circular buffer
 
 
 
-NAMESPACES
+Namespaces
 ----------
 
 The ``CircularBuffer`` class is a member of the ``namespace geopm``,
@@ -20,7 +20,7 @@ interface definitions for the following standard types: ``std::vector``\ ,
 ``std::pair``\ , ``std::string``\ , ``std::map``\ , and ``std::function``\ , to enable
 better rendering of this manual.
 
-SYNOPSIS
+Synopsis
 --------
 
 #include `<geopm/CircularBuffer.hpp> <https://github.com/geopm/geopm/blob/dev/src/CircularBuffer.hpp>`_\ 
@@ -44,13 +44,13 @@ SYNOPSIS
 
        vector<T> CircularBuffer::make_vector(const unsigned int start, const unsigned int end) const;
 
-DESCRIPTION
+Description
 -----------
 
 The CircularBuffer container implements a fixed-size buffer. Once at
 capacity, any new insertions cause the oldest entry to be dropped.
 
-CLASS METHODS
+Class Methods
 -------------
 
 
@@ -98,7 +98,7 @@ CLASS METHODS
   If the range presented by these two indexes is invalid
   it will throw a `geopm::Exception(3) <GEOPM_CXX_MAN_Exception.3.html>`_
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

@@ -10,7 +10,7 @@ geopm_sched.h(3) -- interface with Linux scheduler
 
 
 
-SYNOPSIS
+Synopsis
 --------
 
 #include `<geopm_sched.h> <https://github.com/geopm/geopm/blob/dev/src/geopm_sched.h>`_\ 
@@ -41,7 +41,7 @@ SYNOPSIS
   `const char *`_cmd_, :raw-html-m2r:`<br>`
   `FILE **`_fid_\ ``);``
 
-DESCRIPTION
+Description
 -----------
 
 The _geopm\ *sched.h* header defines GEOPM interfaces for interacting with
@@ -98,7 +98,7 @@ the linux scheduler.
   Note that opening a child process will result in the MPI runtime killing the job
   with MPICH and possibly other implementations of MPI.
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

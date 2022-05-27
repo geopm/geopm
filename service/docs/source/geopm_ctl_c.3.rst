@@ -10,7 +10,7 @@ geopm_ctl_c(3) -- geopm runtime control thread
 
 
 
-SYNOPSIS
+Synopsis
 --------
 
 #include `<geopm_ctl.h> <https://github.com/geopm/geopm/blob/dev/src/geopm_ctl.h>`_\ 
@@ -31,7 +31,7 @@ Link with ``-lgeopm``
                              const pthread_attr_t *attr,
                              pthread_t *thread);
 
-DESCRIPTION
+Description
 -----------
 
 The ``geopm_ctl_c`` structure is used to launch the global extensible open
@@ -69,14 +69,14 @@ of these methods has different requirements and trade offs.
   the supporting MPI implementation must be enabled for
   ``MPI_THREAD_MULTIPLE`` using ``MPI_Init_thread()``.
 
-ERRORS
+Errors
 ------
 
 All functions described on this man page return an error code.  See
 `geopm_error(3) <geopm_error.3.html>`_ for a full description of the error numbers and how
 to convert them to strings.
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

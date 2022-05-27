@@ -10,7 +10,7 @@ geopm::Agg(3) -- data aggregation functions
 
 
 
-NAMESPACES
+Namespaces
 ----------
 
 The ``Agg`` class and the ``Agg::m_type_e`` struct are members of
@@ -21,7 +21,7 @@ interface definitions for the following standard types: ``std::vector``\ ,
 ``std::pair``\ , ``std::string``\ , ``std::map``\ , and ``std::function``\ , to enable
 better rendering of this manual.
 
-SYNOPSIS
+Synopsis
 --------
 
 #include `<geopm/Agg.hpp> <https://github.com/geopm/geopm/blob/dev/src/Agg.hpp>`_\ 
@@ -65,14 +65,14 @@ Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
 
        static string Agg::type_to_name(int agg_type);
 
-DESCRIPTION
+Description
 -----------
 
 This class contains helper functions for aggregating multiple
 floating-point samples to a single number.  They can be used to
 simplify Agent implementation.
 
-ENUM TYPE
+Enum Type
 ---------
 
 Each of the following enum values corresponds to each of the aggregation helper functions.
@@ -95,7 +95,7 @@ Each of the following enum values corresponds to each of the aggregation helper 
            M_NUM_TYPE
        };
 
-CLASS METHODS
+Class Methods
 -------------
 
 
@@ -189,7 +189,7 @@ CLASS METHODS
   one of the ``Agg:m_type_e`` enum values.  If the
   *agg_type* is out of range, it throws an error.
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

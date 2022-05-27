@@ -10,7 +10,7 @@ geopm_daemon_c(3) -- helpers for geopm daemons
 
 
 
-SYNOPSIS
+Synopsis
 --------
 
 #include `<geopm_daemon.h> <https://github.com/geopm/geopm/blob/dev/src/geopm_daemon.h>`_\ 
@@ -33,7 +33,7 @@ Link with ``-lgeopmpolicy``
 
        int geopm_daemon_reset_wait_loop(struct geopm_daemon_c *daemon);
 
-DESCRIPTION
+Description
 -----------
 
 The ``geopm_daemon_c`` interface contains common high-level utility
@@ -87,14 +87,14 @@ zero upon success; see `ERRORS <ERRORS_>`_ section below for details.
   ``geopm_daemon_reset_wait_loop()``:
   resets the *daemon*\ 's endpoint to prepare for a future wait loop.
 
-ERRORS
+Errors
 ------
 
 All functions described on this man page return an error code.  See
 `geopm_error(3) <geopm_error.3.html>`_ for a full description of the error numbers and how
 to convert them to strings.
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

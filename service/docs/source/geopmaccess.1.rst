@@ -2,7 +2,7 @@
 geopmaccess(1) -- Access management for the GEOPM Service
 =========================================================
 
-SYNOPSIS
+Synopsis
 --------
 
 Read Access List
@@ -45,7 +45,7 @@ Get Help or Version
     geopmaccess -h | -v
 
 
-DESCRIPTION
+Description
 -----------
 
 The GEOPM service uses the ``/etc/geopm-service`` directory to store
@@ -192,7 +192,7 @@ Note that having signal or control names in an access list in
 not an error.  This enables access list files to be mounted on
 multiple systems which may have non-overlapping support.
 
-EXAMPLES
+Examples
 --------
 
 Some examples of how to use the ``geopmaccess`` command line tool are
@@ -374,7 +374,7 @@ and combine access lists when writing to a shared mount point.
     sudo geopmaccess --write --controls --force < all-controls.txt
 
 
-EXIT STATUS
+Exit Status
 -----------
 
 The ``geopmaccess`` command will return 0 upon success and -1 on
@@ -401,7 +401,7 @@ Attempts to set configurations using unsupported names will fail
 unless the ``-F`` / ``--force`` option is provided.
 
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

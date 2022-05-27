@@ -10,7 +10,7 @@ geopm_topo_c(3) -- query platform component topology
 
 
 
-SYNOPSIS
+Synopsis
 --------
 
 #include `<geopm_topo.h> <https://github.com/geopm/geopm/blob/dev/src/geopm_topo.h>`_\ 
@@ -54,7 +54,7 @@ SYNOPSIS
   ``int geopm_topo_create_cache(``\ :
   ``void);``
 
-DOMAIN TYPES
+Domain Types
 ------------
 
 The ``geopm_domain_e`` enum defines a set of values that correspond to
@@ -113,7 +113,7 @@ hardware components on the system:
   ``GEOPM_NUM_DOMAIN`` = 10:
   The number of valid built-in domains.
 
-DESCRIPTION
+Description
 -----------
 
 The interfaces described in this man page are the C language bindings
@@ -195,7 +195,7 @@ goals and use case for this interface.
   `unlink(3) <http://man7.org/linux/man-pages/man3/unlink.3p.html>`_ the existing cache file prior to calling this
   function.
 
-RETURN VALUE
+Return Value
 ------------
 
 If an error occurs in any call to an interface documented here, the
@@ -203,7 +203,7 @@ return value of the function will be a negative integer
 corresponding to one of the error codes documented in
 `geopm_error(3) <geopm_error.3.html>`_.
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

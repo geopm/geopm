@@ -10,7 +10,7 @@ geopm::MSRIOGroup -- IOGroup providing MSR-based signals and controls
 
 
 
-SYNOPSIS
+Synopsis
 --------
 
 #include `<geopm/MSRIOGroup.hpp> <https://github.com/geopm/geopm/blob/dev/src/MSRIOGroup.hpp>`_\ 
@@ -132,14 +132,14 @@ SYNOPSIS
   ``static std::unique_ptr<IOGroup> make_plugin(``\ :
   ``void);``
 
-DESCRIPTION
+Description
 -----------
 
 The MSRIOGroup implements the `geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3.html>`_ interface to
 provide hardware signals and controls using MSRs on Intel platforms.
 It relies on **geopm::MSR(3)** and `geopm::MSRIO(3) <GEOPM_CXX_MAN_MSRIO.3.html>`_.
 
-CLASS METHODS
+Class Methods
 -------------
 
 
@@ -307,7 +307,7 @@ CLASS METHODS
   Returns a pointer to a new MSRIOGroup object; see
   `geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3.html>`_ for more details.
 
-ENUMERATIONS
+Enumerations
 ------------
 
 
@@ -316,7 +316,7 @@ ENUMERATIONS
   can be determined by running ``lscpu`` and appending the CPU family
   in hex to the Model in hex.
 
-ENVIRONMENT
+Environment
 -----------
 
 If the ``GEOPM_PLUGIN_PATH`` environment variable is set to a
@@ -334,7 +334,7 @@ Refer to the documentation for ``--geopm-plugin-path`` in
 
 
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,

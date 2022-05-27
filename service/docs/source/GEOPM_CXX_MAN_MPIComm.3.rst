@@ -10,7 +10,7 @@ geopm::MPIComm(3) -- implementation of Comm using MPI
 
 
 
-NAMESPACES
+Namespaces
 ----------
 
 The ``MPIComm`` class is a member of the ``namespace geopm``\ , but the
@@ -22,7 +22,7 @@ manual.
 
 Note that the ``MPIComm`` class is derived from `geopm::Comm(3) <GEOPM_CXX_MAN_Comm.3.html>`_ class.
 
-SYNOPSIS
+Synopsis
 --------
 
 #include `<geopm/MPIComm.hpp> <https://github.com/geopm/geopm/blob/dev/src/MPIComm.hpp>`_\ 
@@ -92,7 +92,7 @@ Link with ``-lgeopm`` **(MPI)**
 
        void MPIComm::tear_down(void) override;
 
-DESCRIPTION
+Description
 -----------
 
 This class implements the Comm abstraction (`geopm::Comm(3) <GEOPM_CXX_MAN_Comm.3.html>`_) using MPI
@@ -101,12 +101,12 @@ as the underlying communication mechanism.
 For more details, see the doxygen
 page at https://geopm.github.io/dox/classgeopm_1_1_m_p_i_comm.html.
 
-CLASS METHODS
+Class Methods
 -------------
 
 **TODO**
 
-SEE ALSO
+See Also
 --------
 
 `geopm(7) <geopm.7.html>`_\ ,
