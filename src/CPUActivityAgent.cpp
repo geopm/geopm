@@ -290,7 +290,7 @@ namespace geopm
                 if (!std::isnan(*it)) {
                     auto uncore_freq = static_cast<uint64_t>(*it);
                     auto max_mem_bw = *(it + 1);
-                    // Not valid to have NAN maxm mem bw for uncore freq.
+                    // Not valid to have NAN max mem bw for uncore freq.
                     GEOPM_DEBUG_ASSERT(!std::isnan(max_mem_bw),
                                        "mapped CPU_UNCORE_FREQUENCY with no max memory bandwidth assigned.");
                     m_qm_max_rate[uncore_freq] = max_mem_bw;
