@@ -1,19 +1,10 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
-
-
 geopm_hash.h(3) -- helper methods for encoding
 ==============================================
-
-
-
-
-
 
 Synopsis
 --------
 
-#include `<geopm_hash.h> <https://github.com/geopm/geopm/blob/dev/src/geopm_hash.h>`_\ 
+#include `<geopm_hash.h> <https://github.com/geopm/geopm/blob/dev/src/geopm_hash.h>`_
 
 Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
 
@@ -53,5 +44,5 @@ stored as doubles.
 See Also
 --------
 
-`geopm(7) <geopm.7.html>`_\ ,
+`geopm(7) <geopm.7.html>`_,
 `geopm::PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3.html>`_
