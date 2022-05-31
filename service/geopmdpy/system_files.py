@@ -18,7 +18,6 @@ abstraction for updating the contents.
 
 """
 
-import re
 import os
 import sys
 import stat
@@ -682,6 +681,8 @@ class ActiveSessions(object):
             RuntimeError: Client does not have an open session
 
         """
+        batch_pid = self._sessions[client_pid]['batch_server']
+
         self.check_client_active(client_pid, 'remove_batch_server')
         self._sessions[client_pid].pop('batch_server')
         self._update_session_file(client_pid)
@@ -692,14 +693,30 @@ class ActiveSessions(object):
             sys.stderr.write(f'Warning: {self._LOCK_PATH} file was left over, deleting it now.\n')
             os.unlink(self._LOCK_PATH)
 
-        directory_contents = os.listdir(self._RUN_PATH)
-        match_shmem = self._M_SHMEM_PREFIX + '.?'
-        match_fifo = self._M_DEFAULT_FIFO_PREFIX + '.?'
+        signal_shmem_key = self._M_SHMEM_PREFIX + str(batch_pid) + "-signal"
+        control_shmem_key = self._M_SHMEM_PREFIX + str(batch_pid) + "-control"
+        read_fifo_key = self._M_DEFAULT_FIFO_PREFIX + str(batch_pid) + "-in"
+        write_fifo_key = self._M_DEFAULT_FIFO_PREFIX + str(batch_pid) + "-out"
+        signal_shmem_path = os.path.join(self._RUN_PATH, signal_shmem_key)
+        control_shmem_path = os.path.join(self._RUN_PATH, control_shmem_key)
+        read_fifo_path = os.path.join(self._RUN_PATH, read_fifo_key)
+        write_fifo_path = os.path.join(self._RUN_PATH, write_fifo_key)
 
-        for file in directory_contents:
-            if (re.match(match_shmem, file) or re.match(match_fifo, file)):
-                sys.stderr.write(f'Warning: {file} file was left over, deleting it now.\n')
-                os.unlink(file)
+        if (os.path.exists(signal_shmem_path)):
+            sys.stderr.write(f'Warning: {signal_shmem_path} file was left over, deleting it now.\n')
+            os.unlink(signal_shmem_path)
+
+        if (os.path.exists(control_shmem_path)):
+            sys.stderr.write(f'Warning: {control_shmem_path} file was left over, deleting it now.\n')
+            os.unlink(control_shmem_path)
+
+        if (os.path.exists(read_fifo_path)):
+            sys.stderr.write(f'Warning: {read_fifo_path} file was left over, deleting it now.\n')
+            os.unlink(read_fifo_path)
+
+        if (os.path.exists(write_fifo_path)):
+            sys.stderr.write(f'Warning: {write_fifo_path} file was left over, deleting it now.\n')
+            os.unlink(write_fifo_path)
 
     def _get_session_path(self, client_pid):
         """Query for the session file path for client PID
