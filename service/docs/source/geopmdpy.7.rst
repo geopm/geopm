@@ -1,14 +1,5 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
-
-
 geopmdpy(7) -- global extensible open power manager python daemon package
 =========================================================================
-
-
-
-
-
 
 Description
 -----------
@@ -118,6 +109,6 @@ geopmdpy.version
 See Also
 --------
 
-`geopmpy(7) <geopmpy.7.html>`_\ ,
-`geopm_daemon_c(3) <geopm_daemon_c.3.html>`_\ ,
+`geopmpy(7) <geopmpy.7.html>`_,
+`geopm_daemon_c(3) <geopm_daemon_c.3.html>`_,
 `geopm::Daemon(3) <GEOPM_CXX_MAN_Daemon.3.html>`_

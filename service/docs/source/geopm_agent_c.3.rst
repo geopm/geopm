@@ -1,19 +1,10 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
-
-
 geopm_agent_c(3) -- query information about available agents
 ============================================================
-
-
-
-
-
 
 Synopsis
 --------
 
-#include `<geopm_agent.h> <https://github.com/geopm/geopm/blob/dev/src/geopm_agent.h>`_\ 
+#include `<geopm_agent.h> <https://github.com/geopm/geopm/blob/dev/src/geopm_agent.h>`_
 
 Link with ``-lgeopm``
 
@@ -90,7 +81,7 @@ zero upon success; see `ERRORS <ERRORS_>`_ section below for details.
   number of bytes reserved for the output string is specified in
   *policy_name_max*.  Returns zero if an agent is supported, the *policy_idx*
   is in range, and the policy name can be stored in the output string
-  (*policy_name*\ ).  Otherwise an error code is returned.
+  (*policy_name*).  Otherwise an error code is returned.
 
 * 
   ``geopm_agent_policy_json()``:
@@ -123,7 +114,7 @@ zero upon success; see `ERRORS <ERRORS_>`_ section below for details.
   buffer.  The number of bytes allocated for the output buffer is specified
   in *sample_name_max*.  Returns zero if an agent is supported, the
   *sample_idx* is in range, and the sample name can be stored in the output
-  string (*sample_name*\ ).  Otherwise an error code is returned.
+  string (*sample_name*).  Otherwise an error code is returned.
 
 * 
   ``geopm_agent_num_avail()``:
@@ -137,15 +128,15 @@ zero upon success; see `ERRORS <ERRORS_>`_ section below for details.
   result is stored in *agent_name*.  The number of bytes reserved for the
   output string is specified in *agent_name_max*.  Returns zero if the
   *agent_idx* is in range, and the agent name can be stored in the output
-  string (*agent_name*\ ).  Otherwise an error code is returned.
+  string (*agent_name*).  Otherwise an error code is returned.
 
 * 
   ``geopm_agent_enforce_policy()``:
   queries the environment for the ``GEOPM_AGENT`` and ``GEOPM_POLICY``
   and enforces the policy for the agent by writing controls to the
-  platform (see `geopm_pio_c(3) <geopm_pio_c.3.html>`_\ ).  A resource manager can use
+  platform (see `geopm_pio_c(3) <geopm_pio_c.3.html>`_).  A resource manager can use
   this function to enforce the GEOPM configured policy (see
-  `geopm(7) <geopm.7.html>`_\ ) prior to releasing compute nodes for a user
+  `geopm(7) <geopm.7.html>`_) prior to releasing compute nodes for a user
   allocation.  More generally this function allows one-time use of
   an Agent outside of the context of an MPI runtime or the use of a
   GEOPM Controller.  Note that the enforcement of the policy will
@@ -170,10 +161,10 @@ to convert them to strings.
 See Also
 --------
 
-`geopm(7) <geopm.7.html>`_\ ,
-`geopm_agent_monitor(7) <geopm_agent_monitor.7.html>`_\ ,
-`geopm_agent_power_balancer(7) <geopm_agent_power_balancer.7.html>`_\ ,
-`geopm_agent_power_governor(7) <geopm_agent_power_governor.7.html>`_\ ,
-`geopm_error(3) <geopm_error.3.html>`_\ ,
-`geopmagent(1) <geopmagent.1.html>`_\ ,
+`geopm(7) <geopm.7.html>`_,
+`geopm_agent_monitor(7) <geopm_agent_monitor.7.html>`_,
+`geopm_agent_power_balancer(7) <geopm_agent_power_balancer.7.html>`_,
+`geopm_agent_power_governor(7) <geopm_agent_power_governor.7.html>`_,
+`geopm_error(3) <geopm_error.3.html>`_,
+`geopmagent(1) <geopmagent.1.html>`_,
 `geopmlaunch(1) <geopmlaunch.1.html>`_
