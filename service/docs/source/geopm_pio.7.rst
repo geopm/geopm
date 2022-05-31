@@ -66,13 +66,152 @@ encoded in this way.
 Descriptions Of High Level Aliases
 ----------------------------------
 
-``TIME``
-    Time elapsed since the beginning of execution.
+``BOARD_CPU_ENERGY`` (**TODO**: currently ``ENERGY_BOARD_CPU``)
+    Current total energy of CPU components, as measured by the server's board.
+    See :ref:`geopm_pio_cnl(7) <geopm_pio_cnl.7:Requirements>` for signal availability
+    requirements.
+
+``BOARD_CPU_POWER`` (**TODO**: currently ``POWER_BOARD_CPU``)
+    Current power consumption of CPU components, as measured by the server's
+    board. See :ref:`geopm_pio_cnl(7) <geopm_pio_cnl.7:Requirements>` for signal
+    availability requirements.
+
+``BOARD_ENERGY`` (**TODO**: currently ``ENERGY_BOARD``)
+    Total energy measured on the server's board. See :ref:`geopm_pio_cnl(7)
+    <geopm_pio_cnl.7:Requirements>` for signal availability requirements.
+
+``BOARD_MEMORY_ENERGY`` (**TODO**: currently ``ENERGY_MEMORY``)
+    Current total energy of memory components, as measured by the server's
+    board. See :ref:`geopm_pio_cnl(7) <geopm_pio_cnl.7:Requirements>` for signal
+    availability requirements.
+
+``BOARD_MEMORY_POWER`` (**TODO**: currently ``POWER_MEMORY``)
+    Current power consumption of memory components, as measured by the server's
+    board. See :ref:`geopm_pio_cnl(7) <geopm_pio_cnl.7:Requirements>` for signal
+    availability requirements.
+
+``BOARD_POWER`` (**TODO**: currently ``POWER_BOARD``)
+    Power measured on the server's board. See :ref:`geopm_pio_cnl(7)
+    <geopm_pio_cnl.7:Requirements>` for signal availability requirements.
+
+``CPU_FREQUENCY_CONTROL``
+    Target operating frequency of the CPU based on the control register.
+
+``CPU_FREQUENCY_MAX``
+    Maximum processor frequency.
+
+``CPU_FREQUENCY_STATUS``
+    Average CPU frequency over the specified domain.
+
+``CPU_FREQUENCY_STATUS``
+    The current operating frequency of the CPU.
+
+``CPU_UNCORE_FREQUENCY_STATUS``
+    Target operating frequency of the uncore.
+
+``CYCLES_REFERENCE``
+    Average over the domain of clock reference cycles since the
+    beginning of execution.
+
+``CYCLES_REFERENCE``
+    The count of the number of cycles while the logical processor is not in a
+    halt state and not in a stop-clock state. The count rate is fixed at the
+    TIMESTAMP_COUNT rate.
+
+``CYCLES_THREAD``
+    Average over the domain of clock cycles executed by cores since
+    the beginning of execution.
+
+``CYCLES_THREAD``
+    The count of the number of cycles while the logical processor is not in a
+    halt state.  The count rate may change based on core frequency.
+
+``ENERGY_DRAM``
+    An increasing meter of energy consumed by the DRAM over time. It will reset
+    periodically due to roll-over.
+
+``ENERGY_DRAM``
+    Total energy aggregated over the DRAM DIMMs associated with a NUMA node.
+
+``ENERGY_PACKAGE``
+    An increasing meter of energy consumed by the package over time. It will
+    reset periodically due to roll-over.
+
+``ENERGY_PACKAGE``
+    Total energy aggregated over the processor package.
 
 ``EPOCH_COUNT``
     Number of completed executions of an epoch.  Prior to the first call
     by the application to ``geopm_prof_epoch()`` the signal returns as ``-1``.
     With each call to ``geopm_prof_epoch()`` the count increases by one.
+
+``GPU_CORE_ACTIVITY``
+    GPU compute core activity expressed as a ratio of cycles.
+
+``GPU_CORE_FREQENCY_MAX_AVAIL``
+    Maximum supported GPU core frequency over the specified domain.
+
+``GPU_CORE_FREQENCY_MIN_AVAIL``
+    Minimum supported GPU core frequency over the specified domain.
+
+``GPU_CORE_FREQUENCY_CONTROL``
+    Average requested GPU core frequency over the specified domain.
+
+``GPU_CORE_FREQUENCY_STATUS``
+    Average achieved GPU core frequency over the specified domain.
+
+``GPU_ENERGY``
+    Total energy aggregated over the GPU package.
+
+``GPU_POWER_LIMIT_CONTROL``
+    Average GPU power usage limit.
+
+``GPU_POWER``
+    Total power aggregated over the GPU package.
+
+``GPU_TEMPERATURE``
+    Average GPU temperature in degrees Celsius.
+
+``GPU_UNCORE_ACTIVITY``
+    GPU memory access activity expressed as a ratio of cycles.
+
+``GPU_UTILIZATION``
+    Average GPU utilization expressed as a ratio of cycles.
+
+``INSTRUCTIONS_RETIRED``
+    The count of the number of instructions executed.
+
+``POWER_DRAM``
+    Total power aggregated over the DRAM DIMMs associated with a NUMA node.
+
+``POWER_PACKAGE_LIMIT``
+    The average power usage limit over the time window specified in
+    PL1_TIME_WINDOW.
+ 
+``POWER_PACKAGE_TIME_WINDOW``
+    The time window associated with power limit 1.
+ 
+
+``POWER_PACKAGE_MAX``
+    Maximum setting for package power over the given domain.
+
+``POWER_PACKAGE_MAX``
+    The maximum power limit based on the electrical specification.
+
+``POWER_PACKAGE_MIN``
+    Minimum setting for package power over the given domain.
+
+``POWER_PACKAGE_MIN``
+    The minimum power limit based on the electrical specification.
+
+``POWER_PACKAGE_TDP``
+    Maximum power to stay within the thermal limits based on the design (TDP).
+
+``POWER_PACKAGE_TDP``
+    Maximum sustainable setting for package power over the given domain.
+
+``POWER_PACKAGE``
+    Total power aggregated over the processor package.
 
 ``REGION_HASH``
     The hash of the region of code (see `geopm_prof_c(3) <geopm_prof_c.3.html>`_\ ) currently being
@@ -96,151 +235,12 @@ Descriptions Of High Level Aliases
     Maximum per-rank of the last recorded runtime for the current
     region.
 
-``ENERGY_PACKAGE``
-    Total energy aggregated over the processor package.
-
-``POWER_PACKAGE``
-    Total power aggregated over the processor package.
-
-``CPU_FREQUENCY_STATUS``
-    Average CPU frequency over the specified domain.
-
-``ENERGY_DRAM``
-    Total energy aggregated over the DRAM DIMMs associated with a NUMA node.
-
-``POWER_DRAM``
-    Total power aggregated over the DRAM DIMMs associated with a NUMA node.
-
-``POWER_PACKAGE_MIN``
-    Minimum setting for package power over the given domain.
-
-``POWER_PACKAGE_MAX``
-    Maximum setting for package power over the given domain.
-
-``POWER_PACKAGE_TDP``
-    Maximum sustainable setting for package power over the given domain.
-
-``CYCLES_THREAD``
-    Average over the domain of clock cycles executed by cores since
-    the beginning of execution.
-
-``CYCLES_REFERENCE``
-    Average over the domain of clock reference cycles since the
-    beginning of execution.
-
-``GPU_ENERGY``
-    Total energy aggregated over the GPU package.
-
-``GPU_POWER``
-    Total power aggregated over the GPU package.
-
-``GPU_CORE_FREQUENCY_STATUS``
-    Average achieved GPU core frequency over the specified domain.
-
-``GPU_CORE_FREQUENCY_CONTROL``
-    Average requested GPU core frequency over the specified domain.
-
-``GPU_CORE_FREQENCY_MIN_AVAIL``
-    Minimum supported GPU core frequency over the specified domain.
-
-``GPU_CORE_FREQENCY_MAX_AVAIL``
-    Maximum supported GPU core frequency over the specified domain.
-
-``GPU_UTILIZATION``
-    Average GPU utilization expressed as a ratio of cycles.
-
-``GPU_TEMPERATURE``
-    Average GPU temperature in degrees Celsius.
-
-``GPU_POWER_LIMIT_CONTROL``
-    Average GPU power usage limit.
-
-``GPU_CORE_ACTIVITY``
-    GPU compute core activity expressed as a ratio of cycles.
-
-``GPU_UNCORE_ACTIVITY``
-    GPU memory access activity expressed as a ratio of cycles.
-
-``BOARD_POWER`` (**TODO**: currently ``POWER_BOARD``)
-    Power measured on the server's board. See :ref:`geopm_pio_cnl(7)
-    <geopm_pio_cnl.7:Requirements>` for signal availability requirements.
-
-``BOARD_ENERGY`` (**TODO**: currently ``ENERGY_BOARD``)
-    Total energy measured on the server's board. See :ref:`geopm_pio_cnl(7)
-    <geopm_pio_cnl.7:Requirements>` for signal availability requirements.
-
-``BOARD_MEMORY_POWER`` (**TODO**: currently ``POWER_MEMORY``)
-    Current power consumption of memory components, as measured by the server's
-    board. See :ref:`geopm_pio_cnl(7) <geopm_pio_cnl.7:Requirements>` for signal
-    availability requirements.
-
-``BOARD_MEMORY_ENERGY`` (**TODO**: currently ``ENERGY_MEMORY``)
-    Current total energy of memory components, as measured by the server's
-    board. See :ref:`geopm_pio_cnl(7) <geopm_pio_cnl.7:Requirements>` for signal
-    availability requirements.
-
-``BOARD_CPU_POWER`` (**TODO**: currently ``POWER_BOARD_CPU``)
-    Current power consumption of CPU components, as measured by the server's
-    board. See :ref:`geopm_pio_cnl(7) <geopm_pio_cnl.7:Requirements>` for signal
-    availability requirements.
-
-``BOARD_CPU_ENERGY`` (**TODO**: currently ``ENERGY_BOARD_CPU``)
-    Current total energy of CPU components, as measured by the server's board.
-    See :ref:`geopm_pio_cnl(7) <geopm_pio_cnl.7:Requirements>` for signal availability
-    requirements.
-
 ``TIMESTAMP_COUNTER``
     An always running, monotonically increasing counter that is incremented at
     a constant rate. For use as a wall clock timer.
 
-``CPU_FREQUENCY_STATUS``
-    The current operating frequency of the CPU.
-
-``CPU_FREQUENCY_CONTROL``
-    Target operating frequency of the CPU based on the control register.
-
-``CPU_UNCORE_FREQUENCY_STATUS``
-    Target operating frequency of the uncore.
-
-``CPU_FREQUENCY_MAX``
-    Maximum processor frequency.
-
-``ENERGY_PACKAGE``
-    An increasing meter of energy consumed by the package over time. It will
-    reset periodically due to roll-over.
-
-``ENERGY_DRAM``
-    An increasing meter of energy consumed by the DRAM over time. It will reset
-    periodically due to roll-over.
-
-``INSTRUCTIONS_RETIRED``
-    The count of the number of instructions executed.
-
-``CYCLES_THREAD``
-    The count of the number of cycles while the logical processor is not in a
-    halt state.  The count rate may change based on core frequency.
-
-``CYCLES_REFERENCE``
-    The count of the number of cycles while the logical processor is not in a
-    halt state and not in a stop-clock state. The count rate is fixed at the
-    TIMESTAMP_COUNT rate.
-
-``POWER_PACKAGE_MIN``
-    The minimum power limit based on the electrical specification.
-
-``POWER_PACKAGE_MAX``
-    The maximum power limit based on the electrical specification.
-
-``POWER_PACKAGE_TDP``
-    Maximum power to stay within the thermal limits based on the design (TDP).
-
-``POWER_PACKAGE_LIMIT``
-    The average power usage limit over the time window specified in
-    PL1_TIME_WINDOW.
- 
-``POWER_PACKAGE_TIME_WINDOW``
-    The time window associated with power limit 1.
- 
+``TIME``
+    Time elapsed since the beginning of execution.
 
 See Also
 --------
