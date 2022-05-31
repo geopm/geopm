@@ -1,19 +1,10 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
-
-
 geopmagent(1) -- query agent information and create static policies
 ===================================================================
-
-
-
-
-
 
 Synopsis
 --------
 
-``geopmagent`` [\ ``-a`` *AGENT*\ ] [\ ``-p`` *POLICY0*\ [,\ *POLICY1*\ ,...] ]
+``geopmagent`` [\ ``-a`` *AGENT*\ ] [\ ``-p`` *POLICY0*\ [,\ *POLICY1*,...]\ ]
 
 Description
 -----------
@@ -42,28 +33,16 @@ this schema:
 
 Options
 -------
-
-
-* 
-  ``--help``\ :
-  Print brief summary of the command line usage information,
-  then exit.
-
-* 
-  ``--version``\ :
-  Print version of `geopm(7) <geopm.7.html>`_ to standard output, then exit.
-
-* 
-  ``-a`` *AGENT*\ :
-  Specify the name of the agent.
-
-* 
-  ``-p`` *POLICY0*\ ,\ *POLICY1*\ ,...:
-  The values to be set for each policy in a comma-separated list.
-  Values other than the first policy are optional and will be set to
-  NAN if not provided, indicating that the Agent should use a
-  default value.  If the agent does not require any policy values
-  this option must be specified as "None" or "none".
+--help      Print brief summary of the command line usage information, then
+            exit.
+--version   Print version of `geopm(7) <geopm.7.html>`_ to standard output,
+            then exit.
+-a AGENT    Specify the name of the agent.
+-p POLICY   The values to be set for each policy in a comma-separated list.
+            Values other than the first policy are optional and will be set to
+            NAN if not provided, indicating that the Agent should use a default
+            value.  If the agent does not require any policy values this option
+            must be specified as "None" or "none".
 
 Examples
 --------
@@ -120,9 +99,9 @@ specifying ``--geopm-agent`` and ``--geopm-policy`` are optional.
 See Also
 --------
 
-`geopm(7) <geopm.7.html>`_\ ,
-`geopm_agent_frequency_map(7) <geopm_agent_frequency_map.7.html>`_\ ,
-`geopm_agent_monitor(7) <geopm_agent_monitor.7.html>`_\ ,
-`geopm_agent_power_balancer(7) <geopm_agent_power_balancer.7.html>`_\ ,
-`geopm_agent_power_governor(7) <geopm_agent_power_governor.7.html>`_\ ,
+`geopm(7) <geopm.7.html>`_,
+`geopm_agent_frequency_map(7) <geopm_agent_frequency_map.7.html>`_,
+`geopm_agent_monitor(7) <geopm_agent_monitor.7.html>`_,
+`geopm_agent_power_balancer(7) <geopm_agent_power_balancer.7.html>`_,
+`geopm_agent_power_governor(7) <geopm_agent_power_governor.7.html>`_,
 `geopm_agent_c(3) <geopm_agent_c.3.html>`_

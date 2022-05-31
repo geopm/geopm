@@ -1,14 +1,5 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
-
-
 geopmendpoint(1) -- command line tool for dynamic policy control
 ================================================================
-
-
-
-
-
 
 Synopsis
 --------
@@ -34,43 +25,26 @@ endpoints available on the system is printed to standard output.
 
 Options
 -------
-
-
-* 
-  ``-c``\ :
-  Create an endpoint for an attaching agent.
-
-* 
-  ``-d``\ :
-  Destroy the endpoint and send a signal to any attached agent that
-  no more policies will be written or samples read from the
-  endpoint.
-
-* 
-  ``-a``\ :
-  Check if an agent has attached to the endpoint, and print the name
-  of the agent if it has.  The return value will be non-zero if an
-  agent has not yet attached to the endpoint.
-
-* 
-  ``-s``\ :
-  Read a sample from the attached agent, if any.  The output has one
-  line per signal.  On each line is written the signal name and
-  signal value separated by a colon.  The last line of the output
-  represents the SAMPLE_AGE signal which is the elapsed time since
-  the last update to the endpoint by the GEOPM runtime.  The signal
-  names provided by an agent can be determined with the
-  `geopmagent(1) <geopmagent.1.html>`_ command line tool.  The return value will be
-  non-zero if an agent has not yet attached to the endpoint.
-
-* 
-  ``-p`` *POLICY0*\ ,\ *POLICY1*\ ,...:
-  Set policies for the attached agent.  The values to be set for
-  each policy are given in a comma-separated list.  The order of
-  these values corresponds to the ordering of the policy names by
-  the `geopmagent(1) <geopmagent.1.html>`_ executable when the attached agent is
-  specified.  The return value will be non-zero if an agent has not
-  yet attached to the endpoint.
+-c         Create an endpoint for an attaching agent.
+-d         Destroy the endpoint and send a signal to any attached agent that no
+           more policies will be written or samples read from the endpoint.
+-a         Check if an agent has attached to the endpoint, and print the name
+           of the agent if it has.  The return value will be non-zero if an
+           agent has not yet attached to the endpoint.
+-s         Read a sample from the attached agent, if any.  The output has one
+           line per signal.  On each line is written the signal name and signal
+           value separated by a colon.  The last line of the output represents
+           the SAMPLE_AGE signal which is the elapsed time since the last
+           update to the endpoint by the GEOPM runtime.  The signal names
+           provided by an agent can be determined with the `geopmagent(1)
+           <geopmagent.1.html>`_ command line tool.  The return value will be
+           non-zero if an agent has not yet attached to the endpoint.
+-p POLICY  Set policies for the attached agent.  The values to be set for each
+           policy are given in a comma-separated list.  The order of these
+           values corresponds to the ordering of the policy names by the
+           `geopmagent(1) <geopmagent.1.html>`_ executable when the attached
+           agent is specified.  The return value will be non-zero if an agent
+           has not yet attached to the endpoint.
 
 Examples
 --------
@@ -149,10 +123,10 @@ Destroy endpoints "job-123" and "job-321":
 See Also
 --------
 
-`geopm(7) <geopm.7.html>`_\ ,
-`geopm_agent_monitor(7) <geopm_agent_monitor.7.html>`_\ ,
-`geopm_agent_power_balancer(7) <geopm_agent_power_balancer.7.html>`_\ ,
-`geopm_agent_power_governor(7) <geopm_agent_power_governor.7.html>`_\ ,
-`geopm_agent_c(3) <geopm_agent_c.3.html>`_\ ,
-`geopm_endpoint_c(3) <geopm_endpoint_c.3.html>`_\ ,
+`geopm(7) <geopm.7.html>`_,
+`geopm_agent_monitor(7) <geopm_agent_monitor.7.html>`_,
+`geopm_agent_power_balancer(7) <geopm_agent_power_balancer.7.html>`_,
+`geopm_agent_power_governor(7) <geopm_agent_power_governor.7.html>`_,
+`geopm_agent_c(3) <geopm_agent_c.3.html>`_,
+`geopm_endpoint_c(3) <geopm_endpoint_c.3.html>`_,
 `geopmagent(1) <geopmagent.1.html>`_
