@@ -1,14 +1,5 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
-
-
 geopmadmin(1) -- tool for geopm system administrators
 =====================================================
-
-
-
-
-
 
 Synopsis
 --------
@@ -31,38 +22,20 @@ in a human readable format the values determined by these files.
 
 Options
 -------
-
-
-* 
-  ``--help``\ :
-  Print brief summary of the command line usage information,
-  then exit.
-
-* 
-  ``--version``\ :
-  Print version of `geopm(7) <geopm.7.html>`_ to standard output, then exit.
-
-* 
-  ``-d``\ , ``--config-default``\ :
-  Print the path to the GEOPM configuration file that controls the
-  default values for the system.
-
-* 
-  ``-o``\ , ``--config-override``\ :
-  Print the path to the GEOPM configuration file that controls the
-  override values for the system.
-
-* 
-  ``-a``\ , ``--msr-allowlist``\ :
-  Print the minimum required allowlist for the msr-safe driver to
-  enable all of the GEOPM features.
-
-* 
-  ``-c``\ , ``--cpuid``\ :
-  Specify the cpuid in hexidecimal to select the architecture for
-  the msr-safe allowlist generation.  If this option is not
-  specified the architecture where the application is running will
-  be used.
+--help                 Print brief summary of the command line usage
+                       information, then exit.
+--version              Print version of `geopm(7) <geopm.7.html>`_ to standard
+                       output, then exit.
+-d, --config-default   Print the path to the GEOPM configuration file that
+                       controls the default values for the system.
+-o, --config-override  Print the path to the GEOPM configuration file that
+                       controls the override values for the system.
+-a, --msr-allowlist    Print the minimum required allowlist for the msr-safe
+                       driver to enable all of the GEOPM features.
+-c, --cpuid            Specify the cpuid in hexidecimal to select the
+                       architecture for the msr-safe allowlist generation. If
+                       this option is not specified the architecture where the
+                       application is running will be used.
 
 Examples
 --------
@@ -84,6 +57,6 @@ on a legacy msr-safe system:
 See Also
 --------
 
-`geopm(7) <geopm.7.html>`_\ ,
+`geopm(7) <geopm.7.html>`_,
 `geopmagent(1) <geopmagent.1.html>`_
 `geopmlaunch(1) <geopmlaunch.1.html>`_

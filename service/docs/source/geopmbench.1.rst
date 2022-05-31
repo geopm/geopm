@@ -1,19 +1,10 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
-
-
 geopmbench(1) -- synthetic benchmark application
 ================================================
-
-
-
-
-
 
 Synopsis
 --------
 
-``geopmbench`` [_CONFIG\ *FILE*\ ]
+``geopmbench`` [\ *CONFIG_FILE*\ ]
 
 Description
 -----------
@@ -123,6 +114,6 @@ reported through the geopm\ *tprof*\ * API.
 See Also
 --------
 
-`geopm(7) <geopm.7.html>`_\ ,
-`geopm_prof_c(3) <geopm_prof_c.3.html>`_\ ,
-`geopmlaunch(1) <geopmlaunch.1.html>`_\ ,
+`geopm(7) <geopm.7.html>`_,
+`geopm_prof_c(3) <geopm_prof_c.3.html>`_,
+`geopmlaunch(1) <geopmlaunch.1.html>`_
