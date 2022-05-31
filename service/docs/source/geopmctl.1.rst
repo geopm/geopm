@@ -1,20 +1,10 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
-
-
 geopmctl(1) -- geopm runtime control application
 ================================================
-
-
-
-
-
 
 Synopsis
 --------
 
-
-* ``geopmctl`` [\ ``--help``\ ] [\ ``--version``\ ]:
+``geopmctl`` [\ ``--help``\ ] [\ ``--version``\ ]
 
 Description
 -----------
@@ -28,21 +18,14 @@ Description
 
 Options
 -------
-
-
-* 
-  ``--help``\ :
-  :raw-html-m2r:`<br>`\ Print brief summary of the command line usage information, then exit.
-
-* 
-  ``--version``\ :
-  Print version of GEOPM to standard output, then exit.
+--help     Print brief summary of the command line usage information, then exit.
+--version  Print version of GEOPM to standard output, then exit.
 
 See Also
 --------
 
-`geopm(7) <geopm.7.html>`_\ ,
-`geopm_agent_c(3) <geopm_agent_c.3.html>`_\ ,
-`geopm_ctl_c(3) <geopm_ctl_c.3.html>`_\ ,
-`geopmagent(1) <geopmagent.1.html>`_\ ,
+`geopm(7) <geopm.7.html>`_,
+`geopm_agent_c(3) <geopm_agent_c.3.html>`_,
+`geopm_ctl_c(3) <geopm_ctl_c.3.html>`_,
+`geopmagent(1) <geopmagent.1.html>`_,
 `geopmlaunch(1) <geopmlaunch.1.html>`_

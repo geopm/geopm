@@ -56,54 +56,22 @@ line tool is to enable reading and writing of these access list files.
 
 Options
 ~~~~~~~
-
-*
-  ``-c``, ``--controls``:
-  Command applies to controls not signals
-
-* ``-u``, ``--default``:
-  Print the default user access list
-
-*
-  ``-g``, ``--group``:
-  Read or write the access list for a specific Unix GROUP
-
-*
-  ``-a``, ``--all``:
-  Print all signals or controls supported by the service system
-
-*
-  ``-w``, ``--write``:
-  Use standard input to write an access list
-
-*
-  ``-e``, ``--edit``:
-  Edit an access list using EDITOR environment variable, default ``vi``
-
-*
-  ``-D``, ``--delete``:
-  Remove an access list for default user or a particular Unix Group
-
-*
-  ``-n``, ``--dry-run``:
-  Do error checking on all user input, but do not modify configuration
-  files
-
-*
-  ``-F``, ``--force``:
-  Write access list without validating GEOPM Service support for names
-
-*
-  ``-h``, ``--help``:
-  Print brief summary of the command line usage information, then
-  exit
-
-*
-  ``-v``, ``--version``:
-  Print version of `geopm(7) <geopm.7.html>`_ to standard output, then
-  exit
-
-
+-c, --controls  Command applies to controls not signals
+-u, --default   Print the default user access list
+-g, --group     Read or write the access list for a specific Unix GROUP
+-a, --all       Print all signals or controls supported by the service system
+-w, --write     Use standard input to write an access list
+-e, --edit      Edit an access list using EDITOR environment variable, default
+                ``vi``
+-D, --delete    Remove an access list for default user or a particular Unix Group
+-n, --dry-run   Do error checking on all user input, but do not modify
+                configuration files
+-F, --force     Write access list without validating GEOPM Service support for
+                names
+-h, --help      Print brief summary of the command line usage information, then
+                exit
+-v, --version   Print version of `geopm(7) <geopm.7.html>`_ to standard output,
+                then exit
 
 Query Access
 ~~~~~~~~~~~~
@@ -404,9 +372,9 @@ unless the ``-F`` / ``--force`` option is provided.
 See Also
 --------
 
-`geopm(7) <geopm.7.html>`_\ ,
-`geopmread(1) <geopmread.1.html>`_\ ,
-`geopmwrite(1) <geopmwrite.1.html>`_\ ,
-`geopmsession(1) <geopmsession.1.html>`_\ ,
-`SKX Platform Controls <controls_SKX.html>`_\ ,
+`geopm(7) <geopm.7.html>`_,
+`geopmread(1) <geopmread.1.html>`_,
+`geopmwrite(1) <geopmwrite.1.html>`_,
+`geopmsession(1) <geopmsession.1.html>`_,
+`SKX Platform Controls <controls_SKX.html>`_,
 `SKX Platform Signals <signals_SKX.html>`_
