@@ -16,90 +16,70 @@ To use the GEOPM DCGM signals and controls GEOPM must be compiled against the DC
 Signals
 -------
 
-* ``DCGM::SM_ACTIVE``:
-
+``DCGM::SM_ACTIVE``
     Streaming Multiprocessor (SM) activity expressed as a ratio of cycles.
 
-  *  ``Aggregation``: Average.
 
-  *  ``Domain``: GPU
-
-  *  ``Format``: Double.
-
-  *  ``Unit``: None
-* ``DCGM::SM_OCCUPANCY``:
-
+      *  ``Aggregation``: Average.
+      *  ``Domain``: GPU
+      *  ``Format``: Double.
+      *  ``Unit``: None
+``DCGM::SM_OCCUPANCY``
     Warp residency expressed as a ratio of maximum warps.
 
-  *  ``Aggregation``: Average
 
-  *  ``Domain``: GPU
-
-  *  ``Format``: Double
-
-  *  ``Unit``: None
-* ``DCGM::DRAM_ACTIVE``:
-
+      *  ``Aggregation``: Average
+      *  ``Domain``: GPU
+      *  ``Format``: Double
+      *  ``Unit``: None
+``DCGM::DRAM_ACTIVE``
     DRAM send and receive metrics expressed as a ration of cycles
 
-  *  ``Aggregation``: Average
 
-  *  ``Domain``: GPU
-
-  *  ``Format``: Double
-
-  *  ``Unit``: None
+      *  ``Aggregation``: Average
+      *  ``Domain``: GPU
+      *  ``Format``: Double
+      *  ``Unit``: None
 
 Signal Aliases
 ~~~~~~~~~~~~~~~~
 Several high level aliases are provided.  Their mapping to
 underlying IO Group signals is provided below.
 
-* ``GPU_CORE_ACTIVITY``:
-
+``GPU_CORE_ACTIVITY``
     Aliases to DCGM::SM_ACTIVE
 
-* ``GPU_UNCORE_ACTIVITY``:
-
+``GPU_UNCORE_ACTIVITY``
     Aliases to DCGM::DRAM_ACTIVE
 
 Controls
 --------
 Every control is exposed as a signal with the same name.  The relevant signal aggregation information is provided below.
 
-* ``DCGM::FIELD_UPDATE_RATE``:
-
+``DCGM::FIELD_UPDATE_RATE``
     Rate at which field data is polled
 
-  *  ``Aggregation``: Expect_same
 
-  *  ``Domain``: Board
-
-  *  ``Format``: Double
-
-  *  ``Unit``: Seconds
-* ``DCGM::MAX_STORAGE_TIME``:
-
+      *  ``Aggregation``: Expect_same
+      *  ``Domain``: Board
+      *  ``Format``: Double
+      *  ``Unit``: Seconds
+``DCGM::MAX_STORAGE_TIME``
     The maximum time field data will be stored
 
-  *  ``Aggregation``: Expect_same
 
-  *  ``Domain``: Board
-
-  *  ``Format``: Double
-
-  *  ``Unit``: Seconds
-* ``DCGM::MAX_SAMPLES``:
-
+      *  ``Aggregation``: Expect_same
+      *  ``Domain``: Board
+      *  ``Format``: Double
+      *  ``Unit``: Seconds
+``DCGM::MAX_SAMPLES``
     The maximum number of samples to be stored.  0 implies no limit
 
-  *  ``Aggregation``: Expect_same
 
-  *  ``Domain``: Board
-
-  *  ``Format``: Integer
-
-  *  ``Unit``: Seconds
+      *  ``Aggregation``: Expect_same
+      *  ``Domain``: Board
+      *  ``Format``: Integer
+      *  ``Unit``: Seconds
 
 Control Aliases
 ~~~~~~~~~~~~~~~~
