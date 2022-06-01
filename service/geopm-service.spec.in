@@ -213,10 +213,12 @@ ln -s /usr/sbin/service %{buildroot}%{_sbindir}/rcgeopm
 %doc %{_mandir}/man7/geopm_pio_msr.7.gz
 %doc %{_mandir}/man7/geopm_report.7.gz
 %doc %{_mandir}/man7/geopm_report.7.gz
+%doc %{_mandir}/man7/geopm_pio_cpuinfo.7.gz
 %doc %{_mandir}/man7/geopm_pio_dcgm.7.gz
 %doc %{_mandir}/man7/geopm_pio_levelzero.7.gz
 %doc %{_mandir}/man7/geopm_pio_nvml.7.gz
 %doc %{_mandir}/man7/geopm_pio_sst.7.gz
+%doc %{_mandir}/man7/geopm_pio_time.7.gz
 
 %files -n libgeopmd0
 %defattr(-,root,root,-)
