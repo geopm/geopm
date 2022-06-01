@@ -87,9 +87,9 @@ all_man_rst = docs/source/geopm.7.rst \
               docs/source/geopm_pio_cnl.7.rst \
               docs/source/geopm_pio_dcgm.7.rst \
               docs/source/geopm_pio_levelzero.7.rst \
+              docs/source/geopm_pio_msr.7.rst \
               docs/source/geopm_pio_nvml.7.rst \
               docs/source/geopm_pio_sst.7.rst \
-              docs/source/geopm_pio_msr.7.rst \
               docs/source/geopm_policystore_c.3.rst \
               docs/source/geopm_prof_c.3.rst \
               docs/source/geopmpy.7.rst \
