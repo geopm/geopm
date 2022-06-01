@@ -39,96 +39,257 @@ System Info
 ~~~~~~~~~~~
 
 * ``SST::CONFIG_LEVEL``:
-  (Package scope) Returns the system's configuration level (SST-PP
-  feature)
+  Returns the system's configuration level (SST-PP feature)
+
+    **Aggregation**: First selected
+
+    **Domain**: Package
+
+    **Format**: Integer
+
+    **Unit**: N/A
 
 * ``SST::COREPRIORITY_SUPPORT``:
-  (Package scope) Returns 1 if SST-CP feature is supported, 0 if
+  Returns 1 if SST-CP feature is supported, 0 if
   unsupported.
 
-* ``SST::TURBOFREQ_SUPPORT``:
-  (Package scope) Returns 1 if SST-TF feature is supported, 0 if
-  unsupported.
+    **Aggregation**: First selected
+
+    **Domain**: Package
+
+    **Format**: Integer
+
+    **Unit**: N/A
 
 * ``SST::HIGHPRIORITY_NCORES:n``:
-  (Package scope) Returns the count of high priority turbo frequency
+  Returns the count of high priority turbo frequency
   cores in bucket n. Buckets 0 - 7 are supported. Buckets are defined
   by the number of high priority cores (cores in CLOS 0 or 1), and
   they determine the frequencies that are obtainable by those
   cores. Generally, if there are fewer high priority cores, the
   increase in turbo frequency limit is greater.
 
+    **Aggregation**: First selected
+
+    **Domain**: Package
+
+    **Format**: Integer
+
+    **Unit**: N/A
+
+
 * ``SST::HIGHPRIORITY_FREQUENCY_SSE:n``:
-  (Package scope) Returns the high priority turbo frequency for bucket
+  Returns the high priority turbo frequency for bucket
   n at the SSE license level.
 
+    **Aggregation**: First selected
+
+    **Domain**: Package
+
+    **Format**: Integer
+
+    **Unit**: N/A
+
 * ``SST::HIGHPRIORITY_FREQUENCY_AVX2:n``:
-  (Package scope) Returns the high priority turbo frequency for bucket
+  Returns the high priority turbo frequency for bucket
   n at the AVX2 license level.
 
+    **Aggregation**: First selected
+
+    **Domain**: Package
+
+    **Format**: Integer
+
+    **Unit**: N/A
+
 * ``SST::HIGHPRIORITY_FREQUENCY_AVX512:n``:
-  (Package scope) Returns the high priority turbo frequency for bucket
+  Returns the high priority turbo frequency for bucket
   n at the AVX512 license level.
 
+    **Aggregation**: First selected
+
+    **Domain**: Package
+
+    **Format**: Integer
+
+    **Unit**: N/A
+
 * ``SST::LOWPRIORITY_FREQUENCY:[SSE|AVX2|AVX512]``:
-  (Package scope) RReturns the low-priority turbo frequency of the
+  RReturns the low-priority turbo frequency of the
   specified licence level. Note these frequencies do not change based
   on the number of high priority cores.
 
+    **Aggregation**: First selected
+
+    **Domain**: Package
+
+    **Format**: Integer
+
+    **Unit**: N/A
+
+* ``SST::TURBOFREQ_SUPPORT``:
+  Returns 1 if SST-TF feature is supported, 0 if
+  unsupported.
+
+    **Aggregation**: First selected
+
+    **Domain**: Package
+
+    **Format**: Integer
+
+    **Unit**: N/A
 
 Configuration
 ~~~~~~~~~~~~~
 
 * ``SST::TURBO_ENABLE``:
-  (Package scope) Returns 1 if SST-TF feature is enabled, 0 if
+  Returns 1 if SST-TF feature is enabled, 0 if
   disabled.
+
+    **Aggregation**: First selected
+
+    **Domain**: Package
+
+    **Format**: Integer
+
+    **Unit**: N/A
 
 * ``SST::COREPRIORITY_ENABLE``:
-  (Package scope) Returns 1 if SST-CP feature is enabled, 0 if
+  Returns 1 if SST-CP feature is enabled, 0 if
   disabled.
 
+    **Aggregation**: First selected
+
+    **Domain**: Package
+
+    **Format**: Integer
+
+    **Unit**: N/A
+
 * ``SST::COREPRIORITY:ASSOCIATION``:
-  (Core scope) Returns the core's assigned CLOS.
+  Returns the CPU's assigned CLOS.
+
+    **Aggregation**: First selected
+
+    **Domain**: CPU
+
+    **Format**: Integer
+
+    **Unit**: N/A
 
 * ``SST::COREPRIORITY:n:PRIORITY``:
-  (Package scope) Returns proportional priority for CLOS n. A lower
+  Returns proportional priority for CLOS n. A lower
   value indicates a higher importance. Priority ranges from 0-1 and is
   used to distribute power amongst cores.
 
+    **Aggregation**: First selected
+
+    **Domain**: Package
+
+    **Format**: Integer
+
+    **Unit**: N/A
+
 * ``SST::COREPRIORITY:n:FREQUENCY_MIN``:
-  (Package scope) Returns the minimum frequency of CLOS n. Given
+  Returns the minimum frequency of CLOS n. Given
   sufficient power headroom, all cores will receive this minimum
   frequency before any remaining power is distributed.
 
+    **Aggregation**: First selected
+
+    **Domain**: Package
+
+    **Format**: Integer
+
+    **Unit**: Hertz
+
+
 * ``SST::COREPRIORITY:n:FREQUENCY_MAX``:
-  (Package scope) Returns the maximum frequency of CLOS n. Power will
+  Returns the maximum frequency of CLOS n. Power will
   not be distributed to cores beyond this maximum frequency.
+
+    **Aggregation**: First selected
+
+    **Domain**: Package
+
+    **Format**: Integer
+
+    **Unit**: Hertz
+
 
 Controls
 --------
 
 * ``SST::TURBO_ENABLE``:
-  (Package scope) Enable SST-TF feature.
+  Enable SST-TF feature.
+
+    **Aggregation**: First selected
+
+    **Domain**: Package
+
+    **Format**: Integer
+
+    **Unit**: N/A
 
 * ``SST::COREPRIORITY_ENABLE``:
-  (Package scope) Enable SST-CP feature.
+  Enable SST-CP feature.
+
+    **Aggregation**: First selected
+
+    **Domain**: Package
+
+    **Format**: Integer
+
+    **Unit**: N/A
 
 * ``SST::COREPRIORITY:ASSOCIATION``:
-  (Core scope) Assign a core to a CLOS.
+  Assign a core to a CLOS.
+
+    **Aggregation**: First selected
+
+    **Domain**: Core
+
+    **Format**: Integer
+
+    **Unit**: N/A
 
 * ``SST::COREPRIORITY:n:PRIORITY``:
-  (Package scope) Set proportional priority for CLOS n. A lower value
+  Set proportional priority for CLOS n. A lower value
   indicates a higher importance. Weight ranges from 0-1 and is used to
   distribute power amongst cores.
 
+    **Aggregation**: First selected
+
+    **Domain**: Package
+
+    **Format**: Integer
+
+    **Unit**: N/A
+
 * ``SST::COREPRIORITY:n:FREQUENCY_MIN``:
-  (Package scope) Set the minimum frequency of CLOS n. Given
+  Set the minimum frequency of CLOS n. Given
   sufficient power headroom, all cores will receive this minimum
   frequency before any remaining power is distributed.
 
+    **Aggregation**: First selected
+
+    **Domain**: Package
+
+    **Format**: Integer
+
+    **Unit**: Hertz
+
 * ``SST::COREPRIORITY:n:FREQUENCY_MAX``:
-  (Package scope) Set the maximum frequency of CLOS n. Power will not
+  Set the maximum frequency of CLOS n. Power will not
   be distributed to cores beyond this maximum frequency.
+
+    **Aggregation**: First selected
+
+    **Domain**: Package
+
+    **Format**: Integer
+
+    **Unit**: Hertz
 
 Example
 -------
