@@ -22,6 +22,7 @@ include_HEADERS = src/geopm_debug.hpp \
                   src/geopm_hint.h \
                   src/geopm_pio.h \
                   src/geopm_plugin.hpp \
+                  src/geopm_batch_request.h \
                   src/geopm_sched.h \
                   src/geopm_time.h \
                   src/geopm_topo.h \
@@ -179,6 +180,8 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/POSIXSignal.hpp \
                        src/RawMSRSignal.cpp \
                        src/RawMSRSignal.hpp \
+                       src/BatchRequest.cpp \
+                       src/BatchRequest.hpp \
                        src/SaveControl.cpp \
                        src/SaveControl.hpp \
                        src/SDBus.hpp \
