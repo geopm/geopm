@@ -49,6 +49,7 @@ namespace geopm
                                   "Compute/GPU chip domain current frequency in hertz",
                                   GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
                                   {},
                                   [this](unsigned int domain_idx) -> double
@@ -70,6 +71,7 @@ namespace geopm
                                   "Compute/GPU chip domain maximum available frequency in hertz",
                                   GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
                                   {},
                                   [this](unsigned int domain_idx) -> double
@@ -85,6 +87,7 @@ namespace geopm
                                   "Compute/GPU chip domain minimum available frequency in hertz",
                                   GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
                                   {},
                                   [this](unsigned int domain_idx) -> double
@@ -100,6 +103,7 @@ namespace geopm
                                   "Compute/GPU chip domain current maximum frequency requested in hertz",
                                   GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
                                   {},
                                   [this](unsigned int domain_idx) -> double
@@ -115,6 +119,7 @@ namespace geopm
                                   "Compute/GPU chip domain current minimum frequency requested in hertz",
                                   GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
                                   {},
                                   [this](unsigned int domain_idx) -> double
@@ -130,6 +135,7 @@ namespace geopm
                                   "GPU energy in Joules",
                                   GEOPM_DOMAIN_GPU,
                                   Agg::average,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
                                   string_format_double,
                                   {},
                                   [this](unsigned int domain_idx) -> double
@@ -146,6 +152,7 @@ namespace geopm
                                   "\nValue cached on LEVELZERO::ENERGY read",
                                   GEOPM_DOMAIN_GPU,
                                   Agg::average,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
                                   string_format_double,
                                   {},
                                   [this](unsigned int domain_idx) -> double
@@ -161,6 +168,7 @@ namespace geopm
                                   "Compute/GPU chip domain memory current frequency in hertz",
                                   GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
                                   {},
                                   [this](unsigned int domain_idx) -> double
@@ -176,6 +184,7 @@ namespace geopm
                                   "Compute/GPU chip domain memory maximum frequency available in hertz",
                                   GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
                                   {},
                                   [this](unsigned int domain_idx) -> double
@@ -191,6 +200,7 @@ namespace geopm
                                   "Compute/GPU chip domain memory minimum frequency in hertz",
                                   GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
                                   {},
                                   [this](unsigned int domain_idx) -> double
@@ -206,6 +216,7 @@ namespace geopm
                                   "Default power limit in Watts",
                                   GEOPM_DOMAIN_GPU,
                                   Agg::average,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
                                   {},
                                   [this](unsigned int domain_idx) -> double
@@ -221,6 +232,7 @@ namespace geopm
                                   "Minimum available power limit in Watts",
                                   GEOPM_DOMAIN_GPU,
                                   Agg::average,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
                                   {},
                                   [this](unsigned int domain_idx) -> double
@@ -236,6 +248,7 @@ namespace geopm
                                   "Maximum available power limit in Watts",
                                   GEOPM_DOMAIN_GPU,
                                   Agg::average,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
                                   {},
                                   [this](unsigned int domain_idx) -> double
@@ -251,6 +264,7 @@ namespace geopm
                                   "Compute/GPU chip active time",
                                   GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
                                   string_format_double,
                                   {},
                                   [this](unsigned int domain_idx) -> double
@@ -267,6 +281,7 @@ namespace geopm
                                   "\nValue cached on LEVELZERO::GPUCHIP_ACTIVE_TIME read",
                                   GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
                                   string_format_double,
                                   {},
                                   [this](unsigned int domain_idx) -> double
@@ -282,6 +297,7 @@ namespace geopm
                                   "Compute/GPU chip domain compute engine active time",
                                   GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
                                   string_format_double,
                                   {},
                                   [this](unsigned int domain_idx) -> double
@@ -298,6 +314,7 @@ namespace geopm
                                   "\nValue cached on LEVELZERO::GPUCHIP_ACTIVE_TIME_COMPUTE read",
                                   GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
                                   string_format_double,
                                   {},
                                   [this](unsigned int domain_idx) -> double
@@ -313,6 +330,7 @@ namespace geopm
                                   "Compute/GPU chip domain copy engine active time",
                                   GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
                                   string_format_double,
                                   {},
                                   [this](unsigned int domain_idx) -> double
@@ -329,6 +347,7 @@ namespace geopm
                                   "\nValue cached on LEVELZERO::GPUCHIP_ACTIVE_TIME_COPY read",
                                   GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
                                   string_format_double,
                                   {},
                                   [this](unsigned int domain_idx) -> double
@@ -345,6 +364,7 @@ namespace geopm
                                   "\nReadings are valid only after writing to this control",
                                   GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
                                   {},
                                   [this](unsigned int domain_idx) -> double
@@ -390,25 +410,29 @@ namespace geopm
             {M_NAME_PREFIX + "GPU_POWER",
                     {"Average GPU power over 40 ms or 8 control loop iterations",
                     M_NAME_PREFIX + "GPU_ENERGY",
-                    M_NAME_PREFIX + "GPU_ENERGY_TIMESTAMP"}},
+                    M_NAME_PREFIX + "GPU_ENERGY_TIMESTAMP",
+                    IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE}},
             {M_NAME_PREFIX + "GPU_UTILIZATION",
                     {"GPU utilization"
                         "n  Level Zero logical engines may map to the same hardware"
                         "\n  resulting in a reduced signal range (i.e. not 0 to 1)",
                     M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME",
-                    M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME_TIMESTAMP"}},
+                    M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME_TIMESTAMP",
+                    IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE}},
             {M_NAME_PREFIX + "GPU_UTILIZATION_COMPUTE",
                     {"Compute engine utilization"
                         "n  Level Zero logical engines may map to the same hardware"
                         "\n  resulting in a reduced signal range (i.e. not 0 to 1)",
                     M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME_COMPUTE",
-                    M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME_COMPUTE_TIMESTAMP"}},
+                    M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME_COMPUTE_TIMESTAMP",
+                    IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE}},
             {M_NAME_PREFIX + "GPU_UTILIZATION_COPY",
                     {"Copy engine utilization"
                         "n  Level Zero logical engines may map to the same hardware"
                         "\n  resulting in a reduced signal range (i.e. not 0 to 1)",
                     M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME_COPY",
-                    M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME_COPY_TIMESTAMP"}},
+                    M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME_COPY_TIMESTAMP",
+                    IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE}},
         })
         , m_mock_save_ctl(save_control_test)
     {
@@ -485,6 +509,7 @@ namespace geopm
                                                 ds.second.m_base_name + " rate of change",
                                                 domain,
                                                 agg_function(ds.second.m_base_name),
+                                                ds.second.m_behavior,
                                                 format_function(ds.second.m_base_name),
                                                 result,
                                                 nullptr,
@@ -960,7 +985,13 @@ namespace geopm
 
     int LevelZeroIOGroup::signal_behavior(const std::string &signal_name) const
     {
-        return IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE;
+        if (!is_valid_signal(signal_name)) {
+            throw Exception("LevelZeroIOGroup::" + std::string(__func__) +
+                            ": signal_name " + signal_name +
+                            " not valid for LevelZeroIOGroup.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return m_signal_available.at(signal_name).behavior;
     }
 
     // Function used by the factory to create objects of this type

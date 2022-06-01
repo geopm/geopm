@@ -82,6 +82,7 @@ namespace geopm
                 std::string m_description;
                 int m_domain_type;
                 std::function<double(const std::vector<double> &)> m_agg_function;
+                int behavior;
                 std::function<std::string(double)> m_format_function;
                 std::vector<std::shared_ptr<Signal> > m_signals;
                 std::function<double (unsigned int)> m_devpool_func;
@@ -101,6 +102,7 @@ namespace geopm
                 std::string m_description;
                 std::string m_base_name;
                 std::string m_time_name;
+                int m_behavior;
             };
 
             static const std::string M_PLUGIN_NAME;
