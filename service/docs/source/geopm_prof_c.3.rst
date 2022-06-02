@@ -18,29 +18,29 @@ Synopsis
 ``Link with -lgeopm``
 
 
-* 
+*
   ``int geopm_prof_region(``\ :
   `const char *`_region\ *name*\ , :raw-html-m2r:`<br>`
   ``uint64_t`` *hint*\ , :raw-html-m2r:`<br>`
   `uint64_t *`_region\ *id*\ ``);``
 
-* 
+*
   ``int geopm_prof_enter(``\ :
   ``uint64_t`` _region\ *id*\ ``);``
 
-* 
+*
   ``int geopm_prof_exit(``\ :
   ``uint64_t`` _region\ *id*\ ``);``
 
-* 
+*
   ``int geopm_prof_epoch(``\ :
   ``void);``
 
-* 
+*
   ``int geopm_tprof_init(``\ :
   ``uint32_t`` _num_work\ *unit*\ ``);``
 
-* 
+*
   ``int geopm_tprof_post(``\ :
   ``void);``
 
@@ -78,7 +78,7 @@ MPI calls in their implementations and will return errors if MPI is not
 initialized.
 
 
-* 
+*
   ``geopm_prof_region``\ ():
   registers an application region.  The _region\ *name* and *hint* are
   input parameters, and the _region\ *id* is output.  The _region\ *id*
@@ -124,7 +124,7 @@ initialized.
   shutdown, and events that do not happen on every trip through the
   outer loop.
 
-* 
+*
   ``geopm_prof_enter``\ ():
   is called by the compute application to mark the beginning of the
   profiled compute region associated with the _region\ *id*. If this
@@ -132,13 +132,13 @@ initialized.
   that region, the call is ignored and an error code is returned
   (i.e. nested regions are ignored).
 
-* 
+*
   ``geopm_prof_exit``\ ():
   is called by the compute application to mark the end of a compute
   region.  If this region is nested then the call is ignored and an
   error code is returned.
 
-* 
+*
   ``geopm_prof_epoch``\ ():
   is called once for each pass through a computational loop
   containing inter-node synchronization events.  This call acts as a
@@ -151,7 +151,7 @@ initialized.
   to ``geopm_prof_epoch``\ () made inside of a user defined region with
   the ``GEOPM_REGION_HINT_IGNORE`` hint bit set will be ignored.
 
-* 
+*
   ``geopm_tprof_init``\ ():
   resets the thread progress and updates the total work for a
   threaded region.  Along with ``geopm_tprof_post()``\ , it provides a
@@ -162,7 +162,7 @@ initialized.
   of times that the ``geopm_tprof_post``\ () interface will be called by
   any thread to report progress within the region.
 
-* 
+*
   ``geopm_tprof_post``\ ():
   is called after a thread has completed each work unit to report
   progress.  This method signals the completion of one work unit out
