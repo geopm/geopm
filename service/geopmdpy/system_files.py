@@ -232,7 +232,7 @@ def is_secure_file(path, fid):
     Args:
         path (str): The file path that was passed to open()
 
-        fid (file): File descriptor returned by open()
+        fid (typing.IO): File descriptor returned by open()
 
     Returns:
         bool: True if regular file with restricted permissions
