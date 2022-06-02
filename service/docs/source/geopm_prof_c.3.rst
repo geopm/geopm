@@ -1,14 +1,5 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
-
-
 geopm_prof_c(3) -- application profiling interfaces
 ===================================================
-
-
-
-
-
 
 Synopsis
 --------
@@ -17,32 +8,21 @@ Synopsis
 
 ``Link with -lgeopm``
 
+.. code-block:: c
 
-*
-  ``int geopm_prof_region(``\ :
-  `const char *`_region\ *name*\ , :raw-html-m2r:`<br>`
-  ``uint64_t`` *hint*\ , :raw-html-m2r:`<br>`
-  `uint64_t *`_region\ *id*\ ``);``
+   int geopm_prof_region(const char *region_name,
+                         uint64_t hint,
+                         uint64_t *region_id);
 
-*
-  ``int geopm_prof_enter(``\ :
-  ``uint64_t`` _region\ *id*\ ``);``
+   int geopm_prof_enter(uint64_t region_id);
 
-*
-  ``int geopm_prof_exit(``\ :
-  ``uint64_t`` _region\ *id*\ ``);``
+   int geopm_prof_exit(uint64_t region_id);
 
-*
-  ``int geopm_prof_epoch(``\ :
-  ``void);``
+   int geopm_prof_epoch(void);
 
-*
-  ``int geopm_tprof_init(``\ :
-  ``uint32_t`` _num_work\ *unit*\ ``);``
+   int geopm_tprof_init(uint32_t num_work_unit);
 
-*
-  ``int geopm_tprof_post(``\ :
-  ``void);``
+   int geopm_tprof_post(void);
 
 Description
 -----------
@@ -69,77 +49,75 @@ that the region is bulk synchronous.  Under the assumption that the
 application employs an iterative algorithm which synchronizes
 periodically the user can alleviate load imbalance on larger time
 scales than the regions provide.  This is done by marking iterations
-through an outer loop in the application, the "epoch".
+through an outer loop in the application, the *epoch*.
 
-``WARNING:`` All of the functions described herein require that MPI has
-been initialized (via MPI_Init() or MPI_Init_thread()) and is properly
+**WARNING:** All of the functions described herein require that MPI has
+been initialized (via ``MPI_Init()`` or ``MPI_Init_thread()``) and is properly
 functioning before they are invoked.  These functions make use of various
 MPI calls in their implementations and will return errors if MPI is not
 initialized.
 
 
-*
-  ``geopm_prof_region``\ ():
-  registers an application region.  The _region\ *name* and *hint* are
-  input parameters, and the _region\ *id* is output.  The _region\ *id*
-  can be used with ``geopm_prof_enter``\ () and ``geopm_prof_exit``\ () to
-  reference the region.  If the region name has been previously
-  registered, a call to this function will set the _region\ *id* but
+``geopm_prof_region()``
+  Registers an application region.  The *region_name* and *hint* are
+  input parameters, and the *region_id* is output.  The *region_id*
+  can be used with ``geopm_prof_enter()`` and ``geopm_prof_exit()`` to
+  reference the region.  If the *region_name* has been previously
+  registered, a call to this function will set the *region_id* but
   the state associated with the region is unmodified.  The
-  _region\ *name* is used to determine the output _region\ *id* and is
+  *region_name* is used to determine the output *region_id* and is
   also displayed in the profiling report to identify the region.
-  The *hint* is one of the values given by the geopm_region_hint_e
-  enum defined in *geopm_hint.h* which determines the initial control
-  settings.  The following hints are supported:
 
-  ``GEOPM_REGION_HINT_UNKNOWN``\ : :raw-html-m2r:`<br>`
+  The *hint* is one of the values given by the enum ``geopm_region_hint_e``
+  defined in `geopm_hint.h
+  <https://github.com/geopm/geopm/blob/dev/service/src/geopm_hint.h>`_ which
+  determines the initial control settings.  The following hints are supported:
+
+  ``GEOPM_REGION_HINT_UNKNOWN``
   Default value, provides no hint to the runtime.
 
-  ``GEOPM_REGION_HINT_COMPUTE``\ : :raw-html-m2r:`<br>`
+  ``GEOPM_REGION_HINT_COMPUTE``
   Compute limited region.
 
-  ``GEOPM_REGION_HINT_MEMORY``\ : :raw-html-m2r:`<br>`
+  ``GEOPM_REGION_HINT_MEMORY``
   Memory bandwidth bound region.
 
-  ``GEOPM_REGION_HINT_NETWORK``\ : :raw-html-m2r:`<br>`
+  ``GEOPM_REGION_HINT_NETWORK``
   Inter-node network dominated region, default for unnested MPI
   calls.  User defined regions that have this hint will have the MPI
   time spent within this region attributed to the region as whole
   for the periods of time when all ranks are within an MPI function.
 
-  ``GEOPM_REGION_HINT_IO``\ : :raw-html-m2r:`<br>`
+  ``GEOPM_REGION_HINT_IO``
   Disk input/output dominated region.
 
-  ``GEOPM_REGION_HINT_SERIAL``\ : :raw-html-m2r:`<br>`
+  ``GEOPM_REGION_HINT_SERIAL``
   Calculation that is not executed by a multi-threaded process (may
   be multi-process).
 
-  ``GEOPM_REGION_HINT_PARALLEL``\ : :raw-html-m2r:`<br>`
+  ``GEOPM_REGION_HINT_PARALLEL``
   Calculation that is executed by a multi-threaded process in a
   hybrid thread/process parallelism (e.g. MPI + OpenMP).
 
-  ``GEOPM_REGION_HINT_IGNORE``\ : :raw-html-m2r:`<br>`
+  ``GEOPM_REGION_HINT_IGNORE``
   Region that control algorithms should ignore, and/or apply default
   policies.  This hint should be applied to application start up,
   shutdown, and events that do not happen on every trip through the
   outer loop.
 
-*
-  ``geopm_prof_enter``\ ():
+``geopm_prof_enter()``
   is called by the compute application to mark the beginning of the
-  profiled compute region associated with the _region\ *id*. If this
+  profiled compute region associated with the *region_id*. If this
   call is made after entering a different region, but before exiting
   that region, the call is ignored and an error code is returned
   (i.e. nested regions are ignored).
 
-*
-  ``geopm_prof_exit``\ ():
+``geopm_prof_exit()``
   is called by the compute application to mark the end of a compute
   region.  If this region is nested then the call is ignored and an
   error code is returned.
 
-*
-  ``geopm_prof_epoch``\ ():
+``geopm_prof_epoch()``
   is called once for each pass through a computational loop
   containing inter-node synchronization events.  This call acts as a
   beacon signal emitted by each MPI rank as it begins a loop
@@ -148,22 +126,20 @@ initialized.
   by the runtime.  This function may be called at different places
   in an application, but it should not be used to mark a loop that
   is nested inside of another loop which is also marked.  All calls
-  to ``geopm_prof_epoch``\ () made inside of a user defined region with
+  to ``geopm_prof_epoch()`` made inside of a user defined region with
   the ``GEOPM_REGION_HINT_IGNORE`` hint bit set will be ignored.
 
-*
-  ``geopm_tprof_init``\ ():
+``geopm_tprof_init()``
   resets the thread progress and updates the total work for a
-  threaded region.  Along with ``geopm_tprof_post()``\ , it provides a
+  threaded region.  Along with ``geopm_tprof_post()``, it provides a
   way for threads to report progress within a region.  This should
-  be called by all threads with _num_work\ *unit*\ , the total number of
+  be called by all threads with *num_work_unit*, the total number of
   work units to be completed by all threads after entering a thread
   parallel region.  The total work units corresponds to the number
-  of times that the ``geopm_tprof_post``\ () interface will be called by
+  of times that the ``geopm_tprof_post()`` interface will be called by
   any thread to report progress within the region.
 
-*
-  ``geopm_tprof_post``\ ():
+``geopm_tprof_post()``
   is called after a thread has completed each work unit to report
   progress.  This method signals the completion of one work unit out
   of the total passed to ``geopm_tprof_init()``.
@@ -171,7 +147,7 @@ initialized.
 Example
 -------
 
-.. code-block::
+.. code-block:: c
 
    #include <stdlib.h>
    #include <stdio.h>
@@ -239,7 +215,6 @@ Example
 
        return err ? err : tmp_err;
    }
-
 
 Errors
 ------
