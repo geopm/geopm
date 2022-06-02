@@ -220,7 +220,7 @@ Class Methods
 
 * 
   ``read_signal``\ ():
-   Immediately read and decode the underlying MSR supporting
+  Immediately read and decode the underlying MSR supporting
   _signal\ *name* for _domain\ *type* at index _domain\ *idx* and return
   the result in SI units.
 
@@ -321,7 +321,7 @@ Environment
 
 If the ``GEOPM_PLUGIN_PATH`` environment variable is set to a
 colon-separated list of paths, the paths will be checked for files
-starting with "msr_" and ending in ".json".  The default plugin path
+starting with ``msr_`` and ending in ``.json``.  The default plugin path
 will also be searched.  The MSRIOGroup will attempt to load additional
 MSR definitions from any JSON file it finds. The files must follow this
 schema:
