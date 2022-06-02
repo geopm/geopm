@@ -62,8 +62,8 @@ Description
 -----------
 
 The ``Endpoint`` class is the underlying **C++** implementation for the
-`geopm_endpoint_c(3) <geopm_endpoint_c.3.html>`_ **C** interface.  Please refer to the
-`geopm_endpoint_c(3) <geopm_endpoint_c.3.html>`_ man page for a general description of the
+:doc:`geopm_endpoint_c(3) <geopm_endpoint_c.3>` **C** interface.  Please refer to the
+:doc:`geopm_endpoint_c(3) <geopm_endpoint_c.3>` man page for a general description of the
 purpose, goals, and use cases for this interface.
 
 Factory Method
@@ -92,14 +92,14 @@ Class Methods
   ``write_policy()``:
   writes a set of policy values given in *policy* to the endpoint.
   The order of the values is determined by the currently attached
-  agent; see `geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3.html>`_.
+  agent; see :doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>`.
 
 * 
   ``read_sample()``:
   reads the most recent set of sample values from the endpoint into
   the output vector, *sample*\ , and returns the sample age in seconds.
   The order of the values is determined by the currently attached
-  agent; see `geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3.html>`_.
+  agent; see :doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>`.
 
 * 
   ``get_agent()``:
@@ -143,11 +143,11 @@ Class Methods
 Errors
 ------
 
-All functions described on this man page throw `geopm::Exception(3) <GEOPM_CXX_MAN_Exception.3.html>`_
+All functions described on this man page throw :doc:`geopm::Exception(3) <GEOPM_CXX_MAN_Exception.3>`
 on error.
 
 See Also
 --------
 
-`geopm(7) <geopm.7.html>`_\ ,
-`geopm_endpoint_c(3) <geopm_endpoint_c.3.html>`_
+:doc:`geopm(7) <geopm.7>`\ ,
+:doc:`geopm_endpoint_c(3) <geopm_endpoint_c.3>`

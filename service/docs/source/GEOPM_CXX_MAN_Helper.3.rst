@@ -182,4 +182,4 @@ The *Helper.hpp* file defines various utility functions.
 See Also
 --------
 
-`geopm(7) <geopm.7.html>`_
+:doc:`geopm(7) <geopm.7>`

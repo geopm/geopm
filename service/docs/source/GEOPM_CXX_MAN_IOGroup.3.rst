@@ -96,7 +96,7 @@ Description
 
 The ``IOGroup`` class is an abstract pure virtual class that defines the high
 level interface employed by plugins for sample input and control output.  An
-``Agent``\ , provided by the `geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3.html>`_ class,  will define one or more
+``Agent``\ , provided by the :doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>` class,  will define one or more
 IOGroups in order to:
 
 
@@ -118,24 +118,24 @@ usages.  The list of built-in IOGroups is as follows:
 *
   ``CpuinfoIOGroup``\ :
   Provides constants for CPU frequency limits.  Discussed in
-  `geopm::CpuinfoIOGroup(3) <GEOPM_CXX_MAN_CpuinfoIOGroup.3.html>`_.
+  :doc:`geopm::CpuinfoIOGroup(3) <GEOPM_CXX_MAN_CpuinfoIOGroup.3>`.
 
 *
   ``MSRIOGroup``\ :
   Provides signals and controls based on MSRs.  Discussed in
-  `geopm::MSRIOGroup(3) <GEOPM_CXX_MAN_MSRIOGroup.3.html>`_.
+  :doc:`geopm::MSRIOGroup(3) <GEOPM_CXX_MAN_MSRIOGroup.3>`.
 
 *
   ``ProfileIOGroup``\ :
   Provides signals from the application. Discussed in
-  `geopm::ProfileIOGroup(3) <GEOPM_CXX_MAN_ProfileIOGroup.3.html>`_.
+  :doc:`geopm::ProfileIOGroup(3) <GEOPM_CXX_MAN_ProfileIOGroup.3>`.
 
 *
   ``TimeIOGroup``\ :
   Provides a signal for the current time.  Discussed in
-  `geopm::TimeIOGroup(3) <GEOPM_CXX_MAN_TimeIOGroup.3.html>`_.
+  :doc:`geopm::TimeIOGroup(3) <GEOPM_CXX_MAN_TimeIOGroup.3>`.
 
-The APIs discussed in `geopm::PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3.html>`_ with regard to signals and
+The APIs discussed in :doc:`geopm::PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3>` with regard to signals and
 controls are ultimately fulfilled by the individual IOGroups that implement
 this interface.
 
@@ -163,7 +163,7 @@ documentation about how to extend IOGroups.
 *
   *domain*\ :
   The discrete component within a compute node where a signal or control is
-  applicable.  For more information see `geopm::PlatformTopo(3) <GEOPM_CXX_MAN_PlatformTopo.3.html>`_.
+  applicable.  For more information see :doc:`geopm::PlatformTopo(3) <GEOPM_CXX_MAN_PlatformTopo.3>`.
 
 Factory Accessor
 ----------------
@@ -173,8 +173,8 @@ Factory Accessor
   This method returns the singleton accessor for the ``IOGroupFactory``.
   Calling this method will create the factory if it does not already exist.
   If this method is creating the factory, loading of the built-in IOGroups
-  will be attempted.  For more information see `geopm::PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3.html>`_
-  and/or `geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3.html>`_.
+  will be attempted.  For more information see :doc:`geopm::PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3>`
+  and/or :doc:`geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3>`.
 
 Class Methods
 -------------
@@ -283,7 +283,7 @@ Class Methods
   ``agg_function()``:
   Returns a function that should be used when aggregating a signal
   of the type *signal_name*.  For more information see
-  `geopm::Agg(3) <GEOPM_CXX_MAN_Agg.3.html>`_.
+  :doc:`geopm::Agg(3) <GEOPM_CXX_MAN_Agg.3>`.
 
 *
   ``format_function()``:
@@ -332,9 +332,9 @@ https://geopm.github.io/dox/classgeopm_1_1_i_o_group.html
 See Also
 --------
 
-`geopm(7) <geopm.7.html>`_\ ,
-`geopm::Agg(3) <GEOPM_CXX_MAN_Agg.3.html>`_\ ,
-`geopm::CpuinfoIOGroup(3) <GEOPM_CXX_MAN_CpuinfoIOGroup.3.html>`_\ ,
-`geopm::MSRIOGroup(3) <GEOPM_CXX_MAN_MSRIOGroup.3.html>`_\ ,
-`geopm::PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3.html>`_\ ,
-`geopm::TimeIOGroup(3) <GEOPM_CXX_MAN_TimeIOGroup.3.html>`_
+:doc:`geopm(7) <geopm.7>`\ ,
+:doc:`geopm::Agg(3) <GEOPM_CXX_MAN_Agg.3>`\ ,
+:doc:`geopm::CpuinfoIOGroup(3) <GEOPM_CXX_MAN_CpuinfoIOGroup.3>`\ ,
+:doc:`geopm::MSRIOGroup(3) <GEOPM_CXX_MAN_MSRIOGroup.3>`\ ,
+:doc:`geopm::PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3>`\ ,
+:doc:`geopm::TimeIOGroup(3) <GEOPM_CXX_MAN_TimeIOGroup.3>`

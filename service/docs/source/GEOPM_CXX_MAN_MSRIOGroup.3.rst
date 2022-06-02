@@ -135,9 +135,9 @@ Synopsis
 Description
 -----------
 
-The MSRIOGroup implements the `geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3.html>`_ interface to
+The MSRIOGroup implements the :doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>` interface to
 provide hardware signals and controls using MSRs on Intel platforms.
-It relies on **geopm::MSR(3)** and `geopm::MSRIO(3) <GEOPM_CXX_MAN_MSRIO.3.html>`_.
+It relies on **geopm::MSR(3)** and :doc:`geopm::MSRIO(3) <GEOPM_CXX_MAN_MSRIO.3>`.
 
 Class Methods
 -------------
@@ -198,12 +198,12 @@ Class Methods
 
 * 
   ``read_batch``\ ():
-  Sets up `geopm::MSRIO(3) <GEOPM_CXX_MAN_MSRIO.3.html>`_ for batch reading if needed, then reads
+  Sets up :doc:`geopm::MSRIO(3) <GEOPM_CXX_MAN_MSRIO.3>` for batch reading if needed, then reads
   all pushed signals through the MSRIO::read_batch() method.
 
 * 
   ``write_batch``\ ():
-  Writes all adjusted values through the `geopm::MSRIO(3) <GEOPM_CXX_MAN_MSRIO.3.html>`_
+  Writes all adjusted values through the :doc:`geopm::MSRIO(3) <GEOPM_CXX_MAN_MSRIO.3>`
   write_batch() method.
 
 * 
@@ -246,7 +246,7 @@ Class Methods
   ``agg_function``\ ():
   Returns the function that should be used to aggregate
   _signal\ *name*.  If one was not previously specified by this class,
-  the default function is select_first from `geopm::Agg(3) <GEOPM_CXX_MAN_Agg.3.html>`_.
+  the default function is select_first from :doc:`geopm::Agg(3) <GEOPM_CXX_MAN_Agg.3>`.
 
 * 
   ``signal_description``\ ():
@@ -300,12 +300,12 @@ Class Methods
   ``plugin_name``\ ():
   Returns the name of the plugin to use when this plugin is
   registered with the IOGroup factory; see
-  `geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3.html>`_ for more details.
+  :doc:`geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3>` for more details.
 
 * 
   ``make_plugin``\ ():
   Returns a pointer to a new MSRIOGroup object; see
-  `geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3.html>`_ for more details.
+  :doc:`geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3>` for more details.
 
 Enumerations
 ------------
@@ -330,15 +330,15 @@ schema:
     :language: json
 
 Refer to the documentation for ``--geopm-plugin-path`` in
-`geopmlaunch(1) <geopmlaunch.1.html>`_.
+:doc:`geopmlaunch(1) <geopmlaunch.1>`.
 
 
 
 See Also
 --------
 
-`geopm(7) <geopm.7.html>`_\ ,
-`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3.html>`_\ ,
+:doc:`geopm(7) <geopm.7>`\ ,
+:doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>`\ ,
 **geopm::MSR(3)**\ ,
-`geopm::MSRIO(3) <GEOPM_CXX_MAN_MSRIO.3.html>`_\ ,
-`geopmlaunch(1) <geopmlaunch.1.html>`_
+:doc:`geopm::MSRIO(3) <GEOPM_CXX_MAN_MSRIO.3>`\ ,
+:doc:`geopmlaunch(1) <geopmlaunch.1>`

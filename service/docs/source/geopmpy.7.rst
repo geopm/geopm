@@ -13,7 +13,7 @@ from GEOPM.  Presently the following command line tools are provided:
 geopmlaunch
 ^^^^^^^^^^^
 This script will invoke the GEOPM launcher for either the ALPS or SLURM
-resource managers.  See `geopmlaunch(1) <geopmlaunch.1.html>`_ for more information.
+resource managers.  See :doc:`geopmlaunch(1) <geopmlaunch.1>` for more information.
 
 In addition, there is 1 infrastructure module provided:
 
@@ -85,5 +85,5 @@ This is also remedied by rerunning autogen.sh.
 See Also
 --------
 
-`geopm(7) <geopm.7.html>`_\ ,
-`geopmlaunch(1) <geopmlaunch.1.html>`_\ ,
+:doc:`geopm(7) <geopm.7>`\ ,
+:doc:`geopmlaunch(1) <geopmlaunch.1>`\ ,

@@ -96,7 +96,7 @@ Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
 Description
 -----------
 
-The ``ProfileIOGroup`` class is a derived implementation of `geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3.html>`_ that provides signals from the application.
+The ``ProfileIOGroup`` class is a derived implementation of :doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>` that provides signals from the application.
 Consequently, it inherits and overrides many of the methods of the ``IOGroup`` class.
 These overridden methods are described in the ``IOGroup`` man page.
 Only the methods unique to the ``ProfileIOGroup`` class are described here.
@@ -124,5 +124,5 @@ Class Methods
 See Also
 --------
 
-`geopm(7) <geopm.7.html>`_\ ,
-`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3.html>`_
+:doc:`geopm(7) <geopm.7>`\ ,
+:doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>`

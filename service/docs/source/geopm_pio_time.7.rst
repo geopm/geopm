@@ -5,8 +5,8 @@ geopm_pio_time(7) -- Signals and controls for Time IO Group
 Description
 -----------
 
-The TimeIOGroup implements the `geopm::IOGroup(3)
-<GEOPM_CXX_MAN_IOGroup.3.html>`_ interface to provide 
+The TimeIOGroup implements the :doc:`geopm::IOGroup(3)
+<GEOPM_CXX_MAN_IOGroup.3>` interface to provide 
 signals relating to time measurements.
 
 
@@ -39,7 +39,7 @@ Signals
 See Also
 --------
 
-`geopm(7) <geopm.7.html>`_\ ,
-`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3.html>`_\ ,
-`geopmwrite(1) <geopmwrite.1.html>`_,
-`geopmread(1) <geopmread.1.html>`_
+:doc:`geopm(7) <geopm.7>`\ ,
+:doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>`\ ,
+:doc:`geopmwrite(1) <geopmwrite.1>`,
+:doc:`geopmread(1) <geopmread.1>`

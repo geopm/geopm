@@ -21,7 +21,7 @@ comma-separated list of policy parameters.  To determine the parameter
 names and ordering appropriate for the ``-p`` option, run ``geopmagent``
 with only the ``-a`` option and inspect the output line beginning with
 the string "Policy:".  The JSON-formatted string can be piped to a
-file to be used as the ``GEOPM_POLICY`` as described in `geopm(7) <geopm.7.html>`_ to
+file to be used as the ``GEOPM_POLICY`` as described in :doc:`geopm(7) <geopm.7>` to
 provide a static input policy for the GEOPM controller.  If ``-p`` is
 given but ``-a`` is not, an error is reported.
 
@@ -35,7 +35,7 @@ Options
 -------
 --help      Print brief summary of the command line usage information, then
             exit.
---version   Print version of `geopm(7) <geopm.7.html>`_ to standard output,
+--version   Print version of :doc:`geopm(7) <geopm.7>` to standard output,
             then exit.
 -a AGENT    Specify the name of the agent.
 -p POLICY   The values to be set for each policy in a comma-separated list.
@@ -99,9 +99,9 @@ specifying ``--geopm-agent`` and ``--geopm-policy`` are optional.
 See Also
 --------
 
-`geopm(7) <geopm.7.html>`_,
-`geopm_agent_frequency_map(7) <geopm_agent_frequency_map.7.html>`_,
-`geopm_agent_monitor(7) <geopm_agent_monitor.7.html>`_,
-`geopm_agent_power_balancer(7) <geopm_agent_power_balancer.7.html>`_,
-`geopm_agent_power_governor(7) <geopm_agent_power_governor.7.html>`_,
-`geopm_agent_c(3) <geopm_agent_c.3.html>`_
+:doc:`geopm(7) <geopm.7>`,
+:doc:`geopm_agent_frequency_map(7) <geopm_agent_frequency_map.7>`,
+:doc:`geopm_agent_monitor(7) <geopm_agent_monitor.7>`,
+:doc:`geopm_agent_power_balancer(7) <geopm_agent_power_balancer.7>`,
+:doc:`geopm_agent_power_governor(7) <geopm_agent_power_governor.7>`,
+:doc:`geopm_agent_c(3) <geopm_agent_c.3>`

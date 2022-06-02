@@ -294,4 +294,4 @@ Class Methods
 See Also
 --------
 
-`geopm(7) <geopm.7.html>`_
+:doc:`geopm(7) <geopm.7>`

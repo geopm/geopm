@@ -93,6 +93,6 @@ for information about interpreting them as json strings.
 See Also
 --------
 
-`geopm(7) <geopm.7.html>`_\ ,
+:doc:`geopm(7) <geopm.7>`\ ,
 **geopm_agent(3)**\ ,
-`geopm_error(3) <geopm_error.3.html>`_
+:doc:`geopm_error(3) <geopm_error.3>`

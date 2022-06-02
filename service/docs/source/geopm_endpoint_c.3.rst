@@ -75,7 +75,7 @@ process of the compute application.  The shared memory region is monitored by
 the GEOPM runtime to enforce the policy across the entire MPI job allocation.
 
 The endpoints can also be used to extract sample telemetry from the runtime.
-This interface works in concert with the `geopm_agent_c(3) <geopm_agent_c.3.html>`_ interface for
+This interface works in concert with the :doc:`geopm_agent_c(3) <geopm_agent_c.3>` interface for
 inspecting the policy and sample parameters that pertain to the current agent.
 One must utilize the agent interface to determine the number of sample
 parameters provided by the agent and the number of policy values required by the
@@ -200,13 +200,13 @@ Errors
 ------
 
 All functions described on this man page return an error code.  See
-`geopm_error(3) <geopm_error.3.html>`_ for a full description of the error numbers and how
+:doc:`geopm_error(3) <geopm_error.3>` for a full description of the error numbers and how
 to convert them to strings.
 
 See Also
 --------
 
-`geopm(7) <geopm.7.html>`_\ ,
-`geopm_error(3) <geopm_error.3.html>`_\ ,
-`geopm::Endpoint(3) <GEOPM_CXX_MAN_Endpoint.3.html>`_\ ,
-`geopmendpoint(1) <geopmendpoint.1.html>`_
+:doc:`geopm(7) <geopm.7>`\ ,
+:doc:`geopm_error(3) <geopm_error.3>`\ ,
+:doc:`geopm::Endpoint(3) <GEOPM_CXX_MAN_Endpoint.3>`\ ,
+:doc:`geopmendpoint(1) <geopmendpoint.1>`

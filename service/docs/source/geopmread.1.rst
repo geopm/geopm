@@ -86,20 +86,20 @@ Values read for signals are in SI units.  Note that the domain can be
 the native domain of the signal (as shown in the summary) or any
 larger containing domain, in which case the signal value will be
 aggregated into a single value for the larger domain.  Refer to the
-domain hierarchy described in `geopm::PlatformTopo(3) <GEOPM_CXX_MAN_PlatformTopo.3>`_ for the
+domain hierarchy described in :doc:`geopm::PlatformTopo(3) <GEOPM_CXX_MAN_PlatformTopo.3>` for the
 descriptions of the domains and how they are contained within one
 another.
 
 The aggregation functions used for each signal are described in
-`geopm(7) <geopm.7>`_ under the description for ``GEOPM_TRACE_SIGNALS``.  The
+:doc:`geopm(7) <geopm.7>` under the description for ``GEOPM_TRACE_SIGNALS``.  The
 same functions are used to aggregate signals in the trace into the
 board domain.  Note that not all signals have aggregation functions,
 and if a signal is not readable at board domain, it cannot be printed
 in the trace.
 
 This utility can be used to create a geopm::PlatformTopo cache file in
-the tmpfs.  When this file is not present `geopmread(1) <geopmread.1>`_\ ,
-`geopmwrite(1) <geopmwrite.1>`_\ , `geopmctl(1) <geopmctl.1>`_ and `geopmlaunch(1) <geopmlaunch.1>`_ will
+the tmpfs.  When this file is not present :doc:`geopmread(1) <geopmread.1>`\ ,
+:doc:`geopmwrite(1) <geopmwrite.1>`\ , :doc:`geopmctl(1) <geopmctl.1>` and :doc:`geopmlaunch(1) <geopmlaunch.1>` will
 **popen(1)** a subprocess which provides the platform topology
 information.  This subprocess will not be created if the cache file
 exists.  See the ``--cache`` option below for more information.
@@ -118,7 +118,7 @@ Options
                 remove the existing cache file prior to executing this command.
 -h, --help      Print brief summary of the command line usage information, then
                 exit.
--v, --version   Print version of `geopm(7) <geopm.7>`_ to standard output, then
+-v, --version   Print version of :doc:`geopm(7) <geopm.7>` to standard output, then
                 exit.
 
 Examples
@@ -189,6 +189,6 @@ Read the total energy for both packages:
 See Also
 --------
 
-`geopm(7) <geopm.7>`_,
-`geopmwrite(1) <geopmwrite.1>`_,
+:doc:`geopm(7) <geopm.7>`,
+:doc:`geopmwrite(1) <geopmwrite.1>`,
 `lscpu(1) <http://man7.org/linux/man-pages/man1/lscpu.1.html>`_

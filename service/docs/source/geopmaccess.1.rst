@@ -70,7 +70,7 @@ Options
                 names
 -h, --help      Print brief summary of the command line usage information, then
                 exit
--v, --version   Print version of `geopm(7) <geopm.7.html>`_ to standard output,
+-v, --version   Print version of :doc:`geopm(7) <geopm.7>` to standard output,
                 then exit
 
 Query Access
@@ -372,9 +372,9 @@ unless the ``-F`` / ``--force`` option is provided.
 See Also
 --------
 
-`geopm(7) <geopm.7.html>`_,
-`geopmread(1) <geopmread.1.html>`_,
-`geopmwrite(1) <geopmwrite.1.html>`_,
-`geopmsession(1) <geopmsession.1.html>`_,
-`SKX Platform Controls <controls_SKX.html>`_,
-`SKX Platform Signals <signals_SKX.html>`_
+:doc:`geopm(7) <geopm.7>`,
+:doc:`geopmread(1) <geopmread.1>`,
+:doc:`geopmwrite(1) <geopmwrite.1>`,
+:doc:`geopmsession(1) <geopmsession.1>`,
+:doc:`SKX Platform Controls <controls_SKX>`,
+:doc:`SKX Platform Signals <signals_SKX>`

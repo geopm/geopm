@@ -99,12 +99,12 @@ The ``Agent`` class is an abstract pure virtual class that defines the
 fundamental procedures executed by the GEOPM runtime.  In general, the
 Agent is responsible for making decisions about how and what control the
 runtime should exert based on readings of system values.  By default
-the `geopm_agent_monitor(7) <geopm_agent_monitor.7.html>`_ is used, but other agents can be
+the :doc:`geopm_agent_monitor(7) <geopm_agent_monitor.7>` is used, but other agents can be
 selected with the ``--geopm-agent`` command line option to the
-`geopm_launcher(1) <geopm_launcher.1.html>`_ or ``GEOPM_AGENT`` environment variable.  Exactly
+:doc:`geopm_launcher(1) <geopm_launcher.1>` or ``GEOPM_AGENT`` environment variable.  Exactly
 one agent type is used during each execution of the GEOPM runtime.
 
-The `geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3.html>`_ man page gives a general overview of
+The :doc:`geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3>` man page gives a general overview of
 concepts related to extending GEOPM through plugins.  Please refer to
 that overview as an introduction before implementing an ``Agent`` plugin.
 
@@ -139,7 +139,7 @@ tree uses the same policy/sample interface to interact with the
 resource manager.
 
 The ``Agent`` class is designed to read signals and write controls for
-the hardware and application using the `geopm::PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3.html>`_
+the hardware and application using the :doc:`geopm::PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3>`
 interface.  Please see the manual for details about how the
 ``PlatformIO`` abstraction enables access to hardware capabilities,
 extension of ``Agent`` algorithms to new hardware architectures, a
@@ -154,7 +154,7 @@ Factory Accessor
   This method returns the singleton accessor for the Agent factory.
   Calling this method will create the factory if it does not already exist.
   If this method is creating the factory, loading of the built-in Agents
-  will be attempted.  For more information see `geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3.html>`_.
+  will be attempted.  For more information see :doc:`geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3>`.
 
 Class Methods
 -------------
@@ -366,7 +366,7 @@ Class Methods
 Errors
 ------
 
-All functions described on this man page throw `geopm::Exception(3) <GEOPM_CXX_MAN_Exception.3.html>`_
+All functions described on this man page throw :doc:`geopm::Exception(3) <GEOPM_CXX_MAN_Exception.3>`
 on error.
 
 Example
@@ -378,4 +378,4 @@ information.  This code is located in the GEOPM source under tutorial/agent.
 See Also
 --------
 
-`geopm(7) <geopm.7.html>`_
+:doc:`geopm(7) <geopm.7>`
