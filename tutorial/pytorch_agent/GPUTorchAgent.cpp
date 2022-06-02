@@ -46,6 +46,7 @@ GPUTorchAgent::GPUTorchAgent(geopm::PlatformIO &plat_io, const geopm::PlatformTo
     , m_last_wait{{0, 0}}
     , M_WAIT_SEC(0.050) // 50ms Wait
     , M_POLICY_PHI_DEFAULT(0.5)
+    , M_GPU_ACTIVITY_CUTOFF(0.05)
     , M_NUM_GPU(m_platform_topo.num_domain(GEOPM_DOMAIN_GPU))
     , m_do_write_batch(false)
     , m_gpu_nn_path("gpu_control.pt")
@@ -58,16 +59,24 @@ void GPUTorchAgent::init(int level, const std::vector<int> &fan_in, bool is_leve
 {
     m_gpu_frequency_requests = 0;
 
-    try {
-        for (int domain_idx = 0; domain_idx < M_NUM_GPU; ++domain_idx) {
-            m_gpu_neural_net.push_back(torch::jit::load(m_gpu_nn_path));
-        }
+    char* env_nn_path = getenv("GEOPM_GPU_NN_PATH");
+    if (env_nn_path != NULL) {
+        std::cout << "Loading ENV: " << std::string(env_nn_path) << std::endl;
+        m_gpu_nn_path = env_nn_path;
     }
-    catch (const c10::Error& e) {
-        throw geopm::Exception("GPUTorchAgent::" + std::string(__func__) +
-                               "(): Failed to load GPU Neural Net: " +
-                               m_gpu_nn_path + ".",
-                               GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+    else {
+        std::cerr << "GEOPM_GPU_NN_PATH is NULL.  Attempting to load local gpu_control.pt" << std::endl;
+    }
+
+    for (int domain_idx = 0; domain_idx < M_NUM_GPU; ++domain_idx) {
+        m_gpu_neural_net.push_back(torch::jit::load(m_gpu_nn_path));
+    }
+
+    for (int domain_idx = 0; domain_idx < M_NUM_GPU; ++domain_idx) {
+        m_gpu_active_region_start.push_back(0.0);
+        m_gpu_active_region_stop.push_back(0.0);
+        m_gpu_active_energy_start.push_back(0.0);
+        m_gpu_active_energy_stop.push_back(0.0);
     }
 
     init_platform_io();
@@ -92,6 +101,9 @@ void GPUTorchAgent::init_platform_io(void)
         m_gpu_power.push_back({m_platform_io.push_signal("GPU_POWER",
                                 GEOPM_DOMAIN_GPU,
                                 domain_idx), NAN});
+        m_gpu_energy.push_back({m_platform_io.push_signal("GPU_ENERGY",
+                                GEOPM_DOMAIN_GPU,
+                                domain_idx), NAN});
     }
 
     for (int domain_idx = 0; domain_idx < M_NUM_GPU; ++domain_idx) {
@@ -99,6 +111,8 @@ void GPUTorchAgent::init_platform_io(void)
                                      GEOPM_DOMAIN_GPU,
                                      domain_idx), NAN});
     }
+
+    m_time = {m_platform_io.push_signal("TIME", GEOPM_DOMAIN_BOARD, 0), NAN};
 
     auto all_names = m_platform_io.control_names();
     if (all_names.find("DCGM::FIELD_UPDATE_RATE") != all_names.end()) {
@@ -223,6 +237,22 @@ void GPUTorchAgent::adjust_platform(const std::vector<double>& in_policy)
 
         //Save recommendation and convert to SI units for later application
         gpu_freq_request.push_back(output[0].item<double>() * 1e9);
+
+        // Tracking logic.  This is not needed for any performance reason,
+        // but does provide useful metrics for tracking agent behavior
+        if (m_gpu_compute_activity.at(domain_idx).value >= M_GPU_ACTIVITY_CUTOFF) {
+            m_gpu_active_region_stop.at(domain_idx) = 0;
+            if (m_gpu_active_region_start.at(domain_idx) == 0) {
+                m_gpu_active_region_start.at(domain_idx) = m_time.value;
+                m_gpu_active_energy_start.at(domain_idx) = m_gpu_energy.at(domain_idx).value;
+            }
+        }
+        else {
+            if (m_gpu_active_region_stop.at(domain_idx) == 0) {
+                m_gpu_active_region_stop.at(domain_idx) = m_time.value;
+                m_gpu_active_energy_stop.at(domain_idx) = m_gpu_energy.at(domain_idx).value;
+            }
+        }
     }
 
     // set frequency control per accelerator
@@ -270,7 +300,10 @@ void GPUTorchAgent::sample_platform(std::vector<double> &out_sample)
                                                                       domain_idx).batch_idx);
         m_gpu_power.at(domain_idx).value = m_platform_io.sample(m_gpu_power.at(
                                                                  domain_idx).batch_idx);
+        m_gpu_energy.at(domain_idx).value = m_platform_io.sample(m_gpu_energy.at(
+                                                                 domain_idx).batch_idx);
     }
+    m_time.value = m_platform_io.sample(m_time.batch_idx);
 }
 
 // Wait for the remaining cycle time to keep Controller loop cadence
@@ -295,7 +328,23 @@ std::vector<std::pair<std::string, std::string> > GPUTorchAgent::report_host(voi
 {
     std::vector<std::pair<std::string, std::string> > result;
 
-    result.push_back({"Accelerator Frequency Requests", std::to_string(m_gpu_frequency_requests)});
+    result.push_back({"GPU Frequency Requests", std::to_string(m_gpu_frequency_requests)});
+
+    for (int domain_idx = 0; domain_idx < M_NUM_GPU; ++domain_idx) {
+        double energy_stop = m_gpu_active_energy_stop.at(domain_idx);
+        double energy_start = m_gpu_active_energy_start.at(domain_idx);
+        double region_stop = m_gpu_active_region_stop.at(domain_idx);
+        double region_start =  m_gpu_active_region_start.at(domain_idx);
+        result.push_back({"GPU " + std::to_string(domain_idx) +
+                          " Active Region Energy", std::to_string(energy_stop - energy_start)});
+        result.push_back({"GPU " + std::to_string(domain_idx) +
+                          " Active Region Time", std::to_string(region_stop - region_start)});
+        // Region time is generally sufficient for non-debug cases
+        result.push_back({"GPU " + std::to_string(domain_idx) +
+                          " Active Region Start Time", std::to_string(region_start)});
+        result.push_back({"GPU " + std::to_string(domain_idx) +
+                          " Active Region Stop Time", std::to_string(region_stop)});
+    }
     return result;
 }
 

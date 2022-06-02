@@ -54,6 +54,7 @@ class GPUTorchAgent : public geopm::Agent
         geopm_time_s m_last_wait;
         const double M_WAIT_SEC;
         const double M_POLICY_PHI_DEFAULT;
+        const double M_GPU_ACTIVITY_CUTOFF;
         const int M_NUM_GPU;
         bool m_do_write_batch;
 
@@ -94,7 +95,14 @@ class GPUTorchAgent : public geopm::Agent
         std::vector<signal> m_gpu_memory_activity;
         std::vector<signal> m_gpu_utilization;
         std::vector<signal> m_gpu_power;
+        std::vector<signal> m_gpu_energy;
         std::vector<control> m_gpu_freq_control;
+
+        std::vector<double> m_gpu_active_region_start;
+        std::vector<double> m_gpu_active_region_stop;
+        std::vector<double> m_gpu_active_energy_start;
+        std::vector<double> m_gpu_active_energy_stop;
+        signal m_time;
 
         void init_platform_io(void);
 };
