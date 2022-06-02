@@ -41,7 +41,7 @@ functions for interacting with the GEOPM Endpoint.  Its main purpose
 is to provide the functionality needed for system resource manager
 plugins or daemon processes, as well as handling clean up tasks.  The
 underlying objects used by the daemon can also be used separately;
-refer to :doc:`geopm_endpoint(3) <geopm_endpoint.3>` and :doc:`geopm_policystore(3) <geopm_policystore.3>` for more
+refer to :doc:`geopm_endpoint(3) <geopm_endpoint_c.3>` and :doc:`geopm_policystore(3) <geopm_policystore_c.3>` for more
 information.
 
 All functions described in this man page return an error code on failure and
@@ -99,8 +99,7 @@ See Also
 
 :doc:`geopm(7) <geopm.7>`\ ,
 :doc:`geopm_error(3) <geopm_error.3>`\ ,
-:doc:`geopm_endpoint(3) <geopm_endpoint.3>`\ ,
-:doc:`geopm_policystore(3) <geopm_policystore.3>`\ ,
+:doc:`geopm_endpoint(3) <geopm_endpoint_c.3>`\ ,
+:doc:`geopm_policystore(3) <geopm_policystore_c.3>`\ ,
 :doc:`geopm::Daemon(3) <GEOPM_CXX_MAN_Daemon.3>`\ ,
 :doc:`geopm::Endpoint(3) <GEOPM_CXX_MAN_Endpoint.3>`\ ,
-:doc:`geopm::PolicyStore(3) <GEOPM_CXX_MAN_PolicyStore.3>`

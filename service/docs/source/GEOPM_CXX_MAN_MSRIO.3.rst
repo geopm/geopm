@@ -62,7 +62,7 @@ Description
 The MSRIO class handles reading and writing to Model-Specific Registers (MSRs).
 The implementation uses msr-safe, found at https://github.com/LLNL/msr-safe
 to allow access to a controlled set of MSRs from user space.
-Refer to :doc:`geopm::MSR(3) <GEOPM_CXX_MAN_MSR.3>` for more details.
+Refer to :doc:`geopm_pio_msr(7) <geopm_pio_msr.7>` for more details.
 
 This class is an abstract base class.
 
@@ -138,5 +138,5 @@ See Also
 --------
 
 :doc:`geopm(7) <geopm.7>`\ ,
-:doc:`geopm::MSR(3) <GEOPM_CXX_MAN_MSR.3>`\ ,
+:doc:`geopm_pio_msr(7) <geopm_pio_msr.7>`\ ,
 :doc:`geopm::MSRIOGroup(3) <GEOPM_CXX_MAN_MSRIOGroup.3>`
