@@ -13,7 +13,7 @@ geopm_imbalancer.h(3) -- set artificial runtime imbalance
 Synopsis
 --------
 
-#include `<geopm_imbalancer.h> <https://github.com/geopm/geopm/blob/dev/src/geopm_imbalancer.h>`_\ 
+#include `<geopm_imbalancer.h> <https://github.com/geopm/geopm/blob/dev/src/geopm_imbalancer.h>`_
 
 Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
 

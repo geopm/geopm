@@ -16,7 +16,7 @@ to enable better rendering of this manual.
 Synopsis
 --------
 
-#include `<geopm/IOGroup.hpp> <https://github.com/geopm/geopm/blob/dev/src/IOGroup.hpp>`_\
+#include `<geopm/IOGroup.hpp> <https://github.com/geopm/geopm/blob/dev/service/src/geopm/IOGroup.hpp>`_\
 
 Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
 
@@ -327,7 +327,7 @@ tutorial <https://github.com/geopm/geopm/tree/dev/tutorial/iogroup>`_ for more
 information.  That code is located in the GEOPM source under tutorial/iogroup.
 
 Further documentation for this module can be found here:
-https://geopm.github.io/dox/classgeopm_1_1_i_o_group.html
+https://geopm.github.io/doxall/classgeopm_1_1_i_o_group.html
 
 See Also
 --------

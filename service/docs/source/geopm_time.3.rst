@@ -13,7 +13,7 @@ geopm_time.h(3) -- helper methods for time
 Synopsis
 --------
 
-#include `<geopm_time.h> <https://github.com/geopm/geopm/blob/dev/src/geopm_time.h>`_\ 
+#include `<geopm_time.h> <https://github.com/geopm/geopm/blob/dev/service/src/geopm_time.h>`_
 
 ``Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)``
 
@@ -65,14 +65,14 @@ structure is used to hold time values.
   ``geopm_time_string``\ ():
   Fills *buf* with the current date and time as a string.  The
   string will be null-terminated and truncated to _buf\ *size*\ , which
-  must be at least 26 characters as required by `asctime_r(3) <http://man7.org/linux/man-pages/man3/asctime_r.3.html>`_.
+  must be at least 26 characters as required by `asctime_r(3) <https://man7.org/linux/man-pages/man3/asctime_r.3.html>`_.
 
 * 
   ``geopm_time_to_string``\ ():
   Fills *buf* with the date and time indicated by the *time*
   structure converted to a string.  The string will be
   null-terminated and truncated to _buf\ *size*\ , which must be at
-  least 26 characters as required by `asctime_r(3) <http://man7.org/linux/man-pages/man3/asctime_r.3.html>`_.
+  least 26 characters as required by `asctime_r(3) <https://man7.org/linux/man-pages/man3/asctime_r.3.html>`_.
 
 * 
   ``geopm_time``\ ():
@@ -98,4 +98,4 @@ See Also
 --------
 
 :doc:`geopm(7) <geopm.7>`\ ,
-`asctime_r(3) <http://man7.org/linux/man-pages/man3/asctime_r.3.html>`_
+`asctime_r(3) <https://man7.org/linux/man-pages/man3/asctime_r.3.html>`_

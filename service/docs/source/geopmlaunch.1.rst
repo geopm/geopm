@@ -166,8 +166,8 @@ GEOPM Options
                                 ``--geopm-trace-signals=ENERGY_DRAM,POWER_DRAM``
 
                                 The signals available and their descriptions
-                                are documented in the `PlatformIO(3)
-                                <GEOPM_CXX_MAN_PlatformIO.3>`_ man page.
+                                are documented in the :doc:`PlatformIO(3)
+                                <GEOPM_CXX_MAN_PlatformIO.3>` man page.
                                 "TIME", "REGION_HASH", "REGION_HINT",
                                 "REGION_PROGRESS", "REGION_RUNTIME",
                                 "ENERGY_PACKAGE", "POWER_PACKAGE", and

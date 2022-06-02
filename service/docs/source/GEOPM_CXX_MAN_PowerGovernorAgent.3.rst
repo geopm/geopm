@@ -13,7 +13,7 @@ geopm::PowerGovernorAgent(3) -- agent that enforces a power cap
 Synopsis
 --------
 
-#include `<geopm/PowerGovernorAgent.hpp> <https://github.com/geopm/geopm/blob/dev/src/PowerGovernorAgent.hpp>`_\ 
+#include `<geopm/PowerGovernorAgent.hpp> <https://github.com/geopm/geopm/blob/dev/src/PowerGovernorAgent.hpp>`_
 
 ``Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)``
 
@@ -25,7 +25,7 @@ The behavior of this agent is described in more detail in the
 enforced using the :doc:`geopm::PowerGovernor(3) <GEOPM_CXX_MAN_PowerGovernor.3>` class.
 
 For more details, see the doxygen
-page at https://geopm.github.io/dox/classgeopm_1_1_power_governor_agent.html.
+page at https://geopm.github.io/doxall/classgeopm_1_1_power_governor_agent.html.
 
 See Also
 --------

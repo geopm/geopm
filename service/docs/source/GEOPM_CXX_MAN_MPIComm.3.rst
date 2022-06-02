@@ -25,7 +25,7 @@ Note that the ``MPIComm`` class is derived from :doc:`geopm::Comm(3) <GEOPM_CXX_
 Synopsis
 --------
 
-#include `<geopm/MPIComm.hpp> <https://github.com/geopm/geopm/blob/dev/src/MPIComm.hpp>`_\ 
+#include `<geopm/MPIComm.hpp> <https://github.com/geopm/geopm/blob/dev/src/MPIComm.hpp>`_
 
 Link with ``-lgeopm`` **(MPI)**
 
@@ -99,7 +99,7 @@ This class implements the Comm abstraction (:doc:`geopm::Comm(3) <GEOPM_CXX_MAN_
 as the underlying communication mechanism.
 
 For more details, see the doxygen
-page at https://geopm.github.io/dox/classgeopm_1_1_m_p_i_comm.html.
+page at https://geopm.github.io/doxall/classgeopm_1_1_m_p_i_comm.html.
 
 Class Methods
 -------------

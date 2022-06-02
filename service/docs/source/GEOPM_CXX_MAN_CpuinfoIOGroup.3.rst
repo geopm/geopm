@@ -24,7 +24,7 @@ better rendering of this manual.
 Synopsis
 --------
 
-#include `<geopm/CpuinfoIOGroup.hpp> <https://github.com/geopm/geopm/blob/dev/src/CpuinfoIOGroup.hpp>`_\ 
+#include `<geopm/CpuinfoIOGroup.hpp> <https://github.com/geopm/geopm/blob/dev/service/src/CpuinfoIOGroup.hpp>`_
 
 Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
 
@@ -85,7 +85,7 @@ Description
 -----------
 
 The ``CpuinfoIOGroup`` provides constants for CPU frequency limits as
-signals.  These values are obtained through the `proc(5) <http://man7.org/linux/man-pages/man5/proc.5.html>`_ filesystem.
+signals.  These values are obtained through the `proc(5) <https://man7.org/linux/man-pages/man5/proc.5.html>`_ filesystem.
 
 Class Methods
 -------------
@@ -209,5 +209,5 @@ See Also
 --------
 
 :doc:`geopm(7) <geopm.7>`\ ,
-`proc(5) <http://man7.org/linux/man-pages/man5/proc.5.html>`_\ ,
+`proc(5) <https://man7.org/linux/man-pages/man5/proc.5.html>`_\ ,
 :doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>`

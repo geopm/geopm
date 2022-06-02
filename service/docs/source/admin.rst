@@ -9,8 +9,8 @@ created and modified by the GEOPM Service, how the files in those
 directories are used, and a command line tool to configure the GEOPM
 Service.  Additional information is available on other pages:
 
-- `Install Guide <install.html>`_
-- `Security Guide <security.html>`_
+- :doc:`Install Guide <install>`
+- :doc:`Security Guide <security>`
 
 
 Linux Integration

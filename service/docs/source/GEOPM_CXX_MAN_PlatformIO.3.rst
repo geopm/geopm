@@ -21,7 +21,7 @@ hidden by the singleton accessor.
 Synopsis
 --------
 
-#include `<geopm/PlatformIO.hpp> <https://github.com/geopm/geopm/blob/dev/src/PlatformIO.hpp>`_\
+#include `<geopm/PlatformIO.hpp> <https://github.com/geopm/geopm/blob/dev/service/src/geopm/PlatformIO.hpp>`_\
 
 Link with ``-lgeopmd``
 

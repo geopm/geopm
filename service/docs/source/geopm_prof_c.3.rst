@@ -13,7 +13,7 @@ geopm_prof_c(3) -- application profiling interfaces
 Synopsis
 --------
 
-#include `<geopm_prof.h> <https://github.com/geopm/geopm/blob/dev/src/geopm_prof.h>`_\ 
+#include `<geopm_prof.h> <https://github.com/geopm/geopm/blob/dev/src/geopm_prof.h>`_
 
 ``Link with -lgeopm``
 

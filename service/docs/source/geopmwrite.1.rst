@@ -73,7 +73,7 @@ This tool can be used to write hardware/OS state through
 high-level control aliases and query other information
 about the platform such as the type and number of hardware domains.
 Details of the hardware domains can also be inferred from the output
-of `lscpu(1) <http://man7.org/linux/man-pages/man1/lscpu.1.html>`_.
+of `lscpu(1) <https://man7.org/linux/man-pages/man1/lscpu.1.html>`_.
 
 When run without any arguments, the default behavior is to print a
 summary of available controls.
@@ -193,4 +193,4 @@ See Also
 
 :doc:`geopm(7) <geopm.7>`,
 :doc:`geopmread(1) <geopmread.1>`,
-`lscpu(1) <http://man7.org/linux/man-pages/man1/lscpu.1.html>`_
+`lscpu(1) <https://man7.org/linux/man-pages/man1/lscpu.1.html>`_

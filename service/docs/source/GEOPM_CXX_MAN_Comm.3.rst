@@ -24,7 +24,7 @@ better rendering of this manual.
 Synopsis
 --------
 
-#include `<geopm/Comm.hpp> <https://github.com/geopm/geopm/blob/dev/src/Comm.hpp>`_\ 
+#include `<geopm/Comm.hpp> <https://github.com/geopm/geopm/blob/dev/src/Comm.hpp>`_
 
 Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
 

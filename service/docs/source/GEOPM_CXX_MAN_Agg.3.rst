@@ -24,7 +24,7 @@ better rendering of this manual.
 Synopsis
 --------
 
-#include `<geopm/Agg.hpp> <https://github.com/geopm/geopm/blob/dev/src/Agg.hpp>`_\ 
+#include `<geopm/Agg.hpp> <https://github.com/geopm/geopm/blob/dev/service/src/geopm/Agg.hpp>`_
 
 Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
 
