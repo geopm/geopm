@@ -102,7 +102,7 @@ class Session:
             period (float): The user specified period between samples
                             in units of seconds.
 
-            out_stream (file): Object with write() method where output
+            out_stream (typing.IO): Object with write() method where output
                                will be printed (typically sys.stdout).
 
         """
@@ -158,10 +158,10 @@ class Session:
                             Value must be zero for a write mode
                             session.
 
-            request_stream (file): Input from user describing the
+            request_stream (typing.IO): Input from user describing the
                                    requests to read.
 
-            out_stream (file): Stream where output from will be
+            out_stream (typing.IO): Stream where output from will be
                                printed.
 
         """
@@ -197,7 +197,7 @@ class RequestQueue:
         so that the name can be passed to the proxy.
 
         Returns:
-            list(string): The name of the signal or control associated
+            list(str): The name of the signal or control associated
                            with each user request.
 
         """
@@ -214,12 +214,12 @@ class RequestQueue:
         either a read or write mode session.
 
         Args:
-            request_stream (file): Stream containing requests from
+            request_stream (typing.IO): Stream containing requests from
                                    user.
 
         Returns:
-            generator: Iterate over filtered lines of the
-                       request_stream
+            typing.Generator[str]: Iterate over filtered lines of the
+                                   request_stream
 
         """
         for line in request_stream:
@@ -235,7 +235,7 @@ class ReadRequestQueue(RequestQueue):
         """Constructor for ReadRequestQueue object
 
         Args:
-            request_stream (file): Input from user describing the
+            request_stream (typing.IO): Input from user describing the
                                    requests to read signals.
 
             geopm_proxy (dasbus.client.proxy.InterfaceProxy): The
@@ -266,7 +266,7 @@ class ReadRequestQueue(RequestQueue):
         domain.
 
         Args:
-            request_stream (file): Input stream to parse for read
+            request_stream (typing.IO): Input stream to parse for read
                                    requests
 
         Returns:
@@ -310,7 +310,7 @@ class ReadRequestQueue(RequestQueue):
 
         Returns:
             list(int): List of geopm::string_format_e integers, one
-                       for each signal name in input list.
+            for each signal name in input list.
 
         """
 

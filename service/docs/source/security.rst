@@ -371,9 +371,9 @@ users to securely exchange requests and results with the GEOPM
 Service. The DBus interface also enables the GEOPM Service to securely
 identify the source of client requests. The GEOPM implementation uses
 the
-`dasbus <https://dasbus.readthedocs.io>`__
+:doc:`dasbus <dasbus:index>`
 and
-`PyGObject <https://pygobject.readthedocs.io>`__
+:doc:`PyGObject <pygobject:index>`
 Python modules to implement the server side of the GEOPM DBus
 interface in Python, while it uses the libsystemd.so to implement a C
 interface to the client side of the GEOPM DBus interface directly with

@@ -44,8 +44,7 @@ geopmdpy.gffi
 .. class:: FFILibrary
 
    A python foreign function interface to the ``libgeopmd.so`` library. See
-   https://cffi.readthedocs.io/en/latest/using.html for documentation about
-   using FFILibrary objects.
+   :doc:`cffi:using` for documentation about using FFILibrary objects.
 
 geopmdpy.pio
 ------------
