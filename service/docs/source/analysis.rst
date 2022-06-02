@@ -1,3 +1,0 @@
-
-Guide for Application Analysis
-==============================
