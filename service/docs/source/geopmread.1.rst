@@ -68,7 +68,7 @@ Provides a command line interface to PlatformIO and PlatformTopo.
 This tool can be used to read hardware/OS state through high-level
 signal aliases and query other information about the platform such as
 the type and number of hardware domains.  Details of the hardware
-domains can also be inferred from the output of `lscpu(1) <http://man7.org/linux/man-pages/man1/lscpu.1.html>`_.
+domains can also be inferred from the output of `lscpu(1) <https://man7.org/linux/man-pages/man1/lscpu.1.html>`_.
 
 When run without any arguments, the default behavior is to print a
 summary of available signals.  Signal names ending in # represent the
@@ -191,4 +191,4 @@ See Also
 
 :doc:`geopm(7) <geopm.7>`,
 :doc:`geopmwrite(1) <geopmwrite.1>`,
-`lscpu(1) <http://man7.org/linux/man-pages/man1/lscpu.1.html>`_
+`lscpu(1) <https://man7.org/linux/man-pages/man1/lscpu.1.html>`_

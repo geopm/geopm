@@ -24,7 +24,7 @@ this manual.
 Synopsis
 --------
 
-#include `<geopm/ProfileIOGroup.hpp> <https://github.com/geopm/geopm/blob/dev/src/ProfileIOGroup.hpp>`_\ 
+#include `<geopm/ProfileIOGroup.hpp> <https://github.com/geopm/geopm/blob/dev/src/ProfileIOGroup.hpp>`_
 
 Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
 
@@ -102,7 +102,7 @@ These overridden methods are described in the ``IOGroup`` man page.
 Only the methods unique to the ``ProfileIOGroup`` class are described here.
 
 For more details, see the doxygen
-page at https://geopm.github.io/dox/classgeopm_1_1_profile_i_o_group.html.
+page at https://geopm.github.io/doxall/classgeopm_1_1_profile_i_o_group.html.
 
 Class Methods
 -------------

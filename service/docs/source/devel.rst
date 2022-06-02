@@ -225,7 +225,7 @@ use lcov v1.15 or later to work around `this issue
 
 The lcov source is available here:
 
-`https://github.com/linux-test-project/lcov/`
+https://github.com/linux-test-project/lcov
 
 The GEOPM build must be configured with the "--enable-coverage" option
 prior to running the tests.  Then in either the service directory or
@@ -251,7 +251,7 @@ Coding Style
 ------------
 
 Python code should follow the PEP8 standard as described in
-https://www.python.org/dev/peps/pep-0008/.
+https://peps.python.org/pep-0008/.
 
 C++ code can be corrected to conform to the GEOPM standard
 using astyle with the following options:

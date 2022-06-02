@@ -26,7 +26,7 @@ Note that the ``geopm::Exception`` class is derived from ``std::runtime_error`` 
 Synopsis
 --------
 
-#include `<geopm/Exception.hpp> <https://github.com/geopm/geopm/blob/dev/src/Exception.hpp>`_\ 
+#include `<geopm/Exception.hpp> <https://github.com/geopm/geopm/blob/dev/service/src/geopm/Exception.hpp>`_
 
 Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
 
@@ -51,7 +51,7 @@ Description
 This class is used to format error messages for the GEOPM runtime
 according to the error code.  The list of errors is described in
 :doc:`geopm_error(3) <geopm_error.3>`.  Positive error codes are system errors (see
-`errno(3) <http://man7.org/linux/man-pages/man3/errno.3.html>`_\ ), negative values are GEOPM errors.  If zero is specified
+`errno(3) <https://man7.org/linux/man-pages/man3/errno.3.html>`_\ ), negative values are GEOPM errors.  If zero is specified
 for the error code, ``GEOPM_ERROR_RUNTIME`` (-1) is assumed.
 
 Functions
@@ -97,7 +97,7 @@ Class Methods
   exception.  Negative error codes are GEOPM-specific
   and documented in the :doc:`geopm_error(3) <geopm_error.3>` man page.
   Positive error codes are system errors and are
-  documented in the system `errno(3) <http://man7.org/linux/man-pages/man3/errno.3.html>`_ man page.  A brief
+  documented in the system `errno(3) <https://man7.org/linux/man-pages/man3/errno.3.html>`_ man page.  A brief
   description of all error codes can be obtained with
   the ``geopm_error_message()`` interface.
 
@@ -106,4 +106,4 @@ See Also
 
 :doc:`geopm(7) <geopm.7>`\ ,
 :doc:`geopm_error(3) <geopm_error.3>`\ ,
-`errno(3) <http://man7.org/linux/man-pages/man3/errno.3.html>`_
+`errno(3) <https://man7.org/linux/man-pages/man3/errno.3.html>`_

@@ -13,7 +13,7 @@ geopm_policystore_c(3) -- geopm resource policy store interface
 Synopsis
 --------
 
-#include `<geopm_policystore.h> <https://github.com/geopm/geopm/blob/dev/src/geopm_policystore.h>`_\ 
+#include `<geopm_policystore.h> <https://github.com/geopm/geopm/blob/dev/src/geopm_policystore.h>`_
 
 ``Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)``
 

@@ -482,7 +482,7 @@ By default, directories are created with 0o700 permissions (i.e. rwx
 only for the owner). Some directories, for example
 ``/run/geopm-service``, also require execution permissions (i.e.
 0o711). For more details on how directories are created and default
-permissions, please see the `system_files.py <http://geopm.github.io/geopmdpy.7.html#module-geopmdpy.system_files>`__
+permissions, please see the :ref:`system_files.py <geopmdpy.7:geopmdpy.system_files>`
 documentation
 
 When making files, a temporary file is first created with 0o600 or

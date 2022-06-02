@@ -13,7 +13,7 @@ geopm_topo_c(3) -- query platform component topology
 Synopsis
 --------
 
-#include `<geopm_topo.h> <https://github.com/geopm/geopm/blob/dev/src/geopm_topo.h>`_\ 
+#include `<geopm_topo.h> <https://github.com/geopm/geopm/blob/dev/service/src/geopm_topo.h>`_
 
 ``Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)``
 
@@ -192,7 +192,7 @@ goals and use case for this interface.
   are set to "-rw-rw-rw-", i.e. 666. The path for the cache file is
   ``/tmp/geopm-topo-cache``.  If the file exists no operation will be
   performed.  To force the creation of a new cache file,
-  `unlink(3) <http://man7.org/linux/man-pages/man3/unlink.3p.html>`_ the existing cache file prior to calling this
+  `unlink(3) <https://man7.org/linux/man-pages/man3/unlink.3p.html>`_ the existing cache file prior to calling this
   function.
 
 Return Value
@@ -211,4 +211,4 @@ See Also
 :doc:`geopm_error(3) <geopm_error.3>`\ ,
 :doc:`geopm::PlatformTopo(3) <GEOPM_CXX_MAN_PlatformTopo.3>`\ ,
 :doc:`geopm::PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3>`\ ,
-`unlink(3) <http://man7.org/linux/man-pages/man3/unlink.3p.html>`_
+`unlink(3) <https://man7.org/linux/man-pages/man3/unlink.3p.html>`_

@@ -185,5 +185,5 @@ See Also
 
 :doc:`geopm(7) <geopm.7>`,
 :doc:`geopm_pio_cnl(7) <geopm_pio_cnl.7>`,
-`proc(5) <http://man7.org/linux/man-pages/man5/proc.5.html>`_,
+`proc(5) <https://man7.org/linux/man-pages/man5/proc.5.html>`_,
 :doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>`
