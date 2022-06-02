@@ -189,7 +189,7 @@ if ENABLE_DOCS
 # Documentation says -M must come first, then other options, the file paths.
 # That doesn't work. But it looks like other options are allowed anywhere after
 # -M, so -W is at the end here.
-$(all_man_target): $(all_man_rst)
+$(all_man_target): libgeopmd.la $(all_man_rst)
 	LD_LIBRARY_PATH=.libs:$(LD_LIBRARY_PATH) \
 	PYTHONPATH=$(abs_srcdir):$(PYTHONPATH) \
 	sphinx-build -M man $(abs_srcdir)/docs/source docs/build -W
