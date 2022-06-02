@@ -360,7 +360,7 @@ Other Environment Variables
   When dynamically linking an application to ``libgeopm`` for any
   features supported by the PMPI profiling of the MPI runtime it may
   be required that the ``LD_DYNAMIC_WEAK`` environment variable be set
-  at runtime as is documented in the `ld.so(8) <http://man7.org/linux/man-pages/man8/ld.so.8.html>`_ man page.  When
+  at runtime as is documented in the `ld.so(8) <https://man7.org/linux/man-pages/man8/ld.so.8.html>`_ man page.  When
   dynamically linking an application, if care is taken to link the
   ``libgeopm`` library before linking the library providing the weak MPI
   symbols, e.g. ``"-lgeopm -lmpi"``, linking order precedence will
@@ -424,4 +424,4 @@ See Also
 :doc:`geopmwrite(1) <geopmwrite.1>`\ ,
 :doc:`geopmaccess(1) <geopmaccess.1>`\ ,
 :doc:`geopmsession(1) <geopmsession.1>`\ ,
-`ld.so(8) <http://man7.org/linux/man-pages/man8/ld.so.8.html>`_
+`ld.so(8) <https://man7.org/linux/man-pages/man8/ld.so.8.html>`_

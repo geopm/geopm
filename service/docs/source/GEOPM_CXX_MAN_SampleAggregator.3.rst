@@ -2,7 +2,7 @@
    :format: html
 
 
-geopm::RegionAggregator(3) -- per-region aggregated signal data
+geopm::SampleAggregator(3) -- per-region aggregated signal data
 ===============================================================
 
 
@@ -13,7 +13,7 @@ geopm::RegionAggregator(3) -- per-region aggregated signal data
 Synopsis
 --------
 
-#include `<geopm/RegionAggregator.hpp> <https://github.com/geopm/geopm/blob/dev/src/RegionAggregator.hpp>`_\ 
+#include `<geopm/SampleAggregator.hpp> <https://github.com/geopm/geopm/blob/dev/src/SampleAggregator.hpp>`_
 
 ``Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)``
 

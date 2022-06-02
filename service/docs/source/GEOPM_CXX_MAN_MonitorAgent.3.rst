@@ -24,7 +24,7 @@ this manual.
 Synopsis
 --------
 
-#include `<geopm/MonitorAgent.hpp> <https://github.com/geopm/geopm/blob/dev/src/MonitorAgent.hpp>`_\ 
+#include `<geopm/MonitorAgent.hpp> <https://github.com/geopm/geopm/blob/dev/src/MonitorAgent.hpp>`_
 
 Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
 
@@ -81,7 +81,7 @@ The behavior of this agent is described in more detail in the
 :doc:`geopm_agent_monitor(7) <geopm_agent_monitor.7>` man page.
 
 For more details, see the doxygen
-page at https://geopm.github.io/dox/classgeopm_1_1_monitor_agent.html.
+page at https://geopm.github.io/doxall/classgeopm_1_1_monitor_agent.html.
 
 Class Methods
 -------------

@@ -13,7 +13,7 @@ geopm_sched.h(3) -- interface with Linux scheduler
 Synopsis
 --------
 
-#include `<geopm_sched.h> <https://github.com/geopm/geopm/blob/dev/src/geopm_sched.h>`_\ 
+#include `<geopm_sched.h> <https://github.com/geopm/geopm/blob/dev/service/src/geopm_sched.h>`_
 
 ``Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)``
 
@@ -58,7 +58,7 @@ the linux scheduler.
 
 * 
   ``geopm_sched_proc_cpuset``\ ():
-  Provides a `CPU_SET(3) <http://man7.org/linux/man-pages/man3/CPU_SET.3.html>`_ bit mask identifying the Linux logical CPUs on
+  Provides a `CPU_SET(3) <https://man7.org/linux/man-pages/man3/CPU_SET.3.html>`_ bit mask identifying the Linux logical CPUs on
   which the calling process is allowed to run. The user must allocate the bit
   arrary _proc_cpu\ *set* prior to calling this function, and the number of bits
   allocated is given by the _num\ *cpu* parameter. All of the bits in _proc_cpu\ *set*
@@ -68,14 +68,14 @@ the linux scheduler.
 
 * 
   ``geopm_sched_woomp``\ ():
-  Sets the `CPU_SET(3) <http://man7.org/linux/man-pages/man3/CPU_SET.3.html>`_ given by *woomp* such that it includes all
+  Sets the `CPU_SET(3) <https://man7.org/linux/man-pages/man3/CPU_SET.3.html>`_ given by *woomp* such that it includes all
   CPUs not used in an OpenMP parallel region but available to the
   calling thread.  If there are no CPU's that are part of the mask
-  returned by `sched_getaffinity(2) <http://man7.org/linux/man-pages/man2/sched_getaffinity.2.html>`_ but not affinitized by an
+  returned by `sched_getaffinity(2) <https://man7.org/linux/man-pages/man2/sched_getaffinity.2.html>`_ but not affinitized by an
   OpenMP thread then the returned mask will have all bits set,
   allowing the Linux scheduler to dynamically affinitize the thread.
   The CPU mask *woomp* that is created by this function can be used
-  with `pthread_attr_setaffinity_np(3) <http://man7.org/linux/man-pages/man3/pthread_attr_setaffinity_np.3.html>`_ to modify the attributes
+  with `pthread_attr_setaffinity_np(3) <https://man7.org/linux/man-pages/man3/pthread_attr_setaffinity_np.3.html>`_ to modify the attributes
   passed to ``geopm_ctl_pthread``\ () so that the pthread created is
   affinitized to CPUs that do not have an OpenMP thread affinity.
   The mask generated when OpenMP threads are not statically
@@ -104,9 +104,9 @@ See Also
 :doc:`geopm(7) <geopm.7>`\ ,
 :doc:`geopm_ctl_c(3) <geopm_ctl_c.3>`\ ,
 :doc:`geopm_error(3) <geopm_error.3>`\ ,
-`CPU_SET(3) <http://man7.org/linux/man-pages/man3/CPU_SET.3.html>`_\ ,
+`CPU_SET(3) <https://man7.org/linux/man-pages/man3/CPU_SET.3.html>`_\ ,
 **popen(3)**\ ,
-`pthread_setaffinity_np(3) <http://man7.org/linux/man-pages/man3/pthread_setaffinity_np.3.html>`_\ ,
-`pthread_attr_setaffinity_np(3) <http://man7.org/linux/man-pages/man3/pthread_attr_setaffinity_np.3.html>`_\ ,
-`sched_getaffinity(2) <http://man7.org/linux/man-pages/man2/sched_getaffinity.2.html>`_\ ,
-`sched_getcpu(3) <http://man7.org/linux/man-pages/man3/sched_getcpu.3.html>`_
+`pthread_setaffinity_np(3) <https://man7.org/linux/man-pages/man3/pthread_setaffinity_np.3.html>`_\ ,
+`pthread_attr_setaffinity_np(3) <https://man7.org/linux/man-pages/man3/pthread_attr_setaffinity_np.3.html>`_\ ,
+`sched_getaffinity(2) <https://man7.org/linux/man-pages/man2/sched_getaffinity.2.html>`_\ ,
+`sched_getcpu(3) <https://man7.org/linux/man-pages/man3/sched_getcpu.3.html>`_

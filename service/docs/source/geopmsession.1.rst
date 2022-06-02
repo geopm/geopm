@@ -31,8 +31,7 @@ core zero:
 See Also
 --------
 
-:doc:`geopm(7) <geopm.7>`\ ,
-:doc:`geopmread(1) <geopmread.1>`\ ,
-:doc:`geopmwrite(1) <geopmwrite.1>`\ ,
-`SKX Platform Controls <controls_SKX.html>`_\ ,
-`SKX Platform Signals <signals_SKX.html>`_
+:doc:`geopm(7) <geopm.7>`,
+:doc:`geopm_pio(7) <geopm_pio.7>`,
+:doc:`geopmread(1) <geopmread.1>`,
+:doc:`geopmwrite(1) <geopmwrite.1>`,

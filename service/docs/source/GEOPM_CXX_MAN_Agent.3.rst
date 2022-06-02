@@ -24,7 +24,7 @@ better rendering of this manual.
 Synopsis
 --------
 
-#include `<geopm/Agent.hpp> <https://github.com/geopm/geopm/blob/dev/src/Agent.hpp>`_\ 
+#include `<geopm/Agent.hpp> <https://github.com/geopm/geopm/blob/dev/src/Agent.hpp>`_
 
 Link with ``-lgeopm``
 
@@ -169,8 +169,8 @@ Class Methods
   between ``self`` and any leaf ``Agent``.  Only when *level* is zero
   will the ``sample_platform()`` and ``adjust_platform()`` methods be
   called.  If the *level* is zero then the ``init()`` method should
-  push all signals and controls for `PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3.html>`_.  The *fan_in**
-  is a vector indexed by *level* that describes the number of
+  push all signals and controls for :doc:`PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3>`.
+  The *fan_in* is a vector indexed by *level* that describes the number of
   siblings that an ``Agent`` at *level* has which share a parent.  The
   figure below represents a tree with ``fan_in == {4,3,2}`` where each
   ``Agent`` is signified by a digit that is equal to the *level*.  Note

@@ -26,7 +26,7 @@ concrete implementation, ``DaemonImp``.
 Synopsis
 --------
 
-#include `<geopm/Daemon.hpp> <https://github.com/geopm/geopm/blob/dev/src/Daemon.hpp>`_\ 
+#include `<geopm/Daemon.hpp> <https://github.com/geopm/geopm/blob/dev/src/Daemon.hpp>`_
 
 Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
 

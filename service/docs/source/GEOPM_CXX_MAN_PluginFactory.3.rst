@@ -23,7 +23,7 @@ this manual.
 Synopsis
 --------
 
-#include `<geopm/PluginFactory.hpp> <https://github.com/geopm/geopm/blob/dev/src/PluginFactory.hpp>`_\ 
+#include `<geopm/PluginFactory.hpp> <https://github.com/geopm/geopm/blob/dev/service/src/geopm/PluginFactory.hpp>`_
 
 Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
 
@@ -174,7 +174,7 @@ Building A Plugin Shared Object
 -------------------------------
 
 A GEOPM plugin is a shared object file that is loaded at runtime by
-the *controller* through the `dlopen(3) <http://man7.org/linux/man-pages/man3/dlopen.3.html>`_ interface.  Each file
+the *controller* through the `dlopen(3) <https://man7.org/linux/man-pages/man3/dlopen.3.html>`_ interface.  Each file
 provides a new implementation for one of the three extensible classes:
 ``IOGroup``\ , ``Agent``\ , and ``Comm``.  Each implementation is identified by
 a unique name string referred to as the *plugin_name*.  An exception
@@ -235,7 +235,7 @@ Plugin Load Constructor Function
 The shared object file must provide a function that is decorated with
 the ``constructor`` compiler directive.  The ``__attribute__((constructor))``
 enables the registration of plugins when the shared object is loaded
-by a call to `dlopen(3) <http://man7.org/linux/man-pages/man3/dlopen.3.html>`_.
+by a call to `dlopen(3) <https://man7.org/linux/man-pages/man3/dlopen.3.html>`_.
 Please see the ``gcc`` documentation for the
 `constructor attribute <https://gcc.gnu.org/onlinedocs/gcc-4.3.0/gcc/Function-Attributes.html>`_.
 
@@ -344,4 +344,4 @@ See Also
 :doc:`geopm(7) <geopm.7>`\ ,
 :doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>`\ ,
 :doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>`\ ,
-`dlopen(3) <http://man7.org/linux/man-pages/man3/dlopen.3.html>`_
+`dlopen(3) <https://man7.org/linux/man-pages/man3/dlopen.3.html>`_

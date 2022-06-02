@@ -47,10 +47,11 @@ platforms will support the loading different sets of ``IOGroups``.  The
 the current package energy value.  Agents are encouraged to request
 high level signals and controls to make the implementation more
 portable.  The high level signals and controls supported by built-in
-``IOGroup`` classes are listed below.  See :doc:`geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3>`
-section on `SEARCH AND LOAD ORDER <GEOPM_CXX_MAN_PluginFactory.3.html#plugin-search-path-and-load-order>`__ for information about how the
-``GEOPM_PLUGIN_PATH`` environment variable is used to select which
-``IOGroup`` implementation is used in the case where more than one
+``IOGroup`` classes are listed below.  See :doc:`geopm::PluginFactory(3)
+<GEOPM_CXX_MAN_PluginFactory.3>` section on :ref:`SEARCH AND LOAD ORDER
+<GEOPM_CXX_MAN_PluginFactory.3:Plugin Search Path And Load Order>` for
+information about how the ``GEOPM_PLUGIN_PATH`` environment variable is used to
+select which ``IOGroup`` implementation is used in the case where more than one
 provides the same high level signal or control.
 
 Signal names that end in ``#`` (for example, raw MSR values) are 64-bit

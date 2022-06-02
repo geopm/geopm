@@ -27,7 +27,7 @@ implement the Endpoint interface functionality.
 Synopsis
 --------
 
-#include `<geopm/Endpoint.hpp> <https://github.com/geopm/geopm/blob/dev/src/Endpoint.hpp>`_\ 
+#include `<geopm/Endpoint.hpp> <https://github.com/geopm/geopm/blob/dev/src/Endpoint.hpp>`_
 
 Link with ``-lgeopm``
 

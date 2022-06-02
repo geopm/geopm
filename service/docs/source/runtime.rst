@@ -31,7 +31,7 @@ for further documentation and links:
 `geopm(7) <https://geopm.github.io/man/geopm.7.html>`_.
 
 The GEOPM HPC Runtime provides some built-in algorithms, each as an
-"Agent" that implements the geopm::Agent(3) class interface.
+"Agent" that implements the :doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>` class interface.
 A developer may extend these algorithm features by writing an Agent
 plugin.  A new implementation of this class can be dynamically loaded
 at runtime by the GEOPM Controller.  The Agent class defines which
@@ -48,7 +48,8 @@ The libgeopm library can be called directly or indirectly within MPI
 applications to enable application feedback for informing the control
 decisions.  The indirect calls are facilitated by GEOPM's integration
 with MPI and OpenMP through their profiling decorators, and the direct
-calls are made through the geopm_prof_c(3) or geopm_fortran(3)
+calls are made through the :doc:`geopm_prof_c(3) <geopm_prof_c.3>` or
+:doc:`geopm_fortran(3) <geopm_fortran.3>`
 interfaces.  Marking up a compute application with profiling
 information through these interfaces can enable better integration of
 the GEOPM runtime with the compute application and more precise
@@ -137,9 +138,8 @@ Building the GEOPM HPC Runtime
 ------------------------------
 
 The best recommendation for building the GEOPM HPC Runtime is to follow
-the developer documentation posted
-`here <devel.html>`__.  This will
-enable the use of the GEOPM Service and will also provide the latest
+the developer documentation posted in the :doc:`developer guide <devel>`.  This
+will enable the use of the GEOPM Service and will also provide the latest
 development in the GEOPM repository.
 
 
@@ -242,11 +242,12 @@ as the underlying launch command, but the wrapper extends the
 interface with GEOPM specific options.  The "geopmlaunch" application
 launches the primary compute application and the GEOPM control thread
 on each compute node and manages the CPU affinity requirements for all
-processes.  The wrapper is documented in the geopmlaunch(1) man page.
+processes.  The wrapper is documented in the :doc:`geopmlaunch(1)
+<geopmlaunch.1>` man page.
 
 There are several underlying MPI application launchers that
-"geopmlaunch" wrapper supports.  See the geopmlaunch(1) man page for
-information on available launchers and how to select them.  If the
+"geopmlaunch" wrapper supports.  See the :doc:`geopmlaunch(1) <geopmlaunch.1>`
+man page for information on available launchers and how to select them.  If the
 launch mechanism for your system is not supported, then affinity
 requirements must be enforced by the user and all options to the GEOPM
 runtime must be passed through environment variables.  Please consult
@@ -310,7 +311,7 @@ compute node daemon calls:
 
 
 which records into memory the value of all controls that can be
-written through GEOPM (see geopm_pio_c(3)).  The second call made in
+written through GEOPM (see :doc:`geopm_pio_c(3) <geopm_pio_c.3>`).  The second call made in
 the prologue is:
 
 .. code-block:: C
@@ -318,7 +319,7 @@ the prologue is:
    geopm_agent_enforce_policy()
 
 
-and this call (see geopm_agent_c(3)) enforces the configured policy
+and this call (see :doc:`geopm_agent_c(3) <geopm_agent_c.3>`) enforces the configured policy
 such as a power cap or a limit on CPU frequency by a one-time
 adjustment of hardware settings.  In the epilogue, the resource
 manager calls:
@@ -373,8 +374,8 @@ cases, calling geopm_agent_enforce_policy() prior to releasing compute
 node resources to the end user will enforce static limits to power or
 CPU frequency, and these will impact all user applications.  In order
 to leverage the dynamic runtime features of GEOPM, the user must
-opt-in by launching their MPI application with the geopmlaunch(1)
-command line tool.
+opt-in by launching their MPI application with the :doc:`geopmlaunch(1)
+<geopmlaunch.1>` command line tool.
 
 The following example shows how a system administrator would configure
 a system to use the power_balancer agent.  This use case will enforce
@@ -393,7 +394,7 @@ path "/etc/geopm/environment-override.json":
 Note that the "POWER_PACKAGE_LIMIT_TOTAL" value controlling the limit
 is specified in a secondary JSON file "geopm_power_balancer.json" that
 may be located on a shared file system and can be created with the
-geopmagent(1) command line tool.  Locating the policy file on the
+:doc:`geopmagent(1) <geopmagent.1>` command line tool.  Locating the policy file on the
 shared file system enables the limit to be modified without changing
 the compute node boot image.  Changing the policy value will impact
 all subsequently launched GEOPM processes, but it will not change the

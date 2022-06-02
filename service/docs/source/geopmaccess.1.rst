@@ -105,7 +105,7 @@ Access Management
 
 Reading access lists may be done by an unprivileged client or by the
 system administrator, but only a process with the Linux
-`capabilities(7) <http://man7.org/linux/man-pages/man7/capabilities.7.html>`_
+`capabilities(7) <https://man7.org/linux/man-pages/man7/capabilities.7.html>`_
 ``CAP_SYS_ADMIN`` has permission to write or delete an access list.
 Typically is done by the root user or with the ``sudo`` command.  The
 administrator may execute ``geopmaccess`` to write to an access list
@@ -357,7 +357,7 @@ Service is not active.
 
 Modification of access lists is typically is done by the root user or
 with the ``sudo`` command.  A process is required to have the Linux
-`capabilities(7) <http://man7.org/linux/man-pages/man7/capabilities.7.html>`_
+`capabilities(7) <https://man7.org/linux/man-pages/man7/capabilities.7.html>`_
 ``CAP_SYS_ADMIN`` in order to modify any access lists, and a failure
 will occur otherwise.
 

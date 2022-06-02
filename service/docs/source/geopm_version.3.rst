@@ -13,7 +13,7 @@ geopm_version(3) -- geopm library version
 Synopsis
 --------
 
-#include `<geopm_prof.h> <https://github.com/geopm/geopm/blob/dev/src/geopm_prof.h>`_\ 
+#include `<geopm_prof.h> <https://github.com/geopm/geopm/blob/dev/src/geopm_prof.h>`_
 
 ``Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)``
 

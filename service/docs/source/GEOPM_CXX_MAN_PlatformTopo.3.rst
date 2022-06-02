@@ -28,7 +28,7 @@ hidden by the singleton accessor.
 Synopsis
 --------
 
-#include `<geopm/PlatformTopo.hpp> <https://github.com/geopm/geopm/blob/dev/src/PlatformTopo.hpp>`_\ 
+#include `<geopm/PlatformTopo.hpp> <https://github.com/geopm/geopm/blob/dev/service/src/geopm/PlatformTopo.hpp>`_
 
 Link with ``-lgeopmd``
 
@@ -70,8 +70,9 @@ argument an integer domain type, used to refer to different parts of
 the system topology where signals and controls are applicable.  Each
 domain is defined by a type and an index.  The domain type is a value
 from the ``geopm_domain_e`` enum, and the domain index enumerates the
-devices of that type available on the system.  Refer to the list of
-domain types in :doc:`geopm_topo_c(3) <geopm_topo_c.3>`.  The domains are effectively
+devices of that type available on the system.  Refer to the :ref:`list of
+domain types <geopm_topo_c.3:Domain Types>` in
+in :doc:`geopm_topo_c(3) <geopm_topo_c.3>`.  The domains are effectively
 hierarchical and the ``PlatformTopo::domain_nested()`` method can be
 used to explore which domains are nested within a specified outer
 domain.  Each domain, specified by pairing a domain type and a domain
@@ -94,7 +95,8 @@ Class Methods
 * 
   ``num_domain()``:
   Number of domains on the platform of a particular *domain_type*.
-  Refer to the list of domain types in `platform_topo_c(3) <platform_topo_c.3.html>`_.
+  Refer to the :ref:`list of domain types <geopm_topo_c.3:Domain Types>` in
+  :doc:`geopm_topo_c(3) <geopm_topo_c.3>`.
 
 * 
   ``domain_idx()``:
