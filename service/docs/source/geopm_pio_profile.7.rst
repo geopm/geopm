@@ -22,7 +22,7 @@ The signals **cannot** be queried via ``geopmread``.
 Signals
 -------
 
-``PROFILE::CPU_REGION_HASH`` TODO - Currently ``REGION_HASH``; change in implementation.
+``PROFILE::REGION_HASH``
     The hash (or ID) of the region of code (see :doc:`geopm_prof_c(3)
     <geopm_prof_c.3>`) currently being run by all ranks, otherwise
     ``GEOPM_REGION_HASH_UNMARKED``.  See the enum ``geopm_region_hash_e``
@@ -35,7 +35,7 @@ Signals
       * **Format**: hex
       * **Unit**: crc32 hash of region name
 
-``PROFILE::CPU_REGION_HINT`` TODO - Currently ``REGION_HINT``; change in implementation.
+``PROFILE::REGION_HINT``
     The region hint (see :doc:`geopm_prof_c(3) <geopm_prof_c.3>`) associated
     with the currently running region.  For any interval when all ranks are
     within an MPI function inside of a user defined region, the hint will
@@ -49,13 +49,12 @@ Signals
     <https://github.com/geopm/geopm/blob/dev/service/src/geopm_hint.h>`_ for
     more information.
 
-
       * **Aggregation**: region_hint
       * **Domain**: cpu
       * **Format**: hex
       * **Unit**: geopm_region_hint_e
 
-``PROFILE::CPU_REGION_PROGRESS`` TODO - Currently ``REGION_PROGRESS``; change in implementation.
+``PROFILE::REGION_PROGRESS``
     Minimum per-rank reported progress through the current region.  The
     returned value will be on the interval [0, 1].  0 indicates no progress
     while 1 indicates the region is complete.
@@ -65,138 +64,135 @@ Signals
       * **Format**: float
       * **Unit**: progress percentage
 
-``PROFILE::CPU_TIME_HINT_UNKNOWN`` TODO - Currently ``TIME_HINT_UNKNOWN``; change in implementation.
+``PROFILE::TIME_HINT_UNKNOWN``
     The total amount of time that a CPU was measured to be running with this
     hint value on the Linux logical CPU specified.
 
       * **Aggregation**: average
       * **Domain**: cpu
-      * **Format**: float
+      * **Format**: double
       * **Unit**: seconds
 
-``PROFILE::CPU_TIME_HINT_UNSET`` TODO - Currently ``TIME_HINT_UNSET``; change in implementation.
+``PROFILE::TIME_HINT_UNSET``
     The total amount of time that a CPU was measured to be running with this
     hint value on the Linux logical CPU specified.
 
       * **Aggregation**: average
       * **Domain**: cpu
-      * **Format**: float
+      * **Format**: double
       * **Unit**: seconds
 
-``PROFILE::CPU_TIME_HINT_COMPUTE`` TODO - Currently ``TIME_HINT_COMPUTE``; change in implementation.
+``PROFILE::TIME_HINT_COMPUTE``
     The total amount of time that a CPU was measured to be running with this
     hint value on the Linux logical CPU specified.
 
       * **Aggregation**: average
       * **Domain**: cpu
-      * **Format**: float
+      * **Format**: double
       * **Unit**: seconds
 
-``PROFILE::CPU_TIME_HINT_MEMORY`` TODO - Currently ``TIME_HINT_MEMORY``; change in implementation.
+``PROFILE::TIME_HINT_MEMORY``
     The total amount of time that a CPU was measured to be running with this
     hint value on the Linux logical CPU specified.
 
       * **Aggregation**: average
       * **Domain**: cpu
-      * **Format**: float
+      * **Format**: double
       * **Unit**: seconds
 
-``PROFILE::CPU_TIME_HINT_NETWORK`` TODO - Currently ``TIME_HINT_NETWORK``; change in implementation.
+``PROFILE::TIME_HINT_NETWORK``
     The total amount of time that a CPU was measured to be running with this
     hint value on the Linux logical CPU specified.
 
       * **Aggregation**: average
       * **Domain**: cpu
-      * **Format**: float
+      * **Format**: double
       * **Unit**: seconds
 
-``PROFILE::CPU_TIME_HINT_IO`` TODO - Currently ``TIME_HINT_IO``; change in implementation.
+``PROFILE::TIME_HINT_IO``
     The total amount of time that a CPU was measured to be running with this
     hint value on the Linux logical CPU specified.
 
       * **Aggregation**: average
       * **Domain**: cpu
-      * **Format**: float
+      * **Format**: double
       * **Unit**: seconds
 
-``PROFILE::CPU_TIME_HINT_SERIAL`` TODO - Currently ``TIME_HINT_SERIAL``; change in implementation.
+``PROFILE::TIME_HINT_SERIAL``
     The total amount of time that a CPU was measured to be running with this
     hint value on the Linux logical CPU specified.
 
       * **Aggregation**: average
       * **Domain**: cpu
-      * **Format**: float
+      * **Format**: double
       * **Unit**: seconds
 
-``PROFILE::CPU_TIME_HINT_PARALLEL`` TODO - Currently ``TIME_HINT_PARALLEL``; change in implementation.
+``PROFILE::TIME_HINT_PARALLEL``
     The total amount of time that a CPU was measured to be running with this
     hint value on the Linux logical CPU specified.
 
       * **Aggregation**: average
       * **Domain**: cpu
-      * **Format**: float
+      * **Format**: double
       * **Unit**: seconds
 
-``PROFILE::CPU_TIME_HINT_IGNORE`` TODO - Currently ``TIME_HINT_IGNORE``; change in implementation.
+``PROFILE::TIME_HINT_IGNORE``
     The total amount of time that a CPU was measured to be running with this
     hint value on the Linux logical CPU specified.
 
       * **Aggregation**: average
       * **Domain**: cpu
-      * **Format**: float
+      * **Format**: double
       * **Unit**: seconds
 
 Controls
 --------
 
-This IOGroup does not expose any controls.
+This IOGroup does not provide any controls.
+
+Aliases
+-------
 
 Signal Aliases
---------------
+^^^^^^^^^^^^^^
 
-This IOGroup exposes the following high-level aliases:
+This IOGroup provides the following high-level aliases:
 
-``CPU_REGION_HASH``
-    Aliases to ``PROFILE::CPU_REGION_HASH``
+``REGION_HASH``
+    Maps to ``PROFILE::REGION_HASH``
 
-``CPU_REGION_HINT``
-    Aliases to ``PROFILE::CPU_REGION_HINT``
+``REGION_HINT``
+    Maps to ``PROFILE::REGION_HINT``
 
-``CPU_REGION_PROGRESS``
-    Aliases to ``PROFILE::CPU_REGION_PROGRESS``
+``REGION_PROGRESS``
+    Maps to ``PROFILE::REGION_PROGRESS``
 
-``CPU_TIME_HINT_UNKNOWN``
-    Aliases to ``PROFILE::CPU_TIME_HINT_UNKNOWN``
+``TIME_HINT_UNKNOWN``
+    Maps to ``PROFILE::TIME_HINT_UNKNOWN``
 
-``CPU_TIME_HINT_UNSET``
-    Aliases to ``PROFILE::CPU_TIME_HINT_UNSET``
+``TIME_HINT_UNSET``
+    Maps to ``PROFILE::TIME_HINT_UNSET``
 
-``CPU_TIME_HINT_COMPUTE``
-    Aliases to ``PROFILE::CPU_TIME_HINT_COMPUTE``
+``TIME_HINT_COMPUTE``
+    Maps to ``PROFILE::TIME_HINT_COMPUTE``
 
-``CPU_TIME_HINT_MEMORY``
-    Aliases to ``PROFILE::CPU_TIME_HINT_MEMORY``
+``TIME_HINT_MEMORY``
+    Maps to ``PROFILE::TIME_HINT_MEMORY``
 
-``CPU_TIME_HINT_NETWORK``
-    Aliases to ``PROFILE::CPU_TIME_HINT_NETWORK``
+``TIME_HINT_NETWORK``
+    Maps to ``PROFILE::TIME_HINT_NETWORK``
 
-``CPU_TIME_HINT_IO``
-    Aliases to ``PROFILE::CPU_TIME_HINT_IO``
+``TIME_HINT_IO``
+    Maps to ``PROFILE::TIME_HINT_IO``
 
-``CPU_TIME_HINT_SERIAL``
-    Aliases to ``PROFILE::CPU_TIME_HINT_SERIAL``
+``TIME_HINT_SERIAL``
+    Maps to ``PROFILE::TIME_HINT_SERIAL``
 
-``CPU_TIME_HINT_PARALLEL``
-    Aliases to ``PROFILE::CPU_TIME_HINT_PARALLEL``
+``TIME_HINT_PARALLEL``
+    Maps to ``PROFILE::TIME_HINT_PARALLEL``
 
-``CPU_TIME_HINT_IGNORE``
-    Aliases to ``PROFILE::CPU_TIME_HINT_IGNORE``
-
-``CPU_TIME_HINT_UNKNOWN``
-    Aliases to ``PROFILE::CPU_TIME_HINT_UNKNOWN``
-
-``CPU_TIME_HINT_UNKNOWN``
-    Aliases to ``PROFILE::CPU_TIME_HINT_UNKNOWN``
+``TIME_HINT_IGNORE``
+    Maps to ``PROFILE::TIME_HINT_IGNORE``
 
 See Also
 --------
