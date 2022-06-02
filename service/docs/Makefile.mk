@@ -13,7 +13,6 @@ transform='s/GEOPM_CXX_MAN_/geopm::/'
 
 EXTRA_DIST += docs/geninfo.sh \
               docs/source/admin.rst \
-              docs/source/analysis.rst \
               docs/source/build.rst \
               docs/source/client.rst \
               docs/source/conf.py \
