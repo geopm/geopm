@@ -101,7 +101,7 @@ Agent is responsible for making decisions about how and what control the
 runtime should exert based on readings of system values.  By default
 the :doc:`geopm_agent_monitor(7) <geopm_agent_monitor.7>` is used, but other agents can be
 selected with the ``--geopm-agent`` command line option to the
-:doc:`geopm_launcher(1) <geopm_launcher.1>` or ``GEOPM_AGENT`` environment variable.  Exactly
+:doc:`geopmlaunch(1) <geopmlaunch.1>` or ``GEOPM_AGENT`` environment variable.  Exactly
 one agent type is used during each execution of the GEOPM runtime.
 
 The :doc:`geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3>` man page gives a general overview of

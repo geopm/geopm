@@ -412,7 +412,7 @@ See Also
 :doc:`geopm::PowerBalancer(3) <GEOPM_CXX_MAN_PowerBalancer.3>`\ ,
 :doc:`geopm::PowerGovernor(3) <GEOPM_CXX_MAN_PowerGovernor.3>`\ ,
 :doc:`geopm::ProfileIOGroup(3) <GEOPM_CXX_MAN_ProfileIOGroup.3>`\ ,
-:doc:`geopm::RegionAggregator(3) <GEOPM_CXX_MAN_RegionAggregator.3>`\ ,
+:doc:`geopm::SampleAggregator(3) <GEOPM_CXX_MAN_SampleAggregator.3>`\ ,
 :doc:`geopm::SharedMemory(3) <GEOPM_CXX_MAN_SharedMemory.3>`\ ,
 :doc:`geopm::TimeIOGroup(3) <GEOPM_CXX_MAN_TimeIOGroup.3>`\ ,
 :doc:`geopmadmin(1) <geopmadmin.1>`\ ,
