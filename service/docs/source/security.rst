@@ -150,7 +150,7 @@ Secure restart of the ``geopmd`` daemon process
 
 All state that is required to maintain the security guarantees of the
 GEOPM Service are stored to disk in a secure way (see
-:ref:`File Usage/Configuration`
+:ref:`security:File Usage/Configuration`
 for more details).  This information is read from disk when the
 ``geopmd`` daemon process begins. This enables the service to cleanly
 recover from any premature ending of the daemon process. The restart
@@ -403,7 +403,7 @@ may depend on how the system is configured.
 The GEOPM Service will log any error conditions that arise from
 attempting to set up or use configuration files stored in a secure
 location.  See
-:ref:`System files`
+:ref:`security:System files`
 for more information about these secure files.
 
 
