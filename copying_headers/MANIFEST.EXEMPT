@@ -73,7 +73,6 @@ scripts/test/test_io_experiment.report
 service/contrib/json11/LICENSE.txt
 service/contrib/json11/README.md
 service/docs/source/admin.rst
-service/docs/source/analysis.rst
 service/docs/source/build.rst
 service/docs/source/client.rst
 service/docs/source/contrib.rst
