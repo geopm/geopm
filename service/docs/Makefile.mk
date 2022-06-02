@@ -185,10 +185,14 @@ all_local += $(all_man_target)
 docs: docs_man docs_html
 
 if ENABLE_DOCS
+# Note on sphinx-build argument order:
+# Documentation says -M must come first, then other options, the file paths.
+# That doesn't work. But it looks like other options are allowed anywhere after
+# -M, so -W is at the end here.
 $(all_man_target): $(all_man_rst)
 	LD_LIBRARY_PATH=.libs:$(LD_LIBRARY_PATH) \
 	PYTHONPATH=$(abs_srcdir):$(PYTHONPATH) \
-	sphinx-build -M man $(abs_srcdir)/docs/source docs/build
+	sphinx-build -M man $(abs_srcdir)/docs/source docs/build -W
 	touch $(all_man_target)
 
 $(all_man): docs/build/man/%: $(top_srcdir)/docs/source/%.rst $(all_man_target)
@@ -197,12 +201,12 @@ $(all_man): docs/build/man/%: $(top_srcdir)/docs/source/%.rst $(all_man_target)
 docs_html: libgeopmd.la $(abs_srcdir)/geopmdpy/version.py
 	LD_LIBRARY_PATH=.libs:$(LD_LIBRARY_PATH) \
 	PYTHONPATH=$(abs_srcdir):$(PYTHONPATH) \
-	sphinx-build -M html $(abs_srcdir)/docs/source docs/build
+	sphinx-build -M html $(abs_srcdir)/docs/source docs/build -W
 
 docs_man: libgeopmd.la $(abs_srcdir)/geopmdpy/version.py
 	LD_LIBRARY_PATH=.libs:$(LD_LIBRARY_PATH) \
 	PYTHONPATH=$(abs_srcdir):$(PYTHONPATH) \
-	sphinx-build -M man $(abs_srcdir)/docs/source docs/build
+	sphinx-build -M man $(abs_srcdir)/docs/source docs/build -W
 
 else
 
