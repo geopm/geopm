@@ -4,9 +4,9 @@ geopmadmin(1) -- tool for geopm system administrators
 Synopsis
 --------
 
-``geopmadmin`` [\ ``--config-default``\ |\ ``--config-override``\ |\ ``--msr-allowlist``\ ] [\ ``--cpuid``\ ]
+``geopmadmin`` [\ ``--config-default``\ \|\ ``--config-override``\ \|\ ``--msr-allowlist``\ ] [\ ``--cpuid``\ ]
 
-``geopmadmin`` [\ ``--help``\ |\ ``--version``\ ]
+``geopmadmin`` [\ ``--help``\ \|\ ``--version``\ ]
 
 Description
 -----------

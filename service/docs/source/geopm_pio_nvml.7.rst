@@ -162,22 +162,21 @@ Every control is exposed as a signal with the same name.  The relevant signal ag
 ``NVML::GPU_FREQUENCY_CONTROL``
     Sets Streaming Multiprocessor frequency min and max to the same limit (in hertz)
 
-
       *  ``Aggregation``: Average
       *  ``Domain``: GPU
       *  ``Format``: Double
       *  ``Unit``: Hertz
-``NVML::GPU_FREQUENCY_RESET_CONTROL``
 
+``NVML::GPU_FREQUENCY_RESET_CONTROL``
     Resets Streaming Multiprocessor frequency min and max limits to default values.  Parameter provided is unused.
 
       *  ``Aggregation``: Average
       *  ``Domain``: GPU
       *  ``Format``: Double
       *  ``Unit``: None
+
 ``NVML::GPU_POWER_LIMIT_CONTROL``
     Sets GPU power limit in watts
-
 
       *  ``Aggregation``: Double
       *  ``Domain``: GPU
