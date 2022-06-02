@@ -14,7 +14,7 @@ import glob
 import sphinx_rtd_theme
 
 sys.path.insert(0, os.path.abspath('../..'))
-
+sys.path.append(os.path.join(os.path.dirname(__file__), "_ext"))
 
 # -- Project information -----------------------------------------------------
 
@@ -55,6 +55,7 @@ extensions = [
     'sphinx_rtd_theme',
     'sphinx.ext.autosectionlabel',
     'sphinxemoji.sphinxemoji',
+    'geopmlint',
 ]
 
 # The suffix(es) of source filenames.
