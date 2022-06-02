@@ -148,7 +148,7 @@ Link with ``-lgeopmd``
 Description
 -----------
 
-The C++ bindings for the `geopm_pio(7) <geopm_pio.7.html>`_ interface.
+The C++ bindings for the :doc:`geopm_pio(7) <geopm_pio.7>` interface.
 
 
 Structure Type
@@ -229,7 +229,7 @@ Inspection Class Methods
   ``agg_function()``:
   Returns the function that should be used to aggregate
   *signal_name*.  If one was not previously specified by this class,
-  the default function is select_first from `geopm::Agg(3) <GEOPM_CXX_MAN_Agg.3.html>`_.
+  the default function is select_first from :doc:`geopm::Agg(3) <GEOPM_CXX_MAN_Agg.3>`.
 
 *
   ``signal_behavior()``:
@@ -387,7 +387,7 @@ Plugin Class Methods
   Registers an ``IOGroup`` with the ``PlatformIO`` so that the signals
   and controls provided by the object are available through the
   ``PlatformIO`` interface.  The *iogroup* is a shared pointer to a
-  class derived from the `geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3.html>`_.  This method
+  class derived from the :doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>`.  This method
   provides the mechanism for extending the ``PlatformIO`` interface at
   runtime.
 
@@ -429,19 +429,19 @@ Example
 Errors
 ------
 
-All functions described on this man page throw `geopm::Exception(3) <GEOPM_CXX_MAN_Exception.3.html>`_
+All functions described on this man page throw :doc:`geopm::Exception(3) <GEOPM_CXX_MAN_Exception.3>`
 on error.
 
 See Also
 --------
 
-`geopm(7) <geopm.7.html>`_\ ,
-`geopm_hash(3) <geopm_hash.3.html>`_\ ,
-`geopm_prof_c(3) <geopm_prof_c.3.html>`_\ ,
-`geopm_pio_c(3) <geopm_pio_c.3.html>`_\ ,
-`geopm_topo_c(3) <geopm_topo_c.3.html>`_\ ,
-`geopm::Exception(3) <GEOPM_CXX_MAN_Exception.3.html>`_\ ,
-`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3.html>`_\ ,
-`geopm::MSRIOGroup(3) <GEOPM_CXX_MAN_MSRIOGroup.3.html>`_\ ,
-`geopm::PlatformTopo(3) <GEOPM_CXX_MAN_PlatformTopo.3.html>`_\ ,
-`geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3.html>`_
+:doc:`geopm(7) <geopm.7>`\ ,
+:doc:`geopm_hash(3) <geopm_hash.3>`\ ,
+:doc:`geopm_prof_c(3) <geopm_prof_c.3>`\ ,
+:doc:`geopm_pio_c(3) <geopm_pio_c.3>`\ ,
+:doc:`geopm_topo_c(3) <geopm_topo_c.3>`\ ,
+:doc:`geopm::Exception(3) <GEOPM_CXX_MAN_Exception.3>`\ ,
+:doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>`\ ,
+:doc:`geopm::MSRIOGroup(3) <GEOPM_CXX_MAN_MSRIOGroup.3>`\ ,
+:doc:`geopm::PlatformTopo(3) <GEOPM_CXX_MAN_PlatformTopo.3>`\ ,
+:doc:`geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3>`

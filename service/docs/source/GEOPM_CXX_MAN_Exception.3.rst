@@ -50,7 +50,7 @@ Description
 
 This class is used to format error messages for the GEOPM runtime
 according to the error code.  The list of errors is described in
-`geopm_error(3) <geopm_error.3.html>`_.  Positive error codes are system errors (see
+:doc:`geopm_error(3) <geopm_error.3>`.  Positive error codes are system errors (see
 `errno(3) <http://man7.org/linux/man-pages/man3/errno.3.html>`_\ ), negative values are GEOPM errors.  If zero is specified
 for the error code, ``GEOPM_ERROR_RUNTIME`` (-1) is assumed.
 
@@ -95,7 +95,7 @@ Class Methods
   ``err_value()``:
   Returns the non-zero error code associated with the
   exception.  Negative error codes are GEOPM-specific
-  and documented in the `geopm_error(3) <geopm_error.3.html>`_ man page.
+  and documented in the :doc:`geopm_error(3) <geopm_error.3>` man page.
   Positive error codes are system errors and are
   documented in the system `errno(3) <http://man7.org/linux/man-pages/man3/errno.3.html>`_ man page.  A brief
   description of all error codes can be obtained with
@@ -104,6 +104,6 @@ Class Methods
 See Also
 --------
 
-`geopm(7) <geopm.7.html>`_\ ,
-`geopm_error(3) <geopm_error.3.html>`_\ ,
+:doc:`geopm(7) <geopm.7>`\ ,
+:doc:`geopm_error(3) <geopm_error.3>`\ ,
 `errno(3) <http://man7.org/linux/man-pages/man3/errno.3.html>`_

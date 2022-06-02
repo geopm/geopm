@@ -29,6 +29,6 @@ page at https://geopm.github.io/dox/classgeopm_1_1_power_governor.html.
 See Also
 --------
 
-`geopm(7) <geopm.7.html>`_\ ,
-`geopm_agent_power_governor(7) <geopm_agent_power_governor.7.html>`_\ ,
-`geopm_agent_power_balancer(7) <geopm_agent_power_balancer.7.html>`_
+:doc:`geopm(7) <geopm.7>`\ ,
+:doc:`geopm_agent_power_governor(7) <geopm_agent_power_governor.7>`\ ,
+:doc:`geopm_agent_power_balancer(7) <geopm_agent_power_balancer.7>`

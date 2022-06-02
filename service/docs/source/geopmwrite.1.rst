@@ -87,7 +87,7 @@ is the floating-point number in SI units that the control will be
 adjusted to.  If the DOMAIN_TYPE is a larger containing domain than
 that of the control, the same value will be applied to every contained
 subdomain.  Refer to the domain hierarchy described in
-`geopm::PlatformTopo(3) <GEOPM_CXX_MAN_PlatformTopo.3>`_ for the descriptions of the domains and how
+:doc:`geopm::PlatformTopo(3) <GEOPM_CXX_MAN_PlatformTopo.3>` for the descriptions of the domains and how
 they are contained within one another.
 
 | ``board`` - domain for node-wide signals and controls
@@ -102,8 +102,8 @@ they are contained within one another.
 | ++ ``gpu`` - domain for GPUs on the board
 
 This utility can be used to create a geopm::PlatformTopo cache file in
-the tmpfs.  When this file is not present the `geopmread(1) <geopmread.1>`_,
-`geopmwrite(1) <geopmwrite.1>`_, `geopmctl(1) <geopmctl.1>`_ and `geopmlaunch(1) <geopmlaunch.1>`_ will
+the tmpfs.  When this file is not present the :doc:`geopmread(1) <geopmread.1>`,
+:doc:`geopmwrite(1) <geopmwrite.1>`, :doc:`geopmctl(1) <geopmctl.1>` and :doc:`geopmlaunch(1) <geopmlaunch.1>` will
 **popen(1)** a subprocess which provides the platform topology
 information.  This subprocess will not be created if the cache file
 exists.  See the ``--cache`` option below for more information.
@@ -122,7 +122,7 @@ Options
                 remove the existing cache file prior to executing this command.
 -h, --help      Print brief summary of the command line usage information, then
                 exit.
--v, --version   Print version of `geopm(7) <geopm.7>`_ to standard output,
+-v, --version   Print version of :doc:`geopm(7) <geopm.7>` to standard output,
                 then exit.
 
 Examples
@@ -191,6 +191,6 @@ Set all CPUs on package 0 to 1.5 GHz (cpu 1 is on package 0):
 See Also
 --------
 
-`geopm(7) <geopm.7>`_,
-`geopmread(1) <geopmread.1>`_,
+:doc:`geopm(7) <geopm.7>`,
+:doc:`geopmread(1) <geopmread.1>`,
 `lscpu(1) <http://man7.org/linux/man-pages/man1/lscpu.1.html>`_

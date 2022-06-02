@@ -14,7 +14,7 @@ GEOPM runtime endpoint.  A GEOPM endpoint is a shared memory attach
 point to connect a managing process (e.g. a resource manager or job
 scheduler) to a GEOPM controller.  The endpoint supports writing of
 agent-specific policies and the reading of agent-specific signals.
-The agent signals and controls are described on the `geopmagent(1) <geopmagent.1.html>`_
+The agent signals and controls are described on the :doc:`geopmagent(1) <geopmagent.1>`
 man page.  The *ENDPOINT* positional argument specifies the endpoint
 name and is typically the name associated with the job or the job
 identifier.  This string is arbitrary, but cannot contain the '/' or
@@ -36,13 +36,13 @@ Options
            value separated by a colon.  The last line of the output represents
            the SAMPLE_AGE signal which is the elapsed time since the last
            update to the endpoint by the GEOPM runtime.  The signal names
-           provided by an agent can be determined with the `geopmagent(1)
-           <geopmagent.1.html>`_ command line tool.  The return value will be
+           provided by an agent can be determined with the :doc:`geopmagent(1)
+           <geopmagent.1>` command line tool.  The return value will be
            non-zero if an agent has not yet attached to the endpoint.
 -p POLICY  Set policies for the attached agent.  The values to be set for each
            policy are given in a comma-separated list.  The order of these
            values corresponds to the ordering of the policy names by the
-           `geopmagent(1) <geopmagent.1.html>`_ executable when the attached
+           :doc:`geopmagent(1) <geopmagent.1>` executable when the attached
            agent is specified.  The return value will be non-zero if an agent
            has not yet attached to the endpoint.
 
@@ -123,10 +123,10 @@ Destroy endpoints "job-123" and "job-321":
 See Also
 --------
 
-`geopm(7) <geopm.7.html>`_,
-`geopm_agent_monitor(7) <geopm_agent_monitor.7.html>`_,
-`geopm_agent_power_balancer(7) <geopm_agent_power_balancer.7.html>`_,
-`geopm_agent_power_governor(7) <geopm_agent_power_governor.7.html>`_,
-`geopm_agent_c(3) <geopm_agent_c.3.html>`_,
-`geopm_endpoint_c(3) <geopm_endpoint_c.3.html>`_,
-`geopmagent(1) <geopmagent.1.html>`_
+:doc:`geopm(7) <geopm.7>`,
+:doc:`geopm_agent_monitor(7) <geopm_agent_monitor.7>`,
+:doc:`geopm_agent_power_balancer(7) <geopm_agent_power_balancer.7>`,
+:doc:`geopm_agent_power_governor(7) <geopm_agent_power_governor.7>`,
+:doc:`geopm_agent_c(3) <geopm_agent_c.3>`,
+:doc:`geopm_endpoint_c(3) <geopm_endpoint_c.3>`,
+:doc:`geopmagent(1) <geopmagent.1>`

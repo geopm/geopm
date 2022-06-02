@@ -57,5 +57,5 @@ by a space.
 See Also
 --------
 
-`geopm(7) <geopm.7.html>`_\ ,
-`geopmbench(1) <geopmbench.1.html>`_
+:doc:`geopm(7) <geopm.7>`\ ,
+:doc:`geopmbench(1) <geopmbench.1>`

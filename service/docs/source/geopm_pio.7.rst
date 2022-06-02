@@ -11,15 +11,15 @@ number of built-in signals and controls.  These built-in signals and
 controls include hardware metrics, hardware settings, and signals
 derived from application behavior.  Application behavior is tracked by
 GEOPM's integration with MPI and OpenMP and also by application use of
-the `geopm_prof_c(3) <geopm_prof_c.3.html>`_ mark-up interface. In
+the :doc:`geopm_prof_c(3) <geopm_prof_c.3>` mark-up interface. In
 addition to the built-in features, ``PlatformIO`` can be extended
-through the `geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3.html>`_ plugin
+through the :doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>` plugin
 interface to provide arbitrary signals and controls.
 
 A domain is a discrete component within a compute node where a signal
 or control is applicable.  For more information about the
 ``geopm_domain_e`` enum and the hierarchical platform description see
-`geopm::PlatformTopo(3) <GEOPM_CXX_MAN_PlatformTopo.3.html>`_.  A
+:doc:`geopm::PlatformTopo(3) <GEOPM_CXX_MAN_PlatformTopo.3>`.  A
 signal represents any measurement in SI units that can be sampled or
 any unit-free integer that can be read.  A control represents a
 request for a hardware domain to operate such that a related signal
@@ -47,7 +47,7 @@ platforms will support the loading different sets of ``IOGroups``.  The
 the current package energy value.  Agents are encouraged to request
 high level signals and controls to make the implementation more
 portable.  The high level signals and controls supported by built-in
-``IOGroup`` classes are listed below.  See `geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3.html>`_
+``IOGroup`` classes are listed below.  See :doc:`geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3>`
 section on `SEARCH AND LOAD ORDER <GEOPM_CXX_MAN_PluginFactory.3.html#plugin-search-path-and-load-order>`__ for information about how the
 ``GEOPM_PLUGIN_PATH`` environment variable is used to select which
 ``IOGroup`` implementation is used in the case where more than one
@@ -58,8 +58,8 @@ integers encoded to be stored as doubles.  When accessing these
 integer signals, the return value of ``read_signal()`` or ``sample()``
 should not be used directly as a double precision number.  To
 decode the 64-bit integer from the double use
-``geopm_signal_to_field()`` described in `geopm_hash(3) <geopm_hash.3.html>`_.  The
-`geopm::MSRIOGroup(3) <GEOPM_CXX_MAN_MSRIOGroup.3.html>`_ also provides raw MSR field signals that are
+``geopm_signal_to_field()`` described in :doc:`geopm_hash(3) <geopm_hash.3>`.  The
+:doc:`geopm::MSRIOGroup(3) <GEOPM_CXX_MAN_MSRIOGroup.3>` also provides raw MSR field signals that are
 encoded in this way.
 
 
@@ -194,11 +194,11 @@ Descriptions Of High Level Aliases
     Total power aggregated over the processor package.
 
 ``REGION_HASH``
-    The hash of the region of code (see `geopm_prof_c(3) <geopm_prof_c.3.html>`_\ ) currently being
+    The hash of the region of code (see :doc:`geopm_prof_c(3) <geopm_prof_c.3>`\ ) currently being
     run by all ranks, otherwise ``GEOPM_REGION_HASH_UNMARKED``.
 
 ``REGION_HINT``
-    The region hint (see `geopm_prof_c(3) <geopm_prof_c.3.html>`_\ ) associated with the currently
+    The region hint (see :doc:`geopm_prof_c(3) <geopm_prof_c.3>`\ ) associated with the currently
     running region.  For any interval when all ranks are within an MPI
     function inside of a user defined region, the hint will change from the
     hint associated with the user defined region to ``GEOPM_REGION_HINT_NETWORK``.
@@ -225,8 +225,8 @@ Descriptions Of High Level Aliases
 See Also
 --------
 
-`geopm(7) <geopm.7.html>`_,
-`geopm_pio_cnl(7) <geopm_pio_cnl.7.html>`_,
-`geopm_pio_c(3) <geopm_pio_c.3.html>`_,
-`geopm_prof_c(3) <geopm_prof_c.3.html>`_,
-`geopm_topo_c(3) <geopm_topo_c.3.html>`_,
+:doc:`geopm(7) <geopm.7>`,
+:doc:`geopm_pio_cnl(7) <geopm_pio_cnl.7>`,
+:doc:`geopm_pio_c(3) <geopm_pio_c.3>`,
+:doc:`geopm_prof_c(3) <geopm_prof_c.3>`,
+:doc:`geopm_topo_c(3) <geopm_topo_c.3>`,

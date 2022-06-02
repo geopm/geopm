@@ -72,13 +72,13 @@ Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
 Description
 -----------
 
-The ``MonitorAgent`` class is a derived implementation of `geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3.html>`_ that is used to do sampling only; no policy will be enforced.
+The ``MonitorAgent`` class is a derived implementation of :doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>` that is used to do sampling only; no policy will be enforced.
 Consequently, it inherits and overrides many of the methods of the ``Agent`` class.
 These overridden methods are described in the ``Agent`` man page.
 Only the methods unique to the ``MonitorAgent`` class are described here.
 
 The behavior of this agent is described in more detail in the
-`geopm_agent_monitor(7) <geopm_agent_monitor.7.html>`_ man page.
+:doc:`geopm_agent_monitor(7) <geopm_agent_monitor.7>` man page.
 
 For more details, see the doxygen
 page at https://geopm.github.io/dox/classgeopm_1_1_monitor_agent.html.
@@ -106,6 +106,6 @@ Class Methods
 See Also
 --------
 
-`geopm(7) <geopm.7.html>`_\ ,
-`geopm_agent_monitor(7) <geopm_agent_monitor.7.html>`_\ ,
-`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3.html>`_
+:doc:`geopm(7) <geopm.7>`\ ,
+:doc:`geopm_agent_monitor(7) <geopm_agent_monitor.7>`\ ,
+:doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>`

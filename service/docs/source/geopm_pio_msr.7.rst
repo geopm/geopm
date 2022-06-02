@@ -6,7 +6,7 @@ Description
 -----------
 
 The MSR IOGroup implements the
-`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3.html>`_ interface to provide
+:doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>` interface to provide
 hardware signals and controls for Model Specific Registers (MSRs).
 
 Configuration
@@ -138,8 +138,8 @@ Setting A Power Limit
 See Also
 --------
 
-`geopm_pio(7) <geopm_pio.7.html>`_\ ,
-`geopm(7) <geopm.7.html>`_\ ,
-`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3.html>`_\ ,
-`geopmwrite(1) <geopmwrite.1.html>`_\ ,
-`geopmread(1) <geopmread.1.html>`_
+:doc:`geopm_pio(7) <geopm_pio.7>`\ ,
+:doc:`geopm(7) <geopm.7>`\ ,
+:doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>`\ ,
+:doc:`geopmwrite(1) <geopmwrite.1>`\ ,
+:doc:`geopmread(1) <geopmread.1>`

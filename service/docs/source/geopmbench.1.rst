@@ -66,7 +66,7 @@ The JSON config file must follow this schema:
 Examples
 --------
 
-Use `geopmlaunch(1) <geopmlaunch.1.html>`_ to launch geopmbench with a given configuration provided as
+Use :doc:`geopmlaunch(1) <geopmlaunch.1>` to launch geopmbench with a given configuration provided as
 a command line argument:
 
 .. code-block::
@@ -114,6 +114,6 @@ reported through the geopm\ *tprof*\ * API.
 See Also
 --------
 
-`geopm(7) <geopm.7.html>`_,
-`geopm_prof_c(3) <geopm_prof_c.3.html>`_,
-`geopmlaunch(1) <geopmlaunch.1.html>`_
+:doc:`geopm(7) <geopm.7>`,
+:doc:`geopm_prof_c(3) <geopm_prof_c.3>`,
+:doc:`geopmlaunch(1) <geopmlaunch.1>`

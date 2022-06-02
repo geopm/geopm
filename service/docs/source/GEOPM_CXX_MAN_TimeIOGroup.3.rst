@@ -96,7 +96,7 @@ Link with ``-lgeopmd``
 Description
 -----------
 
-The ``TimeIOGroup`` class is a derived implementation of `geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3.html>`_
+The ``TimeIOGroup`` class is a derived implementation of :doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>`
 that provides an implementation of the ``TIME`` signal for the time since GEOPM startup.
 
 Class Methods
@@ -186,7 +186,7 @@ Class Methods
 * 
   ``agg_function()``:
   The ``TIME`` signal provided by this ``IOGroup`` is aggregated using the
-  ``average()`` function from `geopm::Agg(3) <GEOPM_CXX_MAN_Agg.3.html>`_.
+  ``average()`` function from :doc:`geopm::Agg(3) <GEOPM_CXX_MAN_Agg.3>`.
   Throws an exception if the *signal_name* is invalid.
 
 * 
@@ -222,17 +222,17 @@ Class Methods
   ``plugin_name()``:
   Returns the name of the plugin to use when this plugin is
   registered with the ``IOGroup`` factory; see
-  `geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3.html>`_ for more details.
+  :doc:`geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3>` for more details.
 
 * 
   ``make_plugin()``:
   Returns a pointer to a new ``TimeIOGroup`` object; see
-  `geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3.html>`_ for more details.
+  :doc:`geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3>` for more details.
 
 See Also
 --------
 
-`geopm(7) <geopm.7.html>`_\ ,
-`geopm::Agg(3) <GEOPM_CXX_MAN_Agg.3.html>`_\ ,
-`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3.html>`_\ ,
-`geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3.html>`_
+:doc:`geopm(7) <geopm.7>`\ ,
+:doc:`geopm::Agg(3) <GEOPM_CXX_MAN_Agg.3>`\ ,
+:doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>`\ ,
+:doc:`geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3>`

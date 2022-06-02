@@ -24,7 +24,7 @@ Options
 -------
 --help                 Print brief summary of the command line usage
                        information, then exit.
---version              Print version of `geopm(7) <geopm.7.html>`_ to standard
+--version              Print version of :doc:`geopm(7) <geopm.7>` to standard
                        output, then exit.
 -d, --config-default   Print the path to the GEOPM configuration file that
                        controls the default values for the system.
@@ -57,6 +57,6 @@ on a legacy msr-safe system:
 See Also
 --------
 
-`geopm(7) <geopm.7.html>`_,
-`geopmagent(1) <geopmagent.1.html>`_
-`geopmlaunch(1) <geopmlaunch.1.html>`_
+:doc:`geopm(7) <geopm.7>`,
+:doc:`geopmagent(1) <geopmagent.1>`
+:doc:`geopmlaunch(1) <geopmlaunch.1>`

@@ -60,7 +60,7 @@ Description
 
 This class describes the number and arrangement of cores, sockets,
 logical CPUs, memory banks, and other components.  This information is
-used when calling methods of the `geopm::PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3.html>`_ interface.  The
+used when calling methods of the :doc:`geopm::PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3>` interface.  The
 topology of the current platform is available using the singleton
 ``geopm::platform_topo()``.  The remaining methods are accessed through
 this singleton.
@@ -71,7 +71,7 @@ the system topology where signals and controls are applicable.  Each
 domain is defined by a type and an index.  The domain type is a value
 from the ``geopm_domain_e`` enum, and the domain index enumerates the
 devices of that type available on the system.  Refer to the list of
-domain types in `geopm_topo_c(3) <geopm_topo_c.3.html>`_.  The domains are effectively
+domain types in :doc:`geopm_topo_c(3) <geopm_topo_c.3>`.  The domains are effectively
 hierarchical and the ``PlatformTopo::domain_nested()`` method can be
 used to explore which domains are nested within a specified outer
 domain.  Each domain, specified by pairing a domain type and a domain
@@ -136,7 +136,7 @@ Class Methods
 * 
   ``domain_type_to_name()``:
   Convert a *domain_type* integer to a string.  These strings are
-  used by the `geopmread(1) <geopmread.1.html>`_ and `geopmwrite(1) <geopmwrite.1.html>`_ tools.
+  used by the :doc:`geopmread(1) <geopmread.1>` and :doc:`geopmwrite(1) <geopmwrite.1>` tools.
 
 * 
   ``domain_name_to_type()``:
@@ -248,7 +248,7 @@ on-package memory, is present or absent:
 See Also
 --------
 
-`geopm(7) <geopm.7.html>`_\ ,
-`geopm_pio_c(3) <geopm_pio_c.3.html>`_\ ,
-`geopm_topo_c(3) <geopm_topo_c.3.html>`_\ ,
-`geopm::PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3.html>`_
+:doc:`geopm(7) <geopm.7>`\ ,
+:doc:`geopm_pio_c(3) <geopm_pio_c.3>`\ ,
+:doc:`geopm_topo_c(3) <geopm_topo_c.3>`\ ,
+:doc:`geopm::PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3>`

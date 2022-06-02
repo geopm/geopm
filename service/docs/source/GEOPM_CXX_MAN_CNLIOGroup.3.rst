@@ -152,11 +152,11 @@ Class Methods
 
 * ``agg_function()``:
   Return a function that should be used when aggregating the given
-  signal.  For more information see `geopm::Agg(3) <GEOPM_CXX_MAN_Agg.3.html>`_.
+  signal.  For more information see :doc:`geopm::Agg(3) <GEOPM_CXX_MAN_Agg.3>`.
 
 * ``format_function()``:
   Return a function that should be used when formatting the given
-  signal.  For more information see `geopm::Agg(3) <GEOPM_CXX_MAN_Agg.3.html>`_.
+  signal.  For more information see :doc:`geopm::Agg(3) <GEOPM_CXX_MAN_Agg.3>`.
 
 * ``signal_description()``:
   Returns a string description for *signal_name*, if defined.
@@ -174,16 +174,16 @@ Class Methods
 * ``plugin_name()``:
   Returns the name of the plugin to use when this plugin is
   registered with the IOGroup factory; see
-  `geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3.html>`_ for more details.
+  :doc:`geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3>` for more details.
 
 * ``make_plugin()``:
   Returns a pointer to a new CNLIOGroup object; see
-  `geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3.html>`_ for more details.
+  :doc:`geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3>` for more details.
 
 See Also
 --------
 
-`geopm(7) <geopm.7.html>`_,
-`geopm_pio_cnl(7) <geopm_pio_cnl.7.html>`_,
+:doc:`geopm(7) <geopm.7>`,
+:doc:`geopm_pio_cnl(7) <geopm_pio_cnl.7>`,
 `proc(5) <http://man7.org/linux/man-pages/man5/proc.5.html>`_,
-`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3.html>`_
+:doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>`

@@ -82,7 +82,7 @@ the linux scheduler.
   affinitized is unreliable (i.e. use OMP_PROC_BIND environment
   variable).  The _num\ *cpu* parameter specifies size of the CPU_SET
   in terms of number of CPUs.  If an error occurs a non-zero error
-  number is returned. See `geopm_error(3) <geopm_error.3.html>`_ for a full description
+  number is returned. See :doc:`geopm_error(3) <geopm_error.3>` for a full description
   of the error numbers and how to convert them to strings.
 
 * 
@@ -101,9 +101,9 @@ the linux scheduler.
 See Also
 --------
 
-`geopm(7) <geopm.7.html>`_\ ,
-`geopm_ctl_c(3) <geopm_ctl_c.3.html>`_\ ,
-`geopm_error(3) <geopm_error.3.html>`_\ ,
+:doc:`geopm(7) <geopm.7>`\ ,
+:doc:`geopm_ctl_c(3) <geopm_ctl_c.3>`\ ,
+:doc:`geopm_error(3) <geopm_error.3>`\ ,
 `CPU_SET(3) <http://man7.org/linux/man-pages/man3/CPU_SET.3.html>`_\ ,
 **popen(3)**\ ,
 `pthread_setaffinity_np(3) <http://man7.org/linux/man-pages/man3/pthread_setaffinity_np.3.html>`_\ ,

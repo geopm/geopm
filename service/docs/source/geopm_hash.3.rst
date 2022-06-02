@@ -44,5 +44,5 @@ stored as doubles.
 See Also
 --------
 
-`geopm(7) <geopm.7.html>`_,
-`geopm::PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3.html>`_
+:doc:`geopm(7) <geopm.7>`,
+:doc:`geopm::PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3>`

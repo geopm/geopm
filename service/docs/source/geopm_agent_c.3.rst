@@ -134,9 +134,9 @@ zero upon success; see `ERRORS <ERRORS_>`_ section below for details.
   ``geopm_agent_enforce_policy()``:
   queries the environment for the ``GEOPM_AGENT`` and ``GEOPM_POLICY``
   and enforces the policy for the agent by writing controls to the
-  platform (see `geopm_pio_c(3) <geopm_pio_c.3.html>`_).  A resource manager can use
+  platform (see :doc:`geopm_pio_c(3) <geopm_pio_c.3>`).  A resource manager can use
   this function to enforce the GEOPM configured policy (see
-  `geopm(7) <geopm.7.html>`_) prior to releasing compute nodes for a user
+  :doc:`geopm(7) <geopm.7>`) prior to releasing compute nodes for a user
   allocation.  More generally this function allows one-time use of
   an Agent outside of the context of an MPI runtime or the use of a
   GEOPM Controller.  Note that the enforcement of the policy will
@@ -155,16 +155,16 @@ Errors
 ------
 
 All functions described on this man page return an error code.  See
-`geopm_error(3) <geopm_error.3.html>`_ for a full description of the error numbers and how
+:doc:`geopm_error(3) <geopm_error.3>` for a full description of the error numbers and how
 to convert them to strings.
 
 See Also
 --------
 
-`geopm(7) <geopm.7.html>`_,
-`geopm_agent_monitor(7) <geopm_agent_monitor.7.html>`_,
-`geopm_agent_power_balancer(7) <geopm_agent_power_balancer.7.html>`_,
-`geopm_agent_power_governor(7) <geopm_agent_power_governor.7.html>`_,
-`geopm_error(3) <geopm_error.3.html>`_,
-`geopmagent(1) <geopmagent.1.html>`_,
-`geopmlaunch(1) <geopmlaunch.1.html>`_
+:doc:`geopm(7) <geopm.7>`,
+:doc:`geopm_agent_monitor(7) <geopm_agent_monitor.7>`,
+:doc:`geopm_agent_power_balancer(7) <geopm_agent_power_balancer.7>`,
+:doc:`geopm_agent_power_governor(7) <geopm_agent_power_governor.7>`,
+:doc:`geopm_error(3) <geopm_error.3>`,
+:doc:`geopmagent(1) <geopmagent.1>`,
+:doc:`geopmlaunch(1) <geopmlaunch.1>`

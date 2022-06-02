@@ -245,11 +245,11 @@ Errors
 ------
 
 All functions described on this man page return an error code.  See
-`geopm_error(3) <geopm_error.3.html>`_ for a full description of the error numbers and how
+:doc:`geopm_error(3) <geopm_error.3>` for a full description of the error numbers and how
 to convert them to strings.
 
 See Also
 --------
 
-`geopm(7) <geopm.7.html>`_\ ,
-`geopm_error(3) <geopm_error.3.html>`_
+:doc:`geopm(7) <geopm.7>`\ ,
+:doc:`geopm_error(3) <geopm_error.3>`

@@ -86,7 +86,7 @@ Class Methods
   Accesses the contents of the circular buffer at *index*. Valid
   indices range from ``0`` to ``[size-1]``, where *size* is the number of valid
   entries in the buffer.  An attempt to retrieve a value for an out of
-  bound index will throw a `geopm::Exception(3) <GEOPM_CXX_MAN_Exception.3.html>`_ with an
+  bound index will throw a :doc:`geopm::Exception(3) <GEOPM_CXX_MAN_Exception.3>` with an
   ``error_value()`` of ``GEOPM_ERROR_INVALID``.
 
 * 
@@ -96,10 +96,10 @@ Class Methods
   delimited by the *Start* index **(inclusive)** and *End* index **(exclusive)**
   such as ``[start, end)``. 
   If the range presented by these two indexes is invalid
-  it will throw a `geopm::Exception(3) <GEOPM_CXX_MAN_Exception.3.html>`_
+  it will throw a :doc:`geopm::Exception(3) <GEOPM_CXX_MAN_Exception.3>`
 
 See Also
 --------
 
-`geopm(7) <geopm.7.html>`_\ ,
-`geopm::Exception(3) <GEOPM_CXX_MAN_Exception.3.html>`_
+:doc:`geopm(7) <geopm.7>`\ ,
+:doc:`geopm::Exception(3) <GEOPM_CXX_MAN_Exception.3>`

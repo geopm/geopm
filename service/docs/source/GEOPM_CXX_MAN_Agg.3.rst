@@ -192,5 +192,5 @@ Class Methods
 See Also
 --------
 
-`geopm(7) <geopm.7.html>`_\ ,
-`geopm_hash(3) <geopm_hash.3.html>`_
+:doc:`geopm(7) <geopm.7>`\ ,
+:doc:`geopm_hash(3) <geopm_hash.3>`

@@ -20,7 +20,7 @@ interface definitions for the following standard types: ``std::vector``\ ,
 ``std::string``\ , and ``std::set``\ , to enable better rendering of this
 manual.
 
-Note that the ``MPIComm`` class is derived from `geopm::Comm(3) <GEOPM_CXX_MAN_Comm.3.html>`_ class.
+Note that the ``MPIComm`` class is derived from :doc:`geopm::Comm(3) <GEOPM_CXX_MAN_Comm.3>` class.
 
 Synopsis
 --------
@@ -95,7 +95,7 @@ Link with ``-lgeopm`` **(MPI)**
 Description
 -----------
 
-This class implements the Comm abstraction (`geopm::Comm(3) <GEOPM_CXX_MAN_Comm.3.html>`_) using MPI
+This class implements the Comm abstraction (:doc:`geopm::Comm(3) <GEOPM_CXX_MAN_Comm.3>`) using MPI
 as the underlying communication mechanism.
 
 For more details, see the doxygen
@@ -109,5 +109,5 @@ Class Methods
 See Also
 --------
 
-`geopm(7) <geopm.7.html>`_\ ,
-`geopm::Comm(3) <GEOPM_CXX_MAN_Comm.3.html>`_
+:doc:`geopm(7) <geopm.7>`\ ,
+:doc:`geopm::Comm(3) <GEOPM_CXX_MAN_Comm.3>`
