@@ -55,6 +55,7 @@ extensions = [
     'sphinx_rtd_theme',
     'sphinx.ext.autosectionlabel',
     'sphinxemoji.sphinxemoji',
+    'sphinx.ext.intersphinx',
     'geopmlint',
 ]
 
@@ -70,6 +71,13 @@ napoleon_google_docstring = True
 templates_path = ['_templates']
 
 autosectionlabel_prefix_document = True
+
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/3', None),
+    'dasbus': ('https://dasbus.readthedocs.io/en/stable', None),
+    'pygobject': ('https://pygobject.readthedocs.io/en/latest', None),
+    'cffi': ('https://cffi.readthedocs.io/en/latest', None),
+}
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.

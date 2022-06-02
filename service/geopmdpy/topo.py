@@ -121,7 +121,7 @@ def domain_nested(inner_domain, outer_domain, outer_idx):
         outer_idx (int): Index of the outer domain that is queried.
 
     Returns:
-        list of int: The inner domain indices that are contained
+        list[int]: The inner domain indices that are contained
             within the specified outer domain.
 
     """
