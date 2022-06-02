@@ -95,24 +95,19 @@ All signals are available with board-level scope, on systems that expose the
 
 Controls
 --------
-
 This IOGroup does not expose any controls.
 
 Signal Aliases
 --------------
-
 This IOGroup exposes the following high-level aliases:
 
-* ``BOARD_POWER`` (**TODO**: currently ``POWER_BOARD``) maps to ``CNL::POWER_BOARD``
-* ``BOARD_ENERGY`` (**TODO**: currently ``ENERGY_BOARD``) maps to ``CNL::ENERGY_BOARD``
-* ``BOARD_MEMORY_POWER`` (**TODO**: currently ``POWER_MEMORY``) maps to ``CNL::POWER_MEMORY``
-* ``BOARD_MEMORY_ENERGY`` (**TODO**: currently ``ENERGY_MEMORY``) maps to ``CNL::ENERGY_MEMORY``
-* ``BOARD_CPU_POWER`` (**TODO**: currently ``POWER_BOARD_CPU``) maps to ``CNL::POWER_BOARD_CPU``
-* ``BOARD_CPU_ENERGY`` (**TODO**: currently ``ENERGY_BOARD_CPU``) maps to ``CNL::ENERGY_BOARD_CPU``
+* ``BOARD_POWER`` (**TODO**: currently ``POWER_BOARD``) aliases to ``CNL::POWER_BOARD``
+* ``BOARD_ENERGY`` (**TODO**: currently ``ENERGY_BOARD``) aliases to ``CNL::ENERGY_BOARD``
+
+**TODO**: remove ``POWER_MEMORY``, ``ENERGY_MEMORY``, ``POWER_BOARD_CPU``, and ``ENERGY_BOARD_CPU`` aliases from the implementation
 
 See Also
 --------
-
 `geopm(7) <geopm.7.html>`_,
 `geopm_pio(7) <geopm_pio.7.html>`_,
 `geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3.html>`_,
