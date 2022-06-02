@@ -19,7 +19,7 @@ including MSRs for CPU performance, temperature and power.
 
 Additional MSRs can be specified via configuration files. If the
 ``GEOPM_PLUGIN_PATH`` environment variable is set, the paths specified there
-will be checked for any JSON files prefixed with "msr_". The default plugin
+will be checked for any JSON files prefixed with ``msr_``. The default plugin
 path will also be searched. The files must follow this schema:
 
 .. literalinclude:: ../../json_schemas/msrs.schema.json

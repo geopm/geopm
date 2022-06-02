@@ -248,13 +248,12 @@ places one process (MPI rank) on each CPU, and each rank executes the
 same application code, containing regions called "A" and "B".  The
 processes are assigned to cores as follows:
 
-=========  =========  =========  ==========
-      socket 0              socket 1
---------------------  ---------------------
-  CPU 0      CPU 1      CPU 2      CPU 3
-=========  =========  =========  ==========
-    1          2          3          4
-=========  =========  =========  ==========
+.. code-block::
+
+          socket 0     |      socket 1
+      CPU 0  |  CPU 1  |  CPU 2  |  CPU 3
+    ---------+---------+---------+----------
+        1    |    2    |    3    |    4
 
 The following is an example of the region enter/exit and epoch events
 seen by the Controller.  This stream of events will be used to
@@ -269,22 +268,22 @@ the entry and exit times used to calculate the "runtime" may not line
 up exactly with the sample boundaries (e.g. 0.003 or 0.005), and
 samples may not be exactly the same length throughout the run.
 
-=====    ====   ====   ====   ======   =====   ====   ====
-time     CPU0   CPU1   CPU2   CPU3     board   pkg0   pkg1
-=====    ====   ====   ====   ======   =====   ====   ====
-0.001    \-     \-     \-     \-       ..      ..     \
-0.002     A     \-     \-      A       \-      \-     \-
-0.003     A      A     \-      A       ..      ..     \
-0.004     A      A      A      A        A       A      A
-0.005    \-      A      A      A       ..      ..     \
-0.006     B      A      A      A       \-      \-      A
-0.007     B      B      A      B       ..      ..     \
-0.008     B      B      B      B        B       B      B
-0.009     B      B      B      B       ..      ..     \
-0.010     B      B      B      B        B       B      B
-0.011    \-     \-     \-     \-       ..      ..     \
-0.012     finalize: report generated   \-      \-     \-
-=====    ===========================   =====   ====   ====
+.. code-block::
+
+     time    CPU0   CPU1   CPU2   CPU3   ||  board   pkg0   pkg1
+    -------------------------------------++----------------------
+    0.001     -      -      -      -     ||
+    0.002     A      -      -      A     ||   -       -      -
+    0.003     A      A      -      A     ||
+    0.004     A      A      A      A     ||   A       A      A
+    0.005     -      A      A      A     ||
+    0.006     B      A      A      A     ||   -       -      A
+    0.007     B      B      A      B     ||
+    0.008     B      B      B      B     ||   B       B      B
+    0.009     B      B      B      B     ||
+    0.010     B      B      B      B     ||   B       B      B
+    0.011     -      -      -      -     ||
+    0.012     finalize: report generated ||   -       -      -
 
 A subset of the report is shown below.  The "runtime" and "count"
 fields are averaged across the 4 CPUs.  The user extensions for
