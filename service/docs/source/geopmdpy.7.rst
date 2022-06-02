@@ -41,6 +41,12 @@ geopmdpy.gffi
    :undoc-members:
    :show-inheritance:
 
+.. class:: FFILibrary
+
+   A python foreign function interface to the ``libgeopmd.so`` library. See
+   https://cffi.readthedocs.io/en/latest/using.html for documentation about
+   using FFILibrary objects.
+
 geopmdpy.pio
 ------------
 
