@@ -5,8 +5,8 @@ geopm_pio_sst(7) -- Signals and controls for Intel Speed Select Technology
 Description
 -----------
 
-The SSTIOGroup implements the `geopm::IOGroup(3)
-<GEOPM_CXX_MAN_IOGroup.3.html>`_ interface to provide hardware signals
+The SSTIOGroup implements the :doc:`geopm::IOGroup(3)
+<GEOPM_CXX_MAN_IOGroup.3>` interface to provide hardware signals
 and controls for key Intel Speed Select Technology features on
 supported Intel platforms with Linux Kernel versions >=5.3
 
@@ -352,7 +352,7 @@ To assign core 3 to CLOS 1:
 See Also
 --------
 
-`geopm(7) <geopm.7.html>`_\ ,
-`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3.html>`_\ ,
-`geopmwrite(1) <geopmwrite.1.html>`_\ ,
-`geopmread(1) <geopmread.1.html>`_
+:doc:`geopm(7) <geopm.7>`\ ,
+:doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>`\ ,
+:doc:`geopmwrite(1) <geopmwrite.1>`\ ,
+:doc:`geopmread(1) <geopmread.1>`

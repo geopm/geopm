@@ -49,7 +49,7 @@ signals per region.  Regions are automatically detected through
 sampling the REGION_HASH signal.  The object also accumulates data for
 the epoch.  The set of signals to be tracked is determined by pushing
 signals similar to the ``push_signal()`` method of
-`geopm::PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3.html>`_.
+:doc:`geopm::PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3>`.
 
 Class Methods
 -------------
@@ -66,7 +66,7 @@ Class Methods
   aggregate is _signal\ *name* and it will be collected for the domain
   _domain\ *type* at _domain\ *idx*.  The return value is an index to be
   used with sample() to refer to this signal.  This index matches
-  the index returned by `geopm::PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3.html>`_\ ::push_signal() for
+  the index returned by :doc:`geopm::PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3>`\ ::push_signal() for
   the same signal name and domain.  Note that unlike other signals
   this is a total accumulated per region by subtracting the value of
   the signal at the region exit from the region entry.  Region entry
@@ -106,4 +106,4 @@ Class Methods
 See Also
 --------
 
-`geopm(7) <geopm.7.html>`_
+:doc:`geopm(7) <geopm.7>`

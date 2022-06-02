@@ -13,23 +13,23 @@ and further divided into sections detailing each application region
 and epoch.  By default, the report will be saved into a file called
 "geopm.report", but this name can be customized with the GEOPM_REPORT
 environment variable; refer to the description for ``--geopm-report`` in
-`geopmlaunch(1) <geopmlaunch.1>`_.
+:doc:`geopmlaunch(1) <geopmlaunch.1>`.
 
 The application regions and epoch are defined by use of the
-`geopm_prof_c(3) <geopm_prof_c.3>`_ interface to mark up the user application, or
+:doc:`geopm_prof_c(3) <geopm_prof_c.3>` interface to mark up the user application, or
 through automatic inference of regions based on interposing on the MPI
 or OpenMP interfaces (interposing on OpenMP requires that OMPT is
 enabled at GEOPM compile time, and the ``--geopm-ompt-disable`` option
 is not provided to ``geopmlaunch``). Alternatively, epochs may be
 inserted automatically when ``--geopm-record-filter`` is used, as
-described in `geopmlaunch(1) <geopmlaunch.1>`_.
+described in :doc:`geopmlaunch(1) <geopmlaunch.1>`.
 
 Notes On Sampling
 -----------------
 Most data in the report is derived from PlatformIO signals (described
-in `geopm_pio(7) <geopm_pio.7>`_) sampled at a rate determined by the
+in :doc:`geopm_pio(7) <geopm_pio.7>`) sampled at a rate determined by the
 Agent::wait() implementation for the active agent (see
-`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>`_).  If a sample is longer than the rate specified
+:doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>`).  If a sample is longer than the rate specified
 by the agent, the subsequent sample may be shortened to correct the rate.
 
 GEOPM reports summarize sampled signals across time and across sampling
@@ -42,8 +42,8 @@ board-level).
 Aggregation Over Time
 ^^^^^^^^^^^^^^^^^^^^^
 Signals are summarized over time following a method that depends on the signal's
-*behavior*, as declared by ``signal_behavior()`` in `geopm::IOGroup(3)
-<GEOPM_CXX_MAN_IOGroup.3>`_.
+*behavior*, as declared by ``signal_behavior()`` in :doc:`geopm::IOGroup(3)
+<GEOPM_CXX_MAN_IOGroup.3>`.
 
 If a signal is declared as monotonically increasing, then the reported value
 is the amount of change measured in that signal.
@@ -56,8 +56,8 @@ Aggregation Across Domains
 GEOPM supports reporting signals in the signal's native domain or in a more
 coarse domains. If a more coarse domain is requested, the native signal is
 aggregated across domains as defined by the signal's ``agg_function``,
-documented in `geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>`_. Common
-aggregation functions are documented in `geopm::Agg(3) <GEOPM_CXX_MAN_Agg.3>`_.
+documented in :doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>`. Common
+aggregation functions are documented in :doc:`geopm::Agg(3) <GEOPM_CXX_MAN_Agg.3>`.
 
 Attributing Signals to Regions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -118,7 +118,7 @@ The fields in each of these sections are described below:
 name
   Name of the region.  For user-defined regions, this is the string passed to
   ``geopm_region()``; for automatically detected OpenMP and MPI regions this
-  is the function name.  See `geopm_prof_c(3) <geopm_prof_c.3>`_ for more
+  is the function name.  See :doc:`geopm_prof_c(3) <geopm_prof_c.3>` for more
   information.
 
 hash
@@ -229,13 +229,13 @@ Report Extensions
   The report can be extended by agents, or by through the
   ``--geopm-report-signals`` option to ``geopmlaunch`` which corresponds to
   the ``GEOPM_REPORT_SIGNALS`` environment variable.  See the description
-  for ``--geopm-report-signals`` in `geopmlaunch(1) <geopmlaunch.1>`_ for more details.
+  for ``--geopm-report-signals`` in :doc:`geopmlaunch(1) <geopmlaunch.1>` for more details.
   Signals in the ``GEOPM_REPORT_SIGNALS`` list will be added to individual
   regions, the epoch totals, and the application totals for each host.
 
   Agents can add keys to the report header, host section, or individual
   region sections using the ``report_header()``, ``report_host()`` or
-  ``report_region()`` methods respectively.  See `geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>`_ for
+  ``report_region()`` methods respectively.  See :doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>` for
   more information about the report extensions available to agents.
 
 Examples
@@ -319,7 +319,7 @@ Regions:
 See Also
 --------
 
-`geopm(7) <geopm.7>`_,
-`geopm_prof_c(3) <geopm_prof_c.3>`_,
-`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>`_,
-`geopmlaunch(1) <geopmlaunch.1>`_
+:doc:`geopm(7) <geopm.7>`,
+:doc:`geopm_prof_c(3) <geopm_prof_c.3>`,
+:doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>`,
+:doc:`geopmlaunch(1) <geopmlaunch.1>`

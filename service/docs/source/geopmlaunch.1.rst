@@ -90,7 +90,7 @@ GEOPM Options
                       named "geopm.report" will be created.  The GEOPM report
                       contains a summary of the profiling information collected
                       by GEOPM throughout the application execution.  Refer to
-                      `geopm_report(7) <geopm_report.7>`_ for a
+                      :doc:`geopm_report(7) <geopm_report.7>` for a
                       description of the information contained in the report.
 
                       This option is used by the launcher to set the
@@ -109,8 +109,8 @@ GEOPM Options
                                 The value of *signals* must be formatted as a
                                 comma-separated list of valid signal names.
                                 The available signals and their descriptions
-                                are documented in the `geopm_pio(7)
-                                <geopm_pio.7>`_ man page.
+                                are documented in the :doc:`geopm_pio(7)
+                                <geopm_pio.7>` man page.
 
                                 By default, the signals in the report are
                                 aggregated to the board domain.  A domain other
@@ -124,12 +124,12 @@ GEOPM Options
 
                                 ``--geopm-report-signals=ENERGY_PACKAGE@package,ENERGY_DRAM``
 
-                                The `geopmread(1) <geopmread.1>`_
+                                The :doc:`geopmread(1) <geopmread.1>`
                                 executable enables discovery of signals and
                                 domains available on your system.  The signal
                                 names and domain names given for this parameter
-                                are specified as in the `geopmread(1)
-                                <geopmread.1>`_ command line interface.
+                                are specified as in the :doc:`geopmread(1)
+                                <geopmread.1>` command line interface.
 --geopm-trace path              The base name and path of the trace file(s)
                                 generated if this option is specified.  One
                                 trace file is generated for each compute node
@@ -180,12 +180,12 @@ GEOPM Options
                                 ``--geopm-trace-signals=POWER_PACKAGE@package,ENERGY_PACKAGE@package``
 
                                 will trace the package power and energy for
-                                each package on the system.  The `geopmread(1)
-                                <geopmread.1>`_ executable enables discovery of
+                                each package on the system.  The :doc:`geopmread(1)
+                                <geopmread.1>` executable enables discovery of
                                 signals and domains available on your system.
                                 The signal names and domain names given for
                                 this parameter are specified as in the
-                                `geopmread(1) <geopmread.1>`_ command line
+                                :doc:`geopmread(1) <geopmread.1>` command line
                                 interface.  This option is used by the launcher
                                 to set the GEOPM_TRACE_SIGNALS environment
                                 variable.  The command line option will
@@ -224,7 +224,7 @@ GEOPM Options
                                     variable.  The command line option will
                                     override any value currently set in the
                                     environment.  See the ENVIRONMENT section
-                                    of `geopm(7) <geopm.7>`_.
+                                    of :doc:`geopm(7) <geopm.7>`.
 --geopm-profile name            The name of the profile which is printed in the
                                 report and trace files.  This name can be used
                                 to index the data in post-processing.  For
@@ -253,8 +253,8 @@ GEOPM Options
 
                           The *pthread* method spawns a thread from one MPI
                           process per node to run the GEOPM controller.  The
-                          *application* method launches the `geopmctl(1)
-                          <geopmctl.1>`_ application in the background which
+                          *application* method launches the :doc:`geopmctl(1)
+                          <geopmctl.1>` application in the background which
                           connects to the primary compute application. The
                           *pthread* option requires support for
                           MPI_THREAD_MULTIPLE, which is not enabled at many
@@ -277,15 +277,15 @@ GEOPM Options
                       profiling features only), "power_balancer" (optimizes
                       runtime under a power cap), "power_governor" (enforces a
                       uniform power cap), and "frequency_map" (runs each region
-                      at a specified frequency).  See `geopm_agent_monitor(7)
-                      <geopm_agent_monitor.7>`_, `geopm_agent_power_balancer(7)
-                      <geopm_agent_power_balancer.7>`_,
-                      `geopm_agent_power_governor(7)
-                      <geopm_agent_power_governor.7>`_, and
-                      `geopm_agent_frequency_map(7)
-                      <geopm_agent_frequency_map.7>`_ for descriptions of each
+                      at a specified frequency).  See :doc:`geopm_agent_monitor(7)
+                      <geopm_agent_monitor.7>`, :doc:`geopm_agent_power_balancer(7)
+                      <geopm_agent_power_balancer.7>`,
+                      :doc:`geopm_agent_power_governor(7)
+                      <geopm_agent_power_governor.7>`, and
+                      :doc:`geopm_agent_frequency_map(7)
+                      <geopm_agent_frequency_map.7>` for descriptions of each
                       agent.  For more details on the responsibilities of the
-                      Agent, see `geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>`_.
+                      Agent, see :doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>`.
 
                       This option is used by the launcher to set the
                       GEOPM_AGENT environment variable.  The command line
@@ -296,9 +296,9 @@ GEOPM Options
                         plugin.  If the policy is provided through this file,
                         it will only be read once and cannot be changed
                         dynamically.  In this mode, samples will not be
-                        provided to the resource manager.  See `geopmagent(1)
-                        <geopmagent.1>`_ and `geopm_agent_c(3)
-                        <geopm_agent_c.3>`_ for more information about how to
+                        provided to the resource manager.  See :doc:`geopmagent(1)
+                        <geopmagent.1>` and :doc:`geopm_agent_c(3)
+                        <geopm_agent_c.3>` for more information about how to
                         create this input file.
 
                         This option is used by the launcher to set the
@@ -327,7 +327,7 @@ GEOPM Options
                            dynamically from the resource manager.  The shared
                            memory for the endpoint does not use the
                            ``--geopm-shmkey`` prefix.  Refer to
-                           `geopm_endpoint_c(3) <geopm_endpoint_c.3>`_ for more
+                           :doc:`geopm_endpoint_c(3) <geopm_endpoint_c.3>` for more
                            detail.  If this option is provided, the GEOPM
                            controller will also send samples to the endpoint at
                            runtime, depending on the Agent selected.  This
@@ -368,8 +368,8 @@ GEOPM Options
                           search for shared objects which contain GEOPM
                           plugins.  In order to be available to the GEOPM
                           runtime, plugins should register themselves with the
-                          appropriate factory.  See `geopm::PluginFactory(3)
-                          <GEOPM_CXX_MAN_PluginFactory.3>`_ for information
+                          appropriate factory.  See :doc:`geopm::PluginFactory(3)
+                          <GEOPM_CXX_MAN_PluginFactory.3>` for information
                           about the GEOPM plugin interface.  A zero-length
                           directory name indicates the current working
                           directory; this can be specified by a leading or
@@ -389,8 +389,8 @@ GEOPM Options
                               "edit_distance".  These filters can be used to
                               infer the application outer loop (epoch) without
                               modifying the application by inserting calls to
-                              ``geopm_prof_epoch()`` (see `geopm_prof_c(3)
-                              <geopm_prof_c.3>`_).  Region entry and exit may
+                              ``geopm_prof_epoch()`` (see :doc:`geopm_prof_c(3)
+                              <geopm_prof_c.3>`).  Region entry and exit may
                               be captured automatically through runtimes such
                               as MPI and OpenMP.
 
@@ -487,7 +487,7 @@ GEOPM Options
                      option is specified, the GEOPM runtime will not be
                      launched.
 --geopm-ompt-disable  Disable OMPT detection of OpenMP regions.  See the
-                      INTEGRATION WITH OMPT section of `geopm(7) <geopm.7>`_
+                      INTEGRATION WITH OMPT section of :doc:`geopm(7) <geopm.7>`
                       for more information about OpenMP region detection.
 
 Examples
@@ -567,11 +567,11 @@ implementation of OpenMP.
 See Also
 --------
 
-`geopm(7) <geopm.7>`_,
-`geopmpy(7) <geopmpy.7>`_,
-`geopm_agent_monitor(7) <geopm_agent_monitor.7>`_,
-`geopm_agent_power_balancer(7) <geopm_agent_power_balancer.7>`_,
-`geopm_agent_power_governor(7) <geopm_agent_power_governor.7>`_,
-`geopm_report(7) <geopm_report.7>`_,
-`geopm_error(3) <geopm_error.3>`_,
-`geopmctl(1) <geopmctl.1>`_
+:doc:`geopm(7) <geopm.7>`,
+:doc:`geopmpy(7) <geopmpy.7>`,
+:doc:`geopm_agent_monitor(7) <geopm_agent_monitor.7>`,
+:doc:`geopm_agent_power_balancer(7) <geopm_agent_power_balancer.7>`,
+:doc:`geopm_agent_power_governor(7) <geopm_agent_power_governor.7>`,
+:doc:`geopm_report(7) <geopm_report.7>`,
+:doc:`geopm_error(3) <geopm_error.3>`,
+:doc:`geopmctl(1) <geopmctl.1>`

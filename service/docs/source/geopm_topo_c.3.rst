@@ -117,8 +117,8 @@ Description
 -----------
 
 The interfaces described in this man page are the C language bindings
-for the `geopm::PlatformTopo(3) <GEOPM_CXX_MAN_PlatformTopo.3.html>`_ C++ class.  Please refer to the
-`geopm::PlatformTopo(3) <GEOPM_CXX_MAN_PlatformTopo.3.html>`_ man page for a general description of the purpose,
+for the :doc:`geopm::PlatformTopo(3) <GEOPM_CXX_MAN_PlatformTopo.3>` C++ class.  Please refer to the
+:doc:`geopm::PlatformTopo(3) <GEOPM_CXX_MAN_PlatformTopo.3>` man page for a general description of the purpose,
 goals and use case for this interface.
 
 
@@ -185,7 +185,7 @@ goals and use case for this interface.
 
 * 
   ``geopm_topo_create_cache``\ ():
-  Create a cache file for the `geopm::PlatformTopo(3) <GEOPM_CXX_MAN_PlatformTopo.3.html>`_ object if
+  Create a cache file for the :doc:`geopm::PlatformTopo(3) <GEOPM_CXX_MAN_PlatformTopo.3>` object if
   one does not exist.  This cache file will be used by any calls to
   the other ``geopm_topo_*()`` functions documented here as well as
   any use of the GEOPM runtime.  File permissions of the cache file
@@ -201,14 +201,14 @@ Return Value
 If an error occurs in any call to an interface documented here, the
 return value of the function will be a negative integer
 corresponding to one of the error codes documented in
-`geopm_error(3) <geopm_error.3.html>`_.
+:doc:`geopm_error(3) <geopm_error.3>`.
 
 See Also
 --------
 
-`geopm(7) <geopm.7.html>`_\ ,
-`geopm_pio_c(3) <geopm_pio_c.3.html>`_\ ,
-`geopm_error(3) <geopm_error.3.html>`_\ ,
-`geopm::PlatformTopo(3) <GEOPM_CXX_MAN_PlatformTopo.3.html>`_\ ,
-`geopm::PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3.html>`_\ ,
+:doc:`geopm(7) <geopm.7>`\ ,
+:doc:`geopm_pio_c(3) <geopm_pio_c.3>`\ ,
+:doc:`geopm_error(3) <geopm_error.3>`\ ,
+:doc:`geopm::PlatformTopo(3) <GEOPM_CXX_MAN_PlatformTopo.3>`\ ,
+:doc:`geopm::PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3>`\ ,
 `unlink(3) <http://man7.org/linux/man-pages/man3/unlink.3p.html>`_

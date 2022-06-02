@@ -97,5 +97,5 @@ structure is used to hold time values.
 See Also
 --------
 
-`geopm(7) <geopm.7.html>`_\ ,
+:doc:`geopm(7) <geopm.7>`\ ,
 `asctime_r(3) <http://man7.org/linux/man-pages/man3/asctime_r.3.html>`_

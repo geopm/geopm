@@ -27,14 +27,14 @@ Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
 Description
 -----------
 
-All `geopm(7) <geopm.7.html>`_ C and Fortran APIs that can have an error condition
+All :doc:`geopm(7) <geopm.7>` C and Fortran APIs that can have an error condition
 occur during runtime return an error number.  This is the way
-`geopm(7) <geopm.7.html>`_ handles errors, and almost all of the interfaces behave
+:doc:`geopm(7) <geopm.7>` handles errors, and almost all of the interfaces behave
 this way.  This man page describes how to interpret these returned
 error codes.  A returned error number of zero by a GEOPM API indicates
 success.  If the error number returned by a GEOPM API is positive then
 this indicates a generic system error, and if the error number is
-negative this indicates a `geopm(7) <geopm.7.html>`_ specific error has occurred.
+negative this indicates a :doc:`geopm(7) <geopm.7>` specific error has occurred.
 The GEOPM specific error numbers are enumerated in the `geopm_error.h <https://github.com/geopm/geopm/blob/dev/src/geopm_error.h>`_
 header file and they are described below.  The system error numbers
 are documented in the `errno(3) <http://man7.org/linux/man-pages/man3/errno.3.html>`_ man page.
@@ -117,9 +117,9 @@ Error Numbers
 See Also
 --------
 
-`geopm(7) <geopm.7.html>`_\ ,
-`geopm_agent_c(3) <geopm_agent_c.3.html>`_\ ,
-`geopm_ctl_c(3) <geopm_ctl_c.3.html>`_\ ,
-`geopm_fortran(3) <geopm_fortran.3.html>`_\ ,
-`geopm_prof_c(3) <geopm_prof_c.3.html>`_\ ,
+:doc:`geopm(7) <geopm.7>`\ ,
+:doc:`geopm_agent_c(3) <geopm_agent_c.3>`\ ,
+:doc:`geopm_ctl_c(3) <geopm_ctl_c.3>`\ ,
+:doc:`geopm_fortran(3) <geopm_fortran.3>`\ ,
+:doc:`geopm_prof_c(3) <geopm_prof_c.3>`\ ,
 `errno(3) <http://man7.org/linux/man-pages/man3/errno.3.html>`_

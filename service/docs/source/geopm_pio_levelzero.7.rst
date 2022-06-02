@@ -6,7 +6,7 @@ geopm::LevelZeroIOGroup(7) -- IOGroup providing signals and controls for Intel G
 Description
 -----------
 
-The LevelZeroIOGroup implements the `geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3.html>`_
+The LevelZeroIOGroup implements the :doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>`
 interface to provide hardware signals and controls for Intel GPUs.
 
 Requirements
@@ -246,7 +246,7 @@ underlying IO Group signals is provided below.
 See Also
 --------
 
-`geopm(7) <geopm.7.html>`_\ ,
-`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3.html>`_\ ,
-`geopmwrite(1) <geopmwrite.1.html>`_\ ,
-`geopmread(1) <geopmread.1.html>`_
+:doc:`geopm(7) <geopm.7>`\ ,
+:doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>`\ ,
+:doc:`geopmwrite(1) <geopmwrite.1>`\ ,
+:doc:`geopmread(1) <geopmread.1>`

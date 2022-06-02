@@ -57,7 +57,7 @@ security model please refer to the `Security Guide <security.html>`_.
 Configuring Access Lists
 ------------------------
 
-The `geopmaccess(1) <geopmaccess.1.html>`_ command line tool is used
+The :doc:`geopmaccess(1) <geopmaccess.1>` command line tool is used
 by a system administrator to manage access to the features provided by
 the GEOPM Service.  The GEOPM Service does not allow read or write
 access for any non-root user until the system administrator explicitly
