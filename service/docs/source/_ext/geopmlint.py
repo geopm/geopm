@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+#  Copyright (c) 2015 - 2022, Intel Corporation
+#  SPDX-License-Identifier: BSD-3-Clause
+#
 from typing import Any, Dict, Set
 
 from docutils import nodes
