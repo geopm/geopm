@@ -208,6 +208,15 @@ docs_man: libgeopmd.la $(abs_srcdir)/geopmdpy/version.py
 	PYTHONPATH=$(abs_srcdir):$(PYTHONPATH) \
 	sphinx-build -M man $(abs_srcdir)/docs/source docs/build -W
 
+# Nobody asked for this build target, so don't make it a build-blocker unless
+# we decide to keep it. If we choose to keep it, then be sure to ratchet in all
+# the errors, add -W back to the options, and add this as a dependency to the
+# `docs` target
+docs_geopmlint: libgeopmd.la $(abs_srcdir)/geopmdpy/version.py
+	LD_LIBRARY_PATH=.libs:$(LD_LIBRARY_PATH) \
+	PYTHONPATH=$(abs_srcdir):$(PYTHONPATH) \
+	sphinx-build -M geopmlint $(abs_srcdir)/docs/source docs/build
+
 else
 
 $(all_man_target): $(all_man)
@@ -225,4 +234,4 @@ clean-local-docs:
 	rm -rf docs/build
 
 CLEAN_LOCAL_TARGETS += clean-local-docs
-PHONY_TARGETS += docs docs_html docs_man clean-local-docs base_man
+PHONY_TARGETS += docs docs_html docs_man docs_geopmlint clean-local-docs base_man
