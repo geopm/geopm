@@ -332,8 +332,9 @@ class ActiveSessions(object):
 
         """
         self._RUN_PATH = run_path
-        self._M_SHMEM_PREFIX = os.path.join(self._RUN_PATH, "geopm-service-batch-buffer-")
-        self._M_DEFAULT_FIFO_PREFIX = os.path.join(self._RUN_PATH, "batch-status-")
+        self._LOCK_PATH = os.path.join(self._RUN_PATH, "CONTROL_LOCK")
+        self._M_SHMEM_PREFIX = "geopm-service-batch-buffer-"
+        self._M_DEFAULT_FIFO_PREFIX = "batch-status-"
         self._daemon_uid = os.getuid()
         self._daemon_gid = os.getgid()
         self._sessions = dict()
@@ -686,12 +687,6 @@ class ActiveSessions(object):
         self.check_client_active(client_pid, 'remove_batch_server')
         self._sessions[client_pid].pop('batch_server')
         self._update_session_file(client_pid)
-
-        # Unlink any temporary files left around from the Batch Server
-        # This includes shared memory files, fifo files, and the lock file.
-        if (os.path.exists(self._LOCK_PATH)):
-            sys.stderr.write(f'Warning: {self._LOCK_PATH} file was left over, deleting it now.\n')
-            os.unlink(self._LOCK_PATH)
 
         signal_shmem_key = self._M_SHMEM_PREFIX + str(batch_pid) + "-signal"
         control_shmem_key = self._M_SHMEM_PREFIX + str(batch_pid) + "-control"

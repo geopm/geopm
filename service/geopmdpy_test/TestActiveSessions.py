@@ -437,6 +437,74 @@ class TestActiveSessions(unittest.TestCase):
             mock_pid_valid.assert_has_calls(calls)
         self.assertIsNone(act_sess.get_batch_server(client_pid))
 
+    def remove_batch_server(self):
+        """Assign the batch server PID to a client session
+
+        Test that when set_batch_server() is called that the result of
+        get_batch_server() changes to reflect this.
+
+        """
+        json_good_example = dict(self.json_good_example)
+        client_pid = json_good_example['client_pid']
+        signals = json_good_example['signals']
+        controls = json_good_example['controls']
+        watch_id = json_good_example['watch_id']
+        batch_pid = 8765
+
+        sess_path = f'{self._TEMP_DIR.name}/geopm-service'
+        full_file_path = os.path.join(sess_path, f"session-{client_pid}.json")
+
+        signal_shmem_key = "geopm-service-batch-buffer-" + str(batch_pid) + "-signal"
+        control_shmem_key = "geopm-service-batch-buffer-" + str(batch_pid) + "-control"
+        read_fifo_key = "batch-status-" + str(batch_pid) + "-in"
+        write_fifo_key = "batch-status-" + str(batch_pid) + "-out"
+        signal_shmem_path = os.path.join(sess_path, signal_shmem_key)
+        control_shmem_path = os.path.join(sess_path, control_shmem_key)
+        read_fifo_path = os.path.join(sess_path, read_fifo_key)
+        write_fifo_path = os.path.join(sess_path, write_fifo_key)
+
+        with mock.patch('geopmdpy.system_files.secure_make_dirs', autospec=True, specset=True) as mock_smd, \
+             mock.patch('geopmdpy.system_files.secure_make_file', autospec=True, specset=True) as mock_smf, \
+             mock.patch('os.unlink') as os_unlink, \
+             mock.patch('os.path.exists', return_value=True) as os_path_exists, \
+             mock.patch('sys.stderr.write', return_value=None) as mock_err:
+            act_sess = ActiveSessions(sess_path)
+            mock_smd.assert_called_once_with(sess_path,
+                                             GEOPM_SERVICE_RUN_PATH_PERM)
+
+            # Add client BEFORE adding batch PID
+            act_sess.add_client(client_pid, signals, controls, watch_id)
+            first_smf_call = mock.call(full_file_path, json.dumps(json_good_example))
+            mock_smf.assert_has_calls([first_smf_call])
+            batch_pid_actual = act_sess.get_batch_server(client_pid)
+            self.assertEqual(None, batch_pid_actual)
+
+            # Set the batch server, add batch PID
+            act_sess.set_batch_server(client_pid, batch_pid)
+            json_good_example['batch_server'] = batch_pid
+            calls = [first_smf_call,
+                     mock.call(full_file_path, json.dumps(json_good_example))]
+            mock_smf.assert_has_calls(calls)
+            batch_pid_actual = act_sess.get_batch_server(client_pid)
+            self.assertEqual(batch_pid, batch_pid_actual)
+
+            # Remove the batch server
+            act_sess.remove_batch_server(client_pid)
+            mock_smf.assert_has_calls(calls)
+            calls = [mock.call(signal_shmem_path),
+                     mock.call(control_shmem_path),
+                     mock.call(read_fifo_path),
+                     mock.call(write_fifo_path)]
+            os_path_exists.assert_has_calls(calls)
+            os_unlink.assert_has_calls(calls)
+            calls = [mock.call(f'Warning: {signal_shmem_path} file was left over, deleting it now.\n'),
+                     mock.call(f'Warning: {control_shmem_path} file was left over, deleting it now.\n'),
+                     mock.call(f'Warning: {read_fifo_path} file was left over, deleting it now.\n'),
+                     mock.call(f'Warning: {write_fifo_path} file was left over, deleting it now.\n')]
+            mock_err.assert_has_calls(calls)
+            batch_pid_actual = act_sess.get_batch_server(client_pid)
+            self.assertEqual(None, batch_pid_actual)
+
     def test_is_pid_valid(self):
         sess_path = f'{self._TEMP_DIR.name}/geopm-service'
         with mock.patch('geopmdpy.system_files.secure_make_dirs', autospec=True, specset=True) as mock_smd:
