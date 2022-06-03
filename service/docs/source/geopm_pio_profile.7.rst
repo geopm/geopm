@@ -1,5 +1,5 @@
 geopm_pio_profile(7) -- Signals and controls for the ProfileIOGroup
-===================================================================================
+===================================================================
 
 Description
 -----------
@@ -30,10 +30,10 @@ Signals
     <https://github.com/geopm/geopm/blob/dev/service/src/geopm_hash.h>`_ for
     more information.
 
-      * **Aggregation**: region_hash
-      * **Domain**: cpu
-      * **Format**: hex
-      * **Unit**: crc32 hash of region name
+    * **Aggregation**: region_hash
+    * **Domain**: cpu
+    * **Format**: hex
+    * **Unit**: crc32 hash of region name
 
 ``PROFILE::REGION_HINT``
     The region hint (see :doc:`geopm_prof_c(3) <geopm_prof_c.3>`) associated
@@ -49,101 +49,101 @@ Signals
     <https://github.com/geopm/geopm/blob/dev/service/src/geopm_hint.h>`_ for
     more information.
 
-      * **Aggregation**: region_hint
-      * **Domain**: cpu
-      * **Format**: hex
-      * **Unit**: geopm_region_hint_e
+    * **Aggregation**: region_hint
+    * **Domain**: cpu
+    * **Format**: hex
+    * **Unit**: geopm_region_hint_e
 
 ``PROFILE::REGION_PROGRESS``
     Minimum per-rank reported progress through the current region.  The
     returned value will be on the interval [0, 1].  0 indicates no progress
     while 1 indicates the region is complete.
 
-      * **Aggregation**: min
-      * **Domain**: cpu
-      * **Format**: float
-      * **Unit**: progress percentage
+    * **Aggregation**: min
+    * **Domain**: cpu
+    * **Format**: float
+    * **Unit**: progress percentage
 
 ``PROFILE::TIME_HINT_UNKNOWN``
     The total amount of time that a CPU was measured to be running with this
     hint value on the Linux logical CPU specified.
 
-      * **Aggregation**: average
-      * **Domain**: cpu
-      * **Format**: double
-      * **Unit**: seconds
+    * **Aggregation**: average
+    * **Domain**: cpu
+    * **Format**: double
+    * **Unit**: seconds
 
 ``PROFILE::TIME_HINT_UNSET``
     The total amount of time that a CPU was measured to be running with this
     hint value on the Linux logical CPU specified.
 
-      * **Aggregation**: average
-      * **Domain**: cpu
-      * **Format**: double
-      * **Unit**: seconds
+    * **Aggregation**: average
+    * **Domain**: cpu
+    * **Format**: double
+    * **Unit**: seconds
 
 ``PROFILE::TIME_HINT_COMPUTE``
     The total amount of time that a CPU was measured to be running with this
     hint value on the Linux logical CPU specified.
 
-      * **Aggregation**: average
-      * **Domain**: cpu
-      * **Format**: double
-      * **Unit**: seconds
+    * **Aggregation**: average
+    * **Domain**: cpu
+    * **Format**: double
+    * **Unit**: seconds
 
 ``PROFILE::TIME_HINT_MEMORY``
     The total amount of time that a CPU was measured to be running with this
     hint value on the Linux logical CPU specified.
 
-      * **Aggregation**: average
-      * **Domain**: cpu
-      * **Format**: double
-      * **Unit**: seconds
+    * **Aggregation**: average
+    * **Domain**: cpu
+    * **Format**: double
+    * **Unit**: seconds
 
 ``PROFILE::TIME_HINT_NETWORK``
     The total amount of time that a CPU was measured to be running with this
     hint value on the Linux logical CPU specified.
 
-      * **Aggregation**: average
-      * **Domain**: cpu
-      * **Format**: double
-      * **Unit**: seconds
+    * **Aggregation**: average
+    * **Domain**: cpu
+    * **Format**: double
+    * **Unit**: seconds
 
 ``PROFILE::TIME_HINT_IO``
     The total amount of time that a CPU was measured to be running with this
     hint value on the Linux logical CPU specified.
 
-      * **Aggregation**: average
-      * **Domain**: cpu
-      * **Format**: double
-      * **Unit**: seconds
+    * **Aggregation**: average
+    * **Domain**: cpu
+    * **Format**: double
+    * **Unit**: seconds
 
 ``PROFILE::TIME_HINT_SERIAL``
     The total amount of time that a CPU was measured to be running with this
     hint value on the Linux logical CPU specified.
 
-      * **Aggregation**: average
-      * **Domain**: cpu
-      * **Format**: double
-      * **Unit**: seconds
+    * **Aggregation**: average
+    * **Domain**: cpu
+    * **Format**: double
+    * **Unit**: seconds
 
 ``PROFILE::TIME_HINT_PARALLEL``
     The total amount of time that a CPU was measured to be running with this
     hint value on the Linux logical CPU specified.
 
-      * **Aggregation**: average
-      * **Domain**: cpu
-      * **Format**: double
-      * **Unit**: seconds
+    * **Aggregation**: average
+    * **Domain**: cpu
+    * **Format**: double
+    * **Unit**: seconds
 
 ``PROFILE::TIME_HINT_IGNORE``
     The total amount of time that a CPU was measured to be running with this
     hint value on the Linux logical CPU specified.
 
-      * **Aggregation**: average
-      * **Domain**: cpu
-      * **Format**: double
-      * **Unit**: seconds
+    * **Aggregation**: average
+    * **Domain**: cpu
+    * **Format**: double
+    * **Unit**: seconds
 
 Controls
 --------
@@ -153,10 +153,10 @@ This IOGroup does not provide any controls.
 Aliases
 -------
 
+This IOGroup provides the following high-level aliases:
+
 Signal Aliases
 ^^^^^^^^^^^^^^
-
-This IOGroup provides the following high-level aliases:
 
 ``REGION_HASH``
     Maps to ``PROFILE::REGION_HASH``
