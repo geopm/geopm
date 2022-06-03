@@ -1,5 +1,4 @@
-
-geopm_pio_msr(7) -- Signals and controls for Model Specific Registers (MSRs) 
+geopm_pio_msr(7) -- Signals and controls for Model Specific Registers (MSRs)
 ============================================================================
 
 Description
@@ -10,7 +9,7 @@ The MSR IOGroup implements the
 hardware signals and controls for Model Specific Registers (MSRs).
 
 Configuration
-~~~~~~~~~~~~~
+^^^^^^^^^^^^^
 
 The set of signals and controls supported by the MSR IOGroup is configurable,
 as the MSRs that are available depend on the architecture and the particular
@@ -30,7 +29,7 @@ available. Use geopmread and geopmwrite to query the full set of signals and
 controls that are available on a particular system.
 
 Concurrent Access
-~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^
 
 Usage and access to most MSRs is restricted to ring 0. However, there is
 no hardware mechanism available to reserve access to MSRs, so access is on a
@@ -44,8 +43,13 @@ Please consult the following for further information and guidelines for
 sharing access to MSRs: Performance Monitoring Unit Sharing Guide (Intel white
 paper).
 
-SIGNAL ALIASES
---------------
+Aliases
+-------
+
+This IOGroup provides the following high-level aliases:
+
+Signal Aliases
+^^^^^^^^^^^^^^
 
 ``CPU_FREQUENCY_CONTROL``
     Aliases to MSR::PERF_CTL:FREQ
@@ -55,7 +59,7 @@ SIGNAL ALIASES
 
 ``CPU_UNCORE_FREQUENCY_STATUS``
     Aliases to MSR::UNCORE_PERF_STATUS:FREQ
- 
+
 ``CPU_FREQUENCY_MAX``
     Aliases to MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_0
 
@@ -92,8 +96,8 @@ SIGNAL ALIASES
 ``TIMESTAMP_COUNTER``
     Aliases to MSR::TIME_STAMP_COUNTER:TIMESTAMP_COUNT
 
-CONTROL ALIASES
----------------
+Control Aliases
+^^^^^^^^^^^^^^^
 
 ``CPU_FREQUENCY_CONTROL``
     Aliases to MSR::PERF_CTL:FREQ
@@ -111,7 +115,7 @@ The following example uses geopmread and geopmwrite command-line tools.
 These steps can also be followed within an agent.
 
 Setting Frequency
-~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^
 
 * Set target operating frequency:
 
@@ -123,7 +127,7 @@ Setting Frequency
 ``geopmread CPU_FREQUENCY_STATUS core 0``
 
 Setting A Power Limit
-~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^
 
 * Set power limit
 

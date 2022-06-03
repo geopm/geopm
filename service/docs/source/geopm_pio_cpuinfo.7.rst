@@ -13,10 +13,10 @@ Signals
 ``CPUINFO::FREQ_MIN``
     Returns the CPUs minimum achievable frequency.
 
-      * **Aggregation**: expect_same
-      * **Domain**: cpu
-      * **Format**: double
-      * **Unit**: hertz
+    * **Aggregation**: expect_same
+    * **Domain**: cpu
+    * **Format**: double
+    * **Unit**: hertz
 
 ``CPUINFO::FREQ_MAX``
     Returns the CPUs maximum achievable frequency. This is the frequency that
@@ -27,35 +27,35 @@ Signals
     It's just 1 MHz above sticker.  The description should reflect this and what
     the implications are about turbo.
 
-     * **Aggregation**: expect_same
-     * **Domain**: cpu
-     * **Format**: double
-     * **Unit**: hertz
+    * **Aggregation**: expect_same
+    * **Domain**: cpu
+    * **Format**: double
+    * **Unit**: hertz
 
 ``CPUINFO::FREQ_STICKER``
     Returns the processor base frequency. This is the maximum guaranteed
     achievable frequency.
 
-     * **Aggregation**: expect_same
-     * **Domain**: cpu
-     * **Format**: double
-     * **Unit**: hertz
+    * **Aggregation**: expect_same
+    * **Domain**: cpu
+    * **Format**: double
+    * **Unit**: hertz
 
 ``CPUINFO::FREQ_STEP``
     Returns the step size between process frequency settings.
 
-     * **Aggregation**: expect_same
-     * **Domain**: cpu
-     * **Format**: double
-     * **Unit**: hertz
+    * **Aggregation**: expect_same
+    * **Domain**: cpu
+    * **Format**: double
+    * **Unit**: hertz
 
 Aliases
 -------
 
+This IOGroup provides the following high-level aliases:
+
 Signal Aliases
 ^^^^^^^^^^^^^^
-
-This IOGroup provides the following high-level aliases:
 
 ``CPU_FREQUENCY_MIN``
     Maps to ``CPUINFO::FREQ_MIN``

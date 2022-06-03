@@ -97,8 +97,12 @@ Controls
 --------
 This IOGroup does not expose any controls.
 
+Aliases
+-------
+
 Signal Aliases
---------------
+~~~~~~~~~~~~~~
+
 This IOGroup exposes the following high-level aliases:
 
 * ``BOARD_POWER`` (**TODO**: currently ``POWER_BOARD``) aliases to ``CNL::POWER_BOARD``
@@ -113,4 +117,5 @@ See Also
 :doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>`,
 :doc:`geopm::CNLIOGroup(3) <GEOPM_CXX_MAN_CNLIOGroup.3>`,
 :doc:`geopmwrite(1) <geopmwrite.1>`,
-:doc:`geopmread(1) <geopmread.1>`
+:doc:`geopmread(1) <geopmread.1>`,
+:doc:`geopm::Agg(3) <GEOPM_CXX_MAN_Agg.3>`
