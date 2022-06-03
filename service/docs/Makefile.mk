@@ -31,6 +31,7 @@ EXTRA_DIST += docs/geninfo.sh \
               docs/source/service.rst \
               docs/source/signals_SKX.rst \
               docs/source/use_cases.rst \
+              docs/source/_ext/geopmlint.py \
               $(all_man_rst) \
               $(all_man_target) \
               # end
