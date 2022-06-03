@@ -1,5 +1,5 @@
-geopm_pio_cpu(7) -- Signals and controls for CPU Info IO Group
-==============================================================
+geopm_pio_cpuinfo(7) -- Signals and controls for the CPUInfoIOGroup
+===================================================================
 
 Description
 -----------
@@ -8,74 +8,69 @@ The CPUInfoIOGroup implements the :doc:`geopm::IOGroup(3)
 <GEOPM_CXX_MAN_IOGroup.3>` interface to provide signals for CPU-related
 information on Intel Architecture.
 
-
 Signals
 -------
 ``CPUINFO::FREQ_MIN``
     Returns the CPUs minimum achievable frequency.
 
-    * **Aggregation**: N/A (all CPUs on a board should return the same value)
-
-    * **Domain**: CPU
-
-    * **Format**: Integer
-
-    * **Unit**: Hertz
+      * **Aggregation**: expect_same
+      * **Domain**: cpu
+      * **Format**: double
+      * **Unit**: hertz
 
 ``CPUINFO::FREQ_MAX``
     Returns the CPUs maximum achievable frequency. This is the frequency that
     a single CPU can achieve when all other CPUs are in C6, turbo is enabled,
     and the system is not power constrained.
 
-   * **Aggregation**: N/A (all CPUs on a board should return the same value)
+    **TODO** On McFly this returns 2101000000, so it's not max single core turbo.
+    It's just 1 MHz above sticker.  The description should reflect this and what
+    the implications are about turbo.
 
-   * **Domain**: CPU
-
-   * **Format**: Integer
-
-   * **Unit**: Hertz
+     * **Aggregation**: expect_same
+     * **Domain**: cpu
+     * **Format**: double
+     * **Unit**: hertz
 
 ``CPUINFO::FREQ_STICKER``
     Returns the processor base frequency. This is the maximum guaranteed
     achievable frequency.
 
-   * **Aggregation**: N/A (all CPUs on a board should return the same value)
-
-   * **Domain**: CPU
-
-   * **Format**: Integer
-
-   * **Unit**: Hertz
+     * **Aggregation**: expect_same
+     * **Domain**: cpu
+     * **Format**: double
+     * **Unit**: hertz
 
 ``CPUINFO::FREQ_STEP``
-    Returns the set size between process frequency settings. 
+    Returns the step size between process frequency settings.
 
-   * **Aggregation**: N/A (all CPUs on a board should return the same value)
+     * **Aggregation**: expect_same
+     * **Domain**: cpu
+     * **Format**: double
+     * **Unit**: hertz
 
-   * **Domain**: CPU
-
-   * **Format**: Integer
-
-   * **Unit**: Hertz
+Aliases
+-------
 
 Signal Aliases
-~~~~~~~~~~~~~~
-Several high level aliases are provided.  Their mapping  to
-underlying IO Group signals is provided below.
+^^^^^^^^^^^^^^
+
+This IOGroup provides the following high-level aliases:
 
 ``CPU_FREQUENCY_MIN``
-    Aliases to ``CPUINFO::FREQ_MIN``
+    Maps to ``CPUINFO::FREQ_MIN``
 
 ``CPU_FREQUENCY_STICKER``
-    Aliases to ``CPUINFO::FREQ_STICKER``
+    Maps to ``CPUINFO::FREQ_STICKER``
 
 ``CPU_FREQUENCY_STEP``
-    Aliases to ``CPUINFO::FREQ_STEP``
+    Maps to ``CPUINFO::FREQ_STEP``
 
 See Also
 --------
 
-:doc:`geopm(7) <geopm.7>`\ ,
-:doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>`\ ,
-:doc:`geopmwrite(1) <geopmwrite.1>`\ ,
-:doc:`geopmread(1) <geopmread.1>`
+:doc:`geopm(7) <geopm.7>`,
+:doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>`,
+:doc:`geopmwrite(1) <geopmwrite.1>`,
+:doc:`geopmread(1) <geopmread.1>`,
+:doc:`geopm::Agg(3) <GEOPM_CXX_MAN_Agg.3>`
