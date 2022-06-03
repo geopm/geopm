@@ -25,6 +25,8 @@ class MockLevelZero : public geopm::LevelZero
                     (const, override));
         MOCK_METHOD(double, frequency_max, (unsigned int, int, int),
                     (const, override));
+        MOCK_METHOD(uint32_t, frequency_throttle_reasons, (unsigned int, int, int),
+                    (const, override));
         MOCK_METHOD((std::pair<double, double>), frequency_range,
                     (unsigned int, int, int), (const, override));
 
