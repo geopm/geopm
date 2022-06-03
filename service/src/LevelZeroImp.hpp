@@ -33,6 +33,8 @@ namespace geopm
                                  int l0_domain_idx) const override;
             double frequency_max(unsigned int l0_device_idx, int l0_domain,
                                  int l0_domain_idx) const override;
+            uint32_t frequency_throttle_reasons(unsigned int l0_device_idx, int l0_domain,
+                                                int l0_domain_idx) const override;
             std::pair<double, double> frequency_range(unsigned int l0_device_idx,
                                                       int l0_domain,
                                                       int l0_domain_idx) const override;
@@ -63,7 +65,7 @@ namespace geopm
                 double tdp = 0;
                 double efficient = 0;
                 double actual = 0;
-                uint64_t throttle_reasons = 0;
+                uint32_t throttle_reasons = 0;
             };
             struct m_power_limit_s {
                 int32_t tdp = 0;

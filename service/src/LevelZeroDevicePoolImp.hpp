@@ -30,6 +30,8 @@ namespace geopm
                                  int l0_domain) const override;
             double frequency_max(int domain, unsigned int domain_idx,
                                  int l0_domain) const override;
+            uint32_t frequency_throttle_reasons(int domain, unsigned int domain_idx,
+                                                int l0_domain) const override;
             std::pair <double, double> frequency_range(int domain,
                                                        unsigned int domain_idx,
                                                        int l0_domain) const override;

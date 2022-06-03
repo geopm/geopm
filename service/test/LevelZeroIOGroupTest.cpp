@@ -216,6 +216,7 @@ TEST_F(LevelZeroIOGroupTest, read_signal_and_batch)
     const int num_gpu_subdevice = m_platform_topo->num_domain(GEOPM_DOMAIN_GPU_CHIP);
 
     std::vector<double> mock_freq = {1530, 1630, 1320, 1420, 420, 520, 135, 235};
+    std::vector<double> mock_throttle = {0, 2, 4, 10, 1, 3, 9, 5};
     std::vector<double> mock_energy = {9000000, 11000000, 2300000, 5341000000};
     std::vector<int> batch_idx;
 
@@ -224,6 +225,11 @@ TEST_F(LevelZeroIOGroupTest, read_signal_and_batch)
     for (int sub_idx = 0; sub_idx < num_gpu_subdevice; ++sub_idx) {
         EXPECT_CALL(*m_device_pool, frequency_status(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE)).WillRepeatedly(Return(mock_freq.at(sub_idx)));
         batch_idx.push_back(levelzero_io.push_signal("LEVELZERO::GPU_CORE_FREQUENCY_STATUS", GEOPM_DOMAIN_GPU_CHIP, sub_idx));
+    }
+
+    for (int sub_idx = 0; sub_idx < num_gpu_subdevice; ++sub_idx) {
+        EXPECT_CALL(*m_device_pool, frequency_throttle_reasons(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE)).WillRepeatedly(Return(mock_throttle.at(sub_idx)));
+        batch_idx.push_back(levelzero_io.push_signal("LEVELZERO::GPU_CORE_THROTTLE_REASONS", GEOPM_DOMAIN_GPU_CHIP, sub_idx));
     }
 
     for (int gpu_idx = 0; gpu_idx < num_gpu; ++gpu_idx) {
@@ -236,25 +242,35 @@ TEST_F(LevelZeroIOGroupTest, read_signal_and_batch)
     for (int sub_idx = 0; sub_idx < num_gpu_subdevice; ++sub_idx) {
         double frequency = levelzero_io.read_signal("LEVELZERO::GPU_CORE_FREQUENCY_STATUS", GEOPM_DOMAIN_GPU_CHIP, sub_idx);
         double frequency_batch = levelzero_io.sample(batch_idx.at(sub_idx));
-
         EXPECT_DOUBLE_EQ(frequency, mock_freq.at(sub_idx)*1e6);
         EXPECT_DOUBLE_EQ(frequency, frequency_batch);
+
+        double throttle = levelzero_io.read_signal("LEVELZERO::GPU_CORE_THROTTLE_REASONS", GEOPM_DOMAIN_GPU_CHIP, sub_idx);
+        double throttle_batch = levelzero_io.sample(batch_idx.at(sub_idx + num_gpu_subdevice));
+        EXPECT_DOUBLE_EQ(throttle, mock_throttle.at(sub_idx));
+        EXPECT_DOUBLE_EQ(throttle, throttle_batch);
     }
 
     for (int gpu_idx = 0; gpu_idx < num_gpu; ++gpu_idx) {
         double energy = levelzero_io.read_signal("LEVELZERO::GPU_ENERGY", GEOPM_DOMAIN_GPU, gpu_idx);
-        double energy_batch = levelzero_io.sample(batch_idx.at(num_gpu_subdevice+gpu_idx));
-
+        double energy_batch = levelzero_io.sample(batch_idx.at(2*num_gpu_subdevice+gpu_idx));
         EXPECT_DOUBLE_EQ(energy, mock_energy.at(gpu_idx)/1e6);
         EXPECT_DOUBLE_EQ(energy, energy_batch);
     }
 
     //second round of testing with a modified value
     mock_freq = {1730, 1830, 1520, 1620, 620, 720, 335, 435};
+    mock_throttle = {2, 6, 8, 4, 12, 16, 18, 22};
     mock_energy = {9320000, 12300000, 2360000, 3417000000};
     for (int sub_idx = 0; sub_idx < num_gpu_subdevice; ++sub_idx) {
         EXPECT_CALL(*m_device_pool, frequency_status(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE)).WillRepeatedly(Return(mock_freq.at(sub_idx)));
+        EXPECT_CALL(*m_device_pool, frequency_throttle_reasons(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE)).WillRepeatedly(Return(mock_throttle.at(sub_idx)));
     }
+
+    for (int sub_idx = 0; sub_idx < num_gpu_subdevice; ++sub_idx) {
+        EXPECT_CALL(*m_device_pool, frequency_throttle_reasons(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE)).WillRepeatedly(Return(mock_throttle.at(sub_idx)));
+    }
+
     for (int gpu_idx = 0; gpu_idx < num_gpu; ++gpu_idx) {
         EXPECT_CALL(*m_device_pool, energy(GEOPM_DOMAIN_GPU, gpu_idx, MockLevelZero::M_DOMAIN_ALL)).WillRepeatedly(Return(mock_energy.at(gpu_idx)));
     }
@@ -263,13 +279,17 @@ TEST_F(LevelZeroIOGroupTest, read_signal_and_batch)
     for (int sub_idx = 0; sub_idx < num_gpu_subdevice; ++sub_idx) {
         double frequency = levelzero_io.read_signal("LEVELZERO::GPU_CORE_FREQUENCY_STATUS", GEOPM_DOMAIN_GPU_CHIP, sub_idx);
         double frequency_batch = levelzero_io.sample(batch_idx.at(sub_idx));
-
         EXPECT_DOUBLE_EQ(frequency, mock_freq.at(sub_idx)*1e6);
         EXPECT_DOUBLE_EQ(frequency, frequency_batch);
+
+        double throttle = levelzero_io.read_signal("LEVELZERO::GPU_CORE_THROTTLE_REASONS", GEOPM_DOMAIN_GPU_CHIP, sub_idx);
+        double throttle_batch = levelzero_io.sample(batch_idx.at(sub_idx + num_gpu_subdevice));
+        EXPECT_DOUBLE_EQ(throttle, mock_throttle.at(sub_idx));
+        EXPECT_DOUBLE_EQ(throttle, throttle_batch);
     }
     for (int gpu_idx = 0; gpu_idx < num_gpu; ++gpu_idx) {
         double energy = levelzero_io.read_signal("LEVELZERO::GPU_ENERGY", GEOPM_DOMAIN_GPU, gpu_idx);
-        double energy_batch = levelzero_io.sample(batch_idx.at(num_gpu_subdevice+gpu_idx));
+        double energy_batch = levelzero_io.sample(batch_idx.at(2*num_gpu_subdevice+gpu_idx));
 
         EXPECT_DOUBLE_EQ(energy, mock_energy.at(gpu_idx)/1e6);
         EXPECT_DOUBLE_EQ(energy, energy_batch);

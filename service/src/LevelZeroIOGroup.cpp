@@ -115,6 +115,22 @@ namespace geopm
                                   },
                                   1e6
                                   }},
+                              {M_NAME_PREFIX + "GPU_CORE_THROTTLE_REASONS", {
+                                  "GPU Compute Hardware throttle reasons.  See oneAPI Level Zero Sysman Spec for decoding",
+                                  GEOPM_DOMAIN_GPU_CHIP,
+                                  Agg::average,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
+                                  string_format_integer,
+                                  {},
+                                  [this](unsigned int domain_idx) -> double
+                                  {
+                                      return this->m_levelzero_device_pool.frequency_throttle_reasons(
+                                                   GEOPM_DOMAIN_GPU_CHIP,
+                                                   domain_idx,
+                                                   geopm::LevelZero::M_DOMAIN_COMPUTE);
+                                  },
+                                  1
+                                  }},
                               {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_CONTROL", {
                                   "The minimum frequency request for the GPU Compute Hardware.",
                                   GEOPM_DOMAIN_GPU_CHIP,
