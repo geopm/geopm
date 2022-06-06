@@ -186,14 +186,17 @@ goals and use case for this interface.
 * 
   ``geopm_topo_create_cache``\ ():
   Create a cache file for the :doc:`geopm::PlatformTopo(3) <GEOPM_CXX_MAN_PlatformTopo.3>` object if
-  one does not exist.  This cache file will be used by any calls to
-  the other ``geopm_topo_*()`` functions documented here as well as
-  any use of the GEOPM runtime.  File permissions of the cache file
-  are set to "-rw-rw-rw-", i.e. 666. The path for the cache file is
-  ``/tmp/geopm-topo-cache``.  If the file exists no operation will be
-  performed.  To force the creation of a new cache file,
-  `unlink(3) <https://man7.org/linux/man-pages/man3/unlink.3p.html>`_ the existing cache file prior to calling this
-  function.
+  one does not exist.  This cache file will be used by any calls to the other
+  ``geopm_topo_*()`` functions documented here as well as any use of the GEOPM
+  runtime.  If a privileged user is making this call (i.e. root or via sudo),
+  the file path will be ``/run/geopm-service/geopm-topo-cache`` and the
+  permissions will be ``-rw-r--r--``, i.e. 644.  If a non-privileged user makes
+  this call file path will be ``/tmp/geopm-topo-cache-<UID>`` and the
+  permissions will be ``-rw-------``, i.e. 600.  If the file exists from the
+  current boot cycle and has the proper permissions no operation will be
+  performed.  To force the creation of a new cache file, `unlink(3)
+  <https://man7.org/linux/man-pages/man3/unlink.3p.html>`_ the existing cache
+  file prior to calling this function.
 
 Return Value
 ------------
