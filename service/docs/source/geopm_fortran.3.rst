@@ -2,7 +2,7 @@
    :format: html
 
 
-geopm_fortran(3) -- geopm fortran interface
+geopm_fortran(3) -- GEOPM fortran interface
 ===========================================
 
 
@@ -120,7 +120,7 @@ Fortran Module
 The GEOPM package installs a Fortran 90 module file which defines
 these interfaces and can be imported with the ``use geopm_prof`` command.
 The install path for such modules has not been GNU standardized.  We
-install the geopm Fortran 90 module to:
+install the GEOPM Fortran 90 module to:
 
 .. code-block::
 

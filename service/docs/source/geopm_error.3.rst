@@ -46,7 +46,7 @@ of length *size* bytes.  The result, *msg* will always be NULL
 terminated even if the message is truncated to fit in the *msg*
 buffer.
 
-When a geopm C interface returns a non-zero value and this value is
+When a GEOPM C interface returns a non-zero value and this value is
 subsequently passed as the *err* argument to
 ``geopm_error_message()``\ , the message may contain detailed
 information about the failure that most recently occurred.  The

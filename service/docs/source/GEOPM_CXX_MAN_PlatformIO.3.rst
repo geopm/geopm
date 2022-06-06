@@ -1,5 +1,5 @@
 
-geopm::PlatformIO(3) -- geopm platform interface
+geopm::PlatformIO(3) -- GEOPM platform interface
 ================================================
 
 Namespaces
