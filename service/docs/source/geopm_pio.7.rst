@@ -24,9 +24,9 @@ signal represents any measurement in SI units that can be sampled or
 any unit-free integer that can be read.  A control represents a
 request for a hardware domain to operate such that a related signal
 measured from the hardware domain will track the request.  For
-example, the user can set a ``POWER_PACKAGE_LIMIT`` in units of
-*watts* and the related signal, ``POWER_PACKAGE``\ , will remain below
-the limit.  Similarly the user can set a ``CPU_FREQUENCY_CONTROL`` in
+example, the user can set a ``CPU_POWER_LIMIT`` in units of
+*watts* and the related signal, ``CPU_POWER``\ , will remain below
+the limit.  Similarly the user can set a ``CPU_FREQUENCY_MAX_CONTROL`` in
 *hertz* and the related signal, ``CPU_FREQUENCY_STATUS`` will show the
 CPU operating at the value set.
 
@@ -75,7 +75,20 @@ Descriptions Of High Level Aliases
     Power measured on the server's board. See :ref:`geopm_pio_cnl(7)
     <geopm_pio_cnl.7:Requirements>` for signal availability requirements.
 
-``CPU_FREQUENCY_CONTROL``
+``CPU_CYCLES_REFERENCE`` (**TODO**: currently ``CYCLES_REFERENCE``)
+    The count of the number of cycles while the logical processor is not in a
+    halt state and not in a stop-clock state. The count rate is fixed at the
+    TIMESTAMP_COUNT rate.
+
+``CPU_CYCLES_THREAD`` (**TODO**: currently ``CYCLES_THREAD``)
+    The count of the number of cycles while the logical processor is not in a
+    halt state.  The count rate may change based on core frequency.
+
+``CPU_ENERGY`` (**TODO**: currently ``ENERGY_PACKAGE``)
+    An increasing meter of energy consumed by the package over time. It will
+    reset periodically due to roll-over.
+
+``CPU_FREQUENCY_MAX_CONTROL`` (**TODO**: currently ``CPU_FREQUENCY_CONTROL``)
     Target operating frequency of the CPU based on the control register.
 
 ``CPU_FREQUENCY_MAX``
@@ -87,39 +100,41 @@ Descriptions Of High Level Aliases
 ``CPU_FREQUENCY_STATUS``
     The current operating frequency of the CPU.
 
+``CPU_INSTRUCTIONS_RETIRED`` (**TODO** currently ``INSTRUCTIONS_RETIRED``)
+    The count of the number of instructions executed.
+
+``CPU_POWER_LIMIT`` (**TODO** currently ``POWER_PACKAGE_LIMIT``)
+    The average power usage limit over the time window specified in
+    PL1_TIME_WINDOW.
+ 
+``CPU_POWER_TIME_WINDOW`` (**TODO** currently ``POWER_PACKAGE_TIME_WINDOW``)
+    The time window associated with power limit 1.
+
+``CPU_POWER_MAX`` (**TODO** currently ``POWER_PACKAGE_MAX``)
+    The maximum power limit based on the electrical specification.
+
+``CPU_POWER_MIN`` (**TODO** currently ``POWER_PACKAGE_MIN``)
+    The minimum power limit based on the electrical specification.
+
+``CPU_POWER_TDP`` (**TODO** currently ``POWER_PACKAGE_TDP``)
+    Maximum power to stay within the thermal limits based on the design (TDP).
+
+``CPU_POWER`` (**TODO** currently ``POWER_PACKAGE``)
+    Total power aggregated over the processor package.
+
+``CPU_TIMESTAMP_COUNTER`` (**TODO** currently ``TIMESTAMP_COUNTER``)
+    An always running, monotonically increasing counter that is incremented at
+    a constant rate. For use as a wall clock timer.
+
 ``CPU_UNCORE_FREQUENCY_STATUS``
     Target operating frequency of the uncore.
 
-``CYCLES_REFERENCE``
-    Average over the domain of clock reference cycles since the
-    beginning of execution.
-
-``CYCLES_REFERENCE``
-    The count of the number of cycles while the logical processor is not in a
-    halt state and not in a stop-clock state. The count rate is fixed at the
-    TIMESTAMP_COUNT rate.
-
-``CYCLES_THREAD``
-    Average over the domain of clock cycles executed by cores since
-    the beginning of execution.
-
-``CYCLES_THREAD``
-    The count of the number of cycles while the logical processor is not in a
-    halt state.  The count rate may change based on core frequency.
-
-``ENERGY_DRAM``
+``DRAM_ENERGY`` (**TODO**: currently ``ENERGY_DRAM``)
     An increasing meter of energy consumed by the DRAM over time. It will reset
     periodically due to roll-over.
 
-``ENERGY_DRAM``
-    Total energy aggregated over the DRAM DIMMs associated with a NUMA node.
-
-``ENERGY_PACKAGE``
-    An increasing meter of energy consumed by the package over time. It will
-    reset periodically due to roll-over.
-
-``ENERGY_PACKAGE``
-    Total energy aggregated over the processor package.
+``DRAM_POWER`` (**TODO** currently ``POWER_DRAM``)
+    Total power aggregated over the DRAM DIMMs associated with a NUMA node.
 
 ``EPOCH_COUNT``
     Number of completed executions of an epoch.  Prior to the first call
@@ -159,41 +174,6 @@ Descriptions Of High Level Aliases
 ``GPU_UTILIZATION``
     Average GPU utilization expressed as a ratio of cycles.
 
-``INSTRUCTIONS_RETIRED``
-    The count of the number of instructions executed.
-
-``POWER_DRAM``
-    Total power aggregated over the DRAM DIMMs associated with a NUMA node.
-
-``POWER_PACKAGE_LIMIT``
-    The average power usage limit over the time window specified in
-    PL1_TIME_WINDOW.
- 
-``POWER_PACKAGE_TIME_WINDOW``
-    The time window associated with power limit 1.
- 
-
-``POWER_PACKAGE_MAX``
-    Maximum setting for package power over the given domain.
-
-``POWER_PACKAGE_MAX``
-    The maximum power limit based on the electrical specification.
-
-``POWER_PACKAGE_MIN``
-    Minimum setting for package power over the given domain.
-
-``POWER_PACKAGE_MIN``
-    The minimum power limit based on the electrical specification.
-
-``POWER_PACKAGE_TDP``
-    Maximum power to stay within the thermal limits based on the design (TDP).
-
-``POWER_PACKAGE_TDP``
-    Maximum sustainable setting for package power over the given domain.
-
-``POWER_PACKAGE``
-    Total power aggregated over the processor package.
-
 ``REGION_HASH``
     The hash of the region of code (see :doc:`geopm_prof_c(3) <geopm_prof_c.3>`\ ) currently being
     run by all ranks, otherwise ``GEOPM_REGION_HASH_UNMARKED``.
@@ -215,10 +195,6 @@ Descriptions Of High Level Aliases
 ``REGION_RUNTIME``
     Maximum per-rank of the last recorded runtime for the current
     region.
-
-``TIMESTAMP_COUNTER``
-    An always running, monotonically increasing counter that is incremented at
-    a constant rate. For use as a wall clock timer.
 
 ``TIME``
     Time elapsed since the beginning of execution.
