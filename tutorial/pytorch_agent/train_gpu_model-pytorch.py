@@ -42,6 +42,9 @@ def main():
                         help='Specify model width')
     parser.add_argument('--depth', type=int,
                         help='Specify model depth')
+    parser.add_argument('--scheduler-metric', default='accuracy', type=str,
+                        choices=['loss', 'accuracy'],
+                        help='Specify scheduler metric.')
     args = parser.parse_args()
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -63,6 +66,7 @@ def main():
 
     y_columns = ['phi-freq']
 
+    #code.interact(local=locals())
     #Print phi to phi-freq mapping
     print(df_traces.pivot_table('phi-freq', 'phi', 'app-config'))
 
@@ -136,10 +140,18 @@ def main():
             "lr" : tune.loguniform(1e-3, 1e-3)
         }
 
+        scheduler_metric = args.scheduler_metric
+        if(scheduler_metric == "accuracy"):
+            scheduler_mode = "max"
+        elif(scheduler_metric == "loss"):
+            scheduler_mode = "min"
+        else:
+            print('Error: Specified scheduler metric {} does not have a mode'.format(scheduler_metric))
+            sys.exit(1)
+
         scheduler = ASHAScheduler(
-            #TODO: Evaluate using metric="loss", mode="min" vs metric="accuracy", mode="max"
-            metric="accuracy",
-            mode="max",
+            metric=scheduler_metric,
+            mode=scheduler_mode,
             #max_t=100, #TODO: define a maximum time for trials
             grace_period=1,
             reduction_factor=2)
@@ -157,7 +169,7 @@ def main():
             checkpoint_at_end=True
             )
 
-        best_trial = result.get_best_trial("accuracy", "max", "last")
+        best_trial = result.get_best_trial(scheduler_metric, scheduler_mode, "last")
         print("Best config: {}".format(best_trial.config))
         print("\tValidation Set Accuracy: {:.2f}%".format(100*best_trial.last_result["accuracy"]))
         print("\tValidation Set Loss: {:.2f}%".format(100*best_trial.last_result["loss"]))
@@ -300,10 +312,11 @@ def evaluate(model, test_loader, criterion):
             # Run inputs through model, save prediction
             predicted_control = model(inputs)
             # Round to nearest 100 MHz increment
-            predicted_control = np.round(predicted_control,1)
+            predicted_control_rounded = np.round(predicted_control,1)
+            target_control_rounded = np.round(target_control,1)
 
             # Generate stats
-            prediction_correct += (target_control == predicted_control).sum().item()
+            prediction_correct += (target_control_rounded == predicted_control_rounded).sum().item()
             loss = criterion(predicted_control, target_control)
             val_loss += loss.numpy()
             val_steps += 1;
