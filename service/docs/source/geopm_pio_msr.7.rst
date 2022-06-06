@@ -51,62 +51,62 @@ This IOGroup provides the following high-level aliases:
 Signal Aliases
 ^^^^^^^^^^^^^^
 
-``CPU_FREQUENCY_MAX_CONTROL``
-    Aliases to MSR::PERF_CTL:FREQ
-
-``CPU_FREQUENCY_STATUS``
-    Aliases to MSR::PERF_STATUS:FREQ
-
-``CPU_UNCORE_FREQUENCY_STATUS``
-    Aliases to MSR::UNCORE_PERF_STATUS:FREQ
-
-``CPU_FREQUENCY_MAX``
-    Aliases to MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_0
-
 ``CPU_CYCLES_REFERENCE``
-    Aliases to MSR::FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC
+    Maps to ``MSR::FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC``
 
 ``CPU_CYCLES_THREAD``
-    Aliases to MSR::FIXED_CTR1:CPU_CLK_UNHALTED_THREAD
-
-``DRAM_ENERGY``
-    Aliases to MSR::DRAM_ENERGY_STATUS:ENERGY
+    Maps to ``MSR::FIXED_CTR1:CPU_CLK_UNHALTED_THREAD``
 
 ``CPU_ENERGY``
-    Aliases to MSR::PKG_ENERGY_STATUS:ENERGY
+    Maps to ``MSR::PKG_ENERGY_STATUS:ENERGY``
+
+``CPU_FREQUENCY_MAX_CONTROL``
+    Maps to ``MSR::PERF_CTL:FREQ``
+
+``CPU_FREQUENCY_MAX``
+    Maps to ``MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_0``
+
+``CPU_FREQUENCY_STATUS``
+    Maps to ``MSR::PERF_STATUS:FREQ``
 
 ``CPU_INSTRUCTIONS_RETIRED``
-    Aliases to MSR::FIXED_CTR0:INST_RETIRED_ANY
+    Maps to ``MSR::FIXED_CTR0:INST_RETIRED_ANY``
 
 ``CPU_POWER_LIMIT``
-    Aliases to MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT
+    Maps to ``MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT``
 
 ``CPU_POWER_MAX``
-    Aliases to MSR::PKG_POWER_INFO:MAX_POWER
+    Maps to ``MSR::PKG_POWER_INFO:MAX_POWER``
 
 ``CPU_POWER_MIN``
-    Aliases to MSR::PKG_POWER_INFO:MIN_POWER
+    Maps to ``MSR::PKG_POWER_INFO:MIN_POWER``
 
 ``CPU_POWER_TDP``
-    Aliases to MSR::PKG_POWER_INFO:THERMAL_SPEC_POWER
+    Maps to ``MSR::PKG_POWER_INFO:THERMAL_SPEC_POWER``
 
 ``CPU_POWER_TIME_WINDOW``
-    Aliases to MSR::PKG_POWER_LIMIT:PL1_TIME_WINDOW
+    Maps to ``MSR::PKG_POWER_LIMIT:PL1_TIME_WINDOW``
 
 ``CPU_TIMESTAMP_COUNTER``
-    Aliases to MSR::TIME_STAMP_COUNTER:TIMESTAMP_COUNT
+    Maps to ``MSR::TIME_STAMP_COUNTER:TIMESTAMP_COUNT``
+
+``CPU_UNCORE_FREQUENCY_STATUS``
+    Maps to ``MSR::UNCORE_PERF_STATUS:FREQ``
+
+``DRAM_ENERGY``
+    Maps to ``MSR::DRAM_ENERGY_STATUS:ENERGY``
 
 Control Aliases
 ^^^^^^^^^^^^^^^
 
-``CPU_FREQUENCY_CONTROL``
-    Aliases to MSR::PERF_CTL:FREQ
+``CPU_FREQUENCY_MAX_CONTROL``
+    Maps to ``MSR::PERF_CTL:FREQ``
 
-``POWER_PACKAGE_LIMIT``
-    Aliases to MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT
+``CPU_POWER_LIMIT``
+    Maps to ``MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT``
 
-``POWER_PACKAGE_TIME_WINDOW``
-    Aliases to MSR::PKG_POWER_LIMIT:PL1_TIME_WINDOW
+``CPU_POWER_TIME_WINDOW``
+    Maps to ``MSR::PKG_POWER_LIMIT:PL1_TIME_WINDOW``
 
 Example
 -------
@@ -119,11 +119,11 @@ Setting Frequency
 
 * Set target operating frequency:
 
-``geopmwrite CPU_FREQUENCY_CONTROL core 0 1700000000``
+``geopmwrite CPU_FREQUENCY_MAX_CONTROL core 0 1700000000``
 
 * Read setting and current operating frequency:
 
-``geopmread CPU_FREQUENCY_CONTROL core 0``
+``geopmread CPU_FREQUENCY_MAX_CONTROL core 0``
 ``geopmread CPU_FREQUENCY_STATUS core 0``
 
 Setting A Power Limit
@@ -131,12 +131,12 @@ Setting A Power Limit
 
 * Set power limit
 
-``geopmwrite POWER_PACKAGE_LIMIT package 0 20``
+``geopmwrite CPU_POWER_LIMIT package 0 20``
 
 * Read setting and current power
 
-``geopmread POWER_PACKAGE_LIMIT package 0``
-``geopmread POWER_PACKAGE package 0``
+``geopmread CPU_POWER_LIMIT package 0``
+``geopmread CPU_POWER package 0``
 
 
 See Also
