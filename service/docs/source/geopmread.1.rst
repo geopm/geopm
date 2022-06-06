@@ -1,7 +1,6 @@
 geopmread(1) -- query platform information
 ==========================================
 
-
 Synopsis
 --------
 
@@ -12,14 +11,12 @@ Print All Signal Names
 
     geopmread
 
-
 Print Domain Name And Size
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: bash
 
     geopmread --domain
-
 
 Print Signal Description
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -28,14 +25,12 @@ Print Signal Description
 
     geopmread --info SIGNAL_NAME
 
-
 Print All Signal Descriptions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: bash
 
     geopmread --info-all
-
 
 Read Signal
 ^^^^^^^^^^^
@@ -44,14 +39,12 @@ Read Signal
 
     geopmread SIGNAL_NAME DOMAIN_TYPE DOMAIN_INDEX
 
-
 Create Cache
 ^^^^^^^^^^^^
 
 .. code-block:: bash
 
     geopmread --cache
-
 
 Get Help Or Version
 ^^^^^^^^^^^^^^^^^^^
@@ -146,7 +139,6 @@ List domains and size:
    gpu    0
    package_integrated_gpu  0
 
-
 List all available signals on the system:
 
 .. code-block::
@@ -159,14 +151,12 @@ List all available signals on the system:
    POWER_DRAM
    CPU_FREQUENCY_STATUS
 
-
 Show the description for a signal:
 
 .. code-block::
 
    $ geopmread --info TIME
    TIME: Time in seconds since the IOGroup load.
-
 
 Show domain type for ENERGY_DRAM signal:
 
@@ -175,7 +165,6 @@ Show domain type for ENERGY_DRAM signal:
    $ geopmread --domain ENERGY_DRAM
    memory
 
-
 Read the current energy for package 1:
 
 .. code-block::
@@ -183,14 +172,12 @@ Read the current energy for package 1:
    $ geopmread ENERGY_PACKAGE package 1
    34567
 
-
 Read the total energy for both packages:
 
 .. code-block::
 
    $ geopmread ENERGY_PACKAGE board 0
    56789
-
 
 See Also
 --------
