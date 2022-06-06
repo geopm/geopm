@@ -1,11 +1,6 @@
 geopmwrite(1) -- modify platform state
 ======================================
 
-
-
-
-
-
 Synopsis
 --------
 
@@ -16,14 +11,12 @@ Print All Control Names
 
     geopmwrite
 
-
 Print Domain Name And Size
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: bash
 
     geopmwrite --domain
-
 
 Print Control Description
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -32,14 +25,12 @@ Print Control Description
 
     geopmwrite --info CONTROL_NAME
 
-
 Print All Control Descriptions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: bash
 
     geopmwrite --info-all
-
 
 Write Control
 ^^^^^^^^^^^^^
@@ -48,14 +39,12 @@ Write Control
 
     geopmwrite CONTROL_NAME DOMAIN_TYPE DOMAIN_INDEX VALUE
 
-
 Create Cache
 ^^^^^^^^^^^^
 
 .. code-block:: bash
 
     geopmwrite --cache
-
 
 Get Help Or Version
 ^^^^^^^^^^^^^^^^^^^
@@ -150,7 +139,6 @@ List domains and size:
    gpu    0
    package_integrated_gpu  0
 
-
 List all available controls on the system with domain type and number:
 
 .. code-block::
@@ -159,7 +147,6 @@ List all available controls on the system with domain type and number:
    CPU_FREQUENCY_CONTROL
    POWER_PACKAGE_LIMIT
 
-
 Show the description for a control:
 
 .. code-block::
@@ -167,14 +154,12 @@ Show the description for a control:
    $ geopmwrite --info CPU_FREQUENCY_CONTROL
    CPU_FREQUENCY_CONTROL: Set processor frequency
 
-
 Show domain type for POWER_PACKAGE control:
 
 .. code-block::
 
    $ geopmwrite --domain POWER_PACKAGE
    package
-
 
 Set the frequency of CPU 2 to 1.9 GHz:
 
@@ -184,7 +169,6 @@ Set the frequency of CPU 2 to 1.9 GHz:
    $ geopmread CPU_FREQUENCY_CONTROL cpu 2
    1.9e9
 
-
 Set all CPUs on package 0 to 1.5 GHz (cpu 1 is on package 0):
 
 .. code-block::
@@ -192,7 +176,6 @@ Set all CPUs on package 0 to 1.5 GHz (cpu 1 is on package 0):
    $ geopmwrite CPU_FREQUENCY_CONTROL package 0 1.5e9
    $ geopmread CPU_FREQUENCY_CONTROL cpu 1
    1.5e9
-
 
 See Also
 --------
