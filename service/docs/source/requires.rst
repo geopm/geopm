@@ -44,9 +44,9 @@ Upstream SLES and OpenSUSE Package Requirements
 Dasbus Requirement
 ^^^^^^^^^^^^^^^^^^
 
-The geopm service requires a more recent version of dasbus than is
+The GEOPM service requires a more recent version of dasbus than is
 currently packaged by Linux distributions (dasbus version 1.5 or more
-recent).  The script located in the subdirectory of the geopm repo:
+recent).  The script located in the subdirectory of the GEOPM repo:
 
 ``service/integration/build_dasbus.sh``
 

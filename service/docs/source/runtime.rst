@@ -350,7 +350,7 @@ of all GEOPM environment variables can be found in the geopm(7) man
 page.  The two GEOPM environment variables used by
 geopm_agent_enforce_policy() are "GEOPM_AGENT" and "GEOPM_POLICY".
 Note that it is expected that /etc is mounted on a node-local file
-system, so the geopm configuration files are typically part of the
+system, so the GEOPM configuration files are typically part of the
 compute node boot image.  Also note that the "GEOPM_POLICY" value
 specifies a path to another JSON file which may be located on a
 shared file system, and this second file controls the values enforced

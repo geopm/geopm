@@ -1,4 +1,4 @@
-geopmctl(1) -- geopm runtime control application
+geopmctl(1) -- GEOPM runtime control application
 ================================================
 
 Synopsis

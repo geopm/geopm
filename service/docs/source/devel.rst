@@ -36,7 +36,7 @@ repository:
     ./configure
     make
 
-    # Optionaly, build the geopm HPC runtime package
+    # Optionaly, build the GEOPM HPC runtime package
     cd ..
     ./autogen.sh
     ./configure
@@ -55,7 +55,7 @@ makefiles.  The test programs may be built separately from the
     make checkprogs
     make check
 
-    # Optionally run the geopm HPC runtime package unit tests
+    # Optionally run the GEOPM HPC runtime package unit tests
     cd ..
     make checkprogs
     make check
@@ -77,7 +77,7 @@ some extra options will be provided to configure.
     make
     make install
 
-    # Optionally, build the geopm HPC runtime package
+    # Optionally, build the GEOPM HPC runtime package
     cd ..
     ./autogen.sh
     ./configure --prefix=$GEOPM_INSTALL --with-geopmd=$GEOPM_INSTALL

@@ -2,7 +2,7 @@
    :format: html
 
 
-geopm::Agent(3) -- geopm agent plugin interface
+geopm::Agent(3) -- GEOPM agent plugin interface
 ===============================================
 
 

@@ -2,7 +2,7 @@
    :format: html
 
 
-geopm_version(3) -- geopm library version
+geopm_version(3) -- GEOPM library version
 =========================================
 
 
