@@ -115,11 +115,17 @@ Options
 -I, --info-all  Print a list of all available controls with their descriptions,
                 if any.
 -c, --cache     Create a cache file for the geopm::PlatformTopo object if one
-                does not exist.  File permissions of the cache file are set to
-                "-rw-rw-rw-", i.e. 666. The path for the cache file is
-                "/tmp/geopm-topo-cache".  If the file exists no operation will
-                be performed.  To force the creation of a new cache file,
-                remove the existing cache file prior to executing this command.
+                does not exist or if the existing cache is from a previous boot
+                cycle.  If a privileged user requests this option (e.g. root or
+                if invoked with sudo) the file path will be
+                ``/run/geopm-service/geopm-topo-cache`` and the permissions will
+                be ``-rw-r--r--``, i.e. 644.  If a non-privileged user requests
+                this option the file path will be ``/tmp/geopm-topo-cache-<UID>``
+                and the permissions will be ``-rw-------``, i.e. 600.  If the
+                file exists from the current boot cycle and has the proper
+                permissions no operation will be performed.  To force the
+                creation of a new cache file, remove the existing cache file
+                prior to executing this command.
 -h, --help      Print brief summary of the command line usage information, then
                 exit.
 -v, --version   Print version of :doc:`geopm(7) <geopm.7>` to standard output,
