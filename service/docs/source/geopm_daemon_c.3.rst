@@ -2,7 +2,7 @@
    :format: html
 
 
-geopm_daemon_c(3) -- helpers for geopm daemons
+geopm_daemon_c(3) -- helpers for GEOPM daemons
 ==============================================
 
 

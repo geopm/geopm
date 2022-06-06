@@ -94,7 +94,7 @@ Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
 Description
 -----------
 
-The ``Comm`` class is abstract base class for interprocess communication in geopm.
+The ``Comm`` class is abstract base class for interprocess communication in GEOPM.
 
 The ``CommFactory`` class is a specialization of ``PluginFactory`` class which creates instances of ``Comm`` class.
 

@@ -1,4 +1,4 @@
-geopmadmin(1) -- tool for geopm system administrators
+geopmadmin(1) -- tool for GEOPM system administrators
 =====================================================
 
 Synopsis

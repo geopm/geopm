@@ -1,12 +1,12 @@
 
-geopmsession(1) -- Command line interface for the geopm service batch read features
+geopmsession(1) -- Command line interface for the GEOPM service batch read features
 ===================================================================================
 
 
 Description
 -----------
 
-Command line interface for the geopm service read features.
+Command line interface for the GEOPM service read features.
 
 This command can be used to read signals by opening a session with the
 geopm service.  The user specifies which signals to read with standard

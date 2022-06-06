@@ -1,5 +1,5 @@
 
-geopm_report(7) -- geopm summary report file
+geopm_report(7) -- GEOPM summary report file
 ============================================
 
 Description

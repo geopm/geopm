@@ -2,7 +2,7 @@
    :format: html
 
 
-geopm_ctl_c(3) -- geopm runtime control thread
+geopm_ctl_c(3) -- GEOPM runtime control thread
 ==============================================
 
 

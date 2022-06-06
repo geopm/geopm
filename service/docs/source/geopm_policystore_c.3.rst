@@ -2,7 +2,7 @@
    :format: html
 
 
-geopm_policystore_c(3) -- geopm resource policy store interface
+geopm_policystore_c(3) -- GEOPM resource policy store interface
 ===============================================================
 
 

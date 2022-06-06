@@ -2,7 +2,7 @@
    :format: html
 
 
-geopm::Endpoint(3) -- geopm endpoint interface
+geopm::Endpoint(3) -- GEOPM endpoint interface
 ==============================================
 
 

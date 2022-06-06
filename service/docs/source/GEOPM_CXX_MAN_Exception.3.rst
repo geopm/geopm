@@ -2,7 +2,7 @@
    :format: html
 
 
-geopm::Exception(3) -- custom geopm exceptions
+geopm::Exception(3) -- custom GEOPM exceptions
 ==============================================
 
 

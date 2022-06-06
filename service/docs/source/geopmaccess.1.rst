@@ -274,7 +274,7 @@ provided.  This can also be accomplished interactively using the
 Another example of using group permissions is to create a Unix group
 called "geopm" that is granted access to all signals and controls that
 are enabled on the system.  Users that should be granted full use of
-the service can then be added to the geopm Unix group.
+the service can then be added to the *geopm* Unix group.
 
 
 .. code-block:: bash
