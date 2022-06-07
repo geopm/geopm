@@ -220,6 +220,7 @@ class IndexTracker(object):
 
     The parsed data is used to extract the following fields to build
     the tracking index tuple:
+
         (<GEOPM_VERSION>, <PROFILE_NAME>, <AGENT_NAME>, <NODE_NAME>)
 
     If the tuple not contained in the _run_outputs dict, it is
