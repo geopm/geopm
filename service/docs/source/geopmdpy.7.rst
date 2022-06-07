@@ -33,19 +33,6 @@ geopmdpy.error
    :undoc-members:
    :show-inheritance:
 
-geopmdpy.gffi
--------------
-
-.. automodule:: geopmdpy.gffi
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-.. class:: FFILibrary
-
-   A python foreign function interface to the ``libgeopmd.so`` library. See
-   :doc:`cffi:using` for documentation about using FFILibrary objects.
-
 geopmdpy.pio
 ------------
 
