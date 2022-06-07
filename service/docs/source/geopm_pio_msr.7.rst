@@ -24,7 +24,10 @@ path will also be searched. The files must follow this schema:
 .. literalinclude:: ../../json_schemas/msrs.schema.json
     :language: json
 
-This manual includes a list of signals and controls that are more commonly
+For an example of an MSR configuration file, please see:
+`<msr_reasons.json> <https://github.com/geopm/geopm/blob/dev/examples/custom_msr/msr_reasons.json>`_
+
+This guide includes a list of signals and controls that are more commonly
 available. Use geopmread and geopmwrite to query the full set of signals and
 controls that are available on a particular system.
 
@@ -60,11 +63,17 @@ Signal Aliases
 ``CPU_ENERGY``
     Maps to ``MSR::PKG_ENERGY_STATUS:ENERGY``
 
+``CPU_FREQUENCY_CONTROL``
+    Maps to ``MSR::HWP_REQUEST:MAXIMUM_PERFORMANCE``
+
 ``CPU_FREQUENCY_MAX_CONTROL``
-    Maps to ``MSR::PERF_CTL:FREQ``
+    Maps to ``MSR::HWP_REQUEST:MAXIMUM_PERFORMANCE``
 
 ``CPU_FREQUENCY_MAX``
     Maps to ``MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_0``
+
+``CPU_FREQUENCY_MIN_CONTROL``
+    Maps to ``MSR::HWP_REQUEST:MINIMUM_PERFORMANCE``
 
 ``CPU_FREQUENCY_STATUS``
     Maps to ``MSR::PERF_STATUS:FREQ``
@@ -99,8 +108,17 @@ Signal Aliases
 Control Aliases
 ^^^^^^^^^^^^^^^
 
+``CPU_FREQUENCY_CONTROL``
+    Maps to ``MSR::HWP_REQUEST:MAXIMUM_PERFORMANCE``
+
+``CPU_FREQUENCY_DESIRED_CONTROL``
+    Maps to ``MSR::HWP_REQUEST:DESIRED_PERFORMANCE``
+
 ``CPU_FREQUENCY_MAX_CONTROL``
-    Maps to ``MSR::PERF_CTL:FREQ``
+    Maps to ``MSR::HWP_REQUEST:MAXIMUM_PERFORMANCE``
+
+``CPU_FREQUENCY_MIN_CONTROL``
+    Maps to ``MSR::HWP_REQUEST:MINIMUM_PERFORMANCE``
 
 ``CPU_POWER_LIMIT``
     Maps to ``MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT``
