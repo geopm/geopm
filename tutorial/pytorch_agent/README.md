@@ -150,7 +150,7 @@ For CPU:
      ./train_cpu_model-pytorch.py processed_cpu_sweep.h5 cpu_control.pt
     ```
 
-## 6a) Execute the GPU agent with a trained model
+## 6a) Directly execute the GPU agent with a trained model
 The NN model must be in the directory the job is being launched from and must be named gpu_control.pt
 
 ```
@@ -181,4 +181,29 @@ geopmlaunch impi -ppn ${RANKS} -n ${RANKS} --geopm-policy=phi0.policy --geopm-ct
 
 geopmagent -a cpu_torch -pNAN,NAN,0.4 > phi40.policy
 geopmlaunch impi -ppn ${RANKS} -n ${RANKS} --geopm-policy=phi40.policy --geopm-ctl=process --geopm-report=dgemm-cpu-torch-phi40.report --geopm-agent=cpu_torch -- $EXE $APPOPTS
+```
+
+## 7a) Use the GEOPM integration infrastructure to execute the agents with a trained model
+First setup the user environment
+
+```
+export GEOPM_PLUGIN_PATH=${GEOPM_SOURCE}/tutorial/pytorch_agent
+export PYTHONPATH=$PYTHONPATH:$PWD/python_experiment/
+export GEOPM_CPU_NN_PATH=$PWD/cpu_control.pt
+```
+
+Then generate a run script
+```
+$GEOPM_SOURCE/integration/experiment/gen_slurm.sh 1 parres_dgemm gpu_torch
+```
+
+Next manually update the output test.sbatch scripte to point to the tutorial experiment
+scripts.  The final line should resemble
+```
+${GEOPM_SOURCE}/tutorial/pytorch_agent/pytorch_experiment/run_gpu_torch_parres_dgemm.py \
+```
+
+Finally run the experiment using sbatch
+```
+sbatch test.sbatch
 ```
