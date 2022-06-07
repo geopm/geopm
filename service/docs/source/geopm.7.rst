@@ -1,95 +1,137 @@
-
-geopm(7) -- global extensible open power manager
+geopm(7) -- Global Extensible Open Power Manager
 ================================================
-
 
 Description
 -----------
-
 The Global Extensible Open Power Manager (GEOPM) is a framework for
-exploring power and energy optimizations on heterogeneous platforms.
+exploring power and energy optimizations on heterogeneous platforms. This
+manual page outlines key tools and interfaces to configure and use GEOPM
+software. The rest of this description outlines the features that are described
+by sections of this manual page.
+
+The GEOPM HPC runtime monitors platform-level metrics (e.g., CPU power, average
+core frequency, elapsed time) while an application executes on the platform.
+GEOPM provides :ref:`geopm.7:job launch` tools to execute an application with
+the GEOPM HPC runtime and to read the platform-level metrics. GEOPM can also
+report metrics with respect to application-specific regions or checkpoints by
+utilizing optional :ref:`geopm.7:application profiling` interfaces. Several
+:ref:`geopm.7:analysis tools` provide the means to directly query and modify
+platform state.
+
+The GEOPM HPC runtime interacts with a C++ framework to enable
+custom power management algorithms (called *agents*) that utilize the analysis
+tools. Some :ref:`geopm.7:built-In agents` are available by default. Additional
+agents and platform input/output interfaces (called *IOGroups*) can be added to
+the GEOPM HPC runtime by creating a :ref:`geopm.7:plugin extension`.
+
+Although GEOPM supports manual instrumentation through
+:ref:`geopm.7:application profiling` interfaces. Some automatic instrumentation
+is also supported. :ref:`geopm.7:integration with PMPI` enables GEOPM to
+automatically account for time spent inside MPI function calls by default.
+:ref:`geopm.7:integration with OMPT` enables GEOPM to account for time spent in
+individual OpenMP parallel regions.
+
 
 Job Launch
 ----------
+The :doc:`geopmlaunch(1) <geopmlaunch.1>` script is the recommended method for
+launching the GEOPM HPC runtime. Unless modified by command-line arguments or
+environment variables, GEOPM will create a ``geopm.report`` file wiht a summary
+of metrics from application execution. See :doc:`geopmreport(7)
+<geopm_report.7>`: for documentation about the output file format.
 
-:doc:`geopmlaunch(1) <geopmlaunch.1>`\ : Application launch wrapper
+If :doc:`geopmlaunch(1) <geopmlaunch.1>` does not provide an application
+launcher supported by your system, please make a change request to support the
+job launch method used on your system at the github issues page:
 
-:doc:`geopmreport(7) <geopm_report.7>`\ : Reports produced by launch
+https://github.com/geopm/geopm/issues
+
+Also, consider porting your job launch command into the
+:py:mod:`geopmpy.launcher` module and submitting a change request as described
+in :doc:`contrib`.
+
+If the job launch application is not supported by the :py:mod:`geopmpy.launcher`
+the recommended method is to use the environment variables described
+in this man page including the ``GEOPM_CTL`` environment variable.
+If you use the *application* launch method, then you also need to launch the
+:doc:`geopmctl(1) <geopmctl.1>` application in parallel to the application you
+wish to run with GEOPM.
+
+There are legacy methods for launching the runtime programmatically.
+These are documented in :doc:`geopm_ctl_c(3) <geopm_ctl_c.3>`, but are deprecated as an
+application-facing interface because their use within an application
+is incompatible with the GEOPM launcher script.
+
 
 Application Profiling
 ---------------------
+GEOPM's provides application profiling interfaces for the C and Fortran
+programming languages, documented in :doc:`geopm_prof_c(3) <geopm_prof_c.3>`
+and :doc:`geopm_fortran(3) <geopm_fortran.3>`, respectively. These interfaces
+enable an application to inform GEOPM of key monitoring events, such as entry
+or exit from regions of interest, entry to a new iteration of a key looping
+construct, and hints about the nature of the active region of code (e.g.,
+whether the code is expected to be compute-bound, network-bound, or something
+else).
 
-:doc:`geopm_prof_c(3) <geopm_prof_c.3>`\ : Application profiling interfaces
-
-:doc:`geopm_fortran(3) <geopm_fortran.3>`\ : GEOPM Fortran interfaces
+The GEOPM HPC runtime profiles applications while executing as a separate
+process or thread within the launched application, or as a separate
+:doc:`geopmctl(1) <geopmctl.1>` application. C interfaces to drive the GEOPM
+controller are documented in :doc:`geopm_ctl_c(3) <geopm_ctl_c.3>`.
 
 Analysis Tools
 --------------
+GEOPM may also be used as a tooling interface for system analysis.
 
-:doc:`geopmread(1) <geopmread.1>`\ : Query platform information
+The :doc:`geopmread(1) <geopmread.1>` application reports the current values of
+platform *signals* at varying levels of scope (*domains*). The
+:doc:`geopmwrite(1) <geopmwrite.1>` application enables modulation of platform
+*controls* at varying domains. Information about signals and controls
+is documented at :doc:`geopm_pio(7) <geopm_pio.7>`. Programmatic interfaces for
+read and write operations are available through :doc:`geopm_pio_c(3)
+<geopm_pio_c.3>`.
 
-:doc:`geopmwrite(1) <geopmwrite.1>`\ : Modify platform state
+The types of domains and their relationships with each other can be
+programmatically queried through :doc:`geopm_topo_c(3) <geopm_topo_c.3>`.
 
-:doc:`geopm_topo_c(3) <geopm_topo_c.3>`\ : Query platform component topology
-
-:doc:`geopm_pio_c(3) <geopm_pio_c.3>`\ : Interfaces to query and modify platform
-
-:doc:`geopmbench(1) <geopmbench.1>`\ : Synthetic benchmark application
+GEOPM comes bundled with a synthetic benchmark application :doc:`geopmbench(1)
+<geopmbench.1>`, which can be used as an application workload for basic analysis 
+and to experiment with the impact that signals and controls have on applications
+under GEOPM.
 
 Built-In Agents
 ---------------
+GEOPM comes packaged with several built-in power management algorithms (*agents*):
 
-:doc:`geopm_agent_monitor(7) <geopm_agent_monitor.7>`\ : Agent implementation that enforces no policies
+* :doc:`geopm_agent_monitor(7) <geopm_agent_monitor.7>`: An agent implementation that enforces no policies.
+* :doc:`geopm_agent_frequency_map(7) <geopm_agent_frequency_map.7>`: An agent that applies user-selected frequencies at specific regions in the launched application.
+* :doc:`geopm_agent_power_balancer(7) <geopm_agent_power_balancer.7>`: An agent that optimizes performance under a power cap across multiple CPU packages.
+* :doc:`geopm_agent_power_governor(7) <geopm_agent_power_governor.7>`: An agent that enforces a power cap.
 
-:doc:`geopm_agent_frequency_map(7) <geopm_agent_frequency_map.7>`\ : Agent for running regions at user selected frequencies
-
-:doc:`geopm_agent_power_balancer(7) <geopm_agent_power_balancer.7>`\ : Agent that optimizes performance under a power cap
-
-:doc:`geopm_agent_power_governor(7) <geopm_agent_power_governor.7>`\ : Agent that enforces a power cap
-
-Runtime Control
----------------
-
-:doc:`geopm_ctl_c(3) <geopm_ctl_c.3>`\ : GEOPM runtime control thread
-
-:doc:`geopmctl(1) <geopmctl.1>`\ : GEOPM runtime control application
-
-:doc:`geopm_agent_c(3) <geopm_agent_c.3>`\ : Query information about available agents
-
-:doc:`geopmagent(1) <geopmagent.1>`\ : Query agent information and create static policies
-
-:doc:`geopmadmin(1) <geopmadmin.1>`\ : Configure and check system wide GEOPM settings
-
-Misc
-----
-
-:doc:`geopm_error(3) <geopm_error.3>`\ : Error code descriptions
-
-:doc:`geopm_version(3) <geopm_version.3>`\ : GEOPM library version
-
-:doc:`geopm_sched(3) <geopm_sched.3>`\ : Interface with Linux scheduler
-
-:doc:`geopm_time(3) <geopm_time.3>`\ : Time related helper functions
-
-:doc:`geopm_hash(3) <geopm_hash.3>`\ : Numerical encoding helper functions
+Use the :doc:`geopmagent(1) <geopmagent.1>` application or the
+:doc:`geopm_agent_c(3) <geopm_agent_c.3>` C interface to query agent
+information and create static policies.
 
 Plugin Extension
 ----------------
+If you wish to monitor or control platform interfaces (*IOGroups*) that are not part of the
+core GEOPM distribution, or if you wish to execute GEOPM agents that are not
+part of the core distribution, then you can extend GEOPM with additional
+IOGroup and agent plugins.
 
-:doc:`geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3>`\ : Plugin developer guide
-
-:doc:`geopm::PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3>`\ : High level platform abstraction
-
-:doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>`\ : Plugin interface for platform
-
-:doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>`\ : Plugin interface for monitor/control
+Agents and IOGroups are defined as C++ classes, documented in
+:doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>` and :doc:`geopm::IOGroup(3)
+<GEOPM_CXX_MAN_IOGroup.3>`, respectively. Both can be registered with GEOPM
+through the :doc:`geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3>`
+interface. The :doc:`geopm::PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3>`
+interface provides a channel through which agents and GEOPM tools can interact
+with IOGroups.
 
 Integration With PMPI
 ---------------------
-
-Linking to libgeopm will define symbols that intercept the MPI
+Linking to ``libgeopm`` will define symbols that intercept calls to the MPI
 interface through PMPI.  This can be disabled with the configure time
-option ``--disable-mpi``\ , but is enabled by default.  See
+option ``--disable-mpi``, but is enabled by default.  See the
 ``LD_DYNAMIC_WEAK`` environment variable description below for the
 runtime requirements of the PMPI design.  When using the GEOPM PMPI
 interposition other profilers which use the same method will be in
@@ -97,12 +139,11 @@ conflict.  The GEOPM runtime can create an application performance
 profile report and a trace of the application runtime.  As such, GEOPM
 serves the role of an application profiler in addition to management
 of power resources.  The report and trace generation are controlled by
-the environment variables ``GEOPM_REPORT`` and ``GEOPM_TRACE``\ ; see
+the environment variables ``GEOPM_REPORT`` and ``GEOPM_TRACE``; see
 description below.
 
 Integration With OMPT
 ---------------------
-
 Unless the GEOPM runtime is configured to disable OpenMP, the library
 is compiled against the OpenMP runtime.  If the OpenMP implementation
 that GEOPM is compiled against supports the OMPT callbacks, then GEOPM
@@ -125,36 +166,8 @@ This feature can be disabled on a per-run basis by setting the
 ``GEOPM_OMPT_DISABLE`` environment variable, or by using the
 ``--geopm-ompt-disable`` option in :doc:`geopmlaunch(1) <geopmlaunch.1>`
 
-Launching The Runtime
----------------------
-
-The recommended method for launching the GEOPM runtime is the job
-launch wrapper script :doc:`geopmlaunch(1) <geopmlaunch.1>`.  See this man page for
-details about the command line interface.  If :doc:`geopmlaunch(1) <geopmlaunch.1>` does
-not provide an application launcher supported by your system, please
-make a change request for support of the job launch method used on
-your system at the github issues page:
-
-https://github.com/geopm/geopm/issues
-
-Also, consider porting your job launch command into the
-``geopmpy.launcher`` module and submitting a change request as described
-in ``CONTRIBUTING.md``.
-
-If the job launch application is not supported by the ``geopmpy.launcher``
-the recommended method is to use the environment variables described
-in this man page including the ``GEOPM_CTL`` environment variable.
-If using the "application" launch method then the :doc:`geopmctl(1) <geopmctl.1>`
-application should be launched in parallel.
-
-There are legacy methods for launching the runtime programmatically.
-These are documented in :doc:`geopm_ctl_c(3) <geopm_ctl_c.3>`\ , but are deprecated as an
-application-facing interface because their use within an application
-is incompatible with the GEOPM launcher script.
-
 Choosing An Agent And Policy
 ----------------------------
-
 The Agent determines the optimization algorithm performed by the
 runtime, and can be specified with the ``--geopm-agent`` option for the
 launcher.  If not specified, by default the :doc:`geopm_agent_monitor(7) <geopm_agent_monitor.7>`
@@ -190,7 +203,6 @@ details on the behavior of the agents and their policies.  See
 
 Interpreting The Report
 -----------------------
-
 If the ``GEOPM_REPORT`` environment variable is set then a report will
 be generated.  There is one report file generated for each run.  The
 format of the report, the data contained in it, and the controller's
@@ -198,7 +210,6 @@ sampling are described in :doc:`geopm_report(7) <geopm_report.7>`.
 
 Interpreting The Trace
 ----------------------
-
 If the ``GEOPM_TRACE`` environment variable is set (see below) then a
 trace file with time ordered information about the application runtime
 is generated.  A separate trace file is generated for each compute
@@ -222,7 +233,6 @@ will print a subset of the fields in the trace file called
 
 Environment
 -----------
-
 When using the launcher wrapper script :doc:`geopmlaunch(1) <geopmlaunch.1>`\ , the
 interface to the GEOPM runtime is controlled by the launcher command
 line options.  The launcher script sets the environment variables
@@ -349,61 +359,75 @@ Other Environment Variables
   enforce the required override of the MPI interface symbols and the
   ``LD_DYNAMIC_WEAK`` environment variable is not required at runtime.
 
+Misc
+----
+:doc:`geopmadmin(1) <geopmadmin.1>`
+  Configure and check system wide GEOPM settings
+:doc:`geopm_error(3) <geopm_error.3>`
+  Error code descriptions
+:doc:`geopm_version(3) <geopm_version.3>`
+  GEOPM library version
+:doc:`geopm_sched(3) <geopm_sched.3>`
+  Interface with Linux scheduler
+:doc:`geopm_time(3) <geopm_time.3>`
+  Time related helper functions
+:doc:`geopm_hash(3) <geopm_hash.3>`
+  Numerical encoding helper functions
+
 See Also
 --------
-
-:doc:`geopmpy(7) <geopmpy.7>`\ ,
-:doc:`geopmdpy(7) <geopmdpy.7>`\ ,
-:doc:`geopm_agent_frequency_map(7) <geopm_agent_frequency_map.7>`\ ,
-:doc:`geopm_agent_monitor(7) <geopm_agent_monitor.7>`\ ,
-:doc:`geopm_agent_power_balancer(7) <geopm_agent_power_balancer.7>`\ ,
-:doc:`geopm_agent_power_governor(7) <geopm_agent_power_governor.7>`\ ,
+:doc:`geopmpy(7) <geopmpy.7>`,
+:doc:`geopmdpy(7) <geopmdpy.7>`,
+:doc:`geopm_agent_frequency_map(7) <geopm_agent_frequency_map.7>`,
+:doc:`geopm_agent_monitor(7) <geopm_agent_monitor.7>`,
+:doc:`geopm_agent_power_balancer(7) <geopm_agent_power_balancer.7>`,
+:doc:`geopm_agent_power_governor(7) <geopm_agent_power_governor.7>`,
 :doc:`geopm_pio(7) <geopm_pio.7>`,
 :doc:`geopm_pio_cnl(7) <geopm_pio_cnl.7>`,
-:doc:`geopm_pio_cpuinfo(7) <geopm_pio_cpuinfo.7>`\ ,
-:doc:`geopm_pio_dcgm(7) <geopm_pio_dcgm.7>`\ ,
-:doc:`geopm_pio_levelzero(7) <geopm_pio_levelzero.7>`\ ,
-:doc:`geopm_pio_msr(7) <geopm_pio_msr.7>`\ ,
-:doc:`geopm_pio_nvml(7) <geopm_pio_nvml.7>`\ ,
-:doc:`geopm_pio_sst(7) <geopm_pio_sst.7>`\ ,
-:doc:`geopm_pio_time(7) <geopm_pio_time.7>`\ ,
-:doc:`geopm_report(7) <geopm_report.7>`\ ,
-:doc:`geopm_agent_c(3) <geopm_agent_c.3>`\ ,
-:doc:`geopm_ctl_c(3) <geopm_ctl_c.3>`\ ,
-:doc:`geopm_error(3) <geopm_error.3>`\ ,
-:doc:`geopm_fortran(3) <geopm_fortran.3>`\ ,
-:doc:`geopm_hash(3) <geopm_hash.3>`\ ,
-:doc:`geopm_policystore_c(3) <geopm_policystore_c.3>`\ ,
-:doc:`geopm_pio_c(3) <geopm_pio_c.3>`\ ,
-:doc:`geopm_prof_c(3) <geopm_prof_c.3>`\ ,
-:doc:`geopm_sched(3) <geopm_sched.3>`\ ,
-:doc:`geopm_time(3) <geopm_time.3>`\ ,
-:doc:`geopm_version(3) <geopm_version.3>`\ ,
-:doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>`\ ,
-:doc:`geopm::Agg(3) <GEOPM_CXX_MAN_Agg.3>`\ ,
-:doc:`geopm::CircularBuffer(3) <GEOPM_CXX_MAN_CircularBuffer.3>`\ ,
-:doc:`geopm::CpuinfoIOGroup(3) <GEOPM_CXX_MAN_CpuinfoIOGroup.3>`\ ,
-:doc:`geopm::Exception(3) <GEOPM_CXX_MAN_Exception.3>`\ ,
-:doc:`geopm::Helper(3) <GEOPM_CXX_MAN_Helper.3>`\ ,
-:doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>`\ ,
-:doc:`geopm::MSRIO(3) <GEOPM_CXX_MAN_MSRIO.3>`\ ,
-:doc:`geopm::MSRIOGroup(3) <GEOPM_CXX_MAN_MSRIOGroup.3>`\ ,
-:doc:`geopm::PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3>`\ ,
-:doc:`geopm::PlatformTopo(3) <GEOPM_CXX_MAN_PlatformTopo.3>`\ ,
-:doc:`geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3>`\ ,
-:doc:`geopm::PowerBalancer(3) <GEOPM_CXX_MAN_PowerBalancer.3>`\ ,
-:doc:`geopm::PowerGovernor(3) <GEOPM_CXX_MAN_PowerGovernor.3>`\ ,
-:doc:`geopm::ProfileIOGroup(3) <GEOPM_CXX_MAN_ProfileIOGroup.3>`\ ,
-:doc:`geopm::SampleAggregator(3) <GEOPM_CXX_MAN_SampleAggregator.3>`\ ,
-:doc:`geopm::SharedMemory(3) <GEOPM_CXX_MAN_SharedMemory.3>`\ ,
-:doc:`geopm::TimeIOGroup(3) <GEOPM_CXX_MAN_TimeIOGroup.3>`\ ,
-:doc:`geopmadmin(1) <geopmadmin.1>`\ ,
-:doc:`geopmagent(1) <geopmagent.1>`\ ,
-:doc:`geopmbench(1) <geopmbench.1>`\ ,
-:doc:`geopmctl(1) <geopmctl.1>`\ ,
-:doc:`geopmlaunch(1) <geopmlaunch.1>`\ ,
-:doc:`geopmread(1) <geopmread.1>`\ ,
-:doc:`geopmwrite(1) <geopmwrite.1>`\ ,
-:doc:`geopmaccess(1) <geopmaccess.1>`\ ,
-:doc:`geopmsession(1) <geopmsession.1>`\ ,
+:doc:`geopm_pio_cpuinfo(7) <geopm_pio_cpuinfo.7>`,
+:doc:`geopm_pio_dcgm(7) <geopm_pio_dcgm.7>`,
+:doc:`geopm_pio_levelzero(7) <geopm_pio_levelzero.7>`,
+:doc:`geopm_pio_msr(7) <geopm_pio_msr.7>`,
+:doc:`geopm_pio_nvml(7) <geopm_pio_nvml.7>`,
+:doc:`geopm_pio_sst(7) <geopm_pio_sst.7>`,
+:doc:`geopm_pio_time(7) <geopm_pio_time.7>`,
+:doc:`geopm_report(7) <geopm_report.7>`,
+:doc:`geopm_agent_c(3) <geopm_agent_c.3>`,
+:doc:`geopm_ctl_c(3) <geopm_ctl_c.3>`,
+:doc:`geopm_error(3) <geopm_error.3>`,
+:doc:`geopm_fortran(3) <geopm_fortran.3>`,
+:doc:`geopm_hash(3) <geopm_hash.3>`,
+:doc:`geopm_policystore_c(3) <geopm_policystore_c.3>`,
+:doc:`geopm_pio_c(3) <geopm_pio_c.3>`,
+:doc:`geopm_prof_c(3) <geopm_prof_c.3>`,
+:doc:`geopm_sched(3) <geopm_sched.3>`,
+:doc:`geopm_time(3) <geopm_time.3>`,
+:doc:`geopm_version(3) <geopm_version.3>`,
+:doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>`,
+:doc:`geopm::Agg(3) <GEOPM_CXX_MAN_Agg.3>`,
+:doc:`geopm::CircularBuffer(3) <GEOPM_CXX_MAN_CircularBuffer.3>`,
+:doc:`geopm::CpuinfoIOGroup(3) <GEOPM_CXX_MAN_CpuinfoIOGroup.3>`,
+:doc:`geopm::Exception(3) <GEOPM_CXX_MAN_Exception.3>`,
+:doc:`geopm::Helper(3) <GEOPM_CXX_MAN_Helper.3>`,
+:doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>`,
+:doc:`geopm::MSRIO(3) <GEOPM_CXX_MAN_MSRIO.3>`,
+:doc:`geopm::MSRIOGroup(3) <GEOPM_CXX_MAN_MSRIOGroup.3>`,
+:doc:`geopm::PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3>`,
+:doc:`geopm::PlatformTopo(3) <GEOPM_CXX_MAN_PlatformTopo.3>`,
+:doc:`geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3>`,
+:doc:`geopm::PowerBalancer(3) <GEOPM_CXX_MAN_PowerBalancer.3>`,
+:doc:`geopm::PowerGovernor(3) <GEOPM_CXX_MAN_PowerGovernor.3>`,
+:doc:`geopm::ProfileIOGroup(3) <GEOPM_CXX_MAN_ProfileIOGroup.3>`,
+:doc:`geopm::SampleAggregator(3) <GEOPM_CXX_MAN_SampleAggregator.3>`,
+:doc:`geopm::SharedMemory(3) <GEOPM_CXX_MAN_SharedMemory.3>`,
+:doc:`geopm::TimeIOGroup(3) <GEOPM_CXX_MAN_TimeIOGroup.3>`,
+:doc:`geopmadmin(1) <geopmadmin.1>`,
+:doc:`geopmagent(1) <geopmagent.1>`,
+:doc:`geopmbench(1) <geopmbench.1>`,
+:doc:`geopmctl(1) <geopmctl.1>`,
+:doc:`geopmlaunch(1) <geopmlaunch.1>`,
+:doc:`geopmread(1) <geopmread.1>`,
+:doc:`geopmwrite(1) <geopmwrite.1>`,
+:doc:`geopmaccess(1) <geopmaccess.1>`,
+:doc:`geopmsession(1) <geopmsession.1>`,
 `ld.so(8) <https://man7.org/linux/man-pages/man8/ld.so.8.html>`_
