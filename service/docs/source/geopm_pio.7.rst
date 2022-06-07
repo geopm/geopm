@@ -88,11 +88,22 @@ Descriptions Of High Level Aliases
     An increasing meter of energy consumed by the package over time. It will
     reset periodically due to roll-over.
 
-``CPU_FREQUENCY_MAX_CONTROL`` (**TODO**: currently ``CPU_FREQUENCY_CONTROL``)
-    Target operating frequency of the CPU based on the control register.
+``CPU_FREQUENCY_CONTROL``
+    Target operating frequency of the CPU based on the control register. On a
+    system where ``CPU_FREQUENCY_MAX_CONTROL`` and
+    ``CPU_FREQUENCY_MIN_CONTROL`` are available, setting this control should
+    be equivalent to setting both of those controls to the same value.
+
+``CPU_FREQUENCY_MAX_CONTROL``
+    Target maximum operating frequency of the CPU based on the control
+    register.
 
 ``CPU_FREQUENCY_MAX``
     Maximum processor frequency.
+
+``CPU_FREQUENCY_MIN_CONTROL``
+    Target minimum operating frequency of the CPU based on the control
+    register.
 
 ``CPU_FREQUENCY_STATUS``
     Average CPU frequency over the specified domain.
