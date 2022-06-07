@@ -257,100 +257,82 @@ specified regardless of the values set in the calling environment.
 
 GEOPM Environment Variables
 ---------------------------
-
-
-*
-  ``GEOPM_REPORT``\ :
-  See documentation for equivalent command line option to
-  :doc:`geopmlaunch(1) <geopmlaunch.1>` called ``--geopm-report``.
-
-*
-  ``GEOPM_REPORT_SIGNALS``\ :
-  See documentation for equivalent command line option to
-  :doc:`geopmlaunch(1) <geopmlaunch.1>` called ``--geopm-report-signals``.
-
-*
-  ``GEOPM_TRACE``\ :
-  See documentation for equivalent command line option to
-  :doc:`geopmlaunch(1) <geopmlaunch.1>` called ``--geopm-trace``.
-
-*
-  ``GEOPM_TRACE_SIGNALS``\ :
-  See documentation for equivalent command line option to
-  :doc:`geopmlaunch(1) <geopmlaunch.1>` called ``--geopm-trace-signals``.
-
-*
-  ``GEOPM_TRACE_PROFILE``\ :
-  See documentation for equivalent command line option to
-  :doc:`geopmlaunch(1) <geopmlaunch.1>` called ``--geopm-trace-profile``.
-
-*
-  ``GEOPM_TRACE_ENDPOINT_POLICY``\ :
-  See documentation for equivalent command line option to
-  :doc:`geopmlaunch(1) <geopmlaunch.1>` called ``--geopm-trace-endpoint-policy``.
-
-*
-  ``GEOPM_PROFILE``\ :
-  See documentation for equivalent command line option to
-  :doc:`geopmlaunch(1) <geopmlaunch.1>` called ``--geopm-profile``.
-
-*
-  ``GEOPM_CTL``\ :
-  See documentation for equivalent command line option to
-  :doc:`geopmlaunch(1) <geopmlaunch.1>` called ``--geopm-ctl``.
-
-*
-  ``GEOPM_AGENT``\ :
-  See documentation for equivalent command line option to
-  :doc:`geopmlaunch(1) <geopmlaunch.1>` called ``--geopm-agent``.
-
-*
-  ``GEOPM_POLICY``\ :
-  See documentation for equivalent command line option to
-  :doc:`geopmlaunch(1) <geopmlaunch.1>` called ``--geopm-policy``.
-
-*
-  ``GEOPM_ENDPOINT``\ :
-  See documentation for equivalent command line option to
-  :doc:`geopmlaunch(1) <geopmlaunch.1>` called ``--geopm-endpoint``.
-
-*
-  ``GEOPM_SHMKEY``\ :
-  See documentation for equivalent command line option to
-  :doc:`geopmlaunch(1) <geopmlaunch.1>` called ``--geopm-shmkey``.
-
-*
-  ``GEOPM_TIMEOUT``\ :
-  See documentation for equivalent command line option to
-  :doc:`geopmlaunch(1) <geopmlaunch.1>` called ``--geopm-timeout``.
-
-*
-  ``GEOPM_PLUGIN_PATH``\ :
-  See documentation for equivalent command line option to
-  :doc:`geopmlaunch(1) <geopmlaunch.1>` called ``--geopm-plugin-path``.
-
-*
-  ``GEOPM_DEBUG_ATTACH``\ :
-  See documentation for equivalent command line option to
-  :doc:`geopmlaunch(1) <geopmlaunch.1>` called ``--geopm-debug-attach``.
-
-*
-  ``GEOPM_DISABLE_HYPERTHREADS``\ :
-  See documentation for equivalent command line option to
-  :doc:`geopmlaunch(1) <geopmlaunch.1>` called ``--geopm-hyperthreads-disable``.
-
-*
-  ``GEOPM_OMPT_DISABLE``\ :
-  Disable OpenMP region detection as described in `INTEGRATION WITH OMPT <INTEGRATION WITH OMPT_>`_.
-  See documentation for equivalent command line option to :doc:`geopmlaunch(1) <geopmlaunch.1>`
-  called ``--geopm-ompt-disable``.
+``GEOPM_REPORT``
+  The path to which a GEOPM report file is saved. See the
+  ``--geopm-report`` :ref:`option description <geopm-report option>` in
+  :doc:`geopmlaunch(1) <geopmlaunch.1>` for more details.
+``GEOPM_REPORT_SIGNALS``
+  Additional signals that are included in a GEOPM report. See the
+  ``--geopm-report-signals`` :ref:`option description <geopm-report-signals
+  option>` in :doc:`geopmlaunch(1) <geopmlaunch.1>` for more details.
+``GEOPM_TRACE``
+  The path and base name to which each per-host GEOPM trace file is saved. See the
+  ``--geopm-trace`` :ref:`option description <geopm-trace option>` in
+  :doc:`geopmlaunch(1) <geopmlaunch.1>` for more details.
+``GEOPM_TRACE_SIGNALS``
+  Additional signals that are included in a GEOPM trace. See the
+  ``--geopm-trace-signals`` :ref:`option description <geopm-trace-signals
+  option>` in :doc:`geopmlaunch(1) <geopmlaunch.1>` for more details.
+``GEOPM_TRACE_PROFILE``
+  The path and base name to which each per-host GEOPM profile trace file is
+  saved. See the ``--geopm-trace-profile`` :ref:`option description
+  <geopm-trace-profile option>` in :doc:`geopmlaunch(1) <geopmlaunch.1>` for
+  more details.
+``GEOPM_TRACE_ENDPOINT_POLICY``
+  The path to an endpoint policy trace file is generated. See the
+  ``--geopm-trace-endpoint-policy`` :ref:`option description <geopm-trace-endpoint-policy
+  option>` in :doc:`geopmlaunch(1) <geopmlaunch.1>` for more details.
+``GEOPM_PROFILE``
+  The name of the profile written in the GEOPM report file. See the
+  ``--geopm-profile`` :ref:`option description <geopm-profile option>` in
+  :doc:`geopmlaunch(1) <geopmlaunch.1>` for more details.
+``GEOPM_CTL``
+  The type of GEOPM controller to use. See the
+  ``--geopm-ctl`` :ref:`option description <geopm-ctl option>` in
+  :doc:`geopmlaunch(1) <geopmlaunch.1>` for more details.
+``GEOPM_AGENT``
+  The type of agent to run in the GEOPM HPC runtime. See the
+  ``--geopm-agent`` :ref:`option description <geopm-agent option>` in
+  :doc:`geopmlaunch(1) <geopmlaunch.1>` for more details.
+``GEOPM_POLICY``
+  The path to the GEOPM policy JSON file to use for the selected agent. See the
+  ``--geopm-policy`` :ref:`option description <geopm-policy option>` in
+  :doc:`geopmlaunch(1) <geopmlaunch.1>` for more details.
+``GEOPM_ENDPOINT``
+  The prefix for shared memory keys used by the GEOPM endpoint. See the
+  ``--geopm-endpoint`` :ref:`option description <geopm-endpoint option>` in
+  :doc:`geopmlaunch(1) <geopmlaunch.1>` for more details.
+``GEOPM_SHMKEY``
+  The prefix used for all non-endpoint shared memory keys used by GEOPM. See the
+  ``--geopm-shmkey`` :ref:`option description <geopm-shmkey option>` in
+  :doc:`geopmlaunch(1) <geopmlaunch.1>` for more details.
+``GEOPM_TIMEOUT``
+  The count of seconds that the application will wait for the GEOPM controller
+  to connect over shared memory before timing out. See the
+  ``--geopm-timeout`` :ref:`option description <geopm-timeout option>` in
+  :doc:`geopmlaunch(1) <geopmlaunch.1>` for more details.
+``GEOPM_PLUGIN_PATH``
+  The colon-separated list of search paths for GEOPM plugins. See the
+  ``--geopm-plugin-path`` :ref:`option description <geopm-plugin-path option>` in
+  :doc:`geopmlaunch(1) <geopmlaunch.1>` for more details.
+``GEOPM_DEBUG_ATTACH``
+  An MPI rank number to wait in MPI_Init for a debugger to attach. See the
+  ``--geopm-debug-attach`` :ref:`option description <geopm-debug-attach option>` in
+  :doc:`geopmlaunch(1) <geopmlaunch.1>` for more details.
+``GEOPM_DISABLE_HYPERTHREADS``
+  Set to any value to prevent the launcher from pinning to multiple
+  hyperthreads per CPU core. See the ``--geopm-hyperthreads-disable``
+  :ref:`option description <geopm-hyperthreads-disable option>` in
+  :doc:`geopmlaunch(1) <geopmlaunch.1>` for more details.
+``GEOPM_OMPT_DISABLE``
+  Set to any value to disable OpenMP region detection as described in
+  :ref:`geopm.7:integration with ompt`.  See the ``--geopm-ompt-disable``
+  :ref:`option description <geopm-ompt-disable option>` in :doc:`geopmlaunch(1)
+  <geopmlaunch.1>` for more details.
 
 Other Environment Variables
 ---------------------------
-
-
-*
-  ``LD_DYNAMIC_WEAK``\ :
+``LD_DYNAMIC_WEAK``
   The :doc:`geopmlaunch(1) <geopmlaunch.1>` tool will preload ``libgeopm.so`` for all
   applications, so the use of ``LD_DYNAMIC_WEAK`` is not required when
   using :doc:`geopmlaunch(1) <geopmlaunch.1>`.  When not using :doc:`geopmlaunch(1) <geopmlaunch.1>`
