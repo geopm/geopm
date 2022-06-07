@@ -191,32 +191,24 @@ if ENABLE_DOCS
 # Documentation says -M must come first, then other options, the file paths.
 # That doesn't work. But it looks like other options are allowed anywhere after
 # -M, so -W is at the end here.
-$(all_man_target): libgeopmd.la $(all_man_rst)
-	LD_LIBRARY_PATH=.libs:$(LD_LIBRARY_PATH) \
-	PYTHONPATH=$(abs_srcdir):$(PYTHONPATH) \
+$(all_man_target): $(all_man_rst)
 	sphinx-build -M man $(abs_srcdir)/docs/source docs/build -W
 	touch $(all_man_target)
 
 $(all_man): docs/build/man/%: $(top_srcdir)/docs/source/%.rst $(all_man_target)
 
 
-docs_html: libgeopmd.la $(abs_srcdir)/geopmdpy/version.py
-	LD_LIBRARY_PATH=.libs:$(LD_LIBRARY_PATH) \
-	PYTHONPATH=$(abs_srcdir):$(PYTHONPATH) \
+docs_html: $(abs_srcdir)/geopmdpy/version.py
 	sphinx-build -M html $(abs_srcdir)/docs/source docs/build -W
 
-docs_man: libgeopmd.la $(abs_srcdir)/geopmdpy/version.py
-	LD_LIBRARY_PATH=.libs:$(LD_LIBRARY_PATH) \
-	PYTHONPATH=$(abs_srcdir):$(PYTHONPATH) \
+docs_man: $(abs_srcdir)/geopmdpy/version.py
 	sphinx-build -M man $(abs_srcdir)/docs/source docs/build -W
 
 # Nobody asked for this build target, so don't make it a build-blocker unless
 # we decide to keep it. If we choose to keep it, then be sure to ratchet in all
 # the errors, add -W back to the options, and add this as a dependency to the
 # `docs` target
-docs_geopmlint: libgeopmd.la $(abs_srcdir)/geopmdpy/version.py
-	LD_LIBRARY_PATH=.libs:$(LD_LIBRARY_PATH) \
-	PYTHONPATH=$(abs_srcdir):$(PYTHONPATH) \
+docs_geopmlint: $(abs_srcdir)/geopmdpy/version.py
 	sphinx-build -M geopmlint $(abs_srcdir)/docs/source docs/build
 
 else
