@@ -436,8 +436,8 @@ class Launcher(object):
         line options and environment variables.
 
         Args:
-            stdout (writable object): Destination for standard output
-            stderr (writable object): Destination for standard error
+            stdout (typing.IO): Destination for standard output
+            stderr (typing.IO): Destination for standard error
         """
         # Output encodings may not be set, or may not be available through the
         # provided output object. Try to match the encoding if it is given,

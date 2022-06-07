@@ -13,7 +13,8 @@ import sys
 import glob
 import sphinx_rtd_theme
 
-sys.path.insert(0, os.path.abspath('../..'))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..', 'scripts')))
 sys.path.append(os.path.join(os.path.dirname(__file__), "_ext"))
 
 # -- Project information -----------------------------------------------------
@@ -56,6 +57,7 @@ extensions = [
     'sphinx.ext.autosectionlabel',
     'sphinxemoji.sphinxemoji',
     'sphinx.ext.intersphinx',
+    'sphinx.ext.todo',
     'geopmlint',
 ]
 
@@ -80,6 +82,7 @@ intersphinx_mapping = {
     'dasbus': ('https://dasbus.readthedocs.io/en/stable', None),
     'pygobject': ('https://pygobject.readthedocs.io/en/latest', None),
     'cffi': ('https://cffi.readthedocs.io/en/latest', None),
+    'pandas': ('https://pandas.pydata.org/docs/', None),
 }
 
 # List of patterns, relative to source directory, that match files and
