@@ -54,7 +54,7 @@ def policy_names(agent_name):
         agent_name (str): Name of agent type.
 
     Returns:
-        list of str: Policy names required for the agent configuration.
+        list[str]: Policy names required for the agent configuration.
 
     """
     agent_name_cstr = gffi.new("char[]", agent_name.encode())
@@ -81,8 +81,7 @@ def policy_json(agent_name, policy_values):
 
     Args:
         agent_name (str): Name of agent type.
-        policy_values (list of float): Values to use for each
-        respective policy field.
+        policy_values (list[float]): Values to use for each respective policy field.
 
     Returns:
         str: JSON str containing a valid policy using the given values.
@@ -108,7 +107,7 @@ def sample_names(agent_name):
         agent_name (str): Name of agent type.
 
     Returns:
-        list of str: List of sample names.
+        list[str]: List of sample names.
     """
     agent_name_cstr = gffi.new("char[]", agent_name.encode())
     num_sample = gffi.new("int *")
@@ -131,7 +130,7 @@ def names():
     """Get the list of all available agents.
 
     Returns:
-        list of str: List of all agent names.
+        list[str]: List of all agent names.
     """
     num_agent = gffi.new("int *")
     err = _dl.geopm_agent_num_avail(num_agent)

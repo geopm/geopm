@@ -62,7 +62,7 @@ def get_best(agent_name, profile_name):
         profile_name (str): Name of the profile.
 
     Returns:
-        list of float: Best known policy for the profile and agent.
+        list[float]: Best known policy for the profile and agent.
     """
     global gffi
     global _dl
@@ -85,7 +85,7 @@ def set_best(agent_name, profile_name, policy):
     Args:
         agent_name (str): Name of the agent.
         profile_name (str): Name of the profile.
-        policy (list of double): New policy to use.
+        policy (list[float]): New policy to use.
     """
     global gffi
     global _dl
@@ -104,7 +104,7 @@ def set_default(agent_name, policy):
 
     Args:
         agent_name (str): Name of the agent.
-        policy (list of double): Default policy to use with the agent.
+        policy (list[float]): Default policy to use with the agent.
     """
     global gffi
     global _dl
