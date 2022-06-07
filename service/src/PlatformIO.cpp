@@ -42,16 +42,101 @@ namespace geopm
 
     const std::map<const std::string, const std::string>
     PlatformIOImp::m_signal_descriptions = {
+        {"ENERGY_BOARD",
+         "Total energy measured on the server's board. "},
+        {"POWER_BOARD",
+         "Power measured on the server's board. "},
+        {"CYCLES_REFERENCE",
+         "The count of the number of cycles while the logical processor is not in a "
+         "halt state and not in a stop-clock state. The count rate is fixed at the "
+         "TIMESTAMP_COUNT rate."},
+        {"CYCLES_THREAD",
+         "The count of the number of cycles while the logical processor is not in a "
+         "halt state.  The count rate may change based on core frequency."},
+        {"ENERGY_PACKAGE",
+         "An increasing meter of energy consumed by the package over time. It will "
+         "reset periodically due to roll-over."},
+        {"CPU_FREQUENCY_MAX",
+         "Maximum processor frequency."},
+        {"CPU_FREQUENCY_STATUS",
+         "Average CPU frequency over the specified domain."},
+        {"INSTRUCTIONS_RETIRED",
+         "The count of the number of instructions executed."},
+        {"POWER_PACKAGE_LIMIT",
+         "The average power usage limit over the time window specified in "
+         "PL1_TIME_WINDOW."},
+        {"POWER_PACKAGE_TIME_WINDOW",
+         "The time window associated with power limit 1."},
+        {"POWER_PACKAGE_MAX",
+         "The maximum power limit based on the electrical specification."},
+        {"POWER_PACKAGE_MIN",
+         "The minimum power limit based on the electrical specification."},
+        {"POWER_PACKAGE_TDP",
+         "Maximum power to stay within the thermal limits based on the design (TDP)."},
+        {"POWER_PACKAGE",
+         "Total power aggregated over the processor package."},
         {"TIMESTAMP_COUNTER",
          "An always running, monotonically increasing counter that is "
          "incremented at a constant rate.  For use as a wall clock "
          "timer."},
+        {"CPU_UNCORE_FREQUENCY_STATUS",
+         "Target operating frequency of the uncore."},
+        {"ENERGY_DRAM",
+         "An increasing meter of energy consumed by the DRAM over time. It will reset "
+         "periodically due to roll-over."},
+        {"POWER_DRAM",
+         "Total power aggregated over the DRAM DIMMs associated with a NUMA node."},
+        {"EPOCH_COUNT",
+         "Number of completed executions of an epoch.  Prior to the first call "
+         "by the application to geopm_prof_epoch() the signal returns as -1. "
+         "With each call to geopm_prof_epoch() the count increases by one."},
+        {"GPU_CORE_ACTIVITY",
+         "GPU compute core activity expressed as a ratio of cycles."},
+        {"GPU_CORE_FREQENCY_MAX_AVAIL",
+         "Maximum supported GPU core frequency over the specified domain."},
+        {"GPU_CORE_FREQENCY_MIN_AVAIL",
+         "Minimum supported GPU core frequency over the specified domain."},
+        {"GPU_CORE_FREQUENCY_STATUS",
+         "Average achieved GPU core frequency over the specified domain."},
+        {"GPU_ENERGY",
+         "Total energy aggregated over the GPU package."},
+        {"GPU_POWER",
+         "Total power aggregated over the GPU package."},
+        {"GPU_TEMPERATURE",
+         "Average GPU temperature in degrees Celsius."},
+        {"GPU_UNCORE_ACTIVITY",
+         "GPU memory access activity expressed as a ratio of cycles."},
+        {"GPU_UTILIZATION",
+         "Average GPU utilization expressed as a ratio of cycles."},
+        {"REGION_HASH",
+         "The hash of the region of code currently being "
+         "run by all ranks, otherwise GEOPM_REGION_HASH_UNMARKED."},
+        {"REGION_HINT",
+         "The region hint associated with the currently "
+         "running region.  For any interval when all ranks are within an MPI "
+         "function inside of a user defined region, the hint will change from the "
+         "hint associated with the user defined region to GEOPM_REGION_HINT_NETWORK. "
+         "If the user defined region was defined with GEOPM_REGION_HINT_NETWORK and "
+         "there is an interval within the region when all ranks are within an MPI "
+         "function, GEOPM will not attribute the time spent within the MPI function as "
+         "MPI time in the report files.  It will be instead attributed to the time "
+         "spent in the region as a whole."},
+        {"REGION_PROGRESS",
+         "Minimum per-rank reported progress through the current region."},
+        {"REGION_RUNTIME",
+         "Maximum per-rank of the last recorded runtime for the current region."},
+        {"TIME",
+         "Time elapsed since the beginning of execution."}
     };
 
     const std::map<const std::string, const std::string>
     PlatformIOImp::m_control_descriptions = {
         {"CPU_FREQUENCY_CONTROL",
          "Target operating frequency of the CPU based on the control register."},
+        {"GPU_CORE_FREQUENCY_CONTROL",
+         "Average requested GPU core frequency over the specified domain."},
+        {"GPU_POWER_LIMIT_CONTROL",
+         "Average GPU power usage limit"}
     };
 
 
