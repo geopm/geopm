@@ -3,7 +3,6 @@ geopm_pio_cnl(7) -- Signals and controls for Compute Node Linux Board-Level Metr
 
 Description
 -----------
-
 The CNLIOGroup implements the :doc:`geopm::IOGroup(3)
 <GEOPM_CXX_MAN_IOGroup.3>` interface to provide signals and controls for
 board-level energy and power metrics on Compute Node Linux (CNL).
@@ -16,7 +15,6 @@ files in ``/sys/cray/pm_counters``.
 
 Signals
 -------
-
 All signals are available with board-level scope, on systems that expose the
 ``pm_counters`` interface.
 
@@ -101,8 +99,7 @@ Aliases
 -------
 
 Signal Aliases
-~~~~~~~~~~~~~~
-
+^^^^^^^^^^^^^^
 This IOGroup exposes the following high-level aliases:
 
 * ``BOARD_POWER`` (**TODO**: currently ``POWER_BOARD``) aliases to ``CNL::POWER_BOARD``
