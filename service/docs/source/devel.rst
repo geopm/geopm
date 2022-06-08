@@ -296,7 +296,6 @@ Creating Manuals
 
 Introducing a new man page requires changes in multiple files:
 
-
 #.
    The build target (man page) should be added to rst_file in conf.py
 #.
@@ -312,3 +311,11 @@ Introducing a new man page requires changes in multiple files:
 #.
    A link to the new html page should be added to the SEE ALSO section of
    geopm.7.rst and any other related man pages.
+
+.. note::
+    In addition, new documentation should follow the style guidelines defined here:
+
+    .. toctree::
+       :maxdepth: 1
+
+       docu

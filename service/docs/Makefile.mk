@@ -18,6 +18,7 @@ EXTRA_DIST += docs/geninfo.sh \
               docs/source/conf.py \
               docs/source/contrib.rst \
               docs/source/controls_SKX.rst \
+              docs/source/docu.rst \
               docs/source/devel.rst \
               docs/source/index.rst \
               docs/source/install.rst \
