@@ -34,6 +34,8 @@ using ::testing::Return;
 using ::testing::SetArgReferee;
 using ::testing::AtLeast;
 using ::testing::Throw;
+using ::testing::Not;
+using ::testing::IsEmpty;
 
 class PlatformIOTestMockIOGroup : public MockIOGroup
 {
@@ -191,22 +193,24 @@ TEST_F(PlatformIOTest, signal_control_names)
 
 TEST_F(PlatformIOTest, signal_control_description)
 {
-    std::string time_description = "time signal";
     std::string freq_signal_desc = "freq signal";
     std::string freq_control_desc = "freq control";
 
-    EXPECT_CALL(*m_time_iogroup, signal_domain_type("TIME")).Times(1);
+    // TIME is described as a high-level alias and PlatformIO should not
+    // use the IOGroup to get the description
+    EXPECT_CALL(*m_time_iogroup, signal_domain_type("TIME")).Times(0);
     EXPECT_CALL(*m_control_iogroup, signal_domain_type("FREQ")).Times(1);
     EXPECT_CALL(*m_control_iogroup, control_domain_type("FREQ")).Times(1);
 
-    EXPECT_CALL(*m_time_iogroup, signal_description("TIME"))
-        .WillOnce(Return(time_description));
+    // TIME is described as a high-level alias and PlatformIO should not
+    // use the IOGroup to get the description
+    EXPECT_CALL(*m_time_iogroup, signal_description("TIME")).Times(0);
     EXPECT_CALL(*m_control_iogroup, signal_description("FREQ"))
         .WillOnce(Return(freq_signal_desc));
     EXPECT_CALL(*m_control_iogroup, control_description("FREQ"))
         .WillOnce(Return(freq_control_desc));
 
-    EXPECT_EQ(time_description, m_platio->signal_description("TIME"));
+    EXPECT_THAT(m_platio->signal_description("TIME"), Not(IsEmpty()));
     EXPECT_EQ(freq_signal_desc, m_platio->signal_description("FREQ"));
     EXPECT_EQ(freq_control_desc, m_platio->control_description("FREQ"));
 }
