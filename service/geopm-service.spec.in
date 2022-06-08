@@ -217,6 +217,8 @@ ln -s /usr/sbin/service %{buildroot}%{_sbindir}/rcgeopm
 %doc %{_mandir}/man7/geopm_pio_dcgm.7.gz
 %doc %{_mandir}/man7/geopm_pio_levelzero.7.gz
 %doc %{_mandir}/man7/geopm_pio_nvml.7.gz
+%doc %{_mandir}/man7/geopm_pio_profile.7.gz
+%doc %{_mandir}/man7/geopm_pio_service.7.gz
 %doc %{_mandir}/man7/geopm_pio_sst.7.gz
 %doc %{_mandir}/man7/geopm_pio_time.7.gz
 
