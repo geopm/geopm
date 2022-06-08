@@ -47,10 +47,10 @@ job launch method used on your system at the github issues page:
 https://github.com/geopm/geopm/issues
 
 Also, consider porting your job launch command into the
-``geopmpy.launcher`` module and submitting a change request as described
+:py:mod:`geopmpy.launcher` module and submitting a change request as described
 in :doc:`contrib`.
 
-If the job launch application is not supported by the ``geopmpy.launcher``
+If the job launch application is not supported by the :py:mod:`geopmpy.launcher`
 the recommended method is to use the environment variables described
 in this man page including the ``GEOPM_CTL`` environment variable.
 If you use the *application* launch method, then you also need to launch the
