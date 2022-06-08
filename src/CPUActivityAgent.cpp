@@ -99,7 +99,9 @@ namespace geopm
     {
         GEOPM_DEBUG_ASSERT(in_policy.size() == M_NUM_POLICY,
                            "CPUActivityAgent::" + std::string(__func__) +
-                           "(): policy vector not correctly sized.");
+                           "(): policy vector not correctly sized.  Expected  " +
+                            std::to_string(M_NUM_POLICY) + ", actual: " +
+                            std::to_string(in_policy.size()));
 
         ///////////////////////
         //CPU POLICY CHECKING//
@@ -321,9 +323,14 @@ namespace geopm
             if(qm_max_itr != m_qm_max_rate.begin()) {
                 qm_max_itr = std::prev(qm_max_itr, 1);
             }
+
             double qm_normalized = (double) m_qm_rate.at(domain_idx).signal /
                                             qm_max_itr->second;
-            if (std::isnan(qm_normalized)) {
+
+            // This is intended to handle dived by zero, either numerator or
+            // denominator being NAN, and the uncharacterized case
+            if (std::isnan(qm_normalized) ||
+                m_qm_max_rate.size() == 0) {
                 qm_normalized = 1.0;
             }
 
@@ -501,13 +508,12 @@ namespace geopm
         std::vector<std::string> names{"CPU_FREQ_MAX", "CPU_FREQ_EFFICIENT", "CPU_UNCORE_FREQ_MAX",
                                        "CPU_UNCORE_FREQ_EFFICIENT", "CPU_PHI", "SAMPLE_PERIOD"};
         names.reserve(M_NUM_POLICY);
+
         for (size_t i = 0; names.size() < M_NUM_POLICY; ++i) {
             names.emplace_back("CPU_UNCORE_FREQ_" + std::to_string(i));
             names.emplace_back("MAX_MEMORY_BANDWIDTH_" + std::to_string(i));
         }
-
         return names;
-
     }
 
     // Describes samples to be provided to the resource manager or user

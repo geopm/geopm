@@ -153,6 +153,15 @@ void CPUActivityAgentTest::SetUp()
 
     m_sample_period = 0.01;
 
+    EXPECT_CALL(*m_platform_io, write_control("MSR::PQR_ASSOC:RMID", _, _, _)).Times(1);
+    EXPECT_CALL(*m_platform_io, write_control("MSR::QM_EVTSEL:RMID", _, _, _)).Times(1);
+    EXPECT_CALL(*m_platform_io, write_control("MSR::QM_EVTSEL:EVENT_ID", _, _, _)).Times(1);
+    EXPECT_CALL(*m_platform_io, read_signal("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO", _, _)).Times(1);
+    EXPECT_CALL(*m_platform_io, read_signal("MSR::UNCORE_RATIO_LIMIT:MAX_RATIO", _, _)).Times(1);
+
+    m_agent = geopm::make_unique<CPUActivityAgent>(*m_platform_io, *m_platform_topo);
+    m_num_policy = m_agent->policy_names().size();
+
     m_default_policy = {m_cpu_freq_max, m_cpu_freq_min, m_cpu_uncore_freq_max,
                         m_cpu_uncore_freq_min, NAN, NAN};
 
@@ -170,14 +179,9 @@ void CPUActivityAgentTest::SetUp()
         m_default_policy.push_back(m_mbm_max[i]);
     }
 
-    EXPECT_CALL(*m_platform_io, write_control("MSR::PQR_ASSOC:RMID", _, _, _)).Times(1);
-    EXPECT_CALL(*m_platform_io, write_control("MSR::QM_EVTSEL:RMID", _, _, _)).Times(1);
-    EXPECT_CALL(*m_platform_io, write_control("MSR::QM_EVTSEL:EVENT_ID", _, _, _)).Times(1);
-    EXPECT_CALL(*m_platform_io, read_signal("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO", _, _)).Times(1);
-    EXPECT_CALL(*m_platform_io, read_signal("MSR::UNCORE_RATIO_LIMIT:MAX_RATIO", _, _)).Times(1);
-
-    m_agent = geopm::make_unique<CPUActivityAgent>(*m_platform_io, *m_platform_topo);
-    m_num_policy = m_agent->policy_names().size();
+    for (size_t i = m_default_policy.size(); i < m_num_policy; ++i) {
+        m_default_policy.push_back(NAN);
+    }
 
     // leaf agent
     m_agent->init(0, {}, false);
@@ -214,6 +218,7 @@ TEST_F(CPUActivityAgentTest, validate_policy)
     // max rates defined is accepted
     // load default policy
     policy = m_default_policy;
+
     m_agent->validate_policy(policy);
     // validate policy is unmodified except Phi
     ASSERT_EQ(m_default_policy.size(), policy.size());
