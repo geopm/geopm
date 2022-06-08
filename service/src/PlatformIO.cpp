@@ -59,7 +59,7 @@ namespace geopm
         {"CPU_FREQUENCY_MAX",
          "Maximum processor frequency."},
         {"CPU_FREQUENCY_STATUS",
-         "Average CPU frequency over the specified domain."},
+         "The current operating frequency of the CPU."},
         {"INSTRUCTIONS_RETIRED",
          "The count of the number of instructions executed."},
         {"POWER_PACKAGE_LIMIT",

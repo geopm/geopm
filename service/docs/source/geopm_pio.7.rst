@@ -106,9 +106,6 @@ Descriptions Of High Level Aliases
     register.
 
 ``CPU_FREQUENCY_STATUS``
-    Average CPU frequency over the specified domain.
-
-``CPU_FREQUENCY_STATUS``
     The current operating frequency of the CPU.
 
 ``CPU_INSTRUCTIONS_RETIRED`` (**TODO** currently ``INSTRUCTIONS_RETIRED``)
