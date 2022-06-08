@@ -3,7 +3,6 @@ geopm_pio_profile(7) -- Signals and controls for the ProfileIOGroup
 
 Description
 -----------
-
 The ProfileIOGroup implements the :doc:`geopm::IOGroup(3)
 <GEOPM_CXX_MAN_IOGroup.3>` interface to provide signals and controls from
 the application based on calls to GEOPM's prof API :doc:`geopm_prof_c(3)
@@ -21,7 +20,6 @@ The signals **cannot** be queried via ``geopmread``.
 
 Signals
 -------
-
 ``PROFILE::REGION_HASH``
     The hash (or ID) of the region of code (see :doc:`geopm_prof_c(3)
     <geopm_prof_c.3>`) currently being run by all ranks, otherwise
@@ -147,17 +145,14 @@ Signals
 
 Controls
 --------
-
 This IOGroup does not provide any controls.
 
 Aliases
 -------
-
 This IOGroup provides the following high-level aliases:
 
 Signal Aliases
 ^^^^^^^^^^^^^^
-
 ``REGION_HASH``
     Maps to ``PROFILE::REGION_HASH``
 
@@ -196,7 +191,6 @@ Signal Aliases
 
 See Also
 --------
-
 :doc:`geopm(7) <geopm.7>`,
 :doc:`geopm_pio(7) <geopm_pio.7>`,
 :doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>`,
