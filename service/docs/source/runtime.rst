@@ -1,15 +1,55 @@
 
 Guide for HPC Runtime Users
 ===========================
+The GEOPM HPC Runtime enables interactions between GEOPM's :doc:`application
+instrumentation interfaces <geopm_prof_c.3>` and
+:doc:`platform monitoring/control interfaces <geopm_pio.7>`.
 
-The GEOPM HPC Runtime package provides many built-in features.  An
-advanced use case is dynamically coordinating hardware settings across
-all compute nodes used by an distributed HPC application in response
-to the application's behavior and resource manager requests.  The
+By default, the GEOPM HPC runtime simply summarizes relationships between
+application instrumentation and platform-monitoring interfaces in a report.
+More complex interactions, such as dynamic control of platform settings, can
+be enabled by using different GEOPM *agents*. See the :doc:`geopmlaunch(1)
+<geopmlaunch.1>` documentation for more information about user-facing GEOPM HPC
+runtime launch options.
+
+.. admonition:: Quick Start
+
+  Run ``geopmlaunch`` with your application:
+
+  * Specify how many nodes and processes to use.
+  * Run the ``geopmlaunch`` command wherever you would normally run the
+    wrapped command (e.g., ``srun``, ``mpiexec``, etc.).
+  * Read the generated ``geopm.report`` file
+  
+  .. code-block:: console
+    :caption: Examples using ``geopmlaunch``
+
+    $ # Launch with srun and explore the generated GEOPM report
+    $ geopmlaunch srun -N 1 -n 20 -- ./my-app
+    $ less geopm.report
+    $ # Launch with Intel mpiexec and explore the generated GEOPM report
+    $ geopmlaunch impi -n 1 -ppn 20 -- ./my-app
+    $ less geopm.report
+    $ # show all options and available launchers
+    $ geopmlaunch --help
+
+  The `GEOPM HPC Runtime tutorial
+  <https://github.com/geopm/geopm/tree/dev/tutorial#geopm-tutorial>`_ shows how
+  to profile unmodified applications, select and evaluate different GEOPM Agent
+  algorithms, and how to add markup to an application.  The tutorial provides a
+  starting point for someone trying to get familiar with the GEOPM HPC Runtime.
+
+
+The runtime enables complex coordination between hardware settings across all
+compute nodes used by a distributed HPC application in
+response to the application's behavior and resource manager requests. The
 dynamic coordination is implemented as a hierarchical control system
-for scalable communication and decentralized control. The hierarchical
-control system can optimize for various objective functions including
-maximizing global application performance within a power bound or
+for scalable communication and decentralized control.
+
+GEOPM *agents* can utilize the hierarchical control system to optimize for
+various objective functions including maximizing global application performance
+within a power bound (e.g., the GEOPM :doc:`power_balancer agent
+<geopm_agent_power_balancer.7>`) or
 minimizing energy consumption with marginal degradation of application
 performance.  The root of the control hierarchy tree can communicate
 with the system resource manager to extend the hierarchy above the
@@ -21,14 +61,13 @@ The GEOPM HPC Runtime package provides two libraries: libgeopm for use
 with MPI applications, and libgeopmpolicy for use with applications
 that do not link to MPI.  There are several command line tools
 included in GEOPM which have dedicated manual pages.  The
-geopmlaunch(1) command line tool is used to launch an MPI application
-while enabling the GEOPM runtime to create a GEOPM Controller thread
-on each compute node.  The Controller loads plugins and executes the
+:doc:`geopmlaunch(1) <geopmlaunch.1>` command line tool is used to launch an
+MPI application while enabling the GEOPM runtime to create a GEOPM Controller
+thread on each compute node.  The Controller loads plugins and executes the
 Agent algorithm to control the compute application.  The
-geopmlaunch(1) command is part of the geopmpy python package that is
-included in the GEOPM installation.  See the GEOPM overview man page
-for further documentation and links:
-`geopm(7) <https://geopm.github.io/man/geopm.7.html>`_.
+:doc:`geopmlaunch(1) <geopmlaunch.1>` command is part of the geopmpy python
+package that is included in the GEOPM installation.  See the :doc:`GEOPM
+overview man page <geopm.7>` for further documentation and links.
 
 The GEOPM HPC Runtime provides some built-in algorithms, each as an
 "Agent" that implements the :doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>` class interface.
@@ -54,14 +93,6 @@ interfaces.  Marking up a compute application with profiling
 information through these interfaces can enable better integration of
 the GEOPM runtime with the compute application and more precise
 control.
-
-The GEOPM HPC Runtime tutorial shows how to profile unmodified
-applications, select and evaluate different GEOPM Agent algorithms,
-and how to add markup to an application.  The tutorial provides a good
-starting point for someone trying to get familiar witht the GEOPM HPC
-Runtime.  The tutorial can be found
-`here <https://github.com/geopm/geopm/tree/dev/tutorial>`__.
-
 
 
 Build Requirements
@@ -233,38 +264,36 @@ for more information.
 
 GEOPM Application Launch Wrapper
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The GEOPM HPC Runtime package installs the command, "geopmlaunch".
-This is a wrapper for the MPI launch commands like "srun", "aprun",
-and "mpiexec" where the wrapper script enables the GEOPM runtime.  The
+The GEOPM HPC Runtime package installs the ``geopmlaunch`` command.
+The `geopmlaunch` command is a wrapper for the MPI launch commands like *srun*, *aprun*,
+and *mpiexec*, where the wrapper script enables the GEOPM runtime.  The
 "geopmlaunch" command supports exactly the same command line interface
 as the underlying launch command, but the wrapper extends the
-interface with GEOPM specific options.  The "geopmlaunch" application
+interface with GEOPM specific options.  The ``geopmlaunch`` application
 launches the primary compute application and the GEOPM control thread
 on each compute node and manages the CPU affinity requirements for all
 processes.  The wrapper is documented in the :doc:`geopmlaunch(1)
 <geopmlaunch.1>` man page.
 
 There are several underlying MPI application launchers that
-"geopmlaunch" wrapper supports.  See the :doc:`geopmlaunch(1) <geopmlaunch.1>`
+``geopmlaunch`` wrapper supports.  See the :doc:`geopmlaunch(1) <geopmlaunch.1>`
 man page for information on available launchers and how to select them.  If the
 launch mechanism for your system is not supported, then affinity
 requirements must be enforced by the user and all options to the GEOPM
 runtime must be passed through environment variables.  Please consult
-the geopm(7) man page for documentation of the environment variables
-used by the GEOPM runtime that are otherwise controlled by the wrapper
-script.
+the :doc:`geopm(7) <geopm.7>` man page for documentation of the environment
+variables used by the GEOPM runtime that are otherwise controlled by the
+wrapper script.
 
 CPU Affinity Requirements
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-
 The GEOPM runtime requires that each MPI process of the application
 under control is affinitized to distinct CPUs.  This is a strict
 requirement for the runtime and must be enforced by the MPI launch
 command.  When using the geopmlaunch wrapper described in the previous
 section, these affinity requirements are handled by geopmlaunch unless
-the --geopm-affinity-disable command line option is provided (see
-geopmlaunch(1)).
+the ``--geopm-affinity-disable`` command line option is provided (see
+:doc:`geopmlaunch(1) <geopmlaunch.1>`).
 
 While the GEOPM control thread connects to the application it will
 automatically affinitize itself to the highest indexed core not used
@@ -285,7 +314,7 @@ reasons it is difficult to document how to correctly affinitize
 processes in all configurations.  Please refer to your site
 documentation about CPU affinity for the best solution on the system
 you are using and consider extending the geopmlaunch wrapper to
-support your system configuration (please see the CONTRIBUTING.rst file
+support your system configuration (please see the :doc:`contrib`
 for information about how to share these implementations with the
 community).
 
@@ -300,7 +329,7 @@ resource manager via a SPANK plugin can be found
 reflects what is documented below.
 
 Integration is achieved by modifying the daemon to make two
-libgeopmd.so function calls prior to releasing resources to the
+``libgeopmd.so`` function calls prior to releasing resources to the
 user (prologue), and one call after the resources have been reclaimed
 from the user (epilogue).  In the prologue, the resource manager
 compute node daemon calls:
@@ -348,10 +377,10 @@ override configuration file enforces values for GEOPM variables
 regardless of what is specified in the calling environment.  The list
 of all GEOPM environment variables can be found in the geopm(7) man
 page.  The two GEOPM environment variables used by
-geopm_agent_enforce_policy() are "GEOPM_AGENT" and "GEOPM_POLICY".
-Note that it is expected that /etc is mounted on a node-local file
+``geopm_agent_enforce_policy()`` are ``GEOPM_AGENT`` and ``GEOPM_POLICY``.
+Note that it is expected that ``/etc`` is mounted on a node-local file
 system, so the GEOPM configuration files are typically part of the
-compute node boot image.  Also note that the "GEOPM_POLICY" value
+compute node boot image.  Also note that the ``GEOPM_POLICY`` value
 specifies a path to another JSON file which may be located on a
 shared file system, and this second file controls the values enforced
 (e.g. power cap value in Watts, or CPU frequency value in Hz).
@@ -362,28 +391,27 @@ policy will be applied to all compute nodes within a queue partition.
 The system administrator selects the agent based on the site
 requirements.  If the site requires that the average CPU power draw
 per compute node remains under a cap across the system, then they
-would choose the power_balancer agent (see
-geopm_agent_power_balancer(7)).  If the site would like to restrict
+would choose the :doc:`power_balancer agent <geopm_agent_power_balancer.7>`.
+If the site would like to restrict
 applications to run below a particular CPU frequency unless they are
 executing a high priority optimized subroutine that has been granted
 permission by the site administration to run at an elevated CPU
-frequency, they would choose the frequency_map agent (see
-geopm_agent_frequency_map(7)).  There is also the option for a site
-specific custom agent plugin to be deployed.  In all of these use
-cases, calling geopm_agent_enforce_policy() prior to releasing compute
-node resources to the end user will enforce static limits to power or
-CPU frequency, and these will impact all user applications.  In order
-to leverage the dynamic runtime features of GEOPM, the user must
-opt-in by launching their MPI application with the :doc:`geopmlaunch(1)
-<geopmlaunch.1>` command line tool.
+frequency, they would choose the :doc:`frequency_map agent
+<geopm_agent_frequency_map.7>`.  There is also the option for a site-specific
+custom agent plugin to be deployed.  In all of these use cases, calling
+``geopm_agent_enforce_policy()`` prior to releasing compute node resources to the
+end user will enforce static limits to power or CPU frequency, and these will
+impact all user applications.  In order to leverage the dynamic runtime
+features of GEOPM, the user must opt-in by launching their MPI application with
+the :doc:`geopmlaunch(1) <geopmlaunch.1>` command line tool.
 
 The following example shows how a system administrator would configure
 a system to use the power_balancer agent.  This use case will enforce
-a static power limit for applications which do not use geopmlaunch(),
+a static power limit for applications which do not use geopmlaunch,
 and will optimize power limits to balance performance when
-geopmlaunch() is used.  First, the system administrator creates the
+geopmlaunch is used.  First, the system administrator creates the
 following JSON object in the boot image of the compute node in the
-path "/etc/geopm/environment-override.json":
+path ``/etc/geopm/environment-override.json``:
 
 .. code-block:: json
 
