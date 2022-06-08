@@ -71,6 +71,58 @@ You must also set your ``PATH`` variable to:
 
 It is recommended to do this in your login script (e.g. .bashrc).
 
+Programming Interface
+---------------------
+
+geopmpy.agent
+^^^^^^^^^^^^^
+.. automodule:: geopmpy.agent
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+geopmpy.hash
+^^^^^^^^^^^^
+.. automodule:: geopmpy.hash
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+geopmpy.io
+^^^^^^^^^^
+.. automodule:: geopmpy.io
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+geopmpy.launcher
+^^^^^^^^^^^^^^^^
+.. automodule:: geopmpy.launcher
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+geopmpy.policy_store
+^^^^^^^^^^^^^^^^^^^^
+.. automodule:: geopmpy.policy_store
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+geopmpy.reporter
+^^^^^^^^^^^^^^^^
+.. automodule:: geopmpy.reporter
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+geopmpy.version
+^^^^^^^^^^^^^^^
+.. automodule:: geopmpy.version
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Troubleshooting
 ---------------
 
