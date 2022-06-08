@@ -116,13 +116,6 @@ geopmpy.reporter
    :undoc-members:
    :show-inheritance:
 
-geopmpy.version
-^^^^^^^^^^^^^^^
-.. automodule:: geopmpy.version
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 Troubleshooting
 ---------------
 
