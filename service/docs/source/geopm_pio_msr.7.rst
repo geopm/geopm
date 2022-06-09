@@ -46,6 +46,76 @@ Please consult the following for further information and guidelines for
 sharing access to MSRs: Performance Monitoring Unit Sharing Guide (Intel white
 paper).
 
+Signals
+-------
+Some MSR signals are available on specific miroarchitectures.
+:ref:`Architectural signals <geopm_pio_msr.7:architectural signals>` are
+available across Intel x86 microarchitectures.
+
+.. contents:: Categories of MSR signals:
+   :local:
+
+Architectural Signals
+^^^^^^^^^^^^^^^^^^^^^
+.. geopm-msr-json:: ../../src/msr_data_arch.json
+   :no-controls:
+
+Knights Landing (KNL) Signals
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. geopm-msr-json:: ../../src/msr_data_knl.json
+   :no-controls:
+
+Sandy Bridge (SNB) Signals
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. geopm-msr-json:: ../../src/msr_data_snb.json
+   :no-controls:
+
+Haswell (HSX) Signals
+^^^^^^^^^^^^^^^^^^^^^
+.. geopm-msr-json:: ../../src/msr_data_hsx.json
+   :no-controls:
+
+Skylake (SKX) Signals
+^^^^^^^^^^^^^^^^^^^^^
+.. geopm-msr-json:: ../../src/msr_data_skx.json
+   :no-controls:
+
+
+Controls
+--------
+Some MSR controls are available on specific miroarchitectures.
+:ref:`Architectural controls <geopm_pio_msr.7:architectural controls>` are
+available across Intel x86 microarchitectures.
+
+.. contents:: Categories of MSR controls:
+   :local:
+
+Architectural Controls
+^^^^^^^^^^^^^^^^^^^^^^
+.. geopm-msr-json:: ../../src/msr_data_arch.json
+   :no-signals:
+
+Knights Landing (KNL) Controls
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. geopm-msr-json:: ../../src/msr_data_knl.json
+   :no-signals:
+
+Sandy Bridge (SNB) Controls
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. geopm-msr-json:: ../../src/msr_data_snb.json
+   :no-signals:
+
+Haswell (HSX) Controls
+^^^^^^^^^^^^^^^^^^^^^^
+.. geopm-msr-json:: ../../src/msr_data_hsx.json
+   :no-signals:
+
+Skylake (SKX) Controls
+^^^^^^^^^^^^^^^^^^^^^^
+.. geopm-msr-json:: ../../src/msr_data_skx.json
+   :no-signals:
+
+
 Aliases
 -------
 
