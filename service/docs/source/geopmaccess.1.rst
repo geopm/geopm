@@ -170,7 +170,7 @@ Reading the Access Lists
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 The signals and controls provided by the GEOPM Service depend on which
-Linux features are avaiable, i.e. which device drivers are loaded, how
+Linux features are available, i.e. which device drivers are loaded, how
 they are configured, and what hardware is installed.  The service may
 be extended with IOGroup plugins which may augment the signals and
 controls available through the service.

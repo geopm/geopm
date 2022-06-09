@@ -102,7 +102,7 @@ The *Helper.hpp* file defines various utility functions.
 
 * 
   ``string_join()``:
-  Joins a vector of strings *string_list* together with a delimter *delim*,
+  Joins a vector of strings *string_list* together with a delimiter *delim*,
   and return the joined string.
 
 * 
@@ -171,12 +171,12 @@ The *Helper.hpp* file defines various utility functions.
 
 * 
   ``pid_to_uid()``:
-  Query for the user id assoiciated with the process id.
+  Query for the user id associated with the process id.
   Convert the *pid* process id into the *uid* user id.
 
 * 
   ``pid_to_gid()``:
-  Query for the group id assoiciated with the process id.
+  Query for the group id associated with the process id.
   Convert the *pid* process id into the *gid* group id.
 
 See Also

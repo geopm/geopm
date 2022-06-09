@@ -10,7 +10,7 @@ Python.  The ``service`` subdirectory of the GEOPM repository contains
 all files related to the GEOPM systemd service including the build
 system and all source code for the software components.  The base
 directory of the GEOPM git repository is populated with a build system
-that supports all sofware components not located in the ``service``
+that supports all software components not located in the ``service``
 directory.  The base build depends soley on components in the
 ``service`` directory that are installed by the service build
 including: the ``libgeopmd.so`` library, the C and C++ public

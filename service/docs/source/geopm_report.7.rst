@@ -138,7 +138,7 @@ runtime (s)
 
 count
   The total number of times this region was entered and exited, averaged
-  accross all processes.  Fractional counts are possible if some processes
+  across all processes.  Fractional counts are possible if some processes
   entered a region a different number of times.  For epoch totals, this is the
   total number of detected epochs, averaged across all processes.  The count
   has no meaning for the unmarked region and application totals.

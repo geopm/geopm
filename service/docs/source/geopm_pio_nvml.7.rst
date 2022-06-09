@@ -64,7 +64,7 @@ Signals
     *  **Unit**: celsius
 
 ``NVML::GPU_ENERGY_CONSUMPTION_TOTAL``
-    GPU energy consumptoin in joules since the driver was loaded
+    GPU energy consumption in joules since the driver was loaded
 
     *  **Aggregation**: sum
     *  **Domain**: gpu

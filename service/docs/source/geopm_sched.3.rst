@@ -60,7 +60,7 @@ the linux scheduler.
   ``geopm_sched_proc_cpuset``\ ():
   Provides a `CPU_SET(3) <https://man7.org/linux/man-pages/man3/CPU_SET.3.html>`_ bit mask identifying the Linux logical CPUs on
   which the calling process is allowed to run. The user must allocate the bit
-  arrary _proc_cpu\ *set* prior to calling this function, and the number of bits
+  array _proc_cpu\ *set* prior to calling this function, and the number of bits
   allocated is given by the _num\ *cpu* parameter. All of the bits in _proc_cpu\ *set*
   will be zeroed except for the offsets corresponding to CPUs that the process has
   access to which will be set to one. Returns zero on success and an error

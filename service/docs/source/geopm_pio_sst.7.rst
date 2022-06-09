@@ -94,7 +94,7 @@ System Info
 
 ``SST::LOWPRIORITY_FREQUENCY:[SSE|AVX2|AVX512]``
     Returns the low-priority turbo frequency of the
-    specified licence level. Note these frequencies do not change based
+    specified license level. Note these frequencies do not change based
     on the number of high priority cores.
 
     * **Aggregation**: select_first
