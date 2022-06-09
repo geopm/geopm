@@ -39,4 +39,5 @@
 /install-sh
 /ltmain.sh
 /missing
+src/msr_data_*.cpp
 compile_commands.json
