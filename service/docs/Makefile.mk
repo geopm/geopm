@@ -40,6 +40,7 @@ all_man_rst = docs/source/geopm.7.rst \
               docs/source/geopmadmin.1.rst \
               docs/source/geopmagent.1.rst \
               docs/source/geopm_agent.3.rst \
+              docs/source/geopm_agent_cpu_activity.7.rst \
               docs/source/geopm_agent_frequency_map.7.rst \
               docs/source/geopm_agent_monitor.7.rst \
               docs/source/geopm_agent_power_balancer.7.rst \
@@ -48,6 +49,7 @@ all_man_rst = docs/source/geopm.7.rst \
               docs/source/geopmctl.1.rst \
               docs/source/geopm_ctl.3.rst \
               docs/source/GEOPM_CXX_MAN_Agent.3.rst \
+              docs/source/GEOPM_CXX_MAN_CPUActivityAgent.3.rst \
               docs/source/GEOPM_CXX_MAN_Agg.3.rst \
               docs/source/GEOPM_CXX_MAN_CircularBuffer.3.rst \
               docs/source/GEOPM_CXX_MAN_CNLIOGroup.3.rst \
@@ -154,6 +156,7 @@ dist_man_MANS = docs/build/man/geopm.7 \
 base_man = docs/build/man/geopmadmin.1 \
            docs/build/man/geopmagent.1 \
            docs/build/man/geopm_agent.3 \
+           docs/build/man/geopm_agent_cpu_activity.7 \
            docs/build/man/geopm_agent_frequency_map.7 \
            docs/build/man/geopm_agent_monitor.7 \
            docs/build/man/geopm_agent_power_balancer.7 \
@@ -162,6 +165,7 @@ base_man = docs/build/man/geopmadmin.1 \
            docs/build/man/geopmctl.1 \
            docs/build/man/geopm_ctl.3 \
            docs/build/man/GEOPM_CXX_MAN_Agent.3 \
+           docs/build/man/GEOPM_CXX_MAN_CPUActivityAgent.3 \
            docs/build/man/GEOPM_CXX_MAN_Comm.3 \
            docs/build/man/GEOPM_CXX_MAN_Daemon.3 \
            docs/build/man/GEOPM_CXX_MAN_Endpoint.3 \

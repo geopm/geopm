@@ -85,6 +85,7 @@ service/docs/source/geopmaccess.1.rst
 service/docs/source/geopmadmin.1.rst
 service/docs/source/geopmagent.1.rst
 service/docs/source/geopm_agent.3.rst
+service/docs/source/geopm_agent_cpu_activity.7.rst
 service/docs/source/geopm_agent_frequency_map.7.rst
 service/docs/source/geopm_agent_monitor.7.rst
 service/docs/source/geopm_agent_power_balancer.7.rst
@@ -97,6 +98,7 @@ service/docs/source/GEOPM_CXX_MAN_Agg.3.rst
 service/docs/source/GEOPM_CXX_MAN_CircularBuffer.3.rst
 service/docs/source/GEOPM_CXX_MAN_CNLIOGroup.3.rst
 service/docs/source/GEOPM_CXX_MAN_Comm.3.rst
+service/docs/source/GEOPM_CXX_MAN_CPUActivityAgent.3.rst
 service/docs/source/GEOPM_CXX_MAN_CpuinfoIOGroup.3.rst
 service/docs/source/GEOPM_CXX_MAN_Daemon.3.rst
 service/docs/source/GEOPM_CXX_MAN_Endpoint.3.rst

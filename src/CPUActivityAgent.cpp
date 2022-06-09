@@ -48,7 +48,10 @@ namespace geopm
     {
         m_core_frequency_requests = 0;
         m_uncore_frequency_requests = 0;
-        m_network_normalized_frequency_requests = 0;
+        m_resolved_f_uncore_efficient = 0;
+        m_resolved_f_uncore_max = 0;
+        m_resolved_f_core_efficient = 0;
+        m_resolved_f_core_max = 0;
 
         // These are not currently guaranteed to be the system uncore min and max,
         // just what the user/admin has previously set.
@@ -310,9 +313,11 @@ namespace geopm
 
         // Per package freq
         std::vector<double> uncore_freq_request;
-        double f_uncore_efficient = in_policy[M_POLICY_UNCORE_FREQ_EFFICIENT];
+        m_resolved_f_uncore_efficient = in_policy[M_POLICY_UNCORE_FREQ_EFFICIENT];
+        m_resolved_f_uncore_max = in_policy[M_POLICY_UNCORE_FREQ_MAX];
         double f_uncore_range = in_policy[M_POLICY_UNCORE_FREQ_MAX] - in_policy[M_POLICY_UNCORE_FREQ_EFFICIENT];
 
+        //m_resolved_f_uncore_efficient = 0;
         for (int domain_idx = 0; domain_idx < M_NUM_PACKAGE; ++domain_idx) {
             double uncore_freq = (double) m_uncore_freq_status.at(domain_idx).signal;
 
@@ -341,17 +346,18 @@ namespace geopm
             // counters that indicate utilization (when/if available).
             // For now only L3 bandwith metric is used.
             double scalability_uncore = qm_normalized;
-            double uncore_req = f_uncore_efficient + f_uncore_range * scalability_uncore;
+            double uncore_req = m_resolved_f_uncore_efficient + f_uncore_range * scalability_uncore;
 
             //Clip uncore request within policy limits
-            uncore_req = std::max(in_policy[M_POLICY_UNCORE_FREQ_EFFICIENT], uncore_req);
-            uncore_req = std::min(in_policy[M_POLICY_UNCORE_FREQ_MAX], uncore_req);
+            uncore_req = std::max(m_resolved_f_uncore_efficient, uncore_req);
+            uncore_req = std::min(m_resolved_f_uncore_max, uncore_req);
             uncore_freq_request.push_back(uncore_req);
         }
 
         // Per core freq
         std::vector<double> core_freq_request;
-        double f_core_efficient = in_policy[M_POLICY_CPU_FREQ_EFFICIENT];
+        m_resolved_f_core_efficient = in_policy[M_POLICY_CPU_FREQ_EFFICIENT];
+        m_resolved_f_core_max = in_policy[M_POLICY_CPU_FREQ_MAX];
         double f_core_range = in_policy[M_POLICY_CPU_FREQ_MAX] - in_policy[M_POLICY_CPU_FREQ_EFFICIENT];
 
         for (int domain_idx = 0; domain_idx < M_NUM_CORE; ++domain_idx) {
@@ -363,7 +369,7 @@ namespace geopm
                 scalability = 1.0;
             }
 
-            double core_req = f_core_efficient + f_core_range * scalability;
+            double core_req = m_resolved_f_core_efficient + f_core_range * scalability;
             //Clip core request within policy limits
             core_req = std::max(in_policy[M_POLICY_CPU_FREQ_EFFICIENT], core_req);
             core_req = std::min(in_policy[M_POLICY_CPU_FREQ_MAX], core_req);
@@ -464,7 +470,12 @@ namespace geopm
 
         result.push_back({"Core Frequency Requests", std::to_string(m_core_frequency_requests)});
         result.push_back({"Uncore Frequency Requests", std::to_string(m_uncore_frequency_requests)});
-        result.push_back({"Network Normalized Frequency Requests", std::to_string(m_network_normalized_frequency_requests)});
+        result.push_back({"Resolved Maximum Core Frequency", std::to_string(m_resolved_f_core_max)});
+        result.push_back({"Resolved Efficient Core Frequency", std::to_string(m_resolved_f_core_efficient)});
+        result.push_back({"Resolved Core Frequency Range", std::to_string(m_resolved_f_core_max - m_resolved_f_core_efficient)});
+        result.push_back({"Resolved Maximum Uncore Frequency", std::to_string(m_resolved_f_uncore_max)});
+        result.push_back({"Resolved Efficient Uncore Frequency", std::to_string(m_resolved_f_uncore_efficient)});
+        result.push_back({"Resolved Uncore Frequency Range", std::to_string(m_resolved_f_uncore_max - m_resolved_f_uncore_efficient)});
         return result;
     }
 
