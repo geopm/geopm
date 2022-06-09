@@ -108,6 +108,18 @@ geopmwrite_LDADD = libgeopmd.la
 # Add ABI version
 libgeopmd_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(geopm_abi_version)
 
+# MSR json definitions. From each json file, generate a same-prefixed cpp file,
+# and use {arch}_msr_json as the variable identifier
+# E.g., src/msr_data_skx.cpp is made from src/msr_data_skx.json and names the
+# json variable skx_msr_json
+msr_cpp_files = \
+                src/msr_data_arch.cpp \
+                src/msr_data_hsx.cpp \
+                src/msr_data_knl.cpp \
+                src/msr_data_skx.cpp \
+                src/msr_data_snb.cpp \
+                # end
+
 libgeopmd_la_SOURCES = $(include_HEADERS) \
                        $(geopminclude_HEADERS) \
                        contrib/json11/json11.cpp \
@@ -212,11 +224,7 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/geopm_plugin.cpp \
                        src/geopm_sched.c \
                        src/geopm_version.c \
-                       src/msr_data_arch.cpp \
-                       src/msr_data_hsx.cpp \
-                       src/msr_data_knl.cpp \
-                       src/msr_data_skx.cpp \
-                       src/msr_data_snb.cpp \
+                       $(msr_cpp_files) \
                        # end
 
 systemd_source_files = src/SDBus.cpp \
@@ -274,6 +282,12 @@ io.github.geopm.xml:
 	PYTHONPATH=$(abs_srcdir):$(PYTHONPATH) \
 	$(PYTHON) -m geopmdpy.dbus_xml > $@
 
+$(msr_cpp_files): %.cpp: %.json src/msr_data.cpp.in
+	sed -e '/@MSR_JSON_CONTENTS@/ {' \
+	    -e "r $<" \
+	    -e 'd' -e '}' \
+	    -e "s/@MSR_JSON_IDENTIFIER@/$(lastword $(subst _, ,$*))_msr_json/g" \
+	src/msr_data.cpp.in > $@
 
 $(abs_srcdir)/geopmdpy/version.py:
 # Move version.py into source for out of place builds
@@ -334,6 +348,7 @@ check_LTLIBRARIES =
 TESTS =
 BUILT_SOURCES =
 DISTCLEANFILES =
+CLEANFILES = $(msr_cpp_files)
 
 include test/Makefile.mk
 include geopmdpy_test/Makefile.mk

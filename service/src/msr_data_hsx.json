@@ -1,17 +1,3 @@
-/*
- * Copyright (c) 2015 - 2022, Intel Corporation
- * SPDX-License-Identifier: BSD-3-Clause
- */
-
-#include "config.h"
-
-#include <string>
-
-namespace geopm
-{
-    const std::string snb_msr_json(void)
-    {
-        static const std::string result = R"(
 {
     "msrs": {
         "PLATFORM_INFO": {
@@ -67,7 +53,7 @@ namespace geopm
         },
         "PERF_STATUS": {
             "offset": "0x198",
-            "domain": "package",
+            "domain": "cpu",
             "fields": {
                 "FREQ": {
                     "begin_bit": 8,
@@ -84,7 +70,7 @@ namespace geopm
         },
         "PERF_CTL": {
             "offset": "0x199",
-            "domain": "package",
+            "domain": "core",
             "fields": {
                 "FREQ": {
                     "begin_bit": 8,
@@ -111,6 +97,15 @@ namespace geopm
                     "behavior":  "constant",
                     "writeable": false,
                     "aggregation": "expect_same"
+                },
+                "TCC_ACTIVE_OFFSET": {
+                    "begin_bit": 24,
+                    "end_bit":   27,
+                    "function":  "scale",
+                    "units":     "celsius",
+                    "scalar":    1.0,
+                    "behavior":  "constant",
+                    "writeable": false
                 }
             }
         },
@@ -189,6 +184,117 @@ namespace geopm
                     "scalar":    1e8,
                     "behavior":  "constant",
                     "writeable": false
+                }
+            }
+        },
+        "TURBO_RATIO_LIMIT1": {
+            "offset": "0x1AE",
+            "domain": "package",
+            "fields": {
+                "MAX_RATIO_LIMIT_9CORES": {
+                    "begin_bit": 0,
+                    "end_bit":   7,
+                    "function":  "scale",
+                    "units":     "hertz",
+                    "scalar":    1e8,
+                    "behavior":  "constant",
+                    "writeable": false
+                },
+                "MAX_RATIO_LIMIT_10CORES": {
+                    "begin_bit": 8,
+                    "end_bit":   15,
+                    "function":  "scale",
+                    "units":     "hertz",
+                    "scalar":    1e8,
+                    "behavior":  "constant",
+                    "writeable": false
+                },
+                "MAX_RATIO_LIMIT_11CORES": {
+                    "begin_bit": 16,
+                    "end_bit":   23,
+                    "function":  "scale",
+                    "units":     "hertz",
+                    "scalar":    1e8,
+                    "behavior":  "constant",
+                    "writeable": false
+                },
+                "MAX_RATIO_LIMIT_12CORES": {
+                    "begin_bit": 24,
+                    "end_bit":   31,
+                    "function":  "scale",
+                    "units":     "hertz",
+                    "scalar":    1e8,
+                    "behavior":  "constant",
+                    "writeable": false
+                },
+                "MAX_RATIO_LIMIT_13CORES": {
+                    "begin_bit": 32,
+                    "end_bit":   39,
+                    "function":  "scale",
+                    "units":     "hertz",
+                    "scalar":    1e8,
+                    "behavior":  "constant",
+                    "writeable": false
+                },
+                "MAX_RATIO_LIMIT_14CORES": {
+                    "begin_bit": 40,
+                    "end_bit":   47,
+                    "function":  "scale",
+                    "units":     "hertz",
+                    "scalar":    1e8,
+                    "behavior":  "constant",
+                    "writeable": false
+                },
+                "MAX_RATIO_LIMIT_15CORES": {
+                    "begin_bit": 48,
+                    "end_bit":   55,
+                    "function":  "scale",
+                    "units":     "hertz",
+                    "scalar":    1e8,
+                    "behavior":  "constant",
+                    "writeable": false
+                },
+                "MAX_RATIO_LIMIT_16CORES": {
+                    "begin_bit": 56,
+                    "end_bit":   63,
+                    "function":  "scale",
+                    "units":     "hertz",
+                    "scalar":    1e8,
+                    "behavior":  "constant",
+                    "writeable": false
+                }
+            }
+        },
+        "TURBO_RATIO_LIMIT2": {
+            "offset": "0x1AF",
+            "domain": "package",
+            "fields": {
+                "MAX_RATIO_LIMIT_17CORES": {
+                    "begin_bit": 0,
+                    "end_bit":   7,
+                    "function":  "scale",
+                    "units":     "hertz",
+                    "scalar":    1e8,
+                    "behavior":  "constant",
+                    "writeable": false
+                },
+                "MAX_RATIO_LIMIT_18CORES": {
+                    "begin_bit": 8,
+                    "end_bit":   15,
+                    "function":  "scale",
+                    "units":     "hertz",
+                    "scalar":    1e8,
+                    "behavior":  "constant",
+                    "writeable": false
+                },
+                "PCU_SEMAPHORE": {
+                    "begin_bit": 63,
+                    "end_bit":   63,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "behavior":  "constant",
+                    "writeable": true
                 }
             }
         },
@@ -323,7 +429,7 @@ namespace geopm
                     "end_bit":   31,
                     "function":  "overflow",
                     "units":     "joules",
-                    "scalar":    1.5258789063e-5,
+                    "scalar":    6.103515625e-05,
                     "behavior":  "monotone",
                     "writeable": false,
                     "aggregation": "sum",
@@ -494,10 +600,45 @@ namespace geopm
                     "writeable": false
                 }
             }
+        },
+        "UNCORE_RATIO_LIMIT": {
+            "offset": "0x620",
+            "domain": "package",
+            "fields": {
+                "MIN_RATIO": {
+                    "begin_bit": 8,
+                    "end_bit":   14,
+                    "function":  "scale",
+                    "units":     "hertz",
+                    "scalar":    1e8,
+                    "behavior":  "variable",
+                    "writeable": true
+                },
+                "MAX_RATIO": {
+                    "begin_bit": 0,
+                    "end_bit":   6,
+                    "function":  "scale",
+                    "units":     "hertz",
+                    "scalar":    1e8,
+                    "behavior":  "variable",
+                    "writeable": true
+                }
+            }
+        },
+        "UNCORE_PERF_STATUS": {
+            "offset": "0x621",
+            "domain": "package",
+            "fields": {
+                "FREQ" : {
+                    "begin_bit": 0,
+                    "end_bit": 6,
+                    "function": "scale",
+                    "units": "hertz",
+                    "scalar": 1e8,
+                    "behavior":  "variable",
+                    "writeable": false
+                }
+            }
         }
-    }
-}
-)";
-        return result;
     }
 }
