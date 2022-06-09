@@ -62,7 +62,7 @@ class GeopmMsrJson(SphinxDirective):
                 if (is_control and no_controls) or (is_signal and no_signals):
                     continue
 
-                geopm_msr_name = f'MSR::{msr_base_name}::{msr_field_name}'
+                geopm_msr_name = f'MSR::{msr_base_name}:{msr_field_name}'
                 msr_definition_body = nodes.definition()
 
                 # Signal/control names are formatted as ``literal`` terms in
