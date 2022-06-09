@@ -118,21 +118,21 @@ requirement.  This requirement can be met by installing the
 ``openmpi-devel`` package version 1.7 or greater on RHEL and SLES
 Linux, and ``libopenmpi-dev`` on Ubuntu.
 
-* Install all requirements on RHEL or CentOS
+* Install all requirements on **RHEL** or **CentOS**
 
   .. code-block:: bash
 
-      yum install openmpi-devel elfutils-libelf-devel
+      yum install openmpi-devel elfutils libelf-devel
 
 
-* Install all requirements on SUSE based distributions
+* Install all requirements on **SUSE**-based distributions
 
   .. code-block:: bash
 
-      zypper install openmpi-devel elfutils-libelf-devel
+      zypper install openmpi-devel elfutils libelf-devel
 
 
-* Install all requirements on UBUNTU (as of 18.04.3 LTS)
+* Install all requirements on **Ubuntu** (as of 18.04.3 LTS)
 
   .. code-block:: bash
 
@@ -167,33 +167,32 @@ be used for this purpose, e.g. ``--with-mpi-bin``.
 
 Building the GEOPM HPC Runtime
 ------------------------------
-
 The best recommendation for building the GEOPM HPC Runtime is to follow
-the developer documentation posted in the :doc:`developer guide <devel>`.  This
-will enable the use of the GEOPM Service and will also provide the latest
-development in the GEOPM repository.
+the :ref:`developer build process <devel:developer build process>` posted in
+the :doc:`developer guide <devel>`.  This will enable the use of the GEOPM
+Service and will also provide the latest development in the GEOPM repository.
 
 
 Run Requirements
 ----------------
-
 The GEOPM HPC Runtime has several requirements at time-of-use beyond
 what is required for the GEOPM Service.  These requirements are
-outlined here.  A user that is not interested in running the GEOPM HPC
-Runtime may ignore these requirements.
+outlined in the following subsections.  A user that is not interested in
+running the GEOPM HPC Runtime may ignore these requirements.
+
+.. contents:: Categories of run requirements:
+   :local:
 
 
 MPI Requirements
 ^^^^^^^^^^^^^^^^
-
-Using the GEOPM HPC Runtime requires that the package was built
+The GEOPM HPC Runtime requires that the package was built
 against the same MPI implementation that is used at runtime to launch
 the user's application.
 
 
 BIOS Configuration
 ^^^^^^^^^^^^^^^^^^
-
 If power governing or power balancing is the intended use case
 for GEOPM deployment, then there is an additional dependency on
 the BIOS being configured to support RAPL control. To check for
@@ -212,15 +211,14 @@ If the script output contains:
              and power_governor agents will not function properly until this is cleared.
 
 
-Please enable RAPL in your BIOS and if such an option doesn't exist please
-contact your BIOS vendor to obtain a RAPL supported BIOS.
+Please enable RAPL in your BIOS, and if such an option doesn't exist please
+contact your BIOS vendor to obtain a BIOS that supports RAPL.
 
 For additional information, please contact the GEOPM team.
 
 
 Linux Power Management
 ^^^^^^^^^^^^^^^^^^^^^^
-
 Note that other Linux mechanisms for power management can interfere
 with GEOPM, and these must be disabled.  We suggest disabling the
 intel_pstate kernel driver by modifying the kernel command line
@@ -235,10 +233,10 @@ The cpufreq driver will be enabled when the intel_pstate driver is
 disabled.  The cpufreq driver has several modes controlled by the
 scaling_governor sysfs entry.  When the performance mode is selected,
 the driver will not interfere with GEOPM.  For SLURM based systems the
-`GEOPM launch wrappers <#geopm-mpi-launch-wrapper>`_ will attempt to set
-the scaling governor to "performance".  This alleviates the need to
-manually set the governor.  Older versions of SLURM require the
-desired governors to be explicitly listed in /etc/slurm.conf.  In
+:ref:`GEOPM launch wrapper <runtime:geopm application launch wrapper>` will
+attempt to set the scaling governor to "performance".  This alleviates the need
+to manually set the governor.  Older versions of SLURM require the
+desired governors to be explicitly listed in ``/etc/slurm.conf``.  In
 particular, SLURM 15.x requires the following option:
 
 .. code-block:: bash
@@ -246,8 +244,8 @@ particular, SLURM 15.x requires the following option:
    CpuFreqGovernors=OnDemand,Performance
 
 
-More information on the slurm.conf file can be found
-`here <https://slurm.schedmd.com/slurm.conf.html>`__.
+More information on SLURM configuration can be found in the `slurm.conf manual
+<https://slurm.schedmd.com/slurm.conf.html>`_.
 Non-SLURM systems must still set the scaling governor through some
 other mechanism to ensure proper GEOPM behavior.  The following
 command will set the governor to performance:
@@ -257,9 +255,9 @@ command will set the governor to performance:
    echo performance | tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor
 
 
-See kernel documentation
-`here <https://www.kernel.org/doc/Documentation/cpu-freq/governors.txt>`__
-for more information.
+See the Linux Kernel documentation on `cpu-freq governors
+<https://www.kernel.org/doc/Documentation/cpu-freq/governors.txt>`_ for more
+information.
 
 
 GEOPM Application Launch Wrapper
@@ -324,8 +322,8 @@ Resource Manager Integration
 The GEOPM HPC Runtime package can be integrated with a compute cluster
 resource manager by modifying the resource manager daemon running on
 the cluster compute nodes.  An example of integration with the SLURM
-resource manager via a SPANK plugin can be found
-`here <https://github.com/geopm/geopm-slurm>`__ and the implementation
+resource manager via a SPANK plugin can be found in the `geopm-slurm git
+repository <https://github.com/geopm/geopm-slurm>`_. The implementation
 reflects what is documented below.
 
 Integration is achieved by modifying the daemon to make two
