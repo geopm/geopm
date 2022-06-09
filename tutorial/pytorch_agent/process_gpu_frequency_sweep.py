@@ -157,6 +157,7 @@ if __name__ == "__main__":
         reports_df['energy-vs-max'] = relative_energy.T if config_groups.ngroups == 1 else relative_energy
         reports_df['performance-loss'] = reports_df['runtime-vs-maxfreq'] - 1
 
+        #code.interact(local=locals())
         # Get the min-energy frequency for each config
         if args.domain == 'node':
             min_energy_frequencies = reports_df.pivot_table(
