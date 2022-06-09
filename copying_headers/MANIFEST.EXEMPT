@@ -78,6 +78,7 @@ service/docs/source/client.rst
 service/docs/source/contrib.rst
 service/docs/source/controls_SKX.rst
 service/docs/source/devel.rst
+service/docs/source/docu.rst
 service/docs/source/geopm.7.rst
 service/docs/source/geopmaccess.1.rst
 service/docs/source/geopmadmin.1.rst
