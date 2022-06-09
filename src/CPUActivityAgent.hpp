@@ -94,9 +94,12 @@ namespace geopm
 
             double m_core_frequency_requests;
             double m_uncore_frequency_requests;
-            double m_network_normalized_frequency_requests;
             double m_freq_uncore_min;
             double m_freq_uncore_max;
+            double m_resolved_f_uncore_efficient;
+            double m_resolved_f_uncore_max;
+            double m_resolved_f_core_efficient;
+            double m_resolved_f_core_max;
             std::map<double,double> m_qm_max_rate;
 
             std::vector<signal> m_core_scal;
