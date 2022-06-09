@@ -251,7 +251,7 @@ Class Methods
   ``reduce_max()``:
   Reduce distributed messages across all ranks using specified operation, store result on all ranks
   The parameters:
-  **in** *send_buf* Start address of memory buffer to be trasnmitted.
+  **in** *send_buf* Start address of memory buffer to be transmitted.
   **out** *recv_buf* Start address of memory buffer to receive data.
   **in** *count* Size of buffer in bytes to be transmitted.
 
@@ -259,7 +259,7 @@ Class Methods
   ``gather()``:
   Gather bytes from all processes
   The parameters:
-  **in** *send_buf* Start address of memory buffer to be trasnmitted.
+  **in** *send_buf* Start address of memory buffer to be transmitted.
   **in** *send_size* Size of buffer to be sent.
   **out** *recv_buf* Start address of memory buffer to receive data.
   **in** *recv_size* The size of the buffer to be received.
@@ -269,7 +269,7 @@ Class Methods
   ``gatherv()``:
   Gather bytes into specified location from all processes
   The parameters:
-  **in** *send_buf* Start address of memory buffer to be trasnmitted.
+  **in** *send_buf* Start address of memory buffer to be transmitted.
   **in** *send_size* Size of buffer to be sent.
   **out** *recv_buf* Start address of memory buffer to receive data.
   **in** *recv_sizes* Vector describing the buffer size per rank to be received.

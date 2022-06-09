@@ -109,7 +109,7 @@ GEOPM Options
                                 Sampling>` for more information about how
                                 signal samples are summarized over time and
                                 across sampling domains in a report.
-                                
+
                                 The value of *signals* must be formatted as a
                                 comma-separated list of valid signal names.
                                 The available signals and their descriptions
@@ -273,7 +273,7 @@ GEOPM Options
                           <geopmctl.1>` application in the background which
                           connects to the primary compute application. The
                           *pthread* option requires support for
-                          MPI_THREAD_MULTIPLE, which is not enabled at many
+                          ``MPI_THREAD_MULTIPLE``, which is not enabled at many
                           sites.
 
                           The *application* method of launch is not compatible
@@ -282,31 +282,34 @@ GEOPM Options
                           sbatch and the command must request all the
                           compute nodes assigned to the allocation.
 
-                          This option is used by the launcher to set the
-                          GEOPM_CTL environment variable.  The command line
-                          option will override any value currently set in the
-                          environment.  See the :ref:`ENVIRONMENT section of
-                          geopm(7)<geopm.7:Environment>`.
+                          The ``--geopm-ctl`` option is used by the launcher to
+                          set the GEOPM_CTL environment variable.  The command
+                          line option will override any value currently set in
+                          the environment.  See the :ref:`ENVIRONMENT section
+                          of geopm(7)<geopm.7:Environment>`.
 --geopm-agent agent   .. _geopm-agent option:
 
                       Specify the Agent type.  The Agent defines the control
                       algorithm used by the GEOPM runtime.  Available agents
-                      are: "monitor" (default if option not specified; enables
-                      profiling features only), "power_balancer" (optimizes
-                      runtime under a power cap), "power_governor" (enforces a
-                      uniform power cap), and "frequency_map" (runs each region
-                      at a specified frequency).  See :doc:`geopm_agent_monitor(7)
-                      <geopm_agent_monitor.7>`, :doc:`geopm_agent_power_balancer(7)
+                      are: "monitor" (default, enables profiling features
+                      only), "power_balancer" (optimizes runtime under a power
+                      cap), "power_governor" (enforces a uniform power cap),
+                      and "frequency_map" (runs each region at a specified
+                      frequency).  See :doc:`geopm_agent_monitor(7)
+                      <geopm_agent_monitor.7>`,
+                      :doc:`geopm_agent_power_balancer(7)
                       <geopm_agent_power_balancer.7>`,
                       :doc:`geopm_agent_power_governor(7)
                       <geopm_agent_power_governor.7>`, and
                       :doc:`geopm_agent_frequency_map(7)
                       <geopm_agent_frequency_map.7>` for descriptions of each
-                      agent.  For more details on the responsibilities of the
-                      Agent, see :doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>`.
+                      agent.
+
+                      For more details on the responsibilities of an agent,
+                      see :doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>`.
 
                       This option is used by the launcher to set the
-                      GEOPM_AGENT environment variable.  The command line
+                      ``GEOPM_AGENT`` environment variable.  The command line
                       option will override any value currently set in the
                       environment.  See the :ref:`ENVIRONMENT section of
                       geopm(7)<geopm.7:Environment>`.
@@ -322,7 +325,7 @@ GEOPM Options
                         create this input file.
 
                         This option is used by the launcher to set the
-                        GEOPM_POLICY environment variable.  The command line
+                        ``GEOPM_POLICY`` environment variable.  The command line
                         option will override any value currently set in the
                         environment.  See the :ref:`ENVIRONMENT section of
                         geopm(7)<geopm.7:Environment>`.
@@ -334,40 +337,42 @@ GEOPM Options
                           variables related to affinity settings for the
                           underlying launcher.  The user is free to provide
                           whatever affinity settings are best for their
-                          application.  It is recommended that at least one
-                          core is left free for the GEOPM controller thread,
-                          and if there is a free core, the controller will
-                          automatically affinitize itself to a CPU on that core
-                          when it connects with the application.  When this
-                          option is specified the user is responsible for
-                          providing settings that affinitize MPI ranks to
-                          distinct CPUs.  Note: this requirement is satisfied
-                          by the default behavior for some launchers like Intel
-                          MPI.
+                          application.
+
+                          It is recommended that at least one core is left free
+                          for the GEOPM controller thread, and if there is a
+                          free core, the controller will automatically
+                          affinitize itself to a CPU on that core when it
+                          connects with the application.  When this option is
+                          specified the user is responsible for providing
+                          settings that affinitize MPI ranks to distinct CPUs.
+                          Note: this requirement is satisfied by the default
+                          behavior for some launchers like Intel MPI.
 --geopm-endpoint endpoint  .. _geopm-endpoint option:
 
                            Prefix for shared memory keys used by the endpoint.
-                           The endpoint will be used to receive policies
-                           dynamically from the resource manager.  The shared
-                           memory for the endpoint does not use the
-                           ``--geopm-shmkey`` prefix.  Refer to
-                           :doc:`geopm_endpoint_c(3) <geopm_endpoint_c.3>` for more
-                           detail.  If this option is provided, the GEOPM
+                           The endpoint receives policies dynamically from the
+                           resource manager.  The shared memory for the
+                           endpoint does not use the ``--geopm-shmkey`` prefix.
+                           Refer to :doc:`geopm_endpoint_c(3)
+                           <geopm_endpoint_c.3>` for more detail.
+
+                           If this option is provided, the GEOPM
                            controller will also send samples to the endpoint at
                            runtime, depending on the Agent selected.  This
                            option overrides the use of ``--geopm-policy`` to
                            receive policy values.  This option is used by the
-                           launcher to set the GEOPM_ENDPOINT environment
+                           launcher to set the ``GEOPM_ENDPOINT`` environment
                            variable.  The command line option will override any
                            value currently set in the environment.  See the
                            :ref:`ENVIRONMENT section of
                            geopm(7)<geopm.7:Environment>`.
 --geopm-shmkey key  .. _geopm-shmkey option:
 
-                    Specify a special prefix to be used with all the
-                    shared memory keys generated by the GEOPM runtime for
-                    communication with the application.  It is not used for the
-                    endpoint.  This is useful for avoiding collisions with keys
+                    Specify a prefix to be used with all the shared memory keys
+                    generated by the GEOPM runtime for communication with the
+                    application.  This prefix is not used for the endpoint.
+                    This is useful for avoiding collisions with keys
                     that were not properly cleaned up.  The default key prefix
                     is "geopm-shm".  A shared memory key must have no
                     occurrences of the '/' character.  The base key is used as
@@ -377,17 +382,17 @@ GEOPM Options
 
                     ``$ test -n "$GEOPM_SHMKEY" && rm -f /dev/shm${GEOPM_SHMKEY}* || rm -f /dev/shm/geopm-shm*``
 
-                    This option is used by the launcher to set the GEOPM_SHMKEY
-                    environment variable.  The command line option will
-                    override any value currently set in the environment.  See
-                    the :ref:`ENVIRONMENT section of
+                    This option is used by the launcher to set the
+                    ``GEOPM_SHMKEY`` environment variable.  The command line
+                    option will override any value currently set in the
+                    environment.  See the :ref:`ENVIRONMENT section of
                     geopm(7)<geopm.7:Environment>`.
 --geopm-timeout sec  .. _geopm-timeout option:
 
                      Time in seconds that the application should wait for the
                      GEOPM controller to connect over shared memory.  The
                      default value is 30 seconds.  This option is used by the
-                     launcher to set the GEOPM_TIMEOUT environment variable.
+                     launcher to set the ``GEOPM_TIMEOUT`` environment variable.
                      The command line option will override any value currently
                      set in the environment.  See the :ref:`ENVIRONMENT section
                      of geopm(7)<geopm.7:Environment>`.
@@ -400,15 +405,16 @@ GEOPM Options
                           runtime, plugins should register themselves with the
                           appropriate factory.  See :doc:`geopm::PluginFactory(3)
                           <GEOPM_CXX_MAN_PluginFactory.3>` for information
-                          about the GEOPM plugin interface.  A zero-length
-                          directory name indicates the current working
-                          directory; this can be specified by a leading or
-                          trailing colon, or two adjacent colons.  The default
-                          search location is always loaded first and is
+                          about the GEOPM plugin interface.
+
+                          A zero-length directory name indicates the current
+                          working directory; this can be specified by a leading
+                          or trailing colon, or two adjacent colons.  The
+                          default search location is always loaded first and is
                           determined at library configuration time and by way
                           of the 'pkglib' variable (typically
-                          /usr/lib64/geopm/).  This option is used by the
-                          launcher to set the GEOPM_PLUGIN_PATH environment
+                          ``/usr/lib64/geopm/``).  This option is used by the
+                          launcher to set the ``GEOPM_PLUGIN_PATH`` environment
                           variable.  The command line option will override any
                           value currently set in the environment.  See the
                           :ref:`ENVIRONMENT section of
