@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 #  Copyright (c) 2015 - 2021, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -43,24 +42,21 @@ def process_report_files(input_dir, nodename, app_index):
         with open(report_path) as f:
             report = yaml.safe_load(f)
         experiment_name = os.path.splitext(os.path.basename(report_path))[0]
-        name_parts = [part.split('_') for part in experiment_name.split('.') if '_' in part]
+        name_parts = experiment_name.split('_')
         app_totals = report['Hosts'][nodename]['Application Totals']
         app_totals['app-index'] = app_index
         app_totals['gpu-frequency'] = np.nan
         app_totals['trial'] = np.nan
 
         # Help uniquely identify different configurations of a single app
-        config_name = str(app_index)
+        config_name = name_parts[0] + str(app_index)
 
-        for part, value in name_parts:
-            if part == 'gpufreq':
-                app_totals['gpu-frequency'] = int(value) * 1e6
-            if part == 'memratio':
-                config_name += '-' + value
-            if part == 'precision':
-                config_name += '-' + value
-            if part == 'trial':
-                app_totals['trial'] = int(value)
+        for part in name_parts:
+            if part.endswith('g'):
+                app_totals['gpu-frequency'] = float(part[:-1])
+        part = name_parts[len(name_parts) - 1]
+        app_totals['trial'] = int(part)
+
         app_totals['app-config'] = config_name
 
         reports.append(app_totals)
@@ -74,22 +70,20 @@ def read_trace_files(sweep_dir, nodename, app_index):
         trace_df['node'] = nodename
         experiment_name = os.path.splitext(os.path.basename(trace_file))[0]
         trace_df['app-index'] = app_index
-        name_parts = [part.split('_') for part in experiment_name.split('.') if '_' in part]
+        name_parts = experiment_name.split('_')
         trace_df['gpu-frequency'] = np.nan
         trace_df['trial'] = np.nan
 
         # Help uniquely identify different configurations of a single app
-        config_name = str(app_index)
+        #config_name = str(app_index)
+        config_name = name_parts[0] + str(app_index)
 
-        for part, value in name_parts:
-            if part == 'gpufreq':
-                trace_df['gpu-frequency'] = int(value) * 1e6
-            if part == 'memratio':
-                config_name += '-' + value
-            if part == 'precision':
-                config_name += '-' + value
-            if part == 'trial':
-                trace_df['trial'] = int(value)
+        for part in name_parts:
+            if part.endswith('g'):
+                trace_df['gpu-frequency'] = float(part[:-1])
+        part = name_parts[len(name_parts) - 1]
+        trace_df['trial'] = int(part)
+
         trace_df['app-config'] = config_name
 
         # Apply a heuristic to ignore setup/teardown parts of workloads. Treat
@@ -206,6 +200,7 @@ if __name__ == "__main__":
             df_traces = df_traces.merge(min_energy_frequencies, how='left', on='app-config')
         else:
             df_traces['Min-Energy GPU Frequency'] = min_energy_frequencies
+
         for perf_freq in perf_frequencies:
             df_traces = df_traces.merge(perf_freq, how='left', on='app-config')
         perf_cols = [c for c in df_traces.columns if c.startswith('energy_weight')]
