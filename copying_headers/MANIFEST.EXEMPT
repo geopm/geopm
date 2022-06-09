@@ -163,6 +163,11 @@ service/docs/source/signals_SKX.rst
 service/docs/source/use_cases.rst
 service/dox/blurb.md
 service/dox/Doxyfile.in
+service/src/msr_data_hsx.json
+service/src/msr_data_knl.json
+service/src/msr_data_arch.json
+service/src/msr_data_skx.json
+service/src/msr_data_snb.json
 service/.gitignore
 service/io.github.geopm.conf
 service/io.github.geopm.xml
