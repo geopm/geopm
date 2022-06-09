@@ -119,6 +119,14 @@ msr_cpp_files = \
                 src/msr_data_skx.cpp \
                 src/msr_data_snb.cpp \
                 # end
+EXTRA_DIST += \
+	      src/msr_data_arch.json \
+	      src/msr_data_hsx.json \
+	      src/msr_data_knl.json \
+	      src/msr_data_skx.json \
+	      src/msr_data_snb.json \
+	      src/msr_data.cpp.in \
+	      # end
 
 libgeopmd_la_SOURCES = $(include_HEADERS) \
                        $(geopminclude_HEADERS) \
