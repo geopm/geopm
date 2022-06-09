@@ -37,7 +37,7 @@ insufficent due to Linux
 `capabilities(7) <https://man7.org/linux/man-pages/man7/capabilities.7.html>`__
 requirements.
 
-Granting Linux capabilites to a helper command line tool or adding a
+Granting Linux capabilities to a helper command line tool or adding a
 command line tool to the
 `sudoers(5) <https://man7.org/linux/man-pages/man5/sudoers.5.html>`__
 configuration is a common way to filter which secure features are
@@ -422,7 +422,7 @@ Malicious input or private output
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Each GEOPM Service interface that may be accessed by an unprivileged
-user is a threat vector.  All input recieved from the user is
+user is a threat vector.  All input received from the user is
 validated to ensure no malicious or malformed data is used in any way
 that may result in a compromised or misconfigured system. All output
 from these interfaces is vetted to ensure that the service does not

@@ -79,7 +79,7 @@ Class Methods
 * 
   ``sample_total``\ ():
   Returns the total accumulated value of a signal for one
-  region. The signal must have been pushed to accumlate as
+  region. The signal must have been pushed to accumulate as
   per-region values.  The index returned from push_signal_total()
   should be passed to _signal\ *idx*.  The region of interest is
   passed in _region\ *hash*.  Note that unlike other signals this is a

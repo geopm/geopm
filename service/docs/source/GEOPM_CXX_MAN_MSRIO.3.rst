@@ -72,7 +72,7 @@ Class Methods
 
 * 
   ``read_msr()``:
-  Read from a single MSR at *offset* on the logicial Linux CPU
+  Read from a single MSR at *offset* on the logical Linux CPU
   specified by *cpu_idx*.  Returns the raw encoded MSR value.
 
 * 
