@@ -12,6 +12,15 @@ be enabled by using different GEOPM *agents*. See the :doc:`geopmlaunch(1)
 <geopmlaunch.1>` documentation for more information about user-facing GEOPM HPC
 runtime launch options.
 
+.. figure:: https://geopm.github.io/images/geopm-runtime-usage.svg
+   :alt: An illustration of geopmlaunch running on 2 servers, generating a
+         trace file per host, and one report across all hosts.
+   :align: center
+
+   The geopmlaunch tool is the main user interface to the GEOPM HPC runtime. It
+   wraps a launcher application (srun in this example), generates a summarizing
+   report file, and optionally generates a time-series trace per host.
+
 .. admonition:: Quick Start
 
   Run ``geopmlaunch`` with your application:
