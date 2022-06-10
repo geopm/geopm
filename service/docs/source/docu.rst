@@ -5,6 +5,12 @@ GEOPM.  See :ref:`devel:Creating Manuals` section of the :doc:`Guide for GEOPM
 Developers <devel>` for information on how to add the new files to the build
 properly.
 
+Some of these rules (:ref:`section ordering <docu:Section Ordering>` and the
+property list in :ref:`low-level signals/controls <docu:Signals/Controls (low
+level)>`) can be tested with the ``geopmlint`` Sphinx builder. Run ``make
+docs_geopmlint`` to run those checks. Edit
+``service/docs/source/_ext/geopmlint.py`` if you need to modify those checks.
+
 Whitespace
 ----------
 Minimize the amount of whitespace (carriage returns, spaces, and indentation)
@@ -62,6 +68,34 @@ That block will render as follows:
     * **Domain**: cpu
     * **Format**: double
     * **Unit**: seconds
+
+MSR Signals and controls
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Document MSRs in their respective ``msr_data_*.json`` files. Use the
+``geopm-msr-json`` directive to insert the formatted documentation from a json
+definition into a ``rst`` file. For example:
+
+.. code-block:: rst
+   :caption: Render all MSRs in a json file
+
+   .. geopm-msr-json:: ../../src/msr_data_arch.json
+
+.. code-block:: rst
+   :caption: Render only signals from a json file
+
+   .. geopm-msr-json:: ../../src/msr_data_arch.json
+      :no-controls:
+
+.. code-block:: rst
+   :caption: Render only controls from a json file
+
+   .. geopm-msr-json:: ../../src/msr_data_arch.json
+      :no-signals:
+
+If you need to modify the output format of the ``geopm-msr-json`` directive,
+edit the ``GeopmMsrJson`` class in the
+``service/docs/source/_ext/geopm_rst_extensions.py`` Sphinx extension.
 
 Aliases
 -------
