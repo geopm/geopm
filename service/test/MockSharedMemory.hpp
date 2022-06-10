@@ -35,7 +35,7 @@ class MockSharedMemory : public geopm::SharedMemory
                     get_scoped_lock, (), (override));
         MOCK_METHOD(void, unlink, (), (override));
         MOCK_METHOD(void, chown, (const unsigned int gid, const unsigned int uid),
-                    (override));
+                    (const, override));
 
     protected:
         std::vector<char> m_buffer;

@@ -46,7 +46,7 @@ namespace geopm
             //         and uid if current permissions allow for the change.
             /// @param [in] uid User ID to become owner.
             /// @param [in] gid Group ID to become owner.
-            void chown(const unsigned int uid, const unsigned int gid) override;
+            void chown(const unsigned int uid, const unsigned int gid) const override;
 
         protected:
             /// @brief Construct the file path to use for the provided key.

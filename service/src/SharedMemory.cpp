@@ -257,7 +257,7 @@ namespace geopm
         m_do_unlink_check = true;
     }
 
-    void SharedMemoryImp::chown(const unsigned int uid, const unsigned int gid) {
+    void SharedMemoryImp::chown(const unsigned int uid, const unsigned int gid) const {
         int err = 0;
         int shm_id = -1;
         if (m_is_linked) {
