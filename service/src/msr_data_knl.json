@@ -11,7 +11,8 @@
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "variable",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "The processor's maximum non-turbo frequency."
                 },
                 "PROGRAMMABLE_RATIO_LIMITS_TURBO_MODE": {
                     "begin_bit": 28,
@@ -111,7 +112,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Defines the group 0 active core count, which is the number of active cores for a maximum turbo frequency of MSR::TURBO_RATIO_LIMIT:GROUP_0_MAX_RATIO_LIMIT."
                 },
                 "GROUP_0_MAX_RATIO_LIMIT": {
                     "begin_bit": 8,
@@ -120,7 +122,8 @@
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "variable",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Maximum turbo frequency with up to the group 0 active core count."
                 },
                 "GROUP_1_INCREMENTAL_CORES": {
                     "begin_bit": 16,
@@ -129,7 +132,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Additional active cores to define the group 1 active core count, beyond the group 0 active core count."
                 },
                 "GROUP_1_RATIO_LIMIT_DELTA": {
                     "begin_bit": 21,
@@ -138,7 +142,8 @@
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "variable",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Drop in maximum turbo frequency for the group 1 active core count, relative to the group 0 maximum turbo frequency."
                 },
                 "GROUP_2_INCREMENTAL_CORES": {
                     "begin_bit": 24,
@@ -147,7 +152,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Additional active cores to define the group 2 active core count, beyond the group 1 active core count."
                 },
                 "GROUP_2_RATIO_LIMIT_DELTA": {
                     "begin_bit": 29,
@@ -156,7 +162,8 @@
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "variable",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Drop in maximum turbo frequency for the group 2 active core count, relative to the group 1 maximum turbo frequency."
                 },
                 "GROUP_3_INCREMENTAL_CORES": {
                     "begin_bit": 32,
@@ -165,7 +172,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Additional active cores to define the group 3 active core count, beyond the group 2 active core count."
                 },
                 "GROUP_3_RATIO_LIMIT_DELTA": {
                     "begin_bit": 37,
@@ -174,7 +182,8 @@
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "variable",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Drop in maximum turbo frequency for the group 3 active core count, relative to the group 2 maximum turbo frequency."
                 },
                 "GROUP_4_INCREMENTAL_CORES": {
                     "begin_bit": 40,
@@ -183,7 +192,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Additional active cores to define the group 4 active core count, beyond the group 3 active core count."
                 },
                 "GROUP_4_RATIO_LIMIT_DELTA": {
                     "begin_bit": 45,
@@ -192,7 +202,8 @@
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "variable",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Drop in maximum turbo frequency for the group 4 active core count, relative to the group 3 maximum turbo frequency."
                 },
                 "GROUP_5_INCREMENTAL_CORES": {
                     "begin_bit": 48,
@@ -201,7 +212,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Additional active cores to define the group 5 active core count, beyond the group 4 active core count."
                 },
                 "GROUP_5_RATIO_LIMIT_DELTA": {
                     "begin_bit": 53,
@@ -210,7 +222,8 @@
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "variable",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Drop in maximum turbo frequency for the group 5 active core count, relative to the group 4 maximum turbo frequency."
                 },
                 "GROUP_6_INCREMENTAL_CORES": {
                     "begin_bit": 56,
@@ -219,7 +232,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Additional active cores to define the group 6 active core count, beyond the group 5 active core count."
                 },
                 "GROUP_6_RATIO_LIMIT_DELTA": {
                     "begin_bit": 61,
@@ -228,7 +242,8 @@
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "variable",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Drop in maximum turbo frequency for the group 6 active core count, relative to the group 5 maximum turbo frequency."
                 }
             }
         },

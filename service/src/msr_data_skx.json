@@ -11,7 +11,8 @@
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "The processor's maximum non-turbo frequency."
                 },
                 "PROGRAMMABLE_RATIO_LIMITS_TURBO_MODE": {
                     "begin_bit": 28,
