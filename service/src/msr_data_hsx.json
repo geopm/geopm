@@ -11,7 +11,8 @@
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "The processor's maximum non-turbo frequency."
                 },
                 "PROGRAMMABLE_RATIO_LIMITS_TURBO_MODE": {
                     "begin_bit": 28,
@@ -120,7 +121,8 @@
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Maximum turbo frequency when 1 core is active."
                 },
                 "MAX_RATIO_LIMIT_2CORES": {
                     "begin_bit": 8,
@@ -129,7 +131,8 @@
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Maximum turbo frequency when 2 cores are active."
                 },
                 "MAX_RATIO_LIMIT_3CORES": {
                     "begin_bit": 16,
@@ -138,7 +141,8 @@
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Maximum turbo frequency when 3 cores are active."
                 },
                 "MAX_RATIO_LIMIT_4CORES": {
                     "begin_bit": 24,
@@ -147,7 +151,8 @@
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Maximum turbo frequency when 4 cores are active."
                 },
                 "MAX_RATIO_LIMIT_5CORES": {
                     "begin_bit": 32,
@@ -156,7 +161,8 @@
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Maximum turbo frequency when 5 cores are active."
                 },
                 "MAX_RATIO_LIMIT_6CORES": {
                     "begin_bit": 40,
@@ -165,7 +171,8 @@
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Maximum turbo frequency when 6 cores are active."
                 },
                 "MAX_RATIO_LIMIT_7CORES": {
                     "begin_bit": 48,
@@ -174,7 +181,8 @@
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Maximum turbo frequency when 7 cores are active."
                 },
                 "MAX_RATIO_LIMIT_8CORES": {
                     "begin_bit": 56,
@@ -183,7 +191,8 @@
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Maximum turbo frequency when 8 cores are active."
                 }
             }
         },
@@ -198,7 +207,8 @@
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Maximum turbo frequency when 9 cores are active."
                 },
                 "MAX_RATIO_LIMIT_10CORES": {
                     "begin_bit": 8,
@@ -207,7 +217,9 @@
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Maximum turbo frequency when 10 cores are active."
+
                 },
                 "MAX_RATIO_LIMIT_11CORES": {
                     "begin_bit": 16,
@@ -216,7 +228,9 @@
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Maximum turbo frequency when 11 cores are active."
+
                 },
                 "MAX_RATIO_LIMIT_12CORES": {
                     "begin_bit": 24,
@@ -225,7 +239,9 @@
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Maximum turbo frequency when 12 cores are active."
+
                 },
                 "MAX_RATIO_LIMIT_13CORES": {
                     "begin_bit": 32,
@@ -234,7 +250,9 @@
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Maximum turbo frequency when 13 cores are active."
+
                 },
                 "MAX_RATIO_LIMIT_14CORES": {
                     "begin_bit": 40,
@@ -243,7 +261,9 @@
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Maximum turbo frequency when 14 cores are active."
+
                 },
                 "MAX_RATIO_LIMIT_15CORES": {
                     "begin_bit": 48,
@@ -252,7 +272,9 @@
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Maximum turbo frequency when 15 cores are active."
+
                 },
                 "MAX_RATIO_LIMIT_16CORES": {
                     "begin_bit": 56,
@@ -261,7 +283,9 @@
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Maximum turbo frequency when 16 cores are active."
+
                 }
             }
         },
@@ -276,7 +300,9 @@
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Maximum turbo frequency when 17 cores are active."
+
                 },
                 "MAX_RATIO_LIMIT_18CORES": {
                     "begin_bit": 8,
@@ -285,7 +311,9 @@
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Maximum turbo frequency when 18 cores are active."
+
                 },
                 "PCU_SEMAPHORE": {
                     "begin_bit": 63,
@@ -294,7 +322,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "constant",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Indicates whether MSR::TURBO_RATIO_LIMIT* settings are used instead of the the factory-set limits."
                 }
             }
         },

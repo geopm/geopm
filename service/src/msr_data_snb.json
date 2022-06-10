@@ -11,7 +11,8 @@
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "The processor's maximum non-turbo frequency."
                 },
                 "PROGRAMMABLE_RATIO_LIMITS_TURBO_MODE": {
                     "begin_bit": 28,
@@ -111,7 +112,8 @@
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Maximum turbo frequency with up to 1 active core."
                 },
                 "MAX_RATIO_LIMIT_2CORES": {
                     "begin_bit": 8,
@@ -120,7 +122,8 @@
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Maximum turbo frequency with up to 2 active cores."
                 },
                 "MAX_RATIO_LIMIT_3CORES": {
                     "begin_bit": 16,
@@ -129,7 +132,8 @@
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Maximum turbo frequency with up to 3 active cores."
                 },
                 "MAX_RATIO_LIMIT_4CORES": {
                     "begin_bit": 24,
@@ -138,7 +142,8 @@
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Maximum turbo frequency with up to 4 active cores."
                 },
                 "MAX_RATIO_LIMIT_5CORES": {
                     "begin_bit": 32,
@@ -147,7 +152,8 @@
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Maximum turbo frequency with up to 5 active cores."
                 },
                 "MAX_RATIO_LIMIT_6CORES": {
                     "begin_bit": 40,
@@ -156,7 +162,8 @@
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Maximum turbo frequency with up to 6 active cores."
                 },
                 "MAX_RATIO_LIMIT_7CORES": {
                     "begin_bit": 48,
@@ -165,7 +172,8 @@
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Maximum turbo frequency with up to 7 active cores."
                 },
                 "MAX_RATIO_LIMIT_8CORES": {
                     "begin_bit": 56,
@@ -174,7 +182,8 @@
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Maximum turbo frequency with up to 8 active cores."
                 }
             }
         },
