@@ -60,7 +60,7 @@ namespace geopm
             static std::unique_ptr<SharedMemory> make_unique_user(const std::string &shm_key, unsigned int timeout);
             /// @brief Modifies the shared memory to be owned by the specified gid
             //         and uid if current permissions allow for the change.
-            virtual void chown(const unsigned int uid, const unsigned int gid) = 0;
+            virtual void chown(const unsigned int uid, const unsigned int gid) const = 0;
     };
 }
 
