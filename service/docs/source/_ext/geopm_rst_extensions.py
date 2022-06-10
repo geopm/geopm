@@ -53,6 +53,9 @@ class GeopmMsrJson(SphinxDirective):
         except FileNotFoundError:
             logger.error('Unable to read %s', json_path, location=self.get_location())
             return []
+        except json.decoder.JSONDecodeError as e:
+            logger.error('Unable to parse %s. Error: %s', json_path, e, location=self.get_location())
+            return []
 
         msr_list = nodes.definition_list()
         for msr_base_name, msr_data in msr_documentation['msrs'].items():
