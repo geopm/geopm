@@ -45,7 +45,9 @@ class Factory(object):
                                            ('IMPIExecLauncher', IMPIExecLauncher),
                                            ('SrunTOSSLauncher', SrunTOSSLauncher),
                                            ('ompi', OMPIExecLauncher),
-                                           ('OMPIExecLauncher', OMPIExecLauncher)])
+                                           ('OMPIExecLauncher', OMPIExecLauncher),
+                                           ('pals', PALSLauncher),
+                                           ('PALSLauncher', PALSLauncher)])
 
     def create(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
                time_limit=None, job_name=None, node_list=None, exclude_list=None, host_file=None,
@@ -1376,6 +1378,8 @@ class IMPIExecLauncher(Launcher):
             self.num_rank = 1
         if opts.rank_per_node:
             self.rank_per_node = opts.rank_per_node
+        else: # Assume this to mimic mpiexec behavior
+            self.rank_per_node = opts.num_rank
         self.node_list = opts.node_list
         self.host_file = opts.host_file
         self.cpu_per_rank = None
@@ -1452,6 +1456,53 @@ class IMPIExecLauncher(Launcher):
 
     def exclude_list_option(self):
         return []
+
+
+class PALSLauncher(IMPIExecLauncher):
+    """
+    IMPIExecLauncher derived object for use with the PALS MPI Library job launch
+    application mpiexec.
+    """
+    IMPIExecLauncher._is_once = False
+
+    def parse_launcher_argv(self):
+        """
+        Parse the subset of mpiexec command line arguments used or
+        manipulated by GEOPM.
+        """
+        if (self.is_geopm_enabled and
+            self.config.do_affinity and
+            any(aa.startswith(('--cpu-bind')) for aa in self.argv)):
+            raise SyntaxError('<geopm> geopmpy.launcher: The option --cpu-bind must not be specified, this is controlled by the launcher.  Use --geopm-affinity-disable to disable automatic pinning.')
+
+        super(PALSLauncher, self).parse_launcher_argv()
+
+    def launcher_command(self):
+        """
+        Returns 'mpiexec', the name of the PALS MPI Library job launch application.
+        """
+        return 'mpiexec'
+
+    def affinity_option(self, is_geopmctl):
+        """
+        Returns a list containing the --cpu-bind option for
+        mpiexec.
+        """
+        result = []
+        if self.is_geopm_enabled:
+            aff_list = self.affinity_list(is_geopmctl)
+            mask_zero = ['0' for ii in range(self.num_linux_cpu)]
+            mask_list = []
+            for cpu_set in aff_list:
+                mask = list(mask_zero)
+                for cpu in cpu_set:
+                    mask[self.num_linux_cpu - 1 - cpu] = '1'
+                mask = '0x{:x}'.format(int(''.join(mask), 2))
+                mask_list.append(mask)
+            result.append('--cpu-bind')
+            result.append('mask:' + ','.join(mask_list))
+
+        return result
 
 
 class AprunLauncher(Launcher):
