@@ -134,7 +134,7 @@ namespace geopm
                               {M_NAME_PREFIX + "GPU_ENERGY", {
                                   "GPU energy in Joules",
                                   GEOPM_DOMAIN_GPU,
-                                  Agg::average,
+                                  Agg::sum,
                                   IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
                                   string_format_double,
                                   {},
@@ -215,7 +215,7 @@ namespace geopm
                               {M_NAME_PREFIX + "GPU_POWER_LIMIT_DEFAULT", {
                                   "Default power limit in Watts",
                                   GEOPM_DOMAIN_GPU,
-                                  Agg::average,
+                                  Agg::sum,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
                                   {},
@@ -231,7 +231,7 @@ namespace geopm
                               {M_NAME_PREFIX + "GPU_POWER_LIMIT_MIN_AVAIL", {
                                   "Minimum available power limit in Watts",
                                   GEOPM_DOMAIN_GPU,
-                                  Agg::average,
+                                  Agg::sum,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
                                   {},
@@ -247,7 +247,7 @@ namespace geopm
                               {M_NAME_PREFIX + "GPU_POWER_LIMIT_MAX_AVAIL", {
                                   "Maximum available power limit in Watts",
                                   GEOPM_DOMAIN_GPU,
-                                  Agg::average,
+                                  Agg::sum,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
                                   {},

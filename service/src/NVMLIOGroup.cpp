@@ -89,7 +89,7 @@ namespace geopm
                                   "GPU clock throttling reasons",
                                   {},
                                   GEOPM_DOMAIN_GPU,
-                                  Agg::expect_same,
+                                  Agg::average,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
