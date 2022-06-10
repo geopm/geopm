@@ -198,7 +198,8 @@
                     "units":     "watts",
                     "scalar":    1.0,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "The resolution of RAPL power interfaces."
                 },
                 "ENERGY": {
                     "begin_bit": 8,
@@ -207,7 +208,8 @@
                     "units":     "joules",
                     "scalar":    1.0,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "The resolution of RAPL energy interfaces."
                 },
                 "TIME": {
                     "begin_bit": 16,
@@ -216,7 +218,8 @@
                     "units":     "seconds",
                     "scalar":    1.0,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "The resolution of RAPL time interfaces."
                 }
             }
         },
