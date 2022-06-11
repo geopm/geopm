@@ -10,7 +10,7 @@ interface to provide hardware signals for NVIDIA GPUs from the NVIDIA Datacenter
 Requirements
 ^^^^^^^^^^^^
 
-To use the GEOPM DCGM signals and controls GEOPM must be compiled against the DCGM libraries and must be run on a system with hardware supported by DCGM.
+To use the GEOPM DCGM signals and controls GEOPM must be compiled against the DCGM libraries and must be run on a system with hardware supported by DCGM.To compile against the oneAPI LevelZero libraries geopm must be configured using both the --enable-nvml flag and the --enable-dcgm flag.  The optional --with-libdcgm flag may be used to indicate the path of the required libraries.
 
 Signals
 -------
@@ -32,7 +32,7 @@ Signals
     *  **Unit**: n/a
 
 ``DCGM::DRAM_ACTIVE``
-    DRAM send and receive metrics expressed as a ration of cycles
+    DRAM send and receive metrics expressed as a ratio of cycles.
 
     *  **Aggregation**: average
     *  **Domain**: gpu
@@ -45,7 +45,7 @@ Controls
 Every control is exposed as a signal with the same name.  The relevant signal aggregation information is provided below.
 
 ``DCGM::FIELD_UPDATE_RATE``
-    Rate at which field data is polled
+    Rate at which field data is polled.
 
     *  **Aggregation**: expect_same
     *  **Domain**: board
@@ -53,7 +53,7 @@ Every control is exposed as a signal with the same name.  The relevant signal ag
     *  **Unit**: seconds
 
 ``DCGM::MAX_STORAGE_TIME``
-    The maximum time field data will be stored
+    The maximum time field data will be stored.
 
     *  **Aggregation**: expect_same
     *  **Domain**: board
@@ -61,7 +61,7 @@ Every control is exposed as a signal with the same name.  The relevant signal ag
     *  **Unit**: seconds
 
 ``DCGM::MAX_SAMPLES``
-    The maximum number of samples to be stored.  0 implies no limit
+    The maximum number of samples to be stored.  Zero implies no limit.
 
     *  **Aggregation**: expect_same
     *  **Domain**: board
@@ -77,16 +77,19 @@ Signal Aliases
 ^^^^^^^^^^^^^^
 
 ``GPU_CORE_ACTIVITY``
-    Maps to DCGM::SM_ACTIVE
+    Maps to ``DCGM::SM_ACTIVE``.
 
 ``GPU_UNCORE_ACTIVITY``
-    Maps to DCGM::DRAM_ACTIVE
+    Maps to ``DCGM::DRAM_ACTIVE``.
 
 See Also
 --------
 
+
+`DCGM API <https://docs.nvidia.com/datacenter/dcgm/latest/>`_
 :doc:`geopm(7) <geopm.7>`\ ,
 :doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>`\ ,
 :doc:`geopmwrite(1) <geopmwrite.1>`\ ,
 :doc:`geopmread(1) <geopmread.1>`,
 :doc:`geopm::Agg(3) <GEOPM_CXX_MAN_Agg.3>`
+:doc:`geopm_pio_nvml(7) <geopm_pio_nvml.7>`\ ,
