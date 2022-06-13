@@ -57,7 +57,7 @@ Get Help Or Version
 Description
 -----------
 
-Provides a command line interface to PlatformIO and PlatformTopo.
+Provides a command line interface to ``PlatformIO`` and ``PlatformTopo``.
 This tool can be used to write hardware/OS state through
 high-level control aliases and query other information
 about the platform such as the type and number of hardware domains.
@@ -68,12 +68,12 @@ When run without any arguments, the default behavior is to print a
 summary of available controls.
 
 To write a specific control, ``geopmwrite`` should be run with four
-arguments.  CONTROL_NAME is the name of the control of interest.
-DOMAIN_TYPE is hardware domain to which the control should be applied.
-DOMAIN_INDEX is used to indicate which instance of the domain to write
-to; indexing starts from 0 and goes up to the domain size - 1.  VALUE
+arguments.  ``CONTROL_NAME`` is the name of the control of interest.
+``DOMAIN_TYPE`` is hardware domain to which the control should be applied.
+``DOMAIN_INDEX`` is used to indicate which instance of the domain to write
+to; indexing starts from 0 and goes up to the domain size - 1.  ``VALUE``
 is the floating-point number in SI units that the control will be
-adjusted to.  If the DOMAIN_TYPE is a larger containing domain than
+adjusted to.  If the ``DOMAIN_TYPE`` is a larger containing domain than
 that of the control, the same value will be applied to every contained
 subdomain.  Refer to the domain hierarchy described in
 :doc:`geopm::PlatformTopo(3) <GEOPM_CXX_MAN_PlatformTopo.3>` for the descriptions of the domains and how
@@ -90,27 +90,27 @@ they are contained within one another.
 | ++ ``nic`` - NIC attached to the board
 | ++ ``gpu`` - domain for GPUs on the board
 
-This utility can be used to create a geopm::PlatformTopo cache file in
+This utility can be used to create a ``geopm::PlatformTopo`` cache file in
 the tmpfs.  When this file is not present the :doc:`geopmread(1) <geopmread.1>`,
 :doc:`geopmwrite(1) <geopmwrite.1>`, :doc:`geopmctl(1) <geopmctl.1>` and :doc:`geopmlaunch(1) <geopmlaunch.1>` will
-**popen(1)** a subprocess which provides the platform topology
+`popen(3) <https://man7.org/linux/man-pages/man3/popen.3.html>`_ a subprocess which provides the platform topology
 information.  This subprocess will not be created if the cache file
 exists.  See the ``--cache`` option below for more information.
 
 Options
 -------
 -d, --domain    Print a list of all domains on the system.
--i, --info      Print description of the provided CONTROL_NAME.
+-i, --info      Print description of the provided ``CONTROL_NAME``.
 -I, --info-all  Print a list of all available controls with their descriptions,
                 if any.
--c, --cache     Create a cache file for the geopm::PlatformTopo object if one
+-c, --cache     Create a cache file for the ``geopm::PlatformTopo`` object if one
                 does not exist or if the existing cache is from a previous boot
                 cycle.  If a privileged user requests this option (e.g. root or
                 if invoked with sudo) the file path will be
                 ``/run/geopm-service/geopm-topo-cache`` and the permissions will
-                be ``-rw-r--r--``, i.e. 644.  If a non-privileged user requests
+                be ``-rw-r--r--``, i.e. **644**.  If a non-privileged user requests
                 this option the file path will be ``/tmp/geopm-topo-cache-<UID>``
-                and the permissions will be ``-rw-------``, i.e. 600.  If the
+                and the permissions will be ``-rw-------``, i.e. **600**.  If the
                 file exists from the current boot cycle and has the proper
                 permissions no operation will be performed.  To force the
                 creation of a new cache file, remove the existing cache file
@@ -154,14 +154,14 @@ Show the description for a control:
    $ geopmwrite --info CPU_FREQUENCY_CONTROL
    CPU_FREQUENCY_CONTROL: Set processor frequency
 
-Show domain type for POWER_PACKAGE control:
+Show domain type for ``POWER_PACKAGE`` control:
 
 .. code-block::
 
    $ geopmwrite --domain POWER_PACKAGE
    package
 
-Set the frequency of CPU 2 to 1.9 GHz:
+Set the frequency of CPU 2 to 1.9 *GHz*:
 
 .. code-block::
 
@@ -169,7 +169,7 @@ Set the frequency of CPU 2 to 1.9 GHz:
    $ geopmread CPU_FREQUENCY_CONTROL cpu 2
    1.9e9
 
-Set all CPUs on package 0 to 1.5 GHz (cpu 1 is on package 0):
+Set all CPUs on package 0 to 1.5 *GHz* (cpu 1 is on package 0):
 
 .. code-block::
 
