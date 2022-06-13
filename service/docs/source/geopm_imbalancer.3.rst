@@ -41,17 +41,14 @@ formatted with a hostname and double fraction on each line, separated
 by a space.
 
 
-* 
-  ``geopm_imbalancer_frac()``:
+``geopm_imbalancer_frac()``
   Used to set a delay *frac* that will sleep for the given fraction
   of the region runtime.
 
-* 
-  ``geopm_imbalancer_enter()``:
+``geopm_imbalancer_enter()``
   Sets the entry time for the imbalanced region.
 
-* 
-  ``geopm_imbalancer_exit()``:
+``geopm_imbalancer_exit()``
   Spins until the region has been extended by the previously specified delay.
 
 See Also
