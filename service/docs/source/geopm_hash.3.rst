@@ -25,14 +25,12 @@ names into 64-bit integers and working with 64-bit integer values
 stored as doubles.
 
 
-* 
-  ``geopm_crc32_u64()``:
+``geopm_crc32_u64()``
   Implements the **CRC32** hashing algorithm, which starts with
   the value *begin* and hashes the value *key* to produce a 32-bit
   result.  The result is returned as a 64-bit integer.
 
-* 
-  ``geopm_crc32_str()``:
+``geopm_crc32_str()``
   Hashes the string *key* to produce a 64-bit value.  This function
   is used to produce unique region IDs for named regions.  An
   ``Agent`` implementation with specialized behavior for specific
