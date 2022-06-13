@@ -57,23 +57,23 @@ Get Help Or Version
 Description
 -----------
 
-Provides a command line interface to PlatformIO and PlatformTopo.
+Provides a command line interface to ``PlatformIO`` and ``PlatformTopo``.
 This tool can be used to read hardware/OS state through high-level
 signal aliases and query other information about the platform such as
 the type and number of hardware domains.  Details of the hardware
 domains can also be inferred from the output of `lscpu(1) <https://man7.org/linux/man-pages/man1/lscpu.1.html>`_.
 
 When run without any arguments, the default behavior is to print a
-summary of available signals.  Signal names ending in # represent the
+summary of available signals.  Signal names ending in ``#`` represent the
 raw bits of MSRs without any interpretation and will be printed in
 hex.  This feature is mainly useful for debugging; for profiling, the
 signal aliases should be preferred.
 
 To read a specific signal, ``geopmread`` should be run with the three
-arguments.  SIGNAL_NAME is the name of the signal of interest.
-DOMAIN_TYPE is the hardware domain for which this signal should be
+arguments.  ``SIGNAL_NAME`` is the name of the signal of interest.
+``DOMAIN_TYPE`` is the hardware domain for which this signal should be
 read.  The domain type should be a lowercase string from the list shown
-by ``--domain``.  DOMAIN_INDEX is used to indicate which instance of the domain
+by ``--domain``.  ``DOMAIN_INDEX`` is used to indicate which instance of the domain
 to read; indexing starts from 0 and goes up to the domain size - 1.
 Values read for signals are in SI units.  Note that the domain can be
 the native domain of the signal (as shown in the summary) or any
@@ -90,27 +90,27 @@ board domain.  Note that not all signals have aggregation functions,
 and if a signal is not readable at board domain, it cannot be printed
 in the trace.
 
-This utility can be used to create a geopm::PlatformTopo cache file in
+This utility can be used to create a ``geopm::PlatformTopo`` cache file in
 the tmpfs.  When this file is not present :doc:`geopmread(1) <geopmread.1>`\ ,
 :doc:`geopmwrite(1) <geopmwrite.1>`\ , :doc:`geopmctl(1) <geopmctl.1>` and :doc:`geopmlaunch(1) <geopmlaunch.1>` will
-**popen(1)** a subprocess which provides the platform topology
+`popen(3) <https://man7.org/linux/man-pages/man3/popen.3.html>`_ a subprocess which provides the platform topology
 information.  This subprocess will not be created if the cache file
 exists.  See the ``--cache`` option below for more information.
 
 Options
 -------
 -d, --domain    Print a list of all domains on the system.
--i, --info      Print description of the provided SIGNAL_NAME.
+-i, --info      Print description of the provided ``SIGNAL_NAME``.
 -I, --info-all  Print a list of all available signals with their descriptions,
                 if any.
--c, --cache     Create a cache file for the geopm::PlatformTopo object if one
+-c, --cache     Create a cache file for the ``geopm::PlatformTopo`` object if one
                 does not exist or if the existing cache is from a previous boot
                 cycle.  If a privileged user requests this option (e.g. root or
                 if invoked with sudo) the file path will be
                 ``/run/geopm-service/geopm-topo-cache`` and the permissions will
-                be ``-rw-r--r--``, i.e. 644.  If a non-privileged user requests
+                be ``-rw-r--r--``, i.e. **644**.  If a non-privileged user requests
                 this option the file path will be ``/tmp/geopm-topo-cache-<UID>``
-                and the permissions will be ``-rw-------``, i.e. 600.  If the
+                and the permissions will be ``-rw-------``, i.e. **600**.  If the
                 file exists from the current boot cycle and has the proper
                 permissions no operation will be performed.  To force the
                 creation of a new cache file, remove the existing cache file
