@@ -32,117 +32,71 @@ Link with ``-lgeopmd``
 
        PlatformIO::PlatformIO() = default;
 
-       void PlatformIO::register_iogroup(
-           shared_ptr<IOGroup> iogroup);
+       void PlatformIO::register_iogroup(shared_ptr<IOGroup> iogroup);
 
-       set<string>
-       PlatformIO::signal_names(
-           void) const;
+       set<string> PlatformIO::signal_names(void) const;
 
-       set<string>
-       PlatformIO::control_names(
-           void) const;
+       set<string> PlatformIO::control_names(void) const;
 
-       int
-       PlatformIO::signal_domain_type(
-           const string &signal_name) const;
+       int PlatformIO::signal_domain_type(const string &signal_name) const;
 
-       int
-       PlatformIO::control_domain_type(
-           const string &control_name) const;
+       int PlatformIO::control_domain_type(const string &control_name) const;
 
-       int
-       PlatformIO::push_signal(
-           const string &signal_name,
-           int domain_type,
-           int domain_idx);
+       int PlatformIO::push_signal(const string &signal_name,
+                                   int domain_type,
+                                   int domain_idx);
 
-       int
-       PlatformIO::push_control(
-           const string &control_name,
-           int domain_type,
-           int domain_idx);
+       int PlatformIO::push_control(const string &control_name,
+                                    int domain_type,
+                                    int domain_idx);
 
-       double
-       PlatformIO::sample(
-           int signal_idx);
+       double PlatformIO::sample(int signal_idx);
 
-       double
-       PlatformIO::sample_combined(
-           int signal_idx);
+       double PlatformIO::sample_combined(int signal_idx);
 
-       void
-       PlatformIO::adjust(
-           int control_idx,
-           double setting);
+       void PlatformIO::adjust(int control_idx,
+                               double setting);
 
-       void
-       PlatformIO::read_batch(
-           void);
+       void PlatformIO::read_batch(void);
 
-       void
-       PlatformIO::write_batch(
-           void);
+       void PlatformIO::write_batch(void);
 
-       double
-       PlatformIO::read_signal(
-           const string &signal_name,
-           int domain_type,
-           int domain_idx);
+       double PlatformIO::read_signal(const string &signal_name,
+                                      int domain_type,
+                                      int domain_idx);
 
-       void
-       PlatformIO::write_control(
-           const string &control_name,
-           int domain_type,
-           int domain_idx,
-           double setting);
+       void PlatformIO::write_control(const string &control_name,
+                                      int domain_type,
+                                      int domain_idx,
+                                      double setting);
 
-       void
-       PlatformIO::save_control(
-           void);
+       void PlatformIO::save_control(void);
 
-       void
-       PlatformIO::restore_control(
-           void);
+       void PlatformIO::restore_control(void);
 
-       void
-       PlatformIO::save_control(
-           const string &save_dir);
+       void PlatformIO::save_control(const string &save_dir);
 
-       void PlatformIO::restore_control(
-           const string &save_dir);
+       void PlatformIO::restore_control(const string &save_dir);
 
        function<double(const vector<double> &)>
-       PlatformIO::agg_function(
-           const string &signal_name) const;
+       PlatformIO::agg_function(const string &signal_name) const;
 
        function<string(double)>
-       PlatformIO::format_function(
-           const string &signal_name) const;
+       PlatformIO::format_function(const string &signal_name) const;
 
-       string
-       PlatformIO::signal_description(
-           const string &signal_name) const;
+       string PlatformIO::signal_description(const string &signal_name) const;
 
-       string
-       PlatformIO::control_description(
-           const string &control_name) const;
+       string PlatformIO::control_description(const string &control_name) const;
 
-       int
-       PlatformIO::signal_behavior(
-           const string &signal_name) const;
+       int PlatformIO::signal_behavior(const string &signal_name) const;
 
-       void
-       PlatformIO::start_batch_server(
-           int client_pid,
-           const vector<geopm_request_s> &signal_config,
-           const vector<geopm_request_s> &control_config,
-           int &server_pid,
-           string &server_key);
+       void PlatformIO::start_batch_server(int client_pid,
+                                           const vector<geopm_request_s> &signal_config,
+                                           const vector<geopm_request_s> &control_config,
+                                           int &server_pid,
+                                           string &server_key);
 
-       void
-       PlatformIO::stop_batch_server(
-           int server_pid);
+       void PlatformIO::stop_batch_server(int server_pid);
 
 
 Description
@@ -171,7 +125,7 @@ Singleton Accessor
 ------------------
 
 
-* ``platform_io()``:
+``platform_io()``
   There is only one ``PlatformIO`` object, and the only way to access
   this object is through this function.  The function returns a
   reference to the single ``PlatformIO`` object that gives access to
@@ -182,8 +136,7 @@ Inspection Class Methods
 ------------------------
 
 
-*
-  ``signal_names()``\ :
+``signal_names()``
   Returns the names of all available signals that can be requested.
   This includes all signals and aliases provided through ``IOGroup``
   extensions as well as signals provided by ``PlatformIO`` itself.  The
@@ -191,55 +144,47 @@ Inspection Class Methods
   to all ``PlatformIO`` methods that accept a *signal_name* input
   parameter.
 
-*
-  ``control_names()``\ :
+``control_names()``
   Returns the names of all available controls.  This includes all
   controls and aliases provided by ``IOGroup``\ s as well as controls
   provided by ``PlatformIO`` itself.  The set of strings that are returned
   can be passed as a *control_name* to all ``PlatformIO`` methods that
   accept a *control_name* input parameter.
 
-*
-  ``signal_description()``\ :
+``signal_description()``
   Returns the description of the signal as defined by the ``IOGroup`` that
   provides this signal.
 
-*
-  ``control_description()``\ :
+``control_description()``
   Returns the description of the control as defined by the ``IOGroup`` that
   provides this control.
 
-*
-  ``signal_domain_type()``\ :
+``signal_domain_type()``
   Query the domain for the signal with name *signal_name*.  Returns
   one of the ``geopm_domain_e`` values signifying the
   granularity at which the signal is measured.  Will return
   ``GEOPM_DOMAIN_INVALID`` if the signal name is not
   supported.
 
-*
-  ``control_domain_type()``\ :
+``control_domain_type()``
   Query the domain for the control with the name *control_name*.
   Returns one of the ``geopm_domain_e`` values
   signifying the granularity at which the control can be adjusted.
   Will return ``GEOPM_DOMAIN_INVALID`` if the control
   name is not supported.
 
-*
-  ``agg_function()``:
+``agg_function()``
   Returns the function that should be used to aggregate
   *signal_name*.  If one was not previously specified by this class,
   the default function is select_first from :doc:`geopm::Agg(3) <GEOPM_CXX_MAN_Agg.3>`.
 
-*
-  ``signal_behavior()``:
+``signal_behavior()``
   Returns one of the ``IOGroup::m_signal_behavior_e`` values which
   describes about how a signal will change as a function of time.
   This can be used when generating reports to decide how to
   summarize a signal's value for the entire application run.
 
-*
-  ``format_function()``:
+``format_function()``
   Returns a function that can be used to convert
   a signal of the given *signal_name* into a printable string.
   The returned function takes the *double* value of the signal and returns a formatted string.
@@ -248,23 +193,20 @@ Serial Class Methods
 --------------------
 
 
-*
-  ``read_signal()``\ :
+``read_signal()``
   Read from the platform and interpret into SI units a signal
   given its name and domain.  Does not modify values stored by
   calling ``read_batch()``. The parameters correspond to the ``struct geopm_request_s``.
   The ``domain_type`` is from the ``enum geopm_domain_e`` described in `geopm_topo.h <https://github.com/geopm/geopm/blob/dev/service/src/geopm_topo.h>`_\
 
-*
-  ``write_control()``\ :
+``write_control()``
   Interpret the setting and write it to the platform.  Does not
   modify the values stored by calling ``adjust()``.
   The first three parameters correspond to the ``struct geopm_request_s``.
   The ``domain_type`` is from the ``enum geopm_domain_e`` described in `geopm_topo.h <https://github.com/geopm/geopm/blob/dev/service/src/geopm_topo.h>`_
   ``setting`` is new value in SI units of the setting for the control.
 
-*
-  ``save_control()``\ :
+``save_control()``
   Save the state of all controls so that any subsequent changes
   made through ``PlatformIO`` may be reverted with a call to
   ``restore_control()``. This function also has an overload which takes a *save_dir* parameter
@@ -273,8 +215,7 @@ Serial Class Methods
   that contains the saved state and name the file
   after the IOGroup name.
 
-*
-  ``restore_control()``\ :
+``restore_control()``
   Restore all controls to values recorded in previous call to
   ``save_control()``. This function also has an overload which takes a *save_dir* parameter
   the directory which contains the result of the previous saved state.
@@ -289,8 +230,7 @@ Batch Class Methods
 -------------------
 
 
-*
-  ``push_signal()``\ :
+``push_signal()``
   Push a signal onto the stack of batch access signals.  The signal
   is defined by selecting a *signal_name* from the set returned by
   the ``signal_names()`` method, the *domain_type* from one of the
@@ -310,8 +250,7 @@ Batch Class Methods
   in a thrown ``geopm::Exception`` with error number
   ``GEOPM_ERROR_INVALID``.
 
-*
-  ``push_control()``\ :
+``push_control()``
   Push a control onto the stack of batch access controls.  The
   control is defined by selecting a *control_name* from the set
   returned by the ``control_names()`` method, the *domain_type* from
@@ -331,33 +270,28 @@ Batch Class Methods
   ``control_names()`` will result in a thrown ``geopm::Exception`` with
   error number ``GEOPM_ERROR_INVALID``.
 
-*
-  ``sample()``\ :
+``sample()``
   Samples cached value of a single signal that has been pushed via
   ``push_signal()``, which is identified by the *signal_idx*
   The cached value is updated at the time of call to
   ``read_batch()``, this function must be called after the update.
   The value of the signal is returned by the function.
 
-*
-  ``adjust()``\ :
+``adjust()``
   Updates cached value for single control, which is the *setting*,
   that has been pushed via ``push_control()``, which is identified by the *control_idx*.
   The cached value will be written to the platform at
   time of call to ``write_batch()``.
 
-*
-  ``read_batch()``\ :
+``read_batch()``
   Read all pushed signals from the platform so that the next call to ``sample()``
   will reflect the updated data.
 
-*
-  ``write_batch()``\ :
+``write_batch()``
   Write all pushed controls so that values provided to ``adjust()``
   are written to the platform.
 
-*
-  ``start_batch_server()``\ :
+``start_batch_server()``
   Creates a batch server with the following signals and controls.
   The list of signals is represented by the vector *signal_config*.
   The list of controls is represented by the vector *control_config*.
@@ -369,8 +303,7 @@ Batch Class Methods
   a substring in interprocess shared memory keys used for communication.
   An exception is thrown if any error occurs.
 
-*
-  ``geopm_pio_stop_batch_server()``:
+``geopm_pio_stop_batch_server()``
   This function is called directly by geopmd in order to
   end a batch session and kill the batch server process
   created by ``start_batch_server()``, which is the *server_pid* parameter.
@@ -381,9 +314,7 @@ Batch Class Methods
 
 Plugin Class Methods
 --------------------
-
-
-* ``register_iogroup()``\ :
+``register_iogroup()``
   Registers an ``IOGroup`` with the ``PlatformIO`` so that the signals
   and controls provided by the object are available through the
   ``PlatformIO`` interface.  The *iogroup* is a shared pointer to a
