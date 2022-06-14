@@ -6,7 +6,7 @@
 import torch
 from torch import nn
 import torch.utils.data as data
-from random import uniform
+from random import shuffle
 import numpy as np
 import sys
 import os
@@ -14,7 +14,6 @@ import math
 
 import pandas as pd
 import argparse
-import code
 
 from ray import tune
 from ray.tune import CLIReporter
@@ -84,6 +83,18 @@ def main():
         model_to_script(model, args.output)
         sys.exit(0)
 
+    X_nophi = X_columns[:-1]
+    shuffle(X_nophi)
+    signal_choice = list(np.array_split(np.array(X_nophi), 2))
+
+    for choice in signal_choice:
+        np.append(choice, X_columns[-1])
+
+    signal_choice.append(X_columns)
+
+    #import code
+    #code.interact(local=locals())
+
     # Exclude rows missing data in any of the columns of interest. Otherwise,
     # NaN values propagate into every weight in the model.
     # And replace Inf with NaN
@@ -118,7 +129,7 @@ def main():
             #If using leave one out only use those cases for the test case
             df_test = pd.concat(df_test_list)
 
-    train_set, val_set = data_prep(df_traces, X_columns, y_columns)
+    #train_set, val_set = data_prep(df_traces, X_columns, y_columns)
 
     seq_length = None
     net_type = None
@@ -137,7 +148,8 @@ def main():
             "layer_width" : tune.sample_from(lambda _: 2**np.random.randint(2, 8)), #TODO: change based on NN type?
             "layer_count" : tune.sample_from(lambda spec:
                 2**np.random.randint(2, 5) if spec.config.net_type=="FF" else np.random.randint(2,4)),
-            "lr" : tune.loguniform(1e-3, 1e-3) #TODO: move to 1e-5 to 1e-1 range, per raytune FAQ recommendations
+            "lr" : tune.loguniform(1e-3, 1e-3), #TODO: move to 1e-5 to 1e-1 range, per raytune FAQ recommendations
+            "input_names": tune.grid_search(signal_choice)
         }
 
         scheduler_metric = args.scheduler_metric
@@ -157,10 +169,13 @@ def main():
             reduction_factor=2)
 
         reporter = CLIReporter(
-            metric_columns=["loss", "accuracy"])
+            metric_columns=["loss", "accuracy"],
+            parameter_columns =['net_type', 'criterion', 'batch_size',
+                                'seq_length', 'layer_width',
+                                'layer_count', 'lr'])
 
         result = tune.run(
-            tune.with_parameters(training_loop, input_size=len(X_columns), train_set=train_set, val_set=val_set),
+            tune.with_parameters(training_loop, traces=df_traces, output_control=y_columns),
             #resources_per_trial={"cpu":, "gpu":}, #TODO: specifying CPU availability as a command line option
             config = config,
             num_samples=args.train_hp_samples,
@@ -280,9 +295,13 @@ def data_prep(input_trace, input_names, output_name):
 
     return train_set, val_set
 
-def training_loop(config, input_size, train_set, val_set):
+def training_loop(config, traces, output_control):
+    train_set, val_set = data_prep(traces, config['input_names'], output_control)
+    input_size = len(config['input_names'])
+
     train_loader = torch.utils.data.DataLoader(dataset = train_set, batch_size = config['batch_size'], shuffle = False)
     val_loader = torch.utils.data.DataLoader(dataset = val_set, batch_size = config['batch_size'], shuffle = False)
+
 
     net_type=config['net_type']
     if(net_type == 'Feed-Forward'):
