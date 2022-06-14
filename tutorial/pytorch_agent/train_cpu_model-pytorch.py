@@ -48,6 +48,8 @@ def main():
     parser.add_argument('--scheduler-metric', default='accuracy', type=str,
                         choices=['loss', 'accuracy'],
                         help='Specify scheduler metric.')
+    parser.add_argument('--train-hp-signals', action='store_true',
+                        help='Specify scheduler metric.')
     args = parser.parse_args()
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -83,14 +85,16 @@ def main():
         model_to_script(model, args.output)
         sys.exit(0)
 
-    X_nophi = X_columns[:-1]
-    shuffle(X_nophi)
-    signal_choice = list(np.array_split(np.array(X_nophi), 2))
+    if args.train_hp_signals:
+        X_nophi = X_columns[:-1]
+        shuffle(X_nophi)
+        signal_choice = list(np.array_split(np.array(X_nophi), 2))
 
-    for choice in signal_choice:
-        np.append(choice, X_columns[-1])
-
-    signal_choice.append(X_columns)
+        for choice in signal_choice:
+            np.append(choice, X_columns[-1])
+        signal_choice.append(X_columns)
+    else:
+        signal_choice = [X_columns]
 
     #import code
     #code.interact(local=locals())
@@ -128,8 +132,6 @@ def main():
 
             #If using leave one out only use those cases for the test case
             df_test = pd.concat(df_test_list)
-
-    #train_set, val_set = data_prep(df_traces, X_columns, y_columns)
 
     seq_length = None
     net_type = None
@@ -219,6 +221,8 @@ def main():
         criterion = nn.MSELoss()
         seq_length = None
         net_type = "FF"
+
+        train_set, val_set = data_prep(df_traces, X_columns, y_columns)
 
         train_loader = torch.utils.data.DataLoader(dataset = train_set, batch_size = batch_size, shuffle = False)
         val_loader = torch.utils.data.DataLoader(dataset = val_set, batch_size = batch_size, shuffle = False)
