@@ -523,7 +523,8 @@
                     "units":     "watts",
                     "scalar":    1.25e-1,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Maximum DRAM power to stay within the thermal limits based on the design."
                 },
                 "MIN_POWER": {
                     "begin_bit": 16,
@@ -532,7 +533,8 @@
                     "units":     "watts",
                     "scalar":    1.25e-1,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "The minimum DRAM power limit based on the electrical specification."
                 },
                 "MAX_POWER": {
                     "begin_bit": 32,
@@ -541,7 +543,8 @@
                     "units":     "watts",
                     "scalar":    1.25e-1,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "The maximum DRAM power limit based on the electrical specification."
                 },
                 "MAX_TIME_WINDOW": {
                     "begin_bit": 48,
@@ -550,7 +553,8 @@
                     "units":     "seconds",
                     "scalar":    9.765625e-04,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "The maximum value accepted in MSR::DRAM_POWER_LIMIT:TIME_WINDOW."
                 }
             }
         },
