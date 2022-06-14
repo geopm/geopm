@@ -32,16 +32,6 @@
                     "behavior":  "constant",
                     "writeable": false
                 },
-                "PROGRAMMABLE_TCC_ACTIVATION_OFFSET": {
-                    "begin_bit": 30,
-                    "end_bit":   30,
-                    "function":  "scale",
-                    "units":     "none",
-                    "scalar":    1,
-                    "behavior":  "constant",
-                    "writeable": false,
-                    "comment-description": "Not applicable?"
-                },
                 "MAX_EFFICIENCY_RATIO": {
                     "begin_bit": 40,
                     "end_bit":   47,
