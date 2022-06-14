@@ -39,7 +39,8 @@
                     "units":     "none",
                     "scalar":    1,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Indicates whether the platform permits writes to MSR::TEMPERATURE_TARGET:TCC_ACTIVE_OFFSET."
                 },
                 "MAX_EFFICIENCY_RATIO": {
                     "begin_bit": 40,
@@ -97,7 +98,8 @@
                     "scalar":    1.0,
                     "behavior":  "constant",
                     "writeable": false,
-                    "aggregation": "expect_same"
+                    "aggregation": "expect_same",
+                    "description": "The lowest temperature considered a high temperature. Measured temperatures at or above this value will generate a PROCHOT event."
                 },
                 "TCC_ACTIVE_OFFSET": {
                     "begin_bit": 24,
@@ -106,7 +108,8 @@
                     "units":     "celsius",
                     "scalar":    1.0,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "An offset to subtract from MSR::TEMPERATURE_TARGET:PROCHOT_MIN as the cutoff to generate a PROCHOT event."
                 }
             }
         },

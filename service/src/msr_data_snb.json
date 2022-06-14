@@ -39,7 +39,8 @@
                     "units":     "none",
                     "scalar":    1,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "comment-description": "Not applicable?"
                 },
                 "MAX_EFFICIENCY_RATIO": {
                     "begin_bit": 40,
@@ -97,7 +98,8 @@
                     "scalar":    1.0,
                     "behavior":  "constant",
                     "writeable": false,
-                    "aggregation": "expect_same"
+                    "aggregation": "expect_same",
+                    "description": "The lowest temperature considered a high temperature. Measured temperatures at or above this value will generate a PROCHOT event."
                 }
             }
         },
