@@ -19,6 +19,12 @@ from experiment import machine
 
 def setup_run_args(parser):
     common_args.setup_run_args(parser)
+    parser.add_argument('--gpu-frequency-efficient', dest='gpu_fe',
+                        action='store', default='nan',
+                        help='The efficient frequency of the gpu (a.k.a. Fe) for this experiment')
+    parser.add_argument('--gpu-frequency-max', dest='gpu_fmax',
+                        action='store', default='nan',
+                        help='The maximum frequency of the gpu (a.k.a. Fmax) for this experiment')
 
 def report_signals():
     return []
@@ -26,71 +32,20 @@ def report_signals():
 def trace_signals():
     return []
 
-def launch_configs(output_dir, app_conf):
+def launch_configs(output_dir, app_conf, gpu_fe, gpu_fmax):
     mach = machine.init_output_dir(output_dir)
     sys_min = mach.frequency_min()
     sys_max = mach.frequency_max()
     sys_sticker = mach.frequency_sticker()
-    config_list = [
-                     {"GPU_FREQ_MAX": float("NAN"),
-                      "GPU_FREQ_EFFICIENT": float("NAN"),
-                      "GPU_PHI": 0.0,
-                      "SAMPLE_PERIOD": float("NAN")},
-                     {"GPU_FREQ_MAX": float("NAN"),
-                      "GPU_FREQ_EFFICIENT": float("NAN"),
-                      "GPU_PHI": 0.1,
-                      "SAMPLE_PERIOD": float("NAN")},
-                     {"GPU_FREQ_MAX": float("NAN"),
-                      "GPU_FREQ_EFFICIENT": float("NAN"),
-                      "GPU_PHI": 0.2,
-                      "SAMPLE_PERIOD": float("NAN")},
-                     {"GPU_FREQ_MAX": float("NAN"),
-                      "GPU_FREQ_EFFICIENT": float("NAN"),
-                      "GPU_PHI": 0.3,
-                      "SAMPLE_PERIOD": float("NAN")},
-                     {"GPU_FREQ_MAX": float("NAN"),
-                      "GPU_FREQ_EFFICIENT": float("NAN"),
-                      "GPU_PHI": 0.4,
-                      "SAMPLE_PERIOD": float("NAN")},
-                     {"GPU_FREQ_MAX": float("NAN"),
-                      "GPU_FREQ_EFFICIENT": float("NAN"),
-                      "GPU_PHI": 0.5,
-                      "SAMPLE_PERIOD": float("NAN")},
-                     {"GPU_FREQ_MAX": float("NAN"),
-                      "GPU_FREQ_EFFICIENT": float("NAN"),
-                      "GPU_PHI": 0.6,
-                      "SAMPLE_PERIOD": float("NAN")},
-                     {"GPU_FREQ_MAX": float("NAN"),
-                      "GPU_FREQ_EFFICIENT": float("NAN"),
-                      "GPU_PHI": 0.7,
-                      "SAMPLE_PERIOD": float("NAN")},
-                     {"GPU_FREQ_MAX": float("NAN"),
-                      "GPU_FREQ_EFFICIENT": float("NAN"),
-                      "GPU_PHI": 0.8,
-                      "SAMPLE_PERIOD": float("NAN")},
-                     {"GPU_FREQ_MAX": float("NAN"),
-                      "GPU_FREQ_EFFICIENT": float("NAN"),
-                      "GPU_PHI": 0.9,
-                      "SAMPLE_PERIOD": float("NAN")},
-                     {"GPU_FREQ_MAX": float("NAN"),
-                      "GPU_FREQ_EFFICIENT": float("NAN"),
-                      "GPU_PHI": 1.0,
-                      "SAMPLE_PERIOD": float("NAN")}
-                  ]
-    config_names=['phi0',
-                  'phi10',
-                  'phi20',
-                  'phi30',
-                  'phi40',
-                  'phi50',
-                  'phi60',
-                  'phi70',
-                  'phi80',
-                  'phi90',
-                  'phi100',
-                 ]
+
+    config_list = [{"GPU_FREQ_MAX" : float(gpu_fmax),
+                    "GPU_FREQ_EFFICIENT": float(gpu_fe),
+                    "GPU_PHI" : float(phi/10),
+                    "SAMPLE_PERIOD": float(nan)} for phi in range(0,11)]
+    config_names = ['phi'+str(x*10) for x in range(0,11)]
 
     targets = []
+
     agent = 'gpu_activity'
     for idx,config in enumerate(config_list):
         name = config_names[idx]
@@ -108,7 +63,7 @@ def launch(app_conf, args, experiment_cli_args):
                                                     trace_signals=trace_signals())
     extra_cli_args += experiment_cli_args
 
-    targets = launch_configs(output_dir, app_conf)
+    targets = launch_configs(output_dir, app_conf, args.gpu_fe, args.gpu_fmax)
 
     launch_util.launch_all_runs(targets=targets,
                                 num_nodes=args.node_count,
