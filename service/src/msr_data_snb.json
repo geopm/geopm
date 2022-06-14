@@ -395,7 +395,8 @@
                     "units":     "watts",
                     "scalar":    1.25e-1,
                     "behavior":  "variable",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "The average DRAM power usage limit over the time window specified in TIME_WINDOW."
                 },
                 "ENABLE": {
                     "begin_bit": 15,
@@ -404,7 +405,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Enable the limit specified in POWER_LIMIT."
                 },
                 "TIME_WINDOW": {
                     "begin_bit": 17,
@@ -413,7 +415,8 @@
                     "units":     "seconds",
                     "scalar":    9.765625e-04,
                     "behavior":  "variable",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "The time window associated with the DRAM power limit."
                 },
                 "LOCK": {
                     "begin_bit": 31,
@@ -422,7 +425,8 @@
                     "units":     "none",
                     "scalar":    1,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Ignore any changes to configuration in DRAM_POWER_LIMIT until the next reset."
                 }
             }
         },
