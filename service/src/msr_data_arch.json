@@ -59,7 +59,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Indicates whether the core's on-die sensor reads a high temperature (PROCHOT)."
                 },
                 "THERMAL_STATUS_LOG": {
                     "begin_bit": 1,
@@ -68,7 +69,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Indicates whether the core's on-die sensor has read a high temperature (PROCHOT) since the last time a zero was written to this control."
                 },
                 "PROCHOT_EVENT": {
                     "begin_bit": 2,
@@ -77,7 +79,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Indicates whether a high temperature (PROCHOT) or forced power reduction (FORCEPR) is being externally asserted."
                 },
                 "PROCHOT_LOG": {
                     "begin_bit": 3,
@@ -86,7 +89,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Indicates whether a high temperature (PROCHOT) or forced power reduction (FORCEPR) has been externally asserted since the last time a zero was written to this control."
                 },
                 "CRITICAL_TEMP_STATUS": {
                     "begin_bit": 4,
@@ -95,7 +99,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Indicates whether the core's on-die sensor reads a critical temperature and the system cannot guarantee reliable operation."
                 },
                 "CRITICAL_TEMP_LOG": {
                     "begin_bit": 5,
@@ -104,7 +109,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Indicates whether the core's on-die sensor has read a critical temperature since the last time a zero was written to this control."
                 },
                 "THERMAL_THRESH_1_STATUS": {
                     "begin_bit": 6,
@@ -113,7 +119,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "writeable": false
+                    "writeable": false,
+                    "comment": "Indicates whether the core's on-die sensor reads greater than or equal to the threshold in MSR::THERM_INTERRUPT:THRESH_1."
                 },
                 "THERMAL_THRESH_1_LOG": {
                     "begin_bit": 7,
@@ -122,7 +129,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "writeable": true
+                    "writeable": true,
+                    "comment": "Indicates whether the core's on-die sensor has read greater than or equal to the threshold in MSR::THERM_INTERRUPT:THRESH_1 since the last time a zero was written to this control."
                 },
                 "THERMAL_THRESH_2_STATUS": {
                     "begin_bit": 8,
@@ -131,7 +139,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "writeable": false
+                    "writeable": false,
+                    "comment": "Indicates whether the core's on-die sensor reads greater than or equal to the threshold in MSR::THERM_INTERRUPT:THRESH_2."
                 },
                 "THERMAL_THRESH_2_LOG": {
                     "begin_bit": 9,
@@ -140,7 +149,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "writeable": true
+                    "writeable": true,
+                    "comment": "Indicates whether the core's on-die sensor has read greater than or equal to the threshold in MSR::THERM_INTERRUPT:THRESH_2 since the last time a zero was written to this control."
                 },
                 "POWER_LIMIT_STATUS": {
                     "begin_bit": 10,
@@ -149,7 +159,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Indicates whether requested P-States or requested clock duty cycles are not met."
                 },
                 "POWER_NOTIFICATION_LOG": {
                     "begin_bit": 11,
@@ -158,7 +169,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Indicates whether requested P-States or requested clock duty cycles were not met at some point since the last time a zero was written to this control."
                 },
                 "DIGITAL_READOUT": {
                     "begin_bit": 16,
@@ -168,7 +180,8 @@
                     "scalar":    1.0,
                     "writeable": false,
                     "behavior":  "variable",
-                    "aggregation": "average"
+                    "aggregation": "average",
+                    "description": "The temperature read by this core's on-die sensor."
                 },
                 "RESOLUTION": {
                     "begin_bit": 27,
@@ -177,7 +190,8 @@
                     "units":     "celsius",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "The resolution of the sensor that measures MSR::THERM_STATUS:DIGITAL_READOUT temperature."
                 },
                 "READING_VALID": {
                     "begin_bit": 31,
@@ -186,7 +200,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Indicates whether MSR::THERM_STATUS:DIGITAL_READOUT contains a valid temperature readout."
                 }
             }
         },
@@ -234,7 +249,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Indicates whether the package's on-die sensor reads a high temperature (PROCHOT)."
                 },
                 "THERMAL_STATUS_LOG": {
                     "begin_bit": 1,
@@ -243,7 +259,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Indicates whether the package's on-die sensor has read a high temperature (PROCHOT) since the last time a zero was written to this control."
                 },
                 "PROCHOT_EVENT": {
                     "begin_bit": 2,
@@ -252,7 +269,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Indicates whether a package high temperature (PROCHOT) or forced power reduction (FORCEPR) is being externally asserted."
                 },
                 "PROCHOT_LOG": {
                     "begin_bit": 3,
@@ -261,7 +279,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Indicates whether a package high temperature (PROCHOT) or forced power reduction (FORCEPR) has been externally asserted since the last time a zero was written to this control."
                 },
                 "CRITICAL_TEMP_STATUS": {
                     "begin_bit": 4,
@@ -270,7 +289,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Indicates whether the package's on-die sensor reads a critical temperature and the system cannot guarantee reliable operation."
                 },
                 "CRITICAL_TEMP_LOG": {
                     "begin_bit": 5,
@@ -279,7 +299,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Indicates whether the package's on-die sensor has read a critical temperature since the last time a zero was written to this control."
                 },
                 "THERMAL_THRESH_1_STATUS": {
                     "begin_bit": 6,
@@ -288,7 +309,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "writeable": false
+                    "writeable": false,
+                    "comment": "Indicates whether the package's on-die sensor reads greater than or equal to the threshold in MSR::PACKAGE_THERM_INTERRUPT:THRESH_1."
                 },
                 "THERMAL_THRESH_1_LOG": {
                     "begin_bit": 7,
@@ -297,7 +319,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "writeable": true
+                    "writeable": true,
+                    "comment": "Indicates whether the package's on-die sensor has read greater than or equal to the threshold in MSR::PACKAGE_THERM_INTERRUPT:THRESH_1 since the last time a zero was written to this control."
                 },
                 "THERMAL_THRESH_2_STATUS": {
                     "begin_bit": 8,
@@ -306,7 +329,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "writeable": false
+                    "writeable": false,
+                    "comment": "Indicates whether the package's on-die sensor reads greater than or equal to the threshold in MSR::PACKAGE_THERM_INTERRUPT:THRESH_2."
                 },
                 "THERMAL_THRESH_2_LOG": {
                     "begin_bit": 9,
@@ -315,7 +339,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "writeable": true
+                    "writeable": true,
+                    "comment": "Indicates whether the package's on-die sensor has read greater than or equal to the threshold in MSR::PACKAGE_THERM_INTERRUPT:THRESH_2 since the last time a zero was written to this control."
                 },
                 "POWER_LIMIT_STATUS": {
                     "begin_bit": 10,
@@ -324,7 +349,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Indicates whether requested P-States or requested clock duty cycles are not met due to a package power limit."
                 },
                 "POWER_NOTIFICATION_LOG": {
                     "begin_bit": 11,
@@ -333,7 +359,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Indicates whether requested P-States or requested clock duty cycles were not met due to a package power limit at some point since the last time a zero was written to this control."
                 },
                 "DIGITAL_READOUT": {
                     "begin_bit": 16,
@@ -343,7 +370,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": false,
-                    "aggregation": "average"
+                    "aggregation": "average",
+                    "description": "The temperature read by this package's on-die sensor."
                 }
             }
         },
