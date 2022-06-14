@@ -19,6 +19,15 @@ from experiment import machine
 
 def setup_run_args(parser):
     common_args.setup_run_args(parser)
+    parser.add_argument('--gpu-frequency-max', dest='gpu_fmax',
+                        action='store', default='nan',
+                        help='The maximum frequency of the gpu (a.k.a. Fgmax) for this experiment')
+    parser.add_argument('--gpu-frequency-min', dest='gpu_fmin',
+                        action='store', default='nan',
+                        help='The minimum frequency of the gpu (a.k.a. Fgmin) for this experiment')
+    parser.add_argument('--gpu-nn-path', dest='gpu_nn_path',
+                        action='store', default=None,
+                        help='Full path for the NN')
 
 def report_signals():
     return []
@@ -26,58 +35,15 @@ def report_signals():
 def trace_signals():
     return []
 
-def launch_configs(output_dir, app_conf):
+def launch_configs(output_dir, app_conf, gpu_fmin, gpu_fmax, gpu_nn_path):
     mach = machine.init_output_dir(output_dir)
     sys_min = mach.frequency_min()
     sys_max = mach.frequency_max()
     sys_sticker = mach.frequency_sticker()
-    config_list = [
-                     {"GPU_FREQ_MIN": float("NAN"),
-                      "GPU_FREQ_MAX": float("NAN"),
-                      "GPU_PHI": 0.0},
-                     {"GPU_FREQ_MIN": float("NAN"),
-                      "GPU_FREQ_MAX": float("NAN"),
-                      "GPU_PHI": 0.1},
-                     {"GPU_FREQ_MIN": float("NAN"),
-                      "GPU_FREQ_MAX": float("NAN"),
-                      "GPU_PHI": 0.2},
-                     {"GPU_FREQ_MIN": float("NAN"),
-                      "GPU_FREQ_MAX": float("NAN"),
-                      "GPU_PHI": 0.3},
-                     {"GPU_FREQ_MIN": float("NAN"),
-                      "GPU_FREQ_MAX": float("NAN"),
-                      "GPU_PHI": 0.4},
-                     {"GPU_FREQ_MIN": float("NAN"),
-                      "GPU_FREQ_MAX": float("NAN"),
-                      "GPU_PHI": 0.5},
-                     {"GPU_FREQ_MIN": float("NAN"),
-                      "GPU_FREQ_MAX": float("NAN"),
-                      "GPU_PHI": 0.6},
-                     {"GPU_FREQ_MIN": float("NAN"),
-                      "GPU_FREQ_MAX": float("NAN"),
-                      "GPU_PHI": 0.7},
-                     {"GPU_FREQ_MIN": float("NAN"),
-                      "GPU_FREQ_MAX": float("NAN"),
-                      "GPU_PHI": 0.8},
-                     {"GPU_FREQ_MIN": float("NAN"),
-                      "GPU_FREQ_MAX": float("NAN"),
-                      "GPU_PHI": 0.9},
-                     {"GPU_FREQ_MIN": float("NAN"),
-                      "GPU_FREQ_MAX": float("NAN"),
-                      "GPU_PHI": 1.0},
-                  ]
-    config_names=['phi0',
-                  'phi10',
-                  'phi20',
-                  'phi30',
-                  'phi40',
-                  'phi50',
-                  'phi60',
-                  'phi70',
-                  'phi80',
-                  'phi90',
-                  'phi100',
-                 ]
+
+    config_list = [{"GPU_FREQ_MIN" : float(gpu_fmin), "GPU_FREQ_MAX": float(gpu_fmax),
+                    "GPU_PHI" : float(phi/10)} for phi in range(0,11)]
+    config_names = ['phi'+str(x*10) for x in range(0,11)]
 
     targets = []
     agent = 'gpu_torch'
@@ -89,6 +55,10 @@ def launch_configs(output_dir, app_conf):
         targets.append(launch_util.LaunchConfig(app_conf=app_conf,
                                                 agent_conf=agent_conf,
                                                 name=name))
+
+    if gpu_nn_path is not None:
+        os.environ['GEOPM_GPU_NN_PATH'] = gpu_nn_path
+
     return targets
 
 def launch(app_conf, args, experiment_cli_args):
@@ -97,7 +67,8 @@ def launch(app_conf, args, experiment_cli_args):
                                                     trace_signals=trace_signals())
     extra_cli_args += experiment_cli_args
 
-    targets = launch_configs(output_dir, app_conf)
+    targets = launch_configs(output_dir, app_conf, args.gpu_fmin, args.gpu_fmax,
+                                args.gpu_nn_path)
 
     launch_util.launch_all_runs(targets=targets,
                                 num_nodes=args.node_count,
