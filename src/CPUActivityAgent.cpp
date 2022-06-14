@@ -221,6 +221,11 @@ namespace geopm
             f_uncore_efficient = std::min(f_uncore_max, f_uncore_efficient +
                                                         f_uncore_range * (0.5-phi) / 0.5);
         }
+        //Update Policy
+        in_policy[M_POLICY_CPU_FREQ_MAX] = f_core_max;
+        in_policy[M_POLICY_CPU_FREQ_EFFICIENT] = f_core_efficient;
+        in_policy[M_POLICY_UNCORE_FREQ_MAX] = f_uncore_max;
+        in_policy[M_POLICY_UNCORE_FREQ_EFFICIENT] = f_uncore_efficient;
 
         // Validate all (uncore frequency, max memory bandwidth) pairs
         std::set<double> policy_uncore_freqs;
