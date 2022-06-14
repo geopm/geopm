@@ -8,7 +8,7 @@ import os
 import glob
 import yaml
 import argparse
-import code
+import math
 from itertools import chain
 
 def process_report_files(input_dir, nodename, app_index):
@@ -144,6 +144,7 @@ if __name__ == "__main__":
     parser.add_argument('frequency_sweep_dirs',
                         nargs='+',
                         help='Directories containing reports and traces from frequency sweeps')
+    parser.add_argument('--force-linear-phi-freq', action='store_true')
     args = parser.parse_args()
 
     nodename = args.nodename
@@ -159,6 +160,7 @@ if __name__ == "__main__":
         # Pandas auto-transposes your data if it has only 1 group. We don't want that.
         reports_df['runtime-vs-maxfreq'] = relative_runtime.T if config_groups.ngroups == 1 else relative_runtime
 
+        max_cpu_freq = reports_df['cpu-frequency'].max()
         max_cpu_freq = reports_df['cpu-frequency'].max()
         # Note that these are all trained against GPU 0. If more GPUs are
         # used at inference time, the model is replicated across the GPUs.
@@ -190,6 +192,30 @@ if __name__ == "__main__":
             perf_freq = tradeoffs_by_frequency.groupby(
                 'app-config', group_keys=False, dropna=False)[objective_column_name].idxmin()
             perf_frequencies.append(perf_freq)
+
+        if args.force_linear_phi_freq:
+            # Linearization of phi response assuming energy responds linearly
+            # between the minimum and maximum perf frequency
+            # This could be rewritten as a different tradeoffs_by_frequency above,
+            # but overall is simpler to keep separate for now
+            for idx in range(len(perf_frequencies[0])):
+                perf_freq_min = perf_frequencies[-1][idx]
+                if math.isnan(perf_freq_min):
+                    # If NaN use the maximum of the phi 100 values as a
+                    # conservative guess
+                    perf_freq_min = max(perf_frequencies[-1])
+
+                perf_freq_max = perf_frequencies[0][idx]
+                if math.isnan(perf_freq_max):
+                    # If NaN use the maximum of the phi 0 values as a
+                    # conservative guess
+                    perf_freq_max = max(perf_frequencies[0])
+
+                perf_frequencies_linear = np.linspace(perf_freq_max, perf_freq_min,
+                                                      len(perf_frequencies)).tolist()
+
+                for entry_idx, perf_freq_lin in enumerate(perf_frequencies_linear):
+                    perf_frequencies[entry_idx][idx] = perf_freq_lin
 
         # Add the generated columns of report data to each trace file. Melt the
         # generated data such that a new "phi" column in the trace represents
