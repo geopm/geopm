@@ -458,7 +458,8 @@
                     "units":     "seconds",
                     "scalar":    9.765625e-04,
                     "behavior":  "monotone",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "The amount of time that the package was throttled below the requested frequency due to MSR::DRAM_POWER_LIMIT:POWER_LIMIT."
                 }
             }
         },
