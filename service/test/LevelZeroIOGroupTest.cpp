@@ -173,9 +173,9 @@ TEST_F(LevelZeroIOGroupTest, push_control_adjust_write_batch)
     std::vector<double> mock_freq = {1530, 1320, 420, 135, 1620, 812, 199, 1700};
 
     for (int sub_idx = 0; sub_idx < num_gpu_subdevice; ++sub_idx) {
-        batch_value[(levelzero_io.push_control("LEVELZERO::GPUCHIP_FREQUENCY_CONTROL",
+        batch_value[(levelzero_io.push_control("LEVELZERO::GPU_CORE_FREQUENCY_CONTROL",
                                         GEOPM_DOMAIN_GPU_CHIP, sub_idx))] = mock_freq.at(sub_idx)*1e6;
-        batch_value[(levelzero_io.push_control("GPUCHIP_FREQUENCY_CONTROL",
+        batch_value[(levelzero_io.push_control("GPU_CORE_FREQUENCY_CONTROL",
                                         GEOPM_DOMAIN_GPU_CHIP, sub_idx))] = mock_freq.at(sub_idx)*1e6;
         EXPECT_CALL(*m_device_pool,
                     frequency_control(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE, mock_freq.at(sub_idx), mock_freq.at(sub_idx))).Times(2);
@@ -199,11 +199,11 @@ TEST_F(LevelZeroIOGroupTest, write_control)
         EXPECT_CALL(*m_device_pool,
                     frequency_control(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE, mock_freq.at(sub_idx), mock_freq.at(sub_idx))).Times(2);
 
-        EXPECT_NO_THROW(levelzero_io.write_control("LEVELZERO::GPUCHIP_FREQUENCY_CONTROL",
+        EXPECT_NO_THROW(levelzero_io.write_control("LEVELZERO::GPU_CORE_FREQUENCY_CONTROL",
                                               GEOPM_DOMAIN_GPU_CHIP, sub_idx,
                                               mock_freq.at(sub_idx)*1e6));
 
-        EXPECT_NO_THROW(levelzero_io.write_control("GPUCHIP_FREQUENCY_CONTROL",
+        EXPECT_NO_THROW(levelzero_io.write_control("GPU_CORE_FREQUENCY_CONTROL",
                                               GEOPM_DOMAIN_GPU_CHIP, sub_idx,
                                               mock_freq.at(sub_idx)*1e6));
     }
@@ -222,7 +222,7 @@ TEST_F(LevelZeroIOGroupTest, read_signal_and_batch)
 
     for (int sub_idx = 0; sub_idx < num_gpu_subdevice; ++sub_idx) {
         EXPECT_CALL(*m_device_pool, frequency_status(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE)).WillRepeatedly(Return(mock_freq.at(sub_idx)));
-        batch_idx.push_back(levelzero_io.push_signal("LEVELZERO::GPUCHIP_FREQUENCY_STATUS", GEOPM_DOMAIN_GPU_CHIP, sub_idx));
+        batch_idx.push_back(levelzero_io.push_signal("LEVELZERO::GPU_CORE_FREQUENCY_STATUS", GEOPM_DOMAIN_GPU_CHIP, sub_idx));
     }
 
     for (int gpu_idx = 0; gpu_idx < num_gpu; ++gpu_idx) {
@@ -233,7 +233,7 @@ TEST_F(LevelZeroIOGroupTest, read_signal_and_batch)
 
     levelzero_io.read_batch();
     for (int sub_idx = 0; sub_idx < num_gpu_subdevice; ++sub_idx) {
-        double frequency = levelzero_io.read_signal("LEVELZERO::GPUCHIP_FREQUENCY_STATUS", GEOPM_DOMAIN_GPU_CHIP, sub_idx);
+        double frequency = levelzero_io.read_signal("LEVELZERO::GPU_CORE_FREQUENCY_STATUS", GEOPM_DOMAIN_GPU_CHIP, sub_idx);
         double frequency_batch = levelzero_io.sample(batch_idx.at(sub_idx));
 
         EXPECT_DOUBLE_EQ(frequency, mock_freq.at(sub_idx)*1e6);
@@ -260,7 +260,7 @@ TEST_F(LevelZeroIOGroupTest, read_signal_and_batch)
 
     levelzero_io.read_batch();
     for (int sub_idx = 0; sub_idx < num_gpu_subdevice; ++sub_idx) {
-        double frequency = levelzero_io.read_signal("LEVELZERO::GPUCHIP_FREQUENCY_STATUS", GEOPM_DOMAIN_GPU_CHIP, sub_idx);
+        double frequency = levelzero_io.read_signal("LEVELZERO::GPU_CORE_FREQUENCY_STATUS", GEOPM_DOMAIN_GPU_CHIP, sub_idx);
         double frequency_batch = levelzero_io.sample(batch_idx.at(sub_idx));
 
         EXPECT_DOUBLE_EQ(frequency, mock_freq.at(sub_idx)*1e6);
@@ -305,9 +305,9 @@ TEST_F(LevelZeroIOGroupTest, read_timestamp_batch_reverse)
         EXPECT_CALL(*m_device_pool, active_time_timestamp(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE)).WillRepeatedly(Return(mock_active_time_timestamp_compute.at(sub_idx)));
         EXPECT_CALL(*m_device_pool, active_time_timestamp(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_MEMORY)).WillRepeatedly(Return(mock_active_time_timestamp_copy.at(sub_idx)));
 
-        active_time_batch_idx.push_back(levelzero_io.push_signal("LEVELZERO::GPUCHIP_ACTIVE_TIME_TIMESTAMP", GEOPM_DOMAIN_GPU_CHIP, sub_idx));
-        active_time_compute_batch_idx.push_back(levelzero_io.push_signal("LEVELZERO::GPUCHIP_ACTIVE_TIME_COMPUTE_TIMESTAMP", GEOPM_DOMAIN_GPU_CHIP, sub_idx));
-        active_time_copy_batch_idx.push_back(levelzero_io.push_signal("LEVELZERO::GPUCHIP_ACTIVE_TIME_COPY_TIMESTAMP", GEOPM_DOMAIN_GPU_CHIP, sub_idx));
+        active_time_batch_idx.push_back(levelzero_io.push_signal("LEVELZERO::GPU_ACTIVE_TIME_TIMESTAMP", GEOPM_DOMAIN_GPU_CHIP, sub_idx));
+        active_time_compute_batch_idx.push_back(levelzero_io.push_signal("LEVELZERO::GPU_CORE_ACTIVE_TIME_TIMESTAMP", GEOPM_DOMAIN_GPU_CHIP, sub_idx));
+        active_time_copy_batch_idx.push_back(levelzero_io.push_signal("LEVELZERO::GPU_UNCORE_ACTIVE_TIME_TIMESTAMP", GEOPM_DOMAIN_GPU_CHIP, sub_idx));
     }
 
     for (int gpu_idx = 0; gpu_idx < num_gpu; ++gpu_idx) {
@@ -377,9 +377,9 @@ TEST_F(LevelZeroIOGroupTest, read_timestamp_batch)
         EXPECT_CALL(*m_device_pool, active_time_timestamp(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE)).WillRepeatedly(Return(mock_active_time_timestamp_compute.at(sub_idx)));
         EXPECT_CALL(*m_device_pool, active_time_timestamp(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_MEMORY)).WillRepeatedly(Return(mock_active_time_timestamp_copy.at(sub_idx)));
 
-        active_time_batch_idx.push_back(levelzero_io.push_signal("LEVELZERO::GPUCHIP_ACTIVE_TIME", GEOPM_DOMAIN_GPU_CHIP, sub_idx));
-        active_time_compute_batch_idx.push_back(levelzero_io.push_signal("LEVELZERO::GPUCHIP_ACTIVE_TIME_COMPUTE", GEOPM_DOMAIN_GPU_CHIP, sub_idx));
-        active_time_copy_batch_idx.push_back(levelzero_io.push_signal("LEVELZERO::GPUCHIP_ACTIVE_TIME_COPY", GEOPM_DOMAIN_GPU_CHIP, sub_idx));
+        active_time_batch_idx.push_back(levelzero_io.push_signal("LEVELZERO::GPU_ACTIVE_TIME", GEOPM_DOMAIN_GPU_CHIP, sub_idx));
+        active_time_compute_batch_idx.push_back(levelzero_io.push_signal("LEVELZERO::GPU_CORE_ACTIVE_TIME", GEOPM_DOMAIN_GPU_CHIP, sub_idx));
+        active_time_copy_batch_idx.push_back(levelzero_io.push_signal("LEVELZERO::GPU_UNCORE_ACTIVE_TIME", GEOPM_DOMAIN_GPU_CHIP, sub_idx));
     }
 
     for (int gpu_idx = 0; gpu_idx < num_gpu; ++gpu_idx) {
@@ -467,27 +467,27 @@ TEST_F(LevelZeroIOGroupTest, read_signal)
 
     for (int sub_idx = 0; sub_idx < num_gpu_subdevice; ++sub_idx) {
         //Frequency
-        double frequency = levelzero_io.read_signal("LEVELZERO::GPUCHIP_FREQUENCY_STATUS", GEOPM_DOMAIN_GPU_CHIP, sub_idx);
-        double frequency_alias = levelzero_io.read_signal("GPUCHIP_FREQUENCY_STATUS", GEOPM_DOMAIN_GPU_CHIP, sub_idx);
+        double frequency = levelzero_io.read_signal("LEVELZERO::GPU_CORE_FREQUENCY_STATUS", GEOPM_DOMAIN_GPU_CHIP, sub_idx);
+        double frequency_alias = levelzero_io.read_signal("GPU_FREQUENCY_STATUS", GEOPM_DOMAIN_GPU_CHIP, sub_idx);
         EXPECT_DOUBLE_EQ(frequency, frequency_alias);
         EXPECT_DOUBLE_EQ(frequency, mock_freq_gpu.at(sub_idx)*1e6);
-        frequency = levelzero_io.read_signal("LEVELZERO::GPUCHIP_MEMORY_FREQUENCY_STATUS", GEOPM_DOMAIN_GPU_CHIP, sub_idx);
+        frequency = levelzero_io.read_signal("LEVELZERO::GPU_UNCORE_FREQUENCY_STATUS", GEOPM_DOMAIN_GPU_CHIP, sub_idx);
         EXPECT_DOUBLE_EQ(frequency, mock_freq_mem.at(sub_idx)*1e6);
-        frequency = levelzero_io.read_signal("LEVELZERO::GPUCHIP_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_GPU_CHIP, sub_idx);
+        frequency = levelzero_io.read_signal("LEVELZERO::GPU_CORE_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_GPU_CHIP, sub_idx);
         EXPECT_DOUBLE_EQ(frequency, mock_freq_min_gpu.at(sub_idx)*1e6);
-        frequency = levelzero_io.read_signal("LEVELZERO::GPUCHIP_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_GPU_CHIP, sub_idx);
+        frequency = levelzero_io.read_signal("LEVELZERO::GPU_CORE_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_GPU_CHIP, sub_idx);
         EXPECT_DOUBLE_EQ(frequency, mock_freq_max_gpu.at(sub_idx)*1e6);
-        frequency = levelzero_io.read_signal("LEVELZERO::GPUCHIP_MEMORY_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_GPU_CHIP, sub_idx);
+        frequency = levelzero_io.read_signal("LEVELZERO::GPU_UNCORE_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_GPU_CHIP, sub_idx);
         EXPECT_DOUBLE_EQ(frequency, mock_freq_min_mem.at(sub_idx)*1e6);
-        frequency = levelzero_io.read_signal("LEVELZERO::GPUCHIP_MEMORY_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_GPU_CHIP, sub_idx);
+        frequency = levelzero_io.read_signal("LEVELZERO::GPU_UNCORE_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_GPU_CHIP, sub_idx);
         EXPECT_DOUBLE_EQ(frequency, mock_freq_max_mem.at(sub_idx)*1e6);
 
         //Active time
-        double active_time = levelzero_io.read_signal("LEVELZERO::GPUCHIP_ACTIVE_TIME", GEOPM_DOMAIN_GPU_CHIP, sub_idx);
+        double active_time = levelzero_io.read_signal("LEVELZERO::GPU_ACTIVE_TIME", GEOPM_DOMAIN_GPU_CHIP, sub_idx);
         EXPECT_DOUBLE_EQ(active_time, mock_active_time.at(sub_idx)/1e6);
-        double active_time_compute = levelzero_io.read_signal("LEVELZERO::GPUCHIP_ACTIVE_TIME_COMPUTE", GEOPM_DOMAIN_GPU_CHIP, sub_idx);
+        double active_time_compute = levelzero_io.read_signal("LEVELZERO::GPU_CORE_ACTIVE_TIME", GEOPM_DOMAIN_GPU_CHIP, sub_idx);
         EXPECT_DOUBLE_EQ(active_time_compute, mock_active_time_compute.at(sub_idx)/1e6);
-        double active_time_copy = levelzero_io.read_signal("LEVELZERO::GPUCHIP_ACTIVE_TIME_COPY", GEOPM_DOMAIN_GPU_CHIP, sub_idx);
+        double active_time_copy = levelzero_io.read_signal("LEVELZERO::GPU_UNCORE_ACTIVE_TIME", GEOPM_DOMAIN_GPU_CHIP, sub_idx);
         EXPECT_DOUBLE_EQ(active_time_copy, mock_active_time_copy.at(sub_idx)/1e6);
     }
 
@@ -508,8 +508,8 @@ TEST_F(LevelZeroIOGroupTest, read_signal)
     // Just check validity of derived signals
     ASSERT_TRUE(levelzero_io.is_valid_signal("LEVELZERO::GPU_POWER"));
     ASSERT_TRUE(levelzero_io.is_valid_signal("LEVELZERO::GPU_UTILIZATION"));
-    ASSERT_TRUE(levelzero_io.is_valid_signal("LEVELZERO::GPU_UTILIZATION_COMPUTE"));
-    ASSERT_TRUE(levelzero_io.is_valid_signal("LEVELZERO::GPU_UTILIZATION_COPY"));
+    ASSERT_TRUE(levelzero_io.is_valid_signal("LEVELZERO::GPU_CORE_UTILIZATION"));
+    ASSERT_TRUE(levelzero_io.is_valid_signal("LEVELZERO::GPU_UNCORE_UTILIZATION"));
 }
 
 //Test case: Error path testing including:
@@ -533,11 +533,11 @@ TEST_F(LevelZeroIOGroupTest, error_path)
     }
     LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool, nullptr);
 
-    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.push_signal("LEVELZERO::GPUCHIP_FREQUENCY_STATUS", GEOPM_DOMAIN_BOARD, 0),
+    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.push_signal("LEVELZERO::GPU_CORE_FREQUENCY_STATUS", GEOPM_DOMAIN_BOARD, 0),
                                GEOPM_ERROR_INVALID, "domain_type must be");
     GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.sample(0),
                                GEOPM_ERROR_INVALID, "batch_idx 0 out of range");
-    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::GPUCHIP_FREQUENCY_STATUS", GEOPM_DOMAIN_BOARD, 0),
+    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::GPU_CORE_FREQUENCY_STATUS", GEOPM_DOMAIN_BOARD, 0),
                                GEOPM_ERROR_INVALID, "domain_type must be");
 
     GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.push_signal("LEVELZERO::INVALID", GEOPM_DOMAIN_GPU, 0),
@@ -545,11 +545,11 @@ TEST_F(LevelZeroIOGroupTest, error_path)
     GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::INVALID", GEOPM_DOMAIN_GPU, 0),
                                GEOPM_ERROR_INVALID, "LEVELZERO::INVALID not valid for LevelZeroIOGroup");
 
-    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.push_control("LEVELZERO::GPUCHIP_FREQUENCY_CONTROL", GEOPM_DOMAIN_BOARD, 0),
+    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.push_control("LEVELZERO::GPU_CORE_FREQUENCY_CONTROL", GEOPM_DOMAIN_BOARD, 0),
                                GEOPM_ERROR_INVALID, "domain_type must be");
     GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.adjust(0, 12345.6),
                                GEOPM_ERROR_INVALID, "batch_idx 0 out of range");
-    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.write_control("LEVELZERO::GPUCHIP_FREQUENCY_CONTROL", GEOPM_DOMAIN_BOARD, 0, 1530000000),
+    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.write_control("LEVELZERO::GPU_CORE_FREQUENCY_CONTROL", GEOPM_DOMAIN_BOARD, 0, 1530000000),
                                GEOPM_ERROR_INVALID, "domain_type must be");
 
     GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.push_control("LEVELZERO::INVALID", GEOPM_DOMAIN_GPU, 0),
@@ -557,27 +557,27 @@ TEST_F(LevelZeroIOGroupTest, error_path)
     GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.write_control("LEVELZERO::INVALID", GEOPM_DOMAIN_GPU, 0, 1530000000),
                                GEOPM_ERROR_INVALID, "LEVELZERO::INVALID not valid for LevelZeroIOGroup");
 
-    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.push_signal("LEVELZERO::GPUCHIP_FREQUENCY_STATUS", GEOPM_DOMAIN_GPU_CHIP, num_gpu_subdevice),
+    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.push_signal("LEVELZERO::GPU_CORE_FREQUENCY_STATUS", GEOPM_DOMAIN_GPU_CHIP, num_gpu_subdevice),
                                GEOPM_ERROR_INVALID, "domain_idx out of range");
-    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.push_signal("LEVELZERO::GPUCHIP_FREQUENCY_STATUS", GEOPM_DOMAIN_GPU_CHIP, -1),
+    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.push_signal("LEVELZERO::GPU_CORE_FREQUENCY_STATUS", GEOPM_DOMAIN_GPU_CHIP, -1),
                                GEOPM_ERROR_INVALID, "domain_idx out of range");
-    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::GPUCHIP_FREQUENCY_STATUS", GEOPM_DOMAIN_GPU_CHIP, num_gpu_subdevice),
+    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::GPU_CORE_FREQUENCY_STATUS", GEOPM_DOMAIN_GPU_CHIP, num_gpu_subdevice),
                                GEOPM_ERROR_INVALID, "domain_idx out of range");
-    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::GPUCHIP_FREQUENCY_STATUS", GEOPM_DOMAIN_GPU_CHIP, -1),
-                               GEOPM_ERROR_INVALID, "domain_idx out of range");
-
-    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.push_control("LEVELZERO::GPUCHIP_FREQUENCY_CONTROL", GEOPM_DOMAIN_GPU_CHIP, num_gpu_subdevice),
-                               GEOPM_ERROR_INVALID, "domain_idx out of range");
-    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.push_control("LEVELZERO::GPUCHIP_FREQUENCY_CONTROL", GEOPM_DOMAIN_GPU_CHIP, -1),
-                               GEOPM_ERROR_INVALID, "domain_idx out of range");
-    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.write_control("LEVELZERO::GPUCHIP_FREQUENCY_CONTROL", GEOPM_DOMAIN_GPU_CHIP, num_gpu_subdevice, 1530000000),
-                               GEOPM_ERROR_INVALID, "domain_idx out of range");
-    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.write_control("LEVELZERO::GPUCHIP_FREQUENCY_CONTROL", GEOPM_DOMAIN_GPU_CHIP, -1, 1530000000),
+    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::GPU_CORE_FREQUENCY_STATUS", GEOPM_DOMAIN_GPU_CHIP, -1),
                                GEOPM_ERROR_INVALID, "domain_idx out of range");
 
-    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::GPUCHIP_ACTIVE_TIME_TIMESTAMP", GEOPM_DOMAIN_GPU_CHIP, 0), GEOPM_ERROR_INVALID, "TIMESTAMP Signals are for batch use only.");
-    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::GPUCHIP_ACTIVE_TIME_COPY_TIMESTAMP", GEOPM_DOMAIN_GPU_CHIP, 0), GEOPM_ERROR_INVALID, "TIMESTAMP Signals are for batch use only.");
-    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::GPUCHIP_ACTIVE_TIME_COMPUTE_TIMESTAMP", GEOPM_DOMAIN_GPU_CHIP, 0), GEOPM_ERROR_INVALID, "TIMESTAMP Signals are for batch use only.");
+    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.push_control("LEVELZERO::GPU_CORE_FREQUENCY_CONTROL", GEOPM_DOMAIN_GPU_CHIP, num_gpu_subdevice),
+                               GEOPM_ERROR_INVALID, "domain_idx out of range");
+    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.push_control("LEVELZERO::GPU_CORE_FREQUENCY_CONTROL", GEOPM_DOMAIN_GPU_CHIP, -1),
+                               GEOPM_ERROR_INVALID, "domain_idx out of range");
+    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.write_control("LEVELZERO::GPU_CORE_FREQUENCY_CONTROL", GEOPM_DOMAIN_GPU_CHIP, num_gpu_subdevice, 1530000000),
+                               GEOPM_ERROR_INVALID, "domain_idx out of range");
+    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.write_control("LEVELZERO::GPU_CORE_FREQUENCY_CONTROL", GEOPM_DOMAIN_GPU_CHIP, -1, 1530000000),
+                               GEOPM_ERROR_INVALID, "domain_idx out of range");
+
+    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::GPU_ACTIVE_TIME_TIMESTAMP", GEOPM_DOMAIN_GPU_CHIP, 0), GEOPM_ERROR_INVALID, "TIMESTAMP Signals are for batch use only.");
+    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::GPU_UNCORE_ACTIVE_TIME_TIMESTAMP", GEOPM_DOMAIN_GPU_CHIP, 0), GEOPM_ERROR_INVALID, "TIMESTAMP Signals are for batch use only.");
+    GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::GPU_CORE_ACTIVE_TIME_TIMESTAMP", GEOPM_DOMAIN_GPU_CHIP, 0), GEOPM_ERROR_INVALID, "TIMESTAMP Signals are for batch use only.");
     GEOPM_EXPECT_THROW_MESSAGE(levelzero_io.read_signal("LEVELZERO::GPU_ENERGY_TIMESTAMP", GEOPM_DOMAIN_GPU, 0), GEOPM_ERROR_INVALID, "TIMESTAMP Signals are for batch use only.");
 }
 
