@@ -45,8 +45,8 @@ namespace geopm
         : m_platform_topo(platform_topo)
         , m_levelzero_device_pool(device_pool)
         , m_is_batch_read(false)
-        , m_signal_available({{M_NAME_PREFIX + "GPUCHIP_FREQUENCY_STATUS", {
-                                  "Compute/GPU chip domain current frequency in hertz",
+        , m_signal_available({{M_NAME_PREFIX + "GPU_CORE_FREQUENCY_STATUS", {
+                                  "The current frequency of the GPU Compute Hardware.",
                                   GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
@@ -67,8 +67,8 @@ namespace geopm
                                   },
                                   1e6
                                   }},
-                              {M_NAME_PREFIX + "GPUCHIP_FREQUENCY_MAX_AVAIL", {
-                                  "Compute/GPU chip domain maximum available frequency in hertz",
+                              {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_AVAIL", {
+                                  "The maximum supported frequency of the GPU Compute Hardware.",
                                   GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
@@ -83,8 +83,8 @@ namespace geopm
                                   },
                                   1e6
                                   }},
-                              {M_NAME_PREFIX + "GPUCHIP_FREQUENCY_MIN_AVAIL", {
-                                  "Compute/GPU chip domain minimum available frequency in hertz",
+                              {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_AVAIL", {
+                                  "The minimum supported frequency of the GPU Compute Hardware.",
                                   GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
@@ -99,8 +99,8 @@ namespace geopm
                                   },
                                   1e6
                                   }},
-                              {M_NAME_PREFIX + "GPUCHIP_FREQUENCY_MAX_CONTROL", {
-                                  "Compute/GPU chip domain current maximum frequency requested in hertz",
+                              {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_CONTROL", {
+                                  "The maximum frequency request for the GPU Compute Hardware.",
                                   GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
@@ -115,8 +115,8 @@ namespace geopm
                                   },
                                   1e6
                                   }},
-                              {M_NAME_PREFIX + "GPUCHIP_FREQUENCY_MIN_CONTROL", {
-                                  "Compute/GPU chip domain current minimum frequency requested in hertz",
+                              {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_CONTROL", {
+                                  "The minimum frequency request for the GPU Compute Hardware.",
                                   GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
@@ -132,7 +132,7 @@ namespace geopm
                                   1e6
                                   }},
                               {M_NAME_PREFIX + "GPU_ENERGY", {
-                                  "GPU energy in Joules",
+                                  "GPU energy in joules.",
                                   GEOPM_DOMAIN_GPU,
                                   Agg::sum,
                                   IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
@@ -148,8 +148,8 @@ namespace geopm
                                   1 / 1e6
                                   }},
                               {M_NAME_PREFIX + "GPU_ENERGY_TIMESTAMP", {
-                                  "GPU energy timestamp in seconds"
-                                  "\nValue cached on LEVELZERO::ENERGY read",
+                                  "Timestamp for the GPU energy read in seconds."
+                                  "\nValue is updated on LEVELZERO::ENERGY read."
                                   GEOPM_DOMAIN_GPU,
                                   Agg::average,
                                   IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
@@ -164,8 +164,8 @@ namespace geopm
                                   },
                                   1 / 1e6
                                   }},
-                              {M_NAME_PREFIX + "GPUCHIP_MEMORY_FREQUENCY_STATUS", {
-                                  "Compute/GPU chip domain memory current frequency in hertz",
+                              {M_NAME_PREFIX + "GPU_UNCORE_FREQUENCY_STATUS", {
+                                  "The current frequency of the GPU Memory Hardware.",
                                   GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
@@ -180,8 +180,8 @@ namespace geopm
                                   },
                                   1e6
                                   }},
-                              {M_NAME_PREFIX + "GPUCHIP_MEMORY_FREQUENCY_MAX_AVAIL", {
-                                  "Compute/GPU chip domain memory maximum frequency available in hertz",
+                              {M_NAME_PREFIX + "GPU_UNCORE_FREQUENCY_MAX_AVAIL", {
+                                  "The maximum supported frequency of the GPU Memory Hardware.",
                                   GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
@@ -196,8 +196,8 @@ namespace geopm
                                   },
                                   1e6
                                   }},
-                              {M_NAME_PREFIX + "GPUCHIP_MEMORY_FREQUENCY_MIN_AVAIL", {
-                                  "Compute/GPU chip domain memory minimum frequency in hertz",
+                              {M_NAME_PREFIX + "GPU_UNCORE_FREQUENCY_MIN_AVAIL", {
+                                  "The minimum supported frequency of the GPU Memory Hardware.",
                                   GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
@@ -213,7 +213,7 @@ namespace geopm
                                   1e6
                                   }},
                               {M_NAME_PREFIX + "GPU_POWER_LIMIT_DEFAULT", {
-                                  "Default power limit in Watts",
+                                  "Default power limit of the GPU in watts.",
                                   GEOPM_DOMAIN_GPU,
                                   Agg::sum,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
@@ -229,7 +229,7 @@ namespace geopm
                                   1 / 1e3
                                   }},
                               {M_NAME_PREFIX + "GPU_POWER_LIMIT_MIN_AVAIL", {
-                                  "Minimum available power limit in Watts",
+                                  "The minimum supported power limit in watts.",
                                   GEOPM_DOMAIN_GPU,
                                   Agg::sum,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
@@ -245,7 +245,7 @@ namespace geopm
                                   1 / 1e3
                                   }},
                               {M_NAME_PREFIX + "GPU_POWER_LIMIT_MAX_AVAIL", {
-                                  "Maximum available power limit in Watts",
+                                  "The maximum supported power limit in watts.",
                                   GEOPM_DOMAIN_GPU,
                                   Agg::sum,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
@@ -260,8 +260,9 @@ namespace geopm
                                   },
                                   1 / 1e3
                                   }},
-                              {M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME", {
-                                  "Compute/GPU chip active time",
+                              {M_NAME_PREFIX + "GPU_ACTIVE_TIME", {
+                                  "Time in seconds that this resource is actively running a workload."
+                                  "\nSee the Intel oneAPI Level Zero Sysman documentation for more info.",
                                   GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
                                   IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
@@ -276,9 +277,10 @@ namespace geopm
                                   },
                                   1 / 1e6
                                   }},
-                              {M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME_TIMESTAMP", {
-                                  "Compute/GPU chip active time reading timestamp"
-                                  "\nValue cached on LEVELZERO::GPUCHIP_ACTIVE_TIME read",
+                              {M_NAME_PREFIX + "GPU_ACTIVE_TIME_TIMESTAMP", {
+                                  "The timestamp for the LEVELZERO::GPU_ACTIVE_TIME read in seconds."
+                                  "\nValue is updated on LEVELZERO::GPU_ACTIVE_TIME read."
+                                  "\nSee the Intel oneAPI Level Zero Sysman documentation for more info.",
                                   GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
                                   IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
@@ -293,8 +295,9 @@ namespace geopm
                                   },
                                   1 / 1e6
                                   }},
-                              {M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME_COMPUTE", {
-                                  "Compute/GPU chip domain compute engine active time",
+                              {M_NAME_PREFIX + "GPU_CORE_ACTIVE_TIME", {
+                                  "Time in seconds that the GPU compute engines (EUs) are actively running a workload."
+                                  "\nSee the Intel oneAPI Level Zero Sysman documentation for more info.",
                                   GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
                                   IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
@@ -309,9 +312,10 @@ namespace geopm
                                   },
                                   1 / 1e6
                                   }},
-                              {M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME_COMPUTE_TIMESTAMP", {
-                                  "Compute/GPU chip domain compute engine active time reading timestamp"
-                                  "\nValue cached on LEVELZERO::GPUCHIP_ACTIVE_TIME_COMPUTE read",
+                              {M_NAME_PREFIX + "GPU_CORE_ACTIVE_TIME_TIMESTAMP", {
+                                  "The timestamp for the LEVELZERO::GPU_CORE_ACTIVE_TIME signal read in seconds."
+                                  "\nValue is updated on LEVELZERO::GPU_CORE_ACTIVE_TIME read."
+                                  "\nSee the Intel oneAPI Level Zero Sysman documentation for more info.",
                                   GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
                                   IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
@@ -326,8 +330,9 @@ namespace geopm
                                   },
                                   1 / 1e6
                                   }},
-                              {M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME_COPY", {
-                                  "Compute/GPU chip domain copy engine active time",
+                              {M_NAME_PREFIX + "GPU_UNCORE_ACTIVE_TIME", {
+                                  "Time in seconds that the GPU copy engines are actively running a workload."
+                                  "\nSee the Intel oneAPI Level Zero Sysman documentation for more info.",
                                   GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
                                   IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
@@ -342,9 +347,10 @@ namespace geopm
                                   },
                                   1 / 1e6
                                   }},
-                              {M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME_COPY_TIMESTAMP", {
-                                  "Compute/GPU chip domain copy engine active time timestamp"
-                                  "\nValue cached on LEVELZERO::GPUCHIP_ACTIVE_TIME_COPY read",
+                              {M_NAME_PREFIX + "GPU_UNCORE_ACTIVE_TIME_TIMESTAMP", {
+                                  "The timestamp for the LEVELZERO::GPU_UNCORE_ACTIVE_TIME signal read in seconds."
+                                  "\nValue is updated on LEVELZERO::GPU_UNCORE_ACTIVE_TIME read."
+                                  "\nSee the Intel oneAPI Level Zero Sysman documentation for more info.",
                                   GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
                                   IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
@@ -359,8 +365,10 @@ namespace geopm
                                   },
                                   1 / 1e6
                                   }},
-                              {M_NAME_PREFIX + "GPUCHIP_FREQUENCY_CONTROL", {
-                                  "Compute/GPU chip domain current requested frequency in hertz"
+                              {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL", {
+                                  "Last value written to both the minimum and maximum frequency request for "
+                                  "the GPU Compute Hardware to a single user provided value (min=max)."
+                                  "\nOnly valid as a signal after being written, NAN returned otherwise."
                                   "\nReadings are valid only after writing to this control",
                                   GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
@@ -379,22 +387,24 @@ namespace geopm
                                   1e6
                                   }}
                              })
-        , m_control_available({{M_NAME_PREFIX + "GPUCHIP_FREQUENCY_MIN_CONTROL", {
-                                    "Sets the compute/GPU chip domain frequency minimum in hertz",
+        , m_control_available({{M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_CONTROL", {
+                                    "Sets the minimum frequency request for the GPU Compute Hardware.",
                                     {},
                                     GEOPM_DOMAIN_GPU_CHIP,
                                     Agg::average,
                                     string_format_double
                                     }},
-                               {M_NAME_PREFIX + "GPUCHIP_FREQUENCY_MAX_CONTROL", {
-                                    "Sets the compute/GPU chip domain frequency maximum in hertz",
+                               {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_CONTROL", {
+                                    "Sets the maximum frequency request for the GPU Compute Hardware.",
                                     {},
                                     GEOPM_DOMAIN_GPU_CHIP,
                                     Agg::average,
                                     string_format_double
                                     }},
-                               {M_NAME_PREFIX + "GPUCHIP_FREQUENCY_CONTROL", {
-                                    "Sets the compute/GPU chip fomain frequency both min and max in hertz",
+                               {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL", {
+                                    "Sets both the minimum and maximum frequency request for the GPU Compute Hardware"
+                                    " to a single user provided value (min=max)."
+                                    "\nOnly valid as a signal after being written, NAN returned otherwise.",
                                     {},
                                     GEOPM_DOMAIN_GPU_CHIP,
                                     Agg::average,
@@ -402,37 +412,38 @@ namespace geopm
                                     }}
                               })
         , m_special_signal_set({M_NAME_PREFIX + "GPU_ENERGY",
-                                M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME",
-                                M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME_COMPUTE",
-                                M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME_COPY"})
+                                M_NAME_PREFIX + "GPU_ACTIVE_TIME",
+                                M_NAME_PREFIX + "GPU_CORE_ACTIVE_TIME",
+                                M_NAME_PREFIX + "GPU_UNCORE_ACTIVE_TIME"})
 
         , m_derivative_signal_map ({
             {M_NAME_PREFIX + "GPU_POWER",
-                    {"Average GPU power over 40 ms or 8 control loop iterations",
-                    M_NAME_PREFIX + "GPU_ENERGY",
-                    M_NAME_PREFIX + "GPU_ENERGY_TIMESTAMP",
-                    IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE}},
+                    {"Average GPU power over 40 ms or 8 control loop iterations."
+                     "  Derivative signal based on LEVELZERO::GPU_ENERGY.",
+                     M_NAME_PREFIX + "GPU_ENERGY",
+                     M_NAME_PREFIX + "GPU_ENERGY_TIMESTAMP",
+                     IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE}},
             {M_NAME_PREFIX + "GPU_UTILIZATION",
-                    {"GPU utilization"
-                        "n  Level Zero logical engines may map to the same hardware"
-                        "\n  resulting in a reduced signal range (i.e. not 0 to 1)",
-                    M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME",
-                    M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME_TIMESTAMP",
-                    IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE}},
-            {M_NAME_PREFIX + "GPU_UTILIZATION_COMPUTE",
-                    {"Compute engine utilization"
-                        "n  Level Zero logical engines may map to the same hardware"
-                        "\n  resulting in a reduced signal range (i.e. not 0 to 1)",
-                    M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME_COMPUTE",
-                    M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME_COMPUTE_TIMESTAMP",
-                    IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE}},
-            {M_NAME_PREFIX + "GPU_UTILIZATION_COPY",
-                    {"Copy engine utilization"
-                        "n  Level Zero logical engines may map to the same hardware"
-                        "\n  resulting in a reduced signal range (i.e. not 0 to 1)",
-                    M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME_COPY",
-                    M_NAME_PREFIX + "GPUCHIP_ACTIVE_TIME_COPY_TIMESTAMP",
-                    IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE}},
+                    {"Utilization of all GPU engines. Level Zero logical engines may map to the same hardware,"
+                     " resulting in a reduced signal range (i.e. less than 0 to 1) in some cases."
+                     "\nSee the LevelZero Sysman Engine documentation for more info.",
+                     M_NAME_PREFIX + "GPU_ACTIVE_TIME",
+                     M_NAME_PREFIX + "GPU_ACTIVE_TIME_TIMESTAMP",
+                     IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE}},
+            {M_NAME_PREFIX + "GPU_CORE_UTILIZATION",
+                    {"Utilization of the GPU Compute engines (EUs). Level Zero logical engines may map to the same hardware,"
+                     " resulting in a reduced signal range (i.e. less than 0 to 1) in some cases."
+                     "\nSee the LevelZero Sysman Engine documentation for more info.",
+                     M_NAME_PREFIX + "GPU_CORE_ACTIVE_TIME",
+                     M_NAME_PREFIX + "GPU_CORE_ACTIVE_TIME_TIMESTAMP",
+                     IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE}},
+            {M_NAME_PREFIX + "GPU_UNCORE_UTILIZATION",
+                    {"Utilization of the GPU Copy engines. Level Zero logical engines may map to the same hardware,"
+                     " resulting in a reduced signal range (i.e. less than 0 to 1) in some cases."
+                     "\nSee the LevelZero Sysman Engine documentation for more info.",
+                     M_NAME_PREFIX + "GPU_UNCORE_ACTIVE_TIME",
+                     M_NAME_PREFIX + "GPU_UNCORE_ACTIVE_TIME_TIMESTAMP",
+                     IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE}},
         })
         , m_mock_save_ctl(save_control_test)
     {
@@ -452,12 +463,12 @@ namespace geopm
 
         register_derivative_signals();
 
-        register_signal_alias("GPUCHIP_FREQUENCY_STATUS", M_NAME_PREFIX + "GPUCHIP_FREQUENCY_STATUS");
+        register_signal_alias("GPU_FREQUENCY_STATUS", M_NAME_PREFIX + "GPU_CORE_FREQUENCY_STATUS");
         register_signal_alias("GPU_POWER", M_NAME_PREFIX + "GPU_POWER");
-        register_signal_alias("GPUCHIP_FREQUENCY_CONTROL",
-                               M_NAME_PREFIX + "GPUCHIP_FREQUENCY_CONTROL");
-        register_control_alias("GPUCHIP_FREQUENCY_CONTROL",
-                               M_NAME_PREFIX + "GPUCHIP_FREQUENCY_CONTROL");
+        register_signal_alias("GPU_CORE_FREQUENCY_CONTROL",
+                               M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL");
+        register_control_alias("GPU_CORE_FREQUENCY_CONTROL",
+                               M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL");
 
         // populate controls for each domain
         for (auto &sv : m_control_available) {
@@ -836,8 +847,8 @@ namespace geopm
                             __FILE__, __LINE__);
         }
 
-        if (control_name == M_NAME_PREFIX + "GPUCHIP_FREQUENCY_CONTROL" ||
-            control_name == "GPUCHIP_FREQUENCY_CONTROL") {
+        if (control_name == M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL" ||
+            control_name == "GPU_CORE_FREQUENCY_CONTROL") {
             if (std::isnan(setting)) {
                 // At initialization before this control has ever been written the "signal"
                 // version of this control will return NAN.  If this NAN is later used as the
@@ -850,15 +861,15 @@ namespace geopm
                                                           setting / 1e6, setting / 1e6);
             }
         }
-        else if(control_name == M_NAME_PREFIX + "GPUCHIP_FREQUENCY_MIN_CONTROL") {
-            double curr_max = read_signal(M_NAME_PREFIX + "GPUCHIP_FREQUENCY_MAX_CONTROL",
+        else if(control_name == M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_CONTROL") {
+            double curr_max = read_signal(M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_CONTROL",
                                           domain_type, domain_idx);
             m_levelzero_device_pool.frequency_control(domain_type, domain_idx,
                                                       geopm::LevelZero::M_DOMAIN_COMPUTE,
                                                       setting / 1e6, curr_max / 1e6);
         }
-        else if(control_name == M_NAME_PREFIX + "GPUCHIP_FREQUENCY_MAX_CONTROL") {
-            double curr_min = read_signal(M_NAME_PREFIX + "GPUCHIP_FREQUENCY_MIN_CONTROL",
+        else if(control_name == M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_CONTROL") {
+            double curr_min = read_signal(M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_CONTROL",
                                           domain_type, domain_idx);
             m_levelzero_device_pool.frequency_control(domain_type, domain_idx,
                                                       geopm::LevelZero::M_DOMAIN_COMPUTE,
