@@ -4,6 +4,7 @@
 
 
 EXTRA_DIST += integration/README.md \
+              integration/config/australis_env.sh \
               integration/config/build_env.sh \
               integration/config/build.sh \
               integration/config/dudley_env.sh \
