@@ -11,6 +11,13 @@ information about how to define environment variables relevant to these
 scripts in your `.geopmrc` file.
 
 
+australis_env.sh
+-------------
+
+A bash script that may be sourced within a shell in order to set up
+the users build/run environment on the australis system.
+
+
 build.sh
 --------
 
