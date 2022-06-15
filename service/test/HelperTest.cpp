@@ -80,12 +80,10 @@ TEST(HelperTest, string_ends_with)
 
 TEST(HelperTest, check_hint)
 {
-    uint64_t hint = GEOPM_REGION_HINT_COMPUTE;
-    EXPECT_NO_THROW(geopm::check_hint(hint));
-    hint |= GEOPM_REGION_HINT_MEMORY;
+    uint64_t hint = GEOPM_SENTINEL_REGION_HINT;
     GEOPM_EXPECT_THROW_MESSAGE(geopm::check_hint(hint),
                                GEOPM_ERROR_INVALID,
-                               "multiple region hints set");
+                               "hint out of range");
     hint = 1ULL << 31;
     GEOPM_EXPECT_THROW_MESSAGE(geopm::check_hint(hint),
                                GEOPM_ERROR_INVALID,

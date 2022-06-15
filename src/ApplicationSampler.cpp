@@ -12,6 +12,7 @@
 #include <cerrno>
 #include <stdexcept>
 
+#include "geopm/Helper.hpp"
 #include "ApplicationSamplerImp.hpp"
 #include "ApplicationRecordLog.hpp"
 #include "ApplicationStatus.hpp"
@@ -97,20 +98,6 @@ namespace geopm
 
     }
 
-    const std::map<uint64_t, double> ApplicationSamplerImp::m_hint_time_init = {
-        {GEOPM_REGION_HINT_UNSET, 0.0},
-        {GEOPM_REGION_HINT_UNKNOWN, 0.0},
-        {GEOPM_REGION_HINT_COMPUTE, 0.0},
-        {GEOPM_REGION_HINT_MEMORY, 0.0},
-        {GEOPM_REGION_HINT_NETWORK, 0.0},
-        {GEOPM_REGION_HINT_IO, 0.0},
-        {GEOPM_REGION_HINT_SERIAL, 0.0},
-        {GEOPM_REGION_HINT_PARALLEL, 0.0},
-        {GEOPM_REGION_HINT_IGNORE, 0.0},
-        {GEOPM_REGION_HINT_INACTIVE, 0.0},
-    };
-
-
     ApplicationSamplerImp::ApplicationSamplerImp(std::shared_ptr<ApplicationStatus> status,
                                                  const PlatformTopo &platform_topo,
                                                  const std::map<int, m_process_s> &process_map,
@@ -124,7 +111,7 @@ namespace geopm
         , m_process_map(process_map)
         , m_is_filtered(is_filtered)
         , m_filter_name(filter_name)
-        , m_hint_time(m_num_cpu, m_hint_time_init)
+        , m_hint_time(m_num_cpu, {0.0})
         , m_is_cpu_active(is_cpu_active)
         , m_update_time({{0, 0}})
         , m_is_first_update(true)
@@ -170,7 +157,8 @@ namespace geopm
             double time_delta = geopm_time_diff(&m_update_time, &curr_time);
             for (int cpu_idx = 0; cpu_idx != m_num_cpu; ++cpu_idx) {
                 try {
-                    m_hint_time[cpu_idx].at(m_hint_last[cpu_idx]) += time_delta;
+                    unsigned int hint_idx = hint_to_index(m_hint_last[cpu_idx]);
+                    m_hint_time[cpu_idx][hint_idx] += time_delta;
                     m_hint_last[cpu_idx] = m_status->get_hint(cpu_idx);
                 }
                 catch (const std::out_of_range& oor) {
@@ -280,14 +268,9 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         if (m_is_cpu_active[cpu_idx]) {
-            auto &hint_map = m_hint_time[cpu_idx];
-            auto it = hint_map.find(hint);
-            if (it == hint_map.end()) {
-                throw Exception("ApplicationSampler::" + std::string(__func__) +
-                                "(): hint is invalid: " + std::to_string(hint),
-                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-            }
-            result = it->second;
+            check_hint(hint);
+            unsigned int hint_idx = hint_to_index(hint);
+            result = m_hint_time[cpu_idx][hint_idx];
         }
         return result;
     }
