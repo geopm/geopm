@@ -1,13 +1,6 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
-
 
 geopm::Endpoint(3) -- GEOPM endpoint interface
 ==============================================
-
-
-
-
 
 
 Namespaces
@@ -79,34 +72,34 @@ Class Methods
 -------------
 
 
-* 
+*
   ``open()``:
   creates the underlying shared memory regions belonging to the
   Endpoint.
 
-* 
+*
   ``close()``:
   unlinks the shared memory regions belonging to the Endpoint.
 
-* 
+*
   ``write_policy()``:
   writes a set of policy values given in *policy* to the endpoint.
   The order of the values is determined by the currently attached
   agent; see :doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>`.
 
-* 
+*
   ``read_sample()``:
   reads the most recent set of sample values from the endpoint into
   the output vector, *sample*\ , and returns the sample age in seconds.
   The order of the values is determined by the currently attached
   agent; see :doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>`.
 
-* 
+*
   ``get_agent()``:
   returns the agent name associated with the Controller attached to
   this endpoint, or empty if no Controller is attached.
 
-* 
+*
   ``wait_for_agent_attach()``:
   Blocks until an agent attaches to the endpoint,
   a *timeout* is reached, or the operation is
@@ -115,27 +108,27 @@ Class Methods
   before an agent attaches.  The name of the
   attached agent can be read with ``get_agent()``.
 
-* 
+*
   ``wait_for_agent_detach()``:
   Blocks as long as the same agent is still
   attached to the endpoint, a *timeout* is reached,
   or the operation is canceled with ``stop_wait_loop()``.
   The name of the attached agent can be read with ``get_agent()``.
 
-* 
+*
   ``stop_wait_loop()``:
   Cancels any current wait loops in this Endpoint.
 
-* 
+*
   ``reset_wait_loop()``:
   Re-enables wait loops occurring after this call.
 
-* 
+*
   ``get_profile_name()``:
   returns the profile name associated with the attached job, or
   empty if no Controller is attached.
 
-* 
+*
   ``get_hostnames()``:
   returns the set of hostnames used by the Controller attached to
   this endpoint, or empty if no Controller is attached.

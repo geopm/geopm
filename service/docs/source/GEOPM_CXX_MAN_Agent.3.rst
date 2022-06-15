@@ -1,6 +1,3 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
-
 
 geopm::Agent(3) -- GEOPM agent plugin interface
 ===============================================
@@ -193,27 +190,27 @@ Class Methods
        (0)(0|0)(0)(0)(0|0)(0)(0)(0|0)(0) (0)(0|0)(0)(0)(0|0)(0)(0)(0|0)(0)
 
 
-* 
+*
   ``validate_policy()``:
   Called by user of Agent class  to validate incoming policy values and
   replace NaNs with defaults.  If a value of *policy* is not NaN but the
   value is not supported by the Agent the method will throw a ``geopm::Exception``
   with error code ``GEOPM_ERROR_INVALID``.
 
-* 
+*
   ``split_policy()``:
   Split policy for children at next level down the tree.  The
   *in_policy* is an input vector of policy values from the parent.
   The *out_policy* is an output vector of policies to be sent to
   each child.
 
-* 
+*
   ``do_send_policy()``:
   Used to indicate to the Controller whether to send the output
   from ``split_policy()`` down the tree to the Agent's children.
   Returns true if the policy has been updated since the last call.
 
-* 
+*
   ``aggregate_sample()``:
   Aggregate samples from children for the next level up the tree.
   The *in_sample* parameter is a vector of sample vectors, one
@@ -222,25 +219,25 @@ Class Methods
   same index in the output.  The *out_sample* is an output vector
   of aggregated sample values to be sent up to the parent.
 
-* 
+*
   ``do_send_sample()``:
   Used to indicate to the Controller whether to send the output from
   ``aggregate_sample()`` up the tree to the Agent's parent.  Returns
   true if any samples have been updated since the last call.
 
-* 
+*
   ``adjust_platform()``:
   Adjust the platform settings based on the policy from above.
   Settings for each control are in the *in_policy*.
 
-* 
+*
   ``do_write_batch()``:
   Used to indicate to the Controller whether to call
   ``PlatformIO::write_batch()`` to enact new control values on the
   platform.  Returns true if any control values have been updated
   since the last call.
 
-* 
+*
   ``sample_platform()``:
   Read signals from the platform and interpret/aggregate these
   signals to create a sample which can be sent up the tree.  The
@@ -248,12 +245,12 @@ Class Methods
   values to be sent up the tree. Returns true if the sample has been
   updated since the last call.
 
-* 
+*
   ``wait()``:
   Called to wait for the sample period to elapse. This controls the
   cadence of the Controller main loop.
 
-* 
+*
   ``report_header()``:
   Custom fields that will be added to the report header when this
   agent is used.  To be consistent with the rest of the header, the
@@ -262,7 +259,7 @@ Class Methods
   keys that conflict with default header keys, like names that start
   with ``"Start Time"``, ``"Profile"``, ``"Agent"`` or ``"Policy"``.
 
-* 
+*
   ``report_host()``:
   Custom fields for the Host section of the report.  To be
   consistent with the rest of this section, the keys should have
@@ -271,7 +268,7 @@ Class Methods
   add keys that conflict with default host keys, like names that
   start with ``"Region"``, ``"Epoch Totals"`` or ``"Application Totals"``.
 
-* 
+*
   ``report_region()``:
   Custom fields for each region in the report.  To be consistent
   with the rest of the region report, the string keys that will
@@ -283,27 +280,27 @@ Class Methods
   that start with ``"runtime"``, ``"sync-runtime"``, ``"package-energy"``,
   ``"dram-energy"``, ``"power"``, ``"frequency"``, ``"network-time"``, or ``"count"``.
 
-* 
+*
   ``trace_names()``:
   Column headers to be added to the trace.  These will be
   automatically converted to lower case.  The header names must
   not contain the pipe character ``'|'`` or whitespace.
 
-* 
+*
   ``trace_formats()``:
   Returns format string for each column added to the trace
 
-* 
+*
   ``trace_values()``:
   Called by Controller to get latest values to be added to the trace.
 
-* 
+*
   ``enforce_policy()``:
   Enforce the policy one time with
   ``PlatformIO::write_control()``.  Called to enforce
   static policies in the absence of a Controller.
 
-* 
+*
   ``num_policy()``:
   Used to look up the number of values in the policy vector sent
   down the tree for a specific type of ``Agent``. This should be
@@ -313,7 +310,7 @@ Class Methods
   Also has an overloaded version which takes the *agent_name*.
   Note this is a static helper function.
 
-* 
+*
   ``num_sample()``:
   Used to look up the number of values in the sample vector sent up
   the tree for a specific type of ``Agent``. This should be called
@@ -323,7 +320,7 @@ Class Methods
   Also has an overloaded version which takes the *agent_name*.
   Note this is a static helper function.
 
-* 
+*
   ``policy_names()``:
   Used to look up the names of values in the policy vector sent down
   the tree for a specific type of ``Agent``. This should be called
@@ -333,7 +330,7 @@ Class Methods
   Also has an overloaded version which takes the *agent_name*.
   Note this is a static helper function.
 
-* 
+*
   ``sample_names()``:
   Used to look up the names of values in the sample vector sent up
   the tree for a specific of ``Agent``. This should be called with the
@@ -343,7 +340,7 @@ Class Methods
   Also has an overloaded version which takes the *agent_name*.
   Note this is a static helper function.
 
-* 
+*
   ``make_dictionary()``:
   Used to create a correctly formatted dictionary for an ``Agent`` at
   the time the ``Agent`` is registered with the factory. Concrete
@@ -351,7 +348,7 @@ Class Methods
   methods to provide the vectors to be passed to this method.  Note
   this is a static helper function.
 
-* 
+*
   ``aggregate_sample()``:
   Generically aggregate a vector of samples given a vector of
   aggregation functions. This helper method applies a different

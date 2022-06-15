@@ -1,13 +1,6 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
-
 
 geopm::Comm(3) -- communication abstractions
 ============================================
-
-
-
-
 
 
 Namespaces
@@ -101,7 +94,7 @@ The ``CommFactory`` class is a specialization of ``PluginFactory`` class which c
 Enum Type
 ---------
 
-There are two ``enum``\ s defined in the `<geopm/Comm.hpp> <https://github.com/geopm/geopm/blob/dev/src/Comm.hpp>`_\ . 
+There are two ``enum``\ s defined in the `<geopm/Comm.hpp> <https://github.com/geopm/geopm/blob/dev/src/Comm.hpp>`_\ .
 ``Comm::m_comm_split_type_e`` and ``Comm::m_split_color_e``
 
 .. code-block:: c++
@@ -137,40 +130,40 @@ Factory Accessor
 Class Methods
 -------------
 
-* 
+*
   ``comm_names()``:
   Returns a list of all valid plugin names in the Comm interface.
 
-* 
+*
   ``make_unique()``:
   Allocate an object of requested ``Comm`` type, attached to a ``unique_ptr``,
   optionally having a *comm_name*.
 
-* 
+*
   ``split()``:
   Allocate a new ``MPIComm`` and return it as a ``shared_ptr``,
   optionally passing in different sets of parameters to the constructor of this class.
 
-* 
+*
   ``comm_supported()``:
   Check if the provided string *description* of the plugin is actually supported by the comm.
   The passed in *description* is the *plugin_name*, which is initialized internally by the comm.
 
-* 
+*
   ``cart_rank()``:
   Process rank within Cartesian communicator. Pertains to Introspection.
   The const reference to a vector of integers parameter *coords* represents the
   coordinate of Cartesian communicator member whose rank we wish to know.
 
-* 
+*
   ``rank()``:
   Get the current process rank within the communicator.
 
-* 
+*
   ``num_rank()``:
   Get the total number of all ranks in the communicator.
 
-* 
+*
   ``dimension_create()``:
   Populate vector of optimal dimensions given the number of ranks the communicator
   The **in** parameter *num_ranks* is the number of ranks that must fit in Cartesian grid.
@@ -178,31 +171,31 @@ Class Methods
   The size of this vector dictates the number of dimensions in the grid.
   Fill indecies with 0 for API to fill with suitable value.
 
-* 
+*
   ``free_mem()``:
   Free memory that was allocated for message passing and RMA
   The **in** parameter *base* is the address of memory to be released.
   It was created from the ``alloc_mem()`` call.
 
-* 
+*
   ``alloc_mem()``:
   Allocate memory for message passing and RMA
   You pass in the *size* of the desired memory allocation.
   The *base* address of allocated memory is "returned" in the second parameter.
 
-* 
+*
   ``window_create()``:
   Create window for message passing and RMA
   Return window handle for subsequent operations on the window.
   For creation we pass in the *size* of the memory area backing the RMA window,
   and the *base* address of memory that has been allocated for the window.
 
-* 
+*
   ``window_destroy()``:
   Destroy window for message passing and RMA,
   providing it the parameter *window_id* the window handle for the target window.
 
-* 
+*
   ``window_lock()``:
   Begin epoch for message passing and RMA.
   The parameters:
@@ -211,14 +204,14 @@ Class Methods
   **in** *rank* of the locked window.
   **in** *assert* Used to optimize call.
 
-* 
+*
   ``window_unlock()``:
   End epoch for message passing and RMA
   The parameters:
   **in** *window_id* The window handle for the target window.
   **in** *rank* of the locked window.
 
-* 
+*
   ``coordinate()``:
   Coordinate in Cartesian grid for specified rank
   The parameters:
@@ -229,11 +222,11 @@ Class Methods
   Also includes an overloaded form which takes just the *rank* as a parameter
   and returns the *coord* vector by value.
 
-* 
+*
   ``barrier()``:
   Is a barrier for all ranks. Pertains to collective communication.
 
-* 
+*
   ``broadcast()``:
   Broadcast a message to all ranks
   The parameters:
@@ -241,13 +234,13 @@ Class Methods
   **in** *size* of the buffer.
   **in** *root* Rank of the broadcast root (target).
 
-* 
+*
   ``test()``:
   Test whether or not all ranks in the communicator present
   the same input and return *true*/*false* accordingly.
   The parameter **in** *is_true* Boolean value to be reduced from all ranks.
 
-* 
+*
   ``reduce_max()``:
   Reduce distributed messages across all ranks using specified operation, store result on all ranks
   The parameters:
@@ -255,7 +248,7 @@ Class Methods
   **out** *recv_buf* Start address of memory buffer to receive data.
   **in** *count* Size of buffer in bytes to be transmitted.
 
-* 
+*
   ``gather()``:
   Gather bytes from all processes
   The parameters:
@@ -265,7 +258,7 @@ Class Methods
   **in** *recv_size* The size of the buffer to be received.
   **in** *root* Rank of the target for the transmission.
 
-* 
+*
   ``gatherv()``:
   Gather bytes into specified location from all processes
   The parameters:
@@ -276,7 +269,7 @@ Class Methods
   **in** *rank_offset* Offset per rank into target buffer for transmitted data.
   **in** *root* Rank of the target for the transmission.
 
-* 
+*
   ``window_put()``:
   Perform message passing or RMA.
   The parameters:
@@ -286,7 +279,7 @@ Class Methods
   **in** *disp* Displacement from start of window.
   **in** *window_id* The window handle for the target window.
 
-* 
+*
   ``tear_down()``:
   Clean up resources held by the comm.
   This allows static global objects to be cleaned up before the destructor is called.

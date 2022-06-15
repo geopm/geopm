@@ -1,6 +1,3 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
-
 
 geopm_version(3) -- GEOPM library version
 =========================================

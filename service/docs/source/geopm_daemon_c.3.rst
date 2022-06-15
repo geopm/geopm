@@ -1,13 +1,6 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
-
 
 geopm_daemon_c(3) -- helpers for GEOPM daemons
 ==============================================
-
-
-
-
 
 
 Synopsis
@@ -48,7 +41,7 @@ All functions described in this man page return an error code on failure and
 zero upon success; see `ERRORS <ERRORS_>`_ section below for details.
 
 
-* 
+*
   ``geopm_daemon_create()``:
   will create a daemon object.  This object will hold the necessary
   state for interfacing with the endpoint and policystore.  The
@@ -59,7 +52,7 @@ zero upon success; see `ERRORS <ERRORS_>`_ section below for details.
   the *daemon* struct can now be used.  *daemon* will be
   unmodified if an error occurs.
 
-* 
+*
   ``geopm_daemon_destroy()``:
   will release resources associated with *daemon*.  This will return
   zero on success indicating that the underlying endpoint and
@@ -67,7 +60,7 @@ zero upon success; see `ERRORS <ERRORS_>`_ section below for details.
   is returned.  This method removes any shared memory regions
   associated with the endpoint.
 
-* 
+*
   ``geopm_daemon_update_endpoint_from_policystore()``:
   looks up a policy in the PolicyStore given the attached
   Controller's agent and profile name, and writes it back into the
@@ -77,13 +70,13 @@ zero upon success; see `ERRORS <ERRORS_>`_ section below for details.
   within the *timeout*\ , or detaches while this function is running,
   no policy is written.
 
-* 
+*
   ``geopm_daemon_stop_wait_loop()``:
   exits early from any ongoing wait loops in the *daemon*\ , for
   example in a call to
   ``geopm_daemon_update_endpoint_from_policystore()``.
 
-* 
+*
   ``geopm_daemon_reset_wait_loop()``:
   resets the *daemon*\ 's endpoint to prepare for a future wait loop.
 

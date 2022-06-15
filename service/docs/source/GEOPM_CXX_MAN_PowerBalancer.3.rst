@@ -1,13 +1,6 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
-
 
 geopm::PowerBalancer(3) -- balances power according to epoch runtime
 ====================================================================
-
-
-
-
 
 
 Synopsis

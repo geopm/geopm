@@ -1,13 +1,6 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
-
 
 geopm::Helper -- common helper methods
 ======================================
-
-
-
-
 
 
 Synopsis
@@ -72,17 +65,17 @@ Description
 The *Helper.hpp* file defines various utility functions.
 
 
-* 
+*
   ``make_unique()``:
   Implementation of ``std::make_unique`` (C++14) for C++11, scoped to
   the ``geopm::`` namespace.  Note that this version will only work for
   non-array types.
 
-* 
+*
   ``read_file()``:
   Reads the file specified by *path* and returns the contents in a string.
 
-* 
+*
   ``read_double_from_file()``:
   Reads the file specified by *path* and return a double read from the file.
   Provide *expected_units* to follow the double in the file.
@@ -90,91 +83,91 @@ The *Helper.hpp* file defines various utility functions.
   If a double cannot be read from the file or the units reported
   in the file do not match the expected units, an exception is thrown.
 
-* 
+*
   ``write_file()``:
   Writes a string *contents* to a file specified by *path*.
   This will replace the file if it exists or create it if it does not exist.
 
-* 
+*
   ``string_split()``:
   Splits a string *str* according to a delimiter *delim* and returns
   the string pieces in a vector.  The delimiter cannot be empty.
 
-* 
+*
   ``string_join()``:
   Joins a vector of strings *string_list* together with a delimiter *delim*,
   and return the joined string.
 
-* 
+*
   ``hostname()``:
   Returns the current hostname as a string.
 
-* 
+*
   ``list_directory_files()``:
   List all files in the given directory specified by *path*.
 
-* 
+*
   ``string_begins_with()``:
   Determine whether the string *str* begins with the string *key* (a prefix).
 
-* 
+*
   ``string_ends_with()``:
   Determine whether the string *str* ends with the string *key* (a suffix).
 
-* 
+*
   ``string_format_type_to_function()``:
   Convert a format type ``enum string_format_e`` to a format function
 
-* 
+*
   ``string_format_function_to_type()``:
   Convert a *format_function* to a format type ``enum string_format_e``
 
-* 
+*
   ``string_format_double()``:
   Format a string to best represent a signal encoding a double precision floating point number.
   Input *signal* a real number that requires many significant digits to accurately represent.
   Returns a well-formatted string representation of the *signal*.
 
-* 
+*
   ``string_format_float()``:
   Format a string to best represent a signal encoding a single precision floating point number.
   Input *signal* a real number that requires a few significant digits to accurately represent.
   Returns a well-formatted string representation of the *signal*.
 
-* 
+*
   ``string_format_integer()``:
   Format a string to best represent a signal encoding a decimal integer.
   Input *signal* an integer that is best represented as a decimal number.
   Returns a well-formatted string representation of the *signal*.
 
-* 
+*
   ``string_format_hex()``:
   Format a string to best represent a signal encoding an unsigned hexadecimal integer.
   Input *signal* an unsigned integer that is best represented as a hexadecimal number
   and has been assigned to a double precision number.
   Returns a well-formatted string representation of the *signal*.
 
-* 
+*
   ``string_format_raw64()``:
   Format a string to represent the raw memory supporting a signal as an unsigned hexadecimal integer.
   Input *signal* a 64-bit unsigned integer that has been byte-wise copied into the memory of signal.
   Returns a well-formatted string representation of the *signal*.
 
-* 
+*
   ``check_hint()``:
   Verify a region's *hint* value is legal for use.
 
-* 
+*
   ``get_env()``:
   Read an environment variable with given *name*,
   and return the contents of the variable if present, otherwise an empty string.
 
-* 
+*
   ``pid_to_uid()``:
   Query for the user id associated with the process id.
   Convert the *pid* process id into the *uid* user id.
 
-* 
+*
   ``pid_to_gid()``:
   Query for the group id associated with the process id.
   Convert the *pid* process id into the *gid* group id.

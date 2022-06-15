@@ -1,13 +1,6 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
-
 
 geopm::CircularBuffer(3) -- generic circular buffer
 ===================================================
-
-
-
-
 
 
 Namespaces
@@ -54,34 +47,34 @@ Class Methods
 -------------
 
 
-* 
+*
   ``set_capacity()``:
   Resets the capacity of the circular buffer to *size* without
   modifying its current contents.
 
-* 
+*
   ``clear()``:
   Clears all entries from the buffer.  The size becomes ``0``, but the
   capacity is unchanged.
 
-* 
+*
   ``size()``:
   Returns the number of items in the buffer.  This value will be less
   than or equal to the current capacity of the buffer.
 
-* 
+*
   ``capacity()``:
   Returns the current size of the circular buffer at the time of the
   call.
 
-* 
+*
   ``insert()``:
   Inserts *value* into the buffer.  If the buffer is not full, the new
   value is simply added to the buffer. It the buffer is at capacity,
   The head of the buffer is **dropped** and moved to the next oldest entry
   and the new value is then inserted at the end of the buffer.
 
-* 
+*
   ``value()``:
   Accesses the contents of the circular buffer at *index*. Valid
   indices range from ``0`` to ``[size-1]``, where *size* is the number of valid
@@ -89,12 +82,12 @@ Class Methods
   bound index will throw a :doc:`geopm::Exception(3) <GEOPM_CXX_MAN_Exception.3>` with an
   ``error_value()`` of ``GEOPM_ERROR_INVALID``.
 
-* 
+*
   ``make_vector()``:
   Create a vector from the entire circular buffer contents.
   Or create a vector slice from the circular buffer contents,
   delimited by the *Start* index **(inclusive)** and *End* index **(exclusive)**
-  such as ``[start, end)``. 
+  such as ``[start, end)``.
   If the range presented by these two indexes is invalid
   it will throw a :doc:`geopm::Exception(3) <GEOPM_CXX_MAN_Exception.3>`
 

@@ -1,13 +1,6 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
-
 
 geopm::ProfileIOGroup(3) -- IOGroup providing application signals
 =================================================================
-
-
-
-
 
 
 Namespaces
@@ -108,16 +101,16 @@ Class Methods
 -------------
 
 
-* 
+*
   ``plugin_name()``:
   Returns the name of the plugin; for ``ProfileIOGroup`` it is ``GEOPM_PROFILE_IO_GROUP_PLUGIN_NAME``,
   which expands to ``"PROFILE"``.
 
-* 
+*
   ``make_plugin()``:
   Creates a new ``unique_ptr<ProfileIOGroup>`` and returns it.
 
-* 
+*
   ``connect()``:
   Connect to the application via shared memory.
 

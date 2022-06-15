@@ -1,6 +1,3 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
-
 
 geopm_agent_monitor(7) -- agent implementation for aggregating statistics
 =========================================================================
@@ -27,7 +24,7 @@ The Agent interface also provides methods for the Agent to extend
 reports and traces with additional Agent-specific information.
 
 
-* 
+*
   **Agent Name**\ :
 
       Set the ``--geopm-agent`` launch option or ``GEOPM_AGENT`` environment
@@ -36,19 +33,19 @@ reports and traces with additional Agent-specific information.
       :doc:`geopm(7) <geopm.7>` for more information about launch options and
       environment variables.
 
-* 
+*
   **Agent Policy Definitions**\ : N/A
 
-* 
+*
   **Agent Sample Definitions**\ : N/A
 
-* 
+*
   **Trace Column Extensions**\ : N/A
 
-* 
+*
   **Report Extensions**\ : N/A
 
-* 
+*
   **Control Loop Gate**\ :
 
       The Monitor agent gates the Controller's control loop to a cadence of *5ms*.
