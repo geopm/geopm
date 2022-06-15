@@ -1,6 +1,3 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
-
 
 geopm_agent_power_balancer(7) -- agent optimizes performance under a power cap
 ==============================================================================
@@ -59,7 +56,7 @@ The Agent interface also provides methods for the Agent to extend
 reports and traces with additional Agent-specific information.
 
 
-* 
+*
   **Agent Name**\ :
 
       Set the ``--geopm-agent`` launch option or ``GEOPM_AGENT`` environment
@@ -68,7 +65,7 @@ reports and traces with additional Agent-specific information.
       and :doc:`geopm(7) <geopm.7>` for more information about launch options and
       environment variables.
 
-* 
+*
   **Agent Policy Definitions**\ :
 
   ``POWER_PACKAGE_LIMIT_TOTAL``\ :
@@ -115,7 +112,7 @@ reports and traces with additional Agent-specific information.
       this value can be set to zero.  If set to NAN, it
       will default to 0.
 
-* 
+*
   **Agent Sample Definitions**\ :
 
    ``STEP_COUNT``\ :
@@ -144,7 +141,7 @@ reports and traces with additional Agent-specific information.
       reported by any node under the current
       distribution of power limits over compute nodes.
 
-* 
+*
   **Trace Column Extensions**\ :
 
    ``policy_power_cap``\ :
@@ -183,11 +180,11 @@ reports and traces with additional Agent-specific information.
        node.  It may be different from the requested
        limit due to hardware constraints.
 
-* 
+*
   **Report Extensions**\ :
   N/A
 
-* 
+*
   **Control Loop Gate**\ :
 
       The agent gates the Controller's control loop to a cadence of 5

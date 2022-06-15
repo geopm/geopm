@@ -1,6 +1,3 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
-
 
 geopm_agent_frequency_map(7) -- agent for running regions at user selected frequencies
 ======================================================================================

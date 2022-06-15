@@ -1,13 +1,6 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
-
 
 geopm::Exception(3) -- custom GEOPM exceptions
 ==============================================
-
-
-
-
 
 
 Namespaces
@@ -75,13 +68,13 @@ Class Methods
 -------------
 
 
-* 
+*
   ``Exception()``:
   Empty constructor.  Uses ``errno`` to determine the error code.
   If errno is zero then ``GEOPM_ERROR_RUNTIME`` (-1) is used for the error code.
   Enables an abbreviated ``what()`` result.
 
-* 
+*
   ``Exception(const string &what, int err, const char *file, int line)``:
   Message, error number, file and line constructor.  User provides
   message *what*\ , error code *err*\ , and location where the exception
@@ -91,7 +84,7 @@ Class Methods
   line number to the abbreviated message.  This is the most verbose
   messaging available with the Exception class.
 
-* 
+*
   ``err_value()``:
   Returns the non-zero error code associated with the
   exception.  Negative error codes are GEOPM-specific

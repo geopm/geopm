@@ -1,6 +1,3 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
-
 
 geopm::Agg(3) -- data aggregation functions
 ===========================================
@@ -99,91 +96,91 @@ Class Methods
 -------------
 
 
-* 
+*
   ``sum()``:
   Returns the sum of the input *operands*.
 
-* 
+*
   ``average()``:
   Returns the average of the input *operands*.
 
-* 
+*
   ``median()``:
   Returns the median of the input *operands*.
 
-* 
+*
   ``logical_and()``:
   Returns the output of logical AND over all the *operands* where
   ``0.0`` is false and all other values are true.
 
-* 
+*
   ``logical_or()``:
   Returns the output of logical OR over all the *operands* where
   ``0.0`` is false and all other values are true.
 
-* 
+*
   ``min()``:
   Returns the minimum value from the input *operands*.
 
-* 
+*
   ``max()``:
   Returns the maximum value from the input *operands*.
 
-* 
+*
   ``stddev()``:
   Returns the standard deviation of the input *operands*.
 
-* 
+*
   ``region_hash()``:
   If all *operands* are the same, returns the common value.
   Otherwise, returns ``GEOPM_REGION_HASH_UNMARKED``.  This is intended for
   situations where all ranks in a domain must be in the same region
   to exert control for that region.
 
-* 
+*
   ``region_hint()``:
   If all *operands* are the same, returns the common value.
   Otherwise, returns ``GEOPM_REGION_HINT_UNKNOWN``.  This is intended for
   situations where all ranks in a domain must be in the same region
   to exert control for that region.
 
-* 
+*
   ``select_first()``:
   Returns the first value in the *operands* vector and ignores other
   values.  If the vector is empty, returns ``0.0``.
 
-* 
+*
   ``expect_same()``:
   Returns the common value if all *operands* are the same, or NAN
   otherwise.  This function should not be used to aggregate values
   that may be interpreted as NAN such as raw register values or region
   IDs.
 
-* 
+*
   ``name_to_function()``:
   Returns the corresponding agg function for a
   given ``string`` *name*.  If the *name* does not match
   a known function, it throws an error.
 
-* 
+*
   ``function_to_name()``:
   Returns the corresponding agg function name for a
   given ``std::function``.  If the ``std::function`` does not match
   a known function, it throws an error.
 
-* 
+*
   ``function_to_type()``:
   Returns the corresponding agg function type for a
   given ``std::function``.  If the ``std::function`` does not match
   a known function, it throws an error.
 
-* 
+*
   ``type_to_function()``:
   Returns the corresponding agg function for one
   of the ``Agg::m_type_e`` enum values.  If the
   *agg_type* is out of range, it throws an error.
 
-* 
+*
   ``type_to_name()``:
   Returns the corresponding agg function name for
   one of the ``Agg:m_type_e`` enum values.  If the

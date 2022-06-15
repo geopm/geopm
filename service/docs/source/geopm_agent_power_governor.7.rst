@@ -1,6 +1,3 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
-
 
 geopm_agent_power_governor(7) -- agent enforces a power cap
 ===========================================================
@@ -25,7 +22,7 @@ The Agent interface also provides methods for the Agent to extend
 reports and traces with additional Agent-specific information.
 
 
-* 
+*
   **Agent Name**\ :
 
       Set the ``--geopm-agent`` launch option or ``GEOPM_AGENT`` environment
@@ -34,7 +31,7 @@ reports and traces with additional Agent-specific information.
       and :doc:`geopm(7) <geopm.7>` for more information about launch options and
       environment variables.
 
-* 
+*
   **Agent Policy Definitions**\ :
 
   ``POWER_PACKAGE_LIMIT_TOTAL``\ :
@@ -46,7 +43,7 @@ reports and traces with additional Agent-specific information.
       will be given an equal fraction of the
       total power.
 
-* 
+*
   **Agent Sample Definitions**\ :
 
   ``POWER``\ :
@@ -68,7 +65,7 @@ reports and traces with additional Agent-specific information.
       field and is expected to match unless the
       policy is unachievable.
 
-* 
+*
   **Trace Column Extensions**\ :
 
   ``power_budget``\ :
@@ -76,11 +73,11 @@ reports and traces with additional Agent-specific information.
       with the trace file at time of sampling.
 
 
-* 
+*
   **Report Extensions**\ :
   N/A
 
-* 
+*
   **Control Loop Gate**\ :
 
       The agent gates the Controller's control loop to a cadence of *5ms*.

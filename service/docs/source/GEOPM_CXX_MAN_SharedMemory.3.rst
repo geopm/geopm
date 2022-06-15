@@ -1,13 +1,6 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
-
 
 geopm::SharedMemory(3) -- abstractions for shared memory
 ========================================================
-
-
-
-
 
 
 Namespaces
@@ -67,41 +60,41 @@ Class Methods
 -------------
 
 
-* 
+*
   ``make_unique_owner()``:
   Creates a shared memory region with key *shm_key* and *size* and
   returns a pointer to a ``SharedMemory`` object managing it.
 
-* 
+*
   ``make_unique_owner_secure()``:
   Creates a shared memory region with key *shm_key* and *size*
   without group or world permissions and
   returns a pointer to a ``SharedMemory`` object managing it.
 
-* 
+*
   ``make_unique_user()``:
   Attempts to attach to a inter-process shared memory region with
   key *shm_key* within *timeout* and returns a pointer to a
   ``SharedMemory`` object managing it. If it cannot attach within the timeout,
   throws an exception.
 
-* 
+*
   ``pointer()``:
   Returns a pointer to the shared memory region.
 
-* 
+*
   ``key()``:
   Returns the key to the shared memory region.
 
-* 
+*
   ``size()``:
   Returns the size of the shared memory region.
 
-* 
+*
   ``unlink()``:
   Unlink the shared memory region.
 
-* 
+*
   ``get_scoped_lock()``:
   Attempt to lock the mutex for the shared memory region and
   returns a temporary object that holds the mutex lock for the
@@ -109,7 +102,7 @@ Class Methods
   out of scope.  This method should be called before accessing the
   memory with ``pointer()``.
 
-* 
+*
   ``chown()``:
   Modifies the shared memory to be owned by the specified gid
   and uid if current permissions allow for the change.

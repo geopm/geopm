@@ -1,13 +1,6 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
-
 
 geopm::MonitorAgent -- agent that enforces no policies
 ======================================================
-
-
-
-
 
 
 Namespaces
@@ -87,19 +80,19 @@ Class Methods
 -------------
 
 
-* 
+*
   ``plugin_name()``:
   Returns the name of the plugin.
 
-* 
+*
   ``make_plugin()``:
   Creates a new ``unique_ptr<MonitorAgent>`` and returns it.
 
-* 
+*
   ``policy_names()``:
   Returns a list of policy names.
 
-* 
+*
   ``sample_names()``:
   Returns a list of sample names.
 
