@@ -114,6 +114,13 @@ GEOPM Manual Pages
    geopm_agent_power_governor.7
 
 
+Doxygen Pages
+-------------
+
+- `GEOPM Service <https://geopm.github.io/geopm-service-dox>`_
+- `GEOPM Runtime <https://geopm.github.io/geopm-runtime-dox>`_
+
+
 Signals and Controls
 --------------------
 

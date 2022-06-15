@@ -629,25 +629,6 @@ rpm-dudley: dist
 	cp specs/geopm-pyyaml-req.patch $(rpm_topdir)/SOURCES/
 	rpmbuild $(rpmbuild_flags) --buildroot=$(rpm_topdir)-root --define "_sourcedir $(rpm_topdir)/SOURCES" -ba $(rpm_topdir)/SPECS/geopm-$(VERSION).spec
 
-# DOXYGEN TARGETS
-dox-public/Doxyfile: $(top_srcdir)/dox/Doxyfile.in
-	mkdir -p dox-public
-	sed -e "s|@DOX_VERSION@|$(VERSION)|g" \
-	    -e "s|@DOX_OUTPUT@|$(abs_builddir)/dox-public|g" \
-	    -e "s|@DOX_INPUT@|README.md $(include_HEADERS) $(pkginclude_HEADERS)|g" \
-        $^ > $@
-
-dox/Doxyfile: $(top_srcdir)/dox/Doxyfile.in
-	mkdir -p dox
-	sed -e "s|@DOX_VERSION@|$(VERSION)|g" \
-	    -e "s|@DOX_OUTPUT@|$(abs_builddir)/dox|g" \
-	    -e "s|@DOX_INPUT@|README.md src|g" \
-        $^ > $@
-
-doxygen: dox-public/Doxyfile dox/Doxyfile
-	cd $(top_srcdir) && doxygen $(abs_builddir)/dox/Doxyfile
-	cd $(top_srcdir) && doxygen $(abs_builddir)/dox-public/Doxyfile
-
 geopm-tutorial.tar.gz: $(TUTORIAL_DIST)
 	tar --transform='s|^|geopm-|' -zcf $@ $^
 
@@ -664,7 +645,6 @@ PHONY_TARGETS = clean-local \
                 clean-local-coverage \
                 clean-local-man \
                 distclean-local \
-                doxygen \
                 gh_pages \
                 rpm \
                 # end
