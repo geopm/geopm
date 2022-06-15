@@ -1,13 +1,6 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
-
 
 geopm_endpoint_c(3) -- dynamic policy control for resource management
 =====================================================================
-
-
-
-
 
 
 Synopsis
@@ -85,7 +78,7 @@ All functions described in this man page return an error code on failure and
 zero upon success; see `ERRORS <ERRORS_>`_ section below for details.
 
 
-* 
+*
   ``geopm_endpoint_create()``:
   will create an endpoint object.  This object will hold the
   necessary state for interfacing with the shmem regions.  The
@@ -96,7 +89,7 @@ zero upon success; see `ERRORS <ERRORS_>`_ section below for details.
   the *endpoint* struct can now be used.  *endpoint* will
   be unmodified if an error occurs.
 
-* 
+*
   ``geopm_endpoint_destroy()``:
   will release resources associated with *endpoint*.  This will return zero
   on success indicating that the shmem regions were removed.  Otherwise an
@@ -104,7 +97,7 @@ zero upon success; see `ERRORS <ERRORS_>`_ section below for details.
   Additionally will send a signal to the agent that the manager
   is detaching from the policy and will no longer send updates.
 
-* 
+*
   ``geopm_endpoint_open()``:
   will create shared memory regions for passing policies to the
   Agent, and reading samples from the Agent.  These shmem regions
@@ -112,14 +105,14 @@ zero upon success; see `ERRORS <ERRORS_>`_ section below for details.
   indicating that the shmem regions were successfully created.  If
   the shmem key already exists, an error code of ``EEXIST`` is returned.
 
-* 
+*
   ``geopm_endpoint_close()``:
   will release shmem regions containing the substring
   *endpoint_name*.  This will return zero on success indicating that
   the shmem regions were removed.  Otherwise an error code is
   returned.
 
-* 
+*
   ``geopm_endpoint_agent()``:
   checks to see if an agent specified by *agent_name* has attached
   to the *endpoint*.  The number of bytes reserved for *agent_name*
@@ -130,25 +123,25 @@ zero upon success; see `ERRORS <ERRORS_>`_ section below for details.
   will be an unaltered string.  If no shmem region has been created with
   ``geopm_endpoint_open()``\ , an error code is returned.
 
-* 
+*
   ``geopm_endpoint_wait_for_agent_attach()``:
   blocks until an agent has attached to the *endpoint* or the
   *timeout* in seconds is reached.  This will return zero on success
   indicating that the agent attached or the wait was cancelled.
   Otherwise an error code is returned.
 
-* 
+*
   ``geopm_endpoint_stop_wait_loop()``:
   stops any current wait loops the *endpoint* is running.
 
-* 
+*
   ``geopm_endpoint_reset_wait_loop()``:
   resets the *endpoint* to prepare for a subsequent call to
   ``geopm_endpoint_wait_for_agent_attach()``.  This only needs to be
   called after calling ``geopm_endpoint_stop_wait_loop()`` once to reuse
   the endpoint for another agent.
 
-* 
+*
   ``geopm_endpoint_profile_name()``:
   provides the profile name of the attached agent in *profile_name*.
   The number of bytes reserved for *profile_name* is specified in
@@ -159,14 +152,14 @@ zero upon success; see `ERRORS <ERRORS_>`_ section below for details.
   region has been created with ``geopm_endpoint_open()``\ , an error
   code is returned.
 
-* 
+*
   ``geopm_endpoint_num_node()``:
   provides the number of nodes controlled by the agent attached to
   the *endpoint* in *num_node*.  Returns zero on success, otherwise
   an error code is returned.  If no shmem region has been created
   with ``geopm_endpoint_open()``\ , an error code is returned.
 
-* 
+*
   ``geopm_endpoint_node_name()``:
   provides the hostname of the *endpoint* managed compute node in
   *node_name*.  The index is specified by *node_idx*.  The number of
@@ -176,7 +169,7 @@ zero upon success; see `ERRORS <ERRORS_>`_ section below for details.
   has been created with ``geopm_endpoint_open()``\ , an error code is
   returned.
 
-* 
+*
   ``geopm_endpoint_write_policy()``:
   sets the policy values for the agent within *endpoint* to follow.
   These values provided in *policy_array* will be consumed by the
@@ -187,7 +180,7 @@ zero upon success; see `ERRORS <ERRORS_>`_ section below for details.
   an appropriate default value.  If no shmem region has been created
   with ``geopm_endpoint_open()``\ , an error code is returned.
 
-* 
+*
   ``geopm_endpoint_read_sample()``:
   provides the sample telemetry from the *endpoint*\ 's agent in
   *sample_array* and the amount of time that has passed since the

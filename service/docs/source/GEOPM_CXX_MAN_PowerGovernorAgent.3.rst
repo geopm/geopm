@@ -1,13 +1,6 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
-
 
 geopm::PowerGovernorAgent(3) -- agent that enforces a power cap
 ===============================================================
-
-
-
-
 
 
 Synopsis

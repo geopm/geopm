@@ -1,13 +1,6 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
-
 
 geopm::MPIComm(3) -- implementation of Comm using MPI
 =====================================================
-
-
-
-
 
 
 Namespaces

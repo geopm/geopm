@@ -1,13 +1,6 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
-
 
 geopm::MSRIO(3) -- methods for reading and writing MSRs
 =======================================================
-
-
-
-
 
 
 Namespaces
@@ -70,12 +63,12 @@ Class Methods
 -------------
 
 
-* 
+*
   ``read_msr()``:
   Read from a single MSR at *offset* on the logical Linux CPU
   specified by *cpu_idx*.  Returns the raw encoded MSR value.
 
-* 
+*
   ``write_msr()``:
   Write to a single MSR at *offset* on the logical Linux CPU
   specified by *cpu_idx*.  The value in *raw_value* will be masked
@@ -84,7 +77,7 @@ Class Methods
   unmodified.  If the *raw_value* tries to write any bits outside
   the mask, an error will be raised.
 
-* 
+*
   ``add_read()``:
   Add an *offset* to the list of MSRs to be read by the next call to
   ``read_batch()``, extend this set of MSRs with a single *offset*.
@@ -92,21 +85,21 @@ Class Methods
   ``read_batch()`` method is called.
   Returns the logical index that will be passed to ``sample()``.
 
-* 
+*
   ``read_batch()``:
   Batch read a set of MSRs configured by a previous call to the
   ``batch_config()`` method.  The memory used to store the result should have
   been returned by ``add_read()``.  The resulting raw encoded MSR values are
   accessible through ``sample()``.
 
-* 
+*
   ``add_write()``:
   Add another *offset* to the list of MSRs to be written in batch.
   The *cpu_idx* is the logical Linux CPU index to write to when
   ``write_batch()`` method is called.
   Returns the logical index that will be passed to ``adjust()``.
 
-* 
+*
   ``adjust()``:
   Adjust a *value* that was previously added with the ``add_write()`` method.
   The *value* in will be masked with *write_mask* and the *value*
@@ -114,23 +107,23 @@ Class Methods
   All other bits in the MSR will remain unmodified.
   If the *value* tries to write any bits outside the mask, an error will be raised.
 
-* 
+*
   ``sample()``:
   Read the full 64-bit value of the MSR that was previously added
   to the MSRIO batch with ``add_read()``.  ``read_batch()`` must be called
   prior to calling ``sample()``.
 
-* 
+*
   ``write_batch()``:
   Batch write a set of MSRs configured by a previous call to the
   ``batch_config()`` method.  The values in the *raw_value* vector will
   be written to the corresponding configured locations.
 
-* 
+*
   ``make_unique()``:
   Returns a ``unique_ptr`` to a concrete object constructed using the underlying implementation
 
-* 
+*
   ``make_shared()``:
   Returns a ``shared_ptr`` to a concrete object constructed using the underlying implementation
 

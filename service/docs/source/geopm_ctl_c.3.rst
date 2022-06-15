@@ -1,6 +1,3 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
-
 
 geopm_ctl_c(3) -- GEOPM runtime control thread
 ==============================================
@@ -42,7 +39,7 @@ separate pthread owned by the application process under control.  Each
 of these methods has different requirements and trade offs.
 
 
-* 
+*
   ``geopm_ctl_create()``:
   creates a ``geopm_ctl_c`` object, *ctl* which is an opaque structure
   that holds the state used to execute the control algorithm with
@@ -52,17 +49,17 @@ of these methods has different requirements and trade offs.
   have at least one process running on every compute node under
   control.
 
-* 
+*
   ``geopm_ctl_destroy()``:
   destroys all resources associated with the *ctl* structure which
   allocated by a previous call to ``geopm_ctl_create()``.
 
-* 
+*
   ``geopm_ctl_run()``:
   steps the control algorithm continuously until the application
   signals shutdown.
 
-* 
+*
   ``geopm_ctl_pthread()``:
   creates a POSIX thread running the control algorithm continuously
   until the application signals shutdown.  With this method of launch

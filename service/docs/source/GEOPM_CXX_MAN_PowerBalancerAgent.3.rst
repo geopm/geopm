@@ -1,13 +1,6 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
-
 
 geopm::PowerBalancerAgent(3) -- agent optimizing performance under a power cap
 ==============================================================================
-
-
-
-
 
 
 Synopsis

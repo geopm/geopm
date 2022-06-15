@@ -1,13 +1,6 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
-
 
 geopm::PowerGovernor(3) -- enforces a power limit
 =================================================
-
-
-
-
 
 
 Synopsis

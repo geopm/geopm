@@ -1,13 +1,6 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
-
 
 geopm::Daemon(3) -- GEOPM daemon helper methods
 ===============================================
-
-
-
-
 
 
 Namespaces
@@ -54,7 +47,7 @@ Factory Method
 --------------
 
 
-* 
+*
   ``make_unique()``:
   This method returns a ``unique_ptr<Daemon>`` to a concrete ``DaemonImp``
   object.  The shared memory prefix for the Endpoint should be given
@@ -65,7 +58,7 @@ Class Methods
 -------------
 
 
-* 
+*
   ``update_endpoint_from_policystore()``:
   Looks up a policy in the Daemon's PolicyStore given the attached
   Controller's agent and profile name, and writes it back into the
@@ -74,12 +67,12 @@ Class Methods
   *timeout*\ , or detaches while this function is running, no policy
   is written.
 
-* 
+*
   ``stop_wait_loop()``:
   Exits early from any ongoing wait loops in the Daemon, for example
   in a call to ``update_endpoint_from_policystore()``.
 
-* 
+*
   ``reset_wait_loop()``:
   Resets the Daemon's endpoint to prepare for a future wait loop.
 

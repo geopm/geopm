@@ -18,25 +18,25 @@ Synopsis
 ``Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)``
 
 
-* 
+*
   ``int geopm_sched_num_cpu(``\ :
   ``void);``
 
-* 
+*
   ``int geopm_sched_get_cpu(``\ :
   ``void);``
 
-* 
+*
   ``int geopm_sched_proc_cpuset(``\ :
   ``int`` _num\ *cpu*\ , :raw-html-m2r:`<br>`
   `cpu_set_t *`_proc\ *cpuset*\ ``);``
 
-* 
+*
   ``int geopm_sched_woomp(``\ :
   ``int`` _num\ *cpu*\ , :raw-html-m2r:`<br>`
   `cpu_set_t *`_woomp_\ ``);``
 
-* 
+*
   ``int geopm_sched_popen(``\ :
   `const char *`_cmd_, :raw-html-m2r:`<br>`
   `FILE **`_fid_\ ``);``
@@ -48,15 +48,15 @@ The _geopm\ *sched.h* header defines GEOPM interfaces for interacting with
 the linux scheduler.
 
 
-* 
+*
   ``geopm_sched_num_cpu``\ ():
   Returns the number of online Linux logical CPUs on the system.
 
-* 
+*
   ``geopm_sched_get_cpu``\ ():
   Returns the Linux logical CPU index that the calling thread is executing on.
 
-* 
+*
   ``geopm_sched_proc_cpuset``\ ():
   Provides a `CPU_SET(3) <https://man7.org/linux/man-pages/man3/CPU_SET.3.html>`_ bit mask identifying the Linux logical CPUs on
   which the calling process is allowed to run. The user must allocate the bit
@@ -66,7 +66,7 @@ the linux scheduler.
   access to which will be set to one. Returns zero on success and an error
   code on failure.
 
-* 
+*
   ``geopm_sched_woomp``\ ():
   Sets the `CPU_SET(3) <https://man7.org/linux/man-pages/man3/CPU_SET.3.html>`_ given by *woomp* such that it includes all
   CPUs not used in an OpenMP parallel region but available to the
@@ -85,7 +85,7 @@ the linux scheduler.
   number is returned. See :doc:`geopm_error(3) <geopm_error.3>` for a full description
   of the error numbers and how to convert them to strings.
 
-* 
+*
   ``geopm_sched_popen``\ ():
   Enables calls to **popen(3)** within a process that is running the GEOPM
   Controller without triggering GEOPM's signal handling when the subprocess

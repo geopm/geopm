@@ -1,13 +1,6 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
-
 
 geopm_imbalancer.h(3) -- set artificial runtime imbalance
 =========================================================
-
-
-
-
 
 
 Synopsis

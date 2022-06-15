@@ -1,13 +1,6 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
-
 
 geopm::PlatformTopo(3) -- platform topology information
 =======================================================
-
-
-
-
 
 
 Namespaces
@@ -92,18 +85,18 @@ Class Methods
 -------------
 
 
-* 
+*
   ``num_domain()``:
   Number of domains on the platform of a particular *domain_type*.
   Refer to the :ref:`list of domain types <geopm_topo_c.3:Domain Types>` in
   :doc:`geopm_topo_c(3) <geopm_topo_c.3>`.
 
-* 
+*
   ``domain_idx()``:
   Get the domain index for a particular *domain_type* that contains
   the given Linux logical CPU with index *cpu_idx*.
 
-* 
+*
   ``is_nested_domain()``:
   Check if *inner_domain* is contained within *outer_domain*.
   ``GEOPM_DOMAIN_BOARD`` is the outermost domain representing the entire
@@ -128,24 +121,24 @@ Class Methods
         +---`GEOPM_DOMAIN_GPU`
 
 
-* 
+*
   ``domain_nested()``:
   Returns the set of smaller domains of type *inner_domain*
   contained with a larger domain of type *outer_domain* at
   *outer_idx*.  If the inner domain is not the same as or contained
   within the outer domain, it throws an exception.
 
-* 
+*
   ``domain_type_to_name()``:
   Convert a *domain_type* integer to a string.  These strings are
   used by the :doc:`geopmread(1) <geopmread.1>` and :doc:`geopmwrite(1) <geopmwrite.1>` tools.
 
-* 
+*
   ``domain_name_to_type()``:
   Convert a *domain_name* string to the corresponding integer domain type.
   This method is the inverse of ``domain_type_to_name()``.
 
-* 
+*
   ``create_cache()``:
   Create cache file in ``tmpfs`` that can be read instead of ``popen()`` call.
 

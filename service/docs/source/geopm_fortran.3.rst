@@ -1,13 +1,6 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
-
 
 geopm_fortran(3) -- GEOPM fortran interface
 ===========================================
-
-
-
-
 
 
 Synopsis
@@ -65,13 +58,13 @@ This is the Fortran interface to the GEOPM library.  The documentation
 for each function can found in the associated man page for the C
 interface.
 
-* :doc:`geopm_ctl_c(3) <geopm_ctl_c.3>`\ 
+* :doc:`geopm_ctl_c(3) <geopm_ctl_c.3>`\
 
    * geopm_ctl_create
    * geopm_ctl_destroy
    * geopm_ctl_run
 
-* :doc:`geopm_prof_c(3) <geopm_prof_c.3>`\ 
+* :doc:`geopm_prof_c(3) <geopm_prof_c.3>`\
 
    * geopm_prof_region
    * geopm_prof_enter

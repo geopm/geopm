@@ -1,13 +1,6 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
-
 
 geopm_error(3) -- error code descriptions
 =========================================
-
-
-
-
 
 
 Synopsis
@@ -58,59 +51,59 @@ Error Numbers
 -------------
 
 
-* 
+*
   ``GEOPM_ERROR_RUNTIME = -1``\ :
   Runtime error
 
-* 
+*
   ``GEOPM_ERROR_LOGIC = -2``\ :
   Logic error
 
-* 
+*
   ``GEOPM_ERROR_INVALID = -3``\ :
   Invalid argument
 
-* 
+*
   ``GEOPM_ERROR_FILE_PARSE = -4``\ :
   Unable to parse input file
 
-* 
+*
   ``GEOPM_ERROR_LEVEL_RANGE = -5``\ :
   Control hierarchy level is out of range
 
-* 
+*
   ``GEOPM_ERROR_NOT_IMPLEMENTED = -6``\ :
   Feature not yet implemented
 
-* 
+*
   ``GEOPM_ERROR_PLATFORM_UNSUPPORTED = -7``\ :
   Current platform not supported or unrecognized
 
-* 
+*
   ``GEOPM_ERROR_MSR_OPEN = -8``\ :
   Could not open MSR device
 
-* 
+*
   ``GEOPM_ERROR_MSR_READ = -9``\ :
   Could not read from MSR device
 
-* 
+*
   ``GEOPM_ERROR_MSR_WRITE = -10``\ :
   Could not write to MSR device
 
-* 
+*
   ``GEOPM_ERROR_AGENT_UNSUPPORTED = -11``\ :
   Specified Agent not supported or unrecognized
 
-* 
+*
   ``GEOPM_ERROR_AFFINITY = -12``\ :
   MPI ranks are not affinitized to distinct CPUs
 
-* 
+*
   ``GEOPM_ERROR_NO_AGENT = -13``\ :
   Requested agent is unavailable or invalid
 
-* 
+*
   ``GEOPM_ERROR_DATA_STORE = -14``\ :
   Encountered a data store error
 
