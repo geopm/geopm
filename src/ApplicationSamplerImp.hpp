@@ -8,6 +8,7 @@
 
 #include "ApplicationSampler.hpp"
 #include "ValidateRecord.hpp"
+#include "geopm_hint.h"
 
 struct geopm_prof_message_s;
 namespace geopm
@@ -63,8 +64,7 @@ namespace geopm
             std::map<int, m_process_s> m_process_map;
             const bool m_is_filtered;
             const std::string m_filter_name;
-            static const std::map<uint64_t, double> m_hint_time_init;
-            std::vector<std::map<uint64_t, double> > m_hint_time;
+            std::vector<std::array<double, GEOPM_SENTINEL_REGION_HINT>> m_hint_time;
             std::vector<bool> m_is_cpu_active;
             geopm_time_s m_update_time;
             bool m_is_first_update;

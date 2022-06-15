@@ -8,8 +8,10 @@
 #include "record.hpp"
 
 #include <map>
+#include <utility>
 
 #include "geopm/Exception.hpp"
+#include "geopm/Helper.hpp"
 #include "geopm_hint.h"
 
 namespace geopm
@@ -46,36 +48,51 @@ namespace geopm
 
     std::string hint_name(uint64_t hint)
     {
-        static const std::map<uint64_t, std::string> result_map {
-            {GEOPM_REGION_HINT_UNKNOWN, "UNKNOWN"},
-            {GEOPM_REGION_HINT_COMPUTE, "COMPUTE"},
-            {GEOPM_REGION_HINT_MEMORY, "MEMORY"},
-            {GEOPM_REGION_HINT_NETWORK, "NETWORK"},
-            {GEOPM_REGION_HINT_IO, "IO"},
-            {GEOPM_REGION_HINT_SERIAL, "SERIAL"},
-            {GEOPM_REGION_HINT_PARALLEL, "PARALLEL"},
-            {GEOPM_REGION_HINT_IGNORE, "IGNORE"},
+        static const std::string hint_names[] = {
+            "UNSET",
+            "UNKNOWN",
+            "COMPUTE",
+            "MEMORY",
+            "NETWORK",
+            "IO",
+            "SERIAL",
+            "PARALLEL",
+            "IGNORE",
+            "INACTIVE",
         };
-        auto it = result_map.find(hint);
-        if (it == result_map.end()) {
+        static_assert(sizeof(hint_names) / sizeof(hint_names[0]) ==
+                      GEOPM_SENTINEL_REGION_HINT);
+        unsigned int hint_idx = hint_to_index(hint);
+
+        if (hint_idx >= GEOPM_SENTINEL_REGION_HINT) {
             throw Exception("hint_hame(): Invalid hint",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        return it->second;
+
+        return hint_names[hint];
     }
 
     uint64_t hint_type(const std::string &hint_name)
     {
-        static const std::map<std::string, uint64_t> result_map {
-            {"UNKNOWN", GEOPM_REGION_HINT_UNKNOWN},
-            {"COMPUTE", GEOPM_REGION_HINT_COMPUTE},
-            {"MEMORY", GEOPM_REGION_HINT_MEMORY},
-            {"NETWORK", GEOPM_REGION_HINT_NETWORK},
-            {"IO", GEOPM_REGION_HINT_IO},
-            {"SERIAL", GEOPM_REGION_HINT_SERIAL},
-            {"PARALLEL", GEOPM_REGION_HINT_PARALLEL},
-            {"IGNORE", GEOPM_REGION_HINT_IGNORE},
-        };
+        static const std::pair<std::string, geopm_region_hint_e>
+            hint_mapping[] = {
+                std::make_pair("UNSET", GEOPM_REGION_HINT_UNSET),
+                std::make_pair("UNKNOWN", GEOPM_REGION_HINT_UNKNOWN),
+                std::make_pair("COMPUTE", GEOPM_REGION_HINT_COMPUTE),
+                std::make_pair("MEMORY", GEOPM_REGION_HINT_MEMORY),
+                std::make_pair("NETWORK", GEOPM_REGION_HINT_NETWORK),
+                std::make_pair("IO", GEOPM_REGION_HINT_IO),
+                std::make_pair("SERIAL", GEOPM_REGION_HINT_SERIAL),
+                std::make_pair("PARALLEL", GEOPM_REGION_HINT_PARALLEL),
+                std::make_pair("IGNORE", GEOPM_REGION_HINT_IGNORE),
+                std::make_pair("INACTIVE", GEOPM_REGION_HINT_INACTIVE),
+            };
+        static constexpr unsigned int HINT_MAP_SIZE = sizeof(hint_mapping) /
+                                                      sizeof(hint_mapping[0]);
+        static_assert(HINT_MAP_SIZE == GEOPM_SENTINEL_REGION_HINT);
+        static const std::map<std::string, uint64_t>
+            result_map(hint_mapping, hint_mapping + HINT_MAP_SIZE);
+
         auto it = result_map.find(hint_name);
         if (it == result_map.end()) {
             throw Exception("hint_type():  Unknown hint name: " + hint_name + "\n",

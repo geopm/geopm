@@ -128,6 +128,7 @@ namespace geopm
 
     /// @brief Verify a region's hint value is legal for use.
     void check_hint(uint64_t hint);
+    unsigned int hint_to_index(uint64_t hint);
 
     /// @brief Read an environment variable.
     /// @param [in] The name of the environment variable to read.
