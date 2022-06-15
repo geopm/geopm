@@ -151,5 +151,20 @@ class TestLauncher(unittest.TestCase):
         srun_popen_args = mock_popen.call_args[0][0]
         self.assertEqual(srun_popen_args[-3:], ['--', 'unittest_workload', 'multiple words'])
 
+    @mock.patch('subprocess.Popen', side_effect=mock_popen_srun)
+    def test_affinity_disable(self, mock_popen):
+        """ Test that geopm does not emit affinity related env options when affinity
+            is disabled.
+        """
+        launcher = geopmpy.launcher.Factory().create(
+                ['unittest_geopm_launcher', 'srun', '--geopm-affinity-disable', 'unittest_workload'],
+                num_rank = 2, num_node = 1)
+        launcher.run()
+        srun_args, srun_kwargs = mock_popen.call_args
+
+        self.assertNotIn('--cpu-bind', srun_args[0])
+        self.assertNotIn('OMP_PROC_BIND', srun_kwargs['env'].keys())
+
+
 if __name__ == '__main__':
     unittest.main()

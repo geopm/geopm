@@ -196,7 +196,9 @@ class Config(object):
         Dictionary describing the environment variables controlled by the
         configuration object.
         """
-        result = {'OMP_PROC_BIND': 'true'}
+        result = {}
+        if self.do_affinity:
+            result['OMP_PROC_BIND'] = 'true'
         if self.ctl == 'pthread':
             result['MPICH_MAX_THREAD_SAFETY'] = 'multiple'
         if self.ctl in ('process', 'pthread'):
