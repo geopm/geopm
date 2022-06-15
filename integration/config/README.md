@@ -15,7 +15,7 @@ australis_env.sh
 -------------
 
 A bash script that may be sourced within a shell in order to set up
-the users build/run environment on the australis system.
+the user's build/run environment on the australis system.
 
 
 build.sh
@@ -30,7 +30,7 @@ build_env.sh
 ------------
 
 A bash script that may be sourced within a shell in order to set up
-the users build environment.  By default this will use the Intel
+the user's build environment.  By default this will use the Intel
 compiler toolchain.
 
 
@@ -38,28 +38,28 @@ dudley_env.sh
 -------------
 
 A bash script that may be sourced within a shell in order to set up
-the users build environment on the dudley system.
+the user's build environment on the dudley system.
 
 
 endeavor_env.sh
 ---------------
 
 A bash script that may be sourced within a shell in order to set up
-the users build environment on the endeavor system.
+the user's build environment on the endeavor system.
 
 
 gnu_env.sh
 ----------
 
 A bash script that may be sourced within a shell in order to set up
-the users build environment to use the GNU compiler toolchain.
+the user's build environment to use the GNU compiler toolchain.
 
 
 run_env.sh
 ----------
 
 A bash script that may be source within a shell in order to set up the
-users run environment to use a locally installed version of the GEOPM
+user's run environment to use a locally installed version of the GEOPM
 packages.
 
 
@@ -67,11 +67,11 @@ smng_env.sh
 -----------
 
 A bash script that may be sourced within a shell in order to set up
-the users build environment on the SuperMUC-NG system.
+the user's build environment on the SuperMUC-NG system.
 
 
 theta_env.sh
 ------------
 
 A bash script that may be sourced within a shell in order to set up
-the users build environment on the Theta system.
+the user's build environment on the Theta system.
