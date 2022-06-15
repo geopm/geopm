@@ -386,7 +386,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Set an event code to select which event logic unit to monitor. This control combined with MSR::IA32_PERFEVTSEL0:UMASK defines which event to count. See https://download.01.org/perfmon for possible input values. Event counts are accumulated in MSR::IA32_PMC0:PERFCTR."
                 },
                 "UMASK": {
                     "begin_bit": 8,
@@ -395,7 +396,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Set a unit mask to select which event event condition to monitor. This control combined with MSR::IA32_PERFEVTSEL0:EVENT_SELECT defines which event to count. See https://download.01.org/perfmon for possible input values. Event counts are accumulated in MSR::IA32_PMC0:PERFCTR."
                 },
                 "USR": {
                     "begin_bit": 16,
@@ -404,7 +406,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Count events while in user mode."
                 },
                 "OS": {
                     "begin_bit": 17,
@@ -413,7 +416,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Count events while in kernel mode."
                 },
                 "EDGE": {
                     "begin_bit": 18,
@@ -422,7 +426,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "When set, count rising edges of the event signal instead of counting all instances where the event is observed."
                 },
                 "PC": {
                     "begin_bit": 19,
@@ -431,7 +436,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Only applicable prior to the Sandy Bridge microarchitecture. When set, the processor's PMi pins are toggled (on then off in back-to-back clock cycles) when an event is counted. When cleared, only event counter overflows toggle the PMi pins."
                 },
                 "INT": {
                     "begin_bit": 20,
@@ -440,7 +446,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "If set, generate an interrupt when the counter overflows."
                 },
                 "ANYTHREAD": {
                     "begin_bit": 21,
@@ -449,7 +456,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "If set, increment event counts when the event occurs on any hardware thread from the configured thread's core. Otherwise, only increment event counts when the configured thread triggers the event."
                 },
                 "EN": {
                     "begin_bit": 22,
@@ -458,7 +466,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Enable the counters selected in MSR::IA32_PERFEVTSEL0 if both this and MSR::PERF_GLOBAL_CTRL:EN_PMC0 are set."
                 },
                 "INV": {
                     "begin_bit": 23,
@@ -467,7 +476,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Indicates whether non-zero MSR::IA32_PERFEVTSEL0:CMASK events should be inverted. When the CMASK is inverted, increment the event count when the number of occurrences is less than the configured cutoff, instead of the default behavior of counting when the number of occurrences is greater than or equal to the cutoff."
                 },
                 "CMASK": {
                     "begin_bit": 24,
@@ -476,7 +486,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Set a mask for instances where multiple events are counted in a single clock cycle. When zero, all events are counted. When non-zero, a single event is counted when the number of event occurrences is greater or equal to the set CMASK value."
                 }
             }
         },
@@ -491,7 +502,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Set an event code to select which event logic unit to monitor. This control combined with MSR::IA32_PERFEVTSEL1:UMASK defines which event to count. See https://download.01.org/perfmon for possible input values. Event counts are accumulated in MSR::IA32_PMC1:PERFCTR."
                 },
                 "UMASK": {
                     "begin_bit": 8,
@@ -500,7 +512,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Set a unit mask to select which event event condition to monitor. This control combined with MSR::IA32_PERFEVTSEL1:EVENT_SELECT defines which event to count. See https://download.01.org/perfmon for possible input values. Event counts are accumulated in MSR::IA32_PMC1:PERFCTR."
                 },
                 "USR": {
                     "begin_bit": 16,
@@ -509,7 +522,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Count events while in user mode."
                 },
                 "OS": {
                     "begin_bit": 17,
@@ -518,7 +532,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Count events while in kernel mode."
                 },
                 "EDGE": {
                     "begin_bit": 18,
@@ -527,7 +542,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "When set, count rising edges of the event signal instead of counting all instances where the event is observed."
                 },
                 "PC": {
                     "begin_bit": 19,
@@ -536,7 +552,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Only applicable prior to the Sandy Bridge microarchitecture. When set, the processor's PMi pins are toggled (on then off in back-to-back clock cycles) when an event is counted. When cleared, only event counter overflows toggle the PMi pins."
                 },
                 "INT": {
                     "begin_bit": 20,
@@ -545,7 +562,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "If set, generate an interrupt when the counter overflows."
                 },
                 "ANYTHREAD": {
                     "begin_bit": 21,
@@ -554,7 +572,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "If set, increment event counts when the event occurs on any hardware thread from the configured thread's core. Otherwise, only increment event counts when the configured thread triggers the event."
                 },
                 "EN": {
                     "begin_bit": 22,
@@ -563,7 +582,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Enable the counters selected in MSR::IA32_PERFEVTSEL1 if both this and MSR::PERF_GLOBAL_CTRL:EN_PMC1 are set."
                 },
                 "INV": {
                     "begin_bit": 23,
@@ -572,7 +592,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Indicates whether non-zero MSR::IA32_PERFEVTSEL1:CMASK events should be inverted. When the CMASK is inverted, increment the event count when the number of occurrences is less than the configured cutoff, instead of the default behavior of counting when the number of occurrences is greater than or equal to the cutoff."
                 },
                 "CMASK": {
                     "begin_bit": 24,
@@ -581,7 +602,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Set a mask for instances where multiple events are counted in a single clock cycle. When zero, all events are counted. When non-zero, a single event is counted when the number of event occurrences is greater or equal to the set CMASK value."
                 }
             }
         },
@@ -596,7 +618,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Set an event code to select which event logic unit to monitor. This control combined with MSR::IA32_PERFEVTSEL2:UMASK defines which event to count. See https://download.01.org/perfmon for possible input values. Event counts are accumulated in MSR::IA32_PMC2:PERFCTR."
                 },
                 "UMASK": {
                     "begin_bit": 8,
@@ -605,7 +628,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Set a unit mask to select which event event condition to monitor. This control combined with MSR::IA32_PERFEVTSEL2:EVENT_SELECT defines which event to count. See https://download.01.org/perfmon for possible input values. Event counts are accumulated in MSR::IA32_PMC2:PERFCTR."
                 },
                 "USR": {
                     "begin_bit": 16,
@@ -614,7 +638,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Count events while in user mode."
                 },
                 "OS": {
                     "begin_bit": 17,
@@ -623,7 +648,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Count events while in kernel mode."
                 },
                 "EDGE": {
                     "begin_bit": 18,
@@ -632,7 +658,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "When set, count rising edges of the event signal instead of counting all instances where the event is observed."
                 },
                 "PC": {
                     "begin_bit": 19,
@@ -641,7 +668,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Only applicable prior to the Sandy Bridge microarchitecture. When set, the processor's PMi pins are toggled (on then off in back-to-back clock cycles) when an event is counted. When cleared, only event counter overflows toggle the PMi pins."
                 },
                 "INT": {
                     "begin_bit": 20,
@@ -650,7 +678,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "If set, generate an interrupt when the counter overflows."
                 },
                 "ANYTHREAD": {
                     "begin_bit": 21,
@@ -659,7 +688,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "If set, increment event counts when the event occurs on any hardware thread from the configured thread's core. Otherwise, only increment event counts when the configured thread triggers the event."
                 },
                 "EN": {
                     "begin_bit": 22,
@@ -668,7 +698,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Enable the counters selected in MSR::IA32_PERFEVTSEL2 if both this and MSR::PERF_GLOBAL_CTRL:EN_PMC2 are set."
                 },
                 "INV": {
                     "begin_bit": 23,
@@ -677,7 +708,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Indicates whether non-zero MSR::IA32_PERFEVTSEL2:CMASK events should be inverted. When the CMASK is inverted, increment the event count when the number of occurrences is less than the configured cutoff, instead of the default behavior of counting when the number of occurrences is greater than or equal to the cutoff."
                 },
                 "CMASK": {
                     "begin_bit": 24,
@@ -686,7 +718,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Set a mask for instances where multiple events are counted in a single clock cycle. When zero, all events are counted. When non-zero, a single event is counted when the number of event occurrences is greater or equal to the set CMASK value."
                 }
             }
         },
@@ -701,7 +734,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Set an event code to select which event logic unit to monitor. This control combined with MSR::IA32_PERFEVTSEL3:UMASK defines which event to count. See https://download.01.org/perfmon for possible input values. Event counts are accumulated in MSR::IA32_PMC3:PERFCTR."
                 },
                 "UMASK": {
                     "begin_bit": 8,
@@ -710,7 +744,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Set a unit mask to select which event event condition to monitor. This control combined with MSR::IA32_PERFEVTSEL3:EVENT_SELECT defines which event to count. See https://download.01.org/perfmon for possible input values. Event counts are accumulated in MSR::IA32_PMC3:PERFCTR."
                 },
                 "USR": {
                     "begin_bit": 16,
@@ -719,7 +754,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Count events while in user mode."
                 },
                 "OS": {
                     "begin_bit": 17,
@@ -728,7 +764,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Count events while in kernel mode."
                 },
                 "EDGE": {
                     "begin_bit": 18,
@@ -737,7 +774,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "When set, count rising edges of the event signal instead of counting all instances where the event is observed."
                 },
                 "PC": {
                     "begin_bit": 19,
@@ -746,7 +784,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Only applicable prior to the Sandy Bridge microarchitecture. When set, the processor's PMi pins are toggled (on then off in back-to-back clock cycles) when an event is counted. When cleared, only event counter overflows toggle the PMi pins."
                 },
                 "INT": {
                     "begin_bit": 20,
@@ -755,7 +794,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "If set, generate an interrupt when the counter overflows."
                 },
                 "ANYTHREAD": {
                     "begin_bit": 21,
@@ -764,7 +804,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "If set, increment event counts when the event occurs on any hardware thread from the configured thread's core. Otherwise, only increment event counts when the configured thread triggers the event."
                 },
                 "EN": {
                     "begin_bit": 22,
@@ -773,7 +814,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Enable the counters selected in MSR::IA32_PERFEVTSEL3 if both this and MSR::PERF_GLOBAL_CTRL:EN_PMC3 are set."
                 },
                 "INV": {
                     "begin_bit": 23,
@@ -782,7 +824,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Indicates whether non-zero MSR::IA32_PERFEVTSEL3:CMASK events should be inverted. When the CMASK is inverted, increment the event count when the number of occurrences is less than the configured cutoff, instead of the default behavior of counting when the number of occurrences is greater than or equal to the cutoff."
                 },
                 "CMASK": {
                     "begin_bit": 24,
@@ -791,7 +834,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Set a mask for instances where multiple events are counted in a single clock cycle. When zero, all events are counted. When non-zero, a single event is counted when the number of event occurrences is greater or equal to the set CMASK value."
                 }
             }
         },
@@ -807,7 +851,8 @@
                     "scalar":    1.0,
                     "behavior":  "monotone",
                     "writeable": false,
-                    "aggregation": "sum"
+                    "aggregation": "sum",
+                    "description": "The count of events detected by MSR::IA32_PERFEVTSEL0."
                 }
             }
         },
@@ -823,7 +868,8 @@
                     "scalar":    1.0,
                     "behavior":  "monotone",
                     "writeable": false,
-                    "aggregation": "sum"
+                    "aggregation": "sum",
+                    "description": "The count of events detected by MSR::IA32_PERFEVTSEL1."
                 }
             }
         },
@@ -839,7 +885,8 @@
                     "scalar":    1.0,
                     "behavior":  "monotone",
                     "writeable": false,
-                    "aggregation": "sum"
+                    "aggregation": "sum",
+                    "description": "The count of events detected by MSR::IA32_PERFEVTSEL2."
                 }
             }
         },
@@ -855,7 +902,8 @@
                     "scalar":    1.0,
                     "behavior":  "monotone",
                     "writeable": false,
-                    "aggregation": "sum"
+                    "aggregation": "sum",
+                    "description": "The count of events detected by MSR::IA32_PERFEVTSEL3."
                 }
             }
         },
@@ -1008,7 +1056,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Enable programmable counter 0 if both this and MSR::IA32_PERFEVTSEL0:EN are set."
                 },
                 "EN_PMC1": {
                     "begin_bit": 1,
@@ -1017,7 +1066,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Enable programmable counter 1 if both this and MSR::IA32_PERFEVTSEL1:EN are set."
                 },
                 "EN_PMC2": {
                     "begin_bit": 2,
@@ -1026,7 +1076,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Enable programmable counter 2 if both this and MSR::IA32_PERFEVTSEL2:EN are set."
                 },
                 "EN_PMC3": {
                     "begin_bit": 3,
@@ -1035,7 +1086,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Enable programmable counter 3 if both this and MSR::IA32_PERFEVTSEL3:EN are set."
                 },
                 "EN_FIXED_CTR0": {
                     "begin_bit": 32,
