@@ -215,20 +215,12 @@ namespace geopm
                             geopm::string_format_hex(hint),
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        unsigned int hint_idx = hint_to_index(hint);
-        if (hint_idx >= GEOPM_SENTINEL_REGION_HINT) {
+        if (hint >= GEOPM_SENTINEL_REGION_HINT) {
             throw Exception("Helper::" + std::string(__func__) +
                             "(): hint out of range: " +
                             geopm::string_format_hex(hint),
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-    }
-
-    unsigned int hint_to_index(uint64_t hint)
-    {
-        uint64_t masked_hint = hint & GEOPM_MASK_REGION_HINT;
-        unsigned int hint_idx = masked_hint >> 32;
-        return hint_idx;
     }
 
     std::function<std::string(double)> string_format_type_to_function(int format_type)

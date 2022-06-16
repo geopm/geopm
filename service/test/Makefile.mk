@@ -99,7 +99,6 @@ GTEST_TESTS = test/gtest_links/GPUTopoNullTest.default_config \
               test/gtest_links/ExceptionTest.hello \
               test/gtest_links/ExceptionTest.last_message \
               test/gtest_links/HelperTest.check_hint \
-              test/gtest_links/HelperTest.hint_to_index \
               test/gtest_links/HelperTest.string_begins_with \
               test/gtest_links/HelperTest.string_ends_with \
               test/gtest_links/HelperTest.string_join \

@@ -80,31 +80,14 @@ TEST(HelperTest, string_ends_with)
 
 TEST(HelperTest, check_hint)
 {
-    uint64_t hint = GEOPM_SENTINEL_REGION_HINT << 32;
+    uint64_t hint = GEOPM_SENTINEL_REGION_HINT;
     GEOPM_EXPECT_THROW_MESSAGE(geopm::check_hint(hint),
                                GEOPM_ERROR_INVALID,
                                "hint out of range");
-    hint = 1ULL << 31;
+    hint = 1ULL << 32;
     GEOPM_EXPECT_THROW_MESSAGE(geopm::check_hint(hint),
                                GEOPM_ERROR_INVALID,
                                "invalid hint");
-}
-
-TEST(HelperTest, hint_to_index)
-{
-    uint64_t h;
-    uint64_t i;
-    for (h = (1ULL << 32), i = 1; h < (GEOPM_SENTINEL_REGION_HINT << 32);
-         h += (1ULL << 32), i++) {
-        EXPECT_EQ(i, geopm::hint_to_index(h));
-    }
-
-    // "UNSET" is "index" 0
-    EXPECT_EQ(0, geopm::hint_to_index(GEOPM_REGION_HINT_UNSET));
-    uint64_t index_out_of_bounds = GEOPM_SENTINEL_REGION_HINT + 1;
-    // hint_to_index() does not perform bounds checking
-    EXPECT_EQ(index_out_of_bounds,
-              geopm::hint_to_index(index_out_of_bounds << 32));
 }
 
 TEST(HelperTest, pid_to)

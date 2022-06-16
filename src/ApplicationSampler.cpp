@@ -157,8 +157,7 @@ namespace geopm
             double time_delta = geopm_time_diff(&m_update_time, &curr_time);
             for (int cpu_idx = 0; cpu_idx != m_num_cpu; ++cpu_idx) {
                 try {
-                    unsigned int hint_idx = hint_to_index(m_hint_last[cpu_idx]);
-                    m_hint_time[cpu_idx][hint_idx] += time_delta;
+                    m_hint_time[cpu_idx][m_hint_last[cpu_idx]] += time_delta;
                     m_hint_last[cpu_idx] = m_status->get_hint(cpu_idx);
                 }
                 catch (const std::out_of_range& oor) {
@@ -269,8 +268,7 @@ namespace geopm
         }
         if (m_is_cpu_active[cpu_idx]) {
             check_hint(hint);
-            unsigned int hint_idx = hint_to_index(hint);
-            result = m_hint_time[cpu_idx][hint_idx];
+            result = m_hint_time[cpu_idx][hint];
         }
         return result;
     }

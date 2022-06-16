@@ -196,7 +196,7 @@ TEST_F(TracerTest, region_entry_exit)
     m_tracer->flush();
     std::string expected_str ="\n\n\n\n\n"
         "\n" // header
-        "2.2|0|0x00000123|0x100000000|0|0|2.2|2.2|2.2|2.2|2|2|2.2|2.2|2.2|2.2|88|77\n";
+        "2.2|0|0x00000123|0x00000001|0|0|2.2|2.2|2.2|2.2|2|2|2.2|2.2|2.2|2.2|88|77\n";
 
     std::istringstream expected(expected_str);
     std::ifstream result(m_path + "-" + m_hostname);
