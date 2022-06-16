@@ -146,7 +146,7 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": false,
-                    "description": "Indicates whether the core's on-die sensor reads greater than or equal to the threshold in MSR::THERM_INTERRUPT:THRESH_1."
+                    "description": "Indicates whether the core's on-die sensor reads equal to or hotter than the threshold in MSR::THERM_INTERRUPT:THRESH_1."
                 },
                 "THERMAL_THRESH_1_LOG": {
                     "begin_bit": 7,
@@ -156,7 +156,7 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": true,
-                    "description": "Indicates whether the core's on-die sensor has read greater than or equal to the threshold in MSR::THERM_INTERRUPT:THRESH_1 since the last time a zero was written to this control."
+                    "description": "Indicates whether the core's on-die sensor has read equal to or hotter than the threshold in MSR::THERM_INTERRUPT:THRESH_1 since the last time a zero was written to this control."
                 },
                 "THERMAL_THRESH_2_STATUS": {
                     "begin_bit": 8,
@@ -166,7 +166,7 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": false,
-                    "description": "Indicates whether the core's on-die sensor reads greater than or equal to the threshold in MSR::THERM_INTERRUPT:THRESH_2."
+                    "description": "Indicates whether the core's on-die sensor reads equal to or hotter than the threshold in MSR::THERM_INTERRUPT:THRESH_2."
                 },
                 "THERMAL_THRESH_2_LOG": {
                     "begin_bit": 9,
@@ -176,7 +176,7 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": true,
-                    "description": "Indicates whether the core's on-die sensor has read greater than or equal to the threshold in MSR::THERM_INTERRUPT:THRESH_2 since the last time a zero was written to this control."
+                    "description": "Indicates whether the core's on-die sensor has read equal to or hotter than the threshold in MSR::THERM_INTERRUPT:THRESH_2 since the last time a zero was written to this control."
                 },
                 "POWER_LIMIT_STATUS": {
                     "begin_bit": 10,
@@ -207,7 +207,7 @@
                     "writeable": false,
                     "behavior":  "variable",
                     "aggregation": "average",
-                    "description": "The temperature read by this core's on-die sensor."
+                    "description": "The temperature reading on this core's on-die sensor, in degrees below MSR::TEMPERATURE_TARGET:PROCHOT_MIN."
                 },
                 "RESOLUTION": {
                     "begin_bit": 27,
@@ -362,7 +362,7 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": false,
-                    "description": "Indicates whether the package's on-die sensor reads greater than or equal to the threshold in MSR::PACKAGE_THERM_INTERRUPT:THRESH_1."
+                    "description": "Indicates whether the package's on-die sensor reads equal to or hotter than the threshold in MSR::PACKAGE_THERM_INTERRUPT:THRESH_1."
                 },
                 "THERMAL_THRESH_1_LOG": {
                     "begin_bit": 7,
@@ -372,7 +372,7 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": true,
-                    "description": "Indicates whether the package's on-die sensor has read greater than or equal to the threshold in MSR::PACKAGE_THERM_INTERRUPT:THRESH_1 since the last time a zero was written to this control."
+                    "description": "Indicates whether the package's on-die sensor has read equal to or hotter than the threshold in MSR::PACKAGE_THERM_INTERRUPT:THRESH_1 since the last time a zero was written to this control."
                 },
                 "THERMAL_THRESH_2_STATUS": {
                     "begin_bit": 8,
@@ -382,7 +382,7 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": false,
-                    "description": "Indicates whether the package's on-die sensor reads greater than or equal to the threshold in MSR::PACKAGE_THERM_INTERRUPT:THRESH_2."
+                    "description": "Indicates whether the package's on-die sensor reads equal to or hotter than the threshold in MSR::PACKAGE_THERM_INTERRUPT:THRESH_2."
                 },
                 "THERMAL_THRESH_2_LOG": {
                     "begin_bit": 9,
@@ -392,7 +392,7 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": true,
-                    "description": "Indicates whether the package's on-die sensor has read greater than or equal to the threshold in MSR::PACKAGE_THERM_INTERRUPT:THRESH_2 since the last time a zero was written to this control."
+                    "description": "Indicates whether the package's on-die sensor has read equal to or hotter than the threshold in MSR::PACKAGE_THERM_INTERRUPT:THRESH_2 since the last time a zero was written to this control."
                 },
                 "POWER_LIMIT_STATUS": {
                     "begin_bit": 10,
@@ -423,7 +423,7 @@
                     "behavior":  "variable",
                     "writeable": false,
                     "aggregation": "average",
-                    "description": "The temperature read by this package's on-die sensor."
+                    "description": "The temperature reading on this package's on-die sensor, in degrees below MSR::TEMPERATURE_TARGET:PROCHOT_MIN."
                 }
             }
         },
