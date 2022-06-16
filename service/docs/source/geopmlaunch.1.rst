@@ -64,33 +64,33 @@ command line parameter.  Available *launcher* values are
 listed below.
 
 
-* 
+*
   *srun*\ , *SrunLauncher*\ :
   Wrapper for the SLURM resource manager's ``srun`` job launcher.  The
   ``--cpu_bind`` and ``--cpu-bind`` options are reserved for use by GEOPM;
   do not specify when using ``geopmlaunch``.
 
-* 
+*
   *aprun*\ , *AlpsLauncher*\ :
   Wrapper for the Cray ALPS ``aprun`` job launcher.  The ``-cc`` and
   ``--cpu-binding`` options are reserserved for use by GEOPM; do not
   specify these when using ``geopmlaunch``.
 
-* 
+*
   *impi*\ , *IMPIExecLauncher*\ :
   Wrapper for the Intel MPI ``mpiexec`` job launcher.  The
   ``KMP_AFFINITY`` ``I_MPI_PIN_DOMAIN``\ , and ``MV2_ENABLE_AFFINITY``
   environment variables reserved for use by GEOPM and are overwritten
   when using ``geopmlaunch``.
 
-* 
+*
   *ompi*\ , *OMPIExecLauncher*\ :
   Wrapper for the Open MPI ``mpiexec`` job launcher.  The
   ``-rf`` and ``--rank-file`` as well as explictly specifying number of
   processes with ``-H`` and ``--host`` options are reserved for use by GEOPM;
   do not specify when using ``geopmlaunch``.
 
-* 
+*
   *SrunTOSSLauncher*\ :
   Wrapper for ``srun`` when used with the Trilab Operating System
   Software stack.  This special launcher was developed to support
@@ -102,7 +102,7 @@ GEOPM OPTIONS
 -------------
 
 
-* 
+*
   ``--geopm-report`` path:
   Specifies the path to the GEOPM report output file that is generated
   at the conclusion of the run if this option is provided.  If the
@@ -115,7 +115,7 @@ GEOPM OPTIONS
   will override any value currently set in the environment.  See the
   ENVIRONMENT section of `geopm(7) <geopm.7.html>`_.
 
-* 
+*
   ``--geopm-report-signals`` signals:
   Used to insert additional measurements into the report beyond the
   default values.  This feature requires that the requested signals
@@ -143,7 +143,7 @@ GEOPM OPTIONS
   given for this parameter are specified as in the `geopmread(1) <geopmread.1.html>`_
   command line interface.
 
-* 
+*
   ``--geopm-trace`` path:
   The base name and path of the trace file(s) generated if this option
   is specified.  One trace file is generated for each compute node
@@ -158,7 +158,7 @@ GEOPM OPTIONS
   line option will override any value currently set in the
   environment.  See the ENVIRONMENT section of `geopm(7) <geopm.7.html>`_.
 
-* 
+*
   ``--geopm-trace-signals`` signals:
   Used to insert additional columns into the trace beyond the default
   columns and the columns added by the Agent.  This option has no
@@ -191,7 +191,7 @@ GEOPM OPTIONS
   command line option will override any value currently set in the
   environment.  See the ENVIRONMENT section of `geopm(7) <geopm.7.html>`_.
 
-* 
+*
   ``--geopm-trace-profile`` path:
   The base name and path of the profile trace file(s) generated if
   this option is specified.  One trace file is generated for each
@@ -207,7 +207,7 @@ GEOPM OPTIONS
   set in the environment.  See the ENVIRONMENT section of
   `geopm(7) <geopm.7.html>`_.
 
-* 
+*
   ``--geopm-trace-endpoint-policy`` path:
   The path to the endpoint policy trace file generated if this option
   is specified.  This file tracks only policies sent through the
@@ -219,7 +219,7 @@ GEOPM OPTIONS
   option will override any value currently set in the environment.
   See the ENVIRONMENT section of `geopm(7) <geopm.7.html>`_.
 
-* 
+*
   ``--geopm-profile`` name:
   The name of the profile which is printed in the report and trace
   files.  This name can be used to index the data in post-processing.
@@ -229,11 +229,11 @@ GEOPM OPTIONS
   executable.  This option is used by the launcher to set the
   GEOPM_PROFILE environment variable.  The command line option will
   override any value currently set in the environment.  Note that
-  the name may not contain carriage returns nor double qoutes, but
+  the name may not contain carriage returns nor double quotes, but
   it may be surrounded by double quotes to preserve spaces.  See the
   ENVIRONMENT section of `geopm(7) <geopm.7.html>`_.
 
-* 
+*
   ``--geopm-ctl`` *process*\ |\ *pthread*\ |\ *application*\ :
   Use GEOPM runtime and launch GEOPM with one of three methods:
   *process*\ , *pthread* or *application*.  The *process* method
@@ -256,7 +256,7 @@ GEOPM OPTIONS
   line option will override any value currently set in the
   environment.  See the ENVIRONMENT section of `geopm(7) <geopm.7.html>`_.
 
-* 
+*
   ``--geopm-agent`` agent:
   Specify the Agent type.  The Agent defines the control algorithm
   used by the GEOPM runtime.  Available agents are: "monitor" (default
@@ -274,7 +274,7 @@ GEOPM OPTIONS
   override any value currently set in the environment.  See the
   ENVIRONMENT section of `geopm(7) <geopm.7.html>`_.
 
-* 
+*
   ``--geopm-policy`` policy:
   GEOPM policy JSON file used to configure the Agent plugin.  If the
   policy is provided through this file, it will only be read once and
@@ -286,7 +286,7 @@ GEOPM OPTIONS
   override any value currently set in the environment.  See the
   ENVIRONMENT section of `geopm(7) <geopm.7.html>`_.
 
-* 
+*
   ``--geopm-affinity-disable``\ :
   Enable direct user control of all application CPU affinity settings.
   When specified, the launcher will not emit command line arguments or
@@ -301,7 +301,7 @@ GEOPM OPTIONS
   requirement is satisfied by the default behavior for some launchers
   like Intel MPI.
 
-* 
+*
   ``--geopm-endpoint`` endpoint:
   Prefix for shared memory keys used by the endpoint.  The endpoint
   will be used to receive policies dynamically from the resource
@@ -315,7 +315,7 @@ GEOPM OPTIONS
   will override any value currently set in the environment.  See the
   ENVIRONMENT section of `geopm(7) <geopm.7.html>`_.
 
-* 
+*
   ``--geopm-shmkey`` key:
   Specify a special prefix to be used with all of the shared memory
   keys generated by the GEOPM runtime for communication with the
@@ -334,7 +334,7 @@ GEOPM OPTIONS
   value currently set in the environment.  See the ENVIRONMENT section
   of `geopm(7) <geopm.7.html>`_.
 
-* 
+*
   ``--geopm-timeout`` sec:
   Time in seconds that the application should wait for the GEOPM
   controller to connect over shared memory.  The default value is 30
@@ -343,7 +343,7 @@ GEOPM OPTIONS
   override any value currently set in the environment.  See the
   ENVIRONMENT section of `geopm(7) <geopm.7.html>`_.
 
-* 
+*
   ``--geopm-plugin-path`` path:
   The search path for GEOPM plugins. It is a colon-separated list of
   directories used by GEOPM to search for shared objects which contain
@@ -360,7 +360,7 @@ GEOPM OPTIONS
   will override any value currently set in the environment.  See the
   ENVIRONMENT section of `geopm(7) <geopm.7.html>`_.
 
-* 
+*
   ``--geopm-record-filter`` filter:
   Applies the user specified filter to the application record data
   feed.  The filters currently supported are "proxy_epoch" and
@@ -427,7 +427,7 @@ GEOPM OPTIONS
 
      --geopm-record-filter=edit_distance,200,8,2.0,3.0
 
-* 
+*
   ``--geopm-debug-attach`` rank:
   Enables a serial debugger such as gdb to attach to a job when the
   GEOPM PMPI wrappers are enabled.  If set to a numerical value, the
@@ -440,7 +440,7 @@ GEOPM OPTIONS
   option will override any value currently set in the environment.
   See the ENVIRONMENT section of `geopm(7) <geopm.7.html>`_.
 
-* 
+*
   ``--geopm-hyperthreads-disable``\ :
   Prevent the launcher from trying to use hyperthreads for pinning
   purposes when attempting to satisfy the MPI ranks / OMP threads
@@ -448,13 +448,13 @@ GEOPM OPTIONS
   the application.  An error is raised if the launcher cannot satisfy
   the current request without hyperthreads.
 
-* 
+*
   ``--geopm-ctl-disable``\ :
   Used to allow passing the command through to the underlying launcher.
   By default, ``geopmlaunch`` will launch the GEOPM runtime in process mode.
   When this option is specified, the GEOPM runtime will not be launched.
 
-* 
+*
   ``--geopm-ompt-disable``\ :
   Disable OMPT detection of OpenMP regions.  See the INTEGRATION WITH OMPT
   section of `geopm(7) <geopm.7.html>`_ for more information about OpenMP region detection.
