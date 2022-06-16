@@ -62,12 +62,7 @@ namespace geopm
         };
         static_assert(sizeof(hint_names) / sizeof(hint_names[0]) ==
                       GEOPM_SENTINEL_REGION_HINT);
-        unsigned int hint_idx = hint_to_index(hint);
-
-        if (hint_idx >= GEOPM_SENTINEL_REGION_HINT) {
-            throw Exception("hint_hame(): Invalid hint",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
+        check_hint(hint);
 
         return hint_names[hint];
     }

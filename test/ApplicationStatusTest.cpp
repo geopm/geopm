@@ -96,7 +96,7 @@ TEST_F(ApplicationStatusTest, hints)
                                GEOPM_ERROR_INVALID, "invalid CPU index");
     GEOPM_EXPECT_THROW_MESSAGE(m_status->set_hint(99, NETWORK),
                                GEOPM_ERROR_INVALID, "invalid CPU index");
-    GEOPM_EXPECT_THROW_MESSAGE(m_status->set_hint(0, 2),
+    GEOPM_EXPECT_THROW_MESSAGE(m_status->set_hint(0, 1ULL << 32),
                                GEOPM_ERROR_INVALID, "invalid hint");
     GEOPM_EXPECT_THROW_MESSAGE(m_status->get_hint(-1),
                                GEOPM_ERROR_INVALID, "invalid CPU index");
