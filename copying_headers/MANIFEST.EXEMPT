@@ -76,7 +76,6 @@ service/docs/source/admin.rst
 service/docs/source/build.rst
 service/docs/source/client.rst
 service/docs/source/contrib.rst
-service/docs/source/controls_SKX.rst
 service/docs/source/devel.rst
 service/docs/source/docu.rst
 service/docs/source/geopm.7.rst
@@ -159,7 +158,6 @@ service/docs/source/runtime.rst
 service/docs/source/security.rst
 service/docs/source/service_readme.rst
 service/docs/source/service.rst
-service/docs/source/signals_SKX.rst
 service/docs/source/use_cases.rst
 service/dox/blurb.md
 service/dox/Doxyfile.in
