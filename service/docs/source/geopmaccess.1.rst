@@ -376,5 +376,4 @@ See Also
 :doc:`geopmread(1) <geopmread.1>`,
 :doc:`geopmwrite(1) <geopmwrite.1>`,
 :doc:`geopmsession(1) <geopmsession.1>`,
-:doc:`SKX Platform Controls <controls_SKX>`,
-:doc:`SKX Platform Signals <signals_SKX>`
+:doc:`geopm_pio(7) <geopm_pio.7>`
