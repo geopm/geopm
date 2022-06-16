@@ -17,7 +17,6 @@ EXTRA_DIST += docs/geninfo.sh \
               docs/source/client.rst \
               docs/source/conf.py \
               docs/source/contrib.rst \
-              docs/source/controls_SKX.rst \
               docs/source/docu.rst \
               docs/source/devel.rst \
               docs/source/index.rst \
@@ -30,7 +29,6 @@ EXTRA_DIST += docs/geninfo.sh \
               docs/source/security.rst \
               docs/source/service_readme.rst \
               docs/source/service.rst \
-              docs/source/signals_SKX.rst \
               docs/source/use_cases.rst \
               docs/source/_ext/geopmlint.py \
               docs/source/_ext/geopm_rst_extensions.py \
