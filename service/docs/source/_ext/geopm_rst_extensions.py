@@ -51,12 +51,7 @@ def create_msr_description_paragraph(text):
                 '', refdomain='std', refexplicit='False',
                 reftarget=nodes.make_id(match.group(0)), reftype='ref',
                 refwarn='False')
-            resolved_ref = addnodes.pending_xref_condition(condition='resolved')
-            resolved_ref += nodes.Text(match.group(0))
-            unresolved_ref = addnodes.pending_xref_condition(condition='*')
-            unresolved_ref += nodes.Text('missing ' + match.group(0))
-            ref_node += resolved_ref
-            ref_node += unresolved_ref
+            ref_node += nodes.Text(match.group(0))
             msr_definition_paragraph += ref_node
         else:
             # This is not an MSR cross-reference, so just insert the text.
