@@ -256,7 +256,8 @@ namespace geopm
 
     std::string EnvironmentImp::profile(void) const
     {
-        std::string ret = lookup("GEOPM_PROFILE");
+        std::string env_profile = lookup("GEOPM_PROFILE");
+        std::string ret = env_profile;
         if (do_profile() && ret.empty()) {
             ret = std::string(program_invocation_name);
         }
@@ -264,17 +265,15 @@ namespace geopm
             // Sanitize the input: No carriage returns nor double quotes
             ret.erase(std::remove_if(ret.begin(), ret.end(),
                                      [](char &c) {
-                                         if ( c == '\n' || c == '"') {
-                                             std::cerr << "Warning: <geopm> Erased invalid value \"" << c << "\"  from \"GEOPM_PROFILE\"\n";
-                                             return true;
-                                         }
-                                         else {
-                                             return false;
-                                         }
+                                         return ( c == '\n' || c == '"');
                                      }),
                       ret.end());
-            ret = "\"" + ret + "\""; // Add quotes for later YAML parsing
         }
+        if (ret != env_profile) {
+            std::cerr << "Warning: <geopm> The GEOPM_PROFILE contains invalid characters: \""
+                      << env_profile << "\" converted to \"" << ret << "\n";
+        }
+        ret = "\"" + ret + "\""; // Add quotes for later YAML parsing
         return ret;
     }
 
