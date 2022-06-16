@@ -92,7 +92,7 @@ void EnvironmentTest::expect_vars(std::map<std::string, std::string> exp_vars) c
     EXPECT_EQ(exp_vars["GEOPM_SHMKEY"], m_env->shmkey());
     EXPECT_EQ(exp_vars["GEOPM_TRACE"], m_env->trace());
     EXPECT_EQ(exp_vars["GEOPM_TRACE_PROFILE"], m_env->trace_profile());
-    EXPECT_EQ(exp_vars["GEOPM_PROFILE"], m_env->profile());
+    EXPECT_EQ("\"" + exp_vars["GEOPM_PROFILE"] + "\"", m_env->profile());
     EXPECT_EQ(exp_vars["GEOPM_FREQUENCY_MAP"], m_env->frequency_map());
     auto it = m_pmpi_ctl_map.find(exp_vars["GEOPM_CTL"]);
     if (it != m_pmpi_ctl_map.end()) {
@@ -282,7 +282,7 @@ TEST_F(EnvironmentTest, user_only_do_profile_custom)
 
     m_env = geopm::make_unique<EnvironmentImp>("", "", &m_platform_io);
     std::map<std::string, std::string> exp_vars = m_user;
-    exp_vars["GEOPM_PROFILE"] = "\"That's all folks \"";
+    exp_vars["GEOPM_PROFILE"] = "That's all folks ";
     exp_vars["GEOPM_SHMKEY"] = internal_default_vars["GEOPM_SHMKEY"];
     exp_vars["GEOPM_TIMEOUT"] = internal_default_vars["GEOPM_TIMEOUT"];
 
@@ -306,7 +306,7 @@ TEST_F(EnvironmentTest, user_only_do_profile_name)
 
     m_env = geopm::make_unique<EnvironmentImp>("", "", &m_platform_io);
     std::map<std::string, std::string> exp_vars = m_user;
-    exp_vars["GEOPM_PROFILE"] = "\"profile-test_value\"";
+    exp_vars["GEOPM_PROFILE"] = "profile-test_value";
     exp_vars["GEOPM_SHMKEY"] = internal_default_vars["GEOPM_SHMKEY"];
     exp_vars["GEOPM_TIMEOUT"] = internal_default_vars["GEOPM_TIMEOUT"];
 
@@ -323,7 +323,7 @@ TEST_F(EnvironmentTest, default_only)
               {"GEOPM_SHMKEY", "default-shmkey-test_value"},
               {"GEOPM_TRACE", "default-trace-test_value"},
               {"GEOPM_TRACE_PROFILE", "default-trace-profile-test_value"},
-              {"GEOPM_PROFILE", "\"default-profile-test_value\""},
+              {"GEOPM_PROFILE", "default-profile-test_value"},
               {"GEOPM_FREQUENCY_MAP", "default-hash:freq,hash:freq,hash:freq"},
               {"GEOPM_CTL", "pthread"},
               {"GEOPM_MAX_FAN_OUT", "16"},
@@ -362,7 +362,7 @@ TEST_F(EnvironmentTest, override_only)
               {"GEOPM_SHMKEY", "/override-shmkey-test_value"},
               {"GEOPM_TRACE", "override-trace-test_value"},
               {"GEOPM_TRACE_PROFILE", "override-trace-profile-test_value"},
-              {"GEOPM_PROFILE", "\"override-profile-test_value\""},
+              {"GEOPM_PROFILE", "override-profile-test_value"},
               {"GEOPM_FREQUENCY_MAP", "override-hash:freq,hash:freq,hash:freq"},
               {"GEOPM_CTL", "process"},
               {"GEOPM_MAX_FAN_OUT", "16"},
@@ -417,7 +417,7 @@ TEST_F(EnvironmentTest, default_and_override)
               {"GEOPM_SHMKEY", "/override-shmkey-test_value"},
               {"GEOPM_TRACE", "override-trace-test_value"},
               {"GEOPM_TRACE_PROFILE", "override-trace-profile-test_value"},
-              {"GEOPM_PROFILE", "\"override-profile-test_value\""},
+              {"GEOPM_PROFILE", "override-profile-test_value"},
               {"GEOPM_FREQUENCY_MAP", "override-hash:freq,hash:freq,hash:freq"},
               {"GEOPM_CTL", "process"},
               {"GEOPM_MAX_FAN_OUT", "16"},
