@@ -48,6 +48,32 @@
                 }
             }
         },
+        "THERM_INTERRUPT": {
+            "offset": "0x19B",
+            "domain": "core",
+            "fields": {
+                "THRESH_1": {
+                    "begin_bit": 8,
+                    "end_bit":   14,
+                    "function":  "scale",
+                    "units":     "celsius",
+                    "scalar":    1.0,
+                    "behavior":  "variable",
+                    "writeable": false,
+                    "description": "The temperature at or above which the MSR::THERM_STATUS:THERMAL_THRESH_1_STATUS indicator is set, in degrees below MSR::TEMPERATURE_TARGET:PROCHOT_MIN."
+                },
+                "THRESH_2": {
+                    "begin_bit": 16,
+                    "end_bit":   22,
+                    "function":  "scale",
+                    "units":     "celsius",
+                    "scalar":    1.0,
+                    "behavior":  "variable",
+                    "writeable": false,
+                    "description": "The temperature at or above which the MSR::THERM_STATUS:THERMAL_THRESH_2_STATUS indicator is set, in degrees below MSR::TEMPERATURE_TARGET:PROCHOT_MIN."
+                }
+            }
+        },
         "THERM_STATUS": {
             "offset": "0x19C",
             "domain": "core",
@@ -235,6 +261,32 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": false
+                }
+            }
+        },
+        "PACKAGE_THERM_INTERRUPT": {
+            "offset": "0x1B0",
+            "domain": "package",
+            "fields": {
+                "THRESH_1": {
+                    "begin_bit": 8,
+                    "end_bit":   14,
+                    "function":  "scale",
+                    "units":     "celsius",
+                    "scalar":    1.0,
+                    "behavior":  "variable",
+                    "writeable": false,
+                    "description": "The temperature at or above which the MSR::THERM_STATUS:THERMAL_THRESH_1_STATUS indicator is set, in degrees below MSR::TEMPERATURE_TARGET:PROCHOT_MIN."
+                },
+                "THRESH_2": {
+                    "begin_bit": 16,
+                    "end_bit":   22,
+                    "function":  "scale",
+                    "units":     "celsius",
+                    "scalar":    1.0,
+                    "behavior":  "variable",
+                    "writeable": false,
+                    "description": "The temperature at or above which the MSR::THERM_STATUS:THERMAL_THRESH_2_STATUS indicator is set, in degrees below MSR::TEMPERATURE_TARGET:PROCHOT_MIN."
                 }
             }
         },
