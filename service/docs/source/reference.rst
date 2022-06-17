@@ -15,6 +15,13 @@ GEOPM Manual Pages
    :caption: Overview
 
    geopm.7
+
+
+.. toctree::
+   :glob:
+   :maxdepth: 1
+   :caption: PlatformIO
+
    geopm_pio*.7
 
 
