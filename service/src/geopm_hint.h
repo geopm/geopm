@@ -37,6 +37,9 @@ enum geopm_region_hint_e {
                                 GEOPM_REGION_HINT_INACTIVE,
 };
 
+/// @brief Verify a region's hint value is legal for use.
+void check_hint(uint64_t hint);
+
 #ifdef __cplusplus
 }
 #endif

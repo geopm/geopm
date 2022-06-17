@@ -12,7 +12,6 @@
 #include <cerrno>
 #include <stdexcept>
 
-#include "geopm/Helper.hpp"
 #include "ApplicationSamplerImp.hpp"
 #include "ApplicationRecordLog.hpp"
 #include "ApplicationStatus.hpp"

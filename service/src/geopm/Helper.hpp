@@ -126,9 +126,6 @@ namespace geopm
     /// @todo  Replace with C++17 standard library equivalent.
     static constexpr int hardware_destructive_interference_size = 64;
 
-    /// @brief Verify a region's hint value is legal for use.
-    void check_hint(uint64_t hint);
-
     /// @brief Read an environment variable.
     /// @param [in] The name of the environment variable to read.
     /// @return The contents of the variable if present, otherwise an empty string.

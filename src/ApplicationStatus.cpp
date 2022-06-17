@@ -9,7 +9,6 @@
 #include <cmath>
 
 #include "geopm/SharedMemory.hpp"
-#include "geopm/Helper.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm_debug.hpp"
 #include "geopm_hash.h"
@@ -61,7 +60,7 @@ namespace geopm
             throw Exception("ApplicationStatusImp::set_hint(): invalid CPU index: " + std::to_string(cpu_idx),
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        geopm::check_hint(hint);
+        check_hint(hint);
         GEOPM_DEBUG_ASSERT(m_buffer != nullptr, "m_buffer not set");
         // pack hint into 32 bits for atomic write
         m_buffer[cpu_idx].hint = (uint32_t)hint;
@@ -76,7 +75,7 @@ namespace geopm
         GEOPM_DEBUG_ASSERT(m_cache.size() == buffer_size(m_num_cpu),
                            "Memory for m_cache not sized correctly");
         uint64_t result = (uint64_t)m_cache[cpu_idx].hint;
-        geopm::check_hint(result);
+        check_hint(result);
         return result;
     }
 
@@ -90,7 +89,7 @@ namespace geopm
             throw Exception("ApplicationStatusImp::set_hash(): invalid region hash: " + std::to_string(hash),
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        geopm::check_hint(hint);
+        check_hint(hint);
         GEOPM_DEBUG_ASSERT(m_buffer != nullptr, "m_buffer not set");
         m_buffer[cpu_idx].hash = (uint32_t)hash;
         m_buffer[cpu_idx].hint = (uint32_t)hint;

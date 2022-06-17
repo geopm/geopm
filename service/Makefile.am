@@ -140,6 +140,7 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/DomainControl.cpp \
                        src/DomainControl.hpp \
                        src/Exception.cpp \
+                       src/GEOPMHint.cpp \
                        src/Helper.cpp \
                        src/IOGroup.cpp \
                        src/LevelZeroGPUTopo.cpp \
