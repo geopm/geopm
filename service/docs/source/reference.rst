@@ -10,7 +10,6 @@ GEOPM Manual Pages
 ------------------
 
 .. toctree::
-   :glob:
    :maxdepth: 2
    :caption: Overview
 
@@ -26,19 +25,11 @@ GEOPM Manual Pages
 
 
 .. toctree::
+   :glob:
    :maxdepth: 1
    :caption: Command Line Interfaces
 
-   geopmaccess.1
-   geopmadmin.1
-   geopmagent.1
-   geopmbench.1
-   geopmctl.1
-   geopmendpoint.1
-   geopmlaunch.1
-   geopmread.1
-   geopmsession.1
-   geopmwrite.1
+   geopm*.1
 
 
 .. toctree::
@@ -48,60 +39,20 @@ GEOPM Manual Pages
    geopmdpy.7
    geopmpy.7
 
-* :ref:`genindex`
-
-
 .. toctree::
+   :glob:
    :maxdepth: 1
    :caption: GEOPM C Interfaces
 
-   geopm_agent.3
-   geopm_ctl.3
-   geopm_daemon.3
-   geopm_endpoint.3
-   geopm_error.3
-   geopm_fortran.3
-   geopm_hash.3
-   geopm_imbalancer.3
-   geopm_pio.3
-   geopm_policystore.3
-   geopm_prof.3
-   geopm_sched.3
-   geopm_time.3
-   geopm_topo.3
-   geopm_version.3
+   geopm_*.3
 
 
 .. toctree::
+   :glob:
    :maxdepth: 1
    :caption: GEOPM C++ Interfaces
 
-   GEOPM_CXX_MAN_Agent.3
-   GEOPM_CXX_MAN_Agg.3
-   GEOPM_CXX_MAN_CNLIOGroup.3
-   GEOPM_CXX_MAN_CircularBuffer.3
-   GEOPM_CXX_MAN_Comm.3
-   GEOPM_CXX_MAN_CpuinfoIOGroup.3
-   GEOPM_CXX_MAN_Daemon.3
-   GEOPM_CXX_MAN_Endpoint.3
-   GEOPM_CXX_MAN_Exception.3
-   GEOPM_CXX_MAN_Helper.3
-   GEOPM_CXX_MAN_IOGroup.3
-   GEOPM_CXX_MAN_MPIComm.3
-   GEOPM_CXX_MAN_MSRIO.3
-   GEOPM_CXX_MAN_MSRIOGroup.3
-   GEOPM_CXX_MAN_MonitorAgent.3
-   GEOPM_CXX_MAN_PlatformIO.3
-   GEOPM_CXX_MAN_PlatformTopo.3
-   GEOPM_CXX_MAN_PluginFactory.3
-   GEOPM_CXX_MAN_PowerBalancer.3
-   GEOPM_CXX_MAN_PowerBalancerAgent.3
-   GEOPM_CXX_MAN_PowerGovernor.3
-   GEOPM_CXX_MAN_PowerGovernorAgent.3
-   GEOPM_CXX_MAN_ProfileIOGroup.3
-   GEOPM_CXX_MAN_SampleAggregator.3
-   GEOPM_CXX_MAN_SharedMemory.3
-   GEOPM_CXX_MAN_TimeIOGroup.3
+   GEOPM_CXX_MAN_*.3
 
 
 .. toctree::
@@ -112,13 +63,14 @@ GEOPM Manual Pages
 
 
 .. toctree::
+   :glob:
    :maxdepth: 1
    :caption: GEOPM HPC Runtime Agents
 
-   geopm_agent_frequency_map.7
-   geopm_agent_monitor.7
-   geopm_agent_power_balancer.7
-   geopm_agent_power_governor.7
+   geopm_agent_*.7
+
+
+* :ref:`genindex`
 
 
 Doxygen Pages
