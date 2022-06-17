@@ -468,7 +468,7 @@ TEST_F(LevelZeroIOGroupTest, read_signal)
     for (int sub_idx = 0; sub_idx < num_gpu_subdevice; ++sub_idx) {
         //Frequency
         double frequency = levelzero_io.read_signal("LEVELZERO::GPU_CORE_FREQUENCY_STATUS", GEOPM_DOMAIN_GPU_CHIP, sub_idx);
-        double frequency_alias = levelzero_io.read_signal("GPU_FREQUENCY_STATUS", GEOPM_DOMAIN_GPU_CHIP, sub_idx);
+        double frequency_alias = levelzero_io.read_signal("GPU_CORE_FREQUENCY_STATUS", GEOPM_DOMAIN_GPU_CHIP, sub_idx);
         EXPECT_DOUBLE_EQ(frequency, frequency_alias);
         EXPECT_DOUBLE_EQ(frequency, mock_freq_gpu.at(sub_idx)*1e6);
         frequency = levelzero_io.read_signal("LEVELZERO::GPU_UNCORE_FREQUENCY_STATUS", GEOPM_DOMAIN_GPU_CHIP, sub_idx);

@@ -217,7 +217,7 @@ TEST_F(DCGMIOGroupTest, read_signal)
 
     for (int gpu_idx = 0; gpu_idx < num_gpu; ++gpu_idx) {
         double sm_active = dcgm_io.read_signal("DCGM::SM_ACTIVE", GEOPM_DOMAIN_GPU, gpu_idx);
-        double sm_active_alias = dcgm_io.read_signal("GPU_COMPUTE_ACTIVITY", GEOPM_DOMAIN_GPU, gpu_idx);
+        double sm_active_alias = dcgm_io.read_signal("GPU_CORE_ACTIVITY", GEOPM_DOMAIN_GPU, gpu_idx);
         EXPECT_DOUBLE_EQ(sm_active, sm_active_alias);
         EXPECT_DOUBLE_EQ(sm_active, mock_sm_active.at(gpu_idx));
 
@@ -225,7 +225,7 @@ TEST_F(DCGMIOGroupTest, read_signal)
         EXPECT_DOUBLE_EQ(sm_occupancy, mock_sm_occupancy.at(gpu_idx));
 
         double dram_active = dcgm_io.read_signal("DCGM::DRAM_ACTIVE", GEOPM_DOMAIN_GPU, gpu_idx);
-        double dram_active_alias = dcgm_io.read_signal("GPU_MEMORY_ACTIVITY", GEOPM_DOMAIN_GPU, gpu_idx);
+        double dram_active_alias = dcgm_io.read_signal("GPU_UNCORE_ACTIVITY", GEOPM_DOMAIN_GPU, gpu_idx);
         EXPECT_DOUBLE_EQ(dram_active, dram_active_alias);
         EXPECT_DOUBLE_EQ(dram_active, mock_dram_active.at(gpu_idx));
     }

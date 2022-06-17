@@ -122,15 +122,15 @@ TEST_F(NVMLIOGroupTest, push_control_adjust_write_batch)
     std::vector<double> mock_freq = {1530, 1320, 420, 135};
     std::vector<double> mock_power = {153600, 70000, 300000, 50000};
     for (int gpu_idx = 0; gpu_idx < num_gpu; ++gpu_idx) {
-        batch_value[(nvml_io.push_control(M_NAME_PREFIX + "GPU_FREQUENCY_CONTROL",
+        batch_value[(nvml_io.push_control(M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL",
                                         GEOPM_DOMAIN_GPU, gpu_idx))] = mock_freq.at(gpu_idx) * 1e6;
-        batch_value[(nvml_io.push_control("GPU_FREQUENCY_CONTROL",
+        batch_value[(nvml_io.push_control("GPU_CORE_FREQUENCY_CONTROL",
                                         GEOPM_DOMAIN_GPU, gpu_idx))] = mock_freq.at(gpu_idx) * 1e6;
         EXPECT_CALL(*m_device_pool,
                     frequency_control_sm(gpu_idx, mock_freq.at(gpu_idx),
                                          mock_freq.at(gpu_idx))).Times(2);
 
-        batch_value[(nvml_io.push_control(M_NAME_PREFIX + "GPU_FREQUENCY_RESET_CONTROL",
+        batch_value[(nvml_io.push_control(M_NAME_PREFIX + "GPU_CORE_FREQUENCY_RESET_CONTROL",
                                         GEOPM_DOMAIN_GPU, gpu_idx))] = mock_freq.at(gpu_idx);
         EXPECT_CALL(*m_device_pool, frequency_reset_control(gpu_idx)).Times(1);
 
@@ -160,20 +160,20 @@ TEST_F(NVMLIOGroupTest, write_control)
         EXPECT_CALL(*m_device_pool,
                     frequency_control_sm(gpu_idx, mock_freq.at(gpu_idx),
                                          mock_freq.at(gpu_idx))).Times(2);
-        EXPECT_NO_THROW(nvml_io.write_control(M_NAME_PREFIX + "GPU_FREQUENCY_CONTROL",
+        EXPECT_NO_THROW(nvml_io.write_control(M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL",
                                               GEOPM_DOMAIN_GPU, gpu_idx,
                                               mock_freq.at(gpu_idx) * 1e6));
         // Verify the write was cached properly
-        double frequency = nvml_io.read_signal(M_NAME_PREFIX + "GPU_FREQUENCY_CONTROL",
+        double frequency = nvml_io.read_signal(M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL",
                                                GEOPM_DOMAIN_GPU, gpu_idx);
         EXPECT_DOUBLE_EQ(frequency, mock_freq.at(gpu_idx) * 1e6);
 
-        EXPECT_NO_THROW(nvml_io.write_control("GPU_FREQUENCY_CONTROL",
+        EXPECT_NO_THROW(nvml_io.write_control("GPU_CORE_FREQUENCY_CONTROL",
                                               GEOPM_DOMAIN_GPU, gpu_idx,
                                               mock_freq.at(gpu_idx) * 1e6));
 
         EXPECT_CALL(*m_device_pool, frequency_reset_control(gpu_idx)).Times(1);
-        EXPECT_NO_THROW(nvml_io.write_control(M_NAME_PREFIX + "GPU_FREQUENCY_RESET_CONTROL",
+        EXPECT_NO_THROW(nvml_io.write_control(M_NAME_PREFIX + "GPU_CORE_FREQUENCY_RESET_CONTROL",
                                               GEOPM_DOMAIN_GPU, gpu_idx, 12345));
 
         EXPECT_CALL(*m_device_pool, power_control(gpu_idx, mock_power.at(gpu_idx))).Times(2);
@@ -199,11 +199,11 @@ TEST_F(NVMLIOGroupTest, read_signal_and_batch)
         EXPECT_CALL(*m_device_pool, frequency_status_sm(gpu_idx)).WillRepeatedly(Return(mock_freq.at(gpu_idx)));
     }
     for (int gpu_idx = 0; gpu_idx < num_gpu; ++gpu_idx) {
-        batch_idx.push_back(nvml_io.push_signal(M_NAME_PREFIX + "GPU_FREQUENCY_STATUS", GEOPM_DOMAIN_GPU, gpu_idx));
+        batch_idx.push_back(nvml_io.push_signal(M_NAME_PREFIX + "GPU_CORE_FREQUENCY_STATUS", GEOPM_DOMAIN_GPU, gpu_idx));
     }
     nvml_io.read_batch();
     for (int gpu_idx = 0; gpu_idx < num_gpu; ++gpu_idx) {
-        double frequency = nvml_io.read_signal(M_NAME_PREFIX + "GPU_FREQUENCY_STATUS", GEOPM_DOMAIN_GPU, gpu_idx);
+        double frequency = nvml_io.read_signal(M_NAME_PREFIX + "GPU_CORE_FREQUENCY_STATUS", GEOPM_DOMAIN_GPU, gpu_idx);
         double frequency_batch = nvml_io.sample(batch_idx.at(gpu_idx));
 
         EXPECT_DOUBLE_EQ(frequency, mock_freq.at(gpu_idx) * 1e6);
@@ -217,7 +217,7 @@ TEST_F(NVMLIOGroupTest, read_signal_and_batch)
     }
     nvml_io.read_batch();
     for (int gpu_idx = 0; gpu_idx < num_gpu; ++gpu_idx) {
-        double frequency = nvml_io.read_signal(M_NAME_PREFIX + "GPU_FREQUENCY_STATUS", GEOPM_DOMAIN_GPU, gpu_idx);
+        double frequency = nvml_io.read_signal(M_NAME_PREFIX + "GPU_CORE_FREQUENCY_STATUS", GEOPM_DOMAIN_GPU, gpu_idx);
         double frequency_batch = nvml_io.sample(batch_idx.at(gpu_idx));
 
         EXPECT_DOUBLE_EQ(frequency, (mock_freq.at(gpu_idx)) * 1e6);
@@ -270,18 +270,18 @@ TEST_F(NVMLIOGroupTest, read_signal)
     std::sort(mock_supported_freq.begin(), mock_supported_freq.end());
 
     for (int gpu_idx = 0; gpu_idx < num_gpu; ++gpu_idx) {
-        double frequency = nvml_io.read_signal(M_NAME_PREFIX + "GPU_FREQUENCY_STATUS", GEOPM_DOMAIN_GPU, gpu_idx);
-        double frequency_alias = nvml_io.read_signal("GPU_FREQUENCY_STATUS", GEOPM_DOMAIN_GPU, gpu_idx);
+        double frequency = nvml_io.read_signal(M_NAME_PREFIX + "GPU_CORE_FREQUENCY_STATUS", GEOPM_DOMAIN_GPU, gpu_idx);
+        double frequency_alias = nvml_io.read_signal("GPU_CORE_FREQUENCY_STATUS", GEOPM_DOMAIN_GPU, gpu_idx);
         EXPECT_DOUBLE_EQ(frequency, frequency_alias);
         EXPECT_DOUBLE_EQ(frequency, mock_freq.at(gpu_idx) * 1e6);
 
-        double frequency_min = nvml_io.read_signal(M_NAME_PREFIX + "GPU_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_GPU, gpu_idx);
-        double frequency_min_alias = nvml_io.read_signal("GPU_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_GPU, gpu_idx);
+        double frequency_min = nvml_io.read_signal(M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_GPU, gpu_idx);
+        double frequency_min_alias = nvml_io.read_signal("GPU_CORE_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_GPU, gpu_idx);
         EXPECT_DOUBLE_EQ(frequency_min, mock_supported_freq.front() * 1e6);
         EXPECT_DOUBLE_EQ(frequency_min, frequency_min_alias);
 
-        double frequency_max = nvml_io.read_signal(M_NAME_PREFIX + "GPU_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_GPU, gpu_idx);
-        double frequency_max_alias = nvml_io.read_signal("GPU_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_GPU, gpu_idx);
+        double frequency_max = nvml_io.read_signal(M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_GPU, gpu_idx);
+        double frequency_max_alias = nvml_io.read_signal("GPU_CORE_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_GPU, gpu_idx);
         EXPECT_DOUBLE_EQ(frequency_max, mock_supported_freq.back() * 1e6);
         EXPECT_DOUBLE_EQ(frequency_max, frequency_max_alias);
 
@@ -290,7 +290,7 @@ TEST_F(NVMLIOGroupTest, read_signal)
         EXPECT_DOUBLE_EQ(utilization_gpu, mock_utilization_gpu.at(gpu_idx) / 100);
         EXPECT_DOUBLE_EQ(utilization_gpu, utilization_gpu_alias);
 
-        double throttle_reasons = nvml_io.read_signal(M_NAME_PREFIX + "GPU_THROTTLE_REASONS", GEOPM_DOMAIN_GPU, gpu_idx);
+        double throttle_reasons = nvml_io.read_signal(M_NAME_PREFIX + "GPU_CORE_THROTTLE_REASONS", GEOPM_DOMAIN_GPU, gpu_idx);
         EXPECT_DOUBLE_EQ(throttle_reasons, mock_throttle_reasons.at(gpu_idx));
 
         double power = nvml_io.read_signal(M_NAME_PREFIX + "GPU_POWER", GEOPM_DOMAIN_GPU, gpu_idx);
@@ -298,7 +298,7 @@ TEST_F(NVMLIOGroupTest, read_signal)
         EXPECT_DOUBLE_EQ(power, power_alias);
         EXPECT_DOUBLE_EQ(power, mock_power.at(gpu_idx) / 1e3);
 
-        double frequency_mem = nvml_io.read_signal(M_NAME_PREFIX + "GPU_MEMORY_FREQUENCY_STATUS", GEOPM_DOMAIN_GPU, gpu_idx);
+        double frequency_mem = nvml_io.read_signal(M_NAME_PREFIX + "GPU_UNCORE_FREQUENCY_STATUS", GEOPM_DOMAIN_GPU, gpu_idx);
         EXPECT_DOUBLE_EQ(frequency_mem, mock_freq_mem.at(gpu_idx) * 1e6);
 
         double temperature = nvml_io.read_signal(M_NAME_PREFIX + "GPU_TEMPERATURE", GEOPM_DOMAIN_GPU, gpu_idx);
@@ -320,10 +320,10 @@ TEST_F(NVMLIOGroupTest, read_signal)
         double pcie_tx_throughput = nvml_io.read_signal(M_NAME_PREFIX + "GPU_PCIE_TX_THROUGHPUT", GEOPM_DOMAIN_GPU, gpu_idx);
         EXPECT_DOUBLE_EQ(pcie_tx_throughput, mock_pcie_tx_throughput.at(gpu_idx) * 1024);
 
-        double utilization_mem = nvml_io.read_signal(M_NAME_PREFIX + "GPU_MEMORY_UTILIZATION", GEOPM_DOMAIN_GPU, gpu_idx);
+        double utilization_mem = nvml_io.read_signal(M_NAME_PREFIX + "GPU_UNCORE_UTILIZATION", GEOPM_DOMAIN_GPU, gpu_idx);
         EXPECT_DOUBLE_EQ(utilization_mem, mock_utilization_mem.at(gpu_idx) / 100);
 
-        frequency = nvml_io.read_signal(M_NAME_PREFIX + "GPU_FREQUENCY_CONTROL",
+        frequency = nvml_io.read_signal(M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL",
                                         GEOPM_DOMAIN_GPU, gpu_idx);
         EXPECT_DOUBLE_EQ(frequency, 0); // 0 until first write
     }
@@ -371,11 +371,11 @@ TEST_F(NVMLIOGroupTest, error_path)
 
     NVMLIOGroup nvml_io(*m_platform_topo, *m_device_pool, nullptr);
 
-    GEOPM_EXPECT_THROW_MESSAGE(nvml_io.push_signal(M_NAME_PREFIX + "GPU_FREQUENCY_STATUS", GEOPM_DOMAIN_BOARD, 0),
+    GEOPM_EXPECT_THROW_MESSAGE(nvml_io.push_signal(M_NAME_PREFIX + "GPU_CORE_FREQUENCY_STATUS", GEOPM_DOMAIN_BOARD, 0),
                                GEOPM_ERROR_INVALID, "domain_type must be");
     GEOPM_EXPECT_THROW_MESSAGE(nvml_io.sample(0),
                                GEOPM_ERROR_INVALID, "batch_idx 0 out of range");
-    GEOPM_EXPECT_THROW_MESSAGE(nvml_io.read_signal(M_NAME_PREFIX + "GPU_FREQUENCY_STATUS", GEOPM_DOMAIN_BOARD, 0),
+    GEOPM_EXPECT_THROW_MESSAGE(nvml_io.read_signal(M_NAME_PREFIX + "GPU_CORE_FREQUENCY_STATUS", GEOPM_DOMAIN_BOARD, 0),
                                GEOPM_ERROR_INVALID, "domain_type must be");
 
     GEOPM_EXPECT_THROW_MESSAGE(nvml_io.push_signal(M_NAME_PREFIX + "INVALID", GEOPM_DOMAIN_GPU, 0),
@@ -383,11 +383,11 @@ TEST_F(NVMLIOGroupTest, error_path)
     GEOPM_EXPECT_THROW_MESSAGE(nvml_io.read_signal(M_NAME_PREFIX + "INVALID", GEOPM_DOMAIN_GPU, 0),
                                GEOPM_ERROR_INVALID, M_NAME_PREFIX + "INVALID not valid for NVMLIOGroup");
 
-    GEOPM_EXPECT_THROW_MESSAGE(nvml_io.push_control(M_NAME_PREFIX + "GPU_FREQUENCY_CONTROL", GEOPM_DOMAIN_BOARD, 0),
+    GEOPM_EXPECT_THROW_MESSAGE(nvml_io.push_control(M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL", GEOPM_DOMAIN_BOARD, 0),
                                GEOPM_ERROR_INVALID, "domain_type must be");
     GEOPM_EXPECT_THROW_MESSAGE(nvml_io.adjust(0, 12345.6),
                                GEOPM_ERROR_INVALID, "batch_idx 0 out of range");
-    GEOPM_EXPECT_THROW_MESSAGE(nvml_io.write_control(M_NAME_PREFIX + "GPU_FREQUENCY_CONTROL", GEOPM_DOMAIN_BOARD, 0, 1530000000),
+    GEOPM_EXPECT_THROW_MESSAGE(nvml_io.write_control(M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL", GEOPM_DOMAIN_BOARD, 0, 1530000000),
                                GEOPM_ERROR_INVALID, "domain_type must be");
 
     GEOPM_EXPECT_THROW_MESSAGE(nvml_io.push_control(M_NAME_PREFIX + "INVALID", GEOPM_DOMAIN_GPU, 0),
@@ -395,22 +395,22 @@ TEST_F(NVMLIOGroupTest, error_path)
     GEOPM_EXPECT_THROW_MESSAGE(nvml_io.write_control(M_NAME_PREFIX + "INVALID", GEOPM_DOMAIN_GPU, 0, 1530000000),
                                GEOPM_ERROR_INVALID, M_NAME_PREFIX + "INVALID not valid for NVMLIOGroup");
 
-    GEOPM_EXPECT_THROW_MESSAGE(nvml_io.push_signal(M_NAME_PREFIX + "GPU_FREQUENCY_STATUS", GEOPM_DOMAIN_GPU, num_gpu),
+    GEOPM_EXPECT_THROW_MESSAGE(nvml_io.push_signal(M_NAME_PREFIX + "GPU_CORE_FREQUENCY_STATUS", GEOPM_DOMAIN_GPU, num_gpu),
                                GEOPM_ERROR_INVALID, "domain_idx out of range");
-    GEOPM_EXPECT_THROW_MESSAGE(nvml_io.push_signal(M_NAME_PREFIX + "GPU_FREQUENCY_STATUS", GEOPM_DOMAIN_GPU, -1),
+    GEOPM_EXPECT_THROW_MESSAGE(nvml_io.push_signal(M_NAME_PREFIX + "GPU_CORE_FREQUENCY_STATUS", GEOPM_DOMAIN_GPU, -1),
                                GEOPM_ERROR_INVALID, "domain_idx out of range");
-    GEOPM_EXPECT_THROW_MESSAGE(nvml_io.read_signal(M_NAME_PREFIX + "GPU_FREQUENCY_STATUS", GEOPM_DOMAIN_GPU, num_gpu),
+    GEOPM_EXPECT_THROW_MESSAGE(nvml_io.read_signal(M_NAME_PREFIX + "GPU_CORE_FREQUENCY_STATUS", GEOPM_DOMAIN_GPU, num_gpu),
                                GEOPM_ERROR_INVALID, "domain_idx out of range");
-    GEOPM_EXPECT_THROW_MESSAGE(nvml_io.read_signal(M_NAME_PREFIX + "GPU_FREQUENCY_STATUS", GEOPM_DOMAIN_GPU, -1),
+    GEOPM_EXPECT_THROW_MESSAGE(nvml_io.read_signal(M_NAME_PREFIX + "GPU_CORE_FREQUENCY_STATUS", GEOPM_DOMAIN_GPU, -1),
                                GEOPM_ERROR_INVALID, "domain_idx out of range");
 
-    GEOPM_EXPECT_THROW_MESSAGE(nvml_io.push_control(M_NAME_PREFIX + "GPU_FREQUENCY_CONTROL", GEOPM_DOMAIN_GPU, num_gpu),
+    GEOPM_EXPECT_THROW_MESSAGE(nvml_io.push_control(M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL", GEOPM_DOMAIN_GPU, num_gpu),
                                GEOPM_ERROR_INVALID, "domain_idx out of range");
-    GEOPM_EXPECT_THROW_MESSAGE(nvml_io.push_control(M_NAME_PREFIX + "GPU_FREQUENCY_CONTROL", GEOPM_DOMAIN_GPU, -1),
+    GEOPM_EXPECT_THROW_MESSAGE(nvml_io.push_control(M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL", GEOPM_DOMAIN_GPU, -1),
                                GEOPM_ERROR_INVALID, "domain_idx out of range");
-    GEOPM_EXPECT_THROW_MESSAGE(nvml_io.write_control(M_NAME_PREFIX + "GPU_FREQUENCY_CONTROL", GEOPM_DOMAIN_GPU, num_gpu, 1530000000),
+    GEOPM_EXPECT_THROW_MESSAGE(nvml_io.write_control(M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL", GEOPM_DOMAIN_GPU, num_gpu, 1530000000),
                                GEOPM_ERROR_INVALID, "domain_idx out of range");
-    GEOPM_EXPECT_THROW_MESSAGE(nvml_io.write_control(M_NAME_PREFIX + "GPU_FREQUENCY_CONTROL", GEOPM_DOMAIN_GPU, -1, 1530000000),
+    GEOPM_EXPECT_THROW_MESSAGE(nvml_io.write_control(M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL", GEOPM_DOMAIN_GPU, -1, 1530000000),
                                GEOPM_ERROR_INVALID, "domain_idx out of range");
 }
 
