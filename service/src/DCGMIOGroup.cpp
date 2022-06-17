@@ -104,8 +104,8 @@ namespace geopm
             }
             sv.second.m_signals = result;
         }
-        register_signal_alias("GPU_COMPUTE_ACTIVITY", "DCGM::SM_ACTIVE");
-        register_signal_alias("GPU_MEMORY_ACTIVITY", "DCGM::DRAM_ACTIVE");
+        register_signal_alias("GPU_CORE_ACTIVITY", "DCGM::SM_ACTIVE");
+        register_signal_alias("GPU_UNCORE_ACTIVITY", "DCGM::DRAM_ACTIVE");
 
         // populate controls for each domain
         for (auto &sv : m_control_available) {

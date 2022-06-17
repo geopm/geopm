@@ -45,7 +45,7 @@ namespace geopm
         , m_nvml_device_pool(device_pool)
         , m_is_batch_read(false)
         , m_frequency_control_request(m_platform_topo.num_domain(GEOPM_DOMAIN_GPU), 0)
-        , m_signal_available({{M_NAME_PREFIX + "GPU_FREQUENCY_STATUS", {
+        , m_signal_available({{M_NAME_PREFIX + "GPU_CORE_FREQUENCY_STATUS", {
                                   "Streaming multiprocessor frequency in hertz",
                                   {},
                                   GEOPM_DOMAIN_GPU,
@@ -77,7 +77,7 @@ namespace geopm
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
-                              {M_NAME_PREFIX + "GPU_MEMORY_FREQUENCY_STATUS", {
+                              {M_NAME_PREFIX + "GPU_UNCORE_FREQUENCY_STATUS", {
                                   "GPU memory frequency in hertz",
                                   {},
                                   GEOPM_DOMAIN_GPU,
@@ -85,7 +85,7 @@ namespace geopm
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
-                              {M_NAME_PREFIX + "GPU_THROTTLE_REASONS", {
+                              {M_NAME_PREFIX + "GPU_CORE_THROTTLE_REASONS", {
                                   "GPU clock throttling reasons",
                                   {},
                                   GEOPM_DOMAIN_GPU,
@@ -144,7 +144,7 @@ namespace geopm
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
-                              {M_NAME_PREFIX + "GPU_MEMORY_UTILIZATION", {
+                              {M_NAME_PREFIX + "GPU_UNCORE_UTILIZATION", {
                                   "Fraction of time the GPU memory was accessed in the last set of driver samples",
                                   {},
                                   GEOPM_DOMAIN_GPU,
@@ -152,7 +152,7 @@ namespace geopm
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
-                              {M_NAME_PREFIX + "GPU_FREQUENCY_MAX_AVAIL", {
+                              {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_AVAIL", {
                                   "Streaming multiprocessor Maximum frequency in hertz",
                                   {},
                                   GEOPM_DOMAIN_GPU,
@@ -160,7 +160,7 @@ namespace geopm
                                   IOGroup::M_SIGNAL_BEHAVIOR_CONSTANT,
                                   string_format_double
                                   }},
-                              {M_NAME_PREFIX + "GPU_FREQUENCY_MIN_AVAIL", {
+                              {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_AVAIL", {
                                   "Streaming multiprocessor Minimum frequency in hertz",
                                   {},
                                   GEOPM_DOMAIN_GPU,
@@ -168,7 +168,7 @@ namespace geopm
                                   IOGroup::M_SIGNAL_BEHAVIOR_CONSTANT,
                                   string_format_double
                                   }},
-                              {M_NAME_PREFIX + "GPU_FREQUENCY_CONTROL", {
+                              {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL", {
                                   "Latest frequency control request in hertz",
                                   {},
                                   GEOPM_DOMAIN_GPU,
@@ -176,7 +176,7 @@ namespace geopm
                                   IOGroup::M_SIGNAL_BEHAVIOR_CONSTANT,
                                   string_format_double
                                   }},
-                              {M_NAME_PREFIX + "GPU_FREQUENCY_RESET_CONTROL", {
+                              {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_RESET_CONTROL", {
                                   "Resets streaming multiprocessor frequency min and max limits to default values.",
                                   {},
                                   GEOPM_DOMAIN_GPU,
@@ -185,14 +185,14 @@ namespace geopm
                                   string_format_double
                                   }}
                              })
-        , m_control_available({{M_NAME_PREFIX + "GPU_FREQUENCY_CONTROL", {
+        , m_control_available({{M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL", {
                                     "Sets streaming multiprocessor frequency min and max to the same limit (in hertz)",
                                     {},
                                     GEOPM_DOMAIN_GPU,
                                     Agg::average,
                                     string_format_double
                                     }},
-                               {M_NAME_PREFIX + "GPU_FREQUENCY_RESET_CONTROL", {
+                               {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_RESET_CONTROL", {
                                     "Resets streaming multiprocessor frequency min and max limits to default values."
                                     "\n  Parameter provided is unused.",
                                     {},
@@ -220,9 +220,9 @@ namespace geopm
             sv.second.signals = result;
         }
         register_signal_alias("GPU_POWER", M_NAME_PREFIX + "GPU_POWER");
-        register_signal_alias("GPU_FREQUENCY_STATUS", M_NAME_PREFIX + "GPU_FREQUENCY_STATUS");
-        register_signal_alias("GPU_FREQUENCY_MIN_AVAIL", M_NAME_PREFIX + "GPU_FREQUENCY_MIN_AVAIL");
-        register_signal_alias("GPU_FREQUENCY_MAX_AVAIL", M_NAME_PREFIX + "GPU_FREQUENCY_MAX_AVAIL");
+        register_signal_alias("GPU_CORE_FREQUENCY_STATUS", M_NAME_PREFIX + "GPU_CORE_FREQUENCY_STATUS");
+        register_signal_alias("GPU_CORE_FREQUENCY_MIN_AVAIL", M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_AVAIL");
+        register_signal_alias("GPU_CORE_FREQUENCY_MAX_AVAIL", M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_AVAIL");
         register_signal_alias("GPU_ENERGY", M_NAME_PREFIX + "GPU_ENERGY_CONSUMPTION_TOTAL");
         register_signal_alias("GPU_TEMPERATURE", M_NAME_PREFIX + "GPU_TEMPERATURE");
         register_signal_alias("GPU_UTILIZATION", M_NAME_PREFIX + "GPU_UTILIZATION");
@@ -238,8 +238,8 @@ namespace geopm
         }
         register_control_alias("GPU_POWER_LIMIT_CONTROL", M_NAME_PREFIX + "GPU_POWER_LIMIT_CONTROL");
         register_signal_alias("GPU_POWER_LIMIT_CONTROL", M_NAME_PREFIX + "GPU_POWER_LIMIT_CONTROL");
-        register_control_alias("GPU_FREQUENCY_CONTROL", M_NAME_PREFIX + "GPU_FREQUENCY_CONTROL");
-        register_signal_alias("GPU_FREQUENCY_CONTROL", M_NAME_PREFIX + "GPU_FREQUENCY_CONTROL");
+        register_control_alias("GPU_CORE_FREQUENCY_CONTROL", M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL");
+        register_signal_alias("GPU_CORE_FREQUENCY_CONTROL", M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL");
 
         for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(GEOPM_DOMAIN_GPU); ++domain_idx) {
             std::vector<unsigned int> supported_frequency = m_nvml_device_pool.frequency_supported_sm(domain_idx);
@@ -534,15 +534,15 @@ namespace geopm
         }
 
         double result = NAN;
-        if (signal_name == M_NAME_PREFIX + "GPU_FREQUENCY_STATUS" || signal_name == "GPU_FREQUENCY_STATUS") {
+        if (signal_name == M_NAME_PREFIX + "GPU_CORE_FREQUENCY_STATUS" || signal_name == "GPU_CORE_FREQUENCY_STATUS") {
             result = (double) m_nvml_device_pool.frequency_status_sm(domain_idx) * 1e6;
         }
-        else if (signal_name == M_NAME_PREFIX + "GPU_FREQUENCY_MIN_AVAIL" || signal_name == "GPU_FREQUENCY_MIN_AVAIL") {
+        else if (signal_name == M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_AVAIL" || signal_name == "GPU_CORE_FREQUENCY_MIN_AVAIL") {
             if (m_supported_freq.at(domain_idx).size() != 0) {
                 result = 1e6 * m_supported_freq.at(domain_idx).front();
             }
         }
-        else if (signal_name == M_NAME_PREFIX + "GPU_FREQUENCY_MAX_AVAIL" || signal_name == "GPU_FREQUENCY_MAX_AVAIL") {
+        else if (signal_name == M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_AVAIL" || signal_name == "GPU_CORE_FREQUENCY_MAX_AVAIL") {
             if (m_supported_freq.at(domain_idx).size() != 0) {
                 result = 1e6 * m_supported_freq.at(domain_idx).back();
             }
@@ -550,7 +550,7 @@ namespace geopm
         else if (signal_name == M_NAME_PREFIX + "GPU_UTILIZATION" || signal_name == "GPU_UTILIZATION") {
             result = (double) m_nvml_device_pool.utilization(domain_idx) / 100;
         }
-        else if (signal_name == M_NAME_PREFIX + "GPU_THROTTLE_REASONS") {
+        else if (signal_name == M_NAME_PREFIX + "GPU_CORE_THROTTLE_REASONS") {
             result = (double) m_nvml_device_pool.throttle_reasons(domain_idx);
         }
         else if (signal_name == M_NAME_PREFIX + "GPU_POWER" || signal_name == "GPU_POWER") {
@@ -560,7 +560,7 @@ namespace geopm
                  signal_name == "GPU_POWER_LIMIT_CONTROL") {
             result = (double) m_nvml_device_pool.power_limit(domain_idx) / 1e3;
         }
-        else if (signal_name == M_NAME_PREFIX + "GPU_MEMORY_FREQUENCY_STATUS") {
+        else if (signal_name == M_NAME_PREFIX + "GPU_UNCORE_FREQUENCY_STATUS") {
             result = (double) m_nvml_device_pool.frequency_status_mem(domain_idx) * 1e6;
         }
         else if (signal_name == M_NAME_PREFIX + "GPU_TEMPERATURE" || signal_name == "GPU_TEMPERATURE") {
@@ -578,17 +578,17 @@ namespace geopm
         else if (signal_name == M_NAME_PREFIX + "GPU_PCIE_TX_THROUGHPUT") {
             result = (double) m_nvml_device_pool.throughput_tx_pcie(domain_idx) * 1024;
         }
-        else if (signal_name == M_NAME_PREFIX + "GPU_MEMORY_UTILIZATION") {
+        else if (signal_name == M_NAME_PREFIX + "GPU_UNCORE_UTILIZATION") {
             result = (double) m_nvml_device_pool.utilization_mem(domain_idx) / 100;
         }
         else if (signal_name == M_NAME_PREFIX + "GPU_CPU_ACTIVE_AFFINITIZATION") {
             std::map<pid_t, double> process_map = gpu_process_map();
             result = cpu_gpu_affinity(domain_idx, process_map);
         }
-        else if (signal_name == M_NAME_PREFIX + "GPU_FREQUENCY_CONTROL" || signal_name == "GPU_FREQUENCY_CONTROL") {
+        else if (signal_name == M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL" || signal_name == "GPU_CORE_FREQUENCY_CONTROL") {
             result = m_frequency_control_request.at(domain_idx);
         }
-        else if (signal_name == M_NAME_PREFIX + "GPU_FREQUENCY_RESET_CONTROL") {
+        else if (signal_name == M_NAME_PREFIX + "GPU_CORE_FREQUENCY_RESET_CONTROL") {
             ; // No-op.  Nothing to return.
         }
         else {
@@ -619,11 +619,11 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        if (control_name == M_NAME_PREFIX + "GPU_FREQUENCY_CONTROL" || control_name == "GPU_FREQUENCY_CONTROL") {
+        if (control_name == M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL" || control_name == "GPU_CORE_FREQUENCY_CONTROL") {
             m_nvml_device_pool.frequency_control_sm(domain_idx, setting / 1e6, setting / 1e6);
             m_frequency_control_request.at(domain_idx) = setting;
         }
-        else if (control_name == M_NAME_PREFIX + "GPU_FREQUENCY_RESET_CONTROL") {
+        else if (control_name == M_NAME_PREFIX + "GPU_CORE_FREQUENCY_RESET_CONTROL") {
             m_nvml_device_pool.frequency_reset_control(domain_idx);
         }
         else if (control_name == M_NAME_PREFIX + "GPU_POWER_LIMIT_CONTROL" || control_name == "GPU_POWER_LIMIT_CONTROL") {
@@ -722,7 +722,7 @@ namespace geopm
         std::vector<SaveControl::m_setting_s> settings;
         int num_domains = m_platform_topo.num_domain(GEOPM_DOMAIN_GPU);
         for (int domain_idx = 0; domain_idx < num_domains; ++domain_idx) {
-            settings.push_back({M_NAME_PREFIX + "GPU_FREQUENCY_RESET_CONTROL",
+            settings.push_back({M_NAME_PREFIX + "GPU_CORE_FREQUENCY_RESET_CONTROL",
                                 GEOPM_DOMAIN_GPU,
                                 domain_idx,
                                 0});
