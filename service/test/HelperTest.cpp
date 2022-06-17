@@ -10,7 +10,6 @@
 #include <unistd.h>
 
 #include "geopm/Helper.hpp"
-#include "geopm_hint.h"
 #include "geopm_test.hpp"
 
 TEST(HelperTest, string_split)
@@ -76,18 +75,6 @@ TEST(HelperTest, string_ends_with)
     EXPECT_TRUE(geopm::string_ends_with("orange", "orange"));
     EXPECT_FALSE(geopm::string_ends_with("", "plum"));
     EXPECT_TRUE(geopm::string_ends_with("plum", ""));
-}
-
-TEST(HelperTest, check_hint)
-{
-    uint64_t hint = GEOPM_SENTINEL_REGION_HINT;
-    GEOPM_EXPECT_THROW_MESSAGE(geopm::check_hint(hint),
-                               GEOPM_ERROR_INVALID,
-                               "hint out of range");
-    hint = 1ULL << 32;
-    GEOPM_EXPECT_THROW_MESSAGE(geopm::check_hint(hint),
-                               GEOPM_ERROR_INVALID,
-                               "invalid hint");
 }
 
 TEST(HelperTest, pid_to)

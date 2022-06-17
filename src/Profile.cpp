@@ -386,7 +386,7 @@ namespace geopm
         geopm_time(&overhead_entry);
 #endif
 
-        geopm::check_hint(hint);
+        check_hint(hint);
         uint64_t result = m_table->key(region_name);
 
 #ifdef GEOPM_DEBUG
@@ -416,7 +416,7 @@ namespace geopm
 
         uint64_t hash = geopm_region_id_hash(region_id);
         uint64_t hint = geopm_region_id_hint(region_id);
-        geopm::check_hint(hint);
+        check_hint(hint);
 
 #ifdef GEOPM_DEBUG
         if (hash != GEOPM_REGION_HASH_UNMARKED &&

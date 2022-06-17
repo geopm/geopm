@@ -98,7 +98,7 @@ GTEST_TESTS = test/gtest_links/GPUTopoNullTest.default_config \
               test/gtest_links/ExceptionTest.check_ronn \
               test/gtest_links/ExceptionTest.hello \
               test/gtest_links/ExceptionTest.last_message \
-              test/gtest_links/HelperTest.check_hint \
+              test/gtest_links/GEOPMHintTest.check_hint \
               test/gtest_links/HelperTest.string_begins_with \
               test/gtest_links/HelperTest.string_ends_with \
               test/gtest_links/HelperTest.string_join \
@@ -374,6 +374,7 @@ test_geopm_test_SOURCES = test/GPUTopoNullTest.cpp \
                           test/geopm_test.cpp \
                           test/geopm_test.hpp \
                           test/geopm_test_helper.cpp \
+                          test/GEOPMHintTest.cpp \
                           test/HelperTest.cpp \
                           test/IOGroupTest.cpp \
                           test/LevelZeroGPUTopoTest.cpp \
