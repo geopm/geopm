@@ -55,20 +55,20 @@ GEOPM Manual Pages
    :maxdepth: 1
    :caption: GEOPM C Interfaces
 
-   geopm_agent_c.3
-   geopm_ctl_c.3
-   geopm_daemon_c.3
-   geopm_endpoint_c.3
+   geopm_agent.3
+   geopm_ctl.3
+   geopm_daemon.3
+   geopm_endpoint.3
    geopm_error.3
    geopm_fortran.3
    geopm_hash.3
    geopm_imbalancer.3
-   geopm_pio_c.3
-   geopm_policystore_c.3
-   geopm_prof_c.3
+   geopm_pio.3
+   geopm_policystore.3
+   geopm_prof.3
    geopm_sched.3
    geopm_time.3
-   geopm_topo_c.3
+   geopm_topo.3
    geopm_version.3
 
 

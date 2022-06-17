@@ -11,7 +11,7 @@ number of built-in signals and controls.  These built-in signals and
 controls include hardware metrics, hardware settings, and signals
 derived from application behavior.  Application behavior is tracked by
 GEOPM's integration with MPI and OpenMP and also by application use of
-the :doc:`geopm_prof_c(3) <geopm_prof_c.3>` mark-up interface. In
+the :doc:`geopm_prof(3) <geopm_prof.3>` mark-up interface. In
 addition to the built-in features, ``PlatformIO`` can be extended
 through the :doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>` plugin
 interface to provide arbitrary signals and controls.
@@ -183,11 +183,11 @@ Descriptions Of High Level Aliases
     Average GPU utilization expressed as a ratio of cycles.
 
 ``REGION_HASH``
-    The hash of the region of code (see :doc:`geopm_prof_c(3) <geopm_prof_c.3>`\ ) currently being
+    The hash of the region of code (see :doc:`geopm_prof(3) <geopm_prof.3>`\ ) currently being
     run by all ranks, otherwise ``GEOPM_REGION_HASH_UNMARKED``.
 
 ``REGION_HINT``
-    The region hint (see :doc:`geopm_prof_c(3) <geopm_prof_c.3>`\ ) associated with the currently
+    The region hint (see :doc:`geopm_prof(3) <geopm_prof.3>`\ ) associated with the currently
     running region.  For any interval when all ranks are within an MPI
     function inside of a user defined region, the hint will change from the
     hint associated with the user defined region to ``GEOPM_REGION_HINT_NETWORK``.
@@ -212,6 +212,6 @@ See Also
 
 :doc:`geopm(7) <geopm.7>`,
 :doc:`geopm_pio_cnl(7) <geopm_pio_cnl.7>`,
-:doc:`geopm_pio_c(3) <geopm_pio_c.3>`,
-:doc:`geopm_prof_c(3) <geopm_prof_c.3>`,
-:doc:`geopm_topo_c(3) <geopm_topo_c.3>`,
+:doc:`geopm_pio(3) <geopm_pio.3>`,
+:doc:`geopm_prof(3) <geopm_prof.3>`,
+:doc:`geopm_topo(3) <geopm_topo.3>`,

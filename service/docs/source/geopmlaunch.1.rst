@@ -320,8 +320,8 @@ GEOPM Options
                         it will only be read once and cannot be changed
                         dynamically.  In this mode, samples will not be
                         provided to the resource manager.  See :doc:`geopmagent(1)
-                        <geopmagent.1>` and :doc:`geopm_agent_c(3)
-                        <geopm_agent_c.3>` for more information about how to
+                        <geopmagent.1>` and :doc:`geopm_agent(3)
+                        <geopm_agent.3>` for more information about how to
                         create this input file.
 
                         This option is used by the launcher to set the
@@ -354,8 +354,8 @@ GEOPM Options
                            The endpoint receives policies dynamically from the
                            resource manager.  The shared memory for the
                            endpoint does not use the ``--geopm-shmkey`` prefix.
-                           Refer to :doc:`geopm_endpoint_c(3)
-                           <geopm_endpoint_c.3>` for more detail.
+                           Refer to :doc:`geopm_endpoint(3)
+                           <geopm_endpoint.3>` for more detail.
 
                            If this option is provided, the GEOPM
                            controller will also send samples to the endpoint at
@@ -427,8 +427,8 @@ GEOPM Options
                               "edit_distance".  These filters can be used to
                               infer the application outer loop (epoch) without
                               modifying the application by inserting calls to
-                              ``geopm_prof_epoch()`` (see :doc:`geopm_prof_c(3)
-                              <geopm_prof_c.3>`).  Region entry and exit may
+                              ``geopm_prof_epoch()`` (see :doc:`geopm_prof(3)
+                              <geopm_prof.3>`).  Region entry and exit may
                               be captured automatically through runtimes such
                               as MPI and OpenMP.
 

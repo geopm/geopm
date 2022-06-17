@@ -25,7 +25,7 @@ See Also
 --------
 
 :doc:`geopm(7) <geopm.7>`,
-:doc:`geopm_agent_c(3) <geopm_agent_c.3>`,
-:doc:`geopm_ctl_c(3) <geopm_ctl_c.3>`,
+:doc:`geopm_agent(3) <geopm_agent.3>`,
+:doc:`geopm_ctl(3) <geopm_ctl.3>`,
 :doc:`geopmagent(1) <geopmagent.1>`,
 :doc:`geopmlaunch(1) <geopmlaunch.1>`

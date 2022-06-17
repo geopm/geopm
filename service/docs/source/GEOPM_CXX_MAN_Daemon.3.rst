@@ -39,8 +39,8 @@ Description
 -----------
 
 The ``Daemon`` class is the underlying **C++** implementation for the
-:doc:`geopm_daemon_c(3) <geopm_daemon_c.3>` **C** interface.  Please refer to the
-:doc:`geopm_daemon_c(3) <geopm_daemon_c.3>` man page for a general description of the
+:doc:`geopm_daemon(3) <geopm_daemon.3>` **C** interface.  Please refer to the
+:doc:`geopm_daemon(3) <geopm_daemon.3>` man page for a general description of the
 purpose, goals, and use cases for this interface.
 
 Factory Method
@@ -86,4 +86,4 @@ See Also
 --------
 
 :doc:`geopm(7) <geopm.7>`\ ,
-:doc:`geopm_daemon_c(3) <geopm_daemon_c.3>`
+:doc:`geopm_daemon(3) <geopm_daemon.3>`

@@ -183,7 +183,7 @@ arbitrarily by a race if the configuration file is not present.
 A computational application may make use of the geopm_tprof_init()
 and geopm_tprof_post() interfaces to report fractional progress
 through a region to the controller.  These interfaces are documented
-in the geopm_prof_c(3) man page.  In tutorial 5 we modify the stream
+in the geopm_prof(3) man page.  In tutorial 5 we modify the stream
 region to send progress updates though either the threaded or
 unthreaded interface depending on if OpenMP is enabled at compile
 time.  Note that the unmodified tutorial build scripts do enable

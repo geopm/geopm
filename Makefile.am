@@ -97,15 +97,15 @@ transform='s/GEOPM_CXX_MAN_/geopm::/'
 roff_man_inst = man/GEOPM_CXX_MAN_Agent.3 \
                 man/GEOPM_CXX_MAN_PowerBalancer.3 \
                 man/GEOPM_CXX_MAN_PowerGovernor.3 \
-                man/geopm_agent_c.3 \
+                man/geopm_agent.3 \
                 man/geopm_agent_frequency_map.7 \
                 man/geopm_agent_monitor.7 \
                 man/geopm_agent_power_balancer.7 \
                 man/geopm_agent_power_governor.7 \
-                man/geopm_ctl_c.3 \
+                man/geopm_ctl.3 \
                 man/geopm_fortran.3 \
                 man/geopm_imbalancer.3 \
-                man/geopm_prof_c.3 \
+                man/geopm_prof.3 \
                 man/geopmadmin.1 \
                 man/geopmagent.1 \
                 man/geopmbench.1 \
@@ -123,9 +123,9 @@ roff_man_noinst = man/GEOPM_CXX_MAN_Comm.3 \
                   # end
 
 roff_man_beta = man/geopmendpoint.1 \
-                man/geopm_daemon_c.3 \
-                man/geopm_endpoint_c.3 \
-                man/geopm_policystore_c.3 \
+                man/geopm_daemon.3 \
+                man/geopm_endpoint.3 \
+                man/geopm_policystore.3 \
                 man/GEOPM_CXX_MAN_Daemon.3 \
                 man/GEOPM_CXX_MAN_Endpoint.3 \
                 # end
@@ -202,14 +202,14 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              json_schemas/geopmbench_config.schema.json \
              man/geopmadmin.1 \
              man/geopmagent.1 \
-             man/geopm_agent_c.3 \
+             man/geopm_agent.3 \
              man/geopm_agent_frequency_map.7 \
              man/geopm_agent_monitor.7 \
              man/geopm_agent_power_balancer.7 \
              man/geopm_agent_power_governor.7 \
              man/geopmbench.1 \
              man/geopmctl.1 \
-             man/geopm_ctl_c.3 \
+             man/geopm_ctl.3 \
              man/GEOPM_CXX_MAN_Agent.3 \
              man/GEOPM_CXX_MAN_Comm.3 \
              man/GEOPM_CXX_MAN_Daemon.3 \
@@ -221,14 +221,14 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              man/GEOPM_CXX_MAN_PowerGovernor.3 \
              man/GEOPM_CXX_MAN_PowerGovernorAgent.3 \
              man/GEOPM_CXX_MAN_ProfileIOGroup.3 \
-             man/geopm_daemon_c.3 \
+             man/geopm_daemon.3 \
              man/geopmendpoint.1 \
-             man/geopm_endpoint_c.3 \
+             man/geopm_endpoint.3 \
              man/geopm_fortran.3 \
              man/geopm_imbalancer.3 \
              man/geopmlaunch.1 \
-             man/geopm_policystore_c.3 \
-             man/geopm_prof_c.3 \
+             man/geopm_policystore.3 \
+             man/geopm_prof.3 \
              man/geopmpy.7 \
              pull_request_template.md \
              specs/geopm.spec \

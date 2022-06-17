@@ -3,7 +3,7 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
-"""The pio module provides python bindings for the geopm_pio_c(3) C
+"""The pio module provides python bindings for the geopm_pio(3) C
 interfaces.  This interface provides an abstraction for reading
 signals and writing controls from system components.
 

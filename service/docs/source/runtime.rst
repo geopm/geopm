@@ -2,7 +2,7 @@
 Guide for HPC Runtime Users
 ===========================
 The GEOPM HPC Runtime enables interactions between GEOPM's :doc:`application
-instrumentation interfaces <geopm_prof_c.3>` and
+instrumentation interfaces <geopm_prof.3>` and
 :doc:`platform monitoring/control interfaces <geopm_pio.7>`.
 
 By default, the GEOPM HPC runtime simply summarizes relationships between
@@ -96,7 +96,7 @@ The libgeopm library can be called directly or indirectly within MPI
 applications to enable application feedback for informing the control
 decisions.  The indirect calls are facilitated by GEOPM's integration
 with MPI and OpenMP through their profiling decorators, and the direct
-calls are made through the :doc:`geopm_prof_c(3) <geopm_prof_c.3>` or
+calls are made through the :doc:`geopm_prof(3) <geopm_prof.3>` or
 :doc:`geopm_fortran(3) <geopm_fortran.3>`
 interfaces.  Marking up a compute application with profiling
 information through these interfaces can enable better integration of
@@ -347,7 +347,7 @@ compute node daemon calls:
 
 
 which records into memory the value of all controls that can be
-written through GEOPM (see :doc:`geopm_pio_c(3) <geopm_pio_c.3>`).  The second call made in
+written through GEOPM (see :doc:`geopm_pio(3) <geopm_pio.3>`).  The second call made in
 the prologue is:
 
 .. code-block:: C
@@ -355,7 +355,7 @@ the prologue is:
    geopm_agent_enforce_policy()
 
 
-and this call (see :doc:`geopm_agent_c(3) <geopm_agent_c.3>`) enforces the configured policy
+and this call (see :doc:`geopm_agent(3) <geopm_agent.3>`) enforces the configured policy
 such as a power cap or a limit on CPU frequency by a one-time
 adjustment of hardware settings.  In the epilogue, the resource
 manager calls:

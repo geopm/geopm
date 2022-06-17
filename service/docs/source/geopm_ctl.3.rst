@@ -1,5 +1,5 @@
 
-geopm_ctl_c(3) -- GEOPM runtime control thread
+geopm_ctl(3) -- GEOPM runtime control thread
 ==============================================
 
 

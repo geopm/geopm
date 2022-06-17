@@ -1,4 +1,4 @@
-geopm_agent_c(3) -- query information about available agents
+geopm_agent(3) -- query information about available agents
 ============================================================
 
 Synopsis
@@ -134,7 +134,7 @@ zero upon success; see `ERRORS <ERRORS_>`_ section below for details.
   ``geopm_agent_enforce_policy()``:
   queries the environment for the ``GEOPM_AGENT`` and ``GEOPM_POLICY``
   and enforces the policy for the agent by writing controls to the
-  platform (see :doc:`geopm_pio_c(3) <geopm_pio_c.3>`).  A resource manager can use
+  platform (see :doc:`geopm_pio(3) <geopm_pio.3>`).  A resource manager can use
   this function to enforce the GEOPM configured policy (see
   :doc:`geopm(7) <geopm.7>`) prior to releasing compute nodes for a user
   allocation.  More generally this function allows one-time use of

@@ -58,13 +58,13 @@ This is the Fortran interface to the GEOPM library.  The documentation
 for each function can found in the associated man page for the C
 interface.
 
-* :doc:`geopm_ctl_c(3) <geopm_ctl_c.3>`\
+* :doc:`geopm_ctl(3) <geopm_ctl.3>`\
 
    * geopm_ctl_create
    * geopm_ctl_destroy
    * geopm_ctl_run
 
-* :doc:`geopm_prof_c(3) <geopm_prof_c.3>`\
+* :doc:`geopm_prof(3) <geopm_prof.3>`\
 
    * geopm_prof_region
    * geopm_prof_enter
@@ -128,6 +128,6 @@ See Also
 --------
 
 :doc:`geopm(7) <geopm.7>`\ ,
-:doc:`geopm_ctl_c(3) <geopm_ctl_c.3>`\ ,
+:doc:`geopm_ctl(3) <geopm_ctl.3>`\ ,
 :doc:`geopm_error(3) <geopm_error.3>`\ ,
-:doc:`geopm_prof_c(3) <geopm_prof_c.3>`
+:doc:`geopm_prof(3) <geopm_prof.3>`

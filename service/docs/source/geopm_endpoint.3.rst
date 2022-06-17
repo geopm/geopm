@@ -1,5 +1,5 @@
 
-geopm_endpoint_c(3) -- dynamic policy control for resource management
+geopm_endpoint(3) -- dynamic policy control for resource management
 =====================================================================
 
 
@@ -68,7 +68,7 @@ process of the compute application.  The shared memory region is monitored by
 the GEOPM runtime to enforce the policy across the entire MPI job allocation.
 
 The endpoints can also be used to extract sample telemetry from the runtime.
-This interface works in concert with the :doc:`geopm_agent_c(3) <geopm_agent_c.3>` interface for
+This interface works in concert with the :doc:`geopm_agent(3) <geopm_agent.3>` interface for
 inspecting the policy and sample parameters that pertain to the current agent.
 One must utilize the agent interface to determine the number of sample
 parameters provided by the agent and the number of policy values required by the

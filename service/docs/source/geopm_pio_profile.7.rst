@@ -5,8 +5,8 @@ Description
 -----------
 The ProfileIOGroup implements the :doc:`geopm::IOGroup(3)
 <GEOPM_CXX_MAN_IOGroup.3>` interface to provide signals and controls from
-the application based on calls to GEOPM's prof API :doc:`geopm_prof_c(3)
-<geopm_prof_c.3>`.
+the application based on calls to GEOPM's prof API :doc:`geopm_prof(3)
+<geopm_prof.3>`.
 
 The signals defined herein are useful primarily for end-of-run reporting
 purposes and for implementing new agents via the :doc:`geopm::Agent(3)
@@ -21,8 +21,8 @@ The signals **cannot** be queried via ``geopmread``.
 Signals
 -------
 ``PROFILE::REGION_HASH``
-    The hash (or ID) of the region of code (see :doc:`geopm_prof_c(3)
-    <geopm_prof_c.3>`) currently being run by all ranks, otherwise
+    The hash (or ID) of the region of code (see :doc:`geopm_prof(3)
+    <geopm_prof.3>`) currently being run by all ranks, otherwise
     ``GEOPM_REGION_HASH_UNMARKED``.  See the enum ``geopm_region_hash_e``
     defined in `geopm_hash.h
     <https://github.com/geopm/geopm/blob/dev/service/src/geopm_hash.h>`_ for
@@ -34,7 +34,7 @@ Signals
     * **Unit**: crc32 hash of region name
 
 ``PROFILE::REGION_HINT``
-    The region hint (see :doc:`geopm_prof_c(3) <geopm_prof_c.3>`) associated
+    The region hint (see :doc:`geopm_prof(3) <geopm_prof.3>`) associated
     with the currently running region.  For any interval when all ranks are
     within an MPI function inside of a user defined region, the hint will
     change from the hint associated with the user defined region to
@@ -195,5 +195,5 @@ See Also
 :doc:`geopm_pio(7) <geopm_pio.7>`,
 :doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>`,
 :doc:`geopm::Agg(3) <GEOPM_CXX_MAN_Agg.3>`,
-:doc:`geopm_prof_c(3) <geopm_prof_c.3>`,
+:doc:`geopm_prof(3) <geopm_prof.3>`,
 :doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>`
