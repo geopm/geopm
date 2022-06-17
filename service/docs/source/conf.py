@@ -13,9 +13,14 @@ import sys
 import glob
 import sphinx_rtd_theme
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..', 'scripts')))
-sys.path.append(os.path.join(os.path.dirname(__file__), "_ext"))
+_docs_dir = os.path.dirname(__file__)
+_repo_dir = os.path.abspath(os.path.join(_docs_dir, '..', '..', '..'))
+_ext_dir = os.path.join(_docs_dir, '_ext')
+_geopmdpy_dir = os.path.join(_repo_dir, 'service')
+_geopmpy_dir = os.path.join(_repo_dir, 'scripts')
+sys.path.insert(0, _geopmdpy_dir)
+sys.path.insert(0, _geopmpy_dir)
+sys.path.append(_ext_dir)
 
 # -- Project information -----------------------------------------------------
 
