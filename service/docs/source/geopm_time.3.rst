@@ -15,84 +15,81 @@ Synopsis
 
 #include `<geopm_time.h> <https://github.com/geopm/geopm/blob/dev/service/src/geopm_time.h>`_
 
-``Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)``
+Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
 
 
-* 
-  ``int geopm_time_string(``\ :
-  ``int`` _buf\ *size*\ , :raw-html-m2r:`<br>`
-  `char *`_buf_\ ``);``
+.. code-block:: c
 
-* 
-  ``int geopm_time_to_string(``\ :
-  `const struct geopm_time_s *`_time_, :raw-html-m2r:`<br>`
-  ``int`` _buf\ *size*\ , :raw-html-m2r:`<br>`
-  `char *`_buf_\ ``);``
+       static inline int geopm_time_string(int buf_size,
+                                           char *buf);
 
-* 
-  ``int geopm_time(``\ :
-  `struct geopm_time_s *`_time_\ ``);``
+       static inline int geopm_time(struct geopm_time_s *time);
 
-* 
-  ``double geopm_time_diff(``\ :
-  `const struct geopm_time_s *`_begin_, :raw-html-m2r:`<br>`
-  `const struct geopm_time_s *`_end_\ ``);``
+       static inline double geopm_time_diff(const struct geopm_time_s *begin,
+                                            const struct geopm_time_s *end);
 
-* 
-  ``bool geopm_time_comp(``\ :
-  `const struct geopm_time_s *`_aa_, :raw-html-m2r:`<br>`
-  `const struct geopm_time_s *`_bb_\ ``);``
+       static inline bool geopm_time_comp(const struct geopm_time_s *aa,
+                                          const struct geopm_time_s *bb);
 
-* 
-  ``void geopm_time_add(``\ :
-  `const struct geopm_time_s *`_begin_, :raw-html-m2r:`<br>`
-  ``double`` *elapsed*\ , :raw-html-m2r:`<br>`
-  `struct geopm_time_s *`_end_\ ``);``
+       static inline void geopm_time_add(const struct geopm_time_s *begin,
+                                         double elapsed,
+                                         struct geopm_time_s *end);
 
-* 
-  ``double geopm_time_since(``\ :
-  `const struct geopm_time_s *`_begin_\ ``);``
+       static inline double geopm_time_since(const struct geopm_time_s *begin);
+
+       int geopm_time_zero(struct geopm_time_s *zero_time);
 
 Description
 -----------
 
-The _geopm\ *time.h* header defines GEOPM interfaces for measuring time
-in seconds relative to a fixed arbitrary reference point. The geopm_time_s
+The `geopm_time.h <https://github.com/geopm/geopm/blob/dev/service/src/geopm_time.h>`_ header defines GEOPM interfaces for measuring time
+in seconds relative to a fixed arbitrary reference point. The ``geopm_time_s``
 structure is used to hold time values.
 
 
-* 
-  ``geopm_time_string``\ ():
+``geopm_time_string()``
   Fills *buf* with the current date and time as a string.  The
-  string will be null-terminated and truncated to _buf\ *size*\ , which
+  string will be null-terminated and truncated to *buf_size*, which
   must be at least 26 characters as required by `asctime_r(3) <https://man7.org/linux/man-pages/man3/asctime_r.3.html>`_.
 
-* 
-  ``geopm_time_to_string``\ ():
-  Fills *buf* with the date and time indicated by the *time*
-  structure converted to a string.  The string will be
-  null-terminated and truncated to _buf\ *size*\ , which must be at
-  least 26 characters as required by `asctime_r(3) <https://man7.org/linux/man-pages/man3/asctime_r.3.html>`_.
-
-* 
-  ``geopm_time``\ ():
+``geopm_time()``
   Sets *time* to the current time.
 
-* 
-  ``geopm_time_diff``\ ():
+``geopm_time_diff()``
   Returns the difference in seconds between *begin* and *end*.
 
-* 
-  ``geopm_time_comp``\ ():
+``geopm_time_comp()``
   Return true if *aa* is less than *bb*.
 
-* 
-  ``geopm_time_add``\ ():
+``geopm_time_add()``
   Sets *end* to *elapsed* seconds after *begin*.
 
-* 
-  ``geopm_time_since``\ ():
+``geopm_time_since()``
   Returns the number of seconds elapsed between the current time and *begin*.
+
+Structure Type
+--------------
+
+
+This structure is part of the global **C** namespace.
+This structure is used to abstract the ``timespec`` on Linux from other representations of time.
+
+The field ``struct timespec t`` is a **POSIX.1b** structure for a time value.
+This is like a ``struct timeval`` but has *nanoseconds* instead of *microseconds*.
+
+.. code-block:: c
+
+       struct geopm_time_s {
+           struct timespec t;
+       };
+
+Singleton Accessor
+------------------
+
+
+``geopm_time_zero()``
+  Is the accessor for the ``TimeZero`` singleton.
+  It records the earliest time request for the process.
 
 See Also
 --------
