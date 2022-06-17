@@ -572,7 +572,8 @@
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "variable",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "A lower limit for uncore frequency control."
                 },
                 "MAX_RATIO": {
                     "begin_bit": 0,
@@ -581,7 +582,8 @@
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "variable",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "An upper limit for uncore frequency control."
                 }
             }
         },
@@ -596,7 +598,8 @@
                     "units": "hertz",
                     "scalar": 1e8,
                     "behavior":  "variable",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "The current uncore frequency."
                 }
             }
         }
