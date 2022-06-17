@@ -10,7 +10,7 @@ interface to provide hardware signals for NVIDIA GPUs from the NVIDIA Datacenter
 Requirements
 ^^^^^^^^^^^^
 
-To use the GEOPM DCGM signals and controls GEOPM must be compiled against the DCGM libraries and must be run on a system with hardware supported by DCGM.To compile against the oneAPI LevelZero libraries geopm must be configured using both the --enable-nvml flag and the --enable-dcgm flag.  The optional --with-libdcgm flag may be used to indicate the path of the required libraries.
+To use the GEOPM DCGM signals and controls GEOPM must be compiled against the DCGM libraries and must be run on a system with hardware supported by DCGM.To compile against the oneAPI LevelZero libraries geopm must be configured using both the --enable-nvml flag and the --enable-dcgm flag.  The optional --with-dcgm flag may be used to indicate the path of the required libraries.
 
 Signals
 -------
@@ -86,7 +86,7 @@ See Also
 --------
 
 
-`DCGM API <https://docs.nvidia.com/datacenter/dcgm/latest/>`_
+`DCGM API <https://docs.nvidia.com/datacenter/dcgm/latest/>`_\ ,
 :doc:`geopm(7) <geopm.7>`\ ,
 :doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>`\ ,
 :doc:`geopmwrite(1) <geopmwrite.1>`\ ,

@@ -10,12 +10,12 @@ interface to provide hardware signals and controls for NVIDIA GPUs.
 Requirements
 ^^^^^^^^^^^^
 
-To use the GEOPM NVML signals and controls GEOPM must be compiled against the NVML libraries and must be run on a system with hardware supported by NVML.  To compile against the NVML libraries geopm must be configured using the --enable-nvml flag.  The optional --with-libnvml flag may be used to indicate the path of the required libraries.
+To use the GEOPM NVML signals and controls GEOPM must be compiled against the NVML libraries and must be run on a system with hardware supported by NVML.  To compile against the NVML libraries geopm must be configured using the --enable-nvml flag.  The optional --with-nvml flag may be used to indicate the path of the required libraries.
 
 Signals
 -------
 
-``NVML::GPU_FREQUENCY_STATUS``
+``NVML::GPU_CORE_FREQUENCY_STATUS``
     NVIDIA Streaming Multiprocessor (SM) frequency in hertz.
 
     *  **Aggregation**: average
@@ -39,7 +39,7 @@ Signals
     *  **Format**: double
     *  **Unit**: watts
 
-``NVML::GPU_MEMORY_FREQUENCY_STATUS``
+``NVML::GPU_UNCORE_FREQUENCY_STATUS``
     GPU memory frequency in hertz.
 
     *  **Aggregation**: average
@@ -47,7 +47,7 @@ Signals
     *  **Format**: double
     *  **Unit**: hertz
 
-``NVML::GPU_THROTTLE_REASONS``
+``NVML::GPU_CORE_THROTTLE_REASONS``
     GPU clock throttling reasons.  Refer to NVIDIA NVML documentation for encoding information.
 
     *  **Aggregation**: average
@@ -103,7 +103,7 @@ Signals
     *  **Format**: double
     *  **Unit**: n/a
 
-``NVML::GPU_MEMORY_UTILIZATION``
+``NVML::GPU_UNCORE_UTILIZATION``
     Fraction of time the GPU memory was accessed in the last set of driver samples.
 
     *  **Aggregation**: max
@@ -111,7 +111,7 @@ Signals
     *  **Format**: double
     *  **Unit**: n/a
 
-``NVML::GPU_FREQUENCY_MAX_AVAIL``
+``NVML::GPU_CORE_FREQUENCY_MAX_AVAIL``
     Streaming Multiprocessor maximum frequency in hertz.
 
     *  **Aggregation**: expect_same
@@ -119,7 +119,7 @@ Signals
     *  **Format**: double
     *  **Unit**: hertz
 
-``NVML::GPU_FREQUENCY_MIN_AVAIL``
+``NVML::GPU_CORE_FREQUENCY_MIN_AVAIL``
     Streaming Multiprocessor minimum frequency in hertz.
 
     *  **Aggregation**: expect_same
@@ -132,7 +132,7 @@ Controls
 
 Every control is exposed as a signal with the same name.  The relevant signal aggregation information is provided below.
 
-``NVML::GPU_FREQUENCY_CONTROL``
+``NVML::GPU_CORE_FREQUENCY_CONTROL``
     Sets Streaming Multiprocessor frequency min and max to the same limit (in hertz).
 
     *  **Aggregation**: average
@@ -140,7 +140,7 @@ Every control is exposed as a signal with the same name.  The relevant signal ag
     *  **Format**: double
     *  **Unit**: hertz
 
-``NVML::GPU_FREQUENCY_RESET_CONTROL``
+``NVML::GPU_CORE_FREQUENCY_RESET_CONTROL``
     Resets Streaming Multiprocessor frequency min and max limits to default values.  Parameter provided is unused.
 
     *  **Aggregation**: average
@@ -168,13 +168,13 @@ Signal Aliases
     Maps to ``NVML::GPU_POWER``.
 
 ``GPU_CORE_FREQUENCY_STATUS``
-    Maps to ``NVML::GPU_FREQUENCY_STATUS``.
+    Maps to ``NVML::GPU_CORE_FREQUENCY_STATUS``.
 
 ``GPU_CORE_FREQUENCY_MIN_AVAIL``
-    Maps to ``NVML::GPU_FREQUENCY_MIN_AVAIL``.
+    Maps to ``NVML::GPU_CORE_FREQUENCY_MIN_AVAIL``.
 
 ``GPU_CORE_FREQUENCY_MAX_AVAIL``
-    Maps to ``NVML::GPU_FREQUENCY_MAX_AVAIL``.
+    Maps to ``NVML::GPU_CORE_FREQUENCY_MAX_AVAIL``.
 
 ``GPU_ENERGY``
     Maps to ``NVML::GPU_ENERGY_CONSUMPTION_TOTAL``.
@@ -192,13 +192,13 @@ Control Aliases
     Maps to ``NVML::GPU_POWER_LIMIT_CONTROL``
 
 ``GPU_CORE_FREQUENCY_CONTROL``
-    Maps to ``NVML::GPU_FREQUENCY_CONTROL``
+    Maps to ``NVML::GPU_CORE_FREQUENCY_CONTROL``
 
 See Also
 --------
 
 
-`NVML API <https://docs.nvidia.com/deploy/nvml-api/nvml-api-reference.html#nvml-api-reference>`_
+`NVML API <https://docs.nvidia.com/deploy/nvml-api/nvml-api-reference.html#nvml-api-reference>`_\ ,
 :doc:`geopm(7) <geopm.7>`\ ,
 :doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>`\ ,
 :doc:`geopmwrite(1) <geopmwrite.1>`\ ,
