@@ -194,6 +194,7 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              copying_headers/test-dist \
              copying_headers/test-license \
              dox/Doxyfile.in \
+             doxygen_update.sh \
              geopm-tutorial.tar.gz \
              indicators/index.html \
              indicators/indicators.py \
