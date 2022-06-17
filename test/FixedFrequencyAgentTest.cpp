@@ -41,7 +41,6 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "geopm_agent.h"
-#include "geopm_internal.h"
 #include "geopm_hash.h"
 
 #include "Agent.hpp"
@@ -52,7 +51,6 @@
 #include "MockPlatformIO.hpp"
 #include "MockPlatformTopo.hpp"
 #include "geopm/PlatformTopo.hpp"
-#include "geopm.h"
 #include "geopm_test.hpp"
 
 using ::testing::_;
@@ -107,7 +105,7 @@ void FixedFrequencyAgentTest::SetUp()
 
     ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_BOARD))
         .WillByDefault(Return(M_NUM_BOARD));
-    ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR))
+    ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_GPU))
         .WillByDefault(Return(M_NUM_BOARD_ACCELERATOR));
 
     ON_CALL(*m_platform_io, push_control("FREQUENCY_GPU_CONTROL", _, _))
@@ -126,7 +124,7 @@ void FixedFrequencyAgentTest::SetUp()
     m_freq_gpu_min = 0135000000.0;
     m_freq_gpu_max = 1530000000.0;
     ON_CALL(*m_platform_io, control_domain_type("FREQUENCY_GPU_CONTROL"))
-        .WillByDefault(Return(GEOPM_DOMAIN_BOARD_ACCELERATOR));
+        .WillByDefault(Return(GEOPM_DOMAIN_GPU));
     ON_CALL(*m_platform_io, read_signal("GPU_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0))
         .WillByDefault(Return(m_freq_gpu_min));
     ON_CALL(*m_platform_io, read_signal("GPU_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0))
