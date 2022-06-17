@@ -70,9 +70,6 @@ GEOPM Manual Pages
    geopm_agent_*.7
 
 
-* :ref:`genindex`
-
-
 Doxygen Pages
 -------------
 
