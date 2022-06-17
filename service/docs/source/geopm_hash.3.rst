@@ -1,4 +1,4 @@
-geopm_hash.h(3) -- helper methods for encoding
+geopm_hash(3) -- helper methods for encoding
 ==============================================
 
 Synopsis

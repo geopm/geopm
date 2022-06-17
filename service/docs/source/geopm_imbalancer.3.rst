@@ -1,5 +1,5 @@
 
-geopm_imbalancer.h(3) -- set artificial runtime imbalance
+geopm_imbalancer(3) -- set artificial runtime imbalance
 =========================================================
 
 

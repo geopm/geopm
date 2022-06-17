@@ -2,7 +2,7 @@
    :format: html
 
 
-geopm_sched.h(3) -- interface with Linux scheduler
+geopm_sched(3) -- interface with Linux scheduler
 ==================================================
 
 
