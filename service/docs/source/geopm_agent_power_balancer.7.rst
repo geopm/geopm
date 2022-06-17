@@ -38,7 +38,7 @@ The application performance is measured by the duration of application
 epoch.  The epoch run time is reported by each MPI rank once every
 trip around the outer loop of an iterative application, if the
 application has been annotated with a call to ``geopm_prof_epoch()``.  See
-the :doc:`geopm_prof_c(3) <geopm_prof_c.3>` man page for more information about geopm
+the :doc:`geopm_prof(3) <geopm_prof.3>` man page for more information about geopm
 profiling methods.  Note that the epoch runtime used by the
 PowerBalancerAgent excludes any time spent in MPI communication
 routines or regions marked with the ``GEOPM_REGION_HINT_IGNORE`` hint.  A
@@ -197,7 +197,7 @@ See Also
 :doc:`geopm_agent_monitor(7) <geopm_agent_monitor.7>`\ ,
 :doc:`geopm_agent_power_governor(7) <geopm_agent_power_governor.7>`\ ,
 :doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>`\ ,
-:doc:`geopm_agent_c(3) <geopm_agent_c.3>`\ ,
-:doc:`geopm_prof_c(3) <geopm_prof_c.3>`\ ,
+:doc:`geopm_agent(3) <geopm_agent.3>`\ ,
+:doc:`geopm_prof(3) <geopm_prof.3>`\ ,
 :doc:`geopmagent(1) <geopmagent.1>`\ ,
 :doc:`geopmlaunch(1) <geopmlaunch.1>`

@@ -1,5 +1,5 @@
 
-geopm_policystore_c(3) -- GEOPM resource policy store interface
+geopm_policystore(3) -- GEOPM resource policy store interface
 ===============================================================
 
 
@@ -37,7 +37,7 @@ Description
 These interfaces expose records of best known policies for profiles used with agents.
 The records include the best reported policies, as well as the default policies
 to apply when a best run has not yet been recorded.  Policies are shared as
-arrays of doubles.  See ``geopm_agent_policy_json_partial()`` in :doc:`geopm_agent_c(3) <geopm_agent_c.3>`
+arrays of doubles.  See ``geopm_agent_policy_json_partial()`` in :doc:`geopm_agent(3) <geopm_agent.3>`
 for information about interpreting them as json strings.
 
 
@@ -75,5 +75,5 @@ See Also
 --------
 
 :doc:`geopm(7) <geopm.7>`\ ,
-:doc:`geopm_agent_c(3) <geopm_agent_c.3>`\ ,
+:doc:`geopm_agent(3) <geopm_agent.3>`\ ,
 :doc:`geopm_error(3) <geopm_error.3>`

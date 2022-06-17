@@ -51,7 +51,7 @@ Description
 The ``SharedMemory`` class encapsulates the creation and use of
 inter-process shared memory.  In the GEOPM runtime, shared memory is
 used to communicate between the user application's MPI calls and calls
-to :doc:`geopm_prof_c(3) <geopm_prof_c.3>` methods, and the Controller
+to :doc:`geopm_prof(3) <geopm_prof.3>` methods, and the Controller
 running on the same node.
 
 ``SharedMemory`` is a pure virtual abstract base class.

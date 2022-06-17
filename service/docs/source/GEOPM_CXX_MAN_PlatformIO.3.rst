@@ -368,9 +368,9 @@ See Also
 
 :doc:`geopm(7) <geopm.7>`\ ,
 :doc:`geopm_hash(3) <geopm_hash.3>`\ ,
-:doc:`geopm_prof_c(3) <geopm_prof_c.3>`\ ,
-:doc:`geopm_pio_c(3) <geopm_pio_c.3>`\ ,
-:doc:`geopm_topo_c(3) <geopm_topo_c.3>`\ ,
+:doc:`geopm_prof(3) <geopm_prof.3>`\ ,
+:doc:`geopm_pio(3) <geopm_pio.3>`\ ,
+:doc:`geopm_topo(3) <geopm_topo.3>`\ ,
 :doc:`geopm::Exception(3) <GEOPM_CXX_MAN_Exception.3>`\ ,
 :doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>`\ ,
 :doc:`geopm::MSRIOGroup(3) <GEOPM_CXX_MAN_MSRIOGroup.3>`\ ,

@@ -104,4 +104,4 @@ See Also
 :doc:`geopm_agent_monitor(7) <geopm_agent_monitor.7>`,
 :doc:`geopm_agent_power_balancer(7) <geopm_agent_power_balancer.7>`,
 :doc:`geopm_agent_power_governor(7) <geopm_agent_power_governor.7>`,
-:doc:`geopm_agent_c(3) <geopm_agent_c.3>`
+:doc:`geopm_agent(3) <geopm_agent.3>`

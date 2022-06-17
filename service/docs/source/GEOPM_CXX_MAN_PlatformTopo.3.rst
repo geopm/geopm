@@ -64,8 +64,8 @@ the system topology where signals and controls are applicable.  Each
 domain is defined by a type and an index.  The domain type is a value
 from the ``geopm_domain_e`` enum, and the domain index enumerates the
 devices of that type available on the system.  Refer to the :ref:`list of
-domain types <geopm_topo_c.3:Domain Types>` in
-in :doc:`geopm_topo_c(3) <geopm_topo_c.3>`.  The domains are effectively
+domain types <geopm_topo.3:Domain Types>` in
+in :doc:`geopm_topo(3) <geopm_topo.3>`.  The domains are effectively
 hierarchical and the ``PlatformTopo::domain_nested()`` method can be
 used to explore which domains are nested within a specified outer
 domain.  Each domain, specified by pairing a domain type and a domain
@@ -88,8 +88,8 @@ Class Methods
 *
   ``num_domain()``:
   Number of domains on the platform of a particular *domain_type*.
-  Refer to the :ref:`list of domain types <geopm_topo_c.3:Domain Types>` in
-  :doc:`geopm_topo_c(3) <geopm_topo_c.3>`.
+  Refer to the :ref:`list of domain types <geopm_topo.3:Domain Types>` in
+  :doc:`geopm_topo(3) <geopm_topo.3>`.
 
 *
   ``domain_idx()``:
@@ -244,6 +244,6 @@ See Also
 --------
 
 :doc:`geopm(7) <geopm.7>`\ ,
-:doc:`geopm_pio_c(3) <geopm_pio_c.3>`\ ,
-:doc:`geopm_topo_c(3) <geopm_topo_c.3>`\ ,
+:doc:`geopm_pio(3) <geopm_pio.3>`\ ,
+:doc:`geopm_topo(3) <geopm_topo.3>`\ ,
 :doc:`geopm::PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3>`

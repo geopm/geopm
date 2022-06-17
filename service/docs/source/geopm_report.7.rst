@@ -16,7 +16,7 @@ environment variable; refer to the description for ``--geopm-report`` in
 :doc:`geopmlaunch(1) <geopmlaunch.1>`.
 
 The application regions and epoch are defined by use of the
-:doc:`geopm_prof_c(3) <geopm_prof_c.3>` interface to mark up the user application, or
+:doc:`geopm_prof(3) <geopm_prof.3>` interface to mark up the user application, or
 through automatic inference of regions based on interposing on the MPI
 or OpenMP interfaces (interposing on OpenMP requires that OMPT is
 enabled at GEOPM compile time, and the ``--geopm-ompt-disable`` option
@@ -118,7 +118,7 @@ The fields in each of these sections are described below:
 ``name``
   Name of the region.  For user-defined regions, this is the string passed to
   ``geopm_region()``; for automatically detected OpenMP and MPI regions this
-  is the function name.  See :doc:`geopm_prof_c(3) <geopm_prof_c.3>` for more
+  is the function name.  See :doc:`geopm_prof(3) <geopm_prof.3>` for more
   information.
 
 ``hash``
@@ -319,6 +319,6 @@ See Also
 --------
 
 :doc:`geopm(7) <geopm.7>`,
-:doc:`geopm_prof_c(3) <geopm_prof_c.3>`,
+:doc:`geopm_prof(3) <geopm_prof.3>`,
 :doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>`,
 :doc:`geopmlaunch(1) <geopmlaunch.1>`

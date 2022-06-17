@@ -55,8 +55,8 @@ Description
 -----------
 
 The ``Endpoint`` class is the underlying **C++** implementation for the
-:doc:`geopm_endpoint_c(3) <geopm_endpoint_c.3>` **C** interface.  Please refer to the
-:doc:`geopm_endpoint_c(3) <geopm_endpoint_c.3>` man page for a general description of the
+:doc:`geopm_endpoint(3) <geopm_endpoint.3>` **C** interface.  Please refer to the
+:doc:`geopm_endpoint(3) <geopm_endpoint.3>` man page for a general description of the
 purpose, goals, and use cases for this interface.
 
 Factory Method
@@ -143,4 +143,4 @@ See Also
 --------
 
 :doc:`geopm(7) <geopm.7>`\ ,
-:doc:`geopm_endpoint_c(3) <geopm_endpoint_c.3>`
+:doc:`geopm_endpoint(3) <geopm_endpoint.3>`

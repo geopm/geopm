@@ -115,5 +115,5 @@ See Also
 --------
 
 :doc:`geopm(7) <geopm.7>`,
-:doc:`geopm_prof_c(3) <geopm_prof_c.3>`,
+:doc:`geopm_prof(3) <geopm_prof.3>`,
 :doc:`geopmlaunch(1) <geopmlaunch.1>`

@@ -111,8 +111,8 @@ See Also
 --------
 
 :doc:`geopm(7) <geopm.7>`\ ,
-:doc:`geopm_agent_c(3) <geopm_agent_c.3>`\ ,
-:doc:`geopm_ctl_c(3) <geopm_ctl_c.3>`\ ,
+:doc:`geopm_agent(3) <geopm_agent.3>`\ ,
+:doc:`geopm_ctl(3) <geopm_ctl.3>`\ ,
 :doc:`geopm_fortran(3) <geopm_fortran.3>`\ ,
-:doc:`geopm_prof_c(3) <geopm_prof_c.3>`\ ,
+:doc:`geopm_prof(3) <geopm_prof.3>`\ ,
 `errno(3) <https://man7.org/linux/man-pages/man3/errno.3.html>`_

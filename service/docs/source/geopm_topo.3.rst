@@ -1,4 +1,4 @@
-geopm_topo_c(3) -- query platform component topology
+geopm_topo(3) -- query platform component topology
 ====================================================
 
 Synopsis
@@ -167,7 +167,7 @@ See Also
 --------
 
 :doc:`geopm(7) <geopm.7>`\ ,
-:doc:`geopm_pio_c(3) <geopm_pio_c.3>`\ ,
+:doc:`geopm_pio(3) <geopm_pio.3>`\ ,
 :doc:`geopm_error(3) <geopm_error.3>`\ ,
 :doc:`geopm::PlatformTopo(3) <GEOPM_CXX_MAN_PlatformTopo.3>`\ ,
 :doc:`geopm::PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3>`\ ,

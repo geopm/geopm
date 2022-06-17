@@ -134,5 +134,5 @@ Examples
 See the following pages for examples of the style to follow:
 
 :doc:`geopm_pio_profile(7) <geopm_pio_profile.7>`,
-:doc:`geopm_pio_c(3) <geopm_pio_c.3>`,
+:doc:`geopm_pio(3) <geopm_pio.3>`,
 :doc:`geopm_pio_cnl(7) <geopm_pio_cnl.7>`

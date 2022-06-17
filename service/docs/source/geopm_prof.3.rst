@@ -1,4 +1,4 @@
-geopm_prof_c(3) -- application profiling interfaces
+geopm_prof(3) -- application profiling interfaces
 ===================================================
 
 Synopsis

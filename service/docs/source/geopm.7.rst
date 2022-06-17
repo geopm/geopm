@@ -58,7 +58,7 @@ If you use the *application* launch method, then you also need to launch the
 wish to run with GEOPM.
 
 There are legacy methods for launching the runtime programmatically.
-These are documented in :doc:`geopm_ctl_c(3) <geopm_ctl_c.3>`, but are deprecated as an
+These are documented in :doc:`geopm_ctl(3) <geopm_ctl.3>`, but are deprecated as an
 application-facing interface because their use within an application
 is incompatible with the GEOPM launcher script.
 
@@ -66,7 +66,7 @@ is incompatible with the GEOPM launcher script.
 Application Profiling
 ---------------------
 GEOPM's provides application profiling interfaces for the C and Fortran
-programming languages, documented in :doc:`geopm_prof_c(3) <geopm_prof_c.3>`
+programming languages, documented in :doc:`geopm_prof(3) <geopm_prof.3>`
 and :doc:`geopm_fortran(3) <geopm_fortran.3>`, respectively. These interfaces
 enable an application to inform GEOPM of key monitoring events, such as entry
 or exit from regions of interest, entry to a new iteration of a key looping
@@ -77,7 +77,7 @@ else).
 The GEOPM HPC runtime profiles applications while executing as a separate
 process or thread within the launched application, or as a separate
 :doc:`geopmctl(1) <geopmctl.1>` application. C interfaces to drive the GEOPM
-controller are documented in :doc:`geopm_ctl_c(3) <geopm_ctl_c.3>`.
+controller are documented in :doc:`geopm_ctl(3) <geopm_ctl.3>`.
 
 Analysis Tools
 --------------
@@ -88,11 +88,11 @@ platform *signals* at varying levels of scope (*domains*). The
 :doc:`geopmwrite(1) <geopmwrite.1>` application enables modulation of platform
 *controls* at varying domains. Information about signals and controls
 is documented at :doc:`geopm_pio(7) <geopm_pio.7>`. Programmatic interfaces for
-read and write operations are available through :doc:`geopm_pio_c(3)
-<geopm_pio_c.3>`.
+read and write operations are available through :doc:`geopm_pio(3)
+<geopm_pio.3>`.
 
 The types of domains and their relationships with each other can be
-programmatically queried through :doc:`geopm_topo_c(3) <geopm_topo_c.3>`.
+programmatically queried through :doc:`geopm_topo(3) <geopm_topo.3>`.
 
 GEOPM comes bundled with a synthetic benchmark application :doc:`geopmbench(1)
 <geopmbench.1>`, which can be used as an application workload for basic analysis 
@@ -109,7 +109,7 @@ GEOPM comes packaged with several built-in power management algorithms (*agents*
 * :doc:`geopm_agent_power_governor(7) <geopm_agent_power_governor.7>`: An agent that enforces a power cap.
 
 Use the :doc:`geopmagent(1) <geopmagent.1>` application or the
-:doc:`geopm_agent_c(3) <geopm_agent_c.3>` C interface to query agent
+:doc:`geopm_agent(3) <geopm_agent.3>` C interface to query agent
 information and create static policies.
 
 Plugin Extension
@@ -183,7 +183,7 @@ in the header of the report.
 If GEOPM has been configured with ``--enable-beta``\ , policies can also
 be set through the endpoint, which should be manipulated by a system
 administrator through an authority such as the resource manager.  Use
-of the endpoint is described in :doc:`geopm_endpoint_c(3) <geopm_endpoint_c.3>`.  In this
+of the endpoint is described in :doc:`geopm_endpoint(3) <geopm_endpoint.3>`.  In this
 scenario, users launching GEOPM may not be required or allowed to
 specify the Agent or policy, if it has been set through the default
 environment as described in the ``ENVIRONMENT`` section below.  If not
@@ -392,14 +392,14 @@ See Also
 :doc:`geopm_pio_sst(7) <geopm_pio_sst.7>`,
 :doc:`geopm_pio_time(7) <geopm_pio_time.7>`,
 :doc:`geopm_report(7) <geopm_report.7>`,
-:doc:`geopm_agent_c(3) <geopm_agent_c.3>`,
-:doc:`geopm_ctl_c(3) <geopm_ctl_c.3>`,
+:doc:`geopm_agent(3) <geopm_agent.3>`,
+:doc:`geopm_ctl(3) <geopm_ctl.3>`,
 :doc:`geopm_error(3) <geopm_error.3>`,
 :doc:`geopm_fortran(3) <geopm_fortran.3>`,
 :doc:`geopm_hash(3) <geopm_hash.3>`,
-:doc:`geopm_policystore_c(3) <geopm_policystore_c.3>`,
-:doc:`geopm_pio_c(3) <geopm_pio_c.3>`,
-:doc:`geopm_prof_c(3) <geopm_prof_c.3>`,
+:doc:`geopm_policystore(3) <geopm_policystore.3>`,
+:doc:`geopm_pio(3) <geopm_pio.3>`,
+:doc:`geopm_prof(3) <geopm_prof.3>`,
 :doc:`geopm_sched(3) <geopm_sched.3>`,
 :doc:`geopm_time(3) <geopm_time.3>`,
 :doc:`geopm_version(3) <geopm_version.3>`,
