@@ -19,7 +19,7 @@ interface to provide arbitrary signals and controls.
 A domain is a discrete component within a compute node where a signal
 or control is applicable.  For more information about the
 ``geopm_domain_e`` enum and the hierarchical platform description see
-:doc:`geopm::PlatformTopo(3) <GEOPM_CXX_MAN_PlatformTopo.3>`.  A
+:doc:`geopm_topo(3) <geopm_topo.3>`.  A
 signal represents any measurement in SI units that can be sampled or
 any unit-free integer that can be read.  A control represents a
 request for a hardware domain to operate such that a related signal
