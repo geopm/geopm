@@ -1023,7 +1023,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Count MSR::FIXED_CTR0:INST_RETIRED_ANY events while in kernel mode."
                 },
                 "EN0_USR": {
                     "begin_bit": 1,
@@ -1032,7 +1033,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Count MSR::FIXED_CTR0:INST_RETIRED_ANY events while in user mode."
                 },
                 "EN0_PMI": {
                     "begin_bit": 3,
@@ -1041,7 +1043,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "If set, generate an interrupt when the MSR::FIXED_CTR0:INST_RETIRED_ANY counter overflows."
                 },
                 "EN1_OS": {
                     "begin_bit": 4,
@@ -1050,7 +1053,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Count MSR::FIXED_CTR1:CPU_CLK_UNHALTED_THREAD events while in kernel mode."
                 },
                 "EN1_USR": {
                     "begin_bit": 5,
@@ -1059,7 +1063,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Count MSR::FIXED_CTR1:CPU_CLK_UNHALTED_THREAD events while in user mode."
                 },
                 "EN1_PMI": {
                     "begin_bit": 7,
@@ -1068,7 +1073,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "If set, generate an interrupt when the MSR::FIXED_CTR1:CPU_CLK_UNHALTED_THREAD counter overflows."
                 },
                 "EN2_OS": {
                     "begin_bit": 8,
@@ -1077,7 +1083,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Count MSR::FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC events while in kernel mode."
                 },
                 "EN2_USR": {
                     "begin_bit": 9,
@@ -1086,7 +1093,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Count MSR::FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC events while in user mode."
                 },
                 "EN2_PMI": {
                     "begin_bit": 11,
@@ -1095,7 +1103,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "If set, generate an interrupt when the MSR::FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC counter overflows."
                 }
             }
         },
