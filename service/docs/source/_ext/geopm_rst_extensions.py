@@ -121,10 +121,11 @@ class GeopmMsrJson(SphinxDirective):
                     description_text = msr_field_data['description']
                 except KeyError:
                     description_text = f'TODO: Add a description to {self.arguments[0]}'
-                    # TODO: Promote from 'info' to 'error' after we ratchet down the count
-                    logger.info('Missing a description for %s in %s',
-                                geopm_msr_name,
-                                json_path, color='yellow')
+                    # Change from 'error' to 'info' if you ever need to make
+                    # this a non-build-blocking check
+                    logger.error('Missing a description for %s in %s',
+                                 geopm_msr_name,
+                                 json_path)
                 msr_definition_body += create_msr_description_paragraph(description_text)
 
                 # The MSR description is followed by a list of properties.
