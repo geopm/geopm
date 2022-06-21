@@ -230,8 +230,7 @@ Example
 -------
 
 The following example uses geopmread and geopmwrite command-line
-tools.  These steps can also be followed within an agent. Enabling
-steps are also in the ``SSTFrequencyGovernor``.
+tools.  These steps can also be followed within an agent.
 
 Enabling SST-TF
 ^^^^^^^^^^^^^^^
