@@ -28,7 +28,8 @@
                     "scalar":    1.0,
                     "behavior":  "monotone",
                     "writeable": false,
-                    "aggregation": "sum"
+                    "aggregation": "sum",
+                    "description": "A counter incrementing at the processor's base, maximum performance frequency. This counter cannot measure processor performance when the CPU is inactive."
                 }
             }
         },
@@ -44,7 +45,8 @@
                     "scalar":    1.0,
                     "behavior":  "monotone",
                     "writeable": false,
-                    "aggregation": "sum"
+                    "aggregation": "sum",
+                    "description": "A counter incrementing at the processor's actual frequency. This counter cannot measure processor performance when the CPU is inactive."
                 }
             }
         },
