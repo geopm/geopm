@@ -1159,7 +1159,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Enable the MSR::FIXED_CTR0:INST_RETIRED_ANY counter."
                 },
                 "EN_FIXED_CTR1": {
                     "begin_bit": 33,
@@ -1168,7 +1169,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Enable the MSR::FIXED_CTR1:CPU_CLK_UNHALTED_THREAD counter."
                 },
                 "EN_FIXED_CTR2": {
                     "begin_bit": 34,
@@ -1177,7 +1179,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Enable the MSR::FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC counter."
                 }
             }
         },
@@ -1192,7 +1195,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Write 1 to clear the global status bit for PMC0 overflow."
                 },
                 "CLEAR_OVF_PMC1": {
                     "begin_bit": 1,
@@ -1201,7 +1205,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Write 1 to clear the global status bit for PMC1 overflow."
                 },
                 "CLEAR_OVF_PMC2": {
                     "begin_bit": 1,
@@ -1210,7 +1215,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Write 1 to clear the global status bit for PMC2 overflow."
                 },
                 "CLEAR_OVF_PMC3": {
                     "begin_bit": 1,
@@ -1219,7 +1225,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Write 1 to clear the global status bit for PMC3 overflow."
                 },
                 "CLEAR_OVF_FIXED_CTR0": {
                     "begin_bit": 32,
@@ -1228,7 +1235,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Write 1 to clear the global status bit for MSR::FIXED_CTR0:INST_RETIRED_ANY overflow."
                 },
                 "CLEAR_OVF_FIXED_CTR1": {
                     "begin_bit": 33,
@@ -1237,7 +1245,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Write 1 to clear the global status bit for MSR::FIXED_CTR1:CPU_CLK_UNHALTED_THREAD overflow."
                 },
                 "CLEAR_OVF_FIXED_CTR2": {
                     "begin_bit": 34,
@@ -1246,7 +1255,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Write 1 to clear the global status bit for MSR::FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC overflow."
                 }
             }
         }
