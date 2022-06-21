@@ -244,7 +244,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Enable software control of P-States."
                 },
                 "LIMIT_CPUID_MAXVAL": {
                     "begin_bit": 22,
@@ -253,7 +254,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Indicates whether the operating system does not support usage of the CPUID instruction with functions that require EAX values great than 2."
                 },
                 "TURBO_MODE_DISABLE": {
                     "begin_bit": 38,
@@ -262,7 +264,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Indicates whether opportunistic operating frequency above the processor's base frequency is disabled."
                 }
             }
         },
