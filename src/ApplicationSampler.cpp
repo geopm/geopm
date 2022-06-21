@@ -266,7 +266,7 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         if (m_is_cpu_active[cpu_idx]) {
-            check_hint(hint);
+            geopm::check_hint(hint);
             result = m_hint_time[cpu_idx][hint];
         }
         return result;

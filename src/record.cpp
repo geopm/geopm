@@ -62,7 +62,7 @@ namespace geopm
         static_assert(sizeof(hint_names) / sizeof(hint_names[0]) ==
                       GEOPM_SENTINEL_REGION_HINT,
                       "hint_names mismatch with geopm_region_hint_e");
-        check_hint(hint);
+        geopm::check_hint(hint);
 
         return hint_names[hint];
     }

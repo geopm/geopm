@@ -53,8 +53,8 @@ static inline uint64_t geopm_region_id_hint(uint64_t region_id)
         ret = GEOPM_REGION_HINT_NETWORK;
     }
     else {
-        ret = (region_id >> 32) & GEOPM_MASK_REGION_HINT;
-        if (!ret) {
+        ret = region_id >> 32;
+        if (!ret || ret >= GEOPM_SENTINEL_REGION_HINT) {
             ret = GEOPM_REGION_HINT_UNKNOWN;
         }
     }

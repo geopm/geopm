@@ -97,7 +97,7 @@ TEST_F(ApplicationStatusTest, hints)
     GEOPM_EXPECT_THROW_MESSAGE(m_status->set_hint(99, NETWORK),
                                GEOPM_ERROR_INVALID, "invalid CPU index");
     GEOPM_EXPECT_THROW_MESSAGE(m_status->set_hint(0, 1ULL << 32),
-                               GEOPM_ERROR_INVALID, "invalid hint");
+                               GEOPM_ERROR_INVALID, "hint out of range");
     GEOPM_EXPECT_THROW_MESSAGE(m_status->get_hint(-1),
                                GEOPM_ERROR_INVALID, "invalid CPU index");
     GEOPM_EXPECT_THROW_MESSAGE(m_status->get_hint(99),
@@ -106,7 +106,7 @@ TEST_F(ApplicationStatusTest, hints)
     memcpy(m_mock_shared_memory->pointer(), bad_data.data(), 64);
     m_status->update_cache();
     GEOPM_EXPECT_THROW_MESSAGE(m_status->get_hint(0),
-                               GEOPM_ERROR_INVALID, "invalid hint");
+                               GEOPM_ERROR_INVALID, "hint out of range");
 }
 
 TEST_F(ApplicationStatusTest, hash)

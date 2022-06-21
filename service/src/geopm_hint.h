@@ -26,21 +26,15 @@ enum geopm_region_hint_e {
     GEOPM_REGION_HINT_IGNORE,   /* Do not add region time to epoch */
     GEOPM_REGION_HINT_INACTIVE, /* Used to marke CPUs that are not running application */
     GEOPM_SENTINEL_REGION_HINT,
-    GEOPM_MASK_REGION_HINT =    GEOPM_REGION_HINT_UNKNOWN |
-                                GEOPM_REGION_HINT_COMPUTE |
-                                GEOPM_REGION_HINT_MEMORY |
-                                GEOPM_REGION_HINT_NETWORK |
-                                GEOPM_REGION_HINT_IO |
-                                GEOPM_REGION_HINT_SERIAL |
-                                GEOPM_REGION_HINT_PARALLEL |
-                                GEOPM_REGION_HINT_IGNORE |
-                                GEOPM_REGION_HINT_INACTIVE,
 };
-
-/// @brief Verify a region's hint value is legal for use.
-void check_hint(uint64_t hint);
 
 #ifdef __cplusplus
 }
+
+namespace geopm {
+    /// @brief Verify a region's hint value is legal for use.
+    void check_hint(uint64_t hint);
+}
 #endif
+
 #endif
