@@ -624,7 +624,7 @@
                     "behavior":  "monotone",
                     "writeable": false,
                     "aggregation": "sum",
-                    "description" "A filtered counter of MSR::APERF:ACNT that only incrments for cycles the hardware expects are productive toward instruction execution. This counter cannot measure processor performance when the CPU is inactive."
+                    "description": "A filtered counter of MSR::APERF:ACNT that only incrments for cycles the hardware expects are productive toward instruction execution. This counter cannot measure processor performance when the CPU is inactive."
                 }
             }
         },
