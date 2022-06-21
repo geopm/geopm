@@ -30,6 +30,10 @@ the limit.  Similarly the user can set a ``CPU_FREQUENCY_MAX_CONTROL`` in
 *hertz* and the related signal, ``CPU_FREQUENCY_STATUS`` will show the
 CPU operating at the value set.
 
+See the :doc:`geopmread(1) <geopmread.1>` and :doc:`geopmwrite(1)
+<geopmwrite.1>` tools for command-line interaction with the ``PlatformIO``
+interface.
+
 Aliasing Signals And Controls
 -----------------------------
 
