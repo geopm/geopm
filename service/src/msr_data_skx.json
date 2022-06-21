@@ -665,7 +665,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Set an event code to choose which resource is monitored in MSR::QM_CTR:RM_DATA. Refer to the Intel(R) 64 and IA-32 Architectures Software Developer's Manual for more information about how to use this MSR with Cache Monitoring Technology and Memory Bandwidth Monitoring. Event counts are accumulated in MSR::QM_CTR::RM_DATA."
                 },
                 "RMID": {
                     "begin_bit": 32,
@@ -674,7 +675,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Specify which resource monitoring identifier (RMID) must be active to update MSR::QM_CTR:RM_DATA. Associate RMIDs with CPUs by writing to MSR::PQR_ASSOC:RMID."
                 }
             }
         },
@@ -690,7 +692,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": false,
-                    "aggregation": "sum"
+                    "aggregation": "sum",
+                    "description": "The raw counted value for the MSR::QM_EVTSEL:* configuration. Configurations that report bandwidth metrics report a raw value based on an implementation-specific counter. If reading a bandwidth metric, read the QM_CTR_SCALED alias instead."
                 },
                 "UNAVAILABLE": {
                     "begin_bit": 62,
@@ -699,7 +702,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Indicates that no monitoring data is available, and MSR::QM_CTR:RM_DATA does not contain valid data."
                 },
                 "ERROR": {
                     "begin_bit": 63,
@@ -708,7 +712,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Indicates an unsupported configuration in MSR::QM_EVTSEL:*, and that MSR::QM_CTR:RM_DATA does not contain valid data."
                 }
             }
         },
@@ -723,7 +728,8 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "The resource monitoring identifier (RMID) currently associated with this CPU. Multiple CPUs are permitted to map to the same RMID. RMID-based resource monitoring interfaces track each monitored resource by a CPU package, RMID pair."
                 }
             }
         },
