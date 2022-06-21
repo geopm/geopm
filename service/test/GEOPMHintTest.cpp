@@ -10,11 +10,11 @@
 
 TEST(GEOPMHintTest, check_hint)
 {
-    uint64_t hint = GEOPM_SENTINEL_REGION_HINT;
+    uint64_t hint = GEOPM_NUM_REGION_HINT;
     GEOPM_EXPECT_THROW_MESSAGE(geopm::check_hint(hint),
                                GEOPM_ERROR_INVALID,
                                "hint out of range");
-    hint = GEOPM_SENTINEL_REGION_HINT + 1;
+    hint = GEOPM_NUM_REGION_HINT + 1;
     GEOPM_EXPECT_THROW_MESSAGE(geopm::check_hint(hint),
                                GEOPM_ERROR_INVALID,
                                "hint out of range");

@@ -54,7 +54,7 @@ static inline uint64_t geopm_region_id_hint(uint64_t region_id)
     }
     else {
         ret = region_id >> 32;
-        if (!ret || ret >= GEOPM_SENTINEL_REGION_HINT) {
+        if (!ret || ret >= GEOPM_NUM_REGION_HINT) {
             ret = GEOPM_REGION_HINT_UNKNOWN;
         }
     }
