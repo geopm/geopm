@@ -130,10 +130,6 @@ namespace geopm
 
         register_signal_alias("BOARD_POWER", "CNL::BOARD_POWER");
         register_signal_alias("BOARD_ENERGY", "CNL::BOARD_ENERGY");
-        register_signal_alias("POWER_MEMORY", "CNL::POWER_MEMORY");
-        register_signal_alias("ENERGY_MEMORY", "CNL::ENERGY_MEMORY");
-        register_signal_alias("BOARD_POWER_CPU", "CNL::BOARD_POWER_CPU");
-        register_signal_alias("BOARD_ENERGY_CPU", "CNL::BOARD_ENERGY_CPU");
     }
 
     std::set<std::string> CNLIOGroup::signal_names(void) const

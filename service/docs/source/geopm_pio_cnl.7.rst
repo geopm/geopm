@@ -105,7 +105,6 @@ This IOGroup exposes the following high-level aliases:
 * ``BOARD_POWER`` aliases to ``CNL::BOARD_POWER``
 * ``BOARD_ENERGY`` aliases to ``CNL::BOARD_ENERGY``
 
-**TODO**: remove ``POWER_MEMORY``, ``ENERGY_MEMORY``, ``BOARD_POWER_CPU``, and ``BOARD_ENERGY_CPU`` aliases from the implementation
 
 See Also
 --------
