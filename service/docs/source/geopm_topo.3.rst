@@ -76,7 +76,10 @@ hardware components on the system:
 ``GEOPM_DOMAIN_PACKAGE_INTEGRATED_GPU = 9``
     GPU unit on the package (e.g on-package graphics).
 
-``GEOPM_NUM_DOMAIN = 10``
+``GEOPM_DOMAIN_GPU_CHIP = 10``
+    GPU card chips within a package on the PCI Bus (e.g Level Zero subdevices).
+
+``GEOPM_NUM_DOMAIN = 11``
     The number of valid built-in domains.
 
 Description
