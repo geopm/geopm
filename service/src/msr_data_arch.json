@@ -454,7 +454,7 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Set a unit mask to select which event event condition to monitor. This control combined with MSR::IA32_PERFEVTSEL0:EVENT_SELECT defines which event to count. See https://download.01.org/perfmon for possible input values. Event counts are accumulated in MSR::IA32_PMC0:PERFCTR."
+                    "description": "Set a unit mask to select which event condition to monitor. This control combined with MSR::IA32_PERFEVTSEL0:EVENT_SELECT defines which event to count. See https://download.01.org/perfmon for possible input values. Event counts are accumulated in MSR::IA32_PMC0:PERFCTR."
                 },
                 "USR": {
                     "begin_bit": 16,
@@ -570,7 +570,7 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Set a unit mask to select which event event condition to monitor. This control combined with MSR::IA32_PERFEVTSEL1:EVENT_SELECT defines which event to count. See https://download.01.org/perfmon for possible input values. Event counts are accumulated in MSR::IA32_PMC1:PERFCTR."
+                    "description": "Set a unit mask to select which event condition to monitor. This control combined with MSR::IA32_PERFEVTSEL1:EVENT_SELECT defines which event to count. See https://download.01.org/perfmon for possible input values. Event counts are accumulated in MSR::IA32_PMC1:PERFCTR."
                 },
                 "USR": {
                     "begin_bit": 16,
@@ -686,7 +686,7 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Set a unit mask to select which event event condition to monitor. This control combined with MSR::IA32_PERFEVTSEL2:EVENT_SELECT defines which event to count. See https://download.01.org/perfmon for possible input values. Event counts are accumulated in MSR::IA32_PMC2:PERFCTR."
+                    "description": "Set a unit mask to select which event condition to monitor. This control combined with MSR::IA32_PERFEVTSEL2:EVENT_SELECT defines which event to count. See https://download.01.org/perfmon for possible input values. Event counts are accumulated in MSR::IA32_PMC2:PERFCTR."
                 },
                 "USR": {
                     "begin_bit": 16,
@@ -802,7 +802,7 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Set a unit mask to select which event event condition to monitor. This control combined with MSR::IA32_PERFEVTSEL3:EVENT_SELECT defines which event to count. See https://download.01.org/perfmon for possible input values. Event counts are accumulated in MSR::IA32_PMC3:PERFCTR."
+                    "description": "Set a unit mask to select which event condition to monitor. This control combined with MSR::IA32_PERFEVTSEL3:EVENT_SELECT defines which event to count. See https://download.01.org/perfmon for possible input values. Event counts are accumulated in MSR::IA32_PMC3:PERFCTR."
                 },
                 "USR": {
                     "begin_bit": 16,
