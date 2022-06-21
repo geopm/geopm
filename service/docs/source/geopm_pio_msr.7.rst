@@ -175,6 +175,12 @@ Signal Aliases
 ``DRAM_ENERGY``
     Maps to ``MSR::DRAM_ENERGY_STATUS:ENERGY``
 
+``QM_CTR_SCALED``
+    Maps to ``MSR::QM_CTR:RM_DATA``, scaled by the processor's counter resolution for bandwidth accounting in bytes.
+
+``QM_CTR_SCALED_RATE``
+    Maps to the rate of change in ``QM_CTR_SCALED``.
+
 Control Aliases
 ^^^^^^^^^^^^^^^
 
