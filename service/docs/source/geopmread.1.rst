@@ -145,10 +145,10 @@ List all available signals on the system:
 
    $ geopmread
    TIME
-   ENERGY_PACKAGE
-   ENERGY_DRAM
-   POWER_PACKAGE
-   POWER_DRAM
+   CPU_ENERGY
+   DRAM_ENERGY
+   CPU_POWER
+   DRAM_POWER
    CPU_FREQUENCY_STATUS
 
 Show the description for a signal:
@@ -158,25 +158,25 @@ Show the description for a signal:
    $ geopmread --info TIME
    TIME: Time in seconds since the IOGroup load.
 
-Show domain type for ENERGY_DRAM signal:
+Show domain type for DRAM_ENERGY signal:
 
 .. code-block::
 
-   $ geopmread --domain ENERGY_DRAM
+   $ geopmread --domain DRAM_ENERGY
    memory
 
 Read the current energy for package 1:
 
 .. code-block::
 
-   $ geopmread ENERGY_PACKAGE package 1
+   $ geopmread CPU_ENERGY package 1
    34567
 
 Read the total energy for both packages:
 
 .. code-block::
 
-   $ geopmread ENERGY_PACKAGE board 0
+   $ geopmread CPU_ENERGY board 0
    56789
 
 See Also

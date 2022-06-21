@@ -63,8 +63,8 @@ def setup_uncore_frequency_bounds(mach, min_uncore_freq, max_uncore_freq,
 
 
 def report_signals():
-    return ["CYCLES_THREAD@package", "CYCLES_REFERENCE@package",
-            "TIME@package", "ENERGY_PACKAGE@package"]
+    return ["CPU_CYCLES_THREAD@package", "CPU_CYCLES_REFERENCE@package",
+            "TIME@package", "CPU_ENERGY@package"]
 
 
 def trace_signals():

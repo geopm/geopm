@@ -34,9 +34,9 @@ namespace geopm
         , m_is_converged(false)
         , m_is_sample_stable(false)
         , m_do_send_sample(false)
-        , m_min_power_setting(m_platform_io.read_signal("POWER_PACKAGE_MIN", GEOPM_DOMAIN_BOARD, 0))
-        , m_max_power_setting(m_platform_io.read_signal("POWER_PACKAGE_MAX", GEOPM_DOMAIN_BOARD, 0))
-        , m_tdp_power_setting(m_platform_io.read_signal("POWER_PACKAGE_TDP", GEOPM_DOMAIN_BOARD, 0))
+        , m_min_power_setting(m_platform_io.read_signal("CPU_POWER_MIN", GEOPM_DOMAIN_BOARD, 0))
+        , m_max_power_setting(m_platform_io.read_signal("CPU_POWER_MAX", GEOPM_DOMAIN_BOARD, 0))
+        , m_tdp_power_setting(m_platform_io.read_signal("CPU_POWER_TDP", GEOPM_DOMAIN_BOARD, 0))
         , m_power_gov(std::move(power_gov))
         , m_pio_idx(M_PLAT_NUM_SIGNAL)
         , m_agg_func(M_NUM_SAMPLE)
@@ -88,10 +88,10 @@ namespace geopm
     {
         m_power_gov->init_platform_io();
         // Setup signals
-        m_pio_idx[M_PLAT_SIGNAL_PKG_POWER] = m_platform_io.push_signal("POWER_PACKAGE", GEOPM_DOMAIN_BOARD, 0);
+        m_pio_idx[M_PLAT_SIGNAL_PKG_POWER] = m_platform_io.push_signal("CPU_POWER", GEOPM_DOMAIN_BOARD, 0);
 
         // Setup controls
-        int pkg_pwr_domain_type = m_platform_io.control_domain_type("POWER_PACKAGE_LIMIT");
+        int pkg_pwr_domain_type = m_platform_io.control_domain_type("CPU_POWER_LIMIT");
         if (pkg_pwr_domain_type == GEOPM_DOMAIN_INVALID) {
             throw Exception("PowerGovernorAgent::" + std::string(__func__) + "(): Platform does not support package power control",
                             GEOPM_ERROR_AGENT_UNSUPPORTED, __FILE__, __LINE__);
@@ -311,9 +311,9 @@ namespace geopm
             throw Exception("PowerGovernorAgent::enforce_policy(): policy vector incorrectly sized.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        int control_domain = m_platform_io.control_domain_type("POWER_PACKAGE_LIMIT");
+        int control_domain = m_platform_io.control_domain_type("CPU_POWER_LIMIT");
         double pkg_policy = policy[M_POLICY_POWER] / m_platform_topo.num_domain(control_domain);
-        m_platform_io.write_control("POWER_PACKAGE_LIMIT", GEOPM_DOMAIN_BOARD, 0, pkg_policy);
+        m_platform_io.write_control("CPU_POWER_LIMIT", GEOPM_DOMAIN_BOARD, 0, pkg_policy);
     }
 
     std::string PowerGovernorAgent::plugin_name(void)
@@ -328,7 +328,7 @@ namespace geopm
 
     std::vector<std::string> PowerGovernorAgent::policy_names(void)
     {
-        return {"POWER_PACKAGE_LIMIT_TOTAL"};
+        return {"CPU_POWER_LIMIT_TOTAL"};
     }
 
     std::vector<std::string> PowerGovernorAgent::sample_names(void)

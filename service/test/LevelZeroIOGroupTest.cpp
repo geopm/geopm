@@ -227,7 +227,7 @@ TEST_F(LevelZeroIOGroupTest, read_signal_and_batch)
 
     for (int gpu_idx = 0; gpu_idx < num_gpu; ++gpu_idx) {
         EXPECT_CALL(*m_device_pool, energy(GEOPM_DOMAIN_GPU, gpu_idx, MockLevelZero::M_DOMAIN_ALL)).WillRepeatedly(Return(mock_energy.at(gpu_idx)));
-        batch_idx.push_back(levelzero_io.push_signal("LEVELZERO::GPU_ENERGY", GEOPM_DOMAIN_GPU, gpu_idx));
+        batch_idx.push_back(levelzero_io.push_signal("LEVELZERO::ENERGY", GEOPM_DOMAIN_GPU, gpu_idx));
     }
 
 
@@ -241,7 +241,7 @@ TEST_F(LevelZeroIOGroupTest, read_signal_and_batch)
     }
 
     for (int gpu_idx = 0; gpu_idx < num_gpu; ++gpu_idx) {
-        double energy = levelzero_io.read_signal("LEVELZERO::GPU_ENERGY", GEOPM_DOMAIN_GPU, gpu_idx);
+        double energy = levelzero_io.read_signal("LEVELZERO::ENERGY", GEOPM_DOMAIN_GPU, gpu_idx);
         double energy_batch = levelzero_io.sample(batch_idx.at(num_gpu_subdevice+gpu_idx));
 
         EXPECT_DOUBLE_EQ(energy, mock_energy.at(gpu_idx)/1e6);
@@ -267,7 +267,7 @@ TEST_F(LevelZeroIOGroupTest, read_signal_and_batch)
         EXPECT_DOUBLE_EQ(frequency, frequency_batch);
     }
     for (int gpu_idx = 0; gpu_idx < num_gpu; ++gpu_idx) {
-        double energy = levelzero_io.read_signal("LEVELZERO::GPU_ENERGY", GEOPM_DOMAIN_GPU, gpu_idx);
+        double energy = levelzero_io.read_signal("LEVELZERO::ENERGY", GEOPM_DOMAIN_GPU, gpu_idx);
         double energy_batch = levelzero_io.sample(batch_idx.at(num_gpu_subdevice+gpu_idx));
 
         EXPECT_DOUBLE_EQ(energy, mock_energy.at(gpu_idx)/1e6);
@@ -314,7 +314,7 @@ TEST_F(LevelZeroIOGroupTest, read_timestamp_batch_reverse)
         EXPECT_CALL(*m_device_pool, energy(GEOPM_DOMAIN_GPU, gpu_idx, MockLevelZero::M_DOMAIN_ALL)).WillRepeatedly(Return(mock_energy.at(gpu_idx)));
         EXPECT_CALL(*m_device_pool, energy_timestamp(GEOPM_DOMAIN_GPU, gpu_idx, MockLevelZero::M_DOMAIN_ALL)).WillRepeatedly(Return(mock_energy_timestamp.at(gpu_idx)));
 
-        energy_batch_idx.push_back(levelzero_io.push_signal("LEVELZERO::GPU_ENERGY_TIMESTAMP", GEOPM_DOMAIN_GPU, gpu_idx));
+        energy_batch_idx.push_back(levelzero_io.push_signal("LEVELZERO::ENERGY_TIMESTAMP", GEOPM_DOMAIN_GPU, gpu_idx));
     }
 
     levelzero_io.read_batch();
@@ -386,7 +386,7 @@ TEST_F(LevelZeroIOGroupTest, read_timestamp_batch)
         EXPECT_CALL(*m_device_pool, energy(GEOPM_DOMAIN_GPU, gpu_idx, MockLevelZero::M_DOMAIN_ALL)).WillRepeatedly(Return(mock_energy.at(gpu_idx)));
         EXPECT_CALL(*m_device_pool, energy_timestamp(GEOPM_DOMAIN_GPU, gpu_idx, MockLevelZero::M_DOMAIN_ALL)).WillRepeatedly(Return(mock_energy_timestamp.at(gpu_idx)));
 
-        energy_batch_idx.push_back(levelzero_io.push_signal("LEVELZERO::GPU_ENERGY", GEOPM_DOMAIN_GPU, gpu_idx));
+        energy_batch_idx.push_back(levelzero_io.push_signal("LEVELZERO::ENERGY", GEOPM_DOMAIN_GPU, gpu_idx));
     }
 
     levelzero_io.read_batch();
@@ -500,7 +500,7 @@ TEST_F(LevelZeroIOGroupTest, read_signal)
         power_lim = levelzero_io.read_signal("LEVELZERO::GPU_POWER_LIMIT_DEFAULT", GEOPM_DOMAIN_GPU, gpu_idx);
         EXPECT_DOUBLE_EQ(power_lim, mock_power_limit_tdp.at(gpu_idx)/1e3);
 
-        double energy = levelzero_io.read_signal("LEVELZERO::GPU_ENERGY", GEOPM_DOMAIN_GPU, gpu_idx);
+        double energy = levelzero_io.read_signal("LEVELZERO::ENERGY", GEOPM_DOMAIN_GPU, gpu_idx);
         EXPECT_DOUBLE_EQ(energy, mock_energy.at(gpu_idx)/1e6);
     }
 

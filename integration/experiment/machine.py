@@ -60,13 +60,13 @@ class Machine:
         return self.signals['CPU_FREQUENCY_STEP']
 
     def power_package_min(self):
-        return self.signals['POWER_PACKAGE_MIN']
+        return self.signals['CPU_POWER_MIN']
 
     def power_package_tdp(self):
-        return self.signals['POWER_PACKAGE_TDP']
+        return self.signals['CPU_POWER_TDP']
 
     def power_package_max(self):
-        return self.signals['POWER_PACKAGE_MAX']
+        return self.signals['CPU_POWER_MAX']
 
     def num_board(self):
         return int(self.topo['board'])
@@ -107,9 +107,9 @@ class Machine:
                         'CPU_FREQUENCY_MAX',
                         'CPU_FREQUENCY_STICKER',
                         'CPU_FREQUENCY_STEP',
-                        'POWER_PACKAGE_MIN',
-                        'POWER_PACKAGE_TDP',
-                        'POWER_PACKAGE_MAX']
+                        'CPU_POWER_MIN',
+                        'CPU_POWER_TDP',
+                        'CPU_POWER_MAX']
         for sn in signal_names:
             self.signals[sn] = util.geopmread('{} board 0'.format(sn))
 

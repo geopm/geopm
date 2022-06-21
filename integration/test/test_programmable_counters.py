@@ -22,7 +22,7 @@ class TestIntegrationProgrammableCounters(unittest.TestCase):
         '''Test that the count of retired instructions matches between the
         fixed counter and the programmable counter.
         '''
-        fixed_signal_index = pio.push_signal('INSTRUCTIONS_RETIRED', topo.DOMAIN_BOARD, 0)
+        fixed_signal_index = pio.push_signal('CPU_INSTRUCTIONS_RETIRED', topo.DOMAIN_BOARD, 0)
 
         # See https://download.01.org/perfmon/SKX/skylakex_core_v1.24.json
         # for EVENT_SELECT and UMASK for INST_RETIRED.ANY_P
@@ -45,7 +45,7 @@ class TestIntegrationProgrammableCounters(unittest.TestCase):
             # The purpose of this loop is to trigger the conditions that
             # reproduce the bug. Don't use read_batch here, since geopm's
             # rollover handling may mask the problem intermittently.
-            total_fixed_count = pio.read_signal('INSTRUCTIONS_RETIRED', topo.DOMAIN_BOARD, 0) - initial_fixed_count
+            total_fixed_count = pio.read_signal('CPU_INSTRUCTIONS_RETIRED', topo.DOMAIN_BOARD, 0) - initial_fixed_count
             # When the bug is present, the PMC will be truncated at 32 bits,
             # for values up to 48 bits.
             if total_fixed_count > (1 << 33):

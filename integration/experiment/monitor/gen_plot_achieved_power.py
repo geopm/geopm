@@ -25,10 +25,10 @@ def plot_node_power(df, app_name, min_power, max_power, step_power, output_dir,
 
     temp_df = df.copy()
     df['package'] = 0
-    df['power'] = df['ENERGY_PACKAGE@package-0'] / df['TIME@package-0']
+    df['power'] = df['CPU_ENERGY@package-0'] / df['TIME@package-0']
     df.set_index(['host', 'package'], inplace=True)
     temp_df['package'] = 1
-    temp_df['power'] = temp_df['ENERGY_PACKAGE@package-1'] / temp_df['TIME@package-1']
+    temp_df['power'] = temp_df['CPU_ENERGY@package-1'] / temp_df['TIME@package-1']
     temp_df.set_index(['host', 'package'], inplace=True)
 
     df = df.append(temp_df)

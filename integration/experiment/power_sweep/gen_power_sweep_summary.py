@@ -19,7 +19,7 @@ from experiment import common_args
 
 def summary(parse_output):
     # rename some columns
-    parse_output['power_limit'] = parse_output['POWER_PACKAGE_LIMIT_TOTAL']
+    parse_output['power_limit'] = parse_output['CPU_POWER_LIMIT_TOTAL']
     parse_output['runtime'] = parse_output['runtime (s)']
     parse_output['network_time'] = parse_output['time-hint-network (s)']
     parse_output['energy_pkg'] = parse_output['package-energy (J)']

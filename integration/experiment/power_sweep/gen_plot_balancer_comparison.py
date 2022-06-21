@@ -27,7 +27,7 @@ def prep_plot_data(report_data, metric, normalize, speedup, use_stdev):
     report.prepare_columns(idf)
 
     # rename some columns
-    idf['power_limit'] = idf['POWER_PACKAGE_LIMIT_TOTAL']
+    idf['power_limit'] = idf['CPU_POWER_LIMIT_TOTAL']
 
     # mean across nodes within trials
     idf = idf.set_index(['Agent', 'power_limit', 'host', 'trial'])

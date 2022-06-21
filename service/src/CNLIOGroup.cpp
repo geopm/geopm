@@ -37,7 +37,7 @@ namespace geopm
     }
 
     CNLIOGroup::CNLIOGroup(const std::string &cpu_info_path)
-        : m_signal_available({{"CNL::POWER_BOARD", {
+        : m_signal_available({{"CNL::BOARD_POWER", {
                                    "Point in time power",
                                    Agg::average,
                                    string_format_integer,
@@ -46,7 +46,7 @@ namespace geopm
                                    NAN,
                                    M_UNITS_WATTS,
                                    IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE}},
-                              {"CNL::ENERGY_BOARD", {
+                              {"CNL::BOARD_ENERGY", {
                                    "Accumulated energy",
                                    Agg::sum,
                                    string_format_integer,
@@ -73,7 +73,7 @@ namespace geopm
                                    NAN,
                                    M_UNITS_JOULES,
                                    IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE}},
-                              {"CNL::POWER_BOARD_CPU", {
+                              {"CNL::BOARD_POWER_CPU", {
                                    "Point in time CPU power",
                                    Agg::average,
                                    string_format_integer,
@@ -82,7 +82,7 @@ namespace geopm
                                    NAN,
                                    M_UNITS_WATTS,
                                    IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE}},
-                              {"CNL::ENERGY_BOARD_CPU", {
+                              {"CNL::BOARD_ENERGY_CPU", {
                                    "Accumulated CPU energy",
                                    Agg::sum,
                                    string_format_integer,
@@ -128,12 +128,12 @@ namespace geopm
             signal.second.m_read_function();
         }
 
-        register_signal_alias("POWER_BOARD", "CNL::POWER_BOARD");
-        register_signal_alias("ENERGY_BOARD", "CNL::ENERGY_BOARD");
+        register_signal_alias("BOARD_POWER", "CNL::BOARD_POWER");
+        register_signal_alias("BOARD_ENERGY", "CNL::BOARD_ENERGY");
         register_signal_alias("POWER_MEMORY", "CNL::POWER_MEMORY");
         register_signal_alias("ENERGY_MEMORY", "CNL::ENERGY_MEMORY");
-        register_signal_alias("POWER_BOARD_CPU", "CNL::POWER_BOARD_CPU");
-        register_signal_alias("ENERGY_BOARD_CPU", "CNL::ENERGY_BOARD_CPU");
+        register_signal_alias("BOARD_POWER_CPU", "CNL::BOARD_POWER_CPU");
+        register_signal_alias("BOARD_ENERGY_CPU", "CNL::BOARD_ENERGY_CPU");
     }
 
     std::set<std::string> CNLIOGroup::signal_names(void) const

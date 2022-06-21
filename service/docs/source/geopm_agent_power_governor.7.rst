@@ -34,7 +34,7 @@ reports and traces with additional Agent-specific information.
 *
   **Agent Policy Definitions**\ :
 
-  ``POWER_PACKAGE_LIMIT_TOTAL``\ :
+  ``CPU_POWER_LIMIT_TOTAL``\ :
       Sets the average power cap per compute
       node in units of watts.  If NAN is
       passed for the power cap, the value
@@ -61,7 +61,7 @@ reports and traces with additional Agent-specific information.
   ``POWER_AVERAGE_ENFORCED``\ :
       Enforced power limit averaged over all
       compute nodes.  This value corresponds to
-      the ``POWER_PACKAGE_LIMIT_TOTAL`` policy
+      the ``CPU_POWER_LIMIT_TOTAL`` policy
       field and is expected to match unless the
       policy is unachievable.
 

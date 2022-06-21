@@ -52,12 +52,12 @@ int main(int argc, char **argv)
     double energy1 = 0.0;
     double total_energy = 0.0;
 
-    int err = geopm_pio_read_signal("ENERGY_PACKAGE",
+    int err = geopm_pio_read_signal("CPU_ENERGY",
                                     GEOPM_DOMAIN_PACKAGE,
                                     0, &energy0);
     if (!err) {
         sleep(5);
-        err = geopm_pio_read_signal("ENERGY_PACKAGE",
+        err = geopm_pio_read_signal("CPU_ENERGY",
                                     GEOPM_DOMAIN_PACKAGE,
                                     0, &energy1);
     }

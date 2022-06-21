@@ -379,11 +379,11 @@ namespace geopm
 
         m_sync_fields = {
             {"sync-runtime (s)", {"TIME"}, sample_only},
-            {"package-energy (J)", {"ENERGY_PACKAGE"}, sample_only},
-            {"dram-energy (J)", {"ENERGY_DRAM"}, sample_only},
-            {"power (W)", {"ENERGY_PACKAGE", "TIME"}, divide},
-            {"frequency (%)", {"CYCLES_THREAD", "CYCLES_REFERENCE"}, divide_pct},
-            {"frequency (Hz)", {"CYCLES_THREAD", "CYCLES_REFERENCE"}, divide_sticker_scale},
+            {"package-energy (J)", {"CPU_ENERGY"}, sample_only},
+            {"dram-energy (J)", {"DRAM_ENERGY"}, sample_only},
+            {"power (W)", {"CPU_ENERGY", "TIME"}, divide},
+            {"frequency (%)", {"CPU_CYCLES_THREAD", "CPU_CYCLES_REFERENCE"}, divide_pct},
+            {"frequency (Hz)", {"CPU_CYCLES_THREAD", "CPU_CYCLES_REFERENCE"}, divide_sticker_scale},
             {"time-hint-network (s)", {"TIME_HINT_NETWORK"}, sample_only},
             {"time-hint-ignore (s)", {"TIME_HINT_IGNORE"}, sample_only},
             {"time-hint-compute (s)", {"TIME_HINT_COMPUTE"}, sample_only},

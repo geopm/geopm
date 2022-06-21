@@ -24,5 +24,5 @@ standard output.
 .. code-block:: bash
 
     echo "TIME board 0
-          INSTRUCTIONS_RETIRED cpu 0
-          INSTRUCTIONS_RETIRED cpu 1" | geopmsession -t 1 -p 0.1
+          CPU_INSTRUCTIONS_RETIRED cpu 0
+          CPU_INSTRUCTIONS_RETIRED cpu 1" | geopmsession -t 1 -p 0.1

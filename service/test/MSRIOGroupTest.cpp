@@ -158,18 +158,18 @@ TEST_F(MSRIOGroupTest, valid_signal_names)
     //// energy signals
     ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::PKG_ENERGY_STATUS:ENERGY"));
     ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::DRAM_ENERGY_STATUS:ENERGY"));
-    signal_aliases.push_back("ENERGY_PACKAGE");
-    signal_aliases.push_back("ENERGY_DRAM");
+    signal_aliases.push_back("CPU_ENERGY");
+    signal_aliases.push_back("DRAM_ENERGY");
 
     //// counters
     ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::FIXED_CTR0:INST_RETIRED_ANY"));
     ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::FIXED_CTR1:CPU_CLK_UNHALTED_THREAD"));
     ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC"));
     ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::TIME_STAMP_COUNTER:TIMESTAMP_COUNT"));
-    signal_aliases.push_back("INSTRUCTIONS_RETIRED");
-    signal_aliases.push_back("CYCLES_THREAD");
-    signal_aliases.push_back("CYCLES_REFERENCE");
-    signal_aliases.push_back("TIMESTAMP_COUNTER");
+    signal_aliases.push_back("CPU_INSTRUCTIONS_RETIRED");
+    signal_aliases.push_back("CPU_CYCLES_THREAD");
+    signal_aliases.push_back("CPU_CYCLES_REFERENCE");
+    signal_aliases.push_back("CPU_TIMESTAMP_COUNTER");
 
     //// frequency signals
     ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::PERF_STATUS:FREQ"));
@@ -189,11 +189,11 @@ TEST_F(MSRIOGroupTest, valid_signal_names)
     ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::PKG_POWER_INFO:MIN_POWER"));
     ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::PKG_POWER_INFO:MAX_POWER"));
     ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::PKG_POWER_INFO:THERMAL_SPEC_POWER"));
-    signal_aliases.push_back("POWER_PACKAGE_MIN");
-    signal_aliases.push_back("POWER_PACKAGE_MAX");
-    signal_aliases.push_back("POWER_PACKAGE_TDP");
-    signal_aliases.push_back("POWER_PACKAGE");
-    signal_aliases.push_back("POWER_DRAM");
+    signal_aliases.push_back("CPU_POWER_MIN");
+    signal_aliases.push_back("CPU_POWER_MAX");
+    signal_aliases.push_back("CPU_POWER_TDP");
+    signal_aliases.push_back("CPU_POWER");
+    signal_aliases.push_back("DRAM_POWER");
 
     auto signal_names = m_msrio_group->signal_names();
     for (const auto &name : signal_aliases) {
@@ -213,14 +213,14 @@ TEST_F(MSRIOGroupTest, valid_signal_names)
 TEST_F(MSRIOGroupTest, valid_signal_domains)
 {
     // energy
-    EXPECT_EQ(GEOPM_DOMAIN_PACKAGE, m_msrio_group->signal_domain_type("ENERGY_PACKAGE"));
-    EXPECT_EQ(GEOPM_DOMAIN_PACKAGE, m_msrio_group->signal_domain_type("ENERGY_DRAM"));
+    EXPECT_EQ(GEOPM_DOMAIN_PACKAGE, m_msrio_group->signal_domain_type("CPU_ENERGY"));
+    EXPECT_EQ(GEOPM_DOMAIN_PACKAGE, m_msrio_group->signal_domain_type("DRAM_ENERGY"));
 
     // counter
-    EXPECT_EQ(GEOPM_DOMAIN_CPU, m_msrio_group->signal_domain_type("INSTRUCTIONS_RETIRED"));
-    EXPECT_EQ(GEOPM_DOMAIN_CPU, m_msrio_group->signal_domain_type("CYCLES_THREAD"));
-    EXPECT_EQ(GEOPM_DOMAIN_CPU, m_msrio_group->signal_domain_type("CYCLES_REFERENCE"));
-    EXPECT_EQ(GEOPM_DOMAIN_CPU, m_msrio_group->signal_domain_type("TIMESTAMP_COUNTER"));
+    EXPECT_EQ(GEOPM_DOMAIN_CPU, m_msrio_group->signal_domain_type("CPU_INSTRUCTIONS_RETIRED"));
+    EXPECT_EQ(GEOPM_DOMAIN_CPU, m_msrio_group->signal_domain_type("CPU_CYCLES_THREAD"));
+    EXPECT_EQ(GEOPM_DOMAIN_CPU, m_msrio_group->signal_domain_type("CPU_CYCLES_REFERENCE"));
+    EXPECT_EQ(GEOPM_DOMAIN_CPU, m_msrio_group->signal_domain_type("CPU_TIMESTAMP_COUNTER"));
 
     // frequency
     EXPECT_EQ(GEOPM_DOMAIN_CPU, m_msrio_group->signal_domain_type("CPU_FREQUENCY_STATUS"));
@@ -234,15 +234,15 @@ TEST_F(MSRIOGroupTest, valid_signal_domains)
 
     // power
     EXPECT_EQ(GEOPM_DOMAIN_PACKAGE,
-              m_msrio_group->signal_domain_type("POWER_PACKAGE_MIN"));
+              m_msrio_group->signal_domain_type("CPU_POWER_MIN"));
     EXPECT_EQ(GEOPM_DOMAIN_PACKAGE,
-              m_msrio_group->signal_domain_type("POWER_PACKAGE_MAX"));
+              m_msrio_group->signal_domain_type("CPU_POWER_MAX"));
     EXPECT_EQ(GEOPM_DOMAIN_PACKAGE,
-              m_msrio_group->signal_domain_type("POWER_PACKAGE_TDP"));
+              m_msrio_group->signal_domain_type("CPU_POWER_TDP"));
     EXPECT_EQ(GEOPM_DOMAIN_PACKAGE,
-              m_msrio_group->signal_domain_type("POWER_PACKAGE"));
+              m_msrio_group->signal_domain_type("CPU_POWER"));
     EXPECT_EQ(GEOPM_DOMAIN_PACKAGE,
-              m_msrio_group->signal_domain_type("POWER_DRAM"));
+              m_msrio_group->signal_domain_type("DRAM_POWER"));
 }
 
 TEST_F(MSRIOGroupTest, valid_signal_aggregation)
@@ -250,20 +250,20 @@ TEST_F(MSRIOGroupTest, valid_signal_aggregation)
     std::function<double(const std::vector<double> &)> func;
 
     // energy
-    func = m_msrio_group->agg_function("ENERGY_PACKAGE");
+    func = m_msrio_group->agg_function("CPU_ENERGY");
     EXPECT_TRUE(is_agg_sum(func));
-    func = m_msrio_group->agg_function("ENERGY_DRAM");
+    func = m_msrio_group->agg_function("DRAM_ENERGY");
     EXPECT_TRUE(is_agg_sum(func));
 
     // counter
-    func = m_msrio_group->agg_function("INSTRUCTIONS_RETIRED");
+    func = m_msrio_group->agg_function("CPU_INSTRUCTIONS_RETIRED");
     EXPECT_TRUE(is_agg_sum(func));
-    func = m_msrio_group->agg_function("CYCLES_THREAD");
+    func = m_msrio_group->agg_function("CPU_CYCLES_THREAD");
     EXPECT_TRUE(is_agg_sum(func));
-    func = m_msrio_group->agg_function("CYCLES_REFERENCE");
+    func = m_msrio_group->agg_function("CPU_CYCLES_REFERENCE");
     EXPECT_TRUE(is_agg_sum(func));
     /// @todo: what should this be?
-    //func = m_msrio_group->agg_function("TIMESTAMP_COUNTER");
+    //func = m_msrio_group->agg_function("CPU_TIMESTAMP_COUNTER");
     //EXPECT_TRUE(is_agg_sum(func));
 
     // frequency
@@ -280,18 +280,18 @@ TEST_F(MSRIOGroupTest, valid_signal_aggregation)
     EXPECT_TRUE(is_agg_average(func));
 
     // power
-    // @todo: POWER_PACKAGE and POWER_DRAM
+    // @todo: CPU_POWER and DRAM_POWER
 
     // @todo: what should this be?
-    //func = m_msrio_group->agg_function("POWER_PACKAGE_MIN");
+    //func = m_msrio_group->agg_function("CPU_POWER_MIN");
     //EXPECT_TRUE(is_agg_expect_same(func));
-    //func = m_msrio_group->agg_function("POWER_PACKAGE_MAX");
+    //func = m_msrio_group->agg_function("CPU_POWER_MAX");
     //EXPECT_TRUE(is_agg_expect_same(func));
-    //func = m_msrio_group->agg_function("POWER_PACKAGE_TDP");
+    //func = m_msrio_group->agg_function("CPU_POWER_TDP");
     //EXPECT_TRUE(is_agg_expect_same(func));
-    func = m_msrio_group->agg_function("POWER_PACKAGE");
+    func = m_msrio_group->agg_function("CPU_POWER");
     EXPECT_TRUE(is_agg_sum(func));
-    func = m_msrio_group->agg_function("POWER_DRAM");
+    func = m_msrio_group->agg_function("DRAM_POWER");
     EXPECT_TRUE(is_agg_sum(func));
 }
 
@@ -301,11 +301,11 @@ TEST_F(MSRIOGroupTest, valid_signal_format)
 
     // most SI signals are printed as double
     std::vector<std::string> si_alias = {
-        "ENERGY_PACKAGE", "ENERGY_DRAM",
+        "CPU_ENERGY", "DRAM_ENERGY",
         "CPU_FREQUENCY_STATUS", "CPU_FREQUENCY_MAX",
         "TEMPERATURE_CORE", "TEMPERATURE_PACKAGE",
-        "POWER_PACKAGE_MIN", "POWER_PACKAGE_MAX", "POWER_PACKAGE_TDP",
-        "POWER_PACKAGE", "POWER_DRAM"
+        "CPU_POWER_MIN", "CPU_POWER_MAX", "CPU_POWER_TDP",
+        "CPU_POWER", "DRAM_POWER"
     };
     for (const auto &name : si_alias) {
         func = m_msrio_group->format_function(name);
@@ -314,9 +314,9 @@ TEST_F(MSRIOGroupTest, valid_signal_format)
 
     // counter - no units, printed as integer
     std::vector<std::string> count_alias = {
-        "INSTRUCTIONS_RETIRED",
-        "CYCLES_THREAD",
-        "CYCLES_REFERENCE"
+        "CPU_INSTRUCTIONS_RETIRED",
+        "CPU_CYCLES_THREAD",
+        "CPU_CYCLES_REFERENCE"
     };
     for (const auto &name : count_alias) {
         func = m_msrio_group->format_function(name);
@@ -388,7 +388,7 @@ TEST_F(MSRIOGroupTest, push_signal)
     EXPECT_EQ(inst_idx_0, idx2);
 
     // pushing signal alias gives same index
-    int idx3 = m_msrio_group->push_signal("INSTRUCTIONS_RETIRED", GEOPM_DOMAIN_CPU, 0);
+    int idx3 = m_msrio_group->push_signal("CPU_INSTRUCTIONS_RETIRED", GEOPM_DOMAIN_CPU, 0);
     EXPECT_EQ(inst_idx_0, idx3);
 
     // pushing same signal for another CPU gives different index
@@ -509,12 +509,12 @@ TEST_F(MSRIOGroupTest, read_signal_energy)
 
     value = 1638400;  // 61uJ units
     EXPECT_CALL(*m_msrio, read_msr(0, pkg_energy_offset)).WillOnce(Return(value));
-    result = m_msrio_group->read_signal("ENERGY_PACKAGE", GEOPM_DOMAIN_PACKAGE, 0);
+    result = m_msrio_group->read_signal("CPU_ENERGY", GEOPM_DOMAIN_PACKAGE, 0);
     EXPECT_NEAR(100, result, 0.0001);
 
     value = 3276799;  // 15uJ units
     EXPECT_CALL(*m_msrio, read_msr(0, dram_energy_offset)).WillOnce(Return(value));
-    result = m_msrio_group->read_signal("ENERGY_DRAM", GEOPM_DOMAIN_PACKAGE, 0);
+    result = m_msrio_group->read_signal("DRAM_ENERGY", GEOPM_DOMAIN_PACKAGE, 0);
     EXPECT_NEAR(50, result, 0.0001);
 }
 
@@ -531,7 +531,7 @@ TEST_F(MSRIOGroupTest, read_signal_counter)
         .WillOnce(Return(22222));
     result = m_msrio_group->read_signal("MSR::TIME_STAMP_COUNTER:TIMESTAMP_COUNT", GEOPM_DOMAIN_CPU, 0);
     EXPECT_EQ(11111, result);
-    result = m_msrio_group->read_signal("TIMESTAMP_COUNTER", GEOPM_DOMAIN_CPU, 0);
+    result = m_msrio_group->read_signal("CPU_TIMESTAMP_COUNTER", GEOPM_DOMAIN_CPU, 0);
     EXPECT_EQ(22222, result);
 
     EXPECT_CALL(*m_msrio, read_msr(0, fixed0_offset))
@@ -539,7 +539,7 @@ TEST_F(MSRIOGroupTest, read_signal_counter)
         .WillOnce(Return(8888));
     result = m_msrio_group->read_signal("MSR::FIXED_CTR0:INST_RETIRED_ANY", GEOPM_DOMAIN_CPU, 0);
     EXPECT_EQ(7777, result);
-    result = m_msrio_group->read_signal("INSTRUCTIONS_RETIRED", GEOPM_DOMAIN_CPU, 0);
+    result = m_msrio_group->read_signal("CPU_INSTRUCTIONS_RETIRED", GEOPM_DOMAIN_CPU, 0);
     EXPECT_EQ(8888, result);
 
     EXPECT_CALL(*m_msrio, read_msr(0, fixed1_offset))
@@ -547,7 +547,7 @@ TEST_F(MSRIOGroupTest, read_signal_counter)
         .WillOnce(Return(44444));
     result = m_msrio_group->read_signal("MSR::FIXED_CTR1:CPU_CLK_UNHALTED_THREAD", GEOPM_DOMAIN_CPU, 0);
     EXPECT_EQ(33333, result);
-    result = m_msrio_group->read_signal("CYCLES_THREAD", GEOPM_DOMAIN_CPU, 0);
+    result = m_msrio_group->read_signal("CPU_CYCLES_THREAD", GEOPM_DOMAIN_CPU, 0);
     EXPECT_EQ(44444, result);
 
     EXPECT_CALL(*m_msrio, read_msr(0, fixed2_offset))
@@ -555,7 +555,7 @@ TEST_F(MSRIOGroupTest, read_signal_counter)
         .WillOnce(Return(66666));
     result = m_msrio_group->read_signal("MSR::FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC", GEOPM_DOMAIN_CPU, 0);
     EXPECT_EQ(55555, result);
-    result = m_msrio_group->read_signal("CYCLES_REFERENCE", GEOPM_DOMAIN_CPU, 0);
+    result = m_msrio_group->read_signal("CPU_CYCLES_REFERENCE", GEOPM_DOMAIN_CPU, 0);
     EXPECT_EQ(66666, result);
 }
 
@@ -630,17 +630,17 @@ TEST_F(MSRIOGroupTest, read_signal_power)
 
     result = m_msrio_group->read_signal("MSR::PKG_POWER_INFO:THERMAL_SPEC_POWER", GEOPM_DOMAIN_PACKAGE, 0);
     EXPECT_EQ(75, result);
-    result = m_msrio_group->read_signal("POWER_PACKAGE_TDP", GEOPM_DOMAIN_PACKAGE, 0);
+    result = m_msrio_group->read_signal("CPU_POWER_TDP", GEOPM_DOMAIN_PACKAGE, 0);
     EXPECT_EQ(76.25, result);
 
     result = m_msrio_group->read_signal("MSR::PKG_POWER_INFO:MIN_POWER", GEOPM_DOMAIN_PACKAGE, 0);
     EXPECT_EQ(50.25, result);
-    result = m_msrio_group->read_signal("POWER_PACKAGE_MIN", GEOPM_DOMAIN_PACKAGE, 0);
+    result = m_msrio_group->read_signal("CPU_POWER_MIN", GEOPM_DOMAIN_PACKAGE, 0);
     EXPECT_EQ(100.125, result);
 
     result = m_msrio_group->read_signal("MSR::PKG_POWER_INFO:MAX_POWER", GEOPM_DOMAIN_PACKAGE, 0);
     EXPECT_EQ(200.5, result);
-    result = m_msrio_group->read_signal("POWER_PACKAGE_MAX", GEOPM_DOMAIN_PACKAGE, 0);
+    result = m_msrio_group->read_signal("CPU_POWER_MAX", GEOPM_DOMAIN_PACKAGE, 0);
     EXPECT_EQ(201.375, result);
 }
 
@@ -759,7 +759,7 @@ TEST_F(MSRIOGroupTest, push_control)
     int power_idx = m_msrio_group->push_control("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT", GEOPM_DOMAIN_PACKAGE, 0);
     ASSERT_EQ(1, power_idx);
 
-    int power_idx1 = m_msrio_group->push_control("POWER_PACKAGE_LIMIT",
+    int power_idx1 = m_msrio_group->push_control("CPU_POWER_LIMIT",
                                                  GEOPM_DOMAIN_PACKAGE, 0);
     ASSERT_EQ(power_idx, power_idx1);
 

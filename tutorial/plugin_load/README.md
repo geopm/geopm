@@ -13,11 +13,11 @@ available on your system using `geopmread --info`.
     CPUINFO::FREQ_MAX:
     CPUINFO::FREQ_MIN:
     ...
-    POWER_DRAM: Average DRAM power in watts over the last 8 samples (usually 40 ms).
-    POWER_PACKAGE: Average package power in watts over the last 8 samples (usually 40 ms).
+    DRAM_POWER: Average DRAM power in watts over the last 8 samples (usually 40 ms).
+    CPU_POWER: Average package power in watts over the last 8 samples (usually 40 ms).
     TIME: Time in seconds since the IOGroup load.
     TIME::ELAPSED: Time in seconds since the IOGroup load.
-    TIMESTAMP_COUNTER:
+    CPU_TIMESTAMP_COUNTER:
     ...
 
 Note that there is a built-in signal called "TIME" that provides time
@@ -34,7 +34,7 @@ Now try adding one of the two subdirectories to the GEOPM_PLUGIN_PATH:
     ...
     TIME: Alice's time signal
     TIME::ELAPSED: Time in seconds since the IOGroup load.
-    TIMESTAMP_COUNTER:
+    CPU_TIMESTAMP_COUNTER:
     ...
 
 The new IOGroup's signals have been added to the list.  In addition,
@@ -58,7 +58,7 @@ for "BAR" and "TIME".  Since the "alice" plugin does not provide a
     ...
     TIME: Alice's time signal
     TIME::ELAPSED: Time in seconds since the IOGroup load.
-    TIMESTAMP_COUNTER:
+    CPU_TIMESTAMP_COUNTER:
     ...
 
 Likewise, if 'bob' is first in the list, the versions of the signals from
@@ -76,5 +76,5 @@ Since the "FOO" signal is not provided by the
     ...
     TIME: Time signal from Bob
     TIME::ELAPSED: Time in seconds since the IOGroup load.
-    TIMESTAMP_COUNTER:
+    CPU_TIMESTAMP_COUNTER:
     ...

@@ -76,8 +76,8 @@ class TestIntegration_power_governor(unittest.TestCase):
             power_data.rename(columns={'TIME': 'ELAPSED_TIME'}, inplace=True)
             power_data = power_data.loc[(power_data != 0).all(axis=1)]  # Will drop any row that is all 0's
 
-            pkg_energy_cols = [s for s in power_data.keys() if 'ENERGY_PACKAGE' in s]
-            dram_energy_cols = [s for s in power_data.keys() if 'ENERGY_DRAM' in s]
+            pkg_energy_cols = [s for s in power_data.keys() if 'CPU_ENERGY' in s]
+            dram_energy_cols = [s for s in power_data.keys() if 'DRAM_ENERGY' in s]
             power_data['SOCKET_POWER'] = power_data[pkg_energy_cols].sum(axis=1) / power_data['ELAPSED_TIME']
 
             pandas.set_option('display.width', 100)

@@ -17,8 +17,8 @@ def setup_run_args(parser):
 
 
 def report_signals():
-    return ["CYCLES_THREAD@package", "CYCLES_REFERENCE@package",
-            "TIME@package", "ENERGY_PACKAGE@package"]
+    return ["CPU_CYCLES_THREAD@package", "CPU_CYCLES_REFERENCE@package",
+            "TIME@package", "CPU_ENERGY@package"]
 
 
 def trace_signals():
