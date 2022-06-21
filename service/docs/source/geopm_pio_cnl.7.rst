@@ -18,7 +18,7 @@ Signals
 All signals are available with board-level scope, on systems that expose the
 ``pm_counters`` interface.
 
-``CNL::POWER_BOARD``
+``CNL::BOARD_POWER``
     Returns the current board power consumption, in watts. This signal maps to
     ``/sys/cray/pm_counters/power``.
 
@@ -27,7 +27,7 @@ All signals are available with board-level scope, on systems that expose the
     * **Format**: integer
     * **Unit**: watts
 
-``CNL::ENERGY_BOARD``
+``CNL::BOARD_ENERGY``
     Returns the accumulated energy consumed by the board, in joules. This
     signal maps to ``/sys/cray/pm_counters/energy``.
 
@@ -54,7 +54,7 @@ All signals are available with board-level scope, on systems that expose the
     * **Format**: integer
     * **Unit**: joules
 
-``CNL::POWER_BOARD_CPU``
+``CNL::BOARD_POWER_CPU``
     Returns the current power consumption of CPU components on the board, in
     watts. This signal maps to ``/sys/cray/pm_counters/cpu_power``.
 
@@ -63,7 +63,7 @@ All signals are available with board-level scope, on systems that expose the
     * **Format**: integer
     * **Unit**: watts
 
-``CNL::ENERGY_BOARD_CPU``
+``CNL::BOARD_ENERGY_CPU``
     Returns the accumulated energy consumed by CPU components on the board, in
     joules. This signal maps to ``/sys/cray/pm_counters/cpu_energy``.
 
@@ -102,10 +102,10 @@ Signal Aliases
 ^^^^^^^^^^^^^^
 This IOGroup exposes the following high-level aliases:
 
-* ``BOARD_POWER`` (**TODO**: currently ``POWER_BOARD``) aliases to ``CNL::POWER_BOARD``
-* ``BOARD_ENERGY`` (**TODO**: currently ``ENERGY_BOARD``) aliases to ``CNL::ENERGY_BOARD``
+* ``BOARD_POWER`` aliases to ``CNL::BOARD_POWER``
+* ``BOARD_ENERGY`` aliases to ``CNL::BOARD_ENERGY``
 
-**TODO**: remove ``POWER_MEMORY``, ``ENERGY_MEMORY``, ``POWER_BOARD_CPU``, and ``ENERGY_BOARD_CPU`` aliases from the implementation
+**TODO**: remove ``POWER_MEMORY``, ``ENERGY_MEMORY``, ``BOARD_POWER_CPU``, and ``BOARD_ENERGY_CPU`` aliases from the implementation
 
 See Also
 --------

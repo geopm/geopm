@@ -71,24 +71,24 @@ encoded in this way.
 Descriptions Of High Level Aliases
 ----------------------------------
 
-``BOARD_ENERGY`` (**TODO**: currently ``ENERGY_BOARD``)
+``BOARD_ENERGY``
     Total energy measured on the server's board. See :ref:`geopm_pio_cnl(7)
     <geopm_pio_cnl.7:Requirements>` for signal availability requirements.
 
-``BOARD_POWER`` (**TODO**: currently ``POWER_BOARD``)
+``BOARD_POWER``
     Power measured on the server's board. See :ref:`geopm_pio_cnl(7)
     <geopm_pio_cnl.7:Requirements>` for signal availability requirements.
 
-``CPU_CYCLES_REFERENCE`` (**TODO**: currently ``CYCLES_REFERENCE``)
+``CPU_CYCLES_REFERENCE``
     The count of the number of cycles while the logical processor is not in a
     halt state and not in a stop-clock state. The count rate is fixed at the
     TIMESTAMP_COUNT rate.
 
-``CPU_CYCLES_THREAD`` (**TODO**: currently ``CYCLES_THREAD``)
+``CPU_CYCLES_THREAD``
     The count of the number of cycles while the logical processor is not in a
     halt state.  The count rate may change based on core frequency.
 
-``CPU_ENERGY`` (**TODO**: currently ``ENERGY_PACKAGE``)
+``CPU_ENERGY``
     An increasing meter of energy consumed by the package over time. It will
     reset periodically due to roll-over.
 
@@ -112,40 +112,40 @@ Descriptions Of High Level Aliases
 ``CPU_FREQUENCY_STATUS``
     The current operating frequency of the CPU.
 
-``CPU_INSTRUCTIONS_RETIRED`` (**TODO** currently ``INSTRUCTIONS_RETIRED``)
+``CPU_INSTRUCTIONS_RETIRED``
     The count of the number of instructions executed.
 
-``CPU_POWER_LIMIT`` (**TODO** currently ``POWER_PACKAGE_LIMIT``)
+``CPU_POWER_LIMIT``
     The average power usage limit over the time window specified in
     PL1_TIME_WINDOW.
  
-``CPU_POWER_TIME_WINDOW`` (**TODO** currently ``POWER_PACKAGE_TIME_WINDOW``)
+``CPU_POWER_TIME_WINDOW``
     The time window associated with power limit 1.
 
-``CPU_POWER_MAX`` (**TODO** currently ``POWER_PACKAGE_MAX``)
+``CPU_POWER_MAX``
     The maximum power limit based on the electrical specification.
 
-``CPU_POWER_MIN`` (**TODO** currently ``POWER_PACKAGE_MIN``)
+``CPU_POWER_MIN``
     The minimum power limit based on the electrical specification.
 
-``CPU_POWER_TDP`` (**TODO** currently ``POWER_PACKAGE_TDP``)
+``CPU_POWER_TDP``
     Maximum power to stay within the thermal limits based on the design (TDP).
 
-``CPU_POWER`` (**TODO** currently ``POWER_PACKAGE``)
+``CPU_POWER``
     Total power aggregated over the processor package.
 
-``CPU_TIMESTAMP_COUNTER`` (**TODO** currently ``TIMESTAMP_COUNTER``)
+``CPU_TIMESTAMP_COUNTER``
     An always running, monotonically increasing counter that is incremented at
     a constant rate. For use as a wall clock timer.
 
 ``CPU_UNCORE_FREQUENCY_STATUS``
     Target operating frequency of the uncore.
 
-``DRAM_ENERGY`` (**TODO**: currently ``ENERGY_DRAM``)
+``DRAM_ENERGY``
     An increasing meter of energy consumed by the DRAM over time. It will reset
     periodically due to roll-over.
 
-``DRAM_POWER`` (**TODO** currently ``POWER_DRAM``)
+``DRAM_POWER``
     Total power aggregated over the DRAM DIMMs associated with a NUMA node.
 
 ``EPOCH_COUNT``

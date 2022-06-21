@@ -145,7 +145,7 @@ List all available controls on the system with domain type and number:
 
    $ geopmwrite
    CPU_FREQUENCY_CONTROL
-   POWER_PACKAGE_LIMIT
+   CPU_POWER_LIMIT
 
 Show the description for a control:
 
@@ -154,11 +154,11 @@ Show the description for a control:
    $ geopmwrite --info CPU_FREQUENCY_CONTROL
    CPU_FREQUENCY_CONTROL: Set processor frequency
 
-Show domain type for ``POWER_PACKAGE`` control:
+Show domain type for ``CPU_POWER`` control:
 
 .. code-block::
 
-   $ geopmwrite --domain POWER_PACKAGE
+   $ geopmwrite --domain CPU_POWER
    package
 
 Set the frequency of CPU 2 to 1.9 *GHz*:

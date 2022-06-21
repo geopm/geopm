@@ -426,7 +426,7 @@ path ``/etc/geopm/environment-override.json``:
     "GEOPM_POLICY": "/shared_fs/config/geopm_power_balancer.json"}
 
 
-Note that the "POWER_PACKAGE_LIMIT_TOTAL" value controlling the limit
+Note that the "CPU_POWER_LIMIT_TOTAL" value controlling the limit
 is specified in a secondary JSON file "geopm_power_balancer.json" that
 may be located on a shared file system and can be created with the
 :doc:`geopmagent(1) <geopmagent.1>` command line tool.  Locating the policy file on the

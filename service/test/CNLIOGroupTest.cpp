@@ -87,16 +87,16 @@ TEST_F(CNLIOGroupTest, read_signal)
 {
     std::ofstream(m_power_path) << "85 W\n";
     CNLIOGroup cnl(m_test_dir);
-    double power = cnl.read_signal("CNL::POWER_BOARD", GEOPM_DOMAIN_BOARD, 0);
+    double power = cnl.read_signal("CNL::BOARD_POWER", GEOPM_DOMAIN_BOARD, 0);
     EXPECT_DOUBLE_EQ(85, power);
 
     // Can read an updated value without recreating the IOGroup
     std::ofstream(m_power_path) << "99 W\n";
-    power = cnl.read_signal("CNL::POWER_BOARD", GEOPM_DOMAIN_BOARD, 0);
+    power = cnl.read_signal("CNL::BOARD_POWER", GEOPM_DOMAIN_BOARD, 0);
     EXPECT_DOUBLE_EQ(99, power);
 
     // Cannot read from wrong domain
-    EXPECT_THROW(cnl.read_signal("CNL::POWER_BOARD", GEOPM_DOMAIN_PACKAGE, 0), Exception);
+    EXPECT_THROW(cnl.read_signal("CNL::BOARD_POWER", GEOPM_DOMAIN_PACKAGE, 0), Exception);
 }
 
 TEST_F(CNLIOGroupTest, push_signal)
@@ -104,7 +104,7 @@ TEST_F(CNLIOGroupTest, push_signal)
     std::ofstream(m_power_path) << "85 W\n";
     CNLIOGroup cnl(m_test_dir);
 
-    auto idx = cnl.push_signal("CNL::POWER_BOARD", GEOPM_DOMAIN_BOARD, 0);
+    auto idx = cnl.push_signal("CNL::BOARD_POWER", GEOPM_DOMAIN_BOARD, 0);
     cnl.read_batch();
     double power = cnl.sample(idx);
     EXPECT_DOUBLE_EQ(85, power);
@@ -116,18 +116,18 @@ TEST_F(CNLIOGroupTest, push_signal)
     EXPECT_DOUBLE_EQ(100, power);
 
     // cannot push to wrong domain
-    EXPECT_THROW(cnl.push_signal("CNL::POWER_BOARD", GEOPM_DOMAIN_PACKAGE, 0), Exception);
+    EXPECT_THROW(cnl.push_signal("CNL::BOARD_POWER", GEOPM_DOMAIN_PACKAGE, 0), Exception);
 }
 
 TEST_F(CNLIOGroupTest, parse_power)
 {
     const std::vector<std::pair<std::string, std::string> > power_signals = {
-        { m_power_path, "CNL::POWER_BOARD" },
-        { m_power_path, "POWER_BOARD" },
+        { m_power_path, "CNL::BOARD_POWER" },
+        { m_power_path, "BOARD_POWER" },
         { m_memory_power_path, "CNL::POWER_MEMORY" },
         { m_memory_power_path, "POWER_MEMORY" },
-        { m_cpu_power_path, "CNL::POWER_BOARD_CPU" },
-        { m_cpu_power_path, "POWER_BOARD_CPU" },
+        { m_cpu_power_path, "CNL::BOARD_POWER_CPU" },
+        { m_cpu_power_path, "BOARD_POWER_CPU" },
     };
     CNLIOGroup cnl(m_test_dir);
 
@@ -179,12 +179,12 @@ TEST_F(CNLIOGroupTest, parse_power)
 TEST_F(CNLIOGroupTest, parse_energy)
 {
     const std::vector<std::pair<std::string, std::string> > energy_signals = {
-        { m_energy_path, "CNL::ENERGY_BOARD" },
-        { m_energy_path, "ENERGY_BOARD" },
+        { m_energy_path, "CNL::BOARD_ENERGY" },
+        { m_energy_path, "BOARD_ENERGY" },
         { m_memory_energy_path, "CNL::ENERGY_MEMORY" },
         { m_memory_energy_path, "ENERGY_MEMORY" },
-        { m_cpu_energy_path, "CNL::ENERGY_BOARD_CPU" },
-        { m_cpu_energy_path, "ENERGY_BOARD_CPU" },
+        { m_cpu_energy_path, "CNL::BOARD_ENERGY_CPU" },
+        { m_cpu_energy_path, "BOARD_ENERGY_CPU" },
     };
     CNLIOGroup cnl(m_test_dir);
 

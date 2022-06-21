@@ -96,8 +96,8 @@ class TestIntegration_fmap_short_region_slop(unittest.TestCase):
         cls._num_node = 1
         cls._num_rank = 2
         cls._job_time_limit = 6000
-        cls._report_signals = 'INSTRUCTIONS_RETIRED,CYCLES_REFERENCE,CYCLES_THREAD'
-        cls._trace_signals = 'INSTRUCTIONS_RETIRED,MSR::UNCORE_PERF_STATUS:FREQ,TEMPERATURE_CORE'
+        cls._report_signals = 'CPU_INSTRUCTIONS_RETIRED,CPU_CYCLES_REFERENCE,CPU_CYCLES_THREAD'
+        cls._trace_signals = 'CPU_INSTRUCTIONS_RETIRED,MSR::UNCORE_PERF_STATUS:FREQ,TEMPERATURE_CORE'
         if not cls._skip_launch:
             cls.launch()
 
@@ -367,8 +367,8 @@ def read_trace(path):
 
 
 def get_ipc(trace):
-    di = trace['INSTRUCTIONS_RETIRED'].diff()
-    dc = trace['CYCLES_THREAD'].diff()
+    di = trace['CPU_INSTRUCTIONS_RETIRED'].diff()
+    dc = trace['CPU_CYCLES_THREAD'].diff()
     return di / dc
 
 

@@ -103,11 +103,11 @@ def achieved_freq_histogram_package(app_name, output_dir, report_df, detailed=Fa
     sticker_freq = mach.frequency_sticker()
     step_freq = mach.frequency_step()
 
-    report_df['power_limit'] = report_df['POWER_PACKAGE_LIMIT_TOTAL']
+    report_df['power_limit'] = report_df['CPU_POWER_LIMIT_TOTAL']
 
     temp_df = report_df.copy()
-    report_df['frequency'] = report_df['CYCLES_THREAD@package-0'] / report_df['CYCLES_REFERENCE@package-0']
-    temp_df['frequency'] = temp_df['CYCLES_THREAD@package-1'] / temp_df['CYCLES_REFERENCE@package-1']
+    report_df['frequency'] = report_df['CPU_CYCLES_THREAD@package-0'] / report_df['CPU_CYCLES_REFERENCE@package-0']
+    temp_df['frequency'] = temp_df['CPU_CYCLES_THREAD@package-1'] / temp_df['CPU_CYCLES_REFERENCE@package-1']
     report_df['freq_package'] = 0
     temp_df['freq_package'] = 1
     report_df.set_index(['power_limit', 'host', 'freq_package'], inplace=True)
@@ -117,20 +117,20 @@ def achieved_freq_histogram_package(app_name, output_dir, report_df, detailed=Fa
     report_df['frequency'] *= sticker_freq / 1e9
 
     # dropna to filter out monitor data if present
-    profiles = report_df['POWER_PACKAGE_LIMIT_TOTAL'].dropna().unique()
+    profiles = report_df['CPU_POWER_LIMIT_TOTAL'].dropna().unique()
     power_caps = sorted(profiles)  # list(range(self._min_power, self._max_power+1, self._step_power))
     gov_freq_data = {}
     bal_freq_data = {}
     for target_power in power_caps:
         governor_data = report_df.loc[report_df["Agent"] == "power_governor"]
-        governor_data = governor_data.loc[governor_data['POWER_PACKAGE_LIMIT_TOTAL'] == target_power]
+        governor_data = governor_data.loc[governor_data['CPU_POWER_LIMIT_TOTAL'] == target_power]
         gov_freq_data[target_power] = governor_data.groupby(['host', 'freq_package']).mean()['frequency'].sort_values()
         gov_freq_data[target_power] = pandas.DataFrame(gov_freq_data[target_power])
         if detailed:
             sys.stdout.write('Governor data @ {}W:\n{}\n'.format(target_power, gov_freq_data[target_power]))
 
         balancer_data = report_df.loc[report_df["Agent"] == "power_balancer"]
-        balancer_data = balancer_data.loc[balancer_data['POWER_PACKAGE_LIMIT_TOTAL'] == target_power]
+        balancer_data = balancer_data.loc[balancer_data['CPU_POWER_LIMIT_TOTAL'] == target_power]
         bal_freq_data[target_power] = balancer_data.groupby(['host', 'freq_package']).mean()['frequency'].sort_values()
         bal_freq_data[target_power] = pandas.DataFrame(bal_freq_data[target_power])
         if detailed:

@@ -14,8 +14,8 @@ namespace geopm
     ///        condition is true.
     ///
     /// There are many monotonically increasing signals provided by
-    /// PlatformIO, for example: ENERGY_PACKAGE, CYCLES_THREAD, and
-    /// CYCLES_REFERENCE.  It is useful to track the amount that these
+    /// PlatformIO, for example: CPU_ENERGY, CPU_CYCLES_THREAD, and
+    /// CPU_CYCLES_REFERENCE.  It is useful to track the amount that these
     /// signals increase while a condition is true.  In the common
     /// case, the condition is that the application is executing a
     /// particular region of code.  An example use for a

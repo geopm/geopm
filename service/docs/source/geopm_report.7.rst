@@ -163,12 +163,12 @@ The fields in each of these sections are described below:
 
 ``frequency (%)``
   Achieved core frequency as a *percentage* of the sticker (base) frequency for
-  the processor.  This frequency is calculated using the ratio of ``CYCLES_THREAD``
-  to ``CYCLES_REFERENCE``.
+  the processor.  This frequency is calculated using the ratio of ``CPU_CYCLES_THREAD``
+  to ``CPU_CYCLES_REFERENCE``.
 
 ``frequency (Hz)``
   Achieved core frequency for the processor in *hertz*.  This frequency is
-  calculated using the ratio of ``CYCLES_THREAD`` to ``CYCLES_REFERENCE`` times the
+  calculated using the ratio of ``CPU_CYCLES_THREAD`` to ``CPU_CYCLES_REFERENCE`` times the
   sticker (base) frequency.
 
 ``time-hint-network (s)``

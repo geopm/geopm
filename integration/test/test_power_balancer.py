@@ -119,7 +119,7 @@ class TestIntegration_power_balancer(unittest.TestCase):
         output = geopmpy.io.AppOutput(trace_path + '*')
 
         new_output = geopmpy.io.RawReport(report_path)
-        power_budget = new_output.meta_data()['Policy']['POWER_PACKAGE_LIMIT_TOTAL']
+        power_budget = new_output.meta_data()['Policy']['CPU_POWER_LIMIT_TOTAL']
         node_names = new_output.host_names()
         self.assertEqual(self._num_node, len(node_names))
 
@@ -131,13 +131,13 @@ class TestIntegration_power_balancer(unittest.TestCase):
             first_epoch_index = tt.loc[tt['EPOCH_COUNT'] == 0][:1].index[0]
             epoch_dropped_data = tt[first_epoch_index:]  # Drop all startup data
 
-            power_data = epoch_dropped_data[['TIME', 'ENERGY_PACKAGE', 'ENERGY_DRAM']]
+            power_data = epoch_dropped_data[['TIME', 'CPU_ENERGY', 'DRAM_ENERGY']]
             power_data = power_data.diff().dropna()
             power_data.rename(columns={'TIME': 'ELAPSED_TIME'}, inplace=True)
             power_data = power_data.loc[(power_data != 0).all(axis=1)]  # Will drop any row that is all 0's
 
-            pkg_energy_cols = [s for s in power_data.keys() if 'ENERGY_PACKAGE' in s]
-            dram_energy_cols = [s for s in power_data.keys() if 'ENERGY_DRAM' in s]
+            pkg_energy_cols = [s for s in power_data.keys() if 'CPU_ENERGY' in s]
+            dram_energy_cols = [s for s in power_data.keys() if 'DRAM_ENERGY' in s]
             power_data['SOCKET_POWER'] = power_data[pkg_energy_cols].sum(axis=1) / power_data['ELAPSED_TIME']
             power_data['DRAM_POWER'] = power_data[dram_energy_cols].sum(axis=1) / power_data['ELAPSED_TIME']
             power_data['COMBINED_POWER'] = power_data['SOCKET_POWER'] + power_data['DRAM_POWER']

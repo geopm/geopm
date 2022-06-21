@@ -68,7 +68,7 @@ reports and traces with additional Agent-specific information.
 *
   **Agent Policy Definitions**\ :
 
-  ``POWER_PACKAGE_LIMIT_TOTAL``\ :
+  ``CPU_POWER_LIMIT_TOTAL``\ :
       Sets the average power cap per compute
       node in units of watts.  The power cap applied to any
       one compute node may be higher or lower than this
@@ -83,9 +83,9 @@ reports and traces with additional Agent-specific information.
       Used as an inter-agent message passed from parent to
       child agents in the balancer's tree-hierarchical
       implementation.  This parameter is not used if the
-      ``POWER_PACKAGE_LIMIT_TOTAL`` policy is non-zero.  When
+      ``CPU_POWER_LIMIT_TOTAL`` policy is non-zero.  When
       creating a static policy file, the
-      ``POWER_PACKAGE_LIMIT_TOTAL`` should be non-zero, and
+      ``CPU_POWER_LIMIT_TOTAL`` should be non-zero, and
       this value can be set to zero.  If set to NAN, it will
       default to 0.
 
@@ -95,9 +95,9 @@ reports and traces with additional Agent-specific information.
       parent to child agents in the balancer's
       tree-hierarchical implementation.  This
       parameter is not used if the
-      ``POWER_PACKAGE_LIMIT_TOTAL`` policy is non-zero.
+      ``CPU_POWER_LIMIT_TOTAL`` policy is non-zero.
       When creating a static policy file, the
-      ``POWER_PACKAGE_LIMIT_TOTAL`` should be non-zero,
+      ``CPU_POWER_LIMIT_TOTAL`` should be non-zero,
       and this value can be set to zero.  If set to
       NAN, it will default to 0.
 
@@ -106,9 +106,9 @@ reports and traces with additional Agent-specific information.
       Used as an inter-agent message passed from parent to
       child agents in the balancer's tree-hierarchical
       implementation.  This parameter is not used if the
-      ``POWER_PACKAGE_LIMIT_TOTAL`` policy is non-zero.  When
+      ``CPU_POWER_LIMIT_TOTAL`` policy is non-zero.  When
       creating a static policy file, the
-      ``POWER_PACKAGE_LIMIT_TOTAL`` should be non-zero, and
+      ``CPU_POWER_LIMIT_TOTAL`` should be non-zero, and
       this value can be set to zero.  If set to NAN, it
       will default to 0.
 

@@ -510,7 +510,7 @@ TEST_F(PlatformTopoTest, bdx_is_nested_domain)
     EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_PACKAGE));
     EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_CORE));
     EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_CPU));
-    // needed to support POWER_DRAM signal
+    // needed to support DRAM_POWER signal
     EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_MEMORY));
 
     // domains containing cores

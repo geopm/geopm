@@ -165,12 +165,12 @@ def extract_columns(df, region_filter = None):
         df_filtered = df[df['region'].isin(region_filter.split(','))]
 
     # these are the only columns we need
-    df_cols = df_filtered[['POWER_PACKAGE_LIMIT_TOTAL',
+    df_cols = df_filtered[['CPU_POWER_LIMIT_TOTAL',
                            'host', 'Profile',
                            'runtime (s)',
                            'package-energy (J)']]
 
-    df_cols = df_cols.rename({'POWER_PACKAGE_LIMIT_TOTAL': 'power_limit',
+    df_cols = df_cols.rename({'CPU_POWER_LIMIT_TOTAL': 'power_limit',
                               'runtime (s)': 'runtime',
                               'package-energy (J)': 'energy'
                              }, axis = 1)

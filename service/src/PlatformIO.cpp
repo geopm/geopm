@@ -42,49 +42,49 @@ namespace geopm
 
     const std::map<const std::string, const std::string>
     PlatformIOImp::m_signal_descriptions = {
-        {"ENERGY_BOARD",
+        {"BOARD_ENERGY",
          "Total energy measured on the server's board. "},
-        {"POWER_BOARD",
+        {"BOARD_POWER",
          "Power measured on the server's board. "},
-        {"CYCLES_REFERENCE",
+        {"CPU_CYCLES_REFERENCE",
          "The count of the number of cycles while the logical processor is not in a "
          "halt state and not in a stop-clock state. The count rate is fixed at the "
          "TIMESTAMP_COUNT rate."},
-        {"CYCLES_THREAD",
+        {"CPU_CYCLES_THREAD",
          "The count of the number of cycles while the logical processor is not in a "
          "halt state.  The count rate may change based on core frequency."},
-        {"ENERGY_PACKAGE",
+        {"CPU_ENERGY",
          "An increasing meter of energy consumed by the package over time. It will "
          "reset periodically due to roll-over."},
         {"CPU_FREQUENCY_MAX",
          "Maximum processor frequency."},
         {"CPU_FREQUENCY_STATUS",
          "The current operating frequency of the CPU."},
-        {"INSTRUCTIONS_RETIRED",
+        {"CPU_INSTRUCTIONS_RETIRED",
          "The count of the number of instructions executed."},
-        {"POWER_PACKAGE_LIMIT",
+        {"CPU_POWER_LIMIT",
          "The average power usage limit over the time window specified in "
          "PL1_TIME_WINDOW."},
-        {"POWER_PACKAGE_TIME_WINDOW",
+        {"CPU_POWER_TIME_WINDOW",
          "The time window associated with power limit 1."},
-        {"POWER_PACKAGE_MAX",
+        {"CPU_POWER_MAX",
          "The maximum power limit based on the electrical specification."},
-        {"POWER_PACKAGE_MIN",
+        {"CPU_POWER_MIN",
          "The minimum power limit based on the electrical specification."},
-        {"POWER_PACKAGE_TDP",
+        {"CPU_POWER_TDP",
          "Maximum power to stay within the thermal limits based on the design (TDP)."},
-        {"POWER_PACKAGE",
+        {"CPU_POWER",
          "Total power aggregated over the processor package."},
-        {"TIMESTAMP_COUNTER",
+        {"CPU_TIMESTAMP_COUNTER",
          "An always running, monotonically increasing counter that is "
          "incremented at a constant rate.  For use as a wall clock "
          "timer."},
         {"CPU_UNCORE_FREQUENCY_STATUS",
          "Target operating frequency of the uncore."},
-        {"ENERGY_DRAM",
+        {"DRAM_ENERGY",
          "An increasing meter of energy consumed by the DRAM over time. It will reset "
          "periodically due to roll-over."},
-        {"POWER_DRAM",
+        {"DRAM_POWER",
          "Total power aggregated over the DRAM DIMMs associated with a NUMA node."},
         {"EPOCH_COUNT",
          "Number of completed executions of an epoch.  Prior to the first call "

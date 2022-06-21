@@ -16,7 +16,7 @@
 set -x
 
 # Calculate the desired fixed power cap
-POWER_CAP=$(($(geopmread POWER_PACKAGE_TDP board 0)-50))
+POWER_CAP=$(($(geopmread CPU_POWER_TDP board 0)-50))
 
 # Remove any existing configuration
 rm -rf /etc/geopm
@@ -27,7 +27,7 @@ POLICY_FILE_PATH="/etc/geopm/fixed_power_policy.json"
 geopmagent -a power_balancer -p $POWER_CAP > $POLICY_FILE_PATH
 # This file should look similar to:
 #   {
-#     "POWER_PACKAGE_LIMIT_TOTAL": 230
+#     "CPU_POWER_LIMIT_TOTAL": 230
 #   }
 # for a system where the TDP is 140 W per package or 280 W total.
 
@@ -50,4 +50,4 @@ echo "{\"GEOPM_AGENT\": \"power_balancer\", \"GEOPM_POLICY\": \"$POLICY_FILE_PAT
 # GEOPM jobs use the balancer and 230 W limit policy
 #   > geopmlaunch srun -N1 -n1 --geopm-report=plugin_test.report -- geopmbench ~/short.conf > geopm_stdout 2>&1 && grep 'Policy\|Agent' plugin_test.report
 #   Agent: power_balancer
-#   Policy: {"POWER_PACKAGE_LIMIT_TOTAL": 230}
+#   Policy: {"CPU_POWER_LIMIT_TOTAL": 230}

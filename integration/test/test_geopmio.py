@@ -84,7 +84,7 @@ class TestIntegrationGeopmio(unittest.TestCase):
         self.check_output(['TIME', 'board'], [read_err])
         self.check_output(['TIME', 'board', 'bad'], ['invalid domain index'])
         self.check_output(['CPU_FREQUENCY_STATUS', 'package', '111'], ['cannot read signal'])
-        self.check_output(['ENERGY_PACKAGE', 'cpu', '0'], ['cannot read signal'])
+        self.check_output(['CPU_ENERGY', 'cpu', '0'], ['cannot read signal'])
         self.check_output(['INVALID', 'board', '0'], ['cannot read signal'])
         self.check_output(['--domain', '--info'], ['info about domain not implemented'])
 
@@ -125,7 +125,7 @@ class TestIntegrationGeopmio(unittest.TestCase):
         '''
         self.exec_name = "geopmread"
         signal_range = {
-            "POWER_PACKAGE": (20, 400),
+            "CPU_POWER": (20, 400),
             "CPU_FREQUENCY_STATUS": (1.0e8, 5.0e9),
             "TIME": (0, 10),  # time in sec to start geopmread
             "TEMPERATURE_CORE": (0, 100)

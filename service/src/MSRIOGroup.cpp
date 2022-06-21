@@ -176,25 +176,25 @@ namespace geopm
         register_frequency_signals();
         register_frequency_controls();
 
-        register_signal_alias("TIMESTAMP_COUNTER", "MSR::TIME_STAMP_COUNTER:TIMESTAMP_COUNT");
+        register_signal_alias("CPU_TIMESTAMP_COUNTER", "MSR::TIME_STAMP_COUNTER:TIMESTAMP_COUNT");
 
-        register_signal_alias("ENERGY_PACKAGE", "MSR::PKG_ENERGY_STATUS:ENERGY");
-        register_signal_alias("ENERGY_DRAM", "MSR::DRAM_ENERGY_STATUS:ENERGY");
-        register_signal_alias("INSTRUCTIONS_RETIRED", "MSR::FIXED_CTR0:INST_RETIRED_ANY");
-        register_signal_alias("CYCLES_THREAD", "MSR::FIXED_CTR1:CPU_CLK_UNHALTED_THREAD");
-        register_signal_alias("CYCLES_REFERENCE", "MSR::FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC");
-        register_signal_alias("POWER_PACKAGE_MIN", "MSR::PKG_POWER_INFO:MIN_POWER");
-        register_signal_alias("POWER_PACKAGE_MAX", "MSR::PKG_POWER_INFO:MAX_POWER");
-        register_signal_alias("POWER_PACKAGE_TDP", "MSR::PKG_POWER_INFO:THERMAL_SPEC_POWER");
-        register_signal_alias("POWER_PACKAGE_LIMIT", "MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT");
-        register_signal_alias("POWER_PACKAGE_TIME_WINDOW", "MSR::PKG_POWER_LIMIT:PL1_TIME_WINDOW");
+        register_signal_alias("CPU_ENERGY", "MSR::PKG_ENERGY_STATUS:ENERGY");
+        register_signal_alias("DRAM_ENERGY", "MSR::DRAM_ENERGY_STATUS:ENERGY");
+        register_signal_alias("CPU_INSTRUCTIONS_RETIRED", "MSR::FIXED_CTR0:INST_RETIRED_ANY");
+        register_signal_alias("CPU_CYCLES_THREAD", "MSR::FIXED_CTR1:CPU_CLK_UNHALTED_THREAD");
+        register_signal_alias("CPU_CYCLES_REFERENCE", "MSR::FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC");
+        register_signal_alias("CPU_POWER_MIN", "MSR::PKG_POWER_INFO:MIN_POWER");
+        register_signal_alias("CPU_POWER_MAX", "MSR::PKG_POWER_INFO:MAX_POWER");
+        register_signal_alias("CPU_POWER_TDP", "MSR::PKG_POWER_INFO:THERMAL_SPEC_POWER");
+        register_signal_alias("CPU_POWER_LIMIT", "MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT");
+        register_signal_alias("CPU_POWER_TIME_WINDOW", "MSR::PKG_POWER_LIMIT:PL1_TIME_WINDOW");
 
         register_temperature_signals();
         register_power_signals();
         register_rdt_signals();
 
-        register_control_alias("POWER_PACKAGE_LIMIT", "MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT");
-        register_control_alias("POWER_PACKAGE_TIME_WINDOW", "MSR::PKG_POWER_LIMIT:PL1_TIME_WINDOW");
+        register_control_alias("CPU_POWER_LIMIT", "MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT");
+        register_control_alias("CPU_POWER_TIME_WINDOW", "MSR::PKG_POWER_LIMIT:PL1_TIME_WINDOW");
     }
 
     void MSRIOGroup::register_frequency_signals(void)
@@ -364,12 +364,12 @@ namespace geopm
             std::string msr_name;
         };
         std::vector<power_data> power_signals {
-            {"POWER_PACKAGE",
+            {"CPU_POWER",
                     "Average package power over 40 ms or 8 control loop iterations",
-                    "ENERGY_PACKAGE"},
-            {"POWER_DRAM",
+                    "CPU_ENERGY"},
+            {"DRAM_POWER",
                     "Average DRAM power over 40 ms or 8 control loop iterations",
-                    "ENERGY_DRAM"}
+                    "DRAM_ENERGY"}
         };
         for (const auto &ps : power_signals) {
             std::string signal_name = ps.power_name;
@@ -611,7 +611,7 @@ namespace geopm
                 is_found = true;
             }
         }
-        if (control_name == "POWER_PACKAGE_LIMIT") {
+        if (control_name == "CPU_POWER_LIMIT") {
             write_control("MSR::PKG_POWER_LIMIT:PL1_LIMIT_ENABLE", domain_type, domain_idx, 1.0);
         }
 
@@ -712,7 +712,7 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        if (control_name == "POWER_PACKAGE_LIMIT") {
+        if (control_name == "CPU_POWER_LIMIT") {
             write_control("MSR::PKG_POWER_LIMIT:PL1_LIMIT_ENABLE", domain_type, domain_idx, 1.0);
         }
         std::shared_ptr<Control> control = m_control_available.at(control_name).controls[domain_idx];
@@ -1126,7 +1126,7 @@ namespace geopm
     void MSRIOGroup::check_control(const std::string &control_name)
     {
         static const std::set<std::string> FREQ_CONTROL_SET {
-            "POWER_PACKAGE_LIMIT",
+            "CPU_POWER_LIMIT",
             "MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT",
             "CPU_FREQUENCY_CONTROL",
             "MSR::PERF_CTL:FREQ"};
@@ -1176,7 +1176,7 @@ namespace geopm
         }
 
         static const std::set<std::string> POWER_CONTROL_SET {
-            "POWER_PACKAGE_LIMIT",
+            "CPU_POWER_LIMIT",
             "MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT"};
         static bool do_check_rapl_lock = true;
         if (do_check_rapl_lock &&

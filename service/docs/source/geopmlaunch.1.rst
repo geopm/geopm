@@ -126,7 +126,7 @@ GEOPM Options
                                 package energy for each package and DRAM energy
                                 summed over the all DIMMs:
 
-                                ``--geopm-report-signals=ENERGY_PACKAGE@package,ENERGY_DRAM``
+                                ``--geopm-report-signals=CPU_ENERGY@package,DRAM_ENERGY``
 
                                 The :doc:`geopmread(1) <geopmread.1>`
                                 executable enables discovery of signals and
@@ -171,21 +171,21 @@ GEOPM Options
                                 will add total DRAM energy and power as columns
                                 in the trace:
 
-                                ``--geopm-trace-signals=ENERGY_DRAM,POWER_DRAM``
+                                ``--geopm-trace-signals=DRAM_ENERGY,DRAM_POWER``
 
                                 The signals available and their descriptions
                                 are documented in the :doc:`PlatformIO(3)
                                 <GEOPM_CXX_MAN_PlatformIO.3>` man page.
                                 "TIME", "REGION_HASH", "REGION_HINT",
                                 "REGION_PROGRESS", "REGION_RUNTIME",
-                                "ENERGY_PACKAGE", "POWER_PACKAGE", and
+                                "CPU_ENERGY", "CPU_POWER", and
                                 "CPU_FREQUENCY_STATUS" are included in the
                                 trace by default.  A domain other than board
                                 can be specified by appending the signal name
                                 with an "@" character and then specifying one
                                 of the domains, e.g:
 
-                                ``--geopm-trace-signals=POWER_PACKAGE@package,ENERGY_PACKAGE@package``
+                                ``--geopm-trace-signals=CPU_POWER@package,CPU_ENERGY@package``
 
                                 will trace the package power and energy for
                                 each package on the system.  The :doc:`geopmread(1)

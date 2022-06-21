@@ -252,7 +252,7 @@ provided.  This can also be accomplished interactively using the
 .. code-block:: bash
 
     # NAME OF SIGNAL
-    SIGNAL=INSTRUCTIONS_RETIRED
+    SIGNAL=CPU_INSTRUCTIONS_RETIRED
 
     # NAME OF UNIX GROUP
     GROUP_NAME=perf

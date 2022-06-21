@@ -40,11 +40,11 @@ namespace geopm
     PowerGovernorImp::PowerGovernorImp(PlatformIO &platform_io, const PlatformTopo &platform_topo)
         : m_platform_io(platform_io)
         , m_platform_topo(platform_topo)
-        , M_POWER_PACKAGE_TIME_WINDOW(0.015)
-        , m_pkg_pwr_domain_type(m_platform_io.control_domain_type("POWER_PACKAGE_LIMIT"))
+        , M_CPU_POWER_TIME_WINDOW(0.015)
+        , m_pkg_pwr_domain_type(m_platform_io.control_domain_type("CPU_POWER_LIMIT"))
         , m_num_pkg(m_platform_topo.num_domain(m_pkg_pwr_domain_type))
-        , M_MIN_PKG_POWER_SETTING(m_platform_io.read_signal("POWER_PACKAGE_MIN", GEOPM_DOMAIN_PACKAGE, 0))
-        , M_MAX_PKG_POWER_SETTING(m_platform_io.read_signal("POWER_PACKAGE_MAX", GEOPM_DOMAIN_PACKAGE, 0))
+        , M_MIN_PKG_POWER_SETTING(m_platform_io.read_signal("CPU_POWER_MIN", GEOPM_DOMAIN_PACKAGE, 0))
+        , M_MAX_PKG_POWER_SETTING(m_platform_io.read_signal("CPU_POWER_MAX", GEOPM_DOMAIN_PACKAGE, 0))
         , m_min_pkg_power_policy(M_MIN_PKG_POWER_SETTING)
         , m_max_pkg_power_policy(M_MAX_PKG_POWER_SETTING)
         , m_last_pkg_power_setting(NAN)
@@ -61,9 +61,9 @@ namespace geopm
     void PowerGovernorImp::init_platform_io(void)
     {
         for(int domain_idx = 0; domain_idx < m_num_pkg; ++domain_idx) {
-            int control_idx = m_platform_io.push_control("POWER_PACKAGE_LIMIT", m_pkg_pwr_domain_type, domain_idx);
+            int control_idx = m_platform_io.push_control("CPU_POWER_LIMIT", m_pkg_pwr_domain_type, domain_idx);
             m_control_idx.push_back(control_idx);
-            m_platform_io.write_control("POWER_PACKAGE_TIME_WINDOW", m_pkg_pwr_domain_type, domain_idx, M_POWER_PACKAGE_TIME_WINDOW);
+            m_platform_io.write_control("CPU_POWER_TIME_WINDOW", m_pkg_pwr_domain_type, domain_idx, M_CPU_POWER_TIME_WINDOW);
         }
     }
 
@@ -121,6 +121,6 @@ namespace geopm
 
     double PowerGovernorImp::power_package_time_window(void) const
     {
-        return M_POWER_PACKAGE_TIME_WINDOW;
+        return M_CPU_POWER_TIME_WINDOW;
     }
 }

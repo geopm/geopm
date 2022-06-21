@@ -67,7 +67,7 @@ class ReporterTest : public testing::Test
             M_TIME_UNKNOWN_IDX,
             M_TIME_UNSET_IDX,
             M_ENERGY_PKG_IDX,
-            M_ENERGY_DRAM_IDX,
+            M_DRAM_ENERGY_IDX,
             M_CLK_CORE_IDX,
             M_CLK_REF_IDX,
             M_ENERGY_PKG_ENV_IDX_0,
@@ -203,13 +203,13 @@ ReporterTest::ReporterTest()
         .WillRepeatedly(Return(M_TIME_UNKNOWN_IDX));
     EXPECT_CALL(*m_sample_agg, push_signal("TIME_HINT_UNSET", _, _))
         .WillRepeatedly(Return(M_TIME_UNSET_IDX));
-    EXPECT_CALL(*m_sample_agg, push_signal("ENERGY_PACKAGE", GEOPM_DOMAIN_BOARD, 0))
+    EXPECT_CALL(*m_sample_agg, push_signal("CPU_ENERGY", GEOPM_DOMAIN_BOARD, 0))
         .WillRepeatedly(Return(M_ENERGY_PKG_IDX));
-    EXPECT_CALL(*m_sample_agg, push_signal("ENERGY_DRAM", _, _))
-        .WillRepeatedly(Return(M_ENERGY_DRAM_IDX));
-    EXPECT_CALL(*m_sample_agg, push_signal("CYCLES_REFERENCE", _, _))
+    EXPECT_CALL(*m_sample_agg, push_signal("DRAM_ENERGY", _, _))
+        .WillRepeatedly(Return(M_DRAM_ENERGY_IDX));
+    EXPECT_CALL(*m_sample_agg, push_signal("CPU_CYCLES_REFERENCE", _, _))
         .WillRepeatedly(Return(M_CLK_REF_IDX));
-    EXPECT_CALL(*m_sample_agg, push_signal("CYCLES_THREAD", _, _))
+    EXPECT_CALL(*m_sample_agg, push_signal("CPU_CYCLES_THREAD", _, _))
         .WillRepeatedly(Return(M_CLK_CORE_IDX));
     EXPECT_CALL(m_platform_io, push_signal("EPOCH_COUNT", GEOPM_DOMAIN_BOARD, 0))
         .WillRepeatedly(Return(M_EPOCH_COUNT_IDX));
@@ -217,9 +217,9 @@ ReporterTest::ReporterTest()
     // environment signals
     EXPECT_CALL(m_platform_topo, num_domain(GEOPM_DOMAIN_PACKAGE))
         .WillRepeatedly(Return(2));
-    EXPECT_CALL(*m_sample_agg, push_signal("ENERGY_PACKAGE", GEOPM_DOMAIN_PACKAGE, 0))
+    EXPECT_CALL(*m_sample_agg, push_signal("CPU_ENERGY", GEOPM_DOMAIN_PACKAGE, 0))
         .WillOnce(Return(M_ENERGY_PKG_ENV_IDX_0));
-    EXPECT_CALL(*m_sample_agg, push_signal("ENERGY_PACKAGE", GEOPM_DOMAIN_PACKAGE, 1))
+    EXPECT_CALL(*m_sample_agg, push_signal("CPU_ENERGY", GEOPM_DOMAIN_PACKAGE, 1))
         .WillOnce(Return(M_ENERGY_PKG_ENV_IDX_1));
 
     EXPECT_CALL(m_platform_io, read_signal("CPUINFO::FREQ_STICKER", GEOPM_DOMAIN_BOARD, 0))
@@ -282,7 +282,7 @@ void ReporterTest::generate_setup(void)
     for (auto rid : m_region_energy) {
         EXPECT_CALL(*m_sample_agg, sample_region(M_ENERGY_PKG_IDX, rid.first))
             .WillRepeatedly(Return(rid.second/2.0));
-        EXPECT_CALL(*m_sample_agg, sample_region(M_ENERGY_DRAM_IDX, rid.first))
+        EXPECT_CALL(*m_sample_agg, sample_region(M_DRAM_ENERGY_IDX, rid.first))
             .WillRepeatedly(Return(rid.second/2.0));
         EXPECT_CALL(*m_sample_agg, sample_region(M_ENERGY_PKG_ENV_IDX_0, rid.first))
             .WillRepeatedly(Return(rid.second/4.0));
@@ -330,7 +330,7 @@ TEST_F(ReporterTest, generate)
     generate_setup();
 
     const std::vector<std::pair<std::string, int> > env_signals = {
-        {"ENERGY_PACKAGE", geopm_domain_e::GEOPM_DOMAIN_PACKAGE}
+        {"CPU_ENERGY", geopm_domain_e::GEOPM_DOMAIN_PACKAGE}
     };
     m_reporter = geopm::make_unique<ReporterImp>(m_start_time,
                                                  m_report_name,
@@ -384,8 +384,8 @@ TEST_F(ReporterTest, generate)
         "      time-hint-parallel (s): 0.6\n"
         "      time-hint-unknown (s): 0.7\n"
         "      time-hint-unset (s): 0.8\n"
-        "      ENERGY_PACKAGE@package-0: 194.25\n"
-        "      ENERGY_PACKAGE@package-1: 194.25\n"
+        "      CPU_ENERGY@package-0: 194.25\n"
+        "      CPU_ENERGY@package-1: 194.25\n"
         "      agent stat: 1\n"
         "      agent other stat: 2\n"
         "    -\n"
@@ -408,8 +408,8 @@ TEST_F(ReporterTest, generate)
         "      time-hint-parallel (s): 0.6\n"
         "      time-hint-unknown (s): 0.7\n"
         "      time-hint-unset (s): 0.8\n"
-        "      ENERGY_PACKAGE@package-0: 222\n"
-        "      ENERGY_PACKAGE@package-1: 222\n"
+        "      CPU_ENERGY@package-0: 222\n"
+        "      CPU_ENERGY@package-1: 222\n"
         "      agent stat: 2\n"
         "    Unmarked Totals:\n"
         "      runtime (s): 0.56\n"
@@ -429,8 +429,8 @@ TEST_F(ReporterTest, generate)
         "      time-hint-parallel (s): 0.6\n"
         "      time-hint-unknown (s): 0.7\n"
         "      time-hint-unset (s): 0.8\n"
-        "      ENERGY_PACKAGE@package-0: 55.5\n"
-        "      ENERGY_PACKAGE@package-1: 55.5\n"
+        "      CPU_ENERGY@package-0: 55.5\n"
+        "      CPU_ENERGY@package-1: 55.5\n"
         "      agent stat: 3\n"
         "    Epoch Totals:\n"
         "      runtime (s): 70\n"
@@ -450,8 +450,8 @@ TEST_F(ReporterTest, generate)
         "      time-hint-parallel (s): 0.6\n"
         "      time-hint-unknown (s): 0.7\n"
         "      time-hint-unset (s): 0.8\n"
-        "      ENERGY_PACKAGE@package-0: 83.5\n"
-        "      ENERGY_PACKAGE@package-1: 83.5\n"
+        "      CPU_ENERGY@package-0: 83.5\n"
+        "      CPU_ENERGY@package-1: 83.5\n"
         "    Application Totals:\n"
         "      runtime (s): 56\n"
         "      count: 0\n"
@@ -470,8 +470,8 @@ TEST_F(ReporterTest, generate)
         "      time-hint-parallel (s): 0.6\n"
         "      time-hint-unknown (s): 0.7\n"
         "      time-hint-unset (s): 0.8\n"
-        "      ENERGY_PACKAGE@package-0: 1111\n"
-        "      ENERGY_PACKAGE@package-1: 1111\n"
+        "      CPU_ENERGY@package-0: 1111\n"
+        "      CPU_ENERGY@package-1: 1111\n"
         "      geopmctl memory HWM (B): @ANY_STRING@\n"
         "      geopmctl network BW (B/s): 678\n\n";
 
@@ -505,7 +505,7 @@ TEST_F(ReporterTest, generate_conditional)
     generate_setup();
 
     const std::vector<std::pair<std::string, int> > env_signals = {
-        {"ENERGY_PACKAGE", geopm_domain_e::GEOPM_DOMAIN_PACKAGE}
+        {"CPU_ENERGY", geopm_domain_e::GEOPM_DOMAIN_PACKAGE}
     };
     m_reporter = geopm::make_unique<ReporterImp>(m_start_time,
                                                  m_report_name,
@@ -582,8 +582,8 @@ TEST_F(ReporterTest, generate_conditional)
         "      gpu-power (W): 764\n"
         "      gpu-frequency (Hz): 567\n"
         "      uncore-frequency (Hz): 755\n"
-        "      ENERGY_PACKAGE@package-0: 194.25\n"
-        "      ENERGY_PACKAGE@package-1: 194.25\n"
+        "      CPU_ENERGY@package-0: 194.25\n"
+        "      CPU_ENERGY@package-1: 194.25\n"
         "      agent stat: 1\n"
         "      agent other stat: 2\n"
         "    -\n"
@@ -610,8 +610,8 @@ TEST_F(ReporterTest, generate_conditional)
         "      gpu-power (W): 653\n"
         "      gpu-frequency (Hz): 890\n"
         "      uncore-frequency (Hz): 198\n"
-        "      ENERGY_PACKAGE@package-0: 222\n"
-        "      ENERGY_PACKAGE@package-1: 222\n"
+        "      CPU_ENERGY@package-0: 222\n"
+        "      CPU_ENERGY@package-1: 222\n"
         "      agent stat: 2\n"
         "    Unmarked Totals:\n"
         "      runtime (s): 0.56\n"
@@ -635,8 +635,8 @@ TEST_F(ReporterTest, generate_conditional)
         "      gpu-power (W): 211\n"
         "      gpu-frequency (Hz): 123\n"
         "      uncore-frequency (Hz): 421\n"
-        "      ENERGY_PACKAGE@package-0: 55.5\n"
-        "      ENERGY_PACKAGE@package-1: 55.5\n"
+        "      CPU_ENERGY@package-0: 55.5\n"
+        "      CPU_ENERGY@package-1: 55.5\n"
         "      agent stat: 3\n"
         "    Epoch Totals:\n"
         "      runtime (s): 70\n"
@@ -660,8 +660,8 @@ TEST_F(ReporterTest, generate_conditional)
         "      gpu-power (W): 432\n"
         "      gpu-frequency (Hz): 456\n"
         "      uncore-frequency (Hz): 653\n"
-        "      ENERGY_PACKAGE@package-0: 83.5\n"
-        "      ENERGY_PACKAGE@package-1: 83.5\n"
+        "      CPU_ENERGY@package-0: 83.5\n"
+        "      CPU_ENERGY@package-1: 83.5\n"
         "    Application Totals:\n"
         "      runtime (s): 56\n"
         "      count: 0\n"
@@ -684,8 +684,8 @@ TEST_F(ReporterTest, generate_conditional)
         "      gpu-power (W): 8992\n"
         "      gpu-frequency (Hz): 74489\n"
         "      uncore-frequency (Hz): 121213\n"
-        "      ENERGY_PACKAGE@package-0: 1111\n"
-        "      ENERGY_PACKAGE@package-1: 1111\n"
+        "      CPU_ENERGY@package-0: 1111\n"
+        "      CPU_ENERGY@package-1: 1111\n"
         "      geopmctl memory HWM (B): @ANY_STRING@\n"
         "      geopmctl network BW (B/s): 678\n\n";
 

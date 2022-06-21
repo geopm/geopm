@@ -165,7 +165,7 @@ namespace geopm
                 m_sample_agg->push_signal("TIME_HINT_IGNORE",
                                           GEOPM_DOMAIN_PACKAGE, pkg_idx);
             m_package[pkg_idx].pio_power_idx =
-                m_platform_io.push_control("POWER_PACKAGE_LIMIT",
+                m_platform_io.push_control("CPU_POWER_LIMIT",
                                            GEOPM_DOMAIN_PACKAGE, pkg_idx);
         }
     }
@@ -205,10 +205,10 @@ namespace geopm
         else {
             m_policy = in_policy;
         }
-        if (m_policy[M_POLICY_POWER_PACKAGE_LIMIT_TOTAL] != 0.0) {
+        if (m_policy[M_POLICY_CPU_POWER_LIMIT_TOTAL] != 0.0) {
             // New power cap from resource manager, reset algorithm.
             m_step_count = M_STEP_SEND_DOWN_LIMIT;
-            double pkg_limit = m_policy[M_POLICY_POWER_PACKAGE_LIMIT_TOTAL] / m_num_domain;
+            double pkg_limit = m_policy[M_POLICY_CPU_POWER_LIMIT_TOTAL] / m_num_domain;
             for (auto &balancer : m_power_balancer) {
                 balancer->power_cap(pkg_limit);
             }
@@ -291,8 +291,8 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
-        values[M_TRACE_SAMPLE_POLICY_POWER_PACKAGE_LIMIT_TOTAL] =
-            m_policy.at(M_POLICY_POWER_PACKAGE_LIMIT_TOTAL);
+        values[M_TRACE_SAMPLE_POLICY_CPU_POWER_LIMIT_TOTAL] =
+            m_policy.at(M_POLICY_CPU_POWER_LIMIT_TOTAL);
         values[M_TRACE_SAMPLE_POLICY_STEP_COUNT] =
             m_policy.at(M_POLICY_STEP_COUNT);
         values[M_TRACE_SAMPLE_POLICY_MAX_EPOCH_RUNTIME] =
@@ -428,13 +428,13 @@ namespace geopm
         }
 #endif
         bool result = false;
-        if (in_policy[M_POLICY_POWER_PACKAGE_LIMIT_TOTAL] != m_root_cap) {
+        if (in_policy[M_POLICY_CPU_POWER_LIMIT_TOTAL] != m_root_cap) {
             m_step_count = M_STEP_SEND_DOWN_LIMIT;
-            m_policy[M_POLICY_POWER_PACKAGE_LIMIT_TOTAL] = in_policy[M_POLICY_POWER_PACKAGE_LIMIT_TOTAL];
+            m_policy[M_POLICY_CPU_POWER_LIMIT_TOTAL] = in_policy[M_POLICY_CPU_POWER_LIMIT_TOTAL];
             m_policy[M_POLICY_STEP_COUNT] = M_STEP_SEND_DOWN_LIMIT;
             m_policy[M_POLICY_MAX_EPOCH_RUNTIME] = 0.0;
             m_policy[M_POLICY_POWER_SLACK] = 0.0;
-            m_root_cap = in_policy[M_POLICY_POWER_PACKAGE_LIMIT_TOTAL];
+            m_root_cap = in_policy[M_POLICY_CPU_POWER_LIMIT_TOTAL];
             if (m_root_cap > M_MAX_PKG_POWER_SETTING ||
                 m_root_cap < M_MIN_PKG_POWER_SETTING) {
                 throw Exception("PowerBalancerAgent::descend(): invalid power budget: " + std::to_string(m_root_cap),
@@ -461,7 +461,7 @@ namespace geopm
 
     void PowerBalancerAgent::SendDownLimitStep::update_policy(PowerBalancerAgent::Role &role, const std::vector<double> &sample) const
     {
-        role.m_policy.at(PowerBalancerAgent::M_POLICY_POWER_PACKAGE_LIMIT_TOTAL) = 0.0;
+        role.m_policy.at(PowerBalancerAgent::M_POLICY_CPU_POWER_LIMIT_TOTAL) = 0.0;
     }
 
     void PowerBalancerAgent::SendDownLimitStep::enter_step(PowerBalancerAgent::LeafRole &role, const std::vector<double> &in_policy) const
@@ -587,8 +587,8 @@ namespace geopm
                              platform_topo(),
                              SampleAggregator::make_unique(),
                              {},
-                             PlatformIOProf::platform_io().read_signal("POWER_PACKAGE_MIN", GEOPM_DOMAIN_PACKAGE, 0),
-                             PlatformIOProf::platform_io().read_signal("POWER_PACKAGE_MAX", GEOPM_DOMAIN_PACKAGE, 0))
+                             PlatformIOProf::platform_io().read_signal("CPU_POWER_MIN", GEOPM_DOMAIN_PACKAGE, 0),
+                             PlatformIOProf::platform_io().read_signal("CPU_POWER_MAX", GEOPM_DOMAIN_PACKAGE, 0))
     {
 
     }
@@ -615,7 +615,7 @@ namespace geopm
         , M_TIME_WINDOW(0.015)
     {
         geopm_time(&m_last_wait);
-        m_power_tdp = m_platform_io.read_signal("POWER_PACKAGE_TDP", GEOPM_DOMAIN_BOARD, 0);
+        m_power_tdp = m_platform_io.read_signal("CPU_POWER_TDP", GEOPM_DOMAIN_BOARD, 0);
     }
 
     PowerBalancerAgent::~PowerBalancerAgent() = default;
@@ -633,7 +633,7 @@ namespace geopm
                                                 M_TIME_WINDOW,
                                                 is_tree_root,
                                                 calc_num_node(fan_in));
-            m_platform_io.write_control("POWER_PACKAGE_TIME_WINDOW",
+            m_platform_io.write_control("CPU_POWER_TIME_WINDOW",
                                         GEOPM_DOMAIN_BOARD, 0, M_TIME_WINDOW);
         }
         else if (is_tree_root) {
@@ -720,7 +720,7 @@ namespace geopm
 
     std::vector<std::string> PowerBalancerAgent::trace_names(void) const
     {
-        return {"POLICY_POWER_PACKAGE_LIMIT_TOTAL", // M_TRACE_SAMPLE_POLICY_POWER_PACKAGE_LIMIT_TOTAL
+        return {"POLICY_CPU_POWER_LIMIT_TOTAL", // M_TRACE_SAMPLE_POLICY_CPU_POWER_LIMIT_TOTAL
                 "POLICY_STEP_COUNT",        // M_TRACE_SAMPLE_POLICY_STEP_COUNT
                 "POLICY_MAX_EPOCH_RUNTIME", // M_TRACE_SAMPLE_POLICY_MAX_EPOCH_RUNTIME
                 "POLICY_POWER_SLACK",       // M_TRACE_SAMPLE_POLICY_POWER_SLACK
@@ -730,7 +730,7 @@ namespace geopm
 
     std::vector<std::function<std::string(double)> > PowerBalancerAgent::trace_formats(void) const
     {
-        return {string_format_double,         // M_TRACE_SAMPLE_POLICY_POWER_PACKAGE_LIMIT_TOTAL
+        return {string_format_double,         // M_TRACE_SAMPLE_POLICY_CPU_POWER_LIMIT_TOTAL
                 format_step_count,            // M_TRACE_SAMPLE_POLICY_STEP_COUNT
                 string_format_double,         // M_TRACE_SAMPLE_POLICY_MAX_EPOCH_RUNTIME
                 string_format_double,         // M_TRACE_SAMPLE_POLICY_POWER_SLACK
@@ -749,9 +749,9 @@ namespace geopm
             throw Exception("PowerBalancerAgent::enforce_policy(): policy vector incorrectly sized.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        int control_domain = m_platform_io.control_domain_type("POWER_PACKAGE_LIMIT");
-        double pkg_policy = policy[M_POLICY_POWER_PACKAGE_LIMIT_TOTAL] / m_platform_topo.num_domain(control_domain);
-        m_platform_io.write_control("POWER_PACKAGE_LIMIT", GEOPM_DOMAIN_BOARD, 0, pkg_policy);
+        int control_domain = m_platform_io.control_domain_type("CPU_POWER_LIMIT");
+        double pkg_policy = policy[M_POLICY_CPU_POWER_LIMIT_TOTAL] / m_platform_topo.num_domain(control_domain);
+        m_platform_io.write_control("CPU_POWER_LIMIT", GEOPM_DOMAIN_BOARD, 0, pkg_policy);
     }
 
     std::string PowerBalancerAgent::plugin_name(void)
@@ -766,7 +766,7 @@ namespace geopm
 
     std::vector<std::string> PowerBalancerAgent::policy_names(void)
     {
-        return {"POWER_PACKAGE_LIMIT_TOTAL",
+        return {"CPU_POWER_LIMIT_TOTAL",
                 "STEP_COUNT",
                 "MAX_EPOCH_RUNTIME",
                 "POWER_SLACK"};
@@ -805,8 +805,8 @@ namespace geopm
     void PowerBalancerAgent::validate_policy(std::vector<double> &policy) const
     {
         // If NAN, use default
-        if (std::isnan(policy[M_POLICY_POWER_PACKAGE_LIMIT_TOTAL])) {
-            policy[M_POLICY_POWER_PACKAGE_LIMIT_TOTAL] = m_power_tdp;
+        if (std::isnan(policy[M_POLICY_CPU_POWER_LIMIT_TOTAL])) {
+            policy[M_POLICY_CPU_POWER_LIMIT_TOTAL] = m_power_tdp;
         }
         if (std::isnan(policy[M_POLICY_STEP_COUNT])) {
             policy[M_POLICY_STEP_COUNT] = 0.0;
@@ -820,12 +820,12 @@ namespace geopm
 
         // Clamp to min or max; note that 0.0 is a valid power limit
         // when the step is not SEND_DOWN_LIMIT
-        if (policy[M_POLICY_POWER_PACKAGE_LIMIT_TOTAL] != 0) {
-            if (policy[M_POLICY_POWER_PACKAGE_LIMIT_TOTAL] < M_MIN_PKG_POWER_SETTING) {
-                policy[M_POLICY_POWER_PACKAGE_LIMIT_TOTAL] = M_MIN_PKG_POWER_SETTING;
+        if (policy[M_POLICY_CPU_POWER_LIMIT_TOTAL] != 0) {
+            if (policy[M_POLICY_CPU_POWER_LIMIT_TOTAL] < M_MIN_PKG_POWER_SETTING) {
+                policy[M_POLICY_CPU_POWER_LIMIT_TOTAL] = M_MIN_PKG_POWER_SETTING;
             }
-            else if (policy[M_POLICY_POWER_PACKAGE_LIMIT_TOTAL] > M_MAX_PKG_POWER_SETTING) {
-                policy[M_POLICY_POWER_PACKAGE_LIMIT_TOTAL] = M_MAX_PKG_POWER_SETTING;
+            else if (policy[M_POLICY_CPU_POWER_LIMIT_TOTAL] > M_MAX_PKG_POWER_SETTING) {
+                policy[M_POLICY_CPU_POWER_LIMIT_TOTAL] = M_MAX_PKG_POWER_SETTING;
             }
         }
 

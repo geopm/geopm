@@ -47,7 +47,7 @@ class TestPIO(unittest.TestCase):
         actual_tt = actual_t1 - actual_t0
         self.assertAlmostEqual(expect_tt, actual_tt, delta=0.1)
         try:
-            power = pio.read_signal('POWER_PACKAGE', 'cpu', 0)
+            power = pio.read_signal('CPU_POWER', 'cpu', 0)
         except RuntimeError:
             sys.stdout.write('<warning> failed to read package power\n')
 
