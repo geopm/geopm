@@ -149,7 +149,7 @@ namespace geopm
                                   }},
                               {M_NAME_PREFIX + "GPU_ENERGY_TIMESTAMP", {
                                   "Timestamp for the GPU energy read in seconds."
-                                  "\nValue is updated on LEVELZERO::ENERGY read.",
+                                  "\nValue is updated on LEVELZERO::GPU_ENERGY read.",
                                   GEOPM_DOMAIN_GPU,
                                   Agg::average,
                                   IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
