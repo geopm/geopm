@@ -94,11 +94,6 @@ as the underlying communication mechanism.
 For more details, see the doxygen
 page at https://geopm.github.io/doxall/classgeopm_1_1_m_p_i_comm.html.
 
-Class Methods
--------------
-
-**TODO**
-
 See Also
 --------
 
