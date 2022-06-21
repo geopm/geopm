@@ -124,10 +124,8 @@ TEST_F(CNLIOGroupTest, parse_power)
     const std::vector<std::pair<std::string, std::string> > power_signals = {
         { m_power_path, "CNL::BOARD_POWER" },
         { m_power_path, "BOARD_POWER" },
-        { m_memory_power_path, "CNL::POWER_MEMORY" },
-        { m_memory_power_path, "POWER_MEMORY" },
+        { m_memory_power_path, "CNL::MEMORY_POWER" },
         { m_cpu_power_path, "CNL::BOARD_POWER_CPU" },
-        { m_cpu_power_path, "BOARD_POWER_CPU" },
     };
     CNLIOGroup cnl(m_test_dir);
 
@@ -181,10 +179,8 @@ TEST_F(CNLIOGroupTest, parse_energy)
     const std::vector<std::pair<std::string, std::string> > energy_signals = {
         { m_energy_path, "CNL::BOARD_ENERGY" },
         { m_energy_path, "BOARD_ENERGY" },
-        { m_memory_energy_path, "CNL::ENERGY_MEMORY" },
-        { m_memory_energy_path, "ENERGY_MEMORY" },
+        { m_memory_energy_path, "CNL::MEMORY_ENERGY" },
         { m_cpu_energy_path, "CNL::BOARD_ENERGY_CPU" },
-        { m_cpu_energy_path, "BOARD_ENERGY_CPU" },
     };
     CNLIOGroup cnl(m_test_dir);
 
