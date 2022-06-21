@@ -90,15 +90,15 @@ class TestIntegrationGeopmagent(unittest.TestCase):
         self.check_json_output(['--agent', 'monitor', '--policy', 'None'],
                                {})
         self.check_json_output(['--agent', 'power_governor', '--policy', '150'],
-                               {'CPU_POWER_LIMIT_TOTAL': 150})
+                               {'CPU_POWER_LIMIT': 150})
         # default value policy
         self.check_json_output(['--agent', 'power_governor', '--policy', 'NAN'],
-                               {'CPU_POWER_LIMIT_TOTAL': 'NAN'})
+                               {'CPU_POWER_LIMIT': 'NAN'})
         self.check_json_output(['--agent', 'power_governor', '--policy', 'nan'],
-                               {'CPU_POWER_LIMIT_TOTAL': 'NAN'})
+                               {'CPU_POWER_LIMIT': 'NAN'})
         # unspecified policy values are accepted
         self.check_json_output(['--agent', 'power_balancer', '--policy', '150'],
-                               {'CPU_POWER_LIMIT_TOTAL': 150})
+                               {'CPU_POWER_LIMIT': 150})
         # hashing works for frequency map agent
         self.check_json_output(['--agent', 'frequency_map', '--policy', '1e9,nan,hello,2e9'],
                                {'FREQ_DEFAULT': 1e9, 'FREQ_UNCORE': 'NAN',

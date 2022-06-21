@@ -64,11 +64,11 @@ void PowerGovernorAgentTest::SetUp(void)
                     m_energy_package += 10.0; return m_energy_package;
                 }));
 
-    EXPECT_CALL(m_platform_io, read_signal("CPU_POWER_MIN", GEOPM_DOMAIN_BOARD, 0))
+    EXPECT_CALL(m_platform_io, read_signal("CPU_POWER_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0))
         .WillOnce(Return(m_power_min));
-    EXPECT_CALL(m_platform_io, read_signal("CPU_POWER_MAX", GEOPM_DOMAIN_BOARD, 0))
+    EXPECT_CALL(m_platform_io, read_signal("CPU_POWER_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0))
         .WillOnce(Return(m_power_max));
-    EXPECT_CALL(m_platform_io, read_signal("CPU_POWER_TDP", GEOPM_DOMAIN_BOARD, 0))
+    EXPECT_CALL(m_platform_io, read_signal("CPU_POWER_LIMIT_DEFAULT", GEOPM_DOMAIN_BOARD, 0))
         .WillOnce(Return(m_power_tdp));
 
     m_fan_in = {2, 2};
@@ -77,7 +77,7 @@ void PowerGovernorAgentTest::SetUp(void)
 
 void PowerGovernorAgentTest::set_up_leaf(void)
 {
-    EXPECT_CALL(m_platform_io, control_domain_type("CPU_POWER_LIMIT"))
+    EXPECT_CALL(m_platform_io, control_domain_type("CPU_POWER_LIMIT_CONTROL"))
         .Times(AtLeast(1))
         .WillRepeatedly(Return(GEOPM_DOMAIN_PACKAGE));
     EXPECT_CALL(m_platform_io, push_signal("CPU_POWER", GEOPM_DOMAIN_BOARD, 0))
@@ -250,9 +250,9 @@ TEST_F(PowerGovernorAgentTest, enforce_policy)
 
     EXPECT_CALL(m_platform_topo, num_domain(GEOPM_DOMAIN_PACKAGE))
         .WillOnce(Return(m_num_package));
-    EXPECT_CALL(m_platform_io, control_domain_type("CPU_POWER_LIMIT"))
+    EXPECT_CALL(m_platform_io, control_domain_type("CPU_POWER_LIMIT_CONTROL"))
         .WillOnce(Return(GEOPM_DOMAIN_PACKAGE));
-    EXPECT_CALL(m_platform_io, write_control("CPU_POWER_LIMIT", GEOPM_DOMAIN_BOARD,
+    EXPECT_CALL(m_platform_io, write_control("CPU_POWER_LIMIT_CONTROL", GEOPM_DOMAIN_BOARD,
                                              0, limit/m_num_package));
 
     m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, m_platform_topo, nullptr);

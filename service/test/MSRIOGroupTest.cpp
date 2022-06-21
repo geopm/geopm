@@ -189,9 +189,9 @@ TEST_F(MSRIOGroupTest, valid_signal_names)
     ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::PKG_POWER_INFO:MIN_POWER"));
     ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::PKG_POWER_INFO:MAX_POWER"));
     ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::PKG_POWER_INFO:THERMAL_SPEC_POWER"));
-    signal_aliases.push_back("CPU_POWER_MIN");
-    signal_aliases.push_back("CPU_POWER_MAX");
-    signal_aliases.push_back("CPU_POWER_TDP");
+    signal_aliases.push_back("CPU_POWER_MIN_AVAIL");
+    signal_aliases.push_back("CPU_POWER_MAX_AVAIL");
+    signal_aliases.push_back("CPU_POWER_LIMIT_DEFAULT");
     signal_aliases.push_back("CPU_POWER");
     signal_aliases.push_back("DRAM_POWER");
 
@@ -234,11 +234,11 @@ TEST_F(MSRIOGroupTest, valid_signal_domains)
 
     // power
     EXPECT_EQ(GEOPM_DOMAIN_PACKAGE,
-              m_msrio_group->signal_domain_type("CPU_POWER_MIN"));
+              m_msrio_group->signal_domain_type("CPU_POWER_MIN_AVAIL"));
     EXPECT_EQ(GEOPM_DOMAIN_PACKAGE,
-              m_msrio_group->signal_domain_type("CPU_POWER_MAX"));
+              m_msrio_group->signal_domain_type("CPU_POWER_MAX_AVAIL"));
     EXPECT_EQ(GEOPM_DOMAIN_PACKAGE,
-              m_msrio_group->signal_domain_type("CPU_POWER_TDP"));
+              m_msrio_group->signal_domain_type("CPU_POWER_LIMIT_DEFAULT"));
     EXPECT_EQ(GEOPM_DOMAIN_PACKAGE,
               m_msrio_group->signal_domain_type("CPU_POWER"));
     EXPECT_EQ(GEOPM_DOMAIN_PACKAGE,
@@ -283,11 +283,11 @@ TEST_F(MSRIOGroupTest, valid_signal_aggregation)
     // @todo: CPU_POWER and DRAM_POWER
 
     // @todo: what should this be?
-    //func = m_msrio_group->agg_function("CPU_POWER_MIN");
+    //func = m_msrio_group->agg_function("CPU_POWER_MIN_AVAIL");
     //EXPECT_TRUE(is_agg_expect_same(func));
-    //func = m_msrio_group->agg_function("CPU_POWER_MAX");
+    //func = m_msrio_group->agg_function("CPU_POWER_MAX_AVAIL");
     //EXPECT_TRUE(is_agg_expect_same(func));
-    //func = m_msrio_group->agg_function("CPU_POWER_TDP");
+    //func = m_msrio_group->agg_function("CPU_POWER_LIMIT_DEFAULT");
     //EXPECT_TRUE(is_agg_expect_same(func));
     func = m_msrio_group->agg_function("CPU_POWER");
     EXPECT_TRUE(is_agg_sum(func));
@@ -304,7 +304,7 @@ TEST_F(MSRIOGroupTest, valid_signal_format)
         "CPU_ENERGY", "DRAM_ENERGY",
         "CPU_FREQUENCY_STATUS", "CPU_FREQUENCY_MAX",
         "TEMPERATURE_CORE", "TEMPERATURE_PACKAGE",
-        "CPU_POWER_MIN", "CPU_POWER_MAX", "CPU_POWER_TDP",
+        "CPU_POWER_MIN_AVAIL", "CPU_POWER_MAX_AVAIL", "CPU_POWER_LIMIT_DEFAULT",
         "CPU_POWER", "DRAM_POWER"
     };
     for (const auto &name : si_alias) {
@@ -630,17 +630,17 @@ TEST_F(MSRIOGroupTest, read_signal_power)
 
     result = m_msrio_group->read_signal("MSR::PKG_POWER_INFO:THERMAL_SPEC_POWER", GEOPM_DOMAIN_PACKAGE, 0);
     EXPECT_EQ(75, result);
-    result = m_msrio_group->read_signal("CPU_POWER_TDP", GEOPM_DOMAIN_PACKAGE, 0);
+    result = m_msrio_group->read_signal("CPU_POWER_LIMIT_DEFAULT", GEOPM_DOMAIN_PACKAGE, 0);
     EXPECT_EQ(76.25, result);
 
     result = m_msrio_group->read_signal("MSR::PKG_POWER_INFO:MIN_POWER", GEOPM_DOMAIN_PACKAGE, 0);
     EXPECT_EQ(50.25, result);
-    result = m_msrio_group->read_signal("CPU_POWER_MIN", GEOPM_DOMAIN_PACKAGE, 0);
+    result = m_msrio_group->read_signal("CPU_POWER_MIN_AVAIL", GEOPM_DOMAIN_PACKAGE, 0);
     EXPECT_EQ(100.125, result);
 
     result = m_msrio_group->read_signal("MSR::PKG_POWER_INFO:MAX_POWER", GEOPM_DOMAIN_PACKAGE, 0);
     EXPECT_EQ(200.5, result);
-    result = m_msrio_group->read_signal("CPU_POWER_MAX", GEOPM_DOMAIN_PACKAGE, 0);
+    result = m_msrio_group->read_signal("CPU_POWER_MAX_AVAIL", GEOPM_DOMAIN_PACKAGE, 0);
     EXPECT_EQ(201.375, result);
 }
 
@@ -759,7 +759,7 @@ TEST_F(MSRIOGroupTest, push_control)
     int power_idx = m_msrio_group->push_control("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT", GEOPM_DOMAIN_PACKAGE, 0);
     ASSERT_EQ(1, power_idx);
 
-    int power_idx1 = m_msrio_group->push_control("CPU_POWER_LIMIT",
+    int power_idx1 = m_msrio_group->push_control("CPU_POWER_LIMIT_CONTROL",
                                                  GEOPM_DOMAIN_PACKAGE, 0);
     ASSERT_EQ(power_idx, power_idx1);
 

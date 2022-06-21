@@ -22,7 +22,7 @@ def prepare(df):
     df = df.drop(extra_cols, axis=1)
 
     # Rename confusing fields
-    new_names = {'CPU_POWER_LIMIT_TOTAL' : 'power_limit',
+    new_names = {'CPU_POWER_LIMIT' : 'power_limit',
                  'frequency (%)' : 'core freq (%)',
                  'frequency (Hz)' : 'core freq (Hz)'}
     df = df.rename(columns=new_names)

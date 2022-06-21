@@ -73,7 +73,7 @@ budget:
 .. code-block::
 
    $ geopmagent -a power_governor -p 250
-   {"CPU_POWER_LIMIT_TOTAL" : 250}
+   {"CPU_POWER_LIMIT" : 250}
 
 
 Create policy for power_balancer agent with 250 watts per node power

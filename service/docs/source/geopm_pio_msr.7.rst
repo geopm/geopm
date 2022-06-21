@@ -151,16 +151,16 @@ Signal Aliases
 ``CPU_INSTRUCTIONS_RETIRED``
     Maps to ``MSR::FIXED_CTR0:INST_RETIRED_ANY``
 
-``CPU_POWER_LIMIT``
+``CPU_POWER_LIMIT_CONTROL``
     Maps to ``MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT``
 
-``CPU_POWER_MAX``
+``CPU_POWER_MAX_AVAIL``
     Maps to ``MSR::PKG_POWER_INFO:MAX_POWER``
 
-``CPU_POWER_MIN``
+``CPU_POWER_MIN_AVAIL``
     Maps to ``MSR::PKG_POWER_INFO:MIN_POWER``
 
-``CPU_POWER_TDP``
+``CPU_POWER_LIMIT_DEFAULT``
     Maps to ``MSR::PKG_POWER_INFO:THERMAL_SPEC_POWER``
 
 ``CPU_POWER_TIME_WINDOW``
@@ -196,7 +196,7 @@ Control Aliases
 ``CPU_FREQUENCY_MIN_CONTROL``
     Maps to ``MSR::HWP_REQUEST:MINIMUM_PERFORMANCE``
 
-``CPU_POWER_LIMIT``
+``CPU_POWER_LIMIT_CONTROL``
     Maps to ``MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT``
 
 ``CPU_POWER_TIME_WINDOW``
@@ -225,11 +225,11 @@ Setting A Power Limit
 
 * Set power limit
 
-``geopmwrite CPU_POWER_LIMIT package 0 20``
+``geopmwrite CPU_POWER_LIMIT_CONTROL package 0 20``
 
 * Read setting and current power
 
-``geopmread CPU_POWER_LIMIT package 0``
+``geopmread CPU_POWER_LIMIT_CONTROL package 0``
 ``geopmread CPU_POWER package 0``
 
 

@@ -24,7 +24,7 @@ signal represents any measurement in SI units that can be sampled or
 any unit-free integer that can be read.  A control represents a
 request for a hardware domain to operate such that a related signal
 measured from the hardware domain will track the request.  For
-example, the user can set a ``CPU_POWER_LIMIT`` in units of
+example, the user can set a ``CPU_POWER_LIMIT_CONTROL`` in units of
 *watts* and the related signal, ``CPU_POWER``\ , will remain below
 the limit.  Similarly the user can set a ``CPU_FREQUENCY_MAX_CONTROL`` in
 *hertz* and the related signal, ``CPU_FREQUENCY_STATUS`` will show the
@@ -115,20 +115,20 @@ Descriptions Of High Level Aliases
 ``CPU_INSTRUCTIONS_RETIRED``
     The count of the number of instructions executed.
 
-``CPU_POWER_LIMIT``
+``CPU_POWER_LIMIT_CONTROL``
     The average power usage limit over the time window specified in
     PL1_TIME_WINDOW.
  
 ``CPU_POWER_TIME_WINDOW``
     The time window associated with power limit 1.
 
-``CPU_POWER_MAX``
+``CPU_POWER_MAX_AVAIL``
     The maximum power limit based on the electrical specification.
 
-``CPU_POWER_MIN``
+``CPU_POWER_MIN_AVAIL``
     The minimum power limit based on the electrical specification.
 
-``CPU_POWER_TDP``
+``CPU_POWER_LIMIT_DEFAULT``
     Maximum power to stay within the thermal limits based on the design (TDP).
 
 ``CPU_POWER``
