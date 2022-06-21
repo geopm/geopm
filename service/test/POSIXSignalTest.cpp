@@ -201,10 +201,15 @@ TEST_F(POSIXSignalTest, sig_queue_ESRCH)
  */
 TEST_F(POSIXSignalTest, sig_queue_EPERM)
 {
-    std::string errmsg_expect = "Operation not permitted: POSIXSignal(): POSIX signal function call sigqueue() returned an error";
-    GEOPM_EXPECT_THROW_MESSAGE(
-        m_posix_sig->sig_queue(1, SIGCONT, 2),
-        EPERM, errmsg_expect);
+    if (geteuid() == 0) {
+        std::cerr << "Warning: <geopm> Skipping POSIXSignalTest.sig_queue_EPERM cannot be run by user \"root\"\n";
+    }
+    else {
+        std::string errmsg_expect = "Operation not permitted: POSIXSignal(): POSIX signal function call sigqueue() returned an error";
+        GEOPM_EXPECT_THROW_MESSAGE(
+            m_posix_sig->sig_queue(1, SIGCONT, 2),
+            EPERM, errmsg_expect);
+    }
 }
 
 /**
