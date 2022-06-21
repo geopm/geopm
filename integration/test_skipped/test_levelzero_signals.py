@@ -65,11 +65,11 @@ class TestIntegrationLevelZeroSignals(unittest.TestCase):
     def test_energy(self):
         sys.stdout.write("Running LevelZero Energy Test\n");
         #Query
-        energy_prev = geopm_test_launcher.geopmread("LEVELZERO::ENERGY gpu 0")
-        energy_timestamp_prev = geopm_test_launcher.geopmread("LEVELZERO::ENERGY_TIMESTAMP gpu 0")
+        energy_prev = geopm_test_launcher.geopmread("LEVELZERO::GPU_ENERGY gpu 0")
+        energy_timestamp_prev = geopm_test_launcher.geopmread("LEVELZERO::GPU_ENERGY_TIMESTAMP gpu 0")
         time.sleep(5)
-        energy_curr = geopm_test_launcher.geopmread("LEVELZERO::ENERGY gpu 0")
-        energy_timestamp_curr = geopm_test_launcher.geopmread("LEVELZERO::ENERGY_TIMESTAMP gpu 0")
+        energy_curr = geopm_test_launcher.geopmread("LEVELZERO::GPU_ENERGY gpu 0")
+        energy_timestamp_curr = geopm_test_launcher.geopmread("LEVELZERO::GPU_ENERGY_TIMESTAMP gpu 0")
 
         sys.stdout.write("Energy:\n");
         sys.stdout.write("\tEnergy Sample 0: {}\n".format(energy_prev));
@@ -82,7 +82,7 @@ class TestIntegrationLevelZeroSignals(unittest.TestCase):
     def test_frequency(self):
         sys.stdout.write("Running LevelZero Frequency Test\n");
         #Query
-        frequency_gpu = geopm_test_launcher.geopmread("LEVELZERO::GPU_CORE_FREQUENCY gpu 0")
+        frequency_gpu = geopm_test_launcher.geopmread("LEVELZERO::GPU_CORE_FREQUENCY_STATUS gpu 0")
         gpu_min_frequency_limit = geopm_test_launcher.geopmread("LEVELZERO::GPU_CORE_FREQUENCY_MIN_AVAIL gpu 0")
         gpu_max_frequency_limit = geopm_test_launcher.geopmread("LEVELZERO::GPU_CORE_FREQUENCY_MAX_AVAIL gpu 0")
 
