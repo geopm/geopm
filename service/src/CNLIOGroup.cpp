@@ -55,7 +55,7 @@ namespace geopm
                                    NAN,
                                    M_UNITS_JOULES,
                                    IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE}},
-                              {"CNL::POWER_MEMORY", {
+                              {"CNL::MEMORY_POWER", {
                                    "Point in time memory power",
                                    Agg::average,
                                    string_format_integer,
@@ -64,7 +64,7 @@ namespace geopm
                                    NAN,
                                    M_UNITS_WATTS,
                                    IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE}},
-                              {"CNL::ENERGY_MEMORY", {
+                              {"CNL::MEMORY_ENERGY", {
                                    "Accumulated memory energy",
                                    Agg::sum,
                                    string_format_integer,
