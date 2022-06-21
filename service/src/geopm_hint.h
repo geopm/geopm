@@ -25,7 +25,7 @@ enum geopm_region_hint_e {
     GEOPM_REGION_HINT_PARALLEL, /* Region is threaded */
     GEOPM_REGION_HINT_IGNORE,   /* Do not add region time to epoch */
     GEOPM_REGION_HINT_INACTIVE, /* Used to marke CPUs that are not running application */
-    GEOPM_SENTINEL_REGION_HINT,
+    GEOPM_NUM_REGION_HINT,
 };
 
 #ifdef __cplusplus

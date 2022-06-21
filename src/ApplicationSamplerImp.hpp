@@ -64,7 +64,7 @@ namespace geopm
             std::map<int, m_process_s> m_process_map;
             const bool m_is_filtered;
             const std::string m_filter_name;
-            std::vector<std::array<double, GEOPM_SENTINEL_REGION_HINT>> m_hint_time;
+            std::vector<std::array<double, GEOPM_NUM_REGION_HINT>> m_hint_time;
             std::vector<bool> m_is_cpu_active;
             geopm_time_s m_update_time;
             bool m_is_first_update;

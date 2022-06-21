@@ -60,7 +60,7 @@ namespace geopm
             "INACTIVE",
         };
         static_assert(sizeof(hint_names) / sizeof(hint_names[0]) ==
-                      GEOPM_SENTINEL_REGION_HINT,
+                      GEOPM_NUM_REGION_HINT,
                       "hint_names mismatch with geopm_region_hint_e");
         geopm::check_hint(hint);
 
@@ -84,7 +84,7 @@ namespace geopm
             };
         static constexpr unsigned int HINT_MAP_SIZE = sizeof(hint_mapping) /
                                                       sizeof(hint_mapping[0]);
-        static_assert(HINT_MAP_SIZE == GEOPM_SENTINEL_REGION_HINT,
+        static_assert(HINT_MAP_SIZE == GEOPM_NUM_REGION_HINT,
                       "hint_mapping mismatch with geopm_region_hint_e");
         static const std::map<std::string, uint64_t>
             result_map(hint_mapping, hint_mapping + HINT_MAP_SIZE);
