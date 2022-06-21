@@ -19,13 +19,12 @@ Signals
     * **Unit**: hertz
 
 ``CPUINFO::FREQ_MAX``
-    Returns the CPUs maximum achievable frequency. This is the frequency that
-    a single CPU can achieve when all other CPUs are in C6, turbo is enabled,
+    In the case where the acpi_cpufreq driver is enabled this returns
+    a value one MHz above the ``CPUINFO::FREQ_STICKER`` value.  In the
+    case where intel_pstate driver is enabled this returns the CPUs
+    maximum achievable frequency. This is the frequency that a single
+    CPU can achieve when all other CPUs are in C6, turbo is enabled,
     and the system is not power constrained.
-
-    **TODO** On McFly this returns 2101000000, so it's not max single core turbo.
-    It's just 1 MHz above sticker.  The description should reflect this and what
-    the implications are about turbo.
 
     * **Aggregation**: expect_same
     * **Domain**: cpu
