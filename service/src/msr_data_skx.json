@@ -31,7 +31,8 @@
                     "units":     "none",
                     "scalar":    1,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Indicates whether this platform supports programmable TDP limits for turbo mode."
                 },
                 "PROGRAMMABLE_TCC_ACTIVATION_OFFSET": {
                     "begin_bit": 30,
@@ -50,7 +51,8 @@
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "The minimum operating frequency of the processor."
                 }
             }
         },

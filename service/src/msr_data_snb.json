@@ -21,7 +21,8 @@
                     "units":     "none",
                     "scalar":    1,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Indicates whether the MSR::TURBO_RATIO_LIMIT:* signals are also available as controls."
                 },
                 "PROGRAMMABLE_TDP_LIMITS_TURBO_MODE": {
                     "begin_bit": 29,
@@ -30,7 +31,8 @@
                     "units":     "none",
                     "scalar":    1,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Indicates whether this platform supports programmable TDP limits for turbo mode."
                 },
                 "MAX_EFFICIENCY_RATIO": {
                     "begin_bit": 40,
@@ -39,7 +41,8 @@
                     "units":     "hertz",
                     "scalar":    1e8,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "The minimum operating frequency of the processor."
                 }
             }
         },
