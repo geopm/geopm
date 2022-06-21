@@ -481,7 +481,8 @@
                     "units":     "seconds",
                     "scalar":    9.765625e-04,
                     "behavior":  "constant",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "The maximum time accepted in MSR::PKG_POWER_LIMIT:PL1_TIME_WINDOW and MSR::PKG_POWER_LIMIT:PL2_TIME_WINDOW."
                 }
             }
         },
