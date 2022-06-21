@@ -46,7 +46,7 @@ TEST(AgentFactoryTest, static_info_balancer)
                                            "MAX_EPOCH_RUNTIME",
                                            "SUM_POWER_SLACK",
                                            "MIN_POWER_HEADROOM"};
-    std::vector<std::string> exp_policy = {"CPU_POWER_LIMIT_TOTAL",
+    std::vector<std::string> exp_policy = {"CPU_POWER_LIMIT",
                                            "STEP_COUNT",
                                            "MAX_EPOCH_RUNTIME",
                                            "POWER_SLACK"};
@@ -69,7 +69,7 @@ TEST(AgentFactoryTest, static_info_governor)
     std::vector<std::string> exp_sample = {"POWER",
                                            "IS_CONVERGED",
                                            "POWER_AVERAGE_ENFORCED"};
-    std::vector<std::string> exp_policy = {"CPU_POWER_LIMIT_TOTAL"};
+    std::vector<std::string> exp_policy = {"CPU_POWER_LIMIT"};
     EXPECT_EQ(exp_sample, Agent::sample_names(dict));
     EXPECT_EQ(exp_policy, Agent::policy_names(dict));
 

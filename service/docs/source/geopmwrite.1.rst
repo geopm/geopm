@@ -145,7 +145,7 @@ List all available controls on the system with domain type and number:
 
    $ geopmwrite
    CPU_FREQUENCY_CONTROL
-   CPU_POWER_LIMIT
+   CPU_POWER_LIMIT_CONTROL
 
 Show the description for a control:
 

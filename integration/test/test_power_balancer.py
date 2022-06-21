@@ -119,7 +119,7 @@ class TestIntegration_power_balancer(unittest.TestCase):
         output = geopmpy.io.AppOutput(trace_path + '*')
 
         new_output = geopmpy.io.RawReport(report_path)
-        power_budget = new_output.meta_data()['Policy']['CPU_POWER_LIMIT_TOTAL']
+        power_budget = new_output.meta_data()['Policy']['CPU_POWER_LIMIT']
         node_names = new_output.host_names()
         self.assertEqual(self._num_node, len(node_names))
 

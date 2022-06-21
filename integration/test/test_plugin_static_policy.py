@@ -114,7 +114,7 @@ class TestIntegrationPluginStaticPolicy(unittest.TestCase):
     @skip_unless_power_agent()
     def test_power_cap_enforced(self):
         num_pkg = geopmdpy.topo.num_domain('package')
-        policy_name = 'CPU_POWER_LIMIT_TOTAL'
+        policy_name = 'CPU_POWER_LIMIT'
         try:
             test_power = self._geopmadminagentpolicy[policy_name] / num_pkg
             for pkg in range(num_pkg):

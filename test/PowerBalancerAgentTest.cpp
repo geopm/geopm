@@ -49,9 +49,9 @@ class PowerBalancerAgentTest : public ::testing::Test
         std::vector<std::shared_ptr<MockPowerBalancer> > m_power_bal;
         std::unique_ptr<PowerBalancerAgent> m_agent;
 
-        const double M_CPU_POWER_MIN = 50;
-        const double M_CPU_POWER_TDP = 300;
-        const double M_CPU_POWER_MAX = 325;
+        const double M_CPU_POWER_MIN_AVAIL = 50;
+        const double M_CPU_POWER_LIMIT_DEFAULT = 300;
+        const double M_CPU_POWER_MAX_AVAIL = 325;
         const int M_NUM_PKGS = 2;
         const std::vector<int> M_FAN_IN = {2, 2};
         const double M_TIME_WINDOW = 0.015;
@@ -64,25 +64,25 @@ void PowerBalancerAgentTest::SetUp()
         m_power_bal.push_back(std::make_shared<MockPowerBalancer>());
     }
 
-    ON_CALL(m_platform_io, read_signal("CPU_POWER_TDP", GEOPM_DOMAIN_BOARD, 0))
-        .WillByDefault(Return(M_CPU_POWER_TDP));
-    ON_CALL(m_platform_io, read_signal("CPU_POWER_MIN", GEOPM_DOMAIN_BOARD, 0))
-        .WillByDefault(Return(M_CPU_POWER_MIN));
-    ON_CALL(m_platform_io, read_signal("CPU_POWER_MAX", GEOPM_DOMAIN_BOARD, 0))
-        .WillByDefault(Return(M_CPU_POWER_MAX));
-    ON_CALL(m_platform_io, read_signal("CPU_POWER_MAX", GEOPM_DOMAIN_PACKAGE, _))
-        .WillByDefault(Return(M_CPU_POWER_MAX/M_NUM_PKGS));
+    ON_CALL(m_platform_io, read_signal("CPU_POWER_LIMIT_DEFAULT", GEOPM_DOMAIN_BOARD, 0))
+        .WillByDefault(Return(M_CPU_POWER_LIMIT_DEFAULT));
+    ON_CALL(m_platform_io, read_signal("CPU_POWER_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0))
+        .WillByDefault(Return(M_CPU_POWER_MIN_AVAIL));
+    ON_CALL(m_platform_io, read_signal("CPU_POWER_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0))
+        .WillByDefault(Return(M_CPU_POWER_MAX_AVAIL));
+    ON_CALL(m_platform_io, read_signal("CPU_POWER_MAX_AVAIL", GEOPM_DOMAIN_PACKAGE, _))
+        .WillByDefault(Return(M_CPU_POWER_MAX_AVAIL/M_NUM_PKGS));
     ON_CALL(m_platform_topo, num_domain(GEOPM_DOMAIN_PACKAGE))
         .WillByDefault(Return(M_NUM_PKGS));
 
-    EXPECT_CALL(m_platform_io, read_signal("CPU_POWER_TDP", _, _));
+    EXPECT_CALL(m_platform_io, read_signal("CPU_POWER_LIMIT_DEFAULT", _, _));
     std::vector<std::shared_ptr<PowerBalancer> >power_bal_base(m_power_bal.size());
     std::copy(m_power_bal.begin(), m_power_bal.end(), power_bal_base.begin());
     m_agent = geopm::make_unique<PowerBalancerAgent>(m_platform_io, m_platform_topo,
                                                      m_sample_agg,
                                                      power_bal_base,
-                                                     M_CPU_POWER_MIN,
-                                                     M_CPU_POWER_MAX);
+                                                     M_CPU_POWER_MIN_AVAIL,
+                                                     M_CPU_POWER_MAX_AVAIL);
 }
 
 TEST_F(PowerBalancerAgentTest, tree_root_agent)
@@ -91,9 +91,9 @@ TEST_F(PowerBalancerAgentTest, tree_root_agent)
     int level = 2;
     int num_children = M_FAN_IN[level - 1];
 
-    ON_CALL(m_platform_io, read_signal("CPU_POWER_MIN", GEOPM_DOMAIN_BOARD, 0))
+    ON_CALL(m_platform_io, read_signal("CPU_POWER_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0))
         .WillByDefault(Return(50));
-    ON_CALL(m_platform_io, read_signal("CPU_POWER_MAX", GEOPM_DOMAIN_BOARD, 0))
+    ON_CALL(m_platform_io, read_signal("CPU_POWER_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0))
         .WillByDefault(Return(200));
 
     m_agent->init(level, M_FAN_IN, IS_ROOT);
@@ -345,11 +345,11 @@ TEST_F(PowerBalancerAgentTest, enforce_policy)
     const std::vector<double> policy{limit, NAN, NAN, NAN};
     const std::vector<double> bad_policy{100};
 
-    EXPECT_CALL(m_platform_io, control_domain_type("CPU_POWER_LIMIT"))
+    EXPECT_CALL(m_platform_io, control_domain_type("CPU_POWER_LIMIT_CONTROL"))
         .WillOnce(Return(GEOPM_DOMAIN_PACKAGE));
     EXPECT_CALL(m_platform_topo, num_domain(GEOPM_DOMAIN_PACKAGE))
         .WillOnce(Return(M_NUM_PKGS));
-    EXPECT_CALL(m_platform_io, write_control("CPU_POWER_LIMIT", GEOPM_DOMAIN_BOARD,
+    EXPECT_CALL(m_platform_io, write_control("CPU_POWER_LIMIT_CONTROL", GEOPM_DOMAIN_BOARD,
                                              0, limit/M_NUM_PKGS));
 
     m_agent->enforce_policy(policy);
@@ -369,16 +369,16 @@ TEST_F(PowerBalancerAgentTest, validate_policy)
     // NAN becomes default
     policy = {NAN};
     m_agent->validate_policy(policy);
-    EXPECT_EQ(M_CPU_POWER_TDP, policy[0]);
+    EXPECT_EQ(M_CPU_POWER_LIMIT_DEFAULT, policy[0]);
 
     // clamp to min
-    policy = {M_CPU_POWER_MIN - 1};
+    policy = {M_CPU_POWER_MIN_AVAIL - 1};
     m_agent->validate_policy(policy);
-    EXPECT_EQ(M_CPU_POWER_MIN, policy[0]);
+    EXPECT_EQ(M_CPU_POWER_MIN_AVAIL, policy[0]);
 
     // clamp to max
-    policy = {M_CPU_POWER_MAX + 1};
+    policy = {M_CPU_POWER_MAX_AVAIL + 1};
     m_agent->validate_policy(policy);
-    EXPECT_EQ(M_CPU_POWER_MAX, policy[0]);
+    EXPECT_EQ(M_CPU_POWER_MAX_AVAIL, policy[0]);
 
 }

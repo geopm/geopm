@@ -36,19 +36,19 @@ class PowerGovernorTest : public ::testing::Test
 
 void PowerGovernorTest::SetUp(void)
 {
-    EXPECT_CALL(m_platform_io, control_domain_type("CPU_POWER_LIMIT"))
+    EXPECT_CALL(m_platform_io, control_domain_type("CPU_POWER_LIMIT_CONTROL"))
         .Times(1)
         .WillOnce(Return(GEOPM_DOMAIN_PACKAGE));
     EXPECT_CALL(m_platform_topo, num_domain(GEOPM_DOMAIN_PACKAGE))
         .Times(1)
         .WillOnce(Return(m_num_package));
-    EXPECT_CALL(m_platform_io, push_control("CPU_POWER_LIMIT", GEOPM_DOMAIN_PACKAGE, _))
+    EXPECT_CALL(m_platform_io, push_control("CPU_POWER_LIMIT_CONTROL", GEOPM_DOMAIN_PACKAGE, _))
         .Times(m_num_package);
 
-    EXPECT_CALL(m_platform_io, read_signal("CPU_POWER_MIN", GEOPM_DOMAIN_PACKAGE, 0))
+    EXPECT_CALL(m_platform_io, read_signal("CPU_POWER_MIN_AVAIL", GEOPM_DOMAIN_PACKAGE, 0))
         .Times(1)
         .WillOnce(Return(M_PKG_POWER_MIN));
-    EXPECT_CALL(m_platform_io, read_signal("CPU_POWER_MAX", GEOPM_DOMAIN_PACKAGE, 0))
+    EXPECT_CALL(m_platform_io, read_signal("CPU_POWER_MAX_AVAIL", GEOPM_DOMAIN_PACKAGE, 0))
         .Times(1)
         .WillOnce(Return(M_PKG_POWER_MAX));
     EXPECT_CALL(m_platform_io, write_control("CPU_POWER_TIME_WINDOW", GEOPM_DOMAIN_PACKAGE, 0, M_PKG_POWER_WIN))

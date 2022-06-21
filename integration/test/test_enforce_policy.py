@@ -54,8 +54,8 @@ class TestIntegrationEnforcePolicy(unittest.TestCase):
         # make sure controls are at default
         self._max_freq = geopm_test_launcher.geopmread("CPU_FREQUENCY_MAX board 0")
         geopm_test_launcher.geopmwrite("CPU_FREQUENCY_CONTROL board 0 {}".format(self._max_freq))
-        self._tdp_power = geopm_test_launcher.geopmread("CPU_POWER_TDP package 0")
-        geopm_test_launcher.geopmwrite("CPU_POWER_LIMIT board 0 {}".format(self._tdp_power))
+        self._tdp_power = geopm_test_launcher.geopmread("CPU_POWER_LIMIT_DEFAULT package 0")
+        geopm_test_launcher.geopmwrite("CPU_POWER_LIMIT_CONTROL board 0 {}".format(self._tdp_power))
         self._sticker_freq = geopm_test_launcher.geopmread("CPU_FREQUENCY_STICKER board 0")
         self._step_freq = geopm_test_launcher.geopmread("CPU_FREQUENCY_STEP board 0")
 

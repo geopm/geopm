@@ -99,7 +99,7 @@ class TestIntegrationProfilePolicy(unittest.TestCase):
         self.assertEqual(policy, 'DYNAMIC')
         # check profile trace for single line with this power cap
         csv_data = pandas.read_csv(policy_trace, delimiter='|', comment='#')
-        self.assertEqual(csv_data['CPU_POWER_LIMIT_TOTAL'][0], self.default_power_cap)
+        self.assertEqual(csv_data['CPU_POWER_LIMIT'][0], self.default_power_cap)
 
     @util.skip_unless_config_enable('beta')
     def test_policy_custom(self):
@@ -122,7 +122,7 @@ class TestIntegrationProfilePolicy(unittest.TestCase):
         self.assertEqual(policy, 'DYNAMIC')
         # check profile trace for single line with this power cap
         csv_data = pandas.read_csv(policy_trace, delimiter='|', comment='#')
-        self.assertEqual(csv_data['CPU_POWER_LIMIT_TOTAL'][0], self.custom_power_cap)
+        self.assertEqual(csv_data['CPU_POWER_LIMIT'][0], self.custom_power_cap)
 
 
 if __name__ == '__main__':
