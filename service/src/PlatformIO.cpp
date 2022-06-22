@@ -13,6 +13,7 @@
 #include <cmath>
 #include <iostream>
 #include <tuple>
+#include <memory>
 
 #include "geopm/Agg.hpp"
 #include "geopm/Exception.hpp"
@@ -27,10 +28,24 @@
 
 namespace geopm
 {
+
+    static PlatformIO &platform_io_helper(bool do_reset)
+    {
+        static std::unique_ptr<PlatformIOImp> instance;
+        if (do_reset) {
+            instance = geopm::make_unique<PlatformIOImp>();
+        }
+        return *instance;
+    }
+
     PlatformIO &platform_io(void)
     {
-        static PlatformIOImp instance;
-        return instance;
+        return platform_io_helper(false);
+    }
+
+    void platform_io_reset(void)
+    {
+        platform_io_helper(true);
     }
 
     PlatformIOImp::PlatformIOImp()
@@ -863,6 +878,12 @@ namespace geopm
 }
 
 extern "C" {
+
+
+    void geopm_pio_reset(void)
+    {
+        geopm::platform_io_reset();
+    }
 
     int geopm_pio_num_signal_name(void)
     {
