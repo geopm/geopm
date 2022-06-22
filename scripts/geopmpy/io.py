@@ -43,11 +43,10 @@ class AppOutput(object):
     This class holds the relevant objects for parsing and indexing all
     data that is output from GEOPM.  This object can be created with a
     a trace glob string that will be used
-    to search dir_name for the relevant files.  If files are found
+    to search ``dir_name`` for the relevant files.  If files are found
     their data will be parsed into objects for easy data access.
-    Additionally a Pandas DataFrame is constructed containing all of
-    all of the
-    trace data.  These DataFrames are indexed based on the version of
+    Additionally a **Pandas** ``DataFrame`` is constructed containing all of the
+    trace data.  These ``DataFrame``\ s are indexed based on the version of
     GEOPM found in the files, the profile name, agent name, and the number
     of times that particular configuration has been seen by the parser
     (i.e. experiment iteration).
@@ -55,7 +54,7 @@ class AppOutput(object):
     Attributes:
         trace_glob: The string pattern to use to search for trace files.
         dir_name: The directory path to use when searching for files.
-        verbose: A bool to control whether verbose output is printed to stdout.
+        verbose: A ``bool`` to control whether verbose output is printed to stdout.
 
     """
 
@@ -169,14 +168,14 @@ class AppOutput(object):
                 pass
 
     def add_trace_df(self, tt, traces_df_list):
-        """Adds a trace DataFrame to the tracking list.
+        """Adds a trace ``DataFrame`` to the tracking list.
 
         The report tracking list is used to create the combined
-        DataFrame once all reports are parsed.
+        ``DataFrame`` once all reports are parsed.
 
         Args:
-            tt: The Trace object used to extract the Trace DataFrame.
-                This DataFrame will be indexed and added to the
+            tt: The ``Trace`` object used to extract the Trace ``DataFrame``.
+                This ``DataFrame`` will be indexed and added to the
                 tracking list.
 
         """
@@ -192,12 +191,12 @@ class AppOutput(object):
         return df
 
     def get_trace_df(self):
-        """Getter for the combined DataFrame of all trace files parsed.
+        """Getter for the combined ``DataFrame`` of all trace files parsed.
 
-        This DataFrame contains all data parsed, and has a complex
-        MultiIndex for accessing the unique data from each individual
+        This ``DataFrame`` contains all data parsed, and has a complex
+        ``MultiIndex`` for accessing the unique data from each individual
         trace.  For more information on this index, see the
-        IndexTracker docstring.
+        ``IndexTracker`` docstring.
 
         Returns:
             pandas.DataFrame: Contains all parsed data.
@@ -207,8 +206,7 @@ class AppOutput(object):
 
 
 class IndexTracker(object):
-    """Tracks and uniquely identifies experiment configurations for
-       DataFrame indexing.
+    """Tracks and uniquely identifies experiment configurations for ``DataFrame`` indexing.
 
     This object's purpose is to examine parsed data for reports or
     traces and determine if a particular experiment configuration has
@@ -221,13 +219,13 @@ class IndexTracker(object):
     The parsed data is used to extract the following fields to build
     the tracking index tuple:
 
-        (<GEOPM_VERSION>, <PROFILE_NAME>, <AGENT_NAME>, <NODE_NAME>)
+    ``(<GEOPM_VERSION>, <PROFILE_NAME>, <AGENT_NAME>, <NODE_NAME>)``
 
-    If the tuple not contained in the _run_outputs dict, it is
+    If the tuple not contained in the ``_run_outputs`` dict, it is
     inserted with a value of 1.  The value is incremented if the tuple
-    is currently in the _run_outputs dict.  This value is used to
+    is currently in the ``_run_outputs`` dict.  This value is used to
     uniquely identify a particular set of parsed data when the
-    MultiIndex is created.
+    ``MultiIndex`` is created.
 
     """
     def __init__(self):
@@ -236,11 +234,11 @@ class IndexTracker(object):
     def _check_increment(self, run_output):
         """Extracts the index tuple from the parsed data and tracks it.
 
-        Checks to see if the current run_output has been seen before.
+        Checks to see if the current ``run_output`` has been seen before.
         If so, the count is incremented.  Otherwise it is stored as 1.
 
         Args:
-            run_output: The Trace object to be tracked.
+            run_output: The ``Trace`` object to be tracked.
         """
         index = (run_output.get_version(), run_output.get_start_time(),
                  os.path.basename(run_output.get_profile_name()),
@@ -252,10 +250,10 @@ class IndexTracker(object):
 
     def _get_base_index(self, run_output):
         """Constructs the actual index tuple to be used to construct a
-           uniquely-identifying MultiIndex for this data.
+           uniquely-identifying ``MultiIndex`` for this data.
 
-        Takes a run_output as input, and returns the unique tuple to
-        identify this run_output in the DataFrame.  Note that this
+        Takes a ``run_output`` as input, and returns the unique tuple to
+        identify this ``run_output`` in the ``DataFrame``.  Note that this
         method appends the current experiment iteration to the end of
         the returned tuple.  E.g.:
 
@@ -264,7 +262,7 @@ class IndexTracker(object):
         'static_policy', 'power_balancing', 'mr-fusion2', 1)
 
         Args:
-            run_output: The Trace object to produce an index tuple for.
+            run_output: The ``Trace`` object to produce an index tuple for.
 
         Returns:
             Tuple: This will contain all of the index fields needed to uniquely identify this data (including the
@@ -278,17 +276,17 @@ class IndexTracker(object):
         return key + (self._run_outputs[key], )
 
     def get_multiindex(self, run_output):
-        """Returns a MultiIndex from this run_output.  Used in DataFrame construction.
+        """Returns a ``MultiIndex`` from this ``run_output``.  Used in ``DataFrame`` construction.
 
-        This will add the current run_output to the list of tracked
+        This will add the current ``run_output`` to the list of tracked
         data, and return a unique muiltiindex tuple to identify this
-        data in a DataFrame.
+        data in a ``DataFrame``.
 
-        For Trace objects, the integer index of the DataFrame is
+        For ``Trace`` objects, the integer index of the ``DataFrame`` is
         appended to the tuple.
 
         Args:
-            run_output: The Trace object to produce an index
+            run_output: The ``Trace`` object to produce an index
                         tuple for.
 
         Returns:
@@ -320,15 +318,15 @@ class IndexTracker(object):
 
 
 class Trace(object):
-    """Creates a pandas DataFrame comprised of the trace file data.
+    """Creates a ``pandas.DataFrame`` comprised of the trace file data.
 
     This object will parse both the header and the CSV data in a trace
     file.  The header identifies the uniquely-identifying configuration
     for this file which is used for later indexing purposes.
 
-    Even though __getattr__() and __getitem__() allow this object to
-    effectively be treated like a DataFrame, you must use get_df() if
-    you're building a list of DataFrames to pass to pandas.concat().
+    Even though ``__getattr__()`` and ``__getitem__()`` allow this object to
+    effectively be treated like a ``DataFrame``, you must use ``get_df()`` if
+    you're building a list of ``DataFrames`` to pass to ``pandas.concat()``.
     Using the raw object in a list and calling concat will cause an
     error.
 
@@ -491,15 +489,15 @@ class Trace(object):
 
     @staticmethod
     def diff_df(trace_df, column_regex, epoch=True):
-        """Diff the DataFrame.
+        """Diff the ``DataFrame``.
 
         Since the counters in the trace files are monotonically
         increasing, a diff must be performed to extract the useful
         data.
 
         Args:
-            trace_df: The MultiIndexed DataFrame created by the
-                      AppOutput class.
+            trace_df: The ``MultiIndex``\ ed ``DataFrame`` created by the
+                      ``AppOutput`` class.
             column_regex: A string representing the regex search
                           pattern for the column names to diff.
             epoch: A flag to set whether or not to focus solely on
@@ -507,13 +505,11 @@ class Trace(object):
 
         Returns:
 
-            pandas.DataFrame: With the diffed columns specified by
-                              'column_regex', and an 'elapsed_time'
-                              column.
+            pandas.DataFrame: With the diffed columns specified by ``'column_regex'``, and an ``'elapsed_time'`` column.
 
-        Todo:
+        TODO:
             * Should I drop everything before the first epoch if
-              'epoch' is false?
+              ``'epoch'`` is false?
 
         """
         # drop_duplicates() is a workaround for #662. Duplicate data
@@ -546,16 +542,16 @@ class Trace(object):
 
         This logic calculates the sum of elapsed times for all of the
         experiment iterations for all nodes in that iteration.  It
-        then extracts the DataFrame for the iteration that is closest
-        to the median.  For input DataFrames with a single iteration,
+        then extracts the ``DataFrame`` for the iteration that is closest
+        to the median.  For input ``DataFrame``\ s with a single iteration,
         the single iteration is returned.
 
         Args:
-            trace_df: The MultiIndexed DataFrame created by the
-                      AppOutput class.
+            trace_df: The ``MultiIndex``\ ed ``DataFrame`` created by the
+                      ``AppOutput`` class.
             column_regex: A string representing the regex search
                           pattern for the column names to diff.
-            config: The TraceConfig object being used presently.
+            config: The ``TraceConfig`` object being used presently.
 
         Returns:
             pandas.DataFrame: Containing a single experiment iteration.
@@ -642,7 +638,7 @@ imbalance : {imbalance}
 
             imbalance: The amount of imbalance to apply to the node.
                        This is specified by a float in the range
-                       [0,1].  For example, specifying a value of 0.25
+                       ``[0,1]``.  For example, specifying a value of 0.25
                        means that this node will spend 25% more time
                        executing the work than a node would by
                        default.  Nodes not specified with imbalance
@@ -795,7 +791,7 @@ class RawReport(object):
 
 class RawReportCollection(object):
     '''
-    Used to group together a collection of related RawReports.
+    Used to group together a collection of related ``RawReport``\ s.
     '''
 
     def __init__(self, report_paths, dir_name='.', dir_cache=None, verbose=True, do_cache=True):
@@ -823,9 +819,10 @@ class RawReportCollection(object):
 
     def load_reports(self, reports, dir_name, dir_cache, verbose, do_cache):
         '''
-        TODO: copied from AppOutput.  refactor to shared function.
-        - removed concept of tracked files to be deleted
-        - added separate epoch dataframe
+        TODO:
+            * copied from ``AppOutput``.  refactor to shared function.
+            * removed concept of tracked files to be deleted
+            * added separate epoch dataframe
         '''
         if type(reports) is list:
             report_paths = [os.path.join(dir_name, path) for path in reports]
