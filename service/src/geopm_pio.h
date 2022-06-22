@@ -443,6 +443,9 @@ int geopm_pio_format_signal(double signal,
                             size_t result_max,
                             char *result);
 
+
+void geopm_pio_reset(void);
+
 #ifdef __cplusplus
 }
 #endif
