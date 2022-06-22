@@ -5,11 +5,11 @@
 
 """This module provides a way to launch MPI applications using the
 GEOPM runtime by wrapping the call to the system MPI application
-launcher.  The module currently supports wrapping the SLURM 'srun'
-command, the ALPS 'aprun' command, and 'mpiexec' command provided by
+launcher.  The module currently supports wrapping the SLURM ``srun``
+command, the ALPS ``aprun`` command, and ``mpiexec`` command provided by
 Open MPI and Intel MPI.  The primary use of this module
-is through the geopmlauncher(1) command line executable which calls
-the geopmpy.launcher.main() function.  See the geopmlauncher(1) man
+is through the :doc:`geopmlaunch(1) <geopmlaunch.1>` command line executable which calls
+the ``geopmpy.launcher.main()`` function.  See the :doc:`geopmlaunch(1) <geopmlaunch.1>` man
 page for details about the command line interface.
 """
 
@@ -267,7 +267,7 @@ class Config(object):
 
     def set_omp_num_threads(self, omp_num_threads):
         """
-        Control the OMP_NUM_THREADS environment variable.
+        Control the ``OMP_NUM_THREADS`` environment variable.
         """
         self.omp_num_threads = str(omp_num_threads)
 
@@ -644,7 +644,7 @@ Warning: <geopm> geopmpy.launcher: Incompatible CPU frequency governor
         list is over MPI ranks on a node from lowest to highest rank.
         The process for each MPI rank is restricted to the Linux CPUs
         enumerated in the set.  The output from this function is used
-        by the derived class's affinity_option() method to set CPU
+        by the derived class's ``affinity_option()`` method to set CPU
         affinities.
         """
         app_rank_per_node = self.num_app_mask
@@ -778,7 +778,7 @@ Warning: <geopm> geopmpy.launcher: Incompatible CPU frequency governor
 
     def num_rank_option(self, is_geopmctl):
         """
-        Returns a list containing the -n option which is defined in the
+        Returns a list containing the ``-n`` option which is defined in the
         MPI standard for all job launch applications to specify the
         number of MPI processes or "ranks".
         """
@@ -901,7 +901,7 @@ Warning: <geopm> geopmpy.launcher: Incompatible CPU frequency governor
 class SrunLauncher(Launcher):
     """
     Launcher derived object for use with the SLURM job launch
-    application srun.
+    application ``srun``.
     """
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
                  time_limit=None, job_name=None, node_list=None, exclude_list=None, host_file=None,
@@ -923,14 +923,14 @@ class SrunLauncher(Launcher):
     def int_handler(self, signum, frame):
         """
         This is necessary to prevent the script from dying on the first
-        CTRL-C press.  SLURM requires 2 SIGINT signals to abort the
+        **CTRL-C** press.  SLURM requires 2 ``SIGINT`` signals to abort the
         job.
         """
         sys.stderr.write("srun: interrupt (one more within 1 sec to abort)\n")
 
     def parse_launcher_argv(self):
         """
-        Parse the subset of srun command line arguments used or
+        Parse the subset of ``srun`` command line arguments used or
         manipulated by GEOPM.
         """
         parser = argparse.ArgumentParser(add_help=False)
@@ -976,19 +976,19 @@ class SrunLauncher(Launcher):
 
     def launcher_command(self):
         """
-        Returns 'srun', the name of the SLURM MPI job launch application.
+        Returns ``'srun'``, the name of the SLURM MPI job launch application.
         """
         return 'srun'
 
     def num_node_option(self):
         """
-        Returns a list containing the -N option for srun.
+        Returns a list containing the ``-N`` option for ``srun``.
         """
         return ['-N', str(self.num_node)]
 
     def exclude_list_option(self):
         """
-        Returns a list containing the -x option for srun.
+        Returns a list containing the ``-x`` option for ``srun``.
         """
         result = []
         if self.exclude_list is not None:
@@ -997,10 +997,10 @@ class SrunLauncher(Launcher):
 
     def affinity_option(self, is_geopmctl):
         """
-        Returns a list containing the --cpu_bind option for
-        srun.  If the mpibind plugin is supported, it is explicitly
+        Returns a list containing the ``--cpu_bind`` option for
+        ``srun``.  If the ``mpibind`` plugin is supported, it is explicitly
         disabled so it does not interfere with affinitization.  If
-        the cpu_bind plugin is not detected, an exception is raised.
+        the ``cpu_bind`` plugin is not detected, an exception is raised.
         """
         result = []
         if self.is_geopm_enabled:
@@ -1039,7 +1039,7 @@ class SrunLauncher(Launcher):
 
     def timeout_option(self):
         """
-        Returns a list containing the -I option for srun.
+        Returns a list containing the ``-I`` option for ``srun``.
         """
         result = []
         if self.timeout is not None:
@@ -1048,7 +1048,7 @@ class SrunLauncher(Launcher):
 
     def time_limit_option(self):
         """
-        Returns a list containing the -t option for srun.
+        Returns a list containing the ``-t`` option for ``srun``.
         """
         result = []
         if self.time_limit is not None:
@@ -1058,7 +1058,7 @@ class SrunLauncher(Launcher):
 
     def job_name_option(self):
         """
-        Returns a list containing the -J option for srun.
+        Returns a list containing the ``-J`` option for ``srun``.
         """
 
         result = []
@@ -1068,7 +1068,7 @@ class SrunLauncher(Launcher):
 
     def node_list_option(self):
         """
-        Returns a list containing the -w option for srun.
+        Returns a list containing the ``-w`` option for ``srun``.
         """
         if (self.node_list is not None and
             self.host_file is not None and
@@ -1117,7 +1117,7 @@ class SrunLauncher(Launcher):
 class SrunTOSSLauncher(SrunLauncher):
     """
     Launcher derived object for use with systems using TOSS and the
-    mpibind plugin from LLNL.
+    ``mpibind`` plugin from LLNL.
     """
     def affinity_option(self, is_geopmctl):
         """
@@ -1138,7 +1138,7 @@ class SrunTOSSLauncher(SrunLauncher):
 class OMPIExecLauncher(Launcher):
     """
     Launcher derived object for use with Open MPI project launch
-    application mpiexec.
+    application ``mpiexiec``.
     """
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
                  time_limit=None, job_name=None, node_list=None, exclude_list=None, host_file=None,
@@ -1164,13 +1164,13 @@ class OMPIExecLauncher(Launcher):
 
     def launcher_command(self):
         """
-        Returns 'mpiexec', the name of the Open MPI project job launch application.
+        Returns ``'mpiexec'``, the name of the Open MPI project job launch application.
         """
         return 'mpiexec'
 
     def parse_launcher_argv(self):
         """
-        Parse the subset of mpiexec command line arguments used or
+        Parse the subset of ``mpiexec`` command line arguments used or
         manipulated by GEOPM.
         """
         parser = argparse.ArgumentParser(add_help=False)
@@ -1298,7 +1298,7 @@ class OMPIExecLauncher(Launcher):
 
     def node_list_option(self):
         """
-        Returns a list containing the --host option for mpiexiec.
+        Returns a list containing the ``--host`` option for ``mpiexiec``.
         """
         result = []
         if self.node_list:
@@ -1327,7 +1327,7 @@ class OMPIExecLauncher(Launcher):
 class IMPIExecLauncher(Launcher):
     """
     Launcher derived object for use with the Intel(R) MPI Library job launch
-    application mpiexec.hydra.
+    application ``mpiexec.hydra``.
     """
     _is_once = True
 
@@ -1353,13 +1353,13 @@ class IMPIExecLauncher(Launcher):
 
     def launcher_command(self):
         """
-        Returns 'mpiexec.hydra', the name of the Intel MPI Library job launch application.
+        Returns ``'mpiexec.hydra'``, the name of the Intel MPI Library job launch application.
         """
         return 'mpiexec.hydra'
 
     def parse_launcher_argv(self):
         """
-        Parse the subset of srun command line arguments used or
+        Parse the subset of ``srun`` command line arguments used or
         manipulated by GEOPM.
         """
         parser = argparse.ArgumentParser(add_help=False)
@@ -1424,7 +1424,7 @@ class IMPIExecLauncher(Launcher):
 
     def node_list_option(self):
         """
-        Returns a list containing the -w option for srun.
+        Returns a list containing the ``-w`` option for ``srun``.
         """
         if (self.node_list is not None and
             self.host_file is not None and
@@ -1523,7 +1523,7 @@ class AprunLauncher(Launcher):
 
     def parse_launcher_argv(self):
         """
-        Parse the subset of aprun command line arguments used or
+        Parse the subset of ``aprun`` command line arguments used or
         manipulated by GEOPM.
         """
         parser = argparse.ArgumentParser(add_help=False)
@@ -1560,14 +1560,14 @@ class AprunLauncher(Launcher):
 
     def launcher_command(self):
         """
-        Returns 'aprun', the name of the ALPS MPI job launch application.
+        Returns ``'aprun'``, the name of the ALPS MPI job launch application.
         """
         return 'aprun'
 
     def num_node_option(self):
         """
-        Returns a list containing the -N option for aprun.  Must be
-        combined with the -n option to determine the number of nodes.
+        Returns a list containing the ``-N`` option for ``aprun``.  Must be
+        combined with the ``-n`` option to determine the number of nodes.
         """
         result = []
         if self.num_rank is not None and self.num_node is not None:
@@ -1576,7 +1576,7 @@ class AprunLauncher(Launcher):
 
     def affinity_option(self, is_geopmctl):
         """
-        Returns the --cpu-binding option for aprun.
+        Returns the ``--cpu-binding`` option for ``aprun``.
         """
         result = []
         if self.is_geopm_enabled:
@@ -1593,7 +1593,7 @@ class AprunLauncher(Launcher):
 
     def time_limit_option(self):
         """
-        Returns a list containing the -t option for aprun.
+        Returns a list containing the ``-t`` option for ``aprun``.
         """
         result = []
         if self.time_limit is not None:
@@ -1604,7 +1604,7 @@ class AprunLauncher(Launcher):
 
     def node_list_option(self):
         """
-        Returns a list containing the -L option for aprun.
+        Returns a list containing the ``-L`` option for ``aprun``.
         """
         result = []
         if self.node_list is not None:
@@ -1613,7 +1613,7 @@ class AprunLauncher(Launcher):
 
     def host_file_option(self):
         """
-        Returns a list containing the -l option for aprun.
+        Returns a list containing the ``-l`` option for ``aprun``.
         """
         result = []
         if self.host_file is not None:
@@ -1622,7 +1622,7 @@ class AprunLauncher(Launcher):
 
     def exclude_list_option(self):
         """
-        Returns a list containing the -E option for aprun.
+        Returns a list containing the ``-E`` option for ``aprun``.
         """
         result = []
         if self.exclude_list is not None:
@@ -1640,19 +1640,19 @@ class AprunLauncher(Launcher):
 
     def quiet_option(self):
         """
-        Returns a list containing the -q option for aprun.
+        Returns a list containing the ``-q`` option for ``aprun``.
         """
         return ['-q']
 
 
 def main():
     """
-    Main routine used by geopmlaunch wrapper executable.
+    Main routine used by ``geopmlaunch`` wrapper executable.
     This function creates a launcher from the factory and
-    calls the run method.  If help was requested on the command line
+    calls the ``run()`` method.  If help was requested on the command line
     then help from the underlying application launcher is printed and
     the help for the GEOPM extensions are appended.  Returns -1 and
-    prints an error message if an error occurs.  If the GEOPM_DEBUG
+    prints an error message if an error occurs.  If the ``GEOPM_DEBUG``
     environment variable is set and an error occurs a complete stack
     trace will be printed.
 

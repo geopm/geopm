@@ -17,6 +17,7 @@ except OSError as ee:
 
 def crc32_str(key):
     """Return the geopm hash of a string
+
     Args:
         key (int): String to hash
 
