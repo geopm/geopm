@@ -75,7 +75,8 @@ source_suffix = '.rst'
 
 napoleon_google_docstring = True
 
-autodoc_mock_imports = ['geopmdpy.gffi']
+autodoc_mock_imports = ['geopmdpy.gffi',
+                        'pandas']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
