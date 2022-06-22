@@ -22,7 +22,7 @@ def init():
     '''Initialize reporter object
 
     This call pushes all required signals onto the batch requests for
-    geopmdpy.pio.  This also sets the start time for the report.
+    ``geopmdpy.pio``.  This also sets the start time for the report.
 
     '''
     global _dl
@@ -34,7 +34,7 @@ def update():
     '''Update aggregated statistics
 
     The update to the aggregated statistics is based on the values
-    last read by geopmdpy.pio.read_batch().
+    last read by ``geopmdpy.pio.read_batch()``.
 
     '''
     global _dl
@@ -46,18 +46,17 @@ def generate(profile_name, agent_name):
     '''Create a YAML report based on all aggregated data
 
     Returns a string representing a YAML report reflecting the data
-    gathered over time with calls to the update() method.
+    gathered over time with calls to the ``update()`` method.
 
     Args:
         profile_name (str): String that will be added to the report
-                     in the Profile field in the report header.
+                     in the ``Profile`` field in the report header.
 
         agent_name (str): String that will be added to the report in
-                   the Agent field in the report header.
+                   the ``Agent`` field in the report header.
 
     Returns:
-        str: YAML report containing header with meta-data and the
-             aggregated measurements made during execution.
+        str: YAML report containing header with meta-data and the aggregated measurements made during execution.
 
     '''
     global gffi
