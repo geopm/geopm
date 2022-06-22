@@ -34,7 +34,6 @@
 #include "geopm_version.h"
 #include "geopm_debug.hpp"
 #include "Environment.hpp"
-#include "geopm_debug.hpp"
 #include "PlatformIOProf.hpp"
 #include "geopm_time.h"
 
