@@ -269,7 +269,7 @@ namespace geopm
                                      }),
                       ret.end());
         }
-        if (ret != env_profile) {
+        if (!env_profile.empty() && ret != env_profile) {
             std::cerr << "Warning: <geopm> The GEOPM_PROFILE contains invalid characters: \""
                       << env_profile << "\" converted to \"" << ret << "\n";
         }
