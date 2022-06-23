@@ -182,8 +182,8 @@ TEST_F(MSRIOGroupTest, valid_signal_names)
     ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::TEMPERATURE_TARGET:PROCHOT_MIN"));
     ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::THERM_STATUS:DIGITAL_READOUT"));
     ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::PACKAGE_THERM_STATUS:DIGITAL_READOUT"));
-    signal_aliases.push_back("TEMPERATURE_CORE");
-    signal_aliases.push_back("TEMPERATURE_PACKAGE");
+    signal_aliases.push_back("CPU_CORE_TEMPERATURE");
+    signal_aliases.push_back("CPU_PACKAGE_TEMPERATURE");
 
     //// power signals
     ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::PKG_POWER_INFO:MIN_POWER"));
@@ -228,9 +228,9 @@ TEST_F(MSRIOGroupTest, valid_signal_domains)
 
     // temperature
     EXPECT_EQ(GEOPM_DOMAIN_CORE,
-              m_msrio_group->signal_domain_type("TEMPERATURE_CORE"));
+              m_msrio_group->signal_domain_type("CPU_CORE_TEMPERATURE"));
     EXPECT_EQ(GEOPM_DOMAIN_PACKAGE,
-              m_msrio_group->signal_domain_type("TEMPERATURE_PACKAGE"));
+              m_msrio_group->signal_domain_type("CPU_PACKAGE_TEMPERATURE"));
 
     // power
     EXPECT_EQ(GEOPM_DOMAIN_PACKAGE,
@@ -274,9 +274,9 @@ TEST_F(MSRIOGroupTest, valid_signal_aggregation)
     //EXPECT_TRUE(is_agg_expect_same(func));
 
     // temperature
-    func = m_msrio_group->agg_function("TEMPERATURE_CORE");
+    func = m_msrio_group->agg_function("CPU_CORE_TEMPERATURE");
     EXPECT_TRUE(is_agg_average(func));
-    func = m_msrio_group->agg_function("TEMPERATURE_PACKAGE");
+    func = m_msrio_group->agg_function("CPU_PACKAGE_TEMPERATURE");
     EXPECT_TRUE(is_agg_average(func));
 
     // power
@@ -303,7 +303,7 @@ TEST_F(MSRIOGroupTest, valid_signal_format)
     std::vector<std::string> si_alias = {
         "CPU_ENERGY", "DRAM_ENERGY",
         "CPU_FREQUENCY_STATUS", "CPU_FREQUENCY_MAX",
-        "TEMPERATURE_CORE", "TEMPERATURE_PACKAGE",
+        "CPU_CORE_TEMPERATURE", "CPU_PACKAGE_TEMPERATURE",
         "CPU_POWER_MIN_AVAIL", "CPU_POWER_MAX_AVAIL", "CPU_POWER_LIMIT_DEFAULT",
         "CPU_POWER", "DRAM_POWER"
     };
@@ -602,7 +602,7 @@ TEST_F(MSRIOGroupTest, read_signal_temperature)
         .WillOnce(Return(value));
     // temperature is (PROCHOT_MIN - DIGITAL_READOUT)
     double exp_temp = prochot_val - readout_val;
-    EXPECT_NEAR(exp_temp, m_msrio_group->read_signal("TEMPERATURE_CORE", GEOPM_DOMAIN_CORE, 0), 0.001);
+    EXPECT_NEAR(exp_temp, m_msrio_group->read_signal("CPU_CORE_TEMPERATURE", GEOPM_DOMAIN_CORE, 0), 0.001);
 
     readout_val = 55;
     exp_temp = prochot_val - readout_val;
@@ -611,7 +611,7 @@ TEST_F(MSRIOGroupTest, read_signal_temperature)
     value = readout_val << pkg_readout_begin;
     EXPECT_CALL(*m_msrio, read_msr(0, pkg_readout_msr))
         .WillOnce(Return(value));
-    EXPECT_NEAR(exp_temp, m_msrio_group->read_signal("TEMPERATURE_PACKAGE", GEOPM_DOMAIN_PACKAGE, 0), 0.001);
+    EXPECT_NEAR(exp_temp, m_msrio_group->read_signal("CPU_PACKAGE_TEMPERATURE", GEOPM_DOMAIN_PACKAGE, 0), 0.001);
 }
 
 TEST_F(MSRIOGroupTest, read_signal_power)
@@ -666,8 +666,8 @@ TEST_F(MSRIOGroupTest, push_signal_temperature)
     EXPECT_CALL(*m_msrio, add_read(0, pkg_readout_msr))
         .WillOnce(Return(PKG_READOUT_0));
 
-    int core_idx = m_msrio_group->push_signal("TEMPERATURE_CORE", GEOPM_DOMAIN_CORE, 0);
-    int pkg_idx = m_msrio_group->push_signal("TEMPERATURE_PACKAGE", GEOPM_DOMAIN_PACKAGE, 0);
+    int core_idx = m_msrio_group->push_signal("CPU_CORE_TEMPERATURE", GEOPM_DOMAIN_CORE, 0);
+    int pkg_idx = m_msrio_group->push_signal("CPU_PACKAGE_TEMPERATURE", GEOPM_DOMAIN_PACKAGE, 0);
     EXPECT_GE(core_idx, 0);
     EXPECT_GE(pkg_idx, 0);
 

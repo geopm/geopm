@@ -128,7 +128,7 @@ class TestIntegrationGeopmio(unittest.TestCase):
             "CPU_POWER": (20, 400),
             "CPU_FREQUENCY_STATUS": (1.0e8, 5.0e9),
             "TIME": (0, 10),  # time in sec to start geopmread
-            "TEMPERATURE_CORE": (0, 100)
+            "CPU_CORE_TEMPERATURE": (0, 100)
         }
 
         for signal_name, val_range in signal_range.items():
