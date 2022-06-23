@@ -79,6 +79,9 @@ Descriptions Of High Level Aliases
     Power measured on the server's board. See :ref:`geopm_pio_cnl(7)
     <geopm_pio_cnl.7:Requirements>` for signal availability requirements.
 
+``CPU_CORE_TEMPERATURE``
+    CPU core temperature, in degrees Celsius.
+
 ``CPU_CYCLES_REFERENCE``
     The count of the number of cycles while the logical processor is not in a
     halt state and not in a stop-clock state. The count rate is fixed at the
@@ -114,6 +117,9 @@ Descriptions Of High Level Aliases
 
 ``CPU_INSTRUCTIONS_RETIRED``
     The count of the number of instructions executed.
+
+``CPU_PACKAGE_TEMPERATURE``
+    CPU package temperature, in degrees Celsius.
 
 ``CPU_POWER_LIMIT_CONTROL``
     The average power usage limit over the time window specified in

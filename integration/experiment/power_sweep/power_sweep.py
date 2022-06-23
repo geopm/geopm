@@ -56,7 +56,7 @@ def report_signals():
 
 def trace_signals():
     return ["MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT@package",
-            "TEMPERATURE_PACKAGE@package"]
+            "CPU_PACKAGE_TEMPERATURE@package"]
 
 
 def launch_configs(output_dir, app_conf, agent_types, min_power, max_power, step_power):

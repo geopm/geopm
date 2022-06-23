@@ -93,8 +93,8 @@ namespace geopm
                      m_platform_io.format_function("CPU_CYCLES_THREAD")},
                     {"CPU_CYCLES_REFERENCE", GEOPM_DOMAIN_BOARD, 0,
                      m_platform_io.format_function("CPU_CYCLES_REFERENCE")},
-                    {"TEMPERATURE_CORE", GEOPM_DOMAIN_BOARD, 0,
-                     m_platform_io.format_function("TEMPERATURE_CORE")}});
+                    {"CPU_CORE_TEMPERATURE", GEOPM_DOMAIN_BOARD, 0,
+                     m_platform_io.format_function("CPU_CORE_TEMPERATURE")}});
 
             m_region_hash_idx = 2;
             m_region_hint_idx = 3;

@@ -97,7 +97,7 @@ class TestIntegration_fmap_short_region_slop(unittest.TestCase):
         cls._num_rank = 2
         cls._job_time_limit = 6000
         cls._report_signals = 'CPU_INSTRUCTIONS_RETIRED,CPU_CYCLES_REFERENCE,CPU_CYCLES_THREAD'
-        cls._trace_signals = 'CPU_INSTRUCTIONS_RETIRED,MSR::UNCORE_PERF_STATUS:FREQ,TEMPERATURE_CORE'
+        cls._trace_signals = 'CPU_INSTRUCTIONS_RETIRED,MSR::UNCORE_PERF_STATUS:FREQ,CPU_CORE_TEMPERATURE'
         if not cls._skip_launch:
             cls.launch()
 
@@ -377,7 +377,7 @@ def get_freq(trace):
 
 
 def get_temperature(trace):
-    return trace['TEMPERATURE_CORE']
+    return trace['CPU_CORE_TEMPERATURE']
 
 
 def get_relative_time(trace):

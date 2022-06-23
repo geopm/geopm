@@ -308,8 +308,8 @@ namespace geopm
             std::string msr_name;
         };
         std::vector<temp_data> temp_signals {
-            {"TEMPERATURE_CORE", "Core temperature", "MSR::THERM_STATUS:DIGITAL_READOUT"},
-            {"TEMPERATURE_PACKAGE", "Package temperature", "MSR::PACKAGE_THERM_STATUS:DIGITAL_READOUT"}
+            {"CPU_CORE_TEMPERATURE", "Core temperature", "MSR::THERM_STATUS:DIGITAL_READOUT"},
+            {"CPU_PACKAGE_TEMPERATURE", "Package temperature", "MSR::PACKAGE_THERM_STATUS:DIGITAL_READOUT"}
         };
         for (const auto &ts : temp_signals) {
             std::string signal_name = ts.temp_name;

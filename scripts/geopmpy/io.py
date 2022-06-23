@@ -352,7 +352,7 @@ class Trace(object):
                        'frequency': 'FREQUENCY',
                        'cycles_thread': 'CPU_CYCLES_THREAD',
                        'cycles_reference': 'CPU_CYCLES_REFERENCE',
-                       'temperature_core': 'TEMPERATURE_CORE'}
+                       'temperature_core': 'CPU_CORE_TEMPERATURE'}
 
         old_balancer_headers = {'policy_power_cap': 'POLICY_POWER_CAP',
                                 'policy_step_count': 'POLICY_STEP_COUNT',
