@@ -55,7 +55,7 @@ namespace geopm
             const int M_NUM_PACKAGE;
             const int M_NUM_CORE;
             bool m_do_write_batch;
-            bool m_update_qm_max_rate;
+            bool m_update_characterization;
 
             struct signal
             {
@@ -96,10 +96,20 @@ namespace geopm
             double m_uncore_frequency_requests;
             double m_freq_uncore_min;
             double m_freq_uncore_max;
+
+            double m_f_uncore_efficient;
+            double m_f_uncore_max;
+            double m_f_uncore_range;
+            double m_f_core_efficient;
+            double m_f_core_max;
+            double m_f_core_range;
+
             double m_resolved_f_uncore_efficient;
             double m_resolved_f_uncore_max;
+            double m_resolved_f_uncore_range;
             double m_resolved_f_core_efficient;
             double m_resolved_f_core_max;
+            double m_resolved_f_core_range;
             std::map<double,double> m_qm_max_rate;
 
             std::vector<signal> m_core_scal;
@@ -111,6 +121,7 @@ namespace geopm
             std::vector<control> m_uncore_freq_max_control;
 
             void init_platform_io(void);
+            void node_characterization(const std::vector<double> &in_policy);
     };
 }
 #endif

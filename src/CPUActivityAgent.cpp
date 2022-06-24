@@ -38,7 +38,7 @@ namespace geopm
         , M_NUM_PACKAGE(m_platform_topo.num_domain(GEOPM_DOMAIN_PACKAGE))
         , M_NUM_CORE(m_platform_topo.num_domain(GEOPM_DOMAIN_CORE))
         , m_do_write_batch(false)
-        , m_update_qm_max_rate(true)
+        , m_update_characterization(true)
     {
         geopm_time(&m_last_wait);
     }
@@ -46,12 +46,21 @@ namespace geopm
     // Push signals and controls for future batch read/write
     void CPUActivityAgent::init(int level, const std::vector<int> &fan_in, bool is_level_root)
     {
-        m_core_frequency_requests = 0;
         m_uncore_frequency_requests = 0;
+        m_f_uncore_efficient = 0;
+        m_f_uncore_max = 0;
+        m_f_uncore_range = 0;
         m_resolved_f_uncore_efficient = 0;
         m_resolved_f_uncore_max = 0;
+        m_resolved_f_uncore_range = 0;
+
+        m_core_frequency_requests = 0;
+        m_f_core_efficient = 0;
+        m_f_core_max = 0;
+        m_f_core_range = 0;
         m_resolved_f_core_efficient = 0;
         m_resolved_f_core_max = 0;
+        m_resolved_f_core_range = 0;
 
         // These are not currently guaranteed to be the system uncore min and max,
         // just what the user/admin has previously set.
@@ -106,66 +115,6 @@ namespace geopm
                             std::to_string(M_NUM_POLICY) + ", actual: " +
                             std::to_string(in_policy.size()));
 
-        ///////////////////////
-        //CPU POLICY CHECKING//
-        ///////////////////////
-        double freq_core_min = m_platform_io.read_signal("CPU_FREQUENCY_MIN", GEOPM_DOMAIN_BOARD, 0);
-        double freq_core_max = m_platform_io.read_signal("CPU_FREQUENCY_MAX", GEOPM_DOMAIN_BOARD, 0);
-
-        // Check for NAN to set default values for policy
-        if (std::isnan(in_policy[M_POLICY_CPU_FREQ_MAX])) {
-            in_policy[M_POLICY_CPU_FREQ_MAX] = freq_core_max;
-        }
-
-        if (in_policy[M_POLICY_CPU_FREQ_MAX] > freq_core_max ||
-            in_policy[M_POLICY_CPU_FREQ_MAX] < freq_core_min ) {
-            throw Exception("CPUActivityAgent::" + std::string(__func__) +
-                            "():CPU_FREQ_MAX out of range: " +
-                            std::to_string(in_policy[M_POLICY_CPU_FREQ_MAX]) +
-                            ".", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-
-        // Check for NAN to set default values for policy
-        if (std::isnan(in_policy[M_POLICY_CPU_FREQ_EFFICIENT])) {
-            in_policy[M_POLICY_CPU_FREQ_EFFICIENT] = freq_core_min;
-        }
-
-        if (in_policy[M_POLICY_CPU_FREQ_EFFICIENT] > freq_core_max ||
-            in_policy[M_POLICY_CPU_FREQ_EFFICIENT] < freq_core_min ) {
-            throw Exception("CPUActivityAgent::" + std::string(__func__) +
-                            "():CPU_FREQ_EFFICIENT out of range: " +
-                            std::to_string(in_policy[M_POLICY_CPU_FREQ_EFFICIENT]) +
-                            ".", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-
-        if (in_policy[M_POLICY_CPU_FREQ_EFFICIENT] > in_policy[M_POLICY_CPU_FREQ_MAX]) {
-            throw Exception("CPUActivityAgent::" + std::string(__func__) +
-                            "():CPU_FREQ_EFFICIENT (" +
-                            std::to_string(in_policy[M_POLICY_CPU_FREQ_EFFICIENT]) +
-                            ") value exceeds CPU_FREQ_MAX (" +
-                            std::to_string(in_policy[M_POLICY_CPU_FREQ_MAX]) +
-                            ").", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-
-        //////////////////////////
-        //UNCORE POLICY CHECKING//
-        //////////////////////////
-        if (std::isnan(in_policy[M_POLICY_UNCORE_FREQ_MAX])) {
-            in_policy[M_POLICY_UNCORE_FREQ_MAX] = m_freq_uncore_max;
-        }
-        if (std::isnan(in_policy[M_POLICY_UNCORE_FREQ_EFFICIENT])) {
-            in_policy[M_POLICY_UNCORE_FREQ_EFFICIENT] = m_freq_uncore_min;
-        }
-
-        if (in_policy[M_POLICY_UNCORE_FREQ_EFFICIENT] > in_policy[M_POLICY_UNCORE_FREQ_MAX]) {
-            throw Exception("CPUActivityAgent::" + std::string(__func__) +
-                            "():CPU_UNCORE_FREQ_EFFICIENT (" +
-                            std::to_string(in_policy[M_POLICY_UNCORE_FREQ_EFFICIENT]) +
-                            ") value exceeds CPU_UNCORE_FREQ_MAX (" +
-                            std::to_string(in_policy[M_POLICY_UNCORE_FREQ_MAX]) +
-                            ").", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-
         // If no sample period is provided assume the default behavior
         if (std::isnan(in_policy[M_POLICY_SAMPLE_PERIOD])) {
             in_policy[M_POLICY_SAMPLE_PERIOD] = M_WAIT_SEC;
@@ -192,40 +141,6 @@ namespace geopm
                                    std::to_string(in_policy[M_POLICY_CPU_PHI]) + ".",
                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-
-        double f_core_max = in_policy[M_POLICY_CPU_FREQ_MAX];
-        double f_core_efficient = in_policy[M_POLICY_CPU_FREQ_EFFICIENT];
-        double f_core_range = f_core_max - f_core_efficient;
-
-        double f_uncore_max = in_policy[M_POLICY_UNCORE_FREQ_MAX];
-        double f_uncore_efficient = in_policy[M_POLICY_UNCORE_FREQ_EFFICIENT];
-        double f_uncore_range = f_uncore_max - f_uncore_efficient;
-
-        double phi = in_policy[M_POLICY_CPU_PHI];
-
-        // If phi is not 0.5 we move into the energy or performance biased behavior
-        if (phi > 0.5) {
-            // Energy Biased.  Scale F_max down to F_efficient based upon phi value
-            // Active region phi usage
-            f_core_max = std::max(f_core_efficient, f_core_max -
-                                                    f_core_range * (phi-0.5) / 0.5);
-            f_uncore_max = std::max(f_uncore_efficient, f_uncore_max -
-                                                        f_uncore_range * (phi-0.5) / 0.5);
-        }
-        else if (phi < 0.5) {
-            // Perf Biased.  Scale F_efficient up to F_max based upon phi value
-            // Active region phi usage
-            f_core_efficient = std::min(f_core_max, f_core_efficient +
-                                                    f_core_range * (0.5-phi) / 0.5);
-
-            f_uncore_efficient = std::min(f_uncore_max, f_uncore_efficient +
-                                                        f_uncore_range * (0.5-phi) / 0.5);
-        }
-        //Update Policy
-        in_policy[M_POLICY_CPU_FREQ_MAX] = f_core_max;
-        in_policy[M_POLICY_CPU_FREQ_EFFICIENT] = f_core_efficient;
-        in_policy[M_POLICY_UNCORE_FREQ_MAX] = f_uncore_max;
-        in_policy[M_POLICY_UNCORE_FREQ_EFFICIENT] = f_uncore_efficient;
 
         // Validate all (uncore frequency, max memory bandwidth) pairs
         std::set<double> policy_uncore_freqs;
@@ -288,41 +203,211 @@ namespace geopm
         return false;
     }
 
+    // Handle per node characterization settings and policy overrides
+    void CPUActivityAgent::node_characterization(const std::vector<double>& in_policy) {
+        ///////////////////////////
+        // Core characterization //
+        ///////////////////////////
+        auto all_names = m_platform_io.signal_names();
+        double freq_core_min = m_platform_io.read_signal("CPU_FREQUENCY_MIN", GEOPM_DOMAIN_BOARD, 0);
+        double freq_core_max = m_platform_io.read_signal("CPU_FREQUENCY_MAX", GEOPM_DOMAIN_BOARD, 0);
+
+        // Max Core Frequency Selection
+        if (std::isnan(in_policy[M_POLICY_CPU_FREQ_MAX])) {
+            // If no value is provided use the local node setting
+            m_f_core_max = freq_core_max;
+        } else {
+            m_f_core_max = in_policy[M_POLICY_CPU_FREQ_MAX];
+        }
+
+        if (m_f_core_max > freq_core_max ||
+            m_f_core_max < freq_core_min) {
+            throw Exception("CPUActivityAgent::" + std::string(__func__) +
+                            "():Core maximum frequency out of range before applying PHI: " +
+                            std::to_string(m_f_core_max) +
+                            ".", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
+        // Efficient Core Frequency Selection
+        if (std::isnan(in_policy[M_POLICY_CPU_FREQ_EFFICIENT])) {
+            // If no policy value is provided we use the
+            // no local characterization value or the
+            // node local minimum value
+            if (all_names.find("NODE_CHARACTERIZATION::CPU_CORE_FREQUENCY_EFFICIENT") != all_names.end()) {
+                m_f_core_efficient = m_platform_io.read_signal("NODE_CHARACTERIZATION::CPU_CORE_FREQUENCY_EFFICIENT",
+                                                                          GEOPM_DOMAIN_BOARD, 0);
+            }
+            // If the characterization signal is not present or
+            // is otherwise non-sensical use the minimum core frequency
+            if (std::isnan(m_f_core_efficient) ||
+                m_f_core_efficient == 0) {
+                m_f_core_efficient = freq_core_min;
+            }
+        }
+        else {
+            // If the policy provides an non-NAN efficient frequency it will
+            // override any node local settings and be used for all nodes
+            m_f_core_efficient = in_policy[M_POLICY_CPU_FREQ_EFFICIENT];
+        }
+
+        // Determing default range
+        m_f_core_range = m_f_core_max - m_f_core_efficient;
+
+        if (m_f_core_efficient > freq_core_max ||
+            m_f_core_efficient < freq_core_min ) {
+            throw Exception("CPUActivityAgent::" + std::string(__func__) +
+                            "():Core efficient frequency out of range before applying PHI: " +
+                            std::to_string(m_f_core_efficient) +
+                            ".", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
+        if (m_f_core_efficient > m_f_core_max) {
+            throw Exception("CPUActivityAgent::" + std::string(__func__) +
+                            "(): Core efficient frequency (" +
+                            std::to_string(m_f_core_efficient) +
+                            ") value exceeds core max frequency (" +
+                            std::to_string(m_f_core_max) +
+                            ") before applying PHI.", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
+        /////////////////////////////
+        // Uncore characterization //
+        /////////////////////////////
+
+        // Max Uncore Frequency Selection
+        if (std::isnan(in_policy[M_POLICY_UNCORE_FREQ_MAX])) {
+            // If no value is provided use the local node setting
+            m_f_uncore_max = m_freq_uncore_max;
+        } else {
+            m_f_uncore_max = in_policy[M_POLICY_UNCORE_FREQ_MAX];
+        }
+
+        // Efficient Uncore Frequency Selection
+        if (std::isnan(in_policy[M_POLICY_UNCORE_FREQ_EFFICIENT])) {
+            // If no policy value is provided we use the
+            // no local characterization value or the
+            // node local minimum value
+            if (all_names.find("NODE_CHARACTERIZATION::CPU_UNCORE_FREQUENCY_EFFICIENT") != all_names.end()) {
+                m_f_uncore_efficient = m_platform_io.read_signal("NODE_CHARACTERIZATION::CPU_UNCORE_FREQUENCY_EFFICIENT",
+                                                                          GEOPM_DOMAIN_BOARD, 0);
+            }
+            // If the characterization signal is not present or
+            // is otherwise non-sensical use the minimum uncore frequency
+            if (std::isnan(m_f_uncore_efficient) ||
+                m_f_uncore_efficient == 0) {
+                m_f_uncore_efficient = m_freq_uncore_min;
+            }
+        }
+        else {
+            // If the policy provides an non-NAN efficient frequency it will
+            // override any node local settings and be used for all nodes
+            m_f_uncore_efficient = in_policy[M_POLICY_UNCORE_FREQ_EFFICIENT];
+        }
+
+        // Determing default range
+        m_f_core_range = m_f_core_max - m_f_core_efficient;
+        m_f_uncore_range = m_f_uncore_max - m_f_uncore_efficient;
+
+        if (m_f_uncore_efficient > m_f_uncore_max) {
+            throw Exception("CPUActivityAgent::" + std::string(__func__) +
+                            "(): Uncore efficient frequency (" +
+                            std::to_string(m_f_uncore_efficient) +
+                            ") value exceeds Uncore max frequency (" +
+                            std::to_string(m_f_uncore_max) +
+                            ") before applying PHI.", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
+        ////////////////////////////////////
+        // Revaluate frequencies with PHI //
+        ////////////////////////////////////
+        double phi = in_policy[M_POLICY_CPU_PHI];
+
+        // The default (phi == 0.5) behavior is the frequencies calculated above
+        m_resolved_f_core_max = m_f_core_max;
+        m_resolved_f_core_efficient = m_f_core_efficient;
+        m_resolved_f_uncore_max = m_f_uncore_max;
+        m_resolved_f_uncore_efficient = m_f_uncore_efficient;
+
+        // If phi is not 0.5 we move into the energy or performance biased behavior
+        if (phi > 0.5) {
+            // Energy Biased.  Scale F_max down to F_efficient based upon phi value
+            // Active region phi usage
+            m_resolved_f_core_max = std::max(m_f_core_efficient,
+                                             m_f_core_max -
+                                             m_f_core_range * (phi-0.5) / 0.5);
+
+            m_resolved_f_uncore_max = std::max(m_f_uncore_efficient,
+                                               m_f_uncore_max -
+                                               m_f_uncore_range * (phi-0.5) / 0.5);
+        }
+        else if (phi < 0.5) {
+            // Perf Biased.  Scale F_efficient up to F_max based upon phi value
+            // Active region phi usage
+            m_resolved_f_core_efficient = std::min(m_f_core_max,
+                                                   m_f_core_efficient +
+                                                   m_f_core_range * (0.5-phi) / 0.5);
+
+            m_resolved_f_uncore_efficient = std::min(m_f_uncore_max,
+                                                     m_f_uncore_efficient +
+                                                     m_f_uncore_range * (0.5-phi) / 0.5);
+        }
+
+        m_resolved_f_core_range = m_resolved_f_core_max - m_resolved_f_core_efficient;
+        m_resolved_f_uncore_range = m_resolved_f_uncore_max - m_resolved_f_uncore_efficient;
+
+        if (m_resolved_f_uncore_efficient > m_resolved_f_uncore_max) {
+            throw Exception("CPUActivityAgent::" + std::string(__func__) +
+                            "(): Resolved uncore efficient frequency (" +
+                            std::to_string(m_resolved_f_uncore_efficient) +
+                            ") value exceeds resolved uncore max frequency (" +
+                            std::to_string(m_resolved_f_uncore_max) +
+                            ") after applying PHI.", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
+        if (m_resolved_f_core_efficient > m_resolved_f_core_max) {
+            throw Exception("CPUActivityAgent::" + std::string(__func__) +
+                            "(): Resolved core efficient frequency (" +
+                            std::to_string(m_resolved_f_core_efficient) +
+                            ") value exceeds resolved core max frequency (" +
+                            std::to_string(m_resolved_f_core_max) +
+                            ") after applying PHI.", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
+        //Max memory bandwidth characterization
+        for (auto it = in_policy.begin() + M_POLICY_FIRST_UNCORE_FREQ;
+             it != in_policy.end() && std::next(it) != in_policy.end();
+             std::advance(it, 2)) {
+
+            if (!std::isnan(*it)) {
+                auto uncore_freq = static_cast<uint64_t>(*it);
+                auto max_mem_bw = *(it + 1);
+                // Not valid to have NAN max mem bw for uncore freq.
+                GEOPM_DEBUG_ASSERT(!std::isnan(max_mem_bw),
+                                   "mapped CPU_UNCORE_FREQUENCY with no max memory bandwidth assigned.");
+                m_qm_max_rate[uncore_freq] = max_mem_bw;
+            }
+        }
+        // Warn the user if they have not entered a policy with memory bandwidth characterization.
+        // In this case the maximum uncore frequency will be used.  This can easily be converted
+        // to an assertion if it should be considered a failure case.
+        if (m_qm_max_rate.size() == 0) {
+            std::cerr << "Warning: <geopm> CPUActivityAgent did not receive a policy containing memory " <<
+                         "bandwidth characterization.  This may negatively impact agent performance." << std::endl;
+        }
+    }
+
     void CPUActivityAgent::adjust_platform(const std::vector<double>& in_policy)
     {
         m_do_write_batch = false;
 
-        if (m_update_qm_max_rate) {
-            for (auto it = in_policy.begin() + M_POLICY_FIRST_UNCORE_FREQ;
-                 it != in_policy.end() && std::next(it) != in_policy.end();
-                 std::advance(it, 2)) {
-
-                if (!std::isnan(*it)) {
-                    auto uncore_freq = static_cast<uint64_t>(*it);
-                    auto max_mem_bw = *(it + 1);
-                    // Not valid to have NAN max mem bw for uncore freq.
-                    GEOPM_DEBUG_ASSERT(!std::isnan(max_mem_bw),
-                                       "mapped CPU_UNCORE_FREQUENCY with no max memory bandwidth assigned.");
-                    m_qm_max_rate[uncore_freq] = max_mem_bw;
-                }
-            }
-            // Warn the user if they have not entered a policy with memory bandwidth characterization.
-            // In this case the maximum uncore frequency will be used.  This can easily be converted
-            // to an assertion if it should be considered a failure case.
-            if (m_qm_max_rate.size() == 0) {
-                std::cerr << "Warning: <geopm> CPUActivityAgent did not receive a policy containing memory " <<
-                             "bandwidth characterization.  This may negatively impact agent performance." << std::endl;
-            }
-            m_update_qm_max_rate = false;
+        if (m_update_characterization) {
+            node_characterization(in_policy);
+            m_update_characterization = false;
         }
 
         // Per package freq
         std::vector<double> uncore_freq_request;
-        m_resolved_f_uncore_efficient = in_policy[M_POLICY_UNCORE_FREQ_EFFICIENT];
-        m_resolved_f_uncore_max = in_policy[M_POLICY_UNCORE_FREQ_MAX];
-        double f_uncore_range = in_policy[M_POLICY_UNCORE_FREQ_MAX] - in_policy[M_POLICY_UNCORE_FREQ_EFFICIENT];
 
-        //m_resolved_f_uncore_efficient = 0;
         for (int domain_idx = 0; domain_idx < M_NUM_PACKAGE; ++domain_idx) {
             double uncore_freq = (double) m_uncore_freq_status.at(domain_idx).signal;
 
@@ -353,7 +438,7 @@ namespace geopm
             // counters that indicate utilization (when/if available).
             // For now only L3 bandwith metric is used.
             double scalability_uncore = qm_normalized;
-            double uncore_req = m_resolved_f_uncore_efficient + f_uncore_range * scalability_uncore;
+            double uncore_req = m_resolved_f_uncore_efficient + m_resolved_f_uncore_range * scalability_uncore;
 
             //Clip uncore request within policy limits
             uncore_req = std::max(m_resolved_f_uncore_efficient, uncore_req);
@@ -363,9 +448,6 @@ namespace geopm
 
         // Per core freq
         std::vector<double> core_freq_request;
-        m_resolved_f_core_efficient = in_policy[M_POLICY_CPU_FREQ_EFFICIENT];
-        m_resolved_f_core_max = in_policy[M_POLICY_CPU_FREQ_MAX];
-        double f_core_range = in_policy[M_POLICY_CPU_FREQ_MAX] - in_policy[M_POLICY_CPU_FREQ_EFFICIENT];
 
         for (int domain_idx = 0; domain_idx < M_NUM_CORE; ++domain_idx) {
             //////////////////////////////////
@@ -376,7 +458,7 @@ namespace geopm
                 scalability = 1.0;
             }
 
-            double core_req = m_resolved_f_core_efficient + f_core_range * scalability;
+            double core_req = m_resolved_f_core_efficient + m_resolved_f_core_range * scalability;
             //Clip core request within policy limits
             core_req = std::max(in_policy[M_POLICY_CPU_FREQ_EFFICIENT], core_req);
             core_req = std::min(in_policy[M_POLICY_CPU_FREQ_MAX], core_req);
@@ -477,12 +559,20 @@ namespace geopm
 
         result.push_back({"Core Frequency Requests", std::to_string(m_core_frequency_requests)});
         result.push_back({"Uncore Frequency Requests", std::to_string(m_uncore_frequency_requests)});
-        result.push_back({"Resolved Maximum Core Frequency", std::to_string(m_resolved_f_core_max)});
-        result.push_back({"Resolved Efficient Core Frequency", std::to_string(m_resolved_f_core_efficient)});
-        result.push_back({"Resolved Core Frequency Range", std::to_string(m_resolved_f_core_max - m_resolved_f_core_efficient)});
-        result.push_back({"Resolved Maximum Uncore Frequency", std::to_string(m_resolved_f_uncore_max)});
-        result.push_back({"Resolved Efficient Uncore Frequency", std::to_string(m_resolved_f_uncore_efficient)});
-        result.push_back({"Resolved Uncore Frequency Range", std::to_string(m_resolved_f_uncore_max - m_resolved_f_uncore_efficient)});
+
+        result.push_back({"Initial (Pre-PHI) Maximum Core Frequency", std::to_string(m_f_core_max)});
+        result.push_back({"Initial (Pre-PHI) Efficient Core Frequency", std::to_string(m_f_core_efficient)});
+        result.push_back({"Initial (Pre-PHI) Core Frequency Range", std::to_string(m_f_core_range)});
+        result.push_back({"Initial (Pre-PHI) Maximum Uncore Frequency", std::to_string(m_f_uncore_max)});
+        result.push_back({"Initial (Pre-PHI) Efficient Uncore Frequency", std::to_string(m_f_uncore_efficient)});
+        result.push_back({"Initial (Pre-PHI) Uncore Frequency Range", std::to_string(m_f_uncore_range)});
+
+        result.push_back({"Actual (Post-PHI) Maximum Core Frequency", std::to_string(m_resolved_f_core_max)});
+        result.push_back({"Actual (Post-PHI) Efficient Core Frequency", std::to_string(m_resolved_f_core_efficient)});
+        result.push_back({"Actual (Post-PHI) Core Frequency Range", std::to_string(m_resolved_f_core_range)});
+        result.push_back({"Actual (Post-PHI) Maximum Uncore Frequency", std::to_string(m_resolved_f_uncore_max)});
+        result.push_back({"Actual (Post-PHI) Efficient Uncore Frequency", std::to_string(m_resolved_f_uncore_efficient)});
+        result.push_back({"Actual (Post-PHI) Uncore Frequency Range", std::to_string(m_resolved_f_uncore_range)});
         return result;
     }
 
