@@ -7,7 +7,7 @@ geopm_agent_cpu_activity(7) -- agent for selecting CPU frequency based on CPU co
 
 
 
-DESCRIPTION
+Description
 -----------
 
 The goal of this Agent is to save CPU energy by scaling CPU frequency based upon
@@ -60,29 +60,21 @@ In the extreme case (``phi`` of 0) ``Fe`` will be raised to ``Fmax``.  A ``phi``
 0.5 biases the agent towards lower frequencies by reducing the ``Fmax`` value provided
 by the policy.  In the extreme case (``phi`` of 1.0) ``Fmax`` will be lowered to ``Fe``.
 
-AGENT BEHAVIOR HIGHLIGHTS
--------------------------
+Agent Name
+----------
 
-Policies and samples are vectors of double precision values where each
-value has a meaning defined by the `geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3.html>`_ implementation.
-The Agent interface also provides methods for the Agent to extend
-reports and traces with additional Agent-specific information.
+The agent described in this manual is selected in many geopm
+interfaces with the ``"cpu_activity"`` agent name.  This name can be
+passed to :doc:`geopmlaunch(1) <geopmlaunch.1>` as the argument to the ``--geopm-agent``
+option, or the ``GEOPM_AGENT`` environment variable can be set to this
+name (see :doc:`geopm(7) <geopm.7>`\ ).  This name can also be passed to the
+:doc:`geopmagent(1) <geopmagent.1>` as the argument to the ``'-a'`` option.
 
-*
-  **Agent Name**:
-
-      Set the ``--geopm-agent`` launch option or ``GEOPM_AGENT`` environment
-      variable to ``"cpu_activity"`` and the Controller will select the
-      EnergyEfficientAgent for its control handler.  See
-      `geopm_launch(1) <geopm_launch.1.html>`_ and `geopm(7) <geopm.7.html>`_ for more information about
-      launch options and environment variables.
-
-*
-  **Agent Policy Definitions**:
-
+Policy Parameters
+-----------------
       The ``Fe`` & ``Fmax`` for each domain, as well as ``phi`` and the
       agent sample period are policy values.
-      Setting ``Fe`` & ``Fmax`` for each domain to the same value can
+      Setting ``Fe`` & ``Fmax`` for a domain to the same value can
       be used to force the entire application to run at a fixed frequency.
 
   ``CPU_FREQ_MAX``\ :
@@ -125,16 +117,8 @@ reports and traces with additional Agent-specific information.
       Used to build a mapping of uncore frequencies to maximum
       memory bandwidths for frequency steering.
 
-*
-  **Agent Sample Definitions**\ :
-  N/A
-
-*
-  **Trace Column Extensions**\ :
-  N/A
-
-*
-  **Report Extensions**\ :
+Report Extensions
+-----------------
 
   ``Core Frequency Requests``
       The number of core frequency requests made by the agent
@@ -162,21 +146,19 @@ reports and traces with additional Agent-specific information.
      The uncore frequency selection range of the agent after ``phi`` has
      been taken into account
 
-*
-
-*
-  **Control Loop Gate**\ :
+Control Loop Rate
+-----------------
 
       The agent gates the Controller's control loop to a cadence of 10ms.
 
 SEE ALSO
 --------
 
-`geopm(7) <geopm.7.html>`_\ ,
-`geopm_agent_monitor(7) <geopm_agent_monitor.7.html>`_\ ,
-`geopm_agent_energy_efficient(7) <geopm_agent_energy_efficient.7.html>`_\ ,
-`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3.html>`_\ ,
-`geopm_agent_c(3) <geopm_agent_c.3.html>`_\ ,
-`geopm_prof_c(3) <geopm_prof_c.3.html>`_\ ,
-`geopmagent(1) <geopmagent.1.html>`_\ ,
-`geopmlaunch(1) <geopmlaunch.1.html>`_
+:doc:`geopm(7) <geopm.7>`\ ,
+:doc:`geopm_agent_monitor(7) <geopm_agent_monitor.7>`\ ,
+:doc:`geopm_agent_energy_efficient(7) <geopm_agent_energy_efficient.7>`\ ,
+:doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>`\ ,
+:doc:`geopm_agent_c(3) <geopm_agent_c.3>`\ ,
+:doc:`geopm_prof_c(3) <geopm_prof_c.3>`\ ,
+:doc:`geopmagent(1) <geopmagent.1>`\ ,
+:doc:`geopmlaunch(1) <geopmlaunch.1>`
