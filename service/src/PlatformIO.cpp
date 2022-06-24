@@ -31,7 +31,7 @@ namespace geopm
 
     static PlatformIO &platform_io_helper(bool do_reset)
     {
-        static std::unique_ptr<PlatformIOImp> instance;
+        static std::unique_ptr<PlatformIOImp> instance = geopm::make_unique<PlatformIOImp>();
         if (do_reset) {
             instance = geopm::make_unique<PlatformIOImp>();
         }
