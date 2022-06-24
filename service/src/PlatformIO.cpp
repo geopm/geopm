@@ -43,7 +43,7 @@ namespace geopm
         return platform_io_helper(false);
     }
 
-    void platform_io_reset(void)
+    static void platform_io_reset(void)
     {
         platform_io_helper(true);
     }
@@ -879,12 +879,6 @@ namespace geopm
 
 extern "C" {
 
-
-    void geopm_pio_reset(void)
-    {
-        geopm::platform_io_reset();
-    }
-
     int geopm_pio_num_signal_name(void)
     {
         int result = 0;
@@ -1294,5 +1288,10 @@ extern "C" {
         }
         return err;
 
+    }
+
+    void geopm_pio_reset(void)
+    {
+        geopm::platform_io_reset();
     }
 }

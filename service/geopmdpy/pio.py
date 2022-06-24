@@ -103,6 +103,7 @@ int geopm_pio_format_signal(double signal,
                             size_t result_max,
                             char *result);
 
+void geopm_pio_reset(void);
 
 """)
 _dl = gffi.get_dl_geopmd()
@@ -685,3 +686,14 @@ def format_signal(signal, format_type):
     if err < 0:
         raise RuntimeError('geopm_pio_format_signal() failed: {}'.format(error.message(err)))
     return gffi.gffi.string(result_cstr).decode()
+
+def reset():
+    """Reset the GEOPM platform interface.
+
+    Resetting the GEOPM platform interface will free all resources,
+    including stopping any batch servers that might have been started.
+    Internally, the PlatformIO instance will be released and
+    reconstructed.
+    """
+    global _dl
+    _dl.geopm_pio_reset()
