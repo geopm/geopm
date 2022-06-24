@@ -18,6 +18,7 @@
 #include "TimeIOGroup.hpp"
 #include "SSTIOGroup.hpp"
 #include "geopm/Helper.hpp"
+#include "PlatformCharacterizationIOGroup.hpp"
 #ifdef GEOPM_ENABLE_SYSTEMD
 #include "ServiceIOGroup.hpp"
 #endif
@@ -101,6 +102,8 @@ namespace geopm
                         CpuinfoIOGroup::make_plugin);
         register_plugin(SSTIOGroup::plugin_name(),
                         SSTIOGroup::make_plugin);
+        register_plugin(PlatformCharacterizationIOGroup::plugin_name(),
+                        PlatformCharacterizationIOGroup::make_plugin);
 #ifdef GEOPM_CNL_IOGROUP
         register_plugin(CNLIOGroup::plugin_name(),
                         CNLIOGroup::make_plugin);

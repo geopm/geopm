@@ -194,6 +194,8 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/NVMLDevicePool.hpp \
                        src/NVMLIOGroup.cpp \
                        src/NVMLIOGroup.hpp \
+                       src/PlatformCharacterizationIOGroup.cpp \
+                       src/PlatformCharacterizationIOGroup.hpp \
                        src/PlatformIO.cpp \
                        src/PlatformIOImp.hpp \
                        src/PlatformTopo.cpp \
