@@ -160,6 +160,7 @@ base_man = docs/build/man/geopmadmin.1 \
            docs/build/man/geopm_agent.3 \
            docs/build/man/geopm_agent_cpu_activity.7 \
            docs/build/man/geopm_agent_frequency_map.7 \
+           docs/build/man/geopm_agent_gpu_activity.7 \
            docs/build/man/geopm_agent_monitor.7 \
            docs/build/man/geopm_agent_power_balancer.7 \
            docs/build/man/geopm_agent_power_governor.7 \

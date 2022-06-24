@@ -77,28 +77,28 @@ void GPUActivityAgentTest::SetUp()
     ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_GPU))
         .WillByDefault(Return(M_NUM_GPU));
 
-    ON_CALL(*m_platform_io, push_signal("GPU_FREQUENCY_STATUS", _, _))
+    ON_CALL(*m_platform_io, push_signal("GPU_CORE_FREQUENCY_STATUS", _, _))
         .WillByDefault(Return(GPU_FREQUENCY_IDX));
-    ON_CALL(*m_platform_io, push_signal("GPU_COMPUTE_ACTIVITY", _, _))
+    ON_CALL(*m_platform_io, push_signal("GPU_CORE_ACTIVITY", _, _))
         .WillByDefault(Return(GPU_COMPUTE_ACTIVITY_IDX));
     ON_CALL(*m_platform_io, push_signal("GPU_UTILIZATION", _, _))
         .WillByDefault(Return(GPU_UTILIZATION_IDX));
     ON_CALL(*m_platform_io, push_signal("GPU_ENERGY", _, _))
         .WillByDefault(Return(GPU_ENERGY_IDX));
-    ON_CALL(*m_platform_io, push_control("GPU_FREQUENCY_CONTROL", _, _))
+    ON_CALL(*m_platform_io, push_control("GPU_CORE_FREQUENCY_CONTROL", _, _))
         .WillByDefault(Return(GPU_FREQUENCY_CONTROL_IDX));
     ON_CALL(*m_platform_io, agg_function(_))
         .WillByDefault(Return(geopm::Agg::average));
 
     m_freq_min = 0135000000.0;
     m_freq_max = 1530000000.0;
-    ON_CALL(*m_platform_io, control_domain_type("GPU_FREQUENCY_CONTROL"))
+    ON_CALL(*m_platform_io, control_domain_type("GPU_CORE_FREQUENCY_CONTROL"))
         .WillByDefault(Return(GEOPM_DOMAIN_GPU));
-    ON_CALL(*m_platform_io, signal_domain_type("GPU_COMPUTE_ACTIVITY"))
+    ON_CALL(*m_platform_io, signal_domain_type("GPU_CORE_ACTIVITY"))
         .WillByDefault(Return(GEOPM_DOMAIN_GPU));
-    ON_CALL(*m_platform_io, read_signal("GPU_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0))
+    ON_CALL(*m_platform_io, read_signal("GPU_CORE_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0))
         .WillByDefault(Return(m_freq_min));
-    ON_CALL(*m_platform_io, read_signal("GPU_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0))
+    ON_CALL(*m_platform_io, read_signal("GPU_CORE_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0))
         .WillByDefault(Return(m_freq_max));
 
     ASSERT_LT(m_freq_min, 0.2e9);
@@ -129,9 +129,9 @@ TEST_F(GPUActivityAgentTest, name)
 TEST_F(GPUActivityAgentTest, validate_policy)
 {
     //Called as part of validate
-    EXPECT_CALL(*m_platform_io, read_signal("GPU_FREQUENCY_MIN_AVAIL", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("GPU_CORE_FREQUENCY_MIN_AVAIL", _, _)).WillRepeatedly(
                 Return(m_freq_min));
-    EXPECT_CALL(*m_platform_io, read_signal("GPU_FREQUENCY_MAX_AVAIL", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("GPU_CORE_FREQUENCY_MAX_AVAIL", _, _)).WillRepeatedly(
                 Return(m_freq_max));
     EXPECT_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_BOARD)).WillRepeatedly(Return(M_NUM_BOARD));
 
@@ -239,9 +239,9 @@ TEST_F(GPUActivityAgentTest, validate_policy)
 TEST_F(GPUActivityAgentTest, adjust_platform_high)
 {
     //TODO: Setup f_max, min etc...via read
-    EXPECT_CALL(*m_platform_io, read_signal("GPU_FREQUENCY_MIN_AVAIL", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("GPU_CORE_FREQUENCY_MIN_AVAIL", _, _)).WillRepeatedly(
                 Return(m_freq_min));
-    EXPECT_CALL(*m_platform_io, read_signal("GPU_FREQUENCY_MAX_AVAIL", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("GPU_CORE_FREQUENCY_MAX_AVAIL", _, _)).WillRepeatedly(
                 Return(m_freq_max));
     EXPECT_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_BOARD)).WillRepeatedly(Return(M_NUM_BOARD));
     std::vector<double> policy;
@@ -274,9 +274,9 @@ TEST_F(GPUActivityAgentTest, adjust_platform_high)
 TEST_F(GPUActivityAgentTest, adjust_platform_medium)
 {
     //TODO: Setup f_max, min etc...via read
-    EXPECT_CALL(*m_platform_io, read_signal("GPU_FREQUENCY_MIN_AVAIL", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("GPU_CORE_FREQUENCY_MIN_AVAIL", _, _)).WillRepeatedly(
                 Return(m_freq_min));
-    EXPECT_CALL(*m_platform_io, read_signal("GPU_FREQUENCY_MAX_AVAIL", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("GPU_CORE_FREQUENCY_MAX_AVAIL", _, _)).WillRepeatedly(
                 Return(m_freq_max));
     EXPECT_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_BOARD)).WillRepeatedly(Return(M_NUM_BOARD));
     std::vector<double> policy;
@@ -311,9 +311,9 @@ TEST_F(GPUActivityAgentTest, adjust_platform_medium)
 TEST_F(GPUActivityAgentTest, adjust_platform_low)
 {
     //TODO: Setup f_max, min etc...via read
-    EXPECT_CALL(*m_platform_io, read_signal("GPU_FREQUENCY_MIN_AVAIL", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("GPU_CORE_FREQUENCY_MIN_AVAIL", _, _)).WillRepeatedly(
                 Return(m_freq_min));
-    EXPECT_CALL(*m_platform_io, read_signal("GPU_FREQUENCY_MAX_AVAIL", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("GPU_CORE_FREQUENCY_MAX_AVAIL", _, _)).WillRepeatedly(
                 Return(m_freq_max));
     EXPECT_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_BOARD)).WillRepeatedly(Return(M_NUM_BOARD));
     std::vector<double> policy;
@@ -347,9 +347,9 @@ TEST_F(GPUActivityAgentTest, adjust_platform_low)
 TEST_F(GPUActivityAgentTest, adjust_platform_zero)
 {
     //TODO: Setup f_max, min etc...via read
-    EXPECT_CALL(*m_platform_io, read_signal("GPU_FREQUENCY_MIN_AVAIL", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("GPU_CORE_FREQUENCY_MIN_AVAIL", _, _)).WillRepeatedly(
                 Return(m_freq_min));
-    EXPECT_CALL(*m_platform_io, read_signal("GPU_FREQUENCY_MAX_AVAIL", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("GPU_CORE_FREQUENCY_MAX_AVAIL", _, _)).WillRepeatedly(
                 Return(m_freq_max));
     EXPECT_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_BOARD)).WillRepeatedly(Return(M_NUM_BOARD));
     std::vector<double> policy;
@@ -384,9 +384,9 @@ TEST_F(GPUActivityAgentTest, adjust_platform_zero)
 TEST_F(GPUActivityAgentTest, adjust_platform_signal_out_of_bounds)
 {
     //TODO: Setup f_max, min etc...via read
-    EXPECT_CALL(*m_platform_io, read_signal("GPU_FREQUENCY_MIN_AVAIL", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("GPU_CORE_FREQUENCY_MIN_AVAIL", _, _)).WillRepeatedly(
                 Return(m_freq_min));
-    EXPECT_CALL(*m_platform_io, read_signal("GPU_FREQUENCY_MAX_AVAIL", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("GPU_CORE_FREQUENCY_MAX_AVAIL", _, _)).WillRepeatedly(
                 Return(m_freq_max));
     EXPECT_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_BOARD)).WillRepeatedly(Return(M_NUM_BOARD));
     std::vector<double> policy;

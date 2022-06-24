@@ -44,7 +44,7 @@ def extract_columns(df):
                                 'dram-energy (J)',
                                 'frequency (Hz)',
                                 'gpu-energy (J)']]
-        df_cols['gpu-frequency (Hz)'] = df_filtered['GPU_FREQUENCY']
+        df_cols['gpu-frequency (Hz)'] = df_filtered['GPU_CORE_FREQUENCY_STATUS']
 
     return df_cols
 
