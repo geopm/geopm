@@ -443,7 +443,10 @@ int geopm_pio_format_signal(double signal,
                             size_t result_max,
                             char *result);
 
-
+/// @brief Reset the GEOPM platform interface causing resources to be
+///        freed (e.g. stopping any batch servers that might have been
+///        started). This will cause the internal PlatormIO instance to
+///        be released/deleted and reconstructed.
 void geopm_pio_reset(void);
 
 #ifdef __cplusplus
