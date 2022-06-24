@@ -68,10 +68,10 @@ namespace geopm
     {
 
         for (int domain_idx = 0; domain_idx < M_NUM_GPU; ++domain_idx) {
-            m_gpu_freq_status.push_back({m_platform_io.push_signal("GPU_FREQUENCY_STATUS",
+            m_gpu_freq_status.push_back({m_platform_io.push_signal("GPU_CORE_FREQUENCY_STATUS",
                                          GEOPM_DOMAIN_GPU,
                                          domain_idx), NAN});
-            m_gpu_compute_activity.push_back({m_platform_io.push_signal("GPU_COMPUTE_ACTIVITY",
+            m_gpu_core_activity.push_back({m_platform_io.push_signal("GPU_CORE_ACTIVITY",
                                               GEOPM_DOMAIN_GPU,
                                               domain_idx), NAN});
             m_gpu_utilization.push_back({m_platform_io.push_signal("GPU_UTILIZATION",
@@ -85,7 +85,7 @@ namespace geopm
         m_time = {m_platform_io.push_signal("TIME", GEOPM_DOMAIN_BOARD, 0), NAN};
 
         for (int domain_idx = 0; domain_idx < M_NUM_GPU; ++domain_idx) {
-            m_gpu_freq_control.push_back(control{m_platform_io.push_control("GPU_FREQUENCY_CONTROL",
+            m_gpu_freq_control.push_back(control{m_platform_io.push_control("GPU_CORE_FREQUENCY_CONTROL",
                                          GEOPM_DOMAIN_GPU,
                                          domain_idx), NAN});
         }
@@ -108,8 +108,8 @@ namespace geopm
     void GPUActivityAgent::validate_policy(std::vector<double> &in_policy) const
     {
         assert(in_policy.size() == M_NUM_POLICY);
-        double gpu_min_freq = m_platform_io.read_signal("GPU_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0);
-        double gpu_max_freq = m_platform_io.read_signal("GPU_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0);
+        double gpu_min_freq = m_platform_io.read_signal("GPU_CORE_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0);
+        double gpu_max_freq = m_platform_io.read_signal("GPU_CORE_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0);
 
         // Check for NAN to set default values for policy
         if (std::isnan(in_policy[M_POLICY_GPU_FREQ_MAX])) {
@@ -251,16 +251,16 @@ namespace geopm
         // Per GPU Frequency Selection
         for (int domain_idx = 0; domain_idx < M_NUM_GPU; ++domain_idx) {
             // gpu Compute Activity - Primary signal used for frequency recommendation
-            double gpu_compute_activity = m_gpu_compute_activity.at(domain_idx).value;
+            double gpu_core_activity = m_gpu_core_activity.at(domain_idx).value;
             // gpu Utilization - Used to scale activity for short GPU phases
             double gpu_utilization = m_gpu_utilization.at(domain_idx).value;
 
             // Default to F_max
             double f_request = m_f_max;
 
-            if (!std::isnan(gpu_compute_activity)) {
+            if (!std::isnan(gpu_core_activity)) {
                 // Boundary Checking
-                gpu_compute_activity = std::min(gpu_compute_activity, 1.0);
+                gpu_core_activity = std::min(gpu_core_activity, 1.0);
 
                 // Frequency selection is based upon the gpu compute activity.
                 // For active regions this means that we scale with the amount of work
@@ -287,15 +287,15 @@ namespace geopm
                 if (!std::isnan(gpu_utilization) &&
                     gpu_utilization > 0) {
                     gpu_utilization = std::min(gpu_utilization, 1.0);
-                    f_request = m_f_efficient + m_f_range * (gpu_compute_activity / gpu_utilization);
+                    f_request = m_f_efficient + m_f_range * (gpu_core_activity / gpu_utilization);
                 }
                 else {
-                    f_request = m_f_efficient + m_f_range * gpu_compute_activity;
+                    f_request = m_f_efficient + m_f_range * gpu_core_activity;
                 }
 
                 // Tracking logic.  This is not needed for any performance reason,
                 // but does provide useful metrics for tracking agent behavior
-                if (gpu_compute_activity >= M_GPU_ACTIVITY_CUTOFF) {
+                if (gpu_core_activity >= M_GPU_ACTIVITY_CUTOFF) {
                     m_gpu_active_region_stop.at(domain_idx) = 0;
                     if (m_gpu_active_region_start.at(domain_idx) == 0) {
                         m_gpu_active_region_start.at(domain_idx) = m_time.value;
@@ -352,7 +352,7 @@ namespace geopm
         for (int domain_idx = 0; domain_idx < M_NUM_GPU; ++domain_idx) {
             m_gpu_freq_status.at(domain_idx).value = m_platform_io.sample(m_gpu_freq_status.at(
                                                                           domain_idx).batch_idx);
-            m_gpu_compute_activity.at(domain_idx).value = m_platform_io.sample(m_gpu_compute_activity.at(
+            m_gpu_core_activity.at(domain_idx).value = m_platform_io.sample(m_gpu_core_activity.at(
                                                                                domain_idx).batch_idx);
             m_gpu_utilization.at(domain_idx).value = m_platform_io.sample(m_gpu_utilization.at(
                                                                           domain_idx).batch_idx);

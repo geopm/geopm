@@ -41,7 +41,7 @@ def launch_configs(output_dir, app_conf, gpu_fe, gpu_fmax):
     config_list = [{"GPU_FREQ_MAX" : float(gpu_fmax),
                     "GPU_FREQ_EFFICIENT": float(gpu_fe),
                     "GPU_PHI" : float(phi/10),
-                    "SAMPLE_PERIOD": float(nan)} for phi in range(0,11)]
+                    "SAMPLE_PERIOD": float('nan')} for phi in range(0,11)]
     config_names = ['phi'+str(x*10) for x in range(0,11)]
 
     targets = []

@@ -1,6 +1,3 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
-
 
 geopm_agent_gpu_activity(7) -- agent for selecting GPU frequency based on GPU compute activity
 =================================================================================================
@@ -10,7 +7,7 @@ geopm_agent_gpu_activity(7) -- agent for selecting GPU frequency based on GPU co
 
 
 
-DESCRIPTION
+Description
 -----------
 
 The goal of this Agent is to save GPU energy by scaling GPU frequency based upon
@@ -58,29 +55,23 @@ This has been shown to work for a small number of profiling metrics queried from
 As the 1 ms polling rate is not officially recommended by the DCGM API the 100 ms
 setting is used by default.
 
-AGENT BEHAVIOR HIGHLIGHTS
--------------------------
+Agent Name
+----------
 
-Policies and samples are vectors of double precision values where each
-value has a meaning defined by the `geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3.html>`_ implementation.
-The Agent interface also provides methods for the Agent to extend
-reports and traces with additional Agent-specific information.
+The agent described in this manual is selected in many geopm
+interfaces with the ``"gpu_activity"`` agent name.  This name can be
+passed to :doc:`geopmlaunch(1) <geopmlaunch.1>` as the argument to the ``--geopm-agent``
+option, or the ``GEOPM_AGENT`` environment variable can be set to this
+name (see :doc:`geopm(7) <geopm.7>`\ ).  This name can also be passed to the
+:doc:`geopmagent(1) <geopmagent.1>` as the argument to the ``'-a'`` option.
 
-*
-  **Agent Name**:
+Policy Parameters
+-----------------
 
-      Set the ``--geopm-agent`` launch option or ``GEOPM_AGENT`` environment
-      variable to ``"gpu_activity"`` and the Controller will select the
-      EnergyEfficientAgent for its control handler.  See
-      `geopm_launch(1) <geopm_launch.1.html>`_ and `geopm(7) <geopm.7.html>`_ for more information about
-      launch options and environment variables.
+The ``Fe``, ``Fmax``, ``phi``, and agent sample period are provided
+as policy values.  Setting ``Fe`` & ``Fmax`` to the same value will
+result in the entire application to run at a fixed frequency.
 
-*
-  **Agent Policy Definitions**:
-
-      The ``Fe``, ``Fmax``, and  and maximum frequency are policy values.
-      Setting both to the same value can be used to force the entire
-      application to run at one frequency.
 
   ``GPU_FREQ_MAX``\ :
       The maximum frequency in hertz that the algorithm is
@@ -96,16 +87,12 @@ reports and traces with additional Agent-specific information.
       The performance bias knob.  The value must be between
       0.0 and 1.0. If NAN is passed, it will use 0.5 by default.
 
-*
-  **Agent Sample Definitions**\ :
-  N/A
+  ``SAMPLE_PERIOD``\ :
+      The rate at which the agent control loop operates.  20ms by
+      default.
 
-*
-  **Trace Column Extensions**\ :
-  N/A
-
-*
-  **Report Extensions**\ :
+Report Extensions
+-----------------
 
   ``GPU Frequency Requests``\ :
       The number of frequency requests made by the agent
@@ -140,19 +127,20 @@ reports and traces with additional Agent-specific information.
      of Interest (ROI) where ROI is determined as the
      first sample of GPU activity to the last sample of GPU
      activity.
-*
-  **Control Loop Gate**\ :
 
-      The agent gates the Controller's control loop to a cadence of 20ms.
+Control Loop Rate
+-----------------
+
+The agent gates the control loop to a cadence of 20ms.
 
 SEE ALSO
 --------
 
-`geopm(7) <geopm.7.html>`_\ ,
-`geopm_agent_monitor(7) <geopm_agent_monitor.7.html>`_\ ,
-`geopm_agent_energy_efficient(7) <geopm_agent_energy_efficient.7.html>`_\ ,
-`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3.html>`_\ ,
-`geopm_agent_c(3) <geopm_agent_c.3.html>`_\ ,
-`geopm_prof_c(3) <geopm_prof_c.3.html>`_\ ,
-`geopmagent(1) <geopmagent.1.html>`_\ ,
-`geopmlaunch(1) <geopmlaunch.1.html>`_
+:doc:`geopm(7) <geopm.7.html>`\ ,
+:doc:`geopm_agent_monitor(7) <geopm_agent_monitor.7.html>`\ ,
+:doc:`geopm_agent_energy_efficient(7) <geopm_agent_energy_efficient.7.html>`\ ,
+:doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3.html>`\ ,
+:doc:`geopm_agent_c(3) <geopm_agent_c.3.html>`\ ,
+:doc:`geopm_prof_c(3) <geopm_prof_c.3.html>`\ ,
+:doc:`geopmagent(1) <geopmagent.1.html>`\ ,
+:doc:`geopmlaunch(1) <geopmlaunch.1.html>`
