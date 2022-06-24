@@ -4,17 +4,16 @@ geopmctl(1) -- GEOPM runtime control application
 Synopsis
 --------
 
-``geopmctl`` [\ ``--help``\ ] [\ ``--version``\ ]
+.. code-block::
+
+   geopmctl [--help] [--version]
 
 Description
 -----------
 
-.. code-block::
-
-   The geopmctl application runs concurrently with a computational MPI
-   application to manage power settings on compute nodes allocated to the
-   computation MPI application.
-
+The ``geopmctl`` application runs concurrently with a computational MPI
+application to manage power settings on compute nodes allocated to the
+computation MPI application.
 
 Options
 -------
