@@ -73,7 +73,7 @@ GPUTorchAgent::GPUTorchAgent(geopm::PlatformIO &plat_io, const geopm::PlatformTo
     , m_last_wait{{0, 0}}
     , M_WAIT_SEC(0.050) // 50ms Wait
     , M_POLICY_PHI_DEFAULT(0.5)
-    , M_NUM_GPU(m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR))
+    , M_NUM_GPU(m_platform_topo.num_domain(GEOPM_DOMAIN_GPU))
     , m_do_write_batch(false)
     , m_gpu_nn_path("gpu_control.pt")
 {
@@ -104,26 +104,26 @@ void GPUTorchAgent::init_platform_io(void)
 {
 
     for (int domain_idx = 0; domain_idx < M_NUM_GPU; ++domain_idx) {
-        m_gpu_freq_status.push_back({m_platform_io.push_signal("GPU_FREQUENCY_STATUS",
-                                     GEOPM_DOMAIN_BOARD_ACCELERATOR,
+        m_gpu_freq_status.push_back({m_platform_io.push_signal("GPU_CORE_FREQUENCY_STATUS",
+                                     GEOPM_DOMAIN_GPU,
                                      domain_idx), NAN});
-        m_gpu_compute_activity.push_back({m_platform_io.push_signal("GPU_COMPUTE_ACTIVITY",
-                                          GEOPM_DOMAIN_BOARD_ACCELERATOR,
+        m_gpu_compute_activity.push_back({m_platform_io.push_signal("GPU_CORE_ACTIVITY",
+                                          GEOPM_DOMAIN_GPU,
                                           domain_idx), NAN});
-        m_gpu_memory_activity.push_back({m_platform_io.push_signal("GPU_MEMORY_ACTIVITY",
-                                          GEOPM_DOMAIN_BOARD_ACCELERATOR,
+        m_gpu_memory_activity.push_back({m_platform_io.push_signal("GPU_UNCORE_ACTIVITY",
+                                          GEOPM_DOMAIN_GPU,
                                           domain_idx), NAN});
         m_gpu_utilization.push_back({m_platform_io.push_signal("GPU_UTILIZATION",
-                                     GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                     GEOPM_DOMAIN_GPU,
                                      domain_idx), NAN});
         m_gpu_power.push_back({m_platform_io.push_signal("GPU_POWER",
-                                GEOPM_DOMAIN_BOARD_ACCELERATOR,
+                                GEOPM_DOMAIN_GPU,
                                 domain_idx), NAN});
     }
 
     for (int domain_idx = 0; domain_idx < M_NUM_GPU; ++domain_idx) {
-        m_gpu_freq_control.push_back({m_platform_io.push_control("GPU_FREQUENCY_CONTROL",
-                                     GEOPM_DOMAIN_BOARD_ACCELERATOR,
+        m_gpu_freq_control.push_back({m_platform_io.push_control("GPU_CORE_FREQUENCY_CONTROL",
+                                     GEOPM_DOMAIN_GPU,
                                      domain_idx), NAN});
     }
 
@@ -140,8 +140,8 @@ void GPUTorchAgent::init_platform_io(void)
 void GPUTorchAgent::validate_policy(std::vector<double> &in_policy) const
 {
     assert(in_policy.size() == M_NUM_POLICY);
-    double gpu_min_freq = m_platform_io.read_signal("GPU_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0);
-    double gpu_max_freq = m_platform_io.read_signal("GPU_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0);
+    double gpu_min_freq = m_platform_io.read_signal("GPU_CORE_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0);
+    double gpu_max_freq = m_platform_io.read_signal("GPU_CORE_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0);
 
     ///////////////////////
     //GPU POLICY CHECKING//
