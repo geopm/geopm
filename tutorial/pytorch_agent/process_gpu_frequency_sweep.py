@@ -89,9 +89,9 @@ def read_trace_files(sweep_dir, nodename, app_index):
         # Apply a heuristic to ignore setup/teardown parts of workloads. Treat
         # the region of interest as the section of the trace between the first
         # and last observed instance of moderate GPU activity.
-        is_gpu_util = trace_df['GPU_COMPUTE_ACTIVITY-board_accelerator-0'] > 0.05
+        is_gpu_util = trace_df['GPU_CORE_ACTIVITY-gpu-0'] > 0.05
         if is_gpu_util.sum() == 0:
-            is_gpu_util = trace_df['GPU_UTILIZATION-board_accelerator-0'] > 0.05
+            is_gpu_util = trace_df['GPU_UTILIZATION-gpu-0'] > 0.05
         first_util = trace_df.loc[is_gpu_util].index[0]
         last_util = trace_df.loc[is_gpu_util].index[-1]
         trace_df['is-roi'] = False
@@ -151,8 +151,8 @@ if __name__ == "__main__":
                             'gpu-energy (J)']).mean())
         elif args.domain == 'gpu':
             relative_energy = config_groups.apply(
-                lambda x: x['GPU_ENERGY@board_accelerator-0'] / (x.loc[x['gpu-frequency'] == max_gpu_freq,
-                            'GPU_ENERGY@board_accelerator-0']).mean())
+                lambda x: x['GPU_ENERGY@gpu-0'] / (x.loc[x['gpu-frequency'] == max_gpu_freq,
+                            'GPU_ENERGY@gpu-0']).mean())
 
         reports_df['energy-vs-max'] = relative_energy.T if config_groups.ngroups == 1 else relative_energy
         reports_df['performance-loss'] = reports_df['runtime-vs-maxfreq'] - 1
@@ -167,7 +167,7 @@ if __name__ == "__main__":
         elif args.domain == 'gpu':
             min_energy_frequencies = reports_df.pivot_table(
                     #for gpu 0 only
-                    values='GPU_ENERGY@board_accelerator-0',
+                    values='GPU_ENERGY@gpu-0',
                     index=['app-config'],
                     columns='gpu-frequency').idxmin(axis=1).rename('Min-Energy GPU Frequency')
 

@@ -50,17 +50,20 @@ def main():
                         help='Leave the named app out of the training set')
     args = parser.parse_args()
 
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    print("Using {} device for training".format(device))
+
     df_traces = pd.read_hdf(args.input)
 
     # Only train from the estimated region of interest
     df_traces = df_traces.loc[df_traces['is-roi']]
 
     X_columns = [
-            'GPU_FREQUENCY_STATUS-board_accelerator-0',
-            'GPU_POWER-board_accelerator-0',
-            'GPU_UTILIZATION-board_accelerator-0',
-            'GPU_COMPUTE_ACTIVITY-board_accelerator-0',
-            'GPU_MEMORY_ACTIVITY-board_accelerator-0',
+            'GPU_CORE_FREQUENCY_STATUS-gpu-0',
+            'GPU_POWER-gpu-0',
+            'GPU_UTILIZATION-gpu-0',
+            'GPU_CORE_ACTIVITY-gpu-0',
+            'GPU_UNCORE_ACTIVITY-gpu-0',
             'phi',
             ]
 
@@ -120,11 +123,17 @@ def main():
                     nn.Linear(len(X_columns), 1)
             )
 
+    model.to(device)
+
     learning_rate = 1e-3
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
     x_train = torch.tensor(df_x_train.to_numpy()).float()
     y_train = torch.tensor(df_y_train.to_numpy()).float()
+    # TODO: test this vs sending input and target
+    #       this might be more performant overall, or easier
+    x_train = x_train.to(device)
+    y_train = y_train.to(device)
 
     batch_size = 1000
     epoch_count = 5
@@ -134,11 +143,17 @@ def main():
     train_tensor = torch.utils.data.TensorDataset(x_train, y_train)
     train_loader = torch.utils.data.DataLoader(dataset = train_tensor, batch_size = batch_size, shuffle = True)
 
+
     message_interval = round((len(df_x_train)/batch_size)/5)
     print("batch_size:{}, epoch_count:{}, learning_rate={}, message_interval={}".format(batch_size, epoch_count, learning_rate, message_interval))
     for epoch in range(epoch_count):
         train_loss = 0
         for idx, (inputs, target_control) in enumerate(train_loader):
+            # TODO: test this vs sending the entire tensor.
+            #       this likely isn't as performant due to a lot of data transfers
+            #inputs = inputs.to(device)
+            #target_control = target_control.to(device)
+
             model.train()
             # Clear gradient
             optimizer.zero_grad()
@@ -178,6 +193,11 @@ def main():
         prediction_total = 0
         with torch.no_grad():
             for idx, (inputs, target_control) in enumerate(test_loader):
+                # TODO: test this vs sending the entire tensor.
+                #       this likely isn't as performant due to a lot of data transfers
+                #inputs = inputs.to(device)
+                #target_control = target_control.to(device)
+
                 prediction_total += inputs.size(0)
 
                 # Run inputs through model, save prediction
