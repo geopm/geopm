@@ -116,17 +116,11 @@ def main():
     train_tensor = torch.utils.data.TensorDataset(x_train, y_train)
     train_loader = torch.utils.data.DataLoader(dataset = train_tensor, batch_size = batch_size, shuffle = True)
 
-
     message_interval = round((len(df_x_train)/batch_size)/5)
     print("batch_size:{}, epoch_count:{}, learning_rate={}, message_interval={}".format(batch_size, epoch_count, learning_rate, message_interval))
     for epoch in range(epoch_count):
         train_loss = 0
         for idx, (inputs, target_control) in enumerate(train_loader):
-            # TODO: test this vs sending the entire tensor.
-            #       this likely isn't as performant due to a lot of data transfers
-            #inputs = inputs.to(device)
-            #target_control = target_control.to(device)
-
             model.train()
             # Clear gradient
             optimizer.zero_grad()
@@ -173,11 +167,6 @@ def main():
         prediction_total = 0
         with torch.no_grad():
             for idx, (inputs, target_control) in enumerate(test_loader):
-                # TODO: test this vs sending the entire tensor.
-                #       this likely isn't as performant due to a lot of data transfers
-                #inputs = inputs.to(device)
-                #target_control = target_control.to(device)
-
                 prediction_total += inputs.size(0)
 
                 # Run inputs through model, save prediction

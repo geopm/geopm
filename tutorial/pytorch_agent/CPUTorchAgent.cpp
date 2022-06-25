@@ -103,13 +103,13 @@ void CPUTorchAgent::init(int level, const std::vector<int> &fan_in, bool is_leve
 void CPUTorchAgent::init_platform_io(void)
 {
     for (int domain_idx = 0; domain_idx < M_NUM_PACKAGE; ++domain_idx) {
-        m_package_power.push_back({m_platform_io.push_signal("POWER_PACKAGE",
+        m_package_power.push_back({m_platform_io.push_signal("CPU_POWER",
                                    GEOPM_DOMAIN_PACKAGE,
                                    domain_idx), NAN});
         m_package_freq_status.push_back({m_platform_io.push_signal("CPU_FREQUENCY_STATUS",
                                          GEOPM_DOMAIN_PACKAGE,
                                          domain_idx), NAN});
-        m_package_temperature.push_back({m_platform_io.push_signal("TEMPERATURE_CORE",
+        m_package_temperature.push_back({m_platform_io.push_signal("CPU_PACKAGE_TEMPERATURE",
                                           GEOPM_DOMAIN_PACKAGE,
                                           domain_idx), NAN});
         m_package_uncore_freq_status.push_back({m_platform_io.push_signal("MSR::UNCORE_PERF_STATUS:FREQ",
@@ -124,7 +124,7 @@ void CPUTorchAgent::init_platform_io(void)
         m_package_cycles_unhalted.push_back({m_platform_io.push_signal("CYCLES_THREAD",
                                              GEOPM_DOMAIN_PACKAGE,
                                              domain_idx), NAN});
-        m_package_energy.push_back({m_platform_io.push_signal("ENERGY_PACKAGE",
+        m_package_energy.push_back({m_platform_io.push_signal("CPU_ENERGY",
                                     GEOPM_DOMAIN_PACKAGE,
                                     domain_idx), NAN});
         m_package_acnt.push_back({m_platform_io.push_signal("MSR::APERF:ACNT",
