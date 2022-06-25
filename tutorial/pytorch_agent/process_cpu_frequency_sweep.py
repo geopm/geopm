@@ -134,12 +134,8 @@ def read_trace_files(sweep_dir, nodename, app_index):
         # Handle sweeps done with python infrastructure that does not have a region hash
         if "REGION_HASH" not in trace_df.columns:
             trace_df['REGION_HASH'] = "0xDEADBEEF"
-        #if 'ENERGY_DRAM' not in trace_df.columns:
-        #    trace_df['ENERGY_DRAM'] = trace_df['ENERGY_DRAM-board_memory-0']
-        #if 'POWER_DRAM' not in trace_df:
-        #    trace_df['POWER_DRAM'] = trace_df['POWER_DRAM-board_memory-0']
-        if 'POWER_PACKAGE' not in trace_df:
-            trace_df['POWER_PACKAGE'] = trace_df['POWER_PACKAGE-board-0']
+        if 'CPU_POWER' not in trace_df:
+            trace_df['CPU_POWER'] = trace_df['CPU_POWER-board-0']
         if 'CPU_FREQUENCY_STATUS' not in trace_df:
             trace_df['CPU_FREQUENCY_STATUS'] = trace_df['CPU_FREQUENCY_STATUS-board-0']
         if 'TIME' not in trace_df:

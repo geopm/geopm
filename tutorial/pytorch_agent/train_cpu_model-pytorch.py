@@ -50,17 +50,20 @@ def main():
                         help='Leave the named app out of the training set')
     args = parser.parse_args()
 
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    print("Using {} device for training".format(device))
+
     df_traces = pd.read_hdf(args.input)
 
     y_columns = ['phi-freq']
-    X_columns = ['POWER_PACKAGE-package-0',
+    X_columns = ['CPU_POWER-package-0',
                  'CPU_FREQUENCY_STATUS-package-0',
-                 'TEMPERATURE_CORE-package-0',
+                 'CPU_PACKAGE_TEMPERATURE-package-0',
                  'MSR::UNCORE_PERF_STATUS:FREQ-package-0',
                  'QM_CTR_SCALED_RATE-package-0']
 
-    ratios = [['INSTRUCTIONS_RETIRED-package-0', 'CYCLES_THREAD-package-0'],
-              ['INSTRUCTIONS_RETIRED-package-0', 'ENERGY_PACKAGE-package-0'],
+    ratios = [['CPU_INSTRUCTIONS_RETIRED-package-0', 'CPU_CYCLES_THREAD-package-0'],
+              ['CPU_INSTRUCTIONS_RETIRED-package-0', 'CPU_ENERGY-package-0'],
               ['MSR::APERF:ACNT-package-0', 'MSR::MPERF:MCNT-package-0'],
               ['MSR::PPERF:PCNT-package-0', 'MSR::MPERF:MCNT-package-0'],
               ['MSR::PPERF:PCNT-package-0', 'MSR::APERF:ACNT-package-0']]
@@ -92,7 +95,6 @@ def main():
     # model's performance on an applcation, we should use a model that excludes
     # that application from the training set so we can get a better idea about
     # how the model might generalize to unseen workloads.
-    #code.interact(local=locals())
     if args.leave_app_out is not None:
         app_config_list = [e for e in df_traces['app-config'].unique() if args.leave_app_out in e]
         if app_config_list is None:
@@ -126,11 +128,17 @@ def main():
                     nn.Linear(len(X_columns), 1)
             )
 
+    model.to(device)
+
     learning_rate = 1e-3
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
     x_train = torch.tensor(df_x_train.to_numpy()).float()
     y_train = torch.tensor(df_y_train.to_numpy()).float()
+    # TODO: test this vs sending input and target
+    #       this might be more performant overall, or easier
+    x_train = x_train.to(device)
+    y_train = y_train.to(device)
 
     batch_size = 1000
     epoch_count = 5
@@ -163,10 +171,13 @@ def main():
                 print("\te:{}, idx:{} - loss: {:.3f}".format(epoch, idx, train_loss/(message_interval)))
                 train_loss = 0.0
 
+    model.to('cpu')
     model.eval()
     model_scripted = torch.jit.script(model)
     model_scripted.save(args.output)
     print("Model saved to {}".format(args.output))
+
+    model.to(device)
 
     if df_test is not None:
         print("Beginning testing")
@@ -176,6 +187,8 @@ def main():
 
         x_test = torch.tensor(df_x_test.to_numpy()).float()
         y_test = torch.tensor(df_y_test.to_numpy()).float()
+        x_test = x_test.to(device)
+        y_test = y_test.to(device)
 
         test_tensor = torch.utils.data.TensorDataset(x_test, y_test)
         test_loader = torch.utils.data.DataLoader(dataset = test_tensor, batch_size = batch_size, shuffle = True)
