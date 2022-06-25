@@ -22,6 +22,7 @@ from ray.tune.schedulers import ASHAScheduler
 from functools import partial
 
 EPOCH_SIZE = 5
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 def main():
     parser = argparse.ArgumentParser(
@@ -47,7 +48,6 @@ def main():
                         help='Specify scheduler metric.')
     args = parser.parse_args()
 
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print("Using {} device for training".format(device))
 
     df_traces = pd.read_hdf(args.input)
@@ -159,9 +159,14 @@ def main():
         reporter = CLIReporter(
             metric_columns=["loss", "accuracy"])
 
+
+        num_gpu_per_sample = 0
+        if torch.cuda.is_available():
+            num_gpu_per_sample = 0.2
+
         result = tune.run(
             tune.with_parameters(training_loop, input_size=len(X_columns), train_set=train_set, val_set=val_set),
-            #resources_per_trial={"cpu":, "gpu":}, #TODO: specifying CPU availability as a command line option
+            resources_per_trial={"gpu":num_gpu_per_sample}, #TODO: specifying CPU availability as a command line option
             config = config,
             num_samples=args.train_hp_samples,
             scheduler = scheduler,
@@ -211,7 +216,6 @@ def main():
     torch.save(best_model.state_dict(), "{}".format(args.output + '-pre-torchscript'))
 
     best_model.eval()
-    best_model.to(device)
     if df_test is not None:
         df_x_test = df_test[X_columns]
         df_y_test = df_test[y_columns]
@@ -245,6 +249,7 @@ def main():
 
 
 def model_to_script(model, output):
+    model.to(torch.device('cpu'))
     model.eval()
     model_scripted = torch.jit.script(model)
     model_scripted.save(output)
@@ -257,7 +262,6 @@ def training_loop(config, input_size, train_set, val_set):
     net_type=config['net_type']
     if(net_type == 'Feed-Forward'):
         model = FFNet(width_input=input_size, fc_width=config["fc_width"], fc_depth=config["fc_depth"])
-        model.to(device)
     else:
         #TODO: Add additional NN types of interest!
         print('Error: Invalid net type specified: {}'.format(net_type))
@@ -286,6 +290,7 @@ def training_loop(config, input_size, train_set, val_set):
         tune.report(loss=val_loss, accuracy=val_accuracy)
 
 def train(model, optimizer, criterion, train_loader):
+    model.to(device)
     for idx, (inputs, target_control) in enumerate(train_loader):
         model.train()
         # Clear gradient
@@ -299,6 +304,7 @@ def train(model, optimizer, criterion, train_loader):
         optimizer.step()
 
 def evaluate(model, test_loader, criterion):
+    model.to(device)
     prediction_total = 0
     prediction_correct = 0
     prediction_min = 0
@@ -312,13 +318,13 @@ def evaluate(model, test_loader, criterion):
             # Run inputs through model, save prediction
             predicted_control = model(inputs)
             # Round to nearest 100 MHz increment
-            predicted_control_rounded = np.round(predicted_control,1)
-            target_control_rounded = np.round(target_control,1)
+            predicted_control_rounded = np.round(predicted_control.cpu(),1)
+            target_control_rounded = np.round(target_control.cpu(),1)
 
             # Generate stats
             prediction_correct += (target_control_rounded == predicted_control_rounded).sum().item()
             loss = criterion(predicted_control, target_control)
-            val_loss += loss.numpy()
+            val_loss += loss.cpu().numpy()
             val_steps += 1;
 
             if (idx == 0):
