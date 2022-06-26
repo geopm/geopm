@@ -71,7 +71,7 @@ Min and max frequency may vary from system to system
 ## 4) Process the GPU frequency sweeps to condition the data for model training.
 For the GPU Agent use the geopm/tutorial/ml/process_gpu_sweeps.py to process the dgemm and stream frequency sweeps
 ```
-./process_gpu_frequency_sweep.py <node_name> processed_gpu_sweep training_data/dgemm/ training_data/stream/
+./process_gpu_frequency_sweep.py <node_name> --domain node processed_gpu_sweep training_data/dgemm/ training_data/stream/
 ```
 This will result in a processed_gpu_sweep.h5 output.
 
