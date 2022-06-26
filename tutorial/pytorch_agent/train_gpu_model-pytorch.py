@@ -1,33 +1,6 @@
 #!/usr/bin/env python3
-#  Copyright (c) 2015 - 2021, Intel Corporation
-#
-#  Redistribution and use in source and binary forms, with or without
-#  modification, are permitted provided that the following conditions
-#  are met:
-#
-#      * Redistributions of source code must retain the above copyright
-#        notice, this list of conditions and the following disclaimer.
-#
-#      * Redistributions in binary form must reproduce the above copyright
-#        notice, this list of conditions and the following disclaimer in
-#        the documentation and/or other materials provided with the
-#        distribution.
-#
-#      * Neither the name of Intel Corporation nor the names of its
-#        contributors may be used to endorse or promote products derived
-#        from this software without specific prior written permission.
-#
-#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-#  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-#  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-#  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-#  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-#  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-#  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-#  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-#  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
-#  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#  Copyright (c) 2015 - 2022, Intel Corporation
+#  SPDX-License-Identifier: BSD-3-Clause
 #
 
 import torch
@@ -172,11 +145,16 @@ def main():
                 print("\te:{}, idx:{} - loss: {:.3f}".format(epoch, idx, train_loss/(message_interval)))
                 train_loss = 0.0
 
+    # Inference is going to be handled on the CPU
+    # using a pytorch GEOPM agent.
+    model.to('cpu')
     model.eval()
     model_scripted = torch.jit.script(model)
     model_scripted.save(args.output)
     print("Model saved to {}".format(args.output))
 
+    # Testing should be handled on GPUs if available
+    model.to(device)
     if df_test is not None:
         print("Beginning testing")
         df_x_test = df_test[X_columns]
@@ -185,6 +163,8 @@ def main():
 
         x_test = torch.tensor(df_x_test.to_numpy()).float()
         y_test = torch.tensor(df_y_test.to_numpy()).float()
+        x_test = x_test.to(device)
+        y_test = y_test.to(device)
 
         test_tensor = torch.utils.data.TensorDataset(x_test, y_test)
         test_loader = torch.utils.data.DataLoader(dataset = test_tensor, batch_size = batch_size, shuffle = True)
@@ -203,7 +183,8 @@ def main():
                 # Run inputs through model, save prediction
                 predicted_control = model(inputs)
                 # Round to nearest 100 MHz increment
-                predicted_control = np.round(predicted_control,1)
+                predicted_control = np.round(predicted_control.cpu(),1)
+                target_control = np.round(target_control.cpu(),1)
 
                 prediction_correct = (target_control == predicted_control).sum().item()
 
