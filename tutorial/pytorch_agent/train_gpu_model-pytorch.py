@@ -147,7 +147,7 @@ def main():
 
     # Inference is going to be handled on the CPU
     # using a pytorch GEOPM agent.
-    model.to('cpu')
+    model.to(torch.device('cpu'))
     model.eval()
     model_scripted = torch.jit.script(model)
     model_scripted.save(args.output)
