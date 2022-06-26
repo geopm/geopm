@@ -223,8 +223,6 @@ def main():
 
         x_test = torch.tensor(df_x_test.to_numpy()).float()
         y_test = torch.tensor(df_y_test.to_numpy()).float()
-        # TODO: test this vs sending input and target
-        #       this might be more performant overall, or easier
         x_test = x_test.to(device)
         y_test = y_test.to(device)
 

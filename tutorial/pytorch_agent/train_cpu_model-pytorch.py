@@ -278,6 +278,7 @@ def main():
 
 
 def model_to_script(model, output):
+    model.to(torch.device('cpu'))
     model.eval()
     model_scripted = torch.jit.script(model)
     model_scripted.save(output)
