@@ -188,7 +188,7 @@ First setup the user environment
 
 ```
 export GEOPM_PLUGIN_PATH=${GEOPM_SOURCE}/tutorial/pytorch_agent
-export PYTHONPATH=$PYTHONPATH:$PWD/python_experiment/
+export PYTHONPATH=$PYTHONPATH:${GEOPM_SOURCE}/tutorial/pytorch_agent
 export GEOPM_CPU_NN_PATH=$PWD/cpu_control.pt
 ```
 
