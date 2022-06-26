@@ -493,12 +493,12 @@ TEST_F(ReporterTest, generate_conditional)
         .WillOnce(Return(M_ENERGY_GPU_IDX));
     EXPECT_CALL(*m_sample_agg, push_signal("GPU_POWER", GEOPM_DOMAIN_BOARD, 0))
         .WillOnce(Return(M_POWER_GPU_IDX));
-    EXPECT_CALL(*m_sample_agg, push_signal("GPU_FREQUENCY_STATUS", GEOPM_DOMAIN_BOARD, 0))
+    EXPECT_CALL(*m_sample_agg, push_signal("GPU_CORE_FREQUENCY_STATUS", GEOPM_DOMAIN_BOARD, 0))
         .WillOnce(Return(M_FREQUENCY_GPU_IDX));
     EXPECT_CALL(*m_sample_agg, push_signal("CPU_UNCORE_FREQUENCY_STATUS", GEOPM_DOMAIN_BOARD, 0))
         .WillOnce(Return(M_FREQUENCY_CPU_UNCORE_IDX));
 
-    std::set<std::string> signal_names = {"GPU_ENERGY","GPU_POWER","GPU_FREQUENCY_STATUS","CPU_UNCORE_FREQUENCY_STATUS"};
+    std::set<std::string> signal_names = {"GPU_ENERGY","GPU_POWER","GPU_CORE_FREQUENCY_STATUS","CPU_UNCORE_FREQUENCY_STATUS"};
     EXPECT_CALL(m_platform_io, signal_names()).WillOnce(Return(signal_names));
 
     //setup default values for 'generate' tests
