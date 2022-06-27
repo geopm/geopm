@@ -52,7 +52,7 @@ namespace geopm
                                              "MPI_Alltoallv",
                                              "MPI_Alltoallw",
                                              "MPI_Barrier",
-                                             "MPI_Bcast"
+                                             "MPI_Bcast",
                                              "MPI_Bsend",
                                              "MPI_Bsend_init",
                                              "MPI_Gather",
@@ -65,7 +65,7 @@ namespace geopm
                                              "MPI_Reduce",
                                              "MPI_Reduce_scatter",
                                              "MPI_Reduce_scatter_block",
-                                             "MPI_Rsend"
+                                             "MPI_Rsend",
                                              "MPI_Rsend_init",
                                              "MPI_Scan",
                                              "MPI_Scatter",
