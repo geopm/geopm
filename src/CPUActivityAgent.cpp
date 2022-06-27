@@ -459,9 +459,12 @@ namespace geopm
             }
 
             double core_req = m_resolved_f_core_efficient + m_resolved_f_core_range * scalability;
-            //Clip core request within policy limits
-            core_req = std::max(in_policy[M_POLICY_CPU_FREQ_EFFICIENT], core_req);
-            core_req = std::min(in_policy[M_POLICY_CPU_FREQ_MAX], core_req);
+
+            // Clip core request within reasonable limits
+            // Never request below the efficient frequency
+            core_req = std::max(m_resolved_f_core_efficient, core_req);
+            // Never request above the maximum frequency
+            core_req = std::min(m_resolved_f_core_max, core_req);
             core_freq_request.push_back(core_req);
         }
 
