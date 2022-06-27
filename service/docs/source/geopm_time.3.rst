@@ -2,7 +2,7 @@
    :format: html
 
 
-geopm_time(3) -- helper methods for time
+geopm_time.h(3) -- helper methods for time
 ==========================================
 
 
