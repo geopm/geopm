@@ -227,27 +227,26 @@ class TestIntegrationGeopmio(unittest.TestCase):
             finally:
                 load_cpu_stop()
 
-        read_domain = geopm_test_launcher.geopmread('--info CPU_FREQUENCY_STATUS')['domain']
-        write_domain = geopm_test_launcher.geopmread('--info CPU_FREQUENCY_CONTROL')['domain']
+        domain = 'board'
         min_freq, sticker_freq = read_min_sticker_freq()
 
-        old_freq = read_current_freq(write_domain, 'CPU_FREQUENCY_CONTROL')
+        old_freq = read_current_freq(domain, 'CPU_FREQUENCY_CONTROL')
         self.assertLess(old_freq, sticker_freq * 2)
         self.assertGreater(old_freq, min_freq - 1e8)
 
         with load_cpu():
             # Set to min and check
-            geopm_test_launcher.geopmwrite('{} {} {} {}'.format('CPU_FREQUENCY_CONTROL', write_domain, '0', str(min_freq))),
+            geopm_test_launcher.geopmwrite('{} {} {} {}'.format('CPU_FREQUENCY_CONTROL', domain, '0', str(min_freq))),
             time.sleep(1)
-            result = read_current_freq(read_domain)
+            result = read_current_freq(domain)
             self.assertEqual(min_freq, result)
             # Set to sticker and check
-            geopm_test_launcher.geopmwrite('{} {} {} {}'.format('CPU_FREQUENCY_CONTROL', write_domain, '0', str(sticker_freq))),
+            geopm_test_launcher.geopmwrite('{} {} {} {}'.format('CPU_FREQUENCY_CONTROL', domain, '0', str(sticker_freq))),
             time.sleep(1)
-            result = read_current_freq(read_domain)
+            result = read_current_freq(domain)
             self.assertEqual(sticker_freq, result)
             # Restore the original frequency
-            geopm_test_launcher.geopmwrite('{} {} {} {}'.format('CPU_FREQUENCY_CONTROL', write_domain, '0', str(old_freq))),
+            geopm_test_launcher.geopmwrite('{} {} {} {}'.format('CPU_FREQUENCY_CONTROL', domain, '0', str(old_freq))),
 
 
 if __name__ == '__main__':
