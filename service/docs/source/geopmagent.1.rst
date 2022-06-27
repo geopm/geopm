@@ -77,7 +77,7 @@ budget:
 .. code-block:: bash
 
    $ geopmagent -a power_governor -p 250
-   {"POWER_PACKAGE_LIMIT_TOTAL" : 250}
+   {"CPU_POWER_LIMIT" : 250}
 
 
 Create policy for ``power_balancer`` agent with 250 watts per node power
@@ -108,4 +108,4 @@ See Also
 :doc:`geopm_agent_monitor(7) <geopm_agent_monitor.7>`,
 :doc:`geopm_agent_power_balancer(7) <geopm_agent_power_balancer.7>`,
 :doc:`geopm_agent_power_governor(7) <geopm_agent_power_governor.7>`,
-:doc:`geopm_agent_c(3) <geopm_agent_c.3>`
+:doc:`geopm_agent(3) <geopm_agent.3>`

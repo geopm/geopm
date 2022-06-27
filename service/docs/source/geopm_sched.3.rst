@@ -2,7 +2,7 @@
    :format: html
 
 
-geopm_sched.h(3) -- interface with Linux scheduler
+geopm_sched(3) -- interface with Linux scheduler
 ==================================================
 
 
@@ -73,7 +73,7 @@ See Also
 --------
 
 :doc:`geopm(7) <geopm.7>`\ ,
-:doc:`geopm_ctl_c(3) <geopm_ctl_c.3>`\ ,
+:doc:`geopm_ctl(3) <geopm_ctl.3>`\ ,
 :doc:`geopm_error(3) <geopm_error.3>`\ ,
 `CPU_SET(3) <https://man7.org/linux/man-pages/man3/CPU_SET.3.html>`_\ ,
 `pthread_setaffinity_np(3) <https://man7.org/linux/man-pages/man3/pthread_setaffinity_np.3.html>`_\ ,
