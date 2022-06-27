@@ -4,9 +4,11 @@ geopmadmin(1) -- tool for GEOPM system administrators
 Synopsis
 --------
 
-``geopmadmin`` [\ ``--config-default``\ \|\ ``--config-override``\ \|\ ``--msr-allowlist``\ ] [\ ``--cpuid``\ ]
+.. code-block:: bash
 
-``geopmadmin`` [\ ``--help``\ \|\ ``--version``\ ]
+       geopmadmin [--config-default | --config-override | --msr-allowlist] [--cpuid]
+
+       geopmadmin [--help | --version]
 
 Description
 -----------
@@ -30,26 +32,26 @@ Options
                        controls the default values for the system.
 -o, --config-override  Print the path to the GEOPM configuration file that
                        controls the override values for the system.
--a, --msr-allowlist    Print the minimum required allowlist for the msr-safe
+-a, --msr-allowlist    Print the minimum required allowlist for the ``msr-safe``
                        driver to enable all of the GEOPM features.
--c, --cpuid            Specify the cpuid in hexidecimal to select the
-                       architecture for the msr-safe allowlist generation. If
+-c, --cpuid            Specify the ``cpuid`` in hexidecimal to select the
+                       architecture for the ``msr-safe`` allowlist generation. If
                        this option is not specified the architecture where the
                        application is running will be used.
 
 Examples
 --------
 
-Set the msr-safe allowlist to enable GEOPM:
+Set the ``msr-safe`` allowlist to enable GEOPM:
 
-.. code-block::
+.. code-block:: bash
 
    geopmadmin --allowlist > /dev/cpu/msr_allowlist
 
 
-on a legacy msr-safe system:
+on a legacy ``msr-safe`` system:
 
-.. code-block::
+.. code-block:: bash
 
    geopmadmin --allowlist > /dev/cpu/msr_whitelist
 
