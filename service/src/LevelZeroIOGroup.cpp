@@ -447,18 +447,33 @@ namespace geopm
         })
         , m_mock_save_ctl(save_control_test)
     {
+        std::vector <std::string> unsupported_signal_names;
         // populate signals for each domain
         for (auto &sv : m_signal_available) {
             std::vector<std::shared_ptr<Signal> > result;
             for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(
                                      signal_domain_type(sv.first)); ++domain_idx) {
-                std::shared_ptr<Signal> signal =
-                        std::make_shared<LevelZeroSignal>(sv.second.m_devpool_func,
-                                                          domain_idx,
-                                                          sv.second.m_scalar);
-                result.push_back(signal);
+                try {
+                    sv.second.m_devpool_func(domain_idx);
+                    std::shared_ptr<Signal> signal =
+                            std::make_shared<LevelZeroSignal>(sv.second.m_devpool_func,
+                                                              domain_idx,
+                                                              sv.second.m_scalar);
+                    result.push_back(signal);
+                }
+                catch (const geopm::Exception &ex) {
+                    if (ex.err_value() != GEOPM_ERROR_RUNTIME &&
+                        ex.err_value() != GEOPM_ERROR_INVALID) {
+                        throw;
+                    }
+                    unsupported_signal_names.push_back(sv.first);
+                }
             }
             sv.second.m_signals = result;
+        }
+
+        for(const auto &name : unsupported_signal_names) {
+            m_signal_available.erase(name);
         }
 
         register_derivative_signals();
