@@ -179,7 +179,8 @@ namespace geopm
         {"REGION_HASH",
          "    description: The hash of the region of code currently being "
          "run by all ranks, otherwise GEOPM_REGION_HASH_UNMARKED.\n"
-         "    iogroup: Profile"},
+         "    iogroup: Profile\n"
+         "    alias_for: PROFILE::REGION_HASH"},
         {"REGION_HINT",
          "    description: The region hint associated with the currently "
          "running region.  For any interval when all ranks are within an MPI "
@@ -190,16 +191,20 @@ namespace geopm
          "function, GEOPM will not attribute the time spent within the MPI function as "
          "MPI time in the report files.  It will be instead attributed to the time "
          "spent in the region as a whole.\n"
-         "    iogroup: Profile"},
+         "    iogroup: Profile\n"
+         "    alias_for: PROFILE::REGION_HINT"},
         {"REGION_PROGRESS",
          "    description: Minimum per-rank reported progress through the current region.\n"
-         "    iogroup: Profile"},
+         "    iogroup: Profile\n"
+         "    alias_for: PROFILE::REGION_PROGRESS"},
         {"REGION_RUNTIME",
          "    description: Maximum per-rank of the last recorded runtime for the current region.\n"
-         "    iogroup: Profile"},
+         "    iogroup: Profile\n"
+         "    alias_for: PROFILE::REGION_RUNTIME"},
         {"TIME",
          "    description: Time elapsed since the beginning of execution.\n"
-         "    iogroup: Time"}
+         "    iogroup: Time\n"
+         "    alias_for: TIME::ELAPSED"}
     };
 
     const std::map<const std::string, const std::string>
