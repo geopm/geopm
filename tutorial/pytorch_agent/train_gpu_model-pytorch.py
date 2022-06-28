@@ -159,7 +159,6 @@ def main():
         reporter = CLIReporter(
             metric_columns=["loss", "accuracy"])
 
-
         num_gpu_per_sample = 0
         if torch.cuda.is_available():
             num_gpu_per_sample = 0.2
@@ -178,7 +177,7 @@ def main():
         print("Best config: {}".format(best_trial.config))
         print("\tValidation Set Accuracy: {:.2f}%".format(100*best_trial.last_result["accuracy"]))
         print("\tValidation Set Loss: {:.2f}%".format(100*best_trial.last_result["loss"]))
-        best_model = FFNet(width_input=len(X_columns), fc_width=best_trial.config["fc_width"], fc_depth=best_trial.config["fc_depth"])
+        best_model = nn.DataParallel(FFNet(width_input=len(X_columns), fc_width=best_trial.config["fc_width"], fc_depth=best_trial.config["fc_depth"]))
         criterion = best_trial.config['criterion']
 
         best_checkpoint_dir = best_trial.checkpoint.value
@@ -203,7 +202,7 @@ def main():
         if args.depth is not None:
             depth = args.depth
 
-        best_model = FFNet(width_input=len(X_columns), fc_width=width, fc_depth=depth)
+        best_model = nn.DataParallel(FFNet(width_input=len(X_columns), fc_width=width, fc_depth=depth))
         optimizer = torch.optim.Adam(best_model.parameters(), lr=learning_rate)
 
         print("batch_size:{}, epoch_count:{}, learning_rate={}".format(batch_size, EPOCH_SIZE, learning_rate))
@@ -213,7 +212,7 @@ def main():
             val_loss, val_accuracy, pred_min, pred_max = evaluate(best_model, val_loader, criterion);
 
     print('Saving model (non-scripted and in training mode) as a precaution here: {}'.format(args.output + '-pre-torchscript'))
-    torch.save(best_model.state_dict(), "{}".format(args.output + '-pre-torchscript'))
+    torch.save(best_model.module.state_dict(), "{}".format(args.output + '-pre-torchscript'))
 
     best_model.eval()
     if df_test is not None:
@@ -249,7 +248,7 @@ def main():
 def model_to_script(model, output):
     model.to(torch.device('cpu'))
     model.eval()
-    model_scripted = torch.jit.script(model)
+    model_scripted = torch.jit.script(model.module)
     model_scripted.save(output)
     print("Model saved to {}".format(output))
 
@@ -259,7 +258,7 @@ def training_loop(config, input_size, train_set, val_set):
 
     net_type=config['net_type']
     if(net_type == 'Feed-Forward'):
-        model = FFNet(width_input=input_size, fc_width=config["fc_width"], fc_depth=config["fc_depth"])
+        model = nn.DataParallel(FFNet(width_input=input_size, fc_width=config["fc_width"], fc_depth=config["fc_depth"]))
     else:
         #TODO: Add additional NN types of interest!
         print('Error: Invalid net type specified: {}'.format(net_type))

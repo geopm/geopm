@@ -197,17 +197,17 @@ def main():
 
         net_type = best_trial.config['net_type']
         if(net_type == 'FF'):
-            best_model = FFNet(width_input=len(X_columns),
+            best_model = nn.DataParallel(FFNet(width_input=len(X_columns),
                 layer_width=best_trial.config["layer_width"],
-                layer_count=best_trial.config["layer_count"])
+                layer_count=best_trial.config["layer_count"]))
         elif(net_type == 'LSTM'):
-            best_model = LSTMNet(width_input=len(X_columns),
+            best_model = nn.DataParallel(LSTMNet(width_input=len(X_columns),
                 hidden_dim=best_trial.config["layer_width"],
-                layer_count=best_trial.config["layer_count"])
+                layer_count=best_trial.config["layer_count"]))
         elif(net_type == 'RNN'):
-            best_model = RecNet(width_input=len(X_columns),
+            best_model = nn.DataParallel(RecNet(width_input=len(X_columns),
                 hidden_dim=best_trial.config["layer_width"],
-                layer_count=best_trial.config["layer_count"])
+                layer_count=best_trial.config["layer_count"]))
 
         criterion = best_trial.config['criterion']
         seq_length = best_trial.config['seq_length']
@@ -238,7 +238,9 @@ def main():
         if args.layer_count is not None:
             layer_count = args.layer_count
 
-        best_model = FFNet(width_input=len(X_columns), layer_width=layer_width, layer_count=layer_count)
+        best_model = nn.DataParallel(FFNet(width_input=len(X_columns),
+                                          layer_width=layer_width,
+                                          layer_count=layer_count))
         optimizer = torch.optim.Adam(best_model.parameters(), lr=learning_rate)
 
         print("batch_size:{}, epoch_count:{}, learning_rate={}".format(batch_size, EPOCH_SIZE, learning_rate))
@@ -248,7 +250,7 @@ def main():
             val_loss, val_accuracy, pred_min, pred_max = evaluate(best_model, val_loader, criterion, seq_length, rounding=1)
 
     print('Saving model (non-scripted and in training mode) as a precaution here: {}'.format(args.output + '-pre-torchscript'))
-    torch.save(best_model.state_dict(), "{}".format(args.output + '-pre-torchscript'))
+    torch.save(best_model.module.state_dict(), "{}".format(args.output + '-pre-torchscript'))
 
     best_model.eval()
     if df_test is not None:
@@ -280,7 +282,7 @@ def main():
 def model_to_script(model, output):
     model.to(torch.device('cpu'))
     model.eval()
-    model_scripted = torch.jit.script(model)
+    model_scripted = torch.jit.script(model.module)
     model_scripted.save(output)
     print("Model saved to {}".format(output))
 
@@ -313,16 +315,20 @@ def training_loop(config, traces, output_control):
 
 
     net_type=config['net_type']
-    if(net_type == 'Feed-Forward'):
-        model = FFNet(width_input=input_size, fc_width=config["fc_width"], fc_depth=config["fc_depth"])
     if(net_type == 'FF'):
-        model = FFNet(width_input=input_size, layer_width=config["layer_width"], layer_count=config["layer_count"])
+        model = nn.DataParallel(FFNet(width_input=input_size,
+                                      layer_width=config["layer_width"],
+                                      layer_count=config["layer_count"]))
     elif(net_type == 'LSTM'):
         assert(config['batch_size'] % config['seq_length'] == 0), "LSTM batch size must be divisibly by sequence length"
-        model = LSTMNet(width_input=input_size, hidden_dim=config["layer_width"], layer_count=config["layer_count"])
+        model = nn.DataParallel(LSTMNet(width_input=input_size,
+                                        hidden_dim=config["layer_width"],
+                                        layer_count=config["layer_count"]))
     elif(net_type == 'RNN'):
         assert(config['batch_size'] % config['seq_length'] == 0), "LSTM batch size must be divisibly by sequence length"
-        model = RecNet(width_input=input_size, hidden_dim=config["layer_width"], layer_count=config["layer_count"])
+        model = nn.DataParallel(RecNet(width_input=input_size,
+                                       hidden_dim=config["layer_width"],
+                                       layer_count=config["layer_count"]))
     else:
         print('Error: Invalid net type specified: {}'.format(net_type))
         sys.exit(1)
@@ -422,6 +428,7 @@ def evaluate(model, test_loader, criterion, seq_length=None, rounding=None):
             if rounding is not None:
                 # Round to number of decimals specified
                 predicted_control = np.round(predicted_control.cpu(), rounding)
+                target_control = np.round(target_control.cpu(), rounding)
 
             # Generate stats
             prediction_correct += (target_control == predicted_control).sum().item()
