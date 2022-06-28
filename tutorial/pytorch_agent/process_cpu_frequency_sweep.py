@@ -112,8 +112,8 @@ def read_trace_files(sweep_dir, nodename, app_index):
             trace_df['CPU_FREQUENCY_STATUS'] = trace_df['CPU_FREQUENCY_STATUS-board-0']
         if 'TIME' not in trace_df:
             trace_df['TIME'] = trace_df['TIME-board-0']
-        if 'TEMPERATURE_CORE' not in trace_df:
-            trace_df['TEMPERATURE_CORE'] = trace_df['TEMPERATURE_CORE-board-0']
+        if 'CPU_CORE_TEMPERATURE' not in trace_df:
+            trace_df['CPU_CORE_TEMPERATURE'] = trace_df['CPU_CORE_TEMPERATURE-board-0']
 
         # Help uniquely identify different configurations of a single app
         config_name = app_name + "-" + directory_name + '-' + trace_df['REGION_HASH']
