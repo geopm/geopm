@@ -58,76 +58,130 @@ namespace geopm
     const std::map<const std::string, const std::string>
     PlatformIOImp::m_signal_descriptions = {
         {"BOARD_ENERGY",
-         "Total energy measured on the server's board. "},
+         "    description: Total energy measured on the server's board.\n"
+         "    iogroup: CNL\n"
+         "    alias_for: CNL::BOARD_ENERGY"},
         {"BOARD_POWER",
-         "Power measured on the server's board. "},
+         "    description: Power measured on the server's board.\n"
+         "    iogroup: CNL\n"
+         "    alias_for: CNL::BOARD_POWER"},
         {"CPU_CYCLES_REFERENCE",
-         "The count of the number of cycles while the logical processor is not in a "
+         "    description: The count of the number of cycles while the logical processor is not in a "
          "halt state and not in a stop-clock state. The count rate is fixed at the "
-         "TIMESTAMP_COUNT rate."},
+         "TIMESTAMP_COUNT rate.\n"
+         "    iogroup: MSR\n"
+         "    alias_for: MSR::FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC"},
         {"CPU_CYCLES_THREAD",
-         "The count of the number of cycles while the logical processor is not in a "
-         "halt state.  The count rate may change based on core frequency."},
+         "    description: The count of the number of cycles while the logical processor is not in a "
+         "halt state.  The count rate may change based on core frequency.\n"
+         "    iogroup: MSR\n"
+         "    alias_for: MSR::FIXED_CTR1:CPU_CLK_UNHALTED_THREAD"},
         {"CPU_ENERGY",
-         "An increasing meter of energy consumed by the package over time. It will "
-         "reset periodically due to roll-over."},
+         "    description: An increasing meter of energy consumed by the package over time. It will "
+         "reset periodically due to roll-over.\n"
+         "    iogroup: MSR\n"
+         "    alias_for: MSR::PKG_ENERGY_STATUS:ENERGY"},
         {"CPU_FREQUENCY_MAX",
-         "Maximum processor frequency."},
+         "    description: Maximum processor frequency.\n"
+         "    iogroup: MSR\n"
+         "    alias_for: MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_0 or if HWP is enabled MSR::HWP_CAPABILITIES:HIGHEST_PERFORMANCE"},
         {"CPU_FREQUENCY_STATUS",
-         "The current operating frequency of the CPU."},
+         "    description: The current operating frequency of the CPU.\n"
+         "    iogroup: MSR\n"
+         "    alias_for: MSR::PERF_STATUS:FREQ"},
         {"CPU_INSTRUCTIONS_RETIRED",
-         "The count of the number of instructions executed."},
+         "    description: The count of the number of instructions executed.\n"
+         "    iogroup: MSR\n"
+         "    alias_for: MSR::FIXED_CTR0:INST_RETIRED_ANY"},
         {"CPU_POWER_LIMIT_CONTROL",
-         "The average power usage limit over the time window specified in "
-         "PL1_TIME_WINDOW."},
+         "    description: The average power usage limit over the time window specified in "
+         "PL1_TIME_WINDOW.\n"
+         "    iogroup: MSR\n"
+         "    alias_for: MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT"},
         {"CPU_POWER_TIME_WINDOW",
-         "The time window associated with power limit 1."},
+         "    description: The time window associated with power limit 1.\n"
+         "    iogroup: MSR\n"
+         "    alias_for: MSR::PKG_POWER_LIMIT:PL1_TIME_WINDOW"},
         {"CPU_POWER_MAX_AVAIL",
-         "The maximum power limit based on the electrical specification."},
+         "    description: The maximum power limit based on the electrical specification.\n"
+         "    iogroup: MSR\n"
+         "    alias_for: MSR::PKG_POWER_INFO:MAX_POWER"},
         {"CPU_POWER_MIN_AVAIL",
-         "The minimum power limit based on the electrical specification."},
+         "    description: The minimum power limit based on the electrical specification.\n"
+         "    iogroup: MSR\n"
+         "    alias_for: MSR::PKG_POWER_INFO:MIN_POWER"},
         {"CPU_POWER_LIMIT_DEFAULT",
-         "Maximum power to stay within the thermal limits based on the design (TDP)."},
+         "    description: Maximum power to stay within the thermal limits based on the design (TDP).\n"
+         "    iogroup: MSR\n"
+         "    alias_for: MSR::PKG_POWER_INFO:THERMAL_SPEC_POWER"},
         {"CPU_POWER",
-         "Total power aggregated over the processor package."},
+         "    description: Total power aggregated over the processor package.  Derived from CPU_ENERGY.\n"
+         "    iogroup: MSR"}, // This is not an alias.  This is a defined signal in the MSRIOGroup.
         {"CPU_TIMESTAMP_COUNTER",
-         "An always running, monotonically increasing counter that is "
+         "    description: An always running, monotonically increasing counter that is "
          "incremented at a constant rate.  For use as a wall clock "
-         "timer."},
+         "timer.\n"
+         "    iogroup: MSR\n"
+         "    alias_for: MSR::TIME_STAMP_COUNTER:TIMESTAMP_COUNT"},
         {"CPU_UNCORE_FREQUENCY_STATUS",
-         "Target operating frequency of the uncore."},
+         "    description: Target operating frequency of the uncore.\n"
+         "    iogroup: MSR\n"
+         "    alias_for: MSR::UNCORE_PERF_STATUS:FREQ"},
         {"DRAM_ENERGY",
-         "An increasing meter of energy consumed by the DRAM over time. It will reset "
-         "periodically due to roll-over."},
+         "    description: An increasing meter of energy consumed by the DRAM over time. It will reset "
+         "periodically due to roll-over.\n"
+         "    iogroup: MSR\n"
+         "    alias_for: MSR::DRAM_ENERGY_STATUS:ENERGY"},
         {"DRAM_POWER",
-         "Total power aggregated over the DRAM DIMMs associated with a NUMA node."},
+         "    description: Total power aggregated over the DRAM DIMMs associated with a NUMA node. "
+         "Derived from DRAM_ENERGY.\n"
+         "    iogroup: MSR"},
         {"EPOCH_COUNT",
-         "Number of completed executions of an epoch.  Prior to the first call "
+         "    description: Number of completed executions of an epoch.  Prior to the first call "
          "by the application to geopm_prof_epoch() the signal returns as -1. "
-         "With each call to geopm_prof_epoch() the count increases by one."},
+         "With each call to geopm_prof_epoch() the count increases by one.\n"
+         "    iogroup: Epoch"},
         {"GPU_CORE_ACTIVITY",
-         "GPU compute core activity expressed as a ratio of cycles."},
+         "    description: GPU compute core activity expressed as a ratio of cycles.\n"
+         "    iogroup: DCGM\n"
+         "    alias_for: DCGM::SM_ACTIVE"},
         {"GPU_CORE_FREQENCY_MAX_AVAIL",
-         "Maximum supported GPU core frequency over the specified domain."},
-        {"GPU_CORE_FREQENCY_MIN_AVAIL",
-         "Minimum supported GPU core frequency over the specified domain."},
+         "    description: Maximum supported GPU core frequency over the specified domain.\n"
+         "    iogroup: LevelZero, NVML\n"
+         "    alias_for: LEVELZERO::GPU_CORE_FREQUENCY_MAX_AVAIL, NVML::GPU_CORE_FREQUENCY_MAX_AVAIL"},
+        {"GPU_CORE_FREQUENCY_MIN_AVAIL",
+         "    description: Minimum supported GPU core frequency over the specified domain.\n"
+         "    iogroup: LevelZero, NVML\n"
+         "    alias_for: LEVELZERO::GPU_CORE_FREQUENCY_MIN_AVAIL, NVML::GPU_CORE_FREQUENCY_MIN_AVAIL"},
         {"GPU_CORE_FREQUENCY_STATUS",
-         "Average achieved GPU core frequency over the specified domain."},
+         "    description: Average achieved GPU core frequency over the specified domain.\n"
+         "    iogroup: LevelZero, NVML\n"
+         "    alias_for: LEVELZERO::GPU_CORE_FREQUENCY_STATUS, NVML::GPU_CORE_FREQUENCY_STATUS"},
         {"GPU_ENERGY",
-         "Total energy aggregated over the GPU package."},
+         "    description: Total energy aggregated over the GPU package.\n"
+         "    iogroup: LevelZero, NVML\n"
+         "    alias_for: LEVELZERO::GPU_ENERGY, NVML::GPU_ENERGY_CONSUMPTION_TOTAL"},
         {"GPU_POWER",
-         "Total power aggregated over the GPU package."},
+         "    description: Total power aggregated over the GPU package. Derived from GPU_ENERGY.\n"
+         "    iogroup: LevelZero, NVML"},
         {"GPU_TEMPERATURE",
-         "Average GPU temperature in degrees Celsius."},
+         "    description: Average GPU temperature in degrees Celsius.\n"
+         "    iogroup: NVML\n"
+         "    alias_for: NVML::GPU_TEMPERATURE"},
         {"GPU_UNCORE_ACTIVITY",
-         "GPU memory access activity expressed as a ratio of cycles."},
+         "    description: GPU memory access activity expressed as a ratio of cycles.\n"
+         "    iogroup: DCGM\n"
+         "    alias_for: DCGM::DRAM_ACTIVE"},
         {"GPU_UTILIZATION",
-         "Average GPU utilization expressed as a ratio of cycles."},
+         "    description: Average GPU utilization expressed as a ratio of cycles.\n"
+         "    iogroup: LevelZero, NVML\n"
+         "    alias_for: LEVELZERO::GPU_UTILIZATION, NVML::GPU_UTILIZATION"},
         {"REGION_HASH",
-         "The hash of the region of code currently being "
-         "run by all ranks, otherwise GEOPM_REGION_HASH_UNMARKED."},
+         "    description: The hash of the region of code currently being "
+         "run by all ranks, otherwise GEOPM_REGION_HASH_UNMARKED.\n"
+         "    iogroup: Profile"},
         {"REGION_HINT",
-         "The region hint associated with the currently "
+         "    description: The region hint associated with the currently "
          "running region.  For any interval when all ranks are within an MPI "
          "function inside of a user defined region, the hint will change from the "
          "hint associated with the user defined region to GEOPM_REGION_HINT_NETWORK. "
@@ -135,13 +189,17 @@ namespace geopm
          "there is an interval within the region when all ranks are within an MPI "
          "function, GEOPM will not attribute the time spent within the MPI function as "
          "MPI time in the report files.  It will be instead attributed to the time "
-         "spent in the region as a whole."},
+         "spent in the region as a whole.\n"
+         "    iogroup: Profile"},
         {"REGION_PROGRESS",
-         "Minimum per-rank reported progress through the current region."},
+         "    description: Minimum per-rank reported progress through the current region.\n"
+         "    iogroup: Profile"},
         {"REGION_RUNTIME",
-         "Maximum per-rank of the last recorded runtime for the current region."},
+         "    description: Maximum per-rank of the last recorded runtime for the current region.\n"
+         "    iogroup: Profile"},
         {"TIME",
-         "Time elapsed since the beginning of execution."}
+         "    description: Time elapsed since the beginning of execution.\n"
+         "    iogroup: Time"}
     };
 
     const std::map<const std::string, const std::string>
