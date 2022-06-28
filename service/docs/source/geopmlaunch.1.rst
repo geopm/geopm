@@ -83,6 +83,10 @@ listed below.
   special affinity plugins for SLURM that were deployed at LLNL's
   computing center.  The ``-cc`` and ``--cpu-bind`` options are
   reserved for use by GEOPM; do not specify when using ``geopmlaunch``.
+* *pals*, *PALSLauncher*:
+  Wrapper for Cray-HPE PALS launcher, leveraging ``mpiexec``.  The
+  ``--cpu-bind`` option is reserved for use by GEOPM; do not specify
+  CPU-binding options when using ``geopmlaunch``.
 
 GEOPM Options
 -------------
