@@ -528,7 +528,8 @@ namespace geopm
                                 init_setting = read_signal(M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_AVAIL",
                                                            control_domain_type(sv.first), domain_idx);
                             }
-                        } else {
+                        }
+                        else {
                             //Try to write the signals
                             write_control(sv.first, control_domain_type(sv.first), domain_idx, init_setting);
                         }
