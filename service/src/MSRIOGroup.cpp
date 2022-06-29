@@ -237,15 +237,14 @@ namespace geopm
         }
 
         if (max_turbo_name != "") {
-            register_signal_alias("CPU_FREQUENCY_MAX", max_turbo_name);
-            set_signal_description("CPU_FREQUENCY_MAX", "Maximum processor frequency.");
+            register_signal_alias("CPU_FREQUENCY_MAX_AVAIL", max_turbo_name);
+            set_signal_description("CPU_FREQUENCY_MAX_AVAIL", "Maximum processor frequency.");
         }
 
         // Uncore signals
-        auto all_names = signal_names();
-        if (all_names.count("MSR::UNCORE_PERF_STATUS:FREQ") != 0) {
-            register_signal_alias("CPU_UNCORE_FREQUENCY_STATUS", "MSR::UNCORE_PERF_STATUS:FREQ");
-        }
+        register_signal_alias("CPU_UNCORE_FREQUENCY_STATUS", "MSR::UNCORE_PERF_STATUS:FREQ");
+        register_signal_alias("CPU_UNCORE_FREQUENCY_MIN_CONTROL", "MSR::UNCORE_RATIO_LIMIT:MIN_RATIO");
+        register_signal_alias("CPU_UNCORE_FREQUENCY_MAX_CONTROL", "MSR::UNCORE_RATIO_LIMIT:MAX_RATIO");
 
     }
 
@@ -264,6 +263,11 @@ namespace geopm
         else {
             register_control_alias("CPU_FREQUENCY_CONTROL", "MSR::PERF_CTL:FREQ");
         }
+
+        // Uncore controls
+        register_control_alias("CPU_UNCORE_FREQUENCY_MIN_CONTROL", "MSR::UNCORE_RATIO_LIMIT:MIN_RATIO");
+        register_control_alias("CPU_UNCORE_FREQUENCY_MAX_CONTROL", "MSR::UNCORE_RATIO_LIMIT:MAX_RATIO");
+
     }
 
     void MSRIOGroup::set_signal_description(const std::string &name,
