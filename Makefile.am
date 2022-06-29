@@ -399,6 +399,12 @@ libgeopmpolicy_la_SOURCES = src/Accumulator.cpp \
                             src/FrequencyGovernor.cpp \
                             src/FrequencyGovernor.hpp \
                             src/FrequencyGovernorImp.hpp \
+                            src/FrequencyLimitDetector.cpp \
+                            src/FrequencyLimitDetector.hpp \
+                            src/SSTFrequencyLimitDetector.cpp \
+                            src/SSTFrequencyLimitDetector.hpp \
+                            src/TRLFrequencyLimitDetector.cpp \
+                            src/TRLFrequencyLimitDetector.hpp \
                             src/FrequencyMapAgent.cpp \
                             src/FrequencyMapAgent.hpp \
                             src/Imbalancer.cpp \
