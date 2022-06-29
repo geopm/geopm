@@ -506,6 +506,49 @@ namespace geopm
 
         // Cache the initial min and max frequencies
         save_control();
+
+        //check the ability to write all controls
+        std::vector <std::string> unsupported_control_names;
+        for (auto &sv : m_control_available) {
+            try {
+                double init_setting = NAN;
+                // read the default setting of the control from the corrolary signal
+                if(is_valid_signal(sv.first) &&
+                   signal_domain_type(sv.first) == control_domain_type(sv.first)) {
+                    for (int domain_idx = 0;
+                         domain_idx < m_platform_topo.num_domain(control_domain_type(sv.first));
+                         ++domain_idx) {
+                        init_setting = read_signal(sv.first, control_domain_type(sv.first), domain_idx);
+
+                        if(std::isnan(init_setting)) {
+                            // Specialized handling for signals that may be NAN
+                            if(sv.first == "GPU_CORE_FREQUENCY_CONTROL" ||
+                               sv.first == M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL") {
+
+                                init_setting = read_signal(M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_AVAIL",
+                                                           control_domain_type(sv.first), domain_idx);
+                            }
+                        } else {
+                            //Try to write the signals
+                            write_control(sv.first, control_domain_type(sv.first), domain_idx, init_setting);
+                        }
+                    }
+                }
+            }
+            catch (const geopm::Exception &ex) {
+                if (ex.err_value() != GEOPM_ERROR_RUNTIME &&
+                    ex.err_value() != GEOPM_ERROR_INVALID) {
+                    throw;
+                }
+                unsupported_control_names.push_back(sv.first);
+            }
+        }
+
+        for(const auto &name : unsupported_control_names) {
+            m_control_available.erase(name);
+        }
+
+        restore_control();
     }
 
     void LevelZeroIOGroup::register_derivative_signals(void) {
