@@ -501,6 +501,8 @@ TEST_F(LevelZeroIOGroupTest, read_signal)
         EXPECT_DOUBLE_EQ(power_lim, mock_power_limit_tdp.at(gpu_idx)/1e3);
 
         double energy = levelzero_io.read_signal("LEVELZERO::GPU_ENERGY", GEOPM_DOMAIN_GPU, gpu_idx);
+        double energy_alias = levelzero_io.read_signal("GPU_ENERGY", GEOPM_DOMAIN_GPU, gpu_idx);
+        EXPECT_DOUBLE_EQ(energy, energy_alias);
         EXPECT_DOUBLE_EQ(energy, mock_energy.at(gpu_idx)/1e6);
     }
 

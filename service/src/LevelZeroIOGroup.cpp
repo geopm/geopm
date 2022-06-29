@@ -464,6 +464,7 @@ namespace geopm
         register_derivative_signals();
 
         register_signal_alias("GPU_CORE_FREQUENCY_STATUS", M_NAME_PREFIX + "GPU_CORE_FREQUENCY_STATUS");
+        register_signal_alias("GPU_ENERGY", M_NAME_PREFIX + "GPU_ENERGY");
         register_signal_alias("GPU_POWER", M_NAME_PREFIX + "GPU_POWER");
         register_signal_alias("GPU_CORE_FREQUENCY_CONTROL",
                                M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL");
