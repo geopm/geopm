@@ -175,7 +175,7 @@ TEST_F(MSRIOGroupTest, valid_signal_names)
     ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::PERF_STATUS:FREQ"));
     ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_0"));
     signal_aliases.push_back("CPU_FREQUENCY_STATUS");
-    signal_aliases.push_back("CPU_FREQUENCY_MAX");
+    signal_aliases.push_back("CPU_FREQUENCY_MAX_AVAIL");
     // note: CPU_FREQUENCY_MIN and CPU_FREQUENCY_STICKER come from CpuinfoIOGroup.
 
     //// temperature signals
@@ -224,7 +224,7 @@ TEST_F(MSRIOGroupTest, valid_signal_domains)
 
     // frequency
     EXPECT_EQ(GEOPM_DOMAIN_CPU, m_msrio_group->signal_domain_type("CPU_FREQUENCY_STATUS"));
-    EXPECT_EQ(GEOPM_DOMAIN_PACKAGE, m_msrio_group->signal_domain_type("CPU_FREQUENCY_MAX"));
+    EXPECT_EQ(GEOPM_DOMAIN_PACKAGE, m_msrio_group->signal_domain_type("CPU_FREQUENCY_MAX_AVAIL"));
 
     // temperature
     EXPECT_EQ(GEOPM_DOMAIN_CORE,
@@ -302,7 +302,7 @@ TEST_F(MSRIOGroupTest, valid_signal_format)
     // most SI signals are printed as double
     std::vector<std::string> si_alias = {
         "CPU_ENERGY", "DRAM_ENERGY",
-        "CPU_FREQUENCY_STATUS", "CPU_FREQUENCY_MAX",
+        "CPU_FREQUENCY_STATUS", "CPU_FREQUENCY_MAX_AVAIL",
         "CPU_CORE_TEMPERATURE", "CPU_PACKAGE_TEMPERATURE",
         "CPU_POWER_MIN_AVAIL", "CPU_POWER_MAX_AVAIL", "CPU_POWER_LIMIT_DEFAULT",
         "CPU_POWER", "DRAM_POWER"
@@ -576,7 +576,7 @@ TEST_F(MSRIOGroupTest, read_signal_frequency)
     // For SKX: MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_0 0:7
     EXPECT_CALL(*m_msrio, read_msr(0, limit_offset))
         .WillOnce(Return(0xF));
-    result = m_msrio_group->read_signal("CPU_FREQUENCY_MAX", GEOPM_DOMAIN_PACKAGE, 0);
+    result = m_msrio_group->read_signal("CPU_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_PACKAGE, 0);
     EXPECT_EQ(1.5e9, result);
 }
 

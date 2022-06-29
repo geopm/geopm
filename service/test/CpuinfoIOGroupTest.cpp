@@ -362,6 +362,8 @@ TEST_F(CpuinfoIOGroupTest, parse_cpu_freq)
     EXPECT_DOUBLE_EQ(1.0e9, freq);
     freq = freq_limits.read_signal("CPUINFO::FREQ_MAX", GEOPM_DOMAIN_BOARD, 0);
     EXPECT_DOUBLE_EQ(2.0e9, freq);
+
+    EXPECT_TRUE(freq_limits.is_valid_signal("CPU_FREQUENCY_MIN_AVAIL"));
 }
 
 TEST_F(CpuinfoIOGroupTest, plugin)
