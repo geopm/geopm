@@ -207,6 +207,15 @@ Inspection Functions
   Providing a string of ``NAME_MAX`` length (from ``limits.h``\ ) will be sufficient for storing any *result*.
   Returns zero on success, error value on failure.
 
+``geopm_pio_reset()``
+Reset the GEOPM platform interface causing resources to be freed.
+This will cause the internal PlatormIO instance to be
+released/deleted and reconstructed.  As a result, any signals and
+controls that had been pushed will be cleared, any batch servers
+that had been started will be stopped, and all registered IOGroups
+will be reset.
+
+
 Serial Functions
 ----------------
 
@@ -287,11 +296,15 @@ Batch Functions
   distinct signal index will be returned for each unique combination
   of input parameters.  All signals must be pushed onto the stack
   prior to the first call to ``geopm_pio_sample()`` or
-  ``geopm_pio_read_batch()``.  Attempts to push a signal onto the
-  stack after the first call to ``geopm_pio_sample()`` or
-  ``geopm_pio_read_batch()`` or attempts to push a *signal_name* that
-  is not a value provided by ``geopm_pio_signal_name()`` will result
-  in a negative return value.
+  ``geopm_pio_read_batch()``.  After calls to ``geopm_pio_sample()``
+  or ``geopm_pio_read_batch()`` have been made, signals may be pushed
+  again only after performing a reset by calling
+  ``geopm_pio_reset()`` and before calling ``geopm_pio_sample()`` or
+  ``geopm_pio_read_batch()`` again.  Attempts to push a signal onto
+  the stack after the first call to ``geopm_pio_sample()`` or
+  ``geopm_pio_read_batch()`` (and without performing a reset) or
+  attempts to push a *signal_name* that is not a value provided by
+  ``geopm_pio_signal_name()`` will result in a negative return value.
 
 ``geopm_pio_push_control()``
   Push a control onto the stack of batch access controls.  The
@@ -308,11 +321,15 @@ Batch Functions
   distinct control index will be returned for each unique
   combination of input parameters.  All controls must be pushed onto
   the stack prior to the first call to ``geopm_pio_adjust()`` or
-  ``geopm_pio_write_batch()``.  Attempts to push a controls onto the
-  stack after the first call to ``geopm_pio_adjust()`` or
-  ``geopm_pio_write_batch()`` or attempts to push a *control_name*
-  that is not a value provided by ``geopm_pio_control_name()`` will
-  result in a negative return value.
+  ``geopm_pio_write_batch()``.  After calls to ``geopm_pio_adjust()``
+  or ``geopm_pio_write_batch()`` have been made, controls may be
+  pushed again only after performing a reset by calling
+  ``geopm_pio_reset()`` and before calling ``geopm_pio_adjust()`` or
+  ``geopm_pio_write_batch()`` again.  Attempts to push a controls
+  onto the stack after the first call to ``geopm_pio_adjust()`` or
+  ``geopm_pio_write_batch()`` (and without performing a reset) or
+  attempts to push a *control_name* that is not a value provided by
+  ``geopm_pio_control_name()`` will result in a negative return value.
 
 ``geopm_pio_sample()``
   Samples cached value of a single signal that has been pushed via
