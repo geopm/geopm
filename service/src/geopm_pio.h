@@ -145,9 +145,14 @@ int geopm_pio_write_control(const char *control_name,
 ///          will read the signal and update the internal state used
 ///          to store batch signals.  All signals must be pushed onto
 ///          the stack prior to the first call to geopm_pio_sample()
-///          or geopm_pio_read_batch().  Attempts to push a signal
-///          onto the stack after the first call to geopm_pio_sample()
-///          or geopm_pio_read_batch() or attempts to push a
+///          or geopm_pio_read_batch().  After calls to
+///          geopm_pio_sample() or geopm_pio_read_batch() have been
+///          made, signals may be pushed again only after performing
+///          a reset by calling geopm_pio_reset() and before calling
+///          geopm_pio_sample() or geopm_pio_read_batch() again.
+///          Attempts to push a signal onto the stack after the first
+///          call to geopm_pio_sample() or geopm_pio_read_batch()
+///          (and without performing a reset) or attempts to push a
 ///          signal_name that is not a value provided by
 ///          geopm_pio_signal_name() will result in a negative return
 ///          value.
@@ -182,12 +187,18 @@ int geopm_pio_push_signal(const char *signal_name,
 ///          access the control values in the internal state and write
 ///          the values to the hardware.  All controls must be pushed
 ///          onto the stack prior to the first call to
-///          geopm_pio_adjust() or geopm_pio_write_batch().  Attempts
-///          to push a controls onto the stack after the first call to
-///          geopm_pio_adjust() or geopm_pio_write_batch() or attempts
-///          to push a control_name that is not a value provided by
-///          geopm_pio_control_name() will result in a negative return
-///          value.
+///          geopm_pio_adjust() or geopm_pio_write_batch().  After
+///          calls to geopm_pio_adjust() or geopm_pio_write_batch()
+///          have been made, controls may be pushed again only after
+///          performing a reset by calling geopm_pio_reset() and
+///          before calling geopm_pio_adjust() or
+///          geopm_pio_write_batch() again.  Attempts to push a
+///          control onto the stack after the first call to
+///          geopm_pio_adjust() or geopm_pio_write_batch() (and
+///          without performing a reset) or attempts to push a
+///          control_name that is not a value provided by
+///          geopm_pio_control_name() will result in a negative
+///          return value.
 ///
 /// @param [in] control_name The name of the control, coming from the
 ///        geopm_pio_control_name() function.
@@ -444,9 +455,11 @@ int geopm_pio_format_signal(double signal,
                             char *result);
 
 /// @brief Reset the GEOPM platform interface causing resources to be
-///        freed (e.g. stopping any batch servers that might have been
-///        started). This will cause the internal PlatormIO instance to
-///        be released/deleted and reconstructed.
+///        freed.  This will cause the internal PlatormIO instance to
+///        be released/deleted and reconstructed.  As a result, any
+///        signals and controls that had been pushed will be cleared,
+///        any batch servers that had been started will be stopped,
+///        and all registered IOGroups will be reset.
 void geopm_pio_reset(void);
 
 #ifdef __cplusplus
