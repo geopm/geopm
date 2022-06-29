@@ -377,7 +377,6 @@ Misc
 
 See Also
 --------
-<<<<<<< HEAD
 :doc:`geopmpy(7) <geopmpy.7>`,
 :doc:`geopmdpy(7) <geopmdpy.7>`,
 :doc:`geopm_agent_fixed_frequency(7) <geopm_agent_fixed_frequency.7>`,

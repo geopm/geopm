@@ -6,11 +6,6 @@ geopm_agent_fixed_frequency(7) --  agent for setting fixed CPU, Uncore, and Acce
 ===================================================================================================
 
 
-
-
-
-
-
 DESCRIPTION
 -----------
 
@@ -20,6 +15,7 @@ for all three frequency domains.  The uncore policy value is used to set both
 the minimum and maximum.  If the policy value for the CPU or Uncore is NAN,
 the frequency of that domain is not modified.  If the policy value for the
 Accelerator is NAN, the maximum Accelerator frequency is used.
+
 
 AGENT NAME
 ----------
@@ -31,9 +27,9 @@ option, or the ``GEOPM_AGENT`` environment variable can be set to this
 name (see `geopm(7) <geopm.7.html>`_\ ).  This name can also be passed to the
 `geopmagent(1) <geopmagent.1.html>`_ as the argument to the ``'-a'`` option.
 
+
 POLICY PARAMETERS
 -----------------
-
 
   ``GPU_FREQUENCY``\ :
       The operating frequency in units of *Hz* for the
