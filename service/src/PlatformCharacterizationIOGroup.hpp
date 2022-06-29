@@ -67,8 +67,8 @@ namespace geopm
             static const std::string M_NAME_PREFIX;
             static const std::string M_CACHE_FILE_NAME;
             static const std::string M_SERVICE_CACHE_FILE_NAME;
-            const std::string M_TEST_CACHE_FILE_NAME;
             const PlatformTopo &m_platform_topo;
+            const std::string M_TEST_CACHE_FILE_NAME;
             bool m_is_batch_read;
 
             std::string m_cache_contents;

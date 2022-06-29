@@ -61,24 +61,8 @@ namespace geopm
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
-                              {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_EFFICIENT_CONTROL", {
-                                  "Last value written to the GPU_CORE_FREQUENCY_EFFICIENT entry.  NAN if not written",
-                                  {},
-                                  GEOPM_DOMAIN_BOARD,
-                                  Agg::average,
-                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
-                                  string_format_double
-                                  }},
                               {M_NAME_PREFIX + "CPU_CORE_FREQUENCY_EFFICIENT", {
                                   "CPU Core Domain energy efficient frequency in hertz.",
-                                  {},
-                                  GEOPM_DOMAIN_BOARD,
-                                  Agg::average,
-                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
-                                  string_format_double
-                                  }},
-                              {M_NAME_PREFIX + "CPU_CORE_FREQUENCY_EFFICIENT_CONTROL", {
-                                  "Last value written to the CPU_CORE_FREQUENCY_EFFICIENT entry.  NAN if not written",
                                   {},
                                   GEOPM_DOMAIN_BOARD,
                                   Agg::average,
@@ -93,42 +77,31 @@ namespace geopm
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
-                              {M_NAME_PREFIX + "CPU_UNCORE_FREQUENCY_EFFICIENT_CONTROL", {
-                                  "Last value written to the CPU_UNCORE_FREQUENCY_EFFICIENT entry.  NAN if not written",
-                                  {},
-                                  GEOPM_DOMAIN_BOARD,
-                                  Agg::average,
-                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
-                                  string_format_double
-                                  }},
                              })
-        , m_control_available({{M_NAME_PREFIX + "GPU_CORE_FREQUENCY_EFFICIENT_CONTROL", {
-                                    "GPU Compute Domain energy efficient frequency in hertz.",
-                                    {},
-                                    GEOPM_DOMAIN_BOARD,
-                                    Agg::average,
-                                    string_format_double
-                                    }},
-                               {M_NAME_PREFIX + "CPU_CORE_FREQUENCY_EFFICIENT_CONTROL", {
-                                    "CPU Core Domain energy efficient frequency in hertz.",
-                                    {},
-                                    GEOPM_DOMAIN_BOARD,
-                                    Agg::average,
-                                    string_format_double
-                                    }},
-                               {M_NAME_PREFIX + "CPU_UNCORE_FREQUENCY_EFFICIENT_CONTROL", {
-                                    "CPU Uncore Domain energy efficient frequency in hertz.",
-                                    {},
-                                    GEOPM_DOMAIN_BOARD,
-                                    Agg::average,
-                                    string_format_double
-                                    }},
-                              })
         , m_mock_save_ctl(save_control)
     {
-        // TODO: Add CPU_UNCORE_FREQ_0 & CPU_UNCORE_MAX_MEMORY_BANDWIDTH_0 signals
+        for (int unc_entry = 0; unc_entry < 15; unc_entry++) {
+            m_signal_available[M_NAME_PREFIX + "CPU_UNCORE_FREQUENCY_" + std::to_string(unc_entry)] = {
+                                          "CPU Uncore frequency associated with "
+                                          "CPU_UNCORE_MAXIMIMUM_MEMORY_BANDWIDTH_" + std::to_string(unc_entry),
+                                          {},
+                                          GEOPM_DOMAIN_BOARD,
+                                          Agg::average,
+                                          IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
+                                          string_format_double};
+
+            m_signal_available[M_NAME_PREFIX + "CPU_UNCORE_MAXIMUM_MEMORY_BANDWIDTH_" + std::to_string(unc_entry)] = {
+                                          "Maximum memory bandwidth associated with "
+                                          "CPU_UNCORE_FREQUENCY_" + std::to_string(unc_entry),
+                                          {},
+                                          GEOPM_DOMAIN_BOARD,
+                                          Agg::average,
+                                          IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
+                                          string_format_double};
+        }
 
         // populate signals for each domain
+        std::vector<std::string> control_signal_names;
         for (auto &sv : m_signal_available) {
             std::vector<std::shared_ptr<signal_s> > result;
             for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(signal_domain_type(sv.first)); ++domain_idx) {
@@ -136,16 +109,22 @@ namespace geopm
                 result.push_back(sgnl);
             }
             sv.second.signals = result;
+            control_signal_names.push_back(sv.first);
         }
 
-        // populate controls for each domain
-        for (auto &sv : m_control_available) {
+        // This IO Group is simply reading & writing to a file, which means
+        // all signals directly map to controls and vice versa.
+        for (auto &sv : m_signal_available) {
             std::vector<std::shared_ptr<control_s> > result;
-            for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(control_domain_type(sv.first)); ++domain_idx) {
+            for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(signal_domain_type(sv.first)); ++domain_idx) {
                 std::shared_ptr<control_s> ctrl = std::make_shared<control_s>(control_s{0, false});
                 result.push_back(ctrl);
             }
-            sv.second.controls = result;
+            m_control_available[sv.first] = {sv.second.m_description,
+                                             result,
+                                             sv.second.domain,
+                                             sv.second.agg_function,
+                                             sv.second.format_function};
         }
 
         // TODO: the primary reason to cache this as a member variable is to use it for writing later.
@@ -171,8 +150,8 @@ namespace geopm
             // Any deviations from this should cause an exception
             if (content.size() != 4 || // wrong number of entries in a line
                 m_signal_available.find(content.at(0)) == m_signal_available.end() || // signal in file not supported
-                m_signal_available.at(content.at(0)).domain != std::stoi(content.at(1)) || // domain in file mismatches signal domain
-                m_signal_available.at(content.at(0)).signals.size() < std::stoi(content.at(2)) ){ // file domain value exceeds domain count
+                m_signal_available.at(content.at(0)).domain != (int)std::stoi(content.at(1)) || // domain in file mismatches signal domain
+                m_signal_available.at(content.at(0)).signals.size() < (unsigned int)std::stoi(content.at(2)) ){ // file domain value exceeds domain count
                 throw Exception("PlatformCharacterization::parse_cache(): Invalid characterization line: " +
                                 line, GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
@@ -260,12 +239,9 @@ namespace geopm
             std::ofstream tmp_file(tmp_path);
             for (auto &sv : m_signal_available) {
                 // Only save signals, excluding any that are related to controls
-                if (sv.first.find("_CONTROL") == std::string::npos) {
-                    for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(signal_domain_type(sv.first)); ++domain_idx) {
-                        // TODO: should this use the default signal value instead of 0?
-                        tmp_file << sv.first << " " <<  sv.second.domain <<
-                                    " " << domain_idx << " " <<  "0" << std::endl;
-                    }
+                for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(signal_domain_type(sv.first)); ++domain_idx) {
+                    tmp_file << sv.first << " " <<  sv.second.domain <<
+                                " " << domain_idx << " " <<  "0" << std::endl;
                 }
             }
             tmp_file.close();
@@ -557,23 +533,15 @@ namespace geopm
         }
 
         bool update_cache = true;
-        if (control_name == M_NAME_PREFIX + "GPU_CORE_FREQUENCY_EFFICIENT_CONTROL") {
-            m_signal_available.at(M_NAME_PREFIX + "GPU_CORE_FREQUENCY_EFFICIENT_CONTROL").signals.at(domain_idx)->m_value = setting;
-            m_signal_available.at(M_NAME_PREFIX + "GPU_CORE_FREQUENCY_EFFICIENT").signals.at(domain_idx)->m_value = setting;
-        }
-        else if (control_name == M_NAME_PREFIX + "CPU_CORE_FREQUENCY_EFFICIENT_CONTROL") {
-            m_signal_available.at(M_NAME_PREFIX + "CPU_CORE_FREQUENCY_EFFICIENT_CONTROL").signals.at(domain_idx)->m_value = setting;
-            m_signal_available.at(M_NAME_PREFIX + "CPU_CORE_FREQUENCY_EFFICIENT").signals.at(domain_idx)->m_value = setting;
-        }
-        else if (control_name == M_NAME_PREFIX + "CPU_UNCORE_FREQUENCY_EFFICIENT_CONTROL") {
-            m_signal_available.at(M_NAME_PREFIX + "CPU_UNCORE_FREQUENCY_EFFICIENT_CONTROL").signals.at(domain_idx)->m_value = setting;
-            m_signal_available.at(M_NAME_PREFIX + "CPU_UNCORE_FREQUENCY_EFFICIENT").signals.at(domain_idx)->m_value = setting;
+
+        if (is_valid_signal(control_name)) {
+            m_signal_available.at(control_name).signals.at(domain_idx)->m_value = setting;
         }
         else {
             update_cache = false;
     #ifdef GEOPM_DEBUG
-                throw Exception("PlatformCharacterizationIOGroup::" + std::string(__func__) + "Handling not defined for "
-                                + control_name, GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+            throw Exception("PlatformCharacterizationIOGroup::" + std::string(__func__) + "Handling not defined for "
+                            + control_name, GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
     #endif
         }
 
@@ -581,12 +549,10 @@ namespace geopm
         if (update_cache) {
             std::ofstream tmp_file(active_cache_file);
             for (auto &sv : m_signal_available) {
-                if (sv.first.find("_CONTROL") == std::string::npos) {
-                    for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(signal_domain_type(sv.first)); ++domain_idx) {
-                        tmp_file << sv.first << " " <<  sv.second.domain << " " <<
-                                    domain_idx << " " << sv.second.signals.at(domain_idx)->m_value <<
-                                    std::endl;
-                    }
+                for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(signal_domain_type(sv.first)); ++domain_idx) {
+                    tmp_file << sv.first << " " <<  sv.second.domain << " " <<
+                                domain_idx << " " << sv.second.signals.at(domain_idx)->m_value <<
+                                std::endl;
                 }
             }
             tmp_file.close();
