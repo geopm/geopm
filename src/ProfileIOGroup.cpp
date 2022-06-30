@@ -56,7 +56,8 @@ namespace geopm
             {"TIME_HINT_IO", M_SIGNAL_TIME_HINT_IO},
             {"TIME_HINT_SERIAL", M_SIGNAL_TIME_HINT_SERIAL},
             {"TIME_HINT_PARALLEL", M_SIGNAL_TIME_HINT_PARALLEL},
-            {"TIME_HINT_IGNORE", M_SIGNAL_TIME_HINT_IGNORE}
+            {"TIME_HINT_IGNORE", M_SIGNAL_TIME_HINT_IGNORE},
+            {"TIME_HINT_SPIN", M_SIGNAL_TIME_HINT_SPIN}
         };
         // same signal index for aliases and underlying signal
         for (const auto &name : aliases) {
@@ -206,7 +207,8 @@ namespace geopm
             {M_SIGNAL_TIME_HINT_IO, GEOPM_REGION_HINT_IO},
             {M_SIGNAL_TIME_HINT_SERIAL, GEOPM_REGION_HINT_SERIAL},
             {M_SIGNAL_TIME_HINT_PARALLEL, GEOPM_REGION_HINT_PARALLEL},
-            {M_SIGNAL_TIME_HINT_IGNORE, GEOPM_REGION_HINT_IGNORE}
+            {M_SIGNAL_TIME_HINT_IGNORE, GEOPM_REGION_HINT_IGNORE},
+            {M_SIGNAL_TIME_HINT_SPIN, GEOPM_REGION_HINT_SPIN}
         };
         auto result = type_hints.find(signal_type);
         if (result == type_hints.end()) {
@@ -288,6 +290,8 @@ namespace geopm
             case M_SIGNAL_TIME_HINT_IGNORE:
                 result = m_application_sampler.cpu_hint_time(cpu_idx, GEOPM_REGION_HINT_IGNORE);
                 break;
+            case M_SIGNAL_TIME_HINT_SPIN:
+                result = m_application_sampler.cpu_hint_time(cpu_idx, GEOPM_REGION_HINT_SPIN);
             default:
 #ifdef GEOPM_DEBUG
                 throw Exception("ProfileIOGroup:read_signal(): Invalid signal type bug check_signal did not throw",
@@ -341,6 +345,8 @@ namespace geopm
             {"PROFILE::TIME_HINT_PARALLEL", Agg::average},
             {"TIME_HINT_IGNORE", Agg::average},
             {"PROFILE::TIME_HINT_IGNORE", Agg::average},
+            {"TIME_HINT_SPIN", Agg::average},
+            {"PROFILE::TIME_HINT_SPIN", Agg::average},
         };
         auto it = fn_map.find(signal_name);
         if (it == fn_map.end()) {
@@ -377,6 +383,8 @@ namespace geopm
             {"PROFILE::TIME_HINT_PARALLEL", string_format_double},
             {"TIME_HINT_IGNORE", string_format_double},
             {"PROFILE::TIME_HINT_IGNORE", string_format_double},
+            {"TIME_HINT_SPIN", string_format_double},
+            {"PROFILE::TIME_HINT_SPIN", string_format_double},
         };
         auto it = fmt_map.find(signal_name);
         if (it == fmt_map.end()) {

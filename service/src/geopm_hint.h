@@ -24,7 +24,8 @@ enum geopm_region_hint_e {
     GEOPM_REGION_HINT_SERIAL,   /* Single threaded region */
     GEOPM_REGION_HINT_PARALLEL, /* Region is threaded */
     GEOPM_REGION_HINT_IGNORE,   /* Do not add region time to epoch */
-    GEOPM_REGION_HINT_INACTIVE, /* Used to marke CPUs that are not running application */
+    GEOPM_REGION_HINT_INACTIVE, /* Used to mark CPUs that are not running application */
+    GEOPM_REGION_HINT_SPIN,     /* Region dominated by spin wait */
     GEOPM_NUM_REGION_HINT,
 };
 
