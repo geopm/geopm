@@ -58,6 +58,7 @@ namespace geopm
             "PARALLEL",
             "IGNORE",
             "INACTIVE",
+            "SPIN",
         };
         static_assert(sizeof(hint_names) / sizeof(hint_names[0]) ==
                       GEOPM_NUM_REGION_HINT,
@@ -81,6 +82,7 @@ namespace geopm
                 std::make_pair("PARALLEL", GEOPM_REGION_HINT_PARALLEL),
                 std::make_pair("IGNORE", GEOPM_REGION_HINT_IGNORE),
                 std::make_pair("INACTIVE", GEOPM_REGION_HINT_INACTIVE),
+                std::make_pair("SPIN", GEOPM_REGION_HINT_SPIN),
             };
         static constexpr unsigned int HINT_MAP_SIZE = sizeof(hint_mapping) /
                                                       sizeof(hint_mapping[0]);

@@ -106,6 +106,8 @@ This fortran code has access to several enum values, which are defined in `geopm
 * ``GEOPM_REGION_HINT_SERIAL``
 * ``GEOPM_REGION_HINT_PARALLEL``
 * ``GEOPM_REGION_HINT_IGNORE``
+* ``GEOPM_REGION_HINT_INACTIVE``
+* ``GEOPM_REGION_HINT_SPIN``
 
 Fortran Module
 --------------

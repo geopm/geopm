@@ -105,6 +105,9 @@ initialized.
   shutdown, and events that do not happen on every trip through the
   outer loop.
 
+  ``GEOPM_REGION_HINT_SPIN``
+  Spin wait dominated region.
+
 ``geopm_prof_enter()``
   is called by the compute application to mark the beginning of the
   profiled compute region associated with the *region_id*. If this

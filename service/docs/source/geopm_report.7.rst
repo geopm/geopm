@@ -216,6 +216,11 @@ The fields in each of these sections are described below:
   ``GEOPM_REGION_HINT_UNSET``.  The region hint also becomes unset when exiting an
   unnested region (i.e. when a CPU is in the unmarked region).
 
+``time-hint-spin (s)``
+  The portion of ``sync-runtime`` where the region hint was
+  ``GEOPM_REGION_HINT_SPIN``.  The region hint is determined by the hint passed
+  to ``geopm_region()`` for the most nested region.
+
 ``gpu-energy (J)``
   Total energy in *joules* consumed by all GPUs.
 

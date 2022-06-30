@@ -69,6 +69,7 @@ namespace geopm
                 M_SIGNAL_TIME_HINT_SERIAL,
                 M_SIGNAL_TIME_HINT_PARALLEL,
                 M_SIGNAL_TIME_HINT_IGNORE,
+                M_SIGNAL_TIME_HINT_SPIN,
                 M_NUM_SIGNAL,
             };
             struct m_signal_config {

@@ -392,6 +392,7 @@ namespace geopm
             {"time-hint-parallel (s)", {"TIME_HINT_PARALLEL"}, sample_only},
             {"time-hint-unknown (s)", {"TIME_HINT_UNKNOWN"}, sample_only},
             {"time-hint-unset (s)", {"TIME_HINT_UNSET"}, sample_only},
+            {"time-hint-spin (s)", {"TIME_HINT_SPIN"}, sample_only},
         };
 
         auto all_names = m_platform_io.signal_names();

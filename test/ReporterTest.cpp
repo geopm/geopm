@@ -66,6 +66,7 @@ class ReporterTest : public testing::Test
             M_TIME_PARALLEL_IDX,
             M_TIME_UNKNOWN_IDX,
             M_TIME_UNSET_IDX,
+            M_TIME_SPIN_IDX,
             M_ENERGY_PKG_IDX,
             M_DRAM_ENERGY_IDX,
             M_CLK_CORE_IDX,
@@ -203,6 +204,8 @@ ReporterTest::ReporterTest()
         .WillRepeatedly(Return(M_TIME_UNKNOWN_IDX));
     EXPECT_CALL(*m_sample_agg, push_signal("TIME_HINT_UNSET", _, _))
         .WillRepeatedly(Return(M_TIME_UNSET_IDX));
+    EXPECT_CALL(*m_sample_agg, push_signal("TIME_HINT_SPIN", _, _))
+        .WillRepeatedly(Return(M_TIME_SPIN_IDX));
     EXPECT_CALL(*m_sample_agg, push_signal("CPU_ENERGY", GEOPM_DOMAIN_BOARD, 0))
         .WillRepeatedly(Return(M_ENERGY_PKG_IDX));
     EXPECT_CALL(*m_sample_agg, push_signal("DRAM_ENERGY", _, _))
@@ -314,6 +317,8 @@ void ReporterTest::generate_setup(void)
         .WillRepeatedly(Return(0.7));
     EXPECT_CALL(*m_sample_agg, sample_region(M_TIME_UNSET_IDX, _))
         .WillRepeatedly(Return(0.8));
+    EXPECT_CALL(*m_sample_agg, sample_region(M_TIME_SPIN_IDX, _))
+        .WillRepeatedly(Return(0.9));
 
     // Other calls
     EXPECT_CALL(m_tree_comm, overhead_send()).WillOnce(Return(678 * 56));
@@ -384,6 +389,7 @@ TEST_F(ReporterTest, generate)
         "      time-hint-parallel (s): 0.6\n"
         "      time-hint-unknown (s): 0.7\n"
         "      time-hint-unset (s): 0.8\n"
+        "      time-hint-spin (s): 0.9\n"
         "      CPU_ENERGY@package-0: 194.25\n"
         "      CPU_ENERGY@package-1: 194.25\n"
         "      agent stat: 1\n"
@@ -408,6 +414,7 @@ TEST_F(ReporterTest, generate)
         "      time-hint-parallel (s): 0.6\n"
         "      time-hint-unknown (s): 0.7\n"
         "      time-hint-unset (s): 0.8\n"
+        "      time-hint-spin (s): 0.9\n"
         "      CPU_ENERGY@package-0: 222\n"
         "      CPU_ENERGY@package-1: 222\n"
         "      agent stat: 2\n"
@@ -429,6 +436,7 @@ TEST_F(ReporterTest, generate)
         "      time-hint-parallel (s): 0.6\n"
         "      time-hint-unknown (s): 0.7\n"
         "      time-hint-unset (s): 0.8\n"
+        "      time-hint-spin (s): 0.9\n"
         "      CPU_ENERGY@package-0: 55.5\n"
         "      CPU_ENERGY@package-1: 55.5\n"
         "      agent stat: 3\n"
@@ -450,6 +458,7 @@ TEST_F(ReporterTest, generate)
         "      time-hint-parallel (s): 0.6\n"
         "      time-hint-unknown (s): 0.7\n"
         "      time-hint-unset (s): 0.8\n"
+        "      time-hint-spin (s): 0.9\n"
         "      CPU_ENERGY@package-0: 83.5\n"
         "      CPU_ENERGY@package-1: 83.5\n"
         "    Application Totals:\n"
@@ -470,6 +479,7 @@ TEST_F(ReporterTest, generate)
         "      time-hint-parallel (s): 0.6\n"
         "      time-hint-unknown (s): 0.7\n"
         "      time-hint-unset (s): 0.8\n"
+        "      time-hint-spin (s): 0.9\n"
         "      CPU_ENERGY@package-0: 1111\n"
         "      CPU_ENERGY@package-1: 1111\n"
         "      geopmctl memory HWM (B): @ANY_STRING@\n"
@@ -578,6 +588,7 @@ TEST_F(ReporterTest, generate_conditional)
         "      time-hint-parallel (s): 0.6\n"
         "      time-hint-unknown (s): 0.7\n"
         "      time-hint-unset (s): 0.8\n"
+        "      time-hint-spin (s): 0.9\n"
         "      gpu-energy (J): 777\n"
         "      gpu-power (W): 764\n"
         "      gpu-frequency (Hz): 567\n"
@@ -606,6 +617,7 @@ TEST_F(ReporterTest, generate_conditional)
         "      time-hint-parallel (s): 0.6\n"
         "      time-hint-unknown (s): 0.7\n"
         "      time-hint-unset (s): 0.8\n"
+        "      time-hint-spin (s): 0.9\n"
         "      gpu-energy (J): 888\n"
         "      gpu-power (W): 653\n"
         "      gpu-frequency (Hz): 890\n"
@@ -631,6 +643,7 @@ TEST_F(ReporterTest, generate_conditional)
         "      time-hint-parallel (s): 0.6\n"
         "      time-hint-unknown (s): 0.7\n"
         "      time-hint-unset (s): 0.8\n"
+        "      time-hint-spin (s): 0.9\n"
         "      gpu-energy (J): 222\n"
         "      gpu-power (W): 211\n"
         "      gpu-frequency (Hz): 123\n"
@@ -656,6 +669,7 @@ TEST_F(ReporterTest, generate_conditional)
         "      time-hint-parallel (s): 0.6\n"
         "      time-hint-unknown (s): 0.7\n"
         "      time-hint-unset (s): 0.8\n"
+        "      time-hint-spin (s): 0.9\n"
         "      gpu-energy (J): 334\n"
         "      gpu-power (W): 432\n"
         "      gpu-frequency (Hz): 456\n"
@@ -680,6 +694,7 @@ TEST_F(ReporterTest, generate_conditional)
         "      time-hint-parallel (s): 0.6\n"
         "      time-hint-unknown (s): 0.7\n"
         "      time-hint-unset (s): 0.8\n"
+        "      time-hint-spin (s): 0.9\n"
         "      gpu-energy (J): 4444\n"
         "      gpu-power (W): 8992\n"
         "      gpu-frequency (Hz): 74489\n"
