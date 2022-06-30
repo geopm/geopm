@@ -9,6 +9,7 @@ EXTRA_DIST += integration/README.md \
               integration/test/test_bash_examples.py \
               integration/test/check_write_session.sh \
               integration/test/test_batch_performance.py \
+              integration/test/test_pio_reset.py \
               integration/test/test_sst_priority.sh \
               integration/test/test_su_give_access.sh \
               integration/test/test_su_restart.sh \
