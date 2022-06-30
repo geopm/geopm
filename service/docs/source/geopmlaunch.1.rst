@@ -383,7 +383,7 @@ GEOPM Options
                     runtime.  If the keys are left behind, a simple command to
                     clean up after an aborted job is:
 
-                    .. code-block:: bash
+                    .. code-block:: console
 
                            $ test -n "$GEOPM_SHMKEY" && rm -f /dev/shm${GEOPM_SHMKEY}* || rm -f /dev/shm/geopm-shm*
 
@@ -589,7 +589,7 @@ the ``geopmctl`` binary.
 The interpretation of the environment is affected if either of the
 GEOPM configuration files exist:
 
-.. code-block:: bash
+.. code-block::
 
    /etc/geopm/environment-default.json
    /etc/geopm/environment-override.json

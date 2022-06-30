@@ -53,7 +53,7 @@ Examples
 
 List all available agents on the system:
 
-.. code-block:: bash
+.. code-block:: console
 
    $ geopmagent
    frequency_map
@@ -64,7 +64,7 @@ List all available agents on the system:
 
 Get ``power_balancer`` agent policy and sample names:
 
-.. code-block:: bash
+.. code-block:: console
 
    $ geopmagent -a power_balancer
    Policy: POWER_CAP,STEP_COUNT,MAX_EPOCH_RUNTIME,POWER_SLACK
@@ -74,7 +74,7 @@ Get ``power_balancer`` agent policy and sample names:
 Create policy for ``power_governor`` agent with 250 watts per node power
 budget:
 
-.. code-block:: bash
+.. code-block:: console
 
    $ geopmagent -a power_governor -p 250
    {"CPU_POWER_LIMIT" : 250}
@@ -83,7 +83,7 @@ budget:
 Create policy for ``power_balancer`` agent with 250 watts per node power
 budget and other policies set to default:
 
-.. code-block:: bash
+.. code-block:: console
 
    $ geopmagent -a power_balancer -p 250
    {"POWER_CAP" : 250}
@@ -93,7 +93,7 @@ Create policy for monitor agent which does not require any policies.
 Note that GEOPM uses the monitor agent by default, in which case
 specifying ``--geopm-agent`` and ``--geopm-policy`` are optional.
 
-.. code-block:: bash
+.. code-block:: console
 
    $ geopmagent -a monitor -p None
    {}

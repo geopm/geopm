@@ -20,7 +20,7 @@ In addition, there is 1 infrastructure module provided:
 io.py
 ^^^^^
 This module provides tools for parsing and encapsulating report and trace data
-into either simple structures or **Pandas** ``DataFrame``\ s.  It can be used to parse
+into either simple structures or :py:class:`pandas.DataFrame`\ s.  It can be used to parse
 any number of files, and houses structures that can be queried for said data.
 This module also houses certain analysis functions in the ``Trace`` class for
 extracting specific data.  See the in-file docstrings for more info.
