@@ -23,10 +23,8 @@ namespace geopm
                                                        const int num_cpu)
         : m_levelzero_device_pool(device_pool)
     {
-        unsigned int num_gpu = m_levelzero_device_pool.
-                                       num_gpu(GEOPM_DOMAIN_GPU);
-        unsigned int num_gpu_chip = m_levelzero_device_pool.
-                                            num_gpu(GEOPM_DOMAIN_GPU_CHIP);
+        int num_gpu = m_levelzero_device_pool.num_gpu(GEOPM_DOMAIN_GPU);
+        int num_gpu_chip = m_levelzero_device_pool.num_gpu(GEOPM_DOMAIN_GPU_CHIP);
 
         if (num_gpu == 0 || num_gpu_chip == 0) {
 #ifdef GEOPM_DEBUG
@@ -35,34 +33,35 @@ namespace geopm
         }
         else {
             m_cpu_affinity_ideal.resize(num_gpu);
-            unsigned int num_cpu_per_gpu = num_cpu / num_gpu;
+            int num_cpu_per_gpu = num_cpu / num_gpu;
 
             m_cpu_affinity_ideal_chip.resize(num_gpu_chip);
-            unsigned int num_chip_per_gpu = num_gpu_chip / num_gpu;
+            int num_chip_per_gpu = num_gpu_chip / num_gpu;
 
             // TODO: Add ideal CPU to GPU affinitization that isn't a simple split if needed.
             //       This may come from a call to oneAPI, LevelZero, etc
-            for (unsigned int gpu_idx = 0; gpu_idx <  num_gpu; ++gpu_idx) {
-                int chip_idx = 0;
-                for (unsigned int cpu_idx = gpu_idx * num_cpu_per_gpu;
-                     cpu_idx < (gpu_idx + 1) * num_cpu_per_gpu;
-                     cpu_idx++) {
+            for (int gpu_idx = 0; gpu_idx <  num_gpu; ++gpu_idx) {
+                size_t gpu_chip_index = gpu_idx * static_cast<size_t>(num_chip_per_gpu);
+                int end_cpu_idx = (gpu_idx + 1) * num_cpu_per_gpu;
+                for (int cpu_idx = gpu_idx * num_cpu_per_gpu, chip_idx = 0;
+                     cpu_idx < end_cpu_idx;
+                     ++cpu_idx) {
                     m_cpu_affinity_ideal.at(gpu_idx).insert(cpu_idx);
 
                     // CHIP to CPU association is currently only used to associate CHIPS to
                     // GPUS.  This logic just distributes the CPUs associated with
                     // an GPU to its CHIPS in a round robin fashion.
-                    m_cpu_affinity_ideal_chip.at(gpu_idx * num_chip_per_gpu +
+                    m_cpu_affinity_ideal_chip.at(gpu_chip_index +
                                                  (chip_idx % num_chip_per_gpu)).insert(cpu_idx);
                     ++chip_idx;
                 }
             }
             if ((num_cpu % num_gpu) != 0) {
-                unsigned int gpu_idx = 0;
-                for (int cpu_idx = num_cpu_per_gpu * num_gpu;
+                for (int cpu_idx = num_cpu_per_gpu * num_gpu, gpu_idx = 0;
                      cpu_idx < num_cpu; ++cpu_idx) {
                     m_cpu_affinity_ideal.at(gpu_idx % num_gpu).insert(cpu_idx);
-                    m_cpu_affinity_ideal_chip.at(gpu_idx * num_chip_per_gpu).insert(cpu_idx);
+                    size_t gpu_chip_index = gpu_idx * static_cast<size_t>(num_chip_per_gpu);
+                    m_cpu_affinity_ideal_chip.at(gpu_chip_index).insert(cpu_idx);
                     ++gpu_idx;
                 }
             }
