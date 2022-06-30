@@ -94,6 +94,8 @@ Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
                                    size_t result_max,
                                    char *result);
 
+       int geopm_pio_reset(void);
+
 Description
 -----------
 
@@ -213,7 +215,9 @@ This will cause the internal PlatormIO instance to be
 released/deleted and reconstructed.  As a result, any signals and
 controls that had been pushed will be cleared, any batch servers
 that had been started will be stopped, and all registered IOGroups
-will be reset.
+will be reset.  **NOTE: the reset only applies to the Service
+PlatformIO instance and does not affect the PlatformIO instance
+managed by the GEOPM HPC runtime.**
 
 
 Serial Functions

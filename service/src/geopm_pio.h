@@ -460,6 +460,10 @@ int geopm_pio_format_signal(double signal,
 ///        signals and controls that had been pushed will be cleared,
 ///        any batch servers that had been started will be stopped,
 ///        and all registered IOGroups will be reset.
+///
+///        NOTE: the reset only applies to the Service PlatformIO
+///        instance and does not affect the PlatformIO instance
+///        managed by the GEOPM HPC runtime.
 void geopm_pio_reset(void);
 
 #ifdef __cplusplus
