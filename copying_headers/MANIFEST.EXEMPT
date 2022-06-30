@@ -196,6 +196,7 @@ tutorial/agent/README.md
 tutorial/iogroup/README.md
 tutorial/plugin_load/README.md
 tutorial/README.md
+tutorial/python_agents/README.md
 tutorial/tutorial_6_config.json
 tutorial/tutorial_power_policy.json
 json_schemas/geopmbench_config.schema.json

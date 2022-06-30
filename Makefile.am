@@ -274,6 +274,14 @@ TUTORIAL_DIST = tutorial/Makefile \
                 tutorial/plugin_load/bob/BobIOGroup.cpp \
                 tutorial/plugin_load/bob/BobIOGroup.hpp \
                 tutorial/plugin_load/README.md \
+                tutorial/python_agents/README.md \
+                tutorial/python_agents/__init__.py \
+                tutorial/python_agents/base_agent.py \
+                tutorial/python_agents/ml_agent.py \
+                tutorial/python_agents/process_gpu_frequency_sweep.py \
+                tutorial/python_agents/train_gpu_model.py \
+		tutorial/python_agents/process_cpu_frequency_sweep.py \
+                tutorial/python_agents/train_cpu_model.py \
                 tutorial/tutorial_0.c \
                 tutorial/tutorial_0.sh \
                 tutorial/tutorial_1.c \
