@@ -88,6 +88,13 @@ autosectionlabel_prefix_document = True
 # Fail the documentation build for nitpicky things like broken cross-references.
 nitpicky = True
 
+# A boolean that decides whether parentheses are appended to function and method role text
+# (e.g. the content of :func:`input`) to signify that the name is callable.
+# add_function_parentheses set to True causes Sphinx to automatically add trailing parentheses
+# to enhance readability to the end of Python function names in the :py:func:
+# which is a python reference link to the documentation.
+add_function_parentheses = True
+
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3', None),
     'dasbus': ('https://dasbus.readthedocs.io/en/stable', None),
