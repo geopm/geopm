@@ -231,7 +231,7 @@ namespace geopm
         // Efficient Core Frequency Selection
         if (std::isnan(in_policy[M_POLICY_CPU_FREQ_EFFICIENT])) {
             // If no policy value is provided we use the
-            // no local characterization value or the
+            // node local characterization value or the
             // node local minimum value
             if (all_names.find("NODE_CHARACTERIZATION::CPU_CORE_FREQUENCY_EFFICIENT") != all_names.end()) {
                 m_f_core_efficient = m_platform_io.read_signal("NODE_CHARACTERIZATION::CPU_CORE_FREQUENCY_EFFICIENT",
@@ -285,7 +285,7 @@ namespace geopm
         // Efficient Uncore Frequency Selection
         if (std::isnan(in_policy[M_POLICY_UNCORE_FREQ_EFFICIENT])) {
             // If no policy value is provided we use the
-            // no local characterization value or the
+            // node local characterization value or the
             // node local minimum value
             if (all_names.find("NODE_CHARACTERIZATION::CPU_UNCORE_FREQUENCY_EFFICIENT") != all_names.end()) {
                 m_f_uncore_efficient = m_platform_io.read_signal("NODE_CHARACTERIZATION::CPU_UNCORE_FREQUENCY_EFFICIENT",
@@ -373,7 +373,9 @@ namespace geopm
                             ") after applying PHI.", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        //Max memory bandwidth characterization
+        ///////////////////////////////////////////
+        // Max memory bandwidth characterization //
+        ///////////////////////////////////////////
         for (auto it = in_policy.begin() + M_POLICY_FIRST_UNCORE_FREQ;
              it != in_policy.end() && std::next(it) != in_policy.end();
              std::advance(it, 2)) {
@@ -387,12 +389,39 @@ namespace geopm
                 m_qm_max_rate[uncore_freq] = max_mem_bw;
             }
         }
-        // Warn the user if they have not entered a policy with memory bandwidth characterization.
-        // In this case the maximum uncore frequency will be used.  This can easily be converted
-        // to an assertion if it should be considered a failure case.
+        // If no policy value is provided we use the
+        // node local characterization value or the
+        // node local minimum value
         if (m_qm_max_rate.size() == 0) {
-            std::cerr << "Warning: <geopm> CPUActivityAgent did not receive a policy containing memory " <<
-                         "bandwidth characterization.  This may negatively impact agent performance." << std::endl;
+            // We do not guarantee an ordering or limit to the MBM characterization entries,
+            // so we check all characterization entries to see if they are MBM characterization
+            for (int entry_idx = 0; entry_idx < all_names.size(); ++entry_idx) {
+                std::string key_name = "NODE_CHARACTERIZATION::CPU_UNCORE_FREQUENCY_" +
+                                       std::to_string(entry_idx);
+                std::string val_name = "NODE_CHARACTERIZATION::CPU_UNCORE_MAXIMUM_MEMORY_BANDWIDTH_" +
+                                       std::to_string(entry_idx);
+                if (all_names.find(key_name) != all_names.end() &&
+                    all_names.find(val_name) != all_names.end()) {
+                    double uncore_freq = m_platform_io.read_signal(key_name, GEOPM_DOMAIN_BOARD, 0);
+                    double max_mem_bw = m_platform_io.read_signal(val_name, GEOPM_DOMAIN_BOARD, 0);
+                    if (!std::isnan(uncore_freq) && uncore_freq != 0 &&
+                        max_mem_bw != 0) {
+                        m_qm_max_rate[uncore_freq] = max_mem_bw;
+                    }
+                }
+            }
+
+            // Warn the user if they have not entered a policy with memory bandwidth characterization
+            // and there was no per-node configuration available for the agent to use.  In this case
+            // the phi-adjusted maximum uncore frequency will be used.
+            if (m_qm_max_rate.size() == 0) {
+                std::cerr << "Warning: <geopm> CPUActivityAgent did not receive a policy containing memory "
+                             "bandwidth characterization and failed to locate the "
+                             "NODE_CHARACTERIZATION::CPU_UNCORE_FREQUENCY_#, or "
+                             "NODE_CHARACTERIZATION::CPU_UNCORE_MAXIMUM_MEMORY_BANDWIDTH_# signals.  This will "
+                             "disable dynamic uncore frequency selection and may negatively impact agent "
+                             "performance." << std::endl;
+            }
         }
     }
 
