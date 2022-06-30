@@ -170,8 +170,9 @@ namespace geopm
                 perfect_match = true;
                 int group_max = recs.size() / div;
                 for (int group = 1; perfect_match && group < group_max; ++group) {
-                    auto cmp1_begin = recs.begin() + div * (group - 1);
-                    auto cmp1_end = recs.begin() + div * group;
+                    int curr = div * group;
+                    auto cmp1_begin = recs.begin() + curr - div;
+                    auto cmp1_end = recs.begin() + curr;
                     auto cmp2_begin = cmp1_end;
                     if (!std::equal(cmp1_begin, cmp1_end, cmp2_begin)) {
                         perfect_match = false;
