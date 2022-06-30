@@ -9,7 +9,7 @@ launcher.  The module currently supports wrapping the SLURM ``srun``
 command, the ALPS ``aprun`` command, and ``mpiexec`` command provided by
 Open MPI and Intel MPI.  The primary use of this module
 is through the :doc:`geopmlaunch(1) <geopmlaunch.1>` command line executable which calls
-the ``geopmpy.launcher.main()`` function.  See the :doc:`geopmlaunch(1) <geopmlaunch.1>` man
+the :py:func:`geopmpy.launcher.main` function.  See the :doc:`geopmlaunch(1) <geopmlaunch.1>` man
 page for details about the command line interface.
 """
 
@@ -1138,7 +1138,7 @@ class SrunTOSSLauncher(SrunLauncher):
 class OMPIExecLauncher(Launcher):
     """
     Launcher derived object for use with Open MPI project launch
-    application ``mpiexiec``.
+    application ``mpiexec``.
     """
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
                  time_limit=None, job_name=None, node_list=None, exclude_list=None, host_file=None,
@@ -1298,7 +1298,7 @@ class OMPIExecLauncher(Launcher):
 
     def node_list_option(self):
         """
-        Returns a list containing the ``--host`` option for ``mpiexiec``.
+        Returns a list containing the ``--host`` option for ``mpiexec``.
         """
         result = []
         if self.node_list:
@@ -1649,7 +1649,7 @@ def main():
     """
     Main routine used by ``geopmlaunch`` wrapper executable.
     This function creates a launcher from the factory and
-    calls the ``run()`` method.  If help was requested on the command line
+    calls the :py:meth:`geopmpy.launcher.Launcher.run` method.  If help was requested on the command line
     then help from the underlying application launcher is printed and
     the help for the GEOPM extensions are appended.  Returns -1 and
     prints an error message if an error occurs.  If the ``GEOPM_DEBUG``

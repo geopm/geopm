@@ -45,7 +45,7 @@ class AppOutput(object):
     a trace glob string that will be used
     to search ``dir_name`` for the relevant files.  If files are found
     their data will be parsed into objects for easy data access.
-    Additionally a **Pandas** ``DataFrame`` is constructed containing all of the
+    Additionally a :py:class:`pandas.DataFrame` is constructed containing all of the
     trace data.  These ``DataFrame``\ s are indexed based on the version of
     GEOPM found in the files, the profile name, agent name, and the number
     of times that particular configuration has been seen by the parser
@@ -206,7 +206,7 @@ class AppOutput(object):
 
 
 class IndexTracker(object):
-    """Tracks and uniquely identifies experiment configurations for ``DataFrame`` indexing.
+    """Tracks and uniquely identifies experiment configurations for :py:class:`pandas.DataFrame` indexing.
 
     This object's purpose is to examine parsed data for reports or
     traces and determine if a particular experiment configuration has
@@ -221,7 +221,7 @@ class IndexTracker(object):
 
     ``(<GEOPM_VERSION>, <PROFILE_NAME>, <AGENT_NAME>, <NODE_NAME>)``
 
-    If the tuple not contained in the ``_run_outputs`` dict, it is
+    If the tuple is not contained in the ``_run_outputs`` dict, it is
     inserted with a value of 1.  The value is incremented if the tuple
     is currently in the ``_run_outputs`` dict.  This value is used to
     uniquely identify a particular set of parsed data when the
@@ -276,7 +276,7 @@ class IndexTracker(object):
         return key + (self._run_outputs[key], )
 
     def get_multiindex(self, run_output):
-        """Returns a ``MultiIndex`` from this ``run_output``.  Used in ``DataFrame`` construction.
+        """Returns a ``MultiIndex`` from this ``run_output``.  Used in :py:class:`pandas.DataFrame` construction.
 
         This will add the current ``run_output`` to the list of tracked
         data, and return a unique muiltiindex tuple to identify this
@@ -318,7 +318,7 @@ class IndexTracker(object):
 
 
 class Trace(object):
-    """Creates a ``pandas.DataFrame`` comprised of the trace file data.
+    """Creates a :py:class:`pandas.DataFrame` comprised of the trace file data.
 
     This object will parse both the header and the CSV data in a trace
     file.  The header identifies the uniquely-identifying configuration
@@ -326,7 +326,7 @@ class Trace(object):
 
     Even though ``__getattr__()`` and ``__getitem__()`` allow this object to
     effectively be treated like a ``DataFrame``, you must use ``get_df()`` if
-    you're building a list of ``DataFrames`` to pass to ``pandas.concat()``.
+    you're building a list of ``DataFrame``\ s to pass to ``pandas.concat()``.
     Using the raw object in a list and calling concat will cause an
     error.
 
@@ -496,7 +496,7 @@ class Trace(object):
         data.
 
         Args:
-            trace_df: The ``MultiIndex``\ ed ``DataFrame`` created by the
+            trace_df: The ``MultiIndex``\ ed :py:class:`pandas.DataFrame` created by the
                       ``AppOutput`` class.
             column_regex: A string representing the regex search
                           pattern for the column names to diff.
@@ -547,7 +547,7 @@ class Trace(object):
         the single iteration is returned.
 
         Args:
-            trace_df: The ``MultiIndex``\ ed ``DataFrame`` created by the
+            trace_df: The ``MultiIndex``\ ed :py:class:`pandas.DataFrame` created by the
                       ``AppOutput`` class.
             column_regex: A string representing the regex search
                           pattern for the column names to diff.
@@ -791,7 +791,7 @@ class RawReport(object):
 
 class RawReportCollection(object):
     '''
-    Used to group together a collection of related ``RawReport``\ s.
+    Used to group together a collection of related :py:class:`geopmpy.io.RawReport`\ s.
     '''
 
     def __init__(self, report_paths, dir_name='.', dir_cache=None, verbose=True, do_cache=True):

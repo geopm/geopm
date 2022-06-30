@@ -57,7 +57,7 @@ Examples
 
 List all endpoints on a system when none are open:
 
-.. code-block:: bash
+.. code-block:: console
 
    $ geopmendpoint
 
@@ -65,7 +65,7 @@ List all endpoints on a system when none are open:
 Create two endpoints called ``"job-123"`` and ``"job-321"`` for agents to
 attach:
 
-.. code-block:: bash
+.. code-block:: console
 
    $ geopmendpoint -c job-123
    $ geopmendpoint
@@ -79,7 +79,7 @@ attach:
 Check if agent has attached to endpoint ``"job-123"``, but no agent has
 yet attached:
 
-.. code-block:: bash
+.. code-block:: console
 
    $ geopmendpoint -a job-123
    Error: <geopm> No agent has attached to endpoint.
@@ -88,7 +88,7 @@ yet attached:
 Check if agent has attached to endpoint ``"job-321"`` after a
 ``power_balancer`` agent has attached:
 
-.. code-block:: bash
+.. code-block:: console
 
    $ geopmendpoint -a job-321
    Agent: power_balancer
@@ -98,14 +98,14 @@ Check if agent has attached to endpoint ``"job-321"`` after a
 Set policy at endpoint for ``power_balancer`` agent with 250 Watt per
 node power budget:
 
-.. code-block:: bash
+.. code-block:: console
 
    $ geopmendpoint -p 250 job-321
 
 
 Sample from balancing agent with endpoint ``"job-321"``:
 
-.. code-block:: bash
+.. code-block:: console
 
    $ geopmendpoint -s job-321
    POWER: 247.2
@@ -116,7 +116,7 @@ Sample from balancing agent with endpoint ``"job-321"``:
 
 Destroy endpoints ``"job-123"`` and ``"job-321"``:
 
-.. code-block:: bash
+.. code-block:: console
 
    $ geopmendpoint -d job-321
    $ geopmendpoint
