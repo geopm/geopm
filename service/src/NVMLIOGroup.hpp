@@ -66,8 +66,8 @@ namespace geopm
             const PlatformTopo &m_platform_topo;
             const NVMLDevicePool &m_nvml_device_pool;
             bool m_is_batch_read;
-            std::vector<uint64_t> m_frequency_control_request;
-            std::vector<uint64_t> m_initial_power_limit;
+            std::vector<double> m_frequency_control_request;
+            std::vector<double> m_initial_power_limit;
             std::vector<std::vector<unsigned int> > m_supported_freq;
 
             struct signal_s
