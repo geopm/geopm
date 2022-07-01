@@ -467,6 +467,7 @@ namespace geopm
                         throw;
                     }
                     unsupported_signal_names.push_back(sv.first);
+                    break;
                 }
             }
             sv.second.m_signals = result;
@@ -522,10 +523,9 @@ namespace geopm
                                                            control_domain_type(sv.first), domain_idx);
                             }
                         }
-                        else {
-                            //Try to write the signals
-                            write_control(sv.first, control_domain_type(sv.first), domain_idx, init_setting);
-                        }
+
+                        //Try to write the signals
+                        write_control(sv.first, control_domain_type(sv.first), domain_idx, init_setting);
                     }
                 }
             }

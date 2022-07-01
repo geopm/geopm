@@ -30,6 +30,7 @@ using geopm::Exception;
 using testing::Return;
 using testing::_;
 using testing::AtLeast;
+using testing::Throw;
 
 class NVMLIOGroupTest : public :: testing :: Test
 {
@@ -325,7 +326,7 @@ TEST_F(NVMLIOGroupTest, read_signal)
 
         frequency = nvml_io.read_signal(M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL",
                                         GEOPM_DOMAIN_GPU, gpu_idx);
-        EXPECT_DOUBLE_EQ(frequency, 0); // 0 until first write
+        EXPECT_DOUBLE_EQ(frequency, frequency_max);
     }
 
     for (int cpu_idx = 0; cpu_idx < num_cpu; ++cpu_idx) {
@@ -428,4 +429,103 @@ TEST_F(NVMLIOGroupTest, save_restore_control)
     nvml_io.save_control(file_name);
     EXPECT_CALL(*m_mock_save_ctl, restore(_));
     nvml_io.restore_control(file_name);
+}
+
+TEST_F(NVMLIOGroupTest, signal_and_control_trimming)
+{
+    const int num_gpu = m_platform_topo->num_domain(GEOPM_DOMAIN_GPU);
+    const int num_cpu = m_platform_topo->num_domain(GEOPM_DOMAIN_CPU);
+
+    std::vector<double> mock_freq = {1530, 1320, 420, 135};
+    std::vector<unsigned int> mock_supported_freq = {135, 142, 407, 414, 760, 882, 1170, 1530};
+    std::vector<double> mock_utilization_gpu = {100, 90, 50, 0};
+    std::vector<double> mock_power = {153600, 70000, 300000, 50000};
+    std::vector<double> mock_power_limit = {300000, 270000, 300000, 250000};
+    std::vector<double> mock_freq_mem = {877, 877, 877, 877};
+    std::vector<double> mock_throttle_reasons = {0, 1, 3, 128};
+    std::vector<double> mock_temperature = {45, 60, 68, 92};
+    std::vector<double> mock_energy = {630000, 280000, 470000, 950000};
+    std::vector<double> mock_performance_state = {0, 2, 3, 5};
+    std::vector<double> mock_pcie_rx_throughput = {4000, 3000, 2000, 0};
+    std::vector<double> mock_pcie_tx_throughput = {2000, 3000, 4000, 100};
+    std::vector<double> mock_utilization_mem = {25, 50, 100, 75};
+
+    std::vector<int> active_process_list = {40961, 40962, 40963};
+
+    for (int gpu_idx = 0; gpu_idx < num_gpu; ++gpu_idx) {
+        EXPECT_CALL(*m_device_pool, frequency_status_sm(gpu_idx)).WillRepeatedly(Throw(geopm::Exception("Not Supported", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__)));
+        EXPECT_CALL(*m_device_pool, frequency_status_mem(gpu_idx)).WillRepeatedly(Throw(geopm::Exception("Invalid", GEOPM_ERROR_INVALID, __FILE__, __LINE__)));
+        EXPECT_CALL(*m_device_pool, frequency_supported_sm(gpu_idx)).WillRepeatedly(Return(mock_supported_freq));
+        EXPECT_CALL(*m_device_pool, utilization(gpu_idx)).WillRepeatedly(Return(mock_utilization_gpu.at(gpu_idx)));
+        EXPECT_CALL(*m_device_pool, power(gpu_idx)).WillRepeatedly(Return(mock_power.at(gpu_idx)));;
+        EXPECT_CALL(*m_device_pool, power_limit(gpu_idx)).WillRepeatedly(Return(mock_power_limit.at(gpu_idx)));;
+        EXPECT_CALL(*m_device_pool, throttle_reasons(gpu_idx)).WillRepeatedly(Return(mock_throttle_reasons.at(gpu_idx)));
+        EXPECT_CALL(*m_device_pool, temperature(gpu_idx)).WillRepeatedly(Return(mock_temperature.at(gpu_idx)));
+        EXPECT_CALL(*m_device_pool, energy(gpu_idx)).WillRepeatedly(Return(mock_energy.at(gpu_idx)));
+        EXPECT_CALL(*m_device_pool, performance_state(gpu_idx)).WillRepeatedly(Return(mock_performance_state.at(gpu_idx)));
+        EXPECT_CALL(*m_device_pool, throughput_rx_pcie(gpu_idx)).WillRepeatedly(Return(mock_pcie_rx_throughput.at(gpu_idx)));
+        EXPECT_CALL(*m_device_pool, throughput_tx_pcie(gpu_idx)).WillRepeatedly(Return(mock_pcie_tx_throughput.at(gpu_idx)));
+        EXPECT_CALL(*m_device_pool, utilization_mem(gpu_idx)).WillRepeatedly(Return(mock_utilization_mem.at(gpu_idx)));
+
+        EXPECT_CALL(*m_device_pool, frequency_control_sm(gpu_idx, _, _)).WillRepeatedly(Throw(geopm::Exception("Invalid", GEOPM_ERROR_INVALID, __FILE__, __LINE__)));
+
+    }
+
+    for (int cpu_idx = 0; cpu_idx < num_cpu; ++cpu_idx) {
+        EXPECT_CALL(*m_device_pool, active_process_list(cpu_idx)).WillRepeatedly(Return(active_process_list));;
+    }
+
+    NVMLIOGroup nvml_io(*m_platform_topo, *m_device_pool, m_mock_save_ctl);
+    EXPECT_FALSE(nvml_io.is_valid_signal("NVML::GPU_CORE_FREQUENCY_STATUS"));
+    EXPECT_FALSE(nvml_io.is_valid_signal("NVML::GPU_UNCORE_FREQUENCY_STATUS"));
+    EXPECT_FALSE(nvml_io.is_valid_control("NVML::GPU_CORE_FREQUENCY_CONTROL"));
+}
+
+
+TEST_F(NVMLIOGroupTest, signal_and_control_trimming_writes)
+{
+    const int num_gpu = m_platform_topo->num_domain(GEOPM_DOMAIN_GPU);
+    const int num_cpu = m_platform_topo->num_domain(GEOPM_DOMAIN_CPU);
+
+    std::vector<double> mock_freq = {1530, 1320, 420, 135};
+    std::vector<unsigned int> mock_supported_freq = {135, 142, 407, 414, 760, 882, 1170, 1530};
+    std::vector<double> mock_utilization_gpu = {100, 90, 50, 0};
+    std::vector<double> mock_power = {153600, 70000, 300000, 50000};
+    std::vector<double> mock_power_limit = {300000, 270000, 300000, 250000};
+    std::vector<double> mock_freq_mem = {877, 877, 877, 877};
+    std::vector<double> mock_throttle_reasons = {0, 1, 3, 128};
+    std::vector<double> mock_temperature = {45, 60, 68, 92};
+    std::vector<double> mock_energy = {630000, 280000, 470000, 950000};
+    std::vector<double> mock_performance_state = {0, 2, 3, 5};
+    std::vector<double> mock_pcie_rx_throughput = {4000, 3000, 2000, 0};
+    std::vector<double> mock_pcie_tx_throughput = {2000, 3000, 4000, 100};
+    std::vector<double> mock_utilization_mem = {25, 50, 100, 75};
+
+    std::vector<int> active_process_list = {40961, 40962, 40963};
+
+    for (int gpu_idx = 0; gpu_idx < num_gpu; ++gpu_idx) {
+        EXPECT_CALL(*m_device_pool, frequency_status_sm(gpu_idx)).WillRepeatedly(Return(mock_freq.at(gpu_idx)));
+        EXPECT_CALL(*m_device_pool, frequency_supported_sm(gpu_idx)).WillRepeatedly(Return(mock_supported_freq));
+        EXPECT_CALL(*m_device_pool, utilization(gpu_idx)).WillRepeatedly(Return(mock_utilization_gpu.at(gpu_idx)));
+        EXPECT_CALL(*m_device_pool, power(gpu_idx)).WillRepeatedly(Return(mock_power.at(gpu_idx)));;
+        EXPECT_CALL(*m_device_pool, power_limit(gpu_idx)).WillRepeatedly(Return(mock_power_limit.at(gpu_idx)));;
+        EXPECT_CALL(*m_device_pool, frequency_status_mem(gpu_idx)).WillRepeatedly(Return(mock_freq_mem.at(gpu_idx)));
+        EXPECT_CALL(*m_device_pool, throttle_reasons(gpu_idx)).WillRepeatedly(Return(mock_throttle_reasons.at(gpu_idx)));
+        EXPECT_CALL(*m_device_pool, temperature(gpu_idx)).WillRepeatedly(Return(mock_temperature.at(gpu_idx)));
+        EXPECT_CALL(*m_device_pool, energy(gpu_idx)).WillRepeatedly(Return(mock_energy.at(gpu_idx)));
+        EXPECT_CALL(*m_device_pool, performance_state(gpu_idx)).WillRepeatedly(Return(mock_performance_state.at(gpu_idx)));
+        EXPECT_CALL(*m_device_pool, throughput_rx_pcie(gpu_idx)).WillRepeatedly(Return(mock_pcie_rx_throughput.at(gpu_idx)));
+        EXPECT_CALL(*m_device_pool, throughput_tx_pcie(gpu_idx)).WillRepeatedly(Return(mock_pcie_tx_throughput.at(gpu_idx)));
+        EXPECT_CALL(*m_device_pool, utilization_mem(gpu_idx)).WillRepeatedly(Return(mock_utilization_mem.at(gpu_idx)));
+
+
+        EXPECT_CALL(*m_device_pool, frequency_control_sm(gpu_idx, mock_supported_freq.back(),
+                                                         mock_supported_freq.back())).Times(1);
+    }
+
+    for (int cpu_idx = 0; cpu_idx < num_cpu; ++cpu_idx) {
+        EXPECT_CALL(*m_device_pool, active_process_list(cpu_idx)).WillRepeatedly(Return(active_process_list));;
+    }
+
+    NVMLIOGroup nvml_io(*m_platform_topo, *m_device_pool, m_mock_save_ctl);
 }

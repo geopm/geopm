@@ -677,7 +677,9 @@ TEST_F(LevelZeroIOGroupTest, signal_and_control_trimming_writes)
 
 
         EXPECT_CALL(*m_device_pool, frequency_range(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE)).WillRepeatedly(Return(std::pair<double, double>(mock_freq_min_gpu.at(sub_idx), mock_freq_max_gpu.at(sub_idx))));
+
         EXPECT_CALL(*m_device_pool, frequency_control(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE, mock_freq_min_gpu.at(sub_idx), mock_freq_max_gpu.at(sub_idx))).Times(3);
+        EXPECT_CALL(*m_device_pool, frequency_control(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE, mock_freq_max_gpu.at(sub_idx), mock_freq_max_gpu.at(sub_idx))).Times(2);
     }
 
     LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool, nullptr);
