@@ -5,14 +5,20 @@
 #include "config.h"
 
 #include <memory>
-#include <unistd.h>
-#include <signal.h>   // for sigprocmask() from Linux API
-#include <cstring>    // for memset(), memcmp()
-#include <vector>     // for std::vector
-#include <set>        // for std::set
-#include <algorithm>  // for std::set_union(), std::set_difference(), std::remove()
+#include <unistd.h>     // for getpid(), geteuid()
+#include <sys/types.h>  // for pid_t, uid_t
+#include <signal.h>     // for sigprocmask() from Linux API
+#include <string>       // for std::string, std::to_string()
+#include <cstring>      // for memset(), memcmp()
+#include <cstdint>      // for uint64_t
+#include <cstdlib>      // for strtoul()
+#include <vector>       // for std::vector
+#include <set>          // for std::set
+#include <algorithm>    // for std::set_union(), std::set_difference(), std::remove()
+#include <utility>      // for std::move
 
 #include "POSIXSignal.hpp"
+#include <geopm/Helper.hpp>
 #include "gtest/gtest.h"
 #include "geopm_test.hpp"
 
@@ -25,6 +31,8 @@ class POSIXSignalTest : public :: testing :: Test
         void SetUp(void);
         void TearDown(void);
     protected:
+        bool has_elevated_permissions(void) const;
+
         std::shared_ptr<POSIXSignalImp> m_posix_sig;
 
         std::set<int> convert_sigset(const sigset_t &the_sigset);
@@ -59,6 +67,40 @@ void POSIXSignalTest::TearDown(void)
     m_posix_sig.reset();
 
     sigprocmask(SIG_SETMASK, &m_backup_sigset, nullptr);
+}
+
+bool POSIXSignalTest::has_elevated_permissions(void) const
+{
+    uint64_t cap = 0;
+    uint64_t cap_sys_admin = 0x00200000;  // TODO: magic number, is there a #define for it?
+    pid_t pid = getpid();
+
+    std::string status_path = "/proc/" + std::to_string(pid) + "/status";
+
+    // TODO: This is a very memory inefficient algorithm and should be replaced some day.
+    try {
+        std::vector<std::string> file_lines;
+        {
+            std::string file_contents = geopm::read_file(status_path);
+            file_lines = std::move(geopm::string_split(file_contents, "\n"));
+        }  // prevent two copies of the file from hanging around in the memory
+        for (const std::string& line : file_lines) {
+            if (geopm::string_begins_with(line, "CapEff:")) {
+                std::string temp = geopm::string_split(line, ":")[1];
+                cap = strtoul(temp.c_str(), nullptr, 16);
+                if (cap & cap_sys_admin) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
+    }
+    catch (...) {
+        return false;
+    }
+
+    return false;
 }
 
 /**
@@ -201,10 +243,13 @@ TEST_F(POSIXSignalTest, sig_queue_ESRCH)
  */
 TEST_F(POSIXSignalTest, sig_queue_EPERM)
 {
-    if (geteuid() == 0) {
+    if (geteuid() == 0) {  // the root user
         std::cerr << "Warning: <geopm> Skipping POSIXSignalTest.sig_queue_EPERM cannot be run by user \"root\"\n";
     }
-    else {
+    else if (has_elevated_permissions()) {  // the non root user with elevated permissions
+        m_posix_sig->sig_queue(1, SIGCONT, 2);  // TODO: how to do EXPECT_NO_THROW?
+    }
+    else {  // any other non root user
         std::string errmsg_expect = "Operation not permitted: POSIXSignal(): POSIX signal function call sigqueue() returned an error";
         GEOPM_EXPECT_THROW_MESSAGE(
             m_posix_sig->sig_queue(1, SIGCONT, 2),
