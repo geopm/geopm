@@ -40,7 +40,7 @@ namespace geopm
         , m_platform_topo(platform_topo)
         , M_FREQ_STEP(get_limit("CPUINFO::FREQ_STEP"))
         , M_PLAT_FREQ_MIN(get_limit("CPUINFO::FREQ_MIN"))
-        , M_PLAT_FREQ_MAX(get_limit("CPU_FREQUENCY_MAX"))
+        , M_PLAT_FREQ_MAX(get_limit("CPU_FREQUENCY_MAX_AVAIL"))
         , m_freq_min(M_PLAT_FREQ_MIN)
         , m_freq_max(M_PLAT_FREQ_MAX)
         , m_do_write_batch(false)
@@ -67,7 +67,7 @@ namespace geopm
         else if (sig_name == "CPUINFO::FREQ_STEP") {
             result = m_platform_io.read_signal(sig_name, domain_type, 0);
         }
-        else if (sig_name == "CPU_FREQUENCY_MAX") {
+        else if (sig_name == "CPU_FREQUENCY_MAX_AVAIL") {
             result = m_platform_io.read_signal(sig_name, domain_type, 0);
         }
 #ifdef GEOPM_DEBUG

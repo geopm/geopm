@@ -81,7 +81,7 @@ namespace geopm
          "reset periodically due to roll-over.\n"
          "    iogroup: MSR\n"
          "    alias_for: MSR::PKG_ENERGY_STATUS:ENERGY"},
-        {"CPU_FREQUENCY_MAX",
+        {"CPU_FREQUENCY_MAX_AVAIL",
          "    description: Maximum processor frequency.\n"
          "    iogroup: MSR\n"
          "    alias_for: MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_0 or if HWP is enabled MSR::HWP_CAPABILITIES:HIGHEST_PERFORMANCE"},

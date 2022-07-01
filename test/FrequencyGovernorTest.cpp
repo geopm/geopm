@@ -47,7 +47,7 @@ void FrequencyGovernorTest::SetUp(void)
     ON_CALL(m_platio, read_signal("CPUINFO::FREQ_STEP", _, _)).WillByDefault(Return(M_PLAT_STEP_FREQ));
     ON_CALL(m_platio, read_signal("CPUINFO::FREQ_MIN", _, _)).WillByDefault(Return(M_PLAT_MIN_FREQ));
     ON_CALL(m_platio, read_signal("CPUINFO::FREQ_STICKER", _, _)).WillByDefault(Return(M_PLAT_STICKER_FREQ));
-    ON_CALL(m_platio, read_signal("CPU_FREQUENCY_MAX", _, _)).WillByDefault(Return(M_PLAT_MAX_FREQ));
+    ON_CALL(m_platio, read_signal("CPU_FREQUENCY_MAX_AVAIL", _, _)).WillByDefault(Return(M_PLAT_MAX_FREQ));
 
     ASSERT_EQ(M_NUM_CORE, (int)M_FREQ_CTL_IDX.size());
     for (int idx = 0; idx < M_NUM_CORE; ++idx) {

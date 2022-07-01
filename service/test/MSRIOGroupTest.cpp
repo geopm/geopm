@@ -176,7 +176,7 @@ TEST_F(MSRIOGroupTest, valid_signal_names)
     ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_0"));
     signal_aliases.push_back("CPU_FREQUENCY_STATUS");
     signal_aliases.push_back("CPU_FREQUENCY_MAX_AVAIL");
-    // note: CPU_FREQUENCY_MIN and CPU_FREQUENCY_STICKER come from CpuinfoIOGroup.
+    // note: CPU_FREQUENCY_MIN_AVAIL and CPU_FREQUENCY_STICKER come from CpuinfoIOGroup.
 
     //// temperature signals
     ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::TEMPERATURE_TARGET:PROCHOT_MIN"));
@@ -270,7 +270,7 @@ TEST_F(MSRIOGroupTest, valid_signal_aggregation)
     func = m_msrio_group->agg_function("CPU_FREQUENCY_STATUS");
     EXPECT_TRUE(is_agg_average(func));
     /// @todo: what should this be?
-    //func = m_msrio_group->agg_function("CPU_FREQUENCY_MAX");
+    //func = m_msrio_group->agg_function("CPU_FREQUENCY_MAX_AVAIL");
     //EXPECT_TRUE(is_agg_expect_same(func));
 
     // temperature

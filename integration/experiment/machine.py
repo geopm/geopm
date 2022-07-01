@@ -48,10 +48,10 @@ class Machine:
             json.dump(data, info_file)
 
     def frequency_min(self):
-        return self.signals['CPU_FREQUENCY_MIN']
+        return self.signals['CPU_FREQUENCY_MIN_AVAIL']
 
     def frequency_max(self):
-        return self.signals['CPU_FREQUENCY_MAX']
+        return self.signals['CPU_FREQUENCY_MAX_AVAIL']
 
     def frequency_sticker(self):
         return self.signals['CPU_FREQUENCY_STICKER']
@@ -103,8 +103,8 @@ class Machine:
 
     def _query(self):
         self.signals = {}
-        signal_names = ['CPU_FREQUENCY_MIN',
-                        'CPU_FREQUENCY_MAX',
+        signal_names = ['CPU_FREQUENCY_MIN_AVAIL',
+                        'CPU_FREQUENCY_MAX_AVAIL',
                         'CPU_FREQUENCY_STICKER',
                         'CPU_FREQUENCY_STEP',
                         'CPU_POWER_MIN_AVAIL',

@@ -21,7 +21,7 @@ class LocalAgent(geopmdpy.runtime.Agent):
     """
     def __init__(self):
         self._loop_idx = 0
-        self._cpu_freq = geopmdpy.pio.read_signal('CPU_FREQUENCY_MAX', 'board', 0)
+        self._cpu_freq = geopmdpy.pio.read_signal('CPU_FREQUENCY_MAX_AVAIL', 'board', 0)
         geopmpy.reporter.init()
 
     def get_signals(self):
@@ -41,7 +41,7 @@ class LocalAgent(geopmdpy.runtime.Agent):
 
     def run_end(self):
         self._loop_idx = 0
-        self._cpu_freq = geopmdpy.pio.read_signal('CPU_FREQUENCY_MAX', 'board', 0)
+        self._cpu_freq = geopmdpy.pio.read_signal('CPU_FREQUENCY_MAX_AVAIL', 'board', 0)
 
     def update(self, signals):
         if self._loop_idx == 0:
@@ -63,7 +63,7 @@ def main():
 
     """
     err = 0
-    help_msg = f'Usage: {sys.argv[0]} CPU_FREQUENCY_MAX COMMAND\n\n{LocalAgent.__doc__}\n'
+    help_msg = f'Usage: {sys.argv[0]} CPU_FREQUENCY_MAX_AVAIL COMMAND\n\n{LocalAgent.__doc__}\n'
     if len(sys.argv) < 3:
         err = -1
     if err != 0 or sys.argv[1] == '--help':

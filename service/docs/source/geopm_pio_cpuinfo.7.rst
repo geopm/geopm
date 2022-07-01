@@ -56,7 +56,7 @@ This IOGroup provides the following high-level aliases:
 Signal Aliases
 ^^^^^^^^^^^^^^
 
-``CPU_FREQUENCY_MIN``
+``CPU_FREQUENCY_MIN_AVAIL``
     Maps to ``CPUINFO::FREQ_MIN``
 
 ``CPU_FREQUENCY_STICKER``

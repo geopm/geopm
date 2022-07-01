@@ -99,9 +99,9 @@ void FrequencyMapAgentTest::SetUp()
     m_freq_uncore_max = 2100000000;
     ON_CALL(*m_platform_io, control_domain_type("CPU_FREQUENCY_CONTROL"))
         .WillByDefault(Return(GEOPM_DOMAIN_BOARD));
-    ON_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MIN", GEOPM_DOMAIN_BOARD, 0))
+    ON_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0))
         .WillByDefault(Return(m_freq_min));
-    ON_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MAX", GEOPM_DOMAIN_BOARD, 0))
+    ON_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0))
         .WillByDefault(Return(m_freq_max));
     ON_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_STEP", GEOPM_DOMAIN_BOARD, 0))
         .WillByDefault(Return(m_freq_step));
@@ -141,8 +141,8 @@ void FrequencyMapAgentTest::SetUp()
     EXPECT_CALL(*m_platform_io, push_control("CPU_FREQUENCY_CONTROL", _, _));
     EXPECT_CALL(*m_platform_io, push_control("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO", _, _));
     EXPECT_CALL(*m_platform_io, push_control("MSR::UNCORE_RATIO_LIMIT:MAX_RATIO", _, _));
-    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MIN", _, _));
-    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MAX", _, _));
+    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MIN_AVAIL", _, _));
+    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MAX_AVAIL", _, _));
     EXPECT_CALL(*m_platform_io, read_signal("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO", _, _));
     EXPECT_CALL(*m_platform_io, read_signal("MSR::UNCORE_RATIO_LIMIT:MAX_RATIO", _, _));
 

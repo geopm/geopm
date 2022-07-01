@@ -52,7 +52,7 @@ class TestIntegrationEnforcePolicy(unittest.TestCase):
         self._old_max_power = geopm_test_launcher.geopmread("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT board 0")
 
         # make sure controls are at default
-        self._max_freq = geopm_test_launcher.geopmread("CPU_FREQUENCY_MAX board 0")
+        self._max_freq = geopm_test_launcher.geopmread("CPU_FREQUENCY_MAX_AVAIL board 0")
         geopm_test_launcher.geopmwrite("CPU_FREQUENCY_CONTROL board 0 {}".format(self._max_freq))
         self._tdp_power = geopm_test_launcher.geopmread("CPU_POWER_LIMIT_DEFAULT package 0")
         geopm_test_launcher.geopmwrite("CPU_POWER_LIMIT_CONTROL board 0 {}".format(self._tdp_power))

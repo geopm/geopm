@@ -105,12 +105,12 @@ Use the following code as an example for 1-to-1 mappings:
 
 .. code-block:: rst
 
-   ``CPU_FREQUENCY_MAX``
+   ``CPU_FREQUENCY_MAX_AVAIL``
        Maps to ``MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_0``
 
 That block will render as follows:
 
-``CPU_FREQUENCY_MAX``
+``CPU_FREQUENCY_MAX_AVAIL``
     Maps to ``MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_0``
 
 If the alias does not directly map, then a further explanation of how the alias
@@ -121,12 +121,12 @@ in detail with full sentences.  Use the following code as an example:
 
 .. code-block:: rst
 
-   ``CPU_FREQUENCY_MAX``
+   ``CPU_FREQUENCY_MAX_AVAIL``
        Maximum processor frequency.
 
 That block will render as follows:
 
-``CPU_FREQUENCY_MAX``
+``CPU_FREQUENCY_MAX_AVAIL``
     Maximum processor frequency.
 
 Examples
