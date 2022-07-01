@@ -81,10 +81,22 @@ namespace geopm
          "reset periodically due to roll-over.\n"
          "    iogroup: MSR\n"
          "    alias_for: MSR::PKG_ENERGY_STATUS:ENERGY"},
+        {"CPU_FREQUENCY_MIN_AVAIL",
+         "    description: Minimum processor frequency.\n"
+         "    iogroup: Cpuinfo\n"
+         "    alias_for: CPUINFO::FREQ_MIN"},
         {"CPU_FREQUENCY_MAX_AVAIL",
          "    description: Maximum processor frequency.\n"
          "    iogroup: MSR\n"
          "    alias_for: MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_0 or if HWP is enabled MSR::HWP_CAPABILITIES:HIGHEST_PERFORMANCE"},
+        {"CPU_FREQUENCY_STICKER",
+         "    description: Processor base frequency.\n"
+         "    iogroup: Cpuinfo\n"
+         "    alias_for: CPUINFO::FREQ_STICKER"},
+        {"CPU_FREQUENCY_STEP",
+         "    description: Step size between process frequency settings.\n"
+         "    iogroup: Cpuinfo\n"
+         "    alias_for: CPUINFO::FREQ_STEP"},
         {"CPU_FREQUENCY_STATUS",
          "    description: The current operating frequency of the CPU.\n"
          "    iogroup: MSR\n"
