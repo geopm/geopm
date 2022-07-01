@@ -44,7 +44,7 @@ namespace geopm
         : m_platform_topo(platform_topo)
         , m_nvml_device_pool(device_pool)
         , m_is_batch_read(false)
-        , m_frequency_control_request(m_platform_topo.num_domain(GEOPM_DOMAIN_GPU), 0)
+        , m_frequency_control_request(m_platform_topo.num_domain(GEOPM_DOMAIN_GPU), NAN)
         , m_signal_available({{M_NAME_PREFIX + "GPU_CORE_FREQUENCY_STATUS", {
                                   "Streaming multiprocessor frequency in hertz",
                                   {},
@@ -292,15 +292,14 @@ namespace geopm
 
                         if(std::isnan(init_setting)) {
                             // Specialized handling for signals that may be NAN
-                            if (sv.first == M_NAME_PREFIX + "GPU_CORE_FREQUENCY_RESET_CONTROL") {
+                            if (sv.first == M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL" ||
+                                 sv.first == "GPU_CORE_FREQUENCY_CONTROL") {
+                                init_setting = read_signal(M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_AVAIL",
+                                                           control_domain_type(sv.first), domain_idx);
+                            }
+                            else if (sv.first == M_NAME_PREFIX + "GPU_CORE_FREQUENCY_RESET_CONTROL") {
                                 init_setting = 0;
                             }
-                        }
-                        else if (init_setting == 0 &&
-                                 (sv.first == M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL" ||
-                                 sv.first == "GPU_CORE_FREQUENCY_CONTROL")) {
-                            init_setting = read_signal(M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_AVAIL",
-                                                       control_domain_type(sv.first), domain_idx);
                         }
 
                         //Try to write the signals
