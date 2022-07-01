@@ -31,7 +31,7 @@ class POSIXSignalTest : public :: testing :: Test
         void SetUp(void);
         void TearDown(void);
     protected:
-        bool has_elevated_permissions(void) const;
+        bool has_cap_kill(void) const;
 
         std::shared_ptr<POSIXSignalImp> m_posix_sig;
 
@@ -69,35 +69,29 @@ void POSIXSignalTest::TearDown(void)
     sigprocmask(SIG_SETMASK, &m_backup_sigset, nullptr);
 }
 
-bool POSIXSignalTest::has_elevated_permissions(void) const
+bool POSIXSignalTest::has_cap_kill(void) const
 {
     uint64_t cap = 0;
-    uint64_t cap_sys_admin = 0x00200000;  // TODO: magic number, is there a #define for it?
+    uint64_t cap_kill = 0x20;
     pid_t pid = getpid();
 
     std::string status_path = "/proc/" + std::to_string(pid) + "/status";
 
-    // TODO: This is a very memory inefficient algorithm and should be replaced some day.
-    try {
-        std::vector<std::string> file_lines;
-        {
-            std::string file_contents = geopm::read_file(status_path);
-            file_lines = std::move(geopm::string_split(file_contents, "\n"));
-        }  // prevent two copies of the file from hanging around in the memory
-        for (const std::string& line : file_lines) {
-            if (geopm::string_begins_with(line, "CapEff:")) {
-                std::string temp = geopm::string_split(line, ":")[1];
-                cap = strtoul(temp.c_str(), nullptr, 16);
-                if (cap & cap_sys_admin) {
-                    return true;
-                } else {
-                    return false;
-                }
+    std::vector<std::string> file_lines;
+    {
+        std::string file_contents = geopm::read_file(status_path);
+        file_lines = geopm::string_split(file_contents, "\n");
+    }  // prevent two copies of the file from hanging around in the memory
+    for (const std::string& line : file_lines) {
+        if (geopm::string_begins_with(line, "CapEff:")) {
+            std::string temp = geopm::string_split(line, ":")[1];
+            cap = strtoul(temp.c_str(), nullptr, 16);
+            if (cap & cap_kill) {
+                return true;
+            } else {
+                return false;
             }
         }
-    }
-    catch (...) {
-        return false;
     }
 
     return false;
@@ -246,8 +240,8 @@ TEST_F(POSIXSignalTest, sig_queue_EPERM)
     if (geteuid() == 0) {  // the root user
         std::cerr << "Warning: <geopm> Skipping POSIXSignalTest.sig_queue_EPERM cannot be run by user \"root\"\n";
     }
-    else if (has_elevated_permissions()) {  // the non root user with elevated permissions
-        m_posix_sig->sig_queue(1, SIGCONT, 2);  // TODO: how to do EXPECT_NO_THROW?
+    else if (has_cap_kill()) {  // the non root user with elevated permissions
+        m_posix_sig->sig_queue(1, SIGCONT, 2);
     }
     else {  // any other non root user
         std::string errmsg_expect = "Operation not permitted: POSIXSignal(): POSIX signal function call sigqueue() returned an error";
