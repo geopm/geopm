@@ -1,33 +1,6 @@
 /*
  * Copyright (c) 2015 - 2022, Intel Corporation
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- *
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in
- *       the documentation and/or other materials provided with the
- *       distribution.
- *
- *     * Neither the name of Intel Corporation nor the names of its
- *       contributors may be used to endorse or promote products derived
- *       from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include "FixedFrequencyAgent.hpp"
@@ -35,7 +8,6 @@
 #include <iostream>
 
 #include <cmath>
-#include <cassert>
 #include <algorithm>
 
 #include "geopm/PluginFactory.hpp"
@@ -43,6 +15,7 @@
 #include "geopm/PlatformTopo.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm/Agg.hpp"
+#include "geopm_debug.hpp"
 
 #include <string>
 
@@ -66,20 +39,12 @@ namespace geopm
     // Push signals and controls for future batch read/write
     void FixedFrequencyAgent::init(int level, const std::vector<int> &fan_in, bool is_level_root)
     {
-        if (level == 0) {
-            init_platform_io();
-        }
-    }
-
-    void FixedFrequencyAgent::init_platform_io(void)
-    {
-
     }
 
     // Validate incoming policy and configure default policy requests.
     void FixedFrequencyAgent::validate_policy(std::vector<double> &in_policy) const
     {
-        assert(in_policy.size() == M_NUM_POLICY);
+        GEOPM_DEBUG_ASSERT(in_policy.size() == M_NUM_POLICY);
         double gpu_min_freq = m_platform_io.read_signal("GPU_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0);
         double gpu_max_freq = m_platform_io.read_signal("GPU_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0);
         double core_freq_min = m_platform_io.read_signal("FREQUENCY_MIN", GEOPM_DOMAIN_BOARD, 0);
@@ -141,7 +106,7 @@ namespace geopm
     void FixedFrequencyAgent::split_policy(const std::vector<double>& in_policy,
                                     std::vector<std::vector<double> >& out_policy)
     {
-        assert(in_policy.size() == M_NUM_POLICY);
+        GEOPM_DEBUG_ASSERT(in_policy.size() == M_NUM_POLICY);
         for (auto &child_pol : out_policy) {
             child_pol = in_policy;
         }
@@ -167,7 +132,7 @@ namespace geopm
 
     void FixedFrequencyAgent::adjust_platform(const std::vector<double>& in_policy)
     {
-        assert(in_policy.size() == M_NUM_POLICY);
+        GEOPM_DEBUG_ASSERT(in_policy.size() == M_NUM_POLICY);
 
         if (!m_is_adjust_initialized) {
             double gpu_freq_request = in_policy[M_POLICY_GPU_FREQUENCY];
