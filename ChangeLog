@@ -1,3 +1,10 @@
+* Fri Jul 1 2022 Christopher M Cantalupo <christopher.m.cantalupo@intel.com> v2.0.0+rc2
+- Release candidate 2 for version 2.0
+- This is a pre-release version of GEOPM that has all features that will be present in the v2.0.0 release.
+- The names of signals and controls provided by the PIO interface have changed for rc2 as described here: <https://github.com/geopm/geopm/issues/1671>
+- Chapter 7 man page documentation has been added for the PlatformIO interface and supported signals and controls.
+- Other changes required for version 2.0 have also been made.
+- All feedback about this release candidate is appreciated: <https://geopm.github.io/contrib.html>
 * Fri May 27 2022 Christopher M Cantalupo <christopher.m.cantalupo@intel.com> v2.0.0+rc1
 - Release candidate 1 for version 2.0
 - This is a pre-release version of GEOPM that has all features that will be present in the v2.0.0 release.
