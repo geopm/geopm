@@ -470,6 +470,8 @@ namespace geopm
                                M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL");
         register_control_alias("GPU_CORE_FREQUENCY_CONTROL",
                                M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL");
+        register_signal_alias("GPU_CORE_ACTIVITY", M_NAME_PREFIX + "GPU_CORE_UTILIZATION");
+        register_signal_alias("GPU_UNCORE_ACTIVITY", M_NAME_PREFIX + "GPU_UNCORE_UTILIZATION");
 
         // populate controls for each domain
         for (auto &sv : m_control_available) {
