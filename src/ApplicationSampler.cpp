@@ -153,6 +153,9 @@ namespace geopm
             }
         }
         else {
+            GEOPM_DEBUG_ASSERT((int) m_hint_time.size() == m_num_cpu &&
+                               (int) m_hint_last.size() == m_num_cpu,
+                               "Mismatch in CPU/hint vectors");
             double time_delta = geopm_time_diff(&m_update_time, &curr_time);
             for (int cpu_idx = 0; cpu_idx != m_num_cpu; ++cpu_idx) {
                 m_hint_time[cpu_idx][m_hint_last[cpu_idx]] += time_delta;
