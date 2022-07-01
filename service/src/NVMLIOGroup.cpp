@@ -40,7 +40,7 @@ namespace geopm
     // Set up mapping between signal and control names and corresponding indices
     NVMLIOGroup::NVMLIOGroup(const PlatformTopo &platform_topo,
                              const NVMLDevicePool &device_pool,
-                             std::shared_ptr<SaveControl> save_control)
+                             std::shared_ptr<SaveControl> save_control_test)
         : m_platform_topo(platform_topo)
         , m_nvml_device_pool(device_pool)
         , m_is_batch_read(false)
@@ -208,7 +208,7 @@ namespace geopm
                                     string_format_double
                                     }}
                               })
-        , m_mock_save_ctl(save_control)
+        , m_mock_save_ctl(save_control_test)
     {
         // populate signals for each domain
         for (auto &sv : m_signal_available) {
@@ -219,6 +219,45 @@ namespace geopm
             }
             sv.second.signals = result;
         }
+
+        // Setup FREQUENCY MINIMUM_AVAIL and MAXIMUM_AVAIL signals
+        for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(GEOPM_DOMAIN_GPU); ++domain_idx) {
+            std::vector<unsigned int> supported_frequency = m_nvml_device_pool.frequency_supported_sm(domain_idx);
+            if (supported_frequency.size() == 0) {
+                // TODO: Long term this should simply hide the FREQUENCY_MIN and FREQUENCY_MAX signals,
+                //       not prevent loading of the IO Group
+
+                throw Exception("NVMLIOGroup::" + std::string(__func__) +
+                                ": No supported frequencies found for GPU " + std::to_string(domain_idx),
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+
+            // sort guarantees the ordering for min & max calls
+            std::sort(supported_frequency.begin(), supported_frequency.end());
+            m_supported_freq.push_back(supported_frequency);
+        }
+
+        std::vector <std::string> unsupported_signal_names;
+        for (auto &sv : m_signal_available) {
+            for (unsigned int domain_idx = 0; domain_idx < sv.second.signals.size(); ++domain_idx) {
+                try {
+                    read_signal(sv.first, sv.second.domain, domain_idx);
+                }
+                catch (const geopm::Exception &ex) {
+                    if (ex.err_value() != GEOPM_ERROR_RUNTIME &&
+                        ex.err_value() != GEOPM_ERROR_INVALID) {
+                        throw;
+                    }
+                    unsupported_signal_names.push_back(sv.first);
+                    break;
+                }
+            }
+        }
+
+        for(const auto &name : unsupported_signal_names) {
+            m_signal_available.erase(name);
+        }
+
         register_signal_alias("GPU_POWER", M_NAME_PREFIX + "GPU_POWER");
         register_signal_alias("GPU_CORE_FREQUENCY_STATUS", M_NAME_PREFIX + "GPU_CORE_FREQUENCY_STATUS");
         register_signal_alias("GPU_CORE_FREQUENCY_MIN_AVAIL", M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_AVAIL");
@@ -236,26 +275,58 @@ namespace geopm
             }
             sv.second.controls = result;
         }
+
+        // Cache the initial settings
+        save_control();
+
+        std::vector <std::string> unsupported_control_names;
+        for (auto &sv : m_control_available) {
+            try {
+                double init_setting = NAN;
+                if(is_valid_signal(sv.first) &&
+                   signal_domain_type(sv.first) == control_domain_type(sv.first)) {
+                    for (int domain_idx = 0;
+                         domain_idx < m_platform_topo.num_domain(control_domain_type(sv.first));
+                         ++domain_idx) {
+                        init_setting = read_signal(sv.first, control_domain_type(sv.first), domain_idx);
+
+                        if(std::isnan(init_setting)) {
+                            // Specialized handling for signals that may be NAN
+                            if (sv.first == M_NAME_PREFIX + "GPU_CORE_FREQUENCY_RESET_CONTROL") {
+                                init_setting = 0;
+                            }
+                        }
+                        else if (init_setting == 0 &&
+                                 (sv.first == M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL" ||
+                                 sv.first == "GPU_CORE_FREQUENCY_CONTROL")) {
+                            init_setting = read_signal(M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_AVAIL",
+                                                       control_domain_type(sv.first), domain_idx);
+                        }
+
+                        //Try to write the signals
+                        write_control(sv.first, control_domain_type(sv.first), domain_idx, init_setting);
+                    }
+                }
+            }
+            catch (const geopm::Exception &ex) {
+                if (ex.err_value() != GEOPM_ERROR_RUNTIME &&
+                    ex.err_value() != GEOPM_ERROR_INVALID) {
+                    throw;
+                }
+                unsupported_control_names.push_back(sv.first);
+            }
+        }
+
+        for(const auto &name : unsupported_control_names) {
+            m_control_available.erase(name);
+        }
+
+        restore_control();
+
         register_control_alias("GPU_POWER_LIMIT_CONTROL", M_NAME_PREFIX + "GPU_POWER_LIMIT_CONTROL");
         register_signal_alias("GPU_POWER_LIMIT_CONTROL", M_NAME_PREFIX + "GPU_POWER_LIMIT_CONTROL");
         register_control_alias("GPU_CORE_FREQUENCY_CONTROL", M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL");
         register_signal_alias("GPU_CORE_FREQUENCY_CONTROL", M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL");
-
-        for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(GEOPM_DOMAIN_GPU); ++domain_idx) {
-            std::vector<unsigned int> supported_frequency = m_nvml_device_pool.frequency_supported_sm(domain_idx);
-            if (supported_frequency.size() == 0) {
-                // TODO: Long term this should simply hide the FREQUENCY_MIN and FREQUENCY_MAX signals,
-                //       not prevent loading of the IO Group
-
-                throw Exception("NVMLIOGroup::" + std::string(__func__) +
-                                ": No supported frequencies found for GPU " + std::to_string(domain_idx),
-                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-            }
-
-            // sort guarantees the ordering for min & max calls
-            std::sort(supported_frequency.begin(), supported_frequency.end());
-            m_supported_freq.push_back(supported_frequency);
-        }
     }
 
     // Extract the set of all signal names from the index map
@@ -653,10 +724,21 @@ namespace geopm
     {
         // The following calls into the device pool require root privileges
         for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(GEOPM_DOMAIN_GPU); ++domain_idx) {
-            // Write original NVML Power Limit
-            m_nvml_device_pool.power_control(domain_idx, m_initial_power_limit.at(domain_idx));
-            // Reset NVML Frequency Limit
-            m_nvml_device_pool.frequency_reset_control(domain_idx);
+            try {
+                // Write original NVML Power Limit
+                m_nvml_device_pool.power_control(domain_idx, m_initial_power_limit.at(domain_idx));
+                // Reset NVML Frequency Limit
+                m_nvml_device_pool.frequency_reset_control(domain_idx);
+            }
+            catch (const geopm::Exception &ex) {
+#ifdef GEOPM_DEBUG
+                std::cerr << "Warning: <geopm> NVMLIOGroup: Failed to "
+                             "restore frequency control & power settings for "
+                             "GPU domain " << std::to_string(domain_idx)
+                             << ".  Exception: " << ex.what()
+                             << std::endl;
+#endif
+            }
         }
     }
 
