@@ -166,7 +166,7 @@ void EnvironmentTest::SetUp()
         "CPUINFO::FREQ_MIN",
         "CPUINFO::FREQ_STEP",
         "CPUINFO::FREQ_STICKER",
-        "CPU_FREQUENCY_MIN",
+        "CPU_FREQUENCY_MIN_AVAIL",
         "CPU_FREQUENCY_STEP",
         "CPU_FREQUENCY_STICKER",
         "TIME",
@@ -612,20 +612,20 @@ TEST_F(EnvironmentTest, signal_parser)
     m_env = geopm::make_unique<EnvironmentImp>("", "", &m_platform_io);
 
     expected_signals = {
-        {"CPU_FREQUENCY_MIN", geopm_domain_e::GEOPM_DOMAIN_BOARD},
+        {"CPU_FREQUENCY_MIN_AVAIL", geopm_domain_e::GEOPM_DOMAIN_BOARD},
         {"CPUINFO::FREQ_STEP", geopm_domain_e::GEOPM_DOMAIN_BOARD},
         {"TIME", geopm_domain_e::GEOPM_DOMAIN_BOARD}
     };
-    environment_variable_contents = "CPU_FREQUENCY_MIN,CPUINFO::FREQ_STEP,TIME";
+    environment_variable_contents = "CPU_FREQUENCY_MIN_AVAIL,CPUINFO::FREQ_STEP,TIME";
     actual_signals = dynamic_cast<EnvironmentImp*>(m_env.get())->signal_parser(environment_variable_contents);
     EXPECT_EQ(expected_signals, actual_signals);
 
     expected_signals = {
-        {"CPU_FREQUENCY_MIN", geopm_domain_e::GEOPM_DOMAIN_BOARD},
+        {"CPU_FREQUENCY_MIN_AVAIL", geopm_domain_e::GEOPM_DOMAIN_BOARD},
         {"CPUINFO::FREQ_STEP", geopm_domain_e::GEOPM_DOMAIN_PACKAGE},
         {"TIME", geopm_domain_e::GEOPM_DOMAIN_CORE}
     };
-    environment_variable_contents = "CPU_FREQUENCY_MIN,CPUINFO::FREQ_STEP@package,TIME@core";
+    environment_variable_contents = "CPU_FREQUENCY_MIN_AVAIL,CPUINFO::FREQ_STEP@package,TIME@core";
     actual_signals = dynamic_cast<EnvironmentImp*>(m_env.get())->signal_parser(environment_variable_contents);
     EXPECT_EQ(expected_signals, actual_signals);
 
@@ -640,14 +640,14 @@ TEST_F(EnvironmentTest, signal_parser)
         "PlatformTopo::domain_name_to_type(): unrecognized domain_name: invalid"
     );
 
-    environment_variable_contents = "CPU_FREQUENCY_MIN,CPUINFO::FREQ_STEP@package@core,TIME@core";
+    environment_variable_contents = "CPU_FREQUENCY_MIN_AVAIL,CPUINFO::FREQ_STEP@package@core,TIME@core";
     GEOPM_EXPECT_THROW_MESSAGE(
         dynamic_cast<EnvironmentImp*>(m_env.get())->signal_parser(environment_variable_contents),
         GEOPM_ERROR_INVALID,
         "EnvironmentImp::signal_parser(): Environment trace extension contains signals with multiple \"@\" characters."
     );
 
-    environment_variable_contents = "CPU_FREQUENCY_MIN,NUM_VACUUM_TUBES@package,TIME@core";
+    environment_variable_contents = "CPU_FREQUENCY_MIN_AVAIL,NUM_VACUUM_TUBES@package,TIME@core";
     GEOPM_EXPECT_THROW_MESSAGE(
         dynamic_cast<EnvironmentImp*>(m_env.get())->signal_parser(environment_variable_contents),
         GEOPM_ERROR_INVALID,

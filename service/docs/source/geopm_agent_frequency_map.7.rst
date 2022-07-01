@@ -175,13 +175,13 @@ maximum CPU frequencies are queried as below:
 
 .. code-block:: bash
 
-   $ geopmread CPU_FREQUENCY_MIN board 0
+   $ geopmread CPU_FREQUENCY_MIN_AVAIL board 0
    1000000000
 
    $ geopmread CPU_FREQUENCY_STICKER board 0
    2100000000
 
-   $ geopmread CPU_FREQUENCY_MAX board 0
+   $ geopmread CPU_FREQUENCY_MAX_AVAIL board 0
    3700000000
 
 
@@ -203,7 +203,7 @@ frequency to the maximum the following commands can be used:
 
 .. code-block:: bash
 
-   $ freq_default=$(($(geopmread CPU_FREQUENCY_MAX board 0) - \
+   $ freq_default=$(($(geopmread CPU_FREQUENCY_MAX_AVAIL board 0) - \
                      2 * $(geopmread CPU_FREQUENCY_STEP board 0)))
    $ freq_uncore=$(geopmread MSR::UNCORE_RATIO_LIMIT:MAX_RATIO board 0)
    $ geopmagent -a frequency_map -p$freq_default,$freq_uncore

@@ -105,7 +105,7 @@ Descriptions Of High Level Aliases
     Target maximum operating frequency of the CPU based on the control
     register.
 
-``CPU_FREQUENCY_MAX``
+``CPU_FREQUENCY_MAX_AVAIL``
     Maximum processor frequency.
 
 ``CPU_FREQUENCY_MIN_CONTROL``
