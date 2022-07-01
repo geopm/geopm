@@ -17,8 +17,8 @@
 #include <climits>
 #include <cinttypes>
 #include <fstream>
-#include <algorithm>
 #include <sstream>
+#include <algorithm>
 #include <map>
 #include "geopm_field.h"
 #include "geopm/Exception.hpp"
@@ -28,24 +28,21 @@ namespace geopm
 {
     std::string read_file(const std::string &path)
     {
-        std::string contents;
         std::ifstream input_file(path, std::ifstream::in);
         if (!input_file.is_open()) {
             throw Exception("Helper::" + std::string(__func__) + "(): file \"" + path +
                             "\" could not be opened",
                             errno ? errno : GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-
-        input_file.seekg(0, std::ios::end);
-        size_t file_size = input_file.tellg();
-        if (file_size <= 0) {
+        std::stringstream buffer;
+        buffer << input_file.rdbuf();
+        input_file.close();
+        if (!buffer.good()) {
             throw Exception("Helper::" + std::string(__func__) + "(): input file invalid",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        contents.resize(file_size);
-        input_file.seekg(0, std::ios::beg);
-        input_file.read(&contents[0], file_size);
-        return contents;
+
+        return buffer.str();
     }
 
     double read_double_from_file(const std::string &path, const std::string &expected_units)
