@@ -28,9 +28,10 @@ uncore frequency to a single value while executing the application.
 If this option is not specified, the uncore frequency is not
 controlled by the agent at all.
 
-Note: this agent can be used to control the application CPUs and
-optionally the uncore to run at fixed frequencies if no region
-frequency map is provided.
+.. note::
+    This agent can be used to control the application CPUs and
+    optionally the uncore to run at fixed frequencies if no region
+    frequency map is provided.
 
 Agent Name
 ----------
