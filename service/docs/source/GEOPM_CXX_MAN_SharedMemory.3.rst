@@ -60,54 +60,46 @@ Class Methods
 -------------
 
 
-*
-  ``make_unique_owner()``:
+``make_unique_owner()``
   Creates a shared memory region with key *shm_key* and *size* and
   returns a pointer to a ``SharedMemory`` object managing it.
 
-*
-  ``make_unique_owner_secure()``:
+``make_unique_owner_secure()``
   Creates a shared memory region with key *shm_key* and *size*
   without group or world permissions and
   returns a pointer to a ``SharedMemory`` object managing it.
 
-*
-  ``make_unique_user()``:
+``make_unique_user()``
   Attempts to attach to a inter-process shared memory region with
   key *shm_key* within *timeout* and returns a pointer to a
   ``SharedMemory`` object managing it. If it cannot attach within the timeout,
   throws an exception.
 
-*
-  ``pointer()``:
+``pointer()``
   Returns a pointer to the shared memory region.
 
-*
-  ``key()``:
+``key()``
   Returns the key to the shared memory region.
 
-*
-  ``size()``:
+``size()``
   Returns the size of the shared memory region.
 
-*
-  ``unlink()``:
+``unlink()``
   Unlink the shared memory region.
 
-*
-  ``get_scoped_lock()``:
+``get_scoped_lock()``
   Attempt to lock the mutex for the shared memory region and
   returns a temporary object that holds the mutex lock for the
   shared memory region while in scope, and releases it when it goes
   out of scope.  This method should be called before accessing the
   memory with ``pointer()``.
 
-*
-  ``chown()``:
+``chown()``
   Modifies the shared memory to be owned by the specified gid
   and uid if current permissions allow for the change.
 
 See Also
 --------
 
-:doc:`geopm(7) <geopm.7>`
+:doc:`geopm(7) <geopm.7>`\ ,
+:doc:`geopm_prof(3) <geopm_prof.3>`
