@@ -80,20 +80,16 @@ Class Methods
 -------------
 
 
-*
-  ``plugin_name()``:
+``plugin_name()``
   Returns the name of the plugin.
 
-*
-  ``make_plugin()``:
+``make_plugin()``
   Creates a new ``unique_ptr<MonitorAgent>`` and returns it.
 
-*
-  ``policy_names()``:
+``policy_names()``
   Returns a list of policy names.
 
-*
-  ``sample_names()``:
+``sample_names()``
   Returns a list of sample names.
 
 See Also
