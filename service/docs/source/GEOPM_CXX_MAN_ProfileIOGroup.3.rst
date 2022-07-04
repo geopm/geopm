@@ -101,17 +101,14 @@ Class Methods
 -------------
 
 
-*
-  ``plugin_name()``:
+``plugin_name()``
   Returns the name of the plugin; for ``ProfileIOGroup`` it is ``GEOPM_PROFILE_IO_GROUP_PLUGIN_NAME``,
   which expands to ``"PROFILE"``.
 
-*
-  ``make_plugin()``:
+``make_plugin()``
   Creates a new ``unique_ptr<ProfileIOGroup>`` and returns it.
 
-*
-  ``connect()``:
+``connect()``
   Connect to the application via shared memory.
 
 See Also
