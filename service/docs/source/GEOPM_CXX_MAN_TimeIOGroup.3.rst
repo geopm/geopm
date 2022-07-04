@@ -96,129 +96,105 @@ Class Methods
 -------------
 
 
-*
-  ``signal_names()``:
+``signal_names()``
   Returns the time signal name, ``"TIME::ELAPSED"``, and its alias, ``"TIME"``.
 
-*
-  ``control_names()``:
+``control_names()``
   Does nothing; this ``IOGroup`` does not provide any controls.
 
-*
-  ``is_valid_signal()``:
+``is_valid_signal()``
   Returns ``true`` if the *signal_name* is one from the list returned by
   ``signal_names()``.
 
-*
-  ``is_valid_control()``:
+``is_valid_control()``
   Returns ``false``; this ``IOGroup`` does not provide any controls.
 
-*
-  ``signal_domain_type()``:
+``signal_domain_type()``
   If the *signal_name* is valid for this ``IOGroup``, returns
   ``GEOPM_DOMAIN_CPU``, returns ``GEOPM_DOMAIN_INVALID``.
 
-*
-  ``control_domain_type()``:
+``control_domain_type()``
   Returns ``GEOPM_DOMAIN_INVALID``; this ``IOGroup`` does not provide any controls.
 
-*
-  ``push_signal()``:
+``push_signal()``
   Since this ``IOGroup`` only provides one signal, returns ``0`` if the *signal_name*
   is valid. Throws a variety of exceptions if the parameters do not check out.
   The *domain_idx* parameter is ignored.
 
-*
-  ``push_control()``:
+``push_control()``
   Should not be called; this ``IOGroup`` does not provide any controls.
   Throws an exception always.
 
-*
-  ``read_batch()``:
+``read_batch()``
   If a time signal has been pushed, updates the time since the
   ``TimeIOGroup`` was created.
 
-*
-  ``write_batch()``:
+``write_batch()``
   Does nothing; this ``IOGroup`` does not provide any controls.
 
-*
-  ``sample()``:
+``sample()``
   Returns the value of the signal specified by a *batch_idx*
   returned from ``push_signal()``.  The value will have been updated by
   the most recent call to ``read_batch()``.
   Throws a variety of exceptions to distinguish between error conditions.
 
-*
-  ``adjust()``:
+``adjust()``
   Should not be called; this ``IOGroup`` does not provide any controls.
   Throws an exception always.
 
-*
-  ``read_signal()``:
+``read_signal()``
   If *signal_name* is valid, immediately return the time since the
   ``TimeIOGroup`` was created.
   Throws a variety of exceptions if the parameters do not check out.
   The *domain_idx* parameter is ignored.
 
-*
-  ``write_control()``:
+``write_control()``
   Should not be called; this ``IOGroup`` does not provide any controls.
   Throws an exception always.
 
-*
-  ``save_control()``:
+``save_control()``
   This function also has an overload form that takes the *save_path* parameter.
   Does nothing in both of its forms; this ``IOGroup`` does not provide any controls.
 
-*
-  ``restore_control()``:
+``restore_control()``
   This function also has an overload form that takes the *save_path* parameter.
   Does nothing in both of its forms; this ``IOGroup`` does not provide any controls.
 
-*
-  ``agg_function()``:
+``agg_function()``
   The ``TIME`` signal provided by this ``IOGroup`` is aggregated using the
   ``average()`` function from :doc:`geopm::Agg(3) <GEOPM_CXX_MAN_Agg.3>`.
   Throws an exception if the *signal_name* is invalid.
 
-*
-  ``format_function()``:
+``format_function()``
   Returns a function which formats a string to best represent a signal encoding a
   double precision floating point number. The function takes the *signal*,
   a real number that requires a few significant digits to accurately represent.
   The function returns a well formatted string representation of the signal.
   Throws an exception if the *signal_name* is invalid.
 
-*
-  ``signal_description()``:
+``signal_description()``
   Returns a string description for *signal_name*\ , if defined.
 
-*
-  ``control_description()``:
+``control_description()``
   Should not be called; this ``IOGroup`` does not provide any controls.
   Throws an exception always.
 
-*
-  ``signal_behavior()``:
+``signal_behavior()``
   Returns one of the ``IOGroup::signal_behavior_e`` values which
   describes about how a signal will change as a function of time.
   This can be used when generating reports to decide how to
   summarize a signal's value for the entire application run.
   Throws an exception if the *signal_name* is invalid.
 
-*
-  ``name()``:
+``name()``
   Just calls ``plugin_name()`` under the hood.
 
-*
-  ``plugin_name()``:
+``plugin_name()``
   Returns the name of the plugin to use when this plugin is
   registered with the ``IOGroup`` factory; see
   :doc:`geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3>` for more details.
 
-*
-  ``make_plugin()``:
+``make_plugin()``
   Returns a pointer to a new ``TimeIOGroup`` object; see
   :doc:`geopm::PluginFactory(3) <GEOPM_CXX_MAN_PluginFactory.3>` for more details.
 
