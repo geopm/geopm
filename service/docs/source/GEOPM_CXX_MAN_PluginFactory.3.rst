@@ -75,92 +75,76 @@ runtime.  These are arranged from from highest levels of abstraction
 down to the lowest levels of abstraction.
 
 
-*
-  **launcher**\ :
+**launcher**\ :
   Wrapper of system application launch (e.g. ``srun`` or ``aprun``) that
   executes the GEOPM runtime with the application.
 
-*
-  **report**\ :
+**report**\ :
   Text file containing summary of aggregated stats collected during
   application run.
 
-*
-  **trace**\ :
+**trace**\ :
   Time series of signals collected over application run in a pipe
   separated ASCII table.
 
-*
-  **agent**\ :
+**agent**\ :
   Implementation used by GEOPM to interpret sampled data and
   enforce the appropriate controls.
 
-*
-  **policy**\ :
+**policy**\ :
   Array of floating-point settings for ``Agent``\ -specific control
   parameters in SI units.
 
-*
-  **sample**\ :
+**sample**\ :
   Array of floating-point values providing ``Agent``\ -specific runtime
   statistics in SI units.
 
-*
-  **endpoint**\ :
+**endpoint**\ :
   Interface between resource manager and GEOPM runtime.  This feature
   is still under development and is only available when GEOPM is compiled
   with the ``--enable-beta`` flag.
 
-*
-  **profile**\ :
+**profile**\ :
   Interface for annotating compute application; provides ``PlatformIO``
   region signals.
 
-*
-  **controller**\ :
+**controller**\ :
   Thread on each compute node that loads plugins and runs GEOPM
   algorithm.
 
-*
-  **level**\ :
+**level**\ :
   Attribute of an ``Agent`` describing the number of edges between it
   and the nearest leaf ``Agent`` in the communication tree (a leaf
   ``Agent`` is *level* zero).
 
-*
-  **signal**\ :
+**signal**\ :
   Named parameter in SI units that can be measured using ``PlatformIO``.
 
-*
-  **control**\ :
+**control**\ :
   Named parameter in SI units that can be set using ``PlatformIO``.
 
 Factory Class Methods
 ---------------------
 
 
-*
-  ``register_plugin()``: Add a plugin to this factory.  The
-  *plugin_name* parameter will be used to request plugins of the
+``register_plugin()``
+  Add a plugin to this factory.  The *plugin_name* parameter will be used to request plugins of the
   registered type.  The *make_plugin* parameter is a function that
   returns a new object of the registered type.  The *dictionary* is
   an optional string-to-string dictionary containing static
   information about the registered type.
 
-*
-  ``make_plugin()``: Creates an object of the registered type.  If the type
-  was not previously registered, an exception will be thrown.  The
+``make_plugin()``
+  Creates an object of the registered type.  If the type was not previously registered, an exception will be thrown.  The
   *plugin_name* parameter will be used to look up the constructor function
   used to create the object. Returns a ``unique_ptr`` to the created object.
   The caller owns the created object.
 
-*
-  ``plugin_names()``: Returns a list of all valid plugin names that have been
-  registered with this factory.
+``plugin_names()``
+  Returns a list of all valid plugin names that have been registered with this factory.
 
-*
-  ``dictionary()``: Returns an optional dictionary of static metadata about
-  a registered type.  If the type was not registered, an exception is thrown.
+``dictionary()``
+  Returns an optional dictionary of static metadata about a registered type.  If the type was not registered, an exception is thrown.
   The *plugin_name* parameter is used to look up the desired dictionary.
 
 Building A Plugin Shared Object
