@@ -209,8 +209,8 @@ namespace geopm
         // Core characterization //
         ///////////////////////////
         auto all_names = m_platform_io.signal_names();
-        double freq_core_min = m_platform_io.read_signal("CPU_FREQUENCY_MIN", GEOPM_DOMAIN_BOARD, 0);
-        double freq_core_max = m_platform_io.read_signal("CPU_FREQUENCY_MAX", GEOPM_DOMAIN_BOARD, 0);
+        double freq_core_min = m_platform_io.read_signal("CPU_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0);
+        double freq_core_max = m_platform_io.read_signal("CPU_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0);
 
         // Max Core Frequency Selection
         if (std::isnan(in_policy[M_POLICY_CPU_FREQ_MAX])) {
@@ -605,6 +605,11 @@ namespace geopm
         result.push_back({"Actual (Post-PHI) Maximum Uncore Frequency", std::to_string(m_resolved_f_uncore_max)});
         result.push_back({"Actual (Post-PHI) Efficient Uncore Frequency", std::to_string(m_resolved_f_uncore_efficient)});
         result.push_back({"Actual (Post-PHI) Uncore Frequency Range", std::to_string(m_resolved_f_uncore_range)});
+
+        for(auto uncore_mbm_kv : m_qm_max_rate) {
+            result.push_back({"Uncore Frequency " + std::to_string(uncore_mbm_kv.first) +
+                              " Maximum Memory Bandwidth", std::to_string(uncore_mbm_kv.second)});
+        }
         return result;
     }
 
