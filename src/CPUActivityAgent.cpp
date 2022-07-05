@@ -334,14 +334,16 @@ namespace geopm
                 qm_max_itr = std::prev(qm_max_itr, 1);
             }
 
-            double qm_normalized = (double) m_qm_rate.at(domain_idx).signal /
-                                            qm_max_itr->second;
+            double qm_normalized = 1.0;
 
-            // This is intended to handle dived by zero, either numerator or
-            // denominator being NAN, and the uncharacterized case
-            if (std::isnan(qm_normalized) ||
-                m_qm_max_rate.size() == 0) {
-                qm_normalized = 1.0;
+            // Handle divided by zero, either numerator or
+            // denominator being NAN, and the un-characterized case
+            if (!std::isnan(m_qm_rate.at(domain_idx).signal) &&
+                !std::isnan(qm_max_itr->second) &&
+                qm_max_itr->second != 0 &&
+                m_qm_max_rate.size() != 0) {
+                qm_normalized = (double) m_qm_rate.at(domain_idx).signal /
+                                         qm_max_itr->second;
             }
 
             // L3 usage, Network Traffic, HBM, and PCIE (GPUs) all use the uncore.
