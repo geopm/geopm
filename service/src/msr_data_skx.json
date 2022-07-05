@@ -749,6 +749,56 @@
                 }
             }
         },
+        "MISC_FEATURE_CONTROL": {
+            "offset": "0x1a4",
+            "domain": "cpu",
+            "fields": {
+                "L2_HW_PREFETCHER_DISABLE": {
+                    "begin_bit": 0,
+                    "end_bit":   0,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1,
+                    "behavior":  "variable",
+                    "aggregation": "average",
+                    "writeable": true,
+                    "description": "Disable for the L2 hardware prefetcher."
+                },
+                "L2_ADJACENT_PREFETCHER_DISABLE": {
+                    "begin_bit": 1,
+                    "end_bit":   1,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1,
+                    "behavior":  "variable",
+                    "aggregation": "average",
+                    "writeable": true,
+                    "description": "Disable for the L2 adjacent cache line prefetcher"
+                },
+                "DCU_HW_PREFETCHER_DISABLE": {
+                    "begin_bit": 2,
+                    "end_bit":   2,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1,
+                    "behavior":  "variable",
+                    "aggregation": "average",
+                    "writeable": true,
+                    "description": "Disable for the L1 data cache prefetcher"
+                },
+                "DCU_IP_PREFETCHER_DISABLE": {
+                    "begin_bit": 3,
+                    "end_bit":   3,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1,
+                    "behavior":  "variable",
+                    "aggregation": "average",
+                    "writeable": true,
+                    "description": "Disable for the L1 data cache instruction pointer prefetcher"
+                }
+            }
+        },
         "PM_ENABLE": {
             "offset": "0x770",
             "domain": "package",
