@@ -64,8 +64,8 @@ namespace geopm
 
         // These are not currently guaranteed to be the system uncore min and max,
         // just what the user/admin has previously set.
-        m_freq_uncore_min = m_platform_io.read_signal("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO", GEOPM_DOMAIN_BOARD, 0);
-        m_freq_uncore_max = m_platform_io.read_signal("MSR::UNCORE_RATIO_LIMIT:MAX_RATIO", GEOPM_DOMAIN_BOARD, 0);
+        m_freq_uncore_min = m_platform_io.read_signal("CPU_UNCORE_FREQUENCY_MIN_CONTROL", GEOPM_DOMAIN_BOARD, 0);
+        m_freq_uncore_max = m_platform_io.read_signal("CPU_UNCORE_FREQUENCY_MAX_CONTROL", GEOPM_DOMAIN_BOARD, 0);
 
         init_platform_io();
     }
@@ -92,10 +92,10 @@ namespace geopm
         }
 
         for (int domain_idx = 0; domain_idx < M_NUM_PACKAGE; ++domain_idx) {
-            m_uncore_freq_min_control.push_back({m_platform_io.push_control("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO",
+            m_uncore_freq_min_control.push_back({m_platform_io.push_control("CPU_UNCORE_FREQUENCY_MIN_CONTROL",
                                               GEOPM_DOMAIN_PACKAGE,
                                               domain_idx), -1});
-            m_uncore_freq_max_control.push_back({m_platform_io.push_control("MSR::UNCORE_RATIO_LIMIT:MAX_RATIO",
+            m_uncore_freq_max_control.push_back({m_platform_io.push_control("CPU_UNCORE_FREQUENCY_MAX_CONTROL",
                                               GEOPM_DOMAIN_PACKAGE,
                                               domain_idx), -1});
         }
@@ -145,19 +145,19 @@ namespace geopm
         // Validate all (uncore frequency, max memory bandwidth) pairs
         std::set<double> policy_uncore_freqs;
         for (auto it = in_policy.begin() + M_POLICY_FIRST_UNCORE_FREQ;
-             it != in_policy.end() && std::next(it) != in_policy.end(); std::advance(it, 2)) {
+             it != in_policy.end() && std::next(it) != in_policy.end();
+             std::advance(it, 2)) {
+
             auto mapped_mem_bw = *(it + 1);
             if (!std::isnan(*it)) {
-                // We are using a static cast rather than reinterpreting the
-                // memory so that regions can be input to this policy in the
-                // same form they are output from a report.
+                // Not valid to have NAN max mem bw for uncore freq.
                 auto uncore_freq = static_cast<uint64_t>(*it);
                 if (std::isnan(mapped_mem_bw)) {
                     throw Exception("CPUActivityAgent::" + std::string(__func__) +
-                                    "(): mapped CPU_UNCORE_FREQUENCY with no max memory bandwidth.",
+                                    "(): mapped CPU_UNCORE_FREQUENCY with no max memory bandwidth assigned.",
                                     GEOPM_ERROR_INVALID, __FILE__, __LINE__);
                 }
-                // Just make sure the frequency does not have multiple definitions.
+                // Make sure the frequency does not have multiple definitions.
                 if (!policy_uncore_freqs.insert(uncore_freq).second) {
                     throw Exception("CPUActivityAgent::" + std::string(__func__) +
                                     " policy has multiple entries for CPU_UNCORE_FREQUENCY " +
@@ -167,13 +167,12 @@ namespace geopm
             }
             else if (!std::isnan(mapped_mem_bw)) {
                 throw Exception("CPUActivityAgent::" + std::string(__func__) +
-                                " policy maps a NaN CPU_UNCORE_FREQUENCY with max memory bandwidth: " +
+                                " policy maps a NAN CPU_UNCORE_FREQUENCY with max memory bandwidth: " +
                                 std::to_string(mapped_mem_bw),
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
 
             }
         }
-
     }
 
     // Distribute incoming policy to children
@@ -223,7 +222,7 @@ namespace geopm
         if (m_f_core_max > freq_core_max ||
             m_f_core_max < freq_core_min) {
             throw Exception("CPUActivityAgent::" + std::string(__func__) +
-                            "():Core maximum frequency out of range before applying PHI: " +
+                            "(): Core maximum frequency out of system range before applying PHI: " +
                             std::to_string(m_f_core_max) +
                             ".", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
@@ -256,7 +255,7 @@ namespace geopm
         if (m_f_core_efficient > freq_core_max ||
             m_f_core_efficient < freq_core_min ) {
             throw Exception("CPUActivityAgent::" + std::string(__func__) +
-                            "():Core efficient frequency out of range before applying PHI: " +
+                            "(): Core efficient frequency out of system range before applying PHI: " +
                             std::to_string(m_f_core_efficient) +
                             ".", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
@@ -386,6 +385,9 @@ namespace geopm
                 // Not valid to have NAN max mem bw for uncore freq.
                 GEOPM_DEBUG_ASSERT(!std::isnan(max_mem_bw),
                                    "mapped CPU_UNCORE_FREQUENCY with no max memory bandwidth assigned.");
+                // This is handled here as the validate_policy is const.
+                // The extra assertion is likely unnecessary as the validate_policy
+                // check should catch this case.
                 m_qm_max_rate[uncore_freq] = max_mem_bw;
             }
         }
