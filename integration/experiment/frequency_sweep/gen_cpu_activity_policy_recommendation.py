@@ -143,9 +143,16 @@ def main(full_df, region_list):
                 "CPU_PHI" : float('nan'),
                 "SAMPLE_PERIOD" : float('nan')}
 
+    sys.stdout.write("GEOPM write commands to setup PlatformCharacterizationIOGroup:\n")
+    sys.stdout.write("geopmwrite NODE_CHARACTERIZATION::CPU_CORE_FREQUENCY_EFFICIENT board 0 {}\n".format(core_freq_recommendation))
+    sys.stdout.write("geopmwrite NODE_CHARACTERIZATION::CPU_UNCORE_FREQUENCY_EFFICIENT board 0 {}\n".format(uncore_freq_recommendation))
+
     for idx, (k,v) in enumerate(mem_bw_characterization.items()):
         policy['CPU_UNCORE_FREQ_' + str(idx)] = k
         policy['MAX_MEMORY_BANDWIDTH_' + str(idx)] = v
+
+        sys.stdout.write("geopmwrite NODE_CHARACTERIZATION::CPU_UNCORE_FREQUENCY_{} board 0 {}\n".format(idx, k))
+        sys.stdout.write("geopmwrite NODE_CHARACTERIZATION::CPU_UNCORE_MAXIMUM_MEMORY_BANDWIDTH_{} board 0 {}\n".format(idx, v))
 
     return policy
 
@@ -175,4 +182,5 @@ if __name__ == '__main__':
 
     output = main(df, region_list)
 
+    sys.stdout.write("GEOPM CPU Activity Agent Policy.  If used this will override (but not overwrite) PlatformCharacterizationIOGroup values:\n")
     sys.stdout.write("POLICY: {}\n".format(output))
