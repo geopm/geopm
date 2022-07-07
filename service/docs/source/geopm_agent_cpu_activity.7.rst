@@ -15,8 +15,19 @@ the compute activity of each CPU as provided by the CPU_COMPUTE_ACTIVITY
 signal and modified by the CPU_UTILIZATION signal.
 
 The **CPUActivityAgent** scales the core frequency in the range of ``Fce`` to ``Fcmax``,
-where ``Fcmax`` is provided via the policy as ``CPU_FREQ_MAX`` and ``Fce`` is provided via
-the policy as ``CPU_FREQ_EFFICIENT``.
+where ``Fcmax`` is provided via the policy or the **MSRIOGroup** and ``Fce`` is provided
+via the policy or the **PlatformCharacterizationIOGroup**.
+
+If the policy is used ``Fcmax`` is provided as ``CPU_FREQ_MAX`` and ``Fce`` is provided
+as ``CPU_FREQ_EFFICIENT``.  These will override (but not overwrite) and node
+local characterization information that would have been provided by the
+**PlatformCharacterizationIOGroup** and the **MSRIOGroup**.
+
+If the policy values for ``CPU_FREQ_MAX`` and ``CPU_FREQ_EFFICIENT`` are NAN, the agent
+will attempt to read these values from the **MSRIOGroup** and
+**PlatformCharacterizationIOGroup**.  In this case ``Fcmax`` is provided by the
+``CPU_FREQUENCY_MAX_AVAIL`` high level signal alias and ``Fce`` is provided by the
+``NODE_CHARACTERIZATION::CPU_CORE_FREQUENCY_EFFICIENT`` signal.
 
 Low compute activity regions (compute activity of 0.0) run at the ``Fce`` frequency,
 high activity regions (compute activity of 1.0) run at the ``Fcmax`` frequency,
@@ -24,12 +35,23 @@ and regions in between the extremes run at a frequency (``Fcreq``) selected usin
 
 ``Fcreq = Fce + (Fcmax - Fce) * CPU_COMPUTE_ACTIVITY``
 
-The ``CPU_COMPUTE_ACTIVITY`` is defined as a derivative signal based on the MSR::PPERF::PCNT
+The ``CPU_COMPUTE_ACTIVITY`` is defined as a derivative signal based on the ``MSR::PPERF::PCNT``
 scalability metric.
 
 The **CPUActivityAgent** also scales the uncore frequency in the range of
-``Fue`` to ``Fumax``, where ``Fumax`` is provided via the policy as ``CPU_UNCORE_FREQ_MAX``
-and ``Fue`` is provided via the policy as ``CPU_UNCORE_FREQ_EFFICIENT``.
+``Fue`` to ``Fumax``,  where ``Fumax`` is provided via the policy or the **MSRIOGroup**
+and ``Fue`` is provided via the policy or the **PlatformCharacterizationIOGroup**.
+
+If the policy is used ``Fumax`` is provided as ``CPU_UNCORE_FREQ_MAX`` and ``Fce`` is provided
+as ``CPU_UNCORE_FREQ_EFFICIENT``.  These will override (but not overwrite) and node
+local characterization information that would have been provided by the
+**PlatformCharacterizationIOGroup** and the **MSRIOGroup**.
+
+If the policy values for ``CPU_UNCORE_FREQ_MAX`` and ``CPU_UNCORE_FREQ_EFFICIENT`` are NAN,
+the agent will attempt to read these values from the **MSRIOGroup** and
+**PlatformCharacterizationIOGroup**.  In this case ``Fumax`` is provided by the
+``CPU_UNCORE_FREQUENCY_MAX_CONTROL`` high level signal alias and ``Fce`` is provided by
+the ``NODE_CHARACTERIZATION::CPU_UNCORE_FREQUENCY_EFFICIENT`` signal.
 
 Low uncore activity regions (uncore activity of 0.0) run at the ``Fue`` frequency,
 high activity regions (uncore activity of 1.0) run at the ``Fumax`` frequency,
@@ -84,18 +106,22 @@ Policy Parameters
 
   ``CPU_FREQ_EFFICIENT``\ :
       The minimum cpu frequency in hertz that the algorithm is
-      allowed to choose.  If NAN is passed, it will use the system
-      minimum frequency by default.
+      allowed to choose.  If NAN is passed, the
+      ``NODE_CHARACTERIZATION::CPU_CORE_FREQUENCY_EFFICIENT`` signal
+      will be used.  If the signal is not available or uninitialized the
+      system minimum frequency will be used by default.
 
   ``CPU_UNCORE_FREQ_MAX``\ :
       The maximum cpu uncore frequency in hertz that the algorithm is
-      allowed to choose.  If NAN is passed, it will use the
-      maximum available frequency by default.
+      allowed to choose.  If NAN is passed, the maximum available
+      frequency will be used.
 
   ``CPU_UNCORE_FREQ_EFFICIENT``\ :
       The minimum cpu uncore frequency in hertz that the algorithm is
-      allowed to choose.  If NAN is passed, it will use the system
-      minimum frequency by default.
+      allowed to choose.  If NAN is passed, the
+      ``NODE_CHARACTERIZATION::CPU_UNCORE_FREQUENCY_EFFICIENT`` signal
+      will be used.  If the signal is not available or uninitialized the
+      system minimum frequency will be used by default.
 
   ``CPU_PHI``\ :
       The performance bias knob.  The value must be between
@@ -110,12 +136,20 @@ Policy Parameters
       maximum memory bandwidth.
       Used to build a mapping of uncore frequencies to maximum
       memory bandwidths for frequency steering.
+      If this policy value is NAN the corresponding
+      ``NODE_CHARACTERIZATION::CPU_UNCORE_FREQUENCY_#`` signal
+      will be used.  If all these policy values are NAN and the signals unavailable
+      (or uninitialized) then dynamic uncore frequency decisions will be disabled.
 
   ``MAX_MEMORY_BANDWIDTH_#``\ :
       The maximum possible memory bandwidth associated with the
       same numbered uncore frequency.
       Used to build a mapping of uncore frequencies to maximum
       memory bandwidths for frequency steering.
+      If this policy value is NAN the corresponding
+      ``NODE_CHARACTERIZATION::CPU_UNCORE_MAXIMUM_MEMORY_BANDWIDTH_#`` signal
+      will be used.  If all these policy values are NAN and the signals unavailable
+      (or uninitialized) then dynamic uncore frequency decisions will be disabled.
 
 Report Extensions
 -----------------
@@ -126,25 +160,50 @@ Report Extensions
   ``Uncore Frequency Requests``
       The number of uncore frequency requests made by the agent
 
-  ``Resolved Maximum Core Frequency``\ :
+  ``Initial (Pre-PHI) Maximum Core Frequency``
+     ``Fcmax`` before ``phi`` has been taken into account
+
+  ``Initial (Pre-PHI) Efficient Core Frequency``
+     ``Fce`` before ``phi`` has been taken into account
+
+  ``Initial (Pre-PHI) Core Frequency Range``
+     The core frequency selection range of the agent before ``phi`` has
+     been taken into account
+
+  ``Initial (Pre-PHI) Maximum Uncore Frequency``
+     ``Fumax`` before ``phi`` has been taken into account
+
+  ``Initial (Pre-PHI) Efficient Uncore Frequency``
+     ``Fue`` before ``phi`` has been taken into account
+
+  ``Initial (Pre-PHI) Uncore Frequency Range``
+     The uncore frequency selection range of the agent before ``phi`` has
+     been taken into account
+
+  ``Actual (Post-PHI) Maximum Core Frequency``
      ``Fcmax`` after ``phi`` has been taken into account
 
-  ``Resolved Efficient Core Frequency``\ :
+  ``Actual (Post-PHI) Efficient Core Frequency``
      ``Fce`` after ``phi`` has been taken into account
 
-  ``Resolved Core Frequency Range``\ :
+  ``Actual (Post-PHI) Core Frequency Range``
      The core frequency selection range of the agent after ``phi`` has
      been taken into account
 
-  ``Resolved Maximum Uncore Frequency``\ :
+  ``Actual (Post-PHI) Maximum Uncore Frequency``
      ``Fumax`` after ``phi`` has been taken into account
 
-  ``Resolved Efficient Uncore Frequency``\ :
+  ``Actual (Post-PHI) Efficient Uncore Frequency``
      ``Fue`` after ``phi`` has been taken into account
 
-  ``Resolved Uncore Frequency Range``\ :
+  ``Actual (Post-PHI) Uncore Frequency Range``
      The uncore frequency selection range of the agent after ``phi`` has
      been taken into account
+
+  ``Uncore Frequency # Maximum Memory Bandwidth``
+     The maximum memory bandwidth associated with the frequency ``#``. This
+     is the value used to determine ``CPU_UNCORE_ACTIVITY`` when running
+     at the specified frequency.
 
 Control Loop Rate
 -----------------
