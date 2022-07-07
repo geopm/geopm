@@ -44,11 +44,11 @@ namespace geopm
     // Validate incoming policy and configure default policy requests.
     void FixedFrequencyAgent::validate_policy(std::vector<double> &in_policy) const
     {
-        GEOPM_DEBUG_ASSERT(in_policy.size() == M_NUM_POLICY);
-        double gpu_min_freq = m_platform_io.read_signal("GPU_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0);
-        double gpu_max_freq = m_platform_io.read_signal("GPU_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0);
-        double core_freq_min = m_platform_io.read_signal("FREQUENCY_MIN", GEOPM_DOMAIN_BOARD, 0);
-        double core_freq_max = m_platform_io.read_signal("FREQUENCY_MAX", GEOPM_DOMAIN_BOARD, 0);
+        GEOPM_DEBUG_ASSERT(in_policy.size() == M_NUM_POLICY, "Incorrect policy size");
+        double gpu_min_freq = m_platform_io.read_signal("GPU_CORE_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0);
+        double gpu_max_freq = m_platform_io.read_signal("GPU_CORE_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0);
+        double core_freq_min = m_platform_io.read_signal("CPU_FREQUENCY_MIN", GEOPM_DOMAIN_BOARD, 0);
+        double core_freq_max = m_platform_io.read_signal("CPU_FREQUENCY_MAX", GEOPM_DOMAIN_BOARD, 0);
 
 	if (!std::isnan(in_policy[M_POLICY_GPU_FREQUENCY])) {
 	    if (in_policy[M_POLICY_GPU_FREQUENCY] > gpu_max_freq ||
@@ -106,7 +106,7 @@ namespace geopm
     void FixedFrequencyAgent::split_policy(const std::vector<double>& in_policy,
                                     std::vector<std::vector<double> >& out_policy)
     {
-        GEOPM_DEBUG_ASSERT(in_policy.size() == M_NUM_POLICY);
+        GEOPM_DEBUG_ASSERT(in_policy.size() == M_NUM_POLICY, "Incorrect policy size");
         for (auto &child_pol : out_policy) {
             child_pol = in_policy;
         }
@@ -132,7 +132,7 @@ namespace geopm
 
     void FixedFrequencyAgent::adjust_platform(const std::vector<double>& in_policy)
     {
-        GEOPM_DEBUG_ASSERT(in_policy.size() == M_NUM_POLICY);
+        GEOPM_DEBUG_ASSERT(in_policy.size() == M_NUM_POLICY, "Incorrect policy size");
 
         if (!m_is_adjust_initialized) {
             double gpu_freq_request = in_policy[M_POLICY_GPU_FREQUENCY];
@@ -147,7 +147,7 @@ namespace geopm
 
             // set gpu frequency control
             if (!std::isnan(gpu_freq_request)) {
-                m_platform_io.write_control("GPU_FREQUENCY_CONTROL",GEOPM_DOMAIN_BOARD,0,gpu_freq_request);
+                m_platform_io.write_control("GPU_CORE_FREQUENCY_CONTROL",GEOPM_DOMAIN_BOARD,0,gpu_freq_request);
             }
 
             // set CPU frequency control
