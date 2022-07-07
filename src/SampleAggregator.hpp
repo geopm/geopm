@@ -148,7 +148,7 @@ namespace geopm
             /// signal matched the value specified for the domain
             /// pushed.  The returned value is zero for
             /// push_signal_total() aggregation, and NAN for
-            /// push_signal_average aggregation if the region was not
+            /// push_signal_average() aggregation if the region was not
             /// observed for any samples.
             ///
             /// @param [in] signal_idx Index returned by a previous
@@ -193,7 +193,7 @@ namespace geopm
             /// aggregated over the last region interval, not the
             /// currently executing interval. The returned value is
             /// zero for push_signal_total() aggregation, and NAN for
-            /// push_signal_average aggregation if a completed region
+            /// push_signal_average() aggregation if a completed region
             /// with the specified hash has not been observed.
             ///
             /// @param [in] signal_idx Index returned by a previous
