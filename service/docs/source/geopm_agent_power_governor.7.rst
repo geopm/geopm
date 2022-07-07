@@ -10,7 +10,7 @@ geopm_agent_power_governor(7) -- agent enforces a power cap
 Description
 -----------
 
-The PowerGovernorAgent enforces a per-compute-node power cap of the
+The :doc:`geopm::PowerGovernorAgent(3) <GEOPM_CXX_MAN_PowerGovernorAgent.3>` enforces a per-compute-node power cap of the
 total power of all packages (sockets).
 
 Agent Behavior Highlights
@@ -27,7 +27,7 @@ reports and traces with additional Agent-specific information.
 
       Set the ``--geopm-agent`` launch option or ``GEOPM_AGENT`` environment
       variable to ``"power_governor"`` and the Controller will select the
-      PowerGovernorAgent for its control handler.  See :doc:`geopmlaunch(1) <geopmlaunch.1>`
+      ``PowerGovernorAgent`` for its control handler.  See :doc:`geopmlaunch(1) <geopmlaunch.1>`
       and :doc:`geopm(7) <geopm.7>` for more information about launch options and
       environment variables.
 
@@ -36,7 +36,7 @@ reports and traces with additional Agent-specific information.
 
   ``CPU_POWER_LIMIT``\ :
       Sets the average power cap per compute
-      node in units of watts.  If NAN is
+      node in units of watts.  If ``NAN`` is
       passed for the power cap, the value
       will default to the thermal design
       power (TDP).  Each package on the node
@@ -80,16 +80,18 @@ reports and traces with additional Agent-specific information.
 *
   **Control Loop Gate**\ :
 
-      The agent gates the Controller's control loop to a cadence of *5ms*.
+      The agent gates the Controller's control loop to a cadence of *5ms*
+      (milliseconds).
 
 See Also
 --------
 
 :doc:`geopm(7) <geopm.7>`\ ,
+:doc:`geopmagent(1) <geopmagent.1>`\ ,
+:doc:`geopm_agent(3) <geopm_agent.3>`\ ,
+:doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>`\ ,
+:doc:`geopm::PowerGovernorAgent(3) <GEOPM_CXX_MAN_PowerGovernorAgent.3>`\ ,
+:doc:`geopmlaunch(1) <geopmlaunch.1>`\ ,
 :doc:`geopm_agent_monitor(7) <geopm_agent_monitor.7>`\ ,
 :doc:`geopm_agent_power_balancer(7) <geopm_agent_power_balancer.7>`\ ,
-:doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>`\ ,
-:doc:`geopm_agent(3) <geopm_agent.3>`\ ,
-:doc:`geopm_prof(3) <geopm_prof.3>`\ ,
-:doc:`geopmagent(1) <geopmagent.1>`\ ,
-:doc:`geopmlaunch(1) <geopmlaunch.1>`
+:doc:`geopm_prof(3) <geopm_prof.3>`

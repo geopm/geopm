@@ -10,7 +10,7 @@ geopm_agent_power_balancer(7) -- agent optimizes performance under a power cap
 Description
 -----------
 
-The PowerBalancerAgent is designed to enforce an application wide
+The :doc:`geopm::PowerBalancerAgent(3) <GEOPM_CXX_MAN_PowerBalancerAgent.3>` is designed to enforce an application wide
 average per-compute-node power cap while varying the power cap of
 individual compute nodes to optimize overall application performance.
 This is achieved by providing more than average power to the compute
@@ -40,7 +40,7 @@ trip around the outer loop of an iterative application, if the
 application has been annotated with a call to ``geopm_prof_epoch()``.  See
 the :doc:`geopm_prof(3) <geopm_prof.3>` man page for more information about geopm
 profiling methods.  Note that the epoch runtime used by the
-PowerBalancerAgent excludes any time spent in MPI communication
+``PowerBalancerAgent`` excludes any time spent in MPI communication
 routines or regions marked with the ``GEOPM_REGION_HINT_IGNORE`` hint.  A
 windowed median filter is applied to the sequence of epoch times
 recorded by each rank, and then the maximum of these median filtered
@@ -60,8 +60,8 @@ reports and traces with additional Agent-specific information.
   **Agent Name**\ :
 
       Set the ``--geopm-agent`` launch option or ``GEOPM_AGENT`` environment
-      variable to "power_balancer" and the Controller will select the
-      PowerBalancerAgent for its control handler.  See :doc:`geopmlaunch(1) <geopmlaunch.1>`
+      variable to ``"power_balancer"`` and the Controller will select the
+      ``PowerBalancerAgent`` for its control handler.  See :doc:`geopmlaunch(1) <geopmlaunch.1>`
       and :doc:`geopm(7) <geopm.7>` for more information about launch options and
       environment variables.
 
@@ -74,7 +74,7 @@ reports and traces with additional Agent-specific information.
       one compute node may be higher or lower than this
       parameter, but the average power cap in aggregate
       across all compute nodes controlled by the policy will
-      be equal to this value.  If NAN is passed for the power
+      be equal to this value.  If ``NAN`` is passed for the power
       limit, the value will default to the thermal design power
       (TDP).
 
@@ -86,8 +86,8 @@ reports and traces with additional Agent-specific information.
       ``CPU_POWER_LIMIT`` policy is non-zero.  When
       creating a static policy file, the
       ``CPU_POWER_LIMIT`` should be non-zero, and
-      this value can be set to zero.  If set to NAN, it will
-      default to 0.
+      this value can be set to zero.  If set to ``NAN``, it will
+      default to zero.
 
 
   ``MAX_EPOCH_RUNTIME``\ :
@@ -99,7 +99,7 @@ reports and traces with additional Agent-specific information.
       When creating a static policy file, the
       ``CPU_POWER_LIMIT`` should be non-zero,
       and this value can be set to zero.  If set to
-      NAN, it will default to 0.
+      ``NAN``, it will default to zero.
 
 
   ``POWER_SLACK``\ :
@@ -109,8 +109,8 @@ reports and traces with additional Agent-specific information.
       ``CPU_POWER_LIMIT`` policy is non-zero.  When
       creating a static policy file, the
       ``CPU_POWER_LIMIT`` should be non-zero, and
-      this value can be set to zero.  If set to NAN, it
-      will default to 0.
+      this value can be set to zero.  If set to ``NAN``, it
+      will default to zero.
 
 *
   **Agent Sample Definitions**\ :
@@ -187,17 +187,18 @@ reports and traces with additional Agent-specific information.
 *
   **Control Loop Gate**\ :
 
-      The agent gates the Controller's control loop to a cadence of 5
-      milliseconds.
+      The agent gates the Controller's control loop to a cadence of *5ms*
+      (milliseconds).
 
 See Also
 --------
 
 :doc:`geopm(7) <geopm.7>`\ ,
+:doc:`geopmagent(1) <geopmagent.1>`\ ,
+:doc:`geopm_agent(3) <geopm_agent.3>`\ ,
+:doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>`\ ,
+:doc:`geopm::PowerBalancerAgent(3) <GEOPM_CXX_MAN_PowerBalancerAgent.3>`\ ,
+:doc:`geopmlaunch(1) <geopmlaunch.1>`
 :doc:`geopm_agent_monitor(7) <geopm_agent_monitor.7>`\ ,
 :doc:`geopm_agent_power_governor(7) <geopm_agent_power_governor.7>`\ ,
-:doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>`\ ,
-:doc:`geopm_agent(3) <geopm_agent.3>`\ ,
 :doc:`geopm_prof(3) <geopm_prof.3>`\ ,
-:doc:`geopmagent(1) <geopmagent.1>`\ ,
-:doc:`geopmlaunch(1) <geopmlaunch.1>`
