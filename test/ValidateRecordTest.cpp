@@ -52,6 +52,11 @@ TEST_F(ValidateRecordTest, valid_stream)
     m_filter.check(m_record);
 
     m_record.time += 1.0;
+    m_record.event = geopm::EVENT_SHORT_REGION;
+    m_record.signal = 2;
+    m_filter.check(m_record);
+
+    m_record.time += 1.0;
     m_record.signal += 1;
     m_filter.check(m_record);
 }
