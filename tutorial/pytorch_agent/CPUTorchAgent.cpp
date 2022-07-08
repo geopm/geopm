@@ -91,10 +91,10 @@ void CPUTorchAgent::init_platform_io(void)
         m_package_qm_rate.push_back({m_platform_io.push_signal("QM_CTR_SCALED_RATE",
                                      GEOPM_DOMAIN_PACKAGE,
                                      domain_idx), NAN});
-        m_package_inst_retired.push_back({m_platform_io.push_signal("INSTRUCTIONS_RETIRED",
+        m_package_inst_retired.push_back({m_platform_io.push_signal("CPU_INSTRUCTIONS_RETIRED",
                                           GEOPM_DOMAIN_PACKAGE,
                                           domain_idx), NAN});
-        m_package_cycles_unhalted.push_back({m_platform_io.push_signal("CYCLES_THREAD",
+        m_package_cycles_unhalted.push_back({m_platform_io.push_signal("CPU_CYCLES_THREAD",
                                              GEOPM_DOMAIN_PACKAGE,
                                              domain_idx), NAN});
         m_package_energy.push_back({m_platform_io.push_signal("CPU_ENERGY",
