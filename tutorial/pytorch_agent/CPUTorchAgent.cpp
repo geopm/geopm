@@ -127,8 +127,8 @@ void CPUTorchAgent::init_platform_io(void)
 void CPUTorchAgent::validate_policy(std::vector<double> &in_policy) const
 {
     assert(in_policy.size() == M_NUM_POLICY);
-    double min_freq = m_platform_io.read_signal("CPU_FREQUENCY_MIN", GEOPM_DOMAIN_BOARD, 0);
-    double max_freq = m_platform_io.read_signal("CPU_FREQUENCY_MAX", GEOPM_DOMAIN_BOARD, 0);
+    double min_freq = m_platform_io.read_signal("CPU_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0);
+    double max_freq = m_platform_io.read_signal("CPU_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0);
 
     ///////////////////////
     //CPU POLICY CHECKING//
