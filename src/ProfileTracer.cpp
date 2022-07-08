@@ -79,8 +79,7 @@ namespace geopm
                     result = string_format_integer(value);
                     break;
                 case EVENT_SHORT_REGION:
-                    // integer value of number of short regions
-                    result = string_format_integer(value);
+                    result = string_format_hex(value);
                     break;
                 default:
                     result = "INVALID";
