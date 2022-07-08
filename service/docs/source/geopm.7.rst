@@ -95,7 +95,7 @@ The types of domains and their relationships with each other can be
 programmatically queried through :doc:`geopm_topo(3) <geopm_topo.3>`.
 
 GEOPM comes bundled with a synthetic benchmark application :doc:`geopmbench(1)
-<geopmbench.1>`, which can be used as an application workload for basic analysis 
+<geopmbench.1>`, which can be used as an application workload for basic analysis
 and to experiment with the impact that signals and controls have on applications
 under GEOPM.
 
@@ -389,6 +389,7 @@ See Also
 :doc:`geopm_pio_levelzero(7) <geopm_pio_levelzero.7>`,
 :doc:`geopm_pio_msr(7) <geopm_pio_msr.7>`,
 :doc:`geopm_pio_nvml(7) <geopm_pio_nvml.7>`,
+:doc:`geopm_pio_platformcharacterization(7) <geopm_pio_platformcharacterization.7>`,
 :doc:`geopm_pio_sst(7) <geopm_pio_sst.7>`,
 :doc:`geopm_pio_time(7) <geopm_pio_time.7>`,
 :doc:`geopm_report(7) <geopm_report.7>`,

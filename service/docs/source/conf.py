@@ -178,6 +178,7 @@ rst_files = [
     "geopm_pio_dcgm.7",
     "geopm_pio_levelzero.7",
     "geopm_pio_nvml.7",
+    "geopm_pio_platformcharacterization.7",
     "geopm_pio_profile.7",
     "geopm_pio_service.7",
     "geopm_pio_sst.7",

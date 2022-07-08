@@ -91,6 +91,7 @@ all_man_rst = docs/source/geopm.7.rst \
               docs/source/geopm_pio_levelzero.7.rst \
               docs/source/geopm_pio_msr.7.rst \
               docs/source/geopm_pio_nvml.7.rst \
+              docs/source/geopm_pio_platformcharacterization.7.rst \
               docs/source/geopm_pio_profile.7.rst \
               docs/source/geopm_pio_service.7.rst \
               docs/source/geopm_pio_sst.7.rst \
@@ -134,6 +135,7 @@ dist_man_MANS = docs/build/man/geopm.7 \
                 docs/build/man/geopm_pio_dcgm.7 \
                 docs/build/man/geopm_pio_levelzero.7 \
                 docs/build/man/geopm_pio_nvml.7 \
+                docs/build/man/geopm_pio_platformcharacterization.7 \
                 docs/build/man/geopm_pio_profile.7 \
                 docs/build/man/geopm_pio_service.7 \
                 docs/build/man/geopm_pio_sst.7 \
