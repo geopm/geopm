@@ -44,6 +44,8 @@ void ProfileTracerTest::SetUp(void)
         m_data.push_back({time, rank, event, region_hash});
         time += 1.0;
     }
+
+     m_data.push_back({40, 0, geopm::EVENT_SHORT_REGION, region_hash});
 }
 
 TEST_F(ProfileTracerTest, construct_update_destruct)
@@ -77,6 +79,7 @@ TEST_F(ProfileTracerTest, format)
         "35|2|REGION_EXIT|0xfa5920d6",
         "36|1|REGION_EXIT|0xfa5920d6",
         "37|0|REGION_EXIT|0xfa5920d6",
+        "40|0|EVENT_SHORT_REGION|0xfa5920d6"
     };
     auto expect_it = expect_lines.begin();
     for (const auto &output_it : output_lines) {
