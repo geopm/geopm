@@ -50,14 +50,17 @@ namespace geopm
             ///        in rebalancing frequency control decisions.
             /// @param maximum_frequency  The highest frequency control to allow
             ///        in rebalancing frequency control decisions.
+            /// @param frequency_step_size  The step size used in frequency controls.
             static std::unique_ptr<FrequencyTimeBalancer> make_unique(
                 double minimum_frequency,
-                double maximum_frequency);
+                double maximum_frequency,
+                double frequency_step_size);
 
             /// \copydoc FrequencyTimeBalancer::make_unique
             static std::shared_ptr<FrequencyTimeBalancer> make_shared(
                 double minimum_frequency,
-                double maximum_frequency);
+                double maximum_frequency,
+                double frequency_step_size);
     };
 }
 

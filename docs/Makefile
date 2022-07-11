@@ -92,6 +92,7 @@ install_man:
 	rm -f $(DESTDIR)$(mandir)/man3/geopm_fortran.3
 	rm -f $(DESTDIR)$(mandir)/man3/geopm_policystore.3
 	rm -f $(DESTDIR)$(mandir)/man7/geopm_agent_cpu_activity.7
+	rm -f $(DESTDIR)$(mandir)/man7/geopm_agent_frequency_balancer.7
 	rm -f $(DESTDIR)$(mandir)/man7/geopm_agent_gpu_activity.7
 
 install_completion:
