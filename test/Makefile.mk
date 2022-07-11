@@ -272,6 +272,10 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/SchedTest.test_proc_cpuset_6 \
               test/gtest_links/SchedTest.test_proc_cpuset_7 \
               test/gtest_links/SchedTest.test_proc_cpuset_8 \
+              test/gtest_links/SSTClosGovernorTest.is_supported \
+              test/gtest_links/SSTClosGovernorTest.govern \
+              test/gtest_links/SSTClosGovernorTest.enable \
+              test/gtest_links/SSTClosGovernorTest.disable \
               test/gtest_links/SSTFrequencyLimitDetectorTest.returns_single_core_limit_by_default \
               test/gtest_links/SSTFrequencyLimitDetectorTest.returns_max_observed_frequency_when_sst_disabled \
               test/gtest_links/SSTFrequencyLimitDetectorTest.detects_nearest_license_level_limit_bucket_0 \
@@ -419,6 +423,7 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
                           test/MockReporter.hpp \
                           test/MockSampleAggregator.hpp \
                           test/MockSharedMemory.hpp \
+                          test/MockSSTClosGovernor.hpp \
                           test/MockTracer.hpp \
                           test/MockTreeComm.hpp \
                           test/MockTreeCommLevel.hpp \
@@ -440,6 +445,7 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
                           test/ReporterTest.cpp \
                           test/SampleAggregatorTest.cpp \
                           test/SchedTest.cpp \
+                          test/SSTClosGovernorTest.cpp \
                           test/SSTFrequencyLimitDetectorTest.cpp \
                           test/TracerTest.cpp \
                           test/TreeCommLevelTest.cpp \
