@@ -351,6 +351,8 @@ libgeopm_la_SOURCES = src/Accumulator.cpp \
                       src/EpochIOGroup.hpp \
                       src/FilePolicy.cpp \
                       src/FilePolicy.hpp \
+                      src/FrequencyBalancerAgent.cpp \
+                      src/FrequencyBalancerAgent.hpp \
                       src/FrequencyGovernor.cpp \
                       src/FrequencyGovernor.hpp \
                       src/FrequencyGovernorImp.hpp \

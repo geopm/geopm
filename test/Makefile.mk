@@ -258,6 +258,9 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/ProcessRegionAggregatorTest.entry_exit \
               test/gtest_links/ProcessRegionAggregatorTest.short_region \
               test/gtest_links/ProcessRegionAggregatorTest.multiple_processes \
+              test/gtest_links/FrequencyBalancerAgentTest.adjust_new_epoch \
+              test/gtest_links/FrequencyBalancerAgentTest.adjust_frequency_overrides \
+              test/gtest_links/FrequencyBalancerAgentTest.validate_policy_fills_defaults \
               test/gtest_links/ProfileIOGroupTest.is_valid \
               test/gtest_links/ProfileIOGroupTest.aliases \
               test/gtest_links/ProfileIOGroupTest.read_signal_region_hash \
@@ -541,6 +544,7 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
                           test/ProfileIOGroupTest.cpp \
                           test/ProfileTest.cpp \
                           test/ProfileTracerTest.cpp \
+                          test/FrequencyBalancerAgentTest.cpp \
                           test/ProxyEpochRecordFilterTest.cpp \
                           test/ProcessRegionAggregatorTest.cpp \
                           test/RecordFilterTest.cpp \

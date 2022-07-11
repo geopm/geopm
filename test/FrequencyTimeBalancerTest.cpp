@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 - 2022, Intel Corporation
+ * Copyright (c) 2015 - 2023, Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -26,7 +26,7 @@ static const std::vector<std::pair<unsigned int, double> > EMPTY_TRADEOFF_TABLE 
 
 TEST(FrequencyTimeBalancerTest, balance_when_current_frequencies_are_all_unlimited)
 {
-    auto balancer = FrequencyTimeBalancer::make_unique(1e9, 3e9);
+    auto balancer = FrequencyTimeBalancer::make_unique(1e9, 3e9, 1e8);
     const std::vector<double> previous_control_frequencies = {3e9, 3e9, 3e9, 3e9};
     // For all subtests, the outputs must contain at least one value at the max
     // frequency.
@@ -50,7 +50,7 @@ TEST(FrequencyTimeBalancerTest, balance_when_current_frequencies_are_all_unlimit
 
 TEST(FrequencyTimeBalancerTest, balance_when_all_frequencies_should_go_unlimited)
 {
-    auto balancer = FrequencyTimeBalancer::make_unique(1e9, 3e9);
+    auto balancer = FrequencyTimeBalancer::make_unique(1e9, 3e9, 1e8);
     const std::vector<double> desired_frequencies = {3e9, 3e9, 3e9, 3e9};
     EXPECT_THAT(balancer->balance_frequencies_by_time({1.33, 1.6, 2.0, 4.0},
                                                       {3.0e9, 2.5e9, 2e9, 1e9},
@@ -62,7 +62,7 @@ TEST(FrequencyTimeBalancerTest, balance_when_all_frequencies_should_go_unlimited
 
 TEST(FrequencyTimeBalancerTest, does_not_change_when_already_balanced)
 {
-    auto balancer = FrequencyTimeBalancer::make_unique(1e9, 3e9);
+    auto balancer = FrequencyTimeBalancer::make_unique(1e9, 3e9, 1e8);
 
     const std::vector<double> balanced_frequencies = {1e9, 3e9, 2e9, 1e9};
     EXPECT_THAT(balancer->balance_frequencies_by_time({2.0, 2.0, 2.0, 2.0},
@@ -78,7 +78,7 @@ TEST(FrequencyTimeBalancerTest, does_not_use_capped_cores_as_balance_reference)
     // E.g., What if the previous control decision was a misjudgement?
     // If the lagger core is also a freqeuncy-limited core, we shouldn't use it
     // as a balancing reference. Otherwise, we could get stuck in a descent.
-    auto balancer = FrequencyTimeBalancer::make_unique(1e9, 3e9);
+    auto balancer = FrequencyTimeBalancer::make_unique(1e9, 3e9, 1e8);
 
     // Just one core had a bad setting:
     EXPECT_THAT(balancer->balance_frequencies_by_time({4.0, 3.0, 2.0, 1.0},
@@ -111,7 +111,7 @@ TEST(FrequencyTimeBalancerTest, resets_to_baseline_if_invariants_are_violated)
     // performance objective assumes that there is at least always one
     // unlimited frequency. If for any reason that is not true, the helper
     // should fix that issue in the current decision.
-    auto balancer = FrequencyTimeBalancer::make_unique(1e9, 5e9);
+    auto balancer = FrequencyTimeBalancer::make_unique(1e9, 5e9, 1e8);
 
     // No cores currently have a max frequency control (5e9) setting
     EXPECT_THAT(balancer->balance_frequencies_by_time({4.0, 3.0, 2.0, 1.0},
@@ -126,7 +126,7 @@ TEST(FrequencyTimeBalancerTest, resets_to_baseline_if_invariants_are_violated)
 
 TEST(FrequencyTimeBalancerTest, no_time_spent_in_balancing_regions)
 {
-    auto balancer = FrequencyTimeBalancer::make_unique(0.9e9, 3e9);
+    auto balancer = FrequencyTimeBalancer::make_unique(0.9e9, 3e9, 1e8);
 
     EXPECT_THAT(balancer->balance_frequencies_by_time({0, 0, 0, 0},
                                                       {3e9, 2e9, 2e9, 2e9},
@@ -150,7 +150,7 @@ TEST(FrequencyTimeBalancerTest, no_time_spent_in_balancing_regions)
 // since it seems likely our callers may encounter this.
 TEST(FrequencyTimeBalancerTest, negative_time_spent_in_balancing_regions)
 {
-    auto balancer = FrequencyTimeBalancer::make_unique(0.9e9, 4e9);
+    auto balancer = FrequencyTimeBalancer::make_unique(0.9e9, 4e9, 1e8);
 
     // All negative times
     EXPECT_THAT(balancer->balance_frequencies_by_time({-1, -2, -3, -4},
@@ -183,7 +183,7 @@ TEST(FrequencyTimeBalancerTest, negative_time_spent_in_balancing_regions)
 //       control   control
 TEST(FrequencyTimeBalancerTest, selects_high_priority_critical_path)
 {
-    auto balancer = FrequencyTimeBalancer::make_unique(0.5e9, 5e9);
+    auto balancer = FrequencyTimeBalancer::make_unique(0.5e9, 5e9, 1e8);
 
     std::vector<double> control_frequencies{5e9, 5e9, 5e9, 5e9};
     std::vector<double> observed_frequencies{2e9, 2e9, 2e9, 2e9};
@@ -227,7 +227,7 @@ TEST(FrequencyTimeBalancerTest, selects_high_priority_critical_path)
 //       control   control
 TEST(FrequencyTimeBalancerTest, selects_low_priority_critical_path)
 {
-    auto balancer = FrequencyTimeBalancer::make_unique(0.5e9, 5e9);
+    auto balancer = FrequencyTimeBalancer::make_unique(0.5e9, 5e9, 1e8);
 
     std::vector<double> control_frequencies{5e9, 5e9, 5e9, 5e9};
     std::vector<double> observed_frequencies{2e9, 2e9, 2e9, 2e9};
