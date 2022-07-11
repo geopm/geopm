@@ -60,6 +60,7 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
                           test/EpochIOGroupTest.cpp \
                           test/EpochIOGroupIntegrationTest.cpp \
                           test/FilePolicyTest.cpp \
+                          test/FrequencyBalancerAgentTest.cpp \
                           test/FrequencyGovernorTest.cpp \
                           test/FrequencyMapAgentTest.cpp \
                           test/FrequencyTimeBalancerTest.cpp \
