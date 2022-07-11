@@ -173,6 +173,7 @@ rst_files = [
     "geopm_agent.3",
     "geopm_agent_cpu_activity.7",
     "geopm_agent_ffnet.7",
+    "geopm_agent_frequency_balancer.7",
     "geopm_agent_frequency_map.7",
     "geopm_agent_gpu_activity.7",
     "geopm_agent_monitor.7",
