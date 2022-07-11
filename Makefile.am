@@ -455,6 +455,9 @@ libgeopmpolicy_la_SOURCES = src/Accumulator.cpp \
                             src/SampleAggregatorImp.hpp \
                             src/Scheduler.cpp \
                             src/Scheduler.hpp \
+                            src/SSTClosGovernor.cpp \
+                            src/SSTClosGovernor.hpp \
+                            src/SSTClosGovernorImp.hpp \
                             src/Tracer.cpp \
                             src/Tracer.hpp \
                             src/TreeComm.cpp \
