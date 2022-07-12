@@ -62,6 +62,7 @@ compile_commands.json
 /install-sh
 /integration/apps/hpcg/hpcg/
 /integration/apps/hpl_netlib/hpl-2.3/
+/integration/apps/nas*/NPB*
 /integration/apps/nasft/nasft/nas_ft
 /integration/apps/nasft/nasft/*.o
 /integration/apps/nekbone/nekbone/
