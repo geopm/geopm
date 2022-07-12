@@ -111,6 +111,32 @@ namespace geopm
             /// @return GPU maximum power limit in milliwatts
             virtual int32_t power_limit_max(int domain, unsigned int domain_idx,
                                             int l0_domain) const = 0;
+            /// @brief Get the LevelZero device sustained power limit in milliwatts
+            /// @param [in] domain The GEOPM domain type being targeted
+            /// @param [in] domain_idx The GEOPM domain index
+            ///             (i.e. GPU being targeted)
+            /// @param [in] l0_domain The LevelZero domain type being targeted
+            /// @return GPU sustained power limit in milliwatts
+            virtual int32_t power_limit_sustained(int domain, unsigned int domain_idx,
+                                                  int l0_domain) const = 0;
+
+            /// @brief Get the LevelZero device sustained power limit enable
+            /// @param [in] domain The GEOPM domain type being targeted
+            /// @param [in] domain_idx The GEOPM domain index
+            ///             (i.e. GPU being targeted)
+            /// @param [in] l0_domain The LevelZero domain type being targeted
+            /// @return GPU sustained power limit enable
+            virtual bool power_limit_enabled_sustained(int domain, unsigned int domain_idx,
+                                                       int l0_domain) const = 0;
+
+            /// @brief Get the LevelZero device sustained power limit interval in milliseconds
+            /// @param [in] domain The GEOPM domain type being targeted
+            /// @param [in] domain_idx The GEOPM domain index
+            ///             (i.e. GPU being targeted)
+            /// @param [in] l0_domain The LevelZero domain type being targeted
+            /// @return GPU sustained power limit interval in milliseconds
+            virtual int32_t power_limit_interval_sustained(int domain, unsigned int domain_idx,
+                                                           int l0_domain) const = 0;
 
             // ENERGY SIGNAL FUNCTIONS
             /// @brief Get the LevelZero device energy in microjoules and timestamp in microseconds.
@@ -150,7 +176,14 @@ namespace geopm
                                            int l0_domain, double range_min,
                                            double range_max) const = 0;
 
-        private:
+            virtual void power_limit_enable_sustained_control(int domain, unsigned int domain_idx,
+                                                              int l0_domain, double setting) const = 0;
+
+            virtual void power_limit_sustained_control(int domain, unsigned int domain_idx,
+                                                       int l0_domain, double setting) const = 0;
+
+            virtual void power_limit_interval_sustained_control(int domain, unsigned int domain_idx,
+                                                                int l0_domain, double setting) const = 0;
     };
 
     const LevelZeroDevicePool &levelzero_device_pool();

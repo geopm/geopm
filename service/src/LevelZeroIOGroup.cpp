@@ -276,6 +276,54 @@ namespace geopm
                                   },
                                   1 / 1e3
                                   }},
+                              {M_NAME_PREFIX + "GPU_POWER_LIMIT_SUSTAINED", {
+                                  "The sustained power limit in watts.",
+                                  GEOPM_DOMAIN_GPU,
+                                  Agg::sum,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
+                                  string_format_double,
+                                  {},
+                                  [this](unsigned int domain_idx) -> double
+                                  {
+                                      return this->m_levelzero_device_pool.power_limit_sustained(
+                                                   GEOPM_DOMAIN_GPU,
+                                                   domain_idx,
+                                                   geopm::LevelZero::M_DOMAIN_ALL);
+                                  },
+                                  1 / 1e3
+                                  }},
+                              {M_NAME_PREFIX + "GPU_POWER_LIMIT_SUSTAINED_ENABLED", {
+                                  "The sustained power limit enable status.",
+                                  GEOPM_DOMAIN_GPU,
+                                  Agg::expect_same,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
+                                  string_format_double,
+                                  {},
+                                  [this](unsigned int domain_idx) -> double
+                                  {
+                                      return this->m_levelzero_device_pool.power_limit_enabled_sustained(
+                                                   GEOPM_DOMAIN_GPU,
+                                                   domain_idx,
+                                                   geopm::LevelZero::M_DOMAIN_ALL);
+                                  },
+                                  1
+                                  }},
+                              {M_NAME_PREFIX + "GPU_POWER_LIMIT_SUSTAINED_INTERVAL", {
+                                  "The sustained power limit time interval in seconds.",
+                                  GEOPM_DOMAIN_GPU,
+                                  Agg::expect_same,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
+                                  string_format_double,
+                                  {},
+                                  [this](unsigned int domain_idx) -> double
+                                  {
+                                      return this->m_levelzero_device_pool.power_limit_interval_sustained(
+                                                   GEOPM_DOMAIN_GPU,
+                                                   domain_idx,
+                                                   geopm::LevelZero::M_DOMAIN_ALL);
+                                  },
+                                  1 / 1e3
+                                  }},
                               {M_NAME_PREFIX + "GPU_ACTIVE_TIME", {
                                   "Time in seconds that this resource is actively running a workload."
                                   "\nSee the Intel oneAPI Level Zero Sysman documentation for more info.",
@@ -425,7 +473,28 @@ namespace geopm
                                     GEOPM_DOMAIN_GPU_CHIP,
                                     Agg::average,
                                     string_format_double
-                                    }}
+                                    }},
+                               {M_NAME_PREFIX + "GPU_POWER_LIMIT_SUSTAINED_CONTROL", {
+                                    "Sustained power limit target power in watts",
+                                    {},
+                                    GEOPM_DOMAIN_GPU,
+                                    Agg::sum,
+                                    string_format_double
+                                    }},
+                               {M_NAME_PREFIX + "GPU_POWER_LIMIT_SUSTAINED_INTERVAL_CONTROL", {
+                                    "Sustained power limit averaging window in seconds",
+                                    {},
+                                    GEOPM_DOMAIN_GPU,
+                                    Agg::expect_same,
+                                    string_format_double
+                                    }},
+                               {M_NAME_PREFIX + "GPU_POWER_LIMIT_SUSTAINED_ENABLED_CONTROL", {
+                                    "Sustained power limit control enable status",
+                                    {},
+                                    GEOPM_DOMAIN_GPU,
+                                    Agg::expect_same,
+                                    string_format_double
+                                    }},
                               })
         , m_special_signal_set({M_NAME_PREFIX + "GPU_ENERGY",
                                 M_NAME_PREFIX + "GPU_ACTIVE_TIME",
@@ -495,6 +564,10 @@ namespace geopm
 
         register_derivative_signals();
 
+        register_signal_alias(M_NAME_PREFIX + "GPU_POWER_LIMIT_SUSTAINED_CONTROL", M_NAME_PREFIX + "GPU_POWER_LIMIT_SUSTAINED");
+        register_signal_alias(M_NAME_PREFIX + "GPU_POWER_LIMIT_SUSTAINED_ENABLED_CONTROL", M_NAME_PREFIX + "GPU_POWER_LIMIT_SUSTAINED_ENABLED");
+        register_signal_alias(M_NAME_PREFIX + "GPU_POWER_LIMIT_SUSTAINED_INTERVAL_CONTROL", M_NAME_PREFIX + "GPU_POWER_LIMIT_SUSTAINED_INTERVAL");
+
         register_signal_alias("GPU_CORE_FREQUENCY_STATUS", M_NAME_PREFIX + "GPU_CORE_FREQUENCY_STATUS");
         register_signal_alias("GPU_ENERGY", M_NAME_PREFIX + "GPU_ENERGY");
         register_signal_alias("GPU_POWER", M_NAME_PREFIX + "GPU_POWER");
@@ -549,6 +622,25 @@ namespace geopm
 
                         //Try to write the signals
                         write_control(sv.first, control_domain_type(sv.first), domain_idx, init_setting);
+
+                        // Some signals report a negative number when not supported, while
+                        // others report a negative number to mean 'factory default' setting.
+                        // We are handling the negative number --> not supported cases here.
+                        // The signals are scaled according to the read_signal function, so
+                        // less than 0 is checked.
+                        if(init_setting < 0) {
+                            if(sv.first == M_NAME_PREFIX + "GPU_POWER_LIMIT_SUSTAINED_INTERVAL_CONTROL" ||
+                               sv.first == M_NAME_PREFIX + "GPU_POWER_LIMIT_SUSTAINED_CONTROL" ||
+                               sv.first == M_NAME_PREFIX + "GPU_POWER_LIMIT_SUSTAINED_ENABLED_CONTROL") {
+                                // This check is handled after attempting to write
+                                // the controls as this is a special case.
+                                // There is no guarantee of an error in the -1 means
+                                // 'not supported' cases, but we should still try
+                                // the default handling first
+                                unsupported_control_names.push_back(sv.first);
+
+                            }
+                        }
                     }
                 }
             }
@@ -957,6 +1049,22 @@ namespace geopm
                                                       geopm::LevelZero::M_DOMAIN_COMPUTE,
                                                       curr_min / 1e6, setting / 1e6);
         }
+        else if(control_name == M_NAME_PREFIX + "GPU_POWER_LIMIT_SUSTAINED_INTERVAL_CONTROL") {
+            m_levelzero_device_pool.power_limit_interval_sustained_control(domain_type, domain_idx,
+                                                                           geopm::LevelZero::M_DOMAIN_ALL,
+                                                                           setting * 1e3);
+        }
+        else if(control_name == M_NAME_PREFIX + "GPU_POWER_LIMIT_SUSTAINED_CONTROL") {
+            m_levelzero_device_pool.power_limit_sustained_control(domain_type, domain_idx,
+                                                                  geopm::LevelZero::M_DOMAIN_ALL,
+                                                                  setting * 1e3);
+        }
+        else if(control_name == M_NAME_PREFIX + "GPU_POWER_LIMIT_SUSTAINED_ENABLED_CONTROL") {
+            m_levelzero_device_pool.power_limit_enable_sustained_control(domain_type, domain_idx,
+                                                                         geopm::LevelZero::M_DOMAIN_ALL,
+                                                                         setting);
+        }
+
         else {
     #ifdef GEOPM_DEBUG
                 throw Exception("LevelZeroIOGroup::" + std::string(__func__) +
@@ -988,6 +1096,33 @@ namespace geopm
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
         }
+
+        for (int domain_idx = 0;
+             domain_idx < m_platform_topo.num_domain(GEOPM_DOMAIN_GPU);
+             ++domain_idx) {
+            try {
+                m_power_limit_sustained_enable.push_back(
+                    m_levelzero_device_pool.power_limit_enabled_sustained(GEOPM_DOMAIN_GPU,
+                                                                          domain_idx,
+                                                                          geopm::LevelZero::M_DOMAIN_ALL));
+
+                m_power_limit_sustained.push_back(
+                    m_levelzero_device_pool.power_limit_sustained(GEOPM_DOMAIN_GPU,
+                                                                  domain_idx,
+                                                                  geopm::LevelZero::M_DOMAIN_ALL));
+
+                m_power_limit_sustained_interval.push_back(
+                    m_levelzero_device_pool.power_limit_interval_sustained(GEOPM_DOMAIN_GPU,
+                                                                           domain_idx,
+                                                                           geopm::LevelZero::M_DOMAIN_ALL));
+            }
+            catch (const geopm::Exception &ex) {
+                throw Exception("LevelZeroIOGroup::" + std::string(__func__) + ": "
+                                + " Failed to fetch power settings for GPU domain"
+                                + std::to_string(domain_idx),
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+        }
     }
 
     // Implemented to allow an IOGroup to restore previously saved
@@ -1010,6 +1145,34 @@ namespace geopm
                 std::cerr << "Warning: <geopm> LevelZeroIOGroup: Failed to "
                              "restore frequency control settings for "
                              "GPU_CHIP domain " << std::to_string(domain_idx)
+                             << ".  Exception: " << ex.what()
+                             << std::endl;
+#endif
+            }
+        }
+        for (int domain_idx = 0;
+             domain_idx < m_platform_topo.num_domain(GEOPM_DOMAIN_GPU);
+             ++domain_idx) {
+
+            try {
+                m_levelzero_device_pool.power_limit_sustained_control(GEOPM_DOMAIN_GPU, domain_idx,
+                                                                      geopm::LevelZero::M_DOMAIN_ALL,
+                                                                      m_power_limit_sustained.at(domain_idx));
+
+                m_levelzero_device_pool.power_limit_interval_sustained_control(GEOPM_DOMAIN_GPU, domain_idx,
+                                                                               geopm::LevelZero::M_DOMAIN_ALL,
+                                                                               m_power_limit_sustained_interval.at(domain_idx));
+                // order matters here because of the LevelZero.cpp implementation.
+                // Restore the enable last
+                m_levelzero_device_pool.power_limit_enable_sustained_control(GEOPM_DOMAIN_GPU, domain_idx,
+                                                                             geopm::LevelZero::M_DOMAIN_ALL,
+                                                                             m_power_limit_sustained_enable.at(domain_idx));
+            }
+            catch (const geopm::Exception &ex) {
+#ifdef GEOPM_DEBUG
+                std::cerr << "Warning: <geopm> LevelZeroIOGroup: Failed to "
+                             "restore power limit control settings for "
+                             "GPU domain " << std::to_string(domain_idx)
                              << ".  Exception: " << ex.what()
                              << std::endl;
 #endif

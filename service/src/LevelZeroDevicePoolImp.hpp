@@ -48,6 +48,14 @@ namespace geopm
                                     int l0_domain) const override;
             int32_t power_limit_max(int domain, unsigned int domain_idx,
                                     int l0_domain) const override;
+
+            int32_t power_limit_sustained(int domain, unsigned int domain_idx,
+                                          int l0_domain) const override;
+            bool power_limit_enabled_sustained(int domain, unsigned int domain_idx,
+                                               int l0_domain) const override;
+            int32_t power_limit_interval_sustained(int domain, unsigned int domain_idx,
+                                                   int l0_domain) const override;
+
             std::pair<uint64_t, uint64_t> energy_pair(int domain,
                                                       unsigned int domain_idx,
                                                       int l0_domain) const override;
@@ -58,6 +66,14 @@ namespace geopm
             void frequency_control(int domain, unsigned int domain_idx,
                                    int l0_domain, double range_min,
                                    double range_max) const override;
+
+            void power_limit_enable_sustained_control(int domain, unsigned int domain_idx,
+                                                      int l0_domain, double setting) const override;
+            void power_limit_sustained_control(int domain, unsigned int domain_idx,
+                                               int l0_domain, double setting) const override;
+            void power_limit_interval_sustained_control(int domain, unsigned int domain_idx,
+                                                        int l0_domain, double setting) const override;
+
 
         private:
             const LevelZero &m_levelzero;

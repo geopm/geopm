@@ -138,6 +138,22 @@ namespace geopm
             /// @return GPU maximum power limit in milliwatts
             virtual int32_t power_limit_max(unsigned int l0_device_idx) const = 0;
 
+            /// @brief Get the LevelZero sustained power limit in milliwatts
+            /// @param [in] l0_device_idx The index indicating a particular
+            ///        Level Zero GPU.
+            /// @return GPU sustained power limit in milliwatts
+            virtual int32_t power_limit_sustained(unsigned int l0_device_idx) const = 0;
+            /// @brief Get the LevelZero sustained power limit enable
+            /// @param [in] l0_device_idx The index indicating a particular
+            ///        Level Zero GPU.
+            /// @return GPU sustained power limit enable status
+            virtual bool power_limit_enabled_sustained(unsigned int l0_device_idx) const = 0;
+            /// @brief Get the LevelZero sustained power limit interval in milliseconds
+            /// @param [in] l0_device_idx The index indicating a particular
+            ///        Level Zero GPU.
+            /// @return GPU sustained power limit interval in milliseconds
+            virtual int32_t power_limit_interval_sustained(unsigned int l0_device_idx) const = 0;
+
             /// @brief Get the LevelZero device energy and timestamp
             ///        in microjoules and microseconds
             /// @param [in] l0_device_idx The index indicating a particular
@@ -164,6 +180,10 @@ namespace geopm
             virtual void frequency_control(unsigned int l0_device_idx, int l0_domain,
                                            int l0_domain_idx, double range_min,
                                            double range_max) const = 0;
+
+            virtual void power_limit_sustained_control(unsigned int l0_device_idx,
+                                                       bool enable, double limit,
+                                                       double interval) const = 0;
     };
 
     const LevelZero &levelzero();

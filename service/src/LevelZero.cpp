@@ -568,6 +568,52 @@ namespace geopm
         return result_power;
     }
 
+    // TODO: Currently any call to power_limit_*_sustained results in a call
+    //       to the level zero API.  This could be changed to provide a struct
+    //       and pushing additional handling into the IOGroup or device pool.
+    bool LevelZeroImp::power_limit_enabled_sustained(unsigned int l0_device_idx) const
+    {
+        zes_power_sustained_limit_t sustained = {};
+        sustained = std::get<0>(power_limit(l0_device_idx));
+        return (bool)sustained.enabled;
+    }
+
+    int32_t LevelZeroImp::power_limit_sustained(unsigned int l0_device_idx) const
+    {
+        zes_power_sustained_limit_t sustained = {};
+        sustained = std::get<0>(power_limit(l0_device_idx));
+        return sustained.power;
+    }
+
+    int32_t LevelZeroImp::power_limit_interval_sustained(unsigned int l0_device_idx) const
+    {
+        zes_power_sustained_limit_t sustained = {};
+        sustained = std::get<0>(power_limit(l0_device_idx));
+        return sustained.interval;
+    }
+
+    std::tuple<zes_power_sustained_limit_t, zes_power_burst_limit_t,
+               zes_power_peak_limit_t> LevelZeroImp::power_limit(unsigned int l0_device_idx) const
+    {
+        zes_pwr_handle_t handle = m_devices.at(l0_device_idx).power_domain;
+        ze_result_t ze_result;
+
+        zes_power_sustained_limit_t sustained = {};
+        zes_power_burst_limit_t burst = {};
+
+        // GEOPM is not currently supporting peak power limits
+        // so -1 is provided
+        zes_power_peak_limit_t peak = {-1, -1};
+
+        // Only sustained is supported by GEOPM for now
+        ze_result = zesPowerGetLimits(handle, &sustained, &burst, nullptr);
+        check_ze_result(ze_result, GEOPM_ERROR_RUNTIME, "LevelZero::"
+                        + std::string(__func__) +
+                        ": Sysman failed to get power limits", __LINE__);
+
+        return std::make_tuple(sustained, burst, peak);
+    }
+
     //TODO: frequency_control_min and frequency_control_max capability will be required in some form for save/restore
     void LevelZeroImp::frequency_control(unsigned int l0_device_idx, int l0_domain,
                                          int l0_domain_idx, double range_min,
@@ -596,6 +642,49 @@ namespace geopm
         check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
                         "LevelZero::" + std::string(__func__) +
                         ": Sysman failed to set frequency.", __LINE__);
+    }
+
+    void LevelZeroImp::power_limit_sustained_control(unsigned int l0_device_idx,
+                                                     bool enable, double limit,
+                                                     double interval) const
+    {
+        ze_result_t ze_result;
+        zes_power_properties_t property;
+        zes_pwr_handle_t handle = m_devices.at(l0_device_idx).power_domain;
+
+        ze_result = zesPowerGetProperties(handle, &property);
+
+        check_ze_result(ze_result, GEOPM_ERROR_RUNTIME, "LevelZero::"
+                        + std::string(__func__) +
+                        ": Sysman failed to get domain properties", __LINE__);
+
+        if (property.canControl == 0) {
+            throw Exception("LevelZero::" + std::string(__func__) +
+                            ": Attempted to set power limits " +
+                            "for non controllable domain",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
+        // Read
+        zes_power_sustained_limit_t sustained = {};
+        sustained = std::get<0>(power_limit(l0_device_idx));
+
+        // Modify
+        sustained.enabled = enable;
+        // if either a negative or NAN is passed in, don't use it
+        if (limit >= 0 && !std::isnan(limit)) {
+            sustained.power = (int32_t) limit;
+        }
+        // if either a negative or NAN is passed in, don't use it
+        if (interval >= 0 && !std::isnan(interval)) {
+            sustained.interval = (int32_t) interval;
+        }
+
+        // Write
+        ze_result = zesPowerSetLimits(handle, &sustained, nullptr, nullptr);
+        check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
+                        "LevelZero::" + std::string(__func__) +
+                        ": Sysman failed to set power limits.", __LINE__);
     }
 
     void LevelZeroImp::check_ze_result(ze_result_t ze_result, int error,

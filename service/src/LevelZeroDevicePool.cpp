@@ -286,6 +286,48 @@ namespace geopm
         return m_levelzero.power_limit_tdp(domain_idx);
     }
 
+    int32_t LevelZeroDevicePoolImp::power_limit_sustained(int domain,
+                                                          unsigned int domain_idx,
+                                                          int l0_domain) const
+    {
+        if (domain != GEOPM_DOMAIN_GPU) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for the power domain.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        check_idx_range(domain, domain_idx);
+        return m_levelzero.power_limit_sustained(domain_idx);
+    }
+
+    bool LevelZeroDevicePoolImp::power_limit_enabled_sustained(int domain,
+                                                               unsigned int domain_idx,
+                                                               int l0_domain) const
+    {
+        if (domain != GEOPM_DOMAIN_GPU) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for the power domain.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        check_idx_range(domain, domain_idx);
+        return m_levelzero.power_limit_enabled_sustained(domain_idx);
+    }
+
+    int32_t LevelZeroDevicePoolImp::power_limit_interval_sustained(int domain,
+                                                                   unsigned int domain_idx,
+                                                                   int l0_domain) const
+    {
+        if (domain != GEOPM_DOMAIN_GPU) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for the power domain.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        check_idx_range(domain, domain_idx);
+        return m_levelzero.power_limit_interval_sustained(domain_idx);
+    }
+
     std::pair<uint64_t, uint64_t> LevelZeroDevicePoolImp::energy_pair(int domain,
                                                                       unsigned int domain_idx,
                                                                       int l0_domain) const
@@ -346,5 +388,46 @@ namespace geopm
         m_levelzero.frequency_control(dev_subdev_idx_pair.first, l0_domain,
                                       dev_subdev_idx_pair.second, range_min,
                                       range_max);
+    }
+
+    void LevelZeroDevicePoolImp::power_limit_enable_sustained_control(int domain, unsigned int domain_idx,
+                                                                      int l0_domain, double setting) const
+    {
+        if (domain != GEOPM_DOMAIN_GPU) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for the power domain.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        check_idx_range(domain, domain_idx);
+        m_levelzero.power_limit_sustained_control(domain_idx, setting, NAN, NAN);
+    }
+
+    void LevelZeroDevicePoolImp::power_limit_sustained_control(int domain, unsigned int domain_idx,
+                                                               int l0_domain, double setting) const
+    {
+        if (domain != GEOPM_DOMAIN_GPU) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for the power domain.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        check_idx_range(domain, domain_idx);
+        // If we're setting the limit, enable power limits as well
+        m_levelzero.power_limit_sustained_control(domain_idx, true, setting, NAN);
+    }
+
+    void LevelZeroDevicePoolImp::power_limit_interval_sustained_control(int domain, unsigned int domain_idx,
+                                                                        int l0_domain, double setting) const
+    {
+        if (domain != GEOPM_DOMAIN_GPU) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for the power domain.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        check_idx_range(domain, domain_idx);
+        // If we're setting the interval, enable power limits as well
+        m_levelzero.power_limit_sustained_control(domain_idx, true, NAN, setting);
     }
 }

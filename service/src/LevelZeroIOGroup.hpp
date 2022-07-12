@@ -121,6 +121,9 @@ namespace geopm
 
             //GEOPM Domain indexed
             std::vector<std::pair<double,double> > m_frequency_range;
+            std::vector<bool> m_power_limit_sustained_enable;
+            std::vector<double> m_power_limit_sustained;
+            std::vector<double> m_power_limit_sustained_interval;
 
             std::shared_ptr<SaveControl> m_mock_save_ctl;
     };

@@ -53,10 +53,17 @@ namespace geopm
             int32_t power_limit_tdp(unsigned int l0_device_idx) const override;
             int32_t power_limit_min(unsigned int l0_device_idx) const override;
             int32_t power_limit_max(unsigned int l0_device_idx) const override;
+            int32_t power_limit_sustained(unsigned int l0_device_idx) const override;
+            bool power_limit_enabled_sustained(unsigned int l0_device_idx) const override;
+            int32_t power_limit_interval_sustained(unsigned int l0_device_idx) const override;
 
             void frequency_control(unsigned int l0_device_idx, int l0_domain,
                                    int l0_domain_idx, double range_min,
                                    double range_max) const override;
+
+            virtual void power_limit_sustained_control(unsigned int l0_device_idx,
+                                                       bool enable, double limit,
+                                                       double interval) const override;
 
         private:
             struct m_frequency_s {
@@ -97,10 +104,13 @@ namespace geopm
                 mutable uint64_t cached_energy_timestamp;
             };
 
-
             void domain_cache(unsigned int l0_device_idx);
             void check_ze_result(ze_result_t ze_result, int error, std::string message,
                                  int line) const;
+
+            virtual std::tuple<zes_power_sustained_limit_t,
+                   zes_power_burst_limit_t,
+                   zes_power_peak_limit_t> power_limit(unsigned int l0_device_idx) const;
 
             std::pair<double, double> frequency_min_max(unsigned int l0_device_idx,
                                                         int l0_domain, int l0_domain_idx) const;
