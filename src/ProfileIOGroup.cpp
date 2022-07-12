@@ -292,6 +292,7 @@ namespace geopm
                 break;
             case M_SIGNAL_TIME_HINT_SPIN:
                 result = m_application_sampler.cpu_hint_time(cpu_idx, GEOPM_REGION_HINT_SPIN);
+                break;
             default:
 #ifdef GEOPM_DEBUG
                 throw Exception("ProfileIOGroup:read_signal(): Invalid signal type bug check_signal did not throw",
