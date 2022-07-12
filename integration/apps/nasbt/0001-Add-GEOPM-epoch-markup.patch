@@ -1,0 +1,219 @@
+From 5b114dab87031585b5005be1beab9415ee6024ae Mon Sep 17 00:00:00 2001
+From: Daniel Wilson <daniel1.wilson@intel.com>
+Date: Thu, 27 Jan 2022 16:20:44 -0500
+Subject: [PATCH] Add GEOPM epoch markup
+
+#  Copyright (c) 2015 - 2022, Intel Corporation
+#  SPDX-License-Identifier: BSD-3-Clause
+#
+
+---
+ NPB3.4-MZ-MPI/BT-MZ/bt.f90     |   4 ++
+ NPB3.4-MZ-MPI/config/make.def  | 141 +++++++++++++++++++++++++++++++++++++++++
+ NPB3.4-MZ-MPI/config/suite.def |  17 +++++
+ 3 files changed, 162 insertions(+)
+ create mode 100644 NPB3.4-MZ-MPI/config/make.def
+ create mode 100644 NPB3.4-MZ-MPI/config/suite.def
+
+diff --git a/NPB3.4-MZ-MPI/BT-MZ/bt.f90 b/NPB3.4-MZ-MPI/BT-MZ/bt.f90
+index feb30f6..04b7f82 100644
+--- a/NPB3.4-MZ-MPI/BT-MZ/bt.f90
++++ b/NPB3.4-MZ-MPI/BT-MZ/bt.f90
+@@ -51,6 +51,8 @@
+        use bt_data
+        use bt_fields
+        use mpinpb
++       use geopm_prof
++       use, intrinsic :: ISO_C_BINDING
+ 
+        implicit none
+       
+@@ -58,6 +60,7 @@
+ !      local variables
+ !---------------------------------------------------------------------
+        integer          num_zones
++       integer          ierr
+        integer          i, niter, step, fstatus, zone,  &
+      &                  iz, ip, tot_threads, itimer
+        double precision navg, mflops, nsur, n3
+@@ -221,6 +224,7 @@
+      &              u(start5(iz)),  &
+      &              nx(zone), nxmax(zone), ny(zone), nz(zone))
+          end do
++         ierr = geopm_prof_epoch()
+ 
+        end do
+ 
+diff --git a/NPB3.4-MZ-MPI/config/make.def b/NPB3.4-MZ-MPI/config/make.def
+new file mode 100644
+index 0000000..29960fd
+--- /dev/null
++++ b/NPB3.4-MZ-MPI/config/make.def
+@@ -0,0 +1,141 @@
++#---------------------------------------------------------------------------
++#
++#                SITE- AND/OR PLATFORM-SPECIFIC DEFINITIONS. 
++#
++#---------------------------------------------------------------------------
++
++#---------------------------------------------------------------------------
++# Items in this file will need to be changed for each platform.
++#---------------------------------------------------------------------------
++
++#---------------------------------------------------------------------------
++# Parallel Fortran:
++#
++# For CG, EP, FT, MG, LU, SP and BT, which are in Fortran, the following must 
++# be defined:
++#
++# FC         - Fortran compiler
++# FFLAGS     - Fortran compilation arguments
++# F_INC      - any -I arguments required for compiling Fortran 
++# FLINK      - Fortran linker
++# FLINKFLAGS - Fortran linker arguments
++# F_LIB      - any -L and -l arguments required for linking Fortran 
++# 
++# compilations are done with $(FC) $(F_INC) $(FFLAGS) or
++#                            $(FC) $(FFLAGS)
++# linking is done with       $(FLINK) $(F_LIB) $(FLINKFLAGS)
++#---------------------------------------------------------------------------
++
++#---------------------------------------------------------------------------
++# This is the fortran compiler used for fortran programs
++#---------------------------------------------------------------------------
++FC = $(MPIF90)
++# This links fortran programs; usually the same as ${FC}
++FLINK	= $(FC)
++
++#---------------------------------------------------------------------------
++# These macros are passed to the linker 
++#---------------------------------------------------------------------------
++F_LIB =
++
++#---------------------------------------------------------------------------
++# These macros are passed to the compiler 
++#---------------------------------------------------------------------------
++FMPI_INC = -I$(GEOPM_INC)
++
++#---------------------------------------------------------------------------
++# Global *compile time* flags for Fortran programs
++#---------------------------------------------------------------------------
++FFLAGS	= -O3 -fopenmp $(GEOPM_FFLAGS)
++
++#---------------------------------------------------------------------------
++# Global *link time* flags. Flags for increasing maximum executable 
++# size usually go here. 
++#---------------------------------------------------------------------------
++FLINKFLAGS = $(FFLAGS) $(GEOPM_LDFLAGS) $(GEOPM_FORTRAN_LDLIBS)
++
++
++#---------------------------------------------------------------------------
++# Parallel C:
++#
++# For IS, which is in C, the following must be defined:
++#
++# CC         - C compiler 
++# CFLAGS     - C compilation arguments
++# C_INC      - any -I arguments required for compiling C 
++# CLINK      - C linker
++# CLINKFLAGS - C linker flags
++# C_LIB      - any -L and -l arguments required for linking C 
++#
++# compilations are done with $(CC) $(C_INC) $(CFLAGS) or
++#                            $(CC) $(CFLAGS)
++# linking is done with       $(CLINK) $(C_LIB) $(CLINKFLAGS)
++#---------------------------------------------------------------------------
++
++#---------------------------------------------------------------------------
++# This is the C compiler used for C programs
++#---------------------------------------------------------------------------
++CC = $(MPICC)
++# This links C programs; usually the same as ${CC}
++CLINK	= $(CC)
++
++#---------------------------------------------------------------------------
++# These macros are passed to the linker 
++#---------------------------------------------------------------------------
++C_LIB =
++
++#---------------------------------------------------------------------------
++# These macros are passed to the compiler 
++#---------------------------------------------------------------------------
++C_INC =
++
++#---------------------------------------------------------------------------
++# Global *compile time* flags for C programs
++#---------------------------------------------------------------------------
++CFLAGS	= -O3 -fopenmp
++
++#---------------------------------------------------------------------------
++# Global *link time* flags. Flags for increasing maximum executable 
++# size usually go here. 
++#---------------------------------------------------------------------------
++CLINKFLAGS = $(CFLAGS)
++
++
++#---------------------------------------------------------------------------
++# MPI dummy library:
++#
++# Uncomment if you want to use the MPI dummy library supplied by NAS instead 
++# of the true message-passing library. The include file redefines several of
++# the above macros. It also invokes make in subdirectory MPI_dummy. Make 
++# sure that no spaces or tabs precede include.
++#---------------------------------------------------------------------------
++#include ../config/make.dummy
++
++
++#---------------------------------------------------------------------------
++# Utilities C:
++#
++# This is the C compiler used to compile C utilities.  Flags required by 
++# this compiler go here also; typically there are few flags required; hence 
++# there are no separate macros provided for such flags.
++#---------------------------------------------------------------------------
++UCC	= $(CC)
++
++
++#---------------------------------------------------------------------------
++# Destination of executables, relative to subdirs of the main directory. . 
++#---------------------------------------------------------------------------
++BINDIR	= ../bin
++
++
++#---------------------------------------------------------------------------
++# The variable RAND controls which random number generator 
++# is used. It is described in detail in README.install. 
++# Use "randi8" unless there is a reason to use another one. 
++# Other allowed values are "randi8_safe", "randdp" and "randdpvec"
++#---------------------------------------------------------------------------
++RAND   = randi8
++# The following is highly reliable but may be slow:
++# RAND   = randdp
++
++
+diff --git a/NPB3.4-MZ-MPI/config/suite.def b/NPB3.4-MZ-MPI/config/suite.def
+new file mode 100644
+index 0000000..a4e80ef
+--- /dev/null
++++ b/NPB3.4-MZ-MPI/config/suite.def
+@@ -0,0 +1,17 @@
++# config/suite.def
++# This file is used to build several benchmarks with a single command. 
++# Typing "make suite" in the main directory will build all the benchmarks
++# specified in this file. 
++# Each line of this file contains a benchmark name, and class.
++# The name is one of "sp-mz", "bt-mz", and "lu-mz". 
++# The class is one of "S", "W", and "A" through "F". 
++# No blank lines. 
++# The following example builds sample sizes of all benchmarks. 
++bt-mz	S
++bt-mz	W
++bt-mz	A
++bt-mz	B
++bt-mz	C
++bt-mz	D
++bt-mz	E
++bt-mz	F
+-- 
+1.8.3.1
+
