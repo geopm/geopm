@@ -147,6 +147,7 @@ class Config(object):
         parser.add_argument('--geopm-ompt-disable', dest='ompt_disable', action='store_true', default=False)
         parser.add_argument('--geopm-record-filter', dest='record_filter', type=str)
         parser.add_argument('--geopm-affinity-disable', dest='do_affinity', action='store_false', default=True)
+        parser.add_argument('--geopm-launch-verbose', dest='quiet', action='store_false', default=True)
         opts, self.argv_unparsed = parser.parse_known_args(argv)
         # Error check inputs
         if opts.ctl not in ('process', 'pthread', 'application'):
@@ -175,6 +176,7 @@ class Config(object):
         self.ompt_disable = opts.ompt_disable
         self.record_filter = opts.record_filter
         self.do_affinity = opts.do_affinity
+        self.quiet = opts.quiet
 
     def __repr__(self):
         """
@@ -317,7 +319,7 @@ class Launcher(object):
         self.exclude_list = None
         self.partition = None
         self.reservation = None
-        self.quiet = quiet
+        self.quiet = None
         self.default_handler = signal.getsignal(signal.SIGINT)
         self.num_rank = num_rank
         self.num_node = num_node
@@ -383,6 +385,11 @@ class Launcher(object):
         if do_affinity is not None:
             self.is_override_enabled = True
             self.do_affinity = do_affinity
+        if quiet is not None:
+            self.is_override_enabled = True
+            self.quiet = quiet
+        elif self.config is not None:
+            self.quiet = self.config.quiet
 
         # Calculate derived values
         if self.rank_per_node is None and self.num_rank and self.num_node:
@@ -472,8 +479,7 @@ class Launcher(object):
         echo.extend(argv_mod)
         echo = u'\n' + u' '.join(echo) + u'\n\n'
         if not self.quiet:
-            stdout.write(echo) # Echo the command that's about to be run
-            stdout.flush()
+            stderr.write(echo) # Echo the command that's about to be run
         signal.signal(signal.SIGINT, self.int_handler)
 
         # Re-quote the arguments before concatenating them so we don't treat
@@ -1030,7 +1036,10 @@ class SrunLauncher(Launcher):
                 mask = '0x{:x}'.format(int(''.join(mask), 2))
                 mask_list.append(mask)
             result.append(bind_cmd)
-            result.append('v,mask_cpu:' + ','.join(mask_list))
+            if self.quiet:
+                result.append('mask_cpu:' + ','.join(mask_list))
+            else:
+                result.append('v,mask_cpu:' + ','.join(mask_list))
 
             if self.config.get_ctl() == 'application':
                 result.append('--overlap')
@@ -1132,7 +1141,10 @@ class SrunTOSSLauncher(SrunLauncher):
 
             aff_list = self.affinity_list(is_geopmctl)
             mask_list = [range_str(cpu_set) for cpu_set in aff_list]
-            result.append('--mpibind=v.' + ','.join(mask_list))
+            if self.quiet:
+                result.append('--mpibind=' + ','.join(mask_list))
+            else:
+                result.append('--mpibind=v.' + ','.join(mask_list))
         return result
 
 class OMPIExecLauncher(Launcher):
@@ -1502,7 +1514,10 @@ class PALSLauncher(IMPIExecLauncher):
                 mask = '0x{:x}'.format(int(''.join(mask), 2))
                 mask_list.append(mask)
             result.append('--cpu-bind')
-            result.append('mask:' + ','.join(mask_list))
+            if self.quiet:
+                result.append('mask:' + ','.join(mask_list))
+            else:
+                result.append('verbose,mask:' + ','.join(mask_list))
 
         return result
 
@@ -1712,6 +1727,7 @@ GEOPM_OPTIONS:
                                underlying launcher
       --geopm-ompt-disable     disable automatic OpenMP region detection
       --geopm-affinity-disable do not emit CPU affinity settings
+      --geopm-launch-verbose   emit launch script and affinity configuration to stderr
 
 {}
 
