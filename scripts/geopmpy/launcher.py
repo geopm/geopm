@@ -1379,7 +1379,7 @@ class IMPIExecLauncher(Launcher):
 
     def parse_launcher_argv(self):
         """
-        Parse the subset of ``srun`` command line arguments used or
+        Parse the subset of ``mpiexec.hydra`` command line arguments used or
         manipulated by GEOPM.
         """
         parser = argparse.ArgumentParser(add_help=False)
@@ -1398,9 +1398,9 @@ class IMPIExecLauncher(Launcher):
             self.num_rank = opts.num_rank
         else:
             self.num_rank = 1
-        if opts.rank_per_node:
+        if self.rank_per_node is None and opts.rank_per_node:
             self.rank_per_node = opts.rank_per_node
-        else: # Assume this to mimic mpiexec behavior
+        elif self.rank_per_node is None: # Assume this to mimic mpiexec behavior
             self.rank_per_node = opts.num_rank
         self.node_list = opts.node_list
         self.host_file = opts.host_file
@@ -1497,6 +1497,14 @@ class PALSLauncher(IMPIExecLauncher):
             any(aa.startswith(('--cpu-bind')) for aa in self.argv)):
             raise SyntaxError('<geopm> geopmpy.launcher: The option --cpu-bind must not be specified, this is controlled by the launcher.  Use --geopm-affinity-disable to disable automatic pinning.')
 
+        # Parse --ppn since it is different than impi
+        parser = argparse.ArgumentParser(add_help=False)
+        parser.add_argument('--ppn', dest='rank_per_node', type=int)
+
+        opts, self.argv_unparsed = parser.parse_known_args(self.argv_unparsed)
+        if opts.rank_per_node:
+            self.rank_per_node = opts.rank_per_node
+
         super(PALSLauncher, self).parse_launcher_argv()
 
     def launcher_command(self):
@@ -1504,6 +1512,9 @@ class PALSLauncher(IMPIExecLauncher):
         Returns 'mpiexec', the name of the PALS MPI Library job launch application.
         """
         return 'mpiexec'
+
+    def num_node_option(self):
+        return ['--ppn', str(self.rank_per_node)]
 
     def affinity_option(self, is_geopmctl):
         """
