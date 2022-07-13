@@ -232,6 +232,15 @@ GTEST_TESTS = test/gtest_links/GPUTopoNullTest.default_config \
               test/gtest_links/PlatformIOTest.write_control_override \
               test/gtest_links/PlatformIOTest.write_control_agg \
               test/gtest_links/PlatformIOTest.write_control_agg_sum \
+              test/gtest_links/PlatformCharacterizationIOGroupTest.read_signal_and_batch \
+              test/gtest_links/PlatformCharacterizationIOGroupTest.push_control_adjust_write_batch \
+              test/gtest_links/PlatformCharacterizationIOGroupTest.error_path \
+              test/gtest_links/PlatformCharacterizationIOGroupTest.check_file_bad_perms \
+              test/gtest_links/PlatformCharacterizationIOGroupTest.check_file_too_old \
+              test/gtest_links/PlatformCharacterizationIOGroupTest.valid_signals_and_controls \
+              test/gtest_links/PlatformCharacterizationIOGroupTest.read_default_signal \
+              test/gtest_links/PlatformCharacterizationIOGroupTest.write_control_read_signal \
+              test/gtest_links/PlatformCharacterizationIOGroupTest.read_signal \
               test/gtest_links/PlatformTopoTest.bdx_domain_idx \
               test/gtest_links/PlatformTopoTest.bdx_is_nested_domain \
               test/gtest_links/PlatformTopoTest.bdx_domain_nested \
@@ -418,6 +427,7 @@ test_geopm_test_SOURCES = test/GPUTopoNullTest.cpp \
                           test/NVMLIOGroupTest.cpp \
                           test/POSIXSignalTest.cpp \
                           test/PlatformIOTest.cpp \
+                          test/PlatformCharacterizationIOGroupTest.cpp \
                           test/PlatformTopoTest.cpp \
                           test/RawMSRSignalTest.cpp \
                           test/SharedMemoryTest.cpp \

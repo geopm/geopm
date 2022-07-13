@@ -24,8 +24,7 @@ namespace geopm
         public:
             PlatformCharacterizationIOGroup();
             PlatformCharacterizationIOGroup(const PlatformTopo &platform_topo,
-                        const std::string &test_cache_file_name,
-                        std::shared_ptr<SaveControl> save_control);
+                                            const std::string &test_cache_file_name);
             virtual ~PlatformCharacterizationIOGroup() = default;
             std::set<std::string> signal_names(void) const override;
             std::set<std::string> control_names(void) const override;
@@ -107,8 +106,6 @@ namespace geopm
             std::map<std::string, control_info> m_control_available;
             std::vector<std::shared_ptr<signal_s> > m_signal_pushed;
             std::vector<std::shared_ptr<control_s> > m_control_pushed;
-
-            std::shared_ptr<SaveControl> m_mock_save_ctl;
     };
 }
 #endif

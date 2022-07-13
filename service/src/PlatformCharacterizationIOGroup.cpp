@@ -41,15 +41,13 @@ namespace geopm
     const std::string PlatformCharacterizationIOGroup::M_SERVICE_CACHE_FILE_NAME = "/run/geopm-service/geopm-characterization-cache";
 
     PlatformCharacterizationIOGroup::PlatformCharacterizationIOGroup()
-        : PlatformCharacterizationIOGroup(platform_topo(), "",
-                      nullptr)
+        : PlatformCharacterizationIOGroup(platform_topo(), "")
     {
     }
 
     // Set up mapping between signal and control names and corresponding indices
     PlatformCharacterizationIOGroup::PlatformCharacterizationIOGroup(const PlatformTopo &platform_topo,
-                             const std::string &test_cache_file_name,
-                             std::shared_ptr<SaveControl> save_control)
+                                                                     const std::string &test_cache_file_name)
         : m_platform_topo(platform_topo)
         , M_TEST_CACHE_FILE_NAME(test_cache_file_name)
         , m_is_batch_read(false)
@@ -78,7 +76,6 @@ namespace geopm
                                   string_format_double
                                   }},
                              })
-        , m_mock_save_ctl(save_control)
     {
         for (int unc_entry = 0; unc_entry < 15; unc_entry++) {
             m_signal_available[M_NAME_PREFIX + "CPU_UNCORE_FREQUENCY_" + std::to_string(unc_entry)] = {
