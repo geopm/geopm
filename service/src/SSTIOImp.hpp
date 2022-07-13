@@ -82,11 +82,11 @@ namespace geopm
             // contains a single message. Each OuterStruct contains multiple
             // messages, with size upper-bounded by m_batch_command_limit.
             template<typename OuterStruct>
-            std::vector<std::unique_ptr<OuterStruct> >
-                ioctl_structs_from_vector(const std::vector<InnerStruct<OuterStruct> >& commands)
+            std::vector<std::unique_ptr<OuterStruct, void (*)(OuterStruct *)> >
+                ioctl_structs_from_vector(const std::vector<InnerStruct<OuterStruct> > &commands)
 
             {
-                std::vector<std::unique_ptr<OuterStruct> > outer_structs;
+                std::vector<std::unique_ptr<OuterStruct, void (*)(OuterStruct *)> > outer_structs;
 
                 size_t handled_commands = 0;
                 while (handled_commands < commands.size())
@@ -101,7 +101,10 @@ namespace geopm
                     // manually allocate the outer struct here.
                     outer_structs.emplace_back(reinterpret_cast<OuterStruct *>(
                         new char[sizeof(OuterStruct::num_entries) +
-                                 sizeof(InnerStruct<OuterStruct>) * commands.size()]));
+                                 sizeof(InnerStruct<OuterStruct>) * commands.size()]),
+                        [](OuterStruct *outer_struct) {
+                            delete[] reinterpret_cast<char *>(outer_struct);
+                        });
                     outer_structs.back()->num_entries = batch_size;
                     std::copy(commands.data() + handled_commands,
                               commands.data() + handled_commands + batch_size,
@@ -126,10 +129,10 @@ namespace geopm
             std::vector<uint32_t> m_mmio_rmw_read_masks;
             std::vector<uint32_t> m_mmio_rmw_write_masks;
             std::vector<std::pair<message_type_e, size_t> > m_added_interfaces;
-            std::vector<std::unique_ptr<sst_mbox_interface_batch_s> > m_mbox_read_batch;
-            std::vector<std::unique_ptr<sst_mbox_interface_batch_s> > m_mbox_write_batch;
-            std::vector<std::unique_ptr<sst_mmio_interface_batch_s> > m_mmio_read_batch;
-            std::vector<std::unique_ptr<sst_mmio_interface_batch_s> > m_mmio_write_batch;
+            std::vector<std::unique_ptr<sst_mbox_interface_batch_s, void(*)(sst_mbox_interface_batch_s*)> > m_mbox_read_batch;
+            std::vector<std::unique_ptr<sst_mbox_interface_batch_s, void(*)(sst_mbox_interface_batch_s*)> > m_mbox_write_batch;
+            std::vector<std::unique_ptr<sst_mmio_interface_batch_s, void(*)(sst_mmio_interface_batch_s*)> > m_mmio_read_batch;
+            std::vector<std::unique_ptr<sst_mmio_interface_batch_s, void(*)(sst_mmio_interface_batch_s*)> > m_mmio_write_batch;
             std::map<uint32_t, uint32_t> m_cpu_punit_core_map;
     };
 }
