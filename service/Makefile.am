@@ -157,8 +157,8 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/DerivativeSignal.hpp \
                        src/DifferenceSignal.cpp \
                        src/DifferenceSignal.hpp \
-                       src/DivisionSignal.cpp \
-                       src/DivisionSignal.hpp \
+                       src/RatioSignal.cpp \
+                       src/RatioSignal.hpp \
                        src/DomainControl.cpp \
                        src/DomainControl.hpp \
                        src/Exception.cpp \
