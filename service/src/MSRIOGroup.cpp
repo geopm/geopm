@@ -438,7 +438,7 @@ namespace geopm
         };
 
         // This block is taking the derivative of the MSR::PPERF:PCNT signal
-        // and the MSR::APERF:ACNT signal.  Later the ratio of PCNT Rate  over
+        // and the MSR::APERF:ACNT signal.  Later the ratio of PCNT Rate over
         // ACNT Rate will be calculated to provide the CPU Scalability signal.
         // The ratio of delta PCNT over delta ACNT may be used instead, however
         // in testing this resulted in a noisy signal, so the derivative class
