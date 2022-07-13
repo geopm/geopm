@@ -80,6 +80,14 @@ Skylake (SKX) Signals
 .. geopm-msr-json:: ../../src/msr_data_skx.json
    :no-controls:
 
+``MSR::CPU_SCALABILITY_RATIO``
+    Measure of CPU Scalability as determined by the derivative
+    of PCNT divided by the derivative of ACNT over 8 samples.
+
+    *  **Aggregation**: average
+    *  **Domain**: matches MSR::PPERF:PCNT
+    *  **Format**: double
+    *  **Unit**: none
 
 Controls
 --------
