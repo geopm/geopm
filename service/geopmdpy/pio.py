@@ -271,11 +271,11 @@ def push_signal(signal_name, domain_type, domain_idx):
     function to access the signal value stored in the internal state
     from the last update.  A distinct signal index will be returned
     for each unique combination of input parameters.  All signals must
-    be pushed onto the stack prior to the fist call to sample() or
-    read_batch().  After calls to sample() or read_batch() have been
+    be pushed onto the stack prior to the fist call to read_batch()
+    or adjust().  After calls to read_batch() or adjust() have been
     made, signals may be pushed again only after calling reset() and
-    before caling sample() or read_batch() again.  Attempts to push a
-    signal onto the stack after the first call to sample() or
+    before caling read_batch() or adjust() again.  Attempts to push a
+    signal onto the stack after the first call to read_batch() or
     read_batch() (and without calling reset()) or attempts to push a
     signal_name that is not provided by signal_names() will result in
     a raised exception.
@@ -310,11 +310,11 @@ def push_control(control_name, domain_type, domain_idx):
     the hardware.  A distinct control index will be returned for each
     unique combination of input parameters.  All controls must be
     pushed onto the stack prior to the first call to the adjust() or
-    write_batch() functions.  After calls to adjust() or
-    write_batch() have been made, controls may be pushed again only
+    read_batch() functions.  After calls to adjust() or
+    read_batch() have been made, controls may be pushed again only
     after calling reset() and before calling adjust() or
-    write_batch() again.  Attempts to push a control onto the stack
-    after the first call to adjust() or write_batch() (and without
+    read_batch() again.  Attempts to push a control onto the stack
+    after the first call to adjust() or read_batch() (and without
     calling reset()) or attempts to push a control_name that is not
     a value provided by the control_names() function will result in a
     raised exception.

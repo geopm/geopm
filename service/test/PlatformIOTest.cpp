@@ -464,6 +464,21 @@ TEST_F(PlatformIOTest, sample)
     GEOPM_EXPECT_THROW_MESSAGE(m_platio->sample(10), GEOPM_ERROR_INVALID, "signal_idx out of range");
 }
 
+TEST_F(PlatformIOTest, sample_not_active)
+{
+    /*EXPECT_CALL(*m_control_iogroup, control_domain_type("FREQ")).Times(2);
+    EXPECT_CALL(*m_control_iogroup, read_signal("FREQ", GEOPM_DOMAIN_CPU, 0));
+    EXPECT_CALL(*m_control_iogroup, write_control("FREQ", GEOPM_DOMAIN_CPU, 0, _));
+    EXPECT_CALL(*m_control_iogroup, push_control("FREQ", _, _));*/
+    int freq_idx_ctrl = m_platio->push_control("FREQ", GEOPM_DOMAIN_CPU, 0);
+    int freq_idx_sig = m_platio->push_signal("FREQ", GEOPM_DOMAIN_CPU, 0);
+
+    //EXPECT_CALL(*m_control_iogroup, adjust(freq_idx_ctrl, 3e9));
+    m_platio->adjust(freq_idx_ctrl, 3e9);
+
+    GEOPM_EXPECT_THROW_MESSAGE(m_platio->sample(freq_idx_sig), GEOPM_ERROR_RUNTIME, "read_batch() not called prior to call to sample()");
+}
+
 TEST_F(PlatformIOTest, sample_agg)
 {
     EXPECT_CALL(*m_topo, is_nested_domain(GEOPM_DOMAIN_CPU,
