@@ -10,33 +10,33 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-#include "DivisionSignal.hpp"
+#include "RatioSignal.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm_test.hpp"
 #include "MockSignal.hpp"
 
-using geopm::DivisionSignal;
+using geopm::RatioSignal;
 using testing::Return;
 using testing::IsNan;
 
-class DivisionSignalTest : public ::testing::Test
+class RatioSignalTest : public ::testing::Test
 {
     protected:
         void SetUp();
         int m_domain;
         std::shared_ptr<MockSignal> m_numerator;
         std::shared_ptr<MockSignal> m_denominator;
-        std::shared_ptr<DivisionSignal> m_sig;
+        std::shared_ptr<RatioSignal> m_sig;
 };
 
-void DivisionSignalTest::SetUp()
+void RatioSignalTest::SetUp()
 {
     m_numerator = std::make_shared<MockSignal>();
     m_denominator = std::make_shared<MockSignal>();
-    m_sig = std::make_shared<DivisionSignal>(m_numerator, m_denominator);
+    m_sig = std::make_shared<RatioSignal>(m_numerator, m_denominator);
 }
 
-TEST_F(DivisionSignalTest, read)
+TEST_F(RatioSignalTest, read)
 {
     double num = 67.8;
     double den = 34.11;
@@ -47,7 +47,7 @@ TEST_F(DivisionSignalTest, read)
     EXPECT_NEAR(expected, result, 0.00001);
 }
 
-TEST_F(DivisionSignalTest, read_div_by_zero)
+TEST_F(RatioSignalTest, read_div_by_zero)
 {
     double num = 67.8;
     double den = 0;
@@ -57,7 +57,7 @@ TEST_F(DivisionSignalTest, read_div_by_zero)
     EXPECT_THAT(result, IsNan());
 }
 
-TEST_F(DivisionSignalTest, read_batch)
+TEST_F(RatioSignalTest, read_batch)
 {
     EXPECT_CALL(*m_numerator, setup_batch());
     EXPECT_CALL(*m_denominator, setup_batch());
@@ -72,7 +72,7 @@ TEST_F(DivisionSignalTest, read_batch)
     EXPECT_NEAR(expected, result, 0.00001);
 }
 
-TEST_F(DivisionSignalTest, read_batch_div_by_zero)
+TEST_F(RatioSignalTest, read_batch_div_by_zero)
 {
     EXPECT_CALL(*m_numerator, setup_batch());
     EXPECT_CALL(*m_denominator, setup_batch());
@@ -86,7 +86,7 @@ TEST_F(DivisionSignalTest, read_batch_div_by_zero)
     EXPECT_THAT(result, IsNan());
 }
 
-TEST_F(DivisionSignalTest, setup_batch)
+TEST_F(RatioSignalTest, setup_batch)
 {
     // setup batch can be called multiple times without further side effects
     EXPECT_CALL(*m_numerator, setup_batch()).Times(1);
@@ -95,14 +95,14 @@ TEST_F(DivisionSignalTest, setup_batch)
     m_sig->setup_batch();
 }
 
-TEST_F(DivisionSignalTest, errors)
+TEST_F(RatioSignalTest, errors)
 {
 #ifdef GEOPM_DEBUG
     // cannot construct with null signals
-    GEOPM_EXPECT_THROW_MESSAGE(DivisionSignal(nullptr, m_denominator),
+    GEOPM_EXPECT_THROW_MESSAGE(RatioSignal(nullptr, m_denominator),
                                GEOPM_ERROR_LOGIC,
                                "numerator and denominator cannot be null");
-    GEOPM_EXPECT_THROW_MESSAGE(DivisionSignal(m_numerator, nullptr),
+    GEOPM_EXPECT_THROW_MESSAGE(RatioSignal(m_numerator, nullptr),
                                GEOPM_ERROR_LOGIC,
                                "numerator and denominator cannot be null");
 #endif

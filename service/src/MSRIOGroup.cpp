@@ -30,7 +30,7 @@
 #include "DifferenceSignal.hpp"
 #include "TimeSignal.hpp"
 #include "DerivativeSignal.hpp"
-#include "DivisionSignal.hpp"
+#include "RatioSignal.hpp"
 #include "MultiplicationSignal.hpp"
 #include "Control.hpp"
 #include "MSRFieldControl.hpp"
@@ -412,20 +412,13 @@ namespace geopm
     void MSRIOGroup::register_pcnt_scalability_signals(void)
     {
         // Tracking for intermediate signals that will not
-        // be exposed to the user but will be used to 
+        // be exposed to the user but will be used to
         // generate user visible signals
         std::map<std::string, signal_info> signal_hidden;
 
-        // register time signal; domain board
-        std::string time_name = "MSR::TIME";
-        std::shared_ptr<Signal> time_sig = std::make_shared<TimeSignal>(m_time_zero, m_time_batch);
-        signal_hidden[time_name] = {std::vector<std::shared_ptr<Signal> >({time_sig}),
-                                    GEOPM_DOMAIN_CPU,
-                                    IOGroup::M_UNITS_SECONDS,
-                                    Agg::select_first,
-                                    "Time in seconds used to calculate pcnt_rate, acnt_rate",
-                                    IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
-                                    string_format_double};
+        // MSR::TIME is a board level signal as defined in register_power_signals;
+        std::shared_ptr<Signal> time_sig = m_signal_available.find("MSR::TIME")->second.signals.at(0);
+
         int derivative_window = 8;
         double sleep_time = 0.005;  // 5000 us
 
@@ -438,6 +431,7 @@ namespace geopm
             std::string description;
             std::string msr_name;
         };
+
         std::vector<cnt_data> cnt_signals {
             {"MSR::PCNT_RATE",
                     "Average cpu pcnt rate over 8 control loop iterations (40ms if using geopmread)",
@@ -446,6 +440,13 @@ namespace geopm
                     "Average cpu acnt rate over 8 control loop iterations (40ms if using geopmread)",
                     "MSR::APERF:ACNT"}
         };
+
+        // This block is taking the derivative of the MSR::PPERF:PCNT signal
+        // and the MSR::APERF:ACNT signal.  Later the ratio of PCNT Rate  over
+        // ACNT Rate will be calculated to provide the CPU Scalability signal.
+        // The ratio of delta PCNT over delta ACNT may be used instead, however
+        // in testing this resulted in a noisy signal, so the derivative class
+        // is used.
         for (const auto &ps : cnt_signals) {
             std::string signal_name = ps.cnt_name;
             std::string msr_name = ps.msr_name;
@@ -460,11 +461,18 @@ namespace geopm
                 std::vector<std::shared_ptr<Signal> > result(num_domain);
                 for (int domain_idx = 0; domain_idx < num_domain; ++domain_idx) {
                     auto dt_cnt = readings[domain_idx];
+                    // The derivative signal is being used here due to
+                    // signal noise when sampled at faster cadences, similar
+                    // to the energy signal.
                     result[domain_idx] =
                         std::make_shared<DerivativeSignal>(time_sig, dt_cnt,
                                                            derivative_window,
                                                            sleep_time);
                 }
+
+                // Store the PCNT_RATE and ACNT_RATE in a data structure that is not
+                // m_signal_available so that the end user is not exposed to intermediary
+                // signals
                 signal_hidden[signal_name] = {result,
                                               cnt_domain,
                                               IOGroup::M_UNITS_HERTZ,
@@ -475,6 +483,7 @@ namespace geopm
             }
         }
 
+        // This block provides the ratio of PCNT_RATE over ACNT_RATE.
         std::string signal_name = "MSR::CPU_SCALABILITY_RATIO";
         std::string msr_name = "MSR::PCNT_RATE";
         auto read_it = signal_hidden.find(msr_name);
@@ -496,15 +505,15 @@ namespace geopm
                 auto denom = denoms[domain_idx];
 
                 result[domain_idx] =
-                    std::make_shared<DivisionSignal>(numer, denom);
+                    std::make_shared<RatioSignal>(numer, denom);
             }
 
             m_signal_available[signal_name] = {result,
                                                cnt_domain,
                                                IOGroup::M_UNITS_NONE,
                                                Agg::average,
-                                               "Measure of CPU Scalability as determined " 
-                                               "by the derivative of PCNT divided by the " 
+                                               "Measure of CPU Scalability as determined "
+                                               "by the derivative of PCNT divided by the "
                                                "derivative of ACNT over 8 samples",
                                                IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                                string_format_double};
@@ -553,16 +562,8 @@ namespace geopm
         }
 
 
-        // register time signal; domain board
-        std::string time_name = "MSR::TIME";
-        std::shared_ptr<Signal> time_sig = std::make_shared<TimeSignal>(m_time_zero, m_time_batch);
-        m_signal_available[time_name] = {std::vector<std::shared_ptr<Signal> >({time_sig}),
-                                         GEOPM_DOMAIN_BOARD,
-                                         IOGroup::M_UNITS_SECONDS,
-                                         Agg::select_first,
-                                         "Time in seconds",
-                                         IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
-                                         string_format_double};
+        // MSR::TIME is a board level signal as defined in register_power_signals;
+        std::shared_ptr<Signal> time_sig = m_signal_available.find("MSR::TIME")->second.signals.at(0);
 
         msr_name = "QM_CTR_SCALED";
         signal_name = "QM_CTR_SCALED_RATE";

@@ -5,17 +5,18 @@
 
 #include "config.h"
 
-#include "DivisionSignal.hpp"
+#include "RatioSignal.hpp"
 
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm_debug.hpp"
 
 #include <limits>
+#include <cmath>
 
 namespace geopm
 {
-    DivisionSignal::DivisionSignal(std::shared_ptr<Signal> numerator,
+    RatioSignal::RatioSignal(std::shared_ptr<Signal> numerator,
                                    std::shared_ptr<Signal> denominator)
         : m_numerator(numerator)
         , m_denominator(denominator)
@@ -25,7 +26,7 @@ namespace geopm
                            "Signal pointers for numerator and denominator cannot be null.");
     }
 
-    void DivisionSignal::setup_batch(void)
+    void RatioSignal::setup_batch(void)
     {
         if (!m_is_batch_ready) {
             m_numerator->setup_batch();
@@ -34,14 +35,14 @@ namespace geopm
         }
     }
 
-    double DivisionSignal::sample(void)
+    double RatioSignal::sample(void)
     {
         if (!m_is_batch_ready) {
             throw Exception("setup_batch() must be called before sample().",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
 
-        double result = std::numeric_limits<double>::quiet_NaN();
+        double result = NAN;
         double numer = m_numerator->sample();
         double denom = m_denominator->sample();
 
@@ -51,9 +52,9 @@ namespace geopm
         return result;
     }
 
-    double DivisionSignal::read(void) const
+    double RatioSignal::read(void) const
     {
-        double result = std::numeric_limits<double>::quiet_NaN();
+        double result = NAN;
         double numer = m_numerator->read();
         double denom = m_denominator->read();
 

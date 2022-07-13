@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef DIVISIONSIGNAL_HPP_INCLUDE
-#define DIVISIONSIGNAL_HPP_INCLUDE
+#ifndef RATIOSIGNAL_HPP_INCLUDE
+#define RATIOSIGNAL_HPP_INCLUDE
 
 #include <memory>
 
@@ -13,14 +13,14 @@
 namespace geopm
 {
     /// @brief A composite signal used by an IOGroup to produce a signal as
-    /// the Division of two signals.
-    class DivisionSignal : public Signal
+    /// the Ratio of two signals.
+    class RatioSignal : public Signal
     {
         public:
-            DivisionSignal(std::shared_ptr<Signal> numerator,
+            RatioSignal(std::shared_ptr<Signal> numerator,
                            std::shared_ptr<Signal> denominator);
-            DivisionSignal(const DivisionSignal &other) = delete;
-            virtual ~DivisionSignal() = default;
+            RatioSignal(const RatioSignal &other) = delete;
+            virtual ~RatioSignal() = default;
             void setup_batch(void) override;
             double sample(void) override;
             double read(void) const override;
