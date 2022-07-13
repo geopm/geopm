@@ -397,7 +397,7 @@ namespace geopm
         if (m_qm_max_rate.size() == 0) {
             // We do not guarantee an ordering or limit to the MBM characterization entries,
             // so we check all characterization entries to see if they are MBM characterization
-            for (int entry_idx = 0; entry_idx < all_names.size(); ++entry_idx) {
+            for (int entry_idx = 0; entry_idx < (int)all_names.size(); ++entry_idx) {
                 std::string key_name = "NODE_CHARACTERIZATION::CPU_UNCORE_FREQUENCY_" +
                                        std::to_string(entry_idx);
                 std::string val_name = "NODE_CHARACTERIZATION::CPU_UNCORE_MAXIMUM_MEMORY_BANDWIDTH_" +
