@@ -51,11 +51,11 @@
             "additionalProperties": {
               "$ref": "#/definitions/msrFields"
             }
-          },
+          }
         },
         "required": ["offset", "domain", "fields"],
         "additionalProperties": false
-      },
+      }
     },
     "type": "object",
     "properties": {
