@@ -232,7 +232,8 @@ namespace geopm
 
     PlatformIOImp::PlatformIOImp(std::list<std::shared_ptr<IOGroup> > iogroup_list,
                                  const PlatformTopo &topo)
-        : m_is_active(false)
+        : m_is_signal_active(false)
+        , m_is_control_active(false)
         , m_platform_topo(topo)
         , m_iogroup_list(iogroup_list)
         , m_do_restore(false)
@@ -378,7 +379,7 @@ namespace geopm
                                    int domain_type,
                                    int domain_idx)
     {
-        if (m_is_active) {
+        if (m_is_signal_active || m_is_control_active) {
             throw Exception("PlatformIOImp::push_signal(): pushing signals after read_batch() or adjust().",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
@@ -487,7 +488,7 @@ namespace geopm
                                     int domain_type,
                                     int domain_idx)
     {
-        if (m_is_active) {
+        if (m_is_signal_active || m_is_control_active) {
             throw Exception("PlatformIOImp::push_control(): pushing controls after read_batch() or adjust().",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
@@ -593,7 +594,7 @@ namespace geopm
             throw Exception("PlatformIOImp::sample(): signal_idx out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        if (!m_is_active) {
+        if (!m_is_signal_active) {
             throw Exception("PlatformIOImp::sample(): read_batch() not called prior to call to sample()",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
@@ -642,7 +643,7 @@ namespace geopm
         else {
             group_idx_pair.first->adjust(group_idx_pair.second, setting);
         }
-        m_is_active = true;
+        m_is_control_active = true;
     }
 
     void PlatformIOImp::read_batch(void)
@@ -650,7 +651,7 @@ namespace geopm
         for (auto &it : m_iogroup_list) {
             it->read_batch();
         }
-        m_is_active = true;
+        m_is_signal_active = true;
     }
 
     void PlatformIOImp::write_batch(void)

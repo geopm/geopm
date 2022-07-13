@@ -144,15 +144,16 @@ int geopm_pio_write_control(const char *control_name,
 /// @details Subsequent calls to the geopm_pio_read_batch() function
 ///          will read the signal and update the internal state used
 ///          to store batch signals.  All signals must be pushed onto
-///          the stack prior to the first call to geopm_pio_sample()
-///          or geopm_pio_read_batch().  After calls to
-///          geopm_pio_sample() or geopm_pio_read_batch() have been
-///          made, signals may be pushed again only after performing
-///          a reset by calling geopm_pio_reset() and before calling
-///          geopm_pio_sample() or geopm_pio_read_batch() again.
-///          Attempts to push a signal onto the stack after the first
-///          call to geopm_pio_sample() or geopm_pio_read_batch()
-///          (and without performing a reset) or attempts to push a
+///          the stack prior to the first call to
+///          geopm_pio_read_batch() or geopm_pio_adjust().  After
+///          calls to geopm_pio_read_batch() or geopm_pio_adjust()
+///          have been made, signals may be pushed again only after
+///          performing a reset by calling geopm_pio_reset() and
+///          before calling geopm_pio_read_batch() or
+///          geopm_pio_adjust() again.  Attempts to push a signal
+///          onto the stack after the first call to
+///          geopm_pio_read_batch() or geopm_pio_adjust() (and
+///          without performing a reset) or attempts to push a
 ///          signal_name that is not a value provided by
 ///          geopm_pio_signal_name() will result in a negative return
 ///          value.
@@ -187,18 +188,18 @@ int geopm_pio_push_signal(const char *signal_name,
 ///          access the control values in the internal state and write
 ///          the values to the hardware.  All controls must be pushed
 ///          onto the stack prior to the first call to
-///          geopm_pio_adjust() or geopm_pio_write_batch().  After
-///          calls to geopm_pio_adjust() or geopm_pio_write_batch()
+///          geopm_pio_adjust() or geopm_pio_read_batch().  After
+///          calls to geopm_pio_adjust() or geopm_pio_read_batch()
 ///          have been made, controls may be pushed again only after
 ///          performing a reset by calling geopm_pio_reset() and
 ///          before calling geopm_pio_adjust() or
-///          geopm_pio_write_batch() again.  Attempts to push a
+///          geopm_pio_read_batch() again.  Attempts to push a
 ///          control onto the stack after the first call to
-///          geopm_pio_adjust() or geopm_pio_write_batch() (and
+///          geopm_pio_adjust() or geopm_pio_read_batch() (and
 ///          without performing a reset) or attempts to push a
 ///          control_name that is not a value provided by
-///          geopm_pio_control_name() will result in a negative
-///          return value.
+///          geopm_pio_control_name() will result in a negative return
+///          value.
 ///
 /// @param [in] control_name The name of the control, coming from the
 ///        geopm_pio_control_name() function.
