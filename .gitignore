@@ -66,6 +66,7 @@ compile_commands.json
 /integration/apps/nekbone/nekbone/
 /integration/apps/pennant/PENNANT/
 /integration/apps/pennant/pennant_1_0_1.tgz
+/integration/apps/arithmetic_intensity/ARITHMETIC_INTENSITY*.tgz
 /integration/test/*.config
 /integration/test/geopm_test_integration
 /integration/test/geopm_test_integration.pyc
