@@ -26,10 +26,8 @@ import shlex
 import textwrap
 import io
 import locale
-import pipes
 import socket
 import tempfile
-import traceback
 import stat
 
 from collections import OrderedDict
