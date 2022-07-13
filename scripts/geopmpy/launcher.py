@@ -30,6 +30,7 @@ import pipes
 import socket
 import tempfile
 import traceback
+import stat
 
 from collections import OrderedDict
 from . import __version__
@@ -148,6 +149,7 @@ class Config(object):
         parser.add_argument('--geopm-record-filter', dest='record_filter', type=str)
         parser.add_argument('--geopm-affinity-disable', dest='do_affinity', action='store_false', default=True)
         parser.add_argument('--geopm-launch-verbose', dest='quiet', action='store_false', default=True)
+        parser.add_argument('--geopm-launch-script', dest='launch_script', type=str)
         opts, self.argv_unparsed = parser.parse_known_args(argv)
         # Error check inputs
         if opts.ctl not in ('process', 'pthread', 'application'):
@@ -177,6 +179,7 @@ class Config(object):
         self.record_filter = opts.record_filter
         self.do_affinity = opts.do_affinity
         self.quiet = opts.quiet
+        self.launch_script = opts.launch_script
 
     def __repr__(self):
         """
@@ -480,6 +483,13 @@ class Launcher(object):
         echo = u'\n' + u' '.join(echo) + u'\n\n'
         if not self.quiet:
             stderr.write(echo) # Echo the command that's about to be run
+        if self.is_geopm_enabled and self.config.launch_script:
+            with open(self.config.launch_script, 'w') as fid:
+                fid.write('#!/bin/bash\n')
+                fid.write(echo)
+            mode = os.stat(self.config.launch_script).st_mode
+            os.chmod(self.config.launch_script, mode | stat.S_IEXEC)
+
         signal.signal(signal.SIGINT, self.int_handler)
 
         # Re-quote the arguments before concatenating them so we don't treat
@@ -1728,6 +1738,8 @@ GEOPM_OPTIONS:
       --geopm-ompt-disable     disable automatic OpenMP region detection
       --geopm-affinity-disable do not emit CPU affinity settings
       --geopm-launch-verbose   emit launch script and affinity configuration to stderr
+      --geopm-launch-script=output_file
+                               emit launch script to output_file
 
 {}
 
