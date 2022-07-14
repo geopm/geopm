@@ -81,26 +81,24 @@ void FixedFrequencyAgentTest::SetUp()
     ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_GPU))
         .WillByDefault(Return(M_NUM_BOARD_ACCELERATOR));
 
-    ON_CALL(*m_platform_io, push_control("FREQUENCY_GPU_CONTROL", _, _))
+    ON_CALL(*m_platform_io, push_control("GPU_CORE_FREQUENCY_CONTROL", _, _))
         .WillByDefault(Return(FREQUENCY_GPU_CONTROL_IDX));
-    ON_CALL(*m_platform_io, push_control("FREQUENCY", _, _))
-        .WillByDefault(Return(FREQ_CONTROL_IDX));
     ON_CALL(*m_platform_io, push_control("CPU_FREQUENCY_CONTROL", _, _))
         .WillByDefault(Return(FREQ_CONTROL_IDX));
-    ON_CALL(*m_platform_io, push_control("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO", _, _))
+    ON_CALL(*m_platform_io, push_control("CPU_UNCORE_FREQUENCY_MIN_CONTROL", _, _))
         .WillByDefault(Return(UNCORE_MIN_CTL_IDX));
-    ON_CALL(*m_platform_io, push_control("MSR::UNCORE_RATIO_LIMIT:MAX_RATIO", _, _))
+    ON_CALL(*m_platform_io, push_control("CPU_UNCORE_FREQUENCY_MAX_CONTROL", _, _))
         .WillByDefault(Return(UNCORE_MAX_CTL_IDX));
     ON_CALL(*m_platform_io, agg_function(_))
         .WillByDefault(Return(geopm::Agg::average));
 
     m_freq_gpu_min = 0135000000.0;
     m_freq_gpu_max = 1530000000.0;
-    ON_CALL(*m_platform_io, control_domain_type("FREQUENCY_GPU_CONTROL"))
+    ON_CALL(*m_platform_io, control_domain_type("GPU_CORE_FREQUENCY_CONTROL"))
         .WillByDefault(Return(GEOPM_DOMAIN_GPU));
-    ON_CALL(*m_platform_io, read_signal("GPU_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0))
+    ON_CALL(*m_platform_io, read_signal("GPU_CORE_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0))
         .WillByDefault(Return(m_freq_gpu_min));
-    ON_CALL(*m_platform_io, read_signal("GPU_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0))
+    ON_CALL(*m_platform_io, read_signal("GPU_CORE_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0))
         .WillByDefault(Return(m_freq_gpu_max));
 
     ASSERT_LT(m_freq_gpu_min, 0.2e9);
@@ -111,13 +109,13 @@ void FixedFrequencyAgentTest::SetUp()
     m_freq_uncore_min = 1700000000;
     m_freq_uncore_max = 2100000000;
 
-    ON_CALL(*m_platform_io, read_signal("FREQUENCY_MIN", GEOPM_DOMAIN_BOARD, 0))
+    ON_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0))
       .WillByDefault(Return(m_freq_min));
-    ON_CALL(*m_platform_io, read_signal("FREQUENCY_MAX", GEOPM_DOMAIN_BOARD, 0))
+    ON_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0))
       .WillByDefault(Return(m_freq_max));
-    ON_CALL(*m_platform_io, read_signal("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO", GEOPM_DOMAIN_BOARD, 0))
+    ON_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MIN_CONTROL", GEOPM_DOMAIN_BOARD, 0))
         .WillByDefault(Return(m_freq_uncore_min));
-    ON_CALL(*m_platform_io, read_signal("MSR::UNCORE_RATIO_LIMIT:MAX_RATIO", GEOPM_DOMAIN_BOARD, 0))
+    ON_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MAX_CONTROL", GEOPM_DOMAIN_BOARD, 0))
         .WillByDefault(Return(m_freq_uncore_max));
 
     ASSERT_LT(m_freq_min, 1.9e9);
@@ -150,13 +148,13 @@ TEST_F(FixedFrequencyAgentTest, validate_policy)
     const std::vector<double> empty(m_num_policy, NAN);
     std::vector<double> policy;
 
-    EXPECT_CALL(*m_platform_io, read_signal("GPU_FREQUENCY_MIN_AVAIL", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("GPU_CORE_FREQUENCY_MIN_AVAIL", _, _)).WillRepeatedly(
                 Return(m_freq_gpu_min));
-    EXPECT_CALL(*m_platform_io, read_signal("GPU_FREQUENCY_MAX_AVAIL", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("GPU_CORE_FREQUENCY_MAX_AVAIL", _, _)).WillRepeatedly(
                 Return(m_freq_gpu_max));
-    EXPECT_CALL(*m_platform_io, read_signal("FREQUENCY_MIN", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MIN_AVAIL", _, _)).WillRepeatedly(
                 Return(m_freq_min));
-    EXPECT_CALL(*m_platform_io, read_signal("FREQUENCY_MAX", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MAX_AVAIL", _, _)).WillRepeatedly(
                 Return(m_freq_max));
 
 
