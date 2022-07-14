@@ -17,8 +17,8 @@ Read a signal at a specific period for a specific timeout
 
 .. code-block:: none
 
-    geopmsession -p -t
-    geopmsession --period --time
+    geopmsession -p PERIOD_IN_SECONDS -t TIMEOUT_IN_SECONDS
+    geopmsession --period PERIOD_IN_SECONDS --time TIMEOUT_IN_SECONDS
 
 Read a set of signals
 ~~~~~~~~~~~~~~~~~~~~~
