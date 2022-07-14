@@ -40,11 +40,11 @@
       "msrObject": {
         "type": "object",
         "properties": {
-          "offest": {
+          "offset": {
             "type": "string"
           },
           "domain": {
-            "enum": ["board", "package", "core", "cpu", "board_memory", "package_memory", "board_nic", "package_nic", "board_accelerator", "package_accelerator", "board_accelerator_chip"]
+            "enum": ["board", "package", "core", "cpu", "memory", "package_integrated_memory", "nic", "package_integrated_nic", "gpu", "package_integrated_gpu", "gpu_chip"]
           },
           "fields": {
             "type": "object",
