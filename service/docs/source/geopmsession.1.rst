@@ -12,18 +12,13 @@ Read a signal
 
     echo "SIGNAL_NAME DOMAIN DOMAIN_IDX" | geopmsession
 
-Read a signal at a specific period
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Read a signal at a specific period for a specific timeout
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: none
 
-    geopmsession -p | --period
-
-Control the session runtime length
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. code-block:: none
-
-    geopmsession -t | --time
+    geopmsession -p -t
+    geopmsession --period --time
 
 Read a set of signals
 ~~~~~~~~~~~~~~~~~~~~~
@@ -39,6 +34,7 @@ Get Help or Version
 .. code-block:: none
 
     geopmsession -h
+    geopmsession --help
 
 
 Description
@@ -84,13 +80,14 @@ This will execute one read of the signal.
 
 Reading a signal periodically
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Both a polling period and runtime must be specified.
-The polling period must be shorter than the runtime specified.
+Both a polling period and timeout must be specified.
+The polling period must be shorter than the timeout specified.
 
 A 100ms polling period with a 300ms timeout is shown below:
+
 .. code-block:: none
 
-    echho -e 'MSR::THERM_STATUS# core 0' | geopmsession -p 0.1 -t 0.3
+    echo -e 'MSR::THERM_STATUS# core 0' | geopmsession -p 0.1 -t 0.3
     0x0000000088410000
     0x0000000088420000
     0x0000000088420000
