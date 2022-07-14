@@ -148,7 +148,7 @@ namespace geopm
         if (domain != GEOPM_DOMAIN_GPU_CHIP) {
             throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
                              ": domain " + std::to_string(domain) +
-                            " is not supported for the frequency domain.",
+                            " is not supported for reading the \"frequency throttle reason\"",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
