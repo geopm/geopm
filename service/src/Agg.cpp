@@ -72,7 +72,7 @@ namespace geopm
         double result = NAN;
         uint64_t agg_tmp = 0;
         if (filtered.size()) {
-            for (auto it : filtered) {
+            for (const auto &it : filtered) {
                 if (it >= 0) {
                     agg_tmp |= (uint64_t) it;
                 }
