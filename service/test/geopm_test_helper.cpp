@@ -63,6 +63,15 @@ bool is_agg_median(std::function<double(const std::vector<double> &)> func)
     return func(example_data) == geopm::Agg::median(example_data);
 }
 
+bool is_agg_integer_bitwise_or(std::function<double(const std::vector<double> &)> func)
+{
+    return func({1, 2, 3}) == 3.0 &&
+           func({1, 0, 1}) == 1.0 &&
+           func({0, 0, 0}) == 0.0 &&
+           func({4, 2, 1}) == 7 &&
+           std::isnan(func({}));
+}
+
 bool is_agg_logical_and(std::function<double(const std::vector<double> &)> func)
 {
     return func({1, 1, 1}) == 1.0 &&

@@ -66,16 +66,14 @@ namespace geopm
         return result;
     }
 
-    double Agg::bitwise_or(const std::vector<double> &operand)
+    double Agg::integer_bitwise_or(const std::vector<double> &operand)
     {
         auto filtered = nan_filter(operand);
         double result = NAN;
-        uint64_t agg_tmp = 0;
         if (filtered.size()) {
+            int64_t agg_tmp = 0;
             for (const auto &it : filtered) {
-                if (it >= 0) {
-                    agg_tmp |= (uint64_t) it;
-                }
+                agg_tmp |= (int64_t) it;
             }
             result = (double) agg_tmp;
         }
@@ -202,6 +200,7 @@ namespace geopm
             {"sum", sum},
             {"average", average},
             {"median", median},
+            {"integer_bitwise_or", integer_bitwise_or},
             {"logical_and", logical_and},
             {"logical_or", logical_or},
             {"region_hash", region_hash},
@@ -227,6 +226,7 @@ namespace geopm
             {sum, "sum"},
             {average, "average"},
             {median, "median"},
+            {integer_bitwise_or, "integer_bitwise_or"},
             {logical_and, "logical_and"},
             {logical_or, "logical_or"},
             {region_hash, "region_hash"},
@@ -253,6 +253,7 @@ namespace geopm
             {sum, M_SUM},
             {average, M_AVERAGE},
             {median, M_MEDIAN},
+            {integer_bitwise_or, M_INTEGER_BITWISE_OR},
             {logical_and, M_LOGICAL_AND},
             {logical_or, M_LOGICAL_OR},
             {region_hash, M_REGION_HASH},
@@ -279,6 +280,7 @@ namespace geopm
             {M_SUM, sum},
             {M_AVERAGE, average},
             {M_MEDIAN, median},
+            {M_INTEGER_BITWISE_OR, integer_bitwise_or},
             {M_LOGICAL_AND, logical_and},
             {M_LOGICAL_OR, logical_or},
             {M_REGION_HASH, region_hash},
@@ -303,6 +305,7 @@ namespace geopm
             {M_SUM, "sum"},
             {M_AVERAGE, "average"},
             {M_MEDIAN, "median"},
+            {M_INTEGER_BITWISE_OR, "integer_bitwise_or"},
             {M_LOGICAL_AND, "logical_and"},
             {M_LOGICAL_OR, "logical_or"},
             {M_REGION_HASH, "region_hash"},

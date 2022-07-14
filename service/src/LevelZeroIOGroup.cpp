@@ -118,7 +118,7 @@ namespace geopm
                               {M_NAME_PREFIX + "GPU_CORE_THROTTLE_REASONS", {
                                   "GPU Compute Hardware throttle reasons.  See oneAPI Level Zero Sysman Spec for decoding",
                                   GEOPM_DOMAIN_GPU_CHIP,
-                                  Agg::bitwise_or,
+                                  Agg::integer_bitwise_or,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_integer,
                                   {},
