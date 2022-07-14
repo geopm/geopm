@@ -21,6 +21,7 @@ namespace geopm
                 M_SUM,
                 M_AVERAGE,
                 M_MEDIAN,
+                M_INTEGER_BITWISE_OR,
                 M_LOGICAL_AND,
                 M_LOGICAL_OR,
                 M_MIN,
@@ -39,9 +40,9 @@ namespace geopm
             /// @brief Returns the median of the input operands.
             static double median(const std::vector<double> &operand);
             /// @brief Returns the output of bitwise OR over all the
-            ///        operands where 0 is false and all positive numbers
-            ///        are true
-            static double bitwise_or(const std::vector<double> &operand);
+            ///        operands after casting them to int64_t where 0
+            ///        is false and all positive numbers are true
+            static double integer_bitwise_or(const std::vector<double> &operand);
             /// @brief Returns the output of logical AND over all the
             ///        operands where 0.0 is false and all other
             ///        values are true.

@@ -21,6 +21,7 @@ bool is_format_raw64(std::function<std::string(double)> func);
 bool is_agg_sum(std::function<double(const std::vector<double> &)> func);
 bool is_agg_average(std::function<double(const std::vector<double> &)> func);
 bool is_agg_median(std::function<double(const std::vector<double> &)> func);
+bool is_agg_integer_bitwise_or(std::function<double(const std::vector<double> &)> func);
 bool is_agg_logical_and(std::function<double(const std::vector<double> &)> func);
 bool is_agg_logical_or(std::function<double(const std::vector<double> &)> func);
 bool is_agg_region_hash(std::function<double(const std::vector<double> &)> func);

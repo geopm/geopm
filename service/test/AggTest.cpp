@@ -41,19 +41,19 @@ TEST(AggTest, agg_function)
     EXPECT_EQ(1.0, Agg::logical_or({1.0, 1.0, 0.0}));
     EXPECT_EQ(0.0, Agg::logical_or({0.0, 0.0}));
 
-    EXPECT_EQ(1, Agg::bitwise_or({0.0, 0.0, 1.0, 0.0}));
-    EXPECT_EQ(0, Agg::bitwise_or({0.0, 0.0}));
-    EXPECT_EQ(7, Agg::bitwise_or({5.0, 2.0}));
-    EXPECT_EQ(3, Agg::bitwise_or({3.0, 1.0}));
-    EXPECT_EQ(6, Agg::bitwise_or({4.0, 2.0}));
-    EXPECT_EQ(0, Agg::bitwise_or({0.0, 0.0, NAN}));
-    EXPECT_EQ(0, Agg::bitwise_or({0.1, 0}));
-    EXPECT_EQ(0, Agg::bitwise_or({-1, 0}));
-    EXPECT_EQ(1, Agg::bitwise_or({1, 0}));
-    EXPECT_EQ(0, Agg::bitwise_or({NAN, 0.0}));
-    EXPECT_EQ(1, Agg::bitwise_or({NAN, 1.0, NAN}));
-    EXPECT_TRUE(std::isnan(Agg::bitwise_or({NAN, NAN})));
-    EXPECT_EQ(1, Agg::bitwise_or({NAN, 1.0}));
+    EXPECT_EQ(1, Agg::integer_bitwise_or({0.0, 0.0, 1.0, 0.0}));
+    EXPECT_EQ(0, Agg::integer_bitwise_or({0.0, 0.0}));
+    EXPECT_EQ(7, Agg::integer_bitwise_or({5.0, 2.0}));
+    EXPECT_EQ(3, Agg::integer_bitwise_or({3.0, 1.0}));
+    EXPECT_EQ(6, Agg::integer_bitwise_or({4.0, 2.0}));
+    EXPECT_EQ(0, Agg::integer_bitwise_or({0.0, 0.0, NAN}));
+    EXPECT_EQ(0, Agg::integer_bitwise_or({0.1, 0}));
+    EXPECT_EQ(-1, Agg::integer_bitwise_or({-1, 0}));
+    EXPECT_EQ(1, Agg::integer_bitwise_or({1, 0}));
+    EXPECT_EQ(0, Agg::integer_bitwise_or({NAN, 0.0}));
+    EXPECT_EQ(1, Agg::integer_bitwise_or({NAN, 1.0, NAN}));
+    EXPECT_TRUE(std::isnan(Agg::integer_bitwise_or({NAN, NAN})));
+    EXPECT_EQ(1, Agg::integer_bitwise_or({NAN, 1.0}));
 
     EXPECT_TRUE(std::isnan(Agg::region_hash({})));
 
@@ -81,6 +81,7 @@ TEST(AggTest, function_strings)
     EXPECT_TRUE(is_agg_sum(Agg::name_to_function("sum")));
     EXPECT_TRUE(is_agg_average(Agg::name_to_function("average")));
     EXPECT_TRUE(is_agg_median(Agg::name_to_function("median")));
+    EXPECT_TRUE(is_agg_integer_bitwise_or(Agg::name_to_function("integer_bitwise_or")));
     EXPECT_TRUE(is_agg_logical_and(Agg::name_to_function("logical_and")));
     EXPECT_TRUE(is_agg_logical_or(Agg::name_to_function("logical_or")));
     EXPECT_TRUE(is_agg_region_hash(Agg::name_to_function("region_hash")));
