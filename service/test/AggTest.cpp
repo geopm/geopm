@@ -43,13 +43,16 @@ TEST(AggTest, agg_function)
 
     EXPECT_EQ(1, Agg::bitwise_or({0.0, 0.0, 1.0, 0.0}));
     EXPECT_EQ(0, Agg::bitwise_or({0.0, 0.0}));
+    EXPECT_EQ(7, Agg::bitwise_or({5.0, 2.0}));
+    EXPECT_EQ(3, Agg::bitwise_or({3.0, 1.0}));
+    EXPECT_EQ(6, Agg::bitwise_or({4.0, 2.0}));
     EXPECT_EQ(0, Agg::bitwise_or({0.0, 0.0, NAN}));
     EXPECT_EQ(0, Agg::bitwise_or({0.1, 0}));
     EXPECT_EQ(0, Agg::bitwise_or({-1, 0}));
     EXPECT_EQ(1, Agg::bitwise_or({1, 0}));
     EXPECT_EQ(0, Agg::bitwise_or({NAN, 0.0}));
     EXPECT_EQ(1, Agg::bitwise_or({NAN, 1.0, NAN}));
-    EXPECT_EQ(0, Agg::bitwise_or({NAN, NAN}));
+    EXPECT_TRUE(std::isnan(Agg::bitwise_or({NAN, NAN})));
     EXPECT_EQ(1, Agg::bitwise_or({NAN, 1.0}));
 
     EXPECT_TRUE(std::isnan(Agg::region_hash({})));
