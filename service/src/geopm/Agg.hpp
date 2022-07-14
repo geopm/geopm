@@ -38,6 +38,10 @@ namespace geopm
             static double average(const std::vector<double> &operand);
             /// @brief Returns the median of the input operands.
             static double median(const std::vector<double> &operand);
+            /// @brief Returns the output of bitwise OR over all the
+            ///        operands where 0 is false and all positive numbers
+            ///        are true
+            static double bitwise_or(const std::vector<double> &operand);
             /// @brief Returns the output of logical AND over all the
             ///        operands where 0.0 is false and all other
             ///        values are true.

@@ -66,6 +66,21 @@ namespace geopm
         return result;
     }
 
+    double Agg::bitwise_or(const std::vector<double> &operand)
+    {
+        auto filtered = nan_filter(operand);
+        uint32_t result = 0;
+        if (filtered.size()) {
+            result = 0;
+            for (auto it : filtered) {
+                if (it >= 0) {
+                    result |= (uint32_t) it;
+                }
+            }
+        }
+        return result;
+    }
+
     double Agg::logical_and(const std::vector<double> &operand)
     {
         auto filtered = nan_filter(operand);

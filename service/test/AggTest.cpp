@@ -41,6 +41,17 @@ TEST(AggTest, agg_function)
     EXPECT_EQ(1.0, Agg::logical_or({1.0, 1.0, 0.0}));
     EXPECT_EQ(0.0, Agg::logical_or({0.0, 0.0}));
 
+    EXPECT_EQ(1, Agg::bitwise_or({0.0, 0.0, 1.0, 0.0}));
+    EXPECT_EQ(0, Agg::bitwise_or({0.0, 0.0}));
+    EXPECT_EQ(0, Agg::bitwise_or({0.0, 0.0, NAN}));
+    EXPECT_EQ(0, Agg::bitwise_or({0.1, 0}));
+    EXPECT_EQ(0, Agg::bitwise_or({-1, 0}));
+    EXPECT_EQ(1, Agg::bitwise_or({1, 0}));
+    EXPECT_EQ(0, Agg::bitwise_or({NAN, 0.0}));
+    EXPECT_EQ(1, Agg::bitwise_or({NAN, 1.0, NAN}));
+    EXPECT_EQ(0, Agg::bitwise_or({NAN, NAN}));
+    EXPECT_EQ(1, Agg::bitwise_or({NAN, 1.0}));
+
     EXPECT_TRUE(std::isnan(Agg::region_hash({})));
 
     EXPECT_TRUE(std::isnan(Agg::region_hash({NAN, NAN})));
