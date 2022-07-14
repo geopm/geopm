@@ -58,7 +58,7 @@ namespace geopm
             void write(double value) override;
             void save(void) override;
             void restore(void) override;
-            void set_write_dependency(uint64_t trigger_value, std::shared_ptr<geopm::Control> dependency, uint64_t dependency_write_value);
+            void set_write_dependency(uint64_t trigger_value, std::weak_ptr<geopm::Control> dependency, uint64_t dependency_write_value);
 
             private:
                 std::shared_ptr<SSTIO> m_sstio;
@@ -79,7 +79,7 @@ namespace geopm
                 uint32_t m_saved_value;
 
                 uint64_t m_trigger_write_value;
-                std::shared_ptr<geopm::Control> m_dependency;
+                std::weak_ptr<geopm::Control> m_dependency;
                 uint64_t m_dependency_write_value;
     };
 }
