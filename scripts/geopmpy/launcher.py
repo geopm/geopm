@@ -28,7 +28,6 @@ import io
 import locale
 import socket
 import tempfile
-import stat
 
 from collections import OrderedDict
 from . import __version__
@@ -482,11 +481,9 @@ class Launcher(object):
         if not self.quiet:
             stderr.write(echo) # Echo the command that's about to be run
         if self.is_geopm_enabled and self.config.launch_script:
-            with open(self.config.launch_script, 'w') as fid:
+            with open(os.open(self.config.launch_script, os.O_CREAT | os.O_WRONLY), 'w') as fid:
                 fid.write('#!/bin/bash\n')
                 fid.write(echo)
-            mode = os.stat(self.config.launch_script).st_mode
-            os.chmod(self.config.launch_script, mode | stat.S_IEXEC)
 
         signal.signal(signal.SIGINT, self.int_handler)
 
