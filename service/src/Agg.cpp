@@ -69,14 +69,15 @@ namespace geopm
     double Agg::bitwise_or(const std::vector<double> &operand)
     {
         auto filtered = nan_filter(operand);
-        uint32_t result = 0;
+        double result = NAN;
+        uint64_t agg_tmp = 0;
         if (filtered.size()) {
-            result = 0;
             for (auto it : filtered) {
                 if (it >= 0) {
-                    result |= (uint32_t) it;
+                    agg_tmp |= (uint64_t) it;
                 }
             }
+            result = (double) agg_tmp;
         }
         return result;
     }
