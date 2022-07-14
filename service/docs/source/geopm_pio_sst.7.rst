@@ -174,7 +174,7 @@ Controls
 --------
 
 ``SST::TURBO_ENABLE``
-    Enable SST-TF feature.
+    Enable SST-TF feature. Enabling SST-TF also causes SST-CP to be enabled.
 
     * **Aggregation**: select_first
     * **Domain**: package
@@ -182,7 +182,7 @@ Controls
     * **Unit**: n/a
 
 ``SST::COREPRIORITY_ENABLE``
-    Enable SST-CP feature.
+    Enable SST-CP feature. Disabling SST-CP also causes SST-TF to be disabled.
 
     * **Aggregation**: select_first
     * **Domain**: package

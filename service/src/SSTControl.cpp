@@ -32,6 +32,9 @@ namespace geopm
         , m_rmw_read_mask(rmw_read_mask)
         , m_multiplier(scale)
         , m_saved_value(0)
+        , m_trigger_write_value(0)
+        , m_dependency(nullptr)
+        , m_dependency_write_value(0)
     {
 
     }
@@ -58,6 +61,9 @@ namespace geopm
 
     void SSTControl::write(double value)
     {
+        if (m_dependency && value == m_trigger_write_value) {
+            m_dependency->write(m_dependency_write_value);
+        }
         if (m_control_type == M_MMIO) {
             m_sstio->write_mmio_once(
                 m_cpu_idx, m_interface_parameter, m_write_value, m_rmw_read_mask,
@@ -91,6 +97,9 @@ namespace geopm
 
     void SSTControl::restore(void)
     {
+        if (m_dependency && m_saved_value == m_trigger_write_value) {
+            m_dependency->write(m_dependency_write_value);
+        }
         if (m_control_type == M_MMIO) {
             m_sstio->write_mmio_once(
                 m_cpu_idx, m_interface_parameter, m_write_value, m_rmw_read_mask,
@@ -102,5 +111,15 @@ namespace geopm
                 m_rmw_subcommand, m_rmw_interface_parameter, m_rmw_read_mask,
                 m_saved_value, m_mask);
         }
+    }
+
+    void SSTControl::set_write_dependency(
+            uint64_t trigger_value,
+            std::shared_ptr<geopm::Control> dependency,
+            uint64_t dependency_write_value)
+    {
+        m_trigger_write_value = trigger_value;
+        m_dependency = dependency;
+        m_dependency_write_value = dependency_write_value;
     }
 }
