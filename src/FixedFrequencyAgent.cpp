@@ -47,8 +47,8 @@ namespace geopm
         GEOPM_DEBUG_ASSERT(in_policy.size() == M_NUM_POLICY, "Incorrect policy size");
         double gpu_min_freq = m_platform_io.read_signal("GPU_CORE_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0);
         double gpu_max_freq = m_platform_io.read_signal("GPU_CORE_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0);
-        double core_freq_min = m_platform_io.read_signal("CPU_FREQUENCY_MIN", GEOPM_DOMAIN_BOARD, 0);
-        double core_freq_max = m_platform_io.read_signal("CPU_FREQUENCY_MAX", GEOPM_DOMAIN_BOARD, 0);
+        double core_freq_min = m_platform_io.read_signal("CPU_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0);
+        double core_freq_max = m_platform_io.read_signal("CPU_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0);
 
 	if (!std::isnan(in_policy[M_POLICY_GPU_FREQUENCY])) {
 	    if (in_policy[M_POLICY_GPU_FREQUENCY] > gpu_max_freq ||
@@ -157,11 +157,11 @@ namespace geopm
 
             // set Uncore frequency controls
             if (!std::isnan(uncore_min_freq_request)) {
-                m_platform_io.write_control("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO",GEOPM_DOMAIN_BOARD,0,uncore_min_freq_request);
+                m_platform_io.write_control("CPU_UNCORE_FREQUENCY_MIN_CONTROL",GEOPM_DOMAIN_BOARD,0,uncore_min_freq_request);
             }
 
             if (!std::isnan(uncore_max_freq_request)) {
-                m_platform_io.write_control("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO",GEOPM_DOMAIN_BOARD,0,uncore_min_freq_request); 
+                m_platform_io.write_control("CPU_UNCORE_FREQUENCY_MAX_CONTROL",GEOPM_DOMAIN_BOARD,0,uncore_max_freq_request);
             }
 
             m_is_adjust_initialized = true;
