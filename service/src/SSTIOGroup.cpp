@@ -175,7 +175,7 @@ namespace geopm
                 // Control
                 0x02, 0x00 /* N/A */,
                 {{ "ENABLE", { 0x01, 16, 16, M_UNITS_NONE,
-                               "SST-TF is enabled" } }},
+                               "SST-TF is enabled. Enabling this also enables SST::COREPRIORITY_ENABLE:ENABLE." } }},
                 // Signal
                 0x01, 0x00
             },
@@ -185,7 +185,7 @@ namespace geopm
             { SSTIOGroup::SSTMailboxCommand::M_CORE_PRIORITY,
                 // Control
                 0x02, 0x100,
-                {{ "ENABLE", { 0x01, 1, 1, M_UNITS_NONE, "SST-CP is enabled" } }},
+                {{ "ENABLE", { 0x01, 1, 1, M_UNITS_NONE, "SST-CP is enabled. Disabling this also disables SST::TURBO_ENABLE:ENABLE." } }},
                 // Signal
                 0x02, 0x00
             },
@@ -289,6 +289,32 @@ namespace geopm
                               raw_desc.write_param, raw_desc.fields,
                               raw_desc.read_subcommand,
                               raw_desc.read_request_data, control_read_mask);
+        }
+
+        // Both SST-TF and SST-CP controls should have been added now. Make them
+        // refer into each other for enables/disables.
+        // This is needed because the driver will fail to commit the request if
+        // we try to enable SST-TF while SST-CP is disabled, or if we try to
+        // disable SST-CP while SST-TF is enabled.
+        auto sst_tf_enable_it = m_control_available.find("SST::TURBO_ENABLE:ENABLE");
+        auto sst_cp_enable_it = m_control_available.find("SST::COREPRIORITY_ENABLE:ENABLE");
+        GEOPM_DEBUG_ASSERT(
+                sst_tf_enable_it != m_control_available.end()
+                && sst_cp_enable_it != m_control_available.end(),
+                "Do not have controls to enable SST-TF and SST-CP");
+        GEOPM_DEBUG_ASSERT(
+                sst_tf_enable_it->second.domain == sst_cp_enable_it->second.domain,
+                "SST-TF and SST-CP cannot be enabled in the same domain");
+        if (sst_tf_enable_it != m_control_available.end() && sst_cp_enable_it != m_control_available.end()) {
+            const auto domain_count = std::min(
+                    sst_tf_enable_it->second.controls.size(),
+                    sst_cp_enable_it->second.controls.size());
+            for (size_t i = 0; i < domain_count; ++i) {
+                auto sst_tf_control = std::static_pointer_cast<SSTControl>(sst_tf_enable_it->second.controls[i]);
+                auto sst_cp_control = std::static_pointer_cast<SSTControl>(sst_cp_enable_it->second.controls[i]);
+                sst_tf_control->set_write_dependency(1, sst_cp_control, 1);
+                sst_cp_control->set_write_dependency(0, sst_tf_control, 0);
+            }
         }
 
         // This IOGroup currently has no MMIO-based signals, except for those
@@ -399,6 +425,13 @@ namespace geopm
     int SSTIOGroup::push_control(const std::string &control_name, int domain_type, int domain_idx)
     {
         int result = -1;
+        if (control_name == "SST::TURBO_ENABLE:ENABLE"
+                || control_name == "SST::COREPRIORITY_ENABLE:ENABLE") {
+            throw Exception("SSTIOGroup::push_control(): SST::TURBO_ENABLE:ENABLE "
+                            "and SST::COREPRIORITY_ENABLE:ENABLE cannot be pushed "
+                            "in batch writes.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
         auto it = m_control_available.find(control_name);
         if (it != m_control_available.end()) {
             if (domain_type != it->second.domain) {

@@ -338,6 +338,10 @@ GTEST_TESTS = test/gtest_links/GPUTopoNullTest.default_config \
               test/gtest_links/SSTIOGroupTest.valid_signal_domains \
               test/gtest_links/SSTIOGroupTest.valid_signal_names \
               test/gtest_links/SSTIOGroupTest.save_restore_control \
+              test/gtest_links/SSTIOGroupTest.enable_sst_tf_implies_enable_sst_cp_write_once \
+              test/gtest_links/SSTIOGroupTest.disable_sst_cp_implies_disable_sst_tf_write_once \
+              test/gtest_links/SSTIOGroupTest.restored_controls_follow_ordered_dependencies_disabled \
+              test/gtest_links/SSTIOGroupTest.restored_controls_follow_ordered_dependencies_enabled \
               test/gtest_links/SSTSignalTest.mailbox_read_batch \
               test/gtest_links/SSTSignalTest.mmio_read_batch \
               test/gtest_links/SSTIOTest.mbox_batch_reads \
