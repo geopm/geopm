@@ -865,117 +865,6 @@
                 }
             }
         },
-        "HWP_REQUEST_PKG": {
-            "offset": "0x772",
-            "domain": "package",
-            "fields": {
-                "MINIMUM_PERFORMANCE": {
-                    "begin_bit": 0,
-                    "end_bit":   7,
-                    "function":  "scale",
-                    "units":     "hertz",
-                    "scalar":    1e8,
-                    "behavior":  "variable",
-                    "aggregation": "average",
-                    "writeable": true,
-                    "description": "A hint to HWP on the minimum performance level required."
-                },
-                "MAXIMUM_PERFORMANCE": {
-                    "begin_bit": 8,
-                    "end_bit":   15,
-                    "function":  "scale",
-                    "units":     "hertz",
-                    "scalar":    1e8,
-                    "behavior":  "variable",
-                    "aggregation": "average",
-                    "writeable": true,
-                    "description": "A hint to HWP on the maximum performance level required."
-                },
-                "DESIRED_PERFORMANCE": {
-                    "begin_bit": 16,
-                    "end_bit":   23,
-                    "function":  "scale",
-                    "units":     "hertz",
-                    "scalar":    1e8,
-                    "behavior":  "variable",
-                    "aggregation": "average",
-                    "writeable": true,
-                    "description": "An explicit performance request.  Setting to zero enables HWP Autonomous states.  Any other value effectively disables HW Autonomous selection."
-                },
-                "ENERGY_PERFORMANCE_PREFERENCE": {
-                    "begin_bit": 24,
-                    "end_bit":   31,
-                    "function":  "scale",
-                    "units":     "none",
-                    "scalar":    1.0,
-                    "behavior":  "variable",
-                    "aggregation": "average",
-                    "writeable": true,
-                    "description": "Influences rate of performance increase/decrease.  0x00 = performance, 0xFF = energy efficiency."
-                },
-                "ACTIVITY_WINDOW": {
-                    "begin_bit": 32,
-                    "end_bit":   41,
-                    "function":  "scale",
-                    "units":     "none",
-                    "scalar":    1.0,
-                    "behavior":  "variable",
-                    "aggregation": "average",
-                    "writeable": true,
-                    "description": "A hint to HWP indicating the observation window for performance/frequency optimizations."
-                }
-            }
-        },
-        "HWP_INTERRUPT": {
-            "offset": "0x773",
-            "domain": "cpu",
-            "fields": {
-                "EN_GUARANTEED_PERFORMANCE_CHANGE": {
-                    "begin_bit": 0,
-                    "end_bit":   0,
-                    "function":  "scale",
-                    "units":     "none",
-                    "scalar":    1.0,
-                    "behavior":  "variable",
-                    "aggregation": "average",
-                    "writeable": true,
-                    "description": "If set an interrupt will be generated on a GUARANTEED_PERFORMANCE_CHANGE."
-                },
-                "EN_EXCURSION_MINIMUM": {
-                    "begin_bit": 1,
-                    "end_bit":   1,
-                    "function":  "scale",
-                    "units":     "none",
-                    "scalar":    1.0,
-                    "behavior":  "variable",
-                    "aggregation": "average",
-                    "writeable": true,
-                    "description": "If set an interrupt will be generated on an excursion below the minimum requested performance."
-                },
-                "EN_HIGHEST_CHANGE": {
-                    "begin_bit": 2,
-                    "end_bit":   2,
-                    "function":  "scale",
-                    "units":     "none",
-                    "scalar":    1.0,
-                    "behavior":  "variable",
-                    "aggregation": "average",
-                    "writeable": true,
-                    "description": "if set an interrupt will be generated on an change to the highest performance value."
-                },
-                "EN_PECI_OVERRIDE": {
-                    "begin_bit": 3,
-                    "end_bit":   3,
-                    "function":  "scale",
-                    "units":     "none",
-                    "scalar":    1.0,
-                    "behavior":  "variable",
-                    "aggregation": "average",
-                    "writeable": true,
-                    "description": "If set an interrupt will be generated when PECI override entry or exit occurs."
-                }
-            }
-        },
         "HWP_REQUEST": {
             "offset": "0x774",
             "domain": "cpu",
@@ -1010,7 +899,7 @@
                     "scalar":    1e8,
                     "behavior":  "variable",
                     "aggregation": "average",
-                    "writeable": true,
+                    "writeable": false,
                     "description": "An explicit performance request.  Setting to zero enables HWP Autonomous states.  Any other value effectively disables HWP Autonomous selection."
                 },
                 "ENERGY_PERFORMANCE_PREFERENCE": {
@@ -1032,7 +921,7 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "aggregation": "average",
-                    "writeable": true,
+                    "writeable": false,
                     "description": "A hint to HWP indicating the observation window for performance/frequency optimizations."
                 },
                 "PACKAGE_CONTROL": {
