@@ -12,6 +12,7 @@
 #include "geopm_prof.h"
 #include "geopm_time.h"
 #include "geopm_hint.h"
+#include "MockApplicationSampler.hpp"
 
 using testing::Return;
 using geopm::ProfileTracer;
@@ -26,6 +27,7 @@ class ProfileTracerTest : public ::testing::Test
         std::string m_path = "test.profiletrace";
         std::string m_host_name = "myhost";
         std::vector<record_s> m_data;
+        MockApplicationSampler m_application_sampler;
 };
 
 void ProfileTracerTest::SetUp(void)
@@ -45,14 +47,21 @@ void ProfileTracerTest::SetUp(void)
         time += 1.0;
     }
 
-     m_data.push_back({40, 0, geopm::EVENT_SHORT_REGION, region_hash});
+     m_data.push_back({40, 0, geopm::EVENT_SHORT_REGION, 0xdeadbeef});
+     m_data.push_back({41, 1, geopm::EVENT_EPOCH_COUNT, region_hash});
 }
 
 TEST_F(ProfileTracerTest, construct_update_destruct)
 {
+    EXPECT_CALL(m_application_sampler, get_short_region(0xdeadbeef))
+        .WillOnce(Return(geopm::short_region_s{
+            0xdeadbeef, 2, 3.14
+        }));
+
     {
         // Test that the constructor and update methods do not throw
-        std::unique_ptr<ProfileTracer> tracer = geopm::make_unique<ProfileTracerImp>(m_start_time, 2, true, m_path, "");
+        std::unique_ptr<ProfileTracer> tracer = geopm::make_unique<ProfileTracerImp>(
+            m_start_time, 2, true, m_path, "", m_application_sampler);
         tracer->update(m_data);
     }
     // Test that a file was created by deleting it without error
@@ -62,10 +71,17 @@ TEST_F(ProfileTracerTest, construct_update_destruct)
 
 TEST_F(ProfileTracerTest, format)
 {
+    EXPECT_CALL(m_application_sampler, get_short_region(0xdeadbeef))
+        .WillOnce(Return(geopm::short_region_s{
+            0xdeadbeef, 2, 3.14
+        }));
+
     {
-        std::unique_ptr<ProfileTracer> tracer = geopm::make_unique<ProfileTracerImp>(m_start_time, 2, true, m_path, m_host_name);
+        std::unique_ptr<ProfileTracer> tracer = geopm::make_unique<ProfileTracerImp>(
+            m_start_time, 2, true, m_path, m_host_name, m_application_sampler);
         tracer->update(m_data);
     }
+
     std::string output_path = m_path + "-" + m_host_name;
     std::string output = geopm::read_file(output_path);
     std::vector<std::string> output_lines = geopm::string_split(output, "\n");
@@ -79,7 +95,8 @@ TEST_F(ProfileTracerTest, format)
         "35|2|REGION_EXIT|0xfa5920d6",
         "36|1|REGION_EXIT|0xfa5920d6",
         "37|0|REGION_EXIT|0xfa5920d6",
-        "40|0|EVENT_SHORT_REGION|0xfa5920d6"
+        "40|0|EVENT_SHORT_REGION|0xdeadbeef",
+        "41|1|EPOCH_COUNT|4200145110"
     };
     auto expect_it = expect_lines.begin();
     for (const auto &output_it : output_lines) {
