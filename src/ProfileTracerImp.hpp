@@ -9,6 +9,7 @@
 #include "config.h"
 
 #include "ProfileTracer.hpp"
+#include "ApplicationSampler.hpp"
 
 namespace geopm
 {
@@ -22,10 +23,10 @@ namespace geopm
                              size_t buffer_size,
                              bool is_trace_enabled,
                              const std::string &file_name,
-                             const std::string &host_name);
+                             const std::string &host_name,
+                             ApplicationSampler& application_sampler = ApplicationSampler::application_sampler());
             virtual ~ProfileTracerImp();
             void update(const std::vector<record_s> &records);
-            static std::string event_format(double value);
          private:
              enum m_column_e {
                 M_COLUMN_TIME,
@@ -36,7 +37,13 @@ namespace geopm
             };
             bool m_is_trace_enabled;
             std::unique_ptr<CSV> m_csv;
+            static ApplicationSampler* m_application_sampler;
+            static std::string event_format(double value);
     };
+
+    // defintion of the static data member
+    ApplicationSampler* ProfileTracerImp::m_application_sampler = nullptr;
+
 }
 
 #endif

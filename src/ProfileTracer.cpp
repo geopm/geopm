@@ -29,7 +29,8 @@ namespace geopm
                            1024 * 1024,
                            environment().do_trace_profile(),
                            environment().trace_profile(),
-                           hostname())
+                           hostname(),
+                           ApplicationSampler::application_sampler())
     {
 
     }
@@ -38,9 +39,11 @@ namespace geopm
                                        size_t buffer_size,
                                        bool is_trace_enabled,
                                        const std::string &file_name,
-                                       const std::string &host_name)
+                                       const std::string &host_name,
+                                       ApplicationSampler& application_sampler)
         : m_is_trace_enabled(is_trace_enabled)
     {
+        m_application_sampler = &application_sampler;
         if (m_is_trace_enabled) {
             m_csv = geopm::make_unique<CSVImp>(file_name, host_name, start_time, buffer_size);
 
@@ -79,7 +82,9 @@ namespace geopm
                     result = string_format_integer(value);
                     break;
                 case EVENT_SHORT_REGION:
-                    result = string_format_hex(value);
+                    GEOPM_DEBUG_ASSERT(m_application_sampler != nullptr,
+                        "The ProfileTracerImp::ProfileTracerImp() must be called prior to calling ProfileTracerImp::event_format()");
+                    result = string_format_hex(m_application_sampler->get_short_region(value).hash);
                     break;
                 default:
                     result = "INVALID";
