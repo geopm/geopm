@@ -8,6 +8,7 @@ exposed by geopmd."""
 
 import os
 import sys
+import signal
 import pwd
 import grp
 import shutil
@@ -412,18 +413,20 @@ class PlatformService(object):
             client_pid (int): Linux PID of the client thread
 
         """
-        self._active_sessions.check_client_active(client_pid, 'PlatformCloseSession')
-        batch_pid = self._active_sessions.get_batch_server(client_pid)
-        if batch_pid is not None:
-            try:
-                self._pio.stop_batch_server(batch_pid)
-            except RuntimeError as ex:
-                sys.stderr.write(f'Failed to stop batch server {batch_pid}: {ex}')
-        with system_files.WriteLock(self._RUN_PATH) as lock:
-            if lock.try_lock() == client_pid:
-                self._close_session_write(lock, client_pid)
-        GLib.source_remove(self._active_sessions.get_watch_id(client_pid))
-        self._active_sessions.remove_client(client_pid)
+        sess = self._active_sessions.remove_client(client_pid)
+        if sess is not None:
+            GLib.source_remove(sess['watch_id'])
+            batch_pid = sess.get('batch_server')
+            if batch_pid is not None:
+                try:
+                    self._pio.stop_batch_server(batch_pid)
+                except RuntimeError:
+                    sys.stderr.write(f"Warning: Failed to call pio.stop_batch_server({batch_pid}), sending SIGKILL\n)")
+                    if psutil.pid_exists(batch_pid):
+                        os.kill(batch_pid, signal.SIGKILL)
+            with system_files.WriteLock(self._RUN_PATH) as lock:
+                if lock.try_lock() == client_pid:
+                    self._close_session_write(lock, client_pid)
 
     def _close_session_write(self, lock, pid):
         save_dir = os.path.join(self._RUN_PATH, self._SAVE_DIR)
@@ -547,8 +550,7 @@ class PlatformService(object):
         actual_server_pid = self._active_sessions.get_batch_server(client_pid)
         if server_pid != actual_server_pid:
             raise RuntimeError(f'Client PID: {client_pid} requested to stop batch server PID: {server_pid}, actual batch server PID: {actual_server_pid}')
-        if psutil.pid_exists(server_pid):
-            self._pio.stop_batch_server(server_pid)
+        self._pio.stop_batch_server(server_pid)
         self._active_sessions.remove_batch_server(client_pid)
 
     def read_signal(self, client_pid, signal_name, domain, domain_idx):

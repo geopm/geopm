@@ -434,22 +434,32 @@ class ActiveSessions(object):
     def remove_client(self, client_pid):
         """Delete the record of an active session
 
-        Remove the client session file and delete the state associated
-        with the client.  Future requests about this client PID will raise
-        an exception until another call to add_client() is made.  This
-        exception will be raised for a second call to remove_client().
+        Remove the client session file and delete the state associated with
+        the client.  Future requests about this client PID will raise an
+        exception until another call to add_client() is made, although
+        repeated calls to remove_client() for the same PID do not result in an
+        error.
 
         Args:
             client_pid (int): Linux PID that opened the session
 
-        Raises:
-            RuntimeError: Client does not have an open session
-
         """
-        self.check_client_active(client_pid, 'remove_client')
-        session_file = self._get_session_path(client_pid)
-        os.remove(session_file)
-        self._sessions.pop(client_pid)
+        session_path = self._get_session_path(client_pid)
+        renamed_path = f'{session_path}-{uuid.uuid4()}-REMOVE'
+        sess = None
+        try:
+            os.rename(session_path, renamed_path)
+            content = secure_read_file(renamed_path)
+            sess = json.loads(content)
+            jsonschema.validate(sess, schema=self._session_schema)
+            os.remove(renamed_path)
+        except FileNotFoundError:
+            pass
+        try:
+            self._sessions.pop(client_pid)
+        except KeyError:
+            pass
+        return sess
 
     def get_clients(self):
         """Get list of the client PID values for all active sessions
@@ -683,9 +693,9 @@ class ActiveSessions(object):
 
         """
         batch_pid = self._sessions[client_pid]['batch_server']
+        self._sessions[client_pid].pop('batch_server')
 
         self.check_client_active(client_pid, 'remove_batch_server')
-        self._sessions[client_pid].pop('batch_server')
         self._update_session_file(client_pid)
 
         signal_shmem_key = self._M_SHMEM_PREFIX + str(batch_pid) + "-signal"
