@@ -15,6 +15,7 @@ class MockFrequencyGovernor : public geopm::FrequencyGovernor
     public:
         MOCK_METHOD(void, init_platform_io, (), (override));
         MOCK_METHOD(int, frequency_domain_type, (), (const, override));
+        MOCK_METHOD(void, set_domain_type, (int domain_type), (override));
         MOCK_METHOD(void, adjust_platform,
                     (const std::vector<double> &frequency_request), (override));
         MOCK_METHOD(bool, do_write_batch, (), (const, override));

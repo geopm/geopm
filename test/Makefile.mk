@@ -173,6 +173,7 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/FrequencyGovernorTest.frequency_bounds_in_range \
               test/gtest_links/FrequencyGovernorTest.frequency_bounds_invalid \
               test/gtest_links/FrequencyGovernorTest.validate_policy \
+              test/gtest_links/FrequencyGovernorTest.set_domain_type \
               test/gtest_links/FrequencyMapAgentTest.adjust_platform_map \
               test/gtest_links/FrequencyMapAgentTest.adjust_platform_uncore \
               test/gtest_links/FrequencyMapAgentTest.name \
