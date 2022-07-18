@@ -28,6 +28,14 @@ namespace geopm
             ///        the vector to pass to adjust_platform().
             /// @return The domain with which frequency will be governed.
             virtual int frequency_domain_type(void) const = 0;
+            /// @brief Set the domain type of frequency control that will
+            ///        be used in adjust_platform(). Must be called before
+            ///        init_platform_io().
+            /// @throw Exception the requested domain does not contain the
+            ///        frequency control's native domain.
+            /// @throw Exception The caller attemped to set the domain type
+            ///        after this governor initialized its PlatformIO controls.
+            virtual void set_domain_type(int domain_type) = 0;
             /// @brief Write frequency control, may be clamped between
             ///        min and max frequency if request cannot be
             ///        satisfied.

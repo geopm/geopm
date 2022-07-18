@@ -20,6 +20,7 @@ using testing::NiceMock;
 using testing::_;
 using testing::Return;
 using testing::Throw;
+using testing::Invoke;
 
 class FrequencyGovernorTest : public ::testing::Test
 {
@@ -42,6 +43,7 @@ class FrequencyGovernorTest : public ::testing::Test
 void FrequencyGovernorTest::SetUp(void)
 {
     ON_CALL(m_platio, control_domain_type("CPU_FREQUENCY_MAX_CONTROL")).WillByDefault(Return(M_CTL_DOMAIN));
+    ON_CALL(m_topo, num_domain(GEOPM_DOMAIN_BOARD)).WillByDefault(Return(1));
     ON_CALL(m_topo, num_domain(M_CTL_DOMAIN)).WillByDefault(Return(M_NUM_CORE));
     ON_CALL(m_topo, num_domain(GEOPM_DOMAIN_CPU)).WillByDefault(Return(2*M_NUM_CORE));
     ON_CALL(m_platio, read_signal("CPUINFO::FREQ_STEP", _, _)).WillByDefault(Return(M_PLAT_STEP_FREQ));
@@ -171,4 +173,41 @@ TEST_F(FrequencyGovernorTest, validate_policy)
     // clamp to min and max
     EXPECT_DOUBLE_EQ(M_PLAT_MIN_FREQ, min);
     EXPECT_DOUBLE_EQ(M_PLAT_MAX_FREQ, max);
+}
+
+TEST_F(FrequencyGovernorTest, set_domain_type)
+{
+    m_gov = geopm::make_unique<FrequencyGovernorImp>(m_platio, m_topo);
+    EXPECT_CALL(m_topo, is_nested_domain(_, _)).WillOnce(Return(false));
+    GEOPM_EXPECT_THROW_MESSAGE(
+            m_gov->set_domain_type(GEOPM_DOMAIN_CPU),
+            GEOPM_ERROR_INVALID,
+            "Attempted to set a frequency control domain that does not contain "
+            "the native domain for CPU_FREQUENCY_MAX_CONTROL.");
+
+    m_gov->init_platform_io();
+    GEOPM_EXPECT_THROW_MESSAGE(
+            m_gov->set_domain_type(GEOPM_DOMAIN_CPU),
+            GEOPM_ERROR_INVALID,
+            "Attempted to set a new frequency control domain after calling "
+            "FrequencyGovernorImp::init_platform_io");
+
+    // Set to native granularity (no effect, but no error)
+    m_gov = geopm::make_unique<FrequencyGovernorImp>(m_platio, m_topo);
+    EXPECT_CALL(m_topo, is_nested_domain(_, _)).WillOnce(Return(true));
+    EXPECT_CALL(m_platio, push_control("CPU_FREQUENCY_MAX_CONTROL", GEOPM_DOMAIN_CORE, _))
+        .Times(M_NUM_CORE)
+        .WillRepeatedly(Invoke([](const std::string&, int, int idx){ return idx; }));
+    m_gov->set_domain_type(GEOPM_DOMAIN_CORE);
+    m_gov->init_platform_io();
+
+    // Set to more coarse granularity. Should use that, and not the native domain.
+    m_gov = geopm::make_unique<FrequencyGovernorImp>(m_platio, m_topo);
+    EXPECT_CALL(m_topo, is_nested_domain(_, _)).WillOnce(Return(true));
+    EXPECT_CALL(m_platio, push_control("CPU_FREQUENCY_MAX_CONTROL", M_CTL_DOMAIN, _))
+        .Times(0);
+    EXPECT_CALL(m_platio, push_control("CPU_FREQUENCY_MAX_CONTROL", GEOPM_DOMAIN_BOARD, _))
+        .WillOnce(Return(0));
+    m_gov->set_domain_type(GEOPM_DOMAIN_BOARD);
+    m_gov->init_platform_io();
 }

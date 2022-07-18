@@ -45,6 +45,7 @@ namespace geopm
         , m_freq_max(M_PLAT_FREQ_MAX)
         , m_do_write_batch(false)
         , m_freq_ctl_domain_type(m_platform_io.control_domain_type("CPU_FREQUENCY_MAX_CONTROL"))
+        , m_is_platform_io_initialized(false)
     {
 
     }
@@ -88,11 +89,33 @@ namespace geopm
                                                                m_freq_ctl_domain_type,
                                                                ctl_dom_idx));
         }
+        m_is_platform_io_initialized = true;
     }
 
     int FrequencyGovernorImp::frequency_domain_type(void) const
     {
         return m_freq_ctl_domain_type;
+    }
+
+    void FrequencyGovernorImp::set_domain_type(int domain_type)
+    {
+        if (m_is_platform_io_initialized) {
+            throw Exception("FrequencyGovernorImp::" + std::string(__func__) +
+                            "(): Attempted to set a new frequency control domain after "
+                            "calling FrequencyGovernorImp::init_platform_io().",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
+        if (!m_platform_topo.is_nested_domain(
+                    m_platform_io.control_domain_type("CPU_FREQUENCY_MAX_CONTROL"),
+                    domain_type)) {
+            throw Exception("FrequencyGovernorImp::" + std::string(__func__) +
+                            "(): Attempted to set a frequency control domain that does "
+                            "not contain the native domain for CPU_FREQUENCY_MAX_CONTROL.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
+        m_freq_ctl_domain_type = domain_type;
     }
 
     void FrequencyGovernorImp::adjust_platform(const std::vector<double> &frequency_request)

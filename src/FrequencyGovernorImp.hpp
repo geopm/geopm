@@ -22,6 +22,7 @@ namespace geopm
             virtual ~FrequencyGovernorImp();
             void init_platform_io(void) override;
             int frequency_domain_type(void) const override;
+            void set_domain_type(int domain_type) override;
             void adjust_platform(const std::vector<double> &frequency_request) override;
             bool do_write_batch(void) const override;
             bool set_frequency_bounds(double freq_min, double freq_max) override;
@@ -42,6 +43,7 @@ namespace geopm
             int m_freq_ctl_domain_type;
             std::vector<int> m_control_idx;
             std::vector<double> m_last_freq;
+            bool m_is_platform_io_initialized;
     };
 }
 
