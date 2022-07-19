@@ -47,13 +47,13 @@ void ProfileTracerTest::SetUp(void)
         time += 1.0;
     }
 
-     m_data.push_back({40, 0, geopm::EVENT_SHORT_REGION, 0xdeadbeef});
-     m_data.push_back({41, 1, geopm::EVENT_EPOCH_COUNT, region_hash});
+     m_data.push_back({40, 0, geopm::EVENT_SHORT_REGION, 88});
+     m_data.push_back({41, 1, geopm::EVENT_EPOCH_COUNT, 1});
 }
 
 TEST_F(ProfileTracerTest, construct_update_destruct)
 {
-    EXPECT_CALL(m_application_sampler, get_short_region(0xdeadbeef))
+    EXPECT_CALL(m_application_sampler, get_short_region(88))
         .WillOnce(Return(geopm::short_region_s{
             0xdeadbeef, 2, 3.14
         }));
@@ -71,7 +71,7 @@ TEST_F(ProfileTracerTest, construct_update_destruct)
 
 TEST_F(ProfileTracerTest, format)
 {
-    EXPECT_CALL(m_application_sampler, get_short_region(0xdeadbeef))
+    EXPECT_CALL(m_application_sampler, get_short_region(88))
         .WillOnce(Return(geopm::short_region_s{
             0xdeadbeef, 2, 3.14
         }));
@@ -96,7 +96,7 @@ TEST_F(ProfileTracerTest, format)
         "36|1|REGION_EXIT|0xfa5920d6",
         "37|0|REGION_EXIT|0xfa5920d6",
         "40|0|EVENT_SHORT_REGION|0xdeadbeef",
-        "41|1|EPOCH_COUNT|4200145110"
+        "41|1|EPOCH_COUNT|1"
     };
     auto expect_it = expect_lines.begin();
     for (const auto &output_it : output_lines) {
