@@ -102,16 +102,16 @@ void CPUFFNetAgent::init(int level, const std::vector<int> &fan_in, bool is_leve
 void CPUFFNetAgent::init_platform_io(void)
 {
     for (int domain_idx = 0; domain_idx < M_NUM_PACKAGE; ++domain_idx) {
-        m_package_power.push_back({m_platform_io.push_signal("POWER_PACKAGE",
+        m_package_power.push_back({m_platform_io.push_signal("CPU_POWER",
                                    GEOPM_DOMAIN_PACKAGE,
                                    domain_idx), NAN});
         m_package_freq_status.push_back({m_platform_io.push_signal("CPU_FREQUENCY_STATUS",
                                          GEOPM_DOMAIN_PACKAGE,
                                          domain_idx), NAN});
-        m_package_temperature.push_back({m_platform_io.push_signal("TEMPERATURE_CORE",
+        m_package_temperature.push_back({m_platform_io.push_signal("CPU_CORE_TEMPERATURE",
                                           GEOPM_DOMAIN_PACKAGE,
                                           domain_idx), NAN});
-        m_package_uncore_freq_status.push_back({m_platform_io.push_signal("MSR::UNCORE_PERF_STATUS:FREQ",
+        m_package_uncore_freq_status.push_back({m_platform_io.push_signal("CPU_UNCORE_FREQUENCY_STATUS",
                                                 GEOPM_DOMAIN_PACKAGE,
                                                 domain_idx), NAN});
         m_package_qm_ctr.push_back({m_platform_io.push_signal("QM_CTR_SCALED",
@@ -120,13 +120,13 @@ void CPUFFNetAgent::init_platform_io(void)
         m_package_qm_rate.push_back({m_platform_io.push_signal("QM_CTR_SCALED_RATE",
                                      GEOPM_DOMAIN_PACKAGE,
                                      domain_idx), NAN});
-        m_package_inst_retired.push_back({m_platform_io.push_signal("INSTRUCTIONS_RETIRED",
+        m_package_inst_retired.push_back({m_platform_io.push_signal("CPU_INSTRUCTIONS_RETIRED",
                                           GEOPM_DOMAIN_PACKAGE,
                                           domain_idx), NAN});
-        m_package_cycles_unhalted.push_back({m_platform_io.push_signal("CYCLES_THREAD",
+        m_package_cycles_unhalted.push_back({m_platform_io.push_signal("CPU_CYCLES_THREAD",
                                              GEOPM_DOMAIN_PACKAGE,
                                              domain_idx), NAN});
-        m_package_energy.push_back({m_platform_io.push_signal("ENERGY_PACKAGE",
+        m_package_energy.push_back({m_platform_io.push_signal("CPU_ENERGY",
                                     GEOPM_DOMAIN_PACKAGE,
                                     domain_idx), NAN});
         m_package_acnt.push_back({m_platform_io.push_signal("MSR::APERF:ACNT",
@@ -156,8 +156,8 @@ void CPUFFNetAgent::init_platform_io(void)
 void CPUFFNetAgent::validate_policy(std::vector<double> &in_policy) const
 {
     assert(in_policy.size() == M_NUM_POLICY);
-    double min_freq = m_platform_io.read_signal("CPU_FREQUENCY_MIN", GEOPM_DOMAIN_BOARD, 0);
-    double max_freq = m_platform_io.read_signal("CPU_FREQUENCY_MAX", GEOPM_DOMAIN_BOARD, 0);
+    double min_freq = m_platform_io.read_signal("CPU_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0);
+    double max_freq = m_platform_io.read_signal("CPU_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0);
 
     ///////////////////////
     //CPU POLICY CHECKING//
@@ -256,7 +256,7 @@ void CPUFFNetAgent::adjust_platform(const std::vector<double>& in_policy)
         xs[1] = (double) m_package_freq_status.at(domain_idx).signal;
         xs[2] = (double) m_package_temperature.at(domain_idx).signal;
         xs[3] = (double) m_package_uncore_freq_status.at(domain_idx).signal;
-//        xs[4] = (double) m_package_qm_ctr.at(domain_idx).signal;
+        xs[4] = (double) m_package_qm_ctr.at(domain_idx).signal;
         xs[4] = (double) m_package_qm_rate.at(domain_idx).signal;
 
         //Division of diffed values handled as part of the NN input
