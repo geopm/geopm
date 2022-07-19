@@ -9,10 +9,14 @@ Build Service.
 
 The packages built from this service with each update are:
 
-- ``geopm-service``
-- ``libgeopmd0``
-- ``python3-geopmdpy``
-- ``geopm-service-devel``
+- ``geopm-service``:
+   Installs and activates the geopm systemd service
+- ``libgeopmd0``:
+   Provides the library that supports the PlatformIO interface
+- ``python3-geopmdpy``:
+   Implementation of geopmd, CLI tools, and bindings for PlatformIO
+- ``geopm-service-devel``:
+   Headers and man pages for C and C++ APIs provided by ``libgeopmd0``
 
 In addition to these packages that are built each time a tracked
 branch is updated, the download repositories also provide
@@ -36,14 +40,22 @@ candidate branch will be updated much less frequently than the
 development branch.  The builds from these two branches have the
 following download repository pages:
 
-- ``dev``
-   + `Install Development Packages <https://software.opensuse.org/download.html?project=home%3Ageopm&package=geopm-service>`__
-- ``release-v2.0-candidate``
-   + `Install Release Candidate Packages <https://software.opensuse.org/download.html?project=home%3Ageopm%3Arelease-v2.0-candidate&package=geopm-service>`__
+- Install Development Packages (``dev`` branch)
+   + `geopm-service <https://software.opensuse.org/download.html?project=home%3Ageopm&package=geopm-service>`__
+   + `libgeopmd0 <https://software.opensuse.org/download.html?project=home%3Ageopm&package=libgeopmd0>`__
+   + `python3-geopmdpy <https://software.opensuse.org/download.html?project=home%3Ageopm&package=python3-geopmdpy>`__
+   + `geopm-service-devel <https://software.opensuse.org/download.html?project=home%3Ageopm&package=geopm-service-devel>`__
 
-Use one of these links to install the GEOPM Service on your system.
-The links contain instructions and examples for each of the supported
-operating systems.
+- Install Release Candidate Packages (``release-v2.0-candidate`` branch)
+   + `geopm-service <https://software.opensuse.org/download.html?project=home%3Ageopm%3Arelease-v2.0-candidate&package=geopm-service>`__
+   + `libgeopmd0 <https://software.opensuse.org/download.html?project=home%3Ageopm%3Arelease-v2.0-candidate&package=libgeopmd0>`__
+   + `python3-geopmdpy <https://software.opensuse.org/download.html?project=home%3Ageopm%3Arelease-v2.0-candidate&package=python3-geopmdpy>`__
+   + `geopm-service-devel <https://software.opensuse.org/download.html?project=home%3Ageopm%3Arelease-v2.0-candidate&package=geopm-service-devel>`__
+
+
+Use these links to install the GEOPM Service packages on your system.  The
+links contain instructions and examples for each of the supported operating
+systems.
 
 The ``dev`` branch is frequently updated, and the
 ``release-v2.0-candidate`` branch will be updated several times prior
