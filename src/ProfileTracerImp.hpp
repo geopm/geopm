@@ -40,10 +40,6 @@ namespace geopm
             static ApplicationSampler* m_application_sampler;
             static std::string event_format(double value);
     };
-
-    // defintion of the static data member
-    ApplicationSampler* ProfileTracerImp::m_application_sampler = nullptr;
-
 }
 
 #endif
