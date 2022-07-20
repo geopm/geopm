@@ -1,6 +1,6 @@
 
-Guide to Installation
-=====================
+Guide to Service Installation
+=============================
 
 Continuous integration creates packages for a variety of Linux
 distributions each time certain branches hosted on GitHub are updated.
@@ -68,3 +68,32 @@ least as recent as the release candidate branch.  For this reason,
 updates will always come from the development branch download
 repository if both the development repository and the release
 candidate repository are added to your package configuration,
+
+
+Un-packaged Features
+--------------------
+
+The installing the packages described above will not provide the
+:doc:`GEOPM HPC Runtime <runtime>` features (e.g.
+:doc:`geopmlaunch(1) <geopmlaunch.1>`, :doc:`geopm_prof(3) <geopm_prof.3>`,
+:doc:`geopm_report(7) <geopm_report.7>`, ``libgeopm.so``, etc.).
+The GEOPM HPC Runtime must be built against a particular implementation of the
+Message Passing Interface (MPI).  Typically the implementation of MPI is
+specific to the system where the HPC application is being run.  An exception
+to this rule is the OpenHPC distribution.  GEOPM version 1 has been packaged
+with OpenHPC, and we hope to distribute version 2 with OpenHPC in the future.
+For users interested in GEOPM version 2, a source build is required.
+
+Support for GPUs is also not provided by installing the packages described
+above.  Support for GPUs relies on libraries that are not bundled with the
+OpenSUSE OBS build system where the GEOPM packages are built and distributed.
+To enable LevelZero, NVML, or DCGM a source build of the GEOPM Service is
+required.  This build process must be done in an environment where the
+dependency libraries and headers are present.
+
+In order to access these GEOPM features which are not packaged, a user should
+build GEOPM from source.  The best recommendation for building GEOPM from
+source is to follow the :ref:`developer build process <devel:developer build process>`
+posted in the :doc:`developer guide <devel>`.  Note that it may be of interest
+to git checkout a git tag (e.g. ``v2.0.0+rc2``) to create a build based on a
+particular release.
