@@ -5,9 +5,9 @@ Guide to Installation
 Continuous integration creates packages for a variety of Linux
 distributions each time certain branches hosted on GitHub are updated.
 This is supported by GitHub Actions, in conjunction with the OpenSUSE
-Build Service.
+Build Service (OBS).
 
-The packages built from this service with each update are:
+Packages built by OBS:
 
 - ``geopm-service``:
    Installs and activates the geopm systemd service
