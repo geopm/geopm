@@ -237,6 +237,16 @@
             "offset": "0x1A0",
             "domain": "package",
             "fields": {
+                "FAST_STRINGS_ENABLE": {
+                    "begin_bit": 0,
+                    "end_bit":   0,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "behavior":  "variable",
+                    "writeable": true,
+                    "description": "Enable software control of the fast string feature for REP MOVS/STORS"
+                },
                 "ENHANCED_SPEEDSTEP_TECH_ENABLE": {
                     "begin_bit": 16,
                     "end_bit":   16,
@@ -244,7 +254,7 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "writeable": false,
+                    "writeable": true,
                     "description": "Enable software control of P-States."
                 },
                 "LIMIT_CPUID_MAXVAL": {
@@ -264,7 +274,7 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "writeable": false,
+                    "writeable": true,
                     "description": "Indicates whether opportunistic operating frequency above the processor's base frequency is disabled."
                 }
             }
