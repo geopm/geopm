@@ -502,6 +502,7 @@ namespace geopm
                                M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL");
         register_control_alias("GPU_CORE_FREQUENCY_CONTROL",
                                M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL");
+        register_signal_alias("GPU_UTILIZATION", M_NAME_PREFIX + "GPU_UTILIZATION");
         register_signal_alias("GPU_CORE_ACTIVITY", M_NAME_PREFIX + "GPU_CORE_UTILIZATION");
         register_signal_alias("GPU_UNCORE_ACTIVITY", M_NAME_PREFIX + "GPU_UNCORE_UTILIZATION");
         register_control_alias("GPU_CORE_FREQUENCY_MIN_AVAIL",
