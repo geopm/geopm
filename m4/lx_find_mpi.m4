@@ -190,6 +190,7 @@ AC_DEFUN([LX_QUERY_MPI_COMPILER],
      if [[ ! -z "$lx_mpi_command_line" ]]; then
          # Now extract the different parts of the MPI command line.  Do these separately in case we need to
          # parse them all out in future versions of this macro.
+         lx_mpi_command_line=`echo "$lx_mpi_command_line" | sed s/\"//g`
          lx_mpi_defines=`    echo "$lx_mpi_command_line" | grep -o -- '\(^\| \)-D\([[^\"[:space:]]]\+\|\"[[^\"[:space:]]]\+\"\)'`
          lx_mpi_includes=`   echo "$lx_mpi_command_line" | grep -o -- '\(^\| \)-I\([[^\"[:space:]]]\+\|\"[[^\"[:space:]]]\+\"\)'`
          lx_mpi_link_paths=` echo "$lx_mpi_command_line" | grep -o -- '\(^\| \)-L\([[^\"[:space:]]]\+\|\"[[^\"[:space:]]]\+\"\)'`
