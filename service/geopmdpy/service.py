@@ -44,7 +44,7 @@ class PlatformService(object):
         self._pio = pio
         self._RUN_PATH = system_files.GEOPM_SERVICE_RUN_PATH
         self._SAVE_DIR = 'SAVE_FILES'
-        self._WATCH_INTERVAL_MSEC = 1000
+        self._WATCH_INTERVAL_SEC = 1
         self._active_sessions = system_files.ActiveSessions()
         self._access_lists = system_files.AccessLists()
         for client_pid in self._active_sessions.get_clients():
@@ -667,7 +667,7 @@ class PlatformService(object):
                 raise RuntimeError(f'The PID {client_pid} requested write access, but the geopm service already has write mode client with PID or SID of {lock_pid}')
 
     def _watch_client(self, client_pid):
-        return GLib.timeout_add(self._WATCH_INTERVAL_MSEC, self.check_client, client_pid)
+        return GLib.timeout_add_seconds(self._WATCH_INTERVAL_SEC, self.check_client, client_pid)
 
     def check_client(self, client_pid):
         """Called by GLib periodically to monitor if a PID is active
