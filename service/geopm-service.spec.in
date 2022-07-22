@@ -201,7 +201,6 @@ ln -s /usr/sbin/service %{buildroot}%{_sbindir}/rcgeopm
 %dir %{_datadir}/dbus-1/interfaces
 %{_datadir}/dbus-1/interfaces/io.github.geopm.xml
 %{_unitdir}/geopm.service
-%dir %{_sysconfdir}/geopm-service
 %dir %{docdir}
 %doc %{docdir}/COPYING
 %doc %{docdir}/COPYING-TPP
