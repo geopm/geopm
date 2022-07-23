@@ -45,6 +45,7 @@ class MockAgent : public geopm::Agent
         MOCK_METHOD((std::vector<std::function<std::string(double)> >), trace_formats, (),
                     (const, override));
         MOCK_METHOD(void, trace_values, (std::vector<double> & values), (override));
+        MOCK_METHOD(void, enforce_policy, (const std::vector<double> &policy), (const, override));
 };
 
 #endif
