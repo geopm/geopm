@@ -102,7 +102,7 @@ namespace geopm
             /// @brief Enforce the policy one time with
             ///        PlatformIO::write_control().  Called to enforce
             ///        static policies in the absence of a Controller.
-            virtual void enforce_policy(const std::vector<double> &policy) const {}
+            virtual void enforce_policy(const std::vector<double> &policy) const = 0;
             /// @brief Used to look up the number of values in the
             ///        policy vector sent down the tree for a specific
             ///        Agent.  This should be called with the

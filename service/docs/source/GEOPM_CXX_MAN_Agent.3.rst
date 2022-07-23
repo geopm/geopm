@@ -64,7 +64,7 @@ Link with ``-lgeopm``
 
        virtual void Agent::trace_values(vector<double> &values) = 0;
 
-       virtual void Agent::enforce_policy(const vector<double> &policy) const;
+       virtual void Agent::enforce_policy(const vector<double> &policy) const = 0;
 
        static int Agent::num_policy(const map<string, string> &dictionary);
 
