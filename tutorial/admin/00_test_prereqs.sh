@@ -43,7 +43,7 @@ if ldd $(which geopmctl) | grep --quiet "not found"; then
 fi
 
 # Python reqs
-PYTHON_CMD=python
+PYTHON_CMD=python3
 if ! 2>/dev/null ${PYTHON_CMD} -c "import geopmpy"; then
     echo "ERROR: geopmpy is not in the PYTHONPATH."
     echo "       Please read the \"USER ENVIRONMENT\" section of the main README."
