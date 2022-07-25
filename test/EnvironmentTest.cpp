@@ -89,7 +89,6 @@ void EnvironmentTest::expect_vars(std::map<std::string, std::string> exp_vars) c
     EXPECT_EQ(exp_vars["GEOPM_COMM"], m_env->comm());
     EXPECT_EQ(exp_vars["GEOPM_POLICY"], m_env->policy());
     EXPECT_EQ(exp_vars["GEOPM_AGENT"], m_env->agent());
-    EXPECT_EQ(exp_vars["GEOPM_SHMKEY"], m_env->shmkey());
     EXPECT_EQ(exp_vars["GEOPM_TRACE"], m_env->trace());
     EXPECT_EQ(exp_vars["GEOPM_TRACE_PROFILE"], m_env->trace_profile());
     EXPECT_EQ("\"" + exp_vars["GEOPM_PROFILE"] + "\"", m_env->profile());
@@ -207,7 +206,6 @@ TEST_F(EnvironmentTest, internal_defaults)
     std::map<std::string, std::string> internal_default_vars = {
               {"GEOPM_COMM", "MPIComm"},
               {"GEOPM_AGENT", "monitor"},
-              {"GEOPM_SHMKEY", "/geopm-shm-" + std::to_string(geteuid())},
               {"GEOPM_MAX_FAN_OUT", "16"},
               {"GEOPM_TIMEOUT", "30"},
               {"GEOPM_DEBUG_ATTACH", "-1"},
@@ -223,7 +221,6 @@ TEST_F(EnvironmentTest, user_only)
     std::map<std::string, std::string> internal_default_vars = {
               {"GEOPM_COMM", "MPIComm"},
               {"GEOPM_AGENT", "monitor"},
-              {"GEOPM_SHMKEY", "/geopm-shm-" + std::to_string(geteuid())},
               {"GEOPM_MAX_FAN_OUT", "16"},
               {"GEOPM_TIMEOUT", "30"},
               {"GEOPM_DEBUG_ATTACH", "-1"},
@@ -235,7 +232,6 @@ TEST_F(EnvironmentTest, user_only)
     m_env = geopm::make_unique<EnvironmentImp>("", "", &m_platform_io);
     std::map<std::string, std::string> exp_vars = m_user;
     exp_vars["GEOPM_PROFILE"] = std::string(program_invocation_name);
-    exp_vars["GEOPM_SHMKEY"] = internal_default_vars["GEOPM_SHMKEY"];
     exp_vars["GEOPM_TIMEOUT"] = internal_default_vars["GEOPM_TIMEOUT"];
 
     expect_vars(exp_vars);
@@ -247,7 +243,6 @@ TEST_F(EnvironmentTest, user_only_do_profile)
     std::map<std::string, std::string> internal_default_vars = {
               {"GEOPM_COMM", "MPIComm"},
               {"GEOPM_AGENT", "monitor"},
-              {"GEOPM_SHMKEY", "/geopm-shm-" + std::to_string(geteuid())},
               {"GEOPM_MAX_FAN_OUT", "16"},
               {"GEOPM_TIMEOUT", "30"},
               {"GEOPM_DEBUG_ATTACH", "-1"},
@@ -259,7 +254,6 @@ TEST_F(EnvironmentTest, user_only_do_profile)
     m_env = geopm::make_unique<EnvironmentImp>("", "", &m_platform_io);
     std::map<std::string, std::string> exp_vars = m_user;
     exp_vars["GEOPM_PROFILE"] = std::string(program_invocation_name);
-    exp_vars["GEOPM_SHMKEY"] = internal_default_vars["GEOPM_SHMKEY"];
     exp_vars["GEOPM_TIMEOUT"] = internal_default_vars["GEOPM_TIMEOUT"];
 
     expect_vars(exp_vars);
@@ -271,7 +265,6 @@ TEST_F(EnvironmentTest, user_only_do_profile_custom)
     std::map<std::string, std::string> internal_default_vars = {
               {"GEOPM_COMM", "MPIComm"},
               {"GEOPM_AGENT", "monitor"},
-              {"GEOPM_SHMKEY", "/geopm-shm-" + std::to_string(geteuid())},
               {"GEOPM_MAX_FAN_OUT", "16"},
               {"GEOPM_TIMEOUT", "30"},
               {"GEOPM_DEBUG_ATTACH", "-1"},
@@ -283,7 +276,6 @@ TEST_F(EnvironmentTest, user_only_do_profile_custom)
     m_env = geopm::make_unique<EnvironmentImp>("", "", &m_platform_io);
     std::map<std::string, std::string> exp_vars = m_user;
     exp_vars["GEOPM_PROFILE"] = "That's all folks ";
-    exp_vars["GEOPM_SHMKEY"] = internal_default_vars["GEOPM_SHMKEY"];
     exp_vars["GEOPM_TIMEOUT"] = internal_default_vars["GEOPM_TIMEOUT"];
 
     expect_vars(exp_vars);
@@ -295,7 +287,6 @@ TEST_F(EnvironmentTest, user_only_do_profile_name)
     std::map<std::string, std::string> internal_default_vars = {
               {"GEOPM_COMM", "MPIComm"},
               {"GEOPM_AGENT", "monitor"},
-              {"GEOPM_SHMKEY", "/geopm-shm-" + std::to_string(geteuid())},
               {"GEOPM_MAX_FAN_OUT", "16"},
               {"GEOPM_TIMEOUT", "30"},
               {"GEOPM_DEBUG_ATTACH", "-1"},
@@ -307,7 +298,6 @@ TEST_F(EnvironmentTest, user_only_do_profile_name)
     m_env = geopm::make_unique<EnvironmentImp>("", "", &m_platform_io);
     std::map<std::string, std::string> exp_vars = m_user;
     exp_vars["GEOPM_PROFILE"] = "profile-test_value";
-    exp_vars["GEOPM_SHMKEY"] = internal_default_vars["GEOPM_SHMKEY"];
     exp_vars["GEOPM_TIMEOUT"] = internal_default_vars["GEOPM_TIMEOUT"];
 
     expect_vars(exp_vars);
@@ -320,7 +310,6 @@ TEST_F(EnvironmentTest, default_only)
               {"GEOPM_COMM", "default-comm-test_value"},
               {"GEOPM_POLICY", "default-policy-test_value"},
               {"GEOPM_AGENT", "default-agent-test_value"},
-              {"GEOPM_SHMKEY", "default-shmkey-test_value"},
               {"GEOPM_TRACE", "default-trace-test_value"},
               {"GEOPM_TRACE_PROFILE", "default-trace-profile-test_value"},
               {"GEOPM_PROFILE", "default-profile-test_value"},
@@ -346,7 +335,6 @@ TEST_F(EnvironmentTest, default_only)
 
     m_env = geopm::make_unique<EnvironmentImp>(M_DEFAULT_PATH, "", &m_platform_io);
     std::map<std::string, std::string> exp_vars = default_vars;
-    exp_vars["GEOPM_SHMKEY"] = "/" + exp_vars["GEOPM_SHMKEY"];
 
     expect_vars(exp_vars);
     check_trace_report_signals(m_trace_signals, m_report_signals);
@@ -359,7 +347,6 @@ TEST_F(EnvironmentTest, override_only)
               {"GEOPM_COMM", "override-comm-test_value"},
               {"GEOPM_POLICY", "override-policy-test_value"},
               {"GEOPM_AGENT", "override-agent-test_value"},
-              {"GEOPM_SHMKEY", "/override-shmkey-test_value"},
               {"GEOPM_TRACE", "override-trace-test_value"},
               {"GEOPM_TRACE_PROFILE", "override-trace-profile-test_value"},
               {"GEOPM_PROFILE", "override-profile-test_value"},
@@ -397,7 +384,6 @@ TEST_F(EnvironmentTest, default_and_override)
               {"GEOPM_COMM", "default-comm-test_value"},
               {"GEOPM_POLICY", "default-policy-test_value"},
               {"GEOPM_AGENT", "default-agent-test_value"},
-              {"GEOPM_SHMKEY", "default-shmkey-test_value"},
               {"GEOPM_TRACE", "default-trace-test_value"},
               {"GEOPM_TRACE_PROFILE", "default-trace-profile-test_value"},
               {"GEOPM_PROFILE", "default-profile-test_value"},
@@ -414,7 +400,6 @@ TEST_F(EnvironmentTest, default_and_override)
               {"GEOPM_COMM", "override-comm-test_value"},
               {"GEOPM_POLICY", "override-policy-test_value"},
               {"GEOPM_AGENT", "override-agent-test_value"},
-              {"GEOPM_SHMKEY", "/override-shmkey-test_value"},
               {"GEOPM_TRACE", "override-trace-test_value"},
               {"GEOPM_TRACE_PROFILE", "override-trace-profile-test_value"},
               {"GEOPM_PROFILE", "override-profile-test_value"},
@@ -455,7 +440,6 @@ TEST_F(EnvironmentTest, user_default_and_override)
     std::map<std::string, std::string> internal_default_vars = {
               {"GEOPM_COMM", "MPIComm"},
               {"GEOPM_AGENT", "monitor"},
-              {"GEOPM_SHMKEY", "/geopm-shm-" + std::to_string(geteuid())},
               {"GEOPM_MAX_FAN_OUT", "16"},
               {"GEOPM_TIMEOUT", "30"},
               {"GEOPM_DEBUG_ATTACH", "-1"},
@@ -483,7 +467,6 @@ TEST_F(EnvironmentTest, user_default_and_override)
         {"GEOPM_COMM", override_vars["GEOPM_COMM"]},
         {"GEOPM_POLICY", m_user["GEOPM_POLICY"]},
         {"GEOPM_AGENT", override_vars["GEOPM_AGENT"]},
-        {"GEOPM_SHMKEY", internal_default_vars["GEOPM_SHMKEY"]},
         {"GEOPM_TRACE", m_user["GEOPM_TRACE"]},
         {"GEOPM_TRACE_PROFILE", m_user["GEOPM_TRACE_PROFILE"]},
         {"GEOPM_PROFILE", std::string(program_invocation_name)},

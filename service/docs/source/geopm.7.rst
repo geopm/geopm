@@ -312,10 +312,6 @@ GEOPM Environment Variables
   The prefix for shared memory keys used by the GEOPM endpoint. See the
   ``--geopm-endpoint`` :ref:`option description <geopm-endpoint option>` in
   :doc:`geopmlaunch(1) <geopmlaunch.1>` for more details.
-``GEOPM_SHMKEY``
-  The prefix used for all non-endpoint shared memory keys used by GEOPM. See the
-  ``--geopm-shmkey`` :ref:`option description <geopm-shmkey option>` in
-  :doc:`geopmlaunch(1) <geopmlaunch.1>` for more details.
 ``GEOPM_TIMEOUT``
   The count of seconds that the application will wait for the GEOPM controller
   to connect over shared memory before timing out. See the

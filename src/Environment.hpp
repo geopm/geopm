@@ -36,7 +36,6 @@ namespace geopm
             virtual std::string comm(void) const = 0;
             virtual std::string policy(void) const = 0;
             virtual std::string endpoint(void) const = 0;
-            virtual std::string shmkey(void) const = 0;
             virtual std::string trace(void) const = 0;
             virtual std::string trace_profile(void) const = 0;
             virtual std::string trace_endpoint_policy(void) const = 0;
@@ -79,7 +78,6 @@ namespace geopm
             std::string comm(void) const override;
             std::string policy(void) const override;
             std::string endpoint(void) const override;
-            std::string shmkey(void) const override;
             std::string trace(void) const override;
             std::string trace_profile(void) const override;
             std::string trace_endpoint_policy(void) const override;
