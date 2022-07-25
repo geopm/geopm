@@ -81,7 +81,6 @@ namespace geopm
                            "GEOPM_CTL"})
         , m_name_value_map ({{"GEOPM_COMM" ,"MPIComm"},
                              {"GEOPM_AGENT", "monitor"},
-                             {"GEOPM_SHMKEY", "/geopm-shm-" + std::to_string(geteuid())},
                              {"GEOPM_MAX_FAN_OUT", "16"},
                              {"GEOPM_TIMEOUT", "30"},
                              {"GEOPM_DEBUG_ATTACH", "-1"}})
@@ -118,7 +117,6 @@ namespace geopm
                 "GEOPM_POLICY",
                 "GEOPM_ENDPOINT",
                 "GEOPM_AGENT",
-                "GEOPM_SHMKEY",
                 "GEOPM_TRACE",
                 "GEOPM_TRACE_SIGNALS",
                 "GEOPM_TRACE_PROFILE",
@@ -228,15 +226,6 @@ namespace geopm
     std::string EnvironmentImp::agent(void) const
     {
         return lookup("GEOPM_AGENT");
-    }
-
-    std::string EnvironmentImp::shmkey(void) const
-    {
-        std::string ret = lookup("GEOPM_SHMKEY");
-        if (ret[0] != '/') {
-            ret.insert(0, "/");
-        }
-        return ret;
     }
 
     std::string EnvironmentImp::trace(void) const
