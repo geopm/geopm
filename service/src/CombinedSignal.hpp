@@ -27,35 +27,6 @@ namespace geopm
             virtual double sample(const std::vector<double> &values);
             std::function<double(const std::vector<double> &)> m_agg_function;
     };
-
-    /// @brief Used by PlatformIO for CombinedSignals based on a
-    ///        derivative of another signal over time.
-    class DerivativeCombinedSignal : public CombinedSignal
-    {
-        public:
-            DerivativeCombinedSignal();
-            virtual ~DerivativeCombinedSignal() = default;
-            double sample(const std::vector<double> &values) override;
-        private:
-            struct m_sample_s {
-                double time;
-                double sample;
-            };
-            const int M_NUM_SAMPLE_HISTORY;
-            // time + energy history
-            CircularBuffer<m_sample_s> m_history;
-            int m_derivative_num_fit;
-    };
-
-    /// @brief Used by PlatformIO for CombinedSignals based on a
-    ///        difference between two signals.
-    class DifferenceCombinedSignal : public CombinedSignal
-    {
-        public:
-            DifferenceCombinedSignal() = default;
-            virtual ~DifferenceCombinedSignal() = default;
-            double sample(const std::vector<double> &values) override;
-    };
 }
 
 #endif

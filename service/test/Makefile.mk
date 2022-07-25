@@ -54,11 +54,8 @@ GTEST_TESTS = test/gtest_links/GPUTopoNullTest.default_config \
               test/gtest_links/CNLIOGroupTest.push_signal \
               test/gtest_links/CNLIOGroupTest.parse_energy \
               test/gtest_links/CNLIOGroupTest.parse_power \
-              test/gtest_links/CombinedSignalTest.sample_flat_derivative \
               test/gtest_links/CombinedSignalTest.sample_max \
-              test/gtest_links/CombinedSignalTest.sample_slope_derivative \
               test/gtest_links/CombinedSignalTest.sample_sum \
-              test/gtest_links/CombinedSignalTest.sample_difference \
               test/gtest_links/CpuinfoIOGroupTest.parse_cpu_freq \
               test/gtest_links/CpuinfoIOGroupTest.parse_error_no_sticker \
               test/gtest_links/CpuinfoIOGroupTest.parse_error_sticker_bad_path \
