@@ -291,11 +291,17 @@ class TestActiveSessions(unittest.TestCase):
 
         sess_path = f'{self._TEMP_DIR.name}/geopm-service'
         full_file_path = os.path.join(sess_path, f"session-{client_pid}.json")
+        renamed_path = f'{full_file_path}-uuid4-REMOVE'
+        good_example_str = json.dumps(self.json_good_example)
 
         with mock.patch('geopmdpy.system_files.secure_make_dirs', autospec=True, specset=True) as mock_smd, \
              mock.patch('geopmdpy.system_files.secure_make_file', autospec=True, specset=True) as mock_smf, \
-             mock.patch('os.remove', autospec=True, specset=True) as mock_remove:
-
+             mock.patch('geopmdpy.system_files.secure_read_file', autospec=True, specset=True, return_value=good_example_str) as mock_srf, \
+             mock.patch('uuid.uuid4', autospec=True, specset=True, return_value='uuid4') as mock_uuid4, \
+             mock.patch('json.loads', autospec=True, specset=True, return_value=self.json_good_example) as mock_loads, \
+             mock.patch('jsonschema.validate', autospec=True, specset=True) as mock_validate, \
+             mock.patch('os.remove', autospec=True, specset=True) as mock_remove, \
+             mock.patch('os.rename', autospec=True, specset=True) as mock_rename:
             # TODO _update_session_file has secure file I/O (writing)
             #   Should this be moved into secure_write_file()?
 
@@ -311,7 +317,13 @@ class TestActiveSessions(unittest.TestCase):
             act_sess.remove_client(client_pid)
             self.assertNotIn(client_pid, act_sess.get_clients())
             self.assertFalse(act_sess.is_client_active(client_pid))
-            mock_remove.assert_called_once_with(full_file_path)
+            mock_srf.assert_called()
+            mock_uuid4.assert_called_once()
+            mock_loads.assert_called()
+            mock_validate.assert_called()
+            mock_remove.assert_called_once_with(renamed_path)
+            mock_rename.assert_called_once_with(full_file_path, renamed_path)
+
 
     def test_batch_server(self):
         """Assign the batch server PID to a client session
