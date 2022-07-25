@@ -148,6 +148,11 @@ namespace geopm
         }
         catch (const Exception &ex) {
             // Only load architectural MSRs
+#ifdef GEOPM_DEBUG
+            std::cerr << "Warning: <geopm> MSRIOGroup::MSRIOGroup(): "
+                      << "Unable to load CPUID specific MSRs: "
+                      << ex.what() << std::endl;
+#endif
         }
         auto custom_files = msr_data_files();
         for (const auto &filename : custom_files) {
