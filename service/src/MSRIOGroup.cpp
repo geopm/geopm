@@ -1559,7 +1559,17 @@ namespace geopm
         check_top_level(root);
 
         auto msr_obj = root["msrs"].object_items();
-        bool is_trl_writable = is_trl_writable_in_all_domains(root["msrs"], m_platform_topo, m_msrio);
+        bool is_trl_writable = false;
+        try {
+            is_trl_writable = is_trl_writable_in_all_domains(root["msrs"], m_platform_topo, m_msrio);
+        }
+        catch (const Exception &ex) {
+#ifdef GEOPM_DEBUG
+            std::cerr << "Warning: <geopm> MSRIOGroup::" << std::string(__func__)
+                      << "(): Unable to check TRL via PLATFORM_INFO: "
+                      << ex.what() << std::endl;
+#endif
+        }
 
         for (const auto &msr : msr_obj) {
             std::string msr_name = msr.first;
