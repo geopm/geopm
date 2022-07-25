@@ -135,7 +135,6 @@ class Config(object):
         parser.add_argument('--geopm-ctl', dest='ctl', type=str, default='process')
         parser.add_argument('--geopm-agent', dest='agent', type=str)
         parser.add_argument('--geopm-policy', dest='policy', type=str)
-        parser.add_argument('--geopm-shmkey', dest='shmkey', type=str)
         parser.add_argument('--geopm-timeout', dest='timeout', type=str)
         parser.add_argument('--geopm-endpoint', dest='endpoint', type=str)
         parser.add_argument('--geopm-plugin-path', dest='plugin', type=str)
@@ -163,7 +162,6 @@ class Config(object):
         self.report_signals = opts.report_signals
         self.agent = opts.agent
         self.profile = opts.profile
-        self.shmkey = opts.shmkey
         self.timeout = opts.timeout
         self.plugin = opts.plugin
         self.debug_attach = opts.debug_attach
@@ -227,8 +225,6 @@ class Config(object):
             result['GEOPM_TRACE_SIGNALS'] = self.trace_signals
         if self.report_signals:
             result['GEOPM_REPORT_SIGNALS'] = self.report_signals
-        if self.shmkey:
-            result['GEOPM_SHMKEY'] = self.shmkey
         if self.timeout:
             result['GEOPM_TIMEOUT'] = self.timeout
         if self.plugin:
@@ -284,12 +280,6 @@ class Config(object):
         Returns the geopm policy file/key.
         """
         return self.policy
-
-    def get_shmkey(self):
-        """
-        Returns the geopm shared memory key base.
-        """
-        return self.shmkey
 
     def get_preload(self):
         """
@@ -1728,8 +1718,6 @@ GEOPM_OPTIONS:
       --geopm-endpoint=endpoint
                                use shared memory keys for endpoint starting with
                                "key"
-      --geopm-shmkey=key       use shared memory keys for geopm profile interaction
-                               starting with "key"
       --geopm-timeout=sec      application waits "sec" seconds for handshake
                                with geopm
       --geopm-plugin-path=path look for geopm plugins in "path", a : separated
