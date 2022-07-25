@@ -144,6 +144,7 @@ class TestPlatformService(unittest.TestCase):
         self._mock_active_sessions.get_reference_count.return_value = reference_count
         self._mock_active_sessions.get_watch_id.return_value = watch_id
         self._mock_active_sessions.get_batch_server.return_value = None
+        self._mock_active_sessions.remove_client.return_value = session_data
 
         self._mock_access_lists.get_user_access.return_value = (signals, controls)
 

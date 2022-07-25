@@ -242,6 +242,7 @@ namespace geopm
                 std::cerr << "Warning: <geopm>: " << __FILE__ << ":" << __LINE__
                           << " Batch client " << m_client_pid << " terminated while server " << getpid() << " was waiting\n";
             }
+            throw;
         }
     }
 
