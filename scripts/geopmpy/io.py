@@ -745,13 +745,21 @@ class RawReport(object):
         return list(self._raw_dict['Hosts'].keys())
 
     def region_names(self, host_name):
-        return [rr['region'] for rr in self._raw_dict['Hosts'][host_name]['Regions']]
+        result = []
+        try:
+            result = [rr['region'] for rr in self._raw_dict['Hosts'][host_name]['Regions']]
+        except KeyError:
+            pass
+        return result
 
     def raw_region(self, host_name, region_name):
         result = None
-        for rr in self._raw_dict['Hosts'][host_name]['Regions']:
-            if rr['region'] == region_name:
-                result = copy.deepcopy(rr)
+        try:
+            for rr in self._raw_dict['Hosts'][host_name]['Regions']:
+                if rr['region'] == region_name:
+                    result = copy.deepcopy(rr)
+        except KeyError:
+            raise RuntimeError('report has no regions for the specified host')
         if not result:
             raise RuntimeError('region name: {} not found'.format(region_name))
         return result
