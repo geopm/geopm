@@ -73,7 +73,7 @@ candidate repository are added to your package configuration,
 Un-packaged Features
 --------------------
 
-The installing the packages described above will not provide the
+The packages described above do not provide the
 :doc:`GEOPM HPC Runtime <runtime>` features (e.g.
 :doc:`geopmlaunch(1) <geopmlaunch.1>`, :doc:`geopm_prof(3) <geopm_prof.3>`,
 :doc:`geopm_report(7) <geopm_report.7>`, ``libgeopm.so``, etc.).
@@ -81,7 +81,7 @@ The GEOPM HPC Runtime must be built against a particular implementation of the
 Message Passing Interface (MPI).  Typically the implementation of MPI is
 specific to the system where the HPC application is being run.  An exception
 to this rule is the OpenHPC distribution.  GEOPM version 1 has been packaged
-with OpenHPC, and we hope to distribute version 2 with OpenHPC in the future.
+with `OpenHPC releases <http://openhpc.community/downloads/>`_, and we hope to distribute version 2 with OpenHPC in the future.
 For users interested in GEOPM version 2, a source build is required.
 
 Support for GPUs is also not provided by installing the packages described
