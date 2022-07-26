@@ -32,6 +32,21 @@ bool is_agg_stddev(std::function<double(const std::vector<double> &)> func);
 bool is_agg_select_first(std::function<double(const std::vector<double> &)> func);
 bool is_agg_expect_same(std::function<double(const std::vector<double> &)> func);
 
+/// @brief Skip decorator for gtest test fixtures
+///
+/// Add to the top of any test fixture which has requirement that may not be
+/// met in typical CI situations, like single CPU VMs that are frequently
+/// interrupted.  This should be applied to tests that require more than one
+/// active thread.  Tests that are sensative to delays in execution due to
+/// timing requirements should also be decorated.  To enable these tests,
+/// export GEOPM_TEST_EXTENDED in the environment.
+///
+/// @param [IN] reason The requirement that may not be met in all test cases
+#define GEOPM_TEST_EXTENDED(reason) \
+if (getenv("GEOPM_TEST_EXTENDED") == nullptr) \
+GTEST_SKIP() << reason \
+             << ", export GEOPM_TEST_EXTENDED=1 to enable\n";
+
 /// Checks that the given statement throws a geopm::Exception with the
 /// right error code and message.  The message must be a substring of
 /// the thrown Exception's what() string.  Additional details may be

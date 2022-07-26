@@ -698,6 +698,8 @@ TEST_F(BatchServerTest, create_shmem)
  */
 TEST_F(BatchServerTest, fork_with_setup)
 {
+    GEOPM_TEST_EXTENDED("Requires multiple threads");
+
     size_t *counter_mem = (size_t*) mmap(
         NULL,                        // void *addr
         sizeof(size_t),              // size_t length
@@ -740,6 +742,8 @@ TEST_F(BatchServerTest, fork_with_setup)
  */
 TEST_F(BatchServerTest, fork_with_setup_exception)
 {
+    GEOPM_TEST_EXTENDED("Requires multiple threads");
+
     std::function<char(void)> setup = [](void)
     {
         return BatchStatus::M_MESSAGE_QUIT;
@@ -983,6 +987,8 @@ int BatchServerTest::fork_other(std::function<void(int, int)> child_process_func
  */
 TEST_F(BatchServerTest, fork_and_terminate_child)
 {
+    GEOPM_TEST_EXTENDED("Requires multiple threads");
+
     /// This function contains the child process, which is the server.
     /// It takes the write_pipe_fd and the PID of the parent process, which is the client.
     std::function<void(int, int)> child_process_func =
@@ -1086,6 +1092,8 @@ TEST_F(BatchServerTest, fork_and_terminate_child)
  */
 TEST_F(BatchServerTest, fork_and_terminate_parent)
 {
+    GEOPM_TEST_EXTENDED("Requires multiple threads");
+
     /// This function contains the child process, which is the client.
     /// It takes the read_pipe_fd and the PID of the parent process, which is the server.
     std::function<void(int, int)> child_process_func =
@@ -1185,8 +1193,11 @@ TEST_F(BatchServerTest, fork_and_terminate_parent)
  * @test Enables coverage for the path of the SIGCHLD handler upon normal operation,
  *       when a forked child process terminates, and sends a SIGCHLD to the server.
  */
+
 TEST_F(BatchServerTest, action_sigchld)
 {
+    GEOPM_TEST_EXTENDED("Requires multiple threads");
+
     /// This function contains the child process, which is the client.
     /// It takes the read_pipe_fd and the PID of the parent process, which is the server.
     std::function<void(int, int)> child_process_func =
@@ -1255,6 +1266,7 @@ TEST_F(BatchServerTest, action_sigchld)
  */
 TEST_F(BatchServerTest, action_sigchld_error)
 {
+    GEOPM_TEST_EXTENDED("Requires multiple threads");
     /// This function contains the child process, which is the server.
     /// It takes the write_pipe_fd and the PID of the parent process, which is the client.
     std::function<void(int, int)> child_process_func =
