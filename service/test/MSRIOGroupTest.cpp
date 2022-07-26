@@ -667,6 +667,8 @@ TEST_F(MSRIOGroupTest, read_signal_power)
 
 TEST_F(MSRIOGroupTest, read_signal_scalability)
 {
+    GEOPM_TEST_EXTENDED("Requires accurate timing");
+
     uint64_t pcnt_offset = 0x64e;
     uint64_t acnt_offset = 0xe8;
     double result;

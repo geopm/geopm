@@ -5,6 +5,7 @@
 #
 
 import unittest
+import os
 from unittest import mock
 from time import time
 
@@ -36,6 +37,7 @@ class TestTimedLoop(unittest.TestCase):
         with self.assertRaisesRegex(TypeError, err_msg):
             TimedLoop('asd', 'dsa')
 
+    @unittest.skipIf(os.environ.get('GEOPM_TEST_EXTENDED') is None, "Requires accurate timing")
     def test_timed_loop_infinite(self):
         period = 0.01
         tl = TimedLoop(period) # Infinte loop
@@ -52,6 +54,7 @@ class TestTimedLoop(unittest.TestCase):
             if index == 50: # Break after 50 iterations
                 break
 
+    @unittest.skipIf(os.environ.get('GEOPM_TEST_EXTENDED') is None, "Requires accurate timing")
     def test_timed_loop_fixed(self):
         period = 0.01
         num_period = 10
