@@ -12,7 +12,8 @@
                     "scalar":    1.0,
                     "behavior":  "monotone",
                     "writeable": false,
-                    "description": "An always running, monotonically increasing counter that is incremented at a constant rate.  For use as a wall clock timer."
+                    "description": "An always running, monotonically increasing counter that is incremented at a constant rate.  For use as a wall clock timer.",
+                    "aggregation": "select_first"
                 }
             }
         },
@@ -62,7 +63,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": false,
-                    "description": "The temperature at or above which the MSR::THERM_STATUS:THERMAL_THRESH_1_STATUS indicator is set, in degrees below MSR::TEMPERATURE_TARGET:PROCHOT_MIN."
+                    "description": "The temperature at or above which the MSR::THERM_STATUS:THERMAL_THRESH_1_STATUS indicator is set, in degrees below MSR::TEMPERATURE_TARGET:PROCHOT_MIN.",
+                    "aggregation": "expect_same"
                 },
                 "THRESH_2": {
                     "begin_bit": 16,
@@ -72,7 +74,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": false,
-                    "description": "The temperature at or above which the MSR::THERM_STATUS:THERMAL_THRESH_2_STATUS indicator is set, in degrees below MSR::TEMPERATURE_TARGET:PROCHOT_MIN."
+                    "description": "The temperature at or above which the MSR::THERM_STATUS:THERMAL_THRESH_2_STATUS indicator is set, in degrees below MSR::TEMPERATURE_TARGET:PROCHOT_MIN.",
+                    "aggregation": "expect_same"
                 }
             }
         },
@@ -88,7 +91,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": false,
-                    "description": "Indicates whether the core's on-die sensor reads a high temperature (PROCHOT)."
+                    "description": "Indicates whether the core's on-die sensor reads a high temperature (PROCHOT). When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "THERMAL_STATUS_LOG": {
                     "begin_bit": 1,
@@ -98,7 +102,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": true,
-                    "description": "Indicates whether the core's on-die sensor has read a high temperature (PROCHOT) since the last time a zero was written to this control."
+                    "description": "Indicates whether the core's on-die sensor has read a high temperature (PROCHOT) since the last time a zero was written to this control. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "PROCHOT_EVENT": {
                     "begin_bit": 2,
@@ -108,7 +113,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": false,
-                    "description": "Indicates whether a high temperature (PROCHOT) or forced power reduction (FORCEPR) is being externally asserted."
+                    "description": "Indicates whether a high temperature (PROCHOT) or forced power reduction (FORCEPR) is being externally asserted. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "PROCHOT_LOG": {
                     "begin_bit": 3,
@@ -118,7 +124,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": true,
-                    "description": "Indicates whether a high temperature (PROCHOT) or forced power reduction (FORCEPR) has been externally asserted since the last time a zero was written to this control."
+                    "description": "Indicates whether a high temperature (PROCHOT) or forced power reduction (FORCEPR) has been externally asserted since the last time a zero was written to this control. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "CRITICAL_TEMP_STATUS": {
                     "begin_bit": 4,
@@ -128,7 +135,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": false,
-                    "description": "Indicates whether the core's on-die sensor reads a critical temperature and the system cannot guarantee reliable operation."
+                    "description": "Indicates whether the core's on-die sensor reads a critical temperature and the system cannot guarantee reliable operation. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "CRITICAL_TEMP_LOG": {
                     "begin_bit": 5,
@@ -138,7 +146,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": true,
-                    "description": "Indicates whether the core's on-die sensor has read a critical temperature since the last time a zero was written to this control."
+                    "description": "Indicates whether the core's on-die sensor has read a critical temperature since the last time a zero was written to this control. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "THERMAL_THRESH_1_STATUS": {
                     "begin_bit": 6,
@@ -148,7 +157,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": false,
-                    "description": "Indicates whether the core's on-die sensor reads equal to or hotter than the threshold in MSR::THERM_INTERRUPT:THRESH_1."
+                    "description": "Indicates whether the core's on-die sensor reads equal to or hotter than the threshold in MSR::THERM_INTERRUPT:THRESH_1. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "THERMAL_THRESH_1_LOG": {
                     "begin_bit": 7,
@@ -158,7 +168,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": true,
-                    "description": "Indicates whether the core's on-die sensor has read equal to or hotter than the threshold in MSR::THERM_INTERRUPT:THRESH_1 since the last time a zero was written to this control."
+                    "description": "Indicates whether the core's on-die sensor has read equal to or hotter than the threshold in MSR::THERM_INTERRUPT:THRESH_1 since the last time a zero was written to this control. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "THERMAL_THRESH_2_STATUS": {
                     "begin_bit": 8,
@@ -168,7 +179,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": false,
-                    "description": "Indicates whether the core's on-die sensor reads equal to or hotter than the threshold in MSR::THERM_INTERRUPT:THRESH_2."
+                    "description": "Indicates whether the core's on-die sensor reads equal to or hotter than the threshold in MSR::THERM_INTERRUPT:THRESH_2. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "THERMAL_THRESH_2_LOG": {
                     "begin_bit": 9,
@@ -178,7 +190,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": true,
-                    "description": "Indicates whether the core's on-die sensor has read equal to or hotter than the threshold in MSR::THERM_INTERRUPT:THRESH_2 since the last time a zero was written to this control."
+                    "description": "Indicates whether the core's on-die sensor has read equal to or hotter than the threshold in MSR::THERM_INTERRUPT:THRESH_2 since the last time a zero was written to this control. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "POWER_LIMIT_STATUS": {
                     "begin_bit": 10,
@@ -188,7 +201,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": false,
-                    "description": "Indicates whether requested P-States or requested clock duty cycles are not met."
+                    "description": "Indicates whether requested P-States or requested clock duty cycles are not met. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "POWER_NOTIFICATION_LOG": {
                     "begin_bit": 11,
@@ -198,7 +212,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": true,
-                    "description": "Indicates whether requested P-States or requested clock duty cycles were not met at some point since the last time a zero was written to this control."
+                    "description": "Indicates whether requested P-States or requested clock duty cycles were not met at some point since the last time a zero was written to this control. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "DIGITAL_READOUT": {
                     "begin_bit": 16,
@@ -219,7 +234,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": false,
-                    "description": "The resolution of the sensor that measures MSR::THERM_STATUS:DIGITAL_READOUT temperature."
+                    "description": "The resolution of the sensor that measures MSR::THERM_STATUS:DIGITAL_READOUT temperature.",
+                    "aggregation": "expect_same"
                 },
                 "READING_VALID": {
                     "begin_bit": 31,
@@ -229,7 +245,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": false,
-                    "description": "Indicates whether MSR::THERM_STATUS:DIGITAL_READOUT contains a valid temperature readout."
+                    "description": "Indicates whether MSR::THERM_STATUS:DIGITAL_READOUT contains a valid temperature readout. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 }
             }
         },
@@ -245,7 +262,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": true,
-                    "description": "Enable software control of the fast string feature for REP MOVS/STORS"
+                    "description": "Enable software control of the fast string feature for REP MOVS/STORS When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "ENHANCED_SPEEDSTEP_TECH_ENABLE": {
                     "begin_bit": 16,
@@ -255,7 +273,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": true,
-                    "description": "Enable software control of P-States."
+                    "description": "Enable software control of P-States. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "LIMIT_CPUID_MAXVAL": {
                     "begin_bit": 22,
@@ -265,7 +284,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": false,
-                    "description": "Indicates whether the operating system does not support usage of the CPUID instruction with functions that require EAX values great than 2."
+                    "description": "Indicates whether the operating system does not support usage of the CPUID instruction with functions that require EAX values great than 2. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "TURBO_MODE_DISABLE": {
                     "begin_bit": 38,
@@ -275,7 +295,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": true,
-                    "description": "Indicates whether opportunistic operating frequency above the processor's base frequency is disabled."
+                    "description": "Indicates whether opportunistic operating frequency above the processor's base frequency is disabled. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 }
             }
         },
@@ -291,7 +312,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": false,
-                    "description": "The temperature at or above which the MSR::THERM_STATUS:THERMAL_THRESH_1_STATUS indicator is set, in degrees below MSR::TEMPERATURE_TARGET:PROCHOT_MIN."
+                    "description": "The temperature at or above which the MSR::THERM_STATUS:THERMAL_THRESH_1_STATUS indicator is set, in degrees below MSR::TEMPERATURE_TARGET:PROCHOT_MIN.",
+                    "aggregation": "expect_same"
                 },
                 "THRESH_2": {
                     "begin_bit": 16,
@@ -301,7 +323,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": false,
-                    "description": "The temperature at or above which the MSR::THERM_STATUS:THERMAL_THRESH_2_STATUS indicator is set, in degrees below MSR::TEMPERATURE_TARGET:PROCHOT_MIN."
+                    "description": "The temperature at or above which the MSR::THERM_STATUS:THERMAL_THRESH_2_STATUS indicator is set, in degrees below MSR::TEMPERATURE_TARGET:PROCHOT_MIN.",
+                    "aggregation": "expect_same"
                 }
             }
         },
@@ -317,7 +340,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": false,
-                    "description": "Indicates whether the package's on-die sensor reads a high temperature (PROCHOT)."
+                    "description": "Indicates whether the package's on-die sensor reads a high temperature (PROCHOT). When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "THERMAL_STATUS_LOG": {
                     "begin_bit": 1,
@@ -327,7 +351,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": true,
-                    "description": "Indicates whether the package's on-die sensor has read a high temperature (PROCHOT) since the last time a zero was written to this control."
+                    "description": "Indicates whether the package's on-die sensor has read a high temperature (PROCHOT) since the last time a zero was written to this control. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "PROCHOT_EVENT": {
                     "begin_bit": 2,
@@ -337,7 +362,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": false,
-                    "description": "Indicates whether a package high temperature (PROCHOT) or forced power reduction (FORCEPR) is being externally asserted."
+                    "description": "Indicates whether a package high temperature (PROCHOT) or forced power reduction (FORCEPR) is being externally asserted. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "PROCHOT_LOG": {
                     "begin_bit": 3,
@@ -347,7 +373,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": true,
-                    "description": "Indicates whether a package high temperature (PROCHOT) or forced power reduction (FORCEPR) has been externally asserted since the last time a zero was written to this control."
+                    "description": "Indicates whether a package high temperature (PROCHOT) or forced power reduction (FORCEPR) has been externally asserted since the last time a zero was written to this control. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "CRITICAL_TEMP_STATUS": {
                     "begin_bit": 4,
@@ -357,7 +384,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": false,
-                    "description": "Indicates whether the package's on-die sensor reads a critical temperature and the system cannot guarantee reliable operation."
+                    "description": "Indicates whether the package's on-die sensor reads a critical temperature and the system cannot guarantee reliable operation. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "CRITICAL_TEMP_LOG": {
                     "begin_bit": 5,
@@ -367,7 +395,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": true,
-                    "description": "Indicates whether the package's on-die sensor has read a critical temperature since the last time a zero was written to this control."
+                    "description": "Indicates whether the package's on-die sensor has read a critical temperature since the last time a zero was written to this control. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "THERMAL_THRESH_1_STATUS": {
                     "begin_bit": 6,
@@ -377,7 +406,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": false,
-                    "description": "Indicates whether the package's on-die sensor reads equal to or hotter than the threshold in MSR::PACKAGE_THERM_INTERRUPT:THRESH_1."
+                    "description": "Indicates whether the package's on-die sensor reads equal to or hotter than the threshold in MSR::PACKAGE_THERM_INTERRUPT:THRESH_1. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "THERMAL_THRESH_1_LOG": {
                     "begin_bit": 7,
@@ -387,7 +417,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": true,
-                    "description": "Indicates whether the package's on-die sensor has read equal to or hotter than the threshold in MSR::PACKAGE_THERM_INTERRUPT:THRESH_1 since the last time a zero was written to this control."
+                    "description": "Indicates whether the package's on-die sensor has read equal to or hotter than the threshold in MSR::PACKAGE_THERM_INTERRUPT:THRESH_1 since the last time a zero was written to this control. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "THERMAL_THRESH_2_STATUS": {
                     "begin_bit": 8,
@@ -397,7 +428,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": false,
-                    "description": "Indicates whether the package's on-die sensor reads equal to or hotter than the threshold in MSR::PACKAGE_THERM_INTERRUPT:THRESH_2."
+                    "description": "Indicates whether the package's on-die sensor reads equal to or hotter than the threshold in MSR::PACKAGE_THERM_INTERRUPT:THRESH_2. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "THERMAL_THRESH_2_LOG": {
                     "begin_bit": 9,
@@ -407,7 +439,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": true,
-                    "description": "Indicates whether the package's on-die sensor has read equal to or hotter than the threshold in MSR::PACKAGE_THERM_INTERRUPT:THRESH_2 since the last time a zero was written to this control."
+                    "description": "Indicates whether the package's on-die sensor has read equal to or hotter than the threshold in MSR::PACKAGE_THERM_INTERRUPT:THRESH_2 since the last time a zero was written to this control. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "POWER_LIMIT_STATUS": {
                     "begin_bit": 10,
@@ -417,7 +450,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": false,
-                    "description": "Indicates whether requested P-States or requested clock duty cycles are not met due to a package power limit."
+                    "description": "Indicates whether requested P-States or requested clock duty cycles are not met due to a package power limit. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "POWER_NOTIFICATION_LOG": {
                     "begin_bit": 11,
@@ -427,7 +461,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": true,
-                    "description": "Indicates whether requested P-States or requested clock duty cycles were not met due to a package power limit at some point since the last time a zero was written to this control."
+                    "description": "Indicates whether requested P-States or requested clock duty cycles were not met due to a package power limit at some point since the last time a zero was written to this control. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "DIGITAL_READOUT": {
                     "begin_bit": 16,
@@ -454,7 +489,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Set an event code to select which event logic unit to monitor. This control combined with MSR::IA32_PERFEVTSEL0:UMASK defines which event to count. See https://download.01.org/perfmon for possible input values. Event counts are accumulated in MSR::IA32_PMC0:PERFCTR."
+                    "description": "Set an event code to select which event logic unit to monitor. This control combined with MSR::IA32_PERFEVTSEL0:UMASK defines which event to count. See https://download.01.org/perfmon for possible input values. Event counts are accumulated in MSR::IA32_PMC0:PERFCTR.",
+                    "aggregation": "expect_same"
                 },
                 "UMASK": {
                     "begin_bit": 8,
@@ -464,7 +500,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Set a unit mask to select which event condition to monitor. This control combined with MSR::IA32_PERFEVTSEL0:EVENT_SELECT defines which event to count. See https://download.01.org/perfmon for possible input values. Event counts are accumulated in MSR::IA32_PMC0:PERFCTR."
+                    "description": "Set a unit mask to select which event condition to monitor. This control combined with MSR::IA32_PERFEVTSEL0:EVENT_SELECT defines which event to count. See https://download.01.org/perfmon for possible input values. Event counts are accumulated in MSR::IA32_PMC0:PERFCTR.",
+                    "aggregation": "expect_same"
                 },
                 "USR": {
                     "begin_bit": 16,
@@ -474,7 +511,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Count events while in user mode."
+                    "description": "Count events while in user mode. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "OS": {
                     "begin_bit": 17,
@@ -484,7 +522,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Count events while in kernel mode."
+                    "description": "Count events while in kernel mode. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "EDGE": {
                     "begin_bit": 18,
@@ -494,7 +533,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "When set, count rising edges of the event signal instead of counting all instances where the event is observed."
+                    "description": "When set, count rising edges of the event signal instead of counting all instances where the event is observed. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "PC": {
                     "begin_bit": 19,
@@ -504,7 +544,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Only applicable prior to the Sandy Bridge microarchitecture. When set, the processor's PMi pins are toggled (on then off in back-to-back clock cycles) when an event is counted. When cleared, only event counter overflows toggle the PMi pins."
+                    "description": "Only applicable prior to the Sandy Bridge microarchitecture. When set, the processor's PMi pins are toggled (on then off in back-to-back clock cycles) when an event is counted. When cleared, only event counter overflows toggle the PMi pins. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "INT": {
                     "begin_bit": 20,
@@ -514,7 +555,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "If set, generate an interrupt when the counter overflows."
+                    "description": "If set, generate an interrupt when the counter overflows. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "ANYTHREAD": {
                     "begin_bit": 21,
@@ -524,7 +566,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "If set, increment event counts when the event occurs on any hardware thread from the configured thread's core. Otherwise, only increment event counts when the configured thread triggers the event."
+                    "description": "If set, increment event counts when the event occurs on any hardware thread from the configured thread's core. Otherwise, only increment event counts when the configured thread triggers the event. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "EN": {
                     "begin_bit": 22,
@@ -534,7 +577,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Enable the counters selected in MSR::IA32_PERFEVTSEL0 if both this and MSR::PERF_GLOBAL_CTRL:EN_PMC0 are set."
+                    "description": "Enable the counters selected in MSR::IA32_PERFEVTSEL0 if both this and MSR::PERF_GLOBAL_CTRL:EN_PMC0 are set. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "INV": {
                     "begin_bit": 23,
@@ -544,7 +588,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Indicates whether non-zero MSR::IA32_PERFEVTSEL0:CMASK events should be inverted. When the CMASK is inverted, increment the event count when the number of occurrences is less than the configured cutoff, instead of the default behavior of counting when the number of occurrences is greater than or equal to the cutoff."
+                    "description": "Indicates whether non-zero MSR::IA32_PERFEVTSEL0:CMASK events should be inverted. When the CMASK is inverted, increment the event count when the number of occurrences is less than the configured cutoff, instead of the default behavior of counting when the number of occurrences is greater than or equal to the cutoff. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "CMASK": {
                     "begin_bit": 24,
@@ -554,7 +599,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Set a mask for instances where multiple events are counted in a single clock cycle. When zero, all events are counted. When non-zero, a single event is counted when the number of event occurrences is greater or equal to the set CMASK value."
+                    "description": "Set a mask for instances where multiple events are counted in a single clock cycle. When zero, all events are counted. When non-zero, a single event is counted when the number of event occurrences is greater or equal to the set CMASK value.",
+                    "aggregation": "expect_same"
                 }
             }
         },
@@ -570,7 +616,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Set an event code to select which event logic unit to monitor. This control combined with MSR::IA32_PERFEVTSEL1:UMASK defines which event to count. See https://download.01.org/perfmon for possible input values. Event counts are accumulated in MSR::IA32_PMC1:PERFCTR."
+                    "description": "Set an event code to select which event logic unit to monitor. This control combined with MSR::IA32_PERFEVTSEL1:UMASK defines which event to count. See https://download.01.org/perfmon for possible input values. Event counts are accumulated in MSR::IA32_PMC1:PERFCTR.",
+                    "aggregation": "expect_same"
                 },
                 "UMASK": {
                     "begin_bit": 8,
@@ -580,7 +627,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Set a unit mask to select which event condition to monitor. This control combined with MSR::IA32_PERFEVTSEL1:EVENT_SELECT defines which event to count. See https://download.01.org/perfmon for possible input values. Event counts are accumulated in MSR::IA32_PMC1:PERFCTR."
+                    "description": "Set a unit mask to select which event condition to monitor. This control combined with MSR::IA32_PERFEVTSEL1:EVENT_SELECT defines which event to count. See https://download.01.org/perfmon for possible input values. Event counts are accumulated in MSR::IA32_PMC1:PERFCTR.",
+                    "aggregation": "expect_same"
                 },
                 "USR": {
                     "begin_bit": 16,
@@ -590,7 +638,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Count events while in user mode."
+                    "description": "Count events while in user mode. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "OS": {
                     "begin_bit": 17,
@@ -600,7 +649,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Count events while in kernel mode."
+                    "description": "Count events while in kernel mode. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "EDGE": {
                     "begin_bit": 18,
@@ -610,7 +660,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "When set, count rising edges of the event signal instead of counting all instances where the event is observed."
+                    "description": "When set, count rising edges of the event signal instead of counting all instances where the event is observed. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "PC": {
                     "begin_bit": 19,
@@ -620,7 +671,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Only applicable prior to the Sandy Bridge microarchitecture. When set, the processor's PMi pins are toggled (on then off in back-to-back clock cycles) when an event is counted. When cleared, only event counter overflows toggle the PMi pins."
+                    "description": "Only applicable prior to the Sandy Bridge microarchitecture. When set, the processor's PMi pins are toggled (on then off in back-to-back clock cycles) when an event is counted. When cleared, only event counter overflows toggle the PMi pins. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "INT": {
                     "begin_bit": 20,
@@ -630,7 +682,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "If set, generate an interrupt when the counter overflows."
+                    "description": "If set, generate an interrupt when the counter overflows. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "ANYTHREAD": {
                     "begin_bit": 21,
@@ -640,7 +693,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "If set, increment event counts when the event occurs on any hardware thread from the configured thread's core. Otherwise, only increment event counts when the configured thread triggers the event."
+                    "description": "If set, increment event counts when the event occurs on any hardware thread from the configured thread's core. Otherwise, only increment event counts when the configured thread triggers the event. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "EN": {
                     "begin_bit": 22,
@@ -650,7 +704,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Enable the counters selected in MSR::IA32_PERFEVTSEL1 if both this and MSR::PERF_GLOBAL_CTRL:EN_PMC1 are set."
+                    "description": "Enable the counters selected in MSR::IA32_PERFEVTSEL1 if both this and MSR::PERF_GLOBAL_CTRL:EN_PMC1 are set. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "INV": {
                     "begin_bit": 23,
@@ -660,7 +715,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Indicates whether non-zero MSR::IA32_PERFEVTSEL1:CMASK events should be inverted. When the CMASK is inverted, increment the event count when the number of occurrences is less than the configured cutoff, instead of the default behavior of counting when the number of occurrences is greater than or equal to the cutoff."
+                    "description": "Indicates whether non-zero MSR::IA32_PERFEVTSEL1:CMASK events should be inverted. When the CMASK is inverted, increment the event count when the number of occurrences is less than the configured cutoff, instead of the default behavior of counting when the number of occurrences is greater than or equal to the cutoff. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "CMASK": {
                     "begin_bit": 24,
@@ -670,7 +726,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Set a mask for instances where multiple events are counted in a single clock cycle. When zero, all events are counted. When non-zero, a single event is counted when the number of event occurrences is greater or equal to the set CMASK value."
+                    "description": "Set a mask for instances where multiple events are counted in a single clock cycle. When zero, all events are counted. When non-zero, a single event is counted when the number of event occurrences is greater or equal to the set CMASK value.",
+                    "aggregation": "expect_same"
                 }
             }
         },
@@ -686,7 +743,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Set an event code to select which event logic unit to monitor. This control combined with MSR::IA32_PERFEVTSEL2:UMASK defines which event to count. See https://download.01.org/perfmon for possible input values. Event counts are accumulated in MSR::IA32_PMC2:PERFCTR."
+                    "description": "Set an event code to select which event logic unit to monitor. This control combined with MSR::IA32_PERFEVTSEL2:UMASK defines which event to count. See https://download.01.org/perfmon for possible input values. Event counts are accumulated in MSR::IA32_PMC2:PERFCTR.",
+                    "aggregation": "expect_same"
                 },
                 "UMASK": {
                     "begin_bit": 8,
@@ -696,7 +754,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Set a unit mask to select which event condition to monitor. This control combined with MSR::IA32_PERFEVTSEL2:EVENT_SELECT defines which event to count. See https://download.01.org/perfmon for possible input values. Event counts are accumulated in MSR::IA32_PMC2:PERFCTR."
+                    "description": "Set a unit mask to select which event condition to monitor. This control combined with MSR::IA32_PERFEVTSEL2:EVENT_SELECT defines which event to count. See https://download.01.org/perfmon for possible input values. Event counts are accumulated in MSR::IA32_PMC2:PERFCTR.",
+                    "aggregation": "expect_same"
                 },
                 "USR": {
                     "begin_bit": 16,
@@ -706,7 +765,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Count events while in user mode."
+                    "description": "Count events while in user mode. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "OS": {
                     "begin_bit": 17,
@@ -716,7 +776,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Count events while in kernel mode."
+                    "description": "Count events while in kernel mode. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "EDGE": {
                     "begin_bit": 18,
@@ -726,7 +787,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "When set, count rising edges of the event signal instead of counting all instances where the event is observed."
+                    "description": "When set, count rising edges of the event signal instead of counting all instances where the event is observed. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "PC": {
                     "begin_bit": 19,
@@ -736,7 +798,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Only applicable prior to the Sandy Bridge microarchitecture. When set, the processor's PMi pins are toggled (on then off in back-to-back clock cycles) when an event is counted. When cleared, only event counter overflows toggle the PMi pins."
+                    "description": "Only applicable prior to the Sandy Bridge microarchitecture. When set, the processor's PMi pins are toggled (on then off in back-to-back clock cycles) when an event is counted. When cleared, only event counter overflows toggle the PMi pins. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "INT": {
                     "begin_bit": 20,
@@ -746,7 +809,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "If set, generate an interrupt when the counter overflows."
+                    "description": "If set, generate an interrupt when the counter overflows. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "ANYTHREAD": {
                     "begin_bit": 21,
@@ -756,7 +820,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "If set, increment event counts when the event occurs on any hardware thread from the configured thread's core. Otherwise, only increment event counts when the configured thread triggers the event."
+                    "description": "If set, increment event counts when the event occurs on any hardware thread from the configured thread's core. Otherwise, only increment event counts when the configured thread triggers the event. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "EN": {
                     "begin_bit": 22,
@@ -766,7 +831,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Enable the counters selected in MSR::IA32_PERFEVTSEL2 if both this and MSR::PERF_GLOBAL_CTRL:EN_PMC2 are set."
+                    "description": "Enable the counters selected in MSR::IA32_PERFEVTSEL2 if both this and MSR::PERF_GLOBAL_CTRL:EN_PMC2 are set. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "INV": {
                     "begin_bit": 23,
@@ -776,7 +842,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Indicates whether non-zero MSR::IA32_PERFEVTSEL2:CMASK events should be inverted. When the CMASK is inverted, increment the event count when the number of occurrences is less than the configured cutoff, instead of the default behavior of counting when the number of occurrences is greater than or equal to the cutoff."
+                    "description": "Indicates whether non-zero MSR::IA32_PERFEVTSEL2:CMASK events should be inverted. When the CMASK is inverted, increment the event count when the number of occurrences is less than the configured cutoff, instead of the default behavior of counting when the number of occurrences is greater than or equal to the cutoff. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "CMASK": {
                     "begin_bit": 24,
@@ -786,7 +853,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Set a mask for instances where multiple events are counted in a single clock cycle. When zero, all events are counted. When non-zero, a single event is counted when the number of event occurrences is greater or equal to the set CMASK value."
+                    "description": "Set a mask for instances where multiple events are counted in a single clock cycle. When zero, all events are counted. When non-zero, a single event is counted when the number of event occurrences is greater or equal to the set CMASK value.",
+                    "aggregation": "expect_same"
                 }
             }
         },
@@ -802,7 +870,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Set an event code to select which event logic unit to monitor. This control combined with MSR::IA32_PERFEVTSEL3:UMASK defines which event to count. See https://download.01.org/perfmon for possible input values. Event counts are accumulated in MSR::IA32_PMC3:PERFCTR."
+                    "description": "Set an event code to select which event logic unit to monitor. This control combined with MSR::IA32_PERFEVTSEL3:UMASK defines which event to count. See https://download.01.org/perfmon for possible input values. Event counts are accumulated in MSR::IA32_PMC3:PERFCTR.",
+                    "aggregation": "expect_same"
                 },
                 "UMASK": {
                     "begin_bit": 8,
@@ -812,7 +881,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Set a unit mask to select which event condition to monitor. This control combined with MSR::IA32_PERFEVTSEL3:EVENT_SELECT defines which event to count. See https://download.01.org/perfmon for possible input values. Event counts are accumulated in MSR::IA32_PMC3:PERFCTR."
+                    "description": "Set a unit mask to select which event condition to monitor. This control combined with MSR::IA32_PERFEVTSEL3:EVENT_SELECT defines which event to count. See https://download.01.org/perfmon for possible input values. Event counts are accumulated in MSR::IA32_PMC3:PERFCTR.",
+                    "aggregation": "expect_same"
                 },
                 "USR": {
                     "begin_bit": 16,
@@ -822,7 +892,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Count events while in user mode."
+                    "description": "Count events while in user mode. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "OS": {
                     "begin_bit": 17,
@@ -832,7 +903,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Count events while in kernel mode."
+                    "description": "Count events while in kernel mode. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "EDGE": {
                     "begin_bit": 18,
@@ -842,7 +914,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "When set, count rising edges of the event signal instead of counting all instances where the event is observed."
+                    "description": "When set, count rising edges of the event signal instead of counting all instances where the event is observed. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "PC": {
                     "begin_bit": 19,
@@ -852,7 +925,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Only applicable prior to the Sandy Bridge microarchitecture. When set, the processor's PMi pins are toggled (on then off in back-to-back clock cycles) when an event is counted. When cleared, only event counter overflows toggle the PMi pins."
+                    "description": "Only applicable prior to the Sandy Bridge microarchitecture. When set, the processor's PMi pins are toggled (on then off in back-to-back clock cycles) when an event is counted. When cleared, only event counter overflows toggle the PMi pins. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "INT": {
                     "begin_bit": 20,
@@ -862,7 +936,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "If set, generate an interrupt when the counter overflows."
+                    "description": "If set, generate an interrupt when the counter overflows. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "ANYTHREAD": {
                     "begin_bit": 21,
@@ -872,7 +947,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "If set, increment event counts when the event occurs on any hardware thread from the configured thread's core. Otherwise, only increment event counts when the configured thread triggers the event."
+                    "description": "If set, increment event counts when the event occurs on any hardware thread from the configured thread's core. Otherwise, only increment event counts when the configured thread triggers the event. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "EN": {
                     "begin_bit": 22,
@@ -882,7 +958,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Enable the counters selected in MSR::IA32_PERFEVTSEL3 if both this and MSR::PERF_GLOBAL_CTRL:EN_PMC3 are set."
+                    "description": "Enable the counters selected in MSR::IA32_PERFEVTSEL3 if both this and MSR::PERF_GLOBAL_CTRL:EN_PMC3 are set. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "INV": {
                     "begin_bit": 23,
@@ -892,7 +969,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Indicates whether non-zero MSR::IA32_PERFEVTSEL3:CMASK events should be inverted. When the CMASK is inverted, increment the event count when the number of occurrences is less than the configured cutoff, instead of the default behavior of counting when the number of occurrences is greater than or equal to the cutoff."
+                    "description": "Indicates whether non-zero MSR::IA32_PERFEVTSEL3:CMASK events should be inverted. When the CMASK is inverted, increment the event count when the number of occurrences is less than the configured cutoff, instead of the default behavior of counting when the number of occurrences is greater than or equal to the cutoff. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "CMASK": {
                     "begin_bit": 24,
@@ -902,7 +980,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Set a mask for instances where multiple events are counted in a single clock cycle. When zero, all events are counted. When non-zero, a single event is counted when the number of event occurrences is greater or equal to the set CMASK value."
+                    "description": "Set a mask for instances where multiple events are counted in a single clock cycle. When zero, all events are counted. When non-zero, a single event is counted when the number of event occurrences is greater or equal to the set CMASK value.",
+                    "aggregation": "expect_same"
                 }
             }
         },
@@ -1037,7 +1116,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Count MSR::FIXED_CTR0:INST_RETIRED_ANY events while in kernel mode."
+                    "description": "Count MSR::FIXED_CTR0:INST_RETIRED_ANY events while in kernel mode. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "EN0_USR": {
                     "begin_bit": 1,
@@ -1047,7 +1127,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Count MSR::FIXED_CTR0:INST_RETIRED_ANY events while in user mode."
+                    "description": "Count MSR::FIXED_CTR0:INST_RETIRED_ANY events while in user mode. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "EN0_PMI": {
                     "begin_bit": 3,
@@ -1057,7 +1138,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "If set, generate an interrupt when the MSR::FIXED_CTR0:INST_RETIRED_ANY counter overflows."
+                    "description": "If set, generate an interrupt when the MSR::FIXED_CTR0:INST_RETIRED_ANY counter overflows. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "EN1_OS": {
                     "begin_bit": 4,
@@ -1067,7 +1149,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Count MSR::FIXED_CTR1:CPU_CLK_UNHALTED_THREAD events while in kernel mode."
+                    "description": "Count MSR::FIXED_CTR1:CPU_CLK_UNHALTED_THREAD events while in kernel mode. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "EN1_USR": {
                     "begin_bit": 5,
@@ -1077,7 +1160,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Count MSR::FIXED_CTR1:CPU_CLK_UNHALTED_THREAD events while in user mode."
+                    "description": "Count MSR::FIXED_CTR1:CPU_CLK_UNHALTED_THREAD events while in user mode. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "EN1_PMI": {
                     "begin_bit": 7,
@@ -1087,7 +1171,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "If set, generate an interrupt when the MSR::FIXED_CTR1:CPU_CLK_UNHALTED_THREAD counter overflows."
+                    "description": "If set, generate an interrupt when the MSR::FIXED_CTR1:CPU_CLK_UNHALTED_THREAD counter overflows. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "EN2_OS": {
                     "begin_bit": 8,
@@ -1097,7 +1182,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Count MSR::FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC events while in kernel mode."
+                    "description": "Count MSR::FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC events while in kernel mode. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "EN2_USR": {
                     "begin_bit": 9,
@@ -1107,7 +1193,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Count MSR::FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC events while in user mode."
+                    "description": "Count MSR::FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC events while in user mode. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "EN2_PMI": {
                     "begin_bit": 11,
@@ -1117,7 +1204,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "If set, generate an interrupt when the MSR::FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC counter overflows."
+                    "description": "If set, generate an interrupt when the MSR::FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC counter overflows. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 }
             }
         },
@@ -1133,7 +1221,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Enable programmable counter 0 if both this and MSR::IA32_PERFEVTSEL0:EN are set."
+                    "description": "Enable programmable counter 0 if both this and MSR::IA32_PERFEVTSEL0:EN are set. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "EN_PMC1": {
                     "begin_bit": 1,
@@ -1143,7 +1232,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Enable programmable counter 1 if both this and MSR::IA32_PERFEVTSEL1:EN are set."
+                    "description": "Enable programmable counter 1 if both this and MSR::IA32_PERFEVTSEL1:EN are set. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "EN_PMC2": {
                     "begin_bit": 2,
@@ -1153,7 +1243,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Enable programmable counter 2 if both this and MSR::IA32_PERFEVTSEL2:EN are set."
+                    "description": "Enable programmable counter 2 if both this and MSR::IA32_PERFEVTSEL2:EN are set. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "EN_PMC3": {
                     "begin_bit": 3,
@@ -1163,7 +1254,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Enable programmable counter 3 if both this and MSR::IA32_PERFEVTSEL3:EN are set."
+                    "description": "Enable programmable counter 3 if both this and MSR::IA32_PERFEVTSEL3:EN are set. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "EN_FIXED_CTR0": {
                     "begin_bit": 32,
@@ -1173,7 +1265,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Enable the MSR::FIXED_CTR0:INST_RETIRED_ANY counter."
+                    "description": "Enable the MSR::FIXED_CTR0:INST_RETIRED_ANY counter. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "EN_FIXED_CTR1": {
                     "begin_bit": 33,
@@ -1183,7 +1276,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Enable the MSR::FIXED_CTR1:CPU_CLK_UNHALTED_THREAD counter."
+                    "description": "Enable the MSR::FIXED_CTR1:CPU_CLK_UNHALTED_THREAD counter. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "EN_FIXED_CTR2": {
                     "begin_bit": 34,
@@ -1193,7 +1287,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Enable the MSR::FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC counter."
+                    "description": "Enable the MSR::FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC counter. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 }
             }
         },
@@ -1209,7 +1304,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Write 1 to clear the global status bit for PMC0 overflow."
+                    "description": "Write 1 to clear the global status bit for PMC0 overflow. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "CLEAR_OVF_PMC1": {
                     "begin_bit": 1,
@@ -1219,7 +1315,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Write 1 to clear the global status bit for PMC1 overflow."
+                    "description": "Write 1 to clear the global status bit for PMC1 overflow. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "CLEAR_OVF_PMC2": {
                     "begin_bit": 1,
@@ -1229,7 +1326,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Write 1 to clear the global status bit for PMC2 overflow."
+                    "description": "Write 1 to clear the global status bit for PMC2 overflow. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "CLEAR_OVF_PMC3": {
                     "begin_bit": 1,
@@ -1239,7 +1337,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Write 1 to clear the global status bit for PMC3 overflow."
+                    "description": "Write 1 to clear the global status bit for PMC3 overflow. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "CLEAR_OVF_FIXED_CTR0": {
                     "begin_bit": 32,
@@ -1249,7 +1348,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Write 1 to clear the global status bit for MSR::FIXED_CTR0:INST_RETIRED_ANY overflow."
+                    "description": "Write 1 to clear the global status bit for MSR::FIXED_CTR0:INST_RETIRED_ANY overflow. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "CLEAR_OVF_FIXED_CTR1": {
                     "begin_bit": 33,
@@ -1259,7 +1359,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Write 1 to clear the global status bit for MSR::FIXED_CTR1:CPU_CLK_UNHALTED_THREAD overflow."
+                    "description": "Write 1 to clear the global status bit for MSR::FIXED_CTR1:CPU_CLK_UNHALTED_THREAD overflow. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "CLEAR_OVF_FIXED_CTR2": {
                     "begin_bit": 34,
@@ -1269,7 +1370,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Write 1 to clear the global status bit for MSR::FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC overflow."
+                    "description": "Write 1 to clear the global status bit for MSR::FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC overflow. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 }
             }
         }

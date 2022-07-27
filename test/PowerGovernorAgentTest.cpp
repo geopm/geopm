@@ -41,14 +41,12 @@ class PowerGovernorAgentTest : public ::testing::Test
 
         std::unique_ptr<MockPowerGovernor> m_power_gov;
         MockPlatformIO m_platform_io;
-        MockPlatformTopo m_platform_topo;
         double m_val_cache = 0.0;
         double m_energy_package = 0.0;
         double m_power_min = 50;
         double m_power_max = 300;
         double m_power_tdp = 250;
         std::vector<int> m_fan_in;
-        int m_num_package = 2;
         int m_min_num_converged = 15;  // this is hard coded in the agent; determines how many times we need to sample
         int m_ascend_period = 10;      // also hardcoded; determines how many times we need to ascend
         int m_samples_per_control = 10;
@@ -83,7 +81,7 @@ void PowerGovernorAgentTest::set_up_leaf(void)
     EXPECT_CALL(*m_power_gov, do_write_batch())
         .Times(AtLeast(0))
         .WillRepeatedly(Return(true));
-    m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, m_platform_topo, std::move(m_power_gov));
+    m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, std::move(m_power_gov));
 }
 
 void PowerGovernorAgentTest::set_up_pio(void)
@@ -120,7 +118,7 @@ TEST_F(PowerGovernorAgentTest, wait)
 {
     GEOPM_TEST_EXTENDED("Requires accurate timing");
     set_up_pio();
-    m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, m_platform_topo, nullptr);
+    m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, nullptr);
     m_agent->init(1, m_fan_in, false);
     geopm_time_s start_time, end_time;
     m_agent->wait();
@@ -190,7 +188,7 @@ TEST_F(PowerGovernorAgentTest, adjust_platform)
 TEST_F(PowerGovernorAgentTest, aggregate_sample)
 {
     set_up_pio();
-    m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, m_platform_topo, nullptr);
+    m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, nullptr);
     m_agent->init(1, m_fan_in, false);
 
     std::vector<std::vector<double> > in_sample {{2.2, false, 1.0}, {3.3, true, 2.0}};
@@ -219,7 +217,7 @@ TEST_F(PowerGovernorAgentTest, aggregate_sample)
 TEST_F(PowerGovernorAgentTest, split_policy)
 {
     set_up_pio();
-    m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, m_platform_topo, nullptr);
+    m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, nullptr);
     m_agent->init(1, m_fan_in, false);
 
     std::vector<double> policy_in;
@@ -261,14 +259,10 @@ TEST_F(PowerGovernorAgentTest, enforce_policy)
     const std::vector<double> policy{limit};
     const std::vector<double> bad_policy{100, 200, 300};
 
-    EXPECT_CALL(m_platform_topo, num_domain(GEOPM_DOMAIN_PACKAGE))
-        .WillOnce(Return(m_num_package));
-    EXPECT_CALL(m_platform_io, control_domain_type("CPU_POWER_LIMIT_CONTROL"))
-        .WillOnce(Return(GEOPM_DOMAIN_PACKAGE));
     EXPECT_CALL(m_platform_io, write_control("CPU_POWER_LIMIT_CONTROL", GEOPM_DOMAIN_BOARD,
-                                             0, limit/m_num_package));
+                                             0, limit));
 
-    m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, m_platform_topo, nullptr);
+    m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, nullptr);
     m_agent->enforce_policy(policy);
 
     EXPECT_THROW(m_agent->enforce_policy(bad_policy), geopm::Exception);
@@ -277,7 +271,7 @@ TEST_F(PowerGovernorAgentTest, enforce_policy)
 TEST_F(PowerGovernorAgentTest, trace)
 {
     set_up_pio();
-    m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, m_platform_topo, nullptr);
+    m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, nullptr);
     std::vector<std::string> expect_names{"POWER_BUDGET"};
     EXPECT_EQ(expect_names, m_agent->trace_names());
     EXPECT_TRUE(is_format_double(m_agent->trace_formats().at(0)));
@@ -286,7 +280,7 @@ TEST_F(PowerGovernorAgentTest, trace)
 TEST_F(PowerGovernorAgentTest, validate_policy)
 {
     set_up_pio();
-    m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, m_platform_topo, nullptr);
+    m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, nullptr);
 
     std::vector<double> policy;
 

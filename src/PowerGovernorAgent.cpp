@@ -22,14 +22,13 @@
 namespace geopm
 {
     PowerGovernorAgent::PowerGovernorAgent()
-        : PowerGovernorAgent(PlatformIOProf::platform_io(), platform_topo(), nullptr)
+        : PowerGovernorAgent(PlatformIOProf::platform_io(), nullptr)
     {
 
     }
 
-    PowerGovernorAgent::PowerGovernorAgent(PlatformIO &platform_io, const PlatformTopo &platform_topo, std::unique_ptr<PowerGovernor> power_gov)
+    PowerGovernorAgent::PowerGovernorAgent(PlatformIO &platform_io, std::unique_ptr<PowerGovernor> power_gov)
         : m_platform_io(platform_io)
-        , m_platform_topo(platform_topo)
         , m_level(-1)
         , m_is_converged(false)
         , m_is_sample_stable(false)
@@ -311,9 +310,7 @@ namespace geopm
             throw Exception("PowerGovernorAgent::enforce_policy(): policy vector incorrectly sized.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        int control_domain = m_platform_io.control_domain_type("CPU_POWER_LIMIT_CONTROL");
-        double pkg_policy = policy[M_POLICY_POWER] / m_platform_topo.num_domain(control_domain);
-        m_platform_io.write_control("CPU_POWER_LIMIT_CONTROL", GEOPM_DOMAIN_BOARD, 0, pkg_policy);
+        m_platform_io.write_control("CPU_POWER_LIMIT_CONTROL", GEOPM_DOMAIN_BOARD, 0, policy[M_POLICY_POWER]);
     }
 
     std::string PowerGovernorAgent::plugin_name(void)

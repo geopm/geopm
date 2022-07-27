@@ -345,12 +345,8 @@ TEST_F(PowerBalancerAgentTest, enforce_policy)
     const std::vector<double> policy{limit, NAN, NAN, NAN};
     const std::vector<double> bad_policy{100};
 
-    EXPECT_CALL(m_platform_io, control_domain_type("CPU_POWER_LIMIT_CONTROL"))
-        .WillOnce(Return(GEOPM_DOMAIN_PACKAGE));
-    EXPECT_CALL(m_platform_topo, num_domain(GEOPM_DOMAIN_PACKAGE))
-        .WillOnce(Return(M_NUM_PKGS));
     EXPECT_CALL(m_platform_io, write_control("CPU_POWER_LIMIT_CONTROL", GEOPM_DOMAIN_BOARD,
-                                             0, limit/M_NUM_PKGS));
+                                             0, limit));
 
     m_agent->enforce_policy(policy);
 

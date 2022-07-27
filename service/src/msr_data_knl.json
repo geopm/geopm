@@ -12,7 +12,8 @@
                     "scalar":    1e8,
                     "behavior":  "variable",
                     "writeable": false,
-                    "description": "The processor's maximum non-turbo frequency."
+                    "description": "The processor's maximum non-turbo frequency.",
+                    "aggregation": "average"
                 },
                 "PROGRAMMABLE_RATIO_LIMITS_TURBO_MODE": {
                     "begin_bit": 28,
@@ -22,7 +23,8 @@
                     "scalar":    1,
                     "behavior":  "variable",
                     "writeable": false,
-                    "description": "Indicates whether the MSR::TURBO_RATIO_LIMIT:* signals are also available as controls."
+                    "description": "Indicates whether the MSR::TURBO_RATIO_LIMIT:* signals are also available as controls. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "PROGRAMMABLE_TDP_LIMITS_TURBO_MODE": {
                     "begin_bit": 29,
@@ -32,7 +34,8 @@
                     "scalar":    1,
                     "behavior":  "variable",
                     "writeable": false,
-                    "description": "Indicates whether this platform supports programmable TDP limits for turbo mode."
+                    "description": "Indicates whether this platform supports programmable TDP limits for turbo mode. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "MAX_EFFICIENCY_RATIO": {
                     "begin_bit": 40,
@@ -42,7 +45,8 @@
                     "scalar":    1e8,
                     "behavior":  "variable",
                     "writeable": false,
-                    "description": "The minimum operating frequency of the processor."
+                    "description": "The minimum operating frequency of the processor.",
+                    "aggregation": "average"
                 }
             }
         },
@@ -75,7 +79,8 @@
                     "scalar":    1e8,
                     "behavior":  "variable",
                     "writeable": true,
-                    "description": "Target operating frequency of the CPU based on the control register."
+                    "description": "Target operating frequency of the CPU based on the control register. Note: when querying at a higher domain, if NaN is returned, query at its native domain.",
+                    "aggregation": "expect_same"
                 }
             }
         },
@@ -102,7 +107,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": false,
-                    "description": "An offset to subtract from MSR::TEMPERATURE_TARGET:PROCHOT_MIN as the cutoff to generate a PROCHOT event."
+                    "description": "An offset to subtract from MSR::TEMPERATURE_TARGET:PROCHOT_MIN as the cutoff to generate a PROCHOT event.",
+                    "aggregation": "expect_same"
                 }
             }
         },
@@ -118,7 +124,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": false,
-                    "description": "Defines the group 0 active core count, which is the number of active cores for a maximum turbo frequency of MSR::TURBO_RATIO_LIMIT:GROUP_0_MAX_RATIO_LIMIT."
+                    "description": "Defines the group 0 active core count, which is the number of active cores for a maximum turbo frequency of MSR::TURBO_RATIO_LIMIT:GROUP_0_MAX_RATIO_LIMIT.",
+                    "aggregation": "expect_same"
                 },
                 "GROUP_0_MAX_RATIO_LIMIT": {
                     "begin_bit": 8,
@@ -128,7 +135,8 @@
                     "scalar":    1e8,
                     "behavior":  "variable",
                     "writeable": false,
-                    "description": "Maximum turbo frequency with up to the group 0 active core count."
+                    "description": "Maximum turbo frequency with up to the group 0 active core count.",
+                    "aggregation": "expect_same"
                 },
                 "GROUP_1_INCREMENTAL_CORES": {
                     "begin_bit": 16,
@@ -138,7 +146,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": false,
-                    "description": "Additional active cores to define the group 1 active core count, beyond the group 0 active core count."
+                    "description": "Additional active cores to define the group 1 active core count, beyond the group 0 active core count.",
+                    "aggregation": "expect_same"
                 },
                 "GROUP_1_RATIO_LIMIT_DELTA": {
                     "begin_bit": 21,
@@ -148,7 +157,8 @@
                     "scalar":    1e8,
                     "behavior":  "variable",
                     "writeable": false,
-                    "description": "Drop in maximum turbo frequency for the group 1 active core count, relative to the group 0 maximum turbo frequency."
+                    "description": "Drop in maximum turbo frequency for the group 1 active core count, relative to the group 0 maximum turbo frequency.",
+                    "aggregation": "expect_same"
                 },
                 "GROUP_2_INCREMENTAL_CORES": {
                     "begin_bit": 24,
@@ -158,7 +168,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": false,
-                    "description": "Additional active cores to define the group 2 active core count, beyond the group 1 active core count."
+                    "description": "Additional active cores to define the group 2 active core count, beyond the group 1 active core count.",
+                    "aggregation": "expect_same"
                 },
                 "GROUP_2_RATIO_LIMIT_DELTA": {
                     "begin_bit": 29,
@@ -168,7 +179,8 @@
                     "scalar":    1e8,
                     "behavior":  "variable",
                     "writeable": false,
-                    "description": "Drop in maximum turbo frequency for the group 2 active core count, relative to the group 1 maximum turbo frequency."
+                    "description": "Drop in maximum turbo frequency for the group 2 active core count, relative to the group 1 maximum turbo frequency.",
+                    "aggregation": "expect_same"
                 },
                 "GROUP_3_INCREMENTAL_CORES": {
                     "begin_bit": 32,
@@ -178,7 +190,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": false,
-                    "description": "Additional active cores to define the group 3 active core count, beyond the group 2 active core count."
+                    "description": "Additional active cores to define the group 3 active core count, beyond the group 2 active core count.",
+                    "aggregation": "expect_same"
                 },
                 "GROUP_3_RATIO_LIMIT_DELTA": {
                     "begin_bit": 37,
@@ -188,7 +201,8 @@
                     "scalar":    1e8,
                     "behavior":  "variable",
                     "writeable": false,
-                    "description": "Drop in maximum turbo frequency for the group 3 active core count, relative to the group 2 maximum turbo frequency."
+                    "description": "Drop in maximum turbo frequency for the group 3 active core count, relative to the group 2 maximum turbo frequency.",
+                    "aggregation": "expect_same"
                 },
                 "GROUP_4_INCREMENTAL_CORES": {
                     "begin_bit": 40,
@@ -198,7 +212,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": false,
-                    "description": "Additional active cores to define the group 4 active core count, beyond the group 3 active core count."
+                    "description": "Additional active cores to define the group 4 active core count, beyond the group 3 active core count.",
+                    "aggregation": "expect_same"
                 },
                 "GROUP_4_RATIO_LIMIT_DELTA": {
                     "begin_bit": 45,
@@ -208,7 +223,8 @@
                     "scalar":    1e8,
                     "behavior":  "variable",
                     "writeable": false,
-                    "description": "Drop in maximum turbo frequency for the group 4 active core count, relative to the group 3 maximum turbo frequency."
+                    "description": "Drop in maximum turbo frequency for the group 4 active core count, relative to the group 3 maximum turbo frequency.",
+                    "aggregation": "expect_same"
                 },
                 "GROUP_5_INCREMENTAL_CORES": {
                     "begin_bit": 48,
@@ -218,7 +234,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": false,
-                    "description": "Additional active cores to define the group 5 active core count, beyond the group 4 active core count."
+                    "description": "Additional active cores to define the group 5 active core count, beyond the group 4 active core count.",
+                    "aggregation": "expect_same"
                 },
                 "GROUP_5_RATIO_LIMIT_DELTA": {
                     "begin_bit": 53,
@@ -228,7 +245,8 @@
                     "scalar":    1e8,
                     "behavior":  "variable",
                     "writeable": false,
-                    "description": "Drop in maximum turbo frequency for the group 5 active core count, relative to the group 4 maximum turbo frequency."
+                    "description": "Drop in maximum turbo frequency for the group 5 active core count, relative to the group 4 maximum turbo frequency.",
+                    "aggregation": "expect_same"
                 },
                 "GROUP_6_INCREMENTAL_CORES": {
                     "begin_bit": 56,
@@ -238,7 +256,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": false,
-                    "description": "Additional active cores to define the group 6 active core count, beyond the group 5 active core count."
+                    "description": "Additional active cores to define the group 6 active core count, beyond the group 5 active core count.",
+                    "aggregation": "expect_same"
                 },
                 "GROUP_6_RATIO_LIMIT_DELTA": {
                     "begin_bit": 61,
@@ -248,7 +267,8 @@
                     "scalar":    1e8,
                     "behavior":  "variable",
                     "writeable": false,
-                    "description": "Drop in maximum turbo frequency for the group 6 active core count, relative to the group 5 maximum turbo frequency."
+                    "description": "Drop in maximum turbo frequency for the group 6 active core count, relative to the group 5 maximum turbo frequency.",
+                    "aggregation": "expect_same"
                 }
             }
         },
@@ -264,7 +284,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": false,
-                    "description": "The resolution of RAPL power interfaces."
+                    "description": "The resolution of RAPL power interfaces.",
+                    "aggregation": "expect_same"
                 },
                 "ENERGY": {
                     "begin_bit": 8,
@@ -274,7 +295,8 @@
                     "scalar":    1.0,
                     "behavior":  "monotone",
                     "writeable": false,
-                    "description": "The resolution of RAPL energy interfaces."
+                    "description": "The resolution of RAPL energy interfaces.",
+                    "aggregation": "expect_same"
                 },
                 "TIME": {
                     "begin_bit": 16,
@@ -284,7 +306,8 @@
                     "scalar":    1.0,
                     "behavior":  "monotone",
                     "writeable": false,
-                    "description": "The resolution of RAPL time interfaces."
+                    "description": "The resolution of RAPL time interfaces.",
+                    "aggregation": "expect_same"
                 }
             }
         },
@@ -300,7 +323,8 @@
                     "scalar":    1.25e-1,
                     "behavior":  "variable",
                     "writeable": true,
-                    "description": "The average power usage limit over the time window specified in PL1_TIME_WINDOW."
+                    "description": "The average power usage limit over the time window specified in PL1_TIME_WINDOW.",
+                    "aggregation": "sum"
                 },
                 "PL1_LIMIT_ENABLE": {
                     "begin_bit": 15,
@@ -310,7 +334,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": true,
-                    "description": "Enable the limit specified in PL1_POWER_LIMIT."
+                    "description": "Enable the limit specified in PL1_POWER_LIMIT. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "PL1_CLAMP_ENABLE": {
                     "begin_bit": 16,
@@ -320,7 +345,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": true,
-                    "description": "Allow processor cores to go below the requested P-State or T-State to achieve the requested PL1_POWER_LIMIT."
+                    "description": "Allow processor cores to go below the requested P-State or T-State to achieve the requested PL1_POWER_LIMIT. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "PL1_TIME_WINDOW": {
                     "begin_bit": 17,
@@ -330,7 +356,8 @@
                     "scalar":    9.765625e-04,
                     "behavior":  "variable",
                     "writeable": true,
-                    "description": "The time window associated with power limit 1."
+                    "description": "The time window associated with power limit 1.",
+                    "aggregation": "expect_same"
                 },
                 "PL2_POWER_LIMIT": {
                     "begin_bit": 32,
@@ -340,7 +367,8 @@
                     "scalar":    1.25e-1,
                     "behavior":  "variable",
                     "writeable": true,
-                    "description": "The average power usage limit over the time window specified in PL2_TIME_WINDOW."
+                    "description": "The average power usage limit over the time window specified in PL2_TIME_WINDOW.",
+                    "aggregation": "sum"
                 },
                 "PL2_LIMIT_ENABLE": {
                     "begin_bit": 47,
@@ -350,7 +378,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": true,
-                    "description": "Enable the limit specified in PL2_POWER_LIMIT."
+                    "description": "Enable the limit specified in PL2_POWER_LIMIT. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "PL2_CLAMP_ENABLE": {
                     "begin_bit": 48,
@@ -360,7 +389,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": true,
-                    "description": "Allow processor cores to go below the requested P-State or T-State to achieve the requested PL2_POWER_LIMIT."
+                    "description": "Allow processor cores to go below the requested P-State or T-State to achieve the requested PL2_POWER_LIMIT. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "PL2_TIME_WINDOW": {
                     "begin_bit": 49,
@@ -370,7 +400,8 @@
                     "scalar":    9.765625e-04,
                     "behavior":  "variable",
                     "writeable": true,
-                    "description": "The time window associated with power limit 2."
+                    "description": "The time window associated with power limit 2.",
+                    "aggregation": "expect_same"
                 },
                 "LOCK": {
                     "begin_bit": 63,
@@ -380,7 +411,8 @@
                     "scalar":    1.0,
                     "behavior":  "constant",
                     "writeable": false,
-                    "description": "Ignore any changes to PL1 and PL2 configuration in PKG_POWER_LIMIT until the next reset."
+                    "description": "Ignore any changes to PL1 and PL2 configuration in PKG_POWER_LIMIT until the next reset.",
+                    "aggregation": "expect_same"
                 }
             }
         },
@@ -446,7 +478,8 @@
                     "scalar":    9.765625e-04,
                     "behavior":  "constant",
                     "writeable": false,
-                    "description": "The maximum time accepted in MSR::PKG_POWER_LIMIT:PL1_TIME_WINDOW and MSR::PKG_POWER_LIMIT:PL2_TIME_WINDOW."
+                    "description": "The maximum time accepted in MSR::PKG_POWER_LIMIT:PL1_TIME_WINDOW and MSR::PKG_POWER_LIMIT:PL2_TIME_WINDOW.",
+                    "aggregation": "expect_same"
                 }
             }
         },
@@ -462,7 +495,8 @@
                     "scalar":    1.25e-1,
                     "behavior":  "variable",
                     "writeable": true,
-                    "description": "The average DRAM power usage limit over the time window specified in TIME_WINDOW."
+                    "description": "The average DRAM power usage limit over the time window specified in TIME_WINDOW.",
+                    "aggregation": "sum"
                 },
                 "ENABLE": {
                     "begin_bit": 15,
@@ -472,7 +506,8 @@
                     "scalar":    1.0,
                     "behavior":  "variable",
                     "writeable": true,
-                    "description": "Enable the limit specified in POWER_LIMIT."
+                    "description": "Enable the limit specified in POWER_LIMIT. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
+                    "aggregation": "sum"
                 },
                 "TIME_WINDOW": {
                     "begin_bit": 17,
@@ -482,7 +517,8 @@
                     "scalar":    9.765625e-04,
                     "behavior":  "variable",
                     "writeable": true,
-                    "description": "The time window associated with the DRAM power limit."
+                    "description": "The time window associated with the DRAM power limit.",
+                    "aggregation": "expect_same"
                 }
             }
         },
@@ -515,7 +551,8 @@
                     "scalar":    9.765625e-04,
                     "behavior":  "monotone",
                     "writeable": false,
-                    "description": "The amount of time that the package was throttled below the requested frequency due to MSR::DRAM_POWER_LIMIT:POWER_LIMIT."
+                    "description": "The amount of time that the package was throttled below the requested frequency due to MSR::DRAM_POWER_LIMIT:POWER_LIMIT.",
+                    "aggregation": "sum"
                 }
             }
         },
@@ -531,7 +568,8 @@
                     "scalar":    1.25e-1,
                     "behavior":  "constant",
                     "writeable": false,
-                    "description": "Maximum DRAM power to stay within the thermal limits based on the design."
+                    "description": "Maximum DRAM power to stay within the thermal limits based on the design.",
+                    "aggregation": "sum"
                 },
                 "MIN_POWER": {
                     "begin_bit": 16,
@@ -541,7 +579,8 @@
                     "scalar":    1.25e-1,
                     "behavior":  "constant",
                     "writeable": false,
-                    "description": "The minimum DRAM power limit based on the electrical specification."
+                    "description": "The minimum DRAM power limit based on the electrical specification.",
+                    "aggregation": "sum"
                 },
                 "MAX_POWER": {
                     "begin_bit": 32,
@@ -551,7 +590,8 @@
                     "scalar":    1.25e-1,
                     "behavior":  "constant",
                     "writeable": false,
-                    "description": "The maximum DRAM power limit based on the electrical specification."
+                    "description": "The maximum DRAM power limit based on the electrical specification.",
+                    "aggregation": "sum"
                 },
                 "MAX_TIME_WINDOW": {
                     "begin_bit": 48,
@@ -561,7 +601,8 @@
                     "scalar":    9.765625e-04,
                     "behavior":  "constant",
                     "writeable": false,
-                    "description": "The maximum value accepted in MSR::DRAM_POWER_LIMIT:TIME_WINDOW."
+                    "description": "The maximum value accepted in MSR::DRAM_POWER_LIMIT:TIME_WINDOW.",
+                    "aggregation": "expect_same"
                 }
             }
         },
@@ -577,7 +618,8 @@
                     "scalar":    1e8,
                     "behavior":  "variable",
                     "writeable": true,
-                    "description": "A lower limit for uncore frequency control."
+                    "description": "A lower limit for uncore frequency control. Note: when querying at a higher domain, if NaN is returned, query at its native domain.",
+                    "aggregation": "expect_same"
                 },
                 "MAX_RATIO": {
                     "begin_bit": 0,
@@ -587,7 +629,8 @@
                     "scalar":    1e8,
                     "behavior":  "variable",
                     "writeable": true,
-                    "description": "An upper limit for uncore frequency control."
+                    "description": "An upper limit for uncore frequency control. Note: when querying at a higher domain, if NaN is returned, query at its native domain.",
+                    "aggregation": "expect_same"
                 }
             }
         },
@@ -595,15 +638,16 @@
             "offset": "0x621",
             "domain": "package",
             "fields": {
-                "FREQ" : {
+                "FREQ": {
                     "begin_bit": 0,
-                    "end_bit": 6,
-                    "function": "scale",
-                    "units": "hertz",
-                    "scalar": 1e8,
+                    "end_bit":   6,
+                    "function":  "scale",
+                    "units":     "hertz",
+                    "scalar":    1e8,
                     "behavior":  "variable",
                     "writeable": false,
-                    "description": "The current uncore frequency."
+                    "description": "The current uncore frequency.",
+                    "aggregation": "average"
                 }
             }
         }
