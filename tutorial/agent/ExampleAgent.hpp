@@ -41,6 +41,7 @@ class ExampleAgent : public geopm::Agent
         std::vector<std::string> trace_names(void) const override;
         void trace_values(std::vector<double> &values) override;
         std::vector<std::function<std::string(double)> > trace_formats(void) const override;
+        void enforce_policy(const std::vector<double> &policy) const override;
 
         static std::string plugin_name(void);
         static std::unique_ptr<geopm::Agent> make_plugin(void);

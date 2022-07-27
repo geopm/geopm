@@ -228,6 +228,11 @@ std::vector<std::function<std::string(double)> > ExampleAgent::trace_formats(voi
             };
 }
 
+void ExampleAgent::enforce_policy(const std::vector<double> &policy) const
+{
+
+}
+
 // Name used for registration with the Agent factory
 std::string ExampleAgent::plugin_name(void)
 {
