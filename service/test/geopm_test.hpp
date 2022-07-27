@@ -34,14 +34,14 @@ bool is_agg_expect_same(std::function<double(const std::vector<double> &)> func)
 
 /// @brief Skip decorator for gtest test fixtures
 ///
-/// Add to the top of any test fixture which has requirement that may not be
+/// Add to the top of any test fixture which has a requirement that may not be
 /// met in typical CI situations, like single CPU VMs that are frequently
 /// interrupted.  This should be applied to tests that require more than one
-/// active thread.  Tests that are sensative to delays in execution due to
+/// active thread.  Tests that are sensitive to delays in execution due to
 /// timing requirements should also be decorated.  To enable these tests,
 /// export GEOPM_TEST_EXTENDED in the environment.
 ///
-/// @param [IN] reason The requirement that may not be met in all test cases
+/// @param [in] reason The requirement that may not be met in all test cases
 #define GEOPM_TEST_EXTENDED(reason) \
 if (getenv("GEOPM_TEST_EXTENDED") == nullptr) \
 GTEST_SKIP() << reason \
