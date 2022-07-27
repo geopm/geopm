@@ -12,7 +12,6 @@ namespace geopm
 {
     class SpinModelRegion : public ModelRegion
     {
-        friend class NestedModelRegion;
         public:
             SpinModelRegion(double big_o_in,
                             int verbosity,

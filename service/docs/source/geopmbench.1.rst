@@ -41,8 +41,6 @@ Region names can be one of the following options:
 * *all2all*: All processes send buffers to all other processes. The time of
   this operation is proportional to ``big-o``.
 
-* *nested*: Executes *spin*, *all2all*, and *spin* within a single region.
-
 * *ignore*: Sleeps for a number of seconds equal to the ``big-o``.
 
 Of these regions, *dgemm* exhibits the most compute-intensive behavior and will be

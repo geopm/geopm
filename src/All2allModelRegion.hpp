@@ -12,7 +12,6 @@ namespace geopm
 {
     class All2allModelRegion : public ModelRegion
     {
-        friend class NestedModelRegion;
         public:
             All2allModelRegion(double big_o_in,
                                int verbosity,
