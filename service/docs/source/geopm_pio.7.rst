@@ -124,7 +124,7 @@ Descriptions Of High Level Aliases
 ``CPU_POWER_LIMIT_CONTROL``
     The average power usage limit over the time window specified in
     PL1_TIME_WINDOW.
- 
+
 ``CPU_POWER_TIME_WINDOW``
     The time window associated with power limit 1.
 
@@ -217,11 +217,30 @@ Descriptions Of High Level Aliases
 ``TIME``
     Time elapsed since the beginning of execution.
 
+
+.. toctree::
+   :glob:
+   :maxdepth: 1
+   :caption: Low Level Signals and Controls
+
+   geopm_pio_*.7
+
+The high level alias signals and controls defined in this man page may be
+supported by one or more IOGroups.  These IOGroups also provide signals and
+controls which extend the capabilities described in this page.  These signals
+and controls are described as "low level signals and controls", and these have
+names that are prefixed by the IOGroup name that provides it.  For example,
+the ``MSRIOGroup`` provides the ``MSR::PERF_CTL:FREQ`` low level control.
+This is the underlying implementation for the high level alias
+``CPU_FREQUENCY_CONTROL`` on x86 platforms.  Some low level signals and
+controls do not have high level aliases associated with them.  To learn about
+these low level signals and controls please consult the chapter 7 man page for
+each IOGroup as linked in the above table of contents.
+
+
 See Also
 --------
 
 :doc:`geopm(7) <geopm.7>`,
-:doc:`geopm_pio_cnl(7) <geopm_pio_cnl.7>`,
-:doc:`geopm_pio(3) <geopm_pio.3>`,
 :doc:`geopm_prof(3) <geopm_prof.3>`,
 :doc:`geopm_topo(3) <geopm_topo.3>`,
