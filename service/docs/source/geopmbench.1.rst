@@ -43,6 +43,17 @@ Region names can be one of the following options:
 
 * *ignore*: Sleeps for a number of seconds equal to the ``big-o``.
 
+* *scaling*: Executes an arithmetic operation where ``big-o``
+  is a linear function of CPU frequency.  Designed to fill the LLC.
+
+* *barrier*: Executes MPI_Barrier(MPI_COMM_WORLD).  ``big-o`` has no effect.
+
+* *reduce*: Executes MPI_Allreduce on a buffer sized by ``big-o``.  A ``big-o``
+  of 1 will produce a 64MiB buffer.
+
+* *timed_scaling*: Like the *scaling* region but termintates based on elapsed
+  time as opposed to finishing the calculation.
+
 Of these regions, *dgemm* exhibits the most compute-intensive behavior and will be
 sensitive to frequency, while *stream* is memory-intensive and is less sensitive
 to CPU frequency. *all2all* represents a network-intensive region.
@@ -103,6 +114,10 @@ a 5% delay on ``"my-compute-node-3"`` and a 15% delay on
 
 If ``"-progress"`` is appended to any region name in the configuration, then
 progress for the region will be reported through the ``geopm_tprof_*()`` API.
+
+If ``"-unmarked"`` is appended to any region name in the configuration, then
+the region will **not** be marked with the ``geopm_prof_*()`` API calls for
+``enter()`` and ``exit()`` calls.
 
 See Also
 --------
