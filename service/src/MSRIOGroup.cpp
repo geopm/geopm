@@ -422,7 +422,12 @@ namespace geopm
         std::map<std::string, signal_info> signal_hidden;
 
         // MSR::TIME is a board level signal as defined in register_power_signals;
-        std::shared_ptr<Signal> time_sig = m_signal_available.find("MSR::TIME")->second.signals.at(0);
+        auto time_it = m_signal_available.find("MSR::TIME");
+        if (time_it == m_signal_available.end()) {
+            throw Exception("MSRIOGroup::" + std::string(__func__) + "(): MSR::TIME signal unavailable",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        std::shared_ptr<Signal> time_sig = time_it->second.signals.at(0);
 
         int derivative_window = 8;
         double sleep_time = 0.005;  // 5000 us
@@ -502,15 +507,17 @@ namespace geopm
             std::vector<std::shared_ptr<Signal> > result(num_domain);
             for (int domain_idx = 0; domain_idx < num_domain; ++domain_idx) {
                 auto numer_it = signal_hidden.find("MSR::PCNT_RATE");
-                auto numers = numer_it->second.signals;
-                auto numer = numers[domain_idx];
-
                 auto denom_it = signal_hidden.find("MSR::ACNT_RATE");
-                auto denoms = denom_it->second.signals;
-                auto denom = denoms[domain_idx];
+                if (numer_it != signal_hidden.end() &&
+                    denom_it != signal_hidden.end()){
+                    auto numers = numer_it->second.signals;
+                    auto numer = numers[domain_idx];
+                    auto denoms = denom_it->second.signals;
+                    auto denom = denoms[domain_idx];
 
-                result[domain_idx] =
-                    std::make_shared<RatioSignal>(numer, denom);
+                    result[domain_idx] =
+                        std::make_shared<RatioSignal>(numer, denom);
+                }
             }
 
             m_signal_available[signal_name] = {result,
@@ -568,7 +575,12 @@ namespace geopm
 
 
         // MSR::TIME is a board level signal as defined in register_power_signals;
-        std::shared_ptr<Signal> time_sig = m_signal_available.find("MSR::TIME")->second.signals.at(0);
+        auto time_it = m_signal_available.find("MSR::TIME");
+        if (time_it == m_signal_available.end()) {
+            throw Exception("MSRIOGroup::" + std::string(__func__) + "(): MSR::TIME signal unavailable",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        std::shared_ptr<Signal> time_sig = time_it->second.signals.at(0);
 
         msr_name = "QM_CTR_SCALED";
         signal_name = "QM_CTR_SCALED_RATE";

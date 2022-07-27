@@ -18,8 +18,9 @@ namespace geopm
     {
         public:
             RatioSignal(std::shared_ptr<Signal> numerator,
-                           std::shared_ptr<Signal> denominator);
+                        std::shared_ptr<Signal> denominator);
             RatioSignal(const RatioSignal &other) = delete;
+            RatioSignal &operator=(const RatioSignal &other) = delete;
             virtual ~RatioSignal() = default;
             void setup_batch(void) override;
             double sample(void) override;
