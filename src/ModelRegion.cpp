@@ -12,7 +12,6 @@
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
 
-#include "NestedModelRegion.hpp"
 #include "SleepModelRegion.hpp"
 #include "All2allModelRegion.hpp"
 #include "DGEMMModelRegion.hpp"
@@ -64,9 +63,6 @@ namespace geopm
         }
         else if (name_check(name, "all2all")) {
             return geopm::make_unique<All2allModelRegion>(big_o, verbosity, do_imbalance, do_progress, do_unmarked);
-        }
-        else if (name_check(name, "nested")) {
-            return geopm::make_unique<NestedModelRegion>(big_o, verbosity, do_imbalance, do_progress, do_unmarked);
         }
         else if (name_check(name, "ignore")) {
             return geopm::make_unique<IgnoreModelRegion>(big_o, verbosity, do_imbalance, do_progress, do_unmarked);
