@@ -176,7 +176,7 @@ namespace geopm
                      nullptr,
                      environment().endpoint(),
                      environment().do_endpoint(),
-                     environment().shmkey())
+                     ApplicationSampler::default_shmkey())
     {
 
     }

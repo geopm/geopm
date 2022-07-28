@@ -30,6 +30,7 @@
 #include "geopm/SharedMemory.hpp"
 #include "ApplicationRecordLog.hpp"
 #include "ApplicationStatus.hpp"
+#include "ApplicationSampler.hpp"
 #include "geopm/Exception.hpp"
 #include "Comm.hpp"
 #include "geopm/Helper.hpp"
@@ -95,7 +96,7 @@ namespace geopm
 
     ProfileImp::ProfileImp()
         : ProfileImp(environment().profile(),
-                     environment().shmkey(),
+                     ApplicationSampler::default_shmkey(),
                      environment().report(),
                      environment().timeout(),
                      nullptr,  // comm

@@ -27,6 +27,7 @@
 #include "ControlMessage.hpp"
 #include "geopm/SharedMemory.hpp"
 #include "geopm/Exception.hpp"
+#include "ApplicationSampler.hpp"
 #include "config.h"
 
 namespace geopm
@@ -44,7 +45,7 @@ namespace geopm
         , m_rank_per_node(0)
     {
         const Environment &env = environment();
-        const std::string key_base = env.shmkey();
+        const std::string key_base = ApplicationSampler::default_shmkey();
         std::string sample_key = key_base + "-sample";
         std::string sample_key_path("/dev/shm/" + sample_key);
         // Remove shared memory file if one already exists.
