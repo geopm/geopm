@@ -26,6 +26,8 @@ runtime varies between platforms, so the ``big-o`` should be tuned to achieve
 the desired runtime on a platform. The regions can also be configured to run
 with imbalance on different nodes.
 
+Unless otherwise noted, the hint used is ``GEOPM_REGION_HINT_UNKNOWN``.
+
 Region names can be one of the following options:
 
 * *sleep*: Executes ``clock_nanosleep()`` for ``big-o`` seconds.
@@ -33,18 +35,21 @@ Region names can be one of the following options:
 * *spin*: Executes a spin loop for ``big-o`` seconds.
 
 * *dgemm*: Dense matrix-matrix multiply with floating point operations
-  proportional to ``big-o``.
+  proportional to ``big-o``.  ``GEOPM_REGION_HINT_COMPUTE`` is set for this
+  region.
 
 * *stream*: Executes stream "triad" on a vector with length proportional to
-  ``big-o``.
+  ``big-o``.  ``GEOPM_REGION_HINT_MEMORY`` is set for this region.
 
 * *all2all*: All processes send buffers to all other processes. The time of
   this operation is proportional to ``big-o``.
 
 * *ignore*: Sleeps for a number of seconds equal to the ``big-o``.
+  ``GEOPM_REGION_HINT_IGNORE`` is set for this region.
 
 * *scaling*: Executes an arithmetic operation where ``big-o``
   is a linear function of CPU frequency.  Designed to fill the LLC.
+  ``GEOPM_REGION_HINT_MEMORY`` is set for this region.
 
 * *barrier*: Executes MPI_Barrier(MPI_COMM_WORLD).  ``big-o`` has no effect.
 
