@@ -243,6 +243,9 @@ namespace geopm
 
             for (auto &batch : m_mbox_read_batch) {
                 int err = m_ioctl->mbox(batch.get());
+                if (err == -1 && errno == EBUSY) {
+                    err = m_ioctl->mbox(batch.get());
+                }
                 if (err == -1) {
                     throw Exception("SSTIOImp::read_batch() mbox read failed",
                                     errno, __FILE__, __LINE__);
@@ -298,6 +301,9 @@ namespace geopm
             for (auto &batch : m_mbox_write_batch) {
                 // Read existing value (TODO: only need if not whole mask write)
                 int err = m_ioctl->mbox(batch.get());
+                if (err == -1 && errno == EBUSY) {
+                    err = m_ioctl->mbox(batch.get());
+                }
                 if (err == -1) {
                     throw Exception("sstioimp::write_batch() pre-write mbox read failed",
                                     errno, __FILE__, __LINE__);
@@ -323,6 +329,9 @@ namespace geopm
             for (auto &batch : m_mbox_write_batch) {
                 // Write the adjusted value
                 int err = m_ioctl->mbox(batch.get());
+                if (err == -1 && errno == EBUSY) {
+                    err = m_ioctl->mbox(batch.get());
+                }
                 if (err == -1) {
                     throw Exception("sstioimp::write_batch() mbox write failed",
                                     errno, __FILE__, __LINE__);
@@ -384,6 +393,9 @@ namespace geopm
         };
 
         int err = m_ioctl->mbox(&read_batch);
+        if (err == -1 && errno == EBUSY) {
+            err = m_ioctl->mbox(&read_batch);
+        }
         if (err == -1) {
             throw Exception("sstioimp::read_mbox_once() mbox read failed",
                             errno, __FILE__, __LINE__);
@@ -408,6 +420,9 @@ namespace geopm
                               .subcommand = read_subcommand } }
         };
         int err = m_ioctl->mbox(&batch);
+        if (err == -1 && errno == EBUSY) {
+            err = m_ioctl->mbox(&batch);
+        }
         if (err == -1) {
             throw Exception("sstioimp::write_mbox_once() pre-write mbox read failed",
                             errno, __FILE__, __LINE__);
@@ -420,6 +435,9 @@ namespace geopm
         batch.interfaces[0].subcommand = subcommand;
 
         err = m_ioctl->mbox(&batch);
+        if (err == -1 && errno == EBUSY) {
+            err = m_ioctl->mbox(&batch);
+        }
         if (err == -1) {
             throw Exception("sstioimp::write_mbox_once() mbox write failed",
                             errno, __FILE__, __LINE__);
