@@ -14,7 +14,6 @@ EXTRA_DIST += integration/README.md \
               integration/test/test_su_give_access.sh \
               integration/test/test_su_restart.sh \
               integration/test/test_su_term_batch.sh \
-              integration/test/test_su_term_batch_helper.py \
               integration/test/test_su_term_batch_helper.sh \
               integration/test/do_write.sh \
               # end

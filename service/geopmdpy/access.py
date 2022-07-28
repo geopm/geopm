@@ -281,7 +281,7 @@ class Access:
         return [ll.strip() for ll in fid.readlines() if ll.strip()]
 
     def run(self, is_write, is_all, is_control, group, is_default, is_delete,
-            is_dry_run, is_force, is_edit):
+            is_dry_run, is_force, is_edit, session_pid):
         """Execute geopmaccess command line interface
 
         The inputs to this method are parsed from the command line
@@ -314,9 +314,24 @@ class Access:
             is_dry_run (bool): True to run error checking without file
                                modification
             is_force (bool): True if error checking is disabled
+            session_pid (int): Session PID to print info.
 
         """
         output = None
+        # Determine if user provided -s option
+        if session_pid is not None:
+            file_path = f'/run/geopm-service/session-{session_pid}.json'
+            try:
+                with open(file_path) as fid:
+                    # Early return if session info is requested
+                    return fid.read()
+            except PermissionError as ex:
+                sys.stderr.write(f'Error: {ex}\n\n')
+                return
+            except FileNotFoundError as ex:
+                sys.stderr.write(f'Error: {session_pid} is invalid\n\n')
+                return
+
         # Determine if user provided -g option
         if group is None:
             is_group = False
@@ -381,6 +396,8 @@ def main():
     parser = ArgumentParser(description=main.__doc__)
     parser.add_argument('-c', '--controls', dest='controls', action='store_true', default=False,
                         help='Command applies to controls not signals')
+    parser.add_argument('-s', '--session', dest='session', type=int, default=None,
+                        help='Print session information in JSON form')
     parser_group_uga = parser.add_mutually_exclusive_group(required=False)
     parser_group_uga.add_argument('-u', '--default', dest='default', action='store_true', default=False,
                                   help='Print the default user access list')
@@ -406,7 +423,7 @@ def main():
                                                   '/io/github/geopm'))
         output = acc.run(args.write, args.all, args.controls, args.group,
                          args.default, args.delete, args.dry_run, args.force,
-                         args.edit)
+                         args.edit, args.session)
         if output:
             print(output)
     except RuntimeError as ee:
