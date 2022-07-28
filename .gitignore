@@ -4,6 +4,7 @@
 /autom4te.cache/
 /BLURB
 /compile
+compile_commands.json
 /config.guess
 /config.h
 /config.h.in
@@ -50,7 +51,6 @@
 /geopm.o
 /geopmpolicy
 /geopmread
-/specs/geopm*.spec
 /geopm*.tar.gz
 /geopmwrite
 /gh-pages/
@@ -129,6 +129,7 @@
 /scripts/geopm/version.py
 /scripts/README
 /scripts/test/pytest_links/*
+/specs/geopm*.spec
 /src/*.lo
 /src/*.o
 /stamp-h1
@@ -171,4 +172,3 @@
 /tutorial/tutorial_[0-9]*_trace-*
 /tutorial/tutorial_4_imbalance.conf
 /VERSION
-compile_commands.json
