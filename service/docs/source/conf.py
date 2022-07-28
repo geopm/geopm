@@ -167,6 +167,7 @@ rst_files = [
     "geopmendpoint.1",
     "geopm_endpoint.3",
     "geopm_error.3",
+    "geopm_field.3",
     "geopm_fortran.3",
     "geopm_hash.3",
     "geopm_imbalancer.3",

@@ -77,6 +77,7 @@ all_man_rst = docs/source/geopm.7.rst \
               docs/source/geopmendpoint.1.rst \
               docs/source/geopm_endpoint.3.rst \
               docs/source/geopm_error.3.rst \
+              docs/source/geopm_field.3.rst \
               docs/source/geopm_fortran.3.rst \
               docs/source/geopm_hash.3.rst \
               docs/source/geopm_imbalancer.3.rst \
@@ -124,6 +125,7 @@ dist_man_MANS = docs/build/man/geopm.7 \
                 docs/build/man/GEOPM_CXX_MAN_SharedMemory.3 \
                 docs/build/man/GEOPM_CXX_MAN_TimeIOGroup.3 \
                 docs/build/man/geopm_error.3 \
+                docs/build/man/geopm_field.3 \
                 docs/build/man/geopm_hash.3 \
                 docs/build/man/geopm_pio.3 \
                 docs/build/man/geopm_pio.7 \
