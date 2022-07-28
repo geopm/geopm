@@ -1076,6 +1076,7 @@ TEST_F(BatchServerTest, fork_and_terminate_child)
         /* Terminate the server process */
         sigval value;
         value.sival_int = BatchStatus::M_MESSAGE_TERMINATE;
+        sleep(1);  // force the explicit sigqueue() to happen after the sleep in the other process
         sigqueue(server_pid, SIGTERM, value);
     };
 
@@ -1109,6 +1110,7 @@ TEST_F(BatchServerTest, fork_and_terminate_parent)
         /* Terminate the server */
         sigval value;
         value.sival_int = BatchStatus::M_MESSAGE_TERMINATE;
+        sleep(1);  // force the explicit sigqueue() to happen after the sleep in the other process
         sigqueue(server_pid, SIGTERM, value);
     };
 
@@ -1210,6 +1212,7 @@ TEST_F(BatchServerTest, action_sigchld)
             ret = errno;
         }
 
+        sleep(1);  // force the implicit sigqueue() to happen after the sleep in the other process
         // When the child process exits, it sends a SIGCHLD to the parent process.
     };
 
@@ -1335,6 +1338,7 @@ TEST_F(BatchServerTest, action_sigchld_error)
         // Send a SIGCHLD to the server process, from the parent process, not from a child process,
         // triggering an error condition.
         sigval value;
+        sleep(1);  // force the explicit sigqueue() to happen after the sleep in the other process
         sigqueue(server_pid, SIGCHLD, value);
     };
 
