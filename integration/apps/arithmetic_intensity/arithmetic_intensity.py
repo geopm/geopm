@@ -119,3 +119,11 @@ class ArithmeticIntensityAppConf(apps.AppConf):
                 '--ntasks-per-core=1'
             ])
         return args
+
+    def parse_fom(self, log_path):
+        with open(log_path) as fid:
+            for line in fid.readlines():
+                if line.strip().startswith('Performance'):
+                    total_ops_sec = float(line.split()[1])
+                    return total_ops_sec
+        return float('nan')
