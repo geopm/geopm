@@ -11,6 +11,7 @@
 #include <cstring>
 #include <cerrno>
 #include <stdexcept>
+#include <unistd.h>
 
 #include "ApplicationSamplerImp.hpp"
 #include "ApplicationRecordLog.hpp"
@@ -40,6 +41,11 @@ namespace geopm
     {
         static std::set <uint64_t> result = region_hash_network_once();
         return result;
+    }
+
+    std::string ApplicationSampler::default_shmkey(void)
+    {
+        return "/geopm-shm-" + std::to_string(geteuid());
     }
 
     std::set<uint64_t> ApplicationSampler::region_hash_network_once(void)

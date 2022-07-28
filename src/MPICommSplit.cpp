@@ -14,6 +14,7 @@
 #include "Controller.hpp"
 #include "Comm.hpp"
 #include "MPIComm.hpp"
+#include "ApplicationSampler.hpp"
 
 #include "config.h"
 
@@ -58,7 +59,7 @@ extern "C"
         struct stat stat_struct;
         try {
             std::ostringstream shmem_key;
-            shmem_key << geopm::environment().shmkey() << "-comm-split-" << tag;
+            shmem_key << geopm::ApplicationSampler::default_shmkey() << "-comm-split-" << tag;
             std::ostringstream shmem_path;
             shmem_path << "/dev/shm" << shmem_key.str();
             std::shared_ptr<geopm::SharedMemory> shmem = nullptr;
