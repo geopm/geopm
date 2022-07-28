@@ -218,12 +218,8 @@ Descriptions Of High Level Aliases
     Time elapsed since the beginning of execution.
 
 
-.. toctree::
-   :glob:
-   :maxdepth: 1
-   :caption: Low Level Signals and Controls
-
-   geopm_pio_*.7
+Low Level Signals and Controls
+------------------------------
 
 The high level alias signals and controls defined in this man page may be
 supported by one or more IOGroups.  These IOGroups also provide signals and
@@ -235,7 +231,18 @@ This is the underlying implementation for the high level alias
 ``CPU_FREQUENCY_CONTROL`` on x86 platforms.  Some low level signals and
 controls do not have high level aliases associated with them.  To learn about
 these low level signals and controls please consult the chapter 7 man page for
-each IOGroup as linked in the above table of contents.
+each IOGroup as linked below.
+
+- :doc:`geopm_pio_cnl(7) <geopm_pio_cnl.7>`
+- :doc:`geopm_pio_cpuinfo(7) <geopm_pio_cpuinfo.7>`
+- :doc:`geopm_pio_dcgm(7) <geopm_pio_dcgm.7>`
+- :doc:`geopm_pio_levelzero(7) <geopm_pio_levelzero.7>`
+- :doc:`geopm_pio_msr(7) <geopm_pio_msr.7>`
+- :doc:`geopm_pio_nvml(7) <geopm_pio_nvml.7>`
+- :doc:`geopm_pio_profile(7) <geopm_pio_profile.7>`
+- :doc:`geopm_pio_service(7) <geopm_pio_service.7>`
+- :doc:`geopm_pio_sst(7) <geopm_pio_sst.7>`
+- :doc:`geopm_pio_time(7) <geopm_pio_time.7>`
 
 
 See Also
