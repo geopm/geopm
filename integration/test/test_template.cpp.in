@@ -11,8 +11,8 @@
 #include <vector>
 #include <memory>
 
+#include "geopm/Exception.hpp"
 #include "Profile.hpp"
-#include "Exception.hpp"
 #include "ModelRegion.hpp"
 
 int main(int argc, char **argv)
