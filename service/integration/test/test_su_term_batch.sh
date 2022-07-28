@@ -8,8 +8,9 @@ if [[ $# -gt 0 ]] && [[ $1 == '--help' ]]; then
     Terminating Batch Server
     ------------------------
 
-    As root, send term signal to active batch server client, and make sure
-    that server shuts down cleanly.
+    As a user, send term signal to a geopmsession process owned by the
+    test user, and make sure that server (owned by root) shuts down
+    cleanly.
 
 "
     exit 0
@@ -25,14 +26,21 @@ TEST_USER=test
 
 set -x
 
-export SESSION_PID=$(sudo -E -u ${TEST_USER} ${TEST_DIR}/test_su_term_batch_helper.sh)
+TEST_SCRIPT="${TEST_DIR}/test_su_term_batch_helper.sh"
+if [[ $(whoami) == 'root' ]]; then
+    export SESSION_PID=$(sudo -E -u ${TEST_USER} ${TEST_SCRIPT})
+else
+    export SESSION_PID=$(${TEST_SCRIPT})
+fi
+
 sleep 5
-BATCH_PID=$(python3 ${TEST_DIR}/test_su_term_batch_helper.py ${SESSION_PID})
-kill -7 $SESSION_PID
+BATCH_PID=$(sudo geopmaccess -s ${SESSION_PID} | \
+            python3 -c 'import sys,json; print(json.loads(sys.stdin.read())["batch_server"])')
+kill -7 $SESSION_PID # Ok to send as test user
 sleep 5
 if ps --pid $BATCH_PID >& /dev/null; then
-    test_error "Batch server persists after client is terminated"
     kill -9 $BATCH_PID
+    test_error "Batch server persists after client is terminated"
 fi
 
 echo "SUCCESS"
