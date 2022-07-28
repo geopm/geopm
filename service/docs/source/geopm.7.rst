@@ -391,6 +391,7 @@ See Also
 :doc:`geopm_agent(3) <geopm_agent.3>`,
 :doc:`geopm_ctl(3) <geopm_ctl.3>`,
 :doc:`geopm_error(3) <geopm_error.3>`,
+:doc:`geopm_field(3) <geopm_field.3>`,
 :doc:`geopm_fortran(3) <geopm_fortran.3>`,
 :doc:`geopm_hash(3) <geopm_hash.3>`,
 :doc:`geopm_policystore(3) <geopm_policystore.3>`,

@@ -281,6 +281,7 @@ ln -s /usr/sbin/service %{buildroot}%{_sbindir}/rcgeopm
 %doc %{_mandir}/man3/geopm::SharedMemory.3.gz
 %doc %{_mandir}/man3/geopm::TimeIOGroup.3.gz
 %doc %{_mandir}/man3/geopm_error.3.gz
+%doc %{_mandir}/man3/geopm_field.3.gz
 %doc %{_mandir}/man3/geopm_hash.3.gz
 %doc %{_mandir}/man3/geopm_pio.3.gz
 %doc %{_mandir}/man3/geopm_sched.3.gz
