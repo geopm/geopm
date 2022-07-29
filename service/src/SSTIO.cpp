@@ -242,8 +242,10 @@ namespace geopm
                 m_mbox_read_interfaces);
 
             for (auto &batch : m_mbox_read_batch) {
+                errno = 0;
                 int err = m_ioctl->mbox(batch.get());
                 if (err == -1 && errno == EBUSY) {
+                    errno = 0;
                     err = m_ioctl->mbox(batch.get());
                 }
                 if (err == -1) {
@@ -300,8 +302,10 @@ namespace geopm
 
             for (auto &batch : m_mbox_write_batch) {
                 // Read existing value (TODO: only need if not whole mask write)
+                errno = 0;
                 int err = m_ioctl->mbox(batch.get());
                 if (err == -1 && errno == EBUSY) {
+                    errno = 0;
                     err = m_ioctl->mbox(batch.get());
                 }
                 if (err == -1) {
@@ -328,8 +332,10 @@ namespace geopm
 
             for (auto &batch : m_mbox_write_batch) {
                 // Write the adjusted value
+                errno = 0;
                 int err = m_ioctl->mbox(batch.get());
                 if (err == -1 && errno == EBUSY) {
+                    errno = 0;
                     err = m_ioctl->mbox(batch.get());
                 }
                 if (err == -1) {
@@ -392,6 +398,7 @@ namespace geopm
                               .subcommand = subcommand } }
         };
 
+        errno = 0;
         int err = m_ioctl->mbox(&read_batch);
         if (err == -1 && errno == EBUSY) {
             err = m_ioctl->mbox(&read_batch);
@@ -419,6 +426,7 @@ namespace geopm
                               .command = command,
                               .subcommand = read_subcommand } }
         };
+        errno = 0;
         int err = m_ioctl->mbox(&batch);
         if (err == -1 && errno == EBUSY) {
             err = m_ioctl->mbox(&batch);
@@ -434,6 +442,7 @@ namespace geopm
         batch.interfaces[0].read_value = 0;
         batch.interfaces[0].subcommand = subcommand;
 
+        errno = 0;
         err = m_ioctl->mbox(&batch);
         if (err == -1 && errno == EBUSY) {
             err = m_ioctl->mbox(&batch);
