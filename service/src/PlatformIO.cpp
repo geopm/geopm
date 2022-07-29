@@ -23,6 +23,7 @@
 
 #include "geopm_pio.h"
 #include "BatchServer.hpp"
+#include "CombinedControl.hpp"
 #include "CombinedSignal.hpp"
 #include "ServiceIOGroup.hpp"
 
@@ -375,6 +376,22 @@ namespace geopm
         return iogroups.at(0)->control_domain_type(control_name);
     }
 
+    bool PlatformIOImp::is_control_split_uniform(const std::string &control_name) const
+    {
+        auto iogroups = find_control_iogroup(control_name);
+        if (iogroups.empty()) {
+            throw Exception("PlatformIOImp::control_domain_type(): control name \"" +
+                            control_name + "\" not found",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        auto agg_func = iogroups.at(0)->agg_function(control_name);
+        bool result = true;
+        if (Agg::function_to_type(agg_func) == Agg::M_SUM) {
+            result = false;
+        }
+        return result;
+    }
+
     int PlatformIOImp::push_signal(const std::string &signal_name,
                                    int domain_type,
                                    int domain_idx)
@@ -475,6 +492,22 @@ namespace geopm
         return result;
     }
 
+    int PlatformIOImp::push_combined_control(const std::string &control_name,
+                                             int domain_type,
+                                             int domain_idx,
+                                             const std::vector<int> &sub_control_idx)
+    {
+        int result = m_active_control.size();
+        double factor = 1.0;
+        if (!sub_control_idx.empty() &&
+            !is_control_split_uniform(control_name)) {
+            factor = 1.0 / sub_control_idx.size();
+        }
+        std::unique_ptr<CombinedControl> combiner = geopm::make_unique<CombinedControl>(factor);
+        register_combined_control(result, sub_control_idx, std::move(combiner));
+        m_active_control.emplace_back(nullptr, result);
+        return result;
+    }
 
     void PlatformIOImp::register_combined_signal(int signal_idx,
                                                  std::vector<int> operands,
@@ -482,6 +515,14 @@ namespace geopm
     {
         auto tmp = std::make_pair(operands, std::move(signal));
         m_combined_signal[signal_idx] = std::move(tmp);
+    }
+
+    void PlatformIOImp::register_combined_control(int control_idx,
+                                                  std::vector<int> operands,
+                                                  std::unique_ptr<CombinedControl> control)
+    {
+        auto tmp = std::make_pair(operands, std::move(control));
+        m_combined_control[control_idx] = std::move(tmp);
     }
 
     int PlatformIOImp::push_control(const std::string &control_name,
@@ -570,9 +611,7 @@ namespace geopm
             for (auto it : base_domain_idx) {
                 control_idx.push_back(push_control(control_name, base_domain_type, it));
             }
-            result = m_active_control.size();
-            m_combined_control.emplace(std::make_pair(result, control_idx));
-            m_active_control.emplace_back(nullptr, result);
+            result = push_combined_control(control_name, domain_type, domain_idx, control_idx);
         }
         return result;
     }
@@ -611,9 +650,9 @@ namespace geopm
     double PlatformIOImp::sample_combined(int signal_idx)
     {
         double result = NAN;
-        auto &op_func_pair = m_combined_signal.at(signal_idx);
-        std::vector<int> &operand_idx = op_func_pair.first;
-        auto &signal = op_func_pair.second;
+        auto &op_obj_pair = m_combined_signal.at(signal_idx);
+        std::vector<int> &operand_idx = op_obj_pair.first;
+        auto &signal = op_obj_pair.second;
         std::vector<double> operands(operand_idx.size());
         for (size_t ii = 0; ii < operands.size(); ++ii) {
             operands[ii] = sample(operand_idx[ii]);
@@ -634,16 +673,24 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         auto &group_idx_pair = m_active_control[control_idx];
-        if (nullptr == group_idx_pair.first) {
-            auto &sub_controls = m_combined_control.at(control_idx);
-            for (auto idx : sub_controls) {
-                adjust(idx, setting);
-            }
-        }
-        else {
+        if (group_idx_pair.first != nullptr) {
             group_idx_pair.first->adjust(group_idx_pair.second, setting);
         }
+        else {
+            adjust_combined(control_idx, setting);
+        }
         m_is_control_active = true;
+    }
+
+    void PlatformIOImp::adjust_combined(int control_idx,
+                                        double setting)
+    {
+        auto &op_obj_pair = m_combined_control.at(control_idx);
+        std::vector<int> &operand_idx = op_obj_pair.first;
+        auto &control = op_obj_pair.second;
+        for (const auto &op : operand_idx) {
+            adjust(op, control->adjust(setting));
+        }
     }
 
     void PlatformIOImp::read_batch(void)
@@ -797,6 +844,10 @@ namespace geopm
         if (m_platform_topo.is_nested_domain(base_domain_type, domain_type)) {
             std::set<int> base_domain_idx = m_platform_topo.domain_nested(base_domain_type,
                                                                           domain_type, domain_idx);
+            if (!base_domain_idx.empty() &&
+                !is_control_split_uniform(control_name)) {
+                setting /= base_domain_idx.size();
+            }
             for (auto idx : base_domain_idx) {
                 write_control(control_name, base_domain_type, idx, setting);
             }

@@ -16,6 +16,7 @@ namespace geopm
 {
     class IOGroup;
     class CombinedSignal;
+    class CombinedControl;
     class PlatformTopo;
     class BatchServer;
 
@@ -89,6 +90,10 @@ namespace geopm
                                      int domain_type,
                                      int domain_idx,
                                      const std::vector<int> &sub_signal_idx);
+            int push_combined_control(const std::string &control_name,
+                                      int domain_type,
+                                      int domain_idx,
+                                      const std::vector<int> &sub_control_idx);
             /// @brief Save a high-level signal as a combination of other signals.
             /// @param [in] signal_idx Index a caller can use to refer to this signal.
             /// @param [in] operands Input signal indices to be combined.  These must
@@ -98,6 +103,9 @@ namespace geopm
             void register_combined_signal(int signal_idx,
                                           std::vector<int> operands,
                                           std::unique_ptr<CombinedSignal> signal);
+            void register_combined_control(int control_idx,
+                                           std::vector<int> operands,
+                                           std::unique_ptr<CombinedControl> control);
             int push_signal_convert_domain(const std::string &signal_name,
                                            int domain_type,
                                            int domain_idx);
@@ -113,10 +121,12 @@ namespace geopm
                                               double setting);
             /// @brief Sample a combined signal using the saved function and operands.
             double sample_combined(int signal_idx);
+            void adjust_combined(int control_idx, double setting);
             /// @brief Look up the IOGroup that provides the given signal.
             std::vector<std::shared_ptr<IOGroup> > find_signal_iogroup(const std::string &signal_name) const;
             /// @brief Look up the IOGroup that provides the given control.
             std::vector<std::shared_ptr<IOGroup> > find_control_iogroup(const std::string &control_name) const;
+            bool is_control_split_uniform(const std::string &control_name) const;
             bool m_is_signal_active;
             bool m_is_control_active;
             const PlatformTopo &m_platform_topo;
@@ -127,7 +137,8 @@ namespace geopm
             std::map<std::tuple<std::string, int, int>, int> m_existing_control;
             std::map<int, std::pair<std::vector<int>,
                                     std::unique_ptr<CombinedSignal> > > m_combined_signal;
-            std::map<int, std::vector<int> > m_combined_control;
+            std::map<int, std::pair<std::vector<int>,
+                                    std::unique_ptr<CombinedControl> > > m_combined_control;
             bool m_do_restore;
             std::map<int, std::shared_ptr<BatchServer> > m_batch_server;
             static const std::map<const std::string, const std::string> m_signal_descriptions;
