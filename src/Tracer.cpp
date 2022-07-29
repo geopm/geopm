@@ -52,6 +52,7 @@ namespace geopm
         , m_region_hint_idx(-1)
         , m_region_progress_idx(-1)
         , m_region_runtime_idx(-1)
+        , m_num_base_columns(-1)
     {
         if (m_is_trace_enabled) {
             m_csv = geopm::make_unique<CSVImp>(file_path, hostname, start_time, M_BUFFER_SIZE);
@@ -100,6 +101,14 @@ namespace geopm
             m_region_hint_idx = 3;
             m_region_progress_idx = 4;
             m_region_runtime_idx = 6;
+            m_num_base_columns = base_columns.size();
+
+            // columns from agent; will be sampled by agent
+            size_t num_col = agent_cols.size();
+            for (size_t col_idx = 0; col_idx != num_col; ++col_idx) {
+                std::function<std::string(double)> format = col_formats.size() ? col_formats.at(col_idx) : string_format_double;
+                m_csv->add_column(agent_cols.at(col_idx), format);
+            }
 
             // extra columns from environment
             std::vector<std::string> env_sig = env_signals();
@@ -131,12 +140,6 @@ namespace geopm
                 }
                 m_csv->add_column(column_name, col.format);
             }
-            // columns from agent; will be sampled by agent
-            size_t num_col = agent_cols.size();
-            for (size_t col_idx = 0; col_idx != num_col; ++col_idx) {
-                std::function<std::string(double)> format = col_formats.size() ? col_formats.at(col_idx) : string_format_double;
-                m_csv->add_column(agent_cols.at(col_idx), format);
-            }
             m_csv->activate();
             m_last_telemetry.resize(base_columns.size() + num_col);
         }
@@ -157,13 +160,18 @@ namespace geopm
 #endif
             // save values to be reused for region entry/exit
             size_t col_idx = 0;
-            for (; col_idx < m_column_idx.size(); ++col_idx) {
+
+            for (; col_idx < m_num_base_columns; ++col_idx) {
                 m_last_telemetry[col_idx] = m_platform_io.sample(m_column_idx[col_idx]);
             }
             for (const auto &val : agent_values) {
                 m_last_telemetry[col_idx] = val;
                 ++col_idx;
             }
+            for (; col_idx < m_column_idx.size(); ++col_idx) {
+                m_last_telemetry[col_idx] = m_platform_io.sample(m_column_idx[col_idx]);
+            }
+
             m_csv->update(m_last_telemetry);
         }
     }

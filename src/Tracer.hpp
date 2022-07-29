@@ -93,6 +93,7 @@ namespace geopm
             int m_region_hint_idx;
             int m_region_progress_idx;
             int m_region_runtime_idx;
+            int m_num_base_columns;
     };
 }
 
