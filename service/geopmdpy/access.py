@@ -326,11 +326,9 @@ class Access:
                     # Early return if session info is requested
                     return fid.read()
             except PermissionError as ex:
-                sys.stderr.write(f'Error: {ex}\n\n')
-                return
+                raise RuntimeError(f'{ex}')
             except FileNotFoundError as ex:
-                sys.stderr.write(f'Error: {session_pid} is invalid\n\n')
-                return
+                raise RuntimeError(f'No valid session associated with client PID {session_pid}')
 
         # Determine if user provided -g option
         if group is None:
