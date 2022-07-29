@@ -20,6 +20,7 @@
 #include "geopm/PlatformTopo.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Agg.hpp"
+#include "CombinedControl.hpp"
 #include "CombinedSignal.hpp"
 #include "geopm_test.hpp"
 
@@ -133,9 +134,11 @@ void PlatformIOTest::SetUp()
     EXPECT_CALL(*m_control_iogroup, name()).Times(AtLeast(0));
     m_control_iogroup->set_valid_signals({
             {"FREQ", GEOPM_DOMAIN_CPU},
+            {"POWER", GEOPM_DOMAIN_CPU},
             {"MODE", GEOPM_DOMAIN_PACKAGE}});
     m_control_iogroup->set_valid_controls({
             {"FREQ", GEOPM_DOMAIN_CPU},
+            {"POWER", GEOPM_DOMAIN_CPU},
             {"MODE", GEOPM_DOMAIN_PACKAGE}});
 
     // IOGroup that overrides previously registered signals and controls
@@ -179,13 +182,13 @@ TEST_F(PlatformIOTest, signal_control_names)
 
     // IOGroup signals and PlatformIO signals
     std::set<std::string> expected_signals = {
-        "TIME", "FREQ", "MODE", "TEMP"
+        "TIME", "FREQ", "POWER", "MODE", "TEMP"
     };
     std::set<std::string> result = m_platio->signal_names();
     EXPECT_EQ(expected_signals.size(), result.size());
     EXPECT_EQ(expected_signals, result);
 
-    std::set<std::string> expected_controls {"FREQ", "MODE", "TEMP"};
+    std::set<std::string> expected_controls {"FREQ", "POWER", "MODE", "TEMP"};
     result =  m_platio->control_names();
     EXPECT_EQ(expected_controls.size(), result.size());
     EXPECT_EQ(expected_controls, result);
@@ -341,6 +344,8 @@ TEST_F(PlatformIOTest, push_control_agg)
     EXPECT_CALL(*m_topo, domain_nested(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_PACKAGE, 0));
     EXPECT_EQ(0, m_platio->num_control_pushed());
     EXPECT_CALL(*m_control_iogroup, control_domain_type("FREQ")).Times(AtLeast(1));
+    EXPECT_CALL(*m_control_iogroup, agg_function("FREQ"))
+        .WillOnce(Return(geopm::Agg::average));
     for (auto cpu : m_cpu_set0) {
         EXPECT_CALL(*m_control_iogroup, read_signal("FREQ", GEOPM_DOMAIN_CPU, cpu));
         EXPECT_CALL(*m_control_iogroup, write_control("FREQ", GEOPM_DOMAIN_CPU, cpu, _));
@@ -534,10 +539,11 @@ TEST_F(PlatformIOTest, adjust)
 TEST_F(PlatformIOTest, adjust_agg)
 {
     EXPECT_CALL(*m_topo, is_nested_domain(GEOPM_DOMAIN_CPU,
-                                         GEOPM_DOMAIN_PACKAGE));
+                                          GEOPM_DOMAIN_PACKAGE));
     EXPECT_CALL(*m_topo, domain_nested(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_PACKAGE, 0));
     double value = 1.23e9;
     EXPECT_CALL(*m_control_iogroup, control_domain_type("FREQ")).Times(AtLeast(1));
+    EXPECT_CALL(*m_control_iogroup, agg_function("FREQ")).WillRepeatedly(Return(Agg::expect_same));
     for (auto cpu : m_cpu_set0) {
         EXPECT_CALL(*m_control_iogroup, read_signal("FREQ", GEOPM_DOMAIN_CPU, cpu));
         EXPECT_CALL(*m_control_iogroup, write_control("FREQ", GEOPM_DOMAIN_CPU, cpu, _));
@@ -550,6 +556,34 @@ TEST_F(PlatformIOTest, adjust_agg)
         EXPECT_CALL(*m_control_iogroup, adjust(cpu, value));
     }
     m_platio->adjust(freq_idx, value);
+
+    for (auto iog : m_iogroup_ptr) {
+        EXPECT_CALL(*iog, write_batch());
+    }
+    m_platio->write_batch();
+}
+
+TEST_F(PlatformIOTest, adjust_agg_sum)
+{
+    EXPECT_CALL(*m_topo, is_nested_domain(GEOPM_DOMAIN_CPU,
+                                          GEOPM_DOMAIN_PACKAGE));
+    EXPECT_CALL(*m_topo, domain_nested(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_PACKAGE, 0));
+    double value = 128.0;
+    double expect = value / m_cpu_set0.size();
+    EXPECT_CALL(*m_control_iogroup, control_domain_type("POWER")).Times(AtLeast(1));
+    EXPECT_CALL(*m_control_iogroup, agg_function("POWER")).WillRepeatedly(Return(Agg::sum));
+    for (auto cpu : m_cpu_set0) {
+        EXPECT_CALL(*m_control_iogroup, read_signal("POWER", GEOPM_DOMAIN_CPU, cpu));
+        EXPECT_CALL(*m_control_iogroup, write_control("POWER", GEOPM_DOMAIN_CPU, cpu, _));
+        EXPECT_CALL(*m_control_iogroup, push_control("POWER", GEOPM_DOMAIN_CPU, cpu))
+            .WillOnce(Return(cpu));
+    }
+    int power_idx = m_platio->push_control("POWER", GEOPM_DOMAIN_PACKAGE, 0);
+
+    for (auto cpu : m_cpu_set0) {
+        EXPECT_CALL(*m_control_iogroup, adjust(cpu, expect));
+    }
+    m_platio->adjust(power_idx, value);
 
     for (auto iog : m_iogroup_ptr) {
         EXPECT_CALL(*iog, write_batch());
@@ -672,8 +706,30 @@ TEST_F(PlatformIOTest, write_control_agg)
     EXPECT_CALL(*m_topo, is_nested_domain(_, _));
     EXPECT_CALL(*m_topo, domain_nested(_, _, _));
     EXPECT_CALL(*m_control_iogroup, control_domain_type("FREQ")).Times(AtLeast(1));
+    EXPECT_CALL(*m_control_iogroup, agg_function("FREQ"))
+        .WillOnce(Return(geopm::Agg::average));
     for (auto cpu : m_cpu_set0) {
         EXPECT_CALL(*m_control_iogroup, write_control("FREQ", GEOPM_DOMAIN_CPU, cpu, value));
+    }
+    // package domain should not be used directly
+    EXPECT_CALL(*m_control_iogroup, write_control("FREQ", GEOPM_DOMAIN_PACKAGE, _, _)).Times(0);
+    m_platio->write_control("FREQ", GEOPM_DOMAIN_PACKAGE, 0, value);
+}
+
+TEST_F(PlatformIOTest, write_control_agg_sum)
+{
+    // write_control will not affect pushed controls
+    EXPECT_CALL(*m_override_iogroup, write_batch()).Times(0);
+
+    double value = 128.0;
+    double expect = value / m_cpu_set0.size();
+    EXPECT_CALL(*m_topo, is_nested_domain(_, _));
+    EXPECT_CALL(*m_topo, domain_nested(_, _, _));
+    EXPECT_CALL(*m_control_iogroup, control_domain_type("FREQ")).Times(AtLeast(1));
+    EXPECT_CALL(*m_control_iogroup, agg_function("FREQ"))
+        .WillOnce(Return(geopm::Agg::sum));
+    for (auto cpu : m_cpu_set0) {
+        EXPECT_CALL(*m_control_iogroup, write_control("FREQ", GEOPM_DOMAIN_CPU, cpu, expect));
     }
     // package domain should not be used directly
     EXPECT_CALL(*m_control_iogroup, write_control("FREQ", GEOPM_DOMAIN_PACKAGE, _, _)).Times(0);

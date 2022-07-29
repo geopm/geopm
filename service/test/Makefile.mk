@@ -211,6 +211,7 @@ GTEST_TESTS = test/gtest_links/GPUTopoNullTest.default_config \
               test/gtest_links/NVMLIOGroupTest.signal_and_control_trimming_writes \
               test/gtest_links/PlatformIOTest.adjust \
               test/gtest_links/PlatformIOTest.adjust_agg \
+              test/gtest_links/PlatformIOTest.adjust_agg_sum \
               test/gtest_links/PlatformIOTest.agg_function \
               test/gtest_links/PlatformIOTest.domain_type \
               test/gtest_links/PlatformIOTest.push_control \
@@ -238,6 +239,7 @@ GTEST_TESTS = test/gtest_links/GPUTopoNullTest.default_config \
               test/gtest_links/PlatformIOTest.write_control_iogroup_fallback \
               test/gtest_links/PlatformIOTest.write_control_override \
               test/gtest_links/PlatformIOTest.write_control_agg \
+              test/gtest_links/PlatformIOTest.write_control_agg_sum \
               test/gtest_links/PlatformTopoTest.bdx_domain_idx \
               test/gtest_links/PlatformTopoTest.bdx_is_nested_domain \
               test/gtest_links/PlatformTopoTest.bdx_domain_nested \

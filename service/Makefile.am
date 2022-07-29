@@ -145,6 +145,8 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/BatchStatus.hpp \
                        src/CNLIOGroup.cpp \
                        src/CNLIOGroup.hpp \
+                       src/CombinedControl.cpp \
+                       src/CombinedControl.hpp \
                        src/CombinedSignal.cpp \
                        src/CombinedSignal.hpp \
                        src/Control.hpp \
