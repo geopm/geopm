@@ -175,16 +175,16 @@ AC_ARG_WITH([nvml], [AS_HELP_STRING([--with-nvml=PATH],
             [specify directory for installed nvml package.])])
 if test "x$with_nvml" != x; then
   EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$with_nvml/include"
-  LD_LIBRARY_PATH="$with_nvml/lib:$LD_LIBRARY_PATH"
-  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_nvml/lib"
+  LD_LIBRARY_PATH="$with_nvml/lib64:$with_nvml/lib:$LD_LIBRARY_PATH"
+  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_nvml/lib -L$with_nvml/lib64"
 fi
 
 AC_ARG_WITH([dcgm], [AS_HELP_STRING([--with-dcgm=PATH],
             [specify directory for installed dcgm package.])])
 if test "x$with_dcgm" != x; then
   EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$with_dcgm/include"
-  LD_LIBRARY_PATH="$with_dcgm/lib64:$LD_LIBRARY_PATH"
-  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_dcgm/lib64"
+  LD_LIBRARY_PATH="$with_dcgm/lib64:$with_dcgm/lib:$LD_LIBRARY_PATH"
+  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_dcgm/lib -L$with_dcgm/lib64"
 fi
 
 AC_ARG_WITH([levelzero], [AS_HELP_STRING([--with-levelzero=PATH],
