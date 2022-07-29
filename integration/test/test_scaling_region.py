@@ -14,6 +14,7 @@ import re
 import unittest
 import os
 import glob
+from flaky import flaky
 
 import geopmpy.io
 import geopmpy.agent
@@ -93,6 +94,7 @@ class TestIntegrationScalingRegion(unittest.TestCase):
             launcher.run(test_name)
 
 
+    @flaky(max_runs=3, min_passes=2)
     def test_monotone_performance(self):
         """Test that the reports generated show linear performance with
            respect to CPU frequency.
