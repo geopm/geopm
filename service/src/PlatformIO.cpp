@@ -376,7 +376,7 @@ namespace geopm
         return iogroups.at(0)->control_domain_type(control_name);
     }
 
-    bool PlatformIOImp::is_control_split_uniform(const std::string &control_name) const
+    bool PlatformIOImp::is_control_adjust_same(const std::string &control_name) const
     {
         auto iogroups = find_control_iogroup(control_name);
         if (iogroups.empty()) {
@@ -500,7 +500,7 @@ namespace geopm
         int result = m_active_control.size();
         double factor = 1.0;
         if (!sub_control_idx.empty() &&
-            !is_control_split_uniform(control_name)) {
+            !is_control_adjust_same(control_name)) {
             factor = 1.0 / sub_control_idx.size();
         }
         std::unique_ptr<CombinedControl> combiner = geopm::make_unique<CombinedControl>(factor);
@@ -845,7 +845,7 @@ namespace geopm
             std::set<int> base_domain_idx = m_platform_topo.domain_nested(base_domain_type,
                                                                           domain_type, domain_idx);
             if (!base_domain_idx.empty() &&
-                !is_control_split_uniform(control_name)) {
+                !is_control_adjust_same(control_name)) {
                 setting /= base_domain_idx.size();
             }
             for (auto idx : base_domain_idx) {

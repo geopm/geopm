@@ -126,7 +126,11 @@ namespace geopm
             std::vector<std::shared_ptr<IOGroup> > find_signal_iogroup(const std::string &signal_name) const;
             /// @brief Look up the IOGroup that provides the given control.
             std::vector<std::shared_ptr<IOGroup> > find_control_iogroup(const std::string &control_name) const;
-            bool is_control_split_uniform(const std::string &control_name) const;
+            /// @brief Return true if a setting should be applied over all
+            ///        subdomains without adjusting the value.  If false, the
+            ///        setting will be divided by the number of subdomains
+            ///        before being applied.
+            bool is_control_adjust_same(const std::string &control_name) const;
             bool m_is_signal_active;
             bool m_is_control_active;
             const PlatformTopo &m_platform_topo;
