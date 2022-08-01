@@ -75,7 +75,7 @@ class PlatformService(object):
             group (str): Name of group
 
         Returns:
-            list(str), list(str): Signal and control allowed lists
+            list(str), list(str): Signal and control allowed lists, both in sorted order.
 
         Raises:
             RuntimeError: The group name is not valid on the system.
@@ -131,7 +131,7 @@ class PlatformService(object):
                         is returned.
 
         Returns:
-            list(str), list(str): Signal and control allowed lists
+            list(str), list(str): Signal and control allowed lists, both in sorted order.
 
         Raises:
             RuntimeError: The user does not exist.
@@ -148,7 +148,7 @@ class PlatformService(object):
         to calling get_user_access('root').
 
         Returns:
-            list(str), list(str): All supported signals and controls
+            list(str), list(str): All supported signals and controls, in sorted order.
 
         """
         return self._access_lists.get_all_access()

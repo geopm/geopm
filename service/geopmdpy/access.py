@@ -129,66 +129,66 @@ class Access:
 
         Returns a human readable list of all signals available on the
         platform.  The returned string has one signal name on each
-        line.  The PlatformGetAllAccess D-Bus API of the
-        io.github.geopm interface is used.
+        line, and is in sorted order.  The PlatformGetAllAccess D-Bus API
+        of the io.github.geopm interface is used.
 
         Returns:
-            str: All available signals, one on each line
+            str: All available signals, one on each line, in sorted order
 
         """
         all_signals, _ = self._geopm_proxy.PlatformGetAllAccess()
-        return '\n'.join(all_signals)
+        return '\n'.join(sorted(all_signals))
 
     def get_all_controls(self):
         """Call GEOPM D-Bus API and return all supported control names
 
         Returns a human readable list of all controls available on the
         system.  The returned string has one control name on each
-        line.  The PlatformGetAllAccess D-Bus API of the
-        io.github.geopm interface is used.
+        line, and is in sorted order.  The PlatformGetAllAccess D-Bus API
+        of the io.github.geopm interface is used.
 
         Returns:
-            str: All available controls, one on each line
+            str: All available controls, one on each line, in sorted order
 
         """
         _, all_controls = self._geopm_proxy.PlatformGetAllAccess()
-        return '\n'.join(all_controls)
+        return '\n'.join(sorted(all_controls))
 
     def get_user_signals(self):
         """Call GEOPM D-Bus API and return user allowed signal names
 
         Returns a human readable list of user allowed signal names on
         the platform.  The returned string has one signal name on each
-        line.  The PlatformGetUserAccess D-Bus API of the
-        io.github.geopm interface is used.
+        line, and is in sorted order.  The PlatformGetAllAccess D-Bus API
+        of the io.github.geopm interface is used.
 
         Returns:
-            str: User allowed signals, one on each line
+            str: User allowed signals, one on each line, in sorted order
 
         """
         user_signals, _ = self._geopm_proxy.PlatformGetUserAccess()
-        return '\n'.join(user_signals)
+        return '\n'.join(sorted(user_signals))
 
     def get_user_controls(self):
         """Call GEOPM D-Bus API and return user allowed control names
 
         Returns a human readable list of user allowed controls on the
         platform.  The returned string has one control name on each
-        line.  The PlatformGetAllAccess D-Bus API of the
-        io.github.geopm interface is used.
+        line, and is in sorted order.  The PlatformGetAllAccess D-Bus API
+        of the io.github.geopm interface is used.
 
         Returns:
-            str: User allowed controls, one on each line
+            str: User allowed controls, one on each line, in sorted order
 
         """
         _, user_controls = self._geopm_proxy.PlatformGetUserAccess()
-        return '\n'.join(user_controls)
+        return '\n'.join(sorted(user_controls))
 
     def get_group_signals(self, group):
         """Call GEOPM D-Bus API and return the group's signal access list
 
         Returns a human readable list of the signals that are enabled.
-        The returned string has one signal name on each line.
+        The returned string has one signal name on each line, and is in sorted order.
 
         The default signal access list is returned if the group
         provided is the empty string.  If the group provided is not
@@ -210,19 +210,19 @@ class Access:
                          provided is '': the empty string.
 
         Returns:
-            str: Access list of signals, one on each line
+            str: Access list of signals, one on each line, in sorted order.
 
         """
 
         all_signals, _ = self._geopm_proxy.PlatformGetGroupAccess(group)
-        return '\n'.join(all_signals)
+        return '\n'.join(sorted(all_signals))
 
     def get_group_controls(self, group):
         """Call GEOPM D-Bus API and return the group's control access list
 
         Returns a human readable list of the controls that are
         enabled.  The returned string has one control name on each
-        line.
+        line, and is in sorted order.
 
         The default control access list is returned if the group
         provided is the empty string.  If the group provided is not
@@ -244,11 +244,11 @@ class Access:
                          provided is '': the empty string.
 
         Returns:
-            str: Access list of controls, one on each line
+            str: Access list of controls, one on each line, in sorted order.
 
         """
         _, all_controls = self._geopm_proxy.PlatformGetGroupAccess(group)
-        return '\n'.join(all_controls)
+        return '\n'.join(sorted(all_controls))
 
     def _edited_names_helper(self, initial_names):
         default_editor = '/usr/bin/vi'

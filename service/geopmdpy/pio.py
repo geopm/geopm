@@ -116,7 +116,7 @@ def signal_names():
     signal_name as input.
 
     Returns:
-        list(str): All available signal names.
+        list(str): All available signal names in sorted order.
 
     """
     global _dl
@@ -132,7 +132,7 @@ def signal_names():
         if err < 0:
             raise RuntimeError('geopm_pio_signal_name() failed: {}'.format(error.message(err)))
         result.append(gffi.gffi.string(signal_name_cstr).decode())
-    return result
+    return sorted(result)
 
 def control_names():
     """Get all available controls.
@@ -142,7 +142,7 @@ def control_names():
     control_name as input.
 
     Returns:
-        list(str): All available control names.
+        list(str): All available control names in sorted order.
 
     """
     global _dl
@@ -157,7 +157,7 @@ def control_names():
         if err < 0:
             raise RuntimeError('geopm_pio_control_name() failed: {}'.format(error.message(err)))
         result.append(gffi.gffi.string(control_name_cstr).decode())
-    return result
+    return sorted(result)
 
 def signal_domain_type(signal_name):
     """Get the domain type that is native for a signal.

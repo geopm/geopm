@@ -467,10 +467,10 @@ class ActiveSessions(object):
         Creates a list of the PID values for all active session clients.
 
         Returns:
-            list(int): The Linux PID values for all active clients
+            list(int): The Linux PID values for all active clients in sorted order.
 
         """
-        return list(self._sessions.keys())
+        return sorted(list(self._sessions.keys()))
 
     def get_signals(self, client_pid):
         """Query all signal names that are available
@@ -482,14 +482,14 @@ class ActiveSessions(object):
             client_pid (int): Linux PID that opened the session
 
         Returns:
-            list(str): Signal name access list for the session
+            list(str): Signal name access list in sorted order for the session
 
         Raises:
             RuntimeError: Client does not have an open session
 
         """
         self.check_client_active(client_pid, 'get_signals')
-        return list(self._sessions[client_pid]['signals'])
+        return sorted(list(self._sessions[client_pid]['signals']))
 
     def get_controls(self, client_pid):
         """Query all control names that are available
@@ -501,14 +501,14 @@ class ActiveSessions(object):
             client_pid (int): Linux PID that opened the session
 
         Returns:
-            list(str): Control name access list for the session
+            list(str): Control name access list in sorted order for the session
 
         Raises:
             RuntimeError: Client does not have an open session
 
         """
         self.check_client_active(client_pid, 'get_controls')
-        return list(self._sessions[client_pid]['controls'])
+        return sorted(list(self._sessions[client_pid]['controls']))
 
     def get_watch_id(self, client_pid):
         """Query for the GLib watch ID for tracking the session lifetime
@@ -882,7 +882,7 @@ class AccessLists(object):
             group (str): Name of group
 
         Returns:
-            list(str)), list(str): Signal and control allowed lists
+            list(str)), list(str): Signal and control allowed lists, in sorted order.
 
         Raises:
             RuntimeError: The group name is not valid on the system.
@@ -895,9 +895,11 @@ class AccessLists(object):
             path = os.path.join(group_dir, 'allowed_signals')
             signals = self._read_allowed(path)
             signals = self._filter_valid_signals(signals)
+            signals = sorted(signals)
             path = os.path.join(group_dir, 'allowed_controls')
             controls = self._read_allowed(path)
             controls = self._filter_valid_controls(controls)
+            controls = sorted(controls)
         else:
             signals = []
             controls = []
@@ -958,7 +960,7 @@ class AccessLists(object):
                         is returned.
 
         Returns:
-            list(str), list(str): Signal and control allowed lists
+            list(str), list(str): Signal and control allowed lists, in sorted order.
 
         Raises:
             RuntimeError: The user does not exist.
@@ -993,7 +995,7 @@ class AccessLists(object):
         to calling get_user_access('root').
 
         Returns:
-            list(str), list(str): All supported signals and controls
+            list(str), list(str): All supported signals and controls, in sorted order.
 
         """
         return self._pio.signal_names(), self._pio.control_names()
