@@ -53,7 +53,7 @@ class TestPIO(unittest.TestCase):
 
     def test_write_control(self):
         try:
-            pio.write_control('CPU_FREQUENCY_CONTROL', 'package', 0, 1.0e9)
+            pio.write_control('CPU_FREQUENCY_MAX_CONTROL', 'package', 0, 1.0e9)
         except RuntimeError:
             sys.stdout.write('<warning> failed to write CPU frequency\n')
 

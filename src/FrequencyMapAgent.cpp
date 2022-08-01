@@ -410,7 +410,7 @@ namespace geopm
 
             return;
         }
-        m_platform_io.write_control("CPU_FREQUENCY_CONTROL", GEOPM_DOMAIN_BOARD, 0,
+        m_platform_io.write_control("CPU_FREQUENCY_MAX_CONTROL", GEOPM_DOMAIN_BOARD, 0,
                                     policy[M_POLICY_FREQ_DEFAULT]);
         if (!std::isnan(policy[M_POLICY_FREQ_UNCORE])) {
                 m_platform_io.write_control("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO", GEOPM_DOMAIN_BOARD, 0,
@@ -422,7 +422,7 @@ namespace geopm
 
     void FrequencyMapAgent::init_platform_io(void)
     {
-        m_freq_ctl_domain_type = m_platform_io.control_domain_type("CPU_FREQUENCY_CONTROL");
+        m_freq_ctl_domain_type = m_platform_io.control_domain_type("CPU_FREQUENCY_MAX_CONTROL");
         m_num_freq_ctl_domain = m_platform_topo.num_domain(m_freq_ctl_domain_type);
         m_last_hash = std::vector<uint64_t>(m_num_freq_ctl_domain,
                                             GEOPM_REGION_HASH_UNMARKED);
@@ -431,7 +431,7 @@ namespace geopm
             m_hash_signal_idx.push_back(m_platform_io.push_signal("REGION_HASH",
                                                                   m_freq_ctl_domain_type,
                                                                   ctl_idx));
-            m_freq_control_idx.push_back(m_platform_io.push_control("CPU_FREQUENCY_CONTROL",
+            m_freq_control_idx.push_back(m_platform_io.push_control("CPU_FREQUENCY_MAX_CONTROL",
                                                                     m_freq_ctl_domain_type,
                                                                     ctl_idx));
         }

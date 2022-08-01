@@ -16,6 +16,7 @@
 #include <string>
 #include <sched.h>
 #include <errno.h>
+#include <unistd.h>
 
 #include "geopm/IOGroup.hpp"
 #include "geopm/PlatformTopo.hpp"
@@ -44,7 +45,9 @@ namespace geopm
         : m_platform_topo(platform_topo)
         , m_nvml_device_pool(device_pool)
         , m_is_batch_read(false)
-        , m_frequency_control_request(m_platform_topo.num_domain(GEOPM_DOMAIN_GPU), NAN)
+        , m_frequency_max_control_request(m_platform_topo.num_domain(GEOPM_DOMAIN_GPU), NAN)
+        , m_frequency_min_control_request(m_platform_topo.num_domain(GEOPM_DOMAIN_GPU), NAN)
+        , m_initial_power_limit(m_platform_topo.num_domain(GEOPM_DOMAIN_GPU), 0)
         , m_signal_available({{M_NAME_PREFIX + "GPU_CORE_FREQUENCY_STATUS", {
                                   "Streaming multiprocessor frequency in hertz",
                                   {},
@@ -168,8 +171,16 @@ namespace geopm
                                   IOGroup::M_SIGNAL_BEHAVIOR_CONSTANT,
                                   string_format_double
                                   }},
-                              {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL", {
-                                  "Latest frequency control request in hertz",
+                              {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_CONTROL", {
+                                  "Latest frequency maximum control request in hertz",
+                                  {},
+                                  GEOPM_DOMAIN_GPU,
+                                  Agg::expect_same,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_CONSTANT,
+                                  string_format_double
+                                  }},
+                              {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_CONTROL", {
+                                  "Latest frequency minimum control request in hertz",
                                   {},
                                   GEOPM_DOMAIN_GPU,
                                   Agg::expect_same,
@@ -185,8 +196,15 @@ namespace geopm
                                   string_format_double
                                   }}
                              })
-        , m_control_available({{M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL", {
-                                    "Sets streaming multiprocessor frequency min and max to the same limit (in hertz)",
+        , m_control_available({{M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_CONTROL", {
+                                    "Sets streaming multiprocessor frequency max (in hertz)",
+                                    {},
+                                    GEOPM_DOMAIN_GPU,
+                                    Agg::average,
+                                    string_format_double
+                                    }},
+                               {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_CONTROL", {
+                                    "Sets streaming multiprocessor frequency min (in hertz)",
                                     {},
                                     GEOPM_DOMAIN_GPU,
                                     Agg::average,
@@ -235,6 +253,11 @@ namespace geopm
             // sort guarantees the ordering for min & max calls
             std::sort(supported_frequency.begin(), supported_frequency.end());
             m_supported_freq.push_back(supported_frequency);
+
+            // Since we cannot read the min & max control setting we're defaulting
+            // to the min & max supported frequency for the associated signals
+            m_frequency_max_control_request.at(domain_idx) = m_supported_freq.at(domain_idx).back() * 1e6;
+            m_frequency_min_control_request.at(domain_idx) = m_supported_freq.at(domain_idx).front() * 1e6;
         }
 
         std::vector <std::string> unsupported_signal_names;
@@ -276,56 +299,21 @@ namespace geopm
             sv.second.controls = result;
         }
 
-        // Cache the initial settings
-        save_control();
-
-        std::vector <std::string> unsupported_control_names;
-        for (auto &sv : m_control_available) {
-            try {
-                double init_setting = NAN;
-                if(is_valid_signal(sv.first) &&
-                   signal_domain_type(sv.first) == control_domain_type(sv.first)) {
-                    for (int domain_idx = 0;
-                         domain_idx < m_platform_topo.num_domain(control_domain_type(sv.first));
-                         ++domain_idx) {
-                        init_setting = read_signal(sv.first, control_domain_type(sv.first), domain_idx);
-
-                        if(std::isnan(init_setting)) {
-                            // Specialized handling for signals that may be NAN
-                            if (sv.first == M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL" ||
-                                 sv.first == "GPU_CORE_FREQUENCY_CONTROL") {
-                                init_setting = read_signal(M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_AVAIL",
-                                                           control_domain_type(sv.first), domain_idx);
-                            }
-                            else if (sv.first == M_NAME_PREFIX + "GPU_CORE_FREQUENCY_RESET_CONTROL") {
-                                init_setting = 0;
-                            }
-                        }
-
-                        //Try to write the signals
-                        write_control(sv.first, control_domain_type(sv.first), domain_idx, init_setting);
-                    }
-                }
-            }
-            catch (const geopm::Exception &ex) {
-                if (ex.err_value() != GEOPM_ERROR_RUNTIME &&
-                    ex.err_value() != GEOPM_ERROR_INVALID) {
-                    throw;
-                }
-                unsupported_control_names.push_back(sv.first);
-            }
+        // Only a user with elevated priviledges will be able to control
+        // frequency and power.  Prune the controls if we don't have access.
+        if (!m_nvml_device_pool.is_privileged_access()) {
+            m_control_available.erase(M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_CONTROL");
+            m_control_available.erase(M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_CONTROL");
+            m_control_available.erase(M_NAME_PREFIX + "GPU_CORE_FREQUENCY_RESET_CONTROL");
+            m_control_available.erase(M_NAME_PREFIX + "GPU_POWER_LIMIT_CONTROL");
         }
-
-        for(const auto &name : unsupported_control_names) {
-            m_control_available.erase(name);
-        }
-
-        restore_control();
 
         register_control_alias("GPU_POWER_LIMIT_CONTROL", M_NAME_PREFIX + "GPU_POWER_LIMIT_CONTROL");
         register_signal_alias("GPU_POWER_LIMIT_CONTROL", M_NAME_PREFIX + "GPU_POWER_LIMIT_CONTROL");
-        register_control_alias("GPU_CORE_FREQUENCY_CONTROL", M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL");
-        register_signal_alias("GPU_CORE_FREQUENCY_CONTROL", M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL");
+        register_control_alias("GPU_CORE_FREQUENCY_MAX_CONTROL", M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_CONTROL");
+        register_signal_alias("GPU_CORE_FREQUENCY_MAX_CONTROL", M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_CONTROL");
+        register_control_alias("GPU_CORE_FREQUENCY_MIN_CONTROL", M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_CONTROL");
+        register_signal_alias("GPU_CORE_FREQUENCY_MIN_CONTROL", M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_CONTROL");
     }
 
     // Extract the set of all signal names from the index map
@@ -548,13 +536,36 @@ namespace geopm
     // Write all controls that have been pushed and adjusted
     void NVMLIOGroup::write_batch(void)
     {
-        for (auto &sv : m_control_available) {
-            for (unsigned int domain_idx = 0; domain_idx < sv.second.controls.size(); ++domain_idx) {
-                if (sv.second.controls.at(domain_idx)->m_is_adjusted) {
-                    write_control(sv.first, sv.second.domain, domain_idx, sv.second.controls.at(domain_idx)->m_setting);
+
+        // If there are any two controls that have an ordering requirement, the retry logic in this
+        // loop enables them to be written in the proper order.
+        // This situation arises due to requirements of minimum settings being less than maximum settings.
+        bool do_throw = false;
+        bool do_retry = false;
+        do {
+            // Loop provides one retry attempt.  Setting do_retry to false after the first
+            // attempt will end loop after second attempt.
+            if (do_throw) {
+                do_retry = false;
+            }
+            for (auto &sv : m_control_available) {
+                for (unsigned int domain_idx = 0; domain_idx < sv.second.controls.size(); ++domain_idx) {
+                    if (sv.second.controls.at(domain_idx)->m_is_adjusted) {
+                        try{
+                            write_control(sv.first, sv.second.domain, domain_idx, sv.second.controls.at(domain_idx)->m_setting);
+                            sv.second.controls.at(domain_idx)->m_is_adjusted = false;
+                        }
+                        catch (...) {
+                            if (do_throw) {
+                                throw;
+                            }
+                            do_retry = true;
+                        }
+                    }
                 }
             }
-        }
+            do_throw = true;
+        } while (do_retry);
     }
 
     // Return the latest value read by read_batch()
@@ -624,11 +635,11 @@ namespace geopm
             result = (double) m_nvml_device_pool.throttle_reasons(domain_idx);
         }
         else if (signal_name == M_NAME_PREFIX + "GPU_POWER" || signal_name == "GPU_POWER") {
-            result = (double) m_nvml_device_pool.power(domain_idx) / 1e3;
+            result = (double) m_nvml_device_pool.power(domain_idx) * 1e-3;
         }
         else if (signal_name == M_NAME_PREFIX + "GPU_POWER_LIMIT_CONTROL" ||
                  signal_name == "GPU_POWER_LIMIT_CONTROL") {
-            result = (double) m_nvml_device_pool.power_limit(domain_idx) / 1e3;
+            result = (double) m_nvml_device_pool.power_limit(domain_idx) * 1e-3;
         }
         else if (signal_name == M_NAME_PREFIX + "GPU_UNCORE_FREQUENCY_STATUS") {
             result = (double) m_nvml_device_pool.frequency_status_mem(domain_idx) * 1e6;
@@ -637,7 +648,7 @@ namespace geopm
             result = (double) m_nvml_device_pool.temperature(domain_idx);
         }
         else if (signal_name == M_NAME_PREFIX + "GPU_ENERGY_CONSUMPTION_TOTAL" || signal_name == "GPU_ENERGY") {
-            result = (double) m_nvml_device_pool.energy(domain_idx) / 1e3;
+            result = (double) m_nvml_device_pool.energy(domain_idx) * 1e-3;
         }
         else if (signal_name == M_NAME_PREFIX + "GPU_PERFORMANCE_STATE") {
             result = (double) m_nvml_device_pool.performance_state(domain_idx);
@@ -649,14 +660,17 @@ namespace geopm
             result = (double) m_nvml_device_pool.throughput_tx_pcie(domain_idx) * 1024;
         }
         else if (signal_name == M_NAME_PREFIX + "GPU_UNCORE_UTILIZATION") {
-            result = (double) m_nvml_device_pool.utilization_mem(domain_idx) / 100;
+            result = (double) m_nvml_device_pool.utilization_mem(domain_idx) * 1e-2;
         }
         else if (signal_name == M_NAME_PREFIX + "GPU_CPU_ACTIVE_AFFINITIZATION") {
             std::map<pid_t, double> process_map = gpu_process_map();
             result = cpu_gpu_affinity(domain_idx, process_map);
         }
-        else if (signal_name == M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL" || signal_name == "GPU_CORE_FREQUENCY_CONTROL") {
-            result = m_frequency_control_request.at(domain_idx);
+        else if (signal_name == M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_CONTROL" || signal_name == "GPU_CORE_FREQUENCY_MAX_CONTROL") {
+            result = m_frequency_max_control_request.at(domain_idx);
+        }
+        else if (signal_name == M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_CONTROL" || signal_name == "GPU_CORE_FREQUENCY_MIN_CONTROL") {
+            result = m_frequency_min_control_request.at(domain_idx);
         }
         else if (signal_name == M_NAME_PREFIX + "GPU_CORE_FREQUENCY_RESET_CONTROL") {
             ; // No-op.  Nothing to return.
@@ -689,9 +703,27 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        if (control_name == M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL" || control_name == "GPU_CORE_FREQUENCY_CONTROL") {
-            m_nvml_device_pool.frequency_control_sm(domain_idx, setting / 1e6, setting / 1e6);
-            m_frequency_control_request.at(domain_idx) = setting;
+        if (control_name == M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_CONTROL" || control_name == "GPU_CORE_FREQUENCY_MAX_CONTROL") {
+            double min_request;
+            if(!std::isnan(m_frequency_min_control_request.at(domain_idx))) {
+                min_request = m_frequency_min_control_request.at(domain_idx);
+            }
+            else {
+                min_request = m_supported_freq.at(domain_idx).front() * 1e6;
+            }
+            m_nvml_device_pool.frequency_control_sm(domain_idx, min_request * 1e-6, setting * 1e-6);
+            m_frequency_max_control_request.at(domain_idx) = setting;
+        }
+        else if (control_name == M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_CONTROL" || control_name == "GPU_CORE_FREQUENCY_MIN_CONTROL") {
+            double max_request;
+            if(!std::isnan(m_frequency_max_control_request.at(domain_idx))) {
+                max_request = m_frequency_max_control_request.at(domain_idx);
+            }
+            else {
+                max_request = m_supported_freq.at(domain_idx).back() * 1e6;
+            }
+            m_nvml_device_pool.frequency_control_sm(domain_idx, setting * 1e-6, max_request * 1e-6);
+            m_frequency_min_control_request.at(domain_idx) = setting;
         }
         else if (control_name == M_NAME_PREFIX + "GPU_CORE_FREQUENCY_RESET_CONTROL") {
             m_nvml_device_pool.frequency_reset_control(domain_idx);
@@ -713,7 +745,7 @@ namespace geopm
     {
         // Read NVML Power Limit
         for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(GEOPM_DOMAIN_GPU); ++domain_idx) {
-            m_initial_power_limit.push_back(m_nvml_device_pool.power_limit(domain_idx));
+            m_initial_power_limit.at(domain_idx) = m_nvml_device_pool.power_limit(domain_idx);
         }
     }
 

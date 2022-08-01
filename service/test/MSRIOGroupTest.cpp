@@ -812,7 +812,7 @@ TEST_F(MSRIOGroupTest, push_control)
     EXPECT_EQ(freq_idx_0, idx2);
 
     // pushing alias gives same index
-    int idx3 = m_msrio_group->push_control("CPU_FREQUENCY_CONTROL", GEOPM_DOMAIN_CORE, 0);
+    int idx3 = m_msrio_group->push_control("CPU_FREQUENCY_MAX_CONTROL", GEOPM_DOMAIN_CORE, 0);
     EXPECT_EQ(freq_idx_0, idx3);
 
     uint64_t pl1_limit_offset = 0x610;

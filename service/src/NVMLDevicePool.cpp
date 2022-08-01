@@ -12,6 +12,7 @@
 #include <sstream>
 #include <string>
 #include <nvml.h>
+#include <unistd.h>
 
 #include "geopm/Exception.hpp"
 #include "geopm/Agg.hpp"
@@ -363,5 +364,10 @@ namespace geopm
         check_nvml_result(nvml_result, GEOPM_ERROR_RUNTIME, "NVMLDevicePool::" + std::string(__func__) +
                           ": NVML failed to set power limit for GPU " +
                           std::to_string(gpu_idx) + ".", __LINE__);
+    }
+
+    bool NVMLDevicePoolImp::is_privileged_access(void) const
+    {
+        return (geteuid() == 0);
     }
 }

@@ -222,7 +222,7 @@ namespace geopm
 
     const std::map<const std::string, const std::string>
     PlatformIOImp::m_control_descriptions = {
-        {"CPU_FREQUENCY_CONTROL",
+        {"CPU_FREQUENCY_MAX_CONTROL",
          "Target operating frequency of the CPU based on the control register."},
         {"GPU_CORE_FREQUENCY_CONTROL",
          "Average requested GPU core frequency over the specified domain."},

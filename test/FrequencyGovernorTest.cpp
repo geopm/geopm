@@ -41,7 +41,7 @@ class FrequencyGovernorTest : public ::testing::Test
 
 void FrequencyGovernorTest::SetUp(void)
 {
-    ON_CALL(m_platio, control_domain_type("CPU_FREQUENCY_CONTROL")).WillByDefault(Return(M_CTL_DOMAIN));
+    ON_CALL(m_platio, control_domain_type("CPU_FREQUENCY_MAX_CONTROL")).WillByDefault(Return(M_CTL_DOMAIN));
     ON_CALL(m_topo, num_domain(M_CTL_DOMAIN)).WillByDefault(Return(M_NUM_CORE));
     ON_CALL(m_topo, num_domain(GEOPM_DOMAIN_CPU)).WillByDefault(Return(2*M_NUM_CORE));
     ON_CALL(m_platio, read_signal("CPUINFO::FREQ_STEP", _, _)).WillByDefault(Return(M_PLAT_STEP_FREQ));
@@ -51,10 +51,10 @@ void FrequencyGovernorTest::SetUp(void)
 
     ASSERT_EQ(M_NUM_CORE, (int)M_FREQ_CTL_IDX.size());
     for (int idx = 0; idx < M_NUM_CORE; ++idx) {
-        ON_CALL(m_platio, push_control("CPU_FREQUENCY_CONTROL", M_CTL_DOMAIN, idx)).
+        ON_CALL(m_platio, push_control("CPU_FREQUENCY_MAX_CONTROL", M_CTL_DOMAIN, idx)).
             WillByDefault(Return(M_FREQ_CTL_IDX[idx]));
     }
-    ON_CALL(m_platio, push_control("CPU_FREQUENCY_CONTROL", GEOPM_DOMAIN_CPU, _))
+    ON_CALL(m_platio, push_control("CPU_FREQUENCY_MAX_CONTROL", GEOPM_DOMAIN_CPU, _))
         .WillByDefault(Throw(geopm::Exception("invalid domain for frequency control",
                                               GEOPM_ERROR_INVALID, __FILE__, __LINE__)));
 

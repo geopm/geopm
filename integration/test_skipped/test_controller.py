@@ -31,7 +31,7 @@ class LocalAgent(geopmdpy.runtime.Agent):
         return result
 
     def get_controls(self):
-        return [("CPU_FREQUENCY_CONTROL", geopmdpy.topo.DOMAIN_BOARD, 0)]
+        return [("CPU_FREQUENCY_MAX_CONTROL", geopmdpy.topo.DOMAIN_BOARD, 0)]
 
     def run_begin(self, policy):
         if policy is not None:
