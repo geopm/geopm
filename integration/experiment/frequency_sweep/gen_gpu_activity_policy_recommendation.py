@@ -67,14 +67,13 @@ def main(full_df):
     df = extract_columns(full_df)
     gpu_freq_efficient = policy_efficient_energy(df)
     # This script is not intended to provide an assessment of maximum frequency,
-    # phi, or sample period.  As such NAN is provided for these policy values.
+    # or phi.  As such NAN is provided for these policy values.
     # The associated agent interprets these as the related system or agent default
     # config, ex: GPU_FREQ_MAX: NAN --> HW Maximum Frequency, GPU_PHI --> 0.5
     # (balanced mode).
     policy = {"GPU_FREQ_MAX" : float('nan'),
                 "GPU_FREQ_EFFICIENT" : gpu_freq_efficient,
-                "GPU_PHI" : float('nan'),
-                "SAMPLE_PERIOD" : float('nan')}
+                "GPU_PHI" : float('nan')}
 
     return policy
 
