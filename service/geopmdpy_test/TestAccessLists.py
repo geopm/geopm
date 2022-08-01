@@ -47,8 +47,8 @@ class TestAccessLists(unittest.TestCase):
         Tests that the parsing of the config files is resilient to
         comments and spacing oddities.
         '''
-        signals_expect = ['geopm', 'signals', 'default', 'energy']
-        controls_expect = ['geopm', 'controls', 'default', 'power']
+        signals_expect = ['default', 'energy', 'geopm', 'signals']
+        controls_expect = ['controls', 'default', 'geopm', 'power']
         default_dir = os.path.join(self._CONFIG_PATH.name, '0.DEFAULT_ACCESS')
         signal_file = os.path.join(default_dir, 'allowed_signals')
         signal_lines = """# Comment about the file contents
@@ -136,8 +136,8 @@ default
         signal_file = os.path.join(default_dir, 'allowed_signals')
         control_file = os.path.join(default_dir, 'allowed_controls')
 
-        signals_expect = ['geopm', 'signals', 'default', 'energy']
-        controls_expect = ['geopm', 'controls', 'default', 'power']
+        signals_expect = ['default', 'energy', 'geopm', 'signals']
+        controls_expect = ['controls', 'default', 'geopm', 'power']
         signal_lines, control_lines = \
             self._write_group_files_helper('', signals_expect, controls_expect)
         with mock.patch('geopmdpy.pio.signal_names', return_value=signals_expect), \
@@ -156,8 +156,8 @@ default
         signal_file = os.path.join(named_dir, 'allowed_signals')
         control_file = os.path.join(named_dir, 'allowed_controls')
 
-        signals_expect = ['geopm', 'signals', 'default', 'energy']
-        controls_expect = ['geopm', 'controls', 'named', 'power']
+        signals_expect = ['default', 'energy', 'geopm', 'signals']
+        controls_expect = ['controls', 'geopm', 'named', 'power']
         signal_lines, control_lines = self._write_group_files_helper('named', [], controls_expect)
 
         with mock.patch('geopmdpy.pio.signal_names', return_value=signals_expect), \
@@ -209,8 +209,8 @@ default
         signal_file = os.path.join(default_dir, 'allowed_signals')
         control_file = os.path.join(default_dir, 'allowed_controls')
 
-        signals_default = ['frequency', 'energy']
-        controls_default = ['geopm', 'controls', 'named', 'power']
+        signals_default = ['energy', 'frequency']
+        controls_default = ['controls','geopm', 'named', 'power']
         signal_lines, control_lines = \
             self._write_group_files_helper('', signals_default, controls_default)
 
@@ -237,20 +237,20 @@ default
         default_signal_file = os.path.join(default_dir, 'allowed_signals')
         default_control_file = os.path.join(default_dir, 'allowed_controls')
 
-        signals_default = ['frequency', 'energy', 'power']
+        signals_default = ['energy', 'frequency', 'power']
         controls_default = ['frequency', 'power']
         default_signal_lines, default_control_lines = \
             self._write_group_files_helper('', signals_default, controls_default)
 
-        signals_named = ['power', 'temperature', 'not-available-anymore']
-        controls_named = ['frequency_uncore', 'power_uncore', 'not-available-anymore-either']
+        signals_named = ['not-available-anymore', 'power', 'temperature']
+        controls_named = ['frequency_uncore', 'not-available-anymore-either', 'power_uncore']
         named_signal_lines, named_control_lines = \
             self._write_group_files_helper('named', signals_named, controls_named)
 
-        signals_avail = ['frequency', 'energy', 'power', 'temperature', 'extra_power',
-                         'extra_temperature']
-        controls_avail = ['frequency', 'power', 'frequency_uncore', 'power_uncore',
-                          'extra_frequency_uncore', 'extra_power_uncore']
+        signals_avail = ['energy', 'extra_power', 'extra_temperature', 'frequency',
+                         'power', 'temperature']
+        controls_avail = ['extra_frequency_uncore', 'extra_power_uncore', 'frequency', 'frequency_uncore',
+                          'power', 'power_uncore']
 
         all_signals = set(signals_named).union(set(signals_default))
         signals_expect = all_signals.intersection(signals_avail)
@@ -280,7 +280,7 @@ default
         self.assertEqual(set(controls_expect), set(controls))
 
     def test_get_user_access_root(self):
-        signals_default = ['frequency', 'energy', 'power']
+        signals_default = ['energy', 'frequency', 'power']
         controls_default = ['frequency', 'power']
         self._write_group_files_helper('', signals_default, controls_default)
 
