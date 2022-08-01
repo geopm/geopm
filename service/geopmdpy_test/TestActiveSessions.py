@@ -24,14 +24,14 @@ class TestActiveSessions(unittest.TestCase):
         "client_pid" : 750,
         "reference_count" : 1,
         "signals" : ["CPU_FREQUENCY_MAX_AVAIL", "DRAM_ENERGY", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
-        "controls" : ["CPU_FREQUENCY_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
+        "controls" : ["CPU_FREQUENCY_MAX_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
         "watch_id" : 754
     }
     json_good_example_2 = {
         "client_pid" : 450,
         "reference_count" : 1,
         "signals" : ["CPU_FREQUENCY_MAX_AVAIL", "DRAM_ENERGY", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
-        "controls" : ["CPU_FREQUENCY_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
+        "controls" : ["CPU_FREQUENCY_MAX_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
         "watch_id" : 550
     }
     json_empty_signals_controls = {
@@ -44,29 +44,29 @@ class TestActiveSessions(unittest.TestCase):
     json_negative_reference_count = {
         "client_pid" : 750,
         "reference_count" : -2,
-        "signals" : ["CPU_FREQUENCY_MAX_AVAIL", "DRAM_ENERGY", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
-        "controls" : ["CPU_FREQUENCY_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
+        "signals" : ["DRAM_ENERGY", "CPU_FREQUENCY_MAX_AVAIL", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
+        "controls" : ["CPU_FREQUENCY_MAX_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
         "watch_id" : 754
     }
     json_float_reference_count = {
         "client_pid" : 750,
         "reference_count" : 2.5,
-        "signals" : ["CPU_FREQUENCY_MAX_AVAIL", "DRAM_ENERGY", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
-        "controls" : ["CPU_FREQUENCY_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
+        "signals" : ["DRAM_ENERGY", "CPU_FREQUENCY_MAX_AVAIL", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
+        "controls" : ["CPU_FREQUENCY_MAX_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
         "watch_id" : 754
     }
     json_wrong_data_types = {
         "client_pid" : "450",
         "reference_count" : 1,
-        "signals" : ["CPU_FREQUENCY_MAX_AVAIL", "DRAM_ENERGY", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
-        "controls" : ["CPU_FREQUENCY_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
+        "signals" : ["DRAM_ENERGY", "CPU_FREQUENCY_MAX_AVAIL", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
+        "controls" : ["CPU_FREQUENCY_MAX_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
         "watch_id" : "550"
     }
     json_additional_properties = {
         "client_pid" : 450,
         "reference_count" : 1,
-        "signals" : ["CPU_FREQUENCY_MAX_AVAIL", "DRAM_ENERGY", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
-        "controls" : ["CPU_FREQUENCY_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
+        "signals" : ["DRAM_ENERGY", "CPU_FREQUENCY_MAX_AVAIL", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
+        "controls" : ["CPU_FREQUENCY_MAX_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
         "actuators" : ["DRAM_ENERGY", "FREQUENCY_MIN", "MSR::IA32_PERFEVTSEL0:CMASK"],
         "watch_id" : 550,
         "batch_id" : 450,
@@ -76,8 +76,8 @@ class TestActiveSessions(unittest.TestCase):
     string_empty_file = ""
     string_typos_json = """{
         "client_pid" : 450,
-        "signals",  ["CPU_FREQUENCY_MAX_AVAIL", "DRAM_ENERGY", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
-        "controls" : ["CPU_FREQUENCY_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
+        "signals",  ["DRAM_ENERGY", "CPU_FREQUENCY_MAX_AVAIL", "MSR::DRAM_ENERGY_STATUS:ENERGY"],
+        "controls" : ["CPU_FREQUENCY_MAX_CONTROL", "MSR::IA32_PERFEVTSEL0:CMASK"],
         "watch_id" 550,
     }
     """

@@ -130,7 +130,6 @@ GTEST_TESTS = test/gtest_links/GPUTopoNullTest.default_config \
               test/gtest_links/LevelZeroIOGroupTest.read_signal \
               test/gtest_links/LevelZeroIOGroupTest.error_path \
               test/gtest_links/LevelZeroIOGroupTest.signal_and_control_trimming \
-              test/gtest_links/LevelZeroIOGroupTest.signal_and_control_trimming_writes \
               test/gtest_links/LevelZeroIOGroupTest.write_control \
               test/gtest_links/LevelZeroIOGroupTest.save_restore \
               test/gtest_links/LevelZeroIOGroupTest.push_control_adjust_write_batch \
@@ -208,7 +207,6 @@ GTEST_TESTS = test/gtest_links/GPUTopoNullTest.default_config \
               test/gtest_links/NVMLIOGroupTest.error_path \
               test/gtest_links/NVMLIOGroupTest.valid_signals \
               test/gtest_links/NVMLIOGroupTest.signal_and_control_trimming \
-              test/gtest_links/NVMLIOGroupTest.signal_and_control_trimming_writes \
               test/gtest_links/PlatformIOTest.adjust \
               test/gtest_links/PlatformIOTest.adjust_agg \
               test/gtest_links/PlatformIOTest.adjust_agg_sum \

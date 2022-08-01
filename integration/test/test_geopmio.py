@@ -184,13 +184,13 @@ class TestIntegrationGeopmio(unittest.TestCase):
                                          'gpu', 'package_integrated_gpu'])
         # errors
         write_err = 'domain type, domain index, and value are required'
-        self.check_output(['CPU_FREQUENCY_CONTROL'], [write_err])
-        self.check_output(['CPU_FREQUENCY_CONTROL', 'board'], [write_err])
-        self.check_output(['CPU_FREQUENCY_CONTROL', 'board', '0'], [write_err])
-        self.check_output(['CPU_FREQUENCY_CONTROL', 'board', 'bad', '0'], ['invalid domain index'])
-        self.check_output(['CPU_FREQUENCY_CONTROL', 'board', '0', 'bad'], ['invalid write value'])
-        self.check_output(['CPU_FREQUENCY_CONTROL', 'package', '111', '0'], ['cannot write control'])
-        self.check_output(['CPU_FREQUENCY_CONTROL', 'nic', '0', '0'], ['cannot write control'])
+        self.check_output(['CPU_FREQUENCY_MAX_CONTROL'], [write_err])
+        self.check_output(['CPU_FREQUENCY_MAX_CONTROL', 'board'], [write_err])
+        self.check_output(['CPU_FREQUENCY_MAX_CONTROL', 'board', '0'], [write_err])
+        self.check_output(['CPU_FREQUENCY_MAX_CONTROL', 'board', 'bad', '0'], ['invalid domain index'])
+        self.check_output(['CPU_FREQUENCY_MAX_CONTROL', 'board', '0', 'bad'], ['invalid write value'])
+        self.check_output(['CPU_FREQUENCY_MAX_CONTROL', 'package', '111', '0'], ['cannot write control'])
+        self.check_output(['CPU_FREQUENCY_MAX_CONTROL', 'nic', '0', '0'], ['cannot write control'])
         self.check_output(['INVALID', 'board', '0', '0'], ['cannot write control'])
         self.check_output(['--domain', '--info'], ['info about domain not implemented'])
 
@@ -230,23 +230,23 @@ class TestIntegrationGeopmio(unittest.TestCase):
         domain = 'board'
         min_freq, sticker_freq = read_min_sticker_freq()
 
-        old_freq = read_current_freq(domain, 'CPU_FREQUENCY_CONTROL')
+        old_freq = read_current_freq(domain, 'CPU_FREQUENCY_MAX_CONTROL')
         self.assertLess(old_freq, sticker_freq * 2)
         self.assertGreater(old_freq, min_freq - 1e8)
 
         with load_cpu():
             # Set to min and check
-            geopm_test_launcher.geopmwrite('{} {} {} {}'.format('CPU_FREQUENCY_CONTROL', domain, '0', str(min_freq))),
+            geopm_test_launcher.geopmwrite('{} {} {} {}'.format('CPU_FREQUENCY_MAX_CONTROL', domain, '0', str(min_freq))),
             time.sleep(1)
             result = read_current_freq(domain)
             self.assertEqual(min_freq, result)
             # Set to sticker and check
-            geopm_test_launcher.geopmwrite('{} {} {} {}'.format('CPU_FREQUENCY_CONTROL', domain, '0', str(sticker_freq))),
+            geopm_test_launcher.geopmwrite('{} {} {} {}'.format('CPU_FREQUENCY_MAX_CONTROL', domain, '0', str(sticker_freq))),
             time.sleep(1)
             result = read_current_freq(domain)
             self.assertEqual(sticker_freq, result)
             # Restore the original frequency
-            geopm_test_launcher.geopmwrite('{} {} {} {}'.format('CPU_FREQUENCY_CONTROL', domain, '0', str(old_freq))),
+            geopm_test_launcher.geopmwrite('{} {} {} {}'.format('CPU_FREQUENCY_MAX_CONTROL', domain, '0', str(old_freq))),
 
 
 if __name__ == '__main__':

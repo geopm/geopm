@@ -199,7 +199,7 @@ namespace geopm
             /// prefixes all low level signal and control names in
             /// conjunction with "::".  This name prefix may be used
             /// to distinguish between the high level signals and
-            /// controls (i.e. aliases like CPU_FREQUENCY_CONTROL)
+            /// controls (i.e. aliases like CPU_FREQUENCY_MAX_CONTROL)
             /// that do not contain the IOGroup prefix, and the low
             /// level signals and controls that do
             /// (e.g. "MSR::PERF_CTL:FREQ").

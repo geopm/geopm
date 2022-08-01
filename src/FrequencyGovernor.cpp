@@ -44,7 +44,7 @@ namespace geopm
         , m_freq_min(M_PLAT_FREQ_MIN)
         , m_freq_max(M_PLAT_FREQ_MAX)
         , m_do_write_batch(false)
-        , m_freq_ctl_domain_type(m_platform_io.control_domain_type("CPU_FREQUENCY_CONTROL"))
+        , m_freq_ctl_domain_type(m_platform_io.control_domain_type("CPU_FREQUENCY_MAX_CONTROL"))
     {
 
     }
@@ -84,7 +84,7 @@ namespace geopm
         const int num_freq_ctl_domain = m_platform_topo.num_domain(m_freq_ctl_domain_type);
         m_last_freq = std::vector<double>(num_freq_ctl_domain, NAN);
         for (int ctl_dom_idx = 0; ctl_dom_idx != num_freq_ctl_domain; ++ctl_dom_idx) {
-            m_control_idx.push_back(m_platform_io.push_control("CPU_FREQUENCY_CONTROL",
+            m_control_idx.push_back(m_platform_io.push_control("CPU_FREQUENCY_MAX_CONTROL",
                                                                m_freq_ctl_domain_type,
                                                                ctl_dom_idx));
         }

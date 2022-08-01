@@ -380,27 +380,6 @@ namespace geopm
                                                    geopm::LevelZero::M_DOMAIN_MEMORY);
                                   },
                                   1 / 1e6
-                                  }},
-                              {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL", {
-                                  "Last value written to both the minimum and maximum frequency request for "
-                                  "the GPU Compute Hardware to a single user provided value (min=max)."
-                                  "\nOnly valid as a signal after being written, NAN returned otherwise."
-                                  "\nReadings are valid only after writing to this control",
-                                  GEOPM_DOMAIN_GPU_CHIP,
-                                  Agg::expect_same,
-                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
-                                  string_format_double,
-                                  {},
-                                  [this](unsigned int domain_idx) -> double
-                                  {
-                                      auto range_pair =  this->m_levelzero_device_pool.frequency_range(
-                                                               GEOPM_DOMAIN_GPU_CHIP,
-                                                               domain_idx,
-                                                               geopm::LevelZero::M_DOMAIN_COMPUTE);
-                                      return range_pair.first == range_pair.second ? range_pair.first
-                                                              : NAN;
-                                  },
-                                  1e6
                                   }}
                              })
         , m_control_available({{M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_CONTROL", {
@@ -412,15 +391,6 @@ namespace geopm
                                     }},
                                {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_CONTROL", {
                                     "Sets the maximum frequency request for the GPU Compute Hardware.",
-                                    {},
-                                    GEOPM_DOMAIN_GPU_CHIP,
-                                    Agg::expect_same,
-                                    string_format_double
-                                    }},
-                               {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL", {
-                                    "Sets both the minimum and maximum frequency request for the GPU Compute Hardware"
-                                    " to a single user provided value (min=max)."
-                                    "\nOnly valid as a signal after being written, NAN returned otherwise.",
                                     {},
                                     GEOPM_DOMAIN_GPU_CHIP,
                                     Agg::expect_same,
@@ -465,6 +435,7 @@ namespace geopm
                      Agg::average,
                      IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE}},
         })
+        , m_frequency_range(m_platform_topo.num_domain(GEOPM_DOMAIN_GPU_CHIP), std::make_pair(0, 0))
         , m_mock_save_ctl(save_control_test)
     {
         std::vector <std::string> unsupported_signal_names;
@@ -493,7 +464,7 @@ namespace geopm
             sv.second.m_signals = result;
         }
 
-        for(const auto &name : unsupported_signal_names) {
+        for (const auto &name : unsupported_signal_names) {
             m_signal_available.erase(name);
         }
 
@@ -502,17 +473,17 @@ namespace geopm
         register_signal_alias("GPU_CORE_FREQUENCY_STATUS", M_NAME_PREFIX + "GPU_CORE_FREQUENCY_STATUS");
         register_signal_alias("GPU_ENERGY", M_NAME_PREFIX + "GPU_ENERGY");
         register_signal_alias("GPU_POWER", M_NAME_PREFIX + "GPU_POWER");
-        register_signal_alias("GPU_CORE_FREQUENCY_CONTROL",
-                               M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL");
-        register_control_alias("GPU_CORE_FREQUENCY_CONTROL",
-                               M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL");
         register_signal_alias("GPU_UTILIZATION", M_NAME_PREFIX + "GPU_UTILIZATION");
         register_signal_alias("GPU_CORE_ACTIVITY", M_NAME_PREFIX + "GPU_CORE_UTILIZATION");
         register_signal_alias("GPU_UNCORE_ACTIVITY", M_NAME_PREFIX + "GPU_UNCORE_UTILIZATION");
-        register_control_alias("GPU_CORE_FREQUENCY_MIN_AVAIL",
-                               M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_AVAIL");
-        register_control_alias("GPU_CORE_FREQUENCY_MAX_AVAIL",
-                               M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_AVAIL");
+        register_signal_alias("GPU_CORE_FREQUENCY_MIN_AVAIL",
+                              M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_AVAIL");
+        register_signal_alias("GPU_CORE_FREQUENCY_MAX_AVAIL",
+                              M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_AVAIL");
+        register_signal_alias("GPU_CORE_FREQUENCY_MIN_CONTROL",
+                              M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_CONTROL");
+        register_signal_alias("GPU_CORE_FREQUENCY_MAX_CONTROL",
+                              M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_CONTROL");
 
         // populate controls for each domain
         for (auto &sv : m_control_available) {
@@ -535,22 +506,12 @@ namespace geopm
             try {
                 double init_setting = NAN;
                 // read the default setting of the control from the corrolary signal
-                if(is_valid_signal(sv.first) &&
+                if (is_valid_signal(sv.first) &&
                    signal_domain_type(sv.first) == control_domain_type(sv.first)) {
                     for (int domain_idx = 0;
                          domain_idx < m_platform_topo.num_domain(control_domain_type(sv.first));
                          ++domain_idx) {
                         init_setting = read_signal(sv.first, control_domain_type(sv.first), domain_idx);
-
-                        if(std::isnan(init_setting)) {
-                            // Specialized handling for signals that may be NAN
-                            if(sv.first == "GPU_CORE_FREQUENCY_CONTROL" ||
-                               sv.first == M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL") {
-
-                                init_setting = read_signal(M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_AVAIL",
-                                                           control_domain_type(sv.first), domain_idx);
-                            }
-                        }
 
                         //Try to write the signals
                         write_control(sv.first, control_domain_type(sv.first), domain_idx, init_setting);
@@ -566,11 +527,17 @@ namespace geopm
             }
         }
 
-        for(const auto &name : unsupported_control_names) {
+        for (const auto &name : unsupported_control_names) {
             m_control_available.erase(name);
         }
 
         restore_control();
+
+        register_control_alias("GPU_CORE_FREQUENCY_MIN_CONTROL",
+                              M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_CONTROL");
+        register_control_alias("GPU_CORE_FREQUENCY_MAX_CONTROL",
+                               M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_CONTROL");
+
     }
 
     void LevelZeroIOGroup::register_derivative_signals(void) {
@@ -813,6 +780,9 @@ namespace geopm
     {
         m_is_batch_read = true;
         for (size_t ii = 0; ii < m_signal_pushed.size(); ++ii) {
+            // If the current signal index (ii) is in the derivative_signal_pushed_set do not read().
+            // Derivative signals are comprised of base signals, and thus cannot be read directly.
+            // The base signals are automatically pushed when a derivative signal is requested.
             if (m_derivative_signal_pushed_set.find(ii) == m_derivative_signal_pushed_set.end()) {
                 m_signal_pushed[ii]->set_sample(m_signal_pushed[ii]->read());
             }
@@ -822,15 +792,37 @@ namespace geopm
     // Write all controls that have been pushed and adjusted
     void LevelZeroIOGroup::write_batch(void)
     {
-        for (auto &sv : m_control_available) {
-            for (unsigned int domain_idx = 0;
-                 domain_idx < sv.second.m_controls.size(); ++domain_idx) {
-                if (sv.second.m_controls.at(domain_idx)->m_is_adjusted) {
-                    write_control(sv.first, sv.second.m_domain_type, domain_idx,
-                                  sv.second.m_controls.at(domain_idx)->m_setting);
+        // If there are any two controls that have an ordering requirement, the retry logic in this
+        // loop enables them to be written in the proper order.
+        // This situation arises due to requirements of minimum settings being less than maximum settings.
+        bool do_throw = false;
+        bool do_retry = false;
+        do {
+            // Loop provides one retry attempt.  Setting do_retry to false after the first
+            // attempt will end loop after second attempt.
+            if (do_throw) {
+                do_retry = false;
+            }
+            for (auto &sv : m_control_available) {
+                for (unsigned int domain_idx = 0;
+                     domain_idx < sv.second.m_controls.size(); ++domain_idx) {
+                    if (sv.second.m_controls.at(domain_idx)->m_is_adjusted) {
+                        try{
+                            write_control(sv.first, sv.second.m_domain_type, domain_idx,
+                                          sv.second.m_controls.at(domain_idx)->m_setting);
+                            sv.second.m_controls.at(domain_idx)->m_is_adjusted = false;
+                        }
+                        catch (...) {
+                            if (do_throw) {
+                                throw;
+                            }
+                            do_retry = true;
+                        }
+                    }
                 }
             }
-        }
+            do_throw = true;
+        } while (do_retry);
     }
 
     // Return the latest value read by read_batch()
@@ -934,28 +926,16 @@ namespace geopm
                             __FILE__, __LINE__);
         }
 
-        if (control_name == M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL" ||
-            control_name == "GPU_CORE_FREQUENCY_CONTROL") {
-            if (std::isnan(setting)) {
-                // At initialization before this control has ever been written the "signal"
-                // version of this control will return NAN.  If this NAN is later used as the
-                // setting, intercept it and instead restore the values cached at startup.
-                restore_control();
-            }
-            else {
-                m_levelzero_device_pool.frequency_control(domain_type, domain_idx,
-                                                          geopm::LevelZero::M_DOMAIN_COMPUTE,
-                                                          setting / 1e6, setting / 1e6);
-            }
-        }
-        else if(control_name == M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_CONTROL") {
+        if (control_name == M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_CONTROL" ||
+           control_name == "GPU_CORE_FREQUENCY_MIN_CONTROL") {
             double curr_max = read_signal(M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_CONTROL",
                                           domain_type, domain_idx);
             m_levelzero_device_pool.frequency_control(domain_type, domain_idx,
                                                       geopm::LevelZero::M_DOMAIN_COMPUTE,
                                                       setting / 1e6, curr_max / 1e6);
         }
-        else if(control_name == M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_CONTROL") {
+        else if (control_name == M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_CONTROL" ||
+                control_name == "GPU_CORE_FREQUENCY_MAX_CONTROL") {
             double curr_min = read_signal(M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_CONTROL",
                                           domain_type, domain_idx);
             m_levelzero_device_pool.frequency_control(domain_type, domain_idx,
@@ -982,9 +962,9 @@ namespace geopm
             try {
                 // Currently only the levelzero compute domain control is supported.
                 // As new controls are added they should be included
-                m_frequency_range.push_back(m_levelzero_device_pool.frequency_range(
-                                            GEOPM_DOMAIN_GPU_CHIP, domain_idx,
-                                            geopm::LevelZero::M_DOMAIN_COMPUTE));
+                m_frequency_range.at(domain_idx) =
+                    m_levelzero_device_pool.frequency_range(GEOPM_DOMAIN_GPU_CHIP, domain_idx,
+                                                            geopm::LevelZero::M_DOMAIN_COMPUTE);
             }
             catch (const geopm::Exception &ex) {
                 throw Exception("LevelZeroIOGroup::" + std::string(__func__) + ": "

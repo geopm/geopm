@@ -127,6 +127,8 @@ namespace geopm
             ///        GPU.
             /// @param [in] setting Power cap in milliwatts.
             virtual void power_control(int gpu_idx, int setting) const = 0;
+
+            virtual bool is_privileged_access(void) const = 0;
         private:
     };
 

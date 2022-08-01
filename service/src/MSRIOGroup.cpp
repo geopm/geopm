@@ -210,14 +210,13 @@ namespace geopm
         if (m_is_hwp_enabled){
             register_signal_alias("CPU_FREQUENCY_STATUS", "MSR::PERF_STATUS:FREQ");
 
-            register_signal_alias("CPU_FREQUENCY_CONTROL", "MSR::HWP_REQUEST:MAXIMUM_PERFORMANCE");
             register_signal_alias("CPU_FREQUENCY_MIN_CONTROL", "MSR::HWP_REQUEST:MINIMUM_PERFORMANCE");
             register_signal_alias("CPU_FREQUENCY_MAX_CONTROL", "MSR::HWP_REQUEST:MAXIMUM_PERFORMANCE");
             register_signal_alias("CPU_FREQUENCY_DESIRED_CONTROL", "MSR::HWP_REQUEST:DESIRED_PERFORMANCE");
         }
         else {
             register_signal_alias("CPU_FREQUENCY_STATUS", "MSR::PERF_STATUS:FREQ");
-            register_signal_alias("CPU_FREQUENCY_CONTROL", "MSR::PERF_CTL:FREQ");
+            register_signal_alias("CPU_FREQUENCY_MAX_CONTROL", "MSR::PERF_CTL:FREQ");
         }
 
         std::string max_turbo_name;
@@ -257,18 +256,12 @@ namespace geopm
 
     void MSRIOGroup::register_frequency_controls(void) {
         if (m_is_hwp_enabled) {
-            // TODO: It may be better to have this alias use desired_performance or
-            //       set min = max = desired, to make it more closely match the legacy
-            //       p-state behavior and avoid surprising users, however this may
-            //       limit the benefits gained from using HWP
-            register_control_alias("CPU_FREQUENCY_CONTROL", "MSR::HWP_REQUEST:MAXIMUM_PERFORMANCE");
-
             register_control_alias("CPU_FREQUENCY_MIN_CONTROL", "MSR::HWP_REQUEST:MINIMUM_PERFORMANCE");
             register_control_alias("CPU_FREQUENCY_MAX_CONTROL", "MSR::HWP_REQUEST:MAXIMUM_PERFORMANCE");
             register_control_alias("CPU_FREQUENCY_DESIRED_CONTROL", "MSR::HWP_REQUEST:DESIRED_PERFORMANCE");
         }
         else {
-            register_control_alias("CPU_FREQUENCY_CONTROL", "MSR::PERF_CTL:FREQ");
+            register_control_alias("CPU_FREQUENCY_MAX_CONTROL", "MSR::PERF_CTL:FREQ");
         }
 
         // Uncore controls
@@ -1251,7 +1244,7 @@ namespace geopm
         static const std::set<std::string> FREQ_CONTROL_SET {
             "CPU_POWER_LIMIT_CONTROL",
             "MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT",
-            "CPU_FREQUENCY_CONTROL",
+            "CPU_FREQUENCY_MAX_CONTROL",
             "MSR::PERF_CTL:FREQ"};
         static bool do_check_governor = true;
 

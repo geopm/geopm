@@ -104,7 +104,7 @@ Class Methods
 ``control_names()``
   Returns the list of control names provided by this ``IOGroup``.  This
   includes aliases for common hardware-based controls such as
-  ``CPU_FREQUENCY_CONTROL``, as well as the supported MSRs for the current platform.
+  ``CPU_FREQUENCY_MAX_CONTROL``, as well as the supported MSRs for the current platform.
 
 ``is_valid_signal()``
   Returns whether the given *signal_name* is supported by the
