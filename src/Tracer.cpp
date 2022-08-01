@@ -159,7 +159,7 @@ namespace geopm
             }
 #endif
             // save values to be reused for region entry/exit
-            size_t col_idx = 0;
+            int col_idx = 0;
 
             for (; col_idx < m_num_base_columns; ++col_idx) {
                 m_last_telemetry[col_idx] = m_platform_io.sample(m_column_idx[col_idx]);
@@ -168,7 +168,7 @@ namespace geopm
                 m_last_telemetry[col_idx] = val;
                 ++col_idx;
             }
-            for (; col_idx < m_column_idx.size(); ++col_idx) {
+            for (; col_idx < (int)m_column_idx.size(); ++col_idx) {
                 m_last_telemetry[col_idx] = m_platform_io.sample(m_column_idx[col_idx]);
             }
 
