@@ -45,15 +45,14 @@ In the extreme case (``phi`` of 0) ``Fe`` will be raised to ``Fmax``.  A ``phi``
 0.5 biases the agent towards lower frequencies by reducing the ``Fmax`` value provided
 by the policy.  In the extreme case (``phi`` of 1.0) ``Fmax`` will be lowered to ``Fe``.
 
-For NVIDIA based systems the GPUActivityAgent attempts to set the
-``DCGM::FIELD_UPDATE_RATE`` to 100 ms, ``DCGM::MAX_STORAGE_TIME`` to 1 s, and ``DCGM::MAX_SAMPLES``
-to 100.  While the DCGM documentation indicates that users should generally query
+For NVIDIA based systems the GPUActivityAgent should be used with DCGM settings of
+``DCGM::FIELD_UPDATE_RATE`` = 100 ms, ``DCGM::MAX_STORAGE_TIME`` = 1 s, and ``DCGM::MAX_SAMPLES``
+= 100.  While the DCGM documentation indicates that users should generally query
 no faster than 100 ms, the interface allows for setting the polling rate in the
 microsecond range. If the agent is intended to be used with workloads that exhibit
 extremely short phase behavior a 1 ms polling rate can be used.
-This has been shown to work for a small number of profiling metrics queried from DCGM.
 As the 1 ms polling rate is not officially recommended by the DCGM API the 100 ms
-setting is used by default.
+setting should be used by default.
 
 Agent Name
 ----------
@@ -68,7 +67,7 @@ name (see :doc:`geopm(7) <geopm.7>`\ ).  This name can also be passed to the
 Policy Parameters
 -----------------
 
-The ``Fe``, ``Fmax``, ``phi``, and agent sample period are provided
+The ``Fe``, ``Fmax``, and ``phi`` are provided
 as policy values.  Setting ``Fe`` & ``Fmax`` to the same value will
 result in the entire application to run at a fixed frequency.
 
@@ -86,10 +85,6 @@ result in the entire application to run at a fixed frequency.
   ``GPU_PHI``\ :
       The performance bias knob.  The value must be between
       0.0 and 1.0. If NAN is passed, it will use 0.5 by default.
-
-  ``SAMPLE_PERIOD``\ :
-      The rate at which the agent control loop operates.  20ms by
-      default.
 
 Report Extensions
 -----------------
@@ -136,11 +131,11 @@ The agent gates the control loop to a cadence of 20ms.
 SEE ALSO
 --------
 
-:doc:`geopm(7) <geopm.7.html>`\ ,
-:doc:`geopm_agent_monitor(7) <geopm_agent_monitor.7.html>`\ ,
-:doc:`geopm_agent_energy_efficient(7) <geopm_agent_energy_efficient.7.html>`\ ,
-:doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3.html>`\ ,
-:doc:`geopm_agent_c(3) <geopm_agent_c.3.html>`\ ,
-:doc:`geopm_prof_c(3) <geopm_prof_c.3.html>`\ ,
-:doc:`geopmagent(1) <geopmagent.1.html>`\ ,
-:doc:`geopmlaunch(1) <geopmlaunch.1.html>`
+:doc:`geopm(7) <geopm.7>`\ ,
+:doc:`geopm_agent_monitor(7) <geopm_agent_monitor.7>`\ ,
+:doc:`geopm_agent_energy_efficient(7) <geopm_agent_energy_efficient.7>`\ ,
+:doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>`\ ,
+:doc:`geopm_agent_c(3) <geopm_agent_c.3>`\ ,
+:doc:`geopm_prof_c(3) <geopm_prof_c.3>`\ ,
+:doc:`geopmagent(1) <geopmagent.1>`\ ,
+:doc:`geopmlaunch(1) <geopmlaunch.1>`

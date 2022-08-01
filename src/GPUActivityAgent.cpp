@@ -66,7 +66,6 @@ namespace geopm
 
     void GPUActivityAgent::init_platform_io(void)
     {
-
         for (int domain_idx = 0; domain_idx < M_NUM_GPU; ++domain_idx) {
             m_gpu_freq_status.push_back({m_platform_io.push_signal("GPU_CORE_FREQUENCY_STATUS",
                                          GEOPM_DOMAIN_GPU,
@@ -88,19 +87,6 @@ namespace geopm
             m_gpu_freq_control.push_back(control{m_platform_io.push_control("GPU_CORE_FREQUENCY_CONTROL",
                                          GEOPM_DOMAIN_GPU,
                                          domain_idx), NAN});
-        }
-
-        auto all_names = m_platform_io.control_names();
-        if (all_names.find("DCGM::FIELD_UPDATE_RATE") != all_names.end()) {
-            // DCGM documentation indicates that users should query no faster than 100ms
-            // even though the interface allows for setting the polling rate in the us range.
-            // In practice reducing below the 100ms value has proven functional, but should only
-            // be attempted if there is a proven need to catch short phase behavior that cannot
-            // be accomplished with the default settings.
-            m_platform_io.write_control("DCGM::FIELD_UPDATE_RATE", GEOPM_DOMAIN_BOARD, 0, 0.1); //100ms
-            //m_platform_io.write_control("DCGM::FIELD_UPDATE_RATE", GEOPM_DOMAIN_BOARD, 0, 0.001); //1ms
-            m_platform_io.write_control("DCGM::MAX_STORAGE_TIME", GEOPM_DOMAIN_BOARD, 0, 1);
-            m_platform_io.write_control("DCGM::MAX_SAMPLES", GEOPM_DOMAIN_BOARD, 0, 100);
         }
     }
 
@@ -162,20 +148,6 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        // If no sample period is provided assume the default behavior
-        if (std::isnan(in_policy[M_POLICY_SAMPLE_PERIOD])) {
-            in_policy[M_POLICY_SAMPLE_PERIOD] = M_WAIT_SEC;
-        }
-
-        if (!std::isnan(in_policy[M_POLICY_SAMPLE_PERIOD])) {
-            if (in_policy[M_POLICY_SAMPLE_PERIOD] <= 0.0) {
-                throw Exception("GPUActivityAgent::" + std::string(__func__) +
-                                "(): Sample period must be greater than 0.",
-                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-
-            }
-        }
-
         // Policy provided initial values
         double f_max = in_policy[M_POLICY_GPU_FREQ_MAX];
         double f_efficient = in_policy[M_POLICY_GPU_FREQ_EFFICIENT];
@@ -232,11 +204,6 @@ namespace geopm
     void GPUActivityAgent::adjust_platform(const std::vector<double>& in_policy)
     {
         assert(in_policy.size() == M_NUM_POLICY);
-
-        // Update wait time based on policy
-        if (in_policy[M_POLICY_SAMPLE_PERIOD] != M_WAIT_SEC)  {
-            M_WAIT_SEC = in_policy[M_POLICY_SAMPLE_PERIOD];
-        }
 
         m_do_write_batch = false;
 
@@ -423,6 +390,10 @@ namespace geopm
     {
     }
 
+    void GPUActivityAgent::enforce_policy(const std::vector<double> &policy) const
+    {
+    }
+
     std::vector<std::function<std::string(double)> > GPUActivityAgent::trace_formats(void) const
     {
         return {};
@@ -443,7 +414,7 @@ namespace geopm
     // Describes expected policies to be provided by the resource manager or user
     std::vector<std::string> GPUActivityAgent::policy_names(void)
     {
-        return {"GPU_FREQ_MAX", "GPU_FREQ_EFFICIENT", "GPU_PHI", "SAMPLE_PERIOD"};
+        return {"GPU_FREQ_MAX", "GPU_FREQ_EFFICIENT", "GPU_PHI"};
     }
 
     // Describes samples to be provided to the resource manager or user
