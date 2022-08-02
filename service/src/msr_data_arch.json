@@ -1304,8 +1304,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Write 1 to clear the global status bit for PMC0 overflow. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
-                    "aggregation": "sum"
+                    "description": "Write 1 to clear the global status bit for PMC0 overflow.",
+                    "aggregation": "expect_same"
                 },
                 "CLEAR_OVF_PMC1": {
                     "begin_bit": 1,
@@ -1315,8 +1315,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Write 1 to clear the global status bit for PMC1 overflow. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
-                    "aggregation": "sum"
+                    "description": "Write 1 to clear the global status bit for PMC1 overflow.",
+                    "aggregation": "expect_same"
                 },
                 "CLEAR_OVF_PMC2": {
                     "begin_bit": 1,
@@ -1326,8 +1326,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Write 1 to clear the global status bit for PMC2 overflow. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
-                    "aggregation": "sum"
+                    "description": "Write 1 to clear the global status bit for PMC2 overflow.",
+                    "aggregation": "expect_same"
                 },
                 "CLEAR_OVF_PMC3": {
                     "begin_bit": 1,
@@ -1337,8 +1337,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Write 1 to clear the global status bit for PMC3 overflow. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
-                    "aggregation": "sum"
+                    "description": "Write 1 to clear the global status bit for PMC3 overflow.",
+                    "aggregation": "expect_same"
                 },
                 "CLEAR_OVF_FIXED_CTR0": {
                     "begin_bit": 32,
@@ -1348,8 +1348,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Write 1 to clear the global status bit for MSR::FIXED_CTR0:INST_RETIRED_ANY overflow. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
-                    "aggregation": "sum"
+                    "description": "Write 1 to clear the global status bit for MSR::FIXED_CTR0:INST_RETIRED_ANY overflow.",
+                    "aggregation": "expect_same"
                 },
                 "CLEAR_OVF_FIXED_CTR1": {
                     "begin_bit": 33,
@@ -1359,8 +1359,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Write 1 to clear the global status bit for MSR::FIXED_CTR1:CPU_CLK_UNHALTED_THREAD overflow. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
-                    "aggregation": "sum"
+                    "description": "Write 1 to clear the global status bit for MSR::FIXED_CTR1:CPU_CLK_UNHALTED_THREAD overflow.",
+                    "aggregation": "expect_same"
                 },
                 "CLEAR_OVF_FIXED_CTR2": {
                     "begin_bit": 34,
@@ -1370,8 +1370,8 @@
                     "scalar":    1.0,
                     "behavior":  "label",
                     "writeable": true,
-                    "description": "Write 1 to clear the global status bit for MSR::FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC overflow. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set.",
-                    "aggregation": "sum"
+                    "description": "Write 1 to clear the global status bit for MSR::FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC overflow.",
+                    "aggregation": "expect_same"
                 }
             }
         }

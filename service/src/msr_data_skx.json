@@ -813,7 +813,7 @@
                     "units":     "none",
                     "scalar":    1,
                     "behavior":  "variable",
-                    "aggregation": "average",
+                    "aggregation": "sum",
                     "writeable": true,
                     "description": "Disable for the L2 hardware prefetcher. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set."
                 },
@@ -824,7 +824,7 @@
                     "units":     "none",
                     "scalar":    1,
                     "behavior":  "variable",
-                    "aggregation": "average",
+                    "aggregation": "sum",
                     "writeable": true,
                     "description": "Disable for the L2 adjacent cache line prefetcher When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set."
                 },
@@ -835,7 +835,7 @@
                     "units":     "none",
                     "scalar":    1,
                     "behavior":  "variable",
-                    "aggregation": "average",
+                    "aggregation": "sum",
                     "writeable": true,
                     "description": "Disable for the L1 data cache prefetcher When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set."
                 },
@@ -846,7 +846,7 @@
                     "units":     "none",
                     "scalar":    1,
                     "behavior":  "variable",
-                    "aggregation": "average",
+                    "aggregation": "sum",
                     "writeable": true,
                     "description": "Disable for the L1 data cache instruction pointer prefetcher When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set."
                 }
@@ -985,7 +985,7 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "aggregation": "average",
+                    "aggregation": "sum",
                     "writeable": true,
                     "description": "If set overrides requests with the package level request. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set."
                 },
@@ -996,7 +996,7 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "aggregation": "average",
+                    "aggregation": "sum",
                     "writeable": true,
                     "description": "If set indicates HWP should use the related cpu MSR field value regardless of the PACKAGE_CONTROL bit setting. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set."
                 },
@@ -1007,7 +1007,7 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "aggregation": "average",
+                    "aggregation": "sum",
                     "writeable": true,
                     "description": "If set indicates HWP should use the related cpu MSR field value regardless of the PACKAGE_CONTROL bit setting. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set."
                 },
@@ -1018,7 +1018,7 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "aggregation": "average",
+                    "aggregation": "sum",
                     "writeable": true,
                     "description": "If set indicates HWP should use the related cpu MSR field value regardless of the PACKAGE_CONTROL bit setting. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set."
                 },
@@ -1029,7 +1029,7 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "aggregation": "average",
+                    "aggregation": "sum",
                     "writeable": true,
                     "description": "If set indicates HWP should use the related cpu MSR field value regardless of the PACKAGE_CONTROL bit setting. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set."
                 }
@@ -1046,7 +1046,7 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "aggregation": "average",
+                    "aggregation": "sum",
                     "writeable": true,
                     "description": "Log bit indicating if a GUARANTEED_PERFORMANCE change has occured.  Software responsible to clear via write to 0. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set."
                 },
@@ -1057,7 +1057,7 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "aggregation": "average",
+                    "aggregation": "sum",
                     "writeable": true,
                     "description": "Log bit indicating if an excursion below the minimum requested performance has occured.  Software responsible to clear via write to 0. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set."
                 },
@@ -1068,7 +1068,7 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "aggregation": "average",
+                    "aggregation": "sum",
                     "writeable": true,
                     "description": "Log bit indicating if a HIGHEST_PEROFRMANCE change has occured.  Software responsible to clear via write to 0. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set."
                 },
@@ -1079,7 +1079,7 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "aggregation": "average",
+                    "aggregation": "sum",
                     "writeable": true,
                     "description": "Indicates a PECI override request that will override the HWP MSR values has started.  Software responsible to clear via write to 0 When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set."
                 },
@@ -1090,7 +1090,7 @@
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
-                    "aggregation": "average",
+                    "aggregation": "sum",
                     "writeable": true,
                     "description": "Indicates a PECI override request that will override the HWP MSR values has ended.  Software responsible to clear via write to 0 When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set."
                 }
