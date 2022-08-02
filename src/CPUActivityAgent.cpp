@@ -109,8 +109,8 @@ namespace geopm
         ///////////////////////
         //CPU POLICY CHECKING//
         ///////////////////////
-        double freq_core_min = m_platform_io.read_signal("CPU_FREQUENCY_MIN", GEOPM_DOMAIN_BOARD, 0);
-        double freq_core_max = m_platform_io.read_signal("CPU_FREQUENCY_MAX", GEOPM_DOMAIN_BOARD, 0);
+        double freq_core_min = m_platform_io.read_signal("CPU_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0);
+        double freq_core_max = m_platform_io.read_signal("CPU_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0);
 
         // Check for NAN to set default values for policy
         if (std::isnan(in_policy[M_POLICY_CPU_FREQ_MAX])) {
@@ -164,20 +164,6 @@ namespace geopm
                             ") value exceeds CPU_UNCORE_FREQ_MAX (" +
                             std::to_string(in_policy[M_POLICY_UNCORE_FREQ_MAX]) +
                             ").", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-
-        // If no sample period is provided assume the default behavior
-        if (std::isnan(in_policy[M_POLICY_SAMPLE_PERIOD])) {
-            in_policy[M_POLICY_SAMPLE_PERIOD] = M_WAIT_SEC;
-        }
-
-        if (!std::isnan(in_policy[M_POLICY_SAMPLE_PERIOD])) {
-            if (in_policy[M_POLICY_SAMPLE_PERIOD] <= 0.0) {
-                throw Exception("CPUActivityAgent::" + std::string(__func__) +
-                                "(): Sample period must be greater than 0.",
-                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-
-            }
         }
 
         // If no phi value is provided assume the default behavior.
@@ -529,7 +515,7 @@ namespace geopm
     std::vector<std::string> CPUActivityAgent::policy_names(void)
     {
         std::vector<std::string> names{"CPU_FREQ_MAX", "CPU_FREQ_EFFICIENT", "CPU_UNCORE_FREQ_MAX",
-                                       "CPU_UNCORE_FREQ_EFFICIENT", "CPU_PHI", "SAMPLE_PERIOD"};
+                                       "CPU_UNCORE_FREQ_EFFICIENT", "CPU_PHI"};
         names.reserve(M_NUM_POLICY);
 
         for (size_t i = 0; names.size() < M_NUM_POLICY; ++i) {
