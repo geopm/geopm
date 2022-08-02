@@ -258,8 +258,7 @@ using astyle with the following options:
 
 .. code-block::
 
-   astyle --style=linux --indent=spaces=4 -y -S -C -N
-
+   astyle --style=linux --indent=spaces=4 -m0 -M60 -y -S -C -N
 
 Note that astyle is not perfect (in particular it is confused by C++11
 initializer lists), and some versions of astyle will format the code
