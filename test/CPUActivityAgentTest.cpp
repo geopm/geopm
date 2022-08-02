@@ -53,11 +53,10 @@ class CPUActivityAgentTest : public :: testing :: Test
             CPU_UNCORE_FREQ_MAX = 2,
             CPU_UNCORE_FREQ_EFFICIENT = 3,
             PHI = 4,
-            PERIOD = 5,
-            UNCORE_FREQ_0 = 6,
-            UNCORE_MEM_BW_0 = 7,
-            UNCORE_FREQ_1 = 8,
-            UNCORE_MEM_BW_1 = 9,
+            UNCORE_FREQ_0 = 5,
+            UNCORE_MEM_BW_0 = 6,
+            UNCORE_FREQ_1 = 7,
+            UNCORE_MEM_BW_1 = 8,
         };
 
         void SetUp();
@@ -74,7 +73,6 @@ class CPUActivityAgentTest : public :: testing :: Test
         double m_cpu_freq_max;
         double m_cpu_uncore_freq_min;
         double m_cpu_uncore_freq_max;
-        double m_sample_period;
         std::vector<double> m_cpu_uncore_freqs;
         std::vector<double> m_mbm_max;
         std::unique_ptr<MockPlatformIO> m_platform_io;
@@ -151,8 +149,6 @@ void CPUActivityAgentTest::SetUp()
     ASSERT_LT(m_cpu_uncore_freq_max, 3e9);
     ASSERT_LT(m_cpu_uncore_freq_min, m_cpu_uncore_freq_max);
 
-    m_sample_period = 0.01;
-
     EXPECT_CALL(*m_platform_io, write_control("MSR::PQR_ASSOC:RMID", _, _, _)).Times(1);
     EXPECT_CALL(*m_platform_io, write_control("MSR::QM_EVTSEL:RMID", _, _, _)).Times(1);
     EXPECT_CALL(*m_platform_io, write_control("MSR::QM_EVTSEL:EVENT_ID", _, _, _)).Times(1);
@@ -163,7 +159,7 @@ void CPUActivityAgentTest::SetUp()
     m_num_policy = m_agent->policy_names().size();
 
     m_default_policy = {m_cpu_freq_max, m_cpu_freq_min, m_cpu_uncore_freq_max,
-                        m_cpu_uncore_freq_min, NAN, NAN};
+                        m_cpu_uncore_freq_min, NAN};
 
     m_cpu_uncore_freqs = {1.2e9, 1.3e9, 1.4e9, 1.5e9, 1.6e9, 1.7e9, 1.8e9,
                       1.9e9, 2.0e9, 2.1e9, 2.2e9, 2.3e9, 2.4e9};
@@ -228,7 +224,6 @@ TEST_F(CPUActivityAgentTest, validate_policy)
     EXPECT_EQ(m_cpu_uncore_freq_min, policy[CPU_UNCORE_FREQ_EFFICIENT]);
     // Default value when NAN is passed is 0.5
     EXPECT_EQ(0.5, policy[PHI]);
-    EXPECT_EQ(m_sample_period, policy[PERIOD]);
 
     // all-NAN policy is accepted
     // setup & load NAN policy
@@ -241,7 +236,6 @@ TEST_F(CPUActivityAgentTest, validate_policy)
     EXPECT_EQ(m_cpu_uncore_freq_max, policy[CPU_UNCORE_FREQ_MAX]);
     EXPECT_EQ(m_cpu_uncore_freq_min, policy[CPU_UNCORE_FREQ_EFFICIENT]);
     EXPECT_EQ(0.5, policy[PHI]);
-    EXPECT_EQ(m_sample_period, policy[PERIOD]);
 
     // non-default policy is accepted
     // setup & load policy
@@ -250,7 +244,6 @@ TEST_F(CPUActivityAgentTest, validate_policy)
     policy[CPU_UNCORE_FREQ_MAX] = m_cpu_uncore_freq_max;
     policy[CPU_UNCORE_FREQ_EFFICIENT] = m_cpu_uncore_freq_max / 2;
     policy[PHI] = 0.1;
-    policy[PERIOD] = 0.005;
     m_agent->validate_policy(policy);
 
     // validate policy is modified as expected
@@ -260,7 +253,6 @@ TEST_F(CPUActivityAgentTest, validate_policy)
     EXPECT_GE(policy[CPU_FREQ_EFFICIENT], m_cpu_freq_max / 2);
     EXPECT_LE(policy[CPU_FREQ_EFFICIENT], m_cpu_freq_max);
     EXPECT_EQ(0.1, policy[PHI]);
-    EXPECT_EQ(0.005, policy[PERIOD]);
 
     //Fe > Fmax --> Error
     policy = policy_nan;
@@ -329,13 +321,6 @@ TEST_F(CPUActivityAgentTest, validate_policy)
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->validate_policy(policy), GEOPM_ERROR_INVALID,
                                "POLICY_CPU_PHI value out of range");
 
-    //Invalid sample period --> Error
-    policy = policy_nan;
-    policy[PHI] = 1.0;
-    policy[PERIOD] = -1.0;
-    GEOPM_EXPECT_THROW_MESSAGE(m_agent->validate_policy(policy), GEOPM_ERROR_INVALID,
-                               "Sample period must be greater than 0.");
-
     // cannot have same uncore freq with mbm values
     policy = policy_nan;
     policy[UNCORE_FREQ_0] = 123;
@@ -390,8 +375,6 @@ TEST_F(CPUActivityAgentTest, adjust_platform_high)
     //Adjust
     //Check frequency
     EXPECT_CALL(*m_platform_io, adjust(CPU_FREQUENCY_CONTROL_IDX, m_cpu_freq_max)).Times(M_NUM_CORE);
-    //EXPECT_CALL(*m_platform_io, adjust(CPU_UNCORE_MIN_CONTROL_IDX, DoubleNear(1.2e9, 0.5e8))).Times(M_NUM_PACKAGE);
-    //EXPECT_CALL(*m_platform_io, adjust(CPU_UNCORE_MAX_CONTROL_IDX, DoubleNear(1.2e9, 0.5e8))).Times(M_NUM_PACKAGE);
 
     EXPECT_CALL(*m_platform_io, adjust(CPU_UNCORE_MIN_CONTROL_IDX, m_cpu_uncore_freq_max)).Times(M_NUM_PACKAGE);
     EXPECT_CALL(*m_platform_io, adjust(CPU_UNCORE_MAX_CONTROL_IDX, m_cpu_uncore_freq_max)).Times(M_NUM_PACKAGE);

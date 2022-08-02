@@ -78,7 +78,6 @@ namespace geopm
                 M_POLICY_UNCORE_FREQ_MAX,
                 M_POLICY_UNCORE_FREQ_EFFICIENT,
                 M_POLICY_CPU_PHI,
-                M_POLICY_SAMPLE_PERIOD,
                 M_POLICY_FIRST_UNCORE_FREQ,
                 M_POLICY_FIRST_MAX_MEM_BW,
                 // The remainder of policy values can be additional pairs of

@@ -72,8 +72,8 @@ name (see :doc:`geopm(7) <geopm.7>`\ ).  This name can also be passed to the
 
 Policy Parameters
 -----------------
-      The ``Fe`` & ``Fmax`` for each domain, as well as ``phi`` and the
-      agent sample period are policy values.
+      The ``Fe`` & ``Fmax`` for each domain and the ``phi`` input
+      are policy values.
       Setting ``Fe`` & ``Fmax`` for a domain to the same value can
       be used to force the entire application to run at a fixed frequency.
 
@@ -100,10 +100,6 @@ Policy Parameters
   ``CPU_PHI``\ :
       The performance bias knob.  The value must be between
       0.0 and 1.0. If NAN is passed, it will use 0.5 by default.
-
-  ``SAMPLE_PERIOD``\ :
-      The rate at which the agent control loop operates.  10ms by
-      default.  Less than 10ms is not recommended.
 
   ``CPU_UNCORE_FREQ_#``\ :
       The uncore frequency associated with the same numbered

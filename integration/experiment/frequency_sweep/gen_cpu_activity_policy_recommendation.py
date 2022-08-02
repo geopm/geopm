@@ -140,8 +140,7 @@ def main(full_df, region_list):
                 "CPU_FREQ_EFFICIENT" : core_freq_recommendation,
                 "CPU_UNCORE_FREQ_MAX" : float('nan'),
                 "CPU_UNCORE_FREQ_EFFICIENT" : uncore_freq_recommendation,
-                "CPU_PHI" : float('nan'),
-                "SAMPLE_PERIOD" : float('nan')}
+                "CPU_PHI" : float('nan')}
 
     for idx, (k,v) in enumerate(mem_bw_characterization.items()):
         policy['CPU_UNCORE_FREQ_' + str(idx)] = k
