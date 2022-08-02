@@ -503,6 +503,11 @@ namespace geopm
     {
     }
 
+    void CPUActivityAgent::enforce_policy(const std::vector<double> &policy) const
+    {
+
+    }
+
     std::vector<std::function<std::string(double)> > CPUActivityAgent::trace_formats(void) const
     {
         return {};
