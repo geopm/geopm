@@ -101,7 +101,8 @@ namespace geopm
             std::vector<signal> m_gpu_energy;
             signal m_time;
 
-            std::vector<control> m_gpu_freq_control;
+            std::vector<control> m_gpu_freq_min_control;
+            std::vector<control> m_gpu_freq_max_control;
 
             void init_platform_io(void);
     };
