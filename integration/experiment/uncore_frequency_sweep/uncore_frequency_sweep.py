@@ -38,7 +38,7 @@ def setup_run_args(parser):
 
 def setup_uncore_frequency_bounds(mach, min_uncore_freq, max_uncore_freq,
                                   step_uncore_freq):
-    sys_min = 1.2e9
+    sys_min = 1.0e9
     sys_max = 2.7e9
     sys_step = mach.frequency_step()
     if min_uncore_freq is None:

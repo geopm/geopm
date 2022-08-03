@@ -184,6 +184,9 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/FrequencyMapAgentTest.report_neither_map_nor_set \
               test/gtest_links/FrequencyMapAgentTest.split_policy \
               test/gtest_links/FrequencyMapAgentTest.validate_policy \
+              test/gtest_links/FixedFrequencyAgentTest.adjust_platform \
+              test/gtest_links/FixedFrequencyAgentTest.name \
+              test/gtest_links/FixedFrequencyAgentTest.validate_policy \
               test/gtest_links/ModelApplicationTest.parse_config_errors \
               test/gtest_links/MonitorAgentTest.policy_names \
               test/gtest_links/MonitorAgentTest.sample_names \
@@ -365,6 +368,7 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
                           test/EpochIOGroupIntegrationTest.cpp \
                           test/FilePolicyTest.cpp \
                           test/FrequencyGovernorTest.cpp \
+                          test/FixedFrequencyAgentTest.cpp \
                           test/FrequencyMapAgentTest.cpp \
                           test/MockAgent.hpp \
                           test/MockApplicationIO.hpp \

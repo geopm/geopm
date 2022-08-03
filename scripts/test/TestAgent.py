@@ -32,7 +32,7 @@ class TestAgent(unittest.TestCase):
     def test_agent_names(self):
         names = geopmpy.agent.names()
         expected = set(['power_balancer', 'power_governor',
-                        'frequency_map', 'monitor'])
+                        'fixed_frequency', 'frequency_map', 'monitor'])
         self.assertEqual(expected, set(names))
 
     def test_json(self):

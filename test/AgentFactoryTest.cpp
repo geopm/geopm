@@ -11,6 +11,7 @@
 #include "MonitorAgent.hpp"
 #include "PowerBalancerAgent.hpp"
 #include "PowerGovernorAgent.hpp"
+#include "FixedFrequencyAgent.hpp"
 #include "FrequencyMapAgent.hpp"
 
 using geopm::Agent;
@@ -70,6 +71,29 @@ TEST(AgentFactoryTest, static_info_governor)
                                            "IS_CONVERGED",
                                            "POWER_AVERAGE_ENFORCED"};
     std::vector<std::string> exp_policy = {"CPU_POWER_LIMIT"};
+    EXPECT_EQ(exp_sample, Agent::sample_names(dict));
+    EXPECT_EQ(exp_policy, Agent::policy_names(dict));
+
+    EXPECT_EQ(exp_sample, Agent::sample_names(agent_name));
+    EXPECT_EQ(exp_policy, Agent::policy_names(agent_name));
+}
+
+TEST(AgentFactoryTest, DISABLED_static_info_fixed_frequency)
+{
+    auto &factory = geopm::agent_factory();
+    std::string agent_name = geopm::FixedFrequencyAgent::plugin_name();
+    auto &dict = factory.dictionary(agent_name);
+    EXPECT_EQ(5, Agent::num_policy(dict));
+    EXPECT_EQ(0, Agent::num_sample(dict));
+    EXPECT_EQ(5, Agent::num_policy(agent_name));
+    EXPECT_EQ(0, Agent::num_sample(agent_name));
+    std::vector<std::string> exp_sample = {};
+    std::vector<std::string> exp_policy = {"GPU_FREQUENCY",
+                                           "CORE_FREQUENCY",
+                                           "UNCORE_MIN_FREQUENCY",
+                                           "UNCORE_MAX_FREQUENCY",
+                                           "SAMPLE_PERIOD",
+                                          };
     EXPECT_EQ(exp_sample, Agent::sample_names(dict));
     EXPECT_EQ(exp_policy, Agent::policy_names(dict));
 

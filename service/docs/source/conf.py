@@ -131,6 +131,7 @@ rst_files = [
     "geopmagent.1",
     "geopm_agent.3",
     "geopm_agent_frequency_map.7",
+    "geopm_agent_fixed_frequency.7",
     "geopm_agent_monitor.7",
     "geopm_agent_power_balancer.7",
     "geopm_agent_power_governor.7",
