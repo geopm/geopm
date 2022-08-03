@@ -15,12 +15,12 @@ class TestAccess(unittest.TestCase):
     def setUp(self):
         self._geopm_proxy = mock.MagicMock()
         self._access = Access(self._geopm_proxy)
-        self._signals_expect = ['TIME',
-                                'ALL_ACCESS',
-                                'SIGNAL']
-        self._controls_expect = ['MAX_LIMIT',
-                                 'WRITABLE',
-                                 'CONTROL']
+        self._signals_expect = ['ALL_ACCESS',
+                                'SIGNAL',
+                                'TIME']
+        self._controls_expect = ['CONTROL',
+                                 'MAX_LIMIT',
+                                 'WRITABLE']
 
     def test_signals_query(self):
         """Test user signal access list query
