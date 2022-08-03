@@ -191,7 +191,7 @@ namespace geopm
             bool name_fill(size_t header_offset) override;
             bool name_set(size_t header_offset, std::set<std::string> &name) override;
         private:
-             /// @brief structure to hold state for a single table entry.
+            /// @brief structure to hold state for a single table entry.
             struct table_s {
                 pthread_mutex_t lock;
                 size_t max_size;

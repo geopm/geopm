@@ -10,13 +10,13 @@ extern "C"
 {
 #endif
 
-    /// @brief Used to set a delay frac that will sleep for the given fraction
-    ///        of the region runtime.
-    int geopm_imbalancer_frac(double frac);
-    /// @brief Sets the entry time for the imbalanced region.
-    int geopm_imbalancer_enter(void);
-    /// @brief Spins until the region has been extended by the previously specified delay.
-    int geopm_imbalancer_exit(void);
+/// @brief Used to set a delay frac that will sleep for the given fraction
+///        of the region runtime.
+int geopm_imbalancer_frac(double frac);
+/// @brief Sets the entry time for the imbalanced region.
+int geopm_imbalancer_enter(void);
+/// @brief Spins until the region has been extended by the previously specified delay.
+int geopm_imbalancer_exit(void);
 
 #ifdef __cplusplus
 }

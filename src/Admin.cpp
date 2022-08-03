@@ -155,8 +155,8 @@ namespace geopm
         if (!overlap.empty()) {
             throw Exception("Admin::check_node: "
                             "parameter(s) defined in both the override and default files: \"" +
-                             string_join(overlap, "\", \"") + "\"\n",
-                             EINVAL, __FILE__, __LINE__);
+                            string_join(overlap, "\", \"") + "\"\n",
+                            EINVAL, __FILE__, __LINE__);
         }
         // Combine settings
         std::map<std::string, std::string> config_map(override_map);

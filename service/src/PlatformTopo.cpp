@@ -171,11 +171,11 @@ namespace geopm
                 break;
             case GEOPM_DOMAIN_GPU:
                 result = m_gpu_topo.num_gpu(
-                         GEOPM_DOMAIN_GPU);
+                             GEOPM_DOMAIN_GPU);
                 break;
             case GEOPM_DOMAIN_GPU_CHIP:
                 result = m_gpu_topo.num_gpu(
-                         GEOPM_DOMAIN_GPU_CHIP);
+                             GEOPM_DOMAIN_GPU_CHIP);
                 break;
             case GEOPM_DOMAIN_PACKAGE_INTEGRATED_GPU:
                 // @todo Add support for package GPUs to PlatformTopo.
@@ -215,11 +215,11 @@ namespace geopm
                 break;
             case GEOPM_DOMAIN_GPU:
                 cpu_idx = m_gpu_topo.cpu_affinity_ideal(
-                          GEOPM_DOMAIN_GPU, domain_idx);
+                              GEOPM_DOMAIN_GPU, domain_idx);
                 break;
             case GEOPM_DOMAIN_GPU_CHIP:
                 cpu_idx = m_gpu_topo.cpu_affinity_ideal(
-                          GEOPM_DOMAIN_GPU_CHIP, domain_idx);
+                              GEOPM_DOMAIN_GPU_CHIP, domain_idx);
                 break;
             case GEOPM_DOMAIN_PACKAGE:
                 for (int thread_idx = 0;
@@ -305,11 +305,11 @@ namespace geopm
                 break;
             case GEOPM_DOMAIN_GPU:
                 for(int gpu_idx = 0; (gpu_idx <
-                                        m_gpu_topo.num_gpu(GEOPM_DOMAIN_GPU))
-                        && (result == -1); ++gpu_idx) {
+                                      m_gpu_topo.num_gpu(GEOPM_DOMAIN_GPU))
+                    && (result == -1); ++gpu_idx) {
                     std::set<int> affin = m_gpu_topo.cpu_affinity_ideal(
-                        GEOPM_DOMAIN_GPU,
-                        gpu_idx);
+                                              GEOPM_DOMAIN_GPU,
+                                              gpu_idx);
                     if (affin.find(cpu_idx) != affin.end()) {
                         result = gpu_idx;
                     }
@@ -317,11 +317,11 @@ namespace geopm
                 break;
             case GEOPM_DOMAIN_GPU_CHIP:
                 for(int gpu_sub_idx = 0; (gpu_sub_idx <
-                                            m_gpu_topo.num_gpu(GEOPM_DOMAIN_GPU_CHIP))
-                        && (result == -1); ++gpu_sub_idx) {
+                                          m_gpu_topo.num_gpu(GEOPM_DOMAIN_GPU_CHIP))
+                    && (result == -1); ++gpu_sub_idx) {
                     std::set<int> affin = m_gpu_topo.cpu_affinity_ideal(
-                        GEOPM_DOMAIN_GPU_CHIP,
-                        gpu_sub_idx);
+                                              GEOPM_DOMAIN_GPU_CHIP,
+                                              gpu_sub_idx);
                     if (affin.find(cpu_idx) != affin.end()) {
                         result = gpu_sub_idx;
                     }
@@ -543,7 +543,8 @@ namespace geopm
                                          "Thread(s) per core",
                                          "Core(s) per socket",
                                          "Socket(s)",
-                                         "On-line CPU(s) mask"};
+                                         "On-line CPU(s) mask"
+                                        };
         std::vector<std::string> values(keys.size());
 
         for (size_t i = 0; i < values.size(); ++i) {

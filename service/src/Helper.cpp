@@ -54,8 +54,8 @@ namespace geopm
         auto units_offset = file_contents.find_first_not_of(separators, value_length);
         auto units_end = file_contents.find_last_not_of(separators);
         auto units_length = units_end == std::string::npos
-                                ? std::string::npos
-                                : units_end - units_offset + 1;
+                            ? std::string::npos
+                            : units_end - units_offset + 1;
         bool units_exist = units_offset != std::string::npos;
         bool units_are_expected = !expected_units.empty();
 
@@ -247,7 +247,8 @@ namespace geopm
         return env_string;
     }
 
-    unsigned int pid_to_uid(const int pid) {
+    unsigned int pid_to_uid(const int pid)
+    {
         int err = 0;
         std::string proc_path = "/proc/" + std::to_string(pid);
         struct stat stat_struct;
@@ -258,7 +259,8 @@ namespace geopm
         return stat_struct.st_uid;
     };
 
-    unsigned int pid_to_gid(const int pid) {
+    unsigned int pid_to_gid(const int pid)
+    {
         int err = 0;
         std::string proc_path = "/proc/" + std::to_string(pid);
         struct stat stat_struct;

@@ -88,8 +88,8 @@ namespace geopm
                             big_o.push_back(big_o_obj.number_value());
                         }
                         else {
-                           throw Exception("model_parse_config(): big-o expected to be a double type",
-                                   GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+                            throw Exception("model_parse_config(): big-o expected to be a double type",
+                                            GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                         }
                     }
                 }
@@ -122,8 +122,8 @@ namespace geopm
                             imbalance.push_back(imbalance_obj.number_value());
                         }
                         else {
-                           throw Exception("model_parse_config(): imbalance expected to be a double type",
-                                   GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+                            throw Exception("model_parse_config(): imbalance expected to be a double type",
+                                            GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                         }
                     }
                 }

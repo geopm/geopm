@@ -292,7 +292,7 @@ int rapl_pkg_limit_test(double power_limit, int num_rep)
             if (num_byte != sizeof(uint64_t)) {
                 err = errno ? errno : -1;
             }
-            if (!err && msr_value != new_limit[socket]){
+            if (!err && msr_value != new_limit[socket]) {
                 fprintf(outfile, "Error: socket %d PKG_POWER_LIMIT MSR %#05lx modified during runtime! "
                         "(%#018lx != %#018lx)\n",
                         socket, pkg_power_limit_off, new_limit[socket], msr_value);

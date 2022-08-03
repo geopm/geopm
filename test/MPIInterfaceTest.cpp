@@ -30,14 +30,14 @@ extern "C"
     typedef int MPI_Info;
     typedef int MPI_Group;
     typedef int MPI_Errhandler;
-    #define MPI_COMM_WORLD 1
-    #define MPI_COMM_NULL 0
-    #define MPI_THREAD_MULTIPLE 1
-    #define MPI_UNSIGNED 0
-    #define MPI_MIN 0
-    #define MPI_ERRORS_RETURN 1
-    #define MPI_MAX_OBJECT_NAME 16
-    #define MPI_INFO_NULL 0
+#define MPI_COMM_WORLD 1
+#define MPI_COMM_NULL 0
+#define MPI_THREAD_MULTIPLE 1
+#define MPI_UNSIGNED 0
+#define MPI_MIN 0
+#define MPI_ERRORS_RETURN 1
+#define MPI_MAX_OBJECT_NAME 16
+#define MPI_INFO_NULL 0
 
     // Special region id for tests
     static const uint64_t REGION_ID_MPI = 1ULL << 60;
@@ -68,7 +68,7 @@ extern "C"
         g_test_curr_region_enter_count++;
         return 0;
     }
-    #define geopm_prof_enter(a) mock_geopm_prof_enter(a)
+#define geopm_prof_enter(a) mock_geopm_prof_enter(a)
 
     static uint64_t g_test_curr_region_exit_id = 0;
     static int g_test_curr_region_exit_count = 0;
@@ -78,7 +78,7 @@ extern "C"
         g_test_curr_region_exit_count++;
         return 0;
     }
-    #define geopm_prof_exit(a) mock_geopm_prof_exit(a)
+#define geopm_prof_exit(a) mock_geopm_prof_exit(a)
 
 
     MPI_Comm g_passed_comm_arg = MPI_COMM_WORLD;
@@ -88,44 +88,48 @@ extern "C"
         return 0;
     }
 
-    #define MPI_Abort(...) return_zero()
-    #define PMPI_Comm_c2f(...) return_zero()
-    #define PMPI_Comm_f2c(...) return_zero()
-    #define PMPI_Comm_free(...) return_zero()
-    #define PMPI_Comm_get_parent(...) return_zero()
-    #define PMPI_Finalize(...) return_zero()
-    #define PMPI_Init(...) return_zero()
-    #define PMPI_Wait(...) return_zero()
-    #define PMPI_Waitsome(...) return_zero()
-    #define PMPI_Waitany(...) return_zero()
-    #define PMPI_Waitall(...) return_zero()
+#define MPI_Abort(...) return_zero()
+#define PMPI_Comm_c2f(...) return_zero()
+#define PMPI_Comm_f2c(...) return_zero()
+#define PMPI_Comm_free(...) return_zero()
+#define PMPI_Comm_get_parent(...) return_zero()
+#define PMPI_Finalize(...) return_zero()
+#define PMPI_Init(...) return_zero()
+#define PMPI_Wait(...) return_zero()
+#define PMPI_Waitsome(...) return_zero()
+#define PMPI_Waitany(...) return_zero()
+#define PMPI_Waitall(...) return_zero()
 
-    #define geopm_ctl_create(...) return_zero()
-    #define geopm_ctl_run(...) return_zero()
-    #define geopm_ctl_pthread(...) return_zero()
-    #define geopm_ctl_destroy(...) return_zero()
+#define geopm_ctl_create(...) return_zero()
+#define geopm_ctl_run(...) return_zero()
+#define geopm_ctl_pthread(...) return_zero()
+#define geopm_ctl_destroy(...) return_zero()
 
-    #include "pmpi_mock.c"
+#include "pmpi_mock.c"
 
     int MPI_Finalize();
     int MPI_Comm_rank(MPI_Comm comm, int *rank);
 
-    int PMPI_Query_thread(int *mpi_thread_level) {
+    int PMPI_Query_thread(int *mpi_thread_level)
+    {
         *mpi_thread_level = 1;
         return 0;
     }
-    int PMPI_Init_thread(int *argc, char **argv[], int required, int *provided) {
+    int PMPI_Init_thread(int *argc, char **argv[], int required, int *provided)
+    {
         *provided = 1;
         return 0;
     }
 
-    int geopm_comm_split(MPI_Comm comm, const char *tag, MPI_Comm *split_comm, int *is_ctl_comm) {
+    int geopm_comm_split(MPI_Comm comm, const char *tag, MPI_Comm *split_comm, int *is_ctl_comm)
+    {
         *split_comm = 2;
         *is_ctl_comm = 1;
         return 0;
     }
 
-    int geopm_comm_split_ppn1(MPI_Comm comm, const char *tag, MPI_Comm *ppn1_comm) {
+    int geopm_comm_split_ppn1(MPI_Comm comm, const char *tag, MPI_Comm *ppn1_comm)
+    {
         return 0;
     }
 
@@ -146,7 +150,8 @@ extern "C"
             geopm_prof_exit(func_rid);
         }
     }
-    int geopm_prof_region(const char *region_name, uint64_t hint, uint64_t *region_id) {
+    int geopm_prof_region(const char *region_name, uint64_t hint, uint64_t *region_id)
+    {
         *region_id = G_EXPECTED_REGION_ID;
         return 0;
     }

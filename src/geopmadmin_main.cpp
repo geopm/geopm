@@ -18,8 +18,7 @@ int main(int argc, const char **argv)
         geopm::Admin admin;
         admin.main(argc, argv, std::cout, std::cerr);
     }
-    catch (...)
-    {
+    catch (...) {
         err = geopm::exception_handler(std::current_exception(), true);
     }
     return err;

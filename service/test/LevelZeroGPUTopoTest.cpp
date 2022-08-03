@@ -128,8 +128,8 @@ TEST_F(LevelZeroGPUTopoTest, eight_fiftysix_affinitization_config)
     EXPECT_EQ(num_gpu, topo.num_gpu());
     EXPECT_EQ(num_gpu_subdevice, topo.num_gpu(GEOPM_DOMAIN_GPU_CHIP));
     std::set<int> cpus_allowed_set[num_gpu];
-    cpus_allowed_set[0] = {0 ,1 ,2 ,3 ,4 ,5 ,6 };
-    cpus_allowed_set[1] = {7 ,8 ,9 ,10,11,12,13};
+    cpus_allowed_set[0] = {0,1,2,3,4,5,6 };
+    cpus_allowed_set[1] = {7,8,9,10,11,12,13};
     cpus_allowed_set[2] = {14,15,16,17,18,19,20};
     cpus_allowed_set[3] = {21,22,23,24,25,26,27};
     cpus_allowed_set[4] = {28,29,30,31,32,33,34};
@@ -158,8 +158,8 @@ TEST_F(LevelZeroGPUTopoTest, uneven_affinitization_config)
 
     EXPECT_EQ(num_gpu, topo.num_gpu());
     std::set<int> cpus_allowed_set[num_gpu];
-    cpus_allowed_set[0] = {0 ,1 ,2 ,3 ,4 ,5 ,18};
-    cpus_allowed_set[1] = {6 ,7 ,8 ,9 ,10,11,19};
+    cpus_allowed_set[0] = {0,1,2,3,4,5,18};
+    cpus_allowed_set[1] = {6,7,8,9,10,11,19};
     cpus_allowed_set[2] = {12,13,14,15,16,17};
 
     for (int gpu_idx = 0; gpu_idx < num_gpu; ++gpu_idx) {

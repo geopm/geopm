@@ -37,24 +37,24 @@ class PowerGovernorTest : public ::testing::Test
 void PowerGovernorTest::SetUp(void)
 {
     EXPECT_CALL(m_platform_io, control_domain_type("CPU_POWER_LIMIT_CONTROL"))
-        .Times(1)
-        .WillOnce(Return(GEOPM_DOMAIN_PACKAGE));
+    .Times(1)
+    .WillOnce(Return(GEOPM_DOMAIN_PACKAGE));
     EXPECT_CALL(m_platform_topo, num_domain(GEOPM_DOMAIN_PACKAGE))
-        .Times(1)
-        .WillOnce(Return(m_num_package));
+    .Times(1)
+    .WillOnce(Return(m_num_package));
     EXPECT_CALL(m_platform_io, push_control("CPU_POWER_LIMIT_CONTROL", GEOPM_DOMAIN_PACKAGE, _))
-        .Times(m_num_package);
+    .Times(m_num_package);
 
     EXPECT_CALL(m_platform_io, read_signal("CPU_POWER_MIN_AVAIL", GEOPM_DOMAIN_PACKAGE, 0))
-        .Times(1)
-        .WillOnce(Return(M_PKG_POWER_MIN));
+    .Times(1)
+    .WillOnce(Return(M_PKG_POWER_MIN));
     EXPECT_CALL(m_platform_io, read_signal("CPU_POWER_MAX_AVAIL", GEOPM_DOMAIN_PACKAGE, 0))
-        .Times(1)
-        .WillOnce(Return(M_PKG_POWER_MAX));
+    .Times(1)
+    .WillOnce(Return(M_PKG_POWER_MAX));
     EXPECT_CALL(m_platform_io, write_control("CPU_POWER_TIME_WINDOW", GEOPM_DOMAIN_PACKAGE, 0, M_PKG_POWER_WIN))
-        .Times(1);
+    .Times(1);
     EXPECT_CALL(m_platform_io, write_control("CPU_POWER_TIME_WINDOW", GEOPM_DOMAIN_PACKAGE, 1, M_PKG_POWER_WIN))
-        .Times(1);
+    .Times(1);
 
     m_governor = geopm::make_unique<PowerGovernorImp>(m_platform_io, m_platform_topo);
     m_governor->init_platform_io();
@@ -88,7 +88,7 @@ TEST_F(PowerGovernorTest, govern_min)
     /// min budget
     {
         EXPECT_CALL(m_platform_io, adjust(_, M_PKG_POWER_MIN))
-            .Times(m_num_package);
+        .Times(m_num_package);
 
         m_governor->sample_platform();
         double node_power_set = 0.0;
@@ -108,7 +108,7 @@ TEST_F(PowerGovernorTest, govern_min)
         double new_pkg_power_min = M_PKG_POWER_MIN + 1;
         double new_node_power_min = new_pkg_power_min * m_num_package;
         EXPECT_CALL(m_platform_io, adjust(_, new_pkg_power_min))
-            .Times(m_num_package);
+        .Times(m_num_package);
 
         m_governor->set_power_bounds(new_pkg_power_min, M_PKG_POWER_MAX);
         double node_power_set = 0.0;
@@ -122,7 +122,7 @@ TEST_F(PowerGovernorTest, govern_max)
     /// max budget
     {
         EXPECT_CALL(m_platform_io, adjust(_, M_PKG_POWER_MAX))
-            .Times(m_num_package);
+        .Times(m_num_package);
 
         m_governor->sample_platform();
         double node_power_set = 0.0;
@@ -142,7 +142,7 @@ TEST_F(PowerGovernorTest, govern_max)
         double new_pkg_power_max = M_PKG_POWER_MAX - 1;
         double new_node_power_max = new_pkg_power_max * m_num_package;
         EXPECT_CALL(m_platform_io, adjust(_, new_pkg_power_max))
-            .Times(m_num_package);
+        .Times(m_num_package);
 
         m_governor->set_power_bounds(M_PKG_POWER_MIN, new_pkg_power_max);
         double node_power_set = 0.0;

@@ -139,10 +139,10 @@ TEST_F(ControlMessageTest, is_sample_begin)
     for (int i = 1; i <= M_STATUS_SHUTDOWN; ++i) {
         m_test_app_msg->step();
         if (i == M_STATUS_SAMPLE_BEGIN) {
-           ASSERT_TRUE(m_test_ctl_msg->is_sample_begin());
+            ASSERT_TRUE(m_test_ctl_msg->is_sample_begin());
         }
         else {
-           ASSERT_FALSE(m_test_ctl_msg->is_sample_begin());
+            ASSERT_FALSE(m_test_ctl_msg->is_sample_begin());
         }
     }
 }
@@ -152,10 +152,10 @@ TEST_F(ControlMessageTest, is_sample_end)
     for (int i = 1; i <= M_STATUS_SHUTDOWN; ++i) {
         m_test_app_msg->step();
         if (i == M_STATUS_SAMPLE_END) {
-           ASSERT_TRUE(m_test_ctl_msg->is_sample_end());
+            ASSERT_TRUE(m_test_ctl_msg->is_sample_end());
         }
         else {
-           ASSERT_FALSE(m_test_ctl_msg->is_sample_end());
+            ASSERT_FALSE(m_test_ctl_msg->is_sample_end());
         }
     }
 }
@@ -165,10 +165,10 @@ TEST_F(ControlMessageTest, is_name_begin)
     for (int i = 1; i <= M_STATUS_SHUTDOWN; ++i) {
         m_test_app_msg->step();
         if (i == M_STATUS_NAME_BEGIN) {
-           ASSERT_TRUE(m_test_ctl_msg->is_name_begin());
+            ASSERT_TRUE(m_test_ctl_msg->is_name_begin());
         }
         else {
-           ASSERT_FALSE(m_test_ctl_msg->is_name_begin());
+            ASSERT_FALSE(m_test_ctl_msg->is_name_begin());
         }
     }
 }
@@ -178,10 +178,10 @@ TEST_F(ControlMessageTest, is_shutdown)
     for (int i = 1; i <= M_STATUS_SHUTDOWN + 2; ++i) {
         m_test_app_msg->step();
         if (i >= M_STATUS_SHUTDOWN) {
-           ASSERT_TRUE(m_test_ctl_msg->is_shutdown());
+            ASSERT_TRUE(m_test_ctl_msg->is_shutdown());
         }
         else {
-           ASSERT_FALSE(m_test_ctl_msg->is_shutdown());
+            ASSERT_FALSE(m_test_ctl_msg->is_shutdown());
         }
     }
 

@@ -48,13 +48,13 @@ class ControllerTestMockPlatformIO : public MockPlatformIO
         ControllerTestMockPlatformIO()
         {
             ON_CALL(*this, agg_function(_))
-                .WillByDefault(Return(geopm::Agg::sum));
+            .WillByDefault(Return(geopm::Agg::sum));
 
             // any other "unsupported" signals
             ON_CALL(*this, push_signal(_, _, _))
-                .WillByDefault(Return(-1));
+            .WillByDefault(Return(-1));
             ON_CALL(*this, sample(-1))
-                .WillByDefault(Return(NAN));
+            .WillByDefault(Return(NAN));
         }
         void add_supported_signal(const std::string &signal_name,
                                   int signal_domain_type,
@@ -62,11 +62,11 @@ class ControllerTestMockPlatformIO : public MockPlatformIO
                                   double default_value)
         {
             ON_CALL(*this, push_signal(signal_name, signal_domain_type, signal_domain_idx))
-                .WillByDefault(Return(m_index));
+            .WillByDefault(Return(m_index));
             ON_CALL(*this, sample(m_index))
-                .WillByDefault(Return(default_value));
+            .WillByDefault(Return(default_value));
             ON_CALL(*this, read_signal(signal_name, signal_domain_type, signal_domain_idx))
-                .WillByDefault(Return(default_value));
+            .WillByDefault(Return(default_value));
             ++m_index;
         }
 
@@ -176,9 +176,9 @@ TEST_F(ControllerTest, construct_with_file_policy)
     ASSERT_EQ(root_level, (int)fan_out.size());
 
     EXPECT_CALL(*m_tree_comm, num_level_controlled())
-        .WillOnce(Return(num_level_ctl));
+    .WillOnce(Return(num_level_ctl));
     EXPECT_CALL(*m_tree_comm, root_level())
-        .WillOnce(Return(root_level));
+    .WillOnce(Return(root_level));
     for (int level = 0; level < num_level_ctl; ++level) {
         EXPECT_CALL(*m_tree_comm, level_size(level)).WillOnce(Return(fan_out[level]));
     }
@@ -202,10 +202,10 @@ TEST_F(ControllerTest, construct_with_file_policy)
                           std::unique_ptr<MockEndpointPolicyTracer>(m_policy_tracer),
                           m_profile_tracer,
                           std::move(m_agents),
-                          {"A", "B"},
-                          m_file_policy_path, true,
-                          nullptr, "", false, // endpoint
-                          m_shm_key);
+    {"A", "B"},
+    m_file_policy_path, true,
+    nullptr, "", false, // endpoint
+    m_shm_key);
 }
 
 TEST_F(ControllerTest, run_with_no_policy)
@@ -218,9 +218,9 @@ TEST_F(ControllerTest, run_with_no_policy)
     ASSERT_EQ(root_level, (int)fan_out.size());
 
     EXPECT_CALL(*m_tree_comm, num_level_controlled())
-        .WillOnce(Return(num_level_ctl));
+    .WillOnce(Return(num_level_ctl));
     EXPECT_CALL(*m_tree_comm, root_level())
-        .WillOnce(Return(root_level));
+    .WillOnce(Return(root_level));
     for (int level = 0; level < num_level_ctl; ++level) {
         EXPECT_CALL(*m_tree_comm, level_size(level)).WillOnce(Return(fan_out[level]));
     }
@@ -244,10 +244,10 @@ TEST_F(ControllerTest, run_with_no_policy)
                           std::unique_ptr<MockEndpointPolicyTracer>(m_policy_tracer),
                           m_profile_tracer,
                           std::move(m_agents),
-                          {"A", "B"},
-                          "", false,  // false
-                          nullptr, "", false, // endpoint
-                          m_shm_key);
+    {"A", "B"},
+    "", false,  // false
+    nullptr, "", false, // endpoint
+    m_shm_key);
 
 
     std::vector<std::string> trace_names = {"COL1", "COL2"};
@@ -268,11 +268,11 @@ TEST_F(ControllerTest, run_with_no_policy)
     EXPECT_CALL(*m_level_agent[0], validate_policy(_)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], adjust_platform(_)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], do_write_batch())
-        .WillRepeatedly(Return(true));
+    .WillRepeatedly(Return(true));
     EXPECT_CALL(m_platform_io, write_batch()).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], sample_platform(_)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], do_send_sample()).Times(m_num_step)
-        .WillRepeatedly(Return(true));
+    .WillRepeatedly(Return(true));
     EXPECT_CALL(*m_level_agent[0], wait()).Times(m_num_step);
     // agent 0 should not call aggregate_sample/split_policy
     EXPECT_CALL(*m_level_agent[0], aggregate_sample(_, _)).Times(0);
@@ -281,17 +281,17 @@ TEST_F(ControllerTest, run_with_no_policy)
     EXPECT_CALL(*m_level_agent[2], validate_policy(_)).Times(0);
     EXPECT_CALL(*m_level_agent[2], split_policy(_, _)).Times(0);
     EXPECT_CALL(*m_level_agent[2], do_send_policy())
-        .WillRepeatedly(Return(false));
+    .WillRepeatedly(Return(false));
     EXPECT_CALL(*m_level_agent[1], validate_policy(_)).Times(0);
     EXPECT_CALL(*m_level_agent[1], split_policy(_, _)).Times(0);
     EXPECT_CALL(*m_level_agent[1], do_send_policy())
-        .WillRepeatedly(Return(false));
+    .WillRepeatedly(Return(false));
     EXPECT_CALL(*m_level_agent[1], aggregate_sample(_, _)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[1], do_send_sample())
-        .WillRepeatedly(Return(true));
+    .WillRepeatedly(Return(true));
     EXPECT_CALL(*m_level_agent[2], aggregate_sample(_, _)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[2], do_send_sample())
-        .WillRepeatedly(Return(true));
+    .WillRepeatedly(Return(true));
 
     for (int step = 0; step < m_num_step; ++step) {
         controller.step();
@@ -322,9 +322,9 @@ TEST_F(ControllerTest, get_hostnames)
     ASSERT_EQ(root_level, (int)fan_out.size());
 
     EXPECT_CALL(*m_tree_comm, num_level_controlled())
-        .WillOnce(Return(num_level_ctl));
+    .WillOnce(Return(num_level_ctl));
     EXPECT_CALL(*m_tree_comm, root_level())
-        .WillOnce(Return(root_level));
+    .WillOnce(Return(root_level));
     for (int level = 0; level < num_level_ctl; ++level) {
         EXPECT_CALL(*m_tree_comm, level_size(level)).WillOnce(Return(fan_out[level]));
     }
@@ -370,9 +370,9 @@ TEST_F(ControllerTest, single_node)
 
     // constructor
     EXPECT_CALL(*m_tree_comm, num_level_controlled())
-        .WillOnce(Return(num_level_ctl));
+    .WillOnce(Return(num_level_ctl));
     EXPECT_CALL(*m_tree_comm, root_level())
-        .WillOnce(Return(root_level));
+    .WillOnce(Return(root_level));
 
     Controller controller(m_comm, m_platform_io,
                           m_agent_name, m_num_send_down, m_num_send_up,
@@ -406,7 +406,7 @@ TEST_F(ControllerTest, single_node)
     std::vector<double> endpoint_policy = {8.8, 9.9};
     ASSERT_EQ(m_num_send_down, (int)endpoint_policy.size());
     EXPECT_CALL(*m_endpoint, read_policy(_)).Times(m_num_step)
-        .WillRepeatedly(DoAll(SetArgReferee<0>(endpoint_policy), Return(0)));
+    .WillRepeatedly(DoAll(SetArgReferee<0>(endpoint_policy), Return(0)));
     EXPECT_CALL(*m_reporter, update()).Times(m_num_step);
     EXPECT_CALL(*m_tracer, update(_)).Times(m_num_step);
     EXPECT_CALL(*m_profile_tracer, update(_)).Times(m_num_step);
@@ -415,10 +415,10 @@ TEST_F(ControllerTest, single_node)
     EXPECT_CALL(*agent, validate_policy(_)).Times(m_num_step);
     EXPECT_CALL(*agent, adjust_platform(_)).Times(m_num_step);
     EXPECT_CALL(*agent, do_write_batch())
-        .WillRepeatedly(Return(true));
+    .WillRepeatedly(Return(true));
     EXPECT_CALL(*agent, sample_platform(_)).Times(m_num_step);
     EXPECT_CALL(*agent, do_send_sample()).Times(m_num_step)
-        .WillRepeatedly(Return(true));
+    .WillRepeatedly(Return(true));
     EXPECT_CALL(*m_endpoint, write_sample(_)).Times(m_num_step);
     EXPECT_CALL(*agent, wait()).Times(m_num_step);
     // should not call aggregate_sample/split_policy
@@ -448,9 +448,9 @@ TEST_F(ControllerTest, two_level_controller_1)
     int num_level_ctl = 0;
     int root_level = 2;
     EXPECT_CALL(*m_tree_comm, num_level_controlled())
-        .WillOnce(Return(num_level_ctl));
+    .WillOnce(Return(num_level_ctl));
     EXPECT_CALL(*m_tree_comm, root_level())
-        .WillOnce(Return(root_level));
+    .WillOnce(Return(root_level));
 
     auto agent = new MockAgent();
     m_agents.emplace_back(agent);
@@ -499,10 +499,10 @@ TEST_F(ControllerTest, two_level_controller_1)
     EXPECT_CALL(*agent, validate_policy(_)).Times(m_num_step);
     EXPECT_CALL(*agent, adjust_platform(_)).Times(m_num_step);
     EXPECT_CALL(*agent, do_write_batch())
-        .WillRepeatedly(Return(true));
+    .WillRepeatedly(Return(true));
     EXPECT_CALL(*agent, sample_platform(_)).Times(m_num_step);
     EXPECT_CALL(*agent, do_send_sample()).Times(m_num_step)
-        .WillRepeatedly(Return(true));
+    .WillRepeatedly(Return(true));
     EXPECT_CALL(*agent, wait()).Times(m_num_step);
     // should not call aggregate_sample/split_policy
     EXPECT_CALL(*agent, aggregate_sample(_, _)).Times(0);
@@ -540,9 +540,9 @@ TEST_F(ControllerTest, two_level_controller_2)
     ASSERT_EQ(root_level, (int)fan_out.size());
 
     EXPECT_CALL(*m_tree_comm, num_level_controlled())
-        .WillOnce(Return(num_level_ctl));
+    .WillOnce(Return(num_level_ctl));
     EXPECT_CALL(*m_tree_comm, root_level())
-        .WillOnce(Return(root_level));
+    .WillOnce(Return(root_level));
     for (int level = 0; level < num_level_ctl; ++level) {
         EXPECT_CALL(*m_tree_comm, level_size(level)).WillOnce(Return(fan_out[level]));
     }
@@ -599,11 +599,11 @@ TEST_F(ControllerTest, two_level_controller_2)
     EXPECT_CALL(*m_level_agent[0], validate_policy(_)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], adjust_platform(_)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], do_write_batch())
-        .WillRepeatedly(Return(true));
+    .WillRepeatedly(Return(true));
     EXPECT_CALL(m_platform_io, write_batch()).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], sample_platform(_)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], do_send_sample()).Times(m_num_step)
-        .WillRepeatedly(Return(true));
+    .WillRepeatedly(Return(true));
     EXPECT_CALL(*m_level_agent[0], wait()).Times(m_num_step);
     // agent 0 should not call aggregate_sample/split_policy
     EXPECT_CALL(*m_level_agent[0], aggregate_sample(_, _)).Times(0);
@@ -612,10 +612,10 @@ TEST_F(ControllerTest, two_level_controller_2)
     EXPECT_CALL(*m_level_agent[1], validate_policy(_)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[1], split_policy(_, _)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[1], do_send_policy())
-        .WillRepeatedly(Return(true));
+    .WillRepeatedly(Return(true));
     EXPECT_CALL(*m_level_agent[1], aggregate_sample(_, _)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[1], do_send_sample())
-        .WillRepeatedly(Return(true));
+    .WillRepeatedly(Return(true));
 
     for (int step = 0; step < m_num_step; ++step) {
         controller.step();
@@ -650,9 +650,9 @@ TEST_F(ControllerTest, two_level_controller_0)
     ASSERT_EQ(root_level, (int)fan_out.size());
 
     EXPECT_CALL(*m_tree_comm, num_level_controlled())
-        .WillOnce(Return(num_level_ctl));
+    .WillOnce(Return(num_level_ctl));
     EXPECT_CALL(*m_tree_comm, root_level())
-        .WillOnce(Return(root_level));
+    .WillOnce(Return(root_level));
     for (int level = 0; level < num_level_ctl; ++level) {
         EXPECT_CALL(*m_tree_comm, level_size(level)).WillOnce(Return(fan_out[level]));
     }
@@ -695,7 +695,7 @@ TEST_F(ControllerTest, two_level_controller_0)
     std::vector<double> endpoint_policy = {8.8, 9.9};
     ASSERT_EQ(m_num_send_down, (int)endpoint_policy.size());
     EXPECT_CALL(*m_endpoint, read_policy(_)).Times(m_num_step)
-        .WillRepeatedly(DoAll(SetArgReferee<0>(endpoint_policy), Return(0)));
+    .WillRepeatedly(DoAll(SetArgReferee<0>(endpoint_policy), Return(0)));
     EXPECT_CALL(*m_reporter, update()).Times(m_num_step);
     EXPECT_CALL(*m_tracer, update(_)).Times(m_num_step);
     EXPECT_CALL(*m_profile_tracer, update(_)).Times(m_num_step);
@@ -704,11 +704,11 @@ TEST_F(ControllerTest, two_level_controller_0)
     EXPECT_CALL(*m_level_agent[0], validate_policy(_)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], adjust_platform(_)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], do_write_batch())
-        .WillRepeatedly(Return(true));
+    .WillRepeatedly(Return(true));
     EXPECT_CALL(m_platform_io, write_batch()).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], sample_platform(_)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], do_send_sample()).Times(m_num_step)
-        .WillRepeatedly(Return(true));
+    .WillRepeatedly(Return(true));
     EXPECT_CALL(*m_level_agent[0], wait()).Times(m_num_step);
     // agent 0 should not call aggregate_sample/split_policy
     EXPECT_CALL(*m_level_agent[0], aggregate_sample(_, _)).Times(0);
@@ -717,17 +717,17 @@ TEST_F(ControllerTest, two_level_controller_0)
     EXPECT_CALL(*m_level_agent[2], validate_policy(_)).Times(1);
     EXPECT_CALL(*m_level_agent[2], split_policy(_, _)).Times(1);
     EXPECT_CALL(*m_level_agent[2], do_send_policy())
-        .WillRepeatedly(Return(true));
+    .WillRepeatedly(Return(true));
     EXPECT_CALL(*m_level_agent[1], validate_policy(_)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[1], split_policy(_, _)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[1], do_send_policy())
-        .WillRepeatedly(Return(true));
+    .WillRepeatedly(Return(true));
     EXPECT_CALL(*m_level_agent[1], aggregate_sample(_, _)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[1], do_send_sample())
-        .WillRepeatedly(Return(true));
+    .WillRepeatedly(Return(true));
     EXPECT_CALL(*m_level_agent[2], aggregate_sample(_, _)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[2], do_send_sample())
-        .WillRepeatedly(Return(true));
+    .WillRepeatedly(Return(true));
     EXPECT_CALL(*m_endpoint, write_sample(_)).Times(m_num_step);
 
     for (int step = 0; step < m_num_step; ++step) {

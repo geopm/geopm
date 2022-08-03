@@ -54,8 +54,8 @@ namespace geopm
     }
 
     double MSRFieldSignal::convert_raw_value(double val,
-                                     uint64_t &last_field,
-                                     int &num_overflow) const
+                                             uint64_t &last_field,
+                                             int &num_overflow) const
     {
         uint64_t field = geopm_signal_to_field(val);
         uint64_t subfield = (field & m_mask) >> m_shift;

@@ -59,7 +59,7 @@ namespace geopm
             batch_read_data.emplace_back(sst_cpu_map_interface_s{ i, 0 });
         }
         auto batch_reads = ioctl_structs_from_vector<sst_cpu_map_interface_batch_s>(
-            batch_read_data);
+                               batch_read_data);
 
         for (auto &batch_read : batch_reads) {
             err = m_ioctl->get_cpu_id(batch_read.get());
@@ -96,14 +96,14 @@ namespace geopm
         // buffer later.
         int mbox_idx = m_mbox_read_interfaces.size();
         auto it = std::find_if(
-            m_mbox_read_interfaces.begin(), m_mbox_read_interfaces.end(),
-            [&mbox](const sst_mbox_interface_s &existing_mbox) {
-                return existing_mbox.cpu_index == mbox.cpu_index &&
-                       existing_mbox.mbox_interface_param == mbox.mbox_interface_param &&
-                       existing_mbox.command == mbox.command &&
-                       existing_mbox.subcommand == mbox.subcommand &&
-                       existing_mbox.write_value == mbox.write_value;
-            });
+                      m_mbox_read_interfaces.begin(), m_mbox_read_interfaces.end(),
+        [&mbox](const sst_mbox_interface_s &existing_mbox) {
+            return existing_mbox.cpu_index == mbox.cpu_index &&
+                   existing_mbox.mbox_interface_param == mbox.mbox_interface_param &&
+                   existing_mbox.command == mbox.command &&
+                   existing_mbox.subcommand == mbox.subcommand &&
+                   existing_mbox.write_value == mbox.write_value;
+        });
 
         int idx = -1;
         if (it == m_mbox_read_interfaces.end()) {
@@ -119,7 +119,7 @@ namespace geopm
             // This reader has been added before. Return the previously-used
             // signal index.
             size_t read_interface_idx = std::distance(
-                m_mbox_read_interfaces.begin(), it);
+                                            m_mbox_read_interfaces.begin(), it);
             auto index_it = std::find(m_added_interfaces.begin(),
                                       m_added_interfaces.end(),
                                       std::make_pair(MBOX, read_interface_idx));
@@ -151,13 +151,13 @@ namespace geopm
         };
         int mbox_idx = m_mbox_write_interfaces.size();
         auto it = std::find_if(
-            m_mbox_write_interfaces.begin(), m_mbox_write_interfaces.end(),
-            [&mbox](const sst_mbox_interface_s &existing_mbox) {
-                return existing_mbox.cpu_index == mbox.cpu_index &&
-                       existing_mbox.mbox_interface_param == mbox.mbox_interface_param &&
-                       existing_mbox.command == mbox.command &&
-                       existing_mbox.subcommand == mbox.subcommand;
-            });
+                      m_mbox_write_interfaces.begin(), m_mbox_write_interfaces.end(),
+        [&mbox](const sst_mbox_interface_s &existing_mbox) {
+            return existing_mbox.cpu_index == mbox.cpu_index &&
+                   existing_mbox.mbox_interface_param == mbox.mbox_interface_param &&
+                   existing_mbox.command == mbox.command &&
+                   existing_mbox.subcommand == mbox.subcommand;
+        });
 
         int idx = -1;
         if (it == m_mbox_write_interfaces.end()) {
@@ -179,7 +179,7 @@ namespace geopm
             // This writer, or another in the same mailbox slot, has been
             // added before. Return the previously used control index.
             size_t write_interface_idx = std::distance(
-                m_mbox_write_interfaces.begin(), it);
+                                             m_mbox_write_interfaces.begin(), it);
             auto index_it = std::find(m_added_interfaces.begin(),
                                       m_added_interfaces.end(),
                                       std::make_pair(MBOX, write_interface_idx));
@@ -239,7 +239,7 @@ namespace geopm
     {
         if (!m_mbox_read_interfaces.empty()) {
             m_mbox_read_batch = ioctl_structs_from_vector<sst_mbox_interface_batch_s>(
-                m_mbox_read_interfaces);
+                                    m_mbox_read_interfaces);
 
             for (auto &batch : m_mbox_read_batch) {
                 errno = 0;
@@ -256,7 +256,7 @@ namespace geopm
         }
         if (!m_mmio_read_interfaces.empty()) {
             m_mmio_read_batch = ioctl_structs_from_vector<sst_mmio_interface_batch_s>(
-                m_mmio_read_interfaces);
+                                    m_mmio_read_interfaces);
 
             for (auto &batch : m_mmio_read_batch) {
                 int err = m_ioctl->mmio(batch.get());
@@ -298,7 +298,7 @@ namespace geopm
     {
         if (!m_mbox_write_interfaces.empty()) {
             m_mbox_write_batch = ioctl_structs_from_vector<sst_mbox_interface_batch_s>(
-                m_mbox_rmw_interfaces);
+                                     m_mbox_rmw_interfaces);
 
             for (auto &batch : m_mbox_write_batch) {
                 // Read existing value (TODO: only need if not whole mask write)
@@ -328,7 +328,7 @@ namespace geopm
             }
 
             m_mbox_write_batch = ioctl_structs_from_vector<sst_mbox_interface_batch_s>(
-                m_mbox_write_interfaces);
+                                     m_mbox_write_interfaces);
 
             for (auto &batch : m_mbox_write_batch) {
                 // Write the adjusted value
@@ -347,7 +347,7 @@ namespace geopm
 
         if (!m_mmio_write_interfaces.empty()) {
             m_mmio_write_batch = ioctl_structs_from_vector<sst_mmio_interface_batch_s>(
-                m_mmio_rmw_interfaces);
+                                     m_mmio_rmw_interfaces);
 
             for (auto &batch : m_mmio_write_batch) {
                 // Read existing value (TODO: only need if not whole mask write)
@@ -372,7 +372,7 @@ namespace geopm
             }
 
             m_mmio_write_batch = ioctl_structs_from_vector<sst_mmio_interface_batch_s>(
-                m_mmio_write_interfaces);
+                                     m_mmio_write_interfaces);
 
             for (auto &batch : m_mmio_write_batch) {
                 // Write the adjusted value
@@ -390,12 +390,15 @@ namespace geopm
     {
         sst_mbox_interface_batch_s read_batch{
             .num_entries = 1,
-            .interfaces = { { .cpu_index = cpu_index,
-                              .mbox_interface_param = 0,
-                              .write_value = subcommand_arg,
-                              .read_value = 0,
-                              .command = command,
-                              .subcommand = subcommand } }
+            .interfaces = { {
+                    .cpu_index = cpu_index,
+                    .mbox_interface_param = 0,
+                    .write_value = subcommand_arg,
+                    .read_value = 0,
+                    .command = command,
+                    .subcommand = subcommand
+                }
+            }
         };
 
         errno = 0;
@@ -419,12 +422,15 @@ namespace geopm
     {
         sst_mbox_interface_batch_s batch{
             .num_entries = 1,
-            .interfaces = { { .cpu_index = cpu_index,
-                              .mbox_interface_param = read_interface_parameter,
-                              .write_value = 0,
-                              .read_value = 0,
-                              .command = command,
-                              .subcommand = read_subcommand } }
+            .interfaces = { {
+                    .cpu_index = cpu_index,
+                    .mbox_interface_param = read_interface_parameter,
+                    .write_value = 0,
+                    .read_value = 0,
+                    .command = command,
+                    .subcommand = read_subcommand
+                }
+            }
         };
         errno = 0;
         int err = m_ioctl->mbox(&batch);
@@ -457,10 +463,13 @@ namespace geopm
     {
         sst_mmio_interface_batch_s read_batch{
             .num_entries = 1,
-            .interfaces = { { .is_write = 0,
-                              .cpu_index = cpu_index,
-                              .register_offset = register_offset,
-                              .value = 0 } }
+            .interfaces = { {
+                    .is_write = 0,
+                    .cpu_index = cpu_index,
+                    .register_offset = register_offset,
+                    .value = 0
+                }
+            }
         };
 
         int err = m_ioctl->mmio(&read_batch);
@@ -478,10 +487,13 @@ namespace geopm
     {
         sst_mmio_interface_batch_s batch{
             .num_entries = 1,
-            .interfaces = { { .is_write = 0,
-                              .cpu_index = cpu_index,
-                              .register_offset = register_offset,
-                              .value = 0 } }
+            .interfaces = { {
+                    .is_write = 0,
+                    .cpu_index = cpu_index,
+                    .register_offset = register_offset,
+                    .value = 0
+                }
+            }
         };
 
         int err = m_ioctl->mmio(&batch);
@@ -506,8 +518,8 @@ namespace geopm
         const auto &interface = m_added_interfaces[batch_idx];
         auto &write_destination =
             interface.first == MMIO
-                ? m_mmio_write_interfaces[interface.second].value
-                : m_mbox_write_interfaces[interface.second].write_value;
+            ? m_mmio_write_interfaces[interface.second].value
+            : m_mbox_write_interfaces[interface.second].write_value;
         write_destination &= ~write_mask;
         write_destination |= write_value;
 

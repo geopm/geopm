@@ -250,9 +250,9 @@ TEST_F(MSRIOGroupTest, valid_signal_domains)
 
     // scalability
     EXPECT_EQ(GEOPM_DOMAIN_CPU,
-            m_msrio_group->signal_domain_type("MSR::PPERF:PCNT"));
+              m_msrio_group->signal_domain_type("MSR::PPERF:PCNT"));
     EXPECT_EQ(GEOPM_DOMAIN_CPU,
-            m_msrio_group->signal_domain_type("MSR::CPU_SCALABILITY_RATIO"));
+              m_msrio_group->signal_domain_type("MSR::CPU_SCALABILITY_RATIO"));
 
 }
 
@@ -391,11 +391,11 @@ TEST_F(MSRIOGroupTest, push_signal)
     uint64_t perf_status_offset = 0x198;
     uint64_t inst_ret_offset = 0x309;
     EXPECT_CALL(*m_msrio, add_read(0, perf_status_offset))
-        .WillOnce(Return(PERF_STATUS_0));
+    .WillOnce(Return(PERF_STATUS_0));
     EXPECT_CALL(*m_msrio, add_read(0, inst_ret_offset))
-        .WillOnce(Return(INST_RET_0));
+    .WillOnce(Return(INST_RET_0));
     EXPECT_CALL(*m_msrio, add_read(1, inst_ret_offset))
-        .WillOnce(Return(INST_RET_1));
+    .WillOnce(Return(INST_RET_1));
 
     // push valid signals
     int freq_idx_0 = m_msrio_group->push_signal("MSR::PERF_STATUS:FREQ", GEOPM_DOMAIN_CPU, 0);
@@ -434,11 +434,11 @@ TEST_F(MSRIOGroupTest, sample)
     uint64_t perf_status_offset = 0x198;
     uint64_t inst_ret_offset = 0x309;
     EXPECT_CALL(*m_msrio, add_read(0, perf_status_offset))
-        .WillOnce(Return(PERF_STATUS_0));
+    .WillOnce(Return(PERF_STATUS_0));
     EXPECT_CALL(*m_msrio, add_read(0, inst_ret_offset))
-        .WillOnce(Return(INST_RET_0));
+    .WillOnce(Return(INST_RET_0));
     EXPECT_CALL(*m_msrio, add_read(1, inst_ret_offset))
-        .WillOnce(Return(INST_RET_1));
+    .WillOnce(Return(INST_RET_1));
     int freq_idx_0 = m_msrio_group->push_signal("MSR::PERF_STATUS:FREQ", GEOPM_DOMAIN_CPU, 0);
     int inst_idx_0 = m_msrio_group->push_signal("MSR::FIXED_CTR0:INST_RETIRED_ANY",
                                                 GEOPM_DOMAIN_CPU, 0);
@@ -453,47 +453,47 @@ TEST_F(MSRIOGroupTest, sample)
 
     // first batch
     {
-    EXPECT_CALL(*m_msrio, read_batch());
-    m_msrio_group->read_batch();
+        EXPECT_CALL(*m_msrio, read_batch());
+        m_msrio_group->read_batch();
 
-    EXPECT_CALL(*m_msrio, sample(PERF_STATUS_0)).WillOnce(Return(0xB00));
-    EXPECT_CALL(*m_msrio, sample(INST_RET_0)).WillOnce(Return(1234));
-    EXPECT_CALL(*m_msrio, sample(INST_RET_1)).WillOnce(Return(5678));
-    double freq_0 = m_msrio_group->sample(freq_idx_0);
-    double inst_0 = m_msrio_group->sample(inst_idx_0);
-    double inst_1 = m_msrio_group->sample(inst_idx_1);
-    EXPECT_EQ(1.1e9, freq_0);
-    EXPECT_EQ(1234, inst_0);
-    EXPECT_EQ(5678, inst_1);
+        EXPECT_CALL(*m_msrio, sample(PERF_STATUS_0)).WillOnce(Return(0xB00));
+        EXPECT_CALL(*m_msrio, sample(INST_RET_0)).WillOnce(Return(1234));
+        EXPECT_CALL(*m_msrio, sample(INST_RET_1)).WillOnce(Return(5678));
+        double freq_0 = m_msrio_group->sample(freq_idx_0);
+        double inst_0 = m_msrio_group->sample(inst_idx_0);
+        double inst_1 = m_msrio_group->sample(inst_idx_1);
+        EXPECT_EQ(1.1e9, freq_0);
+        EXPECT_EQ(1234, inst_0);
+        EXPECT_EQ(5678, inst_1);
     }
 
     // sample again without read should get same value
     {
-    EXPECT_CALL(*m_msrio, sample(PERF_STATUS_0)).WillOnce(Return(0xB00));
-    EXPECT_CALL(*m_msrio, sample(INST_RET_0)).WillOnce(Return(1234));
-    EXPECT_CALL(*m_msrio, sample(INST_RET_1)).WillOnce(Return(5678));
-    double freq_0 = m_msrio_group->sample(freq_idx_0);
-    double inst_0 = m_msrio_group->sample(inst_idx_0);
-    double inst_1 = m_msrio_group->sample(inst_idx_1);
-    EXPECT_EQ(1.1e9, freq_0);
-    EXPECT_EQ(1234, inst_0);
-    EXPECT_EQ(5678, inst_1);
+        EXPECT_CALL(*m_msrio, sample(PERF_STATUS_0)).WillOnce(Return(0xB00));
+        EXPECT_CALL(*m_msrio, sample(INST_RET_0)).WillOnce(Return(1234));
+        EXPECT_CALL(*m_msrio, sample(INST_RET_1)).WillOnce(Return(5678));
+        double freq_0 = m_msrio_group->sample(freq_idx_0);
+        double inst_0 = m_msrio_group->sample(inst_idx_0);
+        double inst_1 = m_msrio_group->sample(inst_idx_1);
+        EXPECT_EQ(1.1e9, freq_0);
+        EXPECT_EQ(1234, inst_0);
+        EXPECT_EQ(5678, inst_1);
     }
 
     // second batch
     {
-    EXPECT_CALL(*m_msrio, read_batch());
-    m_msrio_group->read_batch();
+        EXPECT_CALL(*m_msrio, read_batch());
+        m_msrio_group->read_batch();
 
-    EXPECT_CALL(*m_msrio, sample(PERF_STATUS_0)).WillOnce(Return(0xC00));
-    EXPECT_CALL(*m_msrio, sample(INST_RET_0)).WillOnce(Return(87654));
-    EXPECT_CALL(*m_msrio, sample(INST_RET_1)).WillOnce(Return(65432));
-    double freq_0 = m_msrio_group->sample(freq_idx_0);
-    double inst_0 = m_msrio_group->sample(inst_idx_0);
-    double inst_1 = m_msrio_group->sample(inst_idx_1);
-    EXPECT_EQ(1.2e9, freq_0);
-    EXPECT_EQ(87654, inst_0);
-    EXPECT_EQ(65432, inst_1);
+        EXPECT_CALL(*m_msrio, sample(PERF_STATUS_0)).WillOnce(Return(0xC00));
+        EXPECT_CALL(*m_msrio, sample(INST_RET_0)).WillOnce(Return(87654));
+        EXPECT_CALL(*m_msrio, sample(INST_RET_1)).WillOnce(Return(65432));
+        double freq_0 = m_msrio_group->sample(freq_idx_0);
+        double inst_0 = m_msrio_group->sample(inst_idx_0);
+        double inst_1 = m_msrio_group->sample(inst_idx_1);
+        EXPECT_EQ(1.2e9, freq_0);
+        EXPECT_EQ(87654, inst_0);
+        EXPECT_EQ(65432, inst_1);
     }
 
     GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_signal("MSR::PERF_STATUS:FREQ", GEOPM_DOMAIN_CPU, 0),
@@ -548,32 +548,32 @@ TEST_F(MSRIOGroupTest, read_signal_counter)
     double result;
 
     EXPECT_CALL(*m_msrio, read_msr(0, tsc_offset))
-        .WillOnce(Return(11111))
-        .WillOnce(Return(22222));
+    .WillOnce(Return(11111))
+    .WillOnce(Return(22222));
     result = m_msrio_group->read_signal("MSR::TIME_STAMP_COUNTER:TIMESTAMP_COUNT", GEOPM_DOMAIN_CPU, 0);
     EXPECT_EQ(11111, result);
     result = m_msrio_group->read_signal("CPU_TIMESTAMP_COUNTER", GEOPM_DOMAIN_CPU, 0);
     EXPECT_EQ(22222, result);
 
     EXPECT_CALL(*m_msrio, read_msr(0, fixed0_offset))
-        .WillOnce(Return(7777))
-        .WillOnce(Return(8888));
+    .WillOnce(Return(7777))
+    .WillOnce(Return(8888));
     result = m_msrio_group->read_signal("MSR::FIXED_CTR0:INST_RETIRED_ANY", GEOPM_DOMAIN_CPU, 0);
     EXPECT_EQ(7777, result);
     result = m_msrio_group->read_signal("CPU_INSTRUCTIONS_RETIRED", GEOPM_DOMAIN_CPU, 0);
     EXPECT_EQ(8888, result);
 
     EXPECT_CALL(*m_msrio, read_msr(0, fixed1_offset))
-        .WillOnce(Return(33333))
-        .WillOnce(Return(44444));
+    .WillOnce(Return(33333))
+    .WillOnce(Return(44444));
     result = m_msrio_group->read_signal("MSR::FIXED_CTR1:CPU_CLK_UNHALTED_THREAD", GEOPM_DOMAIN_CPU, 0);
     EXPECT_EQ(33333, result);
     result = m_msrio_group->read_signal("CPU_CYCLES_THREAD", GEOPM_DOMAIN_CPU, 0);
     EXPECT_EQ(44444, result);
 
     EXPECT_CALL(*m_msrio, read_msr(0, fixed2_offset))
-        .WillOnce(Return(55555))
-        .WillOnce(Return(66666));
+    .WillOnce(Return(55555))
+    .WillOnce(Return(66666));
     result = m_msrio_group->read_signal("MSR::FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC", GEOPM_DOMAIN_CPU, 0);
     EXPECT_EQ(55555, result);
     result = m_msrio_group->read_signal("CPU_CYCLES_REFERENCE", GEOPM_DOMAIN_CPU, 0);
@@ -587,8 +587,8 @@ TEST_F(MSRIOGroupTest, read_signal_frequency)
     double result;
 
     EXPECT_CALL(*m_msrio, read_msr(0, status_offset))
-        .WillOnce(Return(0xD00))  // 100MHz units, field 15:8
-        .WillOnce(Return(0xE00));
+    .WillOnce(Return(0xD00))  // 100MHz units, field 15:8
+    .WillOnce(Return(0xE00));
     result = m_msrio_group->read_signal("MSR::PERF_STATUS:FREQ", GEOPM_DOMAIN_CPU, 0);
     EXPECT_EQ(1.3e9, result);
     result = m_msrio_group->read_signal("CPU_FREQUENCY_STATUS", GEOPM_DOMAIN_CPU, 0);
@@ -596,7 +596,7 @@ TEST_F(MSRIOGroupTest, read_signal_frequency)
 
     // For SKX: MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_0 0:7
     EXPECT_CALL(*m_msrio, read_msr(0, limit_offset))
-        .WillOnce(Return(0xF));
+    .WillOnce(Return(0xF));
     result = m_msrio_group->read_signal("CPU_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_PACKAGE, 0);
     EXPECT_EQ(1.5e9, result);
 }
@@ -612,15 +612,15 @@ TEST_F(MSRIOGroupTest, read_signal_temperature)
     int prochot_val = 98;
     uint64_t value = prochot_val << prochot_begin;
     EXPECT_CALL(*m_msrio, read_msr(0, prochot_msr))
-        .Times(2) // used by both core and package temperature
-        .WillRepeatedly(Return(value));
+    .Times(2) // used by both core and package temperature
+    .WillRepeatedly(Return(value));
 
     uint64_t readout_msr = 0x19C;
     int readout_begin = 16;
     int readout_val = 66;
     value = readout_val << readout_begin;
     EXPECT_CALL(*m_msrio, read_msr(0, readout_msr))
-        .WillOnce(Return(value));
+    .WillOnce(Return(value));
     // temperature is (PROCHOT_MIN - DIGITAL_READOUT)
     double exp_temp = prochot_val - readout_val;
     EXPECT_NEAR(exp_temp, m_msrio_group->read_signal("CPU_CORE_TEMPERATURE", GEOPM_DOMAIN_CORE, 0), 0.001);
@@ -631,7 +631,7 @@ TEST_F(MSRIOGroupTest, read_signal_temperature)
     int pkg_readout_begin = 16;
     value = readout_val << pkg_readout_begin;
     EXPECT_CALL(*m_msrio, read_msr(0, pkg_readout_msr))
-        .WillOnce(Return(value));
+    .WillOnce(Return(value));
     EXPECT_NEAR(exp_temp, m_msrio_group->read_signal("CPU_PACKAGE_TEMPERATURE", GEOPM_DOMAIN_PACKAGE, 0), 0.001);
 }
 
@@ -642,12 +642,12 @@ TEST_F(MSRIOGroupTest, read_signal_power)
 
     // power limits - 1/8W units
     EXPECT_CALL(*m_msrio, read_msr(0, info_offset))
-        .WillOnce(Return(0x258))  // TDP in 14:0
-        .WillOnce(Return(0x262))
-        .WillOnce(Return(0x1920000)) // min in 30:16
-        .WillOnce(Return(0x3210000))
-        .WillOnce(Return(0x64400000000))  // max in 46:32
-        .WillOnce(Return(0x64B00000000));
+    .WillOnce(Return(0x258))  // TDP in 14:0
+    .WillOnce(Return(0x262))
+    .WillOnce(Return(0x1920000)) // min in 30:16
+    .WillOnce(Return(0x3210000))
+    .WillOnce(Return(0x64400000000))  // max in 46:32
+    .WillOnce(Return(0x64B00000000));
 
     result = m_msrio_group->read_signal("MSR::PKG_POWER_INFO:THERMAL_SPEC_POWER", GEOPM_DOMAIN_PACKAGE, 0);
     EXPECT_EQ(75, result);
@@ -675,13 +675,13 @@ TEST_F(MSRIOGroupTest, read_signal_scalability)
 
     // power limits - 1/8W units
     EXPECT_CALL(*m_msrio, read_msr(0, pcnt_offset))
-        .WillOnce(Return(0x58));
+    .WillOnce(Return(0x58));
 
     result = m_msrio_group->read_signal("MSR::PPERF:PCNT", GEOPM_DOMAIN_CPU, 0);
     EXPECT_EQ(0x58, result);
 
     EXPECT_CALL(*m_msrio, read_msr(0, acnt_offset))
-        .WillOnce(Return(0x58));
+    .WillOnce(Return(0x58));
 
     result = m_msrio_group->read_signal("MSR::APERF:ACNT", GEOPM_DOMAIN_CPU, 0);
     EXPECT_EQ(0x58, result);
@@ -690,25 +690,25 @@ TEST_F(MSRIOGroupTest, read_signal_scalability)
     for (uint64_t div = 1; div <= 10; ++div) {
         //The CPU Scalability signal calls the rate signals, which are using 4 samples
         EXPECT_CALL(*m_msrio, read_msr(0, acnt_offset))
-            .WillOnce(Return(cnt.at(0)))
-            .WillOnce(Return(cnt.at(1)))
-            .WillOnce(Return(cnt.at(2)))
-            .WillOnce(Return(cnt.at(3)))
-            .WillOnce(Return(cnt.at(4)))
-            .WillOnce(Return(cnt.at(5)))
-            .WillOnce(Return(cnt.at(6)))
-            .WillOnce(Return(cnt.at(7)));
+        .WillOnce(Return(cnt.at(0)))
+        .WillOnce(Return(cnt.at(1)))
+        .WillOnce(Return(cnt.at(2)))
+        .WillOnce(Return(cnt.at(3)))
+        .WillOnce(Return(cnt.at(4)))
+        .WillOnce(Return(cnt.at(5)))
+        .WillOnce(Return(cnt.at(6)))
+        .WillOnce(Return(cnt.at(7)));
 
         //The CPU Scalability signal calls the rate signals, which are using 4 samples
         EXPECT_CALL(*m_msrio, read_msr(0, pcnt_offset))
-            .WillOnce(Return(cnt.at(0)/div))
-            .WillOnce(Return(cnt.at(1)/div))
-            .WillOnce(Return(cnt.at(2)/div))
-            .WillOnce(Return(cnt.at(3)/div))
-            .WillOnce(Return(cnt.at(4)/div))
-            .WillOnce(Return(cnt.at(5)/div))
-            .WillOnce(Return(cnt.at(6)/div))
-            .WillOnce(Return(cnt.at(7)/div));
+        .WillOnce(Return(cnt.at(0)/div))
+        .WillOnce(Return(cnt.at(1)/div))
+        .WillOnce(Return(cnt.at(2)/div))
+        .WillOnce(Return(cnt.at(3)/div))
+        .WillOnce(Return(cnt.at(4)/div))
+        .WillOnce(Return(cnt.at(5)/div))
+        .WillOnce(Return(cnt.at(6)/div))
+        .WillOnce(Return(cnt.at(7)/div));
 
         result = m_msrio_group->read_signal("MSR::CPU_SCALABILITY_RATIO", GEOPM_DOMAIN_CPU, 0);
         EXPECT_NEAR(1.00/(double)div, result, 0.02);
@@ -731,11 +731,11 @@ TEST_F(MSRIOGroupTest, push_signal_temperature)
     uint64_t core_readout_msr = 0x19C;
     uint64_t pkg_readout_msr = 0x1B1;
     EXPECT_CALL(*m_msrio, add_read(0, prochot_msr))
-        .WillOnce(Return(PROCHOT_0));
+    .WillOnce(Return(PROCHOT_0));
     EXPECT_CALL(*m_msrio, add_read(0, core_readout_msr))
-        .WillOnce(Return(CORE_READOUT_0));
+    .WillOnce(Return(CORE_READOUT_0));
     EXPECT_CALL(*m_msrio, add_read(0, pkg_readout_msr))
-        .WillOnce(Return(PKG_READOUT_0));
+    .WillOnce(Return(PKG_READOUT_0));
 
     int core_idx = m_msrio_group->push_signal("CPU_CORE_TEMPERATURE", GEOPM_DOMAIN_CORE, 0);
     int pkg_idx = m_msrio_group->push_signal("CPU_PACKAGE_TEMPERATURE", GEOPM_DOMAIN_PACKAGE, 0);
@@ -749,13 +749,13 @@ TEST_F(MSRIOGroupTest, push_signal_temperature)
     int prochot_begin = 16;
     uint64_t value = prochot_val << prochot_begin;
     EXPECT_CALL(*m_msrio, sample(PROCHOT_0)).Times(2)
-        .WillRepeatedly(Return(value));
+    .WillRepeatedly(Return(value));
 
     int readout_val = 66;
     int readout_begin = 16;
     value = readout_val << readout_begin;
     EXPECT_CALL(*m_msrio, sample(CORE_READOUT_0))
-        .WillOnce(Return(value));
+    .WillOnce(Return(value));
     // temperature is (PROCHOT_MIN - DIGITAL_READOUT)
     double exp_temp = prochot_val - readout_val;
     EXPECT_NEAR(exp_temp, m_msrio_group->sample(core_idx), 0.001);
@@ -764,7 +764,7 @@ TEST_F(MSRIOGroupTest, push_signal_temperature)
     int pkg_readout_begin = 16;
     value = readout_val << pkg_readout_begin;
     EXPECT_CALL(*m_msrio, sample(PKG_READOUT_0))
-        .WillOnce(Return(value));
+    .WillOnce(Return(value));
     exp_temp = prochot_val - readout_val;
     EXPECT_NEAR(exp_temp, m_msrio_group->sample(pkg_idx), 0.001);
 }
@@ -888,25 +888,25 @@ TEST_F(MSRIOGroupTest, adjust)
     uint64_t encoded_freq = 0xA00ULL;
     uint64_t encoded_power = 0x500ULL;
     {
-    // all CPUs on core 0
-    EXPECT_CALL(*m_msrio, adjust(PERF_CTL_0, encoded_freq, perf_ctl_mask));
-    EXPECT_CALL(*m_msrio, adjust(PERF_CTL_1, encoded_freq, perf_ctl_mask));
-    EXPECT_CALL(*m_msrio, adjust(PERF_CTL_2, encoded_freq, perf_ctl_mask));
-    EXPECT_CALL(*m_msrio, adjust(PERF_CTL_3, encoded_freq, perf_ctl_mask));
-    // all CPUs on package 0
-    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_0, encoded_power, pl1_limit_mask));
-    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_1, encoded_power, pl1_limit_mask));
-    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_2, encoded_power, pl1_limit_mask));
-    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_3, encoded_power, pl1_limit_mask));
-    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_4, encoded_power, pl1_limit_mask));
-    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_5, encoded_power, pl1_limit_mask));
-    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_6, encoded_power, pl1_limit_mask));
-    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_7, encoded_power, pl1_limit_mask));
-    m_msrio_group->adjust(freq_idx_0, 1e9);
-    m_msrio_group->adjust(power_idx, 160);
+        // all CPUs on core 0
+        EXPECT_CALL(*m_msrio, adjust(PERF_CTL_0, encoded_freq, perf_ctl_mask));
+        EXPECT_CALL(*m_msrio, adjust(PERF_CTL_1, encoded_freq, perf_ctl_mask));
+        EXPECT_CALL(*m_msrio, adjust(PERF_CTL_2, encoded_freq, perf_ctl_mask));
+        EXPECT_CALL(*m_msrio, adjust(PERF_CTL_3, encoded_freq, perf_ctl_mask));
+        // all CPUs on package 0
+        EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_0, encoded_power, pl1_limit_mask));
+        EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_1, encoded_power, pl1_limit_mask));
+        EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_2, encoded_power, pl1_limit_mask));
+        EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_3, encoded_power, pl1_limit_mask));
+        EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_4, encoded_power, pl1_limit_mask));
+        EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_5, encoded_power, pl1_limit_mask));
+        EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_6, encoded_power, pl1_limit_mask));
+        EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_7, encoded_power, pl1_limit_mask));
+        m_msrio_group->adjust(freq_idx_0, 1e9);
+        m_msrio_group->adjust(power_idx, 160);
 
-    EXPECT_CALL(*m_msrio, write_batch());
-    m_msrio_group->write_batch();
+        EXPECT_CALL(*m_msrio, write_batch());
+        m_msrio_group->write_batch();
     }
 
     // Calling adjust without calling write_batch() should not
@@ -914,48 +914,48 @@ TEST_F(MSRIOGroupTest, adjust)
     encoded_freq = 0x3200ULL;
     encoded_power = 0x640ULL;
     {
-    EXPECT_CALL(*m_msrio, write_batch()).Times(0);
+        EXPECT_CALL(*m_msrio, write_batch()).Times(0);
 
-    // all CPUs on core 0
-    EXPECT_CALL(*m_msrio, adjust(PERF_CTL_0, encoded_freq, perf_ctl_mask));
-    EXPECT_CALL(*m_msrio, adjust(PERF_CTL_1, encoded_freq, perf_ctl_mask));
-    EXPECT_CALL(*m_msrio, adjust(PERF_CTL_2, encoded_freq, perf_ctl_mask));
-    EXPECT_CALL(*m_msrio, adjust(PERF_CTL_3, encoded_freq, perf_ctl_mask));
-    // all CPUs on package 0
-    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_0, encoded_power, pl1_limit_mask));
-    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_1, encoded_power, pl1_limit_mask));
-    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_2, encoded_power, pl1_limit_mask));
-    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_3, encoded_power, pl1_limit_mask));
-    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_4, encoded_power, pl1_limit_mask));
-    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_5, encoded_power, pl1_limit_mask));
-    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_6, encoded_power, pl1_limit_mask));
-    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_7, encoded_power, pl1_limit_mask));
+        // all CPUs on core 0
+        EXPECT_CALL(*m_msrio, adjust(PERF_CTL_0, encoded_freq, perf_ctl_mask));
+        EXPECT_CALL(*m_msrio, adjust(PERF_CTL_1, encoded_freq, perf_ctl_mask));
+        EXPECT_CALL(*m_msrio, adjust(PERF_CTL_2, encoded_freq, perf_ctl_mask));
+        EXPECT_CALL(*m_msrio, adjust(PERF_CTL_3, encoded_freq, perf_ctl_mask));
+        // all CPUs on package 0
+        EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_0, encoded_power, pl1_limit_mask));
+        EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_1, encoded_power, pl1_limit_mask));
+        EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_2, encoded_power, pl1_limit_mask));
+        EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_3, encoded_power, pl1_limit_mask));
+        EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_4, encoded_power, pl1_limit_mask));
+        EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_5, encoded_power, pl1_limit_mask));
+        EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_6, encoded_power, pl1_limit_mask));
+        EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_7, encoded_power, pl1_limit_mask));
 
-    m_msrio_group->adjust(freq_idx_0, 5e9);
-    m_msrio_group->adjust(power_idx, 200);
+        m_msrio_group->adjust(freq_idx_0, 5e9);
+        m_msrio_group->adjust(power_idx, 200);
     }
 
     // Set frequency to 5 GHz, power to 200W
     {
-    // all CPUs on core 0
-    EXPECT_CALL(*m_msrio, adjust(PERF_CTL_0, encoded_freq, perf_ctl_mask));
-    EXPECT_CALL(*m_msrio, adjust(PERF_CTL_1, encoded_freq, perf_ctl_mask));
-    EXPECT_CALL(*m_msrio, adjust(PERF_CTL_2, encoded_freq, perf_ctl_mask));
-    EXPECT_CALL(*m_msrio, adjust(PERF_CTL_3, encoded_freq, perf_ctl_mask));
-    // all CPUs on package 0
-    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_0, encoded_power, pl1_limit_mask));
-    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_1, encoded_power, pl1_limit_mask));
-    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_2, encoded_power, pl1_limit_mask));
-    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_3, encoded_power, pl1_limit_mask));
-    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_4, encoded_power, pl1_limit_mask));
-    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_5, encoded_power, pl1_limit_mask));
-    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_6, encoded_power, pl1_limit_mask));
-    EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_7, encoded_power, pl1_limit_mask));
-    m_msrio_group->adjust(freq_idx_0, 5e9);
-    m_msrio_group->adjust(power_idx, 200);
+        // all CPUs on core 0
+        EXPECT_CALL(*m_msrio, adjust(PERF_CTL_0, encoded_freq, perf_ctl_mask));
+        EXPECT_CALL(*m_msrio, adjust(PERF_CTL_1, encoded_freq, perf_ctl_mask));
+        EXPECT_CALL(*m_msrio, adjust(PERF_CTL_2, encoded_freq, perf_ctl_mask));
+        EXPECT_CALL(*m_msrio, adjust(PERF_CTL_3, encoded_freq, perf_ctl_mask));
+        // all CPUs on package 0
+        EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_0, encoded_power, pl1_limit_mask));
+        EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_1, encoded_power, pl1_limit_mask));
+        EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_2, encoded_power, pl1_limit_mask));
+        EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_3, encoded_power, pl1_limit_mask));
+        EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_4, encoded_power, pl1_limit_mask));
+        EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_5, encoded_power, pl1_limit_mask));
+        EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_6, encoded_power, pl1_limit_mask));
+        EXPECT_CALL(*m_msrio, adjust(PL1_LIMIT_7, encoded_power, pl1_limit_mask));
+        m_msrio_group->adjust(freq_idx_0, 5e9);
+        m_msrio_group->adjust(power_idx, 200);
 
-    EXPECT_CALL(*m_msrio, write_batch());
-    m_msrio_group->write_batch();
+        EXPECT_CALL(*m_msrio, write_batch());
+        m_msrio_group->write_batch();
     }
 
     GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_control("INVALID", GEOPM_DOMAIN_CPU, 0),
@@ -969,62 +969,62 @@ TEST_F(MSRIOGroupTest, write_control)
     uint64_t perf_ctl_mask = 0xFF00;
     // all CPUs on core 0
     {
-    EXPECT_CALL(*m_msrio, write_msr(0, perf_ctl_offset, 0x1E00ULL, perf_ctl_mask));
-    EXPECT_CALL(*m_msrio, write_msr(4, perf_ctl_offset, 0x1E00ULL, perf_ctl_mask));
-    EXPECT_CALL(*m_msrio, write_msr(8, perf_ctl_offset, 0x1E00ULL, perf_ctl_mask));
-    EXPECT_CALL(*m_msrio, write_msr(12, perf_ctl_offset, 0x1E00ULL, perf_ctl_mask));
-    m_msrio_group->write_control("MSR::PERF_CTL:FREQ", GEOPM_DOMAIN_CORE, 0, 3e9);
+        EXPECT_CALL(*m_msrio, write_msr(0, perf_ctl_offset, 0x1E00ULL, perf_ctl_mask));
+        EXPECT_CALL(*m_msrio, write_msr(4, perf_ctl_offset, 0x1E00ULL, perf_ctl_mask));
+        EXPECT_CALL(*m_msrio, write_msr(8, perf_ctl_offset, 0x1E00ULL, perf_ctl_mask));
+        EXPECT_CALL(*m_msrio, write_msr(12, perf_ctl_offset, 0x1E00ULL, perf_ctl_mask));
+        m_msrio_group->write_control("MSR::PERF_CTL:FREQ", GEOPM_DOMAIN_CORE, 0, 3e9);
     }
 
     // all CPUs on core 1
     {
-    EXPECT_CALL(*m_msrio, write_msr(1, perf_ctl_offset, 0x1E00ULL, perf_ctl_mask));
-    EXPECT_CALL(*m_msrio, write_msr(5, perf_ctl_offset, 0x1E00ULL, perf_ctl_mask));
-    EXPECT_CALL(*m_msrio, write_msr(9, perf_ctl_offset, 0x1E00ULL, perf_ctl_mask));
-    EXPECT_CALL(*m_msrio, write_msr(13, perf_ctl_offset, 0x1E00ULL, perf_ctl_mask));
-    m_msrio_group->write_control("MSR::PERF_CTL:FREQ", GEOPM_DOMAIN_CORE, 1, 3e9);
+        EXPECT_CALL(*m_msrio, write_msr(1, perf_ctl_offset, 0x1E00ULL, perf_ctl_mask));
+        EXPECT_CALL(*m_msrio, write_msr(5, perf_ctl_offset, 0x1E00ULL, perf_ctl_mask));
+        EXPECT_CALL(*m_msrio, write_msr(9, perf_ctl_offset, 0x1E00ULL, perf_ctl_mask));
+        EXPECT_CALL(*m_msrio, write_msr(13, perf_ctl_offset, 0x1E00ULL, perf_ctl_mask));
+        m_msrio_group->write_control("MSR::PERF_CTL:FREQ", GEOPM_DOMAIN_CORE, 1, 3e9);
     }
 
     // Set power limit to 300 W
     {
-    uint64_t pl1_limit_offset = 0x610;
-    uint64_t pl1_limit_mask = 0x7FFF;
-    // all CPUs on package 0
-    EXPECT_CALL(*m_msrio, write_msr(0, pl1_limit_offset, 0x960ULL, pl1_limit_mask));
-    EXPECT_CALL(*m_msrio, write_msr(4, pl1_limit_offset, 0x960ULL, pl1_limit_mask));
-    EXPECT_CALL(*m_msrio, write_msr(8, pl1_limit_offset, 0x960ULL, pl1_limit_mask));
-    EXPECT_CALL(*m_msrio, write_msr(12, pl1_limit_offset, 0x960ULL, pl1_limit_mask));
-    EXPECT_CALL(*m_msrio, write_msr(1, pl1_limit_offset, 0x960ULL, pl1_limit_mask));
-    EXPECT_CALL(*m_msrio, write_msr(5, pl1_limit_offset, 0x960ULL, pl1_limit_mask));
-    EXPECT_CALL(*m_msrio, write_msr(9, pl1_limit_offset, 0x960ULL, pl1_limit_mask));
-    EXPECT_CALL(*m_msrio, write_msr(13, pl1_limit_offset, 0x960ULL, pl1_limit_mask));
-    m_msrio_group->write_control("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT", GEOPM_DOMAIN_PACKAGE, 0, 300);
+        uint64_t pl1_limit_offset = 0x610;
+        uint64_t pl1_limit_mask = 0x7FFF;
+        // all CPUs on package 0
+        EXPECT_CALL(*m_msrio, write_msr(0, pl1_limit_offset, 0x960ULL, pl1_limit_mask));
+        EXPECT_CALL(*m_msrio, write_msr(4, pl1_limit_offset, 0x960ULL, pl1_limit_mask));
+        EXPECT_CALL(*m_msrio, write_msr(8, pl1_limit_offset, 0x960ULL, pl1_limit_mask));
+        EXPECT_CALL(*m_msrio, write_msr(12, pl1_limit_offset, 0x960ULL, pl1_limit_mask));
+        EXPECT_CALL(*m_msrio, write_msr(1, pl1_limit_offset, 0x960ULL, pl1_limit_mask));
+        EXPECT_CALL(*m_msrio, write_msr(5, pl1_limit_offset, 0x960ULL, pl1_limit_mask));
+        EXPECT_CALL(*m_msrio, write_msr(9, pl1_limit_offset, 0x960ULL, pl1_limit_mask));
+        EXPECT_CALL(*m_msrio, write_msr(13, pl1_limit_offset, 0x960ULL, pl1_limit_mask));
+        m_msrio_group->write_control("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT", GEOPM_DOMAIN_PACKAGE, 0, 300);
     }
 
     // Set uncore frequency to 1.5GHz
     {
-    uint64_t uncore_ratio_offset = 0x620;
-    uint64_t uncore_min_mask = 0x7F00;
-    uint64_t uncore_max_mask = 0x7F;
-    // all CPUs on package 0
-    EXPECT_CALL(*m_msrio, write_msr(0, uncore_ratio_offset, 0xF00ULL, uncore_min_mask));
-    EXPECT_CALL(*m_msrio, write_msr(4, uncore_ratio_offset, 0xF00ULL, uncore_min_mask));
-    EXPECT_CALL(*m_msrio, write_msr(8, uncore_ratio_offset, 0xF00ULL, uncore_min_mask));
-    EXPECT_CALL(*m_msrio, write_msr(12, uncore_ratio_offset, 0xF00ULL, uncore_min_mask));
-    EXPECT_CALL(*m_msrio, write_msr(1, uncore_ratio_offset, 0xF00ULL, uncore_min_mask));
-    EXPECT_CALL(*m_msrio, write_msr(5, uncore_ratio_offset, 0xF00ULL, uncore_min_mask));
-    EXPECT_CALL(*m_msrio, write_msr(9, uncore_ratio_offset, 0xF00ULL, uncore_min_mask));
-    EXPECT_CALL(*m_msrio, write_msr(13, uncore_ratio_offset, 0xF00ULL, uncore_min_mask));
-    m_msrio_group->write_control("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO", GEOPM_DOMAIN_PACKAGE, 0, 1.5e9);
-    EXPECT_CALL(*m_msrio, write_msr(0, uncore_ratio_offset, 0xFULL, uncore_max_mask));
-    EXPECT_CALL(*m_msrio, write_msr(4, uncore_ratio_offset, 0xFULL, uncore_max_mask));
-    EXPECT_CALL(*m_msrio, write_msr(8, uncore_ratio_offset, 0xFULL, uncore_max_mask));
-    EXPECT_CALL(*m_msrio, write_msr(12, uncore_ratio_offset, 0xFULL, uncore_max_mask));
-    EXPECT_CALL(*m_msrio, write_msr(1, uncore_ratio_offset, 0xFULL, uncore_max_mask));
-    EXPECT_CALL(*m_msrio, write_msr(5, uncore_ratio_offset, 0xFULL, uncore_max_mask));
-    EXPECT_CALL(*m_msrio, write_msr(9, uncore_ratio_offset, 0xFULL, uncore_max_mask));
-    EXPECT_CALL(*m_msrio, write_msr(13, uncore_ratio_offset, 0xFULL, uncore_max_mask));
-    m_msrio_group->write_control("MSR::UNCORE_RATIO_LIMIT:MAX_RATIO", GEOPM_DOMAIN_PACKAGE, 0, 1.5e9);
+        uint64_t uncore_ratio_offset = 0x620;
+        uint64_t uncore_min_mask = 0x7F00;
+        uint64_t uncore_max_mask = 0x7F;
+        // all CPUs on package 0
+        EXPECT_CALL(*m_msrio, write_msr(0, uncore_ratio_offset, 0xF00ULL, uncore_min_mask));
+        EXPECT_CALL(*m_msrio, write_msr(4, uncore_ratio_offset, 0xF00ULL, uncore_min_mask));
+        EXPECT_CALL(*m_msrio, write_msr(8, uncore_ratio_offset, 0xF00ULL, uncore_min_mask));
+        EXPECT_CALL(*m_msrio, write_msr(12, uncore_ratio_offset, 0xF00ULL, uncore_min_mask));
+        EXPECT_CALL(*m_msrio, write_msr(1, uncore_ratio_offset, 0xF00ULL, uncore_min_mask));
+        EXPECT_CALL(*m_msrio, write_msr(5, uncore_ratio_offset, 0xF00ULL, uncore_min_mask));
+        EXPECT_CALL(*m_msrio, write_msr(9, uncore_ratio_offset, 0xF00ULL, uncore_min_mask));
+        EXPECT_CALL(*m_msrio, write_msr(13, uncore_ratio_offset, 0xF00ULL, uncore_min_mask));
+        m_msrio_group->write_control("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO", GEOPM_DOMAIN_PACKAGE, 0, 1.5e9);
+        EXPECT_CALL(*m_msrio, write_msr(0, uncore_ratio_offset, 0xFULL, uncore_max_mask));
+        EXPECT_CALL(*m_msrio, write_msr(4, uncore_ratio_offset, 0xFULL, uncore_max_mask));
+        EXPECT_CALL(*m_msrio, write_msr(8, uncore_ratio_offset, 0xFULL, uncore_max_mask));
+        EXPECT_CALL(*m_msrio, write_msr(12, uncore_ratio_offset, 0xFULL, uncore_max_mask));
+        EXPECT_CALL(*m_msrio, write_msr(1, uncore_ratio_offset, 0xFULL, uncore_max_mask));
+        EXPECT_CALL(*m_msrio, write_msr(5, uncore_ratio_offset, 0xFULL, uncore_max_mask));
+        EXPECT_CALL(*m_msrio, write_msr(9, uncore_ratio_offset, 0xFULL, uncore_max_mask));
+        EXPECT_CALL(*m_msrio, write_msr(13, uncore_ratio_offset, 0xFULL, uncore_max_mask));
+        m_msrio_group->write_control("MSR::UNCORE_RATIO_LIMIT:MAX_RATIO", GEOPM_DOMAIN_PACKAGE, 0, 1.5e9);
     }
 
 }
@@ -1261,7 +1261,7 @@ TEST_F(MSRIOGroupTest, parse_json_msrs_error_fields)
     // required keys
     std::vector<std::string> field_keys {"begin_bit", "end_bit", "function",
                                          "units", "scalar", "writeable", "behavior"
-    };
+                                        };
     for (auto key : field_keys) {
         fields = complete;
         fields.erase(key);
@@ -1433,54 +1433,57 @@ TEST_F(MSRIOGroupTest, turbo_ratio_limit_writability)
     static const uint64_t platform_info_offset = 0xce;
     static const uint64_t trl_writable_bit_in_platform_info = 28;
 
-    { // All domains are writable. Expect that there is a control
+    {
+        // All domains are writable. Expect that there is a control
         EXPECT_CALL(*m_msrio, read_msr(_, platform_info_offset))
-            .Times(m_num_package)
-            .WillRepeatedly(Return(1 << trl_writable_bit_in_platform_info));
+        .Times(m_num_package)
+        .WillRepeatedly(Return(1 << trl_writable_bit_in_platform_info));
 
         m_msrio_group = geopm::make_unique<MSRIOGroup>(
-            *m_topo, m_msrio, MSRIOGroup::M_CPUID_ICX, m_num_cpu, m_mock_save_ctl);
+                            *m_topo, m_msrio, MSRIOGroup::M_CPUID_ICX, m_num_cpu, m_mock_save_ctl);
         for (int i = 0; i < 7; ++i) {
             std::ostringstream signal_name_oss;
             signal_name_oss << "MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_" << i;
             EXPECT_TRUE(m_msrio_group->is_valid_signal(signal_name_oss.str()))
-                << "Expected signal for " << signal_name_oss.str();
+                    << "Expected signal for " << signal_name_oss.str();
             EXPECT_TRUE(m_msrio_group->is_valid_control(signal_name_oss.str()))
-                << "Expected control for " << signal_name_oss.str();
+                    << "Expected control for " << signal_name_oss.str();
         }
     }
 
-    { // No domains are writable. Expect that there is not a control
+    {
+        // No domains are writable. Expect that there is not a control
         EXPECT_CALL(*m_msrio, read_msr(_, platform_info_offset))
-            .Times(m_num_package)
-            .WillRepeatedly(Return(0 << trl_writable_bit_in_platform_info));
+        .Times(m_num_package)
+        .WillRepeatedly(Return(0 << trl_writable_bit_in_platform_info));
 
         m_msrio_group = geopm::make_unique<MSRIOGroup>(
-            *m_topo, m_msrio, MSRIOGroup::M_CPUID_ICX, m_num_cpu, m_mock_save_ctl);
+                            *m_topo, m_msrio, MSRIOGroup::M_CPUID_ICX, m_num_cpu, m_mock_save_ctl);
         for (int i = 0; i < 7; ++i) {
             std::ostringstream signal_name_oss;
             signal_name_oss << "MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_" << i;
             EXPECT_TRUE(m_msrio_group->is_valid_signal(signal_name_oss.str()))
-                << "Expected signal for " << signal_name_oss.str();
+                    << "Expected signal for " << signal_name_oss.str();
             EXPECT_FALSE(m_msrio_group->is_valid_control(signal_name_oss.str()))
-                << "Expected no control for " << signal_name_oss.str();
+                    << "Expected no control for " << signal_name_oss.str();
         }
     }
 
-    { // Some domains are writable. Expect that there is not a control
+    {
+        // Some domains are writable. Expect that there is not a control
         EXPECT_CALL(*m_msrio, read_msr(_, platform_info_offset))
-            .WillOnce(Return(1 << trl_writable_bit_in_platform_info))
-            .WillRepeatedly(Return(0 << trl_writable_bit_in_platform_info));
+        .WillOnce(Return(1 << trl_writable_bit_in_platform_info))
+        .WillRepeatedly(Return(0 << trl_writable_bit_in_platform_info));
 
         m_msrio_group = geopm::make_unique<MSRIOGroup>(
-            *m_topo, m_msrio, MSRIOGroup::M_CPUID_ICX, m_num_cpu, m_mock_save_ctl);
+                            *m_topo, m_msrio, MSRIOGroup::M_CPUID_ICX, m_num_cpu, m_mock_save_ctl);
         for (int i = 0; i < 7; ++i) {
             std::ostringstream signal_name_oss;
             signal_name_oss << "MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_" << i;
             EXPECT_TRUE(m_msrio_group->is_valid_signal(signal_name_oss.str()))
-                << "Expected signal for " << signal_name_oss.str();
+                    << "Expected signal for " << signal_name_oss.str();
             EXPECT_FALSE(m_msrio_group->is_valid_control(signal_name_oss.str()))
-                << "Expected no control for " << signal_name_oss.str();
+                    << "Expected no control for " << signal_name_oss.str();
         }
     }
 }

@@ -117,7 +117,7 @@ namespace geopm
         unsigned int result;
 
         nvmlReturn_t nvml_result = nvmlDeviceGetClock(m_nvml_device.at(gpu_idx), NVML_CLOCK_SM, NVML_CLOCK_ID_CURRENT,
-                                         &result);
+                                                      &result);
         check_nvml_result(nvml_result, GEOPM_ERROR_RUNTIME, "NVMLDevicePool::" + std::string(__func__) +
                           ": NVML failed to get SM Frequency for GPU " +
                           std::to_string(gpu_idx) + ".", __LINE__);
@@ -131,8 +131,8 @@ namespace geopm
         std::vector<unsigned int> supported_freqs(count);
 
         nvmlReturn_t nvml_result = nvmlDeviceGetSupportedGraphicsClocks(m_nvml_device.at(gpu_idx),
-                                                                        frequency_status_mem(gpu_idx),
-                                                                        &count, supported_freqs.data());
+                                   frequency_status_mem(gpu_idx),
+                                   &count, supported_freqs.data());
         supported_freqs.resize(count);
 
         if (nvml_result == NVML_ERROR_INSUFFICIENT_SIZE) {

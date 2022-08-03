@@ -60,71 +60,71 @@ void LevelZeroIOGroupTest::SetUp()
 
     //Platform Topo prep
     ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_BOARD))
-        .WillByDefault(Return(num_board));
+    .WillByDefault(Return(num_board));
     ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_PACKAGE))
-        .WillByDefault(Return(num_package));
+    .WillByDefault(Return(num_package));
     ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_GPU))
-        .WillByDefault(Return(num_gpu));
+    .WillByDefault(Return(num_gpu));
     ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_GPU_CHIP))
-        .WillByDefault(Return(num_gpu_subdevice));
+    .WillByDefault(Return(num_gpu_subdevice));
     ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_CPU))
-        .WillByDefault(Return(num_cpu));
+    .WillByDefault(Return(num_cpu));
     ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_CORE))
-        .WillByDefault(Return(num_core));
+    .WillByDefault(Return(num_core));
 
     EXPECT_CALL(*m_platform_topo, num_domain(_)).Times(AtLeast(0));
 
     for (int cpu_idx = 0; cpu_idx < num_cpu; ++cpu_idx) {
         if (cpu_idx < 10) {
             ON_CALL(*m_platform_topo, domain_idx(GEOPM_DOMAIN_GPU, cpu_idx))
-                .WillByDefault(Return(0));
+            .WillByDefault(Return(0));
         }
         else if (cpu_idx < 20) {
             ON_CALL(*m_platform_topo, domain_idx(GEOPM_DOMAIN_GPU, cpu_idx))
-                .WillByDefault(Return(1));
+            .WillByDefault(Return(1));
         }
         else if (cpu_idx < 30) {
             ON_CALL(*m_platform_topo, domain_idx(GEOPM_DOMAIN_GPU, cpu_idx))
-                .WillByDefault(Return(2));
+            .WillByDefault(Return(2));
         }
         else {
             ON_CALL(*m_platform_topo, domain_idx(GEOPM_DOMAIN_GPU, cpu_idx))
-                .WillByDefault(Return(3));
+            .WillByDefault(Return(3));
         }
     }
 
     for (int cpu_idx = 0; cpu_idx < num_cpu; ++cpu_idx) {
         if (cpu_idx < 5) {
             ON_CALL(*m_platform_topo, domain_idx(GEOPM_DOMAIN_GPU, cpu_idx))
-                .WillByDefault(Return(0));
+            .WillByDefault(Return(0));
         }
         else if (cpu_idx < 10) {
             ON_CALL(*m_platform_topo, domain_idx(GEOPM_DOMAIN_GPU, cpu_idx))
-                .WillByDefault(Return(1));
+            .WillByDefault(Return(1));
         }
         else if (cpu_idx < 15) {
             ON_CALL(*m_platform_topo, domain_idx(GEOPM_DOMAIN_GPU, cpu_idx))
-                .WillByDefault(Return(2));
+            .WillByDefault(Return(2));
         }
         else if (cpu_idx < 20) {
             ON_CALL(*m_platform_topo, domain_idx(GEOPM_DOMAIN_GPU, cpu_idx))
-                .WillByDefault(Return(3));
+            .WillByDefault(Return(3));
         }
         else if (cpu_idx < 25) {
             ON_CALL(*m_platform_topo, domain_idx(GEOPM_DOMAIN_GPU, cpu_idx))
-                .WillByDefault(Return(4));
+            .WillByDefault(Return(4));
         }
         else if (cpu_idx < 30) {
             ON_CALL(*m_platform_topo, domain_idx(GEOPM_DOMAIN_GPU, cpu_idx))
-                .WillByDefault(Return(5));
+            .WillByDefault(Return(5));
         }
         else if (cpu_idx < 35) {
             ON_CALL(*m_platform_topo, domain_idx(GEOPM_DOMAIN_GPU, cpu_idx))
-                .WillByDefault(Return(6));
+            .WillByDefault(Return(6));
         }
         else {
             ON_CALL(*m_platform_topo, domain_idx(GEOPM_DOMAIN_GPU, cpu_idx))
-                .WillByDefault(Return(7));
+            .WillByDefault(Return(7));
         }
     }
 
@@ -155,7 +155,8 @@ TEST_F(LevelZeroIOGroupTest, save_restore)
     LevelZeroIOGroup levelzero_io(*m_platform_topo, *m_device_pool, nullptr);
 
     std::vector<std::pair<double,double> > mock_freq_range = {{0,1530}, {1000,1320}, {30,420}, {130,135},
-                                                              {20,400}, {53,123}, {1600,1700}, {500,500}};
+        {20,400}, {53,123}, {1600,1700}, {500,500}
+    };
 
     for (int sub_idx = 0; sub_idx < num_gpu_subdevice; ++sub_idx) {
         EXPECT_CALL(*m_device_pool, frequency_range(GEOPM_DOMAIN_GPU_CHIP, sub_idx, geopm::LevelZero::M_DOMAIN_COMPUTE)).WillRepeatedly(Return(mock_freq_range.at(sub_idx)));
@@ -175,9 +176,9 @@ TEST_F(LevelZeroIOGroupTest, push_control_adjust_write_batch)
 
     for (int sub_idx = 0; sub_idx < num_gpu_subdevice; ++sub_idx) {
         batch_value[(levelzero_io.push_control("LEVELZERO::GPU_CORE_FREQUENCY_CONTROL",
-                                        GEOPM_DOMAIN_GPU_CHIP, sub_idx))] = mock_freq.at(sub_idx)*1e6;
+                                               GEOPM_DOMAIN_GPU_CHIP, sub_idx))] = mock_freq.at(sub_idx)*1e6;
         batch_value[(levelzero_io.push_control("GPU_CORE_FREQUENCY_CONTROL",
-                                        GEOPM_DOMAIN_GPU_CHIP, sub_idx))] = mock_freq.at(sub_idx)*1e6;
+                                               GEOPM_DOMAIN_GPU_CHIP, sub_idx))] = mock_freq.at(sub_idx)*1e6;
         EXPECT_CALL(*m_device_pool,
                     frequency_control(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE, mock_freq.at(sub_idx), mock_freq.at(sub_idx))).Times(2);
     }
@@ -201,12 +202,12 @@ TEST_F(LevelZeroIOGroupTest, write_control)
                     frequency_control(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE, mock_freq.at(sub_idx), mock_freq.at(sub_idx))).Times(2);
 
         EXPECT_NO_THROW(levelzero_io.write_control("LEVELZERO::GPU_CORE_FREQUENCY_CONTROL",
-                                              GEOPM_DOMAIN_GPU_CHIP, sub_idx,
-                                              mock_freq.at(sub_idx)*1e6));
+                                                   GEOPM_DOMAIN_GPU_CHIP, sub_idx,
+                                                   mock_freq.at(sub_idx)*1e6));
 
         EXPECT_NO_THROW(levelzero_io.write_control("GPU_CORE_FREQUENCY_CONTROL",
-                                              GEOPM_DOMAIN_GPU_CHIP, sub_idx,
-                                              mock_freq.at(sub_idx)*1e6));
+                                                   GEOPM_DOMAIN_GPU_CHIP, sub_idx,
+                                                   mock_freq.at(sub_idx)*1e6));
     }
 }
 

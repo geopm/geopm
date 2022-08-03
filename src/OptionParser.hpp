@@ -76,8 +76,7 @@ namespace geopm
             std::vector<std::string> m_option_order;
 
             template <typename T>
-            struct m_opt_parse_s
-            {
+            struct m_opt_parse_s {
                 char short_form;
                 std::string long_form;
                 T value;

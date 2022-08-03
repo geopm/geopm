@@ -34,21 +34,21 @@ ExampleIOGroup::ExampleIOGroup()
     , m_do_batch_read(false)
     , m_is_batch_read(false)
     , m_signal_idx_map{{"EXAMPLE::USER_TIME",   M_SIGNAL_USER_TIME},
-                       {"USER_TIME",            M_SIGNAL_USER_TIME},   // alias for EXAMPLE::USER_TIME
-                       {"EXAMPLE::NICE_TIME",   M_SIGNAL_NICE_TIME},
-                       {"NICE_TIME",            M_SIGNAL_NICE_TIME},   // alias for EXAMPLE::NICE_TIME
-                       {"EXAMPLE::SYSTEM_TIME", M_SIGNAL_SYSTEM_TIME},
-                       {"SYSTEM_TIME",          M_SIGNAL_SYSTEM_TIME}, // alias for EXAMPLE::SYSTEM_TIME
-                       {"EXAMPLE::IDLE_TIME",   M_SIGNAL_IDLE_TIME},
-                       {"IDLE_TIME",            M_SIGNAL_IDLE_TIME}}   // alias for EXAMPLE::IDLE_TIME
-    , m_control_idx_map{{"EXAMPLE::STDOUT",     M_CONTROL_STDOUT},
-                        {"STDOUT",              M_CONTROL_STDOUT},     // alias for EXAMPLE::STDOUT
-                        {"EXAMPLE::STDERR",     M_CONTROL_STDERR},
-                        {"STDERR",              M_CONTROL_STDERR}}     // alias for EXAMPLE::STDERR
-    , m_do_read(M_NUM_SIGNAL, false)
-    , m_do_write(M_NUM_SIGNAL, false)
-    , m_signal_value(M_NUM_SIGNAL)
-    , m_control_value(M_NUM_CONTROL)
+    {"USER_TIME",            M_SIGNAL_USER_TIME},   // alias for EXAMPLE::USER_TIME
+    {"EXAMPLE::NICE_TIME",   M_SIGNAL_NICE_TIME},
+    {"NICE_TIME",            M_SIGNAL_NICE_TIME},   // alias for EXAMPLE::NICE_TIME
+    {"EXAMPLE::SYSTEM_TIME", M_SIGNAL_SYSTEM_TIME},
+    {"SYSTEM_TIME",          M_SIGNAL_SYSTEM_TIME}, // alias for EXAMPLE::SYSTEM_TIME
+    {"EXAMPLE::IDLE_TIME",   M_SIGNAL_IDLE_TIME},
+    {"IDLE_TIME",            M_SIGNAL_IDLE_TIME}}   // alias for EXAMPLE::IDLE_TIME
+, m_control_idx_map{{"EXAMPLE::STDOUT",     M_CONTROL_STDOUT},
+    {"STDOUT",              M_CONTROL_STDOUT},     // alias for EXAMPLE::STDOUT
+    {"EXAMPLE::STDERR",     M_CONTROL_STDERR},
+    {"STDERR",              M_CONTROL_STDERR}}     // alias for EXAMPLE::STDERR
+, m_do_read(M_NUM_SIGNAL, false)
+, m_do_write(M_NUM_SIGNAL, false)
+, m_signal_value(M_NUM_SIGNAL)
+, m_control_value(M_NUM_CONTROL)
 {
 
 }

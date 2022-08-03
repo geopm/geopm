@@ -34,8 +34,7 @@ namespace geopm
         return instance;
     }
 
-    struct geopm_time_s TimeZero::time(void) const
-    {
+    struct geopm_time_s TimeZero::time(void) const {
         return m_time_zero;
     }
 

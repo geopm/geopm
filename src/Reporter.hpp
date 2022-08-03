@@ -177,8 +177,7 @@ namespace geopm
 
             // Fields for each section in order.  function can be
             // passthrough, or combo of other fields
-            struct m_sync_field_s
-            {
+            struct m_sync_field_s {
                 std::string field_label;
                 std::vector<std::string> supporting_signals;
                 std::function<double(uint64_t, const std::vector<std::string>&)> func;

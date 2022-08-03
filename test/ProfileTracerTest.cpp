@@ -47,21 +47,21 @@ void ProfileTracerTest::SetUp(void)
         time += 1.0;
     }
 
-     m_data.push_back({40, 0, geopm::EVENT_SHORT_REGION, 88});
-     m_data.push_back({41, 1, geopm::EVENT_EPOCH_COUNT, 1});
+    m_data.push_back({40, 0, geopm::EVENT_SHORT_REGION, 88});
+    m_data.push_back({41, 1, geopm::EVENT_EPOCH_COUNT, 1});
 }
 
 TEST_F(ProfileTracerTest, construct_update_destruct)
 {
     EXPECT_CALL(m_application_sampler, get_short_region(88))
-        .WillOnce(Return(geopm::short_region_s{
-            0xdeadbeef, 2, 3.14
-        }));
+    .WillOnce(Return(geopm::short_region_s{
+        0xdeadbeef, 2, 3.14
+    }));
 
     {
         // Test that the constructor and update methods do not throw
         std::unique_ptr<ProfileTracer> tracer = geopm::make_unique<ProfileTracerImp>(
-            m_start_time, 2, true, m_path, "", m_application_sampler);
+                                                    m_start_time, 2, true, m_path, "", m_application_sampler);
         tracer->update(m_data);
     }
     // Test that a file was created by deleting it without error
@@ -72,13 +72,13 @@ TEST_F(ProfileTracerTest, construct_update_destruct)
 TEST_F(ProfileTracerTest, format)
 {
     EXPECT_CALL(m_application_sampler, get_short_region(88))
-        .WillOnce(Return(geopm::short_region_s{
-            0xdeadbeef, 2, 3.14
-        }));
+    .WillOnce(Return(geopm::short_region_s{
+        0xdeadbeef, 2, 3.14
+    }));
 
     {
         std::unique_ptr<ProfileTracer> tracer = geopm::make_unique<ProfileTracerImp>(
-            m_start_time, 2, true, m_path, m_host_name, m_application_sampler);
+                                                    m_start_time, 2, true, m_path, m_host_name, m_application_sampler);
         tracer->update(m_data);
     }
 

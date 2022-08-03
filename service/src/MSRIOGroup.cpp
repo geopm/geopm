@@ -71,9 +71,9 @@ namespace geopm
         if (platform_info_obj_it != msr_obj.end()) {
             auto platform_info_obj = platform_info_obj_it->second.object_items();
             auto platform_info_offset = std::stoull(
-                platform_info_obj["offset"].string_value(), 0, 16);
+                                            platform_info_obj["offset"].string_value(), 0, 16);
             auto domain_type = PlatformTopo::domain_name_to_type(
-                platform_info_obj["domain"].string_value());
+                                   platform_info_obj["domain"].string_value());
             auto trl_mode_it =
                 platform_info_obj["fields"].object_items().find("PROGRAMMABLE_RATIO_LIMITS_TURBO_MODE");
 
@@ -81,19 +81,19 @@ namespace geopm
                 auto begin_bit = (int)(trl_mode_it->second["begin_bit"].number_value());
                 auto end_bit = (int)(trl_mode_it->second["end_bit"].number_value());
                 int function = MSR::string_to_function(
-                    trl_mode_it->second["function"].string_value());
+                                   trl_mode_it->second["function"].string_value());
                 double scalar = trl_mode_it->second["scalar"].number_value();
 
                 int num_domain = topo.num_domain(domain_type);
                 int num_domain_with_writable_trl = 0;
                 for (int domain_idx = 0; domain_idx < num_domain; ++domain_idx) {
                     std::set<int> cpus = topo.domain_nested(
-                        GEOPM_DOMAIN_CPU, domain_type, domain_idx);
+                                             GEOPM_DOMAIN_CPU, domain_type, domain_idx);
                     int cpu_idx = *(cpus.begin());
                     auto platform_info_msr = std::make_shared<RawMSRSignal>(
-                        msrio, cpu_idx, platform_info_offset);
+                                                 msrio, cpu_idx, platform_info_offset);
                     auto trl_mode_signal = geopm::make_unique<MSRFieldSignal>(
-                        platform_info_msr, begin_bit, end_bit, function, scalar);
+                                               platform_info_msr, begin_bit, end_bit, function, scalar);
 
                     num_domain_with_writable_trl += trl_mode_signal->read() != 0;
                 }
@@ -104,12 +104,12 @@ namespace geopm
                 else if (num_domain_with_writable_trl != 0) {
 #ifdef GEOPM_DEBUG
                     std::cerr
-                        << "Warning: <geopm> " << num_domain_with_writable_trl
-                        << " out of " << num_domain
-                        << " entries for PROGRAMMABLE_RATIO_LIMITS_TURBO_MODE "
-                           "indicate writable turbo ratio limits; defaulting "
-                           "to no writable turbo ratio limits"
-                        << std::endl;
+                            << "Warning: <geopm> " << num_domain_with_writable_trl
+                            << " out of " << num_domain
+                            << " entries for PROGRAMMABLE_RATIO_LIMITS_TURBO_MODE "
+                            "indicate writable turbo ratio limits; defaulting "
+                            "to no writable turbo ratio limits"
+                            << std::endl;
 #endif
                 }
             }
@@ -207,7 +207,7 @@ namespace geopm
     void MSRIOGroup::register_frequency_signals(void)
     {
         // HWP vs P-State signals
-        if (m_is_hwp_enabled){
+        if (m_is_hwp_enabled) {
             register_signal_alias("CPU_FREQUENCY_STATUS", "MSR::PERF_STATUS:FREQ");
 
             register_signal_alias("CPU_FREQUENCY_CONTROL", "MSR::HWP_REQUEST:MAXIMUM_PERFORMANCE");
@@ -221,8 +221,7 @@ namespace geopm
         }
 
         std::string max_turbo_name;
-        if (m_is_hwp_enabled)
-        {
+        if (m_is_hwp_enabled) {
             max_turbo_name = "MSR::HWP_CAPABILITIES:HIGHEST_PERFORMANCE";
         }
         else {
@@ -255,7 +254,8 @@ namespace geopm
 
     }
 
-    void MSRIOGroup::register_frequency_controls(void) {
+    void MSRIOGroup::register_frequency_controls(void)
+    {
         if (m_is_hwp_enabled) {
             // TODO: It may be better to have this alias use desired_performance or
             //       set min = max = desired, to make it more closely match the legacy
@@ -312,8 +312,7 @@ namespace geopm
         int max_domain = max_it->second.domain;
         // mapping of high-level signal name to description and
         // underlying digital readout MSR
-        struct temp_data
-        {
+        struct temp_data {
             std::string temp_name;
             std::string description;
             std::string msr_name;
@@ -349,7 +348,8 @@ namespace geopm
                                                    "\n    alias_for: Temperature derived from PROCHOT and "
                                                    + ts.msr_name,
                                                    IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
-                                                   string_format_double};
+                                                   string_format_double
+                                                  };
             }
         }
     }
@@ -365,24 +365,28 @@ namespace geopm
                                          Agg::select_first,
                                          "Time in seconds used to calculate power",
                                          IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
-                                         string_format_double};
+                                         string_format_double
+                                        };
 
         // Mapping of high-level signal name to description and
         // underlying energy MSR.  The domain will match that of the
         // energy signal.
-        struct power_data
-        {
+        struct power_data {
             std::string power_name;
             std::string description;
             std::string msr_name;
         };
         std::vector<power_data> power_signals {
-            {"CPU_POWER",
-                    "Average package power over 40 ms or 8 control loop iterations",
-                    "CPU_ENERGY"},
-            {"DRAM_POWER",
-                    "Average DRAM power over 40 ms or 8 control loop iterations",
-                    "DRAM_ENERGY"}
+            {
+                "CPU_POWER",
+                "Average package power over 40 ms or 8 control loop iterations",
+                "CPU_ENERGY"
+            },
+            {
+                "DRAM_POWER",
+                "Average DRAM power over 40 ms or 8 control loop iterations",
+                "DRAM_ENERGY"
+            }
         };
         for (const auto &ps : power_signals) {
             std::string signal_name = ps.power_name;
@@ -409,7 +413,8 @@ namespace geopm
                                                    agg_function(msr_name),
                                                    ps.description + "\n    alias_for: " + ps.msr_name + " rate of change",
                                                    IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
-                                                   string_format_double};
+                                                   string_format_double
+                                                  };
             }
         }
     }
@@ -435,20 +440,23 @@ namespace geopm
         // Mapping of high-level signal name to description and
         // underlying CNT MSRs.  The domain will match that of the
         // CNT signals.
-        struct cnt_data
-        {
+        struct cnt_data {
             std::string cnt_name;
             std::string description;
             std::string msr_name;
         };
 
         std::vector<cnt_data> cnt_signals {
-            {"MSR::PCNT_RATE",
-                    "Average cpu pcnt rate over 8 control loop iterations (40ms if using geopmread)",
-                    "MSR::PPERF:PCNT"},
-            {"MSR::ACNT_RATE",
-                    "Average cpu acnt rate over 8 control loop iterations (40ms if using geopmread)",
-                    "MSR::APERF:ACNT"}
+            {
+                "MSR::PCNT_RATE",
+                "Average cpu pcnt rate over 8 control loop iterations (40ms if using geopmread)",
+                "MSR::PPERF:PCNT"
+            },
+            {
+                "MSR::ACNT_RATE",
+                "Average cpu acnt rate over 8 control loop iterations (40ms if using geopmread)",
+                "MSR::APERF:ACNT"
+            }
         };
 
         // This block is taking the derivative of the MSR::PPERF:PCNT signal
@@ -489,7 +497,8 @@ namespace geopm
                                               Agg::average,
                                               ps.description + "\n    alias_for: " + ps.msr_name + " rate of change",
                                               IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
-                                              string_format_double};
+                                              string_format_double
+                                             };
             }
         }
 
@@ -509,7 +518,7 @@ namespace geopm
                 auto numer_it = signal_hidden.find("MSR::PCNT_RATE");
                 auto denom_it = signal_hidden.find("MSR::ACNT_RATE");
                 if (numer_it != signal_hidden.end() &&
-                    denom_it != signal_hidden.end()){
+                    denom_it != signal_hidden.end()) {
                     auto numers = numer_it->second.signals;
                     auto numer = numers[domain_idx];
                     auto denoms = denom_it->second.signals;
@@ -528,7 +537,8 @@ namespace geopm
                                                "by the derivative of PCNT divided by the "
                                                "derivative of ACNT over 8 samples",
                                                IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
-                                               string_format_double};
+                                               string_format_double
+                                              };
         }
     }
 
@@ -570,7 +580,8 @@ namespace geopm
                                                description + "\n    alias_for: " + msr_name + " multiplied by " +
                                                std::to_string(m_rdt_info.mbm_scalar) + " (provided by cpuid)",
                                                IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
-                                               string_format_double};
+                                               string_format_double
+                                              };
         }
 
 
@@ -607,7 +618,8 @@ namespace geopm
                                                agg_function(msr_name),
                                                description + "\n    alias_for: " + msr_name + " rate of change",
                                                IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
-                                               string_format_double};
+                                               string_format_double
+                                              };
         }
     }
 
@@ -770,7 +782,9 @@ namespace geopm
     void MSRIOGroup::write_batch(void)
     {
         if (m_control_pushed.size() != 0) {
-            if (std::any_of(m_is_adjusted.begin(), m_is_adjusted.end(), [](bool it) {return !it;})) {
+            if (std::any_of(m_is_adjusted.begin(), m_is_adjusted.end(), [](bool it) {
+            return !it;
+        })) {
                 throw Exception("MSRIOGroup::write_batch() called before all controls were adjusted",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
@@ -1256,8 +1270,7 @@ namespace geopm
         static bool do_check_governor = true;
 
         if (do_check_governor &&
-            FREQ_CONTROL_SET.find(control_name) != FREQ_CONTROL_SET.end())
-        {
+            FREQ_CONTROL_SET.find(control_name) != FREQ_CONTROL_SET.end()) {
             bool do_print_warning = false;
             std::string scaling_driver = "cpufreq-sysfs-read-error";
             std::string scaling_governor = scaling_driver;
@@ -1294,7 +1307,7 @@ namespace geopm
                           << "The \"acpi-cpufreq\" driver and \"performance\" or \"userspace\" governor are required when setting "
                           << "CPU frequency or power limits with GEOPM.  Other Linux power settings, including the intel_pstate driver,"
                           << "may overwrite GEOPM controls for frequency and power limits." << std::endl;
-                    }
+            }
             do_check_governor = false;
         }
 
@@ -1322,8 +1335,7 @@ namespace geopm
     }
 
     /// Used to validate types and values of JSON objects
-    struct json_checker
-    {
+    struct json_checker {
         // base JSON type
         Json::Type json_type;
         // additional constraints, assuming base type matches
@@ -1401,7 +1413,8 @@ namespace geopm
         return true;
     };
 
-    bool MSRIOGroup::json_check_is_integer(const Json &num) {
+    bool MSRIOGroup::json_check_is_integer(const Json &num)
+    {
         return ((double)((int)(num.number_value())) == num.number_value());
     };
 
@@ -1432,9 +1445,9 @@ namespace geopm
         }
         // expected keys for msr
         std::map<std::string, json_checker> msr_keys = {
-                {"offset", {Json::STRING, json_check_is_valid_offset, "must be a hex string and non-zero"}},
-                {"domain", {Json::STRING, json_check_is_valid_domain, "must be a valid domain string"}},
-                {"fields", {Json::OBJECT, json_check_null_func, "must be an object"}}
+            {"offset", {Json::STRING, json_check_is_valid_offset, "must be a hex string and non-zero"}},
+            {"domain", {Json::STRING, json_check_is_valid_domain, "must be a valid domain string"}},
+            {"fields", {Json::OBJECT, json_check_null_func, "must be an object"}}
         };
         check_expected_key_values(msr_root, msr_keys, {}, "in msr \"" + msr_name + "\"");
     }
@@ -1544,9 +1557,9 @@ namespace geopm
                                                                domain_type, domain_idx);
             for (auto cpu_idx : cpus) {
                 cpu_controls.push_back(std::make_shared<MSRFieldControl>(
-                    m_msrio, cpu_idx, msr_offset,
-                    begin_bit, end_bit, function,
-                    scalar));
+                                           m_msrio, cpu_idx, msr_offset,
+                                           begin_bit, end_bit, function,
+                                           scalar));
             }
             result_field_control.push_back(std::make_shared<DomainControl>(cpu_controls));
         }

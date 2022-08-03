@@ -38,85 +38,92 @@ namespace geopm
 
     CNLIOGroup::CNLIOGroup(const std::string &cpu_info_path)
         : m_signal_available({{"CNL::BOARD_POWER", {
-                                   "Point in time power",
-                                   Agg::average,
-                                   string_format_integer,
-                                   get_formatted_file_reader(cpu_info_path + "/power", "W"),
-                                   false,
-                                   NAN,
-                                   M_UNITS_WATTS,
-                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE}},
-                              {"CNL::BOARD_ENERGY", {
-                                   "Accumulated energy",
-                                   Agg::sum,
-                                   string_format_integer,
-                                   get_formatted_file_reader(cpu_info_path + "/energy", "J"),
-                                   false,
-                                   NAN,
-                                   M_UNITS_JOULES,
-                                   IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE}},
-                              {"CNL::MEMORY_POWER", {
-                                   "Point in time memory power",
-                                   Agg::average,
-                                   string_format_integer,
-                                   get_formatted_file_reader(cpu_info_path + "/memory_power", "W"),
-                                   false,
-                                   NAN,
-                                   M_UNITS_WATTS,
-                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE}},
-                              {"CNL::MEMORY_ENERGY", {
-                                   "Accumulated memory energy",
-                                   Agg::sum,
-                                   string_format_integer,
-                                   get_formatted_file_reader(cpu_info_path + "/memory_energy", "J"),
-                                   false,
-                                   NAN,
-                                   M_UNITS_JOULES,
-                                   IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE}},
-                              {"CNL::BOARD_POWER_CPU", {
-                                   "Point in time CPU power",
-                                   Agg::average,
-                                   string_format_integer,
-                                   get_formatted_file_reader(cpu_info_path + "/cpu_power", "W"),
-                                   false,
-                                   NAN,
-                                   M_UNITS_WATTS,
-                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE}},
-                              {"CNL::BOARD_ENERGY_CPU", {
-                                   "Accumulated CPU energy",
-                                   Agg::sum,
-                                   string_format_integer,
-                                   get_formatted_file_reader(cpu_info_path + "/cpu_energy", "J"),
-                                   false,
-                                   NAN,
-                                   M_UNITS_JOULES,
-                                   IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE}},
-                              {"CNL::SAMPLE_RATE", {
-                                   "Sample frequency",
-                                   Agg::expect_same,
-                                   string_format_integer,
-                                   std::bind(&CNLIOGroup::m_sample_rate, this),
-                                   false,
-                                   NAN,
-                                   M_UNITS_HERTZ,
-                                   IOGroup::M_SIGNAL_BEHAVIOR_CONSTANT}},
-                              {"CNL::SAMPLE_ELAPSED_TIME", {
-                                   "Time that the sample was reported, in seconds since this agent initialized",
-                                   Agg::max,
-                                   string_format_double,
-                                   std::bind(&CNLIOGroup::read_time, this, cpu_info_path + "/" + FRESHNESS_FILE_NAME),
-                                   false,
-                                   NAN,
-                                   M_UNITS_SECONDS,
-                                   IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE}},
-                             })
-        , m_time_zero(geopm::time_zero())
+                "Point in time power",
+                Agg::average,
+                string_format_integer,
+                get_formatted_file_reader(cpu_info_path + "/power", "W"),
+                false,
+                NAN,
+                M_UNITS_WATTS,
+                IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE}},
+        {
+            "CNL::BOARD_ENERGY", {
+                "Accumulated energy",
+                Agg::sum,
+                string_format_integer,
+                get_formatted_file_reader(cpu_info_path + "/energy", "J"),
+                false,
+                NAN,
+                M_UNITS_JOULES,
+                IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE}},
+        {
+            "CNL::MEMORY_POWER", {
+                "Point in time memory power",
+                Agg::average,
+                string_format_integer,
+                get_formatted_file_reader(cpu_info_path + "/memory_power", "W"),
+                false,
+                NAN,
+                M_UNITS_WATTS,
+                IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE}},
+        {
+            "CNL::MEMORY_ENERGY", {
+                "Accumulated memory energy",
+                Agg::sum,
+                string_format_integer,
+                get_formatted_file_reader(cpu_info_path + "/memory_energy", "J"),
+                false,
+                NAN,
+                M_UNITS_JOULES,
+                IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE}},
+        {
+            "CNL::BOARD_POWER_CPU", {
+                "Point in time CPU power",
+                Agg::average,
+                string_format_integer,
+                get_formatted_file_reader(cpu_info_path + "/cpu_power", "W"),
+                false,
+                NAN,
+                M_UNITS_WATTS,
+                IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE}},
+        {
+            "CNL::BOARD_ENERGY_CPU", {
+                "Accumulated CPU energy",
+                Agg::sum,
+                string_format_integer,
+                get_formatted_file_reader(cpu_info_path + "/cpu_energy", "J"),
+                false,
+                NAN,
+                M_UNITS_JOULES,
+                IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE}},
+        {
+            "CNL::SAMPLE_RATE", {
+                "Sample frequency",
+                Agg::expect_same,
+                string_format_integer,
+                std::bind(&CNLIOGroup::m_sample_rate, this),
+                false,
+                NAN,
+                M_UNITS_HERTZ,
+                IOGroup::M_SIGNAL_BEHAVIOR_CONSTANT}},
+        {
+            "CNL::SAMPLE_ELAPSED_TIME", {
+                "Time that the sample was reported, in seconds since this agent initialized",
+                Agg::max,
+                string_format_double,
+                std::bind(&CNLIOGroup::read_time, this, cpu_info_path + "/" + FRESHNESS_FILE_NAME),
+                false,
+                NAN,
+                M_UNITS_SECONDS,
+                IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE}},
+    })
+    , m_time_zero(geopm::time_zero())
     {
         m_sample_rate = read_double_from_file(
-            cpu_info_path + "/" + RAW_SCAN_HZ_FILE_NAME, "");
+                            cpu_info_path + "/" + RAW_SCAN_HZ_FILE_NAME, "");
         if (m_sample_rate <= 0) {
             throw Exception("CNLIOGroup::CNLIOGroup(): Unexpected sample frequency " +
-                                std::to_string(m_sample_rate),
+                            std::to_string(m_sample_rate),
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         m_initial_freshness =

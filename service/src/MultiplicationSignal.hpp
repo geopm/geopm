@@ -18,7 +18,7 @@ namespace geopm
     {
         public:
             MultiplicationSignal(std::shared_ptr<Signal> multiplier,
-                           double multiplicand);
+                                 double multiplicand);
             MultiplicationSignal(const MultiplicationSignal &other) = delete;
             MultiplicationSignal &operator=(const MultiplicationSignal &other) = delete;
             virtual ~MultiplicationSignal() = default;

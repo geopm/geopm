@@ -35,58 +35,62 @@ namespace geopm
         , m_dcgm_device_pool(device_pool)
         , m_is_batch_read(false)
         , m_signal_available({{"DCGM::SM_ACTIVE", {
-                                  "Streaming Multiprocessor activity expressed as a ratio of cycles",
-                                  {},
-                                  [this](unsigned int domain_idx) -> double
-                                  {
-                                      return this->m_dcgm_device_pool.sample(
-                                                   domain_idx, geopm::DCGMDevicePool::M_FIELD_ID_SM_ACTIVE);
-                                  },
-                                  Agg::average,
-                                  string_format_double
-                                  }},
-                              {"DCGM::SM_OCCUPANCY", {
-                                  "Warp residency expressed as a ratio of maximum warps",
-                                  {},
-                                  [this](unsigned int domain_idx) -> double
-                                  {
-                                      return this->m_dcgm_device_pool.sample(
-                                                   domain_idx, geopm::DCGMDevicePool::M_FIELD_ID_SM_OCCUPANCY);
-                                  },
-                                  Agg::average,
-                                  string_format_double
-                                  }},
-                              {"DCGM::DRAM_ACTIVE", {
-                                  "DRAM send & receive expressed as a ratio of cycles",
-                                  {},
-                                  [this](unsigned int domain_idx) -> double
-                                  {
-                                      return this->m_dcgm_device_pool.sample(
-                                                   domain_idx, geopm::DCGMDevicePool::M_FIELD_ID_DRAM_ACTIVE);
-                                  },
-                                  Agg::average,
-                                  string_format_double
-                                  }},
-                             })
-        , m_control_available({{"DCGM::FIELD_UPDATE_RATE", {
-                                    "Rate at which field data is polled in seconds",
-                                    {},
-                                    Agg::expect_same,
-                                    string_format_double
-                                    }},
-                               {"DCGM::MAX_STORAGE_TIME", {
-                                    "Maximum time field data is stored in seconds",
-                                    {},
-                                    Agg::expect_same,
-                                    string_format_double
-                                    }},
-                               {"DCGM::MAX_SAMPLES", {
-                                    "Maximum number of samples.  0=no limit",
-                                    {},
-                                    Agg::expect_same,
-                                    string_format_integer
-                                    }}
-                              })
+                "Streaming Multiprocessor activity expressed as a ratio of cycles",
+                {},
+                [this](unsigned int domain_idx) -> double
+                {
+                    return this->m_dcgm_device_pool.sample(
+                        domain_idx, geopm::DCGMDevicePool::M_FIELD_ID_SM_ACTIVE);
+                },
+                Agg::average,
+                string_format_double
+            }},
+        {
+            "DCGM::SM_OCCUPANCY", {
+                "Warp residency expressed as a ratio of maximum warps",
+                {},
+                [this](unsigned int domain_idx) -> double
+                {
+                    return this->m_dcgm_device_pool.sample(
+                        domain_idx, geopm::DCGMDevicePool::M_FIELD_ID_SM_OCCUPANCY);
+                },
+                Agg::average,
+                string_format_double
+            }},
+        {
+            "DCGM::DRAM_ACTIVE", {
+                "DRAM send & receive expressed as a ratio of cycles",
+                {},
+                [this](unsigned int domain_idx) -> double
+                {
+                    return this->m_dcgm_device_pool.sample(
+                        domain_idx, geopm::DCGMDevicePool::M_FIELD_ID_DRAM_ACTIVE);
+                },
+                Agg::average,
+                string_format_double
+            }},
+    })
+    , m_control_available({{"DCGM::FIELD_UPDATE_RATE", {
+                "Rate at which field data is polled in seconds",
+                {},
+                Agg::expect_same,
+                string_format_double
+            }},
+        {
+            "DCGM::MAX_STORAGE_TIME", {
+                "Maximum time field data is stored in seconds",
+                {},
+                Agg::expect_same,
+                string_format_double
+            }},
+        {
+            "DCGM::MAX_SAMPLES", {
+                "Maximum number of samples.  0=no limit",
+                {},
+                Agg::expect_same,
+                string_format_integer
+            }}
+    })
     {
         // confirm all DCGM devices correspond to a GPU
         if (m_dcgm_device_pool.num_device() != m_platform_topo.num_domain(GEOPM_DOMAIN_GPU)) {
@@ -259,7 +263,7 @@ namespace geopm
             //       dcgmGetLatestValuesForFields only has to be called
             //       once per GEOPM_GPU domain.
             for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(
-                 GEOPM_DOMAIN_GPU); ++domain_idx) {
+                     GEOPM_DOMAIN_GPU); ++domain_idx) {
 
                 m_dcgm_device_pool.update(domain_idx);
 
@@ -340,10 +344,10 @@ namespace geopm
             result = it->second.m_devpool_func(domain_idx);
         }
         else {
-    #ifdef GEOPM_DEBUG
+#ifdef GEOPM_DEBUG
             throw Exception("DCGMIOGroup::" + std::string(__func__) + ": Handling not defined for " +
                             signal_name, GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-    #endif
+#endif
         }
         return result;
     }
@@ -376,10 +380,10 @@ namespace geopm
             m_dcgm_device_pool.max_samples(setting);
         }
         else {
-    #ifdef GEOPM_DEBUG
-                throw Exception("DCGMIOGroup::" + std::string(__func__) + "Handling not defined for "
-                                + control_name, GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-    #endif
+#ifdef GEOPM_DEBUG
+            throw Exception("DCGMIOGroup::" + std::string(__func__) + "Handling not defined for "
+                            + control_name, GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+#endif
         }
     }
 
@@ -499,7 +503,7 @@ namespace geopm
     }
 
     void DCGMIOGroup::register_control_alias(const std::string &alias_name,
-                                           const std::string &control_name)
+                                             const std::string &control_name)
     {
         if (m_control_available.find(alias_name) != m_control_available.end()) {
             throw Exception("DCGMIOGroup::" + std::string(__func__) + ": contro1_name " + alias_name +
@@ -514,6 +518,6 @@ namespace geopm
         // copy control info but append to description
         m_control_available[alias_name] = it->second;
         m_control_available[alias_name].m_description =
-        m_control_available[control_name].m_description + '\n' + "    alias_for: " + control_name;
+            m_control_available[control_name].m_description + '\n' + "    alias_for: " + control_name;
     }
 }

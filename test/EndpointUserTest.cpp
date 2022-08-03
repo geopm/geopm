@@ -79,8 +79,8 @@ TEST_F(EndpointUserTest, attach)
     struct geopm_endpoint_sample_shmem_s *data = (struct geopm_endpoint_sample_shmem_s *) m_sample_shmem_user->pointer();
     std::set<std::string> hosts {"node1", "node2", "node4"};
     EndpointUserImp gp("/FAKE_PATH", std::move(m_policy_shmem_user),
-                         std::move(m_sample_shmem_user), "myagent", 0,
-                         "myprofile", m_hostlist_file, hosts);
+                       std::move(m_sample_shmem_user), "myagent", 0,
+                       "myprofile", m_hostlist_file, hosts);
     EXPECT_STREQ("myagent", data->agent);
     EXPECT_STREQ("myprofile", data->profile_name);
     EXPECT_STREQ(m_hostlist_file.c_str(), data->hostlist_path);
@@ -103,8 +103,8 @@ TEST_F(EndpointUserTest, parse_shm_policy)
     memcpy(data->values, tmp, sizeof(tmp));
 
     EndpointUserImp gp("/FAKE_PATH", std::move(m_policy_shmem_user),
-                         std::move(m_sample_shmem_user), "myagent", 0,
-                         "myprofile", m_hostlist_file, {});
+                       std::move(m_sample_shmem_user), "myagent", 0,
+                       "myprofile", m_hostlist_file, {});
 
     std::vector<double> result(num_policy);
     gp.read_policy(result);
@@ -117,7 +117,7 @@ TEST_F(EndpointUserTest, write_shm_sample)
     struct geopm_endpoint_sample_shmem_s *data = (struct geopm_endpoint_sample_shmem_s *) m_sample_shmem_user->pointer();
     std::vector<double> values = {777, 12.3456, 2.3e9};
     EndpointUserImp jio("/FAKE_PATH", std::move(m_policy_shmem_user), std::move(m_sample_shmem_user),
-                          "myagent", values.size(), "myprofile", m_hostlist_file, {});
+                        "myagent", values.size(), "myprofile", m_hostlist_file, {});
     jio.write_sample(values);
 
     std::vector<double> test = std::vector<double>(data->values, data->values + data->count);

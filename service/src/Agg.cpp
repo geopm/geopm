@@ -86,7 +86,9 @@ namespace geopm
         double result = NAN;
         if (filtered.size()) {
             result = std::all_of(filtered.begin(), filtered.end(),
-                                 [](double it) {return (it != 0.0);});
+            [](double it) {
+                return (it != 0.0);
+            });
         }
         return result;
     }
@@ -97,7 +99,9 @@ namespace geopm
         double result = NAN;
         if (filtered.size()) {
             result = std::any_of(filtered.begin(), filtered.end(),
-                                 [](double it) {return (it != 0.0);});
+            [](double it) {
+                return (it != 0.0);
+            });
         }
         return result;
     }
@@ -108,10 +112,10 @@ namespace geopm
         double result = NAN;
         if (filtered.size() != 0) {
             result = std::all_of(filtered.cbegin(), filtered.cend(),
-                                [filtered](double x) {
-                                    return x == filtered[0];
-                                }) ?
-                     filtered[0] : no_match;
+            [filtered](double x) {
+                return x == filtered[0];
+            }) ?
+            filtered[0] : no_match;
         }
         return result;
     }

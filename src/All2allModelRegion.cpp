@@ -78,7 +78,7 @@ namespace geopm
 
         if (big_o_in && m_big_o != big_o_in) {
             int err = posix_memalign((void **)&m_send_buffer, m_align,
-                                 m_num_rank * m_num_send * sizeof(char));
+                                     m_num_rank * m_num_send * sizeof(char));
             if (!err) {
                 err = posix_memalign((void **)&m_recv_buffer, m_align,
                                      m_num_rank * m_num_send * sizeof(char));

@@ -61,9 +61,9 @@ void TracerTest::SetUp(void)
 {
     remove_files();
     EXPECT_CALL(m_platform_topo, num_domain(GEOPM_DOMAIN_CPU))
-        .WillOnce(Return(2));
+    .WillOnce(Return(2));
     EXPECT_CALL(m_platform_topo, num_domain(GEOPM_DOMAIN_BOARD))
-        .WillRepeatedly(Return(1));
+    .WillRepeatedly(Return(1));
 
     m_default_cols = {
         {"TIME", GEOPM_DOMAIN_BOARD, 0, geopm::string_format_double},
@@ -88,27 +88,27 @@ void TracerTest::SetUp(void)
     int idx = 0;
     for (auto cc : m_default_cols) {
         EXPECT_CALL(m_platform_io, push_signal(cc.name, cc.domain_type, cc.domain_idx))
-            .WillOnce(Return(idx));
+        .WillOnce(Return(idx));
         ++idx;
     }
     EXPECT_CALL(m_platform_io, push_signal("EXTRA", GEOPM_DOMAIN_BOARD, 0))
-        .WillOnce(Return(idx));
+    .WillOnce(Return(idx));
     ++idx;
     EXPECT_CALL(m_platform_io, push_signal("EXTRA_SPECIAL", GEOPM_DOMAIN_CPU, 0))
-        .WillOnce(Return(idx));
+    .WillOnce(Return(idx));
     ++idx;
     EXPECT_CALL(m_platform_io, push_signal("EXTRA_SPECIAL", GEOPM_DOMAIN_CPU, 1))
-        .WillOnce(Return(idx));
+    .WillOnce(Return(idx));
 
     EXPECT_CALL(m_platform_io, format_function("EXTRA"))
-        .WillOnce(Return(geopm::string_format_double));
+    .WillOnce(Return(geopm::string_format_double));
 
     EXPECT_CALL(m_platform_io, format_function("EXTRA_SPECIAL"))
-        .WillOnce(Return(geopm::string_format_double));
+    .WillOnce(Return(geopm::string_format_double));
 
     for (auto column : m_default_cols) {
         EXPECT_CALL(m_platform_io, format_function(column.name))
-            .WillOnce(Return(column.format));
+        .WillOnce(Return(column.format));
     }
 
     m_tracer = geopm::make_unique<TracerImp>(m_start_time, m_path, m_hostname, true,
@@ -136,10 +136,10 @@ TEST_F(TracerTest, columns)
                                   "# node_name: " + m_hostname + "\n"
                                   "# agent:\n";
     std::string expected_str = expected_header +
-        "TIME|EPOCH_COUNT|REGION_HASH|REGION_HINT|REGION_PROGRESS|CPU_ENERGY|DRAM_ENERGY|"
-        "CPU_POWER|DRAM_POWER|CPU_FREQUENCY_STATUS|CPU_CYCLES_THREAD|CPU_CYCLES_REFERENCE|CPU_CORE_TEMPERATURE|"
-        "EXTRA|EXTRA_SPECIAL-cpu-0|EXTRA_SPECIAL-cpu-1|"
-        "col1|col2\n";
+                               "TIME|EPOCH_COUNT|REGION_HASH|REGION_HINT|REGION_PROGRESS|CPU_ENERGY|DRAM_ENERGY|"
+                               "CPU_POWER|DRAM_POWER|CPU_FREQUENCY_STATUS|CPU_CYCLES_THREAD|CPU_CYCLES_REFERENCE|CPU_CORE_TEMPERATURE|"
+                               "EXTRA|EXTRA_SPECIAL-cpu-0|EXTRA_SPECIAL-cpu-1|"
+                               "col1|col2\n";
     std::istringstream expected(expected_str);
     std::ifstream result(m_path + "-" + m_hostname);
     ASSERT_TRUE(result.good()) << strerror(errno);
@@ -151,13 +151,13 @@ TEST_F(TracerTest, update_samples)
     int idx = 0;
     for (auto cc : m_default_cols) {
         EXPECT_CALL(m_platform_io, sample(idx))
-            .WillOnce(Return(idx + 0.5));
+        .WillOnce(Return(idx + 0.5));
         ++idx;
     }
 
     for (int count = 0; count < m_num_extra_cols; ++count) {
         EXPECT_CALL(m_platform_io, sample(idx))
-            .WillOnce(Return(idx + 0.7));
+        .WillOnce(Return(idx + 0.7));
         ++idx;
     }
 
@@ -169,7 +169,7 @@ TEST_F(TracerTest, update_samples)
     m_tracer->flush();
 
     std::string expected_str = "\n\n\n\n\n\n"
-        "0.5|1|0x00000002|0x00000003|4.5|5.5|6.5|7.5|8.5|9.5|10|11|12.5|13.7|14.7|15.7|88.8|77.7\n";
+                               "0.5|1|0x00000002|0x00000003|4.5|5.5|6.5|7.5|8.5|9.5|10|11|12.5|13.7|14.7|15.7|88.8|77.7\n";
     std::istringstream expected(expected_str);
     std::ifstream result(m_path + "-" + m_hostname);
     ASSERT_TRUE(result.good()) << strerror(errno);
@@ -179,24 +179,25 @@ TEST_F(TracerTest, update_samples)
 TEST_F(TracerTest, region_entry_exit)
 {
     EXPECT_CALL(m_platform_io, sample(_)).Times(m_default_cols.size() + m_num_extra_cols)
-        .WillOnce(Return(2.2))                        // time
-        .WillOnce(Return(0.0))                        // epoch_count
-        .WillOnce(Return(0x123))                      // region hash
-        .WillOnce(Return(GEOPM_REGION_HINT_UNKNOWN))  // region hint
-        .WillOnce(Return(0.0))  // progress; should cause one region entry to be skipped
-        .WillOnce(Return(0.0))
-        .WillRepeatedly(Return(2.2));
+    .WillOnce(Return(2.2))                        // time
+    .WillOnce(Return(0.0))                        // epoch_count
+    .WillOnce(Return(0x123))                      // region hash
+    .WillOnce(Return(GEOPM_REGION_HINT_UNKNOWN))  // region hint
+    .WillOnce(Return(0.0))  // progress; should cause one region entry to be skipped
+    .WillOnce(Return(0.0))
+    .WillRepeatedly(Return(2.2));
 
     std::vector<std::string> agent_cols {"col1", "col2"};
     std::vector<double> agent_vals {88.8, 77.7};
 
     m_tracer->columns(agent_cols, {geopm::string_format_integer,
-                                   geopm::string_format_integer});
+                                   geopm::string_format_integer
+                                  });
     m_tracer->update(agent_vals);
     m_tracer->flush();
     std::string expected_str ="\n\n\n\n\n"
-        "\n" // header
-        "2.2|0|0x00000123|0x00000001|0|0|2.2|2.2|2.2|2.2|2|2|2.2|2.2|2.2|2.2|88|77\n";
+                              "\n" // header
+                              "2.2|0|0x00000123|0x00000001|0|0|2.2|2.2|2.2|2.2|2|2|2.2|2.2|2.2|2.2|88|77\n";
 
     std::istringstream expected(expected_str);
     std::ifstream result(m_path + "-" + m_hostname);

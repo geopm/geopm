@@ -58,7 +58,7 @@ int main(int argc, char **argv)
             }
         }
         if (!err) {
-           std::cout << "Platform 0x" << std::hex << cpu_id << " is supported by geopm and msr_safe is available." << std::endl;
+            std::cout << "Platform 0x" << std::hex << cpu_id << " is supported by geopm and msr_safe is available." << std::endl;
         }
     }
     return err;

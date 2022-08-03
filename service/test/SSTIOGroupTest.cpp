@@ -82,17 +82,16 @@ TEST_F(SSTIOGroupTest, valid_signal_domains)
 {
     auto names = m_group->signal_names();
     for (auto name : names) {
-        if (name == "SST::COREPRIORITY:ASSOCIATION" || name == "SST::COREPRIORITY_0x00020#")
-        {
+        if (name == "SST::COREPRIORITY:ASSOCIATION" || name == "SST::COREPRIORITY_0x00020#") {
             // These are the only signals that have per-core handling. If this
             // test fails, then a new per-core signal was added. Make sure you
             // handle any new special cases that appear.
             EXPECT_EQ(GEOPM_DOMAIN_CORE, m_group->signal_domain_type(name))
-                << "name = " << name;
+                    << "name = " << name;
         }
         else {
             EXPECT_EQ(GEOPM_DOMAIN_PACKAGE, m_group->signal_domain_type(name))
-                << "name = " << name;
+                    << "name = " << name;
         }
     }
 }
@@ -101,17 +100,16 @@ TEST_F(SSTIOGroupTest, valid_control_domains)
 {
     auto names = m_group->control_names();
     for (auto name : names) {
-        if (name == "SST::COREPRIORITY:ASSOCIATION" || name == "SST::COREPRIORITY_0x00020#")
-        {
+        if (name == "SST::COREPRIORITY:ASSOCIATION" || name == "SST::COREPRIORITY_0x00020#") {
             // These are the only controls that have per-core handling. If this
             // test fails, then a new per-core control was added. Make sure you
             // handle any new special cases that appear.
             EXPECT_EQ(GEOPM_DOMAIN_CORE, m_group->control_domain_type(name))
-                << "name = " << name;
+                    << "name = " << name;
         }
         else {
             EXPECT_EQ(GEOPM_DOMAIN_PACKAGE, m_group->control_domain_type(name))
-                << "name = " << name;
+                    << "name = " << name;
         }
     }
 }
@@ -127,9 +125,9 @@ TEST_F(SSTIOGroupTest, sample_mbox_signal)
     int pkg_1_cpu = 2;
 
     EXPECT_CALL(*m_sstio, add_mbox_read(pkg_0_cpu, 0x7F, 0x00, 0x00))
-        .WillOnce(Return(CONFIG_LEVEL_0));
+    .WillOnce(Return(CONFIG_LEVEL_0));
     EXPECT_CALL(*m_sstio, add_mbox_read(pkg_1_cpu, 0x7F, 0x00, 0x00))
-        .WillOnce(Return(CONFIG_LEVEL_1));
+    .WillOnce(Return(CONFIG_LEVEL_1));
 
     int idx0 = m_group->push_signal("SST::CONFIG_LEVEL:LEVEL", GEOPM_DOMAIN_PACKAGE, 0);
     int idx1 = m_group->push_signal("SST::CONFIG_LEVEL:LEVEL", GEOPM_DOMAIN_PACKAGE, 1);
@@ -163,9 +161,9 @@ TEST_F(SSTIOGroupTest, sample_mbox_control)
     int pkg_1_cpu = 2;
 
     EXPECT_CALL(*m_sstio, add_mbox_read(pkg_0_cpu, 0x7f, 0x01, 0x00))
-        .WillOnce(Return(CONFIG_LEVEL_0));
+    .WillOnce(Return(CONFIG_LEVEL_0));
     EXPECT_CALL(*m_sstio, add_mbox_read(pkg_1_cpu, 0x7f, 0x01, 0x00))
-        .WillOnce(Return(CONFIG_LEVEL_1));
+    .WillOnce(Return(CONFIG_LEVEL_1));
 
     int idx0 = m_group->push_signal("SST::TURBO_ENABLE:ENABLE", GEOPM_DOMAIN_PACKAGE, 0);
     int idx1 = m_group->push_signal("SST::TURBO_ENABLE:ENABLE", GEOPM_DOMAIN_PACKAGE, 1);
@@ -200,9 +198,9 @@ TEST_F(SSTIOGroupTest, sample_mmio_percore_control)
     int core_1_cpu = 1;
 
     EXPECT_CALL(*m_sstio, add_mmio_read(core_0_cpu, 0x20))
-        .WillOnce(Return(COREPRIORITY_0));
+    .WillOnce(Return(COREPRIORITY_0));
     EXPECT_CALL(*m_sstio, add_mmio_read(core_1_cpu, 0x28 /* punit 2 */))
-        .WillOnce(Return(COREPRIORITY_1));
+    .WillOnce(Return(COREPRIORITY_1));
 
     int idx0 = m_group->push_signal("SST::COREPRIORITY:ASSOCIATION", GEOPM_DOMAIN_CORE, 0);
     int idx1 = m_group->push_signal("SST::COREPRIORITY:ASSOCIATION", GEOPM_DOMAIN_CORE, 1);
@@ -231,9 +229,9 @@ TEST_F(SSTIOGroupTest, adjust_mbox_control)
     // are co-dependent on each other, which complicates batch operations. For
     // now, let's simplify things by disallowing these controls in batch operations.
     EXPECT_THROW(m_group->push_control("SST::TURBO_ENABLE:ENABLE", GEOPM_DOMAIN_PACKAGE, 0),
-            geopm::Exception);
+                 geopm::Exception);
     EXPECT_THROW(m_group->push_control("SST::COREPRIORITY_ENABLE:ENABLE", GEOPM_DOMAIN_PACKAGE, 0),
-            geopm::Exception);
+                 geopm::Exception);
 }
 
 
@@ -252,9 +250,9 @@ TEST_F(SSTIOGroupTest, adjust_mmio_control)
 
     // Expectations for SST::COREPRIORITY:1:FREQUENCY_MIN
     EXPECT_CALL(*m_sstio, add_mmio_write(pkg_0_cpu, 0x0c, 0, 0x00fffff0 /* bits 4..23. All known fields */))
-        .WillOnce(Return(FREQ_0));
+    .WillOnce(Return(FREQ_0));
     EXPECT_CALL(*m_sstio, add_mmio_write(pkg_1_cpu, 0x0c, 0, 0x00fffff0 /* bits 4..23. All known fields */))
-        .WillOnce(Return(FREQ_1));
+    .WillOnce(Return(FREQ_1));
 
     int idx0 = m_group->push_control("SST::COREPRIORITY:1:FREQUENCY_MIN", GEOPM_DOMAIN_PACKAGE, 0);
     int idx1 = m_group->push_control("SST::COREPRIORITY:1:FREQUENCY_MIN", GEOPM_DOMAIN_PACKAGE, 1);
@@ -273,18 +271,18 @@ TEST_F(SSTIOGroupTest, error_in_save_removes_control)
     auto names = m_group->control_names();
     int pkg_0_cpu = 0;
     const std::array<std::string, 3> broken_controls{ {
-        "SST::COREPRIORITY:1:PRIORITY",
-        "SST::COREPRIORITY:1:FREQUENCY_MIN",
-        "SST::COREPRIORITY:1:FREQUENCY_MAX",
-    } };
+            "SST::COREPRIORITY:1:PRIORITY",
+            "SST::COREPRIORITY:1:FREQUENCY_MIN",
+            "SST::COREPRIORITY:1:FREQUENCY_MAX",
+        } };
     const std::string unimpacted_control{"SST::COREPRIORITY:2:FREQUENCY_MIN"};
 
     for (const auto &control_name : broken_controls) {
         EXPECT_TRUE(m_group->is_valid_control(control_name))
-            << control_name << " before failed save";
+                << control_name << " before failed save";
     }
     EXPECT_TRUE(m_group->is_valid_control(unimpacted_control))
-        << unimpacted_control << " before failed save";
+            << unimpacted_control << " before failed save";
 
     // save_control will hit a lot of other controls. Let them all succeed
     // except for the ones we are testing. Google Test docs recommend using
@@ -295,8 +293,8 @@ TEST_F(SSTIOGroupTest, error_in_save_removes_control)
 
     // Fail writes in the SST::COREPRIORITY:1:* fields
     EXPECT_CALL(*m_sstio, write_mmio_once(pkg_0_cpu, 0x0c, 0, 0x00fffff0, _, _))
-        .Times(3)
-        .WillRepeatedly(Throw(std::runtime_error("Test-injected failure")));
+    .Times(3)
+    .WillRepeatedly(Throw(std::runtime_error("Test-injected failure")));
 
     EXPECT_CALL(*m_sstio, read_mmio_once(_, _)).Times(AtLeast(0));
     EXPECT_CALL(*m_sstio, read_mbox_once(_, _, _, _)).Times(AtLeast(0));
@@ -305,10 +303,10 @@ TEST_F(SSTIOGroupTest, error_in_save_removes_control)
 
     for (const auto &control_name : broken_controls) {
         EXPECT_FALSE(m_group->is_valid_control(control_name))
-            << control_name << " after failed save";
+                << control_name << " after failed save";
     }
     EXPECT_TRUE(m_group->is_valid_control(unimpacted_control))
-        << unimpacted_control << " after failed save";
+            << unimpacted_control << " after failed save";
 }
 
 TEST_F(SSTIOGroupTest, save_restore_control)
@@ -346,9 +344,9 @@ TEST_F(SSTIOGroupTest, enable_sst_tf_implies_enable_sst_cp_write_once)
 
     InSequence seq; // SST-CP must be enabled before enabling SST-TF
     EXPECT_CALL(*m_sstio, write_mbox_once(_, SST_CP_COMMAND, ENABLE_SUBCOMMAND,
-                _, _, _, _, 1 << SST_CP_ENABLE_BIT, _)).WillOnce(Return());
+                                          _, _, _, _, 1 << SST_CP_ENABLE_BIT, _)).WillOnce(Return());
     EXPECT_CALL(*m_sstio, write_mbox_once(_, SST_TF_COMMAND, ENABLE_SUBCOMMAND,
-                _, _, _, _, 1 << SST_TF_ENABLE_BIT, _)).WillOnce(Return());
+                                          _, _, _, _, 1 << SST_TF_ENABLE_BIT, _)).WillOnce(Return());
 
     m_group->write_control("SST::TURBO_ENABLE:ENABLE", GEOPM_DOMAIN_PACKAGE, 0, 1);
 }
@@ -363,9 +361,9 @@ TEST_F(SSTIOGroupTest, disable_sst_cp_implies_disable_sst_tf_write_once)
 
     InSequence seq; // SST-TF must be disabled before disabling SST-CP
     EXPECT_CALL(*m_sstio, write_mbox_once(_, SST_TF_COMMAND, ENABLE_SUBCOMMAND,
-                _, _, _, _, 0 << SST_TF_ENABLE_BIT, _)).WillOnce(Return());
+                                          _, _, _, _, 0 << SST_TF_ENABLE_BIT, _)).WillOnce(Return());
     EXPECT_CALL(*m_sstio, write_mbox_once(_, SST_CP_COMMAND, ENABLE_SUBCOMMAND,
-                _, _, _, _, 0 << SST_CP_ENABLE_BIT, _)).WillOnce(Return());
+                                          _, _, _, _, 0 << SST_CP_ENABLE_BIT, _)).WillOnce(Return());
 
     m_group->write_control("SST::COREPRIORITY_ENABLE:ENABLE", GEOPM_DOMAIN_PACKAGE, 0, 0);
 }
@@ -383,11 +381,11 @@ TEST_F(SSTIOGroupTest, restored_controls_follow_ordered_dependencies_disabled)
 
     std::vector<uint16_t> disable_commands;
     EXPECT_CALL(*m_sstio, write_mbox_once(_, AnyOf(SST_TF_COMMAND, SST_CP_COMMAND),
-                ENABLE_SUBCOMMAND, _, _, _, _, 0, _)).WillRepeatedly(Invoke(
-                    [&disable_commands] (uint32_t, uint16_t command, uint16_t, uint32_t, uint16_t,
-                                         uint32_t, uint32_t, uint64_t, uint64_t) {
-                        disable_commands.push_back(command);
-                    }));
+                                          ENABLE_SUBCOMMAND, _, _, _, _, 0, _)).WillRepeatedly(Invoke(
+                                                      [&disable_commands] (uint32_t, uint16_t command, uint16_t, uint32_t, uint16_t,
+    uint32_t, uint32_t, uint64_t, uint64_t) {
+        disable_commands.push_back(command);
+    }));
     m_group->restore_control();
 
     // disable_commands may include a direct attempt to disable SST-TF, which
@@ -395,10 +393,10 @@ TEST_F(SSTIOGroupTest, restored_controls_follow_ordered_dependencies_disabled)
     // to disabling SST-CP.
     auto sst_cp_it = std::find(disable_commands.begin(), disable_commands.end(), SST_CP_COMMAND);
     ASSERT_TRUE(sst_cp_it != disable_commands.end())
-        << "Expected SST-CP to be disabled in restore()";
+            << "Expected SST-CP to be disabled in restore()";
     ASSERT_TRUE(sst_cp_it != disable_commands.begin()
                 && *std::prev(sst_cp_it) == SST_TF_COMMAND)
-        << "Expected SST-CP to be disabled after SST-TF in restore()";
+            << "Expected SST-CP to be disabled after SST-TF in restore()";
 }
 
 TEST_F(SSTIOGroupTest, restored_controls_follow_ordered_dependencies_enabled)
@@ -413,11 +411,11 @@ TEST_F(SSTIOGroupTest, restored_controls_follow_ordered_dependencies_enabled)
 
     std::vector<uint16_t> enable_commands;
     EXPECT_CALL(*m_sstio, write_mbox_once(_, AnyOf(SST_TF_COMMAND, SST_CP_COMMAND),
-                ENABLE_SUBCOMMAND, _, _, _, _, Gt(0u), _)).WillRepeatedly(Invoke(
-                    [&enable_commands] (uint32_t, uint16_t command, uint16_t, uint32_t, uint16_t,
-                                         uint32_t, uint32_t, uint64_t, uint64_t) {
-                        enable_commands.push_back(command);
-                    }));
+                                          ENABLE_SUBCOMMAND, _, _, _, _, Gt(0u), _)).WillRepeatedly(Invoke(
+                                                      [&enable_commands] (uint32_t, uint16_t command, uint16_t, uint32_t, uint16_t,
+    uint32_t, uint32_t, uint64_t, uint64_t) {
+        enable_commands.push_back(command);
+    }));
     m_group->restore_control();
 
     // enable_commands may include a direct attempt to enable SST-CP, which
@@ -425,8 +423,8 @@ TEST_F(SSTIOGroupTest, restored_controls_follow_ordered_dependencies_enabled)
     // to enabling SST-TF.
     auto sst_tf_it = std::find(enable_commands.begin(), enable_commands.end(), SST_TF_COMMAND);
     ASSERT_TRUE(sst_tf_it != enable_commands.end())
-        << "Expected SST-TF to be enabled in restore()";
+            << "Expected SST-TF to be enabled in restore()";
     ASSERT_TRUE(sst_tf_it != enable_commands.begin()
                 && *std::prev(sst_tf_it) == SST_CP_COMMAND)
-        << "Expected SST-TF to be enabled after SST-CP in restore()";
+            << "Expected SST-TF to be enabled after SST-CP in restore()";
 }

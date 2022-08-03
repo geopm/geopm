@@ -45,11 +45,13 @@ TEST(AgentFactoryTest, static_info_balancer)
     std::vector<std::string> exp_sample = {"STEP_COUNT",
                                            "MAX_EPOCH_RUNTIME",
                                            "SUM_POWER_SLACK",
-                                           "MIN_POWER_HEADROOM"};
+                                           "MIN_POWER_HEADROOM"
+                                          };
     std::vector<std::string> exp_policy = {"CPU_POWER_LIMIT",
                                            "STEP_COUNT",
                                            "MAX_EPOCH_RUNTIME",
-                                           "POWER_SLACK"};
+                                           "POWER_SLACK"
+                                          };
     EXPECT_EQ(exp_sample, Agent::sample_names(dict));
     EXPECT_EQ(exp_policy, Agent::policy_names(dict));
 
@@ -68,7 +70,8 @@ TEST(AgentFactoryTest, static_info_governor)
     EXPECT_EQ(3, Agent::num_sample(agent_name));
     std::vector<std::string> exp_sample = {"POWER",
                                            "IS_CONVERGED",
-                                           "POWER_AVERAGE_ENFORCED"};
+                                           "POWER_AVERAGE_ENFORCED"
+                                          };
     std::vector<std::string> exp_policy = {"CPU_POWER_LIMIT"};
     EXPECT_EQ(exp_sample, Agent::sample_names(dict));
     EXPECT_EQ(exp_policy, Agent::policy_names(dict));
@@ -120,7 +123,7 @@ TEST(AgentFactoryTest, static_info_frequency_map)
                                            "HASH_28", "FREQ_28",
                                            "HASH_29", "FREQ_29",
                                            "HASH_30", "FREQ_30",
-                                           };
+                                          };
     EXPECT_EQ(exp_sample, Agent::sample_names(dict));
     EXPECT_EQ(exp_policy, Agent::policy_names(dict));
 

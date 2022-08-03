@@ -11,7 +11,8 @@
 #include "BatchStatus.hpp"
 
 
-class MockBatchStatus : public geopm::BatchStatus {
+class MockBatchStatus : public geopm::BatchStatus
+{
     public:
         MOCK_METHOD(void, send_message, (char msg), (override));
         MOCK_METHOD(char, receive_message, (), (override));

@@ -308,7 +308,7 @@ int PMPI_Comm_group(MPI_Comm comm, MPI_Group *group)
 }
 int PMPI_Comm_rank(MPI_Comm comm, int *rank)
 {
-*rank = 0;
+    *rank = 0;
     g_passed_comm_arg = comm;
     return 0;
 }

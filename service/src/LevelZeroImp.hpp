@@ -28,7 +28,7 @@ namespace geopm
             int frequency_domain_count(unsigned int l0_device_idx,
                                        int domain) const override;
             double frequency_status(unsigned int l0_device_idx,
-                                       int l0_domain, int l0_domain_idx) const override;
+                                    int l0_domain, int l0_domain_idx) const override;
             double frequency_min(unsigned int l0_device_idx, int l0_domain,
                                  int l0_domain_idx) const override;
             double frequency_max(unsigned int l0_device_idx, int l0_domain,
@@ -45,7 +45,7 @@ namespace geopm
             uint64_t active_time(unsigned int l0_device_idx, int l0_domain,
                                  int l0_domain_idx) const override;
             uint64_t active_time_timestamp(unsigned int l0_device_idx,
-                                          int l0_domain, int l0_domain_idx) const override;
+                                           int l0_domain, int l0_domain_idx) const override;
 
             std::pair<uint64_t, uint64_t> energy_pair(unsigned int l0_device_idx) const override;
             uint64_t energy(unsigned int l0_device_idx) const override;

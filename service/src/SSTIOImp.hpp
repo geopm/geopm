@@ -67,8 +67,7 @@ namespace geopm
             uint32_t get_punit_from_cpu(uint32_t cpu_index) override;
 
         private:
-            enum message_type_e
-            {
+            enum message_type_e {
                 MBOX,
                 MMIO
             };
@@ -83,28 +82,27 @@ namespace geopm
             // messages, with size upper-bounded by m_batch_command_limit.
             template<typename OuterStruct>
             std::vector<std::unique_ptr<OuterStruct, void (*)(OuterStruct *)> >
-                ioctl_structs_from_vector(const std::vector<InnerStruct<OuterStruct> > &commands)
+            ioctl_structs_from_vector(const std::vector<InnerStruct<OuterStruct> > &commands)
 
             {
                 std::vector<std::unique_ptr<OuterStruct, void (*)(OuterStruct *)> > outer_structs;
 
                 size_t handled_commands = 0;
-                while (handled_commands < commands.size())
-                {
+                while (handled_commands < commands.size()) {
                     size_t batch_size = std::min(
-                        static_cast<size_t>(m_batch_command_limit),
-                        commands.size() - handled_commands);
+                                            static_cast<size_t>(m_batch_command_limit),
+                                            commands.size() - handled_commands);
 
                     // The inner struct is embedded in the outer struct, and
                     // the inner struct's size depends on how many entries it
                     // can contain. That size is dynamically determined, so we
                     // manually allocate the outer struct here.
                     outer_structs.emplace_back(reinterpret_cast<OuterStruct *>(
-                        new char[sizeof(OuterStruct::num_entries) +
-                                 sizeof(InnerStruct<OuterStruct>) * commands.size()]),
-                        [](OuterStruct *outer_struct) {
-                            delete[] reinterpret_cast<char *>(outer_struct);
-                        });
+                                                   new char[sizeof(OuterStruct::num_entries) +
+                                                                                             sizeof(InnerStruct<OuterStruct>) * commands.size()]),
+                    [](OuterStruct *outer_struct) {
+                        delete[] reinterpret_cast<char *>(outer_struct);
+                    });
                     outer_structs.back()->num_entries = batch_size;
                     std::copy(commands.data() + handled_commands,
                               commands.data() + handled_commands + batch_size,

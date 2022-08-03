@@ -21,7 +21,7 @@ namespace geopm
         public:
             virtual ~LevelZeroSignal() = default;
             LevelZeroSignal(std::function<double (unsigned int)> devpool_func,
-                         unsigned int gpu, double scalar);
+                            unsigned int gpu, double scalar);
             LevelZeroSignal(const LevelZeroSignal &other) = delete;
             LevelZeroSignal &operator=(const LevelZeroSignal &other) = delete;
             void setup_batch(void) override;

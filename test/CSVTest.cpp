@@ -92,7 +92,8 @@ TEST_F(CSVTest, columns)
                                       big,
                                       huge,
                                       all_one,
-                                      small};
+                                      small
+                                     };
         csv->activate();
         csv->update(sample);
     }
@@ -144,7 +145,8 @@ TEST_F(CSVTest, buffer)
                                       big,
                                       huge,
                                       all_one,
-                                      small};
+                                      small
+                                     };
         csv->activate();
         // Flush the buffer many times
         for (size_t count = 0; count != m_buffer_size; ++count) {
@@ -176,7 +178,7 @@ TEST_F(CSVTest, negative)
 {
     std::string output_path = "CSVTest-negative-output";
     GEOPM_EXPECT_THROW_MESSAGE(geopm::make_unique<geopm::CSVImp>("/path/does/not/exist",
-                                                                 "", m_start_time, m_buffer_size),
+                               "", m_start_time, m_buffer_size),
                                ENOENT, "Unable to open");
 
     std::unique_ptr<geopm::CSV> csv =

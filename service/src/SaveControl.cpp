@@ -77,9 +77,9 @@ namespace geopm
         std::vector<std::map<std::string, Json> > json_settings;
         for (const auto &ss : settings) {
             json_settings.push_back({{"name", ss.name},
-                                     {"domain_type", ss.domain_type},
-                                     {"domain_idx", ss.domain_idx},
-                                     {"setting", ss.setting}});
+                {"domain_type", ss.domain_type},
+                {"domain_idx", ss.domain_idx},
+                {"setting", ss.setting}});
         }
         Json json_obj(json_settings);
         return json_obj.dump();
@@ -104,7 +104,8 @@ namespace geopm
             std::vector<std::string> required_keys = {"name",
                                                       "domain_type",
                                                       "domain_idx",
-                                                      "setting"};
+                                                      "setting"
+                                                     };
             if (jss_map.size() != required_keys.size()) {
                 throw Exception("SaveControlImp::Settins(): JSON object representing m_setting_s must have four fields",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);

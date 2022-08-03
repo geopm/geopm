@@ -61,34 +61,34 @@ void NVMLIOGroupTest::SetUp()
 
     //Platform Topo prep
     ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_BOARD))
-        .WillByDefault(Return(num_board));
+    .WillByDefault(Return(num_board));
     ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_PACKAGE))
-        .WillByDefault(Return(num_package));
+    .WillByDefault(Return(num_package));
     ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_GPU))
-        .WillByDefault(Return(num_gpu));
+    .WillByDefault(Return(num_gpu));
     ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_CPU))
-        .WillByDefault(Return(num_cpu));
+    .WillByDefault(Return(num_cpu));
     ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_CORE))
-        .WillByDefault(Return(num_core));
+    .WillByDefault(Return(num_core));
 
     EXPECT_CALL(*m_platform_topo, num_domain(_)).Times(AtLeast(0));
 
     for (int cpu_idx = 0; cpu_idx < num_cpu; ++cpu_idx) {
         if (cpu_idx < 10) {
             ON_CALL(*m_platform_topo, domain_idx(GEOPM_DOMAIN_GPU, cpu_idx))
-                .WillByDefault(Return(0));
+            .WillByDefault(Return(0));
         }
         else if (cpu_idx < 20) {
             ON_CALL(*m_platform_topo, domain_idx(GEOPM_DOMAIN_GPU, cpu_idx))
-                .WillByDefault(Return(1));
+            .WillByDefault(Return(1));
         }
         else if (cpu_idx < 30) {
             ON_CALL(*m_platform_topo, domain_idx(GEOPM_DOMAIN_GPU, cpu_idx))
-                .WillByDefault(Return(2));
+            .WillByDefault(Return(2));
         }
         else {
             ON_CALL(*m_platform_topo, domain_idx(GEOPM_DOMAIN_GPU, cpu_idx))
-                .WillByDefault(Return(3));
+            .WillByDefault(Return(3));
         }
     }
 
@@ -124,21 +124,21 @@ TEST_F(NVMLIOGroupTest, push_control_adjust_write_batch)
     std::vector<double> mock_power = {153600, 70000, 300000, 50000};
     for (int gpu_idx = 0; gpu_idx < num_gpu; ++gpu_idx) {
         batch_value[(nvml_io.push_control(M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL",
-                                        GEOPM_DOMAIN_GPU, gpu_idx))] = mock_freq.at(gpu_idx) * 1e6;
+                                          GEOPM_DOMAIN_GPU, gpu_idx))] = mock_freq.at(gpu_idx) * 1e6;
         batch_value[(nvml_io.push_control("GPU_CORE_FREQUENCY_CONTROL",
-                                        GEOPM_DOMAIN_GPU, gpu_idx))] = mock_freq.at(gpu_idx) * 1e6;
+                                          GEOPM_DOMAIN_GPU, gpu_idx))] = mock_freq.at(gpu_idx) * 1e6;
         EXPECT_CALL(*m_device_pool,
                     frequency_control_sm(gpu_idx, mock_freq.at(gpu_idx),
                                          mock_freq.at(gpu_idx))).Times(2);
 
         batch_value[(nvml_io.push_control(M_NAME_PREFIX + "GPU_CORE_FREQUENCY_RESET_CONTROL",
-                                        GEOPM_DOMAIN_GPU, gpu_idx))] = mock_freq.at(gpu_idx);
+                                          GEOPM_DOMAIN_GPU, gpu_idx))] = mock_freq.at(gpu_idx);
         EXPECT_CALL(*m_device_pool, frequency_reset_control(gpu_idx)).Times(1);
 
         batch_value[(nvml_io.push_control(M_NAME_PREFIX + "GPU_POWER_LIMIT_CONTROL",
-                                        GEOPM_DOMAIN_GPU, gpu_idx))] = mock_power.at(gpu_idx) / 1e3;
+                                          GEOPM_DOMAIN_GPU, gpu_idx))] = mock_power.at(gpu_idx) / 1e3;
         batch_value[(nvml_io.push_control("GPU_POWER_LIMIT_CONTROL",
-                                        GEOPM_DOMAIN_GPU, gpu_idx))] = mock_power.at(gpu_idx) / 1e3;
+                                          GEOPM_DOMAIN_GPU, gpu_idx))] = mock_power.at(gpu_idx) / 1e3;
         EXPECT_CALL(*m_device_pool, power_control(gpu_idx, mock_power.at(gpu_idx))).Times(2);
     }
 

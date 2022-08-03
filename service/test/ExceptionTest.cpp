@@ -101,7 +101,7 @@ TEST_F(ExceptionTest, check_ronn)
     // Make sure output of geopm_print_error --ronn matches what is in
     // geopm_error.3.ronn
     EXPECT_EQ(0, system(
-        "./examples/geopm_print_error --ronn > tmp.txt && "
-        "diff tmp.txt ronn/geopm_error.3.ronn | grep '^<'; err=$?; "
-        "rm -f tmp.txt; if [ \"$err\" -eq 0 ]; then false; else true; fi"));
+                  "./examples/geopm_print_error --ronn > tmp.txt && "
+                  "diff tmp.txt ronn/geopm_error.3.ronn | grep '^<'; err=$?; "
+                  "rm -f tmp.txt; if [ \"$err\" -eq 0 ]; then false; else true; fi"));
 }

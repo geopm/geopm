@@ -52,11 +52,11 @@ void FrequencyGovernorTest::SetUp(void)
     ASSERT_EQ(M_NUM_CORE, (int)M_FREQ_CTL_IDX.size());
     for (int idx = 0; idx < M_NUM_CORE; ++idx) {
         ON_CALL(m_platio, push_control("CPU_FREQUENCY_CONTROL", M_CTL_DOMAIN, idx)).
-            WillByDefault(Return(M_FREQ_CTL_IDX[idx]));
+        WillByDefault(Return(M_FREQ_CTL_IDX[idx]));
     }
     ON_CALL(m_platio, push_control("CPU_FREQUENCY_CONTROL", GEOPM_DOMAIN_CPU, _))
-        .WillByDefault(Throw(geopm::Exception("invalid domain for frequency control",
-                                              GEOPM_ERROR_INVALID, __FILE__, __LINE__)));
+    .WillByDefault(Throw(geopm::Exception("invalid domain for frequency control",
+                                          GEOPM_ERROR_INVALID, __FILE__, __LINE__)));
 
     m_gov = geopm::make_unique<FrequencyGovernorImp>(m_platio, m_topo);
     m_gov->init_platform_io();

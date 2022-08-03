@@ -35,7 +35,7 @@ class ProcessRegionAggregatorTest : public ::testing::Test
 void ProcessRegionAggregatorTest::SetUp()
 {
     EXPECT_CALL(m_app_sampler, per_cpu_process())
-        .WillOnce(Return(std::vector<int>({11, 12, 13, 14})));
+    .WillOnce(Return(std::vector<int>({11, 12, 13, 14})));
 
 
     m_account = std::make_shared<ProcessRegionAggregatorImp>(m_app_sampler);
@@ -78,7 +78,7 @@ TEST_F(ProcessRegionAggregatorTest, short_region)
         short_region = {0xDADA, 2, 1.0};
         m_app_sampler.inject_records(records);
         EXPECT_CALL(m_app_sampler, get_short_region(0))
-            .WillOnce(Return(short_region));
+        .WillOnce(Return(short_region));
         m_account->update();
         // average across 4 processes
         EXPECT_DOUBLE_EQ(0.25, m_account->get_runtime_average(0xDADA));
@@ -91,7 +91,7 @@ TEST_F(ProcessRegionAggregatorTest, short_region)
         short_region = {0xDADA, 1, 0.5};
         m_app_sampler.inject_records(records);
         EXPECT_CALL(m_app_sampler, get_short_region(0))
-            .WillOnce(Return(short_region));
+        .WillOnce(Return(short_region));
         m_account->update();
         EXPECT_DOUBLE_EQ(1.5 / m_num_process, m_account->get_runtime_average(0xDADA));
         EXPECT_DOUBLE_EQ(0.75, m_account->get_count_average(0xDADA));
@@ -131,23 +131,23 @@ TEST_F(ProcessRegionAggregatorTest, multiple_processes)
         m_app_sampler.inject_records(records);
         short_region = {0xBEAD, 2, 0.15};
         EXPECT_CALL(m_app_sampler, get_short_region(0))
-            .WillOnce(Return(short_region));
+        .WillOnce(Return(short_region));
         short_region = {0xBEAD, 2, 0.25};
         EXPECT_CALL(m_app_sampler, get_short_region(1))
-            .WillOnce(Return(short_region));
+        .WillOnce(Return(short_region));
         short_region = {0xBEAD, 1, 0.35};
         EXPECT_CALL(m_app_sampler, get_short_region(2))
-            .WillOnce(Return(short_region));
+        .WillOnce(Return(short_region));
         short_region = {0xBEAD, 1, 0.45};
         EXPECT_CALL(m_app_sampler, get_short_region(3))
-            .WillOnce(Return(short_region));
+        .WillOnce(Return(short_region));
 
         m_account->update();
         EXPECT_DOUBLE_EQ((1.1 + 1.4) / m_num_process, m_account->get_runtime_average(0xDADA));
         EXPECT_DOUBLE_EQ(2.0 / m_num_process, m_account->get_count_average(0xDADA));
 
         EXPECT_DOUBLE_EQ((0.15 + 0.25 + 0.35 + 0.45) / m_num_process,
-                  m_account->get_runtime_average(0xBEAD));
+                         m_account->get_runtime_average(0xBEAD));
         EXPECT_DOUBLE_EQ( 6.0 / m_num_process, m_account->get_count_average(0xBEAD));
     }
     {
@@ -160,10 +160,10 @@ TEST_F(ProcessRegionAggregatorTest, multiple_processes)
         m_app_sampler.inject_records(records);
         short_region = {0xBEAD, 1, 0.15};
         EXPECT_CALL(m_app_sampler, get_short_region(0))
-            .WillOnce(Return(short_region));
+        .WillOnce(Return(short_region));
         short_region = {0xBEAD, 2, 0.25};
         EXPECT_CALL(m_app_sampler, get_short_region(1))
-            .WillOnce(Return(short_region));
+        .WillOnce(Return(short_region));
         m_account->update();
 
         // average of all procs

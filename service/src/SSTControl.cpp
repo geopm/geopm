@@ -43,12 +43,12 @@ namespace geopm
     {
         if (m_control_type == M_MMIO) {
             m_adjust_idx = m_sstio->add_mmio_write(
-                m_cpu_idx, m_interface_parameter, m_write_value, m_rmw_read_mask);
+                               m_cpu_idx, m_interface_parameter, m_write_value, m_rmw_read_mask);
         }
         else {
             m_adjust_idx = m_sstio->add_mbox_write(
-                m_cpu_idx, m_command, m_subcommand, m_interface_parameter,
-                m_rmw_subcommand, m_rmw_interface_parameter, m_rmw_read_mask);
+                               m_cpu_idx, m_command, m_subcommand, m_interface_parameter,
+                               m_rmw_subcommand, m_rmw_interface_parameter, m_rmw_read_mask);
         }
     }
 
@@ -85,13 +85,13 @@ namespace geopm
         }
         else {
             m_saved_value = m_sstio->read_mbox_once(
-                m_cpu_idx, m_command, m_rmw_subcommand,
-                /* Additional arguments for write operations are used as the
-                 * interface parameter. But in read operations, it is preloaded
-                 * into the data field to specify which data to read from the
-                 * mailbox.
-                 */
-                m_rmw_interface_parameter);
+                                m_cpu_idx, m_command, m_rmw_subcommand,
+                                /* Additional arguments for write operations are used as the
+                                 * interface parameter. But in read operations, it is preloaded
+                                 * into the data field to specify which data to read from the
+                                 * mailbox.
+                                 */
+                                m_rmw_interface_parameter);
         }
         m_saved_value &= m_mask;
     }
@@ -116,9 +116,9 @@ namespace geopm
     }
 
     void SSTControl::set_write_dependency(
-            uint64_t trigger_value,
-            std::weak_ptr<geopm::Control> dependency,
-            uint64_t dependency_write_value)
+        uint64_t trigger_value,
+        std::weak_ptr<geopm::Control> dependency,
+        uint64_t dependency_write_value)
     {
         m_trigger_write_value = trigger_value;
         m_dependency = dependency;

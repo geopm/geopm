@@ -275,11 +275,11 @@ TEST_F(PlatformTopoTest, hsw_num_domain)
     const int num_gpu = 4;
     const int num_gpu_subdevice = 8;
     EXPECT_CALL(*m_gpu_topo, num_gpu())
-                .WillRepeatedly(Return(num_gpu));
+    .WillRepeatedly(Return(num_gpu));
     EXPECT_CALL(*m_gpu_topo, num_gpu(GEOPM_DOMAIN_GPU))
-                .WillRepeatedly(Return(num_gpu));
+    .WillRepeatedly(Return(num_gpu));
     EXPECT_CALL(*m_gpu_topo, num_gpu(GEOPM_DOMAIN_GPU_CHIP))
-                .WillRepeatedly(Return(num_gpu_subdevice));
+    .WillRepeatedly(Return(num_gpu_subdevice));
     write_lscpu(m_hsw_lscpu_str);
     PlatformTopoImp topo(m_lscpu_file_name, *m_gpu_topo);
     EXPECT_EQ(1, topo.num_domain(GEOPM_DOMAIN_BOARD));
@@ -393,11 +393,11 @@ TEST_F(PlatformTopoTest, bdx_domain_idx)
     const int num_gpu = 4;
     const int num_gpu_subdevice = 8;
     EXPECT_CALL(*m_gpu_topo, num_gpu()).
-                WillRepeatedly(Return(num_gpu));
+    WillRepeatedly(Return(num_gpu));
     EXPECT_CALL(*m_gpu_topo, num_gpu(GEOPM_DOMAIN_GPU)).
-                WillRepeatedly(Return(num_gpu_subdevice));
+    WillRepeatedly(Return(num_gpu_subdevice));
     EXPECT_CALL(*m_gpu_topo, num_gpu(GEOPM_DOMAIN_GPU_CHIP)).
-                WillRepeatedly(Return(num_gpu_subdevice));
+    WillRepeatedly(Return(num_gpu_subdevice));
     std::set<int> cpu_affin[num_gpu];
     std::set<int> cpu_affin_sub[num_gpu_subdevice];
     for (int gpu_idx = 0; gpu_idx < num_gpu; ++gpu_idx) {
@@ -406,7 +406,7 @@ TEST_F(PlatformTopoTest, bdx_domain_idx)
         }
         EXPECT_CALL(*m_gpu_topo,
                     cpu_affinity_ideal(GEOPM_DOMAIN_GPU,
-                    gpu_idx)).WillRepeatedly(Return(cpu_affin[gpu_idx]));
+                                       gpu_idx)).WillRepeatedly(Return(cpu_affin[gpu_idx]));
         EXPECT_CALL(*m_gpu_topo,
                     cpu_affinity_ideal(gpu_idx)).WillRepeatedly(Return(cpu_affin[gpu_idx]));
     }
@@ -416,7 +416,7 @@ TEST_F(PlatformTopoTest, bdx_domain_idx)
         }
         EXPECT_CALL(*m_gpu_topo,
                     cpu_affinity_ideal(GEOPM_DOMAIN_GPU_CHIP, sub_idx)).
-                    WillRepeatedly(Return(cpu_affin_sub[sub_idx]));
+        WillRepeatedly(Return(cpu_affin_sub[sub_idx]));
     }
     write_lscpu(m_bdx_lscpu_str);
     PlatformTopoImp topo(m_lscpu_file_name, *m_gpu_topo);
@@ -440,9 +440,11 @@ TEST_F(PlatformTopoTest, bdx_domain_idx)
     EXPECT_THROW(topo.domain_idx(GEOPM_DOMAIN_INVALID, 0), geopm::Exception);
 
     std::set<int> cpu_set_node0 = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17,
-                                   36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53};
+                                   36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53
+                                  };
     std::set<int> cpu_set_node1 = {18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35,
-                                   54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71};
+                                   54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71
+                                  };
     for (auto cpu_idx : cpu_set_node0) {
         EXPECT_EQ(0, topo.domain_idx(GEOPM_DOMAIN_MEMORY, cpu_idx));
     }
@@ -553,9 +555,9 @@ TEST_F(PlatformTopoTest, bdx_domain_nested)
     /// @todo: Add GPU & subdevice
     const int num_gpu = 4;
     EXPECT_CALL(*m_gpu_topo, num_gpu()).
-                WillRepeatedly(Return(num_gpu));
+    WillRepeatedly(Return(num_gpu));
     EXPECT_CALL(*m_gpu_topo, num_gpu(
-                GEOPM_DOMAIN_GPU)).WillRepeatedly(Return(num_gpu));
+                    GEOPM_DOMAIN_GPU)).WillRepeatedly(Return(num_gpu));
     std::set<int> cpu_affin[num_gpu];
     for (int gpu_idx = 0; gpu_idx < num_gpu; ++gpu_idx) {
         for (int cpu_idx = 0; cpu_idx < 72/num_gpu; ++cpu_idx) {
@@ -563,10 +565,10 @@ TEST_F(PlatformTopoTest, bdx_domain_nested)
         }
         EXPECT_CALL(*m_gpu_topo,
                     cpu_affinity_ideal(gpu_idx)).
-                    WillRepeatedly(Return(cpu_affin[gpu_idx]));
+        WillRepeatedly(Return(cpu_affin[gpu_idx]));
         EXPECT_CALL(*m_gpu_topo,
                     cpu_affinity_ideal(GEOPM_DOMAIN_GPU,
-                    gpu_idx)).WillRepeatedly(Return(cpu_affin[gpu_idx]));
+                                       gpu_idx)).WillRepeatedly(Return(cpu_affin[gpu_idx]));
     }
     write_lscpu(m_bdx_lscpu_str);
     PlatformTopoImp topo(m_lscpu_file_name, *m_gpu_topo);
@@ -577,10 +579,12 @@ TEST_F(PlatformTopoTest, bdx_domain_nested)
     std::set<int> core_set_socket[2];
     core_set_socket[0] = { 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15, 16, 17};
     cpu_set_socket[0] = { 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15, 16, 17,
-                         36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53};
+                          36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53
+                        };
     core_set_socket[1] = {18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35};
     cpu_set_socket[1] = {18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35,
-                         54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71};
+                         54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71
+                        };
     cpu_set_board = cpu_set_socket[0];
     cpu_set_board.insert(cpu_set_socket[1].begin(), cpu_set_socket[1].end());
     core_set_board = core_set_socket[0];
@@ -707,7 +711,7 @@ TEST_F(PlatformTopoTest, bdx_domain_nested)
     // Board GPU
     for (int gpu_idx = 0; gpu_idx < num_gpu; ++gpu_idx) {
         EXPECT_EQ(topo.domain_nested(GEOPM_DOMAIN_CPU,
-                                           GEOPM_DOMAIN_GPU, gpu_idx), cpu_affin[gpu_idx]);
+                                     GEOPM_DOMAIN_GPU, gpu_idx), cpu_affin[gpu_idx]);
     }
 
     // TODO: still to be implemented

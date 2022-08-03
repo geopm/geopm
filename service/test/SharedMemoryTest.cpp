@@ -93,9 +93,9 @@ void SharedMemoryTest::fd_check_test(const std::string &shm_key,
     config_shmem(key);
     sleep(5);
     EXPECT_EQ(stat(path.c_str(), &buf), 0)
-        << "Something (likely systemd) is removing shmem entries after "
-           "creation.\n"
-        << "See https://superuser.com/a/1179962 for more information.";
+            << "Something (likely systemd) is removing shmem entries after "
+            "creation.\n"
+            << "See https://superuser.com/a/1179962 for more information.";
     config_shmem_u(key);
     ASSERT_NE(nullptr, m_shmem_u);
     m_shmem_u->unlink();
@@ -162,7 +162,8 @@ void SharedMemoryTest::share_data_ipc_test(const std::string &shm_key)
         config_shmem_u(key);
         sleep(1);
         EXPECT_EQ(memcmp(m_shmem_u->pointer(), &shared_data, m_size), 0);
-    } else {
+    }
+    else {
         // child process
         config_shmem(key);
         memcpy(m_shmem->pointer(), &shared_data, m_size);

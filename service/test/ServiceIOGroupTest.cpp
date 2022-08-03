@@ -58,38 +58,48 @@ void ServiceIOGroupTest::SetUp()
     m_expected_controls = {"control1", "control2"};
 
     // signal_info_s: (str)name, (str)desc, (int)domain, (int)agg, (int)string_format, (int)behavior
-    m_signal_info =
-        {{m_expected_signals[0],
-         {m_expected_signals[0], "1 Signal", 0, 0, 0, 0}},
-         {m_expected_signals[1],
-         {m_expected_signals[1], "2 Signal", 1, 1, 1, 1}},
-        };
+    m_signal_info = {
+        {
+            m_expected_signals[0],
+            {m_expected_signals[0], "1 Signal", 0, 0, 0, 0}
+        },
+        {
+            m_expected_signals[1],
+            {m_expected_signals[1], "2 Signal", 1, 1, 1, 1}
+        },
+    };
 
     // control_info_s: (str)name, (str)desc, (int)domain
-    m_control_info =
-        {{m_expected_controls[0],
-         {m_expected_controls[0], "1 Control", 0}},
-         {m_expected_controls[1],
-         {m_expected_controls[1], "2 Control", 1}},
-        };
+    m_control_info = {
+        {
+            m_expected_controls[0],
+            {m_expected_controls[0], "1 Control", 0}
+        },
+        {
+            m_expected_controls[1],
+            {m_expected_controls[1], "2 Control", 1}
+        },
+    };
 
     EXPECT_CALL(*m_proxy, platform_get_user_access(_, _))
-        .WillRepeatedly([this]
-                        (std::vector<std::string> &signals,
-                         std::vector<std::string> &controls) {
-            signals = m_expected_signals;
-            controls = m_expected_controls;
-        });
+    .WillRepeatedly([this]
+                    (std::vector<std::string> &signals,
+    std::vector<std::string> &controls) {
+        signals = m_expected_signals;
+        controls = m_expected_controls;
+    });
 
     std::vector<signal_info_s> expected_signal_info = {m_signal_info[m_expected_signals[0]],
-                                                       m_signal_info[m_expected_signals[1]]};
+                                                       m_signal_info[m_expected_signals[1]]
+                                                      };
     std::vector<control_info_s> expected_control_info = {m_control_info[m_expected_controls[0]],
-                                                         m_control_info[m_expected_controls[1]]};
+                                                         m_control_info[m_expected_controls[1]]
+                                                        };
 
     EXPECT_CALL(*m_proxy, platform_get_signal_info(m_expected_signals))
-        .WillOnce(Return(expected_signal_info));
+    .WillOnce(Return(expected_signal_info));
     EXPECT_CALL(*m_proxy, platform_get_control_info(m_expected_controls))
-        .WillOnce(Return(expected_control_info));
+    .WillOnce(Return(expected_control_info));
 
     EXPECT_CALL(*m_proxy, platform_open_session());
     EXPECT_CALL(*m_proxy, platform_close_session());
@@ -143,8 +153,8 @@ TEST_F(ServiceIOGroupTest, read_signal_behavior)
 {
     for (unsigned ii = 0; ii < m_expected_signals.size(); ++ii) {
         EXPECT_CALL(*m_proxy, platform_read_signal(m_expected_signals.at(ii), ii, ii))
-            .WillOnce(Return(42))
-            .WillOnce(Return(7));
+        .WillOnce(Return(42))
+        .WillOnce(Return(7));
         EXPECT_EQ(42, m_serviceio_group->read_signal(m_expected_signals.at(ii), ii, ii));
         EXPECT_EQ(7, m_serviceio_group->read_signal("SERVICE::" + m_expected_signals.at(ii), ii, ii));
         EXPECT_EQ((int)ii, m_serviceio_group->signal_behavior(m_expected_signals.at(ii)));
@@ -238,17 +248,17 @@ TEST_F(ServiceIOGroupTest, valid_format_function)
 TEST_F(ServiceIOGroupTest, push_signal)
 {
     EXPECT_CALL(*m_proxy, platform_start_batch(_, _, _, _))
-        .WillOnce(DoAll(SetArgReferee<2>(1234),
-                        SetArgReferee<3>("1234")));
+    .WillOnce(DoAll(SetArgReferee<2>(1234),
+                    SetArgReferee<3>("1234")));
     std::vector<double> expected_result = {4.321012};
     EXPECT_CALL(*m_batch_client, read_batch())
-        .WillOnce(Return(expected_result));
+    .WillOnce(Return(expected_result));
     int signal_handle = m_serviceio_group->push_signal("signal1", GEOPM_DOMAIN_BOARD, 0);
     m_serviceio_group->read_batch();
     double actual_result = m_serviceio_group->sample(signal_handle);
     EXPECT_EQ(expected_result[0], actual_result);
     EXPECT_CALL(*m_batch_client, stop_batch())
-        .Times(1);
+    .Times(1);
     m_batch_client.reset();
 }
 
@@ -256,15 +266,15 @@ TEST_F(ServiceIOGroupTest, push_control)
 {
     std::vector<double> expected_setting = {4.321012};
     EXPECT_CALL(*m_proxy, platform_start_batch(_, _, _, _))
-        .WillOnce(DoAll(SetArgReferee<2>(1234),
-                        SetArgReferee<3>("1234")));
+    .WillOnce(DoAll(SetArgReferee<2>(1234),
+                    SetArgReferee<3>("1234")));
     EXPECT_CALL(*m_batch_client, write_batch(_))
-        .Times(1);
+    .Times(1);
     int control_handle = m_serviceio_group->push_control("control1", GEOPM_DOMAIN_BOARD, 0);
     m_serviceio_group->adjust(control_handle, expected_setting[0]);
     m_serviceio_group->write_batch();
     EXPECT_CALL(*m_batch_client, stop_batch())
-        .Times(1);
+    .Times(1);
     m_batch_client.reset();
 }
 

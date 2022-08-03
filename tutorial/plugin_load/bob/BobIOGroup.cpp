@@ -43,8 +43,8 @@ std::unique_ptr<geopm::IOGroup> BobIOGroup::make_plugin(void)
 // Set up mapping between signal names and corresponding indices
 BobIOGroup::BobIOGroup()
     : m_signal_idx_map{{"BAR",  M_SIGNAL_BAR},
-                       {"BAZ",  M_SIGNAL_BAZ},
-                       {"TIME", M_SIGNAL_TIME}}
+    {"BAZ",  M_SIGNAL_BAZ},
+    {"TIME", M_SIGNAL_TIME}}
 {
 
 }

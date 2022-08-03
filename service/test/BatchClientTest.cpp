@@ -56,9 +56,9 @@ TEST_F(BatchClientTest, read_batch)
     shmem_buffer[0] = result_expect[0];
     shmem_buffer[1] = result_expect[1];
     EXPECT_CALL(*m_batch_status, send_message(BatchStatus::M_MESSAGE_READ))
-        .Times(1);
+    .Times(1);
     EXPECT_CALL(*m_batch_status, receive_message(BatchStatus::M_MESSAGE_CONTINUE))
-        .Times(1);
+    .Times(1);
     std::vector<double> result_actual = m_batch_client->read_batch();
     EXPECT_EQ(result_expect, result_actual);
 }
@@ -68,9 +68,9 @@ TEST_F(BatchClientTest, write_batch)
     InSequence sequence;
     std::vector<double> settings_expect = {56.78};
     EXPECT_CALL(*m_batch_status, send_message(BatchStatus::M_MESSAGE_WRITE))
-        .Times(1);
+    .Times(1);
     EXPECT_CALL(*m_batch_status, receive_message(BatchStatus::M_MESSAGE_CONTINUE))
-        .Times(1);
+    .Times(1);
     m_batch_client->write_batch(settings_expect);
     double *shmem_buffer =(double *)m_control_shmem->pointer();
     EXPECT_EQ(settings_expect[0], shmem_buffer[0]);
@@ -102,11 +102,11 @@ TEST_F(BatchClientTest, read_batch_empty)
 {
     std::vector<double> result_expect;
     EXPECT_CALL(*m_batch_status, send_message(_))
-        .Times(0);
+    .Times(0);
     EXPECT_CALL(*m_batch_status, receive_message(_))
-        .Times(0);
+    .Times(0);
     EXPECT_CALL(*m_batch_status, receive_message())
-        .Times(0);
+    .Times(0);
     std::vector<double> result_actual = m_batch_client_empty->read_batch();
     EXPECT_EQ(result_expect, result_actual);
 }
@@ -115,11 +115,11 @@ TEST_F(BatchClientTest, write_batch_empty)
 {
     std::vector<double> settings;
     EXPECT_CALL(*m_batch_status, send_message(_))
-        .Times(0);
+    .Times(0);
     EXPECT_CALL(*m_batch_status, receive_message(_))
-        .Times(0);
+    .Times(0);
     EXPECT_CALL(*m_batch_status, receive_message())
-        .Times(0);
+    .Times(0);
     m_batch_client_empty->write_batch(settings);
 }
 
@@ -136,13 +136,13 @@ TEST_F(BatchClientTest, stop_batch)
 
     EXPECT_CALL(*m_batch_status,
                 send_message(BatchStatus::M_MESSAGE_QUIT))
-        .Times(1)
-        .RetiresOnSaturation();
+    .Times(1)
+    .RetiresOnSaturation();
 
     EXPECT_CALL(*m_batch_status,
                 receive_message(BatchStatus::M_MESSAGE_QUIT))
-        .Times(1)
-        .RetiresOnSaturation();
+    .Times(1)
+    .RetiresOnSaturation();
 
     m_batch_client->stop_batch();
 }

@@ -59,13 +59,13 @@ void TreeCommLevelTest::SetUp()
     m_sample_mem_0 = (double*)malloc(sample_size);
     m_sample_mem_1 = (double*)malloc(sample_size);
     EXPECT_CALL(*m_comm_0, alloc_mem(sample_size, _))
-        .WillOnce(SetArgPointee<1>(m_sample_mem_0));
+    .WillOnce(SetArgPointee<1>(m_sample_mem_0));
     EXPECT_CALL(*m_comm_1, alloc_mem(sample_size, _))
-        .WillOnce(SetArgPointee<1>(m_sample_mem_1));
+    .WillOnce(SetArgPointee<1>(m_sample_mem_1));
     EXPECT_CALL(*m_comm_0, alloc_mem(policy_size, _))
-        .WillOnce(SetArgPointee<1>(m_policy_mem_0));
+    .WillOnce(SetArgPointee<1>(m_policy_mem_0));
     EXPECT_CALL(*m_comm_1, alloc_mem(policy_size, _))
-        .WillOnce(SetArgPointee<1>(m_policy_mem_1));
+    .WillOnce(SetArgPointee<1>(m_policy_mem_1));
 
     m_sample_window[0] = new int(77);
     m_sample_window[1] = new int(78);
@@ -86,27 +86,31 @@ void TreeCommLevelTest::SetUp()
 
 void TreeCommLevelTest::TearDown()
 {
-    auto free_func = [] (void *base) { free(base); };
-    auto delete_func = [] (size_t ptr) { delete (int*)ptr; };
+    auto free_func = [] (void *base) {
+        free(base);
+    };
+    auto delete_func = [] (size_t ptr) {
+        delete (int*)ptr;
+    };
     EXPECT_CALL(*m_comm_0, barrier());
     EXPECT_CALL(*m_comm_1, barrier());
     EXPECT_CALL(*m_comm_0, window_destroy((size_t)m_sample_window[0]))
-        .WillOnce(Invoke(delete_func));
+    .WillOnce(Invoke(delete_func));
     EXPECT_CALL(*m_comm_1, window_destroy((size_t)m_sample_window[1]))
-        .WillOnce(Invoke(delete_func));
+    .WillOnce(Invoke(delete_func));
     EXPECT_CALL(*m_comm_0, window_destroy((size_t)m_policy_window[0]))
-        .WillOnce(Invoke(delete_func));
+    .WillOnce(Invoke(delete_func));
     EXPECT_CALL(*m_comm_1, window_destroy((size_t)m_policy_window[1]))
-        .WillOnce(Invoke(delete_func));
+    .WillOnce(Invoke(delete_func));
 
     EXPECT_CALL(*m_comm_0, free_mem(m_sample_mem_0))
-        .WillOnce(Invoke(free_func));
+    .WillOnce(Invoke(free_func));
     EXPECT_CALL(*m_comm_1, free_mem(m_sample_mem_1))
-        .WillOnce(Invoke(free_func));
+    .WillOnce(Invoke(free_func));
     EXPECT_CALL(*m_comm_0, free_mem(m_policy_mem_0))
-        .WillOnce(Invoke(free_func));
+    .WillOnce(Invoke(free_func));
     EXPECT_CALL(*m_comm_1, free_mem(m_policy_mem_1))
-        .WillOnce(Invoke(free_func));
+    .WillOnce(Invoke(free_func));
 
     m_level_rank_0.reset();
     m_level_rank_1.reset();
@@ -122,17 +126,18 @@ TEST_F(TreeCommLevelTest, level_rank)
     double *policy_mem = (double*)malloc(policy_size);
     double *sample_mem = (double*)malloc(sample_size);
     EXPECT_CALL(*comm, alloc_mem(policy_size, _))
-        .WillOnce(SetArgPointee<1>(policy_mem));
+    .WillOnce(SetArgPointee<1>(policy_mem));
     EXPECT_CALL(*comm, alloc_mem(sample_size, _))
-        .WillOnce(SetArgPointee<1>(sample_mem));
+    .WillOnce(SetArgPointee<1>(sample_mem));
 
     EXPECT_CALL(*comm, window_create(policy_size, _));
     EXPECT_CALL(*comm, window_create(0, NULL));
     EXPECT_CALL(*comm, barrier());
     EXPECT_CALL(*comm, window_destroy(_)).Times(2);
     EXPECT_CALL(*comm, free_mem(_)).Times(2)
-        .WillRepeatedly(Invoke([] (void *base)
-                         { free(base); }));
+    .WillRepeatedly(Invoke([] (void *base) {
+        free(base);
+    }));
     // create and destroy level for rank 42
     {
         TreeCommLevelImp level(comm, m_num_up, m_num_down);
@@ -213,9 +218,9 @@ TEST_F(TreeCommLevelTest, send_down_zero_value)
 TEST_F(TreeCommLevelTest, receive_up_complete)
 {
     std::vector<std::vector<double> > sample {{44.4, 33.3, 22.2},
-                                              {41.1, 31.1, 21.1},
-                                              {46.6, 36.6, 26.6},
-                                              {45.5, 35.5, 25.5}};
+        {41.1, 31.1, 21.1},
+        {46.6, 36.6, 26.6},
+        {45.5, 35.5, 25.5}};
     ASSERT_EQ(m_num_rank, (int)sample.size());
     std::vector<std::vector<double> > sample_out(m_num_rank, std::vector<double>(m_num_up, 0.0));
 
@@ -246,9 +251,9 @@ TEST_F(TreeCommLevelTest, receive_up_complete)
 TEST_F(TreeCommLevelTest, receive_up_incomplete)
 {
     std::vector<std::vector<double> > sample {{44.4, 33.3, 22.2},
-                                              {41.1, 31.1, 21.1},
-                                              {46.6, 36.6, 26.6},
-                                              {45.5, 35.5, 25.5}};
+        {41.1, 31.1, 21.1},
+        {46.6, 36.6, 26.6},
+        {45.5, 35.5, 25.5}};
     ASSERT_EQ(m_num_rank, (int)sample.size());
     std::vector<std::vector<double> > sample_out(m_num_rank, std::vector<double>(m_num_up, NAN));
 

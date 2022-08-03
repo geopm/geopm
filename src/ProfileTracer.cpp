@@ -86,7 +86,7 @@ namespace geopm
                     break;
                 case EVENT_SHORT_REGION:
                     GEOPM_DEBUG_ASSERT(m_application_sampler != nullptr,
-                        "The ProfileTracerImp::ProfileTracerImp() must be called prior to calling ProfileTracerImp::event_format()");
+                                       "The ProfileTracerImp::ProfileTracerImp() must be called prior to calling ProfileTracerImp::event_format()");
                     result = string_format_hex(m_application_sampler->get_short_region(value).hash);
                     break;
                 default:

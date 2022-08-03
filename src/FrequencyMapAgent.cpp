@@ -136,7 +136,7 @@ namespace geopm
                 // Just make sure it does not have multiple definitions.
                 if (!policy_regions.insert(region).second) {
                     throw Exception("FrequencyMapAgent policy has multiple entries for region: " +
-                                        std::to_string(region),
+                                    std::to_string(region),
                                     GEOPM_ERROR_INVALID, __FILE__, __LINE__);
                 }
             }
@@ -144,7 +144,7 @@ namespace geopm
                 // An invalid region is only a problem if we are trying to map
                 // a frequency to it. Otherwise (NaN, NaN) just ignore it.
                 throw Exception("FrequencyMapAgent policy maps a NaN region with frequency: " +
-                                    std::to_string(mapped_freq),
+                                std::to_string(mapped_freq),
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
         }
@@ -352,8 +352,7 @@ namespace geopm
         }
 
         std::map<std::string, Json> temp_map;
-        for (const auto &region : full_map)
-        {
+        for (const auto &region : full_map) {
             std::ostringstream key_ss;
             key_ss << "0x" << std::hex << std::setfill('0') << std::setw(16) << std::fixed;
             key_ss << region.first;
@@ -413,10 +412,10 @@ namespace geopm
         m_platform_io.write_control("CPU_FREQUENCY_CONTROL", GEOPM_DOMAIN_BOARD, 0,
                                     policy[M_POLICY_FREQ_DEFAULT]);
         if (!std::isnan(policy[M_POLICY_FREQ_UNCORE])) {
-                m_platform_io.write_control("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO", GEOPM_DOMAIN_BOARD, 0,
-                                            policy[M_POLICY_FREQ_UNCORE]);
-                m_platform_io.write_control("MSR::UNCORE_RATIO_LIMIT:MAX_RATIO", GEOPM_DOMAIN_BOARD, 0,
-                                            policy[M_POLICY_FREQ_UNCORE]);
+            m_platform_io.write_control("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO", GEOPM_DOMAIN_BOARD, 0,
+                                        policy[M_POLICY_FREQ_UNCORE]);
+            m_platform_io.write_control("MSR::UNCORE_RATIO_LIMIT:MAX_RATIO", GEOPM_DOMAIN_BOARD, 0,
+                                        policy[M_POLICY_FREQ_UNCORE]);
         }
     }
 

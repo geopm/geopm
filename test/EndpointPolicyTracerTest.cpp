@@ -34,7 +34,7 @@ TEST_F(EndpointPolicyTracerTest, construct_update_destruct)
 {
     // Test that the tracer samples time
     EXPECT_CALL(m_platform_io, push_signal("TIME", GEOPM_DOMAIN_BOARD, 0))
-            .WillOnce(Return(m_time_signal));
+    .WillOnce(Return(m_time_signal));
     EXPECT_CALL(m_platform_io, sample(m_time_signal));
     // Test that the constructor and update methods do not throw
     std::unique_ptr<geopm::EndpointPolicyTracer> tracer =
@@ -49,12 +49,12 @@ TEST_F(EndpointPolicyTracerTest, construct_update_destruct)
 TEST_F(EndpointPolicyTracerTest, format)
 {
     EXPECT_CALL(m_platform_io, push_signal("TIME", GEOPM_DOMAIN_BOARD, 0))
-            .WillOnce(Return(m_time_signal));
+    .WillOnce(Return(m_time_signal));
     geopm::EndpointPolicyTracerImp tracer(2, true, m_path, m_platform_io, m_agent_policy);
 
     for (int ii = 0; ii < 5; ++ii) {
         EXPECT_CALL(m_platform_io, sample(m_time_signal))
-            .WillOnce(Return(ii));
+        .WillOnce(Return(ii));
         tracer.update({100.0 + ii, 1e9 * ii, 5.5 * ii});
     }
     std::string output = geopm::read_file(m_path);

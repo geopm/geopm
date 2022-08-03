@@ -19,7 +19,7 @@ namespace geopm
 {
 
     std::unique_ptr<ApplicationStatus> ApplicationStatus::make_unique(int num_cpu,
-                                                                      std::shared_ptr<SharedMemory> shmem)
+            std::shared_ptr<SharedMemory> shmem)
     {
         return geopm::make_unique<ApplicationStatusImp>(num_cpu, shmem);
     }

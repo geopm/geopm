@@ -39,25 +39,26 @@ class SaveControlTest : public ::testing::Test
 void SaveControlTest::SetUp(void)
 {
     m_settings = {{"TEST::FREQUENCY", 2, 0, 1.0e9},
-                  {"TEST::FREQUENCY", 2, 1, 2.0e9},
-                  {"TEST::POWER", 1, 0, 300},
-                  {"TEST::POWER", 1, 1, 310}};
+        {"TEST::FREQUENCY", 2, 1, 2.0e9},
+        {"TEST::POWER", 1, 0, 300},
+        {"TEST::POWER", 1, 1, 310}
+    };
     m_settings_json = "[{\"domain_idx\": 0, "
-                        "\"domain_type\": 2, "
-                        "\"name\": \"TEST::FREQUENCY\", "
-                        "\"setting\": 1000000000}, "
-                       "{\"domain_idx\": 1, "
-                        "\"domain_type\": 2, "
-                        "\"name\": \"TEST::FREQUENCY\", "
-                        "\"setting\": 2000000000}, "
-                       "{\"domain_idx\": 0, "
-                        "\"domain_type\": 1, "
-                        "\"name\": \"TEST::POWER\", "
-                        "\"setting\": 300}, "
-                       "{\"domain_idx\": 1, "
-                        "\"domain_type\": 1, "
-                        "\"name\": \"TEST::POWER\", "
-                        "\"setting\": 310}]";
+                      "\"domain_type\": 2, "
+                      "\"name\": \"TEST::FREQUENCY\", "
+                      "\"setting\": 1000000000}, "
+                      "{\"domain_idx\": 1, "
+                      "\"domain_type\": 2, "
+                      "\"name\": \"TEST::FREQUENCY\", "
+                      "\"setting\": 2000000000}, "
+                      "{\"domain_idx\": 0, "
+                      "\"domain_type\": 1, "
+                      "\"name\": \"TEST::POWER\", "
+                      "\"setting\": 300}, "
+                      "{\"domain_idx\": 1, "
+                      "\"domain_type\": 1, "
+                      "\"name\": \"TEST::POWER\", "
+                      "\"setting\": 310}]";
     m_tmp_path = "test_save_control_settings.json";
     m_mock_io_group = std::make_shared<MockIOGroup>();
     m_mock_topo = std::make_shared<MockPlatformTopo>();
@@ -93,9 +94,9 @@ TEST_F(SaveControlTest, static_settings)
 TEST_F(SaveControlTest, bad_json)
 {
     std::string no_array_json = "{\"domain_idx\": 0, "
-                                 "\"domain_type\": 2, "
-                                 "\"name\": \"TEST::FREQUENCY\", "
-                                 "\"setting\": 1000000000}";
+                                "\"domain_type\": 2, "
+                                "\"name\": \"TEST::FREQUENCY\", "
+                                "\"setting\": 1000000000}";
     GEOPM_EXPECT_THROW_MESSAGE(SaveControlImp::settings(no_array_json),
                                GEOPM_ERROR_INVALID,
                                "Expected a JSON array");
@@ -104,24 +105,24 @@ TEST_F(SaveControlTest, bad_json)
                                GEOPM_ERROR_INVALID,
                                "Expected a JSON object");
     std::string wrong_field_json = "[{\"domain_idx\": 0, "
-                                     "\"domain_kind\": 2, "
-                                     "\"name\": \"TEST::FREQUENCY\", "
-                                     "\"setting\": 1000000000}]";
+                                   "\"domain_kind\": 2, "
+                                   "\"name\": \"TEST::FREQUENCY\", "
+                                   "\"setting\": 1000000000}]";
     GEOPM_EXPECT_THROW_MESSAGE(SaveControlImp::settings(wrong_field_json),
                                GEOPM_ERROR_INVALID,
                                "Invalid settings object JSON, missing a required field: \"domain_type\"");
 
     std::string missing_field_json = "[{\"domain_idx\": 0, "
-                                       "\"name\": \"TEST::FREQUENCY\", "
-                                       "\"setting\": 1000000000}]";
+                                     "\"name\": \"TEST::FREQUENCY\", "
+                                     "\"setting\": 1000000000}]";
     GEOPM_EXPECT_THROW_MESSAGE(SaveControlImp::settings(missing_field_json),
                                GEOPM_ERROR_INVALID,
                                "JSON object representing m_setting_s must have four fields");
     std::string extra_field_json = "[{\"domain_idx\": 0, "
-                                     "\"domain_type\": 2, "
-                                     "\"domain_kind\": 2, "
-                                     "\"name\": \"TEST::FREQUENCY\", "
-                                     "\"setting\": 1000000000}]";
+                                   "\"domain_type\": 2, "
+                                   "\"domain_kind\": 2, "
+                                   "\"name\": \"TEST::FREQUENCY\", "
+                                   "\"setting\": 1000000000}]";
     GEOPM_EXPECT_THROW_MESSAGE(SaveControlImp::settings(extra_field_json),
                                GEOPM_ERROR_INVALID,
                                "JSON object representing m_setting_s must have four fields");
@@ -148,34 +149,36 @@ TEST_F(SaveControlTest, make_from_string)
 TEST_F(SaveControlTest, make_from_io_group)
 {
     m_settings = {{"TEST::FREQUENCY", 2, 0, 1.0e9},
-                  {"TEST::FREQUENCY", 2, 1, 2.0e9},
-                  {"TEST::POWER", 1, 0, 300},
-                  {"TEST::POWER", 1, 1, 310}};
+        {"TEST::FREQUENCY", 2, 1, 2.0e9},
+        {"TEST::POWER", 1, 0, 300},
+        {"TEST::POWER", 1, 1, 310}
+    };
     EXPECT_CALL(*m_mock_io_group, name())
-        .WillOnce(Return("TEST"));
+    .WillOnce(Return("TEST"));
     EXPECT_CALL(*m_mock_io_group, control_domain_type(_))
-        .WillOnce(Return(2))
-        .WillOnce(Return(1));
+    .WillOnce(Return(2))
+    .WillOnce(Return(1));
     EXPECT_CALL(*m_mock_io_group, control_names())
-        .WillOnce(Return(std::set<std::string> {
-            "FREQUENCY",
-            "POWER",
-            "TEST::FREQUENCY",
-            "TEST::POWER"}));
+    .WillOnce(Return(std::set<std::string> {
+        "FREQUENCY",
+        "POWER",
+        "TEST::FREQUENCY",
+        "TEST::POWER"
+    }));
     EXPECT_CALL(*m_mock_topo, num_domain(_))
-        .WillOnce(Return(2))
-        .WillOnce(Return(2));
+    .WillOnce(Return(2))
+    .WillOnce(Return(2));
     EXPECT_CALL(*m_mock_io_group, read_signal(_, _, _))
-        .WillOnce(Return(1.0e9))
-        .WillOnce(Return(2.0e9))
-        .WillOnce(Return(300.0))
-        .WillOnce(Return(310.0));
+    .WillOnce(Return(1.0e9))
+    .WillOnce(Return(2.0e9))
+    .WillOnce(Return(300.0))
+    .WillOnce(Return(310.0));
     SaveControlImp save_ctl(*m_mock_io_group, *m_mock_topo);
     check_settings(save_ctl.settings());
     ASSERT_EQ(m_settings_json, save_ctl.json());
     {
         EXPECT_CALL(*m_mock_io_group, write_control(_, _, _, _))
-            .Times(4);
+        .Times(4);
         save_ctl.restore(*m_mock_io_group);
     }
 }

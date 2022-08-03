@@ -160,7 +160,8 @@ TEST_F(AdminTest, print_config)
 {
     std::map<std::string, std::string> default_map = {{"GEOPM_REPORT", "default_report"}};
     std::map<std::string, std::string> override_map = {{"GEOPM_AGENT", "override_agent"},
-                                                       {"GEOPM_POLICY", m_policy_path}};
+        {"GEOPM_POLICY", m_policy_path}
+    };
     std::vector<std::string> pol_names = {"pol1", "pol2"};
     std::vector<double> pol_vals = {0.1, 0.2};
     std::string expected = "\
@@ -184,7 +185,7 @@ TEST_F(AdminTest, agent_no_policy)
     m_admin->check_node();
     override_fid.open(m_override_path);
     override_fid << "{\"GEOPM_AGENT\":\"monitor\","
-                    " \"GEOPM_POLICY\":\"monitor_policy.json\"}";
+                 " \"GEOPM_POLICY\":\"monitor_policy.json\"}";
     override_fid.close();
     std::ofstream policy_fid(m_policy_path);
     policy_fid << "{}";

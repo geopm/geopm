@@ -29,160 +29,353 @@
 namespace geopm
 {
     const std::map<std::string, SSTIOGroup::sst_signal_mailbox_raw_s> SSTIOGroup::sst_signal_mbox_info = {
-        { "SST::CONFIG_LEVEL",
-          { SSTIOGroup::SSTMailboxCommand::M_TURBO_FREQUENCY, 0x00,
-            {{ "LEVEL", { 0x00, 16, 23, 1.0, M_UNITS_NONE,
-                            "SST configuration level", M_SIGNAL_BEHAVIOR_CONSTANT } }}
-          } },
-        { "SST::TURBOFREQ_SUPPORT",
-          { SSTIOGroup::SSTMailboxCommand::M_TURBO_FREQUENCY, 0x01,
-            {{ "SUPPORTED", { 0x00, 0, 0, 1.0, M_UNITS_NONE,
-                              "SST-TF is supported",
-                              M_SIGNAL_BEHAVIOR_CONSTANT } }}
-          } },
-        { "SST::HIGHPRIORITY_NCORES",
-          { SSTIOGroup::SSTMailboxCommand::M_TURBO_FREQUENCY, 0x10,
-            {{ "0", { 0x0000, 0, 7, 1.0, M_UNITS_NONE,
-                      "Count of high-priority turbo frequency cores in bucket 0",
-                      M_SIGNAL_BEHAVIOR_CONSTANT } },
-             { "1", { 0x0000, 8, 15, 1.0, M_UNITS_NONE,
-                      "Count of high-priority turbo frequency cores in bucket 1",
-                      M_SIGNAL_BEHAVIOR_CONSTANT } },
-             { "2", { 0x0000, 16, 23, 1.0, M_UNITS_NONE,
-                      "Count of high-priority turbo frequency cores in bucket 2",
-                      M_SIGNAL_BEHAVIOR_CONSTANT } },
-             { "3", { 0x0000, 24, 31, 1.0, M_UNITS_NONE,
-                      "Count of high-priority turbo frequency cores in bucket 3",
-                      M_SIGNAL_BEHAVIOR_CONSTANT } },
-             { "4", { 0x0100, 0, 7, 1.0, M_UNITS_NONE,
-                      "Count of high-priority turbo frequency cores in bucket 4",
-                       M_SIGNAL_BEHAVIOR_CONSTANT } },
-             { "5", { 0x0100, 8, 15, 1.0, M_UNITS_NONE,
-                      "Count of high-priority turbo frequency cores in bucket 5",
-                       M_SIGNAL_BEHAVIOR_CONSTANT } },
-             { "6", { 0x0100, 16, 23, 1.0, M_UNITS_NONE,
-                      "Count of high-priority turbo frequency cores in bucket 6",
-                       M_SIGNAL_BEHAVIOR_CONSTANT } },
-             { "7", { 0x0100, 24, 31, 1.0, M_UNITS_NONE,
-                      "Count of high-priority turbo frequency cores in bucket 7",
-                      M_SIGNAL_BEHAVIOR_CONSTANT } }}
-          } },
-        { "SST::HIGHPRIORITY_FREQUENCY_SSE",
-          { SSTIOGroup::SSTMailboxCommand::M_TURBO_FREQUENCY, 0x11,
+        {
+            "SST::CONFIG_LEVEL",
             {
-             { "0", { 0x000000, 0, 7, 1e8, M_UNITS_HERTZ,
-                      "High-priority turbo frequency for bucket 0 at the SSE license level",
-                      M_SIGNAL_BEHAVIOR_CONSTANT } },
-             { "1", { 0x000000, 8, 15, 1e8, M_UNITS_HERTZ,
-                      "High-priority turbo frequency for bucket 1 at the SSE license level",
-                      M_SIGNAL_BEHAVIOR_CONSTANT } },
-             { "2", { 0x000000, 16, 23, 1e8, M_UNITS_HERTZ,
-                      "High-priority turbo frequency for bucket 2 at the SSE license level",
-                      M_SIGNAL_BEHAVIOR_CONSTANT } },
-             { "3", { 0x000000, 24, 31, 1e8, M_UNITS_HERTZ,
-                      "High-priority turbo frequency for bucket 3 at the SSE license level",
-                      M_SIGNAL_BEHAVIOR_CONSTANT } },
-             { "4", { 0x000100, 0, 7, 1e8, M_UNITS_HERTZ,
-                      "High-priority turbo frequency for bucket 4 at the SSE license level",
-                      M_SIGNAL_BEHAVIOR_CONSTANT } },
-             { "5", { 0x000100, 8, 15, 1e8, M_UNITS_HERTZ,
-                      "High-priority turbo frequency for bucket 5 at the SSE license level",
-                      M_SIGNAL_BEHAVIOR_CONSTANT } },
-             { "6", { 0x000100, 16, 23, 1e8, M_UNITS_HERTZ,
-                      "High-priority turbo frequency for bucket 6 at the SSE license level",
-                      M_SIGNAL_BEHAVIOR_CONSTANT } },
-             { "7", { 0x000100, 24, 31, 1e8, M_UNITS_HERTZ,
-                      "High-priority turbo frequency for bucket 7 at the SSE license level",
-                      M_SIGNAL_BEHAVIOR_CONSTANT } }}
-          } },
-        { "SST::HIGHPRIORITY_FREQUENCY_AVX2",
-          { SSTIOGroup::SSTMailboxCommand::M_TURBO_FREQUENCY, 0x11,
-            {{ "0", { 0x010000, 0, 7, 1e8, M_UNITS_HERTZ,
-                      "High-priority turbo frequency for bucket 0 at the AVX2 license level",
-                      M_SIGNAL_BEHAVIOR_CONSTANT } },
-             { "1", { 0x010000, 8, 15, 1e8, M_UNITS_HERTZ,
-                      "High-priority turbo frequency for bucket 1 at the AVX2 license level",
-                      M_SIGNAL_BEHAVIOR_CONSTANT } },
-             { "2", { 0x010000, 16, 23, 1e8, M_UNITS_HERTZ,
-                      "High-priority turbo frequency for bucket 2 at the AVX2 license level",
-                      M_SIGNAL_BEHAVIOR_CONSTANT } },
-             { "3", { 0x010000, 24, 31, 1e8, M_UNITS_HERTZ,
-                      "High-priority turbo frequency for bucket 3 at the AVX2 license level",
-                      M_SIGNAL_BEHAVIOR_CONSTANT } },
-             { "4", { 0x010100, 0, 7, 1e8, M_UNITS_HERTZ,
-                      "High-priority turbo frequency for bucket 4 at the AVX2 license level",
-                      M_SIGNAL_BEHAVIOR_CONSTANT } },
-             { "5", { 0x010100, 8, 15, 1e8, M_UNITS_HERTZ,
-                      "High-priority turbo frequency for bucket 5 at the AVX2 license level",
-                      M_SIGNAL_BEHAVIOR_CONSTANT } },
-             { "6", { 0x010100, 16, 23, 1e8, M_UNITS_HERTZ,
-                      "High-priority turbo frequency for bucket 6 at the AVX2 license level",
-                      M_SIGNAL_BEHAVIOR_CONSTANT } },
-             { "7", { 0x010100, 24, 31, 1e8, M_UNITS_HERTZ,
-                      "High-priority turbo frequency for bucket 7 at the AVX2 license level",
-                      M_SIGNAL_BEHAVIOR_CONSTANT } }}
-          } },
-        { "SST::HIGHPRIORITY_FREQUENCY_AVX512",
-          { SSTIOGroup::SSTMailboxCommand::M_TURBO_FREQUENCY, 0x11,
-            {{ "0", { 0x020000, 0, 7, 1e8, M_UNITS_HERTZ,
-                      "High-priority turbo frequency for bucket 0 at the AVX2 license level",
-                      M_SIGNAL_BEHAVIOR_CONSTANT } },
-             { "1", { 0x020000, 8, 15, 1e8, M_UNITS_HERTZ,
-                      "High-priority turbo frequency for bucket 1 at the AVX2 license level",
-                      M_SIGNAL_BEHAVIOR_CONSTANT } },
-             { "2", { 0x020000, 16, 23, 1e8, M_UNITS_HERTZ,
-                      "High-priority turbo frequency for bucket 2 at the AVX2 license level",
-                      M_SIGNAL_BEHAVIOR_CONSTANT } },
-             { "3", { 0x020000, 24, 31, 1e8, M_UNITS_HERTZ,
-                      "High-priority turbo frequency for bucket 3 at the AVX2 license level",
-                      M_SIGNAL_BEHAVIOR_CONSTANT } },
-             { "4", { 0x020100, 0, 7, 1e8, M_UNITS_HERTZ,
-                      "High-priority turbo frequency for bucket 4 at the AVX2 license level",
-                      M_SIGNAL_BEHAVIOR_CONSTANT } },
-             { "5", { 0x020100, 8, 15, 1e8, M_UNITS_HERTZ,
-                      "High-priority turbo frequency for bucket 5 at the AVX2 license level",
-                      M_SIGNAL_BEHAVIOR_CONSTANT } },
-             { "6", { 0x020100, 16, 23, 1e8, M_UNITS_HERTZ,
-                      "High-priority turbo frequency for bucket 6 at the AVX2 license level",
-                      M_SIGNAL_BEHAVIOR_CONSTANT } },
-             { "7", { 0x020100, 24, 31, 1e8, M_UNITS_HERTZ,
-                      "High-priority turbo frequency for bucket 7 at the AVX2 license level",
-                      M_SIGNAL_BEHAVIOR_CONSTANT } }}
-          } },
-        { "SST::LOWPRIORITY_FREQUENCY",
-          { SSTIOGroup::SSTMailboxCommand::M_TURBO_FREQUENCY, 0x12,
-            {{ "SSE", { 0x00, 0, 7, 1e8, M_UNITS_HERTZ,
-                        "Low-priority turbo frequency at the SSE license level",
-                        M_SIGNAL_BEHAVIOR_CONSTANT } },
-             { "AVX2", { 0x00, 8, 15, 1e8, M_UNITS_HERTZ,
-                         "Low-priority turbo frequency at the AVX2 license level",
-                         M_SIGNAL_BEHAVIOR_CONSTANT } },
-             { "AVX512", { 0x00, 16, 23, 1e8, M_UNITS_HERTZ,
-                           "Low-priority turbo frequency at the AVX512 license level",
-                           M_SIGNAL_BEHAVIOR_CONSTANT } }}
-          } },
-        { "SST::COREPRIORITY_SUPPORT",
-          { SSTIOGroup::SSTMailboxCommand::M_SUPPORT_CAPABILITIES, 0x03,
-            {{ "CAPABILITIES", { 0x00, 0, 0, 1.0, M_UNITS_NONE,
-                                 "SST-CP is supported",
-                                 M_SIGNAL_BEHAVIOR_CONSTANT } }}
-          } }
+                SSTIOGroup::SSTMailboxCommand::M_TURBO_FREQUENCY, 0x00,
+                {   {
+                        "LEVEL", {
+                            0x00, 16, 23, 1.0, M_UNITS_NONE,
+                            "SST configuration level", M_SIGNAL_BEHAVIOR_CONSTANT
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "SST::TURBOFREQ_SUPPORT",
+            {
+                SSTIOGroup::SSTMailboxCommand::M_TURBO_FREQUENCY, 0x01,
+                {   {
+                        "SUPPORTED", {
+                            0x00, 0, 0, 1.0, M_UNITS_NONE,
+                            "SST-TF is supported",
+                            M_SIGNAL_BEHAVIOR_CONSTANT
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "SST::HIGHPRIORITY_NCORES",
+            {
+                SSTIOGroup::SSTMailboxCommand::M_TURBO_FREQUENCY, 0x10,
+                {   {
+                        "0", {
+                            0x0000, 0, 7, 1.0, M_UNITS_NONE,
+                            "Count of high-priority turbo frequency cores in bucket 0",
+                            M_SIGNAL_BEHAVIOR_CONSTANT
+                        }
+                    },
+                    {
+                        "1", {
+                            0x0000, 8, 15, 1.0, M_UNITS_NONE,
+                            "Count of high-priority turbo frequency cores in bucket 1",
+                            M_SIGNAL_BEHAVIOR_CONSTANT
+                        }
+                    },
+                    {
+                        "2", {
+                            0x0000, 16, 23, 1.0, M_UNITS_NONE,
+                            "Count of high-priority turbo frequency cores in bucket 2",
+                            M_SIGNAL_BEHAVIOR_CONSTANT
+                        }
+                    },
+                    {
+                        "3", {
+                            0x0000, 24, 31, 1.0, M_UNITS_NONE,
+                            "Count of high-priority turbo frequency cores in bucket 3",
+                            M_SIGNAL_BEHAVIOR_CONSTANT
+                        }
+                    },
+                    {
+                        "4", {
+                            0x0100, 0, 7, 1.0, M_UNITS_NONE,
+                            "Count of high-priority turbo frequency cores in bucket 4",
+                            M_SIGNAL_BEHAVIOR_CONSTANT
+                        }
+                    },
+                    {
+                        "5", {
+                            0x0100, 8, 15, 1.0, M_UNITS_NONE,
+                            "Count of high-priority turbo frequency cores in bucket 5",
+                            M_SIGNAL_BEHAVIOR_CONSTANT
+                        }
+                    },
+                    {
+                        "6", {
+                            0x0100, 16, 23, 1.0, M_UNITS_NONE,
+                            "Count of high-priority turbo frequency cores in bucket 6",
+                            M_SIGNAL_BEHAVIOR_CONSTANT
+                        }
+                    },
+                    {
+                        "7", {
+                            0x0100, 24, 31, 1.0, M_UNITS_NONE,
+                            "Count of high-priority turbo frequency cores in bucket 7",
+                            M_SIGNAL_BEHAVIOR_CONSTANT
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "SST::HIGHPRIORITY_FREQUENCY_SSE",
+            {
+                SSTIOGroup::SSTMailboxCommand::M_TURBO_FREQUENCY, 0x11,
+                {
+                    {
+                        "0", {
+                            0x000000, 0, 7, 1e8, M_UNITS_HERTZ,
+                            "High-priority turbo frequency for bucket 0 at the SSE license level",
+                            M_SIGNAL_BEHAVIOR_CONSTANT
+                        }
+                    },
+                    {
+                        "1", {
+                            0x000000, 8, 15, 1e8, M_UNITS_HERTZ,
+                            "High-priority turbo frequency for bucket 1 at the SSE license level",
+                            M_SIGNAL_BEHAVIOR_CONSTANT
+                        }
+                    },
+                    {
+                        "2", {
+                            0x000000, 16, 23, 1e8, M_UNITS_HERTZ,
+                            "High-priority turbo frequency for bucket 2 at the SSE license level",
+                            M_SIGNAL_BEHAVIOR_CONSTANT
+                        }
+                    },
+                    {
+                        "3", {
+                            0x000000, 24, 31, 1e8, M_UNITS_HERTZ,
+                            "High-priority turbo frequency for bucket 3 at the SSE license level",
+                            M_SIGNAL_BEHAVIOR_CONSTANT
+                        }
+                    },
+                    {
+                        "4", {
+                            0x000100, 0, 7, 1e8, M_UNITS_HERTZ,
+                            "High-priority turbo frequency for bucket 4 at the SSE license level",
+                            M_SIGNAL_BEHAVIOR_CONSTANT
+                        }
+                    },
+                    {
+                        "5", {
+                            0x000100, 8, 15, 1e8, M_UNITS_HERTZ,
+                            "High-priority turbo frequency for bucket 5 at the SSE license level",
+                            M_SIGNAL_BEHAVIOR_CONSTANT
+                        }
+                    },
+                    {
+                        "6", {
+                            0x000100, 16, 23, 1e8, M_UNITS_HERTZ,
+                            "High-priority turbo frequency for bucket 6 at the SSE license level",
+                            M_SIGNAL_BEHAVIOR_CONSTANT
+                        }
+                    },
+                    {
+                        "7", {
+                            0x000100, 24, 31, 1e8, M_UNITS_HERTZ,
+                            "High-priority turbo frequency for bucket 7 at the SSE license level",
+                            M_SIGNAL_BEHAVIOR_CONSTANT
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "SST::HIGHPRIORITY_FREQUENCY_AVX2",
+            {
+                SSTIOGroup::SSTMailboxCommand::M_TURBO_FREQUENCY, 0x11,
+                {   {
+                        "0", {
+                            0x010000, 0, 7, 1e8, M_UNITS_HERTZ,
+                            "High-priority turbo frequency for bucket 0 at the AVX2 license level",
+                            M_SIGNAL_BEHAVIOR_CONSTANT
+                        }
+                    },
+                    {
+                        "1", {
+                            0x010000, 8, 15, 1e8, M_UNITS_HERTZ,
+                            "High-priority turbo frequency for bucket 1 at the AVX2 license level",
+                            M_SIGNAL_BEHAVIOR_CONSTANT
+                        }
+                    },
+                    {
+                        "2", {
+                            0x010000, 16, 23, 1e8, M_UNITS_HERTZ,
+                            "High-priority turbo frequency for bucket 2 at the AVX2 license level",
+                            M_SIGNAL_BEHAVIOR_CONSTANT
+                        }
+                    },
+                    {
+                        "3", {
+                            0x010000, 24, 31, 1e8, M_UNITS_HERTZ,
+                            "High-priority turbo frequency for bucket 3 at the AVX2 license level",
+                            M_SIGNAL_BEHAVIOR_CONSTANT
+                        }
+                    },
+                    {
+                        "4", {
+                            0x010100, 0, 7, 1e8, M_UNITS_HERTZ,
+                            "High-priority turbo frequency for bucket 4 at the AVX2 license level",
+                            M_SIGNAL_BEHAVIOR_CONSTANT
+                        }
+                    },
+                    {
+                        "5", {
+                            0x010100, 8, 15, 1e8, M_UNITS_HERTZ,
+                            "High-priority turbo frequency for bucket 5 at the AVX2 license level",
+                            M_SIGNAL_BEHAVIOR_CONSTANT
+                        }
+                    },
+                    {
+                        "6", {
+                            0x010100, 16, 23, 1e8, M_UNITS_HERTZ,
+                            "High-priority turbo frequency for bucket 6 at the AVX2 license level",
+                            M_SIGNAL_BEHAVIOR_CONSTANT
+                        }
+                    },
+                    {
+                        "7", {
+                            0x010100, 24, 31, 1e8, M_UNITS_HERTZ,
+                            "High-priority turbo frequency for bucket 7 at the AVX2 license level",
+                            M_SIGNAL_BEHAVIOR_CONSTANT
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "SST::HIGHPRIORITY_FREQUENCY_AVX512",
+            {
+                SSTIOGroup::SSTMailboxCommand::M_TURBO_FREQUENCY, 0x11,
+                {   {
+                        "0", {
+                            0x020000, 0, 7, 1e8, M_UNITS_HERTZ,
+                            "High-priority turbo frequency for bucket 0 at the AVX2 license level",
+                            M_SIGNAL_BEHAVIOR_CONSTANT
+                        }
+                    },
+                    {
+                        "1", {
+                            0x020000, 8, 15, 1e8, M_UNITS_HERTZ,
+                            "High-priority turbo frequency for bucket 1 at the AVX2 license level",
+                            M_SIGNAL_BEHAVIOR_CONSTANT
+                        }
+                    },
+                    {
+                        "2", {
+                            0x020000, 16, 23, 1e8, M_UNITS_HERTZ,
+                            "High-priority turbo frequency for bucket 2 at the AVX2 license level",
+                            M_SIGNAL_BEHAVIOR_CONSTANT
+                        }
+                    },
+                    {
+                        "3", {
+                            0x020000, 24, 31, 1e8, M_UNITS_HERTZ,
+                            "High-priority turbo frequency for bucket 3 at the AVX2 license level",
+                            M_SIGNAL_BEHAVIOR_CONSTANT
+                        }
+                    },
+                    {
+                        "4", {
+                            0x020100, 0, 7, 1e8, M_UNITS_HERTZ,
+                            "High-priority turbo frequency for bucket 4 at the AVX2 license level",
+                            M_SIGNAL_BEHAVIOR_CONSTANT
+                        }
+                    },
+                    {
+                        "5", {
+                            0x020100, 8, 15, 1e8, M_UNITS_HERTZ,
+                            "High-priority turbo frequency for bucket 5 at the AVX2 license level",
+                            M_SIGNAL_BEHAVIOR_CONSTANT
+                        }
+                    },
+                    {
+                        "6", {
+                            0x020100, 16, 23, 1e8, M_UNITS_HERTZ,
+                            "High-priority turbo frequency for bucket 6 at the AVX2 license level",
+                            M_SIGNAL_BEHAVIOR_CONSTANT
+                        }
+                    },
+                    {
+                        "7", {
+                            0x020100, 24, 31, 1e8, M_UNITS_HERTZ,
+                            "High-priority turbo frequency for bucket 7 at the AVX2 license level",
+                            M_SIGNAL_BEHAVIOR_CONSTANT
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "SST::LOWPRIORITY_FREQUENCY",
+            {
+                SSTIOGroup::SSTMailboxCommand::M_TURBO_FREQUENCY, 0x12,
+                {   {
+                        "SSE", {
+                            0x00, 0, 7, 1e8, M_UNITS_HERTZ,
+                            "Low-priority turbo frequency at the SSE license level",
+                            M_SIGNAL_BEHAVIOR_CONSTANT
+                        }
+                    },
+                    {
+                        "AVX2", {
+                            0x00, 8, 15, 1e8, M_UNITS_HERTZ,
+                            "Low-priority turbo frequency at the AVX2 license level",
+                            M_SIGNAL_BEHAVIOR_CONSTANT
+                        }
+                    },
+                    {
+                        "AVX512", {
+                            0x00, 16, 23, 1e8, M_UNITS_HERTZ,
+                            "Low-priority turbo frequency at the AVX512 license level",
+                            M_SIGNAL_BEHAVIOR_CONSTANT
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "SST::COREPRIORITY_SUPPORT",
+            {
+                SSTIOGroup::SSTMailboxCommand::M_SUPPORT_CAPABILITIES, 0x03,
+                {   {
+                        "CAPABILITIES", {
+                            0x00, 0, 0, 1.0, M_UNITS_NONE,
+                            "SST-CP is supported",
+                            M_SIGNAL_BEHAVIOR_CONSTANT
+                        }
+                    }
+                }
+            }
+        }
     };
 
     const std::map<std::string, SSTIOGroup::sst_control_mailbox_raw_s> SSTIOGroup::sst_control_mbox_info = {
-        { "SST::TURBO_ENABLE",
-            { SSTIOGroup::SSTMailboxCommand::M_TURBO_FREQUENCY,
+        {
+            "SST::TURBO_ENABLE",
+            {
+                SSTIOGroup::SSTMailboxCommand::M_TURBO_FREQUENCY,
                 // Control
                 0x02, 0x00 /* N/A */,
-                {{ "ENABLE", { 0x01, 16, 16, M_UNITS_NONE,
-                               "SST-TF is enabled. Enabling this also enables SST::COREPRIORITY_ENABLE:ENABLE." } }},
+                {   {
+                        "ENABLE", {
+                            0x01, 16, 16, M_UNITS_NONE,
+                            "SST-TF is enabled. Enabling this also enables SST::COREPRIORITY_ENABLE:ENABLE."
+                        }
+                    }
+                },
                 // Signal
                 0x01, 0x00
             },
         },
-        { "SST::COREPRIORITY_ENABLE",
+        {
+            "SST::COREPRIORITY_ENABLE",
             // 0x03 when enabling; 0x01 when disabling
-            { SSTIOGroup::SSTMailboxCommand::M_CORE_PRIORITY,
+            {
+                SSTIOGroup::SSTMailboxCommand::M_CORE_PRIORITY,
                 // Control
                 0x02, 0x100,
                 {{ "ENABLE", { 0x01, 1, 1, M_UNITS_NONE, "SST-CP is enabled. Disabling this also disables SST::TURBO_ENABLE:ENABLE." } }},
@@ -193,41 +386,81 @@ namespace geopm
     };
 
     const std::map<std::string, SSTIOGroup::sst_control_mmio_raw_s> SSTIOGroup::sst_control_mmio_info = {
-        { "SST::COREPRIORITY:0",
-          { GEOPM_DOMAIN_PACKAGE, 0x08,
-            { { "PRIORITY", { 4, 7, 15.0, M_UNITS_NONE, "Proportional priority for core priority level 0, "
-                                                        "ranging from 0 to 1. A lower value indicates a "
-                                                        "desire to receive a greater share of surplus power "
-                                                        "than priority groups with a higher value." } },
-              { "FREQUENCY_MIN", { 8, 15, 1e-8, M_UNITS_HERTZ, "Minimum frequency of core priority level 0"  } },
-              { "FREQUENCY_MAX", { 16, 23, 1e-8, M_UNITS_HERTZ, "Maximum frequency of core priority level 0"  } } } } },
-        { "SST::COREPRIORITY:1",
-          { GEOPM_DOMAIN_PACKAGE, 0x0c,
-            { { "PRIORITY", { 4, 7, 15.0, M_UNITS_NONE, "Proportional priority for core priority level 1, "
-                                                        "ranging from 0 to 1. A lower value indicates a "
-                                                        "desire to receive a greater share of surplus power "
-                                                        "than priority groups with a higher value." } },
-              { "FREQUENCY_MIN", { 8, 15, 1e-8, M_UNITS_HERTZ, "Minimum frequency of core priority level 1"  } },
-              { "FREQUENCY_MAX", { 16, 23, 1e-8, M_UNITS_HERTZ, "Maximum frequency of core priority level 1"  } } } } },
-        { "SST::COREPRIORITY:2",
-          { GEOPM_DOMAIN_PACKAGE, 0x10,
-            { { "PRIORITY", { 4, 7, 15.0, M_UNITS_NONE, "Proportional priority for core priority level 2, "
-                                                        "ranging from 0 to 1. A lower value indicates a "
-                                                        "desire to receive a greater share of surplus power "
-                                                        "than priority groups with a higher value." } },
-              { "FREQUENCY_MIN", { 8, 15, 1e-8, M_UNITS_HERTZ, "Minimum frequency of core priority level 2"  } },
-              { "FREQUENCY_MAX", { 16, 23, 1e-8, M_UNITS_HERTZ, "Maximum frequency of core priority level 2"  } } } } },
-        { "SST::COREPRIORITY:3",
-          { GEOPM_DOMAIN_PACKAGE, 0x14,
-            { { "PRIORITY", { 4, 7, 15.0, M_UNITS_NONE, "Proportional priority for core priority level 3, "
-                                                        "ranging from 0 to 1. A lower value indicates a "
-                                                        "desire to receive a greater share of surplus power "
-                                                        "than priority groups with a higher value." } },
-              { "FREQUENCY_MIN", { 8, 15, 1e-8, M_UNITS_HERTZ, "Minimum frequency of core priority level 3"  } },
-              { "FREQUENCY_MAX", { 16, 23, 1e-8, M_UNITS_HERTZ, "Maximum frequency of core priority level 3"  } } } } },
-        { "SST::COREPRIORITY",
-          { GEOPM_DOMAIN_CORE, 0x20, /* offset will be augmented by core index */
-            { { "ASSOCIATION", { 16, 17, 1.0, M_UNITS_NONE, "Assigned core priority level"  } } } } },
+        {
+            "SST::COREPRIORITY:0",
+            {
+                GEOPM_DOMAIN_PACKAGE, 0x08,
+                {   {
+                        "PRIORITY", {
+                            4, 7, 15.0, M_UNITS_NONE, "Proportional priority for core priority level 0, "
+                            "ranging from 0 to 1. A lower value indicates a "
+                            "desire to receive a greater share of surplus power "
+                            "than priority groups with a higher value."
+                        }
+                    },
+                    { "FREQUENCY_MIN", { 8, 15, 1e-8, M_UNITS_HERTZ, "Minimum frequency of core priority level 0"  } },
+                    { "FREQUENCY_MAX", { 16, 23, 1e-8, M_UNITS_HERTZ, "Maximum frequency of core priority level 0"  } }
+                }
+            }
+        },
+        {
+            "SST::COREPRIORITY:1",
+            {
+                GEOPM_DOMAIN_PACKAGE, 0x0c,
+                {   {
+                        "PRIORITY", {
+                            4, 7, 15.0, M_UNITS_NONE, "Proportional priority for core priority level 1, "
+                            "ranging from 0 to 1. A lower value indicates a "
+                            "desire to receive a greater share of surplus power "
+                            "than priority groups with a higher value."
+                        }
+                    },
+                    { "FREQUENCY_MIN", { 8, 15, 1e-8, M_UNITS_HERTZ, "Minimum frequency of core priority level 1"  } },
+                    { "FREQUENCY_MAX", { 16, 23, 1e-8, M_UNITS_HERTZ, "Maximum frequency of core priority level 1"  } }
+                }
+            }
+        },
+        {
+            "SST::COREPRIORITY:2",
+            {
+                GEOPM_DOMAIN_PACKAGE, 0x10,
+                {   {
+                        "PRIORITY", {
+                            4, 7, 15.0, M_UNITS_NONE, "Proportional priority for core priority level 2, "
+                            "ranging from 0 to 1. A lower value indicates a "
+                            "desire to receive a greater share of surplus power "
+                            "than priority groups with a higher value."
+                        }
+                    },
+                    { "FREQUENCY_MIN", { 8, 15, 1e-8, M_UNITS_HERTZ, "Minimum frequency of core priority level 2"  } },
+                    { "FREQUENCY_MAX", { 16, 23, 1e-8, M_UNITS_HERTZ, "Maximum frequency of core priority level 2"  } }
+                }
+            }
+        },
+        {
+            "SST::COREPRIORITY:3",
+            {
+                GEOPM_DOMAIN_PACKAGE, 0x14,
+                {   {
+                        "PRIORITY", {
+                            4, 7, 15.0, M_UNITS_NONE, "Proportional priority for core priority level 3, "
+                            "ranging from 0 to 1. A lower value indicates a "
+                            "desire to receive a greater share of surplus power "
+                            "than priority groups with a higher value."
+                        }
+                    },
+                    { "FREQUENCY_MIN", { 8, 15, 1e-8, M_UNITS_HERTZ, "Minimum frequency of core priority level 3"  } },
+                    { "FREQUENCY_MAX", { 16, 23, 1e-8, M_UNITS_HERTZ, "Maximum frequency of core priority level 3"  } }
+                }
+            }
+        },
+        {
+            "SST::COREPRIORITY",
+            {
+                GEOPM_DOMAIN_CORE, 0x20, /* offset will be augmented by core index */
+                { { "ASSOCIATION", { 16, 17, 1.0, M_UNITS_NONE, "Assigned core priority level"  } } }
+            }
+        },
     };
 
     SSTIOGroup::SSTIOGroup()
@@ -271,13 +504,12 @@ namespace geopm
             uint32_t control_read_mask = 0;
 
             std::map<std::string, sst_signal_mailbox_field_s> fields;
-            for (const auto& field : raw_desc.fields)
-            {
+            for (const auto& field : raw_desc.fields) {
                 fields.emplace(field.first,
-                               sst_signal_mailbox_field_s{
-                                   raw_desc.read_request_data, field.second.begin_bit,
-                                   field.second.end_bit, 1.0, field.second.units,
-                                   field.second.description, M_SIGNAL_BEHAVIOR_VARIABLE });
+                sst_signal_mailbox_field_s{
+                    raw_desc.read_request_data, field.second.begin_bit,
+                    field.second.end_bit, 1.0, field.second.units,
+                    field.second.description, M_SIGNAL_BEHAVIOR_VARIABLE });
                 auto bit_count = field.second.end_bit - field.second.begin_bit + 1;
                 auto field_mask = ((1ull << bit_count) - 1) << field.second.begin_bit;
                 control_read_mask |= field_mask;
@@ -299,16 +531,16 @@ namespace geopm
         auto sst_tf_enable_it = m_control_available.find("SST::TURBO_ENABLE:ENABLE");
         auto sst_cp_enable_it = m_control_available.find("SST::COREPRIORITY_ENABLE:ENABLE");
         GEOPM_DEBUG_ASSERT(
-                sst_tf_enable_it != m_control_available.end()
-                && sst_cp_enable_it != m_control_available.end(),
-                "Do not have controls to enable SST-TF and SST-CP");
+            sst_tf_enable_it != m_control_available.end()
+            && sst_cp_enable_it != m_control_available.end(),
+            "Do not have controls to enable SST-TF and SST-CP");
         GEOPM_DEBUG_ASSERT(
-                sst_tf_enable_it->second.domain == sst_cp_enable_it->second.domain,
-                "SST-TF and SST-CP cannot be enabled in the same domain");
+            sst_tf_enable_it->second.domain == sst_cp_enable_it->second.domain,
+            "SST-TF and SST-CP cannot be enabled in the same domain");
         if (sst_tf_enable_it != m_control_available.end() && sst_cp_enable_it != m_control_available.end()) {
             const auto domain_count = std::min(
-                    sst_tf_enable_it->second.controls.size(),
-                    sst_cp_enable_it->second.controls.size());
+                                          sst_tf_enable_it->second.controls.size(),
+                                          sst_cp_enable_it->second.controls.size());
             for (size_t i = 0; i < domain_count; ++i) {
                 auto sst_tf_control = std::static_pointer_cast<SSTControl>(sst_tf_enable_it->second.controls[i]);
                 auto sst_cp_control = std::static_pointer_cast<SSTControl>(sst_cp_enable_it->second.controls[i]);
@@ -328,13 +560,12 @@ namespace geopm
             uint32_t control_read_mask = 0;
 
             std::map<std::string, sst_signal_mmio_field_s> fields;
-            for (const auto& field : raw_desc.fields)
-            {
+            for (const auto& field : raw_desc.fields) {
                 fields.emplace(field.first,
-                               sst_signal_mmio_field_s{
-                                   0, field.second.begin_bit, field.second.end_bit,
-                                   1 / field.second.multiplier, field.second.units,
-                                   field.second.description, M_SIGNAL_BEHAVIOR_VARIABLE });
+                sst_signal_mmio_field_s{
+                    0, field.second.begin_bit, field.second.end_bit,
+                    1 / field.second.multiplier, field.second.units,
+                    field.second.description, M_SIGNAL_BEHAVIOR_VARIABLE });
                 auto bit_count = field.second.end_bit - field.second.begin_bit + 1;
                 auto field_mask = ((1ull << bit_count) - 1) << field.second.begin_bit;
                 control_read_mask |= field_mask;
@@ -426,7 +657,7 @@ namespace geopm
     {
         int result = -1;
         if (control_name == "SST::TURBO_ENABLE:ENABLE"
-                || control_name == "SST::COREPRIORITY_ENABLE:ENABLE") {
+            || control_name == "SST::COREPRIORITY_ENABLE:ENABLE") {
             throw Exception("SSTIOGroup::push_control(): SST::TURBO_ENABLE:ENABLE "
                             "and SST::COREPRIORITY_ENABLE:ENABLE cannot be pushed "
                             "in batch writes.",
@@ -440,7 +671,7 @@ namespace geopm
             }
             auto control = it->second.controls[domain_idx];
             auto already_pushed_control = std::find(
-                m_control_pushed.begin(), m_control_pushed.end(), control);
+                                              m_control_pushed.begin(), m_control_pushed.end(), control);
             if (already_pushed_control == m_control_pushed.end()) {
                 result = m_control_pushed.size();
                 m_control_pushed.push_back(control);
@@ -597,7 +828,7 @@ namespace geopm
         auto it = m_signal_available.find(signal_name);
         if (it == m_signal_available.end()) {
             throw Exception("SSTIOGroup::signal_description(): " + signal_name +
-                                "not valid for SSTIOGroup",
+                            "not valid for SSTIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
@@ -616,7 +847,7 @@ namespace geopm
         auto it = m_control_available.find(control_name);
         if (it == m_control_available.end()) {
             throw Exception("SSTIOGroup::control_description(): " + control_name +
-                                "not valid for SSTIOGroup",
+                            "not valid for SSTIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
@@ -635,7 +866,7 @@ namespace geopm
         auto it = m_signal_available.find(signal_name);
         if (it == m_signal_available.end()) {
             throw Exception("SSTIOGroup::signal_behavior(): " + signal_name +
-                                "not valid for SSTIOGroup",
+                            "not valid for SSTIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
@@ -691,8 +922,8 @@ namespace geopm
                     auto cpus = m_topo.domain_nested(GEOPM_DOMAIN_CPU, domain_type, domain_idx);
                     int cpu_idx = *(cpus.begin());
                     auto raw_sst = std::make_shared<SSTSignal>(
-                        m_sstio, SSTSignal::M_MBOX, cpu_idx, static_cast<uint16_t>(command),
-                        subcommand, request_data, 0 /* interface parameter */);
+                                       m_sstio, SSTSignal::M_MBOX, cpu_idx, static_cast<uint16_t>(command),
+                                       subcommand, request_data, 0 /* interface parameter */);
                     signals.push_back(raw_sst);
                 }
                 m_signal_available[raw_signal_name] = {
@@ -709,8 +940,8 @@ namespace geopm
             std::vector<std::shared_ptr<Signal> > signals;
             for (int domain_idx = 0; domain_idx < num_domain; ++domain_idx) {
                 auto field_signal = std::make_shared<MSRFieldSignal>(
-                    raw_sst_list[domain_idx], begin_bit, end_bit,
-                    MSR::M_FUNCTION_SCALE, multiplier);
+                                        raw_sst_list[domain_idx], begin_bit, end_bit,
+                                        MSR::M_FUNCTION_SCALE, multiplier);
                 signals.push_back(field_signal);
             }
             m_signal_available[field_signal_name] = {
@@ -754,9 +985,9 @@ namespace geopm
                     int cpu_idx = *(cpus.begin());
 
                     auto raw_sst = std::make_shared<SSTControl>(
-                        m_sstio, SSTControl::M_MBOX, cpu_idx, static_cast<uint16_t>(command),
-                        subcommand, write_param, write_data, begin_bit, end_bit,
-                        1.0, read_subcommand, read_request_data, read_mask);
+                                       m_sstio, SSTControl::M_MBOX, cpu_idx, static_cast<uint16_t>(command),
+                                       subcommand, write_param, write_data, begin_bit, end_bit,
+                                       1.0, read_subcommand, read_request_data, read_mask);
 
                     controls.push_back(raw_sst);
                 }
@@ -800,10 +1031,10 @@ namespace geopm
                     auto cpus = m_topo.domain_nested(GEOPM_DOMAIN_CPU, domain_type, domain_idx);
                     int cpu_idx = *(cpus.begin());
                     uint32_t augmented_offset = domain_type == GEOPM_DOMAIN_CORE
-                        ? register_offset + m_sstio->get_punit_from_cpu(domain_idx) * 4
-                        : register_offset;
+                                                ? register_offset + m_sstio->get_punit_from_cpu(domain_idx) * 4
+                                                : register_offset;
                     auto raw_sst = std::make_shared<SSTSignal>(
-                        m_sstio, SSTSignal::M_MMIO, cpu_idx, 0x00, 0x00, augmented_offset, write_value);
+                                       m_sstio, SSTSignal::M_MMIO, cpu_idx, 0x00, 0x00, augmented_offset, write_value);
 
                     signals.push_back(raw_sst);
                 }
@@ -825,8 +1056,8 @@ namespace geopm
                 // same need for read masks and scaling as MSR's need, so
                 // we are able to use the same helper class here.
                 auto field_signal = std::make_shared<MSRFieldSignal>(
-                    raw_sst_list[domain_idx], begin_bit, end_bit,
-                    MSR::M_FUNCTION_SCALE, multiplier);
+                                        raw_sst_list[domain_idx], begin_bit, end_bit,
+                                        MSR::M_FUNCTION_SCALE, multiplier);
                 signals.push_back(field_signal);
             }
             m_signal_available[field_signal_name] = {
@@ -864,12 +1095,12 @@ namespace geopm
                     auto cpus = m_topo.domain_nested(GEOPM_DOMAIN_CPU, domain_type, domain_idx);
                     int cpu_idx = *(cpus.begin());
                     uint32_t augmented_offset = domain_type == GEOPM_DOMAIN_CORE
-                        ? register_offset + m_sstio->get_punit_from_cpu(domain_idx) * 4
-                        : register_offset;
+                                                ? register_offset + m_sstio->get_punit_from_cpu(domain_idx) * 4
+                                                : register_offset;
                     auto control = std::make_shared<SSTControl>(
-                        m_sstio, SSTControl::M_MMIO, cpu_idx, 0x00, 0x00, augmented_offset,
-                        0x00 /* Write value. adjust later */, begin_bit,
-                        end_bit, multiplier, 0x00, 0x00, read_mask);
+                                       m_sstio, SSTControl::M_MMIO, cpu_idx, 0x00, 0x00, augmented_offset,
+                                       0x00 /* Write value. adjust later */, begin_bit,
+                                       end_bit, multiplier, 0x00, 0x00, read_mask);
 
                     controls.push_back(control);
                 }

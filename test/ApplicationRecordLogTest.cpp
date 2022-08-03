@@ -63,7 +63,7 @@ TEST_F(ApplicationRecordLogTest, empty_dump)
     std::vector<record_s> records;
     std::vector<short_region_s> short_regions;
     EXPECT_CALL(*m_mock_shared_memory, get_scoped_lock())
-        .Times(1);
+    .Times(1);
     m_record_log->dump(records, short_regions);
     EXPECT_EQ(0ULL, records.size());
     EXPECT_EQ(0ULL, short_regions.size());
@@ -72,32 +72,32 @@ TEST_F(ApplicationRecordLogTest, empty_dump)
 TEST_F(ApplicationRecordLogTest, no_proc_set)
 {
     EXPECT_CALL(*m_mock_shared_memory, get_scoped_lock())
-        .Times(0);
-    GEOPM_EXPECT_THROW_MESSAGE(m_record_log->enter(0,{{0,0}}),
-                               GEOPM_ERROR_RUNTIME,
-                               "set_process() must be called prior to calling enter(), exit() or epoch()");
-    GEOPM_EXPECT_THROW_MESSAGE(m_record_log->exit(0,{{0,0}}),
-                               GEOPM_ERROR_RUNTIME,
-                               "set_process() must be called prior to calling enter(), exit() or epoch()");
+    .Times(0);
+    GEOPM_EXPECT_THROW_MESSAGE(m_record_log->enter(0, {{0,0}}),
+    GEOPM_ERROR_RUNTIME,
+    "set_process() must be called prior to calling enter(), exit() or epoch()");
+    GEOPM_EXPECT_THROW_MESSAGE(m_record_log->exit(0, {{0,0}}),
+    GEOPM_ERROR_RUNTIME,
+    "set_process() must be called prior to calling enter(), exit() or epoch()");
     GEOPM_EXPECT_THROW_MESSAGE(m_record_log->epoch({{0,0}}),
-                               GEOPM_ERROR_RUNTIME,
-                               "set_process() must be called prior to calling enter(), exit() or epoch()");
+    GEOPM_ERROR_RUNTIME,
+    "set_process() must be called prior to calling enter(), exit() or epoch()");
 }
 
 TEST_F(ApplicationRecordLogTest, no_time_zero_set)
 {
     EXPECT_CALL(*m_mock_shared_memory, get_scoped_lock())
-        .Times(0);
+    .Times(0);
     m_record_log->set_process(123);
-    GEOPM_EXPECT_THROW_MESSAGE(m_record_log->enter(0,{{0,0}}),
-                               GEOPM_ERROR_RUNTIME,
-                               "set_time_zero() must be called prior to calling enter(), exit() or epoch()");
-    GEOPM_EXPECT_THROW_MESSAGE(m_record_log->exit(0,{{0,0}}),
-                               GEOPM_ERROR_RUNTIME,
-                               "set_time_zero() must be called prior to calling enter(), exit() or epoch()");
+    GEOPM_EXPECT_THROW_MESSAGE(m_record_log->enter(0, {{0,0}}),
+    GEOPM_ERROR_RUNTIME,
+    "set_time_zero() must be called prior to calling enter(), exit() or epoch()");
+    GEOPM_EXPECT_THROW_MESSAGE(m_record_log->exit(0, {{0,0}}),
+    GEOPM_ERROR_RUNTIME,
+    "set_time_zero() must be called prior to calling enter(), exit() or epoch()");
     GEOPM_EXPECT_THROW_MESSAGE(m_record_log->epoch({{0,0}}),
-                               GEOPM_ERROR_RUNTIME,
-                               "set_time_zero() must be called prior to calling enter(), exit() or epoch()");
+    GEOPM_ERROR_RUNTIME,
+    "set_time_zero() must be called prior to calling enter(), exit() or epoch()");
 }
 
 TEST_F(ApplicationRecordLogTest, setup_only_once)
@@ -128,24 +128,24 @@ TEST_F(ApplicationRecordLogTest, scoped_lock_test)
     m_record_log->set_time_zero(time_0);
     {
         EXPECT_CALL(*m_mock_shared_memory, get_scoped_lock())
-            .Times(1);
+        .Times(1);
         m_record_log->enter(hash, time);
     }
     {
         EXPECT_CALL(*m_mock_shared_memory, get_scoped_lock())
-            .Times(1);
+        .Times(1);
         m_record_log->exit(hash, time);
     }
     {
         EXPECT_CALL(*m_mock_shared_memory, get_scoped_lock())
-            .Times(1);
+        .Times(1);
         m_record_log->epoch(time);
     }
     {
         std::vector<record_s> records;
         std::vector<short_region_s> short_regions;
         EXPECT_CALL(*m_mock_shared_memory, get_scoped_lock())
-            .Times(1);
+        .Times(1);
         m_record_log->dump(records, short_regions);
     }
 

@@ -13,11 +13,11 @@
 
 namespace geopm
 {
-   SpinModelRegion::SpinModelRegion(double big_o_in,
-                                    int verbosity,
-                                    bool do_imbalance,
-                                    bool do_progress,
-                                    bool do_unmarked)
+    SpinModelRegion::SpinModelRegion(double big_o_in,
+                                     int verbosity,
+                                     bool do_imbalance,
+                                     bool do_progress,
+                                     bool do_unmarked)
         : ModelRegion(verbosity)
     {
         m_name = "spin";

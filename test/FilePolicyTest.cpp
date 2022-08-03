@@ -72,7 +72,8 @@ void FilePolicyTest::TearDown()
 TEST_F(FilePolicyTest, parse_json_file)
 {
     std::vector<std::string> signal_names = {"POWER_MAX", "FREQUENCY_MAX", "FREQUENCY_MIN", "PI",
-                                             "DEFAULT1", "DEFAULT2", "DEFAULT3"};
+                                             "DEFAULT1", "DEFAULT2", "DEFAULT3"
+                                            };
     FilePolicy file_policy(m_json_file_path, signal_names);
     std::vector<double> result = file_policy.get_policy();
     ASSERT_EQ(7u, result.size());
@@ -88,7 +89,8 @@ TEST_F(FilePolicyTest, parse_json_file)
 TEST_F(FilePolicyTest, negative_parse_json_file)
 {
     std::vector<std::string> signal_names = {"POWER_MAX", "FREQUENCY_MAX", "FREQUENCY_MIN", "PI",
-                                             "DEFAULT1", "DEFAULT2", "DEFAULT3"};
+                                             "DEFAULT1", "DEFAULT2", "DEFAULT3"
+                                            };
     GEOPM_EXPECT_THROW_MESSAGE(FilePolicy(m_json_file_path_bad, signal_names),
                                GEOPM_ERROR_FILE_PARSE, "unsupported type or malformed json config file");
 

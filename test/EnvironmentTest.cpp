@@ -132,18 +132,18 @@ void EnvironmentTest::SetUp()
         cache_env_value(key);
     }
     m_user = {
-              {"GEOPM_REPORT", "report-test_value"},
-              {"GEOPM_COMM", "comm-test_value"},
-              {"GEOPM_POLICY", "policy-test_value"},
-              {"GEOPM_AGENT", "agent-test_value"},
-              {"GEOPM_TRACE", "trace-test_value"},
-              {"GEOPM_TRACE_PROFILE", "trace-profile-test_value"},
-              {"GEOPM_FREQUENCY_MAP", "hash:freq,hash:freq,hash:freq"},
-              {"GEOPM_MAX_FAN_OUT", "16"},
-              {"GEOPM_DEBUG_ATTACH", "1"},
-              {"GEOPM_TRACE_SIGNALS", "test1,test2,test3"},
-              {"GEOPM_REPORT_SIGNALS", "best1,best2,best3"},
-             };
+        {"GEOPM_REPORT", "report-test_value"},
+        {"GEOPM_COMM", "comm-test_value"},
+        {"GEOPM_POLICY", "policy-test_value"},
+        {"GEOPM_AGENT", "agent-test_value"},
+        {"GEOPM_TRACE", "trace-test_value"},
+        {"GEOPM_TRACE_PROFILE", "trace-profile-test_value"},
+        {"GEOPM_FREQUENCY_MAP", "hash:freq,hash:freq,hash:freq"},
+        {"GEOPM_MAX_FAN_OUT", "16"},
+        {"GEOPM_DEBUG_ATTACH", "1"},
+        {"GEOPM_TRACE_SIGNALS", "test1,test2,test3"},
+        {"GEOPM_REPORT_SIGNALS", "best1,best2,best3"},
+    };
     // Contains the same information as the GEOPM_TRACE_SIGNALS and GEOPM_REPORT_SIGNALS,
     // but in the format of a data structure, as inputs to check_trace_report_signals()
     m_trace_signals = {
@@ -183,7 +183,7 @@ void EnvironmentTest::SetUp()
     };
 
     EXPECT_CALL(m_platform_io, signal_names())
-        .WillRepeatedly(Return(valid_signal_names));
+    .WillRepeatedly(Return(valid_signal_names));
 }
 
 void EnvironmentTest::TearDown()
@@ -204,12 +204,12 @@ void EnvironmentTest::TearDown()
 TEST_F(EnvironmentTest, internal_defaults)
 {
     std::map<std::string, std::string> internal_default_vars = {
-              {"GEOPM_COMM", "MPIComm"},
-              {"GEOPM_AGENT", "monitor"},
-              {"GEOPM_MAX_FAN_OUT", "16"},
-              {"GEOPM_TIMEOUT", "30"},
-              {"GEOPM_DEBUG_ATTACH", "-1"},
-             };
+        {"GEOPM_COMM", "MPIComm"},
+        {"GEOPM_AGENT", "monitor"},
+        {"GEOPM_MAX_FAN_OUT", "16"},
+        {"GEOPM_TIMEOUT", "30"},
+        {"GEOPM_DEBUG_ATTACH", "-1"},
+    };
 
     m_env = geopm::make_unique<EnvironmentImp>("", "", &m_platform_io);
     std::map<std::string, std::string> exp_vars = internal_default_vars;
@@ -219,12 +219,12 @@ TEST_F(EnvironmentTest, internal_defaults)
 TEST_F(EnvironmentTest, user_only)
 {
     std::map<std::string, std::string> internal_default_vars = {
-              {"GEOPM_COMM", "MPIComm"},
-              {"GEOPM_AGENT", "monitor"},
-              {"GEOPM_MAX_FAN_OUT", "16"},
-              {"GEOPM_TIMEOUT", "30"},
-              {"GEOPM_DEBUG_ATTACH", "-1"},
-             };
+        {"GEOPM_COMM", "MPIComm"},
+        {"GEOPM_AGENT", "monitor"},
+        {"GEOPM_MAX_FAN_OUT", "16"},
+        {"GEOPM_TIMEOUT", "30"},
+        {"GEOPM_DEBUG_ATTACH", "-1"},
+    };
     for (const auto &kv : m_user) {
         setenv(kv.first.c_str(), kv.second.c_str(), 1);
     }
@@ -241,12 +241,12 @@ TEST_F(EnvironmentTest, user_only_do_profile)
 {
     m_user["GEOPM_PROFILE"] =  "";
     std::map<std::string, std::string> internal_default_vars = {
-              {"GEOPM_COMM", "MPIComm"},
-              {"GEOPM_AGENT", "monitor"},
-              {"GEOPM_MAX_FAN_OUT", "16"},
-              {"GEOPM_TIMEOUT", "30"},
-              {"GEOPM_DEBUG_ATTACH", "-1"},
-             };
+        {"GEOPM_COMM", "MPIComm"},
+        {"GEOPM_AGENT", "monitor"},
+        {"GEOPM_MAX_FAN_OUT", "16"},
+        {"GEOPM_TIMEOUT", "30"},
+        {"GEOPM_DEBUG_ATTACH", "-1"},
+    };
     for (const auto &kv : m_user) {
         setenv(kv.first.c_str(), kv.second.c_str(), 1);
     }
@@ -263,12 +263,12 @@ TEST_F(EnvironmentTest, user_only_do_profile_custom)
 {
     m_user["GEOPM_PROFILE"] =  "\nThat's \"all\" folks ";
     std::map<std::string, std::string> internal_default_vars = {
-              {"GEOPM_COMM", "MPIComm"},
-              {"GEOPM_AGENT", "monitor"},
-              {"GEOPM_MAX_FAN_OUT", "16"},
-              {"GEOPM_TIMEOUT", "30"},
-              {"GEOPM_DEBUG_ATTACH", "-1"},
-             };
+        {"GEOPM_COMM", "MPIComm"},
+        {"GEOPM_AGENT", "monitor"},
+        {"GEOPM_MAX_FAN_OUT", "16"},
+        {"GEOPM_TIMEOUT", "30"},
+        {"GEOPM_DEBUG_ATTACH", "-1"},
+    };
     for (const auto &kv : m_user) {
         setenv(kv.first.c_str(), kv.second.c_str(), 1);
     }
@@ -285,12 +285,12 @@ TEST_F(EnvironmentTest, user_only_do_profile_name)
 {
     m_user["GEOPM_PROFILE"] =  "profile-test_value";
     std::map<std::string, std::string> internal_default_vars = {
-              {"GEOPM_COMM", "MPIComm"},
-              {"GEOPM_AGENT", "monitor"},
-              {"GEOPM_MAX_FAN_OUT", "16"},
-              {"GEOPM_TIMEOUT", "30"},
-              {"GEOPM_DEBUG_ATTACH", "-1"},
-             };
+        {"GEOPM_COMM", "MPIComm"},
+        {"GEOPM_AGENT", "monitor"},
+        {"GEOPM_MAX_FAN_OUT", "16"},
+        {"GEOPM_TIMEOUT", "30"},
+        {"GEOPM_DEBUG_ATTACH", "-1"},
+    };
     for (const auto &kv : m_user) {
         setenv(kv.first.c_str(), kv.second.c_str(), 1);
     }
@@ -306,21 +306,21 @@ TEST_F(EnvironmentTest, user_only_do_profile_name)
 TEST_F(EnvironmentTest, default_only)
 {
     std::map<std::string, std::string> default_vars = {
-              {"GEOPM_REPORT", "default-report-test_value"},
-              {"GEOPM_COMM", "default-comm-test_value"},
-              {"GEOPM_POLICY", "default-policy-test_value"},
-              {"GEOPM_AGENT", "default-agent-test_value"},
-              {"GEOPM_TRACE", "default-trace-test_value"},
-              {"GEOPM_TRACE_PROFILE", "default-trace-profile-test_value"},
-              {"GEOPM_PROFILE", "default-profile-test_value"},
-              {"GEOPM_FREQUENCY_MAP", "default-hash:freq,hash:freq,hash:freq"},
-              {"GEOPM_CTL", "pthread"},
-              {"GEOPM_MAX_FAN_OUT", "16"},
-              {"GEOPM_TIMEOUT", "0"},
-              {"GEOPM_DEBUG_ATTACH", "-1"},
-              {"GEOPM_TRACE_SIGNALS", "default-test1,test2,test3"},
-              {"GEOPM_REPORT_SIGNALS", "default-best1,best2,best3"},
-             };
+        {"GEOPM_REPORT", "default-report-test_value"},
+        {"GEOPM_COMM", "default-comm-test_value"},
+        {"GEOPM_POLICY", "default-policy-test_value"},
+        {"GEOPM_AGENT", "default-agent-test_value"},
+        {"GEOPM_TRACE", "default-trace-test_value"},
+        {"GEOPM_TRACE_PROFILE", "default-trace-profile-test_value"},
+        {"GEOPM_PROFILE", "default-profile-test_value"},
+        {"GEOPM_FREQUENCY_MAP", "default-hash:freq,hash:freq,hash:freq"},
+        {"GEOPM_CTL", "pthread"},
+        {"GEOPM_MAX_FAN_OUT", "16"},
+        {"GEOPM_TIMEOUT", "0"},
+        {"GEOPM_DEBUG_ATTACH", "-1"},
+        {"GEOPM_TRACE_SIGNALS", "default-test1,test2,test3"},
+        {"GEOPM_REPORT_SIGNALS", "default-best1,best2,best3"},
+    };
     m_trace_signals = {
         {"default-test1", geopm_domain_e::GEOPM_DOMAIN_BOARD},
         {"test2", geopm_domain_e::GEOPM_DOMAIN_BOARD},
@@ -343,21 +343,21 @@ TEST_F(EnvironmentTest, default_only)
 TEST_F(EnvironmentTest, override_only)
 {
     std::map<std::string, std::string> override_vars = {
-              {"GEOPM_REPORT", "override-report-test_value"},
-              {"GEOPM_COMM", "override-comm-test_value"},
-              {"GEOPM_POLICY", "override-policy-test_value"},
-              {"GEOPM_AGENT", "override-agent-test_value"},
-              {"GEOPM_TRACE", "override-trace-test_value"},
-              {"GEOPM_TRACE_PROFILE", "override-trace-profile-test_value"},
-              {"GEOPM_PROFILE", "override-profile-test_value"},
-              {"GEOPM_FREQUENCY_MAP", "override-hash:freq,hash:freq,hash:freq"},
-              {"GEOPM_CTL", "process"},
-              {"GEOPM_MAX_FAN_OUT", "16"},
-              {"GEOPM_TIMEOUT", "15"},
-              {"GEOPM_DEBUG_ATTACH", "-1"},
-              {"GEOPM_TRACE_SIGNALS", "override-test1,test2,test3"},
-              {"GEOPM_REPORT_SIGNALS", "override-best1,best2,best3"},
-             };
+        {"GEOPM_REPORT", "override-report-test_value"},
+        {"GEOPM_COMM", "override-comm-test_value"},
+        {"GEOPM_POLICY", "override-policy-test_value"},
+        {"GEOPM_AGENT", "override-agent-test_value"},
+        {"GEOPM_TRACE", "override-trace-test_value"},
+        {"GEOPM_TRACE_PROFILE", "override-trace-profile-test_value"},
+        {"GEOPM_PROFILE", "override-profile-test_value"},
+        {"GEOPM_FREQUENCY_MAP", "override-hash:freq,hash:freq,hash:freq"},
+        {"GEOPM_CTL", "process"},
+        {"GEOPM_MAX_FAN_OUT", "16"},
+        {"GEOPM_TIMEOUT", "15"},
+        {"GEOPM_DEBUG_ATTACH", "-1"},
+        {"GEOPM_TRACE_SIGNALS", "override-test1,test2,test3"},
+        {"GEOPM_REPORT_SIGNALS", "override-best1,best2,best3"},
+    };
     m_trace_signals = {
         {"override-test1", geopm_domain_e::GEOPM_DOMAIN_BOARD},
         {"test2", geopm_domain_e::GEOPM_DOMAIN_BOARD},
@@ -380,37 +380,37 @@ TEST_F(EnvironmentTest, override_only)
 TEST_F(EnvironmentTest, default_and_override)
 {
     std::map<std::string, std::string> default_vars = {
-              {"GEOPM_REPORT", "default-report-test_value"},
-              {"GEOPM_COMM", "default-comm-test_value"},
-              {"GEOPM_POLICY", "default-policy-test_value"},
-              {"GEOPM_AGENT", "default-agent-test_value"},
-              {"GEOPM_TRACE", "default-trace-test_value"},
-              {"GEOPM_TRACE_PROFILE", "default-trace-profile-test_value"},
-              {"GEOPM_PROFILE", "default-profile-test_value"},
-              {"GEOPM_FREQUENCY_MAP", "default-hash:freq,hash:freq,hash:freq"},
-              {"GEOPM_CTL", "pthread"},
-              {"GEOPM_MAX_FAN_OUT", "16"},
-              {"GEOPM_TIMEOUT", "0"},
-              {"GEOPM_DEBUG_ATTACH", "-1"},
-              {"GEOPM_TRACE_SIGNALS", "default-test1,test2,test3"},
-              {"GEOPM_REPORT_SIGNALS", "default-best1,best2,best3"},
-             };
+        {"GEOPM_REPORT", "default-report-test_value"},
+        {"GEOPM_COMM", "default-comm-test_value"},
+        {"GEOPM_POLICY", "default-policy-test_value"},
+        {"GEOPM_AGENT", "default-agent-test_value"},
+        {"GEOPM_TRACE", "default-trace-test_value"},
+        {"GEOPM_TRACE_PROFILE", "default-trace-profile-test_value"},
+        {"GEOPM_PROFILE", "default-profile-test_value"},
+        {"GEOPM_FREQUENCY_MAP", "default-hash:freq,hash:freq,hash:freq"},
+        {"GEOPM_CTL", "pthread"},
+        {"GEOPM_MAX_FAN_OUT", "16"},
+        {"GEOPM_TIMEOUT", "0"},
+        {"GEOPM_DEBUG_ATTACH", "-1"},
+        {"GEOPM_TRACE_SIGNALS", "default-test1,test2,test3"},
+        {"GEOPM_REPORT_SIGNALS", "default-best1,best2,best3"},
+    };
     std::map<std::string, std::string> override_vars = {
-              {"GEOPM_REPORT", "override-report-test_value"},
-              {"GEOPM_COMM", "override-comm-test_value"},
-              {"GEOPM_POLICY", "override-policy-test_value"},
-              {"GEOPM_AGENT", "override-agent-test_value"},
-              {"GEOPM_TRACE", "override-trace-test_value"},
-              {"GEOPM_TRACE_PROFILE", "override-trace-profile-test_value"},
-              {"GEOPM_PROFILE", "override-profile-test_value"},
-              {"GEOPM_FREQUENCY_MAP", "override-hash:freq,hash:freq,hash:freq"},
-              {"GEOPM_CTL", "process"},
-              {"GEOPM_MAX_FAN_OUT", "16"},
-              {"GEOPM_TIMEOUT", "15"},
-              {"GEOPM_DEBUG_ATTACH", "-1"},
-              {"GEOPM_TRACE_SIGNALS", "override-test1,test2,test3"},
-              {"GEOPM_REPORT_SIGNALS", "override-best1,best2,best3"},
-             };
+        {"GEOPM_REPORT", "override-report-test_value"},
+        {"GEOPM_COMM", "override-comm-test_value"},
+        {"GEOPM_POLICY", "override-policy-test_value"},
+        {"GEOPM_AGENT", "override-agent-test_value"},
+        {"GEOPM_TRACE", "override-trace-test_value"},
+        {"GEOPM_TRACE_PROFILE", "override-trace-profile-test_value"},
+        {"GEOPM_PROFILE", "override-profile-test_value"},
+        {"GEOPM_FREQUENCY_MAP", "override-hash:freq,hash:freq,hash:freq"},
+        {"GEOPM_CTL", "process"},
+        {"GEOPM_MAX_FAN_OUT", "16"},
+        {"GEOPM_TIMEOUT", "15"},
+        {"GEOPM_DEBUG_ATTACH", "-1"},
+        {"GEOPM_TRACE_SIGNALS", "override-test1,test2,test3"},
+        {"GEOPM_REPORT_SIGNALS", "override-best1,best2,best3"},
+    };
 
     vars_to_json(default_vars, M_DEFAULT_PATH);
     vars_to_json(override_vars, M_OVERRIDE_PATH);
@@ -438,20 +438,20 @@ TEST_F(EnvironmentTest, default_and_override)
 TEST_F(EnvironmentTest, user_default_and_override)
 {
     std::map<std::string, std::string> internal_default_vars = {
-              {"GEOPM_COMM", "MPIComm"},
-              {"GEOPM_AGENT", "monitor"},
-              {"GEOPM_MAX_FAN_OUT", "16"},
-              {"GEOPM_TIMEOUT", "30"},
-              {"GEOPM_DEBUG_ATTACH", "-1"},
-             };
+        {"GEOPM_COMM", "MPIComm"},
+        {"GEOPM_AGENT", "monitor"},
+        {"GEOPM_MAX_FAN_OUT", "16"},
+        {"GEOPM_TIMEOUT", "30"},
+        {"GEOPM_DEBUG_ATTACH", "-1"},
+    };
     std::map<std::string, std::string> default_vars = {
-                {"GEOPM_MAX_FAN_OUT", "16"},
-                {"GEOPM_TIMEOUT", "69"},
-            };
+        {"GEOPM_MAX_FAN_OUT", "16"},
+        {"GEOPM_TIMEOUT", "69"},
+    };
     std::map<std::string, std::string> override_vars = {
-              {"GEOPM_COMM", "override-comm-test_value"},
-              {"GEOPM_AGENT", "override-agent-test_value"},
-              {"GEOPM_CTL", "process"},
+        {"GEOPM_COMM", "override-comm-test_value"},
+        {"GEOPM_AGENT", "override-agent-test_value"},
+        {"GEOPM_CTL", "process"},
     };
     for (const auto &kv : m_user) {
         setenv(kv.first.c_str(), kv.second.c_str(), 1);

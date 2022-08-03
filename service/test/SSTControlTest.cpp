@@ -57,7 +57,7 @@ TEST_F(SSTControlTest, mailbox_adjust_batch)
     EXPECT_CALL(*m_sstio,
                 add_mbox_write(cpu, command, subcommand, interface_param,
                                read_subcommand, read_interface_param, read_mask))
-        .WillOnce(Return(batch_idx));
+    .WillOnce(Return(batch_idx));
 
     control.setup_batch();
 
@@ -89,7 +89,7 @@ TEST_F(SSTControlTest, mmio_adjust_batch)
 
     int batch_idx = 42;
     EXPECT_CALL(*m_sstio, add_mmio_write(cpu, interface_param, write_value, read_mask))
-        .WillOnce(Return(batch_idx));
+    .WillOnce(Return(batch_idx));
 
     control.setup_batch();
 
@@ -127,7 +127,7 @@ TEST_F(SSTControlTest, save_restore_mmio)
     uint64_t read_value = 0x1234;
     uint64_t restored_bits = read_value & write_mask;
     EXPECT_CALL(*m_sstio, read_mmio_once(cpu, interface_param))
-        .WillOnce(Return(read_value));  // extra bits should be masked off for write
+    .WillOnce(Return(read_value));  // extra bits should be masked off for write
     control.save();
     EXPECT_CALL(*m_sstio, write_mmio_once(cpu, interface_param, write_value,
                                           read_mask, restored_bits, write_mask));
@@ -161,7 +161,7 @@ TEST_F(SSTControlTest, save_restore_mbox)
     uint64_t read_value = 0x1234;
     uint64_t restored_bits = read_value & write_mask;
     EXPECT_CALL(*m_sstio, read_mbox_once(cpu, command, read_subcommand, read_interface_param))
-        .WillOnce(Return(read_value));  // extra bits should be masked off for write
+    .WillOnce(Return(read_value));  // extra bits should be masked off for write
     control.save();
     EXPECT_CALL(*m_sstio, write_mbox_once(cpu, command, subcommand,
                                           interface_param, read_subcommand,

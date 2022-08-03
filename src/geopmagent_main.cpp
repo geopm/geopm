@@ -70,8 +70,7 @@ int main(int argc, char **argv)
             policy_vals_ptr = policy_vals_str;
         }
     }
-    catch (...)
-    {
+    catch (...) {
         err = geopm::exception_handler(std::current_exception(), false);
     }
 
@@ -164,7 +163,7 @@ int main(int argc, char **argv)
                         }
                         else {
                             fprintf(stderr, "Error: %s is not a valid floating-point number; "
-                                            "use \"NAN\" to indicate default.\n", tok);
+                                    "use \"NAN\" to indicate default.\n", tok);
                             err = EINVAL;
                         }
                     }

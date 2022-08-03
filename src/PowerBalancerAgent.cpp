@@ -33,13 +33,13 @@ namespace geopm
 
     PowerBalancerAgent::Role::Role(int num_node)
         : M_STEP_IMP({
-                std::make_shared<SendDownLimitStep>(),
-                std::make_shared<MeasureRuntimeStep>(),
-                std::make_shared<ReduceLimitStep>()
-            })
-        , m_policy(M_NUM_POLICY, NAN)
-        , m_step_count(-1)
-        , M_NUM_NODE(num_node)
+        std::make_shared<SendDownLimitStep>(),
+        std::make_shared<MeasureRuntimeStep>(),
+        std::make_shared<ReduceLimitStep>()
+    })
+    , m_policy(M_NUM_POLICY, NAN)
+    , m_step_count(-1)
+    , M_NUM_NODE(num_node)
     {
 #ifdef GEOPM_DEBUG
         if (M_STEP_IMP.size() != M_NUM_STEP) {
@@ -50,7 +50,7 @@ namespace geopm
     }
 
     bool PowerBalancerAgent::Role::descend(const std::vector<double> &in_policy,
-            std::vector<std::vector<double> >&out_policy)
+                                           std::vector<std::vector<double> >&out_policy)
     {
 #ifdef GEOPM_DEBUG
         throw Exception("PowerBalancerAgent::Role::" + std::string(__func__) + "(): was called on non-tree agent",
@@ -60,7 +60,7 @@ namespace geopm
     }
 
     bool PowerBalancerAgent::Role::ascend(const std::vector<std::vector<double> > &in_sample,
-            std::vector<double> &out_sample)
+                                          std::vector<double> &out_sample)
     {
 #ifdef GEOPM_DEBUG
         throw Exception("PowerBalancerAgent::Role::" + std::string(__func__) + "(): was called on non-tree agent",
@@ -170,20 +170,20 @@ namespace geopm
         }
     }
 
-   void PowerBalancerAgent::LeafRole::are_steps_complete(bool is_complete)
-   {
-       for (auto &pkg : m_package) {
-           pkg.is_step_complete = is_complete;
-       }
-   }
+    void PowerBalancerAgent::LeafRole::are_steps_complete(bool is_complete)
+    {
+        for (auto &pkg : m_package) {
+            pkg.is_step_complete = is_complete;
+        }
+    }
 
-   bool PowerBalancerAgent::LeafRole::are_steps_complete(void)
-   {
-       return std::all_of(m_package.cbegin(), m_package.cend(),
-           [](const m_package_s &pkg) {
-               return pkg.is_step_complete;
-           });
-   }
+    bool PowerBalancerAgent::LeafRole::are_steps_complete(void)
+    {
+        return std::all_of(m_package.cbegin(), m_package.cend(),
+        [](const m_package_s &pkg) {
+            return pkg.is_step_complete;
+        });
+    }
 
     bool PowerBalancerAgent::LeafRole::adjust_platform(const std::vector<double> &in_policy)
     {
@@ -310,13 +310,13 @@ namespace geopm
     PowerBalancerAgent::TreeRole::TreeRole(int level, const std::vector<int> &fan_in)
         : Role(calc_num_node(fan_in))
         , M_AGG_FUNC({
-              Agg::min, // M_SAMPLE_STEP_COUNT
-              Agg::max, // M_SAMPLE_MAX_EPOCH_RUNTIME
-              Agg::sum, // M_SAMPLE_SUM_POWER_SLACK
-              Agg::min, // M_SAMPLE_MIN_POWER_HEADROOM
-          })
-        , M_NUM_CHILDREN(fan_in[level - 1])
-        , m_is_step_complete(true)
+        Agg::min, // M_SAMPLE_STEP_COUNT
+        Agg::max, // M_SAMPLE_MAX_EPOCH_RUNTIME
+        Agg::sum, // M_SAMPLE_SUM_POWER_SLACK
+        Agg::min, // M_SAMPLE_MIN_POWER_HEADROOM
+    })
+    , M_NUM_CHILDREN(fan_in[level - 1])
+    , m_is_step_complete(true)
     {
 #ifdef GEOPM_DEBUG
         if (M_AGG_FUNC.size() != M_NUM_SAMPLE) {
@@ -403,7 +403,7 @@ namespace geopm
     PowerBalancerAgent::RootRole::~RootRole() = default;
 
     bool PowerBalancerAgent::RootRole::ascend(const std::vector<std::vector<double> > &in_sample,
-            std::vector<double> &out_sample)
+                                              std::vector<double> &out_sample)
     {
         bool result = TreeRole::ascend(in_sample, out_sample);
         if (result) {
@@ -419,7 +419,7 @@ namespace geopm
     }
 
     bool PowerBalancerAgent::RootRole::descend(const std::vector<double> &in_policy,
-            std::vector<std::vector<double> >&out_policy)
+                                               std::vector<std::vector<double> >&out_policy)
     {
 #ifdef GEOPM_DEBUG
         if (out_policy.size() != (size_t)M_NUM_CHILDREN) {
@@ -586,9 +586,9 @@ namespace geopm
         : PowerBalancerAgent(PlatformIOProf::platform_io(),
                              platform_topo(),
                              SampleAggregator::make_unique(),
-                             {},
-                             PlatformIOProf::platform_io().read_signal("CPU_POWER_MIN_AVAIL", GEOPM_DOMAIN_PACKAGE, 0),
-                             PlatformIOProf::platform_io().read_signal("CPU_POWER_MAX_AVAIL", GEOPM_DOMAIN_PACKAGE, 0))
+    {},
+    PlatformIOProf::platform_io().read_signal("CPU_POWER_MIN_AVAIL", GEOPM_DOMAIN_PACKAGE, 0),
+    PlatformIOProf::platform_io().read_signal("CPU_POWER_MAX_AVAIL", GEOPM_DOMAIN_PACKAGE, 0))
     {
 
     }
@@ -696,7 +696,8 @@ namespace geopm
         m_do_send_sample = m_role->sample_platform(out_sample);
     }
 
-    void PowerBalancerAgent::wait(void)    {
+    void PowerBalancerAgent::wait(void)
+    {
         while(geopm_time_since(&m_last_wait) < M_WAIT_SEC) {
 
         }
@@ -829,7 +830,9 @@ namespace geopm
 
         // Policy of all zero is not valid
         if (std::all_of(policy.begin(), policy.end(),
-                        [] (double x) { return x == 0.0; })) {
+        [] (double x) {
+        return x == 0.0;
+    })) {
             throw Exception("PowerBalancerAgent: invalid policy.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }

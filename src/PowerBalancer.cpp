@@ -42,11 +42,11 @@ namespace geopm
         , m_power_cap(NAN)
         , m_power_limit(NAN)
         , m_power_limit_change_time({{0,0}})
-        , m_target_runtime(NAN)
-        , m_trial_delta(8.0)
-        , m_runtime_sample(NAN)
-        , m_is_target_met(false)
-        , m_runtime_buffer(geopm::make_unique<CircularBuffer<double> >(0))
+    , m_target_runtime(NAN)
+    , m_trial_delta(8.0)
+    , m_runtime_sample(NAN)
+    , m_is_target_met(false)
+    , m_runtime_buffer(geopm::make_unique<CircularBuffer<double> >(0))
     {
 
     }

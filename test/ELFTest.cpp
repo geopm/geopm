@@ -29,10 +29,10 @@ bool ELFTestFunction(void)
 }
 
 extern "C" {
-bool elf_test_function(void)
-{
-    return random() % 4;
-}
+    bool elf_test_function(void)
+    {
+        return random() % 4;
+    }
 }
 
 

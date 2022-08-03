@@ -21,7 +21,7 @@ namespace geopm
         public:
             LevelZeroGPUTopo();
             LevelZeroGPUTopo(const LevelZeroDevicePool &device_pool,
-                                     const int num_cpu);
+                             const int num_cpu);
             virtual ~LevelZeroGPUTopo() = default;
             int num_gpu(void) const override;
             int num_gpu(int domain) const override;

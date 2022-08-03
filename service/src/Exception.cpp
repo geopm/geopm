@@ -114,7 +114,7 @@ namespace geopm
         : std::runtime_error(ErrorMessage::get().message_fixed(err) + (
                                  what.size() != 0 ? (std::string(": ") + what) : std::string("")) + (
                                  file != NULL ? (std::string(": at ") + std::string(file) +
-                                 std::string(":") + std::to_string(line)) : std::string("")))
+                                                 std::string(":") + std::to_string(line)) : std::string("")))
         , m_err(err ? err : GEOPM_ERROR_RUNTIME)
     {
 
@@ -127,21 +127,21 @@ namespace geopm
 
     ErrorMessage::ErrorMessage()
         : M_VALUE_MESSAGE_MAP{
-            {GEOPM_ERROR_RUNTIME, "Runtime error"},
-            {GEOPM_ERROR_LOGIC, "Logic error"},
-            {GEOPM_ERROR_INVALID, "Invalid argument"},
-            {GEOPM_ERROR_FILE_PARSE, "Unable to parse input file"},
-            {GEOPM_ERROR_LEVEL_RANGE, "Control hierarchy level is out of range"},
-            {GEOPM_ERROR_NOT_IMPLEMENTED, "Feature not yet implemented"},
-            {GEOPM_ERROR_PLATFORM_UNSUPPORTED, "Current platform not supported or unrecognized"},
-            {GEOPM_ERROR_MSR_OPEN, "Could not open MSR device"},
-            {GEOPM_ERROR_MSR_READ, "Could not read from MSR device"},
-            {GEOPM_ERROR_MSR_WRITE, "Could not write to MSR device"},
-            {GEOPM_ERROR_AGENT_UNSUPPORTED, "Specified Agent not supported or unrecognized"},
-            {GEOPM_ERROR_AFFINITY, "MPI ranks are not affinitized to distinct CPUs"},
-            {GEOPM_ERROR_NO_AGENT, "Requested agent is unavailable or invalid"},
-            {GEOPM_ERROR_DATA_STORE, "Encountered a data store error"}}
-        , m_error_value(0)
+        {GEOPM_ERROR_RUNTIME, "Runtime error"},
+        {GEOPM_ERROR_LOGIC, "Logic error"},
+        {GEOPM_ERROR_INVALID, "Invalid argument"},
+        {GEOPM_ERROR_FILE_PARSE, "Unable to parse input file"},
+        {GEOPM_ERROR_LEVEL_RANGE, "Control hierarchy level is out of range"},
+        {GEOPM_ERROR_NOT_IMPLEMENTED, "Feature not yet implemented"},
+        {GEOPM_ERROR_PLATFORM_UNSUPPORTED, "Current platform not supported or unrecognized"},
+        {GEOPM_ERROR_MSR_OPEN, "Could not open MSR device"},
+        {GEOPM_ERROR_MSR_READ, "Could not read from MSR device"},
+        {GEOPM_ERROR_MSR_WRITE, "Could not write to MSR device"},
+        {GEOPM_ERROR_AGENT_UNSUPPORTED, "Specified Agent not supported or unrecognized"},
+        {GEOPM_ERROR_AFFINITY, "MPI ranks are not affinitized to distinct CPUs"},
+        {GEOPM_ERROR_NO_AGENT, "Requested agent is unavailable or invalid"},
+        {GEOPM_ERROR_DATA_STORE, "Encountered a data store error"}}
+    , m_error_value(0)
     {
         std::fill(m_error_message, m_error_message + NAME_MAX, '\0');
     }

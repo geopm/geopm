@@ -183,41 +183,41 @@ TEST_F(ProxyEpochRecordFilterTest, parse_name)
     int calls_per_epoch = 42;
     int startup_count = 42;
     ProxyEpochRecordFilter::parse_name("proxy_epoch,0xabcd1234",
-        region_hash, calls_per_epoch, startup_count);
+                                       region_hash, calls_per_epoch, startup_count);
     EXPECT_EQ(0xabcd1234ULL, region_hash);
     EXPECT_EQ(1, calls_per_epoch);
     EXPECT_EQ(0, startup_count);
     ProxyEpochRecordFilter::parse_name("proxy_epoch,0xabcd1235,10",
-        region_hash, calls_per_epoch, startup_count);
+                                       region_hash, calls_per_epoch, startup_count);
     EXPECT_EQ(0xabcd1235ULL, region_hash);
     EXPECT_EQ(10, calls_per_epoch);
     EXPECT_EQ(0, startup_count);
     ProxyEpochRecordFilter::parse_name("proxy_epoch,0xabcd1236,100,1000",
-        region_hash, calls_per_epoch, startup_count);
+                                       region_hash, calls_per_epoch, startup_count);
     EXPECT_EQ(0xabcd1236ULL, region_hash);
     EXPECT_EQ(100, calls_per_epoch);
     EXPECT_EQ(1000, startup_count);
     ProxyEpochRecordFilter::parse_name("proxy_epoch,MPI_Barrier,1000,10000",
-        region_hash, calls_per_epoch, startup_count);
+                                       region_hash, calls_per_epoch, startup_count);
     EXPECT_EQ(0x7b561f45ULL, region_hash);
     EXPECT_EQ(1000, calls_per_epoch);
     EXPECT_EQ(10000, startup_count);
 
     GEOPM_EXPECT_THROW_MESSAGE(ProxyEpochRecordFilter::parse_name("not_proxy_epoch",
-        region_hash, calls_per_epoch, startup_count),
-        GEOPM_ERROR_INVALID, "Expected name of the form");
+                               region_hash, calls_per_epoch, startup_count),
+                               GEOPM_ERROR_INVALID, "Expected name of the form");
     GEOPM_EXPECT_THROW_MESSAGE(ProxyEpochRecordFilter::parse_name("proxy_epoch",
-        region_hash, calls_per_epoch, startup_count),
-        GEOPM_ERROR_INVALID, "requires a hash");
+                               region_hash, calls_per_epoch, startup_count),
+                               GEOPM_ERROR_INVALID, "requires a hash");
     GEOPM_EXPECT_THROW_MESSAGE(ProxyEpochRecordFilter::parse_name("proxy_epoch,",
-        region_hash, calls_per_epoch, startup_count),
-        GEOPM_ERROR_INVALID, "Parameter region_hash is empty");
+                               region_hash, calls_per_epoch, startup_count),
+                               GEOPM_ERROR_INVALID, "Parameter region_hash is empty");
     GEOPM_EXPECT_THROW_MESSAGE(ProxyEpochRecordFilter::parse_name("proxy_epoch,0xabcd1237,not_a_number",
-        region_hash, calls_per_epoch, startup_count),
-        GEOPM_ERROR_INVALID, "Unable to parse parameter calls_per_epoch");
+                               region_hash, calls_per_epoch, startup_count),
+                               GEOPM_ERROR_INVALID, "Unable to parse parameter calls_per_epoch");
     GEOPM_EXPECT_THROW_MESSAGE(ProxyEpochRecordFilter::parse_name("proxy_epoch,0xabcd1237,2,not_a_number",
-        region_hash, calls_per_epoch, startup_count),
-        GEOPM_ERROR_INVALID, "Unable to parse parameter startup_count");
+                               region_hash, calls_per_epoch, startup_count),
+                               GEOPM_ERROR_INVALID, "Unable to parse parameter startup_count");
 }
 
 TEST_F(ProxyEpochRecordFilterTest, parse_tutorial_2)

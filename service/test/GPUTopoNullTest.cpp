@@ -29,6 +29,6 @@ TEST(GPUTopoNullTest, default_config)
     topo = geopm::make_unique<GPUTopoNull>();
     EXPECT_EQ(0, topo->num_gpu());
     EXPECT_EQ(0, topo->num_gpu(GEOPM_DOMAIN_GPU_CHIP));
-    EXPECT_EQ(topo->cpu_affinity_ideal(0), std::set<int>{});
-    EXPECT_EQ(topo->cpu_affinity_ideal(GEOPM_DOMAIN_GPU_CHIP, 0), std::set<int>{});
+    EXPECT_EQ(topo->cpu_affinity_ideal(0), std::set<int> {});
+    EXPECT_EQ(topo->cpu_affinity_ideal(GEOPM_DOMAIN_GPU_CHIP, 0), std::set<int> {});
 }
