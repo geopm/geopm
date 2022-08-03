@@ -84,9 +84,12 @@ namespace geopm
         m_time = {m_platform_io.push_signal("TIME", GEOPM_DOMAIN_BOARD, 0), NAN};
 
         for (int domain_idx = 0; domain_idx < M_NUM_GPU; ++domain_idx) {
-            m_gpu_freq_control.push_back(control{m_platform_io.push_control("GPU_CORE_FREQUENCY_CONTROL",
-                                         GEOPM_DOMAIN_GPU,
-                                         domain_idx), NAN});
+            m_gpu_freq_min_control.push_back(control{m_platform_io.push_control("GPU_CORE_FREQUENCY_MIN_CONTROL",
+                                                     GEOPM_DOMAIN_GPU,
+                                                     domain_idx), NAN});
+            m_gpu_freq_max_control.push_back(control{m_platform_io.push_control("GPU_CORE_FREQUENCY_MAX_CONTROL",
+                                                     GEOPM_DOMAIN_GPU,
+                                                     domain_idx), NAN});
         }
     }
 
@@ -292,10 +295,18 @@ namespace geopm
             // set frequency control per gpu
             for (int domain_idx = 0; domain_idx < M_NUM_GPU; ++domain_idx) {
                 if (gpu_freq_request.at(domain_idx) !=
-                    m_gpu_freq_control.at(domain_idx).last_setting) {
-                    m_platform_io.adjust(m_gpu_freq_control.at(domain_idx).batch_idx,
+                    m_gpu_freq_min_control.at(domain_idx).last_setting ||
+                    gpu_freq_request.at(domain_idx) !=
+                    m_gpu_freq_max_control.at(domain_idx).last_setting) {
+
+                    m_platform_io.adjust(m_gpu_freq_min_control.at(domain_idx).batch_idx,
                                          gpu_freq_request.at(domain_idx));
-                    m_gpu_freq_control.at(domain_idx).last_setting =
+                    m_gpu_freq_min_control.at(domain_idx).last_setting =
+                                         gpu_freq_request.at(domain_idx);
+
+                    m_platform_io.adjust(m_gpu_freq_max_control.at(domain_idx).batch_idx,
+                                         gpu_freq_request.at(domain_idx));
+                    m_gpu_freq_max_control.at(domain_idx).last_setting =
                                          gpu_freq_request.at(domain_idx);
                     ++m_gpu_frequency_requests;
                 }
