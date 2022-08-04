@@ -252,18 +252,14 @@ Vector
 LocalNeuralNet::model(Vector inp) {
     Vector tmp;
 
-    std::cout << "inp : " << inp << std::endl;
     tmp = inp;
     for (int i=0; i<this->nlayers; i++) {
         tmp = this->weights[i] * tmp;
         tmp = tmp + this->biases[i];
 
-        std::cout << "layer " << i << ": " << tmp << std::endl;
 
         if (i != nlayers - 1) {
             tmp = tmp.sigmoid();
-            std::cout << tmp << std::endl;
-            std::cout << "sigmoid: " << tmp << std::endl;
         }
     }
 
@@ -294,7 +290,7 @@ std::istream & operator >> (std::istream &in, LocalNeuralNet &n) {
 }
 
 LocalNeuralNet::~LocalNeuralNet() {
-    if (allocated) {
+    if (allocated && false) {
         delete[] this->weights;
         delete[] this->biases;
     }
