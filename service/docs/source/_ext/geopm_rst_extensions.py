@@ -130,8 +130,15 @@ class GeopmMsrJson(SphinxDirective):
 
                 # The MSR description is followed by a list of properties.
                 msr_property_list = nodes.bullet_list()
+                try:
+                    aggregation_type = msr_field_data['aggregation']
+                except KeyError:
+                    aggregation_type = 'select_first'
+                    logger.error('Missing an aggregation function for %s in %s',
+                                 geopm_msr_name,
+                                 json_path)
                 description_items = [
-                    ('Aggregation', msr_field_data.get('aggregation', 'select_first')),
+                    ('Aggregation', aggregation_type),
                     ('Domain', msr_data['domain']),
                     ('Format', 'integer'),
                     ('Unit', msr_field_data['units'])

@@ -19,6 +19,7 @@ EXTRA_DIST += geopmdpy_test/__init__.py \
               geopmdpy_test/TestSecureFiles.py \
               geopmdpy_test/TestAccessLists.py \
               geopmdpy_test/TestWriteLock.py \
+              geopmdpy_test/TestMSRDataFiles.py \
               # end
 
 GEOPMDPY_TESTS = geopmdpy_test/pytest_links/TestAccessLists.test__read_allowed_invalid \
@@ -134,6 +135,7 @@ GEOPMDPY_TESTS = geopmdpy_test/pytest_links/TestAccessLists.test__read_allowed_i
                  geopmdpy_test/pytest_links/TestWriteLock.test_nested_creation \
                  geopmdpy_test/pytest_links/TestWriteLock.test_creation_bad_path \
                  geopmdpy_test/pytest_links/TestWriteLock.test_creation_bad_file \
+                 geopmdpy_test/pytest_links/TestMSRDataFiles.test_msr_data_files \
                  # end
 
 TESTS += $(GEOPMDPY_TESTS)

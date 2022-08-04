@@ -1241,7 +1241,8 @@ TEST_F(MSRIOGroupTest, parse_json_msrs_error_fields)
         {"units", "hertz"},
         {"scalar", 2},
         {"writeable", false},
-        {"behavior", "variable"}
+        {"behavior", "variable"},
+        {"aggregation", "average"}
     };
     std::map<std::string, Json> fields, msr, input;
     // used to rebuild the Json object with the "fields" section updated
@@ -1260,7 +1261,7 @@ TEST_F(MSRIOGroupTest, parse_json_msrs_error_fields)
 
     // required keys
     std::vector<std::string> field_keys {"begin_bit", "end_bit", "function",
-                                         "units", "scalar", "writeable", "behavior"
+                                         "units", "scalar", "writeable", "behavior", "aggregation"
     };
     for (auto key : field_keys) {
         fields = complete;
@@ -1368,7 +1369,8 @@ TEST_F(MSRIOGroupTest, parse_json_msrs)
                        "units": "hertz",
                        "scalar": 2,
                        "behavior": "label",
-                       "writeable": true
+                       "writeable": true,
+                       "aggregation": "expect_same"
                    }
                }
            }
@@ -1391,6 +1393,7 @@ TEST_F(MSRIOGroupTest, parse_json_msrs)
               "    domain: package\n"
               "    iogroup: MSRIOGroup",
               m_msrio_group->signal_description("MSR::MSR_ONE:FIELD_RO"));
+    EXPECT_TRUE(is_agg_expect_same(m_msrio_group->agg_function("MSR::MSR_TWO:FIELD_RW")));
 }
 
 TEST_F(MSRIOGroupTest, batch_calls_no_push)
