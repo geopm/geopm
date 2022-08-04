@@ -47,6 +47,7 @@ all_man_rst = docs/source/geopm.7.rst \
               docs/source/geopm_agent_monitor.7.rst \
               docs/source/geopm_agent_power_balancer.7.rst \
               docs/source/geopm_agent_power_governor.7.rst \
+              docs/source/geopm_agent_frequency_balancer.7.rst \
               docs/source/geopmbench.1.rst \
               docs/source/geopmctl.1.rst \
               docs/source/geopm_ctl.3.rst \
@@ -124,6 +125,7 @@ base_man = docs/build/man/geopmadmin.1 \
            docs/build/man/geopm_agent_monitor.7 \
            docs/build/man/geopm_agent_power_balancer.7 \
            docs/build/man/geopm_agent_power_governor.7 \
+           docs/build/man/geopm_agent_frequency_balancer.7 \
            docs/build/man/geopmbench.1 \
            docs/build/man/geopmctl.1 \
            docs/build/man/geopm_ctl.3 \
