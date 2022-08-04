@@ -1456,10 +1456,10 @@ namespace geopm
             {"units", {Json::STRING, json_check_null_func, "must be a string"}},
             {"scalar", {Json::NUMBER, json_check_null_func, "must be a number"}},
             {"writeable", {Json::BOOL, json_check_null_func, "must be a bool"}},
-            {"behavior", {Json::STRING, json_check_null_func, "must be a valid behavior string"}}
+            {"behavior", {Json::STRING, json_check_null_func, "must be a valid behavior string"}},
+            {"aggregation", {Json::STRING, json_check_is_valid_aggregation, "must be a valid aggregation function name"}}
         };
         std::map<std::string, json_checker> optional_field_checker {
-            {"aggregation", {Json::STRING, json_check_is_valid_aggregation, "must be a valid aggregation function name"}},
             {"description", {Json::STRING, json_check_null_func, "must be a string"}}
         };
         check_expected_key_values(msr_field, field_checker, optional_field_checker,
@@ -1613,12 +1613,9 @@ namespace geopm
                 int units = IOGroup::string_to_units(field_data["units"].string_value());
                 bool is_control = field_data["writeable"].bool_value();
                 int behavior = IOGroup::string_to_behavior(field_data["behavior"].string_value());
+                std::string agg_function = field_data["aggregation"].string_value();
                 // optional fields
-                std::string agg_function = "select_first";
                 std::string description = M_DEFAULT_DESCRIPTION;
-                if (field_data.find("aggregation") != field_data.end()) {
-                    agg_function = field_data["aggregation"].string_value();
-                }
                 if (field_data.find("description") != field_data.end()) {
                     description = field_data["description"].string_value();
                 }

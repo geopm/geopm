@@ -34,7 +34,7 @@
             "type": "string"
           }
         },
-        "required": ["begin_bit", "end_bit", "function", "scalar", "units", "writeable", "behavior"],
+        "required": ["begin_bit", "end_bit", "function", "scalar", "units", "writeable", "behavior", "aggregation"],
         "additionalProperties": false
       },
       "msrObject": {
