@@ -74,6 +74,7 @@ CPUFFNetAgent::CPUFFNetAgent(geopm::PlatformIO &plat_io, const geopm::PlatformTo
     , M_WAIT_SEC(0.050) // 50ms Wait
     , M_POLICY_PHI_DEFAULT(0.5)
     , M_NUM_PACKAGE(m_platform_topo.num_domain(GEOPM_DOMAIN_PACKAGE))
+    , M_MAX_FREQUENCY(m_platform_io.read_signal("CPU_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0))
     , m_do_write_batch(false)
     , m_package_nn_path("cpu_control.pt")
 {
@@ -156,46 +157,9 @@ void CPUFFNetAgent::init_platform_io(void)
 void CPUFFNetAgent::validate_policy(std::vector<double> &in_policy) const
 {
     assert(in_policy.size() == M_NUM_POLICY);
-    double min_freq = m_platform_io.read_signal("CPU_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0);
-    double max_freq = m_platform_io.read_signal("CPU_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0);
-
     ///////////////////////
     //CPU POLICY CHECKING//
     ///////////////////////
-    // Check for NAN to set default values for policy
-    if (std::isnan(in_policy[M_POLICY_CPU_FREQ_MAX])) {
-        in_policy[M_POLICY_CPU_FREQ_MAX] = max_freq;
-    }
-
-    if (in_policy[M_POLICY_CPU_FREQ_MAX] > max_freq ||
-        in_policy[M_POLICY_CPU_FREQ_MAX] < min_freq ) {
-        throw geopm::Exception("CPUFFNetAgent::" + std::string(__func__) +
-                        "():_FREQ_MAX out of range: " +
-                        std::to_string(in_policy[M_POLICY_CPU_FREQ_MAX]) +
-                        ".", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-    }
-
-    // Check for NAN to set default values for policy
-    if (std::isnan(in_policy[M_POLICY_CPU_FREQ_MIN])) {
-        in_policy[M_POLICY_CPU_FREQ_MIN] = min_freq;
-    }
-
-    if (in_policy[M_POLICY_CPU_FREQ_MIN] > max_freq ||
-        in_policy[M_POLICY_CPU_FREQ_MIN] < min_freq ) {
-        throw geopm::Exception("CPUFFNetAgent::" + std::string(__func__) +
-                        "():_FREQ_MIN out of range: " +
-                        std::to_string(in_policy[M_POLICY_CPU_FREQ_MIN]) +
-                        ".", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-    }
-
-    if (in_policy[M_POLICY_CPU_FREQ_MIN] > in_policy[M_POLICY_CPU_FREQ_MAX]) {
-        throw geopm::Exception("CPUFFNetAgent::" + std::string(__func__) +
-                        "():_FREQ_MIN (" +
-                        std::to_string(in_policy[M_POLICY_CPU_FREQ_MIN]) +
-                        ") value exceeds_FREQ_MAX (" +
-                        std::to_string(in_policy[M_POLICY_CPU_FREQ_MAX]) +
-                        ").", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-    }
 
     // If no phi value is provided assume the default behavior.
     if (std::isnan(in_policy[M_POLICY_CPU_PHI])) {
@@ -288,7 +252,7 @@ void CPUFFNetAgent::adjust_platform(const std::vector<double>& in_policy)
     for (int domain_idx = 0; domain_idx < M_NUM_PACKAGE; ++domain_idx) {
         //NAN --> Max Frequency
         if(std::isnan(package_freq_request.at(domain_idx))) {
-            package_freq_request.at(domain_idx) = in_policy[M_POLICY_CPU_FREQ_MAX];
+            package_freq_request.at(domain_idx) = M_MAX_FREQUENCY;
         }
 
         if (package_freq_request.at(domain_idx) !=
@@ -399,6 +363,11 @@ std::vector<std::string> CPUFFNetAgent::trace_names(void) const
 // Updates the trace with values for signals from this Agent
 void CPUFFNetAgent::trace_values(std::vector<double> &values)
 {
+
+}
+void CPUFFNetAgent::enforce_policy(const std::vector<double> &policy) const
+{
+
 }
 
 std::vector<std::function<std::string(double)> > CPUFFNetAgent::trace_formats(void) const
@@ -421,7 +390,7 @@ std::unique_ptr<Agent> CPUFFNetAgent::make_plugin(void)
 // Describes expected policies to be provided by the resource manager or user
 std::vector<std::string> CPUFFNetAgent::policy_names(void)
 {
-    return {"CPU_FREQ_MIN", "CPU_FREQ_MAX", "CPU_PHI"};
+    return {"CPU_PHI"};
 }
 
 // Describes samples to be provided to the resource manager or user
