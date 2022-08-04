@@ -44,7 +44,6 @@ namespace geopm
     class PlatformTopo;
     class PlatformIO;
 }
-
 /// @brief Agent
 class CPUFFNetAgent : public geopm::Agent
 {
@@ -55,10 +54,10 @@ class CPUFFNetAgent : public geopm::Agent
         void init(int level, const std::vector<int> &fan_in, bool is_level_root) override;
         void validate_policy(std::vector<double> &in_policy) const override;
         void split_policy(const std::vector<double> &in_policy,
-                          std::vector<std::vector<double> > &out_policy) override;
+                std::vector<std::vector<double> > &out_policy) override;
         bool do_send_policy(void) const override;
         void aggregate_sample(const std::vector<std::vector<double> > &in_sample,
-                              std::vector<double> &out_sample) override;
+                std::vector<double> &out_sample) override;
         bool do_send_sample(void) const override;
         void adjust_platform(const std::vector<double> &in_policy) override;
         bool do_write_batch(void) const override;
@@ -68,8 +67,9 @@ class CPUFFNetAgent : public geopm::Agent
         std::vector<std::pair<std::string, std::string> > report_host(void) const override;
         std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > report_region(void) const override;
         std::vector<std::string> trace_names(void) const override;
-        void trace_values(std::vector<double> &values) override;
         std::vector<std::function<std::string(double)> > trace_formats(void) const override;
+        void trace_values(std::vector<double> &values) override;
+        void enforce_policy(const std::vector<double> &policy) const override;
 
         static std::string plugin_name(void);
         static std::unique_ptr<geopm::Agent> make_plugin(void);
@@ -82,6 +82,7 @@ class CPUFFNetAgent : public geopm::Agent
         const double M_WAIT_SEC;
         const double M_POLICY_PHI_DEFAULT;
         const int M_NUM_PACKAGE;
+        const int M_MAX_FREQUENCY;
         bool m_do_write_batch;
 
         struct signal
@@ -99,8 +100,6 @@ class CPUFFNetAgent : public geopm::Agent
 
         // Policy indices; must match policy_names()
         enum m_policy_e {
-            M_POLICY_CPU_FREQ_MIN,
-            M_POLICY_CPU_FREQ_MAX,
             M_POLICY_CPU_PHI,
             M_NUM_POLICY
         };
