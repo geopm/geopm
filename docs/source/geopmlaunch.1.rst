@@ -308,6 +308,7 @@ GEOPM Options
                       are: ``"monitor"`` (default, enables profiling features
                       only), ``"power_balancer"`` (optimizes runtime under a power
                       cap), ``"power_governor"`` (enforces a uniform power cap),
+                      ``"frequency_balancer"`` (reduces imbalance across CPU cores),
                       and ``"frequency_map"`` (runs each region at a specified
                       frequency).  See :doc:`geopm_agent_monitor(7)
                       <geopm_agent_monitor.7>`,
@@ -315,6 +316,8 @@ GEOPM Options
                       <geopm_agent_power_balancer.7>`,
                       :doc:`geopm_agent_power_governor(7)
                       <geopm_agent_power_governor.7>`,
+                      :doc:`geopm_agent_frequency_balancer(7)
+                      <geopm_agent_frequency_balancer.7>`, and
                       :doc:`geopm_agent_frequency_map(7)
                       <geopm_agent_frequency_map.7>` and
                       :doc:`geopm_agent_ffnet(7)
@@ -673,6 +676,7 @@ See Also
 :doc:`geopm_agent_monitor(7) <geopm_agent_monitor.7>`,
 :doc:`geopm_agent_power_balancer(7) <geopm_agent_power_balancer.7>`,
 :doc:`geopm_agent_power_governor(7) <geopm_agent_power_governor.7>`,
+:doc:`geopm_agent_frequency_balancer(7) <geopm_agent_frequency_balancer.7>`,
 :doc:`geopm_report(7) <geopm_report.7>`,
 :doc:`geopm_error(3) <geopm_error.3>`,
 :doc:`geopmctl(1) <geopmctl.1>`
