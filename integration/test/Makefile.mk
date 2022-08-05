@@ -9,6 +9,7 @@ EXTRA_DIST += test/check_trace.py \
               test/README.md \
               test/short_region/plot_margin_sweep.py \
               test/test_plugin_static_policy.py \
+              test/test_frequency_balancer.py \
               test/test_template.cpp.in \
               test/test_template.mk.in \
               test/test_template.py.in \
