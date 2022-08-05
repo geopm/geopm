@@ -73,6 +73,7 @@ compile_commands.json
 /integration/test/*.h5
 /integration/test/*.log
 /integration/test/*.report
+/integration/test/test_cores_rebalance_output/
 /integration/test/test_ee_short_region_slop
 /integration/test/test_ee_timed_scaling_mix
 /integration/test/test_enforce_policy
