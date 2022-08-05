@@ -40,9 +40,9 @@ namespace geopm
         : m_process(-1)
         , m_shmem(shmem)
         , m_time_zero({{0, 0}})
-        , m_is_setup(false)
-        , m_epoch_count(0)
-        , m_entered_region_hash(GEOPM_REGION_HASH_INVALID)
+    , m_is_setup(false)
+    , m_epoch_count(0)
+    , m_entered_region_hash(GEOPM_REGION_HASH_INVALID)
     {
         if (m_shmem->size() < buffer_size()) {
             throw Exception("ApplicationRecordLog: Shared memory provided in constructor is too small",
@@ -75,9 +75,9 @@ namespace geopm
         m_layout_s &layout = *((m_layout_s *)(m_shmem->pointer()));
         check_reset(layout);
         auto emplace_pair = m_hash_region_enter_map.emplace(
-            std::piecewise_construct,
-            std::forward_as_tuple(hash),
-            std::forward_as_tuple());
+                                std::piecewise_construct,
+                                std::forward_as_tuple(hash),
+                                std::forward_as_tuple());
         bool is_new  = emplace_pair.second;
         m_region_enter_s &region_enter = emplace_pair.first->second;
         region_enter.enter_time = time;
@@ -86,10 +86,10 @@ namespace geopm
             region_enter.region_idx = -1; // Not a short region yet
             region_enter.is_short = false;
             record_s enter_record = {
-               .time = geopm_time_diff(&m_time_zero, &time),
-               .process = m_process,
-               .event = EVENT_REGION_ENTRY,
-               .signal = hash,
+                .time = geopm_time_diff(&m_time_zero, &time),
+                .process = m_process,
+                .event = EVENT_REGION_ENTRY,
+                .signal = hash,
             };
             append_record(layout, enter_record);
         }
@@ -107,10 +107,10 @@ namespace geopm
         if (region_it == m_hash_region_enter_map.end()) {
             // No short region info; send a normal exit event
             record_s exit_record = {
-               .time = geopm_time_diff(&m_time_zero, &time),
-               .process = m_process,
-               .event = EVENT_REGION_EXIT,
-               .signal = hash,
+                .time = geopm_time_diff(&m_time_zero, &time),
+                .process = m_process,
+                .event = EVENT_REGION_EXIT,
+                .signal = hash,
             };
             append_record(layout, exit_record);
         }
@@ -176,10 +176,10 @@ namespace geopm
 
         ++m_epoch_count;
         record_s epoch_record = {
-           .time = geopm_time_diff(&m_time_zero, &time),
-           .process = m_process,
-           .event = EVENT_EPOCH_COUNT,
-           .signal = m_epoch_count,
+            .time = geopm_time_diff(&m_time_zero, &time),
+            .process = m_process,
+            .event = EVENT_EPOCH_COUNT,
+            .signal = m_epoch_count,
         };
         append_record(layout, epoch_record);
     }

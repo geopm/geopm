@@ -32,7 +32,7 @@ class MockTreeComm : public geopm::TreeComm
         void send_up_mock_child(int level, int child_idx,
                                 const std::vector<double> &sample)
         {
-            m_data_sent_up_child[{ level, child_idx }] = sample;
+            m_data_sent_up_child[ { level, child_idx }] = sample;
         }
         void send_down(int level, const std::vector<std::vector<double> > &policy) override
         {

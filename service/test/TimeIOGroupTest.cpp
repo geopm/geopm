@@ -115,7 +115,8 @@ TEST_F(TimeIOGroupTest, sample)
     geopm_time(&spin0);
     do {
         geopm_time(&spin1);
-    } while (geopm_time_diff(&spin0, &spin1) < 1.0);
+    }
+    while (geopm_time_diff(&spin0, &spin1) < 1.0);
     time0 = m_group.sample(signal_idx);
     m_group.read_batch();
     time1 = m_group.sample(signal_idx);
@@ -143,7 +144,8 @@ TEST_F(TimeIOGroupTest, read_signal)
     geopm_time(&spin0);
     do {
         geopm_time(&spin1);
-    } while (geopm_time_diff(&spin0, &spin1) < 1.0);
+    }
+    while (geopm_time_diff(&spin0, &spin1) < 1.0);
     double time1 = m_group.read_signal("TIME::ELAPSED", m_time_domain, 0);
     double time1a = m_group.read_signal("TIME", m_time_domain, 0);
     EXPECT_NEAR(time1, time1a, M_EPSILON);

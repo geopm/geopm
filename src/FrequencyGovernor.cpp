@@ -169,7 +169,7 @@ namespace geopm
 
         if (freq_min > freq_max) {
             throw Exception("FrequencyGovernorImp::" + std::string(__func__) +
-                                "(): freq_min must not be greater than freq_max.",
+                            "(): freq_min must not be greater than freq_max.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 

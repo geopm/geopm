@@ -51,13 +51,13 @@ DebugIOGroupTest::DebugIOGroupTest()
 void DebugIOGroupTest::SetUp()
 {
     ON_CALL(m_topo, num_domain(GEOPM_DOMAIN_CORE))
-        .WillByDefault(Return(2));
+    .WillByDefault(Return(2));
     ON_CALL(m_topo, num_domain(GEOPM_DOMAIN_CPU))
-        .WillByDefault(Return(1));
+    .WillByDefault(Return(1));
     ON_CALL(m_topo, num_domain(GEOPM_DOMAIN_BOARD))
-        .WillByDefault(Return(1));
+    .WillByDefault(Return(1));
     ON_CALL(m_topo, num_domain(GEOPM_DOMAIN_PACKAGE))
-        .WillByDefault(Return(1));
+    .WillByDefault(Return(1));
 
     m_group.register_signal("VAL_0", GEOPM_DOMAIN_CORE,
                             IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE);

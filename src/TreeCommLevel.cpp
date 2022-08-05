@@ -86,8 +86,9 @@ namespace geopm
         size_t num_down = m_num_send_down;
         if (m_size != (int)policy.size() ||
             std::any_of(policy.begin(), policy.end(),
-                        [num_down](std::vector<double> it)
-                        {return it.size() != num_down;})) {
+        [num_down](std::vector<double> it) {
+        return it.size() != num_down;
+        })) {
             throw Exception("TreeCommLevelImp::send_down(): policy vector is not sized correctly.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
@@ -120,8 +121,9 @@ namespace geopm
         size_t num_up = m_num_send_up;
         if (m_size != (int)sample.size() ||
             std::any_of(sample.begin(), sample.end(),
-                        [num_up](std::vector<double> it)
-                        {return it.size() != num_up;})) {
+        [num_up](std::vector<double> it) {
+        return it.size() != num_up;
+        })) {
             throw Exception("TreeCommLevelImp::send_down(): policy vector is not sized correctly.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
@@ -147,11 +149,12 @@ namespace geopm
 
         is_complete = is_complete &&
                       std::none_of(sample.begin(), sample.end(),
-                                   [](const std::vector<double> &vec)
-                                   {
-                                       return std::any_of(vec.begin(), vec.end(),
-                                                          [](double val){return std::isnan(val);});
-                                   });
+        [](const std::vector<double> &vec) {
+            return std::any_of(vec.begin(), vec.end(),
+            [](double val) {
+                return std::isnan(val);
+            });
+        });
         return is_complete;
     }
 
@@ -171,7 +174,9 @@ namespace geopm
         }
         is_complete = is_complete &&
                       std::none_of(policy.begin(), policy.end(),
-                                   [](double val){return std::isnan(val);});
+        [](double val) {
+            return std::isnan(val);
+        });
         return is_complete;
     }
 

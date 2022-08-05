@@ -109,18 +109,18 @@ namespace geopm
         , m_signal_config(signal_config)
         , m_control_config(control_config)
         , m_signal_shmem_key(!signal_shmem_key.empty() ? signal_shmem_key :
-                              BatchServer::get_signal_shmem_key(
-                                  m_server_key))
+                             BatchServer::get_signal_shmem_key(
+                                 m_server_key))
         , m_control_shmem_key(!control_shmem_key.empty() ?
-                               control_shmem_key :
-                               BatchServer::get_control_shmem_key(
+                              control_shmem_key :
+                              BatchServer::get_control_shmem_key(
                                   m_server_key))
         , m_pio(pio)
         , m_signal_shmem(signal_shmem)
         , m_control_shmem(control_shmem)
         , m_batch_status(batch_status != nullptr ?
                          batch_status : BatchStatus::make_unique_server(m_client_pid,
-                                                                        m_server_key))
+                                 m_server_key))
         , m_posix_signal(posix_signal != nullptr ?
                          posix_signal : POSIXSignal::make_unique())
         , m_server_pid(server_pid)
@@ -356,13 +356,13 @@ namespace geopm
         int gid = pid_to_gid(m_client_pid);
         if (signal_size != 0) {
             m_signal_shmem = SharedMemory::make_unique_owner_secure(
-                m_signal_shmem_key, signal_size);
+                                 m_signal_shmem_key, signal_size);
             // Requires a chown if server is different user than client
             m_signal_shmem->chown(uid, gid);
         }
         if (control_size != 0) {
             m_control_shmem = SharedMemory::make_unique_owner_secure(
-                m_control_shmem_key, control_size);
+                                  m_control_shmem_key, control_size);
             // Requires a chown if server is different user than client
             m_control_shmem->chown(uid, gid);
         }

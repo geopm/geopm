@@ -42,9 +42,9 @@ void EpochIOGroupTest::SetUp()
     m_pid_1 = 42;
     std::vector<int> cpu_process { m_pid_0, m_pid_0, m_pid_1, m_pid_1 };
     ON_CALL(m_topo, num_domain(GEOPM_DOMAIN_CPU))
-        .WillByDefault(Return(m_num_cpu));
+    .WillByDefault(Return(m_num_cpu));
     ON_CALL(m_app, per_cpu_process())
-        .WillByDefault(Return(cpu_process));
+    .WillByDefault(Return(cpu_process));
     EXPECT_CALL(m_topo, num_domain(GEOPM_DOMAIN_CPU));
     m_group = std::make_shared<EpochIOGroup>(m_topo, m_app);
 }

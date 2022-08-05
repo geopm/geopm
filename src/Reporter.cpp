@@ -244,9 +244,9 @@ namespace geopm
         // sort based on averge runtime, descending
         std::sort(region_ordered.begin(), region_ordered.end(),
                   [] (const region_info &a,
-                      const region_info &b) -> bool {
-                      return a.per_rank_avg_runtime > b.per_rank_avg_runtime;
-                  });
+        const region_info &b) -> bool {
+            return a.per_rank_avg_runtime > b.per_rank_avg_runtime;
+        });
 
         double total_marked_runtime = 0.0;
         for (const auto &region : region_ordered) {
@@ -257,12 +257,14 @@ namespace geopm
             }
 #endif
             yaml_write(report, M_INDENT_REGION, "-");
-            yaml_write(report, M_INDENT_REGION_FIELD,
-                       {{"region", '"' + region.name + '"'},
-                        {"hash", geopm::string_format_hex(region.hash)}});
-            yaml_write(report, M_INDENT_REGION_FIELD,
-                       {{"runtime (s)", region.per_rank_avg_runtime},
-                        {"count", region.count}});
+            yaml_write(report, M_INDENT_REGION_FIELD, {
+                {"region", '"' + region.name + '"'},
+                {"hash", geopm::string_format_hex(region.hash)}
+            });
+            yaml_write(report, M_INDENT_REGION_FIELD, {
+                {"runtime (s)", region.per_rank_avg_runtime},
+                {"count", region.count}
+            });
             auto region_data = get_region_data(region.hash);
             yaml_write(report, M_INDENT_REGION_FIELD, region_data);
             const auto &it = agent_region_report.find(region.hash);
@@ -278,9 +280,10 @@ namespace geopm
             yaml_write(report, M_INDENT_UNMARKED, "Unmarked Totals:");
             double unmarked_time = m_sample_agg->sample_application(m_sync_signal_idx["TIME"]) -
                                    total_marked_runtime;
-            yaml_write(report, M_INDENT_UNMARKED_FIELD,
-                       {{"runtime (s)", unmarked_time},
-                        {"count", 0}});
+            yaml_write(report, M_INDENT_UNMARKED_FIELD, {
+                {"runtime (s)", unmarked_time},
+                {"count", 0}
+            });
             auto unmarked_data = get_region_data(GEOPM_REGION_HASH_UNMARKED);
             yaml_write(report, M_INDENT_UNMARKED_FIELD, unmarked_data);
             // agent extensions for unmarked
@@ -291,18 +294,20 @@ namespace geopm
 
             yaml_write(report, M_INDENT_EPOCH, "Epoch Totals:");
             double epoch_runtime = m_sample_agg->sample_epoch(m_sync_signal_idx["TIME"]);
-            yaml_write(report, M_INDENT_EPOCH_FIELD,
-                       {{"runtime (s)", epoch_runtime},
-                        {"count", (int)epoch_count}});
+            yaml_write(report, M_INDENT_EPOCH_FIELD, {
+                {"runtime (s)", epoch_runtime},
+                {"count", (int)epoch_count}
+            });
             auto epoch_data = get_region_data(GEOPM_REGION_HASH_EPOCH);
             yaml_write(report, M_INDENT_EPOCH_FIELD, epoch_data);
         }
 
         yaml_write(report, M_INDENT_TOTALS, "Application Totals:");
         double total_runtime = m_sample_agg->sample_application(m_sync_signal_idx["TIME"]);
-        yaml_write(report, M_INDENT_TOTALS_FIELD,
-                   {{"runtime (s)", total_runtime},
-                    {"count", 0}});
+        yaml_write(report, M_INDENT_TOTALS_FIELD, {
+            {"runtime (s)", total_runtime},
+            {"count", 0}
+        });
         auto region_data = get_region_data(GEOPM_REGION_HASH_APP);
         yaml_write(report, M_INDENT_TOTALS_FIELD, region_data);
         // Controller overhead
@@ -349,27 +354,23 @@ namespace geopm
 
     void ReporterImp::init_sync_fields(void)
     {
-        auto sample_only = [this](uint64_t hash, const std::vector<std::string> &sig) -> double
-        {
+        auto sample_only = [this](uint64_t hash, const std::vector<std::string> &sig) -> double {
             GEOPM_DEBUG_ASSERT(sig.size() == 1, "Wrong number of signals for sample_only()");
             return m_sample_agg->sample_region(m_sync_signal_idx[sig[0]], hash);
         };
-        auto divide = [this](uint64_t hash, const std::vector<std::string> &sig) -> double
-        {
+        auto divide = [this](uint64_t hash, const std::vector<std::string> &sig) -> double {
             GEOPM_DEBUG_ASSERT(sig.size() == 2, "Wrong number of signals for divide()");
             double numer = m_sample_agg->sample_region(m_sync_signal_idx[sig[0]], hash);
             double denom = m_sample_agg->sample_region(m_sync_signal_idx[sig[1]], hash);
             return denom == 0 ? 0.0 : numer / denom;
         };
-        auto divide_pct = [this](uint64_t hash, const std::vector<std::string> &sig) -> double
-        {
+        auto divide_pct = [this](uint64_t hash, const std::vector<std::string> &sig) -> double {
             GEOPM_DEBUG_ASSERT(sig.size() == 2, "Wrong number of signals for divide_pct()");
             double numer = m_sample_agg->sample_region(m_sync_signal_idx[sig[0]], hash);
             double denom = m_sample_agg->sample_region(m_sync_signal_idx[sig[1]], hash);
             return denom == 0 ? 0.0 : 100.0 * numer / denom;
         };
-        auto divide_sticker_scale = [this](uint64_t hash, const std::vector<std::string> &sig) -> double
-        {
+        auto divide_sticker_scale = [this](uint64_t hash, const std::vector<std::string> &sig) -> double {
             GEOPM_DEBUG_ASSERT(sig.size() == 2, "Wrong number of signals for divide_sticker_scale()");
             double numer = m_sample_agg->sample_region(m_sync_signal_idx[sig[0]], hash);
             double denom = m_sample_agg->sample_region(m_sync_signal_idx[sig[1]], hash);

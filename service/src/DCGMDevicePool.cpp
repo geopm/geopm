@@ -64,7 +64,7 @@ namespace geopm
         if (result == DCGM_ST_DUPLICATE_KEY) {
 #ifdef GEOPM_DEBUG
             std::cerr << "DCGMDevicePool::" << std::string(__func__)  <<
-                         ": Duplicate field group found. " << std::endl;
+                      ": Duplicate field group found. " << std::endl;
 #endif
             result = dcgmFieldGroupDestroy(m_dcgm_handle, m_field_group_id);
             check_result(result, "Error destroying DCGM geopm_fields group.", __LINE__);
@@ -116,8 +116,8 @@ namespace geopm
         }
         dcgmReturn_t result;
         result = dcgmGetLatestValuesForFields(m_dcgm_handle, gpu_idx,
-                        &m_dcgm_field_ids[0], M_NUM_FIELD_ID,
-                        &(m_dcgm_field_values.at(gpu_idx))[0]);
+                                              &m_dcgm_field_ids[0], M_NUM_FIELD_ID,
+                                              &(m_dcgm_field_values.at(gpu_idx))[0]);
         check_result(result, "Error getting latest values for fields in read_batch", __LINE__);
     }
 

@@ -52,32 +52,32 @@ void DCGMIOGroupTest::SetUp()
 
     //Platform Topo prep
     ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_BOARD))
-        .WillByDefault(Return(num_board));
+    .WillByDefault(Return(num_board));
     ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_PACKAGE))
-        .WillByDefault(Return(num_package));
+    .WillByDefault(Return(num_package));
     ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_GPU))
-        .WillByDefault(Return(num_gpu));
+    .WillByDefault(Return(num_gpu));
     ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_CPU))
-        .WillByDefault(Return(num_cpu));
+    .WillByDefault(Return(num_cpu));
     ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_CORE))
-        .WillByDefault(Return(num_core));
+    .WillByDefault(Return(num_core));
 
     for (int cpu_idx = 0; cpu_idx < num_cpu; ++cpu_idx) {
         if (cpu_idx < 10) {
             ON_CALL(*m_platform_topo, domain_idx(GEOPM_DOMAIN_GPU, cpu_idx))
-                .WillByDefault(Return(0));
+            .WillByDefault(Return(0));
         }
         else if (cpu_idx < 20) {
             ON_CALL(*m_platform_topo, domain_idx(GEOPM_DOMAIN_GPU, cpu_idx))
-                .WillByDefault(Return(1));
+            .WillByDefault(Return(1));
         }
         else if (cpu_idx < 30) {
             ON_CALL(*m_platform_topo, domain_idx(GEOPM_DOMAIN_GPU, cpu_idx))
-                .WillByDefault(Return(2));
+            .WillByDefault(Return(2));
         }
         else {
             ON_CALL(*m_platform_topo, domain_idx(GEOPM_DOMAIN_GPU, cpu_idx))
-                .WillByDefault(Return(3));
+            .WillByDefault(Return(3));
         }
     }
 
@@ -108,17 +108,17 @@ TEST_F(DCGMIOGroupTest, push_control_adjust_write_batch)
     double mock_samples = 60000;
 
     batch_value[(dcgm_io.push_control("DCGM::FIELD_UPDATE_RATE",
-                                    GEOPM_DOMAIN_BOARD, 0))] = mock_rate;
+                                      GEOPM_DOMAIN_BOARD, 0))] = mock_rate;
     EXPECT_CALL(*m_device_pool,
                 update_rate(mock_rate * 1e6)).Times(1);
 
     batch_value[(dcgm_io.push_control("DCGM::MAX_STORAGE_TIME",
-                                    GEOPM_DOMAIN_BOARD, 0))] = mock_time;
+                                      GEOPM_DOMAIN_BOARD, 0))] = mock_time;
     EXPECT_CALL(*m_device_pool,
                 max_storage_time(mock_time)).Times(1);
 
     batch_value[(dcgm_io.push_control("DCGM::MAX_SAMPLES",
-                 GEOPM_DOMAIN_BOARD, 0))] = mock_samples;
+                                      GEOPM_DOMAIN_BOARD, 0))] = mock_samples;
     EXPECT_CALL(*m_device_pool,
                 max_samples(mock_samples)).Times(1);
 

@@ -88,7 +88,8 @@ bool POSIXSignalTest::has_cap_kill(void) const
             cap = strtoul(temp.c_str(), nullptr, 16);
             if (cap & cap_kill) {
                 return true;
-            } else {
+            }
+            else {
                 return false;
             }
         }
@@ -108,8 +109,7 @@ std::set<int> POSIXSignalTest::convert_sigset(const sigset_t &the_sigset)
     /// 1  ... 31 are POSIX defined signals
     /// 32 and 33 are reserved for something
     /// 34 ... 63 are user defined signals in Linux convention
-    for (int signo = 1; signo < 64; ++signo)
-    {
+    for (int signo = 1; signo < 64; ++signo) {
         int is_in_set = sigismember(&the_sigset, signo);
         EXPECT_NE(-1, is_in_set);
         if (is_in_set) {

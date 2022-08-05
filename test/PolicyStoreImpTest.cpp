@@ -21,8 +21,8 @@
 class PolicyStoreImpTest : public ::testing::Test
 {
     protected:
-       void SetUp();
-       std::vector<std::string> m_agent_policy_names = { "first", "second", "third" };
+        void SetUp();
+        std::vector<std::string> m_agent_policy_names = { "first", "second", "third" };
 };
 
 void PolicyStoreImpTest::SetUp()
@@ -30,17 +30,23 @@ void PolicyStoreImpTest::SetUp()
     try {
         geopm::agent_factory().register_plugin(
             "agent_without_policy",
-            []() { return geopm::make_unique<MockAgent>(); },
-            geopm::Agent::make_dictionary({}, {}));
+        []() {
+            return geopm::make_unique<MockAgent>();
+        },
+        geopm::Agent::make_dictionary({}, {}));
 
         geopm::agent_factory().register_plugin(
-            "agent_with_policy", []() { return geopm::make_unique<MockAgent>(); },
-            geopm::Agent::make_dictionary(m_agent_policy_names, {}));
+        "agent_with_policy", []() {
+            return geopm::make_unique<MockAgent>();
+        },
+        geopm::Agent::make_dictionary(m_agent_policy_names, {}));
 
         geopm::agent_factory().register_plugin(
             "another_agent_with_policy",
-            []() { return geopm::make_unique<MockAgent>(); },
-            geopm::Agent::make_dictionary(m_agent_policy_names, {}));
+        []() {
+            return geopm::make_unique<MockAgent>();
+        },
+        geopm::Agent::make_dictionary(m_agent_policy_names, {}));
     }
     catch (const geopm::Exception &e) {
         // There is no inverse to register_plugin(), so we can't clean
@@ -92,11 +98,11 @@ TEST_F(PolicyStoreImpTest, self_consistent)
     policy_store.set_best("agent_with_policy", "anotherprofile", policy3);
 
     EXPECT_TRUE(PoliciesAreSame(
-        policy1, policy_store.get_best("agent_with_policy", "myprofile")));
+                    policy1, policy_store.get_best("agent_with_policy", "myprofile")));
     EXPECT_TRUE(PoliciesAreSame(
-        policy2, policy_store.get_best("another_agent_with_policy", "myprofile")));
+                    policy2, policy_store.get_best("another_agent_with_policy", "myprofile")));
     EXPECT_TRUE(PoliciesAreSame(
-        policy3, policy_store.get_best("agent_with_policy", "anotherprofile")));
+                    policy3, policy_store.get_best("agent_with_policy", "anotherprofile")));
 }
 
 TEST_F(PolicyStoreImpTest, update_policy)
@@ -109,7 +115,7 @@ TEST_F(PolicyStoreImpTest, update_policy)
     policy_store.set_best("agent_with_policy", "myprofile", policy1);
     policy_store.set_best("agent_with_policy", "myprofile", policy2);
     EXPECT_TRUE(PoliciesAreSame(
-        policy2, policy_store.get_best("agent_with_policy", "myprofile")));
+                    policy2, policy_store.get_best("agent_with_policy", "myprofile")));
 
     // Test that an entry can be removed
     policy_store.set_best("agent_with_policy", "myprofile", {});
@@ -148,12 +154,12 @@ TEST_F(PolicyStoreImpTest, table_precedence)
 
     // Test that an override is used when present, even if a default is available
     EXPECT_TRUE(PoliciesAreSame(
-        better_policy, policy_store.get_best("agent_with_policy", "optimizedprofile")));
+                    better_policy, policy_store.get_best("agent_with_policy", "optimizedprofile")));
 
     // Test that a default is used in the absence of a best policy
     EXPECT_TRUE(PoliciesAreSame(
-        configured_default_policy,
-        policy_store.get_best("agent_with_policy", "unoptimizedprofile")));
+                    configured_default_policy,
+                    policy_store.get_best("agent_with_policy", "unoptimizedprofile")));
 
     // Test that it is possible to specify an override that bypasses the
     // PolicyStore default in favor of the agent's defaults.
@@ -165,7 +171,7 @@ TEST_F(PolicyStoreImpTest, table_precedence)
     // Test that an empty policy is returned when no policies are specified, but
     // the agent doesn't use a policy anyways.
     EXPECT_TRUE(PoliciesAreSame(
-        {}, policy_store.get_best("agent_without_policy", "unoptimizedprofile")));
+                    {}, policy_store.get_best("agent_without_policy", "unoptimizedprofile")));
 
     // Test that an exception is thrown when no usable entry exists, and the
     // agent expects a policy

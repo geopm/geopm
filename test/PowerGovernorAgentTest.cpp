@@ -66,37 +66,37 @@ void PowerGovernorAgentTest::SetUp(void)
 void PowerGovernorAgentTest::set_up_leaf(void)
 {
     EXPECT_CALL(m_platform_io, control_domain_type("CPU_POWER_LIMIT_CONTROL"))
-        .Times(AtLeast(1))
-        .WillRepeatedly(Return(GEOPM_DOMAIN_PACKAGE));
+    .Times(AtLeast(1))
+    .WillRepeatedly(Return(GEOPM_DOMAIN_PACKAGE));
     EXPECT_CALL(m_platform_io, push_signal("CPU_POWER", GEOPM_DOMAIN_BOARD, 0))
-        .WillOnce(Return(M_SIGNAL_CPU_POWER));
+    .WillOnce(Return(M_SIGNAL_CPU_POWER));
     EXPECT_CALL(*m_power_gov, init_platform_io());
     EXPECT_CALL(*m_power_gov, sample_platform())
-        .Times(AtLeast(0));
+    .Times(AtLeast(0));
     EXPECT_CALL(*m_power_gov, adjust_platform(_, _))
-        .Times(AtLeast(0))
-        .WillRepeatedly(DoAll(SaveArg<0>(&m_val_cache), SetArgReferee<1>(m_val_cache)));
+    .Times(AtLeast(0))
+    .WillRepeatedly(DoAll(SaveArg<0>(&m_val_cache), SetArgReferee<1>(m_val_cache)));
     EXPECT_CALL(*m_power_gov, adjust_platform(_, _))
-        .Times(AtLeast(0));
+    .Times(AtLeast(0));
     EXPECT_CALL(*m_power_gov, do_write_batch())
-        .Times(AtLeast(0))
-        .WillRepeatedly(Return(true));
+    .Times(AtLeast(0))
+    .WillRepeatedly(Return(true));
     m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, std::move(m_power_gov));
 }
 
 void PowerGovernorAgentTest::set_up_pio(void)
 {
     ON_CALL(m_platform_io, read_signal("CPU_ENERGY", _, _))
-        .WillByDefault(testing::InvokeWithoutArgs([this] {
-                    m_energy_package += 10.0; return m_energy_package;
-                }));
+    .WillByDefault(testing::InvokeWithoutArgs([this] {
+        m_energy_package += 10.0; return m_energy_package;
+    }));
 
     EXPECT_CALL(m_platform_io, read_signal("CPU_POWER_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0))
-        .WillOnce(Return(m_power_min));
+    .WillOnce(Return(m_power_min));
     EXPECT_CALL(m_platform_io, read_signal("CPU_POWER_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0))
-        .WillOnce(Return(m_power_max));
+    .WillOnce(Return(m_power_max));
     EXPECT_CALL(m_platform_io, read_signal("CPU_POWER_LIMIT_DEFAULT", GEOPM_DOMAIN_BOARD, 0))
-        .WillOnce(Return(m_power_tdp));
+    .WillOnce(Return(m_power_tdp));
 }
 
 // check if containers are equal, including NAN
@@ -138,7 +138,7 @@ TEST_F(PowerGovernorAgentTest, sample_platform)
     EXPECT_TRUE(m_agent->do_write_batch());
 
     EXPECT_CALL(m_platform_io, sample(M_SIGNAL_CPU_POWER)).Times(m_min_num_converged + 1)
-        .WillRepeatedly(Return(50.5));
+    .WillRepeatedly(Return(50.5));
     std::vector<double> out_sample {NAN, NAN, NAN};
     std::vector<double> expected {NAN, NAN, NAN};
 
@@ -162,7 +162,7 @@ TEST_F(PowerGovernorAgentTest, adjust_platform)
     std::vector<double> policy = {power_budget};
 
     EXPECT_CALL(m_platform_io, sample(M_SIGNAL_CPU_POWER)).Times(1)
-        .WillRepeatedly(Return(5.5));
+    .WillRepeatedly(Return(5.5));
     std::vector<double> out_sample {NAN, NAN, NAN};
     m_agent->sample_platform(out_sample);
 

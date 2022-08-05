@@ -37,17 +37,20 @@ namespace geopm
         }
     }
 
-    size_t EditDistPeriodicityDetector::Didx(int ii, int jj, int mm) const {
+    size_t EditDistPeriodicityDetector::Didx(int ii, int jj, int mm) const
+    {
         return (ii % m_history_buffer_size) * m_history_buffer_size * m_history_buffer_size +
                (jj % m_history_buffer_size) * m_history_buffer_size +
                (mm % m_history_buffer_size);
     }
 
-    void EditDistPeriodicityDetector::Dset(int ii, int jj, int mm, uint32_t val) {
+    void EditDistPeriodicityDetector::Dset(int ii, int jj, int mm, uint32_t val)
+    {
         m_DP[Didx(ii, jj, mm)] = val;
     }
 
-    uint32_t EditDistPeriodicityDetector::Dget(int ii, int jj, int mm) const {
+    uint32_t EditDistPeriodicityDetector::Dget(int ii, int jj, int mm) const
+    {
         // This value is supposed to be INF but not so large that it gets wrapped around when
         // a small value is added to it.
         uint32_t result = std::numeric_limits<uint32_t>::max() / 2;
@@ -65,7 +68,8 @@ namespace geopm
         return result;
     }
 
-    void EditDistPeriodicityDetector::calc_period(void) {
+    void EditDistPeriodicityDetector::calc_period(void)
+    {
         if (m_record_count < 2) {
             return;
         }
@@ -104,8 +108,8 @@ namespace geopm
                 }
                 // The value that will go into the D matrix (i.e. penalty) is the minimum of the
                 // added penalties from all directions (add/subtract/replace).
-                uint32_t d_value = std::min({Dget(ii - 1, m_record_count - mm    , mm) + 1,
-                                             Dget(ii    , m_record_count - mm - 1, mm) + 1,
+                uint32_t d_value = std::min({Dget(ii - 1, m_record_count - mm, mm) + 1,
+                                             Dget(ii, m_record_count - mm - 1, mm) + 1,
                                              Dget(ii - 1, m_record_count - mm - 1, mm) + term});
                 Dset(ii, m_record_count - mm, mm, d_value);
             }
@@ -160,7 +164,7 @@ namespace geopm
             return 1;
         }
         std::vector<uint64_t> recs = m_history_buffer.make_vector(
-            slice_start, m_history_buffer.size());
+                                         slice_start, m_history_buffer.size());
 
         int result = recs.size();
         bool perfect_match = false;

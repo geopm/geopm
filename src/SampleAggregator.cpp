@@ -76,14 +76,14 @@ namespace geopm
                                                int domain_idx)
     {
         if (m_is_updated) {
-           throw Exception("SampleAggregatorImp::push_signal_total(): called after update()",
-                           GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            throw Exception("SampleAggregatorImp::push_signal_total(): called after update()",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         int result = m_platform_io.push_signal(signal_name, domain_type, domain_idx);
         auto bad_it = m_avg_signal.find(result);
         if (bad_it != m_avg_signal.end()) {
-           throw Exception("SampleAggregatorImp::push_signal_total(): signal already pushed for average",
-                           GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            throw Exception("SampleAggregatorImp::push_signal_total(): signal already pushed for average",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         auto signal_it = m_sum_signal.find(result);
         if (signal_it == m_sum_signal.end()) {
@@ -98,7 +98,7 @@ namespace geopm
                 SumAccumulator::make_unique(),
                 {},
                 {},
-           };
+            };
         }
         return result;
     }
@@ -108,14 +108,14 @@ namespace geopm
                                                  int domain_idx)
     {
         if (m_is_updated) {
-           throw Exception("SampleAggregatorImp::push_signal_average(): called after update()",
-                           GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            throw Exception("SampleAggregatorImp::push_signal_average(): called after update()",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         int result = m_platform_io.push_signal(signal_name, domain_type, domain_idx);
         auto bad_it = m_sum_signal.find(result);
         if (bad_it != m_sum_signal.end()) {
-           throw Exception("SampleAggregatorImp::push_signal_average(): signal already pushed for total",
-                           GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            throw Exception("SampleAggregatorImp::push_signal_average(): signal already pushed for total",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         auto signal_it = m_avg_signal.find(result);
         if (signal_it == m_avg_signal.end()) {
@@ -130,7 +130,7 @@ namespace geopm
                 AvgAccumulator::make_unique(),
                 {},
                 {},
-           };
+            };
         }
         return result;
     }
@@ -206,8 +206,8 @@ namespace geopm
     void SampleAggregatorImp::period_duration(double duration)
     {
         if (m_is_updated) {
-           throw Exception("SampleAggregatorImp::period_duration(): called after update()",
-                           GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            throw Exception("SampleAggregatorImp::period_duration(): called after update()",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         m_period_duration = duration;
     }

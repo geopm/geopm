@@ -67,8 +67,9 @@ int BatchStatusTest::fork_other(std::function<void(int)> child_process_func)
         child_process_func(write_pipe_fd);  // pass write end of pipe
         close(write_pipe_fd);  // close write end of pipe
         exit(EXIT_SUCCESS);
-    // parent process //
-    } else {
+        // parent process //
+    }
+    else {
         close(write_pipe_fd);  // close write end of pipe
         char unique_char;
         int ret = read(read_pipe_fd, &unique_char, sizeof(unique_char));
@@ -107,8 +108,7 @@ std::unique_ptr<BatchStatus> BatchStatusTest::make_test_client(
 TEST_F(BatchStatusTest, client_send_to_server_fifo_expect)
 {
     int client_pid = getpid();
-    std::function<void(int)> child_process_func = [this, client_pid](int write_pipe_fd)
-    {
+    std::function<void(int)> child_process_func = [this, client_pid](int write_pipe_fd) {
         auto server_status = this->make_test_server(client_pid);
         /* Extra code for synchronizing the server process. */
         char unique_char = '!';
@@ -126,8 +126,7 @@ TEST_F(BatchStatusTest, client_send_to_server_fifo_expect)
 TEST_F(BatchStatusTest, server_send_to_client_fifo_expect)
 {
     int client_pid = getpid();
-    std::function<void(int)> child_process_func = [this, client_pid](int write_pipe_fd)
-    {
+    std::function<void(int)> child_process_func = [this, client_pid](int write_pipe_fd) {
         auto server_status = this->make_test_server(client_pid);
         /* Extra code for synchronizing the server process. */
         char unique_char = '!';
@@ -145,8 +144,7 @@ TEST_F(BatchStatusTest, server_send_to_client_fifo_expect)
 TEST_F(BatchStatusTest, server_send_to_client_fifo)
 {
     int client_pid = getpid();
-    std::function<void(int)> child_process_func = [this, client_pid](int write_pipe_fd)
-    {
+    std::function<void(int)> child_process_func = [this, client_pid](int write_pipe_fd) {
         auto server_status = this->make_test_server(client_pid);
         /* Extra code for synchronizing the server process. */
         char unique_char = '!';
@@ -166,8 +164,7 @@ TEST_F(BatchStatusTest, server_send_to_client_fifo)
 TEST_F(BatchStatusTest, both_send_at_once_fifo_expect)
 {
     int client_pid = getpid();
-    std::function<void(int)> child_process_func = [this, client_pid](int write_pipe_fd)
-    {
+    std::function<void(int)> child_process_func = [this, client_pid](int write_pipe_fd) {
         auto server_status = this->make_test_server(client_pid);
         /* Extra code for synchronizing the server process. */
         char unique_char = '!';
@@ -187,8 +184,7 @@ TEST_F(BatchStatusTest, both_send_at_once_fifo_expect)
 TEST_F(BatchStatusTest, server_and_client_do_nothing)
 {
     int client_pid = getpid();
-    std::function<void(int)> child_process_func = [this, client_pid](int write_pipe_fd)
-    {
+    std::function<void(int)> child_process_func = [this, client_pid](int write_pipe_fd) {
         auto server_status = this->make_test_server(client_pid);
         /* Extra code for synchronizing the server process. */
         char unique_char = '!';
@@ -203,8 +199,7 @@ TEST_F(BatchStatusTest, server_and_client_do_nothing)
 TEST_F(BatchStatusTest, client_send_to_server_fifo_incorrect_expect)
 {
     int client_pid = getpid();
-    std::function<void(int)> child_process_func = [this, client_pid](int write_pipe_fd)
-    {
+    std::function<void(int)> child_process_func = [this, client_pid](int write_pipe_fd) {
         auto server_status = this->make_test_server(client_pid);
         /* Extra code for synchronizing the server process. */
         char unique_char = '!';
@@ -226,8 +221,7 @@ TEST_F(BatchStatusTest, client_send_to_server_fifo_incorrect_expect)
 TEST_F(BatchStatusTest, bad_client_key)
 {
     int client_pid = getpid();
-    std::function<void(int)> child_process_func = [this, client_pid](int write_pipe_fd)
-    {
+    std::function<void(int)> child_process_func = [this, client_pid](int write_pipe_fd) {
         auto server_status = this->make_test_server(client_pid);
         /* Extra code for synchronizing the server process. */
         char unique_char = '!';

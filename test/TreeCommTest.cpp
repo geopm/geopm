@@ -74,7 +74,7 @@ void TreeCommTest::nonroot_setup()
     EXPECT_CALL(*m_mock_comm, barrier());
     EXPECT_CALL(*m_mock_comm, num_rank()).WillOnce(Return(120));
     m_tree_comm.reset(new TreeCommImp(m_mock_comm, m_fan_out, m_fan_out.size() - 1,
-                                   m_num_send_down, m_num_send_up, std::move(temp)));
+                                      m_num_send_down, m_num_send_up, std::move(temp)));
 }
 
 TEST_F(TreeCommTest, geometry)
@@ -175,7 +175,7 @@ TEST_F(TreeCommTest, overhead_send)
     size_t expected_overhead = std::accumulate(overhead.begin(), overhead.end(), 0);
     for (size_t level = 0; level < m_level_ptr.size(); ++level) {
         EXPECT_CALL(*(m_level_ptr[level]), overhead_send())
-            .WillOnce(Return(overhead[level]));
+        .WillOnce(Return(overhead[level]));
     }
 
     EXPECT_EQ(expected_overhead, m_tree_comm->overhead_send());

@@ -122,7 +122,7 @@ namespace geopm
             /// @brief Override the default description for a signal.
             ///        If signal is not available, does nothing.
             void set_control_description(const std::string &name,
-                                        const std::string &description);
+                                         const std::string &description);
             /// @brief Add support for an alias of a signal by name.
             void register_signal_alias(const std::string &signal_name, const std::string &msr_field_name);
             /// @brief Add support for an alias of a control by name.
@@ -207,8 +207,7 @@ namespace geopm
             bool get_hwp_enabled(void);
             bool m_is_hwp_enabled;
 
-            struct rdt_info
-            {
+            struct rdt_info {
                 bool rdt_support;
                 uint32_t rmid_bit_width;
                 uint32_t mbm_scalar;
@@ -232,8 +231,7 @@ namespace geopm
             // The signals vector is over the indices for the domain.
             // The signals pointers should be copied when signal is
             // pushed and used directly for read_signal.
-            struct signal_info
-            {
+            struct signal_info {
                 std::vector<std::shared_ptr<Signal> > signals;
                 int domain;
                 int units;
@@ -244,8 +242,7 @@ namespace geopm
             };
             std::map<std::string, signal_info> m_signal_available;
 
-            struct control_info
-            {
+            struct control_info {
                 std::vector<std::shared_ptr<Control> > controls;
                 int domain;
                 int units;

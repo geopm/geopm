@@ -60,8 +60,8 @@ namespace geopm
         while ((sqlite_ret = sqlite3_step(statement)) == SQLITE_ROW) {
             auto offset = sqlite3_column_int(statement, 0);
             auto value = sqlite3_column_type(statement, 1) == SQLITE_NULL
-                             ? NAN
-                             : sqlite3_column_double(statement, 1);
+                         ? NAN
+                         : sqlite3_column_double(statement, 1);
 
             // Fill in NaN gaps if the policy is stored in a sparse manner
             std::fill_n(std::back_inserter(policy), offset - policy.size(), NAN);
@@ -285,7 +285,7 @@ namespace geopm
             // Remove existing policy values for this record in case the new
             // policy does not explicitly overwrite all values.
             auto statement = make_statement(
-                m_database, "DELETE FROM BestPolicies WHERE profile=?1 AND agent=?2;");
+                                 m_database, "DELETE FROM BestPolicies WHERE profile=?1 AND agent=?2;");
 
             bind_value_or_throw(statement.get(), 1, profile_name, __LINE__);
             bind_value_or_throw(statement.get(), 2, agent_name, __LINE__);
@@ -298,9 +298,9 @@ namespace geopm
         }
         for (size_t offset = 0; offset < policy.size(); ++offset) {
             auto statement = make_statement(
-                m_database,
-                "INSERT INTO BestPolicies "
-                "(profile, agent, offset, value) VALUES (?1, ?2, ?3, ?4);");
+                                 m_database,
+                                 "INSERT INTO BestPolicies "
+                                 "(profile, agent, offset, value) VALUES (?1, ?2, ?3, ?4);");
 
             bind_value_or_throw(statement.get(), 1, profile_name, __LINE__);
             bind_value_or_throw(statement.get(), 2, agent_name, __LINE__);
@@ -330,7 +330,7 @@ namespace geopm
             // Remove existing policy values for this record in case the new
             // policy does not explicitly overwrite all values.
             auto statement = make_statement(
-                m_database, "DELETE FROM DefaultPolicies WHERE agent=?1;");
+                                 m_database, "DELETE FROM DefaultPolicies WHERE agent=?1;");
 
             bind_value_or_throw(statement.get(), 1, agent_name, __LINE__);
 

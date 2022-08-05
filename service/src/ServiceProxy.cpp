@@ -139,9 +139,9 @@ namespace geopm
                                                  int domain_idx)
     {
         std::shared_ptr<SDBusMessage> reply_message = m_bus->call_method("PlatformReadSignal",
-                                                                         signal_name,
-                                                                         domain,
-                                                                         domain_idx);
+                                                      signal_name,
+                                                      domain,
+                                                      domain_idx);
         return reply_message->read_double();
     }
 

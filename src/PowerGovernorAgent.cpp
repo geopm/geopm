@@ -179,10 +179,9 @@ namespace geopm
         }
 #endif
         m_is_sample_stable = std::all_of(in_sample.begin(), in_sample.end(),
-            [](const std::vector<double> &val)
-            {
-                return val[M_SAMPLE_IS_CONVERGED];
-            });
+        [](const std::vector<double> &val) {
+            return val[M_SAMPLE_IS_CONVERGED];
+        });
 
         // If all children report that they are converged for the last
         // ascend period times, then aggregate the samples and send
@@ -199,7 +198,7 @@ namespace geopm
         if (m_is_sample_stable) {
             ++m_ascend_count;
             if (m_ascend_count == m_ascend_period) {
-               m_ascend_count = 0;
+                m_ascend_count = 0;
             }
         }
 

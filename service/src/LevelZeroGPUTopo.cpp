@@ -20,7 +20,7 @@ namespace geopm
     }
 
     LevelZeroGPUTopo::LevelZeroGPUTopo(const LevelZeroDevicePool &device_pool,
-                                                       const int num_cpu)
+                                       const int num_cpu)
         : m_levelzero_device_pool(device_pool)
     {
         int num_gpu = m_levelzero_device_pool.num_gpu(GEOPM_DOMAIN_GPU);

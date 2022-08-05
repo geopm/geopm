@@ -65,15 +65,15 @@ void PowerBalancerAgentTest::SetUp()
     }
 
     ON_CALL(m_platform_io, read_signal("CPU_POWER_LIMIT_DEFAULT", GEOPM_DOMAIN_BOARD, 0))
-        .WillByDefault(Return(M_CPU_POWER_LIMIT_DEFAULT));
+    .WillByDefault(Return(M_CPU_POWER_LIMIT_DEFAULT));
     ON_CALL(m_platform_io, read_signal("CPU_POWER_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0))
-        .WillByDefault(Return(M_CPU_POWER_MIN_AVAIL));
+    .WillByDefault(Return(M_CPU_POWER_MIN_AVAIL));
     ON_CALL(m_platform_io, read_signal("CPU_POWER_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0))
-        .WillByDefault(Return(M_CPU_POWER_MAX_AVAIL));
+    .WillByDefault(Return(M_CPU_POWER_MAX_AVAIL));
     ON_CALL(m_platform_io, read_signal("CPU_POWER_MAX_AVAIL", GEOPM_DOMAIN_PACKAGE, _))
-        .WillByDefault(Return(M_CPU_POWER_MAX_AVAIL/M_NUM_PKGS));
+    .WillByDefault(Return(M_CPU_POWER_MAX_AVAIL/M_NUM_PKGS));
     ON_CALL(m_platform_topo, num_domain(GEOPM_DOMAIN_PACKAGE))
-        .WillByDefault(Return(M_NUM_PKGS));
+    .WillByDefault(Return(M_NUM_PKGS));
 
     EXPECT_CALL(m_platform_io, read_signal("CPU_POWER_LIMIT_DEFAULT", _, _));
     std::vector<std::shared_ptr<PowerBalancer> >power_bal_base(m_power_bal.size());
@@ -92,9 +92,9 @@ TEST_F(PowerBalancerAgentTest, tree_root_agent)
     int num_children = M_FAN_IN[level - 1];
 
     ON_CALL(m_platform_io, read_signal("CPU_POWER_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0))
-        .WillByDefault(Return(50));
+    .WillByDefault(Return(50));
     ON_CALL(m_platform_io, read_signal("CPU_POWER_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0))
-        .WillByDefault(Return(200));
+    .WillByDefault(Return(200));
 
     m_agent->init(level, M_FAN_IN, IS_ROOT);
 
@@ -126,31 +126,31 @@ TEST_F(PowerBalancerAgentTest, tree_root_agent)
     bool ascend_ret;
     /// M_STEP_SEND_DOWN_LIMIT
     {
-    in_policy = {curr_cap, curr_cnt, curr_epc, curr_slk};
-    exp_out_policy = std::vector<std::vector<double> >(num_children,
-                                                       {curr_cap, curr_cnt, curr_epc, curr_slk});
-    in_sample = std::vector<std::vector<double> >(num_children, {(double)ctl_step, curr_epc, curr_slk, curr_hrm});
-    exp_out_sample = {(double)ctl_step, curr_epc, curr_slk, curr_hrm};
+        in_policy = {curr_cap, curr_cnt, curr_epc, curr_slk};
+        exp_out_policy = std::vector<std::vector<double> >(num_children,
+        {curr_cap, curr_cnt, curr_epc, curr_slk});
+        in_sample = std::vector<std::vector<double> >(num_children, {(double)ctl_step, curr_epc, curr_slk, curr_hrm});
+        exp_out_sample = {(double)ctl_step, curr_epc, curr_slk, curr_hrm};
 
 #ifdef GEOPM_DEBUG
-    std::vector<std::vector<double> > inv_out_policy = {};
-    GEOPM_EXPECT_THROW_MESSAGE(m_agent->split_policy({}, out_policy), GEOPM_ERROR_LOGIC, "policy vectors are not correctly sized.");
-    GEOPM_EXPECT_THROW_MESSAGE(m_agent->split_policy(in_policy, inv_out_policy), GEOPM_ERROR_LOGIC, "policy vectors are not correctly sized.");
+        std::vector<std::vector<double> > inv_out_policy = {};
+        GEOPM_EXPECT_THROW_MESSAGE(m_agent->split_policy({}, out_policy), GEOPM_ERROR_LOGIC, "policy vectors are not correctly sized.");
+        GEOPM_EXPECT_THROW_MESSAGE(m_agent->split_policy(in_policy, inv_out_policy), GEOPM_ERROR_LOGIC, "policy vectors are not correctly sized.");
 #endif
-    m_agent->split_policy(in_policy, out_policy);
-    desc_ret = m_agent->do_send_policy();
-    EXPECT_EQ(exp_descend_ret, desc_ret);
-    EXPECT_THAT(out_policy, ContainerEq(exp_out_policy));
+        m_agent->split_policy(in_policy, out_policy);
+        desc_ret = m_agent->do_send_policy();
+        EXPECT_EQ(exp_descend_ret, desc_ret);
+        EXPECT_THAT(out_policy, ContainerEq(exp_out_policy));
 
 #ifdef GEOPM_DEBUG
-    std::vector<double> inv_out_sample = {};
-    GEOPM_EXPECT_THROW_MESSAGE(m_agent->aggregate_sample({}, out_sample), GEOPM_ERROR_LOGIC, "sample vectors not correctly sized.");
-    GEOPM_EXPECT_THROW_MESSAGE(m_agent->aggregate_sample(in_sample, inv_out_sample), GEOPM_ERROR_LOGIC, "sample vectors not correctly sized.");
+        std::vector<double> inv_out_sample = {};
+        GEOPM_EXPECT_THROW_MESSAGE(m_agent->aggregate_sample({}, out_sample), GEOPM_ERROR_LOGIC, "sample vectors not correctly sized.");
+        GEOPM_EXPECT_THROW_MESSAGE(m_agent->aggregate_sample(in_sample, inv_out_sample), GEOPM_ERROR_LOGIC, "sample vectors not correctly sized.");
 #endif
-    m_agent->aggregate_sample(in_sample, out_sample);
-    ascend_ret = m_agent->do_send_sample();
-    EXPECT_EQ(exp_ascend_ret, ascend_ret);
-    EXPECT_THAT(out_sample, ContainerEq(exp_out_sample));
+        m_agent->aggregate_sample(in_sample, out_sample);
+        ascend_ret = m_agent->do_send_sample();
+        EXPECT_EQ(exp_ascend_ret, ascend_ret);
+        EXPECT_THAT(out_sample, ContainerEq(exp_out_sample));
     }
 
     ctl_step = 1;
@@ -158,22 +158,22 @@ TEST_F(PowerBalancerAgentTest, tree_root_agent)
 
     /// M_STEP_MEASURE_RUNTIME
     {
-    in_policy = {curr_cap, 0.0, 0.0, 0.0};
-    exp_out_policy = std::vector<std::vector<double> >(num_children,
-                                                       {0.0, curr_cnt, curr_epc, curr_slk});
-    curr_epc = 22.0;
-    in_sample = std::vector<std::vector<double> >(num_children, {(double)ctl_step, curr_epc, curr_slk, curr_hrm});
-    exp_out_sample = {(double)ctl_step, curr_epc, curr_slk, curr_hrm};
+        in_policy = {curr_cap, 0.0, 0.0, 0.0};
+        exp_out_policy = std::vector<std::vector<double> >(num_children,
+        {0.0, curr_cnt, curr_epc, curr_slk});
+        curr_epc = 22.0;
+        in_sample = std::vector<std::vector<double> >(num_children, {(double)ctl_step, curr_epc, curr_slk, curr_hrm});
+        exp_out_sample = {(double)ctl_step, curr_epc, curr_slk, curr_hrm};
 
-    m_agent->split_policy(in_policy, out_policy);
-    desc_ret = m_agent->do_send_policy();
-    EXPECT_EQ(exp_descend_ret, desc_ret);
-    EXPECT_THAT(out_policy, ContainerEq(exp_out_policy));
+        m_agent->split_policy(in_policy, out_policy);
+        desc_ret = m_agent->do_send_policy();
+        EXPECT_EQ(exp_descend_ret, desc_ret);
+        EXPECT_THAT(out_policy, ContainerEq(exp_out_policy));
 
-    m_agent->aggregate_sample(in_sample, out_sample);
-    ascend_ret = m_agent->do_send_sample();
-    EXPECT_EQ(exp_ascend_ret, ascend_ret);
-    EXPECT_THAT(out_sample, ContainerEq(exp_out_sample));
+        m_agent->aggregate_sample(in_sample, out_sample);
+        ascend_ret = m_agent->do_send_sample();
+        EXPECT_EQ(exp_ascend_ret, ascend_ret);
+        EXPECT_THAT(out_sample, ContainerEq(exp_out_sample));
     }
 
     ctl_step = 2;
@@ -181,36 +181,36 @@ TEST_F(PowerBalancerAgentTest, tree_root_agent)
 
     /// M_STEP_REDUCE_LIMIT
     {
-    in_policy = {curr_cap, 0.0, 0.0, 0.0};
-    exp_out_policy = std::vector<std::vector<double> >(num_children,
-                                                       {0.0, curr_cnt, curr_epc, curr_slk});
-    curr_slk = 9.0;
-    in_sample = std::vector<std::vector<double> >(num_children, {(double)ctl_step, curr_epc, curr_slk, curr_hrm});
-    exp_out_sample = {(double)ctl_step, curr_epc, num_children * curr_slk, curr_hrm};///@todo update when/if updated to use unique child sample inputs
+        in_policy = {curr_cap, 0.0, 0.0, 0.0};
+        exp_out_policy = std::vector<std::vector<double> >(num_children,
+        {0.0, curr_cnt, curr_epc, curr_slk});
+        curr_slk = 9.0;
+        in_sample = std::vector<std::vector<double> >(num_children, {(double)ctl_step, curr_epc, curr_slk, curr_hrm});
+        exp_out_sample = {(double)ctl_step, curr_epc, num_children * curr_slk, curr_hrm};///@todo update when/if updated to use unique child sample inputs
 
-    m_agent->split_policy(in_policy, out_policy);
-    desc_ret = m_agent->do_send_policy();
-    EXPECT_EQ(exp_descend_ret, desc_ret);
-    EXPECT_THAT(out_policy, ContainerEq(exp_out_policy));
+        m_agent->split_policy(in_policy, out_policy);
+        desc_ret = m_agent->do_send_policy();
+        EXPECT_EQ(exp_descend_ret, desc_ret);
+        EXPECT_THAT(out_policy, ContainerEq(exp_out_policy));
 
-    m_agent->aggregate_sample(in_sample, out_sample);
-    ascend_ret = m_agent->do_send_sample();
-    EXPECT_EQ(exp_ascend_ret, ascend_ret);
-    EXPECT_THAT(out_sample, ContainerEq(exp_out_sample));
+        m_agent->aggregate_sample(in_sample, out_sample);
+        ascend_ret = m_agent->do_send_sample();
+        EXPECT_EQ(exp_ascend_ret, ascend_ret);
+        EXPECT_THAT(out_sample, ContainerEq(exp_out_sample));
     }
 
     ctl_step = 3;
     curr_cnt = (double) ctl_step;
     curr_slk = 0.0;///@todo
     exp_out_policy = std::vector<std::vector<double> >(num_children,
-                                                       {0.0, curr_cnt, curr_epc, curr_slk});
+    {0.0, curr_cnt, curr_epc, curr_slk});
 
     /// M_STEP_SEND_DOWN_LIMIT
     {
-    m_agent->split_policy(in_policy, out_policy);
-    desc_ret = m_agent->do_send_policy();
-    EXPECT_EQ(exp_descend_ret, desc_ret);
-    EXPECT_THAT(out_policy, ContainerEq(exp_out_policy));
+        m_agent->split_policy(in_policy, out_policy);
+        desc_ret = m_agent->do_send_policy();
+        EXPECT_EQ(exp_descend_ret, desc_ret);
+        EXPECT_THAT(out_policy, ContainerEq(exp_out_policy));
     }
 }
 
@@ -250,31 +250,31 @@ TEST_F(PowerBalancerAgentTest, tree_agent)
     bool ascend_ret;
     /// M_STEP_SEND_DOWN_LIMIT
     {
-    in_policy = {curr_cap, curr_cnt, curr_epc, curr_slk};
-    exp_out_policy = std::vector<std::vector<double> >(num_children,
-                                                       {curr_cap, curr_cnt, curr_epc, curr_slk});
-    in_sample = std::vector<std::vector<double> >(num_children, {(double)ctl_step, curr_epc, curr_slk, curr_hrm});
-    exp_out_sample = {(double)ctl_step, curr_epc, 0.0, 0.0};
+        in_policy = {curr_cap, curr_cnt, curr_epc, curr_slk};
+        exp_out_policy = std::vector<std::vector<double> >(num_children,
+        {curr_cap, curr_cnt, curr_epc, curr_slk});
+        in_sample = std::vector<std::vector<double> >(num_children, {(double)ctl_step, curr_epc, curr_slk, curr_hrm});
+        exp_out_sample = {(double)ctl_step, curr_epc, 0.0, 0.0};
 
 #ifdef GEOPM_DEBUG
-    std::vector<std::vector<double> > inv_out_policy = {};
-    GEOPM_EXPECT_THROW_MESSAGE(m_agent->split_policy({}, out_policy), GEOPM_ERROR_LOGIC, "policy vectors are not correctly sized.");
-    GEOPM_EXPECT_THROW_MESSAGE(m_agent->split_policy(in_policy, inv_out_policy), GEOPM_ERROR_LOGIC, "policy vectors are not correctly sized.");
+        std::vector<std::vector<double> > inv_out_policy = {};
+        GEOPM_EXPECT_THROW_MESSAGE(m_agent->split_policy({}, out_policy), GEOPM_ERROR_LOGIC, "policy vectors are not correctly sized.");
+        GEOPM_EXPECT_THROW_MESSAGE(m_agent->split_policy(in_policy, inv_out_policy), GEOPM_ERROR_LOGIC, "policy vectors are not correctly sized.");
 #endif
-    m_agent->split_policy(in_policy, out_policy);
-    desc_ret = m_agent->do_send_policy();
-    EXPECT_EQ(exp_descend_ret, desc_ret);
-    EXPECT_THAT(out_policy, ContainerEq(exp_out_policy));
+        m_agent->split_policy(in_policy, out_policy);
+        desc_ret = m_agent->do_send_policy();
+        EXPECT_EQ(exp_descend_ret, desc_ret);
+        EXPECT_THAT(out_policy, ContainerEq(exp_out_policy));
 
 #ifdef GEOPM_DEBUG
-    std::vector<double> inv_out_sample = {};
-    GEOPM_EXPECT_THROW_MESSAGE(m_agent->aggregate_sample({}, out_sample), GEOPM_ERROR_LOGIC, "sample vectors not correctly sized.");
-    GEOPM_EXPECT_THROW_MESSAGE(m_agent->aggregate_sample(in_sample, inv_out_sample), GEOPM_ERROR_LOGIC, "sample vectors not correctly sized.");
+        std::vector<double> inv_out_sample = {};
+        GEOPM_EXPECT_THROW_MESSAGE(m_agent->aggregate_sample({}, out_sample), GEOPM_ERROR_LOGIC, "sample vectors not correctly sized.");
+        GEOPM_EXPECT_THROW_MESSAGE(m_agent->aggregate_sample(in_sample, inv_out_sample), GEOPM_ERROR_LOGIC, "sample vectors not correctly sized.");
 #endif
-    m_agent->aggregate_sample(in_sample, out_sample);
-    ascend_ret = m_agent->do_send_sample();
-    EXPECT_EQ(exp_ascend_ret, ascend_ret);
-    EXPECT_THAT(out_sample, ContainerEq(exp_out_sample));
+        m_agent->aggregate_sample(in_sample, out_sample);
+        ascend_ret = m_agent->do_send_sample();
+        EXPECT_EQ(exp_ascend_ret, ascend_ret);
+        EXPECT_THAT(out_sample, ContainerEq(exp_out_sample));
     }
 
     ctl_step = 1;
@@ -282,22 +282,22 @@ TEST_F(PowerBalancerAgentTest, tree_agent)
 
     /// M_STEP_MEASURE_RUNTIME
     {
-    in_policy = {0.0, curr_cnt, 0.0, 0.0};
-    exp_out_policy = std::vector<std::vector<double> >(num_children,
-                                                       {0.0, curr_cnt, curr_epc, curr_slk});
-    curr_epc = 22.0;
-    in_sample = std::vector<std::vector<double> >(num_children, {(double)ctl_step, curr_epc, curr_slk, curr_hrm});
-    exp_out_sample = {(double)ctl_step, curr_epc, curr_slk, curr_hrm};
+        in_policy = {0.0, curr_cnt, 0.0, 0.0};
+        exp_out_policy = std::vector<std::vector<double> >(num_children,
+        {0.0, curr_cnt, curr_epc, curr_slk});
+        curr_epc = 22.0;
+        in_sample = std::vector<std::vector<double> >(num_children, {(double)ctl_step, curr_epc, curr_slk, curr_hrm});
+        exp_out_sample = {(double)ctl_step, curr_epc, curr_slk, curr_hrm};
 
-    m_agent->split_policy(in_policy, out_policy);
-    desc_ret = m_agent->do_send_policy();
-    EXPECT_EQ(exp_descend_ret, desc_ret);
-    EXPECT_THAT(out_policy, ContainerEq(exp_out_policy));
+        m_agent->split_policy(in_policy, out_policy);
+        desc_ret = m_agent->do_send_policy();
+        EXPECT_EQ(exp_descend_ret, desc_ret);
+        EXPECT_THAT(out_policy, ContainerEq(exp_out_policy));
 
-    m_agent->aggregate_sample(in_sample, out_sample);
-    ascend_ret = m_agent->do_send_sample();
-    EXPECT_EQ(exp_ascend_ret, ascend_ret);
-    EXPECT_THAT(out_sample, ContainerEq(exp_out_sample));
+        m_agent->aggregate_sample(in_sample, out_sample);
+        ascend_ret = m_agent->do_send_sample();
+        EXPECT_EQ(exp_ascend_ret, ascend_ret);
+        EXPECT_THAT(out_sample, ContainerEq(exp_out_sample));
     }
 
     ctl_step = 2;
@@ -305,37 +305,37 @@ TEST_F(PowerBalancerAgentTest, tree_agent)
 
     /// M_STEP_REDUCE_LIMIT
     {
-    in_policy = {0.0, curr_cnt, curr_epc, 0.0};
-    exp_out_policy = std::vector<std::vector<double> >(num_children,
-                                                       {0.0, curr_cnt, curr_epc, curr_slk});
-    curr_slk = 9.0;
-    in_sample = std::vector<std::vector<double> >(num_children, {(double)ctl_step, curr_epc, curr_slk, curr_hrm});
-    exp_out_sample = {(double)ctl_step, curr_epc, num_children * curr_slk, curr_hrm};///@todo update when/if updated to use unique child sample inputs
+        in_policy = {0.0, curr_cnt, curr_epc, 0.0};
+        exp_out_policy = std::vector<std::vector<double> >(num_children,
+        {0.0, curr_cnt, curr_epc, curr_slk});
+        curr_slk = 9.0;
+        in_sample = std::vector<std::vector<double> >(num_children, {(double)ctl_step, curr_epc, curr_slk, curr_hrm});
+        exp_out_sample = {(double)ctl_step, curr_epc, num_children * curr_slk, curr_hrm};///@todo update when/if updated to use unique child sample inputs
 
-    m_agent->split_policy(in_policy, out_policy);
-    desc_ret = m_agent->do_send_policy();
-    EXPECT_EQ(exp_descend_ret, desc_ret);
-    EXPECT_THAT(out_policy, ContainerEq(exp_out_policy));
+        m_agent->split_policy(in_policy, out_policy);
+        desc_ret = m_agent->do_send_policy();
+        EXPECT_EQ(exp_descend_ret, desc_ret);
+        EXPECT_THAT(out_policy, ContainerEq(exp_out_policy));
 
-    m_agent->aggregate_sample(in_sample, out_sample);
-    ascend_ret = m_agent->do_send_sample();
-    EXPECT_EQ(exp_ascend_ret, ascend_ret);
-    EXPECT_THAT(out_sample, ContainerEq(exp_out_sample));
+        m_agent->aggregate_sample(in_sample, out_sample);
+        ascend_ret = m_agent->do_send_sample();
+        EXPECT_EQ(exp_ascend_ret, ascend_ret);
+        EXPECT_THAT(out_sample, ContainerEq(exp_out_sample));
     }
 
     ctl_step = 3;
     curr_cnt = (double) ctl_step;
     curr_slk /= num_children;
     exp_out_policy = std::vector<std::vector<double> >(num_children,
-                                                       {0.0, curr_cnt, 0.0, curr_slk});
+    {0.0, curr_cnt, 0.0, curr_slk});
 
     /// M_STEP_SEND_DOWN_LIMIT
     {
-    in_policy = {0.0, curr_cnt, 0.0, curr_slk};
-    m_agent->split_policy(in_policy, out_policy);
-    desc_ret = m_agent->do_send_policy();
-    EXPECT_EQ(exp_descend_ret, desc_ret);
-    EXPECT_THAT(out_policy, ContainerEq(exp_out_policy));
+        in_policy = {0.0, curr_cnt, 0.0, curr_slk};
+        m_agent->split_policy(in_policy, out_policy);
+        desc_ret = m_agent->do_send_policy();
+        EXPECT_EQ(exp_descend_ret, desc_ret);
+        EXPECT_THAT(out_policy, ContainerEq(exp_out_policy));
     }
 }
 

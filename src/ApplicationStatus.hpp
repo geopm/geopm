@@ -123,8 +123,7 @@ namespace geopm
             void update_cache(void) override;
         private:
             // These fields must all be 32-bit int
-            struct m_app_status_s
-            {
+            struct m_app_status_s {
                 int32_t process; // can be negative, indicating unset process
                 uint32_t hint;
                 uint32_t hash;

@@ -44,8 +44,9 @@ int tutorial_sleep(double big_o, int do_report)
     int err = 0;
     if (big_o != 0.0) {
         struct timespec seconds = {(time_t)(big_o),
-                                   (long)((big_o -
-                                   (time_t)(big_o)) * 1E9)};
+                   (long)((big_o -
+                           (time_t)(big_o)) * 1E9)
+        };
         if (do_report) {
             printf("Sleeping for %e seconds\n", big_o);
             fflush(stdout);

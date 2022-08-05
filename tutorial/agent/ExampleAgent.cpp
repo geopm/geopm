@@ -26,7 +26,7 @@ static void __attribute__((constructor)) example_agent_load(void)
     geopm::agent_factory().register_plugin(ExampleAgent::plugin_name(),
                                            ExampleAgent::make_plugin,
                                            Agent::make_dictionary(ExampleAgent::policy_names(),
-                                                                  ExampleAgent::sample_names()));
+                                                   ExampleAgent::sample_names()));
 }
 
 ExampleAgent::ExampleAgent()
@@ -37,9 +37,9 @@ ExampleAgent::ExampleAgent()
     , m_last_sample(M_NUM_SAMPLE, NAN)
     , m_last_signal(M_NUM_PLAT_SIGNAL, NAN)
     , m_last_wait{{0, 0}}
-    , M_WAIT_SEC(1.0)
-    , m_min_idle(NAN)
-    , m_max_idle(NAN)
+, M_WAIT_SEC(1.0)
+, m_min_idle(NAN)
+, m_max_idle(NAN)
 {
     geopm_time(&m_last_wait);
 }
@@ -225,7 +225,7 @@ std::vector<std::function<std::string(double)> > ExampleAgent::trace_formats(voi
             geopm::string_format_double,   // M_TRACE_VAL_SIGNAL_SYSTEM
             geopm::string_format_double,   // M_TRACE_VAL_SIGNAL_IDLE
             geopm::string_format_double,   // M_TRACE_VAL_SIGNAL_NICE
-            };
+           };
 }
 
 void ExampleAgent::enforce_policy(const std::vector<double> &policy) const

@@ -20,14 +20,14 @@ namespace geopm
                    const std::string &start_time,
                    size_t buffer_size)
         : M_NAME_FORMAT_MAP {{"double", string_format_double},
-                             {"float", string_format_float},
-                             {"integer", string_format_integer},
-                             {"hex", string_format_hex},
-                             {"raw64", string_format_raw64}}
-        , M_SEPARATOR('|')
-        , m_file_path(file_path)
-        , m_buffer_limit(buffer_size)
-        , m_is_active(false)
+        {"float", string_format_float},
+        {"integer", string_format_integer},
+        {"hex", string_format_hex},
+        {"raw64", string_format_raw64}}
+    , M_SEPARATOR('|')
+    , m_file_path(file_path)
+    , m_buffer_limit(buffer_size)
+    , m_is_active(false)
     {
         if (host_name.size()) {
             m_file_path += "-" + host_name;
@@ -128,7 +128,7 @@ namespace geopm
         bool is_once = true;
         for (const auto &it : m_column_name) {
             if (is_once) {
-               is_once = false;
+                is_once = false;
             }
             else {
                 m_buffer << M_SEPARATOR;

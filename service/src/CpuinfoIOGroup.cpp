@@ -85,9 +85,9 @@ namespace geopm
                     continue;
                 }
                 std::transform(line.begin(), line.end(), line.begin(),
-                               [](unsigned char c) {
-                                   return std::tolower(c);
-                               });
+                [](unsigned char c) {
+                    return std::tolower(c);
+                });
                 std::string unit_str[3] = {"ghz", "mhz", "khz"};
                 double unit_factor[3] = {1e9, 1e6, 1e3};
                 for (int unit_idx = 0; unit_idx != 3; ++unit_idx) {
@@ -137,25 +137,28 @@ namespace geopm
                                    const std::string &cpu_freq_min_path,
                                    const std::string &cpu_freq_max_path)
         : m_signal_available({{"CPUINFO::FREQ_MIN", {
-                                   read_cpu_freq(cpu_freq_min_path),
-                                   M_UNITS_HERTZ,
-                                   Agg::expect_same,
-                                   "Minimum processor frequency"}},
-                              {"CPUINFO::FREQ_STICKER", {
-                                   read_cpu_freq_sticker(cpu_info_path),
-                                   M_UNITS_HERTZ,
-                                   Agg::expect_same,
-                                   "Processor base frequency"}},
-                              {"CPUINFO::FREQ_MAX", {
-                                   read_cpu_freq(cpu_freq_max_path),
-                                   M_UNITS_HERTZ,
-                                   Agg::expect_same,
-                                   "Maximum processor frequency"}},
-                              {"CPUINFO::FREQ_STEP", {
-                                   100e6,
-                                   M_UNITS_HERTZ,
-                                   Agg::expect_same,
-                                   "Step size between process frequency settings"}}})
+                read_cpu_freq(cpu_freq_min_path),
+                M_UNITS_HERTZ,
+                Agg::expect_same,
+                "Minimum processor frequency"}},
+        {
+            "CPUINFO::FREQ_STICKER", {
+                read_cpu_freq_sticker(cpu_info_path),
+                M_UNITS_HERTZ,
+                Agg::expect_same,
+                "Processor base frequency"}},
+        {
+            "CPUINFO::FREQ_MAX", {
+                read_cpu_freq(cpu_freq_max_path),
+                M_UNITS_HERTZ,
+                Agg::expect_same,
+                "Maximum processor frequency"}},
+        {
+            "CPUINFO::FREQ_STEP", {
+                100e6,
+                M_UNITS_HERTZ,
+                Agg::expect_same,
+                "Step size between process frequency settings"}}})
     {
         register_signal_alias("CPU_FREQUENCY_MIN_AVAIL", "CPUINFO::FREQ_MIN");
         register_signal_alias("CPU_FREQUENCY_STICKER", "CPUINFO::FREQ_STICKER");

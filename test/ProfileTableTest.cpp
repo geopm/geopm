@@ -251,7 +251,8 @@ TEST_F(ProfileTableTest, name_set_fill_long)
         "establish", "Commerce,", "and", "to", "do", "all", "other", "Acts", "and", "Things", "which", "Independent", "States", "may",
         "of", "right", "do.", "And", "for", "the", "support", "of", "this", "Declaration,", "with", "a", "firm", "reliance", "on", "the",
         "protection", "of", "divine", "Providence,", "we", "mutually", "pledge", "to", "each", "other", "our", "Lives,", "our", "Fortunes",
-        "and", "our", "sacred", "Honor."};
+        "and", "our", "sacred", "Honor."
+    };
 
     std::set<std::string> input_set;
     for (const auto word_cstr : input_text) {

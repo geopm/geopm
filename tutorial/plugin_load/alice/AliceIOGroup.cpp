@@ -43,8 +43,8 @@ std::unique_ptr<geopm::IOGroup> AliceIOGroup::make_plugin(void)
 // Set up mapping between signal names and corresponding indices
 AliceIOGroup::AliceIOGroup()
     : m_signal_idx_map{{"FOO",  M_SIGNAL_FOO},
-                       {"BAR",  M_SIGNAL_BAR},
-                       {"TIME", M_SIGNAL_TIME}}
+    {"BAR",  M_SIGNAL_BAR},
+    {"TIME", M_SIGNAL_TIME}}
 {
 
 }

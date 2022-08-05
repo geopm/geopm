@@ -140,9 +140,9 @@ namespace geopm
             std::map<std::tuple<std::string, int, int>, int> m_existing_signal;
             std::map<std::tuple<std::string, int, int>, int> m_existing_control;
             std::map<int, std::pair<std::vector<int>,
-                                    std::unique_ptr<CombinedSignal> > > m_combined_signal;
+                std::unique_ptr<CombinedSignal> > > m_combined_signal;
             std::map<int, std::pair<std::vector<int>,
-                                    std::unique_ptr<CombinedControl> > > m_combined_control;
+                std::unique_ptr<CombinedControl> > > m_combined_control;
             bool m_do_restore;
             std::map<int, std::shared_ptr<BatchServer> > m_batch_server;
             static const std::map<const std::string, const std::string> m_signal_descriptions;

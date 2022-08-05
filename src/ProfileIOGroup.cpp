@@ -359,7 +359,7 @@ namespace geopm
 
     std::function<std::string(double)> ProfileIOGroup::format_function(const std::string &signal_name) const
     {
-       static const std::map<std::string, std::function<std::string(double)> > fmt_map {
+        static const std::map<std::string, std::function<std::string(double)> > fmt_map {
             {"REGION_PROGRESS", string_format_float},
             {"PROFILE::REGION_PROGRESS", string_format_float},
             {"REGION_HASH", string_format_hex},

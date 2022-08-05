@@ -70,14 +70,12 @@ namespace geopm
             std::vector<double> m_initial_power_limit;
             std::vector<std::vector<unsigned int> > m_supported_freq;
 
-            struct signal_s
-            {
+            struct signal_s {
                 double m_value;
                 bool m_do_read;
             };
 
-            struct control_s
-            {
+            struct control_s {
                 double m_setting;
                 bool m_is_adjusted;
             };

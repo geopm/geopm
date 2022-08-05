@@ -55,7 +55,7 @@ namespace geopm
     struct sst_mbox_interface_s {
         uint32_t cpu_index;
         uint32_t mbox_interface_param; // Parameter to the mbox interface
-                                       // itself
+        // itself
         uint32_t write_value; // Mailbox data, or input parameter for a read
         uint32_t read_value;  // Mailbox data (read-only)
         uint16_t command;

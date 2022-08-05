@@ -59,14 +59,12 @@ namespace geopm
             DCGMDevicePool &m_dcgm_device_pool;
             bool m_is_batch_read;
 
-            struct signal_s
-            {
+            struct signal_s {
                 double m_value;
                 bool m_do_read;
             };
 
-            struct control_s
-            {
+            struct control_s {
                 double m_setting;
                 bool m_is_adjusted;
             };

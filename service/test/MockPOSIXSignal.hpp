@@ -12,7 +12,8 @@
 #include "signal.h"
 
 
-class MockPOSIXSignal : public geopm::POSIXSignal {
+class MockPOSIXSignal : public geopm::POSIXSignal
+{
     public:
         MOCK_METHOD(sigset_t, make_sigset, (const std::set<int> &signal_set), (const, override));
         MOCK_METHOD(geopm::POSIXSignal::m_info_s, reduce_info, (const siginfo_t &info), (const, override));

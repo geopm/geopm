@@ -45,436 +45,468 @@ namespace geopm
         : m_platform_topo(platform_topo)
         , m_levelzero_device_pool(device_pool)
         , m_is_batch_read(false)
-        , m_signal_available({{M_NAME_PREFIX + "GPU_CORE_FREQUENCY_STATUS", {
-                                  "The current frequency of the GPU Compute Hardware.",
-                                  GEOPM_DOMAIN_GPU_CHIP,
-                                  Agg::average,
-                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
-                                  string_format_double,
-                                  {},
-                                  [this](unsigned int domain_idx) -> double
-                                  {
-                                      // Note: Only the domain index is changing
-                                      //       here when signals are generated in
-                                      //       the init function. Everything else
-                                      //       is provided as part of this initial
-                                      //       declaration and does not change per
-                                      //       signal.
-                                      return this->m_levelzero_device_pool.frequency_status(
-                                                   GEOPM_DOMAIN_GPU_CHIP,
-                                                   domain_idx,
-                                                   geopm::LevelZero::M_DOMAIN_COMPUTE);
-                                  },
-                                  1e6
-                                  }},
-                              {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_AVAIL", {
-                                  "The maximum supported frequency of the GPU Compute Hardware.",
-                                  GEOPM_DOMAIN_GPU_CHIP,
-                                  Agg::average,
-                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
-                                  string_format_double,
-                                  {},
-                                  [this](unsigned int domain_idx) -> double
-                                  {
-                                      return this->m_levelzero_device_pool.frequency_max(
-                                                   GEOPM_DOMAIN_GPU_CHIP,
-                                                   domain_idx,
-                                                   geopm::LevelZero::M_DOMAIN_COMPUTE);
-                                  },
-                                  1e6
-                                  }},
-                              {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_AVAIL", {
-                                  "The minimum supported frequency of the GPU Compute Hardware.",
-                                  GEOPM_DOMAIN_GPU_CHIP,
-                                  Agg::average,
-                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
-                                  string_format_double,
-                                  {},
-                                  [this](unsigned int domain_idx) -> double
-                                  {
-                                      return this->m_levelzero_device_pool.frequency_min(
-                                                   GEOPM_DOMAIN_GPU_CHIP,
-                                                   domain_idx,
-                                                   geopm::LevelZero::M_DOMAIN_COMPUTE);
-                                  },
-                                  1e6
-                                  }},
-                              {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_CONTROL", {
-                                  "The maximum frequency request for the GPU Compute Hardware.",
-                                  GEOPM_DOMAIN_GPU_CHIP,
-                                  Agg::average,
-                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
-                                  string_format_double,
-                                  {},
-                                  [this](unsigned int domain_idx) -> double
-                                  {
-                                      return (this->m_levelzero_device_pool.frequency_range(
-                                                   GEOPM_DOMAIN_GPU_CHIP,
-                                                   domain_idx,
-                                                   geopm::LevelZero::M_DOMAIN_COMPUTE)).second;
-                                  },
-                                  1e6
-                                  }},
-                              {M_NAME_PREFIX + "GPU_CORE_THROTTLE_REASONS", {
-                                  "GPU Compute Hardware throttle reasons.  See oneAPI Level Zero Sysman Spec for decoding",
-                                  GEOPM_DOMAIN_GPU_CHIP,
-                                  Agg::integer_bitwise_or,
-                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
-                                  string_format_integer,
-                                  {},
-                                  [this](unsigned int domain_idx) -> double
-                                  {
-                                      return this->m_levelzero_device_pool.frequency_throttle_reasons(
-                                                   GEOPM_DOMAIN_GPU_CHIP,
-                                                   domain_idx,
-                                                   geopm::LevelZero::M_DOMAIN_COMPUTE);
-                                  },
-                                  1
-                                  }},
-                              {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_CONTROL", {
-                                  "The minimum frequency request for the GPU Compute Hardware.",
-                                  GEOPM_DOMAIN_GPU_CHIP,
-                                  Agg::average,
-                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
-                                  string_format_double,
-                                  {},
-                                  [this](unsigned int domain_idx) -> double
-                                  {
-                                      return (this->m_levelzero_device_pool.frequency_range(
-                                                   GEOPM_DOMAIN_GPU_CHIP,
-                                                   domain_idx,
-                                                   geopm::LevelZero::M_DOMAIN_COMPUTE)).first;
-                                  },
-                                  1e6
-                                  }},
-                              {M_NAME_PREFIX + "GPU_ENERGY", {
-                                  "GPU energy in joules.",
-                                  GEOPM_DOMAIN_GPU,
-                                  Agg::sum,
-                                  IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
-                                  string_format_double,
-                                  {},
-                                  [this](unsigned int domain_idx) -> double
-                                  {
-                                      return this->m_levelzero_device_pool.energy(
-                                                   GEOPM_DOMAIN_GPU,
-                                                   domain_idx,
-                                                   geopm::LevelZero::M_DOMAIN_ALL);
-                                  },
-                                  1 / 1e6
-                                  }},
-                              {M_NAME_PREFIX + "GPU_ENERGY_TIMESTAMP", {
-                                  "Timestamp for the GPU energy read in seconds."
-                                  "\nValue is updated on LEVELZERO::GPU_ENERGY read.",
-                                  GEOPM_DOMAIN_GPU,
-                                  Agg::average,
-                                  IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
-                                  string_format_double,
-                                  {},
-                                  [this](unsigned int domain_idx) -> double
-                                  {
-                                      return this->m_levelzero_device_pool.energy_timestamp(
-                                                   GEOPM_DOMAIN_GPU,
-                                                   domain_idx,
-                                                   geopm::LevelZero::M_DOMAIN_ALL);
-                                  },
-                                  1 / 1e6
-                                  }},
-                              {M_NAME_PREFIX + "GPU_UNCORE_FREQUENCY_STATUS", {
-                                  "The current frequency of the GPU Memory Hardware.",
-                                  GEOPM_DOMAIN_GPU_CHIP,
-                                  Agg::average,
-                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
-                                  string_format_double,
-                                  {},
-                                  [this](unsigned int domain_idx) -> double
-                                  {
-                                      return this->m_levelzero_device_pool.frequency_status(
-                                                   GEOPM_DOMAIN_GPU_CHIP,
-                                                   domain_idx,
-                                                   geopm::LevelZero::M_DOMAIN_MEMORY);
-                                  },
-                                  1e6
-                                  }},
-                              {M_NAME_PREFIX + "GPU_UNCORE_FREQUENCY_MAX_AVAIL", {
-                                  "The maximum supported frequency of the GPU Memory Hardware.",
-                                  GEOPM_DOMAIN_GPU_CHIP,
-                                  Agg::average,
-                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
-                                  string_format_double,
-                                  {},
-                                  [this](unsigned int domain_idx) -> double
-                                  {
-                                      return this->m_levelzero_device_pool.frequency_max(
-                                                   GEOPM_DOMAIN_GPU_CHIP,
-                                                   domain_idx,
-                                                   geopm::LevelZero::M_DOMAIN_MEMORY);
-                                  },
-                                  1e6
-                                  }},
-                              {M_NAME_PREFIX + "GPU_UNCORE_FREQUENCY_MIN_AVAIL", {
-                                  "The minimum supported frequency of the GPU Memory Hardware.",
-                                  GEOPM_DOMAIN_GPU_CHIP,
-                                  Agg::average,
-                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
-                                  string_format_double,
-                                  {},
-                                  [this](unsigned int domain_idx) -> double
-                                  {
-                                      return this->m_levelzero_device_pool.frequency_min(
-                                                   GEOPM_DOMAIN_GPU_CHIP,
-                                                   domain_idx,
-                                                   geopm::LevelZero::M_DOMAIN_MEMORY);
-                                  },
-                                  1e6
-                                  }},
-                              {M_NAME_PREFIX + "GPU_POWER_LIMIT_DEFAULT", {
-                                  "Default power limit of the GPU in watts.",
-                                  GEOPM_DOMAIN_GPU,
-                                  Agg::sum,
-                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
-                                  string_format_double,
-                                  {},
-                                  [this](unsigned int domain_idx) -> double
-                                  {
-                                      return this->m_levelzero_device_pool.power_limit_tdp(
-                                                   GEOPM_DOMAIN_GPU,
-                                                   domain_idx,
-                                                   geopm::LevelZero::M_DOMAIN_ALL);
-                                  },
-                                  1 / 1e3
-                                  }},
-                              {M_NAME_PREFIX + "GPU_POWER_LIMIT_MIN_AVAIL", {
-                                  "The minimum supported power limit in watts.",
-                                  GEOPM_DOMAIN_GPU,
-                                  Agg::sum,
-                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
-                                  string_format_double,
-                                  {},
-                                  [this](unsigned int domain_idx) -> double
-                                  {
-                                      return this->m_levelzero_device_pool.power_limit_min(
-                                                   GEOPM_DOMAIN_GPU,
-                                                   domain_idx,
-                                                   geopm::LevelZero::M_DOMAIN_ALL);
-                                  },
-                                  1 / 1e3
-                                  }},
-                              {M_NAME_PREFIX + "GPU_POWER_LIMIT_MAX_AVAIL", {
-                                  "The maximum supported power limit in watts.",
-                                  GEOPM_DOMAIN_GPU,
-                                  Agg::sum,
-                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
-                                  string_format_double,
-                                  {},
-                                  [this](unsigned int domain_idx) -> double
-                                  {
-                                      return this->m_levelzero_device_pool.power_limit_max(
-                                                   GEOPM_DOMAIN_GPU,
-                                                   domain_idx,
-                                                   geopm::LevelZero::M_DOMAIN_ALL);
-                                  },
-                                  1 / 1e3
-                                  }},
-                              {M_NAME_PREFIX + "GPU_ACTIVE_TIME", {
-                                  "Time in seconds that this resource is actively running a workload."
-                                  "\nSee the Intel oneAPI Level Zero Sysman documentation for more info.",
-                                  GEOPM_DOMAIN_GPU_CHIP,
-                                  Agg::average,
-                                  IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
-                                  string_format_double,
-                                  {},
-                                  [this](unsigned int domain_idx) -> double
-                                  {
-                                      return this->m_levelzero_device_pool.active_time(
-                                                   GEOPM_DOMAIN_GPU_CHIP,
-                                                   domain_idx,
-                                                   geopm::LevelZero::M_DOMAIN_ALL);
-                                  },
-                                  1 / 1e6
-                                  }},
-                              {M_NAME_PREFIX + "GPU_ACTIVE_TIME_TIMESTAMP", {
-                                  "The timestamp for the LEVELZERO::GPU_ACTIVE_TIME read in seconds."
-                                  "\nValue is updated on LEVELZERO::GPU_ACTIVE_TIME read."
-                                  "\nSee the Intel oneAPI Level Zero Sysman documentation for more info.",
-                                  GEOPM_DOMAIN_GPU_CHIP,
-                                  Agg::average,
-                                  IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
-                                  string_format_double,
-                                  {},
-                                  [this](unsigned int domain_idx) -> double
-                                  {
-                                      return this->m_levelzero_device_pool.active_time_timestamp(
-                                                   GEOPM_DOMAIN_GPU_CHIP,
-                                                   domain_idx,
-                                                   geopm::LevelZero::M_DOMAIN_ALL);
-                                  },
-                                  1 / 1e6
-                                  }},
-                              {M_NAME_PREFIX + "GPU_CORE_ACTIVE_TIME", {
-                                  "Time in seconds that the GPU compute engines (EUs) are actively running a workload."
-                                  "\nSee the Intel oneAPI Level Zero Sysman documentation for more info.",
-                                  GEOPM_DOMAIN_GPU_CHIP,
-                                  Agg::average,
-                                  IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
-                                  string_format_double,
-                                  {},
-                                  [this](unsigned int domain_idx) -> double
-                                  {
-                                      return this->m_levelzero_device_pool.active_time(
-                                                   GEOPM_DOMAIN_GPU_CHIP,
-                                                   domain_idx,
-                                                   geopm::LevelZero::M_DOMAIN_COMPUTE);
-                                  },
-                                  1 / 1e6
-                                  }},
-                              {M_NAME_PREFIX + "GPU_CORE_ACTIVE_TIME_TIMESTAMP", {
-                                  "The timestamp for the LEVELZERO::GPU_CORE_ACTIVE_TIME signal read in seconds."
-                                  "\nValue is updated on LEVELZERO::GPU_CORE_ACTIVE_TIME read."
-                                  "\nSee the Intel oneAPI Level Zero Sysman documentation for more info.",
-                                  GEOPM_DOMAIN_GPU_CHIP,
-                                  Agg::average,
-                                  IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
-                                  string_format_double,
-                                  {},
-                                  [this](unsigned int domain_idx) -> double
-                                  {
-                                      return this->m_levelzero_device_pool.active_time_timestamp(
-                                                   GEOPM_DOMAIN_GPU_CHIP,
-                                                   domain_idx,
-                                                   geopm::LevelZero::M_DOMAIN_COMPUTE);
-                                  },
-                                  1 / 1e6
-                                  }},
-                              {M_NAME_PREFIX + "GPU_UNCORE_ACTIVE_TIME", {
-                                  "Time in seconds that the GPU copy engines are actively running a workload."
-                                  "\nSee the Intel oneAPI Level Zero Sysman documentation for more info.",
-                                  GEOPM_DOMAIN_GPU_CHIP,
-                                  Agg::average,
-                                  IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
-                                  string_format_double,
-                                  {},
-                                  [this](unsigned int domain_idx) -> double
-                                  {
-                                      return this->m_levelzero_device_pool.active_time(
-                                                   GEOPM_DOMAIN_GPU_CHIP,
-                                                   domain_idx,
-                                                   geopm::LevelZero::M_DOMAIN_MEMORY);
-                                  },
-                                  1 / 1e6
-                                  }},
-                              {M_NAME_PREFIX + "GPU_UNCORE_ACTIVE_TIME_TIMESTAMP", {
-                                  "The timestamp for the LEVELZERO::GPU_UNCORE_ACTIVE_TIME signal read in seconds."
-                                  "\nValue is updated on LEVELZERO::GPU_UNCORE_ACTIVE_TIME read."
-                                  "\nSee the Intel oneAPI Level Zero Sysman documentation for more info.",
-                                  GEOPM_DOMAIN_GPU_CHIP,
-                                  Agg::average,
-                                  IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
-                                  string_format_double,
-                                  {},
-                                  [this](unsigned int domain_idx) -> double
-                                  {
-                                      return this->m_levelzero_device_pool.active_time_timestamp(
-                                                   GEOPM_DOMAIN_GPU_CHIP,
-                                                   domain_idx,
-                                                   geopm::LevelZero::M_DOMAIN_MEMORY);
-                                  },
-                                  1 / 1e6
-                                  }},
-                              {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL", {
-                                  "Last value written to both the minimum and maximum frequency request for "
-                                  "the GPU Compute Hardware to a single user provided value (min=max)."
-                                  "\nOnly valid as a signal after being written, NAN returned otherwise."
-                                  "\nReadings are valid only after writing to this control",
-                                  GEOPM_DOMAIN_GPU_CHIP,
-                                  Agg::average,
-                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
-                                  string_format_double,
-                                  {},
-                                  [this](unsigned int domain_idx) -> double
-                                  {
-                                      auto range_pair =  this->m_levelzero_device_pool.frequency_range(
-                                                               GEOPM_DOMAIN_GPU_CHIP,
-                                                               domain_idx,
-                                                               geopm::LevelZero::M_DOMAIN_COMPUTE);
-                                      return range_pair.first == range_pair.second ? range_pair.first
-                                                              : NAN;
-                                  },
-                                  1e6
-                                  }}
-                             })
-        , m_control_available({{M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_CONTROL", {
-                                    "Sets the minimum frequency request for the GPU Compute Hardware.",
-                                    {},
-                                    GEOPM_DOMAIN_GPU_CHIP,
-                                    Agg::average,
-                                    string_format_double
-                                    }},
-                               {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_CONTROL", {
-                                    "Sets the maximum frequency request for the GPU Compute Hardware.",
-                                    {},
-                                    GEOPM_DOMAIN_GPU_CHIP,
-                                    Agg::average,
-                                    string_format_double
-                                    }},
-                               {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL", {
-                                    "Sets both the minimum and maximum frequency request for the GPU Compute Hardware"
-                                    " to a single user provided value (min=max)."
-                                    "\nOnly valid as a signal after being written, NAN returned otherwise.",
-                                    {},
-                                    GEOPM_DOMAIN_GPU_CHIP,
-                                    Agg::average,
-                                    string_format_double
-                                    }}
-                              })
-        , m_special_signal_set({M_NAME_PREFIX + "GPU_ENERGY",
-                                M_NAME_PREFIX + "GPU_ACTIVE_TIME",
-                                M_NAME_PREFIX + "GPU_CORE_ACTIVE_TIME",
-                                M_NAME_PREFIX + "GPU_UNCORE_ACTIVE_TIME"})
+        , m_signal_available({{
+            M_NAME_PREFIX + "GPU_CORE_FREQUENCY_STATUS", {
+                "The current frequency of the GPU Compute Hardware.",
+                GEOPM_DOMAIN_GPU_CHIP,
+                Agg::average,
+                IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
+                string_format_double,
+                {},
+                [this](unsigned int domain_idx) -> double
+                {
+                    // Note: Only the domain index is changing
+                    //       here when signals are generated in
+                    //       the init function. Everything else
+                    //       is provided as part of this initial
+                    //       declaration and does not change per
+                    //       signal.
+                    return this->m_levelzero_device_pool.frequency_status(
+                        GEOPM_DOMAIN_GPU_CHIP,
+                        domain_idx,
+                        geopm::LevelZero::M_DOMAIN_COMPUTE);
+                },
+                1e6
+            }},
+        {
+            M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_AVAIL", {
+                "The maximum supported frequency of the GPU Compute Hardware.",
+                GEOPM_DOMAIN_GPU_CHIP,
+                Agg::average,
+                IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
+                string_format_double,
+                {},
+                [this](unsigned int domain_idx) -> double
+                {
+                    return this->m_levelzero_device_pool.frequency_max(
+                        GEOPM_DOMAIN_GPU_CHIP,
+                        domain_idx,
+                        geopm::LevelZero::M_DOMAIN_COMPUTE);
+                },
+                1e6
+            }},
+        {
+            M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_AVAIL", {
+                "The minimum supported frequency of the GPU Compute Hardware.",
+                GEOPM_DOMAIN_GPU_CHIP,
+                Agg::average,
+                IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
+                string_format_double,
+                {},
+                [this](unsigned int domain_idx) -> double
+                {
+                    return this->m_levelzero_device_pool.frequency_min(
+                        GEOPM_DOMAIN_GPU_CHIP,
+                        domain_idx,
+                        geopm::LevelZero::M_DOMAIN_COMPUTE);
+                },
+                1e6
+            }},
+        {
+            M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_CONTROL", {
+                "The maximum frequency request for the GPU Compute Hardware.",
+                GEOPM_DOMAIN_GPU_CHIP,
+                Agg::average,
+                IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
+                string_format_double,
+                {},
+                [this](unsigned int domain_idx) -> double
+                {
+                    return (this->m_levelzero_device_pool.frequency_range(
+                                GEOPM_DOMAIN_GPU_CHIP,
+                                domain_idx,
+                                geopm::LevelZero::M_DOMAIN_COMPUTE)).second;
+                },
+                1e6
+            }},
+        {
+            M_NAME_PREFIX + "GPU_CORE_THROTTLE_REASONS", {
+                "GPU Compute Hardware throttle reasons.  See oneAPI Level Zero Sysman Spec for decoding",
+                GEOPM_DOMAIN_GPU_CHIP,
+                Agg::integer_bitwise_or,
+                IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
+                string_format_integer,
+                {},
+                [this](unsigned int domain_idx) -> double
+                {
+                    return this->m_levelzero_device_pool.frequency_throttle_reasons(
+                        GEOPM_DOMAIN_GPU_CHIP,
+                        domain_idx,
+                        geopm::LevelZero::M_DOMAIN_COMPUTE);
+                },
+                1
+            }},
+        {
+            M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_CONTROL", {
+                "The minimum frequency request for the GPU Compute Hardware.",
+                GEOPM_DOMAIN_GPU_CHIP,
+                Agg::average,
+                IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
+                string_format_double,
+                {},
+                [this](unsigned int domain_idx) -> double
+                {
+                    return (this->m_levelzero_device_pool.frequency_range(
+                                GEOPM_DOMAIN_GPU_CHIP,
+                                domain_idx,
+                                geopm::LevelZero::M_DOMAIN_COMPUTE)).first;
+                },
+                1e6
+            }},
+        {
+            M_NAME_PREFIX + "GPU_ENERGY", {
+                "GPU energy in joules.",
+                GEOPM_DOMAIN_GPU,
+                Agg::sum,
+                IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
+                string_format_double,
+                {},
+                [this](unsigned int domain_idx) -> double
+                {
+                    return this->m_levelzero_device_pool.energy(
+                        GEOPM_DOMAIN_GPU,
+                        domain_idx,
+                        geopm::LevelZero::M_DOMAIN_ALL);
+                },
+                1 / 1e6
+            }},
+        {
+            M_NAME_PREFIX + "GPU_ENERGY_TIMESTAMP", {
+                "Timestamp for the GPU energy read in seconds."
+                "\nValue is updated on LEVELZERO::GPU_ENERGY read.",
+                GEOPM_DOMAIN_GPU,
+                Agg::average,
+                IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
+                string_format_double,
+                {},
+                [this](unsigned int domain_idx) -> double
+                {
+                    return this->m_levelzero_device_pool.energy_timestamp(
+                        GEOPM_DOMAIN_GPU,
+                        domain_idx,
+                        geopm::LevelZero::M_DOMAIN_ALL);
+                },
+                1 / 1e6
+            }},
+        {
+            M_NAME_PREFIX + "GPU_UNCORE_FREQUENCY_STATUS", {
+                "The current frequency of the GPU Memory Hardware.",
+                GEOPM_DOMAIN_GPU_CHIP,
+                Agg::average,
+                IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
+                string_format_double,
+                {},
+                [this](unsigned int domain_idx) -> double
+                {
+                    return this->m_levelzero_device_pool.frequency_status(
+                        GEOPM_DOMAIN_GPU_CHIP,
+                        domain_idx,
+                        geopm::LevelZero::M_DOMAIN_MEMORY);
+                },
+                1e6
+            }},
+        {
+            M_NAME_PREFIX + "GPU_UNCORE_FREQUENCY_MAX_AVAIL", {
+                "The maximum supported frequency of the GPU Memory Hardware.",
+                GEOPM_DOMAIN_GPU_CHIP,
+                Agg::average,
+                IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
+                string_format_double,
+                {},
+                [this](unsigned int domain_idx) -> double
+                {
+                    return this->m_levelzero_device_pool.frequency_max(
+                        GEOPM_DOMAIN_GPU_CHIP,
+                        domain_idx,
+                        geopm::LevelZero::M_DOMAIN_MEMORY);
+                },
+                1e6
+            }},
+        {
+            M_NAME_PREFIX + "GPU_UNCORE_FREQUENCY_MIN_AVAIL", {
+                "The minimum supported frequency of the GPU Memory Hardware.",
+                GEOPM_DOMAIN_GPU_CHIP,
+                Agg::average,
+                IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
+                string_format_double,
+                {},
+                [this](unsigned int domain_idx) -> double
+                {
+                    return this->m_levelzero_device_pool.frequency_min(
+                        GEOPM_DOMAIN_GPU_CHIP,
+                        domain_idx,
+                        geopm::LevelZero::M_DOMAIN_MEMORY);
+                },
+                1e6
+            }},
+        {
+            M_NAME_PREFIX + "GPU_POWER_LIMIT_DEFAULT", {
+                "Default power limit of the GPU in watts.",
+                GEOPM_DOMAIN_GPU,
+                Agg::sum,
+                IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
+                string_format_double,
+                {},
+                [this](unsigned int domain_idx) -> double
+                {
+                    return this->m_levelzero_device_pool.power_limit_tdp(
+                        GEOPM_DOMAIN_GPU,
+                        domain_idx,
+                        geopm::LevelZero::M_DOMAIN_ALL);
+                },
+                1 / 1e3
+            }},
+        {
+            M_NAME_PREFIX + "GPU_POWER_LIMIT_MIN_AVAIL", {
+                "The minimum supported power limit in watts.",
+                GEOPM_DOMAIN_GPU,
+                Agg::sum,
+                IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
+                string_format_double,
+                {},
+                [this](unsigned int domain_idx) -> double
+                {
+                    return this->m_levelzero_device_pool.power_limit_min(
+                        GEOPM_DOMAIN_GPU,
+                        domain_idx,
+                        geopm::LevelZero::M_DOMAIN_ALL);
+                },
+                1 / 1e3
+            }},
+        {
+            M_NAME_PREFIX + "GPU_POWER_LIMIT_MAX_AVAIL", {
+                "The maximum supported power limit in watts.",
+                GEOPM_DOMAIN_GPU,
+                Agg::sum,
+                IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
+                string_format_double,
+                {},
+                [this](unsigned int domain_idx) -> double
+                {
+                    return this->m_levelzero_device_pool.power_limit_max(
+                        GEOPM_DOMAIN_GPU,
+                        domain_idx,
+                        geopm::LevelZero::M_DOMAIN_ALL);
+                },
+                1 / 1e3
+            }},
+        {
+            M_NAME_PREFIX + "GPU_ACTIVE_TIME", {
+                "Time in seconds that this resource is actively running a workload."
+                "\nSee the Intel oneAPI Level Zero Sysman documentation for more info.",
+                GEOPM_DOMAIN_GPU_CHIP,
+                Agg::average,
+                IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
+                string_format_double,
+                {},
+                [this](unsigned int domain_idx) -> double
+                {
+                    return this->m_levelzero_device_pool.active_time(
+                        GEOPM_DOMAIN_GPU_CHIP,
+                        domain_idx,
+                        geopm::LevelZero::M_DOMAIN_ALL);
+                },
+                1 / 1e6
+            }},
+        {
+            M_NAME_PREFIX + "GPU_ACTIVE_TIME_TIMESTAMP", {
+                "The timestamp for the LEVELZERO::GPU_ACTIVE_TIME read in seconds."
+                "\nValue is updated on LEVELZERO::GPU_ACTIVE_TIME read."
+                "\nSee the Intel oneAPI Level Zero Sysman documentation for more info.",
+                GEOPM_DOMAIN_GPU_CHIP,
+                Agg::average,
+                IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
+                string_format_double,
+                {},
+                [this](unsigned int domain_idx) -> double
+                {
+                    return this->m_levelzero_device_pool.active_time_timestamp(
+                        GEOPM_DOMAIN_GPU_CHIP,
+                        domain_idx,
+                        geopm::LevelZero::M_DOMAIN_ALL);
+                },
+                1 / 1e6
+            }},
+        {
+            M_NAME_PREFIX + "GPU_CORE_ACTIVE_TIME", {
+                "Time in seconds that the GPU compute engines (EUs) are actively running a workload."
+                "\nSee the Intel oneAPI Level Zero Sysman documentation for more info.",
+                GEOPM_DOMAIN_GPU_CHIP,
+                Agg::average,
+                IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
+                string_format_double,
+                {},
+                [this](unsigned int domain_idx) -> double
+                {
+                    return this->m_levelzero_device_pool.active_time(
+                        GEOPM_DOMAIN_GPU_CHIP,
+                        domain_idx,
+                        geopm::LevelZero::M_DOMAIN_COMPUTE);
+                },
+                1 / 1e6
+            }},
+        {
+            M_NAME_PREFIX + "GPU_CORE_ACTIVE_TIME_TIMESTAMP", {
+                "The timestamp for the LEVELZERO::GPU_CORE_ACTIVE_TIME signal read in seconds."
+                "\nValue is updated on LEVELZERO::GPU_CORE_ACTIVE_TIME read."
+                "\nSee the Intel oneAPI Level Zero Sysman documentation for more info.",
+                GEOPM_DOMAIN_GPU_CHIP,
+                Agg::average,
+                IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
+                string_format_double,
+                {},
+                [this](unsigned int domain_idx) -> double
+                {
+                    return this->m_levelzero_device_pool.active_time_timestamp(
+                        GEOPM_DOMAIN_GPU_CHIP,
+                        domain_idx,
+                        geopm::LevelZero::M_DOMAIN_COMPUTE);
+                },
+                1 / 1e6
+            }},
+        {
+            M_NAME_PREFIX + "GPU_UNCORE_ACTIVE_TIME", {
+                "Time in seconds that the GPU copy engines are actively running a workload."
+                "\nSee the Intel oneAPI Level Zero Sysman documentation for more info.",
+                GEOPM_DOMAIN_GPU_CHIP,
+                Agg::average,
+                IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
+                string_format_double,
+                {},
+                [this](unsigned int domain_idx) -> double
+                {
+                    return this->m_levelzero_device_pool.active_time(
+                        GEOPM_DOMAIN_GPU_CHIP,
+                        domain_idx,
+                        geopm::LevelZero::M_DOMAIN_MEMORY);
+                },
+                1 / 1e6
+            }},
+        {
+            M_NAME_PREFIX + "GPU_UNCORE_ACTIVE_TIME_TIMESTAMP", {
+                "The timestamp for the LEVELZERO::GPU_UNCORE_ACTIVE_TIME signal read in seconds."
+                "\nValue is updated on LEVELZERO::GPU_UNCORE_ACTIVE_TIME read."
+                "\nSee the Intel oneAPI Level Zero Sysman documentation for more info.",
+                GEOPM_DOMAIN_GPU_CHIP,
+                Agg::average,
+                IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
+                string_format_double,
+                {},
+                [this](unsigned int domain_idx) -> double
+                {
+                    return this->m_levelzero_device_pool.active_time_timestamp(
+                        GEOPM_DOMAIN_GPU_CHIP,
+                        domain_idx,
+                        geopm::LevelZero::M_DOMAIN_MEMORY);
+                },
+                1 / 1e6
+            }},
+        {
+            M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL", {
+                "Last value written to both the minimum and maximum frequency request for "
+                "the GPU Compute Hardware to a single user provided value (min=max)."
+                "\nOnly valid as a signal after being written, NAN returned otherwise."
+                "\nReadings are valid only after writing to this control",
+                GEOPM_DOMAIN_GPU_CHIP,
+                Agg::average,
+                IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
+                string_format_double,
+                {},
+                [this](unsigned int domain_idx) -> double
+                {
+                    auto range_pair =  this->m_levelzero_device_pool.frequency_range(
+                        GEOPM_DOMAIN_GPU_CHIP,
+                        domain_idx,
+                        geopm::LevelZero::M_DOMAIN_COMPUTE);
+                    return range_pair.first == range_pair.second ? range_pair.first
+                    : NAN;
+                },
+                1e6
+            }}
+    })
+    , m_control_available({{
+            M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_CONTROL", {
+                "Sets the minimum frequency request for the GPU Compute Hardware.",
+                {},
+                GEOPM_DOMAIN_GPU_CHIP,
+                Agg::average,
+                string_format_double
+            }},
+        {
+            M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_CONTROL", {
+                "Sets the maximum frequency request for the GPU Compute Hardware.",
+                {},
+                GEOPM_DOMAIN_GPU_CHIP,
+                Agg::average,
+                string_format_double
+            }},
+        {
+            M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL", {
+                "Sets both the minimum and maximum frequency request for the GPU Compute Hardware"
+                " to a single user provided value (min=max)."
+                "\nOnly valid as a signal after being written, NAN returned otherwise.",
+                {},
+                GEOPM_DOMAIN_GPU_CHIP,
+                Agg::average,
+                string_format_double
+            }}
+    })
+    , m_special_signal_set({M_NAME_PREFIX + "GPU_ENERGY",
+                            M_NAME_PREFIX + "GPU_ACTIVE_TIME",
+                            M_NAME_PREFIX + "GPU_CORE_ACTIVE_TIME",
+                            M_NAME_PREFIX + "GPU_UNCORE_ACTIVE_TIME"})
 
-        , m_derivative_signal_map ({
-            {M_NAME_PREFIX + "GPU_POWER",
-                    {"Average GPU power over 40 ms or 8 control loop iterations."
-                     "  Derivative signal based on LEVELZERO::GPU_ENERGY.",
-                     M_NAME_PREFIX + "GPU_ENERGY",
-                     M_NAME_PREFIX + "GPU_ENERGY_TIMESTAMP",
-                     IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE}},
-            {M_NAME_PREFIX + "GPU_UTILIZATION",
-                    {"Utilization of all GPU engines. Level Zero logical engines may map to the same hardware,"
-                     " resulting in a reduced signal range (i.e. less than 0 to 1) in some cases."
-                     "\nSee the LevelZero Sysman Engine documentation for more info.",
-                     M_NAME_PREFIX + "GPU_ACTIVE_TIME",
-                     M_NAME_PREFIX + "GPU_ACTIVE_TIME_TIMESTAMP",
-                     IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE}},
-            {M_NAME_PREFIX + "GPU_CORE_UTILIZATION",
-                    {"Utilization of the GPU Compute engines (EUs). Level Zero logical engines may map to the same hardware,"
-                     " resulting in a reduced signal range (i.e. less than 0 to 1) in some cases."
-                     "\nSee the LevelZero Sysman Engine documentation for more info.",
-                     M_NAME_PREFIX + "GPU_CORE_ACTIVE_TIME",
-                     M_NAME_PREFIX + "GPU_CORE_ACTIVE_TIME_TIMESTAMP",
-                     IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE}},
-            {M_NAME_PREFIX + "GPU_UNCORE_UTILIZATION",
-                    {"Utilization of the GPU Copy engines. Level Zero logical engines may map to the same hardware,"
-                     " resulting in a reduced signal range (i.e. less than 0 to 1) in some cases."
-                     "\nSee the LevelZero Sysman Engine documentation for more info.",
-                     M_NAME_PREFIX + "GPU_UNCORE_ACTIVE_TIME",
-                     M_NAME_PREFIX + "GPU_UNCORE_ACTIVE_TIME_TIMESTAMP",
-                     IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE}},
-        })
-        , m_mock_save_ctl(save_control_test)
+    , m_derivative_signal_map ({
+        {
+            M_NAME_PREFIX + "GPU_POWER",
+            {
+                "Average GPU power over 40 ms or 8 control loop iterations."
+                "  Derivative signal based on LEVELZERO::GPU_ENERGY.",
+                M_NAME_PREFIX + "GPU_ENERGY",
+                M_NAME_PREFIX + "GPU_ENERGY_TIMESTAMP",
+                IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE}},
+        {
+            M_NAME_PREFIX + "GPU_UTILIZATION",
+            {
+                "Utilization of all GPU engines. Level Zero logical engines may map to the same hardware,"
+                " resulting in a reduced signal range (i.e. less than 0 to 1) in some cases."
+                "\nSee the LevelZero Sysman Engine documentation for more info.",
+                M_NAME_PREFIX + "GPU_ACTIVE_TIME",
+                M_NAME_PREFIX + "GPU_ACTIVE_TIME_TIMESTAMP",
+                IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE}},
+        {
+            M_NAME_PREFIX + "GPU_CORE_UTILIZATION",
+            {
+                "Utilization of the GPU Compute engines (EUs). Level Zero logical engines may map to the same hardware,"
+                " resulting in a reduced signal range (i.e. less than 0 to 1) in some cases."
+                "\nSee the LevelZero Sysman Engine documentation for more info.",
+                M_NAME_PREFIX + "GPU_CORE_ACTIVE_TIME",
+                M_NAME_PREFIX + "GPU_CORE_ACTIVE_TIME_TIMESTAMP",
+                IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE}},
+        {
+            M_NAME_PREFIX + "GPU_UNCORE_UTILIZATION",
+            {
+                "Utilization of the GPU Copy engines. Level Zero logical engines may map to the same hardware,"
+                " resulting in a reduced signal range (i.e. less than 0 to 1) in some cases."
+                "\nSee the LevelZero Sysman Engine documentation for more info.",
+                M_NAME_PREFIX + "GPU_UNCORE_ACTIVE_TIME",
+                M_NAME_PREFIX + "GPU_UNCORE_ACTIVE_TIME_TIMESTAMP",
+                IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE}},
+    })
+    , m_mock_save_ctl(save_control_test)
     {
         std::vector <std::string> unsupported_signal_names;
         // populate signals for each domain
         for (auto &sv : m_signal_available) {
             std::vector<std::shared_ptr<Signal> > result;
             for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(
-                                     signal_domain_type(sv.first)); ++domain_idx) {
+                     signal_domain_type(sv.first)); ++domain_idx) {
                 try {
                     sv.second.m_devpool_func(domain_idx);
                     std::shared_ptr<Signal> signal =
-                            std::make_shared<LevelZeroSignal>(sv.second.m_devpool_func,
-                                                              domain_idx,
-                                                              sv.second.m_scalar);
+                        std::make_shared<LevelZeroSignal>(sv.second.m_devpool_func,
+                                                          domain_idx,
+                                                          sv.second.m_scalar);
                     result.push_back(signal);
                 }
                 catch (const geopm::Exception &ex) {
@@ -499,7 +531,7 @@ namespace geopm
         register_signal_alias("GPU_ENERGY", M_NAME_PREFIX + "GPU_ENERGY");
         register_signal_alias("GPU_POWER", M_NAME_PREFIX + "GPU_POWER");
         register_signal_alias("GPU_CORE_FREQUENCY_CONTROL",
-                               M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL");
+                              M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL");
         register_control_alias("GPU_CORE_FREQUENCY_CONTROL",
                                M_NAME_PREFIX + "GPU_CORE_FREQUENCY_CONTROL");
         register_signal_alias("GPU_UTILIZATION", M_NAME_PREFIX + "GPU_UTILIZATION");
@@ -569,7 +601,8 @@ namespace geopm
         restore_control();
     }
 
-    void LevelZeroIOGroup::register_derivative_signals(void) {
+    void LevelZeroIOGroup::register_derivative_signals(void)
+    {
         int derivative_window = 8;
         double sleep_time = 0.005;
 
@@ -607,7 +640,8 @@ namespace geopm
                                                 format_function(ds.second.m_base_name),
                                                 result,
                                                 nullptr,
-                                                1};
+                                                1
+                                               };
 
             }
         }
@@ -685,7 +719,7 @@ namespace geopm
         }
         if (domain_idx < 0 ||
             domain_idx >= m_platform_topo.num_domain(
-                                          signal_domain_type(signal_name))) {
+                signal_domain_type(signal_name))) {
             throw Exception("LevelZeroIOGroup::" + std::string(__func__) +
                             ": domain_idx out of range.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -703,10 +737,10 @@ namespace geopm
         if (string_ends_with(signal_name, "_TIMESTAMP")) {
             std::string base_signal_name =
                 (std::string)signal_name.substr(
-                0, signal_name.length() - strlen("_TIMESTAMP"));
+                    0, signal_name.length() - strlen("_TIMESTAMP"));
 
             std::shared_ptr<Signal> base_signal = m_signal_available.at(
-                base_signal_name).m_signals.at(domain_idx);
+                                                      base_signal_name).m_signals.at(domain_idx);
 
             // check if base signal was pushed
             for (size_t ii = 0; !is_found && ii < m_signal_pushed.size(); ++ii) {
@@ -725,7 +759,7 @@ namespace geopm
         is_found = false;
 
         std::shared_ptr<Signal> signal = m_signal_available.at(
-                                         signal_name).m_signals.at(domain_idx);
+                                             signal_name).m_signals.at(domain_idx);
 
         // Check if signal was already pushed.
         for (size_t ii = 0; !is_found && ii < m_signal_pushed.size(); ++ii) {
@@ -785,7 +819,7 @@ namespace geopm
         int result = -1;
         bool is_found = false;
         std::shared_ptr<control_s> control = m_control_available.at(
-                                             control_name).m_controls.at(domain_idx);
+                                                 control_name).m_controls.at(domain_idx);
 
         // Check if control was already pushed
         for (size_t ii = 0; !is_found && ii < m_control_pushed.size(); ++ii) {
@@ -897,11 +931,11 @@ namespace geopm
             result = (it->second.m_signals.at(domain_idx))->read();
         }
         else {
-    #ifdef GEOPM_DEBUG
+#ifdef GEOPM_DEBUG
             throw Exception("LevelZeroIOGroup::" + std::string(__func__) +
                             ": Handling not defined for " + signal_name,
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-    #endif
+#endif
         }
         return result;
     }
@@ -924,7 +958,7 @@ namespace geopm
         }
         if (domain_idx < 0 ||
             domain_idx >= m_platform_topo.num_domain(
-                                          control_domain_type(control_name))) {
+                control_domain_type(control_name))) {
             throw Exception("LevelZeroIOGroup::" + std::string(__func__) +
                             ": domain_idx out of range.", GEOPM_ERROR_INVALID,
                             __FILE__, __LINE__);
@@ -959,11 +993,11 @@ namespace geopm
                                                       curr_min / 1e6, setting / 1e6);
         }
         else {
-    #ifdef GEOPM_DEBUG
-                throw Exception("LevelZeroIOGroup::" + std::string(__func__) +
-                                "Handling not defined for " + control_name,
-                                GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-    #endif
+#ifdef GEOPM_DEBUG
+            throw Exception("LevelZeroIOGroup::" + std::string(__func__) +
+                            "Handling not defined for " + control_name,
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+#endif
         }
     }
 
@@ -979,8 +1013,8 @@ namespace geopm
                 // Currently only the levelzero compute domain control is supported.
                 // As new controls are added they should be included
                 m_frequency_range.push_back(m_levelzero_device_pool.frequency_range(
-                                            GEOPM_DOMAIN_GPU_CHIP, domain_idx,
-                                            geopm::LevelZero::M_DOMAIN_COMPUTE));
+                                                GEOPM_DOMAIN_GPU_CHIP, domain_idx,
+                                                geopm::LevelZero::M_DOMAIN_COMPUTE));
             }
             catch (const geopm::Exception &ex) {
                 throw Exception("LevelZeroIOGroup::" + std::string(__func__) + ": "
@@ -1002,17 +1036,17 @@ namespace geopm
                 // Currently only the levelzero compute domain control is supported.
                 // As new controls are added they should be included
                 m_levelzero_device_pool.frequency_control(GEOPM_DOMAIN_GPU_CHIP,
-                                        domain_idx, geopm::LevelZero::M_DOMAIN_COMPUTE,
-                                        m_frequency_range.at(domain_idx).first,
-                                        m_frequency_range.at(domain_idx).second);
+                                                          domain_idx, geopm::LevelZero::M_DOMAIN_COMPUTE,
+                                                          m_frequency_range.at(domain_idx).first,
+                                                          m_frequency_range.at(domain_idx).second);
             }
             catch (const geopm::Exception &ex) {
 #ifdef GEOPM_DEBUG
                 std::cerr << "Warning: <geopm> LevelZeroIOGroup: Failed to "
-                             "restore frequency control settings for "
-                             "GPU_CHIP domain " << std::to_string(domain_idx)
-                             << ".  Exception: " << ex.what()
-                             << std::endl;
+                          "restore frequency control settings for "
+                          "GPU_CHIP domain " << std::to_string(domain_idx)
+                          << ".  Exception: " << ex.what()
+                          << std::endl;
 #endif
             }
         }

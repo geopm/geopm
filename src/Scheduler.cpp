@@ -10,14 +10,13 @@
 namespace geopm
 {
     std::unique_ptr<cpu_set_t, std::function<void(cpu_set_t *)> >
-        make_cpu_set(int num_cpu, const std::set<int> &cpu_enabled)
+    make_cpu_set(int num_cpu, const std::set<int> &cpu_enabled)
     {
         std::unique_ptr<cpu_set_t, std::function<void(cpu_set_t *)> > result(
             CPU_ALLOC(num_cpu),
-            [](cpu_set_t *ptr)
-            {
-                CPU_FREE(ptr);
-            });
+        [](cpu_set_t *ptr) {
+            CPU_FREE(ptr);
+        });
 
         auto enabled_it = cpu_enabled.cbegin();
         for (int cpu_idx = 0; cpu_idx != num_cpu; ++cpu_idx) {

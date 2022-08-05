@@ -80,11 +80,16 @@ TEST_F(PowerBalancerTest, balance)
     const std::vector<double> ach_limit = {M_POWER_CAP + 5.0, 260};
     const std::vector<double> exp_limit2 = {300, 276};
     const std::vector<double> exp_slack = {8, 24};
-    const std::vector<std::vector<double> > exp_sample = {{3.42466, 3.42466, 3.52113,
-                                                           3.52113, 3.62319, 3.62319},
-                                                          {3.33333, 3.42466, 3.42466,
-                                                           3.52113, 3.52113, 3.62319,
-                                                           3.62319, 3.73134, 3.73134}};
+    const std::vector<std::vector<double> > exp_sample = {{
+            3.42466, 3.42466, 3.52113,
+            3.52113, 3.62319, 3.62319
+        },
+        {
+            3.33333, 3.42466, 3.42466,
+            3.52113, 3.52113, 3.62319,
+            3.62319, 3.73134, 3.73134
+        }
+    };
     ASSERT_EQ(power_targets.size(), exp_limit.size());
     ASSERT_EQ(exp_step.size(), exp_limit.size());
     ASSERT_EQ(exp_sample.size(), exp_limit.size());

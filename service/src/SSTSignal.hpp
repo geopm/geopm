@@ -19,8 +19,7 @@ namespace geopm
     class SSTSignal : public geopm::Signal
     {
         public:
-            enum SignalType
-            {
+            enum SignalType {
                 M_MBOX, // SST Mailbox interface
                 M_MMIO  // SST MMIO interface
             };

@@ -77,7 +77,8 @@ extern "C"
     {
         static ompt_start_tool_result_t ompt_start_tool_result = {&ompt_initialize,
                                                                   &ompt_finalize,
-                                                                  {}};
+                                                                  {}
+                                                                 };
         return &ompt_start_tool_result;
     }
 }

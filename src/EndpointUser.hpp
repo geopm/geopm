@@ -45,7 +45,7 @@ namespace geopm
             EndpointUserImp &operator=(const EndpointUserImp &other) = delete;
             EndpointUserImp(const EndpointUserImp &other) = delete;
             EndpointUserImp(const std::string &data_path,
-                              const std::set<std::string> &hosts);
+                            const std::set<std::string> &hosts);
             EndpointUserImp(const std::string &data_path,
                             std::unique_ptr<SharedMemory> policy_shmem,
                             std::unique_ptr<SharedMemory> sample_shmem,

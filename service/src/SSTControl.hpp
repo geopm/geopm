@@ -19,8 +19,7 @@ namespace geopm
     class SSTControl : public geopm::Control
     {
         public:
-            enum ControlType
-            {
+            enum ControlType {
                 M_MBOX, // SST Mailbox interface
                 M_MMIO  // SST MMIO interface
             };
@@ -60,27 +59,27 @@ namespace geopm
             void restore(void) override;
             void set_write_dependency(uint64_t trigger_value, std::weak_ptr<geopm::Control> dependency, uint64_t dependency_write_value);
 
-            private:
-                std::shared_ptr<SSTIO> m_sstio;
-                const ControlType m_control_type;
-                const int m_cpu_idx;
-                const uint32_t m_command;
-                const uint32_t m_subcommand;
-                const uint32_t m_interface_parameter;
-                const uint32_t m_write_value;
-                int m_adjust_idx;
-                const int m_shift;
-                const int m_num_bit;
-                const uint64_t m_mask;
-                const uint32_t m_rmw_subcommand;
-                const uint32_t m_rmw_interface_parameter;
-                const uint32_t m_rmw_read_mask;
-                const double m_multiplier;
-                uint32_t m_saved_value;
+        private:
+            std::shared_ptr<SSTIO> m_sstio;
+            const ControlType m_control_type;
+            const int m_cpu_idx;
+            const uint32_t m_command;
+            const uint32_t m_subcommand;
+            const uint32_t m_interface_parameter;
+            const uint32_t m_write_value;
+            int m_adjust_idx;
+            const int m_shift;
+            const int m_num_bit;
+            const uint64_t m_mask;
+            const uint32_t m_rmw_subcommand;
+            const uint32_t m_rmw_interface_parameter;
+            const uint32_t m_rmw_read_mask;
+            const double m_multiplier;
+            uint32_t m_saved_value;
 
-                uint64_t m_trigger_write_value;
-                std::weak_ptr<geopm::Control> m_dependency;
-                uint64_t m_dependency_write_value;
+            uint64_t m_trigger_write_value;
+            std::weak_ptr<geopm::Control> m_dependency;
+            uint64_t m_dependency_write_value;
     };
 }
 

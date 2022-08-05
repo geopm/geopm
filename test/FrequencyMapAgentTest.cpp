@@ -80,17 +80,17 @@ void FrequencyMapAgentTest::SetUp()
     m_platform_io = geopm::make_unique<MockPlatformIO>();
     m_platform_topo = geopm::make_unique<MockPlatformTopo>();
     ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_BOARD))
-        .WillByDefault(Return(1));
+    .WillByDefault(Return(1));
     ON_CALL(*m_platform_io, push_signal("REGION_HASH", _, _))
-        .WillByDefault(Return(REGION_HASH_IDX));
+    .WillByDefault(Return(REGION_HASH_IDX));
     ON_CALL(*m_platform_io, push_control("CPU_FREQUENCY_CONTROL", _, _))
-        .WillByDefault(Return(FREQ_CONTROL_IDX));
+    .WillByDefault(Return(FREQ_CONTROL_IDX));
     ON_CALL(*m_platform_io, push_control("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO", _, _))
-        .WillByDefault(Return(UNCORE_MIN_CTL_IDX));
+    .WillByDefault(Return(UNCORE_MIN_CTL_IDX));
     ON_CALL(*m_platform_io, push_control("MSR::UNCORE_RATIO_LIMIT:MAX_RATIO", _, _))
-        .WillByDefault(Return(UNCORE_MAX_CTL_IDX));
+    .WillByDefault(Return(UNCORE_MAX_CTL_IDX));
     ON_CALL(*m_platform_io, agg_function(_))
-        .WillByDefault(Return(geopm::Agg::max));
+    .WillByDefault(Return(geopm::Agg::max));
 
     m_freq_min = 1800000000.0;
     m_freq_max = 2200000000.0;
@@ -98,19 +98,19 @@ void FrequencyMapAgentTest::SetUp()
     m_freq_uncore_min = 1700000000;
     m_freq_uncore_max = 2100000000;
     ON_CALL(*m_platform_io, control_domain_type("CPU_FREQUENCY_CONTROL"))
-        .WillByDefault(Return(GEOPM_DOMAIN_BOARD));
+    .WillByDefault(Return(GEOPM_DOMAIN_BOARD));
     ON_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0))
-        .WillByDefault(Return(m_freq_min));
+    .WillByDefault(Return(m_freq_min));
     ON_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0))
-        .WillByDefault(Return(m_freq_max));
+    .WillByDefault(Return(m_freq_max));
     ON_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_STEP", GEOPM_DOMAIN_BOARD, 0))
-        .WillByDefault(Return(m_freq_step));
+    .WillByDefault(Return(m_freq_step));
     ON_CALL(*m_platform_io, read_signal("MSR::PERF_CTL:FREQ", _, _))
-        .WillByDefault(Return(m_freq_max));
+    .WillByDefault(Return(m_freq_max));
     ON_CALL(*m_platform_io, read_signal("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO", GEOPM_DOMAIN_BOARD, 0))
-        .WillByDefault(Return(m_freq_uncore_min));
+    .WillByDefault(Return(m_freq_uncore_min));
     ON_CALL(*m_platform_io, read_signal("MSR::UNCORE_RATIO_LIMIT:MAX_RATIO", GEOPM_DOMAIN_BOARD, 0))
-        .WillByDefault(Return(m_freq_uncore_max));
+    .WillByDefault(Return(m_freq_uncore_max));
 
     m_region_names = {"mapped_region0", "mapped_region1", "mapped_region2", "mapped_region3", "mapped_region4"};
     m_region_hash = {0xeffa9a8d, 0x4abb08f3, 0xa095c880, 0x5d45afe, 0x71243e97};
@@ -160,13 +160,13 @@ TEST_F(FrequencyMapAgentTest, adjust_platform_map)
     {
         // expectations for initialization of controls
         EXPECT_CALL(*m_platform_io, read_signal("MSR::PERF_CTL:FREQ", _, _))
-            .WillOnce(Return(m_freq_max));
+        .WillOnce(Return(m_freq_max));
         EXPECT_CALL(*m_platform_io, adjust(FREQ_CONTROL_IDX, m_freq_max));
         EXPECT_CALL(*m_platform_io, adjust(UNCORE_MIN_CTL_IDX, m_freq_uncore_min));
         EXPECT_CALL(*m_platform_io, adjust(UNCORE_MAX_CTL_IDX, m_freq_uncore_max));
 
         EXPECT_CALL(*m_platform_io, sample(REGION_HASH_IDX))
-            .WillOnce(Return(m_region_hash[0]));
+        .WillOnce(Return(m_region_hash[0]));
         std::vector<double> tmp;
         m_agent->sample_platform(tmp);
         // initial all-NAN policy is accepted
@@ -178,12 +178,12 @@ TEST_F(FrequencyMapAgentTest, adjust_platform_map)
     int num_samples = 3;
     for (size_t x = 0; x < M_NUM_REGIONS; x++) {
         EXPECT_CALL(*m_platform_io, adjust(FREQ_CONTROL_IDX, m_mapped_freqs[x]))
-            .Times(1);
+        .Times(1);
         EXPECT_CALL(*m_platform_io, adjust(UNCORE_MIN_CTL_IDX, _)).Times(0);
         EXPECT_CALL(*m_platform_io, adjust(UNCORE_MAX_CTL_IDX, _)).Times(0);
         for (int sample = 0; sample < num_samples; ++sample) {
             EXPECT_CALL(*m_platform_io, sample(REGION_HASH_IDX))
-                .WillOnce(Return(m_region_hash[x]));
+            .WillOnce(Return(m_region_hash[x]));
             std::vector<double> tmp;
             m_agent->sample_platform(tmp);
             m_agent->adjust_platform(m_default_policy);
@@ -324,10 +324,10 @@ TEST_F(FrequencyMapAgentTest, enforce_policy)
                     write_control("CPU_FREQUENCY_CONTROL", GEOPM_DOMAIN_BOARD, 0, core_limit));
         EXPECT_CALL(*m_platform_io,
                     write_control("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO", _, _, _))
-            .Times(0);
+        .Times(0);
         EXPECT_CALL(*m_platform_io,
                     write_control("MSR::UNCORE_RATIO_LIMIT:MAX_RATIO", _, _, _))
-            .Times(0);
+        .Times(0);
         m_agent->enforce_policy(policy);
     }
 
@@ -370,11 +370,11 @@ static Json get_freq_map_json_from_policy(const std::vector<double> &policy)
 TEST_F(FrequencyMapAgentTest, policy_to_json)
 {
     EXPECT_EQ(Json(Json::object{ { "FREQ_DEFAULT", 0 }, { "FREQ_UNCORE", 3e9 } }),
-              get_freq_map_json_from_policy({ 0, 3e9 }));
+    get_freq_map_json_from_policy({ 0, 3e9 }));
     EXPECT_EQ(Json(Json::object{ { "FREQ_DEFAULT", 0 }, { "FREQ_UNCORE", 1e40 } }),
-              get_freq_map_json_from_policy({ 0, 1e40 }));
+    get_freq_map_json_from_policy({ 0, 1e40 }));
     EXPECT_EQ(Json(Json::object{ { "FREQ_DEFAULT", 0 }, { "FREQ_UNCORE", 1e-40 } }),
-              get_freq_map_json_from_policy({ 0, 1e-40 }));
+    get_freq_map_json_from_policy({ 0, 1e-40 }));
 }
 
 TEST_F(FrequencyMapAgentTest, validate_policy)
@@ -461,26 +461,25 @@ TEST_F(FrequencyMapAgentTest, validate_policy)
 
 TEST_F(FrequencyMapAgentTest, report_hash_freq_map)
 {
-    FrequencyMapAgent frequency_agent(
-        {
-            {0x000000003ddc81bf, 1000000000},
-            {0x00000000644f9787, 2100000000},
-            {0x00000000725e8066, 2100000000},
-            {0x000000007b561f45, 2100000000},
-            {0x00000000a74bbf35, 1200000000},
-            {0x00000000d691da00, 1900000000},
-            {0x8000000000000000, 2100000000}
-        },
-        {},
-        *m_platform_io, *m_platform_topo
-    );
+    FrequencyMapAgent frequency_agent( {
+        {0x000000003ddc81bf, 1000000000},
+        {0x00000000644f9787, 2100000000},
+        {0x00000000725e8066, 2100000000},
+        {0x000000007b561f45, 2100000000},
+        {0x00000000a74bbf35, 1200000000},
+        {0x00000000d691da00, 1900000000},
+        {0x8000000000000000, 2100000000}
+    },
+    {},
+    *m_platform_io, *m_platform_topo
+                                     );
     std::string reference_map =  "{0x000000003ddc81bf: 1000000000, "
-                                  "0x00000000644f9787: 2100000000, "
-                                  "0x00000000725e8066: 2100000000, "
-                                  "0x000000007b561f45: 2100000000, "
-                                  "0x00000000a74bbf35: 1200000000, "
-                                  "0x00000000d691da00: 1900000000, "
-                                  "0x8000000000000000: 2100000000}";
+                                 "0x00000000644f9787: 2100000000, "
+                                 "0x00000000725e8066: 2100000000, "
+                                 "0x000000007b561f45: 2100000000, "
+                                 "0x00000000a74bbf35: 1200000000, "
+                                 "0x00000000d691da00: 1900000000, "
+                                 "0x8000000000000000: 2100000000}";
 
     auto result = frequency_agent.report_host();
     for (auto& key_value : result) {
@@ -491,17 +490,18 @@ TEST_F(FrequencyMapAgentTest, report_hash_freq_map)
 TEST_F(FrequencyMapAgentTest, report_default_freq_hash)
 {
     FrequencyMapAgent frequency_agent(
-        {},
+    {}, {
         {
-            {0x00000000a74bbf35,
-             0x00000000d691da00,
-             0x8000000000000000}
-        },
-        *m_platform_io, *m_platform_topo
+            0x00000000a74bbf35,
+            0x00000000d691da00,
+            0x8000000000000000
+        }
+    },
+    *m_platform_io, *m_platform_topo
     );
     std::string reference_map =  "{0x00000000a74bbf35: null, "
-                                  "0x00000000d691da00: null, "
-                                  "0x8000000000000000: null}";
+                                 "0x00000000d691da00: null, "
+                                 "0x8000000000000000: null}";
 
     auto result = frequency_agent.report_host();
     for (auto& key_value : result) {
@@ -511,33 +511,33 @@ TEST_F(FrequencyMapAgentTest, report_default_freq_hash)
 
 TEST_F(FrequencyMapAgentTest, report_both_map_and_set)
 {
-    FrequencyMapAgent frequency_agent(
+    FrequencyMapAgent frequency_agent( {
+        {0x000000003ddc81bf, 1000000000},
+        {0x00000000644f9787, 2100000000},
+        {0x00000000725e8066, 2100000000},
+        {0x000000007b561f45, 2100000000},
+        {0x00000000a74bbf35, 1200000000},
+        {0x00000000d691da00, 1900000000},
+        {0x8000000000000000, 2100000000}
+    }, {
         {
-            {0x000000003ddc81bf, 1000000000},
-            {0x00000000644f9787, 2100000000},
-            {0x00000000725e8066, 2100000000},
-            {0x000000007b561f45, 2100000000},
-            {0x00000000a74bbf35, 1200000000},
-            {0x00000000d691da00, 1900000000},
-            {0x8000000000000000, 2100000000}
-        },
-        {
-            {0x00000000644f9789,
-             0x000000007b561f47,
-             0x00000000d691da02}
-        },
-        *m_platform_io, *m_platform_topo
-    );
+            0x00000000644f9789,
+            0x000000007b561f47,
+            0x00000000d691da02
+        }
+    },
+    *m_platform_io, *m_platform_topo
+                                     );
     std::string reference_map =  "{0x000000003ddc81bf: 1000000000, "
-                                  "0x00000000644f9787: 2100000000, "
-                                  "0x00000000644f9789: null, "
-                                  "0x00000000725e8066: 2100000000, "
-                                  "0x000000007b561f45: 2100000000, "
-                                  "0x000000007b561f47: null, "
-                                  "0x00000000a74bbf35: 1200000000, "
-                                  "0x00000000d691da00: 1900000000, "
-                                  "0x00000000d691da02: null, "
-                                  "0x8000000000000000: 2100000000}";
+                                 "0x00000000644f9787: 2100000000, "
+                                 "0x00000000644f9789: null, "
+                                 "0x00000000725e8066: 2100000000, "
+                                 "0x000000007b561f45: 2100000000, "
+                                 "0x000000007b561f47: null, "
+                                 "0x00000000a74bbf35: 1200000000, "
+                                 "0x00000000d691da00: 1900000000, "
+                                 "0x00000000d691da02: null, "
+                                 "0x8000000000000000: 2100000000}";
 
     auto result = frequency_agent.report_host();
     for (auto& key_value : result) {

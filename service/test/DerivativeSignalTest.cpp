@@ -55,7 +55,8 @@ void DerivativeSignalTest::SetUp(void)
     m_sample_values_1 = {0.000001, 0.999999, 2.000001,
                          2.999999, 4.000001, 4.999999,
                          6.000001, 6.999999, 8.000001,
-                         8.999999};
+                         8.999999
+                        };
     m_exp_slope_1 = 1.0;
 
     // should have slope of .238 with least squares fit
@@ -67,12 +68,12 @@ TEST_F(DerivativeSignalTest, read_flat)
 {
     size_t ii = 0;
     EXPECT_CALL(*m_time_sig, read()).Times(m_num_history_sample)
-        .WillRepeatedly(InvokeWithoutArgs([&ii]() {
-                    ++ii;
-                    return ii;
-                }));
+    .WillRepeatedly(InvokeWithoutArgs([&ii]() {
+        ++ii;
+        return ii;
+    }));
     EXPECT_CALL(*m_y_sig, read()).Times(m_num_history_sample)
-        .WillRepeatedly(Return(7.7));
+    .WillRepeatedly(Return(7.7));
     double result = m_sig->read();
     EXPECT_NEAR(m_exp_slope_0, result, 0.0001);
 }
@@ -82,15 +83,15 @@ TEST_F(DerivativeSignalTest, read_slope_1)
     size_t ii = 0;
     double val = 2.5;
     EXPECT_CALL(*m_time_sig, read()).Times(m_num_history_sample)
-        .WillRepeatedly(InvokeWithoutArgs([&ii]() {
-                    ++ii;
-                    return ii;
-                }));
+    .WillRepeatedly(InvokeWithoutArgs([&ii]() {
+        ++ii;
+        return ii;
+    }));
     EXPECT_CALL(*m_y_sig, read()).Times(m_num_history_sample)
-        .WillRepeatedly(InvokeWithoutArgs([&val]() {
-                    val += 1.0;;
-                    return val;
-                }));
+    .WillRepeatedly(InvokeWithoutArgs([&val]() {
+        val += 1.0;;
+        return val;
+    }));
     double result = m_sig->read();
     EXPECT_NEAR(m_exp_slope_1, result, 0.0001);
 }

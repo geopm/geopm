@@ -147,5 +147,5 @@ TEST_F(ModelApplicationTest, parse_config_errors)
     mismatch_hostname_length << "{\"hostname\":[\"one\", \"two\"], \"imbalance\":[2.2]}" << std::endl;
     mismatch_hostname_length.close();
     EXPECT_THROW(model_parse_config(m_filename, m_loop_count, m_region_name, m_big_o),
-    Exception);
+                 Exception);
 }

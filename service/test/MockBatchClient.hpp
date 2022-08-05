@@ -10,7 +10,8 @@
 
 #include "BatchClient.hpp"
 
-class MockBatchClient : public geopm::BatchClient {
+class MockBatchClient : public geopm::BatchClient
+{
     public:
         MOCK_METHOD(std::vector<double>, read_batch, (), (override));
         MOCK_METHOD(void, write_batch, (std::vector<double> settings), (override));

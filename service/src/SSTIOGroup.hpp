@@ -233,8 +233,7 @@ namespace geopm
             // The signals vector is over the indices for the domain.
             // The signals pointers should be copied when signal is
             // pushed and used directly for read_signal.
-            struct signal_info
-            {
+            struct signal_info {
                 std::vector<std::shared_ptr<Signal> > signals;
                 int domain;
                 int units;
@@ -244,8 +243,7 @@ namespace geopm
             };
             std::map<std::string, signal_info> m_signal_available;
 
-            struct control_info
-            {
+            struct control_info {
                 std::vector<std::shared_ptr<Control> > controls;
                 int domain;
                 int units;

@@ -54,11 +54,11 @@ TEST_F(DaemonTest, get_default_policy)
     std::vector<double> policy {1.1, 2.2, 3.4};
     // first call to get_agent() after wait_for_agent_attach() should have a value
     EXPECT_CALL(*m_endpoint, get_agent())
-        .WillOnce(Return(M_AGENT));
+    .WillOnce(Return(M_AGENT));
     EXPECT_CALL(*m_endpoint, get_profile_name())
-        .WillOnce(Return(""));
+    .WillOnce(Return(""));
     EXPECT_CALL(*m_policystore, get_best(M_AGENT, ""))
-        .WillOnce(Return(policy));
+    .WillOnce(Return(policy));
     EXPECT_CALL(*m_endpoint, write_policy(policy));
 
     m_daemon->update_endpoint_from_policystore(m_timeout);
@@ -70,11 +70,11 @@ TEST_F(DaemonTest, get_profile_policy)
     std::string profile_name = "myprofile";
     // first call to get_agent() after wait_for_agent_attach() should have a value
     EXPECT_CALL(*m_endpoint, get_agent())
-        .WillOnce(Return(M_AGENT));
+    .WillOnce(Return(M_AGENT));
     EXPECT_CALL(*m_endpoint, get_profile_name())
-        .WillOnce(Return(profile_name));
+    .WillOnce(Return(profile_name));
     EXPECT_CALL(*m_policystore, get_best(M_AGENT, profile_name))
-        .WillOnce(Return(policy));
+    .WillOnce(Return(policy));
     EXPECT_CALL(*m_endpoint, write_policy(policy));
 
     m_daemon->update_endpoint_from_policystore(m_timeout);

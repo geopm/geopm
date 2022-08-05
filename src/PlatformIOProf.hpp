@@ -11,7 +11,8 @@
 namespace geopm
 {
     class PlatformIO;
-    class PlatformIOProf {
+    class PlatformIOProf
+    {
         public:
             static PlatformIO &platform_io(void);
             virtual ~PlatformIOProf() = default;

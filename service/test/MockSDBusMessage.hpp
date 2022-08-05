@@ -19,7 +19,7 @@ class MockSDBusMessage : public geopm::SDBusMessage
                     (override));
         MOCK_METHOD(void, exit_container, (), (override));
         MOCK_METHOD(void, open_container, (char type,
-                                            const std::string &contents),
+                                           const std::string &contents),
                     (override));
         MOCK_METHOD(void, close_container, (), (override));
         MOCK_METHOD(std::string, read_string, (), (override));

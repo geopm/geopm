@@ -99,12 +99,12 @@ namespace geopm
             ///
             /// @see geopm::Agg
             std::function<double(const std::vector<double> &)>
-                agg_function(const std::string &signal_name) const override;
+            agg_function(const std::string &signal_name) const override;
             /// @return  a function that should be used when formatting the given signal.
             ///
             /// @see geopm::Agg
             std::function<std::string(double)>
-                format_function(const std::string &signal_name) const override;
+            format_function(const std::string &signal_name) const override;
             /// @return a string description for signal_name, if defined.
             std::string signal_description(const std::string &signal_name) const override;
             /// @brief Should not be called; this IOGroup does not provide any controls.

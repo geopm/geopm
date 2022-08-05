@@ -46,14 +46,14 @@ namespace geopm
         , m_file_desc(m_num_cpu + 1, -1) // Last file descriptor is for the batch file
         , m_is_batch_enabled(true)
         , m_read_batch({0, NULL})
-        , m_write_batch({0, NULL})
-        , m_read_batch_op(0)
-        , m_write_batch_op(0)
-        , m_is_batch_read(false)
-        , m_read_batch_idx_map(m_num_cpu)
-        , m_write_batch_idx_map(m_num_cpu)
-        , m_is_open(false)
-        , m_path(path)
+    , m_write_batch({0, NULL})
+    , m_read_batch_op(0)
+    , m_write_batch_op(0)
+    , m_is_batch_read(false)
+    , m_read_batch_idx_map(m_num_cpu)
+    , m_write_batch_idx_map(m_num_cpu)
+    , m_is_open(false)
+    , m_path(path)
     {
         open_all();
     }
@@ -155,7 +155,7 @@ namespace geopm
             result = wr.wmask;
         }
         return result;
-   }
+    }
 
     int MSRIOImp::add_write(int cpu_idx, uint64_t offset)
     {
@@ -257,7 +257,7 @@ namespace geopm
         }
     }
 
-   void MSRIOImp::msr_ioctl_read(void)
+    void MSRIOImp::msr_ioctl_read(void)
     {
         if (m_read_batch.numops == 0) {
             return;

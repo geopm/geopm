@@ -257,7 +257,8 @@ namespace geopm
         m_do_unlink_check = true;
     }
 
-    void SharedMemoryImp::chown(const unsigned int uid, const unsigned int gid) const {
+    void SharedMemoryImp::chown(const unsigned int uid, const unsigned int gid) const
+    {
         int err = 0;
         int shm_id = -1;
         if (m_is_linked) {
@@ -305,7 +306,8 @@ namespace geopm
             else {
                 path = "/dev/shm" + key;
             }
-        } else {
+        }
+        else {
             // regular file path
             path = key;
         }

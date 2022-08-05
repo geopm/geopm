@@ -39,7 +39,8 @@ namespace geopm
                 }
                 is_init = (m_ctl_msg.app_status == 0 ||
                            m_ctl_msg.app_status == M_STATUS_MAP_BEGIN);
-            } while (!is_init && geopm_time_since(&start) < M_WAIT_SEC);
+            }
+            while (!is_init && geopm_time_since(&start) < M_WAIT_SEC);
             if (!is_init) {
                 throw Exception("ControlMessageImp::wait(): " + hostname() +
                                 " : is_ctl=" + std::to_string(m_is_ctl) +

@@ -72,16 +72,16 @@ void ProfileTest::SetUp()
     ON_CALL(*m_shm_comm, rank()).WillByDefault(Return(shm_rank));
     ON_CALL(*m_shm_comm, num_rank()).WillByDefault(Return(M_SHM_COMM_SIZE));
     ON_CALL(*m_shm_comm, test(testing::_))
-        .WillByDefault(testing::Return(true));
+    .WillByDefault(testing::Return(true));
 
     m_world_comm = std::make_shared<NiceMock<MockComm> >();
     ON_CALL(*m_world_comm, rank()).WillByDefault(Return(m_process));
     ON_CALL(*m_world_comm, split("prof", geopm::Comm::M_COMM_SPLIT_TYPE_SHARED))
-        .WillByDefault(Return(m_shm_comm));
+    .WillByDefault(Return(m_shm_comm));
     m_comm = std::make_shared<NiceMock<MockComm> >();
     m_table = std::make_shared<MockProfileTable>();
     ON_CALL(*m_table, name_fill(_))
-        .WillByDefault(Return(true));
+    .WillByDefault(Return(true));
 
     m_profile = geopm::make_unique<ProfileImp>("profile",
                                                "shmem_key",

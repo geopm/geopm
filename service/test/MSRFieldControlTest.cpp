@@ -65,7 +65,7 @@ TEST_F(MSRFieldControlTest, write_batch_scale)
                                                    MSR::M_FUNCTION_SCALE, scalar);
     double value = 150;
     EXPECT_CALL(*m_msrio, add_write(m_cpu, m_offset))
-        .WillOnce(Return(m_idx));
+    .WillOnce(Return(m_idx));
     ctl->setup_batch();
     EXPECT_CALL(*m_msrio, adjust(m_idx, 0x640000, m_mask));
     ctl->adjust(value);
@@ -92,7 +92,7 @@ TEST_F(MSRFieldControlTest, write_batch_log_half)
                                                    scalar);
     double value = 0.25;
     EXPECT_CALL(*m_msrio, add_write(m_cpu, m_offset))
-        .WillOnce(Return(m_idx));
+    .WillOnce(Return(m_idx));
     ctl->setup_batch();
     EXPECT_CALL(*m_msrio, adjust(m_idx, 0x020000, m_mask));
     ctl->adjust(value);
@@ -123,7 +123,7 @@ TEST_F(MSRFieldControlTest, write_batch_7_bit_float)
                                                    scalar);
     double value = 9.0;
     EXPECT_CALL(*m_msrio, add_write(m_cpu, m_offset))
-        .WillOnce(Return(m_idx));
+    .WillOnce(Return(m_idx));
     ctl->setup_batch();
     EXPECT_CALL(*m_msrio, adjust(m_idx, 0x410000, m_mask));
     ctl->adjust(value);
@@ -185,7 +185,7 @@ TEST_F(MSRFieldControlTest, save_restore)
                                                    MSR::M_FUNCTION_SCALE, 1.0);
     uint64_t saved_value = 0x420000;
     EXPECT_CALL(*m_msrio, read_msr(m_cpu, m_offset))
-        .WillOnce(Return(saved_value | 0x12));  // extra bits should be masked off for write
+    .WillOnce(Return(saved_value | 0x12));  // extra bits should be masked off for write
     ctl->save();
     EXPECT_CALL(*m_msrio, write_msr(m_cpu, m_offset, saved_value, m_mask));
     ctl->restore();

@@ -157,8 +157,8 @@ namespace geopm
                      Agent::num_policy(environment().agent()),
                      Agent::num_sample(environment().agent()),
                      std::unique_ptr<TreeComm>(new TreeCommImp(ppn1_comm,
-                         Agent::num_policy(environment().agent()),
-                         Agent::num_sample(environment().agent()))),
+                                                               Agent::num_policy(environment().agent()),
+                                                               Agent::num_sample(environment().agent()))),
                      ApplicationSampler::application_sampler(),
                      std::shared_ptr<ApplicationIO>(new ApplicationIOImp()),
                      std::unique_ptr<Reporter>(new ReporterImp(get_start_time(),
@@ -169,14 +169,14 @@ namespace geopm
                      nullptr,
                      std::unique_ptr<EndpointPolicyTracer>(nullptr),
                      ProfileTracer::make_unique(get_start_time()),
-                     std::vector<std::unique_ptr<Agent> >{},
-                     Agent::policy_names(environment().agent()),
-                     environment().policy(),
-                     environment().do_policy(),
-                     nullptr,
-                     environment().endpoint(),
-                     environment().do_endpoint(),
-                     ApplicationSampler::default_shmkey())
+                     std::vector<std::unique_ptr<Agent> > {},
+    Agent::policy_names(environment().agent()),
+    environment().policy(),
+    environment().do_policy(),
+    nullptr,
+    environment().endpoint(),
+    environment().do_endpoint(),
+    ApplicationSampler::default_shmkey())
     {
 
     }
@@ -307,7 +307,7 @@ namespace geopm
         temp.resize(NAME_MAX, 0);
         std::vector<char> name_buffer(num_rank * NAME_MAX, 0);
         m_comm->gather((void*)temp.c_str(), NAME_MAX,
-                     (void*)name_buffer.data(), NAME_MAX, 0);
+                       (void*)name_buffer.data(), NAME_MAX, 0);
         if (rank == 0) {
             auto ind = name_buffer.begin();
             for (int rr = 0; rr < num_rank; ++rr) {
@@ -384,12 +384,13 @@ namespace geopm
                 (void) m_endpoint->read_policy(m_in_policy);
                 bool equal = std::equal(m_in_policy.begin(), m_in_policy.end(),
                                         m_last_policy.begin(),
-                                        [] (double a, double b) -> bool {
-                                            if (std::isnan(a) && std::isnan(b)) {
-                                                return true;
-                                            }
-                                            return a == b;
-                                        });
+                [] (double a, double b) -> bool {
+                    if (std::isnan(a) && std::isnan(b))
+                    {
+                        return true;
+                    }
+                    return a == b;
+                });
                 if (!equal) {
                     m_policy_tracer->update(m_in_policy);
                     m_last_policy = m_in_policy;

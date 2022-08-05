@@ -144,33 +144,33 @@ TEST_F(CNLIOGroupTest, parse_power)
         // Unexpected units
         std::ofstream(signal.first) << "85 WW\n";
         EXPECT_THROW(cnl.read_signal(signal.second, GEOPM_DOMAIN_BOARD, 0), Exception)
-            << signal.second;
+                << signal.second;
 
         std::ofstream(signal.first) << "85W\n";
         EXPECT_THROW(cnl.read_signal(signal.second, GEOPM_DOMAIN_BOARD, 0), Exception)
-            << signal.second;
+                << signal.second;
 
         std::ofstream(signal.first) << "85";
         EXPECT_THROW(cnl.read_signal(signal.second, GEOPM_DOMAIN_BOARD, 0), Exception)
-            << signal.second;
+                << signal.second;
 
         std::ofstream(signal.first) << "85 💡\n";
         EXPECT_THROW(cnl.read_signal(signal.second, GEOPM_DOMAIN_BOARD, 0), Exception)
-            << signal.second;
+                << signal.second;
 
         std::ofstream(signal.first) << "Eighty-five Watts\n";
         EXPECT_THROW(cnl.read_signal(signal.second, GEOPM_DOMAIN_BOARD, 0),
                      std::invalid_argument)
-            << signal.second;
+                << signal.second;
 
         std::ofstream(signal.first) << "";
         EXPECT_THROW(cnl.read_signal(signal.second, GEOPM_DOMAIN_BOARD, 0), Exception)
-            << signal.second;
+                << signal.second;
 
         std::ofstream(signal.first) << "\n";
         EXPECT_THROW(cnl.read_signal(signal.second, GEOPM_DOMAIN_BOARD, 0),
                      std::invalid_argument)
-            << signal.second;
+                << signal.second;
     }
 }
 
@@ -199,32 +199,32 @@ TEST_F(CNLIOGroupTest, parse_energy)
         // Unexpected units
         std::ofstream(signal.first) << "1234567 W\n";
         EXPECT_THROW(cnl.read_signal(signal.second, GEOPM_DOMAIN_BOARD, 0), Exception)
-            << signal.second;
+                << signal.second;
 
         std::ofstream(signal.first) << "1234567J\n";
         EXPECT_THROW(cnl.read_signal(signal.second, GEOPM_DOMAIN_BOARD, 0), Exception)
-            << signal.second;
+                << signal.second;
 
         std::ofstream(signal.first) << "1234567";
         EXPECT_THROW(cnl.read_signal(signal.second, GEOPM_DOMAIN_BOARD, 0), Exception)
-            << signal.second;
+                << signal.second;
 
         std::ofstream(signal.first) << "1234567 ⚡\n";
         EXPECT_THROW(cnl.read_signal(signal.second, GEOPM_DOMAIN_BOARD, 0), Exception)
-            << signal.second;
+                << signal.second;
 
         std::ofstream(signal.first) << "Energy!\n";
         EXPECT_THROW(cnl.read_signal(signal.second, GEOPM_DOMAIN_BOARD, 0),
                      std::invalid_argument)
-            << signal.second;
+                << signal.second;
 
         std::ofstream(signal.first) << "";
         EXPECT_THROW(cnl.read_signal(signal.second, GEOPM_DOMAIN_BOARD, 0), Exception)
-            << signal.second;
+                << signal.second;
 
         std::ofstream(signal.first) << "\n";
         EXPECT_THROW(cnl.read_signal(signal.second, GEOPM_DOMAIN_BOARD, 0),
                      std::invalid_argument)
-            << signal.second;
+                << signal.second;
     }
 }

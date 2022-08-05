@@ -27,8 +27,8 @@ namespace geopm
                              ApplicationSampler& application_sampler = ApplicationSampler::application_sampler());
             virtual ~ProfileTracerImp();
             void update(const std::vector<record_s> &records);
-         private:
-             enum m_column_e {
+        private:
+            enum m_column_e {
                 M_COLUMN_TIME,
                 M_COLUMN_PROCESS,
                 M_COLUMN_EVENT,

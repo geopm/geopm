@@ -154,7 +154,8 @@ namespace geopm
             static std::string format_step_count(double step);
         protected:
             class Step;
-            class Role {
+            class Role
+            {
                 public:
                     /// Tree role classes must implement this method,
                     /// leaf roles do not.
@@ -207,7 +208,8 @@ namespace geopm
             class LeafRole;
             class TreeRole;
 
-            class Step {
+            class Step
+            {
                 public:
                     Step() = default;
                     virtual ~Step() = default;
@@ -216,16 +218,18 @@ namespace geopm
                     virtual void sample_platform(LeafRole &role) const = 0;
             };
 
-            class SendDownLimitStep : public Step {
+            class SendDownLimitStep : public Step
+            {
                 public:
                     SendDownLimitStep() = default;
-                   ~SendDownLimitStep() = default;
-                   void update_policy(PowerBalancerAgent::Role &role, const std::vector<double> &sample) const;
-                   void enter_step(PowerBalancerAgent::LeafRole &role, const std::vector<double> &in_policy) const;
-                   void sample_platform(PowerBalancerAgent::LeafRole &role) const;
+                    ~SendDownLimitStep() = default;
+                    void update_policy(PowerBalancerAgent::Role &role, const std::vector<double> &sample) const;
+                    void enter_step(PowerBalancerAgent::LeafRole &role, const std::vector<double> &in_policy) const;
+                    void sample_platform(PowerBalancerAgent::LeafRole &role) const;
             };
 
-            class MeasureRuntimeStep : public Step {
+            class MeasureRuntimeStep : public Step
+            {
                 public:
                     MeasureRuntimeStep() = default;
                     ~MeasureRuntimeStep() = default;
@@ -234,7 +238,8 @@ namespace geopm
                     void sample_platform(PowerBalancerAgent::LeafRole &role) const;
             };
 
-            class ReduceLimitStep : public Step {
+            class ReduceLimitStep : public Step
+            {
                 public:
                     ReduceLimitStep() = default;
                     ~ReduceLimitStep() = default;
@@ -243,10 +248,11 @@ namespace geopm
                     void sample_platform(PowerBalancerAgent::LeafRole &role) const;
             };
 
-            class TreeRole : public Role {
-                friend class SendDownLimitStep;
-                friend class MeasureRuntimeStep;
-                friend class ReduceLimitStep;
+            class TreeRole : public Role
+            {
+                    friend class SendDownLimitStep;
+                    friend class MeasureRuntimeStep;
+                    friend class ReduceLimitStep;
                 public:
                     TreeRole(int level, const std::vector<int> &fan_in);
                     virtual ~TreeRole();
@@ -260,10 +266,11 @@ namespace geopm
                     bool m_is_step_complete;
             };
 
-            class RootRole : public TreeRole {
-                friend class SendDownLimitStep;
-                friend class MeasureRuntimeStep;
-                friend class ReduceLimitStep;
+            class RootRole : public TreeRole
+            {
+                    friend class SendDownLimitStep;
+                    friend class MeasureRuntimeStep;
+                    friend class ReduceLimitStep;
                 public:
                     RootRole(int level, const std::vector<int> &fan_in, double min_power, double max_power);
                     virtual ~RootRole();
@@ -277,10 +284,11 @@ namespace geopm
                     const double M_MAX_PKG_POWER_SETTING;
             };
 
-            class LeafRole : public Role {
-                friend class SendDownLimitStep;
-                friend class MeasureRuntimeStep;
-                friend class ReduceLimitStep;
+            class LeafRole : public Role
+            {
+                    friend class SendDownLimitStep;
+                    friend class MeasureRuntimeStep;
+                    friend class ReduceLimitStep;
                 public:
                     LeafRole(PlatformIO &platform_io,
                              const PlatformTopo &platform_topo,

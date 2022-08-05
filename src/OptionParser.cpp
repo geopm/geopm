@@ -33,7 +33,8 @@ namespace geopm
         : m_prog_name(prog_name),
           m_std_out(std_out),
           m_err_out(err_out),
-          m_custom_help(custom_help) {
+          m_custom_help(custom_help)
+    {
         // automatically support --help and --version
         add_option("help", 'h', "help", false,
                    "print brief summary of the command line usage information, then exit");
@@ -45,7 +46,8 @@ namespace geopm
                                   char short_form,
                                   const std::string &long_form,
                                   const std::string &default_val,
-                                  const std::string &description) {
+                                  const std::string &description)
+    {
         check_add_option(name, short_form, long_form);
         m_str_opts[name] = {short_form, long_form, default_val, default_val, description};
         m_str_short_name[short_form] = name;
@@ -65,7 +67,8 @@ namespace geopm
                                   char short_form,
                                   const std::string &long_form,
                                   bool default_val,
-                                  const std::string &description) {
+                                  const std::string &description)
+    {
         check_add_option(name, short_form, long_form);
         m_bool_opts[name] = {short_form, long_form, default_val, default_val, description};
         m_bool_short_name[short_form] = name;
@@ -250,7 +253,8 @@ namespace geopm
             std::string(col0, ' ') + "-" + short_form + ", --" + long_form;
         if (left.size() < col1) {
             left.resize(col1, ' ');
-        } else {
+        }
+        else {
             left += "\n";
             tmp << left;
             left = std::string(col1, ' ');

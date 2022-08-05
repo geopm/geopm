@@ -174,9 +174,9 @@ TEST_F(NVMLGPUTopoTest, n1_superset_n_affinitization_config)
     EXPECT_EQ(num_gpu, topo.num_gpu());
     std::set<int> cpus_allowed_set[num_gpu];
     cpus_allowed_set[0] = {12,13,14,15,16,17,18,19,20,21};
-    cpus_allowed_set[1] = {8 ,9 ,10,11,22,23,24,25,26,27};
-    cpus_allowed_set[2] = {4 ,5 ,6 ,7 ,28,29,30,31,32,33};
-    cpus_allowed_set[3] = {0 ,1 ,2 ,3 ,34,35,36,37,38,39};
+    cpus_allowed_set[1] = {8,9,10,11,22,23,24,25,26,27};
+    cpus_allowed_set[2] = {4,5,6,7,28,29,30,31,32,33};
+    cpus_allowed_set[3] = {0,1,2,3,34,35,36,37,38,39};
 
     for (int gpu_idx = 0; gpu_idx < num_gpu; ++gpu_idx) {
         ASSERT_THAT(topo.cpu_affinity_ideal(gpu_idx), cpus_allowed_set[gpu_idx]);
@@ -229,8 +229,8 @@ TEST_F(NVMLGPUTopoTest, hpe_6500_affinitization_config)
 
     EXPECT_EQ(num_gpu, topo.num_gpu());
     std::set<int> cpus_allowed_set[num_gpu];
-    cpus_allowed_set[0] = {0 ,1 ,2 ,3 ,4 ,5 ,6 };
-    cpus_allowed_set[1] = {7 ,8 ,9 ,10,11,12,13};
+    cpus_allowed_set[0] = {0,1,2,3,4,5,6 };
+    cpus_allowed_set[1] = {7,8,9,10,11,12,13};
     cpus_allowed_set[2] = {14,15,16,17,18,19,20};
     cpus_allowed_set[3] = {21,22,23,24,25,26,27};
     cpus_allowed_set[4] = {28,29,30,31,32,33,34};
@@ -263,8 +263,8 @@ TEST_F(NVMLGPUTopoTest, uneven_affinitization_config)
 
     EXPECT_EQ(num_gpu, topo.num_gpu());
     std::set<int> cpus_allowed_set[num_gpu];
-    cpus_allowed_set[0] = {0 ,1 ,2 ,3 ,4 ,5 ,18,19};
-    cpus_allowed_set[1] = {6 ,7 ,8 ,9 ,10,11};
+    cpus_allowed_set[0] = {0,1,2,3,4,5,18,19};
+    cpus_allowed_set[1] = {6,7,8,9,10,11};
     cpus_allowed_set[2] = {12,13,14,15,16,17};
 
     for (int gpu_idx = 0; gpu_idx < num_gpu; ++gpu_idx) {
@@ -349,8 +349,8 @@ TEST_F(NVMLGPUTopoTest, high_cpu_count_gaps_config)
 
     EXPECT_EQ(num_gpu, topo.num_gpu());
     std::set<int> cpus_allowed_set[num_gpu];
-    cpus_allowed_set[0] = {0 ,1 ,2 ,3 ,4 ,5 ,6 ,7};
-    cpus_allowed_set[1] = {8 ,9 ,10,11,12,13,14,15};
+    cpus_allowed_set[0] = {0,1,2,3,4,5,6,7};
+    cpus_allowed_set[1] = {8,9,10,11,12,13,14,15};
     cpus_allowed_set[2] = {16,17,18,19,20,21,22,23};
     cpus_allowed_set[3] = {24,25,26,27,64,65,66,67};
     cpus_allowed_set[4] = {28,29,30,31,32,33,34,35,127};

@@ -69,32 +69,58 @@ namespace geopm
             }
             // default columns
             std::vector<struct m_request_s> base_columns({
-                    {"TIME", GEOPM_DOMAIN_BOARD, 0,
-                     m_platform_io.format_function("TIME")},
-                    {"EPOCH_COUNT", GEOPM_DOMAIN_BOARD, 0,
-                     m_platform_io.format_function("EPOCH_COUNT")},
-                    {"REGION_HASH", GEOPM_DOMAIN_BOARD, 0,
-                     m_platform_io.format_function("REGION_HASH")},
-                    {"REGION_HINT", GEOPM_DOMAIN_BOARD, 0,
-                     m_platform_io.format_function("REGION_HINT")},
-                    {"REGION_PROGRESS", GEOPM_DOMAIN_BOARD, 0,
-                     m_platform_io.format_function("REGION_PROGRESS")},
-                    {"CPU_ENERGY", GEOPM_DOMAIN_BOARD, 0,
-                     m_platform_io.format_function("CPU_ENERGY")},
-                    {"DRAM_ENERGY", GEOPM_DOMAIN_BOARD, 0,
-                     m_platform_io.format_function("DRAM_ENERGY")},
-                    {"CPU_POWER", GEOPM_DOMAIN_BOARD, 0,
-                     m_platform_io.format_function("CPU_POWER")},
-                    {"DRAM_POWER", GEOPM_DOMAIN_BOARD, 0,
-                     m_platform_io.format_function("DRAM_POWER")},
-                    {"CPU_FREQUENCY_STATUS", GEOPM_DOMAIN_BOARD, 0,
-                     m_platform_io.format_function("CPU_FREQUENCY_STATUS")},
-                    {"CPU_CYCLES_THREAD", GEOPM_DOMAIN_BOARD, 0,
-                     m_platform_io.format_function("CPU_CYCLES_THREAD")},
-                    {"CPU_CYCLES_REFERENCE", GEOPM_DOMAIN_BOARD, 0,
-                     m_platform_io.format_function("CPU_CYCLES_REFERENCE")},
-                    {"CPU_CORE_TEMPERATURE", GEOPM_DOMAIN_BOARD, 0,
-                     m_platform_io.format_function("CPU_CORE_TEMPERATURE")}});
+                {
+                    "TIME", GEOPM_DOMAIN_BOARD, 0,
+                    m_platform_io.format_function("TIME")
+                },
+                {
+                    "EPOCH_COUNT", GEOPM_DOMAIN_BOARD, 0,
+                    m_platform_io.format_function("EPOCH_COUNT")
+                },
+                {
+                    "REGION_HASH", GEOPM_DOMAIN_BOARD, 0,
+                    m_platform_io.format_function("REGION_HASH")
+                },
+                {
+                    "REGION_HINT", GEOPM_DOMAIN_BOARD, 0,
+                    m_platform_io.format_function("REGION_HINT")
+                },
+                {
+                    "REGION_PROGRESS", GEOPM_DOMAIN_BOARD, 0,
+                    m_platform_io.format_function("REGION_PROGRESS")
+                },
+                {
+                    "CPU_ENERGY", GEOPM_DOMAIN_BOARD, 0,
+                    m_platform_io.format_function("CPU_ENERGY")
+                },
+                {
+                    "DRAM_ENERGY", GEOPM_DOMAIN_BOARD, 0,
+                    m_platform_io.format_function("DRAM_ENERGY")
+                },
+                {
+                    "CPU_POWER", GEOPM_DOMAIN_BOARD, 0,
+                    m_platform_io.format_function("CPU_POWER")
+                },
+                {
+                    "DRAM_POWER", GEOPM_DOMAIN_BOARD, 0,
+                    m_platform_io.format_function("DRAM_POWER")
+                },
+                {
+                    "CPU_FREQUENCY_STATUS", GEOPM_DOMAIN_BOARD, 0,
+                    m_platform_io.format_function("CPU_FREQUENCY_STATUS")
+                },
+                {
+                    "CPU_CYCLES_THREAD", GEOPM_DOMAIN_BOARD, 0,
+                    m_platform_io.format_function("CPU_CYCLES_THREAD")
+                },
+                {
+                    "CPU_CYCLES_REFERENCE", GEOPM_DOMAIN_BOARD, 0,
+                    m_platform_io.format_function("CPU_CYCLES_REFERENCE")
+                },
+                {
+                    "CPU_CORE_TEMPERATURE", GEOPM_DOMAIN_BOARD, 0,
+                    m_platform_io.format_function("CPU_CORE_TEMPERATURE")
+                }});
 
             m_region_hash_idx = 2;
             m_region_hint_idx = 3;
@@ -112,7 +138,7 @@ namespace geopm
                                 GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
             }
 #endif
-           size_t num_sig = env_sig.size();
+            size_t num_sig = env_sig.size();
             for (size_t sig_idx = 0; sig_idx != num_sig; ++sig_idx) {
                 int num_dom = m_platform_topo.num_domain(env_dom.at(sig_idx));
                 for (int dom_idx = 0; dom_idx != num_dom; ++dom_idx) {

@@ -43,7 +43,8 @@ namespace geopm
         num_progress_updates(big_o_in);
         double seconds = big_o_in / m_num_progress_updates;
         m_delay = {(time_t)(seconds),
-                   (long)((seconds - (time_t)(seconds)) * 1E9)};
+                   (long)((seconds - (time_t)(seconds)) * 1E9)
+                  };
 
         m_big_o = big_o_in;
     }

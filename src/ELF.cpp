@@ -71,9 +71,11 @@ namespace geopm
             if (elf_ptr->num_symbol()) {
                 do {
                     result[elf_ptr->symbol_offset()] = elf_ptr->symbol_name();
-                } while (elf_ptr->next_symbol());
+                }
+                while (elf_ptr->next_symbol());
             }
-        } while (elf_ptr->next_section());
+        }
+        while (elf_ptr->next_section());
 
         return result;
     }
@@ -132,11 +134,11 @@ namespace geopm
                     }
                 }
                 catch (const Exception &ex) {
-                   // If the ELF read fails, just swallow the exception
-                   std::string what(ex.what());
-                   if (what.find("ELFImp") == std::string::npos) {
-                       throw ex;
-                   }
+                    // If the ELF read fails, just swallow the exception
+                    std::string what(ex.what());
+                    if (what.find("ELFImp") == std::string::npos) {
+                        throw ex;
+                    }
                 }
             }
         }
@@ -268,7 +270,7 @@ namespace geopm
     {
         size_t result = 0;
         if (m_data && m_symbol_idx < num_symbol()) {
-           result = m_symbol->st_value;
+            result = m_symbol->st_value;
         }
         return result;
     }

@@ -21,33 +21,33 @@ std::shared_ptr<MockPlatformTopo> make_topo(int num_package, int num_core, int n
 
     // expectations for num_domain
     ON_CALL(*topo, num_domain(GEOPM_DOMAIN_BOARD))
-        .WillByDefault(Return(1));
+    .WillByDefault(Return(1));
     ON_CALL(*topo, num_domain(GEOPM_DOMAIN_PACKAGE))
-        .WillByDefault(Return(num_package));
+    .WillByDefault(Return(num_package));
     ON_CALL(*topo, num_domain(GEOPM_DOMAIN_MEMORY))
-        .WillByDefault(Return(num_package));
+    .WillByDefault(Return(num_package));
     ON_CALL(*topo, num_domain(GEOPM_DOMAIN_CORE))
-        .WillByDefault(Return(num_core));
+    .WillByDefault(Return(num_core));
     ON_CALL(*topo, num_domain(GEOPM_DOMAIN_CPU))
-        .WillByDefault(Return(num_cpu));
+    .WillByDefault(Return(num_cpu));
 
     // expectations for is_nested_domain
     ON_CALL(*topo, is_nested_domain(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_BOARD))
-        .WillByDefault(Return(true));
+    .WillByDefault(Return(true));
     ON_CALL(*topo, is_nested_domain(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_MEMORY))
-        .WillByDefault(Return(true));
+    .WillByDefault(Return(true));
     ON_CALL(*topo, is_nested_domain(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_PACKAGE))
-        .WillByDefault(Return(true));
+    .WillByDefault(Return(true));
     ON_CALL(*topo, is_nested_domain(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_CORE))
-        .WillByDefault(Return(true));
+    .WillByDefault(Return(true));
     ON_CALL(*topo, is_nested_domain(GEOPM_DOMAIN_CORE, GEOPM_DOMAIN_BOARD))
-        .WillByDefault(Return(true));
+    .WillByDefault(Return(true));
     ON_CALL(*topo, is_nested_domain(GEOPM_DOMAIN_CORE, GEOPM_DOMAIN_PACKAGE))
-        .WillByDefault(Return(true));
+    .WillByDefault(Return(true));
     ON_CALL(*topo, is_nested_domain(GEOPM_DOMAIN_PACKAGE, GEOPM_DOMAIN_BOARD))
-        .WillByDefault(Return(true));
+    .WillByDefault(Return(true));
     ON_CALL(*topo, is_nested_domain(GEOPM_DOMAIN_MEMORY, GEOPM_DOMAIN_BOARD))
-        .WillByDefault(Return(true));
+    .WillByDefault(Return(true));
 
     // expectations for domain_nested
     std::vector<std::set<int> > package_cores(num_package);
@@ -72,28 +72,28 @@ std::shared_ptr<MockPlatformTopo> make_topo(int num_package, int num_core, int n
     }
 
     ON_CALL(*topo, domain_nested(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_BOARD, 0))
-        .WillByDefault(Return(all_cpus));
+    .WillByDefault(Return(all_cpus));
     ON_CALL(*topo, domain_nested(GEOPM_DOMAIN_CORE, GEOPM_DOMAIN_BOARD, 0))
-        .WillByDefault(Return(all_cores));
+    .WillByDefault(Return(all_cores));
     ON_CALL(*topo, domain_nested(GEOPM_DOMAIN_PACKAGE, GEOPM_DOMAIN_BOARD, 0))
-        .WillByDefault(Return(all_pkgs));
+    .WillByDefault(Return(all_pkgs));
     // for now assume memory is the same as package
     ON_CALL(*topo, domain_nested(GEOPM_DOMAIN_MEMORY, GEOPM_DOMAIN_BOARD, 0))
-        .WillByDefault(Return(all_pkgs));
+    .WillByDefault(Return(all_pkgs));
 
     for (int package_idx = 0; package_idx < num_package; ++package_idx) {
         ON_CALL(*topo, domain_nested(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_PACKAGE, package_idx))
-            .WillByDefault(Return(package_cpus[package_idx]));
+        .WillByDefault(Return(package_cpus[package_idx]));
         ON_CALL(*topo, domain_nested(GEOPM_DOMAIN_CORE, GEOPM_DOMAIN_PACKAGE, package_idx))
-            .WillByDefault(Return(package_cores[package_idx]));
+        .WillByDefault(Return(package_cores[package_idx]));
     }
     for (int core_idx = 0; core_idx < num_core; ++core_idx) {
         ON_CALL(*topo, domain_nested(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_CORE, core_idx))
-            .WillByDefault(Return(core_cpus[core_idx]));
+        .WillByDefault(Return(core_cpus[core_idx]));
     }
     for (int cpu_idx = 0; cpu_idx < num_cpu; ++cpu_idx) {
         ON_CALL(*topo, domain_nested(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_CPU, cpu_idx))
-            .WillByDefault(Return(std::set<int>{cpu_idx}));
+        .WillByDefault(Return(std::set<int> {cpu_idx}));
     }
 
     return topo;

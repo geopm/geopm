@@ -64,11 +64,11 @@ class PlatformIOTestMockIOGroup : public MockIOGroup
             for (const auto &sig : signals) {
                 names.insert(sig.first);
                 ON_CALL(*this, is_valid_signal(sig.first))
-                    .WillByDefault(Return(true));
+                .WillByDefault(Return(true));
                 ON_CALL(*this, signal_domain_type(sig.first))
-                    .WillByDefault(Return(sig.second));
+                .WillByDefault(Return(sig.second));
                 ON_CALL(*this, push_signal(sig.first, _, _))
-                    .WillByDefault(Return(index));
+                .WillByDefault(Return(index));
                 ++index;
             }
             ON_CALL(*this, signal_names()).WillByDefault(Return(names));
@@ -85,11 +85,11 @@ class PlatformIOTestMockIOGroup : public MockIOGroup
             for (const auto &con : controls) {
                 names.insert(con.first);
                 ON_CALL(*this, is_valid_control(con.first))
-                    .WillByDefault(Return(true));
+                .WillByDefault(Return(true));
                 ON_CALL(*this, control_domain_type(con.first))
-                    .WillByDefault(Return(con.second));
+                .WillByDefault(Return(con.second));
                 ON_CALL(*this, push_control(con.first, _, _))
-                    .WillByDefault(Return(index));
+                .WillByDefault(Return(index));
                 ++index;
             }
             ON_CALL(*this, control_names()).WillByDefault(Return(names));
@@ -133,22 +133,22 @@ void PlatformIOTest::SetUp()
     ON_CALL(*m_control_iogroup, name()).WillByDefault(Return("CONTROL"));
     EXPECT_CALL(*m_control_iogroup, name()).Times(AtLeast(0));
     m_control_iogroup->set_valid_signals({
-            {"FREQ", GEOPM_DOMAIN_CPU},
-            {"POWER", GEOPM_DOMAIN_CPU},
-            {"MODE", GEOPM_DOMAIN_PACKAGE}});
+        {"FREQ", GEOPM_DOMAIN_CPU},
+        {"POWER", GEOPM_DOMAIN_CPU},
+        {"MODE", GEOPM_DOMAIN_PACKAGE}});
     m_control_iogroup->set_valid_controls({
-            {"FREQ", GEOPM_DOMAIN_CPU},
-            {"POWER", GEOPM_DOMAIN_CPU},
-            {"MODE", GEOPM_DOMAIN_PACKAGE}});
+        {"FREQ", GEOPM_DOMAIN_CPU},
+        {"POWER", GEOPM_DOMAIN_CPU},
+        {"MODE", GEOPM_DOMAIN_PACKAGE}});
 
     // IOGroup that overrides previously registered signals and controls
     m_override_iogroup = std::make_shared<PlatformIOTestMockIOGroup>();
     ON_CALL(*m_override_iogroup, name()).WillByDefault(Return("OVERRIDE"));
     EXPECT_CALL(*m_override_iogroup, name()).Times(AtLeast(0));
     m_override_iogroup->set_valid_signals({{"MODE", GEOPM_DOMAIN_BOARD},
-                                           {"TEMP", GEOPM_DOMAIN_BOARD}});
+        {"TEMP", GEOPM_DOMAIN_BOARD}});
     m_override_iogroup->set_valid_controls({{"MODE", GEOPM_DOMAIN_BOARD},
-                                            {"TEMP", GEOPM_DOMAIN_BOARD}});
+        {"TEMP", GEOPM_DOMAIN_BOARD}});
 
     // Settings for PlatformTopo: 2 socket, 4 CPUs each
     m_topo = make_topo(2, 4, 8);
@@ -209,9 +209,9 @@ TEST_F(PlatformIOTest, signal_control_description)
     // use the IOGroup to get the description
     EXPECT_CALL(*m_time_iogroup, signal_description("TIME")).Times(0);
     EXPECT_CALL(*m_control_iogroup, signal_description("FREQ"))
-        .WillOnce(Return(freq_signal_desc));
+    .WillOnce(Return(freq_signal_desc));
     EXPECT_CALL(*m_control_iogroup, control_description("FREQ"))
-        .WillOnce(Return(freq_control_desc));
+    .WillOnce(Return(freq_control_desc));
 
     EXPECT_THAT(m_platio->signal_description("TIME"), Not(IsEmpty()));
     EXPECT_EQ(freq_signal_desc, m_platio->signal_description("FREQ"));
@@ -271,7 +271,7 @@ TEST_F(PlatformIOTest, push_signal)
 TEST_F(PlatformIOTest, push_signal_agg)
 {
     EXPECT_CALL(*m_topo, is_nested_domain(GEOPM_DOMAIN_CPU,
-                                         GEOPM_DOMAIN_PACKAGE));
+                                          GEOPM_DOMAIN_PACKAGE));
     EXPECT_CALL(*m_topo, domain_nested(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_PACKAGE, 0));
 
     EXPECT_CALL(*m_control_iogroup, signal_domain_type("FREQ")).Times(AtLeast(1));
@@ -280,7 +280,7 @@ TEST_F(PlatformIOTest, push_signal_agg)
         EXPECT_CALL(*m_control_iogroup, read_signal("FREQ", GEOPM_DOMAIN_CPU, cpu));
     }
     EXPECT_CALL(*m_control_iogroup, agg_function("FREQ"))
-        .WillOnce(Return(geopm::Agg::average));
+    .WillOnce(Return(geopm::Agg::average));
     EXPECT_EQ(0, m_platio->num_signal_pushed());
     // Domain of FREQ is CPU
     m_platio->push_signal("FREQ", GEOPM_DOMAIN_PACKAGE, 0);
@@ -294,7 +294,7 @@ TEST_F(PlatformIOTest, push_signal_iogroup_fallback)
 
     EXPECT_CALL(*m_override_iogroup, signal_domain_type("TEMP")).Times(2);
     EXPECT_CALL(*m_override_iogroup, read_signal("TEMP", GEOPM_DOMAIN_BOARD, 0))
-        .WillOnce(Throw(geopm::Exception("injected exception", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__)));
+    .WillOnce(Throw(geopm::Exception("injected exception", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__)));
 
     EXPECT_CALL(*m_fallback_iogroup, signal_domain_type("TEMP")).Times(2);
     EXPECT_CALL(*m_fallback_iogroup, read_signal("TEMP", GEOPM_DOMAIN_BOARD, 0));
@@ -311,7 +311,7 @@ TEST_F(PlatformIOTest, push_signal_iogroup_fallback_domain_change)
     // the fallback logic is enforced and the call is routed appropriately to the control_iogroup.
     EXPECT_CALL(*m_override_iogroup, signal_domain_type("MODE")).Times(2);
     EXPECT_CALL(*m_override_iogroup, read_signal("MODE", GEOPM_DOMAIN_BOARD, 0))
-        .WillOnce(Throw(geopm::Exception("injected exception", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__)));
+    .WillOnce(Throw(geopm::Exception("injected exception", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__)));
 
     // This IOGroup should should be pruned because the native domain of the signal changed.
     EXPECT_CALL(*m_control_iogroup, signal_domain_type("MODE")).Times(AtLeast(1));
@@ -340,12 +340,12 @@ TEST_F(PlatformIOTest, push_control)
 TEST_F(PlatformIOTest, push_control_agg)
 {
     EXPECT_CALL(*m_topo, is_nested_domain(GEOPM_DOMAIN_CPU,
-                                         GEOPM_DOMAIN_PACKAGE));
+                                          GEOPM_DOMAIN_PACKAGE));
     EXPECT_CALL(*m_topo, domain_nested(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_PACKAGE, 0));
     EXPECT_EQ(0, m_platio->num_control_pushed());
     EXPECT_CALL(*m_control_iogroup, control_domain_type("FREQ")).Times(AtLeast(1));
     EXPECT_CALL(*m_control_iogroup, agg_function("FREQ"))
-        .WillOnce(Return(geopm::Agg::average));
+    .WillOnce(Return(geopm::Agg::average));
     for (auto cpu : m_cpu_set0) {
         EXPECT_CALL(*m_control_iogroup, read_signal("FREQ", GEOPM_DOMAIN_CPU, cpu));
         EXPECT_CALL(*m_control_iogroup, write_control("FREQ", GEOPM_DOMAIN_CPU, cpu, _));
@@ -362,7 +362,7 @@ TEST_F(PlatformIOTest, push_control_iogroup_fallback)
 
     EXPECT_CALL(*m_override_iogroup, control_domain_type("TEMP")).Times(2);
     EXPECT_CALL(*m_override_iogroup, read_signal("TEMP", GEOPM_DOMAIN_BOARD, 0))
-        .WillOnce(Throw(geopm::Exception("injected exception", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__)));
+    .WillOnce(Throw(geopm::Exception("injected exception", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__)));
     EXPECT_CALL(*m_override_iogroup, write_control("TEMP", GEOPM_DOMAIN_BOARD, 0, _)).Times(0);
 
     EXPECT_CALL(*m_fallback_iogroup, control_domain_type("TEMP")).Times(2);
@@ -381,7 +381,7 @@ TEST_F(PlatformIOTest, push_control_iogroup_fallback_domain_change)
     // the fallback logic is enforced and the call is routed appropriately to the control_iogroup.
     EXPECT_CALL(*m_override_iogroup, control_domain_type("MODE")).Times(2);
     EXPECT_CALL(*m_override_iogroup, read_signal("MODE", GEOPM_DOMAIN_BOARD, 0))
-        .WillOnce(Throw(geopm::Exception("injected exception", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__)));
+    .WillOnce(Throw(geopm::Exception("injected exception", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__)));
 
     // This IOGroup should should be pruned because the native domain of the control changed.
     EXPECT_CALL(*m_control_iogroup, control_domain_type("MODE")).Times(AtLeast(1));
@@ -406,17 +406,17 @@ TEST_F(PlatformIOTest, save_restore)
     m_platio->restore_control();
     std::string test_path = "/TEST/PATH";
     EXPECT_CALL(*m_time_iogroup, name())
-        .WillOnce(Return("TIME"))
-        .WillOnce(Return("TIME"));
+    .WillOnce(Return("TIME"))
+    .WillOnce(Return("TIME"));
     EXPECT_CALL(*m_fallback_iogroup, name())
-        .WillOnce(Return("FALLBACK"))
-        .WillOnce(Return("FALLBACK"));
+    .WillOnce(Return("FALLBACK"))
+    .WillOnce(Return("FALLBACK"));
     EXPECT_CALL(*m_control_iogroup, name())
-        .WillOnce(Return("CONTROL"))
-        .WillOnce(Return("CONTROL"));
+    .WillOnce(Return("CONTROL"))
+    .WillOnce(Return("CONTROL"));
     EXPECT_CALL(*m_override_iogroup, name())
-        .WillOnce(Return("OVERRIDE"))
-        .WillOnce(Return("OVERRIDE"));
+    .WillOnce(Return("OVERRIDE"))
+    .WillOnce(Return("OVERRIDE"));
     EXPECT_CALL(*m_time_iogroup,
                 save_control(test_path + "/TIME-save-control.json"));
     EXPECT_CALL(*m_fallback_iogroup,
@@ -456,9 +456,9 @@ TEST_F(PlatformIOTest, sample)
     EXPECT_EQ(1, time_idx);
 
     EXPECT_CALL(*m_control_iogroup, sample(0))
-        .WillOnce(Return(2e9));
+    .WillOnce(Return(2e9));
     EXPECT_CALL(*m_time_iogroup, sample(0))
-        .WillOnce(Return(1.0));
+    .WillOnce(Return(1.0));
 
     double freq = m_platio->sample(freq_idx);
     EXPECT_DOUBLE_EQ(2e9, freq);
@@ -487,14 +487,14 @@ TEST_F(PlatformIOTest, sample_not_active)
 TEST_F(PlatformIOTest, sample_agg)
 {
     EXPECT_CALL(*m_topo, is_nested_domain(GEOPM_DOMAIN_CPU,
-                                         GEOPM_DOMAIN_PACKAGE));
+                                          GEOPM_DOMAIN_PACKAGE));
     EXPECT_CALL(*m_topo, domain_nested(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_PACKAGE, 0));
     EXPECT_CALL(*m_control_iogroup, signal_domain_type("FREQ")).Times(AtLeast(1));
     EXPECT_CALL(*m_control_iogroup, agg_function("FREQ"))
-        .WillOnce(Return(geopm::Agg::average));
+    .WillOnce(Return(geopm::Agg::average));
     for (auto cpu : m_cpu_set0) {
         EXPECT_CALL(*m_control_iogroup, push_signal("FREQ", GEOPM_DOMAIN_CPU, cpu))
-            .WillOnce(Return(cpu));
+        .WillOnce(Return(cpu));
         EXPECT_CALL(*m_control_iogroup, read_signal("FREQ", GEOPM_DOMAIN_CPU, cpu));
     }
     int freq_idx = m_platio->push_signal("FREQ", GEOPM_DOMAIN_PACKAGE, 0);
@@ -548,7 +548,7 @@ TEST_F(PlatformIOTest, adjust_agg)
         EXPECT_CALL(*m_control_iogroup, read_signal("FREQ", GEOPM_DOMAIN_CPU, cpu));
         EXPECT_CALL(*m_control_iogroup, write_control("FREQ", GEOPM_DOMAIN_CPU, cpu, _));
         EXPECT_CALL(*m_control_iogroup, push_control("FREQ", GEOPM_DOMAIN_CPU, cpu))
-            .WillOnce(Return(cpu));
+        .WillOnce(Return(cpu));
     }
     int freq_idx = m_platio->push_control("FREQ", GEOPM_DOMAIN_PACKAGE, 0);
 
@@ -576,7 +576,7 @@ TEST_F(PlatformIOTest, adjust_agg_sum)
         EXPECT_CALL(*m_control_iogroup, read_signal("POWER", GEOPM_DOMAIN_CPU, cpu));
         EXPECT_CALL(*m_control_iogroup, write_control("POWER", GEOPM_DOMAIN_CPU, cpu, _));
         EXPECT_CALL(*m_control_iogroup, push_control("POWER", GEOPM_DOMAIN_CPU, cpu))
-            .WillOnce(Return(cpu));
+        .WillOnce(Return(cpu));
     }
     int power_idx = m_platio->push_control("POWER", GEOPM_DOMAIN_PACKAGE, 0);
 
@@ -596,13 +596,13 @@ TEST_F(PlatformIOTest, read_signal)
     EXPECT_CALL(*m_topo, is_nested_domain(_, _));
     EXPECT_CALL(*m_control_iogroup, signal_domain_type("FREQ")).Times(2);
     EXPECT_CALL(*m_control_iogroup, read_signal("FREQ", GEOPM_DOMAIN_CPU, 0))
-        .WillOnce(Return(4e9));
+    .WillOnce(Return(4e9));
     double freq = m_platio->read_signal("FREQ", GEOPM_DOMAIN_CPU, 0);
     EXPECT_DOUBLE_EQ(4e9, freq);
 
     EXPECT_CALL(*m_time_iogroup, signal_domain_type("TIME")).Times(AtLeast(1));
     EXPECT_CALL(*m_time_iogroup, read_signal("TIME", GEOPM_DOMAIN_BOARD, 0))
-        .WillOnce(Return(2.0));
+    .WillOnce(Return(2.0));
     double time = m_platio->read_signal("TIME", GEOPM_DOMAIN_BOARD, 0);
     EXPECT_DOUBLE_EQ(2.0, time);
 
@@ -620,7 +620,7 @@ TEST_F(PlatformIOTest, read_signal_agg)
     EXPECT_CALL(*m_control_iogroup, agg_function("FREQ")).WillOnce(Return(Agg::average));
     for (auto cpu : m_cpu_set0) {
         EXPECT_CALL(*m_control_iogroup, read_signal("FREQ", GEOPM_DOMAIN_CPU, cpu))
-            .WillOnce(Return(1e9 * (cpu)));
+        .WillOnce(Return(1e9 * (cpu)));
     }
     // CPU from IOGroup is used, not package
     EXPECT_CALL(*m_control_iogroup, read_signal("FREQ", GEOPM_DOMAIN_PACKAGE, _)).Times(0);
@@ -638,7 +638,7 @@ TEST_F(PlatformIOTest, read_signal_override)
     EXPECT_CALL(*m_topo, is_nested_domain(_, _));
     EXPECT_CALL(*m_override_iogroup, signal_domain_type("MODE")).Times(AtLeast(1));
     EXPECT_CALL(*m_override_iogroup, read_signal("MODE", GEOPM_DOMAIN_BOARD, 0))
-        .WillOnce(Return(5e9));
+    .WillOnce(Return(5e9));
 
     double freq = m_platio->read_signal("MODE", GEOPM_DOMAIN_BOARD, 0);
     EXPECT_DOUBLE_EQ(5e9, freq);
@@ -654,7 +654,7 @@ TEST_F(PlatformIOTest, read_signal_iogroup_fallback_domain_change)
     // as the domain matches.  It does not in this case..
     EXPECT_CALL(*m_override_iogroup, signal_domain_type("MODE")).Times(2);
     EXPECT_CALL(*m_override_iogroup, read_signal("MODE", GEOPM_DOMAIN_BOARD, 0))
-        .WillOnce(Throw(geopm::Exception("injected exception", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__)));
+    .WillOnce(Throw(geopm::Exception("injected exception", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__)));
 
     // This IOGroup should should be pruned because the native domain of the signal changed.
     EXPECT_CALL(*m_control_iogroup, signal_domain_type("MODE")).Times(AtLeast(1));
@@ -670,11 +670,11 @@ TEST_F(PlatformIOTest, read_signal_iogroup_fallback)
     // as the domain matches.
     EXPECT_CALL(*m_override_iogroup, signal_domain_type("TEMP")).Times(2);
     EXPECT_CALL(*m_override_iogroup, read_signal("TEMP", GEOPM_DOMAIN_BOARD, 0))
-        .WillOnce(Throw(geopm::Exception("injected exception", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__)));
+    .WillOnce(Throw(geopm::Exception("injected exception", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__)));
 
     EXPECT_CALL(*m_fallback_iogroup, signal_domain_type("TEMP")).Times(2);
     EXPECT_CALL(*m_fallback_iogroup, read_signal("TEMP", GEOPM_DOMAIN_BOARD, _))
-        .WillRepeatedly(Return(5e9)); // 2 packages in 1 board
+    .WillRepeatedly(Return(5e9)); // 2 packages in 1 board
 
     double freq = m_platio->read_signal("TEMP", GEOPM_DOMAIN_BOARD, 0);
     EXPECT_DOUBLE_EQ(5e9, freq);
@@ -707,7 +707,7 @@ TEST_F(PlatformIOTest, write_control_agg)
     EXPECT_CALL(*m_topo, domain_nested(_, _, _));
     EXPECT_CALL(*m_control_iogroup, control_domain_type("FREQ")).Times(AtLeast(1));
     EXPECT_CALL(*m_control_iogroup, agg_function("FREQ"))
-        .WillOnce(Return(geopm::Agg::average));
+    .WillOnce(Return(geopm::Agg::average));
     for (auto cpu : m_cpu_set0) {
         EXPECT_CALL(*m_control_iogroup, write_control("FREQ", GEOPM_DOMAIN_CPU, cpu, value));
     }
@@ -727,7 +727,7 @@ TEST_F(PlatformIOTest, write_control_agg_sum)
     EXPECT_CALL(*m_topo, domain_nested(_, _, _));
     EXPECT_CALL(*m_control_iogroup, control_domain_type("FREQ")).Times(AtLeast(1));
     EXPECT_CALL(*m_control_iogroup, agg_function("FREQ"))
-        .WillOnce(Return(geopm::Agg::sum));
+    .WillOnce(Return(geopm::Agg::sum));
     for (auto cpu : m_cpu_set0) {
         EXPECT_CALL(*m_control_iogroup, write_control("FREQ", GEOPM_DOMAIN_CPU, cpu, expect));
     }
@@ -760,7 +760,7 @@ TEST_F(PlatformIOTest, write_control_iogroup_fallback)
     // as the domain matches.
     EXPECT_CALL(*m_override_iogroup, control_domain_type("TEMP")).Times(2);
     EXPECT_CALL(*m_override_iogroup, write_control("TEMP", GEOPM_DOMAIN_BOARD, 0, value))
-        .WillOnce(Throw(geopm::Exception("injected exception", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__)));
+    .WillOnce(Throw(geopm::Exception("injected exception", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__)));
 
     EXPECT_CALL(*m_fallback_iogroup, control_domain_type("TEMP")).Times(2);
     EXPECT_CALL(*m_fallback_iogroup, write_control("TEMP", GEOPM_DOMAIN_BOARD, 0, value));
@@ -776,7 +776,7 @@ TEST_F(PlatformIOTest, write_control_iogroup_fallback_domain_change)
     // as the domain matches.  It does not in this case..
     EXPECT_CALL(*m_override_iogroup, control_domain_type("MODE")).Times(2);
     EXPECT_CALL(*m_override_iogroup, write_control("MODE", GEOPM_DOMAIN_BOARD, 0, value))
-        .WillOnce(Throw(geopm::Exception("injected exception", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__)));
+    .WillOnce(Throw(geopm::Exception("injected exception", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__)));
 
     // This IOGroup should should be pruned because the native domain of the control changed.
     EXPECT_CALL(*m_control_iogroup, control_domain_type("MODE")).Times(AtLeast(1));
@@ -792,10 +792,10 @@ TEST_F(PlatformIOTest, agg_function)
 
     double value = 12.3456;
     EXPECT_CALL(*m_override_iogroup, agg_function("MODE"))
-        .WillOnce(Return(
-            [value](const std::vector<double> &x) -> double {
-                return value;
-            }));
+    .WillOnce(Return(
+    [value](const std::vector<double> &x) -> double {
+        return value;
+    }));
     auto mode_func = m_platio->agg_function("MODE");
     EXPECT_EQ(value, mode_func({5, 6, 7}));
 
@@ -808,7 +808,7 @@ TEST_F(PlatformIOTest, signal_behavior)
     EXPECT_CALL(*m_time_iogroup, signal_domain_type("TIME")).Times(1);
     int expected_behavior = IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE;
     EXPECT_CALL(*m_time_iogroup, signal_behavior("TIME"))
-        .WillOnce(Return(expected_behavior));
+    .WillOnce(Return(expected_behavior));
     EXPECT_EQ(expected_behavior, m_platio->signal_behavior("TIME"));
     GEOPM_EXPECT_THROW_MESSAGE(m_platio->signal_behavior("INVALID"),
                                GEOPM_ERROR_INVALID, "unknown signal \"INVALID\"");

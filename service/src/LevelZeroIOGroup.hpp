@@ -51,9 +51,9 @@ namespace geopm
             void save_control(void) override;
             void restore_control(void) override;
             std::function<double(const std::vector<double> &)> agg_function(
-                                 const std::string &signal_name) const override;
+                const std::string &signal_name) const override;
             std::function<std::string(double)> format_function(
-                                 const std::string &signal_name) const override;
+                const std::string &signal_name) const override;
             std::string signal_description(const std::string
                                            &signal_name) const override;
             std::string control_description(const std::string
@@ -97,8 +97,7 @@ namespace geopm
                 std::function<std::string(double)> m_format_function;
             };
 
-            struct derivative_signal_info
-            {
+            struct derivative_signal_info {
                 std::string m_description;
                 std::string m_base_name;
                 std::string m_time_name;

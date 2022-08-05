@@ -34,7 +34,7 @@ namespace geopm
             }
             else {
                 m_batch_idx = m_sstio->add_mbox_read(
-                    m_cpu_idx, m_command, m_subcommand, m_subcommand_arg);
+                                  m_cpu_idx, m_command, m_subcommand, m_subcommand_arg);
             }
         }
     }

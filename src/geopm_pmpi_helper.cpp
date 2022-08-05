@@ -297,8 +297,7 @@ extern "C" {
             err = geopm_env_do_profile(&do_profile);
         }
         if (!err && do_profile &&
-            (!g_ctl || pmpi_ctl == geopm::Environment::M_CTL_PTHREAD))
-        {
+            (!g_ctl || pmpi_ctl == geopm::Environment::M_CTL_PTHREAD)) {
             PMPI_Barrier(g_geopm_comm_world_swap);
             err = geopm_prof_shutdown();
         }

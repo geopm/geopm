@@ -102,11 +102,11 @@ namespace geopm
                      nullptr,  // comm
                      nullptr,  // ctl_msg
                      platform_topo().num_domain(GEOPM_DOMAIN_CPU),
-                     {},  // cpu_set
-                     nullptr,  // table
-                     nullptr,  // reduce_comm
-                     nullptr,  // app_status
-                     nullptr)  // app_record_log
+    {},  // cpu_set
+    nullptr,  // table
+    nullptr,  // reduce_comm
+    nullptr,  // app_status
+    nullptr)  // app_record_log
     {
 
     }
@@ -594,7 +594,8 @@ namespace geopm
         m_overhead_time += geopm_time_since(&overhead_entry);
         double overhead_buffer[3] = {m_overhead_time_startup,
                                      m_overhead_time,
-                                     m_overhead_time_shutdown};
+                                     m_overhead_time_shutdown
+                                    };
         double max_overhead[3] = {};
         m_reduce_comm->reduce_max(overhead_buffer, max_overhead, 3, 0);
 

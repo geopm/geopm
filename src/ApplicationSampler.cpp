@@ -96,9 +96,9 @@ namespace geopm
         : ApplicationSamplerImp(nullptr,
                                 platform_topo(),
                                 std::map<int, m_process_s> {},
-                                environment().do_record_filter(),
-                                environment().record_filter(),
-                                {})
+    environment().do_record_filter(),
+    environment().record_filter(),
+    {})
     {
 
     }
@@ -116,11 +116,14 @@ namespace geopm
         , m_process_map(process_map)
         , m_is_filtered(is_filtered)
         , m_filter_name(filter_name)
-        , m_hint_time(m_num_cpu, {0.0})
-        , m_is_cpu_active(is_cpu_active)
-        , m_update_time({{0, 0}})
-        , m_is_first_update(true)
-        , m_hint_last(m_num_cpu, GEOPM_REGION_HINT_UNSET)
+        , m_hint_time(m_num_cpu,
+    {
+        0.0
+    })
+    , m_is_cpu_active(is_cpu_active)
+    , m_update_time({{0, 0}})
+    , m_is_first_update(true)
+    , m_hint_last(m_num_cpu, GEOPM_REGION_HINT_UNSET)
     {
         if (m_is_cpu_active.empty()) {
             m_is_cpu_active.resize(m_num_cpu, false);

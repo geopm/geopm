@@ -45,7 +45,7 @@ void SSTIOTest::SetUp(void)
 {
     m_ioctl = std::make_shared<MockSSTIoctl>();
     ON_CALL(*m_ioctl, version(_))
-        .WillByDefault(DoAll(SetArgPointee<0>(DEFAULT_VERSION), Return(0)));
+    .WillByDefault(DoAll(SetArgPointee<0>(DEFAULT_VERSION), Return(0)));
 }
 
 void SSTIOTest::TearDown(void)
@@ -200,10 +200,10 @@ TEST_F(SSTIOTest, sample_batched_reads)
     auto mbox_read_idx = sstio.add_mbox_read(0, 0, 0, 0);
     {
         EXPECT_CALL(*m_ioctl, mbox(Field(&sst_mbox_interface_batch_s::num_entries, 1)))
-            .WillOnce([](sst_mbox_interface_batch_s *mbox_batch) {
-                mbox_batch->interfaces[0].read_value = expected_mbox_read_value;
-                return 0;
-            });
+        .WillOnce([](sst_mbox_interface_batch_s *mbox_batch) {
+            mbox_batch->interfaces[0].read_value = expected_mbox_read_value;
+            return 0;
+        });
 
         sstio.read_batch();
         EXPECT_EQ(expected_mbox_read_value, sstio.sample(mbox_read_idx));
@@ -213,17 +213,17 @@ TEST_F(SSTIOTest, sample_batched_reads)
     {
         // Try a new value for the mbox read just to make sure it gets updated
         EXPECT_CALL(*m_ioctl, mbox(Field(&sst_mbox_interface_batch_s::num_entries, 1)))
-            .WillOnce([](sst_mbox_interface_batch_s *mbox_batch) {
-                mbox_batch->interfaces[0].read_value = expected_mbox_read_value + 1;
-                return 0;
-            });
+        .WillOnce([](sst_mbox_interface_batch_s *mbox_batch) {
+            mbox_batch->interfaces[0].read_value = expected_mbox_read_value + 1;
+            return 0;
+        });
 
         // Set the value for the new mmio read
         EXPECT_CALL(*m_ioctl, mmio(Field(&sst_mmio_interface_batch_s::num_entries, 1)))
-            .WillOnce([](sst_mmio_interface_batch_s *mmio_batch) {
-                mmio_batch->interfaces[0].value = expected_mmio_read_value;
-                return 0;
-            });
+        .WillOnce([](sst_mmio_interface_batch_s *mmio_batch) {
+            mmio_batch->interfaces[0].value = expected_mmio_read_value;
+            return 0;
+        });
 
         sstio.read_batch();
         EXPECT_EQ(expected_mbox_read_value + 1, sstio.sample(mbox_read_idx));
@@ -248,15 +248,15 @@ TEST_F(SSTIOTest, adjust_batched_writes)
         // Read existing value -- pretend something already exists there so we
         // can make sure the write mask is used.
         EXPECT_CALL(*m_ioctl, mbox(Field(&sst_mbox_interface_batch_s::num_entries, 1)))
-            .WillOnce([](sst_mbox_interface_batch_s *mbox_batch) {
-                mbox_batch->interfaces[0].read_value = 0xf0f0f0f0;
-                return 0;
-            })
-            .WillOnce([&written_value](sst_mbox_interface_batch_s *mbox_batch) {
-                // Write modified value
-                written_value = mbox_batch->interfaces[0].write_value;
-                return 0;
-            });
+        .WillOnce([](sst_mbox_interface_batch_s *mbox_batch) {
+            mbox_batch->interfaces[0].read_value = 0xf0f0f0f0;
+            return 0;
+        })
+        .WillOnce([&written_value](sst_mbox_interface_batch_s *mbox_batch) {
+            // Write modified value
+            written_value = mbox_batch->interfaces[0].write_value;
+            return 0;
+        });
         sstio.write_batch();
         EXPECT_EQ(0xf0f00000 | expected_mbox_write_value, written_value);
     }
@@ -269,24 +269,24 @@ TEST_F(SSTIOTest, adjust_batched_writes)
 
         uint32_t written_mbox_value = 0;
         EXPECT_CALL(*m_ioctl, mbox(Field(&sst_mbox_interface_batch_s::num_entries, 1)))
-            .WillOnce([](sst_mbox_interface_batch_s *mbox_batch) {
-                mbox_batch->interfaces[0].read_value = 0xf0f00000 | expected_mbox_write_value;
-                return 0;
-            })
-            .WillOnce([&written_mbox_value](sst_mbox_interface_batch_s *mbox_batch) {
-                written_mbox_value = mbox_batch->interfaces[0].write_value;
-                return 0;
-            });
+        .WillOnce([](sst_mbox_interface_batch_s *mbox_batch) {
+            mbox_batch->interfaces[0].read_value = 0xf0f00000 | expected_mbox_write_value;
+            return 0;
+        })
+        .WillOnce([&written_mbox_value](sst_mbox_interface_batch_s *mbox_batch) {
+            written_mbox_value = mbox_batch->interfaces[0].write_value;
+            return 0;
+        });
         uint32_t written_mmio_value = 0;
         EXPECT_CALL(*m_ioctl, mmio(Field(&sst_mmio_interface_batch_s::num_entries, 1)))
-            .WillOnce([](sst_mmio_interface_batch_s *mmio_batch) {
-                mmio_batch->interfaces[0].value = 0xf1f1f1f1;
-                return 0;
-            })
-            .WillOnce([&written_mmio_value](sst_mmio_interface_batch_s *mmio_batch) {
-                written_mmio_value = mmio_batch->interfaces[0].value;
-                return 0;
-            });
+        .WillOnce([](sst_mmio_interface_batch_s *mmio_batch) {
+            mmio_batch->interfaces[0].value = 0xf1f1f1f1;
+            return 0;
+        })
+        .WillOnce([&written_mmio_value](sst_mmio_interface_batch_s *mmio_batch) {
+            written_mmio_value = mmio_batch->interfaces[0].value;
+            return 0;
+        });
 
         sstio.write_batch();
         EXPECT_EQ(0xf0f00000 | (expected_mbox_write_value + 1), written_mbox_value);
@@ -301,10 +301,10 @@ TEST_F(SSTIOTest, read_mbox_once)
     SSTIOImp sstio(max_cpus, std::static_pointer_cast<SSTIoctl>(m_ioctl));
 
     EXPECT_CALL(*m_ioctl, mbox(Field(&sst_mbox_interface_batch_s::num_entries, 1)))
-        .WillOnce([](sst_mbox_interface_batch_s *mbox_batch) {
-            mbox_batch->interfaces[0].read_value = expected_mbox_read_value;
-            return 0;
-        });
+    .WillOnce([](sst_mbox_interface_batch_s *mbox_batch) {
+        mbox_batch->interfaces[0].read_value = expected_mbox_read_value;
+        return 0;
+    });
 
     EXPECT_EQ(expected_mbox_read_value, sstio.read_mbox_once(0, 0, 0, 0));
 }
@@ -317,10 +317,10 @@ TEST_F(SSTIOTest, read_mmio_once)
 
     // Set the value for the new mmio read
     EXPECT_CALL(*m_ioctl, mmio(Field(&sst_mmio_interface_batch_s::num_entries, 1)))
-        .WillOnce([](sst_mmio_interface_batch_s *mmio_batch) {
-            mmio_batch->interfaces[0].value = expected_mmio_read_value;
-            return 0;
-        });
+    .WillOnce([](sst_mmio_interface_batch_s *mmio_batch) {
+        mmio_batch->interfaces[0].value = expected_mmio_read_value;
+        return 0;
+    });
 
     EXPECT_EQ(expected_mmio_read_value, sstio.read_mmio_once(0, 0));
 }
@@ -338,15 +338,15 @@ TEST_F(SSTIOTest, write_mbox_once)
     // Read existing value -- pretend something already exists there so we
     // can make sure the write mask is used.
     EXPECT_CALL(*m_ioctl, mbox(Field(&sst_mbox_interface_batch_s::num_entries, 1)))
-        .WillOnce([](sst_mbox_interface_batch_s *mbox_batch) {
-            mbox_batch->interfaces[0].read_value = 0xf0f0f0f0;
-            return 0;
-        })
-        .WillOnce([&written_value](sst_mbox_interface_batch_s *mbox_batch) {
-            // Write modified value
-            written_value = mbox_batch->interfaces[0].write_value;
-            return 0;
-        });
+    .WillOnce([](sst_mbox_interface_batch_s *mbox_batch) {
+        mbox_batch->interfaces[0].read_value = 0xf0f0f0f0;
+        return 0;
+    })
+    .WillOnce([&written_value](sst_mbox_interface_batch_s *mbox_batch) {
+        // Write modified value
+        written_value = mbox_batch->interfaces[0].write_value;
+        return 0;
+    });
 
     sstio.write_mbox_once(0, 0, 0, 0, 0, 0, read_mask, expected_mbox_write_value, write_mask);
     EXPECT_EQ(0xf0f00000 | expected_mbox_write_value, written_value);
@@ -362,14 +362,14 @@ TEST_F(SSTIOTest, write_mmio_once)
 
     uint32_t written_mmio_value = 0;
     EXPECT_CALL(*m_ioctl, mmio(Field(&sst_mmio_interface_batch_s::num_entries, 1)))
-        .WillOnce([](sst_mmio_interface_batch_s *mmio_batch) {
-            mmio_batch->interfaces[0].value = 0xf1f1f1f1;
-            return 0;
-        })
-        .WillOnce([&written_mmio_value](sst_mmio_interface_batch_s *mmio_batch) {
-            written_mmio_value = mmio_batch->interfaces[0].value;
-            return 0;
-        });
+    .WillOnce([](sst_mmio_interface_batch_s *mmio_batch) {
+        mmio_batch->interfaces[0].value = 0xf1f1f1f1;
+        return 0;
+    })
+    .WillOnce([&written_mmio_value](sst_mmio_interface_batch_s *mmio_batch) {
+        written_mmio_value = mmio_batch->interfaces[0].value;
+        return 0;
+    });
 
     sstio.write_mmio_once(0, 0, 0, read_mask, expected_mmio_write_value, write_mask);
     EXPECT_EQ(0xf1f10000 | expected_mmio_write_value, written_mmio_value);
@@ -386,31 +386,31 @@ TEST_F(SSTIOTest, get_punit_from_cpu)
     EXPECT_CALL(
         *m_ioctl,
         get_cpu_id(Field(&geopm::sst_cpu_map_interface_batch_s::num_entries, 2)))
-        .WillOnce(
-            [&expected_cpu_punit_map](geopm::sst_cpu_map_interface_batch_s *cpu_map_batch) {
-                for (size_t i = 0; i < cpu_map_batch->num_entries; ++i) {
-                    cpu_map_batch->interfaces[i].punit_cpu =
-                        // Left-shift 1 bit. Simulate everything being hyperthread 0.
-                        // The test's outcome should not care which hyperthread this maps to.
-                        expected_cpu_punit_map.at(cpu_map_batch->interfaces[i].cpu_index) << 1 | 0;
-                }
-                return 0;
-            });
+    .WillOnce(
+    [&expected_cpu_punit_map](geopm::sst_cpu_map_interface_batch_s *cpu_map_batch) {
+        for (size_t i = 0; i < cpu_map_batch->num_entries; ++i) {
+            cpu_map_batch->interfaces[i].punit_cpu =
+                // Left-shift 1 bit. Simulate everything being hyperthread 0.
+                // The test's outcome should not care which hyperthread this maps to.
+                expected_cpu_punit_map.at(cpu_map_batch->interfaces[i].cpu_index) << 1 | 0;
+        }
+        return 0;
+    });
     // The 3 CPUs should split over 2 batches since we specified a batch size of
     // 2 in our setup.
     EXPECT_CALL(
         *m_ioctl,
         get_cpu_id(Field(&geopm::sst_cpu_map_interface_batch_s::num_entries, 1)))
-        .WillOnce(
-            [&expected_cpu_punit_map](geopm::sst_cpu_map_interface_batch_s *cpu_map_batch) {
-                for (size_t i = 0; i < cpu_map_batch->num_entries; ++i) {
-                    cpu_map_batch->interfaces[i].punit_cpu =
-                        // Left-shift 1 bit. Simulate everything being hyperthread 1.
-                        // The test's outcome should not care which hyperthread this maps to.
-                        expected_cpu_punit_map.at(cpu_map_batch->interfaces[i].cpu_index) << 1 | 1;
-                }
-                return 0;
-            });
+    .WillOnce(
+    [&expected_cpu_punit_map](geopm::sst_cpu_map_interface_batch_s *cpu_map_batch) {
+        for (size_t i = 0; i < cpu_map_batch->num_entries; ++i) {
+            cpu_map_batch->interfaces[i].punit_cpu =
+                // Left-shift 1 bit. Simulate everything being hyperthread 1.
+                // The test's outcome should not care which hyperthread this maps to.
+                expected_cpu_punit_map.at(cpu_map_batch->interfaces[i].cpu_index) << 1 | 1;
+        }
+        return 0;
+    });
     SSTIOImp sstio(expected_cpu_punit_map.size(), std::static_pointer_cast<SSTIoctl>(m_ioctl));
 
     for (const auto &cpu_punit_pair : expected_cpu_punit_map) {

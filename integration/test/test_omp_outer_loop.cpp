@@ -11,8 +11,14 @@
 #ifdef _OPENMP
 #include <omp.h>
 #else
-static int omp_get_num_threads(void) {return 1;}
-static int omp_get_thread_num(void) {return 0;}
+static int omp_get_num_threads(void)
+{
+    return 1;
+}
+static int omp_get_thread_num(void)
+{
+    return 0;
+}
 #endif
 
 int main(int argc, char **argv)

@@ -60,7 +60,7 @@ namespace geopm
     std::map<std::string, std::string> Environment::parse_environment_file(const std::string &env_file_path)
     {
         std::map<std::string, std::string> ret;
-        EnvironmentImp::parse_environment_file(env_file_path , EnvironmentImp::get_all_vars(), {}, ret);
+        EnvironmentImp::parse_environment_file(env_file_path, EnvironmentImp::get_all_vars(), {}, ret);
         return ret;
     }
 
@@ -75,18 +75,18 @@ namespace geopm
                                    const PlatformIO *platform_io)
         : m_all_names(get_all_vars())
         , m_runtime_names({"GEOPM_PROFILE",
-                           "GEOPM_REPORT",
-                           "GEOPM_TRACE",
-                           "GEOPM_TRACE_PROFILE",
-                           "GEOPM_CTL"})
-        , m_name_value_map ({{"GEOPM_COMM" ,"MPIComm"},
-                             {"GEOPM_AGENT", "monitor"},
-                             {"GEOPM_MAX_FAN_OUT", "16"},
-                             {"GEOPM_TIMEOUT", "30"},
-                             {"GEOPM_DEBUG_ATTACH", "-1"}})
-        , m_default_config_path(default_config_path)
-        , m_override_config_path(override_config_path)
-        , m_platform_io(platform_io)
+        "GEOPM_REPORT",
+        "GEOPM_TRACE",
+        "GEOPM_TRACE_PROFILE",
+        "GEOPM_CTL"})
+    , m_name_value_map ({{"GEOPM_COMM","MPIComm"},
+        {"GEOPM_AGENT", "monitor"},
+        {"GEOPM_MAX_FAN_OUT", "16"},
+        {"GEOPM_TIMEOUT", "30"},
+        {"GEOPM_DEBUG_ATTACH", "-1"}})
+    , m_default_config_path(default_config_path)
+    , m_override_config_path(override_config_path)
+    , m_platform_io(platform_io)
     {
         parse_environment_file(m_default_config_path, m_all_names, m_user_defined_names, m_name_value_map);
         // Special handling for GEOPM_POLICY and
@@ -253,10 +253,10 @@ namespace geopm
         else if (!ret.empty()) {
             // Sanitize the input: No carriage returns nor double quotes
             ret.erase(std::remove_if(ret.begin(), ret.end(),
-                                     [](char &c) {
-                                         return ( c == '\n' || c == '"');
-                                     }),
-                      ret.end());
+            [](char &c) {
+                return ( c == '\n' || c == '"');
+            }),
+            ret.end());
         }
         if (!env_profile.empty() && ret != env_profile) {
             std::cerr << "Warning: <geopm> The GEOPM_PROFILE contains invalid characters: \""
@@ -301,9 +301,9 @@ namespace geopm
 
             if (signal_domain.size() == 2) {
                 result_data_structure.push_back(std::make_pair(
-                    signal_domain[0],
-                    geopm::PlatformTopo::domain_name_to_type(signal_domain[1])
-                ));
+                                                    signal_domain[0],
+                                                    geopm::PlatformTopo::domain_name_to_type(signal_domain[1])
+                                                ));
             }
             else if (signal_domain.size() == 1) {
                 result_data_structure.push_back(std::make_pair(signal_domain[0], GEOPM_DOMAIN_BOARD));
@@ -372,7 +372,9 @@ namespace geopm
     {
 
         return std::any_of(m_runtime_names.begin(), m_runtime_names.end(),
-                           [this](std::string var) {return (is_set(var));});
+        [this](std::string var) {
+            return (is_set(var));
+        });
     }
 
     int EnvironmentImp::timeout(void) const

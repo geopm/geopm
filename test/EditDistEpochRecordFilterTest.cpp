@@ -352,58 +352,58 @@ TEST_F(EditDistEpochRecordFilterTest, parse_name)
     EXPECT_EQ(3.5, unstable_hyst);
 
     GEOPM_EXPECT_THROW_MESSAGE(EditDistEpochRecordFilter::parse_name("not_edit_distance",
-                                                                     buffer_size,
-                                                                     min_hysteresis_base_period,
-                                                                     min_detectable_period,
-                                                                     stable_hyst,
-                                                                     unstable_hyst),
+                               buffer_size,
+                               min_hysteresis_base_period,
+                               min_detectable_period,
+                               stable_hyst,
+                               unstable_hyst),
                                GEOPM_ERROR_INVALID, "Unknown filter name");
     GEOPM_EXPECT_THROW_MESSAGE(EditDistEpochRecordFilter::parse_name("edit_distance,invalid",
-                                                                     buffer_size,
-                                                                     min_hysteresis_base_period,
-                                                                     min_detectable_period,
-                                                                     stable_hyst,
-                                                                     unstable_hyst),
+                               buffer_size,
+                               min_hysteresis_base_period,
+                               min_detectable_period,
+                               stable_hyst,
+                               unstable_hyst),
                                GEOPM_ERROR_INVALID, "invalid buffer size");
     GEOPM_EXPECT_THROW_MESSAGE(EditDistEpochRecordFilter::parse_name("edit_distance,1,invalid",
-                                                                     buffer_size,
-                                                                     min_hysteresis_base_period,
-                                                                     min_detectable_period,
-                                                                     stable_hyst,
-                                                                     unstable_hyst),
+                               buffer_size,
+                               min_hysteresis_base_period,
+                               min_detectable_period,
+                               stable_hyst,
+                               unstable_hyst),
                                GEOPM_ERROR_INVALID, "invalid hysteresis base period");
     GEOPM_EXPECT_THROW_MESSAGE(EditDistEpochRecordFilter::parse_name("edit_distance,1,1,invalid",
-                                                                     buffer_size,
-                                                                     min_hysteresis_base_period,
-                                                                     min_detectable_period,
-                                                                     stable_hyst,
-                                                                     unstable_hyst),
+                               buffer_size,
+                               min_hysteresis_base_period,
+                               min_detectable_period,
+                               stable_hyst,
+                               unstable_hyst),
                                GEOPM_ERROR_INVALID, "invalid minimum detectable period");
     GEOPM_EXPECT_THROW_MESSAGE(EditDistEpochRecordFilter::parse_name("edit_distance,1,1,1,invalid",
-                                                                     buffer_size,
-                                                                     min_hysteresis_base_period,
-                                                                     min_detectable_period,
-                                                                     stable_hyst,
-                                                                     unstable_hyst),
+                               buffer_size,
+                               min_hysteresis_base_period,
+                               min_detectable_period,
+                               stable_hyst,
+                               unstable_hyst),
                                GEOPM_ERROR_INVALID, "invalid stable hysteresis");
     GEOPM_EXPECT_THROW_MESSAGE(EditDistEpochRecordFilter::parse_name("edit_distance,1,1,1,1,invalid",
-                                                                     buffer_size,
-                                                                     min_hysteresis_base_period,
-                                                                     min_detectable_period,
-                                                                     stable_hyst,
-                                                                     unstable_hyst),
+                               buffer_size,
+                               min_hysteresis_base_period,
+                               min_detectable_period,
+                               stable_hyst,
+                               unstable_hyst),
                                GEOPM_ERROR_INVALID, "invalid unstable hysteresis");
     GEOPM_EXPECT_THROW_MESSAGE(EditDistEpochRecordFilter::parse_name("edit_distance,1,1,1,2,2,2",
-                                                                     buffer_size,
-                                                                     min_hysteresis_base_period,
-                                                                     min_detectable_period,
-                                                                     stable_hyst,
-                                                                     unstable_hyst),
+                               buffer_size,
+                               min_hysteresis_base_period,
+                               min_detectable_period,
+                               stable_hyst,
+                               unstable_hyst),
                                GEOPM_ERROR_INVALID, "Too many commas");
 }
 
 std::vector<record_s> EditDistEpochRecordFilterTest::filter_file(std::string trace_file_path,
-                                                                 int buffer_size, int min_detectable_period)
+        int buffer_size, int min_detectable_period)
 {
     MockApplicationSampler app;
     app.inject_records(geopm::read_file(trace_file_path));
@@ -429,7 +429,7 @@ std::vector<record_s> EditDistEpochRecordFilterTest::filter_file(std::string tra
 }
 
 std::vector<record_s> EditDistEpochRecordFilterTest::filter_file(std::string trace_file_path,
-                                                                 int buffer_size)
+        int buffer_size)
 {
     return filter_file(trace_file_path, buffer_size, 1);
 }

@@ -73,7 +73,7 @@ MSRIOMockFiles::MSRIOMockFiles(int num_cpu)
                                    __FILE__, __LINE__);
         }
         char *msr_space_ptr = (char *)mmap(
-            NULL, M_MAX_OFFSET, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+                                  NULL, M_MAX_OFFSET, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
         if (msr_space_ptr == NULL) {
             throw geopm::Exception("MSRIOMockFiles: mmap() failed",
                                    errno ? errno : GEOPM_ERROR_RUNTIME,
@@ -642,7 +642,7 @@ void MSRIOTest::SetUp(void)
     m_path = std::make_shared<MockMSRPath>();
     for (int cpu_idx = 0; cpu_idx != m_num_cpu; ++cpu_idx) {
         EXPECT_CALL(*m_path, msr_path(cpu_idx, 0))
-            .WillOnce(Return(m_files->test_dev_path()[cpu_idx]));
+        .WillOnce(Return(m_files->test_dev_path()[cpu_idx]));
     }
     EXPECT_CALL(*m_path, msr_batch_path()).WillOnce(Return("NO_FILE_HERE"));
     m_msrio = geopm::make_unique<MSRIOImp>(m_num_cpu, m_path);
