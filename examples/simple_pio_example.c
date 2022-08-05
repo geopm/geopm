@@ -4,7 +4,7 @@
  */
 
 
-/*
+/* clang-format off
 #!/bin/bash
 # Script bootstraps the example below (simple_pio_example.c)
 #
