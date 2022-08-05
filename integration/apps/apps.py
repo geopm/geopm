@@ -218,6 +218,15 @@ class AppConf(object):
         '''
         return self._exec_path
 
+    def get_program_filter(self):
+        ''' Name of the executable used by application, used as a filter for GEOPM reporting.
+
+            Returns:
+                str: program name to profile
+
+        '''
+        return self._exec_path
+
     def get_bash_exec_args(self):
         ''' Command line arguments to the application as a string or
             list of strings to be joined using " ".
