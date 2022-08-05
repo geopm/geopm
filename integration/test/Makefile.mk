@@ -37,6 +37,7 @@ include integration/test/test_environment.mk
 include integration/test/test_power_governor.mk
 include integration/test/test_environment.mk
 include integration/test/test_frequency_map.mk
+include integration/test/test_gpu_activity_agent.mk
 include integration/test/test_hint_time.mk
 include integration/test/test_progress.mk
 include integration/test/test_programmable_counters.mk
