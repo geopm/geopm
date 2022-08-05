@@ -1,0 +1,128 @@
+#
+#  Copyright (c) 2015 - 2022, Intel Corporation
+#  SPDX-License-Identifier: BSD-3-Clause
+#
+---
+Language:        Cpp
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterClass:      true
+  AfterControlStatement: false
+  AfterEnum:       false
+  AfterFunction:   true
+  AfterNamespace:  true
+  AfterStruct:     false
+  AfterUnion:      false
+  BeforeCatch:     true
+  BeforeElse:      true
+  IndentBraces:    false
+  SplitEmptyFunction: true
+  SplitEmptyRecord: true
+  SplitEmptyNamespace: true
+IndentWidth:     4
+UseTab:          Never
+BinPackArguments:  true
+BinPackParameters: true
+ExperimentalAutoDetectBinPacking: false
+# IncludeIsMainRegex determines the first group. The rest of the groups are
+# ordered by increasing priority. They are processed in the order they are
+# listed below (it may be different from the priority order)
+SortIncludes:    true
+IncludeIsMainRegex: '(Test)?$'
+IncludeCategories:
+    # config.h can introduce inconcistencies if it doesn't come first
+  - Regex:           '^"config.h"'
+    Priority:        5
+    # Third-party
+  - Regex:           '^(<|")(contrib|gtest|gmock|sqlite3)'
+    Priority:        3
+    # C System
+  - Regex:           '<[[:alnum:].\/]+\.h>'
+    Priority:        1
+    # C++ System
+  - Regex:           '<[[:alnum:].]+>'
+    Priority:        2
+    # Everything else goes before config.h
+  - Regex:           '.*'
+    Priority:        4
+DerivePointerAlignment: false
+PointerAlignment: Right
+NamespaceIndentation: All
+
+# IndentAccessModifiers enabled by https://reviews.llvm.org/rG2a42c759ae7bb09dd448d188138f310d014fcab6
+# and is available with LLVM since version 13
+AccessModifierOffset: 0
+
+AlignAfterOpenBracket: Align
+ContinuationIndentWidth: 4
+
+# Format according to a language standard. e.g. for A<A<int> > instead of A<A<int>>
+Standard:        Cpp03
+SpacesInAngles:  false
+SpacesInCStyleCastParentheses: false
+SpacesInParentheses: false
+SpacesInSquareBrackets: false
+Cpp11BracedListStyle: true
+AllowShortFunctionsOnASingleLine: Empty
+BreakConstructorInitializers: BeforeComma
+ConstructorInitializerAllOnOneLineOrOnePerLine: false
+ConstructorInitializerIndentWidth: 4
+AlwaysBreakBeforeMultilineStrings: false
+
+ColumnLimit:       0
+
+# Formatting preferences with greater penalties are more likely to be followed.
+PenaltyBreakAssignment: 30
+PenaltyBreakBeforeFirstCallParameter: 10
+PenaltyBreakComment: 10
+PenaltyBreakFirstLessLess: 0
+PenaltyBreakString: 10
+PenaltyExcessCharacter: 2
+PenaltyReturnTypeOnItsOwnLine: 50
+
+AllowAllParametersOfDeclarationOnNextLine: true
+AlwaysBreakAfterReturnType: None
+
+AlignConsecutiveAssignments: false
+AlignConsecutiveDeclarations: false
+AlignEscapedNewlines: Right
+AlignOperands:   true
+AlignTrailingComments: true
+AllowShortBlocksOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+BreakBeforeBinaryOperators: None
+BreakBeforeInheritanceComma: false
+BreakBeforeTernaryOperators: true
+BreakAfterJavaFieldAnnotations: false
+BreakStringLiterals: false
+CompactNamespaces: false
+Cpp11BracedListStyle: true
+DisableFormat:   false
+FixNamespaceComments: false
+ForEachMacros:
+  - foreach
+  - Q_FOREACH
+  - BOOST_FOREACH
+
+IndentCaseLabels: true
+IndentWrappedFunctionNames: true
+JavaScriptQuotes: Leave
+JavaScriptWrapImports: true
+KeepEmptyLinesAtTheStartOfBlocks: true
+MacroBlockBegin: ''
+MacroBlockEnd:   ''
+MaxEmptyLinesToKeep: 1
+ReflowComments:  true
+SortUsingDeclarations: true
+SpaceAfterCStyleCast: false
+SpaceAfterTemplateKeyword: false
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeParens: ControlStatements
+SpaceInEmptyParentheses: false
+SpacesBeforeTrailingComments: 1
+SpacesInContainerLiterals: true
+IndentAccessModifiers: true
+TabWidth:        8
+...
