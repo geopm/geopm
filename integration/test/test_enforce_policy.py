@@ -122,19 +122,19 @@ class TestIntegrationEnforcePolicy(unittest.TestCase):
     def test_power_governor_power_cap(self):
         num_pkg = geopmdpy.topo.num_domain('package')
         test_power = self._tdp_power * num_pkg - 20
-        current_power = num_pkg * geopm_test_launcher.geopmread("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT board 0")
+        current_power = geopm_test_launcher.geopmread("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT board 0")
         self.assertNotEqual(test_power, current_power)
         self.run_tool('power_governor', {'power_budget': test_power})
-        current_power = num_pkg * geopm_test_launcher.geopmread("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT board 0")
+        current_power = geopm_test_launcher.geopmread("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT board 0")
         self.assertEqual(test_power, current_power)
 
     def test_power_balancer_power_cap(self):
         num_pkg = geopmdpy.topo.num_domain('package')
         test_power = self._tdp_power * num_pkg - 20
-        current_power = num_pkg * geopm_test_launcher.geopmread("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT board 0")
+        current_power = geopm_test_launcher.geopmread("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT board 0")
         self.assertNotEqual(test_power, current_power)
         self.run_tool('power_balancer', {'power_budget': test_power})
-        current_power = num_pkg * geopm_test_launcher.geopmread("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT board 0")
+        current_power = geopm_test_launcher.geopmread("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT board 0")
         self.assertEqual(test_power, current_power)
 
 
