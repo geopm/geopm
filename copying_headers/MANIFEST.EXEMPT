@@ -62,6 +62,7 @@ integration/experiment/power_sweep/README.md
 integration/experiment/README.md
 integration/experiment/trace_analysis/README.md
 integration/experiment/uncore_frequency_sweep/README.md
+integration/experiment/gpu_frequency_sweep/README.md
 integration/README.md
 integration/requirements.txt
 integration/test/README.md

@@ -21,4 +21,5 @@ include integration/experiment/frequency_sweep/Makefile.mk
 include integration/experiment/monitor/Makefile.mk
 include integration/experiment/power_sweep/Makefile.mk
 include integration/experiment/trace_analysis/Makefile.mk
+include integration/experiment/gpu_frequency_sweep/Makefile.mk
 include integration/experiment/uncore_frequency_sweep/Makefile.mk
