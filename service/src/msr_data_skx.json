@@ -18,7 +18,7 @@
                 "PROGRAMMABLE_RATIO_LIMITS_TURBO_MODE": {
                     "begin_bit": 28,
                     "end_bit":   28,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1,
                     "behavior":  "constant",
@@ -29,7 +29,7 @@
                 "PROGRAMMABLE_TDP_LIMITS_TURBO_MODE": {
                     "begin_bit": 29,
                     "end_bit":   29,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1,
                     "behavior":  "constant",
@@ -40,7 +40,7 @@
                 "PROGRAMMABLE_TCC_ACTIVATION_OFFSET": {
                     "begin_bit": 30,
                     "end_bit":   30,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1,
                     "behavior":  "constant",
@@ -368,7 +368,7 @@
                 "PL1_LIMIT_ENABLE": {
                     "begin_bit": 15,
                     "end_bit":   15,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -379,7 +379,7 @@
                 "PL1_CLAMP_ENABLE": {
                     "begin_bit": 16,
                     "end_bit":   16,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -412,7 +412,7 @@
                 "PL2_LIMIT_ENABLE": {
                     "begin_bit": 47,
                     "end_bit":   47,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -423,7 +423,7 @@
                 "PL2_CLAMP_ENABLE": {
                     "begin_bit": 48,
                     "end_bit":   48,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -445,7 +445,7 @@
                 "LOCK": {
                     "begin_bit": 63,
                     "end_bit":   63,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "constant",
@@ -540,7 +540,7 @@
                 "ENABLE": {
                     "begin_bit": 15,
                     "end_bit":   15,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -562,7 +562,7 @@
                 "LOCK": {
                     "begin_bit": 31,
                     "end_bit":   31,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1,
                     "behavior":  "constant",
@@ -747,7 +747,7 @@
                 "UNAVAILABLE": {
                     "begin_bit": 62,
                     "end_bit":   62,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -758,7 +758,7 @@
                 "ERROR": {
                     "begin_bit": 63,
                     "end_bit":   63,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -809,7 +809,7 @@
                 "L2_HW_PREFETCHER_DISABLE": {
                     "begin_bit": 0,
                     "end_bit":   0,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1,
                     "behavior":  "variable",
@@ -820,7 +820,7 @@
                 "L2_ADJACENT_PREFETCHER_DISABLE": {
                     "begin_bit": 1,
                     "end_bit":   1,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1,
                     "behavior":  "variable",
@@ -831,7 +831,7 @@
                 "DCU_HW_PREFETCHER_DISABLE": {
                     "begin_bit": 2,
                     "end_bit":   2,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1,
                     "behavior":  "variable",
@@ -842,7 +842,7 @@
                 "DCU_IP_PREFETCHER_DISABLE": {
                     "begin_bit": 3,
                     "end_bit":   3,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1,
                     "behavior":  "variable",
@@ -859,7 +859,7 @@
                 "HWP_ENABLE": {
                     "begin_bit": 0,
                     "end_bit":   0,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -981,7 +981,7 @@
                 "PACKAGE_CONTROL": {
                     "begin_bit": 42,
                     "end_bit":   42,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -992,7 +992,7 @@
                 "EPP_VALID": {
                     "begin_bit": 60,
                     "end_bit":   60,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -1003,7 +1003,7 @@
                 "DESIRED_VALID": {
                     "begin_bit": 61,
                     "end_bit":   61,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -1014,7 +1014,7 @@
                 "MAXIMUM_VALID": {
                     "begin_bit": 62,
                     "end_bit":   62,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -1025,7 +1025,7 @@
                 "MINIMUM_VALID": {
                     "begin_bit": 63,
                     "end_bit":   63,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -1042,7 +1042,7 @@
                 "GUARANTEED_PERFORMANCE_CHANGE": {
                     "begin_bit": 0,
                     "end_bit":   0,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -1053,7 +1053,7 @@
                 "EXCURSION_TO_MINIMUM": {
                     "begin_bit": 2,
                     "end_bit":   2,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -1064,7 +1064,7 @@
                 "HIGHEST_CHANGE": {
                     "begin_bit": 3,
                     "end_bit":   3,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -1075,7 +1075,7 @@
                 "PECI_OVERRIDE_ENTRY": {
                     "begin_bit": 4,
                     "end_bit":   4,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -1086,7 +1086,7 @@
                 "PECI_OVERRIDE_EXIT": {
                     "begin_bit": 5,
                     "end_bit":   5,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",

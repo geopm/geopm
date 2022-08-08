@@ -13,7 +13,7 @@
             "type": "integer"
           },
           "function": {
-            "enum": ["scale", "log_half", "7_bit_float", "overflow"]
+            "enum": ["scale", "log_half", "7_bit_float", "overflow", "logic"]
           },
           "units": {
             "enum": ["none", "seconds", "hertz", "watts", "joules", "celsius"]

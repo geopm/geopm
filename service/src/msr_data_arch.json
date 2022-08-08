@@ -86,7 +86,7 @@
                 "THERMAL_STATUS_FLAG": {
                     "begin_bit": 0,
                     "end_bit":   0,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -97,7 +97,7 @@
                 "THERMAL_STATUS_LOG": {
                     "begin_bit": 1,
                     "end_bit":   1,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -108,7 +108,7 @@
                 "PROCHOT_EVENT": {
                     "begin_bit": 2,
                     "end_bit":   2,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -119,7 +119,7 @@
                 "PROCHOT_LOG": {
                     "begin_bit": 3,
                     "end_bit":   3,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -130,7 +130,7 @@
                 "CRITICAL_TEMP_STATUS": {
                     "begin_bit": 4,
                     "end_bit":   4,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -141,7 +141,7 @@
                 "CRITICAL_TEMP_LOG": {
                     "begin_bit": 5,
                     "end_bit":   5,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -152,7 +152,7 @@
                 "THERMAL_THRESH_1_STATUS": {
                     "begin_bit": 6,
                     "end_bit":   6,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -163,7 +163,7 @@
                 "THERMAL_THRESH_1_LOG": {
                     "begin_bit": 7,
                     "end_bit":   7,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -174,7 +174,7 @@
                 "THERMAL_THRESH_2_STATUS": {
                     "begin_bit": 8,
                     "end_bit":   8,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -185,7 +185,7 @@
                 "THERMAL_THRESH_2_LOG": {
                     "begin_bit": 9,
                     "end_bit":   9,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -196,7 +196,7 @@
                 "POWER_LIMIT_STATUS": {
                     "begin_bit": 10,
                     "end_bit":   10,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -207,7 +207,7 @@
                 "POWER_NOTIFICATION_LOG": {
                     "begin_bit": 11,
                     "end_bit":   11,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -240,7 +240,7 @@
                 "READING_VALID": {
                     "begin_bit": 31,
                     "end_bit":   31,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -257,7 +257,7 @@
                 "FAST_STRINGS_ENABLE": {
                     "begin_bit": 0,
                     "end_bit":   0,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -268,7 +268,7 @@
                 "ENHANCED_SPEEDSTEP_TECH_ENABLE": {
                     "begin_bit": 16,
                     "end_bit":   16,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -279,7 +279,7 @@
                 "LIMIT_CPUID_MAXVAL": {
                     "begin_bit": 22,
                     "end_bit":   22,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -290,7 +290,7 @@
                 "TURBO_MODE_DISABLE": {
                     "begin_bit": 38,
                     "end_bit":   38,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -335,7 +335,7 @@
                 "THERMAL_STATUS_FLAG": {
                     "begin_bit": 0,
                     "end_bit":   0,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -346,7 +346,7 @@
                 "THERMAL_STATUS_LOG": {
                     "begin_bit": 1,
                     "end_bit":   1,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -357,7 +357,7 @@
                 "PROCHOT_EVENT": {
                     "begin_bit": 2,
                     "end_bit":   2,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -368,7 +368,7 @@
                 "PROCHOT_LOG": {
                     "begin_bit": 3,
                     "end_bit":   3,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -379,7 +379,7 @@
                 "CRITICAL_TEMP_STATUS": {
                     "begin_bit": 4,
                     "end_bit":   4,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -390,7 +390,7 @@
                 "CRITICAL_TEMP_LOG": {
                     "begin_bit": 5,
                     "end_bit":   5,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -401,7 +401,7 @@
                 "THERMAL_THRESH_1_STATUS": {
                     "begin_bit": 6,
                     "end_bit":   6,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -412,7 +412,7 @@
                 "THERMAL_THRESH_1_LOG": {
                     "begin_bit": 7,
                     "end_bit":   7,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -423,7 +423,7 @@
                 "THERMAL_THRESH_2_STATUS": {
                     "begin_bit": 8,
                     "end_bit":   8,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -434,7 +434,7 @@
                 "THERMAL_THRESH_2_LOG": {
                     "begin_bit": 9,
                     "end_bit":   9,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -445,7 +445,7 @@
                 "POWER_LIMIT_STATUS": {
                     "begin_bit": 10,
                     "end_bit":   10,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -456,7 +456,7 @@
                 "POWER_NOTIFICATION_LOG": {
                     "begin_bit": 11,
                     "end_bit":   11,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -506,7 +506,7 @@
                 "USR": {
                     "begin_bit": 16,
                     "end_bit":   16,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -517,7 +517,7 @@
                 "OS": {
                     "begin_bit": 17,
                     "end_bit":   17,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -528,7 +528,7 @@
                 "EDGE": {
                     "begin_bit": 18,
                     "end_bit":   18,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -539,7 +539,7 @@
                 "PC": {
                     "begin_bit": 19,
                     "end_bit":   19,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -550,7 +550,7 @@
                 "INT": {
                     "begin_bit": 20,
                     "end_bit":   20,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -561,7 +561,7 @@
                 "ANYTHREAD": {
                     "begin_bit": 21,
                     "end_bit":   21,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -572,7 +572,7 @@
                 "EN": {
                     "begin_bit": 22,
                     "end_bit":   22,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -583,7 +583,7 @@
                 "INV": {
                     "begin_bit": 23,
                     "end_bit":   23,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -633,7 +633,7 @@
                 "USR": {
                     "begin_bit": 16,
                     "end_bit":   16,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -644,7 +644,7 @@
                 "OS": {
                     "begin_bit": 17,
                     "end_bit":   17,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -655,7 +655,7 @@
                 "EDGE": {
                     "begin_bit": 18,
                     "end_bit":   18,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -666,7 +666,7 @@
                 "PC": {
                     "begin_bit": 19,
                     "end_bit":   19,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -677,7 +677,7 @@
                 "INT": {
                     "begin_bit": 20,
                     "end_bit":   20,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -688,7 +688,7 @@
                 "ANYTHREAD": {
                     "begin_bit": 21,
                     "end_bit":   21,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -699,7 +699,7 @@
                 "EN": {
                     "begin_bit": 22,
                     "end_bit":   22,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -710,7 +710,7 @@
                 "INV": {
                     "begin_bit": 23,
                     "end_bit":   23,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -760,7 +760,7 @@
                 "USR": {
                     "begin_bit": 16,
                     "end_bit":   16,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -771,7 +771,7 @@
                 "OS": {
                     "begin_bit": 17,
                     "end_bit":   17,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -782,7 +782,7 @@
                 "EDGE": {
                     "begin_bit": 18,
                     "end_bit":   18,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -793,7 +793,7 @@
                 "PC": {
                     "begin_bit": 19,
                     "end_bit":   19,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -804,7 +804,7 @@
                 "INT": {
                     "begin_bit": 20,
                     "end_bit":   20,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -815,7 +815,7 @@
                 "ANYTHREAD": {
                     "begin_bit": 21,
                     "end_bit":   21,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -826,7 +826,7 @@
                 "EN": {
                     "begin_bit": 22,
                     "end_bit":   22,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -837,7 +837,7 @@
                 "INV": {
                     "begin_bit": 23,
                     "end_bit":   23,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -887,7 +887,7 @@
                 "USR": {
                     "begin_bit": 16,
                     "end_bit":   16,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -898,7 +898,7 @@
                 "OS": {
                     "begin_bit": 17,
                     "end_bit":   17,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -909,7 +909,7 @@
                 "EDGE": {
                     "begin_bit": 18,
                     "end_bit":   18,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -920,7 +920,7 @@
                 "PC": {
                     "begin_bit": 19,
                     "end_bit":   19,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -931,7 +931,7 @@
                 "INT": {
                     "begin_bit": 20,
                     "end_bit":   20,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -942,7 +942,7 @@
                 "ANYTHREAD": {
                     "begin_bit": 21,
                     "end_bit":   21,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -953,7 +953,7 @@
                 "EN": {
                     "begin_bit": 22,
                     "end_bit":   22,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -964,7 +964,7 @@
                 "INV": {
                     "begin_bit": 23,
                     "end_bit":   23,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -1111,7 +1111,7 @@
                 "EN0_OS": {
                     "begin_bit": 0,
                     "end_bit":   0,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -1122,7 +1122,7 @@
                 "EN0_USR": {
                     "begin_bit": 1,
                     "end_bit":   1,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -1133,7 +1133,7 @@
                 "EN0_PMI": {
                     "begin_bit": 3,
                     "end_bit":   3,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -1144,7 +1144,7 @@
                 "EN1_OS": {
                     "begin_bit": 4,
                     "end_bit":   4,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -1155,7 +1155,7 @@
                 "EN1_USR": {
                     "begin_bit": 5,
                     "end_bit":   5,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -1166,7 +1166,7 @@
                 "EN1_PMI": {
                     "begin_bit": 7,
                     "end_bit":   7,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -1177,7 +1177,7 @@
                 "EN2_OS": {
                     "begin_bit": 8,
                     "end_bit":   8,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -1188,7 +1188,7 @@
                 "EN2_USR": {
                     "begin_bit": 9,
                     "end_bit":   9,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -1199,7 +1199,7 @@
                 "EN2_PMI": {
                     "begin_bit": 11,
                     "end_bit":   11,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -1216,7 +1216,7 @@
                 "EN_PMC0": {
                     "begin_bit": 0,
                     "end_bit":   0,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -1227,7 +1227,7 @@
                 "EN_PMC1": {
                     "begin_bit": 1,
                     "end_bit":   1,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -1238,7 +1238,7 @@
                 "EN_PMC2": {
                     "begin_bit": 2,
                     "end_bit":   2,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -1249,7 +1249,7 @@
                 "EN_PMC3": {
                     "begin_bit": 3,
                     "end_bit":   3,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -1260,7 +1260,7 @@
                 "EN_FIXED_CTR0": {
                     "begin_bit": 32,
                     "end_bit":   32,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -1271,7 +1271,7 @@
                 "EN_FIXED_CTR1": {
                     "begin_bit": 33,
                     "end_bit":   33,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -1282,7 +1282,7 @@
                 "EN_FIXED_CTR2": {
                     "begin_bit": 34,
                     "end_bit":   34,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -1299,7 +1299,7 @@
                 "CLEAR_OVF_PMC0": {
                     "begin_bit": 0,
                     "end_bit":   0,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -1310,7 +1310,7 @@
                 "CLEAR_OVF_PMC1": {
                     "begin_bit": 1,
                     "end_bit":   1,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -1321,7 +1321,7 @@
                 "CLEAR_OVF_PMC2": {
                     "begin_bit": 1,
                     "end_bit":   1,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -1332,7 +1332,7 @@
                 "CLEAR_OVF_PMC3": {
                     "begin_bit": 1,
                     "end_bit":   1,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -1343,7 +1343,7 @@
                 "CLEAR_OVF_FIXED_CTR0": {
                     "begin_bit": 32,
                     "end_bit":   32,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -1354,7 +1354,7 @@
                 "CLEAR_OVF_FIXED_CTR1": {
                     "begin_bit": 33,
                     "end_bit":   33,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",
@@ -1365,7 +1365,7 @@
                 "CLEAR_OVF_FIXED_CTR2": {
                     "begin_bit": 34,
                     "end_bit":   34,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "label",

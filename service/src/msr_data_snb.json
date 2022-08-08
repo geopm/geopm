@@ -18,7 +18,7 @@
                 "PROGRAMMABLE_RATIO_LIMITS_TURBO_MODE": {
                     "begin_bit": 28,
                     "end_bit":   28,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1,
                     "behavior":  "constant",
@@ -29,7 +29,7 @@
                 "PROGRAMMABLE_TDP_LIMITS_TURBO_MODE": {
                     "begin_bit": 29,
                     "end_bit":   29,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1,
                     "behavior":  "constant",
@@ -252,7 +252,7 @@
                 "PL1_LIMIT_ENABLE": {
                     "begin_bit": 15,
                     "end_bit":   15,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -263,7 +263,7 @@
                 "PL1_CLAMP_ENABLE": {
                     "begin_bit": 16,
                     "end_bit":   16,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -296,7 +296,7 @@
                 "PL2_LIMIT_ENABLE": {
                     "begin_bit": 47,
                     "end_bit":   47,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -307,7 +307,7 @@
                 "PL2_CLAMP_ENABLE": {
                     "begin_bit": 48,
                     "end_bit":   48,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -329,7 +329,7 @@
                 "LOCK": {
                     "begin_bit": 63,
                     "end_bit":   63,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "constant",
@@ -424,7 +424,7 @@
                 "ENABLE": {
                     "begin_bit": 15,
                     "end_bit":   15,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1.0,
                     "behavior":  "variable",
@@ -446,7 +446,7 @@
                 "LOCK": {
                     "begin_bit": 31,
                     "end_bit":   31,
-                    "function":  "scale",
+                    "function":  "logic",
                     "units":     "none",
                     "scalar":    1,
                     "behavior":  "constant",
