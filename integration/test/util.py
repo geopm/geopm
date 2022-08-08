@@ -102,7 +102,10 @@ def skip_unless_geopmread(signal_and_domain):
     return lambda func: func
 
 def skip_unless_levelzero():
-    return skip_unless_config_enable('levelzero');
+    return skip_unless_service_config_enable('levelzero');
+
+def skip_unless_nvml():
+    return skip_unless_service_config_enable('nvml');
 
 def skip_unless_gpu():
     #try/catch read signal for gpu power
@@ -141,11 +144,37 @@ def get_config_log():
                 'integration/build/config.log')
     return path
 
+def get_service_config_log():
+    path = os.path.join(
+           os.path.dirname(
+            os.path.dirname(
+             os.path.dirname(
+              os.path.realpath(__file__)))),
+           'service/config.log')
+    if not os.path.isfile(path):
+        path = os.path.join(
+               os.path.dirname(path),
+                'integration/build/config.log')
+    return path
+
 def get_config_value(key):
     """Get the value of an option from the build configuration, returning None
     if no such key is present.
     """
     path = get_config_log()
+    with open(path) as config_file:
+        for line in config_file:
+            line_start = "{}='".format(key)
+            line_end = "'\n"
+            if line.startswith(line_start) and line.endswith(line_end):
+                return line[len(line_start):-len(line_end)]
+    return None
+
+def get_service_config_value(key):
+    """Get the value of an option from the service build configuration,
+    returning None if no such key is present.
+    """
+    path = get_service_config_log()
     with open(path) as config_file:
         for line in config_file:
             line_start = "{}='".format(key)
@@ -179,6 +208,11 @@ def skip_unless_config_enable(feature):
     else:
         return unittest.skip("Feature: {feature} is not enabled, configure with --enable-{feature} to run this test.".format(feature=feature))
 
+def skip_unless_service_config_enable(feature):
+    if get_service_config_value('enable_{}'.format(feature)) == '1':
+        return lambda func: func
+    else:
+        return unittest.skip("Feature: {feature} is not enabled in service, configure with --enable-{feature} to run this test.".format(feature=feature))
 
 def skip_unless_optimized():
     path = get_config_log()
