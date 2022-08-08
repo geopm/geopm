@@ -84,9 +84,9 @@ def skip_unless_do_launch():
 def skip_unless_levelzero_power():
     #try/catch read signal for levelzero
     try:
-        power = geopm_test_launcher.geopmread("LEVELZERO::POWER gpu 0")
+        power = geopm_test_launcher.geopmread("LEVELZERO::GPU_POWER gpu 0")
     except subprocess.CalledProcessError:
-        return unittest.skip("Read of LEVELZERO::POWER not supported, skipping test.")
+        return unittest.skip("Read of LEVELZERO::GPU_POWER not supported, skipping test.")
     return lambda func: func
 
 def skip_unless_levelzero():
