@@ -14,7 +14,8 @@ namespace geopm
         {"scale", M_FUNCTION_SCALE},
         {"log_half", M_FUNCTION_LOG_HALF},
         {"7_bit_float", M_FUNCTION_7_BIT_FLOAT},
-        {"overflow", M_FUNCTION_OVERFLOW}
+        {"overflow", M_FUNCTION_OVERFLOW},
+        {"logic", M_FUNCTION_LOGIC},
     };
 
     MSR::m_function_e MSR::string_to_function(const std::string &str)

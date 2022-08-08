@@ -36,7 +36,8 @@ namespace geopm
             throw Exception("MSRFieldControl: cannot construct with null MSRIO",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        if (m_function < 0 || m_function >= MSR::M_FUNCTION_OVERFLOW) {
+        if (m_function < 0 || m_function >= MSR::M_NUM_FUNCTION ||
+            m_function == MSR::M_FUNCTION_OVERFLOW) {
             throw Exception("MSRFieldControl: unsupported encode function.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
@@ -92,6 +93,9 @@ namespace geopm
                     throw Exception("MSRFieldControl::encode(): input value <= 0 for M_FUNCTION_7_BIT_FLOAT",
                                     GEOPM_ERROR_INVALID, __FILE__, __LINE__);
                 }
+                break;
+            case MSR::M_FUNCTION_LOGIC:
+                result = (uint64_t)(value != 0.0);
                 break;
             default:
                 GEOPM_DEBUG_ASSERT(false, "unsupported encode function");

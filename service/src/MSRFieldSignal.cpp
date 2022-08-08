@@ -40,8 +40,8 @@ namespace geopm
         GEOPM_DEBUG_ASSERT(m_num_bit < 64, "64-bit fields are not supported");
         GEOPM_DEBUG_ASSERT(begin_bit <= end_bit,
                            "begin bit must be <= end bit");
-        GEOPM_DEBUG_ASSERT(m_function >= MSR::M_FUNCTION_SCALE &&
-                           m_function <= MSR::M_FUNCTION_OVERFLOW,
+        GEOPM_DEBUG_ASSERT(m_function >= 0 && 
+                           m_function < MSR::M_NUM_FUNCTION,
                            "invalid encoding function");
     }
 
@@ -82,6 +82,9 @@ namespace geopm
                 result = subfield + ((m_subfield_max + 1.0) * num_overflow);
                 break;
             case MSR::M_FUNCTION_SCALE:
+                result = subfield;
+                break;
+            case MSR::M_FUNCTION_LOGIC:
                 result = subfield;
                 break;
             default:
