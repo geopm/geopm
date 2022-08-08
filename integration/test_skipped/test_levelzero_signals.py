@@ -42,7 +42,7 @@ class TestIntegrationLevelZeroSignals(unittest.TestCase):
 
     def test_power(self):
         #Query
-        power = geopm_test_launcher.geopmread("LEVELZERO::POWER gpu 0")
+        power = geopm_test_launcher.geopmread("LEVELZERO::GPU_POWER gpu 0")
         power_limit_max = geopm_test_launcher.geopmread("LEVELZERO::GPU_POWER_LIMIT_MAX_AVAIL gpu 0")
         power_limit_min = geopm_test_launcher.geopmread("LEVELZERO::GPU_POWER_LIMIT_MIN_AVAIL gpu 0")
 
