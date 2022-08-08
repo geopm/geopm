@@ -112,6 +112,16 @@ def skip_unless_gpu():
         return unittest.skip("Read of GPU_ENERGY not supported, skipping test.")
     return lambda func: func
 
+def skip_unless_workload_exists(path):
+    path = os.path.join(
+            os.path.dirname(
+             os.path.dirname(os.path.realpath(__file__))),
+            path)
+    if not os.path.exists(path):
+        return unittest.skip("Could not find workload executable {}, skipping test.".format(path))
+
+    return lambda func: func
+
 def skip_unless_platform_bdx():
     fam, mod = geopm_test_launcher.get_platform()
     if fam != 6 or mod not in (45, 47, 79):
