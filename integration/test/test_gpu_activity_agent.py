@@ -33,7 +33,8 @@ from apps.parres import parres
 
 @util.skip_unless_do_launch()
 @util.skip_unless_gpu()
-#TODO: add a skip_if_no_app_built
+@util.skip_unless_workload_exists("apps/parres/Kernels/Cxx11/dgemm-mpi-cublas")
+@util.skip_unless_workload_exists("apps/parres/Kernels/Cxx11/nstream-mpi-cuda")
 class TestIntegration_gpu_activity(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -143,7 +144,8 @@ class TestIntegration_gpu_activity(unittest.TestCase):
 
     def test_gpu_activity_dgemm(self):
         """
-        A GPU application exhibits less energy consumption with the agent.
+        PARRES DGEMM exhibits less energy consumption with the agent at phi > 50
+        and FoM doesn't change significantly from phi 0 to phi 50
         """
 
         if self._do_use_nvidia:
@@ -168,7 +170,8 @@ class TestIntegration_gpu_activity(unittest.TestCase):
 
     def test_gpu_activity_stream(self):
         """
-        A GPU application exhibits less energy consumption with the agent.
+        PARRES NSTREAM exhibits less energy consumption with the agent
+        for all non-zero phi values..
         """
 
         if self._do_use_nvidia:
