@@ -7,200 +7,245 @@
                 "PROCHOT_STATUS": {
                     "begin_bit": 0,
                     "end_bit": 0,
-                    "function": "scale",
+                    "function": "logic",
                     "units": "none",
                     "scalar": 1.0,
                     "behavior":  "variable",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Processor hot status, when set frequency may be lower than request",
+                    "aggregation": "sum"
                 },
                 "THERMAL_STATUS": {
                     "begin_bit": 1,
                     "end_bit": 1,
-                    "function": "scale",
+                    "function": "logic",
                     "units": "none",
                     "scalar": 1.0,
                     "behavior":  "variable",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Thermal status, when set frequency may be lower than request",
+                    "aggregation": "sum"
                 },
                 "RESIDENCY_STATE_REGULATION_STATUS": {
                     "begin_bit": 4,
                     "end_bit": 4,
-                    "function": "scale",
+                    "function": "logic",
                     "units": "none",
                     "scalar": 1.0,
                     "behavior":  "variable",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Residency state regulation status, when set frequency may be lower than request",
+                    "aggregation": "sum"
                 },
                 "RATL_STATUS": {
                     "begin_bit": 5,
                     "end_bit": 5,
-                    "function": "scale",
+                    "function": "logic",
                     "units": "none",
                     "scalar": 1.0,
                     "behavior":  "variable",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Running average thermal limit violation status, when set frequency may be lower than request",
+                    "aggregation": "sum"
                 },
                 "VR_THERM_ALERT_STATUS": {
                     "begin_bit": 6,
                     "end_bit": 6,
-                    "function": "scale",
+                    "function": "logic",
                     "units": "none",
                     "scalar": 1.0,
                     "behavior":  "variable",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Voltage regulator thermal alert status, when set frequency may be lower than request",
+                    "aggregation": "sum"
                 },
                 "VR_TDC_ALERT_STATUS": {
                     "begin_bit": 7,
                     "end_bit": 7,
-                    "function": "scale",
+                    "function": "logic",
                     "units": "none",
                     "scalar": 1.0,
                     "behavior":  "variable",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Voltage regulator thermal design current limit violation status, when set frequency may be lower than request",
+                    "aggregation": "sum"
                 },
                 "OTHER_STATUS": {
                     "begin_bit": 8,
                     "end_bit": 8,
-                    "function": "scale",
+                    "function": "logic",
                     "units": "none",
                     "scalar": 1.0,
                     "behavior":  "variable",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Operating system, electrical, or other constraint violation status, when set frequency may be lower than request",
+                    "aggregation": "sum"
                 },
                 "PL1_STATUS": {
                     "begin_bit": 10,
                     "end_bit": 10,
-                    "function": "scale",
+                    "function": "logic",
                     "units": "none",
                     "scalar": 1.0,
                     "behavior":  "variable",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Package power limit 1 (PL1) violation status, when set frequency may be lower than request",
+                    "aggregation": "sum"
                 },
                 "PL2_STATUS": {
                     "begin_bit": 11,
                     "end_bit": 11,
-                    "function": "scale",
+                    "function": "logic",
                     "units": "none",
                     "scalar": 1.0,
                     "behavior":  "variable",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Package power limit 2 (PL2) violation status, when set frequency may be lower than request",
+                    "aggregation": "sum"
                 },
                 "MAX_TURBO_STATUS": {
                     "begin_bit": 12,
                     "end_bit": 12,
-                    "function": "scale",
+                    "function": "logic",
                     "units": "none",
                     "scalar": 1.0,
                     "behavior":  "variable",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Multi-core turbo limit violation status, when set frequency may be lower than request",
+                    "aggregation": "sum"
                 },
                 "TURBO_TRANS_ATTENUATION": {
                     "begin_bit": 13,
                     "end_bit": 13,
-                    "function": "scale",
+                    "function": "logic",
                     "units": "none",
                     "scalar": 1.0,
                     "behavior":  "variable",
-                    "writeable": false
+                    "writeable": false,
+                    "description": "Turbo transition attenuation status, when set frequency may be lower than request",
+                    "aggregation": "sum"
                 },
                 "PROCHOT_LOG": {
                     "begin_bit": 16,
                     "end_bit": 16,
-                    "function": "scale",
+                    "function": "logic",
                     "units": "none",
                     "scalar": 1.0,
                     "behavior":  "variable",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Indicates that the processor hot status bit was set since this log bit was last cleared",
+                    "aggregation": "sum"
+
                 },
                 "THERMAL_LOG": {
                     "begin_bit": 17,
                     "end_bit": 17,
-                    "function": "scale",
+                    "function": "logic",
                     "units": "none",
                     "scalar": 1.0,
                     "behavior":  "variable",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Indicates that the thermal status bit was set since this log bit was last cleared",
+                    "aggregation": "sum"
                 },
                 "RESIDENCY_STATE_REGULATION_LOG": {
                     "begin_bit": 20,
                     "end_bit": 20,
-                    "function": "scale",
+                    "function": "logic",
                     "units": "none",
                     "scalar": 1.0,
                     "behavior":  "variable",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Indicates that the residency state regulation status bit was set since this log bit was last cleared",
+                    "aggregation": "sum"
                 },
                 "RATL_LOG": {
                     "begin_bit": 21,
                     "end_bit": 21,
-                    "function": "scale",
+                    "function": "logic",
                     "units": "none",
                     "scalar": 1.0,
                     "behavior":  "variable",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Indicates that the running average thermal limit violation status bit was set since this log bit was last cleared",
+                    "aggregation": "sum"
                 },
                 "VR_THERM_ALERT_LOG": {
                     "begin_bit": 22,
                     "end_bit": 22,
-                    "function": "scale",
+                    "function": "logic",
                     "units": "none",
                     "scalar": 1.0,
                     "behavior":  "variable",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Indicates that the voltage regulator thermal alert status bit was set since this log bit was last cleared",
+                    "aggregation": "sum"
                 },
                 "VR_TDC_LOG": {
                     "begin_bit": 23,
                     "end_bit": 23,
-                    "function": "scale",
+                    "function": "logic",
                     "units": "none",
                     "scalar": 1.0,
                     "behavior":  "variable",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Indicates that the voltage regulator thermal design current limit violation status bit was set since this log bit was last cleared",
+                    "aggregation": "sum"
                 },
                 "OTHER_LOG": {
                     "begin_bit": 24,
                     "end_bit": 24,
-                    "function": "scale",
+                    "function": "logic",
                     "units": "none",
                     "scalar": 1.0,
                     "behavior":  "variable",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Indicates that the operating system, electrical, or other constraint violation status bit was set since this log bit was last cleared",
+                    "aggregation": "sum"
                 },
                 "PL1_LOG": {
                     "begin_bit": 26,
                     "end_bit": 26,
-                    "function": "scale",
+                    "function": "logic",
                     "units": "none",
                     "scalar": 1.0,
                     "behavior":  "variable",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Indicates that the Package power limit 1 (PL1) violation status bit was set since this log bit was last cleared",
+                    "aggregation": "sum"
                 },
                 "PL2_LOG": {
                     "begin_bit": 27,
                     "end_bit": 27,
-                    "function": "scale",
+                    "function": "logic",
                     "units": "none",
                     "scalar": 1.0,
                     "behavior":  "variable",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Indicates that the Package power limit 2 (PL2) violation status bit was set since this log bit was last cleared",
+                    "aggregation": "sum"
                 },
                 "MAX_TURBO_LIMIT_LOG": {
                     "begin_bit": 28,
                     "end_bit": 28,
-                    "function": "scale",
+                    "function": "logic",
                     "units": "none",
                     "scalar": 1.0,
                     "behavior":  "variable",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Indicates that the multi-core turbo limit violation status bit was set since this log bit was last cleared",
+                    "aggregation": "sum"
                 },
                 "TURBO_TRANS_ATTENUATION_LOG": {
                     "begin_bit": 29,
                     "end_bit": 29,
-                    "function": "scale",
+                    "function": "logic",
                     "units": "none",
                     "scalar": 1.0,
                     "behavior":  "variable",
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Indicates that the turbo transition attenuation status bit was set since this log bit was last cleared",
+                    "aggregation": "sum"
                 }
             }
         }
