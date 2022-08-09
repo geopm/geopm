@@ -32,6 +32,7 @@ def setup_run_args(parser):
                         action='store', default='nan',
                         help='The maximum frequency of the uncore (a.k.a. Fumax) for this experiment')
     parser.add_argument('--uncore-mbm-list', nargs='+', help='A list of uncore_freq & max_mem_bw values in the form uncore_freq_0 max_mem_bw_0 uncore_freq_1 ...')
+    parser.add_argument('--phi-list', nargs='+', help='A space seperated list of phi values (0 to 1.0) to use')
 
 def report_signals():
     return []
@@ -40,7 +41,7 @@ def trace_signals():
     return []
 
 def launch_configs(output_dir, app_conf, cpu_fe, cpu_fmax, uncore_fe,
-                    uncore_fmax, uncore_mbm_list):
+                    uncore_fmax, uncore_mbm_list, phi_list):
 
     mach = machine.init_output_dir(output_dir)
     sys_min = mach.frequency_min()
@@ -55,10 +56,16 @@ def launch_configs(output_dir, app_conf, cpu_fe, cpu_fmax, uncore_fe,
             else:
                 uncore_mbm_policy["MAX_MEMORY_BANDWIDTH_{}".format(int((idx - 1) / 2))] = float(val)
 
+    phi_values = []
+    if phi_list is not None:
+        phi_values = [float(val) for val in phi_list]
+    else:
+        phi_values = [x/10 for x in list(range(0,11))]
+
     config_list = [{"CPU_FREQ_MAX" : float(cpu_fmax), "CPU_FREQ_EFFICIENT": float(cpu_fe),
                     "CPU_UNCORE_FREQ_MAX" : float(uncore_fmax), "CPU_UNCORE_FREQ_EFFICIENT" : float(uncore_fe),
-                    "CPU_PHI" : float(phi/10), "SAMPLE_PERIOD": 0.01} for phi in range(0,11)]
-    config_names = ['phi'+str(x*10) for x in range(0,11)]
+                    "CPU_PHI" : float(phi)} for phi in phi_values]
+    config_names = ['phi'+str(int(phi*100)) for phi in phi_values]
 
     for config in config_list:
         config.update(uncore_mbm_policy)
@@ -83,7 +90,7 @@ def launch(app_conf, args, experiment_cli_args):
     extra_cli_args += experiment_cli_args
 
     targets = launch_configs(output_dir, app_conf, args.cpu_fe, args.cpu_fmax, args.uncore_fe,
-                                args.uncore_fmax, args.uncore_mbm_list)
+                                args.uncore_fmax, args.uncore_mbm_list, args.phi_list)
 
     launch_util.launch_all_runs(targets=targets,
                                 num_nodes=args.node_count,
