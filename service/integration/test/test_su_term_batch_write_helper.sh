@@ -4,5 +4,5 @@
 #
 
 TEST_DIR=$(dirname "$0")
-setsid python3 $TEST_DIR/test_su_term_batch_write_helper.py &
+python3 $TEST_DIR/test_su_term_batch_write_helper.py &
 echo $!

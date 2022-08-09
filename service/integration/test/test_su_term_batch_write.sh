@@ -17,7 +17,7 @@ if [[ $# -gt 0 ]] && [[ $1 == '--help' ]]; then
 fi
 
 # PARAMETERS
-CONTROL=SERVICE::MSR::PERF_CTL:FREQ
+CONTROL=MSR::PERF_CTL:FREQ
 STICKER=CPU_FREQUENCY_STICKER
 DOMAIN=core
 DOMAIN_IDX=0
@@ -54,8 +54,11 @@ TEST_SCRIPT="${TEST_DIR}/test_su_term_batch_write_helper.sh"
 if [[ $(whoami) == 'root' ]]; then
     # sudo -u is used to change from the root user to the test user,
     # who does not have elevated privileges.
-    export SESSION_PID=$(sudo -E -u ${TEST_USER} \
-        setsid python3 ${TEST_DIR}/test_su_term_batch_write_helper.py &  echo $!)
+    TEMP_FILE=$(mktemp --tmpdir test_su_term_batch_write_XXXXXXXX.tmp)
+    sudo -b -E -u ${TEST_USER} setsid ${TEST_SCRIPT} > ${TEMP_FILE}
+    sleep 2
+    export SESSION_PID=$(cat ${TEMP_FILE})
+    rm ${TEMP_FILE}
 else
     setsid python3 ${TEST_DIR}/test_su_term_batch_write_helper.py &
     export SESSION_PID=$!
