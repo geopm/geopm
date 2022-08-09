@@ -6,7 +6,8 @@
 #ifndef CPUFFNETAGENT_HPP_INCLUDE
 #define CPUFFNETAGENT_HPP_INCLUDE
 
-#include "localnet.hpp"
+#include "TensorOneD.hpp"
+#include "LocalNeuralNet.hpp"
 #include <vector>
 
 #include "geopm/Agent.hpp"

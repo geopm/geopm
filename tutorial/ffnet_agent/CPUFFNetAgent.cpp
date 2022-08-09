@@ -187,7 +187,7 @@ void CPUFFNetAgent::adjust_platform(const std::vector<double>& in_policy)
     for (int domain_idx = 0; domain_idx < M_NUM_PACKAGE; ++domain_idx) {
         //Create an input tensor
         // TODO
-        Vector xs(11);
+        TensorOneD xs(11);
 
         xs[0] = (double) m_package_power.at(domain_idx).signal;
         xs[1] = (double) m_package_freq_status.at(domain_idx).signal;
@@ -214,7 +214,7 @@ void CPUFFNetAgent::adjust_platform(const std::vector<double>& in_policy)
 
         xs[10] = (double) in_policy[M_POLICY_CPU_PHI];
 
-        Vector output = m_package_neural_net.model(xs);
+        TensorOneD output = m_package_neural_net.model(xs);
 
         //Save recommendation and convert to SI units for later application
         package_freq_request.push_back(output[0] * 1e9);
