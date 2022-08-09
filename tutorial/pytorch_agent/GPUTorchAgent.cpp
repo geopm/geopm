@@ -225,7 +225,7 @@ void GPUTorchAgent::adjust_platform(const std::vector<double>& in_policy)
         gpu_freq_request.push_back(output[0].item<double>() * 1e9);
     }
 
-    // set frequency control per accelerator
+    // set frequency control per GPU
     for (int domain_idx = 0; domain_idx < M_NUM_GPU; ++domain_idx) {
         //NAN --> Max Frequency
         if(std::isnan(gpu_freq_request.at(domain_idx))) {
@@ -295,7 +295,7 @@ std::vector<std::pair<std::string, std::string> > GPUTorchAgent::report_host(voi
 {
     std::vector<std::pair<std::string, std::string> > result;
 
-    result.push_back({"Accelerator Frequency Requests", std::to_string(m_gpu_frequency_requests)});
+    result.push_back({"GPU Frequency Requests", std::to_string(m_gpu_frequency_requests)});
     return result;
 }
 
@@ -336,7 +336,7 @@ std::unique_ptr<Agent> GPUTorchAgent::make_plugin(void)
 // Describes expected policies to be provided by the resource manager or user
 std::vector<std::string> GPUTorchAgent::policy_names(void)
 {
-    return {"GPU_FREQ_MIN", "GPU_FREQ_MAX", "GPU_PHI"};
+    return {"GPU_PHI"};
 }
 
 // Describes samples to be provided to the resource manager or user

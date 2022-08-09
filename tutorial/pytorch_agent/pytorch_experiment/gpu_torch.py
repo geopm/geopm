@@ -37,12 +37,8 @@ def trace_signals():
 
 def launch_configs(output_dir, app_conf, gpu_fmin, gpu_fmax, gpu_nn_path):
     mach = machine.init_output_dir(output_dir)
-    sys_min = mach.frequency_min()
-    sys_max = mach.frequency_max()
-    sys_sticker = mach.frequency_sticker()
 
-    config_list = [{"GPU_FREQ_MIN" : float(gpu_fmin), "GPU_FREQ_MAX": float(gpu_fmax),
-                    "GPU_PHI" : float(phi/10)} for phi in range(0,11)]
+    config_list = [{"GPU_PHI" : float(phi/10)} for phi in range(0,11)]
     config_names = ['phi'+str(x*10) for x in range(0,11)]
 
     targets = []
