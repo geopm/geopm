@@ -174,6 +174,7 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              .github/ISSUE_TEMPLATE/change.md \
              .github/ISSUE_TEMPLATE/tech_debt.md \
              .gitignore \
+	     git_hooks/README.rst \
              BLURB \
              CODE_OF_CONDUCT.md \
              CONTRIBUTING.rst \

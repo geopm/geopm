@@ -38,6 +38,7 @@ examples/README.md
 .github/ISSUE_TEMPLATE/change_test.md
 .github/ISSUE_TEMPLATE/tech_debt.md
 .gitignore
+git_hooks/README.rst
 integration/apps/amg/README.md
 integration/apps/arithmetic_intensity/README.md
 integration/apps/hpl_mkl/README.md

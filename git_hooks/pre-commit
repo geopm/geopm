@@ -1,0 +1,50 @@
+#!/bin/sh
+#  Copyright (c) 2015 - 2022, Intel Corporation
+#  SPDX-License-Identifier: BSD-3-Clause
+#
+
+# This pre-commit hook checks common, low-cost-to-test continuous-integration
+# or code review rejection reasons. 
+#
+# To enable this hook, install as "${GEOPM_SOURCE}/.git/hook/pre-commit"
+skiplicensecheck=$(git config --type=bool hooks.geopm.skiplicensecheck)
+
+exec 1>&2
+
+TOPLEVEL="$(git rev-parse --show-toplevel)"
+TESTLICENSE="${TOPLEVEL}/copying_headers/test-license"
+
+if [ "$skiplicensecheck" != "true" ]
+then
+        # Ensure a manifest exists. This omits all of the extra checks in autogen.sh
+        # since this script already assumes we're in a git repo.
+        git ls-tree --full-tree -r HEAD | awk '{print $4}' | sort > "${TOPLEVEL}/MANIFEST"
+
+        # Ensure the `man` symlink is valid, even if we didn't already build
+        # documentation output.
+        manlink=$(readlink "${TOPLEVEL}/man")
+        manlink_rc=$?
+        if [ "$manlink_rc" -eq 0 ]
+        then
+                mkdir -p "${TOPLEVEL}/${manlink}"
+        else
+                # The symlink is a workaround for some other documentation
+                # build things. This warning is expected to be emitted if we
+                # move past this workaround at some point.
+                echo "Warning: unable to find 'man' in the repository"
+        fi
+
+        check_output=$("$TESTLICENSE" "$TOPLEVEL" 2>&1)
+        check_rc=$?
+        if [ "$check_rc" -ne 0 ]
+        then
+                cat <<\EOF
+Error: Failed the GEOPM license check. You can disable this check using:
+    git config hooks.geopm.skiplicensecheck true
+
+License check output:
+EOF
+                echo "$check_output"
+                exit 1
+        fi
+fi
