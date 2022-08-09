@@ -71,8 +71,6 @@ class GPUTorchAgent : public geopm::Agent
 
         // Policy indices; must match policy_names()
         enum m_policy_e {
-            M_POLICY_GPU_FREQ_MIN,
-            M_POLICY_GPU_FREQ_MAX,
             M_POLICY_GPU_PHI,
             M_NUM_POLICY
         };

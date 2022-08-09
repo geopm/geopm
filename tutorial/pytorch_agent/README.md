@@ -4,11 +4,11 @@ This tutorial demonstrates how to implement a libtorch based C++ agent in GEOPM.
 Specifically, the tutorial shows how to create a C++ agent that can use a pytorch model
 to select frequency controls for a GPU enabled system based on the following signals:
 ```
-GPU_FREQUENCY_STATUS
+GPU_CORE_FREQUENCY_STATUS
 GPU_POWER
 GPU_UTILIZATION
-GPU_COMPUTE_ACTIVITY
-GPU_MEMORY_ACTIVITY
+GPU_CORE_ACTIVITY
+GPU_UNCORE_ACTIVITY
 ```
 An additional user input knob "GPU_PHI" is also taken as an input.  This control is a unitless
 input ranging from 0 to 1 with 0 skewing the agent toward performance oriented frequency selection
@@ -64,7 +64,7 @@ Use the ${GEOPM_SOURCE}/integration/experiments/gen_slurm.sh script.  Example:
 Modify the output test.sbatch to enable traces, set frequency range, and set per GPU signals
 ```
     --enable-traces \
-    --geopm-trace-signals=GPU_FREQUENCY_STATUS-board_accelerator-0,GPU_POWER-board_accelerator-0,GPU_UTILIZATION-board_accelerator-0,GPU_COMPUTE_ACTIVITY-board_accelerator-0,GPU_MEMORY_ACTIVITY-board_accelerator-0\
+    --geopm-trace-signals=GPU_CORE_FREQUENCY_STATUS-gpu-0,GPU_POWER-gpu-0,GPU_UTILIZATION-gpu-0,GPU_CORE_ACTIVITY-gpu-0,GPU_UNCORE_ACTIVITY-gpu-0\
 ```
 Min and max frequency may vary from system to system
 
