@@ -78,9 +78,6 @@ sleep 5
 BATCH_PID=$(sudo geopmaccess -s ${SESSION_PID} | \
             python3 -c 'import sys,json; print(json.loads(sys.stdin.read())["batch_server"])')
 
-# BATCH_PID=$(sudo geopmaccess -s ${SESSION_PID} | \
-#             python3 -c 'import sys; print(sys.stdin.read())')
-
 kill -7 $SESSION_PID # Ok to send as test user
 sleep 5
 if ps --pid $BATCH_PID >& /dev/null; then
