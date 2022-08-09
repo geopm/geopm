@@ -1,4 +1,6 @@
-#include "localnet.hpp"
+#include "LocalNeuralNet.hpp"
+#include "TensorOneD.hpp"
+#include "TensorTwoD.hpp"
 #include <fstream>
 
 int
@@ -10,9 +12,9 @@ main(int argc, char** argv) {
 
     for (int i=0; i<10; i++) {
         std::cout << "example " << i << std::endl;
-        Vector tin, tout;
+        TensorOneD tin, tout;
         test_in >> tin >> tout;
-        Vector modelout(lnn.model(tin));
+        TensorOneD modelout(lnn.model(tin));
         std::cout << tin << std::endl;
         std::cout << tout << std::endl;
         std::cout << modelout << std::endl;
