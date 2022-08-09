@@ -8,9 +8,9 @@ if [[ $# -gt 0 ]] && [[ $1 == '--help' ]]; then
     Terminating Batch Server
     ------------------------
 
-    As a user, send term signal to a geopmsession process owned by the
-    test user, and make sure that server (owned by root) shuts down
-    cleanly.
+    As a user, send a term signal to a running python script owned by
+    the test user that creates a writing batch server. Check that the
+    batch server (owned by root) shuts down cleanly.
 
 "
     exit 0
