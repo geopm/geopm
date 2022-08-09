@@ -54,10 +54,7 @@ def policy_efficient_energy(df):
     dataframe provided
     """
 
-    freq_col = 'gpu-frequency (Hz)'
-
-    energy_min = df['gpu-energy (J)'].min()
-    energy_efficient_frequency = float(df[df['gpu-energy (J)'] == energy_min][freq_col])
+    energy_efficient_frequency = df.groupby('gpu-frequency (Hz)')['gpu-energy (J)'].mean().idxmin()
     return energy_efficient_frequency
 
 def main(full_df):
