@@ -545,8 +545,8 @@ namespace geopm
             return;
         }
 
-        std::string signal_name = "QM_CTR_SCALED";
         std::string msr_name = "MSR::QM_CTR:RM_DATA";
+        std::string signal_name = "MSR::QM_CTR_SCALED";
         std::string description = "Resource Monitor Data converted to bytes";
 
         auto read_it = m_signal_available.find(msr_name);
@@ -582,8 +582,8 @@ namespace geopm
         }
         std::shared_ptr<Signal> time_sig = time_it->second.signals.at(0);
 
-        msr_name = "QM_CTR_SCALED";
-        signal_name = "QM_CTR_SCALED_RATE";
+        msr_name = "MSR::QM_CTR_SCALED";
+        signal_name = "MSR::QM_CTR_SCALED_RATE";
         description = "Resource Monitor Data converted to bytes/second";
         read_it = m_signal_available.find(msr_name);
         if (read_it != m_signal_available.end()) {
