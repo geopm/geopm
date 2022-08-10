@@ -101,26 +101,26 @@ void CPUActivityAgentTest::SetUp()
         .WillByDefault(Return(QM_CTR_SCALED_RATE_IDX));
     ON_CALL(*m_platform_io, push_signal("MSR::CPU_SCALABILITY_RATIO", _, _))
         .WillByDefault(Return(CPU_SCALABILITY_IDX));
-    ON_CALL(*m_platform_io, push_signal("MSR::UNCORE_PERF_STATUS:FREQ", _, _))
+    ON_CALL(*m_platform_io, push_signal("CPU_UNCORE_FREQUENCY_STATUS", _, _))
         .WillByDefault(Return(CPU_UNCORE_FREQUENCY_IDX));
 
     EXPECT_CALL(*m_platform_io, push_signal("QM_CTR_SCALED_RATE", _, _)).Times(1);
     EXPECT_CALL(*m_platform_io, push_signal("MSR::CPU_SCALABILITY_RATIO", _, _)).Times(1);
-    EXPECT_CALL(*m_platform_io, push_signal("MSR::UNCORE_PERF_STATUS:FREQ", _, _)).Times(1);
+    EXPECT_CALL(*m_platform_io, push_signal("CPU_UNCORE_FREQUENCY_STATUS", _, _)).Times(1);
 
     // Controls
     ON_CALL(*m_platform_io, push_control("CPU_FREQUENCY_CONTROL", _, _))
         .WillByDefault(Return(CPU_FREQUENCY_CONTROL_IDX));
-    ON_CALL(*m_platform_io, push_control("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO", _, _))
+    ON_CALL(*m_platform_io, push_control("CPU_UNCORE_FREQUENCY_MIN_CONTROL", _, _))
         .WillByDefault(Return(CPU_UNCORE_MIN_CONTROL_IDX));
-    ON_CALL(*m_platform_io, push_control("MSR::UNCORE_RATIO_LIMIT:MAX_RATIO", _, _))
+    ON_CALL(*m_platform_io, push_control("CPU_UNCORE_FREQUENCY_MAX_CONTROL", _, _))
         .WillByDefault(Return(CPU_UNCORE_MAX_CONTROL_IDX));
     ON_CALL(*m_platform_io, agg_function(_))
         .WillByDefault(Return(geopm::Agg::average));
 
     EXPECT_CALL(*m_platform_io, push_control("CPU_FREQUENCY_CONTROL", _, _)).Times(1);
-    EXPECT_CALL(*m_platform_io, push_control("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO", _, _)).Times(1);
-    EXPECT_CALL(*m_platform_io, push_control("MSR::UNCORE_RATIO_LIMIT:MAX_RATIO", _, _)).Times(1);
+    EXPECT_CALL(*m_platform_io, push_control("CPU_UNCORE_FREQUENCY_MIN_CONTROL", _, _)).Times(1);
+    EXPECT_CALL(*m_platform_io, push_control("CPU_UNCORE_FREQUENCY_MAX_CONTROL", _, _)).Times(1);
 
     m_cpu_freq_min = 1000000000.0;
     m_cpu_freq_max = 3700000000.0;
@@ -132,14 +132,14 @@ void CPUActivityAgentTest::SetUp()
     ON_CALL(*m_platform_io, signal_domain_type("MSR::CPU_SCALABILITY_RATIO"))
         .WillByDefault(Return(GEOPM_DOMAIN_CPU));
 
-    ON_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MIN", GEOPM_DOMAIN_BOARD, 0))
+    ON_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0))
         .WillByDefault(Return(m_cpu_freq_min));
-    ON_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MAX", GEOPM_DOMAIN_BOARD, 0))
+    ON_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0))
         .WillByDefault(Return(m_cpu_freq_max));
 
-    ON_CALL(*m_platform_io, read_signal("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO", GEOPM_DOMAIN_BOARD, 0))
+    ON_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MIN_CONTROL", GEOPM_DOMAIN_BOARD, 0))
         .WillByDefault(Return(m_cpu_uncore_freq_min));
-    ON_CALL(*m_platform_io, read_signal("MSR::UNCORE_RATIO_LIMIT:MAX_RATIO", GEOPM_DOMAIN_BOARD, 0))
+    ON_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MAX_CONTROL", GEOPM_DOMAIN_BOARD, 0))
         .WillByDefault(Return(m_cpu_uncore_freq_max));
 
     ASSERT_LT(m_cpu_freq_min, 2e9);
@@ -152,8 +152,8 @@ void CPUActivityAgentTest::SetUp()
     EXPECT_CALL(*m_platform_io, write_control("MSR::PQR_ASSOC:RMID", _, _, _)).Times(1);
     EXPECT_CALL(*m_platform_io, write_control("MSR::QM_EVTSEL:RMID", _, _, _)).Times(1);
     EXPECT_CALL(*m_platform_io, write_control("MSR::QM_EVTSEL:EVENT_ID", _, _, _)).Times(1);
-    EXPECT_CALL(*m_platform_io, read_signal("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO", _, _)).Times(1);
-    EXPECT_CALL(*m_platform_io, read_signal("MSR::UNCORE_RATIO_LIMIT:MAX_RATIO", _, _)).Times(1);
+    EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MIN_CONTROL", _, _)).Times(1);
+    EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MAX_CONTROL", _, _)).Times(1);
 
     m_agent = geopm::make_unique<CPUActivityAgent>(*m_platform_io, *m_platform_topo);
     m_num_policy = m_agent->policy_names().size();
@@ -178,7 +178,8 @@ void CPUActivityAgentTest::SetUp()
     for (size_t i = m_default_policy.size(); i < m_num_policy; ++i) {
         m_default_policy.push_back(NAN);
     }
-
+//    std::cout << "m_default_policy size is " << std::to_string(m_default_policy.size()) << std::endl;
+//    std::cout << "agent wants " << std::to_string(m_num_policy) << std::endl;
     // leaf agent
     m_agent->init(0, {}, false);
 }
@@ -197,14 +198,14 @@ TEST_F(CPUActivityAgentTest, name)
 TEST_F(CPUActivityAgentTest, validate_policy)
 {
     //Called as part of validate
-    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MIN", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MIN_AVAIL", _, _)).WillRepeatedly(
                 Return(m_cpu_freq_min));
-    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MAX", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MAX_AVAIL", _, _)).WillRepeatedly(
                 Return(m_cpu_freq_max));
 
-    EXPECT_CALL(*m_platform_io, read_signal("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MIN_CONTROL", _, _)).WillRepeatedly(
                 Return(m_cpu_uncore_freq_min));
-    EXPECT_CALL(*m_platform_io, read_signal("MSR::UNCORE_RATIO_LIMIT:MAX_RATIO", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MAX_CONTROL", _, _)).WillRepeatedly(
                 Return(m_cpu_uncore_freq_max));
 
     const std::vector<double> policy_nan(m_num_policy, NAN);
@@ -347,14 +348,14 @@ TEST_F(CPUActivityAgentTest, validate_policy)
 TEST_F(CPUActivityAgentTest, adjust_platform_high)
 {
     //Called as part of validate
-    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MIN", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MIN_AVAIL", _, _)).WillRepeatedly(
                 Return(m_cpu_freq_min));
-    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MAX", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MAX_AVAIL", _, _)).WillRepeatedly(
                 Return(m_cpu_freq_max));
 
-    EXPECT_CALL(*m_platform_io, read_signal("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MIN_CONTROL", _, _)).WillRepeatedly(
                 Return(m_cpu_uncore_freq_min));
-    EXPECT_CALL(*m_platform_io, read_signal("MSR::UNCORE_RATIO_LIMIT:MAX_RATIO", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MAX_CONTROL", _, _)).WillRepeatedly(
                 Return(m_cpu_uncore_freq_max));
 
     std::vector<double> policy;
@@ -386,14 +387,14 @@ TEST_F(CPUActivityAgentTest, adjust_platform_high)
 TEST_F(CPUActivityAgentTest, adjust_platform_medium)
 {
     //Called as part of validate
-    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MIN", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MIN_AVAIL", _, _)).WillRepeatedly(
                 Return(m_cpu_freq_min));
-    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MAX", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MAX_AVAIL", _, _)).WillRepeatedly(
                 Return(m_cpu_freq_max));
 
-    EXPECT_CALL(*m_platform_io, read_signal("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MIN_CONTROL", _, _)).WillRepeatedly(
                 Return(m_cpu_uncore_freq_min));
-    EXPECT_CALL(*m_platform_io, read_signal("MSR::UNCORE_RATIO_LIMIT:MAX_RATIO", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MAX_CONTROL", _, _)).WillRepeatedly(
                 Return(m_cpu_uncore_freq_max));
 
     std::vector<double> policy;
@@ -435,14 +436,14 @@ TEST_F(CPUActivityAgentTest, adjust_platform_medium)
 TEST_F(CPUActivityAgentTest, adjust_platform_low)
 {
     //Called as part of validate
-    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MIN", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MIN_AVAIL", _, _)).WillRepeatedly(
                 Return(m_cpu_freq_min));
-    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MAX", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MAX_AVAIL", _, _)).WillRepeatedly(
                 Return(m_cpu_freq_max));
 
-    EXPECT_CALL(*m_platform_io, read_signal("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MIN_CONTROL", _, _)).WillRepeatedly(
                 Return(m_cpu_uncore_freq_min));
-    EXPECT_CALL(*m_platform_io, read_signal("MSR::UNCORE_RATIO_LIMIT:MAX_RATIO", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MAX_CONTROL", _, _)).WillRepeatedly(
                 Return(m_cpu_uncore_freq_max));
 
     std::vector<double> policy;
@@ -484,14 +485,14 @@ TEST_F(CPUActivityAgentTest, adjust_platform_low)
 TEST_F(CPUActivityAgentTest, adjust_platform_zero)
 {
     //Called as part of validate
-    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MIN", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MIN_AVAIL", _, _)).WillRepeatedly(
                 Return(m_cpu_freq_min));
-    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MAX", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MAX_AVAIL", _, _)).WillRepeatedly(
                 Return(m_cpu_freq_max));
 
-    EXPECT_CALL(*m_platform_io, read_signal("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MIN_CONTROL", _, _)).WillRepeatedly(
                 Return(m_cpu_uncore_freq_min));
-    EXPECT_CALL(*m_platform_io, read_signal("MSR::UNCORE_RATIO_LIMIT:MAX_RATIO", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MAX_CONTROL", _, _)).WillRepeatedly(
                 Return(m_cpu_uncore_freq_max));
 
     std::vector<double> policy;
@@ -522,14 +523,14 @@ TEST_F(CPUActivityAgentTest, adjust_platform_zero)
 TEST_F(CPUActivityAgentTest, adjust_platform_signal_out_of_bounds)
 {
     //Called as part of validate
-    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MIN", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MIN_AVAIL", _, _)).WillRepeatedly(
                 Return(m_cpu_freq_min));
-    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MAX", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MAX_AVAIL", _, _)).WillRepeatedly(
                 Return(m_cpu_freq_max));
 
-    EXPECT_CALL(*m_platform_io, read_signal("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MIN_CONTROL", _, _)).WillRepeatedly(
                 Return(m_cpu_uncore_freq_min));
-    EXPECT_CALL(*m_platform_io, read_signal("MSR::UNCORE_RATIO_LIMIT:MAX_RATIO", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MAX_CONTROL", _, _)).WillRepeatedly(
                 Return(m_cpu_uncore_freq_max));
 
     std::vector<double> policy;
@@ -579,14 +580,14 @@ TEST_F(CPUActivityAgentTest, adjust_platform_signal_out_of_bounds)
 TEST_F(CPUActivityAgentTest, adjust_platform_nan)
 {
     //Called as part of validate
-    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MIN", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MIN_AVAIL", _, _)).WillRepeatedly(
                 Return(m_cpu_freq_min));
-    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MAX", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MAX_AVAIL", _, _)).WillRepeatedly(
                 Return(m_cpu_freq_max));
 
-    EXPECT_CALL(*m_platform_io, read_signal("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MIN_CONTROL", _, _)).WillRepeatedly(
                 Return(m_cpu_uncore_freq_min));
-    EXPECT_CALL(*m_platform_io, read_signal("MSR::UNCORE_RATIO_LIMIT:MAX_RATIO", _, _)).WillRepeatedly(
+    EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MAX_CONTROL", _, _)).WillRepeatedly(
                 Return(m_cpu_uncore_freq_max));
 
     const std::vector<double> policy_nan(m_num_policy, NAN);
