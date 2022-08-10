@@ -42,6 +42,7 @@ class GPUTorchAgent : public geopm::Agent
         std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > report_region(void) const override;
         std::vector<std::string> trace_names(void) const override;
         void trace_values(std::vector<double> &values) override;
+        void enforce_policy(const std::vector<double> &policy) const override;
         std::vector<std::function<std::string(double)> > trace_formats(void) const override;
 
         static std::string plugin_name(void);
@@ -54,6 +55,7 @@ class GPUTorchAgent : public geopm::Agent
         geopm_time_s m_last_wait;
         const double M_WAIT_SEC;
         const double M_POLICY_PHI_DEFAULT;
+        const double M_GPU_ACTIVITY_CUTOFF;
         const int M_NUM_GPU;
         bool m_do_write_batch;
 
@@ -71,6 +73,8 @@ class GPUTorchAgent : public geopm::Agent
 
         // Policy indices; must match policy_names()
         enum m_policy_e {
+            M_POLICY_GPU_FREQ_MIN,
+            M_POLICY_GPU_FREQ_MAX,
             M_POLICY_GPU_PHI,
             M_NUM_POLICY
         };
@@ -92,7 +96,14 @@ class GPUTorchAgent : public geopm::Agent
         std::vector<signal> m_gpu_memory_activity;
         std::vector<signal> m_gpu_utilization;
         std::vector<signal> m_gpu_power;
+        std::vector<signal> m_gpu_energy;
         std::vector<control> m_gpu_freq_control;
+
+        std::vector<double> m_gpu_active_region_start;
+        std::vector<double> m_gpu_active_region_stop;
+        std::vector<double> m_gpu_active_energy_start;
+        std::vector<double> m_gpu_active_energy_stop;
+        signal m_time;
 
         void init_platform_io(void);
 };
