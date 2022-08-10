@@ -178,8 +178,7 @@ void CPUActivityAgentTest::SetUp()
     for (size_t i = m_default_policy.size(); i < m_num_policy; ++i) {
         m_default_policy.push_back(NAN);
     }
-//    std::cout << "m_default_policy size is " << std::to_string(m_default_policy.size()) << std::endl;
-//    std::cout << "agent wants " << std::to_string(m_num_policy) << std::endl;
+
     // leaf agent
     m_agent->init(0, {}, false);
 }

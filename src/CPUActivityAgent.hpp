@@ -82,7 +82,7 @@ namespace geopm
                 M_POLICY_FIRST_MAX_MEM_BW,
                 // The remainder of policy values can be additional pairs of
                 // (uncore freq, max memory bandwidth)
-                M_NUM_POLICY = 64,
+                M_NUM_POLICY = 63,
             };
 
             // Sample indices; must match sample_names()
