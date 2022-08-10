@@ -78,10 +78,21 @@ g_util = Util.instance()
 def do_launch():
     return not g_util.skip_launch()
 
-
 def skip_unless_do_launch():
     if not do_launch():
         return unittest.skip("Most tests in this suite require launch; do not set --skip-launch.")
+    return lambda func: func
+
+def skip_unless_workload_exists(path):
+    path = os.path.join(
+            os.path.dirname(
+             os.path.dirname(os.path.realpath(__file__))),
+            path)
+    print("path is {}".format(path))
+    print("path exists is {}".format(os.path.exists(path)))
+    if not os.path.exists(path):
+        return unittest.skip("Could not find workload executable {}, skipping test.".format(path))
+
     return lambda func: func
 
 def skip_unless_levelzero_power():
