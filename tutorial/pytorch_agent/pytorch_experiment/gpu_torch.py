@@ -19,12 +19,6 @@ from experiment import machine
 
 def setup_run_args(parser):
     common_args.setup_run_args(parser)
-    parser.add_argument('--gpu-frequency-max', dest='gpu_fmax',
-                        action='store', default='nan',
-                        help='The maximum frequency of the gpu (a.k.a. Fgmax) for this experiment')
-    parser.add_argument('--gpu-frequency-min', dest='gpu_fmin',
-                        action='store', default='nan',
-                        help='The minimum frequency of the gpu (a.k.a. Fgmin) for this experiment')
     parser.add_argument('--gpu-nn-path', dest='gpu_nn_path',
                         action='store', default=None,
                         help='Full path for the NN')
@@ -35,7 +29,7 @@ def report_signals():
 def trace_signals():
     return []
 
-def launch_configs(output_dir, app_conf, gpu_fmin, gpu_fmax, gpu_nn_path):
+def launch_configs(output_dir, app_conf, gpu_nn_path):
     mach = machine.init_output_dir(output_dir)
 
     config_list = [{"GPU_PHI" : float(phi/10)} for phi in range(0,11)]
@@ -63,8 +57,7 @@ def launch(app_conf, args, experiment_cli_args):
                                                     trace_signals=trace_signals())
     extra_cli_args += experiment_cli_args
 
-    targets = launch_configs(output_dir, app_conf, args.gpu_fmin, args.gpu_fmax,
-                                args.gpu_nn_path)
+    targets = launch_configs(output_dir, app_conf, args.gpu_nn_path)
 
     launch_util.launch_all_runs(targets=targets,
                                 num_nodes=args.node_count,
