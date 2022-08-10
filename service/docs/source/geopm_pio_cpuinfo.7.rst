@@ -41,7 +41,7 @@ Signals
     * **Unit**: hertz
 
 ``CPUINFO::FREQ_STEP``
-    Returns the step size between process frequency settings.
+    Returns the step size between processor frequency settings.
 
     * **Aggregation**: expect_same
     * **Domain**: cpu
