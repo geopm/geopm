@@ -155,7 +155,7 @@ namespace geopm
                                    100e6,
                                    M_UNITS_HERTZ,
                                    Agg::expect_same,
-                                   "Step size between process frequency settings"}}})
+                                   "Step size between processor frequency settings"}}})
     {
         register_signal_alias("CPU_FREQUENCY_MIN_AVAIL", "CPUINFO::FREQ_MIN");
         register_signal_alias("CPU_FREQUENCY_STICKER", "CPUINFO::FREQ_STICKER");
