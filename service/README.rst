@@ -36,7 +36,7 @@ Features
 
 
 |:rocket:| Performance
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
   Users may call a DBus interface to create a batch server which
   provides a lower-latency interface with a single permissions
   validation when server is created
@@ -196,9 +196,7 @@ state is used to restore the values for all controls supported by the
 GEOPM Service to the values they had prior to enabling the client to
 modify a control.  The controlling session may end by an explicit
 D-Bus call by the client, or when the process that initiated the
-client session ends.  The GEOPM Service will use the ``pidfd_open(2)``
-mechanism for notification of the end of the client process if this is
-supported by the Linux kernel, otherwise it will poll procfs for the
+client session ends.  The GEOPM Service will poll procfs for the
 process ID.
 
 
