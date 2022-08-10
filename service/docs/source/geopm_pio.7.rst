@@ -105,8 +105,11 @@ Descriptions Of High Level Aliases
     Target maximum operating frequency of the CPU based on the control
     register.
 
+``CPU_FREQUENCY_MIN_AVAIL``
+    Minimum achievable processor frequency on the system.
+
 ``CPU_FREQUENCY_MAX_AVAIL``
-    Maximum processor frequency.
+    Maximum achievable processor frequency on the system.
 
 ``CPU_FREQUENCY_MIN_CONTROL``
     Target minimum operating frequency of the CPU based on the control
@@ -114,6 +117,12 @@ Descriptions Of High Level Aliases
 
 ``CPU_FREQUENCY_STATUS``
     The current operating frequency of the CPU.
+
+``CPU_FREQUENCY_STEP``
+    Step size between process frequency settings.
+
+``CPU_FREQUENCY_STICKER``
+    Processor base frequency.
 
 ``CPU_INSTRUCTIONS_RETIRED``
     The count of the number of instructions executed.
@@ -146,6 +155,12 @@ Descriptions Of High Level Aliases
 
 ``CPU_UNCORE_FREQUENCY_STATUS``
     Target operating frequency of the uncore.
+
+``CPU_UNCORE_FREQUENCY_MAX_CONTROL``
+    Control that limits the maximum frequency of the uncore.
+
+``CPU_UNCORE_FREQUENCY_MIN_CONTROL``
+    Control that limits the minimum frequency of the uncore.
 
 ``DRAM_ENERGY``
     An increasing meter of energy consumed by the DRAM over time. It will reset
