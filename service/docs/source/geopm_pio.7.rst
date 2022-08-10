@@ -119,7 +119,7 @@ Descriptions Of High Level Aliases
     The current operating frequency of the CPU.
 
 ``CPU_FREQUENCY_STEP``
-    Step size between process frequency settings.
+    Step size between processor frequency settings.
 
 ``CPU_FREQUENCY_STICKER``
     Processor base frequency.
