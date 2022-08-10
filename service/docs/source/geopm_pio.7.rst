@@ -47,8 +47,8 @@ aliased to a high level name.  This high level name enables the signal
 or control to be supported by more than one ``IOGroup``\ , and different
 platforms will support the loading different sets of ``IOGroups``.  The
 ``MSRIOGroup`` aliases the above signal to the high level
-``PACKAGE_ENERGY`` signal which can be used on any platform to measure
-the current package energy value.  Agents are encouraged to request
+``CPU_ENERGY`` signal which can be used on any platform to measure
+the current CPU energy value.  Agents are encouraged to request
 high level signals and controls to make the implementation more
 portable.  The high level signals and controls supported by built-in
 ``IOGroup`` classes are listed below.  See :doc:`geopm::PluginFactory(3)
