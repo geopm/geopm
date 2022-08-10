@@ -98,3 +98,9 @@ geopmlaunch impi -ppn ${GPUS} -n ${GPUS} --geopm-policy=phi0.policy --geopm-ctl=
 geopmagent -a gpu_torch -pNAN,NAN,0.4 > phi40.policy
 geopmlaunch impi -ppn ${GPUS} -n ${GPUS} --geopm-policy=phi40.policy --geopm-ctl=process --geopm-report=dgemm-16000-torch-phi40.report --geopm-agent=gpu_torch -- $EXE $APPOPTS
 ```
+
+#7) Running GPU Agent Integration tests
+
+```
+PYTHONPATH=${PWD}:${GEOPM_SOURCE}:${PYTHONPATH} /home/lhlawson/geopm_public_lhlawson-pytorch/tutorial/pytorch_agent/test/test_gpu_torch_agent.py
+```
