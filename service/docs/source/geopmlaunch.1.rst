@@ -182,10 +182,12 @@ GEOPM Options
                                 The signals available and their descriptions
                                 are documented in the :doc:`PlatformIO(3)
                                 <GEOPM_CXX_MAN_PlatformIO.3>` man page.
-                                ``TIME``, ``REGION_HASH``, ``REGION_HINT``,
-                                ``REGION_PROGRESS``, ``REGION_RUNTIME``,
-                                ``ENERGY_PACKAGE``, ``POWER_PACKAGE``, and
-                                ``CPU_FREQUENCY_STATUS`` are included in the
+                                ``TIME``, ``EPOCH_COUNT``, ``REGION_HASH``,
+                                ``REGION_HINT``, ``REGION_PROGRESS``,
+                                ``CPU_ENERGY``, ``DRAM_ENERGY``, ``CPU_POWER``,
+                                ``DRAM_POWER``, ``CPU_FREQUENCY_STATUS``,
+                                ``CPU_CYCLES_THREAD``, ``CPU_CYCLES_REFERENCE``,
+                                ``CPU_CORE_TEMPERATURE`` are included in the
                                 trace by default.  A domain other than board
                                 can be specified by appending the signal name
                                 with an ``'@'`` character and then specifying one
