@@ -133,41 +133,6 @@ void CPUTorchAgent::validate_policy(std::vector<double> &in_policy) const
     ///////////////////////
     //CPU POLICY CHECKING//
     ///////////////////////
-    // Check for NAN to set default values for policy
-    if (std::isnan(in_policy[M_POLICY_CPU_FREQ_MAX])) {
-        in_policy[M_POLICY_CPU_FREQ_MAX] = max_freq;
-    }
-
-    if (in_policy[M_POLICY_CPU_FREQ_MAX] > max_freq ||
-        in_policy[M_POLICY_CPU_FREQ_MAX] < min_freq ) {
-        throw geopm::Exception("CPUTorchAgent::" + std::string(__func__) +
-                        "():_FREQ_MAX out of range: " +
-                        std::to_string(in_policy[M_POLICY_CPU_FREQ_MAX]) +
-                        ".", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-    }
-
-    // Check for NAN to set default values for policy
-    if (std::isnan(in_policy[M_POLICY_CPU_FREQ_MIN])) {
-        in_policy[M_POLICY_CPU_FREQ_MIN] = min_freq;
-    }
-
-    if (in_policy[M_POLICY_CPU_FREQ_MIN] > max_freq ||
-        in_policy[M_POLICY_CPU_FREQ_MIN] < min_freq ) {
-        throw geopm::Exception("CPUTorchAgent::" + std::string(__func__) +
-                        "():_FREQ_MIN out of range: " +
-                        std::to_string(in_policy[M_POLICY_CPU_FREQ_MIN]) +
-                        ".", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-    }
-
-    if (in_policy[M_POLICY_CPU_FREQ_MIN] > in_policy[M_POLICY_CPU_FREQ_MAX]) {
-        throw geopm::Exception("CPUTorchAgent::" + std::string(__func__) +
-                        "():_FREQ_MIN (" +
-                        std::to_string(in_policy[M_POLICY_CPU_FREQ_MIN]) +
-                        ") value exceeds_FREQ_MAX (" +
-                        std::to_string(in_policy[M_POLICY_CPU_FREQ_MAX]) +
-                        ").", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-    }
-
     // If no phi value is provided assume the default behavior.
     if (std::isnan(in_policy[M_POLICY_CPU_PHI])) {
         in_policy[M_POLICY_CPU_PHI] = M_POLICY_PHI_DEFAULT;
@@ -391,7 +356,7 @@ std::unique_ptr<Agent> CPUTorchAgent::make_plugin(void)
 // Describes expected policies to be provided by the resource manager or user
 std::vector<std::string> CPUTorchAgent::policy_names(void)
 {
-    return {"CPU_FREQ_MIN", "CPU_FREQ_MAX", "CPU_PHI"};
+    return {"CPU_PHI"};
 }
 
 // Describes samples to be provided to the resource manager or user

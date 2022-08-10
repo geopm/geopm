@@ -19,12 +19,6 @@ from experiment import machine
 
 def setup_run_args(parser):
     common_args.setup_run_args(parser)
-    parser.add_argument('--cpu-frequency-max', dest='cpu_fmax',
-                        action='store', default='nan',
-                        help='The maximum frequency of the cpu (a.k.a. Fcmax) for this experiment')
-    parser.add_argument('--cpu-frequency-min', dest='cpu_fmin',
-                        action='store', default='nan',
-                        help='The minimum frequency of the cpu (a.k.a. Fcmin) for this experiment')
     parser.add_argument('--cpu-nn-path', dest='cpu_nn_path',
                         action='store', default=None,
                         help='Full path for the NN')
@@ -37,12 +31,8 @@ def trace_signals():
 
 def launch_configs(output_dir, app_conf, cpu_fmin, cpu_fmax, cpu_nn_path):
     mach = machine.init_output_dir(output_dir)
-    sys_min = mach.frequency_min()
-    sys_max = mach.frequency_max()
-    sys_sticker = mach.frequency_sticker()
 
-    config_list = [{"CPU_FREQ_MIN" : float(cpu_fmin), "CPU_FREQ_MAX": float(cpu_fmax),
-                    "CPU_PHI" : float(phi/10)} for phi in range(0,11)]
+    config_list = [{"CPU_PHI" : float(phi/10)} for phi in range(0,11)]
     config_names = ['phi'+str(x*10) for x in range(0,11)]
 
     targets = []
@@ -67,8 +57,7 @@ def launch(app_conf, args, experiment_cli_args):
                                                     trace_signals=trace_signals())
     extra_cli_args += experiment_cli_args
 
-    targets = launch_configs(output_dir, app_conf, args.cpu_fmin, args.cpu_fmax,
-                                args.cpu_nn_path)
+    targets = launch_configs(output_dir, app_conf, args.cpu_nn_path)
 
     launch_util.launch_all_runs(targets=targets,
                                 num_nodes=args.node_count,
