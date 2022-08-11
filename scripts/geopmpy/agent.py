@@ -174,8 +174,9 @@ class AgentConf(object):
         supported_agents = {'monitor', 'power_governor', 'power_balancer',
                             'frequency_map'}
         self._path = path
-        if agent not in supported_agents:
-            raise SyntaxError('<geopm> geopmpy.io: AgentConf does not support agent type: ' + agent + '!')
+        #TODO: make this check for agents defined by GEOPM_PLUGIN_PATH
+        #if agent not in supported_agents:
+        #    raise SyntaxError('<geopm> geopmpy.io: AgentConf does not support agent type: ' + agent + '!')
         self._agent = agent
         self._options = options
 
