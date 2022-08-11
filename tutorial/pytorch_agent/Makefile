@@ -4,7 +4,6 @@
 #
 
 TUTORIAL_LIB = libgeopmagent_cpu_torch_agent.so.0.0.0 \
-               libgeopmagent_gpu_torch_agent.so.0.0.0 \
                # end
 
 GEOPM_PLUGIN_FLAGS=-fPIC -shared
@@ -30,8 +29,6 @@ LDFLAGS=$(GEOPM_LDFLAGS) $(OMP_FLAGS)
 
 libgeopmagent_cpu_torch_agent.so.0.0.0: CPUTorchAgent.cpp CPUTorchAgent.hpp
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(GEOPM_PLUGIN_FLAGS) $(EXTRA_CPPFLAGS) CPUTorchAgent.cpp -o $@
-libgeopmagent_gpu_torch_agent.so.0.0.0: GPUTorchAgent.cpp GPUTorchAgent.hpp
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(GEOPM_PLUGIN_FLAGS) $(EXTRA_CPPFLAGS) GPUTorchAgent.cpp -o $@
 
 clean:
 	rm -f $(TUTORIAL_LIB) *.o
