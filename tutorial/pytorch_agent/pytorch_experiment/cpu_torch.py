@@ -29,7 +29,7 @@ def report_signals():
 def trace_signals():
     return []
 
-def launch_configs(output_dir, app_conf, cpu_fmin, cpu_fmax, cpu_nn_path):
+def launch_configs(output_dir, app_conf, cpu_nn_path):
     mach = machine.init_output_dir(output_dir)
 
     config_list = [{"CPU_PHI" : float(phi/10)} for phi in range(0,11)]
