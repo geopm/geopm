@@ -15,7 +15,6 @@ import sys
 
 import pandas
 import numpy as np
-from numpy.polynomial.polynomial import Polynomial
 
 import geopmpy.io
 
@@ -31,9 +30,9 @@ def extract_columns(df, region_list = None):
     if region_list:
         df_filtered = df[df['region'].isin(region_list)]
 
-    if ('QM_CTR_SCALED_RATE' not in df_filtered.columns):
-        df_filtered['QM_CTR_SCALED_RATE'] = (df_filtered['QM_CTR_SCALED_RATE@package-0'] +
-                                             df_filtered['QM_CTR_SCALED_RATE@package-1'])/2
+    if ('MSR::QM_CTR_SCALED_RATE' not in df_filtered.columns):
+        df_filtered['MSR::QM_CTR_SCALED_RATE'] = (df_filtered['MSR::QM_CTR_SCALED_RATE@package-0'] +
+                                             df_filtered['MSR::QM_CTR_SCALED_RATE@package-1'])/2
 
     if ('uncore-frequency (Hz)' not in df_filtered.columns):
         df_filtered['uncore-frequency (Hz)'] = (df_filtered['MSR::UNCORE_PERF_STATUS:FREQ@package-0'] +
@@ -45,7 +44,7 @@ def extract_columns(df, region_list = None):
                             'package-energy (J)',
                             'dram-energy (J)',
                             'frequency (Hz)',
-                            'QM_CTR_SCALED_RATE',
+                            'MSR::QM_CTR_SCALED_RATE',
                             'uncore-frequency (Hz)',]]
 
     return df_cols
@@ -71,7 +70,7 @@ def system_memory_bandwidth_characterization(df_region_group, region):
     for k in uncore_freq_set:
         mem_df = df.groupby('uncore-frequency (Hz)').get_group(k)
         #TODO: use both packages!  This will skew in favor of package-0
-        mem_bw_dict[k] = mem_df['QM_CTR_SCALED_RATE'].mean()
+        mem_bw_dict[k] = mem_df['MSR::QM_CTR_SCALED_RATE'].mean()
 
     return mem_bw_dict
 

@@ -97,14 +97,14 @@ void CPUActivityAgentTest::SetUp()
     EXPECT_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_CORE)).Times(1);
 
     // Signals
-    ON_CALL(*m_platform_io, push_signal("QM_CTR_SCALED_RATE", _, _))
+    ON_CALL(*m_platform_io, push_signal("MSR::QM_CTR_SCALED_RATE", _, _))
         .WillByDefault(Return(QM_CTR_SCALED_RATE_IDX));
     ON_CALL(*m_platform_io, push_signal("MSR::CPU_SCALABILITY_RATIO", _, _))
         .WillByDefault(Return(CPU_SCALABILITY_IDX));
     ON_CALL(*m_platform_io, push_signal("CPU_UNCORE_FREQUENCY_STATUS", _, _))
         .WillByDefault(Return(CPU_UNCORE_FREQUENCY_IDX));
 
-    EXPECT_CALL(*m_platform_io, push_signal("QM_CTR_SCALED_RATE", _, _)).Times(1);
+    EXPECT_CALL(*m_platform_io, push_signal("MSR::QM_CTR_SCALED_RATE", _, _)).Times(1);
     EXPECT_CALL(*m_platform_io, push_signal("MSR::CPU_SCALABILITY_RATIO", _, _)).Times(1);
     EXPECT_CALL(*m_platform_io, push_signal("CPU_UNCORE_FREQUENCY_STATUS", _, _)).Times(1);
 
