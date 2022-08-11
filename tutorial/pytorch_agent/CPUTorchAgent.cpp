@@ -58,16 +58,17 @@ void CPUTorchAgent::init(int level, const std::vector<int> &fan_in, bool is_leve
 {
     m_package_frequency_requests = 0;
 
-    try {
-        for (int domain_idx = 0; domain_idx < M_NUM_PACKAGE; ++domain_idx) {
-            m_package_neural_net.push_back(torch::jit::load(m_package_nn_path));
-        }
+    char* env_nn_path = getenv("GEOPM_CPU_NN_PATH");
+    if (env_nn_path != NULL) {
+        std::cout << "Loading ENV: " << std::string(env_nn_path) << std::endl;
+        m_package_nn_path = env_nn_path;
     }
-    catch (const c10::Error& e) {
-        throw geopm::Exception("CPUTorchAgent::" + std::string(__func__) +
-                               "(): Failed to load Neural Net: " +
-                               m_package_nn_path + ".",
-                               GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+    else {
+        std::cerr << "GEOPM_CPU_NN_PATH is NULL.  Attempting to load local cpu_control.pt" << std::endl;
+    }
+
+    for (int domain_idx = 0; domain_idx < M_NUM_PACKAGE; ++domain_idx) {
+        m_package_neural_net.push_back(torch::jit::load(m_package_nn_path));
     }
 
     init_platform_io();
@@ -75,6 +76,8 @@ void CPUTorchAgent::init(int level, const std::vector<int> &fan_in, bool is_leve
 
 void CPUTorchAgent::init_platform_io(void)
 {
+    m_cpu_max_freq = m_platform_io.read_signal("CPU_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0);
+
     for (int domain_idx = 0; domain_idx < M_NUM_PACKAGE; ++domain_idx) {
         m_package_power.push_back({m_platform_io.push_signal("CPU_POWER",
                                    GEOPM_DOMAIN_PACKAGE,
@@ -127,9 +130,6 @@ void CPUTorchAgent::init_platform_io(void)
 void CPUTorchAgent::validate_policy(std::vector<double> &in_policy) const
 {
     assert(in_policy.size() == M_NUM_POLICY);
-    double min_freq = m_platform_io.read_signal("CPU_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0);
-    double max_freq = m_platform_io.read_signal("CPU_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0);
-
     ///////////////////////
     //CPU POLICY CHECKING//
     ///////////////////////
@@ -224,7 +224,7 @@ void CPUTorchAgent::adjust_platform(const std::vector<double>& in_policy)
     for (int domain_idx = 0; domain_idx < M_NUM_PACKAGE; ++domain_idx) {
         //NAN --> Max Frequency
         if(std::isnan(package_freq_request.at(domain_idx))) {
-            package_freq_request.at(domain_idx) = in_policy[M_POLICY_CPU_FREQ_MAX];
+            package_freq_request.at(domain_idx) = m_cpu_max_freq;
         }
 
         if (package_freq_request.at(domain_idx) !=
@@ -333,6 +333,10 @@ std::vector<std::string> CPUTorchAgent::trace_names(void) const
 
 // Updates the trace with values for signals from this Agent
 void CPUTorchAgent::trace_values(std::vector<double> &values)
+{
+}
+
+void CPUTorchAgent::enforce_policy(const std::vector<double> &policy) const
 {
 }
 

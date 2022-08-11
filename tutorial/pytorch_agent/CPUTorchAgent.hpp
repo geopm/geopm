@@ -43,6 +43,7 @@ class CPUTorchAgent : public geopm::Agent
         std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > report_region(void) const override;
         std::vector<std::string> trace_names(void) const override;
         void trace_values(std::vector<double> &values) override;
+        void enforce_policy(const std::vector<double> &policy) const override;
         std::vector<std::function<std::string(double)> > trace_formats(void) const override;
 
         static std::string plugin_name(void);
@@ -85,6 +86,7 @@ class CPUTorchAgent : public geopm::Agent
         std::map<std::string, double> m_policy_available;
 
         double m_package_frequency_requests;
+        double m_cpu_max_freq;
         std::string m_package_nn_path;
         std::vector<torch::jit::script::Module> m_package_neural_net;
 
