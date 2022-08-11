@@ -36,8 +36,6 @@ from apps.minife import minife
 
 import importlib
 train_cpu_model = importlib.import_module("train_cpu_model-pytorch")
-#from pytorch_experiment import train_cpu_model-pytorch
-
 
 @util.skip_unless_do_launch()
 @util.skip_unless_workload_exists("apps/arithmetic_intensity/ARITHMETIC_INTENSITY/bench_sse")
@@ -55,9 +53,9 @@ class TestIntegration_gpu_torch(unittest.TestCase):
         # TODO: Implement a cleaner check for if TORCH_ROOT is set
         os.environ["TORCH_ROOT"]
 
-#        geopm_test_launcher.geopmwrite("MSR::PQR_ASSOC:RMID board 0 {}".format(0))
-#        geopm_test_launcher.geopmwrite("MSR::QM_EVTSEL:RMID board 0 {}".format(0))
-#        geopm_test_launcher.geopmwrite("MSR::QM_EVTSEL:EVENT_ID board 0 {}".format(2))
+        geopm_test_launcher.geopmwrite("MSR::PQR_ASSOC:RMID board 0 {}".format(0))
+        geopm_test_launcher.geopmwrite("MSR::QM_EVTSEL:RMID board 0 {}".format(0))
+        geopm_test_launcher.geopmwrite("MSR::QM_EVTSEL:EVENT_ID board 0 {}".format(2))
 
         cpu_max_freq = geopm_test_launcher.geopmread("CPU_FREQUENCY_MAX_AVAIL board 0")
         uncore_max_freq = geopm_test_launcher.geopmread("CPU_UNCORE_FREQUENCY_MAX_CONTROL board 0")
@@ -72,26 +70,47 @@ class TestIntegration_gpu_torch(unittest.TestCase):
         ################
         # Monitor Runs #
         ################
+        # MiniFE
+        output_dir = Path(__file__).resolve().parent.joinpath('test_cpu_activity_output/minife_monitor')
+        if output_dir.exists() and output_dir.is_dir():
+            shutil.rmtree(output_dir)
+        mach = machine.init_output_dir(output_dir)
+        cls._minife_monitor_dir = output_dir
+
+        experiment_args = SimpleNamespace(
+            output_dir=output_dir,
+            node_count=node_count,
+            trial_count=1,
+            cool_off_time=3,
+            enable_traces=False,
+            enable_profile_traces=False,
+            verbose=False,
+        )
+
+        minife_app_conf = minife.MinifeAppConf(node_count)
+        monitor.launch(app_conf=minife_app_conf, args=experiment_args,
+                       experiment_cli_args=[])
+
         output_dir = Path(__file__).resolve().parent.joinpath('test_cpu_pytorch_output/aib_monitor')
-#        if output_dir.exists() and output_dir.is_dir():
-#            shutil.rmtree(output_dir)
-#        mach = machine.init_output_dir(output_dir)
+        if output_dir.exists() and output_dir.is_dir():
+            shutil.rmtree(output_dir)
+        mach = machine.init_output_dir(output_dir)
         cls._aib_monitor_dir = output_dir
-#
-#        ranks_per_node = mach.num_core() - mach.num_package()
-#        ranks_per_package = ranks_per_node // mach.num_package()
-#
-#        aib_app_conf = arithmetic_intensity.ArithmeticIntensityAppConf(
-#            ['--slowdown=1',
-#             '--base-internal-iterations=10',
-#             '--iterations=5',
-#             f'--floats={1<<26}',
-#             '--benchmarks=1 16'],
-#            mach,
-#            run_type='sse',
-#            ranks_per_node=ranks_per_node,
-#            distribute_slow_ranks=False)
-#
+
+        ranks_per_node = mach.num_core() - mach.num_package()
+        ranks_per_package = ranks_per_node // mach.num_package()
+
+        aib_app_conf = arithmetic_intensity.ArithmeticIntensityAppConf(
+            ['--slowdown=1',
+             '--base-internal-iterations=10',
+             '--iterations=5',
+             f'--floats={1<<26}',
+             '--benchmarks=1 16'],
+            mach,
+            run_type='sse',
+            ranks_per_node=ranks_per_node,
+            distribute_slow_ranks=False)
+
         experiment_args = SimpleNamespace(
             output_dir=output_dir,
             node_count=node_count,
@@ -102,16 +121,16 @@ class TestIntegration_gpu_torch(unittest.TestCase):
             verbose=False,
         )
 
-#        monitor.launch(app_conf=aib_app_conf, args=experiment_args,
-#                       experiment_cli_args=[])
+        monitor.launch(app_conf=aib_app_conf, args=experiment_args,
+                       experiment_cli_args=[])
 
         ##################################
         # Uncore frequency sweep at base #
         ##################################
         output_dir = Path(__file__).resolve().parent.joinpath('test_cpu_pytorch_output/aib_frequency_sweep')
-#        if output_dir.exists() and output_dir.is_dir():
-#            shutil.rmtree(output_dir)
-#        mach = machine.init_output_dir(output_dir)
+        if output_dir.exists() and output_dir.is_dir():
+            shutil.rmtree(output_dir)
+        mach = machine.init_output_dir(output_dir)
         cls._aib_uncore_freq_sweep_dir = output_dir
 
         experiment_args = SimpleNamespace(
@@ -135,8 +154,8 @@ class TestIntegration_gpu_torch(unittest.TestCase):
         experiment_cli_args=['--geopm-report-signals={} --geopm-trace-signals={}'.format(report_signals, report_signals)]
 
         # We're reusing the AIB app conf from above here
-#        uncore_frequency_sweep.launch(app_conf=aib_app_conf, args=experiment_args,
-#                                      experiment_cli_args=experiment_cli_args)
+        uncore_frequency_sweep.launch(app_conf=aib_app_conf, args=experiment_args,
+                                      experiment_cli_args=experiment_cli_args)
 
         ##############
         # Parse data #
@@ -145,36 +164,36 @@ class TestIntegration_gpu_torch(unittest.TestCase):
         host = df_frequency_sweep['host'][0]
 
         # Process the frequency sweep
-#        process_cpu_frequency_sweep.main(host, str(cls._aib_uncore_freq_sweep_dir.joinpath('process_aib_uncore_sweep')), [str(cls._aib_uncore_freq_sweep_dir)])
-#        aib_sweep_h5_path = str(cls._aib_uncore_freq_sweep_dir.joinpath('process_aib_uncore_sweep.h5'))
+        process_cpu_frequency_sweep.main(host, str(cls._aib_uncore_freq_sweep_dir.joinpath('process_aib_uncore_sweep')), [str(cls._aib_uncore_freq_sweep_dir)])
+        aib_sweep_h5_path = str(cls._aib_uncore_freq_sweep_dir.joinpath('process_aib_uncore_sweep.h5'))
 
         # Train the cpu pytorch model
         pytorch_model = str(cls._aib_uncore_freq_sweep_dir.joinpath('cpu_control_integration.pt'))
-#        train_cpu_model.main(str(cls._aib_uncore_freq_sweep_dir.joinpath('process_aib_uncore_sweep.h5')), pytorch_model, None)
+        train_cpu_model.main(str(cls._aib_uncore_freq_sweep_dir.joinpath('process_aib_uncore_sweep.h5')), pytorch_model, None)
 
         # If the torch_root/lib is included before we do the pytorch training the python pytorch
         # libraries will throw an error).  As such we add this immediately before run.
         os.environ["LD_LIBRARY_PATH"] = os.environ["LD_LIBRARY_PATH"] + ":" + os.environ["TORCH_ROOT"] + "/lib"
         output_dir = Path(__file__).resolve().parent.joinpath('test_cpu_pytorch_output/aib_torch')
-#        if output_dir.exists() and output_dir.is_dir():
-#            shutil.rmtree(output_dir)
-#        mach = machine.init_output_dir(output_dir)
+        if output_dir.exists() and output_dir.is_dir():
+            shutil.rmtree(output_dir)
+        mach = machine.init_output_dir(output_dir)
         cls._aib_agent_dir = output_dir
 
 
-#        ranks_per_node = mach.num_core() - mach.num_package()
-#        ranks_per_package = ranks_per_node // mach.num_package()
-#
-#        aib_app_conf = arithmetic_intensity.ArithmeticIntensityAppConf(
-#            ['--slowdown=1',
-#             '--base-internal-iterations=10',
-#             '--iterations=5',
-#             f'--floats={1<<26}',
-#             '--benchmarks=1 16'],
-#            mach,
-#            run_type='sse',
-#            ranks_per_node=ranks_per_node,
-#            distribute_slow_ranks=False)
+        ranks_per_node = mach.num_core() - mach.num_package()
+        ranks_per_package = ranks_per_node // mach.num_package()
+
+        aib_app_conf = arithmetic_intensity.ArithmeticIntensityAppConf(
+            ['--slowdown=1',
+             '--base-internal-iterations=10',
+             '--iterations=5',
+             f'--floats={1<<26}',
+             '--benchmarks=1 16'],
+            mach,
+            run_type='sse',
+            ranks_per_node=ranks_per_node,
+            distribute_slow_ranks=False)
 
 
         experiment_args = SimpleNamespace(
@@ -188,9 +207,28 @@ class TestIntegration_gpu_torch(unittest.TestCase):
             cpu_nn_path=pytorch_model,
         )
 
-#        cpu_torch.launch(app_conf=aib_app_conf, args=experiment_args,
-#                         experiment_cli_args=[])
+        cpu_torch.launch(app_conf=aib_app_conf, args=experiment_args,
+                         experiment_cli_args=[])
 
+        output_dir = Path(__file__).resolve().parent.joinpath('test_cpu_pytorch_output/minife_torch')
+        if output_dir.exists() and output_dir.is_dir():
+            shutil.rmtree(output_dir)
+        mach = machine.init_output_dir(output_dir)
+        cls._minife_agent_dir = output_dir
+
+        experiment_args = SimpleNamespace(
+            output_dir=output_dir,
+            node_count=node_count,
+            trial_count=1,
+            cool_off_time=3,
+            enable_traces=False,
+            enable_profile_traces=False,
+            verbose=False,
+            cpu_nn_path=pytorch_model,
+        )
+
+        cpu_torch.launch(app_conf=minife_app_conf, args=experiment_args,
+                         experiment_cli_args=[])
 
     def tearDown(self):
         if sys.exc_info() != (None, None, None):
@@ -219,21 +257,17 @@ class TestIntegration_gpu_torch(unittest.TestCase):
         MiniFE exhibits less energy consumption with the agent
         for all non-zero phi values.
         """
-        pass
         monitor_fom = geopmpy.io.RawReportCollection('*report', dir_name=self._minife_monitor_dir).get_app_df()['FOM'].mean()
         monitor_energy = geopmpy.io.RawReportCollection('*report', dir_name=self._minife_monitor_dir).get_epoch_df()['package-energy (J)'].mean()
 
         df_agent = geopmpy.io.RawReportCollection('*report', dir_name=self._minife_agent_dir).get_epoch_df()
         df_agent_app = geopmpy.io.RawReportCollection('*report', dir_name=self._minife_agent_dir).get_app_df()
 
-        import code
-        code.interact(local=locals())
         for phi in set(df_agent['CPU_PHI']):
             fom = df_agent_app[df_agent_app['CPU_PHI'] == phi]['FOM'].mean()
             energy = df_agent[df_agent['CPU_PHI'] == phi]['package-energy (J)'].mean()
             if phi > 0.0:
-                self.assertLess(energy, monitor_energy);
-                #TODO: An assertion about the runtime/fom impact should be made
+                self.assertLess(energy, monitor_energy)
                 util.assertNear(self, fom, monitor_fom)
 
 
