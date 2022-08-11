@@ -39,7 +39,7 @@ namespace geopm
     CNLIOGroup::CNLIOGroup(const std::string &cpu_info_path)
         : m_signal_available({{"CNL::BOARD_POWER", {
                                    "Point in time power",
-                                   Agg::average,
+                                   Agg::sum,
                                    string_format_integer,
                                    get_formatted_file_reader(cpu_info_path + "/power", "W"),
                                    false,
@@ -57,7 +57,7 @@ namespace geopm
                                    IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE}},
                               {"CNL::MEMORY_POWER", {
                                    "Point in time memory power",
-                                   Agg::average,
+                                   Agg::sum,
                                    string_format_integer,
                                    get_formatted_file_reader(cpu_info_path + "/memory_power", "W"),
                                    false,
@@ -75,7 +75,7 @@ namespace geopm
                                    IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE}},
                               {"CNL::BOARD_POWER_CPU", {
                                    "Point in time CPU power",
-                                   Agg::average,
+                                   Agg::sum,
                                    string_format_integer,
                                    get_formatted_file_reader(cpu_info_path + "/cpu_power", "W"),
                                    false,
