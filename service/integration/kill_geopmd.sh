@@ -28,10 +28,18 @@ elif [[ ${USER} != "root" ]]; then
     kill_error "Script must be run as user root"
 elif [[ $# -eq 0 ]]; then
     MAIN_PID=$(systemctl show geopm --property=MainPID | awk -F= '{print $2}')
-    kill -9 ${MAIN_PID}
+    if [ ! -z "${MAIN_PID}" ] && ps ${MAIN_PID} >& /dev/null; then
+        kill -9 ${MAIN_PID}
+    else
+        kill_error "Error: Unable to parse main PID from systemctl"
+    fi
 else
     SESSION_PID=$1
     BATCH_PID=$(sudo geopmaccess -s ${SESSION_PID} | \
             python3 -c 'import sys,json; print(json.loads(sys.stdin.read())["batch_server"])')
-    kill -9 ${BATCH_PID}
+    if [ ! -z "${BATCH_PID}" ] && ps ${BATCH_PID} >& /dev/null; then
+        kill -9 ${BATCH_PID}
+    else
+        kill_error "Error: Unable to parse batch server PID from geopmaccess"
+    fi
 fi
