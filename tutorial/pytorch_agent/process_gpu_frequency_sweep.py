@@ -74,38 +74,9 @@ def read_trace_files(sweep_dir, nodename, app_index):
         all_dfs.append(trace_df)
     return pd.concat(all_dfs, ignore_index=True)
 
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description='Process a set of application frequency sweeps, in prepration '
-        'to train a model for a frequency selection agent. Expects that each '
-        'output directory contains a series of report files ending with .report '
-        'and .trace-{node_name}. The parts of the file names before the file '
-        'extensions contain a series of key/value pairs identifying the report '
-        'and trace. An example expected report name is: '
-        'dgemm.gpufreq_<freq_in_GHz>.memratio_<mem_ratio>.precision_<precision>.trial_<trial>.report'
-        'Explanations of the parts are:\n'
-        'freq_in_GHz: GPU core frequency limit applied on this report.\n'
-        'memratio: mem ratio for runs of the mixbench benchmark, or NaN.\n'
-        'precision: precision for runs of the mixbench benchmark, or NaN.\n'
-        'trial: number of the trial of repeated executions.\n'
-    )
-    parser.add_argument('nodename', help='Which node to analyze.')
-    parser.add_argument('domain', default='gpu',
-                        choices=['gpu', 'node'],
-                        help='Analyze gpu energy at node (all gpu) or single gpu level. default: gpu')
-    parser.add_argument('output',
-                        help='Name of the HDF file to write the output. '
-                             'The h5 extension will be added')
-    parser.add_argument('frequency_sweep_dirs',
-                        nargs='+',
-                        help='Directories containing reports and traces from frequency sweeps')
-    args = parser.parse_args()
-
-    nodename = args.nodename
-
+def main(nodename, output, frequency_sweep_dirs):
     processed_sweeps = list()
-    for app_index, full_sweep_dir in enumerate(args.frequency_sweep_dirs):
+    for app_index, full_sweep_dir in enumerate(frequency_sweep_dirs):
         reports_df = process_report_files(full_sweep_dir, nodename, app_index)
 
         config_groups = reports_df.groupby('app-config', group_keys=False, dropna=False)
@@ -190,4 +161,34 @@ if __name__ == "__main__":
     # multiple models with different applications ignored. This lets us spend
     # less time preprocessing for leave-one-out testing.
     pd.concat(processed_sweeps).to_hdf(
-        args.output + ".h5", nodename + "_training_data", mode='w')
+        output + ".h5", nodename + "_training_data", mode='w')
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description='Process a set of application frequency sweeps, in prepration '
+        'to train a model for a frequency selection agent. Expects that each '
+        'output directory contains a series of report files ending with .report '
+        'and .trace-{node_name}. The parts of the file names before the file '
+        'extensions contain a series of key/value pairs identifying the report '
+        'and trace. An example expected report name is: '
+        'dgemm.gpufreq_<freq_in_GHz>.memratio_<mem_ratio>.precision_<precision>.trial_<trial>.report'
+        'Explanations of the parts are:\n'
+        'freq_in_GHz: GPU core frequency limit applied on this report.\n'
+        'memratio: mem ratio for runs of the mixbench benchmark, or NaN.\n'
+        'precision: precision for runs of the mixbench benchmark, or NaN.\n'
+        'trial: number of the trial of repeated executions.\n'
+    )
+    parser.add_argument('nodename', help='Which node to analyze.')
+    parser.add_argument('domain', default='gpu',
+                        choices=['gpu', 'node'],
+                        help='Analyze gpu energy at node (all gpu) or single gpu level. default: gpu')
+    parser.add_argument('output',
+                        help='Name of the HDF file to write the output. '
+                             'The h5 extension will be added')
+    parser.add_argument('frequency_sweep_dirs',
+                        nargs='+',
+                        help='Directories containing reports and traces from frequency sweeps')
+    args = parser.parse_args()
+
+    main(args.nodename, args.output, args.frequency_sweep_dirs)
