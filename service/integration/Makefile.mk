@@ -5,6 +5,7 @@
 EXTRA_DIST += integration/README.md \
               integration/build_dasbus.sh \
               integration/install_service.sh \
+              integration/kill_geopmd.sh \
               integration/test/__init__.py \
               integration/test/test_bash_examples.py \
               integration/test/check_write_session.sh \
