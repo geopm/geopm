@@ -84,6 +84,7 @@ void GPUTorchAgent::init(int level, const std::vector<int> &fan_in, bool is_leve
 
 void GPUTorchAgent::init_platform_io(void)
 {
+    m_gpu_max_freq = m_platform_io.read_signal("GPU_CORE_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0);
 
     for (int domain_idx = 0; domain_idx < M_NUM_GPU; ++domain_idx) {
         m_gpu_freq_status.push_back({m_platform_io.push_signal("GPU_CORE_FREQUENCY_STATUS",
@@ -127,8 +128,6 @@ void GPUTorchAgent::init_platform_io(void)
 void GPUTorchAgent::validate_policy(std::vector<double> &in_policy) const
 {
     assert(in_policy.size() == M_NUM_POLICY);
-    double gpu_min_freq = m_platform_io.read_signal("GPU_CORE_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0);
-    double gpu_max_freq = m_platform_io.read_signal("GPU_CORE_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0);
 
     ///////////////////////
     //GPU POLICY CHECKING//
@@ -224,7 +223,7 @@ void GPUTorchAgent::adjust_platform(const std::vector<double>& in_policy)
     for (int domain_idx = 0; domain_idx < M_NUM_GPU; ++domain_idx) {
         //NAN --> Max Frequency
         if(std::isnan(gpu_freq_request.at(domain_idx))) {
-            gpu_freq_request.at(domain_idx) = in_policy[M_POLICY_GPU_FREQ_MAX];
+            gpu_freq_request.at(domain_idx) = m_gpu_max_freq;
         }
 
         if (gpu_freq_request.at(domain_idx) !=

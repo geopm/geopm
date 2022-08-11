@@ -85,6 +85,7 @@ class GPUTorchAgent : public geopm::Agent
         std::map<std::string, double> m_policy_available;
 
         double m_gpu_frequency_requests;
+        double m_gpu_max_freq;
         std::string m_gpu_nn_path;
         std::vector<torch::jit::script::Module> m_gpu_neural_net;
         torch::jit::script::Module m_cpu_neural_net;
