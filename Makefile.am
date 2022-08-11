@@ -573,7 +573,6 @@ DISTCLEANFILES = VERSION MANIFEST
 CLEAN_LOCAL_TARGETS= clean-local-coverage \
                      clean-local-fortran \
                      clean-local-googletest \
-                     clean-local-man \
                      # end
 
 clean-local: $(CLEAN_LOCAL_TARGETS)
@@ -582,9 +581,6 @@ distclean-local: distclean-local-ruby
 
 clean-local-coverage:
 	rm -f `find -name \*.gcno` `find -name \*.gcda`
-
-clean-local-man:
-	rm -rf man
 
 clean-local-fortran:
 	rm -rf geopm_prof.mod
@@ -643,7 +639,6 @@ TESTS = test_license.sh
 
 PHONY_TARGETS = clean-local \
                 clean-local-coverage \
-                clean-local-man \
                 distclean-local \
                 gh_pages \
                 rpm \
