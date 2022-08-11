@@ -1,0 +1,37 @@
+#!/bin/bash
+#  Copyright (c) 2015 - 2022, Intel Corporation
+#  SPDX-License-Identifier: BSD-3-Clause
+#
+
+print_help() {
+    echo "
+    Usage: $0              - Kill main geopmd process
+           $0 SESSION_PID  - Kill batch server process owned by session
+
+    This helper script my be added to the suders file to give users running
+    the integration tests permissions to kill geopmd processes.
+
+"
+    exit 0
+}
+
+kill_error() {
+    echo "Error: $1" 1>&2
+    exit -1
+}
+
+
+KILL_GEOPMD=0
+if [[ $1 == '--help' ]]; then
+    print_help
+elif [[ ${USER} != "root" ]]; then
+    kill_error "Script must be run as user root"
+elif [[ $# -eq 0 ]]; then
+    MAIN_PID=$(systemctl show geopm --property=MainPID | awk -F= '{print $2}')
+    kill -9 ${MAIN_PID}
+else
+    SESSION_PID=$1
+    BATCH_PID=$(sudo geopmaccess -s ${SESSION_PID} | \
+            python3 -c 'import sys,json; print(json.loads(sys.stdin.read())["batch_server"])')
+    kill -9 ${BATCH_PID}
+fi
