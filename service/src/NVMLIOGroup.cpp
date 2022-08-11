@@ -148,7 +148,7 @@ namespace geopm
                                   "Fraction of time the GPU memory was accessed in the last set of driver samples",
                                   {},
                                   GEOPM_DOMAIN_GPU,
-                                  Agg::max,
+                                  Agg::average,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
@@ -180,7 +180,7 @@ namespace geopm
                                   "Resets streaming multiprocessor frequency min and max limits to default values.",
                                   {},
                                   GEOPM_DOMAIN_GPU,
-                                  Agg::average,
+                                  Agg::expect_same,
                                   IOGroup::M_SIGNAL_BEHAVIOR_CONSTANT,
                                   string_format_double
                                   }}
