@@ -105,7 +105,7 @@ Modify the output test.sbatch to enable traces, set frequency range, and set per
     --min-frequency=1000000000 \
     --max-frequency=2800000000 \
     --trial-count=3 \
-    --geopm-trace-signals=POWER_PACKAGE@package,POWER_DRAM,CPU_FREQUENCY_STATUS@package,TEMPERATURE_CORE@package,MSR::UNCORE_PERF_STATUS:FREQ@package,QM_CTR_SCALED_RATE@package,INSTRUCTIONS_RETIRED@package,CYCLES_THREAD@package,ENERGY_PACKAGE@package,MSR::APERF:ACNT@package,MSR::MPERF:MCNT@package,MSR::PPERF:PCNT@package,TIME@package,ENERGY_DRAM\
+    --geopm-trace-signals=CPU_POWER@package,DRAM_POWER,CPU_FREQUENCY_STATUS@package,CPU_CORE_TEMPERATURE@package,CPU_PACKAGE_TEMPERATURE@package,CPU_UNCORE_FREQUENCY_STATUS@package,MSR::QM_CTR_SCALED_RATE@package,INSTRUCTIONS_RETIRED@package,CYCLES_THREAD@package,CPU_ENERGY@package,MSR::APERF:ACNT@package,MSR::MPERF:MCNT@package,MSR::PPERF:PCNT@package,TIME@package,MSR::CPU_SCALABILITY_RATIO@package,DRAM_ENERGY \
 
 ```
 Min and max frequency may vary from system to system.

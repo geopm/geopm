@@ -32,8 +32,8 @@ def main():
     X_columns = ['CPU_POWER-package-0',
                  'CPU_FREQUENCY_STATUS-package-0',
                  'CPU_PACKAGE_TEMPERATURE-package-0',
-                 'MSR::UNCORE_PERF_STATUS:FREQ-package-0',
-                 'QM_CTR_SCALED_RATE-package-0']
+                 'CPU_UNCORE_FREQUENCY_STATUS-package-0',
+                 'MSR::QM_CTR_SCALED_RATE-package-0']
 
     ratios = [['CPU_INSTRUCTIONS_RETIRED-package-0', 'CPU_CYCLES_THREAD-package-0'],
               ['CPU_INSTRUCTIONS_RETIRED-package-0', 'CPU_ENERGY-package-0'],

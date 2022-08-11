@@ -85,10 +85,10 @@ void CPUTorchAgent::init_platform_io(void)
         m_package_temperature.push_back({m_platform_io.push_signal("CPU_PACKAGE_TEMPERATURE",
                                           GEOPM_DOMAIN_PACKAGE,
                                           domain_idx), NAN});
-        m_package_uncore_freq_status.push_back({m_platform_io.push_signal("MSR::UNCORE_PERF_STATUS:FREQ",
+        m_package_uncore_freq_status.push_back({m_platform_io.push_signal("CPU_UNCORE_FREQUENCY_STATUS",
                                                 GEOPM_DOMAIN_PACKAGE,
                                                 domain_idx), NAN});
-        m_package_qm_rate.push_back({m_platform_io.push_signal("QM_CTR_SCALED_RATE",
+        m_package_qm_rate.push_back({m_platform_io.push_signal("MSR::QM_CTR_SCALED_RATE",
                                      GEOPM_DOMAIN_PACKAGE,
                                      domain_idx), NAN});
         m_package_inst_retired.push_back({m_platform_io.push_signal("CPU_INSTRUCTIONS_RETIRED",
