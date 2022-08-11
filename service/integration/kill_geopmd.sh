@@ -21,7 +21,6 @@ kill_error() {
 }
 
 
-KILL_GEOPMD=0
 if [[ $1 == '--help' ]]; then
     print_help
 elif [[ ${USER} != "root" ]]; then
