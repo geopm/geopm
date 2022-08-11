@@ -68,7 +68,7 @@ class TestIntegration_cpu_activity(unittest.TestCase):
         experiment_args = SimpleNamespace(
             output_dir=output_dir,
             node_count=node_count,
-            trial_count=3,
+            trial_count=1,
             cool_off_time=3,
             enable_traces=False,
             enable_profile_traces=False,
@@ -130,15 +130,15 @@ class TestIntegration_cpu_activity(unittest.TestCase):
             enable_traces=False,
             enable_profile_traces=False,
             verbose=False,
-            min_frequency=cpu_base_freq, #TODO: base or max?
-            max_frequency=cpu_base_freq, #TODO: base or max?
-            step_frequency=1e8,
+            min_frequency=cpu_base_freq,
+            max_frequency=cpu_base_freq,
+            step_frequency=2e8,
             min_uncore_frequency=uncore_min_freq,
             max_uncore_frequency=uncore_max_freq,
-            step_uncore_frequency=1e8,
+            step_uncore_frequency=2e8,
             run_max_turbo=False
         )
-        report_signals="MSR::QM_CTR_SCALED_RATE@package,MSR::UNCORE_PERF_STATUS:FREQ@package,MSR::CPU_SCALABILITY_RATIO@package,CPU_FREQUENCY_CONTROL@package,MSR::UNCORE_RATIO_LIMIT:MIN_RATIO@package,MSR::UNCORE_RATIO_LIMIT:MAX_RATIO@package"
+        report_signals="MSR::QM_CTR_SCALED_RATE@package,CPU_UNCORE_FREQUENCY_STATUS@package,MSR::CPU_SCALABILITY_RATIO@package,CPU_FREQUENCY_CONTROL@package,CPU_UNCORE_FREQUENCY_MIN_CONTROL@package,CPU_UNCORE_FREQUENCY_MAX_CONTROL@package"
         experiment_cli_args=['--geopm-report-signals={}'.format(report_signals)]
 
         # We're reusing the AIB app conf from above here
@@ -177,13 +177,13 @@ class TestIntegration_cpu_activity(unittest.TestCase):
             verbose=False,
             min_frequency=cpu_min_freq,
             max_frequency=cpu_max_freq,
-            step_frequency=1e8,
+            step_frequency=2e8,
             min_uncore_frequency=uncore_efficient_freq,
             max_uncore_frequency=uncore_efficient_freq,
-            step_uncore_frequency=1e8,
+            step_uncore_frequency=2e8,
             run_max_turbo=False
         )
-        report_signals="MSR::QM_CTR_SCALED_RATE@package,MSR::UNCORE_PERF_STATUS:FREQ@package,MSR::CPU_SCALABILITY_RATIO@package,CPU_FREQUENCY_CONTROL@package,MSR::UNCORE_RATIO_LIMIT:MIN_RATIO@package,MSR::UNCORE_RATIO_LIMIT:MAX_RATIO@package"
+        report_signals="MSR::QM_CTR_SCALED_RATE@package,CPU_UNCORE_FREQUENCY_STATUS@package,MSR::CPU_SCALABILITY_RATIO@package,CPU_FREQUENCY_CONTROL@package,CPU_UNCORE_FREQUENCY_MIN_CONTROL@package,CPU_UNCORE_FREQUENCY_MAX_CONTROL@package"
         experiment_cli_args=['--geopm-report-signals={}'.format(report_signals)]
 
         uncore_frequency_sweep.launch(app_conf=aib_app_conf, args=experiment_args,
@@ -220,7 +220,7 @@ class TestIntegration_cpu_activity(unittest.TestCase):
             uncore_fe=cpu_efficient_freq,
             uncore_fmax=cpu_max_freq,
             uncore_mbm_list=uncore_mbm_list,
-            phi_list=None,
+            phi_list=[0.2,0.5,0.7],
         )
 
         cpu_activity.launch(app_conf=aib_app_conf, args=experiment_args,
@@ -246,7 +246,7 @@ class TestIntegration_cpu_activity(unittest.TestCase):
             uncore_fe=cpu_efficient_freq,
             uncore_fmax=cpu_max_freq,
             uncore_mbm_list=uncore_mbm_list,
-            phi_list=None,
+            phi_list=[0.2,0.5,0.7],
         )
 
         app_conf = minife.MinifeAppConf(node_count)

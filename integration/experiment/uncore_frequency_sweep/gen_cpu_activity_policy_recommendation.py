@@ -35,8 +35,8 @@ def extract_columns(df, region_list = None):
                                              df_filtered['MSR::QM_CTR_SCALED_RATE@package-1'])/2
 
     if ('uncore-frequency (Hz)' not in df_filtered.columns):
-        df_filtered['uncore-frequency (Hz)'] = (df_filtered['MSR::UNCORE_PERF_STATUS:FREQ@package-0'] +
-                                                df_filtered['MSR::UNCORE_PERF_STATUS:FREQ@package-1'])/2
+        df_filtered['uncore-frequency (Hz)'] = (df_filtered['CPU_UNCORE_FREQUENCY_STATUS@package-0'] +
+                                                df_filtered['CPU_UNCORE_FREQUENCY_STATUS@package-1'])/2
 
     # these are the only columns we need
     df_cols = df_filtered[['region',
