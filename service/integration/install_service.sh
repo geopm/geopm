@@ -66,11 +66,21 @@ start_service() {
 }
 
 remove_service() {
-    systemctl stop geopm ||
-        echo "Warning: Failed to stop geopm service" 1>&2
+    IS_QUIET=0
+    if [[ $# -eq 1 ]] && [[ $1 == '--quiet' ]]; then
+	IS_QUIET=1
+    fi
+    if [[ $(systemctl is-active geopm) == 'active' ]]; then
+        systemctl stop geopm ||
+            echo "Warning: Failed to stop geopm service" 1>&2
+    fi
     for pkg in geopm-service python3-geopmdpy libgeopmd0; do
-        ${PKG_REMOVE} $pkg ||
-            echo "Warning: Failed to remove geopm service package: $pkg" 1>&2
+	if [[ ${IS_QUIET} -eq 0 ]]; then
+            ${PKG_REMOVE} $pkg ||
+                echo "Warning: Failed to remove geopm service package: $pkg" 1>&2
+	else
+	    ${PKG_REMOVE} $pkg >& /dev/null
+	fi
     done
 }
 
@@ -87,7 +97,7 @@ else
     else
         RPM_USER=${USER}
     fi
-    remove_service
+    remove_service --quiet
     install_packages ${GEOPM_VERSION} ${RPM_USER} &&
     start_service
 fi
