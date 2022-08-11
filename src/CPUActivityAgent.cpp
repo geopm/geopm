@@ -73,7 +73,7 @@ namespace geopm
         }
 
         for (int domain_idx = 0; domain_idx < M_NUM_PACKAGE; ++domain_idx) {
-            m_qm_rate.push_back({m_platform_io.push_signal("QM_CTR_SCALED_RATE",
+            m_qm_rate.push_back({m_platform_io.push_signal("MSR::QM_CTR_SCALED_RATE",
                                                            GEOPM_DOMAIN_PACKAGE,
                                                            domain_idx), NAN});
 

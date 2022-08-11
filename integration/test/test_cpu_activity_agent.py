@@ -138,7 +138,7 @@ class TestIntegration_cpu_activity(unittest.TestCase):
             step_uncore_frequency=1e8,
             run_max_turbo=False
         )
-        report_signals="QM_CTR_SCALED_RATE@package,MSR::UNCORE_PERF_STATUS:FREQ@package,MSR::CPU_SCALABILITY_RATIO@package,CPU_FREQUENCY_CONTROL@package,MSR::UNCORE_RATIO_LIMIT:MIN_RATIO@package,MSR::UNCORE_RATIO_LIMIT:MAX_RATIO@package"
+        report_signals="MSR::QM_CTR_SCALED_RATE@package,MSR::UNCORE_PERF_STATUS:FREQ@package,MSR::CPU_SCALABILITY_RATIO@package,CPU_FREQUENCY_CONTROL@package,MSR::UNCORE_RATIO_LIMIT:MIN_RATIO@package,MSR::UNCORE_RATIO_LIMIT:MAX_RATIO@package"
         experiment_cli_args=['--geopm-report-signals={}'.format(report_signals)]
 
         # We're reusing the AIB app conf from above here
@@ -183,7 +183,7 @@ class TestIntegration_cpu_activity(unittest.TestCase):
             step_uncore_frequency=1e8,
             run_max_turbo=False
         )
-        report_signals="QM_CTR_SCALED_RATE@package,MSR::UNCORE_PERF_STATUS:FREQ@package,MSR::CPU_SCALABILITY_RATIO@package,CPU_FREQUENCY_CONTROL@package,MSR::UNCORE_RATIO_LIMIT:MIN_RATIO@package,MSR::UNCORE_RATIO_LIMIT:MAX_RATIO@package"
+        report_signals="MSR::QM_CTR_SCALED_RATE@package,MSR::UNCORE_PERF_STATUS:FREQ@package,MSR::CPU_SCALABILITY_RATIO@package,CPU_FREQUENCY_CONTROL@package,MSR::UNCORE_RATIO_LIMIT:MIN_RATIO@package,MSR::UNCORE_RATIO_LIMIT:MAX_RATIO@package"
         experiment_cli_args=['--geopm-report-signals={}'.format(report_signals)]
 
         uncore_frequency_sweep.launch(app_conf=aib_app_conf, args=experiment_args,
