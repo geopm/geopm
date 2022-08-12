@@ -17,20 +17,19 @@ and 1 skewing the agent towards energy efficient frequency selection.
 This tutorial also shows how to create a C++ agent that uses a pytorch model to select frequency
 controls for a CPU enabled system based on the following signals:
 ```
-POWER_PACKAGE
+CPU_POWER
 CPU_FREQUENCY_STATUS
-TEMPERATURE_CORE
-MSR::UNCORE_PERF_STATUS:FREQ
+CPU_PACKAGE_TEMPERATURE
+CPU_UNCORE_FREQUENCY_STATUS
 QM_CTR_SCALED_RATE
-INSTRUCTIONS_RETIRED
-CYCLES_THREAD
-INSTRUCTIONS_RETIRED
-ENERGY_PACKAGE
+CPU_CYCLES_THREAD
+CPU_INSTRUCTIONS_RETIRED
+CPU_ENERGY
 MSR::APERF:ACNT
 MSR::MPERF:MCNT
 MSR::PPERF:PCNT
 ```
-An additioanl user input knob "CPU_PHI" is also taken as an input.  It operates similarly to the
+An additional user input knob "CPU_PHI" is also taken as an input.  It operates similarly to the
 "GPU_PHI" signal discussed above.  Some of the signals may be modified through basic diffing or
 division prior to training or use in an agent.
 
@@ -105,7 +104,7 @@ Modify the output test.sbatch to enable traces, set frequency range, and set per
     --min-frequency=1000000000 \
     --max-frequency=2800000000 \
     --trial-count=3 \
-    --geopm-trace-signals=CPU_POWER@package,DRAM_POWER,CPU_FREQUENCY_STATUS@package,CPU_CORE_TEMPERATURE@package,CPU_PACKAGE_TEMPERATURE@package,CPU_UNCORE_FREQUENCY_STATUS@package,MSR::QM_CTR_SCALED_RATE@package,INSTRUCTIONS_RETIRED@package,CYCLES_THREAD@package,CPU_ENERGY@package,MSR::APERF:ACNT@package,MSR::MPERF:MCNT@package,MSR::PPERF:PCNT@package,TIME@package,MSR::CPU_SCALABILITY_RATIO@package,DRAM_ENERGY \
+    --geopm-trace-signals=CPU_POWER@package,DRAM_POWER,CPU_FREQUENCY_STATUS@package,CPU_CORE_TEMPERATURE@package,CPU_PACKAGE_TEMPERATURE@package,CPU_UNCORE_FREQUENCY_STATUS@package,MSR::QM_CTR_SCALED_RATE@package,CPU_INSTRUCTIONS_RETIRED@package,CPU_CYCLES_THREAD@package,CPU_ENERGY@package,MSR::APERF:ACNT@package,MSR::MPERF:MCNT@package,MSR::PPERF:PCNT@package,TIME@package,MSR::CPU_SCALABILITY_RATIO@package,DRAM_ENERGY \
 
 ```
 Min and max frequency may vary from system to system.
@@ -177,7 +176,7 @@ geopmlaunch impi -ppn ${RANKS} -n ${RANKS} --geopm-policy=phi0.policy --geopm-ct
 geopmagent -a cpu_torch -pNAN,NAN,0.4 > phi40.policy
 geopmlaunch impi -ppn ${RANKS} -n ${RANKS} --geopm-policy=phi40.policy --geopm-ctl=process --geopm-report=dgemm-cpu-torch-phi40.report --geopm-agent=cpu_torch -- $EXE $APPOPTS
 
-##7) Running Pytorch Agent Integration tests
+## 7) Running Pytorch Agent Integration tests
 GPU Agent:
 ```
 PYTHONPATH=${PWD}:${GEOPM_SOURCE}:${PYTHONPATH} /home/lhlawson/geopm_public_lhlawson-pytorch/tutorial/pytorch_agent/test/test_gpu_torch_agent.py
