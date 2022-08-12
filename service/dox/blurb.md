@@ -14,5 +14,5 @@ GEOPM Systemd Service and Daemon
 * A high performance interface enabling batch access to validated sets
   of signals/controls.
 
-* Supports extensibility for heterogenous environments through C++
+* Supports extensibility for heterogeneous environments through C++
   plugin infrastructure (IOGroups).
