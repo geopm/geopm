@@ -26,7 +26,7 @@ Signals
 ``LEVELZERO::GPU_CORE_FREQUENCY_MAX_AVAIL``
     The maximum supported frequency of the GPU Compute Hardware.
 
-    *  **Aggregation**: average
+    *  **Aggregation**: expect_same
     *  **Domain**: gpu_chip
     *  **Format**: double
     *  **Unit**: hertz
@@ -34,7 +34,7 @@ Signals
 ``LEVELZERO::GPU_CORE_FREQUENCY_MIN_AVAIL``
     The minimum supported frequency of the GPU Compute Hardware.
 
-    *  **Aggregation**: average
+    *  **Aggregation**: expect_same
     *  **Domain**: gpu_chip
     *  **Format**: double
     *  **Unit**: hertz
@@ -50,7 +50,7 @@ Signals
 ``LEVELZERO::GPU_ENERGY_TIMESTAMP``
     Timestamp for the GPU energy read in seconds.
 
-    *  **Aggregation**: average
+    *  **Aggregation**: sum
     *  **Domain**: gpu
     *  **Format**: double
     *  **Unit**: seconds
@@ -66,7 +66,7 @@ Signals
 ``LEVELZERO::GPU_UNCORE_FREQUENCY_MAX_AVAIL``
     The maximum supported frequency of the GPU Memory Hardware.
 
-    *  **Aggregation**: average
+    *  **Aggregation**: expect_same
     *  **Domain**: gpu_chip
     *  **Format**: double
     *  **Unit**: hertz
@@ -74,7 +74,7 @@ Signals
 ``LEVELZERO::GPU_UNCORE_FREQUENCY_MIN_AVAIL``
     The minimum supported frequency of the GPU Memory Hardware.
 
-    *  **Aggregation**: average
+    *  **Aggregation**: expect_same
     *  **Domain**: gpu_chip
     *  **Format**: double
     *  **Unit**: hertz
@@ -106,7 +106,7 @@ Signals
 ``LEVELZERO::GPU_ACTIVE_TIME``
     Time in seconds that this resource is actively running a workload.  See the Intel oneAPI Level Zero Sysman documentation for more info.
 
-    *  **Aggregation**: average
+    *  **Aggregation**: sum
     *  **Domain**: gpu_chip
     *  **Format**: double
     *  **Unit**: seconds
@@ -114,7 +114,7 @@ Signals
 ``LEVELZERO::GPU_ACTIVE_TIME_TIMESTAMP``
     The timestamp for the ``LEVELZERO::GPU_ACTIVE_TIME`` read in seconds.  See the Intel oneAPI Level Zero Sysman documentation for more info.
 
-    *  **Aggregation**: average
+    *  **Aggregation**: sum
     *  **Domain**: gpu_chip
     *  **Format**: double
     *  **Unit**: seconds
@@ -122,7 +122,7 @@ Signals
 ``LEVELZERO::GPU_CORE_ACTIVE_TIME``
     Time in seconds that the GPU compute engines (EUs) are actively running a workload.  See the Intel oneAPI Level Zero Sysman documentation for more info.
 
-    *  **Aggregation**: average
+    *  **Aggregation**: sum
     *  **Domain**: gpu_chip
     *  **Format**: double
     *  **Unit**: seconds
@@ -130,7 +130,7 @@ Signals
 ``LEVELZERO::GPU_CORE_ACTIVE_TIME_TIMESTAMP``
     The timestamp for the ``LEVELZERO::GPU_CORE_ACTIVE_TIME`` signal read in seconds.  See the Intel oneAPI Level Zero Sysman documentation for more info.
 
-    *  **Aggregation**: average
+    *  **Aggregation**: sum
     *  **Domain**: gpu_chip
     *  **Format**: double
     *  **Unit**: seconds
@@ -138,7 +138,7 @@ Signals
 ``LEVELZERO::GPU_UNCORE_ACTIVE_TIME``
     Time in seconds that the GPU copy engines are actively running a workload.  See the Intel oneAPI Level Zero Sysman documentation for more info.
 
-    *  **Aggregation**: average
+    *  **Aggregation**: sum
     *  **Domain**: gpu_chip
     *  **Format**: double
     *  **Unit**: seconds
@@ -146,7 +146,7 @@ Signals
 ``LEVELZERO::GPU_UNCORE_ACTIVE_TIME_TIMESTAMP``
     The timestamp for the ``LEVELZERO::GPU_UNCORE_ACTIVE_TIME`` signal read in seconds.  See the Intel oneAPI Level Zero Sysman documentation for more info.
 
-    *  **Aggregation**: average
+    *  **Aggregation**: sum
     *  **Domain**: gpu_chip
     *  **Format**: double
     *  **Unit**: seconds
@@ -190,7 +190,7 @@ Every control is exposed as a signal with the same name.  The relevant signal ag
 ``LEVELZERO::GPU_CORE_FREQUENCY_MIN_CONTROL``
     Sets the minimum frequency request for the GPU Compute Hardware.
 
-    *  **Aggregation**: average
+    *  **Aggregation**: expect_same
     *  **Domain**: gpu_chip
     *  **Format**: double
     *  **Unit**: hertz
@@ -198,7 +198,7 @@ Every control is exposed as a signal with the same name.  The relevant signal ag
 ``LEVELZERO::GPU_CORE_FREQUENCY_MAX_CONTROL``
     Sets the minimum frequency request for the GPU Compute Hardware.
 
-    *  **Aggregation**: average
+    *  **Aggregation**: expect_same
     *  **Domain**: gpu_chip
     *  **Format**: double
     *  **Unit**: hertz
@@ -206,7 +206,7 @@ Every control is exposed as a signal with the same name.  The relevant signal ag
 ``LEVELZERO::GPU_CORE_FREQUENCY_CONTROL``
     Sets both the minimum and maximum frequency request for the GPU Compute Hardware to a single user provided value (min=max).  Only valid as a signal after being written, NAN returned otherwise.
 
-    *  **Aggregation**: average
+    *  **Aggregation**: expect_same
     *  **Domain**: gpu_chip
     *  **Format**: double
     *  **Unit**: hertz

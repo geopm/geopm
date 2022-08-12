@@ -38,7 +38,7 @@ System Info
 ``SST::CONFIG_LEVEL``
     Returns the system's configuration level (SST-PP feature)
 
-    * **Aggregation**: select_first
+    * **Aggregation**: expect_same
     * **Domain**: package
     * **Format**: double
     * **Unit**: n/a
@@ -47,7 +47,7 @@ System Info
     Returns 1 if SST-CP feature is supported, 0 if
     unsupported.
 
-    * **Aggregation**: select_first
+    * **Aggregation**: sum
     * **Domain**: package
     * **Format**: double
     * **Unit**: n/a
@@ -60,7 +60,7 @@ System Info
     cores. Generally, if there are fewer high priority cores, the
     increase in turbo frequency limit is greater.
 
-    * **Aggregation**: select_first
+    * **Aggregation**: expect_same
     * **Domain**: package
     * **Format**: double
     * **Unit**: n/a
@@ -69,7 +69,7 @@ System Info
     Returns the high priority turbo frequency for bucket
     *n* at the SSE license level.
 
-    * **Aggregation**: select_first
+    * **Aggregation**: expect_same
     * **Domain**: package
     * **Format**: double
     * **Unit**: n/a
@@ -78,7 +78,7 @@ System Info
     Returns the high priority turbo frequency for bucket
     *n* at the AVX2 license level.
 
-    * **Aggregation**: select_first
+    * **Aggregation**: expect_same
     * **Domain**: package
     * **Format**: double
     * **Unit**: n/a
@@ -87,7 +87,7 @@ System Info
     Returns the high priority turbo frequency for bucket
     n at the AVX512 license level.
 
-    * **Aggregation**: select_first
+    * **Aggregation**: expect_same
     * **Domain**: package
     * **Format**: double
     * **Unit**: n/a
@@ -97,7 +97,7 @@ System Info
     specified license level. Note these frequencies do not change based
     on the number of high priority cores.
 
-    * **Aggregation**: select_first
+    * **Aggregation**: expect_same
     * **Domain**: package
     * **Format**: double
     * **Unit**: n/a
@@ -106,7 +106,7 @@ System Info
     Returns 1 if SST-TF feature is supported, 0 if
     unsupported.
 
-    * **Aggregation**: select_first
+    * **Aggregation**: sum
     * **Domain**: package
     * **Format**: double
     * **Unit**: n/a
@@ -118,7 +118,7 @@ Configuration
     Returns 1 if SST-TF feature is enabled, 0 if
     disabled.
 
-    * **Aggregation**: select_first
+    * **Aggregation**: sum
     * **Domain**: package
     * **Format**: double
     * **Unit**: n/a
@@ -127,7 +127,7 @@ Configuration
     Returns 1 if SST-CP feature is enabled, 0 if
     disabled.
 
-    * **Aggregation**: select_first
+    * **Aggregation**: expect_same
     * **Domain**: package
     * **Format**: double
     * **Unit**: n/a
@@ -135,7 +135,7 @@ Configuration
 ``SST::COREPRIORITY:ASSOCIATION``
     Returns the CPU's assigned CLOS.
 
-    * **Aggregation**: select_first
+    * **Aggregation**: expect_same
     * **Domain**: core
     * **Format**: double
     * **Unit**: n/a
@@ -145,7 +145,7 @@ Configuration
     value indicates a higher importance. Priority ranges from 0-1 and is
     used to distribute power amongst cores.
 
-    * **Aggregation**: select_first
+    * **Aggregation**: expect_same
     * **Domain**: package
     * **Format**: double
     * **Unit**: n/a
@@ -155,7 +155,7 @@ Configuration
     sufficient power headroom, all cores will receive this minimum
     frequency before any remaining power is distributed.
 
-    * **Aggregation**: select_first
+    * **Aggregation**: expect_same
     * **Domain**: package
     * **Format**: double
     * **Unit**: n/a
@@ -165,7 +165,7 @@ Configuration
     Returns the maximum frequency of CLOS *n*. Power will
     not be distributed to cores beyond this maximum frequency.
 
-    * **Aggregation**: select_first
+    * **Aggregation**: expect_same
     * **Domain**: package
     * **Format**: double
     * **Unit**: n/a
@@ -176,7 +176,7 @@ Controls
 ``SST::TURBO_ENABLE``
     Enable SST-TF feature. Enabling SST-TF also causes SST-CP to be enabled.
 
-    * **Aggregation**: select_first
+    * **Aggregation**: sum
     * **Domain**: package
     * **Format**: double
     * **Unit**: n/a
@@ -184,7 +184,7 @@ Controls
 ``SST::COREPRIORITY_ENABLE``
     Enable SST-CP feature. Disabling SST-CP also causes SST-TF to be disabled.
 
-    * **Aggregation**: select_first
+    * **Aggregation**: sum
     * **Domain**: package
     * **Format**: double
     * **Unit**: n/a
@@ -192,7 +192,7 @@ Controls
 ``SST::COREPRIORITY:ASSOCIATION``
     Assign a core to a CLOS.
 
-    * **Aggregation**: select_first
+    * **Aggregation**: expect_same
     * **Domain**: core
     * **Format**: double
     * **Unit**: n/a
@@ -202,7 +202,7 @@ Controls
     indicates a higher importance. Weight ranges from 0-1 and is used to
     distribute power amongst cores.
 
-    * **Aggregation**: select_first
+    * **Aggregation**: expect_same
     * **Domain**: package
     * **Format**: double
     * **Unit**: n/a
@@ -212,7 +212,7 @@ Controls
     sufficient power headroom, all cores will receive this minimum
     frequency before any remaining power is distributed.
 
-    * **Aggregation**: select_first
+    * **Aggregation**: expect_same
     * **Domain**: package
     * **Format**: double
     * **Unit**: n/a
@@ -221,7 +221,7 @@ Controls
     Set the maximum frequency of CLOS *n*. Power will not
     be distributed to cores beyond this maximum frequency.
 
-    * **Aggregation**: select_first
+    * **Aggregation**: expect_same
     * **Domain**: package
     * **Format**: double
     * **Unit**: n/a

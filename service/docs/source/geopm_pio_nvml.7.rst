@@ -106,7 +106,7 @@ Signals
 ``NVML::GPU_UNCORE_UTILIZATION``
     Fraction of time the GPU memory was accessed in the last set of driver samples.
 
-    *  **Aggregation**: max
+    *  **Aggregation**: average
     *  **Domain**: gpu
     *  **Format**: double
     *  **Unit**: n/a
@@ -143,7 +143,7 @@ Every control is exposed as a signal with the same name.  The relevant signal ag
 ``NVML::GPU_CORE_FREQUENCY_RESET_CONTROL``
     Resets Streaming Multiprocessor frequency min and max limits to default values.  Parameter provided is unused.
 
-    *  **Aggregation**: average
+    *  **Aggregation**: expect_same
     *  **Domain**: gpu
     *  **Format**: double
     *  **Unit**: n/a

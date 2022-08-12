@@ -22,7 +22,7 @@ All signals are available with board-level scope, on systems that expose the
     Returns the current board power consumption, in watts. This signal maps to
     ``/sys/cray/pm_counters/power``.
 
-    * **Aggregation**: average
+    * **Aggregation**: sum
     * **Domain**: board
     * **Format**: integer
     * **Unit**: watts
@@ -40,7 +40,7 @@ All signals are available with board-level scope, on systems that expose the
     Returns the current power consumption of memory components on the board, in
     watts. This signal maps to ``/sys/cray/pm_counters/memory_power``.
 
-    * **Aggregation**: average
+    * **Aggregation**: sum
     * **Domain**: board
     * **Format**: integer
     * **Unit**: watts
@@ -58,7 +58,7 @@ All signals are available with board-level scope, on systems that expose the
     Returns the current power consumption of CPU components on the board, in
     watts. This signal maps to ``/sys/cray/pm_counters/cpu_power``.
 
-    * **Aggregation**: average
+    * **Aggregation**: sum
     * **Domain**: board
     * **Format**: integer
     * **Unit**: watts
