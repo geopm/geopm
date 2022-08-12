@@ -408,7 +408,7 @@ namespace geopm
                      "  Derivative signal based on LEVELZERO::GPU_ENERGY.",
                      M_NAME_PREFIX + "GPU_ENERGY",
                      M_NAME_PREFIX + "GPU_ENERGY_TIMESTAMP",
-                     Agg::average,
+                     Agg::sum,
                      IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE}},
             {M_NAME_PREFIX + "GPU_UTILIZATION",
                     {"Utilization of all GPU engines. Level Zero logical engines may map to the same hardware,"
