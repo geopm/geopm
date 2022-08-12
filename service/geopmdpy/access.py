@@ -10,6 +10,7 @@ import sys
 import os
 import tempfile
 import subprocess # nosec
+import psutil
 from argparse import ArgumentParser
 from dasbus.connection import SystemMessageBus
 from dasbus.error import DBusError
@@ -320,6 +321,8 @@ class Access:
         output = None
         # Determine if user provided -s option
         if session_pid is not None:
+            if session_pid < 0 or not psutil.pid_exists(session_pid):
+                raise RuntimeError(f'{session_pid} is not a valid PID')
             file_path = f'/run/geopm-service/session-{session_pid}.json'
             try:
                 with open(file_path) as fid:
