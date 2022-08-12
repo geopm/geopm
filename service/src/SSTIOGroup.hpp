@@ -10,7 +10,7 @@
 #include <functional>
 
 #include "geopm/IOGroup.hpp"
-
+#include "geopm/Agg.hpp"
 
 namespace geopm
 {
@@ -74,6 +74,23 @@ namespace geopm
                                            uint32_t end_bit, double multiplier,
                                            int units, const std::string &description,
                                            m_signal_behavior_e behavior)
+                    : sst_signal_mailbox_field_s(
+                        request_data,
+                        begin_bit,
+                        end_bit,
+                        multiplier,
+                        units,
+                        description,
+                        behavior,
+                        Agg::expect_same)
+                {
+                }
+
+                sst_signal_mailbox_field_s(uint32_t request_data, uint32_t begin_bit,
+                                           uint32_t end_bit, double multiplier,
+                                           int units, const std::string &description,
+                                           m_signal_behavior_e behavior,
+                                           std::function<double(const std::vector<double> &)> agg_function)
                     : request_data(request_data)
                     , begin_bit(begin_bit)
                     , end_bit(end_bit)
@@ -81,6 +98,7 @@ namespace geopm
                     , units(units)
                     , description(description)
                     , behavior(behavior)
+                    , agg_function(agg_function)
                 {
                 }
                 uint32_t request_data;
@@ -90,6 +108,7 @@ namespace geopm
                 int units;
                 std::string description;
                 m_signal_behavior_e behavior;
+                std::function<double(const std::vector<double> &)> agg_function;
             };
             struct sst_signal_mailbox_raw_s {
                 //! @param command Which type of mailbox command
@@ -111,11 +130,26 @@ namespace geopm
                 sst_control_mailbox_field_s(uint32_t write_data, uint32_t begin_bit,
                                             uint32_t end_bit, int units,
                                             const std::string &description)
+                    : sst_control_mailbox_field_s(
+                        write_data,
+                        begin_bit,
+                        end_bit,
+                        units,
+                        description,
+                        Agg::expect_same)
+                {
+                }
+
+                sst_control_mailbox_field_s(uint32_t write_data, uint32_t begin_bit,
+                                            uint32_t end_bit, int units,
+                                            const std::string &description,
+                                            std::function<double(const std::vector<double> &)> agg_function)
                     : write_data(write_data)
                     , begin_bit(begin_bit)
                     , end_bit(end_bit)
                     , units(units)
                     , description(description)
+                    , agg_function(agg_function)
                 {
                 }
                 uint32_t write_data;
@@ -123,6 +157,7 @@ namespace geopm
                 uint32_t end_bit;
                 int units;
                 std::string description;
+                std::function<double(const std::vector<double> &)> agg_function;
             };
             struct sst_control_mailbox_raw_s {
                 //! @param command Which type of mailbox command
@@ -152,11 +187,26 @@ namespace geopm
                 sst_control_mmio_field_s(uint32_t begin_bit, uint32_t end_bit,
                                          double multiplier, int units,
                                          const std::string &description)
+                    : sst_control_mmio_field_s(
+                        begin_bit,
+                        end_bit,
+                        multiplier,
+                        units,
+                        description,
+                        Agg::expect_same)
+                {
+                }
+                
+                sst_control_mmio_field_s(uint32_t begin_bit, uint32_t end_bit,
+                                         double multiplier, int units,
+                                         const std::string &description,
+                                         std::function<double(const std::vector<double> &)> agg_function)
                     : begin_bit(begin_bit)
                     , end_bit(end_bit)
                     , multiplier(multiplier)
                     , units(units)
                     , description(description)
+                    , agg_function(agg_function)
                 {
                 }
                 uint32_t begin_bit;
@@ -164,6 +214,7 @@ namespace geopm
                 double multiplier;
                 int units;
                 std::string description;
+                std::function<double(const std::vector<double> &)> agg_function;
             };
             struct sst_control_mmio_raw_s {
                 //! @param command Which type of mailbox command
@@ -186,6 +237,23 @@ namespace geopm
                                         uint32_t end_bit, double multiplier,
                                         int units, const std::string &description,
                                         m_signal_behavior_e behavior)
+                    : sst_signal_mmio_field_s(
+                        write_value,
+                        begin_bit,
+                        end_bit,
+                        multiplier,
+                        units,
+                        description,
+                        behavior,
+                        Agg::expect_same)
+                {
+                }
+
+                sst_signal_mmio_field_s(uint32_t write_value, uint32_t begin_bit,
+                                        uint32_t end_bit, double multiplier,
+                                        int units, const std::string &description,
+                                        m_signal_behavior_e behavior,
+                                        std::function<double(const std::vector<double> &)> agg_function)
                     : write_value(write_value)
                     , begin_bit(begin_bit)
                     , end_bit(end_bit)
@@ -193,6 +261,7 @@ namespace geopm
                     , units(units)
                     , description(description)
                     , behavior(behavior)
+                    , agg_function(agg_function)
                 {
                 }
                 uint32_t write_value;
@@ -202,6 +271,7 @@ namespace geopm
                 int units;
                 std::string description;
                 m_signal_behavior_e behavior;
+                std::function<double(const std::vector<double> &)> agg_function;
             };
 
             void add_mbox_signals(const std::string &raw_name,

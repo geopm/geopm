@@ -136,7 +136,7 @@ Configuration
     Returns the CPU's assigned CLOS.
 
     * **Aggregation**: select_first
-    * **Domain**: package
+    * **Domain**: core
     * **Format**: double
     * **Unit**: n/a
 
@@ -193,7 +193,7 @@ Controls
     Assign a core to a CLOS.
 
     * **Aggregation**: select_first
-    * **Domain**: package
+    * **Domain**: core
     * **Format**: double
     * **Unit**: n/a
 

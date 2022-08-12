@@ -13,7 +13,6 @@
 #include <iterator>
 #include <sstream>
 
-#include "geopm/Agg.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
 #include "MSR.hpp"
@@ -38,7 +37,8 @@ namespace geopm
           { SSTIOGroup::SSTMailboxCommand::M_TURBO_FREQUENCY, 0x01,
             {{ "SUPPORTED", { 0x00, 0, 0, 1.0, M_UNITS_NONE,
                               "SST-TF is supported",
-                              M_SIGNAL_BEHAVIOR_CONSTANT } }}
+                              M_SIGNAL_BEHAVIOR_CONSTANT,
+                              Agg::sum } }}
           } },
         { "SST::HIGHPRIORITY_NCORES",
           { SSTIOGroup::SSTMailboxCommand::M_TURBO_FREQUENCY, 0x10,
@@ -165,7 +165,8 @@ namespace geopm
           { SSTIOGroup::SSTMailboxCommand::M_SUPPORT_CAPABILITIES, 0x03,
             {{ "CAPABILITIES", { 0x00, 0, 0, 1.0, M_UNITS_NONE,
                                  "SST-CP is supported",
-                                 M_SIGNAL_BEHAVIOR_CONSTANT } }}
+                                 M_SIGNAL_BEHAVIOR_CONSTANT,
+                                 Agg::sum } }}
           } }
     };
 
@@ -175,7 +176,8 @@ namespace geopm
                 // Control
                 0x02, 0x00 /* N/A */,
                 {{ "ENABLE", { 0x01, 16, 16, M_UNITS_NONE,
-                               "SST-TF is enabled. Enabling this also enables SST::COREPRIORITY_ENABLE:ENABLE." } }},
+                               "SST-TF is enabled. Enabling this also enables SST::COREPRIORITY_ENABLE:ENABLE.",
+                               Agg::sum } }},
                 // Signal
                 0x01, 0x00
             },
@@ -185,7 +187,9 @@ namespace geopm
             { SSTIOGroup::SSTMailboxCommand::M_CORE_PRIORITY,
                 // Control
                 0x02, 0x100,
-                {{ "ENABLE", { 0x01, 1, 1, M_UNITS_NONE, "SST-CP is enabled. Disabling this also disables SST::TURBO_ENABLE:ENABLE." } }},
+                {{ "ENABLE", { 0x01, 1, 1, M_UNITS_NONE,
+                               "SST-CP is enabled. Disabling this also disables SST::TURBO_ENABLE:ENABLE.",
+                               Agg::sum } }},
                 // Signal
                 0x02, 0x00
             },
@@ -570,12 +574,13 @@ namespace geopm
 
     std::function<double(const std::vector<double> &)> SSTIOGroup::agg_function(const std::string &signal_name) const
     {
-        if (!is_valid_signal(signal_name)) {
+        auto it = m_signal_available.find(signal_name);
+        if (it == m_signal_available.end()) {
             throw Exception("SSTIOGroup::agg_function(): " + signal_name +
                             "not valid for SSTIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        return Agg::select_first;
+        return it->second.agg_function;
     }
 
     std::function<std::string(double)> SSTIOGroup::format_function(const std::string &signal_name) const
@@ -604,7 +609,7 @@ namespace geopm
         std::ostringstream oss;
         oss << "    description: " << it->second.description << "\n"
             << "    units: " << IOGroup::units_to_string(it->second.units) << "\n"
-            << "    aggregation: " << Agg::function_to_name(Agg::select_first) << "\n"
+            << "    aggregation: " << Agg::function_to_name(it->second.agg_function) << "\n"
             << "    domain: " << platform_topo().domain_type_to_name(it->second.domain) << "\n"
             << "    iogroup: SSTIOGroup";
 
@@ -623,7 +628,7 @@ namespace geopm
         std::ostringstream oss;
         oss << "    description: " << it->second.description << "\n"
             << "    units: " << IOGroup::units_to_string(it->second.units) << "\n"
-            << "    aggregation: " << Agg::function_to_name(Agg::select_first) << "\n"
+            << "    aggregation: " << Agg::function_to_name(it->second.agg_function) << "\n"
             << "    domain: " << platform_topo().domain_type_to_name(it->second.domain) << "\n"
             << "    iogroup: SSTIOGroup";
 
@@ -678,6 +683,7 @@ namespace geopm
             auto behavior = field_desc.behavior;
             auto units = field_desc.units;
             double multiplier = field_desc.multiplier;
+            auto agg_function = field_desc.agg_function;
 
             char hex[32];
             snprintf(hex, 32, "0x%05" PRIx32, request_data);
@@ -699,7 +705,7 @@ namespace geopm
                     .signals = signals,
                     .domain = domain_type,
                     .units = units,
-                    .agg_function = Agg::select_first,
+                    .agg_function = agg_function,
                     .description = description,
                     .behavior = behavior
                 };
@@ -717,7 +723,7 @@ namespace geopm
                 .signals = signals,
                 .domain = domain_type,
                 .units = units,
-                .agg_function = Agg::select_first,
+                .agg_function = agg_function,
                 .description = description,
                 .behavior = behavior
             };
@@ -741,6 +747,7 @@ namespace geopm
             auto end_bit = field_description.end_bit;
             auto description = field_description.description;
             auto units = field_description.units;
+            auto agg_function = field_description.agg_function;
 
             std::string field_control_name = raw_name + ":" + field_name;
 
@@ -764,7 +771,7 @@ namespace geopm
                     .controls = controls,
                     .domain = domain_type,
                     .units = units,
-                    .agg_function = Agg::select_first,
+                    .agg_function = agg_function,
                     .description = description
                 };
             }
@@ -787,6 +794,7 @@ namespace geopm
             auto behavior = field_desc.behavior;
             auto units = field_desc.units;
             double multiplier = field_desc.multiplier;
+            auto agg_function = field_desc.agg_function;
 
             char hex[32];
             snprintf(hex, 32, "0x%05" PRIx32, register_offset);
@@ -811,7 +819,7 @@ namespace geopm
                     .signals = signals,
                     .domain = domain_type,
                     .units = units,
-                    .agg_function = Agg::select_first,
+                    .agg_function = agg_function,
                     .description = description,
                     .behavior = behavior
                 };
@@ -833,7 +841,7 @@ namespace geopm
                 .signals = signals,
                 .domain = domain_type,
                 .units = units,
-                .agg_function = Agg::select_first,
+                .agg_function = agg_function,
                 .description = description,
                 .behavior = behavior
             };
@@ -854,6 +862,7 @@ namespace geopm
             auto description = field_desc.description;
             auto units = field_desc.units;
             double multiplier = field_desc.multiplier;
+            auto agg_function = field_desc.agg_function;
 
             // add raw control for every domain index
             std::string raw_control_name = raw_name + ":" + field_name;
@@ -877,7 +886,7 @@ namespace geopm
                     .controls = controls,
                     .domain = domain_type,
                     .units = units,
-                    .agg_function = Agg::select_first,
+                    .agg_function = agg_function,
                     .description = description
                 };
             }
