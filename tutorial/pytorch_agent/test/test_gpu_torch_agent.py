@@ -59,7 +59,7 @@ class TestIntegration_gpu_torch(unittest.TestCase):
         # Monitor Runs #
         ################
         # STREAM
-        output_dir = Path(__file__).resolve().parent.joinpath('test_cpu_activity_output/stream_monitor')
+        output_dir = Path(__file__).resolve().parent.joinpath('test_gpu_torch_output/stream_monitor')
         if output_dir.exists() and output_dir.is_dir():
             shutil.rmtree(output_dir)
         mach = machine.init_output_dir(output_dir)
@@ -87,7 +87,7 @@ class TestIntegration_gpu_torch(unittest.TestCase):
                        experiment_cli_args=[])
 
         # DGEMM
-        output_dir = Path(__file__).resolve().parent.joinpath('test_cpu_activity_output/dgemm_monitor')
+        output_dir = Path(__file__).resolve().parent.joinpath('test_gpu_torch_output/dgemm_monitor')
         if output_dir.exists() and output_dir.is_dir():
             shutil.rmtree(output_dir)
         mach = machine.init_output_dir(output_dir)
@@ -115,7 +115,7 @@ class TestIntegration_gpu_torch(unittest.TestCase):
                        experiment_cli_args=[])
 
         # DGEMM
-        output_dir = Path(__file__).resolve().parent.joinpath('test_cpu_activity_output/dgemm_gpu_freq_sweep')
+        output_dir = Path(__file__).resolve().parent.joinpath('test_gpu_torch_output/dgemm_gpu_freq_sweep')
         if output_dir.exists() and output_dir.is_dir():
             shutil.rmtree(output_dir)
         mach = machine.init_output_dir(output_dir)
@@ -149,7 +149,7 @@ class TestIntegration_gpu_torch(unittest.TestCase):
                                    experiment_cli_args=experiment_cli_args)
 
         # STREAM
-        output_dir = Path(__file__).resolve().parent.joinpath('test_cpu_activity_output/stream_gpu_freq_sweep')
+        output_dir = Path(__file__).resolve().parent.joinpath('test_gpu_torch_output/stream_gpu_freq_sweep')
         if output_dir.exists() and output_dir.is_dir():
             shutil.rmtree(output_dir)
         mach = machine.init_output_dir(output_dir)
