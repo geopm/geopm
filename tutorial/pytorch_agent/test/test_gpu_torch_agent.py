@@ -198,6 +198,9 @@ class TestIntegration_gpu_torch(unittest.TestCase):
         pytorch_model = str(cls._dgemm_gpu_freq_sweep_dir.joinpath('gpu_control_integration.pt'))
         train_gpu_model.main(str(cls._dgemm_gpu_freq_sweep_dir.joinpath('process_gpu_freq_sweep.h5')), pytorch_model, None)
 
+        # If the torch_root/lib is included before we do the pytorch training the python pytorch
+        # libraries will throw an error).  As such we add this immediately before run.
+        os.environ["LD_LIBRARY_PATH"] = os.environ["LD_LIBRARY_PATH"] + ":" + os.environ["TORCH_ROOT"] + "/lib"
         #DGEMM
         output_dir = Path(__file__).resolve().parent.joinpath('test_gpu_torch_output/dgemm_agent')
         if output_dir.exists() and output_dir.is_dir():
