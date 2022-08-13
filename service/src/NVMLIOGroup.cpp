@@ -200,14 +200,14 @@ namespace geopm
                                     "Sets streaming multiprocessor frequency max (in hertz)",
                                     {},
                                     GEOPM_DOMAIN_GPU,
-                                    Agg::average,
+                                    Agg::expect_same,
                                     string_format_double
                                     }},
                                {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_CONTROL", {
                                     "Sets streaming multiprocessor frequency min (in hertz)",
                                     {},
                                     GEOPM_DOMAIN_GPU,
-                                    Agg::average,
+                                    Agg::expect_same,
                                     string_format_double
                                     }},
                                {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_RESET_CONTROL", {
