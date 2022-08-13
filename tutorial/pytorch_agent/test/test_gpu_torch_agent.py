@@ -24,7 +24,8 @@ from integration.test import geopm_test_launcher
 from apps.parres import parres
 from pytorch_experiment import gpu_torch
 import process_gpu_frequency_sweep
-
+from experiment.monitor import monitor
+from experiment.gpu_frequency_sweep import gpu_frequency_sweep
 import importlib
 train_gpu_model = importlib.import_module("train_gpu_model-pytorch")
 
