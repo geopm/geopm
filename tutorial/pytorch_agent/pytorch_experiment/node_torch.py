@@ -32,10 +32,10 @@ def report_signals():
 def trace_signals():
     return []
 
-def launch_configs(output_dir, app_conf, cpu_nn_path):
+def launch_configs(output_dir, app_conf, cpu_nn_path, gpu_nn_path):
     mach = machine.init_output_dir(output_dir)
 
-    config_list = [{"CPU_PHI" : float(phi/10)} for phi in range(0,11)]
+    config_list = [{"CPU_PHI" : float(phi/10), "GPU_PHI" : float(phi/10)} for phi in range(0,11)]
     config_names = ['phi'+str(x*10) for x in range(0,11)]
 
     targets = []
@@ -62,7 +62,7 @@ def launch(app_conf, args, experiment_cli_args):
                                                     trace_signals=trace_signals())
     extra_cli_args += experiment_cli_args
 
-    targets = launch_configs(output_dir, app_conf, args.cpu_nn_path)
+    targets = launch_configs(output_dir, app_conf, args.cpu_nn_path, args.gpu_nn_path)
 
     launch_util.launch_all_runs(targets=targets,
                                 num_nodes=args.node_count,
