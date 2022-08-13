@@ -26,7 +26,7 @@ from pytorch_experiment import gpu_torch
 import process_gpu_frequency_sweep
 
 import importlib
-train_cpu_model = importlib.import_module("train_gpu_model-pytorch")
+train_gpu_model = importlib.import_module("train_gpu_model-pytorch")
 
 @util.skip_unless_do_launch()
 @util.skip_unless_gpu()
@@ -51,9 +51,9 @@ class TestIntegration_gpu_torch(unittest.TestCase):
         cpu_min_freq = geopm_test_launcher.geopmread("CPU_FREQUENCY_MIN_AVAIL board 0")
         uncore_min_freq = geopm_test_launcher.geopmread("CPU_UNCORE_FREQUENCY_MIN_CONTROL board 0")
 
-        # TODO: run GPU frequency sweep for PARRES DGEMM & PARRES NSTREAM
-        # TODO: call process_gpu_frequency_sweep.py functions
-        # TODO: call train_gpu_model-pytorch.py functions
+        # TODO: test run GPU frequency sweep for PARRES DGEMM & PARRES NSTREAM after PR2024 is merged
+        # TODO: test call process_gpu_frequency_sweep.py functions after PR2024 is merged
+        # TODO: test call of train_gpu_model-pytorch.py functions  after PR2024 is merged
 
         ################
         # Monitor Runs #
