@@ -75,8 +75,7 @@ test ${SESSION_VALUE} == ${REQUEST_VALUE} ||
 # TERMINATE THE CLIENT PROCESS, VERIFY THAT THE BATCH SERVER IS GONE TOO
 sleep 5
 # geopmaccess returns a JSON object containing the PID of the batch server
-BATCH_PID=$(sudo geopmaccess -s ${SESSION_PID} | \
-            python3 -c 'import sys,json; print(json.loads(sys.stdin.read())["batch_server"])')
+BATCH_PID=$(sudo get_batch_server.py ${SESSION_PID})
 
 kill -7 $SESSION_PID # Ok to send as test user
 sleep 5

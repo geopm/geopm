@@ -34,8 +34,7 @@ elif [[ $# -eq 0 ]]; then
     fi
 else
     SESSION_PID=$1
-    BATCH_PID=$(sudo geopmaccess -s ${SESSION_PID} | \
-            python3 -c 'import sys,json; print(json.loads(sys.stdin.read())["batch_server"])')
+    BATCH_PID=$(sudo get_batch_server.py ${SESSION_PID})
     if [ ! -z "${BATCH_PID}" ] && ps ${BATCH_PID} >& /dev/null; then
         kill -9 ${BATCH_PID}
     else
