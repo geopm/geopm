@@ -31,18 +31,23 @@ class StaticAgent(geopmdpy.runtime.Agent):
         """
         self._control_period = period_seconds
         self._initial_controls = dict() if initial_controls is None else initial_controls
+        self._report = None
+        self._profile = None
         geopmpy.reporter.init()
 
-    def run_begin(self, policy):
+    def run_begin(self, policy, profile):
         # The GEOPM runtime already saved controls by now. It will take care of
         # restoring the original values of these controls after our run finishes.
+        self._profile = profile
         for control_name, value in self._initial_controls.items():
             geopmdpy.pio.write_control(control_name, 'board', 0, value)
 
     def run_end(self):
         # Handle anything that should be managed after PlatformIO restores the
         # platform's pre-launch state.
-        pass
+        self._report = yaml.load(geopmpy.reporter.generate(self._profile, self.__class__.__name__),
+                                 Loader=yaml.SafeLoader)
+        self._report['Policy']['Initial Controls'] = self._initial_controls
 
     def get_signals(self):
         # This agent does not consume any PlatformIO signals.
@@ -71,15 +76,14 @@ class StaticAgent(geopmdpy.runtime.Agent):
     def get_period(self):
         return self._control_period
 
-    def get_report(self, profile):
-        report = yaml.load(geopmpy.reporter.generate(profile, self.__class__.__name__),
-                           Loader=yaml.SafeLoader)
-        report['Policy']['Initial Controls'] = self._initial_controls
+    def get_report(self):
         # Optionally add more agent-specific contents to the report here. For
         # example, if the agent makes any dynamic decisions at execution time,
         # it might report a summary of its decisions or algorithmic state.
-        return yaml.dump(report, default_flow_style=False, sort_keys=False)
-
+        result = None
+        if self._report is not None:
+            result = yaml.dump(self._report, default_flow_style=False, sort_keys=False)
+        return result
 
 def main():
     """Launch an application under the StaticAgent.

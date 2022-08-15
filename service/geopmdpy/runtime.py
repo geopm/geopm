@@ -11,8 +11,12 @@ import time
 import subprocess # nosec
 import sys
 import shlex
+import signal
 from . import pio
 
+
+class StopLoop(Exception):
+    pass
 
 class TimedLoop:
     """Object that can be iterated over to run a timed loop
@@ -78,6 +82,7 @@ class TimedLoop:
         # because we do not delay the start iteration
         if self._num_loop is not None:
             self._num_loop += 1
+        self._loop_end = False
 
     def __iter__(self):
         """Set up a timed loop
@@ -97,13 +102,21 @@ class TimedLoop:
         result = self._loop_idx
         if self._loop_idx == self._num_loop:
             raise StopIteration
-        if self._loop_idx != 0:
+        if self._loop_idx != 0 and not self._loop_end:
             sleep_time = self._target_time - time.time()
             if sleep_time > 0:
-                time.sleep(sleep_time)
+                try:
+                    time.sleep(sleep_time)
+                except StopLoop:
+                    self._loop_end = True
         self._target_time += self._period
         self._loop_idx += 1
         return result
+
+    @staticmethod
+    def stop_loop_handler(signum, frame):
+        raise StopLoop
+
 
 
 class Agent:
@@ -144,7 +157,7 @@ class Agent:
         """
         raise NotImplementedError('Agent is an abstract base class')
 
-    def run_begin(self, policy):
+    def run_begin(self, policy, profile):
         """Called by Controller at the start of each run
 
         The policy for the run is passed through to the agent from the
@@ -205,7 +218,7 @@ class Agent:
         """
         raise NotImplementedError('Agent is an abstract base class')
 
-    def get_report(self, profile):
+    def get_report(self):
         """Summary of all data collected by calls to update()
 
         The report covers the interval of time between the last two calls to
@@ -297,17 +310,21 @@ class Controller:
 
         """
         sys.stderr.write('<geopmdpy> RUN BEGIN\n')
+        if profile is None:
+            profile = ' '.join([shlex.quote(arg) for arg in argv])
         try:
             pio.save_control()
             self.push_all()
+            signal.signal(signal.SIGCHLD, TimedLoop.stop_loop_handler)
             pid = subprocess.Popen(argv)
-            self._agent.run_begin(policy)
+            self._agent.run_begin(policy, profile)
             for loop_idx in TimedLoop(self._update_period, self._num_update):
-                if pid.poll() is not None:
-                    break
                 pio.read_batch()
                 signals = self.read_all_signals()
                 new_settings = self._agent.update(signals)
+                if pid.poll() is not None:
+                    self._agent.run_end()
+                    break
                 for control_idx, new_setting in zip(self._controls_idx, new_settings):
                     pio.adjust(control_idx, new_setting)
                 pio.write_batch()
@@ -315,9 +332,6 @@ class Controller:
             raise
         finally:
             pio.restore_control()
-            self._agent.run_end()
         self._returncode = pid.returncode
         sys.stderr.write(f'<geopmdpy> RUN END, return: {self._returncode}\n')
-        if profile is None:
-            profile = ' '.join([shlex.quote(arg) for arg in argv])
-        return self._agent.get_report(profile)
+        return self._agent.get_report()
