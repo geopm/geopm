@@ -25,17 +25,34 @@ of the form:
 
     geopm/integration/test/test_su_*.sh
 
-A limited set of privileges may be use by installing the helper
-scripts
+A limited set of root privileges may be used by non-root users by
+installing the helper scripts
 
+    geopm/integration/install_service.sh
     geopm/integration/kill_geopmd.sh
     geopm/integration/get_batch_server.py
 
-into `/usr/sbin` and adding these and the geopmaccess command line
-tool to the sudoers.  This enables the user that executes the tests to
-execute these three commands without providing a sudo password.  After
-this is done the `test_su_*.sh` scripts may be run as the test user
-rather than as root.
+into `/usr/sbin` and adding these and the `geopmaccess` command line
+tool to the sudoers file.  This enables the user that executes the
+tests to execute these four commands without providing a sudo password.
+After this is done the `test_su_*.sh` scripts may be run as a non-root
+user.
+
+Example modifications to the `/etc/sudoers` file to enable running
+these tests with a non-root user are as follows.  Under the "User
+privilege specification" section, add the following:
+
+```bash
+# All users can execute these with *no* password
+%users  ALL=NOPASSWD: \
+            /usr/sbin/get_batch_server.py,\
+            /usr/sbin/install_service.sh,\
+            /usr/sbin/kill_geopmd.sh,\
+            /usr/bin/geopmaccess, \
+            /usr/bin/systemctl stop geopm, \
+            /usr/bin/systemctl start geopm, \
+            /usr/bin/systemctl restart geopm
+```
 
 Alternatively these `test_su_*.sh` scripts may be run as the root
 user, however, the `geopm/integration` directory must be added to the
