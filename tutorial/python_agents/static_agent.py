@@ -99,7 +99,7 @@ def main():
                         action='append',
                         help='Initialize a control to a given value, separated by an "=" '
                              'symbol. e.g., to run at a cpu frequency of 2 GHz: '
-                             '--initialize-control CPU_FREQUENCY_CONTROL=2e9')
+                             '--initialize-control CPU_FREQUENCY_MAX_CONTROL=2e9')
     parser.add_argument('--geopm-profile',
                         help='Override the report profile name. Default: the launched command')
 
