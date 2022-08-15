@@ -263,9 +263,8 @@ TEST_F(CpuinfoIOGroupTest, parse_error_no_sticker)
     std::ofstream cpuinfo_stream(m_cpuinfo_path);
     cpuinfo_stream << cpuinfo_str;
     cpuinfo_stream.close();
-    GEOPM_EXPECT_THROW_MESSAGE(
-        CpuinfoIOGroup(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path),
-        GEOPM_ERROR_INVALID, "Invalid frequency");
+    EXPECT_NO_THROW(
+        CpuinfoIOGroup(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path));
 }
 
 TEST_F(CpuinfoIOGroupTest, parse_sticker_multiple_ghz)

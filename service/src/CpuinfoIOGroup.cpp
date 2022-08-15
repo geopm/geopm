@@ -105,8 +105,7 @@ namespace geopm
                             result = unit_factor[unit_idx] * std::stod(value_str);
                         }
                         catch (const std::invalid_argument &ex) {
-                            throw Exception("Invalid frequency: " + std::string(ex.what()),
-                                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                            result = NAN;
                         }
                     }
                 }
