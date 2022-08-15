@@ -112,13 +112,13 @@ frequency control value. We'll refer back to this value later.
 
 .. code-block:: sh
 
-    geopmread CPU_FREQUENCY_CONTROL board 0
+    geopmread CPU_FREQUENCY_MAX_CONTROL board 0
 
 .. code-block:: sh
 
     ./static_agent.py --geopm-report stress-frequency-limit.report \
        --geopm-report-signals CPU_ENERGY@package \
-       --geopm-initialize-control CPU_FREQUENCY_CONTROL=1.5e9 -- \
+       --geopm-initialize-control CPU_FREQUENCY_MAX_CONTROL=1.5e9 -- \
        stress-ng --cpu 20 --taskset 0-19 --timeout 5
 
 Notice a few changes in the report. First, we can see that the Policy section
@@ -147,7 +147,7 @@ actually done).
     Agent: StaticAgent
     Policy:
       Initial Controls:
-        CPU_FREQUENCY_CONTROL: 1500000000.0
+        CPU_FREQUENCY_MAX_CONTROL: 1500000000.0
     Hosts:
       tutorial-hostname:
         Application Totals:

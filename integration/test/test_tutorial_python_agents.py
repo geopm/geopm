@@ -44,14 +44,14 @@ class TestIntegration_tutorial_python_agents(unittest.TestCase):
         script_bodies = util.get_scripts_from_readme(cls._readme_path)
 
         cls._initial_frequency_control = geopm_test_launcher.geopmread(
-            'CPU_FREQUENCY_CONTROL board 0')
+            'CPU_FREQUENCY_MAX_CONTROL board 0')
 
         for script_body in script_bodies:
             print('Executing:', script_body)
             subprocess.check_call(script_body, shell=True, cwd=cls._tutorial_dir)
 
         cls._final_frequency_control = geopm_test_launcher.geopmread(
-            'CPU_FREQUENCY_CONTROL board 0')
+            'CPU_FREQUENCY_MAX_CONTROL board 0')
 
     def test_monitor_report(self):
         with open(os.path.join(self._tutorial_dir, 'stress-monitor.report')) as f:
@@ -81,7 +81,7 @@ class TestIntegration_tutorial_python_agents(unittest.TestCase):
             report = yaml.load(f, Loader=yaml.SafeLoader)
             self.assertAlmostEqual(
                 self._expected_frequency_limit,
-                report['Policy']['Initial Controls']['CPU_FREQUENCY_CONTROL'],
+                report['Policy']['Initial Controls']['CPU_FREQUENCY_MAX_CONTROL'],
                 places=0)
             host_data = next(iter(report['Hosts'].values()))
 
