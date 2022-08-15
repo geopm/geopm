@@ -12,6 +12,35 @@ begin with a long comment describing the feature under test, and
 provide a form of tutorial for an end user learning how to interact
 with the GEOPM service.
 
+How to Run the Tests
+--------------------
+
+Each of the entry points for the integration tests is a script of the
+form:
+
+    geopm/integration/test/test_*.sh
+
+Some of these tests require root privileges and these tests have names
+of the form:
+
+    geopm/integration/test/test_su_*.sh
+
+A limited set of privileges may be use by installing the helper
+scripts
+
+    geopm/integration/kill_geopmd.sh
+    geopm/integration/get_batch_server.py
+
+into `/usr/sbin` and adding these and the geopmaccess command line
+tool to the sudoers.  This enables the user that executes the tests to
+execute these three commands without providing a sudo password.  After
+this is done the `test_su_*.sh` scripts may be run as the test user
+rather than as root.
+
+Alternatively these `test_su_*.sh` scripts may be run as the root
+user, however, the `geopm/integration` directory must be added to the
+root user's `PATH` to enable this.
+
 
 Where to find other tests
 -------------------------
