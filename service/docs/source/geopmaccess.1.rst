@@ -20,7 +20,6 @@ Write Access List
 
     geopmaccess -w [-c] [-g GROUP] [-n | -f]
 
-
 Edit Access List
 ~~~~~~~~~~~~~~~~~
 
@@ -36,13 +35,6 @@ Remove Access List
 
     geopmaccess -D [-c] [-g GROUP]
 
-
-Print Session Info
-~~~~~~~~~~~~~~~~~~
-
-.. code-block:: none
-
-    geopmaccess -s SESSION_PID
 
 
 Get Help or Version
@@ -65,7 +57,6 @@ line tool is to enable reading and writing of these access list files.
 Options
 ~~~~~~~
 -c, --controls  Command applies to controls not signals
--s, --session   Print session information in JSON form
 -u, --default   Print the default user access list
 -g, --group     Read or write the access list for a specific Unix GROUP
 -a, --all       Print all signals or controls supported by the service system
@@ -107,16 +98,6 @@ membership.  Each Unix group on the system may have GEOPM Service
 signal and control access lists associated with it.  To read or write
 the access list for a particular Unix user group, the ``-g`` or
 ``--group`` option must be specified.
-
-An administrator that would like to query information about active
-sessions may use the ``--session`` option.  This will print the
-information about the active session in JSON including the signals and
-controls the session is allowed to access as well as the PID of the
-batch server associated with the session.  The output will follow this
-schema:
-
-.. literalinclude:: ../../json_schemas/active_sessions.schema.json
-    :language: json
 
 
 Access Management
