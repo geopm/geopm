@@ -4,6 +4,7 @@
 
 EXTRA_DIST += integration/README.md \
               integration/build_dasbus.sh \
+              integration/get_batch_server.py \
               integration/install_service.sh \
               integration/kill_geopmd.sh \
               integration/test/__init__.py \
@@ -15,7 +16,6 @@ EXTRA_DIST += integration/README.md \
               integration/test/test_su_give_access.sh \
               integration/test/test_su_restart.sh \
               integration/test/test_su_term_batch.sh \
-              integration/test/test_su_term_batch_helper.py \
               integration/test/test_su_term_batch_helper.sh \
               integration/test/test_su_term_batch_write.sh \
               integration/test/test_su_term_batch_write_helper.py \
