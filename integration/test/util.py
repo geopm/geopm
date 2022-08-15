@@ -309,8 +309,13 @@ def get_scripts_from_readme(rst_readme_path):
     """
     script_bodies = list()
     with open(rst_readme_path) as f:
-        doctree = publish_doctree(f.read())
-        for code_block in doctree.traverse(literal_block):
+        # Syntax highlighting is enabled by default. If the syntax highlighter
+        # (Pygments) is not installed, the tree-walk will skip over code blocks
+        # and this function will return an empty list. Explicitly disable
+        # highlighting so we can run this test regardless of whether Pygments
+        # is installed.
+        doctree = publish_doctree(f.read(), settings_overrides={'syntax_highlight': 'none'})
+        for code_block in doctree.findall(literal_block):
             if 'sh' in code_block['classes']:
                 script_bodies.append(code_block.astext())
     return script_bodies
