@@ -2,7 +2,7 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
-# Packages: geopm-service, geopm-service-devel, libgeopmd0, python3-geopmdpy
+# Packages: geopm-service, geopm-service-devel, libgeopmd1, python3-geopmdpy
 
 Summary: Global Extensible Open Power Manager Service
 Name: geopm-service
@@ -49,7 +49,7 @@ BuildRequires: python-rpm-macros
 %define python_major_version 3
 
 Requires: python%{python3_pkgversion}-geopmdpy == %{version}
-Requires: libgeopmd0 == %{version}
+Requires: libgeopmd1 == %{version}
 
 %description
 
@@ -71,7 +71,7 @@ Group: Development/Libraries
 %else
 Group: Development/Libraries/C and C++
 %endif
-Requires: libgeopmd0 == %{version}
+Requires: libgeopmd1 == %{version}
 
 %description devel
 
@@ -80,7 +80,7 @@ programing interface to libgeopmd.so.  The package includes the C and
 C++ header files, maunuals for these interfaces and the unversioned
 libgeopmd.so shared object symbolic link.
 
-%package -n libgeopmd0
+%package -n libgeopmd1
 
 Summary: Provides libgeopmd shared object library
 %if 0%{?rhel_version} || 0%{?centos_version}
@@ -90,7 +90,7 @@ Group: System Environment/Libraries
 Group: System/Libraries
 %endif
 
-%description -n libgeopmd0
+%description -n libgeopmd1
 
 Library supporting the GEOPM Service.  This provides the libgeopmd
 library which provides C and C++ interfaces.
@@ -114,7 +114,7 @@ Requires: python3-dasbus >= 1.6
 Requires: python3-jsonschema
 Requires: python3-psutil
 Requires: python3-cffi
-Requires: libgeopmd0 == %{version}
+Requires: libgeopmd1 == %{version}
 
 %{?python_provide:%python_provide python%{python3_pkgversion}-geopmdpy}
 
@@ -168,7 +168,7 @@ ln -s /usr/sbin/service %{buildroot}%{_sbindir}/rcgeopm
 %service_add_post geopm.service
 %endif
 
-%post -n libgeopmd0
+%post -n libgeopmd1
 /sbin/ldconfig
 
 %preun -n geopm-service
@@ -185,7 +185,7 @@ ln -s /usr/sbin/service %{buildroot}%{_sbindir}/rcgeopm
 %service_del_postun geopm.service
 %endif
 
-%postun -n libgeopmd0
+%postun -n libgeopmd1
 /sbin/ldconfig
 
 # Installed files
@@ -222,10 +222,10 @@ ln -s /usr/sbin/service %{buildroot}%{_sbindir}/rcgeopm
 %doc %{_mandir}/man7/geopm_pio_time.7.gz
 %doc %{_mandir}/man7/geopm_report.7.gz
 
-%files -n libgeopmd0
+%files -n libgeopmd1
 %defattr(-,root,root,-)
-%{_libdir}/libgeopmd.so.0.0.0
-%{_libdir}/libgeopmd.so.0
+%{_libdir}/libgeopmd.so.1.0.0
+%{_libdir}/libgeopmd.so.1
 %dir %{_libdir}/geopm-service
 
 %files -n python%{python3_pkgversion}-geopmdpy

@@ -146,8 +146,8 @@ rm -f %{buildroot}/%{_bindir}/geopmlaunch
 
 %files
 %defattr(-,root,root,-)
-%{_libdir}/libgeopmpolicy.so.0.0.0
-%{_libdir}/libgeopmpolicy.so.0
+%{_libdir}/libgeopmpolicy.so.1.0.0
+%{_libdir}/libgeopmpolicy.so.1
 %{_libdir}/libgeopmpolicy.so
 %dir %{_libdir}/geopm
 %{_bindir}/geopmadmin
