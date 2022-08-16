@@ -244,7 +244,7 @@ See Also
 --------
 
 
-`oneAPI LevelZero Sysman <https://spec.oneapi.com/level-zero/latest/sysman/PROG.html>`_\ ,
+`oneAPI LevelZero Sysman <https://spec.oneapi.io/level-zero/latest/sysman/PROG.html>`_\ ,
 :doc:`geopm(7) <geopm.7>`\ ,
 :doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>`\ ,
 :doc:`geopmwrite(1) <geopmwrite.1>`\ ,
