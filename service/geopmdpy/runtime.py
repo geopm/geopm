@@ -372,11 +372,11 @@ class Controller:
                 for control_idx, new_setting in zip(self._controls_idx, new_settings):
                     pio.adjust(control_idx, new_setting)
                 pio.write_batch()
+            self._agent.run_end()
         except:
             raise
         finally:
             pio.restore_control()
-            self._agent.run_end()
         self._returncode = pid.returncode
         sys.stderr.write(f'<geopmdpy> RUN END, return: {self._returncode}\n')
         return self._agent.get_report()
