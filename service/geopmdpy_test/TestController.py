@@ -9,6 +9,7 @@ import itertools
 import math
 from unittest import mock
 from time import time
+import subprocess # nosec
 
 # Patch dlopen to allow the tests to run when there is no build
 with mock.patch('cffi.FFI.dlopen', return_value=mock.MagicMock()):
@@ -32,7 +33,7 @@ class PassthroughAgent(Agent):
     def get_period(self):
         return self._period
 
-    def run_begin(self, policy):
+    def run_begin(self, policy, profile):
         pass
 
     def update(self, signals):
@@ -41,7 +42,7 @@ class PassthroughAgent(Agent):
     def run_end(self):
         pass
 
-    def get_report(self, profile):
+    def get_report(self):
         return self._report_data
 
 
@@ -72,7 +73,7 @@ class TestController(unittest.TestCase):
         with self.assertRaisesRegex(NotImplementedError, err_msg):
             ca.get_period()
         with self.assertRaisesRegex(NotImplementedError, err_msg):
-            ca.get_report('test_profile')
+            ca.get_report()
 
     def test_controller_construction_invalid(self):
         err_msg = 'agent must be a subclass of Agent.'
@@ -123,14 +124,14 @@ class TestController(unittest.TestCase):
              mock.patch('geopmdpy.pio.read_batch') as prb, \
              mock.patch('geopmdpy.pio.write_batch') as pwb, \
              mock.patch('geopmdpy.pio.adjust') as pad, \
-             mock.patch('geopmdpy.runtime.TimedLoop', return_value=list(range(loops))) as rtl, \
+             mock.patch('geopmdpy.runtime.PIDTimedLoop', return_value=list(range(loops))) as rtl, \
              mock.patch('subprocess.Popen') as sp:
 
             con = Controller(pa)
 
-            sp().poll.return_value = return_code
+            sp().poll.return_value = None
             sp().returncode = return_code
-
+            sp().wait.raiseError.side_effect = mock.Mock(side_effect=subprocess.TimeoutExpired)
             if subprocess_error:
                 sp_err_msg = 'An error has occured'
                 sp.side_effect = RuntimeError(sp_err_msg)
@@ -143,7 +144,7 @@ class TestController(unittest.TestCase):
 
                 calls = [mock.call(argv)] + [mock.call().poll()] * loops
                 sp.assert_has_calls(calls)
-                rtl.assert_called_with(period, None)
+                rtl.assert_called_with(sp(), period, None)
                 sp().poll.assert_has_calls([mock.call()] * loops)
 
                 if return_code is not None:
