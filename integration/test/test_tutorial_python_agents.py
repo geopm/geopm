@@ -61,7 +61,7 @@ class TestIntegration_tutorial_python_agents(unittest.TestCase):
             self.assertAlmostEqual(
                 self._expected_stress_ng_timeout_seconds,
                 host_data['Application Totals']['runtime (s)'],
-                places=1)
+                places=0)
 
     def test_package_energy_report(self):
         with open(os.path.join(self._tutorial_dir, 'stress-package-energy.report')) as f:
@@ -71,7 +71,7 @@ class TestIntegration_tutorial_python_agents(unittest.TestCase):
             self.assertAlmostEqual(
                 self._expected_stress_ng_timeout_seconds,
                 host_data['Application Totals']['runtime (s)'],
-                places=1)
+                places=0)
             self.assertGreater(
                 host_data['Application Totals']['CPU_ENERGY@package-0'],
                 host_data['Application Totals']['CPU_ENERGY@package-1'])
@@ -88,7 +88,7 @@ class TestIntegration_tutorial_python_agents(unittest.TestCase):
             self.assertAlmostEqual(
                 self._expected_stress_ng_timeout_seconds,
                 host_data['Application Totals']['runtime (s)'],
-                places=1)
+                places=0)
             self.assertGreater(
                 host_data['Application Totals']['CPU_ENERGY@package-0'],
                 host_data['Application Totals']['CPU_ENERGY@package-1'])
