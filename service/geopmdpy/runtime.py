@@ -58,9 +58,10 @@ class TimedLoop:
                             units of seconds.
 
             num_period (int): Number of time periods spanned by the
-                              loop.  The total loop time is num_periods * period,
-                              but since there is no delay in the first loop, there
-                              will be num_period + 1 loop iterations.
+                              loop.  The total loop time is
+                              num_periods * period, but since there is
+                              no delay in the first loop, there will
+                              be num_period + 1 loop iterations.
 
         """
 
@@ -100,11 +101,70 @@ class TimedLoop:
         if self._loop_idx != 0:
             sleep_time = self._target_time - time.time()
             if sleep_time > 0:
-                time.sleep(sleep_time)
+                self.wait(sleep_time)
         self._target_time += self._period
         self._loop_idx += 1
         return result
 
+    def wait(self, timeout):
+        """Pass-through to time.sleep()
+
+            timeout (float): Target interval for the loop execution in
+                             units of seconds.
+        """
+        time.sleep(timeout)
+
+
+class PIDTimedLoop(TimedLoop):
+    def __init__(self, pid, period, num_period=None):
+        """Similar to the TimedLoop but stop when subprocess ends
+
+        The number of loops executed is one greater than the number of
+        time intervals requested, and that the first iteration is not
+        delayed.  The total amount of time spanned by the loop is the
+        product of the two input parameters.
+
+        To create an infinite loop, specify num_period is None.
+
+        Loop will always terminate when the subprocess pid terminates.
+
+        Args:
+            pid (Popen): Object returned by subprocess.Popen() constructor.
+
+            period (float): Target interval for the loop execution in
+                            units of seconds.
+
+            num_period (int): Number of time periods spanned by the
+                              loop.  The total loop time is
+                              num_periods * period, but since there is
+                              no delay in the first loop, there will
+                              be num_period + 1 loop iterations.
+
+        """
+
+        super(PIDTimedLoop, self).__init__(period, num_period)
+        self._pid = pid
+        self._is_active = pid.poll() is None
+
+    def wait(self, timeout):
+        """Wait for timeout seconds or until pid ends
+
+        Args:
+            timeout (float): Target interval for the loop execution in
+                             units of seconds.
+
+        Raises:
+            StopIteration: When last call to wait termintated due to
+                           the process ending
+
+        """
+        if not self._is_active:
+            raise StopIteration
+        try:
+            self._pid.wait(timeout=timeout)
+            self._is_active = False
+        except subprocess.TimeoutExpired:
+            pass
 
 class Agent:
     """Base class that documents the interfaces required by an agent
@@ -302,12 +362,12 @@ class Controller:
             self.push_all()
             pid = subprocess.Popen(argv)
             self._agent.run_begin(policy)
-            for loop_idx in TimedLoop(self._update_period, self._num_update):
-                if pid.poll() is not None:
-                    break
+            for loop_idx in PIDTimedLoop(pid, self._update_period, self._num_update):
                 pio.read_batch()
                 signals = self.read_all_signals()
                 new_settings = self._agent.update(signals)
+                if pid.poll() is not None:
+                    break
                 for control_idx, new_setting in zip(self._controls_idx, new_settings):
                     pio.adjust(control_idx, new_setting)
                 pio.write_batch()
