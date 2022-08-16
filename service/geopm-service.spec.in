@@ -224,8 +224,8 @@ ln -s /usr/sbin/service %{buildroot}%{_sbindir}/rcgeopm
 
 %files -n libgeopmd0
 %defattr(-,root,root,-)
-%{_libdir}/libgeopmd.so.0.0.0
-%{_libdir}/libgeopmd.so.0
+%{_libdir}/libgeopmd.so.1.0.0
+%{_libdir}/libgeopmd.so.1
 %dir %{_libdir}/geopm-service
 
 %files -n python%{python3_pkgversion}-geopmdpy

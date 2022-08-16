@@ -49,13 +49,13 @@ def get_dl_geopmpolicy():
 
 # Enforce load order of libgeopmpolicy.so and libgeopmd.so
 try:
-    _dl_geopmpolicy = gffi.dlopen('libgeopmpolicy.so.0',
+    _dl_geopmpolicy = gffi.dlopen('libgeopmpolicy.so.1',
                                   gffi.RTLD_GLOBAL|gffi.RTLD_LAZY)
 except OSError as err:
     _dl_geopmpolicy = err
 
 try:
-    _dl_geopmd =  gffi.dlopen('libgeopmd.so.0',
+    _dl_geopmd =  gffi.dlopen('libgeopmd.so.1',
                               gffi.RTLD_GLOBAL|gffi.RTLD_LAZY)
 except OSError as err:
     _dl_geopmd = err
