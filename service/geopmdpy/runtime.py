@@ -204,7 +204,7 @@ class Agent:
         """
         raise NotImplementedError('Agent is an abstract base class')
 
-    def run_begin(self, policy):
+    def run_begin(self, policy, profile):
         """Called by Controller at the start of each run
 
         The policy for the run is passed through to the agent from the
@@ -214,6 +214,8 @@ class Agent:
         Args:
             policy (object): The Agent specific policy provided to the
                              Controller.run() method.
+
+            profile (str): Profile name to associate with the report
 
         """
         raise NotImplementedError('Agent is an abstract base class')
@@ -265,7 +267,7 @@ class Agent:
         """
         raise NotImplementedError('Agent is an abstract base class')
 
-    def get_report(self, profile):
+    def get_report(self):
         """Summary of all data collected by calls to update()
 
         The report covers the interval of time between the last two calls to
@@ -273,9 +275,6 @@ class Agent:
         Agent.begin_run(), the same report will be returned by this method.
         The Controller.run() method will return this report upon completion of
         the run.
-
-        Args:
-            profile (str): Profile name to associate with the report
 
         Returns:
             str: Human readable report
@@ -357,11 +356,13 @@ class Controller:
 
         """
         sys.stderr.write('<geopmdpy> RUN BEGIN\n')
+        if profile is None:
+            profile = ' '.join([shlex.quote(arg) for arg in argv])
         try:
             pio.save_control()
             self.push_all()
             pid = subprocess.Popen(argv)
-            self._agent.run_begin(policy)
+            self._agent.run_begin(policy, profile)
             for loop_idx in PIDTimedLoop(pid, self._update_period, self._num_update):
                 pio.read_batch()
                 signals = self.read_all_signals()
@@ -378,6 +379,4 @@ class Controller:
             self._agent.run_end()
         self._returncode = pid.returncode
         sys.stderr.write(f'<geopmdpy> RUN END, return: {self._returncode}\n')
-        if profile is None:
-            profile = ' '.join([shlex.quote(arg) for arg in argv])
-        return self._agent.get_report(profile)
+        return self._agent.get_report()
