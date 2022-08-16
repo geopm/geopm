@@ -13,6 +13,8 @@ import sys
 import glob
 import sphinx_rtd_theme
 
+linkcheck_timeout = 1
+
 _docs_dir = os.path.dirname(__file__)
 _repo_dir = os.path.abspath(os.path.join(_docs_dir, '..', '..', '..'))
 _ext_dir = os.path.join(_docs_dir, '_ext')
