@@ -18,12 +18,6 @@ from types import SimpleNamespace
 
 import geopmpy.agent
 import geopmpy.io
-from yaml import load
-try:
-    from yaml import CSafeLoader as SafeLoader
-except ImportError:
-    from yaml import SafeLoader
-from collections import defaultdict
 
 from integration.test import util
 from integration.test import geopm_test_launcher
