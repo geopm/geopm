@@ -15,6 +15,7 @@ from integration.test import geopm_test_launcher
 from integration.test import util
 
 
+@unittest.skip("skipping, fixes are WIP")
 @util.skip_unless_do_launch()
 @util.skip_unless_stressng()
 class TestIntegration_tutorial_python_agents(unittest.TestCase):
