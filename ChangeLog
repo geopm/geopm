@@ -1,3 +1,9 @@
+* Tue Aug 16 2022 Christopher M Cantalupo <christopher.m.cantalupo@intel.com> v2.0.0+rc3
+- Release candidate 3 for version 2.0
+- This is a pre-release version of GEOPM that has all features that will be present in the v2.0.0 release.
+- No changes other than documentation and possible bug fixes are expected prior to v2.0.0.
+- This represents a code freeze and version 2.0 is anticipated soon after this release.
+- All feedback about this release candidate is appreciated: <https://geopm.github.io/contrib.html>
 * Fri Jul 1 2022 Christopher M Cantalupo <christopher.m.cantalupo@intel.com> v2.0.0+rc2
 - Release candidate 2 for version 2.0
 - This is a pre-release version of GEOPM that has all features that will be present in the v2.0.0 release.
