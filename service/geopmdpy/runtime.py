@@ -109,6 +109,7 @@ class TimedLoop:
     def wait(self, timeout):
         """Pass-through to time.sleep()
 
+        Args:
             timeout (float): Target interval for the loop execution in
                              units of seconds.
         """
