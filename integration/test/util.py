@@ -88,8 +88,6 @@ def skip_unless_workload_exists(path):
             os.path.dirname(
              os.path.dirname(os.path.realpath(__file__))),
             path)
-    print("path is {}".format(path))
-    print("path exists is {}".format(os.path.exists(path)))
     if not os.path.exists(path):
         return unittest.skip("Could not find workload executable {}, skipping test.".format(path))
 
