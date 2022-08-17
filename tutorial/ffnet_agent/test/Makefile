@@ -16,4 +16,4 @@ LocalNeuralNetTest.x: LocalNeuralNetTest.cpp
 	gcov ../LocalNeuralNet.cpp -o .
 
 clean:
-	rm -rf TensorOneDTest.x TensorTwoDTest.x *.gc*
+	rm -rf TensorOneDTest.x TensorTwoDTest.x LocalNeuralNetTest.x *.gc*
