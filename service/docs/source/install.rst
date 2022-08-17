@@ -25,7 +25,7 @@ branch is updated, the download repositories also provide
 distributions.
 
 Installing the ``geopm-service`` package will also install the
-``libgeopm1``, ``python3-geopmdpy`` and ``python3-dasbus`` dependency
+``libgeopmd1``, ``python3-geopmdpy`` and ``python3-dasbus`` dependency
 packages.  The ``geopm-service-devel`` package must be explicitly
 installed if it is required by the user.
 
@@ -42,13 +42,13 @@ following download repository pages:
 
 - Install Development Packages (``dev`` branch)
    + `geopm-service <https://software.opensuse.org/download.html?project=home%3Ageopm&package=geopm-service>`__
-   + `libgeopm1 <https://software.opensuse.org/download.html?project=home%3Ageopm&package=libgeopm1>`__
+   + `libgeopmd1 <https://software.opensuse.org/download.html?project=home%3Ageopm&package=libgeopmd1>`__
    + `python3-geopmdpy <https://software.opensuse.org/download.html?project=home%3Ageopm&package=python3-geopmdpy>`__
    + `geopm-service-devel <https://software.opensuse.org/download.html?project=home%3Ageopm&package=geopm-service-devel>`__
 
 - Install Release Candidate Packages (``release-v2.0-candidate`` branch)
    + `geopm-service <https://software.opensuse.org/download.html?project=home%3Ageopm%3Arelease-v2.0-candidate&package=geopm-service>`__
-   + `libgeopm1 <https://software.opensuse.org/download.html?project=home%3Ageopm%3Arelease-v2.0-candidate&package=libgeopm1>`__
+   + `libgeopmd1 <https://software.opensuse.org/download.html?project=home%3Ageopm%3Arelease-v2.0-candidate&package=libgeopmd1>`__
    + `python3-geopmdpy <https://software.opensuse.org/download.html?project=home%3Ageopm%3Arelease-v2.0-candidate&package=python3-geopmdpy>`__
    + `geopm-service-devel <https://software.opensuse.org/download.html?project=home%3Ageopm%3Arelease-v2.0-candidate&package=geopm-service-devel>`__
 
