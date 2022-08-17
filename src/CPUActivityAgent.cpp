@@ -320,7 +320,7 @@ namespace geopm
                 qm_max_itr = std::prev(qm_max_itr, 1);
             }
 
-            double qm_normalized = 1.0;
+            double scalability_uncore = 1.0;
 
             // Handle divided by zero, either numerator or
             // denominator being NAN, and the un-characterized case
@@ -328,7 +328,7 @@ namespace geopm
                 !std::isnan(qm_max_itr->second) &&
                 qm_max_itr->second != 0 &&
                 m_qm_max_rate.size() != 0) {
-                qm_normalized = (double) m_qm_rate.at(domain_idx).signal /
+                scalability_uncore = (double) m_qm_rate.at(domain_idx).signal /
                                          qm_max_itr->second;
             }
 
@@ -338,7 +338,6 @@ namespace geopm
             // A more robust/future proof solution may be to directly query uncore
             // counters that indicate utilization (when/if available).
             // For now only L3 bandwith metric is used.
-            double scalability_uncore = qm_normalized;
             double uncore_req = m_resolved_f_uncore_efficient + f_uncore_range * scalability_uncore;
 
             //Clip uncore request within policy limits
