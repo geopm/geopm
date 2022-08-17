@@ -17,6 +17,8 @@ class TensorTwoD
         TensorTwoD(const TensorTwoD&);
         ~TensorTwoD();
         void set_dim(int r, int c);
+        int get_rows();
+        int get_cols();
         TensorOneD operator*(const TensorOneD&);
         TensorOneD &operator[](int i);
         TensorOneD operator[](int i) const;

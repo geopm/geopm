@@ -16,6 +16,7 @@ class TensorOneD
         TensorOneD(const TensorOneD&);
         ~TensorOneD();
         void set_dim(int n);
+        int get_dim();
         TensorOneD operator+(const TensorOneD&);
         TensorOneD operator-(const TensorOneD&);
         float operator*(const TensorOneD&);

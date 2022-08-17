@@ -34,6 +34,11 @@ TensorOneD::~TensorOneD() {
     }
 }
 
+int
+TensorOneD::get_dim() {
+    return this->n;
+}
+
 void
 TensorOneD::set_dim(int n) {
     if (this->allocated) {

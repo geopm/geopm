@@ -51,6 +51,16 @@ TensorTwoD::set_dim(int r, int c) {
     this->allocated = true;
 }
 
+int
+TensorTwoD::get_rows() {
+    return this->r;
+}
+
+int
+TensorTwoD::get_cols() {
+    return this->c;
+}
+
 TensorOneD
 TensorTwoD::operator*(const TensorOneD& that) {
     TensorOneD rval(this->r);
