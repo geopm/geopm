@@ -67,7 +67,7 @@ namespace geopm
             m_core_scal.push_back({m_platform_io.push_signal("MSR::CPU_SCALABILITY_RATIO",
                                                              GEOPM_DOMAIN_CORE,
                                                              domain_idx), NAN});
-            m_core_freq_control.push_back({m_platform_io.push_control("CPU_FREQUENCY_CONTROL",
+            m_core_freq_control.push_back({m_platform_io.push_control("CPU_FREQUENCY_MAX_CONTROL",
                                                                       GEOPM_DOMAIN_CORE,
                                                                       domain_idx), -1});
         }
@@ -310,7 +310,7 @@ namespace geopm
 
         //m_resolved_f_uncore_efficient = 0;
         for (int domain_idx = 0; domain_idx < M_NUM_PACKAGE; ++domain_idx) {
-            double uncore_freq = (double) m_uncore_freq_status.at(domain_idx).signal;
+            double uncore_freq = (double) m_uncore_freq_status.at(domain_idx).value;
 
             /////////////////////////////////////////////
             // L3 Total External Bandwidth Measurement //
@@ -324,11 +324,11 @@ namespace geopm
 
             // Handle divided by zero, either numerator or
             // denominator being NAN, and the un-characterized case
-            if (!std::isnan(m_qm_rate.at(domain_idx).signal) &&
+            if (!std::isnan(m_qm_rate.at(domain_idx).value) &&
                 !std::isnan(qm_max_itr->second) &&
                 qm_max_itr->second != 0 &&
                 m_qm_max_rate.size() != 0) {
-                scalability_uncore = (double) m_qm_rate.at(domain_idx).signal /
+                scalability_uncore = (double) m_qm_rate.at(domain_idx).value /
                                          qm_max_itr->second;
             }
 
@@ -356,7 +356,7 @@ namespace geopm
             //////////////////////////////////
             // Core Scalability Measurement //
             //////////////////////////////////
-            double scalability = (double) m_core_scal.at(domain_idx).signal;
+            double scalability = (double) m_core_scal.at(domain_idx).value;
             if (std::isnan(scalability)) {
                 scalability = 1.0;
             }
@@ -426,15 +426,15 @@ namespace geopm
         // Collect latest signal values
         for (int domain_idx = 0; domain_idx < M_NUM_PACKAGE; ++domain_idx) {
             // Frequency signals
-            m_uncore_freq_status.at(domain_idx).signal = m_platform_io.sample(m_uncore_freq_status.at(domain_idx).batch_idx);
+            m_uncore_freq_status.at(domain_idx).value = m_platform_io.sample(m_uncore_freq_status.at(domain_idx).batch_idx);
 
             // Uncore steering signals
-            m_qm_rate.at(domain_idx).signal = m_platform_io.sample(m_qm_rate.at(domain_idx).batch_idx);
+            m_qm_rate.at(domain_idx).value = m_platform_io.sample(m_qm_rate.at(domain_idx).batch_idx);
         }
 
         for (int domain_idx = 0; domain_idx < M_NUM_CORE; ++domain_idx) {
             // Core steering signals
-            m_core_scal.at(domain_idx).signal = m_platform_io.sample(m_core_scal.at(domain_idx).batch_idx);
+            m_core_scal.at(domain_idx).value = m_platform_io.sample(m_core_scal.at(domain_idx).batch_idx);
         }
     }
 
