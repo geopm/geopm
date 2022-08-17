@@ -109,7 +109,7 @@ void CPUActivityAgentTest::SetUp()
     EXPECT_CALL(*m_platform_io, push_signal("CPU_UNCORE_FREQUENCY_STATUS", _, _)).Times(1);
 
     // Controls
-    ON_CALL(*m_platform_io, push_control("CPU_FREQUENCY_CONTROL", _, _))
+    ON_CALL(*m_platform_io, push_control("CPU_FREQUENCY_MAX_CONTROL", _, _))
         .WillByDefault(Return(CPU_FREQUENCY_CONTROL_IDX));
     ON_CALL(*m_platform_io, push_control("CPU_UNCORE_FREQUENCY_MIN_CONTROL", _, _))
         .WillByDefault(Return(CPU_UNCORE_MIN_CONTROL_IDX));
@@ -118,7 +118,7 @@ void CPUActivityAgentTest::SetUp()
     ON_CALL(*m_platform_io, agg_function(_))
         .WillByDefault(Return(geopm::Agg::average));
 
-    EXPECT_CALL(*m_platform_io, push_control("CPU_FREQUENCY_CONTROL", _, _)).Times(1);
+    EXPECT_CALL(*m_platform_io, push_control("CPU_FREQUENCY_MAX_CONTROL", _, _)).Times(1);
     EXPECT_CALL(*m_platform_io, push_control("CPU_UNCORE_FREQUENCY_MIN_CONTROL", _, _)).Times(1);
     EXPECT_CALL(*m_platform_io, push_control("CPU_UNCORE_FREQUENCY_MAX_CONTROL", _, _)).Times(1);
 
@@ -127,7 +127,7 @@ void CPUActivityAgentTest::SetUp()
     m_cpu_uncore_freq_min = 1200000000.0;
     m_cpu_uncore_freq_max = 2400000000.0;
 
-    ON_CALL(*m_platform_io, control_domain_type("CPU_FREQUENCY_CONTROL"))
+    ON_CALL(*m_platform_io, control_domain_type("CPU_FREQUENCY_MAX_CONTROL"))
         .WillByDefault(Return(GEOPM_DOMAIN_CPU));
     ON_CALL(*m_platform_io, signal_domain_type("MSR::CPU_SCALABILITY_RATIO"))
         .WillByDefault(Return(GEOPM_DOMAIN_CPU));

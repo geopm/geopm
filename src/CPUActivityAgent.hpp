@@ -61,8 +61,7 @@ namespace geopm
             struct signal
             {
                 int batch_idx;
-                double signal;
-                double sample;
+                double value;
             };
 
             struct control
