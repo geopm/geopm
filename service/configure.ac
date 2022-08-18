@@ -190,7 +190,7 @@ fi
 AC_ARG_WITH([levelzero], [AS_HELP_STRING([--with-levelzero=PATH],
             [specify directory for installed levelzero package.])])
 if test "x$with_levelzero" != x; then
-  EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$with_levelzero/include/level_zero"
+  EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$with_levelzero/include"
   LD_LIBRARY_PATH="$with_levelzero/lib64:$LD_LIBRARY_PATH"
   EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_levelzero/lib64"
 fi
@@ -274,15 +274,17 @@ if test "x$enable_nvml" = "x1" ; then
         echo "missing nvml.h: NVML header is required, use --with-nvml to specify install prefix for NVML path"
         exit -1])
 else
+    AC_LANG_PUSH([C++])
     if test "x$enable_levelzero" = "x1" ; then
         AC_SEARCH_LIBS([zeInit], [ze_loader])
         AC_CHECK_LIB([ze_loader], [zeInit], [], [
             echo "missing libze_loader: LevelZero library is required, use --with-levelzero to specify location"
             exit -1])
-        AC_CHECK_HEADER([ze_api.h], [], [
+        AC_CHECK_HEADER([level_zero/ze_api.h], [], [
             echo "missing ze_api.h: LevelZero header is required, use --with-levelzero to specify location"
             exit -1])
     fi
+    AC_LANG_POP([C++])
 fi
 
 AC_CHECK_HEADERS([fcntl.h limits.h stddef.h stdint.h stdlib.h string.h sys/ioctl.h unistd.h])
