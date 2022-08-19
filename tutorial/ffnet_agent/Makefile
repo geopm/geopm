@@ -13,7 +13,7 @@ GEOPM_PLUGIN_FLAGS=-fPIC -shared
 #MPICC ?= mpicc
 #MPICXX ?= mpicxx
 
-all: $(TUTORIAL_LIB) test
+all: $(TUTORIAL_LIB)
 
 GEOPM_BIN=$(GEOPM_INSTALL)/bin
 GEOPM_LIB=$(GEOPM_INSTALL)/lib
@@ -38,10 +38,7 @@ TensorTwoD.o: TensorTwoD.cpp TensorTwoD.hpp TensorOneD.hpp
 LocalNeuralNet.o: LocalNeuralNet.cpp LocalNeuralNet.hpp TensorOneD.hpp TensorTwoD.hpp
 	$(CXX) $(CXXFLAGS) $(GEOPM_PLUGIN_FLAGS) -c LocalNeuralNet.cpp -o $@
 
-test: test.cpp LocalNeuralNet.o TensorOneD.o TensorTwoD.o
-	$(CXX) $(CXXFLAGS) LocalNeuralNet.o test.cpp TensorOneD.o TensorTwoD.o -o $@
-
 clean:
-	rm -f $(TUTORIAL_LIB) *.o test
+	rm -f $(TUTORIAL_LIB) *.o 
 
 .PHONY: all clean check
