@@ -63,8 +63,14 @@ namespace geopm
         if (m_num_signal == 0) {
             return {};
         }
-        m_batch_status->send_message(BatchStatus::M_MESSAGE_READ);
-        m_batch_status->receive_message(BatchStatus::M_MESSAGE_CONTINUE);
+        try {
+            m_batch_status->send_message(BatchStatus::M_MESSAGE_READ);
+            m_batch_status->receive_message(BatchStatus::M_MESSAGE_CONTINUE);
+        } catch (const Exception &ex) {
+            throw Exception("BatchClient::" + std::string(__func__) + " The server is unresponsive",
+                errno ? errno : GEOPM_ERROR_RUNTIME,
+                __FILE__, __LINE__);
+        }
         double *buffer = (double *)m_signal_shmem->pointer();
         std::vector<double> result(buffer, buffer + m_num_signal);
         return result;
@@ -81,8 +87,14 @@ namespace geopm
         }
         double *buffer = (double *)m_control_shmem->pointer();
         std::copy(settings.begin(), settings.end(), buffer);
-        m_batch_status->send_message(BatchStatus::M_MESSAGE_WRITE);
-        m_batch_status->receive_message(BatchStatus::M_MESSAGE_CONTINUE);
+        try {
+            m_batch_status->send_message(BatchStatus::M_MESSAGE_WRITE);
+            m_batch_status->receive_message(BatchStatus::M_MESSAGE_CONTINUE);
+        } catch (const Exception &ex) {
+            throw Exception("BatchClient::" + std::string(__func__) + " The server is unresponsive",
+                errno ? errno : GEOPM_ERROR_RUNTIME,
+                __FILE__, __LINE__);
+        }
     }
 
     void BatchClientImp::stop_batch(void)
@@ -90,7 +102,13 @@ namespace geopm
         // Note that all requests sent to the batch server block on
         // the client side until the server has completed the
         // request. This is even true for the request to quit.
-        m_batch_status->send_message(BatchStatus::M_MESSAGE_QUIT);
-        m_batch_status->receive_message(BatchStatus::M_MESSAGE_QUIT);
+        try {
+            m_batch_status->send_message(BatchStatus::M_MESSAGE_QUIT);
+            m_batch_status->receive_message(BatchStatus::M_MESSAGE_QUIT);
+        } catch (const Exception &ex) {
+            throw Exception("BatchClient::" + std::string(__func__) + " The server is unresponsive",
+                errno ? errno : GEOPM_ERROR_RUNTIME,
+                __FILE__, __LINE__);
+        }
     }
 }

@@ -550,9 +550,11 @@ TEST_F(BatchServerTest, receive_message_exception)
             return '\0';
         });
 
+    // The expected error message is different because the BatchServer handles and rethrows
+    // any exceptions that are generated in the helper APIs.
     GEOPM_EXPECT_THROW_MESSAGE(m_batch_server->run_batch(),
-                               EINTR,
-                               "BatchStatusImp: System call failed: read(2)");
+                               GEOPM_ERROR_RUNTIME,
+                               "BatchServer::read_message The client is unresponsive");
 }
 
 /**
@@ -598,9 +600,11 @@ TEST_F(BatchServerTest, write_message_exception)
         .Times(1)
         .RetiresOnSaturation();
 
+    // The expected error message is different because the BatchServer handles and rethrows
+    // any exceptions that are generated in the helper APIs.
     GEOPM_EXPECT_THROW_MESSAGE(m_batch_server->run_batch(),
-                               EINTR,
-                               "BatchStatusImp: System call failed: write(2)");
+                               GEOPM_ERROR_RUNTIME,
+                               "<geopm> Runtime error: BatchServer::write_message The client is unresponsive");
 }
 
 /**
