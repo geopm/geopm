@@ -1,0 +1,357 @@
+From d6c40259363c1a9741875cb379397e59a384fee2 Mon Sep 17 00:00:00 2001
+From: Daniel Wilson <daniel1.wilson@intel.com>
+Date: Mon, 10 Jan 2022 20:57:06 -0500
+Subject: [PATCH] Add geopm markup to build intsort
+
+#  Copyright (c) 2015 - 2022, Intel Corporation
+#  SPDX-License-Identifier: BSD-3-Clause
+#
+---
+ NPB3.4-MPI/IS/is.c          |  74 ++++++++++++----
+ NPB3.4-MPI/config/make.def  | 163 ++++++++++++++++++++++++++++++++++++
+ NPB3.4-MPI/config/suite.def |  22 +++++
+ 3 files changed, 242 insertions(+), 17 deletions(-)
+ create mode 100644 NPB3.4-MPI/config/make.def
+ create mode 100644 NPB3.4-MPI/config/suite.def
+
+diff --git a/NPB3.4-MPI/IS/is.c b/NPB3.4-MPI/IS/is.c
+index e7227ae..f155108 100644
+--- a/NPB3.4-MPI/IS/is.c
++++ b/NPB3.4-MPI/IS/is.c
+@@ -45,6 +45,9 @@
+ #include <stdio.h>
+ #include <string.h>
+ 
++#include "geopm_prof.h"
++#include "geopm_hint.h"
++
+ /******************/
+ /* default values */
+ /******************/
+@@ -254,6 +257,9 @@ INT_TYPE *key_array,
+ int      *send_count, *recv_count,
+          *send_displ, *recv_displ;
+ 
++// Send profiling updates every 16 MiB of integers processed
++static const unsigned PROFILE_STEP_SIZE = (1<<24) / sizeof(key_array[0]);
++uint64_t count_keys_region_id, bucket_sort_region_id, create_seq_region_id;
+ 
+ /**********************/
+ /* Partial verif info */
+@@ -535,19 +541,29 @@ double   find_my_seed( int  kn,       /* my processor rank, 0<=kn<=num procs */
+ void	create_seq( double seed, double a )
+ {
+ 	double x;
+-	int    i, k;
++	int    ii, i, k;
+ 
+         k = MAX_KEY/4;
+ 
+-	for (i=0; i<num_keys; i++)
+-	{
+-	    x = randlc(&seed, &a);
+-	    x += randlc(&seed, &a);
+-    	    x += randlc(&seed, &a);
+-	    x += randlc(&seed, &a);  
++    geopm_prof_enter(create_seq_region_id);
++    geopm_tprof_init(num_keys / PROFILE_STEP_SIZE);
++    for ( ii=0; ii<num_keys; ii+=PROFILE_STEP_SIZE )
++    {
++        const size_t LIMIT = (ii + PROFILE_STEP_SIZE < num_keys)
++                                 ? ii + PROFILE_STEP_SIZE
++                                 : num_keys;
++        for (i=ii; i<LIMIT; i++)
++        {
++            x = randlc(&seed, &a);
++            x += randlc(&seed, &a);
++                x += randlc(&seed, &a);
++            x += randlc(&seed, &a);  
+ 
+-            key_array[i] = k*x;
+-	}
++                key_array[i] = k*x;
++        }
++        geopm_tprof_post();
++    }
++    geopm_prof_exit(create_seq_region_id);
+ }
+ 
+ 
+@@ -630,8 +646,7 @@ void full_verify( void )
+ 
+ void rank( int iteration )
+ {
+-
+-    INT_TYPE    i, k;
++    INT_TYPE    ii, i, k;
+ 
+     INT_TYPE    shift = MAX_KEY_LOG_2 - NUM_BUCKETS_LOG_2;
+     INT_TYPE    key;
+@@ -681,12 +696,22 @@ void rank( int iteration )
+         bucket_ptrs[i] = bucket_ptrs[i-1] + bucket_size[i-1];
+ 
+ 
++    geopm_prof_enter(bucket_sort_region_id);
+ /*  Sort into appropriate bucket */
+-    for( i=0; i<num_keys; i++ )  
++    geopm_tprof_init(num_keys / PROFILE_STEP_SIZE);
++    for ( ii=0; ii<num_keys; ii+=PROFILE_STEP_SIZE )
+     {
+-        key = key_array[i];
+-        key_buff1[bucket_ptrs[key >> shift]++] = key;
++        const size_t LIMIT = (ii + PROFILE_STEP_SIZE < num_keys)
++                                 ? ii + PROFILE_STEP_SIZE
++                                 : num_keys;
++        for( i=ii; i<LIMIT; i++ )  
++        {
++            key = key_array[i];
++            key_buff1[bucket_ptrs[key >> shift]++] = key;
++        }
++        geopm_tprof_post();
+     }
++    geopm_prof_exit(bucket_sort_region_id);
+ 
+     TIMER_STOP( T_RANK );
+     TIMER_START( T_RCOMM );
+@@ -818,9 +843,19 @@ void rank( int iteration )
+ /*  In this section, the keys themselves are used as their 
+     own indexes to determine how many of each there are: their
+     individual population                                       */
+-    for( i=0; i<j; i++ )
+-        key_buff_ptr[key_buff2[i]]++;  /* Now they have individual key   */
+-                                       /* population                     */
++    geopm_prof_enter(count_keys_region_id);
++    (void)geopm_tprof_init(j / PROFILE_STEP_SIZE);
++    for ( ii=0; ii<j; ii+=PROFILE_STEP_SIZE )
++    {
++        const size_t LIMIT = (ii + PROFILE_STEP_SIZE < j)
++                                 ? ii + PROFILE_STEP_SIZE
++                                 : j;
++        for( i=ii; i<LIMIT; i++ )
++            key_buff_ptr[key_buff2[i]]++;  /* Now they have individual key   */
++                                           /* population                     */
++        (void)geopm_tprof_post();
++    }
++    geopm_prof_exit(count_keys_region_id);
+ 
+ /*  To obtain ranks of each key, successively add the individual key
+     population, not forgetting the total of lesser keys, m.
+@@ -945,6 +980,10 @@ int main( int argc, char **argv )
+     MPI_Comm_rank( MPI_COMM_WORLD, &my_rank );
+     MPI_Comm_size( MPI_COMM_WORLD, &np_total );
+ 
++    geopm_prof_region("count_keys", GEOPM_REGION_HINT_UNKNOWN, &count_keys_region_id);
++    geopm_prof_region("bucket_sort", GEOPM_REGION_HINT_UNKNOWN, &bucket_sort_region_id);
++    geopm_prof_region("create_seq", GEOPM_REGION_HINT_UNKNOWN, &create_seq_region_id);
++
+ 
+ /*  Check to see whether total number of processes is within bounds.
+     This could in principle be checked in setparams.c, but it is more
+@@ -1096,6 +1135,7 @@ int main( int argc, char **argv )
+     {
+         if( my_rank == 0 && CLASS != 'S' ) printf( "        %d\n", iteration );
+         rank( iteration );
++        geopm_prof_epoch();
+     }
+ 
+ 
+diff --git a/NPB3.4-MPI/config/make.def b/NPB3.4-MPI/config/make.def
+new file mode 100644
+index 0000000..9265d07
+--- /dev/null
++++ b/NPB3.4-MPI/config/make.def
+@@ -0,0 +1,163 @@
++#---------------------------------------------------------------------------
++#
++#                SITE- AND/OR PLATFORM-SPECIFIC DEFINITIONS. 
++#
++#---------------------------------------------------------------------------
++
++#---------------------------------------------------------------------------
++# Items in this file will need to be changed for each platform.
++#---------------------------------------------------------------------------
++
++#---------------------------------------------------------------------------
++# Parallel Fortran:
++#
++# For CG, EP, FT, MG, LU, SP and BT, which are in Fortran, the following must 
++# be defined:
++#
++# MPIFC      - Fortran compiler
++# FFLAGS     - Fortran compilation arguments
++# FMPI_INC   - any -I arguments required for compiling MPI/Fortran 
++# FLINK      - Fortran linker
++# FLINKFLAGS - Fortran linker arguments
++# FMPI_LIB   - any -L and -l arguments required for linking MPI/Fortran 
++# 
++# compilations are done with $(MPIFC) $(FMPI_INC) $(FFLAGS) or
++#                            $(MPIFC) $(FFLAGS)
++# linking is done with       $(FLINK) $(FMPI_LIB) $(FLINKFLAGS)
++#---------------------------------------------------------------------------
++
++#---------------------------------------------------------------------------
++# This is the fortran compiler used for MPI programs
++#---------------------------------------------------------------------------
++MPIFC = $(MPIF90)
++# This links MPI fortran programs; usually the same as ${MPIFC}
++FLINK	= $(MPIFC)
++
++#---------------------------------------------------------------------------
++# These macros are passed to the linker to help link with MPI correctly
++#---------------------------------------------------------------------------
++FMPI_LIB =
++
++#---------------------------------------------------------------------------
++# These macros are passed to the compiler to help find 'mpif.h'
++#---------------------------------------------------------------------------
++FMPI_INC = -I$(GEOPM_INC)
++
++#---------------------------------------------------------------------------
++# Global *compile time* flags for Fortran programs
++#---------------------------------------------------------------------------
++FFLAGS	= -O3 $(GEOPM_FFLAGS)
++
++#---------------------------------------------------------------------------
++# Global *link time* flags. Flags for increasing maximum executable 
++# size usually go here. 
++#---------------------------------------------------------------------------
++FLINKFLAGS = $(FFLAGS) $(GEOPM_LDFLAGS) $(GEOPM_FORTRAN_LDLIBS)
++
++
++#---------------------------------------------------------------------------
++# Parallel C:
++#
++# For IS, which is in C, the following must be defined:
++#
++# MPICC      - C compiler 
++# CFLAGS     - C compilation arguments
++# CMPI_INC   - any -I arguments required for compiling MPI/C 
++# CLINK      - C linker
++# CLINKFLAGS - C linker flags
++# CMPI_LIB   - any -L and -l arguments required for linking MPI/C 
++#
++# compilations are done with $(MPICC) $(CMPI_INC) $(CFLAGS) or
++#                            $(MPICC) $(CFLAGS)
++# linking is done with       $(CLINK) $(CMPI_LIB) $(CLINKFLAGS)
++#---------------------------------------------------------------------------
++
++#---------------------------------------------------------------------------
++# This is the C compiler used for MPI programs
++#---------------------------------------------------------------------------
++CC = $(MPICC)
++# This links MPI C programs; usually the same as ${MPICC}
++CLINK	= $(CC)
++
++#---------------------------------------------------------------------------
++# These macros are passed to the linker to help link with MPI correctly
++#---------------------------------------------------------------------------
++CMPI_LIB =
++
++#---------------------------------------------------------------------------
++# These macros are passed to the compiler to help find 'mpi.h'
++#---------------------------------------------------------------------------
++CMPI_INC =
++
++#---------------------------------------------------------------------------
++# Global *compile time* flags for C programs
++#---------------------------------------------------------------------------
++CFLAGS	= -O3 $(GEOPM_CFLAGS)
++
++#---------------------------------------------------------------------------
++# Global *link time* flags. Flags for increasing maximum executable 
++# size usually go here. 
++#---------------------------------------------------------------------------
++CLINKFLAGS = $(CFLAGS) $(GEOPM_LDFLAGS) $(GEOPM_LDLIBS)
++
++
++#---------------------------------------------------------------------------
++# MPI dummy library:
++#
++# Uncomment if you want to use the MPI dummy library supplied by NAS instead 
++# of the true message-passing library. The include file redefines several of
++# the above macros. It also invokes make in subdirectory MPI_dummy. Make 
++# sure that no spaces or tabs precede include.
++#---------------------------------------------------------------------------
++# include ../config/make.dummy
++
++
++#---------------------------------------------------------------------------
++# Utilities C:
++#
++# This is the C compiler used to compile C utilities.  Flags required by 
++# this compiler go here also; typically there are few flags required; hence 
++# there are no separate macros provided for such flags.
++#---------------------------------------------------------------------------
++CC	= $(MPICC) -g
++
++
++#---------------------------------------------------------------------------
++# Destination of executables, relative to subdirs of the main directory. . 
++#---------------------------------------------------------------------------
++BINDIR	= ../bin
++
++
++#---------------------------------------------------------------------------
++# Some machines (e.g. Crays) have 128-bit DOUBLE PRECISION numbers, which
++# is twice the precision required for the NPB suite. A compiler flag 
++# (e.g. -dp) can usually be used to change DOUBLE PRECISION variables to
++# 64 bits, but the MPI library may continue to send 128 bits. Short of
++# recompiling MPI, the solution is to use MPI_REAL to send these 64-bit
++# numbers, and MPI_COMPLEX to send their complex counterparts. Uncomment
++# the following line to enable this substitution. 
++# 
++# NOTE: IF THE I/O BENCHMARK IS BEING BUILT, WE USE CONVERTFLAG TO
++#       SPECIFIY THE FORTRAN RECORD LENGTH UNIT. IT IS A SYSTEM-SPECIFIC
++#       VALUE (USUALLY 1 OR 4). UNCOMMENT THE SECOND LINE AND SUBSTITUTE
++#       THE CORRECT VALUE FOR "length".
++#       IF BOTH 128-BIT DOUBLE PRECISION NUMBERS AND I/O ARE TO BE ENABLED,
++#       UNCOMMENT THE THIRD LINE AND SUBSTITUTE THE CORRECT VALUE FOR
++#       "length"
++#---------------------------------------------------------------------------
++# CONVERTFLAG	= -DCONVERTDOUBLE
++# CONVERTFLAG	= -DFORTRAN_REC_SIZE=length
++# CONVERTFLAG	= -DCONVERTDOUBLE -DFORTRAN_REC_SIZE=length
++CONVERTFLAG	= -DFORTRAN_REC_SIZE=0
++
++
++#---------------------------------------------------------------------------
++# The variable RAND controls which random number generator 
++# is used. It is described in detail in README.install. 
++# Use "randi8" unless there is a reason to use another one. 
++# Other allowed values are "randi8_safe", "randdp" and "randdpvec"
++#---------------------------------------------------------------------------
++RAND   = randi8
++# The following is highly reliable but may be slow:
++# RAND   = randdp
++
+diff --git a/NPB3.4-MPI/config/suite.def b/NPB3.4-MPI/config/suite.def
+new file mode 100644
+index 0000000..3e5bcd7
+--- /dev/null
++++ b/NPB3.4-MPI/config/suite.def
+@@ -0,0 +1,22 @@
++# config/suite.def
++# This file is used to build several benchmarks with a single command. 
++# Typing "make suite" in the main directory will build all the benchmarks
++# specified in this file. 
++# Each line of this file contains a benchmark name, class, and number
++# of nodes. The name is one of "cg", "is", "ep", mg", "ft", "sp", "bt", 
++# "lu", and "dt". 
++# The class is one of "S", "W", "A", "B", "C", "D", and "E"
++# (except that no classes C, D and E for DT, and no class E for IS).
++# The number of nodes must be a legal number for a particular
++# benchmark. The utility which parses this file is primitive, so
++# formatting is inflexible. Separate name/class by tabs. 
++# Comments start with "#" as the first character on a line. 
++# No blank lines. 
++# The following example builds sample sizes of all benchmarks. 
++is	S
++is	W
++is	A
++is	B
++is	C
++is	D
++is	E
+-- 
+2.31.0
+
