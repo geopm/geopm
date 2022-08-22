@@ -22,5 +22,6 @@ include apps/parres/Makefile.mk
 include apps/pennant/Makefile.mk
 include apps/qe/Makefile.mk
 include apps/nasbt/Makefile.mk
+include apps/nascg/Makefile.mk
 include apps/nasft2/Makefile.mk
 include apps/nasis/Makefile.mk
