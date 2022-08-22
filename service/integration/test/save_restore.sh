@@ -56,4 +56,7 @@ restore_control() {
 
 cleanup_resources() {
     rm "${TEST_ERROR}"
+    if [ ! -z "${SESSION_PID}" ]; then
+        sudo check_session_clean.sh ${SESSION_PID}
+    fi
 }
