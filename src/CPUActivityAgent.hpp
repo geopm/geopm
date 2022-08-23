@@ -93,8 +93,12 @@ namespace geopm
 
             double m_core_frequency_requests;
             double m_uncore_frequency_requests;
+            double m_core_frequency_clipped;
+            double m_uncore_frequency_clipped;
             double m_freq_uncore_min;
             double m_freq_uncore_max;
+            double m_freq_core_min;
+            double m_freq_core_max;
             double m_resolved_f_uncore_efficient;
             double m_resolved_f_uncore_max;
             double m_resolved_f_core_efficient;
