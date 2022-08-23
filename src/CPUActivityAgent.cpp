@@ -91,7 +91,7 @@ namespace geopm
                                               domain_idx), -1});
         }
 
-        //Configuration of QM_CTR must match QM_CTR config used for training data
+        // Configuration of QM_CTR must match QM_CTR config used for training data
         m_platform_io.write_control("MSR::PQR_ASSOC:RMID", GEOPM_DOMAIN_BOARD, 0, 0);
         m_platform_io.write_control("MSR::QM_EVTSEL:RMID", GEOPM_DOMAIN_BOARD, 0, 0);
         m_platform_io.write_control("MSR::QM_EVTSEL:EVENT_ID", GEOPM_DOMAIN_BOARD, 0, 2);
@@ -157,6 +157,9 @@ namespace geopm
             in_policy[M_POLICY_UNCORE_FREQ_EFFICIENT] = m_freq_uncore_min;
         }
 
+        // When the policy is all NaNs, this check also verifies that
+        // the system was not left in a bad state with regard to the
+        // UNCORE_FREQUENCY_<MAX/MIN>_CONTROLs.
         if (in_policy[M_POLICY_UNCORE_FREQ_EFFICIENT] > in_policy[M_POLICY_UNCORE_FREQ_MAX]) {
             throw Exception("CPUActivityAgent::" + std::string(__func__) +
                             "():CPU_UNCORE_FREQ_EFFICIENT (" +
@@ -308,7 +311,6 @@ namespace geopm
         m_resolved_f_uncore_max = in_policy[M_POLICY_UNCORE_FREQ_MAX];
         double f_uncore_range = in_policy[M_POLICY_UNCORE_FREQ_MAX] - in_policy[M_POLICY_UNCORE_FREQ_EFFICIENT];
 
-        //m_resolved_f_uncore_efficient = 0;
         for (int domain_idx = 0; domain_idx < M_NUM_PACKAGE; ++domain_idx) {
             double uncore_freq = (double) m_uncore_freq_status.at(domain_idx).value;
 
