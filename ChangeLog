@@ -1,3 +1,22 @@
+* Wed Aug 24 2022 Christopher M Cantalupo <christopher.m.cantalupo@intel.com> v2.0.0
+- Official v2.0.0 release tag.
+- Provides the GEOPM Systemd Service.
+- Removes Python 2 support, only supporting Python 3.
+- Support for GPUs from Intel and NVIDIA.
+- Support for the isst_interface driver.
+- Support for new server processors including Sky Lake, Cascade Lake and Ice Lake.
+- Support for Cray Linux energy counters.
+- Higher performance / lower latency profile interface.
+- More consistent naming scheme for PlatformIO signals and controls.
+- Extended set of signals and controls provided by PlatformIO.
+- Removed msr-safe requirement though GEOPM Service features.
+- Support for new HPC runtime launchers.
+- Flexible YAML report generation and parsing that may contain arbitrary content.
+- Extended python interface support including Reporter features.
+- Python based agents for prototyping runtime algorithms that do not require application feedback.
+- Removed Energy Efficient Agent (will be replace in a future release).
+- Documentation and web page improvements.
+- Other improvements and feature additions.
 * Tue Aug 16 2022 Christopher M Cantalupo <christopher.m.cantalupo@intel.com> v2.0.0+rc3
 - Release candidate 3 for version 2.0
 - This is a pre-release version of GEOPM that has all features that will be present in the v2.0.0 release.
