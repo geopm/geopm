@@ -121,17 +121,20 @@ the `geopm` packages.
 Status
 ------
 
+GEOPM version 2.0 provides a number of important changes since the
+previous tagged release v1.1.0.  Some of the most significant new
+features are the GEOPM Service, support for Intel and NVIDIA GPUs, and
+improved consistency of signal and control names provided by
+PlatformIO.  A wide range of other improvements have also been made,
+including a higher performance profiling interface to support highly
+parallel applications, and support for the ``isst_interface`` driver.
+
 This software is production quality as of version 1.0.  We will be
 enforcing [semantic versioning](https://semver.org/) for all releases
-following version 1.0.  We are very interested in feedback from the
-community.  Refer to the ChangeLog a high level history of changes in
-each release.  See
-[github issues page](https://github.com/geopm/geopm/issues)
-for information about ongoing work and please provide feedback by
-opening issues.  Test coverage by unit tests is lacking for some files
-and will continue to be improved.  The line coverage results from gcov
-as reported by gcovr for the latest release can be found
-[here](http://geopm.github.io/coverage/index.html)
+following version 1.0. Plese refer to the ChangeLog for a high level
+history of changes in each release.  The test coverage report from
+gcov as reported by gcovr for the latest release are
+[posted to our web page](http://geopm.github.io/coverage/index.html).
 
 Some new features of GEOPM are still under development, and their
 interfaces may change before they are included in official releases.
@@ -140,6 +143,9 @@ GEOPM with the `--enable-beta` configure flag.  The features currently
 considered unfinalized are the endpoint interface, and the
 `geopmendpoint` application.
 
+The GEOPM developers are very interested in feedback from the
+community.  See the [contributing guide](CONTRIBUTING.md) to learn how
+to provide feedback.
 
 License
 -------
@@ -150,7 +156,7 @@ SEE COPYING FILE FOR LICENSE INFORMATION.
 
 Last Update
 -----------
-2022 August 16
+2022 August 23
 
 Christopher Cantalupo <christopher.m.cantalupo@intel.com> <br>
 Brad Geltz <brad.geltz@intel.com> <br>
