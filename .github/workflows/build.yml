@@ -10,10 +10,12 @@ on:
     branches:
       - dev
       - release-v2.0-candidate
+      - release-v2.0
   pull_request:
     branches:
       - dev
       - release-v2.0-candidate
+      - release-v2.0
 
 concurrency:
   group: ci-${{ github.ref }}-${{ github.head_ref }}
@@ -118,7 +120,7 @@ jobs:
            echo -e "[general]\n\n[https://api.opensuse.org]\ncredentials_mgr_class=osc.credentials.ObfuscatedConfigFileCredentialsManager" > ~/.oscrc
            echo "user = ${{ github.repository_owner }}" >> ~/.oscrc
            echo "pass = ${{ secrets.OSC_CREDENTIALS }}" >> ~/.oscrc
-           if [[ "${{ github.ref_name }}" == "release-v2.0-candidate" ]]; then
+           if [[ "${{ github.ref_name }}" == "release-v2.0-candidate" ]] || [[ "${{ github.ref_name }}" == "release-v2.0" ]]; then
                echo "OSC_PACKAGE=home:${{ github.repository_owner }}:${{ github.ref_name }}/geopm-service" >> ${GITHUB_ENV}
            else
                echo "OSC_PACKAGE=home:${{ github.repository_owner }}/geopm-service" >> ${GITHUB_ENV}
