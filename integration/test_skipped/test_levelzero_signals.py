@@ -1,35 +1,9 @@
 #!/usr/bin/env python
 #
-#  Copyright (c) 2015 - 2021, Intel Corporation
+#  Copyright (c) 2015 - 2022, Intel Corporation
+#  SPDX-License-Identifier: BSD-3-Clause
 #
-#  Redistribution and use in source and binary forms, with or without
-#  modification, are permitted provided that the following conditions
-#  are met:
-#
-#      * Redistributions of source code must retain the above copyright
-#        notice, this list of conditions and the following disclaimer.
-#
-#      * Redistributions in binary form must reproduce the above copyright
-#        notice, this list of conditions and the following disclaimer in
-#        the documentation and/or other materials provided with the
-#        distribution.
-#
-#      * Neither the name of Intel Corporation nor the names of its
-#        contributors may be used to endorse or promote products derived
-#        from this software without specific prior written permission.
-#
-#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-#  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-#  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-#  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-#  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-#  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-#  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-#  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-#  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
-#  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#
+
 
 from __future__ import absolute_import
 
@@ -66,16 +40,16 @@ class TestIntegrationLevelZeroSignals(unittest.TestCase):
     def tearDown(self):
         pass
 
-    @util.skip_unless_geopmread("LEVELZERO::GPU_POWER board_accelerator 0")
-    @util.skip_unless_geopmread("LEVELZERO::GPU_POWER_LIMIT_MIN_AVAIL board_accelerator 0")
-    @util.skip_unless_geopmread("LEVELZERO::GPU_POWER_LIMIT_MAX_AVAIL board_accelerator 0")
-    @util.skip_unless_geopmread("LEVELZERO::GPU_POWER_LIMIT_DEFAULT board_accelerator 0")
+    @util.skip_unless_geopmread("LEVELZERO::GPU_POWER gpu 0")
+    @util.skip_unless_geopmread("LEVELZERO::GPU_POWER_LIMIT_MIN_AVAIL gpu 0")
+    @util.skip_unless_geopmread("LEVELZERO::GPU_POWER_LIMIT_MAX_AVAIL gpu 0")
+    @util.skip_unless_geopmread("LEVELZERO::GPU_POWER_LIMIT_DEFAULT gpu 0")
     def test_power(self):
         #Query
-        gpu_power = geopm_test_launcher.geopmread("LEVELZERO::GPU_POWER board_accelerator 0")
-        gpu_power_limit_max = geopm_test_launcher.geopmread("LEVELZERO::GPU_POWER_LIMIT_MAX_AVAIL board_accelerator 0")
-        gpu_power_limit_min = geopm_test_launcher.geopmread("LEVELZERO::GPU_POWER_LIMIT_MIN_AVAIL board_accelerator 0")
-        gpu_power_limit_default = geopm_test_launcher.geopmread("LEVELZERO::GPU_POWER_LIMIT_DEFAULT board_accelerator 0")
+        gpu_power = geopm_test_launcher.geopmread("LEVELZERO::GPU_POWER gpu 0")
+        gpu_power_limit_max = geopm_test_launcher.geopmread("LEVELZERO::GPU_POWER_LIMIT_MAX_AVAIL gpu 0")
+        gpu_power_limit_min = geopm_test_launcher.geopmread("LEVELZERO::GPU_POWER_LIMIT_MIN_AVAIL gpu 0")
+        gpu_power_limit_default = geopm_test_launcher.geopmread("LEVELZERO::GPU_POWER_LIMIT_DEFAULT gpu 0")
 
         #Info
         sys.stdout.write("GPU Power:\n");
@@ -98,12 +72,12 @@ class TestIntegrationLevelZeroSignals(unittest.TestCase):
         #TODO: Power limit enabled sustained check
 
     #TODO: check that chip power is available, or skip?
-    @util.skip_unless_geopmread("LEVELZERO::GPU_POWER board_accelerator 0")
-    @util.skip_unless_geopmread("LEVELZERO::GPUCHIP_POWER board_accelerator 0")
+    @util.skip_unless_geopmread("LEVELZERO::GPU_POWER gpu 0")
+    @util.skip_unless_geopmread("LEVELZERO::GPU_CORE_POWER gpu 0")
     def test_chip_power(self):
         #Query
-        gpu_power = geopm_test_launcher.geopmread("LEVELZERO::GPU_POWER board_accelerator 0")
-        gpuchip_power = geopm_test_launcher.geopmread("LEVELZERO::GPUCHIP_POWER board_accelerator 0")
+        gpu_power = geopm_test_launcher.geopmread("LEVELZERO::GPU_POWER gpu 0")
+        gpuchip_power = geopm_test_launcher.geopmread("LEVELZERO::GPU_CORE_POWER gpu 0")
 
         #Info
         sys.stdout.write("Power:\n");
@@ -114,13 +88,13 @@ class TestIntegrationLevelZeroSignals(unittest.TestCase):
         # on the package
         self.assertGreater(gpu_power, gpuchip_power)
 
-    @util.skip_unless_geopmread("LEVELZERO::GPU_ENERGY board_accelerator 0")
+    @util.skip_unless_geopmread("LEVELZERO::GPU_ENERGY gpu 0")
     def test_energy(self):
         sys.stdout.write("Running LevelZero Energy Test\n");
         #Query
-        gpu_energy_prev = geopm_test_launcher.geopmread("LEVELZERO::GPU_ENERGY board_accelerator 0")
+        gpu_energy_prev = geopm_test_launcher.geopmread("LEVELZERO::GPU_ENERGY gpu 0")
         time.sleep(5)
-        gpu_energy_curr = geopm_test_launcher.geopmread("LEVELZERO::GPU_ENERGY board_accelerator 0")
+        gpu_energy_curr = geopm_test_launcher.geopmread("LEVELZERO::GPU_ENERGY gpu 0")
 
         sys.stdout.write("Energy:\n");
         sys.stdout.write("\tEnergy Sample 0: {}\n".format(gpu_energy_prev));
@@ -129,13 +103,13 @@ class TestIntegrationLevelZeroSignals(unittest.TestCase):
         #Check
         self.assertNotEqual(gpu_energy_prev, gpu_energy_curr)
 
-    @util.skip_unless_geopmread("LEVELZERO::GPUCHIP_ENERGY board_accelerator 0")
+    @util.skip_unless_geopmread("LEVELZERO::GPU_CORE_ENERGY gpu 0")
     def test_chip_energy(self):
         sys.stdout.write("Running LevelZero GPU Chip Energy Test\n");
         #Query
-        gpuchip_energy_prev = geopm_test_launcher.geopmread("LEVELZERO::GPUCHIP_ENERGY board_accelerator_chip 0")
+        gpuchip_energy_prev = geopm_test_launcher.geopmread("LEVELZERO::GPU_CORE_ENERGY gpu_chip 0")
         time.sleep(5)
-        gpuchip_energy_curr = geopm_test_launcher.geopmread("LEVELZERO::GPUCHIP_ENERGY board_accelerator_chip 0")
+        gpuchip_energy_curr = geopm_test_launcher.geopmread("LEVELZERO::GPU_CORE_ENERGY gpu_chip 0")
 
         sys.stdout.write("GPU Chip Energy:\n");
         sys.stdout.write("\tGPU Chip Energy Sample 0: {}\n".format(gpuchip_energy_prev));
@@ -144,15 +118,15 @@ class TestIntegrationLevelZeroSignals(unittest.TestCase):
         #Check
         self.assertNotEqual(gpuchip_energy_prev, gpuchip_energy_curr)
 
-    @util.skip_unless_geopmread("LEVELZERO::GPUCHIP_FREQUENCY_STATUS board_accelerator 0")
-    @util.skip_unless_geopmread("LEVELZERO::GPUCHIP_FREQUENCY_MIN_AVAIL board_accelerator 0")
-    @util.skip_unless_geopmread("LEVELZERO::GPUCHIP_FREQUENCY_MAX_AVAIL board_accelerator 0")
+    @util.skip_unless_geopmread("LEVELZERO::GPU_CORE_FREQUENCY_STATUS gpu 0")
+    @util.skip_unless_geopmread("LEVELZERO::GPU_CORE_FREQUENCY_MIN_AVAIL gpu 0")
+    @util.skip_unless_geopmread("LEVELZERO::GPU_CORE_FREQUENCY_MAX_AVAIL gpu 0")
     def test_frequency(self):
         sys.stdout.write("Running LevelZero Frequency Test\n");
         #Query
-        frequency_gpu = geopm_test_launcher.geopmread("LEVELZERO::GPUCHIP_FREQUENCY_STATUS board_accelerator 0")
-        gpu_min_frequency_limit = geopm_test_launcher.geopmread("LEVELZERO::GPUCHIP_FREQUENCY_MIN_AVAIL board_accelerator 0")
-        gpu_max_frequency_limit = geopm_test_launcher.geopmread("LEVELZERO::GPUCHIP_FREQUENCY_MAX_AVAIL board_accelerator 0")
+        frequency_gpu = geopm_test_launcher.geopmread("LEVELZERO::GPU_CORE_FREQUENCY_STATUS gpu 0")
+        gpu_min_frequency_limit = geopm_test_launcher.geopmread("LEVELZERO::GPU_CORE_FREQUENCY_MIN_AVAIL gpu 0")
+        gpu_max_frequency_limit = geopm_test_launcher.geopmread("LEVELZERO::GPU_CORE_FREQUENCY_MAX_AVAIL gpu 0")
 
         #Info
         sys.stdout.write("Frequency:\n");
