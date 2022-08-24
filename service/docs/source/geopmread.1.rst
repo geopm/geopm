@@ -114,7 +114,9 @@ Options
                 file exists from the current boot cycle and has the proper
                 permissions no operation will be performed.  To force the
                 creation of a new cache file, remove the existing cache file
-                prior to executing this command.
+                prior to executing this command.  Additionally when this command
+                is executed any existing GEOPM HPC Runtime shared memory keys owned
+                by the user running the command will be deleted.
 -h, --help      Print brief summary of the command line usage information, then
                 exit.
 -v, --version   Print version of :doc:`geopm(7) <geopm.7>` to standard output, then
