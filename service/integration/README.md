@@ -28,9 +28,10 @@ of the form:
 A limited set of root privileges may be used by non-root users by
 installing the helper scripts
 
+    geopm/integration/check_session_clean.sh
+    geopm/integration/get_batch_server.py
     geopm/integration/install_service.sh
     geopm/integration/kill_geopmd.sh
-    geopm/integration/get_batch_server.py
 
 into `/usr/sbin` and adding these and the `geopmaccess` command line
 tool to the sudoers file.  This enables the user that executes the
@@ -45,6 +46,7 @@ privilege specification" section, add the following:
 ```bash
 # All users can execute these with *no* password
 %users  ALL=NOPASSWD: \
+            /usr/sbin/check_session_clean.sh,\
             /usr/sbin/get_batch_server.py,\
             /usr/sbin/install_service.sh,\
             /usr/sbin/kill_geopmd.sh,\
