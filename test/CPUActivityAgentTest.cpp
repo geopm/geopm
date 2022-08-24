@@ -128,19 +128,19 @@ void CPUActivityAgentTest::SetUp()
     m_cpu_uncore_freq_max = 2400000000.0;
 
     ON_CALL(*m_platform_io, control_domain_type("CPU_FREQUENCY_MAX_CONTROL"))
-        .WillByDefault(Return(GEOPM_DOMAIN_CPU));
+            .WillByDefault(Return(GEOPM_DOMAIN_CPU));
     ON_CALL(*m_platform_io, signal_domain_type("MSR::CPU_SCALABILITY_RATIO"))
-        .WillByDefault(Return(GEOPM_DOMAIN_CPU));
+            .WillByDefault(Return(GEOPM_DOMAIN_CPU));
 
     ON_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0))
-        .WillByDefault(Return(m_cpu_freq_min));
+            .WillByDefault(Return(m_cpu_freq_min));
     ON_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0))
-        .WillByDefault(Return(m_cpu_freq_max));
+            .WillByDefault(Return(m_cpu_freq_max));
 
     ON_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MIN_CONTROL", GEOPM_DOMAIN_BOARD, 0))
-        .WillByDefault(Return(m_cpu_uncore_freq_min));
+            .WillByDefault(Return(m_cpu_uncore_freq_min));
     ON_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MAX_CONTROL", GEOPM_DOMAIN_BOARD, 0))
-        .WillByDefault(Return(m_cpu_uncore_freq_max));
+            .WillByDefault(Return(m_cpu_uncore_freq_max));
 
     ASSERT_LT(m_cpu_freq_min, 2e9);
     ASSERT_LT(m_cpu_freq_max, 4e9);
@@ -154,6 +154,8 @@ void CPUActivityAgentTest::SetUp()
     EXPECT_CALL(*m_platform_io, write_control("MSR::QM_EVTSEL:EVENT_ID", _, _, _)).Times(1);
     EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MIN_CONTROL", _, _)).Times(1);
     EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MAX_CONTROL", _, _)).Times(1);
+    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MIN_AVAIL", _, _)).Times(1);
+    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MAX_AVAIL", _, _)).Times(1);
 
     m_agent = geopm::make_unique<CPUActivityAgent>(*m_platform_io, *m_platform_topo);
     m_num_policy = m_agent->policy_names().size();
@@ -197,11 +199,6 @@ TEST_F(CPUActivityAgentTest, name)
 TEST_F(CPUActivityAgentTest, validate_policy)
 {
     //Called as part of validate
-    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MIN_AVAIL", _, _)).WillRepeatedly(
-                Return(m_cpu_freq_min));
-    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MAX_AVAIL", _, _)).WillRepeatedly(
-                Return(m_cpu_freq_max));
-
     EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MIN_CONTROL", _, _)).WillRepeatedly(
                 Return(m_cpu_uncore_freq_min));
     EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MAX_CONTROL", _, _)).WillRepeatedly(
@@ -347,11 +344,6 @@ TEST_F(CPUActivityAgentTest, validate_policy)
 TEST_F(CPUActivityAgentTest, adjust_platform_high)
 {
     //Called as part of validate
-    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MIN_AVAIL", _, _)).WillRepeatedly(
-                Return(m_cpu_freq_min));
-    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MAX_AVAIL", _, _)).WillRepeatedly(
-                Return(m_cpu_freq_max));
-
     EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MIN_CONTROL", _, _)).WillRepeatedly(
                 Return(m_cpu_uncore_freq_min));
     EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MAX_CONTROL", _, _)).WillRepeatedly(
@@ -383,14 +375,53 @@ TEST_F(CPUActivityAgentTest, adjust_platform_high)
     EXPECT_TRUE(m_agent->do_write_batch());
 }
 
+TEST_F(CPUActivityAgentTest, adjust_platform_lower_bound_check)
+{
+    //Called as part of validate
+    EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MIN_CONTROL", _, _)).WillRepeatedly(
+                Return(m_cpu_uncore_freq_min));
+    EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MAX_CONTROL", _, _)).WillRepeatedly(
+                Return(m_cpu_uncore_freq_max));
+
+    std::vector<double> policy;
+    policy = m_default_policy;
+    m_agent->validate_policy(policy);
+
+    //Sample
+    std::vector<double> tmp;
+    double mock_active = 0.5;
+    EXPECT_CALL(*m_platform_io, sample(CPU_SCALABILITY_IDX))
+                .WillRepeatedly(Return(mock_active));
+    EXPECT_CALL(*m_platform_io, sample(QM_CTR_SCALED_RATE_IDX))
+                .WillRepeatedly(Return(m_mbm_max.at(m_mbm_max.size() / 2)));
+    EXPECT_CALL(*m_platform_io, sample(CPU_UNCORE_FREQUENCY_IDX))
+                .WillRepeatedly(Return(m_cpu_uncore_freq_max - 0.05e9));
+    m_agent->sample_platform(tmp);
+
+    double expected_core_freq = m_cpu_freq_min + mock_active *
+                                (m_cpu_freq_max - m_cpu_freq_min);
+    double expected_uncore_freq = m_cpu_uncore_freq_min +
+                                  (m_cpu_uncore_freq_max - m_cpu_uncore_freq_min) *
+                                  (m_mbm_max.at(m_mbm_max.size() / 2) /
+                                  m_mbm_max.at(m_mbm_max.size() - 2));
+
+    //Adjust
+    //Check frequency
+    EXPECT_CALL(*m_platform_io, adjust(CPU_FREQUENCY_CONTROL_IDX,
+                                       expected_core_freq)).Times(M_NUM_CORE);
+    EXPECT_CALL(*m_platform_io, adjust(CPU_UNCORE_MIN_CONTROL_IDX,
+                                       expected_uncore_freq)).Times(M_NUM_PACKAGE);
+    EXPECT_CALL(*m_platform_io, adjust(CPU_UNCORE_MAX_CONTROL_IDX,
+                                       expected_uncore_freq)).Times(M_NUM_PACKAGE);
+    m_agent->adjust_platform(policy);
+
+    //Check a frequency decision resulted in write batch being true
+    EXPECT_TRUE(m_agent->do_write_batch());
+}
+
 TEST_F(CPUActivityAgentTest, adjust_platform_medium)
 {
     //Called as part of validate
-    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MIN_AVAIL", _, _)).WillRepeatedly(
-                Return(m_cpu_freq_min));
-    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MAX_AVAIL", _, _)).WillRepeatedly(
-                Return(m_cpu_freq_max));
-
     EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MIN_CONTROL", _, _)).WillRepeatedly(
                 Return(m_cpu_uncore_freq_min));
     EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MAX_CONTROL", _, _)).WillRepeatedly(
@@ -416,7 +447,7 @@ TEST_F(CPUActivityAgentTest, adjust_platform_medium)
     double expected_uncore_freq = m_cpu_uncore_freq_min +
                                   (m_cpu_uncore_freq_max - m_cpu_uncore_freq_min) *
                                   (m_mbm_max.at(m_mbm_max.size() / 2) /
-                                  m_mbm_max.at(m_mbm_max.size() - 2));
+                                  m_mbm_max.at(m_mbm_max.size() - 1));
 
     //Adjust
     //Check frequency
@@ -435,11 +466,6 @@ TEST_F(CPUActivityAgentTest, adjust_platform_medium)
 TEST_F(CPUActivityAgentTest, adjust_platform_low)
 {
     //Called as part of validate
-    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MIN_AVAIL", _, _)).WillRepeatedly(
-                Return(m_cpu_freq_min));
-    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MAX_AVAIL", _, _)).WillRepeatedly(
-                Return(m_cpu_freq_max));
-
     EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MIN_CONTROL", _, _)).WillRepeatedly(
                 Return(m_cpu_uncore_freq_min));
     EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MAX_CONTROL", _, _)).WillRepeatedly(
@@ -465,7 +491,7 @@ TEST_F(CPUActivityAgentTest, adjust_platform_low)
     double expected_uncore_freq = m_cpu_uncore_freq_min +
                                   (m_cpu_uncore_freq_max - m_cpu_uncore_freq_min) *
                                   (m_mbm_max.at(2) /
-                                  m_mbm_max.at(m_mbm_max.size() - 2));
+                                  m_mbm_max.at(m_mbm_max.size() - 1));
 
     //Adjust
     //Check frequency
@@ -484,11 +510,6 @@ TEST_F(CPUActivityAgentTest, adjust_platform_low)
 TEST_F(CPUActivityAgentTest, adjust_platform_zero)
 {
     //Called as part of validate
-    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MIN_AVAIL", _, _)).WillRepeatedly(
-                Return(m_cpu_freq_min));
-    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MAX_AVAIL", _, _)).WillRepeatedly(
-                Return(m_cpu_freq_max));
-
     EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MIN_CONTROL", _, _)).WillRepeatedly(
                 Return(m_cpu_uncore_freq_min));
     EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MAX_CONTROL", _, _)).WillRepeatedly(
@@ -522,11 +543,6 @@ TEST_F(CPUActivityAgentTest, adjust_platform_zero)
 TEST_F(CPUActivityAgentTest, adjust_platform_signal_out_of_bounds)
 {
     //Called as part of validate
-    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MIN_AVAIL", _, _)).WillRepeatedly(
-                Return(m_cpu_freq_min));
-    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MAX_AVAIL", _, _)).WillRepeatedly(
-                Return(m_cpu_freq_max));
-
     EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MIN_CONTROL", _, _)).WillRepeatedly(
                 Return(m_cpu_uncore_freq_min));
     EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MAX_CONTROL", _, _)).WillRepeatedly(
@@ -579,11 +595,6 @@ TEST_F(CPUActivityAgentTest, adjust_platform_signal_out_of_bounds)
 TEST_F(CPUActivityAgentTest, adjust_platform_nan)
 {
     //Called as part of validate
-    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MIN_AVAIL", _, _)).WillRepeatedly(
-                Return(m_cpu_freq_min));
-    EXPECT_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MAX_AVAIL", _, _)).WillRepeatedly(
-                Return(m_cpu_freq_max));
-
     EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MIN_CONTROL", _, _)).WillRepeatedly(
                 Return(m_cpu_uncore_freq_min));
     EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MAX_CONTROL", _, _)).WillRepeatedly(

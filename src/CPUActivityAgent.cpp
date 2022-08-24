@@ -337,7 +337,7 @@ namespace geopm
             // the uncore_freq signal does not exactly match the keys in the
             // map.
             //
-            // To handle these cases we grab an entry one less than the
+            // To handle this case we grab an entry one less than the
             // lower bound if and only if the qm_max_itr isn't the first key
             // and the uncore_freq is not an exact match.
             if(qm_max_itr != m_qm_max_rate.begin() &&
