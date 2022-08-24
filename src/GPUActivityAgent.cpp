@@ -7,7 +7,6 @@
 #include "GPUActivityAgent.hpp"
 
 #include <algorithm>
-#include <cassert>
 #include <cmath>
 #include <iostream>
 #include <string>
@@ -18,6 +17,7 @@
 #include "geopm/PlatformIO.hpp"
 #include "geopm/PlatformTopo.hpp"
 #include "geopm/PluginFactory.hpp"
+#include "geopm_debug.hpp"
 
 #include "PlatformIOProf.hpp"
 
@@ -96,7 +96,8 @@ namespace geopm
     // Validate incoming policy and configure default policy requests.
     void GPUActivityAgent::validate_policy(std::vector<double> &in_policy) const
     {
-        assert(in_policy.size() == M_NUM_POLICY);
+        GEOPM_DEBUG_ASSERT(in_policy.size() == M_NUM_POLICY,
+                           "GPUActivityAgent::validate_policy(): policy vector incorrectly sized");
         double gpu_min_freq = m_platform_io.read_signal("GPU_CORE_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0);
         double gpu_max_freq = m_platform_io.read_signal("GPU_CORE_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0);
 
@@ -180,7 +181,8 @@ namespace geopm
     void GPUActivityAgent::split_policy(const std::vector<double>& in_policy,
                                         std::vector<std::vector<double> >& out_policy)
     {
-        assert(in_policy.size() == M_NUM_POLICY);
+        GEOPM_DEBUG_ASSERT(in_policy.size() == M_NUM_POLICY,
+                           "GPUActivityAgent::split_policy(): policy vector incorrectly sized");
         for (auto &child_pol : out_policy) {
             child_pol = in_policy;
         }
@@ -206,7 +208,8 @@ namespace geopm
 
     void GPUActivityAgent::adjust_platform(const std::vector<double>& in_policy)
     {
-        assert(in_policy.size() == M_NUM_POLICY);
+        GEOPM_DEBUG_ASSERT(in_policy.size() == M_NUM_POLICY,
+                           "GPUActivityAgent::adjust_platform(): policy vector incorrectly sized");
 
         m_do_write_batch = false;
 
@@ -237,7 +240,7 @@ namespace geopm
                 // being done (such as SM_ACTIVE for NVIDIA GPUs).
                 //
                 // The compute activity is scaled by the GPU Utilization, to help
-                // address the issues that come from workloads have short phases that are
+                // address the issues that come from workloads that have short phases that are
                 // frequency sensitive.  If a workload has a compute activity of 0.5, and
                 // is resident on the GPU for 50% of cycles (0.5) it is treated as having
                 // a 1.0 compute activity value
@@ -246,7 +249,7 @@ namespace geopm
                 // frequency from system characterization.
                 //
                 // This approach assumes the efficient frequency is suitable as both a
-                // baseline for active regions and and inactive regions. This is generally
+                // baseline for active regions and inactive regions. This is generally
                 // true when the efficient frequency consumes low power at idle due to clock
                 // gating or other hardware PM techniques.
                 //
@@ -324,7 +327,8 @@ namespace geopm
     // Read signals from the platform and calculate samples to be sent up
     void GPUActivityAgent::sample_platform(std::vector<double> &out_sample)
     {
-        assert(out_sample.size() == M_NUM_SAMPLE);
+        GEOPM_DEBUG_ASSERT(out_sample.size() == M_NUM_SAMPLE,
+                           "GPUActivityAgent::sample_platform(): sample output vector incorrectly sized");
 
         // Collect latest signal values
         for (int domain_idx = 0; domain_idx < M_NUM_GPU; ++domain_idx) {
