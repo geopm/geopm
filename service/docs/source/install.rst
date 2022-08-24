@@ -29,6 +29,7 @@ Installing the ``geopm-service`` package will also install the
 packages.  The ``geopm-service-devel`` package must be explicitly
 installed if it is required by the user.
 
+
 Level Zero Prequisite
 ---------------------
 
@@ -51,12 +52,19 @@ user to build GEOPM from source with GPU support if that is desired.
 Download Repositories
 ---------------------
 
-The ``dev`` branch is the default branch containing the most up to
-date stable development.  The ``release-v2.0-candidate`` branch will
-point to a historical commit in the ``dev`` branch, and the release
-candidate branch will be updated much less frequently than the
-development branch.  The builds from these two branches have the
-following download repository pages:
+
+The ``release-v2.0`` branch tracks the v2.0 release including any
+hotfix releases for v2.0.0 that could occur in the future.  This
+represents the latest stable GEOPM release.  The ``dev`` branch is the
+default branch containing the most up to date stable development.  The
+builds from these two branches have the following download repository
+pages:
+
+- Install Release Packages (``release-v2.0`` branch)
+   + `geopm-service <https://software.opensuse.org/download.html?project=home%3Ageopm%3Arelease-v2.0&package=geopm-service>`__
+   + `libgeopmd1 <https://software.opensuse.org/download.html?project=home%3Ageopm%3Arelease-v2.0&package=libgeopmd1>`__
+   + `python3-geopmdpy <https://software.opensuse.org/download.html?project=home%3Ageopm%3Arelease-v2.0&package=python3-geopmdpy>`__
+   + `geopm-service-devel <https://software.opensuse.org/download.html?project=home%3Ageopm%3Arelease-v2.0&package=geopm-service-devel>`__
 
 - Install Development Packages (``dev`` branch)
    + `geopm-service <https://software.opensuse.org/download.html?project=home%3Ageopm&package=geopm-service>`__
@@ -64,28 +72,17 @@ following download repository pages:
    + `python3-geopmdpy <https://software.opensuse.org/download.html?project=home%3Ageopm&package=python3-geopmdpy>`__
    + `geopm-service-devel <https://software.opensuse.org/download.html?project=home%3Ageopm&package=geopm-service-devel>`__
 
-- Install Release Candidate Packages (``release-v2.0-candidate`` branch)
-   + `geopm-service <https://software.opensuse.org/download.html?project=home%3Ageopm%3Arelease-v2.0-candidate&package=geopm-service>`__
-   + `libgeopmd1 <https://software.opensuse.org/download.html?project=home%3Ageopm%3Arelease-v2.0-candidate&package=libgeopmd1>`__
-   + `python3-geopmdpy <https://software.opensuse.org/download.html?project=home%3Ageopm%3Arelease-v2.0-candidate&package=python3-geopmdpy>`__
-   + `geopm-service-devel <https://software.opensuse.org/download.html?project=home%3Ageopm%3Arelease-v2.0-candidate&package=geopm-service-devel>`__
 
 
 Use these links to install the GEOPM Service packages on your system.  The
 links contain instructions and examples for each of the supported operating
 systems.
 
-The ``dev`` branch is frequently updated, and the
-``release-v2.0-candidate`` branch will be updated several times prior
-to the ``v2.0.0`` release.  At a later date, after the initial
-install, it may be useful to update the installation to match the
-upstream branch.
-
 Note that the development branch always provides a version which is at
-least as recent as the release candidate branch.  For this reason,
-updates will always come from the development branch download
-repository if both the development repository and the release
-candidate repository are added to your package configuration,
+least as recent as the release branch.  For this reason, updates will
+always come from the development branch download repository if both
+the development repository and the release repository are added to
+your package configuration.
 
 
 Un-packaged Features
@@ -114,5 +111,5 @@ In order to access these GEOPM features which are not packaged, a user should
 build GEOPM from source.  The best recommendation for building GEOPM from
 source is to follow the :ref:`developer build process <devel:developer build process>`
 posted in the :doc:`developer guide <devel>`.  Note that it may be of interest
-to git checkout a git tag (e.g. ``v2.0.0+rc3``) to create a build based on a
+to git checkout a git tag (e.g. ``v2.0.0``) to create a build based on a
 particular release.
