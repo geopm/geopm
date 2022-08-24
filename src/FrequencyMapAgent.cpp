@@ -251,7 +251,7 @@ namespace geopm
             // adjust all controls once in case not applied by policy
             for (size_t ctl_idx = 0; ctl_idx < (size_t) m_num_freq_ctl_domain; ++ctl_idx) {
                 // @todo: this is bad; agent should be able to use aliases
-                double val = m_platform_io.read_signal("MSR::PERF_CTL:FREQ", m_freq_ctl_domain_type, ctl_idx);
+                double val = m_platform_io.read_signal("CPU_FREQUENCY_MAX_CONTROL", m_freq_ctl_domain_type, ctl_idx);
                 m_platform_io.adjust(m_freq_control_idx[ctl_idx], val);
             }
             m_platform_io.adjust(m_uncore_min_ctl_idx, m_uncore_init_min);
@@ -413,9 +413,9 @@ namespace geopm
         m_platform_io.write_control("CPU_FREQUENCY_MAX_CONTROL", GEOPM_DOMAIN_BOARD, 0,
                                     policy[M_POLICY_FREQ_DEFAULT]);
         if (!std::isnan(policy[M_POLICY_FREQ_UNCORE])) {
-                m_platform_io.write_control("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO", GEOPM_DOMAIN_BOARD, 0,
+                m_platform_io.write_control("CPU_UNCORE_FREQUENCY_MIN_CONTROL", GEOPM_DOMAIN_BOARD, 0,
                                             policy[M_POLICY_FREQ_UNCORE]);
-                m_platform_io.write_control("MSR::UNCORE_RATIO_LIMIT:MAX_RATIO", GEOPM_DOMAIN_BOARD, 0,
+                m_platform_io.write_control("CPU_UNCORE_FREQUENCY_MAX_CONTROL", GEOPM_DOMAIN_BOARD, 0,
                                             policy[M_POLICY_FREQ_UNCORE]);
         }
     }
@@ -435,12 +435,12 @@ namespace geopm
                                                                     m_freq_ctl_domain_type,
                                                                     ctl_idx));
         }
-        m_uncore_min_ctl_idx = m_platform_io.push_control("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO", GEOPM_DOMAIN_BOARD, 0);
-        m_uncore_max_ctl_idx = m_platform_io.push_control("MSR::UNCORE_RATIO_LIMIT:MAX_RATIO", GEOPM_DOMAIN_BOARD, 0);
+        m_uncore_min_ctl_idx = m_platform_io.push_control("CPU_UNCORE_FREQUENCY_MIN_CONTROL", GEOPM_DOMAIN_BOARD, 0);
+        m_uncore_max_ctl_idx = m_platform_io.push_control("CPU_UNCORE_FREQUENCY_MAX_CONTROL", GEOPM_DOMAIN_BOARD, 0);
 
         m_core_freq_min = m_platform_io.read_signal("CPU_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0);
         m_core_freq_max = m_platform_io.read_signal("CPU_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0);
-        m_uncore_init_min = m_platform_io.read_signal("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO", GEOPM_DOMAIN_BOARD, 0);
-        m_uncore_init_max = m_platform_io.read_signal("MSR::UNCORE_RATIO_LIMIT:MAX_RATIO", GEOPM_DOMAIN_BOARD, 0);
+        m_uncore_init_min = m_platform_io.read_signal("CPU_UNCORE_FREQUENCY_MIN_CONTROL", GEOPM_DOMAIN_BOARD, 0);
+        m_uncore_init_max = m_platform_io.read_signal("CPU_UNCORE_FREQUENCY_MAX_CONTROL", GEOPM_DOMAIN_BOARD, 0);
     }
 }
