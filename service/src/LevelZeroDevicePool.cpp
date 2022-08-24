@@ -292,11 +292,7 @@ namespace geopm
     {
         std::pair<uint64_t, uint64_t> result = {0,0};
 
-        if (domain != GEOPM_DOMAIN_GPU) {
-            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
-                            ": domain " + std::to_string(domain) +
-                            " is not supported for the power domain.",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        if (domain == GEOPM_DOMAIN_GPU) {
             check_idx_range(domain, domain_idx);
             result = m_levelzero.energy_pair(domain, domain_idx, -1);
         }
@@ -309,6 +305,12 @@ namespace geopm
             result = m_levelzero.energy_pair(domain, dev_subdev_idx_pair.first,
                                              dev_subdev_idx_pair.second);
         }
+        else {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for the power domain.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
         return result;
     }
 
@@ -317,12 +319,12 @@ namespace geopm
                                                       int l0_domain) const
     {
         uint64_t energy_timestamp = 0;
-        if (domain != GEOPM_DOMAIN_GPU) {
+        if (domain == GEOPM_DOMAIN_GPU) {
             check_idx_range(domain, domain_idx);
             energy_timestamp = m_levelzero.energy_timestamp(domain, domain_idx,
                                                             -1, -1);
         }
-        else if (domain != GEOPM_DOMAIN_GPU_CHIP) {
+        else if (domain == GEOPM_DOMAIN_GPU_CHIP) {
             std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
             dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
 
@@ -349,11 +351,11 @@ namespace geopm
                                             int l0_domain) const
     {
         uint64_t energy = 0;
-        if (domain != GEOPM_DOMAIN_GPU) {
+        if (domain == GEOPM_DOMAIN_GPU) {
             check_idx_range(domain, domain_idx);
             energy = m_levelzero.energy(domain, domain_idx, -1, -1);
         }
-        else if (domain != GEOPM_DOMAIN_GPU_CHIP) {
+        else if (domain == GEOPM_DOMAIN_GPU_CHIP) {
             std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
             dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
 
