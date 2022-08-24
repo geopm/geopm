@@ -25,3 +25,4 @@ include integration/apps/nasbt/Makefile.mk
 include integration/apps/nascg/Makefile.mk
 include integration/apps/nasft2/Makefile.mk
 include integration/apps/nasis/Makefile.mk
+include integration/apps/naslu/Makefile.mk
