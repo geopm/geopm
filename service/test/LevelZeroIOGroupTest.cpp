@@ -171,6 +171,11 @@ void LevelZeroIOGroupTest::SetUpDefaultExpectCalls()
                     frequency_min(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_MEMORY));
         EXPECT_CALL(*m_device_pool, // GPU_UNCORE_FREQUENCY_STATUS
                     frequency_status(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_MEMORY));
+        EXPECT_CALL(*m_device_pool, // GPU_ENERGY
+                    energy(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL));
+        EXPECT_CALL(*m_device_pool, // GPU_ENERGY_TIMESTAMP
+                    energy_timestamp(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL));
+
         // control pruning expectations
         // GPU_CORE_FREQUENCY_MAX_CONTROL, GPU_CORE_FREQUENCY_MIN_CONTROL, and the restore_control() direct call.
         EXPECT_CALL(*m_device_pool,
@@ -301,6 +306,8 @@ TEST_F(LevelZeroIOGroupTest, read_signal_and_batch)
     std::vector<double> mock_throttle = {0, 2, 4, 10, 1, 3, 9, 5};
     std::vector<double> mock_energy = {9000000, 11000000, 2300000, 5341000000};
     std::vector<double> mock_time = {10, 20.220, 42.2, 100.3333333};
+    std::vector<double> mock_time_chip = {5, 10.110, 21.1, 100.55553,
+                                          6, 12, 22, 15};
     std::vector<double> mock_energy_chip = {4000000, 5000000, 1100000, 2621000000,
                                             4200000, 5200000, 1120000, 2621200000,};
     std::vector<int> batch_idx;
@@ -318,7 +325,8 @@ TEST_F(LevelZeroIOGroupTest, read_signal_and_batch)
     }
 
     for (int sub_idx = 0; sub_idx < m_num_gpu_subdevice; ++sub_idx) {
-        EXPECT_CALL(*m_device_pool, energy(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE)).WillRepeatedly(Return(mock_energy_chip.at(sub_idx)));
+        EXPECT_CALL(*m_device_pool, energy(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL)).WillRepeatedly(Return(mock_energy_chip.at(sub_idx)));
+        EXPECT_CALL(*m_device_pool, energy_timestamp(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL)).WillRepeatedly(Return(mock_time_chip.at(sub_idx)));
         batch_idx.push_back(levelzero_io.push_signal("LEVELZERO::GPU_CORE_ENERGY", GEOPM_DOMAIN_GPU_CHIP, sub_idx));
     }
 
@@ -343,7 +351,7 @@ TEST_F(LevelZeroIOGroupTest, read_signal_and_batch)
         EXPECT_DOUBLE_EQ(throttle, throttle_batch);
 
         double energy_chip = levelzero_io.read_signal("LEVELZERO::GPU_CORE_ENERGY", GEOPM_DOMAIN_GPU_CHIP, sub_idx);
-        double energy_chip_batch = levelzero_io.sample(batch_idx.at(m_num_gpu_subdevice + sub_idx));
+        double energy_chip_batch = levelzero_io.sample(batch_idx.at(sub_idx + 2 * m_num_gpu_subdevice));
 
         EXPECT_DOUBLE_EQ(energy_chip, mock_energy_chip.at(sub_idx)/1e6);
         EXPECT_DOUBLE_EQ(energy_chip, energy_chip_batch);
@@ -351,7 +359,7 @@ TEST_F(LevelZeroIOGroupTest, read_signal_and_batch)
 
     for (int gpu_idx = 0; gpu_idx < m_num_gpu; ++gpu_idx) {
         double energy = levelzero_io.read_signal("LEVELZERO::GPU_ENERGY", GEOPM_DOMAIN_GPU, gpu_idx);
-        double energy_batch = levelzero_io.sample(batch_idx.at(2*m_num_gpu_subdevice+gpu_idx));
+        double energy_batch = levelzero_io.sample(batch_idx.at(3 * m_num_gpu_subdevice + gpu_idx));
         EXPECT_DOUBLE_EQ(energy, mock_energy.at(gpu_idx)/1e6);
         EXPECT_DOUBLE_EQ(energy, energy_batch);
     }
@@ -387,11 +395,9 @@ TEST_F(LevelZeroIOGroupTest, read_signal_and_batch)
         double throttle_batch = levelzero_io.sample(batch_idx.at(sub_idx + m_num_gpu_subdevice));
         EXPECT_DOUBLE_EQ(throttle, mock_throttle.at(sub_idx));
         EXPECT_DOUBLE_EQ(throttle, throttle_batch);
-    }
 
-    for (int sub_idx = 0; sub_idx < m_num_gpu_subdevice; ++sub_idx) {
         double energy_chip = levelzero_io.read_signal("LEVELZERO::GPU_CORE_ENERGY", GEOPM_DOMAIN_GPU_CHIP, sub_idx);
-        double energy_chip_batch = levelzero_io.sample(batch_idx.at(m_num_gpu_subdevice + sub_idx));
+        double energy_chip_batch = levelzero_io.sample(batch_idx.at(sub_idx + 2 * m_num_gpu_subdevice));
 
         EXPECT_DOUBLE_EQ(energy_chip, mock_energy_chip.at(sub_idx)/1e6);
         EXPECT_DOUBLE_EQ(energy_chip, energy_chip_batch);
@@ -399,7 +405,7 @@ TEST_F(LevelZeroIOGroupTest, read_signal_and_batch)
 
     for (int gpu_idx = 0; gpu_idx < m_num_gpu; ++gpu_idx) {
         double energy = levelzero_io.read_signal("LEVELZERO::GPU_ENERGY", GEOPM_DOMAIN_GPU, gpu_idx);
-        double energy_batch = levelzero_io.sample(batch_idx.at(2 * m_num_gpu_subdevice + gpu_idx));
+        double energy_batch = levelzero_io.sample(batch_idx.at(3 * m_num_gpu_subdevice + gpu_idx));
         EXPECT_DOUBLE_EQ(energy, mock_energy.at(gpu_idx) / 1e6);
         EXPECT_DOUBLE_EQ(energy, energy_batch);
     }
@@ -643,7 +649,7 @@ TEST_F(LevelZeroIOGroupTest, read_signal)
     // Assume DerivativeSignals class functions as expected
     // Just check validity of derived signals
     ASSERT_TRUE(levelzero_io.is_valid_signal("LEVELZERO::GPU_POWER"));
-    ASSERT_TRUE(levelzero_io.is_valid_signal("LEVELZERO::GPUCHIP_POWER"));
+    ASSERT_TRUE(levelzero_io.is_valid_signal("LEVELZERO::GPU_CORE_POWER"));
     ASSERT_TRUE(levelzero_io.is_valid_signal("LEVELZERO::GPU_UTILIZATION"));
     ASSERT_TRUE(levelzero_io.is_valid_signal("LEVELZERO::GPU_CORE_UTILIZATION"));
     ASSERT_TRUE(levelzero_io.is_valid_signal("LEVELZERO::GPU_UNCORE_UTILIZATION"));
@@ -764,6 +770,10 @@ TEST_F(LevelZeroIOGroupTest, signal_and_control_trimming)
                     frequency_max(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_MEMORY));
         EXPECT_CALL(*m_device_pool, // GPU_UNCORE_FREQUENCY_MIN_AVAIL
                     frequency_min(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_MEMORY));
+        EXPECT_CALL(*m_device_pool, // GPU_CORE_ENERGY
+                    energy(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL));
+        EXPECT_CALL(*m_device_pool, // GPU_CORE_ENERGY_TIMESTAMP
+                    energy_timestamp(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL));
         // EXPECT_CALL(*m_device_pool, // GPU_UNCORE_FREQUENCY_STATUS
         //             frequency_status(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_MEMORY));
         // control pruning expectations
