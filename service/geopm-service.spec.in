@@ -30,6 +30,7 @@ BuildRequires: python3-devel
 BuildRequires: python3-setuptools
 BuildRequires: level-zero
 BuildRequires: level-zero-devel
+Requires: level-zero >= 1.8.1
 %if 0%{?suse_version}
 BuildRequires: fdupes
 BuildRequires: systemd-rpm-macros
