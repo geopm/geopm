@@ -21,6 +21,7 @@
 #include "geopm/PlatformIO.hpp"
 #include "geopm/PlatformTopo.hpp"
 #include "geopm/Exception.hpp"
+#include "geopm/SharedMemory.hpp"
 
 #include "config.h"
 
@@ -43,7 +44,7 @@ int main(int argc, char **argv)
                         "  -d, --domain                     print domains detected\n"
                         "  -i, --info                       print longer description of a signal\n"
                         "  -I, --info-all                   print longer description of all signals\n"
-                        "  -c, --cache                      create geopm topo cache if it does not exist\n"
+                        "  -c, --cache                      create geopm topo cache and clean up /dev/shm\n"
                         "  -h, --help                       print brief summary of the command line\n"
                         "                                   usage information, then exit\n"
                         "  -v, --version                    print version of GEOPM to standard output,\n"
@@ -80,6 +81,7 @@ int main(int argc, char **argv)
                 break;
             case 'c':
                 geopm::PlatformTopo::create_cache();
+                geopm::SharedMemory::cleanup_shmem();
                 return 0;
             case 'h':
                 printf("%s", usage);

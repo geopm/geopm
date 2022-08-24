@@ -61,6 +61,7 @@ namespace geopm
             /// @brief Modifies the shared memory to be owned by the specified gid
             //         and uid if current permissions allow for the change.
             virtual void chown(const unsigned int uid, const unsigned int gid) const = 0;
+            static void cleanup_shmem(void);
     };
 }
 

@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include "config.h"
+
 #include "SharedMemoryImp.hpp"
 
 #include <limits.h>
@@ -12,6 +14,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <string.h>
+#include <glob.h>
 
 #include <iostream>
 #include <sstream>
@@ -20,10 +23,26 @@
 #include "geopm_time.h"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
-#include "config.h"
 
 namespace geopm
 {
+    void SharedMemory::cleanup_shmem(void)
+    {
+        std::string pattern = "/geopm-shm-" + std::to_string(geteuid()) + "-*";
+        glob_t globbuf;
+        int err = glob(pattern.c_str(), 0, nullptr, &globbuf);
+        if (err == 0) {
+            for (size_t path_idx = 0; path_idx != globbuf.gl_pathc; ++path_idx) {
+                int unlink_err = ::unlink(globbuf.gl_pathv[path_idx]);
+                if (unlink_err != 0) {
+#ifdef GEOPM_DEBUG
+                    std::cerr << "Warning: <geopm> SharedMemory:cleanup_shmem(): unable to unlink file: " << globbuf.gl_pathv[path_idx] << "\n";
+#endif
+                }
+            }
+            globfree(&globbuf);
+        }
+    }
 
     /// @brief Size of the lock in memory.
     static constexpr size_t M_LOCK_SIZE = geopm::hardware_destructive_interference_size;
