@@ -29,6 +29,7 @@ namespace geopm
     void SharedMemory::cleanup_shmem(void)
     {
         std::string pattern = "/geopm-shm-" + std::to_string(geteuid()) + "-*";
+        pattern = SharedMemoryImp::construct_shm_path(pattern);
         glob_t globbuf;
         int err = glob(pattern.c_str(), 0, nullptr, &globbuf);
         if (err == 0) {
