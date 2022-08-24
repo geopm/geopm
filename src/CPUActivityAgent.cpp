@@ -494,9 +494,9 @@ namespace geopm
         std::vector<std::pair<std::string, std::string> > result;
 
         result.push_back({"Core Frequency Requests", std::to_string(m_core_frequency_requests)});
-        result.push_back({"Core Frequency Requests", std::to_string(m_core_frequency_clipped)});
+        result.push_back({"Core Clipped Frequency Requests", std::to_string(m_core_frequency_clipped)});
         result.push_back({"Uncore Frequency Requests", std::to_string(m_uncore_frequency_requests)});
-        result.push_back({"Uncore Frequency Requests", std::to_string(m_uncore_frequency_clipped)});
+        result.push_back({"Uncore Clipped Frequency Requests", std::to_string(m_uncore_frequency_clipped)});
         result.push_back({"Resolved Maximum Core Frequency", std::to_string(m_resolved_f_core_max)});
         result.push_back({"Resolved Efficient Core Frequency", std::to_string(m_resolved_f_core_efficient)});
         result.push_back({"Resolved Core Frequency Range", std::to_string(m_resolved_f_core_max - m_resolved_f_core_efficient)});
