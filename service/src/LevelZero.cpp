@@ -543,10 +543,10 @@ namespace geopm
     {
         uint64_t timestamp = 0;
         //PACKAGE
-        if(geopm_domain == GEOPM_DOMAIN_BOARD_ACCELERATOR) {
+        if(geopm_domain == GEOPM_DOMAIN_GPU) {
             timestamp = m_devices.at(l0_device_idx).cached_energy_timestamp;
         }
-        else if(geopm_domain == GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP) {
+        else if(geopm_domain == GEOPM_DOMAIN_GPU_CHIP) {
         //TILE
             timestamp = m_devices.at(l0_device_idx).subdevice.cached_energy_timestamp.at(l0_domain_idx);
         }

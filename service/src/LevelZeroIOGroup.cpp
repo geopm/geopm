@@ -435,7 +435,6 @@ namespace geopm
                                 M_NAME_PREFIX + "GPU_ACTIVE_TIME",
                                 M_NAME_PREFIX + "GPU_CORE_ACTIVE_TIME",
                                 M_NAME_PREFIX + "GPU_UNCORE_ACTIVE_TIME"})
-
         , m_derivative_signal_map ({
             {M_NAME_PREFIX + "GPU_POWER",
                     {"Average GPU power over 40 ms or 8 control loop iterations."
@@ -448,7 +447,8 @@ namespace geopm
                     {"Average GPU power over 40 ms or 8 control loop iterations",
                     M_NAME_PREFIX + "GPU_CORE_ENERGY",
                     M_NAME_PREFIX + "GPU_CORE_ENERGY_TIMESTAMP",
-                     IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE}},
+                    Agg::sum,
+                    IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE}},
             {M_NAME_PREFIX + "GPU_UTILIZATION",
                     {"Utilization of all GPU engines. Level Zero logical engines may map to the same hardware,"
                      " resulting in a reduced signal range (i.e. less than 0 to 1) in some cases."

@@ -300,7 +300,7 @@ namespace geopm
             check_idx_range(domain, domain_idx);
             result = m_levelzero.energy_pair(domain, domain_idx, -1);
         }
-        else if (domain == GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP){
+        else if (domain == GEOPM_DOMAIN_GPU_CHIP){
             std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
             dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
             check_domain_exists(m_levelzero.power_domain_count(domain,
