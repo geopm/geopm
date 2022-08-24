@@ -98,6 +98,7 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/CPUActivityAgentTest.adjust_platform_low \
               test/gtest_links/CPUActivityAgentTest.adjust_platform_zero \
               test/gtest_links/CPUActivityAgentTest.adjust_platform_nan \
+              test/gtest_links/CPUActivityAgentTest.adjust_platform_lower_bound_check \
               test/gtest_links/CPUActivityAgentTest.adjust_platform_signal_out_of_bounds \
               test/gtest_links/CSVTest.buffer \
               test/gtest_links/CSVTest.columns \
