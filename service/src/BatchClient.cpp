@@ -66,10 +66,10 @@ namespace geopm
         try {
             m_batch_status->send_message(BatchStatus::M_MESSAGE_READ);
             m_batch_status->receive_message(BatchStatus::M_MESSAGE_CONTINUE);
-        } catch (const Exception &ex) {
+        }
+        catch (const Exception &ex) {
             throw Exception("BatchClient::" + std::string(__func__) + " The server is unresponsive",
-                errno ? errno : GEOPM_ERROR_RUNTIME,
-                __FILE__, __LINE__);
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         double *buffer = (double *)m_signal_shmem->pointer();
         std::vector<double> result(buffer, buffer + m_num_signal);
@@ -90,10 +90,10 @@ namespace geopm
         try {
             m_batch_status->send_message(BatchStatus::M_MESSAGE_WRITE);
             m_batch_status->receive_message(BatchStatus::M_MESSAGE_CONTINUE);
-        } catch (const Exception &ex) {
+        }
+        catch (const Exception &ex) {
             throw Exception("BatchClient::" + std::string(__func__) + " The server is unresponsive",
-                errno ? errno : GEOPM_ERROR_RUNTIME,
-                __FILE__, __LINE__);
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
     }
 
@@ -105,10 +105,10 @@ namespace geopm
         try {
             m_batch_status->send_message(BatchStatus::M_MESSAGE_QUIT);
             m_batch_status->receive_message(BatchStatus::M_MESSAGE_QUIT);
-        } catch (const Exception &ex) {
+        }
+        catch (const Exception &ex) {
             throw Exception("BatchClient::" + std::string(__func__) + " The server is unresponsive",
-                errno ? errno : GEOPM_ERROR_RUNTIME,
-                __FILE__, __LINE__);
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
     }
 }
