@@ -250,7 +250,6 @@ namespace geopm
         if (!m_is_adjust_initialized) {
             // adjust all controls once in case not applied by policy
             for (size_t ctl_idx = 0; ctl_idx < (size_t) m_num_freq_ctl_domain; ++ctl_idx) {
-                // @todo: this is bad; agent should be able to use aliases
                 double val = m_platform_io.read_signal("CPU_FREQUENCY_MAX_CONTROL", m_freq_ctl_domain_type, ctl_idx);
                 m_platform_io.adjust(m_freq_control_idx[ctl_idx], val);
             }
