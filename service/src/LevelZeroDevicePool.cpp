@@ -322,7 +322,7 @@ namespace geopm
         if (domain == GEOPM_DOMAIN_GPU) {
             check_idx_range(domain, domain_idx);
             energy_timestamp = m_levelzero.energy_timestamp(domain, domain_idx,
-                                                            -1, -1);
+                                                            l0_domain, 0);
         }
         else if (domain == GEOPM_DOMAIN_GPU_CHIP) {
             std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
@@ -353,7 +353,7 @@ namespace geopm
         uint64_t energy = 0;
         if (domain == GEOPM_DOMAIN_GPU) {
             check_idx_range(domain, domain_idx);
-            energy = m_levelzero.energy(domain, domain_idx, -1, -1);
+            energy = m_levelzero.energy(domain, domain_idx, l0_domain, 0);
         }
         else if (domain == GEOPM_DOMAIN_GPU_CHIP) {
             std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
