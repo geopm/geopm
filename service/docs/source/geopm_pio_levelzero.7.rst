@@ -203,14 +203,6 @@ Every control is exposed as a signal with the same name.  The relevant signal ag
     *  **Format**: double
     *  **Unit**: hertz
 
-``LEVELZERO::GPU_CORE_FREQUENCY_CONTROL``
-    Sets both the minimum and maximum frequency request for the GPU Compute Hardware to a single user provided value (min=max).  Only valid as a signal after being written, NAN returned otherwise.
-
-    *  **Aggregation**: expect_same
-    *  **Domain**: gpu_chip
-    *  **Format**: double
-    *  **Unit**: hertz
-
 Aliases
 -------
 
@@ -233,12 +225,6 @@ Signal Aliases
 
 ``GPU_UNCORE_ACTIVITY``
     Maps to ``LEVELZERO::GPU_UNCORE_UTILIZATION``.
-
-Control Aliases
-^^^^^^^^^^^^^^^
-
-``GPU_CORE_FREQUENCY_CONTROL``
-    Maps to ``LEVELZERO::GPU_CORE_FREQUENCY_CONTROL``.
 
 See Also
 --------
