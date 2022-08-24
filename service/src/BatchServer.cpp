@@ -189,12 +189,11 @@ namespace geopm
             in_message = m_batch_status->receive_message();
         }
         catch (const Exception &ex) {
-            // If we were not interupted by SIGTERM with correct value rethrow
+            // If we were not interupted by SIGTERM with correct errno value rethrow
             if (ex.err_value() != EINTR ||
                 g_sigterm_count == 0) {
                 throw Exception("BatchServer::" + std::string(__func__) + " The client is unresponsive",
-                    errno ? errno : GEOPM_ERROR_RUNTIME,
-                    __FILE__, __LINE__);
+                                GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
         }
         if (!m_is_client_attached) {
@@ -217,12 +216,11 @@ namespace geopm
             m_is_client_waiting = false;
         }
         catch (const Exception &ex) {
-            // If we were not interupted SIGTERM with correct value rethrow
+            // If we were not interupted by SIGTERM with correct errno value rethrow
             if (ex.err_value() != EINTR ||
                 g_sigterm_count == 0) {
                 throw Exception("BatchServer::" + std::string(__func__) + " The client is unresponsive",
-                    errno ? errno : GEOPM_ERROR_RUNTIME,
-                    __FILE__, __LINE__);
+                                GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
         }
     }

@@ -13,8 +13,7 @@ def main():
     pio.adjust(index, cpu_frequency_value)
     pio.write_batch()
     print(getpid())
-    # sleep(1000)
-    for _ in range(1000):
+    for _ in range(60):
         sleep(1)
         pio.write_batch()
 
