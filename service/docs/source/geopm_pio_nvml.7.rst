@@ -132,14 +132,6 @@ Controls
 
 Every control is exposed as a signal with the same name.  The relevant signal aggregation information is provided below.
 
-``NVML::GPU_CORE_FREQUENCY_CONTROL``
-    Sets Streaming Multiprocessor frequency min and max to the same limit (in hertz).
-
-    *  **Aggregation**: average
-    *  **Domain**: gpu
-    *  **Format**: double
-    *  **Unit**: hertz
-
 ``NVML::GPU_CORE_FREQUENCY_RESET_CONTROL``
     Resets Streaming Multiprocessor frequency min and max limits to default values.  Parameter provided is unused.
 
@@ -190,9 +182,6 @@ Control Aliases
 
 ``GPU_POWER_LIMIT_CONTROL``
     Maps to ``NVML::GPU_POWER_LIMIT_CONTROL``
-
-``GPU_CORE_FREQUENCY_CONTROL``
-    Maps to ``NVML::GPU_CORE_FREQUENCY_CONTROL``
 
 See Also
 --------

@@ -177,9 +177,6 @@ Descriptions Of High Level Aliases
 ``GPU_CORE_FREQENCY_MIN_AVAIL``
     Minimum supported GPU core frequency over the specified domain.
 
-``GPU_CORE_FREQUENCY_CONTROL``
-    Average requested GPU core frequency over the specified domain.
-
 ``GPU_CORE_FREQUENCY_STATUS``
     Average achieved GPU core frequency over the specified domain.
 

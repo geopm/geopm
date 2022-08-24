@@ -224,8 +224,6 @@ namespace geopm
     PlatformIOImp::m_control_descriptions = {
         {"CPU_FREQUENCY_MAX_CONTROL",
          "Target operating frequency of the CPU based on the control register."},
-        {"GPU_CORE_FREQUENCY_CONTROL",
-         "Average requested GPU core frequency over the specified domain."},
         {"GPU_POWER_LIMIT_CONTROL",
          "Average GPU power usage limit"}
     };
