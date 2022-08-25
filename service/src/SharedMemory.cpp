@@ -41,8 +41,8 @@ namespace geopm
 #endif
                 }
             }
-            globfree(&globbuf);
         }
+        globfree(&globbuf);
     }
 
     /// @brief Size of the lock in memory.
