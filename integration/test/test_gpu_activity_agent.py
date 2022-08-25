@@ -73,6 +73,7 @@ class TestIntegration_gpu_activity(unittest.TestCase):
             enable_profile_traces=False,
             gpu_fe=efficient_freq,
             gpu_fmax=max_freq,
+            phi_list=None,
         )
 
         app_conf = parres.create_dgemm_appconf(mach, experiment_args)
@@ -104,6 +105,7 @@ class TestIntegration_gpu_activity(unittest.TestCase):
             enable_profile_traces=False,
             gpu_fe=efficient_freq,
             gpu_fmax=max_freq,
+            phi_list=None,
         )
 
         app_conf = parres.create_nstream_appconf(mach, experiment_args)
