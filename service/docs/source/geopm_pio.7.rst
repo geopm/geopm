@@ -180,7 +180,7 @@ Descriptions Of High Level Aliases
 ``GPU_CORE_FREQUENCY_MAX_CONTROL``
     Control that limits the maximum GPU core frequency.
 
-``GPU_CORE_FREQUENCY_MAX_CONTROL``
+``GPU_CORE_FREQUENCY_MIN_CONTROL``
     Control that limits the minimum GPU core frequency.
 
 ``GPU_CORE_FREQUENCY_STATUS``
