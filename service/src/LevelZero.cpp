@@ -24,6 +24,8 @@ namespace geopm
     }
 
     LevelZeroImp::LevelZeroImp()
+        : m_num_gpu(0)
+        , m_num_gpu_subdevice(0)
     {
         setenv("ZES_ENABLE_SYSMAN", "1", 1);
 
@@ -138,7 +140,7 @@ namespace geopm
 #endif
             }
 
-            if (m_num_gpu_subdevice % m_num_gpu != 0) {
+            if (m_num_gpu != 0 && m_num_gpu_subdevice % m_num_gpu != 0) {
                 throw Exception("LevelZero::" + std::string(__func__) +
                                 ": GEOPM Requires the number of subdevices to be" +
                                 " evenly divisible by the number of devices. " +
