@@ -39,11 +39,11 @@ namespace geopm
         , M_GPU_ACTIVITY_CUTOFF(0.05)
         , M_NUM_GPU(m_platform_topo.num_domain(GEOPM_DOMAIN_GPU))
         , m_do_write_batch(false)
+        , m_do_send_policy(true)
     {
         geopm_time(&m_last_wait);
     }
 
-    // Push signals and controls for future batch read/write
     void GPUActivityAgent::init(int level, const std::vector<int> &fan_in, bool is_level_root)
     {
         m_gpu_frequency_requests = 0;
@@ -59,11 +59,10 @@ namespace geopm
             m_gpu_active_energy_stop.push_back(0.0);
         }
 
-        if (level == 0) {
-            init_platform_io();
-        }
+        init_platform_io();
     }
 
+    // Push signals and controls for future batch read/write
     void GPUActivityAgent::init_platform_io(void)
     {
         for (int domain_idx = 0; domain_idx < M_NUM_GPU; ++domain_idx) {
@@ -191,7 +190,7 @@ namespace geopm
     // Indicate whether to send the policy down to children
     bool GPUActivityAgent::do_send_policy(void) const
     {
-        return true;
+        return m_do_send_policy;
     }
 
     void GPUActivityAgent::aggregate_sample(const std::vector<std::vector<double> > &in_sample,
@@ -211,6 +210,7 @@ namespace geopm
         GEOPM_DEBUG_ASSERT(in_policy.size() == M_NUM_POLICY,
                            "GPUActivityAgent::adjust_platform(): policy vector incorrectly sized");
 
+        m_do_send_policy = false;
         m_do_write_batch = false;
 
         // Per GPU freq
@@ -294,27 +294,26 @@ namespace geopm
             gpu_freq_request.push_back(f_request);
         }
 
-        if (!gpu_freq_request.empty()) {
-            // set frequency control per gpu
-            for (int domain_idx = 0; domain_idx < M_NUM_GPU; ++domain_idx) {
-                if (gpu_freq_request.at(domain_idx) !=
-                    m_gpu_freq_min_control.at(domain_idx).last_setting ||
-                    gpu_freq_request.at(domain_idx) !=
-                    m_gpu_freq_max_control.at(domain_idx).last_setting) {
+        // set frequency control per gpu
+        for (int domain_idx = 0; domain_idx < M_NUM_GPU; ++domain_idx) {
+            if (gpu_freq_request.at(domain_idx) !=
+                m_gpu_freq_min_control.at(domain_idx).last_setting ||
+                gpu_freq_request.at(domain_idx) !=
+                m_gpu_freq_max_control.at(domain_idx).last_setting) {
 
-                    m_platform_io.adjust(m_gpu_freq_min_control.at(domain_idx).batch_idx,
-                                         gpu_freq_request.at(domain_idx));
-                    m_gpu_freq_min_control.at(domain_idx).last_setting =
-                                         gpu_freq_request.at(domain_idx);
+                m_platform_io.adjust(m_gpu_freq_min_control.at(domain_idx).batch_idx,
+                                     gpu_freq_request.at(domain_idx));
+                m_gpu_freq_min_control.at(domain_idx).last_setting =
+                                     gpu_freq_request.at(domain_idx);
 
-                    m_platform_io.adjust(m_gpu_freq_max_control.at(domain_idx).batch_idx,
-                                         gpu_freq_request.at(domain_idx));
-                    m_gpu_freq_max_control.at(domain_idx).last_setting =
-                                         gpu_freq_request.at(domain_idx);
-                    ++m_gpu_frequency_requests;
-                }
+                m_platform_io.adjust(m_gpu_freq_max_control.at(domain_idx).batch_idx,
+                                     gpu_freq_request.at(domain_idx));
+                m_gpu_freq_max_control.at(domain_idx).last_setting =
+                                     gpu_freq_request.at(domain_idx);
+                ++m_gpu_frequency_requests;
+
+                m_do_write_batch = true;
             }
-            m_do_write_batch = true;
         }
     }
 

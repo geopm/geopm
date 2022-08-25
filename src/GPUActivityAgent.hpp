@@ -57,6 +57,7 @@ namespace geopm
             const double M_GPU_ACTIVITY_CUTOFF;
             const int M_NUM_GPU;
             bool m_do_write_batch;
+            bool m_do_send_policy;
 
             struct signal
             {
