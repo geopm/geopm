@@ -70,10 +70,9 @@ The tests in this directory do not use any of the tools provided by
 `geopm/integration/test`.  Some of these tests may use the GEOPM
 service on a system where it is required.
 
-The unit tests for the C++ files in `geopm/service/src` are located in
-`geopm/test` along with the unit tests for the files in `geopm/src`.
-In the future it may make sense to split the unit tests in to two
-directories so that the service subdirectory is fully independent.
+The unit tests for the C++ files in `geopm/service/src` are located in `geopm/service/test`.
+The unit tests for the C++ files in `geopm/src` are located in `geopm/test`.
+We have split the unit tests in to two directories so that the service subdirectory is fully independent.
 
 The unit tests for the geopmdpy module are located in
 `geopm/service/geopmdpy_test`.
