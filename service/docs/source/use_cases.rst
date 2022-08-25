@@ -51,5 +51,4 @@ Access Management
 
 Provide system administrators with a fine-grained access management interface
 that grants permissions to individual telemetry readings and control
-settings based on Linux membership in user group, cgroup or
-capability.
+settings based on Linux user group membership.
