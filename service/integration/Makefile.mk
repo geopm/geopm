@@ -9,6 +9,7 @@ EXTRA_DIST += integration/README.md \
               integration/install_service.sh \
               integration/kill_geopmd.sh \
               integration/test/__init__.py \
+              integration/test/README.md \
               integration/test/test_bash_examples.py \
               integration/test/check_write_session.sh \
               integration/test/test_batch_performance.py \
