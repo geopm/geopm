@@ -54,19 +54,24 @@ class TestIntegration_cpu_activity(unittest.TestCase):
 
         node_count = 1
 
+        mach = machine.init_output_dir('.')
+
+        def launch_helper(experiment_type, experiment_args, app_conf, experiment_cli_args):
+            output_dir = experiment_args.output_dir
+            if output_dir.exists() and output_dir.is_dir():
+                shutil.rmtree(output_dir)
+
+            experiment_type.launch(app_conf=app_conf, args=experiment_args,
+                                   experiment_cli_args=experiment_cli_args)
+
         ################
         # Monitor Runs #
         ################
 
         # MiniFE
-        output_dir = Path(__file__).resolve().parent.joinpath('test_cpu_activity_output/minife_monitor')
-        if output_dir.exists() and output_dir.is_dir():
-            shutil.rmtree(output_dir)
-        mach = machine.init_output_dir(output_dir)
-        cls._minife_monitor_dir = output_dir
-
+        cls._minife_monitor_dir = Path(os.path.join('test_cpu_activity_output', 'minife_monitor')
         experiment_args = SimpleNamespace(
-            output_dir=output_dir,
+            output_dir=cls._minife_monitor_dir,
             node_count=node_count,
             trial_count=1,
             cool_off_time=3,
@@ -75,19 +80,10 @@ class TestIntegration_cpu_activity(unittest.TestCase):
             verbose=False,
         )
 
-        minife_app_conf = minife.MinifeAppConf(node_count)
-        monitor.launch(app_conf=minife_app_conf, args=experiment_args,
-                       experiment_cli_args=[])
+        launch_helper(monitor, experiment_args, minife.MinifeAppConf(node_count), [])
 
         # Arithmetic Intensity Benchmark
-        output_dir = Path(__file__).resolve().parent.joinpath('test_cpu_activity_output/aib_monitor')
-        if output_dir.exists() and output_dir.is_dir():
-            shutil.rmtree(output_dir)
-        mach = machine.init_output_dir(output_dir)
-        cls._aib_monitor_dir = output_dir
-
-        ranks_per_node = mach.num_core() - mach.num_package()
-        ranks_per_package = ranks_per_node // mach.num_package()
+        cls._aib_monitor_dir = Path(os.path.join('test_cpu_activity_output', 'aib_monitor'))
 
         aib_app_conf = arithmetic_intensity.ArithmeticIntensityAppConf(
             ['--slowdown=1',
@@ -97,53 +93,32 @@ class TestIntegration_cpu_activity(unittest.TestCase):
              '--benchmarks=1 16'],
             mach,
             run_type='sse',
-            ranks_per_node=ranks_per_node,
+            ranks_per_node=None,
             distribute_slow_ranks=False)
 
-        experiment_args = SimpleNamespace(
-            output_dir=output_dir,
-            node_count=node_count,
-            trial_count=3,
-            cool_off_time=3,
-            enable_traces=False,
-            enable_profile_traces=False,
-            verbose=False,
-        )
+        experiment_args.output_dir = cls._aib_monitor_dir
+        experiment_args.trial_count = 3
 
-        monitor.launch(app_conf=aib_app_conf, args=experiment_args,
-                       experiment_cli_args=[])
+        launch_helper(monitor, experiment_args, aib_app_conf, [])
 
         ##################################
         # Uncore frequency sweep at base #
         ##################################
-        output_dir = Path(__file__).resolve().parent.joinpath('test_cpu_activity_output/uncore_frequency_sweep')
-        if output_dir.exists() and output_dir.is_dir():
-            shutil.rmtree(output_dir)
-        mach = machine.init_output_dir(output_dir)
-        cls._aib_uncore_freq_sweep_dir = output_dir
+        cls._aib_uncore_freq_sweep_dir = Path(os.path.join('test_cpu_activity_output', 'uncore_frequency_sweep'))
+        experiment_args.output_dir = cls._aib_uncore_freq_sweep_dir
+        experiment_args.min_frequency = cpu_base_freq
+        experiment_args.max_frequency = cpu_base_freq
+        experiment_args.step_frequency = 2e8
+        experiment_args.min_uncore_frequency = uncore_min_freq
+        experiment_args.max_uncore_frequency = uncore_max_freq
+        experiment_args.step_uncore_frequency = 2e8
+        experiment_args.run_max_turbo = False
 
-        experiment_args = SimpleNamespace(
-            output_dir=output_dir,
-            node_count=node_count,
-            trial_count=3,
-            cool_off_time=3,
-            enable_traces=False,
-            enable_profile_traces=False,
-            verbose=False,
-            min_frequency=cpu_base_freq,
-            max_frequency=cpu_base_freq,
-            step_frequency=2e8,
-            min_uncore_frequency=uncore_min_freq,
-            max_uncore_frequency=uncore_max_freq,
-            step_uncore_frequency=2e8,
-            run_max_turbo=False
-        )
         report_signals="MSR::QM_CTR_SCALED_RATE@package,CPU_UNCORE_FREQUENCY_STATUS@package,MSR::CPU_SCALABILITY_RATIO@package,CPU_FREQUENCY_MAX_CONTROL@package,CPU_UNCORE_FREQUENCY_MIN_CONTROL@package,CPU_UNCORE_FREQUENCY_MAX_CONTROL@package"
         experiment_cli_args=['--geopm-report-signals={}'.format(report_signals)]
 
         # We're reusing the AIB app conf from above here
-        uncore_frequency_sweep.launch(app_conf=aib_app_conf, args=experiment_args,
-                                      experiment_cli_args=experiment_cli_args)
+        launch_helper(uncore_frequency_sweep, experiment_args, aib_app_conf, experiment_cli_args)
 
         ##############
         # Parse data #
@@ -161,32 +136,13 @@ class TestIntegration_cpu_activity(unittest.TestCase):
         #######################################################
         # Core frequency sweep at fixed uncore_efficient_freq #
         #######################################################
-        output_dir = Path(__file__).resolve().parent.joinpath('test_cpu_activity_output/core_frequency_sweep')
-        if output_dir.exists() and output_dir.is_dir():
-            shutil.rmtree(output_dir)
-        mach = machine.init_output_dir(output_dir)
-        cls._aib_core_freq_sweep_dir = output_dir
+        cls._aib_core_freq_sweep_dir = Path(os.path.join('test_cpu_activity_output', 'core_frequency_sweep'))
+        experiment_args.min_frequency = cpu_min_freq
+        experiment_args.max_frequency = cpu_max_freq
+        experiment_args.min_uncore_frequency = uncore_efficient_freq
+        experiment_args.max_uncore_frequency = uncore_efficient_freq
 
-        experiment_args = SimpleNamespace(
-            output_dir=output_dir,
-            node_count=node_count,
-            trial_count=3,
-            cool_off_time=3,
-            enable_traces=False,
-            enable_profile_traces=False,
-            verbose=False,
-            min_frequency=cpu_min_freq,
-            max_frequency=cpu_max_freq,
-            step_frequency=2e8,
-            min_uncore_frequency=uncore_efficient_freq,
-            max_uncore_frequency=uncore_efficient_freq,
-            step_uncore_frequency=2e8,
-            run_max_turbo=False
-        )
-        experiment_cli_args=['--geopm-report-signals={}'.format(report_signals)]
-
-        uncore_frequency_sweep.launch(app_conf=aib_app_conf, args=experiment_args,
-                                      experiment_cli_args=experiment_cli_args)
+        launch_helper(uncore_frequency_sweep, experiment_args, aib_app_conf, experiment_cli_args)
 
         ##############
         # Parse data #
@@ -200,14 +156,10 @@ class TestIntegration_cpu_activity(unittest.TestCase):
         ################################
 
         # Arithmetic Intensity Benchmark
-        output_dir = Path(__file__).resolve().parent.joinpath('test_cpu_activity_output/aib_cpu_activity')
-        if output_dir.exists() and output_dir.is_dir():
-            shutil.rmtree(output_dir)
-        mach = machine.init_output_dir(output_dir)
-        cls._aib_agent_dir = output_dir
+        cls._aib_agent_dir = Path(os.path.join('test_cpu_activity_output', 'aib_cpu_activity'))
 
-        experiment_args = SimpleNamespace(
-            output_dir=output_dir,
+        ca_experiment_args = SimpleNamespace(
+            output_dir=cls._aib_agent_dir,
             node_count=node_count,
             trial_count=3,
             cool_off_time=3,
@@ -219,39 +171,17 @@ class TestIntegration_cpu_activity(unittest.TestCase):
             uncore_fe=cpu_efficient_freq,
             uncore_fmax=cpu_max_freq,
             uncore_mbm_list=uncore_mbm_list,
-            phi_list=[0.2,0.5,0.7],
+            phi_list=[0.2, 0.5, 0.7],
         )
 
-        cpu_activity.launch(app_conf=aib_app_conf, args=experiment_args,
-                            experiment_cli_args=[])
+        launch_helper(cpu_activity, ca_experiment_args, aib_app_conf, [])
 
         # MiniFE
-        output_dir = Path(__file__).resolve().parent.joinpath('test_cpu_activity_output/minife_cpu_activity')
-        if output_dir.exists() and output_dir.is_dir():
-            shutil.rmtree(output_dir)
-        mach = machine.init_output_dir(output_dir)
-        cls._minife_agent_dir = output_dir
+        cls._minife_agent_dir = Path(os.path.join('test_cpu_activity_output', 'minife_cpu_activity'))
+        ca_experiment_args.output_dir = cls._minife_agent_dir
+        ca_experiment_args.trial_count = 1
 
-        experiment_args = SimpleNamespace(
-            output_dir=output_dir,
-            node_count=node_count,
-            trial_count=1,
-            cool_off_time=3,
-            enable_traces=False,
-            enable_profile_traces=False,
-            verbose=False,
-            cpu_fe=cpu_efficient_freq,
-            cpu_fmax=cpu_max_freq,
-            uncore_fe=cpu_efficient_freq,
-            uncore_fmax=cpu_max_freq,
-            uncore_mbm_list=uncore_mbm_list,
-            phi_list=[0.2,0.5,0.7],
-        )
-
-        app_conf = minife.MinifeAppConf(node_count)
-
-        cpu_activity.launch(app_conf=minife_app_conf, args=experiment_args,
-                            experiment_cli_args=[])
+        launch_helper(cpu_activity, ca_experiment_args, minife.MinifeAppConf(node_count), [])
 
     def tearDown(self):
         if sys.exc_info() != (None, None, None):
