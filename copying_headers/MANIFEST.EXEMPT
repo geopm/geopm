@@ -174,6 +174,7 @@ service/m4
 service/README.rst
 service/requirements.txt
 service/integration/README.md
+service/integration/test/README.md
 shell_completion/README.md
 specs/geopm-dudley.spec.in
 specs/geopm-ohpc.spec.in
