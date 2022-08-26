@@ -177,12 +177,17 @@ void LevelZeroIOGroupTest::SetUpDefaultExpectCalls()
                     energy(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL));
         EXPECT_CALL(*m_device_pool, // GPU_ENERGY_TIMESTAMP
                     energy_timestamp(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL));
+        EXPECT_CALL(*m_device_pool, // GPU_CORE_PERFORMANCE_FACTOR
+                    performance_factor(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE)).Times(2);
 
         // control pruning expectations
         // GPU_CORE_FREQUENCY_MAX_CONTROL, GPU_CORE_FREQUENCY_MIN_CONTROL, and the restore_control() direct call.
         EXPECT_CALL(*m_device_pool,
                     frequency_control(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE,
                                       0, 0)).Times(3);
+        EXPECT_CALL(*m_device_pool, // GPU_CORE_PERFORMANCE_FACTOR_CONTROL
+                    performance_factor_control(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE, 0));
+
     }
 
     // Expectations for signal pruning code in the constructor
@@ -798,6 +803,12 @@ TEST_F(LevelZeroIOGroupTest, signal_and_control_trimming)
         // EXPECT_CALL(*m_device_pool,
         //             frequency_control(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE,
         //                               0, 0)).Times(3);
+
+        EXPECT_CALL(*m_device_pool, // GPU_CORE_PERFORMANCE_FACTOR
+                    performance_factor(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE)).Times(2);
+
+        EXPECT_CALL(*m_device_pool, // GPU_CORE_PERFORMANCE_FACTOR_CONTROL
+                    performance_factor_control(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE, 0));
     }
 
     // Expectations for signal pruning code in the constructor
