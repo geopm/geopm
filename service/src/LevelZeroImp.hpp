@@ -100,6 +100,7 @@ namespace geopm
                 std::vector<std::vector<zes_freq_handle_t> > freq_domain;
                 std::vector<std::vector<zes_engine_handle_t> > engine_domain;
                 mutable std::vector<std::vector<uint64_t> > cached_timestamp;
+
                 //uint32_t num_subdevice_perf_domain;
                 std::vector<std::vector<zes_perf_handle_t>> perf_domain;
 

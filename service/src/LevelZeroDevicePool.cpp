@@ -417,12 +417,12 @@ namespace geopm
                                                       int l0_domain) const
     {
         double result = NAN;
-        if (domain == GEOPM_DOMAIN_BOARD_ACCELERATOR) {
+        if (domain == GEOPM_DOMAIN_GPU) {
             check_idx_range(domain, domain_idx);
 
             result = m_levelzero.performance_factor(domain, domain_idx, l0_domain, 0);
         }
-        else if (domain == GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP) {
+        else if (domain == GEOPM_DOMAIN_GPU_CHIP) {
             std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
             dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
 
@@ -460,11 +460,11 @@ namespace geopm
     void LevelZeroDevicePoolImp::performance_factor_control(int domain, unsigned int domain_idx,
                                                             int l0_domain, double setting) const
     {
-        if (domain == GEOPM_DOMAIN_BOARD_ACCELERATOR) {
+        if (domain == GEOPM_DOMAIN_GPU) {
             check_idx_range(domain, domain_idx);
             m_levelzero.performance_factor_control(domain, domain_idx, l0_domain, 0, setting);
         }
-        else if (domain == GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP) {
+        else if (domain == GEOPM_DOMAIN_GPU_CHIP) {
             std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
             dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
 

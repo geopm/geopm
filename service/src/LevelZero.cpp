@@ -341,7 +341,8 @@ namespace geopm
                     else if (property.engines == ZES_ENGINE_TYPE_FLAG_MEDIA) { //TODO: should this be _DMA?
                         m_devices.at(device_idx).perf_domain.at(geopm::LevelZero::M_DOMAIN_MEMORY) = handle;
                     }
-                    else if (property.engines == ZES_ENGINE_TYPE_FLAG_OTHER) { //TODO: Update to not rely on OTHER
+                    //TODO: Update to not rely on the OTHER enum if possible
+                    else if (property.engines == ZES_ENGINE_TYPE_FLAG_OTHER) {
                         m_devices.at(device_idx).perf_domain.at(geopm::LevelZero::M_DOMAIN_ALL) = handle;
                     }
                     else {
@@ -515,10 +516,10 @@ namespace geopm
     int LevelZeroImp::performance_domain_count(int geopm_domain, unsigned int l0_device_idx, int l0_domain) const
     {
         int result = 0;
-        if (geopm_domain == GEOPM_DOMAIN_BOARD_ACCELERATOR) {
+        if (geopm_domain == GEOPM_DOMAIN_GPU) {
             result = m_devices.at(l0_device_idx).perf_domain.size();
         }
-        else if (geopm_domain == GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP) {
+        else if (geopm_domain == GEOPM_DOMAIN_GPU_CHIP) {
             result = m_devices.at(l0_device_idx).subdevice.perf_domain.at(l0_domain).size();
         }
         return result;
@@ -531,7 +532,7 @@ namespace geopm
         zes_perf_handle_t handle;
         ze_result_t ze_result;
 
-        if (geopm_domain == GEOPM_DOMAIN_BOARD_ACCELERATOR) {
+        if (geopm_domain == GEOPM_DOMAIN_GPU) {
             handle = m_devices.at(l0_device_idx).perf_domain.at(l0_domain);
 
             ze_result = zesPerformanceFactorGetConfig(handle, &result);
@@ -539,7 +540,7 @@ namespace geopm
                             + std::string(__func__) +
                             ": Sysman failed to get performance factor values", __LINE__);
         }
-        else if (geopm_domain == GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP) {
+        else if (geopm_domain == GEOPM_DOMAIN_GPU_CHIP) {
             handle = m_devices.at(l0_device_idx).subdevice.perf_domain.at(l0_domain).at(l0_domain_idx);
 
             ze_result = zesPerformanceFactorGetConfig(handle, &result);
@@ -824,10 +825,10 @@ namespace geopm
         zes_perf_handle_t handle;
         ze_result_t ze_result;
 
-        if (geopm_domain == GEOPM_DOMAIN_BOARD_ACCELERATOR) {
+        if (geopm_domain == GEOPM_DOMAIN_GPU) {
             handle = m_devices.at(l0_device_idx).perf_domain.at(l0_domain);
         }
-        else if (geopm_domain == GEOPM_DOMAIN_BOARD_ACCELERATOR_CHIP) {
+        else if (geopm_domain == GEOPM_DOMAIN_GPU_CHIP) {
             handle = m_devices.at(l0_device_idx).subdevice.perf_domain.at(l0_domain).at(l0_domain_idx);
         }
         else {
