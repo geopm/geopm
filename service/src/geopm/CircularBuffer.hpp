@@ -176,11 +176,11 @@ namespace geopm
             throw Exception("CircularBuffer::insert(): Cannot insert into a buffer of 0 size", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         if (m_count < m_max_size) {
-            m_buffer[m_count] = value;
+            m_buffer.at(m_count) = value;
             m_count++;
         }
         else {
-            m_buffer[m_head] = value;
+            m_buffer.at(m_head) = value;
             m_head = ((m_head + 1) % m_max_size);
         }
     }
@@ -191,7 +191,7 @@ namespace geopm
         if (index >= m_count) {
             throw Exception("CircularBuffer::value(): index is out of bounds", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        return m_buffer[(m_head + index) % m_max_size];
+        return m_buffer.at((m_head + index) % m_max_size);
     }
 
     template <class type>
