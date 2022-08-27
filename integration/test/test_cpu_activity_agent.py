@@ -67,9 +67,12 @@ class TestIntegration_cpu_activity(unittest.TestCase):
         ################
         # Monitor Runs #
         ################
+        geopm_test_launcher.geopmwrite("CPU_FREQUENCY_MAX_CONTROL board 0 {}".format(cpu_max_freq))
+        geopm_test_launcher.geopmwrite("CPU_UNCORE_FREQUENCY_MAX_CONTROL board 0 {}".format(uncore_max_freq))
+        geopm_test_launcher.geopmwrite("CPU_UNCORE_FREQUENCY_MIN_CONTROL board 0 {}".format(uncore_min_freq))
 
         # MiniFE
-        cls._minife_monitor_dir = Path(os.path.join('test_cpu_activity_output', 'minife_monitor')
+        cls._minife_monitor_dir = Path(os.path.join('test_cpu_activity_output', 'minife_monitor'))
         experiment_args = SimpleNamespace(
             output_dir=cls._minife_monitor_dir,
             node_count=node_count,
@@ -137,6 +140,7 @@ class TestIntegration_cpu_activity(unittest.TestCase):
         # Core frequency sweep at fixed uncore_efficient_freq #
         #######################################################
         cls._aib_core_freq_sweep_dir = Path(os.path.join('test_cpu_activity_output', 'core_frequency_sweep'))
+        experiment_args.output_dir = cls._aib_core_freq_sweep_dir
         experiment_args.min_frequency = cpu_min_freq
         experiment_args.max_frequency = cpu_max_freq
         experiment_args.min_uncore_frequency = uncore_efficient_freq
@@ -154,6 +158,9 @@ class TestIntegration_cpu_activity(unittest.TestCase):
         ################################
         # CPU Activity Agent phi sweep #
         ################################
+        geopm_test_launcher.geopmwrite("CPU_FREQUENCY_MAX_CONTROL board 0 {}".format(cpu_max_freq))
+        geopm_test_launcher.geopmwrite("CPU_UNCORE_FREQUENCY_MAX_CONTROL board 0 {}".format(uncore_max_freq))
+        geopm_test_launcher.geopmwrite("CPU_UNCORE_FREQUENCY_MIN_CONTROL board 0 {}".format(uncore_min_freq))
 
         # Arithmetic Intensity Benchmark
         cls._aib_agent_dir = Path(os.path.join('test_cpu_activity_output', 'aib_cpu_activity'))
