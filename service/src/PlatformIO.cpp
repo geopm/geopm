@@ -1000,6 +1000,11 @@ namespace geopm
         it->second->stop_batch();
         m_batch_server.erase(it);
     }
+
+    bool PlatformIO::is_valid_value(double value)
+    {
+        return !std::isnan(value);
+    }
 }
 
 extern "C" {
@@ -1418,5 +1423,9 @@ extern "C" {
     void geopm_pio_reset(void)
     {
         geopm::platform_io_reset();
+    }
+
+    int geopm_pio_check_valid_value(double value) {
+        return geopm::platform_io().is_valid_value(value) ? 0 : -1;
     }
 }

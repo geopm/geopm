@@ -467,6 +467,11 @@ int geopm_pio_format_signal(double signal,
 ///        managed by the GEOPM HPC runtime.
 void geopm_pio_reset(void);
 
+/// @param [in] value Check if the given parameter is a valid value.
+///
+/// @return 0 if the value is valid, -1 if the value is invalid.
+int geopm_pio_check_valid_value(double value);
+
 #ifdef __cplusplus
 }
 #endif

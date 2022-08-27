@@ -248,6 +248,11 @@ namespace geopm
                                             int &server_pid,
                                             std::string &server_key) = 0;
             virtual void stop_batch_server(int server_pid) = 0;
+
+            /// @param [in] value Check if the given parameter is a valid value.
+            ///
+            /// @return true if the value is valid, false if the value is invalid.
+            static bool is_valid_value(double value);
     };
 
     PlatformIO &platform_io(void);
