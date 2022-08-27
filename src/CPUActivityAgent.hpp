@@ -56,7 +56,18 @@ namespace geopm
             const int M_NUM_PACKAGE;
             const int M_NUM_CORE;
             bool m_do_write_batch;
-            bool m_update_qm_max_rate;
+            double m_core_frequency_requests;
+            double m_uncore_frequency_requests;
+            double m_core_frequency_clipped;
+            double m_uncore_frequency_clipped;
+            double m_resolved_f_uncore_efficient;
+            double m_resolved_f_uncore_max;
+            double m_resolved_f_core_efficient;
+            double m_resolved_f_core_max;
+            double m_freq_uncore_min;
+            double m_freq_uncore_max;
+            double m_freq_core_min;
+            double m_freq_core_max;
 
             struct signal
             {
@@ -90,19 +101,6 @@ namespace geopm
             };
 
             std::map<std::string, double> m_policy_available;
-
-            double m_core_frequency_requests;
-            double m_uncore_frequency_requests;
-            double m_core_frequency_clipped;
-            double m_uncore_frequency_clipped;
-            double m_freq_uncore_min;
-            double m_freq_uncore_max;
-            double m_freq_core_min;
-            double m_freq_core_max;
-            double m_resolved_f_uncore_efficient;
-            double m_resolved_f_uncore_max;
-            double m_resolved_f_core_efficient;
-            double m_resolved_f_core_max;
             std::map<double,double> m_qm_max_rate;
 
             std::vector<signal> m_core_scal;
