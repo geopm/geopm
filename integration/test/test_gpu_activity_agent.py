@@ -32,7 +32,7 @@ class TestIntegration_gpu_activity(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """
-        Setup applications, execute, and set up class variables.
+        Setup DGEMM & STREAM applications, setup agent config, and execute.
         """
 
         max_freq = geopm_test_launcher.geopmread("GPU_CORE_FREQUENCY_MAX_AVAIL board 0")
@@ -49,17 +49,23 @@ class TestIntegration_gpu_activity(unittest.TestCase):
         min_freq = geopm_test_launcher.geopmread("GPU_CORE_FREQUENCY_MIN_AVAIL board 0")
         efficient_freq = (min_freq + max_freq) / 2
 
-        #DGEMM
-        output_dir = Path(__file__).resolve().parent.joinpath('test_gpu_activity_output/dgemm')
-        if output_dir.exists() and output_dir.is_dir():
-            shutil.rmtree(output_dir)
-        mach = machine.init_output_dir(output_dir)
+        def launch_helper(experiment_type, experiment_args, app_conf, experiment_cli_args):
+            output_dir = experiment_args.output_dir
+            if output_dir.exists() and output_dir.is_dir():
+                shutil.rmtree(output_dir)
 
-        cls._dgemm_output_dir = output_dir
+            experiment_type.launch(app_conf=app_conf, args=experiment_args,
+                                   experiment_cli_args=experiment_cli_args)
 
+
+        node_count=1
+        mach = machine.init_output_dir('.')
+
+        # DGEMM
+        cls._dgemm_output_dir = Path(os.path.join('test_gpu_activity_output', 'dgemm'))
         experiment_args = SimpleNamespace(
-            output_dir=output_dir,
-            node_count=1,
+            output_dir=cls._dgemm_output_dir,
+            node_count=node_count,
             parres_cores_per_node=None,
             parres_gpus_per_node=None,
             parres_cores_per_rank=1,
@@ -76,42 +82,12 @@ class TestIntegration_gpu_activity(unittest.TestCase):
             phi_list=None,
         )
 
-        app_conf = parres.create_dgemm_appconf(mach, experiment_args)
+        launch_helper(gpu_activity, experiment_args, parres.create_dgemm_appconf(mach, experiment_args), [])
 
-        gpu_activity.launch(app_conf=app_conf, args=experiment_args,
-                            experiment_cli_args=[])
-
-        #STREAM
-        output_dir = Path(__file__).resolve().parent.joinpath('test_gpu_activity_output/stream')
-        if output_dir.exists() and output_dir.is_dir():
-            shutil.rmtree(output_dir)
-        mach = machine.init_output_dir(output_dir)
-
-        cls._stream_output_dir = output_dir
-
-        experiment_args = SimpleNamespace(
-            output_dir=output_dir,
-            node_count=1,
-            parres_cores_per_node=None,
-            parres_gpus_per_node=None,
-            parres_cores_per_rank=1,
-            parres_init_setup=None,
-            parres_exp_setup=None,
-            parres_teardown=None,
-            parres_args=None,
-            trial_count=1,
-            cool_off_time=3,
-            enable_traces=False,
-            enable_profile_traces=False,
-            gpu_fe=efficient_freq,
-            gpu_fmax=max_freq,
-            phi_list=None,
-        )
-
-        app_conf = parres.create_nstream_appconf(mach, experiment_args)
-
-        gpu_activity.launch(app_conf=app_conf, args=experiment_args,
-                            experiment_cli_args=[])
+        # STREAM
+        cls._stream_output_dir = Path(os.path.join('test_gpu_activity_output', 'stream'))
+        experiment_args.output_dir=cls._stream_output_dir
+        launch_helper(gpu_activity, experiment_args, parres.create_nstream_appconf(mach, experiment_args), [])
 
 
     def tearDown(self):
