@@ -38,7 +38,14 @@ namespace geopm
         , M_NUM_PACKAGE(m_platform_topo.num_domain(GEOPM_DOMAIN_PACKAGE))
         , M_NUM_CORE(m_platform_topo.num_domain(GEOPM_DOMAIN_CORE))
         , m_do_write_batch(false)
-        , m_update_qm_max_rate(true)
+        , m_core_frequency_requests(0)
+        , m_uncore_frequency_requests(0)
+        , m_core_frequency_clipped(0)
+        , m_uncore_frequency_clipped(0)
+        , m_resolved_f_uncore_efficient(0)
+        , m_resolved_f_uncore_max(0)
+        , m_resolved_f_core_efficient(0)
+        , m_resolved_f_core_max(0)
     {
         geopm_time(&m_last_wait);
     }
@@ -46,15 +53,13 @@ namespace geopm
     // Push signals and controls for future batch read/write
     void CPUActivityAgent::init(int level, const std::vector<int> &fan_in, bool is_level_root)
     {
-        m_core_frequency_requests = 0;
-        m_uncore_frequency_requests = 0;
-        m_core_frequency_clipped = 0;
-        m_uncore_frequency_clipped = 0;
-        m_resolved_f_uncore_efficient = 0;
-        m_resolved_f_uncore_max = 0;
-        m_resolved_f_core_efficient = 0;
-        m_resolved_f_core_max = 0;
+        if (level == 0) {
+            init_platform_io();
+        }
+    }
 
+    void CPUActivityAgent::init_platform_io(void)
+    {
         // These are not currently guaranteed to be the system uncore min and max,
         // just what the user/admin has previously set.
         m_freq_uncore_min = m_platform_io.read_signal("CPU_UNCORE_FREQUENCY_MIN_CONTROL", GEOPM_DOMAIN_BOARD, 0);
@@ -62,12 +67,6 @@ namespace geopm
         m_freq_core_min = m_platform_io.read_signal("CPU_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0);
         m_freq_core_max = m_platform_io.read_signal("CPU_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0);
 
-
-        init_platform_io();
-    }
-
-    void CPUActivityAgent::init_platform_io(void)
-    {
         for (int domain_idx = 0; domain_idx < M_NUM_CORE; ++domain_idx) {
             m_core_scal.push_back({m_platform_io.push_signal("MSR::CPU_SCALABILITY_RATIO",
                                                              GEOPM_DOMAIN_CORE,
@@ -85,9 +84,7 @@ namespace geopm
             m_uncore_freq_status.push_back({m_platform_io.push_signal("CPU_UNCORE_FREQUENCY_STATUS",
                                                                       GEOPM_DOMAIN_PACKAGE,
                                                                       domain_idx), NAN});
-        }
 
-        for (int domain_idx = 0; domain_idx < M_NUM_PACKAGE; ++domain_idx) {
             m_uncore_freq_min_control.push_back({m_platform_io.push_control("CPU_UNCORE_FREQUENCY_MIN_CONTROL",
                                               GEOPM_DOMAIN_PACKAGE,
                                               domain_idx), -1});
@@ -222,24 +219,21 @@ namespace geopm
         in_policy[M_POLICY_UNCORE_FREQ_EFFICIENT] = f_uncore_efficient;
 
         // Validate all (uncore frequency, max memory bandwidth) pairs
+        // Example policy values parsed here:
+        //
+        // UNCORE_FREQ_0": 1800000000.0,
+        // "MAX_MEMORY_BANDWIDTH_0": 108066060000.0,
+        // "CPU_UNCORE_FREQ_1": 1900000000.0,
+        // "MAX_MEMORY_BANDWIDTH_1": 116333135000.0,
+        // ...
+        // CPU_UNCORE_FREQ_<#>": 2400000000.0,
+        // "MAX_MEMORY_BANDWIDTH_<#>": 106613110000.0
         std::set<double> policy_uncore_freqs;
         for (auto it = in_policy.begin() + M_POLICY_FIRST_UNCORE_FREQ;
              it != in_policy.end() && std::next(it) != in_policy.end(); std::advance(it, 2)) {
             auto mapped_mem_bw = *(it + 1);
-            if (!std::isnan(*it)) {
-                // We are using a static cast rather than reinterpreting the
-                // memory so that regions can be input to this policy in the
-                // same form they are output from a report.
-                // Example policy values parsed here:
-                //
-                // UNCORE_FREQ_0": 1800000000.0,
-                // "MAX_MEMORY_BANDWIDTH_0": 108066060000.0,
-                // "CPU_UNCORE_FREQ_1": 1900000000.0,
-                // "MAX_MEMORY_BANDWIDTH_1": 116333135000.0,
-                // ...
-                // CPU_UNCORE_FREQ_<#>": 2400000000.0,
-                // "MAX_MEMORY_BANDWIDTH_<#>": 106613110000.0
-                auto uncore_freq = static_cast<uint64_t>(*it);
+            auto uncore_freq = (*it);
+            if (!std::isnan(uncore_freq)) {
                 if (std::isnan(mapped_mem_bw)) {
                     throw Exception("CPUActivityAgent::" + std::string(__func__) +
                                     "(): mapped CPU_UNCORE_FREQUENCY with no max memory bandwidth.",
@@ -295,28 +289,23 @@ namespace geopm
     {
         m_do_write_batch = false;
 
-        if (m_update_qm_max_rate) {
+        if (m_qm_max_rate.size() == 0) {
             for (auto it = in_policy.begin() + M_POLICY_FIRST_UNCORE_FREQ;
                  it != in_policy.end() && std::next(it) != in_policy.end();
                  std::advance(it, 2)) {
 
+                auto uncore_freq = (*it);
+                auto max_mem_bw = *(it + 1);
                 if (!std::isnan(*it)) {
-                    auto uncore_freq = static_cast<uint64_t>(*it);
-                    auto max_mem_bw = *(it + 1);
                     // Not valid to have NAN max mem bw for uncore freq.
                     GEOPM_DEBUG_ASSERT(!std::isnan(max_mem_bw),
                                        "mapped CPU_UNCORE_FREQUENCY with no max memory bandwidth assigned.");
                     m_qm_max_rate[uncore_freq] = max_mem_bw;
                 }
             }
-            // Warn the user if they have not entered a policy with memory bandwidth characterization.
-            // In this case the maximum uncore frequency will be used.  This can easily be converted
-            // to an assertion if it should be considered a failure case.
-            if (m_qm_max_rate.size() == 0) {
-                std::cerr << "Warning: <geopm> CPUActivityAgent did not receive a policy containing memory " <<
-                             "bandwidth characterization.  This may negatively impact agent performance." << std::endl;
-            }
-            m_update_qm_max_rate = false;
+
+            GEOPM_DEBUG_ASSERT(m_qm_max_rate.size() != 0,
+                               "CPUActivityAgent policy did not contain memory bandwidth characteriztaion");
         }
 
         // Per package freq
@@ -365,7 +354,7 @@ namespace geopm
             // For now only L3 bandwith metric is used.
             double uncore_req = m_resolved_f_uncore_efficient + f_uncore_range * scalability_uncore;
 
-            //Clip uncore request within policy limits
+            // Clip uncore request within policy limits
             if (uncore_req > m_resolved_f_uncore_max || uncore_req < m_resolved_f_uncore_efficient) {
                 ++m_uncore_frequency_clipped;
             }
@@ -391,7 +380,7 @@ namespace geopm
 
             double core_req = m_resolved_f_core_efficient + f_core_range * scalability;
 
-            //Clip core request within policy limits
+            // Clip core request within policy limits
             if (core_req > m_resolved_f_core_max || core_req < m_resolved_f_core_efficient) {
                 ++m_core_frequency_clipped;
             }
@@ -401,24 +390,25 @@ namespace geopm
             core_freq_request.push_back(core_req);
         }
 
-        // set per core controls
+        // Set per core controls
         for (int domain_idx = 0; domain_idx < M_NUM_CORE; ++domain_idx) {
             if(std::isnan(core_freq_request.at(domain_idx))) {
                 core_freq_request.at(domain_idx) = in_policy[M_POLICY_CPU_FREQ_MAX];
             }
             if (core_freq_request.at(domain_idx) !=
                 m_core_freq_control.at(domain_idx).last_setting) {
-
+                // Adjust
                 m_platform_io.adjust(m_core_freq_control.at(domain_idx).batch_idx,
                                      core_freq_request.at(domain_idx));
 
+                // Save the value for future comparison
                 m_core_freq_control.at(domain_idx).last_setting = core_freq_request.at(domain_idx);
                 ++m_core_frequency_requests;
                 m_do_write_batch = true;
             }
         }
 
-        // set per package controls
+        // Set per package controls
         for (int domain_idx = 0; domain_idx < M_NUM_PACKAGE; ++domain_idx) {
             if(std::isnan(uncore_freq_request.at(domain_idx))) {
                 uncore_freq_request.at(domain_idx) = in_policy[M_POLICY_UNCORE_FREQ_MAX];
@@ -428,14 +418,14 @@ namespace geopm
                 m_uncore_freq_min_control.at(domain_idx).last_setting ||
                 uncore_freq_request.at(domain_idx) !=
                 m_uncore_freq_max_control.at(domain_idx).last_setting) {
-                //Adjust
+                // Adjust
                 m_platform_io.adjust(m_uncore_freq_min_control.at(domain_idx).batch_idx,
                                     uncore_freq_request.at(domain_idx));
 
                 m_platform_io.adjust(m_uncore_freq_max_control.at(domain_idx).batch_idx,
                                     uncore_freq_request.at(domain_idx));
 
-                //save the value for future comparison
+                // Save the value for future comparison
                 m_uncore_freq_min_control.at(domain_idx).last_setting = uncore_freq_request.at(domain_idx);
                 m_uncore_freq_max_control.at(domain_idx).last_setting = uncore_freq_request.at(domain_idx);
                 ++m_uncore_frequency_requests;
