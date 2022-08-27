@@ -618,10 +618,6 @@ TEST_F(CPUActivityAgentTest, adjust_platform_nan)
 
     //Adjust
     //Check frequency
-    EXPECT_CALL(*m_platform_io, adjust(CPU_FREQUENCY_CONTROL_IDX, m_cpu_freq_min)).Times(M_NUM_CORE);
-    EXPECT_CALL(*m_platform_io, adjust(CPU_UNCORE_MIN_CONTROL_IDX, m_cpu_uncore_freq_max)).Times(M_NUM_PACKAGE);
-    EXPECT_CALL(*m_platform_io, adjust(CPU_UNCORE_MAX_CONTROL_IDX, m_cpu_uncore_freq_max)).Times(M_NUM_PACKAGE);
-    m_agent->adjust_platform(policy);
-    //Check a frequency decision resulted in write batch being true
-    EXPECT_TRUE(m_agent->do_write_batch());
+    GEOPM_EXPECT_THROW_MESSAGE(m_agent->adjust_platform(policy), GEOPM_ERROR_INVALID,
+                               "CPUActivityAgent policy did not contain memory bandwidth characteriztaion");
 }
