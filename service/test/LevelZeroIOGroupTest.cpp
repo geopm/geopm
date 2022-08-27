@@ -178,7 +178,7 @@ void LevelZeroIOGroupTest::SetUpDefaultExpectCalls()
         EXPECT_CALL(*m_device_pool, // GPU_ENERGY_TIMESTAMP
                     energy_timestamp(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL));
         EXPECT_CALL(*m_device_pool, // GPU_CORE_PERFORMANCE_FACTOR
-                    performance_factor(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE)).Times(2);
+                    performance_factor(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE)).Times(3);
 
         // control pruning expectations
         // GPU_CORE_FREQUENCY_MAX_CONTROL, GPU_CORE_FREQUENCY_MIN_CONTROL, and the restore_control() direct call.
@@ -186,7 +186,7 @@ void LevelZeroIOGroupTest::SetUpDefaultExpectCalls()
                     frequency_control(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE,
                                       0, 0)).Times(3);
         EXPECT_CALL(*m_device_pool, // GPU_CORE_PERFORMANCE_FACTOR_CONTROL
-                    performance_factor_control(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE, 0));
+                    performance_factor_control(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE, 0)).Times(2);
 
     }
 
@@ -229,6 +229,7 @@ TEST_F(LevelZeroIOGroupTest, save_restore)
 
     std::vector<std::pair<double,double> > mock_freq_range = {{0, 1530}, {1000, 1320}, {30, 420}, {130, 135},
                                                               {20, 400}, {53, 123}, {1600, 1700}, {500, 500}};
+    std::vector<double> mock_perf_factor = {0, 0.2, 0.3, 0.74, 0.89, 0.5, 0.678, 1.0};
 
     for (int sub_idx = 0; sub_idx < m_num_gpu_subdevice; ++sub_idx) {
         EXPECT_CALL(*m_device_pool, // save_control caches current values
@@ -238,6 +239,15 @@ TEST_F(LevelZeroIOGroupTest, save_restore)
         EXPECT_CALL(*m_device_pool, // restore_control restores cached values
                     frequency_control(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE,
                                       mock_freq_range.at(sub_idx).first, mock_freq_range.at(sub_idx).second));
+
+        EXPECT_CALL(*m_device_pool, // save_control caches current values
+                    performance_factor(GEOPM_DOMAIN_GPU_CHIP, sub_idx, geopm::LevelZero::M_DOMAIN_COMPUTE)).
+                    WillOnce(Return(mock_perf_factor.at(sub_idx)));
+
+        EXPECT_CALL(*m_device_pool, // restore_control restores cached values
+                    performance_factor_control(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE,
+                                      mock_perf_factor.at(sub_idx)));
+
     }
 
     levelzero_io.save_control();
@@ -805,10 +815,10 @@ TEST_F(LevelZeroIOGroupTest, signal_and_control_trimming)
         //                               0, 0)).Times(3);
 
         EXPECT_CALL(*m_device_pool, // GPU_CORE_PERFORMANCE_FACTOR
-                    performance_factor(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE)).Times(2);
+                    performance_factor(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE)).Times(3);
 
         EXPECT_CALL(*m_device_pool, // GPU_CORE_PERFORMANCE_FACTOR_CONTROL
-                    performance_factor_control(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE, 0));
+                    performance_factor_control(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE, 0)).Times(2);
     }
 
     // Expectations for signal pruning code in the constructor
