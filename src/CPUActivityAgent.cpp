@@ -252,7 +252,6 @@ namespace geopm
                                 " policy maps a NaN CPU_UNCORE_FREQUENCY with max memory bandwidth: " +
                                 std::to_string(mapped_mem_bw),
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-
             }
         }
 
@@ -296,7 +295,7 @@ namespace geopm
 
                 auto uncore_freq = (*it);
                 auto max_mem_bw = *(it + 1);
-                if (!std::isnan(*it)) {
+                if (!std::isnan(uncore_freq)) {
                     // Not valid to have NAN max mem bw for uncore freq.
                     GEOPM_DEBUG_ASSERT(!std::isnan(max_mem_bw),
                                        "mapped CPU_UNCORE_FREQUENCY with no max memory bandwidth assigned.");
@@ -304,8 +303,12 @@ namespace geopm
                 }
             }
 
-            GEOPM_DEBUG_ASSERT(m_qm_max_rate.size() != 0,
-                               "CPUActivityAgent policy did not contain memory bandwidth characteriztaion");
+            if (m_qm_max_rate.size() == 0) {
+                throw Exception("CPUActivityAgent::" + std::string(__func__) +
+                                "(): CPUActivityAgent policy did not contain" +
+                                " memory bandwidth characteriztaion.",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
         }
 
         // Per package freq
