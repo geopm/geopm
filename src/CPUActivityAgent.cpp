@@ -53,13 +53,6 @@ namespace geopm
     // Push signals and controls for future batch read/write
     void CPUActivityAgent::init(int level, const std::vector<int> &fan_in, bool is_level_root)
     {
-        if (level == 0) {
-            init_platform_io();
-        }
-    }
-
-    void CPUActivityAgent::init_platform_io(void)
-    {
         // These are not currently guaranteed to be the system uncore min and max,
         // just what the user/admin has previously set.
         m_freq_uncore_min = m_platform_io.read_signal("CPU_UNCORE_FREQUENCY_MIN_CONTROL", GEOPM_DOMAIN_BOARD, 0);
@@ -67,6 +60,13 @@ namespace geopm
         m_freq_core_min = m_platform_io.read_signal("CPU_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0);
         m_freq_core_max = m_platform_io.read_signal("CPU_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0);
 
+        if (level == 0) {
+            init_platform_io();
+        }
+    }
+
+    void CPUActivityAgent::init_platform_io(void)
+    {
         for (int domain_idx = 0; domain_idx < M_NUM_CORE; ++domain_idx) {
             m_core_scal.push_back({m_platform_io.push_signal("MSR::CPU_SCALABILITY_RATIO",
                                                              GEOPM_DOMAIN_CORE,
