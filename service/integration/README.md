@@ -12,6 +12,46 @@ begin with a long comment describing the feature under test, and
 provide a form of tutorial for an end user learning how to interact
 with the GEOPM service.
 
+
+Test Setup
+----------
+
+The integration tests require a system-wide installation of the GEOPM
+service.  This is typically done by installing the GEOPM RPM packages.
+Runing the following commands will create the GEOPM Service RPM files
+from the GEOPM source code repository.
+
+```bash
+cd geopm/service
+./autogen.sh
+./configure
+make rpm
+```
+
+The RPM files are created with the `rpmbuild` command.  Unless
+otherwise configured, the `rpmbuild` command creates RPMs in the
+location: `${HOME}/rpmbuild/RPMS/x86_64`.  To install these files and
+start the GEOPM service, the
+`geopm/service/integration/install_service.sh` script may be used.
+This script may be run in the `geopm/service` directory by issuing the
+following command:
+
+```bash
+cd geopm/service
+sudo integration/install_service.sh $(cat VERSION) ${USER}
+```
+
+Note that the `VERSION` file is created in the `geopm/service`
+directory when the `autogen.sh` script is run.  Once the GEOPM Service
+is installed, the access lists must be updated to enable the tests.
+The following commands may be issued to allow any user in the Unix
+user group `test_group` to access all signals and controls
+
+```bash
+geopmaccess -a | sudo geopmaccess -w -g test_group
+geopmaccess -a -c | sudo geopmaccess -w -c -g test_group
+```
+
 How to Run the Tests
 --------------------
 
@@ -24,6 +64,9 @@ Some of these tests require root privileges and these tests have names
 of the form:
 
     geopm/integration/test/test_su_*.sh
+
+If the test finishes with an exit code of `0`, and it prints `SUCCESS`
+at the end, then the test has succeeded.
 
 A limited set of root privileges may be used by non-root users by
 installing the helper scripts
@@ -70,9 +113,10 @@ The tests in this directory do not use any of the tools provided by
 `geopm/integration/test`.  Some of these tests may use the GEOPM
 service on a system where it is required.
 
-The unit tests for the C++ files in `geopm/service/src` are located in `geopm/service/test`.
-The unit tests for the C++ files in `geopm/src` are located in `geopm/test`.
-We have split the unit tests in to two directories so that the service subdirectory is fully independent.
+The unit tests for the C++ files in `geopm/service/src` are located in
+`geopm/service/test`.  The unit tests for the C++ files in `geopm/src`
+are located in `geopm/test`.  We have split the unit tests in to two
+directories so that the service subdirectory is fully independent.
 
 The unit tests for the geopmdpy module are located in
 `geopm/service/geopmdpy_test`.
