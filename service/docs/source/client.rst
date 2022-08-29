@@ -3,9 +3,9 @@ Guide for Service Clients
 =========================
 
 The GEOPM Service facilitates the PlatformIO interfaces by providing
-security and quality guaruantees.  Clients of the GEOPM service may
+security and quality guarantees.  Clients of the GEOPM service may
 access the PlatformIO features through a variety of interfaces
-including C, C++, Python and command line tools.  The administrator of
+including C, C++, Python, and command line tools.  The administrator of
 the system may manage client access rights through the ``geopmaccess``
 command line tool.
 
