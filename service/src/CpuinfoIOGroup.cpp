@@ -61,79 +61,28 @@ namespace geopm
         return result;
     }
 
-    static double read_cpu_freq_sticker(const std::string &read_str)
+    static double read_cpu_freq_sticker(void)
     {
-        double result = NAN;
-        const std::string key = "model name";
-        std::ifstream cpuinfo_file(read_str);
-        if (!cpuinfo_file.good()) {
-            throw Exception("Failed to open " + read_str + ": " + strerror(errno),
-                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-        }
-        while (std::isnan(result) && cpuinfo_file.good()) {
-            std::string line;
-            std::getline(cpuinfo_file, line);
-            if (line.find(key) == 0 && line.find(':') != std::string::npos) {
-                size_t colon_pos = line.find(':');
-                bool match = true;
-                for (size_t pos = key.size(); pos != colon_pos; ++pos) {
-                    if (!std::isspace(line[pos])) {
-                        match = false;
-                    }
-                }
-                if (!match) {
-                    continue;
-                }
-                std::transform(line.begin(), line.end(), line.begin(),
-                               [](unsigned char c) {
-                                   return std::tolower(c);
-                               });
-                std::string unit_str[3] = {"ghz", "mhz", "khz"};
-                double unit_factor[3] = {1e9, 1e6, 1e3};
-                for (int unit_idx = 0; unit_idx != 3; ++unit_idx) {
-                    size_t unit_pos = line.find(unit_str[unit_idx]);
-                    if (unit_pos != std::string::npos) {
-                        std::string value_str = line.substr(0, unit_pos);
-                        while (std::isspace(value_str.back())) {
-                            value_str.erase(value_str.size() - 1);
-                        }
-                        size_t space_pos = value_str.rfind(' ');
-                        if (space_pos != std::string::npos) {
-                            value_str = value_str.substr(space_pos);
-                        }
-                        try {
-                            result = unit_factor[unit_idx] * std::stod(value_str);
-                        }
-                        catch (const std::invalid_argument &ex) {
-                            result = NAN;
-                        }
-                    }
-                }
-            }
-        }
-        cpuinfo_file.close();
+        double result = read_cpuid_freq_sticker();
         if (std::isnan(result)) {
-#ifdef GEOPM_DEBUG
-            std::cerr << "Warning: <geopm> Invalid brand string.  Using cpuid fallback." << std::endl;
-#endif
-            result = read_cpuid_freq_sticker();
-            if (result == 0) {
-                result = NAN;
-            }
+            throw Exception("Unable to determine sticker frequency",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        else if (result == 0) {
+            throw Exception("Sticker frequency not supported by CPUID",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return result;
     }
 
     CpuinfoIOGroup::CpuinfoIOGroup()
-        :CpuinfoIOGroup("/proc/cpuinfo",
-                        "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq",
+        :CpuinfoIOGroup("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq",
                         "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq")
     {
 
     }
 
-    CpuinfoIOGroup::CpuinfoIOGroup(const std::string &cpu_info_path,
-                                   const std::string &cpu_freq_min_path,
+    CpuinfoIOGroup::CpuinfoIOGroup(const std::string &cpu_freq_min_path,
                                    const std::string &cpu_freq_max_path)
         : m_signal_available({{"CPUINFO::FREQ_MIN", {
                                    read_cpu_freq(cpu_freq_min_path),
@@ -141,7 +90,7 @@ namespace geopm
                                    Agg::expect_same,
                                    "Minimum processor frequency"}},
                               {"CPUINFO::FREQ_STICKER", {
-                                   read_cpu_freq_sticker(cpu_info_path),
+                                   read_cpu_freq_sticker(),
                                    M_UNITS_HERTZ,
                                    Agg::expect_same,
                                    "Processor base frequency"}},
