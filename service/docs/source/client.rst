@@ -19,7 +19,7 @@ controls described in the overview with the interfaces listed below.
 PlatformIO Language Bindings
 ----------------------------
 
-- C: :doc:`geopm_pio(3) <geopm_pio.3>` C Interface
+- C: :doc:`geopm_pio(3) <geopm_pio.3>`
 - C++: :doc:`geopm::PlatformIO(3) <GEOPM_CXX_MAN_PlatformIO.3>`
 - Python3: :ref:`geopmdpy.7:geopmdpy.pio`
 
