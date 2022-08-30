@@ -18,8 +18,7 @@ namespace geopm
     {
         public:
             CpuinfoIOGroup();
-            CpuinfoIOGroup(const std::string &cpu_info_path,
-                           const std::string &cpu_freq_min_path,
+            CpuinfoIOGroup(const std::string &cpu_freq_min_path,
                            const std::string &cpu_freq_max_path);
             virtual ~CpuinfoIOGroup() = default;
             /// @return the list of signal names provided by this IOGroup.
