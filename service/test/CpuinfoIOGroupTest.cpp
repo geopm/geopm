@@ -115,4 +115,26 @@ TEST_F(CpuinfoIOGroupTest, plugin)
     EXPECT_EQ("CPUINFO", CpuinfoIOGroup(m_cpufreq_min_path, m_cpufreq_max_path).plugin_name());
 }
 
+TEST_F(CpuinfoIOGroupTest, bad_min_max)
+{
+    std::ofstream cpufreq_min_stream(m_cpufreq_min_path);
+    cpufreq_min_stream << "2000000";
+    cpufreq_min_stream.close();
+    std::ofstream cpufreq_max_stream(m_cpufreq_max_path);
+    cpufreq_max_stream << "1000000";
+    cpufreq_max_stream.close();
+
+    GEOPM_EXPECT_THROW_MESSAGE(CpuinfoIOGroup (m_cpufreq_min_path, m_cpufreq_max_path),
+                               GEOPM_ERROR_INVALID, "Max frequency less than min");
+}
+
+TEST_F(CpuinfoIOGroupTest, bad_sticker)
+{
+    g_cpuid_sticker = 100;
+    GEOPM_EXPECT_THROW_MESSAGE(CpuinfoIOGroup (m_cpufreq_min_path, m_cpufreq_max_path),
+                               GEOPM_ERROR_INVALID, "Sticker frequency less than min");
+    g_cpuid_sticker = 2100;
+    GEOPM_EXPECT_THROW_MESSAGE(CpuinfoIOGroup (m_cpufreq_min_path, m_cpufreq_max_path),
+                               GEOPM_ERROR_INVALID, "Sticker frequency greater than max");
+}
 

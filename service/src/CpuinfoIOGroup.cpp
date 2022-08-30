@@ -103,6 +103,22 @@ namespace geopm
                                    Agg::expect_same,
                                    "Step size between processor frequency settings"}}})
     {
+        if (read_signal("CPUINFO::FREQ_MAX", GEOPM_DOMAIN_BOARD, 0) <=
+            read_signal("CPUINFO::FREQ_MIN", GEOPM_DOMAIN_BOARD, 0)) {
+            throw Exception("CpuinfoIOGroup::CpuinfoIOGroup(): Max frequency less than min",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        else if (read_signal("CPUINFO::FREQ_STICKER", GEOPM_DOMAIN_BOARD, 0) <
+                 read_signal("CPUINFO::FREQ_MIN", GEOPM_DOMAIN_BOARD, 0)) {
+            throw Exception("CpuinfoIOGroup::CpuinfoIOGroup(): Sticker frequency less than min",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        else if (read_signal("CPUINFO::FREQ_STICKER", GEOPM_DOMAIN_BOARD, 0) >
+                 read_signal("CPUINFO::FREQ_MAX", GEOPM_DOMAIN_BOARD, 0)) {
+            throw Exception("CpuinfoIOGroup::CpuinfoIOGroup(): Sticker frequency greater than max",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
         register_signal_alias("CPU_FREQUENCY_MIN_AVAIL", "CPUINFO::FREQ_MIN");
         register_signal_alias("CPU_FREQUENCY_STICKER", "CPUINFO::FREQ_STICKER");
         register_signal_alias("CPU_FREQUENCY_STEP", "CPUINFO::FREQ_STEP");
