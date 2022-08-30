@@ -56,15 +56,9 @@ GTEST_TESTS = test/gtest_links/GPUTopoNullTest.default_config \
               test/gtest_links/CNLIOGroupTest.parse_power \
               test/gtest_links/CombinedSignalTest.sample_max \
               test/gtest_links/CombinedSignalTest.sample_sum \
-              test/gtest_links/CpuinfoIOGroupTest.parse_cpu_freq \
-              test/gtest_links/CpuinfoIOGroupTest.parse_error_no_sticker \
-              test/gtest_links/CpuinfoIOGroupTest.parse_error_sticker_bad_path \
-              test/gtest_links/CpuinfoIOGroupTest.parse_sticker_missing_newline \
-              test/gtest_links/CpuinfoIOGroupTest.parse_sticker_multiple_ghz \
-              test/gtest_links/CpuinfoIOGroupTest.parse_sticker_multiple_model_name \
-              test/gtest_links/CpuinfoIOGroupTest.parse_sticker_with_at \
-              test/gtest_links/CpuinfoIOGroupTest.parse_sticker_with_ghz_space \
-              test/gtest_links/CpuinfoIOGroupTest.parse_sticker_without_at \
+              test/gtest_links/CpuinfoIOGroupTest.bad_min_max \
+              test/gtest_links/CpuinfoIOGroupTest.bad_sticker \
+              test/gtest_links/CpuinfoIOGroupTest.cpuid_sticker_not_supported \
               test/gtest_links/CpuinfoIOGroupTest.plugin \
               test/gtest_links/CpuinfoIOGroupTest.push_signal \
               test/gtest_links/CpuinfoIOGroupTest.read_signal \
