@@ -12,7 +12,9 @@
 #include <fstream>
 #include <algorithm>
 #include <iterator>
+#ifndef GEOPM_TEST
 #include <cpuid.h>
+#endif
 #include "geopm/Helper.hpp"
 #include "geopm/PlatformTopo.hpp"
 #include "geopm/Exception.hpp"
@@ -64,11 +66,7 @@ namespace geopm
     static double read_cpu_freq_sticker(void)
     {
         double result = read_cpuid_freq_sticker();
-        if (std::isnan(result)) {
-            throw Exception("Unable to determine sticker frequency",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-        else if (result == 0) {
+        if (result == 0) {
             throw Exception("Sticker frequency not supported by CPUID",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
