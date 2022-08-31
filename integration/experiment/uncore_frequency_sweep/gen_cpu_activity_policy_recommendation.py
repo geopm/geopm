@@ -12,6 +12,7 @@ and characterizes the system memory bandwidth usage for the CPU Activity Agent.
 import argparse
 import math
 import sys
+import json
 
 import pandas
 import numpy as np
@@ -164,4 +165,5 @@ if __name__ == '__main__':
 
     output = main(df, region_list)
 
-    sys.stdout.write("POLICY: {}\n".format(output))
+    sys.stdout.write("AGENT POLICY:\n")
+    sys.stdout.write(json.dumps(output) + "\n")
