@@ -92,7 +92,7 @@ TEST_F(CpuinfoIOGroupTest, cpuid_sticker_not_supported)
 {
     g_cpuid_sticker = 0;
     GEOPM_EXPECT_THROW_MESSAGE(CpuinfoIOGroup (m_cpufreq_min_path, m_cpufreq_max_path),
-                               GEOPM_ERROR_INVALID, "not supported");
+                               GEOPM_ERROR_PLATFORM_UNSUPPORTED, "not supported");
 }
 
 TEST_F(CpuinfoIOGroupTest, push_signal)
@@ -125,16 +125,16 @@ TEST_F(CpuinfoIOGroupTest, bad_min_max)
     cpufreq_max_stream.close();
 
     GEOPM_EXPECT_THROW_MESSAGE(CpuinfoIOGroup (m_cpufreq_min_path, m_cpufreq_max_path),
-                               GEOPM_ERROR_INVALID, "Max frequency less than min");
+                               GEOPM_ERROR_PLATFORM_UNSUPPORTED, "Max frequency less than min");
 }
 
 TEST_F(CpuinfoIOGroupTest, bad_sticker)
 {
     g_cpuid_sticker = 100;
     GEOPM_EXPECT_THROW_MESSAGE(CpuinfoIOGroup (m_cpufreq_min_path, m_cpufreq_max_path),
-                               GEOPM_ERROR_INVALID, "Sticker frequency less than min");
+                               GEOPM_ERROR_PLATFORM_UNSUPPORTED, "Sticker frequency less than min");
     g_cpuid_sticker = 2100;
     GEOPM_EXPECT_THROW_MESSAGE(CpuinfoIOGroup (m_cpufreq_min_path, m_cpufreq_max_path),
-                               GEOPM_ERROR_INVALID, "Sticker frequency greater than max");
+                               GEOPM_ERROR_PLATFORM_UNSUPPORTED, "Sticker frequency greater than max");
 }
 

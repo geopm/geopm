@@ -68,7 +68,7 @@ namespace geopm
         double result = read_cpuid_freq_sticker();
         if (result == 0) {
             throw Exception("Sticker frequency not supported by CPUID",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                            GEOPM_ERROR_PLATFORM_UNSUPPORTED, __FILE__, __LINE__);
         }
         return result;
     }
@@ -106,17 +106,17 @@ namespace geopm
         if (read_signal("CPUINFO::FREQ_MAX", GEOPM_DOMAIN_BOARD, 0) <=
             read_signal("CPUINFO::FREQ_MIN", GEOPM_DOMAIN_BOARD, 0)) {
             throw Exception("CpuinfoIOGroup::CpuinfoIOGroup(): Max frequency less than min",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                            GEOPM_ERROR_PLATFORM_UNSUPPORTED, __FILE__, __LINE__);
         }
         else if (read_signal("CPUINFO::FREQ_STICKER", GEOPM_DOMAIN_BOARD, 0) <
                  read_signal("CPUINFO::FREQ_MIN", GEOPM_DOMAIN_BOARD, 0)) {
             throw Exception("CpuinfoIOGroup::CpuinfoIOGroup(): Sticker frequency less than min",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                            GEOPM_ERROR_PLATFORM_UNSUPPORTED, __FILE__, __LINE__);
         }
         else if (read_signal("CPUINFO::FREQ_STICKER", GEOPM_DOMAIN_BOARD, 0) >
                  read_signal("CPUINFO::FREQ_MAX", GEOPM_DOMAIN_BOARD, 0)) {
             throw Exception("CpuinfoIOGroup::CpuinfoIOGroup(): Sticker frequency greater than max",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                            GEOPM_ERROR_PLATFORM_UNSUPPORTED, __FILE__, __LINE__);
         }
 
         register_signal_alias("CPU_FREQUENCY_MIN_AVAIL", "CPUINFO::FREQ_MIN");
