@@ -225,20 +225,17 @@ namespace geopm
             max_turbo_name = "MSR::HWP_CAPABILITIES:HIGHEST_PERFORMANCE";
         }
         else {
-            switch (m_cpuid) {
-                case MSRIOGroup::M_CPUID_KNL:
-                    max_turbo_name = "MSR::TURBO_RATIO_LIMIT:GROUP_0_MAX_RATIO_LIMIT";
-                    break;
-                case MSRIOGroup::M_CPUID_SNB:
-                case MSRIOGroup::M_CPUID_IVT:
-                case MSRIOGroup::M_CPUID_HSX:
-                case MSRIOGroup::M_CPUID_BDX:
-                    max_turbo_name = "MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_1CORE";
-                    break;
-                case MSRIOGroup::M_CPUID_SKX:
-                case MSRIOGroup::M_CPUID_ICX:
-                    max_turbo_name = "MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_0";
-                    break;
+            if (m_cpuid == MSRIOGroup::M_CPUID_KNL) {
+                max_turbo_name = "MSR::TURBO_RATIO_LIMIT:GROUP_0_MAX_RATIO_LIMIT";
+            }
+            else if (m_cpuid == MSRIOGroup::M_CPUID_SNB ||
+                     m_cpuid == MSRIOGroup::M_CPUID_IVT ||
+                     m_cpuid == MSRIOGroup::M_CPUID_HSX ||
+                     m_cpuid == MSRIOGroup::M_CPUID_BDX) {
+                max_turbo_name = "MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_1CORE";
+            }
+            else if (m_cpuid >= MSRIOGroup::M_CPUID_SKX) {
+                max_turbo_name = "MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_0";
             }
         }
 
@@ -1193,25 +1190,23 @@ namespace geopm
     std::string MSRIOGroup::platform_data(int cpu_id)
     {
         std::string platform_msrs;
-        switch (cpu_id) {
-            case MSRIOGroup::M_CPUID_KNL:
-                platform_msrs = knl_msr_json();
-                break;
-            case MSRIOGroup::M_CPUID_HSX:
-            case MSRIOGroup::M_CPUID_BDX:
-                platform_msrs = hsx_msr_json();
-                break;
-            case MSRIOGroup::M_CPUID_SNB:
-            case MSRIOGroup::M_CPUID_IVT:
-                platform_msrs = snb_msr_json();
-                break;
-            case MSRIOGroup::M_CPUID_SKX:
-            case MSRIOGroup::M_CPUID_ICX:
-                platform_msrs = skx_msr_json();
-                break;
-            default:
-                throw Exception("MSRIOGroup: Unsupported CPUID",
-                                GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        if (cpu_id == MSRIOGroup::M_CPUID_KNL) {
+            platform_msrs = knl_msr_json();
+        }
+        else if (cpu_id == MSRIOGroup::M_CPUID_HSX ||
+                 cpu_id == MSRIOGroup::M_CPUID_BDX) {
+            platform_msrs = hsx_msr_json();
+        }
+        else if (cpu_id == MSRIOGroup::M_CPUID_SNB ||
+                 cpu_id == MSRIOGroup::M_CPUID_IVT) {
+            platform_msrs = snb_msr_json();
+        }
+        else if (cpu_id >= MSRIOGroup::M_CPUID_SKX) {
+            platform_msrs = skx_msr_json();
+        }
+        else {
+            throw Exception("MSRIOGroup: Unsupported CPUID",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         return platform_msrs;
     }
