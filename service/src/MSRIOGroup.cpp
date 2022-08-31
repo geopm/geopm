@@ -1201,7 +1201,15 @@ namespace geopm
                  cpu_id == MSRIOGroup::M_CPUID_IVT) {
             platform_msrs = snb_msr_json();
         }
-        else if (cpu_id >= MSRIOGroup::M_CPUID_SKX) {
+        else if (cpu_id == MSRIOGroup::M_CPUID_SKX ||
+                 cpu_id == MSRIOGroup::M_CPUID_ICX) {
+            platform_msrs = skx_msr_json();
+        }
+        else if (cpu_id >= MSRIOGroup::M_CPUID_ICX) {
+#ifdef GEOPM_DEBUG
+            std::cerr << "Warning: <geopm> New/Untested CPUID detected; Defaulting to SKX MSRs"
+                      << std::endl;
+#endif
             platform_msrs = skx_msr_json();
         }
         else {
