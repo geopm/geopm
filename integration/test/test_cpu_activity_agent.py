@@ -175,7 +175,7 @@ class TestIntegration_cpu_activity(unittest.TestCase):
             verbose=False,
             cpu_fe=cpu_efficient_freq,
             cpu_fmax=cpu_max_freq,
-            uncore_fe=cpu_efficient_freq,
+            uncore_fe=uncore_efficient_freq,
             uncore_fmax=cpu_max_freq,
             uncore_mbm_list=uncore_mbm_list,
             phi_list=[0.2, 0.5, 0.7],
