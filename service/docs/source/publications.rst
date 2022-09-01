@@ -1,4 +1,7 @@
 
+Community-Maintained Publications
+=================================
+
 Conference Publications
 -----------------------
 
