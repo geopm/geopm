@@ -11,8 +11,8 @@ Features
   hardware features on heterogeneous systems
 
 
-|:telescope:| Hardware Telemetry
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+|:microscope:| Hardware Telemetry
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Users read telemetry from hardware components on heterogeneous
   systems with a vendor agnostic interface
 
@@ -42,8 +42,8 @@ Features
   validation when server is created
 
 
-|:jigsaw:| Extensibility
-~~~~~~~~~~~~~~~~~~~~~~~~
+|:electric_plug:| Extensibility
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Supports extensibility for heterogeneous environments through C++
   plugin infrastructure (IOGroups).
 
