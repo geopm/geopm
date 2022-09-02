@@ -59,7 +59,9 @@ namespace geopm
             m_gpu_active_energy_stop.push_back(0.0);
         }
 
-        init_platform_io();
+        if (level == 0) {
+            init_platform_io();
+        }
     }
 
     // Push signals and controls for future batch read/write
@@ -171,7 +173,7 @@ namespace geopm
             f_efficient = std::min(f_max, f_efficient + f_range * (0.5-phi) / 0.5);
         }
 
-        //Update Policy
+        // Update Policy
         in_policy[M_POLICY_GPU_FREQ_MAX] = f_max;
         in_policy[M_POLICY_GPU_FREQ_EFFICIENT] = f_efficient;
     }
