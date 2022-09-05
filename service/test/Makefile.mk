@@ -207,6 +207,7 @@ GTEST_TESTS = test/gtest_links/GPUTopoNullTest.default_config \
               test/gtest_links/PlatformIOTest.adjust_agg_sum \
               test/gtest_links/PlatformIOTest.agg_function \
               test/gtest_links/PlatformIOTest.domain_type \
+              test/gtest_links/PlatformIOTest.is_valid_value \
               test/gtest_links/PlatformIOTest.push_control \
               test/gtest_links/PlatformIOTest.push_control_agg \
               test/gtest_links/PlatformIOTest.push_control_iogroup_fallback \
