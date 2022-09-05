@@ -48,6 +48,7 @@ GTEST_TESTS = test/gtest_links/GPUTopoNullTest.default_config \
               test/gtest_links/CircularBufferTest.buffer_capacity \
               test/gtest_links/CircularBufferTest.buffer_size \
               test/gtest_links/CircularBufferTest.buffer_values \
+              test/gtest_links/CircularBufferTest.buffer_values_negative_indices \
               test/gtest_links/CircularBufferTest.make_vector_slice \
               test/gtest_links/CNLIOGroupTest.valid_signals \
               test/gtest_links/CNLIOGroupTest.read_signal \

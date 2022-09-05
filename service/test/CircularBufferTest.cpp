@@ -43,6 +43,7 @@ TEST_F(CircularBufferTest, buffer_values)
     EXPECT_DOUBLE_EQ(3.0, m_buffer->value(2));
     m_buffer->insert(4.0);
     m_buffer->insert(5.0);
+    // this one overflows the capacity, discards the oldest value 1.0
     m_buffer->insert(6.0);
     EXPECT_DOUBLE_EQ(2.0, m_buffer->value(0));
     EXPECT_DOUBLE_EQ(3.0, m_buffer->value(1));
@@ -63,6 +64,48 @@ TEST_F(CircularBufferTest, buffer_values)
     EXPECT_DOUBLE_EQ(6.0, m_buffer->value(2));
     EXPECT_DOUBLE_EQ(7.0, m_buffer->value(3));
     EXPECT_DOUBLE_EQ(8.0, m_buffer->value(4));
+}
+
+TEST_F(CircularBufferTest, buffer_values_negative_indices)
+{
+    m_buffer->insert(4.0);
+    m_buffer->insert(5.0);
+    EXPECT_DOUBLE_EQ(1.0, m_buffer->value(0));
+    EXPECT_DOUBLE_EQ(2.0, m_buffer->value(1));
+    EXPECT_DOUBLE_EQ(3.0, m_buffer->value(2));
+    EXPECT_DOUBLE_EQ(4.0, m_buffer->value(3));
+    EXPECT_DOUBLE_EQ(5.0, m_buffer->value(4));
+    //
+    EXPECT_DOUBLE_EQ(5.0, m_buffer->value(-1));
+    EXPECT_DOUBLE_EQ(4.0, m_buffer->value(-2));
+    EXPECT_DOUBLE_EQ(3.0, m_buffer->value(-3));
+    EXPECT_DOUBLE_EQ(2.0, m_buffer->value(-4));
+    EXPECT_DOUBLE_EQ(1.0, m_buffer->value(-5));
+    // overflows the capacity, writes over the oldest values
+    // shifts the rest of the values to the m_head
+    m_buffer->insert(10.0);
+    m_buffer->insert(11.0);
+    m_buffer->insert(12.0);
+    EXPECT_DOUBLE_EQ(4.0, m_buffer->value(0));
+    EXPECT_DOUBLE_EQ(5.0, m_buffer->value(1));
+    EXPECT_DOUBLE_EQ(10.0, m_buffer->value(2));
+    EXPECT_DOUBLE_EQ(11.0, m_buffer->value(3));
+    EXPECT_DOUBLE_EQ(12.0, m_buffer->value(4));
+    //
+    EXPECT_DOUBLE_EQ(12.0, m_buffer->value(-1));
+    EXPECT_DOUBLE_EQ(11.0, m_buffer->value(-2));
+    EXPECT_DOUBLE_EQ(10.0, m_buffer->value(-3));
+    EXPECT_DOUBLE_EQ(5.0, m_buffer->value(-4));
+    EXPECT_DOUBLE_EQ(4.0, m_buffer->value(-5));
+    // test invalid indices
+    ASSERT_EQ(5, m_buffer->capacity());
+    EXPECT_THROW(m_buffer->value(5), geopm::Exception);
+    EXPECT_THROW(m_buffer->value(6), geopm::Exception);
+    EXPECT_THROW(m_buffer->value(7), geopm::Exception);
+    //
+    EXPECT_THROW(m_buffer->value(-6), geopm::Exception);
+    EXPECT_THROW(m_buffer->value(-7), geopm::Exception);
+    EXPECT_THROW(m_buffer->value(-8), geopm::Exception);
 }
 
 TEST_F(CircularBufferTest, buffer_capacity)
