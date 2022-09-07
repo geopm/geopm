@@ -469,7 +469,7 @@ void geopm_pio_reset(void);
 
 /// @param [in] value Check if the given parameter is a valid value.
 ///
-/// @return 0 if the value is valid, -1 if the value is invalid.
+/// @return 0 if the value is valid, GEOPM_ERROR_INVALID if the value is invalid.
 int geopm_pio_check_valid_value(double value);
 
 #ifdef __cplusplus

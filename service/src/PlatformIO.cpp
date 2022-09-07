@@ -1426,6 +1426,6 @@ extern "C" {
     }
 
     int geopm_pio_check_valid_value(double value) {
-        return geopm::platform_io().is_valid_value(value) ? 0 : -1;
+        return geopm::platform_io().is_valid_value(value) ? 0 : GEOPM_ERROR_INVALID;
     }
 }
