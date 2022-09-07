@@ -96,6 +96,8 @@ Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
 
        int geopm_pio_reset(void);
 
+       int geopm_pio_check_valid_value(double value);
+
 Description
 -----------
 
@@ -210,14 +212,20 @@ Inspection Functions
   Returns zero on success, error value on failure.
 
 ``geopm_pio_reset()``
-Reset the GEOPM platform interface causing resources to be freed.
-This will cause the internal PlatormIO instance to be
-released/deleted and reconstructed.  As a result, any signals and
-controls that had been pushed will be cleared, any batch servers
-that had been started will be stopped, and all registered IOGroups
-will be reset.  **NOTE: the reset only applies to the Service
-PlatformIO instance and does not affect the PlatformIO instance
-managed by the GEOPM HPC runtime.**
+  Reset the GEOPM platform interface causing resources to be freed.
+  This will cause the internal PlatormIO instance to be
+  released/deleted and reconstructed.  As a result, any signals and
+  controls that had been pushed will be cleared, any batch servers
+  that had been started will be stopped, and all registered IOGroups
+  will be reset.  **NOTE: the reset only applies to the Service
+  PlatformIO instance and does not affect the PlatformIO instance
+  managed by the GEOPM HPC runtime.**
+
+``geopm_pio_check_valid_value()``
+  In geopm, the values for signals and controls can be invalid due to errors.
+  This function determines if the current *value* of the signal or control is
+  a valid value. Zero is returned if the value is valid and a negative error code is
+  returned if the value is invalid.
 
 
 Serial Functions

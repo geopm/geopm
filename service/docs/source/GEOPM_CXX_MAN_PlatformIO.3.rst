@@ -98,6 +98,8 @@ Link with ``-lgeopmd``
 
        void PlatformIO::stop_batch_server(int server_pid);
 
+       static bool PlatformIO::is_valid_value(double value);
+
 
 Description
 -----------
@@ -131,6 +133,16 @@ Singleton Accessor
   reference to the single ``PlatformIO`` object that gives access to
   all of the `CLASS METHODS <INSPECTION CLASS METHODS_>`_ described below.  See `EXAMPLE <EXAMPLE_>`_ section
   below.
+
+Static Class Methods
+--------------------
+
+
+``is_valid_value()``
+  In geopm, the values for signals and controls can be invalid due to errors.
+  This function determines if the current *value* of the signal or control is
+  a valid value. It returns true if the *value* is valid, and false if the *value*
+  is not valid.
 
 Inspection Class Methods
 ------------------------
