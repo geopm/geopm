@@ -73,7 +73,6 @@ namespace geopm
             ///
             /// Accesses the contents of the circular buffer
             /// at a particular index.
-            /// There are two kinds of valid indices: positive and negative ones.
             /// Valid positive indices range from 0 to [size-1].
             /// Valid negative indices range from -1 to -size.
             /// Negative indices work just like python indices,
@@ -197,9 +196,9 @@ namespace geopm
     template <class type>
     const type& CircularBuffer<type>::value(const int index) const
     {
-        if (index >= 0 && index >= m_count ||
-            index <  0 && index < -m_count) {
-            throw Exception("CircularBuffer::value(): index is out of bounds", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        if (index >= static_cast<int>(m_count) || index < -static_cast<int>(m_count)) {
+            throw Exception(std::string("CircularBuffer::value(): index [") + std::to_string(index) + "] is out of bounds",
+                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         if (index < 0) {
             const int new_index = m_count + index;

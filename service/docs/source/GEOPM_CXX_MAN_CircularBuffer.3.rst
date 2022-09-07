@@ -76,7 +76,6 @@ Class Methods
   Returns a constant reference to the value from the buffer.
   Accesses the contents of the circular buffer
   at a particular *index*.
-  There are two kinds of valid indices: positive and negative ones.
 
   * Valid positive indices range from ``0`` to ``size-1``.
 
