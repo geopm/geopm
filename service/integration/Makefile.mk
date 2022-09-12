@@ -34,6 +34,7 @@ EXTRA_DIST += integration/README.md \
 
 check_PROGRAMS += integration/test/test_batch_server \
                   integration/test/test_batch_interface \
+                  integration/test/test_invalid_values \
                   #end
 
 integration_test_test_batch_server_SOURCES = integration/test/test_batch_server.cpp
@@ -41,3 +42,7 @@ integration_test_test_batch_server_LDADD = libgeopmd.la
 
 integration_test_test_batch_interface_SOURCES = integration/test/test_batch_interface.cpp
 integration_test_test_batch_interface_LDADD = libgeopmd.la
+
+integration_test_test_invalid_values_SOURCES = integration/test/test_invalid_values.cpp
+integration_test_test_invalid_values_CXXFLAGS = $(CXXFLAGS) $(FASTMATH)
+integration_test_test_invalid_values_LDADD = libgeopmd.la
