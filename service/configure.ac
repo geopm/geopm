@@ -130,7 +130,7 @@ else
   enable_cnl_iogroup="1"
 fi
 ],
-[enable_cnl_iogroup="0"]
+[enable_cnl_iogroup="1"]
 )
 
 if test "x$enable_debug" = "x1" ; then
