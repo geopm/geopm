@@ -30,6 +30,9 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+TUTORIAL_LIB = libgeopmagent_ffnet_agent.so.1.0.0 \
+               # end
+
 GEOPM_PLUGIN_FLAGS=-fPIC -shared
 
 #CC ?= gcc
@@ -37,7 +40,7 @@ GEOPM_PLUGIN_FLAGS=-fPIC -shared
 #MPICC ?= mpicc
 #MPICXX ?= mpicxx
 
-all: TensorOneD.o 
+all: TensorTwoD.o
 
 GEOPM_BIN=$(GEOPM_INSTALL)/bin
 GEOPM_LIB=$(GEOPM_INSTALL)/lib
@@ -50,9 +53,11 @@ EXTRA_CPPFLAGS:=$(EXTRA_CPPFLAGS)
 CXXFLAGS=$(GEOPM_CFLAGS) $(OMP_FLAGS)
 LDFLAGS=$(GEOPM_LDFLAGS) $(OMP_FLAGS)
 
-
 TensorOneD.o: TensorOneD.cpp TensorOneD.hpp
 	$(CXX) $(CXXFLAGS) $(GEOPM_PLUGIN_FLAGS) -c TensorOneD.cpp -o $@
+
+TensorTwoD.o: TensorTwoD.cpp TensorTwoD.hpp TensorOneD.hpp
+	$(CXX) $(CXXFLAGS) $(GEOPM_PLUGIN_FLAGS) -c TensorTwoD.cpp -o $@
 
 clean:
 	rm -f *.o
