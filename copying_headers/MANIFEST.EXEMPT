@@ -64,6 +64,7 @@ integration/README.md
 integration/requirements.txt
 integration/test/README.md
 MANIFEST
+m4/ax_check_compile_flag.m4
 pull_request_template.md
 README
 README.md
