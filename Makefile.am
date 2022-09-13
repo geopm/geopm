@@ -185,11 +185,13 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              autogen.sh \
              configure.ac \
              copying_headers/MANIFEST.BSD3-llnl \
+             copying_headers/MANIFEST.compile_flag \
              copying_headers/MANIFEST.EXEMPT \
              copying_headers/MANIFEST.MIT-dropbox \
              copying_headers/MANIFEST.NAS \
              copying_headers/header.BSD3-intel \
              copying_headers/header.BSD3-llnl \
+             copying_headers/header.compile_flag \
              copying_headers/header.MIT-dropbox \
              copying_headers/header.NAS \
              copying_headers/test-dist \

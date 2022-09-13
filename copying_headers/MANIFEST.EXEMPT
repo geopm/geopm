@@ -7,10 +7,12 @@ COPYING-TPP
 man
 copying_headers/header.BSD3-intel
 copying_headers/header.BSD3-llnl
+copying_headers/header.compile_flag
 copying_headers/header.MIT-dropbox
 copying_headers/header.NAS
 copying_headers/MANIFEST.BSD3-intel
 copying_headers/MANIFEST.BSD3-llnl
+copying_headers/MANIFEST.compile_flag
 copying_headers/MANIFEST.EXEMPT
 copying_headers/MANIFEST.MIT-dropbox
 copying_headers/MANIFEST.NAS
@@ -64,7 +66,6 @@ integration/README.md
 integration/requirements.txt
 integration/test/README.md
 MANIFEST
-m4/ax_check_compile_flag.m4
 pull_request_template.md
 README
 README.md
