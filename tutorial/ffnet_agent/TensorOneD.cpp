@@ -7,55 +7,63 @@
 
 #include "TensorOneD.hpp"
 
-TensorOneD::TensorOneD() {
+TensorOneD::TensorOneD()
+{
 }
 
-TensorOneD::TensorOneD(int n) {
-    this->set_dim(n);
+TensorOneD::TensorOneD(int dim)
+{
+    set_dim(dim);
 }
 
-TensorOneD::TensorOneD(const TensorOneD &that) {
-    this->set_dim(that.n);
-    for (int i=0; i<n; i++) {
-        this->vec[i] = that[i];
+TensorOneD::TensorOneD(const TensorOneD &other)
+{
+    set_dim(other.m_dim);
+    for (int ii = 0; ii < m_dim; ii++) {
+        m_vec[ii] = other[ii];
     }
 }
 
-TensorOneD::TensorOneD(json11::Json input) {
+TensorOneD::TensorOneD(json11::Json input)
+{
     // TODO verify input
-    this->set_dim(input.array_items().size());
-    for (int i=0; i<this->n; i++) {
-        this->vec[i] = input[i].number_value();
+    set_dim(input.array_items().size());
+    for (int ii = 0; ii < m_dim; ii++) {
+        m_vec[ii] = input[ii].number_value();
     }
 }
 
 int
-TensorOneD::get_dim() {
-    return this->n;
+TensorOneD::get_dim()
+{
+    return m_dim;
 }
 
 void
-TensorOneD::set_dim(int n) {
-    this->vec.resize(n);
-    this->n = n;
+TensorOneD::set_dim(int dim)
+{
+    m_vec.resize(dim);
+    m_dim = dim;
 }
 
 TensorOneD
-TensorOneD::operator+(const TensorOneD& that) {
-    TensorOneD rval(this->n);
-    // assert(this->n == that.n);
-    for (int i=0; i<n; i++) {
-        rval[i] = this->vec[i] + that.vec[i];
+TensorOneD::operator+(const TensorOneD& other)
+{
+    TensorOneD rval(m_dim);
+    // assert(this->n == other.n);
+    for (int ii = 0; ii < m_dim; ii++) {
+        rval[ii] = m_vec[ii] + other.m_vec[ii];
     }
 
     return rval;
 }
 
 TensorOneD
-TensorOneD::operator-(const TensorOneD& that) {
-    TensorOneD rval(this->n);
-    for (int i=0; i<this->n; i++) {
-        rval[i] = this->vec[i] - that.vec[i];
+TensorOneD::operator-(const TensorOneD& other)
+{
+    TensorOneD rval(m_dim);
+    for (int ii = 0; ii < m_dim; ii++) {
+        rval[ii] = m_vec[ii] - other.m_vec[ii];
     }
 
     return rval;
@@ -63,41 +71,45 @@ TensorOneD::operator-(const TensorOneD& that) {
 
 
 float
-TensorOneD::operator*(const TensorOneD& that) {
+TensorOneD::operator*(const TensorOneD& other)
+{
     float rval = 0;
-    // assert(this->n == that.n);
-    for (int i=0; i<this->n; i++) {
-        rval += this->vec[i] * that.vec[i];
+    // assert(this->n == other.n);
+    for (int ii = 0; ii < m_dim; ii++) {
+        rval += m_vec[ii] * other.m_vec[ii];
     }
 
     return rval;
 }
 
 TensorOneD&
-TensorOneD::operator=(const TensorOneD &that) {
-    this->set_dim(that.n);
-    for (int i=0; i<n; i++) {
-        this->vec[i] = that[i];
+TensorOneD::operator=(const TensorOneD &other)
+{
+    set_dim(other.m_dim);
+    for (int ii = 0; ii < m_dim; ii++) {
+        m_vec[ii] = other[ii];
     }
     return *this;
 }
 
 float&
-TensorOneD::operator[] (int i) {
-    return this->vec[i];
+TensorOneD::operator[] (int ii)
+{
+    return m_vec[ii];
 }
 
 float
-TensorOneD::operator[] (int i) const {
-    return this->vec[i];
+TensorOneD::operator[] (int ii) const
+{
+    return m_vec[ii];
 }
 
 TensorOneD
-TensorOneD::sigmoid() {
-    TensorOneD rval;
-    rval.set_dim(n);
-    for(int i=0; i<n; i++) {
-        rval[i] = 1/(1 + expf(-(this->vec[i])));
+TensorOneD::sigmoid()
+{
+    TensorOneD rval(m_dim);
+    for(int ii = 0; ii < m_dim; ii++) {
+        rval[ii] = 1/(1 + expf(-(m_vec[ii])));
     }
     return rval;
 }

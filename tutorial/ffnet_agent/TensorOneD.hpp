@@ -25,10 +25,9 @@ class TensorOneD
         float operator[](int i) const;
         TensorOneD sigmoid();
 
-
     private:
-        std::vector<float> vec;
-        int n;
+        std::vector<float> m_vec;
+        int m_dim;
 };
 
 #endif
