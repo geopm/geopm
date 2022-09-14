@@ -8,78 +8,88 @@
 #include "TensorTwoD.hpp"
 #include "TensorOneD.hpp"
 
-TensorTwoD::TensorTwoD() {
-    this->r = this->c = 0;
+TensorTwoD::TensorTwoD()
+{
+    m_rows = m_cols = 0;
 }
 
-TensorTwoD::TensorTwoD(int r, int c) {
-    this->set_dim(r, c);
+TensorTwoD::TensorTwoD(int rows, int cols)
+{
+    set_dim(rows, cols);
 }
 
-TensorTwoD::TensorTwoD(const TensorTwoD &that) {
-    this->set_dim(that.r, that.c);
-    for (int i=0; i<this->r; i++) {
-        for (int j=0; j<this->c; j++) {
-            this->mat[i][j] = that.mat[i][j];
+TensorTwoD::TensorTwoD(const TensorTwoD &other)
+{
+    set_dim(other.m_rows, other.m_cols);
+    for (int idx_row = 0; idx_row < m_rows; idx_row++) {
+        for (int idx_col = 0; idx_col < m_cols; idx_col++) {
+            m_mat[idx_row][idx_col] = other.m_mat[idx_row][idx_col];
         }
     }
 }
 
-TensorTwoD::TensorTwoD(json11::Json input) {
+TensorTwoD::TensorTwoD(json11::Json input)
+{
     // TODO verify input
-    this->set_dim(input.array_items().size(), input[0].array_items().size());
-    for (int i=0; i<r; i++) {
-        for (int j=0; j<c; j++) {
-            this->mat[i][j] = input[i][j].number_value();
+    set_dim(input.array_items().size(), input[0].array_items().size());
+    for (int idx_row = 0; idx_row < m_rows; idx_row++) {
+        for (int idx_col = 0; idx_col < m_cols; idx_col++) {
+            m_mat[idx_row][idx_col] = input[idx_row][idx_col].number_value();
         }
     }
 }
 
 void
-TensorTwoD::set_dim(int r, int c) {
-    this->r = r;
-    this->c = c;
-    this->mat.resize(r);
-    for (int i=0; i<r; i++) {
-        this->mat[i].set_dim(c);
+TensorTwoD::set_dim(int rows, int cols)
+{
+    m_rows = rows;
+    m_cols = cols;
+    m_mat.resize(m_rows);
+    for (int idx_row = 0; idx_row < m_rows; idx_row++) {
+        m_mat[idx_row].set_dim(cols);
     }
 }
 
 int
-TensorTwoD::get_rows() {
-    return this->r;
+TensorTwoD::get_rows()
+{
+    return m_rows;
 }
 
 int
-TensorTwoD::get_cols() {
-    return this->c;
+TensorTwoD::get_cols()
+{
+    return m_cols;
 }
 
 TensorOneD
-TensorTwoD::operator*(const TensorOneD& that) {
-    TensorOneD rval(this->r);
-    for (int i=0; i<this->r; i++) {
-        rval[i] = this->mat[i] * that;
+TensorTwoD::operator*(const TensorOneD& other)
+{
+    TensorOneD rval(m_rows);
+    for (int idx_row = 0; idx_row < m_rows; idx_row++) {
+        rval[idx_row] = m_mat[idx_row] * other;
     }
     return rval;
 }
 
 TensorOneD&
-TensorTwoD::operator[](int i) {
-    return this->mat[i];
+TensorTwoD::operator[](int idx)
+{
+    return m_mat[idx];
 }
 
 TensorOneD
-TensorTwoD::operator[](int i) const {
-    return this->mat[i];
+TensorTwoD::operator[](int idx) const
+{
+    return m_mat[idx];
 }
 
 TensorTwoD&
-TensorTwoD::operator=(const TensorTwoD &that) {
-    this->set_dim(that.r, that.c);
-    for (int i=0; i<r; i++) {
-        this->mat[i] = that.mat[i];
+TensorTwoD::operator=(const TensorTwoD &other)
+{
+    set_dim(other.m_rows, other.m_cols);
+    for (int idx_row = 0; idx_row < m_rows; idx_row++) {
+        m_mat[idx_row] = other.m_mat[idx_row];
     }
     return *this;
 }
-

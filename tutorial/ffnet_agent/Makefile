@@ -40,7 +40,7 @@ GEOPM_PLUGIN_FLAGS=-fPIC -shared
 #MPICC ?= mpicc
 #MPICXX ?= mpicxx
 
-all: TensorTwoD.o
+all: TensorOneD.o TensorTwoD.o
 
 GEOPM_BIN=$(GEOPM_INSTALL)/bin
 GEOPM_LIB=$(GEOPM_INSTALL)/lib

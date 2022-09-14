@@ -14,20 +14,20 @@ class TensorTwoD
 {
     public:
         TensorTwoD();
-        TensorTwoD(int, int);
+        TensorTwoD(int rows, int cols);
         TensorTwoD(const TensorTwoD&);
         TensorTwoD(json11::Json input);
-        void set_dim(int r, int c);
+        void set_dim(int rows, int cols);
         int get_rows();
         int get_cols();
         TensorOneD operator*(const TensorOneD&);
-        TensorOneD &operator[](int i);
-        TensorOneD operator[](int i) const;
+        TensorOneD &operator[](int ii);
+        TensorOneD operator[](int ii) const;
         TensorTwoD& operator=(const TensorTwoD&);
 
     private:
-        std::vector<TensorOneD> mat;
-        int r, c;
+        std::vector<TensorOneD> m_mat;
+        int m_rows, m_cols;
 };
 
 #endif
