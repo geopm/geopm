@@ -164,7 +164,9 @@ class ParresDgemmAppConfOneapi(apps.AppConf):
         if node_count != 1:
             raise RuntimeError('ParRes Dgemm is only setup for 1 node not {}'.format(node_count))
 
-        if gpus_per_node != 1:
+        if gpus_per_node is None:
+            gpus_per_node = 1
+        elif gpus_per_node != 1:
             raise RuntimeError('ParRes Dgemm is only setup to run on 1 GPU')
 
         if (gpus_per_node > mach.num_gpu()):
@@ -207,7 +209,7 @@ class ParresDgemmAppConfOneapi(apps.AppConf):
             subprocess.call(self._parres_teardown, shell=True)
 
     def parse_fom(self, log_path):
-        key = 'Rate (MB/s): '
+        key = 'Rate (MF/s): '
         return _parse_parres_fom(key, log_path)
 
             
@@ -332,7 +334,9 @@ class ParresNstreamAppConfOneapi(apps.AppConf):
         if node_count != 1:
             raise RuntimeError('Nstream is only setup for 1 node not {}'.format(node_count))
 
-        if gpus_per_node != 1:
+        if gpus_per_node is None:
+            gpus_per_node = 1
+        elif gpus_per_node != 1:
             raise RuntimeError('Nstream is only setup to run on 1 GPU')
 
         if (gpus_per_node > mach.num_gpu()):
