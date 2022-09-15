@@ -30,25 +30,6 @@ packages.  The ``geopm-service-devel`` package must be explicitly
 installed if it is required by the user.
 
 
-Level Zero Prequisite
----------------------
-
-Before installing the GEOPM Service packages, the ``level-zero``
-package must be installed.  This package enables GEOPM's support for
-GPU metrics and controls.  The ``level-zero`` package is not currently
-provided upstream by the Linux distributions that GEOPM supports.
-Please follow the
-`Intel(R) GPGPU software package installation guide for Linux <https://dgpu-docs.intel.com/installation-guides/index.html>`__
-to install the ``level-zero`` package on your system.  The linked
-guide shows how to add the OS appropriate package management
-repository to your system.  Once the repository has been added, use
-``yum`` or ``zypper`` to install the ``level-zero`` package.  Only the
-``level-zero`` package is required, there is no GEOPM requirement to
-install any of the other packages mentioned in the guides linked
-above.  Installing the ``level-zero-devel`` package will enable the
-user to build GEOPM from source with GPU support if that is desired.
-
-
 Download Repositories
 ---------------------
 
@@ -99,13 +80,12 @@ to this rule is the OpenHPC distribution.  GEOPM version 1 has been packaged
 with `OpenHPC releases <http://openhpc.community/downloads/>`_, and we hope to distribute version 2 with OpenHPC in the future.
 For users interested in GEOPM version 2, a source build is required.
 
-Support for NVIDIA GPUs with NVML or DCGM is also not provided by
-installing the packages described above.  Support for NVIDIA GPUs
-relies on libraries that are not bundled with the OpenSUSE OBS build
-system where the GEOPM packages are built and distributed.  A source
-build of the GEOPM Service is required to enable use of NVML, or DCGM.
-This build process must be done in an environment where the dependency
-libraries and headers are present.
+Support for GPUs is also not provided by installing the packages described
+above.  Support for GPUs relies on libraries that are not bundled with the
+OpenSUSE OBS build system where the GEOPM packages are built and distributed.
+To enable LevelZero, NVML, or DCGM a source build of the GEOPM Service is
+required.  This build process must be done in an environment where the
+dependency libraries and headers are present.
 
 In order to access these GEOPM features which are not packaged, a user should
 build GEOPM from source.  The best recommendation for building GEOPM from
