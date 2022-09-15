@@ -32,10 +32,13 @@ namespace geopm
             virtual ~CircularBuffer();
             /// @brief Re-size the circular buffer.
             ///
-            /// Resets the capacity of the circular buffer without
-            /// modifying its current contents.
+            /// Grows or shrinks the capacity of the circular buffer.
+            /// If the new capacity is greater than the size, then the current contents
+            /// will not be modified.
+            /// If the new capacity is smaller than the size, then only the newest elements
+            /// of the difference will be retained.
             ///
-            /// @param [in] size Requested capacity for the buffer.
+            /// @param [in] size Requested new capacity for the buffer.
             void set_capacity(const unsigned int size);
             /// @brief Clears all entries from the buffer.
             ///
@@ -69,17 +72,22 @@ namespace geopm
             /// @brief Returns a constant reference to the value from the buffer.
             ///
             /// Accesses the contents of the circular buffer
-            /// at a particular index. Valid indices range
-            /// from 0 to [size-1]. Where size is the number
-            /// of valid entries in the buffer. An attempt to
-            /// retrieve a value for an out of bound index
+            /// at a particular index.
+            /// Valid positive indices range from 0 to [size-1].
+            /// Valid negative indices range from -1 to -size.
+            /// Negative indices work just like python indices,
+            /// to represent nth-most-recent insertions. For example,
+            /// -1 is the last element, -2 is the second to last element, and so on.
+            /// Where size is the number of valid entries in the buffer.
+            /// An out of bounds index is > [size-1] OR < [-size].
+            /// An attempt to retrieve a value for an out of bound index
             /// will throw a geopm::Exception with an
             /// error_value() of GEOPM_ERROR_INVALID.
             ///
             /// @param [in] index Buffer index to retrieve.
             ///
             /// @return Value from the specified buffer index.
-            const type& value(const unsigned int index) const;
+            const type& value(const int index) const;
             /// @brief Create a vector from the entire circular buffer contents.
             ///
             /// @return Vector containing the circular buffer contents.
@@ -150,12 +158,12 @@ namespace geopm
     template <class type>
     void CircularBuffer<type>::set_capacity(const unsigned int size)
     {
+        // If the requested new capacity is less than the size.
         if (size < m_count && m_max_size > 0) {
             int size_diff = m_count - size;
             std::vector<type> temp;
-            //Copy newest data into temporary vector
-            for (unsigned int i = m_head + size_diff; i != ((m_head + m_count) % m_max_size); i = ((i + 1) % m_max_size)) {
-                temp.push_back(m_buffer[i]);
+            for (size_t idx = size_diff; idx < m_count; ++idx) {
+                temp.push_back(value(idx));
             }
             //now re-size and swap out with tmp vector data
             m_buffer.resize(size);
@@ -176,22 +184,28 @@ namespace geopm
             throw Exception("CircularBuffer::insert(): Cannot insert into a buffer of 0 size", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         if (m_count < m_max_size) {
-            m_buffer[m_count] = value;
+            m_buffer.at(m_count) = value;
             m_count++;
         }
         else {
-            m_buffer[m_head] = value;
+            m_buffer.at(m_head) = value;
             m_head = ((m_head + 1) % m_max_size);
         }
     }
 
     template <class type>
-    const type& CircularBuffer<type>::value(const unsigned int index) const
+    const type& CircularBuffer<type>::value(const int index) const
     {
-        if (index >= m_count) {
-            throw Exception("CircularBuffer::value(): index is out of bounds", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        if (index >= static_cast<int>(m_count) || index < -static_cast<int>(m_count)) {
+            throw Exception(std::string("CircularBuffer::value(): index [") + std::to_string(index) + "] is out of bounds",
+                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        return m_buffer[(m_head + index) % m_max_size];
+        if (index < 0) {
+            const int new_index = m_count + index;
+            return m_buffer.at((m_head + new_index) % m_max_size);
+        } else {
+            return m_buffer.at((m_head + index) % m_max_size);
+        }
     }
 
     template <class type>

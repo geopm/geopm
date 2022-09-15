@@ -15,7 +15,6 @@ Group: System Environment/Daemons
 %else
 Group: System/Daemons
 %endif
-Vendor: Intel Corporation
 URL: https://geopm.github.io
 Source0: geopm-service.tar.gz
 BuildRoot: %{_tmppath}/geopm-service-%{version}-%{release}-root
@@ -37,8 +36,6 @@ BuildRequires: systemd-rpm-macros
 BuildRequires: python-rpm-macros
 %endif
 
-%global debug_package %{nil}
-
 %if %{defined suse_version}
 %define docdir %{_defaultdocdir}/geopm-service
 %else
@@ -51,8 +48,8 @@ BuildRequires: python-rpm-macros
 
 %define python_major_version 3
 
-Requires: python%{python3_pkgversion}-geopmdpy == %{version}
-Requires: libgeopmd1 == %{version}
+Requires: python%{python3_pkgversion}-geopmdpy = %{version}
+Requires: libgeopmd1 = %{version}
 
 %description
 
@@ -74,7 +71,7 @@ Group: Development/Libraries
 %else
 Group: Development/Libraries/C and C++
 %endif
-Requires: libgeopmd1 == %{version}
+Requires: libgeopmd1 = %{version}
 
 %description devel
 
@@ -110,6 +107,7 @@ Group: Development/Libraries/Python
 
 %if 0%{?suse_version}
 Requires: python3-gobject
+BuildRequires: gobject-introspection
 %else
 Requires: python3-gobject-base
 %endif
@@ -117,7 +115,7 @@ Requires: python3-dasbus >= 1.6
 Requires: python3-jsonschema
 Requires: python3-psutil
 Requires: python3-cffi
-Requires: libgeopmd1 == %{version}
+Requires: libgeopmd1 = %{version}
 
 %{?python_provide:%python_provide python%{python3_pkgversion}-geopmdpy}
 
@@ -160,8 +158,8 @@ ln -s /usr/sbin/service %{buildroot}%{_sbindir}/rcgeopm
 
 %clean
 
-%pre -n geopm-service
 %if 0%{?suse_version}
+%pre -n geopm-service
 %service_add_pre geopm.service
 %endif
 
@@ -172,8 +170,7 @@ ln -s /usr/sbin/service %{buildroot}%{_sbindir}/rcgeopm
 %service_add_post geopm.service
 %endif
 
-%post -n libgeopmd1
-/sbin/ldconfig
+%post -n libgeopmd1 -p /sbin/ldconfig
 
 %preun -n geopm-service
 %if 0%{?rhel_version} || 0%{?centos_version}
@@ -189,8 +186,7 @@ ln -s /usr/sbin/service %{buildroot}%{_sbindir}/rcgeopm
 %service_del_postun geopm.service
 %endif
 
-%postun -n libgeopmd1
-/sbin/ldconfig
+%postun -n libgeopmd1 -p /sbin/ldconfig
 
 # Installed files
 
@@ -292,8 +288,3 @@ ln -s /usr/sbin/service %{buildroot}%{_sbindir}/rcgeopm
 %doc %{_mandir}/man3/geopm_time.3.gz
 %doc %{_mandir}/man3/geopm_topo.3.gz
 %doc %{_mandir}/man3/geopm_version.3.gz
-
-
-%changelog
-* Fri Mar 18 2022 <christopher.m.cantalupo@intel.com> v2.0.0-rc
-- Work on spec file for GEOPM v2.0 release candidate.

@@ -1,0 +1,96 @@
+From 2ba2e41c42981a96778f3febb29a92fd99c0657a Mon Sep 17 00:00:00 2001
+From: Alejandro Vilches <alejandro.vilches@intel.com>
+Date: Fri, 19 Aug 2022 18:10:22 -0700
+Subject: [PATCH] Init and finalize MPI in onemkl kernels
+#
+#  Copyright (c) 2015 - 2022, Intel Corporation
+#  SPDX-License-Identifier: BSD-3-Clause
+#
+
+Signed-off-by: Alejandro Vilches <alejandro.vilches@intel.com>
+---
+ Cxx11/Makefile                 | 2 +-
+ Cxx11/dgemm-multigpu-onemkl.cc | 3 +++
+ Cxx11/dgemm-onemkl.cc          | 3 +++
+ Cxx11/nstream-onemkl.cc        | 3 +++
+ 4 files changed, 10 insertions(+), 1 deletion(-)
+
+diff --git a/Cxx11/Makefile b/Cxx11/Makefile
+index 3a50f690..7545f8e8 100644
+--- a/Cxx11/Makefile
++++ b/Cxx11/Makefile
+@@ -202,7 +202,7 @@ pic-sycl: pic-sycl.cc prk_util.h prk_sycl.h random_draw.c
+ 	$(SYCLCXX) $(CPPFLAGS) $(SYCLFLAGS) $< -o $@
+ 
+ %-onemkl: %-onemkl.cc prk_util.h prk_sycl.h
+-	$(SYCLCXX) $(CPPFLAGS) $(SYCLFLAGS) $< $(ONEMKLFLAG) -o $@
++	$(SYCLCXX) $(CPPFLAGS) $(SYCLFLAGS) $(MPIINC) $< $(ONEMKLFLAG) $(MPILIB) -o $@
+ 
+ %-target: %-target.cc prk_util.h prk_openmp.h
+ 	$(CXX) $(CXXFLAGS) $< $(OMPFLAGS) $(TARGETFLAGS) -o $@
+diff --git a/Cxx11/dgemm-multigpu-onemkl.cc b/Cxx11/dgemm-multigpu-onemkl.cc
+index c6ea0ed2..519f422e 100644
+--- a/Cxx11/dgemm-multigpu-onemkl.cc
++++ b/Cxx11/dgemm-multigpu-onemkl.cc
+@@ -58,6 +58,7 @@
+ 
+ #include "prk_sycl.h"
+ #include "prk_util.h"
++#include "prk_mpi.h"
+ 
+ #if BETA9 // and older
+ #include <mkl_blas_sycl.hpp>
+@@ -149,6 +150,8 @@ int main(int argc, char * argv[])
+   }
+   std::cout << "Number of GPUs to use = " << use_ngpu << std::endl;
+ 
++  prk::MPI::state mpi(&argc, &argv);
++
+   std::vector<sycl::queue> qs;
+ 
+   auto platforms = sycl::platform::get_platforms();
+diff --git a/Cxx11/dgemm-onemkl.cc b/Cxx11/dgemm-onemkl.cc
+index d1f9b65e..ec6da22a 100644
+--- a/Cxx11/dgemm-onemkl.cc
++++ b/Cxx11/dgemm-onemkl.cc
+@@ -58,6 +58,7 @@
+ 
+ #include "prk_sycl.h"
+ #include "prk_util.h"
++#include "prk_mpi.h"
+ 
+ #if BETA9 // and older
+ #include <mkl_blas_sycl.hpp>
+@@ -129,6 +130,8 @@ int main(int argc, char * argv[])
+   sycl::queue q(sycl::default_selector{});
+   prk::SYCL::print_device_platform(q);
+ 
++  prk::MPI::state mpi(&argc, &argv);
++
+   //////////////////////////////////////////////////////////////////////
+   // Allocate space for matrices
+   //////////////////////////////////////////////////////////////////////
+diff --git a/Cxx11/nstream-onemkl.cc b/Cxx11/nstream-onemkl.cc
+index 0c69f980..843dee93 100644
+--- a/Cxx11/nstream-onemkl.cc
++++ b/Cxx11/nstream-onemkl.cc
+@@ -63,6 +63,7 @@
+ 
+ #include "prk_sycl.h"
+ #include "prk_util.h"
++#include "prk_mpi.h"
+ 
+ #if BETA9 // and older
+ #include <mkl_blas_sycl.hpp>
+@@ -108,6 +109,8 @@ int main(int argc, char * argv[])
+ 
+   sycl::queue q(sycl::default_selector{}, sycl::property::queue::in_order{});
+ 
++  prk::MPI::state mpi(&argc, &argv);
++
+   //////////////////////////////////////////////////////////////////////
+   // Allocate space and perform the computation
+   //////////////////////////////////////////////////////////////////////
+-- 
+2.26.2
+
