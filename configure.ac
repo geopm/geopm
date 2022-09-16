@@ -285,6 +285,7 @@ AC_DEFINE_UNQUOTED([GEOPM_CONFIG_PATH],
           [The prefix to the path where GEOPM config files are stored])
 
 m4_include([m4/lx_find_mpi.m4])
+m4_include([m4/ax_check_compile_flag.m4])
 LX_FIND_MPI()
 AC_LANG_PUSH([C++])
 LX_FIND_MPI()
