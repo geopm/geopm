@@ -137,12 +137,12 @@ Singleton Accessor
 Static Class Methods
 --------------------
 
-
 ``is_valid_value()``
   In geopm, the values for signals and controls can be invalid due to errors or absent sampling data.
   This function determines if the current *value* of the signal or control is
   a valid value. It returns true if the *value* is valid, and false if the *value*
   is not valid.
+
 
 Inspection Class Methods
 ------------------------
