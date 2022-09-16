@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
+#include "geopm/Exception.hpp"
 
 #include "TensorOneD.hpp"
 
@@ -8,30 +9,34 @@ class TensorOneDTest : public ::testing::Test
     protected:
         void SetUp();
 
-        TensorOneD one, two;
+        TensorOneD one, two, three;
 };
 
 void TensorOneDTest::SetUp()
 {
     one.set_dim(2);
     two.set_dim(2);
+    three.set_dim(3);
 
     one[0] = 1;
     one[1] = 2;
     two[0] = 3;
     two[1] = 4;
+    three[0] = 0;
+    three[1] = 1;
+    three[2] = 1;
 }
 
 TEST_F(TensorOneDTest, test_sum) {
-    TensorOneD three = one + two;
-    EXPECT_EQ(4, three[0]);
-    EXPECT_EQ(6, three[1]);
+    TensorOneD four = one + two;
+    EXPECT_EQ(4, four[0]);
+    EXPECT_EQ(6, four[1]);
 }
 
 TEST_F(TensorOneDTest, test_diff) {
-    TensorOneD three(one - two);
-    EXPECT_EQ(-2, three[0]);
-    EXPECT_EQ(-2, three[1]);
+    TensorOneD four(one - two);
+    EXPECT_EQ(-2, four[0]);
+    EXPECT_EQ(-2, four[1]);
 }
 
 TEST_F(TensorOneDTest, test_dot) {
@@ -77,6 +82,12 @@ TEST_F(TensorOneDTest, input) {
     EXPECT_EQ(2, x.get_dim());
     EXPECT_EQ(8, x[0]);
     EXPECT_EQ(16, x[1]);
+}
+
+TEST_F(TensorOneDTest, test_bad_dimensions) {
+    EXPECT_THROW(one + three, geopm::Exception);
+    EXPECT_THROW(one - three, geopm::Exception);
+    EXPECT_THROW(one * three, geopm::Exception);
 }
 
 GTEST_API_ int main(int argc, char **argv) {
