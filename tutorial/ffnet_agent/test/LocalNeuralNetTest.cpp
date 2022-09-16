@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
+#include "geopm/Exception.hpp"
 
 #include "LocalNeuralNet.hpp"
 
@@ -47,6 +48,32 @@ TEST_F(LocalNeuralNetTest, test_copy) {
     out = net2.model(inp);
     EXPECT_EQ(1/(1 + expf(-3)), out[0]);
 }
+
+TEST_F(LocalNeuralNetTest, test_bad_layers) {
+    EXPECT_THROW(LocalNeuralNet (
+            json11::Json::array {
+                json11::Json::array {
+                    json11::Json::array {  json11::Json::array {8, 16} },
+                    json11::Json::array {3, 0}
+                }
+            }
+          ), geopm::Exception);
+
+    EXPECT_THROW(LocalNeuralNet (
+            json11::Json::array {
+                json11::Json::array {
+                    json11::Json::array {  json11::Json::array {8, 16} },
+                    json11::Json::array {3}
+                },
+                json11::Json::array {
+                    json11::Json::array { json11::Json::array { 1, 2 } },
+                    json11::Json::array {0}
+                }
+            }
+          ), geopm::Exception);
+
+}
+
 
 GTEST_API_ int main(int argc, char **argv) {
     testing::InitGoogleTest(&argc, argv);

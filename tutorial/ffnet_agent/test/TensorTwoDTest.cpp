@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
+#include "geopm/Exception.hpp"
 
 #include "TensorTwoD.hpp"
 
@@ -90,6 +91,19 @@ TEST_F(TensorTwoDTest, input) {
     EXPECT_EQ(1, x.get_cols());
     EXPECT_EQ(1, x[0][0]);
     EXPECT_EQ(2, x[1][0]);
+}
+
+TEST_F(TensorTwoDTest, test_degenerate_size) {
+    TensorTwoD x;
+    EXPECT_EQ(0, x.get_cols());
+}
+
+TEST_F(TensorTwoDTest, test_bad_dimensions) {
+    vec.set_dim(1, 2);
+    EXPECT_THROW(mat * vec[0], geopm::Exception);
+    EXPECT_THROW(vec.set_dim(0, 1), geopm::Exception);
+    std::vector<std::vector<float> > vals = {{1}, {2, 3}};
+    EXPECT_THROW(TensorTwoD(json11::Json(vals)), geopm::Exception);
 }
 
 GTEST_API_ int main(int argc, char **argv) {
