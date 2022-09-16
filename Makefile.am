@@ -393,12 +393,16 @@ libgeopmpolicy_la_SOURCES = src/Accumulator.cpp \
                             src/EpochIOGroup.hpp \
                             src/FilePolicy.cpp \
                             src/FilePolicy.hpp \
+                            src/FFNetAgent.cpp \
+                            src/FFNetAgent.hpp \
                             src/FrequencyGovernor.cpp \
                             src/FrequencyGovernor.hpp \
                             src/FrequencyGovernorImp.hpp \
                             src/FrequencyMapAgent.cpp \
                             src/FrequencyMapAgent.hpp \
                             src/Imbalancer.cpp \
+                            src/LocalNeuralNet.cpp \
+                            src/LocalNeuralNet.hpp \
                             src/ModelParse.cpp \
                             src/ModelParse.hpp \
                             src/MonitorAgent.cpp \
@@ -439,6 +443,10 @@ libgeopmpolicy_la_SOURCES = src/Accumulator.cpp \
                             src/SampleAggregatorImp.hpp \
                             src/Scheduler.cpp \
                             src/Scheduler.hpp \
+                            src/TensorOneD.cpp \
+                            src/TensorOneD.hpp \
+                            src/TensorTwoD.cpp \
+                            src/TensorTwoD.hpp \
                             src/Tracer.cpp \
                             src/Tracer.hpp \
                             src/TreeComm.cpp \
