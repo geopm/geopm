@@ -16,18 +16,17 @@ class TensorOneD
         TensorOneD(const TensorOneD&);
         TensorOneD(json11::Json input);
         void set_dim(int n);
-        int get_dim();
+        int get_dim() const;
         TensorOneD operator+(const TensorOneD&);
         TensorOneD operator-(const TensorOneD&);
         float operator*(const TensorOneD&);
         TensorOneD& operator=(const TensorOneD&);
-        float &operator[](int i);
-        float operator[](int i) const;
-        TensorOneD sigmoid();
+        float &operator[](int idx);
+        float operator[](int idx) const;
+        TensorOneD sigmoid() const;
 
     private:
         std::vector<float> m_vec;
-        int m_dim;
 };
 
 #endif

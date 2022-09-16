@@ -18,16 +18,15 @@ class TensorTwoD
         TensorTwoD(const TensorTwoD&);
         TensorTwoD(json11::Json input);
         void set_dim(int rows, int cols);
-        int get_rows();
-        int get_cols();
+        int get_rows() const;
+        int get_cols() const;
         TensorOneD operator*(const TensorOneD&);
-        TensorOneD &operator[](int ii);
-        TensorOneD operator[](int ii) const;
+        TensorOneD &operator[](int idx);
+        TensorOneD operator[](int idx) const;
         TensorTwoD& operator=(const TensorTwoD&);
 
     private:
         std::vector<TensorOneD> m_mat;
-        int m_rows, m_cols;
 };
 
 #endif
