@@ -454,6 +454,7 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
                           test/SchedTest.cpp \
                           test/SSTFrequencyLimitDetectorTest.cpp \
                           test/TensorOneDTest.cpp \
+                          test/TensorTwoDTest.cpp \
                           test/TracerTest.cpp \
                           test/TreeCommLevelTest.cpp \
                           test/TreeCommTest.cpp \

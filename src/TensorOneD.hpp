@@ -102,4 +102,3 @@ namespace geopm
             std::vector<float> m_vec;
     };
 }
-#endif
