@@ -21,9 +21,7 @@ class LocalNeuralNet
         TensorOneD model(TensorOneD inp);
 
     private:
-        std::vector<TensorTwoD> m_weights;
-        std::vector<TensorOneD> m_biases;
-        int m_nlayers;
+        std::vector<std::pair<TensorTwoD, TensorOneD> > m_layers;
 };
 
 #endif

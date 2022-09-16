@@ -54,7 +54,7 @@ CXXFLAGS=$(GEOPM_CFLAGS) $(OMP_FLAGS)
 LDFLAGS=$(GEOPM_LDFLAGS) $(OMP_FLAGS)
 
 libgeopmagent_ffnet_agent.so.1.0.0: FFNetAgent.cpp FFNetAgent.hpp LocalNeuralNet.o TensorOneD.o TensorTwoD.o
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(GEOPM_PLUGIN_FLAGS) $(EXTRA_CPPFLAGS) FFNetAgent.cpp  $(GEOPM_SOURCE)/service/contrib/json11/json11.cpp LocalNeuralNet.o TensorOneD.o TensorTwoD.o -o $@
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(GEOPM_PLUGIN_FLAGS) $(EXTRA_CPPFLAGS) FFNetAgent.cpp  $(GEOPM_SOURCE)/service/contrib/json11/json11.cpp LocalNeuralNet.o TensorOneD.o TensorTwoD.o -o $@ -lgeopm
 
 TensorOneD.o: TensorOneD.cpp TensorOneD.hpp
 	$(CXX) $(CXXFLAGS) $(GEOPM_PLUGIN_FLAGS) -c TensorOneD.cpp -o $@
