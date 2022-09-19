@@ -30,7 +30,7 @@ TensorTwoD::TensorTwoD(json11::Json input)
 {
     set_dim(input.array_items().size(), input[0].array_items().size());
     for (int idx = 0; idx < (int)m_mat.size(); idx++) {
-        if (input[idx].array_items().size() != m_mat[idx].get_dim()) {
+        if ((int)input[idx].array_items().size() != m_mat[idx].get_dim()) {
             throw geopm::Exception("Attempt to load non-rectangular matrix.",
                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
