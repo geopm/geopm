@@ -44,6 +44,7 @@ LocalNeuralNet& LocalNeuralNet::operator=(const LocalNeuralNet &other)
     for (int idx = 0; idx < m_layers.size(); idx++) {
         m_layers[idx] = other.m_layers[idx];
     }
+    return *this;
 }
 
 TensorOneD LocalNeuralNet::model(TensorOneD inp)

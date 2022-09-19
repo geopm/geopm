@@ -13,12 +13,12 @@
 #include <sstream>
 
 #include "PlatformIOProf.hpp"
-#include "PluginFactory.hpp"
-#include "PlatformIO.hpp"
-#include "PlatformTopo.hpp"
-#include "Helper.hpp"
-#include "Exception.hpp"
-#include "Agg.hpp"
+#include "geopm/PluginFactory.hpp"
+#include "geopm/PlatformIO.hpp"
+#include "geopm/PlatformTopo.hpp"
+#include "geopm/Helper.hpp"
+#include "geopm/Exception.hpp"
+#include "geopm/Agg.hpp"
 
 #include <string>
 
