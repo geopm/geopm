@@ -193,8 +193,19 @@ EXTRA_DIST += \
 	      docs/json_data/msr_data_skx.json \
 	      docs/json_data/msr_data_snb.json \
 	      docs/json_data/msr_data_spr.json \
-	      src/msr_data.cpp.in \
+	      src/json_data.cpp.in \
 	      # end
+
+# Sysfs json definitions. From each json file, generate a same-prefixed cpp file,
+# and use {driver}_sysfs_json as the variable identifier
+# E.g., src/sysfs_attributes_cpufreq.cpp is made from
+# src/sysfs_attributes_cpufreq.json and names the json variable cpufreq_sysfs_json.
+sysfs_cpp_files = \
+		  src/sysfs_attributes_cpufreq.cpp \
+		  #
+EXTRA_DIST += \
+	      src/sysfs_attributes_cpufreq.json \
+	      #
 
 libgeopmd_la_SOURCES = $(include_HEADERS) \
                        $(geopminclude_HEADERS) \
@@ -224,6 +235,7 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/Cpuid.hpp \
                        src/CpuinfoIOGroup.cpp \
                        src/CpuinfoIOGroup.hpp \
+		       src/CpufreqIOGroup.cpp \
                        src/DCGMDevicePool.hpp \
                        src/DCGMIOGroup.hpp \
                        src/DCGMIOGroup.cpp \
@@ -317,6 +329,7 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/geopm_shmem.h \
                        src/geopm_version.c \
                        $(msr_cpp_files) \
+                       $(sysfs_cpp_files) \
                        # end
 
 systemd_source_files = src/SDBus.cpp \
@@ -383,12 +396,19 @@ io.github.geopm.xml:
 	PYTHONPATH=$(abs_srcdir):$(PYTHONPATH) \
 	$(PYTHON) -m geopmdpy.dbus_xml > $@
 
-$(msr_cpp_files): src/%.cpp: docs/json_data/%.json src/msr_data.cpp.in
-	sed -e '/@MSR_JSON_CONTENTS@/ {' \
+$(msr_cpp_files): src/%.cpp: docs/json_data/%.json src/json_data.cpp.in
+	sed -e '/@JSON_CONTENTS@/ {' \
 	    -e "r $<" \
 	    -e 'd' -e '}' \
-	    -e "s/@MSR_JSON_IDENTIFIER@/$(lastword $(subst _, ,$*))_msr_json/g" \
-	src/msr_data.cpp.in > $@
+	    -e "s/@JSON_IDENTIFIER@/$(lastword $(subst _, ,$*))_msr_json/g" \
+	src/json_data.cpp.in > $@
+
+$(sysfs_cpp_files): %.cpp: %.json src/json_data.cpp.in
+	sed -e '/@JSON_CONTENTS@/ {' \
+	    -e "r $<" \
+	    -e 'd' -e '}' \
+	    -e "s/@JSON_IDENTIFIER@/$(lastword $(subst _, ,$*))_sysfs_json/g" \
+	src/json_data.cpp.in > $@
 
 $(abs_srcdir)/geopmdpy/version.py:
 # Move version.py into source for out of place builds
@@ -440,7 +460,7 @@ check_LTLIBRARIES =
 TESTS =
 BUILT_SOURCES =
 DISTCLEANFILES =
-CLEANFILES = $(msr_cpp_files)
+CLEANFILES = $(msr_cpp_files) $(sysfs_cpp_files)
 
 include test/Makefile.mk
 

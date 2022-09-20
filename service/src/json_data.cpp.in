@@ -9,10 +9,10 @@
 
 namespace geopm
 {
-    const std::string @MSR_JSON_IDENTIFIER@(void)
+    const std::string @JSON_IDENTIFIER@(void)
     {
         static const std::string result = R"(
-@MSR_JSON_CONTENTS@
+@JSON_CONTENTS@
         )";
         return result;
     }
