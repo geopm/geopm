@@ -63,6 +63,8 @@ integration/experiment/uncore_frequency_sweep/README.md
 integration/README.md
 integration/requirements.txt
 integration/test/README.md
+json_schemas/geopmbench_config.schema.json
+json_schemas/geopmagent_policy.schema.json
 MANIFEST
 pull_request_template.md
 README
@@ -174,6 +176,10 @@ service/m4
 service/README.rst
 service/requirements.txt
 service/integration/README.md
+service/json_schemas/active_sessions.schema.json
+service/json_schemas/const_config_io.schema.json
+service/json_schemas/msrs.schema.json
+service/json_schemas/saved_controls.schema.json
 shell_completion/README.md
 specs/geopm-dudley.spec.in
 specs/geopm-ohpc.spec.in
@@ -200,8 +206,3 @@ tutorial/README.md
 tutorial/python_agents/README.rst
 tutorial/tutorial_6_config.json
 tutorial/tutorial_power_policy.json
-json_schemas/geopmbench_config.schema.json
-json_schemas/geopmagent_policy.schema.json
-service/json_schemas/saved_controls.schema.json
-service/json_schemas/msrs.schema.json
-service/json_schemas/active_sessions.schema.json

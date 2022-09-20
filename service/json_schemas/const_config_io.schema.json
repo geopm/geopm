@@ -1,0 +1,53 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "https://geopm.github.io/const_config_io.schema.json",
+    "title": "ConstConfigIOGroup config file specification",
+    "definitions": {
+        "signal_def": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "domain": {
+                    "enum": ["board", "package", "core", "cpu", "memory", "package_integrated_memory", "nic", "package_integrated_nic", "gpu", "package_integrated_gpu", "gpu_chip"]
+                },
+                "aggregation": {
+                    "enum": ["sum", "average", "median", "logical_and", "logical_or", "region_hash", "region_hint", "min", "max", "stddev", "select_first", "expect_same"]
+                }
+            },
+            "required": ["description", "domain", "aggregation"],
+            "additionalProperties": false
+        },
+        "config_def": {
+            "type": "object",
+            "properties": {
+                "domain_idx": {
+                    "type": "integer"
+                },
+                "value": {
+                    "type": "number"
+                }
+            },
+            "required": ["value"],
+            "additionalProperties": false
+        }
+    },
+    "type": "object",
+    "properties": {
+        "signals": {
+            "type": "object",
+            "additionalProperties": {
+                "$ref": "#/definitions/signal_def"
+            }
+        },
+        "config": {
+            "type": "object",
+            "additionalProperties": {
+                "$ref": "#/definitions/config_def"
+            }
+        }
+    },
+    "required": ["signals", "config"],
+    "additionalProperties": false
+}
