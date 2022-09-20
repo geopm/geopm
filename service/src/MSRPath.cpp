@@ -19,7 +19,11 @@ namespace geopm
         path_ss << "/dev/cpu/" << cpu_idx;
         switch (fallback_idx) {
             case M_FALLBACK_MSRSAFE:
+#ifdef GEOPM_ENABLE_MSR_SAFE
                 path_ss << "/msr_safe";
+#else
+                path_ss << "/msr";
+#endif
                 break;
             case M_FALLBACK_MSR:
                 path_ss << "/msr";
@@ -34,7 +38,11 @@ namespace geopm
 
     std::string MSRPath::msr_batch_path(void)
     {
-        return "/dev/cpu/msr_batch";
+        std::string result;
+#ifdef GEOPM_ENABLE_MSR_SAFE
+        result = "/dev/cpu/msr_batch";
+#endif
+        return result;
     }
 }
 
