@@ -49,6 +49,7 @@ compile_commands.json
 /missing
 /README
 src/msr_data_*.cpp
+src/sysfs_attributes_*.cpp
 /stamp-h1
 /test/geopm_test
 /test/gtest_links/
