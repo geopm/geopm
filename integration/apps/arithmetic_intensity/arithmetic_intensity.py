@@ -89,11 +89,11 @@ def create_appconf(mach, args):
                                       args.distribute_slow_ranks)
 
 class ArithmeticIntensityAppConf(apps.AppConf):
-    @staticmethod
-    def name():
-        return 'arithmetic_intensity'
+    def name(self):
+        return f"arithmetic_intensity_{self.__run_type}"
 
     def __init__(self, app_args, mach, run_type, ranks_per_node, distribute_slow_ranks):
+        self.__run_type = run_type
         self._exec_path = exec_path(run_type)
         self._exec_args = app_args
         self._distribute_slow_ranks = distribute_slow_ranks
