@@ -33,6 +33,7 @@
 #ifdef GEOPM_ENABLE_LEVELZERO
 #include "LevelZeroIOGroup.hpp"
 #endif
+#include "ConstConfigIOGroup.hpp"
 #ifdef GEOPM_DEBUG
 #include <iostream>
 #endif
@@ -117,6 +118,8 @@ namespace geopm
         register_plugin(LevelZeroIOGroup::plugin_name(),
                         LevelZeroIOGroup::make_plugin);
 #endif
+        register_plugin(ConstConfigIOGroup::plugin_name(),
+                        ConstConfigIOGroup::make_plugin);
     }
 
 
