@@ -1,0 +1,239 @@
+From 4976abe5e1c44cc3e399ff2805cb4f653225c65d Mon Sep 17 00:00:00 2001
+From: Daniel Wilson <daniel1.wilson@intel.com>
+Date: Mon, 10 Jan 2022 20:57:06 -0500
+Subject: [PATCH] Add geopm markup to build NPB SP
+
+#  Copyright (c) 2015 - 2022, Intel Corporation
+#  SPDX-License-Identifier: BSD-3-Clause
+#
+
+---
+ NPB3.4-MPI/SP/sp.f90        |   4 +
+ NPB3.4-MPI/config/make.def  | 163 ++++++++++++++++++++++++++++++++++++
+ NPB3.4-MPI/config/suite.def |  22 +++++
+ 3 files changed, 189 insertions(+)
+ create mode 100644 NPB3.4-MPI/config/make.def
+ create mode 100644 NPB3.4-MPI/config/suite.def
+
+diff --git a/NPB3.4-MPI/SP/sp.f90 b/NPB3.4-MPI/SP/sp.f90
+index afb0031..17eabcc 100644
+--- a/NPB3.4-MPI/SP/sp.f90
++++ b/NPB3.4-MPI/SP/sp.f90
+@@ -47,6 +47,9 @@
+        use sp_data
+        use mpinpb
+ 
++       use geopm_prof
++       use, intrinsic :: ISO_C_BINDING
++
+        implicit none
+       
+        integer          i, niter, step, c, error, fstatus
+@@ -181,6 +184,7 @@
+           endif
+ 
+           call adi
++          error = geopm_prof_epoch()
+ 
+        end do
+ 
+diff --git a/NPB3.4-MPI/config/make.def b/NPB3.4-MPI/config/make.def
+new file mode 100644
+index 0000000..9265d07
+--- /dev/null
++++ b/NPB3.4-MPI/config/make.def
+@@ -0,0 +1,163 @@
++#---------------------------------------------------------------------------
++#
++#                SITE- AND/OR PLATFORM-SPECIFIC DEFINITIONS. 
++#
++#---------------------------------------------------------------------------
++
++#---------------------------------------------------------------------------
++# Items in this file will need to be changed for each platform.
++#---------------------------------------------------------------------------
++
++#---------------------------------------------------------------------------
++# Parallel Fortran:
++#
++# For CG, EP, FT, MG, LU, SP and BT, which are in Fortran, the following must 
++# be defined:
++#
++# MPIFC      - Fortran compiler
++# FFLAGS     - Fortran compilation arguments
++# FMPI_INC   - any -I arguments required for compiling MPI/Fortran 
++# FLINK      - Fortran linker
++# FLINKFLAGS - Fortran linker arguments
++# FMPI_LIB   - any -L and -l arguments required for linking MPI/Fortran 
++# 
++# compilations are done with $(MPIFC) $(FMPI_INC) $(FFLAGS) or
++#                            $(MPIFC) $(FFLAGS)
++# linking is done with       $(FLINK) $(FMPI_LIB) $(FLINKFLAGS)
++#---------------------------------------------------------------------------
++
++#---------------------------------------------------------------------------
++# This is the fortran compiler used for MPI programs
++#---------------------------------------------------------------------------
++MPIFC = $(MPIF90)
++# This links MPI fortran programs; usually the same as ${MPIFC}
++FLINK	= $(MPIFC)
++
++#---------------------------------------------------------------------------
++# These macros are passed to the linker to help link with MPI correctly
++#---------------------------------------------------------------------------
++FMPI_LIB =
++
++#---------------------------------------------------------------------------
++# These macros are passed to the compiler to help find 'mpif.h'
++#---------------------------------------------------------------------------
++FMPI_INC = -I$(GEOPM_INC)
++
++#---------------------------------------------------------------------------
++# Global *compile time* flags for Fortran programs
++#---------------------------------------------------------------------------
++FFLAGS	= -O3 $(GEOPM_FFLAGS)
++
++#---------------------------------------------------------------------------
++# Global *link time* flags. Flags for increasing maximum executable 
++# size usually go here. 
++#---------------------------------------------------------------------------
++FLINKFLAGS = $(FFLAGS) $(GEOPM_LDFLAGS) $(GEOPM_FORTRAN_LDLIBS)
++
++
++#---------------------------------------------------------------------------
++# Parallel C:
++#
++# For IS, which is in C, the following must be defined:
++#
++# MPICC      - C compiler 
++# CFLAGS     - C compilation arguments
++# CMPI_INC   - any -I arguments required for compiling MPI/C 
++# CLINK      - C linker
++# CLINKFLAGS - C linker flags
++# CMPI_LIB   - any -L and -l arguments required for linking MPI/C 
++#
++# compilations are done with $(MPICC) $(CMPI_INC) $(CFLAGS) or
++#                            $(MPICC) $(CFLAGS)
++# linking is done with       $(CLINK) $(CMPI_LIB) $(CLINKFLAGS)
++#---------------------------------------------------------------------------
++
++#---------------------------------------------------------------------------
++# This is the C compiler used for MPI programs
++#---------------------------------------------------------------------------
++CC = $(MPICC)
++# This links MPI C programs; usually the same as ${MPICC}
++CLINK	= $(CC)
++
++#---------------------------------------------------------------------------
++# These macros are passed to the linker to help link with MPI correctly
++#---------------------------------------------------------------------------
++CMPI_LIB =
++
++#---------------------------------------------------------------------------
++# These macros are passed to the compiler to help find 'mpi.h'
++#---------------------------------------------------------------------------
++CMPI_INC =
++
++#---------------------------------------------------------------------------
++# Global *compile time* flags for C programs
++#---------------------------------------------------------------------------
++CFLAGS	= -O3 $(GEOPM_CFLAGS)
++
++#---------------------------------------------------------------------------
++# Global *link time* flags. Flags for increasing maximum executable 
++# size usually go here. 
++#---------------------------------------------------------------------------
++CLINKFLAGS = $(CFLAGS) $(GEOPM_LDFLAGS) $(GEOPM_LDLIBS)
++
++
++#---------------------------------------------------------------------------
++# MPI dummy library:
++#
++# Uncomment if you want to use the MPI dummy library supplied by NAS instead 
++# of the true message-passing library. The include file redefines several of
++# the above macros. It also invokes make in subdirectory MPI_dummy. Make 
++# sure that no spaces or tabs precede include.
++#---------------------------------------------------------------------------
++# include ../config/make.dummy
++
++
++#---------------------------------------------------------------------------
++# Utilities C:
++#
++# This is the C compiler used to compile C utilities.  Flags required by 
++# this compiler go here also; typically there are few flags required; hence 
++# there are no separate macros provided for such flags.
++#---------------------------------------------------------------------------
++CC	= $(MPICC) -g
++
++
++#---------------------------------------------------------------------------
++# Destination of executables, relative to subdirs of the main directory. . 
++#---------------------------------------------------------------------------
++BINDIR	= ../bin
++
++
++#---------------------------------------------------------------------------
++# Some machines (e.g. Crays) have 128-bit DOUBLE PRECISION numbers, which
++# is twice the precision required for the NPB suite. A compiler flag 
++# (e.g. -dp) can usually be used to change DOUBLE PRECISION variables to
++# 64 bits, but the MPI library may continue to send 128 bits. Short of
++# recompiling MPI, the solution is to use MPI_REAL to send these 64-bit
++# numbers, and MPI_COMPLEX to send their complex counterparts. Uncomment
++# the following line to enable this substitution. 
++# 
++# NOTE: IF THE I/O BENCHMARK IS BEING BUILT, WE USE CONVERTFLAG TO
++#       SPECIFIY THE FORTRAN RECORD LENGTH UNIT. IT IS A SYSTEM-SPECIFIC
++#       VALUE (USUALLY 1 OR 4). UNCOMMENT THE SECOND LINE AND SUBSTITUTE
++#       THE CORRECT VALUE FOR "length".
++#       IF BOTH 128-BIT DOUBLE PRECISION NUMBERS AND I/O ARE TO BE ENABLED,
++#       UNCOMMENT THE THIRD LINE AND SUBSTITUTE THE CORRECT VALUE FOR
++#       "length"
++#---------------------------------------------------------------------------
++# CONVERTFLAG	= -DCONVERTDOUBLE
++# CONVERTFLAG	= -DFORTRAN_REC_SIZE=length
++# CONVERTFLAG	= -DCONVERTDOUBLE -DFORTRAN_REC_SIZE=length
++CONVERTFLAG	= -DFORTRAN_REC_SIZE=0
++
++
++#---------------------------------------------------------------------------
++# The variable RAND controls which random number generator 
++# is used. It is described in detail in README.install. 
++# Use "randi8" unless there is a reason to use another one. 
++# Other allowed values are "randi8_safe", "randdp" and "randdpvec"
++#---------------------------------------------------------------------------
++RAND   = randi8
++# The following is highly reliable but may be slow:
++# RAND   = randdp
++
+diff --git a/NPB3.4-MPI/config/suite.def b/NPB3.4-MPI/config/suite.def
+new file mode 100644
+index 0000000..0c5ba25
+--- /dev/null
++++ b/NPB3.4-MPI/config/suite.def
+@@ -0,0 +1,22 @@
++# config/suite.def
++# This file is used to build several benchmarks with a single command. 
++# Typing "make suite" in the main directory will build all the benchmarks
++# specified in this file. 
++# Each line of this file contains a benchmark name, class, and number
++# of nodes. The name is one of "cg", "is", "ep", mg", "ft", "sp", "bt", 
++# "lu", and "dt". 
++# The class is one of "S", "W", "A", "B", "C", "D", and "E"
++# (except that no classes C, D and E for DT, and no class E for IS).
++# The number of nodes must be a legal number for a particular
++# benchmark. The utility which parses this file is primitive, so
++# formatting is inflexible. Separate name/class by tabs. 
++# Comments start with "#" as the first character on a line. 
++# No blank lines. 
++# The following example builds sample sizes of all benchmarks. 
++sp	S
++sp	W
++sp	A
++sp	B
++sp	C
++sp	D
++sp	E
+-- 
+2.31.0
+
