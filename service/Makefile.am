@@ -150,6 +150,8 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/CombinedControl.hpp \
                        src/CombinedSignal.cpp \
                        src/CombinedSignal.hpp \
+                       src/ConstConfigIOGroup.cpp \
+                       src/ConstConfigIOGroup.hpp \
                        src/Control.hpp \
                        src/CpuinfoIOGroup.cpp \
                        src/CpuinfoIOGroup.hpp \
