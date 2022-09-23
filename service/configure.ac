@@ -321,6 +321,7 @@ AC_COMPILE_IFELSE([
 
 AC_LANG_POP([C++])
 
+m4_include([m4/ax_check_compile_flag.m4])
 AX_CHECK_COMPILE_FLAG([-fp-model="fast"], [FASTMATH="-fp-model=fast"], [FASTMATH="-ffast-math"], [], [])
 AX_CHECK_COMPILE_FLAG([-fp-model="precise"], [NO_FASTMATH="-fp-model=precise"], [NO_FASTMATH="-fno-fast-math"], [], [])
 
