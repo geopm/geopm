@@ -233,6 +233,7 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              man/geopm_policystore.3 \
              man/geopm_prof.3 \
              man/geopmpy.7 \
+             m4/ax_check_compile_flag.m4 \
              pull_request_template.md \
              specs/geopm.spec \
              specs/geopm.spec.in \
