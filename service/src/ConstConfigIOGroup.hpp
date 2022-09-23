@@ -7,6 +7,7 @@
 #define CONSTCONFIGIOGROUP_HPP_INCLUDE
 
 #include <map>
+#include <string>
 
 #include "geopm/IOGroup.hpp"
 
@@ -16,6 +17,7 @@ namespace geopm
     {
         public:
             ConstConfigIOGroup();
+            ConstConfigIOGroup(const std::string &config);
             /// @return the list of signal names provided by this IOGroup.
             std::set<std::string> signal_names(void) const override;
             /// @return empty set; this IOGroup does not provide any controls.
@@ -111,6 +113,8 @@ namespace geopm
             static std::unique_ptr<IOGroup> make_plugin(void);
 
         private:
+            void parse_config_json(const std::string &config);
+
             struct m_signal_info_s {
                 double value;
                 int units;
