@@ -26,6 +26,11 @@ namespace geopm
         // TODO
     }
 
+    ConstConfigIOGroup::ConstConfigIOGroup(const std::string &config)
+    {
+        parse_config_json(config);
+    }
+
     std::set<std::string> ConstConfigIOGroup::signal_names(void) const
     {
         std::set<std::string> result;
@@ -202,5 +207,10 @@ namespace geopm
 
     void ConstConfigIOGroup::restore_control(const std::string &save_path)
     {
+    }
+
+    void ConstConfigIOGroup::parse_config_json(const std::string &config)
+    {
+        // TODO
     }
 }
