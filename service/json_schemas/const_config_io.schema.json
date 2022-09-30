@@ -3,51 +3,37 @@
     "id": "https://geopm.github.io/const_config_io.schema.json",
     "title": "ConstConfigIOGroup config file specification",
     "definitions": {
-        "signal_def": {
+        "signal_info": {
             "type": "object",
             "properties": {
                 "description": {
                     "type": "string"
+                },
+                "units": {
+                    "enum": ["none", "seconds", "hertz", "watts", "joules", "celsius"]
                 },
                 "domain": {
                     "enum": ["board", "package", "core", "cpu", "memory", "package_integrated_memory", "nic", "package_integrated_nic", "gpu", "package_integrated_gpu", "gpu_chip"]
                 },
                 "aggregation": {
                     "enum": ["sum", "average", "median", "logical_and", "logical_or", "region_hash", "region_hint", "min", "max", "stddev", "select_first", "expect_same"]
-                }
-            },
-            "required": ["description", "domain", "aggregation"],
-            "additionalProperties": false
-        },
-        "config_def": {
-            "type": "object",
-            "properties": {
-                "domain_idx": {
-                    "type": "integer"
                 },
-                "value": {
-                    "type": "number"
+                "values": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    },
+                    "minItems": 1
                 }
             },
-            "required": ["value"],
+            "required": ["description", "units", "domain", "aggregation", "values"],
             "additionalProperties": false
         }
     },
     "type": "object",
     "properties": {
-        "signals": {
-            "type": "object",
-            "additionalProperties": {
-                "$ref": "#/definitions/signal_def"
-            }
-        },
-        "config": {
-            "type": "object",
-            "additionalProperties": {
-                "$ref": "#/definitions/config_def"
-            }
+        "additionalProperties": {
+            "$ref": "#/definitions/signal_info"
         }
-    },
-    "required": ["signals", "config"],
-    "additionalProperties": false
+    }
 }
