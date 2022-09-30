@@ -9,6 +9,8 @@
 #include <map>
 #include <string>
 
+#include "geopm/json11.hpp"
+
 #include "geopm/IOGroup.hpp"
 
 namespace geopm
@@ -113,16 +115,41 @@ namespace geopm
             static std::unique_ptr<IOGroup> make_plugin(void);
 
         private:
-            void parse_config_json(const std::string &config);
-
-            struct m_signal_info_s {
-                double value;
-                int units;
-                std::function<double(const std::vector<double> &)> agg_function;
-                std::string description;
+            struct m_signal_desc_s {
+                json11::Json::Type type;
+                bool required;
             };
 
+            struct m_signal_info_s {
+                int units;
+                int domain;
+                std::function<double(const std::vector<double> &)> agg_function;
+                std::string description;
+                std::vector<double> values;
+            };
+
+            struct m_signal_ref_s {
+                size_t signal_idx;
+                int domain_idx;
+            };
+
+            void parse_config_json(const std::string &config);
+            static json11::Json construct_config_json_obj(
+                const std::string &config);
+            static void check_json_root(const json11::Json &root);
+            static void check_json_signal(
+                const json11::Json::object::value_type &signal_obj);
+            static void check_json_signal_properties(
+                const std::string &signal_name,
+                const json11::Json::object& properties);
+            static void check_json_array_value(const json11::Json& val);
+
+            static const std::string M_PLUGIN_NAME;
+            static const std::string M_SIGNAL_PREFIX;
+            static const std::map<std::string, m_signal_desc_s> M_SIGNAL_FIELDS;
+
             std::map<std::string, m_signal_info_s> m_signal_available;
+            std::vector<m_signal_ref_s> m_pushed_signals;
     };
 }
 
