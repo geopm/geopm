@@ -56,6 +56,7 @@ namespace geopm
             const int M_NUM_PACKAGE;
             const int M_NUM_CORE;
             bool m_do_write_batch;
+            bool m_do_send_policy;
             double m_core_frequency_requests;
             double m_uncore_frequency_requests;
             double m_core_frequency_clipped;

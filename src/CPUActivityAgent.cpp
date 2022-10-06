@@ -38,6 +38,7 @@ namespace geopm
         , M_NUM_PACKAGE(m_platform_topo.num_domain(GEOPM_DOMAIN_PACKAGE))
         , M_NUM_CORE(m_platform_topo.num_domain(GEOPM_DOMAIN_CORE))
         , m_do_write_batch(false)
+        , m_do_send_policy(true)
         , m_core_frequency_requests(0)
         , m_uncore_frequency_requests(0)
         , m_core_frequency_clipped(0)
@@ -269,7 +270,7 @@ namespace geopm
     // Indicate whether to send the policy down to children
     bool CPUActivityAgent::do_send_policy(void) const
     {
-        return true;
+        return m_do_send_policy;
     }
 
     void CPUActivityAgent::aggregate_sample(const std::vector<std::vector<double> > &in_sample,
@@ -286,9 +287,10 @@ namespace geopm
 
     void CPUActivityAgent::adjust_platform(const std::vector<double>& in_policy)
     {
+        m_do_send_policy = false;
         m_do_write_batch = false;
 
-        if (m_qm_max_rate.size() == 0) {
+        if (m_qm_max_rate.empty()) {
             for (auto it = in_policy.begin() + M_POLICY_FIRST_UNCORE_FREQ;
                  it != in_policy.end() && std::next(it) != in_policy.end();
                  std::advance(it, 2)) {
@@ -303,7 +305,7 @@ namespace geopm
                 }
             }
 
-            if (m_qm_max_rate.size() == 0) {
+            if (m_qm_max_rate.empty()) {
                 throw Exception("CPUActivityAgent::" + std::string(__func__) +
                                 "(): CPUActivityAgent policy did not contain" +
                                 " memory bandwidth characteriztaion.",
@@ -334,17 +336,16 @@ namespace geopm
             // and the uncore_freq is not an exact match.
             if(qm_max_itr != m_qm_max_rate.begin() &&
                m_qm_max_rate.find(uncore_freq) == m_qm_max_rate.end()) {
-                qm_max_itr = std::prev(qm_max_itr, 1);
+                qm_max_itr--;
             }
 
             double scalability_uncore = 1.0;
 
             // Handle divided by zero, either numerator or
-            // denominator being NAN, and the un-characterized case
+            // denominator being NAN
             if (!std::isnan(m_qm_rate.at(domain_idx).value) &&
                 !std::isnan(qm_max_itr->second) &&
-                qm_max_itr->second != 0 &&
-                m_qm_max_rate.size() != 0) {
+                qm_max_itr->second != 0) {
                 scalability_uncore = (double) m_qm_rate.at(domain_idx).value /
                                          qm_max_itr->second;
             }
@@ -447,7 +448,11 @@ namespace geopm
     // Read signals from the platform and calculate samples to be sent up
     void CPUActivityAgent::sample_platform(std::vector<double> &out_sample)
     {
-        assert(out_sample.size() == M_NUM_SAMPLE);
+        GEOPM_DEBUG_ASSERT(out_sample.size() == M_NUM_SAMPLE,
+                           "CPUActivityAgent::" + std::string(__func__) +
+                           "(): sample vector not correctly sized.  Expected  " +
+                            std::to_string(M_NUM_SAMPLE) + ", actual: " +
+                            std::to_string(out_sample.size()));
 
         // Collect latest signal values
         for (int domain_idx = 0; domain_idx < M_NUM_PACKAGE; ++domain_idx) {
