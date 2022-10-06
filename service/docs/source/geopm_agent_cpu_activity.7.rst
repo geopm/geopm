@@ -10,9 +10,9 @@ geopm_agent_cpu_activity(7) -- agent for selecting CPU frequency based on CPU co
 Description
 -----------
 
-This agent is an experimental agent that is expected change significantly between
+This agent is an experimental agent that is expected to change significantly between
 GEOPM 2.0 and 2.1.  Some examples of changes that may occur include agent policy
-changes, algorithmic chagnes, and folding the agent into other agents that achieve
+changes, algorithmic changes, and folding the agent into other agents that achieve
 a more abstract goal than described in this documentation.
 
 The goal of this Agent is to save CPU energy by scaling CPU frequency based upon
@@ -46,7 +46,7 @@ the equation:
 The ``CPU_UNCORE_ACTIVITY`` is defined as a simple ratio of the current memory bandwdith
 divided by the maximum possible bandwidth at the current ``CPU_UNCORE_FREQUENCY_STATUS`` value.
 
-The ``Fe`` value for all domains isintended to be an energy efficient frequency
+The ``Fe`` value for all domains is intended to be an energy efficient frequency
 that is selected via system characterization.  The recommended approach to selecting
 ``Fe`` for a given domain is to perform a frequency sweep of that domain (CPU or UNCORE)
 using a workload that scales strongly with the domain frequency.
@@ -54,7 +54,7 @@ Using this approach ``Fe`` will be the frequency that provides the lowest
 energy consumption for the workload.
 
 ``Fmax`` is intended to be the maximum allowable frequency for the domain,
-and may be set as the domain's default  maximum frequency, or limited based
+and may be set as the domain's default maximum frequency, or limited based
 upon user/admin preference.
 
 The **CPUActivityAgent** provides an optional input of ``phi`` that allows for biasing the
@@ -123,41 +123,52 @@ Policy Generation
 -----------------
 
 Generating a policy for the CPU Compute Activity agent requires system
-characterization using the GEOPM experiment infrastructure.  This can be
-accomplished by running::
+characterization using the GEOPM experiment infrastructure located in
+``$GEOPM_SOURCE/integration/experiment/`` and the aritmetic intensity
+benchmark located in ``$GEOPM_SOURCE/integration/apps/arithmetic_intensity``.
+Prior to starting, the arithmetic intensity benchmark needs to be built (use
+the ``build.sh`` script provided in the benchmark's folder).
 
-    gen_slurm.sh 1 arithmetic_intensity_benchmark uncore_frequency_sweep
+**NOTE**: before performing the system characterization, please ensure the
+system is quiesced (i.e. not running other heavy processes/workloads).
 
-The generated test.sbatch should be modified to enable Memory Bandwidth
-Monitoring using the following::
+The first step is to generate the execution script by running::
+
+    gen_slurm.sh 1 arithmetic_intensity uncore_frequency_sweep
+
+The generated ``test.sbatch`` should be modified to enable Memory Bandwidth
+Monitoring by adding the following above the experiment script invocation::
 
     srun -N ${SLURM_NNODES} geopmwrite MSR::PQR_ASSOC:RMID board 0 0
     srun -N ${SLURM_NNODES} geopmwrite MSR::QM_EVTSEL:RMID board 0 0
     srun -N ${SLURM_NNODES} geopmwrite MSR::QM_EVTSEL:EVENT_ID board 0 2
 
-Without this enabling the uncore bandwidth characteriztaion analysis scripts
-will not be able to accurately determine the maximum memory bandwidth at each
-uncore frequency.
+Without this, the uncore bandwidth characteriztaion analysis scripts will not
+be able to accurately determine the maximum memory bandwidth at each uncore
+frequency.
 
-Additionally the test.sbatch should be modified to include the following
-experiment options, where ``MAX_UNCORE_FREQ``, ``MIN_UNCORE_FREQ``,
-``MAX_CORE_FREQ``, and ``MIN_CORE_FREQ`` are replaced with the relevant
-system (or administrator chosen) values::
+Additionally the ``test.sbatch`` should be modified to include the following
+experiment options, where the text within angle brackets (``<>``) needs to be
+replaced with relevant system (or administrator chosen) values::
 
     --geopm-report-signals="MSR::QM_CTR_SCALED_RATE@package,CPU_UNCORE_FREQUENCY_STATUS@package,MSR::CPU_SCALABILITY_RATIO@package,CPU_FREQUENCY_MAX_CONTROL@package,CPU_UNCORE_FREQUENCY_MIN_CONTROL@package,CPU_UNCORE_FREQUENCY_MAX_CONTROL@package" \
-    --min-frequency=MIN_CORE_FREQ \
-    --max-frequency=MAX_CORE_FREQ \
+    --min-frequency=<min. core frequency> \
+    --max-frequency=<max. core frequency> \
     --step-frequency=100000000 \
-    --max-uncore-frequency=MAX_UNCORE_FREQ \
-    --min-uncore-frequency=MIN_UNCORE_FREQ \
+    --min-uncore-frequency=<min. uncore frequency> \
+    --max-uncore-frequency=<max. uncore frequency> \
     --step-uncore-frequency=100000000 \
     --trial-count=5 \
 
-Then the test.sbatch script should be run on the node of interest.  This
-will run multiple kernels of varying intensity that stress the core and
+Then the ``test.sbatch`` script should be run on the node of interest using::
+
+    sbatch -w <node of interest> test.sbatch
+
+This will run multiple kernels of varying intensity that stress the core and
 uncore to help with system characterization.
 
-The CPU compute activity agent policy can then be generated by running::
+After sourcing the ``$GEOPM_SOURCE/integration/config/run_env.sh`` file, the
+CPU compute activity agent policy can then be generated by running::
 
     integration/experiment/uncore_frequency_sweep/gen_cpu_activity_policy_recommendation.py --path <UNCORE_SWEEP_DIR> --region-list "intensity_1","intensity_16"
 
