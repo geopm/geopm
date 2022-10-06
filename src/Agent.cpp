@@ -20,9 +20,12 @@
 #include "PowerBalancerAgent.hpp"
 #include "PowerGovernorAgent.hpp"
 #include "FrequencyMapAgent.hpp"
-#include "CPUActivityAgent.hpp"
 #include "Environment.hpp"
 #include "geopm/Helper.hpp"
+
+#ifdef GEOPM_ENABLE_BETA
+#include "CPUActivityAgent.hpp"
+#endif
 
 namespace geopm
 {
@@ -50,10 +53,12 @@ namespace geopm
                         FrequencyMapAgent::make_plugin,
                         Agent::make_dictionary(FrequencyMapAgent::policy_names(),
                                                FrequencyMapAgent::sample_names()));
+#ifdef GEOPM_ENABLE_BETA
         register_plugin(CPUActivityAgent::plugin_name(),
                         CPUActivityAgent::make_plugin,
                         Agent::make_dictionary(CPUActivityAgent::policy_names(),
                                                CPUActivityAgent::sample_names()));
+#endif
     }
 
 

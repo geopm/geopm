@@ -372,8 +372,6 @@ libgeopmpolicy_la_SOURCES = src/Accumulator.cpp \
                             src/ControlMessage.hpp \
                             src/Controller.cpp \
                             src/Controller.hpp \
-                            src/CPUActivityAgent.cpp \
-                            src/CPUActivityAgent.hpp \
                             src/CSV.cpp \
                             src/CSV.hpp \
                             src/DebugIOGroup.cpp \
@@ -462,7 +460,9 @@ libgeopmpolicy_la_SOURCES = src/Accumulator.cpp \
                             src/record.hpp \
                             # end
 
-beta_source_files = src/Daemon.cpp \
+beta_source_files = src/CPUActivityAgent.cpp \
+                    src/CPUActivityAgent.hpp \
+                    src/Daemon.cpp \
                     src/Daemon.hpp \
                     src/DaemonImp.hpp \
                     src/PolicyStore.cpp \

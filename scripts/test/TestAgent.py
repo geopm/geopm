@@ -30,10 +30,12 @@ class TestAgent(unittest.TestCase):
             self.assertTrue(type(sample) is list)
 
     def test_agent_names(self):
-        names = geopmpy.agent.names()
-        expected = set(['power_balancer', 'power_governor',
-                        'frequency_map', 'monitor', 'cpu_activity'])
-        self.assertEqual(expected, set(names))
+        agent_names = set(geopmpy.agent.names())
+        expected_agent_names = {'power_balancer', 'power_governor',
+                                'frequency_map', 'monitor'}
+        if geopmpy.version.__beta__:
+            expected_agent_names.add('cpu_activity')
+        self.assertEqual(expected_agent_names, agent_names)
 
     def test_json(self):
         for agent in geopmpy.agent.names():
