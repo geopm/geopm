@@ -65,7 +65,7 @@ class CPUActivityAgentTest : public ::testing::Test
         static const int M_NUM_CORE;
         static const int M_NUM_BOARD;
         static const int M_NUM_PACKAGE;
-        static const int M_NUM_UNCORE_MBM_READINGS;
+        static const size_t M_NUM_UNCORE_MBM_READINGS;
         std::unique_ptr<CPUActivityAgent> m_agent;
         std::vector<double> m_default_policy;
         size_t m_num_policy;
@@ -83,7 +83,7 @@ const int CPUActivityAgentTest::M_NUM_CPU = 1;
 const int CPUActivityAgentTest::M_NUM_CORE = 1;
 const int CPUActivityAgentTest::M_NUM_BOARD = 1;
 const int CPUActivityAgentTest::M_NUM_PACKAGE = 1;
-const int CPUActivityAgentTest::M_NUM_UNCORE_MBM_READINGS = 13;
+const size_t CPUActivityAgentTest::M_NUM_UNCORE_MBM_READINGS = 13;
 
 void CPUActivityAgentTest::SetUp()
 {
