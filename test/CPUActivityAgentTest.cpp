@@ -36,7 +36,7 @@ using ::testing::DoubleNear;
 using geopm::CPUActivityAgent;
 using geopm::PlatformTopo;
 
-class CPUActivityAgentTest : public :: testing :: Test
+class CPUActivityAgentTest : public ::testing::Test
 {
     protected:
         enum mock_pio_idx_e {
@@ -61,11 +61,11 @@ class CPUActivityAgentTest : public :: testing :: Test
 
         void SetUp();
         void TearDown();
-        static const int M_NUM_CPU = 1;
-        static const int M_NUM_CORE = 1;
-        static const int M_NUM_BOARD = 1;
-        static const int M_NUM_PACKAGE = 1;
-        static const int M_NUM_UNCORE_MBM_READINGS = 12;
+        static const int M_NUM_CPU;
+        static const int M_NUM_CORE;
+        static const int M_NUM_BOARD;
+        static const int M_NUM_PACKAGE;
+        static const int M_NUM_UNCORE_MBM_READINGS;
         std::unique_ptr<CPUActivityAgent> m_agent;
         std::vector<double> m_default_policy;
         size_t m_num_policy;
@@ -78,6 +78,12 @@ class CPUActivityAgentTest : public :: testing :: Test
         std::unique_ptr<MockPlatformIO> m_platform_io;
         std::unique_ptr<MockPlatformTopo> m_platform_topo;
 };
+
+const int CPUActivityAgentTest::M_NUM_CPU = 1;
+const int CPUActivityAgentTest::M_NUM_CORE = 1;
+const int CPUActivityAgentTest::M_NUM_BOARD = 1;
+const int CPUActivityAgentTest::M_NUM_PACKAGE = 1;
+const int CPUActivityAgentTest::M_NUM_UNCORE_MBM_READINGS = 13;
 
 void CPUActivityAgentTest::SetUp()
 {
@@ -171,8 +177,9 @@ void CPUActivityAgentTest::SetUp()
                  102409246296.2963, 103624103703.7037, 104268944444.44444,
                  104748888888.88889};
     ASSERT_EQ(m_cpu_uncore_freqs.size(), m_mbm_max.size());
+    ASSERT_EQ(m_mbm_max.size(), M_NUM_UNCORE_MBM_READINGS);
 
-    for (size_t i = 0; i <= M_NUM_UNCORE_MBM_READINGS; ++i) {
+    for (size_t i = 0; i < M_NUM_UNCORE_MBM_READINGS; ++i) {
         m_default_policy.push_back(static_cast<double>(m_cpu_uncore_freqs[i]));
         m_default_policy.push_back(m_mbm_max[i]);
     }
@@ -198,12 +205,6 @@ TEST_F(CPUActivityAgentTest, name)
 
 TEST_F(CPUActivityAgentTest, validate_policy)
 {
-    //Called as part of validate
-    EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MIN_CONTROL", _, _)).WillRepeatedly(
-                Return(m_cpu_uncore_freq_min));
-    EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MAX_CONTROL", _, _)).WillRepeatedly(
-                Return(m_cpu_uncore_freq_max));
-
     const std::vector<double> policy_nan(m_num_policy, NAN);
     std::vector<double> policy;
 
@@ -241,7 +242,7 @@ TEST_F(CPUActivityAgentTest, validate_policy)
     policy[CPU_UNCORE_FREQ_MAX] = m_cpu_uncore_freq_max;
     policy[CPU_UNCORE_FREQ_EFFICIENT] = m_cpu_uncore_freq_max / 2;
     policy[PHI] = 0.1;
-    m_agent->validate_policy(policy);
+    EXPECT_NO_THROW(m_agent->validate_policy(policy));
 
     // validate policy is modified as expected
     // as phi --> 0 FREQ_EFFICIENT --> FREQ_MAX
@@ -279,6 +280,7 @@ TEST_F(CPUActivityAgentTest, validate_policy)
                                std::to_string(policy[CPU_FREQ_MAX]) +
                                ")");
 
+    // FUe > FUmax --> Error
     policy = policy_nan;
     policy[CPU_UNCORE_FREQ_MAX] = NAN;
     policy[CPU_UNCORE_FREQ_EFFICIENT] = m_cpu_freq_max + 1;
@@ -343,12 +345,6 @@ TEST_F(CPUActivityAgentTest, validate_policy)
 
 TEST_F(CPUActivityAgentTest, adjust_platform_high)
 {
-    //Called as part of validate
-    EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MIN_CONTROL", _, _)).WillRepeatedly(
-                Return(m_cpu_uncore_freq_min));
-    EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MAX_CONTROL", _, _)).WillRepeatedly(
-                Return(m_cpu_uncore_freq_max));
-
     std::vector<double> policy;
     policy = m_default_policy;
     m_agent->validate_policy(policy);
@@ -377,12 +373,6 @@ TEST_F(CPUActivityAgentTest, adjust_platform_high)
 
 TEST_F(CPUActivityAgentTest, adjust_platform_lower_bound_check)
 {
-    //Called as part of validate
-    EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MIN_CONTROL", _, _)).WillRepeatedly(
-                Return(m_cpu_uncore_freq_min));
-    EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MAX_CONTROL", _, _)).WillRepeatedly(
-                Return(m_cpu_uncore_freq_max));
-
     std::vector<double> policy;
     policy = m_default_policy;
     m_agent->validate_policy(policy);
@@ -421,12 +411,6 @@ TEST_F(CPUActivityAgentTest, adjust_platform_lower_bound_check)
 
 TEST_F(CPUActivityAgentTest, adjust_platform_medium)
 {
-    //Called as part of validate
-    EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MIN_CONTROL", _, _)).WillRepeatedly(
-                Return(m_cpu_uncore_freq_min));
-    EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MAX_CONTROL", _, _)).WillRepeatedly(
-                Return(m_cpu_uncore_freq_max));
-
     std::vector<double> policy;
     policy = m_default_policy;
     m_agent->validate_policy(policy);
@@ -465,12 +449,6 @@ TEST_F(CPUActivityAgentTest, adjust_platform_medium)
 
 TEST_F(CPUActivityAgentTest, adjust_platform_low)
 {
-    //Called as part of validate
-    EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MIN_CONTROL", _, _)).WillRepeatedly(
-                Return(m_cpu_uncore_freq_min));
-    EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MAX_CONTROL", _, _)).WillRepeatedly(
-                Return(m_cpu_uncore_freq_max));
-
     std::vector<double> policy;
     policy = m_default_policy;
     m_agent->validate_policy(policy);
@@ -509,12 +487,6 @@ TEST_F(CPUActivityAgentTest, adjust_platform_low)
 
 TEST_F(CPUActivityAgentTest, adjust_platform_zero)
 {
-    //Called as part of validate
-    EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MIN_CONTROL", _, _)).WillRepeatedly(
-                Return(m_cpu_uncore_freq_min));
-    EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MAX_CONTROL", _, _)).WillRepeatedly(
-                Return(m_cpu_uncore_freq_max));
-
     std::vector<double> policy;
     policy = m_default_policy;
     m_agent->validate_policy(policy);
@@ -542,12 +514,6 @@ TEST_F(CPUActivityAgentTest, adjust_platform_zero)
 
 TEST_F(CPUActivityAgentTest, adjust_platform_signal_out_of_bounds)
 {
-    //Called as part of validate
-    EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MIN_CONTROL", _, _)).WillRepeatedly(
-                Return(m_cpu_uncore_freq_min));
-    EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MAX_CONTROL", _, _)).WillRepeatedly(
-                Return(m_cpu_uncore_freq_max));
-
     std::vector<double> policy;
     policy = m_default_policy;
     m_agent->validate_policy(policy);
@@ -594,12 +560,6 @@ TEST_F(CPUActivityAgentTest, adjust_platform_signal_out_of_bounds)
 
 TEST_F(CPUActivityAgentTest, adjust_platform_nan)
 {
-    //Called as part of validate
-    EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MIN_CONTROL", _, _)).WillRepeatedly(
-                Return(m_cpu_uncore_freq_min));
-    EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MAX_CONTROL", _, _)).WillRepeatedly(
-                Return(m_cpu_uncore_freq_max));
-
     const std::vector<double> policy_nan(m_num_policy, NAN);
     std::vector<double> policy;
     policy = policy_nan;

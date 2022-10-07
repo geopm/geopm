@@ -255,7 +255,6 @@ namespace geopm
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
         }
-
     }
 
     // Distribute incoming policy to children
