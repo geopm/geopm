@@ -10,10 +10,12 @@ geopm_agent_cpu_activity(7) -- agent for selecting CPU frequency based on CPU co
 Description
 -----------
 
-This agent is an experimental agent that is expected to change significantly between
-GEOPM 2.0 and 2.1.  Some examples of changes that may occur include agent policy
-changes, algorithmic changes, and folding the agent into other agents that achieve
-a more abstract goal than described in this documentation.
+.. note::
+    This is currently an experimental agent and is only available when
+    building GEOPM with the ``--enable-beta`` flag. Some areas or aspects that
+    are subject to change include its interface (e.g. the policy) and
+    algorithm. It is also possible that this agent may be refactored and
+    combined with other agents.
 
 The goal of this Agent is to save CPU energy by scaling CPU frequency based upon
 the compute activity of each CPU as provided by the CPU_COMPUTE_ACTIVITY
@@ -129,8 +131,10 @@ benchmark located in ``$GEOPM_SOURCE/integration/apps/arithmetic_intensity``.
 Prior to starting, the arithmetic intensity benchmark needs to be built (use
 the ``build.sh`` script provided in the benchmark's folder).
 
-**NOTE**: before performing the system characterization, please ensure the
-system is quiesced (i.e. not running other heavy processes/workloads).
+
+.. note::
+    Before performing the system characterization, please ensure the
+    system is quiesced (i.e. not running other heavy processes/workloads).
 
 The first step is to generate the execution script by running::
 
@@ -259,9 +263,8 @@ SEE ALSO
 
 :doc:`geopm(7) <geopm.7>`\ ,
 :doc:`geopm_agent_monitor(7) <geopm_agent_monitor.7>`\ ,
-:doc:`geopm_agent_energy_efficient(7) <geopm_agent_energy_efficient.7>`\ ,
 :doc:`geopm::Agent(3) <GEOPM_CXX_MAN_Agent.3>`\ ,
-:doc:`geopm_agent_c(3) <geopm_agent_c.3>`\ ,
-:doc:`geopm_prof_c(3) <geopm_prof_c.3>`\ ,
+:doc:`geopm_agent(3) <geopm_agent.3>`\ ,
+:doc:`geopm_prof(3) <geopm_prof.3>`\ ,
 :doc:`geopmagent(1) <geopmagent.1>`\ ,
 :doc:`geopmlaunch(1) <geopmlaunch.1>`
