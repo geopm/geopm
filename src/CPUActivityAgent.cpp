@@ -331,7 +331,7 @@ namespace geopm
             // is <= uncore_freq.
             auto qm_max_itr = m_qm_max_rate.upper_bound(uncore_freq);
             if (qm_max_itr != m_qm_max_rate.begin())
-                qm_max_itr--;
+                --qm_max_itr;
 
             double scalability_uncore = 1.0;
 

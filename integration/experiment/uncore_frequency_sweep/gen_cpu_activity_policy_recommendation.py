@@ -29,7 +29,7 @@ def extract_columns(df, region_list = None):
     """
     df_filtered = df
     if region_list:
-        df_filtered = df[df['region'].isin(region_list)]
+        df_filtered = df.loc[df['region'].isin(region_list)]
 
     if ('MSR::QM_CTR_SCALED_RATE' not in df_filtered.columns):
         df_filtered['MSR::QM_CTR_SCALED_RATE'] = (df_filtered['MSR::QM_CTR_SCALED_RATE@package-0'] +
@@ -84,7 +84,7 @@ def frequency_recommendation(df_region_group, region, domain):
         fixed_freq_col = 'uncore-frequency (Hz)'
     else:
         sys.stderr.write('<geopm> Error: unsupported domain ' + domain + \
-                         'proovided\n')
+                         'provided\n')
         sys.exit(1)
 
     # Start with a region analysis for energy efficiency
