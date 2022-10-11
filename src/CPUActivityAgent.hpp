@@ -102,6 +102,8 @@ namespace geopm
             };
 
             std::map<std::string, double> m_policy_available;
+            // Maps uncore frequency -> maximum memory bandwidth achieved by
+            // that frequency (determined by system characterization)
             std::map<double,double> m_qm_max_rate;
 
             std::vector<signal> m_core_scal;

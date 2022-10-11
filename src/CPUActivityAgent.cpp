@@ -74,7 +74,7 @@ namespace geopm
                                                              domain_idx), NAN});
             m_core_freq_control.push_back({m_platform_io.push_control("CPU_FREQUENCY_MAX_CONTROL",
                                                                       GEOPM_DOMAIN_CORE,
-                                                                      domain_idx), -1});
+                                                                      domain_idx), NAN});
         }
 
         for (int domain_idx = 0; domain_idx < M_NUM_PACKAGE; ++domain_idx) {
@@ -307,7 +307,7 @@ namespace geopm
             if (m_qm_max_rate.empty()) {
                 throw Exception("CPUActivityAgent::" + std::string(__func__) +
                                 "(): CPUActivityAgent policy did not contain" +
-                                " memory bandwidth characteriztaion.",
+                                " memory bandwidth characterization.",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
         }
@@ -324,19 +324,14 @@ namespace geopm
             /////////////////////////////////////////////
             // L3 Total External Bandwidth Measurement //
             /////////////////////////////////////////////
-            auto qm_max_itr = m_qm_max_rate.lower_bound(uncore_freq);
-            // lower_bound returns the first element that does not compare
-            // less than the uncore_freq, which may cause issues when
-            // the uncore_freq signal does not exactly match the keys in the
-            // map.
-            //
-            // To handle this case we grab an entry one less than the
-            // lower bound if and only if the qm_max_itr isn't the first key
-            // and the uncore_freq is not an exact match.
-            if(qm_max_itr != m_qm_max_rate.begin() &&
-               m_qm_max_rate.find(uncore_freq) == m_qm_max_rate.end()) {
+            // Get max mem. bandwidth for uncore_freq. There may be uncore
+            // frequencies for which an exact match doesn't exist. To handle
+            // this case, we grab the entry prior to upper_bound() (as long as
+            // it's not the first entry), in other words, the last entry that
+            // is <= uncore_freq.
+            auto qm_max_itr = m_qm_max_rate.upper_bound(uncore_freq);
+            if (qm_max_itr != m_qm_max_rate.begin())
                 qm_max_itr--;
-            }
 
             double scalability_uncore = 1.0;
 
