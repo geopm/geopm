@@ -579,5 +579,5 @@ TEST_F(CPUActivityAgentTest, adjust_platform_nan)
     //Adjust
     //Check frequency
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->adjust_platform(policy), GEOPM_ERROR_INVALID,
-                               "CPUActivityAgent policy did not contain memory bandwidth characteriztaion");
+                               "CPUActivityAgent policy did not contain memory bandwidth characterization");
 }
