@@ -57,6 +57,8 @@ GTEST_TESTS = test/gtest_links/GPUTopoNullTest.default_config \
               test/gtest_links/CNLIOGroupTest.parse_power \
               test/gtest_links/CombinedSignalTest.sample_max \
               test/gtest_links/CombinedSignalTest.sample_sum \
+              test/gtest_links/ConstConfigIOGroupTest.input_empty_string \
+              test/gtest_links/ConstConfigIOGroupTest.input_gibberish \
               test/gtest_links/CpuinfoIOGroupTest.bad_min_max \
               test/gtest_links/CpuinfoIOGroupTest.bad_sticker \
               test/gtest_links/CpuinfoIOGroupTest.cpuid_sticker_not_supported \
@@ -373,6 +375,7 @@ test_geopm_test_SOURCES = test/GPUTopoNullTest.cpp \
                           test/CircularBufferTest.cpp \
                           test/CNLIOGroupTest.cpp \
                           test/CombinedSignalTest.cpp \
+                          test/ConstConfigIOGroupTest.cpp \
                           test/CpuinfoIOGroupTest.cpp \
                           test/DCGMIOGroupTest.cpp \
                           test/DerivativeSignalTest.cpp \
