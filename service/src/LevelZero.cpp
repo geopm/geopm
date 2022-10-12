@@ -257,12 +257,13 @@ namespace geopm
                 }
 #endif
 
-                if (num_device_power_domain != 1) {
-                    throw Exception("LevelZero::" + std::string(__func__) +
-                                    ": GEOPM requires a single device level power domain, "
-                                    "but found " + std::to_string(num_device_power_domain),
-                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-                }
+            }
+
+            if (num_device_power_domain != 1) {
+                throw Exception("LevelZero::" + std::string(__func__) +
+                                ": GEOPM requires a single device level power domain, "
+                                "but found " + std::to_string(num_device_power_domain),
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
         }
 
