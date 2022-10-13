@@ -180,7 +180,7 @@ void CPUActivityAgentTest::SetUp()
     ASSERT_EQ(m_mbm_max.size(), M_NUM_UNCORE_MBM_READINGS);
 
     for (size_t i = 0; i < M_NUM_UNCORE_MBM_READINGS; ++i) {
-        m_default_policy.push_back(static_cast<double>(m_cpu_uncore_freqs[i]));
+        m_default_policy.push_back(m_cpu_uncore_freqs[i]);
         m_default_policy.push_back(m_mbm_max[i]);
     }
 
@@ -209,7 +209,7 @@ TEST_F(CPUActivityAgentTest, validate_policy)
     std::vector<double> policy;
 
     // default policy with 1.2-2.4GHz MBM
-    // max rates defined is accepted
+    // max rates defined are accepted
     // load default policy
     policy = m_default_policy;
 

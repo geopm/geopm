@@ -1,11 +1,5 @@
-
 geopm_agent_cpu_activity(7) -- agent for selecting CPU frequency based on CPU compute activity
 =================================================================================================
-
-
-
-
-
 
 Description
 -----------
@@ -17,12 +11,12 @@ Description
     algorithm. It is also possible that this agent may be refactored and
     combined with other agents.
 
-The goal of this Agent is to save CPU energy by scaling CPU frequency based upon
-the compute activity of each CPU as provided by the CPU_COMPUTE_ACTIVITY
-signal and modified by the CPU_UTILIZATION signal.
+The goal of **CPUActivityAgent** is to save CPU energy by scaling CPU frequency
+based upon the compute activity of each CPU as provided by the
+CPU_COMPUTE_ACTIVITY signal and modified by the CPU_UTILIZATION signal.
 
-The **CPUActivityAgent** scales the core frequency in the range of ``Fce`` to ``Fcmax``,
-where ``Fcmax`` is provided via the policy as ``CPU_FREQ_MAX`` and ``Fce`` is provided via
+The agent scales the core frequency in the range of ``Fce`` to ``Fcmax``, where
+``Fcmax`` is provided via the policy as ``CPU_FREQ_MAX`` and ``Fce`` is provided via
 the policy as ``CPU_FREQ_EFFICIENT``.
 
 Low compute activity regions (compute activity of 0.0) run at the ``Fce`` frequency,
@@ -34,8 +28,8 @@ and regions in between the extremes run at a frequency (``Fcreq``) selected usin
 The ``CPU_COMPUTE_ACTIVITY`` is defined as a derivative signal based on the MSR::PPERF::PCNT
 scalability metric.
 
-The **CPUActivityAgent** also scales the uncore frequency in the range of
-``Fue`` to ``Fumax``, where ``Fumax`` is provided via the policy as ``CPU_UNCORE_FREQ_MAX``
+The agent also scales the uncore frequency in the range of ``Fue`` to
+``Fumax``, where ``Fumax`` is provided via the policy as ``CPU_UNCORE_FREQ_MAX``
 and ``Fue`` is provided via the policy as ``CPU_UNCORE_FREQ_EFFICIENT``.
 
 Low uncore activity regions (uncore activity of 0.0) run at the ``Fue`` frequency,
@@ -59,7 +53,7 @@ energy consumption for the workload.
 and may be set as the domain's default maximum frequency, or limited based
 upon user/admin preference.
 
-The **CPUActivityAgent** provides an optional input of ``phi`` that allows for biasing the
+The agent provides an optional input of ``phi`` that allows for biasing the
 frequency range for both domains used by the agent.  The default ``phi`` value of 0.5 provides frequency
 selection in the full range from ``Fe`` to ``Fmax``.  A ``phi`` value less than 0.5 biases the
 agent towards higher frequencies by increasing the ``Fe`` value provided by the policy.
@@ -159,10 +153,22 @@ replaced with relevant system (or administrator chosen) values::
     --min-frequency=<min. core frequency> \
     --max-frequency=<max. core frequency> \
     --step-frequency=100000000 \
-    --min-uncore-frequency=<min. uncore frequency> \
-    --max-uncore-frequency=<max. uncore frequency> \
+    --min-uncore-frequency=<min uncore frequency> \
+    --max-uncore-frequency=<max uncore frequency> \
     --step-uncore-frequency=100000000 \
     --trial-count=5 \
+
+``geopmread`` can be used to derive the frequencies required in the experiment
+options. For example::
+
+    geopmread CPU_FREQUENCY_MAX_AVAIL board 0
+    geopmread CPU_FREQUENCY_MIN_AVAIL board 0
+    geopmread CPU_UNCORE_FREQUENCY_MAX_CONTROL board 0
+    geopmread CPU_UNCORE_FREQUENCY_MAX_CONTROL board 0
+
+The ``test.sbatch`` script should also be modified to increase the run time to
+a sufficiently large value. This will depend on the system, but a full core and
+uncore frequency sweep could take about 10 hours, for example.
 
 Then the ``test.sbatch`` script should be run on the node of interest using::
 

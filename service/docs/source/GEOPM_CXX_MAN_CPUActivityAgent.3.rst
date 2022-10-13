@@ -1,7 +1,5 @@
-
 geopm::CPUActivityAgent(3) -- agent for selecting CPU frequency based on CPU compute activity
 =============================================================================================
-
 
 Synopsis
 --------
