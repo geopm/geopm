@@ -289,6 +289,13 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/TensorOneDTest.test_self_diff \
               test/gtest_links/TensorOneDTest.test_self_sum \
               test/gtest_links/TensorOneDTest.test_sum \
+              test/gtest_links/TensorTwoDTest.test_array_overload \
+              test/gtest_links/TensorTwoDTest.test_bad_dimensions \
+              test/gtest_links/TensorTwoDTest.test_degenerate_size \
+              test/gtest_links/TensorTwoDTest.test_copy \
+              test/gtest_links/TensorTwoDTest.test_copy_constructor \
+              test/gtest_links/TensorTwoDTest.test_input \
+              test/gtest_links/TensorTwoDTest.test_mat_prod \
               test/gtest_links/TracerTest.columns \
               test/gtest_links/TracerTest.region_entry_exit \
               test/gtest_links/TracerTest.update_samples \

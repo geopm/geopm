@@ -9,6 +9,9 @@
 
 #include "TensorTwoD.hpp"
 
+using geopm::TensorOneD;
+using geopm::TensorTwoD;
+
 class TensorTwoDTest : public ::testing::Test
 {
     protected:
@@ -88,7 +91,7 @@ TEST_F(TensorTwoDTest, test_array_overload) {
 }
 
 
-TEST_F(TensorTwoDTest, input) {
+TEST_F(TensorTwoDTest, test_input) {
     std::vector<std::vector<float> > vals = {{1}, {2}};
     TensorTwoD x;
     x = TensorTwoD(json11::Json(vals));
