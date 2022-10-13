@@ -29,6 +29,7 @@ from experiment.uncore_frequency_sweep import gen_cpu_activity_policy_recommenda
 from apps.arithmetic_intensity import arithmetic_intensity
 from apps.minife import minife
 
+@util.skip_unless_config_enable('beta')
 @util.skip_unless_do_launch()
 @util.skip_unless_workload_exists("apps/arithmetic_intensity/ARITHMETIC_INTENSITY/bench_sse")
 @util.skip_unless_workload_exists("apps/arithmetic_intensity/ARITHMETIC_INTENSITY/bench_avx2")
@@ -203,7 +204,6 @@ class TestIntegration_cpu_activity(unittest.TestCase):
         if sys.exc_info() != (None, None, None):
             TestIntegration_cpu_activity._keep_files = True
 
-    @util.skip_unless_config_enable('beta')
     def test_cpu_activity_aib(self):
         """
         AIB testing to make sure agent tuning based on AIB yielded sensible
@@ -242,7 +242,6 @@ class TestIntegration_cpu_activity(unittest.TestCase):
             if phi >= 0.5:
                 self.assertLessEqual(energy, monitor_energy_1)
 
-    @util.skip_unless_config_enable('beta')
     def test_cpu_activity_minife(self):
         """
         MiniFE testing to make sure agent saves energy for cpu frequency

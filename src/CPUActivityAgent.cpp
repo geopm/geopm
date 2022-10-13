@@ -259,7 +259,7 @@ namespace geopm
 
     // Distribute incoming policy to children
     void CPUActivityAgent::split_policy(const std::vector<double>& in_policy,
-                                    std::vector<std::vector<double> >& out_policy)
+                                        std::vector<std::vector<double> >& out_policy)
     {
         for (auto &child_pol : out_policy) {
             child_pol = in_policy;
@@ -390,7 +390,7 @@ namespace geopm
 
         // Set per core controls
         for (int domain_idx = 0; domain_idx < M_NUM_CORE; ++domain_idx) {
-            if(std::isnan(core_freq_request.at(domain_idx))) {
+            if (std::isnan(core_freq_request.at(domain_idx))) {
                 core_freq_request.at(domain_idx) = in_policy[M_POLICY_CPU_FREQ_MAX];
             }
             if (core_freq_request.at(domain_idx) !=
@@ -408,7 +408,7 @@ namespace geopm
 
         // Set per package controls
         for (int domain_idx = 0; domain_idx < M_NUM_PACKAGE; ++domain_idx) {
-            if(std::isnan(uncore_freq_request.at(domain_idx))) {
+            if (std::isnan(uncore_freq_request.at(domain_idx))) {
                 uncore_freq_request.at(domain_idx) = in_policy[M_POLICY_UNCORE_FREQ_MAX];
             }
 
