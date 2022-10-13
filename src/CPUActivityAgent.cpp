@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include "config.h"
+
 #include "CPUActivityAgent.hpp"
 
 #include <cmath>
@@ -87,11 +89,11 @@ namespace geopm
                                                                       domain_idx), NAN});
 
             m_uncore_freq_min_control.push_back({m_platform_io.push_control("CPU_UNCORE_FREQUENCY_MIN_CONTROL",
-                                              GEOPM_DOMAIN_PACKAGE,
-                                              domain_idx), -1});
+                                                                            GEOPM_DOMAIN_PACKAGE,
+                                                                            domain_idx), -1});
             m_uncore_freq_max_control.push_back({m_platform_io.push_control("CPU_UNCORE_FREQUENCY_MAX_CONTROL",
-                                              GEOPM_DOMAIN_PACKAGE,
-                                              domain_idx), -1});
+                                                                            GEOPM_DOMAIN_PACKAGE,
+                                                                            domain_idx), -1});
         }
 
         // Configuration of QM_CTR must match QM_CTR config used for tuning/training data.
@@ -112,8 +114,8 @@ namespace geopm
         GEOPM_DEBUG_ASSERT(in_policy.size() == M_NUM_POLICY,
                            "CPUActivityAgent::" + std::string(__func__) +
                            "(): policy vector not correctly sized.  Expected  " +
-                            std::to_string(M_NUM_POLICY) + ", actual: " +
-                            std::to_string(in_policy.size()));
+                           std::to_string(M_NUM_POLICY) + ", actual: " +
+                           std::to_string(in_policy.size()));
 
         // Check for NAN to set default values for policy
         if (std::isnan(in_policy[M_POLICY_CPU_FREQ_MAX])) {
@@ -180,9 +182,9 @@ namespace geopm
         if (in_policy[M_POLICY_CPU_PHI] < 0.0 ||
             in_policy[M_POLICY_CPU_PHI] > 1.0) {
             throw Exception("CPUActivityAgent::" + std::string(__func__) +
-                                   "(): POLICY_CPU_PHI value out of range: " +
-                                   std::to_string(in_policy[M_POLICY_CPU_PHI]) + ".",
-                                   GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                            "(): POLICY_CPU_PHI value out of range: " +
+                            std::to_string(in_policy[M_POLICY_CPU_PHI]) + ".",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         double f_core_max = in_policy[M_POLICY_CPU_FREQ_MAX];
@@ -243,14 +245,14 @@ namespace geopm
                 // Just make sure the frequency does not have multiple definitions.
                 if (!policy_uncore_freqs.insert(uncore_freq).second) {
                     throw Exception("CPUActivityAgent::" + std::string(__func__) +
-                                    " policy has multiple entries for CPU_UNCORE_FREQUENCY " +
+                                    "(): policy has multiple entries for CPU_UNCORE_FREQUENCY " +
                                     std::to_string(uncore_freq),
                                     GEOPM_ERROR_INVALID, __FILE__, __LINE__);
                 }
             }
             else if (!std::isnan(mapped_mem_bw)) {
                 throw Exception("CPUActivityAgent::" + std::string(__func__) +
-                                " policy maps a NaN CPU_UNCORE_FREQUENCY with max memory bandwidth: " +
+                                "(): policy maps a NaN CPU_UNCORE_FREQUENCY with max memory bandwidth: " +
                                 std::to_string(mapped_mem_bw),
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
@@ -273,7 +275,7 @@ namespace geopm
     }
 
     void CPUActivityAgent::aggregate_sample(const std::vector<std::vector<double> > &in_sample,
-                                        std::vector<double>& out_sample)
+                                            std::vector<double>& out_sample)
     {
 
     }
@@ -445,8 +447,8 @@ namespace geopm
         GEOPM_DEBUG_ASSERT(out_sample.size() == M_NUM_SAMPLE,
                            "CPUActivityAgent::" + std::string(__func__) +
                            "(): sample vector not correctly sized.  Expected  " +
-                            std::to_string(M_NUM_SAMPLE) + ", actual: " +
-                            std::to_string(out_sample.size()));
+                           std::to_string(M_NUM_SAMPLE) + ", actual: " +
+                           std::to_string(out_sample.size()));
 
         // Collect latest signal values
         for (int domain_idx = 0; domain_idx < M_NUM_PACKAGE; ++domain_idx) {

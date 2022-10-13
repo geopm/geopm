@@ -49,11 +49,11 @@ all_man_rst = docs/source/geopm.7.rst \
               docs/source/geopmctl.1.rst \
               docs/source/geopm_ctl.3.rst \
               docs/source/GEOPM_CXX_MAN_Agent.3.rst \
-              docs/source/GEOPM_CXX_MAN_CPUActivityAgent.3.rst \
               docs/source/GEOPM_CXX_MAN_Agg.3.rst \
               docs/source/GEOPM_CXX_MAN_CircularBuffer.3.rst \
               docs/source/GEOPM_CXX_MAN_CNLIOGroup.3.rst \
               docs/source/GEOPM_CXX_MAN_Comm.3.rst \
+              docs/source/GEOPM_CXX_MAN_CPUActivityAgent.3.rst \
               docs/source/GEOPM_CXX_MAN_CpuinfoIOGroup.3.rst \
               docs/source/GEOPM_CXX_MAN_Daemon.3.rst \
               docs/source/GEOPM_CXX_MAN_Endpoint.3.rst \
@@ -165,8 +165,8 @@ base_man = docs/build/man/geopmadmin.1 \
            docs/build/man/geopmctl.1 \
            docs/build/man/geopm_ctl.3 \
            docs/build/man/GEOPM_CXX_MAN_Agent.3 \
-           docs/build/man/GEOPM_CXX_MAN_CPUActivityAgent.3 \
            docs/build/man/GEOPM_CXX_MAN_Comm.3 \
+           docs/build/man/GEOPM_CXX_MAN_CPUActivityAgent.3 \
            docs/build/man/GEOPM_CXX_MAN_Daemon.3 \
            docs/build/man/GEOPM_CXX_MAN_Endpoint.3 \
            docs/build/man/GEOPM_CXX_MAN_MonitorAgent.3 \
