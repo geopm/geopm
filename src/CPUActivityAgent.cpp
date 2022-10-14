@@ -22,25 +22,30 @@
 #include "geopm_debug.hpp"
 
 #include "PlatformIOProf.hpp"
+#include "FrequencyGovernor.hpp"
 
 namespace geopm
 {
     CPUActivityAgent::CPUActivityAgent()
-        : CPUActivityAgent(platform_io(), platform_topo())
+        : CPUActivityAgent(platform_io(), platform_topo(), FrequencyGovernor::make_shared())
     {
 
     }
 
-    CPUActivityAgent::CPUActivityAgent(PlatformIO &plat_io, const PlatformTopo &topo)
+    CPUActivityAgent::CPUActivityAgent(PlatformIO &plat_io,
+                                       const PlatformTopo &topo,
+                                       std::shared_ptr<FrequencyGovernor> gov)
         : m_platform_io(plat_io)
         , m_platform_topo(topo)
         , m_last_wait{{0, 0}}
         , M_WAIT_SEC(0.010) // 10ms wait default
         , M_POLICY_PHI_DEFAULT(0.5)
         , M_NUM_PACKAGE(m_platform_topo.num_domain(GEOPM_DOMAIN_PACKAGE))
-        , M_NUM_CORE(m_platform_topo.num_domain(GEOPM_DOMAIN_CORE))
         , m_do_write_batch(false)
         , m_do_send_policy(true)
+        , m_freq_governor(gov)
+        , m_freq_ctl_domain_type(m_freq_governor->frequency_domain_type())
+        , m_num_freq_ctl_domain(m_platform_topo.num_domain(m_freq_ctl_domain_type))
         , m_core_frequency_requests(0)
         , m_uncore_frequency_requests(0)
         , m_core_frequency_clipped(0)
@@ -60,22 +65,23 @@ namespace geopm
         // just what the user/admin has previously set.
         m_freq_uncore_min = m_platform_io.read_signal("CPU_UNCORE_FREQUENCY_MIN_CONTROL", GEOPM_DOMAIN_BOARD, 0);
         m_freq_uncore_max = m_platform_io.read_signal("CPU_UNCORE_FREQUENCY_MAX_CONTROL", GEOPM_DOMAIN_BOARD, 0);
-        m_freq_core_min = m_platform_io.read_signal("CPU_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0);
-        m_freq_core_max = m_platform_io.read_signal("CPU_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0);
+        m_freq_core_min = m_freq_governor->get_frequency_min();
+        m_freq_core_max = m_freq_governor->get_frequency_max();
 
         if (level == 0) {
+            m_freq_governor->init_platform_io();
             init_platform_io();
         }
     }
 
     void CPUActivityAgent::init_platform_io(void)
     {
-        for (int domain_idx = 0; domain_idx < M_NUM_CORE; ++domain_idx) {
+        for (int domain_idx = 0; domain_idx < m_num_freq_ctl_domain; ++domain_idx) {
             m_core_scal.push_back({m_platform_io.push_signal("MSR::CPU_SCALABILITY_RATIO",
-                                                             GEOPM_DOMAIN_CORE,
+                                                             m_freq_ctl_domain_type,
                                                              domain_idx), NAN});
             m_core_freq_control.push_back({m_platform_io.push_control("CPU_FREQUENCY_MAX_CONTROL",
-                                                                      GEOPM_DOMAIN_CORE,
+                                                                      m_freq_ctl_domain_type,
                                                                       domain_idx), NAN});
         }
 
@@ -122,34 +128,9 @@ namespace geopm
             in_policy[M_POLICY_CPU_FREQ_MAX] = m_freq_core_max;
         }
 
-        if (in_policy[M_POLICY_CPU_FREQ_MAX] > m_freq_core_max ||
-            in_policy[M_POLICY_CPU_FREQ_MAX] < m_freq_core_min ) {
-            throw Exception("CPUActivityAgent::" + std::string(__func__) +
-                            "():CPU_FREQ_MAX out of range: " +
-                            std::to_string(in_policy[M_POLICY_CPU_FREQ_MAX]) +
-                            ".", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-
         // Check for NAN to set default values for policy
         if (std::isnan(in_policy[M_POLICY_CPU_FREQ_EFFICIENT])) {
             in_policy[M_POLICY_CPU_FREQ_EFFICIENT] = m_freq_core_min;
-        }
-
-        if (in_policy[M_POLICY_CPU_FREQ_EFFICIENT] > m_freq_core_max ||
-            in_policy[M_POLICY_CPU_FREQ_EFFICIENT] < m_freq_core_min ) {
-            throw Exception("CPUActivityAgent::" + std::string(__func__) +
-                            "():CPU_FREQ_EFFICIENT out of range: " +
-                            std::to_string(in_policy[M_POLICY_CPU_FREQ_EFFICIENT]) +
-                            ".", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-
-        if (in_policy[M_POLICY_CPU_FREQ_EFFICIENT] > in_policy[M_POLICY_CPU_FREQ_MAX]) {
-            throw Exception("CPUActivityAgent::" + std::string(__func__) +
-                            "():CPU_FREQ_EFFICIENT (" +
-                            std::to_string(in_policy[M_POLICY_CPU_FREQ_EFFICIENT]) +
-                            ") value exceeds CPU_FREQ_MAX (" +
-                            std::to_string(in_policy[M_POLICY_CPU_FREQ_MAX]) +
-                            ").", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         //////////////////////////
@@ -220,6 +201,11 @@ namespace geopm
         in_policy[M_POLICY_CPU_FREQ_EFFICIENT] = f_core_efficient;
         in_policy[M_POLICY_UNCORE_FREQ_MAX] = f_uncore_max;
         in_policy[M_POLICY_UNCORE_FREQ_EFFICIENT] = f_uncore_efficient;
+
+        m_freq_governor->validate_policy(in_policy[M_POLICY_CPU_FREQ_EFFICIENT],
+                                         in_policy[M_POLICY_CPU_FREQ_MAX]);
+        m_freq_governor->set_frequency_bounds(in_policy[M_POLICY_CPU_FREQ_EFFICIENT],
+                                              in_policy[M_POLICY_CPU_FREQ_MAX]);
 
         // Validate all (uncore frequency, max memory bandwidth) pairs
         // Example policy values parsed here:
@@ -369,7 +355,7 @@ namespace geopm
         m_resolved_f_core_max = in_policy[M_POLICY_CPU_FREQ_MAX];
         double f_core_range = in_policy[M_POLICY_CPU_FREQ_MAX] - in_policy[M_POLICY_CPU_FREQ_EFFICIENT];
 
-        for (int domain_idx = 0; domain_idx < M_NUM_CORE; ++domain_idx) {
+        for (int domain_idx = 0; domain_idx < m_num_freq_ctl_domain; ++domain_idx) {
             //////////////////////////////////
             // Core Scalability Measurement //
             //////////////////////////////////
@@ -380,33 +366,25 @@ namespace geopm
 
             double core_req = m_resolved_f_core_efficient + f_core_range * scalability;
 
-            // Clip core request within policy limits
-            if (core_req > m_resolved_f_core_max || core_req < m_resolved_f_core_efficient) {
+            if (std::isnan(core_req)) {
+                core_req = in_policy[M_POLICY_CPU_FREQ_MAX];
+            }
+            else if (core_req > m_resolved_f_core_max || core_req < m_resolved_f_core_efficient) {
+                // Clip core request within policy limits
                 ++m_core_frequency_clipped;
             }
 
-            core_req = std::max(in_policy[M_POLICY_CPU_FREQ_EFFICIENT], core_req);
-            core_req = std::min(in_policy[M_POLICY_CPU_FREQ_MAX], core_req);
             core_freq_request.push_back(core_req);
-        }
 
-        // Set per core controls
-        for (int domain_idx = 0; domain_idx < M_NUM_CORE; ++domain_idx) {
-            if (std::isnan(core_freq_request.at(domain_idx))) {
-                core_freq_request.at(domain_idx) = in_policy[M_POLICY_CPU_FREQ_MAX];
-            }
-            if (core_freq_request.at(domain_idx) !=
-                m_core_freq_control.at(domain_idx).last_setting) {
-                // Adjust
-                m_platform_io.adjust(m_core_freq_control.at(domain_idx).batch_idx,
-                                     core_freq_request.at(domain_idx));
-
-                // Save the value for future comparison
-                m_core_freq_control.at(domain_idx).last_setting = core_freq_request.at(domain_idx);
+            // Track number of core requests
+            if (std::isnan(m_core_freq_control.at(domain_idx).last_setting) ||
+                core_req != m_core_freq_control.at(domain_idx).last_setting) {
                 ++m_core_frequency_requests;
-                m_do_write_batch = true;
             }
+            m_core_freq_control.at(domain_idx).last_setting = core_req;
         }
+
+        m_freq_governor->adjust_platform(core_freq_request);
 
         // Set per package controls
         for (int domain_idx = 0; domain_idx < M_NUM_PACKAGE; ++domain_idx) {
@@ -438,7 +416,7 @@ namespace geopm
     // If controls have a valid updated value write them.
     bool CPUActivityAgent::do_write_batch(void) const
     {
-        return m_do_write_batch;
+        return m_do_write_batch || m_freq_governor->do_write_batch();
     }
 
     // Read signals from the platform and calculate samples to be sent up
@@ -459,7 +437,7 @@ namespace geopm
             m_qm_rate.at(domain_idx).value = m_platform_io.sample(m_qm_rate.at(domain_idx).batch_idx);
         }
 
-        for (int domain_idx = 0; domain_idx < M_NUM_CORE; ++domain_idx) {
+        for (int domain_idx = 0; domain_idx < m_num_freq_ctl_domain; ++domain_idx) {
             // Core steering signals
             m_core_scal.at(domain_idx).value = m_platform_io.sample(m_core_scal.at(domain_idx).batch_idx);
         }

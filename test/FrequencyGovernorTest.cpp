@@ -47,7 +47,7 @@ void FrequencyGovernorTest::SetUp(void)
     ON_CALL(m_topo, num_domain(M_CTL_DOMAIN)).WillByDefault(Return(M_NUM_CORE));
     ON_CALL(m_topo, num_domain(GEOPM_DOMAIN_CPU)).WillByDefault(Return(2*M_NUM_CORE));
     ON_CALL(m_platio, read_signal("CPUINFO::FREQ_STEP", _, _)).WillByDefault(Return(M_PLAT_STEP_FREQ));
-    ON_CALL(m_platio, read_signal("CPUINFO::FREQ_MIN", _, _)).WillByDefault(Return(M_PLAT_MIN_FREQ));
+    ON_CALL(m_platio, read_signal("CPU_FREQUENCY_MIN_AVAIL", _, _)).WillByDefault(Return(M_PLAT_MIN_FREQ));
     ON_CALL(m_platio, read_signal("CPUINFO::FREQ_STICKER", _, _)).WillByDefault(Return(M_PLAT_STICKER_FREQ));
     ON_CALL(m_platio, read_signal("CPU_FREQUENCY_MAX_AVAIL", _, _)).WillByDefault(Return(M_PLAT_MAX_FREQ));
 
