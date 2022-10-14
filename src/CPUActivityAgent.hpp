@@ -15,13 +15,16 @@ namespace geopm
 {
     class PlatformTopo;
     class PlatformIO;
+    class FrequencyGovernor;
 
     /// @brief Agent
     class CPUActivityAgent : public Agent
     {
         public:
             CPUActivityAgent();
-            CPUActivityAgent(PlatformIO &plat_io, const PlatformTopo &topo);
+            CPUActivityAgent(PlatformIO &plat_io,
+                             const PlatformTopo &topo,
+                             std::shared_ptr<FrequencyGovernor> gov);
             virtual ~CPUActivityAgent() = default;
             void init(int level, const std::vector<int> &fan_in, bool is_level_root) override;
             void validate_policy(std::vector<double> &in_policy) const override;
@@ -54,9 +57,11 @@ namespace geopm
             double M_WAIT_SEC;
             const double M_POLICY_PHI_DEFAULT;
             const int M_NUM_PACKAGE;
-            const int M_NUM_CORE;
             bool m_do_write_batch;
             bool m_do_send_policy;
+            std::shared_ptr<FrequencyGovernor> m_freq_governor;
+            int m_freq_ctl_domain_type;
+            int m_num_freq_ctl_domain;
             double m_core_frequency_requests;
             double m_uncore_frequency_requests;
             double m_core_frequency_clipped;

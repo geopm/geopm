@@ -39,7 +39,7 @@ namespace geopm
         : m_platform_io(platform_io)
         , m_platform_topo(platform_topo)
         , M_FREQ_STEP(get_limit("CPUINFO::FREQ_STEP"))
-        , M_PLAT_FREQ_MIN(get_limit("CPUINFO::FREQ_MIN"))
+        , M_PLAT_FREQ_MIN(get_limit("CPU_FREQUENCY_MIN_AVAIL"))
         , M_PLAT_FREQ_MAX(get_limit("CPU_FREQUENCY_MAX_AVAIL"))
         , m_freq_min(M_PLAT_FREQ_MIN)
         , m_freq_max(M_PLAT_FREQ_MAX)
@@ -59,7 +59,7 @@ namespace geopm
     {
         const int domain_type = m_platform_io.signal_domain_type(sig_name);
         double result = NAN;
-        if (sig_name == "CPUINFO::FREQ_MIN") {
+        if (sig_name == "CPU_FREQUENCY_MIN_AVAIL") {
             result = m_platform_io.read_signal(sig_name, domain_type, 0);
         }
         else if (sig_name == "CPUINFO::FREQ_STICKER") {
@@ -185,7 +185,7 @@ namespace geopm
 
     void FrequencyGovernorImp::validate_policy(double &freq_min, double &freq_max) const
     {
-        double target_freq_min = std::isnan(freq_min) ? get_limit("CPUINFO::FREQ_MIN") : freq_min;
+        double target_freq_min = std::isnan(freq_min) ? get_limit("CPU_FREQUENCY_MIN_AVAIL") : freq_min;
         double target_freq_max = std::isnan(freq_max) ? get_limit("CPUINFO::FREQ_STICKER") : freq_max;
         freq_min = target_freq_min;
         freq_max = target_freq_max;
