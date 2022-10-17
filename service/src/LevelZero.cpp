@@ -592,7 +592,7 @@ namespace geopm
                                     M_DOMAIN_ALL) >= l0_domain_idx) {
             //SUBDEVICE LEVEL
             zes_pwr_handle_t handle = m_devices.at(l0_device_idx).subdevice.power_domain.at(l0_domain_idx);
-            zes_power_energy_counter_t energy_counter;
+            zes_power_energy_counter_t energy_counter = {};
             ze_result = zesPowerGetEnergyCounter(handle, &energy_counter);
             check_ze_result(ze_result, GEOPM_ERROR_RUNTIME, "LevelZero::"
                             + std::string(__func__) +
