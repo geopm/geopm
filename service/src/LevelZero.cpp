@@ -187,7 +187,7 @@ namespace geopm
                             geopm::LevelZero::M_DOMAIN_SIZE);
 
             for (auto handle : freq_domain) {
-                zes_freq_properties_t property;
+                zes_freq_properties_t property = {};
                 ze_result = zesFrequencyGetProperties(handle, &property);
                 check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
                                 "LevelZero::" + std::string(__func__) +
@@ -237,7 +237,7 @@ namespace geopm
 
             int num_device_power_domain = 0;
             for (auto handle : power_domain) {
-                zes_power_properties_t property;
+                zes_power_properties_t property = {};
                 ze_result = zesPowerGetProperties(handle, &property);
                 check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
                                 "LevelZero::" + std::string(__func__) +
@@ -296,7 +296,7 @@ namespace geopm
             m_devices.at(device_idx).subdevice.
                       cached_timestamp.resize(geopm::LevelZero::M_DOMAIN_SIZE);
             for (auto handle : engine_domain) {
-                zes_engine_properties_t property;
+                zes_engine_properties_t property = {};
                 ze_result = zesEngineGetProperties(handle, &property);
                 check_ze_result(ze_result, GEOPM_ERROR_RUNTIME, "LevelZero::"
                                 + std::string(__func__) +
@@ -413,7 +413,7 @@ namespace geopm
         zes_freq_handle_t handle = m_devices.at(l0_device_idx).
                                              subdevice.freq_domain.at(
                                              l0_domain).at(l0_domain_idx);
-        zes_freq_state_t state;
+        zes_freq_state_t state = {};
         ze_result = zesFrequencyGetState(handle, &state);
         check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
                         "LevelZero::" + std::string(__func__) +
@@ -448,7 +448,7 @@ namespace geopm
         ze_result_t ze_result;
         zes_freq_handle_t handle = m_devices.at(l0_device_idx).subdevice.freq_domain.at(
                                                                l0_domain).at(l0_domain_idx);
-        zes_freq_properties_t property;
+        zes_freq_properties_t property = {};
         ze_result = zesFrequencyGetProperties(handle, &property);
         check_ze_result(ze_result, GEOPM_ERROR_RUNTIME, "LevelZero::"
                         + std::string(__func__) +
@@ -464,7 +464,7 @@ namespace geopm
         ze_result_t ze_result;
         zes_freq_handle_t handle = m_devices.at(l0_device_idx).subdevice.freq_domain.at(
                                                                l0_domain).at(l0_domain_idx);
-        zes_freq_range_t range;
+        zes_freq_range_t range = {};
         ze_result = zesFrequencyGetRange(handle, &range);
         check_ze_result(ze_result, GEOPM_ERROR_RUNTIME, "LevelZero::"
                         + std::string(__func__) +
@@ -493,7 +493,7 @@ namespace geopm
         uint64_t result_active = 0;
         uint64_t result_timestamp = 0;
 
-        zes_engine_stats_t stats;
+        zes_engine_stats_t stats = {};
 
         zes_engine_handle_t handle = m_devices.at(l0_device_idx).subdevice.
                                      engine_domain.at(l0_domain).at(l0_domain_idx);
@@ -526,7 +526,7 @@ namespace geopm
         uint64_t result_timestamp = 0;
 
         zes_pwr_handle_t handle = m_devices.at(l0_device_idx).power_domain;
-        zes_power_energy_counter_t energy_counter;
+        zes_power_energy_counter_t energy_counter = {};
         ze_result = zesPowerGetEnergyCounter(handle, &energy_counter);
         check_ze_result(ze_result, GEOPM_ERROR_RUNTIME, "LevelZero::"
                         + std::string(__func__) +
@@ -557,18 +557,20 @@ namespace geopm
     {
         ze_result_t ze_result;
 
-        zes_power_properties_t property;
+        zes_power_properties_t property = {};
         m_power_limit_s result_power;
 
         zes_pwr_handle_t handle = m_devices.at(l0_device_idx).power_domain;
-
         ze_result = zesPowerGetProperties(handle, &property);
         check_ze_result(ze_result, GEOPM_ERROR_RUNTIME, "LevelZeroDevicePool::"
                         + std::string(__func__) +
                         ": Sysman failed to get domain power properties", __LINE__);
-        result_power.tdp = property.defaultLimit;
-        result_power.min = property.minLimit;
-        result_power.max = property.maxLimit;
+
+        // Forcing to -1 due to API deprecation, other API calls should be used
+        // to replace this functionality.
+        result_power.tdp = -1;
+        result_power.min = -1;
+        result_power.max = -1;
 
         return result_power;
     }
@@ -579,7 +581,7 @@ namespace geopm
                                          double range_max) const
     {
         ze_result_t ze_result;
-        zes_freq_properties_t property;
+        zes_freq_properties_t property {};
         zes_freq_range_t range;
         range.min = range_min;
         range.max = range_max;
