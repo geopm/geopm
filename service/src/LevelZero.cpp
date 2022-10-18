@@ -64,7 +64,7 @@ namespace geopm
                             ": LevelZero Device acquisition failed.", __LINE__);
 
             for (unsigned int device_idx = 0; device_idx < num_device; ++device_idx) {
-                ze_device_properties_t property;
+                ze_device_properties_t property = {};
                 ze_result = zeDeviceGetProperties(device_handle.at(device_idx), &property);
                 check_ze_result(ze_result, GEOPM_ERROR_RUNTIME, "LevelZero::"
                                 + std::string(__func__) +
@@ -566,11 +566,9 @@ namespace geopm
                         + std::string(__func__) +
                         ": Sysman failed to get domain power properties", __LINE__);
 
-        // Forcing to -1 due to API deprecation, other API calls should be used
-        // to replace this functionality.
-        result_power.tdp = -1;
-        result_power.min = -1;
-        result_power.max = -1;
+        result_power.tdp = property.defaultLimit;
+        result_power.min = property.minLimit;
+        result_power.max = property.maxLimit;
 
         return result_power;
     }
