@@ -324,6 +324,51 @@ TEST_F(CPUActivityAgentTest, validate_policy)
 
 }
 
+TEST_F(CPUActivityAgentTest, control_signal_granularity_check) {
+    EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MIN_CONTROL", _, _)).Times(1);
+    EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MAX_CONTROL", _, _)).Times(1);
+
+    // These are called as part of CPU-CA construction, but will be
+    // called again here due to the signal & control domain mismatch
+    EXPECT_CALL(*m_gov, frequency_domain_type()).Times(1);
+    EXPECT_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_CORE)).Times(1);
+
+    ON_CALL(*m_platform_io, signal_domain_type("MSR::CPU_SCALABILITY_RATIO"))
+            .WillByDefault(Return(GEOPM_DOMAIN_PACKAGE));
+
+#ifdef GEOPM_DEBUG
+    GEOPM_EXPECT_THROW_MESSAGE(m_agent->init(0, {}, false), GEOPM_ERROR_INVALID,
+                               "MSR::CPU_SCALABILITY_RATIO domain (" + std::to_string(GEOPM_DOMAIN_PACKAGE) +
+                               ") is a coarser granularity than the CPU frequency control domain (" +
+                               std::to_string(GEOPM_DOMAIN_CORE) + ").");
+
+#else
+
+    EXPECT_CALL(*m_gov, get_frequency_max())
+        .WillOnce(Return(m_cpu_freq_max));
+    EXPECT_CALL(*m_gov, get_frequency_min())
+        .WillOnce(Return(m_cpu_freq_min));
+
+    EXPECT_CALL(*m_platform_io, push_signal("MSR::QM_CTR_SCALED_RATE", _, _)).Times(M_NUM_PACKAGE);
+    EXPECT_CALL(*m_platform_io, push_signal("MSR::CPU_SCALABILITY_RATIO", _, _)).Times(M_NUM_CORE);
+    EXPECT_CALL(*m_platform_io, push_signal("CPU_UNCORE_FREQUENCY_STATUS", _, _)).Times(M_NUM_PACKAGE);
+
+    EXPECT_CALL(*m_platform_io, push_control("CPU_UNCORE_FREQUENCY_MIN_CONTROL", _, _)).Times(M_NUM_PACKAGE);
+    EXPECT_CALL(*m_platform_io, push_control("CPU_UNCORE_FREQUENCY_MAX_CONTROL", _, _)).Times(M_NUM_PACKAGE);
+
+    EXPECT_CALL(*m_platform_io, write_control("MSR::PQR_ASSOC:RMID", _, _, _)).Times(1);
+    EXPECT_CALL(*m_platform_io, write_control("MSR::QM_EVTSEL:RMID", _, _, _)).Times(1);
+    EXPECT_CALL(*m_platform_io, write_control("MSR::QM_EVTSEL:EVENT_ID", _, _, _)).Times(1);
+
+    EXPECT_CALL(*m_gov, set_domain_type(GEOPM_DOMAIN_PACKAGE)).Times(1);
+    EXPECT_CALL(*m_gov, init_platform_io()).Times(1);
+
+    // If we were testing with a real freq governor instance we could
+    // check that frequency_domain_type is now PACKAGE
+    m_agent->init(0, {}, false);
+#endif
+}
+
 TEST_F(CPUActivityAgentTest, adjust_platform_high)
 {
     std::vector<double> policy;

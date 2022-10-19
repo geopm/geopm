@@ -10,7 +10,6 @@
 #include <cmath>
 #include <cassert>
 #include <algorithm>
-#include <iostream>
 #include <string>
 
 #include "geopm/Agg.hpp"
@@ -64,26 +63,37 @@ namespace geopm
         // just what the user/admin has previously set.
         m_freq_uncore_min = m_platform_io.read_signal("CPU_UNCORE_FREQUENCY_MIN_CONTROL", GEOPM_DOMAIN_BOARD, 0);
         m_freq_uncore_max = m_platform_io.read_signal("CPU_UNCORE_FREQUENCY_MAX_CONTROL", GEOPM_DOMAIN_BOARD, 0);
-        m_freq_core_min = m_freq_governor->get_frequency_min();
-        m_freq_core_max = m_freq_governor->get_frequency_max();
 
         if (level == 0) {
-            m_freq_governor->init_platform_io();
             init_platform_io();
         }
     }
 
     void CPUActivityAgent::init_platform_io(void)
     {
-        if (m_platform_io.signal_domain_type("MSR::CPU_SCALABILITY_RATIO") <
-            m_freq_ctl_domain_type) {
+        int scalability_signal_domain = m_platform_io.signal_domain_type("MSR::CPU_SCALABILITY_RATIO");
+        if (scalability_signal_domain < m_freq_ctl_domain_type) {
+            // Set Freq gov domain
+            m_freq_governor->set_domain_type(scalability_signal_domain);
+
+            // update member vars
+            m_freq_ctl_domain_type = m_freq_governor->frequency_domain_type();
+            m_num_freq_ctl_domain = m_platform_topo.num_domain(m_freq_ctl_domain_type);
+
+#ifdef GEOPM_DEBUG
             throw Exception("CPUActivityAgent::" + std::string(__func__) +
-                            "():MSR::CPU_SCALABILITY RATIO domain (" +
-                            std::to_string(m_platform_io.signal_domain_type("MSR::CPU_SCALABILITY_RATIO")) +
-                            ") is a coarser granularity than the CPU Frequency control domain (" +
+                            "():MSR::CPU_SCALABILITY_RATIO domain (" +
+                            std::to_string(scalability_signal_domain) +
+                            ") is a coarser granularity than the CPU frequency control domain (" +
                             std::to_string(m_freq_ctl_domain_type) +
                             ").", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+#endif
         }
+
+        m_freq_governor->init_platform_io();
+
+        m_freq_core_min = m_freq_governor->get_frequency_min();
+        m_freq_core_max = m_freq_governor->get_frequency_max();
 
         for (int domain_idx = 0; domain_idx < m_num_freq_ctl_domain; ++domain_idx) {
             m_core_scal.push_back({m_platform_io.push_signal("MSR::CPU_SCALABILITY_RATIO",
