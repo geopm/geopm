@@ -316,6 +316,7 @@ if ENABLE_BETA
                    test/gtest_links/CPUActivityAgentTest.adjust_platform_nan \
                    test/gtest_links/CPUActivityAgentTest.adjust_platform_lower_bound_check \
                    test/gtest_links/CPUActivityAgentTest.adjust_platform_signal_out_of_bounds \
+                   test/gtest_links/CPUActivityAgentTest.control_signal_granularity_check \
                    test/gtest_links/DaemonTest.get_default_policy \
                    test/gtest_links/DaemonTest.get_profile_policy \
                    test/gtest_links/PolicyStoreImpTest.self_consistent \

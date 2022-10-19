@@ -89,6 +89,7 @@ TEST_F(FrequencyGovernorTest, adjust_platform)
     m_gov->adjust_platform(request);
     bool result = m_gov->do_write_batch();
     EXPECT_TRUE(result);
+    EXPECT_EQ(m_gov->get_clamp_count(), 0);
 }
 
 TEST_F(FrequencyGovernorTest, adjust_platform_clamping)
@@ -108,8 +109,7 @@ TEST_F(FrequencyGovernorTest, adjust_platform_clamping)
     m_gov->adjust_platform(request);
     bool result = m_gov->do_write_batch();
     EXPECT_TRUE(result);
-    int clamp = m_gov->get_clamp_count();
-    EXPECT_EQ(clamp, 2);
+    EXPECT_EQ(m_gov->get_clamp_count(), 2);
 }
 
 TEST_F(FrequencyGovernorTest, adjust_platform_error)
@@ -141,8 +141,7 @@ TEST_F(FrequencyGovernorTest, frequency_bounds_in_range)
     EXPECT_DOUBLE_EQ(new_min, m_gov->get_frequency_min());
     EXPECT_DOUBLE_EQ(new_max, m_gov->get_frequency_max());
 
-    int clamp = m_gov->get_clamp_count();
-    EXPECT_EQ(result, 0);
+    EXPECT_EQ(m_gov->get_clamp_count(), 0);
 }
 
 TEST_F(FrequencyGovernorTest, frequency_bounds_invalid)
