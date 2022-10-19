@@ -24,6 +24,7 @@ class MockFrequencyGovernor : public geopm::FrequencyGovernor
         MOCK_METHOD(double, get_frequency_min, (), (const, override));
         MOCK_METHOD(double, get_frequency_max, (), (const, override));
         MOCK_METHOD(double, get_frequency_step, (), (const, override));
+        MOCK_METHOD(int, get_clamp_count, (), (const, override));
         MOCK_METHOD(void, validate_policy, (double &freq_min, double &freq_max),
                     (const, override));
 };

@@ -46,7 +46,6 @@ class CPUActivityAgentTest : public ::testing::Test
             QM_CTR_SCALED_RATE_IDX,
             CPU_SCALABILITY_IDX,
             CPU_UNCORE_FREQUENCY_IDX,
-            CPU_FREQUENCY_CONTROL_IDX,
             CPU_UNCORE_MIN_CONTROL_IDX,
             CPU_UNCORE_MAX_CONTROL_IDX
         };
@@ -119,8 +118,6 @@ void CPUActivityAgentTest::SetUp()
     EXPECT_CALL(*m_platform_io, push_signal("CPU_UNCORE_FREQUENCY_STATUS", _, _)).Times(M_NUM_PACKAGE);
 
     // Controls
-    ON_CALL(*m_platform_io, push_control("CPU_FREQUENCY_MAX_CONTROL", _, _))
-        .WillByDefault(Return(CPU_FREQUENCY_CONTROL_IDX));
     ON_CALL(*m_platform_io, push_control("CPU_UNCORE_FREQUENCY_MIN_CONTROL", _, _))
         .WillByDefault(Return(CPU_UNCORE_MIN_CONTROL_IDX));
     ON_CALL(*m_platform_io, push_control("CPU_UNCORE_FREQUENCY_MAX_CONTROL", _, _))
@@ -128,7 +125,6 @@ void CPUActivityAgentTest::SetUp()
     ON_CALL(*m_platform_io, agg_function(_))
         .WillByDefault(Return(geopm::Agg::average));
 
-    EXPECT_CALL(*m_platform_io, push_control("CPU_FREQUENCY_MAX_CONTROL", _, _)).Times(M_NUM_CORE);
     EXPECT_CALL(*m_platform_io, push_control("CPU_UNCORE_FREQUENCY_MIN_CONTROL", _, _)).Times(M_NUM_PACKAGE);
     EXPECT_CALL(*m_platform_io, push_control("CPU_UNCORE_FREQUENCY_MAX_CONTROL", _, _)).Times(M_NUM_PACKAGE);
 

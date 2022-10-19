@@ -60,6 +60,9 @@ namespace geopm
             /// @brief Returns the frequency step for the platform.
             /// @return Step frequency.
             virtual double get_frequency_step() const = 0;
+            /// @brief Returns the number of clamping occurence count for the platform.
+            /// @return Clamp occurence counter
+            virtual int get_clamp_count() const = 0;
             /// @brief Checks that the minimum and maximum frequency
             ///        are within range for the platform.  If not,
             ///        they will be clamped at the min and max for the
