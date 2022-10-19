@@ -294,6 +294,10 @@ namespace geopm
 
         if (domain == GEOPM_DOMAIN_GPU) {
             check_idx_range(domain, domain_idx);
+            check_domain_exists(m_levelzero.power_domain_count(domain,
+                                            domain_idx, l0_domain),
+                                            __func__, __LINE__);
+
             result = m_levelzero.energy_pair(domain, domain_idx, -1);
         }
         else if (domain == GEOPM_DOMAIN_GPU_CHIP){
@@ -321,6 +325,10 @@ namespace geopm
         uint64_t energy_timestamp = 0;
         if (domain == GEOPM_DOMAIN_GPU) {
             check_idx_range(domain, domain_idx);
+            check_domain_exists(m_levelzero.power_domain_count(domain,
+                                            domain_idx, l0_domain),
+                                            __func__, __LINE__);
+
             energy_timestamp = m_levelzero.energy_timestamp(domain, domain_idx,
                                                             l0_domain, 0);
         }
@@ -359,7 +367,6 @@ namespace geopm
             std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
             dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
 
-            //TODO: check l0_domain
             check_domain_exists(m_levelzero.power_domain_count(domain,
                                             dev_subdev_idx_pair.first, l0_domain),
                                             __func__, __LINE__);
