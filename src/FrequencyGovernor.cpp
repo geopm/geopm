@@ -43,6 +43,7 @@ namespace geopm
         , M_PLAT_FREQ_MAX(get_limit("CPU_FREQUENCY_MAX_AVAIL"))
         , m_freq_min(M_PLAT_FREQ_MIN)
         , m_freq_max(M_PLAT_FREQ_MAX)
+        , m_clamp_count(0)
         , m_do_write_batch(false)
         , m_freq_ctl_domain_type(m_platform_io.control_domain_type("CPU_FREQUENCY_MAX_CONTROL"))
         , m_is_platform_io_initialized(false)
@@ -132,9 +133,11 @@ namespace geopm
             double clamp_freq = NAN;
             if (frequency_request[idx] > m_freq_max) {
                 clamp_freq = m_freq_max;
+                ++m_clamp_count;
             }
             else if (frequency_request[idx] < m_freq_min) {
                 clamp_freq = m_freq_min;
+                ++m_clamp_count;
             }
             else {
                 clamp_freq = frequency_request[idx];
@@ -181,6 +184,11 @@ namespace geopm
     double FrequencyGovernorImp::get_frequency_step()  const
     {
         return M_FREQ_STEP;
+    }
+
+    int FrequencyGovernorImp::get_clamp_count()  const
+    {
+        return m_clamp_count;
     }
 
     void FrequencyGovernorImp::validate_policy(double &freq_min, double &freq_max) const

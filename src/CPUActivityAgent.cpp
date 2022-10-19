@@ -46,9 +46,8 @@ namespace geopm
         , m_freq_governor(gov)
         , m_freq_ctl_domain_type(m_freq_governor->frequency_domain_type())
         , m_num_freq_ctl_domain(m_platform_topo.num_domain(m_freq_ctl_domain_type))
-        , m_core_frequency_requests(0)
+        , m_core_batch_writes(0)
         , m_uncore_frequency_requests(0)
-        , m_core_frequency_clipped(0)
         , m_uncore_frequency_clipped(0)
         , m_resolved_f_uncore_efficient(0)
         , m_resolved_f_uncore_max(0)
@@ -76,13 +75,20 @@ namespace geopm
 
     void CPUActivityAgent::init_platform_io(void)
     {
+        if (m_platform_io.signal_domain_type("MSR::CPU_SCALABILITY_RATIO") <
+            m_freq_ctl_domain_type) {
+            throw Exception("CPUActivityAgent::" + std::string(__func__) +
+                            "():MSR::CPU_SCALABILITY RATIO domain (" +
+                            std::to_string(m_platform_io.signal_domain_type("MSR::CPU_SCALABILITY_RATIO")) +
+                            ") is a coarser granularity than the CPU Frequency control domain (" +
+                            std::to_string(m_freq_ctl_domain_type) +
+                            ").", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
         for (int domain_idx = 0; domain_idx < m_num_freq_ctl_domain; ++domain_idx) {
             m_core_scal.push_back({m_platform_io.push_signal("MSR::CPU_SCALABILITY_RATIO",
                                                              m_freq_ctl_domain_type,
                                                              domain_idx), NAN});
-            m_core_freq_control.push_back({m_platform_io.push_control("CPU_FREQUENCY_MAX_CONTROL",
-                                                                      m_freq_ctl_domain_type,
-                                                                      domain_idx), NAN});
         }
 
         for (int domain_idx = 0; domain_idx < M_NUM_PACKAGE; ++domain_idx) {
@@ -365,26 +371,14 @@ namespace geopm
             }
 
             double core_req = m_resolved_f_core_efficient + f_core_range * scalability;
-
-            if (std::isnan(core_req)) {
-                core_req = in_policy[M_POLICY_CPU_FREQ_MAX];
-            }
-            else if (core_req > m_resolved_f_core_max || core_req < m_resolved_f_core_efficient) {
-                // Clip core request within policy limits
-                ++m_core_frequency_clipped;
-            }
-
             core_freq_request.push_back(core_req);
-
-            // Track number of core requests
-            if (std::isnan(m_core_freq_control.at(domain_idx).last_setting) ||
-                core_req != m_core_freq_control.at(domain_idx).last_setting) {
-                ++m_core_frequency_requests;
-            }
-            m_core_freq_control.at(domain_idx).last_setting = core_req;
         }
 
         m_freq_governor->adjust_platform(core_freq_request);
+        // Track number of core requests
+        if (m_freq_governor->do_write_batch()) {
+            ++m_core_batch_writes;
+        }
 
         // Set per package controls
         for (int domain_idx = 0; domain_idx < M_NUM_PACKAGE; ++domain_idx) {
@@ -465,16 +459,26 @@ namespace geopm
     {
         std::vector<std::pair<std::string, std::string> > result;
 
-        result.push_back({"Core Frequency Requests", std::to_string(m_core_frequency_requests)});
-        result.push_back({"Core Clipped Frequency Requests", std::to_string(m_core_frequency_clipped)});
-        result.push_back({"Uncore Frequency Requests", std::to_string(m_uncore_frequency_requests)});
-        result.push_back({"Uncore Clipped Frequency Requests", std::to_string(m_uncore_frequency_clipped)});
-        result.push_back({"Resolved Maximum Core Frequency", std::to_string(m_resolved_f_core_max)});
-        result.push_back({"Resolved Efficient Core Frequency", std::to_string(m_resolved_f_core_efficient)});
-        result.push_back({"Resolved Core Frequency Range", std::to_string(m_resolved_f_core_max - m_resolved_f_core_efficient)});
-        result.push_back({"Resolved Maximum Uncore Frequency", std::to_string(m_resolved_f_uncore_max)});
-        result.push_back({"Resolved Efficient Uncore Frequency", std::to_string(m_resolved_f_uncore_efficient)});
-        result.push_back({"Resolved Uncore Frequency Range", std::to_string(m_resolved_f_uncore_max - m_resolved_f_uncore_efficient)});
+        result.push_back({"Core Batch Writes",
+                          std::to_string(m_core_batch_writes)});
+        result.push_back({"Core Frequency Requests Clipped",
+                          std::to_string(m_freq_governor->get_clamp_count())});
+        result.push_back({"Uncore Frequency Requests",
+                          std::to_string(m_uncore_frequency_requests)});
+        result.push_back({"Uncore Frequency Requests Clipped",
+                          std::to_string(m_uncore_frequency_clipped)});
+        result.push_back({"Resolved Maximum Core Frequency",
+                          std::to_string(m_resolved_f_core_max)});
+        result.push_back({"Resolved Efficient Core Frequency",
+                          std::to_string(m_resolved_f_core_efficient)});
+        result.push_back({"Resolved Core Frequency Range",
+                          std::to_string(m_resolved_f_core_max - m_resolved_f_core_efficient)});
+        result.push_back({"Resolved Maximum Uncore Frequency",
+                          std::to_string(m_resolved_f_uncore_max)});
+        result.push_back({"Resolved Efficient Uncore Frequency",
+                          std::to_string(m_resolved_f_uncore_efficient)});
+        result.push_back({"Resolved Uncore Frequency Range",
+                          std::to_string(m_resolved_f_uncore_max - m_resolved_f_uncore_efficient)});
         return result;
     }
 

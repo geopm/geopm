@@ -29,6 +29,7 @@ namespace geopm
             double get_frequency_min() const override;
             double get_frequency_max() const override;
             double get_frequency_step() const override;
+            int get_clamp_count() const override;
             void validate_policy(double &freq_min, double &freq_max) const override;
         private:
             double get_limit(const std::string &sig_name) const;
@@ -39,6 +40,7 @@ namespace geopm
             const double M_PLAT_FREQ_MAX;
             double m_freq_min;
             double m_freq_max;
+            int m_clamp_count;
             bool m_do_write_batch;
             int m_freq_ctl_domain_type;
             std::vector<int> m_control_idx;

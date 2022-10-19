@@ -62,9 +62,8 @@ namespace geopm
             std::shared_ptr<FrequencyGovernor> m_freq_governor;
             int m_freq_ctl_domain_type;
             int m_num_freq_ctl_domain;
-            double m_core_frequency_requests;
+            double m_core_batch_writes;
             double m_uncore_frequency_requests;
-            double m_core_frequency_clipped;
             double m_uncore_frequency_clipped;
             double m_resolved_f_uncore_efficient;
             double m_resolved_f_uncore_max;
