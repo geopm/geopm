@@ -579,7 +579,7 @@ namespace geopm
                                          double range_max) const
     {
         ze_result_t ze_result;
-        zes_freq_properties_t property {};
+        zes_freq_properties_t property = {};
         zes_freq_range_t range;
         range.min = range_min;
         range.max = range_max;
