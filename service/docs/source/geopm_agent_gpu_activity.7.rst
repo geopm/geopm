@@ -2,28 +2,23 @@
 geopm_agent_gpu_activity(7) -- agent for selecting GPU frequency based on GPU compute activity
 =================================================================================================
 
-
-
-
-
-
 Description
 -----------
 
-The goal of this Agent is to save GPU energy by scaling GPU frequency based upon
-the compute activity of each GPU as provided by the GPU_COMPUTE_ACTIVITY
-signal and modified by the GPU_UTILIZATION signal.
+The goal of **GPUActivityAgent** is to save GPU energy by scaling GPU frequency
+based upon the compute activity of each GPU as provided by the
+``GPU_CORE_ACTIVITY`` signal and modified by the ``GPU_UTILIZATION`` signal.
 
-The **GPUActivityAgent** scales frequency in the range of ``Fe`` to ``Fmax``, where ``Fmax``
+The agent scales frequency in the range of ``Fe`` to ``Fmax``, where ``Fmax``
 is provided via the policy as ``GPU_FREQ_MAX`` and ``Fe`` is provided via
 the policy as ``GPU_FREQ_EFFICIENT``.  Low activity regions (compute activity
 of 0.0) run at the ``Fe`` frequency, high activity regions (compute activity of 1.0)
 run at the ``Fmax`` frequency, and regions in between the extremes run at a frequency (F)
 selected using the equation:
 
-``F = Fe + (Fmax - Fe) * GPU_COMPUTE_ACTIVITY/GPU_UTILIZATION``
+``F = Fe + (Fmax - Fe) * GPU_CORE_ACTIVITY/GPU_UTILIZATION``
 
-``GPU_UTILIZATION`` is used to scale the ``GPU_COMPUTE_ACTIVITY`` in order
+``GPU_UTILIZATION`` is used to scale the ``GPU_CORE_ACTIVITY`` in order
 to scale frequency selection with the percentage of time a kernel is running on
 the GPU.  This tends to help with workloads that contain short but highly
 scalable GPU phases.
@@ -37,7 +32,7 @@ GPU energy consumption for the workload.
 ``Fmax`` is intended to be the maximum allowable frequency, and may be set as the
 default GPU maximum frequency, or limited based upon user/admin preference.
 
-The GPUActivityAgent provides an optional input of ``phi`` that allows for biasing the
+The agent provides an optional input of ``phi`` that allows for biasing the
 frequency range used by the agent.  The default ``phi`` value of 0.5 provides frequency
 selection in the full range from ``Fe`` to ``Fmax``.  A ``phi`` value less than 0.5 biases the
 agent towards higher frequencies by increasing the ``Fe`` value provided by the policy.
@@ -45,7 +40,7 @@ In the extreme case (``phi`` of 0) ``Fe`` will be raised to ``Fmax``.  A ``phi``
 0.5 biases the agent towards lower frequencies by reducing the ``Fmax`` value provided
 by the policy.  In the extreme case (``phi`` of 1.0) ``Fmax`` will be lowered to ``Fe``.
 
-For NVIDIA based systems the GPUActivityAgent should be used with DCGM settings of
+For NVIDIA based systems the agent should be used with DCGM settings of
 ``DCGM::FIELD_UPDATE_RATE`` = 100 ms, ``DCGM::MAX_STORAGE_TIME`` = 1 s, and ``DCGM::MAX_SAMPLES``
 = 100.  While the DCGM documentation indicates that users should generally query
 no faster than 100 ms, the interface allows for setting the polling rate in the
@@ -70,7 +65,6 @@ Policy Parameters
 The ``Fe``, ``Fmax``, and ``phi`` are provided
 as policy values.  Setting ``Fe`` & ``Fmax`` to the same value will
 result in the entire application to run at a fixed frequency.
-
 
   ``GPU_FREQ_MAX``\ :
       The maximum frequency in hertz that the algorithm is

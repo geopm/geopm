@@ -68,9 +68,6 @@ namespace geopm
     void GPUActivityAgent::init_platform_io(void)
     {
         for (int domain_idx = 0; domain_idx < M_NUM_GPU; ++domain_idx) {
-            m_gpu_freq_status.push_back({m_platform_io.push_signal("GPU_CORE_FREQUENCY_STATUS",
-                                         GEOPM_DOMAIN_GPU,
-                                         domain_idx), NAN});
             m_gpu_core_activity.push_back({m_platform_io.push_signal("GPU_CORE_ACTIVITY",
                                               GEOPM_DOMAIN_GPU,
                                               domain_idx), NAN});
@@ -80,11 +77,7 @@ namespace geopm
             m_gpu_energy.push_back({m_platform_io.push_signal("GPU_ENERGY",
                                     GEOPM_DOMAIN_GPU,
                                     domain_idx), NAN});
-        }
 
-        m_time = {m_platform_io.push_signal("TIME", GEOPM_DOMAIN_BOARD, 0), NAN};
-
-        for (int domain_idx = 0; domain_idx < M_NUM_GPU; ++domain_idx) {
             m_gpu_freq_min_control.push_back(control{m_platform_io.push_control("GPU_CORE_FREQUENCY_MIN_CONTROL",
                                                      GEOPM_DOMAIN_GPU,
                                                      domain_idx), NAN});
@@ -92,6 +85,8 @@ namespace geopm
                                                      GEOPM_DOMAIN_GPU,
                                                      domain_idx), NAN});
         }
+
+        m_time = {m_platform_io.push_signal("TIME", GEOPM_DOMAIN_BOARD, 0), NAN};
     }
 
     // Validate incoming policy and configure default policy requests.
@@ -333,8 +328,6 @@ namespace geopm
 
         // Collect latest signal values
         for (int domain_idx = 0; domain_idx < M_NUM_GPU; ++domain_idx) {
-            m_gpu_freq_status.at(domain_idx).value = m_platform_io.sample(m_gpu_freq_status.at(
-                                                                          domain_idx).batch_idx);
             m_gpu_core_activity.at(domain_idx).value = m_platform_io.sample(m_gpu_core_activity.at(
                                                                                domain_idx).batch_idx);
             m_gpu_utilization.at(domain_idx).value = m_platform_io.sample(m_gpu_utilization.at(
