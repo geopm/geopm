@@ -546,20 +546,16 @@ namespace geopm
         if(geopm_domain == GEOPM_DOMAIN_GPU) {
             timestamp = m_devices.at(l0_device_idx).cached_energy_timestamp;
         }
-        else if(geopm_domain == GEOPM_DOMAIN_GPU_CHIP) {
         //TILE
+        else if(geopm_domain == GEOPM_DOMAIN_GPU_CHIP) {
             timestamp = m_devices.at(l0_device_idx).subdevice.cached_energy_timestamp.at(l0_domain_idx);
         }
-        //TODO: either check l0_domain, or move to treating it the same
-        //      as all other signals (i.e. All, Compute, and Mem)
         return timestamp;
     }
 
     uint64_t LevelZeroImp::energy(int geopm_domain, unsigned int l0_device_idx,
                                   int l0_domain, int l0_domain_idx) const
     {
-        //TODO: either check l0_domain, or move to treating it the same
-        //      as all other signals (i.e. All, Compute, and Mem)
         return energy_pair(geopm_domain, l0_device_idx, l0_domain_idx).first;
     }
 
