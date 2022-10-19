@@ -185,14 +185,6 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/FrequencyMapAgentTest.report_neither_map_nor_set \
               test/gtest_links/FrequencyMapAgentTest.split_policy \
               test/gtest_links/FrequencyMapAgentTest.validate_policy \
-              test/gtest_links/GPUActivityAgentTest.name \
-              test/gtest_links/GPUActivityAgentTest.validate_policy \
-              test/gtest_links/GPUActivityAgentTest.adjust_platform_high \
-              test/gtest_links/GPUActivityAgentTest.adjust_platform_medium \
-              test/gtest_links/GPUActivityAgentTest.adjust_platform_low \
-              test/gtest_links/GPUActivityAgentTest.adjust_platform_zero \
-              test/gtest_links/GPUActivityAgentTest.adjust_platform_signal_out_of_bounds_high \
-              test/gtest_links/GPUActivityAgentTest.adjust_platform_signal_out_of_bounds_low \
               test/gtest_links/ModelApplicationTest.parse_config_errors \
               test/gtest_links/MonitorAgentTest.policy_names \
               test/gtest_links/MonitorAgentTest.sample_names \
@@ -327,6 +319,14 @@ if ENABLE_BETA
                    test/gtest_links/CPUActivityAgentTest.control_signal_granularity_check \
                    test/gtest_links/DaemonTest.get_default_policy \
                    test/gtest_links/DaemonTest.get_profile_policy \
+                   test/gtest_links/GPUActivityAgentTest.name \
+                   test/gtest_links/GPUActivityAgentTest.validate_policy \
+                   test/gtest_links/GPUActivityAgentTest.adjust_platform_high \
+                   test/gtest_links/GPUActivityAgentTest.adjust_platform_medium \
+                   test/gtest_links/GPUActivityAgentTest.adjust_platform_low \
+                   test/gtest_links/GPUActivityAgentTest.adjust_platform_zero \
+                   test/gtest_links/GPUActivityAgentTest.adjust_platform_signal_out_of_bounds_high \
+                   test/gtest_links/GPUActivityAgentTest.adjust_platform_signal_out_of_bounds_low \
                    test/gtest_links/PolicyStoreImpTest.self_consistent \
                    test/gtest_links/PolicyStoreImpTest.table_precedence \
                    test/gtest_links/PolicyStoreImpTest.update_policy \
@@ -392,7 +392,6 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
                           test/FilePolicyTest.cpp \
                           test/FrequencyGovernorTest.cpp \
                           test/FrequencyMapAgentTest.cpp \
-                          test/GPUActivityAgentTest.cpp \
                           test/MockAgent.hpp \
                           test/MockApplicationIO.hpp \
                           test/MockApplicationRecordLog.hpp \
@@ -454,6 +453,7 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
 
 beta_test_sources = test/CPUActivityAgentTest.cpp \
                     test/DaemonTest.cpp \
+                    test/GPUActivityAgentTest.cpp \
                     test/MockPolicyStore.hpp \
                     test/PolicyStoreImpTest.cpp \
                     # end

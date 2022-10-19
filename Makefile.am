@@ -409,8 +409,6 @@ libgeopmpolicy_la_SOURCES = src/Accumulator.cpp \
                             src/TRLFrequencyLimitDetector.hpp \
                             src/FrequencyMapAgent.cpp \
                             src/FrequencyMapAgent.hpp \
-                            src/GPUActivityAgent.cpp \
-                            src/GPUActivityAgent.hpp \
                             src/Imbalancer.cpp \
                             src/ModelParse.cpp \
                             src/ModelParse.hpp \
@@ -475,6 +473,8 @@ beta_source_files = src/CPUActivityAgent.cpp \
                     src/Daemon.cpp \
                     src/Daemon.hpp \
                     src/DaemonImp.hpp \
+                    src/GPUActivityAgent.cpp \
+                    src/GPUActivityAgent.hpp \
                     src/PolicyStore.cpp \
                     src/PolicyStore.hpp \
                     src/PolicyStoreImp.cpp \

@@ -24,6 +24,7 @@ from integration.test import geopm_test_launcher
 from experiment.energy_efficiency import gpu_activity
 from apps.parres import parres
 
+@util.skip_unless_config_enable('beta')
 @util.skip_unless_do_launch()
 @util.skip_unless_gpu()
 @util.skip_unless_workload_exists("apps/parres/Kernels/Cxx11/dgemm-mpi-cublas")
