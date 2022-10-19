@@ -191,7 +191,8 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/GPUActivityAgentTest.adjust_platform_medium \
               test/gtest_links/GPUActivityAgentTest.adjust_platform_low \
               test/gtest_links/GPUActivityAgentTest.adjust_platform_zero \
-              test/gtest_links/GPUActivityAgentTest.adjust_platform_signal_out_of_bounds \
+              test/gtest_links/GPUActivityAgentTest.adjust_platform_signal_out_of_bounds_high \
+              test/gtest_links/GPUActivityAgentTest.adjust_platform_signal_out_of_bounds_low \
               test/gtest_links/ModelApplicationTest.parse_config_errors \
               test/gtest_links/MonitorAgentTest.policy_names \
               test/gtest_links/MonitorAgentTest.sample_names \

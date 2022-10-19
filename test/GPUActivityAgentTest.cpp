@@ -39,12 +39,12 @@ class GPUActivityAgentTest : public :: testing :: Test
 {
     protected:
         enum mock_pio_idx_e {
-            GPU_FREQUENCY_IDX,
-            GPU_COMPUTE_ACTIVITY_IDX,
+            GPU_CORE_ACTIVITY_IDX,
             GPU_UTILIZATION_IDX,
             GPU_ENERGY_IDX,
             GPU_FREQUENCY_CONTROL_MIN_IDX,
             GPU_FREQUENCY_CONTROL_MAX_IDX,
+            TIME_IDX
         };
         enum policy_idx_e {
             FREQ_MAX = 0,
@@ -54,17 +54,26 @@ class GPUActivityAgentTest : public :: testing :: Test
 
         void SetUp();
         void TearDown();
+        void set_up_val_policy_expectations();
+
+        void test_adjust_platform(std::vector<double> &policy,
+                                  double mock_active,
+                                  double mock_util,
+                                  double expected_freq);
         static const int M_NUM_CPU = 1;
         static const int M_NUM_BOARD = 1;
         static const int M_NUM_GPU = 1;
-        std::unique_ptr<GPUActivityAgent> m_agent;
-        std::vector<double> m_default_policy;
+        static const double M_FREQ_MIN = 0135000000.0;
+        static const double M_FREQ_MAX = 1530000000.0;
+        static const std::vector<double> M_DEFAULT_POLICY;
         size_t m_num_policy;
-        double m_freq_min;
-        double m_freq_max;
+        std::unique_ptr<GPUActivityAgent> m_agent;
         std::unique_ptr<MockPlatformIO> m_platform_io;
         std::unique_ptr<MockPlatformTopo> m_platform_topo;
 };
+
+const std::vector<double> GPUActivityAgentTest::M_DEFAULT_POLICY = {
+        M_FREQ_MAX, M_FREQ_MIN, NAN};
 
 void GPUActivityAgentTest::SetUp()
 {
@@ -76,14 +85,15 @@ void GPUActivityAgentTest::SetUp()
     ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_GPU))
         .WillByDefault(Return(M_NUM_GPU));
 
-    ON_CALL(*m_platform_io, push_signal("GPU_CORE_FREQUENCY_STATUS", _, _))
-        .WillByDefault(Return(GPU_FREQUENCY_IDX));
     ON_CALL(*m_platform_io, push_signal("GPU_CORE_ACTIVITY", _, _))
-        .WillByDefault(Return(GPU_COMPUTE_ACTIVITY_IDX));
+        .WillByDefault(Return(GPU_CORE_ACTIVITY_IDX));
     ON_CALL(*m_platform_io, push_signal("GPU_UTILIZATION", _, _))
         .WillByDefault(Return(GPU_UTILIZATION_IDX));
     ON_CALL(*m_platform_io, push_signal("GPU_ENERGY", _, _))
         .WillByDefault(Return(GPU_ENERGY_IDX));
+    ON_CALL(*m_platform_io, push_signal("TIME", _, _))
+        .WillByDefault(Return(TIME_IDX));
+
     ON_CALL(*m_platform_io, push_control("GPU_CORE_FREQUENCY_MIN_CONTROL", _, _))
         .WillByDefault(Return(GPU_FREQUENCY_CONTROL_MIN_IDX));
     ON_CALL(*m_platform_io, push_control("GPU_CORE_FREQUENCY_MAX_CONTROL", _, _))
@@ -91,8 +101,6 @@ void GPUActivityAgentTest::SetUp()
     ON_CALL(*m_platform_io, agg_function(_))
         .WillByDefault(Return(geopm::Agg::average));
 
-    m_freq_min = 0135000000.0;
-    m_freq_max = 1530000000.0;
     ON_CALL(*m_platform_io, control_domain_type("GPU_CORE_FREQUENCY_MIN_CONTROL"))
         .WillByDefault(Return(GEOPM_DOMAIN_GPU));
     ON_CALL(*m_platform_io, control_domain_type("GPU_CORE_FREQUENCY_MAX_CONTROL"))
@@ -100,17 +108,15 @@ void GPUActivityAgentTest::SetUp()
     ON_CALL(*m_platform_io, signal_domain_type("GPU_CORE_ACTIVITY"))
         .WillByDefault(Return(GEOPM_DOMAIN_GPU));
     ON_CALL(*m_platform_io, read_signal("GPU_CORE_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0))
-        .WillByDefault(Return(m_freq_min));
+        .WillByDefault(Return(M_FREQ_MIN));
     ON_CALL(*m_platform_io, read_signal("GPU_CORE_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0))
-        .WillByDefault(Return(m_freq_max));
+        .WillByDefault(Return(M_FREQ_MAX));
 
-    ASSERT_LT(m_freq_min, 0.2e9);
-    ASSERT_LT(1.4e9, m_freq_max);
+    ASSERT_LT(M_FREQ_MIN, 0.2e9);
+    ASSERT_LT(1.4e9, M_FREQ_MAX);
 
     m_agent = geopm::make_unique<GPUActivityAgent>(*m_platform_io, *m_platform_topo);
     m_num_policy = m_agent->policy_names().size();
-
-    m_default_policy = {m_freq_max, m_freq_min, NAN};
 
     // leaf agent
     m_agent->init(0, {}, false);
@@ -118,7 +124,15 @@ void GPUActivityAgentTest::SetUp()
 
 void GPUActivityAgentTest::TearDown()
 {
+}
 
+void GPUActivityAgentTest::set_up_val_policy_expectations()
+{
+    EXPECT_CALL(*m_platform_io, read_signal("GPU_CORE_FREQUENCY_MIN_AVAIL", _, _)).WillRepeatedly(
+                Return(M_FREQ_MIN));
+    EXPECT_CALL(*m_platform_io, read_signal("GPU_CORE_FREQUENCY_MAX_AVAIL", _, _)).WillRepeatedly(
+                Return(M_FREQ_MAX));
+    EXPECT_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_BOARD)).WillRepeatedly(Return(M_NUM_BOARD));
 }
 
 TEST_F(GPUActivityAgentTest, name)
@@ -129,82 +143,76 @@ TEST_F(GPUActivityAgentTest, name)
 
 TEST_F(GPUActivityAgentTest, validate_policy)
 {
-    //Called as part of validate
-    EXPECT_CALL(*m_platform_io, read_signal("GPU_CORE_FREQUENCY_MIN_AVAIL", _, _)).WillRepeatedly(
-                Return(m_freq_min));
-    EXPECT_CALL(*m_platform_io, read_signal("GPU_CORE_FREQUENCY_MAX_AVAIL", _, _)).WillRepeatedly(
-                Return(m_freq_max));
-    EXPECT_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_BOARD)).WillRepeatedly(Return(M_NUM_BOARD));
+    set_up_val_policy_expectations();
 
     const std::vector<double> empty(m_num_policy, NAN);
-    std::vector<double> policy;
 
     // default policy is accepted
     // load default policy
-    policy = m_default_policy;
-    m_agent->validate_policy(policy);
+    std::vector<double> policy = M_DEFAULT_POLICY;
+    EXPECT_NO_THROW(m_agent->validate_policy(policy));
     // validate policy is unmodified except Phi
     ASSERT_EQ(m_num_policy, policy.size());
-    EXPECT_EQ(m_freq_max, policy[FREQ_MAX]);
-    EXPECT_EQ(m_freq_min, policy[FREQ_EFFICIENT]);
+    EXPECT_EQ(M_FREQ_MAX, policy[FREQ_MAX]);
+    EXPECT_EQ(M_FREQ_MIN, policy[FREQ_EFFICIENT]);
     // Default value when NAN is passed is 0.5
     EXPECT_EQ(0.5, policy[PHI]);
 
     // all-NAN policy is accepted
     // setup & load NAN policy
     policy = empty;
-    m_agent->validate_policy(policy);
+    EXPECT_NO_THROW(m_agent->validate_policy(policy));
     // validate policy defaults are applied
     ASSERT_EQ(m_num_policy, policy.size());
-    EXPECT_EQ(m_freq_max, policy[FREQ_MAX]);
-    EXPECT_EQ((policy[FREQ_MAX] + m_freq_min) / 2, policy[FREQ_EFFICIENT]);
+    EXPECT_EQ(M_FREQ_MAX, policy[FREQ_MAX]);
+    EXPECT_EQ((policy[FREQ_MAX] + M_FREQ_MIN) / 2, policy[FREQ_EFFICIENT]);
     EXPECT_EQ(0.5, policy[PHI]);
 
     // non-default policy is accepted
     // setup & load policy
-    policy[FREQ_MAX] = m_freq_max;
-    policy[FREQ_EFFICIENT] = m_freq_max / 2;
+    policy[FREQ_MAX] = M_FREQ_MAX;
+    policy[FREQ_EFFICIENT] = M_FREQ_MAX / 2;
     policy[PHI] = 0.1;
-    m_agent->validate_policy(policy);
+    EXPECT_NO_THROW(m_agent->validate_policy(policy));
 
     // validate policy is modified as expected
     // as phi --> 0 FREQ_EFFICIENT --> FREQ_MAX
     ASSERT_EQ(m_num_policy, policy.size());
-    EXPECT_EQ(m_freq_max, policy[FREQ_MAX]);
-    EXPECT_GE(policy[FREQ_EFFICIENT], m_freq_max / 2);
-    EXPECT_LE(policy[FREQ_EFFICIENT], m_freq_max);
+    EXPECT_EQ(M_FREQ_MAX, policy[FREQ_MAX]);
+    EXPECT_GE(policy[FREQ_EFFICIENT], M_FREQ_MAX / 2);
+    EXPECT_LE(policy[FREQ_EFFICIENT], M_FREQ_MAX);
     EXPECT_EQ(0.1, policy[PHI]);
 
     //Fe > Fmax --> Error
     policy[FREQ_MAX] = NAN;
-    policy[FREQ_EFFICIENT] = m_freq_max + 1;
+    policy[FREQ_EFFICIENT] = M_FREQ_MAX + 1;
     policy[PHI] = NAN;
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->validate_policy(policy), GEOPM_ERROR_INVALID,
                               "GPU_FREQ_EFFICIENT out of range");
 
     //Fe < Fmin --> Error
     policy[FREQ_MAX] = NAN;
-    policy[FREQ_EFFICIENT] = m_freq_min - 1;
+    policy[FREQ_EFFICIENT] = M_FREQ_MIN - 1;
     policy[PHI] = NAN;
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->validate_policy(policy), GEOPM_ERROR_INVALID,
                                "GPU_FREQ_EFFICIENT out of range");
 
     //Fe > Policy Fmax --> Error
-    policy[FREQ_MAX] = m_freq_max - 2;
-    policy[FREQ_EFFICIENT] = m_freq_max - 1;
+    policy[FREQ_MAX] = M_FREQ_MAX - 2;
+    policy[FREQ_EFFICIENT] = M_FREQ_MAX - 1;
     policy[PHI] = NAN;
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->validate_policy(policy), GEOPM_ERROR_INVALID,
                                "value exceeds GPU_FREQ_MAX");
 
     //Policy Fmax > Fmax --> Error
-    policy[FREQ_MAX] = m_freq_max + 1;
+    policy[FREQ_MAX] = M_FREQ_MAX + 1;
     policy[FREQ_EFFICIENT] = NAN;
     policy[PHI] = NAN;
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->validate_policy(policy), GEOPM_ERROR_INVALID,
                                "GPU_FREQ_MAX out of range");
 
     //Policy Fmax < Fmin --> Error
-    policy[FREQ_MAX] = m_freq_min - 1;
+    policy[FREQ_MAX] = M_FREQ_MIN - 1;
     policy[FREQ_EFFICIENT] = NAN;
     policy[PHI] = NAN;
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->validate_policy(policy), GEOPM_ERROR_INVALID,
@@ -225,210 +233,87 @@ TEST_F(GPUActivityAgentTest, validate_policy)
                                "POLICY_GPU_PHI value out of range");
 }
 
-TEST_F(GPUActivityAgentTest, adjust_platform_high)
+void GPUActivityAgentTest::test_adjust_platform(std::vector<double> &policy,
+                                                double mock_active,
+                                                double mock_util,
+                                                double expected_freq)
 {
-    //TODO: Setup f_max, min etc...via read
-    EXPECT_CALL(*m_platform_io, read_signal("GPU_CORE_FREQUENCY_MIN_AVAIL", _, _)).WillRepeatedly(
-                Return(m_freq_min));
-    EXPECT_CALL(*m_platform_io, read_signal("GPU_CORE_FREQUENCY_MAX_AVAIL", _, _)).WillRepeatedly(
-                Return(m_freq_max));
-    EXPECT_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_BOARD)).WillRepeatedly(Return(M_NUM_BOARD));
-    std::vector<double> policy;
-    policy = m_default_policy;
-    m_agent->validate_policy(policy);
+    set_up_val_policy_expectations();
+
+    EXPECT_NO_THROW(m_agent->validate_policy(policy));
 
     //Sample
     std::vector<double> tmp;
-    double mock_active = 1.0;
-    double mock_util = 1.0;
-    EXPECT_CALL(*m_platform_io, sample(GPU_COMPUTE_ACTIVITY_IDX))
+    EXPECT_CALL(*m_platform_io, sample(GPU_CORE_ACTIVITY_IDX))
                 .WillRepeatedly(Return(mock_active));
     EXPECT_CALL(*m_platform_io, sample(GPU_UTILIZATION_IDX))
                 .WillRepeatedly(Return(mock_util));
-    EXPECT_CALL(*m_platform_io, sample(GPU_FREQUENCY_IDX))
-                .WillRepeatedly(Return(m_freq_max - 1)); //Any non-m_freq_max value will work here
     EXPECT_CALL(*m_platform_io, sample(GPU_ENERGY_IDX))
                 .WillRepeatedly(Return(123456789));
+    EXPECT_CALL(*m_platform_io, sample(TIME_IDX))
+                .Times(1);
     m_agent->sample_platform(tmp);
 
     //Adjust
     //Check frequency
-    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MIN_IDX, m_freq_max)).Times(M_NUM_GPU);
-    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MAX_IDX, m_freq_max)).Times(M_NUM_GPU);
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MIN_IDX, expected_freq)).Times(M_NUM_GPU);
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MAX_IDX, expected_freq)).Times(M_NUM_GPU);
+
     m_agent->adjust_platform(policy);
 
     //Check a frequency decision resulted in write batch being true
     EXPECT_TRUE(m_agent->do_write_batch());
+}
+
+TEST_F(GPUActivityAgentTest, adjust_platform_high)
+{
+    std::vector<double> policy = M_DEFAULT_POLICY;
+    double mock_active = 1.0;
+    double mock_util = 1.0;
+    test_adjust_platform(policy, mock_active, mock_util, M_FREQ_MAX);
 }
 
 TEST_F(GPUActivityAgentTest, adjust_platform_medium)
 {
-    //TODO: Setup f_max, min etc...via read
-    EXPECT_CALL(*m_platform_io, read_signal("GPU_CORE_FREQUENCY_MIN_AVAIL", _, _)).WillRepeatedly(
-                Return(m_freq_min));
-    EXPECT_CALL(*m_platform_io, read_signal("GPU_CORE_FREQUENCY_MAX_AVAIL", _, _)).WillRepeatedly(
-                Return(m_freq_max));
-    EXPECT_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_BOARD)).WillRepeatedly(Return(M_NUM_BOARD));
-    std::vector<double> policy;
-    policy = m_default_policy;
-    m_agent->validate_policy(policy);
-
-    //Sample
-    std::vector<double> tmp;
+    std::vector<double> policy = M_DEFAULT_POLICY;
     double mock_active = 0.5;
     double mock_util = 1.0;
-    EXPECT_CALL(*m_platform_io, sample(GPU_COMPUTE_ACTIVITY_IDX))
-                .WillRepeatedly(Return(mock_active));
-    EXPECT_CALL(*m_platform_io, sample(GPU_UTILIZATION_IDX))
-                .WillRepeatedly(Return(mock_util));
-    EXPECT_CALL(*m_platform_io, sample(GPU_FREQUENCY_IDX))
-                .WillRepeatedly(Return(m_freq_max-1)); //Any non-m_freq_max value will work here
-    EXPECT_CALL(*m_platform_io, sample(GPU_ENERGY_IDX))
-                .WillRepeatedly(Return(123456789));
-    m_agent->sample_platform(tmp);
-
-    //Adjust
-    //Check frequency
-    double expected_freq = policy[FREQ_EFFICIENT] + (m_freq_max - policy[FREQ_EFFICIENT]) * mock_active;
-    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MIN_IDX, expected_freq)).Times(M_NUM_GPU);
-    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MAX_IDX, expected_freq)).Times(M_NUM_GPU);
-
-    m_agent->adjust_platform(policy);
-
-    //Check a frequency decision resulted in write batch being true
-    EXPECT_TRUE(m_agent->do_write_batch());
+    double expected_freq = policy[FREQ_EFFICIENT] +
+            (M_FREQ_MAX - policy[FREQ_EFFICIENT]) * mock_active;
+    test_adjust_platform(policy, mock_active, mock_util, expected_freq);
 }
 
 TEST_F(GPUActivityAgentTest, adjust_platform_low)
 {
-    //TODO: Setup f_max, min etc...via read
-    EXPECT_CALL(*m_platform_io, read_signal("GPU_CORE_FREQUENCY_MIN_AVAIL", _, _)).WillRepeatedly(
-                Return(m_freq_min));
-    EXPECT_CALL(*m_platform_io, read_signal("GPU_CORE_FREQUENCY_MAX_AVAIL", _, _)).WillRepeatedly(
-                Return(m_freq_max));
-    EXPECT_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_BOARD)).WillRepeatedly(Return(M_NUM_BOARD));
-    std::vector<double> policy;
-    policy = m_default_policy;
-    m_agent->validate_policy(policy);
-
-    //Sample
-    std::vector<double> tmp;
+    std::vector<double> policy = M_DEFAULT_POLICY;
     double mock_active = 0.1;
     double mock_util = 1.0;
-    EXPECT_CALL(*m_platform_io, sample(GPU_COMPUTE_ACTIVITY_IDX))
-                .WillRepeatedly(Return(mock_active));
-    EXPECT_CALL(*m_platform_io, sample(GPU_UTILIZATION_IDX))
-                .WillRepeatedly(Return(mock_util));
-    EXPECT_CALL(*m_platform_io, sample(GPU_FREQUENCY_IDX))
-                .WillRepeatedly(Return(m_freq_max-1)); //Any non-m_freq_max value will work here
-
-    EXPECT_CALL(*m_platform_io, sample(GPU_ENERGY_IDX))
-                .WillRepeatedly(Return(123456789));
-    m_agent->sample_platform(tmp);
-
-    //Adjust
-    //Check frequency
-    double expected_freq = policy[FREQ_EFFICIENT] + (m_freq_max - policy[FREQ_EFFICIENT]) * mock_active;
-    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MIN_IDX, expected_freq)).Times(M_NUM_GPU);
-    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MAX_IDX, expected_freq)).Times(M_NUM_GPU);
-    m_agent->adjust_platform(policy);
-    //Check a frequency decision resulted in write batch being true
-    EXPECT_TRUE(m_agent->do_write_batch());
+    double expected_freq = policy[FREQ_EFFICIENT] +
+            (M_FREQ_MAX - policy[FREQ_EFFICIENT]) * mock_active;
+    test_adjust_platform(policy, mock_active, mock_util, expected_freq);
 }
 
 TEST_F(GPUActivityAgentTest, adjust_platform_zero)
 {
-    //TODO: Setup f_max, min etc...via read
-    EXPECT_CALL(*m_platform_io, read_signal("GPU_CORE_FREQUENCY_MIN_AVAIL", _, _)).WillRepeatedly(
-                Return(m_freq_min));
-    EXPECT_CALL(*m_platform_io, read_signal("GPU_CORE_FREQUENCY_MAX_AVAIL", _, _)).WillRepeatedly(
-                Return(m_freq_max));
-    EXPECT_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_BOARD)).WillRepeatedly(Return(M_NUM_BOARD));
-    std::vector<double> policy;
-    policy = m_default_policy;
-    m_agent->validate_policy(policy);
-
-
-    //Sample
-    std::vector<double> tmp;
+    std::vector<double> policy = M_DEFAULT_POLICY;
     double mock_active = 0.0;
     double mock_util = 1.0;
-    EXPECT_CALL(*m_platform_io, sample(GPU_COMPUTE_ACTIVITY_IDX))
-                .WillRepeatedly(Return(mock_active));
-    EXPECT_CALL(*m_platform_io, sample(GPU_UTILIZATION_IDX))
-                .WillRepeatedly(Return(mock_util));
-    EXPECT_CALL(*m_platform_io, sample(GPU_FREQUENCY_IDX))
-                .WillRepeatedly(Return(m_freq_max)); //Any non-m_freq_min value will work here
-    EXPECT_CALL(*m_platform_io, sample(GPU_ENERGY_IDX))
-                .WillRepeatedly(Return(123456789));
-    m_agent->sample_platform(tmp);
-
-    //Adjust
-    //Check frequency
-    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MIN_IDX, m_freq_min)).Times(M_NUM_GPU);
-    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MAX_IDX, m_freq_min)).Times(M_NUM_GPU);
-    m_agent->adjust_platform(policy);
-
-    //Check a frequency decision resulted in write batch being true
-    EXPECT_TRUE(m_agent->do_write_batch());
-
+    test_adjust_platform(policy, mock_active, mock_util, M_FREQ_MIN);
 }
 
-TEST_F(GPUActivityAgentTest, adjust_platform_signal_out_of_bounds)
+TEST_F(GPUActivityAgentTest, adjust_platform_signal_out_of_bounds_high)
 {
-    //TODO: Setup f_max, min etc...via read
-    EXPECT_CALL(*m_platform_io, read_signal("GPU_CORE_FREQUENCY_MIN_AVAIL", _, _)).WillRepeatedly(
-                Return(m_freq_min));
-    EXPECT_CALL(*m_platform_io, read_signal("GPU_CORE_FREQUENCY_MAX_AVAIL", _, _)).WillRepeatedly(
-                Return(m_freq_max));
-    EXPECT_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_BOARD)).WillRepeatedly(Return(M_NUM_BOARD));
-    std::vector<double> policy;
-    policy = m_default_policy;
-    m_agent->validate_policy(policy);
-
-    //Sample
-    std::vector<double> tmp;
+    std::vector<double> policy = M_DEFAULT_POLICY;
     double mock_active = 987654321;
     double mock_util = 1.0;
-    EXPECT_CALL(*m_platform_io, sample(GPU_COMPUTE_ACTIVITY_IDX))
-                .WillRepeatedly(Return(mock_active));
-    EXPECT_CALL(*m_platform_io, sample(GPU_UTILIZATION_IDX))
-                .WillRepeatedly(Return(mock_util));
-    EXPECT_CALL(*m_platform_io, sample(GPU_FREQUENCY_IDX))
-                .WillRepeatedly(Return(m_freq_max)); //Any non-m_freq_min value will work here
-    EXPECT_CALL(*m_platform_io, sample(GPU_ENERGY_IDX))
-                .WillRepeatedly(Return(123456789));
-    m_agent->sample_platform(tmp);
+    test_adjust_platform(policy, mock_active, mock_util, M_FREQ_MAX);
+}
 
-    //Adjust
-    //Check frequency
-    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MIN_IDX, m_freq_max)).Times(M_NUM_GPU);
-    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MAX_IDX, m_freq_max)).Times(M_NUM_GPU);
-    m_agent->adjust_platform(policy);
-
-    //Check a frequency decision resulted in write batch being true
-    EXPECT_TRUE(m_agent->do_write_batch());
-
-    //Sample
-    mock_active = -12345;
-    mock_util = 1.0;
-    EXPECT_CALL(*m_platform_io, sample(GPU_COMPUTE_ACTIVITY_IDX))
-                .WillRepeatedly(Return(mock_active));
-    EXPECT_CALL(*m_platform_io, sample(GPU_UTILIZATION_IDX))
-                .WillRepeatedly(Return(mock_util));
-    EXPECT_CALL(*m_platform_io, sample(GPU_FREQUENCY_IDX))
-                .WillRepeatedly(Return(m_freq_max)); //Any non-m_freq_min value will work here
-    EXPECT_CALL(*m_platform_io, sample(GPU_ENERGY_IDX))
-                .WillRepeatedly(Return(123456789));
-    m_agent->sample_platform(tmp);
-
-    //Adjust
-    //Check frequency
-    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MIN_IDX, m_freq_min)).Times(M_NUM_GPU);
-    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MAX_IDX, m_freq_min)).Times(M_NUM_GPU);
-    m_agent->adjust_platform(policy);
-
-    //Check a frequency decision resulted in write batch being true
-    EXPECT_TRUE(m_agent->do_write_batch());
+TEST_F(GPUActivityAgentTest, adjust_platform_signal_out_of_bounds_low)
+{
+    std::vector<double> policy = M_DEFAULT_POLICY;
+    double mock_active = -12345;
+    double mock_util = 1.0;
+    test_adjust_platform(policy, mock_active, mock_util, M_FREQ_MIN);
 
 }
