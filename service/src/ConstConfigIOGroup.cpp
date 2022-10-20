@@ -32,10 +32,14 @@ namespace geopm
             {"aggregation", {Json::STRING, true}},
             {"values", {Json::ARRAY, true}}
         };
+    const std::string ConstConfigIOGroup::M_CONFIG_PATH_ENV =
+        "GEOPM_CONST_CONFIG_PATH";
 
     ConstConfigIOGroup::ConstConfigIOGroup()
     {
-        // TODO
+        std::string config_file_path = geopm::get_env(M_CONFIG_PATH_ENV);
+        std::string config_json = geopm::read_file(config_file_path);
+        parse_config_json(config_json);
     }
 
     ConstConfigIOGroup::ConstConfigIOGroup(const std::string &config)
@@ -73,7 +77,7 @@ namespace geopm
         auto it = m_signal_available.find(signal_name);
 
         if (it != m_signal_available.end())
-            result = it->second.domain;
+            result = it->second->domain;
 
         return result;
     }
@@ -92,35 +96,29 @@ namespace geopm
                             signal_name + " not valid for ConstConfigIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        else if (domain_type != it->second.domain) {
+        else if (domain_type != it->second->domain) {
             throw Exception("ConstConfigIOGroup::push_signal(): domain_type " +
                             std::to_string(domain_type) +
                             " not valid for ConstConfigIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        else if (domain_idx < 0 || domain_idx >= it->second.values.size()) {
+        else if (domain_idx < 0 ||
+            static_cast<std::size_t>(domain_idx) >= it->second->values.size()) {
             throw Exception("ConstConfigIOGroup::push_signal(): domain_idx " +
                             std::to_string(domain_idx) + " out of range.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        size_t signal_idx = std::distance(m_signal_available.begin(), it);
-        bool is_found = false;
-        for (auto const &signal : m_pushed_signals) {
-            if (signal_idx == signal.signal_idx &&
+        for (std::size_t i = 0; i < m_pushed_signals.size(); i++) {
+            const m_signal_ref_s &signal = m_pushed_signals[i];
+            if (it->second == signal.signal_info &&
                 domain_idx == signal.domain_idx) {
-                is_found = true;
-                break;
+                return static_cast<int>(i);
             }
         }
 
-        if (!is_found) {
-            m_signal_ref_s signal = {
-                .signal_idx = signal_idx,
-                .domain_idx = domain_idx
-            };
-            m_pushed_signals.push_back(signal);
-        }
+        m_pushed_signals.push_back({.signal_info = it->second,
+                                    .domain_idx = domain_idx});
         
         return m_pushed_signals.size() - 1;
     }
@@ -145,15 +143,14 @@ namespace geopm
     {
         double result = NAN;
         
-        if (batch_idx < 0 || batch_idx >= m_pushed_signals.size()) {
+        if (batch_idx < 0 ||
+            static_cast<std::size_t>(batch_idx) >= m_pushed_signals.size()) {
             throw Exception("ConstConfigIOGroup::sample(): batch_idx " +
                             std::to_string(batch_idx) + " out of range.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        m_signal_ref_s signal = m_pushed_signals[batch_idx];
-        auto it = m_signal_available.begin();
-        std::advance(it, signal.signal_idx);
-        result = it->second.values[signal.domain_idx];
+        const m_signal_ref_s &signal = m_pushed_signals[batch_idx];
+        result = signal.signal_info->values[signal.domain_idx];
 
         return result;
     }
@@ -174,19 +171,20 @@ namespace geopm
                             signal_name + " not valid for ConstConfigIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        else if (domain_type != it->second.domain) {
+        else if (domain_type != it->second->domain) {
             throw Exception("ConstConfigIOGroup::read_signal(): domain_type " +
                             std::to_string(domain_type) +
                             " not valid for ConstConfigIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        else if (domain_idx < 0 || domain_idx >= it->second.values.size()) {
+        else if (domain_idx < 0 ||
+            static_cast<std::size_t>(domain_idx) >= it->second->values.size()) {
             throw Exception("ConstConfigIOGroup::read_signal(): domain_idx " +
                             std::to_string(domain_idx) + " out of range.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        return it->second.values[domain_idx];
+        return it->second->values[domain_idx];
     }
 
     void ConstConfigIOGroup::write_control(const std::string &control_name,
@@ -215,7 +213,7 @@ namespace geopm
                             "to aggregate \"" + signal_name + "\"",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        return it->second.agg_function;
+        return it->second->agg_function;
     }
 
     std::function<std::string(double)>
@@ -241,10 +239,10 @@ namespace geopm
         }
 
         std::string result;
-        result =  "    description: " + it->second.description + '\n'; // Includes alias_for if applicable
-        result += "    units: " + IOGroup::units_to_string(it->second.units) + '\n';
-        result += "    aggregation: " + Agg::function_to_name(it->second.agg_function) + '\n';
-        result += "    domain: " + platform_topo().domain_type_to_name(GEOPM_DOMAIN_BOARD) + '\n';
+        result =  "    description: " + it->second->description + '\n'; // Includes alias_for if applicable
+        result += "    units: " + IOGroup::units_to_string(it->second->units) + '\n';
+        result += "    aggregation: " + Agg::function_to_name(it->second->agg_function) + '\n';
+        result += "    domain: " + platform_topo().domain_type_to_name(it->second->domain) + '\n';
         result += "    iogroup: ConstConfigIOGroup";
         return result;
     }
@@ -319,13 +317,20 @@ namespace geopm
             }
 
             std::string description = properties["description"].string_value();
-            m_signal_available[name] = {
-                .units = units,
-                .domain = domain_type,
-                .agg_function = agg_func,
-                .description = description,
-                .values = values
-            };
+            if (m_signal_available.find(name) == m_signal_available.end()) {
+                m_signal_available[name] =
+                    std::make_shared<m_signal_info_s>(
+                        units,
+                        domain_type,
+                        agg_func,
+                        description,
+                        values); 
+            }
+            else {
+                throw Exception("ConstConfigIOGroup::parse_config_json(): "
+                                "duplicate signal found: " + name,
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
         }
     }
 

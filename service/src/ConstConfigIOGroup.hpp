@@ -8,6 +8,7 @@
 
 #include <map>
 #include <string>
+#include <memory>
 
 #include "geopm/json11.hpp"
 
@@ -121,6 +122,20 @@ namespace geopm
             };
 
             struct m_signal_info_s {
+                m_signal_info_s(
+                    int units,
+                    int domain,
+                    std::function<double(const std::vector<double> &)> agg,
+                    std::string desc,
+                    std::vector<double> values):
+
+                    units(units),
+                    domain(domain),
+                    agg_function(agg),
+                    description(desc),
+                    values(values)
+                {}
+
                 int units;
                 int domain;
                 std::function<double(const std::vector<double> &)> agg_function;
@@ -129,7 +144,7 @@ namespace geopm
             };
 
             struct m_signal_ref_s {
-                size_t signal_idx;
+                std::shared_ptr<m_signal_info_s> signal_info;
                 int domain_idx;
             };
 
@@ -147,8 +162,10 @@ namespace geopm
             static const std::string M_PLUGIN_NAME;
             static const std::string M_SIGNAL_PREFIX;
             static const std::map<std::string, m_signal_desc_s> M_SIGNAL_FIELDS;
+            static const std::string M_CONFIG_PATH_ENV;
 
-            std::map<std::string, m_signal_info_s> m_signal_available;
+            std::map<std::string, std::shared_ptr<m_signal_info_s> >
+                m_signal_available;
             std::vector<m_signal_ref_s> m_pushed_signals;
     };
 }
