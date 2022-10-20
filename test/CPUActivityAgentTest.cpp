@@ -137,6 +137,10 @@ void CPUActivityAgentTest::SetUp()
             .WillByDefault(Return(GEOPM_DOMAIN_CPU));
     ON_CALL(*m_platform_io, signal_domain_type("MSR::CPU_SCALABILITY_RATIO"))
             .WillByDefault(Return(GEOPM_DOMAIN_CPU));
+    ON_CALL(*m_platform_topo, is_nested_domain(2, 2)).WillByDefault(Return(true));
+    ON_CALL(*m_platform_topo, is_nested_domain(3, 2)).WillByDefault(Return(true));
+    ON_CALL(*m_platform_topo, is_nested_domain(2, 3)).WillByDefault(Return(false));
+    ON_CALL(*m_platform_topo, is_nested_domain(1, 3)).WillByDefault(Return(false));
 
     ON_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0))
             .WillByDefault(Return(m_cpu_freq_min));
@@ -336,14 +340,6 @@ TEST_F(CPUActivityAgentTest, control_signal_granularity_check) {
     ON_CALL(*m_platform_io, signal_domain_type("MSR::CPU_SCALABILITY_RATIO"))
             .WillByDefault(Return(GEOPM_DOMAIN_PACKAGE));
 
-#ifdef GEOPM_DEBUG
-    GEOPM_EXPECT_THROW_MESSAGE(m_agent->init(0, {}, false), GEOPM_ERROR_INVALID,
-                               "MSR::CPU_SCALABILITY_RATIO domain (" + std::to_string(GEOPM_DOMAIN_PACKAGE) +
-                               ") is a coarser granularity than the CPU frequency control domain (" +
-                               std::to_string(GEOPM_DOMAIN_CORE) + ").");
-
-#else
-
     EXPECT_CALL(*m_gov, get_frequency_max())
         .WillOnce(Return(m_cpu_freq_max));
     EXPECT_CALL(*m_gov, get_frequency_min())
@@ -366,7 +362,6 @@ TEST_F(CPUActivityAgentTest, control_signal_granularity_check) {
     // If we were testing with a real freq governor instance we could
     // check that frequency_domain_type is now PACKAGE
     m_agent->init(0, {}, false);
-#endif
 }
 
 TEST_F(CPUActivityAgentTest, adjust_platform_high)

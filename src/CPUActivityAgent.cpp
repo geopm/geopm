@@ -7,9 +7,10 @@
 
 #include "CPUActivityAgent.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <cassert>
-#include <algorithm>
+#include <iostream>
 #include <string>
 
 #include "geopm/Agg.hpp"
@@ -72,22 +73,27 @@ namespace geopm
     void CPUActivityAgent::init_platform_io(void)
     {
         int scalability_signal_domain = m_platform_io.signal_domain_type("MSR::CPU_SCALABILITY_RATIO");
-        if (scalability_signal_domain < m_freq_ctl_domain_type) {
-            // Set Freq gov domain
+
+        // If the frequency control domain does not contain the scalabilty domain
+        // (i.e. the scalability domain is coarser than the freq domain) use the
+        // scalability domain for frequency control.
+        if (!m_platform_topo.is_nested_domain(scalability_signal_domain,
+                                              m_freq_ctl_domain_type)) {
+
+#ifdef GEOPM_DEBUG
+            std::cerr << "CPUActivityAgent::" + std::string(__func__) +
+                          "():MSR::CPU_SCALABILITY_RATIO domain (" +
+                          std::to_string(scalability_signal_domain) +
+                          ") is a coarser granularity than the CPU frequency control domain (" +
+                          std::to_string(m_freq_ctl_domain_type) + ").";
+#endif
+
+            // Set Freq gov domain.
             m_freq_governor->set_domain_type(scalability_signal_domain);
 
             // update member vars
             m_freq_ctl_domain_type = m_freq_governor->frequency_domain_type();
             m_num_freq_ctl_domain = m_platform_topo.num_domain(m_freq_ctl_domain_type);
-
-#ifdef GEOPM_DEBUG
-            throw Exception("CPUActivityAgent::" + std::string(__func__) +
-                            "():MSR::CPU_SCALABILITY_RATIO domain (" +
-                            std::to_string(scalability_signal_domain) +
-                            ") is a coarser granularity than the CPU frequency control domain (" +
-                            std::to_string(m_freq_ctl_domain_type) +
-                            ").", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-#endif
         }
 
         m_freq_governor->init_platform_io();
