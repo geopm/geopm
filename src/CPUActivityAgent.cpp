@@ -48,7 +48,7 @@ namespace geopm
         , m_num_freq_ctl_domain(m_platform_topo.num_domain(m_freq_ctl_domain_type))
         , m_core_batch_writes(0)
         , m_uncore_frequency_requests(0)
-        , m_uncore_frequency_clipped(0)
+        , m_uncore_frequency_clamped(0)
         , m_resolved_f_uncore_efficient(0)
         , m_resolved_f_uncore_max(0)
         , m_resolved_f_core_efficient(0)
@@ -362,9 +362,9 @@ namespace geopm
             // For now only L3 bandwith metric is used.
             double uncore_req = m_resolved_f_uncore_efficient + f_uncore_range * scalability_uncore;
 
-            // Clip uncore request within policy limits
+            // Clamp uncore request within policy limits
             if (uncore_req > m_resolved_f_uncore_max || uncore_req < m_resolved_f_uncore_efficient) {
-                ++m_uncore_frequency_clipped;
+                ++m_uncore_frequency_clamped;
             }
             uncore_req = std::max(m_resolved_f_uncore_efficient, uncore_req);
             uncore_req = std::min(m_resolved_f_uncore_max, uncore_req);
@@ -477,12 +477,12 @@ namespace geopm
 
         result.push_back({"Core Batch Writes",
                           std::to_string(m_core_batch_writes)});
-        result.push_back({"Core Frequency Requests Clipped",
+        result.push_back({"Core Frequency Requests Clamped",
                           std::to_string(m_freq_governor->get_clamp_count())});
         result.push_back({"Uncore Frequency Requests",
                           std::to_string(m_uncore_frequency_requests)});
-        result.push_back({"Uncore Frequency Requests Clipped",
-                          std::to_string(m_uncore_frequency_clipped)});
+        result.push_back({"Uncore Frequency Requests Clamped",
+                          std::to_string(m_uncore_frequency_clamped)});
         result.push_back({"Resolved Maximum Core Frequency",
                           std::to_string(m_resolved_f_core_max)});
         result.push_back({"Resolved Efficient Core Frequency",

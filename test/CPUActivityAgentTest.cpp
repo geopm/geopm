@@ -564,7 +564,7 @@ TEST_F(CPUActivityAgentTest, adjust_platform_signal_out_of_bounds)
 
     //Adjust
     //Check call was made.  It's the frequency governor responsibility to handle
-    //clipping.
+    //clamping.
     EXPECT_CALL(*m_gov, adjust_platform(_)).Times(1);
     //Check frequency
     EXPECT_CALL(*m_platform_io, adjust(CPU_UNCORE_MIN_CONTROL_IDX, m_cpu_uncore_freq_max)).Times(M_NUM_PACKAGE);
@@ -585,7 +585,7 @@ TEST_F(CPUActivityAgentTest, adjust_platform_signal_out_of_bounds)
 
     //Adjust
     //Check call was made.  It's the frequency governor responsibility to handle
-    //clipping.
+    //clamping.
     EXPECT_CALL(*m_gov, adjust_platform(_)).Times(1);
     //Check frequency
     EXPECT_CALL(*m_platform_io, adjust(CPU_UNCORE_MIN_CONTROL_IDX, m_cpu_uncore_freq_min)).Times(M_NUM_PACKAGE);

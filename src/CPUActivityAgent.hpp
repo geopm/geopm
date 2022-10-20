@@ -64,7 +64,7 @@ namespace geopm
             int m_num_freq_ctl_domain;
             double m_core_batch_writes;
             double m_uncore_frequency_requests;
-            double m_uncore_frequency_clipped;
+            double m_uncore_frequency_clamped;
             double m_resolved_f_uncore_efficient;
             double m_resolved_f_uncore_max;
             double m_resolved_f_core_efficient;
