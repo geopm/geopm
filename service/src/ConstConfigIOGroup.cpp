@@ -95,12 +95,12 @@ namespace geopm
         else if (domain_type != it->second.domain) {
             throw Exception("ConstConfigIOGroup::push_signal(): domain_type " +
                             std::to_string(domain_type) +
-                            "not valid for ConstConfigIOGroup",
+                            " not valid for ConstConfigIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         else if (domain_idx < 0 || domain_idx >= it->second.values.size()) {
             throw Exception("ConstConfigIOGroup::push_signal(): domain_idx " +
-                            std::to_string(domain_idx) + "out of range.",
+                            std::to_string(domain_idx) + " out of range.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
@@ -177,12 +177,12 @@ namespace geopm
         else if (domain_type != it->second.domain) {
             throw Exception("ConstConfigIOGroup::read_signal(): domain_type " +
                             std::to_string(domain_type) +
-                            "not valid for ConstConfigIOGroup",
+                            " not valid for ConstConfigIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         else if (domain_idx < 0 || domain_idx >= it->second.values.size()) {
             throw Exception("ConstConfigIOGroup::read_signal(): domain_idx " +
-                            std::to_string(domain_idx) + "out of range.",
+                            std::to_string(domain_idx) + " out of range.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
