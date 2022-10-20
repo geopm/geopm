@@ -70,8 +70,8 @@ def main(full_df):
     # config, ex: GPU_FREQ_MAX: NAN --> HW Maximum Frequency, GPU_PHI --> 0.5
     # (balanced mode).
     policy = {"GPU_FREQ_MAX" : float('nan'),
-                "GPU_FREQ_EFFICIENT" : gpu_freq_efficient,
-                "GPU_PHI" : float('nan')}
+              "GPU_FREQ_EFFICIENT" : gpu_freq_efficient,
+              "GPU_PHI" : float('nan')}
 
     return policy
 
