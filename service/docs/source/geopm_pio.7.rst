@@ -245,6 +245,7 @@ level signals and controls do not have high level aliases associated with them.
 To learn about these low level signals and controls please consult the chapter
 7 man page for each IOGroup as linked below.
 
+- :doc:`geopm_pio_const_config(7) <geopm_pio_const_config.7>`
 - :doc:`geopm_pio_cnl(7) <geopm_pio_cnl.7>`
 - :doc:`geopm_pio_cpuinfo(7) <geopm_pio_cpuinfo.7>`
 - :doc:`geopm_pio_dcgm(7) <geopm_pio_dcgm.7>`
