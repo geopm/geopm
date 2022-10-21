@@ -381,6 +381,7 @@ See Also
 :doc:`geopm_agent_power_balancer(7) <geopm_agent_power_balancer.7>`,
 :doc:`geopm_agent_power_governor(7) <geopm_agent_power_governor.7>`,
 :doc:`geopm_pio(7) <geopm_pio.7>`,
+:doc:`geopm_pio_const_config(7) <geopm_pio_const_config.7>`,
 :doc:`geopm_pio_cnl(7) <geopm_pio_cnl.7>`,
 :doc:`geopm_pio_cpuinfo(7) <geopm_pio_cpuinfo.7>`,
 :doc:`geopm_pio_dcgm(7) <geopm_pio_dcgm.7>`,

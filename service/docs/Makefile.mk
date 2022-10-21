@@ -88,6 +88,7 @@ all_man_rst = docs/source/geopm.7.rst \
               docs/source/geopmlaunch.1.rst \
               docs/source/geopm_pio.3.rst \
               docs/source/geopm_pio.7.rst \
+              docs/source/geopm_pio_const_config.7.rst \
               docs/source/geopm_pio_cnl.7.rst \
               docs/source/geopm_pio_cpuinfo.7.rst \
               docs/source/geopm_pio_dcgm.7.rst \
@@ -133,6 +134,7 @@ dist_man_MANS = docs/build/man/geopm.7 \
                 docs/build/man/geopm_hash.3 \
                 docs/build/man/geopm_pio.3 \
                 docs/build/man/geopm_pio.7 \
+                docs/build/man/geopm_pio_const_config.7 \
                 docs/build/man/geopm_pio_cnl.7 \
                 docs/build/man/geopm_pio_cpuinfo.7 \
                 docs/build/man/geopm_pio_dcgm.7 \

@@ -179,6 +179,7 @@ rst_files = [
     "geopmlaunch.1",
     "geopm_pio.3",
     "geopm_pio.7",
+    "geopm_pio_const_config.7",
     "geopm_pio_cnl.7",
     "geopm_pio_cpuinfo.7",
     "geopm_pio_dcgm.7",
