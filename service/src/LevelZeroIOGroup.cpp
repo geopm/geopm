@@ -67,6 +67,22 @@ namespace geopm
                                   },
                                   1e6
                                   }},
+                              {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_EFFICIENT", {
+                                  "The efficient minimum frequency of the GPU Compute Hardware.",
+                                  GEOPM_DOMAIN_GPU_CHIP,
+                                  Agg::expect_same,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
+                                  string_format_double,
+                                  {},
+                                  [this](unsigned int domain_idx) -> double
+                                  {
+                                      return this->m_levelzero_device_pool.frequency_efficient(
+                                                   GEOPM_DOMAIN_GPU_CHIP,
+                                                   domain_idx,
+                                                   geopm::LevelZero::M_DOMAIN_COMPUTE);
+                                  },
+                                  1e6
+                                  }},
                               {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_AVAIL", {
                                   "The maximum supported frequency of the GPU Compute Hardware.",
                                   GEOPM_DOMAIN_GPU_CHIP,

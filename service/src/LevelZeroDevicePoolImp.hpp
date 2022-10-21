@@ -26,6 +26,8 @@ namespace geopm
 
             double frequency_status(int domain, unsigned int domain_idx,
                                     int l0_domain) const override;
+            double frequency_efficient(int domain, unsigned int domain_idx,
+                                       int l0_domain) const override;
             double frequency_min(int domain, unsigned int domain_idx,
                                  int l0_domain) const override;
             double frequency_max(int domain, unsigned int domain_idx,
