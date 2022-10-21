@@ -65,6 +65,10 @@ GTEST_TESTS = test/gtest_links/GPUTopoNullTest.default_config \
               test/gtest_links/ConstConfigIOGroupTest.input_unexpected_properties \
               test/gtest_links/ConstConfigIOGroupTest.input_capital_properties \
               test/gtest_links/ConstConfigIOGroupTest.input_duplicate_properties \
+              test/gtest_links/ConstConfigIOGroupTest.input_empty_domain \
+              test/gtest_links/ConstConfigIOGroupTest.input_empty_description \
+              test/gtest_links/ConstConfigIOGroupTest.input_empty_units \
+              test/gtest_links/ConstConfigIOGroupTest.input_empty_aggregation \
               test/gtest_links/ConstConfigIOGroupTest.input_invalid_domain \
               test/gtest_links/ConstConfigIOGroupTest.input_invalid_units \
               test/gtest_links/ConstConfigIOGroupTest.input_invalid_aggregation \
