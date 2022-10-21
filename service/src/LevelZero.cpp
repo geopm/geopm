@@ -235,8 +235,8 @@ namespace geopm
                             + std::string(__func__) +
                             ": Sysman failed to get domain handle(s).", __LINE__);
 
-            int num_device_power_domain = 0;
-            int num_subdevice_power_domain = 0;
+            uint32_t num_device_power_domain = 0;
+            uint32_t num_subdevice_power_domain = 0;
             for (auto handle : power_domain) {
                 zes_power_properties_t property = {};
                 ze_result = zesPowerGetProperties(handle, &property);
@@ -262,13 +262,20 @@ namespace geopm
                 }
             }
 
-            if (num_device_power_domain != 1 && num_subdevice_power_domain == 0) {
+            if (num_device_power_domain != 1) {
                 throw Exception("LevelZero::" + std::string(__func__) +
                                 ": GEOPM requires one and only one device "+
                                 "level power domain (detected: " +
-                                std::to_string(num_device_power_domain) +  "),"  +
-                                "or at least one subdevice level power domain (detected: " +
-                                std::to_string(num_subdevice_power_domain) + ").",
+                                std::to_string(num_device_power_domain) +  ").",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+
+            if (num_subdevice_power_domain > m_devices.at(device_idx).m_num_subdevice) {
+                throw Exception("LevelZero::" + std::string(__func__) +
+                                ": Number of subdevice power domains (" +
+                                std::to_string(num_device_power_domain) +
+                                ") exceeds the number of subdevices (" +
+                                std::to_string(m_devices.at(device_idx).m_num_subdevice) + ").",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
 
@@ -584,8 +591,8 @@ namespace geopm
         }
         else if (geopm_domain == GEOPM_DOMAIN_GPU_CHIP &&
                                  power_domain_count(GEOPM_DOMAIN_GPU_CHIP,
-                                    l0_device_idx,
-                                    M_DOMAIN_ALL) >= l0_domain_idx) {
+                                                    l0_device_idx,
+                                                    M_DOMAIN_ALL) >= l0_domain_idx) {
             //SUBDEVICE LEVEL
             zes_pwr_handle_t handle = m_devices.at(l0_device_idx).subdevice.power_domain.at(l0_domain_idx);
             zes_power_energy_counter_t energy_counter = {};
