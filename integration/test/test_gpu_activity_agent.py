@@ -83,12 +83,13 @@ class TestIntegration_gpu_activity(unittest.TestCase):
             phi_list=None,
         )
 
-        launch_helper(gpu_activity, experiment_args, parres.create_dgemm_appconf(mach, experiment_args), [])
+        launch_helper(gpu_activity, experiment_args, parres.create_dgemm_appconf_cuda(mach, experiment_args), [])
 
         # STREAM
         cls._stream_output_dir = Path(os.path.join('test_gpu_activity_output', 'stream'))
         experiment_args.output_dir=cls._stream_output_dir
-        launch_helper(gpu_activity, experiment_args, parres.create_nstream_appconf(mach, experiment_args), [])
+        experiment_args.parres_args="3 1000000000"
+        launch_helper(gpu_activity, experiment_args, parres.create_nstream_appconf_cuda(mach, experiment_args), [])
 
 
     def tearDown(self):
