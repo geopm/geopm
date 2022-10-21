@@ -4,9 +4,6 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
-
-from __future__ import absolute_import
-
 import os
 import sys
 import unittest
@@ -41,35 +38,17 @@ class TestIntegrationLevelZeroSignals(unittest.TestCase):
         pass
 
     @util.skip_unless_geopmread("LEVELZERO::GPU_POWER gpu 0")
-    @util.skip_unless_geopmread("LEVELZERO::GPU_POWER_LIMIT_MIN_AVAIL gpu 0")
-    @util.skip_unless_geopmread("LEVELZERO::GPU_POWER_LIMIT_MAX_AVAIL gpu 0")
-    @util.skip_unless_geopmread("LEVELZERO::GPU_POWER_LIMIT_DEFAULT gpu 0")
     def test_power(self):
         #Query
         gpu_power = geopm_test_launcher.geopmread("LEVELZERO::GPU_POWER gpu 0")
-        gpu_power_limit_max = geopm_test_launcher.geopmread("LEVELZERO::GPU_POWER_LIMIT_MAX_AVAIL gpu 0")
-        gpu_power_limit_min = geopm_test_launcher.geopmread("LEVELZERO::GPU_POWER_LIMIT_MIN_AVAIL gpu 0")
-        gpu_power_limit_default = geopm_test_launcher.geopmread("LEVELZERO::GPU_POWER_LIMIT_DEFAULT gpu 0")
 
         #Info
         sys.stdout.write("GPU Power:\n");
         sys.stdout.write("\tGPU Power: {}\n".format(gpu_power));
-        sys.stdout.write("\tGPU Power limit max: {}\n".format(gpu_power_limit_max));
-        sys.stdout.write("\tGPU Power limit min: {}\n".format(gpu_power_limit_min));
 
         #Check
         # Power should be positive and non-zero
         self.assertGreater(gpu_power, 0)
-        # Power should be above min power limit
-        self.assertGreaterEqual(gpu_power, gpu_power_limit_min)
-
-        # Power should be below the TDP power limit
-        self.assertLessEqual(gpu_power, gpu_power_limit_default)
-        if(gpu_power_limit_max > 0): #Negative value indicates max is not supported
-            # Power should be below the max power limit
-            self.assertLessEqual(gpu_power, gpu_power_limit_max)
-
-        #TODO: Power limit enabled sustained check
 
     #TODO: check that chip power is available, or skip?
     @util.skip_unless_geopmread("LEVELZERO::GPU_POWER gpu 0")

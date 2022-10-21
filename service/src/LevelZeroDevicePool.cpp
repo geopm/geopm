@@ -98,9 +98,9 @@ namespace geopm
         }
         std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
         dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
-        check_domain_exists(m_levelzero.frequency_domain_count(
-                                        dev_subdev_idx_pair.first, l0_domain),
-                                        __func__, __LINE__);
+        check_domain_exists(m_levelzero.frequency_domain_count(dev_subdev_idx_pair.first,
+                                                               l0_domain),
+                                                               __func__, __LINE__);
 
         return m_levelzero.frequency_status(dev_subdev_idx_pair.first, l0_domain,
                                             dev_subdev_idx_pair.second);
@@ -118,7 +118,8 @@ namespace geopm
         std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
         dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
         check_domain_exists(m_levelzero.frequency_domain_count(dev_subdev_idx_pair.first,
-                                        l0_domain), __func__, __LINE__);
+                                                               l0_domain), __func__,
+                                                               __LINE__);
 
         return m_levelzero.frequency_min(dev_subdev_idx_pair.first,
                                          l0_domain, dev_subdev_idx_pair.second);
@@ -135,8 +136,10 @@ namespace geopm
         }
         std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
         dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
-        check_domain_exists(m_levelzero.frequency_domain_count(
-                                        dev_subdev_idx_pair.first, l0_domain), __func__, __LINE__);
+        check_domain_exists(m_levelzero.frequency_domain_count(dev_subdev_idx_pair.first,
+                                                               l0_domain), __func__,
+                                                               __LINE__);
+
 
         return m_levelzero.frequency_max(dev_subdev_idx_pair.first, l0_domain,
                                          dev_subdev_idx_pair.second);
@@ -153,8 +156,10 @@ namespace geopm
         }
         std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
         dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
-        check_domain_exists(m_levelzero.frequency_domain_count(
-                                        dev_subdev_idx_pair.first, l0_domain), __func__, __LINE__);
+        check_domain_exists(m_levelzero.frequency_domain_count(dev_subdev_idx_pair.first,
+                                                               l0_domain),
+                                                               __func__, __LINE__);
+
 
         return m_levelzero.frequency_throttle_reasons(dev_subdev_idx_pair.first, l0_domain,
                                                       dev_subdev_idx_pair.second);
@@ -195,9 +200,9 @@ namespace geopm
         //       device level signal that handles aggregation of domains directly here
         std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
         dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
-        check_domain_exists(m_levelzero.engine_domain_count(
-                                        dev_subdev_idx_pair.first, l0_domain),
-                                        __func__, __LINE__);
+        check_domain_exists(m_levelzero.engine_domain_count(dev_subdev_idx_pair.first,
+                                                            l0_domain),
+                                                            __func__, __LINE__);
 
         return m_levelzero.active_time_pair(dev_subdev_idx_pair.first, l0_domain,
                                             dev_subdev_idx_pair.second);
@@ -217,9 +222,9 @@ namespace geopm
         //       device level signal that handles aggregation of domains directly here
         std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
         dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
-        check_domain_exists(m_levelzero.engine_domain_count(
-                                        dev_subdev_idx_pair.first, l0_domain),
-                                        __func__, __LINE__);
+        check_domain_exists(m_levelzero.engine_domain_count(dev_subdev_idx_pair.first,
+                                                            l0_domain),
+                                                            __func__, __LINE__);
 
         return m_levelzero.active_time_timestamp(dev_subdev_idx_pair.first, l0_domain,
                                                  dev_subdev_idx_pair.second);
@@ -238,9 +243,9 @@ namespace geopm
         //      device level signal that handles aggregation of domains directly here
         std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
         dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
-        check_domain_exists(m_levelzero.engine_domain_count(
-                                        dev_subdev_idx_pair.first, l0_domain),
-                                        __func__, __LINE__);
+        check_domain_exists(m_levelzero.engine_domain_count(dev_subdev_idx_pair.first,
+                                                            l0_domain),
+                                                            __func__, __LINE__);
         return m_levelzero.active_time(dev_subdev_idx_pair.first, l0_domain,
                                        dev_subdev_idx_pair.second);
     }
@@ -295,8 +300,8 @@ namespace geopm
         if (domain == GEOPM_DOMAIN_GPU) {
             check_idx_range(domain, domain_idx);
             check_domain_exists(m_levelzero.power_domain_count(domain,
-                                            domain_idx, l0_domain),
-                                            __func__, __LINE__);
+                                                               domain_idx, l0_domain),
+                                                               __func__, __LINE__);
 
             result = m_levelzero.energy_pair(domain, domain_idx, -1);
         }
@@ -304,8 +309,9 @@ namespace geopm
             std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
             dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
             check_domain_exists(m_levelzero.power_domain_count(domain,
-                                            dev_subdev_idx_pair.first, l0_domain),
-                                            __func__, __LINE__);
+                                                               dev_subdev_idx_pair.first,
+                                                               l0_domain),
+                                                               __func__, __LINE__);
             result = m_levelzero.energy_pair(domain, dev_subdev_idx_pair.first,
                                              dev_subdev_idx_pair.second);
         }
@@ -326,8 +332,8 @@ namespace geopm
         if (domain == GEOPM_DOMAIN_GPU) {
             check_idx_range(domain, domain_idx);
             check_domain_exists(m_levelzero.power_domain_count(domain,
-                                            domain_idx, l0_domain),
-                                            __func__, __LINE__);
+                                                               domain_idx, l0_domain),
+                                                               __func__, __LINE__);
 
             energy_timestamp = m_levelzero.energy_timestamp(domain, domain_idx,
                                                             l0_domain, 0);
@@ -337,8 +343,9 @@ namespace geopm
             dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
 
             check_domain_exists(m_levelzero.power_domain_count(domain,
-                                            dev_subdev_idx_pair.first, l0_domain),
-                                            __func__, __LINE__);
+                                                               dev_subdev_idx_pair.first,
+                                                               l0_domain),
+                                                               __func__, __LINE__);
 
             energy_timestamp = m_levelzero.energy_timestamp(domain,
                                                             dev_subdev_idx_pair.first,
@@ -368,8 +375,9 @@ namespace geopm
             dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
 
             check_domain_exists(m_levelzero.power_domain_count(domain,
-                                            dev_subdev_idx_pair.first, l0_domain),
-                                            __func__, __LINE__);
+                                                               dev_subdev_idx_pair.first,
+                                                               l0_domain),
+                                                               __func__, __LINE__);
 
             energy = m_levelzero.energy(domain, dev_subdev_idx_pair.first,
                                         l0_domain,
@@ -396,9 +404,9 @@ namespace geopm
         }
         std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
         dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
-        check_domain_exists(m_levelzero.frequency_domain_count(
-                                        dev_subdev_idx_pair.first, l0_domain),
-                                        __func__, __LINE__);
+        check_domain_exists(m_levelzero.frequency_domain_count(dev_subdev_idx_pair.first,
+                                                               l0_domain),
+                                                               __func__, __LINE__);
 
         m_levelzero.frequency_control(dev_subdev_idx_pair.first, l0_domain,
                                       dev_subdev_idx_pair.second, range_min,
