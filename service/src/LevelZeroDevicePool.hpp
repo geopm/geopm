@@ -34,6 +34,14 @@ namespace geopm
             /// @return GPU device core clock rate in MHz.
             virtual double frequency_status(int domain, unsigned int domain_idx,
                                             int l0_domain) const = 0;
+            /// @brief Get the LevelZero device efficient frequency in MHz
+            /// @param [in] domain The GEOPM domain type being targeted
+            /// @param [in] domain_idx The GEOPM domain index
+            ///             (i.e. GPU being targeted)
+            /// @param [in] l0_domain The LevelZero domain type being targeted
+            /// @return GPU device efficient clock rate in MHz.
+            virtual double frequency_efficient(int domain, unsigned int domain_idx,
+                                               int l0_domain) const = 0;
             /// @brief Get the LevelZero device mininmum frequency in MHz
             /// @param [in] domain The GEOPM domain type being targeted
             /// @param [in] domain_idx The GEOPM domain index

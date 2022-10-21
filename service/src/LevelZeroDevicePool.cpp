@@ -106,6 +106,25 @@ namespace geopm
                                             dev_subdev_idx_pair.second);
     }
 
+    double LevelZeroDevicePoolImp::frequency_efficient(int domain, unsigned int domain_idx,
+                                                       int l0_domain) const
+    {
+        if (domain != GEOPM_DOMAIN_GPU_CHIP) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for the frequency domain.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
+        dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
+        check_domain_exists(m_levelzero.frequency_domain_count(dev_subdev_idx_pair.first,
+                                                               l0_domain),
+                                                               __func__, __LINE__);
+
+        return m_levelzero.frequency_efficient(dev_subdev_idx_pair.first, l0_domain,
+                                               dev_subdev_idx_pair.second);
+    }
+
     double LevelZeroDevicePoolImp::frequency_min(int domain, unsigned int domain_idx,
                                                  int l0_domain) const
     {
