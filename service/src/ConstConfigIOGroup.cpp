@@ -324,7 +324,7 @@ namespace geopm
                         domain_type,
                         agg_func,
                         description,
-                        values); 
+                        values);
             }
             else {
                 throw Exception("ConstConfigIOGroup::parse_config_json(): "

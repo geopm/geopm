@@ -59,6 +59,18 @@ GTEST_TESTS = test/gtest_links/GPUTopoNullTest.default_config \
               test/gtest_links/CombinedSignalTest.sample_sum \
               test/gtest_links/ConstConfigIOGroupTest.input_empty_string \
               test/gtest_links/ConstConfigIOGroupTest.input_gibberish \
+              test/gtest_links/ConstConfigIOGroupTest.input_duplicate_signal \
+              test/gtest_links/ConstConfigIOGroupTest.input_missing_properties \
+              test/gtest_links/ConstConfigIOGroupTest.input_unexpected_properties \
+              test/gtest_links/ConstConfigIOGroupTest.input_duplicate_properties \
+              test/gtest_links/ConstConfigIOGroupTest.input_invalid_domain \
+              test/gtest_links/ConstConfigIOGroupTest.input_invalid_units \
+              test/gtest_links/ConstConfigIOGroupTest.input_invalid_aggregation \
+              test/gtest_links/ConstConfigIOGroupTest.input_incorrect_type \
+              test/gtest_links/ConstConfigIOGroupTest.input_array_value_type \
+              test/gtest_links/ConstConfigIOGroupTest.input_array_value_empty \
+              test/gtest_links/ConstConfigIOGroupTest.valid_json_positive \
+              test/gtest_links/ConstConfigIOGroupTest.valid_json_negative \
               test/gtest_links/CpuinfoIOGroupTest.bad_min_max \
               test/gtest_links/CpuinfoIOGroupTest.bad_sticker \
               test/gtest_links/CpuinfoIOGroupTest.cpuid_sticker_not_supported \
