@@ -58,10 +58,12 @@ GTEST_TESTS = test/gtest_links/GPUTopoNullTest.default_config \
               test/gtest_links/CombinedSignalTest.sample_max \
               test/gtest_links/CombinedSignalTest.sample_sum \
               test/gtest_links/ConstConfigIOGroupTest.input_empty_string \
+              test/gtest_links/ConstConfigIOGroupTest.input_empty_json \
               test/gtest_links/ConstConfigIOGroupTest.input_gibberish \
               test/gtest_links/ConstConfigIOGroupTest.input_duplicate_signal \
               test/gtest_links/ConstConfigIOGroupTest.input_missing_properties \
               test/gtest_links/ConstConfigIOGroupTest.input_unexpected_properties \
+              test/gtest_links/ConstConfigIOGroupTest.input_capital_properties \
               test/gtest_links/ConstConfigIOGroupTest.input_duplicate_properties \
               test/gtest_links/ConstConfigIOGroupTest.input_invalid_domain \
               test/gtest_links/ConstConfigIOGroupTest.input_invalid_units \

@@ -50,6 +50,12 @@ TEST_F(ConstConfigIOGroupTest, input_empty_string)
     );
 }
 
+TEST_F(ConstConfigIOGroupTest, input_empty_json)
+{
+    ConstConfigIOGroup iogroup("{}");
+    EXPECT_EQ(iogroup.signal_names(), std::set<std::string>{});
+}
+
 TEST_F(ConstConfigIOGroupTest, input_gibberish)
 {
     GEOPM_EXPECT_THROW_MESSAGE(
@@ -124,6 +130,25 @@ TEST_F(ConstConfigIOGroupTest, input_unexpected_properties)
         GEOPM_ERROR_INVALID,
         "ConstConfigIOGroup::parse_config_json():"
         " unexpected propety: \"" "magic" "\""
+    );
+}
+
+TEST_F(ConstConfigIOGroupTest, input_capital_properties)
+{
+    std::string json_string = "{"
+    "    \"GPU_CORE_FREQUENCY\": {"
+    "        \"DOMAIN\": \"gpu\","
+    "        \"description\": \"Provides GPU core frequency\","
+    "        \"units\": \"hertz\","
+    "        \"aggregation\": \"sum\","
+    "        \"values\": [ 1500, 1600, 1700 ]"
+    "    }"
+    "}";
+    GEOPM_EXPECT_THROW_MESSAGE(
+        ConstConfigIOGroup iogroup(json_string),
+        GEOPM_ERROR_INVALID,
+        "ConstConfigIOGroup::parse_config_json():"
+        " unexpected propety: \"" "DOMAIN" "\""
     );
 }
 
