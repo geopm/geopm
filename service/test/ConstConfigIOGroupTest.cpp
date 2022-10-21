@@ -175,6 +175,80 @@ TEST_F(ConstConfigIOGroupTest, input_duplicate_properties)
         "    iogroup: ConstConfigIOGroup");
 }
 
+TEST_F(ConstConfigIOGroupTest, input_empty_domain)
+{
+    std::string json_string = "{"
+    "    \"GPU_CORE_FREQUENCY\": {"
+    "        \"domain\": \"\","
+    "        \"description\": \"Provides GPU core frequency\","
+    "        \"units\": \"hertz\","
+    "        \"aggregation\": \"sum\","
+    "        \"values\": [ 1500, 1600, 1700 ]"
+    "    }"
+    "}";
+    GEOPM_EXPECT_THROW_MESSAGE(
+        ConstConfigIOGroup iogroup(json_string),
+        GEOPM_ERROR_INVALID,
+        "PlatformTopo::domain_name_to_type(): unrecognized domain_name: "
+    );
+}
+
+TEST_F(ConstConfigIOGroupTest, input_empty_description)
+{
+    std::string json_string = "{"
+    "    \"GPU_CORE_FREQUENCY\": {"
+    "        \"domain\": \"gpu\","
+    "        \"description\": \"\","
+    "        \"units\": \"hertz\","
+    "        \"aggregation\": \"sum\","
+    "        \"values\": [ 1500, 1600, 1700 ]"
+    "    }"
+    "}";
+    ConstConfigIOGroup iogroup(json_string);
+    EXPECT_EQ(iogroup.signal_description("CONST_CONFIG::GPU_CORE_FREQUENCY"),
+        "    description: " "" "\n"
+        "    units: " "hertz" "\n"
+        "    aggregation: " "sum" "\n"
+        "    domain: " "gpu" "\n"
+        "    iogroup: ConstConfigIOGroup");
+}
+
+TEST_F(ConstConfigIOGroupTest, input_empty_units)
+{
+    std::string json_string = "{"
+    "    \"GPU_CORE_FREQUENCY\": {"
+    "        \"domain\": \"gpu\","
+    "        \"description\": \"Provides GPU core frequency\","
+    "        \"units\": \"\","
+    "        \"aggregation\": \"sum\","
+    "        \"values\": [ 1500, 1600, 1700 ]"
+    "    }"
+    "}";
+    GEOPM_EXPECT_THROW_MESSAGE(
+        ConstConfigIOGroup iogroup(json_string),
+        GEOPM_ERROR_INVALID,
+        "IOGroup::string_to_units(): invalid units string"
+    );
+}
+
+TEST_F(ConstConfigIOGroupTest, input_empty_aggregation)
+{
+    std::string json_string = "{"
+    "    \"GPU_CORE_FREQUENCY\": {"
+    "        \"domain\": \"gpu\","
+    "        \"description\": \"Provides GPU core frequency\","
+    "        \"units\": \"hertz\","
+    "        \"aggregation\": \"\","
+    "        \"values\": [ 1500, 1600, 1700 ]"
+    "    }"
+    "}";
+    GEOPM_EXPECT_THROW_MESSAGE(
+        ConstConfigIOGroup iogroup(json_string),
+        GEOPM_ERROR_INVALID,
+        "Agg::name_to_function(): unknown aggregation function: "
+    );
+}
+
 TEST_F(ConstConfigIOGroupTest, input_invalid_domain)
 {
     std::string json_string = "{"
