@@ -163,6 +163,7 @@ namespace geopm
             static const std::string M_SIGNAL_PREFIX;
             static const std::map<std::string, m_signal_desc_s> M_SIGNAL_FIELDS;
             static const std::string M_CONFIG_PATH_ENV;
+            static const std::string M_DEFAULT_CONFIG_FILE_PATH;
 
             std::map<std::string, std::shared_ptr<m_signal_info_s> >
                 m_signal_available;
