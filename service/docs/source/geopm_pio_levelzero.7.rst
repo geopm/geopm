@@ -12,6 +12,8 @@ Requirements
 
 To use the GEOPM LevelZero signals and controls GEOPM must be compiled against the oneAPI LevelZero libraries and must be run on a system with discrete GPUs supported by LevelZero.  To compile against the oneAPI LevelZero libraries geopm must be configured using the --enable-levelzero flag.  The optional --with-levelzero flag may be used to indicate the path of the required libraries.  In addition the user must export ZES_ENABLE_SYSMAN=1 as specified by the Intel oneAPI Level Zero Sysman documentation.  See the Sysman specification for more info on related environment variables and their usage.
 
+Since signals and controls are exposed via the Sysman API they will be impacted by Sysman environment variables.  Please review `oneAPI LevelZero Sysman Environment Variables <https://spec.oneapi.io/level-zero/latest/sysman/PROG.html#environment-variables>`_ and `oneAPI LevelZero Core Programming Guide Environment Variable <https://spec.oneapi.io/level-zero/latest/core/PROG.html#environment-variables>`_.
+
 Signals
 -------
 
