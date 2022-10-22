@@ -21,6 +21,8 @@ class MockLevelZero : public geopm::LevelZero
                     (const, override));
         MOCK_METHOD(double, frequency_status, (unsigned int, int, int),
                     (const, override));
+        MOCK_METHOD(double, frequency_efficient, (unsigned int, int, int),
+                    (const, override));
         MOCK_METHOD(double, frequency_min, (unsigned int, int, int),
                     (const, override));
         MOCK_METHOD(double, frequency_max, (unsigned int, int, int),

@@ -23,6 +23,14 @@ Signals
     *  **Format**: double
     *  **Unit**: hertz
 
+``LEVELZERO::GPU_CORE_FREQUENCY_EFFICIENT``
+    The efficient minimum frequency of the GPU Compute Hardware.
+
+    *  **Aggregation**: average
+    *  **Domain**: gpu_chip
+    *  **Format**: double
+    *  **Unit**: hertz
+
 ``LEVELZERO::GPU_CORE_FREQUENCY_MAX_AVAIL``
     The maximum supported frequency of the GPU Compute Hardware.
 

@@ -70,7 +70,7 @@ namespace geopm
                               {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_EFFICIENT", {
                                   "The efficient minimum frequency of the GPU Compute Hardware.",
                                   GEOPM_DOMAIN_GPU_CHIP,
-                                  Agg::expect_same,
+                                  Agg::average,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
                                   {},
