@@ -18,6 +18,8 @@ class MockLevelZeroDevicePool : public geopm::LevelZeroDevicePool
 
         MOCK_METHOD(double, frequency_status,
                     (int, unsigned int, int), (const, override));
+        MOCK_METHOD(double, frequency_efficient,
+                    (int, unsigned int, int), (const, override));
         MOCK_METHOD(double, frequency_min,
                     (int, unsigned int, int), (const, override));
         MOCK_METHOD(double, frequency_max,
