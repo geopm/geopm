@@ -78,10 +78,10 @@ namespace geopm
                                     GEOPM_DOMAIN_GPU,
                                     domain_idx), NAN});
 
-            m_gpu_freq_min_control.push_back(control{m_platform_io.push_control("GPU_CORE_FREQUENCY_MIN_CONTROL",
+            m_gpu_freq_min_control.push_back(m_control{m_platform_io.push_control("GPU_CORE_FREQUENCY_MIN_CONTROL",
                                                      GEOPM_DOMAIN_GPU,
                                                      domain_idx), NAN});
-            m_gpu_freq_max_control.push_back(control{m_platform_io.push_control("GPU_CORE_FREQUENCY_MAX_CONTROL",
+            m_gpu_freq_max_control.push_back(m_control{m_platform_io.push_control("GPU_CORE_FREQUENCY_MAX_CONTROL",
                                                      GEOPM_DOMAIN_GPU,
                                                      domain_idx), NAN});
         }
@@ -191,7 +191,7 @@ namespace geopm
     }
 
     void GPUActivityAgent::aggregate_sample(const std::vector<std::vector<double> > &in_sample,
-                                        std::vector<double>& out_sample)
+                                            std::vector<double>& out_sample)
     {
 
     }

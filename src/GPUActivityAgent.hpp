@@ -59,13 +59,13 @@ namespace geopm
             bool m_do_write_batch;
             bool m_do_send_policy;
 
-            struct signal
+            struct m_signal
             {
                 int batch_idx;
                 double value;
             };
 
-            struct control
+            struct m_control
             {
                 int batch_idx;
                 double last_setting;
@@ -96,13 +96,13 @@ namespace geopm
             std::vector<double> m_gpu_active_energy_start;
             std::vector<double> m_gpu_active_energy_stop;
 
-            std::vector<signal> m_gpu_core_activity;
-            std::vector<signal> m_gpu_utilization;
-            std::vector<signal> m_gpu_energy;
-            signal m_time;
+            std::vector<m_signal> m_gpu_core_activity;
+            std::vector<m_signal> m_gpu_utilization;
+            std::vector<m_signal> m_gpu_energy;
+            m_signal m_time;
 
-            std::vector<control> m_gpu_freq_min_control;
-            std::vector<control> m_gpu_freq_max_control;
+            std::vector<m_control> m_gpu_freq_min_control;
+            std::vector<m_control> m_gpu_freq_max_control;
 
             void init_platform_io(void);
     };

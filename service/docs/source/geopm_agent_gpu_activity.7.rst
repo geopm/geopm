@@ -105,7 +105,7 @@ provided below. ::
 
     {"GPU_FREQ_MAX": NaN,
      "GPU_FREQ_EFFICIENT": 982000000.0,
-      "GPU_PHI": NaN}
+     "GPU_PHI": NaN}
 
 Report Extensions
 -----------------
