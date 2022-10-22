@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include "config.h"
+
 #include "ConstConfigIOGroup.hpp"
 
 #include <cmath>
@@ -11,12 +13,11 @@
 #include <iterator>
 #include <sstream>
 
+#include "geopm_topo.h"
 #include "geopm/Helper.hpp"
 #include "geopm/PlatformTopo.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Agg.hpp"
-#include "geopm_topo.h"
-#include "config.h"
 
 using json11::Json;
 
@@ -34,11 +35,36 @@ namespace geopm
         };
     const std::string ConstConfigIOGroup::M_CONFIG_PATH_ENV =
         "GEOPM_CONST_CONFIG_PATH";
+    const std::string ConstConfigIOGroup::M_DEFAULT_CONFIG_FILE_PATH =
+        GEOPM_CONFIG_PATH "/const_config_io.json";
 
     ConstConfigIOGroup::ConstConfigIOGroup()
     {
         std::string config_file_path = geopm::get_env(M_CONFIG_PATH_ENV);
-        std::string config_json = geopm::read_file(config_file_path);
+        std::string config_json;
+        bool load_default = false;
+        if (!config_file_path.empty()) {
+            try {
+                config_json = geopm::read_file(config_file_path);
+            } catch (...) {
+#ifdef GEOPM_DEBUG
+                std::cerr << "Warning: <geopm> Failed to load "
+                          << "ConstConfigIOGroup configuration file: "
+                          << config_file_path
+                          << ". Proceeding with default configuration file..."
+                          << std::endl;
+#endif
+                load_default = true;
+            }
+        }
+        else {
+            load_default = true;
+        }
+
+        if (load_default) {
+            config_json = geopm::read_file(M_DEFAULT_CONFIG_FILE_PATH);
+        }
+
         parse_config_json(config_json);
     }
 
