@@ -47,6 +47,14 @@ Signals
     *  **Format**: double
     *  **Unit**: joules
 
+``LEVELZERO::GPU_CORE_ENERGY``
+    GPU Compute Hardware chip energy in joules.
+
+    *  **Aggregation**: sum
+    *  **Domain**: gpu_chip
+    *  **Format**: double
+    *  **Unit**: joules
+
 ``LEVELZERO::GPU_ENERGY_TIMESTAMP``
     Timestamp for the GPU energy read in seconds.
 
@@ -152,10 +160,18 @@ Signals
     *  **Unit**: seconds
 
 ``LEVELZERO::GPU_POWER``
-    average GPU power over 40ms (via geopmread) or 8 control loop iterations.  Derivative signal based on ``LEVELZERO::GPU_ENERGY``.
+    Average GPU power over 40ms (via geopmread) or 8 control loop iterations.  Derivative signal based on ``LEVELZERO::GPU_ENERGY``.
 
     *  **Aggregation**: average
     *  **Domain**: gpu
+    *  **Format**: double
+    *  **Unit**: watts
+
+``LEVELZERO::GPU_CORE_POWER``
+    Average GPU Compute Hardware power over 40ms (via geopmread) or 8 control loop iterations.  Derivative signal based on ``LEVELZERO::GPU_CORE_ENERGY``.
+
+    *  **Aggregation**: average
+    *  **Domain**: gpu_chip
     *  **Format**: double
     *  **Unit**: watts
 
