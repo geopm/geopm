@@ -54,6 +54,7 @@ TEST_F(ConstConfigIOGroupTest, input_empty_json)
 {
     ConstConfigIOGroup iogroup("{}");
     EXPECT_EQ(iogroup.signal_names(), std::set<std::string>{});
+    EXPECT_EQ(iogroup.control_names(), std::set<std::string>{});
 }
 
 TEST_F(ConstConfigIOGroupTest, input_gibberish)
@@ -68,8 +69,8 @@ TEST_F(ConstConfigIOGroupTest, input_gibberish)
 
 TEST_F(ConstConfigIOGroupTest, input_duplicate_signal)
 {
-    /* When one signal is provided more than once,
-       apparently the latter entry overwrites the data of the former. */
+    /* When one signal is provided more than once, the latest entry will take precedence.
+       This is due to how the underlying JSON library handles duplicate entries. */
     std::string json_string = "{"
     "    \"GPU_CORE_FREQUENCY\": {"
     "        \"domain\": \"gpu\","
@@ -88,6 +89,7 @@ TEST_F(ConstConfigIOGroupTest, input_duplicate_signal)
     "}";
     ConstConfigIOGroup iogroup(json_string);
     EXPECT_EQ(iogroup.signal_names(), (std::set<std::string>{"CONST_CONFIG::GPU_CORE_FREQUENCY"}));
+    EXPECT_EQ(iogroup.control_names(), std::set<std::string>{});
     EXPECT_EQ(iogroup.signal_description("CONST_CONFIG::GPU_CORE_FREQUENCY"),
         "    description: " "Provides CPU core frequency" "\n"
         "    units: " "watts" "\n"
@@ -110,6 +112,7 @@ TEST_F(ConstConfigIOGroupTest, input_missing_properties)
         GEOPM_ERROR_INVALID,
         "ConstConfigIOGroup::parse_config_json(): "
         "missing properties for signal \"" "GPU_CORE_FREQUENCY" "\": "
+        "aggregation" ", " "description"
     );
 }
 
@@ -167,6 +170,8 @@ TEST_F(ConstConfigIOGroupTest, input_duplicate_properties)
     "    }"
     "}";
     ConstConfigIOGroup iogroup(json_string);
+    EXPECT_EQ(iogroup.signal_names(), (std::set<std::string>{"CONST_CONFIG::GPU_CORE_FREQUENCY"}));
+    EXPECT_EQ(iogroup.control_names(), std::set<std::string>{});
     EXPECT_EQ(iogroup.signal_description("CONST_CONFIG::GPU_CORE_FREQUENCY"),
         "    description: " "Scratches your feet" "\n"
         "    units: " "hertz" "\n"
@@ -451,8 +456,10 @@ TEST_F(ConstConfigIOGroupTest, valid_json_negative)
     EXPECT_EQ(iogroup.control_names(), std::set<std::string>{});
     EXPECT_EQ(iogroup.is_valid_signal("CONST_CONFIG::UNCORE_RATIO_LIMIT:MIN_RATIO"), false);
     EXPECT_EQ(iogroup.is_valid_control("CONST_CONFIG::UNCORE_RATIO_LIMIT:MIN_RATIO"), false);
+    EXPECT_EQ(iogroup.is_valid_control("CONST_CONFIG::GPU_CORE_FREQUENCY"), false);
     EXPECT_EQ(iogroup.signal_domain_type("CONST_CONFIG::UNCORE_RATIO_LIMIT:MIN_RATIO"), GEOPM_DOMAIN_INVALID);
     EXPECT_EQ(iogroup.control_domain_type("CONST_CONFIG::UNCORE_RATIO_LIMIT:MIN_RATIO"), GEOPM_DOMAIN_INVALID);
+    EXPECT_EQ(iogroup.control_domain_type("CONST_CONFIG::GPU_CORE_FREQUENCY"), GEOPM_DOMAIN_INVALID);
     GEOPM_EXPECT_THROW_MESSAGE(
         iogroup.push_signal("CONST_CONFIG::UNCORE_RATIO_LIMIT:MIN_RATIO", 0, 0),
         GEOPM_ERROR_INVALID,
@@ -479,6 +486,12 @@ TEST_F(ConstConfigIOGroupTest, valid_json_negative)
     );
     GEOPM_EXPECT_THROW_MESSAGE(
         iogroup.push_control("CONST_CONFIG::UNCORE_RATIO_LIMIT:MIN_RATIO", 0, 0),
+        GEOPM_ERROR_INVALID,
+        "ConstConfigIOGroup::push_control(): there are no "
+        "controls supported by the ConstConfigIOGroup"
+    );
+    GEOPM_EXPECT_THROW_MESSAGE(
+        iogroup.push_control("CONST_CONFIG::GPU_CORE_FREQUENCY", 0, 0),
         GEOPM_ERROR_INVALID,
         "ConstConfigIOGroup::push_control(): there are no "
         "controls supported by the ConstConfigIOGroup"
@@ -527,6 +540,12 @@ TEST_F(ConstConfigIOGroupTest, valid_json_negative)
         "controls supported by the ConstConfigIOGroup"
     );
     GEOPM_EXPECT_THROW_MESSAGE(
+        iogroup.write_control("CONST_CONFIG::GPU_CORE_FREQUENCY", 0, 0, 3.14),
+        GEOPM_ERROR_INVALID,
+        "ConstConfigIOGroup::write_control(): there are no "
+        "controls supported by the ConstConfigIOGroup"
+    );
+    GEOPM_EXPECT_THROW_MESSAGE(
         iogroup.agg_function("CONST_CONFIG::UNCORE_RATIO_LIMIT:MIN_RATIO"),
         GEOPM_ERROR_INVALID,
         "ConstConfigIOGroup::agg_function(): unknown how "
@@ -547,6 +566,12 @@ TEST_F(ConstConfigIOGroupTest, valid_json_negative)
     );
     GEOPM_EXPECT_THROW_MESSAGE(
         iogroup.control_description("CONST_CONFIG::UNCORE_RATIO_LIMIT:MIN_RATIO"),
+        GEOPM_ERROR_INVALID,
+        "ConstConfigIOGroup::control_description: there are "
+        "no controls supported by the ConstConfigIOGroup"
+    );
+    GEOPM_EXPECT_THROW_MESSAGE(
+        iogroup.control_description("CONST_CONFIG::GPU_CORE_FREQUENCY"),
         GEOPM_ERROR_INVALID,
         "ConstConfigIOGroup::control_description: there are "
         "no controls supported by the ConstConfigIOGroup"
