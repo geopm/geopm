@@ -58,26 +58,28 @@ class GPUActivityAgentTest : public :: testing :: Test
                                   double mock_active,
                                   double mock_util,
                                   double expected_freq);
-        static const int M_NUM_CPU = 1;
-        static const int M_NUM_BOARD = 1;
-        static const int M_NUM_GPU = 1;
-        const double M_FREQ_MIN = 0135000000.0;
-        const double M_FREQ_MAX = 1530000000.0;
-        std::vector<double> M_DEFAULT_POLICY;
+        static const int M_NUM_CPU;
+        static const int M_NUM_BOARD;
+        static const int M_NUM_GPU;
+        static const double M_FREQ_MIN;
+        static const double M_FREQ_MAX;
+        static const std::vector<double> M_DEFAULT_POLICY;
         size_t m_num_policy;
         std::unique_ptr<GPUActivityAgent> m_agent;
         std::unique_ptr<MockPlatformIO> m_platform_io;
         std::unique_ptr<MockPlatformTopo> m_platform_topo;
 };
 
+const int GPUActivityAgentTest::M_NUM_CPU = 1;
+const int GPUActivityAgentTest::M_NUM_BOARD = 1;
+const int GPUActivityAgentTest::M_NUM_GPU = 1;
+const double GPUActivityAgentTest::M_FREQ_MIN = 0135000000.0;
+const double GPUActivityAgentTest::M_FREQ_MAX = 1530000000.0;
+const std::vector<double> GPUActivityAgentTest::M_DEFAULT_POLICY = {
+        M_FREQ_MAX, M_FREQ_MIN, NAN};
 
 void GPUActivityAgentTest::SetUp()
 {
-        static constexpr const double M_FREQ_MIN = 0135000000.0;
-        static constexpr const double M_FREQ_MAX = 1530000000.0;
-        static const std::vector<double> M_DEFAULT_POLICY;
-    GPUActivityAgentTest::M_DEFAULT_POLICY = {M_FREQ_MAX, M_FREQ_MIN, NAN};
-
     m_platform_io = geopm::make_unique<MockPlatformIO>();
     m_platform_topo = geopm::make_unique<MockPlatformTopo>();
 
