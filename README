@@ -43,7 +43,7 @@ Repository Organization
 The GEOPM repository supports two software packages: the
 `geopm-service` package and the `geopm` package.  The `geopm-service`
 package provides a Linux systemd service.  The `geopm` package
-provides a runtime for distrubted HPC applications.
+provides a runtime for distributed HPC applications.
 
 - A build of the `geopm-service` package is required to build and run
   the `geopm` HPC runtime
@@ -52,7 +52,7 @@ provides a runtime for distrubted HPC applications.
   the features provided by the `geopm` package
 
 - All run and build requirements of the `geopm-service` package are
-  provided by commony used Linux distributions
+  provided by commonly used Linux distributions
 
 - The run and build requirements of the `geopm` package include
   several additional HPC specific dependencies
