@@ -12,7 +12,7 @@ Requirements
 
 To use the GEOPM LevelZero signals and controls GEOPM must be compiled against the oneAPI LevelZero libraries and must be run on a system with discrete GPUs supported by LevelZero.  To compile against the oneAPI LevelZero libraries geopm must be configured using the --enable-levelzero flag.  The optional --with-levelzero flag may be used to indicate the path of the required libraries.  In addition the user must export ZES_ENABLE_SYSMAN=1 as specified by the Intel oneAPI Level Zero Sysman documentation.  See the Sysman specification for more info on related environment variables and their usage.
 
-Since signals and controls are exposed via the Sysman API they will be impacted by Sysman environment variables.  Please review `oneAPI LevelZero Sysman Environment Variables <https://spec.oneapi.io/level-zero/latest/sysman/PROG.html#environment-variables>`_ and `oneAPI LevelZero Core Programming Guide Environment Variable <https://spec.oneapi.io/level-zero/latest/core/PROG.html#environment-variables>`_.
+Since signals and controls are exposed via the Sysman API they will be impacted by Sysman environment variables.  Please review `oneAPI LevelZero Sysman Environment Variables <https://spec.oneapi.io/level-zero/latest/sysman/PROG.html#environment-variables>`_ and `oneAPI LevelZero Core Programming Guide Environment Variables <https://spec.oneapi.io/level-zero/latest/core/PROG.html#environment-variables>`_.
 
 Signals
 -------
@@ -235,8 +235,14 @@ Signal Aliases
 ``GPU_POWER``
     Maps to ``LEVELZERO::GPU_POWER``.
 
-``GPU_CORE_FREQUENCY_STATUS``
-    Maps to ``LEVELZERO::GPU_CORE_FREQUENCY_STATUS``.
+``GPU_CORE_ENERGY``
+    Maps to ``LEVELZERO::GPU_CORE_ENERGY``.
+
+``GPU_CORE_POWER``
+    Maps to ``LEVELZERO::GPU_CORE_POWER``.
+
+``GPU_UTIIZATION``
+    Maps to ``LEVELZERO::GPU_UTIIZATION``.
 
 ``GPU_CORE_ACTIVITY``
     Maps to ``LEVELZERO::GPU_CORE_UTILIZATION``.
@@ -244,6 +250,20 @@ Signal Aliases
 ``GPU_UNCORE_ACTIVITY``
     Maps to ``LEVELZERO::GPU_UNCORE_UTILIZATION``.
 
+``GPU_CORE_FREQUENCY_STATUS``
+    Maps to ``LEVELZERO::GPU_CORE_FREQUENCY_STATUS``.
+
+``GPU_CORE_FREQUENCY_MIN_AVAIL``
+    Maps to ``LEVELZERO::GPU_CORE_FREQUENCY_MIN_AVAIL``.
+
+``GPU_CORE_FREQUENCY_MAX_AVAIL``
+    Maps to ``LEVELZERO::GPU_CORE_FREQUENCY_MAX_AVAIL``.
+
+``GPU_CORE_FREQUENCY_MIN_CONTROL``
+    Maps to ``LEVELZERO::GPU_CORE_FREQUENCY_MIN_CONTROL``.
+
+``GPU_CORE_FREQUENCY_MAX_CONTROL``
+    Maps to ``LEVELZERO::GPU_CORE_FREQUENCY_MAX_CONTROL``.
 
 Control Aliases
 ^^^^^^^^^^^^^^^
