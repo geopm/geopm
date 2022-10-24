@@ -326,7 +326,7 @@ namespace geopm
                       perf_domain.resize(geopm::LevelZero::M_DOMAIN_SIZE);
 
             for (auto handle : perf_domain) {
-                zes_perf_properties_t property;
+                zes_perf_properties_t property = {};
                 ze_result = zesPerformanceFactorGetProperties(handle, &property);
                 check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
                                 "LevelZero::" + std::string(__func__) +
@@ -338,35 +338,26 @@ namespace geopm
                     if (property.engines == ZES_ENGINE_TYPE_FLAG_COMPUTE) {
                         m_devices.at(device_idx).perf_domain.at(geopm::LevelZero::M_DOMAIN_COMPUTE) = handle;
                     }
-                    else if (property.engines == ZES_ENGINE_TYPE_FLAG_MEDIA) { //TODO: should this be _DMA?
-                        m_devices.at(device_idx).perf_domain.at(geopm::LevelZero::M_DOMAIN_MEMORY) = handle;
-                    }
-                    //TODO: Update to not rely on the OTHER enum if possible
-                    else if (property.engines == ZES_ENGINE_TYPE_FLAG_OTHER) {
-                        m_devices.at(device_idx).perf_domain.at(geopm::LevelZero::M_DOMAIN_ALL) = handle;
-                    }
+#ifdef GEOPM_DEBUG
                     else {
-                        throw Exception("LevelZero::" + std::string(__func__) +
-                                        ": Unsupported device level performance factor domain "
-                                        " factor domain ()" + std::to_string(property.engines) +
-                                        " detected.", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                        std::cerr << "Warning: <geopm> LevelZero:" <<
+                                     " Unsupported device level performance factor domain (" <<
+                                     std::to_string(property.engines) << ") detected." << std::endl;
                     }
+#endif
                 }
                 else {
                     if (property.engines == ZES_ENGINE_TYPE_FLAG_COMPUTE) {
                         m_devices.at(device_idx).subdevice.perf_domain.at(
                                  geopm::LevelZero::M_DOMAIN_COMPUTE).push_back(handle);
                     }
-                    else if (property.engines == ZES_ENGINE_TYPE_FLAG_MEDIA) { //TODO: should this be _DMA?
-                        m_devices.at(device_idx).subdevice.perf_domain.at(
-                                 geopm::LevelZero::M_DOMAIN_MEMORY).push_back(handle);
-                    }
+#ifdef GEOPM_DEBUG
                     else {
-                        throw Exception("LevelZero::" + std::string(__func__) +
-                                        ": Unsupported subdevice level performance factor domain "
-                                        " factor domain ()" + std::to_string(property.engines) +
-                                        " detected.", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                         std::cerr << "Warning: <geopm> LevelZero:" <<
+                                      " Unsupported sub-device level performance factor domain (" <<
+                                      std::to_string(property.engines) << ") detected." << std::endl;
                     }
+#endif
                 }
             }
         }

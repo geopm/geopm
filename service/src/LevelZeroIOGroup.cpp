@@ -431,7 +431,7 @@ namespace geopm
                                   1 / 1e6
                                   }},
                               {M_NAME_PREFIX + "GPU_CORE_PERFORMANCE_FACTOR", {
-                                  "Performance Factor of the Per Tile compute domain",
+                                  "Performance Factor of the GPU Compute Hardware Domain",
                                   GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
