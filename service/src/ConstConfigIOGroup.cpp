@@ -343,20 +343,16 @@ namespace geopm
             }
 
             std::string description = properties["description"].string_value();
-            if (m_signal_available.find(name) == m_signal_available.end()) {
-                m_signal_available[name] =
-                    std::make_shared<m_signal_info_s>(
-                        units,
-                        domain_type,
-                        agg_func,
-                        description,
-                        values);
-            }
-            else {
-                throw Exception("ConstConfigIOGroup::parse_config_json(): "
-                                "duplicate signal found: " + name,
-                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-            }
+            // TODO: check for duplicate signals. At the moment, we're using
+            // json11 to parse JSON strings, which handles duplicate entries
+            // by taking the latest entry encountered.
+            m_signal_available[name] =
+                std::make_shared<m_signal_info_s>(
+                    units,
+                    domain_type,
+                    agg_func,
+                    description,
+                    values);
         }
     }
 

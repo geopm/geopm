@@ -40,6 +40,10 @@ void ConstConfigIOGroupTest::SetUp()
 {
 }
 
+void ConstConfigIOGroupTest::TearDown()
+{
+}
+
 TEST_F(ConstConfigIOGroupTest, input_empty_string)
 {
     GEOPM_EXPECT_THROW_MESSAGE(
@@ -583,8 +587,4 @@ TEST_F(ConstConfigIOGroupTest, valid_json_negative)
         "signal_name " "CONST_CONFIG::UNCORE_RATIO_LIMIT:MIN_RATIO"
         " not valid for ConstConfigIOGroup"
     );
-}
-
-void ConstConfigIOGroupTest::TearDown()
-{
 }
