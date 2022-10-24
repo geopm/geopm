@@ -17,8 +17,8 @@ EXTRA_DIST += integration/experiment/energy_efficiency/barrier_frequency_sweep.p
               integration/experiment/energy_efficiency/run_cpu_activity_nasft.py \
               integration/experiment/energy_efficiency/run_cpu_activity_nekbone.py \
               integration/experiment/energy_efficiency/run_cpu_activity_pennant.py \
-              integration/experiment/energy_efficiency/run_gpu_activity_parres_dgemm.py \
-              integration/experiment/energy_efficiency/run_gpu_activity_parres_nstream.py \
+              integration/experiment/energy_efficiency/run_gpu_activity_parres_dgemm_cuda.py \
+              integration/experiment/energy_efficiency/run_gpu_activity_parres_nstream_cuda.py \
               integration/experiment/energy_efficiency/run_power_balancer_energy_amg.py \
               integration/experiment/energy_efficiency/run_power_balancer_energy_dgemm.py \
               integration/experiment/energy_efficiency/run_power_balancer_energy_hpcg.py \
