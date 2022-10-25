@@ -115,7 +115,6 @@ roff_man_inst = man/GEOPM_CXX_MAN_Agent.3 \
                 # end
 
 roff_man_noinst = man/GEOPM_CXX_MAN_Comm.3 \
-                  man/GEOPM_CXX_MAN_GPUActivityAgent.3 \
                   man/GEOPM_CXX_MAN_MonitorAgent.3 \
                   man/GEOPM_CXX_MAN_MPIComm.3 \
                   man/GEOPM_CXX_MAN_PowerBalancerAgent.3 \

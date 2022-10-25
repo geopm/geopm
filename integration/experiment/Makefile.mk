@@ -18,8 +18,8 @@ EXTRA_DIST += integration/experiment/common_args.py \
 
 include integration/experiment/energy_efficiency/Makefile.mk
 include integration/experiment/frequency_sweep/Makefile.mk
+include integration/experiment/gpu_frequency_sweep/Makefile.mk
 include integration/experiment/monitor/Makefile.mk
 include integration/experiment/power_sweep/Makefile.mk
 include integration/experiment/trace_analysis/Makefile.mk
-include integration/experiment/gpu_frequency_sweep/Makefile.mk
 include integration/experiment/uncore_frequency_sweep/Makefile.mk

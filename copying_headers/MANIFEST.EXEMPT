@@ -55,6 +55,7 @@ integration/apps/qe/README.md
 integration/apps/README.md
 integration/config/README.md
 integration/experiment/frequency_sweep/README.md
+integration/experiment/gpu_frequency_sweep/README.md
 integration/experiment/monitor/README.md
 integration/experiment/outlier/README.md
 integration/experiment/outlier/theta_nodelist_broken.txt
@@ -62,7 +63,6 @@ integration/experiment/power_sweep/README.md
 integration/experiment/README.md
 integration/experiment/trace_analysis/README.md
 integration/experiment/uncore_frequency_sweep/README.md
-integration/experiment/gpu_frequency_sweep/README.md
 integration/README.md
 integration/requirements.txt
 integration/test/README.md
