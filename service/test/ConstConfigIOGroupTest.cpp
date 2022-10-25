@@ -5,6 +5,7 @@
 
 #include "ConstConfigIOGroup.hpp"
 
+#include <cerrno>
 #include <set>
 #include <string>
 #include <fstream>
@@ -626,4 +627,32 @@ TEST_F(ConstConfigIOGroupTest, valid_json_negative)
         "signal_name " "CONST_CONFIG::UNCORE_RATIO_LIMIT:MIN_RATIO"
         " not valid for ConstConfigIOGroup"
     );
+}
+
+TEST_F(ConstConfigIOGroupTest, loads_default_config)
+{
+    std::string json_string = "{"
+    "    \"GPU_CORE_FREQUENCY\": {"
+    "        \"domain\": \"gpu\","
+    "        \"description\": \"Provides GPU core frequency\","
+    "        \"units\": \"hertz\","
+    "        \"aggregation\": \"sum\","
+    "        \"values\": [ 1500, 1600, 1700 ]"
+    "    }"
+    "}";
+    create_config_file(json_string);
+
+    ConstConfigIOGroup iogroup1("", M_CONFIG_FILE_PATH);
+    EXPECT_EQ(iogroup1.signal_names(), std::set<std::string>{"CONST_CONFIG::GPU_CORE_FREQUENCY"});
+    
+    ConstConfigIOGroup iogroup2("/fake_dir/fake_config.json", M_CONFIG_FILE_PATH);
+    EXPECT_EQ(iogroup2.signal_names(), std::set<std::string>{"CONST_CONFIG::GPU_CORE_FREQUENCY"});
+}
+
+TEST_F(ConstConfigIOGroupTest, no_default_config)
+{
+    std::string file_path = "/fake_dir/fake_config.json";
+    GEOPM_EXPECT_THROW_MESSAGE(ConstConfigIOGroup iogroup("", file_path),
+                               ENOENT,
+                               "file \"" + file_path + "\" could not be opened");
 }
