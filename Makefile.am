@@ -177,6 +177,7 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              .github/ISSUE_TEMPLATE/change.md \
              .github/ISSUE_TEMPLATE/tech_debt.md \
              .gitignore \
+             .pre-commit-config.yaml \
              BLURB \
              CODE_OF_CONDUCT.md \
              CONTRIBUTING.rst \
