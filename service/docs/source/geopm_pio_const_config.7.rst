@@ -6,17 +6,19 @@ Description
 
 ConstConfigIOGroup implements the
 :doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>` interface to provide a
-predefined set of signals by the user with constant values. This is mainly
-useful to provide configuration information needed by some agents that's
-constant in nature, for example, system characterization information.
+predefined set of signals with constant values. This is mainly useful to
+provide configuration information needed by some agents (e.g. system
+characterization information).
 
 Signals
 -------
 
 This IOGroup doesn't provide any signals by default. In order to define
 signals, a configuration file in JSON format needs to be provided to the
-IOGroup via the ``GEOPM_CONST_CONFIG_PATH`` environment variable and it must
-comply with the following schema:
+IOGroup via the ``GEOPM_CONST_CONFIG_PATH`` environment variable. If not
+provided, it will default to looking for a file named ``const_config_io.json``
+in the GEOPM configuration path (``/etc/geopm``). In either case, the
+configuration file must comply with the following schema:
 
 .. literalinclude:: ../../json_schemas/const_config_io.schema.json
     :language: json
