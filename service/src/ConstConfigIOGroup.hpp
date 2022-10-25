@@ -80,20 +80,6 @@ namespace geopm
             };
 
             struct m_signal_info_s {
-                m_signal_info_s(
-                    int units,
-                    int domain,
-                    std::function<double(const std::vector<double> &)> agg,
-                    std::string desc,
-                    std::vector<double> values):
-
-                    units(units),
-                    domain(domain),
-                    agg_function(agg),
-                    description(desc),
-                    values(values)
-                {}
-
                 int units;
                 int domain;
                 std::function<double(const std::vector<double> &)> agg_function;

@@ -348,11 +348,12 @@ namespace geopm
             // by taking the latest entry encountered.
             m_signal_available[name] =
                 std::make_shared<m_signal_info_s>(
-                    units,
-                    domain_type,
-                    agg_func,
-                    description,
-                    values);
+                    m_signal_info_s {
+                        .units = units,
+                        .domain = domain_type,
+                        .agg_function = agg_func,
+                        .description = description,
+                        .values = values});
         }
     }
 
@@ -409,12 +410,14 @@ namespace geopm
                                 " unexpected propety: \"" + prop.first +
                                 "\"", GEOPM_ERROR_INVALID, __FILE__,
                                 __LINE__);
-            } else if (prop.second.type() != it->second.type) {
+            }
+            else if (prop.second.type() != it->second.type) {
                 throw Exception("ConstConfigIOGroup::parse_config_json():"
                                 " incorrect type for property: \"" +
                                 prop.first + "\"", GEOPM_ERROR_INVALID,
                                 __FILE__, __LINE__);
-            } else {
+            }
+            else {
                 properties_found++;
                 required_keys[prop.first] = true;
             }
