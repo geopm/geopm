@@ -277,10 +277,22 @@ Avoid preprocessor macros as much as possible (use enum not #define).
 Preprocessor usage should be reserved for expressing configure time
 options.
 
+Pre-Commit Checks
+-----------------
+This repository includes a configuration for `pre-commit
+<https://pre-commit.com/>`_ that uses some of their standard hooks that are
+relevant to GEOPM, and adds a hook that performs the GEOPM license checks.
+
+To install the pre-commit infrastructure and our configuration::
+
+    pip install pre-commit
+    pre-commit install
+
+Now you will automatically run some checks whenever you make a commit, instead
+of waiting until you make a pull request to see all of them.
 
 License Headers
 ---------------
-
 Introducing a new file requires a license comment in its header with a
 corresponding copying_headers/header.\ * file.  The new file path must
 be listed in the corresponding copying_headers/MANIFEST.* file.  This
