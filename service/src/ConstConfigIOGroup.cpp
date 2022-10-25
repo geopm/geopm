@@ -39,38 +39,35 @@ namespace geopm
         GEOPM_CONFIG_PATH "/const_config_io.json";
 
     ConstConfigIOGroup::ConstConfigIOGroup()
+        : ConstConfigIOGroup(geopm::get_env(M_CONFIG_PATH_ENV), M_DEFAULT_CONFIG_FILE_PATH)
     {
-        std::string config_file_path = geopm::get_env(M_CONFIG_PATH_ENV);
+    }
+
+    ConstConfigIOGroup::ConstConfigIOGroup(const std::string &user_file_path,
+                                           const std::string &default_file_path)
+    {
         std::string config_json;
-        bool load_default = false;
-        if (!config_file_path.empty()) {
+        bool load_default = true;
+        if (!user_file_path.empty()) {
             try {
-                config_json = geopm::read_file(config_file_path);
+                config_json = geopm::read_file(user_file_path);
+                load_default = false;
             } catch (...) {
 #ifdef GEOPM_DEBUG
                 std::cerr << "Warning: <geopm> Failed to load "
                           << "ConstConfigIOGroup configuration file: "
-                          << config_file_path
+                          << user_file_path
                           << ". Proceeding with default configuration file..."
                           << std::endl;
 #endif
-                load_default = true;
             }
-        }
-        else {
-            load_default = true;
         }
 
         if (load_default) {
-            config_json = geopm::read_file(M_DEFAULT_CONFIG_FILE_PATH);
+            config_json = geopm::read_file(default_file_path);
         }
 
         parse_config_json(config_json);
-    }
-
-    ConstConfigIOGroup::ConstConfigIOGroup(const std::string &config)
-    {
-        parse_config_json(config);
     }
 
     std::set<std::string> ConstConfigIOGroup::signal_names(void) const

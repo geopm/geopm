@@ -20,7 +20,8 @@ namespace geopm
     {
         public:
             ConstConfigIOGroup();
-            ConstConfigIOGroup(const std::string &config);
+            ConstConfigIOGroup(const std::string &user_file_path,
+                               const std::string &default_file_path);
             std::set<std::string> signal_names(void) const override;
             /// @return empty set; this IOGroup does not provide any controls.
             std::set<std::string> control_names(void) const override;
