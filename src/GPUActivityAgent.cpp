@@ -252,7 +252,7 @@ namespace geopm
                 //
                 // If f_efficient does not meet these criteria this behavior can still be
                 // achieved through tracking the GPU Utilization signal and setting frequency
-                // to a separate idle value (f_idle) during regions where GPU Utilizaiton is
+                // to a separate idle value (f_idle) during regions where GPU Utilization is
                 // zero (or below some bar).
                 if (!std::isnan(gpu_utilization) &&
                     gpu_utilization > 0) {

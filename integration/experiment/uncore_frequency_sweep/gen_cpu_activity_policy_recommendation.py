@@ -165,5 +165,4 @@ if __name__ == '__main__':
 
     output = main(df, region_list)
 
-    sys.stdout.write("AGENT POLICY:\n")
     sys.stdout.write(json.dumps(output) + "\n")
