@@ -61,10 +61,12 @@ class GPUActivityAgentTest : public :: testing :: Test
         static const int M_NUM_CPU;
         static const int M_NUM_BOARD;
         static const int M_NUM_GPU;
+        static const int M_NUM_GPU_CHIP;
         static const double M_FREQ_MIN;
         static const double M_FREQ_MAX;
         static const std::vector<double> M_DEFAULT_POLICY;
         size_t m_num_policy;
+        std::set<std::string> empty_set;
         std::unique_ptr<GPUActivityAgent> m_agent;
         std::unique_ptr<MockPlatformIO> m_platform_io;
         std::unique_ptr<MockPlatformTopo> m_platform_topo;
@@ -73,6 +75,7 @@ class GPUActivityAgentTest : public :: testing :: Test
 const int GPUActivityAgentTest::M_NUM_CPU = 1;
 const int GPUActivityAgentTest::M_NUM_BOARD = 1;
 const int GPUActivityAgentTest::M_NUM_GPU = 1;
+const int GPUActivityAgentTest::M_NUM_GPU_CHIP = 1;
 const double GPUActivityAgentTest::M_FREQ_MIN = 0135000000.0;
 const double GPUActivityAgentTest::M_FREQ_MAX = 1530000000.0;
 const std::vector<double> GPUActivityAgentTest::M_DEFAULT_POLICY = {
@@ -87,6 +90,8 @@ void GPUActivityAgentTest::SetUp()
         .WillByDefault(Return(M_NUM_BOARD));
     ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_GPU))
         .WillByDefault(Return(M_NUM_GPU));
+    ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_GPU_CHIP))
+        .WillByDefault(Return(M_NUM_GPU_CHIP));
 
     ON_CALL(*m_platform_io, push_signal("GPU_CORE_ACTIVITY", _, _))
         .WillByDefault(Return(GPU_CORE_ACTIVITY_IDX));
@@ -105,15 +110,23 @@ void GPUActivityAgentTest::SetUp()
         .WillByDefault(Return(geopm::Agg::average));
 
     ON_CALL(*m_platform_io, control_domain_type("GPU_CORE_FREQUENCY_MIN_CONTROL"))
-        .WillByDefault(Return(GEOPM_DOMAIN_GPU));
+        .WillByDefault(Return(GEOPM_DOMAIN_GPU_CHIP));
     ON_CALL(*m_platform_io, control_domain_type("GPU_CORE_FREQUENCY_MAX_CONTROL"))
-        .WillByDefault(Return(GEOPM_DOMAIN_GPU));
+        .WillByDefault(Return(GEOPM_DOMAIN_GPU_CHIP));
     ON_CALL(*m_platform_io, signal_domain_type("GPU_CORE_ACTIVITY"))
-        .WillByDefault(Return(GEOPM_DOMAIN_GPU));
+        .WillByDefault(Return(GEOPM_DOMAIN_GPU_CHIP));
+    ON_CALL(*m_platform_io, signal_domain_type("GPU_CORE_FREQUENCY_STATUS"))
+        .WillByDefault(Return(GEOPM_DOMAIN_GPU_CHIP));
+    ON_CALL(*m_platform_io, signal_domain_type("GPU_UTILIZATION"))
+        .WillByDefault(Return(GEOPM_DOMAIN_GPU_CHIP));
+
     ON_CALL(*m_platform_io, read_signal("GPU_CORE_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0))
         .WillByDefault(Return(M_FREQ_MIN));
     ON_CALL(*m_platform_io, read_signal("GPU_CORE_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0))
         .WillByDefault(Return(M_FREQ_MAX));
+
+    ON_CALL(*m_platform_io, signal_names())
+        .WillByDefault(Return(empty_set));
 
     ASSERT_LT(M_FREQ_MIN, 0.2e9);
     ASSERT_LT(1.4e9, M_FREQ_MAX);
@@ -149,6 +162,7 @@ TEST_F(GPUActivityAgentTest, validate_policy)
     set_up_val_policy_expectations();
 
     const std::vector<double> empty(m_num_policy, NAN);
+    EXPECT_CALL(*m_platform_io, signal_names()).WillRepeatedly(Return(empty_set));
 
     // default policy is accepted
     // load default policy
@@ -171,8 +185,24 @@ TEST_F(GPUActivityAgentTest, validate_policy)
     EXPECT_EQ((policy[FREQ_MAX] + M_FREQ_MIN) / 2, policy[FREQ_EFFICIENT]);
     EXPECT_EQ(0.5, policy[PHI]);
 
+    // all-NAN policy is accepted
+    // setup & load NAN policy
+    std::set<std::string> sig_set = {"LEVELZERO::GPU_CORE_FREQUENCY_EFFICIENT"};
+    EXPECT_CALL(*m_platform_io, signal_names()).WillOnce(Return(sig_set));
+    double fe_sig_val = M_FREQ_MAX - M_FREQ_MIN + 0.123;
+    EXPECT_CALL(*m_platform_io, read_signal("LEVELZERO::GPU_CORE_FREQUENCY_EFFICIENT",
+                                            GEOPM_DOMAIN_BOARD, 0)).WillOnce(Return(fe_sig_val));
+    policy = empty;
+    EXPECT_NO_THROW(m_agent->validate_policy(policy));
+    // validate policy defaults are applied
+    ASSERT_EQ(m_num_policy, policy.size());
+    EXPECT_EQ(M_FREQ_MAX, policy[FREQ_MAX]);
+    EXPECT_EQ(fe_sig_val, policy[FREQ_EFFICIENT]);
+    EXPECT_EQ(0.5, policy[PHI]);
+
     // non-default policy is accepted
     // setup & load policy
+    EXPECT_CALL(*m_platform_io, signal_names()).WillRepeatedly(Return(empty_set));
     policy[FREQ_MAX] = M_FREQ_MAX;
     policy[FREQ_EFFICIENT] = M_FREQ_MAX / 2;
     policy[PHI] = 0.1;
@@ -259,8 +289,8 @@ void GPUActivityAgentTest::test_adjust_platform(std::vector<double> &policy,
 
     //Adjust
     //Check frequency
-    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MIN_IDX, expected_freq)).Times(M_NUM_GPU);
-    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MAX_IDX, expected_freq)).Times(M_NUM_GPU);
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MIN_IDX, expected_freq)).Times(M_NUM_GPU_CHIP);
+    EXPECT_CALL(*m_platform_io, adjust(GPU_FREQUENCY_CONTROL_MAX_IDX, expected_freq)).Times(M_NUM_GPU_CHIP);
 
     m_agent->adjust_platform(policy);
 
