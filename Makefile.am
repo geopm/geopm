@@ -123,6 +123,8 @@ roff_man_noinst = man/GEOPM_CXX_MAN_Comm.3 \
                   # end
 
 roff_man_beta = man/geopmendpoint.1 \
+                man/geopm_agent_cpu_activity.7 \
+                man/geopm_agent_gpu_activity.7 \
                 man/geopm_daemon.3 \
                 man/geopm_endpoint.3 \
                 man/geopm_policystore.3 \
@@ -206,7 +208,9 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              man/geopmadmin.1 \
              man/geopmagent.1 \
              man/geopm_agent.3 \
+             man/geopm_agent_cpu_activity.7 \
              man/geopm_agent_frequency_map.7 \
+             man/geopm_agent_gpu_activity.7 \
              man/geopm_agent_monitor.7 \
              man/geopm_agent_power_balancer.7 \
              man/geopm_agent_power_governor.7 \
