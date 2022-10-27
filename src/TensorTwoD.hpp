@@ -23,8 +23,8 @@ namespace geopm
             TensorTwoD(const TensorTwoD&);
             TensorTwoD(json11::Json input);
             void set_dim(std::size_t rows, std::size_t cols);
-            int get_rows() const;
-            int get_cols() const;
+            std::size_t get_rows() const;
+            std::size_t get_cols() const;
             TensorOneD operator*(const TensorOneD&);
             TensorOneD &operator[](int idx);
             TensorOneD operator[](int idx) const;

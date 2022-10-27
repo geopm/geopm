@@ -294,6 +294,7 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/TensorTwoDTest.test_degenerate_size \
               test/gtest_links/TensorTwoDTest.test_copy \
               test/gtest_links/TensorTwoDTest.test_copy_constructor \
+              test/gtest_links/TensorTwoDTest.test_empty_weights \
               test/gtest_links/TensorTwoDTest.test_input \
               test/gtest_links/TensorTwoDTest.test_mat_prod \
               test/gtest_links/TracerTest.columns \

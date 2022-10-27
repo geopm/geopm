@@ -113,3 +113,10 @@ TEST_F(TensorTwoDTest, test_bad_dimensions) {
     std::vector<std::vector<float> > vals = {{1}, {2, 3}};
     EXPECT_THROW(TensorTwoD(json11::Json(vals)), geopm::Exception);
 }
+
+TEST_F(TensorTwoDTest, test_empty_weights)
+{
+    std::vector<std::string> vals = {};
+    EXPECT_THROW(TensorTwoD(json11::Json(vals)), geopm::Exception);
+}
+

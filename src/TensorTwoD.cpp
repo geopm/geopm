@@ -67,12 +67,12 @@ namespace geopm
         }
     }
 
-    int TensorTwoD::get_rows() const
+    std::size_t TensorTwoD::get_rows() const
     {
         return m_mat.size();
     }
 
-    int TensorTwoD::get_cols() const
+    std::size_t TensorTwoD::get_cols() const
     {
         if (m_mat.size() == 0) {
             return 0;
