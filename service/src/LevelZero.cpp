@@ -164,11 +164,14 @@ namespace geopm
         // TODO: When additional device types such as FPGA, MCA, and Integrated GPU are supported by GEOPM
         // This should be changed to a more general loop iterating over type and caching appropriately
         for (unsigned int gpu_idx = 0; gpu_idx < m_num_gpu; gpu_idx++) {
-            domain_cache(gpu_idx);
+            frequency_domain_cache(gpu_idx);
+            power_domain_cache(gpu_idx);
+            perf_domain_cache(gpu_idx);
+            engine_domain_cache(gpu_idx);
        }
     }
 
-    void LevelZeroImp::domain_cache(unsigned int device_idx) {
+    void LevelZeroImp::frequency_domain_cache(unsigned int device_idx) {
         ze_result_t ze_result;
         uint32_t num_domain = 0;
 
@@ -223,6 +226,11 @@ namespace geopm
                 }
             }
         }
+    }
+
+    void LevelZeroImp::power_domain_cache(unsigned int device_idx) {
+        ze_result_t ze_result;
+        uint32_t num_domain = 0;
 
         //Cache power domains
         num_domain = 0;
@@ -297,6 +305,12 @@ namespace geopm
                       cached_energy_timestamp.resize(m_devices.at(device_idx).subdevice.power_domain.size());
         }
 
+    }
+
+    void LevelZeroImp::perf_domain_cache(unsigned int device_idx) {
+        ze_result_t ze_result;
+        uint32_t num_domain = 0;
+
         //Cache performance domains
         num_domain = 0;
         ze_result = zesDeviceEnumPerformanceFactorDomains(m_devices.at(
@@ -361,7 +375,11 @@ namespace geopm
                 }
             }
         }
+    }
 
+    void LevelZeroImp::engine_domain_cache(unsigned int device_idx) {
+        ze_result_t ze_result;
+        uint32_t num_domain = 0;
 
         //Cache engine domains
         num_domain = 0;
