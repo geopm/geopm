@@ -131,7 +131,10 @@ namespace geopm
             };
 
 
-            void domain_cache(unsigned int l0_device_idx);
+            void frequency_domain_cache(unsigned int l0_device_idx);
+            void power_domain_cache(unsigned int l0_device_idx);
+            void perf_domain_cache(unsigned int l0_device_idx);
+            void engine_domain_cache(unsigned int l0_device_idx);
             void check_ze_result(ze_result_t ze_result, int error, std::string message,
                                  int line) const;
 

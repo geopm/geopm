@@ -145,7 +145,7 @@ namespace geopm
             /// @param [in] l0_domain The LevelZero domain type being targeted
             /// @return GPU perf domain count.
             virtual int performance_domain_count(int geopm_domain, unsigned int l0_device_idx,
-                                          int l0_domain) const = 0;
+                                                 int l0_domain) const = 0;
             /// @brief Get the performance factor value of various LevelZero domains
             /// @param [in] geopm_domain The GEOPM domain being targeted
             /// @param [in] l0_device_idx The LevelZero device being targeted
