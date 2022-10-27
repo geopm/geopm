@@ -6,9 +6,12 @@
 #ifndef TENSORTWOD_HPP_INCLUDE
 #define TENSORTWOD_HPP_INCLUDE
 
+#include <cstddef>
+
 #include "geopm/json11.hpp"
 
 #include "TensorOneD.hpp"
+
 namespace geopm
 {
 
@@ -16,10 +19,10 @@ namespace geopm
     {
         public:
             TensorTwoD();
-            TensorTwoD(int rows, int cols);
+            TensorTwoD(std::size_t rows, std::size_t cols);
             TensorTwoD(const TensorTwoD&);
             TensorTwoD(json11::Json input);
-            void set_dim(int rows, int cols);
+            void set_dim(std::size_t rows, std::size_t cols);
             int get_rows() const;
             int get_cols() const;
             TensorOneD operator*(const TensorOneD&);
