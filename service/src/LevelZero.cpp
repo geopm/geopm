@@ -147,6 +147,18 @@ namespace geopm
                                 " Please check ZE_AFFINITY_MASK enviroment variable settings",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
+
+            // If we have more than one device confirm all devices have the same
+            // number of subdevices
+            for (int idx = 1; idx < m_devices.size(); ++idx) {
+                if (m_devices.at(idx).m_num_subdevice != m_devices.at(idx-1).m_num_subdevice) {
+                    throw Exception("LevelZero::" + std::string(__func__) +
+                                    ": GEOPM Requires the number of subdevices to be" +
+                                    " the same on all devices. " +
+                                    " Please check ZE_AFFINITY_MASK enviroment variable settings",
+                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                }
+            }
         }
 
         // TODO: When additional device types such as FPGA, MCA, and Integrated GPU are supported by GEOPM
