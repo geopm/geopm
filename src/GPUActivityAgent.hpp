@@ -62,6 +62,7 @@ namespace geopm
             bool m_do_send_policy;
 
             int m_agent_domain_count;
+            int m_agent_domain;
 
             struct m_signal
             {
