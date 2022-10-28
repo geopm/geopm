@@ -77,13 +77,11 @@ namespace geopm
         std::vector<struct option> long_options;
         std::string short_options;
 
-        int idx = 0;
         for (const auto &conf : m_bool_opts) {
             std::string name = conf.first;
             const struct m_opt_parse_s<bool> &opt = conf.second;
             short_options += opt.short_form;
             long_options.push_back({opt.long_form.c_str(), no_argument, NULL, opt.short_form});
-            ++idx;
         }
         for (const auto &conf : m_str_opts) {
             std::string name = conf.first;
