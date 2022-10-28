@@ -40,7 +40,7 @@ void TensorTwoDTest::SetUp()
 
 TEST_F(TensorTwoDTest, test_mat_prod) {
     TensorOneD prod = mat * vec[0];
-    EXPECT_EQ(2, prod.get_dim());
+    EXPECT_EQ(2u, prod.get_dim());
     EXPECT_EQ(14, prod[0]);
     EXPECT_EQ(32, prod[1]);
 }
@@ -95,15 +95,15 @@ TEST_F(TensorTwoDTest, test_input) {
     std::vector<std::vector<float> > vals = {{1}, {2}};
     TensorTwoD x;
     x = TensorTwoD(json11::Json(vals));
-    EXPECT_EQ(2, x.get_rows());
-    EXPECT_EQ(1, x.get_cols());
+    EXPECT_EQ(2u, x.get_rows());
+    EXPECT_EQ(1u, x.get_cols());
     EXPECT_EQ(1, x[0][0]);
     EXPECT_EQ(2, x[1][0]);
 }
 
 TEST_F(TensorTwoDTest, test_degenerate_size) {
     TensorTwoD x;
-    EXPECT_EQ(0, x.get_cols());
+    EXPECT_EQ(0u, x.get_cols());
 }
 
 TEST_F(TensorTwoDTest, test_bad_dimensions) {
