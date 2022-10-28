@@ -87,17 +87,21 @@ namespace geopm
                                     *std::min_element(std::begin(signal_domains), std::end(signal_domains)));
 
 #ifdef GEOPM_DEBUG
-        int max_agent_domain = std::max(*std::max_element(std::begin(control_domains), std::end(control_domains)),
-                                    *std::max_element(std::begin(signal_domains), std::end(signal_domains)));
+        {
+            int max_agent_domain = std::max(*std::max_element(std::begin(control_domains), std::end(control_domains)),
+                                            *std::max_element(std::begin(signal_domains), std::end(signal_domains)));
 
-        if (agent_domain != max_agent_domain) {
-            throw Exception("GPUActivityAgent::" + std::string(__func__) +
-                            "(): Required signals and controls do not all exist at the same domain.",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            if (agent_domain != max_agent_domain) {
+                throw Exception("GPUActivityAgent::" + std::string(__func__) +
+                                "(): Required signals and controls do not all exist at the same domain.",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
         }
 #endif
 
-        if (agent_domain != GEOPM_DOMAIN_GPU && agent_domain != GEOPM_DOMAIN_GPU_CHIP) {
+        if (agent_domain != GEOPM_DOMAIN_GPU &&
+            agent_domain != GEOPM_DOMAIN_GPU_CHIP &&
+            agent_domain != GEOPM_DOMAIN_BOARD) {
             throw Exception("GPUActivityAgent::" + std::string(__func__) +
                             "(): Required signals and controls do not exist at the " +
                             "GPU or GPU_CHIP domain!", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -106,15 +110,15 @@ namespace geopm
         m_agent_domain_count = m_platform_topo.num_domain(agent_domain);
 
         for (int domain_idx = 0; domain_idx < m_agent_domain_count; ++domain_idx) {
+            // Signals
             m_gpu_core_activity.push_back({m_platform_io.push_signal("GPU_CORE_ACTIVITY",
                                            agent_domain,
                                            domain_idx), NAN});
             m_gpu_utilization.push_back({m_platform_io.push_signal("GPU_UTILIZATION",
                                          agent_domain,
                                          domain_idx), NAN});
-        }
 
-        for (int domain_idx = 0; domain_idx < m_agent_domain_count; ++domain_idx) {
+            // Controls
             m_gpu_freq_min_control.push_back(m_control{m_platform_io.push_control("GPU_CORE_FREQUENCY_MIN_CONTROL",
                                                        agent_domain,
                                                        domain_idx), NAN});
