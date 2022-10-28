@@ -3,11 +3,13 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+
 #include <math.h>
 #include <algorithm>
 #include <functional>
 #include <numeric>
 #include "geopm/Exception.hpp"
+#include "config.h"
 
 #include "TensorOneD.hpp"
 
