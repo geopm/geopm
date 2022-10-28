@@ -4,7 +4,9 @@
  */
 
 
-#include <math.h>
+#include "config.h"
+
+#include <cmath>
 #include <algorithm>
 #include <functional>
 #include <numeric>
@@ -18,9 +20,6 @@
 namespace geopm
 {
 
-    TensorTwoD::TensorTwoD()
-    {
-    }
 
     TensorTwoD::TensorTwoD(std::size_t rows, std::size_t cols)
     {
@@ -56,6 +55,8 @@ namespace geopm
 
     void TensorTwoD::set_dim(std::size_t rows, std::size_t cols)
     {
+        //TODO: Should we be checking for negative values as well?
+        //And zeros?
         if (rows == 0 && cols > 0) {
             throw geopm::Exception("Tried to allocate degenerate matrix.",
                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
