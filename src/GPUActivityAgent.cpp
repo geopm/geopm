@@ -83,15 +83,15 @@ namespace geopm
 
         // We'll use the coarsest granularity supported by any of the controls or signals except Energy
         // i.e. GPU if one control supports GPU and another supports GPU_CHIP
-        int agent_domain = std::min(*std::min_element(std::begin(control_domains), std::end(control_domains)),
-                                    *std::min_element(std::begin(signal_domains), std::end(signal_domains)));
+        m_agent_domain = std::min(*std::min_element(std::begin(control_domains), std::end(control_domains)),
+                                  *std::min_element(std::begin(signal_domains), std::end(signal_domains)));
 
 #ifdef GEOPM_DEBUG
         {
             int max_agent_domain = std::max(*std::max_element(std::begin(control_domains), std::end(control_domains)),
                                             *std::max_element(std::begin(signal_domains), std::end(signal_domains)));
 
-            if (agent_domain != max_agent_domain) {
+            if (m_agent_domain != max_agent_domain) {
                 throw Exception("GPUActivityAgent::" + std::string(__func__) +
                                 "(): Required signals and controls do not all exist at the same domain.",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -99,31 +99,31 @@ namespace geopm
         }
 #endif
 
-        if (agent_domain != GEOPM_DOMAIN_GPU &&
-            agent_domain != GEOPM_DOMAIN_GPU_CHIP &&
-            agent_domain != GEOPM_DOMAIN_BOARD) {
+        if (m_agent_domain != GEOPM_DOMAIN_GPU &&
+            m_agent_domain != GEOPM_DOMAIN_GPU_CHIP &&
+            m_agent_domain != GEOPM_DOMAIN_BOARD) {
             throw Exception("GPUActivityAgent::" + std::string(__func__) +
                             "(): Required signals and controls do not exist at the " +
                             "GPU or GPU_CHIP domain!", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        m_agent_domain_count = m_platform_topo.num_domain(agent_domain);
+        m_agent_domain_count = m_platform_topo.num_domain(m_agent_domain);
 
         for (int domain_idx = 0; domain_idx < m_agent_domain_count; ++domain_idx) {
             // Signals
             m_gpu_core_activity.push_back({m_platform_io.push_signal("GPU_CORE_ACTIVITY",
-                                           agent_domain,
+                                           m_agent_domain,
                                            domain_idx), NAN});
             m_gpu_utilization.push_back({m_platform_io.push_signal("GPU_UTILIZATION",
-                                         agent_domain,
+                                         m_agent_domain,
                                          domain_idx), NAN});
 
             // Controls
             m_gpu_freq_min_control.push_back(m_control{m_platform_io.push_control("GPU_CORE_FREQUENCY_MIN_CONTROL",
-                                                       agent_domain,
+                                                       m_agent_domain,
                                                        domain_idx), NAN});
             m_gpu_freq_max_control.push_back(m_control{m_platform_io.push_control("GPU_CORE_FREQUENCY_MAX_CONTROL",
-                                                       agent_domain,
+                                                       m_agent_domain,
                                                        domain_idx), NAN});
         }
 
@@ -428,6 +428,7 @@ namespace geopm
     {
         std::vector<std::pair<std::string, std::string> > result;
 
+        result.push_back({"Agent Domain", std::to_string(m_agent_domain)});
         result.push_back({"GPU Frequency Requests", std::to_string(m_gpu_frequency_requests)});
         result.push_back({"GPU Clipped Frequency Requests", std::to_string(m_gpu_frequency_clipped)});
         result.push_back({"Resolved Max Frequency", std::to_string(m_f_max)});
