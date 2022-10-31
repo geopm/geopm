@@ -272,8 +272,8 @@ information.
 GEOPM Application Launch Wrapper
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 The GEOPM HPC Runtime package installs the ``geopmlaunch`` command.
-The `geopmlaunch` command is a wrapper for the MPI launch commands like *srun*, *aprun*,
-and *mpiexec*, where the wrapper script enables the GEOPM runtime.  The
+The ``geopmlaunch`` command is a wrapper for the MPI launch commands like ``srun``, ``aprun``,
+and ``mpiexec``, where the wrapper script enables the GEOPM runtime.  The
 "geopmlaunch" command supports exactly the same command line interface
 as the underlying launch command, but the wrapper extends the
 interface with GEOPM specific options.  The ``geopmlaunch`` application

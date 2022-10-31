@@ -82,7 +82,7 @@ Sphinx Requirement
 The sphinx python package is used to generate man pages and HTML
 documentation.  The generated man pages are required when running the build.
 The man pages are included in a distribution tarball created with the
-`make dist` target, so building from such an archive does not explicitly require
+``make dist`` target, so building from such an archive does not explicitly require
 sphinx.  This requirement may also be satisfied with PIP if installing the RPM
 packages for sphinx is an issue on your system:
 
@@ -122,7 +122,7 @@ The MSR Driver
 
 The msr-safe kernel driver provides two features.  One of these is a
 performance feature providing a low latency interface for reading and
-writing many MSR values at once through an `ioctl(2)` system call.
+writing many MSR values at once through an `ioctl(2) <https://man7.org/linux/man-pages/man2/ioctl.2.html>`_ system call.
 This may enable better performance of the GEOPM HPC runtime or other
 uses of MSRs, but also may not be critical depending on the
 algorithmic requirements.
@@ -160,7 +160,7 @@ between the Controller and the application, it may be necessary to
 alter the configuration for systemd.  The default behavior of systemd
 is to clean-up all inter-process communication for non-system users.
 This causes issues with GEOPM's initialization routines for shared
-memory.  This can be disabled by ensuring that `RemoveIPC=no` is set
-in `/etc/systemd/logind.conf`.  Most Linux distributions change the
+memory.  This can be disabled by ensuring that ``RemoveIPC=no`` is set
+in ``/etc/systemd/logind.conf``.  Most Linux distributions change the
 default setting to disable this behavior.  More information can be
 found `here <https://superuser.com/a/1179962>`__.

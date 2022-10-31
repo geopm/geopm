@@ -87,7 +87,7 @@ some extra options will be provided to configure.
 
 The libraries, binaries and python tools will not be installed into
 the standard system paths if GEOPM is built from source and configured
-with the `--prefix` option.  In this case, it is required that the
+with the ``--prefix`` option.  In this case, it is required that the
 user augment their environment to specify the installed location.  If
 the configure option is specified as above. then the following
 modifications to the user's environment should be made prior to

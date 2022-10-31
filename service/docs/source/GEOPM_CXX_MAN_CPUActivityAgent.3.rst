@@ -4,7 +4,7 @@ geopm::CPUActivityAgent(3) -- agent for selecting CPU frequency based on CPU com
 Synopsis
 --------
 
-#include `<geopm/CPUActivityAgent.hpp> <https://github.com/geopm/geopm/blob/dev/src/CPUActivityAgent.hpp>`\
+#include `<geopm/CPUActivityAgent.hpp> <https://github.com/geopm/geopm/blob/dev/src/CPUActivityAgent.hpp>`_
 
 Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
 
