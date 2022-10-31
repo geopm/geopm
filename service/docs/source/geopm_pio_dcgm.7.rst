@@ -5,7 +5,7 @@ Description
 -----------
 
 The DCGMIOGroup implements the :doc:`geopm::IOGroup(3) <GEOPM_CXX_MAN_IOGroup.3>`
-interface to provide hardware signals for NVIDIA GPUs from the NVIDIA Datacenter GPU Manager.  This IO Group is intended for use with the `NVMLIOGroup <NVMLIOGroup.7.html>`
+interface to provide hardware signals for NVIDIA GPUs from the NVIDIA Datacenter GPU Manager.  This IO Group is intended for use with the :doc:`NVMLIOGroup <geopm_pio_nvml.7>`
 
 Requirements
 ^^^^^^^^^^^^

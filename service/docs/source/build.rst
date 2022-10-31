@@ -67,7 +67,7 @@ link to the C or C++ interfaces provided by libgeopmd.so should
 install the GEOPM Service Development Package.  This provides the C
 and C++ header files.  Installation of this package must be done
 manually as it is **not** installed as part of running the
-`install_service.sh` script documented above.
+``install_service.sh`` script documented above.
 
 
 Removing the GEOPM Service
