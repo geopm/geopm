@@ -27,6 +27,8 @@ namespace geopm
             ///
             ///@param [in] TensorOneD Tensor to copy
             TensorOneD(const TensorOneD&);
+
+            TensorOneD(TensorOneD &&other);
             ///@brief Constructor inputting from external JSON
             ///
             ///This function expects a Json array.
@@ -78,6 +80,8 @@ namespace geopm
             ///
             ///@param [in] other The assignee (tensor to be copied)
             TensorOneD& operator=(const TensorOneD& other);
+
+            TensorOneD& operator=(TensorOneD &&other);
             ///@brief Reference indexing of 1D tensor value at idx
             ///
             ///@param [in] idx The index at which to look for the value

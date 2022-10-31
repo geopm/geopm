@@ -4,14 +4,17 @@
  */
 
 
+#include "config.h"
+
+#include "TensorOneD.hpp"
+
 #include <math.h>
 #include <algorithm>
 #include <functional>
 #include <numeric>
-#include "geopm/Exception.hpp"
-#include "config.h"
+#include <utility>
 
-#include "TensorOneD.hpp"
+#include "geopm/Exception.hpp"
 
 namespace geopm
 {
@@ -25,8 +28,13 @@ namespace geopm
     }
 
     TensorOneD::TensorOneD(const TensorOneD &other)
+        : m_vec(other.m_vec)
     {
-        m_vec = other.m_vec;
+    }
+
+    TensorOneD::TensorOneD(TensorOneD &&other)
+        : m_vec(std::move(other.m_vec))
+    {
     }
 
     TensorOneD::TensorOneD(json11::Json input)
@@ -71,7 +79,7 @@ namespace geopm
         TensorOneD rval(m_vec.size());
         std::transform(m_vec.begin(), m_vec.end(), other.m_vec.begin(), rval.m_vec.begin(), std::plus<float>());
 
-        return rval;
+        return std::move(rval);
     }
 
     TensorOneD TensorOneD::operator-(const TensorOneD& other)
@@ -84,7 +92,7 @@ namespace geopm
         TensorOneD rval(m_vec.size());
         std::transform(m_vec.begin(), m_vec.end(), other.m_vec.begin(), rval.m_vec.begin(), std::minus<float>());
 
-        return rval;
+        return std::move(rval);
     }
 
 
@@ -95,12 +103,18 @@ namespace geopm
                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        return std::inner_product(m_vec.begin(), m_vec.end(), other.m_vec.begin(), 0);
+        return std::move(std::inner_product(m_vec.begin(), m_vec.end(), other.m_vec.begin(), 0));
     }
 
     TensorOneD& TensorOneD::operator=(const TensorOneD &other)
     {
         m_vec = other.m_vec;
+        return *this;
+    }
+
+    TensorOneD& TensorOneD::operator=(TensorOneD &&other)
+    {
+        m_vec = std::move(other.m_vec);
         return *this;
     }
 
@@ -120,6 +134,6 @@ namespace geopm
         for(std::size_t idx = 0; idx < m_vec.size(); idx++) {
             rval[idx] = 1/(1 + expf(-(m_vec.at(idx))));
         }
-        return rval;
+        return std::move(rval);
     }
 }
