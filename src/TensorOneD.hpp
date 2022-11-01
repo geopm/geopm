@@ -17,10 +17,10 @@ namespace geopm
     class TensorOneD
     {
         public:
-            TensorOneD() = delete;
-            ///@brief Constructor with size specified 
+            TensorOneD();
+            /// @brief Constructor with size specified 
             ///
-            ///@param [in] n Size of 1D tensor
+            /// @param [in] n Size of 1D tensor
             TensorOneD(std::size_t n);
             ///@brief Constructs a deep copy of the argument
             ///
@@ -28,11 +28,7 @@ namespace geopm
             TensorOneD(const TensorOneD&);
 
             TensorOneD(TensorOneD &&other);
-            ///@brief Constructor inputting from external JSON
-            ///
-            ///This function expects a Json array.
-            ///
-            ///@param [in] input json11::Json instance
+            /// @param [in] input json11::Json input The JSON array
             TensorOneD(json11::Json input);
             ///@brief Set length of 1D tensor
             ///
@@ -59,12 +55,11 @@ namespace geopm
             TensorOneD operator+(const TensorOneD& other);
             ///@brief Subtract two 1D tensors, element-wise
             ///
-            ///The tensors need to be the same length. A geopm::Exception
-            ///will be raised if the lengths do not match.
+            /// @throws geopm::Exception if the lengths do not match.
             ///
             ///@param [in] other The subtrahend
             ///
-            ///@return Returns a 1D tensor, the difference of two 1D tensors
+            /// @return A 1D tensor, the difference of two 1D tensors.
             TensorOneD operator-(const TensorOneD& other);
             ///@brief Multiply two 1D tensors, element-wise
             ///
