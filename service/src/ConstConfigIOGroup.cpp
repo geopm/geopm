@@ -52,7 +52,8 @@ namespace geopm
             try {
                 config_json = geopm::read_file(user_file_path);
                 load_default = false;
-            } catch (const Exception &ex) {
+            }
+            catch (const Exception &ex) {
 #ifdef GEOPM_DEBUG
                 std::cerr << "Warning: <geopm> Failed to load "
                           << "ConstConfigIOGroup configuration file \""
