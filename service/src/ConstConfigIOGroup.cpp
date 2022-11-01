@@ -322,8 +322,6 @@ namespace geopm
             std::string name = M_SIGNAL_PREFIX + signal.first;
 
             auto properties = signal.second.object_items();
-            check_json_signal_properties(signal.first, properties);
-
             int units = IOGroup::string_to_units(
                     properties["units"].string_value());
             int domain_type = PlatformTopo::domain_name_to_type(
@@ -334,7 +332,12 @@ namespace geopm
             auto json_values = properties["values"].array_items();
             std::vector<double> values;
             for (const auto &val : json_values) {
-                check_json_array_value(val);
+                if (!val.is_number()) {
+                    throw Exception("ConstConfigIOGroup::parse_config_json():"
+                                    " incorrect type for property: "
+                                    "\"values\"", GEOPM_ERROR_INVALID,
+                                    __FILE__, __LINE__);
+                }
                 values.push_back(val.number_value());
             }
 
@@ -372,20 +375,17 @@ namespace geopm
         return root;
     }
 
-    void ConstConfigIOGroup::check_json_signal(const Json::object::value_type &signal_obj)
+    void ConstConfigIOGroup::check_json_signal(const Json::object::value_type &signal)
     {
-        if (!signal_obj.second.is_object()) {
+        if (!signal.second.is_object()) {
             throw Exception("ConstConfigIOGroup::parse_config_json(): "
-                            "invalid signal: \"" + signal_obj.first + "\" ("
+                            "invalid signal: \"" + signal.first + "\" ("
                             "object expected)", GEOPM_ERROR_INVALID,
                             __FILE__, __LINE__);
         }
-    }
 
-    void ConstConfigIOGroup::check_json_signal_properties(
-        const std::string &signal_name,
-        const Json::object& properties)
-    {
+        const std::string &signal_name = signal.first;
+        const Json::object &properties = signal.second.object_items();
         // property -> found
         std::map<std::string, bool> required_keys;
         for (const auto &field : M_SIGNAL_FIELDS) {
@@ -429,16 +429,6 @@ namespace geopm
             }
             throw Exception("ConstConfigIOGroup::parse_config_json(): " +
                             err_msg.str(), GEOPM_ERROR_INVALID,
-                            __FILE__, __LINE__);
-        }
-    }
-
-    void ConstConfigIOGroup::check_json_array_value(const Json& val)
-    {
-        if (!val.is_number()) {
-            throw Exception("ConstConfigIOGroup::parse_config_json():"
-                            " incorrect type for property: "
-                            "\"values\"", GEOPM_ERROR_INVALID,
                             __FILE__, __LINE__);
         }
     }
