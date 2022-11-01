@@ -95,10 +95,7 @@ namespace geopm
 
             void parse_config_json(const std::string &config);
             static json11::Json construct_config_json_obj(const std::string &config);
-            static void check_json_signal(const json11::Json::object::value_type &signal_obj);
-            static void check_json_signal_properties(const std::string &signal_name,
-                                                     const json11::Json::object& properties);
-            static void check_json_array_value(const json11::Json& val);
+            static void check_json_signal(const json11::Json::object::value_type &signal);
 
             static const std::string M_PLUGIN_NAME;
             static const std::string M_SIGNAL_PREFIX;
