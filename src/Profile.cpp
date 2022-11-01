@@ -155,16 +155,14 @@ namespace geopm
             m_is_enabled = true;
         }
         catch (const Exception &ex) {
-            if (m_process < 0) {
-                std::cerr << "Warning: <geopm> Controller handshake failed at step "
-                          << step << ", running without geopm." << std::endl;
-                int err = ex.err_value();
-                if (err != GEOPM_ERROR_RUNTIME) {
-                    char tmp_msg[NAME_MAX];
-                    geopm_error_message(err, tmp_msg, sizeof(tmp_msg));
-                    tmp_msg[NAME_MAX-1] = '\0';
-                    std::cerr << tmp_msg << std::endl;
-                }
+            std::cerr << "Warning: <geopm> Controller handshake failed at step "
+                      << step << ", running without geopm." << std::endl;
+            int err = ex.err_value();
+            if (err != GEOPM_ERROR_RUNTIME) {
+                char tmp_msg[NAME_MAX];
+                geopm_error_message(err, tmp_msg, sizeof(tmp_msg));
+                tmp_msg[NAME_MAX-1] = '\0';
+                std::cerr << tmp_msg << std::endl;
             }
             m_is_enabled = false;
         }
