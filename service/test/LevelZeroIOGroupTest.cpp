@@ -697,8 +697,8 @@ TEST_F(LevelZeroIOGroupTest, signal_and_control_trimming)
                     frequency_min(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE));
         // EXPECT_CALL(*m_device_pool, // GPU_CORE_FREQUENCY_STATUS
         //             frequency_status(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE));
-         EXPECT_CALL(*m_device_pool, // GPU_CORE_FREQUENCY_EFFICIENT
-                     frequency_efficient(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE));
+        EXPECT_CALL(*m_device_pool, // GPU_CORE_FREQUENCY_EFFICIENT
+                    frequency_efficient(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE));
         EXPECT_CALL(*m_device_pool, // GPU_CORE_THROTTLE_REASONS
                     frequency_throttle_reasons(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE));
         EXPECT_CALL(*m_device_pool, // GPU_UNCORE_ACTIVE_TIME

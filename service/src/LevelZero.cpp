@@ -410,7 +410,6 @@ namespace geopm
         return frequency_status_helper(l0_device_idx, l0_domain, l0_domain_idx).throttle_reasons;
     }
 
-
     LevelZeroImp::m_frequency_s LevelZeroImp::frequency_status_helper(unsigned int l0_device_idx,
                                                                       int l0_domain, int l0_domain_idx) const
     {
