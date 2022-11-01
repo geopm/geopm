@@ -17,8 +17,7 @@ namespace geopm
     class TensorOneD
     {
         public:
-            ///@brief Constructor
-            TensorOneD();
+            TensorOneD() = delete;
             ///@brief Constructor with size specified 
             ///
             ///@param [in] n Size of 1D tensor
