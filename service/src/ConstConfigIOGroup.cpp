@@ -52,11 +52,11 @@ namespace geopm
             try {
                 config_json = geopm::read_file(user_file_path);
                 load_default = false;
-            } catch (...) {
+            } catch (const Exception &ex) {
 #ifdef GEOPM_DEBUG
                 std::cerr << "Warning: <geopm> Failed to load "
-                          << "ConstConfigIOGroup configuration file: "
-                          << user_file_path
+                          << "ConstConfigIOGroup configuration file \""
+                          << user_file_path << "\": " << ex.what()
                           << ". Proceeding with default configuration file..."
                           << std::endl;
 #endif
@@ -126,7 +126,7 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         else if (domain_idx < 0 ||
-            static_cast<std::size_t>(domain_idx) >= it->second->values.size()) {
+                 static_cast<std::size_t>(domain_idx) >= it->second->values.size()) {
             throw Exception("ConstConfigIOGroup::push_signal(): domain_idx " +
                             std::to_string(domain_idx) + " out of range.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -201,7 +201,7 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         else if (domain_idx < 0 ||
-            static_cast<std::size_t>(domain_idx) >= it->second->values.size()) {
+                 static_cast<std::size_t>(domain_idx) >= it->second->values.size()) {
             throw Exception("ConstConfigIOGroup::read_signal(): domain_idx " +
                             std::to_string(domain_idx) + " out of range.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -250,8 +250,7 @@ namespace geopm
         return string_format_double;
     }
 
-    std::string ConstConfigIOGroup::signal_description(
-        const std::string &signal_name) const
+    std::string ConstConfigIOGroup::signal_description(const std::string &signal_name) const
     {
         auto it = m_signal_available.find(signal_name);
         if (it == m_signal_available.end()) {
@@ -315,7 +314,6 @@ namespace geopm
     void ConstConfigIOGroup::parse_config_json(const std::string &config)
     {
         Json root = construct_config_json_obj(config);
-        check_json_root(root);
 
         auto signals = root.object_items();
         for (const auto &signal : signals) {
@@ -354,8 +352,7 @@ namespace geopm
         }
     }
 
-    Json ConstConfigIOGroup::construct_config_json_obj(
-        const std::string &config)
+    Json ConstConfigIOGroup::construct_config_json_obj(const std::string &config)
     {
         std::string err;
         Json root = Json::parse(config, err);
@@ -364,21 +361,17 @@ namespace geopm
                             "detected a malformed JSON string",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        return root;
-    }
 
-    void ConstConfigIOGroup::check_json_root(const Json &root)
-    {
         if (!root.is_object()) {
             throw Exception("ConstConfigIOGroup::parse_config_json(): "
                             "the root must be an object",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
+
+        return root;
     }
 
-
-    void ConstConfigIOGroup::check_json_signal(
-        const Json::object::value_type &signal_obj)
+    void ConstConfigIOGroup::check_json_signal(const Json::object::value_type &signal_obj)
     {
         if (!signal_obj.second.is_object()) {
             throw Exception("ConstConfigIOGroup::parse_config_json(): "
