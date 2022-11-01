@@ -38,7 +38,7 @@ class ConstConfigIOGroupTest : public::testing::Test
 };
 
 const std::string ConstConfigIOGroupTest::M_CONFIG_FILE_PATH =
-        "/tmp/const_config_test.json";
+        "const_config_test.json";
 
 void ConstConfigIOGroupTest::create_config_file(const std::string &config)
 {
@@ -442,28 +442,24 @@ TEST_F(ConstConfigIOGroupTest, valid_json_positive)
     EXPECT_EQ(iogroup.read_signal("CONST_CONFIG::CPU_CORE_FREQUENCY", GEOPM_DOMAIN_CPU, 2), 1070);
     EXPECT_EQ(iogroup.read_signal("CONST_CONFIG::GPU_CORE_FREQUENCY", GEOPM_DOMAIN_GPU, 0), 1500);
     {
-        auto expected_function = geopm::Agg::average;
-        auto actual_function = *iogroup.agg_function("CONST_CONFIG::CPU_CORE_FREQUENCY")
-            .target<double (*) (const std::vector<double>&)>();
-        EXPECT_EQ(expected_function, actual_function);
+        std::function<double(const std::vector<double> &)> func =
+            iogroup.agg_function("CONST_CONFIG::CPU_CORE_FREQUENCY");
+        EXPECT_TRUE(is_agg_average(func));
     }
     {
-        auto expected_function = geopm::Agg::sum;
-        auto actual_function = *iogroup.agg_function("CONST_CONFIG::GPU_CORE_FREQUENCY")
-            .target<double (*) (const std::vector<double>&)>();
-        EXPECT_EQ(expected_function, actual_function);
+        std::function<double(const std::vector<double> &)> func =
+            iogroup.agg_function("CONST_CONFIG::GPU_CORE_FREQUENCY");
+        EXPECT_TRUE(is_agg_sum(func));
     }
     {
-        auto expected_function = geopm::string_format_double;
-        auto actual_function = *iogroup.format_function("CONST_CONFIG::CPU_CORE_FREQUENCY")
-            .target<std::string (*) (double)>();
-        EXPECT_EQ(expected_function, actual_function);
+        std::function<std::string(double)> func =
+            iogroup.format_function("CONST_CONFIG::CPU_CORE_FREQUENCY");
+        EXPECT_TRUE(is_format_double(func));
     }
     {
-        auto expected_function = geopm::string_format_double;
-        auto actual_function = *iogroup.format_function("CONST_CONFIG::GPU_CORE_FREQUENCY")
-            .target<std::string (*) (double)>();
-        EXPECT_EQ(expected_function, actual_function);
+        std::function<std::string(double)> func =
+            iogroup.format_function("CONST_CONFIG::GPU_CORE_FREQUENCY");
+        EXPECT_TRUE(is_format_double(func));
     }
     EXPECT_EQ(iogroup.signal_description("CONST_CONFIG::CPU_CORE_FREQUENCY"),
         "    description: " "Provides CPU core frequency" "\n"
