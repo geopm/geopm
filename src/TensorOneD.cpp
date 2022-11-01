@@ -8,7 +8,7 @@
 
 #include "TensorOneD.hpp"
 
-#include <math.h>
+#include <cmath>
 #include <algorithm>
 #include <functional>
 #include <numeric>
@@ -18,9 +18,11 @@
 
 namespace geopm
 {
-    TensorOneD::TensorOneD()
-    {
-    }
+
+    //TODO: I can delete??
+//    TensorOneD::TensorOneD()
+//    {
+//    }
 
     TensorOneD::TensorOneD(std::size_t dim)
     {
@@ -43,14 +45,15 @@ namespace geopm
             throw geopm::Exception("Neural network weights is non-array-type.\n",
                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        if (input.array_items().size() == 0) {
+        if (input.array_items().empty()) {
             throw geopm::Exception("Empty array is invalid for neural network weights.\n",
                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         set_dim(input.array_items().size());
+        std::size_t vec_size = m_vec.size();
 
-        for (std::size_t idx = 0; idx < m_vec.size(); idx++) {
+        for (std::size_t idx = 0; idx < vec_size; ++idx) {
             if (!input[idx].is_number()) {
                 throw geopm::Exception("Non-numeric type found in neural network weights.\n",
                                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -59,16 +62,19 @@ namespace geopm
         }
     }
 
+    //TODO: Move to inline in header
     std::size_t TensorOneD::get_dim() const
     {
         return m_vec.size();
     }
 
+    //TODO: Move to inline in header
     void TensorOneD::set_dim(std::size_t dim)
     {
         m_vec.resize(dim);
     }
 
+    //TODO: Question: What happens if other and *this are the same?
     TensorOneD TensorOneD::operator+(const TensorOneD& other)
     {
         if (get_dim() != other.get_dim()) {
@@ -84,6 +90,7 @@ namespace geopm
 
     TensorOneD TensorOneD::operator-(const TensorOneD& other)
     {
+        //TODO: Q - is this better or m_vec.size() != other.m_vec.size()
         if (get_dim() != other.get_dim()) {
             throw geopm::Exception("Subtracting vectors of mismatched dimensions.",
                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
