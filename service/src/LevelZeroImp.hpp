@@ -123,8 +123,6 @@ namespace geopm
                 // Device/Package domains
                 uint32_t num_device_power_domain;
                 zes_pwr_handle_t power_domain;
-                //uint32_t num_device_perf_domain;
-                std::vector<zes_perf_handle_t> perf_domain;
                 mutable uint64_t cached_energy_timestamp;
             };
 
