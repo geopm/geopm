@@ -511,8 +511,6 @@ namespace geopm
     int LevelZeroImp::performance_domain_count(int geopm_domain, unsigned int l0_device_idx, int l0_domain) const
     {
         int result = 0;
-        if (geopm_domain == GEOPM_DOMAIN_GPU) {
-        }
         else if (geopm_domain == GEOPM_DOMAIN_GPU_CHIP) {
             result = m_devices.at(l0_device_idx).subdevice.perf_domain.at(l0_domain).size();
         }
