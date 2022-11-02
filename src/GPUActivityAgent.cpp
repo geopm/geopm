@@ -103,7 +103,7 @@ namespace geopm
             m_agent_domain != GEOPM_DOMAIN_GPU_CHIP &&
             m_agent_domain != GEOPM_DOMAIN_BOARD) {
             throw Exception("GPUActivityAgent::" + std::string(__func__) +
-                            "(): Required signals and controls do not exist at the " +
+                            "(): Required signals and controls do not exist at the BOARD, " +
                             "GPU or GPU_CHIP domain!", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
@@ -165,7 +165,7 @@ namespace geopm
         // value provided by the policy may not be valid.  In this case approximating
         // f_efficient as midway between F_min and F_max is reasonable.
         if (std::isnan(in_policy[M_POLICY_GPU_FREQ_EFFICIENT])) {
-            auto all_names = m_platform_io.signal_names();
+            const auto all_names = m_platform_io.signal_names();
             std::string fe_sig_name = "LEVELZERO::GPU_CORE_FREQUENCY_EFFICIENT";
             if (all_names.count(fe_sig_name) != 0) {
                 in_policy[M_POLICY_GPU_FREQ_EFFICIENT] = m_platform_io.read_signal(fe_sig_name,
