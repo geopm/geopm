@@ -64,7 +64,6 @@ TEST_F(LevelZeroDevicePoolTest, subdevice_conversion_and_function)
     EXPECT_CALL(*m_levelzero, num_gpu(GEOPM_DOMAIN_GPU_CHIP)).WillRepeatedly(Return(num_gpu_subdevice));
 
     int value = 1500;
-    std::vector<double> perf_value_accel = {0.12, 0.23, 0.34, 0.77};
     std::vector<double> perf_value_chip_compute = {0.50, 0.51, 0.52, 0.53, 0.54, 0.55, 0.56, 0.57};
     std::vector<double> perf_value_chip_mem = {0.40, 0.41, 0.42, 0.43, 0.44, 0.45, 0.46, 0.47};
     int offset = 0;
@@ -72,12 +71,9 @@ TEST_F(LevelZeroDevicePoolTest, subdevice_conversion_and_function)
     for (int dev_idx = 0; dev_idx < num_gpu; ++dev_idx) {
         EXPECT_CALL(*m_levelzero, frequency_domain_count(dev_idx, MockLevelZero::M_DOMAIN_COMPUTE)).WillRepeatedly(Return(domain_count));
         EXPECT_CALL(*m_levelzero, engine_domain_count(dev_idx, MockLevelZero::M_DOMAIN_COMPUTE)).WillRepeatedly(Return(domain_count));
-        EXPECT_CALL(*m_levelzero, performance_domain_count(GEOPM_DOMAIN_GPU, dev_idx, MockLevelZero::M_DOMAIN_ALL)).WillRepeatedly(Return(domain_count));
 
         EXPECT_CALL(*m_levelzero, performance_domain_count(GEOPM_DOMAIN_GPU_CHIP, dev_idx, MockLevelZero::M_DOMAIN_COMPUTE)).WillRepeatedly(Return(domain_count));
         EXPECT_CALL(*m_levelzero, performance_domain_count(GEOPM_DOMAIN_GPU_CHIP, dev_idx, MockLevelZero::M_DOMAIN_MEMORY)).WillRepeatedly(Return(domain_count));
-
-        EXPECT_CALL(*m_levelzero, performance_factor(GEOPM_DOMAIN_GPU, dev_idx, MockLevelZero::M_DOMAIN_ALL, 0)).WillOnce(Return(perf_value_accel[dev_idx]));
 
         for (int sub_idx = 0; sub_idx < num_subdevice_per_device; ++sub_idx) {
             EXPECT_CALL(*m_levelzero, frequency_status(dev_idx, MockLevelZero::M_DOMAIN_COMPUTE, sub_idx)).WillOnce(Return(value+offset));
@@ -94,11 +90,6 @@ TEST_F(LevelZeroDevicePoolTest, subdevice_conversion_and_function)
         }
     }
     LevelZeroDevicePoolImp m_device_pool(*m_levelzero);
-
-    for (int dev_idx = 0; dev_idx < num_gpu; ++dev_idx) {
-        EXPECT_EQ(perf_value_accel[dev_idx], m_device_pool.performance_factor(GEOPM_DOMAIN_GPU, dev_idx, MockLevelZero::M_DOMAIN_ALL));
-        EXPECT_NO_THROW(m_device_pool.performance_factor_control(GEOPM_DOMAIN_GPU, dev_idx, MockLevelZero::M_DOMAIN_ALL, 0.5));
-    }
 
     for (int sub_idx = 0; sub_idx < num_gpu_subdevice; ++sub_idx) {
         EXPECT_EQ(value+sub_idx, m_device_pool.frequency_status(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE));
