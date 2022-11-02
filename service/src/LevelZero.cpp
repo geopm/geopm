@@ -315,13 +315,7 @@ namespace geopm
         num_domain = 0;
         ze_result = zesDeviceEnumPerformanceFactorDomains(m_devices.at(
                     device_idx).device_handle, &num_domain, nullptr);
-        if (ze_result == ZE_RESULT_ERROR_UNSUPPORTED_FEATURE) {
-#ifdef GEOPM_DEBUG
-            std::cerr << "Warning: <geopm> LevelZero: Performance domain detection is "
-                         "not supported.\n";
-#endif
-        }
-        else {
+        if (ze_result != ZE_RESULT_ERROR_UNSUPPORTED_FEATURE) {
             check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
                             "LevelZero::" + std::string(__func__) +
                             ": Sysman failed to get number of domains", __LINE__);
@@ -336,8 +330,6 @@ namespace geopm
 
             m_devices.at(device_idx).subdevice.
                       perf_domain.resize(geopm::LevelZero::M_DOMAIN_SIZE);
-            m_devices.at(device_idx).
-                      perf_domain.resize(geopm::LevelZero::M_DOMAIN_SIZE);
 
             for (auto handle : perf_domain) {
                 zes_perf_properties_t property = {};
@@ -348,19 +340,7 @@ namespace geopm
                                 __LINE__);
 
                 //Finding non-subdevice domain.
-                if (property.onSubdevice == 0) {
-                    if (property.engines == ZES_ENGINE_TYPE_FLAG_COMPUTE) {
-                        m_devices.at(device_idx).perf_domain.at(geopm::LevelZero::M_DOMAIN_COMPUTE) = handle;
-                    }
-#ifdef GEOPM_DEBUG
-                    else {
-                        std::cerr << "Warning: <geopm> LevelZero:" <<
-                                     " Unsupported device level performance factor domain (" <<
-                                     std::to_string(property.engines) << ") detected." << std::endl;
-                    }
-#endif
-                }
-                else {
+                if (property.onSubdevice != 0) {
                     if (property.engines == ZES_ENGINE_TYPE_FLAG_COMPUTE) {
                         m_devices.at(device_idx).subdevice.perf_domain.at(
                                  geopm::LevelZero::M_DOMAIN_COMPUTE).push_back(handle);
@@ -375,6 +355,12 @@ namespace geopm
                 }
             }
         }
+#ifdef GEOPM_DEBUG
+        else {
+            std::cerr << "Warning: <geopm> LevelZero: Performance domain detection is "
+                         "not supported.\n";
+        }
+#endif
     }
 
     void LevelZeroImp::engine_domain_cache(unsigned int device_idx) {
@@ -526,7 +512,6 @@ namespace geopm
     {
         int result = 0;
         if (geopm_domain == GEOPM_DOMAIN_GPU) {
-            result = m_devices.at(l0_device_idx).perf_domain.size();
         }
         else if (geopm_domain == GEOPM_DOMAIN_GPU_CHIP) {
             result = m_devices.at(l0_device_idx).subdevice.perf_domain.at(l0_domain).size();
@@ -541,22 +526,12 @@ namespace geopm
         zes_perf_handle_t handle;
         ze_result_t ze_result;
 
-        if (geopm_domain == GEOPM_DOMAIN_GPU) {
-            handle = m_devices.at(l0_device_idx).perf_domain.at(l0_domain);
+        handle = m_devices.at(l0_device_idx).subdevice.perf_domain.at(l0_domain).at(l0_domain_idx);
 
-            ze_result = zesPerformanceFactorGetConfig(handle, &result);
-            check_ze_result(ze_result, GEOPM_ERROR_RUNTIME, "LevelZero::"
-                            + std::string(__func__) +
-                            ": Sysman failed to get performance factor values", __LINE__);
-        }
-        else if (geopm_domain == GEOPM_DOMAIN_GPU_CHIP) {
-            handle = m_devices.at(l0_device_idx).subdevice.perf_domain.at(l0_domain).at(l0_domain_idx);
-
-            ze_result = zesPerformanceFactorGetConfig(handle, &result);
-            check_ze_result(ze_result, GEOPM_ERROR_RUNTIME, "LevelZero::"
-                            + std::string(__func__) +
-                            ": Sysman failed to get performance factor values", __LINE__);
-        }
+        ze_result = zesPerformanceFactorGetConfig(handle, &result);
+        check_ze_result(ze_result, GEOPM_ERROR_RUNTIME, "LevelZero::"
+                        + std::string(__func__) +
+                        ": Sysman failed to get performance factor values", __LINE__);
 
         return result;
     }
@@ -834,18 +809,7 @@ namespace geopm
         zes_perf_handle_t handle;
         ze_result_t ze_result;
 
-        if (geopm_domain == GEOPM_DOMAIN_GPU) {
-            handle = m_devices.at(l0_device_idx).perf_domain.at(l0_domain);
-        }
-        else if (geopm_domain == GEOPM_DOMAIN_GPU_CHIP) {
-            handle = m_devices.at(l0_device_idx).subdevice.perf_domain.at(l0_domain).at(l0_domain_idx);
-        }
-        else {
-            throw Exception("LevelZero::" + std::string(__func__) +
-                            ": domain type " + std::to_string(geopm_domain) +
-                            " is not supported.", GEOPM_ERROR_INVALID,
-                             __FILE__, __LINE__);
-        }
+        handle = m_devices.at(l0_device_idx).subdevice.perf_domain.at(l0_domain).at(l0_domain_idx);
 
         ze_result = zesPerformanceFactorSetConfig(handle, setting);
         check_ze_result(ze_result, GEOPM_ERROR_RUNTIME, "LevelZero::"
