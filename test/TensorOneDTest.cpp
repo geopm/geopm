@@ -41,11 +41,25 @@ TEST_F(TensorOneDTest, test_sum)
     EXPECT_EQ(6, four[1]);
 }
 
+TEST_F(TensorOneDTest, test_self_sum)
+{
+    TensorOneD four = two + two;
+    EXPECT_EQ(6, four[0]);
+    EXPECT_EQ(8, four[1]);
+}
+
 TEST_F(TensorOneDTest, test_diff)
 {
     TensorOneD four(one - two);
     EXPECT_EQ(-2, four[0]);
     EXPECT_EQ(-2, four[1]);
+}
+
+TEST_F(TensorOneDTest, test_self_diff)
+{
+    TensorOneD four = one - one;
+    EXPECT_EQ(0, four[0]);
+    EXPECT_EQ(0, four[1]);
 }
 
 TEST_F(TensorOneDTest, test_dot)

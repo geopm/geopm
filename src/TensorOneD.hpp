@@ -17,8 +17,8 @@ namespace geopm
     class TensorOneD
     {
         public:
-            TensorOneD();
-            /// @brief Constructor with size specified 
+            TensorOneD() = default;
+            ///@brief Constructor with size specified 
             ///
             /// @param [in] n Size of 1D tensor
             TensorOneD(std::size_t n);
@@ -35,19 +35,28 @@ namespace geopm
             ///If the instance has more than n elements, it will
             ///be truncated. If it has fewer than n elements, the
             ///tensor will be expanded to a total size of n, uninitialized.
-            ///A geopm::Exception will be rasied if input is not an array,
+            ///
+            ///@throws geopm::Exception if input is not an array,
             ///if input is empty, or if a non-numeric type is found in input.
             ///
             ///@param [in] n Resulting size of 1D tensor
-            void set_dim(std::size_t n);
+            inline void set_dim(std::size_t dim)
+            {
+                m_vec.resize(dim);
+            }
+
             ///@brief Get the length of the 1D tensor
             ///
             ///@return Returns the length of the 1D tensor
-            std::size_t get_dim() const;
+            inline std::size_t get_dim() const
+            {
+                return m_vec.size();
+            }
             ///@brief Add two 1D tensors, element-wise
             ///
-            ///The tensors need to be the same length. A geopm::Exception
-            ///will be raised if the lengths do not match.
+            ///The tensors need to be the same length. 
+            ///
+            ///@throws geopm::Exception if the lengths do not match.
             ///
             ///@param [in] other The summand
             ///
@@ -55,7 +64,7 @@ namespace geopm
             TensorOneD operator+(const TensorOneD& other);
             ///@brief Subtract two 1D tensors, element-wise
             ///
-            /// @throws geopm::Exception if the lengths do not match.
+            ///@throws geopm::Exception if the lengths do not match.
             ///
             ///@param [in] other The subtrahend
             ///
@@ -63,8 +72,7 @@ namespace geopm
             TensorOneD operator-(const TensorOneD& other);
             ///@brief Multiply two 1D tensors, element-wise
             ///
-            ///The tensors need to be the same length. A geopm::Exception
-            ///will be raised if the lengths do not match.
+            ///@throws geopm::Exception if the lengths do not match.
             ///
             ///@param [in] other The multiplicand
             ///

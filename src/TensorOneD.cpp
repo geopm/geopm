@@ -19,10 +19,6 @@
 namespace geopm
 {
 
-    //TODO: I can delete??
-//    TensorOneD::TensorOneD()
-//    {
-//    }
 
     TensorOneD::TensorOneD(std::size_t dim)
     {
@@ -62,17 +58,6 @@ namespace geopm
         }
     }
 
-    //TODO: Move to inline in header
-    std::size_t TensorOneD::get_dim() const
-    {
-        return m_vec.size();
-    }
-
-    //TODO: Move to inline in header
-    void TensorOneD::set_dim(std::size_t dim)
-    {
-        m_vec.resize(dim);
-    }
 
     //TODO: Question: What happens if other and *this are the same?
     TensorOneD TensorOneD::operator+(const TensorOneD& other)
@@ -85,12 +70,11 @@ namespace geopm
         TensorOneD rval(m_vec.size());
         std::transform(m_vec.begin(), m_vec.end(), other.m_vec.begin(), rval.m_vec.begin(), std::plus<float>());
 
-        return std::move(rval);
+        return rval;
     }
 
     TensorOneD TensorOneD::operator-(const TensorOneD& other)
     {
-        //TODO: Q - is this better or m_vec.size() != other.m_vec.size()
         if (get_dim() != other.get_dim()) {
             throw geopm::Exception("Subtracting vectors of mismatched dimensions.",
                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -99,7 +83,7 @@ namespace geopm
         TensorOneD rval(m_vec.size());
         std::transform(m_vec.begin(), m_vec.end(), other.m_vec.begin(), rval.m_vec.begin(), std::minus<float>());
 
-        return std::move(rval);
+        return rval;
     }
 
 
@@ -110,7 +94,7 @@ namespace geopm
                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        return std::move(std::inner_product(m_vec.begin(), m_vec.end(), other.m_vec.begin(), 0));
+        return std::inner_product(m_vec.begin(), m_vec.end(), other.m_vec.begin(), 0);
     }
 
     TensorOneD& TensorOneD::operator=(const TensorOneD &other)
@@ -141,6 +125,6 @@ namespace geopm
         for(std::size_t idx = 0; idx < m_vec.size(); idx++) {
             rval[idx] = 1/(1 + expf(-(m_vec.at(idx))));
         }
-        return std::move(rval);
+        return rval;
     }
 }

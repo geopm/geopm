@@ -286,6 +286,8 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/TensorOneDTest.test_input \
               test/gtest_links/TensorOneDTest.test_non_array \
               test/gtest_links/TensorOneDTest.test_sigmoid \
+              test/gtest_links/TensorOneDTest.test_self_diff \
+              test/gtest_links/TensorOneDTest.test_self_sum \
               test/gtest_links/TensorOneDTest.test_sum \
               test/gtest_links/TracerTest.columns \
               test/gtest_links/TracerTest.region_entry_exit \
