@@ -59,7 +59,6 @@ namespace geopm
     }
 
 
-    //TODO: Question: What happens if other and *this are the same?
     TensorOneD TensorOneD::operator+(const TensorOneD& other)
     {
         if (get_dim() != other.get_dim()) {
