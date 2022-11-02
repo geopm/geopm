@@ -10,9 +10,11 @@ and characterizes the system memory bandwidth usage for the CPU Activity Agent.
 '''
 
 import argparse
-import math
-import sys
 import json
+import jsonschema
+import math
+import os
+import sys
 
 import pandas
 import numpy as np
@@ -133,11 +135,41 @@ def main(full_df, region_list):
                 "CPU_UNCORE_FREQ_EFFICIENT" : uncore_freq_recommendation,
                 "CPU_PHI" : float('nan')}
 
-    for idx, (k,v) in enumerate(mem_bw_characterization.items()):
-        policy['CPU_UNCORE_FREQ_' + str(idx)] = k
-        policy['MAX_MEMORY_BANDWIDTH_' + str(idx)] = v
+    json_dict = {"CPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY" :
+                    {
+                        "domain" : "board",
+                        "description" : "Defines the efficient core frequency to use for CPUs.  " +
+                                        "Based on a workload that scales strongly with the frequency domain",
+                        "units" : "hertz",
+                        "aggregation" : "average",
+                        "values" : [core_freq_recommendation],
+                    },
+                 "CPU_UNCORE_FREQUENCY_EFFICIENT_HIGH_INTENSITY":
+                    {
+                        "domain" : "board",
+                        "description" : "Defines the efficient uncore frequency to use for CPUs.  " +
+                                        "Based on a workload that scales strongly with the frequency domain",
+                        "units" : "hertz",
+                        "aggregation" : "average",
+                        "values" : [uncore_freq_recommendation],
+                    }
+                }
 
-    return policy
+    for idx, (k,v) in enumerate(mem_bw_characterization.items()):
+        json_dict["CPU_UNCORE_FREQUENCY_" + str(idx)] = {"domain" : "board",
+                                                        "description" : "CPU Uncore Frequency associated with " +
+                                                                        "CPU_UNCORE_MAX_MEMORY_BANDWIDTH_" + str(idx),
+                                                        "units" : "hertz",
+                                                        "aggregation" : "average",
+                                                        "values" : [k]}
+        json_dict["CPU_UNCORE_MAX_MEMORY_BANDWIDTH_" + str(idx)] = {"domain" : "board",
+                                                                    "description" : "Maximum memory bandwidth " +
+                                                                                    "associated with " +
+                                                                                    "CPU_UNCORE_FREQUENCY_" + str(idx),
+                                                                    "units" : "bytes/second",
+                                                                    "aggregation" : "average",
+                                                                    "values" : [v]}
+    return json_dict
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -165,4 +197,11 @@ if __name__ == '__main__':
 
     output = main(df, region_list)
 
-    sys.stdout.write(json.dumps(output) + "\n")
+    root_dir = os.getenv('GEOPM_SOURCE')
+    schema_file = root_dir + "/service/json_schemas/const_config_io.schema.json"
+    with open(schema_file, "r") as f:
+        schema = json.load(f)
+
+    jsonschema.validate(output, schema=schema)
+
+    sys.stdout.write(json.dumps(output, indent=4) + "\n")
