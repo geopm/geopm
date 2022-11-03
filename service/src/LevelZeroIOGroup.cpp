@@ -1061,7 +1061,7 @@ namespace geopm
                 throw Exception("LevelZeroIOGroup::" + std::string(__func__) + ": "
                                 + " Failed to fetch frequency control range for "
                                 " GPU_CHIP domain " + std::to_string(domain_idx) +
-                                "due to exception.  Exception: " + ex.what(),
+                                "due to exception: " + ex.what(),
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
 
@@ -1077,7 +1077,7 @@ namespace geopm
                 throw Exception("LevelZeroIOGroup::" + std::string(__func__) + ": "
                                 + " Failed to fetch performance factor value for "
                                 " GPU_CHIP domain " + std::to_string(domain_idx) +
-                                "due to exception.  Exception: " + ex.what(),
+                                "due to exception: " + ex.what(),
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
         }

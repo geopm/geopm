@@ -204,8 +204,8 @@ namespace geopm
             /// @brief Set min and max frequency for LevelZero device.
             /// @param [in] l0_device_idx The index indicating a particular
             ///        Level Zero GPU.
-            /// @param [in] domain The domain type being targeted
-            /// @param [in] domain_idx The domain being targeted
+            /// @param [in] l0_domain The domain type being targeted
+            /// @param [in] l0_domain_idx The domain being targeted
             /// @param [in] range_min Min target frequency in MHz.
             /// @param [in] range_max Max target frequency in MHz.
             virtual void frequency_control(unsigned int l0_device_idx, int l0_domain,
@@ -215,8 +215,8 @@ namespace geopm
             /// @brief Set the performance factor for the LevelZero device.
             /// @param [in] l0_device_idx The index indicating a particular
             ///        Level Zero accelerator.
-            /// @param [in] domain The level zero domain type being targeted
-            /// @param [in] domain_idx The level zero domain being targeted
+            /// @param [in] l0_domain The level zero domain type being targeted
+            /// @param [in] l0_domain_idx The level zero domain being targeted
             /// @param [in] setting The performance factor value, 0-100
             virtual void performance_factor_control(unsigned int l0_device_idx,
                                                     int l0_domain,
