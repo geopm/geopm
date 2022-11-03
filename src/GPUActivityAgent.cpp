@@ -165,10 +165,10 @@ namespace geopm
         // value provided by the policy may not be valid.  In this case approximating
         // f_efficient as midway between F_min and F_max is reasonable.
         if (std::isnan(in_policy[M_POLICY_GPU_FREQ_EFFICIENT])) {
-            const auto all_names = m_platform_io.signal_names();
-            std::string fe_sig_name = "LEVELZERO::GPU_CORE_FREQUENCY_EFFICIENT";
-            if (all_names.count(fe_sig_name) != 0) {
-                in_policy[M_POLICY_GPU_FREQ_EFFICIENT] = m_platform_io.read_signal(fe_sig_name,
+            const std::set<std::string> &ALL_NAMES = m_platform_io.signal_names();
+            const std::string FE_SIG_NAME = "LEVELZERO::GPU_CORE_FREQUENCY_EFFICIENT";
+            if (ALL_NAMES.count(FE_SIG_NAME) != 0) {
+                in_policy[M_POLICY_GPU_FREQ_EFFICIENT] = m_platform_io.read_signal(FE_SIG_NAME,
                                                                                    GEOPM_DOMAIN_BOARD, 0);
             }
             else {
