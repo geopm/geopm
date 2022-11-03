@@ -163,10 +163,11 @@ def main(full_df, region_list):
                                                         "aggregation" : "average",
                                                         "values" : [k]}
         json_dict["CPU_UNCORE_MAX_MEMORY_BANDWIDTH_" + str(idx)] = {"domain" : "board",
-                                                                    "description" : "Maximum memory bandwidth " +
+                                                                    "description" : "Maximum memory bandwidth in " +
+                                                                                    "bytes perf second " +
                                                                                     "associated with " +
                                                                                     "CPU_UNCORE_FREQUENCY_" + str(idx),
-                                                                    "units" : "bytes/second",
+                                                                    "units" : "none",
                                                                     "aggregation" : "average",
                                                                     "values" : [v]}
     return json_dict
