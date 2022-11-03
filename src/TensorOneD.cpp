@@ -104,6 +104,10 @@ namespace geopm
 
     TensorOneD& TensorOneD::operator=(TensorOneD &&other)
     {
+        if (&other == this) {
+            return *this;
+        }
+
         m_vec = std::move(other.m_vec);
         return *this;
     }
