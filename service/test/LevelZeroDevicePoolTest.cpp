@@ -72,8 +72,8 @@ TEST_F(LevelZeroDevicePoolTest, subdevice_conversion_and_function)
         EXPECT_CALL(*m_levelzero, frequency_domain_count(dev_idx, MockLevelZero::M_DOMAIN_COMPUTE)).WillRepeatedly(Return(domain_count));
         EXPECT_CALL(*m_levelzero, engine_domain_count(dev_idx, MockLevelZero::M_DOMAIN_COMPUTE)).WillRepeatedly(Return(domain_count));
 
-        EXPECT_CALL(*m_levelzero, performance_domain_count(GEOPM_DOMAIN_GPU_CHIP, dev_idx, MockLevelZero::M_DOMAIN_COMPUTE)).WillRepeatedly(Return(domain_count));
-        EXPECT_CALL(*m_levelzero, performance_domain_count(GEOPM_DOMAIN_GPU_CHIP, dev_idx, MockLevelZero::M_DOMAIN_MEMORY)).WillRepeatedly(Return(domain_count));
+        EXPECT_CALL(*m_levelzero, performance_domain_count(dev_idx, MockLevelZero::M_DOMAIN_COMPUTE)).WillRepeatedly(Return(domain_count));
+        EXPECT_CALL(*m_levelzero, performance_domain_count(dev_idx, MockLevelZero::M_DOMAIN_MEMORY)).WillRepeatedly(Return(domain_count));
 
         for (int sub_idx = 0; sub_idx < num_subdevice_per_device; ++sub_idx) {
             EXPECT_CALL(*m_levelzero, frequency_status(dev_idx, MockLevelZero::M_DOMAIN_COMPUTE, sub_idx)).WillOnce(Return(value+offset));
@@ -84,8 +84,8 @@ TEST_F(LevelZeroDevicePoolTest, subdevice_conversion_and_function)
             EXPECT_CALL(*m_levelzero, active_time(dev_idx, MockLevelZero::M_DOMAIN_COMPUTE, sub_idx)).WillOnce(Return(value+offset+num_gpu_subdevice*40));
             EXPECT_CALL(*m_levelzero, active_time_timestamp(dev_idx, MockLevelZero::M_DOMAIN_COMPUTE, sub_idx)).WillOnce(Return(value+offset+num_gpu_subdevice*50));
 
-            EXPECT_CALL(*m_levelzero, performance_factor(GEOPM_DOMAIN_GPU_CHIP, dev_idx, MockLevelZero::M_DOMAIN_COMPUTE, sub_idx)).WillOnce(Return(perf_value_chip_compute[offset]));
-            EXPECT_CALL(*m_levelzero, performance_factor(GEOPM_DOMAIN_GPU_CHIP, dev_idx, MockLevelZero::M_DOMAIN_MEMORY, sub_idx)).WillOnce(Return(perf_value_chip_mem[offset]));
+            EXPECT_CALL(*m_levelzero, performance_factor(dev_idx, MockLevelZero::M_DOMAIN_COMPUTE, sub_idx)).WillOnce(Return(perf_value_chip_compute[offset]));
+            EXPECT_CALL(*m_levelzero, performance_factor(dev_idx, MockLevelZero::M_DOMAIN_MEMORY, sub_idx)).WillOnce(Return(perf_value_chip_mem[offset]));
             ++offset;
         }
     }

@@ -44,10 +44,10 @@ class MockLevelZero : public geopm::LevelZero
 
         MOCK_METHOD(int, power_domain_count, (int, unsigned int, int),
                     (const, override));
-        MOCK_METHOD(int, performance_domain_count, (int, unsigned int, int),
+        MOCK_METHOD(int, performance_domain_count, (unsigned int, int),
                     (const, override));
         MOCK_METHOD(double, performance_factor,
-                    (int, unsigned int, int, int), (const, override));
+                    (unsigned int, int, int), (const, override));
         MOCK_METHOD((std::pair<uint64_t, uint64_t>), energy_pair,
                     (int, unsigned int, int), (const, override));
         MOCK_METHOD(uint64_t, energy,
@@ -64,7 +64,7 @@ class MockLevelZero : public geopm::LevelZero
         MOCK_METHOD(void, frequency_control,
                     (unsigned int, int, int, double, double), (const, override));
         MOCK_METHOD(void, performance_factor_control,
-                    (int, unsigned int, int, int, double), (const, override));
+                    (unsigned int, int, int, double), (const, override));
 };
 
 #endif
