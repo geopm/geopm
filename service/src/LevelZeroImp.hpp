@@ -59,9 +59,9 @@ namespace geopm
                                       unsigned int l0_device_idx,
                                       int l0_domain,
                                       int l0_domain_idx) const override;
-            int performance_domain_count(int geopm_domain, unsigned int l0_device_idx,
+            int performance_domain_count(unsigned int l0_device_idx,
                                          int l0_domain) const override;
-            double performance_factor(int geopm_domain, unsigned int l0_device_idx,
+            double performance_factor(unsigned int l0_device_idx,
                                       int l0_domain, int l0_domain_idx) const override;
 
             int32_t power_limit_tdp(unsigned int l0_device_idx) const override;
@@ -72,8 +72,7 @@ namespace geopm
                                    int l0_domain_idx, double range_min,
                                    double range_max) const override;
 
-            void performance_factor_control(int geopm_domain,
-                                            unsigned int l0_device_idx,
+            void performance_factor_control(unsigned int l0_device_idx,
                                             int l0_domain,
                                             int l0_domain_idx,
                                             double setting) const override;
