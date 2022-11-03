@@ -508,16 +508,12 @@ namespace geopm
         return m_devices.at(l0_device_idx).subdevice.engine_domain.at(l0_domain).size();
     }
 
-    int LevelZeroImp::performance_domain_count(int geopm_domain, unsigned int l0_device_idx, int l0_domain) const
+    int LevelZeroImp::performance_domain_count(unsigned int l0_device_idx, int l0_domain) const
     {
-        int result = 0;
-        else if (geopm_domain == GEOPM_DOMAIN_GPU_CHIP) {
-            result = m_devices.at(l0_device_idx).subdevice.perf_domain.at(l0_domain).size();
-        }
-        return result;
+        return m_devices.at(l0_device_idx).subdevice.perf_domain.at(l0_domain).size();
     }
 
-    double LevelZeroImp::performance_factor(int geopm_domain, unsigned int l0_device_idx,
+    double LevelZeroImp::performance_factor(unsigned int l0_device_idx,
                                             int l0_domain, int l0_domain_idx) const
     {
         double result = NAN;
@@ -798,8 +794,7 @@ namespace geopm
                         ": Sysman failed to set frequency.", __LINE__);
     }
 
-    void LevelZeroImp::performance_factor_control(int geopm_domain,
-                                                  unsigned int l0_device_idx,
+    void LevelZeroImp::performance_factor_control(unsigned int l0_device_idx,
                                                   int l0_domain,
                                                   int l0_domain_idx,
                                                   double setting) const
