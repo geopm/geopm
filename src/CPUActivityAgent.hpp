@@ -71,8 +71,10 @@ namespace geopm
             double m_resolved_f_core_max;
             double m_freq_uncore_min;
             double m_freq_uncore_max;
+            double m_freq_uncore_efficient;
             double m_freq_core_min;
             double m_freq_core_max;
+            double m_freq_core_efficient;
 
             struct signal
             {
@@ -88,16 +90,8 @@ namespace geopm
 
             // Policy indices; must match policy_names()
             enum m_policy_e {
-                M_POLICY_CPU_FREQ_MAX,
-                M_POLICY_CPU_FREQ_EFFICIENT,
-                M_POLICY_UNCORE_FREQ_MAX,
-                M_POLICY_UNCORE_FREQ_EFFICIENT,
                 M_POLICY_CPU_PHI,
-                M_POLICY_FIRST_UNCORE_FREQ,
-                M_POLICY_FIRST_MAX_MEM_BW,
-                // The remainder of policy values can be additional pairs of
-                // (uncore freq, max memory bandwidth)
-                M_NUM_POLICY = 63,
+                M_NUM_POLICY,
             };
 
             // Sample indices; must match sample_names()
@@ -119,6 +113,7 @@ namespace geopm
             std::vector<control> m_uncore_freq_max_control;
 
             void init_platform_io(void);
+            void init_constconfig_io(void);
     };
 }
 #endif

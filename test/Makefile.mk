@@ -317,7 +317,7 @@ if ENABLE_BETA
                    test/gtest_links/CPUActivityAgentTest.adjust_platform_medium \
                    test/gtest_links/CPUActivityAgentTest.adjust_platform_low \
                    test/gtest_links/CPUActivityAgentTest.adjust_platform_zero \
-                   test/gtest_links/CPUActivityAgentTest.adjust_platform_nan \
+                   test/gtest_links/CPUActivityAgentTest.no_mem_constconfig \
                    test/gtest_links/CPUActivityAgentTest.adjust_platform_lower_bound_check \
                    test/gtest_links/CPUActivityAgentTest.adjust_platform_signal_out_of_bounds \
                    test/gtest_links/CPUActivityAgentTest.control_signal_granularity_check \
