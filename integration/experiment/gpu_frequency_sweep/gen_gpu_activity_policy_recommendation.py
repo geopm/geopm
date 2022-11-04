@@ -9,15 +9,16 @@ Finds the energy efficient frequency for a provided frequency sweep
 and provides that as part of a policy for the GPU Activity Agent
 '''
 
-import code
 import argparse
-import math
-import sys
+import code
 import json
+import jsonschema
+import math
+import os
+import sys
 
 import pandas
 import numpy as np
-from numpy.polynomial.polynomial import Polynomial
 
 import geopmpy.io
 
@@ -69,11 +70,19 @@ def main(full_df):
     # The associated agent interprets these as the related system or agent default
     # config, ex: GPU_FREQ_MAX: NAN --> HW Maximum Frequency, GPU_PHI --> 0.5
     # (balanced mode).
-    policy = {"GPU_FREQ_MAX" : float('nan'),
-              "GPU_FREQ_EFFICIENT" : gpu_freq_efficient,
-              "GPU_PHI" : float('nan')}
 
-    return policy
+    json_dict = {"CPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY" :
+                    {
+                        "domain" : "board",
+                        "description" : "Defines the efficient compute frequency to use for GPUs.  " +
+                                        "Based on a workload that scales strongly with the frequency domain",
+                        "units" : "hertz",
+                        "aggregation" : "average",
+                        "values" : [gpu_freq_efficient],
+                    },
+                }
+
+    return json_dict
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -89,5 +98,12 @@ if __name__ == '__main__':
         sys.exit(1)
 
     output = main(df)
-    sys.stdout.write("AGENT POLICY:\n")
-    sys.stdout.write(json.dumps(output) + "\n")
+
+    root_dir = os.getenv('GEOPM_SOURCE')
+    schema_file = root_dir + "/service/json_schemas/const_config_io.schema.json"
+    with open(schema_file, "r") as f:
+        schema = json.load(f)
+
+    jsonschema.validate(output, schema=schema)
+
+    sys.stdout.write(json.dumps(output, indent=4) + "\n")
