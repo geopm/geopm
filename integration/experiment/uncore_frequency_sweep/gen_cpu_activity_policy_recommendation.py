@@ -110,17 +110,17 @@ def main(full_df, region_list):
     df_region_group = df.groupby('region')
 
     # Characterize MBM metrics using the uncore sensitive
-    # region (intensity_0)
+    # region (intensity_1)
     mem_bw_characterization = system_memory_bandwidth_characterization(df_region_group, region=region_list[0])
 
     # A multi-step approach is used.
-    # First analyze the most uncore sensitive
-    # region (intensity_0) to find the efficient
+    # First analyze the uncore sensitive
+    # region (intensity_1) to find the efficient
     # uncore frequency
     uncore_freq_recommendation = frequency_recommendation(df_region_group, region=region_list[0],
                                                            domain="UNCORE")
 
-    # Then analyze the most core senstivite region (intensity_32)
+    # Then analyze the core senstivite region (intensity_16)
     # to find the most efficient core frequency
     # when running at the uncore_freq_efficient determined
     # above
@@ -176,11 +176,11 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--path', required=True,
                         help='path containing reports and machine.json')
-    parser.add_argument('--region-list', default="intensity_0,intensity_32", dest='region_list',
+    parser.add_argument('--region-list', default="intensity_1,intensity_16", dest='region_list',
                         help='comma-separated list of the two regions to use, '
                              'with the first used for uncore frequency characterization '
                              'and the second used for core frequency characteriztaion.  '
-                             'Default is intensity_0,intensity_32')
+                             'Default is intensity_1,intensity_16')
     args = parser.parse_args()
 
     region_list = args.region_list.split(',')
