@@ -31,9 +31,7 @@
         }
     },
     "type": "object",
-    "properties": {
-        "additionalProperties": {
-            "$ref": "#/definitions/signal_info"
-        }
+    "additionalProperties": {
+        "$ref": "#/definitions/signal_info"
     }
 }
