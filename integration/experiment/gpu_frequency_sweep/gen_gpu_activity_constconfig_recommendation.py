@@ -6,7 +6,7 @@
 
 '''
 Finds the energy efficient frequency for a provided frequency sweep
-and provides that as part of a policy for the GPU Activity Agent
+and provides that as part of a constconfig file for the GPU Activity Agent
 '''
 
 import argparse
@@ -50,7 +50,7 @@ def extract_columns(df):
 
     return df_cols
 
-def policy_efficient_energy(df):
+def efficient_energy(df):
     """
     Find the frequency that provides minimum gpu energy consumption within the
     dataframe provided
@@ -64,12 +64,7 @@ def main(full_df):
     The main function. full_df is a report collection dataframe
     """
     df = extract_columns(full_df)
-    gpu_freq_efficient = policy_efficient_energy(df)
-    # This script is not intended to provide an assessment of maximum frequency,
-    # or phi.  As such NAN is provided for these policy values.
-    # The associated agent interprets these as the related system or agent default
-    # config, ex: GPU_FREQ_MAX: NAN --> HW Maximum Frequency, GPU_PHI --> 0.5
-    # (balanced mode).
+    gpu_freq_efficient = efficient_energy(df)
 
     json_dict = {"CPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY" :
                     {
