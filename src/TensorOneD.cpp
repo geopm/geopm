@@ -18,8 +18,6 @@
 
 namespace geopm
 {
-
-
     TensorOneD::TensorOneD(std::size_t dim)
     {
         set_dim(dim);
@@ -57,7 +55,6 @@ namespace geopm
             m_vec[idx] = input[idx].number_value();
         }
     }
-
 
     TensorOneD TensorOneD::operator+(const TensorOneD& other)
     {
