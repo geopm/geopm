@@ -6,7 +6,8 @@
 
 '''
 Finds the energy efficient frequency for a provided frequency sweep
-and characterizes the system memory bandwidth usage for the CPU Activity Agent.
+and characterizes the system memory bandwidth usage for the CPU Activity Agent
+as a constconfig file.
 '''
 
 import argparse
@@ -128,12 +129,6 @@ def main(full_df, region_list):
     df_region_group = df.groupby('region')
     core_freq_recommendation = frequency_recommendation(df_region_group, region=region_list[1],
                                                          domain="CORE")
-
-    policy = {"CPU_FREQ_MAX" : float('nan'),
-                "CPU_FREQ_EFFICIENT" : core_freq_recommendation,
-                "CPU_UNCORE_FREQ_MAX" : float('nan'),
-                "CPU_UNCORE_FREQ_EFFICIENT" : uncore_freq_recommendation,
-                "CPU_PHI" : float('nan')}
 
     json_dict = {"CPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY" :
                     {
