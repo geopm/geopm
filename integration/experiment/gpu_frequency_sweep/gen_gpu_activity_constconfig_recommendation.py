@@ -66,11 +66,11 @@ def main(full_df):
     df = extract_columns(full_df)
     gpu_freq_efficient = efficient_energy(df)
 
-    json_dict = {"CPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY" :
-                    {
+    json_dict = {
+                    "CPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY" : {
                         "domain" : "board",
                         "description" : "Defines the efficient compute frequency to use for GPUs.  " +
-                                        "Based on a workload that scales strongly with the frequency domain",
+                                        "This value is based on a workload that scales strongly with the frequency domain",
                         "units" : "hertz",
                         "aggregation" : "average",
                         "values" : [gpu_freq_efficient],

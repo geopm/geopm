@@ -130,20 +130,19 @@ def main(full_df, region_list):
     core_freq_recommendation = frequency_recommendation(df_region_group, region=region_list[1],
                                                          domain="CORE")
 
-    json_dict = {"CPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY" :
-                    {
+    json_dict = {
+                    "CPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY" : {
                         "domain" : "board",
                         "description" : "Defines the efficient core frequency to use for CPUs.  " +
-                                        "Based on a workload that scales strongly with the frequency domain",
+                                        "This value is based on a workload that scales strongly with the frequency domain.",
                         "units" : "hertz",
                         "aggregation" : "average",
                         "values" : [core_freq_recommendation],
                     },
-                 "CPU_UNCORE_FREQUENCY_EFFICIENT_HIGH_INTENSITY":
-                    {
+                    "CPU_UNCORE_FREQUENCY_EFFICIENT_HIGH_INTENSITY": {
                         "domain" : "board",
                         "description" : "Defines the efficient uncore frequency to use for CPUs.  " +
-                                        "Based on a workload that scales strongly with the frequency domain",
+                                        "This value is based on a workload that scales strongly with the frequency domain",
                         "units" : "hertz",
                         "aggregation" : "average",
                         "values" : [uncore_freq_recommendation],
