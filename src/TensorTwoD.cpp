@@ -5,17 +5,15 @@
 
 
 #include "config.h"
+#include "TensorTwoD.hpp"
 
 #include <cmath>
 #include <algorithm>
 #include <functional>
 #include <numeric>
 
-#include "TensorTwoD.hpp"
-
 #include "geopm/Exception.hpp"
 #include "TensorOneD.hpp"
-
 
 namespace geopm
 {
@@ -27,8 +25,8 @@ namespace geopm
     }
 
     TensorTwoD::TensorTwoD(const TensorTwoD &other)
+        : m_mat(std::move(other.m_mat))
     {
-        m_mat = other.m_mat; 
     }
 
     TensorTwoD::TensorTwoD(json11::Json input)
@@ -45,6 +43,10 @@ namespace geopm
 
         set_dim(input.array_items().size(), input[0].array_items().size());
         for (std::size_t idx = 0; idx < m_mat.size(); idx++) {
+            if(!input[idx].is_array()) {
+                throw geopm::Exception("Neural network weights is non-array-type.\n",
+                                       GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
             if (input[idx].array_items().size() != m_mat[idx].get_dim()) {
                 throw geopm::Exception("Attempt to load non-rectangular matrix.",
                                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -55,16 +57,14 @@ namespace geopm
 
     void TensorTwoD::set_dim(std::size_t rows, std::size_t cols)
     {
-        //TODO: Should we be checking for negative values as well?
-        //And zeros?
-        if (rows == 0 && cols > 0) {
+        if ((rows == 0 && cols > 0) || (rows > 0 && cols == 0)) {
             throw geopm::Exception("Tried to allocate degenerate matrix.",
                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         m_mat.resize(rows);
-        for (std::size_t idx = 0; idx < rows; idx++) {
-            m_mat[idx].set_dim(cols);
+        for (auto &row : m_mat) {
+            row.set_dim(cols);
         }
     }
 
@@ -88,7 +88,6 @@ namespace geopm
                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-
         TensorOneD rval(get_rows());
 
         for (std::size_t idx = 0; idx < get_rows(); idx++) {
@@ -99,12 +98,12 @@ namespace geopm
 
     TensorOneD& TensorTwoD::operator[](int idx)
     {
-        return m_mat[idx];
+        return m_mat.at(idx);
     }
 
     TensorOneD TensorTwoD::operator[](int idx) const
     {
-        return m_mat[idx];
+        return m_mat.at(idx);
     }
 
     TensorTwoD& TensorTwoD::operator=(const TensorTwoD &other)

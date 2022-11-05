@@ -18,7 +18,7 @@ class TensorTwoDTest : public ::testing::Test
         void SetUp();
 
         TensorTwoD mat;
-        TensorTwoD vec;
+        TensorTwoD row;
 };
 
 void TensorTwoDTest::SetUp()
@@ -32,14 +32,14 @@ void TensorTwoDTest::SetUp()
     mat[1][1] = 5;
     mat[1][2] = 6;
 
-    vec.set_dim(1, 3);
-    vec[0][0] = 1;
-    vec[0][1] = 2;
-    vec[0][2] = 3;
+    row.set_dim(1, 3);
+    row[0][0] = 1;
+    row[0][1] = 2;
+    row[0][2] = 3;
 }
 
 TEST_F(TensorTwoDTest, test_mat_prod) {
-    TensorOneD prod = mat * vec[0];
+    TensorOneD prod = mat * row[0];
     EXPECT_EQ(2u, prod.get_dim());
     EXPECT_EQ(14, prod[0]);
     EXPECT_EQ(32, prod[1]);
@@ -107,9 +107,9 @@ TEST_F(TensorTwoDTest, test_degenerate_size) {
 }
 
 TEST_F(TensorTwoDTest, test_bad_dimensions) {
-    vec.set_dim(1, 2);
-    EXPECT_THROW(mat * vec[0], geopm::Exception);
-    EXPECT_THROW(vec.set_dim(0, 1), geopm::Exception);
+    row.set_dim(1, 2);
+    EXPECT_THROW(mat * row[0], geopm::Exception);
+    EXPECT_THROW(row.set_dim(0, 1), geopm::Exception);
     std::vector<std::vector<float> > vals = {{1}, {2, 3}};
     EXPECT_THROW(TensorTwoD(json11::Json(vals)), geopm::Exception);
 }
