@@ -22,6 +22,14 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  precheck:
+    name: "Pre-build checks"
+    # Run linters and other low-cost checks that do not depend on being in a
+    # particular configuration of the build matrix.
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v3
+    - uses: codespell-project/actions-codespell@v1.0
   build_and_test:
     name: "build_and_test: ${{ matrix.config.name }} ${{ matrix.debug-flag }}"
     runs-on: ubuntu-20.04
