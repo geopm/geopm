@@ -65,7 +65,7 @@ def region_summary(report_collection, output_dir, show_details):
     means_edf = edf.groupby(['freq_mhz'])[field_list].mean()
     means_adf = adf.groupby(['freq_mhz'])[adf_field_list].mean()
 
-    # Sort first by region alpha order, then decending by frequency
+    # Sort first by region alpha order, then descending by frequency
     means_df = means_df.sort_index(level=['region', 'freq_mhz'], ascending=[True, False])
     means_edf = means_edf.sort_index(level='freq_mhz', ascending=False)
     means_adf = means_adf.sort_index(level='freq_mhz', ascending=False)

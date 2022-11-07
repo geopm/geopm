@@ -299,7 +299,7 @@ namespace geopm
             sv.second.controls = result;
         }
 
-        // Only a user with elevated priviledges will be able to control
+        // Only a user with elevated privileges will be able to control
         // frequency and power.  Prune the controls if we don't have access.
         if (!m_nvml_device_pool.is_privileged_access()) {
             m_control_available.erase(M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_CONTROL");

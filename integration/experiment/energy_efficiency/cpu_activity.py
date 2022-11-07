@@ -32,7 +32,7 @@ def setup_run_args(parser):
                         action='store', default='nan',
                         help='The maximum frequency of the uncore (a.k.a. Fumax) for this experiment')
     parser.add_argument('--uncore-mbm-list', nargs='+', help='A list of uncore_freq & max_mem_bw values in the form uncore_freq_0 max_mem_bw_0 uncore_freq_1 ...')
-    parser.add_argument('--phi-list', nargs='+', help='A space seperated list of phi values (0 to 1.0) to use')
+    parser.add_argument('--phi-list', nargs='+', help='A space separated list of phi values (0 to 1.0) to use')
 
 def report_signals():
     return []

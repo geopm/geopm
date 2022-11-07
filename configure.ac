@@ -19,7 +19,7 @@ AC_CONFIG_MACRO_DIR([m4])
 
 geopm_abi_version=1:0:0
 AC_SUBST(geopm_abi_version)
-AC_DEFINE_UNQUOTED([GEOPM_ABI_VERSION], ["$geopm_abi_version"], [GEOPM shared object verion])
+AC_DEFINE_UNQUOTED([GEOPM_ABI_VERSION], ["$geopm_abi_version"], [GEOPM shared object version])
 
 LT_PREREQ([2.2.6])
 
@@ -432,7 +432,7 @@ AC_CHECK_LIB([geopmd], [geopm_pio_read_signal], [], [
     echo "missing libgeopmd: Install the geopm-service and use --with-geopmd or --with-geopmd-lib to specify location"
     exit -1])
 AC_CHECK_HEADER([geopm_pio.h], [], [
-    echo "missing geopm_pio.h: Intall the geopm-service and use --with-geopmd or --with-geopmd-include to specify location"
+    echo "missing geopm_pio.h: Install the geopm-service and use --with-geopmd or --with-geopmd-include to specify location"
     exit -1])
 
 AC_SEARCH_LIBS([elf_begin], [elf])

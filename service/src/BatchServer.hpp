@@ -25,7 +25,7 @@ namespace geopm
     class BatchServer
     {
         public:
-            /// @brief Interace called by geopmd to create the server
+            /// @brief Interface called by geopmd to create the server
             ///        for batch commands.
             BatchServer() = default;
             virtual ~BatchServer() = default;

@@ -4,7 +4,7 @@
 #
 
 # test_kill_geopmd_serial_run.sh
-# Send signal 9 to geopmd while serial write has occured and client is sleeping,
+# Send signal 9 to geopmd while serial write has occurred and client is sleeping,
 # check that the client stays alive, no restore occurs,
 # and the client is able to write once the service is automatically restarted
 
@@ -13,7 +13,7 @@ if [[ $# -gt 0 ]] && [[ $1 == '--help' ]]; then
     Terminating geopmd process serial write
     ---------------------------------------
 
-    Send signal 9 to geopmd while serial write has occured and client is sleeping,
+    Send signal 9 to geopmd while serial write has occurred and client is sleeping,
     check that the client stays alive, no restore occurs,
     and the client is able to write once the service is automatically restarted
 
@@ -40,7 +40,7 @@ sleep 1
 check_control
 
 kill_geopmd
-# After we kill geopmd, client should stil be around, and the server was never there
+# After we kill geopmd, client should still be around, and the server was never there
 # because it is a serial run, not a batch (server) run.
 sleep 7
 

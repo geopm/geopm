@@ -274,7 +274,7 @@ def push_signal(signal_name, domain_type, domain_idx):
     be pushed onto the stack prior to the fist call to read_batch()
     or adjust().  After calls to read_batch() or adjust() have been
     made, signals may be pushed again only after calling reset() and
-    before caling read_batch() or adjust() again.  Attempts to push a
+    before calling read_batch() or adjust() again.  Attempts to push a
     signal onto the stack after the first call to read_batch() or
     read_batch() (and without calling reset()) or attempts to push a
     signal_name that is not provided by signal_names() will result in

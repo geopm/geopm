@@ -19,7 +19,7 @@ from the previous tutorial found in $GEOPM_ROOT/tutorial/iogroup.  The
 ExampleAgent calculates the system utilization from the user, system,
 and idle time signals and prints the result to standard output or
 standard error.  The policies in this example are the bounds on the
-idle percentage that detemine whether standard out or standard error
+idle percentage that determine whether standard out or standard error
 is used.
 
 

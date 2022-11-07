@@ -357,23 +357,23 @@ namespace geopm
         auto divide = [this](uint64_t hash, const std::vector<std::string> &sig) -> double
         {
             GEOPM_DEBUG_ASSERT(sig.size() == 2, "Wrong number of signals for divide()");
-            double numer = m_sample_agg->sample_region(m_sync_signal_idx[sig[0]], hash);
-            double denom = m_sample_agg->sample_region(m_sync_signal_idx[sig[1]], hash);
-            return denom == 0 ? 0.0 : numer / denom;
+            double numerator = m_sample_agg->sample_region(m_sync_signal_idx[sig[0]], hash);
+            double denominator = m_sample_agg->sample_region(m_sync_signal_idx[sig[1]], hash);
+            return denominator == 0 ? 0.0 : numerator / denominator;
         };
         auto divide_pct = [this](uint64_t hash, const std::vector<std::string> &sig) -> double
         {
             GEOPM_DEBUG_ASSERT(sig.size() == 2, "Wrong number of signals for divide_pct()");
-            double numer = m_sample_agg->sample_region(m_sync_signal_idx[sig[0]], hash);
-            double denom = m_sample_agg->sample_region(m_sync_signal_idx[sig[1]], hash);
-            return denom == 0 ? 0.0 : 100.0 * numer / denom;
+            double numerator = m_sample_agg->sample_region(m_sync_signal_idx[sig[0]], hash);
+            double denominator = m_sample_agg->sample_region(m_sync_signal_idx[sig[1]], hash);
+            return denominator == 0 ? 0.0 : 100.0 * numerator / denominator;
         };
         auto divide_sticker_scale = [this](uint64_t hash, const std::vector<std::string> &sig) -> double
         {
             GEOPM_DEBUG_ASSERT(sig.size() == 2, "Wrong number of signals for divide_sticker_scale()");
-            double numer = m_sample_agg->sample_region(m_sync_signal_idx[sig[0]], hash);
-            double denom = m_sample_agg->sample_region(m_sync_signal_idx[sig[1]], hash);
-            return denom == 0 ? 0.0 : m_sticker_freq * numer / denom;
+            double numerator = m_sample_agg->sample_region(m_sync_signal_idx[sig[0]], hash);
+            double denominator = m_sample_agg->sample_region(m_sync_signal_idx[sig[1]], hash);
+            return denominator == 0 ? 0.0 : m_sticker_freq * numerator / denominator;
         };
 
         m_sync_fields = {

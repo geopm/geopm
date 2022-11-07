@@ -5,7 +5,7 @@
 #
 
 '''
-Displays a historgram of the control loop sample intervals
+Displays a histogram of the control loop sample intervals
 '''
 
 import pandas

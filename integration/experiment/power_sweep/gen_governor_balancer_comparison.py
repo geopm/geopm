@@ -44,7 +44,7 @@ def prepare(df):
     df = df.rename(rename_map)
     df.index = df.index.set_names('iteration', level='Profile')
 
-    # Sort decending by power limit, ascending by iteration
+    # Sort descending by power limit, ascending by iteration
     df = df.sort_index(level=['power_limit', 'iteration'], ascending=[False, True])
 
     return df

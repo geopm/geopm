@@ -38,7 +38,7 @@ extern "C"
                                    uint64_t count,
                                    const void *parallel_function)
     {
-        // Understanding based on inpection of the values passed by the
+        // Understanding based on inspection of the values passed by the
         // intel compiler implementation when running a test:
         //
         // - The omp team leader calls this function with the "count"

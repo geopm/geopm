@@ -31,7 +31,7 @@ class TestIntegrationLevelZeroSignals(unittest.TestCase):
         self._stdout = None
         self._stderr = None
 
-        #TODO: Add query for numnber of devices and subdevices
+        #TODO: Add query for number of devices and subdevices
         #TODO: Add check for ZES_SYSMAN_ENABLE=1
 
     def tearDown(self):

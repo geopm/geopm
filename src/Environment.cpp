@@ -181,7 +181,7 @@ namespace geopm
                     auto user_value = name_value_map[var_name];
                     std::cerr << "Warning: <geopm> User provided environment variable \"" << var_name
                               << "\" with value <"  << user_value << ">"
-                              << " has been overriden with value <"  << override_value << ">" << std::endl;
+                              << " has been overridden with value <"  << override_value << ">" << std::endl;
                 }
                 name_value_map[var_name] = override_value;
             }

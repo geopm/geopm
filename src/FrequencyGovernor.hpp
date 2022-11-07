@@ -33,7 +33,7 @@ namespace geopm
             ///        init_platform_io().
             /// @throw Exception the requested domain does not contain the
             ///        frequency control's native domain.
-            /// @throw Exception The caller attemped to set the domain type
+            /// @throw Exception The caller attempted to set the domain type
             ///        after this governor initialized its PlatformIO controls.
             virtual void set_domain_type(int domain_type) = 0;
             /// @brief Write frequency control, may be clamped between
@@ -60,16 +60,16 @@ namespace geopm
             /// @brief Returns the frequency step for the platform.
             /// @return Step frequency.
             virtual double get_frequency_step() const = 0;
-            /// @brief Returns the number of clamping occurence count for the platform.
-            /// @return Clamp occurence counter
+            /// @brief Returns the number of clamping occurrence count for the platform.
+            /// @return Clamp occurrence counter
             virtual int get_clamp_count() const = 0;
             /// @brief Checks that the minimum and maximum frequency
             ///        are within range for the platform.  If not,
             ///        they will be clamped at the min and max for the
             ///        platform.
-            /// @param [inout] freq_min Minimum frequency to attempt
+            /// @param [in,out] freq_min Minimum frequency to attempt
             ///        to set, and resulting valid minimum.
-            /// @param [inout] freq_max Maximum frequency to attempt
+            /// @param [in,out] freq_max Maximum frequency to attempt
             ///        to set, and resulting valid maximum.
             virtual void validate_policy(double &freq_min, double &freq_max) const = 0;
             /// @brief Returns a unique_ptr to a concrete object

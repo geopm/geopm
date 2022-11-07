@@ -16,7 +16,7 @@ elif git describe --long > /dev/null 2>&1; then
     fi
     echo $version > VERSION
 elif [ ! -f VERSION ]; then
-    echo "WARNING:  VERSION file does not exist and git describe failed, setting verison to 0.0.0" 1>&2
+    echo "WARNING:  VERSION file does not exist and git describe failed, setting version to 0.0.0" 1>&2
     echo "0.0.0" > VERSION
 fi
 

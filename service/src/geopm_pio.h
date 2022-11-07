@@ -365,7 +365,7 @@ int geopm_pio_control_description(const char *control_name,
 ///        as a string.
 ///
 /// @param [out] behavior_type One of the IOGroup::m_signal_behavior_e
-///        enum values that decribes the signals behavior over time.
+///        enum values that describes the signals behavior over time.
 ///
 /// @return Zero on success, error value on failure.
 int geopm_pio_signal_info(const char *signal_name,

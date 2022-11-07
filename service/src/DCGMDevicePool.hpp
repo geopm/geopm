@@ -10,7 +10,7 @@ namespace geopm
 {
     /// An interface for the NVIDIA Data Center GPU Manager (DCGM).
     /// This class is a wrapper around all calls to the DCGM library
-    /// and is intented to be called via the DCGMIOGroup.  Its primary
+    /// and is intended to be called via the DCGMIOGroup.  Its primary
     /// function is provided an abstracted interface to DCGM metrics
     /// of interest.
     class DCGMDevicePool
@@ -72,7 +72,7 @@ namespace geopm
             /// @brief Set maximum samples to store for for DCGM devices. This is
             ///       the maximum number of DCGM samples that will be kept.
             ///       0 indicates no limit
-            /// @param [in] max_samples maximun number of samples to store
+            /// @param [in] max_samples maximum number of samples to store
             virtual void max_samples(int max_samples) = 0;
 
             /// @brief Enable DCGM data polling through setting the watch fields

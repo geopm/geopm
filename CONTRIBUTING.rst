@@ -43,7 +43,7 @@ benefit from the feature and then describes the feature iteslf.
 Common roles include "user of the GEOPM runtime", "user of the GEOPM
 service", "developer of GEOPM", etc.  Please be as specific as
 possible when identifying the role, e.g. "user of the geopmsession
-command line tool" is prefered to "user of the GEOPM service".
+command line tool" is preferred to "user of the GEOPM service".
 
 When planning to implement a new feature as a contribution to the main
 repository, please start this collaboration by creating a feature

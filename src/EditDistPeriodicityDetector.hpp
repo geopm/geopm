@@ -33,7 +33,7 @@ namespace geopm
             ///        period is determined, returns -1.
             int get_period(void) const;
             /// @brief Return the metric that will be maximized to
-            ///        detemine the period.  Until a stable period is
+            ///        determine the period.  Until a stable period is
             ///        determined, returns -1.
             int get_score(void) const;
             /// @brief Return the number of records that this object has

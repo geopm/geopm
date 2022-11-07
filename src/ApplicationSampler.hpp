@@ -30,7 +30,7 @@ namespace geopm
             static ApplicationSampler &application_sampler(void);
             /// @brief Returns set of region hashes associated with
             ///        application network functions.
-            /// @return Set of netowrk function region hashes.
+            /// @return Set of network function region hashes.
             static std::set<uint64_t> region_hash_network(void);
             /// @brief Returns the default shared memory key, which consists
             ///        of the prefix "/geopm-shm-" concatenated with the euid.

@@ -40,7 +40,7 @@ class TestTimedLoop(unittest.TestCase):
     @unittest.skipIf(os.environ.get('GEOPM_TEST_EXTENDED') is None, "Requires accurate timing")
     def test_timed_loop_infinite(self):
         period = 0.01
-        tl = TimedLoop(period) # Infinte loop
+        tl = TimedLoop(period) # Infinite loop
 
         self.assertEqual(period, tl._period)
         self.assertIsNone(tl._num_loop)

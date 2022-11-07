@@ -263,7 +263,7 @@ int rapl_pkg_limit_test(double power_limit, int num_rep)
         err = geopm_time(&end_time);
     }
     if (!err) {
-        /* Calcuate average power */
+        /* Calculate average power */
         total_time = geopm_time_diff(&begin_time, &end_time);
     }
     for (socket = 0; !err && socket < num_socket; ++socket) {
@@ -315,7 +315,7 @@ int rapl_pkg_limit_test(double power_limit, int num_rep)
                     socket, power_used[socket]);
         }
     }
-    /* Pipe error messages to standard error if they occured before
+    /* Pipe error messages to standard error if they occurred before
        the outfile was opened. */
     if (!outfile) {
         outfile = stderr;

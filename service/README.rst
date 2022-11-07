@@ -58,7 +58,7 @@ telemetry and configuration at a fine granularity.
 
 Clients use the GEOPM Service DBus interface to interact with the
 service.  The GEOPM Service package provides access to the DBus
-interfaces from the command line, or programatically with library
+interfaces from the command line, or programmatically with library
 interfaces for C, C++ and Python.
 
 The service supports many simultaneous client sessions that make

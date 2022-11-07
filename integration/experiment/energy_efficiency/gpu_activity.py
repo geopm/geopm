@@ -25,7 +25,7 @@ def setup_run_args(parser):
     parser.add_argument('--gpu-frequency-max', dest='gpu_fmax',
                         action='store', default='nan',
                         help='The maximum frequency of the gpu (a.k.a. Fmax) for this experiment')
-    parser.add_argument('--phi-list', nargs='+', help='A space seperated list of phi values to use')
+    parser.add_argument('--phi-list', nargs='+', help='A space separated list of phi values to use')
 
 def report_signals():
     return []

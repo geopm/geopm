@@ -423,7 +423,7 @@ class TestActiveSessions(unittest.TestCase):
         session_mock = mock.create_autospec(os.stat_result, spec_set=True)
         session_mock.st_ctime = 123
 
-        # There are 2 calls into is_pid_valid:  Ths first verifies the client PID
+        # There are 2 calls into is_pid_valid:  This first verifies the client PID
         # against the session PID.  The second verifies the batch PID against the session PID.
         # side_effect is used so that the first call returns True (the client PID is valid) and
         # the second call returns False (the batch PID is *not* valid).

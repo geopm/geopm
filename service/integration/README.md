@@ -18,7 +18,7 @@ Test Setup
 
 The integration tests require a system-wide installation of the GEOPM
 service.  This is typically done by installing the GEOPM RPM packages.
-Runing the following commands will create the GEOPM Service RPM files
+Running the following commands will create the GEOPM Service RPM files
 from the GEOPM source code repository.
 
 ```bash

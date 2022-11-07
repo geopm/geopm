@@ -359,7 +359,7 @@ namespace geopm
             // the uncore frequency in the efficient - performant range.
             // A more robust/future proof solution may be to directly query uncore
             // counters that indicate utilization (when/if available).
-            // For now only L3 bandwith metric is used.
+            // For now only L3 bandwidth metric is used.
             double uncore_req = m_resolved_f_uncore_efficient + f_uncore_range * scalability_uncore;
 
             // Clamp uncore request within policy limits

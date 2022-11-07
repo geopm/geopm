@@ -149,7 +149,7 @@ TEST_F(ConstConfigIOGroupTest, input_unexpected_properties)
         ConstConfigIOGroup iogroup(M_CONFIG_FILE_PATH, ""),
         GEOPM_ERROR_INVALID,
         "ConstConfigIOGroup::parse_config_json():"
-        " unexpected propety: \"" "magic" "\""
+        " unexpected property: \"" "magic" "\""
     );
 }
 
@@ -170,7 +170,7 @@ TEST_F(ConstConfigIOGroupTest, input_capital_properties)
         ConstConfigIOGroup iogroup(M_CONFIG_FILE_PATH, ""),
         GEOPM_ERROR_INVALID,
         "ConstConfigIOGroup::parse_config_json():"
-        " unexpected propety: \"" "DOMAIN" "\""
+        " unexpected property: \"" "DOMAIN" "\""
     );
 }
 

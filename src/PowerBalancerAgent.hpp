@@ -30,7 +30,7 @@ namespace geopm
                 ///        first case this is the M_SEND_DOWN_LIMIT
                 ///        step at the beginning of the application
                 ///        run.  This value will also be non-zero in
-                ///        the case where the resource mananger has
+                ///        the case where the resource manager has
                 ///        requested a new budget for the application,
                 ///        and thus, the algorithm must be restarted
                 ///        at step M_SEND_DOWN_LIMIT.

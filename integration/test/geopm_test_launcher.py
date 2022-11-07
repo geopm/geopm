@@ -144,7 +144,7 @@ class TestLauncher(object):
             exec_wrapper = os.getenv('GEOPM_EXEC_WRAPPER', '')
             if exec_wrapper:
                 argv.extend(shlex.split(exec_wrapper))
-            # Use app config to get path and arguements
+            # Use app config to get path and arguments
             argv.append(self._app_conf.get_exec_path())
             argv.append('--verbose')
             argv.extend(self._app_conf.get_exec_args())
@@ -196,12 +196,12 @@ class TestLauncher(object):
                           line.find('Core(s) per socket:') == 0 or
                           line.find('Socket(s):') == 0]
         if self._performance == True:
-            # Mulitply num core per socket by num sockets, subtract 1, then multiply by threads per core.
+            # Multiply num core per socket by num sockets, subtract 1, then multiply by threads per core.
             # Remove one CPU for BSP to calculate number of CPU for application.
             # Use hyper-threads.
             self._num_cpu = ((cpu_thread_core_socket[2] * cpu_thread_core_socket[3]) - 1) * cpu_thread_core_socket[1]
         else:
-            # Mulitply num core per socket by num socket and remove one
+            # Multiply num core per socket by num socket and remove one
             # CPU for BSP to calculate number of CPU for application.
             # Don't use hyper-threads.
             self._num_cpu = cpu_thread_core_socket[2] * cpu_thread_core_socket[3] - 1

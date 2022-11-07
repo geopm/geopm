@@ -237,10 +237,10 @@ TEST_F(BatchServerTest, stop_batch_exception)
 /**
  * @test Check BatchServerImp::run_batch() under normal operation, given a sequence of read requests.
  *       First the requests signals and controls are filled up.
- *       Second the server recieves a message to read the batch.
+ *       Second the server receives a message to read the batch.
  *       It then samples both signals, and writes the results into the shared memory buffer.
  *       The server sends a message for the client to continue.
- *       The server recieved a message from the client to quit.
+ *       The server received a message from the client to quit.
  */
 TEST_F(BatchServerTest, run_batch_read)
 {
@@ -303,10 +303,10 @@ TEST_F(BatchServerTest, run_batch_read)
 /**
  * @test Check BatchServerImp::run_batch() when there are no signals and you try to read.
  *       First the control requests are populated.
- *       Second the server recieves a message to read the batch.
+ *       Second the server receives a message to read the batch.
  *       However there are no signals, so it does nothing.
  *       The server sends a message for the client to continue.
- *       The server recieved a message from the client to quit.
+ *       The server received a message from the client to quit.
  */
 TEST_F(BatchServerTest, run_batch_read_empty)
 {
@@ -345,10 +345,10 @@ TEST_F(BatchServerTest, run_batch_read_empty)
 /**
  * @test Check BatchServerImp::run_batch() under normal operation, given a sequence of write requests.
  *       First the requests signals and controls are filled up.
- *       Second the server recieves a message to write the batch.
+ *       Second the server receives a message to write the batch.
  *       It then reads the values from the shared memory and writes all of the pushed controls to the platform.
  *       The server sends a message for the client to continue.
- *       The server recieved a message from the client to quit.
+ *       The server received a message from the client to quit.
  */
 TEST_F(BatchServerTest, run_batch_write)
 {
@@ -406,10 +406,10 @@ TEST_F(BatchServerTest, run_batch_write)
 /**
  * @test Check BatchServerImp::run_batch() when there are no controls and you try to write.
  *       First the requests only signals are filled up.
- *       Second the server recieves a message to write the batch.
+ *       Second the server receives a message to write the batch.
  *       However there are no controls, so it does nothing.
  *       The server sends a message for the client to continue.
- *       The server recieved a message from the client to quit.
+ *       The server received a message from the client to quit.
  */
 TEST_F(BatchServerTest, run_batch_write_empty)
 {
