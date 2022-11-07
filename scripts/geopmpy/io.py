@@ -522,7 +522,7 @@ class Trace(object):
             filtered_df['epoch_count'] = tmp_df['epoch_count']
         filtered_df = filtered_df.diff()
         # The following drops all 0's and the negative sample when traversing between 2 trace files.
-        # If the epoch_count column is included, this will also drop rows occuring mid-epoch.
+        # If the epoch_count column is included, this will also drop rows occurring mid-epoch.
         filtered_df = filtered_df.loc[(filtered_df > 0).all(axis=1)]
 
         # Reset 'index' to be 0 to the length of the unique trace files

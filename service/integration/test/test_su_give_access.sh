@@ -13,7 +13,7 @@ if [[ $# -gt 0 ]] && [[ $1 == '--help' ]]; then
     which controls the maximum frequency of the core.  The test saves
     the existing settings so they can be restored at the end of the
     test.  Access to the control is removed from the list, and it is
-    shown that the test user cannot succesfully run the
+    shown that the test user cannot successfully run the
     check_write_session.sh script.  Access to the control is granted
     and it is shown that the test user can succefully change the
     value.

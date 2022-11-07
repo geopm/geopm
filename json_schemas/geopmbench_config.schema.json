@@ -23,7 +23,7 @@
         }
       },
       "hostname": {
-        "description": "Specify on which hosts to apply imbalance setttings",
+        "description": "Specify on which hosts to apply imbalance settings",
         "type": "array",
         "items": {
           "type": "string"

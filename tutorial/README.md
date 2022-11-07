@@ -37,7 +37,7 @@ To determine if tutorial_hosts is necessary, try the following:
   2. Issue the following: mpiexec.hydra -n 10 -ppn 10 hostname
     a. You should observe the same hostname is printed 10 times.
   3. Next issue: mpiexec.hydra -n 10 -ppn 5 hostname
-    a. You should observe 5 occurances of hostname A and 5 of B.
+    a. You should observe 5 occurrences of hostname A and 5 of B.
 If either 2.a or 3.a is not observed properly, you'll need to utilize
 the tutorial_hosts file.
 

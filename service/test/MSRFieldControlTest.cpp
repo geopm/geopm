@@ -147,7 +147,7 @@ TEST_F(MSRFieldControlTest, setup_batch)
 
 TEST_F(MSRFieldControlTest, errors)
 {
-    // cannot constuct with null msrio
+    // cannot construct with null msrio
     GEOPM_EXPECT_THROW_MESSAGE(MSRFieldControl(nullptr, m_cpu, m_offset,
                                                m_begin_bit, m_end_bit,
                                                geopm::MSR::M_FUNCTION_SCALE, 1.0),

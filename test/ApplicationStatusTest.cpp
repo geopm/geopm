@@ -261,7 +261,7 @@ TEST_F(ApplicationStatusTest, update_cache)
     EXPECT_EQ(-1, m_status->get_process(0));
 
     m_status->update_cache();
-    // set process initalizes hash for active CPUs
+    // set process initializes hash for active CPUs
     EXPECT_EQ(GEOPM_REGION_HASH_UNMARKED, m_status->get_hash(0));
     EXPECT_EQ(GEOPM_REGION_HASH_UNMARKED, m_status->get_hash(1));
     EXPECT_EQ(GEOPM_REGION_HASH_INVALID, m_status->get_hash(2));

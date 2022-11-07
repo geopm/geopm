@@ -36,7 +36,7 @@ Job Launch
 ----------
 The :doc:`geopmlaunch(1) <geopmlaunch.1>` script is the recommended method for
 launching the GEOPM HPC runtime. Unless modified by command-line arguments or
-environment variables, GEOPM will create a ``geopm.report`` file wiht a summary
+environment variables, GEOPM will create a ``geopm.report`` file with a summary
 of metrics from application execution. See :doc:`geopmreport(7)
 <geopm_report.7>`: for documentation about the output file format.
 
@@ -189,7 +189,7 @@ scenario, users launching GEOPM may not be required or allowed to
 specify the Agent or policy, if it has been set through the default
 environment as described in the ``ENVIRONMENT`` section below.  If not
 specified in the default environment, the location of the endpoint
-should be provided through ``--geopm-endpoint``\ ; this option supercedes
+should be provided through ``--geopm-endpoint``\ ; this option supersedes
 the use of ``--geopm-policy``.  When GEOPM receives the policy through
 the endpoint, the report will contain ``"DYNAMIC"`` for the value of the
 policy.  The specific values received over time can be viewed through

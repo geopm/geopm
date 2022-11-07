@@ -109,7 +109,7 @@ Guide for GEOPM Developers
 --------------------------
 
 GEOPM is an open development project and we use Github to plan, review
-and test our work.  The proccess we follow is documented here:
+and test our work.  The process we follow is documented here:
 
 https://geopm.github.io/devel.html
 
@@ -131,7 +131,7 @@ parallel applications, and support for the ``isst_interface`` driver.
 
 This software is production quality as of version 1.0.  We will be
 enforcing [semantic versioning](https://semver.org/) for all releases
-following version 1.0. Plese refer to the ChangeLog for a high level
+following version 1.0. Please refer to the ChangeLog for a high level
 history of changes in each release.  The test coverage report from
 gcov as reported by gcovr for the latest release are
 [posted to our web page](http://geopm.github.io/coverage/index.html).

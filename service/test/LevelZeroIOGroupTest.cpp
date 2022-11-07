@@ -849,7 +849,7 @@ TEST_F(LevelZeroIOGroupTest, signal_and_control_trimming)
     for (int sub_idx = 0; sub_idx < m_num_gpu_subdevice; ++sub_idx) {
         EXPECT_CALL(*m_device_pool, frequency_control(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE, _, _)).
                     WillRepeatedly(Throw(geopm::Exception("Not Supported", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__)));
-        // frequency_range is called a non-standard number of times due to the implemetation of the pruning code.
+        // frequency_range is called a non-standard number of times due to the implementation of the pruning code.
         // Only one chip is checked if there is a failure.
         EXPECT_CALL(*m_device_pool,
                     frequency_range(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE)).Times(AtLeast(3));

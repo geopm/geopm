@@ -4,7 +4,7 @@ GEOPM Integration Tests
 This directory contains the integration tests for the GEOPM package.
 
 Please refer to the [README](../README.md) one directory up for
-information about how to define envirnment variables relevent to these
+information about how to define environment variables relevant to these
 scripts in your `.geopmrc` file and how to use the scripts in the
 [config](../config) directory.
 

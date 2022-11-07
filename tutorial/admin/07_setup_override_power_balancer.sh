@@ -59,4 +59,4 @@ echo "{\"GEOPM_AGENT\": \"power_balancer\", \"GEOPM_POLICY\": \"$POLICY_FILE_PAT
 #   Agent: power_balancer
 #   Policy: {"CPU_POWER_LIMIT": 230}
 #   > grep Warning geopm_stdout
-#   Warning: <geopm> User provided environment variable "GEOPM_AGENT" with value <monitor> has been overriden with value <power_balancer>
+#   Warning: <geopm> User provided environment variable "GEOPM_AGENT" with value <monitor> has been overridden with value <power_balancer>

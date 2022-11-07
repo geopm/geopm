@@ -32,7 +32,7 @@ namespace geopm
             ///             write is being issued.
             /// @param [in] command Which SST interface command to issue.
             /// @param [in] subcommand Which SST interface subcommand to issue.
-            /// @param [in] interface_parameter Which SST mailbox paramter to use.
+            /// @param [in] interface_parameter Which SST mailbox parameter to use.
             /// @param [in] write_value The value to write to the interface.
             /// @param [in] begin_bit The first (least-significant) bit to
             ///             include in the write mask.

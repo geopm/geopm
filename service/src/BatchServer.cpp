@@ -189,7 +189,7 @@ namespace geopm
             in_message = m_batch_status->receive_message();
         }
         catch (const Exception &ex) {
-            // If we were not interupted by SIGTERM with correct errno value rethrow
+            // If we were not interrupted by SIGTERM with correct errno value rethrow
             if (ex.err_value() != EINTR ||
                 g_sigterm_count == 0) {
                 throw Exception("BatchServer::" + std::string(__func__) + " The client is unresponsive",
@@ -216,7 +216,7 @@ namespace geopm
             m_is_client_waiting = false;
         }
         catch (const Exception &ex) {
-            // If we were not interupted by SIGTERM with correct errno value rethrow
+            // If we were not interrupted by SIGTERM with correct errno value rethrow
             if (ex.err_value() != EINTR ||
                 g_sigterm_count == 0) {
                 throw Exception("BatchServer::" + std::string(__func__) + " The client is unresponsive",
@@ -276,7 +276,7 @@ namespace geopm
                                     std::to_string(in_message), GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
                     break;
             }
-            // If in_message came from client send respose
+            // If in_message came from client send response
             if (in_message != BatchStatus::M_MESSAGE_TERMINATE) {
                 write_message(out_message);
             }

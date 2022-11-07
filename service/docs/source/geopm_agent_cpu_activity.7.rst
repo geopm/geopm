@@ -39,7 +39,7 @@ the equation:
 
 ``Fureq = Fue + (Fumax - Fue) * CPU_UNCORE_ACTIVITY``
 
-The ``CPU_UNCORE_ACTIVITY`` is defined as a simple ratio of the current memory bandwdith
+The ``CPU_UNCORE_ACTIVITY`` is defined as a simple ratio of the current memory bandwidth
 divided by the maximum possible bandwidth at the current ``CPU_UNCORE_FREQUENCY_STATUS`` value.
 
 The ``Fe`` value for all domains is intended to be an energy efficient frequency
@@ -120,7 +120,7 @@ ConstConfigIOGroup Configuration File Generation
 
 Generating a ConstConfigIOGroup configuration file for the CPU Compute Activity agent requires
 system characterization using the GEOPM experiment infrastructure located in
-``$GEOPM_SOURCE/integration/experiment/`` and the aritmetic intensity
+``$GEOPM_SOURCE/integration/experiment/`` and the arithmetic intensity
 benchmark located in ``$GEOPM_SOURCE/integration/apps/arithmetic_intensity``.
 Prior to starting, the arithmetic intensity benchmark needs to be built (use
 the ``build.sh`` script provided in the benchmark's folder).

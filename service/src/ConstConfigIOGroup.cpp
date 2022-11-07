@@ -416,7 +416,7 @@ namespace geopm
             auto it = M_SIGNAL_FIELDS.find(prop.first);
             if (it == M_SIGNAL_FIELDS.end()) {
                 throw Exception("ConstConfigIOGroup::parse_config_json():"
-                                " unexpected propety: \"" + prop.first +
+                                " unexpected property: \"" + prop.first +
                                 "\"", GEOPM_ERROR_INVALID, __FILE__,
                                 __LINE__);
             }

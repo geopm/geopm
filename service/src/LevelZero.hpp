@@ -85,7 +85,7 @@ namespace geopm
             /// @return Frequency throttle reasons
             virtual uint32_t frequency_throttle_reasons(unsigned int l0_device_idx, int l0_domain,
                                                         int l0_domain_idx) const = 0;
-            /// @brief Get the LevelZero device mininum and maximum frequency
+            /// @brief Get the LevelZero device minimum and maximum frequency
             ///        control range in MHz
             /// @param [in] l0_device_idx The index indicating a particular
             ///        Level Zero GPU.

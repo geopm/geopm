@@ -669,7 +669,7 @@
                     "behavior":  "monotone",
                     "writeable": false,
                     "aggregation": "sum",
-                    "description": "A filtered counter of MSR::APERF:ACNT that only incrments for cycles the hardware expects are productive toward instruction execution. This counter cannot measure processor performance when the CPU is inactive."
+                    "description": "A filtered counter of MSR::APERF:ACNT that only increments for cycles the hardware expects are productive toward instruction execution. This counter cannot measure processor performance when the CPU is inactive."
                 }
             }
         },
@@ -1048,7 +1048,7 @@
                     "behavior":  "variable",
                     "aggregation": "sum",
                     "writeable": true,
-                    "description": "Log bit indicating if a GUARANTEED_PERFORMANCE change has occured.  Software responsible to clear via write to 0. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set."
+                    "description": "Log bit indicating if a GUARANTEED_PERFORMANCE change has occurred.  Software responsible to clear via write to 0. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set."
                 },
                 "EXCURSION_TO_MINIMUM": {
                     "begin_bit": 2,
@@ -1059,7 +1059,7 @@
                     "behavior":  "variable",
                     "aggregation": "sum",
                     "writeable": true,
-                    "description": "Log bit indicating if an excursion below the minimum requested performance has occured.  Software responsible to clear via write to 0. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set."
+                    "description": "Log bit indicating if an excursion below the minimum requested performance has occurred.  Software responsible to clear via write to 0. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set."
                 },
                 "HIGHEST_CHANGE": {
                     "begin_bit": 3,
@@ -1070,7 +1070,7 @@
                     "behavior":  "variable",
                     "aggregation": "sum",
                     "writeable": true,
-                    "description": "Log bit indicating if a HIGHEST_PEROFRMANCE change has occured.  Software responsible to clear via write to 0. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set."
+                    "description": "Log bit indicating if a HIGHEST_PEROFRMANCE change has occurred.  Software responsible to clear via write to 0. When reading at a higher level domain than its native domain, it aggregates as the count of all such bits that have been set."
                 },
                 "PECI_OVERRIDE_ENTRY": {
                     "begin_bit": 4,

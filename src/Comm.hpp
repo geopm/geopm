@@ -62,7 +62,7 @@ namespace geopm
             /// @param [in] num_ranks Number of ranks that must fit in Cartesian grid.
             ///
             /// @param [in, out] dimension Number of ranks per dimension.  The size of this vector
-            ///        dictates the number of dimensions in the grid.  Fill indecies with 0 for API
+            ///        dictates the number of dimensions in the grid.  Fill indices with 0 for API
             ///        to fill with suitable value.
             virtual void dimension_create(int num_ranks, std::vector<int> &dimension) const = 0;
             /// @brief Free memory that was allocated for message passing and RMA

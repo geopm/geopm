@@ -16,7 +16,7 @@ if [[ $# -gt 0 ]] && [[ $1 == '--help' ]]; then
     a write session to set it to 2 GHz and reads the register again.
     The test then kills the write session with signal 9 and reads the
     control register a third time.  The test asserts that the control
-    value was changed by the write sesssion, and that this change was
+    value was changed by the write session, and that this change was
     reverted to the value it started with after the session is
     killed.
 "

@@ -196,7 +196,7 @@ Inspection Functions
   **out** *aggregation_type* One of the ``Agg::m_type_e`` enum values describing the way the signal is aggregated.
   **out** *format_type* One of the ``geopm::string_format_e`` enums defined in `Helper.hpp <https://github.com/geopm/geopm/blob/dev/service/src/geopm/Helper.hpp>`_\  that defines how to format
   the signal as a string.
-  **out** *behavior_type* One of the ``IOGroup::m_signal_behavior_e`` enum values that decribes
+  **out** *behavior_type* One of the ``IOGroup::m_signal_behavior_e`` enum values that describes
   the signals behavior over time.
   Returns zero on success, error value on failure.
 

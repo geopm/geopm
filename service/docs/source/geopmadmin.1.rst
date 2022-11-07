@@ -34,7 +34,7 @@ Options
                        controls the override values for the system.
 -a, --msr-allowlist    Print the minimum required allowlist for the ``msr-safe``
                        driver to enable all of the GEOPM features.
--c, --cpuid            Specify the ``cpuid`` in hexidecimal to select the
+-c, --cpuid            Specify the ``cpuid`` in hexadecimal to select the
                        architecture for the ``msr-safe`` allowlist generation. If
                        this option is not specified the architecture where the
                        application is running will be used.

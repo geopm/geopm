@@ -98,7 +98,7 @@ namespace geopm
         result.add_option("allowlist", 'a', "msr-allowlist", false,
                           "print the minimum msr-safe allowlist required by GEOPM");
         result.add_option("cpuid", 'c', "cpuid", "-1",
-                          "cpuid in hexidecimal for allowlist (default is current platform)");
+                          "cpuid in hexadecimal for allowlist (default is current platform)");
         result.add_example_usage("");
         result.add_example_usage("[--config-default|--config-override|--msr-allowlist] [--cpuid]");
         return result;

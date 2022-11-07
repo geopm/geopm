@@ -76,7 +76,7 @@ Requires: libgeopmd1 = %{version}
 %description devel
 
 Development package for the GEOPM Service.  This provides the
-programing interface to libgeopmd.so.  The package includes the C and
+programming interface to libgeopmd.so.  The package includes the C and
 C++ header files, maunuals for these interfaces and the unversioned
 libgeopmd.so shared object symbolic link.
 
