@@ -53,7 +53,7 @@ def extract_columns(df, region_list = None):
 
     return df_cols
 
-def analyze_efficient_energy(df, freq_col_name):
+def energy_efficient_frequency(df, freq_col_name):
     """
     Find the frequency that provides the minimum package energy consumption
     within the dataframe provided.
@@ -92,11 +92,11 @@ def frequency_recommendation(df_region_group, region, domain):
 
     # Start with a region analysis for energy efficiency
     df = df_region_group.get_group(region)
-    domain_freq_efficient = analyze_efficient_energy(df, freq_col)
+    domain_freq_efficient = energy_efficient_frequency(df, freq_col)
 
     return domain_freq_efficient
 
-def main(full_df, region_list):
+def get_config_from_frequency_sweep(full_df, region_list):
     """
     The main function. full_df is a report collection dataframe, region_list
     is a list of regions to include.
@@ -190,7 +190,7 @@ if __name__ == '__main__':
                          '; run a power sweep before using this analysis.\n')
         sys.exit(1)
 
-    output = main(df, region_list)
+    output = get_config_from_frequency_sweep(df, region_list)
 
     root_dir = os.getenv('GEOPM_SOURCE')
     schema_file = root_dir + "/service/json_schemas/const_config_io.schema.json"

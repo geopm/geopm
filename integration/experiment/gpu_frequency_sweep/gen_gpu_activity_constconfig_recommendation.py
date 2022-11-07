@@ -10,7 +10,6 @@ and provides that as part of a constconfig file for the GPU Activity Agent
 '''
 
 import argparse
-import code
 import json
 import jsonschema
 import math
@@ -50,7 +49,7 @@ def extract_columns(df):
 
     return df_cols
 
-def efficient_energy(df):
+def energy_efficient_frequency(df):
     """
     Find the frequency that provides minimum gpu energy consumption within the
     dataframe provided
@@ -59,12 +58,12 @@ def efficient_energy(df):
     energy_efficient_frequency = df.groupby('gpu-frequency (Hz)')['gpu-energy (J)'].mean().idxmin()
     return energy_efficient_frequency
 
-def main(full_df):
+def get_config_from_frequency_sweep(full_df):
     """
     The main function. full_df is a report collection dataframe
     """
     df = extract_columns(full_df)
-    gpu_freq_efficient = efficient_energy(df)
+    gpu_freq_efficient = energy_efficient_frequency(df)
 
     json_dict = {
                     "GPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY" : {
@@ -92,7 +91,7 @@ if __name__ == '__main__':
                          '; run a frequency sweep before using this analysis.\n')
         sys.exit(1)
 
-    output = main(df)
+    output = get_config_from_frequency_sweep(df)
 
     root_dir = os.getenv('GEOPM_SOURCE')
     schema_file = root_dir + "/service/json_schemas/const_config_io.schema.json"
