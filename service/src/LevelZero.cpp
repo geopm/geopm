@@ -88,7 +88,7 @@ namespace geopm
                 if (num_subdevice == 0) {
                     std::cerr << "LevelZero::" << std::string(__func__)  <<
                                  ": GEOPM Requires at least one subdevice. "
-                                 "Please check ZE_AFFINITY_MASK enviroment variable "
+                                 "Please check ZE_AFFINITY_MASK environment variable "
                                  "setting.  Forcing device to act as sub-device" << std::endl;
                 }
 #endif
@@ -144,7 +144,7 @@ namespace geopm
                 throw Exception("LevelZero::" + std::string(__func__) +
                                 ": GEOPM Requires the number of subdevices to be" +
                                 " evenly divisible by the number of devices. " +
-                                " Please check ZE_AFFINITY_MASK enviroment variable settings",
+                                " Please check ZE_AFFINITY_MASK environment variable settings",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
         }

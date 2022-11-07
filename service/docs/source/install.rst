@@ -30,8 +30,8 @@ packages.  The ``geopm-service-devel`` package must be explicitly
 installed if it is required by the user.
 
 
-Level Zero Prequisite
----------------------
+Level Zero Prerequisite
+-----------------------
 
 Before installing the GEOPM Service packages, the ``level-zero``
 package must be installed.  This package enables GEOPM's support for

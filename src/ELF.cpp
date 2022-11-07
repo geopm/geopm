@@ -37,7 +37,7 @@ namespace geopm
             ///         string if all symbols in section have been
             ///         iterated over.
             virtual std::string symbol_name(void) = 0;
-            /// @brief Get the offest of the current symbol.
+            /// @brief Get the offset of the current symbol.
             /// @return Current symbol offset.  Will return zero if
             ///         all symbols in section have been iterated
             ///         over.

@@ -169,7 +169,7 @@ Class Methods
   The **in** parameter *num_ranks* is the number of ranks that must fit in Cartesian grid.
   The **in, out** vector parameter *dimension* is the number of ranks per dimension.
   The size of this vector dictates the number of dimensions in the grid.
-  Fill indecies with 0 for API to fill with suitable value.
+  Fill indices with 0 for API to fill with suitable value.
 
 *
   ``free_mem()``:

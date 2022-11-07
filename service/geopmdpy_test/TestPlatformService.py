@@ -46,7 +46,7 @@ class TestPlatformService(unittest.TestCase):
         self._RUN_PATH.cleanup()
 
     def test_close_already_closed(self):
-        # We already have two independent componenets with the session.
+        # We already have two independent components with the session.
         client_pid = -999
         self.open_mock_session('user_name', client_pid, True, 2)  # 2
         self._platform_service.close_session(client_pid)              # 1
@@ -56,7 +56,7 @@ class TestPlatformService(unittest.TestCase):
             self._platform_service.close_session(client_pid) # error here
 
     def test_read_already_closed(self):
-        # We already have two independent componenets with the session.
+        # We already have two independent components with the session.
         client_pid = -999
         self.open_mock_session('user_name', client_pid, True, 2)  # 2
         self._platform_service.close_session(client_pid)              # 1

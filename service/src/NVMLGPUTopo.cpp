@@ -43,7 +43,7 @@ namespace geopm
                 ideal_affinitization_mask_vec.push_back(m_nvml_device_pool.cpu_affinity_ideal_mask(gpu_idx));
             }
 
-            /// @todo: As an optimization this may be replacable with CPU_OR of all masks in ideal_affinitzation_mask_vec
+            /// @todo: As an optimization this may be replaceable with CPU_OR of all masks in ideal_affinitzation_mask_vec
             //       and CPU_COUNT of the output
             for (unsigned int gpu_idx = 0; gpu_idx <  num_gpu; ++gpu_idx) {
                 for (int cpu_idx = 0; cpu_idx < num_cpu; cpu_idx++) {

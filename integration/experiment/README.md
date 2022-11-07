@@ -8,7 +8,7 @@ parallel jobs, and analyzing the job output.
 
 There is some functionality that is shared between different
 expereiments and these features are captured in python modules
-at the base of the experiement directory.
+at the base of the experiment directory.
 
 #### `common_args.py`
 
@@ -29,7 +29,7 @@ enable run scripts to launch a sequence of job configurations.
 Used to generate a json file containing descriptive information about
 the compute nodes where jobs are running.  Each experiment creates one
 of these json files at run time.  The machine object may be used to
-configure an application and it is refered to by the "gen" analysis
+configure an application and it is referred to by the "gen" analysis
 scripts to understand the system where the jobs were run without
 requiring compute node access.
 
@@ -77,7 +77,7 @@ The general workflow is as follows:
    of nodes can be specified with `--nodes`; otherwise 1 node will be
    used.
 
-2. Generate the desired analysis targetting the resulting output with
+2. Generate the desired analysis targeting the resulting output with
    `--output-dir`; by default all reports/traces in the current
    working directory are used.  Some scripts support more verbose
    output with `--show-details`.

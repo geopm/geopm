@@ -146,7 +146,7 @@ int geopm_agent_sample_name(const char *agent_name,
  *
  *  @param [out] num_agent The number of agents currently available.
  *
- *  @return Zero if no error occured.  Otherwise the error code will be returned.
+ *  @return Zero if no error occurred.  Otherwise the error code will be returned.
  */
 int geopm_agent_num_avail(int *num_agent);
 

@@ -435,7 +435,7 @@ void CommMPIImpTest::check_params()
 TEST_F(CommMPIImpTest, mpi_comm_ops)
 {
     MPICommTestHelper tmp_comm;//no param constructor uses MPI_COMM_WORLD, others will dup causing failure
-    int test_rank = -1; // interally MPIComm.rank init's tmp var to -1 which is passed to [P]MPI_Comm_rank
+    int test_rank = -1; // internally MPIComm.rank init's tmp var to -1 which is passed to [P]MPI_Comm_rank
 
     // comm rank
     g_sizes.push_back(sizeof(MPI_Comm));

@@ -164,7 +164,7 @@ void PlatformIOTest::SetUp()
         m_control_iogroup,
         m_override_iogroup
     };
-    // construct list of base pointers for contructor
+    // construct list of base pointers for constructor
     std::list<std::shared_ptr<IOGroup> > iogroup_list;
     for (auto ptr : m_iogroup_ptr) {
         iogroup_list.emplace_back(ptr);

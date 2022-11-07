@@ -132,7 +132,7 @@ namespace geopm
             /// @param [in] write_mask The mask to apply when writing this value
             virtual void adjust(int batch_idx, uint64_t write_value, uint64_t write_mask) = 0;
 
-            /// @brief Get the punit index assocaited with a CPU index
+            /// @brief Get the punit index associated with a CPU index
             /// @param [in] cpu_index Index of the CPU
             virtual uint32_t get_punit_from_cpu(uint32_t cpu_index) = 0;
 

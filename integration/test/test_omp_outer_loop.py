@@ -5,7 +5,7 @@
 #
 
 """Test the detection of user defined regions in an application
-   configured such that the outer loop is an OMP paralell region.
+   configured such that the outer loop is an OMP parallel region.
 
 """
 
@@ -99,7 +99,7 @@ class TestIntegrationOMPOuterLoop(unittest.TestCase):
                     if observed_region['time-hint-network (s)'] != 0:
                         network_time_detected = True
             self.assertTrue(network_time_detected,
-                            msg="There should be some network time assiciated with an OMPT detected region.")
+                            msg="There should be some network time associated with an OMPT detected region.")
 
     def test_regions_present(self):
         """Test that the second run's report DOES contain the

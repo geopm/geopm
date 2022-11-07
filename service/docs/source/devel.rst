@@ -11,7 +11,7 @@ all files related to the GEOPM systemd service including the build
 system and all source code for the software components.  The base
 directory of the GEOPM git repository is populated with a build system
 that supports all software components not located in the ``service``
-directory.  The base build depends soley on components in the
+directory.  The base build depends solely on components in the
 ``service`` directory that are installed by the service build
 including: the ``libgeopmd.so`` library, the C and C++ public
 interface header files for that library, and the ``geopmdpy`` Python
@@ -36,7 +36,7 @@ repository:
     ./configure
     make
 
-    # Optionaly, build the GEOPM HPC runtime package
+    # Optionally, build the GEOPM HPC runtime package
     cd ..
     ./autogen.sh
     ./configure
@@ -114,7 +114,7 @@ There are many options that may be passed to each of the two configure
 scripts that are part of the GEOPM repository build system.  Two
 scripts called ``autogen.sh`` are provided, one in the base of the
 GEOPM repository and the other in the service directory.  Each of
-these scripts manage the GEOPM version that is imbedded in the build
+these scripts manage the GEOPM version that is embedded in the build
 artifacts, and create the two ``configure`` scripts using the
 autotools package.
 

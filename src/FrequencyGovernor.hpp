@@ -56,9 +56,9 @@ namespace geopm
             ///        are within range for the platform.  If not,
             ///        they will be clamped at the min and max for the
             ///        platform.
-            /// @param [inout] freq_min Minimum frequency to attempt
+            /// @param [in,out] freq_min Minimum frequency to attempt
             ///        to set, and resulting valid minimum.
-            /// @param [inout] freq_max Maximum frequency to attempt
+            /// @param [in,out] freq_max Maximum frequency to attempt
             ///        to set, and resulting valid maximum.
             virtual void validate_policy(double &freq_min, double &freq_max) const = 0;
             /// @brief Returns a unique_ptr to a concrete object

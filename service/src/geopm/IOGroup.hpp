@@ -30,7 +30,7 @@ namespace geopm
 
             /// @brief Description of the runtime behavior of a signal
             enum m_signal_behavior_e {
-                /// signals that have a contant value
+                /// signals that have a constant value
                 M_SIGNAL_BEHAVIOR_CONSTANT,
                 /// signals that increase monotonically
                 M_SIGNAL_BEHAVIOR_MONOTONE,

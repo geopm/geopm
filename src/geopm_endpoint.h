@@ -147,7 +147,7 @@ int geopm_endpoint_profile_name(struct geopm_endpoint_c *endpoint,
  *         geopm_endpoint_create() that has reported an attached
  *         agent.
  *
- *  @param [out] num_node Number of compute nodes controled by
+ *  @param [out] num_node Number of compute nodes controlled by
  *         attached agent.
  *
  *  @return Zero on success, error code on failure.
@@ -185,7 +185,7 @@ int geopm_endpoint_node_name(struct geopm_endpoint_c *endpoint,
  *         agent.
  *
  *  @param [in] policy_array Array of length returned by
- *         geopm_agent_num_policy() specifing the value of each policy
+ *         geopm_agent_num_policy() specifying the value of each policy
  *         parameter.
  *
  *  @return Zero on success, error code on failure

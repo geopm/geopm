@@ -6,7 +6,7 @@
 '''GEOPM Plotting
 
 Used to produce plots and other analysis files from report and/or
-trace files.  Also includes helpers for ploting scripts.
+trace files.  Also includes helpers for plotting scripts.
 
 
 
@@ -980,7 +980,7 @@ def generate_power_plot(trace_df, config):
         raise LookupError('No data remains after filtering.  Please check your datasets and filtering options.')
 
     # Do not include node_name, iteration or index in the groupby clause; The median iteration is extracted and used
-    # below for every node togther in a group.  The index must be preserved to ensure the DFs stay in order.
+    # below for every node together in a group.  The index must be preserved to ensure the DFs stay in order.
     if config.verbose:
         sys.stdout.write('Grouping data...\n')
         sys.stdout.flush()
@@ -1244,7 +1244,7 @@ def generate_epoch_plot(trace_df, config):
 def generate_freq_plot(trace_df, config):
     """Plots the per sample frequency per node per socket.
 
-    This function will plot the frequency of each socket on each node per sample.  It plots the sockets as seperate
+    This function will plot the frequency of each socket on each node per sample.  It plots the sockets as separate
     files denoted '...socket_0.svg', '...socket_1.svg', etc.  Specifying the 'analyze' option in the config object
     will also include a statistics print out of the data used in the plot.  Specifying the 'normalize' option will
     use uniform node names in the plot legend.  Setting the 'config.base_clock' parameter in the config object will

@@ -225,7 +225,7 @@ class TestIntegration_fmap_short_region_slop(unittest.TestCase):
 
 def create_report_df(report_path_fixed, report_path_dynamic, num_trial, num_duration):
     """Create pandas data frame that holds data from the reports that
-       relevent to the test
+       relevant to the test
 
     """
     result = pandas.DataFrame()

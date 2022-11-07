@@ -33,7 +33,7 @@ more difficult to extend.
 Some features of existing device drivers may be enabled for
 end users by changing file permissions, however this does not allow
 for filtering of which driver features will be available, and is often
-insufficent due to Linux
+insufficient due to Linux
 `capabilities(7) <https://man7.org/linux/man-pages/man7/capabilities.7.html>`__
 requirements.
 

@@ -106,7 +106,7 @@ namespace geopm
                                                       "domain_idx",
                                                       "setting"};
             if (jss_map.size() != required_keys.size()) {
-                throw Exception("SaveControlImp::Settins(): JSON object representing m_setting_s must have four fields",
+                throw Exception("SaveControlImp::Settings(): JSON object representing m_setting_s must have four fields",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
             for (const auto &rk : required_keys) {

@@ -500,13 +500,13 @@ namespace geopm
                 auto denom_it = signal_hidden.find("MSR::ACNT_RATE");
                 if (numer_it != signal_hidden.end() &&
                     denom_it != signal_hidden.end()){
-                    auto numers = numer_it->second.signals;
-                    auto numer = numers[domain_idx];
-                    auto denoms = denom_it->second.signals;
-                    auto denom = denoms[domain_idx];
+                    auto numerators = numer_it->second.signals;
+                    auto numerator = numerators[domain_idx];
+                    auto denominators = denom_it->second.signals;
+                    auto denominator = denominators[domain_idx];
 
                     result[domain_idx] =
-                        std::make_shared<RatioSignal>(numer, denom);
+                        std::make_shared<RatioSignal>(numerator, denominator);
                 }
             }
 

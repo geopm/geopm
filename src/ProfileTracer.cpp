@@ -24,7 +24,7 @@
 
 namespace geopm
 {
-    // defintion of the static data member
+    // definition of the static data member
     ApplicationSampler* ProfileTracerImp::m_application_sampler = nullptr;
 
     ProfileTracerImp::ProfileTracerImp(const std::string &start_time)

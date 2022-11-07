@@ -118,7 +118,7 @@ namespace geopm
             ///
             /// @remark See documentation for sigsuspend(2) about
             ///         parameters and return value. Except that it
-            ///         doesn't return an error by defualt.
+            ///         doesn't return an error by default.
             virtual void sig_suspend(const sigset_t *mask) const = 0;
     };
 

@@ -31,12 +31,12 @@ namespace geopm
             ///        potentially a period.  Suggested default is 3.
             ///
             /// @param [in] stable_period_hysteresis Factor that along
-            ///        with the period length that detemines when a
+            ///        with the period length that determines when a
             ///        stable period has been detected.  Suggested
             ///        default is 1.
             ///
             /// @param [in] unstable_period_hysteresis Factor that
-            ///        along with the period length that detemines
+            ///        along with the period length that determines
             ///        when the period has become unstable.  This
             ///        happens when the period changes from the
             ///        previously detected length.  Suggested default

@@ -67,7 +67,7 @@ def num_domain(domain):
     """Get the number of domains available on the system of a specific
     domain type.  If the domain is valid, but there are no domains of
     that type on the system, the return value is zero.  Invalid domain
-    specificiation will result in a raised exception.
+    specification will result in a raised exception.
 
     Args:
         domain (int or str): The domain type from one of topo.DOMAIN_*

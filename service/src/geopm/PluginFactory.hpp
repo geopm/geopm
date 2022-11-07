@@ -84,7 +84,7 @@ namespace geopm
             {
                 auto it = m_dictionary.find(plugin_name);
                 if (it == m_dictionary.end()) {
-                    throw Exception("PluginFactory::dictonary(): Plugin named \"" + plugin_name +
+                    throw Exception("PluginFactory::dictionary(): Plugin named \"" + plugin_name +
                                     "\" has not been registered with the factory.",
                                     GEOPM_ERROR_INVALID, __FILE__, __LINE__);
                 }

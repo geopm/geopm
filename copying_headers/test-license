@@ -245,7 +245,7 @@ class Repo(object):
 
     def check_license(self):
         """
-        Check all of the taged files for license headers.
+        Check all of the tagged files for license headers.
         """
         for tag in self.tag_list:
             header_path = os.path.join(self.copying, 'header.{0}'.format(tag))

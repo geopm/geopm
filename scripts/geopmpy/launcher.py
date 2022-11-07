@@ -844,7 +844,7 @@ Warning: <geopm> geopmpy.launcher: Incompatible CPU frequency governor
 
     def partition_option(self):
         """
-        Returns a list containing the command line options specifiying the
+        Returns a list containing the command line options specifying the
         compute node partition for the job to run on.
         """
         return []
@@ -886,7 +886,7 @@ Warning: <geopm> geopmpy.launcher: Incompatible CPU frequency governor
         """
         if self.is_slurm_enabled:
             # Use scontrol instead of sinfo -t alloc since sinfo will show all nodes currently allocated, not just
-            # the nodes associted with the current job context.
+            # the nodes associated with the current job context.
             return list(set(subprocess.check_output(['scontrol', 'show', 'hostname']).decode().splitlines()))
         else:
             raise NotImplementedError('<geopm> geopmpy.launcher: Allocated nodes feature requires SLURM')
@@ -1056,7 +1056,7 @@ class SrunLauncher(Launcher):
         """
         result = []
         if self.time_limit is not None:
-            # Time limit option exepcts minutes, covert from seconds
+            # Time limit option expects minutes, convert from seconds
             result = ['-t', str(int_ceil_div(self.time_limit, 60))]
         return result
 
@@ -1088,7 +1088,7 @@ class SrunLauncher(Launcher):
 
     def partition_option(self):
         """
-        Returns a list containing the command line options specifiying the
+        Returns a list containing the command line options specifying the
         compute node partition for the job to run on.
         """
         result = []
@@ -1230,7 +1230,7 @@ class OMPIExecLauncher(Launcher):
         result = super(OMPIExecLauncher, self).launcher_argv(is_geopmctl)
 
         if is_geopmctl:
-            # add not to warn on fork messge
+            # add not to warn on fork message
             result.extend(['--mca', 'mpi_warn_on_fork', '0'])
         return result
 
@@ -1618,7 +1618,7 @@ class AprunLauncher(Launcher):
         """
         result = []
         if self.time_limit is not None:
-            # Mulitply by Linux CPU per process due to aprun
+            # Multiply by Linux CPU per process due to aprun
             # definition of time limit.
             result = ['-t', str(self.time_limit * self.cpu_per_rank)]
         return result

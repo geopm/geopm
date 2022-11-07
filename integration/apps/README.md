@@ -17,7 +17,7 @@ requirements for each application directory are provided.
   - [minife](minife)
   - [nekbone](nekbone)
 
-#### Network Bandwith Bound Applications
+#### Network Bandwidth Bound Applications
 
   - [nasft](nasft)
 
@@ -79,7 +79,7 @@ requirements for each application directory are provided.
   script may obtain the source by wget, svn, or git.  It may also be
   obtained from the local application source cache directory; the
   location of the application source cache defaults to
-  `$HOME/geopm_apps` and may be overriden in the user's environment or
+  `$HOME/geopm_apps` and may be overridden in the user's environment or
   ~/.geopmrc file as GEOPM_APPS_SRCDIR.
 
 #### Source patches

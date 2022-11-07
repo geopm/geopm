@@ -187,7 +187,7 @@ def secure_read_file(path):
 
 
 def is_secure_path(path):
-    """Query if path may be openend safely
+    """Query if path may be opened safely
 
     Check if path exists, and refers to a regular file that is not a link.  A
     warning message is printed if the path is a link, a directory or is not a
@@ -1014,7 +1014,7 @@ class WriteLock(object):
     controlling process when the lock is held.  The class manages the advisory
     lock to serialize any attempts read or write the file.  Additionally the
     class checks that the lock file is a regular file with restricted
-    permissions.  Maniuplations of the control lock file should be done
+    permissions.  Manipulations of the control lock file should be done
     exclusively with the WriteLock object to insure that the advisory lock is
     effective.
 
@@ -1064,7 +1064,7 @@ class WriteLock(object):
         if self._fid == None:
             self._rpc_unlock()
             raise RuntimeError('Unable to open write lock securely after two tries')
-        # Advisory lock protects against simultanious multi-process
+        # Advisory lock protects against simultaneous multi-process
         # modifications to the file, although we expect only one geopmd
         # process using this class.
         fcntl.lockf(self._fid, fcntl.LOCK_EX)

@@ -44,7 +44,7 @@ class POSIXSignalTest : public :: testing :: Test
  * @brief save the process's sigset before running the test fixture
  *
  * @details For testing the sigprocmask(), which modifies the process's sigset.
- * This proces is running multiple tests, and we do not want the tests to leave any residue.
+ * This process is running multiple tests, and we do not want the tests to leave any residue.
  * Usually variable scope would be sufficient to enforce, but we are modifying the state of the process
  * because we are testing the system calls API.
  */
@@ -317,7 +317,7 @@ TEST_F(POSIXSignalTest, sig_proc_mask_SIG_BLOCK)
     m_posix_sig->sig_proc_mask(SIG_SETMASK, &original_sigset, nullptr);
     // The set of blocked signals is the union of the original sigset and the additional sigset
     m_posix_sig->sig_proc_mask(SIG_BLOCK, &additional_sigset, nullptr);
-    // Recored the resulting value of the sigset
+    // Recorded the resulting value of the sigset
     sigset_t resulting_sigset;
     m_posix_sig->sig_proc_mask(SIG_SETMASK, nullptr, &resulting_sigset);
     // Convert resulting_sigset into std::set<int>
@@ -362,7 +362,7 @@ TEST_F(POSIXSignalTest, sig_proc_mask_SIG_UNBLOCK)
     // The signals in deleted_sigset are removed from the current set of blocked signals.
     // It is permissible to attempt to unblock a signal which is not blocked.
     m_posix_sig->sig_proc_mask(SIG_UNBLOCK, &deleted_sigset, nullptr);
-    // Recored the resulting value of the sigset
+    // Recorded the resulting value of the sigset
     sigset_t resulting_sigset;
     m_posix_sig->sig_proc_mask(SIG_SETMASK, nullptr, &resulting_sigset);
     // Convert resulting_sigset into std::set<int>

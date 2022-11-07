@@ -234,7 +234,7 @@ TEST_F(MSRFieldSignalTest, setup_batch)
 
 TEST_F(MSRFieldSignalTest, errors)
 {
-    // logic errors in contructor because this class is internal to MSRIOGroup.
+    // logic errors in constructor because this class is internal to MSRIOGroup.
     // @todo: consider whether Signal should be public to help writers of IOGroups
 #ifdef GEOPM_DEBUG
     // cannot construct with null underlying signal

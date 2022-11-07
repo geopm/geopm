@@ -43,11 +43,11 @@ namespace geopm
         }
 
         double result = NAN;
-        double numer = m_numerator->sample();
-        double denom = m_denominator->sample();
+        double numerator = m_numerator->sample();
+        double denominator = m_denominator->sample();
 
-        if (denom != 0) {
-            result = numer / denom;
+        if (denominator != 0) {
+            result = numerator / denominator;
         }
         return result;
     }
@@ -55,11 +55,11 @@ namespace geopm
     double RatioSignal::read(void) const
     {
         double result = NAN;
-        double numer = m_numerator->read();
-        double denom = m_denominator->read();
+        double numerator = m_numerator->read();
+        double denominator = m_denominator->read();
 
-        if (denom != 0) {
-            result = numer / denom;
+        if (denominator != 0) {
+            result = numerator / denominator;
         }
         return result;
     }
