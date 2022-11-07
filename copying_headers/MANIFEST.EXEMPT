@@ -5,6 +5,7 @@ CONTRIBUTING.rst
 COPYING
 COPYING-TPP
 man
+.codespellrc
 copying_headers/header.BSD3-intel
 copying_headers/header.BSD3-llnl
 copying_headers/header.compile_flag

@@ -150,6 +150,7 @@ dist_doc_DATA = COPYING \
                 # end
 
 EXTRA_DIST = $(TUTORIAL_DIST) \
+             .codespellrc \
              .github/include_guards.sh \
              .github/workflows/build.yml \
              .github/workflows/codeql-analysis.yml \
