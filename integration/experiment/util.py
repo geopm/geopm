@@ -145,7 +145,7 @@ def get_node_memory_info():
             break
     return result
 
-def const_config_write(new_config, old_config_path=None):
+def merge_const_config(new_config, old_config_path=None):
     root_dir = os.getenv('GEOPM_SOURCE')
     schema_file = root_dir + "/service/json_schemas/const_config_io.schema.json"
     with open(schema_file, "r") as f:
