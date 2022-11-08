@@ -6,7 +6,7 @@
 
 '''
 Finds the energy efficient frequency for a provided frequency sweep
-and provides that as part of a constconfig file for the GPU Activity Agent
+and provides that as part of a ConstConfigIO configuration file for the GPU Activity Agent
 '''
 
 import argparse

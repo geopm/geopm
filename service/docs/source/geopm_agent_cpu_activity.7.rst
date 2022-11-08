@@ -115,10 +115,10 @@ be used to force the entire application to run at a fixed frequency.
       Used to build a mapping of uncore frequencies to maximum
       memory bandwidths for frequency steering.
 
-ConstConfig Generation
-----------------------
+ConstConfigIOGroup Configuration File Generation
+------------------------------------------------
 
-Generating a ConstConfig file for the CPU Compute Activity agent requires
+Generating a ConstConfigIOGroup configuration file for the CPU Compute Activity agent requires
 system characterization using the GEOPM experiment infrastructure located in
 ``$GEOPM_SOURCE/integration/experiment/`` and the aritmetic intensity
 benchmark located in ``$GEOPM_SOURCE/integration/apps/arithmetic_intensity``.
