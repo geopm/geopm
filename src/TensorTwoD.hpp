@@ -51,7 +51,10 @@ namespace geopm
             /// @brief Get number of rows in the 2D tensor
             /// 
             /// @return Number of rows of the 2D tensor
-            std::size_t get_rows() const;
+            inline std::size_t get_rows() const
+            {
+                return m_mat.size();
+            }
             /// @brief get number of columns in 2D tensor
             /// 
             /// @return Number of columns in the 2D tensor
@@ -68,13 +71,13 @@ namespace geopm
             /// @param [in] idx The index at which to look for the value
             /// 
             /// @return Returns a reference to the 1D Tensor at idx
-            TensorOneD &operator[](int idx);
+            TensorOneD &operator[](size_t idx);
             /// @brief Value access of 1D Tensor value at idx
             /// 
             /// @pram [in] idx The index at which to look for the value
             /// 
             /// @return Returns the values of 1D Tensors at idx
-            TensorOneD operator[](int idx) const;
+            TensorOneD operator[](size_t idx) const;
             /// @brief Oerload = operator with an in-place deep copy
             /// 
             /// @param [in] TensorTwoD& Reference to the 2D Tensor to copy
