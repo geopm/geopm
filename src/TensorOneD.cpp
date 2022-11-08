@@ -33,6 +33,16 @@ namespace geopm
     {
     }
 
+    void TensorOneD::set_dim(std::size_t dim)
+    {
+        m_vec.resize(dim);
+    }
+
+    std::size_t TensorOneD::get_dim() const
+    {
+        return m_vec.size();
+    }
+
     TensorOneD::TensorOneD(json11::Json input)
     {
         if (!input.is_array()) {
