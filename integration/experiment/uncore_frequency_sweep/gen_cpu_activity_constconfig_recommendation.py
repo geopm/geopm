@@ -170,7 +170,7 @@ def get_config_from_frequency_sweep(full_df, region_list):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--const-config-path', required=False, default=None,
-                        help='path containing existing constconfigIO configuration file')
+                        help='path containing existing ConstConfigIO configuration file')
     parser.add_argument('--path', required=True,
                         help='path containing reports and machine.json')
     parser.add_argument('--region-list', default="intensity_1,intensity_16", dest='region_list',
