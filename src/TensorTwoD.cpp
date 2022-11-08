@@ -56,6 +56,19 @@ namespace geopm
         }
     }
 
+    std::size_t TensorTwoD::get_rows() const
+    {
+        return m_mat.size();
+    }
+
+    std::size_t TensorTwoD::get_cols() const
+    {
+        if (m_mat.size() == 0) {
+            return 0;
+        }
+        return m_mat[0].get_dim();
+    }
+
     void TensorTwoD::set_dim(std::size_t rows, std::size_t cols)
     {
         if ((rows == 0 && cols > 0) || (rows > 0 && cols == 0)) {

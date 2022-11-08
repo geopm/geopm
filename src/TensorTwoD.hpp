@@ -51,20 +51,11 @@ namespace geopm
             /// @brief Get number of rows in the 2D tensor
             /// 
             /// @return Number of rows of the 2D tensor
-            inline std::size_t get_rows() const
-            {
-                return m_mat.size();
-            }
+            std::size_t get_rows() const;
             /// @brief get number of columns in 2D tensor
             /// 
             /// @return Number of columns in the 2D tensor
-            inline std::size_t get_cols() const
-            {
-                if (m_mat.size() == 0) {
-                    return 0;
-                }
-                return m_mat[0].get_dim();
-            }
+            std::size_t get_cols() const;
             /// @brief Multipy a 2D tensor by a 1D tensor
             /// 
             /// @param [in] TensorOneD& Reference to the multiplicand
