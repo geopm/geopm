@@ -4,13 +4,14 @@
  */
 
 #include "config.h"
+#include "LocalNeuralNet.hpp"
 
-#include <math.h>
+#include <cmath>
+
 #include "geopm/Exception.hpp"
 #include "TensorOneD.hpp"
 #include "TensorTwoD.hpp"
 
-#include "LocalNeuralNet.hpp"
 
 namespace geopm
 {
@@ -25,13 +26,13 @@ namespace geopm
             throw geopm::Exception("Neural network weights is non-array type.\n",
                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        if (input.array_items().size() == 0) {
+        if (input.array_items().size() == 0u) {
             throw geopm::Exception("Empty array is invalid for neural network weights.\n",
                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         m_layers.resize(input.array_items().size());
-        for (int idx = 0; idx < (int)m_layers.size(); idx++) {
+        for (std::size_t idx = 0; idx < m_layers.size(); idx++) {
             if (!input[idx].is_array() || input[idx].array_items().size() != 2) {
                 throw geopm::Exception("Neural network weight entries should be doubles.\n",
                                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -66,12 +67,12 @@ namespace geopm
         }
 
         TensorOneD tmp = inp;
-        for (int idx = 0; idx < (int)m_layers.size(); idx++) {
+        for (std::size_t idx = 0; idx < m_layers.size(); idx++) {
             // Tensor operations
             tmp = m_layers[idx].first * tmp + m_layers[idx].second;
 
             // Apply a sigmoid on all but the last layer
-            if (idx != (int)m_layers.size() - 1) {
+            if (idx != m_layers.size() - 1) {
                 tmp = tmp.sigmoid();
             }
         }
