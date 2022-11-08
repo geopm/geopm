@@ -53,4 +53,4 @@ namespace geopm
     };
 }
 
-#endif
+#endif  /* LOCALNEURALNET_HPP_INCLUDE */

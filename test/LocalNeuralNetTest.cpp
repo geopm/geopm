@@ -41,8 +41,8 @@ TEST_F(LocalNeuralNetTest, test_inference) {
     inp[0] = 1;
     inp[1] = 2;
     TensorOneD out = net.model(inp);
-    EXPECT_EQ(1, out.get_dim());
-    EXPECT_EQ(1/(1 + expf(-43)), out[0]);
+    EXPECT_EQ(1u, out.get_dim());
+    EXPECT_NEAR(1/(1 + expf(-43)), out[0], 1e-6);
 }
 
 TEST_F(LocalNeuralNetTest, test_copy) {
@@ -51,11 +51,11 @@ TEST_F(LocalNeuralNetTest, test_copy) {
     inp[0] = 0;
     inp[1] = 0;
     TensorOneD out = net2.model(inp);
-    EXPECT_EQ(1, out.get_dim());
-    EXPECT_EQ(1/(1 + expf(-3)), out[0]);
+    EXPECT_EQ(1u, out.get_dim());
+    EXPECT_NEAR(1/(1 + expf(-3)), out[0], 1e-6);
     net2 = net;
     out = net2.model(inp);
-    EXPECT_EQ(1/(1 + expf(-3)), out[0]);
+    EXPECT_NEAR(1/(1 + expf(-3)), out[0], 1e-6);
 }
 
 TEST_F(LocalNeuralNetTest, test_bad_layers) {
