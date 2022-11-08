@@ -40,17 +40,11 @@ namespace geopm
             /// tensor will be expanded to a total size of n, uninitialized.
             ///
             /// @param [in] n Resulting size of 1D tensor
-            inline void set_dim(std::size_t dim)
-            {
-                m_vec.resize(dim);
-            }
+            void set_dim(std::size_t dim);
             /// @brief Get the length of the 1D tensor
             ///
             /// @return Returns the length of the 1D tensor
-            inline std::size_t get_dim() const
-            {
-                return m_vec.size();
-            }
+            std::size_t get_dim() const;
             /// @brief Add two 1D tensors, element-wise
             ///
             /// The tensors need to be the same length. 
@@ -102,4 +96,4 @@ namespace geopm
             std::vector<float> m_vec;
     };
 }
-#endif
+#endif /* TENSORONED_HPP_INCLUDE */
