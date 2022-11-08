@@ -135,7 +135,7 @@ namespace geopm
             /// @param [in] geopm_domain The GEOPM domain being targeted
             /// @param [in] l0_device_idx The LevelZero device being targeted
             /// @param [in] l0_domain The LevelZero domain type being targeted
-            /// @return Accelerator frequency domain count.
+            /// @return GPU frequency domain count.
             virtual int power_domain_count(int geopm_domain,
                                            unsigned int l0_device_idx,
                                            int l0_domain) const = 0;
@@ -150,7 +150,7 @@ namespace geopm
             /// @param [in] l0_domain The LevelZero domain type being targeted
             /// @param [in] l0_domain_idx The index indicating a particular
             ///        Level Zero domain.
-            /// @return Accelerator or subdevice performance factor value
+            /// @return Subdevice performance factor value
             virtual double performance_factor(unsigned int l0_device_idx,
                                               int l0_domain, int l0_domain_idx) const = 0;
 

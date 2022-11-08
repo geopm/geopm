@@ -149,9 +149,9 @@ namespace geopm
             /// @brief Get the LevelZero device performance factor
             /// @param [in] domain The GEOPM domain type being targeted
             /// @param [in] domain_idx The GEOPM domain index
-            ///             (i.e. accelerator or chip being targeted)
+            ///             (i.e. gpu or chip being targeted)
             /// @param [in] l0_domain The LevelZero domain type being targeted
-            /// @return Accelerator or chip performance value, 0-1.0
+            /// @return Chip performance value, 0 - 1.0
             virtual double performance_factor(int domain,
                                               unsigned int domain_idx,
                                               int l0_domain) const = 0;
@@ -173,7 +173,7 @@ namespace geopm
             /// @param [in] domain_idx The GEOPM domain index
             ///             (i.e. accelerator or chip being targeted)
             /// @param [in] l0_domain The LevelZero domain type being targeted
-            /// @param [in] setting Performance factor target, 0-1.0
+            /// @param [in] setting Performance factor target, 0 - 1.0
             virtual void performance_factor_control(int domain, unsigned int domain_idx,
                                                     int l0_domain,
                                                     double setting) const = 0;

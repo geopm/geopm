@@ -76,13 +76,13 @@ TEST_F(LevelZeroDevicePoolTest, subdevice_conversion_and_function)
         EXPECT_CALL(*m_levelzero, performance_domain_count(dev_idx, MockLevelZero::M_DOMAIN_MEMORY)).WillRepeatedly(Return(domain_count));
 
         for (int sub_idx = 0; sub_idx < num_subdevice_per_device; ++sub_idx) {
-            EXPECT_CALL(*m_levelzero, frequency_status(dev_idx, MockLevelZero::M_DOMAIN_COMPUTE, sub_idx)).WillOnce(Return(value+offset));
-            EXPECT_CALL(*m_levelzero, frequency_efficient(dev_idx, MockLevelZero::M_DOMAIN_COMPUTE, sub_idx)).WillOnce(Return(value+offset+num_gpu_subdevice*10));
-            EXPECT_CALL(*m_levelzero, frequency_min(dev_idx, MockLevelZero::M_DOMAIN_COMPUTE, sub_idx)).WillOnce(Return(value+offset+num_gpu_subdevice*20));
-            EXPECT_CALL(*m_levelzero, frequency_max(dev_idx, MockLevelZero::M_DOMAIN_COMPUTE, sub_idx)).WillOnce(Return(value+offset+num_gpu_subdevice*30));
+            EXPECT_CALL(*m_levelzero, frequency_status(dev_idx, MockLevelZero::M_DOMAIN_COMPUTE, sub_idx)).WillOnce(Return(value + offset));
+            EXPECT_CALL(*m_levelzero, frequency_efficient(dev_idx, MockLevelZero::M_DOMAIN_COMPUTE, sub_idx)).WillOnce(Return(value + offset + num_gpu_subdevice*10));
+            EXPECT_CALL(*m_levelzero, frequency_min(dev_idx, MockLevelZero::M_DOMAIN_COMPUTE, sub_idx)).WillOnce(Return(value + offset + num_gpu_subdevice*20));
+            EXPECT_CALL(*m_levelzero, frequency_max(dev_idx, MockLevelZero::M_DOMAIN_COMPUTE, sub_idx)).WillOnce(Return(value + offset + num_gpu_subdevice*30));
 
-            EXPECT_CALL(*m_levelzero, active_time(dev_idx, MockLevelZero::M_DOMAIN_COMPUTE, sub_idx)).WillOnce(Return(value+offset+num_gpu_subdevice*40));
-            EXPECT_CALL(*m_levelzero, active_time_timestamp(dev_idx, MockLevelZero::M_DOMAIN_COMPUTE, sub_idx)).WillOnce(Return(value+offset+num_gpu_subdevice*50));
+            EXPECT_CALL(*m_levelzero, active_time(dev_idx, MockLevelZero::M_DOMAIN_COMPUTE, sub_idx)).WillOnce(Return(value + offset + num_gpu_subdevice*40));
+            EXPECT_CALL(*m_levelzero, active_time_timestamp(dev_idx, MockLevelZero::M_DOMAIN_COMPUTE, sub_idx)).WillOnce(Return(value + offset + num_gpu_subdevice*50));
 
             EXPECT_CALL(*m_levelzero, performance_factor(dev_idx, MockLevelZero::M_DOMAIN_COMPUTE, sub_idx)).WillOnce(Return(perf_value_chip_compute[offset]));
             EXPECT_CALL(*m_levelzero, performance_factor(dev_idx, MockLevelZero::M_DOMAIN_MEMORY, sub_idx)).WillOnce(Return(perf_value_chip_mem[offset]));
@@ -92,25 +92,22 @@ TEST_F(LevelZeroDevicePoolTest, subdevice_conversion_and_function)
     LevelZeroDevicePoolImp m_device_pool(*m_levelzero);
 
     for (int sub_idx = 0; sub_idx < num_gpu_subdevice; ++sub_idx) {
-        EXPECT_EQ(value+sub_idx, m_device_pool.frequency_status(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE));
-        EXPECT_EQ(value+sub_idx+num_gpu_subdevice*10, m_device_pool.frequency_efficient(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE));
-        EXPECT_EQ(value+sub_idx+num_gpu_subdevice*20, m_device_pool.frequency_min(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE));
-        EXPECT_EQ(value+sub_idx+num_gpu_subdevice*30, m_device_pool.frequency_max(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE));
+        EXPECT_EQ(value + sub_idx, m_device_pool.frequency_status(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE));
+        EXPECT_EQ(value + sub_idx + num_gpu_subdevice * 10, m_device_pool.frequency_efficient(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE));
+        EXPECT_EQ(value + sub_idx + num_gpu_subdevice * 20, m_device_pool.frequency_min(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE));
+        EXPECT_EQ(value + sub_idx + num_gpu_subdevice * 30, m_device_pool.frequency_max(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE));
 
-        EXPECT_EQ((uint64_t)(value+sub_idx+num_gpu_subdevice*40), m_device_pool.active_time(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE));
-        EXPECT_EQ((uint64_t)(value+sub_idx+num_gpu_subdevice*50), m_device_pool.active_time_timestamp(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE));
+        EXPECT_EQ((uint64_t)(value+sub_idx + num_gpu_subdevice * 40), m_device_pool.active_time(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE));
+        EXPECT_EQ((uint64_t)(value+sub_idx + num_gpu_subdevice * 50), m_device_pool.active_time_timestamp(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE));
 
-        EXPECT_EQ((uint64_t)(value+sub_idx+num_gpu_subdevice*30), m_device_pool.active_time(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE));
-        EXPECT_EQ((uint64_t)(value+sub_idx+num_gpu_subdevice*40), m_device_pool.active_time_timestamp(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE));
-
-        EXPECT_NO_THROW(m_device_pool.frequency_control(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE, value, value));
+        EXPECT_EQ((uint64_t)(value + sub_idx + num_gpu_subdevice * 30), m_device_pool.active_time(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE));
+        EXPECT_EQ((uint64_t)(value + sub_idx + num_gpu_subdevice * 40), m_device_pool.active_time_timestamp(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE));
 
         EXPECT_NO_THROW(m_device_pool.frequency_control(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE, value, value));
 
         EXPECT_EQ(perf_value_chip_compute[sub_idx], m_device_pool.performance_factor(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE));
         EXPECT_EQ(perf_value_chip_mem[sub_idx], m_device_pool.performance_factor(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_MEMORY));
 
-        //TODO: Add SUBDEVICE perf factor calls
         EXPECT_NO_THROW(m_device_pool.performance_factor_control(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE, 0.5));
         EXPECT_NO_THROW(m_device_pool.performance_factor_control(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_MEMORY, 0.5));
     }
@@ -158,15 +155,15 @@ TEST_F(LevelZeroDevicePoolTest, domain_error)
     GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.active_time_timestamp(GEOPM_DOMAIN_GPU_CHIP, dev_idx, MockLevelZero::M_DOMAIN_COMPUTE), GEOPM_ERROR_INVALID, "Not supported on this hardware");
     GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.active_time_pair(GEOPM_DOMAIN_GPU_CHIP, dev_idx, MockLevelZero::M_DOMAIN_COMPUTE), GEOPM_ERROR_INVALID, "Not supported on this hardware");
 
-    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.active_time(GEOPM_DOMAIN_GPU, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "domain "+std::to_string(GEOPM_DOMAIN_GPU)+" is not supported for the engine domain");
-    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.active_time_timestamp(GEOPM_DOMAIN_GPU, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "domain "+std::to_string(GEOPM_DOMAIN_GPU)+" is not supported for the engine domain");
-    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.active_time_pair(GEOPM_DOMAIN_GPU, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "domain "+std::to_string(GEOPM_DOMAIN_GPU)+" is not supported for the engine domain");
+    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.active_time(GEOPM_DOMAIN_GPU, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "domain " + std::to_string(GEOPM_DOMAIN_GPU) + " is not supported for the engine domain");
+    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.active_time_timestamp(GEOPM_DOMAIN_GPU, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "domain " + std::to_string(GEOPM_DOMAIN_GPU) + " is not supported for the engine domain");
+    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.active_time_pair(GEOPM_DOMAIN_GPU, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "domain " + std::to_string(GEOPM_DOMAIN_GPU) + " is not supported for the engine domain");
 
     //Energy & Power
-    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.energy_pair(GEOPM_DOMAIN_INVALID, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "domain "+std::to_string(GEOPM_DOMAIN_INVALID)+" is not supported for the power domain");
-    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.power_limit_tdp(GEOPM_DOMAIN_GPU_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "domain "+std::to_string(GEOPM_DOMAIN_GPU_CHIP)+" is not supported for the power domain");
-    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.power_limit_min(GEOPM_DOMAIN_GPU_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "domain "+std::to_string(GEOPM_DOMAIN_GPU_CHIP)+" is not supported for the power domain");
-    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.power_limit_max(GEOPM_DOMAIN_GPU_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "domain "+std::to_string(GEOPM_DOMAIN_GPU_CHIP)+" is not supported for the power domain");
+    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.energy_pair(GEOPM_DOMAIN_INVALID, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "domain " + std::to_string(GEOPM_DOMAIN_INVALID) + " is not supported for the power domain");
+    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.power_limit_tdp(GEOPM_DOMAIN_GPU_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "domain " + std::to_string(GEOPM_DOMAIN_GPU_CHIP) + " is not supported for the power domain");
+    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.power_limit_min(GEOPM_DOMAIN_GPU_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "domain " + std::to_string(GEOPM_DOMAIN_GPU_CHIP) + " is not supported for the power domain");
+    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.power_limit_max(GEOPM_DOMAIN_GPU_CHIP, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "domain " + std::to_string(GEOPM_DOMAIN_GPU_CHIP) + " is not supported for the power domain");
 }
 
 TEST_F(LevelZeroDevicePoolTest, subdevice_range_check)
@@ -178,14 +175,14 @@ TEST_F(LevelZeroDevicePoolTest, subdevice_range_check)
     EXPECT_CALL(*m_levelzero, num_gpu(GEOPM_DOMAIN_GPU_CHIP)).WillRepeatedly(Return(num_gpu_subdevice));
 
     LevelZeroDevicePoolImp m_device_pool(*m_levelzero);
-    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.frequency_status(GEOPM_DOMAIN_GPU_CHIP, num_gpu_subdevice, MockLevelZero::M_DOMAIN_COMPUTE), GEOPM_ERROR_INVALID, "domain " +std::to_string(GEOPM_DOMAIN_GPU_CHIP)+ " idx "+std::to_string(num_gpu_subdevice)+" is out of range");
+    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.frequency_status(GEOPM_DOMAIN_GPU_CHIP, num_gpu_subdevice, MockLevelZero::M_DOMAIN_COMPUTE), GEOPM_ERROR_INVALID, "domain "  + std::to_string(GEOPM_DOMAIN_GPU_CHIP) +  " idx " + std::to_string(num_gpu_subdevice) + " is out of range");
 }
 
 TEST_F(LevelZeroDevicePoolTest, device_range_check)
 {
     const int num_gpu = 4;
     LevelZeroDevicePoolImp m_device_pool(*m_levelzero);
-    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.energy(GEOPM_DOMAIN_GPU, num_gpu, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "domain "+std::to_string(GEOPM_DOMAIN_GPU)+" idx "+std::to_string(num_gpu)+" is out of range");
+    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.energy(GEOPM_DOMAIN_GPU, num_gpu, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "domain " + std::to_string(GEOPM_DOMAIN_GPU) + " idx " + std::to_string(num_gpu) + " is out of range");
 }
 
 TEST_F(LevelZeroDevicePoolTest, device_function_check)
