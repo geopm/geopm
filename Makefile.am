@@ -413,6 +413,8 @@ libgeopmpolicy_la_SOURCES = src/Accumulator.cpp \
                             src/FrequencyMapAgent.cpp \
                             src/FrequencyMapAgent.hpp \
                             src/Imbalancer.cpp \
+                            src/LocalNeuralNet.cpp \
+                            src/LocalNeuralNet.hpp \
                             src/ModelParse.cpp \
                             src/ModelParse.hpp \
                             src/MonitorAgent.cpp \
