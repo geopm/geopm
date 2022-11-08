@@ -194,6 +194,6 @@ if __name__ == '__main__':
         sys.exit(1)
 
     output = get_config_from_frequency_sweep(df, region_list)
-    output = util.const_config_write(output, args.const_config_path);
+    output = util.merge_const_config(output, args.const_config_path);
 
     sys.stdout.write(json.dumps(output, indent=4) + "\n")
