@@ -329,7 +329,6 @@ namespace geopm
                 // solution to the lack of GPU region support and may be
                 // removed when that support is added to GEOPM.
                 if (domain_idx % (M_NUM_CHIP_PER_GPU) == 0) {
-                    //int gpu_idx = domain_idx / M_NUM_CHIP_PER_GPU;
                     gpu_scoped_core_activity.push_back(gpu_core_activity);
                 }
             }
