@@ -58,7 +58,13 @@ namespace geopm
             /// @brief get number of columns in 2D tensor
             /// 
             /// @return Number of columns in the 2D tensor
-            std::size_t get_cols() const;
+            inline std::size_t get_cols() const
+            {
+                if (m_mat.size() == 0) {
+                    return 0;
+                }
+                return m_mat[0].get_dim();
+            }
             /// @brief Multipy a 2D tensor by a 1D tensor
             /// 
             /// @param [in] TensorOneD& Reference to the multiplicand

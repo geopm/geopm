@@ -69,13 +69,6 @@ namespace geopm
         }
     }
 
-    std::size_t TensorTwoD::get_cols() const
-    {
-        if (m_mat.size() == 0) {
-            return 0;
-        }
-        return m_mat[0].get_dim();
-    }
 
     TensorOneD TensorTwoD::operator*(const TensorOneD& other)
     {
