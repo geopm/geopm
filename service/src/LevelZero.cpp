@@ -151,7 +151,7 @@ namespace geopm
             // If we have more than one device confirm all devices have the same
             // number of subdevices
             for (int idx = 1; idx < m_devices.size(); ++idx) {
-                if (m_devices.at(idx).m_num_subdevice != m_devices.at(idx-1).m_num_subdevice) {
+                if (m_devices.at(idx).m_num_subdevice != m_devices.at(idx - 1).m_num_subdevice) {
                     throw Exception("LevelZero::" + std::string(__func__) +
                                     ": GEOPM Requires the number of subdevices to be" +
                                     " the same on all devices. " +
