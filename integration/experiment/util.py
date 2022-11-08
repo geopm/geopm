@@ -5,6 +5,8 @@
 
 # Helper functions useful for both tests and experiments
 
+import json
+import jsonschema
 import sys
 import os
 import socket
@@ -142,3 +144,25 @@ def get_node_memory_info():
             result['MemTotal'] = float(total) * 1024
             break
     return result
+
+def const_config_write(new_config, old_config_path=None):
+    root_dir = os.getenv('GEOPM_SOURCE')
+    schema_file = root_dir + "/service/json_schemas/const_config_io.schema.json"
+    with open(schema_file, "r") as f:
+        schema = json.load(f)
+
+    old_config = {};
+    if old_config_path:
+        with open(old_config_path, "r") as f:
+            old_config = json.load(f)
+        # Check the old config
+        jsonschema.validate(old_config, schema=schema)
+
+    # Check the new config
+    jsonschema.validate(new_config, schema=schema)
+
+    # Combine & check
+    combined_config = {**old_config, **new_config}
+    jsonschema.validate(combined_config, schema=schema)
+
+    return combined_config

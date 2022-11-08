@@ -15,6 +15,7 @@ import jsonschema
 import math
 import os
 import sys
+import util
 
 import pandas
 import numpy as np
@@ -80,6 +81,8 @@ def get_config_from_frequency_sweep(full_df):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
+    parser.add_argument('--const-config-path', required=False, default=None,
+                        help='path containing existing constconfigIO configuration file')
     parser.add_argument('--path', required=True,
                         help='path containing reports and machine.json')
     args = parser.parse_args()
@@ -92,12 +95,6 @@ if __name__ == '__main__':
         sys.exit(1)
 
     output = get_config_from_frequency_sweep(df)
-
-    root_dir = os.getenv('GEOPM_SOURCE')
-    schema_file = root_dir + "/service/json_schemas/const_config_io.schema.json"
-    with open(schema_file, "r") as f:
-        schema = json.load(f)
-
-    jsonschema.validate(output, schema=schema)
+    output = util.const_config_write(output, args.const_config_path);
 
     sys.stdout.write(json.dumps(output, indent=4) + "\n")
