@@ -235,7 +235,7 @@ namespace geopm
         //Cache power domains
         num_domain = 0;
         ze_result = zesDeviceEnumPowerDomains(m_devices.at(
-                    device_idx).device_handle, &num_domain, nullptr);
+                        device_idx).device_handle, &num_domain, nullptr);
         if (ze_result == ZE_RESULT_ERROR_UNSUPPORTED_FEATURE) {
 #ifdef GEOPM_DEBUG
             std::cerr << "Warning: <geopm> LevelZero: Power domain detection is "
@@ -314,7 +314,7 @@ namespace geopm
         //Cache performance domains
         num_domain = 0;
         ze_result = zesDeviceEnumPerformanceFactorDomains(m_devices.at(
-                    device_idx).device_handle, &num_domain, nullptr);
+                        device_idx).device_handle, &num_domain, nullptr);
         if (ze_result != ZE_RESULT_ERROR_UNSUPPORTED_FEATURE) {
             check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
                             "LevelZero::" + std::string(__func__) +
@@ -339,7 +339,7 @@ namespace geopm
                                 ": Sysman failed to get domain performance factor properties",
                                 __LINE__);
 
-                //Finding non-subdevice domain.
+                //Finding subdevice domain.
                 if (property.onSubdevice != 0) {
                     if (property.engines == ZES_ENGINE_TYPE_FLAG_COMPUTE) {
                         m_devices.at(device_idx).subdevice.perf_domain.at(

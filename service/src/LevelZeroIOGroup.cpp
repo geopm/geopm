@@ -431,7 +431,8 @@ namespace geopm
                                   1 / 1e6
                                   }},
                               {M_NAME_PREFIX + "GPU_CORE_PERFORMANCE_FACTOR", {
-                                  "Performance Factor of the GPU Compute Hardware Domain",
+                                  "Performance Factor of the GPU Compute Hardware Domain.\n"
+                                  "Expresses a trade-off between energy provided to the GPU compute hardware and the supporting units",
                                   GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
@@ -462,7 +463,8 @@ namespace geopm
                                     string_format_double
                                     }},
                                {M_NAME_PREFIX + "GPU_CORE_PERFORMANCE_FACTOR_CONTROL", {
-                                    "Performance Factor",
+                                    "Performance Factor of the GPU Compute Hardware Domain.\n"
+                                    "Expresses a trade-off between energy provided to the GPU compute hardware and the supporting units",
                                     {},
                                     GEOPM_DOMAIN_GPU_CHIP,
                                     Agg::average,
@@ -514,8 +516,6 @@ namespace geopm
                      IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE}},
         })
         , m_frequency_range(m_platform_topo.num_domain(GEOPM_DOMAIN_GPU_CHIP), std::make_pair(0, 0))
-        // https://spec.oneapi.io/level-zero/latest/sysman/PROG.html#tuning-workload-performance
-        // 'The default value is 50'
         , m_perf_factor(m_platform_topo.num_domain(GEOPM_DOMAIN_GPU_CHIP), 0.5)
         , m_mock_save_ctl(save_control_test)
     {
@@ -568,6 +568,7 @@ namespace geopm
         register_signal_alias("GPU_CORE_FREQUENCY_MAX_CONTROL",
                               M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_CONTROL");
 
+        // Used for control trimming and save/restore.  See man page for more info.
         register_signal_alias(M_NAME_PREFIX + "GPU_CORE_PERFORMANCE_FACTOR_CONTROL",
                               M_NAME_PREFIX + "GPU_CORE_PERFORMANCE_FACTOR");
 
@@ -1031,7 +1032,7 @@ namespace geopm
         else if(control_name == M_NAME_PREFIX + "GPU_CORE_PERFORMANCE_FACTOR_CONTROL") {
             m_levelzero_device_pool.performance_factor_control(domain_type, domain_idx,
                                                                geopm::LevelZero::M_DOMAIN_COMPUTE,
-                                                               setting*100);
+                                                               setting * 100);
         }
         else {
     #ifdef GEOPM_DEBUG

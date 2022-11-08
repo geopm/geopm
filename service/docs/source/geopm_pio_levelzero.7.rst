@@ -73,6 +73,14 @@ Signals
     *  **Format**: double
     *  **Unit**: seconds
 
+``LEVELZERO::GPU_CORE_PERFORMANCE_FACTOR``
+    Performance Factor of the GPU Compute Hardware Domain. Expresses a trade-off between energy provided to the GPU compute hardware and the supporting units.  A value of 1 indicates a compute focused energy trade-off, a value of 0 indicates a memory focused energy trade-off.  Default value is 0.5
+
+    *  **Aggregation**: averge
+    *  **Domain**: gpu_chip
+    *  **Format**: double
+    *  **Unit**: none
+
 ``LEVELZERO::GPU_UNCORE_FREQUENCY_STATUS``
     The current frequency of the GPU Memory hardware.
 
@@ -229,6 +237,15 @@ Every control is exposed as a signal with the same name.  The relevant signal ag
     *  **Format**: double
     *  **Unit**: hertz
 
+``LEVELZERO::GPU_CORE_PERFORMANCE_FACTOR_CONTROL``
+    Performance Factor of the GPU Compute Hardware Domain. Expresses a trade-off between energy provided to the GPU compute hardware and the supporting units.  A value of 1 indicates a compute focused energy trade-off, a value of 0 indicates a memory focused energy trade-off.  Default value is 0.5
+
+    *  **Aggregation**: averge
+    *  **Domain**: gpu_chip
+    *  **Format**: double
+    *  **Unit**: none
+
+
 Aliases
 -------
 
@@ -272,6 +289,11 @@ Signal Aliases
 
 ``GPU_CORE_FREQUENCY_MAX_CONTROL``
     Maps to ``LEVELZERO::GPU_CORE_FREQUENCY_MAX_CONTROL``.
+
+``LEVELZERO::GPU_CORE_PERFORMANCE_FACTOR_CONTROL``
+    Maps to ``LEVELZERO::GPU_CORE_PERFORMANCE_FACTOR``
+    Writes to performance factor may not be granted.  To confirm the actual
+    control setting the signal must be read.
 
 Control Aliases
 ^^^^^^^^^^^^^^^
