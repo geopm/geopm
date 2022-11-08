@@ -7,7 +7,7 @@
 '''
 Finds the energy efficient frequency for a provided frequency sweep
 and characterizes the system memory bandwidth usage for the CPU Activity Agent
-as a constconfig file.
+as a ConstConfigIO configuration file.
 '''
 
 import argparse
