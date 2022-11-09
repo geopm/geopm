@@ -9,6 +9,7 @@ This integration test verifies that the cpu_activity agent can improve
 the energy efficiency of an application.
 """
 
+import json
 import sys
 import unittest
 import os
@@ -25,7 +26,7 @@ from integration.test import geopm_test_launcher
 from experiment.energy_efficiency import cpu_activity
 from experiment.monitor import monitor
 from experiment.uncore_frequency_sweep import uncore_frequency_sweep
-from experiment.uncore_frequency_sweep import gen_cpu_activity_policy_recommendation
+from experiment.uncore_frequency_sweep import gen_cpu_activity_constconfig_recommendation
 from apps.arithmetic_intensity import arithmetic_intensity
 from apps.minife import minife
 
@@ -137,14 +138,10 @@ class TestIntegration_cpu_activity(unittest.TestCase):
         # Parse data #
         ##############
         df_frequency_sweep = geopmpy.io.RawReportCollection('*report', dir_name=cls._aib_uncore_freq_sweep_dir).get_df()
-        policy = gen_cpu_activity_policy_recommendation.main(df_frequency_sweep, ['intensity_1', 'intensity_16'])
-
-        uncore_efficient_freq = policy['CPU_UNCORE_FREQ_EFFICIENT']
-        uncore_mbm_list = []
-
-        for key,value in policy.items():
-            if key not in ("CPU_FREQ_MAX", "CPU_FREQ_EFFICIENT", "CPU_UNCORE_FREQ_MAX", "CPU_UNCORE_FREQ_EFFICIENT", "CPU_PHI"):
-                uncore_mbm_list.append(value)
+        uncore_config = gen_cpu_activity_constconfig_recommendation.get_config_from_frequency_sweep(df_frequency_sweep,
+                                                                                                    ['intensity_1',
+                                                                                                     'intensity_16'])
+        uncore_efficient_freq = uncore_config['CPU_UNCORE_FREQUENCY_EFFICIENT_HIGH_INTENSITY']['values'][0]
 
         #######################################################
         # Core frequency sweep at fixed uncore_efficient_freq #
@@ -162,8 +159,19 @@ class TestIntegration_cpu_activity(unittest.TestCase):
         # Parse data #
         ##############
         df_frequency_sweep = geopmpy.io.RawReportCollection('*report', dir_name=cls._aib_core_freq_sweep_dir).get_df()
-        policy = gen_cpu_activity_policy_recommendation.main(df_frequency_sweep, ['intensity_1', 'intensity_16'])
-        cpu_efficient_freq = policy['CPU_FREQ_EFFICIENT']
+
+        core_config = gen_cpu_activity_constconfig_recommendation.get_config_from_frequency_sweep(df_frequency_sweep,
+                                                                                                  ['intensity_1',
+                                                                                                   'intensity_16'])
+        # The core config has the updated CPU Fe value,
+        # but none of the memory bandwidth info so we
+        # combine them into a full const config file
+        uncore_config['CPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY']['values'][0] = core_config['CPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY']['values'][0]
+
+        json_config = json.dumps(uncore_config, indent=4)
+        with open("const_config_io-ca.json", "w") as outfile:
+            outfile.write(json_config)
+        os.environ["GEOPM_CONST_CONFIG_PATH"] = "const_config_io-ca.json"
 
         ################################
         # CPU Activity Agent phi sweep #
@@ -183,11 +191,6 @@ class TestIntegration_cpu_activity(unittest.TestCase):
             enable_traces=False,
             enable_profile_traces=False,
             verbose=False,
-            cpu_fe=cpu_efficient_freq,
-            cpu_fmax=cpu_max_freq,
-            uncore_fe=uncore_efficient_freq,
-            uncore_fmax=cpu_max_freq,
-            uncore_mbm_list=uncore_mbm_list,
             phi_list=[0.2, 0.5, 0.7],
         )
 
