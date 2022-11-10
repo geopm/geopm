@@ -103,9 +103,6 @@ namespace geopm
         m_freq_core_min = m_freq_governor->get_frequency_min();
         m_freq_core_max = m_freq_governor->get_frequency_max();
 
-        // init to system max
-        m_resolved_f_core_max = m_freq_core_max;
-
         for (int domain_idx = 0; domain_idx < m_num_freq_ctl_domain; ++domain_idx) {
             m_core_scal.push_back({m_platform_io.push_signal("MSR::CPU_SCALABILITY_RATIO",
                                                              m_freq_ctl_domain_type,
@@ -163,8 +160,6 @@ namespace geopm
             m_freq_uncore_efficient = m_freq_uncore_min;
         }
 
-        m_resolved_f_uncore_efficient = m_freq_uncore_efficient;
-
         // Grab all (uncore frequency, max memory bandwidth) pairs
         for (int entry_idx = 0; entry_idx < (int)all_names.size(); ++entry_idx) {
             std::string key_name = "CONST_CONFIG::CPU_UNCORE_FREQUENCY_" +
@@ -188,9 +183,6 @@ namespace geopm
                             " memory bandwidth information.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-
-        // init resolved freq
-        m_resolved_f_core_efficient = m_freq_core_efficient;
     }
 
     // Validate incoming policy and configure default policy requests.
@@ -254,6 +246,14 @@ namespace geopm
         double f_uncore_range = m_freq_uncore_max - m_freq_uncore_efficient;
 
         double phi = in_policy[M_POLICY_CPU_PHI];
+
+        // Default phi = 0.5 case is full fe to fmax range
+        // Core
+        m_resolved_f_core_max = m_freq_core_max;
+        m_resolved_f_core_efficient = m_freq_core_efficient;
+        // Uncore
+        m_resolved_f_uncore_max = m_freq_uncore_max;
+        m_resolved_f_uncore_efficient = m_freq_uncore_efficient;
 
         // If phi is not 0.5 we move into the energy or performance biased behavior
         if (phi > 0.5) {
