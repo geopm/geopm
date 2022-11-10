@@ -211,6 +211,7 @@ ln -s /usr/sbin/service %{buildroot}%{_sbindir}/rcgeopm
 %doc %{_mandir}/man7/geopm.7.gz
 %doc %{_mandir}/man7/geopm_pio.7.gz
 %doc %{_mandir}/man7/geopm_pio_cnl.7.gz
+%doc %{_mandir}/man7/geopm_pio_const_config.7.gz
 %doc %{_mandir}/man7/geopm_pio_cpuinfo.7.gz
 %doc %{_mandir}/man7/geopm_pio_dcgm.7.gz
 %doc %{_mandir}/man7/geopm_pio_levelzero.7.gz
