@@ -16,8 +16,7 @@ based upon the compute activity of each CPU as provided by the
 CPU_COMPUTE_ACTIVITY signal and modified by the CPU_UTILIZATION signal.
 
 The agent scales the core frequency in the range of ``Fce`` to ``Fcmax``, where
-``Fcmax`` is provided via the policy as ``CPU_FREQ_MAX`` and ``Fce`` is provided via
-the policy as ``CPU_FREQ_EFFICIENT``.
+``Fcmax`` and ``Fce`` are provided via the ConstConfigIOGroup.
 
 Low compute activity regions (compute activity of 0.0) run at the ``Fce`` frequency,
 high activity regions (compute activity of 1.0) run at the ``Fcmax`` frequency,
@@ -29,8 +28,7 @@ The ``CPU_COMPUTE_ACTIVITY`` is defined as a derivative signal based on the MSR:
 scalability metric.
 
 The agent also scales the uncore frequency in the range of ``Fue`` to
-``Fumax``, where ``Fumax`` is provided via the policy as ``CPU_UNCORE_FREQ_MAX``
-and ``Fue`` is provided via the policy as ``CPU_UNCORE_FREQ_EFFICIENT``.
+``Fumax``, where ``Fumax`` and ``Fue`` are povided via the ConstConfigIOGroup
 
 Low uncore activity regions (uncore activity of 0.0) run at the ``Fue`` frequency,
 high activity regions (uncore activity of 1.0) run at the ``Fumax`` frequency,
@@ -56,10 +54,10 @@ upon user/admin preference.
 The agent provides an optional input of ``phi`` that allows for biasing the
 frequency range for both domains used by the agent.  The default ``phi`` value of 0.5 provides frequency
 selection in the full range from ``Fe`` to ``Fmax``.  A ``phi`` value less than 0.5 biases the
-agent towards higher frequencies by increasing the ``Fe`` value provided by the policy.
+agent towards higher frequencies by increasing the ``Fe`` value.
 In the extreme case (``phi`` of 0) ``Fe`` will be raised to ``Fmax``.  A ``phi`` value greater than
-0.5 biases the agent towards lower frequencies by reducing the ``Fmax`` value provided
-by the policy.  In the extreme case (``phi`` of 1.0) ``Fmax`` will be lowered to ``Fe``.
+0.5 biases the agent towards lower frequencies by reducing the ``Fmax`` value.
+In the extreme case (``phi`` of 1.0) ``Fmax`` will be lowered to ``Fe``.
 
 Agent Name
 ----------
@@ -74,46 +72,11 @@ name (see :doc:`geopm(7) <geopm.7>`\ ).  This name can also be passed to the
 Policy Parameters
 -----------------
 
-The ``Fe`` & ``Fmax`` for each domain and the ``phi`` input
-are policy values.
-Setting ``Fe`` & ``Fmax`` for a domain to the same value can
-be used to force the entire application to run at a fixed frequency.
-
-  ``CPU_FREQ_MAX``\ :
-      The maximum cpu frequency in hertz that the algorithm is
-      allowed to choose.  If NAN is passed, it will use the
-      maximum available frequency by default.
-
-  ``CPU_FREQ_EFFICIENT``\ :
-      The minimum cpu frequency in hertz that the algorithm is
-      allowed to choose.  If NAN is passed, it will use the system
-      minimum frequency by default.
-
-  ``CPU_UNCORE_FREQ_MAX``\ :
-      The maximum cpu uncore frequency in hertz that the algorithm is
-      allowed to choose.  If NAN is passed, it will use the
-      maximum available frequency by default.
-
-  ``CPU_UNCORE_FREQ_EFFICIENT``\ :
-      The minimum cpu uncore frequency in hertz that the algorithm is
-      allowed to choose.  If NAN is passed, it will use the system
-      minimum frequency by default.
+The ``Phi`` input is the only policy value.
 
   ``CPU_PHI``\ :
       The performance bias knob.  The value must be between
       0.0 and 1.0. If NAN is passed, it will use 0.5 by default.
-
-  ``CPU_UNCORE_FREQ_#``\ :
-      The uncore frequency associated with the same numbered
-      maximum memory bandwidth.
-      Used to build a mapping of uncore frequencies to maximum
-      memory bandwidths for frequency steering.
-
-  ``MAX_MEMORY_BANDWIDTH_#``\ :
-      The maximum possible memory bandwidth associated with the
-      same numbered uncore frequency.
-      Used to build a mapping of uncore frequencies to maximum
-      memory bandwidths for frequency steering.
 
 ConstConfigIOGroup Configuration File Generation
 ------------------------------------------------
@@ -182,50 +145,101 @@ CPU compute activity agent ConstConfigIOGroup configuration file can then be gen
 
     integration/experiment/uncore_frequency_sweep/gen_cpu_activity_constconfig_recommendation.py --path <UNCORE_SWEEP_DIR> --region-list "intensity_1","intensity_16"
 
+An example ConstConfigIOGroup configuration file is provided below::
+
+    {
+        "CPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY": {
+            "domain": "board",
+            "description": "Defines the efficient core frequency to use for CPUs.  Based on a workload that scales strongly with the frequency domain",
+            "units": "hertz",
+            "aggregation": "average",
+            "values": [2000000000.0]
+        },
+        "CPU_UNCORE_FREQUENCY_EFFICIENT_HIGH_INTENSITY": {
+            "domain": "board",
+            "description": "Defines the efficient uncore frequency to use for CPUs.  Based on a workload that scales strongly with the frequency domain",
+            "units": "hertz",
+            "aggregation": "average",
+            "values": [2000000000.0]
+        },
+        "CPU_UNCORE_FREQUENCY_0": {
+            "domain": "board",
+            "description": "CPU Uncore Frequency associated with CPU_UNCORE_MAX_MEMORY_BANDWIDTH_0",
+            "units": "hertz",
+            "aggregation": "average",
+            "values": [1200000000.0]
+        },
+        "CPU_UNCORE_MAX_MEMORY_BANDWIDTH_0": {
+            "domain": "board",
+            "description": "Maximum memory bandwidth in bytes perf second associated with CPU_UNCORE_FREQUENCY_0",
+            "units": "none",
+            "aggregation": "average",
+            "values": [45639800000.0]
+        },
+        "CPU_UNCORE_FREQUENCY_1": {
+            "domain": "board",
+            "description": "CPU Uncore Frequency associated with CPU_UNCORE_MAX_MEMORY_BANDWIDTH_1",
+            "units": "hertz",
+            "aggregation": "average",
+            "values": [1400000000.0]
+        },
+        "CPU_UNCORE_MAX_MEMORY_BANDWIDTH_1": {
+            "domain": "board",
+            "description": "Maximum memory bandwidth in bytes perf second associated with CPU_UNCORE_FREQUENCY_1",
+            "units": "none",
+            "aggregation": "average",
+            "values": [73881616666.66667]
+        },
+        "CPU_UNCORE_FREQUENCY_2": {
+            "domain": "board",
+            "description": "CPU Uncore Frequency associated with CPU_UNCORE_MAX_MEMORY_BANDWIDTH_2",
+            "units": "hertz",
+            "aggregation": "average",
+            "values": [1600000000.0]
+        },
+        "CPU_UNCORE_MAX_MEMORY_BANDWIDTH_2": {
+            "domain": "board",
+            "description": "Maximum memory bandwidth in bytes perf second associated with CPU_UNCORE_FREQUENCY_2",
+            "units": "none",
+            "aggregation": "average",
+            "values": [85787733333.33333]
+        },
+        "CPU_UNCORE_FREQUENCY_3": {
+            "domain": "board",
+            "description": "CPU Uncore Frequency associated with CPU_UNCORE_MAX_MEMORY_BANDWIDTH_3",
+            "units": "hertz",
+            "aggregation": "average",
+            "values": [1800000000.0]
+        },
+        "CPU_UNCORE_MAX_MEMORY_BANDWIDTH_3": {
+            "domain": "board",
+            "description": "Maximum memory bandwidth in bytes perf second associated with CPU_UNCORE_FREQUENCY_3",
+            "units": "none",
+            "aggregation": "average",
+            "values": [97272166666.66667]
+        },
+        "CPU_UNCORE_FREQUENCY_4": {
+            "domain": "board",
+            "description": "CPU Uncore Frequency associated with CPU_UNCORE_MAX_MEMORY_BANDWIDTH_4",
+            "units": "hertz",
+            "aggregation": "average",
+            "values": [2000000000.0]
+        },
+        "CPU_UNCORE_MAX_MEMORY_BANDWIDTH_4": {
+            "domain": "board",
+            "description": "Maximum memory bandwidth in bytes perf second associated with CPU_UNCORE_FREQUENCY_4",
+            "units": "none",
+            "aggregation": "average",
+            "values": [106515333333.33333]
+        }
+    }
+
 Example Policy
 --------------
 
-An example policy generated using a pair of workloads, one core bound
-and one uncore bound, is provided below.  Repeated NAN entries are
-skipped for space::
+An example policy is provided below::
 
-    {"CPU_FREQ_MAX": 3700000000,
-     "CPU_FREQ_EFFICIENT": "NAN",
-     "CPU_UNCORE_FREQ_MAX": 2400000000,
-     "CPU_UNCORE_FREQ_EFFICIENT": "NAN",
-     "CPU_PHI": 0.5,
-     "SAMPLE_PERIOD": 0.01,
-     "CPU_UNCORE_FREQ_0": 1200000000,
-     "MAX_MEMORY_BANDWIDTH_0": 45414967307.69231,
-     "CPU_UNCORE_FREQ_1": 1300000000,
-     "MAX_MEMORY_BANDWIDTH_1": 64326515384.61539,
-     "CPU_UNCORE_FREQ_2": 1400000000,
-     "MAX_MEMORY_BANDWIDTH_2": 72956528846.15384,
-     "CPU_UNCORE_FREQ_3": 1500000000,
-     "MAX_MEMORY_BANDWIDTH_3": 77349315384.61539,
-     "CPU_UNCORE_FREQ_4": 1600000000,
-     "MAX_MEMORY_BANDWIDTH_4": 82345998076.92308,
-     "CPU_UNCORE_FREQ_5": 1700000000,
-     "MAX_MEMORY_BANDWIDTH_5": 87738286538.46153,
-     "CPU_UNCORE_FREQ_6": 1800000000,
-     "MAX_MEMORY_BANDWIDTH_6": 91966364814.81482,
-     "CPU_UNCORE_FREQ_7": 1900000000,
-     "MAX_MEMORY_BANDWIDTH_7": 96728174074.07408,
-     "CPU_UNCORE_FREQ_8": 2000000000,
-     "MAX_MEMORY_BANDWIDTH_8": 100648379629.6296,
-     "CPU_UNCORE_FREQ_9": 2100000000,
-     "MAX_MEMORY_BANDWIDTH_9": 102409246296.2963,
-     "CPU_UNCORE_FREQ_10": 2200000000,
-     "MAX_MEMORY_BANDWIDTH_10": 103624103703.7037,
-     "CPU_UNCORE_FREQ_11": 2300000000,
-     "MAX_MEMORY_BANDWIDTH_11": 104268944444.4444,
-     "CPU_UNCORE_FREQ_12": 2400000000,
-     "MAX_MEMORY_BANDWIDTH_12": 104748888888.8889,
-     "CPU_UNCORE_FREQ_13": "NAN",
-     "MAX_MEMORY_BANDWIDTH_13": "NAN",
-     ...
-     "CPU_UNCORE_FREQ_28": "NAN",
-     "MAX_MEMORY_BANDWIDTH_28": "NAN"}
+    {"CPU_PHI": 0.5}
 
 Report Extensions
 -----------------
