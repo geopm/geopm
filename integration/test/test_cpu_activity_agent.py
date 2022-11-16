@@ -171,7 +171,9 @@ class TestIntegration_cpu_activity(unittest.TestCase):
         json_config = json.dumps(uncore_config, indent=4)
         with open("const_config_io-ca.json", "w") as outfile:
             outfile.write(json_config)
-        os.environ["GEOPM_CONST_CONFIG_PATH"] = "const_config_io-ca.json"
+
+        const_path = Path('const_config_io-ca.json').resolve()
+        os.environ["GEOPM_CONST_CONFIG_PATH"] = str(const_path)
 
         ################################
         # CPU Activity Agent phi sweep #
