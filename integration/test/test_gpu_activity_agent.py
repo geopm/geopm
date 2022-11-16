@@ -42,7 +42,7 @@ class TestIntegration_gpu_activity(unittest.TestCase):
         # Once the GPU Frequency sweep infrastructure is added a full
         # characterization integration test should be added that does
         # a GPU frequency sweep of parres dgemm, parses the frequency
-        # sweep using the gen_gpu_activity_policy_recommendation.py
+        # sweep using the gen_gpu_activity_constconfig_recommendation.py
         # script, and uses the output provided.
         #
         # This is a less time consuming version of that approach,
@@ -78,8 +78,6 @@ class TestIntegration_gpu_activity(unittest.TestCase):
             cool_off_time=3,
             enable_traces=False,
             enable_profile_traces=False,
-            gpu_fe=efficient_freq,
-            gpu_fmax=max_freq,
             phi_list=None,
         )
 
