@@ -161,13 +161,13 @@ namespace geopm
         }
 
         // Grab all (uncore frequency, max memory bandwidth) pairs
-        for (int entry_idx = 0; entry_idx < (int)ALL_NAMES.size(); ++entry_idx) {
+        for (unsigned int entry_idx = 0; entry_idx < ALL_NAMES.size(); ++entry_idx) {
             const std::string KEY_NAME = "CONST_CONFIG::CPU_UNCORE_FREQUENCY_" +
                                           std::to_string(entry_idx);
             const std::string VAL_NAME = "CONST_CONFIG::CPU_UNCORE_MAX_MEMORY_BANDWIDTH_" +
                                           std::to_string(entry_idx);
-            if (ALL_NAMES.find(KEY_NAME) != ALL_NAMES.end() &&
-                ALL_NAMES.find(VAL_NAME) != ALL_NAMES.end()) {
+            if (ALL_NAMES.count(KEY_NAME) != 0 &&
+                ALL_NAMES.count(VAL_NAME) != 0) {
                 double uncore_freq = m_platform_io.read_signal(KEY_NAME, GEOPM_DOMAIN_BOARD, 0);
                 double max_mem_bw = m_platform_io.read_signal(VAL_NAME, GEOPM_DOMAIN_BOARD, 0);
                 if (!std::isnan(uncore_freq) && !std::isnan(max_mem_bw) &&
