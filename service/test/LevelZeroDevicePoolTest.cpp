@@ -97,11 +97,8 @@ TEST_F(LevelZeroDevicePoolTest, subdevice_conversion_and_function)
         EXPECT_EQ(value + sub_idx + num_gpu_subdevice * 20, m_device_pool.frequency_min(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE));
         EXPECT_EQ(value + sub_idx + num_gpu_subdevice * 30, m_device_pool.frequency_max(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE));
 
-        EXPECT_EQ((uint64_t)(value+sub_idx + num_gpu_subdevice * 40), m_device_pool.active_time(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE));
-        EXPECT_EQ((uint64_t)(value+sub_idx + num_gpu_subdevice * 50), m_device_pool.active_time_timestamp(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE));
-
-        EXPECT_EQ((uint64_t)(value + sub_idx + num_gpu_subdevice * 30), m_device_pool.active_time(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE));
-        EXPECT_EQ((uint64_t)(value + sub_idx + num_gpu_subdevice * 40), m_device_pool.active_time_timestamp(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE));
+        EXPECT_EQ((uint64_t)(value + sub_idx + num_gpu_subdevice * 40), m_device_pool.active_time(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE));
+        EXPECT_EQ((uint64_t)(value + sub_idx + num_gpu_subdevice * 50), m_device_pool.active_time_timestamp(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE));
 
         EXPECT_NO_THROW(m_device_pool.frequency_control(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE, value, value));
 
@@ -145,10 +142,10 @@ TEST_F(LevelZeroDevicePoolTest, domain_error)
     GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.frequency_min(GEOPM_DOMAIN_GPU_CHIP, dev_idx, MockLevelZero::M_DOMAIN_COMPUTE), GEOPM_ERROR_INVALID, "Not supported on this hardware");
     GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.frequency_max(GEOPM_DOMAIN_GPU_CHIP, dev_idx, MockLevelZero::M_DOMAIN_COMPUTE), GEOPM_ERROR_INVALID, "Not supported on this hardware");
 
-    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.frequency_status(GEOPM_DOMAIN_GPU, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "domain "+std::to_string(GEOPM_DOMAIN_GPU)+" is not supported for the frequency domain");
-    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.frequency_efficient(GEOPM_DOMAIN_GPU, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "domain "+std::to_string(GEOPM_DOMAIN_GPU)+" is not supported for the frequency domain");
-    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.frequency_min(GEOPM_DOMAIN_GPU, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "domain "+std::to_string(GEOPM_DOMAIN_GPU)+" is not supported for the frequency domain");
-    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.frequency_max(GEOPM_DOMAIN_GPU, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "domain "+std::to_string(GEOPM_DOMAIN_GPU)+" is not supported for the frequency domain");
+    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.frequency_status(GEOPM_DOMAIN_GPU, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "domain " + std::to_string(GEOPM_DOMAIN_GPU) + " is not supported for the frequency domain");
+    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.frequency_efficient(GEOPM_DOMAIN_GPU, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "domain " + std::to_string(GEOPM_DOMAIN_GPU) + " is not supported for the frequency domain");
+    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.frequency_min(GEOPM_DOMAIN_GPU, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "domain " + std::to_string(GEOPM_DOMAIN_GPU) + " is not supported for the frequency domain");
+    GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.frequency_max(GEOPM_DOMAIN_GPU, dev_idx, MockLevelZero::M_DOMAIN_ALL), GEOPM_ERROR_INVALID, "domain " + std::to_string(GEOPM_DOMAIN_GPU) + " is not supported for the frequency domain");
 
     //Utilization
     GEOPM_EXPECT_THROW_MESSAGE(m_device_pool.active_time(GEOPM_DOMAIN_GPU_CHIP, dev_idx, MockLevelZero::M_DOMAIN_COMPUTE), GEOPM_ERROR_INVALID, "Not supported on this hardware");
