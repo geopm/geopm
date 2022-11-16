@@ -16,7 +16,7 @@ based upon the compute activity of each CPU as provided by the
 CPU_COMPUTE_ACTIVITY signal and modified by the CPU_UTILIZATION signal.
 
 The agent scales the core frequency in the range of ``Fce`` to ``Fcmax``, where
-``Fcmax`` and ``Fce`` are provided via the ConstConfigIOGroup.
+``Fcmax`` and ``Fce`` are provided via the MSRIOGroup and ConstConfigIOGroup respectively.
 
 Low compute activity regions (compute activity of 0.0) run at the ``Fce`` frequency,
 high activity regions (compute activity of 1.0) run at the ``Fcmax`` frequency,
@@ -28,7 +28,8 @@ The ``CPU_COMPUTE_ACTIVITY`` is defined as a derivative signal based on the MSR:
 scalability metric.
 
 The agent also scales the uncore frequency in the range of ``Fue`` to
-``Fumax``, where ``Fumax`` and ``Fue`` are povided via the ConstConfigIOGroup
+``Fumax``, where ``Fumax`` and ``Fue`` are povided by the
+MSRIOGroup and ConstConfigIOGroup respectively.
 
 Low uncore activity regions (uncore activity of 0.0) run at the ``Fue`` frequency,
 high activity regions (uncore activity of 1.0) run at the ``Fumax`` frequency,
