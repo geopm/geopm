@@ -17,8 +17,10 @@ based upon the compute activity of each GPU as provided by the
 ``GPU_CORE_ACTIVITY`` signal and modified by the ``GPU_UTILIZATION`` signal.
 
 The agent scales frequency in the range of ``Fe`` to ``Fmax``, where ``Fmax``
-is provided via the policy as ``GPU_FREQ_MAX`` and ``Fe`` is provided via
-the policy as ``GPU_FREQ_EFFICIENT``.  Low activity regions (compute activity
+is provided by the NVML or LevelZero IOGroup and ``Fe`` is provided by the
+ConstConfigIOGroup or the LevelZeroIOGroup.
+
+Low activity regions (compute activity
 of 0.0) run at the ``Fe`` frequency, high activity regions (compute activity of 1.0)
 run at the ``Fmax`` frequency, and regions in between the extremes run at a frequency (F)
 selected using the equation:
@@ -42,10 +44,10 @@ default GPU maximum frequency, or limited based upon user/admin preference.
 The agent provides an optional input of ``phi`` that allows for biasing the
 frequency range used by the agent.  The default ``phi`` value of 0.5 provides frequency
 selection in the full range from ``Fe`` to ``Fmax``.  A ``phi`` value less than 0.5 biases the
-agent towards higher frequencies by increasing the ``Fe`` value provided by the policy.
+agent towards higher frequencies by increasing the ``Fe`` value.
 In the extreme case (``phi`` of 0) ``Fe`` will be raised to ``Fmax``.  A ``phi`` value greater than
-0.5 biases the agent towards lower frequencies by reducing the ``Fmax`` value provided
-by the policy.  In the extreme case (``phi`` of 1.0) ``Fmax`` will be lowered to ``Fe``.
+0.5 biases the agent towards lower frequencies by reducing the ``Fmax`` value.
+In the extreme case (``phi`` of 1.0) ``Fmax`` will be lowered to ``Fe``.
 
 For NVIDIA based systems the agent should be used with DCGM settings of
 ``DCGM::FIELD_UPDATE_RATE`` = 100 ms, ``DCGM::MAX_STORAGE_TIME`` = 1 s, and ``DCGM::MAX_SAMPLES``
@@ -69,19 +71,7 @@ name (see :doc:`geopm(7) <geopm.7>`\ ).  This name can also be passed to the
 Policy Parameters
 -----------------
 
-The ``Fe``, ``Fmax``, and ``phi`` are provided
-as policy values.  Setting ``Fe`` & ``Fmax`` to the same value will
-result in the entire application to run at a fixed frequency.
-
-  ``GPU_FREQ_MAX``\ :
-      The maximum frequency in hertz that the algorithm is
-      allowed to choose.  If NAN is passed, it will use the
-      maximum available frequency by default.
-
-  ``GPU_FREQ_EFFICIENT``\ :
-      The minimum frequency in hertz that the algorithm is
-      allowed to choose.  If NAN is passed, it will use
-      (maximum frequency + minimum frequency) / 2 by default.
+The ``Phi`` input is the only policy value.
 
   ``GPU_PHI``\ :
       The performance bias knob.  The value must be between
@@ -94,18 +84,26 @@ The GPU compute activity ConstConfigIOGroup configuration file can be generated 
 
     integration/experiment/gpu_frequency_sweep/gen_gpu_activity_constconfig_recommendation.py --path <GPU_SWEEP_DIR>
 
-This version of the agent allows a single system wide configuration to be
-passed in via the policy.
+This version of the agent uses ConstConfigIO to provide per node Fe values.
+
+An example ConstConfigIOGroup configuration file is provided below::
+
+    {
+        "GPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY": {
+            "domain": "board",
+            "description": "Defines the efficient compute frequency to use for GPUs.  This value is based on a workload that scales strongly with the frequency domain",
+            "units": "hertz",
+            "aggregation": "average",
+            "values": [982000000.0]
+        }
+    }
 
 Example Policy
 --------------
 
-An example policy generated using the parres dgemm workloads is
-provided below. ::
+An example policy is provided below::
 
-    {"GPU_FREQ_MAX": NaN,
-     "GPU_FREQ_EFFICIENT": 982000000.0,
-     "GPU_PHI": NaN}
+    {"GPU_PHI": 0.5}
 
 Report Extensions
 -----------------
