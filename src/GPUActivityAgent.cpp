@@ -52,8 +52,8 @@ namespace geopm
     {
         m_gpu_frequency_requests = 0;
         m_gpu_frequency_clipped = 0;
-        m_f_max = 0;
-        m_f_efficient = 0;
+        m_resolved_f_gpu_max = 0;
+        m_resolved_f_gpu_efficient = 0;
         m_f_range = 0;
 
         for (int domain_idx = 0; domain_idx < M_NUM_GPU; ++domain_idx) {
@@ -137,6 +137,30 @@ namespace geopm
                                     domain_idx), NAN});
         }
 
+        m_freq_gpu_min = m_platform_io.read_signal("GPU_CORE_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0);
+        m_freq_gpu_max = m_platform_io.read_signal("GPU_CORE_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0);
+
+        const auto ALL_NAMES = m_platform_io.signal_names();
+        // F efficient values
+        const std::string FE_CONSTCONFIG = "CONST_CONFIG::GPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY";
+        const std::string FE_SIG_NAME = "LEVELZERO::GPU_CORE_FREQUENCY_EFFICIENT";
+        if (ALL_NAMES.count(FE_CONSTCONFIG) != 0) {
+            m_freq_gpu_efficient = m_platform_io.read_signal(FE_CONSTCONFIG, GEOPM_DOMAIN_BOARD, 0);
+        }
+        else if (ALL_NAMES.count(FE_SIG_NAME) != 0) {
+            m_freq_gpu_efficient = m_platform_io.read_signal(FE_SIG_NAME, GEOPM_DOMAIN_BOARD, 0);
+        }
+        else {
+            m_freq_gpu_efficient = (m_freq_gpu_max + m_freq_gpu_min) / 2;
+        }
+
+        if (m_freq_gpu_efficient > m_freq_gpu_max ||
+            m_freq_gpu_efficient < m_freq_gpu_min ) {
+            throw Exception("GPUActivityAgent::" + std::string(__func__) +
+                            "(): GPU efficient frequency out of range: " +
+                            std::to_string(m_freq_gpu_efficient) +
+                            ".", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
     }
 
     // Validate incoming policy and configure default policy requests.
@@ -144,54 +168,6 @@ namespace geopm
     {
         GEOPM_DEBUG_ASSERT(in_policy.size() == M_NUM_POLICY,
                            "GPUActivityAgent::validate_policy(): policy vector incorrectly sized");
-        double gpu_min_freq = m_platform_io.read_signal("GPU_CORE_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0);
-        double gpu_max_freq = m_platform_io.read_signal("GPU_CORE_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0);
-
-        // Check for NAN to set default values for policy
-        if (std::isnan(in_policy[M_POLICY_GPU_FREQ_MAX])) {
-            in_policy[M_POLICY_GPU_FREQ_MAX] = gpu_max_freq;
-        }
-
-        if (in_policy[M_POLICY_GPU_FREQ_MAX] > gpu_max_freq ||
-            in_policy[M_POLICY_GPU_FREQ_MAX] < gpu_min_freq ) {
-            throw Exception("GPUActivityAgent::" + std::string(__func__) +
-                            "(): GPU_FREQ_MAX out of range: " +
-                            std::to_string(in_policy[M_POLICY_GPU_FREQ_MAX]) +
-                            ".", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-
-        // Not all gpus provide an 'efficient' frequency signal, and the
-        // value provided by the policy may not be valid.  In this case approximating
-        // f_efficient as midway between F_min and F_max is reasonable.
-        if (std::isnan(in_policy[M_POLICY_GPU_FREQ_EFFICIENT])) {
-            const std::set<std::string> &ALL_NAMES = m_platform_io.signal_names();
-            const std::string FE_SIG_NAME = "LEVELZERO::GPU_CORE_FREQUENCY_EFFICIENT";
-            if (ALL_NAMES.count(FE_SIG_NAME) != 0) {
-                in_policy[M_POLICY_GPU_FREQ_EFFICIENT] = m_platform_io.read_signal(FE_SIG_NAME,
-                                                                                   GEOPM_DOMAIN_BOARD, 0);
-            }
-            else {
-                in_policy[M_POLICY_GPU_FREQ_EFFICIENT] = (in_policy[M_POLICY_GPU_FREQ_MAX]
-                                                          + gpu_min_freq) / 2;
-            }
-        }
-
-        if (in_policy[M_POLICY_GPU_FREQ_EFFICIENT] > gpu_max_freq ||
-            in_policy[M_POLICY_GPU_FREQ_EFFICIENT] < gpu_min_freq ) {
-            throw Exception("GPUActivityAgent::" + std::string(__func__) +
-                            "(): GPU_FREQ_EFFICIENT out of range: " +
-                            std::to_string(in_policy[M_POLICY_GPU_FREQ_EFFICIENT]) +
-                            ".", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-
-        if (in_policy[M_POLICY_GPU_FREQ_EFFICIENT] > in_policy[M_POLICY_GPU_FREQ_MAX]) {
-            throw Exception("GPUActivityAgent::" + std::string(__func__) +
-                            "(): GPU_FREQ_EFFICIENT (" +
-                            std::to_string(in_policy[M_POLICY_GPU_FREQ_EFFICIENT]) +
-                            ") value exceeds GPU_FREQ_MAX (" +
-                            std::to_string(in_policy[M_POLICY_GPU_FREQ_MAX]) +
-                            ").", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
 
         // If no phi value is provided assume the default behavior.
         if (std::isnan(in_policy[M_POLICY_GPU_PHI])) {
@@ -205,30 +181,6 @@ namespace geopm
                             std::to_string(in_policy[M_POLICY_GPU_PHI]) + ".",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-
-        // Policy provided initial values
-        double f_max = in_policy[M_POLICY_GPU_FREQ_MAX];
-        double f_efficient = in_policy[M_POLICY_GPU_FREQ_EFFICIENT];
-        double phi = in_policy[M_POLICY_GPU_PHI];
-
-        // initial range is needed to apply phi
-        double f_range = f_max - f_efficient;
-
-        // If phi is not 0.5 we move into the energy or performance biased regions
-        if (phi > 0.5) {
-            // Energy Biased.  Scale F_max down to F_efficient based upon phi value
-            // Active region phi usage
-            f_max = std::max(f_efficient, f_max - f_range * (phi-0.5) / 0.5);
-        }
-        else if (phi < 0.5) {
-            // Perf Biased.  Scale F_efficient up to F_max based upon phi value
-            // Active region phi usage
-            f_efficient = std::min(f_max, f_efficient + f_range * (0.5-phi) / 0.5);
-        }
-
-        // Update Policy
-        in_policy[M_POLICY_GPU_FREQ_MAX] = f_max;
-        in_policy[M_POLICY_GPU_FREQ_EFFICIENT] = f_efficient;
     }
 
     // Distribute incoming policy to children
@@ -272,10 +224,32 @@ namespace geopm
         std::vector<double> gpu_freq_request;
         std::vector<double> gpu_scoped_core_activity;
 
+        double f_gpu_range = m_freq_gpu_max - m_freq_gpu_efficient;
+        double phi = in_policy[M_POLICY_GPU_PHI];
+
+        // Default phi = 0.5 case is full fe to fmax range
+        // Core
+        m_resolved_f_gpu_max = m_freq_gpu_max;
+        m_resolved_f_gpu_efficient = m_freq_gpu_efficient;
+
+        // If phi is not 0.5 we move into the energy or performance biased behavior
+        if (phi > 0.5) {
+            // Energy Biased.  Scale F_max down to F_efficient based upon phi value
+            // Active region phi usage
+            m_resolved_f_gpu_max = std::max(m_freq_gpu_efficient, m_freq_gpu_max -
+                                                                  f_gpu_range *
+                                                                  (phi-0.5) / 0.5);
+        }
+        else if (phi < 0.5) {
+            // Perf Biased.  Scale F_efficient up to F_max based upon phi value
+            // Active region phi usage
+            m_resolved_f_gpu_efficient = std::min(m_freq_gpu_max, m_freq_gpu_efficient +
+                                                                  f_gpu_range *
+                                                                  (0.5-phi) / 0.5);
+        }
+
         // Values after phi has been applied
-        m_f_max = in_policy[M_POLICY_GPU_FREQ_MAX];
-        m_f_efficient = in_policy[M_POLICY_GPU_FREQ_EFFICIENT];
-        m_f_range = m_f_max - m_f_efficient;
+        m_f_range = m_resolved_f_gpu_max - m_resolved_f_gpu_efficient;
 
         // Per GPU Frequency Selection
         for (int domain_idx = 0; domain_idx < m_agent_domain_count; ++domain_idx) {
@@ -285,7 +259,7 @@ namespace geopm
             double gpu_utilization = m_gpu_utilization.at(domain_idx).value;
 
             // Default to F_max
-            double f_request = m_f_max;
+            double f_request = m_resolved_f_gpu_max;
 
             if (!std::isnan(gpu_core_activity)) {
                 // Boundary Checking
@@ -316,10 +290,10 @@ namespace geopm
                 if (!std::isnan(gpu_utilization) &&
                     gpu_utilization > 0) {
                     gpu_utilization = std::min(gpu_utilization, 1.0);
-                    f_request = m_f_efficient + m_f_range * (gpu_core_activity / gpu_utilization);
+                    f_request = m_resolved_f_gpu_efficient + m_f_range * (gpu_core_activity / gpu_utilization);
                 }
                 else {
-                    f_request = m_f_efficient + m_f_range * gpu_core_activity;
+                    f_request = m_resolved_f_gpu_efficient + m_f_range * gpu_core_activity;
                 }
 
                 // We're using the activity of the first
@@ -334,11 +308,11 @@ namespace geopm
             }
 
             // Frequency clamping
-            if (f_request > m_f_max || f_request < m_f_efficient) {
+            if (f_request > m_resolved_f_gpu_max || f_request < m_resolved_f_gpu_efficient) {
                 ++m_gpu_frequency_clipped;
             }
-            f_request = std::min(f_request, m_f_max);
-            f_request = std::max(f_request, m_f_efficient);
+            f_request = std::min(f_request, m_resolved_f_gpu_max);
+            f_request = std::max(f_request, m_resolved_f_gpu_efficient);
 
             // Store frequency request
             gpu_freq_request.push_back(f_request);
@@ -441,8 +415,8 @@ namespace geopm
         result.push_back({"Agent Domain", m_platform_topo.domain_type_to_name(m_agent_domain)});
         result.push_back({"GPU Frequency Requests", std::to_string(m_gpu_frequency_requests)});
         result.push_back({"GPU Clipped Frequency Requests", std::to_string(m_gpu_frequency_clipped)});
-        result.push_back({"Resolved Max Frequency", std::to_string(m_f_max)});
-        result.push_back({"Resolved Efficient Frequency", std::to_string(m_f_efficient)});
+        result.push_back({"Resolved Max Frequency", std::to_string(m_resolved_f_gpu_max)});
+        result.push_back({"Resolved Efficient Frequency", std::to_string(m_resolved_f_gpu_efficient)});
         result.push_back({"Resolved Frequency Range", std::to_string(m_f_range)});
 
         for (int domain_idx = 0; domain_idx < M_NUM_GPU; ++domain_idx) {
@@ -500,7 +474,7 @@ namespace geopm
     // Describes expected policies to be provided by the resource manager or user
     std::vector<std::string> GPUActivityAgent::policy_names(void)
     {
-        return {"GPU_FREQ_MAX", "GPU_FREQ_EFFICIENT", "GPU_PHI"};
+        return {"GPU_PHI"};
     }
 
     // Describes samples to be provided to the resource manager or user

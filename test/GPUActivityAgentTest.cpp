@@ -45,9 +45,7 @@ class GPUActivityAgentTest : public :: testing :: Test
             TIME_IDX
         };
         enum policy_idx_e {
-            FREQ_MAX = 0,
-            FREQ_EFFICIENT = 1,
-            PHI = 2,
+            PHI = 0
         };
 
         void SetUp();
@@ -64,6 +62,7 @@ class GPUActivityAgentTest : public :: testing :: Test
         static const int M_NUM_GPU_CHIP;
         static const double M_FREQ_MIN;
         static const double M_FREQ_MAX;
+        static const double M_FREQ_EFFICIENT;
         static const std::vector<double> M_DEFAULT_POLICY;
         size_t m_num_policy;
         std::set<std::string> empty_set;
@@ -78,8 +77,8 @@ const int GPUActivityAgentTest::M_NUM_GPU = 1;
 const int GPUActivityAgentTest::M_NUM_GPU_CHIP = 1;
 const double GPUActivityAgentTest::M_FREQ_MIN = 0135000000.0;
 const double GPUActivityAgentTest::M_FREQ_MAX = 1530000000.0;
-const std::vector<double> GPUActivityAgentTest::M_DEFAULT_POLICY = {
-        M_FREQ_MAX, M_FREQ_MIN, NAN};
+const double GPUActivityAgentTest::M_FREQ_EFFICIENT = (M_FREQ_MIN + M_FREQ_MAX) / 2;
+const std::vector<double> GPUActivityAgentTest::M_DEFAULT_POLICY = {NAN};
 
 void GPUActivityAgentTest::SetUp()
 {
@@ -131,6 +130,12 @@ void GPUActivityAgentTest::SetUp()
     ASSERT_LT(M_FREQ_MIN, 0.2e9);
     ASSERT_LT(1.4e9, M_FREQ_MAX);
 
+    std::set<std::string> signal_name_set = {"GPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY"};
+    ON_CALL(*m_platform_io, read_signal("GPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY", GEOPM_DOMAIN_BOARD, 0))
+            .WillByDefault(Return(M_FREQ_EFFICIENT));
+
+    ON_CALL(*m_platform_io, signal_names()).WillByDefault(Return(signal_name_set));
+
     m_agent = geopm::make_unique<GPUActivityAgent>(*m_platform_io, *m_platform_topo);
     m_num_policy = m_agent->policy_names().size();
 
@@ -170,8 +175,6 @@ TEST_F(GPUActivityAgentTest, validate_policy)
     EXPECT_NO_THROW(m_agent->validate_policy(policy));
     // validate policy is unmodified except Phi
     ASSERT_EQ(m_num_policy, policy.size());
-    EXPECT_EQ(M_FREQ_MAX, policy[FREQ_MAX]);
-    EXPECT_EQ(M_FREQ_MIN, policy[FREQ_EFFICIENT]);
     // Default value when NAN is passed is 0.5
     EXPECT_EQ(0.5, policy[PHI]);
 
@@ -181,89 +184,13 @@ TEST_F(GPUActivityAgentTest, validate_policy)
     EXPECT_NO_THROW(m_agent->validate_policy(policy));
     // validate policy defaults are applied
     ASSERT_EQ(m_num_policy, policy.size());
-    EXPECT_EQ(M_FREQ_MAX, policy[FREQ_MAX]);
-    EXPECT_EQ((policy[FREQ_MAX] + M_FREQ_MIN) / 2, policy[FREQ_EFFICIENT]);
-    EXPECT_EQ(0.5, policy[PHI]);
-
-    // all-NAN policy is accepted
-    // setup & load NAN policy
-    std::set<std::string> sig_set = {"LEVELZERO::GPU_CORE_FREQUENCY_EFFICIENT"};
-    EXPECT_CALL(*m_platform_io, signal_names()).WillOnce(Return(sig_set));
-    double fe_sig_val = M_FREQ_MAX - M_FREQ_MIN + 0.123;
-    EXPECT_CALL(*m_platform_io, read_signal("LEVELZERO::GPU_CORE_FREQUENCY_EFFICIENT",
-                                            GEOPM_DOMAIN_BOARD, 0)).WillOnce(Return(fe_sig_val));
-    policy = empty;
-    EXPECT_NO_THROW(m_agent->validate_policy(policy));
-    // validate policy defaults are applied
-    ASSERT_EQ(m_num_policy, policy.size());
-    EXPECT_EQ(M_FREQ_MAX, policy[FREQ_MAX]);
-    EXPECT_EQ(fe_sig_val, policy[FREQ_EFFICIENT]);
     EXPECT_EQ(0.5, policy[PHI]);
 
     // non-default policy is accepted
     // setup & load policy
     EXPECT_CALL(*m_platform_io, signal_names()).WillRepeatedly(Return(empty_set));
-    policy[FREQ_MAX] = M_FREQ_MAX;
-    policy[FREQ_EFFICIENT] = M_FREQ_MAX / 2;
     policy[PHI] = 0.1;
     EXPECT_NO_THROW(m_agent->validate_policy(policy));
-
-    // validate policy is modified as expected
-    // as phi --> 0 FREQ_EFFICIENT --> FREQ_MAX
-    ASSERT_EQ(m_num_policy, policy.size());
-    EXPECT_EQ(M_FREQ_MAX, policy[FREQ_MAX]);
-    EXPECT_GE(policy[FREQ_EFFICIENT], M_FREQ_MAX / 2);
-    EXPECT_LE(policy[FREQ_EFFICIENT], M_FREQ_MAX);
-    EXPECT_EQ(0.1, policy[PHI]);
-
-    //Fe > Fmax --> Error
-    policy[FREQ_MAX] = NAN;
-    policy[FREQ_EFFICIENT] = M_FREQ_MAX + 1;
-    policy[PHI] = NAN;
-    GEOPM_EXPECT_THROW_MESSAGE(m_agent->validate_policy(policy), GEOPM_ERROR_INVALID,
-                              "GPU_FREQ_EFFICIENT out of range");
-
-    //Fe < Fmin --> Error
-    policy[FREQ_MAX] = NAN;
-    policy[FREQ_EFFICIENT] = M_FREQ_MIN - 1;
-    policy[PHI] = NAN;
-    GEOPM_EXPECT_THROW_MESSAGE(m_agent->validate_policy(policy), GEOPM_ERROR_INVALID,
-                               "GPU_FREQ_EFFICIENT out of range");
-
-    //Fe > Policy Fmax --> Error
-    policy[FREQ_MAX] = M_FREQ_MAX - 2;
-    policy[FREQ_EFFICIENT] = M_FREQ_MAX - 1;
-    policy[PHI] = NAN;
-    GEOPM_EXPECT_THROW_MESSAGE(m_agent->validate_policy(policy), GEOPM_ERROR_INVALID,
-                               "value exceeds GPU_FREQ_MAX");
-
-    //Policy Fmax > Fmax --> Error
-    policy[FREQ_MAX] = M_FREQ_MAX + 1;
-    policy[FREQ_EFFICIENT] = NAN;
-    policy[PHI] = NAN;
-    GEOPM_EXPECT_THROW_MESSAGE(m_agent->validate_policy(policy), GEOPM_ERROR_INVALID,
-                               "GPU_FREQ_MAX out of range");
-
-    //Policy Fmax < Fmin --> Error
-    policy[FREQ_MAX] = M_FREQ_MIN - 1;
-    policy[FREQ_EFFICIENT] = NAN;
-    policy[PHI] = NAN;
-    GEOPM_EXPECT_THROW_MESSAGE(m_agent->validate_policy(policy), GEOPM_ERROR_INVALID,
-                               "GPU_FREQ_MAX out of range");
-
-    //Policy Phi < 0 --> Error
-    policy[FREQ_MAX] = NAN;
-    policy[FREQ_EFFICIENT] = NAN;
-    policy[PHI] = -1;
-    GEOPM_EXPECT_THROW_MESSAGE(m_agent->validate_policy(policy), GEOPM_ERROR_INVALID,
-                               "POLICY_GPU_PHI value out of range");
-
-    //Policy Phi > 1.0 --> Error
-    policy[FREQ_MAX] = NAN;
-    policy[FREQ_EFFICIENT] = NAN;
-    policy[PHI] = 1.1;
-    GEOPM_EXPECT_THROW_MESSAGE(m_agent->validate_policy(policy), GEOPM_ERROR_INVALID,
-                               "POLICY_GPU_PHI value out of range");
 }
 
 void GPUActivityAgentTest::test_adjust_platform(std::vector<double> &policy,
@@ -311,8 +238,8 @@ TEST_F(GPUActivityAgentTest, adjust_platform_medium)
     std::vector<double> policy = M_DEFAULT_POLICY;
     double mock_active = 0.5;
     double mock_util = 1.0;
-    double expected_freq = policy[FREQ_EFFICIENT] +
-            (M_FREQ_MAX - policy[FREQ_EFFICIENT]) * mock_active;
+    double expected_freq = M_FREQ_EFFICIENT +
+            (M_FREQ_MAX - M_FREQ_EFFICIENT) * mock_active;
     test_adjust_platform(policy, mock_active, mock_util, expected_freq);
 }
 
@@ -321,8 +248,8 @@ TEST_F(GPUActivityAgentTest, adjust_platform_low)
     std::vector<double> policy = M_DEFAULT_POLICY;
     double mock_active = 0.1;
     double mock_util = 1.0;
-    double expected_freq = policy[FREQ_EFFICIENT] +
-            (M_FREQ_MAX - policy[FREQ_EFFICIENT]) * mock_active;
+    double expected_freq = M_FREQ_EFFICIENT +
+            (M_FREQ_MAX - M_FREQ_EFFICIENT) * mock_active;
     test_adjust_platform(policy, mock_active, mock_util, expected_freq);
 }
 
@@ -331,7 +258,7 @@ TEST_F(GPUActivityAgentTest, adjust_platform_zero)
     std::vector<double> policy = M_DEFAULT_POLICY;
     double mock_active = 0.0;
     double mock_util = 1.0;
-    test_adjust_platform(policy, mock_active, mock_util, M_FREQ_MIN);
+    test_adjust_platform(policy, mock_active, mock_util, M_FREQ_EFFICIENT);
 }
 
 TEST_F(GPUActivityAgentTest, adjust_platform_signal_out_of_bounds_high)
@@ -347,6 +274,6 @@ TEST_F(GPUActivityAgentTest, adjust_platform_signal_out_of_bounds_low)
     std::vector<double> policy = M_DEFAULT_POLICY;
     double mock_active = -12345;
     double mock_util = 1.0;
-    test_adjust_platform(policy, mock_active, mock_util, M_FREQ_MIN);
+    test_adjust_platform(policy, mock_active, mock_util, M_FREQ_EFFICIENT);
 
 }

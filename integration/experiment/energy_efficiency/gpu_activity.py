@@ -19,12 +19,6 @@ from experiment import machine
 
 def setup_run_args(parser):
     common_args.setup_run_args(parser)
-    parser.add_argument('--gpu-frequency-efficient', dest='gpu_fe',
-                        action='store', default='nan',
-                        help='The efficient frequency of the gpu (a.k.a. Fe) for this experiment')
-    parser.add_argument('--gpu-frequency-max', dest='gpu_fmax',
-                        action='store', default='nan',
-                        help='The maximum frequency of the gpu (a.k.a. Fmax) for this experiment')
     parser.add_argument('--phi-list', nargs='+', help='A space separated list of phi values to use')
 
 def report_signals():
@@ -33,7 +27,7 @@ def report_signals():
 def trace_signals():
     return []
 
-def launch_configs(output_dir, app_conf, gpu_fe, gpu_fmax, phi_list):
+def launch_configs(output_dir, app_conf, phi_list):
     mach = machine.init_output_dir(output_dir)
     sys_min = mach.frequency_min()
     sys_max = mach.frequency_max()
@@ -45,9 +39,7 @@ def launch_configs(output_dir, app_conf, gpu_fe, gpu_fmax, phi_list):
     else:
         phi_values = [x/10 for x in list(range(0,11))]
 
-    config_list = [{"GPU_FREQ_MAX" : float(gpu_fmax),
-                    "GPU_FREQ_EFFICIENT": float(gpu_fe),
-                    "GPU_PHI" : float(phi)} for phi in phi_values]
+    config_list = [{"GPU_PHI" : float(phi)} for phi in phi_values]
     config_names = ['phi'+str(int(phi*100)) for phi in phi_values]
 
     targets = []
@@ -69,7 +61,7 @@ def launch(app_conf, args, experiment_cli_args):
                                                     trace_signals=trace_signals())
     extra_cli_args += experiment_cli_args
 
-    targets = launch_configs(output_dir, app_conf, args.gpu_fe, args.gpu_fmax, args.phi_list)
+    targets = launch_configs(output_dir, app_conf, args.phi_list)
 
     launch_util.launch_all_runs(targets=targets,
                                 num_nodes=args.node_count,

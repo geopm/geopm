@@ -78,8 +78,6 @@ namespace geopm
 
             // Policy indices; must match policy_names()
             enum m_policy_e {
-                M_POLICY_GPU_FREQ_MAX,
-                M_POLICY_GPU_FREQ_EFFICIENT,
                 M_POLICY_GPU_PHI,
                 M_NUM_POLICY
             };
@@ -93,8 +91,11 @@ namespace geopm
 
             double m_gpu_frequency_requests;
             double m_gpu_frequency_clipped;
-            double m_f_max;
-            double m_f_efficient;
+            double m_freq_gpu_min;
+            double m_freq_gpu_max;
+            double m_freq_gpu_efficient;
+            double m_resolved_f_gpu_max;
+            double m_resolved_f_gpu_efficient;
             double m_f_range;
             std::vector<double> m_gpu_active_region_start;
             std::vector<double> m_gpu_active_region_stop;
