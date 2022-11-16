@@ -141,11 +141,11 @@ namespace geopm
     void CPUActivityAgent::init_constconfig_io()
     {
         m_qm_max_rate = {};
-        const auto all_names = m_platform_io.signal_names();
+        const auto ALL_NAMES = m_platform_io.signal_names();
 
         // F efficient values
         std::string fe_constconfig = "CONST_CONFIG::CPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY";
-        if (all_names.count(fe_constconfig) != 0) {
+        if (ALL_NAMES.count(fe_constconfig) != 0) {
             m_freq_core_efficient = m_platform_io.read_signal(fe_constconfig, GEOPM_DOMAIN_BOARD, 0);
         }
         else {
@@ -153,7 +153,7 @@ namespace geopm
         }
 
         fe_constconfig = "CONST_CONFIG::CPU_UNCORE_FREQUENCY_EFFICIENT_HIGH_INTENSITY";
-        if (all_names.count(fe_constconfig) != 0) {
+        if (ALL_NAMES.count(fe_constconfig) != 0) {
             m_freq_uncore_efficient = m_platform_io.read_signal(fe_constconfig, GEOPM_DOMAIN_BOARD, 0);
         }
         else {
@@ -161,15 +161,15 @@ namespace geopm
         }
 
         // Grab all (uncore frequency, max memory bandwidth) pairs
-        for (int entry_idx = 0; entry_idx < (int)all_names.size(); ++entry_idx) {
-            std::string key_name = "CONST_CONFIG::CPU_UNCORE_FREQUENCY_" +
-                                   std::to_string(entry_idx);
-            std::string val_name = "CONST_CONFIG::CPU_UNCORE_MAX_MEMORY_BANDWIDTH_" +
-                                   std::to_string(entry_idx);
-            if (all_names.find(key_name) != all_names.end() &&
-                all_names.find(val_name) != all_names.end()) {
-                double uncore_freq = m_platform_io.read_signal(key_name, GEOPM_DOMAIN_BOARD, 0);
-                double max_mem_bw = m_platform_io.read_signal(val_name, GEOPM_DOMAIN_BOARD, 0);
+        for (int entry_idx = 0; entry_idx < (int)ALL_NAMES.size(); ++entry_idx) {
+            const std::string KEY_NAME = "CONST_CONFIG::CPU_UNCORE_FREQUENCY_" +
+                                          std::to_string(entry_idx);
+            const std::string VAL_NAME = "CONST_CONFIG::CPU_UNCORE_MAX_MEMORY_BANDWIDTH_" +
+                                          std::to_string(entry_idx);
+            if (ALL_NAMES.find(KEY_NAME) != ALL_NAMES.end() &&
+                ALL_NAMES.find(VAL_NAME) != ALL_NAMES.end()) {
+                double uncore_freq = m_platform_io.read_signal(KEY_NAME, GEOPM_DOMAIN_BOARD, 0);
+                double max_mem_bw = m_platform_io.read_signal(VAL_NAME, GEOPM_DOMAIN_BOARD, 0);
                 if (!std::isnan(uncore_freq) && !std::isnan(max_mem_bw) &&
                     uncore_freq != 0 && max_mem_bw != 0) {
                     m_qm_max_rate[uncore_freq] = max_mem_bw;
