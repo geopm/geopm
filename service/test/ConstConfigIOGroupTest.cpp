@@ -25,6 +25,12 @@
 #include "geopm/PlatformIO.hpp"
 #include "geopm/PlatformTopo.hpp"
 
+#include "MockPlatformTopo.hpp"
+
+using ::testing::Return;
+using ::testing::_;
+using ::testing::AtMost;
+
 using geopm::ConstConfigIOGroup;
 using geopm::Exception;
 using geopm::PlatformIO;
@@ -33,12 +39,27 @@ using geopm::PlatformTopo;
 class ConstConfigIOGroupTest : public::testing::Test
 {
     protected:
-        static const std::string M_CONFIG_FILE_PATH;
+        void SetUp();
         static void create_config_file(const std::string &config);
+
+        static const std::string M_CONFIG_FILE_PATH;
+        static constexpr int M_NUM_PACKAGE = 1;
+        static constexpr int M_NUM_CORE = 1;
+        static constexpr int M_NUM_CPU = 3;
+        static constexpr int M_NUM_GPU = 3;
+
+        std::shared_ptr<MockPlatformTopo> m_default_topo;
 };
 
 const std::string ConstConfigIOGroupTest::M_CONFIG_FILE_PATH =
         "const_config_test.json";
+
+void ConstConfigIOGroupTest::SetUp()
+{
+    m_default_topo = make_topo(M_NUM_PACKAGE, M_NUM_CORE, M_NUM_CPU);
+    ON_CALL(*m_default_topo, num_domain(GEOPM_DOMAIN_GPU))
+        .WillByDefault(Return(M_NUM_GPU));
+}
 
 void ConstConfigIOGroupTest::create_config_file(const std::string &config)
 {
@@ -47,10 +68,11 @@ void ConstConfigIOGroupTest::create_config_file(const std::string &config)
 
 TEST_F(ConstConfigIOGroupTest, input_empty_string)
 {
+    EXPECT_CALL(*m_default_topo, num_domain(_)).Times(0);
     create_config_file("  ");
 
     GEOPM_EXPECT_THROW_MESSAGE(
-        ConstConfigIOGroup iogroup(M_CONFIG_FILE_PATH, ""),
+        ConstConfigIOGroup iogroup(*m_default_topo, M_CONFIG_FILE_PATH, ""),
         GEOPM_ERROR_INVALID,
         "ConstConfigIOGroup::parse_config_json(): "
         "detected a malformed JSON string"
@@ -59,19 +81,21 @@ TEST_F(ConstConfigIOGroupTest, input_empty_string)
 
 TEST_F(ConstConfigIOGroupTest, input_empty_json)
 {
+    EXPECT_CALL(*m_default_topo, num_domain(_)).Times(0);
     create_config_file("{}");
 
-    ConstConfigIOGroup iogroup(M_CONFIG_FILE_PATH, "");
+    ConstConfigIOGroup iogroup(*m_default_topo, M_CONFIG_FILE_PATH, "");
     EXPECT_EQ(iogroup.signal_names(), std::set<std::string>{});
     EXPECT_EQ(iogroup.control_names(), std::set<std::string>{});
 }
 
 TEST_F(ConstConfigIOGroupTest, input_gibberish)
 {
+    EXPECT_CALL(*m_default_topo, num_domain(_)).Times(0);
     create_config_file("asdfklfj234890fnjklsd");
 
     GEOPM_EXPECT_THROW_MESSAGE(
-        ConstConfigIOGroup iogroup(M_CONFIG_FILE_PATH, ""),
+        ConstConfigIOGroup iogroup(*m_default_topo, M_CONFIG_FILE_PATH, ""),
         GEOPM_ERROR_INVALID,
         "ConstConfigIOGroup::parse_config_json(): "
         "detected a malformed JSON string"
@@ -82,37 +106,42 @@ TEST_F(ConstConfigIOGroupTest, input_duplicate_signal)
 {
     /* When one signal is provided more than once, the latest entry will take precedence.
        This is due to how the underlying JSON library handles duplicate entries. */
+    EXPECT_CALL(*m_default_topo, num_domain(_)).Times(0);
+    EXPECT_CALL(*m_default_topo, num_domain(GEOPM_DOMAIN_GPU))
+        .Times(1)
+        .RetiresOnSaturation();
     std::string json_string = "{"
-    "    \"GPU_CORE_FREQUENCY\": {"
-    "        \"domain\": \"gpu\","
-    "        \"description\": \"Provides GPU core frequency\","
-    "        \"units\": \"hertz\","
-    "        \"aggregation\": \"sum\","
-    "        \"values\": [ 1500, 1600, 1700 ]"
-    "    },"
     "    \"GPU_CORE_FREQUENCY\": {"
     "        \"domain\": \"cpu\","
     "        \"description\": \"Provides CPU core frequency\","
     "        \"units\": \"watts\","
     "        \"aggregation\": \"average\","
     "        \"values\": [ 1050, 1060, 1070 ]"
+    "    },"
+    "    \"GPU_CORE_FREQUENCY\": {"
+    "        \"domain\": \"gpu\","
+    "        \"description\": \"Provides GPU core frequency\","
+    "        \"units\": \"hertz\","
+    "        \"aggregation\": \"sum\","
+    "        \"values\": [ 1500, 1600, 1700 ]"
     "    }"
     "}";
     create_config_file(json_string);
-    ConstConfigIOGroup iogroup(M_CONFIG_FILE_PATH, "");
+    ConstConfigIOGroup iogroup(*m_default_topo, M_CONFIG_FILE_PATH, "");
 
     EXPECT_EQ(iogroup.signal_names(), (std::set<std::string>{"CONST_CONFIG::GPU_CORE_FREQUENCY"}));
     EXPECT_EQ(iogroup.control_names(), std::set<std::string>{});
     EXPECT_EQ(iogroup.signal_description("CONST_CONFIG::GPU_CORE_FREQUENCY"),
-        "    description: " "Provides CPU core frequency" "\n"
-        "    units: " "watts" "\n"
-        "    aggregation: " "average" "\n"
-        "    domain: " "cpu" "\n"
+        "    description: " "Provides GPU core frequency" "\n"
+        "    units: " "hertz" "\n"
+        "    aggregation: " "sum" "\n"
+        "    domain: " "gpu" "\n"
         "    iogroup: ConstConfigIOGroup");
 }
 
 TEST_F(ConstConfigIOGroupTest, input_missing_properties)
 {
+    EXPECT_CALL(*m_default_topo, num_domain(_)).Times(0);
     std::string json_string = "{"
     "    \"GPU_CORE_FREQUENCY\": {"
     "        \"domain\": \"gpu\","
@@ -123,7 +152,7 @@ TEST_F(ConstConfigIOGroupTest, input_missing_properties)
     create_config_file(json_string);
 
     GEOPM_EXPECT_THROW_MESSAGE(
-        ConstConfigIOGroup iogroup(M_CONFIG_FILE_PATH, ""),
+        ConstConfigIOGroup iogroup(*m_default_topo, M_CONFIG_FILE_PATH, ""),
         GEOPM_ERROR_INVALID,
         "ConstConfigIOGroup::parse_config_json(): "
         "missing properties for signal \"" "GPU_CORE_FREQUENCY" "\": "
@@ -133,6 +162,7 @@ TEST_F(ConstConfigIOGroupTest, input_missing_properties)
 
 TEST_F(ConstConfigIOGroupTest, input_unexpected_properties)
 {
+    EXPECT_CALL(*m_default_topo, num_domain(_)).Times(0);
     std::string json_string = "{"
     "    \"GPU_CORE_FREQUENCY\": {"
     "        \"domain\": \"gpu\","
@@ -146,7 +176,7 @@ TEST_F(ConstConfigIOGroupTest, input_unexpected_properties)
     create_config_file(json_string);
 
     GEOPM_EXPECT_THROW_MESSAGE(
-        ConstConfigIOGroup iogroup(M_CONFIG_FILE_PATH, ""),
+        ConstConfigIOGroup iogroup(*m_default_topo, M_CONFIG_FILE_PATH, ""),
         GEOPM_ERROR_INVALID,
         "ConstConfigIOGroup::parse_config_json():"
         " unexpected propety: \"" "magic" "\""
@@ -155,6 +185,7 @@ TEST_F(ConstConfigIOGroupTest, input_unexpected_properties)
 
 TEST_F(ConstConfigIOGroupTest, input_capital_properties)
 {
+    EXPECT_CALL(*m_default_topo, num_domain(_)).Times(0);
     std::string json_string = "{"
     "    \"GPU_CORE_FREQUENCY\": {"
     "        \"DOMAIN\": \"gpu\","
@@ -167,7 +198,7 @@ TEST_F(ConstConfigIOGroupTest, input_capital_properties)
     create_config_file(json_string);
 
     GEOPM_EXPECT_THROW_MESSAGE(
-        ConstConfigIOGroup iogroup(M_CONFIG_FILE_PATH, ""),
+        ConstConfigIOGroup iogroup(*m_default_topo, M_CONFIG_FILE_PATH, ""),
         GEOPM_ERROR_INVALID,
         "ConstConfigIOGroup::parse_config_json():"
         " unexpected propety: \"" "DOMAIN" "\""
@@ -177,19 +208,23 @@ TEST_F(ConstConfigIOGroupTest, input_capital_properties)
 TEST_F(ConstConfigIOGroupTest, input_duplicate_properties)
 {
     /* Multiple apprearances of the same property overwrites the previous one. */
+    EXPECT_CALL(*m_default_topo, num_domain(_)).Times(0);
+    EXPECT_CALL(*m_default_topo, num_domain(GEOPM_DOMAIN_GPU))
+        .Times(1)
+        .RetiresOnSaturation();
     std::string json_string = "{"
     "    \"GPU_CORE_FREQUENCY\": {"
-    "        \"domain\": \"gpu\","
+    "        \"domain\": \"cpu\","
     "        \"description\": \"Provides GPU core frequency\","
     "        \"units\": \"hertz\","
     "        \"aggregation\": \"sum\","
-    "        \"domain\": \"cpu\","
+    "        \"domain\": \"gpu\","
     "        \"values\": [ 1500, 1600, 1700 ],"
     "        \"description\": \"Scratches your feet\""
     "    }"
     "}";
     create_config_file(json_string);
-    ConstConfigIOGroup iogroup(M_CONFIG_FILE_PATH, "");
+    ConstConfigIOGroup iogroup(*m_default_topo, M_CONFIG_FILE_PATH, "");
 
     EXPECT_EQ(iogroup.signal_names(), (std::set<std::string>{"CONST_CONFIG::GPU_CORE_FREQUENCY"}));
     EXPECT_EQ(iogroup.control_names(), std::set<std::string>{});
@@ -197,12 +232,13 @@ TEST_F(ConstConfigIOGroupTest, input_duplicate_properties)
         "    description: " "Scratches your feet" "\n"
         "    units: " "hertz" "\n"
         "    aggregation: " "sum" "\n"
-        "    domain: " "cpu" "\n"
+        "    domain: " "gpu" "\n"
         "    iogroup: ConstConfigIOGroup");
 }
 
 TEST_F(ConstConfigIOGroupTest, input_empty_domain)
 {
+    EXPECT_CALL(*m_default_topo, num_domain(_)).Times(0);
     std::string json_string = "{"
     "    \"GPU_CORE_FREQUENCY\": {"
     "        \"domain\": \"\","
@@ -215,7 +251,7 @@ TEST_F(ConstConfigIOGroupTest, input_empty_domain)
     create_config_file(json_string);
 
     GEOPM_EXPECT_THROW_MESSAGE(
-        ConstConfigIOGroup iogroup(M_CONFIG_FILE_PATH, ""),
+        ConstConfigIOGroup iogroup(*m_default_topo, M_CONFIG_FILE_PATH, ""),
         GEOPM_ERROR_INVALID,
         "PlatformTopo::domain_name_to_type(): unrecognized domain_name: "
     );
@@ -223,6 +259,10 @@ TEST_F(ConstConfigIOGroupTest, input_empty_domain)
 
 TEST_F(ConstConfigIOGroupTest, input_empty_description)
 {
+    EXPECT_CALL(*m_default_topo, num_domain(_)).Times(0);
+    EXPECT_CALL(*m_default_topo, num_domain(GEOPM_DOMAIN_GPU))
+        .Times(AtMost(1))
+        .RetiresOnSaturation();
     std::string json_string = "{"
     "    \"GPU_CORE_FREQUENCY\": {"
     "        \"domain\": \"gpu\","
@@ -233,18 +273,20 @@ TEST_F(ConstConfigIOGroupTest, input_empty_description)
     "    }"
     "}";
     create_config_file(json_string);
-    ConstConfigIOGroup iogroup(M_CONFIG_FILE_PATH, "");
-
-    EXPECT_EQ(iogroup.signal_description("CONST_CONFIG::GPU_CORE_FREQUENCY"),
-        "    description: " "" "\n"
-        "    units: " "hertz" "\n"
-        "    aggregation: " "sum" "\n"
-        "    domain: " "gpu" "\n"
-        "    iogroup: ConstConfigIOGroup");
+    GEOPM_EXPECT_THROW_MESSAGE(
+        ConstConfigIOGroup iogroup(*m_default_topo, M_CONFIG_FILE_PATH, ""),
+        GEOPM_ERROR_INVALID,
+        "ConstConfigIOGroup::parse_config_json(): "
+        "empty description provided for CONST_CONFIG::GPU_CORE_FREQUENCY"
+    );
 }
 
 TEST_F(ConstConfigIOGroupTest, input_empty_units)
 {
+    EXPECT_CALL(*m_default_topo, num_domain(_)).Times(0);
+    EXPECT_CALL(*m_default_topo, num_domain(GEOPM_DOMAIN_GPU))
+        .Times(AtMost(1))
+        .RetiresOnSaturation();
     std::string json_string = "{"
     "    \"GPU_CORE_FREQUENCY\": {"
     "        \"domain\": \"gpu\","
@@ -257,7 +299,7 @@ TEST_F(ConstConfigIOGroupTest, input_empty_units)
     create_config_file(json_string);
 
     GEOPM_EXPECT_THROW_MESSAGE(
-        ConstConfigIOGroup iogroup(M_CONFIG_FILE_PATH, ""),
+        ConstConfigIOGroup iogroup(*m_default_topo, M_CONFIG_FILE_PATH, ""),
         GEOPM_ERROR_INVALID,
         "IOGroup::string_to_units(): invalid units string"
     );
@@ -265,6 +307,10 @@ TEST_F(ConstConfigIOGroupTest, input_empty_units)
 
 TEST_F(ConstConfigIOGroupTest, input_empty_aggregation)
 {
+    EXPECT_CALL(*m_default_topo, num_domain(_)).Times(0);
+    EXPECT_CALL(*m_default_topo, num_domain(GEOPM_DOMAIN_GPU))
+        .Times(AtMost(1))
+        .RetiresOnSaturation();
     std::string json_string = "{"
     "    \"GPU_CORE_FREQUENCY\": {"
     "        \"domain\": \"gpu\","
@@ -277,7 +323,7 @@ TEST_F(ConstConfigIOGroupTest, input_empty_aggregation)
     create_config_file(json_string);
 
     GEOPM_EXPECT_THROW_MESSAGE(
-        ConstConfigIOGroup iogroup(M_CONFIG_FILE_PATH, ""),
+        ConstConfigIOGroup iogroup(*m_default_topo, M_CONFIG_FILE_PATH, ""),
         GEOPM_ERROR_INVALID,
         "Agg::name_to_function(): unknown aggregation function: "
     );
@@ -285,6 +331,7 @@ TEST_F(ConstConfigIOGroupTest, input_empty_aggregation)
 
 TEST_F(ConstConfigIOGroupTest, input_invalid_domain)
 {
+    EXPECT_CALL(*m_default_topo, num_domain(_)).Times(0);
     std::string json_string = "{"
     "    \"GPU_CORE_FREQUENCY\": {"
     "        \"domain\": \"fpga\","
@@ -297,7 +344,7 @@ TEST_F(ConstConfigIOGroupTest, input_invalid_domain)
     create_config_file(json_string);
 
     GEOPM_EXPECT_THROW_MESSAGE(
-        ConstConfigIOGroup iogroup(M_CONFIG_FILE_PATH, ""),
+        ConstConfigIOGroup iogroup(*m_default_topo, M_CONFIG_FILE_PATH, ""),
         GEOPM_ERROR_INVALID,
         "PlatformTopo::domain_name_to_type(): unrecognized domain_name: " "fpga"
     );
@@ -305,6 +352,10 @@ TEST_F(ConstConfigIOGroupTest, input_invalid_domain)
 
 TEST_F(ConstConfigIOGroupTest, input_invalid_units)
 {
+    EXPECT_CALL(*m_default_topo, num_domain(_)).Times(0);
+    EXPECT_CALL(*m_default_topo, num_domain(GEOPM_DOMAIN_GPU))
+        .Times(AtMost(1))
+        .RetiresOnSaturation();
     std::string json_string = "{"
     "    \"GPU_CORE_FREQUENCY\": {"
     "        \"domain\": \"gpu\","
@@ -317,7 +368,7 @@ TEST_F(ConstConfigIOGroupTest, input_invalid_units)
     create_config_file(json_string);
 
     GEOPM_EXPECT_THROW_MESSAGE(
-        ConstConfigIOGroup iogroup(M_CONFIG_FILE_PATH, ""),
+        ConstConfigIOGroup iogroup(*m_default_topo, M_CONFIG_FILE_PATH, ""),
         GEOPM_ERROR_INVALID,
         "IOGroup::string_to_units(): invalid units string"
     );
@@ -325,6 +376,10 @@ TEST_F(ConstConfigIOGroupTest, input_invalid_units)
 
 TEST_F(ConstConfigIOGroupTest, input_invalid_aggregation)
 {
+    EXPECT_CALL(*m_default_topo, num_domain(_)).Times(0);
+    EXPECT_CALL(*m_default_topo, num_domain(GEOPM_DOMAIN_GPU))
+        .Times(AtMost(1))
+        .RetiresOnSaturation();
     std::string json_string = "{"
     "    \"GPU_CORE_FREQUENCY\": {"
     "        \"domain\": \"gpu\","
@@ -337,7 +392,7 @@ TEST_F(ConstConfigIOGroupTest, input_invalid_aggregation)
     create_config_file(json_string);
 
     GEOPM_EXPECT_THROW_MESSAGE(
-        ConstConfigIOGroup iogroup(M_CONFIG_FILE_PATH, ""),
+        ConstConfigIOGroup iogroup(*m_default_topo, M_CONFIG_FILE_PATH, ""),
         GEOPM_ERROR_INVALID,
         "Agg::name_to_function(): unknown aggregation function: " "bitwise_or"
     );
@@ -345,6 +400,7 @@ TEST_F(ConstConfigIOGroupTest, input_invalid_aggregation)
 
 TEST_F(ConstConfigIOGroupTest, input_incorrect_type)
 {
+    EXPECT_CALL(*m_default_topo, num_domain(_)).Times(0);
     std::string json_string = "{"
     "    \"GPU_CORE_FREQUENCY\": {"
     "        \"domain\": \"gpu\","
@@ -357,7 +413,7 @@ TEST_F(ConstConfigIOGroupTest, input_incorrect_type)
     create_config_file(json_string);
 
     GEOPM_EXPECT_THROW_MESSAGE(
-        ConstConfigIOGroup iogroup(M_CONFIG_FILE_PATH, ""),
+        ConstConfigIOGroup iogroup(*m_default_topo, M_CONFIG_FILE_PATH, ""),
         GEOPM_ERROR_INVALID,
         "ConstConfigIOGroup::parse_config_json():"
         " incorrect type for property: \"" "aggregation" "\""
@@ -366,6 +422,10 @@ TEST_F(ConstConfigIOGroupTest, input_incorrect_type)
 
 TEST_F(ConstConfigIOGroupTest, input_array_value_type)
 {
+    EXPECT_CALL(*m_default_topo, num_domain(_)).Times(0);
+    EXPECT_CALL(*m_default_topo, num_domain(GEOPM_DOMAIN_GPU))
+        .Times(AtMost(1))
+        .RetiresOnSaturation();
     std::string json_string = "{"
     "    \"GPU_CORE_FREQUENCY\": {"
     "        \"domain\": \"gpu\","
@@ -378,16 +438,43 @@ TEST_F(ConstConfigIOGroupTest, input_array_value_type)
     create_config_file(json_string);
 
     GEOPM_EXPECT_THROW_MESSAGE(
-        ConstConfigIOGroup iogroup(M_CONFIG_FILE_PATH, ""),
+        ConstConfigIOGroup iogroup(*m_default_topo, M_CONFIG_FILE_PATH, ""),
         GEOPM_ERROR_INVALID,
         "ConstConfigIOGroup::parse_config_json():"
-        " incorrect type for property: "
-        "\"values\""
+        " for signal CONST_CONFIG::GPU_CORE_FREQUENCY, "
+        "incorrect type for property: \"values\""
+    );
+}
+
+TEST_F(ConstConfigIOGroupTest, input_array_value_num_domain)
+{
+    EXPECT_CALL(*m_default_topo, num_domain(_)).Times(0);
+    EXPECT_CALL(*m_default_topo, num_domain(GEOPM_DOMAIN_GPU))
+        .Times(1)
+        .RetiresOnSaturation();
+    std::string json_string = "{"
+    "    \"GPU_CORE_FREQUENCY\": {"
+    "        \"domain\": \"gpu\","
+    "        \"description\": \"Provides GPU core frequency\","
+    "        \"units\": \"hertz\","
+    "        \"aggregation\": \"sum\","
+    "        \"values\": [ 100, 200 ]"
+    "    }"
+    "}";
+    create_config_file(json_string);
+
+    GEOPM_EXPECT_THROW_MESSAGE(
+        ConstConfigIOGroup iogroup(*m_default_topo, M_CONFIG_FILE_PATH, ""),
+        GEOPM_ERROR_INVALID,
+        "ConstConfigIOGroup::parse_config_json():"
+        " number of values for CONST_CONFIG::GPU_CORE_FREQUENCY"
+        " does not match domain size"
     );
 }
 
 TEST_F(ConstConfigIOGroupTest, input_array_value_empty)
 {
+    EXPECT_CALL(*m_default_topo, num_domain(_)).Times(0);
     std::string json_string = "{"
     "    \"GPU_CORE_FREQUENCY\": {"
     "        \"domain\": \"gpu\","
@@ -398,18 +485,24 @@ TEST_F(ConstConfigIOGroupTest, input_array_value_empty)
     "    }"
     "}";
     create_config_file(json_string);
-    ConstConfigIOGroup iogroup(M_CONFIG_FILE_PATH, "");
 
     GEOPM_EXPECT_THROW_MESSAGE(
-        iogroup.read_signal("CONST_CONFIG::GPU_CORE_FREQUENCY", GEOPM_DOMAIN_GPU, 0),
+        ConstConfigIOGroup iogroup(*m_default_topo, M_CONFIG_FILE_PATH, ""),
         GEOPM_ERROR_INVALID,
-        "ConstConfigIOGroup::read_signal(): domain_idx "
-        "0" " out of range."
+        "ConstConfigIOGroup::parse_config_json(): "
+        "empty array of values provided for CONST_CONFIG::GPU_CORE_FREQUENCY"
     );
 }
 
 TEST_F(ConstConfigIOGroupTest, valid_json_positive)
 {
+    EXPECT_CALL(*m_default_topo, num_domain(_)).Times(0);
+    EXPECT_CALL(*m_default_topo, num_domain(GEOPM_DOMAIN_GPU))
+        .Times(1)
+        .RetiresOnSaturation();
+    EXPECT_CALL(*m_default_topo, num_domain(GEOPM_DOMAIN_CPU))
+        .Times(1)
+        .RetiresOnSaturation();
     std::string json_string = "{"
     "    \"GPU_CORE_FREQUENCY\": {"
     "        \"domain\": \"gpu\","
@@ -427,7 +520,7 @@ TEST_F(ConstConfigIOGroupTest, valid_json_positive)
     "    }"
     "}";
     create_config_file(json_string);
-    ConstConfigIOGroup iogroup(M_CONFIG_FILE_PATH, "");
+    ConstConfigIOGroup iogroup(*m_default_topo, M_CONFIG_FILE_PATH, "");
 
     EXPECT_EQ(iogroup.signal_names(), (std::set<std::string>{
         "CONST_CONFIG::CPU_CORE_FREQUENCY", "CONST_CONFIG::GPU_CORE_FREQUENCY"}));
@@ -481,6 +574,10 @@ TEST_F(ConstConfigIOGroupTest, valid_json_positive)
 
 TEST_F(ConstConfigIOGroupTest, valid_json_negative)
 {
+    EXPECT_CALL(*m_default_topo, num_domain(_)).Times(0);
+    EXPECT_CALL(*m_default_topo, num_domain(GEOPM_DOMAIN_GPU))
+        .Times(1)
+        .RetiresOnSaturation();
     std::string json_string = "{"
     "    \"GPU_CORE_FREQUENCY\": {"
     "        \"domain\": \"gpu\","
@@ -491,7 +588,7 @@ TEST_F(ConstConfigIOGroupTest, valid_json_negative)
     "    }"
     "}";
     create_config_file(json_string);
-    ConstConfigIOGroup iogroup(M_CONFIG_FILE_PATH, "");
+    ConstConfigIOGroup iogroup(*m_default_topo, M_CONFIG_FILE_PATH, "");
 
     EXPECT_EQ(iogroup.control_names(), std::set<std::string>{});
     EXPECT_EQ(iogroup.is_valid_signal("CONST_CONFIG::UNCORE_RATIO_LIMIT:MIN_RATIO"), false);
@@ -627,6 +724,10 @@ TEST_F(ConstConfigIOGroupTest, valid_json_negative)
 
 TEST_F(ConstConfigIOGroupTest, loads_default_config)
 {
+    EXPECT_CALL(*m_default_topo, num_domain(_)).Times(0);
+    EXPECT_CALL(*m_default_topo, num_domain(GEOPM_DOMAIN_GPU))
+        .Times(2)
+        .RetiresOnSaturation();
     std::string json_string = "{"
     "    \"GPU_CORE_FREQUENCY\": {"
     "        \"domain\": \"gpu\","
@@ -638,17 +739,18 @@ TEST_F(ConstConfigIOGroupTest, loads_default_config)
     "}";
     create_config_file(json_string);
 
-    ConstConfigIOGroup iogroup1("", M_CONFIG_FILE_PATH);
+    ConstConfigIOGroup iogroup1(*m_default_topo, "", M_CONFIG_FILE_PATH);
     EXPECT_EQ(iogroup1.signal_names(), std::set<std::string>{"CONST_CONFIG::GPU_CORE_FREQUENCY"});
     
-    ConstConfigIOGroup iogroup2("/fake_dir/fake_config.json", M_CONFIG_FILE_PATH);
+    ConstConfigIOGroup iogroup2(*m_default_topo, "/fake_dir/fake_config.json", M_CONFIG_FILE_PATH);
     EXPECT_EQ(iogroup2.signal_names(), std::set<std::string>{"CONST_CONFIG::GPU_CORE_FREQUENCY"});
 }
 
 TEST_F(ConstConfigIOGroupTest, no_default_config)
 {
+    EXPECT_CALL(*m_default_topo, num_domain(_)).Times(0);
     std::string file_path = "/fake_dir/fake_config.json";
-    GEOPM_EXPECT_THROW_MESSAGE(ConstConfigIOGroup iogroup("", file_path),
+    GEOPM_EXPECT_THROW_MESSAGE(ConstConfigIOGroup iogroup(*m_default_topo, "", file_path),
                                ENOENT,
                                "file \"" + file_path + "\" could not be opened");
 }

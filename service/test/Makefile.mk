@@ -74,6 +74,7 @@ GTEST_TESTS = test/gtest_links/GPUTopoNullTest.default_config \
               test/gtest_links/ConstConfigIOGroupTest.input_invalid_aggregation \
               test/gtest_links/ConstConfigIOGroupTest.input_incorrect_type \
               test/gtest_links/ConstConfigIOGroupTest.input_array_value_type \
+              test/gtest_links/ConstConfigIOGroupTest.input_array_value_num_domain \
               test/gtest_links/ConstConfigIOGroupTest.input_array_value_empty \
               test/gtest_links/ConstConfigIOGroupTest.valid_json_positive \
               test/gtest_links/ConstConfigIOGroupTest.valid_json_negative \

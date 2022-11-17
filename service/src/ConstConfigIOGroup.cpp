@@ -39,11 +39,12 @@ namespace geopm
         GEOPM_CONFIG_PATH "/const_config_io.json";
 
     ConstConfigIOGroup::ConstConfigIOGroup()
-        : ConstConfigIOGroup(geopm::get_env(M_CONFIG_PATH_ENV), M_DEFAULT_CONFIG_FILE_PATH)
+        : ConstConfigIOGroup(platform_topo(), geopm::get_env(M_CONFIG_PATH_ENV), M_DEFAULT_CONFIG_FILE_PATH)
     {
     }
 
-    ConstConfigIOGroup::ConstConfigIOGroup(const std::string &user_file_path,
+    ConstConfigIOGroup::ConstConfigIOGroup(const PlatformTopo &topo,
+                                           const std::string &user_file_path,
                                            const std::string &default_file_path)
     {
         std::string config_json;
@@ -68,7 +69,7 @@ namespace geopm
             config_json = geopm::read_file(default_file_path);
         }
 
-        parse_config_json(config_json);
+        parse_config_json(topo, config_json);
     }
 
     std::set<std::string> ConstConfigIOGroup::signal_names(void) const
@@ -312,7 +313,7 @@ namespace geopm
     {
     }
 
-    void ConstConfigIOGroup::parse_config_json(const std::string &config)
+    void ConstConfigIOGroup::parse_config_json(const PlatformTopo &topo, const std::string &config)
     {
         Json root = construct_config_json_obj(config);
 
@@ -330,18 +331,35 @@ namespace geopm
                     properties["aggregation"].string_value());
 
             auto json_values = properties["values"].array_items();
+            if (json_values.empty()) {
+                throw Exception("ConstConfigIOGroup::parse_config_json(): "
+                                "empty array of values provided for " + name,
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+            if (static_cast<int>(json_values.size()) != topo.num_domain(domain_type)) {
+                throw Exception("ConstConfigIOGroup::parse_config_json(): "
+                                "number of values for " + name + " does not "
+                                "match domain size", GEOPM_ERROR_INVALID,
+                                __FILE__, __LINE__);
+            }
+
             std::vector<double> values;
             for (const auto &val : json_values) {
                 if (!val.is_number()) {
                     throw Exception("ConstConfigIOGroup::parse_config_json():"
-                                    " incorrect type for property: "
-                                    "\"values\"", GEOPM_ERROR_INVALID,
-                                    __FILE__, __LINE__);
+                                    " for signal " + name + ", incorrect type"
+                                    " for property: \"values\"",
+                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
                 }
                 values.push_back(val.number_value());
             }
 
             std::string description = properties["description"].string_value();
+            if (description.empty()) {
+                throw Exception("ConstConfigIOGroup::parse_config_json(): "
+                                "empty description provided for " + name,
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
             // TODO: check for duplicate signals. At the moment, we're using
             // json11 to parse JSON strings, which handles duplicate entries
             // by taking the latest entry encountered.

@@ -16,11 +16,14 @@
 
 namespace geopm
 {
+    class PlatformTopo;
+
     class ConstConfigIOGroup : public IOGroup
     {
         public:
             ConstConfigIOGroup();
-            ConstConfigIOGroup(const std::string &user_file_path,
+            ConstConfigIOGroup(const PlatformTopo& topo,
+                               const std::string &user_file_path,
                                const std::string &default_file_path);
             std::set<std::string> signal_names(void) const override;
             /// @return empty set; this IOGroup does not provide any controls.
@@ -93,7 +96,7 @@ namespace geopm
                 int domain_idx;
             };
 
-            void parse_config_json(const std::string &config);
+            void parse_config_json(const PlatformTopo &topo, const std::string &config);
             static json11::Json construct_config_json_obj(const std::string &config);
             static void check_json_signal(const json11::Json::object::value_type &signal);
 
