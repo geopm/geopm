@@ -7,6 +7,7 @@
 import unittest
 
 from TestAccess import *
+from TestAccessLists import *
 from TestController import *
 from TestDBusXML import *
 from TestError import *
