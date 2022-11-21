@@ -241,6 +241,7 @@ TEST_F(NVMLIOGroupTest, read_signal)
 
     std::vector<double> mock_freq = {1530, 1320, 420, 135};
     std::vector<unsigned int> mock_supported_freq = {135, 142, 407, 414, 760, 882, 1170, 1530};
+    double step_size = 199.285714;
     std::vector<double> mock_utilization_gpu = {100, 90, 50, 0};
     std::vector<double> mock_power = {153600, 70000, 300000, 50000};
     std::vector<double> mock_power_limit = {300000, 270000, 300000, 250000};
@@ -293,6 +294,11 @@ TEST_F(NVMLIOGroupTest, read_signal)
         double frequency_max_avail_alias = nvml_io.read_signal("GPU_CORE_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_GPU, gpu_idx);
         EXPECT_DOUBLE_EQ(frequency_max_avail, mock_supported_freq.back() * 1e6);
         EXPECT_DOUBLE_EQ(frequency_max_avail, frequency_max_avail_alias);
+
+        double frequency_step = nvml_io.read_signal(M_NAME_PREFIX + "GPU_CORE_FREQUENCY_STEP", GEOPM_DOMAIN_GPU, gpu_idx);
+        double frequency_step_alias = nvml_io.read_signal("GPU_CORE_FREQUENCY_STEP", GEOPM_DOMAIN_GPU, gpu_idx);
+        EXPECT_NEAR(frequency_step, step_size * 1e6, 1e4);
+        EXPECT_DOUBLE_EQ(frequency_step, frequency_step_alias);
 
         double utilization_gpu = nvml_io.read_signal(M_NAME_PREFIX + "GPU_UTILIZATION", GEOPM_DOMAIN_GPU, gpu_idx);
         double utilization_gpu_alias = nvml_io.read_signal("GPU_UTILIZATION", GEOPM_DOMAIN_GPU, gpu_idx);
