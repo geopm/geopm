@@ -13,6 +13,7 @@
 #include <iostream>
 #include <sstream>
 #include <algorithm>
+#include <numeric>
 #include <string>
 #include <sched.h>
 #include <errno.h>
@@ -171,6 +172,15 @@ namespace geopm
                                   IOGroup::M_SIGNAL_BEHAVIOR_CONSTANT,
                                   string_format_double
                                   }},
+                              {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_STEP", {
+                                  "The streaming multiprocessor frequency step size.\n"
+                                  "If the step size is variable the average of all steps is provided.",
+                                  {},
+                                  GEOPM_DOMAIN_GPU,
+                                  Agg::expect_same,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_CONSTANT,
+                                  string_format_double
+                                  }},
                               {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_CONTROL", {
                                   "Latest frequency maximum control request in hertz",
                                   {},
@@ -258,6 +268,15 @@ namespace geopm
             // to the min & max supported frequency for the associated signals
             m_frequency_max_control_request.at(domain_idx) = m_supported_freq.at(domain_idx).back() * 1e6;
             m_frequency_min_control_request.at(domain_idx) = m_supported_freq.at(domain_idx).front() * 1e6;
+
+            std::vector<unsigned int> diff_supported_frequency(supported_frequency.size());
+            std::adjacent_difference(supported_frequency.begin(), supported_frequency.end(),
+                                     diff_supported_frequency.begin());
+            diff_supported_frequency.erase(diff_supported_frequency.begin());
+
+            m_frequency_step.push_back((double) std::accumulate(diff_supported_frequency.begin(),
+                                                                diff_supported_frequency.end(), 0)
+                                                / diff_supported_frequency.size());
         }
 
         std::vector <std::string> unsupported_signal_names;
@@ -285,6 +304,7 @@ namespace geopm
         register_signal_alias("GPU_CORE_FREQUENCY_STATUS", M_NAME_PREFIX + "GPU_CORE_FREQUENCY_STATUS");
         register_signal_alias("GPU_CORE_FREQUENCY_MIN_AVAIL", M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_AVAIL");
         register_signal_alias("GPU_CORE_FREQUENCY_MAX_AVAIL", M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_AVAIL");
+        register_signal_alias("GPU_CORE_FREQUENCY_STEP", M_NAME_PREFIX + "GPU_CORE_FREQUENCY_STEP");
         register_signal_alias("GPU_ENERGY", M_NAME_PREFIX + "GPU_ENERGY_CONSUMPTION_TOTAL");
         register_signal_alias("GPU_TEMPERATURE", M_NAME_PREFIX + "GPU_TEMPERATURE");
         register_signal_alias("GPU_UTILIZATION", M_NAME_PREFIX + "GPU_UTILIZATION");
@@ -626,6 +646,12 @@ namespace geopm
         else if (signal_name == M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_AVAIL" || signal_name == "GPU_CORE_FREQUENCY_MAX_AVAIL") {
             if (m_supported_freq.at(domain_idx).size() != 0) {
                 result = 1e6 * m_supported_freq.at(domain_idx).back();
+            }
+        }
+        else if (signal_name == M_NAME_PREFIX + "GPU_CORE_FREQUENCY_STEP" || signal_name == "GPU_CORE_FREQUENCY_STEP") {
+            //  If supported freqs isn't populated we can't provide step size
+            if (m_supported_freq.at(domain_idx).size() != 0) {
+                result = 1e6 * m_frequency_step.at(domain_idx);
             }
         }
         else if (signal_name == M_NAME_PREFIX + "GPU_UTILIZATION" || signal_name == "GPU_UTILIZATION") {
