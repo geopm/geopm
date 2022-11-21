@@ -177,6 +177,9 @@ Descriptions Of High Level Aliases
 ``GPU_CORE_FREQENCY_MIN_AVAIL``
     Minimum supported GPU core frequency over the specified domain.
 
+``GPU_CORE_FREQENCY_STEP``
+    Step size between GPU frequency settings.
+
 ``GPU_CORE_FREQUENCY_MAX_CONTROL``
     Control that limits the maximum GPU core frequency.
 
