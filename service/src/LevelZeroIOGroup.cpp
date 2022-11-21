@@ -115,6 +115,23 @@ namespace geopm
                                   },
                                   1e6
                                   }},
+                              {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_STEP", {
+                                  "The compute domain frequency step size in hertz.\n"
+                                  "If the step size is variable the average of all steps is provided.",
+                                  GEOPM_DOMAIN_GPU_CHIP,
+                                  Agg::expect_same,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
+                                  string_format_double,
+                                  {},
+                                  [this](unsigned int domain_idx) -> double
+                                  {
+                                      return this->m_levelzero_device_pool.frequency_step(
+                                                   GEOPM_DOMAIN_GPU_CHIP,
+                                                   domain_idx,
+                                                   geopm::LevelZero::M_DOMAIN_COMPUTE);
+                                  },
+                                  1e6
+                                  }},
                               {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_CONTROL", {
                                   "The maximum frequency request for the GPU Compute Hardware.",
                                   GEOPM_DOMAIN_GPU_CHIP,
@@ -593,6 +610,8 @@ namespace geopm
         register_signal_alias("GPU_UNCORE_ACTIVITY", M_NAME_PREFIX + "GPU_UNCORE_UTILIZATION");
         register_signal_alias("GPU_CORE_FREQUENCY_MIN_AVAIL",
                               M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_AVAIL");
+        register_signal_alias("GPU_CORE_FREQUENCY_STEP",
+                              M_NAME_PREFIX + "GPU_CORE_FREQUENCY_STEP");
         register_signal_alias("GPU_CORE_FREQUENCY_MAX_AVAIL",
                               M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_AVAIL");
         register_signal_alias("GPU_CORE_FREQUENCY_MIN_CONTROL",

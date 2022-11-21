@@ -76,6 +76,18 @@ namespace geopm
             /// @return GPU maximum frequency in MHz.
             virtual double frequency_max(unsigned int l0_device_idx, int l0_domain,
                                          int l0_domain_idx) const = 0;
+
+            /// @brief Get the LevelZero device supported frequencies in MHz
+            /// @param [in] l0_device_idx The index indicating a particular
+            ///        Level Zero GPU.
+            /// @param [in] l0_domain The LevelZero domain type being targeted
+            /// @param [in] l0_domain_idx The LevelZero index indicating a particular
+            ///        domain of the GPU.
+            /// @return GPU supported frequencies in MHz.
+            virtual std::vector<double> frequency_supported(unsigned int l0_device_idx,
+                                                            int l0_domain,
+                                                            int l0_domain_idx) const = 0;
+
             /// @brief Get the LevelZero device frequency throttle reasons
             /// @param [in] l0_device_idx The index indicating a particular
             ///        Level Zero GPU.
@@ -85,6 +97,7 @@ namespace geopm
             /// @return Frequency throttle reasons
             virtual uint32_t frequency_throttle_reasons(unsigned int l0_device_idx, int l0_domain,
                                                         int l0_domain_idx) const = 0;
+
             /// @brief Get the LevelZero device minimum and maximum frequency
             ///        control range in MHz
             /// @param [in] l0_device_idx The index indicating a particular
