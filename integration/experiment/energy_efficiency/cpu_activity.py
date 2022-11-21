@@ -19,7 +19,7 @@ from experiment import machine
 
 def setup_run_args(parser):
     common_args.setup_run_args(parser)
-    parser.add_argument('--phi-list', nargs='+', help='A space seperated list of phi values (0 to 1.0) to use')
+    parser.add_argument('--phi-list', nargs='+', help='A space separated list of phi values (0 to 1.0) to use')
 
 def report_signals():
     return []
