@@ -50,7 +50,7 @@ namespace geopm
         , m_frequency_min_control_request(m_platform_topo.num_domain(GEOPM_DOMAIN_GPU), NAN)
         , m_initial_power_limit(m_platform_topo.num_domain(GEOPM_DOMAIN_GPU), 0)
         , m_signal_available({{M_NAME_PREFIX + "GPU_CORE_FREQUENCY_STATUS", {
-                                  "Streaming multiprocessor frequency in hertz",
+                                  "Streaming Multiprocessor frequency in hertz",
                                   {},
                                   GEOPM_DOMAIN_GPU,
                                   Agg::average,
@@ -157,7 +157,7 @@ namespace geopm
                                   string_format_double
                                   }},
                               {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_AVAIL", {
-                                  "Streaming multiprocessor Maximum frequency in hertz",
+                                  "Streaming Multiprocessor Maximum frequency in hertz",
                                   {},
                                   GEOPM_DOMAIN_GPU,
                                   Agg::expect_same,
@@ -165,7 +165,7 @@ namespace geopm
                                   string_format_double
                                   }},
                               {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_AVAIL", {
-                                  "Streaming multiprocessor Minimum frequency in hertz",
+                                  "Streaming Multiprocessor Minimum frequency in hertz",
                                   {},
                                   GEOPM_DOMAIN_GPU,
                                   Agg::expect_same,
@@ -173,7 +173,7 @@ namespace geopm
                                   string_format_double
                                   }},
                               {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_STEP", {
-                                  "The streaming multiprocessor frequency step size.\n"
+                                  "The Streaming Multiprocessor frequency step size in hertz.\n"
                                   "If the step size is variable the average of all steps is provided.",
                                   {},
                                   GEOPM_DOMAIN_GPU,
@@ -198,7 +198,7 @@ namespace geopm
                                   string_format_double
                                   }},
                               {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_RESET_CONTROL", {
-                                  "Resets streaming multiprocessor frequency min and max limits to default values.",
+                                  "Resets Streaming Multiprocessor frequency min and max limits to default values.",
                                   {},
                                   GEOPM_DOMAIN_GPU,
                                   Agg::expect_same,
@@ -207,21 +207,21 @@ namespace geopm
                                   }}
                              })
         , m_control_available({{M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MAX_CONTROL", {
-                                    "Sets streaming multiprocessor frequency max (in hertz)",
+                                    "Sets Streaming Multiprocessor frequency max (in hertz)",
                                     {},
                                     GEOPM_DOMAIN_GPU,
                                     Agg::expect_same,
                                     string_format_double
                                     }},
                                {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_CONTROL", {
-                                    "Sets streaming multiprocessor frequency min (in hertz)",
+                                    "Sets Streaming Multiprocessor frequency min (in hertz)",
                                     {},
                                     GEOPM_DOMAIN_GPU,
                                     Agg::expect_same,
                                     string_format_double
                                     }},
                                {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_RESET_CONTROL", {
-                                    "Resets streaming multiprocessor frequency min and max limits to default values."
+                                    "Resets Streaming Multiprocessor frequency min and max limits to default values."
                                     "\n  Parameter provided is unused.",
                                     {},
                                     GEOPM_DOMAIN_GPU,

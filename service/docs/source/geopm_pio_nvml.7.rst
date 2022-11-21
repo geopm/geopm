@@ -127,6 +127,13 @@ Signals
     *  **Format**: double
     *  **Unit**: hertz
 
+``NVML::GPU_CORE_FREQUENCY_STEP``
+    The Streaming Multiprocessor frequency step size in hertz.  If the step size is variable the average of all steps is provided.
+    *  **Aggregation**: expect_same
+    *  **Domain**: gpu
+    *  **Format**: double
+    *  **Unit**: hertz
+
 Controls
 --------
 
@@ -183,6 +190,9 @@ Signal Aliases
 
 ``GPU_CORE_FREQUENCY_MAX_AVAIL``
     Maps to ``NVML::GPU_CORE_FREQUENCY_MAX_AVAIL``.
+
+``GPU_CORE_FREQUENCY_STEP``
+    Maps to ``NVML::GPU_CORE_FREQUENCY_STEP``.
 
 ``GPU_ENERGY``
     Maps to ``NVML::GPU_ENERGY_CONSUMPTION_TOTAL``.
