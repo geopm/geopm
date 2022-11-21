@@ -127,7 +127,7 @@ Access Management
 -----------------
 
 Access to signals and controls through the GEOPM Service is configured
-by the system administrator.  The administrator controls a default
+by the system administrator.  The administrator maintains a default
 access list that applies to all users of the system.  This list
 may be augmented so that users who are members of particular Unix groups may
 have enhanced access.  The default lists are stored in:
@@ -153,6 +153,12 @@ non-root users through the GEOPM Service until a system administrator
 enables access through these allow lists.  It is recommended that all
 manipulation of these files should be done through the GEOPM Service
 with the ``geopmaccess`` command line tool.
+
+By convention, all control settings can be read by requesting the
+signal that shares the same name as the control.  Note that when
+adding a control name to the access list for writing, the
+administrator is implicitly providing read access to the control
+setting as well.
 
 
 Opening a Session

@@ -90,6 +90,12 @@ be provided.  For example, when the ``-c`` option is provided without
 any other options, the list of controls that may be configured by the
 calling user is printed.
 
+By convention, all control settings can be read by requesting the
+signal that shares the same name as the control.  Note that when
+adding a control name to the access list for writing, the
+administrator is implicitly providing read access to the control
+setting as well.
+
 All users of the system will have access to the signals and controls
 determined by the "default access list."  The default access list may
 be read by specifying the ``-u`` / ``--user`` option.  These
