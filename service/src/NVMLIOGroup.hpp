@@ -70,6 +70,7 @@ namespace geopm
             std::vector<double> m_frequency_min_control_request;
             std::vector<double> m_initial_power_limit;
             std::vector<std::vector<unsigned int> > m_supported_freq;
+            std::vector<double> m_frequency_step;
 
             struct signal_s
             {
