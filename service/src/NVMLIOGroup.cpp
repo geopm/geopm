@@ -269,13 +269,7 @@ namespace geopm
             m_frequency_max_control_request.at(domain_idx) = m_supported_freq.at(domain_idx).back() * 1e6;
             m_frequency_min_control_request.at(domain_idx) = m_supported_freq.at(domain_idx).front() * 1e6;
 
-
             if (m_supported_freq.at(domain_idx).size() >= 2) {
-                std::vector<unsigned int> diff_supported_frequency(supported_frequency.size());
-                std::adjacent_difference(supported_frequency.begin(), supported_frequency.end(),
-                                         diff_supported_frequency.begin());
-                diff_supported_frequency.erase(diff_supported_frequency.begin());
-
                 double step = (double) (supported_frequency.back() - supported_frequency.front())
                               / (supported_frequency.size() - 1);
 
