@@ -652,6 +652,7 @@ namespace geopm
         return frequency_min_max(l0_device_idx, l0_domain, l0_domain_idx).second;
     }
 
+
     std::pair<double, double> LevelZeroImp::frequency_min_max(unsigned int l0_device_idx,
                                                               int l0_domain,
                                                               int l0_domain_idx) const
@@ -667,6 +668,30 @@ namespace geopm
 
         return {property.min, property.max};
     }
+
+    std::vector<double> LevelZeroImp::frequency_supported(unsigned int l0_device_idx,
+                                                          int l0_domain,
+                                                          int l0_domain_idx) const
+    {
+        ze_result_t ze_result;
+        zes_freq_handle_t handle = m_devices.at(l0_device_idx).subdevice.freq_domain.at(
+                                                               l0_domain).at(l0_domain_idx);
+        uint32_t num_freq = 0;
+
+        ze_result = zesFrequencyGetAvailableClocks(handle, &num_freq, nullptr);
+        check_ze_result(ze_result, GEOPM_ERROR_RUNTIME, "LevelZero::"
+                        + std::string(__func__) +
+                        ": Sysman failed to get supported frequency count.", __LINE__);
+
+        std::vector<double> result(num_freq);
+        ze_result = zesFrequencyGetAvailableClocks(handle, &num_freq, result.data());
+        check_ze_result(ze_result, GEOPM_ERROR_RUNTIME, "LevelZero::"
+                        + std::string(__func__) +
+                        ": Sysman failed to get supported frequency list.", __LINE__);
+
+        return result;
+    }
+
 
     std::pair<double, double> LevelZeroImp::frequency_range(unsigned int l0_device_idx,
                                                             int l0_domain,
