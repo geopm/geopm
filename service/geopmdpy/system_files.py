@@ -892,14 +892,18 @@ class AccessLists(object):
         group_dir = os.path.join(self._CONFIG_PATH, group)
         if os.path.isdir(group_dir):
             secure_make_dirs(group_dir)
-            path = os.path.join(group_dir, 'allowed_signals')
-            signals = self._read_allowed(path)
-            signals = self._filter_valid_signals(signals)
-            signals = sorted(signals)
+            # Read and filter control names
             path = os.path.join(group_dir, 'allowed_controls')
             controls = self._read_allowed(path)
             controls = self._filter_valid_controls(controls)
-            controls = sorted(controls)
+            controls = sorted(set(controls))
+            # Read and filter signal names
+            path = os.path.join(group_dir, 'allowed_signals')
+            signals = self._read_allowed(path)
+            # All controls that may be written may also be read
+            signals.extend(controls)
+            signals = self._filter_valid_signals(signals)
+            signals = sorted(set(signals))
         else:
             signals = []
             controls = []
