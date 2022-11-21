@@ -352,6 +352,24 @@ TEST_F(NVMLIOGroupTest, read_signal)
     }
 }
 
+TEST_F(NVMLIOGroupTest, single_freq_support)
+{
+
+    EXPECT_CALL(*m_device_pool, is_privileged_access()).WillRepeatedly(Return(false));
+
+    // Corner case for only a single freq step being supported
+    std::vector<unsigned int> mock_supported_freq = {1170};
+
+    EXPECT_CALL(*m_device_pool, frequency_supported_sm(0)).WillRepeatedly(Return(mock_supported_freq));
+    NVMLIOGroup nvml_io(*m_platform_topo, *m_device_pool, nullptr);
+
+    double frequency_step = nvml_io.read_signal(M_NAME_PREFIX + "GPU_CORE_FREQUENCY_STEP", GEOPM_DOMAIN_GPU, 0);
+    double frequency_step_alias = nvml_io.read_signal("GPU_CORE_FREQUENCY_STEP", GEOPM_DOMAIN_GPU, 0);
+
+    EXPECT_TRUE(std::isnan(frequency_step));
+    EXPECT_TRUE(std::isnan(frequency_step_alias));
+}
+
 //Test case: Error path testing including:
 //              - Attempt to push a signal at an invalid domain level
 //              - Attempt to push an invalid signal
