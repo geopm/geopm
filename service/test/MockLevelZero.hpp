@@ -31,6 +31,8 @@ class MockLevelZero : public geopm::LevelZero
                     (const, override));
         MOCK_METHOD((std::pair<double, double>), frequency_range,
                     (unsigned int, int, int), (const, override));
+        MOCK_METHOD((std::vector<double>), frequency_supported,
+                    (unsigned int, int, int), (const, override));
 
 
         MOCK_METHOD(double, temperature_max, (unsigned int, int, int),

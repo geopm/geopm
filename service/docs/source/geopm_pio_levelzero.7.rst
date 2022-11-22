@@ -65,6 +65,13 @@ Signals
     *  **Format**: double
     *  **Unit**: celsius
 
+``LEVELZERO::GPU_CORE_FREQUENCY_STEP``
+    The GPU Compute Hardware frequency step size in hertz.  If the step size is variable the average of all steps is provided.
+    *  **Aggregation**: expect_same
+    *  **Domain**: gpu
+    *  **Format**: double
+    *  **Unit**: hertz
+
 ``LEVELZERO::GPU_ENERGY``
     GPU energy in joules.
 
@@ -282,8 +289,8 @@ Signal Aliases
 ``GPU_CORE_POWER``
     Maps to ``LEVELZERO::GPU_CORE_POWER``.
 
-``GPU_UTIIZATION``
-    Maps to ``LEVELZERO::GPU_UTIIZATION``.
+``GPU_UTILIZATION``
+    Maps to ``LEVELZERO::GPU_UTILIZATION``.
 
 ``GPU_CORE_ACTIVITY``
     Maps to ``LEVELZERO::GPU_CORE_UTILIZATION``.
@@ -305,6 +312,9 @@ Signal Aliases
 
 ``GPU_CORE_FREQUENCY_MAX_CONTROL``
     Maps to ``LEVELZERO::GPU_CORE_FREQUENCY_MAX_CONTROL``.
+
+``GPU_CORE_FREQUENCY_STEP``
+    Maps to ``LEVELZERO::GPU_CORE_FREQUENCY_STEP``.
 
 ``LEVELZERO::GPU_CORE_PERFORMANCE_FACTOR_CONTROL``
     Maps to ``LEVELZERO::GPU_CORE_PERFORMANCE_FACTOR``
