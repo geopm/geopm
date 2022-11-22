@@ -179,7 +179,7 @@ namespace geopm
 
         if (m_qm_max_rate.empty()) {
             throw Exception("CPUActivityAgent::" + std::string(__func__) +
-                            "(): ConstConfigIO file did not contain" +
+                            "(): ConstConfigIOGroup configuration file does not contain" +
                             " memory bandwidth information.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
