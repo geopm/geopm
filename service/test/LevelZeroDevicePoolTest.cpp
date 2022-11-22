@@ -54,6 +54,62 @@ TEST_F(LevelZeroDevicePoolTest, device_count)
     EXPECT_EQ(num_gpu_subdevice, m_device_pool.num_gpu(GEOPM_DOMAIN_GPU_CHIP));
 }
 
+TEST_F(LevelZeroDevicePoolTest, supported_frequency)
+{
+    const int num_gpu = 4;
+    const int num_gpu_subdevice = 8;
+    const int num_subdevice_per_device = num_gpu_subdevice/num_gpu;
+    std::vector<double> mock_freq_supported = {0, 1, 2, 3, 4, 5, 9};
+    double step = 1.5;
+
+    EXPECT_CALL(*m_levelzero, num_gpu(GEOPM_DOMAIN_GPU)).WillRepeatedly(Return(num_gpu));
+    EXPECT_CALL(*m_levelzero, num_gpu(GEOPM_DOMAIN_GPU_CHIP)).WillRepeatedly(Return(num_gpu_subdevice));
+
+    int domain_count = 1;
+    for (int dev_idx = 0; dev_idx < num_gpu; ++dev_idx) {
+        EXPECT_CALL(*m_levelzero, frequency_domain_count(dev_idx, MockLevelZero::M_DOMAIN_COMPUTE)).WillRepeatedly(Return(domain_count));
+        for (int sub_idx = 0; sub_idx < num_subdevice_per_device; ++sub_idx) {
+            EXPECT_CALL(*m_levelzero, frequency_supported(dev_idx, MockLevelZero::M_DOMAIN_COMPUTE, sub_idx)).WillRepeatedly(Return(mock_freq_supported));
+        }
+    }
+
+    LevelZeroDevicePoolImp m_device_pool(*m_levelzero);
+
+    for (int dev_idx = 0; dev_idx < num_gpu; ++dev_idx) {
+        for (int sub_idx = 0; sub_idx < num_subdevice_per_device; ++sub_idx) {
+            EXPECT_EQ(step, m_device_pool.frequency_step(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE));
+        }
+    }
+}
+
+TEST_F(LevelZeroDevicePoolTest, single_supported_frequency)
+{
+    const int num_gpu = 4;
+    const int num_gpu_subdevice = 8;
+    const int num_subdevice_per_device = num_gpu_subdevice/num_gpu;
+    std::vector<double> mock_freq_supported = {9};
+
+    EXPECT_CALL(*m_levelzero, num_gpu(GEOPM_DOMAIN_GPU)).WillRepeatedly(Return(num_gpu));
+    EXPECT_CALL(*m_levelzero, num_gpu(GEOPM_DOMAIN_GPU_CHIP)).WillRepeatedly(Return(num_gpu_subdevice));
+
+    int domain_count = 1;
+    for (int dev_idx = 0; dev_idx < num_gpu; ++dev_idx) {
+        EXPECT_CALL(*m_levelzero, frequency_domain_count(dev_idx, MockLevelZero::M_DOMAIN_COMPUTE)).WillRepeatedly(Return(domain_count));
+        for (int sub_idx = 0; sub_idx < num_subdevice_per_device; ++sub_idx) {
+            EXPECT_CALL(*m_levelzero, frequency_supported(dev_idx, MockLevelZero::M_DOMAIN_COMPUTE, sub_idx)).WillRepeatedly(Return(mock_freq_supported));
+        }
+    }
+
+    LevelZeroDevicePoolImp m_device_pool(*m_levelzero);
+
+    for (int dev_idx = 0; dev_idx < num_gpu; ++dev_idx) {
+        for (int sub_idx = 0; sub_idx < num_subdevice_per_device; ++sub_idx) {
+            double step = m_device_pool.frequency_step(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE);
+            EXPECT_TRUE(std::isnan(step));
+        }
+    }
+}
+
 TEST_F(LevelZeroDevicePoolTest, subdevice_conversion_and_function)
 {
     const int num_gpu = 4;
