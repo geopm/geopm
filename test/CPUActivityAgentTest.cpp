@@ -535,6 +535,6 @@ TEST_F(CPUActivityAgentTest, no_mem_constconfig)
     ON_CALL(*m_platform_io, signal_names()).WillByDefault(Return(signal_name_set));
     // leaf agent
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->init(0, {}, false), GEOPM_ERROR_INVALID,
-                                "ConstConfigIO file did not contain memory bandwidth information");
+                                "ConstConfigIOGroup configuration file does not contain memory bandwidth information");
 
 }
