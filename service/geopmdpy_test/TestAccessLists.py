@@ -111,13 +111,44 @@ default
                      mock.call(control_file, 'frequency\n')]
             mock_smf.assert_has_calls(calls)
 
+        with mock.patch('geopmdpy.pio.signal_names', return_value=all_signals), \
+             mock.patch('geopmdpy.system_files.secure_make_dirs') as mock_smd, \
+             mock.patch('geopmdpy.system_files.secure_make_file') as mock_smf:
+
+            self._access_lists.set_group_access_signals(group, ['power'])
+
+            test_dir = os.path.join(self._CONFIG_PATH.name,
+                                    '0.DEFAULT_ACCESS' if group == '' else group)
+
+            signal_file = os.path.join(test_dir, 'allowed_signals')
+
+            mock_smd.assert_called_once_with(test_dir, perm_mode=0o700)
+            calls = [mock.call(signal_file, 'power\n')]
+            mock_smf.assert_has_calls(calls)
+
+        with mock.patch('geopmdpy.pio.control_names', return_value=all_controls), \
+             mock.patch('geopmdpy.system_files.secure_make_dirs') as mock_smd, \
+             mock.patch('geopmdpy.system_files.secure_make_file') as mock_smf:
+
+            self._access_lists.set_group_access_controls(group, ['frequency'])
+
+            test_dir = os.path.join(self._CONFIG_PATH.name,
+                                    '0.DEFAULT_ACCESS' if group == '' else group)
+
+            control_file = os.path.join(test_dir, 'allowed_controls')
+
+            mock_smd.assert_called_once_with(test_dir, perm_mode=0o700)
+            calls = [mock.call(control_file, 'frequency\n')]
+            mock_smf.assert_has_calls(calls)
+
+
     def test_set_group_access_empty(self):
         self._set_group_access_test_helper('')
 
     def test_set_group_access_named(self):
         with mock.patch('grp.getgrnam', return_value='named') as mock_getgrnam:
             self._set_group_access_test_helper('named')
-            mock_getgrnam.assert_called_once_with('named')
+            mock_getgrnam.assert_called_with('named')
 
     def test_get_group_access_empty(self):
         signals, controls = self._access_lists.get_group_access('')

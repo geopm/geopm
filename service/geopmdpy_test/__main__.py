@@ -19,6 +19,7 @@ from TestTimedLoop import *
 from TestTopo import *
 from TestActiveSessions import *
 from TestSecureFiles import *
+from TestAccessLists import *
 
 if __name__ == '__main__':
     unittest.main()

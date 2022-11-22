@@ -42,7 +42,7 @@ with CPUs.
       </arg>
       <arg direction="out" name="access_lists" type="(asas)">
         <doc:doc>
-          <doc:summary>list(str), list(str): Signal and control allowed lists
+          <doc:summary>list(str), list(str): Signal and control allowed lists, both in sorted order.
           </doc:summary>
         </doc:doc>
       </arg>
@@ -85,18 +85,74 @@ empty lists are returned.
       </arg>
       <doc:doc>
         <doc:description>
-          <doc:summary>Get the signal and control access lists
+          <doc:summary>Set signals and controls in the allowed lists
           </doc:summary>
-          <doc:para>Read the list of allowed signals and controls for the
+          <doc:para>Write the list of allowed signals and controls for the
 specified group.  If the group is None or the empty string
 then the default lists of allowed signals and controls are
-returned.
+updated.
 
-The values are securely read from files located in
-/etc/geopm-service using the secure_read_file() interface.
+The values are securely written atomically to files located in
+/etc/geopm-service using the secure_make_dirs() and
+secure_make_file() interfaces.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </method>
+    <method name="PlatformSetGroupAccessSignals">
+      <arg direction="in" name="group" type="s">
+        <doc:doc>
+          <doc:summary>Name of group
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <arg direction="in" name="allowed_signals" type="as">
+        <doc:doc>
+          <doc:summary>Signal names that are allowed
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:summary>Set signals and controls in the allowed lists
+          </doc:summary>
+          <doc:para>Write the list of allowed signals and controls for the
+specified group.  If the group is None or the empty string
+then the default lists of allowed signals and controls are
+updated.
 
-If no secure file exist for the specified group, then two
-empty lists are returned.
+The values are securely written atomically to files located in
+/etc/geopm-service using the secure_make_dirs() and
+secure_make_file() interfaces.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </method>
+    <method name="PlatformSetGroupAccessControls">
+      <arg direction="in" name="group" type="s">
+        <doc:doc>
+          <doc:summary>Name of group
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <arg direction="in" name="allowed_controls" type="as">
+        <doc:doc>
+          <doc:summary>Control names that are allowed
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:summary>Set signals and controls in the allowed lists
+          </doc:summary>
+          <doc:para>Write the list of allowed signals and controls for the
+specified group.  If the group is None or the empty string
+then the default lists of allowed signals and controls are
+updated.
+
+The values are securely written atomically to files located in
+/etc/geopm-service using the secure_make_dirs() and
+secure_make_file() interfaces.
           </doc:para>
         </doc:description>
       </doc:doc>
@@ -104,7 +160,7 @@ empty lists are returned.
     <method name="PlatformGetUserAccess">
       <arg direction="out" name="access_lists" type="(asas)">
         <doc:doc>
-          <doc:summary>list(str), list(str): Signal and control allowed lists
+          <doc:summary>list(str), list(str): Signal and control allowed lists, both in sorted order.
           </doc:summary>
         </doc:doc>
       </arg>
@@ -133,7 +189,7 @@ lists are what this method returns.
     <method name="PlatformGetAllAccess">
       <arg direction="out" name="access_lists" type="(asas)">
         <doc:doc>
-          <doc:summary>list(str), list(str): All supported signals and controls
+          <doc:summary>list(str), list(str): All supported signals and controls, in sorted order.
           </doc:summary>
         </doc:doc>
       </arg>

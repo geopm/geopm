@@ -97,6 +97,50 @@ def geopm_dbus_xml(TopoService=None, PlatformService=None):
         </doc:description>
       </doc:doc>
     </method>
+    <method name="PlatformSetGroupAccessSignals">
+      <arg direction="in" name="group" type="s">
+        <doc:doc>
+          <doc:summary>{PlatformSetGroupAccessSignals_params0_description}
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <arg direction="in" name="allowed_signals" type="as">
+        <doc:doc>
+          <doc:summary>{PlatformSetGroupAccessSignals_params1_description}
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:summary>{PlatformSetGroupAccess_short_description}
+          </doc:summary>
+          <doc:para>{PlatformSetGroupAccess_long_description}
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </method>
+    <method name="PlatformSetGroupAccessControls">
+      <arg direction="in" name="group" type="s">
+        <doc:doc>
+          <doc:summary>{PlatformSetGroupAccessControls_params0_description}
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <arg direction="in" name="allowed_controls" type="as">
+        <doc:doc>
+          <doc:summary>{PlatformSetGroupAccessControls_params1_description}
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:summary>{PlatformSetGroupAccess_short_description}
+          </doc:summary>
+          <doc:para>{PlatformSetGroupAccess_long_description}
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </method>
     <method name="PlatformGetUserAccess">
       <arg direction="out" name="access_lists" type="(asas)">
         <doc:doc>
@@ -348,6 +392,8 @@ def geopm_dbus_xml(TopoService=None, PlatformService=None):
         TopoGetCache = google.parse(TopoService.get_cache.__doc__)
         PlatformGetGroupAccess = google.parse(PlatformService.get_group_access.__doc__)
         PlatformSetGroupAccess = google.parse(PlatformService.set_group_access.__doc__)
+        PlatformSetGroupAccessSignals = google.parse(PlatformService.set_group_access_signals.__doc__)
+        PlatformSetGroupAccessControls = google.parse(PlatformService.set_group_access_controls.__doc__)
         PlatformGetUserAccess = google.parse(PlatformService.get_user_access.__doc__)
         PlatformGetAllAccess = google.parse(PlatformService.get_all_access.__doc__)
         PlatformGetSignalInfo = google.parse(PlatformService.get_signal_info.__doc__)
@@ -373,8 +419,16 @@ def geopm_dbus_xml(TopoService=None, PlatformService=None):
             PlatformSetGroupAccess_params0_description=PlatformSetGroupAccess.params[0].description,
             PlatformSetGroupAccess_params1_description=PlatformSetGroupAccess.params[1].description,
             PlatformSetGroupAccess_params2_description=PlatformSetGroupAccess.params[2].description,
-            PlatformSetGroupAccess_short_description=PlatformGetGroupAccess.short_description,
-            PlatformSetGroupAccess_long_description=PlatformGetGroupAccess.long_description,
+            PlatformSetGroupAccess_short_description=PlatformSetGroupAccess.short_description,
+            PlatformSetGroupAccess_long_description=PlatformSetGroupAccess.long_description,
+            PlatformSetGroupAccessSignals_params0_description=PlatformSetGroupAccessSignals.params[0].description,
+            PlatformSetGroupAccessSignals_params1_description=PlatformSetGroupAccessSignals.params[1].description,
+            PlatformSetGroupAccessSignals_short_description=PlatformSetGroupAccessSignals.short_description,
+            PlatformSetGroupAccessSignals_long_description=PlatformSetGroupAccessSignals.long_description,
+            PlatformSetGroupAccessControls_params0_description=PlatformSetGroupAccessControls.params[0].description,
+            PlatformSetGroupAccessControls_params1_description=PlatformSetGroupAccessControls.params[1].description,
+            PlatformSetGroupAccessControls_short_description=PlatformSetGroupAccessControls.short_description,
+            PlatformSetGroupAccessControls_long_description=PlatformSetGroupAccessControls.long_description,
             PlatformGetUserAccess_returns_description=PlatformGetUserAccess.returns.description,
             PlatformGetUserAccess_short_description=PlatformGetUserAccess.short_description,
             PlatformGetUserAccess_long_description=PlatformGetUserAccess.long_description,
