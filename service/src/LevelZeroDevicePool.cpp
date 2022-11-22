@@ -168,7 +168,7 @@ namespace geopm
     double LevelZeroDevicePoolImp::frequency_step(int domain, unsigned int domain_idx,
                                                   int l0_domain) const
     {
-        double result = NAN;
+        double frequency_step_mhz = NAN;
         if (domain != GEOPM_DOMAIN_GPU_CHIP) {
             throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
                              ": domain " + std::to_string(domain) +
@@ -186,11 +186,12 @@ namespace geopm
                                                                                   dev_subdev_idx_pair.second);
         if (supported_frequency.size() >= 2) {
             std::sort(supported_frequency.begin(), supported_frequency.end());
-            result = (double) (supported_frequency.back() - supported_frequency.front())
-                              / (supported_frequency.size() - 1);
+            frequency_step_mhz = (double) (supported_frequency.back() -
+                                           supported_frequency.front()) /
+                                          (supported_frequency.size() - 1);
         }
 
-        return result;
+        return frequency_step_mhz;
     }
 
     uint32_t LevelZeroDevicePoolImp::frequency_throttle_reasons(int domain, unsigned int domain_idx,
