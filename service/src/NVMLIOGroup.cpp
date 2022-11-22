@@ -13,7 +13,6 @@
 #include <iostream>
 #include <sstream>
 #include <algorithm>
-#include <numeric>
 #include <string>
 #include <sched.h>
 #include <errno.h>
@@ -269,7 +268,8 @@ namespace geopm
             m_frequency_max_control_request.at(domain_idx) = m_supported_freq.at(domain_idx).back() * 1e6;
             m_frequency_min_control_request.at(domain_idx) = m_supported_freq.at(domain_idx).front() * 1e6;
 
-            if (m_supported_freq.at(domain_idx).size() >= 2) {
+            // Calculated step size if there are 2 or more supported frequencies
+            if (supported_frequency.size() >= 2) {
                 double step = (double) (supported_frequency.back() - supported_frequency.front())
                               / (supported_frequency.size() - 1);
 
