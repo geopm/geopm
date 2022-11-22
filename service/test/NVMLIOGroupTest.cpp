@@ -352,7 +352,7 @@ TEST_F(NVMLIOGroupTest, read_signal)
     }
 }
 
-TEST_F(NVMLIOGroupTest, single_freq_support)
+TEST_F(NVMLIOGroupTest, single_supported_frequency)
 {
 
     EXPECT_CALL(*m_device_pool, is_privileged_access()).WillRepeatedly(Return(false));
