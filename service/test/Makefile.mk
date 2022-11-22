@@ -145,6 +145,8 @@ GTEST_TESTS = test/gtest_links/GPUTopoNullTest.default_config \
               test/gtest_links/LevelZeroDevicePoolTest.device_count \
               test/gtest_links/LevelZeroDevicePoolTest.subdevice_conversion_and_function \
               test/gtest_links/LevelZeroDevicePoolTest.subdevice_conversion_error \
+              test/gtest_links/LevelZeroDevicePoolTest.supported_frequency \
+              test/gtest_links/LevelZeroDevicePoolTest.single_supported_frequency \
               test/gtest_links/LevelZeroDevicePoolTest.domain_error \
               test/gtest_links/LevelZeroDevicePoolTest.subdevice_range_check \
               test/gtest_links/LevelZeroDevicePoolTest.device_range_check \
