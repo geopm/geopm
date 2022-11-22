@@ -66,10 +66,6 @@ class Access:
                           are not supported.
 
         """
-        try:
-            _, current_controls = self._geopm_proxy.PlatformGetGroupAccess(group)
-        except DBusError as ee:
-            raise RuntimeError('Failed to read group signal access list for specified group: {}'.format(group)) from ee
         if not is_force:
             signals_supported, _ = self._geopm_proxy.PlatformGetAllAccess()
             signals_requested = set(signals)
@@ -78,7 +74,7 @@ class Access:
                 raise RuntimeError(f'Requested access to signals that are not available: {missing}')
         if not is_dry_run:
             try:
-                self._geopm_proxy.PlatformSetGroupAccess(group, signals, current_controls)
+                self._geopm_proxy.PlatformSetGroupAccessSignals(group, signals)
             except DBusError as ee:
                 raise RuntimeError('Failed to set group signal access list, try with sudo or as "root" user (requires CAP_SYS_ADMIN)') from ee
 
@@ -108,10 +104,6 @@ class Access:
                           not supported.
 
         """
-        try:
-            current_signals, _ = self._geopm_proxy.PlatformGetGroupAccess(group)
-        except DBusError as ee:
-            raise RuntimeError('Failed to read group control access list for specified group: {}'.format(group)) from ee
         if not is_force:
             _, controls_supported = self._geopm_proxy.PlatformGetAllAccess()
             controls_requested = set(controls)
@@ -120,7 +112,7 @@ class Access:
                 raise RuntimeError(f'Requested access to controls that are not available: {missing}')
         if not is_dry_run:
             try:
-                self._geopm_proxy.PlatformSetGroupAccess(group, current_signals, controls)
+                self._geopm_proxy.PlatformSetGroupAccessControls(group, controls)
             except DBusError as ee:
                 raise RuntimeError('Failed to set group control access list, try with sudo or as "root" user (requires CAP_SYS_ADMIN)') from ee
 

@@ -108,6 +108,50 @@ class PlatformService(object):
         """
         self._access_lists.set_group_access(group, allowed_signals, allowed_controls)
 
+    def set_group_access_signals(self, group, allowed_signals):
+        """Set signals in the allowed lists
+
+        Write the list of allowed signals for the specified group.  If
+        the group is None or the empty string then the default lists
+        of allowed signal are updated.
+
+        The values are securely written atomically to files located in
+        /etc/geopm-service using the secure_make_dirs() and
+        secure_make_file() interfaces.
+
+        Args:
+            group (str): Name of group
+
+            allowed_signals (list(str)): Signal names that are allowed
+
+        Raises:
+            RuntimeError: The group name is not valid on the system.
+
+        """
+        self._access_lists.set_group_access_signals(group, allowed_signals)
+
+    def set_group_access_controls(self, group, allowed_controls):
+        """Set controls in the allowed lists
+
+        Write the list of allowed controls for the specified group.  If
+        the group is None or the empty string then the default lists
+        of allowed control are updated.
+
+        The values are securely written atomically to files located in
+        /etc/geopm-service using the secure_make_dirs() and
+        secure_make_file() interfaces.
+
+        Args:
+            group (str): Name of group
+
+            allowed_controls (list(str)): Control names that are allowed
+
+        Raises:
+            RuntimeError: The group name is not valid on the system.
+
+        """
+        self._access_lists.set_group_access_controls(group, allowed_controls)
+
     def get_user_access(self, user):
         """Get the list of all of the signals and controls that are
         accessible to the specified user.
@@ -753,6 +797,16 @@ class GEOPMService(object):
     def PlatformSetGroupAccess(self, group, allowed_signals, allowed_controls, **call_info):
         self._check_cap_sys_admin(call_info, "PlatformSetGroupAccess")
         self._platform.set_group_access(group, allowed_signals, allowed_controls)
+
+    @accepts_additional_arguments
+    def PlatformSetGroupAccessSignals(self, group, allowed_signals, **call_info):
+        self._check_cap_sys_admin(call_info, "PlatformSetGroupAccess")
+        self._platform.set_group_access_signals(group, allowed_signals)
+
+    @accepts_additional_arguments
+    def PlatformSetGroupAccessControls(self, group, allowed_controls, **call_info):
+        self._check_cap_sys_admin(call_info, "PlatformSetGroupAccess")
+        self._platform.set_group_access_controls(group, allowed_controls)
 
     @accepts_additional_arguments
     def PlatformGetUserAccess(self, **call_info):

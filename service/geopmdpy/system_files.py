@@ -941,6 +941,60 @@ class AccessLists(object):
         path = os.path.join(group_dir, 'allowed_controls')
         self._write_allowed(path, allowed_controls)
 
+    def set_group_access_signals(self, group, allowed_signals):
+        """Set signals in the allowed lists
+
+        Write the list of allowed signals for the specified group.  If
+        the group is None or the empty string then the default lists
+        of allowed signals are updated.
+
+        The values are securely written atomically to files located in
+        /etc/geopm-service using the secure_make_dirs() and
+        secure_make_file() interfaces.
+
+        Args:
+            group (str): Name of group
+
+            allowed_signals (list(str)): Signal names that are allowed
+
+        Raises:
+            RuntimeError: The group name is not valid on the system.
+
+        """
+        group = self._validate_group(group)
+        group_dir = os.path.join(self._CONFIG_PATH, group)
+        secure_make_dirs(group_dir,
+                         perm_mode=GEOPM_SERVICE_CONFIG_PATH_PERM)
+        path = os.path.join(group_dir, 'allowed_signals')
+        self._write_allowed(path, allowed_signals)
+
+    def set_group_access_controls(self, group, allowed_controls):
+        """Set controls in the allowed lists
+
+        Write the list of allowed controls for the specified group.  If
+        the group is None or the empty string then the default lists
+        of allowed controls are updated.
+
+        The values are securely written atomically to files located in
+        /etc/geopm-service using the secure_make_dirs() and
+        secure_make_file() interfaces.
+
+        Args:
+            group (str): Name of group
+
+            allowed_controls (list(str)): Control names that are allowed
+
+        Raises:
+            RuntimeError: The group name is not valid on the system.
+
+        """
+        group = self._validate_group(group)
+        group_dir = os.path.join(self._CONFIG_PATH, group)
+        secure_make_dirs(group_dir,
+                         perm_mode=GEOPM_SERVICE_CONFIG_PATH_PERM)
+        path = os.path.join(group_dir, 'allowed_controls')
+        self._write_allowed(path, allowed_controls)
+
     def get_user_access(self, user):
         """Get the list of all of the signals and controls that are
         accessible to the specified user.
