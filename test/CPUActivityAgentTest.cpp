@@ -54,7 +54,8 @@ class CPUActivityAgentTest : public ::testing::Test
         };
 
         void SetUp();
-        void SetUpDefaultExpectCalls();
+        void setup_default_expect_calls();
+        void setup_default_expect_calls_mem();
         void TearDown();
         static const int M_NUM_CPU;
         static const int M_NUM_CORE;
@@ -144,7 +145,8 @@ void CPUActivityAgentTest::SetUp()
     ASSERT_LT(m_cpu_uncore_freq_max, 3e9);
     ASSERT_LT(m_cpu_uncore_freq_min, m_cpu_uncore_freq_max);
 
-    SetUpDefaultExpectCalls();
+    setup_default_expect_calls();
+    setup_default_expect_calls_mem();
 
     m_gov = std::make_shared<MockFrequencyGovernor>();
     ON_CALL(*m_gov, frequency_domain_type())
@@ -198,7 +200,7 @@ void CPUActivityAgentTest::SetUp()
     m_agent->init(0, {}, false);
 }
 
-void CPUActivityAgentTest::SetUpDefaultExpectCalls()
+void CPUActivityAgentTest::setup_default_expect_calls()
 {
     EXPECT_CALL(*m_platform_io, push_signal("MSR::QM_CTR_SCALED_RATE", _, _)).Times(M_NUM_PACKAGE);
     EXPECT_CALL(*m_platform_io, push_signal("MSR::CPU_SCALABILITY_RATIO", _, _)).Times(M_NUM_CORE);
@@ -212,14 +214,17 @@ void CPUActivityAgentTest::SetUpDefaultExpectCalls()
     EXPECT_CALL(*m_platform_io, write_control("MSR::QM_EVTSEL:EVENT_ID", _, _, _)).Times(1);
     EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MIN_CONTROL", _, _)).Times(1);
     EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MAX_CONTROL", _, _)).Times(1);
+}
 
+
+void CPUActivityAgentTest::setup_default_expect_calls_mem()
+{
     for (size_t i = 0; i < M_NUM_UNCORE_MBM_READINGS; ++i) {
         std::string cc_uncore_freq_name = "CONST_CONFIG::CPU_UNCORE_FREQUENCY_" + std::to_string(i);
         std::string cc_uncore_mem_name = "CONST_CONFIG::CPU_UNCORE_MAX_MEMORY_BANDWIDTH_" + std::to_string(i);
         EXPECT_CALL(*m_platform_io, read_signal(cc_uncore_freq_name, _, _)).Times(1);
         EXPECT_CALL(*m_platform_io, read_signal(cc_uncore_mem_name, _, _)).Times(1);
     }
-
 }
 
 void CPUActivityAgentTest::TearDown()
@@ -280,7 +285,8 @@ TEST_F(CPUActivityAgentTest, validate_policy)
 }
 
 TEST_F(CPUActivityAgentTest, control_signal_granularity_check) {
-    SetUpDefaultExpectCalls();
+    setup_default_expect_calls();
+    setup_default_expect_calls_mem();
 
     // If we were testing with a real freq governor instance we could
     // check that frequency_domain_type is now PACKAGE
@@ -521,18 +527,7 @@ TEST_F(CPUActivityAgentTest, adjust_platform_signal_out_of_bounds)
 
 TEST_F(CPUActivityAgentTest, no_mem_constconfig)
 {
-    EXPECT_CALL(*m_platform_io, push_signal("MSR::QM_CTR_SCALED_RATE", _, _)).Times(M_NUM_PACKAGE);
-    EXPECT_CALL(*m_platform_io, push_signal("MSR::CPU_SCALABILITY_RATIO", _, _)).Times(M_NUM_CORE);
-    EXPECT_CALL(*m_platform_io, push_signal("CPU_UNCORE_FREQUENCY_STATUS", _, _)).Times(M_NUM_PACKAGE);
-
-    EXPECT_CALL(*m_platform_io, push_control("CPU_UNCORE_FREQUENCY_MIN_CONTROL", _, _)).Times(M_NUM_PACKAGE);
-    EXPECT_CALL(*m_platform_io, push_control("CPU_UNCORE_FREQUENCY_MAX_CONTROL", _, _)).Times(M_NUM_PACKAGE);
-
-    EXPECT_CALL(*m_platform_io, write_control("MSR::PQR_ASSOC:RMID", _, _, _)).Times(1);
-    EXPECT_CALL(*m_platform_io, write_control("MSR::QM_EVTSEL:RMID", _, _, _)).Times(1);
-    EXPECT_CALL(*m_platform_io, write_control("MSR::QM_EVTSEL:EVENT_ID", _, _, _)).Times(1);
-    EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MIN_CONTROL", _, _)).Times(1);
-    EXPECT_CALL(*m_platform_io, read_signal("CPU_UNCORE_FREQUENCY_MAX_CONTROL", _, _)).Times(1);
+    setup_default_expect_calls();
 
     std::set<std::string> signal_name_set = {"CPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY",
                                              "CPU_UNCORE_FREQUENCY_EFFICIENT_HIGH_INTENSITY"};
