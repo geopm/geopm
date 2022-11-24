@@ -24,9 +24,16 @@
                         "type": "number"
                     },
                     "minItems": 1
+                },
+                "default_value": {
+                    "type": "number"
                 }
             },
-            "required": ["description", "units", "domain", "aggregation", "values"],
+            "required": ["description", "units", "domain", "aggregation"],
+            "oneOf": [
+                {"required": ["values"]},
+                {"required": ["default_value"]}
+            ],
             "additionalProperties": false
         }
     },
