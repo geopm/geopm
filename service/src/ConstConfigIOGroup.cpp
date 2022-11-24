@@ -31,7 +31,8 @@ namespace geopm
             {"units", {Json::STRING, true}},
             {"domain", {Json::STRING, true}},
             {"aggregation", {Json::STRING, true}},
-            {"values", {Json::ARRAY, true}}
+            {"values", {Json::ARRAY, false}},
+            {"default_value", {Json::NUMBER, false}}
         };
     const std::string ConstConfigIOGroup::M_CONFIG_PATH_ENV =
         "GEOPM_CONST_CONFIG_PATH";
@@ -46,6 +47,7 @@ namespace geopm
     ConstConfigIOGroup::ConstConfigIOGroup(const PlatformTopo &topo,
                                            const std::string &user_file_path,
                                            const std::string &default_file_path)
+        : m_platform_topo(topo)
     {
         std::string config_json;
         bool load_default = true;
@@ -69,7 +71,7 @@ namespace geopm
             config_json = geopm::read_file(default_file_path);
         }
 
-        parse_config_json(topo, config_json);
+        parse_config_json(config_json);
     }
 
     std::set<std::string> ConstConfigIOGroup::signal_names(void) const
@@ -128,7 +130,7 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         else if (domain_idx < 0 ||
-                 static_cast<std::size_t>(domain_idx) >= it->second->values.size()) {
+                 domain_idx >= m_platform_topo.num_domain(domain_type)) {
             throw Exception("ConstConfigIOGroup::push_signal(): domain_idx " +
                             std::to_string(domain_idx) + " out of range.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -140,6 +142,10 @@ namespace geopm
                 domain_idx == signal.domain_idx) {
                 return static_cast<int>(i);
             }
+        }
+
+        if (it->second->default_value) {
+            domain_idx = 0;
         }
 
         m_pushed_signals.push_back({.signal_info = it->second,
@@ -203,13 +209,21 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         else if (domain_idx < 0 ||
-                 static_cast<std::size_t>(domain_idx) >= it->second->values.size()) {
+                 domain_idx >= m_platform_topo.num_domain(domain_type)) {
             throw Exception("ConstConfigIOGroup::read_signal(): domain_idx " +
                             std::to_string(domain_idx) + " out of range.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        return it->second->values[domain_idx];
+        double value = 0.0;
+        if (it->second->default_value) {
+            value = it->second->values[0];
+        }
+        else {
+            value = it->second->values[domain_idx];
+        }
+
+        return value;
     }
 
     void ConstConfigIOGroup::write_control(const std::string &control_name,
@@ -313,8 +327,9 @@ namespace geopm
     {
     }
 
-    void ConstConfigIOGroup::parse_config_json(const PlatformTopo &topo, const std::string &config)
+    void ConstConfigIOGroup::parse_config_json(const std::string &config)
     {
+        // TODO: consider refactoring this method a bit
         Json root = construct_config_json_obj(config);
 
         auto signals = root.object_items();
@@ -330,28 +345,48 @@ namespace geopm
             auto agg_func = Agg::name_to_function(
                     properties["aggregation"].string_value());
 
-            auto json_values = properties["values"].array_items();
-            if (json_values.empty()) {
+            bool values_provided = properties.find("values") != properties.end();
+            bool default_value_provided = properties.find("default_value") != properties.end();
+            if (values_provided && default_value_provided) {
+                // Only one field is required
                 throw Exception("ConstConfigIOGroup::parse_config_json(): "
-                                "empty array of values provided for " + name,
-                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                                "\"values\" and \"default_value\" provided for " +
+                                name, GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
-            if (static_cast<int>(json_values.size()) != topo.num_domain(domain_type)) {
+            else if (!values_provided && !default_value_provided) {
+                // One of the two fields is required
                 throw Exception("ConstConfigIOGroup::parse_config_json(): "
-                                "number of values for " + name + " does not "
-                                "match domain size", GEOPM_ERROR_INVALID,
-                                __FILE__, __LINE__);
+                                "missing \"values\" or \"default_value\" for " +
+                                name, GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
 
             std::vector<double> values;
-            for (const auto &val : json_values) {
-                if (!val.is_number()) {
-                    throw Exception("ConstConfigIOGroup::parse_config_json():"
-                                    " for signal " + name + ", incorrect type"
-                                    " for property: \"values\"",
+            if (values_provided) {
+                auto json_values = properties["values"].array_items();
+                if (json_values.empty()) {
+                    throw Exception("ConstConfigIOGroup::parse_config_json(): "
+                                    "empty array of values provided for " + name,
                                     GEOPM_ERROR_INVALID, __FILE__, __LINE__);
                 }
-                values.push_back(val.number_value());
+                if (static_cast<int>(json_values.size()) != m_platform_topo.num_domain(domain_type)) {
+                    throw Exception("ConstConfigIOGroup::parse_config_json(): "
+                                    "number of values for " + name + " does not "
+                                    "match domain size", GEOPM_ERROR_INVALID,
+                                    __FILE__, __LINE__);
+                }
+
+                for (const auto &val : json_values) {
+                    if (!val.is_number()) {
+                        throw Exception("ConstConfigIOGroup::parse_config_json():"
+                                        " for signal " + name + ", incorrect type"
+                                        " for property: \"values\"",
+                                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                    }
+                    values.push_back(val.number_value());
+                }
+            }
+            else {
+                values.push_back(properties["default_value"].number_value());
             }
 
             std::string description = properties["description"].string_value();
@@ -370,6 +405,7 @@ namespace geopm
                         .domain = domain_type,
                         .agg_function = agg_func,
                         .description = description,
+                        .default_value = default_value_provided,
                         .values = values});
         }
     }
