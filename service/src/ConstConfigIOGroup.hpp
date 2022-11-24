@@ -88,6 +88,7 @@ namespace geopm
                 int domain;
                 std::function<double(const std::vector<double> &)> agg_function;
                 std::string description;
+                bool default_value;
                 std::vector<double> values;
             };
 
@@ -96,7 +97,7 @@ namespace geopm
                 int domain_idx;
             };
 
-            void parse_config_json(const PlatformTopo &topo, const std::string &config);
+            void parse_config_json(const std::string &config);
             static json11::Json construct_config_json_obj(const std::string &config);
             static void check_json_signal(const json11::Json::object::value_type &signal);
 
@@ -106,6 +107,7 @@ namespace geopm
             static const std::string M_CONFIG_PATH_ENV;
             static const std::string M_DEFAULT_CONFIG_FILE_PATH;
 
+            const PlatformTopo &m_platform_topo;
             std::map<std::string, std::shared_ptr<m_signal_info_s> > m_signal_available;
             std::vector<m_signal_ref_s> m_pushed_signals;
     };
