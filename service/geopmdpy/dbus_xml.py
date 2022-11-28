@@ -385,6 +385,54 @@ def geopm_dbus_xml(TopoService=None, PlatformService=None):
         </doc:description>
       </doc:doc>
     </method>
+    <method name="PlatformStartProfile">
+      <arg direction="in" name="profile_name" type="s">
+        <doc:doc>
+          <doc:summary>{PlatformStartProfile_params2_description}
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:summary>{PlatformStartProfile_short_description}
+          </doc:summary>
+          <doc:para>{PlatformStartProfile_long_description}
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </method>
+    <method name="PlatformStopProfile">
+      <doc:doc>
+        <doc:description>
+          <doc:summary>{PlatformStopProfile_short_description}
+          </doc:summary>
+          <doc:para>{PlatformStopProfile_long_description}
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </method>
+    <method name="PlatformGetProfilePids">
+      <arg direction="in" name="profile_name" type="s">
+        <doc:doc>
+          <doc:summary>{PlatformGetProfilePids_params0_description}
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <arg direction="out" name="pids" type="ai">
+        <doc:doc>
+          <doc:summary>{PlatformGetProfilePids_returns_description}
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:summary>{PlatformGetProfilePids_short_description}
+          </doc:summary>
+          <doc:para>{PlatformGetProfilePids_long_description}
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </method>
   </interface>
 </node>"""
 
@@ -407,6 +455,10 @@ def geopm_dbus_xml(TopoService=None, PlatformService=None):
         PlatformStopBatch = google.parse(PlatformService.stop_batch.__doc__)
         PlatformReadSignal = google.parse(PlatformService.read_signal.__doc__)
         PlatformWriteControl = google.parse(PlatformService.write_control.__doc__)
+        PlatformStartProfile = google.parse(PlatformService.start_profile.__doc__)
+        PlatformStopProfile = google.parse(PlatformService.stop_profile.__doc__)
+        PlatformGetProfilePids = google.parse(PlatformService.get_profile_pids.__doc__)
+
         result = format_string.format(
             module_doc=_module_doc,
             TopoGetCache_returns_description=TopoGetCache.returns.description,
@@ -474,7 +526,16 @@ def geopm_dbus_xml(TopoService=None, PlatformService=None):
             PlatformWriteControl_params2_description=PlatformWriteControl.params[2].description,
             PlatformWriteControl_params3_description=PlatformWriteControl.params[3].description,
             PlatformWriteControl_short_description=PlatformWriteControl.short_description,
-            PlatformWriteControl_long_description=PlatformWriteControl.long_description)
+            PlatformWriteControl_long_description=PlatformWriteControl.long_description,
+            PlatformStartProfile_params2_description=PlatformStartProfile.params[2].description,
+            PlatformStartProfile_short_description=PlatformStartProfile.short_description,
+            PlatformStartProfile_long_description=PlatformStartProfile.long_description,
+            PlatformStopProfile_short_description=PlatformStopProfile.short_description,
+            PlatformStopProfile_long_description=PlatformStopProfile.long_description,
+            PlatformGetProfilePids_params0_description=PlatformGetProfilePids.params[0].description,
+            PlatformGetProfilePids_returns_description=PlatformGetProfilePids.returns.description,
+            PlatformGetProfilePids_short_description=PlatformGetProfilePids.short_description,
+            PlatformGetProfilePids_long_description=PlatformGetProfilePids.long_description)
     else:
         result = _remove_doc(format_string)
     return result

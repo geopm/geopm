@@ -19,6 +19,7 @@
 namespace geopm
 {
     class Comm;
+    class ServiceProxy;
 
     class ApplicationIO
     {
@@ -30,7 +31,7 @@ namespace geopm
             virtual void connect(void) = 0;
             /// @brief Returns true if the application has indicated
             ///        it is shutting down.
-            virtual bool do_shutdown(void) const = 0;
+            virtual bool do_shutdown(void) = 0;
             /// @brief Returns the path to the report file.
             virtual std::string report_name(void) const = 0;
             /// @brief Returns the profile name to be used in the
@@ -53,20 +54,31 @@ namespace geopm
     {
         public:
             ApplicationIOImp();
-            ApplicationIOImp(ApplicationSampler &application_sampler);
+            ApplicationIOImp(ApplicationSampler &application_sampler,
+                             std::shared_ptr<ServiceProxy> service_proxy,
+                             const std::string &profile_name,
+                             const std::string &report_name,
+                             int timeout);
             virtual ~ApplicationIOImp();
             void connect(void) override;
-            bool do_shutdown(void) const override;
+            bool do_shutdown(void) override;
             std::string report_name(void) const override;
             std::string profile_name(void) const override;
             std::set<std::string> region_name_set(void) const override;
             void controller_ready(void) override;
             void abort(void) override;
         private:
+            std::set<int> get_profile_pids(void);
             static constexpr size_t M_SHMEM_REGION_SIZE = 2*1024*1024;
 
             bool m_is_connected;
             ApplicationSampler &m_application_sampler;
+            std::shared_ptr<ServiceProxy> m_service_proxy;
+            const std::string m_profile_name;
+            const std::string m_report_name;
+            const int m_timeout;
+            const bool m_do_profile;
+            std::set<int> m_profile_pids;
     };
 }
 

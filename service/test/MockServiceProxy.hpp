@@ -7,7 +7,7 @@
 #define MOCKSERVICEPROXY_HPP_INCLUDE
 
 #include "gmock/gmock.h"
-#include "ServiceProxy.hpp"
+#include "geopm/ServiceProxy.hpp"
 #include "geopm/PlatformIO.hpp"
 
 class MockServiceProxy : public geopm::ServiceProxy
@@ -33,6 +33,11 @@ class MockServiceProxy : public geopm::ServiceProxy
         MOCK_METHOD(void, platform_write_control,
                     (const std::string &control_name, int domain,
                      int domain_idx, double setting), (override));
+        MOCK_METHOD(void, platform_start_profile, (const std::string &profile_name),
+                    (override));
+        MOCK_METHOD(void, platform_stop_profile, (), (override));
+        MOCK_METHOD(std::vector<int>, platform_get_profile_pids,
+                    (const std::string &profile_name), (override));
 };
 
 #endif
