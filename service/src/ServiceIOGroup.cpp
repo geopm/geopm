@@ -12,7 +12,7 @@
 #include <cstring>
 #include <unistd.h>
 #include "geopm/Agg.hpp"
-#include "ServiceProxy.hpp"
+#include "geopm/ServiceProxy.hpp"
 #include "BatchClient.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm/PlatformTopo.hpp"

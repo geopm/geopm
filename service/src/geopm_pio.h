@@ -472,6 +472,48 @@ void geopm_pio_reset(void);
 /// @return 0 if the value is valid, GEOPM_ERROR_INVALID if the value is invalid.
 int geopm_pio_check_valid_value(double value);
 
+/// @brief Called by an application thread to enable profiling
+///
+/// Begins a session with the GEOPM Service and registers that the PID
+/// should be tracked as part of the profile designated by profile_name.
+///
+/// @param [in] profile_name String that identifies the application
+///        being profiled.  The calling PID is considered part of this
+///        application for the purposes of profiling.
+int geopm_pio_start_profile(const char *profile_name);
+
+/// @brief Called by an application thread to disable profiling
+///
+/// Called to disable profiling that was started by a call to
+/// geopm_pio_profile_start().  The calling PID will no longer be
+/// associated with the application for the purposes of GEOPM
+/// profiling.  This will happen automatically when the PID ends (when
+/// the thread is terminated an not a zombie).
+///
+/// @param [in] profile_name String that identifies the application
+///        being profiled.  The calling PID is considered part of this
+///        application for the purposes of profiling.
+int geopm_pio_stop_profile(void);
+
+/// @brief Discover the thread PIDS associated with an application
+///
+/// Called by a profiling application (like geopmctl) to determine
+/// which Linux PIDs should be tracked as part of an application.
+///
+/// @param [in] profile_name String that identifies the application
+///        being profiled.
+///
+/// @param [in] max_num_pid Number of integers allocated for the pid
+///        array.
+///
+/// @param [out] num_pid Actual number of elements written to the pid
+///        array.
+///
+/// @param [out] pid An array of Linux PIDs that are associated with
+///        the application.
+int geopm_pio_profile_pids(const char *profile_name, int max_num_pid, int *num_pid, int *pid);
+
+
 #ifdef __cplusplus
 }
 #endif

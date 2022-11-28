@@ -53,7 +53,8 @@ namespace geopm
                       nullptr,
                       environment().report_signals(),
                       environment().policy(),
-                      environment().do_endpoint())
+                      environment().do_endpoint(),
+                      environment().timeout() != -1)
     {
 
     }
@@ -67,7 +68,8 @@ namespace geopm
                              std::shared_ptr<ProcessRegionAggregator> proc_agg,
                              const std::vector<std::pair<std::string, int> > &env_signals,
                              const std::string &policy_path,
-                             bool do_endpoint)
+                             bool do_endpoint,
+                             bool do_profile)
         : m_start_time(start_time)
         , m_report_name(report_name)
         , m_platform_io(platform_io)
@@ -80,6 +82,7 @@ namespace geopm
         , m_rank(rank)
         , m_sticker_freq(m_platform_io.read_signal("CPUINFO::FREQ_STICKER", GEOPM_DOMAIN_BOARD, 0))
         , m_epoch_count_idx(-1)
+        , m_do_profile(do_profile)
     {
         GEOPM_DEBUG_ASSERT(m_sample_agg != nullptr, "m_sample_agg cannot be null");
 
@@ -104,7 +107,7 @@ namespace geopm
 
     void ReporterImp::init(void)
     {
-        if (m_proc_region_agg == nullptr) {
+        if (m_do_profile && m_proc_region_agg == nullptr) {
             // ProcessRegionAggregator should not be constructed until
             // application connection is established.
             m_proc_region_agg = ProcessRegionAggregator::make_unique();
@@ -114,7 +117,7 @@ namespace geopm
     void ReporterImp::update()
     {
         m_sample_agg->update();
-        if (m_proc_region_agg != nullptr) {
+        if (m_do_profile) {
             m_proc_region_agg->update();
         }
     }

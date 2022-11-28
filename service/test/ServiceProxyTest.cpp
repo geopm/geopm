@@ -5,7 +5,7 @@
 
 #include <memory>
 
-#include "ServiceProxy.hpp"
+#include "geopm/ServiceProxy.hpp"
 #include "MockSDBus.hpp"
 #include "MockSDBusMessage.hpp"
 #include "geopm_test.hpp"

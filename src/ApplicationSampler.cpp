@@ -98,7 +98,8 @@ namespace geopm
                                 std::map<int, m_process_s> {},
                                 environment().do_record_filter(),
                                 environment().record_filter(),
-                                {})
+                                {},
+                                environment().timeout() != -1)
     {
 
     }
@@ -108,7 +109,8 @@ namespace geopm
                                                  const std::map<int, m_process_s> &process_map,
                                                  bool is_filtered,
                                                  const std::string &filter_name,
-                                                 const std::vector<bool> &is_cpu_active)
+                                                 const std::vector<bool> &is_cpu_active,
+                                                 bool do_profile)
         : m_time_zero(geopm::time_zero())
         , m_status(status)
         , m_topo(platform_topo)
@@ -121,6 +123,7 @@ namespace geopm
         , m_update_time({{0, 0}})
         , m_is_first_update(true)
         , m_hint_last(m_num_cpu, uint64_t(GEOPM_REGION_HINT_UNSET))
+        , m_do_profile(do_profile)
     {
         if (m_is_cpu_active.empty()) {
             m_is_cpu_active.resize(m_num_cpu, false);
@@ -146,7 +149,7 @@ namespace geopm
 
     void ApplicationSamplerImp::update(const geopm_time_s &curr_time)
     {
-        if (!m_status || !m_sampler) {
+        if (!m_do_profile || !m_status || !m_sampler) {
             return;
         }
         // TODO: temporary until handshake fixed
@@ -246,7 +249,7 @@ namespace geopm
     uint64_t ApplicationSamplerImp::cpu_region_hash(int cpu_idx) const
     {
         if (!m_status) {
-            return GEOPM_REGION_HASH_UNMARKED;
+            return GEOPM_REGION_HASH_APP;
         }
         return m_status->get_hash(cpu_idx);
     }
@@ -291,20 +294,18 @@ namespace geopm
         return result;
 #if 0
         /// @todo code below will work *after* the handshake is complete
-        if (!m_status) {
-            return 0;
-        }
-        std::vector<int> result(m_num_cpu);
-        for (int cpu_idx = 0; cpu_idx != m_num_cpu; ++cpu_idx) {
-            result[cpu_idx] = m_status->get_process(cpu_idx);
-        }
+        if (m_status) {
+            for (int cpu_idx = 0; cpu_idx != m_num_cpu; ++cpu_idx) {
+                result[cpu_idx] = m_status->get_process(cpu_idx);
+            }
+	}
         return result;
 #endif
     }
 
     void ApplicationSamplerImp::connect(const std::string &shm_key)
     {
-        if (!m_status) {
+        if (!m_status && m_do_profile) {
             std::string shmem_name = shm_key + "-status";
             m_status_shmem = SharedMemory::make_unique_owner(shmem_name,
                                                              ApplicationStatus::buffer_size(m_num_cpu));

@@ -111,7 +111,8 @@ void ProfileTestIntegration::SetUp()
                                                m_table,
                                                m_comm,
                                                nullptr,  // status
-                                               nullptr); // record_log
+                                               nullptr,  // record_log
+                                               true);    // do_profile
 
     m_profile->init();
 }

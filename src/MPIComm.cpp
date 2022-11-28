@@ -17,11 +17,6 @@
 
 #define GEOPM_MPI_COMM_PLUGIN_NAME "MPIComm"
 
-extern "C"
-{
-    int geopm_is_comm_enabled(void);
-}
-
 namespace geopm
 {
     class CommWindow
@@ -256,7 +251,6 @@ namespace geopm
         int is_finalized;
         PMPI_Finalized(&is_finalized);
         return (is_finalized == 0
-                && geopm_is_comm_enabled()
                 && m_comm != MPI_COMM_NULL);
     }
 
