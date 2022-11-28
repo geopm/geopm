@@ -66,7 +66,8 @@ namespace geopm
                            std::shared_ptr<ProfileTable> table,
                            std::shared_ptr<Comm> reduce_comm,
                            std::shared_ptr<ApplicationStatus> app_status,
-                           std::shared_ptr<ApplicationRecordLog> app_record_log)
+                           std::shared_ptr<ApplicationRecordLog> app_record_log,
+                           bool do_profile)
         : m_is_enabled(false)
         , m_prof_name(prof_name)
         , m_key_base(key_base)
@@ -90,6 +91,7 @@ namespace geopm
         , m_overhead_time(0.0)
         , m_overhead_time_startup(0.0)
         , m_overhead_time_shutdown(0.0)
+        , m_do_profile(do_profile)
     {
 
     }
@@ -106,14 +108,15 @@ namespace geopm
                      nullptr,  // table
                      nullptr,  // reduce_comm
                      nullptr,  // app_status
-                     nullptr)  // app_record_log
+                     nullptr,  // app_record_log
+                     environment().timeout() != -1)
     {
 
     }
 
     void ProfileImp::init(void)
     {
-        if (m_is_enabled) {
+        if (m_is_enabled || !m_do_profile) {
             return;
         }
         if (m_comm == nullptr) {

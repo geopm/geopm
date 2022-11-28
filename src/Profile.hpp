@@ -263,7 +263,8 @@ namespace geopm
                        std::shared_ptr<ProfileTable> table,
                        std::shared_ptr<Comm> reduce_comm,
                        std::shared_ptr<ApplicationStatus> app_status,
-                       std::shared_ptr<ApplicationRecordLog> app_record_log);
+                       std::shared_ptr<ApplicationRecordLog> app_record_log,
+                       bool do_profile);
             /// @brief ProfileImp destructor, virtual.
             virtual ~ProfileImp();
             void init(void) override;
@@ -346,6 +347,7 @@ namespace geopm
             double m_overhead_time;
             double m_overhead_time_startup;
             double m_overhead_time_shutdown;
+            bool m_do_profile;
 
             /// @brief The list of known region identifiers.
 #ifdef GEOPM_DEBUG

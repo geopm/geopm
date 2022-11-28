@@ -94,7 +94,8 @@ void ProfileTest::SetUp()
                                                m_table,
                                                m_comm,
                                                m_status,
-                                               m_record_log);
+                                               m_record_log,
+                                               true);
     EXPECT_CALL(*m_status, set_process(m_cpu_list, m_process));
     m_profile->init();
 }

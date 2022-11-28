@@ -1429,4 +1429,5 @@ extern "C" {
     {
         return geopm::platform_io().is_valid_value(value) ? 0 : GEOPM_ERROR_INVALID;
     }
+
 }

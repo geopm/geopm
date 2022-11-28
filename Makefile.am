@@ -18,7 +18,9 @@ pkglib_LTLIBRARIES =
 nodist_include_HEADERS =
 
 if ENABLE_MPI
-    lib_LTLIBRARIES += libgeopm.la
+    lib_LTLIBRARIES += libgeopm.la \
+                       libgeopmload.la \
+                       # end
     bin_PROGRAMS += geopmctl \
                     # end
 if ENABLE_OPENMP
@@ -329,6 +331,10 @@ if ENABLE_MPI
     libgeopm_la_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
     libgeopm_la_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS)
 
+    libgeopmload_la_LDFLAGS = $(AM_LDFLAGS) $(MPI_CLDFLAGS) -version-info $(geopm_abi_version)
+    libgeopmload_la_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
+    libgeopmload_la_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS)
+
     geopmctl_LDFLAGS = $(AM_LDFLAGS) $(MPI_CLDFLAGS)
     geopmctl_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
     geopmctl_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS)
@@ -353,8 +359,9 @@ if ENABLE_MPI
     geopmctl_LDADD = libgeopm.la $(MPI_CLIBS)
     geopmbench_LDADD = libgeopm.la $(MATH_LIB) $(MPI_CLIBS)
     libgeopm_la_LIBADD = $(MPI_CLIBS)
+    libgeopmload_la_LIBADD = libgeopm.la $(MPI_CLIBS)
 if ENABLE_FORTRAN
-    libgeopmfort_la_LIBADD = libgeopm.la $(MPI_FLIBS)
+    libgeopmfort_la_LIBADD = libgeopm.la libgeopmload.la $(MPI_FLIBS)
 endif
 endif
 
@@ -498,6 +505,11 @@ endif
 geopmagent_SOURCES = src/geopmagent_main.cpp
 geopmadmin_SOURCES = src/geopmadmin_main.cpp
 
+pmpi_source_files = src/geopm_pmpi.c \
+                    src/geopm_pmpi_helper.cpp \
+                    src/geopm_pmpi.h \
+                    # end
+
 mpi_source_files = src/DefaultProfile.cpp \
                    src/MPIComm.cpp \
                    src/MPIComm.hpp \
@@ -506,9 +518,6 @@ mpi_source_files = src/DefaultProfile.cpp \
                    src/Profile.hpp \
                    src/geopm_ctl.h \
                    src/geopm_mpi_comm_split.h \
-                   src/geopm_pmpi.c \
-                   src/geopm_pmpi_helper.cpp \
-                   src/geopm_pmpi.h \
                    # end
 ompt_source_files = src/OMPT.cpp \
                     src/OMPT.hpp \
@@ -528,10 +537,13 @@ if ENABLE_MPI
     libgeopm_la_SOURCES = $(libgeopmpolicy_la_SOURCES) \
                           $(mpi_source_files) \
                           # end
+    libgeopmload_la_SOURCES = src/geopm_lib_init.cpp \
+                              $(pmpi_source_files)
+                              # end
     geopmctl_SOURCES = $(geopmctl_source_files)
 
 if ENABLE_OMPT
-    libgeopm_la_SOURCES += $(ompt_source_files)
+    libgeopmload_la_SOURCES += $(ompt_source_files)
 else
     EXTRA_DIST += $(ompt_source_files)
 endif
@@ -545,6 +557,7 @@ endif
 # disable MPI
 else
     EXTRA_DIST += $(mpi_source_files) \
+                  $(pmpi_source_files) \
                   $(ompt_source_files) \
                   $(fortran_source_files) \
                   $(geopmctl_source_files) \

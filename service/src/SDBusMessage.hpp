@@ -94,11 +94,11 @@ namespace geopm
             ///
             /// @return The double that is next in the message.
             virtual double read_double(void) = 0;
-            /// @brief Read a double out of the message
+            /// @brief Read an integer out of the message
             ///
             /// Wrapper around the "sd_bus_message_read(3)" function.
             ///
-            /// @return The double that is next in the message.
+            /// @return The integer that is next in the message.
             virtual int read_integer(void) = 0;
             /// @brief Write an array of strings into the message
             ///

@@ -143,6 +143,9 @@ namespace geopm
                                                 int domain,
                                                 int domain_idx,
                                                 double setting) = 0;
+            virtual void platform_start_profile(const std::string &profile_name) = 0;
+            virtual void platform_stop_profile(void) = 0;
+            virtual std::vector<int> platform_get_profile_pids(const std::string &profile_name) = 0;
     };
 
     class ServiceProxyImp : public ServiceProxy
@@ -169,6 +172,9 @@ namespace geopm
                                         int domain,
                                         int domain_idx,
                                         double setting) override;
+            void platform_start_profile(const std::string &profile_name) override;
+            void platform_stop_profile(void) override;
+            std::vector<int> platform_get_profile_pids(const std::string &profile_name) override;
         private:
             std::vector<std::string> read_string_array(std::shared_ptr<SDBusMessage> bus_message);
             std::shared_ptr<SDBus> m_bus;

@@ -35,7 +35,8 @@ namespace geopm
                                   const std::map<int, m_process_s> &process_map,
                                   bool is_filtered,
                                   const std::string &filter_name,
-                                  const std::vector<bool> &is_cpu_active);
+                                  const std::vector<bool> &is_cpu_active,
+                                  bool do_profile);
             virtual ~ApplicationSamplerImp();
             void time_zero(const geopm_time_s &start_time) override;
             void update(const geopm_time_s &curr_time) override;
@@ -69,6 +70,7 @@ namespace geopm
             geopm_time_s m_update_time;
             bool m_is_first_update;
             std::vector<uint64_t> m_hint_last;
+            bool m_do_profile;
     };
 }
 

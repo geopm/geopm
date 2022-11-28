@@ -632,5 +632,57 @@ range.
         </doc:description>
       </doc:doc>
     </method>
+    <method name="PlatformStartProfile">
+      <arg direction="in" name="profile_name" type="s">
+        <doc:doc>
+          <doc:summary>Name of application that PID supports
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:summary>Begin profiling a user PID
+          </doc:summary>
+          <doc:para>Called by a thread to enable profiling as part of a named
+application.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </method>
+    <method name="PlatformStopProfile">
+      <doc:doc>
+        <doc:description>
+          <doc:summary>Begin profiling a user PID
+          </doc:summary>
+          <doc:para>Called by a thread to enable profiling as part of a named
+application.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </method>
+    <method name="PlatformGetProfilePids">
+      <arg direction="in" name="profile_name" type="s">
+        <doc:doc>
+          <doc:summary>Name of application that PID supports
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <arg direction="out" name="pids" type="ai">
+        <doc:doc>
+          <doc:summary>All PID associated with profile_name or empty
+list if profile_name is not registered.
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:summary>Get PIDs associated with an application
+          </doc:summary>
+          <doc:para>Called by a profiling thread to find all PIDs associated with
+a named application.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </method>
   </interface>
 </node>

@@ -75,7 +75,8 @@ void ApplicationSamplerTest::SetUp()
                                                             m_process_map,
                                                             false,
                                                             "",
-                                                            is_active);
+                                                            is_active,
+                                                            true);
     m_app_sampler->set_sampler(m_mock_profile_sampler);
     m_app_sampler->time_zero(geopm_time_s {{0,0}});
 }

@@ -278,6 +278,7 @@ ln -s /usr/sbin/service %{buildroot}%{_sbindir}/rcgeopm
 %{_includedir}/geopm/PlatformIO.hpp
 %{_includedir}/geopm/PlatformTopo.hpp
 %{_includedir}/geopm/PluginFactory.hpp
+%{_includedir}/geopm/ServiceProxy.hpp
 %{_includedir}/geopm/SharedMemory.hpp
 %{_includedir}/geopm/SharedMemoryScopedLock.hpp
 %{_includedir}/geopm_debug.hpp

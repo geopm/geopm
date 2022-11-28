@@ -239,7 +239,7 @@ namespace geopm
                 signal.epoch_count_last = epoch_count;
                 signal.region_accum_it = sample_aggregator_emplace_hash(signal.region_accum, hash);
             }
-            else if (hash != GEOPM_REGION_HASH_INVALID) {
+            else {
                 // Measure the change since the last update
                 double delta = sample - signal.sample_last;
                 // Update that application totals
@@ -285,7 +285,7 @@ namespace geopm
                 signal.epoch_count_last = epoch_count;
                 signal.region_accum_it = sample_aggregator_emplace_hash(signal.region_accum, hash);
             }
-            else if (hash != GEOPM_REGION_HASH_INVALID) {
+            else {
                 // Measure the time change since the last update
                 double delta = time - signal.time_last;
                 // Update that application totals
@@ -298,6 +298,7 @@ namespace geopm
                 signal.period_accum->update(delta, sample);
                 // Update region totals
                 signal.region_accum_it->second->update(delta, sample);
+
                 sample_aggregator_update_epoch(signal, epoch_count);
                 sample_aggregator_update_hash_exit(signal, hash);
                 if (signal.region_hash_last != hash) {
