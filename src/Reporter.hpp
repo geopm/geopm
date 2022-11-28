@@ -98,7 +98,8 @@ namespace geopm
                         std::shared_ptr<ProcessRegionAggregator> proc_agg,
                         const std::vector<std::pair<std::string, int> > &env_signal,
                         const std::string &policy_path,
-                        bool do_endpoint);
+                        bool do_endpoint,
+                        bool do_profile);
             virtual ~ReporterImp() = default;
             void init(void) override;
             void update(void) override;
@@ -188,6 +189,7 @@ namespace geopm
 
             // Signals added through environment
             std::vector<std::pair<std::string, int> > m_env_signal_name_idx;
+            bool m_do_profile;
     };
 }
 

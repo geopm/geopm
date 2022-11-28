@@ -28,6 +28,9 @@
           },
           "batch_server": {
             "type": "integer"
+          },
+          "profile_name": {
+            "type": "string"
           }
         },
         "required": ["client_pid", "signals", "controls"],

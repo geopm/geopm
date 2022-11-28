@@ -29,6 +29,9 @@ class MockSDBus : public geopm::SDBus
                     (override));
         MOCK_METHOD(std::shared_ptr<geopm::SDBusMessage>, make_call_message,
                     (const std::string &member), (override));
+        MOCK_METHOD(std::shared_ptr<geopm::SDBusMessage>, call_method,
+                    (const std::string &member, const std::string  &arg0),
+                    (override));
 };
 
 #endif

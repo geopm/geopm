@@ -135,6 +135,11 @@ namespace geopm
             ///         call() method.
             virtual std::shared_ptr<SDBusMessage> make_call_message(
                 const std::string &member) = 0;
+
+            virtual std::shared_ptr<SDBusMessage> call_method(
+                const std::string &member,
+                const std::string &arg0) = 0;
+
     };
 
     class SDBusImp : public SDBus
@@ -162,6 +167,9 @@ namespace geopm
                 int arg0) override;
             std::shared_ptr<SDBusMessage> make_call_message(
                 const std::string &member) override;
+            std::shared_ptr<SDBusMessage> call_method(
+                const std::string &member,
+                const std::string &arg0) override;
         private:
             sd_bus *m_bus;
             const char *m_dbus_destination;

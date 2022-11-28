@@ -23,12 +23,6 @@
 #include "geopm_mpi_comm_split.h"
 #include "config.h"
 
-static int g_is_mpi_finalized = 0;
-
-int geopm_is_comm_enabled(void)
-{
-    return !g_is_mpi_finalized;
-}
 
 #ifndef GEOPM_TEST
 int MPI_Init(int *argc, char **argv[])
@@ -46,7 +40,6 @@ int MPI_Finalize(void)
 {
     int err = geopm_pmpi_finalize();
     int err_final = PMPI_Finalize();
-    g_is_mpi_finalized = 1;
     return err ? err : err_final;
 }
 #endif

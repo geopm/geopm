@@ -40,6 +40,7 @@ geopminclude_HEADERS = contrib/json11/json11.hpp \
                        src/geopm/PlatformIO.hpp \
                        src/geopm/PlatformTopo.hpp \
                        src/geopm/PluginFactory.hpp \
+                       src/geopm/ServiceProxy.hpp \
                        src/geopm/SharedMemory.hpp \
                        src/geopm/SharedMemoryScopedLock.hpp \
                        # end
@@ -214,7 +215,6 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/ServiceIOGroup.cpp \
                        src/ServiceIOGroup.hpp \
                        src/ServiceProxy.cpp \
-                       src/ServiceProxy.hpp \
                        src/SharedMemory.cpp \
                        src/SharedMemoryImp.hpp \
                        src/SharedMemoryScopedLock.cpp \
