@@ -143,7 +143,7 @@ def get_config_from_frequency_sweep(full_df, region_list):
                     "CPU_UNCORE_FREQUENCY_EFFICIENT_HIGH_INTENSITY": {
                         "domain" : "board",
                         "description" : "Defines the efficient uncore frequency to use for CPUs.  " +
-                                        "This value is based on a workload that scales strongly with the frequency domain",
+                                        "This value is based on a workload that scales strongly with the frequency domain.",
                         "units" : "hertz",
                         "aggregation" : "average",
                         "values" : [uncore_freq_recommendation],
@@ -153,7 +153,7 @@ def get_config_from_frequency_sweep(full_df, region_list):
     for idx, (k,v) in enumerate(mem_bw_characterization.items()):
         json_dict["CPU_UNCORE_FREQUENCY_" + str(idx)] = {"domain" : "board",
                                                         "description" : "CPU Uncore Frequency associated with " +
-                                                                        "CPU_UNCORE_MAX_MEMORY_BANDWIDTH_" + str(idx),
+                                                                        "CPU_UNCORE_MAX_MEMORY_BANDWIDTH_" + str(idx) + ".",
                                                         "units" : "hertz",
                                                         "aggregation" : "average",
                                                         "values" : [k]}
@@ -161,7 +161,7 @@ def get_config_from_frequency_sweep(full_df, region_list):
                                                                     "description" : "Maximum memory bandwidth in " +
                                                                                     "bytes perf second " +
                                                                                     "associated with " +
-                                                                                    "CPU_UNCORE_FREQUENCY_" + str(idx),
+                                                                                    "CPU_UNCORE_FREQUENCY_" + str(idx) + ".",
                                                                     "units" : "none",
                                                                     "aggregation" : "average",
                                                                     "values" : [v]}
