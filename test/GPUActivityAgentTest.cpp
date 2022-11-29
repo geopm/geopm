@@ -130,8 +130,8 @@ void GPUActivityAgentTest::SetUp()
     ASSERT_LT(M_FREQ_MIN, 0.2e9);
     ASSERT_LT(1.4e9, M_FREQ_MAX);
 
-    std::set<std::string> signal_name_set = {"GPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY"};
-    ON_CALL(*m_platform_io, read_signal("GPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY", GEOPM_DOMAIN_BOARD, 0))
+    std::set<std::string> signal_name_set = {"CONST_CONFIG::GPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY"};
+    ON_CALL(*m_platform_io, read_signal("CONST_CONFIG::GPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY", GEOPM_DOMAIN_BOARD, 0))
             .WillByDefault(Return(M_FREQ_EFFICIENT));
 
     ON_CALL(*m_platform_io, signal_names()).WillByDefault(Return(signal_name_set));
@@ -286,4 +286,19 @@ TEST_F(GPUActivityAgentTest, adjust_platform_signal_out_of_bounds_low)
     double mock_util = 1.0;
     test_adjust_platform(policy, mock_active, mock_util, M_FREQ_EFFICIENT);
 
+}
+
+TEST_F(GPUActivityAgentTest, invalid_fe)
+{
+    ON_CALL(*m_platform_io, read_signal("CONST_CONFIG::GPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY", GEOPM_DOMAIN_BOARD, 0))
+            .WillByDefault(Return(1e99));
+
+    GEOPM_EXPECT_THROW_MESSAGE(m_agent->init(0, {}, false), GEOPM_ERROR_INVALID,
+                                "(): GPU efficient frequency out of range: ");
+
+    ON_CALL(*m_platform_io, read_signal("CONST_CONFIG::GPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY", GEOPM_DOMAIN_BOARD, 0))
+            .WillByDefault(Return(-1));
+
+    GEOPM_EXPECT_THROW_MESSAGE(m_agent->init(0, {}, false), GEOPM_ERROR_INVALID,
+                                "(): GPU efficient frequency out of range: ");
 }

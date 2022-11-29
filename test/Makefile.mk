@@ -331,6 +331,7 @@ if ENABLE_BETA
                    test/gtest_links/GPUActivityAgentTest.adjust_platform_zero \
                    test/gtest_links/GPUActivityAgentTest.adjust_platform_signal_out_of_bounds_high \
                    test/gtest_links/GPUActivityAgentTest.adjust_platform_signal_out_of_bounds_low \
+                   test/gtest_links/GPUActivityAgentTest.invalid_fe \
                    test/gtest_links/PolicyStoreImpTest.self_consistent \
                    test/gtest_links/PolicyStoreImpTest.table_precedence \
                    test/gtest_links/PolicyStoreImpTest.update_policy \
