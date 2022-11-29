@@ -70,7 +70,7 @@ def get_config_from_frequency_sweep(full_df):
                     "GPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY" : {
                         "domain" : "board",
                         "description" : "Defines the efficient compute frequency to use for GPUs.  " +
-                                        "This value is based on a workload that scales strongly with the frequency domain",
+                                        "This value is based on a workload that scales strongly with the frequency domain.",
                         "units" : "hertz",
                         "aggregation" : "average",
                         "values" : [gpu_freq_efficient],
