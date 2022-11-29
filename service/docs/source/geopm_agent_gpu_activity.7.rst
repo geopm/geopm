@@ -17,8 +17,8 @@ based upon the compute activity of each GPU as provided by the
 ``GPU_CORE_ACTIVITY`` signal and modified by the ``GPU_UTILIZATION`` signal.
 
 The agent scales frequency in the range of ``Fe`` to ``Fmax``, where ``Fmax``
-is provided by the NVML or LevelZero IOGroup and ``Fe`` is provided by the
-ConstConfigIOGroup or the LevelZeroIOGroup.
+is provided by the NVMLIOGroup or LevelZeroIOGroup and ``Fe`` is provided by the
+ConstConfigIOGroup or LevelZeroIOGroup.
 
 Low activity regions (compute activity
 of 0.0) run at the ``Fe`` frequency, high activity regions (compute activity of 1.0)
@@ -91,7 +91,7 @@ An example ConstConfigIOGroup configuration file is provided below::
     {
         "GPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY": {
             "domain": "board",
-            "description": "Defines the efficient compute frequency to use for GPUs.  This value is based on a workload that scales strongly with the frequency domain",
+            "description": "Defines the efficient compute frequency to use for GPUs.  This value is based on a workload that scales strongly with the frequency domain.",
             "units": "hertz",
             "aggregation": "average",
             "values": [982000000.0]
