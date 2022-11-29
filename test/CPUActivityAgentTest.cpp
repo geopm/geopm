@@ -55,7 +55,7 @@ class CPUActivityAgentTest : public ::testing::Test
 
         void SetUp();
         void setup_default_expect_calls();
-        void setup_default_expect_calls_mem();
+        void setup_default_expect_calls_const_config();
         void TearDown();
         static const int M_NUM_CPU;
         static const int M_NUM_CORE;
@@ -115,6 +115,7 @@ void CPUActivityAgentTest::SetUp()
     ON_CALL(*m_platform_io, agg_function(_))
         .WillByDefault(Return(geopm::Agg::average));
 
+    m_cpu_freq_min = 1000000000.0;
     m_cpu_freq_max = 3700000000.0;
     m_cpu_uncore_freq_min = 1200000000.0;
     m_cpu_uncore_freq_max = 2400000000.0;
@@ -146,7 +147,6 @@ void CPUActivityAgentTest::SetUp()
     ASSERT_LT(m_cpu_uncore_freq_min, m_cpu_uncore_freq_max);
 
     setup_default_expect_calls();
-    setup_default_expect_calls_mem();
 
     m_gov = std::make_shared<MockFrequencyGovernor>();
     ON_CALL(*m_gov, frequency_domain_type())
@@ -161,12 +161,6 @@ void CPUActivityAgentTest::SetUp()
     m_agent = geopm::make_unique<CPUActivityAgent>(*m_platform_io, *m_platform_topo, m_gov);
     m_num_policy = m_agent->policy_names().size();
 
-    // Const Config Setup
-    ON_CALL(*m_platform_io, read_signal("CPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY", GEOPM_DOMAIN_BOARD, 0))
-            .WillByDefault(Return(m_cpu_freq_min));
-    ON_CALL(*m_platform_io, read_signal("CPU_UCNORE_FREQUENCY_EFFICIENT_HIGH_INTENSITY", GEOPM_DOMAIN_BOARD, 0))
-            .WillByDefault(Return(m_cpu_uncore_freq_min));
-
     m_default_policy = {NAN};
 
     m_cpu_uncore_freqs = {1.2e9, 1.3e9, 1.4e9, 1.5e9, 1.6e9, 1.7e9, 1.8e9,
@@ -179,8 +173,14 @@ void CPUActivityAgentTest::SetUp()
     ASSERT_EQ(m_cpu_uncore_freqs.size(), m_mbm_max.size());
     ASSERT_EQ(m_mbm_max.size(), M_NUM_UNCORE_MBM_READINGS);
 
-    std::set<std::string> signal_name_set = {"CPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY",
-                                             "CPU_UNCORE_FREQUENCY_EFFICIENT_HIGH_INTENSITY"};
+    // Const Config Setup
+    std::set<std::string> signal_name_set = {"CONST_CONFIG::CPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY",
+                                             "CONST_CONFIG::CPU_UNCORE_FREQUENCY_EFFICIENT_HIGH_INTENSITY"};
+
+    ON_CALL(*m_platform_io, read_signal("CONST_CONFIG::CPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY", GEOPM_DOMAIN_BOARD, 0))
+            .WillByDefault(Return(m_cpu_freq_min));
+    ON_CALL(*m_platform_io, read_signal("CONST_CONFIG::CPU_UNCORE_FREQUENCY_EFFICIENT_HIGH_INTENSITY", GEOPM_DOMAIN_BOARD, 0))
+            .WillByDefault(Return(m_cpu_uncore_freq_min));
 
     for (size_t i = 0; i < M_NUM_UNCORE_MBM_READINGS; ++i) {
         std::string cc_uncore_freq_name = "CONST_CONFIG::CPU_UNCORE_FREQUENCY_" + std::to_string(i);
@@ -195,6 +195,7 @@ void CPUActivityAgentTest::SetUp()
     }
 
     ON_CALL(*m_platform_io, signal_names()).WillByDefault(Return(signal_name_set));
+    setup_default_expect_calls_const_config();
 
     // leaf agent
     m_agent->init(0, {}, false);
@@ -217,7 +218,7 @@ void CPUActivityAgentTest::setup_default_expect_calls()
 }
 
 
-void CPUActivityAgentTest::setup_default_expect_calls_mem()
+void CPUActivityAgentTest::setup_default_expect_calls_const_config()
 {
     for (size_t i = 0; i < M_NUM_UNCORE_MBM_READINGS; ++i) {
         std::string cc_uncore_freq_name = "CONST_CONFIG::CPU_UNCORE_FREQUENCY_" + std::to_string(i);
@@ -225,6 +226,9 @@ void CPUActivityAgentTest::setup_default_expect_calls_mem()
         EXPECT_CALL(*m_platform_io, read_signal(cc_uncore_freq_name, _, _)).Times(1);
         EXPECT_CALL(*m_platform_io, read_signal(cc_uncore_mem_name, _, _)).Times(1);
     }
+
+    EXPECT_CALL(*m_platform_io, read_signal("CONST_CONFIG::CPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY", _, _)).Times(1);
+    EXPECT_CALL(*m_platform_io, read_signal("CONST_CONFIG::CPU_UNCORE_FREQUENCY_EFFICIENT_HIGH_INTENSITY", _, _)).Times(1);
 }
 
 void CPUActivityAgentTest::TearDown()
@@ -286,7 +290,7 @@ TEST_F(CPUActivityAgentTest, validate_policy)
 
 TEST_F(CPUActivityAgentTest, control_signal_granularity_check) {
     setup_default_expect_calls();
-    setup_default_expect_calls_mem();
+    setup_default_expect_calls_const_config();
 
     // If we were testing with a real freq governor instance we could
     // check that frequency_domain_type is now PACKAGE
@@ -537,4 +541,35 @@ TEST_F(CPUActivityAgentTest, no_mem_constconfig)
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->init(0, {}, false), GEOPM_ERROR_INVALID,
                                 "ConstConfigIOGroup configuration file does not contain memory bandwidth information");
 
+}
+
+TEST_F(CPUActivityAgentTest, invalid_fe)
+{
+    setup_default_expect_calls();
+    EXPECT_CALL(*m_platform_io, read_signal("CONST_CONFIG::CPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY", _, _)).Times(4);
+    EXPECT_CALL(*m_platform_io, read_signal("CONST_CONFIG::CPU_UNCORE_FREQUENCY_EFFICIENT_HIGH_INTENSITY", _, _)).Times(4);
+    ON_CALL(*m_platform_io, read_signal("CONST_CONFIG::CPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY", GEOPM_DOMAIN_BOARD, 0))
+            .WillByDefault(Return(m_cpu_freq_max + 1));
+    GEOPM_EXPECT_THROW_MESSAGE(m_agent->init(0, {}, false), GEOPM_ERROR_INVALID,
+                                "(): Core efficient frequency out of range: ");
+
+    setup_default_expect_calls();
+    ON_CALL(*m_platform_io, read_signal("CONST_CONFIG::CPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY", GEOPM_DOMAIN_BOARD, 0))
+            .WillByDefault(Return(m_cpu_freq_min - 1));
+    GEOPM_EXPECT_THROW_MESSAGE(m_agent->init(0, {}, false), GEOPM_ERROR_INVALID,
+                                "(): Core efficient frequency out of range: ");
+
+    setup_default_expect_calls();
+    ON_CALL(*m_platform_io, read_signal("CONST_CONFIG::CPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY", GEOPM_DOMAIN_BOARD, 0))
+            .WillByDefault(Return(m_cpu_freq_min));
+    ON_CALL(*m_platform_io, read_signal("CONST_CONFIG::CPU_UNCORE_FREQUENCY_EFFICIENT_HIGH_INTENSITY", GEOPM_DOMAIN_BOARD, 0))
+            .WillByDefault(Return(m_cpu_uncore_freq_max + 1));
+    GEOPM_EXPECT_THROW_MESSAGE(m_agent->init(0, {}, false), GEOPM_ERROR_INVALID,
+                                "(): Uncore efficient frequency out of range: ");
+
+    setup_default_expect_calls();
+    ON_CALL(*m_platform_io, read_signal("CONST_CONFIG::CPU_UNCORE_FREQUENCY_EFFICIENT_HIGH_INTENSITY", GEOPM_DOMAIN_BOARD, 0))
+            .WillByDefault(Return(m_cpu_uncore_freq_min - 1));
+    GEOPM_EXPECT_THROW_MESSAGE(m_agent->init(0, {}, false), GEOPM_ERROR_INVALID,
+                                "(): Uncore efficient frequency out of range: ");
 }
