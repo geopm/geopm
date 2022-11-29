@@ -16,13 +16,13 @@ import jsonschema
 import math
 import os
 import sys
-import util
 
 import pandas
 import numpy as np
 
 import geopmpy.io
 
+from experiment import util
 from experiment import common_args
 from experiment import machine
 
