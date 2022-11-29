@@ -191,6 +191,16 @@ TEST_F(GPUActivityAgentTest, validate_policy)
     EXPECT_CALL(*m_platform_io, signal_names()).WillRepeatedly(Return(empty_set));
     policy[PHI] = 0.1;
     EXPECT_NO_THROW(m_agent->validate_policy(policy));
+
+    //Policy Phi < 0 --> Error
+    policy[PHI] = -1;
+    GEOPM_EXPECT_THROW_MESSAGE(m_agent->validate_policy(policy), GEOPM_ERROR_INVALID,
+                               "POLICY_GPU_PHI value out of range");
+
+    //Policy Phi > 1.0 --> Error
+    policy[PHI] = 1.1;
+    GEOPM_EXPECT_THROW_MESSAGE(m_agent->validate_policy(policy), GEOPM_ERROR_INVALID,
+                               "POLICY_GPU_PHI value out of range");
 }
 
 void GPUActivityAgentTest::test_adjust_platform(std::vector<double> &policy,
