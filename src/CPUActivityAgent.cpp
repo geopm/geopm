@@ -160,6 +160,22 @@ namespace geopm
             m_freq_uncore_efficient = m_freq_uncore_min;
         }
 
+        if (m_freq_core_efficient > m_freq_core_max ||
+            m_freq_core_efficient < m_freq_core_min ) {
+            throw Exception("CPUActivityAgent::" + std::string(__func__) +
+                            "(): Core efficient frequency out of range: " +
+                            std::to_string(m_freq_core_efficient) +
+                            ".", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
+        if (m_freq_uncore_efficient > m_freq_uncore_max ||
+            m_freq_uncore_efficient < m_freq_uncore_min ) {
+            throw Exception("CPUActivityAgent::" + std::string(__func__) +
+                            "(): Uncore efficient frequency out of range: " +
+                            std::to_string(m_freq_uncore_efficient) +
+                            ".", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
         // Grab all (uncore frequency, max memory bandwidth) pairs
         for (unsigned int entry_idx = 0; entry_idx < ALL_NAMES.size(); ++entry_idx) {
             const std::string KEY_NAME = "CONST_CONFIG::CPU_UNCORE_FREQUENCY_" +
