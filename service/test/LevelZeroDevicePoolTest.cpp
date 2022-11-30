@@ -66,6 +66,10 @@ TEST_F(LevelZeroDevicePoolTest, subdevice_conversion_and_function)
     int value = 1500;
     std::vector<double> perf_value_chip_compute = {0.50, 0.51, 0.52, 0.53, 0.54, 0.55, 0.56, 0.57};
     std::vector<double> perf_value_chip_mem = {0.40, 0.41, 0.42, 0.43, 0.44, 0.45, 0.46, 0.47};
+
+    std::vector<double> temp_value_chip_compute = {99, 12, 25, 356, 58, 79, 76, 21};
+    std::vector<double> temp_value_chip_mem = {42, 59, 66, 78, 92, 88, 1, 16};
+
     int offset = 0;
     int domain_count = 1; //any non-zero number to ensure we don't throw
     for (int dev_idx = 0; dev_idx < num_gpu; ++dev_idx) {
@@ -74,6 +78,9 @@ TEST_F(LevelZeroDevicePoolTest, subdevice_conversion_and_function)
 
         EXPECT_CALL(*m_levelzero, performance_domain_count(dev_idx, MockLevelZero::M_DOMAIN_COMPUTE)).WillRepeatedly(Return(domain_count));
         EXPECT_CALL(*m_levelzero, performance_domain_count(dev_idx, MockLevelZero::M_DOMAIN_MEMORY)).WillRepeatedly(Return(domain_count));
+
+        EXPECT_CALL(*m_levelzero, temperature_domain_count(dev_idx, MockLevelZero::M_DOMAIN_COMPUTE)).WillRepeatedly(Return(domain_count));
+        EXPECT_CALL(*m_levelzero, temperature_domain_count(dev_idx, MockLevelZero::M_DOMAIN_MEMORY)).WillRepeatedly(Return(domain_count));
 
         for (int sub_idx = 0; sub_idx < num_subdevice_per_device; ++sub_idx) {
             EXPECT_CALL(*m_levelzero, frequency_status(dev_idx, MockLevelZero::M_DOMAIN_COMPUTE, sub_idx)).WillOnce(Return(value + offset));
@@ -86,6 +93,9 @@ TEST_F(LevelZeroDevicePoolTest, subdevice_conversion_and_function)
 
             EXPECT_CALL(*m_levelzero, performance_factor(dev_idx, MockLevelZero::M_DOMAIN_COMPUTE, sub_idx)).WillOnce(Return(perf_value_chip_compute[offset]));
             EXPECT_CALL(*m_levelzero, performance_factor(dev_idx, MockLevelZero::M_DOMAIN_MEMORY, sub_idx)).WillOnce(Return(perf_value_chip_mem[offset]));
+
+            EXPECT_CALL(*m_levelzero, temperature_max(dev_idx, MockLevelZero::M_DOMAIN_COMPUTE, sub_idx)).WillOnce(Return(temp_value_chip_compute[offset]));
+            EXPECT_CALL(*m_levelzero, temperature_max(dev_idx, MockLevelZero::M_DOMAIN_MEMORY, sub_idx)).WillOnce(Return(temp_value_chip_mem[offset]));
             ++offset;
         }
     }
@@ -107,6 +117,9 @@ TEST_F(LevelZeroDevicePoolTest, subdevice_conversion_and_function)
 
         EXPECT_NO_THROW(m_device_pool.performance_factor_control(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE, 0.5));
         EXPECT_NO_THROW(m_device_pool.performance_factor_control(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_MEMORY, 0.5));
+
+        EXPECT_EQ(temp_value_chip_compute[sub_idx], m_device_pool.temperature_max(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE));
+        EXPECT_EQ(temp_value_chip_mem[sub_idx], m_device_pool.temperature_max(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_MEMORY));
     }
 }
 
