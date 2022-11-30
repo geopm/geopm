@@ -594,6 +594,9 @@ TEST_F(LevelZeroIOGroupTest, read_signal)
     std::vector<double> mock_freq_max_gpu = {2000, 3200, 4200, 1350, 555, 666, 777, 888};
     std::vector<double> mock_freq_min_mem = {100, 220, 300, 450, 999, 1010, 1111, 1212};
     std::vector<double> mock_freq_max_mem = {1000, 2200, 3200, 1450, 1313, 1414, 1515, 1616};
+    //Temperature
+    std::vector<double> mock_temperature_max_gpu = {10, 23, 84, 123, 133, 200, 1555, 169};
+    std::vector<double> mock_temperature_max_mem = {10, 32, 89, 102, 130, 210, 1444, 168};
     //Active time
     std::vector<uint64_t> mock_active_time = {123, 970, 550, 20, 52, 567, 888, 923};
     std::vector<uint64_t> mock_active_time_compute = {1, 90, 50, 0, 123, 144, 521, 445};
@@ -616,6 +619,10 @@ TEST_F(LevelZeroIOGroupTest, read_signal)
         EXPECT_CALL(*m_device_pool, frequency_max(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE)).WillRepeatedly(Return(mock_freq_max_gpu.at(sub_idx)));
         EXPECT_CALL(*m_device_pool, frequency_min(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_MEMORY)).WillRepeatedly(Return(mock_freq_min_mem.at(sub_idx)));
         EXPECT_CALL(*m_device_pool, frequency_max(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_MEMORY)).WillRepeatedly(Return(mock_freq_max_mem.at(sub_idx)));
+
+        //Temperature
+        EXPECT_CALL(*m_device_pool, temperature_max(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_MEMORY)).WillRepeatedly(Return(mock_temperature_max_mem.at(sub_idx)));
+        EXPECT_CALL(*m_device_pool, temperature_max(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE)).WillRepeatedly(Return(mock_temperature_max_gpu.at(sub_idx)));
 
         //Power & energy
         EXPECT_CALL(*m_device_pool, energy(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL)).WillRepeatedly(Return(mock_energy_chip.at(sub_idx)));
@@ -651,6 +658,12 @@ TEST_F(LevelZeroIOGroupTest, read_signal)
         EXPECT_DOUBLE_EQ(frequency, mock_freq_min_mem.at(sub_idx)*1e6);
         frequency = levelzero_io.read_signal("LEVELZERO::GPU_UNCORE_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_GPU_CHIP, sub_idx);
         EXPECT_DOUBLE_EQ(frequency, mock_freq_max_mem.at(sub_idx)*1e6);
+
+        //Temperature
+        double temperature = levelzero_io.read_signal("LEVELZERO::GPU_CORE_TEMPERATURE_MAXIMUM", GEOPM_DOMAIN_GPU_CHIP, sub_idx);
+        EXPECT_DOUBLE_EQ(temperature, mock_temperature_max_gpu.at(sub_idx));
+        temperature = levelzero_io.read_signal("LEVELZERO::GPU_MEMORY_TEMPERATURE_MAXIMUM", GEOPM_DOMAIN_GPU_CHIP, sub_idx);
+        EXPECT_DOUBLE_EQ(temperature, mock_temperature_max_mem.at(sub_idx));
 
         //Active time
         double active_time = levelzero_io.read_signal("LEVELZERO::GPU_ACTIVE_TIME", GEOPM_DOMAIN_GPU_CHIP, sub_idx);
