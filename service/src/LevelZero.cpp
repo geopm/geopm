@@ -168,6 +168,7 @@ namespace geopm
             power_domain_cache(gpu_idx);
             perf_domain_cache(gpu_idx);
             engine_domain_cache(gpu_idx);
+            temperature_domain_cache(gpu_idx);
        }
     }
 
@@ -453,6 +454,67 @@ namespace geopm
         }
     }
 
+    void LevelZeroImp::temperature_domain_cache(unsigned int device_idx) {
+        ze_result_t ze_result;
+        uint32_t num_domain = 0;
+
+        //Cache frequency domains
+        ze_result = zesDeviceEnumTemperatureSensors(m_devices.at(
+                                                    device_idx).device_handle,
+                                                    &num_domain, nullptr);
+        if (ze_result == ZE_RESULT_ERROR_UNSUPPORTED_FEATURE) {
+#ifdef GEOPM_DEBUG
+            std::cerr << "Warning: <geopm> LevelZero: Temperature domain detection is "
+                         "not supported.\n";
+#endif
+        }
+        else {
+            check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
+                            "LevelZero::" + std::string(__func__) +
+                            ": Sysman failed to get number of temperature domains.", __LINE__);
+            //make temp var
+            std::vector<zes_temp_handle_t> temp_domain(num_domain);
+
+            ze_result = zesDeviceEnumTemperatureSensors(m_devices.at(
+                            device_idx).device_handle, &num_domain, temp_domain.data());
+            check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
+                            "LevelZero::" + std::string(__func__) +
+                            ": Sysman failed to get temperature domain handles.", __LINE__);
+
+            m_devices.at(device_idx).subdevice.temp_domain_max.resize(
+                            geopm::LevelZero::M_DOMAIN_SIZE);
+
+            for (auto handle : temp_domain) {
+                zes_temp_properties_t property = {};
+                ze_result = zesTemperatureGetProperties(handle, &property);
+                check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
+                                "LevelZero::" + std::string(__func__) +
+                                ": Sysman failed to get temperature domain properties.", __LINE__);
+
+                if (property.onSubdevice == 0) {
+#ifdef GEOPM_DEBUG
+                    std::cerr << "Warning: <geopm> LevelZero: A device level "
+                                 "temperature domain was found but is not currently supported.\n";
+#endif
+                }
+                else {
+                    if (property.type == ZES_TEMP_SENSORS_GPU) {
+                        m_devices.at(device_idx).subdevice.temp_domain_max.at(
+                                  geopm::LevelZero::M_DOMAIN_COMPUTE).push_back(handle);
+                    }
+                    else if (property.type == ZES_TEMP_SENSORS_MEMORY) {
+                        m_devices.at(device_idx).subdevice.temp_domain_max.at(
+                                  geopm::LevelZero::M_DOMAIN_MEMORY).push_back(handle);
+                    }
+                    else if (property.type == ZES_TEMP_SENSORS_GLOBAL) {
+                        m_devices.at(device_idx).subdevice.temp_domain_max.at(
+                                  geopm::LevelZero::M_DOMAIN_ALL).push_back(handle);
+                    }
+                }
+            }
+        }
+    }
+
     int LevelZeroImp::num_gpu() const
     {
         //  TODO: this should be expanded to return all supported GPU types.
@@ -511,6 +573,11 @@ namespace geopm
     int LevelZeroImp::performance_domain_count(unsigned int l0_device_idx, int l0_domain) const
     {
         return m_devices.at(l0_device_idx).subdevice.perf_domain.at(l0_domain).size();
+    }
+
+    int LevelZeroImp::temperature_domain_count(unsigned int l0_device_idx, int l0_domain) const
+    {
+        return m_devices.at(l0_device_idx).subdevice.temp_domain_max.at(l0_domain).size();
     }
 
     double LevelZeroImp::performance_factor(unsigned int l0_device_idx,
@@ -614,6 +681,24 @@ namespace geopm
                         + std::string(__func__) +
                         ": Sysman failed to get frequency range.", __LINE__);
         return {range.min, range.max};
+    }
+
+    double LevelZeroImp::temperature_max(unsigned int l0_device_idx,
+                                         int l0_domain, int l0_domain_idx) const
+    {
+        ze_result_t ze_result;
+        double result = NAN;
+
+        zes_temp_handle_t handle = m_devices.at(l0_device_idx).subdevice.temp_domain_max.at(
+                                                               l0_domain).at(l0_domain_idx);
+
+        ze_result = zesTemperatureGetState(handle, &result);
+
+        check_ze_result(ze_result, GEOPM_ERROR_RUNTIME, "LevelZero::"
+                        + std::string(__func__) +
+                        ": Sysman failed to get temperature.", __LINE__);
+
+        return result;
     }
 
     uint64_t LevelZeroImp::active_time_timestamp(unsigned int l0_device_idx,

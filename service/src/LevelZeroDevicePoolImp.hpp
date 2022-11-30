@@ -37,6 +37,10 @@ namespace geopm
             std::pair <double, double> frequency_range(int domain,
                                                        unsigned int domain_idx,
                                                        int l0_domain) const override;
+
+            double temperature_max(int domain, unsigned int domain_idx,
+                                   int l0_domain) const override;
+
             std::pair<uint64_t, uint64_t> active_time_pair(int domain,
                                                            unsigned int device_idx,
                                                            int l0_domain) const override;

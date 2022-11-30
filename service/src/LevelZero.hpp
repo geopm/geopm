@@ -76,6 +76,7 @@ namespace geopm
             /// @return GPU maximum frequency in MHz.
             virtual double frequency_max(unsigned int l0_device_idx, int l0_domain,
                                          int l0_domain_idx) const = 0;
+
             /// @brief Get the LevelZero device frequency throttle reasons
             /// @param [in] l0_device_idx The index indicating a particular
             ///        Level Zero GPU.
@@ -96,6 +97,22 @@ namespace geopm
             virtual std::pair<double, double> frequency_range(unsigned int l0_device_idx,
                                                               int l0_domain,
                                                               int l0_domain_idx) const = 0;
+
+            /// @brief Get the number of LevelZero temperature domains
+            /// @param [in] l0_domain The LevelZero domain type being targeted
+            /// @return GPU temperature domain count.
+            virtual int temperature_domain_count(unsigned int l0_device_idx, int l0_domain) const = 0;
+            /// @brief Get the LevelZero device maximum temperature in Celsius
+            /// @param [in] l0_device_idx The index indicating a particular
+            ///        Level Zero GPU.
+            /// @param [in] l0_domain The LevelZero domain type being targeted
+            /// @param [in] l0_domain_idx The LevelZero index indicating a particular
+            ///        domain of the GPU.
+            /// @return Domain maximum temperature in Celsius.
+            virtual double temperature_max(unsigned int l0_device_idx, int l0_domain,
+                                           int l0_domain_idx) const = 0;
+
+
 
             /// @brief Get the number of LevelZero engine domains
             /// @param [in] l0_domain The LevelZero domain type being targeted

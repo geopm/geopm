@@ -29,6 +29,9 @@ class MockLevelZeroDevicePool : public geopm::LevelZeroDevicePool
         MOCK_METHOD((std::pair<double, double>), frequency_range,
                     (int, unsigned int, int), (const, override));
 
+        MOCK_METHOD(double, temperature_max,
+                    (int, unsigned int, int), (const, override));
+
         MOCK_METHOD((std::pair<uint64_t, uint64_t>), active_time_pair,
                     (int, unsigned int, int), (const, override));
         MOCK_METHOD(uint64_t, active_time,

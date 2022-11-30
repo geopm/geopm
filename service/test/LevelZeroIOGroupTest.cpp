@@ -179,6 +179,10 @@ void LevelZeroIOGroupTest::SetUpDefaultExpectCalls()
                     energy_timestamp(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_ALL));
         EXPECT_CALL(*m_device_pool, // GPU_CORE_PERFORMANCE_FACTOR
                     performance_factor(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE)).Times(3);
+        EXPECT_CALL(*m_device_pool, // GPU_CORE_TEMPERATURE_MAXIMUM
+                    temperature_max(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE));
+        EXPECT_CALL(*m_device_pool, // GPU_MEMORY_TEMPERATURE_MAXIMUM
+                    temperature_max(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_MEMORY));
 
         // control pruning expectations
         // GPU_CORE_FREQUENCY_MAX_CONTROL, GPU_CORE_FREQUENCY_MIN_CONTROL, and the restore_control() direct call.
@@ -813,6 +817,10 @@ TEST_F(LevelZeroIOGroupTest, signal_and_control_trimming)
         // EXPECT_CALL(*m_device_pool,
         //             frequency_control(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE,
         //                               0, 0)).Times(3);
+        EXPECT_CALL(*m_device_pool, // GPU_CORE_TEMPERATURE_MAXIMUM
+                    temperature_max(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE));
+        EXPECT_CALL(*m_device_pool, // GPU_MEMORY_TEMPERATURE_MAXIMUM
+                    temperature_max(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_MEMORY));
 
         EXPECT_CALL(*m_device_pool, // GPU_CORE_PERFORMANCE_FACTOR
                     performance_factor(GEOPM_DOMAIN_GPU_CHIP, sub_idx, MockLevelZero::M_DOMAIN_COMPUTE)).Times(3);

@@ -58,6 +58,7 @@ namespace geopm
             /// @return GPU maximum frequency in MHz.
             virtual double frequency_max(int domain, unsigned int domain_idx,
                                          int l0_domain) const = 0;
+
             /// @brief Get the LevelZero device frequency throttle reasons
             /// @param [in] domain The GEOPM domain type being targeted
             /// @param [in] domain_idx The GEOPM domain index
@@ -69,6 +70,15 @@ namespace geopm
             virtual std::pair<double, double> frequency_range(int domain,
                                                               unsigned int domain_idx,
                                                               int l0_domain) const = 0;
+
+            /// @brief Get the LevelZero domain maximum temperature in Celsius
+            /// @param [in] domain The GEOPM domain type being targeted
+            /// @param [in] domain_idx The GEOPM domain index
+            ///             (i.e. GPU being targeted)
+            /// @param [in] l0_domain The LevelZero domain type being targeted
+            /// @return GPU domain maximum temperature in Celsius.
+            virtual double temperature_max(int domain, unsigned int domain_idx,
+                                           int l0_domain) const = 0;
 
             // UTILIZATION SIGNAL FUNCTIONS
             /// @brief Get the LevelZero device active time and timestamp in microseconds

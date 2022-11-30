@@ -41,6 +41,11 @@ namespace geopm
                                                       int l0_domain,
                                                       int l0_domain_idx) const override;
 
+            int temperature_domain_count(unsigned int l0_device_idx,
+                                         int l0_domain) const override;
+            double temperature_max(unsigned int l0_device_idx, int l0_domain,
+                                   int l0_domain_idx) const override;
+
             int engine_domain_count(unsigned int l0_device_idx, int domain) const override;
             std::pair<uint64_t, uint64_t> active_time_pair(unsigned int l0_device_idx,
                                                            int l0_domain, int l0_domain_idx) const override;
@@ -95,6 +100,7 @@ namespace geopm
             struct m_subdevice_s {
                 // These are enum geopm_levelzero_domain_e indexed, then subdevice indexed
                 std::vector<std::vector<zes_freq_handle_t> > freq_domain;
+                std::vector<std::vector<zes_temp_handle_t> > temp_domain_max;
                 std::vector<std::vector<zes_engine_handle_t> > engine_domain;
                 mutable std::vector<std::vector<uint64_t> > cached_timestamp;
 
@@ -130,6 +136,7 @@ namespace geopm
             void power_domain_cache(unsigned int l0_device_idx);
             void perf_domain_cache(unsigned int l0_device_idx);
             void engine_domain_cache(unsigned int l0_device_idx);
+            void temperature_domain_cache(unsigned int l0_device_idx);
             void check_ze_result(ze_result_t ze_result, int error, std::string message,
                                  int line) const;
 
