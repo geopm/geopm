@@ -49,6 +49,22 @@ Signals
     *  **Format**: double
     *  **Unit**: hertz
 
+``LEVELZERO::GPU_CORE_TEMPERATURE_MAXIMUM``
+    The maximum measured temperature across all sensors in the GPU accelerator."
+
+    *  **Aggregation**: expect_same
+    *  **Domain**: gpu_chip
+    *  **Format**: double
+    *  **Unit**: celsius
+
+``LEVELZERO::GPU_MEMORY_TEMPERATURE_MAXIMUM``
+    The maximum measured temperature across all sensors in the GPU memory."
+
+    *  **Aggregation**: expect_same
+    *  **Domain**: gpu_chip
+    *  **Format**: double
+    *  **Unit**: celsius
+
 ``LEVELZERO::GPU_ENERGY``
     GPU energy in joules.
 
