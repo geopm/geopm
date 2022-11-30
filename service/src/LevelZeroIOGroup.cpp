@@ -447,6 +447,38 @@ namespace geopm
                                   },
                                   .01
                                   }},
+                              {M_NAME_PREFIX + "GPU_CORE_TEMPERATURE_MAXIMUM", {
+                                  "The maximum measured temperature across all sensors in the GPU accelerator.",
+                                  GEOPM_DOMAIN_GPU_CHIP,
+                                  Agg::average,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
+                                  string_format_double,
+                                  {},
+                                  [this](unsigned int domain_idx) -> double
+                                  {
+                                      return this->m_levelzero_device_pool.temperature_max(
+                                                   GEOPM_DOMAIN_GPU_CHIP,
+                                                   domain_idx,
+                                                   geopm::LevelZero::M_DOMAIN_COMPUTE);
+                                  },
+                                  1
+                                  }},
+                              {M_NAME_PREFIX + "GPU_MEMORY_TEMPERATURE_MAXIMUM", {
+                                  "The maximum measured temperature across all sensors in the GPU memory.",
+                                  GEOPM_DOMAIN_GPU_CHIP,
+                                  Agg::average,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
+                                  string_format_double,
+                                  {},
+                                  [this](unsigned int domain_idx) -> double
+                                  {
+                                      return this->m_levelzero_device_pool.temperature_max(
+                                                   GEOPM_DOMAIN_GPU_CHIP,
+                                                   domain_idx,
+                                                   geopm::LevelZero::M_DOMAIN_MEMORY);
+                                  },
+                                  1
+                                  }},
                              })
         , m_control_available({{M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_CONTROL", {
                                     "Sets the minimum frequency request for the GPU Compute Hardware.",
