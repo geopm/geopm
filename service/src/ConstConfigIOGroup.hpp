@@ -88,7 +88,7 @@ namespace geopm
                 int domain;
                 std::function<double(const std::vector<double> &)> agg_function;
                 std::string description;
-                bool default_value;
+                bool common_value_provided;
                 std::vector<double> values;
             };
 

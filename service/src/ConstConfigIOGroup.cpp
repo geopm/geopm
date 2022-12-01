@@ -32,7 +32,7 @@ namespace geopm
             {"domain", {Json::STRING, true}},
             {"aggregation", {Json::STRING, true}},
             {"values", {Json::ARRAY, false}},
-            {"default_value", {Json::NUMBER, false}}
+            {"common_value", {Json::NUMBER, false}}
         };
     const std::string ConstConfigIOGroup::M_CONFIG_PATH_ENV =
         "GEOPM_CONST_CONFIG_PATH";
@@ -144,7 +144,7 @@ namespace geopm
             }
         }
 
-        if (it->second->default_value) {
+        if (it->second->common_value_provided) {
             domain_idx = 0;
         }
 
@@ -216,7 +216,7 @@ namespace geopm
         }
 
         double value = 0.0;
-        if (it->second->default_value) {
+        if (it->second->common_value_provided) {
             value = it->second->values[0];
         }
         else {
@@ -327,9 +327,9 @@ namespace geopm
     {
     }
 
+
     void ConstConfigIOGroup::parse_config_json(const std::string &config)
     {
-        // TODO: consider refactoring this method a bit
         Json root = construct_config_json_obj(config);
 
         auto signals = root.object_items();
@@ -346,24 +346,24 @@ namespace geopm
             auto agg_func = Agg::name_to_function(
                     properties["aggregation"].string_value());
 
+            std::vector<double> values;
             bool values_provided = properties.find("values") != properties.end();
-            bool default_value_provided = properties.find("default_value") != properties.end();
-            if (values_provided && default_value_provided) {
+            bool common_value_provided = properties.find("common_value") != properties.end();
+            if (values_provided && common_value_provided) {
                 // Only one field is required
                 throw Exception("ConstConfigIOGroup::parse_config_json(): "
-                                "\"values\" and \"default_value\" provided for "
+                                "\"values\" and \"common_value\" provided for "
                                 "signal \"" + NAME + "\"", GEOPM_ERROR_INVALID,
                                  __FILE__, __LINE__);
             }
-            else if (!values_provided && !default_value_provided) {
+            else if (!values_provided && !common_value_provided) {
                 // One of the two fields is required
                 throw Exception("ConstConfigIOGroup::parse_config_json(): "
-                                "missing \"values\" or \"default_value\" for "
+                                "missing \"values\" and \"common_value\" for "
                                 "signal \"" + NAME + "\"", GEOPM_ERROR_INVALID,
                                  __FILE__, __LINE__);
             }
 
-            std::vector<double> values;
             if (values_provided) {
                 auto json_values = properties["values"].array_items();
                 if (json_values.empty()) {
@@ -390,7 +390,7 @@ namespace geopm
                 }
             }
             else {
-                values.push_back(properties["default_value"].number_value());
+                values.push_back(properties["common_value"].number_value());
             }
 
             std::string description = properties["description"].string_value();
@@ -410,7 +410,7 @@ namespace geopm
                         .domain = domain_type,
                         .agg_function = agg_func,
                         .description = description,
-                        .default_value = default_value_provided,
+                        .common_value_provided = common_value_provided,
                         .values = values});
         }
     }
@@ -456,14 +456,16 @@ namespace geopm
         for (const auto &prop : properties) {
             auto it = M_SIGNAL_FIELDS.find(prop.first);
             if (it == M_SIGNAL_FIELDS.end()) {
-                throw Exception("ConstConfigIOGroup::parse_config_json():"
-                                " unexpected property: \"" + prop.first +
+                throw Exception("ConstConfigIOGroup::parse_config_json(): "
+                                "for signal \"" + signal.first + "\", "
+                                "unexpected property: \"" + prop.first +
                                 "\"", GEOPM_ERROR_INVALID, __FILE__,
                                 __LINE__);
             }
             else if (prop.second.type() != it->second.type) {
-                throw Exception("ConstConfigIOGroup::parse_config_json():"
-                                " incorrect type for property: \"" +
+                throw Exception("ConstConfigIOGroup::parse_config_json(): "
+                                "for signal \"" + signal.first + "\", "
+                                "incorrect type for property: \"" +
                                 prop.first + "\"", GEOPM_ERROR_INVALID,
                                 __FILE__, __LINE__);
             }

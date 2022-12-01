@@ -76,8 +76,13 @@ GTEST_TESTS = test/gtest_links/GPUTopoNullTest.default_config \
               test/gtest_links/ConstConfigIOGroupTest.input_array_value_type \
               test/gtest_links/ConstConfigIOGroupTest.input_array_value_num_domain \
               test/gtest_links/ConstConfigIOGroupTest.input_array_value_empty \
+              test/gtest_links/ConstConfigIOGroupTest.input_values_and_common_value \
+              test/gtest_links/ConstConfigIOGroupTest.missing_values_and_common_value \
+              test/gtest_links/ConstConfigIOGroupTest.input_common_value_type \
               test/gtest_links/ConstConfigIOGroupTest.valid_json_positive \
+              test/gtest_links/ConstConfigIOGroupTest.valid_json_with_common_value_positive \
               test/gtest_links/ConstConfigIOGroupTest.valid_json_negative \
+              test/gtest_links/ConstConfigIOGroupTest.valid_json_with_common_value_negative \
               test/gtest_links/ConstConfigIOGroupTest.loads_default_config \
               test/gtest_links/ConstConfigIOGroupTest.no_default_config \
               test/gtest_links/CpuinfoIOGroupTest.bad_min_max \
