@@ -25,14 +25,14 @@
                     },
                     "minItems": 1
                 },
-                "default_value": {
+                "common_value": {
                     "type": "number"
                 }
             },
             "required": ["description", "units", "domain", "aggregation"],
             "oneOf": [
                 {"required": ["values"]},
-                {"required": ["default_value"]}
+                {"required": ["common_value"]}
             ],
             "additionalProperties": false
         }
