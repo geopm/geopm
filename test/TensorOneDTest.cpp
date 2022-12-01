@@ -120,6 +120,6 @@ TEST_F(TensorOneDTest, test_bad_dimensions)
 
 TEST_F(TensorOneDTest, test_empty_weights)
 {
-    std::vector<std::string> vals = {};
-    EXPECT_THROW(TensorOneD(vals), geopm::Exception);
+    std::vector<float> vals = {};
+    EXPECT_THROW(TensorOneD(vals).get_dim(), geopm::Exception);
 }

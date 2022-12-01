@@ -6,7 +6,7 @@
 #ifndef TENSORONED_HPP_INCLUDE
 #define TENSORONED_HPP_INCLUDE
 
-#include <cstddef>
+#include <vector>
 
 namespace geopm
 {
