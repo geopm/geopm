@@ -6,7 +6,6 @@
 #ifndef TENSORONED_HPP_INCLUDE
 #define TENSORONED_HPP_INCLUDE
 
-#include "geopm/json11.hpp"
 #include <cstddef>
 
 namespace geopm
@@ -28,11 +27,10 @@ namespace geopm
             TensorOneD(const TensorOneD&);
 
             TensorOneD(TensorOneD &&other);
-            /// @param [in] input json11::Json input The JSON array
+            /// @param [in] input  The values to store in the 1D tensor.
             ///
-            /// @throws geopm::Exception if input is not an array,
-            /// if input is empty, or if a non-numeric type is found in input.
-            TensorOneD(json11::Json input);
+            /// @throws geopm::Exception if input is empty.
+            TensorOneD(std::vector<float> input);
             /// @brief Set length of 1D tensor
             ///
             /// If the instance has more than n elements, it will

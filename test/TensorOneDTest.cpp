@@ -105,7 +105,7 @@ TEST_F(TensorOneDTest, test_input)
     TensorOneD x(3);
     x.set_dim(4);
     std::vector<float> vals = {8, 16};
-    x = TensorOneD(json11::Json(vals));
+    x = TensorOneD(vals);
     EXPECT_EQ(2u, x.get_dim());
     EXPECT_EQ(8, x[0]);
     EXPECT_EQ(16, x[1]);
@@ -118,20 +118,8 @@ TEST_F(TensorOneDTest, test_bad_dimensions)
     EXPECT_THROW(one * three, geopm::Exception);
 }
 
-TEST_F(TensorOneDTest, test_bad_input)
-{
-    std::vector<std::string> vals = {"soup", "16"};
-    EXPECT_THROW(TensorOneD(json11::Json(vals)), geopm::Exception);
-}
-
 TEST_F(TensorOneDTest, test_empty_weights)
 {
     std::vector<std::string> vals = {};
-    EXPECT_THROW(TensorOneD(json11::Json(vals)), geopm::Exception);
-}
-
-TEST_F(TensorOneDTest, test_non_array)
-{
-    std::string vals = "soup";
-    EXPECT_THROW(TensorOneD(json11::Json(vals)), geopm::Exception);
+    EXPECT_THROW(TensorOneD(vals), geopm::Exception);
 }

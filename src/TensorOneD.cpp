@@ -43,27 +43,14 @@ namespace geopm
         return m_vec.size();
     }
 
-    TensorOneD::TensorOneD(json11::Json input)
+    TensorOneD::TensorOneD(std::vector<float> input)
     {
-        if (!input.is_array()) {
-            throw geopm::Exception("Neural network weights is non-array-type.\n",
-                                   GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-        if (input.array_items().empty()) {
-            throw geopm::Exception("Empty array is invalid for neural network weights.\n",
+        if (input.size() == 0) {
+            throw geopm::Exception("TensorOneD cannot be initialized with empty vector.\n",
                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        set_dim(input.array_items().size());
-        std::size_t vec_size = m_vec.size();
-
-        for (std::size_t idx = 0; idx < vec_size; ++idx) {
-            if (!input[idx].is_number()) {
-                throw geopm::Exception("Non-numeric type found in neural network weights.\n",
-                                       GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-            }
-            m_vec[idx] = input[idx].number_value();
-        }
+        m_vec = input;
     }
 
     TensorOneD TensorOneD::operator+(const TensorOneD& other)
