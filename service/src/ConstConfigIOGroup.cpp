@@ -215,7 +215,7 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        double value = 0.0;
+        double value = NAN;
         if (it->second->common_value_provided) {
             value = it->second->values[0];
         }
