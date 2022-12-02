@@ -52,7 +52,7 @@ Signals
 ``LEVELZERO::GPU_CORE_TEMPERATURE_MAXIMUM``
     The maximum measured temperature across all sensors in the GPU accelerator."
 
-    *  **Aggregation**: expect_same
+    *  **Aggregation**: max
     *  **Domain**: gpu_chip
     *  **Format**: double
     *  **Unit**: celsius
@@ -60,7 +60,7 @@ Signals
 ``LEVELZERO::GPU_MEMORY_TEMPERATURE_MAXIMUM``
     The maximum measured temperature across all sensors in the GPU memory."
 
-    *  **Aggregation**: expect_same
+    *  **Aggregation**: max
     *  **Domain**: gpu_chip
     *  **Format**: double
     *  **Unit**: celsius

@@ -450,7 +450,7 @@ namespace geopm
                               {M_NAME_PREFIX + "GPU_CORE_TEMPERATURE_MAXIMUM", {
                                   "The maximum measured temperature across all sensors in the GPU accelerator.",
                                   GEOPM_DOMAIN_GPU_CHIP,
-                                  Agg::average,
+                                  Agg::max,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
                                   {},
@@ -466,7 +466,7 @@ namespace geopm
                               {M_NAME_PREFIX + "GPU_MEMORY_TEMPERATURE_MAXIMUM", {
                                   "The maximum measured temperature across all sensors in the GPU memory.",
                                   GEOPM_DOMAIN_GPU_CHIP,
-                                  Agg::average,
+                                  Agg::max,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
                                   {},
