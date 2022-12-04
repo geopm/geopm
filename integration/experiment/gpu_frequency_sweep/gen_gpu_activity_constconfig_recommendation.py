@@ -50,21 +50,19 @@ def extract_columns(df):
 
     return df_cols
 
-def energy_efficient_frequency(df):
-    """
-    Find the frequency that provides minimum gpu energy consumption within the
-    dataframe provided
-    """
-
-    energy_efficient_frequency = df.groupby('gpu-frequency (Hz)')['gpu-energy (J)'].mean().idxmin()
-    return energy_efficient_frequency
-
-def get_config_from_frequency_sweep(full_df):
+def get_config_from_frequency_sweep(full_df, mach, energy_margin):
     """
     The main function. full_df is a report collection dataframe
     """
     df = extract_columns(full_df)
-    gpu_freq_efficient = energy_efficient_frequency(df)
+    freq_col = 'gpu-frequency (Hz)'
+    energy_col = 'gpu-energy (J)'
+
+    #Round entries to nearest step size
+    frequency_step = mach.gpu_frequency_step()
+    df['gpu-frequency (Hz)'] = (df['gpu-frequency (Hz)'] / frequency_step).round(decimals=0) * frequency_step
+
+    gpu_freq_efficient = util.energy_efficient_frequency(df, freq_col, energy_col, energy_margin)
 
     json_dict = {
                     "GPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY" : {
@@ -83,6 +81,10 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--const-config-path', required=False, default=None,
                         help='path containing existing ConstConfigIO configuration file')
+    parser.add_argument('--gpu-energy-margin', default=0, type=float, dest='gpu_energy_margin',
+                        help='Percentage of additional energy it is acceptable to consume if it results '
+                             'in a lower frequency selection for Fe.  This is useful for analyzing '
+                             'noisy systems that have many gpu frequencies near the Fe energy consumption value')
     parser.add_argument('--path', required=True,
                         help='path containing reports and machine.json')
     args = parser.parse_args()
@@ -94,7 +96,12 @@ if __name__ == '__main__':
                          '; run a frequency sweep before using this analysis.\n')
         sys.exit(1)
 
-    output = get_config_from_frequency_sweep(df)
+    if args.gpu_energy_margin < 0:
+        sys.stderr.write('<geopm> Error: GPU energy margin must be non-negative\n')
+        sys.exit(1)
+
+    mach = machine.get_machine(args.path);
+    output = get_config_from_frequency_sweep(df, mach, args.gpu_energy_margin)
     output = util.merge_const_config(output, args.const_config_path);
 
     sys.stdout.write(json.dumps(output, indent=4) + "\n")
