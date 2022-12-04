@@ -50,17 +50,39 @@ def extract_columns(df, region_list = None):
                             'dram-energy (J)',
                             'frequency (Hz)',
                             'MSR::QM_CTR_SCALED_RATE',
-                            'uncore-frequency (Hz)',]]
+                            'uncore-frequency (Hz)']]
 
     return df_cols
 
-def energy_efficient_frequency(df, freq_col_name):
+def energy_efficient_frequency(df, freq_col_name, energy_margin):
     """
     Find the frequency that provides the minimum package energy consumption
     within the dataframe provided.
     """
+    df_mean = df.groupby(freq_col_name)['package-energy (J)'].mean()
+    energy_efficient_frequency = df_mean.idxmin()
+    min_energy = df_mean[energy_efficient_frequency];
 
-    energy_efficient_frequency = df.groupby(freq_col_name)['package-energy (J)'].mean().idxmin()
+    if len(df_mean) > 1:
+        if energy_margin != 0.0:
+            sys.stderr.write('Found Fe = {} with energy = {}.  Searching for alternate '
+                             'based on an energy margin of {}\n'.format(energy_efficient_frequency,min_energy, energy_margin))
+
+            # Grab all energy readings associated with frequencies that a 1Hz below Fe
+            # TODO: Consider iloc instead and just grab all idx prior to Fe
+            df_mean = df_mean.loc[:energy_efficient_frequency - 1]
+
+            # Find any energy reading that is within 5% of Fe's energy while having a lower frequency
+            min_energy = max([e for e in df_mean if (e - min_energy) / e < energy_margin]);
+            # Store the associated frequency
+            energy_efficient_frequency = df_mean[df_mean == min_energy].index[0];
+            sys.stderr.write('Found alternate Fe = {} with energy = {}.\n'.format(energy_efficient_frequency,min_energy))
+        else:
+            df_mean = df_mean.loc[:energy_efficient_frequency - 1]
+            nearby_energy_count = len([e for e in df_mean if (e - min_energy) / e < 0.05]);
+            sys.stderr.write('Warning: Found {} possible alternate Fe value(s) within 5% '
+                             'energy consumption of Fe for \'{}\'.  Consider using the core or uncore energy-margin options.\n'.format(nearby_energy_count, freq_col_name))
+
     return energy_efficient_frequency
 
 def system_memory_bandwidth_characterization(df_region_group, region):
@@ -79,7 +101,7 @@ def system_memory_bandwidth_characterization(df_region_group, region):
 
     return mem_bw_dict
 
-def frequency_recommendation(df_region_group, region, domain):
+def frequency_recommendation(df_region_group, region, domain, energy_margin):
     if domain == "UNCORE":
         freq_col = 'uncore-frequency (Hz)'
         fixed_freq_col = 'frequency (Hz)'
@@ -93,22 +115,16 @@ def frequency_recommendation(df_region_group, region, domain):
 
     # Start with a region analysis for energy efficiency
     df = df_region_group.get_group(region)
-    domain_freq_efficient = energy_efficient_frequency(df, freq_col)
+    domain_freq_efficient = energy_efficient_frequency(df, freq_col, energy_margin)
 
     return domain_freq_efficient
 
-def get_config_from_frequency_sweep(full_df, region_list):
+def get_config_from_frequency_sweep(full_df, region_list, core_energy_margin, uncore_energy_margin):
     """
     The main function. full_df is a report collection dataframe, region_list
     is a list of regions to include.
     """
     df = extract_columns(full_df, region_list)
-
-    # Handle any frequency clipping via rounding to the nearest 100Mhz
-    # An alternative would be to use the FREQ_DEFAULT and FREQ_UNCORE
-    # values from the policy
-    df['frequency (Hz)'] = (df['frequency (Hz)']/1e09).round(decimals=1)*1e09
-    df['uncore-frequency (Hz)'] = (df['uncore-frequency (Hz)']/1e09).round(decimals=1)*1e09
     df_region_group = df.groupby('region')
 
     # Characterize MBM metrics using the uncore sensitive
@@ -120,7 +136,7 @@ def get_config_from_frequency_sweep(full_df, region_list):
     # region (intensity_1) to find the efficient
     # uncore frequency
     uncore_freq_recommendation = frequency_recommendation(df_region_group, region=region_list[0],
-                                                           domain="UNCORE")
+                                                           domain="UNCORE", energy_margin=uncore_energy_margin)
 
     # Then analyze the core senstivite region (intensity_16)
     # to find the most efficient core frequency
@@ -129,7 +145,7 @@ def get_config_from_frequency_sweep(full_df, region_list):
     df = df[df['uncore-frequency (Hz)'] == uncore_freq_recommendation]
     df_region_group = df.groupby('region')
     core_freq_recommendation = frequency_recommendation(df_region_group, region=region_list[1],
-                                                         domain="CORE")
+                                                         domain="CORE", energy_margin=core_energy_margin)
 
     json_dict = {
                     "CPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY" : {
@@ -173,6 +189,14 @@ if __name__ == '__main__':
                         help='path containing existing ConstConfigIO configuration file')
     parser.add_argument('--path', required=True,
                         help='path containing reports and machine.json')
+    parser.add_argument('--core-energy-margin', default=0, type=float, dest='core_energy_margin',
+                        help='Percentage of acceptable additional energy that is acceptable if '
+                             'a lower frequency is selected for Fe.  This is useful for analyzing '
+                             'noisy systems that have many frequencies that are near the Fe point')
+    parser.add_argument('--uncore-energy-margin', default=0, type=float, dest='uncore_energy_margin',
+                        help='Percentage of acceptable additional energy that is acceptable if '
+                             'a lower frequency is selected for Fe.  This is useful for analyzing '
+                             'noisy systems that have many frequencies that are near the Fe point')
     parser.add_argument('--region-list', default="intensity_1,intensity_16", dest='region_list',
                         help='comma-separated list of the two regions to use, '
                              'with the first used for uncore frequency characterization '
@@ -193,7 +217,7 @@ if __name__ == '__main__':
                          '; run a power sweep before using this analysis.\n')
         sys.exit(1)
 
-    output = get_config_from_frequency_sweep(df, region_list)
+    output = get_config_from_frequency_sweep(df, region_list, args.core_energy_margin, args.uncore_energy_margin)
     output = util.merge_const_config(output, args.const_config_path);
 
     sys.stdout.write(json.dumps(output, indent=4) + "\n")
