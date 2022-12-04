@@ -59,6 +59,9 @@ class Machine:
     def frequency_step(self):
         return self.signals['CPU_FREQUENCY_STEP']
 
+    def gpu_frequency_step(self):
+        return self.signals['GPU_CORE_FREQUENCY_STEP']
+
     def power_package_min(self):
         return self.signals['CPU_POWER_MIN_AVAIL']
 
@@ -107,6 +110,7 @@ class Machine:
                         'CPU_FREQUENCY_MAX_AVAIL',
                         'CPU_FREQUENCY_STICKER',
                         'CPU_FREQUENCY_STEP',
+                        'GPU_CORE_FREQUENCY_STEP',
                         'CPU_POWER_MIN_AVAIL',
                         'CPU_POWER_LIMIT_DEFAULT',
                         'CPU_POWER_MAX_AVAIL']
