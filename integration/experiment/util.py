@@ -174,34 +174,38 @@ def energy_efficient_frequency(df, freq_col_name, energy_col_name, energy_margin
     """
     df_mean = df.groupby(freq_col_name)[energy_col_name].mean()
     energy_efficient_frequency = df_mean.idxmin()
-    min_energy = df_mean[energy_efficient_frequency];
+    energy_reading = df_mean[energy_efficient_frequency];
 
     if len(df_mean) > 1:
         if energy_margin != 0.0:
             sys.stderr.write('Found Fe = {} with energy = {}.  Searching for alternate '
-                             'based on an energy margin of {}\n'.format(energy_efficient_frequency,min_energy, energy_margin))
+                             'based on an energy margin of {}\n'.format(energy_efficient_frequency,
+                                                                        energy_reading, energy_margin))
 
             # Grab all energy readings associated with frequencies that a 1Hz below Fe
             # TODO: Consider iloc instead and just grab all idx prior to Fe
             df_mean = df_mean.loc[:energy_efficient_frequency - 1]
 
-            # Find any energy reading that is within 5% of Fe's energy while having a lower frequency
-            energy_in_margin = [e for e in df_mean if (e - min_energy) / e < energy_margin]
+            # Find any energy reading that is within a given margin of Fe's energy while having a lower frequency
+            energy_in_margin = [e for e in df_mean if (e - energy_reading) / e < energy_margin]
 
             # If any values are within margin
             if energy_in_margin:
-                min_energy = max(energy_in_margin);
+                # Since we've been given a margin, we're going to find the maximum energy within
+                # the margin as that is generally associated with lower frequencies
+                energy_reading = max(energy_in_margin);
+
                 # Store the associated frequency
-                energy_efficient_frequency = df_mean[df_mean == min_energy].index[0];
+                energy_efficient_frequency = df_mean.loc[df_mean == energy_reading].index[0];
                 sys.stderr.write('Found alternate Fe = {} with energy = {}.\n'.format(energy_efficient_frequency,
-                                                                                      min_energy))
+                                                                                      energy_reading))
             else:
                 sys.stderr.write('No alternate found with energy-margin {}.  Using Fe={}.\n'.format(energy_margin,
                                                                                                     energy_efficient_frequency))
 
         else:
             df_mean = df_mean.loc[:energy_efficient_frequency - 1]
-            nearby_energy_count = len([e for e in df_mean if (e - min_energy) / e < 0.05]);
+            nearby_energy_count = len([e for e in df_mean if (e - energy_reading) / e < 0.05]);
             sys.stderr.write('Warning: Found {} possible alternate Fe value(s) within 5% '
                              'energy consumption of Fe for \'{}\'.  Consider using the energy-margin options.\n'.format(nearby_energy_count, freq_col_name))
 
