@@ -30,25 +30,27 @@ def extract_columns(df):
     Extract the columns of interest from the full report collection
     dataframe.
     """
-    df_filtered = df
+
+    #Explicitly a copy to deal with setting on copy errors
+    df_filtered = df.copy()
 
     # these are the only columns we need
     try:
-        df_cols = df_filtered[['runtime (s)',
+        df_filtered = df_filtered[['runtime (s)',
                                 'package-energy (J)',
                                 'dram-energy (J)',
                                 'frequency (Hz)',
                                 'gpu-frequency (Hz)',
                                 'gpu-energy (J)']]
     except:
-        df_cols = df_filtered[['runtime (s)',
+        df_filtered = df_filtered[['runtime (s)',
                                 'package-energy (J)',
                                 'dram-energy (J)',
                                 'frequency (Hz)',
                                 'gpu-energy (J)']]
-        df_cols['gpu-frequency (Hz)'] = df_filtered['GPU_CORE_FREQUENCY_STATUS']
+        df_filtered['gpu-frequency (Hz)'] = df_filtered['GPU_CORE_FREQUENCY_STATUS']
 
-    return df_cols
+    return df_filtered
 
 def get_config_from_frequency_sweep(full_df, mach, energy_margin):
     """
@@ -60,7 +62,8 @@ def get_config_from_frequency_sweep(full_df, mach, energy_margin):
 
     #Round entries to nearest step size
     frequency_step = mach.gpu_frequency_step()
-    df['gpu-frequency (Hz)'] = (df['gpu-frequency (Hz)'] / frequency_step).round(decimals=0) * frequency_step
+    df.loc[:,'gpu-frequency (Hz)'] = (df['gpu-frequency (Hz)'] /
+                                         frequency_step).round(decimals=0) * frequency_step
 
     gpu_freq_efficient = util.energy_efficient_frequency(df, freq_col, energy_col, energy_margin)
 

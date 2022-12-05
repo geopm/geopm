@@ -194,6 +194,6 @@ def energy_efficient_frequency(df, freq_col_name, energy_col_name, energy_margin
             df_mean = df_mean.loc[:energy_efficient_frequency - 1]
             nearby_energy_count = len([e for e in df_mean if (e - min_energy) / e < 0.05]);
             sys.stderr.write('Warning: Found {} possible alternate Fe value(s) within 5% '
-                             'energy consumption of Fe for \'{}\'.  Consider using the core or uncore energy-margin options.\n'.format(nearby_energy_count, freq_col_name))
+                             'energy consumption of Fe for \'{}\'.  Consider using the energy-margin options.\n'.format(nearby_energy_count, freq_col_name))
 
     return energy_efficient_frequency
