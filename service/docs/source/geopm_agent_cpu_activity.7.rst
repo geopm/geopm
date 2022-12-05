@@ -146,6 +146,17 @@ CPU compute activity agent ConstConfigIOGroup configuration file can then be gen
 
     integration/experiment/uncore_frequency_sweep/gen_cpu_activity_constconfig_recommendation.py --path <UNCORE_SWEEP_DIR> --region-list "intensity_1","intensity_16"
 
+Depending on the number of runs, system noise, and other factors there may be more than one reasonable
+value for ``Fe`` for a given domain.  In these cases a warning similar to the following will be provided::
+
+    'Warning: Found N possible alternate Fe value(s) within 5% energy consumption of Fe for <Control>.
+     Consider using the energy-margin options.\n'
+
+If the occurs the user may chose to use the provided configuration file OR rerun the recommendation script with
+any the energy-margin options ``--core-energy-margin`` & ``--uncore-energy-margin`` along with a value such
+as 0.05 (5%). These options will attempt to identify a lower ``Fe`` for the respective domain that costs less than
+the energy consumed at ``Fe`` plus the energy-margin percentage provided.
+
 An example ConstConfigIOGroup configuration file is provided below::
 
     {
