@@ -92,7 +92,7 @@ value for ``Fe``.  In these cases a warning similar to the following will be pro
     'Warning: Found N possible alternate Fe value(s) within 5% energy consumption of Fe for <frequency>.
      Consider using the energy-margin options.\n'
 
-If the occurs the user may chose to use the provided configuration file or rerun the recommendation script with
+If the occurs the user may choose to use the provided configuration file or rerun the recommendation script with
 the energy-margin option ``--gpu-energy-margin`` along with a value such as 0.05 (5%).
 This option attempt to identify a lower ``Fe`` for the gpu domain that costs less than the energy consumed at ``Fe``
 plus the energy-margin percentage provided.
