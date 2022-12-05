@@ -144,7 +144,7 @@ namespace geopm
             }
         }
 
-        if (it->second->common_value_provided) {
+        if (it->second->is_common_value_provided) {
             domain_idx = 0;
         }
 
@@ -216,7 +216,7 @@ namespace geopm
         }
 
         double value = NAN;
-        if (it->second->common_value_provided) {
+        if (it->second->is_common_value_provided) {
             value = it->second->values[0];
         }
         else {
@@ -348,15 +348,15 @@ namespace geopm
 
             std::vector<double> values;
             bool values_provided = properties.find("values") != properties.end();
-            bool common_value_provided = properties.find("common_value") != properties.end();
-            if (values_provided && common_value_provided) {
+            bool is_common_value_provided = properties.find("common_value") != properties.end();
+            if (values_provided && is_common_value_provided) {
                 // Only one field is required
                 throw Exception("ConstConfigIOGroup::parse_config_json(): "
                                 "\"values\" and \"common_value\" provided for "
                                 "signal \"" + NAME + "\"", GEOPM_ERROR_INVALID,
                                  __FILE__, __LINE__);
             }
-            else if (!values_provided && !common_value_provided) {
+            else if (!values_provided && !is_common_value_provided) {
                 // One of the two fields is required
                 throw Exception("ConstConfigIOGroup::parse_config_json(): "
                                 "missing \"values\" and \"common_value\" for "
@@ -410,7 +410,7 @@ namespace geopm
                         .domain = domain_type,
                         .agg_function = agg_func,
                         .description = description,
-                        .common_value_provided = common_value_provided,
+                        .is_common_value_provided = is_common_value_provided,
                         .values = values});
         }
     }
