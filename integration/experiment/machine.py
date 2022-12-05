@@ -110,12 +110,18 @@ class Machine:
                         'CPU_FREQUENCY_MAX_AVAIL',
                         'CPU_FREQUENCY_STICKER',
                         'CPU_FREQUENCY_STEP',
-                        'GPU_CORE_FREQUENCY_STEP',
                         'CPU_POWER_MIN_AVAIL',
                         'CPU_POWER_LIMIT_DEFAULT',
                         'CPU_POWER_MAX_AVAIL']
         for sn in signal_names:
             self.signals[sn] = util.geopmread('{} board 0'.format(sn))
+
+        conditional_signal_names = ['GPU_CORE_FREQUENCY_STEP']
+        for sn in signal_names:
+            try:
+                self.signals[sn] = util.geopmread('{} board 0'.format(sn))
+            except:
+                sys.stderr.write('Skipping conditional signal: {}'.format(sn))
 
         self.topo = util.geopmread_domain()
         self.meminfo = util.get_node_memory_info()
