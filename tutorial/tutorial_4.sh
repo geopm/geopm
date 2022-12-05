@@ -28,12 +28,13 @@ fi
 NUM_NODES=2
 RANKS_PER_NODE=4
 TOTAL_RANKS=$((${RANKS_PER_NODE} * ${NUM_NODES}))
+HOSTNAME=$(hostname)
 
 if [ "$MPIEXEC" ]; then
     GEOPM_AGENT="power_governor" \
     LD_DYNAMIC_WEAK=true \
     GEOPM_CTL=process \
-    GEOPM_REPORT=tutorial_4_governed_report \
+    GEOPM_REPORT=tutorial_4_governed_report_${HOSTNAME} \
     GEOPM_TRACE=tutorial_4_governed_trace \
     GEOPM_POLICY=tutorial_power_policy.json \
     $MPIEXEC ./tutorial_4 \
@@ -41,7 +42,7 @@ if [ "$MPIEXEC" ]; then
     GEOPM_AGENT="power_balancer" \
     LD_DYNAMIC_WEAK=true \
     GEOPM_PMPI_CTL=process \
-    GEOPM_REPORT=tutorial_4_balanced_report \
+    GEOPM_REPORT=tutorial_4_balanced_report_${HOSTNAME} \
     GEOPM_TRACE=tutorial_4_balanced_trace \
     GEOPM_POLICY=tutorial_power_policy.json \
     $MPIEXEC ./tutorial_4
@@ -53,7 +54,7 @@ elif [ "$GEOPM_LAUNCHER" = "srun" ]; then
                 -n ${TOTAL_RANKS} \
                 --geopm-ctl=process \
                 --geopm-agent=power_governor \
-                --geopm-report=tutorial_4_governed_report \
+                --geopm-report=tutorial_4_governed_report_${HOSTNAME} \
                 --geopm-trace=tutorial_4_governed_trace \
                 --geopm-policy=tutorial_power_policy.json \
                 -- ./tutorial_4 \
@@ -63,7 +64,7 @@ elif [ "$GEOPM_LAUNCHER" = "srun" ]; then
                 -n ${TOTAL_RANKS} \
                 --geopm-ctl=process \
                 --geopm-agent=power_balancer \
-                --geopm-report=tutorial_4_balanced_report \
+                --geopm-report=tutorial_4_balanced_report_${HOSTNAME} \
                 --geopm-trace=tutorial_4_balanced_trace \
                 --geopm-policy=tutorial_power_policy.json \
                 -- ./tutorial_4
@@ -75,7 +76,7 @@ elif [ "$GEOPM_LAUNCHER" = "aprun" ]; then
                 -n ${TOTAL_RANKS} \
                 --geopm-ctl=process \
                 --geopm-agent=power_governor \
-                --geopm-report=tutorial_4_governed_report \
+                --geopm-report=tutorial_4_governed_report_${HOSTNAME} \
                 --geopm-trace=tutorial_4_governed_trace \
                 --geopm-policy=tutorial_power_policy.json \
                 -- ./tutorial_4 \
@@ -85,7 +86,7 @@ elif [ "$GEOPM_LAUNCHER" = "aprun" ]; then
                 -n ${TOTAL_RANKS} \
                 --geopm-ctl=process \
                 --geopm-agent=power_balancer \
-                --geopm-report=tutorial_4_balanced_report \
+                --geopm-report=tutorial_4_balanced_report_${HOSTNAME} \
                 --geopm-trace=tutorial_4_balanced_trace \
                 --geopm-policy=tutorial_power_policy.json \
                 -- ./tutorial_4
@@ -97,7 +98,7 @@ elif [ "$GEOPM_LAUNCHER" = "impi" ]; then
                 -n ${TOTAL_RANKS} \
                 --geopm-ctl=process \
                 --geopm-agent=power_governor \
-                --geopm-report=tutorial_4_governed_report \
+                --geopm-report=tutorial_4_governed_report_${HOSTNAME} \
                 --geopm-trace=tutorial_4_governed_trace \
                 --geopm-policy=tutorial_power_policy.json \
                 -- ./tutorial_4 \
@@ -107,7 +108,7 @@ elif [ "$GEOPM_LAUNCHER" = "impi" ]; then
                 -n ${TOTAL_RANKS} \
                 --geopm-ctl=process \
                 --geopm-agent=power_balancer \
-                --geopm-report=tutorial_4_balanced_report \
+                --geopm-report=tutorial_4_balanced_report_${HOSTNAME} \
                 --geopm-trace=tutorial_4_balanced_trace \
                 --geopm-policy=tutorial_power_policy.json \
                 -- ./tutorial_4
@@ -120,7 +121,7 @@ elif [ "$GEOPM_LAUNCHER" = "ompi" ]; then
                 --hostfile tutorial_hosts \
                 --geopm-ctl=process \
                 --geopm-agent=power_governor \
-                --geopm-report=tutorial_4_governed_report \
+                --geopm-report=tutorial_4_governed_report_${HOSTNAME} \
                 --geopm-trace=tutorial_4_governed_trace \
                 --geopm-policy=tutorial_power_policy.json \
                 -- ./tutorial_4 \
@@ -131,7 +132,7 @@ elif [ "$GEOPM_LAUNCHER" = "ompi" ]; then
                 --hostfile tutorial_hosts \
                 --geopm-ctl=process \
                 --geopm-agent=power_balancer \
-                --geopm-report=tutorial_4_balanced_report \
+                --geopm-report=tutorial_4_balanced_report_${HOSTNAME} \
                 --geopm-trace=tutorial_4_balanced_trace \
                 --geopm-policy=tutorial_power_policy.json \
                 -- ./tutorial_4

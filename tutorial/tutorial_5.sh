@@ -20,12 +20,13 @@ export LD_LIBRARY_PATH=$GEOPM_LIB:$LD_LIBRARY_PATH
 NUM_NODES=2
 RANKS_PER_NODE=4
 TOTAL_RANKS=$((${RANKS_PER_NODE} * ${NUM_NODES}))
+HOSTNAME=$(hostname)
 
 if [ "$MPIEXEC" ]; then
     # Use MPIEXEC and set GEOPM environment variables to launch the job
     LD_DYNAMIC_WEAK=true \
     GEOPM_CTL=process \
-    GEOPM_REPORT=tutorial_5_report \
+    GEOPM_REPORT=tutorial_5_report_${HOSTNAME} \
     GEOPM_TRACE=tutorial_5_trace \
     $MPIEXEC \
     ./tutorial_5
@@ -36,7 +37,7 @@ elif [ "$GEOPM_LAUNCHER" = "srun" ]; then
                 -N ${NUM_NODES} \
                 -n ${TOTAL_RANKS} \
                 --geopm-ctl=process \
-                --geopm-report=tutorial_5_report \
+                --geopm-report=tutorial_5_report_${HOSTNAME} \
                 --geopm-trace=tutorial_5_trace \
                 -- ./tutorial_5
     err=$?
@@ -46,7 +47,7 @@ elif [ "$GEOPM_LAUNCHER" = "aprun" ]; then
                 -N ${RANKS_PER_NODE} \
                 -n ${TOTAL_RANKS} \
                 --geopm-ctl=process \
-                --geopm-report=tutorial_5_report \
+                --geopm-report=tutorial_5_report_${HOSTNAME} \
                 --geopm-trace=tutorial_5_trace \
                 -- ./tutorial_5
     err=$?
@@ -56,7 +57,7 @@ elif [ "$GEOPM_LAUNCHER" = "impi" ]; then
                 -ppn ${RANKS_PER_NODE} \
                 -n ${TOTAL_RANKS} \
                 --geopm-ctl=process \
-                --geopm-report=tutorial_5_report \
+                --geopm-report=tutorial_5_report_${HOSTNAME} \
                 --geopm-trace=tutorial_5_trace \
                 -- ./tutorial_5
     err=$?
@@ -67,7 +68,7 @@ elif [ "$GEOPM_LAUNCHER" = "ompi" ]; then
                 -n ${TOTAL_RANKS} \
                 --hostfile tutorial_hosts \
                 --geopm-ctl=process \
-                --geopm-report=tutorial_5_report \
+                --geopm-report=tutorial_5_report_${HOSTNAME} \
                 --geopm-trace=tutorial_5_trace \
                 -- ./tutorial_5
     err=$?
