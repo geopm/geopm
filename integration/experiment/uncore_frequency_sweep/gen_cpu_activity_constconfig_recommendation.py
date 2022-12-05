@@ -31,9 +31,13 @@ def extract_columns(df, region_list = None):
     Extract the columns of interest from the full report collection
     dataframe.
     """
-    df_filtered = df
+
     if region_list:
-        df_filtered = df.loc[df['region'].isin(region_list)]
+        #Explicitly a copy to deal with setting on copy errors
+        df_filtered = df.loc[df['region'].isin(region_list)].copy()
+    else:
+        #Explicitly a copy to deal with setting on copy errors
+        df_filtered = df.copy()
 
     # These cases are intended to handle older runs where uncore-frequency is not
     # part of the report or the QM_CTR_SCALED_RATE has not been collected at the
@@ -47,15 +51,15 @@ def extract_columns(df, region_list = None):
                                                 df_filtered['CPU_UNCORE_FREQUENCY_STATUS@package-1'])/2
 
     # these are the only columns we need
-    df_cols = df_filtered[['region',
-                            'runtime (s)',
-                            'package-energy (J)',
-                            'dram-energy (J)',
-                            'frequency (Hz)',
-                            'MSR::QM_CTR_SCALED_RATE',
-                            'uncore-frequency (Hz)']]
+    df_filtered = df_filtered[['region',
+                               'runtime (s)',
+                               'package-energy (J)',
+                               'dram-energy (J)',
+                               'frequency (Hz)',
+                               'MSR::QM_CTR_SCALED_RATE',
+                               'uncore-frequency (Hz)']]
 
-    return df_cols
+    return df_filtered
 
 def system_memory_bandwidth_characterization(df_region_group, region):
     """
