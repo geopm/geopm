@@ -15,6 +15,7 @@ import unittest
 import os
 import subprocess
 import shutil
+import socket
 
 import geopmpy.io
 import geopmdpy.error
@@ -74,15 +75,16 @@ class TestIntegration_tutorial_base(unittest.TestCase):
     @util.skip_unless_do_launch()
     def test_generate_reports(self):
         "Check that reports were generated"
-        expected_reports = ['tutorial_0_report',
-                            'tutorial_1_report',
-                            'tutorial_2_report',
-                            'tutorial_3_balanced_report',
-                            'tutorial_3_governed_report',
-                            'tutorial_4_balanced_report',
-                            'tutorial_4_governed_report',
-                            'tutorial_5_report',
-                            'tutorial_6_report']
+        host = socket.gethostname()
+        expected_reports = [f'tutorial_0_report_{host}',
+                            f'tutorial_1_report_{host}',
+                            f'tutorial_2_report_{host}',
+                            f'tutorial_3_balanced_report_{host}',
+                            f'tutorial_3_governed_report_{host}',
+                            f'tutorial_4_balanced_report_{host}',
+                            f'tutorial_4_governed_report_{host}',
+                            f'tutorial_5_report_{host}',
+                            f'tutorial_6_report_{host}']
         out_dir = '{tmp_link}/geopm-tutorial'.format(tmp_link=self._tmp_link)
         for report in expected_reports:
             report_path = os.path.join(out_dir, report)
