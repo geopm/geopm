@@ -187,7 +187,7 @@ def energy_efficient_frequency(df, freq_col_name, energy_col_name, energy_margin
             df_mean = df_mean.loc[:energy_efficient_frequency - 1]
 
             # Find any energy reading that is within a given margin of Fe's energy while having a lower frequency
-            energy_max_acceptable = e = energy_reading + energy_reading * energy_margin;
+            energy_max_acceptable = energy_reading + energy_reading * energy_margin;
             df_in_margin = df_mean.loc[df_mean <= energy_max_acceptable];
 
             # If any values are within margin
