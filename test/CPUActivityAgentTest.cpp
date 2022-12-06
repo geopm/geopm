@@ -115,6 +115,7 @@ void CPUActivityAgentTest::SetUp()
     ON_CALL(*m_platform_io, agg_function(_))
         .WillByDefault(Return(geopm::Agg::average));
 
+    m_cpu_freq_min = 1000000000.0;
     m_cpu_freq_max = 3700000000.0;
     m_cpu_uncore_freq_min = 1200000000.0;
     m_cpu_uncore_freq_max = 2400000000.0;
