@@ -35,7 +35,7 @@ class TestIntegrationProfilePolicy(unittest.TestCase):
         # file name must match name in .cpp file
         script_dir = os.path.dirname(os.path.realpath(__file__))
         exe_path = os.path.join(script_dir, '.libs', 'test_profile_policy')
-        policy_db_path = os.path.join(script_dir, "policystore.db")
+        policy_db_path = os.path.join(os.getcwd(), 'policystore.db')
         self._files.append(policy_db_path)
         geopmpy.policy_store.connect(policy_db_path)
         geopmpy.policy_store.set_default("power_balancer",
