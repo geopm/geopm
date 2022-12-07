@@ -268,4 +268,14 @@ namespace geopm
         }
         return stat_struct.st_gid;
     };
+
+    std::string sanatize_profile(const std::string &profile_name) {
+        std::string sanatized_profile(profile_name);
+        sanatized_profile.erase(std::remove_if(sanatized_profile.begin(), sanatized_profile.end(),
+                                               [](char &c) {
+                                                   return ( c == '\n' || c == '"');
+                                               }),
+                                sanatized_profile.end());
+        return sanatized_profile;
+    }
 }

@@ -252,11 +252,7 @@ namespace geopm
         }
         else if (!ret.empty()) {
             // Sanitize the input: No carriage returns nor double quotes
-            ret.erase(std::remove_if(ret.begin(), ret.end(),
-                                     [](char &c) {
-                                         return ( c == '\n' || c == '"');
-                                     }),
-                      ret.end());
+            ret = geopm::sanatize_profile(ret);
         }
         if (!env_profile.empty() && ret != env_profile) {
             std::cerr << "Warning: <geopm> The GEOPM_PROFILE contains invalid characters: \""

@@ -9,6 +9,7 @@
 #include <iostream>
 #include <memory>
 #include <sstream>
+#include <algorithm>
 
 #include <sqlite3.h>
 
@@ -158,7 +159,7 @@ namespace geopm
             "WHERE profile = ?1 AND agent = ?2;";
         auto statement = make_statement(database, SELECT_BEST_POLICY);
 
-        bind_value_or_throw(statement.get(), 1, profile_name, __LINE__);
+        bind_value_or_throw(statement.get(), 1, geopm::sanatize_profile(profile_name), __LINE__);
         bind_value_or_throw(statement.get(), 2, agent_name, __LINE__);
 
         return sqlite_results_to_policy_vector(database, statement.get());
@@ -287,7 +288,7 @@ namespace geopm
             auto statement = make_statement(
                 m_database, "DELETE FROM BestPolicies WHERE profile=?1 AND agent=?2;");
 
-            bind_value_or_throw(statement.get(), 1, profile_name, __LINE__);
+            bind_value_or_throw(statement.get(), 1, geopm::sanatize_profile(profile_name), __LINE__);
             bind_value_or_throw(statement.get(), 2, agent_name, __LINE__);
 
             int sqlite_ret = sqlite3_step(statement.get());
@@ -302,7 +303,7 @@ namespace geopm
                 "INSERT INTO BestPolicies "
                 "(profile, agent, offset, value) VALUES (?1, ?2, ?3, ?4);");
 
-            bind_value_or_throw(statement.get(), 1, profile_name, __LINE__);
+            bind_value_or_throw(statement.get(), 1, geopm::sanatize_profile(profile_name), __LINE__);
             bind_value_or_throw(statement.get(), 2, agent_name, __LINE__);
             bind_value_or_throw(statement.get(), 3, static_cast<int>(offset), __LINE__);
             bind_value_or_throw(statement.get(), 4, policy[offset], __LINE__);

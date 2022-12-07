@@ -140,6 +140,11 @@ namespace geopm
     /// @param [in] pid The process id to query.
     /// @return The group id.
     unsigned int pid_to_gid(const int pid);
+
+    /// @brief Remove quotes and carriage returns from the profile name.
+    /// @param [in] profile The string to sanatize.
+    /// @return The sanatized string.
+    std::string sanatize_profile(const std::string &profile);
 }
 
 #endif
