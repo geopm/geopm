@@ -185,6 +185,12 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/FrequencyMapAgentTest.report_neither_map_nor_set \
               test/gtest_links/FrequencyMapAgentTest.split_policy \
               test/gtest_links/FrequencyMapAgentTest.validate_policy \
+              test/gtest_links/LocalNeuralNetTest.test_inference \
+              test/gtest_links/LocalNeuralNetTest.test_bad_layers \
+              test/gtest_links/LocalNeuralNetTest.test_empty_array \
+              test/gtest_links/LocalNeuralNetTest.test_inference_bad_input_dimensions \
+              test/gtest_links/LocalNeuralNetTest.test_non_rectangular_weights \
+              test/gtest_links/LocalNeuralNetTest.test_empty_bias \
               test/gtest_links/ModelApplicationTest.parse_config_errors \
               test/gtest_links/MonitorAgentTest.policy_names \
               test/gtest_links/MonitorAgentTest.sample_names \
@@ -397,6 +403,7 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
                           test/FilePolicyTest.cpp \
                           test/FrequencyGovernorTest.cpp \
                           test/FrequencyMapAgentTest.cpp \
+                          test/LocalNeuralNetTest.cpp \
                           test/MockAgent.hpp \
                           test/MockApplicationIO.hpp \
                           test/MockApplicationRecordLog.hpp \
