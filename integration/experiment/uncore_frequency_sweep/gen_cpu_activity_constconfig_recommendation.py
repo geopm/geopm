@@ -50,6 +50,10 @@ def extract_columns(df, region_list = None):
         df_filtered['uncore-frequency (Hz)'] = (df_filtered['CPU_UNCORE_FREQUENCY_STATUS@package-0'] +
                                                 df_filtered['CPU_UNCORE_FREQUENCY_STATUS@package-1'])/2
 
+    # Use requested frequency from the agent
+    df_filtered['requested core-frequency (Hz)'] = df['FREQ_DEFAULT']
+    df_filtered['requested uncore-frequency (Hz)'] = df['FREQ_UNCORE']
+
     # these are the only columns we need
     df_filtered = df_filtered[['region',
                                'runtime (s)',
@@ -57,37 +61,28 @@ def extract_columns(df, region_list = None):
                                'dram-energy (J)',
                                'frequency (Hz)',
                                'MSR::QM_CTR_SCALED_RATE',
-                               'uncore-frequency (Hz)']]
+                               'uncore-frequency (Hz)',
+                               'requested core-frequency (Hz)',
+                               'requested uncore-frequency (Hz)',]]
 
     return df_filtered
 
-def system_memory_bandwidth_characterization(df_region_group, region):
+def system_memory_bandwidth_characterization(df_region_group, region, freq_col):
     """
     Perform characterization of the system memory bandwidth.  This
     is used by the agent to help determine the appropriate uncore frequency
     """
     df = df_region_group.get_group(region)
-    uncore_freq_set = sorted(set(df['uncore-frequency (Hz)'].to_list()))
+    uncore_freq_set = sorted(set(df[freq_col].to_list()))
 
     mem_bw_dict = {}
     for k in uncore_freq_set:
-        mem_df = df.groupby('uncore-frequency (Hz)').get_group(k)
-        #TODO: use both packages!  This will skew in favor of package-0
+        mem_df = df.groupby(freq_col).get_group(k)
         mem_bw_dict[k] = mem_df['MSR::QM_CTR_SCALED_RATE'].mean()
 
     return mem_bw_dict
 
-def frequency_recommendation(df_region_group, region, domain, energy_margin):
-    if domain == "UNCORE":
-        freq_col = 'uncore-frequency (Hz)'
-        fixed_freq_col = 'frequency (Hz)'
-    elif domain == "CORE":
-        freq_col = 'frequency (Hz)'
-        fixed_freq_col = 'uncore-frequency (Hz)'
-    else:
-        sys.stderr.write('Error: <geopm> gen_cpu_activity_constconfig_recommendation.py: unsupported domain ' + domain + \
-                         'provided\n')
-        sys.exit(1)
+def frequency_recommendation(df_region_group, region, freq_col, energy_margin):
     energy_col = 'package-energy (J)'
 
     # Start with a region analysis for energy efficiency
@@ -96,7 +91,8 @@ def frequency_recommendation(df_region_group, region, domain, energy_margin):
 
     return domain_freq_efficient
 
-def get_config_from_frequency_sweep(full_df, region_list, mach, core_energy_margin, uncore_energy_margin):
+def get_config_from_frequency_sweep(full_df, region_list, mach,
+                                    core_energy_margin, uncore_energy_margin, use_freq_req):
     """
     The main function. full_df is a report collection dataframe, region_list
     is a list of regions to include.
@@ -111,14 +107,24 @@ def get_config_from_frequency_sweep(full_df, region_list, mach, core_energy_marg
 
     # Characterize MBM metrics using the uncore sensitive
     # region (intensity_1)
-    mem_bw_characterization = system_memory_bandwidth_characterization(df_region_group, region=region_list[0])
+    if use_freq_req:
+        freq_col = 'requested uncore-frequency (Hz)'
+    else:
+        freq_col = 'uncore-frequency (Hz)'
+    mem_bw_characterization = system_memory_bandwidth_characterization(df_region_group,
+                                                                       region=region_list[0], freq_col=freq_col)
+
+    if use_freq_req:
+        freq_col = 'requested uncore-frequency (Hz)'
+    else:
+        freq_col = 'uncore-frequency (Hz)'
 
     # A multi-step approach is used.
     # First analyze the uncore sensitive
     # region (ex: intensity_1) to find the efficient
     # uncore frequency
     uncore_freq_recommendation = frequency_recommendation(df_region_group, region=region_list[0],
-                                                           domain="UNCORE", energy_margin=uncore_energy_margin)
+                                                          freq_col=freq_col, energy_margin=uncore_energy_margin)
 
     # Round to step size
     uncore_freq_recommendation = round(uncore_freq_recommendation / frequency_step) * frequency_step
@@ -129,8 +135,14 @@ def get_config_from_frequency_sweep(full_df, region_list, mach, core_energy_marg
     # above
     df = df[df['uncore-frequency (Hz)'] == uncore_freq_recommendation]
     df_region_group = df.groupby('region')
+
+    if use_freq_req:
+        freq_col = 'requested core-frequency (Hz)'
+    else:
+        freq_col = 'frequency (Hz)'
+
     core_freq_recommendation = frequency_recommendation(df_region_group, region=region_list[1],
-                                                         domain="CORE", energy_margin=core_energy_margin)
+                                                        freq_col=freq_col, energy_margin=core_energy_margin)
 
     # Round to step size
     core_freq_recommendation = round(core_freq_recommendation / frequency_step) * frequency_step
@@ -190,6 +202,13 @@ if __name__ == '__main__':
                              'with the first used for uncore frequency characterization '
                              'and the second used for core frequency characteriztaion.  '
                              'Default is intensity_1,intensity_16')
+    parser.add_argument('--use-requested-frequency', action='store_true', default=False,
+                        dest='use_freq_req',
+                        help='Use the frequency that was requested during the frequency sweep instead '
+                             'of the achieved frequency for a given run.  This is useful in cases where '
+                             'multiple frequency domains or settings are impacted and the achieved '
+                             'frequency does not reflect the secondary impact')
+
     args = parser.parse_args()
 
     region_list = args.region_list.split(',')
@@ -210,7 +229,9 @@ if __name__ == '__main__':
         sys.exit(1)
 
     mach = machine.get_machine(args.path);
-    output = get_config_from_frequency_sweep(df, region_list, mach, args.core_energy_margin, args.uncore_energy_margin)
+    output = get_config_from_frequency_sweep(df, region_list, mach,
+                                             args.core_energy_margin, args.uncore_energy_margin,
+                                             args.use_freq_req)
     output = util.merge_const_config(output, args.const_config_path)
 
     sys.stdout.write(json.dumps(output, indent=4) + "\n")
