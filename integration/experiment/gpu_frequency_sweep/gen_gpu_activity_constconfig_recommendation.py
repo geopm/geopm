@@ -34,6 +34,9 @@ def extract_columns(df):
     #Explicitly a copy to deal with setting on copy errors
     df_filtered = df.copy()
 
+    # Use requested frequency from the agent
+    df_filtered['requested gpu-frequency (Hz)'] = df['FREQ_GPU_DEFAULT']
+
     # these are the only columns we need
     try:
         df_filtered = df_filtered[['runtime (s)',
@@ -41,29 +44,38 @@ def extract_columns(df):
                                 'dram-energy (J)',
                                 'frequency (Hz)',
                                 'gpu-frequency (Hz)',
-                                'gpu-energy (J)']]
+                                'gpu-energy (J)',
+                                'requested gpu-frequency (Hz)']]
+
     except:
         df_filtered = df_filtered[['runtime (s)',
                                 'package-energy (J)',
                                 'dram-energy (J)',
                                 'frequency (Hz)',
-                                'gpu-energy (J)']]
+                                'gpu-energy (J)',
+                                'requested gpu-frequency (Hz)']]
+
         df_filtered['gpu-frequency (Hz)'] = df_filtered['GPU_CORE_FREQUENCY_STATUS']
 
     return df_filtered
 
-def get_config_from_frequency_sweep(full_df, mach, energy_margin):
+def get_config_from_frequency_sweep(full_df, mach, energy_margin, use_freq_req):
     """
     The main function. full_df is a report collection dataframe
     """
+
     df = extract_columns(full_df)
-    freq_col = 'gpu-frequency (Hz)'
-    energy_col = 'gpu-energy (J)'
 
     #Round entries to nearest step size
     frequency_step = mach.gpu_frequency_step()
     df.loc[:,'gpu-frequency (Hz)'] = (df['gpu-frequency (Hz)'] /
                                          frequency_step).round(decimals=0) * frequency_step
+
+    energy_col = 'gpu-energy (J)'
+    if use_freq_req:
+        freq_col = 'requested gpu-frequency (Hz)'
+    else:
+        freq_col = 'gpu-frequency (Hz)'
 
     gpu_freq_efficient = util.energy_efficient_frequency(df, freq_col, energy_col, energy_margin)
 
@@ -90,6 +102,12 @@ if __name__ == '__main__':
                              'noisy systems that have many GPU frequencies near the Fe energy consumption value')
     parser.add_argument('--path', required=True,
                         help='path containing reports and machine.json')
+    parser.add_argument('--use-requested-frequency', action='store_true', default=False,
+                        dest='use_freq_req',
+                        help='Use the frequency that was requested during the frequency sweep instead '
+                             'of the achieved frequency for a given run.  This is useful in cases where '
+                             'multiple frequency domains or settings are impacted and the achieved '
+                             'frequency does not reflect the secondary impact')
     args = parser.parse_args()
 
     try:
@@ -104,7 +122,7 @@ if __name__ == '__main__':
         sys.exit(1)
 
     mach = machine.get_machine(args.path);
-    output = get_config_from_frequency_sweep(df, mach, args.gpu_energy_margin)
+    output = get_config_from_frequency_sweep(df, mach, args.gpu_energy_margin, args.use_freq_req)
     output = util.merge_const_config(output, args.const_config_path);
 
     sys.stdout.write(json.dumps(output, indent=4) + "\n")
