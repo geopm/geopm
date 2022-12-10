@@ -175,7 +175,7 @@ def get_config_from_frequency_sweep(full_df, region_list, mach,
                                                         "values" : [k]}
         json_dict["CPU_UNCORE_MAX_MEMORY_BANDWIDTH_" + str(idx)] = {"domain" : "board",
                                                                     "description" : "Maximum memory bandwidth in " +
-                                                                                    "bytes perf second " +
+                                                                                    "bytes per second " +
                                                                                     "associated with " +
                                                                                     "CPU_UNCORE_FREQUENCY_" + str(idx) + ".",
                                                                     "units" : "none",
