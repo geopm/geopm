@@ -141,7 +141,7 @@ class TestIntegration_cpu_activity(unittest.TestCase):
         uncore_config = gen_cpu_activity_constconfig_recommendation.get_config_from_frequency_sweep(df_frequency_sweep,
                                                                                                     ['intensity_1',
                                                                                                      'intensity_16'], mach,
-                                                                                                      0, 0)
+                                                                                                      0, 0, False)
 
         uncore_efficient_freq = uncore_config['CPU_UNCORE_FREQUENCY_EFFICIENT_HIGH_INTENSITY']['values'][0]
 
@@ -165,7 +165,7 @@ class TestIntegration_cpu_activity(unittest.TestCase):
         core_config = gen_cpu_activity_constconfig_recommendation.get_config_from_frequency_sweep(df_frequency_sweep,
                                                                                                   ['intensity_1',
                                                                                                    'intensity_16'], mach,
-                                                                                                    0, 0)
+                                                                                                    0, 0, False)
         # The core config has the updated CPU Fe value,
         # but none of the memory bandwidth info so we
         # combine them into a full const config file
