@@ -105,7 +105,7 @@ Monitoring by adding the following above the experiment script invocation::
     srun -N ${SLURM_NNODES} geopmwrite MSR::QM_EVTSEL:RMID board 0 0
     srun -N ${SLURM_NNODES} geopmwrite MSR::QM_EVTSEL:EVENT_ID board 0 2
 
-Without this, the uncore bandwidth characteriztaion analysis scripts will not
+Without this, the uncore bandwidth characterization analysis scripts will not
 be able to accurately determine the maximum memory bandwidth at each uncore
 frequency.
 
