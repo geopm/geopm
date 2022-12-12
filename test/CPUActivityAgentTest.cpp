@@ -195,10 +195,6 @@ void CPUActivityAgentTest::SetUp()
     }
 
     ON_CALL(*m_platform_io, signal_names()).WillByDefault(Return(signal_name_set));
-    setup_default_expect_calls_const_config();
-
-    // leaf agent
-    m_agent->init(0, {}, false);
 }
 
 void CPUActivityAgentTest::setup_default_expect_calls()
@@ -238,6 +234,10 @@ void CPUActivityAgentTest::TearDown()
 
 TEST_F(CPUActivityAgentTest, name)
 {
+    // initialize leaf agent
+    setup_default_expect_calls_const_config();
+    m_agent->init(0, {}, false);
+
     EXPECT_EQ("cpu_activity", m_agent->plugin_name());
     EXPECT_NE("bad_string", m_agent->plugin_name());
 }
@@ -246,6 +246,10 @@ TEST_F(CPUActivityAgentTest, validate_policy)
 {
     const std::vector<double> policy_nan(m_num_policy, NAN);
     std::vector<double> policy;
+
+    // initialize leaf agent
+    setup_default_expect_calls_const_config();
+    m_agent->init(0, {}, false);
 
     // default policy with 1.2-2.4GHz MBM
     // max rates defined are accepted
@@ -289,16 +293,28 @@ TEST_F(CPUActivityAgentTest, validate_policy)
 }
 
 TEST_F(CPUActivityAgentTest, control_signal_granularity_check) {
-    setup_default_expect_calls();
+
+    ON_CALL(*m_platform_io, signal_domain_type("MSR::CPU_SCALABILITY_RATIO"))
+            .WillByDefault(Return(GEOPM_DOMAIN_PACKAGE));
+
     setup_default_expect_calls_const_config();
 
-    // If we were testing with a real freq governor instance we could
-    // check that frequency_domain_type is now PACKAGE
+    // Extra calls for the granularity check & change
+    EXPECT_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_CORE)).Times(1);
+    EXPECT_CALL(*m_gov, frequency_domain_type()).Times(1);
+
+    // See that we actually set to the coarser domain
+    EXPECT_CALL(*m_gov, set_domain_type(GEOPM_DOMAIN_PACKAGE)).Times(1);
+
     m_agent->init(0, {}, false);
 }
 
 TEST_F(CPUActivityAgentTest, adjust_platform_high)
 {
+    // initialize leaf agent
+    setup_default_expect_calls_const_config();
+    m_agent->init(0, {}, false);
+
     std::vector<double> policy;
     policy = m_default_policy;
     EXPECT_CALL(*m_gov, validate_policy(m_cpu_freq_min, m_cpu_freq_max)).Times(1);
@@ -329,6 +345,10 @@ TEST_F(CPUActivityAgentTest, adjust_platform_high)
 
 TEST_F(CPUActivityAgentTest, adjust_platform_lower_bound_check)
 {
+    // initialize leaf agent
+    setup_default_expect_calls_const_config();
+    m_agent->init(0, {}, false);
+
     std::vector<double> policy;
     policy = m_default_policy;
     EXPECT_CALL(*m_gov, validate_policy(m_cpu_freq_min, m_cpu_freq_max)).Times(1);
@@ -369,6 +389,10 @@ TEST_F(CPUActivityAgentTest, adjust_platform_lower_bound_check)
 
 TEST_F(CPUActivityAgentTest, adjust_platform_medium)
 {
+    // initialize leaf agent
+    setup_default_expect_calls_const_config();
+    m_agent->init(0, {}, false);
+
     std::vector<double> policy;
     policy = m_default_policy;
     EXPECT_CALL(*m_gov, validate_policy(m_cpu_freq_min, m_cpu_freq_max)).Times(1);
@@ -409,6 +433,10 @@ TEST_F(CPUActivityAgentTest, adjust_platform_medium)
 
 TEST_F(CPUActivityAgentTest, adjust_platform_low)
 {
+    // initialize leaf agent
+    setup_default_expect_calls_const_config();
+    m_agent->init(0, {}, false);
+
     std::vector<double> policy;
     policy = m_default_policy;
     EXPECT_CALL(*m_gov, validate_policy(m_cpu_freq_min, m_cpu_freq_max)).Times(1);
@@ -449,6 +477,10 @@ TEST_F(CPUActivityAgentTest, adjust_platform_low)
 
 TEST_F(CPUActivityAgentTest, adjust_platform_zero)
 {
+    // initialize leaf agent
+    setup_default_expect_calls_const_config();
+    m_agent->init(0, {}, false);
+
     std::vector<double> policy;
     policy = m_default_policy;
     EXPECT_CALL(*m_gov, validate_policy(m_cpu_freq_min, m_cpu_freq_max)).Times(1);
@@ -479,6 +511,10 @@ TEST_F(CPUActivityAgentTest, adjust_platform_zero)
 
 TEST_F(CPUActivityAgentTest, adjust_platform_signal_out_of_bounds)
 {
+    // initialize leaf agent
+    setup_default_expect_calls_const_config();
+    m_agent->init(0, {}, false);
+
     std::vector<double> policy;
     policy = m_default_policy;
     m_agent->validate_policy(policy);
@@ -531,58 +567,54 @@ TEST_F(CPUActivityAgentTest, adjust_platform_signal_out_of_bounds)
 
 TEST_F(CPUActivityAgentTest, no_mem_constconfig)
 {
-    setup_default_expect_calls();
-
     std::set<std::string> signal_name_set = {"CPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY",
                                              "CPU_UNCORE_FREQUENCY_EFFICIENT_HIGH_INTENSITY"};
 
     ON_CALL(*m_platform_io, signal_names()).WillByDefault(Return(signal_name_set));
-    // leaf agent
+    // init leaf agent expecting failure
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->init(0, {}, false), GEOPM_ERROR_INVALID,
                                 "ConstConfigIOGroup configuration file does not contain memory bandwidth information");
-
 }
 
 
 TEST_F(CPUActivityAgentTest, invalid_fe_core_low)
 {
-    setup_default_expect_calls();
     EXPECT_CALL(*m_platform_io, read_signal("CONST_CONFIG::CPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY", _, _)).Times(1);
     EXPECT_CALL(*m_platform_io, read_signal("CONST_CONFIG::CPU_UNCORE_FREQUENCY_EFFICIENT_HIGH_INTENSITY", _, _)).Times(1);
 
     ON_CALL(*m_platform_io, read_signal("CONST_CONFIG::CPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY", GEOPM_DOMAIN_BOARD, 0))
             .WillByDefault(Return(m_cpu_freq_min - 1));
+    // init leaf agent expecting failure
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->init(0, {}, false), GEOPM_ERROR_INVALID,
                                 "(): Core efficient frequency out of range: ");
 }
 
 TEST_F(CPUActivityAgentTest, invalid_fe_core_high)
 {
-    setup_default_expect_calls();
     EXPECT_CALL(*m_platform_io, read_signal("CONST_CONFIG::CPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY", _, _)).Times(1);
     EXPECT_CALL(*m_platform_io, read_signal("CONST_CONFIG::CPU_UNCORE_FREQUENCY_EFFICIENT_HIGH_INTENSITY", _, _)).Times(1);
 
     ON_CALL(*m_platform_io, read_signal("CONST_CONFIG::CPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY", GEOPM_DOMAIN_BOARD, 0))
             .WillByDefault(Return(m_cpu_freq_max + 1));
+    // init leaf agent expecting failure
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->init(0, {}, false), GEOPM_ERROR_INVALID,
                                 "(): Core efficient frequency out of range: ");
 }
 
 TEST_F(CPUActivityAgentTest, invalid_fe_uncore_low)
 {
-    setup_default_expect_calls();
     EXPECT_CALL(*m_platform_io, read_signal("CONST_CONFIG::CPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY", _, _)).Times(1);
     EXPECT_CALL(*m_platform_io, read_signal("CONST_CONFIG::CPU_UNCORE_FREQUENCY_EFFICIENT_HIGH_INTENSITY", _, _)).Times(1);
 
     ON_CALL(*m_platform_io, read_signal("CONST_CONFIG::CPU_UNCORE_FREQUENCY_EFFICIENT_HIGH_INTENSITY", GEOPM_DOMAIN_BOARD, 0))
             .WillByDefault(Return(m_cpu_uncore_freq_min - 1));
+    // init leaf agent expecting failure
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->init(0, {}, false), GEOPM_ERROR_INVALID,
                                 "(): Uncore efficient frequency out of range: ");
 }
 
 TEST_F(CPUActivityAgentTest, invalid_fe_uncore_high)
 {
-    setup_default_expect_calls();
     EXPECT_CALL(*m_platform_io, read_signal("CONST_CONFIG::CPU_FREQUENCY_EFFICIENT_HIGH_INTENSITY", _, _)).Times(1);
     EXPECT_CALL(*m_platform_io, read_signal("CONST_CONFIG::CPU_UNCORE_FREQUENCY_EFFICIENT_HIGH_INTENSITY", _, _)).Times(1);
 
@@ -590,6 +622,7 @@ TEST_F(CPUActivityAgentTest, invalid_fe_uncore_high)
             .WillByDefault(Return(m_cpu_freq_min));
     ON_CALL(*m_platform_io, read_signal("CONST_CONFIG::CPU_UNCORE_FREQUENCY_EFFICIENT_HIGH_INTENSITY", GEOPM_DOMAIN_BOARD, 0))
             .WillByDefault(Return(m_cpu_uncore_freq_max + 1));
+    // init leaf agent expecting failure
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->init(0, {}, false), GEOPM_ERROR_INVALID,
                                 "(): Uncore efficient frequency out of range: ");
 }
