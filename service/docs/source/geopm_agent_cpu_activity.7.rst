@@ -94,6 +94,15 @@ the ``build.sh`` script provided in the benchmark's folder).
     Before performing the system characterization, please ensure the
     system is quiesced (i.e. not running other heavy processes/workloads).
 
+The automated method of characterization requires running::
+
+    PYTHONPATH=$PYTHONPATH:${GEOPM_SOURCE}/integration/experiment/ python3 ${GEOPM_SOURCE}/integration/test/test_cpu_characterization.py
+
+This will generate a file named ``const_config_io-characterization.json``
+in the current working directory containing configuration information for
+the node.  If successful, this is all that is required.
+
+The manual method of characterization consists of several steps.
 The first step is to generate the execution script by running::
 
     gen_slurm.sh 1 arithmetic_intensity uncore_frequency_sweep

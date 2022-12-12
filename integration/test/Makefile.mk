@@ -43,3 +43,4 @@ include integration/test/test_hint_time.mk
 include integration/test/test_progress.mk
 include integration/test/test_programmable_counters.mk
 include integration/test/test_cpu_activity_agent.mk
+include integration/test/test_cpu_characterization.mk
