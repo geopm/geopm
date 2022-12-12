@@ -106,8 +106,9 @@ if __name__ == '__main__':
                         dest='use_freq_req',
                         help='Use the frequency that was requested during the frequency sweep instead '
                              'of the achieved frequency for a given run.  This is useful in cases where '
-                             'multiple frequency domains or settings are impacted and the achieved '
-                             'frequency does not reflect the secondary impact')
+                             'multiple frequency domains or settings are impacted (i.e. core frequency causes '
+                             'an uncore frequency change) and the achieved frequency does not reflect this '
+                             'behavior.')
     args = parser.parse_args()
 
     try:
