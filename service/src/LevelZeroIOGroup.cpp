@@ -117,7 +117,7 @@ namespace geopm
                                   }},
                               {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_STEP", {
                                   "The compute domain frequency step size in hertz.\n"
-                                  "If the step size is variable the average of all steps is provided.",
+                                  "The average step size is provided in the case where the step size is variable.",
                                   GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::expect_same,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,

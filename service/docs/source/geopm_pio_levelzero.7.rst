@@ -66,7 +66,7 @@ Signals
     *  **Unit**: celsius
 
 ``LEVELZERO::GPU_CORE_FREQUENCY_STEP``
-    The GPU Compute Hardware frequency step size in hertz.  If the step size is variable the average of all steps is provided.
+    The GPU Compute Hardware frequency step size in hertz.  The average step size is provided in the case where the step size is variable.
     *  **Aggregation**: expect_same
     *  **Domain**: gpu
     *  **Format**: double
