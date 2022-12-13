@@ -652,7 +652,6 @@ namespace geopm
         return frequency_min_max(l0_device_idx, l0_domain, l0_domain_idx).second;
     }
 
-
     std::pair<double, double> LevelZeroImp::frequency_min_max(unsigned int l0_device_idx,
                                                               int l0_domain,
                                                               int l0_domain_idx) const
