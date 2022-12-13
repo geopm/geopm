@@ -171,13 +171,13 @@ Descriptions Of High Level Aliases
 ``GPU_CORE_ACTIVITY``
     GPU compute core activity expressed as a ratio of cycles.
 
-``GPU_CORE_FREQENCY_MAX_AVAIL``
+``GPU_CORE_FREQUENCY_MAX_AVAIL``
     Maximum supported GPU core frequency over the specified domain.
 
-``GPU_CORE_FREQENCY_MIN_AVAIL``
+``GPU_CORE_FREQUENCY_MIN_AVAIL``
     Minimum supported GPU core frequency over the specified domain.
 
-``GPU_CORE_FREQENCY_STEP``
+``GPU_CORE_FREQUENCY_STEP``
     Step size between GPU frequency settings.
 
 ``GPU_CORE_FREQUENCY_MAX_CONTROL``
