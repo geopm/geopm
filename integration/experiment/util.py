@@ -178,7 +178,7 @@ def energy_efficient_frequency(df, freq_col_name, energy_col_name, energy_margin
 
     if len(df_mean) > 1:
         if energy_margin != 0.0:
-            sys.stderr.write('Found Fe = {} with energy = {}.  Searching for alternate '
+            sys.stderr.write('Warning: <geopm> util.py: Found Fe = {} with energy = {}.  Searching for alternate '
                              'based on an energy margin of {}\n'.format(energy_efficient_frequency,
                                                                         energy_reading, energy_margin))
 
@@ -207,7 +207,7 @@ def energy_efficient_frequency(df, freq_col_name, energy_col_name, energy_margin
         else:
             df_mean = df_mean.loc[:energy_efficient_frequency - 1]
             nearby_energy_count = len([e for e in df_mean if (e - energy_reading) / e < 0.05]);
-            sys.stderr.write('Warning: Found {} possible alternate Fe value(s) within 5% '
+            sys.stderr.write('Warning: <geopm> util.py: Found {} possible alternate Fe value(s) within 5% '
                              'energy consumption of Fe for \'{}\'.  Consider using the energy-margin options.\n'.format(nearby_energy_count, freq_col_name))
 
     return energy_efficient_frequency

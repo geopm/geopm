@@ -86,7 +86,7 @@ if __name__ == '__main__':
                         help='path containing existing ConstConfigIO configuration file')
     parser.add_argument('--gpu-energy-margin', default=0, type=float, dest='gpu_energy_margin',
                         help='Percentage of additional energy it is acceptable to consume if it results '
-                             'in a lower frequency selection for Fe.  This is useful for analyzing '
+                             'in a lower frequency selection for Fe (energy efficient frequency).  This is useful for analyzing '
                              'noisy systems that have many GPU frequencies near the Fe energy consumption value')
     parser.add_argument('--path', required=True,
                         help='path containing reports and machine.json')
@@ -95,12 +95,12 @@ if __name__ == '__main__':
     try:
         df = geopmpy.io.RawReportCollection('*report', dir_name=args.path).get_app_df()
     except RuntimeError:
-        sys.stderr.write('<geopm> Error: No report data found in ' + path + \
+        sys.stderr.write('Error: <geopm> gen_gpu_activity_constconfig_recommendation.py: No report data found in ' + path + \
                          '; run a frequency sweep before using this analysis.\n')
         sys.exit(1)
 
     if args.gpu_energy_margin < 0:
-        sys.stderr.write('<geopm> Error: GPU energy margin must be non-negative\n')
+        sys.stderr.write('Error: <geopm> gen_gpu_activity_constconfig_recommendation.py: GPU energy margin must be non-negative\n')
         sys.exit(1)
 
     mach = machine.get_machine(args.path);

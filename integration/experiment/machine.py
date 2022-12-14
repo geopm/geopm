@@ -121,7 +121,7 @@ class Machine:
             try:
                 self.signals[sn] = util.geopmread('{} board 0'.format(sn))
             except:
-                sys.stderr.write('Skipping conditional signal: {}'.format(sn))
+                sys.stderr.write('Warning: <geopm> machine.py: Skipping conditional signal: {}'.format(sn))
 
         self.topo = util.geopmread_domain()
         self.meminfo = util.get_node_memory_info()
