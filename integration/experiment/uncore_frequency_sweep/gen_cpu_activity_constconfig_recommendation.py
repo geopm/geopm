@@ -128,7 +128,6 @@ def get_config_from_frequency_sweep(full_df, region_list, mach, core_energy_marg
     # when running at the uncore_freq_efficient determined
     # above
     df = df[df['uncore-frequency (Hz)'] == uncore_freq_recommendation]
-
     df_region_group = df.groupby('region')
     core_freq_recommendation = frequency_recommendation(df_region_group, region=region_list[1],
                                                          domain="CORE", energy_margin=core_energy_margin)
