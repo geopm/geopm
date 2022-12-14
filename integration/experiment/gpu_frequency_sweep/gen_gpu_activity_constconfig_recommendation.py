@@ -87,7 +87,7 @@ if __name__ == '__main__':
     parser.add_argument('--gpu-energy-margin', default=0, type=float, dest='gpu_energy_margin',
                         help='Percentage of additional energy it is acceptable to consume if it results '
                              'in a lower frequency selection for Fe.  This is useful for analyzing '
-                             'noisy systems that have many gpu frequencies near the Fe energy consumption value')
+                             'noisy systems that have many GPU frequencies near the Fe energy consumption value')
     parser.add_argument('--path', required=True,
                         help='path containing reports and machine.json')
     args = parser.parse_args()

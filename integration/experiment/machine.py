@@ -117,7 +117,7 @@ class Machine:
             self.signals[sn] = util.geopmread('{} board 0'.format(sn))
 
         conditional_signal_names = ['GPU_CORE_FREQUENCY_STEP']
-        for sn in signal_names:
+        for sn in conditional_signal_names:
             try:
                 self.signals[sn] = util.geopmread('{} board 0'.format(sn))
             except:

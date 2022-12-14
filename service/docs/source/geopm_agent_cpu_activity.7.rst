@@ -152,7 +152,7 @@ value for ``Fe`` for a given domain.  In these cases a warning similar to the fo
     'Warning: Found N possible alternate Fe value(s) within 5% energy consumption of Fe for <Control>.
      Consider using the energy-margin options.\n'
 
-If the occurs the user may choose to use the provided configuration file OR rerun the recommendation script with
+If this occurs the user may choose to use the provided configuration file OR rerun the recommendation script with
 any the energy-margin options ``--core-energy-margin`` & ``--uncore-energy-margin`` along with a value such
 as 0.05 (5%). These options will attempt to identify a lower ``Fe`` for the respective domain that costs less than
 the energy consumed at ``Fe`` plus the energy-margin percentage provided.
