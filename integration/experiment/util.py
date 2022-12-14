@@ -198,11 +198,9 @@ def energy_efficient_frequency(df, freq_col_name, energy_col_name, energy_margin
                 # Associated energy reading
                 energy_reading = df_in_margin.loc[energy_efficient_frequency];
 
-                sys.stderr.write('Found alternate Fe = {} with energy = {}.\n'.format(energy_efficient_frequency,
-                                                                                      energy_reading))
             else:
-                sys.stderr.write('No alternate found with energy-margin {}.  Using Fe={}.\n'.format(energy_margin,
-                                                                                                    energy_efficient_frequency))
+                sys.stderr.write('Warning: <geopm> util.py: No alternate found with energy-margin {}.  Using Fe={}.\n'.format(energy_margin,
+                                                                                                                              energy_efficient_frequency))
 
         else:
             df_mean = df_mean.loc[:energy_efficient_frequency - 1]
