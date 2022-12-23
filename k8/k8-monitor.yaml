@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: Pod
+metadata:
+   name: geopm-service-pod
+spec:
+   restartPolicy: Never
+   shareProcessNamespace: true
+   containers:
+   - name: geopm-server
+     image: cmcantal/geopm-service:ubuntu2204-server
+     imagePullPolicy: Always
+     securityContext:
+       privileged: true
+     volumeMounts:
+     - name: geopm-mount
+       mountPath: /run/geopm-service
+     - name: dev-mount
+       mountPath: /dev
+     command: ['/usr/bin/sh', '-c', 'chmod 711 /run/geopm-service; geopmread >> /etc/geopm-service/0.DEFAULT_ACCESS/allowed_signals; groupadd -g 10001 client; useradd -g 10001 -u 10001 client; geopmd --grpc']
+   - name: geopm-ctl
+     image: cmcantal/geopm-service:ubuntu2204-client
+     imagePullPolicy: Always
+     securityContext:
+       privileged: false
+       allowPrivilegeEscalation: false
+       readOnlyRootFilesystem: true
+       runAsNonRoot: true
+       runAsUser: 10001
+       runAsGroup: 10001
+     volumeMounts:
+     - name: geopm-mount
+       mountPath: /run/geopm-service
+     - name: tmp-mount
+       mountPath: /tmp
+     command: ['/usr/bin/sh', '-c', 'while [ ! -e /run/geopm-service/grpc.sock ]; do sleep 1; done; export GEOPM_PROFILE=monitor; export GEOPM_REPORT_SIGNALS=CPU_FREQUENCY_STATUS@core; err=0; while [ $err -eq 0 ]; do export GEOPM_REPORT=$(mktemp -t geopm-report-XXXXXXXX.yaml); echo "DEBUG: Start geopmctl"; geopmctl; err=$?; if [ $err -eq 0 ]; then echo "{"; cat ${GEOPM_REPORT}; echo "}"; fi; rm -f ${GEOPM_REPORT}; sleep 1; done;']
+   - name: test-application
+     image: cmcantal/geopm-service:ubuntu2204-client
+     imagePullPolicy: Always
+     securityContext:
+       privileged: false
+       allowPrivilegeEscalation: false
+       readOnlyRootFilesystem: true
+       runAsNonRoot: true
+       runAsUser: 10001
+       runAsGroup: 10001
+     volumeMounts:
+     - name: geopm-mount
+       mountPath: /run/geopm-service
+     command: ['/usr/bin/sh', '-c', 'while [ ! -e /run/geopm-service/grpc.sock ]; do sleep 1; done; export GEOPM_PROFILE=monitor; LD_PRELOAD=libgeopmload.so.1.0.0 sleep 20; sleep 3600']
+   volumes:
+   - name: geopm-mount
+     emptyDir: {}
+   - name: tmp-mount
+     emptyDir: {}
+   - name: dev-mount
+     hostPath:
+       path: /dev

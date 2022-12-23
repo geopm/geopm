@@ -44,7 +44,7 @@ jobs:
 
     - uses: actions/checkout@v4
     - name: install system dependencies
-      run: sudo apt-get update && sudo apt-get install libelf-dev mpich libmpich-dev libomp-11-dev libsystemd-dev liburing-dev libgirepository1.0-dev libcap-dev zlib1g-dev
+      run: sudo apt-get update && sudo apt-get install libelf-dev mpich libmpich-dev libomp-11-dev libsystemd-dev liburing-dev libgirepository1.0-dev libcap-dev zlib1g-dev cargo libgrpc++-dev libgrpc-dev libprotobuf-dev protobuf-compiler protobuf-compiler-grpc zstd
     - name: install base and service dir python dependencies
       run: |
            python3 -m pip install --upgrade pip setuptools wheel pep517

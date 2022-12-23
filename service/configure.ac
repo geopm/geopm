@@ -254,6 +254,19 @@ fi
 AC_SUBST([enable_io_uring])
 AM_CONDITIONAL([ENABLE_IO_URING], [test "x$enable_io_uring" = "x1"])
 
+AC_PATH_PROG([PROTOC], [protoc], [])
+AS_IF([test "x$PROTOC" = x], [AC_MSG_ERROR([protoc not found])])
+PKG_CHECK_MODULES([PROTOBUF], [protobuf >= 3.0.0])
+AC_SUBST([PROTOBUF_CFLAGS])
+AC_SUBST([PROTOBUF_LIBS])
+PKG_CHECK_MODULES([GRPC], [grpc++ >= 1.3.0 grpc >= 3.0.0])
+AC_SUBST([GRPC_CFLAGS])
+AC_SUBST([GRPC_LIBS])
+AC_PATH_PROG([GRPC_CPP_PLUGIN], [grpc_cpp_plugin])
+AS_IF([test "x$GRPC_CPP_PLUGIN" = x], [
+  AC_MSG_ERROR([grpc_cpp_plugin not found])
+])
+
 if test "x$enable_debug" = "x1" ; then
   AC_DEFINE([GEOPM_DEBUG], [ ], [Enables code for debugging])
   CFLAGS="$CFLAGS -Og -g"
@@ -531,6 +544,7 @@ AC_LANG_POP([C++])
 [CFLAGS="$CFLAGS_SAVE"]
 [CXXFLAGS="$CXXFLAGS_SAVE"]
 [CPPFLAGS="$CPPFLAGS_SAVE"]
+[LIBS="$LIBS $GRPC_LIBS $PROTOBUF_LIBS"]
 
 [AM_CFLAGS="$AM_CFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wformat -Wformat-security $NO_FASTMATH -fPIC -flto -fPIE"]
 [AM_CXXFLAGS="$AM_CXXFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wformat -Wformat-security $NO_FASTMATH -fPIC -flto -fPIE"]
@@ -551,7 +565,7 @@ JSON_SCHEMA_CONST_CONFIG_IO=docs/json_schemas/const_config_io.schema.json
 GEOPM_SOURCE_DIR=$(readlink -f $srcdir)
 AC_DEFINE_UNQUOTED([GEOPM_SOURCE_DIR], ["$GEOPM_SOURCE_DIR"], [Root of the GEOPM source directory])
 
-AC_CONFIG_FILES([Makefile geopm-service.spec geopmdpy/version.py geopmdpy/schemas.py debian/changelog])
+AC_CONFIG_FILES([Makefile geopm-service.spec geopmdpy/version.py geopmdpy/schemas.py debian/changelog geopmdrs/Cargo.toml])
 AC_OUTPUT
 
 # ============================================================================
