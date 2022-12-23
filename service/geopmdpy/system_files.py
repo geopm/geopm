@@ -889,21 +889,18 @@ class AccessLists(object):
         self._pio = pio
 
     def _validate_group(self, group):
+        group = str(group)
+        if len(group) > 0 and group[0].isdigit():
+            raise RuntimeError('Client group name cannot begin with a digit: group = "{}"'.format(group))
         if group is None or group == '':
             group = self._DEFAULT_ACCESS
-        else:
-            group = str(group)
-            if group[0].isdigit():
-                raise RuntimeError('Linux group name cannot begin with a digit: group = "{}"'.format(group))
-            try:
-                grp.getgrnam(group)
-            except KeyError:
-                raise RuntimeError('Linux group is not defined: group = "{}"'.format(group))
         return group
 
     def _read_allowed(self, path):
-        contents = secure_read_file(path)
         result = []
+        contents = None
+        if os.path.exists(path):
+            contents = secure_read_file(path)
         if contents is not None:
             result = [line.strip() for line in contents.splitlines()
                       if line.strip() and not line.strip().startswith('#')]
@@ -923,11 +920,6 @@ class AccessLists(object):
         controls = set(controls)
         all_controls = self._pio.control_names()
         return list(controls.intersection(all_controls))
-
-    def _get_user_groups(self, user):
-        user_gid = pwd.getpwnam(user).pw_gid
-        all_gid = os.getgrouplist(user, user_gid)
-        return [grp.getgrgid(gid).gr_name for gid in all_gid]
 
     def get_group_access(self, group):
         """Get the signal and control access lists
@@ -1060,7 +1052,7 @@ class AccessLists(object):
         path = os.path.join(group_dir, 'allowed_controls')
         self._write_allowed(path, allowed_controls)
 
-    def get_user_access(self, user):
+    def get_user_access(self, user, groups):
         """Get the list of all of the signals and controls that are
         accessible to the specified user.
 
@@ -1091,16 +1083,10 @@ class AccessLists(object):
         """
         if user == 'root':
             return self.get_all_access()
-        user_groups = []
-        if user != '':
-            try:
-                user_groups = self._get_user_groups(user)
-            except KeyError as e:
-                raise RuntimeError("Specified user '{}' does not exist.".format(user))
-        user_groups.append('') # Default access list
+        groups.append('') # Default access list
         signal_set = set()
         control_set = set()
-        for group in user_groups:
+        for group in groups:
             signals, controls = self.get_group_access(group)
             signal_set.update(signals)
             control_set.update(controls)

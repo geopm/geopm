@@ -25,7 +25,7 @@ class TestAccessLists(unittest.TestCase):
         self._test_name = 'TestAccessLists'
         self._CONFIG_PATH = tempfile.TemporaryDirectory('{}_config'.format(self._test_name))
         self._access_lists = AccessLists(self._CONFIG_PATH.name)
-        self._bad_group_id = 'GEOPM_TEST_INVALID_GROUP_NAME'
+        self._bad_group_id = '1.GEOPM_TEST_INVALID_GROUP_NAME'
         self._bad_user_id = 'GEOPM_TEST_INVALID_USER_NAME'
         self._signals_expect = ['controls', 'default', 'energy', 'geopm', 'power', 'signals']
         self._controls_expect = ['controls', 'default', 'geopm', 'power']
@@ -146,9 +146,7 @@ default
         self._set_group_access_test_helper('')
 
     def test_set_group_access_named(self):
-        with mock.patch('grp.getgrnam', return_value='named') as mock_getgrnam:
-            self._set_group_access_test_helper('named')
-            mock_getgrnam.assert_called_with('named')
+        self._set_group_access_test_helper('named')
 
     def test_get_group_access_empty(self):
         signals, controls = self._access_lists.get_group_access('')
@@ -156,10 +154,7 @@ default
         self.assertEqual([], controls)
 
     def test_get_group_access_invalid(self):
-        err_msg = 'Linux group name cannot begin with a digit'
-        with self.assertRaisesRegex(RuntimeError, err_msg):
-            self._access_lists.get_group_access('1' + self._bad_group_id)
-        err_msg = 'Linux group is not defined'
+        err_msg = 'Client group name cannot begin with a digit'
         with self.assertRaisesRegex(RuntimeError, err_msg):
             self._access_lists.get_group_access(self._bad_group_id)
 
@@ -191,47 +186,19 @@ default
         with mock.patch('geopmdpy.pio.signal_names', return_value=self._signals_expect), \
              mock.patch('geopmdpy.pio.control_names', return_value=self._controls_expect), \
              mock.patch('os.path.isdir', return_value=True) as mock_isdir, \
-             mock.patch('grp.getgrnam', return_value='named') as mock_getgrnam, \
              mock.patch('geopmdpy.system_files.secure_read_file', side_effect=[control_lines, signal_lines]) as mock_srf:
             signals, controls = self._access_lists.get_group_access('named')
             mock_isdir.assert_called_once_with(named_dir)
             calls = [mock.call(control_file), mock.call(signal_file)]
             mock_srf.assert_has_calls(calls)
-            mock_getgrnam.assert_called_once_with('named')
         # Assert that all controls can be read
         self.assertEqual(self._controls_expect, signals)
         self.assertEqual(set(self._controls_expect), set(controls))
 
     def test_get_user_access_empty(self):
-        signals, controls = self._access_lists.get_user_access('')
+        signals, controls = self._access_lists.get_user_access('', [])
         self.assertEqual([], signals)
         self.assertEqual([], controls)
-
-    def test_get_user_access_invalid(self):
-        bad_user = self._bad_user_id
-        err_msg = "Specified user '{}' does not exist.".format(bad_user)
-        with self.assertRaisesRegex(RuntimeError, err_msg):
-            self._access_lists.get_user_access(bad_user)
-
-    def test_get_user_groups_invalid(self):
-        bad_user = self._bad_user_id
-        err_msg = r"getpwnam\(\): name not found: '{}'".format(bad_user)
-        with self.assertRaisesRegex(KeyError, err_msg):
-            self._access_lists._get_user_groups(bad_user)
-
-        bad_gid = 999999
-        fake_pwd = pwd.struct_passwd((None, None, None, bad_gid, None, '', None))
-        err_msg = r"getgrgid\(\): gid not found: {}".format(bad_gid)
-        with mock.patch('pwd.getpwnam', return_value=fake_pwd), \
-             self.assertRaisesRegex(KeyError, err_msg):
-            self._access_lists._get_user_groups(bad_user)
-
-    def test_get_user_groups_current(self):
-        current_user = pwd.getpwuid(os.getuid()).pw_name
-        expected_groups = [grp.getgrgid(gid).gr_name
-                           for gid in os.getgrouplist(current_user, os.getgid())]
-        groups = self._access_lists._get_user_groups(current_user)
-        self.assertEqual(set(expected_groups), set(groups))
 
     def test_get_user_access_default(self):
         default_dir = os.path.join(self._CONFIG_PATH.name, '0.DEFAULT_ACCESS')
@@ -245,13 +212,11 @@ default
         signal_lines, control_lines = \
             self._write_group_files_helper('', signals_default, controls_default)
 
-        with mock.patch('geopmdpy.system_files.AccessLists._get_user_groups',
-                        return_value=[]), \
-             mock.patch('geopmdpy.pio.signal_names', return_value=signals_expect), \
+        with mock.patch('geopmdpy.pio.signal_names', return_value=signals_expect), \
              mock.patch('geopmdpy.pio.control_names', return_value=controls_default), \
              mock.patch('os.path.isdir', return_value=True) as mock_isdir, \
              mock.patch('geopmdpy.system_files.secure_read_file', side_effect=[control_lines, signal_lines]) as mock_srf:
-            signals, controls = self._access_lists.get_user_access('')
+            signals, controls = self._access_lists.get_user_access('', [])
             mock_isdir.assert_called_once_with(default_dir)
             calls = [mock.call(control_file), mock.call(signal_file)]
             mock_srf.assert_has_calls(calls)
@@ -290,22 +255,18 @@ default
 
         valid_user = 'val'
         groups=['named']
-        with mock.patch('geopmdpy.system_files.AccessLists._get_user_groups',
-                        return_value=groups), \
-             mock.patch('geopmdpy.pio.signal_names', return_value=signals_avail), \
+        with mock.patch('geopmdpy.pio.signal_names', return_value=signals_avail), \
              mock.patch('geopmdpy.pio.control_names', return_value=controls_avail), \
              mock.patch('os.path.isdir', return_value=True) as mock_isdir, \
-             mock.patch('grp.getgrnam', return_value='named') as mock_getgrnam, \
              mock.patch('geopmdpy.system_files.secure_read_file',
                         side_effect=[named_control_lines, named_signal_lines,
                                      default_control_lines, default_signal_lines]) as mock_srf:
-            signals, controls = self._access_lists.get_user_access(valid_user)
+            signals, controls = self._access_lists.get_user_access(valid_user, ['named'])
             calls = [mock.call(named_dir), mock.call(default_dir)]
             mock_isdir.assert_has_calls(calls)
             calls = [mock.call(named_control_file), mock.call(named_signal_file),
                      mock.call(default_control_file), mock.call(default_signal_file)]
             mock_srf.assert_has_calls(calls)
-            mock_getgrnam.assert_called_once_with('named')
 
         self.assertEqual(set(signals_expect), set(signals))
         self.assertEqual(set(controls_expect), set(controls))
@@ -324,7 +285,7 @@ default
 
         with mock.patch('geopmdpy.pio.signal_names', return_value=all_signals), \
              mock.patch('geopmdpy.pio.control_names', return_value=all_controls):
-            signals, controls = self._access_lists.get_user_access('root')
+            signals, controls = self._access_lists.get_user_access('root', [])
 
         self.assertEqual(set(all_signals), set(signals))
         self.assertEqual(set(all_controls), set(controls))

@@ -16,11 +16,14 @@ with mock.patch('cffi.FFI.dlopen', return_value=mock.MagicMock()):
 with mock.patch('cffi.FFI.dlopen', return_value=mock.MagicMock()):
     from geopmdpy.service import PlatformService
     from geopmdpy.service import TopoService
+from geopmdpy.client_registry import ClientRegistry
 
 class TestPlatformService(unittest.TestCase):
     def setUp(self):
         self._test_name = 'TestPlatformService'
         self._RUN_PATH = tempfile.TemporaryDirectory('{}_run'.format(self._test_name))
+        self._watch_id = 888
+        self._client_sid = [333, 999]
 
         self._mock_active_sessions = mock.create_autospec(ActiveSessions)
         self._mock_active_sessions.get_clients.return_value = []
@@ -30,11 +33,18 @@ class TestPlatformService(unittest.TestCase):
 
         self._mock_access_lists = mock.create_autospec(AccessLists)
         self._mock_write_lock = mock.create_autospec(WriteLock)
+        self._mock_client_registry = mock.create_autospec(ClientRegistry)
+        self._mock_client_registry.get_groups.return_value = []
+        self._mock_client_registry.watch.return_value = self._watch_id
+        self._mock_client_registry.get_user.return_value = 'user_name'
+        self._mock_client_registry.get_write_client.side_effect = self._client_sid
+
         self._mock_write_lock.try_lock.return_value = None
         self._mock_write_lock.unlock.return_value = None
 
         with mock.patch('geopmdpy.system_files.ActiveSessions', return_value=self._mock_active_sessions), \
              mock.patch('geopmdpy.system_files.AccessLists', return_value=self._mock_access_lists), \
+             mock.patch('geopmdpy.client_registry.create_registry', return_value=self._mock_client_registry), \
              mock.patch('geopmdpy.system_files.WriteLock', return_value=self._mock_write_lock):
             self._platform_service = PlatformService()
 
@@ -120,13 +130,12 @@ class TestPlatformService(unittest.TestCase):
         signals_default = ['energy', 'frequency']
         controls_default = ['controls', 'geopm', 'named', 'power']
 
-        watch_id = 888
         session_data = {'client_pid': client_pid,
                         'reference_count': reference_count,
                         'mode': 'r',
                         'signals': signals_default,
                         'controls': controls_default,
-                        'watch_id': watch_id}
+                        'watch_id': self._watch_id}
         return session_data
 
     def open_mock_session(self, session_user, client_pid=-999, active=False, reference_count=1):
@@ -148,18 +157,14 @@ class TestPlatformService(unittest.TestCase):
 
         self._mock_access_lists.get_user_access.return_value = (signals, controls)
 
-        with mock.patch('geopmdpy.system_files.AccessLists._get_user_groups', return_value=[]), \
-             mock.patch('geopmdpy.service.PlatformService._watch_client', return_value=watch_id):
+        self._platform_service.open_session(session_user, client_pid)
 
-            self._platform_service.open_session(session_user, client_pid)
-
-            self._mock_active_sessions.is_client_active.assert_called_with(client_pid)
-            if not active:
-                self._mock_active_sessions.add_client.assert_called_with(client_pid, signals, controls, watch_id)
-                self._mock_access_lists.get_user_access.assert_called_with(session_user)
-            else:
-                self._mock_active_sessions.add_client.assert_not_called()
-
+        self._mock_active_sessions.is_client_active.assert_called_with(client_pid)
+        if not active:
+            self._mock_active_sessions.add_client.assert_called_with(client_pid, signals, controls, watch_id)
+            self._mock_access_lists.get_user_access.assert_called_with(session_user, [])
+        else:
+            self._mock_active_sessions.add_client.assert_not_called()
 
         self._mock_active_sessions.check_client_active.side_effect = None # session is now active
 
@@ -185,7 +190,7 @@ class TestPlatformService(unittest.TestCase):
             self._platform_service.close_session(client_pid)
             mock_restore_control_dir.assert_not_called()
             mock_rmtree.assert_not_called()
-            mock_source_remove.assert_called_once_with(watch_id)
+            self._mock_client_registry.unwatch.assert_called_once()
             self._mock_active_sessions.remove_client.assert_called_once_with(client_pid)
 
     def test_close_session_write(self):
@@ -250,7 +255,6 @@ class TestPlatformService(unittest.TestCase):
 
         """
         client_pid = 999
-        client_sid = 333
         other_pid = 666
         control_name = 'geopm'
         domain = 7
@@ -258,11 +262,9 @@ class TestPlatformService(unittest.TestCase):
         setting = 777
         session_data = self.open_mock_session('other', other_pid)
 
-        mock_pwuid = mock.MagicMock()
         self._mock_write_lock.try_lock.return_value = other_pid
         with mock.patch('geopmdpy.pio.write_control', return_value=[]) as mock_write_control, \
-             mock.patch('geopmdpy.pio.save_control_dir'), \
-             mock.patch('os.getsid', return_value=other_pid) as mock_getsid:
+             mock.patch('geopmdpy.pio.save_control_dir'):
             self._platform_service.write_control(other_pid, control_name, domain, domain_idx, setting)
             mock_write_control.assert_called_once_with(control_name, domain, domain_idx, setting)
 
@@ -271,14 +273,10 @@ class TestPlatformService(unittest.TestCase):
         valid_controls = session_data['controls']
         signal_config = [(0, 0, sig) for sig in valid_signals]
         control_config = [(0, 0, con) for con in valid_controls]
-        mock_pwuid.pw_name = 'test_user'
-        err_msg = f'The PID {client_pid} requested write access, but the geopm service already has write mode client with PID or SID of {abs(other_pid)}'
+        err_msg = f'The PID {client_pid} requested write access, but the geopm service already has write mode client with PID or SID of {self._client_sid[0]}'
 
         with self.assertRaisesRegex(RuntimeError, err_msg), \
-             mock.patch('geopmdpy.pio.start_batch_server', return_value = (2345, "2345")), \
-             mock.patch('os.getsid', return_value=client_sid) as mock_getsid, \
-             mock.patch('pwd.getpwuid', return_value=mock_pwuid) as mock_getpwuid, \
-             mock.patch('psutil.pid_exists', return_value=True) as mock_pid_exists:
+             mock.patch('geopmdpy.pio.start_batch_server', return_value = (2345, "2345")):
             self._platform_service.start_batch(client_pid, signal_config,
                                                control_config)
 
@@ -296,8 +294,7 @@ class TestPlatformService(unittest.TestCase):
 
         self._mock_write_lock.try_lock.return_value = client_pid
         with mock.patch('geopmdpy.pio.start_batch_server', return_value=expected_result), \
-             mock.patch('geopmdpy.pio.save_control_dir'), \
-             mock.patch('os.getsid', return_value=client_pid) as mock_getsid:
+             mock.patch('geopmdpy.pio.save_control_dir'):
             actual_result = self._platform_service.start_batch(client_pid, signal_config,
                                                                control_config)
         self.assertEqual(expected_result, actual_result,
@@ -363,8 +360,7 @@ class TestPlatformService(unittest.TestCase):
         domain_idx = 42
         setting = 777
         with mock.patch('geopmdpy.pio.write_control', return_value=[]) as mock_write_control, \
-             mock.patch('geopmdpy.pio.save_control_dir'), \
-             mock.patch('os.getsid', return_value=client_pid) as mock_getsid:
+             mock.patch('geopmdpy.pio.save_control_dir'):
             self._platform_service.write_control(client_pid, control_name, domain, domain_idx, setting)
             mock_write_control.assert_called_once_with(control_name, domain, domain_idx, setting)
 

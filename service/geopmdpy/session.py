@@ -11,8 +11,6 @@ import os
 import time
 import math
 from argparse import ArgumentParser
-from dasbus.connection import SystemMessageBus
-from dasbus.error import DBusError
 from . import topo
 from . import pio
 from . import runtime
@@ -32,27 +30,15 @@ class Session:
 
     """
 
-    def __init__(self, geopm_proxy):
+    def __init__(self):
         """Constructor for Session class
-
-        Args:
-            geopm_proxy (dasbus.client.proxy.InterfaceProxy): The
-                dasbus proxy for the GEOPM D-Bus interface.
 
         Raises:
             RuntimeError: The geopm systemd service is not running
 
         """
-        try:
-            geopm_proxy.PlatformOpenSession
-        except DBusError as ee:
-            if 'io.github.geopm was not provided' in str(ee):
-                err_msg = """The geopm systemd service is not enabled.
-    Install geopm service and run 'systemctl start geopm'"""
-                raise RuntimeError(err_msg) from ee
-            else:
-                raise ee
-        self._geopm_proxy = geopm_proxy
+        pass
+
 
     def format_signals(self, signals, signal_format):
         """Format a list of signal values for printing
@@ -165,7 +151,7 @@ class Session:
                                printed.
 
         """
-        requests = ReadRequestQueue(request_stream, self._geopm_proxy)
+        requests = ReadRequestQueue(request_stream)
         self.check_read_args(run_time, period)
         self.run_read(requests, run_time, period, out_stream)
 
@@ -193,8 +179,7 @@ class RequestQueue:
     def get_names(self):
         """Get the signal or control names from each request
 
-        Strip off "SERVICE::" prefix from any names in request queue,
-        so that the name can be passed to the proxy.
+        Strip off "SERVICE::" prefix from any names in request queue.
 
         Returns:
             list(str): The name of the signal or control associated
@@ -231,22 +216,19 @@ class RequestQueue:
 
 
 class ReadRequestQueue(RequestQueue):
-    def __init__(self, request_stream, geopm_proxy):
+    def __init__(self, request_stream):
         """Constructor for ReadRequestQueue object
 
         Args:
             request_stream (typing.IO): Input from user describing the
                                    requests to read signals.
 
-            geopm_proxy (dasbus.client.proxy.InterfaceProxy): The
-                dasbus proxy for the GEOPM D-Bus interface.
-
         Raises:
             RuntimeError: The geopm systemd service is not running
 
         """
         self._requests = self.parse_requests(request_stream)
-        self._formats = self.query_formats(self.get_names(), geopm_proxy)
+        self._formats = self.query_formats(self.get_names())
 
     def parse_requests(self, request_stream):
         """Parse input stream and return list of read requests
@@ -296,7 +278,7 @@ class ReadRequestQueue(RequestQueue):
             raise RuntimeError('Empty request stream.')
         return requests
 
-    def query_formats(self, signal_names, geopm_proxy):
+    def query_formats(self, signal_names):
         """Call the GEOPM D-Bus API to get the format type for each signal name
 
         Returns a list of geopm::string_format_e integers that determine
@@ -305,26 +287,13 @@ class ReadRequestQueue(RequestQueue):
         Args:
             signal_names (list(str)): List of signal names to query.
 
-            geopm_proxy (dasbus.client.proxy.InterfaceProxy): The
-                dasbus proxy for the GEOPM D-Bus interface.
-
         Returns:
             list(int): List of geopm::string_format_e integers, one
             for each signal name in input list.
 
         """
 
-        try:
-            result = [info[4] for info in
-                      geopm_proxy.PlatformGetSignalInfo(signal_names)]
-        except DBusError as ee:
-            if 'io.github.geopm was not provided' in str(ee):
-                err_msg = """The geopm systemd service is not enabled.
-    Install geopm service and run 'systemctl start geopm'"""
-                raise RuntimeError(err_msg) from ee
-            else:
-                raise ee
-        return result
+        return [pio.signal_info(sn)[1] for sn in signal_names]
 
     def get_formats(self):
         """Get formatting enum values for the parsed read requests
@@ -351,8 +320,7 @@ def main():
                         help='When used with a read mode session reads all values out periodically with the specified period in seconds')
     args = parser.parse_args()
     try:
-        sess = Session(SystemMessageBus().get_proxy('io.github.geopm',
-                                                    '/io/github/geopm'))
+        sess = Session()
         sess.run(args.time, args.period)
     except RuntimeError as ee:
         if 'GEOPM_DEBUG' in os.environ:

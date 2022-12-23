@@ -1,0 +1,140 @@
+//
+// Copyright (c) 2015 - 2022, Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
+//
+
+// TODO: ADD OVERVIEW COMMENT
+
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+package GEOPMPackage;
+
+enum Domain {
+  GEOPM_DOMAIN_BOARD = 0;
+  GEOPM_DOMAIN_PACKAGE = 1;
+  GEOPM_DOMAIN_CORE = 2;
+  GEOPM_DOMAIN_CPU = 3;
+  GEOPM_DOMAIN_MEMORY = 4;
+  GEOPM_DOMAIN_PACKAGE_INTEGRATED_MEMORY = 5;
+  GEOPM_DOMAIN_NIC = 6;
+  GEOPM_DOMAIN_PACKAGE_INTEGRATED_NIC = 7;
+  GEOPM_DOMAIN_GPU = 8;
+  GEOPM_DOMAIN_PACKAGE_INTEGRATED_GPU = 9;
+  GEOPM_DOMAIN_GPU_CHIP = 10;
+}
+
+enum Aggregation {
+  GEOPM_AGG_SUM = 0;
+  GEOPM_AGG_AVERAGE = 1;
+  GEOPM_AGG_MEDIAN = 2;
+  GEOPM_AGG_INTEGER_BITWISE_OR = 3;
+  GEOPM_AGG_LOGICAL_AND = 4;
+  GEOPM_AGG_LOGICAL_OR = 5;
+  GEOPM_AGG_MIN = 6;
+  GEOPM_AGG_MAX = 7;
+  GEOPM_AGG_STDDEV = 8;
+  GEOPM_AGG_REGION_HASH = 9;
+  GEOPM_AGG_REGION_HINT = 10;
+  GEOPM_AGG_SELECT_FIRST = 11;
+  GEOPM_AGG_EXPECT_SAME = 12;
+}
+
+enum StringFormat {
+  GEOPM_STRING_FORMAT_DOUBLE = 0;
+  GEOPM_STRING_FORMAT_INTEGER = 1;
+  GEOPM_STRING_FORMAT_HEX = 2;
+  GEOPM_STRING_FORMAT_RAW64 = 3;
+}
+
+enum SignalBehavior {
+  GEOPM_SIGNAL_BEHAVIOR_CONSTANT = 0;
+  GEOPM_SIGNAL_BEHAVIOR_MONOTONE = 1;
+  GEOPM_SIGNAL_BEHAVIOR_VARIABLE = 2;
+  GEOPM_SIGNAL_BEHAVIOR_LABEL = 3;
+}
+
+message SessionKey {
+  string name = 1;
+}
+
+message AccessLists {
+  repeated string signals = 1;
+  repeated string controls = 2;
+}
+
+message InfoRequest {
+  SessionKey session_key = 1;
+  repeated string names = 2;
+}
+
+message SignalInfoList {
+  message SignalInfo {
+    string name = 1;
+    string description = 2;
+    Domain domain = 3;
+    Aggregation aggregation = 4;
+    StringFormat format_type = 5;
+    SignalBehavior behavior = 6;
+  }
+  repeated SignalInfo list = 1;
+}
+
+message ControlInfoList {
+  message ControlInfo {
+    string name = 1;
+    string description = 2;
+    Domain domain = 3;
+  }
+  repeated ControlInfo list = 1;
+}
+
+message PlatformRequest {
+  string name = 1;
+  Domain domain = 2;
+  int32 domain_idx = 3;
+}
+
+message ReadRequest {
+  SessionKey session_key = 1;
+  PlatformRequest request = 2;
+}
+
+message Sample {
+  double sample = 1;
+}
+
+message WriteRequest {
+  SessionKey session_key = 1;
+  PlatformRequest request = 2;
+  double setting = 3;
+}
+
+message BatchKey {
+  int32 batch_pid = 1;
+  string shmem_key = 2;
+}
+
+message BatchRequest {
+  SessionKey session_key = 1;
+  repeated PlatformRequest signal_config = 2;
+  repeated PlatformRequest control_config = 3;
+}
+
+message TopoCache {
+  string cache = 1;
+}
+
+service GEOPMService {
+  rpc GetUserAccess(SessionKey) returns (AccessLists);
+  rpc GetSignalInfo(InfoRequest) returns (SignalInfoList);
+  rpc GetControlInfo(InfoRequest) returns (ControlInfoList);
+  rpc StartBatch(BatchRequest) returns (BatchKey);
+  rpc StopBatch(BatchKey) returns (google.protobuf.Empty);
+  rpc ReadSignal(ReadRequest) returns (Sample);
+  rpc WriteControl(WriteRequest) returns(google.protobuf.Empty);
+  rpc TopoGetCache(google.protobuf.Empty) returns(TopoCache);
+  rpc OpenSession(SessionKey) returns(SessionKey);
+  rpc CloseSession(SessionKey) returns(google.protobuf.Empty);
+}

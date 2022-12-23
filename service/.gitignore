@@ -16,10 +16,13 @@ compile_commands.json
 /configure
 /CONTRIBUTING.rst
 /COPYING
+/COPYING-TPP
 /depcomp
 /dist
 /docs/build
 /geopmdpy.egg-info
+/geopmdpy/geopm_service_pb2.py
+/geopmdpy/geopm_service_pb2_grpc.py
 /geopmdpy/schemas.py
 /geopmdpy/system_files.py
 /geopmdpy/version.py
@@ -38,6 +41,10 @@ compile_commands.json
 /Makefile.in
 /missing
 /README
-src/msr_data_*.cpp
+/src/msr_data_*.cpp
+/src/geopm_service.pb.cc
+/src/geopm_service.pb.h
+/src/geopm_service.grpc.pb.cc
+/src/geopm_service.grpc.pb.h
 /stamp-h1
 /VERSION

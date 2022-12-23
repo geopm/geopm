@@ -39,6 +39,7 @@ BuildRequires: gcc-c++
 BuildRequires: unzip
 BuildRequires: libtool
 BuildRequires: systemd-devel >= 221
+BuildRequires: grpc-devel
 BuildRequires: python3
 BuildRequires: python3-devel
 BuildRequires: python3-setuptools
@@ -137,6 +138,8 @@ Requires: python3-dasbus >= 1.6
 Requires: python3-jsonschema
 Requires: python3-psutil
 Requires: python3-cffi
+Requires: python3-grpcio
+Requires: python3-grpc-google-iam-v1
 Requires: libgeopmd1 = %{version}
 
 %{?python_provide:%python_provide python%{python3_pkgversion}-geopmdpy}

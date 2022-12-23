@@ -14,13 +14,12 @@ import grp
 import shutil
 import psutil
 import uuid
-import gi
-from gi.repository import GLib
 
 from . import pio
 from . import topo
 from . import dbus_xml
 from . import system_files
+from . import client_registry
 from dasbus.connection import SystemMessageBus
 try:
     from dasbus.server.interface import accepts_additional_arguments
@@ -37,7 +36,7 @@ class PlatformService(object):
     implementations.
 
     """
-    def __init__(self):
+    def __init__(self, comm_type='dbus'):
         """PlatformService constructor that initializes all private members.
 
         """
@@ -47,10 +46,13 @@ class PlatformService(object):
         self._WATCH_INTERVAL_SEC = 1
         self._active_sessions = system_files.ActiveSessions()
         self._access_lists = system_files.AccessLists()
+        self._client_registry = client_registry.create_registry(self._active_sessions,
+                                                                self._close_session_completely,
+                                                                comm_type)
         for client_pid in self._active_sessions.get_clients():
-            is_active = self.check_client(client_pid)
+            is_active = self._client_registry.check(client_pid)
             if is_active:
-                watch_id = self._watch_client(client_pid)
+                watch_id = self._client_registry.watch(client_pid)
                 self._active_sessions.set_watch_id(client_pid, watch_id)
         with system_files.WriteLock(self._RUN_PATH) as lock:
             write_pid = lock.try_lock()
@@ -81,6 +83,7 @@ class PlatformService(object):
             RuntimeError: The group name is not valid on the system.
 
         """
+        self._client_registry.validate_group(group)
         return self._access_lists.get_group_access(group)
 
     def set_group_access(self, group, allowed_signals, allowed_controls):
@@ -106,6 +109,7 @@ class PlatformService(object):
             RuntimeError: The group name is not valid on the system.
 
         """
+        self._client_registry.validate_group(group)
         self._access_lists.set_group_access(group, allowed_signals, allowed_controls)
 
     def set_group_access_signals(self, group, allowed_signals):
@@ -128,6 +132,7 @@ class PlatformService(object):
             RuntimeError: The group name is not valid on the system.
 
         """
+        self._client_registry.validate_group(group)
         self._access_lists.set_group_access_signals(group, allowed_signals)
 
     def set_group_access_controls(self, group, allowed_controls):
@@ -150,6 +155,7 @@ class PlatformService(object):
             RuntimeError: The group name is not valid on the system.
 
         """
+        self._client_registry.validate_group(group)
         self._access_lists.set_group_access_controls(group, allowed_controls)
 
     def get_user_access(self, user):
@@ -181,7 +187,8 @@ class PlatformService(object):
             RuntimeError: The user does not exist.
 
         """
-        return self._access_lists.get_user_access(user)
+        groups = self._client_registry.get_groups(user)
+        return self._access_lists.get_user_access(user, groups)
 
     def get_all_access(self):
         """Get all of the signals and controls that the service supports.
@@ -380,7 +387,7 @@ class PlatformService(object):
             self._active_sessions.increment_reference_count(client_pid)
         else:
             signals, controls = self.get_user_access(user)
-            watch_id = self._watch_client(client_pid)
+            watch_id = self._client_registry.watch(client_pid)
             self._active_sessions.add_client(client_pid, signals, controls, watch_id)
 
     def close_session(self, client_pid):
@@ -448,7 +455,7 @@ class PlatformService(object):
         """Close an active session for the client process completely.
 
         This method is called internally by close_session() and it is
-        also called explicitly by check_client() when the process dies.
+        also called explicitly by client_registry.check() when the process dies.
 
         A RuntimeError is raised if the client_pid does not have an
         open session.
@@ -459,7 +466,7 @@ class PlatformService(object):
         """
         sess = self._active_sessions.remove_client(client_pid)
         if sess is not None:
-            GLib.source_remove(sess['watch_id'])
+            self._client_registry.unwatch(sess['watch_id'])
             batch_pid = sess.get('batch_server')
             if batch_pid is not None:
                 try:
@@ -754,24 +761,16 @@ class PlatformService(object):
         return result
 
     def _write_mode(self, client_pid):
-        write_pid = client_pid
-        do_open_session = False
         # If the session leader is an active process then tie the write lock
         # to the session leader, otherwise the write lock is associated with
         # the requesting process.
-        client_sid = os.getsid(client_pid)
-        if client_sid != client_pid and psutil.pid_exists(client_sid):
-            write_pid = client_sid
-            do_open_session = True
         with system_files.WriteLock(self._RUN_PATH) as lock:
             lock_pid = lock.try_lock()
+            write_pid = self._client_registry.get_write_client(client_pid)
+            if (write_pid != client_pid):
+                session_user = self._client_registry.get_user(client_pid)
+                self.open_session(session_user, write_pid)
             if lock_pid is None:
-                if do_open_session:
-                    # If the write lock is associated with the session leader
-                    # process, then open a session for the session leader
-                    session_uid = os.stat(f'/proc/{write_pid}/status').st_uid
-                    session_user = pwd.getpwuid(session_uid).pw_name
-                    self.open_session(session_user, write_pid)
                 save_dir = os.path.join(self._RUN_PATH, self._SAVE_DIR)
                 # Clean up existing SAVE_FILES directory if it exists
                 if os.path.exists(save_dir):
@@ -787,25 +786,6 @@ class PlatformService(object):
                 lock.try_lock(write_pid)
             elif lock_pid != write_pid:
                 raise RuntimeError(f'The PID {client_pid} requested write access, but the geopm service already has write mode client with PID or SID of {lock_pid}')
-
-    def _watch_client(self, client_pid):
-        return GLib.timeout_add_seconds(self._WATCH_INTERVAL_SEC, self.check_client, client_pid)
-
-    def check_client(self, client_pid):
-        """Called by GLib periodically to monitor if a PID is active
-
-        GLib queries check_client() to see if the process is still alive.
-
-        This method gets triggered upon abnormal termination of the
-        session, such as when the client process unexpectedly crashes
-        or ends without closing all sessions.
-
-        """
-        if (client_pid in self._active_sessions.get_clients() and
-            not psutil.pid_exists(client_pid)):
-            self._close_session_completely(client_pid)
-            return False
-        return True
 
 
 class TopoService(object):
