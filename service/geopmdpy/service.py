@@ -15,6 +15,8 @@ import shutil
 import psutil
 import uuid
 import gi
+import subprocess # nosec
+import tempfile
 from gi.repository import GLib
 
 from . import pio
@@ -22,6 +24,7 @@ from . import topo
 from . import dbus_xml
 from . import system_files
 from dasbus.connection import SystemMessageBus
+
 try:
     from dasbus.server.interface import accepts_additional_arguments
 except ImportError as ee:
@@ -781,11 +784,14 @@ class GEOPMService(object):
     """
     __dbus_xml__ = dbus_xml.geopm_dbus_xml(TopoService, PlatformService)
 
-    def __init__(self):
+    def __init__(self, bus=None):
         self._topo = TopoService()
         self._platform = PlatformService()
-        self._dbus_proxy = SystemMessageBus().get_proxy('org.freedesktop.DBus',
-                                                        '/org/freedesktop/DBus')
+        if bus is None:
+            bus = SystemMessageBus()
+        else:
+            self._dbus_proxy = bus.get_proxy('org.freedesktop.DBus',
+                                             '/org/freedesktop/DBus')
 
     def TopoGetCache(self):
         return self._topo.get_cache()
@@ -903,3 +909,59 @@ class GEOPMService(object):
                     cap = int(line.split(':')[1], 16)
         if cap & cap_sys_admin == 0:
             raise RuntimeError('Calling "io.github.geopm.{api_name}" failed, try with sudo or as "root" user (requires CAP_SYS_ADMIN)')
+
+def popen_dbus_server(socket_path):
+    config_xml = f'''
+<!DOCTYPE busconfig PUBLIC "-//freedesktop//DTD D-Bus Bus Configuration 1.0//EN"
+ "http://www.freedesktop.org/standards/dbus/1.0/busconfig.dtd">
+<busconfig>
+  <type>session</type>
+  <keep_umask/>
+  <listen>unix:path={socket_path}</listen>
+  <auth>EXTERNAL</auth>
+  <standard_session_servicedirs />
+  <policy user="root">
+    <allow own="io.github.geopm" />
+    <allow send_destination="io.github.geopm" />
+  </policy>
+  <policy context="default">
+    <allow send_destination="io.github.geopm" />
+    <allow user="*"/>
+    <deny own="*"/>
+    <allow send_type="method_call"/>
+    <allow send_type="signal"/>
+    <allow send_requested_reply="true" send_type="method_return"/>
+    <allow send_requested_reply="true" send_type="error"/>
+    <allow receive_type="method_call"/>
+    <allow receive_type="method_return"/>
+    <allow receive_type="error"/>
+    <allow receive_type="signal"/>
+    <allow send_destination="org.freedesktop.DBus"
+           send_interface="org.freedesktop.DBus" />
+    <allow send_destination="org.freedesktop.DBus"
+           send_interface="org.freedesktop.DBus.Introspectable"/>
+    <allow send_destination="org.freedesktop.DBus"
+           send_interface="org.freedesktop.DBus.Properties"/>
+    <allow send_destination="io.github.geopm"
+           send_interface="*" />
+    <deny send_destination="org.freedesktop.DBus"
+          send_interface="org.freedesktop.DBus"
+          send_member="UpdateActivationEnvironment"/>
+    <deny send_destination="org.freedesktop.DBus"
+          send_interface="org.freedesktop.DBus.Debug.Stats"/>
+    <deny send_destination="org.freedesktop.DBus"
+          send_interface="org.freedesktop.systemd1.Activator"/>
+  </policy>
+</busconfig>
+'''
+    with tempfile.NamedTemporaryFile() as temp_file:
+        temp_file.write(bytes(config_xml, 'utf-8'))
+        temp_file.flush()
+        popen = subprocess.run(['/usr/bin/dbus-daemon', '--fork',
+                              '--print-pid', '--config-file', temp_file.name],
+                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if popen.returncode != 0:
+        raise RuntimeError(f'Failed to start dbus-deamon: {popen.stderr}')
+    daemon_pid = int(popen.stdout)
+    os.chmod(socket_path, 0o777)
+    return daemon_pid
