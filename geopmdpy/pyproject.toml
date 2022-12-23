@@ -49,6 +49,8 @@ dependencies = ["cffi>=1.13.2",
                 "jsonschema>=2.6.0",
                 "prometheus_client>=0.7.1",
                 "psutil>=5.4.8",
+                "grpcio>=1.30.2",
+                "protobuf>=3.12.4",
 ]
 
 [project.optional-dependencies]

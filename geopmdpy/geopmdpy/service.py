@@ -17,6 +17,7 @@ import uuid
 import gi
 from gi.repository import GLib
 import math
+import subprocess # nosec
 
 from . import pio
 from . import topo
@@ -51,6 +52,7 @@ class PlatformService(object):
         self._access_lists = system_files.AccessLists(system_files.get_config_path())
         self._accessed_signals = set()
         self._accessed_controls = set()
+        self._batch_subp = dict()
         for client_pid in self._active_sessions.get_clients():
             is_active = self.check_client(client_pid)
             if is_active:
@@ -505,10 +507,9 @@ class PlatformService(object):
             GLib.source_remove(self._active_sessions.get_watch_id(client_pid))
             batch_pid = self._active_sessions.get_batch_server(client_pid)
             if batch_pid is not None:
-                try:
-                    self._pio.stop_batch_server(batch_pid)
-                except RuntimeError:
-                    sys.stderr.write(f"Warning: <geopm-service> Failed to call pio.stop_batch_server({batch_pid}), sending SIGKILL\n)")
+                ex = self._stop_batch_server(batch_pid)
+                if ex is not None:
+                    sys.stderr.write(f"Warning: <geopm-service> Failed to call pio.stop_batch_server({batch_pid}): {type(ex)} {ex}: sending SIGKILL\n)")
                     if psutil.pid_exists(batch_pid):
                         os.kill(batch_pid, signal.SIGKILL)
         try:
@@ -617,7 +618,18 @@ class PlatformService(object):
         batch_pid = self._active_sessions.get_batch_server(client_pid)
         if batch_pid is not None:
             raise RuntimeError(f'Client {client_pid} has already started a batch server: {batch_pid}')
-        batch_pid , batch_key = self._pio.start_batch_server(client_pid, signal_config, control_config)
+        subp = subprocess.Popen(["geopmbatch", str(client_pid)],
+                                stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                text=True, bufsize=0)
+        batch_pid = subp.pid
+        self._batch_subp[batch_pid] = subp
+        for sr in signal_config:
+            subp.stdin.write(f'read {sr[2]} {sr[0]} {sr[1]}\n')
+        for cr in control_config:
+            subp.stdin.write(f'write {cr[2]} {cr[0]} {cr[1]}\n')
+        subp.stdin.write('\n')
+        subp.stdin.flush()
+        batch_key = subp.stdout.readline().strip()
         self._active_sessions.set_batch_server(client_pid, batch_pid)
         for (_, _, sn) in signal_config:
             self._accessed_signals.add(sn)
@@ -652,9 +664,28 @@ class PlatformService(object):
             return
         actual_server_pid = self._active_sessions.get_batch_server(client_pid)
         if server_pid != actual_server_pid:
-            raise RuntimeError(f'Client PID: {client_pid} requested to stop batch server PID: {server_pid}, actual batch server PID: {actual_server_pid}')
-        self._pio.stop_batch_server(server_pid)
+            sys.stderr.write(f'Warning: <geopm-service>: Client PID: {client_pid} requested to stop batch server PID: {server_pid}, actual batch server PID: {actual_server_pid}')
+        else:
+            ex = self._stop_batch_server(server_pid)
+            if ex is not None:
+                sys.stderr.write(f'Warning: <geopm-service>: Client PID: {client_pid} requested to stop batch server PID: {server_pid}: {ex}\n')
         self._active_sessions.remove_batch_server(client_pid)
+
+    def _stop_batch_server(self, server_pid):
+        result = None
+        try:
+            self._pio.stop_batch_server(server_pid)
+        except RuntimeError as ex:
+            result = ex
+        try:
+            subp = self._batch_subp.pop(server_pid)
+        except KeyError as ex:
+            result = ex
+        else:
+            _, stderr_data = subp.communicate()
+            if subp.returncode != 0:
+                sys.stderr.write(f'Warning: <geopm-service>: Batch server returned non-zero exit code: "{subp.returncode}" stderr: "{stderr_data}".')
+        return result
 
     def read_signal(self, client_pid, signal_name, domain, domain_idx):
         """Read a signal from a particular domain.
@@ -904,6 +935,15 @@ class PlatformService(object):
             self._close_session_completely(client_pid)
             return False
         return True
+
+    def close_inactive_clients(self):
+        """Close all sessions with inactive clients."""
+        for pid in self._active_sessions.get_clients():
+            self._is_client_active(pid)
+
+    def watch_interval(self):
+        """Return the PID polling interval, in seconds."""
+        return self._WATCH_INTERVAL_SEC
 
 
 class TopoService(object):

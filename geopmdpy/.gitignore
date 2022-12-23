@@ -8,3 +8,5 @@
 /libgeopmd-deps-tmp-*
 geopmdpy/_libgeopmd.*
 __pycache__
+/geopmdpy/geopm_service_pb2.py
+/geopmdpy/geopm_service_pb2_grpc.py

@@ -1,2 +1,4 @@
 include debian/changelog
 include build_libgeopmd_wrapper.py
+include geopmdpy/geopm_service_pb2.py
+include geopmdpy/geopm_service_pb2_grpc.py
