@@ -43,8 +43,8 @@ namespace geopm
         , m_session_pid(-1)
         , m_is_batch_active(false)
     {
-        m_service_proxy->platform_open_session();
         m_session_pid = getpid();
+        m_service_proxy->platform_open_session();
     }
 
     ServiceIOGroup::~ServiceIOGroup()

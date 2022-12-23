@@ -222,6 +222,8 @@ service/docs/json_schemas/msrs.schema.json
 service/docs/json_schemas/regionhintrecommender_fmap.schema.json
 service/docs/json_schemas/saved_controls.schema.json
 service/shell_completion/README.md
+service/Dockerfile
+service/k8-manifest.yaml
 shell_completion/README.md
 test/EditDistPeriodicityDetectorTest.0_pattern_a.trace
 test/EditDistPeriodicityDetectorTest.1_pattern_ab.trace

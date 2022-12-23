@@ -195,6 +195,19 @@ fi
 AC_SUBST([enable_io_uring])
 AM_CONDITIONAL([ENABLE_IO_URING], [test "x$enable_io_uring" = "x1"])
 
+AC_PATH_PROG([PROTOC], [protoc], [])
+AS_IF([test "x$PROTOC" = x], [AC_MSG_ERROR([protoc not found])])
+PKG_CHECK_MODULES([PROTOBUF], [protobuf >= 3.0.0])
+AC_SUBST([PROTOBUF_CFLAGS])
+AC_SUBST([PROTOBUF_LIBS])
+PKG_CHECK_MODULES([GRPC], [grpc++ >= 1.3.0 grpc >= 3.0.0])
+AC_SUBST([GRPC_CFLAGS])
+AC_SUBST([GRPC_LIBS])
+AC_PATH_PROG([GRPC_CPP_PLUGIN], [grpc_cpp_plugin])
+AS_IF([test "x$GRPC_CPP_PLUGIN" = x], [
+  AC_MSG_ERROR([grpc_cpp_plugin not found])
+])
+
 if test "x$enable_debug" = "x1" ; then
   AC_DEFINE([GEOPM_DEBUG], [ ], [Enables code for debugging])
   EXTRA_CFLAGS="$EXTRA_CFLAGS -Og -g"
@@ -421,9 +434,10 @@ AC_COMPILE_IFELSE([
 
 AC_LANG_POP([C++])
 
-[EXTRA_CFLAGS="$EXTRA_CFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wformat -Wformat-security $NO_FASTMATH -fPIC -flto -fPIE"]
-[EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wformat -Wformat-security $NO_FASTMATH -fPIC -flto -fPIE"]
+[EXTRA_CFLAGS="$EXTRA_CFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wformat -Wformat-security $NO_FASTMATH $GRPC_CFLAGS $PROTOBUF_CFLAG -fPIC -flto -fPIE"]
+[EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS -Wall -Wextra -Werror -Wno-unused-parameter -Wformat -Wformat-security $NO_FASTMATH $GRPC_CFLAGS $PROTOBUF_CFLAG -fPIC -flto -fPIE"]
 [EXTRA_LDFLAGS="$EXTRA_LDFLAGS -Wl,-z,relro,-z,now,-z,noexecstack -pie"]
+[LIBS="$LIBS $GRPC_LIBS $PROTOBUF_LIBS"]
 
 [AM_CFLAGS="$EXTRA_CFLAGS $AM_CFLAGS"]
 [AM_CXXFLAGS="$EXTRA_CXXFLAGS $AM_CXXFLAGS"]
@@ -445,7 +459,7 @@ JSON_SCHEMA_ACTIVE_SESSIONS=docs/json_schemas/active_sessions.schema.json
 GEOPM_SOURCE_DIR=$(readlink -f $srcdir)
 AC_DEFINE_UNQUOTED([GEOPM_SOURCE_DIR], ["$GEOPM_SOURCE_DIR"], [Root of the GEOPM source directory])
 
-AC_CONFIG_FILES([Makefile geopm-service.spec geopmdpy/version.py geopmdpy/schemas.py debian/changelog])
+AC_CONFIG_FILES([Makefile geopm-service.spec geopmdpy/version.py geopmdpy/schemas.py debian/changelog geopmdrs/Cargo.toml])
 AC_OUTPUT
 
 # ============================================================================

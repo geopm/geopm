@@ -131,12 +131,55 @@ PlatformIO.  A wide range of other improvements have also been made,
 including a higher performance profiling interface to support highly
 parallel applications, and support for the ``isst_interface`` driver.
 
-This software is production quality as of version 1.0.  We will be
-enforcing [semantic versioning](https://semver.org/) for all releases
-following version 1.0. Please refer to the ChangeLog for a high level
-history of changes in each release.  The test coverage report from
-gcov as reported by gcovr for the latest release are
-[posted to our web page](http://geopm.github.io/coverage/index.html).
+This version of GEOPM is experimental and should not be used as a
+production tool.
+
+### New Features
+
+- Runtime support for non-MPI applications
+  + Feature issue https://github.com/geopm/geopm/issues/2875
+  + Pull request https://github.com/geopm/geopm/pull/2836
+  + Status: Stable, merged to to the `dev` branch
+- Runtime support for non-MPI node-local controller
+  + Implemented as part of https://github.com/geopm/geopm/pull/2836
+  + Status: Stable, merged to to the `dev` branch
+- Option to use gRPC in place of DBus communication
+  + Feature issue https://github.com/geopm/geopm/issues/2775
+  + Pull request https://github.com/geopm/geopm/pull/2779
+  + Status: Merged into cloud branch.  Requires python grpcio version
+    1.47.5 or 1.25.0.  All other recent releases have bugs that impact
+    the python grpc server.  Python grpcio version 1.30.2 is now
+    shipping with Ubuntu 20.04 and Tumbleweed.  This version hangs on
+    server creation.  The Docker containers use pip to upgrade to
+    1.47.5 in the server images.
+- Rust front-end proxy server for gRPC API
+  + Implemented as part of https://github.com/geopm/geopm/pull/2779
+  + Status: See above, gRPC integration tests are failing, but not root caused
+- Support for liburing for asynchronous kernel IO
+  + Feature issue https://github.com/geopm/geopm/issues/2781
+  + Pull request https://github.com/geopm/geopm/pull/2782
+  + Status: Considered stable, but not merged into dev or cloud branch currently
+- Kubernetes examples for using the service and the runtime
+  + Topic does not currently have supporting Github issues or pull requests
+  + The cloud branch contains [a service example](service/README.rst#kubernetes-support)
+    and [a runtime example](k8/k8-monitor.yaml)
+- Docker files for creating service and client containers
+  + Topic does not currently have supporting Github issues or pull requests
+  + The cloud branch provides [a GEOPM Service Dockerfile](service/Dockerfile)
+    and several examples in the [k8](k8) directory for client and service
+    docker containers.
+- Packaging for Ubuntu
+  + The cloud branch provides debian packaging for the GEOPM Service and the
+    GEOPM Runtime.
+  + Status: Stable, merged to to the `dev` branch
+- Improvements in platform topology consistency
+  + Issue https://github.com/geopm/geopm/issues/2832
+  + Pull request https://github.com/geopm/geopm/pull/2845
+  + Status: Stable, merged to to the `dev` branch
+- User controlled loop period
+  + Feature issue https://github.com/geopm/geopm/issues/1065
+  + Pull request https://github.com/geopm/geopm/pull/2867
+  + Status: Stable, merged to to the `dev` branch
 
 Some new features of GEOPM are still under development, and their
 interfaces may change before they are included in official releases.

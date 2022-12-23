@@ -46,7 +46,7 @@ geopminclude_HEADERS = contrib/json11/json11.hpp \
                        src/geopm/SharedMemoryScopedLock.hpp \
                        # end
 
-install-exec-hook: install-python install-plugin-dir
+install-exec-hook: install-python install-rust install-plugin-dir
 dist: dist-googletest base_man
 
 install-plugin-dir:
@@ -123,6 +123,7 @@ EXTRA_DIST = .gitignore \
              debian/rules \
              dox/blurb.md \
              dox/Doxyfile.in \
+             Dockerfile \
              geopm-service.spec.in \
              io.github.geopm.conf \
              io.github.geopm.xml \
@@ -133,6 +134,9 @@ EXTRA_DIST = .gitignore \
              geopmdpy/access.py \
              geopmdpy/dbus_xml.py \
              geopmdpy/error.py \
+             geopmdpy/grpc_service.py \
+             geopmdpy/geopm_service_pb2.py \
+             geopmdpy/geopm_service_pb2_grpc.py \
              geopmdpy/gffi.py \
              geopmdpy/loop.py \
              geopmdpy/pio.py \
@@ -155,6 +159,9 @@ EXTRA_DIST = .gitignore \
              docs/json_schemas/geopmagent_policy.schema.json \
              docs/json_schemas/geopmbench_config.schema.json \
              docs/json_schemas/regionhintrecommender_fmap.schema.json \
+             geopm_service.proto \
+             k8-manifest.yaml \
+             protoc-gen.sh \
              requirements.txt \
              setup.py \
              src/geopm/json11.hpp \
@@ -235,6 +242,8 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/DomainControl.hpp \
                        src/Exception.cpp \
                        src/GEOPMHint.cpp \
+                       src/GRPCServiceProxy.cpp \
+                       src/GRPCServiceProxy.hpp \
                        src/Helper.cpp \
                        src/IOGroup.cpp \
                        src/IOUring.cpp \
@@ -311,6 +320,10 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/geopm_hash.c \
                        src/geopm_plugin.cpp \
                        src/geopm_sched.c \
+                       src/geopm_service.grpc.pb.cc \
+                       src/geopm_service.grpc.pb.h \
+                       src/geopm_service.pb.cc \
+                       src/geopm_service.pb.h \
                        src/geopm_shmem.cpp \
                        src/geopm_shmem.h \
                        src/geopm_version.c \
@@ -397,6 +410,21 @@ install-python: setup.py $(abs_srcdir)/geopmdpy/version.py
 
 clean-local-python: setup.py
 	$(PYTHON) ./setup.py clean --all
+
+# Rust build
+geopmdrs_sources = geopmdrs/Cargo.toml.in \
+                   geopmdrs/src/geopmd-proxy.rs \
+                   geopmdrs/build.rs \
+                   geopmdrs/.cargo/config.toml \
+                   # end
+
+EXTRA_DIST += $(geopmdrs_sources)
+
+install-rust: $(geopmdrs_sources)
+	export CARGO_HOME=$(abs_builddir)/cargo-home; if [ ! -d $(abs_srcdir)/geopmdrs/vendor ]; then cd $(abs_srcdir)/geopmdrs && cargo vendor; fi
+	export CARGO_HOME=$(abs_builddir)/cargo-home; cd $(abs_srcdir)/geopmdrs && cargo build --release --bin geopmd-proxy
+	export CARGO_HOME=$(abs_builddir)/cargo-home; cargo install --path=$(abs_srcdir)/geopmdrs --bin geopmd-proxy --root=$(DESTDIR)/$(prefix)
+
 
 # RPM TARGET
 rpm_topdir ?= $(HOME)/rpmbuild
