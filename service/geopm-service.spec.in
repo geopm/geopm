@@ -27,9 +27,6 @@ BuildRequires: systemd-devel >= 221
 BuildRequires: python3
 BuildRequires: python3-devel
 BuildRequires: python3-setuptools
-BuildRequires: level-zero
-BuildRequires: level-zero-devel
-Requires: level-zero >= 1.8.1
 %if 0%{?suse_version}
 BuildRequires: fdupes
 BuildRequires: systemd-rpm-macros
@@ -136,7 +133,6 @@ CFLAGS= CXXFLAGS= CC=gcc CXX=g++ \
             --includedir=%{_includedir} --sbindir=%{_sbindir} \
             --mandir=%{_mandir} --docdir=%{docdir} \
             --with-python=%{python_bin} \
-            --enable-levelzero \
             || ( cat config.log && false )
 
 CFLAGS= CXXFLAGS= CC=gcc CXX=g++ \
