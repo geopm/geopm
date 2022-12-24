@@ -9,6 +9,7 @@
 
 #include <sstream>
 #include <systemd/sd-bus.h>
+#include <unistd.h>
 
 #include "geopm/Helper.hpp"
 #include "geopm/Exception.hpp"
@@ -44,10 +45,15 @@ namespace geopm
         , m_dbus_interface("io.github.geopm")
         , m_dbus_timeout_usec(0)
     {
-        int err = sd_bus_open_system(&m_bus);
+        (void)setenv("DBUS_SESSION_BUS_ADDRESS",
+                     "/run/geopm-service/SESSION_BUS_SOCKET", 1);
+        int err = sd_bus_open_user(&m_bus);
         if (err < 0) {
-            throw Exception("ServiceProxy: Failed to open system bus",
-                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            err = sd_bus_open_system(&m_bus);
+            if (err < 0) {
+                throw Exception("ServiceProxy: Failed to open system bus",
+                                GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
         }
     }
 

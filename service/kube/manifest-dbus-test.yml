@@ -15,7 +15,7 @@ spec:
        capabilities:
          drop:
            - all
-     command: ['/tmp/geopm-server.sh']
+     command: ['/tmp/dbus-test-server.sh']
      volumeMounts:
      - name: tmp-mount
        mountPath: /tmp
@@ -31,7 +31,7 @@ spec:
        runAsNonRoot: true
        runAsUser: 10001
        runAsGroup: 10001
-     command: ['/tmp/geopm-client.sh']
+     command: ['/tmp/dbus-test-client.sh']
      volumeMounts:
      - name: tmp-mount
        mountPath: /tmp

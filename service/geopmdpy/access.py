@@ -13,6 +13,7 @@ import subprocess # nosec
 from argparse import ArgumentParser
 from dasbus.connection import SystemMessageBus
 from dasbus.error import DBusError
+from . import system_files
 
 
 class Access:
@@ -28,15 +29,18 @@ class Access:
                     dasbus proxy for the GEOPM D-Bus interface.
 
         """
-        try:
-            geopm_proxy.PlatformGetGroupAccess
-        except DBusError as ee:
-            if 'io.github.geopm was not provided' in str(ee):
-                err_msg = """The geopm systemd service is not enabled.
+        if geopm_proxy is None:
+            self._access_lists = system_files.AccessLists()
+        else:
+            try:
+                geopm_proxy.PlatformGetGroupAccess
+            except DBusError as ee:
+                if 'io.github.geopm was not provided' in str(ee):
+                    err_msg = """The geopm systemd service is not enabled.
     Install geopm service and run 'systemctl start geopm'"""
-                raise RuntimeError(err_msg) from ee
-            else:
-                raise ee
+                    raise RuntimeError(err_msg) from ee
+                else:
+                    raise ee
         self._geopm_proxy = geopm_proxy
 
     def set_group_signals(self, group, signals, is_dry_run, is_force):
@@ -66,6 +70,9 @@ class Access:
                           are not supported.
 
         """
+        if self._geopm_proxy is None:
+            self._access_lists.set_group_access_signals(group, signals)
+            return
         if not is_force:
             signals_supported, _ = self._geopm_proxy.PlatformGetAllAccess()
             signals_requested = set(signals)
@@ -104,6 +111,9 @@ class Access:
                           not supported.
 
         """
+        if self._geopm_proxy is None:
+            self._access_lists.set_group_access_controls(group, controls)
+            return
         if not is_force:
             _, controls_supported = self._geopm_proxy.PlatformGetAllAccess()
             controls_requested = set(controls)
@@ -373,6 +383,8 @@ def main():
     parser = ArgumentParser(description=main.__doc__)
     parser.add_argument('-c', '--controls', dest='controls', action='store_true', default=False,
                         help='Command applies to controls not signals')
+    parser.add_argument('-x', '--direct', dest='direct', action='store_true', default=False,
+                        help='Write directly to files, do not use DBus')
     parser_group_uga = parser.add_mutually_exclusive_group(required=False)
     parser_group_uga.add_argument('-u', '--default', dest='default', action='store_true', default=False,
                                   help='Print the default user access list')
@@ -394,8 +406,12 @@ def main():
                                  help='Write access list without validating GEOPM Service support for names')
     args = parser.parse_args()
     try:
-        acc = Access(SystemMessageBus().get_proxy('io.github.geopm',
-                                                  '/io/github/geopm'))
+        if args.direct:
+            geopm_proxy = None
+        else:
+            geopm_proxy = SystemMessageBus().get_proxy('io.github.geopm',
+                                                       '/io/github/geopm')
+        acc = Access(geopm_proxy)
         output = acc.run(args.write, args.all, args.controls, args.group,
                          args.default, args.delete, args.dry_run, args.force,
                          args.edit)
