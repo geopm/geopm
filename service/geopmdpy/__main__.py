@@ -2,11 +2,16 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
+import sys
+
 from dasbus.loop import EventLoop
 from dasbus.connection import SystemMessageBus
 from signal import signal
 from signal import SIGTERM
+
 from . import service
+from . import system_files
+from . import grpc_service
 
 _bus = None
 
@@ -19,7 +24,7 @@ def stop():
         _bus.disconnect()
     exit(0)
 
-def main():
+def main_dbus():
     signal(SIGTERM, term_handler)
     loop = EventLoop()
     global _bus
@@ -30,6 +35,16 @@ def main():
         loop.run()
     finally:
         stop()
+
+def main_grpc():
+    server = grpc_service.GRPCPlatformService()
+    server.run()
+
+def main():
+    if len(sys.argv) > 1 and sys.argv[1] == '--grpc':
+        main_grpc()
+    else:
+        main_dbus()
 
 if __name__ == '__main__':
     main()

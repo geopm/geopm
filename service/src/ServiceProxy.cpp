@@ -3,9 +3,13 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include "config.h"
+
 #include "ServiceProxy.hpp"
+#include "GRPCServiceProxy.hpp"
 
 #include <sstream>
+#include <iostream>
 
 #include "geopm/PlatformIO.hpp"
 #include "geopm/Exception.hpp"
@@ -19,7 +23,17 @@ namespace geopm
 
     std::unique_ptr<ServiceProxy> ServiceProxy::make_unique(void)
     {
-        return geopm::make_unique<ServiceProxyImp>();
+        std::unique_ptr<ServiceProxy> result;
+        try {
+            result = geopm::make_unique<GRPCServiceProxy>();
+        }
+        catch (const Exception &ex) {
+#ifdef GEOPM_DEBUG
+            std::cerr << "Warning: Could not crate GRPCServiceProxy: " << ex.what() << "\n";
+#endif
+            result = geopm::make_unique<ServiceProxyImp>();
+        }
+        return result;
     }
 
     ServiceProxyImp::ServiceProxyImp()
@@ -31,7 +45,7 @@ namespace geopm
     ServiceProxyImp::ServiceProxyImp(std::shared_ptr<SDBus> bus)
         : m_bus(bus)
     {
-
+        platform_open_session();
     }
 
     void ServiceProxyImp::platform_get_user_access(std::vector<std::string> &signal_names,

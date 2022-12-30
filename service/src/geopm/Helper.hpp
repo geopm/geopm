@@ -140,6 +140,12 @@ namespace geopm
     /// @param [in] pid The process id to query.
     /// @return The group id.
     unsigned int pid_to_gid(const int pid);
+
+
+    int pidfd_open(pid_t pid, int flags);
+    pid_t pidfd_to_pid(int pidfd);
+    pid_t pidfd_get_sid(int pidfd_ns, pid_t pid);
+    int pidfd_open_ns(int pidfd_ns, pid_t other_pid);
 }
 
 #endif

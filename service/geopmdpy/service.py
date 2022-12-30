@@ -459,7 +459,9 @@ class PlatformService(object):
         """
         sess = self._active_sessions.remove_client(client_pid)
         if sess is not None:
-            GLib.source_remove(sess['watch_id'])
+            watch_id = sess['watch_id']
+            if watch_id is not None:
+                GLib.source_remove(sess['watch_id'])
             batch_pid = sess.get('batch_server')
             if batch_pid is not None:
                 try:
@@ -675,25 +677,26 @@ class PlatformService(object):
         self._write_mode(client_pid)
         self._pio.write_control(control_name, domain, domain_idx, setting)
 
-    def _write_mode(self, client_pid):
+    def _write_mode_pid(self, client_pid):
         write_pid = client_pid
-        do_open_session = False
+        client_sid = os.getsid(client_pid)
+        if client_sid != client_pid and psutil.pid_exists(client_sid):
+            write_pid = client_pid
+            # If the write lock is associated with the session leader
+            # process, then open a session for the session leader
+            session_uid = os.stat(f'/proc/{write_pid}/status').st_uid
+            session_user = pwd.getpwuid(session_uid).pw_name
+            self.open_session(session_user, write_pid)
+        return write_pid
+
+    def _write_mode(self, client_pid):
         # If the session leader is an active process then tie the write lock
         # to the session leader, otherwise the write lock is associated with
         # the requesting process.
-        client_sid = os.getsid(client_pid)
-        if client_sid != client_pid and psutil.pid_exists(client_sid):
-            write_pid = client_sid
-            do_open_session = True
         with system_files.WriteLock(self._RUN_PATH) as lock:
             lock_pid = lock.try_lock()
+            write_pid = self._write_mode_pid(client_pid)
             if lock_pid is None:
-                if do_open_session:
-                    # If the write lock is associated with the session leader
-                    # process, then open a session for the session leader
-                    session_uid = os.stat(f'/proc/{write_pid}/status').st_uid
-                    session_user = pwd.getpwuid(session_uid).pw_name
-                    self.open_session(session_user, write_pid)
                 save_dir = os.path.join(self._RUN_PATH, self._SAVE_DIR)
                 # Clean up existing SAVE_FILES directory if it exists
                 if os.path.exists(save_dir):
@@ -711,7 +714,8 @@ class PlatformService(object):
                 raise RuntimeError(f'The PID {client_pid} requested write access, but the geopm service already has write mode client with PID or SID of {lock_pid}')
 
     def _watch_client(self, client_pid):
-        return GLib.timeout_add_seconds(self._WATCH_INTERVAL_SEC, self.check_client, client_pid)
+        result = GLib.timeout_add_seconds(self._WATCH_INTERVAL_SEC, self.check_client, client_pid)
+        return result
 
     def check_client(self, client_pid):
         """Called by GLib periodically to monitor if a PID is active

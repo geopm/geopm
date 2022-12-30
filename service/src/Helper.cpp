@@ -10,8 +10,10 @@
 #include <dirent.h>
 #include <string.h>
 #include <errno.h>
+#include <sched.h>
 #include <stdlib.h>
 #include <sys/stat.h>
+#include <sys/syscall.h>
 
 #include <cmath>
 #include <climits>
@@ -268,4 +270,148 @@ namespace geopm
         }
         return stat_struct.st_gid;
     };
+
+    int pidfd_open(pid_t pid, int flags)
+    {
+        return syscall(SYS_pidfd_open, pid, flags);
+    }
+
+    pid_t pidfd_to_pid(int pidfd)
+    {
+        pid_t pid = -1;
+        int my_pidfd =  -1;
+        try {
+            my_pidfd = geopm::pidfd_open(getpid(), 0);
+            if (my_pidfd == -1) {
+                throw Exception("pidfd_open(): ",
+                                errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
+            int err = setns(pidfd, CLONE_NEWPID);
+            if (err == -1) {
+                throw Exception("setns(): ",
+                                errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
+            std::string info_stream_path = "/proc/self/dfinfo/" + std::to_string(pidfd);
+            std::ifstream info_stream(info_stream_path);
+            for (std::string line; std::getline(info_stream, line); ) {
+                std::string key = "Pid:";
+                if (string_begins_with(line, key)) {
+                    pid = std::stoi(line.substr(key.size()));
+                    break;
+                }
+            }
+            if (pid == -1) {
+                throw Exception("pidfd_to_sidpid(): Failed to parse dfinfo file",
+                                errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
+            err = setns(my_pidfd, CLONE_NEWPID);
+            if (err == -1) {
+                throw Exception("setns(): ",
+                                errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
+            err = close(my_pidfd);
+            my_pidfd = -1;
+            if (err == -1) {
+                throw Exception("close(): ",
+                                errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
+        }
+        catch (...) {
+            if (my_pidfd != -1) {
+                (void)setns(my_pidfd, CLONE_NEWPID);
+                (void)close(my_pidfd);
+            }
+            throw;
+        }
+        return pid;
+    }
+
+    pid_t pidfd_get_sid(int pidfd, pid_t pid)
+    {
+        pid_t sid = -1;
+        int my_pidfd =  -1;
+        try {
+            my_pidfd = geopm::pidfd_open(getpid(), 0);
+            if (my_pidfd == -1) {
+                throw Exception("pidfd_open(): ",
+                                errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
+            int err = setns(pidfd, CLONE_NEWPID);
+            if (err == -1) {
+                throw Exception("setns(): ",
+                                errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
+            sid = getsid(pid);
+            if (sid == -1) {
+                throw Exception("getsid(): ",
+                                errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
+            err = setns(my_pidfd, CLONE_NEWPID);
+            if (err == -1) {
+                throw Exception("setns(): ",
+                                errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
+            err = close(my_pidfd);
+            my_pidfd = -1;
+            if (err == -1) {
+                throw Exception("close(): ",
+                                errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
+        }
+        catch (...) {
+            if (my_pidfd != -1) {
+                (void)setns(my_pidfd, CLONE_NEWPID);
+                (void)close(my_pidfd);
+            }
+            throw;
+        }
+        return sid;
+    }
+
+    int pidfd_open_ns(int pidfd_ns, pid_t other_pid)
+    {
+        int my_pidfd =  -1;
+        int other_pidfd = -1;
+        try {
+            my_pidfd = geopm::pidfd_open(getpid(), 0);
+            if (my_pidfd == -1) {
+                throw Exception("pidfd_open(): ",
+                                errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
+            int err = setns(pidfd_ns, CLONE_NEWPID);
+            if (err == -1) {
+                throw Exception("setns(): ",
+                                errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
+            other_pidfd = geopm::pidfd_open(other_pid, 0);
+            if (other_pidfd == -1) {
+                throw Exception("pidfd_open(): ",
+                                errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
+            err = setns(my_pidfd, CLONE_NEWPID);
+            if (err == -1) {
+                (void)close(my_pidfd);
+                my_pidfd = -1;
+                throw Exception("setns(): ",
+                                errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
+            err = close(my_pidfd);
+            if (err == -1) {
+                my_pidfd = -1;
+                throw Exception("close(): ",
+                                errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
+        }
+        catch (...) {
+            if (my_pidfd != -1) {
+                (void)setns(my_pidfd, CLONE_NEWPID);
+                (void)close(my_pidfd);
+            }
+            if (other_pidfd != -1) {
+                (void)close(other_pidfd);
+            }
+            throw;
+        }
+        return other_pidfd;
+    }
 }
