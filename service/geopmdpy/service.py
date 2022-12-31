@@ -22,7 +22,6 @@ from . import topo
 from . import dbus_xml
 from . import system_files
 from dasbus.connection import SystemMessageBus
-
 try:
     from dasbus.server.interface import accepts_additional_arguments
 except ImportError as ee:
@@ -677,9 +676,6 @@ class PlatformService(object):
         self._pio.write_control(control_name, domain, domain_idx, setting)
 
     def _write_mode(self, client_pid):
-        if self._is_anonymous:
-            # TODO: No save/restore for anonymous mode
-            return
         write_pid = client_pid
         do_open_session = False
         # If the session leader is an active process then tie the write lock
@@ -785,15 +781,11 @@ class GEOPMService(object):
     """
     __dbus_xml__ = dbus_xml.geopm_dbus_xml(TopoService, PlatformService)
 
-    def __init__(self, is_anonymous=False):
+    def __init__(self):
         self._topo = TopoService()
         self._platform = PlatformService()
-        self._is_anonymous = is_anonymous
-        if self._is_anonymous:
-            self._dbus_proxy = None
-        else:
-            self._dbus_proxy = SystemMessageBus().get_proxy('org.freedesktop.DBus',
-                                                            '/org/freedesktop/DBus')
+        self._dbus_proxy = SystemMessageBus().get_proxy('org.freedesktop.DBus',
+                                                        '/org/freedesktop/DBus')
 
     def TopoGetCache(self):
         return self._topo.get_cache()
@@ -880,8 +872,6 @@ class GEOPMService(object):
             (str): The Unix user name of the client process owner.
 
         """
-        if self._is_anonymous:
-            return ''
         unique_name = call_info['sender']
         uid = self._dbus_proxy.GetConnectionUnixUser(unique_name)
         return pwd.getpwuid(uid).pw_name
@@ -898,14 +888,10 @@ class GEOPMService(object):
             (int): The Linux PID of the client thread.
 
         """
-        if self._is_anonymous:
-            return 1
         unique_name = call_info['sender']
         return self._dbus_proxy.GetConnectionUnixProcessID(unique_name)
 
     def _check_cap_sys_admin(self, call_info, api_name):
-        if self._is_anonymous:
-            return False
         has_admin = False
         cap = 0
         cap_sys_admin = 0x00200000

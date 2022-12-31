@@ -12,10 +12,7 @@ import time
 import math
 from argparse import ArgumentParser
 from dasbus.connection import SystemMessageBus
-from dasbus.connection import AddressedMessageBus
-from dasbus.connection import GLibConnection
 from dasbus.error import DBusError
-from gi.repository.GLib import Error as GLibError
 from . import topo
 from . import pio
 from . import runtime
@@ -354,13 +351,8 @@ def main():
                         help='When used with a read mode session reads all values out periodically with the specified period in seconds')
     args = parser.parse_args()
     try:
-        try:
-            socket_path = "/run/geopm-service/SESSION_BUS_SOCKET"
-            bus = AddressedMessageBus(f'unix:path={socket_path}')
-        except GLibError:
-            bus = SystemMessageBus()
-        sess = Session(bus.get_proxy('io.github.geopm',
-                                     '/io/github/geopm'))
+        sess = Session(SystemMessageBus().get_proxy('io.github.geopm',
+                                                    '/io/github/geopm'))
         sess.run(args.time, args.period)
     except RuntimeError as ee:
         if 'GEOPM_DEBUG' in os.environ:
