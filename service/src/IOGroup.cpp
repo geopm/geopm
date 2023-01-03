@@ -89,10 +89,8 @@ namespace geopm
         // service is not active then loading the ServiceIOGroup will
         // fail.
 #ifdef GEOPM_ENABLE_SYSTEMD
-        if (getuid() != 0) {
-            register_plugin(ServiceIOGroup::plugin_name(),
-                            ServiceIOGroup::make_plugin);
-        }
+        register_plugin(ServiceIOGroup::plugin_name(),
+                        ServiceIOGroup::make_plugin);
 #endif
         register_plugin(MSRIOGroup::plugin_name(),
                         MSRIOGroup::make_plugin);

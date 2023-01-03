@@ -10,6 +10,7 @@
 
 #include <sstream>
 #include <iostream>
+#include <unistd.h>
 
 #include "geopm/PlatformIO.hpp"
 #include "geopm/Exception.hpp"
@@ -31,7 +32,13 @@ namespace geopm
 #ifdef GEOPM_DEBUG
             std::cerr << "Warning: Could not create GRPCServiceProxy: " << ex.what() << "\n";
 #endif
-            result = geopm::make_unique<ServiceProxyImp>();
+            if (getuid() != 0) {
+                // Use DBus service proxy
+                result = geopm::make_unique<ServiceProxyImp>();
+            }
+            else {
+                throw;
+            }
         }
         return result;
     }
