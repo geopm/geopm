@@ -20,3 +20,6 @@ protoc --grpc_out src \
 protoc --grpc_out geopmdpy \
        --plugin=protoc-gen-grpc=$(which grpc_python_plugin) \
        geopm_service.proto
+
+sed 's|import geopm_service_pb2|from . import geopm_service_pb2|' \
+    -i geopmdpy/geopm_service_pb2_grpc.py 
