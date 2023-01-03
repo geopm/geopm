@@ -23,17 +23,21 @@ class GEOPMServiceProxy(geopm_service_pb2_grpc.GEOPMServiceServicer):
 
     def GetUserAccess(self, request, context):
         result = geopm_service_pb2.AccessLists()
-        result.allowed_signals, result.allowed_controls = self._platform_service.get_user_access(None)
+        signals, controls = self._platform_service.get_user_access('')
+        for ss in signals:
+            result.signals.append(ss)
+        for cc in controls:
+            result.controls.append(cc)
         return result
 
     def GetSignalInfo(self, request, context):
         result = geopm_service_pb2.SignalInfoList()
-        signal_info = self._platform_service.get_signal_info(request.signal_name)
+        signal_info = self._platform_service.get_signal_info(request.names)
         for si in signal_info:
             element = geopm_service_pb2.SignalInfoList.SignalInfo()
             element.name = si[0]
             element.description = si[1]
-            element.domain_type = si[2]
+            element.domain = si[2]
             element.aggregation = si[3]
             element.format_type = si[4]
             element.behavior = si[5]
@@ -42,7 +46,7 @@ class GEOPMServiceProxy(geopm_service_pb2_grpc.GEOPMServiceServicer):
 
     def GetControlInfo(self, request, context):
         result = geopm_service_pb2.ControlInfoList()
-        control_info = self._platform_service.get_control_info(request.control_name)
+        control_info = self._platform_service.get_control_info(request.names)
         for ci in control_info:
             element = geopm_service_pb2.ControlInfoList.ControlInfo()
             element.name = ci[0]
@@ -84,8 +88,10 @@ class GEOPMServiceProxy(geopm_service_pb2_grpc.GEOPMServiceServicer):
     def WriteControl(self, request, context):
         result = google.protobuf.empty_pb2.Empty()
         pidfd = int(request.session_key.name)
-        self._platform_service.write_control(pidfd, request.control_name,
-                                             request.domain, request.domain_idx,
+        self._platform_service.write_control(pidfd,
+                                             request.name,
+                                             request.domain,
+                                             request.domain_idx,
                                              request.setting)
         return result
 
@@ -99,6 +105,7 @@ class GEOPMServiceProxy(geopm_service_pb2_grpc.GEOPMServiceServicer):
         result.name = str(self._serial_id)
         self._platform_service.open_session("", self._serial_id)
         self._serial_id += 1
+        return result
 
 class GRPCPlatformService(service.PlatformService):
     def __init__(self):
@@ -108,7 +115,7 @@ class GRPCPlatformService(service.PlatformService):
         self._timeout = 0.01
 
     def _watch_client(self, client_pidfd):
-        return None
+        return 0
 
     def _write_mode_pid(self, client_pidfd):
         return None
@@ -118,6 +125,7 @@ class GRPCPlatformService(service.PlatformService):
         geopm_proxy = GEOPMServiceProxy()
         geopm_service_pb2_grpc.add_GEOPMServiceServicer_to_server(geopm_proxy, server)
         server.add_insecure_port(f'unix://{self._grpc_socket_path}')
+        os.chmod(self._grpc_socket_path, 0o777);
         server.start()
         while server.wait_for_termination(self._timeout):
             pass

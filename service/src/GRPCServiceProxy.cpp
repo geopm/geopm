@@ -74,6 +74,12 @@ namespace geopm
         std::vector<signal_info_s> result;
         grpc::ClientContext context;
         GEOPMPackage::InfoRequest request;
+        GEOPMPackage::SessionKey *session_key = new GEOPMPackage::SessionKey;
+        session_key->set_name(m_session_key);
+        request.set_allocated_session_key(session_key);
+	for (const auto &name : signal_names) {
+            request.add_names(name);
+        }
         GEOPMPackage::SignalInfoList response;
         grpc::Status status = m_client->GetSignalInfo(&context,
                                                       request,
@@ -163,15 +169,15 @@ namespace geopm
         double result = 0.0;
         grpc::ClientContext context;
         GEOPMPackage::Sample response;
-        GEOPMPackage::SessionKey session_key;
-        session_key.set_name(m_session_key);
-        GEOPMPackage::PlatformRequest platform_request;
-        platform_request.set_name(signal_name);
-        platform_request.set_domain(GEOPMPackage::Domain(domain));
-        platform_request.set_domain_idx(domain_idx);
+        GEOPMPackage::SessionKey *session_key = new GEOPMPackage::SessionKey;
+        session_key->set_name(m_session_key);
+        GEOPMPackage::PlatformRequest *platform_request = new GEOPMPackage::PlatformRequest;
+        platform_request->set_name(signal_name);
+        platform_request->set_domain(GEOPMPackage::Domain(domain));
+        platform_request->set_domain_idx(domain_idx);
         GEOPMPackage::ReadRequest request;
-        request.set_allocated_session_key(&session_key);
-        request.set_allocated_request(&platform_request);
+        request.set_allocated_session_key(session_key);
+        request.set_allocated_request(platform_request);
         grpc::Status status = m_client->ReadSignal(&context,
                                                    request,
                                                    &response);
