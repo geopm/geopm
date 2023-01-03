@@ -89,10 +89,12 @@ EXTRA_DIST = .gitignore \
              geopmdpy/version.py \
              geopmdpy/version.py.in \
              geopmsession \
+             geopm_service.proto \
              json_schemas/active_sessions.schema.json \
              json_schemas/const_config_io.schema.json \
              json_schemas/msrs.schema.json \
              json_schemas/saved_controls.schema.json \
+             protoc-gen.sh \
              requirements.txt \
              setup.py \
              src/geopm/json11.hpp \
