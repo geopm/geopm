@@ -29,7 +29,7 @@ namespace geopm
         }
         catch (const Exception &ex) {
 #ifdef GEOPM_DEBUG
-            std::cerr << "Warning: Could not crate GRPCServiceProxy: " << ex.what() << "\n";
+            std::cerr << "Warning: Could not create GRPCServiceProxy: " << ex.what() << "\n";
 #endif
             result = geopm::make_unique<ServiceProxyImp>();
         }

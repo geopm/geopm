@@ -9,6 +9,7 @@
 #include "geopm/Helper.hpp"
 #include "geopm_service.pb.h"
 #include "geopm_service.grpc.pb.h"
+#include "google/protobuf/empty.pb.h"
 
 #include <fcntl.h>
 #include <string.h>
@@ -122,74 +123,18 @@ namespace geopm
 
     void GRPCServiceProxy::platform_open_session(void)
     {
-        int socket_fd = -1;
-        try {
-            socket_fd = socket(AF_UNIX, SOCK_STREAM, 0);
-            if (socket_fd == -1) {
-                throw Exception("GRPCServiceProxy::platform_open_session(): Failed to create socket",
-                                errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-
-            }
-            m_pidfd = geopm::pidfd_open(getpid(), 0);
-            if (m_pidfd == -1) {
-                throw Exception("GRPCServiceProxy::platform_open_session(): Failed to create pidfd",
-                                errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-            }
-            struct sockaddr_un address;
-            memset(&address, 0, sizeof(struct sockaddr_un));
-            address.sun_family = AF_UNIX;
-            strncpy(address.sun_path, m_session_socket.c_str(), sizeof(address.sun_path) - 1);
-            int err = connect(socket_fd, (struct sockaddr *) &address, sizeof(struct sockaddr_un));
-            if (err == -1) {
-                throw Exception("GRPCServiceProxy::platform_open_session(): Failed to connect(2) to GEOPM Service session socket",
-                                errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-            }
-            struct msghdr msg = {};
-            struct cmsghdr *control_msg;
-            std::vector<char> control_msg_buffer(CMSG_SPACE(sizeof(int)), '\0');
-            std::vector<char> iov_buffer(4, '\0');
-            struct iovec io;
-            io.iov_base = iov_buffer.data();
-            io.iov_len = iov_buffer.size();
-            msg.msg_iov = &io;
-            msg.msg_iovlen = 1;
-            msg.msg_control = control_msg_buffer.data();
-            msg.msg_controllen = control_msg_buffer.size();
-            control_msg = CMSG_FIRSTHDR(&msg);
-            control_msg->cmsg_level = SOL_SOCKET;
-            control_msg->cmsg_type = SCM_RIGHTS;
-            control_msg->cmsg_len = CMSG_LEN(sizeof(int));
-            memcpy((int *)CMSG_DATA(control_msg), &m_pidfd, sizeof(int));
-            err = sendmsg(socket_fd, &msg, 0);
-            if (err == -1) {
-                throw Exception("GRPCServiceProxy::platform_open_session(): Failed to sendmsg(2) over GEOPM Service session socket",
-                                errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-            }
-            err = recvmsg(socket_fd, &msg, 0);
-            char int_buffer[4];
-            for (int bb = 0; bb != 4; ++bb) {
-                int_buffer[3 - bb] = iov_buffer[bb];
-            }
-            int key = *((int *)int_buffer);
-            m_session_key = std::to_string(key);
-            err = close(socket_fd);
-            if (err == -1) {
-                throw Exception("GRPCServiceProxy::platform_open_session(): Failed to close(2) session socket",
-                                errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-            }
+        google::protobuf::Empty request;
+        grpc::ClientContext context;
+        GEOPMPackage::SessionKey response;
+        grpc::Status status = m_client->OpenSession(&context,
+                                                    request,
+                                                    &response);
+        if (!status.ok()) {
+            throw Exception("GRPCSericeProxy::platform_open_session(): " +
+                            status.error_message(),
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
-        catch (...) {
-            if (socket_fd != -1) {
-                (void)close(socket_fd);
-                errno = 0;
-            }
-            if (m_pidfd != -1) {
-                (void)close(m_pidfd);
-                errno = 0;
-                m_pidfd = -1;
-            }
-            throw;
-        }
+        m_session_key = response.name();
     }
 
     void GRPCServiceProxy::platform_close_session(void)

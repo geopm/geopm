@@ -135,4 +135,5 @@ service GEOPMService {
   rpc ReadSignal(ReadRequest) returns (Sample);
   rpc WriteControl(WriteRequest) returns(google.protobuf.Empty);
   rpc TopoGetCache(google.protobuf.Empty) returns(TopoCache);
+  rpc OpenSession(google.protobuf.Empty) returns(SessionKey);
 }
