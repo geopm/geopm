@@ -42,4 +42,5 @@ spec:
      hostPath:
        path: /tmp
    - name: geopm-mount
-     emptyDir: {}
+     hostPath:
+       path: /run/geopm-service
