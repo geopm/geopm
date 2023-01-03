@@ -24,6 +24,7 @@ BuildRequires: gcc-c++
 BuildRequires: unzip
 BuildRequires: libtool
 BuildRequires: systemd-devel >= 221
+BuildRequires: grpc-devel
 BuildRequires: python3
 BuildRequires: python3-devel
 BuildRequires: python3-setuptools
