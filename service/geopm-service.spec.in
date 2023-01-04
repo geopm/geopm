@@ -109,6 +109,11 @@ Group: System Environment/Libraries
 Group: System/Libraries
 %endif
 
+# Optional dependency: Add --disable-io-uring to the ./configure step.
+# Lets GEOPM batch its IO operations to reduce syscall overhead in IOGroups
+# with a lot of reads/writes per GEOPM batch operation.
+BuildRequires: liburing-devel
+
 %description -n libgeopmd1
 
 Library supporting the GEOPM Service.  This provides the libgeopmd

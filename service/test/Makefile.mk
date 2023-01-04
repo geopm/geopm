@@ -137,6 +137,8 @@ GTEST_TESTS = test/gtest_links/GPUTopoNullTest.default_config \
               test/gtest_links/IOGroupTest.signals_have_descriptions \
               test/gtest_links/IOGroupTest.signals_have_format_functions \
               test/gtest_links/IOGroupTest.string_to_behavior \
+              test/gtest_links/IOUringTest.batch_read \
+              test/gtest_links/IOUringTest.batch_write \
               test/gtest_links/LevelZeroGPUTopoTest.no_gpu_config \
               test/gtest_links/LevelZeroGPUTopoTest.four_forty_config \
               test/gtest_links/LevelZeroGPUTopoTest.eight_fiftysix_affinitization_config \
@@ -432,6 +434,7 @@ test_geopm_test_SOURCES = test/GPUTopoNullTest.cpp \
                           test/GEOPMHintTest.cpp \
                           test/HelperTest.cpp \
                           test/IOGroupTest.cpp \
+                          test/IOUringTest.cpp \
                           test/LevelZeroGPUTopoTest.cpp \
                           test/LevelZeroDevicePoolTest.cpp \
                           test/LevelZeroIOGroupTest.cpp \
@@ -445,6 +448,7 @@ test_geopm_test_SOURCES = test/GPUTopoNullTest.cpp \
                           test/MockControl.hpp \
                           test/MockDCGMDevicePool.hpp \
                           test/MockIOGroup.hpp \
+                          test/MockIOUring.hpp \
                           test/MockMSRIO.hpp \
                           test/MockNVMLDevicePool.hpp \
                           test/MockLevelZeroDevicePool.hpp \

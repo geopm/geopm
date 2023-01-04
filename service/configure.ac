@@ -147,6 +147,20 @@ fi
 [enable_cnl_iogroup="1"]
 )
 
+AC_ARG_ENABLE([io-uring],
+  [AS_HELP_STRING([--disable-io-uring],
+                  [Disable the use of libiouring for batch IO operations])],
+[if test "x$enable_io_uring" = "xno" ; then
+  enable_io_uring="0"
+else
+  enable_io_uring="1"
+fi
+],
+[enable_io_uring="1"]
+)
+AC_SUBST([enable_io_uring])
+AM_CONDITIONAL([ENABLE_IO_URING], [test "x$enable_io_uring" = "x1"])
+
 if test "x$enable_debug" = "x1" ; then
   AC_DEFINE([GEOPM_DEBUG], [ ], [Enables code for debugging])
   CFLAGS="$CFLAGS -O0 -g"
@@ -211,6 +225,25 @@ if test "x$with_levelzero" != x; then
   EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$with_levelzero/include"
   LD_LIBRARY_PATH="$with_levelzero/lib64:$LD_LIBRARY_PATH"
   EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_levelzero/lib64"
+fi
+
+AC_ARG_WITH([liburing], [AS_HELP_STRING([--with-liburing=PATH],
+            [specify directory for the installed liburing package.])])
+if test "x$with_liburing" != x; then
+  EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$with_liburing/include"
+  LD_LIBRARY_PATH="$with_liburing/lib:$LD_LIBRARY_PATH"
+  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_liburing/lib"
+fi
+AC_ARG_WITH([liburing-include], [AS_HELP_STRING([--with-liburing-include=PATH],
+            [specify directory for the installed liburing include files.])])
+if test "x$with_liburing_include" != x; then
+  EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$with_liburing_include"
+fi
+AC_ARG_WITH([liburing-lib], [AS_HELP_STRING([--with-liburing-lib=PATH],
+            [specify directory for the installed liburing library.])])
+if test "x$with_liburing_lib" != x; then
+  LD_LIBRARY_PATH="$with_liburing_lib:$LD_LIBRARY_PATH"
+  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_liburing_lib"
 fi
 
 AC_CHECK_HEADER([nmmintrin.h], [AC_DEFINE([GEOPM_HAS_SSE42], [1], [nmmintrin.h is available])], [])
@@ -298,6 +331,20 @@ else
             exit -1])
     fi
     AC_LANG_POP([C++])
+fi
+
+if test "x$enable_io_uring" = "x1" ; then
+    AC_DEFINE([GEOPM_HAS_IO_URING], [ ], [Enables liburing in GEOPM])
+    AC_SEARCH_LIBS([io_uring_queue_init], [uring])
+    AC_CHECK_LIB([uring], [io_uring_queue_init], [], [
+        echo "missing liburing: Configure with --with-liburing or --with-liburing-lib to specify the location or --disable-io-uring to avoid this dependency"
+        exit -1])
+    AC_CHECK_HEADER([liburing.h], [], [
+        echo "missing liburing.h: Configure with --with-liburing or --with-liburing-include to specify the location or --disable-io-uring to avoid this dependency"
+        exit -1],
+        [#define _DEFAULT_SOURCE
+         #define _POSIX_C_SOURCE 200809L
+         #include <liburing.h>])
 fi
 
 AC_CHECK_HEADERS([fcntl.h limits.h stddef.h stdint.h stdlib.h string.h sys/ioctl.h unistd.h])
@@ -401,4 +448,5 @@ AC_MSG_RESULT([docs               : ${enable_docs}])
 AC_MSG_RESULT([dcgm               : ${enable_dcgm}])
 AC_MSG_RESULT([nvml               : ${enable_nvml}])
 AC_MSG_RESULT([levelzero          : ${enable_levelzero}])
+AC_MSG_RESULT([io_uring           : ${enable_io_uring}])
 AC_MSG_RESULT([===============================================================================])

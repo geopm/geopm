@@ -186,6 +186,10 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/GEOPMHint.cpp \
                        src/Helper.cpp \
                        src/IOGroup.cpp \
+                       src/IOUring.cpp \
+                       src/IOUring.hpp \
+                       src/IOUringFallback.cpp \
+                       src/IOUringFallback.hpp \
                        src/LevelZeroGPUTopo.cpp \
                        src/LevelZeroGPUTopo.hpp \
                        src/LevelZeroDevicePool.cpp \
@@ -307,6 +311,15 @@ if ENABLE_DCGM
 else
     libgeopmd_la_SOURCES += src/DCGMDevicePoolThrow.cpp
     EXTRA_DIST += $(dcgm_source_files)
+endif
+
+io_uring_source_files = src/IOUringImp.cpp \
+                        src/IOUringImp.hpp \
+                        #end
+if ENABLE_IO_URING
+    libgeopmd_la_SOURCES += $(io_uring_source_files)
+else
+    EXTRA_DIST += $(io_uring_source_files)
 endif
 
 io.github.geopm.xml:
