@@ -54,7 +54,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: install system dependencies
-      run: sudo apt-get update && sudo apt-get install libelf-dev mpich libmpich-dev libomp-11-dev libsystemd-dev python3-gi python3-yaml
+      run: sudo apt-get update && sudo apt-get install libelf-dev mpich libmpich-dev libomp-11-dev libsystemd-dev liburing-dev python3-gi python3-yaml
     - name: install base and service dir python dependencies
       run: |
            python3 -m pip install --upgrade pip setuptools wheel pep517
@@ -112,7 +112,7 @@ jobs:
       with:
         fetch-depth: 0
     - name: install system dependencies
-      run: sudo apt-get update && sudo apt-get install libsystemd-dev osc python3-m2crypto python3-gi python3-yaml
+      run: sudo apt-get update && sudo apt-get install libsystemd-dev liburing-dev osc python3-m2crypto python3-gi python3-yaml
     - name: install base and service dir python dependencies
       run: |
            python3 -m pip install --upgrade pip setuptools wheel pep517
