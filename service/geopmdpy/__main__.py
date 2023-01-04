@@ -15,9 +15,10 @@ def term_handler(signum, frame):
         stop()
 
 def stop():
+    global _bus
     if _bus is not None:
         _bus.disconnect()
-    exit(0)
+        _bus = None
 
 def main():
     signal(SIGTERM, term_handler)
