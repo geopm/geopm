@@ -9,6 +9,7 @@
 #include <string>
 #include <map>
 
+#include "IOUring.hpp"
 #include "MSRIO.hpp"
 
 namespace geopm
@@ -19,7 +20,9 @@ namespace geopm
     {
         public:
             MSRIOImp();
-            MSRIOImp(int num_cpu, std::shared_ptr<MSRPath> path);
+            MSRIOImp(int num_cpu, std::shared_ptr<MSRPath> path,
+                     std::shared_ptr<IOUring> batch_reader,
+                     std::shared_ptr<IOUring> batch_writer);
             MSRIOImp(const MSRIOImp &other) = delete;
             MSRIOImp &operator=(const MSRIOImp &other) = delete;
             virtual ~MSRIOImp();
@@ -90,6 +93,9 @@ namespace geopm
             void msr_ioctl(struct m_msr_batch_array_s &batch);
             void msr_ioctl_read(struct m_batch_context_s &ctx);
             void msr_ioctl_write(struct m_batch_context_s &ctx);
+            void msr_batch_io(IOUring &batcher, struct m_msr_batch_array_s &batch);
+            void msr_read_files(int batch_ctx);
+            void msr_rmw_files(int batch_ctx);
             uint64_t system_write_mask(uint64_t offset);
 
             const int m_num_cpu;
@@ -99,6 +105,8 @@ namespace geopm
             std::map<uint64_t, uint64_t> m_offset_mask_map;
             bool m_is_open;
             std::shared_ptr<MSRPath> m_path;
+            std::shared_ptr<IOUring> m_batch_reader;
+            std::shared_ptr<IOUring> m_batch_writer;
     };
 }
 

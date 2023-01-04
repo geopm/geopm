@@ -3,20 +3,25 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <cstring>
 #include <fcntl.h>
+#include <iterator>
 #include <limits.h>
 #include <unistd.h>
 #include <cstdlib>
 #include <sstream>
 #include <string>
 #include <vector>
+#include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
+#include "IOUring.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
+#include "MockIOUring.hpp"
 #include "MSRIOImp.hpp"
 #include "MSRPath.hpp"
 #include "geopm_test.hpp"
@@ -24,7 +29,10 @@
 using geopm::MSRIO;
 using geopm::MSRIOImp;
 using geopm::MSRPath;
+using geopm::IOUring;
 using testing::Return;
+using testing::Invoke;
+using testing::_;
 
 class MSRIOMockFiles
 {
@@ -633,6 +641,7 @@ class MSRIOTest : public ::testing ::Test
         std::unique_ptr<MSRIO> m_msrio;
         std::unique_ptr<MSRIOMockFiles> m_files;
         std::shared_ptr<MockMSRPath> m_path;
+        std::shared_ptr<MockIOUring> m_batch_io;
 };
 
 void MSRIOTest::SetUp(void)
@@ -640,12 +649,15 @@ void MSRIOTest::SetUp(void)
     m_num_cpu = 4;
     m_files = geopm::make_unique<MSRIOMockFiles>(m_num_cpu);
     m_path = std::make_shared<MockMSRPath>();
+    m_batch_io = std::make_shared<MockIOUring>();
     for (int cpu_idx = 0; cpu_idx != m_num_cpu; ++cpu_idx) {
         EXPECT_CALL(*m_path, msr_path(cpu_idx, 0))
             .WillOnce(Return(m_files->test_dev_path()[cpu_idx]));
     }
     EXPECT_CALL(*m_path, msr_batch_path()).WillOnce(Return("NO_FILE_HERE"));
-    m_msrio = geopm::make_unique<MSRIOImp>(m_num_cpu, m_path);
+
+    // MSRIO creates a new batch IO once it knows the necessary queue size
+    m_msrio = geopm::make_unique<MSRIOImp>(m_num_cpu, m_path, m_batch_io, m_batch_io);
 }
 
 void MSRIOTest::TearDown(void) {}
@@ -760,6 +772,31 @@ TEST_F(MSRIOTest, read_batch)
     GEOPM_EXPECT_THROW_MESSAGE(m_msrio->sample(sample_idx1[0], sec_batch_ctx), GEOPM_ERROR_INVALID,
                                "cannot call sample() before read_batch()");
 
+    // Act like each operation reads the requested byte count
+    auto read_all_bytes = [&offsets0, &words0, &offsets1, &words1](
+            std::shared_ptr<int> ret, int, void *buf, unsigned nbytes, off_t offset) {
+        auto it = std::find(offsets0.begin(), offsets0.end(), offset);
+        if (it == offsets0.end()) {
+            it = std::find(offsets1.begin(), offsets1.end(), offset);
+            if (it == offsets1.end()) {
+                *ret = 0;
+            }
+            else {
+                auto idx = std::distance(offsets1.begin(), it);
+                words1[idx].copy((char *)buf, nbytes);
+                *ret = nbytes;
+            }
+        }
+        else {
+            auto idx = std::distance(offsets0.begin(), it);
+            words0[idx].copy((char*)buf, nbytes);
+            *ret = nbytes;
+        }
+    };
+    EXPECT_CALL(*m_batch_io, prep_read(_, _, _, _, _)).WillRepeatedly(
+            Invoke(read_all_bytes));
+    EXPECT_CALL(*m_batch_io, submit()).Times(2);
+
     m_msrio->read_batch();
     // check that sample works with index from add_read (with default batch context)
     ASSERT_EQ(expected0.size(), sample_idx0.size());
@@ -799,6 +836,8 @@ TEST_F(MSRIOTest, write_batch)
                                            "M\0\0\0\0\0\0\0", "\0\0\0\0\0W\0\0" };
     std::vector<const char *> write_words1{ "\0\0BI\0\0\0\0",  "XH\0\0\0\0\0\0",
                                             "\0\0\0ENTED",     "\0\0L\0M\0\0\0" };
+    std::vector<std::string> written_words0(end_words0.size(), "");
+    std::vector<std::string> written_words1(end_words1.size(), "");
     ASSERT_EQ(write_words0.size(), offsets0.size());
     ASSERT_EQ(offsets0.size(), masks0.size());
     ASSERT_EQ(write_words0.size(), end_words0.size());
@@ -823,14 +862,58 @@ TEST_F(MSRIOTest, write_batch)
         }
     }
 
+    auto read_all_bytes = [&offsets0, &end_words0, &offsets1, &end_words1](
+            std::shared_ptr<int> ret, int, void *buf, unsigned nbytes, off_t offset) {
+        auto it = std::find(offsets0.begin(), offsets0.end(), offset);
+        if (it == offsets0.end()) {
+            it = std::find(offsets1.begin(), offsets1.end(), offset);
+            if (it == offsets1.end()) {
+                *ret = 0;
+            }
+            else {
+                auto idx = std::distance(offsets1.begin(), it);
+                end_words1[idx].copy((char *)buf, nbytes);
+                *ret = nbytes;
+            }
+        }
+        else {
+            auto idx = std::distance(offsets0.begin(), it);
+            end_words0[idx].copy((char*)buf, nbytes);
+            *ret = nbytes;
+        }
+    };
+    EXPECT_CALL(*m_batch_io, prep_read(_, _, _, _, _)).WillRepeatedly(
+            Invoke(read_all_bytes));
+
+    // Take whatever would be written to a file, and put it in the written_words0 vector
+    auto write_all_bytes = [&written_words0, &offsets0, &written_words1, &offsets1](
+            std::shared_ptr<int> ret, int, const void *buf, unsigned nbytes, off_t offset) {
+        auto it = std::find(offsets0.begin(), offsets0.end(), offset);
+        if (it == offsets0.end()) {
+            it = std::find(offsets1.begin(), offsets1.end(), offset);
+            if (it == offsets1.end()) {
+                *ret = 0;
+            }
+            else {
+                auto idx = std::distance(offsets1.begin(), it);
+                written_words1[idx] = std::string((const char*)buf, nbytes);
+                *ret = nbytes;
+            }
+        }
+        else {
+            auto idx = std::distance(offsets0.begin(), it);
+            written_words0[idx] = std::string((const char*)buf, nbytes);
+            *ret = nbytes;
+        }
+    };
+    EXPECT_CALL(*m_batch_io, prep_write(_, _, _, _, _)).WillRepeatedly(
+            Invoke(write_all_bytes));
+
+    // Called twice per write_batch(). Once for read, then again for modified write.
+    EXPECT_CALL(*m_batch_io, submit()).Times(4);
+
     m_msrio->write_batch();
     m_msrio->write_batch(sec_batch_ctx);
-    for (auto &ci : cpu_idx) {
-        for (size_t i = 0; i < end_words0.size(); ++i) {
-            EXPECT_EQ(0, memcmp(m_files->msr_space_ptr(ci, offsets0[i]), end_words0[i].c_str(), 8));
-        }
-        for (size_t i = 0; i < end_words1.size(); ++i) {
-            EXPECT_EQ(0, memcmp(m_files->msr_space_ptr(ci, offsets1[i]), end_words1[i].c_str(), 8));
-        }
-    }
+    EXPECT_EQ(end_words0, written_words0);
+    EXPECT_EQ(end_words1, written_words1);
 }
