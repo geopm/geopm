@@ -186,7 +186,6 @@ namespace geopm
 
         register_signal_alias("CPU_ENERGY", "MSR::PKG_ENERGY_STATUS:ENERGY");
         register_signal_alias("DRAM_ENERGY", "MSR::DRAM_ENERGY_STATUS:ENERGY");
-        register_signal_alias("BOARD_ENERGY", "MSR::PLATFORM_ENERGY_STATUS:ENERGY");
         register_signal_alias("CPU_INSTRUCTIONS_RETIRED", "MSR::FIXED_CTR0:INST_RETIRED_ANY");
         register_signal_alias("CPU_CYCLES_THREAD", "MSR::FIXED_CTR1:CPU_CLK_UNHALTED_THREAD");
         register_signal_alias("CPU_CYCLES_REFERENCE", "MSR::FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC");
@@ -195,6 +194,12 @@ namespace geopm
         register_signal_alias("CPU_POWER_LIMIT_DEFAULT", "MSR::PKG_POWER_INFO:THERMAL_SPEC_POWER");
         register_signal_alias("CPU_POWER_LIMIT_CONTROL", "MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT");
         register_signal_alias("CPU_POWER_TIME_WINDOW", "MSR::PKG_POWER_LIMIT:PL1_TIME_WINDOW");
+
+        // CNLIOGroup provides a CNL::BOARD_ENERGY & BOARD_ENERGY high level alias.
+        // If it loads after the MSRIOGroup the BOARD_ENERGY alias below will be
+        // overwritten, so both MSR::BOARD_ENERGY & BOARD_ENERGY are provided
+        register_signal_alias("MSR::BOARD_ENERGY", "MSR::PLATFORM_ENERGY_STATUS:ENERGY");
+        register_signal_alias("BOARD_ENERGY", "MSR::BOARD_ENERGY");
 
         register_temperature_signals();
         register_power_signals();
@@ -374,9 +379,9 @@ namespace geopm
             {"DRAM_POWER",
                     "Average DRAM power over 40 ms or 8 control loop iterations",
                     "DRAM_ENERGY"},
-            {"BOARD_POWER",
+            {"MSR::BOARD_POWER",
                     "Average BOARD power over 40 ms or 8 control loop iterations",
-                    "BOARD_ENERGY"}
+                    "MSR::BOARD_ENERGY"}
         };
         for (const auto &ps : power_signals) {
             std::string signal_name = ps.power_name;
@@ -406,6 +411,11 @@ namespace geopm
                                                    string_format_double};
             }
         }
+
+        // CNLIOGroup provides a CNL::BOARD_POWER & BOARD_POWER high level alias.
+        // If it loads after the MSRIOGroup the BOARD_POWER alias below will be
+        // overwritten, so both MSR::BOARD_POWER & BOARD_POWER are provided
+        register_signal_alias("BOARD_POWER", "MSR::BOARD_POWER");
     }
 
     void MSRIOGroup::register_pcnt_scalability_signals(void)
