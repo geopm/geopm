@@ -186,6 +186,7 @@ namespace geopm
 
         register_signal_alias("CPU_ENERGY", "MSR::PKG_ENERGY_STATUS:ENERGY");
         register_signal_alias("DRAM_ENERGY", "MSR::DRAM_ENERGY_STATUS:ENERGY");
+        register_signal_alias("BOARD_ENERGY", "MSR::PLATFORM_ENERGY_STATUS:ENERGY");
         register_signal_alias("CPU_INSTRUCTIONS_RETIRED", "MSR::FIXED_CTR0:INST_RETIRED_ANY");
         register_signal_alias("CPU_CYCLES_THREAD", "MSR::FIXED_CTR1:CPU_CLK_UNHALTED_THREAD");
         register_signal_alias("CPU_CYCLES_REFERENCE", "MSR::FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC");
@@ -372,7 +373,10 @@ namespace geopm
                     "CPU_ENERGY"},
             {"DRAM_POWER",
                     "Average DRAM power over 40 ms or 8 control loop iterations",
-                    "DRAM_ENERGY"}
+                    "DRAM_ENERGY"},
+            {"BOARD_POWER",
+                    "Average BOARD power over 40 ms or 8 control loop iterations",
+                    "BOARD_ENERGY"}
         };
         for (const auto &ps : power_signals) {
             std::string signal_name = ps.power_name;
