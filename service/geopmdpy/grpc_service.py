@@ -3,8 +3,6 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
-import socket
-import select
 import os
 import sys
 import pwd
@@ -57,7 +55,7 @@ class GEOPMServiceProxy(geopm_service_pb2_grpc.GEOPMServiceServicer):
 
     def StartBatch(self, request, context):
         result = geopm_service_pb2.BatchKey()
-        client_id = self._get_client_id(context)
+        client_id = self._get_client_id(request.session_key, context)
         signal_config = []
         if request.signal_config:
             signal_config = [(int(sc.domain), int(sc.domain_idx), (str(sc.name)))
@@ -74,13 +72,13 @@ class GEOPMServiceProxy(geopm_service_pb2_grpc.GEOPMServiceServicer):
         return result
 
     def StopBatch(self, request, context):
-        client_id = self._get_client_id(context)
+        client_id = self._get_client_id(request.session_key, context)
         self._platform_service.stop_batch(client_id, request.batch_pid)
         return google.protobuf.empty_pb2.Empty()
 
     def ReadSignal(self, request, context):
         result = geopm_service_pb2.Sample()
-        client_id = self._get_client_id(context)
+        client_id = self._get_client_id(request.session_key, context)
         platform_request = request.request
         result.sample = self._platform_service.read_signal(client_id,
                                                            platform_request.name,
@@ -89,7 +87,7 @@ class GEOPMServiceProxy(geopm_service_pb2_grpc.GEOPMServiceServicer):
         return result
 
     def WriteControl(self, request, context):
-        client_id = self._get_client_id(context)
+        client_id = self._get_client_id(request.session_key, context)
         platform_request = request.request
         self._platform_service.write_control(client_id,
                                              platform_request.name,
@@ -104,26 +102,48 @@ class GEOPMServiceProxy(geopm_service_pb2_grpc.GEOPMServiceServicer):
         return result
 
     def OpenSession(self, request, context):
-        client_id = self._get_client_id(context)
-        self._platform_service.open_session("", client_id)
         result = geopm_service_pb2.SessionKey()
-        result.name = str(client_id)
+        client_id = self._get_client_id(request, context)
+        if self._is_containerized():
+            sys.stderr.write('Warning: Running in a container, no implementation to determine process lifetime exists\n')
+            client_id = 1
+            result.name = '0,1'
+        else:
+            result.name = request.name
+        self._platform_service.open_session(self._get_user(client_id), client_id)
         return result
 
     def CloseSession(self, request, context):
-        client_id = self._get_client_id(context)
+        client_id = self._get_client_id(request, context)
         self._platform_service.close_session(client_id)
         return google.protobuf.empty_pb2.Empty()
 
-    def _get_client_id(self, context):
-        return int(context.peer().split(':')[-1])
+    def _get_client_id(self, session_key, context):
+        pid_str = session_key.name.split(',')[1]
+        return int(pid_str)
+
+    def _get_user(self, client_id):
+        uid = os.stat(f'/proc/{client_id}/status').st_uid
+        return pwd.getpwuid(uid).pw_name
+
+    def _is_containerized(self):
+        result = True
+        with open('/proc/1/cgroup') as fid:
+            contents = fid.read()
+            if '0::/init.scope' in contents:
+                result = False
+        return result
+
 
 
 def run():
-    grpc_port = 50051
+    grpc_socket_path = os.path.join(system_files.GEOPM_SERVICE_RUN_PATH,
+                                    'GRPC_SOCKET')
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
     geopm_proxy = GEOPMServiceProxy()
     geopm_service_pb2_grpc.add_GEOPMServiceServicer_to_server(geopm_proxy, server)
-    server.add_insecure_port(f'localhost:{grpc_port}')
+    server_credentials = grpc.local_server_credentials(grpc.LocalConnectionType.UDS)
+    server.add_secure_port(f'unix://{grpc_socket_path}', server_credentials)
+    os.chmod(grpc_socket_path, 0o777)
     server.start()
     server.wait_for_termination()

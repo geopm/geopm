@@ -35,11 +35,11 @@ namespace geopm
     }
 
     GRPCServiceProxy::GRPCServiceProxy()
-        : m_grpc_socket("localhost:50051")
+        : m_grpc_socket("unix:///run/geopm-service/GRPC_SOCKET")
         , m_pidfd(-1)
         , m_client(std::make_shared<GEOPMPackage::GEOPMService::Stub>(
                    grpc::CreateChannel(m_grpc_socket,
-                                       grpc::InsecureChannelCredentials())))
+                                       grpc::experimental::LocalCredentials(UDS))))
     {
         // TODO:  Session key should be provided by the server when the session is opened
         std::ostringstream id;

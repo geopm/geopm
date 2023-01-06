@@ -66,6 +66,7 @@ EXTRA_DIST = .gitignore \
              contrib/json11/README.md \
              dox/blurb.md \
              dox/Doxyfile.in \
+             Dockerfile \
              geopm-service.spec.in \
              io.github.geopm.conf \
              io.github.geopm.xml \
@@ -94,6 +95,7 @@ EXTRA_DIST = .gitignore \
              geopmdpy/version.py.in \
              geopmsession \
              geopm_service.proto \
+             k8-manifest.yaml \
              json_schemas/active_sessions.schema.json \
              json_schemas/const_config_io.schema.json \
              json_schemas/msrs.schema.json \

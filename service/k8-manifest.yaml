@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Pod
+metadata:
+   name: geopm-service-pod
+spec:
+   restartPolicy: Never
+   containers:
+   - name: geopm-server
+     image: cmcantal/geopm-service:dockerfile
+     imagePullPolicy: Always
+     securityContext:
+       privileged: true
+       seccompProfile:
+         type: Localhost
+         localhostProfile: geopm-server-seccomp.json
+     volumeMounts:
+     - name: geopm-mount
+       mountPath: /run/geopm-service
+     - name: cpu-mount
+       mountPath: /dev/cpu
+     - name: tmp-mount
+       mountPath: /tmp
+     command: ['/usr/bin/sh', '-c', 'chmod 711 /run/geopm-service; geopmread >> /etc/geopm-service/0.DEFAULT_ACCESS/allowed_signals; geopmd --grpc']
+   - name: geopm-client
+     image: cmcantal/geopm-service:dockerfile
+     imagePullPolicy: Always
+     securityContext:
+       privileged: false
+       allowPrivilegeEscalation: false
+       readOnlyRootFilesystem: true
+       runAsNonRoot: true
+       runAsUser: 10001
+       runAsGroup: 10001
+       seccompProfile:
+         type: Localhost
+         localhostProfile: geopm-client-seccomp.json
+     volumeMounts:
+     - name: geopm-mount
+       mountPath: /run/geopm-service
+     - name: tmp-mount
+       mountPath: /tmp
+     command: ['/usr/bin/sh', '-c', 'sleep 5; geopmread; for ss in geopmread; do printf %s= $ss ; geopmread $ss board 0; echo $ss board 0 >> /tmp/geopmsession-requests.txt; done; geopmsession -t1000 -p1 < /tmp/geopmsession-requests.txt; rm /tmp/geopmsession-requests.txt; sleep 3600']
+   volumes:
+   - name: geopm-mount
+     emptyDir: {}
+   - name: tmp-mount
+     emptyDir: {}
+   - name: cpu-mount
+     hostPath:
+       path: /dev/cpu

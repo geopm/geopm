@@ -190,6 +190,8 @@ service/json_schemas/active_sessions.schema.json
 service/json_schemas/const_config_io.schema.json
 service/json_schemas/msrs.schema.json
 service/json_schemas/saved_controls.schema.json
+service/Dockerfile
+service/k8-manifest.yaml
 shell_completion/README.md
 specs/geopm-dudley.spec.in
 specs/geopm-ohpc.spec.in
