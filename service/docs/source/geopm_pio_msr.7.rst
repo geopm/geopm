@@ -132,6 +132,12 @@ This IOGroup provides the following high-level aliases:
 Signal Aliases
 ^^^^^^^^^^^^^^
 
+``BOARD_ENERGY``
+    Maps to ``MSR::BOARD_ENERGY``
+
+``BOARD_POWER``
+    Maps to ``MSR::BOARD_POWER``
+
 ``CPU_CYCLES_REFERENCE``
     Maps to ``MSR::FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC``
 
@@ -155,6 +161,9 @@ Signal Aliases
 
 ``CPU_INSTRUCTIONS_RETIRED``
     Maps to ``MSR::FIXED_CTR0:INST_RETIRED_ANY``
+
+``CPU_POWER``
+    Average package power over 40 ms or 8 control loop iterations.
 
 ``CPU_POWER_LIMIT_CONTROL``
     Maps to ``MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT``
@@ -180,11 +189,20 @@ Signal Aliases
 ``DRAM_ENERGY``
     Maps to ``MSR::DRAM_ENERGY_STATUS:ENERGY``
 
-``QM_CTR_SCALED``
+``DRAM_POWER``
+    Average DRAM power over 40 ms or 8 control loop iterations.
+
+``MSR::BOARD_ENERGY``
+    Maps to ``MSR::PLATFORM_ENERGY_STATUS:ENERGY``
+
+``MSR::BOARD_POWER``
+    Average board power over 40 ms or 8 control loop iterations.  Derived from ``MSR::BOARD_ENERGY``
+
+``MSR::QM_CTR_SCALED``
     Maps to ``MSR::QM_CTR:RM_DATA``, scaled by the processor's counter resolution for bandwidth accounting in bytes.
 
-``QM_CTR_SCALED_RATE``
-    Maps to the rate of change in ``QM_CTR_SCALED``.
+``MSR::QM_CTR_SCALED_RATE``
+    Maps to the rate of change in ``MSR::QM_CTR_SCALED``.
 
 Control Aliases
 ^^^^^^^^^^^^^^^
