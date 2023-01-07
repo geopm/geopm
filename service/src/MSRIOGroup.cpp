@@ -200,6 +200,8 @@ namespace geopm
         // overwritten, so both MSR::BOARD_ENERGY & BOARD_ENERGY are provided
         register_signal_alias("MSR::BOARD_ENERGY", "MSR::PLATFORM_ENERGY_STATUS:ENERGY");
         register_signal_alias("BOARD_ENERGY", "MSR::BOARD_ENERGY");
+        register_signal_alias("BOARD_POWER_LIMIT_CONTROL", "MSR::PLATFORM_POWER_LIMIT:PL1_POWER_LIMIT");
+        register_signal_alias("BOARD_POWER_TIME_WINDOW", "MSR::PLATFORM_POWER_LIMIT:PL1_TIME_WINDOW");
 
         register_temperature_signals();
         register_power_signals();
@@ -208,6 +210,8 @@ namespace geopm
 
         register_control_alias("CPU_POWER_LIMIT_CONTROL", "MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT");
         register_control_alias("CPU_POWER_TIME_WINDOW", "MSR::PKG_POWER_LIMIT:PL1_TIME_WINDOW");
+        register_control_alias("BOARD_POWER_LIMIT_CONTROL", "MSR::PLATFORM_POWER_LIMIT:PL1_POWER_LIMIT");
+        register_control_alias("BOARD_POWER_TIME_WINDOW", "MSR::PLATFORM_POWER_LIMIT:PL1_TIME_WINDOW");
     }
 
     void MSRIOGroup::register_frequency_signals(void)
