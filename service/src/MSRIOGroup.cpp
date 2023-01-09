@@ -753,6 +753,9 @@ namespace geopm
         if (control_name == "CPU_POWER_LIMIT_CONTROL") {
             write_control("MSR::PKG_POWER_LIMIT:PL1_LIMIT_ENABLE", domain_type, domain_idx, 1.0);
         }
+        else if (control_name == "BOARD_POWER_LIMIT_CONTROL") {
+            write_control("MSR::PLATFORM_POWER_LIMIT:PL1_LIMIT_ENABLE", domain_type, domain_idx, 1.0);
+        }
 
         if (!is_found) {
             result = m_control_pushed.size();
@@ -853,6 +856,9 @@ namespace geopm
 
         if (control_name == "CPU_POWER_LIMIT_CONTROL") {
             write_control("MSR::PKG_POWER_LIMIT:PL1_LIMIT_ENABLE", domain_type, domain_idx, 1.0);
+        }
+        else if (control_name == "BOARD_POWER_LIMIT_CONTROL") {
+            write_control("MSR::PLATFORM_POWER_LIMIT:PL1_LIMIT_ENABLE", domain_type, domain_idx, 1.0);
         }
         std::shared_ptr<Control> control = m_control_available.at(control_name).controls[domain_idx];
         control->write(setting);
@@ -1333,6 +1339,29 @@ namespace geopm
             }
             do_check_rapl_lock = false;
         }
+
+        static const std::set<std::string> PLATFORM_POWER_CONTROL_SET {
+            "BOARD_POWER_LIMIT_CONTROL",
+            "MSR::PLATFORM_POWER_LIMIT:PL1_POWER_LIMIT"};
+        static bool do_check_platform_rapl_lock = true;
+        if (do_check_platform_rapl_lock &&
+            PLATFORM_POWER_CONTROL_SET.find(control_name) != PLATFORM_POWER_CONTROL_SET.end()) {
+
+            int domain = signal_domain_type("MSR::PLATFORM_POWER_LIMIT:LOCK");
+            int num_domain = m_platform_topo.num_domain(domain);
+            bool lock = false;
+            for (int dom_idx = 0; dom_idx < num_domain; ++dom_idx) {
+                lock |= (bool)read_signal("MSR::PLATFORM_POWER_LIMIT:LOCK", domain, dom_idx);
+            }
+            if (lock) {
+                throw Exception("MSRIOGroup::" + std::string(__func__) + "(): " +
+                                "Unable to control platform power when PLATFORM RAPL lock bit is set. " +
+                                "Check BIOS settings to ensure RAPL is enabled.",
+                                GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
+            do_check_platform_rapl_lock = false;
+        }
+
     }
 
     /// Used to validate types and values of JSON objects
