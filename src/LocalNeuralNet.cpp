@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 - 2022, Intel Corporation
+ * Copyright (c) 2015 - 2023, Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -17,11 +17,12 @@
 
 namespace geopm
 {
-    std::unique_ptr<LocalNeuralNet> LocalNeuralNet::make_unique(std::vector<std::pair<std::vector<std::vector<float> >, std::vector<float> > > input) {
+    std::unique_ptr<LocalNeuralNet> LocalNeuralNet::make_unique(std::vector<Layer> input)
+    {
         return geopm::make_unique<LocalNeuralNetImp>(input);
     }
 
-    LocalNeuralNetImp::LocalNeuralNetImp(std::vector<std::pair<std::vector<std::vector<float> >, std::vector<float> > > input)
+    LocalNeuralNetImp::LocalNeuralNetImp(std::vector<Layer> input)
     {
         if (input.size() == 0u) {
             throw geopm::Exception("Empty array is invalid for neural network weights.\n",
@@ -31,7 +32,7 @@ namespace geopm
         std::size_t nlayers = input.size();
 
         m_layers.resize(nlayers);
-        for (std::size_t idx = 0; idx < nlayers; idx++) {
+        for (std::size_t idx = 0; idx < nlayers; ++idx) {
             m_layers[idx] = std::make_pair(LocalNeuralNetImp::TensorTwoD(input[idx].first),
                                            LocalNeuralNetImp::TensorOneD(input[idx].second));
             if (m_layers[idx].first.get_rows() != m_layers[idx].second.get_dim()) {
@@ -45,8 +46,7 @@ namespace geopm
         }
     }
 
-    std::vector<float>
-    LocalNeuralNetImp::model(std::vector<float> inp_vector)
+    std::vector<float> LocalNeuralNetImp::forward(std::vector<float> inp_vector)
     {
         LocalNeuralNetImp::TensorOneD inp(inp_vector);
 
@@ -57,7 +57,7 @@ namespace geopm
 
         LocalNeuralNetImp::TensorOneD tmp = inp;
         std::size_t nlayers = m_layers.size();
-        for (std::size_t idx = 0; idx < nlayers; idx++) {
+        for (std::size_t idx = 0; idx < nlayers; ++idx) {
             // Tensor operations
             tmp = m_layers[idx].first * tmp + m_layers[idx].second;
 
@@ -72,6 +72,11 @@ namespace geopm
     LocalNeuralNetImp::TensorOneD::TensorOneD(std::size_t dim)
     {
         set_dim(dim);
+    }
+
+    LocalNeuralNetImp::TensorOneD::TensorOneD(std::vector<float> input)
+    {
+        m_vec = input;
     }
 
     LocalNeuralNetImp::TensorOneD::TensorOneD(const TensorOneD &other)
@@ -92,16 +97,6 @@ namespace geopm
     std::size_t LocalNeuralNetImp::TensorOneD::get_dim() const
     {
         return m_vec.size();
-    }
-
-    LocalNeuralNetImp::TensorOneD::TensorOneD(std::vector<float> input)
-    {
-        set_dim(input.size());
-        std::size_t vec_size = m_vec.size();
-
-        for (std::size_t idx = 0; idx < vec_size; ++idx) {
-            m_vec[idx] = input[idx];
-        }
     }
 
     LocalNeuralNetImp::TensorOneD LocalNeuralNetImp::TensorOneD::operator+(const LocalNeuralNetImp::TensorOneD& other)
@@ -129,7 +124,6 @@ namespace geopm
 
         return rval;
     }
-
 
     float LocalNeuralNetImp::TensorOneD::operator*(const LocalNeuralNetImp::TensorOneD& other)
     {
@@ -171,8 +165,8 @@ namespace geopm
     {
         std::size_t vec_size = m_vec.size();
         LocalNeuralNetImp::TensorOneD rval(vec_size);
-        for(std::size_t idx = 0; idx < vec_size; idx++) {
-            rval[idx] = 1/(1 + expf(-(m_vec.at(idx))));
+        for (std::size_t idx = 0; idx < vec_size; ++idx) {
+            rval[idx] = 1/(1 + expf(-m_vec[idx]));
         }
         return rval;
     }

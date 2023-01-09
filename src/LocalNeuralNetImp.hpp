@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 - 2022, Intel Corporation
+ * Copyright (c) 2015 - 2023, Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -13,8 +13,8 @@ namespace geopm
     class LocalNeuralNetImp : public LocalNeuralNet
     {
         public:
-            LocalNeuralNetImp(std::vector<std::pair<std::vector<std::vector<float> >, std::vector<float> > > input);
-            std::vector<float> model(std::vector<float> inp);
+            LocalNeuralNetImp(std::vector<Layer> input);
+            std::vector<float> forward(std::vector<float> inp);
 
         private:
             /// @brief Class to store and perform operations on 1D Tensors,
@@ -169,7 +169,7 @@ namespace geopm
                     std::vector<TensorOneD> m_mat;
             };
 
-            std::vector<std::pair<TensorTwoD, LocalNeuralNetImp::TensorOneD> > m_layers;
+            std::vector<std::pair<TensorTwoD, TensorOneD> > m_layers;
     };
 }
 
