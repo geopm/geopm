@@ -1061,25 +1061,33 @@ namespace geopm
 
     void MSRIOGroup::enable_fixed_counters(void)
     {
-        for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
-            write_control("MSR::PERF_GLOBAL_CTRL:EN_FIXED_CTR0", GEOPM_DOMAIN_CPU, cpu_idx, 1.0);
-            write_control("MSR::FIXED_CTR_CTRL:EN0_OS", GEOPM_DOMAIN_CPU, cpu_idx, 1.0);
-            write_control("MSR::FIXED_CTR_CTRL:EN0_USR", GEOPM_DOMAIN_CPU, cpu_idx, 1.0);
-            write_control("MSR::FIXED_CTR_CTRL:EN0_PMI", GEOPM_DOMAIN_CPU, cpu_idx, 0);
+        try {
+            for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
+                write_control("MSR::PERF_GLOBAL_CTRL:EN_FIXED_CTR0", GEOPM_DOMAIN_CPU, cpu_idx, 1.0);
+                write_control("MSR::FIXED_CTR_CTRL:EN0_OS", GEOPM_DOMAIN_CPU, cpu_idx, 1.0);
+                write_control("MSR::FIXED_CTR_CTRL:EN0_USR", GEOPM_DOMAIN_CPU, cpu_idx, 1.0);
+                write_control("MSR::FIXED_CTR_CTRL:EN0_PMI", GEOPM_DOMAIN_CPU, cpu_idx, 0);
 
-            write_control("MSR::PERF_GLOBAL_CTRL:EN_FIXED_CTR1", GEOPM_DOMAIN_CPU, cpu_idx, 1.0);
-            write_control("MSR::FIXED_CTR_CTRL:EN1_OS", GEOPM_DOMAIN_CPU, cpu_idx, 1.0);
-            write_control("MSR::FIXED_CTR_CTRL:EN1_USR", GEOPM_DOMAIN_CPU, cpu_idx, 1.0);
-            write_control("MSR::FIXED_CTR_CTRL:EN1_PMI", GEOPM_DOMAIN_CPU, cpu_idx, 0);
+                write_control("MSR::PERF_GLOBAL_CTRL:EN_FIXED_CTR1", GEOPM_DOMAIN_CPU, cpu_idx, 1.0);
+                write_control("MSR::FIXED_CTR_CTRL:EN1_OS", GEOPM_DOMAIN_CPU, cpu_idx, 1.0);
+                write_control("MSR::FIXED_CTR_CTRL:EN1_USR", GEOPM_DOMAIN_CPU, cpu_idx, 1.0);
+                write_control("MSR::FIXED_CTR_CTRL:EN1_PMI", GEOPM_DOMAIN_CPU, cpu_idx, 0);
 
-            write_control("MSR::PERF_GLOBAL_CTRL:EN_FIXED_CTR2", GEOPM_DOMAIN_CPU, cpu_idx, 1.0);
-            write_control("MSR::FIXED_CTR_CTRL:EN2_OS", GEOPM_DOMAIN_CPU, cpu_idx, 1.0);
-            write_control("MSR::FIXED_CTR_CTRL:EN2_USR", GEOPM_DOMAIN_CPU, cpu_idx, 1.0);
-            write_control("MSR::FIXED_CTR_CTRL:EN2_PMI", GEOPM_DOMAIN_CPU, cpu_idx, 0);
+                write_control("MSR::PERF_GLOBAL_CTRL:EN_FIXED_CTR2", GEOPM_DOMAIN_CPU, cpu_idx, 1.0);
+                write_control("MSR::FIXED_CTR_CTRL:EN2_OS", GEOPM_DOMAIN_CPU, cpu_idx, 1.0);
+                write_control("MSR::FIXED_CTR_CTRL:EN2_USR", GEOPM_DOMAIN_CPU, cpu_idx, 1.0);
+                write_control("MSR::FIXED_CTR_CTRL:EN2_PMI", GEOPM_DOMAIN_CPU, cpu_idx, 0);
 
-            write_control("MSR::PERF_GLOBAL_OVF_CTRL:CLEAR_OVF_FIXED_CTR0", GEOPM_DOMAIN_CPU, cpu_idx, 0);
-            write_control("MSR::PERF_GLOBAL_OVF_CTRL:CLEAR_OVF_FIXED_CTR1", GEOPM_DOMAIN_CPU, cpu_idx, 0);
-            write_control("MSR::PERF_GLOBAL_OVF_CTRL:CLEAR_OVF_FIXED_CTR2", GEOPM_DOMAIN_CPU, cpu_idx, 0);
+                write_control("MSR::PERF_GLOBAL_OVF_CTRL:CLEAR_OVF_FIXED_CTR0", GEOPM_DOMAIN_CPU, cpu_idx, 0);
+                write_control("MSR::PERF_GLOBAL_OVF_CTRL:CLEAR_OVF_FIXED_CTR1", GEOPM_DOMAIN_CPU, cpu_idx, 0);
+                write_control("MSR::PERF_GLOBAL_OVF_CTRL:CLEAR_OVF_FIXED_CTR2", GEOPM_DOMAIN_CPU, cpu_idx, 0);
+            }
+        }
+        catch (const Exception &ex) {
+            if (std::string(ex.what()).find("pwrite() failed") == std::string::npos) {
+                throw;
+            }
+            m_control_available.clear();
         }
         m_is_fixed_enabled = true;
     }
