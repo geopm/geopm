@@ -1361,7 +1361,6 @@ namespace geopm
             }
             do_check_platform_rapl_lock = false;
         }
-
     }
 
     /// Used to validate types and values of JSON objects
