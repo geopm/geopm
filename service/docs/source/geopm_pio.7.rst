@@ -74,16 +74,20 @@ Descriptions Of High Level Aliases
 ``BOARD_ENERGY``
     Total energy measured on the server's board. See :ref:`geopm_pio_cnl(7)
     <geopm_pio_cnl.7:Requirements>` and :doc:`geopm_pio_msr(7)
-    <geopm_pio_msr.7>` for signal availability requirements.
+    <geopm_pio_msr.7>` for signal availability requirements.  On systems that
+    support both IOGroups the CNL alias will be used.  The ``MSR::BOARD_ENERGY``
+    alias may be used to access the MSRIOGroup version on those systems.
 
 ``BOARD_POWER``
     Power measured on the server's board. See :ref:`geopm_pio_cnl(7)
     <geopm_pio_cnl.7:Requirements>` and :doc:`geopm_pio_msr(7)
-    <geopm_pio_msr.7>` for signal availability requirements.
+    <geopm_pio_msr.7>` for signal availability requirements.  On systems that
+    support both IOGroups the CNL alias will be used.  The ``MSR::BOARD_ENERGY``
+    alias may be used to access the MSRIOGroup version on those systems.
 
 ``BOARD_POWER_LIMIT_CONTROL``
     The average board power usage limit over the time window specified in
-    platform BOARD_POWER_TIME_WINDOW_CONTROL.
+    BOARD_POWER_TIME_WINDOW_CONTROL.
 
 ``BOARD_POWER_TIME_WINDOW_CONTROL``
     The time window associated with BOARD_POWER_LIMIT_CONTROL.
