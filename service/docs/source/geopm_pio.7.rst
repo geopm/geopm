@@ -83,9 +83,9 @@ Descriptions Of High Level Aliases
 
 ``BOARD_POWER_LIMIT_CONTROL``
     The average board power usage limit over the time window specified in
-    platform PL1_TIME_WINDOW.
+    platform BOARD_POWER_TIME_WINDOW_CONTROL.
 
-``BOARD_POWER_TIME_WINDOW``
+``BOARD_POWER_TIME_WINDOW_CONTROL``
     The time window associated with board power limit 1.
 
 ``CPU_CORE_TEMPERATURE``
