@@ -8,3 +8,5 @@ RUN curl -fsSL https://download.opensuse.org/repositories/home:/cmcantal/15.4/re
 RUN rpm --import /tmp/suse-key
 RUN zypper addrepo https://download.opensuse.org/repositories/home:/cmcantal/15.4/home:cmcantal.repo
 RUN zypper install -y geopm-service
+RUN mkdir -p -m 755 /var; mkdir -p -m 755 /var/lib; mkdir -p -m 755 /var/lib/kubelet; mkdir -p -m 755 /var/lib/kubelet/seccomp; mkdir -p -m 755 /var/lib/kubelet/seccomp/profiles;
+COPY geopm-*-seccomp.json /var/lib/kubelet/seccomp/profiles

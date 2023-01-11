@@ -12,7 +12,7 @@ spec:
        privileged: true
        seccompProfile:
          type: Localhost
-         localhostProfile: geopm-server-seccomp.json
+         localhostProfile: profiles/geopm-server-seccomp.json
      volumeMounts:
      - name: geopm-mount
        mountPath: /run/geopm-service
@@ -33,7 +33,7 @@ spec:
        runAsGroup: 10001
        seccompProfile:
          type: Localhost
-         localhostProfile: geopm-client-seccomp.json
+         localhostProfile: profiles/geopm-client-seccomp.json
      volumeMounts:
      - name: geopm-mount
        mountPath: /run/geopm-service
