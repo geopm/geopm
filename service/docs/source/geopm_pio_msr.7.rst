@@ -133,7 +133,7 @@ Signal Aliases
 ^^^^^^^^^^^^^^
 
 ``BOARD_ENERGY``
-    Maps to ``MSR::BOARD_ENERGY``
+    Maps to ``MSR::PLATFORM_ENERGY_STATUS:ENERGY``
 
 ``BOARD_POWER``
     Maps to ``MSR::BOARD_POWER``

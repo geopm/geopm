@@ -199,7 +199,7 @@ namespace geopm
         // If it loads after the MSRIOGroup the BOARD_ENERGY alias below will be
         // overwritten, so both MSR::BOARD_ENERGY & BOARD_ENERGY are provided
         register_signal_alias("MSR::BOARD_ENERGY", "MSR::PLATFORM_ENERGY_STATUS:ENERGY");
-        register_signal_alias("BOARD_ENERGY", "MSR::BOARD_ENERGY");
+        register_signal_alias("BOARD_ENERGY", "MSR::PLATFORM_ENERGY_STATUS:ENERGY");
         register_signal_alias("BOARD_POWER_LIMIT_CONTROL", "MSR::PLATFORM_POWER_LIMIT:PL1_POWER_LIMIT");
         register_signal_alias("BOARD_POWER_TIME_WINDOW_CONTROL", "MSR::PLATFORM_POWER_LIMIT:PL1_TIME_WINDOW");
 
@@ -385,7 +385,7 @@ namespace geopm
                     "DRAM_ENERGY"},
             {"MSR::BOARD_POWER",
                     "Average BOARD power over 40 ms or 8 control loop iterations",
-                    "MSR::BOARD_ENERGY"}
+                    "MSR::PLATFORM_ENERGY_STATUS:ENERGY"}
         };
         for (const auto &ps : power_signals) {
             std::string signal_name = ps.power_name;
