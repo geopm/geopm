@@ -105,15 +105,22 @@ namespace geopm
         , m_write_fifo_path(fifo_prefix + server_key + "-out")
     {
         // The server first creates the fifo in the file system.
-        check_return(
-            mkfifo(m_read_fifo_path.c_str(), S_IRUSR | S_IWUSR),
-            "mkfifo(3)"
-        );
-        check_return(
-            mkfifo(m_write_fifo_path.c_str(), S_IRUSR | S_IWUSR),
-            "mkfifo(3)"
-        );
-
+        mode_t old_mask = umask(0);
+        try {
+            check_return(
+                mkfifo(m_read_fifo_path.c_str(),
+                       S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH),
+                "mkfifo(3)");
+            check_return(
+                mkfifo(m_write_fifo_path.c_str(),
+                       S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH),
+                "mkfifo(3)");
+        }
+        catch (...) {
+            umask(old_mask);
+            throw;
+        }
+        umask(old_mask);
         // Then the server grants the client ownership of the fifo.
         int uid = pid_to_uid(client_pid);
         int gid = pid_to_gid(client_pid);
