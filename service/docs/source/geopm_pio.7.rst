@@ -86,7 +86,7 @@ Descriptions Of High Level Aliases
     platform BOARD_POWER_TIME_WINDOW_CONTROL.
 
 ``BOARD_POWER_TIME_WINDOW_CONTROL``
-    The time window associated with board power limit 1.
+    The time window associated with BOARD_POWER_LIMIT_CONTROL.
 
 ``CPU_CORE_TEMPERATURE``
     CPU core temperature, in degrees Celsius.
