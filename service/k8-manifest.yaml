@@ -10,9 +10,6 @@ spec:
      imagePullPolicy: Always
      securityContext:
        privileged: true
-       seccompProfile:
-         type: Localhost
-         localhostProfile: profiles/geopm-server-seccomp.json
      volumeMounts:
      - name: geopm-mount
        mountPath: /run/geopm-service
@@ -31,9 +28,6 @@ spec:
        runAsNonRoot: true
        runAsUser: 10001
        runAsGroup: 10001
-       seccompProfile:
-         type: Localhost
-         localhostProfile: profiles/geopm-client-seccomp.json
      volumeMounts:
      - name: geopm-mount
        mountPath: /run/geopm-service
