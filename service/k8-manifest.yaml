@@ -39,7 +39,7 @@ spec:
        mountPath: /run/geopm-service
      - name: tmp-mount
        mountPath: /tmp
-     command: ['/usr/bin/sh', '-c', 'sleep 5; geopmread; for ss in geopmread; do printf %s= $ss ; geopmread $ss board 0; echo $ss board 0 >> /tmp/geopmsession-requests.txt; done; geopmsession -t1000 -p1 < /tmp/geopmsession-requests.txt; rm /tmp/geopmsession-requests.txt; sleep 3600']
+     command: ['/usr/bin/sh', '-c', 'sleep 5; for ss in $(geopmread | grep -v SERVICE::); do printf %s= $ss ; if geopmread $ss board 0; then echo $ss board 0 >> /tmp/geopmsession-requests.txt; else echo; fi; done; geopmsession -t100 -p1 < /tmp/geopmsession-requests.txt; rm /tmp/geopmsession-requests.txt; sleep 3600']
    volumes:
    - name: geopm-mount
      emptyDir: {}
