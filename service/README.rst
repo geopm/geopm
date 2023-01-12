@@ -255,3 +255,56 @@ from the shared memory buffer and writes the values through the server
 process's PlatformIO instance.  When the write has completed, a
 character is written into the FIFO that the client process is waiting
 on.
+
+Kubernetes Support [WIP]
+------------------------
+
+Experimental support for Kubernetes is provided.  The current status
+of this work is a proof of concept, and should in no way be considered
+production ready.
+
+Known Issues
+------------
+
+The current implementation is not aware of the Unix Domain Socket
+credentials for an incoming connection over gRPC.  In order to work
+around this problem many security features are disabled.  When the
+GEOPM daemon ``geopmd`` is launched with the ``--grpc`` command line
+option, then the following known issues exist.
+
+- The credentials provided by the user are not secure (user may easily
+  spoof identity).
+- All sessions are tracked based on PID 1 and UID 0 when run in a
+  container.
+- Service will only support one batch session when containerized
+  (there is a one session per PID limit).
+- In the demo, only signals are allowed, no controls are added to the
+  access lists.
+- No save/restore mechanism for controls is guaranteed, so enabling
+  controls while using gRPC could impact system performance until
+  reboot.
+- Only the default access lists are used in a containerized
+  environment (no implementation exists to determine Unix group
+  membership).
+
+Demo
+----
+
+The following demonstration will create a Kubernetes pod with two
+containers.  The first container is privileged and is running the
+GEOPM service with communication over gRPC.  Before starting the
+service, the default signal allow list is populated with *all*
+available signals.  There are no controls enabled by the service.  The
+second container uses the service to read all available signals with
+the ``geopmread`` command line utility.  These signals are aggregated
+across all CPUs on the system and the result is printed to the client
+log.  Some of these reads attempts may fail when a signal is not
+supported by the architecture.  Any read requests that succeed are
+added to a batch request queue.  This queue of requests is then read
+once per second and printed to the log 100 times by the
+``geopmsession`` command line tool.
+
+.. code-block::
+
+   kubectl create -f k8-manifest.yaml
+   kubectl logs pods/geopm-service-pod  -c geopm-client -f
