@@ -1322,21 +1322,14 @@ namespace geopm
             "CPU_POWER_LIMIT_CONTROL",
             "MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT"};
         static bool do_check_rapl_lock = true;
+        static std::string rapl_error = "Unable to control power when RAPL lock bit is set."
+                                        "  Check BIOS settings to ensure RAPL is enabled.";
+
         if (do_check_rapl_lock &&
             POWER_CONTROL_SET.find(control_name) != POWER_CONTROL_SET.end()) {
+            check_control_lock("MSR::PKG_POWER_LIMIT:LOCK",
+                               rapl_error);
 
-            int domain = signal_domain_type("MSR::PKG_POWER_LIMIT:LOCK");
-            int num_domain = m_platform_topo.num_domain(domain);
-            bool lock = false;
-            for (int dom_idx = 0; dom_idx < num_domain; ++dom_idx) {
-                lock |= (bool)read_signal("MSR::PKG_POWER_LIMIT:LOCK", domain, dom_idx);
-            }
-            if (lock) {
-                throw Exception("MSRIOGroup::" + std::string(__func__) + "(): " +
-                                "Unable to control power when RAPL lock bit is set. " +
-                                "Check BIOS settings to ensure RAPL is enabled.",
-                                GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-            }
             do_check_rapl_lock = false;
         }
 
@@ -1344,22 +1337,28 @@ namespace geopm
             "BOARD_POWER_LIMIT_CONTROL",
             "MSR::PLATFORM_POWER_LIMIT:PL1_POWER_LIMIT"};
         static bool do_check_platform_rapl_lock = true;
+        static std::string platform_rapl_error = "Unable to control platform power when PLATFORM RAPL lock bit is set."
+                                                 "  Check BIOS settings to ensure RAPL is enabled.";
+
         if (do_check_platform_rapl_lock &&
             PLATFORM_POWER_CONTROL_SET.find(control_name) != PLATFORM_POWER_CONTROL_SET.end()) {
+            check_control_lock("MSR::PLATFORM_POWER_LIMIT:LOCK",
+                               platform_rapl_error);
 
-            int domain = signal_domain_type("MSR::PLATFORM_POWER_LIMIT:LOCK");
-            int num_domain = m_platform_topo.num_domain(domain);
-            bool lock = false;
-            for (int dom_idx = 0; dom_idx < num_domain; ++dom_idx) {
-                lock |= (bool)read_signal("MSR::PLATFORM_POWER_LIMIT:LOCK", domain, dom_idx);
-            }
-            if (lock) {
-                throw Exception("MSRIOGroup::" + std::string(__func__) + "(): " +
-                                "Unable to control platform power when PLATFORM RAPL lock bit is set. " +
-                                "Check BIOS settings to ensure RAPL is enabled.",
-                                GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-            }
             do_check_platform_rapl_lock = false;
+        }
+    }
+
+    void MSRIOGroup::check_control_lock(const std::string &lock_name, const std::string &error) {
+        bool lock = false;
+        int domain = signal_domain_type(lock_name);
+        int num_domain = m_platform_topo.num_domain(domain);
+        for (int dom_idx = 0; dom_idx < num_domain; ++dom_idx) {
+            lock |= (bool)read_signal(lock_name, domain, dom_idx);
+        }
+        if (lock) {
+            throw Exception("MSRIOGroup::" + std::string(__func__) + "(): " +
+                            error, GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
     }
 
