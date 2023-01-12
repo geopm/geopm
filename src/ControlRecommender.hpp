@@ -38,7 +38,7 @@ namespace geopm
             /// @param [in] Vector of control requests submitted for
             ///        recommendation.
             /// @returns The subset of the attempted_requests that are
-            ///          supported.  The order of these requestes
+            ///          supported.  The order of these requests
             ///          reflects ordering of the returned values from
             ///          the settings method.
             virtual std::vector<geopm_request_s> supported_requests(const std::vector<geopm_request_t> &attempted_requests);
