@@ -34,7 +34,7 @@ namespace geopm
     {
         ze_result_t ze_result;
         //Initialize
-        ze_result = zeInit(0);
+        ze_result = zeInit(ZE_INIT_FLAG_GPU_ONLY);
         check_ze_result(ze_result, GEOPM_ERROR_RUNTIME, "LevelZero::"
                         + std::string(__func__) +
                         ": LevelZero Driver failed to initialize.", __LINE__);
