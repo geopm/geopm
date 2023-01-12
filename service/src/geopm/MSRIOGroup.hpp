@@ -151,6 +151,10 @@ namespace geopm
             ///        interfere with the given control.
             void check_control(const std::string &control_name);
 
+            /// @brief Check control lock and error if locked
+            void check_control_lock(const std::string &lock_name,
+                                    const std::string &error);
+
             /// Helpers for JSON parsing
             static void check_top_level(const json11::Json &root);
             static void check_msr_root(const json11::Json &msr_root,
