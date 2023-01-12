@@ -15,6 +15,11 @@
 
 #include "LevelZeroImp.hpp"
 
+static void __attribute__((constructor)) geopm_levelzero_init(void)
+{
+    setenv("ZES_ENABLE_SYSMAN", "1", 1);
+}
+
 namespace geopm
 {
     const LevelZero &levelzero()
@@ -27,8 +32,6 @@ namespace geopm
         : m_num_gpu(0)
         , m_num_gpu_subdevice(0)
     {
-        setenv("ZES_ENABLE_SYSMAN", "1", 1);
-
         ze_result_t ze_result;
         //Initialize
         ze_result = zeInit(0);
