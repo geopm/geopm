@@ -40,7 +40,11 @@ namespace geopm
             ///          supported.  The order of these requests
             ///          reflects ordering of the returned values from
             ///          the settings method.
-            virtual std::vector<geopm_request_s> supported_requests(const std::vector<geopm_request_t> &attempted_requests);
+            virtual std::vector<geopm_request_s> supported_requests(const std::vector<geopm_request_t> &attempted_requests) = 0;
+            /// @brief Access the configured requests
+            /// @returns The vector of requests that are serviced by
+            ///          the settings() method.
+            virtual std::vector<geopm_request_s> supported_requests(void) const = 0;
             /// @brief Update recommended settings, method is called
             ///        once prior calling the settings() method one or
             ///        more times.
