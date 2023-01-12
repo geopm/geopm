@@ -25,15 +25,14 @@ namespace geopm
             /// @returns Unique pointer to a ControlRecommender objecct
             static std::unique_ptr<ControlRecommender> make_unique(const std::string &algorithm);
             /// @brief Set the performance bias
-            /// @aparam [in] bias Abstract number between 0 and 1: a
-            ///         value of 0 is most biased toward energy
-            ///         efficiency, and 1 is most biased toward
-            ///         performance.
+            /// @param [in] bias Abstract number between 0 and 1: a
+            ///         value of 0 is most biased toward performance,
+            ///         and 1 is most biased towards energy efficiency.
             virtual void performance_bias(double bias) = 0;
             /// @brief Submit a set of requests for recommendations
             ///
             /// Called once to configure the object and discover
-            /// festure support.
+            /// feature support.
             ///
             /// @param [in] Vector of control requests submitted for
             ///        recommendation.
@@ -49,7 +48,7 @@ namespace geopm
             /// @brief Get latest recommendation based determined on
             ///        last call to update.
             /// @returns Vector of settings for the requests returned
-            ///          by suppored_requests()
+            ///          by supported_requests()
             virtual std::vector<double> settings(void) const = 0;
     };
 }
