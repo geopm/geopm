@@ -82,7 +82,7 @@ Descriptions Of High Level Aliases
     Power measured on the server's board. See :ref:`geopm_pio_cnl(7)
     <geopm_pio_cnl.7:Requirements>` and :doc:`geopm_pio_msr(7)
     <geopm_pio_msr.7>` for signal availability requirements.  On systems that
-    support both IOGroups the CNL alias will be used.  The ``MSR::BOARD_ENERGY``
+    support both IOGroups the CNL alias will be used.  The ``MSR::BOARD_POWER``
     alias may be used to access the MSRIOGroup version on those systems.
 
 ``BOARD_POWER_LIMIT_CONTROL``
