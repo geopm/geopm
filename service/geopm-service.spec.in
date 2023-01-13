@@ -3,6 +3,22 @@
 #
 
 # Packages: geopm-service, geopm-service-devel, libgeopmd1, python3-geopmdpy
+# This spec file supports three options for level-zero support:
+#
+# 1. default:
+#    No level-zero support.
+#
+# 2. rpmbuild --define 'enable_level_zero 1' ...
+#    Enable level-zero with packages installed into standard
+#    locations: %{_libdir} and %{_includedir}.
+#
+# 3. rpmbuild --define 'with_level_zero <LEVEL_ZERO_PREFIX>' ...
+#    Enable level-zero with packages installed into a
+#    non-standard prefix.
+
+%if %{defined with_level_zero}
+%define enable_level_zero 1
+%endif
 
 Summary: Global Extensible Open Power Manager Service
 Name: geopm-service
@@ -19,7 +35,6 @@ URL: https://geopm.github.io
 Source0: geopm-service.tar.gz
 BuildRoot: %{_tmppath}/geopm-service-%{version}-%{release}-root
 Prefix: %{_prefix}
-
 BuildRequires: gcc-c++
 BuildRequires: unzip
 BuildRequires: libtool
@@ -27,9 +42,11 @@ BuildRequires: systemd-devel >= 221
 BuildRequires: python3
 BuildRequires: python3-devel
 BuildRequires: python3-setuptools
+%if %{defined enable_level_zero}
 BuildRequires: level-zero
 BuildRequires: level-zero-devel
 Requires: level-zero >= 1.8.1
+%endif
 %if 0%{?suse_version}
 BuildRequires: fdupes
 BuildRequires: systemd-rpm-macros
@@ -105,7 +122,7 @@ Group: System Environment/Libraries
 Group: Development/Libraries/Python
 %endif
 
-%if 0%{?suse_version}
+%if %{defined suse_version}
 Requires: python3-gobject
 BuildRequires: gobject-introspection
 %else
@@ -130,13 +147,22 @@ configuring the service.
 %setup
 
 %build
+
+%if %{defined with_level_zero}
+%define level_zero_option --with-levelzero=%{with_level_zero}
+%else
+%if %{defined enable_level_zero}
+%define level_zero_option --enable-levelzero
+%endif
+%endif
+
 ./autogen.sh
 CFLAGS= CXXFLAGS= CC=gcc CXX=g++ \
 ./configure --prefix=%{_prefix} --libdir=%{_libdir} --libexecdir=%{_libexecdir} \
             --includedir=%{_includedir} --sbindir=%{_sbindir} \
             --mandir=%{_mandir} --docdir=%{docdir} \
             --with-python=%{python_bin} \
-            --enable-levelzero \
+            %{?level_zero_option} \
             || ( cat config.log && false )
 
 CFLAGS= CXXFLAGS= CC=gcc CXX=g++ \
