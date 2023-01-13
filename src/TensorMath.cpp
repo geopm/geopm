@@ -8,6 +8,7 @@
 
 #include "TensorMath.hpp"
 #include "TensorOneD.hpp"
+#include "TensorTwoD.hpp"
 
 #include <cmath>
 #include <algorithm>
@@ -71,11 +72,28 @@ namespace geopm
         return std::inner_product(vec_a.begin(), vec_a.end(), vec_b.begin(), 0);
     }
 
-    TensorOneD TensorMathImp::sigmoid(const TensorOneD tensor) const
+    TensorOneD TensorMathImp::sigmoid(const TensorOneD& tensor) const
     {
         TensorOneD rval(tensor.get_dim());
         for(std::size_t idx = 0; idx < tensor.get_dim(); idx++) {
             rval[idx] = 1/(1 + expf(-tensor[idx]));
+        }
+        return rval;
+    }
+
+    TensorOneD TensorMathImp::multiply(const TensorTwoD& tensor_a, const TensorOneD& tensor_b) const
+    {
+        if (tensor_a.get_cols() != tensor_b.get_dim()) {
+            throw geopm::Exception("Attempted to multiply matrix and vector with incompatible dimensions.",
+                                   GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
+        const auto &mat = tensor_a.get_data();
+
+        TensorOneD rval(tensor_a.get_rows());
+
+        for (size_t idx = 0; idx < tensor_a.get_rows(); ++idx) {
+            rval[idx] = mat[idx] * tensor_b;
         }
         return rval;
     }

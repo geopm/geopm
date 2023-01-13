@@ -90,18 +90,23 @@ namespace geopm
         return m_vec;
     }
 
-
-    // TODO put these in the right places
-    TensorOneD TensorOneD::operator+(const TensorOneD &other) const {
+    TensorOneD TensorOneD::operator+(const TensorOneD &other) const
+    {
         return m_math->add(*this, other);
     }
-    TensorOneD TensorOneD::operator-(const TensorOneD &other) const {
+
+    TensorOneD TensorOneD::operator-(const TensorOneD &other) const
+    {
         return m_math->subtract(*this, other);
     }
-    float TensorOneD::operator*(const TensorOneD &other) const {
+
+    float TensorOneD::operator*(const TensorOneD &other) const
+    {
         return m_math->inner_product(*this, other);
     }
-    TensorOneD TensorOneD::sigmoid() const {
+
+    TensorOneD TensorOneD::sigmoid() const
+    {
         return m_math->sigmoid(*this);
     }
 }

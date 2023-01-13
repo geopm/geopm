@@ -10,9 +10,11 @@
 
 #include "TensorMath.hpp"
 #include "TensorOneD.hpp"
+#include "TensorTwoD.hpp"
 
 using geopm::TensorMathImp;
 using geopm::TensorOneD;
+using geopm::TensorTwoD;
 
 class TensorMathTest : public ::testing::Test
 {
@@ -21,6 +23,7 @@ class TensorMathTest : public ::testing::Test
 
         TensorOneD one, two, three;
         TensorMathImp math;
+        TensorTwoD mat, row;
 };
 
 void TensorMathTest::SetUp()
@@ -36,6 +39,20 @@ void TensorMathTest::SetUp()
     three[0] = 0;
     three[1] = 1;
     three[2] = 1;
+
+    mat.set_dim(2, 3);
+
+    mat[0][0] = 1;
+    mat[0][1] = 2;
+    mat[0][2] = 3;
+    mat[1][0] = 4;
+    mat[1][1] = 5;
+    mat[1][2] = 6;
+
+    row.set_dim(1, 3);
+    row[0][0] = 1;
+    row[0][1] = 2;
+    row[0][2] = 3;
 }
 
 TEST_F(TensorMathTest, test_sum)
@@ -90,9 +107,19 @@ TEST_F(TensorMathTest, test_sigmoid)
     EXPECT_FLOAT_EQ(0.9, output[4]);
 }
 
+TEST_F(TensorMathTest, test_mat_prod)
+{
+    TensorOneD prod = math.multiply(mat, row[0]);
+    EXPECT_EQ(2u, prod.get_dim());
+    EXPECT_EQ(14, prod[0]);
+    EXPECT_EQ(32, prod[1]);
+}
+
 TEST_F(TensorMathTest, test_bad_dimensions)
 {
     GEOPM_EXPECT_THROW_MESSAGE(math.add(one, three), GEOPM_ERROR_INVALID, "mismatched dimensions");
     GEOPM_EXPECT_THROW_MESSAGE(math.subtract(one, three), GEOPM_ERROR_INVALID, "mismatched dimensions");
     GEOPM_EXPECT_THROW_MESSAGE(math.inner_product(one, three), GEOPM_ERROR_INVALID, "mismatched dimensions");
+    row.set_dim(1, 2);
+    GEOPM_EXPECT_THROW_MESSAGE(math.multiply(mat, row[0]), GEOPM_ERROR_INVALID, "incompatible dimensions");
 }

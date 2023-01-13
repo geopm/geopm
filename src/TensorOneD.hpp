@@ -31,12 +31,17 @@ namespace geopm
             TensorOneD(const TensorOneD&);
 
             TensorOneD(TensorOneD &&other);
+            /// @brief Constructor from vector of values
+            ///
             /// @param [in] input  The values to store in the 1D tensor.
             ///
             /// @throws geopm::Exception if input is empty.
             TensorOneD(std::vector<float> input);
 
+            /// @brief Test constructor
+            ///
             /// @param [in] input  The values to store in the 1D tensor.
+            /// @param [in] math  TensorMath instance
             ///
             /// @throws geopm::Exception if input is empty.
             TensorOneD(std::vector<float> input, std::shared_ptr<TensorMath> math);
@@ -64,7 +69,10 @@ namespace geopm
 
             TensorOneD& operator=(TensorOneD &&other);
 
-            /// TODO - docstring
+            /// @brief Overload == operator to do comparison of the underlying
+            //         data
+            ///
+            /// @param [in] other The tensor to compare against
             bool operator==(const TensorOneD &other) const;
 
             /// @brief Reference indexing of 1D tensor value at idx
@@ -82,7 +90,9 @@ namespace geopm
 
             TensorOneD sigmoid() const;
 
-            /// TODO comment
+            /// @brief Return the tensor as a vector of floats.
+            ///
+            /// @return Returns the contents of the tensor.
             const std::vector<float> &get_data() const;
 
         private:

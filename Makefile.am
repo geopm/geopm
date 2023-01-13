@@ -452,6 +452,8 @@ libgeopmpolicy_la_SOURCES = src/Accumulator.cpp \
                             src/TensorMath.hpp \
                             src/TensorOneD.cpp \
                             src/TensorOneD.hpp \
+                            src/TensorTwoD.cpp \
+                            src/TensorTwoD.hpp \
                             src/Tracer.cpp \
                             src/Tracer.hpp \
                             src/TreeComm.cpp \

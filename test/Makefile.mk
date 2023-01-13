@@ -284,6 +284,7 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/TensorMathTest.test_dot \
               test/gtest_links/TensorMathTest.test_sigmoid \
               test/gtest_links/TensorMathTest.test_bad_dimensions \
+              test/gtest_links/TensorMathTest.test_mat_prod \
               test/gtest_links/TensorOneDIntegrationTest.test_bad_dimensions \
               test/gtest_links/TensorOneDIntegrationTest.test_copy \
               test/gtest_links/TensorOneDIntegrationTest.test_diff \
@@ -296,6 +297,14 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/TensorOneDTest.test_sum \
               test/gtest_links/TensorOneDTest.test_copy \
               test/gtest_links/TensorOneDTest.test_input \
+              test/gtest_links/TensorTwoDIntegrationTest.test_mat_prod \
+              test/gtest_links/TensorTwoDIntegrationTest.test_copy \
+              test/gtest_links/TensorTwoDIntegrationTest.test_copy_constructor \
+              test/gtest_links/TensorTwoDIntegrationTest.test_array_overload \
+              test/gtest_links/TensorTwoDIntegrationTest.test_input \
+              test/gtest_links/TensorTwoDIntegrationTest.test_degenerate_size \
+              test/gtest_links/TensorTwoDIntegrationTest.test_bad_dimensions \
+              test/gtest_links/TensorTwoDIntegrationTest.test_empty_weights \
               test/gtest_links/TracerTest.columns \
               test/gtest_links/TracerTest.region_entry_exit \
               test/gtest_links/TracerTest.update_samples \
@@ -455,6 +464,7 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
                           test/TensorMathTest.cpp \
                           test/TensorOneDIntegrationTest.cpp \
                           test/TensorOneDTest.cpp \
+                          test/TensorTwoDIntegrationTest.cpp \
                           test/TracerTest.cpp \
                           test/TreeCommLevelTest.cpp \
                           test/TreeCommTest.cpp \
