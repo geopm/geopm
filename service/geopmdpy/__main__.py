@@ -9,6 +9,7 @@ from signal import SIGTERM
 from . import service
 
 _bus = None
+_loop = None
 
 def term_handler(signum, frame):
     if signum == SIGTERM:
@@ -19,16 +20,18 @@ def stop():
     if _bus is not None:
         _bus.disconnect()
         _bus = None
+    if _loop is not None:
+        _loop.quit()
 
 def main():
     signal(SIGTERM, term_handler)
-    loop = EventLoop()
-    global _bus
+    global _bus, _loop
+    _loop = EventLoop()
     _bus = SystemMessageBus()
     try:
         _bus.publish_object("/io/github/geopm", service.GEOPMService())
         _bus.register_service("io.github.geopm")
-        loop.run()
+        _loop.run()
     finally:
         stop()
 
