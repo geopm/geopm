@@ -9,85 +9,36 @@
 
 #include "TensorOneD.hpp"
 
+#include "MockTensorMath.hpp"
+
 using geopm::TensorOneD;
+using ::testing::Return;
+using ::testing::_;
 
 class TensorOneDTest : public ::testing::Test
 {
-    protected:
-        void SetUp();
-
-        TensorOneD one, two, three;
 };
-
-void TensorOneDTest::SetUp()
-{
-    one.set_dim(2);
-    two.set_dim(2);
-    three.set_dim(3);
-
-    one[0] = 1;
-    one[1] = 2;
-    two[0] = 3;
-    two[1] = 4;
-    three[0] = 0;
-    three[1] = 1;
-    three[2] = 1;
-}
 
 TEST_F(TensorOneDTest, test_sum)
 {
-    TensorOneD four = one + two;
-    EXPECT_EQ(4, four[0]);
-    EXPECT_EQ(6, four[1]);
-}
+    auto fake_math = std::make_shared<MockTensorMath>();
 
-TEST_F(TensorOneDTest, test_self_sum)
-{
-    TensorOneD four = two + two;
-    EXPECT_EQ(6, four[0]);
-    EXPECT_EQ(8, four[1]);
-}
+    std::vector<float> vec_a = {1, 2, 3};
+    std::vector<float> vec_b = {6, 7};
 
-TEST_F(TensorOneDTest, test_diff)
-{
-    TensorOneD four(one - two);
-    EXPECT_EQ(-2, four[0]);
-    EXPECT_EQ(-2, four[1]);
-}
+    TensorOneD tensor_a(vec_a, fake_math);
+    TensorOneD tensor_b(vec_b, fake_math);
 
-TEST_F(TensorOneDTest, test_self_diff)
-{
-    TensorOneD four = one - one;
-    EXPECT_EQ(0, four[0]);
-    EXPECT_EQ(0, four[1]);
-}
+    EXPECT_CALL(*fake_math, add(tensor_a, tensor_a)).WillOnce(Return(tensor_b));
+    TensorOneD tensor_c = tensor_a + tensor_a;
 
-TEST_F(TensorOneDTest, test_dot)
-{
-    EXPECT_EQ(11, one * two);
-}
-
-TEST_F(TensorOneDTest, test_sigmoid)
-{
-    TensorOneD activations(5);
-
-    activations[0] = -log(1/0.1 - 1);
-    activations[1] = -log(1/0.25 - 1);
-    activations[2] = -log(1/0.5 - 1);
-    activations[3] = -log(1/0.75 - 1);
-    activations[4] = -log(1/0.9 - 1);
-
-    TensorOneD output = activations.sigmoid();
-
-    EXPECT_FLOAT_EQ(0.1, output[0]);
-    EXPECT_FLOAT_EQ(0.25, output[1]);
-    EXPECT_FLOAT_EQ(0.5, output[2]);
-    EXPECT_FLOAT_EQ(0.75, output[3]);
-    EXPECT_FLOAT_EQ(0.9, output[4]);
+    EXPECT_EQ(tensor_b.get_data(), tensor_c.get_data());
 }
 
 TEST_F(TensorOneDTest, test_copy)
 {
+    TensorOneD one(std::vector<float>({1, 2})), two;
+
     two = one;
 
     // copy is successful
@@ -109,17 +60,4 @@ TEST_F(TensorOneDTest, test_input)
     EXPECT_EQ(2u, x.get_dim());
     EXPECT_EQ(8, x[0]);
     EXPECT_EQ(16, x[1]);
-}
-
-TEST_F(TensorOneDTest, test_bad_dimensions)
-{
-    EXPECT_THROW(one + three, geopm::Exception);
-    EXPECT_THROW(one - three, geopm::Exception);
-    EXPECT_THROW(one * three, geopm::Exception);
-}
-
-TEST_F(TensorOneDTest, test_empty_weights)
-{
-    std::vector<float> vals = {};
-    EXPECT_THROW(TensorOneD(vals).get_dim(), geopm::Exception);
 }

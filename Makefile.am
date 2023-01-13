@@ -448,6 +448,8 @@ libgeopmpolicy_la_SOURCES = src/Accumulator.cpp \
                             src/SampleAggregatorImp.hpp \
                             src/Scheduler.cpp \
                             src/Scheduler.hpp \
+                            src/TensorMath.cpp \
+                            src/TensorMath.hpp \
                             src/TensorOneD.cpp \
                             src/TensorOneD.hpp \
                             src/Tracer.cpp \

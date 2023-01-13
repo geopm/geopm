@@ -1,26 +1,30 @@
 /*
- * Copyright (c) 2015 - 2022, Intel Corporation
+ * Copyright (c) 2015 - 2023, Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #ifndef TENSORONED_HPP_INCLUDE
 #define TENSORONED_HPP_INCLUDE
 
+#include <cstdint>
+#include <memory>
 #include <vector>
 
 namespace geopm
 {
+    class TensorMath;
+
     /// @brief Class to store and perform operations on 1D Tensors,
     ///        aka vectors, suitable for use in feed-forward neural
     ///        networks.
     class TensorOneD
     {
         public:
-            TensorOneD() = default;
+            TensorOneD();
             /// @brief Constructor with size specified 
             ///
             /// @param [in] n Size of 1D tensor
-            TensorOneD(std::size_t n);
+            TensorOneD(size_t n);
             /// @brief Constructs a deep copy of the argument
             ///
             /// @param [in] TensorOneD Tensor to copy
@@ -31,6 +35,12 @@ namespace geopm
             ///
             /// @throws geopm::Exception if input is empty.
             TensorOneD(std::vector<float> input);
+
+            /// @param [in] input  The values to store in the 1D tensor.
+            ///
+            /// @throws geopm::Exception if input is empty.
+            TensorOneD(std::vector<float> input, std::shared_ptr<TensorMath> math);
+
             /// @brief Set length of 1D tensor
             ///
             /// If the instance has more than n elements, it will
@@ -38,60 +48,46 @@ namespace geopm
             /// tensor will be expanded to a total size of n, uninitialized.
             ///
             /// @param [in] n Resulting size of 1D tensor
-            void set_dim(std::size_t dim);
+            void set_dim(size_t dim);
             /// @brief Get the length of the 1D tensor
             ///
             /// @return Returns the length of the 1D tensor
-            std::size_t get_dim() const;
-            /// @brief Add two 1D tensors, element-wise
-            ///
-            /// The tensors need to be the same length. 
-            ///
-            /// @throws geopm::Exception if the lengths do not match.
-            ///
-            /// @param [in] other The summand
-            ///
-            /// @return Returns a 1D tensor, the sum of two 1D tensors
-            TensorOneD operator+(const TensorOneD& other);
-            /// @brief Subtract two 1D tensors, element-wise
-            ///
-            /// @throws geopm::Exception if the lengths do not match.
-            ///
-            /// @param [in] other The subtrahend
-            ///
-            /// @return A 1D tensor, the difference of two 1D tensors.
-            TensorOneD operator-(const TensorOneD& other);
-            /// @brief Multiply two 1D tensors, element-wise
-            ///
-            /// @throws geopm::Exception if the lengths do not match.
-            ///
-            /// @param [in] other The multiplicand
-            ///
-            /// @return Returns a 1D tensor, the product of two 1D tensors
-            float operator*(const TensorOneD& other);
+            size_t get_dim() const;
+
+            TensorOneD operator+(const TensorOneD &other) const;
+            TensorOneD operator-(const TensorOneD &other) const;
+            float operator*(const TensorOneD &other) const;
             /// @brief Overload = operator with an in-place deep copy
             ///
             /// @param [in] other The assignee (tensor to be copied)
             TensorOneD& operator=(const TensorOneD& other);
 
             TensorOneD& operator=(TensorOneD &&other);
+
+            /// TODO - docstring
+            bool operator==(const TensorOneD &other) const;
+
             /// @brief Reference indexing of 1D tensor value at idx
             ///
             /// @param [in] idx The index at which to look for the value
             ///
             /// @return Returns a reference to the 1D tensor at idx
-            float &operator[](std::size_t idx);
+            float &operator[](size_t idx);
             /// @brief Value access of 1D Tensor value at idx.
             ///
             /// @param [in] idx The index at which to look for the value
             ///
             /// @return Returns the value of the 1D tensor at idx
-            float operator[](std::size_t idx) const;
-            /// @brief Compute logistic sigmoid function of 1D Tensor
+            float operator[](size_t idx) const;
+
             TensorOneD sigmoid() const;
+
+            /// TODO comment
+            const std::vector<float> &get_data() const;
 
         private:
             std::vector<float> m_vec;
+            std::shared_ptr<TensorMath> m_math;
     };
 }
 #endif /* TENSORONED_HPP_INCLUDE */
