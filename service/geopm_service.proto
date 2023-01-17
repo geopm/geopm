@@ -7,8 +7,6 @@
 
 syntax = "proto3";
 
-import "google/protobuf/empty.proto";
-
 package GEOPMPackage;
 
 enum Domain {
@@ -126,15 +124,19 @@ message TopoCache {
   string cache = 1;
 }
 
+message Empty {
+
+}
+
 service GEOPMService {
   rpc GetUserAccess(SessionKey) returns (AccessLists);
   rpc GetSignalInfo(InfoRequest) returns (SignalInfoList);
   rpc GetControlInfo(InfoRequest) returns (ControlInfoList);
   rpc StartBatch(BatchRequest) returns (BatchKey);
-  rpc StopBatch(BatchKey) returns (google.protobuf.Empty);
+  rpc StopBatch(BatchKey) returns (Empty);
   rpc ReadSignal(ReadRequest) returns (Sample);
-  rpc WriteControl(WriteRequest) returns(google.protobuf.Empty);
-  rpc TopoGetCache(google.protobuf.Empty) returns(TopoCache);
+  rpc WriteControl(WriteRequest) returns(Empty);
+  rpc TopoGetCache(Empty) returns(TopoCache);
   rpc OpenSession(SessionKey) returns(SessionKey);
-  rpc CloseSession(SessionKey) returns(google.protobuf.Empty);
+  rpc CloseSession(SessionKey) returns(Empty);
 }

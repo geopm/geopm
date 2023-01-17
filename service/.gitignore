@@ -26,6 +26,9 @@ compile_commands.json
 /geopmdpy/schemas.py
 /geopmdpy/system_files.py
 /geopmdpy/version.py
+/geopmdrs/Cargo.lock
+/geopmdrs/Cargo.toml
+/geopmdrs/target/
 /geopmread
 /geopm_service.egg-info
 /geopm-service.spec

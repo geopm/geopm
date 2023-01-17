@@ -46,7 +46,7 @@ geopminclude_HEADERS = contrib/json11/json11.hpp \
                        src/geopm/SharedMemoryScopedLock.hpp \
                        # end
 
-install-exec-hook: install-python install-plugin-dir
+install-exec-hook: install-python install-geopdrs install-plugin-dir
 dist: dist-googletest base_man
 
 install-plugin-dir:
@@ -345,6 +345,19 @@ install-python: setup.py $(abs_srcdir)/geopmdpy/version.py
 
 clean-local-python: setup.py
 	$(PYTHON) ./setup.py clean --all
+
+# Rust build
+geopmdrs_sources = geopmdrs/Cargo.toml.in \
+                   geopmdrs/src/geopmd-proxy.rs \
+                   geopmdrs/build.rs \
+                   # end
+
+EXTRA_DIST += $(geopmdrs_sources)
+
+install-geopdrs: $(geopmdrs_sources)
+	cd $(abs_srcdir)/geopmdrs && cargo build --bin geopmd-proxy
+	cargo install --path=$(abs_srcdir)/geopmdrs --bin geopmd-proxy --root=$(DESTDIR)/$(prefix)
+
 
 # RPM TARGET
 rpm_topdir ?= $(HOME)/rpmbuild

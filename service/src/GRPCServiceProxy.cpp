@@ -10,7 +10,6 @@
 #include "geopm/PlatformIO.hpp"
 #include "geopm_service.pb.h"
 #include "geopm_service.grpc.pb.h"
-#include "google/protobuf/empty.pb.h"
 #include "grpcpp/security/credentials.h"
 #include "grpc/grpc_security_constants.h"
 #include <sstream>
@@ -165,7 +164,7 @@ namespace geopm
         GEOPMPackage::SessionKey request;
         request.set_name(m_session_key);
         grpc::ClientContext context;
-        google::protobuf::Empty response;
+        GEOPMPackage::Empty response;
         grpc::Status status = m_client->CloseSession(&context,
                                                      request,
                                                      &response);
@@ -216,7 +215,7 @@ namespace geopm
         GEOPMPackage::BatchKey request;
         request.set_batch_pid(server_pid);
         grpc::ClientContext context;
-        google::protobuf::Empty response;
+        GEOPMPackage::Empty response;
         grpc::Status status = m_client->StopBatch(&context,
                                                   request,
                                                   &response);
@@ -269,7 +268,7 @@ namespace geopm
         request.set_allocated_request(platform_request);
         request.set_setting(setting);
         grpc::ClientContext context;
-        google::protobuf::Empty response;
+        GEOPMPackage::Empty response;
         grpc::Status status = m_client->WriteControl(&context,
                                                      request,
                                                      &response);

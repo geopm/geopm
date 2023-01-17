@@ -7,8 +7,8 @@ import os
 import sys
 import pwd
 import grpc
+import subprocess # nosec
 from concurrent import futures
-import google.protobuf.empty_pb2
 from . import geopm_service_pb2_grpc
 from . import geopm_service_pb2
 from . import service
@@ -74,7 +74,7 @@ class GEOPMServiceProxy(geopm_service_pb2_grpc.GEOPMServiceServicer):
     def StopBatch(self, request, context):
         client_id = self._get_client_id(request.session_key, context)
         self._platform_service.stop_batch(client_id, request.batch_pid)
-        return google.protobuf.empty_pb2.Empty()
+        return geopm_service_pb2.Empty()
 
     def ReadSignal(self, request, context):
         result = geopm_service_pb2.Sample()
@@ -94,7 +94,7 @@ class GEOPMServiceProxy(geopm_service_pb2_grpc.GEOPMServiceServicer):
                                              platform_request.domain,
                                              platform_request.domain_idx,
                                              request.setting)
-        return google.protobuf.empty_pb2.Empty()
+        return geopm_service_pb2.Empty()
 
     def TopoGetCache(self, request, context):
         result = geopm_service_pb2.TopoCache()
@@ -116,7 +116,7 @@ class GEOPMServiceProxy(geopm_service_pb2_grpc.GEOPMServiceServicer):
     def CloseSession(self, request, context):
         client_id = self._get_client_id(request, context)
         self._platform_service.close_session(client_id)
-        return google.protobuf.empty_pb2.Empty()
+        return geopm_service_pb2.Empty()
 
     def _get_client_id(self, session_key, context):
         pid_str = session_key.name.split(',')[1]
@@ -138,12 +138,13 @@ class GEOPMServiceProxy(geopm_service_pb2_grpc.GEOPMServiceServicer):
 
 def run():
     grpc_socket_path = os.path.join(system_files.GEOPM_SERVICE_RUN_PATH,
-                                    'GRPC_SOCKET')
+                                    'GRPC_SOCKET_PRIVATE')
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
     geopm_proxy = GEOPMServiceProxy()
     geopm_service_pb2_grpc.add_GEOPMServiceServicer_to_server(geopm_proxy, server)
     server_credentials = grpc.local_server_credentials(grpc.LocalConnectionType.UDS)
     server.add_secure_port(f'unix://{grpc_socket_path}', server_credentials)
-    os.chmod(grpc_socket_path, 0o777)
     server.start()
-    server.wait_for_termination()
+    with subprocess.Popen('geopmd-proxy') as proxy:
+        server.wait_for_termination()
+        proxy.terminate()

@@ -40,6 +40,8 @@ BuildRequires: unzip
 BuildRequires: libtool
 BuildRequires: systemd-devel >= 221
 BuildRequires: grpc-devel
+BuildRequires: cargo
+BuildRequires: rust
 BuildRequires: python3
 BuildRequires: python3-devel
 BuildRequires: python3-setuptools
@@ -228,6 +230,7 @@ ln -s /usr/sbin/service %{buildroot}%{_sbindir}/rcgeopm
 %{_sbindir}/rcgeopm
 %{_bindir}/geopmread
 %{_bindir}/geopmwrite
+%{_bindir}/geopmd-proxy
 %dir %{_datadir}/dbus-1
 %dir %{_datadir}/dbus-1/system.d
 %{_datadir}/dbus-1/system.d/io.github.geopm.conf
