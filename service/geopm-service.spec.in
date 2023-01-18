@@ -139,7 +139,6 @@ Requires: python3-jsonschema
 Requires: python3-psutil
 Requires: python3-cffi
 Requires: python3-grpcio
-Requires: python3-grpc-google-iam-v1
 Requires: libgeopmd1 = %{version}
 
 %{?python_provide:%python_provide python%{python3_pkgversion}-geopmdpy}
