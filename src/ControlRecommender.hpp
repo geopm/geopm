@@ -26,8 +26,8 @@ namespace geopm
             static std::unique_ptr<ControlRecommender> make_unique(const std::string &algorithm);
             /// @brief Set the performance bias
             /// @param [in] bias Abstract number between 0 and 1: a
-            ///         value of 0 is most biased toward performance,
-            ///         and 1 is most biased towards energy efficiency.
+            ///         value of 1 is most biased toward performance,
+            ///         and 0 is most biased towards energy efficiency.
             virtual void performance_bias(double bias) = 0;
             /// @brief Submit a set of requests for recommendations
             ///
