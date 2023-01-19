@@ -12,26 +12,27 @@ Description
 
 The frequency map agent adjusts CPU frequency in response to changes
 in the application region being executed on each CPU.  The agent
-policy provides a map from a GEOPM region hash to a CPU frequency; see
+policy can specify a map from a GEOPM region hash to a CPU frequency; see
 :doc:`geopm_hash(3) <geopm_hash.3>` for more information about the GEOPM region name
 hash function.  When a CPU is executing a region with a hash provided
 by the policy, the CPU will operate at the mapped frequency.  The
-policy also provides a default CPU frequency which is applied to all
+policy also specifies a default CPU frequency which is applied to all
 CPUs running the application while not executing a region described by
-the policy map.
+the policy map. In addition, the policy can specify a default GPU frequency 
+which is applied to all GPUs at the board level.
 
 Applying any control algorithm that changes CPU frequency on short
 intervals can result in undesirable interactions with the hardware
 control algorithm that dynamically selects uncore frequency.  For this
-reason, the frequency map agent policy provides an option to fix the
+reason, the frequency map agent policy can specify an option to fix the
 uncore frequency to a single value while executing the application.
 If this option is not specified, the uncore frequency is not
 controlled by the agent at all.
 
 .. note::
-    This agent can be used to control the application CPUs and
-    optionally the uncore to run at fixed frequencies if no region
-    frequency map is provided.
+    This agent can be used to control the application CPUs, optionally
+    any GPUs, and optionally the uncore to run at fixed frequencies 
+    if no region frequency map is provided.
 
 Agent Name
 ----------
@@ -46,7 +47,7 @@ name (see :doc:`geopm(7) <geopm.7>`\ ).  This name can also be passed to the
 Policy Parameters
 -----------------
 
-  ``FREQ_DEFAULT``\ :
+  ``FREQ_CPU_DEFAULT``\ :
       The operating frequency in units of *Hz* set by the
       agent on CPUs executing the application while the
       application is not within a policy-mapped region.
@@ -59,10 +60,18 @@ Policy Parameters
       out of range value or specifying NAN will result in
       a runtime error.
 
-  ``FREQ_UNCORE``\ :
+  ``FREQ_GPU_DEFAULT``\ :
+      The operating frequency in units of *Hz* is set by the
+      agent on GPUs. Note that the GPUs not associated with 
+      the application will also have their frequency adjusted.  
+      This policy parameter is optional. Setting the parameter 
+      to an out of range value or setting it on a system with 
+      no GPUs will result in an error. 
+
+  ``FREQ_CPU_UNCORE``\ :
       The operating frequency for the uncore clock in units
-      of *Hz*.  If specified the uncore clock will operate
-      the fixed frequency provided.  If the parameter is
+      of *Hz*.  If specified, the uncore clock will operate
+      at the fixed frequency provided.  If the parameter is
       not specified, or the value provided is NAN, then the
       system default range of uncore frequency will be
       allowed.
@@ -112,8 +121,8 @@ The frequency map index values can be in the range of 0 to 30,
 inclusive. The order of index values does not matter, and gaps in
 index values are permitted. Multiple definitions of an index are not
 permitted, and multiple mappings of a region are not permitted.  If a
-CPU or uncore frequency specified in the policy is not allowed by the
-system at runtime, an error will occur and an exception will be
+CPU, GPU, or uncore frequency specified in the policy is not allowed 
+by the system at runtime, an error will occur and an exception will be
 raised.
 
 Report Extensions
@@ -126,32 +135,32 @@ Control Loop Rate
 -----------------
 
 The agent gates the control loop to sample the region hash and control
-CPU frequency at 2 millisecond intervals.  If the uncore frequency is
-specified in the policy, then it is set at agent start up time.
+CPU frequency at 2 millisecond intervals.  If the uncore and/or GPU frequency 
+is specified in the policy, then it is set at agent start-up time.
 
 Examples
 --------
 
-Besides the default CPU frequency and uncore frequency parameters, the
-policy consists of the map of per-region frequencies given as pairs of
-region hash and CPU frequency values.  The recommended way to generate
-a policy file for this agent is to use the :doc:`geopmagent(1) <geopmagent.1>` command
-line tool.
+Besides the default CPU frequency, default GPU frequency, and uncore 
+frequency parameters, the policy consists of the map of per-region frequencies 
+given as pairs of region hash and CPU frequency values.  The recommended way 
+to generate a policy file for this agent is to use the 
+:doc:`geopmagent(1) <geopmagent.1>` command line tool.
 
 To create a policy with a default frequency of *3 GHz*, an uncore
-frequency of *2 GHz* with a map of ``"region_1"`` to *1.5 GHz* and ``"region_2"``
-to *2.5 GHz* you can specify:
+frequency of *2 GHz*, and a GPU frequency of *1.2 GHz*  with a map of 
+``"region_1"`` to *1.5 GHz* and ``"region_2"`` to *2.5 GHz* you can specify:
 
 .. code-block::
 
-   geopmagent -a frequency_map -p '3e9,2e9,region_1,1.5e9,region_2,2.5e9'
+   geopmagent -a frequency_map -p '3e9,2e9,1.2e9,region_1,1.5e9,region_2,2.5e9'
 
 
 Alternatively you can specify the regions by their hashed values:
 
 .. code-block::
 
-   geopmagent -a frequency_map -p '3e9,2e9,0xee12ee15,1.5e9,0xfd421de1,2.5e9'
+   geopmagent -a frequency_map -p '3e9,2e9,1.2e9,0xee12ee15,1.5e9,0xfd421de1,2.5e9'
 
 
 Although the :doc:`geopmagent(1) <geopmagent.1>` is the recommended tool for creating
@@ -162,8 +171,9 @@ example, the above policy json is:
 
 .. code-block:: json
 
-   {"FREQ_DEFAULT": 3e9,
-    "FREQ_UNCORE": 2e9,
+   {"FREQ_CPU_DEFAULT": 3e9,
+    "FREQ_CPU_UNCORE": 2e9,
+    "FREQ_GPU_DEFAULT" : 1.2e9,
     "HASH_0": 3994218005,
     "FREQ_0": 1.5e9,
     "HASH_1": 4248968673,
@@ -185,6 +195,15 @@ maximum CPU frequencies are queried as below:
    $ geopmread CPU_FREQUENCY_MAX_AVAIL board 0
    3700000000
 
+The minimum and maximum GPU frequencies are queried as below:
+
+.. code-block:: bash
+
+   $ geopmread GPU_CORE_FREQUENCY_MIN_AVAIL board 0
+   1000000000
+
+   $ geopmread GPU_CORE_FREQUENCY_MAX_AVAIL board 0
+   3700000000
 
 The minimum, and maximum uncore frequencies are queried as below:
 
@@ -199,17 +218,17 @@ The minimum, and maximum uncore frequencies are queried as below:
 
 The **geopmagent** and **geopmread** command line tools can be used together
 to generate policies.  For example, to create a policy with the
-default CPU frequency set to two steps below maximum and the uncore
-frequency to the maximum the following commands can be used:
+default CPU frequency set to two steps below maximum, the GPU and the uncore
+frequency to the maximum, the following commands can be used:
 
 .. code-block:: bash
 
-   $ freq_default=$(($(geopmread CPU_FREQUENCY_MAX_AVAIL board 0) - \
+   $ freq_cpu_default=$(($(geopmread CPU_FREQUENCY_MAX_AVAIL board 0) - \
                      2 * $(geopmread CPU_FREQUENCY_STEP board 0)))
-   $ freq_uncore=$(geopmread MSR::UNCORE_RATIO_LIMIT:MAX_RATIO board 0)
-   $ geopmagent -a frequency_map -p$freq_default,$freq_uncore
-     {"FREQ_DEFAULT": 3500000000, "FREQ_UNCORE": 2400000000}
-
+   $ freq_cpu_uncore=$(geopmread MSR::UNCORE_RATIO_LIMIT:MAX_RATIO board 0)
+   $ freq_gpu=$(geopmread GPU_CORE_FREQUENCY_MAX_AVAIL board 0)
+   $ geopmagent -a frequency_map -p$freq_cpu_default,$freq_cpu_uncore,$freq_gpu
+     {"FREQ_CPU_DEFAULT": 3500000000, "FREQ_CPU_UNCORE": 2400000000, "FREQ_GPU_DEFAULT":1500000000}
 
 
 See Also

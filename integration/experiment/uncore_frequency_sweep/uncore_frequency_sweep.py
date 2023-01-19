@@ -25,15 +25,9 @@ def setup_run_args(parser):
     common_args.add_min_frequency(parser)
     common_args.add_max_frequency(parser)
     common_args.add_step_frequency(parser)
-    parser.add_argument('--max-uncore-frequency', dest='max_uncore_frequency',
-                        action='store', type=float, default=None,
-                        help='top uncore frequency setting for the sweep')
-    parser.add_argument('--min-uncore-frequency', dest='min_uncore_frequency',
-                        action='store', type=float, default=None,
-                        help='bottom uncore frequency setting for the sweep')
-    parser.add_argument('--step-uncore-frequency', dest='step_uncore_frequency',
-                        action='store', type=float, default=None,
-                        help='increment in hertz between uncore frequency settings for the sweep')
+    common_args.add_min_uncore_frequency(parser)
+    common_args.add_max_uncore_frequency(parser)
+    common_args.add_step_uncore_frequency(parser)
 
 
 def setup_uncore_frequency_bounds(mach, min_uncore_freq, max_uncore_freq,
@@ -78,8 +72,8 @@ def launch_configs(app_conf, core_freq_range, uncore_freq_range):
     for freq in core_freq_range:
         for uncore_freq in uncore_freq_range:
             name = '{:.1e}c_{:.1e}u'.format(freq, uncore_freq)
-            options = {'FREQ_DEFAULT': freq,
-                       'FREQ_UNCORE': uncore_freq}
+            options = {'FREQ_CPU_DEFAULT': freq,
+                       'FREQ_CPU_UNCORE': uncore_freq}
             agent_conf = geopmpy.agent.AgentConf('{}_agent_{}c_{}u.config'.format(agent, freq, uncore_freq), agent, options)
             targets.append(launch_util.LaunchConfig(app_conf=app_conf,
                                                     agent_conf=agent_conf,

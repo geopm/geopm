@@ -174,10 +174,14 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/FrequencyGovernorTest.frequency_bounds_invalid \
               test/gtest_links/FrequencyGovernorTest.validate_policy \
               test/gtest_links/FrequencyGovernorTest.set_domain_type \
+              test/gtest_links/FrequencyMapAgentTest.adjust_platform_gpu \
               test/gtest_links/FrequencyMapAgentTest.adjust_platform_map \
               test/gtest_links/FrequencyMapAgentTest.adjust_platform_uncore \
               test/gtest_links/FrequencyMapAgentTest.name \
-              test/gtest_links/FrequencyMapAgentTest.enforce_policy \
+              test/gtest_links/FrequencyMapAgentTest.enforce_policy_allnan_invalid \
+              test/gtest_links/FrequencyMapAgentTest.enforce_policy_bad_size \
+              test/gtest_links/FrequencyMapAgentTest.enforce_policy_default_only \
+              test/gtest_links/FrequencyMapAgentTest.enforce_policy_default_cpu_only \
               test/gtest_links/FrequencyMapAgentTest.policy_to_json \
               test/gtest_links/FrequencyMapAgentTest.report_both_map_and_set \
               test/gtest_links/FrequencyMapAgentTest.report_default_freq_hash \
@@ -185,6 +189,7 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/FrequencyMapAgentTest.report_neither_map_nor_set \
               test/gtest_links/FrequencyMapAgentTest.split_policy \
               test/gtest_links/FrequencyMapAgentTest.validate_policy \
+              test/gtest_links/FrequencyMapAgentTest.validate_policy_nogpu \
               test/gtest_links/ModelApplicationTest.parse_config_errors \
               test/gtest_links/MonitorAgentTest.policy_names \
               test/gtest_links/MonitorAgentTest.sample_names \

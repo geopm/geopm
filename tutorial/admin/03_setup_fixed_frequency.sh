@@ -27,7 +27,7 @@ POLICY_FILE_PATH="/etc/geopm/fixed_freq_policy.json"
 geopmagent -a frequency_map -p $FREQ_FIXED > $POLICY_FILE_PATH
 # This file should look similar to:
 #   {
-#     "FREQ_DEFAULT": 1800000000
+#     "FREQ_CPU_DEFAULT": 1800000000
 #   }
 # for a system where the sticker frequency is 2.1 GHz and the target
 # frequency is 1.8 GHz.
@@ -50,4 +50,4 @@ echo "{\"GEOPM_AGENT\": \"frequency_map\", \"GEOPM_POLICY\": \"$POLICY_FILE_PATH
 #
 # GEOPM jobs use frequency map agent with above policy (no restrictions on algorithm)
 #   > geopmlaunch srun -N1 -n1 --geopm-report=plugin_test.report -- geopmbench ~/short.conf > geopm_stdout 2>&1 && grep Policy plugin_test.report
-#   Policy: {"FREQ_DEFAULT": 1800000000}
+#   Policy: {"FREQ_CPU_DEFAULT": 1800000000}

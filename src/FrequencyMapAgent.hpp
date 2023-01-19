@@ -62,13 +62,14 @@ namespace geopm
             static bool is_all_nan(const std::vector<double> &vec);
 
             enum m_policy_e {
-                M_POLICY_FREQ_DEFAULT,
-                M_POLICY_FREQ_UNCORE,
+                M_POLICY_FREQ_CPU_DEFAULT,
+                M_POLICY_FREQ_CPU_UNCORE,
+                M_POLICY_FREQ_GPU_DEFAULT,
                 M_POLICY_FIRST_HASH,
                 M_POLICY_FIRST_FREQUENCY,
                 // The remainder of policy values can be additional pairs of
                 // (hash, frequency)
-                M_NUM_POLICY = 64,
+                M_NUM_POLICY = 65,
             };
 
             const double M_WAIT_SEC;
@@ -79,11 +80,14 @@ namespace geopm
             std::set<uint64_t> m_default_freq_hash;
             std::vector<int> m_hash_signal_idx;
             std::vector<int> m_freq_control_idx;
+            int m_gpu_min_control_idx;
+            int m_gpu_max_control_idx;
             int m_uncore_min_ctl_idx;
             int m_uncore_max_ctl_idx;
             std::vector<uint64_t> m_last_hash;
             std::vector<double> m_last_freq;
             double m_last_uncore_freq;
+            double m_last_gpu_freq;
             int m_num_children;
             bool m_is_policy_updated;
             bool m_do_write_batch;
@@ -91,12 +95,16 @@ namespace geopm
             bool m_is_real_policy;
             int m_freq_ctl_domain_type;
             int m_num_freq_ctl_domain;
+            bool m_do_gpu_ctl;
             double m_core_freq_min;
             double m_core_freq_max;
             double m_uncore_init_min;
             double m_uncore_init_max;
+            double m_gpu_init_freq_min;
+            double m_gpu_init_freq_max;
             double m_default_freq;
             double m_uncore_freq;
+            double m_default_gpu_freq;
     };
 }
 

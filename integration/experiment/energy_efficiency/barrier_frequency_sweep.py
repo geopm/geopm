@@ -29,8 +29,8 @@ def launch_configs(output_dir, app_conf_ref, app_conf, default_freq, sweep_freqs
     # TODO: may not always be correct
     max_uncore = float(util.geopmread('MSR::UNCORE_RATIO_LIMIT:MAX_RATIO board 0'))
 
-    options = {'FREQ_DEFAULT': default_freq,
-               'FREQ_UNCORE': max_uncore}
+    options = {'FREQ_CPU_DEFAULT': default_freq,
+               'FREQ_CPU_UNCORE': max_uncore}
     config_file = os.path.join(output_dir, '{}.config'.format('fma_fixed'))
     agent_conf = geopmpy.agent.AgentConf(config_file,
                                          agent='frequency_map',
@@ -42,8 +42,8 @@ def launch_configs(output_dir, app_conf_ref, app_conf, default_freq, sweep_freqs
     # freq map runs
     for freq in sweep_freqs:
         rid = 'fma_{:.1e}'.format(freq)
-        options = {'FREQ_DEFAULT': default_freq,  # or use max or sticker from mach
-                   'FREQ_UNCORE': max_uncore,
+        options = {'FREQ_CPU_DEFAULT': default_freq,  # or use max or sticker from mach
+                   'FREQ_CPU_UNCORE': max_uncore,
                    'HASH_0': barrier_hash,
                    'FREQ_0': freq}
         config_file = os.path.join(output_dir, '{}.config'.format(rid))

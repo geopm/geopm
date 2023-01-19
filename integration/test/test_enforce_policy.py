@@ -115,7 +115,7 @@ class TestIntegrationEnforcePolicy(unittest.TestCase):
         test_freq = self._sticker_freq - 2 * self._step_freq
         current_freq = geopm_test_launcher.geopmread("MSR::PERF_CTL:FREQ board 0")
         self.assertNotEqual(test_freq, current_freq)
-        self.run_tool('frequency_map', {'FREQ_DEFAULT': test_freq})
+        self.run_tool('frequency_map', {'FREQ_CPU_DEFAULT': test_freq})
         current_freq = geopm_test_launcher.geopmread("MSR::PERF_CTL:FREQ board 0")
         self.assertEqual(test_freq, current_freq)
 

@@ -41,11 +41,11 @@ def setup_frequency_bounds(mach, min_freq, max_freq, step_freq, add_turbo_step):
     if step_freq is None:
         step_freq = sys_step
     if step_freq < sys_step or step_freq % sys_step != 0:
-        sys.stderr.write('<geopm> Warning: frequency step size may be incompatible with p-states.\n')
+        sys.stderr.write('<geopm> Warning: CPU frequency step size may be incompatible with p-states.\n')
     if (max_freq - min_freq) % step_freq != 0:
-        sys.stderr.write('<geopm> Warning: frequency range not evenly divisible by step size.\n')
+        sys.stderr.write('<geopm> Warning: CPU frequency range not evenly divisible by step size.\n')
     if min_freq < sys_min or max_freq > sys_max:
-        raise RuntimeError('Frequency bounds are out of range for this system')
+        raise RuntimeError('CPU Frequency bounds are out of range for this system')
 
     num_step = 1 + int((max_freq - min_freq) // step_freq)
     freqs = [step_freq * ss + min_freq for ss in range(num_step)]
@@ -70,7 +70,7 @@ def launch_configs(output_dir, app_conf, freq_range):
     targets = []
     for freq in freq_range:
         name = '{:.1e}'.format(freq)
-        options = {'FREQ_DEFAULT': freq}
+        options = {'FREQ_CPU_DEFAULT': freq}
         file_name = os.path.join(output_dir, '{}_agent_{}.config'.format(agent, freq))
         agent_conf = geopmpy.agent.AgentConf(file_name, agent, options)
         targets.append(launch_util.LaunchConfig(app_conf=app_conf,

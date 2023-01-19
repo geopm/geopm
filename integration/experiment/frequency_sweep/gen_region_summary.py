@@ -26,15 +26,15 @@ def region_summary(report_collection, output_dir, show_details):
     edf = report_collection.get_epoch_df()
 
     mhz = lambda x : int(x / 1e6)
-    df['FREQ_DEFAULT'] = df['FREQ_DEFAULT'].apply(mhz)  # Convert frequency to MHz for readability
-    edf['FREQ_DEFAULT'] = edf['FREQ_DEFAULT'].apply(mhz)
-    adf['FREQ_DEFAULT'] = adf['FREQ_DEFAULT'].apply(mhz)
+    df['FREQ_CPU_DEFAULT'] = df['FREQ_CPU_DEFAULT'].apply(mhz)  # Convert frequency to MHz for readability
+    edf['FREQ_CPU_DEFAULT'] = edf['FREQ_CPU_DEFAULT'].apply(mhz)
+    adf['FREQ_CPU_DEFAULT'] = adf['FREQ_CPU_DEFAULT'].apply(mhz)
 
-    df = df.set_index(['region', 'FREQ_DEFAULT'])
-    df.index = df.index.set_names('freq_mhz', level='FREQ_DEFAULT')
-    edf = edf.set_index(['FREQ_DEFAULT'])
+    df = df.set_index(['region', 'FREQ_CPU_DEFAULT'])
+    df.index = df.index.set_names('freq_mhz', level='FREQ_CPU_DEFAULT')
+    edf = edf.set_index(['FREQ_CPU_DEFAULT'])
     edf.index = edf.index.set_names('freq_mhz')
-    adf = adf.set_index(['FREQ_DEFAULT'])
+    adf = adf.set_index(['FREQ_CPU_DEFAULT'])
     adf.index = adf.index.set_names('freq_mhz')
 
     field_list = ['count', 'frequency (%)', 'frequency (Hz)', 'runtime (sec)',

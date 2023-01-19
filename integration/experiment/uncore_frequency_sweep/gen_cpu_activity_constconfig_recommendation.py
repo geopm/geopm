@@ -51,8 +51,8 @@ def extract_columns(df, region_list = None):
                                                 df_filtered['CPU_UNCORE_FREQUENCY_STATUS@package-1'])/2
 
     # Use requested frequency from the agent
-    df_filtered['requested core-frequency (Hz)'] = df['FREQ_DEFAULT']
-    df_filtered['requested uncore-frequency (Hz)'] = df['FREQ_UNCORE']
+    df_filtered['requested core-frequency (Hz)'] = df['FREQ_CPU_DEFAULT']
+    df_filtered['requested uncore-frequency (Hz)'] = df['FREQ_CPU_UNCORE']
 
     # these are the only columns we need
     df_filtered = df_filtered[['region',

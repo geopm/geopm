@@ -78,9 +78,9 @@ def plot_runtime_energy(report_df, perf_metric, use_stdev, label, output_dir, sh
     report.prepare_columns(report_df)
     report.prepare_metrics(report_df, perf_metric)
     # TODO: might want loop_key to be passed in as a function instead
-    freqs = sorted(report_df['FREQ_DEFAULT'].unique())
+    freqs = sorted(report_df['FREQ_CPU_DEFAULT'].unique())
     result = report.energy_perf_summary(df=report_df,
-                                        loop_key='FREQ_DEFAULT',
+                                        loop_key='FREQ_CPU_DEFAULT',
                                         loop_vals=freqs,
                                         baseline=None,
                                         perf_metric=perf_metric,
