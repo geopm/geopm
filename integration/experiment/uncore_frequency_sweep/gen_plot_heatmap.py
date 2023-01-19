@@ -80,18 +80,18 @@ def setup_3d_data(df, metric, show_details, scalar=1e9):
     df['energy'] = df['package-energy (J)']
     df['power'] = df['power (W)']
 
-    df['FREQ_DEFAULT'] /= scalar
-    df['FREQ_UNCORE'] /= scalar
+    df['FREQ_CPU_DEFAULT'] /= scalar
+    df['FREQ_CPU_UNCORE'] /= scalar
 
-    xs = sorted(df['FREQ_DEFAULT'].unique())
-    ys = sorted(df['FREQ_UNCORE'].unique())
+    xs = sorted(df['FREQ_CPU_DEFAULT'].unique())
+    ys = sorted(df['FREQ_CPU_UNCORE'].unique())
     zs = []
     min_z = df[metric].min()
     max_z = df[metric].max()
     for xx in xs:
         temp = []
         for yy in ys:
-            value = df.loc[df['FREQ_DEFAULT'] == xx].loc[df['FREQ_UNCORE'] == yy]
+            value = df.loc[df['FREQ_CPU_DEFAULT'] == xx].loc[df['FREQ_CPU_UNCORE'] == yy]
             value = value[metric].mean()
             temp.append(value)
         zs.append(temp)

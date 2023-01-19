@@ -24,8 +24,8 @@ def prepare(df):
     df = df.drop(extra_cols, axis=1)
 
     # Rename confusing fields
-    new_names = {"FREQ_DEFAULT" : "core_mhz",
-                 "FREQ_UNCORE" : "uncore_mhz",
+    new_names = {"FREQ_CPU_DEFAULT" : "core_mhz",
+                 "FREQ_CPU_UNCORE" : "uncore_mhz",
                  "frequency (%)" : "core freq (%)",
                  "frequency (Hz)" : "core freq (Hz)"}
     df = df.rename(columns=new_names)

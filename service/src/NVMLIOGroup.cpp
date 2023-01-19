@@ -185,7 +185,7 @@ namespace geopm
                                   {},
                                   GEOPM_DOMAIN_GPU,
                                   Agg::expect_same,
-                                  IOGroup::M_SIGNAL_BEHAVIOR_CONSTANT,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
                               {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_CONTROL", {
@@ -193,7 +193,7 @@ namespace geopm
                                   {},
                                   GEOPM_DOMAIN_GPU,
                                   Agg::expect_same,
-                                  IOGroup::M_SIGNAL_BEHAVIOR_CONSTANT,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }},
                               {M_NAME_PREFIX + "GPU_CORE_FREQUENCY_RESET_CONTROL", {
@@ -201,7 +201,7 @@ namespace geopm
                                   {},
                                   GEOPM_DOMAIN_GPU,
                                   Agg::expect_same,
-                                  IOGroup::M_SIGNAL_BEHAVIOR_CONSTANT,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double
                                   }}
                              })

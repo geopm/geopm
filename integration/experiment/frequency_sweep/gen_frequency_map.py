@@ -40,7 +40,7 @@ def find_optimal_freq(region_df, perf_margin):
 def frequency_map(report_df, perf_margin, show_details):
     # rename some columns
     # TODO: only works for freq map agent
-    report_df['freq_hz'] = report_df['FREQ_DEFAULT']
+    report_df['freq_hz'] = report_df['FREQ_CPU_DEFAULT']
     report_df['runtime'] = report_df['runtime (sec)']
     report_df['network_time'] = report_df['network-time (sec)']
     report_df['energy_pkg'] = report_df['package-energy (joules)']
@@ -65,11 +65,11 @@ def format_region_freq_map(df, perf_margin, show_details):
     freq_map = frequency_map(df, perf_margin, show_details)
     sys.stdout.write('Best-fit frequencies with {}% performance degradation:\n'.format(100 * perf_margin))
     sys.stdout.write('{}\n'.format(freq_map))
-    max_freq = df['FREQ_DEFAULT'].max()
+    max_freq = df['FREQ_CPU_DEFAULT'].max()
     sys.stdout.write('\nFrequency map agent policy:\n')
 
     idx = 0
-    policy = {"FREQ_DEFAULT": max_freq}
+    policy = {"FREQ_CPU_DEFAULT": max_freq}
     for region_name in df['region'].unique():
         region_hash = geopmpy.hash.crc32_str(region_name)
         region_freq = freq_map[region_name]

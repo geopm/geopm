@@ -82,13 +82,14 @@ TEST(AgentFactoryTest, static_info_frequency_map)
     auto &factory = geopm::agent_factory();
     std::string agent_name = geopm::FrequencyMapAgent::plugin_name();
     auto &dict = factory.dictionary(agent_name);
-    EXPECT_EQ(64, Agent::num_policy(dict));
+    EXPECT_EQ(65, Agent::num_policy(dict));
     EXPECT_EQ(0, Agent::num_sample(dict));
-    EXPECT_EQ(64, Agent::num_policy(agent_name));
+    EXPECT_EQ(65, Agent::num_policy(agent_name));
     EXPECT_EQ(0, Agent::num_sample(agent_name));
     std::vector<std::string> exp_sample = {};
-    std::vector<std::string> exp_policy = {"FREQ_DEFAULT",
-                                           "FREQ_UNCORE",
+    std::vector<std::string> exp_policy = {"FREQ_CPU_DEFAULT",
+                                           "FREQ_CPU_UNCORE",
+                                           "FREQ_GPU_DEFAULT",
                                            "HASH_0", "FREQ_0",
                                            "HASH_1", "FREQ_1",
                                            "HASH_2", "FREQ_2",

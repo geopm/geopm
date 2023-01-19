@@ -101,6 +101,12 @@ class Machine:
     def num_package_integrated_gpu(self):
         return int(self.topo['package_integrated_gpu'])
 
+    def gpu_frequency_min(self):
+        return self.signals['GPU_CORE_FREQUENCY_MIN_AVAIL']
+
+    def gpu_frequency_max(self):
+        return self.signals['GPU_CORE_FREQUENCY_MAX_AVAIL']
+
     def total_node_memory_bytes(self):
         return float(self.meminfo['MemTotal'])
 
@@ -116,7 +122,9 @@ class Machine:
         for sn in signal_names:
             self.signals[sn] = util.geopmread('{} board 0'.format(sn))
 
-        conditional_signal_names = ['GPU_CORE_FREQUENCY_STEP']
+        conditional_signal_names = ['GPU_CORE_FREQUENCY_STEP',
+                                    'GPU_CORE_FREQUENCY_MIN_AVAIL',
+                                    'GPU_CORE_FREQUENCY_MAX_AVAIL']
         for sn in conditional_signal_names:
             try:
                 self.signals[sn] = util.geopmread('{} board 0'.format(sn))

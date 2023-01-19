@@ -84,6 +84,19 @@ def add_step_frequency(parser):
                         action='store', type=float, default=None,
                         help='increment between core frequency steps for sweep')
 
+def add_max_uncore_frequency(parser):
+    parser.add_argument('--max-uncore-frequency', dest='max_uncore_frequency',
+                        action='store', type=float, default=None,
+                        help='top uncore frequency setting for the sweep')
+def add_min_uncore_frequency(parser):
+    parser.add_argument('--min-uncore-frequency', dest='min_uncore_frequency',
+                        action='store', type=float, default=None,
+                        help='bottom uncore frequency setting for the sweep')
+def add_step_uncore_frequency(parser):
+    parser.add_argument('--step-uncore-frequency', dest='step_uncore_frequency',
+                        action='store', type=float, default=None,
+                        help='increment in hertz between uncore frequency settings for the sweep')
+
 
 def add_run_max_turbo(parser):
     parser.add_argument("--run-max-turbo", dest="run_max_turbo",

@@ -73,7 +73,7 @@ class TestIntegration_frequency_hint_usage(unittest.TestCase):
         cls._freq_min = geopm_test_launcher.geopmread("CPUINFO::FREQ_MIN board 0")
         cls._freq_sticker = geopm_test_launcher.geopmread("CPUINFO::FREQ_STICKER board 0")
         cls._freq_step = geopm_test_launcher.geopmread("CPU_FREQUENCY_STEP board 0")
-        cls._freq_default = cls._freq_sticker - cls._freq_step
+        cls._freq_cpu_default = cls._freq_sticker - cls._freq_step
 
         if not cls._skip_launch:
             # Set the job size parameters
@@ -84,7 +84,7 @@ class TestIntegration_frequency_hint_usage(unittest.TestCase):
             app_conf = AppConf()
 
             # Configure the agents
-            agent_conf_dict = {'FREQ_DEFAULT': cls._freq_default}
+            agent_conf_dict = {'FREQ_CPU_DEFAULT': cls._freq_cpu_default}
             fmap_agent_conf = geopmpy.agent.AgentConf(cls._fmap_agent_conf_path,
                                                       'frequency_map',
                                                       agent_conf_dict)
@@ -119,10 +119,10 @@ class TestIntegration_frequency_hint_usage(unittest.TestCase):
 
         # Fmap agent should assign policy default frequency for regions not
         # in the map.
-        self.assertEqual(self._freq_default, assigned_freq,
-                         msg='Expected assigned frequency to be max from policy since this region has the COMPUTE hint. ({} != {})'.format(self._freq_default, assigned_freq))
-        util.assertNear(self, self._freq_default, achieved_freq,
-                        msg='Expected achieved frequency to be near default from policy. ({} !~= {})'.format(self._freq_default, achieved_freq))
+        self.assertEqual(self._freq_cpu_default, assigned_freq,
+                         msg='Expected assigned frequency to be max from policy since this region has the COMPUTE hint. ({} != {})'.format(self._freq_cpu_default, assigned_freq))
+        util.assertNear(self, self._freq_cpu_default, achieved_freq,
+                        msg='Expected achieved frequency to be near default from policy. ({} !~= {})'.format(self._freq_cpu_default, achieved_freq))
 
     @unittest.skip('Disabled pending overhaul of agent.')
     def test_frequency_sane_ee(self):

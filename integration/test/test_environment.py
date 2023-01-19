@@ -68,18 +68,18 @@ class TestIntegrationEnvironment(unittest.TestCase):
 
         test_name = 'test_geopm_environment'
         self._agent = 'frequency_map'
-        user_policy = { 'FREQ_DEFAULT': 1.5e9 }
+        user_policy = { 'FREQ_CPU_DEFAULT': 1.5e9 }
 
         with util.temporarily_remove_compute_node_file(environment_default_path), \
                 util.temporarily_remove_compute_node_file(environment_override_path):
             # Only the default is set. Can be overridden by the user.
-            default_policy = { 'FREQ_DEFAULT': 1.6e9 }
+            default_policy = { 'FREQ_CPU_DEFAULT': 1.6e9 }
             create_policy_file_on_compute_node(default_policy, test_name + '.default.agent.config', environment_default_path)
             self.assert_geopm_uses_policy(default_policy, test_name + '_default_no_user')
             self.assert_geopm_uses_policy(user_policy, test_name + '_default_with_user', user_policy=user_policy)
 
             # Both default and override are set. Override is always used.
-            override_policy = { 'FREQ_DEFAULT': 1.7e9 }
+            override_policy = { 'FREQ_CPU_DEFAULT': 1.7e9 }
             create_policy_file_on_compute_node(override_policy, test_name + '.override.agent.config', environment_override_path)
             self.assert_geopm_uses_policy(override_policy, test_name + '_override_and_default_no_user')
             self.assert_geopm_uses_policy(override_policy, test_name + '_override_and_default_with_user', user_policy=user_policy)
