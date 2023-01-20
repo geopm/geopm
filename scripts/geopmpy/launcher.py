@@ -752,7 +752,7 @@ Warning: <geopm> geopmpy.launcher: Incompatible CPU frequency governor
         application that reflect the state of the Launcher object.
         """
         result = []
-        result.extend(self.num_node_option())
+        result.extend(self.num_node_option(is_geopmctl))
         result.extend(self.exclude_list_option())
         result.extend(self.num_rank_option(is_geopmctl))
         if self.config and self.config.do_affinity:
@@ -769,7 +769,7 @@ Warning: <geopm> geopmpy.launcher: Incompatible CPU frequency governor
         result.extend(self.performance_governor_option())
         return result
 
-    def num_node_option(self):
+    def num_node_option(self, is_geopmctl):
         """
         Returns a list containing the command line options specifying the
         number of compute nodes.
@@ -994,7 +994,7 @@ class SrunLauncher(Launcher):
         """
         return 'srun'
 
-    def num_node_option(self):
+    def num_node_option(self, is_geopmctl):
         """
         Returns a list containing the ``-N`` option for ``srun``.
         """
@@ -1232,7 +1232,7 @@ class OMPIExecLauncher(Launcher):
         self.job_name = None
         self.reservation = None
 
-    def num_node_option(self):
+    def num_node_option(self, is_geopmctl):
         return []
 
     def launcher_argv(self, is_geopmctl):
@@ -1413,8 +1413,13 @@ class IMPIExecLauncher(Launcher):
         self.job_name = None
         self.reservation = None
 
-    def num_node_option(self):
-        return ['-ppn', str(self.rank_per_node)]
+    def num_node_option(self, is_geopmctl):
+        result = []
+        if is_geopmctl:
+            result = ['-ppn', '1']
+        else:
+            result = ['-ppn', str(self.rank_per_node)]
+        return result
 
     def affinity_option(self, is_geopmctl):
         if self.is_geopm_enabled:
@@ -1518,8 +1523,13 @@ class PALSLauncher(IMPIExecLauncher):
         """
         return 'mpiexec'
 
-    def num_node_option(self):
-        return ['--ppn', str(self.rank_per_node)]
+    def num_node_option(self, is_geopmctl):
+        result = []
+        if is_geopmctl:
+            result = ['--ppn', '1']
+        else:
+            result = ['--ppn', str(self.rank_per_node)]
+        return result
 
     def affinity_option(self, is_geopmctl):
         """
@@ -1603,7 +1613,7 @@ class AprunLauncher(Launcher):
         """
         return 'aprun'
 
-    def num_node_option(self):
+    def num_node_option(self, is_geopmctl):
         """
         Returns a list containing the ``-N`` option for ``aprun``.  Must be
         combined with the ``-n`` option to determine the number of nodes.
