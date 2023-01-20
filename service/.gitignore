@@ -29,6 +29,7 @@ compile_commands.json
 /geopmdrs/Cargo.lock
 /geopmdrs/Cargo.toml
 /geopmdrs/target/
+/geopmdrs/vendor/
 /geopmread
 /geopm_service.egg-info
 /geopm-service.spec

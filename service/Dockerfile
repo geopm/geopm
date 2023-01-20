@@ -10,3 +10,8 @@ RUN zypper addrepo https://download.opensuse.org/repositories/home:/cmcantal/15.
 RUN zypper install -y geopm-service
 RUN mkdir -p -m 755 /var; mkdir -p -m 755 /var/lib; mkdir -p -m 755 /var/lib/kubelet; mkdir -p -m 755 /var/lib/kubelet/seccomp; mkdir -p -m 755 /var/lib/kubelet/seccomp/profiles;
 COPY geopm-*-seccomp.json /var/lib/kubelet/seccomp/profiles
+RUN zypper install cargo
+RUN zypper source-install -y geopm-service
+WORKDIR /tmp
+RUN tar xvf /usr/src/packages/SOURCES/geopm-service.tar.gz
+RUN cargo install --path=geopm-service-*/geopmdrs --bin geopmd-proxy --root=/usr
