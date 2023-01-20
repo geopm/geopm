@@ -212,8 +212,13 @@ namespace geopm
 
     void GRPCServiceProxy::platform_stop_batch(int server_pid)
     {
-        GEOPMPackage::BatchKey request;
-        request.set_batch_pid(server_pid);
+        GEOPMPackage::BatchSession request;
+        GEOPMPackage::SessionKey *session_key = new GEOPMPackage::SessionKey;
+        session_key->set_name(m_session_key);
+        request.set_allocated_session_key(session_key);
+        GEOPMPackage::BatchKey *batch_key = new GEOPMPackage::BatchKey;
+        batch_key->set_batch_pid(server_pid);
+        request.set_allocated_batch_key(batch_key);
         grpc::ClientContext context;
         GEOPMPackage::Empty response;
         grpc::Status status = m_client->StopBatch(&context,

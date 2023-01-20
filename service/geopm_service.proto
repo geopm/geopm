@@ -120,6 +120,11 @@ message BatchRequest {
   repeated PlatformRequest control_config = 3;
 }
 
+message BatchSession {
+  SessionKey session_key = 1;
+  BatchKey batch_key = 2;
+}
+
 message TopoCache {
   string cache = 1;
 }
@@ -133,7 +138,7 @@ service GEOPMService {
   rpc GetSignalInfo(InfoRequest) returns (SignalInfoList);
   rpc GetControlInfo(InfoRequest) returns (ControlInfoList);
   rpc StartBatch(BatchRequest) returns (BatchKey);
-  rpc StopBatch(BatchKey) returns (Empty);
+  rpc StopBatch(BatchSession) returns (Empty);
   rpc ReadSignal(ReadRequest) returns (Sample);
   rpc WriteControl(WriteRequest) returns(Empty);
   rpc TopoGetCache(Empty) returns(TopoCache);

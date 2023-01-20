@@ -73,7 +73,7 @@ class GEOPMServiceProxy(geopm_service_pb2_grpc.GEOPMServiceServicer):
 
     def StopBatch(self, request, context):
         client_id = self._get_client_id(request.session_key, context)
-        self._platform_service.stop_batch(client_id, request.batch_pid)
+        self._platform_service.stop_batch(client_id, request.batch_key.batch_pid)
         return geopm_service_pb2.Empty()
 
     def ReadSignal(self, request, context):
