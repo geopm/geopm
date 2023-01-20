@@ -90,7 +90,7 @@ class TestIntegrationEnforcePolicy(unittest.TestCase):
         argv = ["dummy", launcher_type, "--geopm-ctl-disable"]
         launcher = geopmpy.launcher.Factory().create(argv, num_rank=1, num_node=1)
         num_rank = launcher.num_rank_option(False)
-        num_node = launcher.num_node_option()
+        num_node = launcher.num_node_option(False)
         argv = [launcher_type] + num_rank + num_node + [self._app_exec_path]
         prog = subprocess.Popen(argv,
                                 env=environ,
