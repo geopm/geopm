@@ -36,7 +36,7 @@ class PlatformService(object):
     implementations.
 
     """
-    def __init__(self, comm_type='dbus'):
+    def __init__(self):
         """PlatformService constructor that initializes all private members.
 
         """
@@ -46,9 +46,8 @@ class PlatformService(object):
         self._WATCH_INTERVAL_SEC = 1
         self._active_sessions = system_files.ActiveSessions()
         self._access_lists = system_files.AccessLists()
-        self._client_registry = client_registry.create_registry(self._active_sessions,
-                                                                self._close_session_completely,
-                                                                comm_type)
+        self._client_registry = client_registry.ClientRegistry(self._active_sessions,
+                                                               self._close_session_completely)
         for client_pid in self._active_sessions.get_clients():
             is_active = self._client_registry.check(client_pid)
             if is_active:

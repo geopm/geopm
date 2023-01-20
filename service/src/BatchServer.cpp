@@ -357,13 +357,13 @@ namespace geopm
         int uid = pid_to_uid(m_client_pid);
         int gid = pid_to_gid(m_client_pid);
         if (signal_size != 0) {
-            m_signal_shmem = SharedMemory::make_unique_owner(
+            m_signal_shmem = SharedMemory::make_unique_owner_secure(
                 m_signal_shmem_key, signal_size);
             // Requires a chown if server is different user than client
             m_signal_shmem->chown(uid, gid);
         }
         if (control_size != 0) {
-            m_control_shmem = SharedMemory::make_unique_owner(
+            m_control_shmem = SharedMemory::make_unique_owner_secure(
                 m_control_shmem_key, control_size);
             // Requires a chown if server is different user than client
             m_control_shmem->chown(uid, gid);

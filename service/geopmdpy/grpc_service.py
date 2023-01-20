@@ -104,13 +104,8 @@ class GEOPMServiceProxy(geopm_service_pb2_grpc.GEOPMServiceServicer):
     def OpenSession(self, request, context):
         result = geopm_service_pb2.SessionKey()
         client_id = self._get_client_id(request, context)
-        if self._is_containerized():
-            sys.stderr.write('Warning: Running in a container, no implementation to determine process lifetime exists\n')
-            client_id = 1
-            result.name = '0,1'
-        else:
-            result.name = request.name
         self._platform_service.open_session(self._get_user(client_id), client_id)
+        result.name = request.name
         return result
 
     def CloseSession(self, request, context):
@@ -125,15 +120,6 @@ class GEOPMServiceProxy(geopm_service_pb2_grpc.GEOPMServiceServicer):
     def _get_user(self, client_id):
         uid = os.stat(f'/proc/{client_id}/status').st_uid
         return pwd.getpwuid(uid).pw_name
-
-    def _is_containerized(self):
-        result = True
-        with open('/proc/1/cgroup') as fid:
-            contents = fid.read()
-            if '0::/init.scope' in contents:
-                result = False
-        return result
-
 
 
 def run():

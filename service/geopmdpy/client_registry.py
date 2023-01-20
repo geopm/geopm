@@ -7,42 +7,7 @@ import gi
 import os
 from gi.repository import GLib
 
-def create_registry(active_sessions, destroy_registry, comm_type):
-    if comm_type == 'dbus':
-        return DBusClientRegistry(active_sessions, destroy_registry)
-    else:
-        return ClientRegistry()
-
-
 class ClientRegistry(object):
-    def __init__(self):
-        pass
-
-    def check(self, client_id):
-        return True
-
-    def watch(self, client_id):
-        return -1
-
-    def unwatch(self, watch_id):
-        pass
-
-    def get_user(self, client_id):
-        return ''
-
-    def get_groups(self, user):
-        return []
-
-    def validate_group(self, group):
-        group = str(group)
-        if group[0].isdigit():
-            raise RuntimeError('Linux group name cannot begin with a digit: group = "{}"'.format(group))
-
-    def get_write_client(self, client_id):
-        return client_id
-
-
-class DBusClientRegistry(ClientRegistry):
     def __init__(self, active_sessions, destroy_session):
         self._WATCH_INTERVAL_SEC = 1
         self._active_sessions = active_sessions
