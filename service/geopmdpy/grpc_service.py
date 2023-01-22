@@ -16,7 +16,7 @@ from . import system_files
 
 class GEOPMServiceProxy(geopm_service_pb2_grpc.GEOPMServiceServicer):
     def __init__(self):
-        self._platform_service = service.PlatformService('grpc')
+        self._platform_service = service.PlatformService()
         self._topo_service = service.TopoService()
 
     def GetUserAccess(self, request, context):
