@@ -77,6 +77,7 @@ impl GeopmService for GeopmServiceImp {
         let conn_info = request.extensions().get::<UdsConnectInfo>().unwrap();
         let session_key = session_key(conn_info).unwrap();
         let mut info_request = request.into_inner();
+        // TODO: Session key is not required for GetSignalInfo, it is not used
         info_request.session_key = Some(session_key);
         let request = tonic::Request::new(info_request);
         let mut geopm_client = self.geopm_client.lock().await;
@@ -90,6 +91,7 @@ impl GeopmService for GeopmServiceImp {
         let conn_info = request.extensions().get::<UdsConnectInfo>().unwrap();
         let session_key = session_key(conn_info).unwrap();
         let mut info_request = request.into_inner();
+        // TODO: Session key is not required for GetControlInfo, it is not used
         info_request.session_key = Some(session_key);
         let request = tonic::Request::new(info_request);
         let mut geopm_client = self.geopm_client.lock().await;

@@ -20,8 +20,9 @@ class GEOPMServiceProxy(geopm_service_pb2_grpc.GEOPMServiceServicer):
         self._topo_service = service.TopoService()
 
     def GetUserAccess(self, request, context):
+        client_id = self._get_client_id(request, context)
         result = geopm_service_pb2.AccessLists()
-        signals, controls = self._platform_service.get_user_access('')
+        signals, controls = self._platform_service.get_user_access(self._get_user(client_id))
         for ss in signals:
             result.signals.append(ss)
         for cc in controls:

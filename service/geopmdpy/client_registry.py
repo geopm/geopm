@@ -5,6 +5,8 @@
 
 import gi
 import os
+import pwd
+import grp
 from gi.repository import GLib
 
 class ClientRegistry(object):
@@ -39,9 +41,8 @@ class ClientRegistry(object):
         uid = os.stat(f'/proc/{client_id}/status').st_uid
         return pwd.getpwuid(uid).pw_name
 
-    def get_groups(self, client_id):
+    def get_groups(self, user):
         try:
-            user = self.get_user(client_id)
             user_gid = pwd.getpwnam(user).pw_gid
             all_gid = os.getgrouplist(user, user_gid)
             user_groups = [grp.getgrgid(gid).gr_name for gid in all_gid]
