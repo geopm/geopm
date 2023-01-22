@@ -152,14 +152,14 @@ impl GeopmService for GeopmServiceImp {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let geopm_client = Arc::new(Mutex::new(GeopmServiceClient::connect("unix:///run/geopm-service/GRPC_SOCKET_PRIVATE").await?));
+    let geopm_client = Arc::new(Mutex::new(GeopmServiceClient::connect("file://run/geopm-service/grpc-private.sock").await?));
 
     let geopm_server = GeopmServiceImp {
         geopm_client,
     };
     Server::builder()
         .add_service(GeopmServiceServer::new(geopm_server))
-        .serve("unix:///run/geopm-service/GRPC_SOCKET".parse().unwrap())
+        .serve("file://run/geopm-service/grpc.sock".parse().unwrap())
         .await?;
     Ok(())
 }

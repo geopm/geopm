@@ -124,7 +124,7 @@ class GEOPMServiceProxy(geopm_service_pb2_grpc.GEOPMServiceServicer):
 
 def run():
     grpc_socket_path = os.path.join(system_files.GEOPM_SERVICE_RUN_PATH,
-                                    'GRPC_SOCKET_PRIVATE')
+                                    'grpc-private.sock')
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
     geopm_proxy = GEOPMServiceProxy()
     geopm_service_pb2_grpc.add_GEOPMServiceServicer_to_server(geopm_proxy, server)
