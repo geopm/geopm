@@ -2,16 +2,21 @@
 //  SPDX-License-Identifier: BSD-3-Clause
 //
 
-use std::sync::{Arc};
-use tokio::sync::{Mutex};
-use tonic::{Request, Response, Status};
-use tonic::transport::{Server, Channel};
-use tonic::transport::server::{UdsConnectInfo};
 use geopm_package::geopm_service_server::{GeopmService, GeopmServiceServer};
-use geopm_package::geopm_service_client::{GeopmServiceClient};
+use geopm_package::geopm_service_client::GeopmServiceClient;
 use geopm_package::{AccessLists, InfoRequest, SignalInfoList, ControlInfoList,
                     SessionKey, Empty, BatchRequest, BatchKey, BatchSession,
                     ReadRequest, Sample, WriteRequest, TopoCache};
+use std::convert::TryFrom;
+use std::fs;
+use std::sync::Arc;
+use tokio::sync::Mutex;
+use tokio::net::{UnixStream, UnixListener};
+use tokio_stream::wrappers::UnixListenerStream;
+use tonic::{Request, Response, Status};
+use tonic::transport::{Server, Channel, Endpoint, Uri};
+use tonic::transport::server::UdsConnectInfo;
+use tower::service_fn;
 
 pub mod geopm_package {
     tonic::include_proto!("geopm_package");
@@ -150,16 +155,32 @@ impl GeopmService for GeopmServiceImp {
     }
 }
 
+#[cfg(unix)]
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let geopm_client = Arc::new(Mutex::new(GeopmServiceClient::connect("file://run/geopm-service/grpc-private.sock").await?));
-
+    // TODO: This pattern is given in the tonic UDS client example.  The open
+    // issue here: <https://github.com/hyperium/tonic/issues/608> asks if we
+    // can avoid the try_from().  This pattern does seem secure unless we can
+    // assert that the result is the Unix domain socket we actually want to
+    // target, and not the local host socket 50051.
+    let channel = Endpoint::try_from("http://[::]:50051")?
+        .connect_with_connector(service_fn(|_: Uri| {
+            UnixStream::connect("/run/geopm-service/grpc-private.sock")
+        })).await?;
+    let geopm_client = Arc::new(Mutex::new(GeopmServiceClient::new(channel)));
     let geopm_server = GeopmServiceImp {
         geopm_client,
     };
+    let path = "/run/geopm-service/grpc.sock";
+    match fs::remove_file(path) {
+        Err(err) if err.kind() == std::io::ErrorKind::NotFound => (),
+        r => r.expect("failed to remove public socket"),
+    }
+    let uds = UnixListener::bind(path)?;
+    let uds_stream = UnixListenerStream::new(uds);
     Server::builder()
         .add_service(GeopmServiceServer::new(geopm_server))
-        .serve("file://run/geopm-service/grpc.sock".parse().unwrap())
+        .serve_with_incoming(uds_stream)
         .await?;
     Ok(())
 }
