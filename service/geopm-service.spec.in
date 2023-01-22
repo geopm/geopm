@@ -41,6 +41,7 @@ BuildRequires: unzip
 BuildRequires: libtool
 BuildRequires: systemd-devel >= 221
 BuildRequires: grpc-devel
+BuildRequires: protobuf-devel
 BuildRequires: cargo
 BuildRequires: python3
 BuildRequires: python3-devel
@@ -141,6 +142,7 @@ Requires: python3-jsonschema
 Requires: python3-psutil
 Requires: python3-cffi
 Requires: python3-grpcio
+Requires: python3-protobuf
 Requires: libgeopmd1 = %{version}
 
 %{?python_provide:%python_provide python%{python3_pkgversion}-geopmdpy}
