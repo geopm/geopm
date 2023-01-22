@@ -183,6 +183,8 @@ CFLAGS= CXXFLAGS= CC=gcc CXX=g++ \
 %{__make} DESTDIR=%{buildroot} install
 rm -f $(find %{buildroot}/%{_libdir} -name '*.a'; \
         find %{buildroot}/%{_libdir} -name '*.la')
+rm -f %{buildroot}/%{_prefix}/.crates.toml
+rm -f %{buildroot}/%{_prefix}/.crates2.json
 install -Dp -m644 geopm.service %{buildroot}%{_unitdir}/geopm.service
 install -Dp -m644 io.github.geopm.conf %{buildroot}%{_datadir}/dbus-1/system.d/io.github.geopm.conf
 install -Dp -m644 io.github.geopm.xml %{buildroot}%{_datadir}/dbus-1/interfaces/io.github.geopm.xml
