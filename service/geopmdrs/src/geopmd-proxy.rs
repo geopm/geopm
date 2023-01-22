@@ -9,6 +9,8 @@ use geopm_package::{AccessLists, InfoRequest, SignalInfoList, ControlInfoList,
                     ReadRequest, Sample, WriteRequest, TopoCache};
 use std::convert::TryFrom;
 use std::fs;
+use std::fs::{Permissions};
+use std::os::unix::fs::PermissionsExt;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 use tokio::net::{UnixStream, UnixListener};
@@ -155,7 +157,6 @@ impl GeopmService for GeopmServiceImp {
     }
 }
 
-#[cfg(unix)]
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // TODO: This pattern is given in the tonic UDS client example.  The open
@@ -177,6 +178,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         r => r.expect("failed to remove public socket"),
     }
     let uds = UnixListener::bind(path)?;
+    fs::set_permissions(path, Permissions::from_mode(0o777))?;
     let uds_stream = UnixListenerStream::new(uds);
     Server::builder()
         .add_service(GeopmServiceServer::new(geopm_server))

@@ -11,7 +11,7 @@ StartLimitBurst=3
 Environment=PYTHONUNBUFFERED=true
 Type=dbus
 BusName=io.github.geopm
-ExecStart=/usr/bin/geopmd --grpc
+ExecStart=/usr/bin/geopmd
 Restart=always
 
 [Install]
