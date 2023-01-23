@@ -71,6 +71,7 @@ BuildRequires: python-rpm-macros
 
 Requires: python%{python3_pkgversion}-geopmdpy = %{version}
 Requires: libgeopmd1 = %{version}
+Requires: util-linux
 
 %description
 
