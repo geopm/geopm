@@ -163,7 +163,7 @@ impl GeopmService for GeopmServiceImp {
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // TODO: This pattern is given in the tonic UDS client example.  The open
     // issue here: <https://github.com/hyperium/tonic/issues/608> asks if we
-    // can avoid the try_from().  This pattern does seem secure unless we can
+    // can avoid the try_from().  This pattern does not seem secure unless we can
     // assert that the result is the Unix domain socket we actually want to
     // target, and not the local host socket 50051.
     let channel = Endpoint::try_from("http://[::]:50051")?
