@@ -6,7 +6,7 @@ spec:
    restartPolicy: Never
    containers:
    - name: geopm-server
-     image: cmcantal/geopm-service:dockerfile
+     image: cmcantal/geopm-service:tumbleweed
      imagePullPolicy: Always
      securityContext:
        privileged: true
@@ -19,7 +19,7 @@ spec:
        mountPath: /tmp
      command: ['/usr/bin/sh', '-c', 'chmod 711 /run/geopm-service; geopmread >> /etc/geopm-service/0.DEFAULT_ACCESS/allowed_signals; geopmd --grpc']
    - name: geopm-client
-     image: cmcantal/geopm-service:dockerfile
+     image: cmcantal/geopm-service:tumbleweed
      imagePullPolicy: Always
      securityContext:
        privileged: false
