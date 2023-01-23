@@ -47,6 +47,7 @@ if ENABLE_BETA
 endif
 
 pkginclude_HEADERS = src/Agent.hpp \
+                     src/ControlRecommender.hpp \
                      src/FrequencyGovernor.hpp \
                      src/PlatformIOProf.hpp \
                      src/PowerBalancer.hpp \
@@ -379,6 +380,7 @@ libgeopmpolicy_la_SOURCES = src/Accumulator.cpp \
                             src/ControlMessage.hpp \
                             src/Controller.cpp \
                             src/Controller.hpp \
+                            src/ControlRecommender.hpp \
                             src/CSV.cpp \
                             src/CSV.hpp \
                             src/DebugIOGroup.cpp \
