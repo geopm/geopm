@@ -130,7 +130,9 @@ def run():
     geopm_proxy = GEOPMServiceProxy()
     geopm_service_pb2_grpc.add_GEOPMServiceServicer_to_server(geopm_proxy, server)
     server_credentials = grpc.local_server_credentials(grpc.LocalConnectionType.UDS)
+    original_umask = os.umask(0o077)
     server.add_secure_port(f'unix://{grpc_socket_path}', server_credentials)
+    os.umask(original_umask)
     server.start()
     with subprocess.Popen('geopmd-proxy') as proxy:
         server.wait_for_termination()
