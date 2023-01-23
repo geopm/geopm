@@ -263,30 +263,6 @@ Experimental support for Kubernetes is provided.  The current status
 of this work is a proof of concept, and should in no way be considered
 production ready.
 
-Known Issues
-------------
-
-The current implementation is not aware of the Unix Domain Socket
-credentials for an incoming connection over gRPC.  In order to work
-around this problem many security features are disabled.  When the
-GEOPM daemon ``geopmd`` is launched with the ``--grpc`` command line
-option, then the following known issues exist.
-
-- The credentials provided by the user are not secure (user may easily
-  spoof identity).
-- All sessions are tracked based on PID 1 and UID 0 when run in a
-  container.
-- Service will only support one batch session when containerized
-  (there is a one session per PID limit).
-- In the demo, only signals are allowed, no controls are added to the
-  access lists.
-- No save/restore mechanism for controls is guaranteed, so enabling
-  controls while using gRPC could impact system performance until
-  reboot.
-- Only the default access lists are used in a containerized
-  environment (no implementation exists to determine Unix group
-  membership).
-
 Demo
 ----
 
