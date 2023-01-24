@@ -4,6 +4,7 @@ metadata:
    name: geopm-service-pod
 spec:
    restartPolicy: Never
+   shareProcessNamespace: true
    containers:
    - name: geopm-server
      image: cmcantal/geopm-service:tumbleweed
@@ -17,7 +18,7 @@ spec:
        mountPath: /dev/cpu
      - name: tmp-mount
        mountPath: /tmp
-     command: ['/usr/bin/sh', '-c', 'chmod 711 /run/geopm-service; geopmread >> /etc/geopm-service/0.DEFAULT_ACCESS/allowed_signals; geopmd --grpc']
+     command: ['/usr/bin/sh', '-c', 'chmod 711 /run/geopm-service; geopmread >> /etc/geopm-service/0.DEFAULT_ACCESS/allowed_signals; groupadd -g 10001 client; useradd -g 10001 -u 10001 client; geopmd --grpc']
    - name: geopm-client
      image: cmcantal/geopm-service:tumbleweed
      imagePullPolicy: Always
