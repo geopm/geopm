@@ -58,7 +58,7 @@ libgmock.a: $(googletest_suite)/VERSION
 	    echo "Error: Failure to extract or download gmock archive" 2>&1; \
 	    exit -1; \
 	fi
-	$(CXX) $(CXXFLAGS) -isystem $(googlemock)/include -I$(googlemock) -isystem $(googletest)/include -I$(googletest) -pthread -std=c++11\
+	$(CXX) $(CXXFLAGS) -isystem $(googlemock)/include -I$(googlemock) -isystem $(googletest)/include -I$(googletest) -pthread -std=c++17\
 	      -c $(googlemock)/src/gmock-all.cc
 	ar -rv libgmock.a gmock-all.o
 
@@ -67,7 +67,7 @@ libgtest.a: $(googletest_suite)/VERSION
 	    echo "Error: Failure to extract or download gmock archive" 2>&1; \
 	    exit -1; \
 	fi
-	$(CXX) $(CXXFLAGS) -isystem $(googletest)/include -I$(googletest) -pthread -std=c++11 \
+	$(CXX) $(CXXFLAGS) -isystem $(googletest)/include -I$(googletest) -pthread -std=c++17 \
 	      -c $(googletest)/src/gtest-all.cc
 	ar -rv libgtest.a gtest-all.o
 
