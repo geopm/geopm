@@ -99,10 +99,10 @@ EXTRA_DIST = .gitignore \
              # end
 
 geopmread_SOURCES = src/geopmread_main.cpp
-geopmread_CXXFLAGS = $(AM_CXXFLAGS) -std=c++11
+geopmread_CXXFLAGS = $(AM_CXXFLAGS) -std=c++17
 geopmread_LDADD = libgeopmd.la
 geopmwrite_SOURCES = src/geopmwrite_main.cpp
-geopmwrite_CXXFLAGS = $(AM_CXXFLAGS) -std=c++11
+geopmwrite_CXXFLAGS = $(AM_CXXFLAGS) -std=c++17
 geopmwrite_LDADD = libgeopmd.la
 
 # Add ABI version
