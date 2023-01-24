@@ -116,7 +116,7 @@ namespace geopm
         , m_process_map(process_map)
         , m_is_filtered(is_filtered)
         , m_filter_name(filter_name)
-        , m_hint_time(m_num_cpu, {})
+        , m_hint_time(m_num_cpu, std::array<double, GEOPM_NUM_REGION_HINT>{})
         , m_is_cpu_active(is_cpu_active)
         , m_update_time({{0, 0}})
         , m_is_first_update(true)
