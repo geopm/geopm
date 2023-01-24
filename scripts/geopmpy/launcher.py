@@ -49,13 +49,13 @@ class Factory(object):
 
     def create(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
                time_limit=None, job_name=None, node_list=None, exclude_list=None, host_file=None,
-               partition=None, reservation=None, quiet=None):
+               partition=None, reservation=None, quiet=None, bootstrap=None):
         try:
             launcher_name = argv[1]
             return self._launcher_dict[launcher_name](argv[2:], num_rank, num_node, cpu_per_rank, timeout,
                                                       time_limit, job_name, node_list, exclude_list,
                                                       host_file, partition=partition, reservation=reservation,
-                                                      quiet=quiet)
+                                                      quiet=quiet, bootstrap=bootstrap)
         except KeyError:
             raise LookupError('<geopm> geopmpy.launcher: Unsupported launcher "{}" requested'.format(launcher_name))
 
@@ -295,7 +295,7 @@ class Launcher(object):
     """
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
                  time_limit=None, job_name=None, node_list=None, exclude_list=None, host_file=None,
-                 partition=None, reservation=None, quiet=None, do_affinity=None):
+                 partition=None, reservation=None, quiet=None, do_affinity=None, bootstrap=None):
         """
         Constructor takes the command line options passed to the job
         launch application along with optional override values for
@@ -307,6 +307,7 @@ class Launcher(object):
         self.environ_ext = dict()
         self.rank_per_node = None
         self.exclude_list = None
+        self.bootstrap = None
         self.partition = None
         self.reservation = None
         self.quiet = None
@@ -366,6 +367,9 @@ class Launcher(object):
         if host_file is not None:
             self.is_override_enabled = True
             self.host_file = host_file
+        if bootstrap is not None:
+            self.is_override_enabled = True
+            self.bootstrap = bootstrap
         if partition is not None:
             self.is_override_enabled = True
             self.partition = partition
@@ -562,6 +566,7 @@ class Launcher(object):
                                   host_file=self.host_file,
                                   node_list=self.node_list,
                                   exclude_list=self.exclude_list,
+                                  bootstrap=self.bootstrap,
                                   reservation=self.reservation,
                                   partition=self.partition,
                                   quiet=True)
@@ -758,6 +763,7 @@ Warning: <geopm> geopmpy.launcher: Incompatible CPU frequency governor
         result.extend(self.job_name_option())
         result.extend(self.node_list_option())
         result.extend(self.host_file_option())
+        result.extend(self.bootstrap_option())
         result.extend(self.partition_option())
         result.extend(self.reservation_option())
         result.extend(self.performance_governor_option())
@@ -842,6 +848,13 @@ Warning: <geopm> geopmpy.launcher: Incompatible CPU frequency governor
         """
         return []
 
+    def bootstrap_option(self):
+        """
+        Returns a list containing the command line options specifying the
+        bootstrap option for wiring-up the compute nodes.
+        """
+        return []
+
     def partition_option(self):
         """
         Returns a list containing the command line options specifying the
@@ -906,7 +919,7 @@ class SrunLauncher(Launcher):
     """
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
                  time_limit=None, job_name=None, node_list=None, exclude_list=None, host_file=None,
-                 partition=None, reservation=None, quiet=None, do_affinity=None):
+                 partition=None, reservation=None, quiet=None, do_affinity=None, bootstrap=None):
         """
         Pass through to Launcher constructor.
         """
@@ -1149,7 +1162,7 @@ class OMPIExecLauncher(Launcher):
     """
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
                  time_limit=None, job_name=None, node_list=None, exclude_list=None, host_file=None,
-                 partition=None, reservation=None, quiet=None, do_affinity=None):
+                 partition=None, reservation=None, quiet=None, do_affinity=None, bootstrap=None):
         """
         Pass through to Launcher constructor.
         """
@@ -1340,13 +1353,14 @@ class IMPIExecLauncher(Launcher):
 
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
                  time_limit=None, job_name=None, node_list=None, exclude_list=None, host_file=None,
-                 partition=None, reservation=None, quiet=None, do_affinity=None):
+                 partition=None, reservation=None, quiet=None, do_affinity=None, bootstrap=None):
         """
         Pass through to Launcher constructor.
         """
         super(IMPIExecLauncher, self).__init__(argv, num_rank, num_node, cpu_per_rank, timeout,
                                                time_limit, job_name, node_list, exclude_list, host_file,
-                                               reservation=reservation, quiet=quiet, do_affinity=do_affinity)
+                                               reservation=reservation, quiet=quiet, do_affinity=do_affinity,
+                                               bootstrap=bootstrap)
 
         self.is_slurm_enabled = False
         if os.getenv('SLURM_NNODES'):
@@ -1374,6 +1388,7 @@ class IMPIExecLauncher(Launcher):
         parser.add_argument('-hosts', dest='node_list', type=str)
         parser.add_argument('-f', '--hostfile', dest='host_file', type=str)
         parser.add_argument('-ppn', dest='rank_per_node', type=int)
+        parser.add_argument('-bootstrap', '--bootstrap', dest='bootstrap', type=str)
 
         opts, self.argv_unparsed = parser.parse_known_args(self.argv_unparsed)
         try:
@@ -1391,6 +1406,7 @@ class IMPIExecLauncher(Launcher):
             self.rank_per_node = opts.num_rank
         self.node_list = opts.node_list
         self.host_file = opts.host_file
+        self.bootstrap = opts.bootstrap
         self.cpu_per_rank = None
         self.timeout = None
         self.time_limit = None
@@ -1453,14 +1469,16 @@ class IMPIExecLauncher(Launcher):
                                  'Use "-f <host_file>" or "-hosts" to specify the hostnames of the compute nodes.\n')
                 IMPIExecLauncher._is_once = False
 
-        # If the user specified the bootstrap option, assume they know better than we do
-        if not any(aa.startswith('-bootstrap') for aa in self.argv):
-            if self.is_slurm_enabled:
-                server = 'slurm'
-                if os.getenv('SLURM_CLUSTER_NAME') == 'endeavour':
-                    server = 'ssh'
-                result += ['-bootstrap', server]
+        return result
 
+    def bootstrap_option(self):
+        """
+        Returns a list containing the command line options specifying the
+        bootstrap option for wiring-up the compute nodes.
+        """
+        result = []
+        if self.bootstrap is not None:
+            result += ['-bootstrap', self.bootstrap]
         return result
 
     def exclude_list_option(self):
@@ -1531,7 +1549,7 @@ class PALSLauncher(IMPIExecLauncher):
 class AprunLauncher(Launcher):
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
                  time_limit=None, job_name=None, node_list=None, exclude_list=None, host_file=None,
-                 partition=None, reservation=None, quiet=None, do_affinity=None):
+                 partition=None, reservation=None, quiet=None, do_affinity=None, bootstrap=None):
         """
         Pass through to Launcher constructor.
         """
