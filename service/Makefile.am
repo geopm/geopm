@@ -48,7 +48,7 @@ install-exec-hook: install-python install-plugin-dir
 dist: dist-googletest base_man
 
 install-plugin-dir:
-	$(INSTALL) -d $(DESTDIR)/$(pkglibdir)
+	$(INSTALL) -d $(DESTDIR)/$(libdir)/geopm
 
 dist_doc_DATA = COPYING \
                 COPYING-TPP \
