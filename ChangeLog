@@ -1,3 +1,21 @@
+* Wed Jan 25 2023 Christopher M Cantalupo <christopher.m.cantalupo@intel.com> v2.0.1
+- Hot fix 1 for release 2.0.
+- Includes bug fixes and documentation improvements.
+- Better error reporting from geopmd signal handler.
+- Fix for supporting LevelZero when MPI also initializes LevelZero.
+- Better error reporting when application handshake fails.
+- Use multi-user.target in systemd unit file rather than default.
+- Fix overwrite of access list with --force option (#2712).
+- Fix new CLANG reported issues.
+- Use control access list to generate signal list (#2707).
+- Fix spelling errors in documentation (#2644).
+- Support for recent LevelZero implementations which require user to zero call by reference parameters.
+- Better error reporting with LevelZero topology failures.
+- Update spec file to make LevelZero inclusion parameterized and suggestions from SUSE maintainers.
+- Enable CNLIOGroup by default.
+- Fix potential memory issue with CircularBuffer (not exposed by current implementation).
+- Use more robust method to obtain sticker frequency.
+- Use SKX MSR definitions for newer architectures.
 * Wed Aug 24 2022 Christopher M Cantalupo <christopher.m.cantalupo@intel.com> v2.0.0
 - Official v2.0.0 release tag.
 - Provides the GEOPM Systemd Service.
