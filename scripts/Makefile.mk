@@ -11,6 +11,7 @@ EXTRA_DIST += scripts/MANIFEST.in \
               scripts/geopmlaunch \
               scripts/geopmpy/__init__.py \
               scripts/geopmpy/agent.py \
+              scripts/geopmpy/endpoint.py \
               scripts/geopmpy/io.py \
               scripts/geopmpy/hash.py \
               scripts/geopmpy/launcher.py \
@@ -21,6 +22,7 @@ EXTRA_DIST += scripts/MANIFEST.in \
               scripts/setup.py \
               scripts/test/TestAffinity.py \
               scripts/test/TestAgent.py \
+              scripts/test/TestEndpoint.py \
               scripts/test/TestHash.py \
               scripts/test/TestIO.py \
               scripts/test/test_io_experiment.report \
@@ -67,6 +69,16 @@ PYTEST_TESTS = scripts/test/pytest_links/TestAffinity.test_affinity_0 \
                scripts/test/pytest_links/TestAgent.test_json \
                scripts/test/pytest_links/TestAgent.test_policy_names \
                scripts/test/pytest_links/TestAgent.test_sample_names \
+               scripts/test/pytest_links/TestEndpoint.test_endpoint_creation_destruction \
+               scripts/test/pytest_links/TestEndpoint.test_endpoint_entry_exit \
+               scripts/test/pytest_links/TestEndpoint.test_endpoint_agent_name \
+               scripts/test/pytest_links/TestEndpoint.test_wait_for_agent_attach \
+               scripts/test/pytest_links/TestEndpoint.test_stop_wait_loop \
+               scripts/test/pytest_links/TestEndpoint.test_reset_wait_loop \
+               scripts/test/pytest_links/TestEndpoint.test_endpoint_profile_name \
+               scripts/test/pytest_links/TestEndpoint.test_endpoint_nodes \
+               scripts/test/pytest_links/TestEndpoint.test_write_policy \
+               scripts/test/pytest_links/TestEndpoint.test_read_sample \
                scripts/test/pytest_links/TestHash.test_hash \
                scripts/test/pytest_links/TestIO.test_requested_online_frequency \
                scripts/test/pytest_links/TestIO.test_report_cache \
