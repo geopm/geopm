@@ -3,14 +3,14 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
-"""The geopm python package: launcher, error, io, pio, plotter, policy_store,
-topo, agent, and version.
+"""The geopm python package: launcher, error, endpoint, io, pio, plotter,
+policy_store, topo, agent, and version.
 
 """
 
 import os
 
-__all__ = ['agent', 'error', 'hash', 'io', 'launcher',
+__all__ = ['agent', 'error', 'endpoint', 'hash', 'io', 'launcher',
            'pio', 'plotter', 'policy_store', 'topo',
            'version']
 
