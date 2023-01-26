@@ -110,14 +110,11 @@ CFLAGS= CXXFLAGS= CC=gcc CXX=g++ build "${GEOPM_SERVICE_CONFIG_OPTIONS}"
 
 # Run the base build
 cd ${GEOPM_SOURCE}
-if [ -z ${GEOPM_SKIP_INSTALL+x} ]; then
-    build "${GEOPM_BASE_CONFIG_OPTIONS}"
+
+if [ ! -z ${GEOPM_OBJDIR+x} ]; then
+    build "--with-geopmd-lib=${GEOPM_SOURCE}/service/${GEOPM_OBJDIR}/.libs \
+           --with-geopmd-include=${GEOPM_SOURCE}/service/src \
+           ${GEOPM_BASE_CONFIG_OPTIONS}"
 else
-    if [ ! -z ${GEOPM_OBJDIR+x} ]; then
-        build "--with-geopmd-lib=${GEOPM_SOURCE}/service/${GEOPM_OBJDIR}/.libs \
-               --with-geopmd-include=${GEOPM_SOURCE}/service/src \
-               ${GEOPM_BASE_CONFIG_OPTIONS}"
-    else
-        build "${GEOPM_BASE_CONFIG_OPTIONS}"
-    fi
+    build "${GEOPM_BASE_CONFIG_OPTIONS}"
 fi
