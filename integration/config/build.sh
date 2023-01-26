@@ -24,12 +24,14 @@ usage(){
     echo "    GEOPM_OBJDIR: Build time objects go here (e.g. Makefile, processed .in files)."
     echo "    GEOPM_NUM_THREADS : The number of threads to use when running make (default: 9)."
     echo "    GEOPM_RUN_TESTS : Set to enable running of unit tests."
-    echo "    GEOPM_SKIP_INSTALL : Set to skip \"make install\"."
+    echo "    GEOPM_SKIP_SERVICE_INSTALL : Set to skip \"make install\" of the service."
+    echo "    GEOPM_SKIP_BASE_INSTALL : Set to skip \"make install\" of the base directory (HPC runtime)."
     echo
     echo "Examples (proceeded by \"git clean -ffdx\" to ensure the build tree is clean):"
     echo "    GEOPM_GLOBAL_CONFIG_OPTIONS=\"--enable-debug --enable-coverage\" GEOPM_RUN_TESTS=yes ./build.sh"
     echo "    GEOPM_BASE_CONFIG_OPTIONS=\"--enable-beta\" ./build.sh"
-    echo "    GEOPM_SERVICE_CONFIG_OPTIONS=\"--enable-levelzero --enable-systemd\" ./build.sh"
+    echo "    GEOPM_SERVICE_CONFIG_OPTIONS=\"--enable-levelzero\" ./build.sh"
+    echo "    GEOPM_SKIP_SERVICE_INSTALL=yes GEOPM_SERVICE_CONFIG_OPTIONS=\"--disable-systemd --disable-docs\" integration/config/build.sh"
 }
 
 if [[ ${1} == '--help' ]]; then
@@ -49,20 +51,37 @@ source ${BUILD_ENV}
 # Check that GEOPM_INSTALL is defined unless we are skipping install
 # This check is redundant with the check that is in build_env.sh
 # that enforces GEOPM_INSTALL to be set.
-if [ -z "${GEOPM_INSTALL}" ] && [ -z "${GEOPM_SKIP_INSTALL+x}" ]; then
-    echo "Please define GEOPM_INSTALL or GEOPM_SKIP_INSTALL prior to using this script" 1>&2
+# We must check 2 conditions:
+#   1. If GEOPM_INSTALL is not set, both of the skip install options must be used.
+#   2. If *one* of the skip install options is set, GEOPM_INSTALL must be set.
+if [ -z "${GEOPM_INSTALL}" ] && \
+   [ -z "${GEOPM_SKIP_BASE_INSTALL+x}" ] && \
+   [ -z "${GEOPM_SKIP_SERVICE_INSTALL+x}" ]; then
+    echo "Please define GEOPM_INSTALL or GEOPM_SKIP_BASE_INSTALL *and* GEOPM_SKIP_SERVICE_INSTALL prior to using this script" 1>&2
+    exit 1
+fi
+
+if [ ! -z "${GEOPM_SKIP_SERVICE_INSTALL+x}" ] || \
+   [ ! -z "${GEOPM_SKIP_BASE_INSTALL+x}" ] && \
+   [ -z "${GEOPM_INSTALL}" ]; then
+    echo "Please define GEOPM_INSTALL prior to using this script unless you meant to specify GEOPM_SKIP_SERVICE_INSTALL *and* GEOPM_SKIP_BASE_INSTALL" 1>&2
     exit 1
 fi
 
 # Clear out old builds unless we are skipping install
-if [ -d "${GEOPM_INSTALL}" ] && [ -z "${GEOPM_SKIP_INSTALL+x}" ]; then
+if [ -z "${GEOPM_SKIP_SERVICE_INSTALL+x}" ] || \
+   [ -z "${GEOPM_SKIP_BASE_INSTALL+x}" ] && \
+   [ -d "${GEOPM_INSTALL}" ]; then
     echo "Removing old build located at ${GEOPM_INSTALL}"
     rm -rf ${GEOPM_INSTALL}
 fi
 
-# Append prefix to global config options unless skipping install
-if [ -z "${GEOPM_SKIP_INSTALL+x}" ]; then
-    GEOPM_GLOBAL_CONFIG_OPTIONS="${GEOPM_GLOBAL_CONFIG_OPTIONS} --prefix=${GEOPM_INSTALL}"
+# Append prefix to config options unless skipping install
+if [ -z "${GEOPM_SKIP_SERVICE_INSTALL+x}" ]; then
+    GEOPM_SERVICE_CONFIG_OPTIONS="${GEOPM_SERVICE_CONFIG_OPTIONS} --prefix=${GEOPM_INSTALL}"
+fi
+if [ -z "${GEOPM_SKIP_BASE_INSTALL+x}" ]; then
+    GEOPM_BASE_CONFIG_OPTIONS="${GEOPM_BASE_CONFIG_OPTIONS} --prefix=${GEOPM_INSTALL}"
 fi
 
 # Combine global options with build specific options
@@ -72,7 +91,9 @@ GEOPM_SERVICE_CONFIG_OPTIONS="${GEOPM_SERVICE_CONFIG_OPTIONS} ${GEOPM_GLOBAL_CON
 GEOPM_NUM_THREAD=${GEOPM_NUM_THREAD:-9}
 
 build(){
-    BUILDROOT=${PWD}
+    local BUILDROOT=${PWD}
+    local CONFIG_OPTS=${1}
+    local GEOPM_SKIP_INSTALL=${2}
     if [ ! -f "configure" ]; then
         ./autogen.sh
     fi
@@ -84,9 +105,9 @@ build(){
 
     if [ ! -f "Makefile" ]; then
         if [ ! -z ${GEOPM_OBJDIR+x} ]; then
-            ${BUILDROOT}/configure ${1}
+            ${BUILDROOT}/configure ${CONFIG_OPTS}
         else
-            ./configure ${1}
+            ./configure ${CONFIG_OPTS}
         fi
     fi
     make -j${GEOPM_NUM_THREAD}
@@ -98,7 +119,7 @@ build(){
     fi
 
     # By default, make install is called
-    if [ -z ${GEOPM_SKIP_INSTALL+x} ]; then
+    if [ -z ${GEOPM_SKIP_INSTALL} ]; then
         make install
     fi
 }
@@ -106,7 +127,7 @@ build(){
 
 # Run the service build
 cd service
-CFLAGS= CXXFLAGS= CC=gcc CXX=g++ build "${GEOPM_SERVICE_CONFIG_OPTIONS}"
+CFLAGS= CXXFLAGS= CC=gcc CXX=g++ build "${GEOPM_SERVICE_CONFIG_OPTIONS}" ${GEOPM_SKIP_SERVICE_INSTALL}
 
 # Run the base build
 cd ${GEOPM_SOURCE}
@@ -114,7 +135,7 @@ cd ${GEOPM_SOURCE}
 if [ ! -z ${GEOPM_OBJDIR+x} ]; then
     build "--with-geopmd-lib=${GEOPM_SOURCE}/service/${GEOPM_OBJDIR}/.libs \
            --with-geopmd-include=${GEOPM_SOURCE}/service/src \
-           ${GEOPM_BASE_CONFIG_OPTIONS}"
+           ${GEOPM_BASE_CONFIG_OPTIONS}" ${GEOPM_SKIP_BASE_INSTALL}
 else
-    build "${GEOPM_BASE_CONFIG_OPTIONS}"
+    build "${GEOPM_BASE_CONFIG_OPTIONS}" ${GEOPM_SKIP_BASE_INSTALL}
 fi
