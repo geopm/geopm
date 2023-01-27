@@ -65,7 +65,7 @@ void ApplicationSamplerTest::SetUp()
     m_process_map[0].record_log = m_record_log_0;
     m_process_map[234].filter = m_filter_1;
     m_process_map[234].record_log = m_record_log_1;
-    std::vector<bool> is_active(2, true);
+    std::vector<bool> is_active {true, true, false, false};
     m_mock_topo = geopm::make_unique<MockPlatformTopo>();
     EXPECT_CALL(*m_mock_topo, num_domain(GEOPM_DOMAIN_CPU))
         .WillOnce(Return(m_num_cpu));
