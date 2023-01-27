@@ -98,13 +98,13 @@ build(){
         ./autogen.sh
     fi
 
-    if [ ! -z ${GEOPM_OBJDIR+x} ]; then
+    if [ ! -z ${GEOPM_OBJDIR} ]; then
         mkdir -p ${GEOPM_OBJDIR} # Objects created at configure time will go here
         cd ${GEOPM_OBJDIR}
     fi
 
     if [ ! -f "Makefile" ]; then
-        if [ ! -z ${GEOPM_OBJDIR+x} ]; then
+        if [ ! -z ${GEOPM_OBJDIR} ]; then
             ${BUILDROOT}/configure ${CONFIG_OPTS}
         else
             ./configure ${CONFIG_OPTS}
@@ -113,7 +113,7 @@ build(){
     make -j${GEOPM_NUM_THREAD}
 
     # By default, the tests are skipped
-    if [ ! -z ${GEOPM_RUN_TESTS+x} ]; then
+    if [ ! -z ${GEOPM_RUN_TESTS} ]; then
         make -j${GEOPM_NUM_THREAD} checkprogs
         make check
     fi
@@ -132,7 +132,7 @@ CFLAGS= CXXFLAGS= CC=gcc CXX=g++ build "${GEOPM_SERVICE_CONFIG_OPTIONS}" ${GEOPM
 # Run the base build
 cd ${GEOPM_SOURCE}
 
-if [ ! -z ${GEOPM_OBJDIR+x} ]; then
+if [ ! -z ${GEOPM_OBJDIR} ]; then
     build "--with-geopmd-lib=${GEOPM_SOURCE}/service/${GEOPM_OBJDIR}/.libs \
            --with-geopmd-include=${GEOPM_SOURCE}/service/src \
            ${GEOPM_BASE_CONFIG_OPTIONS}" ${GEOPM_SKIP_BASE_INSTALL}
