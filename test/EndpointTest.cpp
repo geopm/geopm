@@ -105,12 +105,22 @@ TEST_F(EndpointTest, parse_shm_sample)
     geopm_time(&now);
     data->timestamp = now;
 
+    // From C++ interface
     std::vector<double> result(num_sample);
     double age = gp.read_sample(result);
     std::vector<double> expected {tmp, tmp + num_sample};
     EXPECT_EQ(expected, result);
     EXPECT_LT(0.0, age);
     EXPECT_LT(age, 0.01);
+
+    // From C interface
+    std::vector<double> result_c(result.size());
+    age = 0;
+    geopm_endpoint_read_sample(reinterpret_cast<geopm_endpoint_c*>(&gp), result_c.size(), &result_c[0], &age);
+    EXPECT_EQ(expected, result_c);
+    EXPECT_LT(0.0, age);
+    EXPECT_LT(age, 0.01);
+
     gp.close();
 }
 

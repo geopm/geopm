@@ -435,6 +435,7 @@ int geopm_endpoint_read_sample(struct geopm_endpoint_c *endpoint,
     try {
         std::vector<double> sample(agent_num_sample);
         *sample_age_sec = end->read_sample(sample);
+        std::copy_n(sample.begin(), agent_num_sample, sample_array);
     }
     catch (...) {
         err = geopm::exception_handler(std::current_exception(), true);
