@@ -256,31 +256,112 @@ process's PlatformIO instance.  When the write has completed, a
 character is written into the FIFO that the client process is waiting
 on.
 
-Kubernetes Support [WIP]
-------------------------
+
+Kubernetes Support
+------------------
 
 Experimental support for Kubernetes is provided.  The current status
-of this work is a proof of concept, and should in no way be considered
-production ready.
+of this work is a proof-of-concept, and should in no way be considered
+production ready.  The ``k8-manifest`` file is a simple demonstration
+that uses GEOPM in a Kubernetes environment.
 
-Demo
-----
 
-The following demonstration will create a Kubernetes pod with two
-containers.  The first container is privileged and is running the
-GEOPM service with communication over gRPC.  Before starting the
-service, the default signal allow list is populated with *all*
-available signals.  There are no controls enabled by the service.  The
-second container uses the service to read all available signals with
-the ``geopmread`` command line utility.  These signals are aggregated
-across all CPUs on the system and the result is printed to the client
-log.  Some of these reads attempts may fail when a signal is not
-supported by the architecture.  Any read requests that succeed are
-added to a batch request queue.  This queue of requests is then read
-once per second and printed to the log 100 times by the
-``geopmsession`` command line tool.
+Kubernetes Demo
+~~~~~~~~~~~~~~~
 
-.. code-block::
+The Kubernetes manifest creates a pod with two containers.  The first
+container is privileged and is running the GEOPM service with
+communication over gRPC.  The server container host mounts
+``/dev/cpu``, which provides access to the ``/dev/cpu/*/msr`` device
+drivers.  Also note that both containers share their PID namespace.
+This is required to enable the GEOPM Service to track process lifetime
+and group membership.  The client container is started without
+privilege, and mounts the ``/run/geopm-service`` directory which is
+shared with the server container.  This enables faster interprocess
+communication with the service than is available via gRPC.
+
+
+Server Script
+~~~~~~~~~~~~~
+
+A human readable version of the server "command" is below:
+
+.. code-block:: bash
+
+   # Fix permissions on shared emptyDir{}
+   chmod 711 /run/geopm-service
+   # Update client default read access list to permit all signals
+   geopmread >> /etc/geopm-service/0.DEFAULT_ACCESS/allowed_signals
+   # Create a "client" group corresponding to the runAsGroup option
+   groupadd -g 10001 client
+   # Create a "client" user corresponding to the runAsUser option
+   useradd -g 10001 -u 10001 client
+   # Start the GEOPM daemon with gRPC communication
+   geopmd --grpc
+
+
+Before starting the service, the default signal allow list is
+populated with *all* available signals.  There are no controls enabled
+by the service.  A user and group name are created to support the
+UDS credentials of the client container.  Finally the ``geopmd`` command
+is run with the ``--grpc`` option.
+
+
+Client Script
+~~~~~~~~~~~~~
+
+A human readable version of the client "command" is below:
+
+.. code-block:: bash
+
+   # Wait for server to come up (should use initContainer in k8)
+   sleep 5
+   # Iterate through all available signals and remove duplicates in
+   # SERVICE:: namepace
+   for ss in $(geopmread | grep -v SERVICE::); do
+       # Print the signal name
+       printf %s= $ss
+       # Try to read and print the signal aggregated over all CPUs
+       # ("board" denotes the mother-board domain)
+       if geopmread $ss board 0 2>/dev/null; then
+           # If the read was successful, add request to list
+           echo $ss board 0 >> /tmp/geopmsession-requests.txt
+       else
+           # If signal cannot be read
+           echo "UNAVAILABLE"
+       fi
+   done
+   # Create a header for the CSV output (ignore dangling ',' when parsing)
+   for rr in $(cat /tmp/geopmsession-requests.txt | cut -d" " -f 1); do
+       printf %s, $rr
+   done
+   echo
+   # Start a batch server requesting all available signals be read
+   # once per second for 100 seconds. This will create a CSV output
+   # with all signals read 100 times
+   geopmsession -t100 -p1 < /tmp/geopmsession-requests.txt
+   # Clean up temporary file
+   rm /tmp/geopmsession-requests.txt
+   # Enable users to launch a shell on the container for 1 hour
+   sleep 3600
+
+
+
+The second container uses the service to read all available signals
+with the ``geopmread`` command line utility.  These signals are
+aggregated across all CPUs on the system and the result is printed to
+the client log.  Some of these reads attempts may fail when a signal
+is not supported by the architecture, UNAVAILABLE is printed instead
+of the value.  Any read requests that succeed are added to a batch
+request queue.  This queue of requests is then read once per second
+and printed to the log 100 times by the ``geopmsession`` command line
+tool.
+
+
+Running the Demo
+~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
 
    kubectl create -f k8-manifest.yaml
    kubectl logs pods/geopm-service-pod  -c geopm-client -f
