@@ -32,9 +32,6 @@ namespace geopm
             ///        application network functions.
             /// @return Set of network function region hashes.
             static std::set<uint64_t> region_hash_network(void);
-            /// @brief Returns the default shared memory key, which consists
-            ///        of the prefix "/geopm-shm-" concatenated with the euid.
-            static std::string default_shmkey(void);
             /// @brief Set the reference time that will be used for
             ///        all future record time reporting.
             /// @param [in] start_time The reference zero time.
@@ -134,16 +131,9 @@ namespace geopm
             ///
             /// Called by the Controller to set up all channels of
             /// communication with the application using the provided
-            /// string as a key.  This string corresponds to the
-            /// default shared memory key specified by the system,
-            /// used by the application that is connected.
-            /// The default shared memory key consists of the prefix
-            /// "/geopm-shm-" concatenated with the euid.
+            /// string as a key.
             ///
-            /// @param [in] shm_key String known to the
-            ///        application that will be used to identify a
-            ///        channel of communication.
-            virtual void connect(const std::string &shm_key) = 0;
+            virtual void connect(void) = 0;
 
             // Deprecated API's below for access to legacy objects
             virtual void set_sampler(std::shared_ptr<ProfileSampler> sampler) = 0;

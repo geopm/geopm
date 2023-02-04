@@ -28,6 +28,7 @@
 #include "geopm_debug.hpp"
 #include "geopm_hash.h"
 #include "geopm_hint.h"
+#include "geopm_shmem.h"
 
 namespace geopm
 {
@@ -41,11 +42,6 @@ namespace geopm
     {
         static std::set <uint64_t> result = region_hash_network_once();
         return result;
-    }
-
-    std::string ApplicationSampler::default_shmkey(void)
-    {
-        return "/geopm-shm-" + std::to_string(geteuid());
     }
 
     std::set<uint64_t> ApplicationSampler::region_hash_network_once(void)
@@ -303,18 +299,24 @@ namespace geopm
 #endif
     }
 
-    void ApplicationSamplerImp::connect(const std::string &shm_key)
+    void ApplicationSamplerImp::connect(void)
     {
         if (!m_status && m_do_profile) {
-            std::string shmem_name = shm_key + "-status";
-            m_status_shmem = SharedMemory::make_unique_owner(shmem_name,
-                                                             ApplicationStatus::buffer_size(m_num_cpu));
+            std::string shmem_path = shmem_path_prof("status", getpid(), geteuid());
+            m_status_shmem = SharedMemory::make_unique_user(shmem_path, 0);
+            if (m_status_shmem->size() < ApplicationStatus::buffer_size(m_num_cpu)) {
+                throw Exception("ApplicationSamplerImp::connect(): Status shared memory buffer is incorrectly sized",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
             m_status = ApplicationStatus::make_unique(m_num_cpu, m_status_shmem);
             GEOPM_DEBUG_ASSERT(m_process_map.empty(),
                                "m_process_map is not empty, but we are connecting");
             // Convert per-cpu process to a set of the unique process id's
             int cpu_idx = 0;
             std::set<int> proc_set;
+            // TODO: Call into service to get list of profiled PID
+            //       Now that we know the actual PID we can just get
+            //       the affinity mask directly for each CPU
             for (const auto &proc_it : per_cpu_process()) {
                 if (proc_it != -1) {
                     proc_set.insert(proc_it);
@@ -325,10 +327,13 @@ namespace geopm
             // For each unique process id create a record log and
             // insert it into map indexed by process id
             for (const auto &proc_it : proc_set) {
-                std::string shmem_name = shm_key + "-record-log-" + std::to_string(proc_it);
+                std::string shmem_path = shmem_path_prof("record-log", getpid(), geteuid());
                 std::shared_ptr<SharedMemory> record_log_shmem =
-                    SharedMemory::make_unique_owner(shmem_name,
-                                                    ApplicationRecordLog::buffer_size());
+                    SharedMemory::make_unique_user(shmem_path, 0);
+                if (recorc_log_shmem->size() < ApplicationRecordLog::buffer_size()) {
+                    throw Exception("ApplicationSamplerImp::connect(): Record log shared memory buffer is incorrectly sized",
+                                    GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                }
                 auto emplace_ret = m_process_map.emplace(proc_it, m_process_s {});
                 auto &process = emplace_ret.first->second;
                 if (m_is_filtered) {
