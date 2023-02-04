@@ -88,14 +88,14 @@ namespace geopm
         // service enabling save/restore by geopmd.  If the geopm
         // service is not active then loading the ServiceIOGroup will
         // fail.
+        register_plugin(MSRIOGroup::plugin_name(),
+                        MSRIOGroup::make_plugin);
 #ifdef GEOPM_ENABLE_SYSTEMD
         if (getuid() != 0) {
             register_plugin(ServiceIOGroup::plugin_name(),
                             ServiceIOGroup::make_plugin);
         }
 #endif
-        register_plugin(MSRIOGroup::plugin_name(),
-                        MSRIOGroup::make_plugin);
         register_plugin(TimeIOGroup::plugin_name(),
                         TimeIOGroup::make_plugin);
         register_plugin(CpuinfoIOGroup::plugin_name(),
