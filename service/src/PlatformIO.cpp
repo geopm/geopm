@@ -1417,7 +1417,6 @@ extern "C" {
             err = err < 0 ? err : GEOPM_ERROR_RUNTIME;
         }
         return err;
-
     }
 
     void geopm_pio_reset(void)
