@@ -19,6 +19,7 @@
 
 #include "geopm_time.h"
 #include "geopm_sched.h"
+#include "geopm_shmem.h"
 #include "Environment.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm/PlatformTopo.hpp"
@@ -45,15 +46,13 @@ namespace geopm
         , m_rank_per_node(0)
     {
         const Environment &env = environment();
-        const std::string key_base = ApplicationSampler::default_shmkey();
-        std::string sample_key = key_base + "-sample";
-        std::string sample_key_path("/dev/shm/" + sample_key);
-        // Remove shared memory file if one already exists.
-        (void)unlink(sample_key_path.c_str());
-        m_ctl_shmem = SharedMemory::make_unique_owner(sample_key, sizeof(struct geopm_ctl_message_s));
+        std::string sample_path = shmem_path_prof("sample", getpid(), geteuid());
+        m_ctl_shmem = SharedMemory::make_unique_user(sample_path, 0);
+        if (m_ctl_shmem->size() < sizeof(struct geopm_ctl_message_s)) {
+            throw Exception("ProfileSamplerImp: Control message shared memory is incorrectly sized",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
         m_ctl_msg = geopm::make_unique<ControlMessageImp>(*(struct geopm_ctl_message_s *)m_ctl_shmem->pointer(), true, true, env.timeout());
-
-        errno = 0; // Ignore errors from the unlink calls.
     }
 
     ProfileSamplerImp::~ProfileSamplerImp()
@@ -197,11 +196,12 @@ namespace geopm
         , m_table(nullptr)
         , m_is_name_finished(false)
     {
-        std::string key_path("/dev/shm/" + shm_key);
-        (void)unlink(key_path.c_str());
-        errno = 0; // Ignore errors from the unlink call.
-        m_table_shmem = SharedMemory::make_unique_owner(shm_key, table_size);
-        m_table = geopm::make_unique<ProfileTableImp>(m_table_shmem->size(), m_table_shmem->pointer());
+        m_table_shmem = SharedMemory::make_unique_user(shm_key, 0);
+        if (m_table_shmem->size() < table_size) {
+            throw Exception("ProfileRankSamplerImp: Profile table shared memory is incorrectly sized",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        m_table = geopm::make_unique<ProfileTableImp>(table_size, m_table_shmem->pointer());
     }
 
     ProfileRankSamplerImp::~ProfileRankSamplerImp()

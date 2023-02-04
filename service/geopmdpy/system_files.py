@@ -32,6 +32,7 @@ import fcntl
 
 from . import pio
 from . import schemas
+from . import shmem
 
 GEOPM_SERVICE_RUN_PATH = '/run/geopm-service'
 GEOPM_SERVICE_CONFIG_PATH = '/etc/geopm-service'
@@ -734,13 +735,24 @@ class ActiveSessions(object):
             sys.stderr.write(f'Warning: {write_fifo_path} file was left over, deleting it now.\n')
             os.unlink(write_fifo_path)
 
+    def _pid_info(self, pid):
+        proc = psutil.Process(pid)
+        uid = proc.uids().effective
+        gid = proc.gids().effective
+        return (uid, gid)
+
     def start_profile(self, client_pid, profile_name):
         self.check_client_active(client_pid, 'start_profile')
+        uid, gid = self._pid_info(client_pid)
+        if len(self._profiles) == 0:
+            shmem.create_prof('status', client_pid, uid, gid)
         if profile_name in self._profiles:
             self._profiles[profile_name].add(client_pid)
         else:
             self._profiles[profile_name] = {client_pid}
         self._sessions[client_pid]['profile_name'] = profile_name
+        shmem.create_prof('record-log', client_pid, uid, gid)
+        shmem.create_prof('sample', client_pid, uid, gid)
         self._update_session_file(client_pid)
 
     def stop_profile(self, client_pid):
@@ -750,8 +762,14 @@ class ActiveSessions(object):
         except KeyError:
             raise RuntimeError(f'Client PID {client_pid} requested to stop profiling, but it had not been started.')
         self._profiles[profile_name].remove(client_pid)
+        uid, gid = self._pid_info(client_pid)
+        os.unlink(shmem.path_prof('sample', client_pid, uid))
+        os.unlink(shmem.path_prof('record-log', client_pid, uid))
         if len(self._profiles[profile_name]) == 0:
             self._profiles.pop(profile_name)
+        if len(self._profiles) == 0:
+            uid, gid = self._pid_info(client_pid)
+            os.unlink(shmem.path_prof('status', client_pid, uid)
         self._update_session_file(client_pid)
 
     def get_profile_pids(self, profile_name):

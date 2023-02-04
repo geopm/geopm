@@ -23,6 +23,7 @@ include_HEADERS = src/geopm_debug.hpp \
                   src/geopm_pio.h \
                   src/geopm_plugin.hpp \
                   src/geopm_sched.h \
+                  src/geopm_shmem.h \
                   src/geopm_time.h \
                   src/geopm_topo.h \
                   src/geopm_version.h \
@@ -80,6 +81,7 @@ EXTRA_DIST = .gitignore \
              geopmdpy/runtime.py \
              geopmdpy/service.py \
              geopmdpy/session.py \
+             geopmdpy/shmem.py \
              geopmdpy/topo.py \
              geopmdpy/schemas.py \
              geopmdpy/schemas.py.in \
@@ -239,6 +241,8 @@ libgeopmd_la_SOURCES = $(include_HEADERS) \
                        src/geopm_hash.c \
                        src/geopm_plugin.cpp \
                        src/geopm_sched.c \
+                       src/geopm_shmem.cpp \
+                       src/geopm_shmem.h \
                        src/geopm_version.c \
                        $(msr_cpp_files) \
                        # end
