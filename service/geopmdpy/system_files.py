@@ -730,12 +730,6 @@ class ActiveSessions(object):
             sys.stderr.write(f'Warning: {write_fifo_path} file was left over, deleting it now.\n')
             os.unlink(write_fifo_path)
 
-    def _pid_info(self, pid):
-        proc = psutil.Process(pid)
-        uid = proc.uids().effective
-        gid = proc.gids().effective
-        return (uid, gid)
-
     def start_profile(self, client_pid, profile_name):
         self.check_client_active(client_pid, 'start_profile')
         uid, gid = self._pid_info(client_pid)
@@ -821,6 +815,12 @@ class ActiveSessions(object):
             # PID is no longer active
             result = False
         return result
+
+    def _pid_info(self, pid):
+        proc = psutil.Process(pid)
+        uid = proc.uids().effective
+        gid = proc.gids().effective
+        return (uid, gid)
 
     def _load_session_file(self, sess_path):
         """Load the session file into memory
