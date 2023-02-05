@@ -109,8 +109,13 @@ static void geopm_proc_cpuset_once(void)
     }
     else {
         g_proc_cpuset_size = CPU_ALLOC_SIZE(num_cpu);
-        (void)geopm_proc_cpuset(getpid(), num_cpu, g_proc_cpuset);
+        (void)geopm_proc_cpuset(num_cpu, g_proc_cpuset);
     }
+}
+
+int geopm_sched_proc_cpuset(int num_cpu, cpu_set_t *cpuset)
+{
+    return geopm_sched_proc_cpuset_pid(getpid(), num_cpu, cpuset);
 }
 
 int geopm_sched_proc_cpuset_pid(int pid, int num_cpu, cpu_set_t *cpuset)
