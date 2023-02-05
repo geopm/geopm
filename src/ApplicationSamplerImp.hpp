@@ -28,6 +28,7 @@ namespace geopm
                 std::shared_ptr<ApplicationRecordLog> record_log;
                 std::vector<record_s> records;
                 std::vector<short_region_s> short_regions;
+                std::vector<int> cpus;
             };
             ApplicationSamplerImp();
             ApplicationSamplerImp(std::shared_ptr<ApplicationStatus> status,
@@ -71,6 +72,7 @@ namespace geopm
             bool m_is_first_update;
             std::vector<uint64_t> m_hint_last;
             bool m_do_profile;
+            std::vector<int> m_per_cpu_process;
     };
 }
 

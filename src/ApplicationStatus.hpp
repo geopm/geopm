@@ -61,23 +61,7 @@ namespace geopm
             /// @return Fraction of the total work completed by this
             ///         CPU.
             virtual double get_progress_cpu(int cpu_idx) const = 0;
-            /// @brief Assign a set of CPUs to a unique ID for a
-            ///        process being coordinated within a job by the
-            ///        GEOPM controller.  This may be: a COMM_WORLD or
-            ///        node-local MPI rank; a Linux parent process ID
-            ///        for an application; or some other concept of a
-            ///        process with its own memory.  This ID should be
-            ///        self-consistent and unique within a job.  There
-            ///        will be one Profile object per process on the
-            ///        application side, and one ApplicationRecordLog
-            ///        per process on each side of the shared memory.
-            /// @param [in] cpu_idx Set of Linux logical CPUs for the process
-            virtual void set_process(const std::set<int> &cpu_idx, int process) = 0;
-            /// @brief Get the process ID for the process the CPU is
-            ///        currently assigned to.
-            /// @param [in] cpu_idx Index of the Linux logical CPU
-            /// @return ID of the process running on the given CPU.
-            virtual int get_process(int cpu_idx) const = 0;
+            virtual void set_valid_cpu(const std::set<int> &cpu_idx) = 0;
             /// @brief Updates the local memory with the latest values from
             ///        the shared memory.  Any calls to get methods will use
             ///        these values until the cache is updated again.
@@ -118,8 +102,7 @@ namespace geopm
             void set_total_work_units(int cpu_idx, int work_units) override;
             void increment_work_unit(int cpu_idx) override;
             double get_progress_cpu(int cpu_idx) const override;
-            void set_process(const std::set<int> &cpu_idx, int process) override;
-            int get_process(int cpu_idx) const override;
+            void set_valid_cpu(const std::set<int> &cpu_idx) override;
             void update_cache(void) override;
         private:
             // These fields must all be 32-bit int
