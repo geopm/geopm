@@ -199,7 +199,9 @@ static int geopm_pmpi_init(const char *exec_name)
                     err = pthread_attr_destroy(&thread_attr);
                 }
             }
-            CPU_FREE(cpu_set);
+            if (cpu_set) {
+               CPU_FREE(cpu_set);
+            }
         }
         if (!err) {
             err = geopm_env_do_profile(&do_profile);

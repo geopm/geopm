@@ -311,39 +311,70 @@ namespace geopm
             m_status = ApplicationStatus::make_unique(m_num_cpu, m_status_shmem);
             GEOPM_DEBUG_ASSERT(m_process_map.empty(),
                                "m_process_map is not empty, but we are connecting");
-            // Convert per-cpu process to a set of the unique process id's
-            int cpu_idx = 0;
-            std::set<int> proc_set;
-            // TODO: Call into service to get list of profiled PID
-            //       Now that we know the actual PID we can just get
-            //       the affinity mask directly for each CPU
-            for (const auto &proc_it : per_cpu_process()) {
-                if (proc_it != -1) {
-                    proc_set.insert(proc_it);
-                    m_is_cpu_active.at(cpu_idx) = true;
-                }
-                ++cpu_idx;
+            // Get list of PIDs that are connected
+            auto service_proxy = ServiceProxy::make_unique();
+            // TODO: Wait until that all PIDs have connected
+            sleep(1);
+            std::vector<int> client_pids = service_proxy->platform_get_profile_pids(m_profile_name);
+            int num_cpu = geopm_sched_num_cpu();
+            cpu_set_t *cpuset = CPU_ALLOC(num_cpu);
+            cpu_set_t *all_cpuset = CPU_ALLOC(num_cpu);
+            if (cpuset == nullptr || all_cpuset == nullptr) {
+                throw Exception("ApplicationSamplerImp::connect(): Failed to allocate cpuset: ",
+                                ENOMEM, __FILE__, __LINE__);
             }
-            // For each unique process id create a record log and
-            // insert it into map indexed by process id
-            for (const auto &proc_it : proc_set) {
-                std::string shmem_path = shmem_path_prof("record-log", getpid(), geteuid());
-                std::shared_ptr<SharedMemory> record_log_shmem =
-                    SharedMemory::make_unique_user(shmem_path, 0);
-                if (recorc_log_shmem->size() < ApplicationRecordLog::buffer_size()) {
-                    throw Exception("ApplicationSamplerImp::connect(): Record log shared memory buffer is incorrectly sized",
-                                    GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            try {
+                CPU_ZERO(all_cpuset);
+                for (const auto &pid : client_pids) {
+                    std::string shmem_path = shmem_path_prof("record-log", pid, geteuid());
+                    std::shared_ptr<SharedMemory> record_log_shmem =
+                        SharedMemory::make_unique_user(shmem_path, 0);
+                    if (recorc_log_shmem->size() < ApplicationRecordLog::buffer_size()) {
+                        throw Exception("ApplicationSamplerImp::connect(): "
+                                        "Record log shared memory buffer is incorrectly sized",
+                                        GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                    }
+                    auto emplace_ret = m_process_map.emplace(proc_it, m_process_s {});
+                    auto &process = emplace_ret.first->second;
+                    if (m_is_filtered) {
+                        process.filter = RecordFilter::make_unique(m_filter_name);
+                    }
+                    process.record_log_shmem = record_log_shmem;
+                    process.record_log = ApplicationRecordLog::make_unique(record_log_shmem);
+                    process.records.reserve(ApplicationRecordLog::max_record());
+                    process.short_regions.reserve(ApplicationRecordLog::max_region());
+                    int err = geopm_sched_proc_cpuset_pid(pid, num_cpu, cpuset);
+                    if (err) {
+                        throw Exception("Failed to get cpuset for pid: " + std::to_string(pid),
+                                        err, __FILE__, __LINE__);
+                    }
+                    CPU_OR(all_cpuset, all_cpuset, cpuset);
+                    for (int cpu_idx = 0; cpu_idx < num_cpu; ++cpu_idx) {
+                        if (CPU_ISSET(cpu_idx, cpuset)) {
+                            process.cpus.push_back(cpu_idx);
+                        }
+                    }
                 }
-                auto emplace_ret = m_process_map.emplace(proc_it, m_process_s {});
-                auto &process = emplace_ret.first->second;
-                if (m_is_filtered) {
-                    process.filter = RecordFilter::make_unique(m_filter_name);
+                std::set<int> inactive_cpu;
+                for (int cpu_idx = 0; cpu_idx < num_cpu; ++cpu_idx) {
+                    if (!CPU_ISSET(cpu_idx, all_cpuset)) {
+                        inactive_cpu.insert(cpu_idx);
+                    }
                 }
-                process.record_log_shmem = record_log_shmem;
-                process.record_log = ApplicationRecordLog::make_unique(record_log_shmem);
-                process.records.reserve(ApplicationRecordLog::max_record());
-                process.short_regions.reserve(ApplicationRecordLog::max_region());
+                m_status->set_valid_cpu(inactive_cpu, false);
+                m_status->update_cache();
             }
+            except (...) {
+                if (all_cpuset) {
+                    CPU_FREE(all_cpuset);
+                }
+                if (cpuset) {
+                    CPU_FREE(cpuset);
+                }
+                throw;
+            }
+            CPU_FREE(all_cpuset);
+            CPU_FREE(cpuset);
         }
         // Try to pin the sampling thread to a free core
         std::set<int> sampler_cpu_set = {sampler_cpu()};
