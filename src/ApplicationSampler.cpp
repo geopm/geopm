@@ -120,6 +120,7 @@ namespace geopm
         , m_is_first_update(true)
         , m_hint_last(m_num_cpu, uint64_t(GEOPM_REGION_HINT_UNSET))
         , m_do_profile(do_profile)
+        , m_per_cpu_process(m_num_cpu, -1)
     {
         if (m_is_cpu_active.empty()) {
             m_is_cpu_active.resize(m_num_cpu, false);
@@ -283,20 +284,7 @@ namespace geopm
 
     std::vector<int> ApplicationSamplerImp::per_cpu_process(void) const
     {
-        std::vector<int> result(m_num_cpu, -1);
-        if (m_sampler) {
-            result = m_sampler->cpu_rank();
-        }
-        return result;
-#if 0
-        /// @todo code below will work *after* the handshake is complete
-        if (m_status) {
-            for (int cpu_idx = 0; cpu_idx != m_num_cpu; ++cpu_idx) {
-                result[cpu_idx] = m_status->get_process(cpu_idx);
-            }
-	}
-        return result;
-#endif
+        return m_per_cpu_process;
     }
 
     void ApplicationSamplerImp::connect(void)
@@ -352,6 +340,8 @@ namespace geopm
                     for (int cpu_idx = 0; cpu_idx < num_cpu; ++cpu_idx) {
                         if (CPU_ISSET(cpu_idx, cpuset)) {
                             process.cpus.push_back(cpu_idx);
+                            // TODO: Last PID wins if the affinity masks overlap
+                            m_per_cpu_process.at(cpu_idx) = pid;
                         }
                     }
                 }

@@ -228,7 +228,7 @@ namespace geopm
         if (m_cpu_set.empty()) {
             cpu_set_t *proc_cpuset = NULL;
             proc_cpuset = CPU_ALLOC(num_cpu);
-            if (!proc_cpuset) {
+            if (proc_cpuset == nullptr) {
                 throw Exception("ProfileImp: unable to allocate process CPU mask",
                                 ENOMEM, __FILE__, __LINE__);
             }
@@ -238,7 +238,7 @@ namespace geopm
                     m_cpu_set.insert(ii);
                 }
             }
-            free(proc_cpuset);
+            CPU_FREE(proc_cpuset);
         }
     }
 
@@ -337,7 +337,7 @@ namespace geopm
         GEOPM_DEBUG_ASSERT(m_process >= 0,
                            "Profile::init(): m_process not initialized");
 
-        m_app_status->set_process(m_cpu_set, m_process);
+        m_app_status->set_valid_cpu(m_cpu_set, true);
 
         m_app_record_log->set_process(m_process);
         geopm_time_s start_time;
