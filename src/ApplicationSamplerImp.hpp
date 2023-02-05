@@ -51,11 +51,7 @@ namespace geopm
             std::vector<int> per_cpu_process(void) const override;
             void connect(const std::string &shm_key) override;
             int sampler_cpu(void);
-
-            void set_sampler(std::shared_ptr<ProfileSampler> sampler) override;
-            std::shared_ptr<ProfileSampler> get_sampler(void) override;
         private:
-            std::shared_ptr<ProfileSampler> m_sampler;
             struct geopm_time_s m_time_zero;
             std::vector<record_s> m_record_buffer;
             std::vector<short_region_s> m_short_region_buffer;

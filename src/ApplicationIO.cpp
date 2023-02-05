@@ -12,7 +12,6 @@
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
 #include "ApplicationSampler.hpp"
-#include "ProfileSampler.hpp"
 #include "Environment.hpp"
 #include "geopm/ServiceProxy.hpp"
 
@@ -43,10 +42,7 @@ namespace geopm
         , m_timeout(timeout)
         , m_do_profile(m_timeout != -1)
     {
-        if (m_do_profile && m_application_sampler.get_sampler() == nullptr) {
-            auto sampler = std::make_shared<ProfileSamplerImp>(M_SHMEM_REGION_SIZE);
-            m_application_sampler.set_sampler(sampler);
-        }
+
     }
 
     ApplicationIOImp::~ApplicationIOImp()
