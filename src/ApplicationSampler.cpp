@@ -16,7 +16,6 @@
 #include "ApplicationSamplerImp.hpp"
 #include "ApplicationRecordLog.hpp"
 #include "ApplicationStatus.hpp"
-#include "ProfileSampler.hpp"
 #include "geopm/Exception.hpp"
 #include "RecordFilter.hpp"
 #include "Environment.hpp"
@@ -146,12 +145,9 @@ namespace geopm
 
     void ApplicationSamplerImp::update(const geopm_time_s &curr_time)
     {
-        if (!m_do_profile || !m_status || !m_sampler) {
+        if (!m_do_profile || !m_status) {
             return;
         }
-        // TODO: temporary until handshake fixed
-        m_sampler->check_sample_end();
-
         m_status->update_cache();
         if (m_is_first_update) {
             for (int cpu_idx = 0; cpu_idx != m_num_cpu; ++cpu_idx) {
@@ -446,15 +442,5 @@ namespace geopm
 #endif
 
         return result;
-    }
-
-    void ApplicationSamplerImp::set_sampler(std::shared_ptr<ProfileSampler> sampler)
-    {
-        m_sampler = sampler;
-    }
-
-    std::shared_ptr<ProfileSampler> ApplicationSamplerImp::get_sampler(void)
-    {
-        return m_sampler;
     }
 }

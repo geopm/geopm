@@ -385,8 +385,6 @@ libgeopmpolicy_la_SOURCES = src/Accumulator.cpp \
                             src/ApplicationStatus.hpp \
                             src/Comm.cpp \
                             src/Comm.hpp \
-                            src/ControlMessage.cpp \
-                            src/ControlMessage.hpp \
                             src/Controller.cpp \
                             src/Controller.hpp \
                             src/CSV.cpp \
@@ -459,8 +457,6 @@ libgeopmpolicy_la_SOURCES = src/Accumulator.cpp \
                             src/PlatformIOProf.hpp \
                             src/ProfileIOGroup.cpp \
                             src/ProfileIOGroup.hpp \
-                            src/ProfileSampler.cpp \
-                            src/ProfileSampler.hpp \
                             src/ProfileTable.cpp \
                             src/ProfileTable.hpp \
                             src/ProfileTracer.cpp \
