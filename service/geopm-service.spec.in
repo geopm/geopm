@@ -294,6 +294,7 @@ ln -s /usr/sbin/service %{buildroot}%{_sbindir}/rcgeopm
 %{_includedir}/geopm_pio.h
 %{_includedir}/geopm_plugin.hpp
 %{_includedir}/geopm_sched.h
+%{_includedir}/geopm_shmem.h
 %{_includedir}/geopm_time.h
 %{_includedir}/geopm_topo.h
 %{_includedir}/geopm_version.h
