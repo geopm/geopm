@@ -18,7 +18,7 @@ namespace geopm
 extern "C" {
 #endif
 
-    int geopm_shmem_path_prof(const chat *shm_key, int pid, int uid, size_t shm_path_max, char *shm_path);
+    int geopm_shmem_path_prof(const char *shm_key, int pid, int uid, size_t shm_path_max, char *shm_path);
     int geopm_shmem_create_prof(const char *shm_key, size_t size, int pid, int uid, int gid);
 
 #ifdef __cplusplus
