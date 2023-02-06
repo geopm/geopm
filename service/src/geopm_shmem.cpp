@@ -30,7 +30,8 @@ namespace geopm
     void shmem_create_prof(const std::string &shm_key, size_t size, int pid, int uid, int gid)
     {
         std::string shm_path = shmem_path_prof(shm_key, pid, uid);
-        SharedMemory::make_unique_owner_secure(shm_path, size)->chown(uid, gid);
+        auto shm = SharedMemory::make_unique_owner_secure(shm_path, size);
+        shm->chown(uid, gid);
     }
 }
 
