@@ -55,7 +55,6 @@ namespace geopm
     }
 
     ProfileImp::ProfileImp(const std::string &prof_name,
-                           const std::string &key_base,
                            const std::string &report,
                            int num_cpu,
                            std::set<int> cpu_set,
@@ -69,12 +68,10 @@ namespace geopm
         , m_curr_region_id(0)
         , m_current_hash(GEOPM_REGION_HASH_UNMARKED)
         , m_ctl_shmem(nullptr)
-        , m_ctl_msg(ctl_msg)
         , m_num_cpu(num_cpu)
         , m_cpu_set(cpu_set)
         , m_table_shmem(nullptr)
         , m_table(table)
-        , m_shm_rank(0)
         , m_app_status(app_status)
         , m_app_record_log(app_record_log)
         , m_overhead_time(0.0)
@@ -87,10 +84,7 @@ namespace geopm
 
     ProfileImp::ProfileImp()
         : ProfileImp(environment().profile(),
-                     shmem_path_prof("", getpid(), geteuid())
                      environment().report(),
-                     environment().timeout(),
-                     nullptr,  // ctl_msg
                      platform_topo().num_domain(GEOPM_DOMAIN_CPU),
                      {},  // cpu_set
                      nullptr,  // table
@@ -118,13 +112,10 @@ namespace geopm
         ++m_overhead_time_shutdown;
         --m_overhead_time_shutdown;
 #endif
-        std::string sample_key = shmem_path_prof("sample", getpid(), geteuid());
-        int shm_num_rank = 0;
-
         std::string step;
         try {
             step = "table";
-            init_table(sample_key);
+            init_table();
             step = "app_status";
             init_app_status();
             step = "app_record_log";
@@ -151,9 +142,6 @@ namespace geopm
         // assert that all objects were created
         if (m_is_enabled) {
             std::vector<std::string> null_objects;
-            if (!m_ctl_msg) {
-                null_objects.push_back("m_ctl_msg");
-            }
             if (!m_table) {
                 null_objects.push_back("m_table");
             }
@@ -186,10 +174,11 @@ namespace geopm
         }
     }
 
-    void ProfileImp::init_table(const std::string &sample_key)
+    void ProfileImp::init_table(void)
     {
         if (!m_table) {
-            m_table_shmem = SharedMemory::make_unique_user(sample_key, 0);
+            std::string shmem_path = shmem_path_prof("sample", getpid(), geteuid());
+            m_table_shmem = SharedMemory::make_unique_user(shmem_path, 0);
             m_table = geopm::make_unique<ProfileTableImp>(m_table_shmem->size(), m_table_shmem->pointer());
         }
     }
@@ -197,13 +186,9 @@ namespace geopm
     void ProfileImp::init_app_status(void)
     {
         if (m_app_status == nullptr) {
-            std::string key = m_key_base + "-status";
-            std::shared_ptr<SharedMemory> shmem = SharedMemory::make_unique_user(key, 0);
+            std::string shmem_path = shmem_path_prof("status", getpid(), geteuid());
+            std::shared_ptr<SharedMemory> shmem = SharedMemory::make_unique_user(shmem_path, 0);
             m_app_status = ApplicationStatus::make_unique(m_num_cpu, shmem);
-            // wait until all ranks attach, then unlink
-            if (!m_shm_rank) {
-                shmem->unlink();
-            }
         }
         GEOPM_DEBUG_ASSERT(m_app_status != nullptr,
                            "Profile::init(): m_app_status not initialized");
@@ -212,10 +197,9 @@ namespace geopm
     void ProfileImp::init_app_record_log(void)
     {
         if (m_app_record_log == nullptr) {
-            std::string key = m_key_base + "-record-log";
-            std::shared_ptr<SharedMemory> shmem = SharedMemory::make_unique_user(key, 0);
+            std::string shmem_path = shmem_path_prof("record-log", getpid(), geteuid());
+            std::shared_ptr<SharedMemory> shmem = SharedMemory::make_unique_user(shmem_path, 0);
             m_app_record_log = ApplicationRecordLog::make_unique(shmem);
-            shmem->unlink();
         }
 
         GEOPM_DEBUG_ASSERT(m_app_record_log != nullptr,
@@ -238,17 +222,13 @@ namespace geopm
         if (!m_is_enabled) {
             return;
         }
-
+        send_names();
 #ifdef GEOPM_OVERHEAD
-        struct geopm_time_s overhead_entry;
-        geopm_time(&overhead_entry);
+        std::cerr << "Info: <geopm> Overhead (seconds) PID: " << getpid()
+                  << " startup:  " << m_overhead_time_startup <<
+                  << " runtime:  " << m_overhead_time <<
+                  << " shutdown: " << m_overhead_time_shutdown << std::endl;
 #endif
-
-#ifdef GEOPM_OVERHEAD
-        m_overhead_time_shutdown = geopm_time_since(&overhead_entry);
-#endif
-
-        send_names(m_report);
         m_is_enabled = false;
     }
 
@@ -420,9 +400,8 @@ namespace geopm
         m_app_status->increment_work_unit(cpu);
     }
 
-    void ProfileImp::send_names(const std::string &report_file_name)
+    void ProfileImp::send_names(void)
     {
-        // TODO: Rewrite with pipe
         if (!m_is_enabled || !m_table_shmem) {
             return;
         }
@@ -431,31 +410,9 @@ namespace geopm
         struct geopm_time_s overhead_entry;
         geopm_time(&overhead_entry);
 #endif
-
-        size_t buffer_offset = 0;
-        size_t buffer_remain = m_table_shmem->size();
-        char *buffer_ptr = (char *)(m_table_shmem->pointer());
-
-        if (m_table_shmem->size() < report_file_name.length() + 1 + m_prof_name.length() + 1) {
-            throw Exception("ProfileImp::send_names() profile file name and profile name are too long to fit in a table buffer", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-        }
-        strncpy(buffer_ptr, report_file_name.c_str(), buffer_remain - 1);
-        buffer_ptr += report_file_name.length() + 1;
-        buffer_offset += report_file_name.length() + 1;
-        buffer_remain -= report_file_name.length() + 1;
-        strncpy(buffer_ptr, m_prof_name.c_str(), buffer_remain - 1);
-        buffer_offset += m_prof_name.length() + 1;
-        is_done = m_table->name_fill(buffer_offset);
-        if (!is_done) {
-            throw Exception("ProfileTable not big enough for all names",
-                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-        }
+        // TODO: Push all region names into a pipe
 #ifdef GEOPM_OVERHEAD
         m_overhead_time += geopm_time_since(&overhead_entry);
-        std::cerr << "Info: <geopm> Overhead (seconds) PID: " << getpid()
-                  << " startup:  " << m_overhead_time_startup <<
-                  << " runtime:  " << m_overhead_time <<
-                  << " shutdown: " << m_overhead_time_shutdown << std::endl;
 #endif
     }
 

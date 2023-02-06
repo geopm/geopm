@@ -58,8 +58,7 @@ namespace geopm
                        bool do_policy,
                        std::unique_ptr<EndpointUser> endpoint,
                        const std::string &endpoint_path,
-                       bool do_endpoint,
-                       const std::string &shm_key);
+                       bool do_endpoint);
             virtual ~Controller();
             /// @brief Run control algorithm.
             ///

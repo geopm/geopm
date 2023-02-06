@@ -177,8 +177,7 @@ namespace geopm
                      environment().do_policy(),
                      nullptr,
                      environment().endpoint(),
-                     environment().do_endpoint(),
-                     ApplicationSampler::default_shmkey())
+                     environment().do_endpoint())
     {
 
     }
@@ -200,8 +199,7 @@ namespace geopm
                            bool do_policy,
                            std::unique_ptr<EndpointUser> endpoint,
                            const std::string &endpoint_path,
-                           bool do_endpoint,
-                           const std::string &shm_key)
+                           bool do_endpoint)
         : m_comm(comm)
         , m_platform_io(plat_io)
         , m_agent_name(agent_name)
@@ -227,7 +225,6 @@ namespace geopm
         , m_endpoint(std::move(endpoint))
         , m_do_endpoint(do_endpoint)
         , m_do_policy(do_policy)
-        , m_shm_key(shm_key)
     {
         if (m_num_send_down > 0 && !(m_do_policy || m_do_endpoint)) {
             throw Exception("Controller(): at least one of policy or endpoint path"
@@ -325,14 +322,13 @@ namespace geopm
     void Controller::run(void)
     {
         m_application_io->connect();
-        m_application_sampler.connect(m_shm_key);
+        m_application_sampler.connect();
 
         create_agents();
         m_platform_io.save_control();
         init_agents();
         m_reporter->init();
         setup_trace();
-        m_application_io->controller_ready();
         geopm_time_s curr_time;
         geopm_time(&curr_time);
         m_application_sampler.update(curr_time);
@@ -486,7 +482,6 @@ namespace geopm
 
     void Controller::abort(void)
     {
-        m_application_io->abort();
         m_platform_io.restore_control();
     }
 }
