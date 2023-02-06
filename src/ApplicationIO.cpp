@@ -8,6 +8,7 @@
 
 #include <utility>
 #include <unistd.h>
+#include <time.h>
 
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
@@ -62,13 +63,14 @@ namespace geopm
         struct geopm_time_s time_zero;
         struct geopm_time_s time_curr;
         geopm_time(&time_zero);
+        timespec delay = {0, 1000};
         do {
             m_profile_pids = get_profile_pids();
             if (!m_profile_pids.empty()) {
                 m_is_connected = true;
                 break;
             }
-            sleep(1);
+            clock_nanosleep(CLOCK_REALTIME, 0, &delay, NULL);
             geopm_time(&time_curr);
         } while (!m_is_connected && geopm_time_diff(&time_zero, &time_curr) < timeout);
     }
