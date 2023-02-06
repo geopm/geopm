@@ -290,8 +290,6 @@ namespace geopm
                                "m_process_map is not empty, but we are connecting");
             // Get list of PIDs that are connected
             auto service_proxy = ServiceProxy::make_unique();
-            // TODO: Wait until that all PIDs have connected
-            sleep(1);
             std::vector<int> client_pids = service_proxy->platform_get_profile_pids(m_profile_name);
             int num_cpu = m_topo.num_domain(GEOPM_DOMAIN_CPU);
             cpu_set_t *cpuset = CPU_ALLOC(num_cpu);
