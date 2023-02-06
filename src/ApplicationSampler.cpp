@@ -131,18 +131,6 @@ namespace geopm
         }
     }
 
-    ApplicationSamplerImp::~ApplicationSamplerImp()
-    {
-        for (auto const& process : m_process_map) {
-            if (process.second.record_log_shmem) {
-                process.second.record_log_shmem->unlink();
-            }
-        }
-        if (m_status_shmem) {
-            m_status_shmem->unlink();
-        }
-    }
-
     void ApplicationSamplerImp::time_zero(const geopm_time_s &start_time)
     {
         m_time_zero = start_time;
