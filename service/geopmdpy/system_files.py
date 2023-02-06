@@ -739,13 +739,15 @@ class ActiveSessions(object):
         self.check_client_active(client_pid, 'start_profile')
         uid, gid = self._pid_info(client_pid)
         if len(self._profiles) == 0:
-            shmem.create_prof('status', client_pid, uid, gid)
+            size = 64 * os.cpu_count()
+            shmem.create_prof('status', size, client_pid, uid, gid)
         if profile_name in self._profiles:
             self._profiles[profile_name].add(client_pid)
         else:
             self._profiles[profile_name] = {client_pid}
         self._sessions[client_pid]['profile_name'] = profile_name
-        shmem.create_prof('record-log', client_pid, uid, gid)
+        size = 49192
+        shmem.create_prof('record-log', size, client_pid, uid, gid)
         self._update_session_file(client_pid)
 
     def stop_profile(self, client_pid):
@@ -756,12 +758,12 @@ class ActiveSessions(object):
             raise RuntimeError(f'Client PID {client_pid} requested to stop profiling, but it had not been started.')
         self._profiles[profile_name].remove(client_pid)
         uid, gid = self._pid_info(client_pid)
-        os.unlink(shmem.path_prof('record-log', client_pid, uid))
+        os.unlink(shmem.path_prof('record-log', client_pid, uid, gid))
         if len(self._profiles[profile_name]) == 0:
             self._profiles.pop(profile_name)
         if len(self._profiles) == 0:
             uid, gid = self._pid_info(client_pid)
-            os.unlink(shmem.path_prof('status', client_pid, uid))
+            os.unlink(shmem.path_prof('status', client_pid, uid, gid))
         self._update_session_file(client_pid)
 
     def get_profile_pids(self, profile_name):
