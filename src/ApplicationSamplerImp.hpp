@@ -39,7 +39,7 @@ namespace geopm
                                   const std::vector<bool> &is_cpu_active,
                                   bool do_profile,
                                   const std::string &profile_name);
-            virtual ~ApplicationSamplerImp();
+            virtual ~ApplicationSamplerImp() = default;
             void time_zero(const geopm_time_s &start_time) override;
             void update(const geopm_time_s &curr_time) override;
             std::vector<record_s> get_records(void) const override;
