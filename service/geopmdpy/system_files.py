@@ -758,7 +758,7 @@ class ActiveSessions(object):
             self._profiles.pop(profile_name)
         if len(self._profiles) == 0:
             uid, gid = self._pid_info(client_pid)
-            os.unlink(shmem.path_prof('status', client_pid, uid)
+            os.unlink(shmem.path_prof('status', client_pid, uid))
         self._update_session_file(client_pid)
 
     def get_profile_pids(self, profile_name):
