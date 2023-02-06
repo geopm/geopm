@@ -14,6 +14,7 @@
 #include <pthread.h>
 #include <errno.h>
 #include <string.h>
+#include <limits.h>
 
 #include "geopm_sched.h"
 #include "geopm_error.h"
@@ -104,18 +105,10 @@ static void geopm_proc_cpuset_once(void)
 {
     const int num_cpu = geopm_sched_num_cpu();
     g_proc_cpuset = CPU_ALLOC(num_cpu);
-    if (g_proc_cpuset == NULL) {
-        err = ENOMEM;
-    }
-    else {
+    if (g_proc_cpuset != NULL) {
         g_proc_cpuset_size = CPU_ALLOC_SIZE(num_cpu);
-        (void)geopm_proc_cpuset(num_cpu, g_proc_cpuset);
+        (void)geopm_sched_proc_cpuset_pid(getpid(), num_cpu, g_proc_cpuset);
     }
-}
-
-int geopm_sched_proc_cpuset(int num_cpu, cpu_set_t *cpuset)
-{
-    return geopm_sched_proc_cpuset_pid(getpid(), num_cpu, cpuset);
 }
 
 int geopm_sched_proc_cpuset_pid(int pid, int num_cpu, cpu_set_t *cpuset)
@@ -129,7 +122,7 @@ int geopm_sched_proc_cpuset_pid(int pid, int num_cpu, cpu_set_t *cpuset)
     char status_path[NAME_MAX];
     int nprint = snprintf(status_path, NAME_MAX, "/proc/%d/status", pid);
     if (nprint == NAME_MAX) {
-        err = EINVALID;
+        err = EINVAL;
     }
     if (!err) {
         proc_cpuset = calloc(num_read, sizeof(*proc_cpuset));
@@ -170,6 +163,7 @@ int geopm_sched_proc_cpuset_pid(int pid, int num_cpu, cpu_set_t *cpuset)
     if (proc_cpuset) {
         free(proc_cpuset);
     }
+    return err;
 }
 
 int geopm_sched_proc_cpuset(int num_cpu, cpu_set_t *proc_cpuset)

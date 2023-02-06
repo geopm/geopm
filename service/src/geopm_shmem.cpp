@@ -6,16 +6,18 @@
 #include "config.h"
 
 #include <sstream>
+#include <cstring>
 #include <unistd.h>
 
 #include "geopm/SharedMemory.hpp"
 #include "geopm/Exception.hpp"
+#include "geopm_shmem.h"
 
 namespace geopm
 {
     std::string shmem_path_prof(const std::string &shm_key, int pid, int uid)
     {
-        ostringstream result;
+        std::ostringstream result;
         int id = pid;
         if (shm_key == "status") {
             // The status key is a shared resource
@@ -27,8 +29,7 @@ namespace geopm
 
     void shmem_create_prof(const std::string &shm_key, size_t size, int pid, int uid, int gid)
     {
-        int id = pid;
-        shm_path = shmem_path_prof(shm_key, pid, uid);
+        std::string shm_path = shmem_path_prof(shm_key, pid, uid);
         SharedMemory::make_unique_owner_secure(shm_path, size)->chown(uid, gid);
     }
 }
@@ -46,7 +47,7 @@ int geopm_shmem_create_prof(const char *shm_key, size_t size, int pid, int uid, 
     return err;
 }
 
-int geopm_shmem_path_prof(const chat *shm_key, int pid, int uid, size_t shm_path_max, char *shm_path)
+int geopm_shmem_path_prof(const char *shm_key, int pid, int uid, size_t shm_path_max, char *shm_path)
 {
     int err = 0;
     try {
