@@ -207,7 +207,6 @@ namespace geopm
     };
 
     class SharedMemory;
-    class ProfileTable;
     class ApplicationRecordLog;
     class ApplicationStatus;
 
@@ -234,13 +233,10 @@ namespace geopm
             /// @param [in] cpu_set Set of CPUs assigned to the
             ///        process owning the Profile object
             ///
-            /// @param [in] table Preconstructed ProfileTable instance,
-            ///        bypasses shmem creation.
             ProfileImp(const std::string &prof_name,
                        const std::string &report,
                        int num_cpu,
                        std::set<int> cpu_set,
-                       std::shared_ptr<ProfileTable> table,
                        std::shared_ptr<ApplicationStatus> app_status,
                        std::shared_ptr<ApplicationRecordLog> app_record_log,
                        bool do_profile);
@@ -259,7 +255,6 @@ namespace geopm
             bool m_is_enabled;
         private:
             void init_cpu_set(int num_cpu);
-            void init_table(void);
             void init_app_status(void);
             void init_app_record_log(void);
             /// @brief Set the hint on all CPUs assigned to this process.
@@ -290,12 +285,6 @@ namespace geopm
             /// @brief Holds the set of CPUs that the rank process is
             ///        bound to.
             std::set<int> m_cpu_set;
-            /// @brief Attaches to the shared memory region for
-            ///        passing samples to the geopm runtime.
-            std::unique_ptr<SharedMemory> m_table_shmem;
-            /// @brief Hash table for sample messages contained in
-            ///        shared memory.
-            std::shared_ptr<ProfileTable> m_table;
 
             std::shared_ptr<ApplicationStatus> m_app_status;
             std::shared_ptr<ApplicationRecordLog> m_app_record_log;
