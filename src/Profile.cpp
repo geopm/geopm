@@ -26,15 +26,14 @@
 #include "Environment.hpp"
 #include "geopm/PlatformTopo.hpp"
 #include "ProfileTable.hpp"
-#include "ControlMessage.hpp"
 #include "geopm/SharedMemory.hpp"
 #include "ApplicationRecordLog.hpp"
 #include "ApplicationStatus.hpp"
 #include "ApplicationSampler.hpp"
 #include "geopm/Exception.hpp"
-#include "Comm.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm_debug.hpp"
+#include "geopm_shmem.h"
 
 
 namespace geopm
@@ -58,22 +57,15 @@ namespace geopm
     ProfileImp::ProfileImp(const std::string &prof_name,
                            const std::string &key_base,
                            const std::string &report,
-                           double timeout,
-                           std::shared_ptr<Comm> comm,
-                           std::shared_ptr<ControlMessage> ctl_msg,
                            int num_cpu,
                            std::set<int> cpu_set,
                            std::shared_ptr<ProfileTable> table,
-                           std::shared_ptr<Comm> reduce_comm,
                            std::shared_ptr<ApplicationStatus> app_status,
                            std::shared_ptr<ApplicationRecordLog> app_record_log,
                            bool do_profile)
         : m_is_enabled(false)
         , m_prof_name(prof_name)
-        , m_key_base(key_base)
         , m_report(report)
-        , m_timeout(timeout)
-        , m_comm(comm)
         , m_curr_region_id(0)
         , m_current_hash(GEOPM_REGION_HASH_UNMARKED)
         , m_ctl_shmem(nullptr)
@@ -82,10 +74,7 @@ namespace geopm
         , m_cpu_set(cpu_set)
         , m_table_shmem(nullptr)
         , m_table(table)
-        , m_shm_comm(nullptr)
-        , m_process(-1)
         , m_shm_rank(0)
-        , m_reduce_comm(reduce_comm)
         , m_app_status(app_status)
         , m_app_record_log(app_record_log)
         , m_overhead_time(0.0)
@@ -98,15 +87,13 @@ namespace geopm
 
     ProfileImp::ProfileImp()
         : ProfileImp(environment().profile(),
-                     ApplicationSampler::default_shmkey(),
+                     shmem_path_prof("", getpid(), geteuid())
                      environment().report(),
                      environment().timeout(),
-                     nullptr,  // comm
                      nullptr,  // ctl_msg
                      platform_topo().num_domain(GEOPM_DOMAIN_CPU),
                      {},  // cpu_set
                      nullptr,  // table
-                     nullptr,  // reduce_comm
                      nullptr,  // app_status
                      nullptr,  // app_record_log
                      environment().timeout() != -1)
@@ -119,15 +106,9 @@ namespace geopm
         if (m_is_enabled || !m_do_profile) {
             return;
         }
-        if (m_comm == nullptr) {
-            m_comm = Comm::make_unique();
-        }
 #ifdef GEOPM_OVERHEAD
         struct geopm_time_s overhead_entry;
         geopm_time(&overhead_entry);
-        if (m_reduce_comm == nullptr) {
-            m_reduce_comm = Comm::make_unique();
-        }
 #else
         /// read and write to satisfy clang ifndef GEOPM_OVERHEAD
         ++m_overhead_time;
@@ -137,18 +118,11 @@ namespace geopm
         ++m_overhead_time_shutdown;
         --m_overhead_time_shutdown;
 #endif
-        std::string sample_key(m_key_base + "-sample");
+        std::string sample_key = shmem_path_prof("sample", getpid(), geteuid());
         int shm_num_rank = 0;
 
-        init_prof_comm(std::move(m_comm), shm_num_rank);
         std::string step;
         try {
-            step = "ctl_msg";
-            init_ctl_msg(sample_key);
-            step = "cpu_set";
-            init_cpu_set(m_num_cpu);
-            step = "cpu_affinity";
-            init_cpu_affinity(shm_num_rank);
             step = "table";
             init_table(sample_key);
             step = "app_status";
@@ -193,36 +167,6 @@ namespace geopm
 
     }
 
-    // TODO: m_comm is never used again after this
-    void ProfileImp::init_prof_comm(std::shared_ptr<Comm> comm, int &shm_num_rank)
-    {
-        if (!m_shm_comm) {
-            m_process = comm->rank();
-            m_shm_comm = comm->split("prof", Comm::M_COMM_SPLIT_TYPE_SHARED);
-            comm->tear_down();
-            comm.reset();
-            m_shm_rank = m_shm_comm->rank();
-            shm_num_rank = m_shm_comm->num_rank();
-            m_shm_comm->barrier();
-        }
-    }
-
-    void ProfileImp::init_ctl_msg(const std::string &sample_key)
-    {
-        if (!m_ctl_msg) {
-            m_ctl_shmem = SharedMemory::make_unique_user(sample_key, m_timeout);
-            m_shm_comm->barrier();
-            if (!m_shm_rank) {
-                m_ctl_shmem->unlink();
-            }
-
-            if (m_ctl_shmem->size() < sizeof(struct geopm_ctl_message_s)) {
-                throw Exception("ProfileImp: ctl_shmem too small", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-            }
-            m_ctl_msg = geopm::make_unique<ControlMessageImp>(*(struct geopm_ctl_message_s *)m_ctl_shmem->pointer(), false, !m_shm_rank, m_timeout);
-        }
-    }
-
     void ProfileImp::init_cpu_set(int num_cpu)
     {
         if (m_cpu_set.empty()) {
@@ -242,74 +186,21 @@ namespace geopm
         }
     }
 
-    void ProfileImp::init_cpu_affinity(int shm_num_rank)
-    {
-        m_shm_comm->barrier();
-        m_ctl_msg->step();  // M_STATUS_MAP_BEGIN
-        m_ctl_msg->wait();  // M_STATUS_MAP_BEGIN
-
-        // Assign ranks to cores; -1 indicates unassigned and -2 indicates double assigned.
-        for (int ii = 0 ; ii < shm_num_rank; ++ii) {
-            if (ii == m_shm_rank) {
-                if (ii == 0) {
-                    for (int jj = 0; jj < GEOPM_MAX_NUM_CPU; ++jj) {
-                        m_ctl_msg->cpu_rank(jj, -1);
-                    }
-                    for (auto it = m_cpu_set.begin(); it != m_cpu_set.end(); ++it) {
-                        m_ctl_msg->cpu_rank(*it, m_process);
-                    }
-                }
-                else {
-                    for (auto it = m_cpu_set.begin(); it != m_cpu_set.end(); ++it) {
-                        if (m_ctl_msg->cpu_rank(*it) != -1) {
-                            m_ctl_msg->cpu_rank(*it, -2);
-                        }
-                        else {
-                            m_ctl_msg->cpu_rank(*it, m_process);
-                        }
-                    }
-                }
-            }
-            m_shm_comm->barrier();
-        }
-
-        if (!m_shm_rank) {
-            for (int i = 0; i < GEOPM_MAX_NUM_CPU; ++i) {
-                if (m_ctl_msg->cpu_rank(i) == -2) {
-                    throw Exception("ProfileImp: cpu_rank not initialized correctly.",
-                                    GEOPM_ERROR_AFFINITY, __FILE__, __LINE__);
-                }
-            }
-        }
-        m_shm_comm->barrier();
-        m_ctl_msg->step();  // M_STATUS_MAP_END
-        m_ctl_msg->wait();  // M_STATUS_MAP_END
-    }
-
     void ProfileImp::init_table(const std::string &sample_key)
     {
         if (!m_table) {
-            std::string table_shm_key(sample_key);
-            table_shm_key += "-" + std::to_string(m_process);
-            m_table_shmem = SharedMemory::make_unique_user(table_shm_key, m_timeout);
-            m_table_shmem->unlink();
+            m_table_shmem = SharedMemory::make_unique_user(sample_key, 0);
             m_table = geopm::make_unique<ProfileTableImp>(m_table_shmem->size(), m_table_shmem->pointer());
         }
-
-        m_shm_comm->barrier();
-        m_ctl_msg->step();  // M_STATUS_SAMPLE_BEGIN
-        m_ctl_msg->wait();  // M_STATUS_SAMPLE_BEGIN
     }
 
     void ProfileImp::init_app_status(void)
     {
         if (m_app_status == nullptr) {
-            m_shm_comm->barrier();
             std::string key = m_key_base + "-status";
-            std::shared_ptr<SharedMemory> shmem = SharedMemory::make_unique_user(key, m_timeout);
+            std::shared_ptr<SharedMemory> shmem = SharedMemory::make_unique_user(key, 0);
             m_app_status = ApplicationStatus::make_unique(m_num_cpu, shmem);
             // wait until all ranks attach, then unlink
-            m_shm_comm->barrier();
             if (!m_shm_rank) {
                 shmem->unlink();
             }
@@ -320,26 +211,18 @@ namespace geopm
 
     void ProfileImp::init_app_record_log(void)
     {
-        if (m_process < 0) {
-            throw Exception("Profile::init(): invalid process",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-
         if (m_app_record_log == nullptr) {
-            std::string key = m_key_base + "-record-log-" + std::to_string(m_process);
-            std::shared_ptr<SharedMemory> shmem = SharedMemory::make_unique_user(key, m_timeout);
+            std::string key = m_key_base + "-record-log";
+            std::shared_ptr<SharedMemory> shmem = SharedMemory::make_unique_user(key, 0);
             m_app_record_log = ApplicationRecordLog::make_unique(shmem);
             shmem->unlink();
         }
 
         GEOPM_DEBUG_ASSERT(m_app_record_log != nullptr,
                            "Profile::init(): m_app_record_log not initialized");
-        GEOPM_DEBUG_ASSERT(m_process >= 0,
-                           "Profile::init(): m_process not initialized");
 
         m_app_status->set_valid_cpu(m_cpu_set, true);
 
-        m_app_record_log->set_process(m_process);
         geopm_time_s start_time;
         geopm_time_zero(&start_time);
         m_app_record_log->set_time_zero(start_time);
@@ -361,19 +244,11 @@ namespace geopm
         geopm_time(&overhead_entry);
 #endif
 
-        m_shm_comm->barrier();
-        m_ctl_msg->step();  // M_SAMPLE_END
-        m_ctl_msg->wait();  // M_SAMPLE_END
-
 #ifdef GEOPM_OVERHEAD
         m_overhead_time_shutdown = geopm_time_since(&overhead_entry);
 #endif
 
         send_names(m_report);
-        m_shm_comm->barrier();
-        m_ctl_msg->step();  // M_STATUS_SHUTDOWN
-        m_shm_comm->tear_down();
-        m_shm_comm.reset();
         m_is_enabled = false;
     }
 
@@ -547,6 +422,7 @@ namespace geopm
 
     void ProfileImp::send_names(const std::string &report_file_name)
     {
+        // TODO: Rewrite with pipe
         if (!m_is_enabled || !m_table_shmem) {
             return;
         }
@@ -555,13 +431,6 @@ namespace geopm
         struct geopm_time_s overhead_entry;
         geopm_time(&overhead_entry);
 #endif
-
-        int is_done = 0;
-        int is_all_done = 0;
-
-        m_shm_comm->barrier();
-        m_ctl_msg->step();  // M_STATUS_NAME_BEGIN
-        m_ctl_msg->wait();  // M_STATUS_NAME_BEGIN
 
         size_t buffer_offset = 0;
         size_t buffer_remain = m_table_shmem->size();
@@ -576,36 +445,18 @@ namespace geopm
         buffer_remain -= report_file_name.length() + 1;
         strncpy(buffer_ptr, m_prof_name.c_str(), buffer_remain - 1);
         buffer_offset += m_prof_name.length() + 1;
-        while (!is_all_done) {
-            m_shm_comm->barrier();
-            m_ctl_msg->loop_begin();  // M_STATUS_NAME_LOOP_BEGIN
-
-            is_done = m_table->name_fill(buffer_offset);
-            is_all_done = m_shm_comm->test(is_done);
-
-            m_ctl_msg->step();  // M_STATUS_NAME_LOOP_END
-            m_ctl_msg->wait();  // M_STATUS_NAME_LOOP_END
-            buffer_offset = 0;
+        is_done = m_table->name_fill(buffer_offset);
+        if (!is_done) {
+            throw Exception("ProfileTable not big enough for all names",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
-        m_shm_comm->barrier();
-        m_ctl_msg->step();  // M_STATUS_NAME_END
-        m_ctl_msg->wait();  // M_STATUS_NAME_END
-
 #ifdef GEOPM_OVERHEAD
         m_overhead_time += geopm_time_since(&overhead_entry);
-        double overhead_buffer[3] = {m_overhead_time_startup,
-                                     m_overhead_time,
-                                     m_overhead_time_shutdown};
-        double max_overhead[3] = {};
-        m_reduce_comm->reduce_max(overhead_buffer, max_overhead, 3, 0);
-
-        if (m_process == 0) {
-            std::cout << "GEOPM startup (seconds):  " << max_overhead[0] << std::endl;
-            std::cout << "GEOPM runtime (seconds):  " << max_overhead[1] << std::endl;
-            std::cout << "GEOPM shutdown (seconds): " << max_overhead[2] << std::endl;
-        }
+        std::cerr << "Info: <geopm> Overhead (seconds) PID: " << getpid()
+                  << " startup:  " << m_overhead_time_startup <<
+                  << " runtime:  " << m_overhead_time <<
+                  << " shutdown: " << m_overhead_time_shutdown << std::endl;
 #endif
-
     }
 
     void ProfileImp::enable_pmpi(void)
