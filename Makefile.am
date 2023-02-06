@@ -440,8 +440,6 @@ libgeopmpolicy_la_SOURCES = src/Accumulator.cpp \
                             src/PlatformIOProf.hpp \
                             src/ProfileIOGroup.cpp \
                             src/ProfileIOGroup.hpp \
-                            src/ProfileTable.cpp \
-                            src/ProfileTable.hpp \
                             src/ProfileTracer.cpp \
                             src/ProfileTracer.hpp \
                             src/ProfileTracerImp.hpp \

@@ -25,7 +25,6 @@
 #include "geopm_sched.h"
 #include "Environment.hpp"
 #include "geopm/PlatformTopo.hpp"
-#include "ProfileTable.hpp"
 #include "geopm/SharedMemory.hpp"
 #include "ApplicationRecordLog.hpp"
 #include "ApplicationStatus.hpp"
@@ -58,7 +57,6 @@ namespace geopm
                            const std::string &report,
                            int num_cpu,
                            std::set<int> cpu_set,
-                           std::shared_ptr<ProfileTable> table,
                            std::shared_ptr<ApplicationStatus> app_status,
                            std::shared_ptr<ApplicationRecordLog> app_record_log,
                            bool do_profile)
@@ -70,8 +68,6 @@ namespace geopm
         , m_ctl_shmem(nullptr)
         , m_num_cpu(num_cpu)
         , m_cpu_set(cpu_set)
-        , m_table_shmem(nullptr)
-        , m_table(table)
         , m_app_status(app_status)
         , m_app_record_log(app_record_log)
         , m_overhead_time(0.0)
@@ -87,7 +83,6 @@ namespace geopm
                      environment().report(),
                      platform_topo().num_domain(GEOPM_DOMAIN_CPU),
                      {},  // cpu_set
-                     nullptr,  // table
                      nullptr,  // app_status
                      nullptr,  // app_record_log
                      environment().timeout() != -1)
@@ -114,8 +109,6 @@ namespace geopm
 #endif
         std::string step;
         try {
-            step = "table";
-            init_table();
             step = "app_status";
             init_app_status();
             step = "app_record_log";
@@ -137,22 +130,6 @@ namespace geopm
 #ifdef GEOPM_OVERHEAD
         m_overhead_time_startup = geopm_time_since(&overhead_entry);
 #endif
-
-#ifdef GEOPM_DEBUG
-        // assert that all objects were created
-        if (m_is_enabled) {
-            std::vector<std::string> null_objects;
-            if (!m_table) {
-                null_objects.push_back("m_table");
-            }
-            if (!null_objects.empty()) {
-                std::string objs = string_join(null_objects, ", ");
-                throw Exception("Profile::init(): one or more internal objects not initialized: " + objs,
-                                GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-            }
-        }
-#endif
-
     }
 
     void ProfileImp::init_cpu_set(int num_cpu)
@@ -171,15 +148,6 @@ namespace geopm
                 }
             }
             CPU_FREE(proc_cpuset);
-        }
-    }
-
-    void ProfileImp::init_table(void)
-    {
-        if (!m_table) {
-            std::string shmem_path = shmem_path_prof("sample", getpid(), geteuid());
-            m_table_shmem = SharedMemory::make_unique_user(shmem_path, 0);
-            m_table = geopm::make_unique<ProfileTableImp>(m_table_shmem->size(), m_table_shmem->pointer());
         }
     }
 
@@ -244,7 +212,7 @@ namespace geopm
 #endif
 
         geopm::check_hint(hint);
-        uint64_t result = m_table->key(region_name);
+        uint64_t result = geopm_crc32_str(region_name.c_str());
 
 #ifdef GEOPM_DEBUG
         m_region_ids.emplace(result);
@@ -402,7 +370,7 @@ namespace geopm
 
     void ProfileImp::send_names(void)
     {
-        if (!m_is_enabled || !m_table_shmem) {
+        if (!m_is_enabled) {
             return;
         }
 
