@@ -259,7 +259,7 @@ namespace geopm
             bool m_is_enabled;
         private:
             void init_cpu_set(int num_cpu);
-            void init_table(const std::string &sample_key);
+            void init_table(void);
             void init_app_status(void);
             void init_app_record_log(void);
             /// @brief Set the hint on all CPUs assigned to this process.
@@ -271,7 +271,7 @@ namespace geopm
 
             /// @brief Sends the report name and region names across
             ///        to Controller.
-            void send_names(const std::string &report_file_name);
+            void send_names(void);
 
             /// @brief holds the string name of the profile.
             std::string m_prof_name;

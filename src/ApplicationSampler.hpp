@@ -26,6 +26,7 @@ namespace geopm
     class ApplicationSampler
     {
         public:
+            virtual ~ApplicationSampler() = default;
             /// @brief Singleton accessor for the application sampler.
             static ApplicationSampler &application_sampler(void);
             /// @brief Returns set of region hashes associated with
@@ -134,12 +135,7 @@ namespace geopm
             /// string as a key.
             ///
             virtual void connect(void) = 0;
-
-            // Deprecated API's below for access to legacy objects
-            virtual void set_sampler(std::shared_ptr<ProfileSampler> sampler) = 0;
-            virtual std::shared_ptr<ProfileSampler> get_sampler(void) = 0;
         protected:
-            virtual ~ApplicationSampler() = default;
             ApplicationSampler() = default;
         private:
             static std::set<uint64_t> region_hash_network_once(void);

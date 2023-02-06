@@ -60,7 +60,6 @@ namespace geopm
                        std::unique_ptr<EndpointUser> endpoint,
                        const std::string &endpoint_path,
                        bool do_endpoint,
-                       const std::string &shm_key,
                        std::shared_ptr<InitControl> init_control,
                        bool do_init_control);
             virtual ~Controller();

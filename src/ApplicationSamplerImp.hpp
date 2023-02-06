@@ -37,7 +37,8 @@ namespace geopm
                                   bool is_filtered,
                                   const std::string &filter_name,
                                   const std::vector<bool> &is_cpu_active,
-                                  bool do_profile);
+                                  bool do_profile,
+                                  const std::string &profile_name);
             virtual ~ApplicationSamplerImp();
             void time_zero(const geopm_time_s &start_time) override;
             void update(const geopm_time_s &curr_time) override;
@@ -49,7 +50,7 @@ namespace geopm
             double cpu_hint_time(int cpu_idx, uint64_t hint) const override;
             double cpu_progress(int cpu_idx) const override;
             std::vector<int> per_cpu_process(void) const override;
-            void connect(const std::string &shm_key) override;
+            void connect(void) override;
             int sampler_cpu(void);
         private:
             struct geopm_time_s m_time_zero;
@@ -69,6 +70,7 @@ namespace geopm
             std::vector<uint64_t> m_hint_last;
             bool m_do_profile;
             std::vector<int> m_per_cpu_process;
+            std::string m_profile_name;
     };
 }
 

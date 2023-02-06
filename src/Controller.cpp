@@ -32,6 +32,7 @@
 #include "PlatformIOProf.hpp"
 #include "InitControl.hpp"
 
+#include "EpochIOGroup.hpp"
 #include "ProfileIOGroup.hpp"
 
 extern "C"
@@ -179,7 +180,6 @@ namespace geopm
                      nullptr,
                      environment().endpoint(),
                      environment().do_endpoint(),
-                     ApplicationSampler::default_shmkey(),
                      InitControl::make_unique(),
                      environment().do_init_control())
     {
@@ -204,7 +204,6 @@ namespace geopm
                            std::unique_ptr<EndpointUser> endpoint,
                            const std::string &endpoint_path,
                            bool do_endpoint,
-                           const std::string &shm_key,
                            std::shared_ptr<InitControl> init_control,
                            bool do_init_control)
         : m_comm(comm)
@@ -232,7 +231,6 @@ namespace geopm
         , m_endpoint(std::move(endpoint))
         , m_do_endpoint(do_endpoint)
         , m_do_policy(do_policy)
-        , m_shm_key(shm_key)
         , m_init_control(init_control)
         , m_do_init_control(do_init_control)
     {
@@ -334,25 +332,26 @@ namespace geopm
 
     void Controller::run(void)
     {
-        m_application_io->connect();
-        m_application_sampler.connect(m_shm_key);
-
+        m_application_sampler.connect(m_application_io->connect());
+        geopm::time_zero();
+        m_platform_io.register_iogroup(EpochIOGroup::make_plugin());
+        geopm_time_s curr_time;
+        geopm_time(&curr_time);
+        m_application_sampler.update(curr_time);
         create_agents();
         m_platform_io.save_control();
         m_init_control->write_controls();
         init_agents();
         m_reporter->init();
         setup_trace();
-        m_application_io->controller_ready();
-        geopm_time_s curr_time;
-        geopm_time(&curr_time);
-        m_application_sampler.update(curr_time);
         m_platform_io.read_batch();
+        geopm_time_s zero = geopm::time_zero();
+        double sample_delay = geopm_time_since(&zero);
         m_reporter->update();
         m_tracer->update(m_trace_sample);
         m_profile_tracer->update(m_application_sampler.get_records());
-
-        while (!m_application_io->do_shutdown()) {
+        while (!m_application_io->do_shutdown() &&
+               !m_application_sampler.do_shutdown()) {
             step();
         }
         geopm_time(&curr_time);
@@ -361,6 +360,9 @@ namespace geopm
         m_reporter->update();
         m_tracer->update(m_trace_sample);
         m_profile_tracer->update(m_application_sampler.get_records());
+        m_reporter->total_time(m_application_sampler.total_time());
+        m_reporter->overhead(m_application_sampler.overhead_time(),
+                             sample_delay);
         generate();
         m_platform_io.restore_control();
     }
@@ -497,7 +499,6 @@ namespace geopm
 
     void Controller::abort(void)
     {
-        m_application_io->abort();
         m_platform_io.restore_control();
     }
 }

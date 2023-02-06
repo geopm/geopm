@@ -40,12 +40,6 @@ namespace geopm
             /// @brief Returns the set of region names recorded by the
             ///        application.
             virtual std::set<std::string> region_name_set(void) const = 0;
-            /// @brief Signal to the application that the Controller
-            ///        is ready to begin receiving samples.
-            virtual void controller_ready(void) = 0;
-            /// @brief Signal to the application that the Controller
-            ///        has failed critically.
-            virtual void abort(void) = 0;
     };
 
     class ApplicationSampler;
@@ -65,8 +59,6 @@ namespace geopm
             std::string report_name(void) const override;
             std::string profile_name(void) const override;
             std::set<std::string> region_name_set(void) const override;
-            void controller_ready(void) override;
-            void abort(void) override;
         private:
             std::set<int> get_profile_pids(void);
             static constexpr size_t M_SHMEM_REGION_SIZE = 2*1024*1024;
