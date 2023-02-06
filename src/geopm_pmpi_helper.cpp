@@ -32,11 +32,6 @@ extern "C"
 #include "geopm_pmpi.h"
 #include "geopm_sched.h"
 #include "geopm_mpi_comm_split.h"
-    /**
-     * Helper that creates the DefaultProfile signleton (if not already created)
-     * and catches all exceptions.
-     */
-    int geopm_prof_init(void);
 }
 
 
@@ -205,10 +200,6 @@ static int geopm_pmpi_init(const char *exec_name)
         }
         if (!err) {
             err = geopm_env_do_profile(&do_profile);
-        }
-        if (!err && do_profile) {
-            // should only get called by one thread
-            geopm_prof_init();
         }
 #ifdef GEOPM_DEBUG
         if (err) {
