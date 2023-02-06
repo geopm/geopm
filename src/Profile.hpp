@@ -206,9 +206,7 @@ namespace geopm
             static int get_cpu(void);
     };
 
-    class Comm;
     class SharedMemory;
-    class ControlMessage;
     class ProfileTable;
     class ApplicationRecordLog;
     class ApplicationStatus;
@@ -229,21 +227,7 @@ namespace geopm
             ///        profile.  This name will be printed in the
             ///        header of the report.
             ///
-            /// @param [in] key_base Shmem key prefix.
-            ///
             /// @param [in] report Report file name.
-            ///
-            /// @param [in] timeout Application connection timeout.
-            ///
-            /// @param [in] comm The application's MPI communicator.
-            ///        Each rank of this communicator will report to a
-            ///        separate shared memory region.  One
-            ///        geopm::Controller on each compute node will
-            ///        consume the output from each rank running on
-            ///        the compute node.
-            ///
-            /// @param [in] ctl_msg Preconstructed ControlMessage instance,
-            ///        bypasses shmem creation.
             ///
             /// @param [in] num_cpu Number of CPUs for the platform
             ///
@@ -253,15 +237,10 @@ namespace geopm
             /// @param [in] table Preconstructed ProfileTable instance,
             ///        bypasses shmem creation.
             ProfileImp(const std::string &prof_name,
-                       const std::string &key_base,
                        const std::string &report,
-                       double timeout,
-                       std::shared_ptr<Comm> comm,
-                       std::shared_ptr<ControlMessage> ctl_msg,
                        int num_cpu,
                        std::set<int> cpu_set,
                        std::shared_ptr<ProfileTable> table,
-                       std::shared_ptr<Comm> reduce_comm,
                        std::shared_ptr<ApplicationStatus> app_status,
                        std::shared_ptr<ApplicationRecordLog> app_record_log,
                        bool do_profile);
@@ -279,17 +258,7 @@ namespace geopm
         protected:
             bool m_is_enabled;
         private:
-            void init_prof_comm(std::shared_ptr<Comm> comm, int &shm_num_rank);
-            void init_ctl_msg(const std::string &sample_key);
-            /// @brief Fill in rank affinity list.
-            ///
-            /// Uses num_cpu to determine the cpuset the current
-            /// process is bound to. This information is used to fill
-            /// in a set containing all CPUs we can run on. This is used
-            /// to communicate with the geopm runtime the number of ranks
-            /// as well as their affinity masks.
             void init_cpu_set(int num_cpu);
-            void init_cpu_affinity(int shm_num_rank);
             void init_table(const std::string &sample_key);
             void init_app_status(void);
             void init_app_record_log(void);
@@ -306,10 +275,7 @@ namespace geopm
 
             /// @brief holds the string name of the profile.
             std::string m_prof_name;
-            std::string m_key_base;
             std::string m_report;
-            double m_timeout;
-            std::shared_ptr<Comm> m_comm;
             /// @brief Holds the 64 bit unique region identifier
             ///        for the current region.
             uint64_t m_curr_region_id;
@@ -320,7 +286,6 @@ namespace geopm
             /// @brief Holds a pointer to the shared memory region
             ///        used to pass control messages to and from the geopm
             ///        runtime.
-            std::shared_ptr<ControlMessage> m_ctl_msg;
             int m_num_cpu;
             /// @brief Holds the set of CPUs that the rank process is
             ///        bound to.
@@ -331,14 +296,6 @@ namespace geopm
             /// @brief Hash table for sample messages contained in
             ///        shared memory.
             std::shared_ptr<ProfileTable> m_table;
-            /// @brief Communicator consisting of the root rank on each
-            ///        compute node.
-            std::shared_ptr<Comm> m_shm_comm;
-            /// @brief The process's rank in MPI_COMM_WORLD.
-            int m_process;
-            /// @brief The process's rank in m_shm_comm.
-            int m_shm_rank;
-            std::shared_ptr<Comm> m_reduce_comm;
 
             std::shared_ptr<ApplicationStatus> m_app_status;
             std::shared_ptr<ApplicationRecordLog> m_app_record_log;
