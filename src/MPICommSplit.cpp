@@ -58,10 +58,8 @@ extern "C"
         int err = 0;
         struct stat stat_struct;
         try {
-            std::ostringstream shmem_key;
-            shmem_key << geopm::ApplicationSampler::default_shmkey() << "-comm-split-" << tag;
             std::ostringstream shmem_path;
-            shmem_path << "/dev/shm" << shmem_key.str();
+            shmem_path << "/dev/shm/geopm-shm-" << geteuid() << "-comm-split-" << tag;
             std::shared_ptr<geopm::SharedMemory> shmem = nullptr;
             std::shared_ptr<geopm::SharedMemory> shmem_user = nullptr;
             int rank, color = -1;
@@ -73,13 +71,13 @@ extern "C"
             err = stat(shmem_path.str().c_str(), &stat_struct);
             if (!err || (err && errno != ENOENT)) {
                 std::stringstream ex_str;
-                ex_str << "geopm_comm_split_shared(): " << shmem_key.str()
+                ex_str << "geopm_comm_split_shared(): " << shmem_path.str()
                        << " already exists and cannot be deleted.";
                 throw geopm::Exception(ex_str.str(), GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
             MPI_Barrier(comm);
             try {
-                shmem = geopm::SharedMemory::make_unique_owner(shmem_key.str(), sizeof(int));
+                shmem = geopm::SharedMemory::make_unique_owner(shmem_path.str(), sizeof(int));
             }
             catch (const geopm::Exception &ex) {
                 if (ex.err_value() != EEXIST) {
@@ -87,7 +85,7 @@ extern "C"
                 }
             }
             if (!shmem) {
-                shmem_user = geopm::SharedMemory::make_unique_user(shmem_key.str(), geopm::environment().timeout());
+                shmem_user = geopm::SharedMemory::make_unique_user(shmem_path.str(), geopm::environment().timeout());
             }
             else {
                 color = rank;

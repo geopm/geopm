@@ -17,6 +17,7 @@
 #include "ApplicationRecordLog.hpp"
 #include "ApplicationStatus.hpp"
 #include "geopm/Exception.hpp"
+#include "geopm/ServiceProxy.hpp"
 #include "RecordFilter.hpp"
 #include "Environment.hpp"
 #include "ValidateRecord.hpp"
@@ -28,6 +29,7 @@
 #include "geopm_hash.h"
 #include "geopm_hint.h"
 #include "geopm_shmem.h"
+#include "geopm_sched.h"
 
 namespace geopm
 {
@@ -94,7 +96,8 @@ namespace geopm
                                 environment().do_record_filter(),
                                 environment().record_filter(),
                                 {},
-                                environment().timeout() != -1)
+                                environment().timeout() != -1,
+                                environment().profile())
     {
 
     }
@@ -105,7 +108,8 @@ namespace geopm
                                                  bool is_filtered,
                                                  const std::string &filter_name,
                                                  const std::vector<bool> &is_cpu_active,
-                                                 bool do_profile)
+                                                 bool do_profile,
+                                                 const std::string &profile_name)
         : m_time_zero(geopm::time_zero())
         , m_status(status)
         , m_topo(platform_topo)
@@ -120,6 +124,7 @@ namespace geopm
         , m_hint_last(m_num_cpu, uint64_t(GEOPM_REGION_HINT_UNSET))
         , m_do_profile(do_profile)
         , m_per_cpu_process(m_num_cpu, -1)
+        , m_profile_name(profile_name)
     {
         if (m_is_cpu_active.empty()) {
             m_is_cpu_active.resize(m_num_cpu, false);
@@ -300,7 +305,7 @@ namespace geopm
             // TODO: Wait until that all PIDs have connected
             sleep(1);
             std::vector<int> client_pids = service_proxy->platform_get_profile_pids(m_profile_name);
-            int num_cpu = geopm_sched_num_cpu();
+            int num_cpu = m_topo.num_domain(GEOPM_DOMAIN_CPU);
             cpu_set_t *cpuset = CPU_ALLOC(num_cpu);
             cpu_set_t *all_cpuset = CPU_ALLOC(num_cpu);
             if (cpuset == nullptr || all_cpuset == nullptr) {
@@ -313,12 +318,12 @@ namespace geopm
                     std::string shmem_path = shmem_path_prof("record-log", pid, geteuid());
                     std::shared_ptr<SharedMemory> record_log_shmem =
                         SharedMemory::make_unique_user(shmem_path, 0);
-                    if (recorc_log_shmem->size() < ApplicationRecordLog::buffer_size()) {
+                    if (record_log_shmem->size() < ApplicationRecordLog::buffer_size()) {
                         throw Exception("ApplicationSamplerImp::connect(): "
                                         "Record log shared memory buffer is incorrectly sized",
                                         GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
                     }
-                    auto emplace_ret = m_process_map.emplace(proc_it, m_process_s {});
+                    auto emplace_ret = m_process_map.emplace(pid, m_process_s {});
                     auto &process = emplace_ret.first->second;
                     if (m_is_filtered) {
                         process.filter = RecordFilter::make_unique(m_filter_name);
@@ -350,7 +355,7 @@ namespace geopm
                 m_status->set_valid_cpu(inactive_cpu, false);
                 m_status->update_cache();
             }
-            except (...) {
+            catch (...) {
                 if (all_cpuset) {
                     CPU_FREE(all_cpuset);
                 }

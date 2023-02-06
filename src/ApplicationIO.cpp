@@ -71,10 +71,6 @@ namespace geopm
             sleep(1);
             geopm_time(&time_curr);
         } while (!m_is_connected && geopm_time_diff(&time_zero, &time_curr) < timeout);
-
-        if (m_is_connected && m_do_profile) {
-            m_application_sampler.get_sampler()->initialize();
-        }
     }
 
     // Private helper function
@@ -82,13 +78,6 @@ namespace geopm
     {
         auto profile_pids = m_service_proxy->platform_get_profile_pids(m_profile_name);
         return std::set<int>(profile_pids.begin(), profile_pids.end());
-    }
-
-    void ApplicationIOImp::controller_ready(void)
-    {
-        if (m_do_profile) {
-            m_application_sampler.get_sampler()->controller_ready();
-        }
     }
 
     bool ApplicationIOImp::do_shutdown(void)
@@ -135,16 +124,7 @@ namespace geopm
     std::set<std::string> ApplicationIOImp::region_name_set(void) const
     {
         std::set<std::string> result;
-        if (m_do_profile) {
-            result = m_application_sampler.get_sampler()->name_set();
-        }
+        // TODO: Use pipe to read region names, for now reports will have hashes
         return result;
-    }
-
-    void ApplicationIOImp::abort(void)
-    {
-        if (m_do_profile) {
-            m_application_sampler.get_sampler()->abort();
-        }
     }
 }
