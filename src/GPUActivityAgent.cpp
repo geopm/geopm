@@ -75,6 +75,10 @@ namespace geopm
             m_gpu_active_region_stop.push_back(0.0);
             m_gpu_active_energy_start.push_back(0.0);
             m_gpu_active_energy_stop.push_back(0.0);
+
+            m_gpu_on_time.push_back(0.0);
+            m_gpu_on_energy.push_back(0.0);
+            m_prev_gpu_energy.push_back(0.0);
         }
 
         if (level == 0) {
@@ -138,6 +142,8 @@ namespace geopm
             m_gpu_freq_max_control.push_back(m_control{m_platform_io.push_control("GPU_CORE_FREQUENCY_MAX_CONTROL",
                                                        m_agent_domain,
                                                        domain_idx), NAN});
+            m_gpu_idle_timer.push_back(10);
+            m_gpu_idle_samples.push_back(0);
         }
 
         // We treat energy & time as special cases and only use them at a specific domain.
@@ -153,6 +159,8 @@ namespace geopm
 
         m_freq_gpu_min = m_platform_io.read_signal("GPU_CORE_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0);
         m_freq_gpu_max = m_platform_io.read_signal("GPU_CORE_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0);
+
+        //m_platform_io.write_control("GPU_CORE_FREQUENCY_MIN_CONTROL", GEOPM_DOMAIN_BOARD, 0, m_freq_gpu_min);
 
         const auto ALL_NAMES = m_platform_io.signal_names();
         // F efficient values
@@ -328,6 +336,23 @@ namespace geopm
             f_request = std::min(f_request, m_resolved_f_gpu_max);
             f_request = std::max(f_request, m_resolved_f_gpu_efficient);
 
+            if (phi >= 0.5) {
+                if (!std::isnan(gpu_utilization) &&
+                    gpu_utilization == 0) {
+                    if (m_gpu_idle_timer.at(domain_idx) > 0) {
+                        m_gpu_idle_timer.at(domain_idx) = m_gpu_idle_timer.at(domain_idx) - 1;
+                    }
+                }
+                else {
+                    m_gpu_idle_timer.at(domain_idx) = 10;
+                }
+
+                if (m_gpu_idle_timer.at(domain_idx) <= 0) {
+                    f_request = m_freq_gpu_min;
+                    m_gpu_idle_samples.at(domain_idx) = m_gpu_idle_samples.at(domain_idx) + 1;
+                }
+            }
+
             // Store frequency request
             gpu_freq_request.push_back(f_request);
         }
@@ -338,13 +363,19 @@ namespace geopm
         if (!gpu_scoped_core_activity.empty()) {
             for (int domain_idx = 0; domain_idx < M_NUM_GPU; ++domain_idx) {
                 if (gpu_scoped_core_activity.at(domain_idx) >= M_GPU_ACTIVITY_CUTOFF) {
+                    // ROI proxy tracking
                     m_gpu_active_region_stop.at(domain_idx) = 0;
                     if (m_gpu_active_region_start.at(domain_idx) == 0) {
                         m_gpu_active_region_start.at(domain_idx) = m_time.value;
                         m_gpu_active_energy_start.at(domain_idx) = m_gpu_energy.at(domain_idx).value;
                     }
+
+                    // GPU on time tracking
+                    m_gpu_on_time.at(domain_idx) += m_time.value - m_prev_time;
+                    m_gpu_on_energy.at(domain_idx) += m_gpu_energy.at(domain_idx).value - m_prev_gpu_energy.at(domain_idx);
                 }
                 else {
+                    // ROI proxy tracking
                     if (m_gpu_active_region_stop.at(domain_idx) == 0) {
                         m_gpu_active_region_stop.at(domain_idx) = m_time.value;
                         m_gpu_active_energy_stop.at(domain_idx) = m_gpu_energy.at(domain_idx).value;
@@ -397,10 +428,12 @@ namespace geopm
         }
 
         for (int domain_idx = 0; domain_idx < M_NUM_GPU; ++domain_idx) {
+            m_prev_gpu_energy.at(domain_idx) = m_gpu_energy.at(domain_idx).value;
             m_gpu_energy.at(domain_idx).value = m_platform_io.sample(m_gpu_energy.at(
                                                                      domain_idx).batch_idx);
         }
 
+        m_prev_time = m_time.value;
         m_time.value = m_platform_io.sample(m_time.batch_idx);
     }
 
@@ -437,6 +470,15 @@ namespace geopm
                               " Active Region Energy", std::to_string(energy_stop - energy_start)});
             result.push_back({"GPU " + std::to_string(domain_idx) +
                               " Active Region Time", std::to_string(region_stop - region_start)});
+            result.push_back({"GPU " + std::to_string(domain_idx) +
+                              " On Energy", std::to_string(m_gpu_on_energy.at(domain_idx))});
+            result.push_back({"GPU " + std::to_string(domain_idx) +
+                              " On Time", std::to_string(m_gpu_on_time.at(domain_idx))});
+        }
+
+        for (int domain_idx = 0; domain_idx < m_agent_domain_count; ++domain_idx) {
+            result.push_back({"GPU Chip " + std::to_string(domain_idx) +
+                              " Idle Agent Actions", std::to_string(m_gpu_idle_samples.at(domain_idx))});
         }
 
         return result;
