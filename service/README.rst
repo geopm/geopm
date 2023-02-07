@@ -262,8 +262,11 @@ Kubernetes Support
 
 Experimental support for Kubernetes is provided.  The current status
 of this work is a proof-of-concept, and should in no way be considered
-production ready.  The ``k8-manifest`` file is a simple demonstration
-that uses GEOPM in a Kubernetes environment.
+production ready.  The ``k8-manifest.yaml`` file is a simple
+demonstration that uses GEOPM in a Kubernetes environment.  This
+manifest references a container that is built using a ``Dockerfile``
+in this directory.  The simple ``Dockerfile`` installs the GEOPM
+Service published to OpenSUSE OBS built from this branch.
 
 
 Kubernetes Demo
@@ -274,11 +277,19 @@ container is privileged and is running the GEOPM service with
 communication over gRPC.  The server container host mounts
 ``/dev/cpu``, which provides access to the ``/dev/cpu/*/msr`` device
 drivers.  Also note that both containers share their PID namespace.
-This is required to enable the GEOPM Service to track process lifetime
-and group membership.  The client container is started without
-privilege, and mounts the ``/run/geopm-service`` directory which is
-shared with the server container.  This enables faster interprocess
-communication with the service than is available via gRPC.
+This is required to enable the GEOPM Service to track client process
+lifetime and Unix group membership.  The client container is started
+without privilege, and mounts the ``/run/geopm-service`` directory
+which is shared with the server container.  The interprocess
+communication files used by the service are located in this directory.
+These files include the gRPC Unix Domain Socket (UDS) files, and also
+the files for the GEOPM Service batch interfaces: the FIFO command
+files, and the interprocess shared memory files.  The batch interface
+enables faster communication than is available over the gRPC UDS
+interface, and the UDS interfaces provide credentials for slower
+interfaces.  The client communicates over gRPC to configure a batch
+server.  In this way, the batch server capabilities are restricted
+based on credentials verified at creation time.
 
 
 Server Script
@@ -302,8 +313,8 @@ A human readable version of the server "command" is below:
 
 Before starting the service, the default signal allow list is
 populated with *all* available signals.  There are no controls enabled
-by the service.  A user and group name are created to support the
-UDS credentials of the client container.  Finally the ``geopmd`` command
+by the service.  A user and group name are created to support the UDS
+credentials of the client container.  Finally the ``geopmd`` command
 is run with the ``--grpc`` option.
 
 
@@ -318,28 +329,28 @@ A human readable version of the client "command" is below:
    sleep 5
    # Iterate through all available signals and remove duplicates in
    # SERVICE:: namepace
-   for ss in $(geopmread | grep -v SERVICE::); do
+   for signal in $(geopmread | grep -v SERVICE::); do
        # Print the signal name
-       printf %s= $ss
+       printf %s= ${signal}
        # Try to read and print the signal aggregated over all CPUs
        # ("board" denotes the mother-board domain)
-       if geopmread $ss board 0 2>/dev/null; then
+       if geopmread ${signal} board 0 2>/dev/null; then
            # If the read was successful, add request to list
-           echo $ss board 0 >> /tmp/geopmsession-requests.txt
+           echo ${signal} board 0 >> /tmp/geopmsession-requests.txt
        else
            # If signal cannot be read
            echo "UNAVAILABLE"
        fi
    done
    # Create a header for the CSV output (ignore dangling ',' when parsing)
-   for rr in $(cat /tmp/geopmsession-requests.txt | cut -d" " -f 1); do
-       printf %s, $rr
+   for signal in $(cat /tmp/geopmsession-requests.txt | cut -d" " -f 1); do
+       printf %s, ${signal}
    done
    echo
    # Start a batch server requesting all available signals be read
    # once per second for 100 seconds. This will create a CSV output
    # with all signals read 100 times
-   geopmsession -t100 -p1 < /tmp/geopmsession-requests.txt
+   geopmsession -t 100 -p 1 < /tmp/geopmsession-requests.txt
    # Clean up temporary file
    rm /tmp/geopmsession-requests.txt
    # Enable users to launch a shell on the container for 1 hour
@@ -347,15 +358,16 @@ A human readable version of the client "command" is below:
 
 
 
-The second container uses the service to read all available signals
-with the ``geopmread`` command line utility.  These signals are
-aggregated across all CPUs on the system and the result is printed to
-the client log.  Some of these reads attempts may fail when a signal
+The second container uses the GEOPM Service to read all available
+signals with the ``geopmread`` command line utility.  These signals
+are aggregated across all CPUs on the system and the result is printed
+to the client log.  Some of these read attempts may fail when a signal
 is not supported by the architecture, UNAVAILABLE is printed instead
 of the value.  Any read requests that succeed are added to a batch
 request queue.  This queue of requests is then read once per second
 and printed to the log 100 times by the ``geopmsession`` command line
-tool.
+tool. The ``geopmsession`` tool uses the batch interface of the GEOPM
+Service to enable high speed / low overhead access to these signals.
 
 
 Running the Demo
