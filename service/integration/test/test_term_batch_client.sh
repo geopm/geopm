@@ -3,18 +3,13 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
-# test_kill_batch_client.sh
-# Session client PID is killed with signal 9 after
-# the client pid is isolated from the parent process group using setsid(2)
-
 if [[ $# -gt 0 ]] && [[ $1 == '--help' ]]; then
     echo "
     Terminating Batch Client
     ------------------------
 
-    Session client PID is killed with signal 9 after
-    the client pid is isolated from the parent process group using setsid(2)
-    Check that the batch server (owned by root) shuts down cleanly.
+    As root, send term signal to active batch server client, and make sure
+    that server shuts down cleanly.
 
 "
     exit 0
@@ -43,7 +38,7 @@ check_control
 sleep 5
 get_server_pid
 
-kill_client
+term_client
 sleep 5
 check_server_dead
 

@@ -17,17 +17,12 @@ fi
 # PARAMETERS
 CONTROL=MSR::PERF_CTL:FREQ
 TEST_DIR=$(dirname $(readlink -f $0))
-TEST_USER=test
+TEST_USER=${GEOPM_TEST_USER:-test-service}
 if [[ $(whoami) == 'root' ]]; then
     TEST_SCRIPT="su ${TEST_USER} ${TEST_DIR}/check_write_session.sh"
 else
     TEST_SCRIPT=${TEST_DIR}/check_write_session.sh
 fi
-
-test_error() {
-    echo "Error: $1" 1>&2
-    exit -1
-}
 
 # RUN WRITE SESSION TEST AND MAKE SURE IT PASSES
 ${TEST_SCRIPT} &
