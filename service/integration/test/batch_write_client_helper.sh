@@ -3,5 +3,6 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
-echo 'SERVICE::TIME board 0' | geopmsession -t 1000 -p 1 > /dev/null &
+TEST_DIR=$(dirname "$0")
+python3 $TEST_DIR/batch_write_client_helper.py &
 echo $!

@@ -4,5 +4,5 @@
 #
 
 TEST_DIR=$(dirname "$0")
-python3 $TEST_DIR/test_serial_write_client_helper.py &
+python3 $TEST_DIR/serial_write_client_helper.py &
 echo $!

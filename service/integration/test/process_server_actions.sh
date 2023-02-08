@@ -7,7 +7,7 @@
 
 run_batch_helper() {
     # START A PYTHON SCRIPT THAT WRITES THE CONTROL VALUE
-    TEST_SCRIPT="${TEST_DIR}/test_batch_write_client_helper.sh"
+    TEST_SCRIPT="${TEST_DIR}/batch_write_client_helper.sh"
     # the client pid is isolated from the parent process group using setsid(2)
     if [[ $(whoami) == 'root' ]]; then
         # sudo -u is used to change from the root user to the test user,
@@ -18,25 +18,25 @@ run_batch_helper() {
         export SESSION_PID=$(cat ${TEMP_FILE})
         rm ${TEMP_FILE}
     else
-        setsid python3 ${TEST_DIR}/test_batch_write_client_helper.py 2> ${TEST_ERROR} &
+        setsid python3 ${TEST_DIR}/batch_write_client_helper.py 2> ${TEST_ERROR} &
         export SESSION_PID=$!
     fi
 }
 
 run_serial_helper() {
     # START A PYTHON SCRIPT THAT WRITES THE CONTROL VALUE
-    TEST_SCRIPT="${TEST_DIR}/test_serial_write_client_helper.sh"
+    TEST_SCRIPT="${TEST_DIR}/serial_write_client_helper.sh"
     # the client pid is isolated from the parent process group using setsid(2)
     if [[ $(whoami) == 'root' ]]; then
         # sudo -u is used to change from the root user to the test user,
         # who does not have elevated privileges.
-        TEMP_FILE=$(mktemp --tmpdir test_serial_write_client_XXXXXXXX.tmp)
+        TEMP_FILE=$(mktemp --tmpdir serial_write_client_XXXXXXXX.tmp)
         sudo -b -E -u ${TEST_USER} setsid ${TEST_SCRIPT} > ${TEMP_FILE} 2> ${TEST_ERROR}
         sleep 2
         export SESSION_PID=$(cat ${TEMP_FILE})
         rm ${TEMP_FILE}
     else
-        setsid python3 ${TEST_DIR}/test_serial_write_client_helper.py 2> ${TEST_ERROR} &
+        setsid python3 ${TEST_DIR}/serial_write_client_helper.py 2> ${TEST_ERROR} &
         export SESSION_PID=$!
     fi
 }
@@ -57,6 +57,10 @@ kill_server() {
 kill_geopmd() {
     # Original geopmd process is killed with signal 9 (requires root)
     sudo kill_geopmd.sh
+}
+
+term_client(){
+    kill -7 $SESSION_PID
 }
 
 systemctl_stop_geopm() {
