@@ -20,6 +20,7 @@ class TestBashExamples(unittest.TestCase):
     def test_all(self):
         for script in self.bash_tests:
             script_name = os.path.basename(script)
+            sys.stderr.write(f'\nAbout to run {script_name} ...\n')
             with self.subTest(bash_example=script_name):
                 pid = subprocess.Popen([script],
                                        stdout=subprocess.PIPE,

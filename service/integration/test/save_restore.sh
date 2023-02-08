@@ -9,7 +9,7 @@ test_error() {
 }
 
 set_initial_parameters() {
-    CONTROL=SERVICE::MSR::PERF_CTL:FREQ
+    CONTROL=MSR::PERF_CTL:FREQ
     STICKER=CPU_FREQUENCY_STICKER
     DOMAIN=core
     DOMAIN_IDX=0

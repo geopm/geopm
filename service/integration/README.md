@@ -1,20 +1,20 @@
-Testing for the GEOPM Service
-=============================
+# Testing for the GEOPM Service
 
 This directory provides a set of integration test scripts showing
-examples of interacting with the GEOPM service using the `geopmaccess`
-and `geopmsession` command line tools.  These tests are written in
-bash and serve the purpose of testing a fully installed GEOPM service
-using only software from the service subdirectory of the GEOPM
-reposistory.  The tests in this directory also show examples of how to
-use each of the features provided by the service.  The tests each
-begin with a long comment describing the feature under test, and
-provide a form of tutorial for an end user learning how to interact
-with the GEOPM service.
+examples of interacting with the GEOPM service using a variety of
+command line tools including `geopmaccess`, `geopmread`, and
+`geopmwrite`.
+
+These tests are written in Bash and Python, and serve the purpose of
+testing a fully installed GEOPM service using only software from the
+service subdirectory of the GEOPM reposistory.  The tests in this
+directory also show examples of how to use each of the features
+provided by the service.  The tests each begin with a long comment
+describing the feature under test, and provide a form of tutorial for
+an end user learning how to interact with the GEOPM service.
 
 
-Test Setup
-----------
+## Test Setup
 
 The integration tests require a system-wide installation of the GEOPM
 service.  This is typically done by installing the GEOPM RPM packages.
@@ -44,26 +44,31 @@ sudo integration/install_service.sh $(cat VERSION) ${USER}
 Note that the `VERSION` file is created in the `geopm/service`
 directory when the `autogen.sh` script is run.  Once the GEOPM Service
 is installed, the access lists must be updated to enable the tests.
-The following commands may be issued to allow any user in the Unix
-user group `test_group` to access all signals and controls
+The following commands may be issued to allow any user to access all
+signals and controls:
 
 ```bash
-geopmaccess -a | sudo geopmaccess -w -g test_group
-geopmaccess -a -c | sudo geopmaccess -w -c -g test_group
+geopmaccess -a | sudo geopmaccess -w
+geopmaccess -a -c | sudo geopmaccess -w -c
 ```
 
-How to Run the Tests
---------------------
+## How to Run the Tests
 
 Each of the entry points for the integration tests is a script of the
 form:
 
     geopm/integration/test/test_*.sh
 
-Some of these tests require root privileges and these tests have names
-of the form:
+Some of these tests require root privileges unless the sudoers file
+has been setup to allow some privileged commands to be run without
+full sudo access (see below for more information).  These tests have
+names of the form:
 
     geopm/integration/test/test_su_*.sh
+
+The tests are setup to run as the user specified in the
+${GEOPM_TEST_USER} environment variable.  If the variable is not
+specified the tests will run as the "test-service" user.
 
 If the test finishes with an exit code of `0`, and it prints `SUCCESS`
 at the end, then the test has succeeded.
@@ -82,6 +87,12 @@ tests to execute these four commands without providing a sudo password.
 After this is done the `test_su_*.sh` scripts may be run as a non-root
 user.
 
+Alternatively these `test_su_*.sh` scripts may be run as the root
+user, however, the `geopm/integration` directory must be added to the
+root user's `PATH` to enable this.
+
+### Modifications to /etc/sudoers
+
 Example modifications to the `/etc/sudoers` file to enable running
 these tests with a non-root user are as follows.  Under the "User
 privilege specification" section, add the following:
@@ -99,10 +110,36 @@ privilege specification" section, add the following:
             /usr/bin/systemctl restart geopm
 ```
 
-Alternatively these `test_su_*.sh` scripts may be run as the root
-user, however, the `geopm/integration` directory must be added to the
-root user's `PATH` to enable this.
+### Running the suite
 
+Some of the the tests involve positive and negative testing in the
+same file.  Because of this, examining the test output may be
+confusing.  To avoid this confusion and to run all of the tests as a
+suite, use the following to execute and verify the return codes of all
+the tests:
+
+```bash
+#!/bin/bash
+
+python3 -m unittest discover \
+        --top-level-directory ${GEOPM_SOURCE} \
+        --start-directory ${GEOPM_SOURCE}/service/integration/test \
+        --pattern 'test_*.py' \
+        --verbose
+```
+
+If the output of that command ends as follows, the run was successful:
+```
+<Lots of output from the individual tests>
+
+----------------------------------------------------------------------
+Ran 2 tests in 140.573s
+
+OK
+```
+
+If the output was not as expected, please file an issue on our GitHub
+repository.
 
 Where to find other tests
 -------------------------

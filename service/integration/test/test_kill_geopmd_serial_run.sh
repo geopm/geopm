@@ -22,7 +22,7 @@ if [[ $# -gt 0 ]] && [[ $1 == '--help' ]]; then
 fi
 
 TEST_DIR=$(dirname $(readlink -f $0))
-TEST_USER=test
+TEST_USER=${GEOPM_TEST_USER:-test-service}
 
 source ${TEST_DIR}/save_restore.sh
 source ${TEST_DIR}/process_server_actions.sh

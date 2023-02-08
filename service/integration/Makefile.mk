@@ -16,8 +16,7 @@ EXTRA_DIST += integration/README.md \
               integration/test/test_sst_priority.sh \
               integration/test/test_su_give_access.sh \
               integration/test/test_su_restart.sh \
-              integration/test/test_su_term_batch.sh \
-              integration/test/test_su_term_batch_helper.sh \
+              integration/test/test_term_batch_client.sh \
               integration/test/save_restore.sh \
               integration/test/process_server_actions.sh \
               integration/test/test_kill_batch_client.sh \
@@ -25,10 +24,10 @@ EXTRA_DIST += integration/README.md \
               integration/test/test_kill_geopmd_batch_run.sh \
               integration/test/test_kill_geopmd_serial_run.sh \
               integration/test/test_systemctl_stop_geopm.sh \
-              integration/test/test_batch_write_client_helper.py \
-              integration/test/test_batch_write_client_helper.sh \
-              integration/test/test_serial_write_client_helper.py \
-              integration/test/test_serial_write_client_helper.sh \
+              integration/test/batch_write_client_helper.py \
+              integration/test/batch_write_client_helper.sh \
+              integration/test/serial_write_client_helper.py \
+              integration/test/serial_write_client_helper.sh \
               integration/test/do_write.sh \
               # end
 
