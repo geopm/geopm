@@ -8,6 +8,8 @@
 #define PLATFORMTOPOIMP_HPP_INCLUDE
 
 #include "geopm/PlatformTopo.hpp"
+#include <vector>
+#include <map>
 
 namespace geopm
 {
@@ -18,7 +20,6 @@ namespace geopm
         public:
             PlatformTopoImp();
             PlatformTopoImp(const std::string &test_cache_file_name);
-            PlatformTopoImp(const std::string &test_cache_file_name, const GPUTopo &gpu_topo);
             virtual ~PlatformTopoImp() = default;
             int num_domain(int domain_type) const override;
             int domain_idx(int domain_type,
@@ -40,17 +41,17 @@ namespace geopm
                              int &num_package,
                              int &core_per_package,
                              int &thread_per_core);
-            void parse_lscpu_numa(std::map<std::string, std::string> lscpu_map,
-                                  std::vector<std::set<int> > &numa_map);
+            std::vector<std::set<int> > parse_lscpu_numa(const std::map<std::string, std::string> &lscpu_map);
+            std::vector<std::set<int> > parse_lscpu_gpu(const std::map<std::string, std::string> &lscpu_map, int domain_type);
             std::string read_lscpu(void);
             static bool check_file(const std::string &file_name);
-
+            static std::string gpu_short_name(int domain_type);
             const std::string M_TEST_CACHE_FILE_NAME;
             int m_num_package;
             int m_core_per_package;
             int m_thread_per_core;
             std::vector<std::set<int> > m_numa_map;
-            const GPUTopo &m_gpu_topo;
+            std::map<int, std::vector<std::set<int> > > m_gpu_info;
     };
 }
 #endif
