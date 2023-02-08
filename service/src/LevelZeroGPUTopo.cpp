@@ -23,6 +23,10 @@ namespace geopm
                                                        const int num_cpu)
         : m_levelzero_device_pool(device_pool)
     {
+        if (getenv("ZE_AFFINITY_MASK") != nullptr) {
+            throw Exception("LevelZeroGPUTopo: Refusing to create a topology cache file while ZE_AFFINITY_MASK environment variable is set",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
         int num_gpu = m_levelzero_device_pool.num_gpu(GEOPM_DOMAIN_GPU);
         int num_gpu_chip = m_levelzero_device_pool.num_gpu(GEOPM_DOMAIN_GPU_CHIP);
 

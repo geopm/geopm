@@ -20,6 +20,7 @@
 #include <stdio.h>
 
 #include <map>
+#include <fstream>
 #include <sstream>
 #include <string>
 #include <stdexcept>
@@ -115,23 +116,18 @@ namespace geopm
     }
 
     PlatformTopoImp::PlatformTopoImp(const std::string &test_cache_file_name)
-        : PlatformTopoImp(test_cache_file_name, gpu_topo())
-    {
-        std::map<std::string, std::string> lscpu_map;
-        lscpu(lscpu_map);
-        parse_lscpu(lscpu_map, m_num_package, m_core_per_package, m_thread_per_core);
-        parse_lscpu_numa(lscpu_map, m_numa_map);
-    }
-
-    PlatformTopoImp::PlatformTopoImp(const std::string &test_cache_file_name,
-                                     const GPUTopo &gpu_topo)
         : M_TEST_CACHE_FILE_NAME(test_cache_file_name)
-        , m_gpu_topo(gpu_topo)
+        , m_gpu_info {
+              {GEOPM_DOMAIN_GPU, {}},
+              {GEOPM_DOMAIN_GPU_CHIP, {}}
+          }
     {
         std::map<std::string, std::string> lscpu_map;
         lscpu(lscpu_map);
         parse_lscpu(lscpu_map, m_num_package, m_core_per_package, m_thread_per_core);
-        parse_lscpu_numa(lscpu_map, m_numa_map);
+        m_numa_map = parse_lscpu_numa(lscpu_map);
+        m_gpu_info[GEOPM_DOMAIN_GPU] = parse_lscpu_gpu(lscpu_map, GEOPM_DOMAIN_GPU);
+        m_gpu_info[GEOPM_DOMAIN_GPU_CHIP] = parse_lscpu_gpu(lscpu_map, GEOPM_DOMAIN_GPU_CHIP);
     }
 
     int PlatformTopoImp::num_domain(int domain_type) const
@@ -170,15 +166,10 @@ namespace geopm
                 result = 0;
                 break;
             case GEOPM_DOMAIN_GPU:
-                result = m_gpu_topo.num_gpu(
-                         GEOPM_DOMAIN_GPU);
-                break;
             case GEOPM_DOMAIN_GPU_CHIP:
-                result = m_gpu_topo.num_gpu(
-                         GEOPM_DOMAIN_GPU_CHIP);
+                result = m_gpu_info.at(domain_type).size();
                 break;
             case GEOPM_DOMAIN_PACKAGE_INTEGRATED_GPU:
-                // @todo Add support for package GPUs to PlatformTopo.
                 result = 0;
                 break;
             case GEOPM_DOMAIN_INVALID:
@@ -214,12 +205,8 @@ namespace geopm
                 }
                 break;
             case GEOPM_DOMAIN_GPU:
-                cpu_idx = m_gpu_topo.cpu_affinity_ideal(
-                          GEOPM_DOMAIN_GPU, domain_idx);
-                break;
             case GEOPM_DOMAIN_GPU_CHIP:
-                cpu_idx = m_gpu_topo.cpu_affinity_ideal(
-                          GEOPM_DOMAIN_GPU_CHIP, domain_idx);
+                cpu_idx = m_gpu_info.at(domain_type).at(domain_idx);
                 break;
             case GEOPM_DOMAIN_PACKAGE:
                 for (int thread_idx = 0;
@@ -287,8 +274,13 @@ namespace geopm
                 result = cpu_idx;
                 break;
             case GEOPM_DOMAIN_MEMORY:
-                numa_idx = 0;
-                for (const auto &set_it : m_numa_map) {
+            case GEOPM_DOMAIN_GPU:
+            case GEOPM_DOMAIN_GPU_CHIP:
+                {
+                const auto &domain_map = (domain_type == GEOPM_DOMAIN_MEMORY) ?
+                                         m_numa_map :
+                                         m_gpu_info.at(domain_type);
+                for (const auto &set_it : domain_map) {
                     for (const auto &cpu_it : set_it) {
                         if (cpu_it == cpu_idx) {
                             result = numa_idx;
@@ -302,35 +294,12 @@ namespace geopm
                     }
                     ++numa_idx;
                 }
-                break;
-            case GEOPM_DOMAIN_GPU:
-                for(int gpu_idx = 0; (gpu_idx <
-                                        m_gpu_topo.num_gpu(GEOPM_DOMAIN_GPU))
-                        && (result == -1); ++gpu_idx) {
-                    std::set<int> affin = m_gpu_topo.cpu_affinity_ideal(
-                        GEOPM_DOMAIN_GPU,
-                        gpu_idx);
-                    if (affin.find(cpu_idx) != affin.end()) {
-                        result = gpu_idx;
-                    }
                 }
                 break;
-            case GEOPM_DOMAIN_GPU_CHIP:
-                for(int gpu_sub_idx = 0; (gpu_sub_idx <
-                                            m_gpu_topo.num_gpu(GEOPM_DOMAIN_GPU_CHIP))
-                        && (result == -1); ++gpu_sub_idx) {
-                    std::set<int> affin = m_gpu_topo.cpu_affinity_ideal(
-                        GEOPM_DOMAIN_GPU_CHIP,
-                        gpu_sub_idx);
-                    if (affin.find(cpu_idx) != affin.end()) {
-                        result = gpu_sub_idx;
-                    }
-                }
-                break;
+            case GEOPM_DOMAIN_PACKAGE_INTEGRATED_GPU:
             case GEOPM_DOMAIN_PACKAGE_INTEGRATED_MEMORY:
             case GEOPM_DOMAIN_NIC:
             case GEOPM_DOMAIN_PACKAGE_INTEGRATED_NIC:
-            case GEOPM_DOMAIN_PACKAGE_INTEGRATED_GPU:
                 /// @todo Add support for package memory NIC and package GPUs to domain_idx() method.
                 throw Exception("PlatformTopoImp::domain_idx() no support yet for PACKAGE_INTEGRATED_MEMORY, NIC, or GPU",
                                 GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
@@ -485,6 +454,7 @@ namespace geopm
         }
 
         if (is_file_ok == false) {
+
             mode_t perms;
             if (cache_file_name == M_SERVICE_CACHE_FILE_NAME) {
                 perms = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH; // 0o644
@@ -525,7 +495,29 @@ namespace geopm
                 throw Exception("PlatformTopo::create_cache(): Could not pclose lscpu command: ",
                                 errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
-
+            const GPUTopo &gtopo = geopm::gpu_topo();
+            if (gtopo.num_gpu() != 0) {
+                std::ofstream cache_stream;
+                cache_stream.open(tmp_path, std::ios_base::app);
+                std::vector<int> gpu_domains = {
+                    GEOPM_DOMAIN_GPU,
+                    GEOPM_DOMAIN_GPU_CHIP
+                };
+                for (const auto &domain_type : gpu_domains) {
+                    std::string short_name = gpu_short_name(domain_type);
+                    int num_domain = gtopo.num_gpu(domain_type);
+                    for (int domain_idx = 0; domain_idx != num_domain; ++domain_idx) {
+                        cache_stream << "GPU " << short_name << domain_idx << " CPU(s):";
+                        std::string delim = " ";
+                        for (const auto &cpu_idx : gtopo.cpu_affinity_ideal(domain_type, domain_idx)) {
+                            cache_stream << delim << cpu_idx;
+                            delim = ",";
+                        }
+                        cache_stream << "\n";
+                    }
+                }
+                cache_stream.close();
+            }
             err = rename(tmp_path, cache_file_name.c_str());
             if (err) {
                 throw Exception("PlatformTopo::create_cache(): Could not rename tmp_path: ",
@@ -592,9 +584,9 @@ namespace geopm
         }
     }
 
-    void PlatformTopoImp::parse_lscpu_numa(std::map<std::string, std::string> lscpu_map,
-                                           std::vector<std::set<int> > &numa_map)
+    std::vector<std::set<int> > PlatformTopoImp::parse_lscpu_numa(const std::map<std::string, std::string> &lscpu_map)
     {
+        std::vector<std::set<int> > numa_map;
         bool is_node_found = true;
         for (int node_idx = 0; is_node_found; ++node_idx) {
             std::ostringstream numa_key;
@@ -630,6 +622,31 @@ namespace geopm
                 numa_map[0].insert(cpu_idx);
             }
         }
+        return numa_map;
+    }
+
+
+    std::vector<std::set<int> > PlatformTopoImp::parse_lscpu_gpu(const std::map<std::string, std::string> &lscpu_map, int domain_type)
+    {
+        std::vector<std::set<int> > gpu_map;
+        bool is_domain_found = true;
+        std::string short_name = gpu_short_name(domain_type);
+        for (int domain_idx = 0; is_domain_found; ++domain_idx) {
+            std::ostringstream gpu_key;
+            gpu_key << "GPU " << short_name << domain_idx << " CPU(s)";
+            auto lscpu_it = lscpu_map.find(gpu_key.str());
+            if (lscpu_it == lscpu_map.end()) {
+                is_domain_found = false;
+            }
+            else {
+                gpu_map.push_back({});
+                auto cpu_set_it = gpu_map.end() - 1;
+                for (const auto &cpu_str : geopm::string_split(lscpu_it->second, ",")) {
+                    cpu_set_it->insert(std::stoi(cpu_str));
+                }
+            }
+        }
+        return gpu_map;
     }
 
     bool PlatformTopoImp::check_file(const std::string &file_path)
@@ -644,7 +661,7 @@ namespace geopm
         struct stat file_stat;
         err = stat(file_path.c_str(), &file_stat);
         if (err) {
-            throw Exception("PlatformTopoImp::create_cache(): stat failure:",
+            throw Exception("PlatformTopoImp::check_file(): stat failure:",
                             errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
 
@@ -716,6 +733,14 @@ namespace geopm
                 }
             }
         }
+    }
+    std::string PlatformTopoImp::gpu_short_name(int domain_type)
+    {
+        static const std::map<int, std::string> gpu_short_name_map {
+                {GEOPM_DOMAIN_GPU, "node"},
+                {GEOPM_DOMAIN_GPU_CHIP, "chip"}
+        };
+        return gpu_short_name_map.at(domain_type);
     }
 }
 

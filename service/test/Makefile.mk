@@ -269,6 +269,7 @@ GTEST_TESTS = test/gtest_links/GPUTopoNullTest.default_config \
               test/gtest_links/PlatformTopoTest.bdx_is_nested_domain \
               test/gtest_links/PlatformTopoTest.bdx_domain_nested \
               test/gtest_links/PlatformTopoTest.bdx_num_domain \
+              test/gtest_links/PlatformTopoTest.gpu_num_domain \
               test/gtest_links/PlatformTopoTest.call_c_wrappers \
               test/gtest_links/PlatformTopoTest.check_file_bad_perms \
               test/gtest_links/PlatformTopoTest.check_file_too_old \
