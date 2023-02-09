@@ -431,10 +431,10 @@ namespace geopm
 
     void PlatformTopoImp::create_cache(void)
     {
-        try {
+        if (getuid() == 0) {
             PlatformTopoImp::create_cache(M_SERVICE_CACHE_FILE_NAME);
         }
-        catch (const geopm::Exception &ex) {
+        else {
             PlatformTopoImp::create_cache(M_CACHE_FILE_NAME);
         }
     }
@@ -699,11 +699,11 @@ namespace geopm
             result = geopm::read_file(M_TEST_CACHE_FILE_NAME);
         }
         else {
-            try {
+            if (getuid() == 0) {
                 create_cache(M_SERVICE_CACHE_FILE_NAME);
                 result = geopm::read_file(M_SERVICE_CACHE_FILE_NAME);
             }
-            catch (const geopm::Exception &ex) {
+            else {
                 create_cache(M_CACHE_FILE_NAME);
                 result = geopm::read_file(M_CACHE_FILE_NAME);
             }
