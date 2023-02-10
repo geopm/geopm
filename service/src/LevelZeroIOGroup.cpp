@@ -438,10 +438,6 @@ namespace geopm
         , m_frequency_range(m_platform_topo.num_domain(GEOPM_DOMAIN_GPU_CHIP), std::make_pair(0, 0))
         , m_mock_save_ctl(save_control_test)
     {
-        if (getenv("ZE_AFFINITY_MASK") != nullptr) {
-            throw Exception("LevelZeroIOGroup: Cannot be used directly when ZE_AFFINITY_MASK environment variable is set, must use service to access LevelZero in this case",
-                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-        }
         std::vector <std::string> unsupported_signal_names;
         // populate signals for each domain
         for (auto &sv : m_signal_available) {

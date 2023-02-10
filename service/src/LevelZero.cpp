@@ -8,6 +8,7 @@
 #include <string>
 #include <iostream>
 #include <map>
+#include <stdlib.h>
 
 #include "geopm/Exception.hpp"
 #include "geopm/Agg.hpp"
@@ -32,6 +33,11 @@ namespace geopm
         : m_num_gpu(0)
         , m_num_gpu_subdevice(0)
     {
+        if (getenv("ZE_AFFINITY_MASK") != nullptr) {
+            throw Exception("LevelZero: Cannot be used directly when ZE_AFFINITY_MASK environment variable is set, must use service to access LevelZero in this case",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+
         ze_result_t ze_result;
         //Initialize
         ze_result = zeInit(ZE_INIT_FLAG_GPU_ONLY);
