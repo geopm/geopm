@@ -117,10 +117,6 @@ namespace geopm
 
     PlatformTopoImp::PlatformTopoImp(const std::string &test_cache_file_name)
         : M_TEST_CACHE_FILE_NAME(test_cache_file_name)
-        , m_gpu_info {
-              {GEOPM_DOMAIN_GPU, {}},
-              {GEOPM_DOMAIN_GPU_CHIP, {}}
-          }
     {
         std::map<std::string, std::string> lscpu_map;
         lscpu(lscpu_map);
@@ -441,6 +437,12 @@ namespace geopm
 
     void PlatformTopoImp::create_cache(const std::string &cache_file_name)
     {
+        const GPUTopo &gtopo = geopm::gpu_topo();
+        create_cache(cache_file_name, gtopo);
+    }
+
+    void PlatformTopoImp::create_cache(const std::string &cache_file_name, const GPUTopo &gtopo)
+    {
         // If cache file is not present, or is too old, create it
         bool is_file_ok = false;
         try {
@@ -495,7 +497,6 @@ namespace geopm
                 throw Exception("PlatformTopo::create_cache(): Could not pclose lscpu command: ",
                                 errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
-            const GPUTopo &gtopo = geopm::gpu_topo();
             if (gtopo.num_gpu() != 0) {
                 std::ofstream cache_stream;
                 cache_stream.open(tmp_path, std::ios_base::app);
@@ -734,6 +735,7 @@ namespace geopm
             }
         }
     }
+
     std::string PlatformTopoImp::gpu_short_name(int domain_type)
     {
         static const std::map<int, std::string> gpu_short_name_map {
