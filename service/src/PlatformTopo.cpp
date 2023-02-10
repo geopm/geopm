@@ -456,7 +456,6 @@ namespace geopm
         }
 
         if (is_file_ok == false) {
-
             mode_t perms;
             if (cache_file_name == M_SERVICE_CACHE_FILE_NAME) {
                 perms = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH; // 0o644
@@ -625,7 +624,6 @@ namespace geopm
         }
         return numa_map;
     }
-
 
     std::vector<std::set<int> > PlatformTopoImp::parse_lscpu_gpu(const std::map<std::string, std::string> &lscpu_map, int domain_type)
     {
