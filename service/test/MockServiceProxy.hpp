@@ -33,6 +33,8 @@ class MockServiceProxy : public geopm::ServiceProxy
         MOCK_METHOD(void, platform_write_control,
                     (const std::string &control_name, int domain,
                      int domain_idx, double setting), (override));
+        MOCK_METHOD(std::string, topo_get_cache,
+                    (), (override));
 };
 
 #endif

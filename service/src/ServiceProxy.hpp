@@ -143,6 +143,7 @@ namespace geopm
                                                 int domain,
                                                 int domain_idx,
                                                 double setting) = 0;
+            virtual std::string topo_get_cache(void) = 0;
     };
 
     class ServiceProxyImp : public ServiceProxy
@@ -169,6 +170,7 @@ namespace geopm
                                         int domain,
                                         int domain_idx,
                                         double setting) override;
+            std::string topo_get_cache(void) override;
         private:
             std::vector<std::string> read_string_array(std::shared_ptr<SDBusMessage> bus_message);
             std::shared_ptr<SDBus> m_bus;
