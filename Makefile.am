@@ -7,37 +7,37 @@ ACLOCAL_AMFLAGS = -I m4
 AM_CPPFLAGS += -I$(top_srcdir)/src \
                -DGEOPM_DEFAULT_PLUGIN_PATH=\"$(libdir)/geopm\" \
                -D_POSIX_C_SOURCE=200809L \
-               -DOMPI_SKIP_MPICXX
+               -DOMPI_SKIP_MPICXX \
+               # end
 
 # THINGS THAT ARE INSTALLED
-lib_LTLIBRARIES = libgeopmpolicy.la
+lib_LTLIBRARIES = libgeopmpolicy.la \
+                  libgeopm.la \
+                  libgeopmload.la \
+                  # end
+
 bin_PROGRAMS = geopmadmin \
                geopmagent \
+               geopmctl \
                #end
-pkglib_LTLIBRARIES =
-nodist_include_HEADERS =
 
 if ENABLE_MPI
-    lib_LTLIBRARIES += libgeopm.la \
-                       libgeopmload.la \
-                       # end
-    bin_PROGRAMS += geopmctl \
-                    # end
 if ENABLE_OPENMP
-    bin_PROGRAMS += geopmbench \
-                    # end
+    bin_PROGRAMS += geopmbench
 endif
 if ENABLE_FORTRAN
     lib_LTLIBRARIES += libgeopmfort.la
 endif
-endif
+endif # ENABLE_MPI
+
+pkglib_LTLIBRARIES =
+nodist_include_HEADERS =
 
 install-exec-hook: install-python install-fortran install-plugin-dir
 dist: dist-googletest
 
 
 include_HEADERS = src/geopm_agent.h \
-                  src/geopm_ctl.h \
                   src/geopm_imbalancer.h \
                   src/geopm_prof.h \
                   # end
@@ -80,7 +80,7 @@ endif
 else
 install-fortran:
 	-
-endif
+endif # ENABLE_MPI
 
 all-local: $(all_local)
 
@@ -347,7 +347,11 @@ if ENABLE_FORTRAN
     libgeopmfort_la_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
     libgeopmfort_la_LDFLAGS = $(AM_LDFLAGS) $(MPI_CLDFLAGS) -version-info $(geopm_abi_version)
 endif
-endif
+else
+    libgeopm_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(geopm_abi_version)
+    libgeopmload_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(geopm_abi_version)
+endif # ENABLE_MPI
+
 
 # EXTEND FLAGS FOR NON-MPI TARGETS
 libgeopmpolicy_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(geopm_abi_version)
@@ -363,7 +367,10 @@ if ENABLE_MPI
 if ENABLE_FORTRAN
     libgeopmfort_la_LIBADD = libgeopm.la libgeopmload.la $(MPI_FLIBS)
 endif
-endif
+else
+    geopmctl_LDADD = libgeopm.la
+    libgeopmload_la_LIBADD = libgeopm.la
+endif # ENABLE_MPI
 
 libgeopmpolicy_la_SOURCES = src/Accumulator.cpp \
                             src/Accumulator.hpp \
@@ -388,6 +395,7 @@ libgeopmpolicy_la_SOURCES = src/Accumulator.cpp \
                             src/CSV.hpp \
                             src/DebugIOGroup.cpp \
                             src/DebugIOGroup.hpp \
+                            src/DefaultProfile.cpp \
                             src/EditDistPeriodicityDetector.cpp \
                             src/EditDistPeriodicityDetector.hpp \
                             src/EditDistEpochRecordFilter.cpp \
@@ -438,6 +446,8 @@ libgeopmpolicy_la_SOURCES = src/Accumulator.cpp \
                             src/PowerGovernorAgent.hpp \
                             src/PlatformIOProf.cpp \
                             src/PlatformIOProf.hpp \
+                            src/Profile.cpp \
+                            src/Profile.hpp \
                             src/ProfileIOGroup.cpp \
                             src/ProfileIOGroup.hpp \
                             src/ProfileTracer.cpp \
@@ -470,10 +480,11 @@ libgeopmpolicy_la_SOURCES = src/Accumulator.cpp \
                             src/Waiter.hpp \
                             src/Waiter.cpp \
                             src/geopm_agent.h \
-                            src/geopm_prof.h \
+                            src/geopm_daemon.h \
                             src/geopm_endpoint.h \
                             src/geopm_imbalancer.h \
                             src/geopm_policystore.h \
+                            src/geopm_prof.h \
                             src/geopm_reporter.h \
                             src/record.cpp \
                             src/record.hpp \
@@ -501,18 +512,15 @@ endif
 geopmagent_SOURCES = src/geopmagent_main.cpp
 geopmadmin_SOURCES = src/geopmadmin_main.cpp
 
-pmpi_source_files = src/geopm_pmpi.c \
+pmpi_source_files = src/geopm_ctl.h \
+                    src/geopm_pmpi.c \
                     src/geopm_pmpi_helper.cpp \
                     src/geopm_pmpi.h \
                     # end
 
-mpi_source_files = src/DefaultProfile.cpp \
-                   src/MPIComm.cpp \
+mpi_source_files = src/MPIComm.cpp \
                    src/MPIComm.hpp \
                    src/MPICommSplit.cpp \
-                   src/Profile.cpp \
-                   src/Profile.hpp \
-                   src/geopm_ctl.h \
                    src/geopm_mpi_comm_split.h \
                    # end
 ompt_source_files = src/OMPT.cpp \
@@ -522,21 +530,27 @@ ompt_source_files = src/OMPT.cpp \
 fortran_source_files = src/geopm_prof.f90 \
                        src/geopm_pmpi_fortran.c \
                        # end
-geopmctl_source_files = src/geopmctl_main.c \
-                        # end
 
+geopmctl_SOURCES = src/geopmctl_main.c
+
+# All source files that are compiled into libgeopmpolicy are also
+# compiled into libgeopm.  We either have to do this or require
+# users to link to both libgeopm and libgeopmpolicy when calling
+# into application facing APIs.
+libgeopm_la_SOURCES = $(libgeopmpolicy_la_SOURCES)
 if ENABLE_MPI
-    # All source files that are compiled into libgeopmpolicy are also
-    # compiled into libgeopm.  We either have to do this or require
-    # users to link to both libgeopm and libgeopmpolicy when calling
-    # into application facing APIs.
-    libgeopm_la_SOURCES = $(libgeopmpolicy_la_SOURCES) \
-                          $(mpi_source_files) \
-                          # end
-    libgeopmload_la_SOURCES = src/geopm_lib_init.cpp \
-                              $(pmpi_source_files)
-                              # end
-    geopmctl_SOURCES = $(geopmctl_source_files)
+    libgeopm_la_SOURCES +=$(mpi_source_files)
+else
+    EXTRA_DIST += $(mpi_source_files)
+endif # ENABLE_MPI
+
+
+libgeopmload_la_SOURCES = src/geopm_lib_init.cpp
+if ENABLE_MPI
+libgeopmload_la_SOURCES += $(pmpi_source_files)
+else
+EXTRA_DIST += $(pmpi_source_files)
+endif # ENABLE_MPI
 
 if ENABLE_OMPT
     libgeopmload_la_SOURCES += $(ompt_source_files)
@@ -544,21 +558,15 @@ else
     EXTRA_DIST += $(ompt_source_files)
 endif
 
+if ENABLE_MPI
 if ENABLE_FORTRAN
     libgeopmfort_la_SOURCES = $(fortran_source_files)
 else
     EXTRA_DIST += $(fortran_source_files)
 endif
-
-# disable MPI
 else
-    EXTRA_DIST += $(mpi_source_files) \
-                  $(pmpi_source_files) \
-                  $(ompt_source_files) \
-                  $(fortran_source_files) \
-                  $(geopmctl_source_files) \
-                  # end
-endif
+    EXTRA_DIST += $(fortran_source_files)
+endif # ENABLE_MPI
 
 model_source_files = src/All2allModelRegion.cpp \
                      src/All2allModelRegion.hpp \
@@ -600,7 +608,7 @@ else
     EXTRA_DIST += $(model_source_files) \
                   src/geopmbench_main.cpp \
                   # end
-endif
+endif # ENABLE_MPI
 
 # CLEAN TARGETS
 DISTCLEANFILES = VERSION MANIFEST
@@ -634,7 +642,7 @@ BUILT_SOURCES =
 endif
 else
 BUILT_SOURCES =
-endif
+endif # ENABLE_MPI
 
 # RPM TARGET
 rpm_topdir ?= $(HOME)/rpmbuild

@@ -79,8 +79,12 @@ namespace geopm
                            "GEOPM_TRACE",
                            "GEOPM_TRACE_PROFILE",
                            "GEOPM_CTL"})
-        , m_name_value_map ({{"GEOPM_COMM" ,"MPIComm"},
-                             {"GEOPM_AGENT", "monitor"},
+        , m_name_value_map ({{"GEOPM_AGENT", "monitor"},
+#ifdef ENABLE_MPI
+                             {"GEOPM_COMM" ,"MPIComm"},
+#else
+                             {"GEOPM_COMM" ,"NullComm"},
+#endif
                              {"GEOPM_MAX_FAN_OUT", "16"},
                              {"GEOPM_TIMEOUT", "30"},
                              {"GEOPM_DEBUG_ATTACH", "-1"}})

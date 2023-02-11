@@ -194,6 +194,48 @@ namespace geopm
     };
 
     CommFactory &comm_factory(void);
+
+
+    class NullComm : public Comm
+    {
+        public:
+            NullComm();
+            virtual ~NullComm() = default;
+            std::shared_ptr<Comm> split() const override;
+            std::shared_ptr<Comm> split(int color, int key) const override;
+            std::shared_ptr<Comm> split(const std::string &tag, int split_type) const override;
+            std::shared_ptr<Comm> split(std::vector<int> dimensions, std::vector<int> periods, bool is_reorder) const override;
+            std::shared_ptr<Comm> split_cart(std::vector<int> dimensions) const override;
+
+            bool comm_supported(const std::string &description) const override;
+            int cart_rank(const std::vector<int> &coords) const override;
+            int rank(void) const override;
+            int num_rank(void) const override;
+            void dimension_create(int num_ranks, std::vector<int> &dimension) const override;
+            void free_mem(void *base) override;
+            void alloc_mem(size_t size, void **base) override;
+            size_t window_create(size_t size, void *base) override;
+            void window_destroy(size_t window_id) override;
+            void window_lock(size_t window_id, bool is_exclusive, int rank, int assert) const override;
+            void window_unlock(size_t window_id, int rank) const override;
+            void coordinate(int rank, std::vector<int> &coord) const override;
+            std::vector<int> coordinate(int rank) const override;
+            void barrier(void) const override;
+            void broadcast(void *buffer, size_t size, int root) const override;
+            bool test(bool is_true) const override;
+            void reduce_max(double *send_buf, double *recv_buf, size_t count, int root) const override;
+            void gather(const void *send_buf, size_t send_size, void *recv_buf,
+                                size_t recv_size, int root) const override;
+            void gatherv(const void *send_buf, size_t send_size, void *recv_buf,
+                                 const std::vector<size_t> &recv_sizes, const std::vector<off_t> &rank_offset, int root) const override;
+            void window_put(const void *send_buf, size_t send_size, int rank, off_t disp, size_t window_id) const override;
+            void tear_down(void) override;
+            static std::string plugin_name(void);
+            static std::unique_ptr<Comm> make_plugin();
+        private:
+            mutable std::vector<std::vector<char> > m_window_buffers;
+            std::map<char *, int> m_window_buffers_map;
+    };
 }
 
 #endif

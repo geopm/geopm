@@ -12,6 +12,9 @@ namespace geopm
     std::unique_ptr<cpu_set_t, std::function<void(cpu_set_t *)> >
         make_cpu_set(int num_cpu, const std::set<int> &cpu_enabled)
     {
+        if (num_cpu < 128) {
+            num_cpu = 128;
+        }
         std::unique_ptr<cpu_set_t, std::function<void(cpu_set_t *)> > result(
             CPU_ALLOC(num_cpu),
             [](cpu_set_t *ptr)
