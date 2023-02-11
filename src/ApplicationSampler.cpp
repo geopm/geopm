@@ -291,72 +291,53 @@ namespace geopm
             // Get list of PIDs that are connected
             auto service_proxy = ServiceProxy::make_unique();
             std::vector<int> client_pids = service_proxy->platform_get_profile_pids(m_profile_name);
-            int num_cpu = m_topo.num_domain(GEOPM_DOMAIN_CPU);
-            cpu_set_t *cpuset = CPU_ALLOC(num_cpu);
-            cpu_set_t *all_cpuset = CPU_ALLOC(num_cpu);
-            if (cpuset == nullptr || all_cpuset == nullptr) {
-                throw Exception("ApplicationSamplerImp::connect(): Failed to allocate cpuset: ",
-                                ENOMEM, __FILE__, __LINE__);
+            auto cpuset = geopm::make_cpu_set(m_num_cpu, {});
+            auto all_cpuset = geopm::make_cpu_set(m_num_cpu, {});
+            size_t set_size = CPU_ALLOC_SIZE(m_num_cpu);
+            for (const auto &pid : client_pids) {
+                std::string shmem_path = shmem_path_prof("record-log", pid, geteuid());
+                std::shared_ptr<SharedMemory> record_log_shmem =
+                    SharedMemory::make_unique_user(shmem_path, 0);
+                if (record_log_shmem->size() < ApplicationRecordLog::buffer_size()) {
+                    throw Exception("ApplicationSamplerImp::connect(): "
+                                    "Record log shared memory buffer is incorrectly sized",
+                                    GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                }
+                auto emplace_ret = m_process_map.emplace(pid, m_process_s {});
+                auto &process = emplace_ret.first->second;
+                if (m_is_filtered) {
+                    process.filter = RecordFilter::make_unique(m_filter_name);
+                }
+                process.record_log_shmem = record_log_shmem;
+                process.record_log = ApplicationRecordLog::make_unique(record_log_shmem);
+                process.records.reserve(ApplicationRecordLog::max_record());
+                process.short_regions.reserve(ApplicationRecordLog::max_region());
+                int err = geopm_sched_proc_cpuset_pid(pid, m_num_cpu, cpuset.get());
+                if (err) {
+                    throw Exception("Failed to get cpuset for pid: " + std::to_string(pid),
+                                    err, __FILE__, __LINE__);
+                }
+                CPU_OR_S(set_size, all_cpuset.get(), all_cpuset.get(), cpuset.get());
+                for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
+                    if (CPU_ISSET_S(cpu_idx, set_size, cpuset.get())) {
+                        process.cpus.push_back(cpu_idx);
+                        // TODO: Last PID wins if the affinity masks overlap
+                        m_per_cpu_process.at(cpu_idx) = pid;
+                    }
+                }
             }
-            try {
-                CPU_ZERO(all_cpuset);
-                for (const auto &pid : client_pids) {
-                    std::string shmem_path = shmem_path_prof("record-log", pid, geteuid());
-                    std::shared_ptr<SharedMemory> record_log_shmem =
-                        SharedMemory::make_unique_user(shmem_path, 0);
-                    if (record_log_shmem->size() < ApplicationRecordLog::buffer_size()) {
-                        throw Exception("ApplicationSamplerImp::connect(): "
-                                        "Record log shared memory buffer is incorrectly sized",
-                                        GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-                    }
-                    auto emplace_ret = m_process_map.emplace(pid, m_process_s {});
-                    auto &process = emplace_ret.first->second;
-                    if (m_is_filtered) {
-                        process.filter = RecordFilter::make_unique(m_filter_name);
-                    }
-                    process.record_log_shmem = record_log_shmem;
-                    process.record_log = ApplicationRecordLog::make_unique(record_log_shmem);
-                    process.records.reserve(ApplicationRecordLog::max_record());
-                    process.short_regions.reserve(ApplicationRecordLog::max_region());
-                    int err = geopm_sched_proc_cpuset_pid(pid, num_cpu, cpuset);
-                    if (err) {
-                        throw Exception("Failed to get cpuset for pid: " + std::to_string(pid),
-                                        err, __FILE__, __LINE__);
-                    }
-                    CPU_OR(all_cpuset, all_cpuset, cpuset);
-                    for (int cpu_idx = 0; cpu_idx < num_cpu; ++cpu_idx) {
-                        if (CPU_ISSET(cpu_idx, cpuset)) {
-                            process.cpus.push_back(cpu_idx);
-                            // TODO: Last PID wins if the affinity masks overlap
-                            m_per_cpu_process.at(cpu_idx) = pid;
-                        }
-                    }
+            std::set<int> inactive_cpu;
+            for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
+                if (!CPU_ISSET_S(cpu_idx, set_size, all_cpuset.get())) {
+                    inactive_cpu.insert(cpu_idx);
                 }
-                std::set<int> inactive_cpu;
-                for (int cpu_idx = 0; cpu_idx < num_cpu; ++cpu_idx) {
-                    if (!CPU_ISSET(cpu_idx, all_cpuset)) {
-                        inactive_cpu.insert(cpu_idx);
-                    }
-                }
-                m_status->set_valid_cpu(inactive_cpu, false);
-                m_status->update_cache();
             }
-            catch (...) {
-                if (all_cpuset) {
-                    CPU_FREE(all_cpuset);
-                }
-                if (cpuset) {
-                    CPU_FREE(cpuset);
-                }
-                throw;
-            }
-            CPU_FREE(all_cpuset);
-            CPU_FREE(cpuset);
+            m_status->set_valid_cpu(inactive_cpu, false);
+            m_status->update_cache();
         }
         // Try to pin the sampling thread to a free core
         std::set<int> sampler_cpu_set = {sampler_cpu()};
         auto sampler_cpu_mask = make_cpu_set(m_num_cpu, sampler_cpu_set);
-
         int err = sched_setaffinity(0, CPU_ALLOC_SIZE(m_num_cpu), sampler_cpu_mask.get());
         if (err) {
 #ifdef GEOPM_DEBUG

@@ -67,7 +67,7 @@ namespace geopm
                         int num_level_ctl,
                         int num_send_down,
                         int num_send_up,
-                        std::vector<std::unique_ptr<TreeCommLevel> > mock_level);
+                        std::vector<std::shared_ptr<TreeCommLevel> > mock_level);
             virtual ~TreeCommImp();
             int num_level_controlled(void) const override;
             int max_level(void) const override;
@@ -81,7 +81,7 @@ namespace geopm
             size_t overhead_send(void) const override;
         private:
             int num_level_controlled(const std::vector<int> &coords);
-            std::vector<std::unique_ptr<TreeCommLevel> > init_level(
+            std::vector<std::shared_ptr<TreeCommLevel> > init_level(
                 std::shared_ptr<Comm> comm_cart, int root_level);
             std::shared_ptr<Comm> m_comm;
             /// Tree fan out from root to leaf. Note levels go from
@@ -96,7 +96,7 @@ namespace geopm
             int m_num_node;
             int m_num_send_down;
             int m_num_send_up;
-            std::vector<std::unique_ptr<TreeCommLevel> > m_level_ctl;
+            std::vector<std::shared_ptr<TreeCommLevel> > m_level_ctl;
     };
 }
 

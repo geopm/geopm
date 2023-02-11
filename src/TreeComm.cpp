@@ -34,7 +34,7 @@ namespace geopm
                              int num_level_ctl,
                              int num_send_down,
                              int num_send_up,
-                             std::vector<std::unique_ptr<TreeCommLevel> > mock_level)
+                             std::vector<std::shared_ptr<TreeCommLevel> > mock_level)
         : m_comm(comm)
         , m_fan_out(fan_out)
         , m_root_level(fan_out.size())
@@ -46,7 +46,7 @@ namespace geopm
         , m_level_ctl(std::move(mock_level))
     {
         if (m_level_ctl.size() == 0) {
-            std::shared_ptr<Comm> comm_cart(comm->split_cart(m_fan_out));
+            std::shared_ptr<Comm> comm_cart = comm->split_cart(m_fan_out);
             m_level_ctl = init_level(comm_cart, m_root_level);
         }
 #ifdef GEOPM_DEBUG
@@ -73,13 +73,13 @@ namespace geopm
         return m_max_level;
     }
 
-    std::vector<std::unique_ptr<TreeCommLevel> > TreeCommImp::init_level(std::shared_ptr<Comm> comm_cart, int root_level)
+    std::vector<std::shared_ptr<TreeCommLevel> > TreeCommImp::init_level(std::shared_ptr<Comm> comm_cart, int root_level)
     {
-        std::vector<std::unique_ptr<TreeCommLevel> > result;
+        std::vector<std::shared_ptr<TreeCommLevel> > result;
         int rank_cart = comm_cart->rank();
-        std::vector<int> coords(comm_cart->coordinate(rank_cart));
+        std::vector<int> coords = comm_cart->coordinate(rank_cart);
         m_num_level_ctl = num_level_controlled(coords);
-        std::vector<int> parent_coords(coords);
+        std::vector<int> parent_coords = coords;
         int level = 0;
         m_max_level = m_num_level_ctl;
         if (m_num_level_ctl != root_level) {
@@ -88,9 +88,9 @@ namespace geopm
         for (; level < m_max_level; ++level) {
             parent_coords[root_level - 1 - level] = 0;
             result.emplace_back(
-                new TreeCommLevelImp(comm_cart->split(
-                                         comm_cart->cart_rank(parent_coords), rank_cart),
-                                     m_num_send_up, m_num_send_down));
+                std::make_shared<TreeCommLevelImp>(comm_cart->split(
+                                                   comm_cart->cart_rank(parent_coords), rank_cart),
+                                                   m_num_send_up, m_num_send_down));
         }
         for (; level < root_level; ++level) {
             comm_cart->split(Comm::M_SPLIT_COLOR_UNDEFINED, 0);
