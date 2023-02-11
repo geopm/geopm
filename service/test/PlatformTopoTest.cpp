@@ -322,7 +322,7 @@ void PlatformTopoTest::write_lscpu(const std::string &lscpu_str)
 TEST_F(PlatformTopoTest, hsw_num_domain)
 {
     write_lscpu(m_hsw_lscpu_str);
-    PlatformTopoImp topo(m_lscpu_file_name);
+    PlatformTopoImp topo(m_lscpu_file_name, nullptr);
     EXPECT_EQ(1, topo.num_domain(GEOPM_DOMAIN_BOARD));
     EXPECT_EQ(1, topo.num_domain(GEOPM_DOMAIN_PACKAGE));
     EXPECT_EQ(2, topo.num_domain(GEOPM_DOMAIN_CORE));
@@ -343,7 +343,7 @@ TEST_F(PlatformTopoTest, hsw_num_domain)
 TEST_F(PlatformTopoTest, knl_num_domain)
 {
     write_lscpu(m_knl_lscpu_str);
-    PlatformTopoImp topo(m_lscpu_file_name);
+    PlatformTopoImp topo(m_lscpu_file_name, nullptr);
     EXPECT_EQ(1, topo.num_domain(GEOPM_DOMAIN_BOARD));
     EXPECT_EQ(1, topo.num_domain(GEOPM_DOMAIN_PACKAGE));
     EXPECT_EQ(64, topo.num_domain(GEOPM_DOMAIN_CORE));
@@ -355,7 +355,7 @@ TEST_F(PlatformTopoTest, knl_num_domain)
 TEST_F(PlatformTopoTest, bdx_num_domain)
 {
     write_lscpu(m_bdx_lscpu_str);
-    PlatformTopoImp topo(m_lscpu_file_name);
+    PlatformTopoImp topo(m_lscpu_file_name, nullptr);
     EXPECT_EQ(1, topo.num_domain(GEOPM_DOMAIN_BOARD));
     EXPECT_EQ(2, topo.num_domain(GEOPM_DOMAIN_PACKAGE));
     EXPECT_EQ(36, topo.num_domain(GEOPM_DOMAIN_CORE));
@@ -369,7 +369,7 @@ TEST_F(PlatformTopoTest, bdx_num_domain)
 TEST_F(PlatformTopoTest, gpu_num_domain)
 {
     write_lscpu(m_gpu_lscpu_str);
-    PlatformTopoImp topo(m_lscpu_file_name);
+    PlatformTopoImp topo(m_lscpu_file_name, nullptr);
     EXPECT_EQ(1, topo.num_domain(GEOPM_DOMAIN_BOARD));
     EXPECT_EQ(2, topo.num_domain(GEOPM_DOMAIN_PACKAGE));
     EXPECT_EQ(104, topo.num_domain(GEOPM_DOMAIN_CORE));
@@ -388,7 +388,7 @@ TEST_F(PlatformTopoTest, gpu_num_domain)
 TEST_F(PlatformTopoTest, ppc_num_domain)
 {
     write_lscpu(m_ppc_lscpu_str);
-    PlatformTopoImp topo(m_lscpu_file_name);
+    PlatformTopoImp topo(m_lscpu_file_name, nullptr);
     EXPECT_EQ(1, topo.num_domain(GEOPM_DOMAIN_BOARD));
     EXPECT_EQ(2, topo.num_domain(GEOPM_DOMAIN_PACKAGE));
     EXPECT_EQ(20, topo.num_domain(GEOPM_DOMAIN_CORE));
@@ -400,7 +400,7 @@ TEST_F(PlatformTopoTest, ppc_num_domain)
 TEST_F(PlatformTopoTest, no0x_num_domain)
 {
     write_lscpu(m_no0x_lscpu_str);
-    PlatformTopoImp topo(m_lscpu_file_name);
+    PlatformTopoImp topo(m_lscpu_file_name, nullptr);
     EXPECT_EQ(1, topo.num_domain(GEOPM_DOMAIN_BOARD));
     EXPECT_EQ(2, topo.num_domain(GEOPM_DOMAIN_PACKAGE));
     EXPECT_EQ(36, topo.num_domain(GEOPM_DOMAIN_CORE));
@@ -412,7 +412,7 @@ TEST_F(PlatformTopoTest, no0x_num_domain)
 TEST_F(PlatformTopoTest, no_numa_num_domain)
 {
     write_lscpu(m_no_numa_lscpu_str);
-    PlatformTopoImp topo(m_lscpu_file_name);
+    PlatformTopoImp topo(m_lscpu_file_name, nullptr);
     EXPECT_EQ(1, topo.num_domain(GEOPM_DOMAIN_BOARD));
     EXPECT_EQ(2, topo.num_domain(GEOPM_DOMAIN_PACKAGE));
     EXPECT_EQ(36, topo.num_domain(GEOPM_DOMAIN_CORE));
@@ -446,7 +446,7 @@ TEST_F(PlatformTopoTest, singleton_construction)
 TEST_F(PlatformTopoTest, bdx_domain_idx)
 {
     write_lscpu(m_bdx_lscpu_str);
-    PlatformTopoImp topo(m_lscpu_file_name);
+    PlatformTopoImp topo(m_lscpu_file_name, nullptr);
     EXPECT_EQ(0, topo.domain_idx(GEOPM_DOMAIN_BOARD, 0));
     EXPECT_EQ(0, topo.domain_idx(GEOPM_DOMAIN_PACKAGE, 0));
     EXPECT_EQ(1, topo.domain_idx(GEOPM_DOMAIN_PACKAGE, 18));
@@ -488,7 +488,7 @@ TEST_F(PlatformTopoTest, bdx_domain_idx)
 TEST_F(PlatformTopoTest, bdx_is_nested_domain)
 {
     write_lscpu(m_bdx_lscpu_str);
-    PlatformTopoImp topo(m_lscpu_file_name);
+    PlatformTopoImp topo(m_lscpu_file_name, nullptr);
 
     // domains containing CPUs
     EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_BOARD));
@@ -536,7 +536,7 @@ TEST_F(PlatformTopoTest, bdx_is_nested_domain)
 TEST_F(PlatformTopoTest, bdx_domain_nested)
 {
     write_lscpu(m_bdx_lscpu_str);
-    PlatformTopoImp topo(m_lscpu_file_name);
+    PlatformTopoImp topo(m_lscpu_file_name, nullptr);
 
     std::set<int> cpu_set_board;
     std::set<int> core_set_board;
@@ -716,15 +716,15 @@ TEST_F(PlatformTopoTest, parse_error)
         "On-line CPU(s) mask:   0x1\n";
 
     write_lscpu(lscpu_missing_cpu);
-    EXPECT_THROW(PlatformTopoImp topo(m_lscpu_file_name), Exception);
+    EXPECT_THROW(PlatformTopoImp topo(m_lscpu_file_name, nullptr), Exception);
     write_lscpu(lscpu_missing_thread);
-    EXPECT_THROW(PlatformTopoImp topo(m_lscpu_file_name), Exception);
+    EXPECT_THROW(PlatformTopoImp topo(m_lscpu_file_name, nullptr), Exception);
     write_lscpu(lscpu_missing_cores);
-    EXPECT_THROW(PlatformTopoImp topo(m_lscpu_file_name), Exception);
+    EXPECT_THROW(PlatformTopoImp topo(m_lscpu_file_name, nullptr), Exception);
     write_lscpu(lscpu_missing_sockets);
-    EXPECT_THROW(PlatformTopoImp topo(m_lscpu_file_name), Exception);
+    EXPECT_THROW(PlatformTopoImp topo(m_lscpu_file_name, nullptr), Exception);
     write_lscpu(lscpu_missing_numa);
-    PlatformTopoImp topo(m_lscpu_file_name);
+    PlatformTopoImp topo(m_lscpu_file_name, nullptr);
 
     std::string lscpu_non_number =
         "CPU(s):                xx\n"
@@ -733,7 +733,7 @@ TEST_F(PlatformTopoTest, parse_error)
         "Socket(s):             1\n"
         "NUMA node(s):          1\n";
     write_lscpu(lscpu_non_number);
-    EXPECT_THROW(PlatformTopoImp topo(m_lscpu_file_name), Exception);
+    EXPECT_THROW(PlatformTopoImp topo(m_lscpu_file_name, nullptr), Exception);
 
     std::string lscpu_invalid =
         "CPU(s):                2\n"
@@ -742,7 +742,7 @@ TEST_F(PlatformTopoTest, parse_error)
         "Socket(s):             2\n"
         "NUMA node(s):          1\n";
     write_lscpu(lscpu_invalid);
-    EXPECT_THROW(PlatformTopoImp topo(m_lscpu_file_name), Exception);
+    EXPECT_THROW(PlatformTopoImp topo(m_lscpu_file_name, nullptr), Exception);
 }
 
 TEST_F(PlatformTopoTest, domain_type_to_name)
@@ -910,7 +910,7 @@ TEST_F(PlatformTopoTest, check_file_too_old)
     stat(m_lscpu_file_name.c_str(), &file_stat);
     ASSERT_EQ(old_time, file_stat.st_mtime);
 
-    PlatformTopoImp topo(m_lscpu_file_name);
+    PlatformTopoImp topo(m_lscpu_file_name, nullptr);
 
     // Verify the cache was regenerated because it was too old
     stat(m_lscpu_file_name.c_str(), &file_stat);
@@ -936,7 +936,7 @@ TEST_F(PlatformTopoTest, check_file_bad_perms)
     mode_t actual_perms = file_stat.st_mode & ~S_IFMT;
     ASSERT_EQ(bad_perms, actual_perms);
 
-    PlatformTopoImp topo(m_lscpu_file_name);
+    PlatformTopoImp topo(m_lscpu_file_name, nullptr);
 
     // Verify that the cache was regenerated because it had the wrong permissions
     stat(m_lscpu_file_name.c_str(), &file_stat);

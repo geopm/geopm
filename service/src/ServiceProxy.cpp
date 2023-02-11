@@ -194,6 +194,12 @@ namespace geopm
         return read_string_array(bus_reply);
     }
 
+    std::string ServiceProxyImp::topo_get_cache(void)
+    {
+        std::shared_ptr<SDBusMessage> reply_message = m_bus->call_method("TopoGetCache");
+        return reply_message->read_string();
+    }
+
     std::vector<std::string> ServiceProxyImp::read_string_array(
         std::shared_ptr<SDBusMessage> bus_message)
     {

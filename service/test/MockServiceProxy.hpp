@@ -38,6 +38,8 @@ class MockServiceProxy : public geopm::ServiceProxy
         MOCK_METHOD(void, platform_stop_profile, (), (override));
         MOCK_METHOD(std::vector<int>, platform_get_profile_pids,
                     (const std::string &profile_name), (override));
+        MOCK_METHOD(std::string, topo_get_cache,
+                    (), (override));
 };
 
 #endif

@@ -147,6 +147,7 @@ namespace geopm
             virtual void platform_stop_profile(const std::vector<std::string> &region_names) = 0;
             virtual std::vector<int> platform_get_profile_pids(const std::string &profile_name) = 0;
             virtual std::vector<std::string> platform_get_profile_region_names(const std::string &profile_name) = 0;
+            virtual std::string topo_get_cache(void) = 0;
     };
 
     class ServiceProxyImp : public ServiceProxy
@@ -177,6 +178,7 @@ namespace geopm
             void platform_stop_profile(const std::vector<std::string> &region_names) override;
             std::vector<int> platform_get_profile_pids(const std::string &profile_name) override;
             std::vector<std::string> platform_get_profile_region_names(const std::string &profile_name) override;
+            std::string topo_get_cache(void) override;
         private:
             std::vector<std::string> read_string_array(std::shared_ptr<SDBusMessage> bus_message);
             std::shared_ptr<SDBus> m_bus;

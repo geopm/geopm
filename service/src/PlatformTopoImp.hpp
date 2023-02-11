@@ -10,16 +10,19 @@
 #include "geopm/PlatformTopo.hpp"
 #include <vector>
 #include <map>
+#include <memory>
 
 namespace geopm
 {
     class GPUTopo;
+    class ServiceProxy;
 
     class PlatformTopoImp : public PlatformTopo
     {
         public:
             PlatformTopoImp();
-            PlatformTopoImp(const std::string &test_cache_file_name);
+            PlatformTopoImp(const std::string &test_cache_file_name,
+                            std::shared_ptr<ServiceProxy> service_proxy);
             virtual ~PlatformTopoImp() = default;
             int num_domain(int domain_type) const override;
             int domain_idx(int domain_type,
@@ -47,12 +50,14 @@ namespace geopm
             std::string read_lscpu(void);
             static bool check_file(const std::string &file_name);
             static std::string gpu_short_name(int domain_type);
+            static std::unique_ptr<ServiceProxy> try_service_proxy(void);
             const std::string M_TEST_CACHE_FILE_NAME;
             int m_num_package;
             int m_core_per_package;
             int m_thread_per_core;
             std::vector<std::set<int> > m_numa_map;
             std::map<int, std::vector<std::set<int> > > m_gpu_info;
+            std::shared_ptr<ServiceProxy> m_service_proxy;
     };
 }
 #endif
