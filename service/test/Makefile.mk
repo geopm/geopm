@@ -267,6 +267,7 @@ GTEST_TESTS = test/gtest_links/GPUTopoNullTest.default_config \
               test/gtest_links/PlatformIOTest.write_control_agg \
               test/gtest_links/PlatformIOTest.write_control_agg_sum \
               test/gtest_links/PlatformTopoTest.bdx_domain_idx \
+              test/gtest_links/PlatformTopoTest.bdx_domain_idx_service \
               test/gtest_links/PlatformTopoTest.bdx_is_nested_domain \
               test/gtest_links/PlatformTopoTest.bdx_domain_nested \
               test/gtest_links/PlatformTopoTest.bdx_num_domain \
