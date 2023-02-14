@@ -196,8 +196,6 @@ namespace geopm
             ///        get_cpu().
             virtual void thread_post(int cpu) = 0;
 
-            virtual void enable_pmpi(void) = 0;
-
             /// @brief Returns the Linux logical CPU index that the
             ///        calling thread is executing on, and caches the
             ///        result to be used in future calls.  This method
@@ -250,7 +248,6 @@ namespace geopm
             void shutdown(void) override;
             void thread_init(uint32_t num_work_unit) override;
             void thread_post(int cpu) override;
-            virtual void enable_pmpi(void) override;
         protected:
             bool m_is_enabled;
         private:
