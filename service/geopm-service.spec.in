@@ -10,7 +10,7 @@
 #
 # 2. rpmbuild --define 'enable_level_zero 1' ...
 #    Enable level-zero with packages installed into standard
-#    locations: %{_libdir} and %{_includedir}.
+#    locations: libdir and includedir.
 #
 # 3. rpmbuild --define 'with_level_zero <LEVEL_ZERO_PREFIX>' ...
 #    Enable level-zero with packages installed into a

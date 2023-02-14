@@ -33,7 +33,7 @@ endif # ENABLE_MPI
 pkglib_LTLIBRARIES =
 nodist_include_HEADERS =
 
-install-exec-hook: install-python install-fortran install-plugin-dir
+install-exec-hook: install-python install-fortran
 dist: dist-googletest
 
 
@@ -83,9 +83,6 @@ install-fortran:
 endif # ENABLE_MPI
 
 all-local: $(all_local)
-
-install-plugin-dir:
-	$(INSTALL) -d $(DESTDIR)/$(pkglibdir)
 
 # The transform variable will transform any installed file beginning
 # with "GEOPM_CXX_MAN_" to begin with "geopm::".  This is to avoid
