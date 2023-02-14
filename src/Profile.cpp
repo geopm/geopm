@@ -384,11 +384,6 @@ namespace geopm
 #endif
     }
 
-    void ProfileImp::enable_pmpi(void)
-    {
-        // only implemented by DefaultProfile singleton
-    }
-
     void ProfileImp::set_hint(uint64_t hint)
     {
         for (auto cpu : m_cpu_set) {
