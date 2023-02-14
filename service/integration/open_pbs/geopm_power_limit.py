@@ -18,10 +18,48 @@ from geopmdpy import pio
 
 _SAVED_CONTROLS_FILE = "run/geopm-service/SAVE_FILES/saved_controls.json"
 _POWER_LIMIT_RESOURCE = "geopm-node-power-limit"
-_SIGNAL = "GPU_CORE_FREQUENCY_MIN_CONTROL"
-_CONTROL = "GPU_CORE_FREQUENCY_MIN_CONTROL"
-_DOMAIN = "gpu"
-_DOMAIN_IDX = 0
+
+_power_limit_control = {
+        "name": "MSR::PLATFORM_POWER_LIMIT::PLATFORM_POWER_LIMIT",
+        "domain_type": "board",
+        "domain_idx": 0,
+        "setting": None
+    }
+_controls = [
+        {"name": "MSR::PLATFORM_POWER_LIMIT::PL1_TIME_WINDOW",
+         "domain_type": "board",
+         "domain_idx": 0,
+         "setting": 0.013},
+        {"name": "MSR::PLATFORM_POWER_LIMIT::PL1_CLAMP_ENABLE",
+         "domain_type": "board",
+         "domain_idx": 0,
+         "setting": 1},
+        _power_limit_control,
+        {"name": "MSR::PLATFORM_POWER_LIMIT::PL1_LIMIT_ENABLE",
+         "domain_type": "board",
+         "domain_idx": 0,
+         "setting": 1}
+    ]
+
+
+def read_controls(controls):
+    current_settings = controls.copy()
+    try:
+        for c in current_settings:
+            c["setting"] = pio.read_signal(c["name"], c["domain_type"],
+                                           c["domain_idx"])
+    except RuntimeError as e:
+        reject_event(f"Unable to read signal {c['name']}: {e}")
+    return current_settings
+
+
+def write_controls(controls):
+    try:
+        for c in controls:
+            pio.write_control(c["name"], c["domain_type"], c["domain_idx"],
+                              c["setting"])
+    except RuntimeError as e:
+        reject_event(f"Unable to write control {c['name']}: {e}")
 
 
 def resource_to_float(resource_name, resource_str):
@@ -32,32 +70,12 @@ def resource_to_float(resource_name, resource_str):
         reject_event(f"Invalid value provided for: {resource_name}")
 
 
-def save_control(file_name, name, domain_type, domain_idx, setting):
-    controls = [{"name": name,
-                 "domain_type": domain_type,
-                 "domain_idx": domain_idx,
-                 "setting": setting}]
-
+def save_controls_to_file(file_name, controls):
     try:
         with open(file_name, "w") as f:
             f.write(json.dumps(controls))
     except (OSError, ValueError) as e:
         reject_event(f"Unable to write to saved controls file: {e}")
-
-
-def read_signal(signal, domain, domain_idx):
-    try:
-        value = pio.read_signal(signal, domain, domain_idx)
-        return value
-    except RuntimeError as e:
-        reject_event(f"Unable to read signal {signal}: {e}")
-
-
-def write_control(control, domain, domain_idx, setting):
-    try:
-        pio.write_control(control, domain, domain_idx, setting)
-    except RuntimeError as e:
-        reject_event(f"Unable to write control {control}: {e}")
 
 
 def reject_event(msg):
@@ -77,13 +95,7 @@ def restore_controls_from_file(file_name):
         controls = json.loads(controls_json)
         if not controls:
             reject_event("Encountered empty saved controls file")
-        for c in controls:
-            name = c["name"]
-            domain = c["domain_type"]
-            domain_idx = c["domain_idx"]
-            setting = c["setting"]
-            pbs.logmsg(pbs.LOG_DEBUG, f"Restoring {name} to {setting}")
-            write_control(name, domain, domain_idx, setting)
+        write_controls(controls)
     except (json.decoder.JSONDecodeError, KeyError, TypeError) as e:
         reject_event(f"Malformed saved controls file: {e}")
     os.unlink(file_name)
@@ -111,12 +123,10 @@ def do_power_limit_prologue():
 
     power_limit = resource_to_float(_POWER_LIMIT_RESOURCE, power_limit_str)
     pbs.logmsg(pbs.LOG_DEBUG, f"Requested power limit: {power_limit}")
-    original_setting = read_signal(_SIGNAL, _DOMAIN, _DOMAIN_IDX)
-    pbs.logmsg(pbs.LOG_DEBUG,
-               f"Current power limit setting: {original_setting}")
-    save_control(_SAVED_CONTROLS_FILE, _CONTROL, _DOMAIN, _DOMAIN_IDX,
-                 original_setting)
-    write_control(_CONTROL, _DOMAIN, _DOMAIN_IDX, power_limit)
+    original_settings = read_controls(_controls)
+    save_controls_to_file(_SAVED_CONTROLS_FILE, original_settings)
+    _power_limit_control["setting"] = power_limit
+    write_controls(_controls)
     e.accept()
 
 
