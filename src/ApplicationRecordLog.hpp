@@ -61,29 +61,6 @@ namespace geopm
             static std::unique_ptr<ApplicationRecordLog> make_unique(std::shared_ptr<SharedMemory> shmem);
             /// @brief Destructor for pure virtual base class.
             virtual ~ApplicationRecordLog() = default;
-            /// @brief Set the process identifier.
-            ///
-            /// Called by the Profile to set the process identifier
-            /// that will be used to tag all control messages.  This
-            /// method must be called prior to the enter(), exit() or
-            /// epoch() methods.  The value provided is any integer
-            /// unique to the compute node that identifies the caller
-            /// of the profile interface.  Commonly this is the MPI
-            /// rank, but could also be the linux process ID for a
-            /// parent thread.
-            ///
-            /// @param [in] process The process identifier.
-            virtual void set_process(int process) = 0;
-            /// @brief Set the reference time.
-            ///
-            /// Called by the Profile to set the reference time that
-            /// is used to construct the time element of a record_s.
-            /// This method must be called prior to the enter(),
-            /// exit() or epoch() methods.
-            ///
-            /// @param [in] time The timestamp when the profiled
-            ///        process began.
-            virtual void set_time_zero(const geopm_time_s &time) = 0;
             /// @brief Create a message in the log defining a region
             ///        entry.
             ///
@@ -192,8 +169,6 @@ namespace geopm
         public:
             ApplicationRecordLogImp(std::shared_ptr<SharedMemory> shmem);
             virtual ~ApplicationRecordLogImp() = default;
-            void set_process(int process) override;
-            void set_time_zero(const geopm_time_s &time) override;
             void enter(uint64_t hash, const geopm_time_s &time) override;
             void exit(uint64_t hash, const geopm_time_s &time) override;
             void epoch(const geopm_time_s &time) override;
@@ -215,14 +190,12 @@ namespace geopm
                 geopm_time_s enter_time;
                 bool is_short;
             };
-            void check_setup(void);
             void check_reset(m_layout_s &layout);
             void append_record(m_layout_s &layout, const record_s &record);
             int m_process;
             std::shared_ptr<SharedMemory> m_shmem;
             std::map<uint64_t, m_region_enter_s> m_hash_region_enter_map;
             geopm_time_s m_time_zero;
-            bool m_is_setup;
             uint64_t m_epoch_count;
             uint64_t m_entered_region_hash;
     };
