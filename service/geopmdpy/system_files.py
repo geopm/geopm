@@ -776,7 +776,10 @@ class ActiveSessions(object):
         return self._profiles.get(profile_name)
 
     def get_profile_region_names(self, profile_name):
-        return self._region_names.get(profile_name)
+        result = None
+        if profile_name in self._region_names:
+            result = self._region_names.pop(profile_name)
+        return result
 
     def _get_session_path(self, client_pid):
         """Query for the session file path for client PID
