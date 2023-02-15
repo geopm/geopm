@@ -29,6 +29,7 @@
 #include "ApplicationRecordLog.hpp"
 #include "ApplicationStatus.hpp"
 #include "ApplicationSampler.hpp"
+#include "Scheduler.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm_debug.hpp"
@@ -90,6 +91,7 @@ namespace geopm
         ++m_overhead_time_shutdown;
         --m_overhead_time_shutdown;
 #endif
+        init_cpu_set(m_num_cpu);
         try {
             init_app_status();
             init_app_record_log();
@@ -118,6 +120,19 @@ namespace geopm
                      environment().timeout() != -1)
     {
 
+    }
+
+    void ProfileImp::init_cpu_set(int num_cpu)
+    {
+        if (m_cpu_set.empty()) {
+            auto proc_cpuset = geopm::make_cpu_set(num_cpu, {});
+            geopm_sched_proc_cpuset(num_cpu, proc_cpuset.get());
+            for (int cpu_idx = 0; cpu_idx < num_cpu; ++cpu_idx) {
+                if (CPU_ISSET(cpu_idx, proc_cpuset)) {
+                    m_cpu_set.insert(cpu_idx);
+                }
+            }
+        }
     }
 
     void ProfileImp::init_app_status(void)
