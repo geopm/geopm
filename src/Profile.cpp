@@ -75,24 +75,7 @@ namespace geopm
         , m_overhead_time_shutdown(0.0)
         , m_do_profile(do_profile)
     {
-
-    }
-
-    ProfileImp::ProfileImp()
-        : ProfileImp(environment().profile(),
-                     environment().report(),
-                     platform_topo().num_domain(GEOPM_DOMAIN_CPU),
-                     {},  // cpu_set
-                     nullptr,  // app_status
-                     nullptr,  // app_record_log
-                     environment().timeout() != -1)
-    {
-
-    }
-
-    void ProfileImp::init(void)
-    {
-        if (m_is_enabled || !m_do_profile) {
+        if (!m_do_profile) {
             return;
         }
 #ifdef GEOPM_OVERHEAD
@@ -107,29 +90,34 @@ namespace geopm
         ++m_overhead_time_shutdown;
         --m_overhead_time_shutdown;
 #endif
-        std::string step;
         try {
-            step = "app_status";
             init_app_status();
-            step = "app_record_log";
             init_app_record_log();
-            m_is_enabled = true;
         }
         catch (const Exception &ex) {
-            std::cerr << "Warning: <geopm> Controller handshake failed at step "
-                      << step << ", running without geopm." << std::endl;
+            std::cerr << "Warning: <geopm> Failed to connect with geopmd, running without geopm." << std::endl;
             int err = ex.err_value();
-            if (err != GEOPM_ERROR_RUNTIME) {
-                char tmp_msg[PATH_MAX];
-                geopm_error_message(err, tmp_msg, sizeof(tmp_msg));
-                tmp_msg[PATH_MAX-1] = '\0';
-                std::cerr << tmp_msg << std::endl;
-            }
-            m_is_enabled = false;
+            char tmp_msg[PATH_MAX];
+            geopm_error_message(err, tmp_msg, sizeof(tmp_msg));
+            tmp_msg[PATH_MAX-1] = '\0';
+            std::cerr << tmp_msg << std::endl;
         }
+        m_is_enabled = true;
 #ifdef GEOPM_OVERHEAD
         m_overhead_time_startup = geopm_time_since(&overhead_entry);
 #endif
+    }
+
+    ProfileImp::ProfileImp()
+        : ProfileImp(environment().profile(),
+                     environment().report(),
+                     platform_topo().num_domain(GEOPM_DOMAIN_CPU),
+                     {},  // cpu_set
+                     nullptr,  // app_status
+                     nullptr,  // app_record_log
+                     environment().timeout() != -1)
+    {
+
     }
 
     void ProfileImp::init_cpu_set(int num_cpu)
@@ -159,7 +147,7 @@ namespace geopm
             m_app_status = ApplicationStatus::make_unique(m_num_cpu, shmem);
         }
         GEOPM_DEBUG_ASSERT(m_app_status != nullptr,
-                           "Profile::init(): m_app_status not initialized");
+                           "Profile::init_app_status(): m_app_status not initialized");
     }
 
     void ProfileImp::init_app_record_log(void)
@@ -171,13 +159,10 @@ namespace geopm
         }
 
         GEOPM_DEBUG_ASSERT(m_app_record_log != nullptr,
-                           "Profile::init(): m_app_record_log not initialized");
+                           "Profile::init_app_record_log(): m_app_record_log not initialized");
 
         m_app_status->set_valid_cpu(m_cpu_set, true);
 
-        geopm_time_s start_time;
-        geopm_time_zero(&start_time);
-        m_app_record_log->set_time_zero(start_time);
     }
 
     ProfileImp::~ProfileImp()
