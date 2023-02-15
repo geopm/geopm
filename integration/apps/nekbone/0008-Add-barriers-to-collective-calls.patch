@@ -4,7 +4,7 @@ Date: Mon, 24 Aug 2020 17:14:19 -0700
 Subject: [PATCH 8/8] Add barriers to collective calls
 
 #
-#  Copyright (c) 2015 - 2022, Intel Corporation
+#  Copyright (c) 2015 - 2023, Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 

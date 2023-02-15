@@ -3,7 +3,7 @@ From: Brad Geltz <brad.geltz@intel.com>
 Date: Wed, 5 Aug 2020 13:34:15 -0700
 Subject: [PATCH 3/8] Link w/GEOPM
 #
-#  Copyright (c) 2015 - 2022, Intel Corporation
+#  Copyright (c) 2015 - 2023, Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 

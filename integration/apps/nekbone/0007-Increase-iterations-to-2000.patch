@@ -3,7 +3,7 @@ From: Brad Geltz <brad.geltz@intel.com>
 Date: Wed, 5 Aug 2020 15:42:57 -0700
 Subject: [PATCH 7/8] Increase iterations to 2000
 #
-#  Copyright (c) 2015 - 2022, Intel Corporation
+#  Copyright (c) 2015 - 2023, Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 

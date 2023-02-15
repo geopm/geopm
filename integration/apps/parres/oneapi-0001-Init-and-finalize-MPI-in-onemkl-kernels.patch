@@ -3,7 +3,7 @@ From: Alejandro Vilches <alejandro.vilches@intel.com>
 Date: Fri, 19 Aug 2022 18:10:22 -0700
 Subject: [PATCH] Init and finalize MPI in onemkl kernels
 #
-#  Copyright (c) 2015 - 2022, Intel Corporation
+#  Copyright (c) 2015 - 2023, Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
