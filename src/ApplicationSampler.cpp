@@ -225,13 +225,6 @@ namespace geopm
         return m_short_region_buffer[event_signal];
     }
 
-    std::map<uint64_t, std::string> ApplicationSamplerImp::get_name_map(uint64_t name_key) const
-    {
-        throw Exception("ApplicationSamplerImp::" + std::string(__func__) + "() is not yet implemented",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
-        return {};
-    }
-
     uint64_t ApplicationSamplerImp::cpu_region_hash(int cpu_idx) const
     {
         if (!m_status) {

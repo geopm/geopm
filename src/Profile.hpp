@@ -12,7 +12,7 @@
 #include <set>
 #include <memory>
 #include <stack>
-#include <set>
+#include <map>
 
 #include "geopm_hash.h"
 #include "geopm_hint.h"
@@ -193,6 +193,8 @@ namespace geopm
             ///        get_cpu().
             virtual void thread_post(int cpu) = 0;
 
+            virtual std::vector<std::string> region_names(void) = 0;
+
             /// @brief Returns the Linux logical CPU index that the
             ///        calling thread is executing on, and caches the
             ///        result to be used in future calls.  This method
@@ -244,10 +246,10 @@ namespace geopm
             void shutdown(void) override;
             void thread_init(uint32_t num_work_unit) override;
             void thread_post(int cpu) override;
+            std::vector<std::string> region_names(void);
         protected:
             bool m_is_enabled;
         private:
-            void init_cpu_set(int num_cpu);
             void init_app_status(void);
             void init_app_record_log(void);
             /// @brief Set the hint on all CPUs assigned to this process.
@@ -256,10 +258,6 @@ namespace geopm
             enum m_profile_const_e {
                 M_PROF_SAMPLE_PERIOD = 1,
             };
-
-            /// @brief Sends the report name and region names across
-            ///        to Controller.
-            void send_names(void);
 
             /// @brief holds the string name of the profile.
             std::string m_prof_name;
@@ -287,12 +285,11 @@ namespace geopm
             double m_overhead_time_startup;
             double m_overhead_time_shutdown;
             bool m_do_profile;
-
-            /// @brief The list of known region identifiers.
+            std::map<std::string, uint64_t> m_region_names;
 #ifdef GEOPM_DEBUG
+            /// @brief The list of known region identifiers.
             std::set<uint64_t> m_region_ids;
 #endif
-
     };
 }
 

@@ -164,9 +164,11 @@ namespace geopm
                                  profile_name);
     }
 
-    void ServiceProxyImp::platform_stop_profile(void)
+    void ServiceProxyImp::platform_stop_profile(const std::vector<std::string> &region_names)
     {
-        (void)m_bus->call_method("PlatformStopProfile");
+        std::shared_ptr<SDBusMessage> bus_message = m_bus->make_call_message("PlatformStopProfile");
+        bus_message->append_strings(region_names);
+        (void)m_bus->call_method(bus_message);
         platform_close_session();
     }
 
@@ -185,6 +187,13 @@ namespace geopm
         return result;
     }
 
+    std::vector<std::string> ServiceProxyImp::platform_get_profile_region_names(const std::string &profile_name)
+    {
+        std::shared_ptr<SDBusMessage> bus_reply = m_bus->call_method("PlatformGetProfileRegionNames",
+                                                                     profile_name);
+        return read_string_array(bus_reply);
+    }
+
     std::vector<std::string> ServiceProxyImp::read_string_array(
         std::shared_ptr<SDBusMessage> bus_message)
     {
@@ -201,34 +210,6 @@ namespace geopm
 }
 
 extern "C" {
-    int geopm_pio_start_profile(const char *profile_name)
-    {
-        int result = 0;
-        try {
-            auto service_proxy = geopm::ServiceProxy::make_unique();
-            service_proxy->platform_start_profile(profile_name);
-        }
-        catch (...) {
-            result = geopm::exception_handler(std::current_exception());
-            result = result < 0 ? result : GEOPM_ERROR_RUNTIME;
-        }
-        return result;
-    }
-
-    int geopm_pio_stop_profile(void)
-    {
-        int result = 0;
-        try {
-            auto service_proxy = geopm::ServiceProxy::make_unique();
-            service_proxy->platform_stop_profile();
-        }
-        catch (...) {
-            result = geopm::exception_handler(std::current_exception());
-            result = result < 0 ? result : GEOPM_ERROR_RUNTIME;
-        }
-        return result;
-    }
-
     int geopm_pio_profile_pids(const char *profile_name, int max_num_pid, int *num_pid, int *pid)
     {
         int result = 0;

@@ -120,25 +120,6 @@ namespace geopm
 
     }
 
-    void ProfileImp::init_cpu_set(int num_cpu)
-    {
-        if (m_cpu_set.empty()) {
-            cpu_set_t *proc_cpuset = NULL;
-            proc_cpuset = CPU_ALLOC(num_cpu);
-            if (proc_cpuset == nullptr) {
-                throw Exception("ProfileImp: unable to allocate process CPU mask",
-                                ENOMEM, __FILE__, __LINE__);
-            }
-            geopm_sched_proc_cpuset(num_cpu, proc_cpuset);
-            for (int ii = 0; ii < num_cpu; ++ii) {
-                if (CPU_ISSET(ii, proc_cpuset)) {
-                    m_cpu_set.insert(ii);
-                }
-            }
-            CPU_FREE(proc_cpuset);
-        }
-    }
-
     void ProfileImp::init_app_status(void)
     {
         if (m_app_status == nullptr) {
@@ -175,7 +156,6 @@ namespace geopm
         if (!m_is_enabled) {
             return;
         }
-        send_names();
 #ifdef GEOPM_OVERHEAD
         std::cerr << "Info: <geopm> Overhead (seconds) PID: " << getpid()
                   << " startup:  " << m_overhead_time_startup <<
@@ -197,14 +177,20 @@ namespace geopm
 #endif
 
         geopm::check_hint(hint);
-        uint64_t result = geopm_crc32_str(region_name.c_str());
-
+        uint64_t result = 0;
+        auto name_it = m_region_names.lower_bound(region_name);
+        if (name_it == m_region_names.end() || name_it->first != region_name) {
+            result = geopm_crc32_str(region_name.c_str());
 #ifdef GEOPM_DEBUG
-        m_region_ids.emplace(result);
+            m_region_ids.insert(result);
 #endif
-
-        /// Record hint when registering a region.
-        result = geopm_region_id_set_hint(hint, result);
+            /// Record hint when registering a region.
+            result = geopm_region_id_set_hint(hint, result);
+            m_region_names.emplace_hint(name_it, region_name, result);
+        }
+        else {
+            result = name_it->second;
+        }
 
 #ifdef GEOPM_OVERHEAD
         m_overhead_time += geopm_time_since(&overhead_entry);
@@ -353,20 +339,25 @@ namespace geopm
         m_app_status->increment_work_unit(cpu);
     }
 
-    void ProfileImp::send_names(void)
+    std::vector<std::string> ProfileImp::region_names(void)
     {
         if (!m_is_enabled) {
-            return;
+            return {};
         }
 
 #ifdef GEOPM_OVERHEAD
         struct geopm_time_s overhead_entry;
         geopm_time(&overhead_entry);
 #endif
-        // TODO: Push all region names into a pipe
+        std::vector<std::string> result;
+        for (const auto &it : m_region_names) {
+            result.push_back(it.first);
+        }
+
 #ifdef GEOPM_OVERHEAD
         m_overhead_time += geopm_time_since(&overhead_entry);
 #endif
+        return result;
     }
 
     void ProfileImp::set_hint(uint64_t hint)
