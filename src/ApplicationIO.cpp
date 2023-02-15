@@ -63,9 +63,12 @@ namespace geopm
         struct geopm_time_s time_zero;
         struct geopm_time_s time_curr;
         geopm_time(&time_zero);
-        timespec delay = {0, 1000};
+        timespec delay = {0, 1000000};
         do {
             m_profile_pids = get_profile_pids();
+            // TODO: Currently wait for one process to connect.  Add
+            //       an environment variable GEOPM_NUM_PROC to
+            //       determine how many PIDs to wait for.
             if (!m_profile_pids.empty()) {
                 m_is_connected = true;
                 break;
