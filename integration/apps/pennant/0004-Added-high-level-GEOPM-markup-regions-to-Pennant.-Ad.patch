@@ -4,7 +4,7 @@ Date: Thu, 21 Jan 2021 09:45:50 -0800
 Subject: [PATCH 4/7] Added high level GEOPM markup regions to Pennant. Added
  better hints and ignored regions.
 
-#  Copyright (c) 2015 - 2022, Intel Corporation
+#  Copyright (c) 2015 - 2023, Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
 
 Signed-off-by: Fuat Keceli <fuat.keceli@intel.com>

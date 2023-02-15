@@ -3,7 +3,7 @@ From: Fuat Keceli <fuat.keceli@intel.com>
 Date: Wed, 4 Nov 2020 06:55:51 -0800
 Subject: [PATCH 2/7] Added geopm epoch markup.
 
-#  Copyright (c) 2015 - 2022, Intel Corporation
+#  Copyright (c) 2015 - 2023, Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 

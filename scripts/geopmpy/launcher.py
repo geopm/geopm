@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2015 - 2022, Intel Corporation
+#  Copyright (c) 2015 - 2023, Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 
@@ -1709,7 +1709,7 @@ def main():
     err = 0
     version_str = """\
 GEOPM version {}
-Copyright (c) 2015 - 2022, Intel Corporation. All rights reserved.
+Copyright (c) 2015 - 2023, Intel Corporation. All rights reserved.
 """.format(__version__)
 
     launcher_prefix = "Possible LAUNCHER values:      "

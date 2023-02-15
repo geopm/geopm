@@ -3,7 +3,7 @@ From: Lowren Lawson <lowren.h.lawson@intel.com>
 Date: Thu, 12 May 2022 16:06:41 -0700
 Subject: [PATCH 7/7] Added geopm_hint header
 #
-#  Copyright (c) 2015 - 2022, Intel Corporation
+#  Copyright (c) 2015 - 2023, Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 

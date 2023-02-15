@@ -3,7 +3,7 @@ From: Fuat Keceli <fuat.keceli@intel.com>
 Date: Tue, 9 Feb 2021 10:33:36 -0800
 Subject: [PATCH 5/7] Added command line arg to stop execution earlier.
 
-#  Copyright (c) 2015 - 2022, Intel Corporation
+#  Copyright (c) 2015 - 2023, Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
 
 Signed-off-by: Fuat Keceli <fuat.keceli@intel.com>

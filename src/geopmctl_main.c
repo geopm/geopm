@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 - 2022, Intel Corporation
+ * Copyright (c) 2015 - 2023, Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -46,12 +46,12 @@ int main(int argc, char **argv)
                         "       --version\n"
                         "              Print version of geopm to standard output, then exit.\n"
                         "\n"
-                        "    Copyright (c) 2015 - 2022, Intel Corporation. All rights reserved.\n"
+                        "    Copyright (c) 2015 - 2023, Intel Corporation. All rights reserved.\n"
                         "\n";
     if (argc > 1 &&
         strncmp(argv[1], "--version", strlen("--version") + 1) == 0) {
         printf("%s\n", geopm_version());
-        printf("\n\nCopyright (c) 2015 - 2022, Intel Corporation. All rights reserved.\n\n");
+        printf("\n\nCopyright (c) 2015 - 2023, Intel Corporation. All rights reserved.\n\n");
         return 0;
     }
     if (argc > 1 && (
