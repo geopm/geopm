@@ -149,8 +149,9 @@ namespace geopm
             /// @return The string buffer defining the system topology
             virtual std::string topo_get_cache(void) = 0;
             virtual void platform_start_profile(const std::string &profile_name) = 0;
-            virtual void platform_stop_profile(void) = 0;
+            virtual void platform_stop_profile(const std::vector<std::string> &region_names) = 0;
             virtual std::vector<int> platform_get_profile_pids(const std::string &profile_name) = 0;
+            virtual std::vector<std::string> platform_get_profile_region_names(const std::string &profile_name) = 0;
     };
 
     class ServiceProxyImp : public ServiceProxy
@@ -179,8 +180,9 @@ namespace geopm
                                         double setting) override;
             std::string topo_get_cache(void) override;
             void platform_start_profile(const std::string &profile_name) override;
-            void platform_stop_profile(void) override;
+            void platform_stop_profile(const std::vector<std::string> &region_names) override;
             std::vector<int> platform_get_profile_pids(const std::string &profile_name) override;
+            std::vector<std::string> platform_get_profile_region_names(const std::string &profile_name) override;
         private:
             std::vector<std::string> read_string_array(std::shared_ptr<SDBusMessage> bus_message);
             std::shared_ptr<SDBus> m_bus;

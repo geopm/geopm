@@ -5,28 +5,35 @@
 
 #include "config.h"
 #include "Environment.hpp"
-#include "geopm_pio.h"
-
-extern "C" {
-    /**
-     * Helper that creates the DefaultProfile signleton (if not already created)
-     * and catches all exceptions.
-     */
-    int geopm_prof_init(void);
-}
+#include "geopm/Exception.hpp"
+#include "geopm/ServiceProxy.hpp"
+#include "Profile.hpp"
 
 static void __attribute__((constructor)) geopm_lib_init(void)
 {
     if (geopm::environment().do_profile()) {
-        std::string profile_name = geopm::environment().profile();
-        geopm_pio_start_profile(profile_name.c_str());
-        geopm_prof_init();
+        try {
+            std::string profile_name = geopm::environment().profile();
+            auto service_proxy = geopm::ServiceProxy::make_unique();
+            service_proxy->platform_start_profile(profile_name);
+            geopm::Profile::default_profile();
+        }
+        catch (...) {
+            geopm::exception_handler(std::current_exception(), true);
+        }
     }
 }
 
 static void __attribute__((destructor)) geopm_lib_fini(void)
 {
     if (geopm::environment().do_profile()) {
-        geopm_pio_stop_profile();
+        try {
+            auto region_names = geopm::Profile::default_profile().region_names();
+            auto service_proxy = geopm::ServiceProxy::make_unique();
+            service_proxy->platform_stop_profile(region_names);
+        }
+        catch (...) {
+            geopm::exception_handler(std::current_exception(), true);
+        }
     }
 }

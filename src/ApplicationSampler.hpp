@@ -49,16 +49,6 @@ namespace geopm
             /// @return Vector of application event records.
             virtual std::vector<record_s> get_records(void) const = 0;
             virtual short_region_s get_short_region(uint64_t event_signal) const = 0;
-            /// @brief Called after observing a EVENT_NAME_KEY event
-            ///        to get a map from any hash returned in a previous
-            ///        record to the string that generated the hash.
-            ///        The result includes the names of all entered
-            ///        regions and the profile name.
-            /// @param [in] name_key The signal from the name key
-            ///        event record.
-            /// @return A map from record-provided hash value to the
-            ///         string the record refers to.
-            virtual std::map<uint64_t, std::string> get_name_map(uint64_t name_key) const = 0;
             /// @brief Get the region hash associated with a CPU.
             ///
             /// Returns the most recently sampled value for the region

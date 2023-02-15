@@ -27,8 +27,6 @@ class MockApplicationSampler : public geopm::ApplicationSampler
                     (std::shared_ptr<geopm::ProfileSampler> sampler), (override));
         MOCK_METHOD(std::shared_ptr<geopm::ProfileSampler>, get_sampler, (),
                     (override));
-        MOCK_METHOD((std::map<uint64_t, std::string>), get_name_map,
-                    (uint64_t name_key), (const, override));
         MOCK_METHOD(geopm::short_region_s, get_short_region,
                     (uint64_t event_signal), (const, override));
         std::vector<geopm::record_s> get_records(void) const override;

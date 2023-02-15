@@ -402,6 +402,12 @@ def geopm_dbus_xml(TopoService=None, PlatformService=None):
       </doc:doc>
     </method>
     <method name="PlatformStopProfile">
+      <arg direction="in" name="region_names" type="as">
+        <doc:doc>
+          <doc:summary>{PlatformStopProfile_params1_description}
+          </doc:summary>
+        </doc:doc>
+      </arg>
       <doc:doc>
         <doc:description>
           <doc:summary>{PlatformStopProfile_short_description}
@@ -433,6 +439,28 @@ def geopm_dbus_xml(TopoService=None, PlatformService=None):
         </doc:description>
       </doc:doc>
     </method>
+    <method name="PlatformGetProfileRegionNames">
+      <arg direction="in" name="profile_name" type="s">
+        <doc:doc>
+          <doc:summary>{PlatformGetProfileRegionNames_params0_description}
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <arg direction="out" name="region_names" type="as">
+        <doc:doc>
+          <doc:summary>{PlatformGetProfileRegionNames_returns_description}
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:summary>{PlatformGetProfileRegionNames_short_description}
+          </doc:summary>
+          <doc:para>{PlatformGetProfileRegionNames_long_description}
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </method>
   </interface>
 </node>"""
 
@@ -458,6 +486,7 @@ def geopm_dbus_xml(TopoService=None, PlatformService=None):
         PlatformStartProfile = google.parse(PlatformService.start_profile.__doc__)
         PlatformStopProfile = google.parse(PlatformService.stop_profile.__doc__)
         PlatformGetProfilePids = google.parse(PlatformService.get_profile_pids.__doc__)
+        PlatformGetProfileRegionNames = google.parse(PlatformService.get_profile_region_names.__doc__)
 
         result = format_string.format(
             module_doc=_module_doc,
@@ -530,12 +559,17 @@ def geopm_dbus_xml(TopoService=None, PlatformService=None):
             PlatformStartProfile_params2_description=PlatformStartProfile.params[2].description,
             PlatformStartProfile_short_description=PlatformStartProfile.short_description,
             PlatformStartProfile_long_description=PlatformStartProfile.long_description,
+            PlatformStopProfile_params1_description=PlatformStopProfile.params[1].description,
             PlatformStopProfile_short_description=PlatformStopProfile.short_description,
             PlatformStopProfile_long_description=PlatformStopProfile.long_description,
             PlatformGetProfilePids_params0_description=PlatformGetProfilePids.params[0].description,
             PlatformGetProfilePids_returns_description=PlatformGetProfilePids.returns.description,
             PlatformGetProfilePids_short_description=PlatformGetProfilePids.short_description,
-            PlatformGetProfilePids_long_description=PlatformGetProfilePids.long_description)
+            PlatformGetProfilePids_long_description=PlatformGetProfilePids.long_description,
+            PlatformGetProfileRegionNames_params0_description=PlatformGetProfileRegionNames.params[0].description,
+            PlatformGetProfileRegionNames_returns_description=PlatformGetProfileRegionNames.returns.description,
+            PlatformGetProfileRegionNames_short_description=PlatformGetProfileRegionNames.short_description,
+            PlatformGetProfileRegionNames_long_description=PlatformGetProfileRegionNames.long_description)
     else:
         result = _remove_doc(format_string)
     return result
