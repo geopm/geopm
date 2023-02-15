@@ -250,6 +250,7 @@ namespace geopm
         protected:
             bool m_is_enabled;
         private:
+            void init_cpu_set(int num_cpu);
             void init_app_status(void);
             void init_app_record_log(void);
             /// @brief Set the hint on all CPUs assigned to this process.
