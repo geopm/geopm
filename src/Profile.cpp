@@ -341,10 +341,6 @@ namespace geopm
 
     std::vector<std::string> ProfileImp::region_names(void)
     {
-        if (!m_is_enabled) {
-            return {};
-        }
-
 #ifdef GEOPM_OVERHEAD
         struct geopm_time_s overhead_entry;
         geopm_time(&overhead_entry);
