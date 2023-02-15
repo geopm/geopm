@@ -118,9 +118,6 @@ namespace geopm
             virtual ~Profile() = default;
             static Profile &default_profile(void);
 
-            /// @brief Explicitly connect to the controller.
-            virtual void init(void) = 0;
-
             /// @brief Register a region of code to be profiled.
             ///
             /// The statistics gathered for each region are aggregated
@@ -240,7 +237,6 @@ namespace geopm
                        bool do_profile);
             /// @brief ProfileImp destructor, virtual.
             virtual ~ProfileImp();
-            void init(void) override;
             uint64_t region(const std::string &region_name, long hint) override;
             void enter(uint64_t region_id) override;
             void exit(uint64_t region_id) override;
