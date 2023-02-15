@@ -41,18 +41,6 @@ namespace geopm
 
 extern "C"
 {
-    int geopm_prof_init(void)
-    {
-        int err = 0;
-        try {
-            geopm::Profile::default_profile();
-        }
-        catch (...) {
-            err = geopm::exception_handler(std::current_exception(), true);
-        }
-        return err;
-    }
-
     int geopm_prof_region(const char *region_name, uint64_t hint, uint64_t *region_id)
     {
         int err = 0;

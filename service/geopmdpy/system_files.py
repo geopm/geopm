@@ -346,6 +346,7 @@ class ActiveSessions(object):
         self._sessions = dict()
         self._session_schema = json.loads(schemas.GEOPM_ACTIVE_SESSIONS_SCHEMA)
         self._profiles = dict()
+        self._region_names = dict()
         secure_make_dirs(self._RUN_PATH,
                          perm_mode=GEOPM_SERVICE_RUN_PATH_PERM)
 
@@ -750,12 +751,17 @@ class ActiveSessions(object):
         shmem.create_prof('record-log', size, client_pid, uid, gid)
         self._update_session_file(client_pid)
 
-    def stop_profile(self, client_pid):
+    def stop_profile(self, client_pid, region_names):
         self.check_client_active(client_pid, 'stop_profile')
         try:
             profile_name = self._sessions[client_pid].pop('profile_name')
         except KeyError:
             raise RuntimeError(f'Client PID {client_pid} requested to stop profiling, but it had not been started.')
+        # TODO: store region names in file in /run/geopm-service to enable clean restart
+        if profile_name in self._region_names:
+            self._region_names[profile_name].update(region_names)
+        else:
+            self._region_names[profile_name] = set(region_names)
         self._profiles[profile_name].remove(client_pid)
         uid, gid = self._pid_info(client_pid)
         os.unlink(shmem.path_prof('record-log', client_pid, uid, gid))
@@ -768,6 +774,9 @@ class ActiveSessions(object):
 
     def get_profile_pids(self, profile_name):
         return self._profiles.get(profile_name)
+
+    def get_profile_region_names(self, profile_name):
+        return self._region_names.get(profile_name)
 
     def _get_session_path(self, client_pid):
         """Query for the session file path for client PID

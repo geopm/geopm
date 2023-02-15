@@ -650,11 +650,17 @@ application.
       </doc:doc>
     </method>
     <method name="PlatformStopProfile">
+      <arg direction="in" name="region_names" type="as">
+        <doc:doc>
+          <doc:summary>Names of all regions entered.
+          </doc:summary>
+        </doc:doc>
+      </arg>
       <doc:doc>
         <doc:description>
-          <doc:summary>Begin profiling a user PID
+          <doc:summary>Stop profiling a user PID
           </doc:summary>
-          <doc:para>Called by a thread to enable profiling as part of a named
+          <doc:para>Called by a thread to end profiling as part of a named
 application.
           </doc:para>
         </doc:description>
@@ -680,6 +686,31 @@ list if profile_name is not registered.
           </doc:summary>
           <doc:para>Called by a profiling thread to find all PIDs associated with
 a named application.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </method>
+    <method name="PlatformGetProfileRegionNames">
+      <arg direction="in" name="profile_name" type="s">
+        <doc:doc>
+          <doc:summary>Name of application that PID supports
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <arg direction="out" name="region_names" type="as">
+        <doc:doc>
+          <doc:summary>All region names associated with profile_name
+or empty list if profile_name is not
+registered.
+          </doc:summary>
+        </doc:doc>
+      </arg>
+      <doc:doc>
+        <doc:description>
+          <doc:summary>Get region names associated with an application
+          </doc:summary>
+          <doc:para>Called by a profiling thread to find all region names
+associated with a named application.
           </doc:para>
         </doc:description>
       </doc:doc>
