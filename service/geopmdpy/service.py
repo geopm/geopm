@@ -750,6 +750,7 @@ class PlatformService(object):
         region_names = self._active_sessions.get_profile_region_names(profile_name)
         if region_names is not None:
             result = list(region_names)
+            result.sort()
         return result
 
     def _write_mode(self, client_pid):
