@@ -4,6 +4,7 @@
 
 EXTRA_DIST += integration/experiment/common_args.py \
               integration/experiment/__init__.py \
+              integration/experiment/gen_pbs.sh \
               integration/experiment/gen_slurm.sh \
               integration/experiment/launch_util.py \
               integration/experiment/machine.py \
