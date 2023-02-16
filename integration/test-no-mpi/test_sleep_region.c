@@ -15,41 +15,36 @@
 int main(int argc, char **argv)
 {
     int err = 0;
-    uint64_t sleep_rid;
-    err = geopm_prof_region("tutorial_sleep",
-                            GEOPM_REGION_HINT_SPIN,
-                            &sleep_rid);
+    uint64_t compute_rid, memory_rid, network_rid;
+    geopm_prof_region("compute_region",
+                      GEOPM_REGION_HINT_COMPUTE,
+                      &compute_rid);
+    geopm_prof_region("memory_region",
+                      GEOPM_REGION_HINT_MEMORY,
+                      &memory_rid);
+    geopm_prof_region("network_network",
+                      GEOPM_REGION_HINT_NETWORK,
+                      &network_rid);
+    // TODO: this sleep should not be required.
     sleep(5);
     int num_iter = 10;
 
     printf("Beginning loop of %d iterations.\n", num_iter);
     fflush(stdout);
     for (int i = 0; !err && i < num_iter; ++i) {
-        err = geopm_prof_epoch();
-        if (!err) {
-            err = geopm_prof_enter(sleep_rid);
-        }
-        if (!err) {
-            sleep(1);
-        }
-        if (!err) {
-            err = geopm_prof_exit(sleep_rid);
-        }
-        if (!err) {
-            printf("Iteration=%.3d\r", i);
-            fflush(stdout);
-        }
-    }
-    if (!err) {
-        printf("Completed loop.                    \n");
+        geopm_prof_epoch();
+        geopm_prof_enter(compute_rid);
+        sleep(1);
+        geopm_prof_exit(compute_rid);
+        geopm_prof_enter(memory_rid);
+        sleep(1);
+        geopm_prof_exit(memory_rid);
+        geopm_prof_enter(network_rid);
+        sleep(1);
+        geopm_prof_exit(network_rid);
+        printf("Iteration=%.3d\r", i);
         fflush(stdout);
     }
-    else {
-        char message[NAME_MAX];
-        geopm_error_message(err, message, NAME_MAX);
-        fprintf(stderr, "%s\n", message);
-    }
-    geopm_prof_shutdown();
-
-    return err;
+    printf("Completed loop.                    \n");
+    fflush(stdout);
 }
