@@ -17,7 +17,7 @@ int main(int argc, char **argv)
     int err = 0;
     uint64_t sleep_rid;
     err = geopm_prof_region("tutorial_sleep",
-                            GEOPM_REGION_HINT_UNKNOWN,
+                            GEOPM_REGION_HINT_SPIN,
                             &sleep_rid);
     int num_iter = 10;
 
