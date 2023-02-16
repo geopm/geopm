@@ -323,15 +323,14 @@ namespace geopm
     {
         m_application_io->connect();
         m_application_sampler.connect();
-
+        geopm_time_s curr_time;
+        geopm_time(&curr_time);
+        m_application_sampler.update(curr_time);
         create_agents();
         m_platform_io.save_control();
         init_agents();
         m_reporter->init();
         setup_trace();
-        geopm_time_s curr_time;
-        geopm_time(&curr_time);
-        m_application_sampler.update(curr_time);
         m_platform_io.read_batch();
         m_reporter->update();
         m_tracer->update(m_trace_sample);
