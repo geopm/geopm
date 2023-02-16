@@ -1,0 +1,84 @@
+GEOPM Version: 2.0.0+dev393g278f477a1
+Start Time: Wed Feb 15 20:41:41 2023
+Profile: "test_sleep_region_map"
+Agent: frequency_map
+Policy: {"FREQ_CPU_DEFAULT": 2000000000, "FREQ_CPU_UNCORE": "NAN", "FREQ_GPU_DEFAULT": "NAN", "HASH_0": 2954870382, "FREQ_0": 1300000000, "HASH_1": 294474138, "FREQ_1": 3700000000, "HASH_2": 276957166, "FREQ_2": 1000000000}
+
+
+Hosts:
+  mcfly1:
+    Frequency map: {0x00000000108207ee: 1000000000, 0x00000000118d519a: 3700000000, 0x000000002602d1d1: 2000000000, 0x00000000725e8066: 2000000000, 0x00000000b01fbe6e: 1300000000}
+    Regions:
+    -
+      region: "memory_region"
+      hash: 0xb01fbe6e
+      runtime (s): 10.0009
+      count: 10
+      sync-runtime (s): 10.001
+      package-energy (J): 707.707
+      dram-energy (J): 106.293
+      power (W): 70.7634
+      frequency (%): 56.2261
+      frequency (Hz): 1.18075e+09
+      uncore-frequency (Hz): 1.50081e+09
+      frequency-map: 1300000000.000000
+    -
+      region: "compute_region"
+      hash: 0x118d519a
+      runtime (s): 10.0009
+      count: 10
+      sync-runtime (s): 10.0011
+      package-energy (J): 722.233
+      dram-energy (J): 105.902
+      power (W): 72.2155
+      frequency (%): 78.8277
+      frequency (Hz): 1.65538e+09
+      uncore-frequency (Hz): 1.39624e+09
+      frequency-map: 3700000000.000000
+    -
+      region: "network_network"
+      hash: 0x2602d1d1
+      runtime (s): 10.0007
+      count: 10
+      sync-runtime (s): 9.99909
+      package-energy (J): 729.763
+      dram-energy (J): 105.872
+      power (W): 72.9829
+      frequency (%): 75.8363
+      frequency (Hz): 1.59256e+09
+      uncore-frequency (Hz): 1.47439e+09
+      frequency-map: 2000000000.000000
+    Unmarked Totals:
+      runtime (s): 3.88902
+      count: 0
+      sync-runtime (s): 3.89031
+      package-energy (J): 288.784
+      dram-energy (J): 41.1347
+      power (W): 74.2316
+      frequency (%): 76.0623
+      frequency (Hz): 1.59731e+09
+      uncore-frequency (Hz): 1.52549e+09
+      frequency-map: 2000000000.000000
+    Epoch Totals:
+      runtime (s): 30.0172
+      count: 10
+      sync-runtime (s): 30.0172
+      package-energy (J): 2160.91
+      dram-energy (J): 318.239
+      power (W): 71.9891
+      frequency (%): 69.3268
+      frequency (Hz): 1.45586e+09
+      uncore-frequency (Hz): 1.45714e+09
+    Application Totals:
+      runtime (s): 33.8915
+      count: 0
+      sync-runtime (s): 33.8915
+      package-energy (J): 2448.49
+      dram-energy (J): 359.202
+      power (W): 72.2448
+      frequency (%): 70.0282
+      frequency (Hz): 1.47059e+09
+      uncore-frequency (Hz): 1.46499e+09
+      geopmctl memory HWM (B): 29316
+      geopmctl network BW (B/s): 0
+
