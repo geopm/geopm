@@ -19,6 +19,7 @@ int main(int argc, char **argv)
     err = geopm_prof_region("tutorial_sleep",
                             GEOPM_REGION_HINT_SPIN,
                             &sleep_rid);
+    sleep(5);
     int num_iter = 10;
 
     printf("Beginning loop of %d iterations.\n", num_iter);
