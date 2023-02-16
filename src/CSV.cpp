@@ -2,6 +2,8 @@
  * Copyright (c) 2015 - 2023, Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
+#include "config.h"
+
 #include <climits>
 #include <cinttypes>
 
@@ -11,7 +13,6 @@
 #include "CSV.hpp"
 #include "geopm/Exception.hpp"
 #include "Environment.hpp"
-#include "config.h"
 
 namespace geopm
 {
@@ -29,9 +30,11 @@ namespace geopm
         , m_buffer_limit(buffer_size)
         , m_is_active(false)
     {
+#ifdef ENABLE_MPI
         if (host_name.size()) {
             m_file_path += "-" + host_name;
         }
+#endif
         m_stream.open(m_file_path);
         if (!m_stream.good()) {
             throw Exception("Unable to open CSV file '" + m_file_path + "'",
