@@ -14,9 +14,11 @@ import json
 import pbs
 
 from geopmdpy import pio
+from geopmdpy import system_files
 
 
-_SAVED_CONTROLS_FILE = "run/geopm-service/SAVE_FILES/saved_controls.json"
+_SAVED_CONTROLS_PATH = "run/geopm-service/SAVE_FILES"
+_SAVED_CONTROLS_FILE = _SAVED_CONTROLS_PATH + "/saved_controls.json"
 _POWER_LIMIT_RESOURCE = "geopm-node-power-limit"
 
 _power_limit_control = {
@@ -124,6 +126,7 @@ def do_power_limit_prologue():
     pbs.logmsg(pbs.LOG_DEBUG, f"Requested power limit: {power_limit}")
     current_settings = _controls.copy()
     read_controls(current_settings)
+    system_files.secure_make_dirs(_SAVED_CONTROLS_PATH)
     save_controls_to_file(_SAVED_CONTROLS_FILE, current_settings)
     _power_limit_control["setting"] = power_limit
     write_controls(_controls)
