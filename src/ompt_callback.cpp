@@ -31,6 +31,20 @@ extern "C"
         geopm::OMPT::ompt().region_exit(parallel_function);
     }
 
+    static void on_ompt_event_target(ompt_target_t kind,
+                                    ompt_scope_endpoint_t endpoint,
+                                    int device_num,
+                                    ompt_data_t* task_data,
+                                    ompt_id_t target_id,
+                                    const void* target_function) {
+        if (endpoint == ompt_scope_begin) {
+            geopm::OMPT::ompt().region_enter(target_function);
+        }
+        else if (endpoint == ompt_scope_end) {
+            geopm::OMPT::ompt().region_exit(target_function);
+        }
+    }
+
     static void on_ompt_event_work(ompt_work_t wstype,
                                    ompt_scope_endpoint_t endpoint,
                                    ompt_data_t *parallel_data,
@@ -63,6 +77,7 @@ extern "C"
             ompt_set_callback(ompt_callback_parallel_begin, (ompt_callback_t) &on_ompt_event_parallel_begin);
             ompt_set_callback(ompt_callback_parallel_end, (ompt_callback_t) &on_ompt_event_parallel_end);
             ompt_set_callback(ompt_callback_work, (ompt_callback_t) &on_ompt_event_work);
+            ompt_set_callback(ompt_callback_target, (ompt_callback_t) &on_ompt_event_target);
         }
         // OpenMP 5.0 standard says return non-zero on success!?!?!
         return 1;
