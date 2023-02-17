@@ -43,14 +43,12 @@ _controls = [
 
 
 def read_controls(controls):
-    current_settings = controls.copy()
     try:
-        for c in current_settings:
+        for c in controls:
             c["setting"] = pio.read_signal(c["name"], c["domain_type"],
                                            c["domain_idx"])
     except RuntimeError as e:
         reject_event(f"Unable to read signal {c['name']}: {e}")
-    return current_settings
 
 
 def write_controls(controls):
@@ -80,6 +78,7 @@ def save_controls_to_file(file_name, controls):
 
 def reject_event(msg):
     e = pbs.event()
+    e.job.delete()
     e.reject(f"{e.hook_name}: {msg}")
 
 
@@ -123,8 +122,9 @@ def do_power_limit_prologue():
 
     power_limit = resource_to_float(_POWER_LIMIT_RESOURCE, power_limit_str)
     pbs.logmsg(pbs.LOG_DEBUG, f"Requested power limit: {power_limit}")
-    original_settings = read_controls(_controls)
-    save_controls_to_file(_SAVED_CONTROLS_FILE, original_settings)
+    current_settings = _controls.copy()
+    read_controls(current_settings)
+    save_controls_to_file(_SAVED_CONTROLS_FILE, current_settings)
     _power_limit_control["setting"] = power_limit
     write_controls(_controls)
     e.accept()
