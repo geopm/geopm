@@ -1539,20 +1539,12 @@ class PALSLauncher(IMPIExecLauncher):
         result = []
         if self.is_geopm_enabled:
             aff_list = self.affinity_list(is_geopmctl)
-            mask_zero = ['0' for ii in range(self.num_linux_cpu)]
-            mask_list = []
-            for cpu_set in aff_list:
-                mask = list(mask_zero)
-                for cpu in cpu_set:
-                    mask[self.num_linux_cpu - 1 - cpu] = '1'
-                mask = '0x{:x}'.format(int(''.join(mask), 2))
-                mask_list.append(mask)
+            set_list = [range_str(cpu_set) for cpu_set in aff_list]
             result.append('--cpu-bind')
             if self.quiet:
-                result.append('mask:' + ','.join(mask_list))
+                result.append('list:' + ':'.join(set_list))
             else:
-                result.append('verbose,mask:' + ','.join(mask_list))
-
+                result.append('verbose,list:' + ':'.join(set_list))
         return result
 
 
