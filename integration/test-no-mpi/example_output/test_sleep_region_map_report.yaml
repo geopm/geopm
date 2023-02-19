@@ -1,5 +1,5 @@
-GEOPM Version: 2.0.0+dev393g278f477a1
-Start Time: Wed Feb 15 20:41:41 2023
+GEOPM Version: 2.0.0+dev394g3122faa16
+Start Time: Sat Feb 18 16:01:35 2023
 Profile: "test_sleep_region_map"
 Agent: frequency_map
 Policy: {"FREQ_CPU_DEFAULT": 2000000000, "FREQ_CPU_UNCORE": "NAN", "FREQ_GPU_DEFAULT": "NAN", "HASH_0": 2954870382, "FREQ_0": 1300000000, "HASH_1": 294474138, "FREQ_1": 3700000000, "HASH_2": 276957166, "FREQ_2": 1000000000}
@@ -10,75 +10,339 @@ Hosts:
     Frequency map: {0x00000000108207ee: 1000000000, 0x00000000118d519a: 3700000000, 0x000000002602d1d1: 2000000000, 0x00000000725e8066: 2000000000, 0x00000000b01fbe6e: 1300000000}
     Regions:
     -
+      region: "network_network"
+      hash: 0x2602d1d1
+      runtime (s): 10.0014
+      count: 10
+      sync-runtime (s): 9.98967
+      package-energy (J): 660.035
+      dram-energy (J): 106.535
+      power (W): 66.0717
+      frequency (%): 77.9678
+      frequency (Hz): 1.63732e+09
+      uncore-frequency (Hz): 1.2e+09
+      CPU_FREQUENCY_STATUS@core-0: 1.1242e+09
+      CPU_FREQUENCY_STATUS@core-1: 1.05691e+09
+      CPU_FREQUENCY_STATUS@core-2: 1.04674e+09
+      CPU_FREQUENCY_STATUS@core-3: 1.04934e+09
+      CPU_FREQUENCY_STATUS@core-4: 1.04704e+09
+      CPU_FREQUENCY_STATUS@core-5: 1.05067e+09
+      CPU_FREQUENCY_STATUS@core-6: 1.053e+09
+      CPU_FREQUENCY_STATUS@core-7: 1.0457e+09
+      CPU_FREQUENCY_STATUS@core-8: 1.04664e+09
+      CPU_FREQUENCY_STATUS@core-9: 1.0439e+09
+      CPU_FREQUENCY_STATUS@core-10: 1.04591e+09
+      CPU_FREQUENCY_STATUS@core-11: 1.05125e+09
+      CPU_FREQUENCY_STATUS@core-12: 1.05245e+09
+      CPU_FREQUENCY_STATUS@core-13: 1.04489e+09
+      CPU_FREQUENCY_STATUS@core-14: 1.04663e+09
+      CPU_FREQUENCY_STATUS@core-15: 1.04435e+09
+      CPU_FREQUENCY_STATUS@core-16: 1.04486e+09
+      CPU_FREQUENCY_STATUS@core-17: 1.06108e+09
+      CPU_FREQUENCY_STATUS@core-18: 1.0505e+09
+      CPU_FREQUENCY_STATUS@core-19: 1.05128e+09
+      CPU_FREQUENCY_STATUS@core-20: 1.04485e+09
+      CPU_FREQUENCY_STATUS@core-21: 1.04708e+09
+      CPU_FREQUENCY_STATUS@core-22: 1.99825e+09
+      CPU_FREQUENCY_STATUS@core-23: 1.99808e+09
+      CPU_FREQUENCY_STATUS@core-24: 1.99791e+09
+      CPU_FREQUENCY_STATUS@core-25: 1.99825e+09
+      CPU_FREQUENCY_STATUS@core-26: 1.99825e+09
+      CPU_FREQUENCY_STATUS@core-27: 1.99825e+09
+      CPU_FREQUENCY_STATUS@core-28: 1.99774e+09
+      CPU_FREQUENCY_STATUS@core-29: 1.99791e+09
+      CPU_FREQUENCY_STATUS@core-30: 1.99808e+09
+      CPU_FREQUENCY_STATUS@core-31: 1.99808e+09
+      CPU_FREQUENCY_STATUS@core-32: 1.99808e+09
+      CPU_FREQUENCY_STATUS@core-33: 1.99791e+09
+      CPU_FREQUENCY_STATUS@core-34: 1.99808e+09
+      CPU_FREQUENCY_STATUS@core-35: 1.99825e+09
+      CPU_FREQUENCY_STATUS@core-36: 1.99825e+09
+      CPU_FREQUENCY_STATUS@core-37: 1.99825e+09
+      CPU_FREQUENCY_STATUS@core-38: 1.99808e+09
+      CPU_FREQUENCY_STATUS@core-39: 1.99791e+09
+      CPU_FREQUENCY_STATUS@core-40: 1.99773e+09
+      CPU_FREQUENCY_STATUS@core-41: 1.9979e+09
+      CPU_FREQUENCY_STATUS@core-42: 1.9979e+09
+      CPU_FREQUENCY_STATUS@core-43: 1.9979e+09
+      frequency-map: 2000000000.000000
+    -
       region: "memory_region"
       hash: 0xb01fbe6e
-      runtime (s): 10.0009
+      runtime (s): 10.0011
       count: 10
-      sync-runtime (s): 10.001
-      package-energy (J): 707.707
-      dram-energy (J): 106.293
-      power (W): 70.7634
-      frequency (%): 56.2261
-      frequency (Hz): 1.18075e+09
-      uncore-frequency (Hz): 1.50081e+09
+      sync-runtime (s): 9.87175
+      package-energy (J): 630.854
+      dram-energy (J): 105.511
+      power (W): 63.905
+      frequency (%): 57.4406
+      frequency (Hz): 1.20625e+09
+      uncore-frequency (Hz): 1.20827e+09
+      CPU_FREQUENCY_STATUS@core-0: 1.04414e+09
+      CPU_FREQUENCY_STATUS@core-1: 1.03216e+09
+      CPU_FREQUENCY_STATUS@core-2: 1.03114e+09
+      CPU_FREQUENCY_STATUS@core-3: 1.03236e+09
+      CPU_FREQUENCY_STATUS@core-4: 1.03243e+09
+      CPU_FREQUENCY_STATUS@core-5: 1.03155e+09
+      CPU_FREQUENCY_STATUS@core-6: 1.03296e+09
+      CPU_FREQUENCY_STATUS@core-7: 1.03216e+09
+      CPU_FREQUENCY_STATUS@core-8: 1.03499e+09
+      CPU_FREQUENCY_STATUS@core-9: 1.03424e+09
+      CPU_FREQUENCY_STATUS@core-10: 1.03358e+09
+      CPU_FREQUENCY_STATUS@core-11: 1.03451e+09
+      CPU_FREQUENCY_STATUS@core-12: 1.03681e+09
+      CPU_FREQUENCY_STATUS@core-13: 1.0358e+09
+      CPU_FREQUENCY_STATUS@core-14: 1.03698e+09
+      CPU_FREQUENCY_STATUS@core-15: 1.03668e+09
+      CPU_FREQUENCY_STATUS@core-16: 1.03723e+09
+      CPU_FREQUENCY_STATUS@core-17: 1.03554e+09
+      CPU_FREQUENCY_STATUS@core-18: 1.03804e+09
+      CPU_FREQUENCY_STATUS@core-19: 1.0398e+09
+      CPU_FREQUENCY_STATUS@core-20: 1.04073e+09
+      CPU_FREQUENCY_STATUS@core-21: 1.04005e+09
+      CPU_FREQUENCY_STATUS@core-22: 1.30206e+09
+      CPU_FREQUENCY_STATUS@core-23: 1.30206e+09
+      CPU_FREQUENCY_STATUS@core-24: 1.30206e+09
+      CPU_FREQUENCY_STATUS@core-25: 1.30206e+09
+      CPU_FREQUENCY_STATUS@core-26: 1.30206e+09
+      CPU_FREQUENCY_STATUS@core-27: 1.30206e+09
+      CPU_FREQUENCY_STATUS@core-28: 1.30206e+09
+      CPU_FREQUENCY_STATUS@core-29: 1.30206e+09
+      CPU_FREQUENCY_STATUS@core-30: 1.30206e+09
+      CPU_FREQUENCY_STATUS@core-31: 1.30206e+09
+      CPU_FREQUENCY_STATUS@core-32: 1.30206e+09
+      CPU_FREQUENCY_STATUS@core-33: 1.30206e+09
+      CPU_FREQUENCY_STATUS@core-34: 1.30206e+09
+      CPU_FREQUENCY_STATUS@core-35: 1.30206e+09
+      CPU_FREQUENCY_STATUS@core-36: 1.3018e+09
+      CPU_FREQUENCY_STATUS@core-37: 1.3018e+09
+      CPU_FREQUENCY_STATUS@core-38: 1.3018e+09
+      CPU_FREQUENCY_STATUS@core-39: 1.3018e+09
+      CPU_FREQUENCY_STATUS@core-40: 1.3018e+09
+      CPU_FREQUENCY_STATUS@core-41: 1.30155e+09
+      CPU_FREQUENCY_STATUS@core-42: 1.30155e+09
+      CPU_FREQUENCY_STATUS@core-43: 1.30193e+09
       frequency-map: 1300000000.000000
     -
       region: "compute_region"
       hash: 0x118d519a
-      runtime (s): 10.0009
+      runtime (s): 10.0011
       count: 10
-      sync-runtime (s): 10.0011
-      package-energy (J): 722.233
-      dram-energy (J): 105.902
-      power (W): 72.2155
-      frequency (%): 78.8277
-      frequency (Hz): 1.65538e+09
-      uncore-frequency (Hz): 1.39624e+09
+      sync-runtime (s): 9.00039
+      package-energy (J): 600.164
+      dram-energy (J): 96.0865
+      power (W): 66.682
+      frequency (%): 81.2154
+      frequency (Hz): 1.70552e+09
+      uncore-frequency (Hz): 1.2e+09
+      CPU_FREQUENCY_STATUS@core-0: 1.13375e+09
+      CPU_FREQUENCY_STATUS@core-1: 1.0664e+09
+      CPU_FREQUENCY_STATUS@core-2: 1.0626e+09
+      CPU_FREQUENCY_STATUS@core-3: 1.06223e+09
+      CPU_FREQUENCY_STATUS@core-4: 1.06275e+09
+      CPU_FREQUENCY_STATUS@core-5: 1.06003e+09
+      CPU_FREQUENCY_STATUS@core-6: 1.06378e+09
+      CPU_FREQUENCY_STATUS@core-7: 1.06317e+09
+      CPU_FREQUENCY_STATUS@core-8: 1.06413e+09
+      CPU_FREQUENCY_STATUS@core-9: 1.06171e+09
+      CPU_FREQUENCY_STATUS@core-10: 1.06641e+09
+      CPU_FREQUENCY_STATUS@core-11: 1.06934e+09
+      CPU_FREQUENCY_STATUS@core-12: 1.06575e+09
+      CPU_FREQUENCY_STATUS@core-13: 1.07176e+09
+      CPU_FREQUENCY_STATUS@core-14: 1.06748e+09
+      CPU_FREQUENCY_STATUS@core-15: 1.06771e+09
+      CPU_FREQUENCY_STATUS@core-16: 1.07612e+09
+      CPU_FREQUENCY_STATUS@core-17: 1.07985e+09
+      CPU_FREQUENCY_STATUS@core-18: 1.07954e+09
+      CPU_FREQUENCY_STATUS@core-19: 1.08126e+09
+      CPU_FREQUENCY_STATUS@core-20: 1.08105e+09
+      CPU_FREQUENCY_STATUS@core-21: 1.08004e+09
+      CPU_FREQUENCY_STATUS@core-22: 2.09983e+09
+      CPU_FREQUENCY_STATUS@core-23: 2.09981e+09
+      CPU_FREQUENCY_STATUS@core-24: 2.09985e+09
+      CPU_FREQUENCY_STATUS@core-25: 2.09985e+09
+      CPU_FREQUENCY_STATUS@core-26: 2.09985e+09
+      CPU_FREQUENCY_STATUS@core-27: 2.09983e+09
+      CPU_FREQUENCY_STATUS@core-28: 2.09976e+09
+      CPU_FREQUENCY_STATUS@core-29: 2.1001e+09
+      CPU_FREQUENCY_STATUS@core-30: 2.09981e+09
+      CPU_FREQUENCY_STATUS@core-31: 2.09983e+09
+      CPU_FREQUENCY_STATUS@core-32: 2.09985e+09
+      CPU_FREQUENCY_STATUS@core-33: 2.09983e+09
+      CPU_FREQUENCY_STATUS@core-34: 2.09981e+09
+      CPU_FREQUENCY_STATUS@core-35: 2.09985e+09
+      CPU_FREQUENCY_STATUS@core-36: 2.09985e+09
+      CPU_FREQUENCY_STATUS@core-37: 2.09985e+09
+      CPU_FREQUENCY_STATUS@core-38: 2.09981e+09
+      CPU_FREQUENCY_STATUS@core-39: 2.09985e+09
+      CPU_FREQUENCY_STATUS@core-40: 2.09983e+09
+      CPU_FREQUENCY_STATUS@core-41: 2.09981e+09
+      CPU_FREQUENCY_STATUS@core-42: 2.09985e+09
+      CPU_FREQUENCY_STATUS@core-43: 2.09978e+09
       frequency-map: 3700000000.000000
-    -
-      region: "network_network"
-      hash: 0x2602d1d1
-      runtime (s): 10.0007
-      count: 10
-      sync-runtime (s): 9.99909
-      package-energy (J): 729.763
-      dram-energy (J): 105.872
-      power (W): 72.9829
-      frequency (%): 75.8363
-      frequency (Hz): 1.59256e+09
-      uncore-frequency (Hz): 1.47439e+09
-      frequency-map: 2000000000.000000
     Unmarked Totals:
-      runtime (s): 3.88902
+      runtime (s): -0.863553
       count: 0
-      sync-runtime (s): 3.89031
-      package-energy (J): 288.784
-      dram-energy (J): 41.1347
-      power (W): 74.2316
-      frequency (%): 76.0623
-      frequency (Hz): 1.59731e+09
-      uncore-frequency (Hz): 1.52549e+09
+      sync-runtime (s): 0.272776
+      package-energy (J): 19.0718
+      dram-energy (J): 2.91295
+      power (W): 69.9176
+      frequency (%): 86.9612
+      frequency (Hz): 1.82619e+09
+      uncore-frequency (Hz): 1.2e+09
+      CPU_FREQUENCY_STATUS@core-0: 1.62703e+09
+      CPU_FREQUENCY_STATUS@core-1: 1.54657e+09
+      CPU_FREQUENCY_STATUS@core-2: 1.62157e+09
+      CPU_FREQUENCY_STATUS@core-3: 1.63774e+09
+      CPU_FREQUENCY_STATUS@core-4: 1.63774e+09
+      CPU_FREQUENCY_STATUS@core-5: 1.57862e+09
+      CPU_FREQUENCY_STATUS@core-6: 1.5573e+09
+      CPU_FREQUENCY_STATUS@core-7: 1.63774e+09
+      CPU_FREQUENCY_STATUS@core-8: 1.6269e+09
+      CPU_FREQUENCY_STATUS@core-9: 1.63774e+09
+      CPU_FREQUENCY_STATUS@core-10: 1.63229e+09
+      CPU_FREQUENCY_STATUS@core-11: 1.62156e+09
+      CPU_FREQUENCY_STATUS@core-12: 1.50888e+09
+      CPU_FREQUENCY_STATUS@core-13: 1.63229e+09
+      CPU_FREQUENCY_STATUS@core-14: 1.63229e+09
+      CPU_FREQUENCY_STATUS@core-15: 1.63229e+09
+      CPU_FREQUENCY_STATUS@core-16: 1.63774e+09
+      CPU_FREQUENCY_STATUS@core-17: 1.63237e+09
+      CPU_FREQUENCY_STATUS@core-18: 1.63229e+09
+      CPU_FREQUENCY_STATUS@core-19: 1.63229e+09
+      CPU_FREQUENCY_STATUS@core-20: 1.63229e+09
+      CPU_FREQUENCY_STATUS@core-21: 1.63229e+09
+      CPU_FREQUENCY_STATUS@core-22: 2e+09
+      CPU_FREQUENCY_STATUS@core-23: 2e+09
+      CPU_FREQUENCY_STATUS@core-24: 2e+09
+      CPU_FREQUENCY_STATUS@core-25: 2e+09
+      CPU_FREQUENCY_STATUS@core-26: 2e+09
+      CPU_FREQUENCY_STATUS@core-27: 2e+09
+      CPU_FREQUENCY_STATUS@core-28: 2e+09
+      CPU_FREQUENCY_STATUS@core-29: 2e+09
+      CPU_FREQUENCY_STATUS@core-30: 2e+09
+      CPU_FREQUENCY_STATUS@core-31: 2e+09
+      CPU_FREQUENCY_STATUS@core-32: 2e+09
+      CPU_FREQUENCY_STATUS@core-33: 2e+09
+      CPU_FREQUENCY_STATUS@core-34: 2e+09
+      CPU_FREQUENCY_STATUS@core-35: 2e+09
+      CPU_FREQUENCY_STATUS@core-36: 2e+09
+      CPU_FREQUENCY_STATUS@core-37: 2e+09
+      CPU_FREQUENCY_STATUS@core-38: 2e+09
+      CPU_FREQUENCY_STATUS@core-39: 2e+09
+      CPU_FREQUENCY_STATUS@core-40: 2e+09
+      CPU_FREQUENCY_STATUS@core-41: 2e+09
+      CPU_FREQUENCY_STATUS@core-42: 2e+09
+      CPU_FREQUENCY_STATUS@core-43: 2e+09
       frequency-map: 2000000000.000000
     Epoch Totals:
-      runtime (s): 30.0172
+      runtime (s): 29.1346
       count: 10
-      sync-runtime (s): 30.0172
-      package-energy (J): 2160.91
-      dram-energy (J): 318.239
-      power (W): 71.9891
-      frequency (%): 69.3268
-      frequency (Hz): 1.45586e+09
-      uncore-frequency (Hz): 1.45714e+09
+      sync-runtime (s): 29.1346
+      package-energy (J): 1910.12
+      dram-energy (J): 311.046
+      power (W): 65.5621
+      frequency (%): 72.6761
+      frequency (Hz): 1.5262e+09
+      uncore-frequency (Hz): 1.2028e+09
+      CPU_FREQUENCY_STATUS@core-0: 1.10473e+09
+      CPU_FREQUENCY_STATUS@core-1: 1.05604e+09
+      CPU_FREQUENCY_STATUS@core-2: 1.05174e+09
+      CPU_FREQUENCY_STATUS@core-3: 1.05308e+09
+      CPU_FREQUENCY_STATUS@core-4: 1.05247e+09
+      CPU_FREQUENCY_STATUS@core-5: 1.05203e+09
+      CPU_FREQUENCY_STATUS@core-6: 1.05426e+09
+      CPU_FREQUENCY_STATUS@core-7: 1.05205e+09
+      CPU_FREQUENCY_STATUS@core-8: 1.05353e+09
+      CPU_FREQUENCY_STATUS@core-9: 1.05169e+09
+      CPU_FREQUENCY_STATUS@core-10: 1.05356e+09
+      CPU_FREQUENCY_STATUS@core-11: 1.05651e+09
+      CPU_FREQUENCY_STATUS@core-12: 1.05553e+09
+      CPU_FREQUENCY_STATUS@core-13: 1.05561e+09
+      CPU_FREQUENCY_STATUS@core-14: 1.05529e+09
+      CPU_FREQUENCY_STATUS@core-15: 1.05447e+09
+      CPU_FREQUENCY_STATUS@core-16: 1.05748e+09
+      CPU_FREQUENCY_STATUS@core-17: 1.06357e+09
+      CPU_FREQUENCY_STATUS@core-18: 1.0607e+09
+      CPU_FREQUENCY_STATUS@core-19: 1.06209e+09
+      CPU_FREQUENCY_STATUS@core-20: 1.06014e+09
+      CPU_FREQUENCY_STATUS@core-21: 1.06036e+09
+      CPU_FREQUENCY_STATUS@core-22: 1.79375e+09
+      CPU_FREQUENCY_STATUS@core-23: 1.79369e+09
+      CPU_FREQUENCY_STATUS@core-24: 1.79364e+09
+      CPU_FREQUENCY_STATUS@core-25: 1.79376e+09
+      CPU_FREQUENCY_STATUS@core-26: 1.79376e+09
+      CPU_FREQUENCY_STATUS@core-27: 1.79375e+09
+      CPU_FREQUENCY_STATUS@core-28: 1.79355e+09
+      CPU_FREQUENCY_STATUS@core-29: 1.79372e+09
+      CPU_FREQUENCY_STATUS@core-30: 1.79369e+09
+      CPU_FREQUENCY_STATUS@core-31: 1.7937e+09
+      CPU_FREQUENCY_STATUS@core-32: 1.7937e+09
+      CPU_FREQUENCY_STATUS@core-33: 1.79364e+09
+      CPU_FREQUENCY_STATUS@core-34: 1.79369e+09
+      CPU_FREQUENCY_STATUS@core-35: 1.79376e+09
+      CPU_FREQUENCY_STATUS@core-36: 1.79367e+09
+      CPU_FREQUENCY_STATUS@core-37: 1.79367e+09
+      CPU_FREQUENCY_STATUS@core-38: 1.7936e+09
+      CPU_FREQUENCY_STATUS@core-39: 1.79356e+09
+      CPU_FREQUENCY_STATUS@core-40: 1.79349e+09
+      CPU_FREQUENCY_STATUS@core-41: 1.79346e+09
+      CPU_FREQUENCY_STATUS@core-42: 1.79347e+09
+      CPU_FREQUENCY_STATUS@core-43: 1.79357e+09
     Application Totals:
-      runtime (s): 33.8915
+      runtime (s): 29.1401
       count: 0
-      sync-runtime (s): 33.8915
-      package-energy (J): 2448.49
-      dram-energy (J): 359.202
-      power (W): 72.2448
-      frequency (%): 70.0282
-      frequency (Hz): 1.47059e+09
-      uncore-frequency (Hz): 1.46499e+09
-      geopmctl memory HWM (B): 29316
+      sync-runtime (s): 29.1401
+      package-energy (J): 1910.78
+      dram-energy (J): 311.11
+      power (W): 65.5724
+      frequency (%): 72.6817
+      frequency (Hz): 1.52632e+09
+      uncore-frequency (Hz): 1.203e+09
+      CPU_FREQUENCY_STATUS@core-0: 1.10505e+09
+      CPU_FREQUENCY_STATUS@core-1: 1.05637e+09
+      CPU_FREQUENCY_STATUS@core-2: 1.05207e+09
+      CPU_FREQUENCY_STATUS@core-3: 1.05341e+09
+      CPU_FREQUENCY_STATUS@core-4: 1.0528e+09
+      CPU_FREQUENCY_STATUS@core-5: 1.05235e+09
+      CPU_FREQUENCY_STATUS@core-6: 1.05459e+09
+      CPU_FREQUENCY_STATUS@core-7: 1.05238e+09
+      CPU_FREQUENCY_STATUS@core-8: 1.05386e+09
+      CPU_FREQUENCY_STATUS@core-9: 1.05202e+09
+      CPU_FREQUENCY_STATUS@core-10: 1.05388e+09
+      CPU_FREQUENCY_STATUS@core-11: 1.05676e+09
+      CPU_FREQUENCY_STATUS@core-12: 1.05586e+09
+      CPU_FREQUENCY_STATUS@core-13: 1.05594e+09
+      CPU_FREQUENCY_STATUS@core-14: 1.05562e+09
+      CPU_FREQUENCY_STATUS@core-15: 1.0548e+09
+      CPU_FREQUENCY_STATUS@core-16: 1.05781e+09
+      CPU_FREQUENCY_STATUS@core-17: 1.0639e+09
+      CPU_FREQUENCY_STATUS@core-18: 1.06102e+09
+      CPU_FREQUENCY_STATUS@core-19: 1.06242e+09
+      CPU_FREQUENCY_STATUS@core-20: 1.06047e+09
+      CPU_FREQUENCY_STATUS@core-21: 1.06069e+09
+      CPU_FREQUENCY_STATUS@core-22: 1.79394e+09
+      CPU_FREQUENCY_STATUS@core-23: 1.79388e+09
+      CPU_FREQUENCY_STATUS@core-24: 1.79383e+09
+      CPU_FREQUENCY_STATUS@core-25: 1.79395e+09
+      CPU_FREQUENCY_STATUS@core-26: 1.79395e+09
+      CPU_FREQUENCY_STATUS@core-27: 1.79394e+09
+      CPU_FREQUENCY_STATUS@core-28: 1.79374e+09
+      CPU_FREQUENCY_STATUS@core-29: 1.79391e+09
+      CPU_FREQUENCY_STATUS@core-30: 1.79388e+09
+      CPU_FREQUENCY_STATUS@core-31: 1.79388e+09
+      CPU_FREQUENCY_STATUS@core-32: 1.79389e+09
+      CPU_FREQUENCY_STATUS@core-33: 1.79383e+09
+      CPU_FREQUENCY_STATUS@core-34: 1.79388e+09
+      CPU_FREQUENCY_STATUS@core-35: 1.79395e+09
+      CPU_FREQUENCY_STATUS@core-36: 1.79386e+09
+      CPU_FREQUENCY_STATUS@core-37: 1.79386e+09
+      CPU_FREQUENCY_STATUS@core-38: 1.79379e+09
+      CPU_FREQUENCY_STATUS@core-39: 1.79375e+09
+      CPU_FREQUENCY_STATUS@core-40: 1.79368e+09
+      CPU_FREQUENCY_STATUS@core-41: 1.79365e+09
+      CPU_FREQUENCY_STATUS@core-42: 1.79366e+09
+      CPU_FREQUENCY_STATUS@core-43: 1.79376e+09
+      geopmctl memory HWM (B): 32628
       geopmctl network BW (B/s): 0
 
