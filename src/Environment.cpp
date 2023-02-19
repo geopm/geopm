@@ -87,7 +87,8 @@ namespace geopm
 #endif
                              {"GEOPM_MAX_FAN_OUT", "16"},
                              {"GEOPM_TIMEOUT", "30"},
-                             {"GEOPM_DEBUG_ATTACH", "-1"}})
+                             {"GEOPM_DEBUG_ATTACH", "-1"},
+                             {"GEOPM_NUM_PROC", "1"}})
         , m_default_config_path(default_config_path)
         , m_override_config_path(override_config_path)
         , m_platform_io(platform_io)
@@ -132,7 +133,8 @@ namespace geopm
                 "GEOPM_MAX_FAN_OUT",
                 "GEOPM_OMPT_DISABLE",
                 "GEOPM_RECORD_FILTER",
-                "GEOPM_PERIOD"};
+                "GEOPM_PERIOD",
+                "GEOPM_NUM_PROC"};
     }
 
     void EnvironmentImp::parse_environment()
@@ -393,6 +395,11 @@ namespace geopm
     int EnvironmentImp::timeout(void) const
     {
         return std::stoi(lookup("GEOPM_TIMEOUT"));
+    }
+
+    int EnvironmentImp::num_proc(void) const
+    {
+        return std::stoi(lookup("GEOPM_NUM_PROC"));
     }
 
     bool EnvironmentImp::do_debug_attach_all(void) const

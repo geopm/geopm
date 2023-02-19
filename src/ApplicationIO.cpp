@@ -25,7 +25,8 @@ namespace geopm
                            ServiceProxy::make_unique(),
                            environment().profile(),
                            environment().report(),
-                           environment().timeout())
+                           environment().timeout(),
+                           environment().num_proc())
     {
 
     }
@@ -34,7 +35,8 @@ namespace geopm
                                        std::shared_ptr<ServiceProxy> service_proxy,
                                        const std::string &profile_name,
                                        const std::string &report_name,
-                                       int timeout)
+                                       int timeout,
+                                       int num_proc)
         : m_is_connected(false)
         , m_application_sampler(application_sampler)
         , m_service_proxy(service_proxy)
@@ -42,6 +44,7 @@ namespace geopm
         , m_report_name(report_name)
         , m_timeout(timeout)
         , m_do_profile(m_timeout != -1)
+        , m_num_proc(num_proc)
     {
 
     }
@@ -69,7 +72,7 @@ namespace geopm
             // TODO: Currently wait for one process to connect.  Add
             //       an environment variable GEOPM_NUM_PROC to
             //       determine how many PIDs to wait for.
-            if (!m_profile_pids.empty()) {
+            if (m_profile_pids.size() >= m_num_proc) {
                 m_is_connected = true;
                 break;
             }
