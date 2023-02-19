@@ -52,7 +52,8 @@ namespace geopm
                              std::shared_ptr<ServiceProxy> service_proxy,
                              const std::string &profile_name,
                              const std::string &report_name,
-                             int timeout);
+                             int timeout,
+                             int num_proc);
             virtual ~ApplicationIOImp();
             void connect(void) override;
             bool do_shutdown(void) override;
@@ -71,6 +72,7 @@ namespace geopm
             const int m_timeout;
             const bool m_do_profile;
             std::set<int> m_profile_pids;
+            int m_num_proc;
     };
 }
 
