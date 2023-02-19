@@ -25,8 +25,6 @@ int main(int argc, char **argv)
     geopm_prof_region("network_network",
                       GEOPM_REGION_HINT_NETWORK,
                       &network_rid);
-    // TODO: this sleep should not be required.
-    sleep(5);
     int num_iter = 10;
 
     printf("Beginning loop of %d iterations.\n", num_iter);
