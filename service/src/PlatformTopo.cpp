@@ -30,7 +30,7 @@
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
 #include "GPUTopo.hpp"
-#include "ServiceProxy.hpp"
+#include "geopm/ServiceProxy.hpp"
 
 
 int geopm_read_cpuid(void)

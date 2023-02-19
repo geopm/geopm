@@ -283,4 +283,109 @@ namespace geopm
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
     }
+
+    void GRPCServiceProxy::platform_start_profile(const std::string &profile_name)
+    {
+        GEOPMPackage::ProfileRequest request;
+        GEOPMPackage::SessionKey *session_key = new GEOPMPackage::SessionKey;
+        session_key->set_name(m_session_key);
+        request.set_allocated_session_key(session_key);
+        request.set_profile_name(profile_name);
+        grpc::ClientContext context;
+        GEOPMPackage::Empty response;
+        grpc::Status status = m_client->StartProfile(&context,
+                                                     request,
+                                                     &response);
+        if (!status.ok()) {
+            throw Exception("GRPCSericeProxy::platform_start_profile(): " +
+                            status.error_message(),
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+    }
+
+    void GRPCServiceProxy::platform_stop_profile(const std::vector<std::string> &region_names)
+    {
+        GEOPMPackage::ProfileRequest request;
+        GEOPMPackage::SessionKey *session_key = new GEOPMPackage::SessionKey;
+        session_key->set_name(m_session_key);
+        request.set_allocated_session_key(session_key);
+        for (const auto &name : region_names) {
+            request.add_region_names(name);
+        }
+        grpc::ClientContext context;
+        GEOPMPackage::Empty response;
+        grpc::Status status = m_client->StopProfile(&context,
+                                                    request,
+                                                    &response);
+        if (!status.ok()) {
+            throw Exception("GRPCSericeProxy::platform_stop_profile(): " +
+                            status.error_message(),
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+    }
+
+    std::vector<int> GRPCServiceProxy::platform_get_profile_pids(const std::string &profile_name)
+    {
+        std::vector<int> result;
+        GEOPMPackage::ProfileRequest request;
+        GEOPMPackage::SessionKey *session_key = new GEOPMPackage::SessionKey;
+        session_key->set_name(m_session_key);
+        request.set_allocated_session_key(session_key);
+        request.set_profile_name(profile_name);
+        grpc::ClientContext context;
+        GEOPMPackage::PidList response;
+        grpc::Status status = m_client->GetProfilePids(&context,
+                                                       request,
+                                                       &response);
+        if (!status.ok()) {
+            throw Exception("GRPCSericeProxy::get_profile_pids(): " +
+                            status.error_message(),
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        for (const auto &pid : response.pids()) {
+            result.push_back(pid);
+        }
+        return result;
+    }
+
+    std::vector<std::string> GRPCServiceProxy::platform_get_profile_region_names(const std::string &profile_name)
+    {
+        std::vector<std::string> result;
+        GEOPMPackage::ProfileRequest request;
+        GEOPMPackage::SessionKey *session_key = new GEOPMPackage::SessionKey;
+        session_key->set_name(m_session_key);
+        request.set_allocated_session_key(session_key);
+        request.set_profile_name(profile_name);
+        grpc::ClientContext context;
+        GEOPMPackage::NameList response;
+        grpc::Status status = m_client->GetProfileRegionNames(&context,
+                                                              request,
+                                                              &response);
+        if (!status.ok()) {
+            throw Exception("GRPCSericeProxy::get_profile_pids(): " +
+                            status.error_message(),
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        for (const auto &name : response.names()) {
+            result.push_back(name);
+        }
+        return result;
+    }
+
+    std::string GRPCServiceProxy::topo_get_cache(void)
+    {
+        GEOPMPackage::Empty request;
+        grpc::ClientContext context;
+        GEOPMPackage::TopoCache response;
+        grpc::Status status = m_client->TopoGetCache(&context,
+                                                     request,
+                                                     &response);
+        if (!status.ok()) {
+            throw Exception("GRPCSericeProxy::topo_get_cache(): " +
+                            status.error_message(),
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        return response.cache();
+    }
+
 }

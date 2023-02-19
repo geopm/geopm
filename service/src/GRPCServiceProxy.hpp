@@ -9,7 +9,7 @@
 #include <string>
 #include <memory>
 #include <vector>
-#include "ServiceProxy.hpp"
+#include "geopm/ServiceProxy.hpp"
 
 #include "geopm_service.pb.h"
 #include "geopm_service.grpc.pb.h"
@@ -40,6 +40,11 @@ namespace geopm
                                         int domain,
                                         int domain_idx,
                                         double setting) override;
+            void platform_start_profile(const std::string &profile_name) override;
+            void platform_stop_profile(const std::vector<std::string> &region_names) override;
+            std::vector<int> platform_get_profile_pids(const std::string &profile_name) override;
+            std::vector<std::string> platform_get_profile_region_names(const std::string &profile_name) override;
+            std::string topo_get_cache(void) override;
         private:
             const std::string m_grpc_socket;
             std::string m_session_key;

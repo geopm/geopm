@@ -129,6 +129,20 @@ message TopoCache {
   string cache = 1;
 }
 
+message ProfileRequest {
+  SessionKey session_key = 1;
+  string profile_name = 2;
+  repeated string region_names = 3;
+}
+
+message NameList {
+  repeated string names = 1;
+}
+
+message PidList {
+  repeated int32 pids = 1;
+}
+
 message Empty {
 
 }
@@ -144,4 +158,8 @@ service GEOPMService {
   rpc TopoGetCache(Empty) returns(TopoCache);
   rpc OpenSession(SessionKey) returns(SessionKey);
   rpc CloseSession(SessionKey) returns(Empty);
+  rpc StartProfile(ProfileRequest) returns(Empty);
+  rpc StopProfile(ProfileRequest) returns (Empty);
+  rpc GetProfilePids(ProfileRequest) returns (PidList);
+  rpc GetProfileRegionNames(ProfileRequest) returns (NameList);
 }
