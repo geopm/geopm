@@ -717,7 +717,7 @@ class PlatformService(object):
         self._active_sessions.stop_profile(client_pid, region_names)
         self.close_session(client_pid)
 
-    def get_profile_pids(self, profile_name):
+    def get_profile_pids(self, user, profile_name):
         """Get PIDs associated with an application
 
         Called by a profiling thread to find all PIDs associated with
@@ -732,12 +732,13 @@ class PlatformService(object):
 
         """
         result = []
+        # TODO: Only return PIDs that user owns
         pids = self._active_sessions.get_profile_pids(profile_name)
         if pids is not None:
             result = list(pids)
         return result
 
-    def get_profile_region_names(self, profile_name):
+    def get_profile_region_names(self, user, profile_name):
         """Get region names associated with an application
 
         Called by a profiling thread to find all region names
@@ -753,6 +754,7 @@ class PlatformService(object):
 
         """
         result = []
+        # TODO: Only allow user that matches profile to get names
         region_names = self._active_sessions.get_profile_region_names(profile_name)
         if region_names is not None:
             result = list(region_names)
@@ -925,13 +927,13 @@ class GEOPMService(object):
     def PlatformStopProfile(self, region_names, **call_info):
         return self._platform.stop_profile(self._get_pid(**call_info), region_names)
 
-    # TODO: This method should check credentials
-    def PlatformGetProfilePids(self, profile_name):
-        return self._platform.get_profile_pids(profile_name)
+    @accepts_additional_arguments
+    def PlatformGetProfilePids(self, profile_name, **call_info):
+        return self._platform.get_profile_pids(self._get_user(**call_info), profile_name)
 
-    # TODO: This method should check credentials
-    def PlatformGetProfileRegionNames(self, profile_name):
-        return self._platform.get_profile_region_names(profile_name)
+    @accepts_additional_arguments
+    def PlatformGetProfileRegionNames(self, profile_name, **call_info):
+        return self._platform.get_profile_region_names(self._get_user(**call_info), profile_name)
 
     def _get_user(self, call_info):
         """Use DBus proxy object to derive the user name that owns the client
