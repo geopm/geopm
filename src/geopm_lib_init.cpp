@@ -8,6 +8,7 @@
 #include "geopm/Exception.hpp"
 #include "geopm/ServiceProxy.hpp"
 #include "Profile.hpp"
+#include "PlatformIOProf.hpp"
 
 static void __attribute__((constructor)) geopm_lib_init(void)
 {
@@ -17,6 +18,7 @@ static void __attribute__((constructor)) geopm_lib_init(void)
             auto service_proxy = geopm::ServiceProxy::make_unique();
             service_proxy->platform_start_profile(profile_name);
             geopm::Profile::default_profile();
+            geopm::PlatformIOProf::platform_io();
         }
         catch (...) {
             geopm::exception_handler(std::current_exception(), true);
