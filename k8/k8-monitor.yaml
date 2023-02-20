@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: Pod
+metadata:
+   name: geopm-service-pod
+spec:
+   restartPolicy: Never
+   shareProcessNamespace: true
+   containers:
+   - name: geopm-server
+     image: cmcantal/geopm-service:cloud
+     imagePullPolicy: Always
+     securityContext:
+       privileged: true
+     volumeMounts:
+     - name: geopm-mount
+       mountPath: /run/geopm-service
+     - name: dev-mount
+       mountPath: /dev
+     command: ['/usr/bin/sh', '-c', 'chmod 711 /run/geopm-service; geopmread >> /etc/geopm-service/0.DEFAULT_ACCESS/allowed_signals; groupadd -g 10001 client; useradd -g 10001 -u 10001 client; geopmd --grpc']
+   - name: geopm-ctl
+     image: cmcantal/geopm-service:cloud
+     imagePullPolicy: Always
+     securityContext:
+       privileged: false
+       allowPrivilegeEscalation: false
+       readOnlyRootFilesystem: true
+       runAsNonRoot: true
+       runAsUser: 10001
+       runAsGroup: 10001
+     volumeMounts:
+     - name: geopm-mount
+       mountPath: /run/geopm-service
+     command: ['/usr/bin/sh', '-c', 'export GEOPM_PROFILE=monitor; export GEOPM_REPORT_SIGNALS=CPU_FREQUENCY_STATUS@core; err=0; while [ ${err} -eq 0 ]; do export GEOPM_REPORT=$(mktemp -t geopm-report-XXXXXXXX.yaml); geopomctl; err=$?; if [ ${err} -eq 0 ]; do echo "{"; cat ${GEOPM_REPORT}; echo "}"; fi; rm -f ${GEOPM_REPORT}; done;']
+   - name: test-application
+     image: cmcantal/geopm-service:cloud
+     imagePullPolicy: Always
+     securityContext:
+       privileged: false
+       allowPrivilegeEscalation: false
+       readOnlyRootFilesystem: true
+       runAsNonRoot: true
+       runAsUser: 10001
+       runAsGroup: 10001
+     volumeMounts:
+     - name: geopm-mount
+       mountPath: /run/geopm-service
+     command: ['/usr/bin/sh', '-c', 'export GEOPM_PROFILE=monitor; LD_PRELOAD=libgeopmload.so sleep 20; sleep 5; LD_PRELOAD=libgeopmload.so find / >& /dev/null; sleep 3600']
+   volumes:
+   - name: geopm-mount
+     emptyDir: {}
+   - name: dev-mount
+     hostPath:
+       path: /dev
