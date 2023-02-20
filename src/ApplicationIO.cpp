@@ -69,10 +69,7 @@ namespace geopm
         timespec delay = {0, 1000000};
         do {
             m_profile_pids = get_profile_pids();
-            // TODO: Currently wait for one process to connect.  Add
-            //       an environment variable GEOPM_NUM_PROC to
-            //       determine how many PIDs to wait for.
-            if (m_profile_pids.size() >= m_num_proc) {
+            if (m_profile_pids.size() >= (size_t)m_num_proc) {
                 m_is_connected = true;
                 break;
             }
