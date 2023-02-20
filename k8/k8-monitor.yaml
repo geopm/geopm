@@ -30,7 +30,7 @@ spec:
      volumeMounts:
      - name: geopm-mount
        mountPath: /run/geopm-service
-     command: ['/usr/bin/sh', '-c', 'export GEOPM_PROFILE=monitor; export GEOPM_REPORT_SIGNALS=CPU_FREQUENCY_STATUS@core; err=0; while [ ${err} -eq 0 ]; do export GEOPM_REPORT=$(mktemp -t geopm-report-XXXXXXXX.yaml); geopomctl; err=$?; if [ ${err} -eq 0 ]; do echo "{"; cat ${GEOPM_REPORT}; echo "}"; fi; rm -f ${GEOPM_REPORT}; done;']
+     command: ['/usr/bin/sh', '-c', 'export GEOPM_PROFILE=monitor; export GEOPM_REPORT_SIGNALS=CPU_FREQUENCY_STATUS@core; err=0; while [ $err -eq 0 ]; do export GEOPM_REPORT=$(mktemp -t geopm-report-XXXXXXXX.yaml); geopmctl; err=$?; if [ $err -eq 0 ]; then echo "{"; cat ${GEOPM_REPORT}; echo "}"; fi; rm -f ${GEOPM_REPORT}; done;']
    - name: test-application
      image: cmcantal/geopm-service:cloud
      imagePullPolicy: Always
@@ -44,9 +44,13 @@ spec:
      volumeMounts:
      - name: geopm-mount
        mountPath: /run/geopm-service
+     - name: tmp-mount
+       mountPath: /tmp
      command: ['/usr/bin/sh', '-c', 'export GEOPM_PROFILE=monitor; LD_PRELOAD=libgeopmload.so sleep 20; sleep 5; LD_PRELOAD=libgeopmload.so find / >& /dev/null; sleep 3600']
    volumes:
    - name: geopm-mount
+     emptyDir: {}
+   - name: tmp-mount
      emptyDir: {}
    - name: dev-mount
      hostPath:
