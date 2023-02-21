@@ -388,6 +388,8 @@ libgeopmpolicy_la_SOURCES = src/Accumulator.cpp \
                             src/Comm.hpp \
                             src/Controller.cpp \
                             src/Controller.hpp \
+                            src/CPUActivityAgent.cpp \
+                            src/CPUActivityAgent.hpp \
                             src/CSV.cpp \
                             src/CSV.hpp \
                             src/DebugIOGroup.cpp \
@@ -418,6 +420,8 @@ libgeopmpolicy_la_SOURCES = src/Accumulator.cpp \
                             src/FrequencyGovernorImp.hpp \
                             src/FrequencyLimitDetector.cpp \
                             src/FrequencyLimitDetector.hpp \
+                            src/GPUActivityAgent.cpp \
+                            src/GPUActivityAgent.hpp \
                             src/SSTFrequencyLimitDetector.cpp \
                             src/SSTFrequencyLimitDetector.hpp \
                             src/TRLFrequencyLimitDetector.cpp \
@@ -487,13 +491,9 @@ libgeopmpolicy_la_SOURCES = src/Accumulator.cpp \
                             src/record.hpp \
                             # end
 
-beta_source_files = src/CPUActivityAgent.cpp \
-                    src/CPUActivityAgent.hpp \
-                    src/Daemon.cpp \
+beta_source_files = src/Daemon.cpp \
                     src/Daemon.hpp \
                     src/DaemonImp.hpp \
-                    src/GPUActivityAgent.cpp \
-                    src/GPUActivityAgent.hpp \
                     src/PolicyStore.cpp \
                     src/PolicyStore.hpp \
                     src/PolicyStoreImp.cpp \
