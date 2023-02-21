@@ -1,0 +1,65 @@
+{
+GEOPM Version: 2.0.0+dev457g11dfc466
+Start Time: Tue Feb 21 01:31:29 2023
+Profile: "monitor"
+Agent: monitor
+Policy: {}
+
+Hosts:
+  geopm-service-pod:
+    Unmarked Totals:
+      runtime (s): 20.0886
+      count: 0
+      sync-runtime (s): 20.0886
+      package-energy (J): 371.464
+      dram-energy (J): 5.29002
+      power (W): 18.4913
+      frequency (%): 0
+      frequency (Hz): 0
+      uncore-frequency (Hz): 3.6863e+09
+      CPU_FREQUENCY_STATUS@core-0: 4.02954e+09
+      CPU_FREQUENCY_STATUS@core-1: 4.02931e+09
+      CPU_FREQUENCY_STATUS@core-2: 4.0234e+09
+      CPU_FREQUENCY_STATUS@core-3: 4.01338e+09
+    Epoch Totals:
+      runtime (s): 0
+      count: 0
+      sync-runtime (s): 0
+      package-energy (J): 0
+      dram-energy (J): 0
+      power (W): 0
+      frequency (%): 0
+      frequency (Hz): 0
+      time-hint-network (s): 0
+      time-hint-ignore (s): 0
+      time-hint-compute (s): 0
+      time-hint-memory (s): 0
+      time-hint-io (s): 0
+      time-hint-serial (s): 0
+      time-hint-parallel (s): 0
+      time-hint-unknown (s): 0
+      time-hint-unset (s): 0
+      time-hint-spin (s): 0
+      uncore-frequency (Hz): 0
+      CPU_FREQUENCY_STATUS@core-0: 0
+      CPU_FREQUENCY_STATUS@core-1: 0
+      CPU_FREQUENCY_STATUS@core-2: 0
+      CPU_FREQUENCY_STATUS@core-3: 0
+    Application Totals:
+      runtime (s): 20.0886
+      count: 0
+      sync-runtime (s): 20.0886
+      package-energy (J): 371.464
+      dram-energy (J): 5.29002
+      power (W): 18.4913
+      frequency (%): 0
+      frequency (Hz): 0
+      uncore-frequency (Hz): 3.6863e+09
+      CPU_FREQUENCY_STATUS@core-0: 4.02954e+09
+      CPU_FREQUENCY_STATUS@core-1: 4.02931e+09
+      CPU_FREQUENCY_STATUS@core-2: 4.0234e+09
+      CPU_FREQUENCY_STATUS@core-3: 4.01338e+09
+      geopmctl memory HWM (B): 25252
+      geopmctl network BW (B/s): 0
+
+}
