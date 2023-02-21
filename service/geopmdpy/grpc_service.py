@@ -131,8 +131,10 @@ class GEOPMServiceProxy(geopm_service_pb2_grpc.GEOPMServiceServicer):
         result = geopm_service_pb2.PidList()
         client_id = self._get_client_id(request.session_key, context)
         profile_name = request.profile_name
-        result.pids = self._platform_service.get_profile_pids(
+        pids = self._platform_service.get_profile_pids(
             self._get_user(client_id), profile_name)
+        for pid in pids:
+            result.pids.append(pid)
         return result
 
     def GetProfileRegionNames(self, request, context):
@@ -140,8 +142,10 @@ class GEOPMServiceProxy(geopm_service_pb2_grpc.GEOPMServiceServicer):
         profile_name = request.profile_name
         client_id = self._get_client_id(request.session_key, context)
         result = geopm_service_pb2.NameList()
-        result.names = self._platform_service.get_profile_region_names(
+        names = self._platform_service.get_profile_region_names(
             self._get_user(client_id), profile_name)
+        for name in names:
+            result.names.append(name)
         return result
 
     def _get_client_id(self, session_key, context):
