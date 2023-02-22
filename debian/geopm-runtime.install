@@ -1,0 +1,9 @@
+etc/bash_completion.d/geopmlaunch.bash
+etc/bash_completion.d/geopmread.bash
+etc/bash_completion.d/geopmwrite.bash
+usr/bin/geopmadmin
+usr/bin/geopmagent
+usr/bin/geopmctl
+usr/share/man/man7/geopm*.7
+usr/share/man/man1/geopm*.1
+usr/share/doc/geopm/*

@@ -26,12 +26,12 @@ version=$(cat VERSION)
 ./copying_headers/test-license
 
 pushd ${BASE_BUILD_DIR}
-    rm -f geopm-$version.tar.gz
+    rm -f geopm-runtime-$version.tar.gz
     if [ ! -f Makefile ]; then
         echo "Error:  No makefile in base directory, run configure" 1>&2 && false
     fi
     make dist
-    mv geopm-$version.tar.gz ${TMPDIR}
+    mv geopm-runtime-$version.tar.gz ${TMPDIR}
 popd
 pushd $SERVICE_BUILD_DIR
     if [ ! -f Makefile ]; then
@@ -43,8 +43,8 @@ pushd $SERVICE_BUILD_DIR
 popd
 
 pushd ${TMPDIR}
-    tar -xvf geopm-$version.tar.gz
-    pushd geopm-$version
+    tar -xvf geopm-runtime-$version.tar.gz
+    pushd geopm-runtime-$version
         ./copying_headers/test-license --ignore-service
         if [ -d service ]; then
             echo "Error:  The service directory is created by base tarball" 1>&2 && false

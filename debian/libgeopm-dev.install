@@ -1,0 +1,5 @@
+usr/include/geopm*.h
+usr/include/geopm/*.hpp
+usr/lib/*/lib*.a
+usr/lib/*/lib*.so
+usr/share/man/man3/geopm*.3
