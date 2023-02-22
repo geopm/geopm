@@ -335,9 +335,9 @@ namespace geopm
         geopm_time(&curr_time);
         m_application_sampler.update(curr_time);
         m_platform_io.read_batch();
+        m_reporter->update();
         m_tracer->update(m_trace_sample);
         m_profile_tracer->update(m_application_sampler.get_records());
-        m_reporter->update();
 
         while (!m_application_io->do_shutdown()) {
             step();
@@ -345,9 +345,9 @@ namespace geopm
         geopm_time(&curr_time);
         m_application_sampler.update(curr_time);
         m_platform_io.read_batch();
+        m_reporter->update();
         m_tracer->update(m_trace_sample);
         m_profile_tracer->update(m_application_sampler.get_records());
-        m_reporter->update();
         generate();
         m_platform_io.restore_control();
     }
