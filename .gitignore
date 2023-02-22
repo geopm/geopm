@@ -23,6 +23,7 @@ compile_commands.json
 /depcomp
 .deps/
 .dirstamp
+/debian/changelog
 /dox/html/
 /dox/latex/
 /dox-public/Doxyfile
