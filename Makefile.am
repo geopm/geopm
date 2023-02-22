@@ -48,18 +48,20 @@ if ENABLE_BETA
                        # end
 endif
 
-pkginclude_HEADERS = src/Agent.hpp \
-                     src/FrequencyGovernor.hpp \
-                     src/PlatformIOProf.hpp \
-                     src/PowerBalancer.hpp \
-                     src/PowerGovernor.hpp \
-                     src/SampleAggregator.hpp \
-                     # end
+geopmincludedir = $(includedir)/geopm
+
+geopminclude_HEADERS = src/Agent.hpp \
+                       src/FrequencyGovernor.hpp \
+                       src/PlatformIOProf.hpp \
+                       src/PowerBalancer.hpp \
+                       src/PowerGovernor.hpp \
+                       src/SampleAggregator.hpp \
+                       # end
 
 if ENABLE_BETA
-    pkginclude_HEADERS += src/Daemon.hpp \
-                          src/Endpoint.hpp \
-                          # end
+    geopminclude_HEADERS += src/Daemon.hpp \
+                            src/Endpoint.hpp \
+                            # end
 endif
 
 all_local = $(roff_man_noinst)
@@ -199,6 +201,18 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              copying_headers/header.NAS \
              copying_headers/test-dist \
              copying_headers/test-license \
+             debian/changelog \
+             debian/changelog.in \
+             debian/control \
+             debian/copyright \
+             debian/geopm-runtime.dirs \
+             debian/geopm-runtime.install \
+             debian/libgeopm-dev.dirs \
+             debian/libgeopm-dev.install \
+             debian/libgeopm1.install \
+             debian/python3-geopmpy.dirs \
+             debian/python3-geopmpy.install \
+             debian/rules \
              dox/Doxyfile.in \
              doxygen_update.sh \
              geopm-tutorial.tar.gz \

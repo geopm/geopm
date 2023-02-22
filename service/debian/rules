@@ -1,0 +1,41 @@
+#!/usr/bin/make -f
+
+DESTDIR = $(CURDIR)/debian/tmp
+prefix = /usr
+SOURCES_DIR = $(CURDIR)/../SOURCES
+
+include /usr/share/dpkg/default.mk
+include /usr/share/dpkg/buildtools.mk
+
+%:
+	dh $@ --with  python3 --buildsystem=pybuild
+
+override_dh_auto_configure:
+	test -f configure || ./autogen.sh
+	./configure \
+	  --prefix=$(prefix) \
+	  --includedir=$(prefix)/include \
+	  --datadir=$(prefix)/share \
+	  --mandir=$(prefix)/share/man \
+	  --libdir=$(prefix)/lib/$(DEB_HOST_MULTIARCH)
+	tar xf $(SOURCES_DIR)/vendor.tar.zst || \
+	  echo "Warning: did not find Rust vendor archive" 1>&2
+
+override_dh_auto_test:
+	# make check
+
+override_dh_auto_build:
+	make
+
+override_dh_auto_install:
+	make DESTDIR=$(DESTDIR) install
+	install -Dp -m644 geopm.service $(DESTDIR)$(prefix)/lib/systemd/system/geopm.service
+	install -Dp -m644 io.github.geopm.conf $(DESTDIR)$(prefix)/share/dbus-1/system.d/io.github.geopm.conf
+	install -Dp -m644 io.github.geopm.xml $(DESTDIR)$(prefix)/share/dbus-1/interfaces/io.github.geopm.xml
+	mkdir -p -m 711 $(DESTDIR)/etc/geopm-service
+	rm -f $(DESTDIR)$(prefix)/lib/*/libgeopmd.la
+	rm -f $(DESTDIR)$(prefix)/.crates.toml
+	rm -f $(DESTDIR)$(prefix)/.crates2.json
+
+override_dh_shlibdeps:
+	dh_shlibdeps -l $(DESTDIR)$(prefix)/lib/$(DEB_HOST_MULTIARCH)

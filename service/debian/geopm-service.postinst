@@ -1,0 +1,3 @@
+#/bin/bash
+mkdir -p -m 711 /run/geopm-service
+ln -s /usr/sbin/service /usr/sbin/rcgeopm

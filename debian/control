@@ -1,0 +1,85 @@
+Source: geopm-runtime
+Section: hardware
+Priority: optional
+Maintainer: Christopher M. Cantalupo <christopher.m.cantalupo@intel.com>
+Build-Depends: debhelper-compat (=13),
+               build-essential,
+               debhelper (>= 11~),
+               dh-python,
+               elfutils,
+               libgeopmd-dev,
+               libelf-dev,
+               openssh-client,
+               python3,
+               python3-all,
+               python3-dev,
+               python3-setuptools,
+               unzip
+Standards-Version: 4.1.4
+Homepage: https://geopm.github.io
+Vcs-Git: https://github.com/geopm/geopm.git
+Vcs-Browser: https://github.com/geopm/geopm.git
+
+Package: geopm-runtime
+Section: hardware
+Architecture: any
+Depends: ${misc:Depends},
+         ${shlibs:Depends},
+         libgeopm1 (= ${binary:Version}),
+         libgeopmd1 (= ${binary:Version}),
+         python3-geopmpy (= ${binary:Version})
+Description: The geopm runtime package provides many built-in
+ features.  An advanced use case is dynamically coordinating hardware
+ settings across all compute nodes used by an distributed HPC
+ application in response to the application's behavior and resource
+ manager requests.  The dynamic coordination is implemented as a
+ hierarchical control system for scalable communication and
+ decentralized control. The hierarchical control system can optimize
+ for various objective functions including maximizing global
+ application performance within a power bound or minimizing energy
+ consumption with marginal degradation of application performance.
+ The root of the control hierarchy tree can communicate with the
+ system resource manager to extend the hierarchy above the individual
+ MPI application and enable the management of system power resources
+ for multiple MPI jobs and multiple users by the system resource
+ manager.
+
+Package: libgeopm-dev
+Section: libdevel
+Architecture: any
+Multi-Arch: same
+Depends: ${misc:Depends},
+         ${shlibs:Depends},
+         libgeopm1 (= ${binary:Version})
+Description: Development package for the GEOPM Runtime.  This provides
+ the programming interface to libgeopm.so.  The package includes the C
+ and C++ header files, maunuals for these interfaces and the
+ unversioned libgeopm.so shared object symbolic link and the static
+ library.
+
+Package: libgeopm1
+Architecture: any
+Multi-Arch: same
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: Library supporting the GEOPM Runtime.  This provides the
+ libgeopm library which provides C and C++ interfaces.
+ .
+ This package contains the shared library.
+
+Package: python3-geopmpy
+Section: hardware
+Architecture: any
+Depends: ${python3:Depends},
+         libgeopm1 (= ${binary:Version}),
+         python3-cffi (>=1.15.0),
+         python3-cycler (>=0.11.0),
+         python3-natsort (>=8.1.0),
+         python3-numpy (>=1.19.5),
+         python3-pandas (>=1.1.5),
+         python3-psutil (>=5.9.0),
+         python3-pyyaml (>=6.0.0),
+         python3-setuptools (>=59.6.0),
+         python3-tables (>=3.7.0)
+Description: Python 3 package for GEOPM Runtime.  Provides the
+ implementation for geopmlaunch and visualization tools.

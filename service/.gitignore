@@ -17,6 +17,7 @@ compile_commands.json
 /CONTRIBUTING.rst
 /COPYING
 /COPYING-TPP
+/debian/changelog
 /depcomp
 /dist
 /docs/build

@@ -9,3 +9,5 @@ jsonschema>=3.2.0
 pyyaml>=6.0.0
 setuptools>=59.6.0
 pygments>=2.13.0
+grpcio>=1.25.0
+python3-protobuf>=3.9.2

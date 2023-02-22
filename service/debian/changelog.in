@@ -1,0 +1,5 @@
+geopm-service (@VERSION@-1) unstable; urgency=low
+
+  * Initial Release
+
+ -- Christopher M. Cantalupo <christopher.m.cantalupo@intel.com>  Fri, 24 Feb 2023 13:05:30 -0800

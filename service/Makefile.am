@@ -64,6 +64,19 @@ EXTRA_DIST = .gitignore \
              configure.ac \
              contrib/json11/LICENSE.txt \
              contrib/json11/README.md \
+             debian/changelog \
+             debian/changelog.in \
+             debian/control \
+             debian/copyright \
+             debian/geopm.service \
+             debian/geopm-service.dirs \
+             debian/geopm-service.install \
+             debian/geopm-service.postinst \
+             debian/libgeopmd-dev.dirs \
+             debian/libgeopmd-dev.install \
+             debian/libgeopmd1.install \
+             debian/python3-geopmdpy.install \
+             debian/rules \
              dox/blurb.md \
              dox/Doxyfile.in \
              Dockerfile \

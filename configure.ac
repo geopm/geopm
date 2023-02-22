@@ -4,7 +4,7 @@
 
 # 2.62 required for OpenMP macro and others
 AC_PREREQ([2.62])
-AC_INIT([geopm],m4_esyscmd([tr -d '\n' < VERSION]),[christopher.m.cantalupo@intel.com])
+AC_INIT([geopm-runtime],m4_esyscmd([tr -d '\n' < VERSION]),[christopher.m.cantalupo@intel.com])
 m4_define([serial_tests], [m4_esyscmd([
     vv=$(automake --version | head -n1 | sed 's|[^0-9.]*\([0-9.]*\).*|\1|');
     major=$(echo $vv | sed 's|\([0-9]*\).*|\1|');
@@ -563,7 +563,7 @@ AC_SUBST([ENABLE_BETA])
 GEOPM_SOURCE_DIR=$(readlink -f $srcdir)
 AC_DEFINE_UNQUOTED([GEOPM_SOURCE_DIR], ["$GEOPM_SOURCE_DIR"], [Root of the GEOPM source directory])
 
-AC_CONFIG_FILES([Makefile specs/geopm.spec specs/geopm-dudley.spec specs/geopm-ohpc.spec specs/geopm-theta.spec scripts/geopmpy/version.py])
+AC_CONFIG_FILES([Makefile specs/geopm.spec specs/geopm-dudley.spec specs/geopm-ohpc.spec specs/geopm-theta.spec scripts/geopmpy/version.py debian/changelog])
 AC_CONFIG_FILES([test/geopm_test.sh], [chmod a+x test/geopm_test.sh])
 AC_CONFIG_FILES([scripts/test/geopmpy_test.sh], [chmod a+x scripts/test/geopmpy_test.sh])
 AC_OUTPUT

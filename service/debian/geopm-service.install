@@ -1,0 +1,12 @@
+usr/bin/geopmd-proxy
+usr/bin/geopmread
+usr/bin/geopmwrite
+usr/lib/systemd/system/geopm.service
+usr/sbin/rcgeopm
+usr/share/dbus-1/interfaces/io.github.geopm.xml
+usr/share/dbus-1/system.d/io.github.geopm.conf
+usr/share/man/man1/geopmaccess.1
+usr/share/man/man1/geopmread.1
+usr/share/man/man1/geopmsession.1
+usr/share/man/man1/geopmwrite.1
+usr/share/man/man7/geopm*.7
