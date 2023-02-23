@@ -12,7 +12,7 @@ namespace geopm
 {
     class DCGMDevicePool;
 
-    const DCGMDevicePool &dcgm_device_pool()
+    DCGMDevicePool &dcgm_device_pool()
     {
         throw Exception("DCGMDevicePoolThrow::" + std::string(__func__) +
                         ": GEOPM configured without dcgm library support.  Please configure with --enable-dcgm",
