@@ -927,7 +927,7 @@ namespace geopm
     bool MSRIOGroup::get_hwp_enabled(void)
     {
         uint32_t leaf = 6; //thermal and power management features
-        uint32_t eax, ebx, ecx, edx;
+        uint32_t eax = 0, ebx = 0, ecx = 0, edx = 0;
         const uint32_t hwp_mask = 0x80;
         bool supported, enabled = false;
         __get_cpuid(leaf, &eax, &ebx, &ecx, &edx);
@@ -968,7 +968,7 @@ namespace geopm
     MSRIOGroup::rdt_info MSRIOGroup::get_rdt_info(void)
     {
         uint32_t leaf, subleaf = 0;
-        uint32_t eax, ebx, ecx, edx = 0;
+        uint32_t eax = 0, ebx = 0, ecx = 0, edx = 0;
         bool supported = false;
         uint32_t max, scale = 0;
 
