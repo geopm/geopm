@@ -13,23 +13,24 @@
 #include <functional>
 #include <set>
 
-#include "geopm_time.h"
-
 #include "Agent.hpp"
 
 namespace geopm
 {
     class PlatformIO;
     class PlatformTopo;
+    class Waiter;
 
     class FrequencyMapAgent : public Agent
     {
         public:
             FrequencyMapAgent();
-            FrequencyMapAgent(PlatformIO &plat_io, const PlatformTopo &topo);
-            FrequencyMapAgent(const std::map<uint64_t, double>& hash_freq_map,
-                              const std::set<uint64_t>& default_freq_hash,
-                              PlatformIO &plat_io, const PlatformTopo &topo);
+            FrequencyMapAgent(PlatformIO &plat_io, const PlatformTopo &topo,
+                              std::shared_ptr<Waiter> waiter);
+            FrequencyMapAgent(PlatformIO &plat_io, const PlatformTopo &topo,
+                              std::shared_ptr<Waiter> waiter,
+                              const std::map<uint64_t, double>& hash_freq_map,
+                              const std::set<uint64_t>& default_freq_hash);
             virtual ~FrequencyMapAgent() = default;
             void init(int level, const std::vector<int> &fan_in, bool is_level_root) override;
             void validate_policy(std::vector<double> &policy) const override;
@@ -72,12 +73,9 @@ namespace geopm
                 M_NUM_POLICY = 65,
             };
 
-            const double M_WAIT_SEC;
+            static constexpr double M_WAIT_SEC = 0.002;
             PlatformIO &m_platform_io;
             const PlatformTopo &m_platform_topo;
-            geopm_time_s m_wait_time;
-            std::map<uint64_t, double> m_hash_freq_map;
-            std::set<uint64_t> m_default_freq_hash;
             std::vector<int> m_hash_signal_idx;
             std::vector<int> m_freq_control_idx;
             int m_gpu_min_control_idx;
@@ -105,6 +103,9 @@ namespace geopm
             double m_default_freq;
             double m_uncore_freq;
             double m_default_gpu_freq;
+            std::map<uint64_t, double> m_hash_freq_map;
+            std::set<uint64_t> m_default_freq_hash;
+            std::shared_ptr<Waiter> m_waiter;
     };
 }
 

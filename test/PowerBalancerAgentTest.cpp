@@ -12,6 +12,7 @@
 #include "MockPlatformIO.hpp"
 #include "MockPlatformTopo.hpp"
 #include "MockSampleAggregator.hpp"
+#include "MockWaiter.hpp"
 #include "PowerBalancerAgent.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm_test.hpp"
@@ -48,6 +49,7 @@ class PowerBalancerAgentTest : public ::testing::Test
         std::shared_ptr<MockSampleAggregator> m_sample_agg;
         std::vector<std::shared_ptr<MockPowerBalancer> > m_power_bal;
         std::unique_ptr<PowerBalancerAgent> m_agent;
+        std::shared_ptr<MockWaiter> m_waiter;
 
         const double M_CPU_POWER_MIN_AVAIL = 50;
         const double M_CPU_POWER_LIMIT_DEFAULT = 300;
@@ -59,6 +61,7 @@ class PowerBalancerAgentTest : public ::testing::Test
 
 void PowerBalancerAgentTest::SetUp()
 {
+    m_waiter = std::make_shared<MockWaiter>();
     m_sample_agg = std::make_shared<MockSampleAggregator>();
     for (int i = 0; i < M_NUM_PKGS; ++i) {
         m_power_bal.push_back(std::make_shared<MockPowerBalancer>());
@@ -78,11 +81,12 @@ void PowerBalancerAgentTest::SetUp()
     EXPECT_CALL(m_platform_io, read_signal("CPU_POWER_LIMIT_DEFAULT", _, _));
     std::vector<std::shared_ptr<PowerBalancer> >power_bal_base(m_power_bal.size());
     std::copy(m_power_bal.begin(), m_power_bal.end(), power_bal_base.begin());
-    m_agent = geopm::make_unique<PowerBalancerAgent>(m_platform_io, m_platform_topo,
-                                                     m_sample_agg,
-                                                     power_bal_base,
-                                                     M_CPU_POWER_MIN_AVAIL,
-                                                     M_CPU_POWER_MAX_AVAIL);
+    m_agent = std::make_unique<PowerBalancerAgent>(m_platform_io, m_platform_topo,
+                                                   m_sample_agg,
+                                                   power_bal_base,
+                                                   M_CPU_POWER_MIN_AVAIL,
+                                                   M_CPU_POWER_MAX_AVAIL,
+                                                   m_waiter);
 }
 
 TEST_F(PowerBalancerAgentTest, tree_root_agent)

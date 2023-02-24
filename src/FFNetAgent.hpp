@@ -10,6 +10,7 @@
 #include <vector>
 #include <string>
 #include <utility>
+#include <memory>
 
 #include "Agent.hpp"
 #include "geopm_time.h"
@@ -20,6 +21,7 @@ namespace geopm
 {
     class PlatformTopo;
     class PlatformIO;
+    class Waiter;
 
     /// @brief Feed Forward Net Agent
     class FFNetAgent : public Agent
@@ -39,8 +41,8 @@ namespace geopm
             FFNetAgent(PlatformIO &plat_io,
                        const PlatformTopo &topo,
                        const std::map<std::pair<geopm_domain_e, int>, std::shared_ptr<DomainNetMap> > &net_map,
-                       const std::map<geopm_domain_e, std::shared_ptr<RegionHintRecommender> > &freq_recommender
-            );
+                       const std::map<geopm_domain_e, std::shared_ptr<RegionHintRecommender> > &freq_recommender,
+                       std::shared_ptr<Waiter> waiter);
             virtual ~FFNetAgent() = default;
             void init(int level, const std::vector<int> &fan_in, bool is_level_root) override;
             void validate_policy(std::vector<double> &in_policy) const override;
@@ -87,7 +89,6 @@ namespace geopm
             void init_domain_indices(const PlatformTopo &topo);
 
             PlatformIO &m_platform_io;
-            geopm_time_s m_last_wait;
             static constexpr double M_WAIT_SEC = 0.020;
             bool m_do_write_batch;
 
@@ -101,6 +102,7 @@ namespace geopm
             std::map<m_domain_key_s, m_control_s> m_freq_control;
             std::vector<geopm_domain_e> m_domain_types;
             std::vector<m_domain_key_s> m_domains;
+            std::shared_ptr<Waiter> m_waiter;
 
             static const std::map<geopm_domain_e, std::string> M_NNET_ENVNAME;
             static const std::map<geopm_domain_e, std::string> M_FREQMAP_ENVNAME;

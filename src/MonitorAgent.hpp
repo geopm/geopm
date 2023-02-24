@@ -13,19 +13,20 @@
 #include <functional>
 
 #include "Agent.hpp"
-#include "geopm_time.h"
 
 namespace geopm
 {
     class PlatformIO;
     class PlatformTopo;
+    class Waiter;
 
     /// @brief Agent used to do sampling only; no policy will be enforced.
     class MonitorAgent : public Agent
     {
         public:
             MonitorAgent();
-            MonitorAgent(PlatformIO &plat_io, const PlatformTopo &topo);
+            MonitorAgent(PlatformIO &plat_io, const PlatformTopo &topo,
+                         std::shared_ptr<Waiter> waiter);
             virtual ~MonitorAgent() = default;
             void init(int level, const std::vector<int> &fan_in, bool is_level_root) override;
             void validate_policy(std::vector<double> &policy) const override;
@@ -55,8 +56,9 @@ namespace geopm
             /// @return a list of sample names
             static std::vector<std::string> sample_names(void);
         private:
-            struct geopm_time_s m_last_wait;
-            const double M_WAIT_SEC;
+            static constexpr double M_WAIT_SEC = 0.005;
+            std::shared_ptr<Waiter> m_waiter;
+
     };
 }
 

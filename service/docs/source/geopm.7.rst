@@ -340,6 +340,10 @@ GEOPM Environment Variables
   The path to the control initialization file.  See the ``--geopm-init-control``
   :ref:`option description <geopm-init-control option>` in
   :doc:`geopmlaunch(1) <geopmlaunch.1>` for more details.
+``GEOPM_PERIOD``
+  The control loop period in seconds, if not specified this is determined by
+  the Agent. See the ``--geopm-period`` :ref:`option description <geopm-period option>`
+  in :doc:`geopmlaunch(1) <geopmlaunch.1>` for details.
 
 Other Environment Variables
 ---------------------------

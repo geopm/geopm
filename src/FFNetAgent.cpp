@@ -13,6 +13,8 @@
 #include <fstream>
 
 #include "PlatformIOProf.hpp"
+#include "Waiter.hpp"
+#include "Environment.hpp"
 #include "geopm_debug.hpp"
 #include "geopm/PluginFactory.hpp"
 #include "geopm/PlatformIO.hpp"
@@ -52,7 +54,8 @@ namespace geopm
 
 
     FFNetAgent::FFNetAgent()
-        : FFNetAgent(platform_io(), platform_topo(), {}, {})
+        : FFNetAgent(platform_io(), platform_topo(), {}, {},
+                     Waiter::make_unique(environment().period(M_WAIT_SEC)))
     {
 
     }
@@ -62,13 +65,13 @@ namespace geopm
                            const std::map<std::pair<geopm_domain_e, int>,
                                           std::shared_ptr<DomainNetMap> > &net_map,
                            const std::map<geopm_domain_e,
-                                          std::shared_ptr<RegionHintRecommender> > &freq_recommender)
+                                          std::shared_ptr<RegionHintRecommender> > &freq_recommender,
+                           std::shared_ptr<Waiter> waiter)
         : m_platform_io(plat_io)
-          , m_last_wait{{0, 0}}
           , m_do_write_batch(false)
           , m_perf_energy_bias(0)
+          , m_waiter(waiter)
     {
-        geopm_time(&m_last_wait);
         init_domain_indices(topo);
 
         if (freq_recommender.empty()) {
@@ -243,12 +246,7 @@ namespace geopm
     // Wait for the remaining cycle time to keep Controller loop cadence
     void FFNetAgent::wait(void)
     {
-        geopm_time_s current_time;
-        do {
-            geopm_time(&current_time);
-        }
-        while (geopm_time_diff(&m_last_wait, &current_time) < M_WAIT_SEC);
-        geopm_time(&m_last_wait);
+        m_waiter->wait();
     }
 
     // Describes expected policies to be provided by the resource manager or user
@@ -265,7 +263,7 @@ namespace geopm
     // Adds the wait time to the top of the report
     std::vector<std::pair<std::string, std::string> > FFNetAgent::report_header(void) const
     {
-        return {{"Wait time (sec)", std::to_string(M_WAIT_SEC)}};
+        return {{"Wait time (sec)", std::to_string(m_waiter->period())}};
     }
 
     std::vector<std::pair<std::string, std::string> > FFNetAgent::report_host(void) const

@@ -29,6 +29,7 @@
 #include "MockPlatformTopo.hpp"
 #include "MockDomainNetMap.hpp"
 #include "MockRegionHintRecommender.hpp"
+#include "MockWaiter.hpp"
 #include "geopm/PlatformTopo.hpp"
 #include "geopm_prof.h"
 #include "geopm_test.hpp"
@@ -159,12 +160,13 @@ void FFNetAgentTest::construct()
         freq_recommender_arg[iter.first] = iter.second;
     }
 
+    std::shared_ptr<geopm::Waiter> waiter = std::make_unique<MockWaiter>();
     m_agent = geopm::make_unique<FFNetAgent>(
             *m_platform_io,
             *m_platform_topo,
             net_map_arg,
-            freq_recommender_arg
-            );
+            freq_recommender_arg,
+            waiter);
     m_agent->init(0, {}, false); 
 }
 

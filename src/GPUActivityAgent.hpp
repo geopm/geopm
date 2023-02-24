@@ -9,20 +9,21 @@
 #include <functional>
 #include <vector>
 
-#include "geopm_time.h"
 #include "Agent.hpp"
 
 namespace geopm
 {
     class PlatformTopo;
     class PlatformIO;
+    class Waiter;
 
     /// @brief Agent
     class GPUActivityAgent : public Agent
     {
         public:
             GPUActivityAgent();
-            GPUActivityAgent(PlatformIO &plat_io, const PlatformTopo &topo);
+            GPUActivityAgent(PlatformIO &plat_io, const PlatformTopo &topo,
+                             std::shared_ptr<Waiter> waiter);
             virtual ~GPUActivityAgent() = default;
             void init(int level, const std::vector<int> &fan_in, bool is_level_root) override;
             void validate_policy(std::vector<double> &in_policy) const override;
@@ -51,8 +52,7 @@ namespace geopm
         private:
             PlatformIO &m_platform_io;
             const PlatformTopo &m_platform_topo;
-            geopm_time_s m_last_wait;
-            double M_WAIT_SEC;
+            static constexpr double M_WAIT_SEC = 0.020; // 20ms wait default
             const double M_POLICY_PHI_DEFAULT;
             const double M_GPU_ACTIVITY_CUTOFF;
             const int M_NUM_GPU;
@@ -109,6 +109,7 @@ namespace geopm
 
             std::vector<m_control> m_gpu_freq_min_control;
             std::vector<m_control> m_gpu_freq_max_control;
+            std::shared_ptr<Waiter> m_waiter;
 
             void init_platform_io(void);
     };
