@@ -2,6 +2,7 @@
  * Copyright (c) 2015 - 2023, Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
+#include "config.h"
 
 #include "PowerBalancerAgent.hpp"
 
@@ -18,7 +19,8 @@
 #include "geopm/Helper.hpp"
 #include "PlatformIOProf.hpp"
 #include "SampleAggregator.hpp"
-#include "config.h"
+#include "Environment.hpp"
+#include "Waiter.hpp"
 
 namespace geopm
 {
@@ -588,7 +590,8 @@ namespace geopm
                              SampleAggregator::make_unique(),
                              {},
                              PlatformIOProf::platform_io().read_signal("CPU_POWER_MIN_AVAIL", GEOPM_DOMAIN_PACKAGE, 0),
-                             PlatformIOProf::platform_io().read_signal("CPU_POWER_MAX_AVAIL", GEOPM_DOMAIN_PACKAGE, 0))
+                             PlatformIOProf::platform_io().read_signal("CPU_POWER_MAX_AVAIL", GEOPM_DOMAIN_PACKAGE, 0),
+                             Waiter::make_unique(environment().period(M_WAIT_SEC)))
     {
 
     }
@@ -598,14 +601,13 @@ namespace geopm
                                            std::shared_ptr<SampleAggregator> sample_agg,
                                            std::vector<std::shared_ptr<PowerBalancer> > power_balancer,
                                            double min_power,
-                                           double max_power)
+                                           double max_power,
+                                           std::shared_ptr<Waiter> waiter)
         : m_platform_io(platform_io)
         , m_platform_topo(platform_topo)
         , m_sample_agg(sample_agg)
         , m_role(nullptr)
         , m_power_balancer(power_balancer)
-        , m_last_wait(time_zero())
-        , M_WAIT_SEC(0.005)
         , m_power_tdp(NAN)
         , m_do_send_sample(false)
         , m_do_send_policy(false)
@@ -613,8 +615,8 @@ namespace geopm
         , M_MIN_PKG_POWER_SETTING(min_power)
         , M_MAX_PKG_POWER_SETTING(max_power)
         , M_TIME_WINDOW(0.015)
+        , m_waiter(waiter)
     {
-        geopm_time(&m_last_wait);
         m_power_tdp = m_platform_io.read_signal("CPU_POWER_LIMIT_DEFAULT", GEOPM_DOMAIN_BOARD, 0);
     }
 
@@ -696,11 +698,9 @@ namespace geopm
         m_do_send_sample = m_role->sample_platform(out_sample);
     }
 
-    void PowerBalancerAgent::wait(void)    {
-        while(geopm_time_since(&m_last_wait) < M_WAIT_SEC) {
-
-        }
-        geopm_time(&m_last_wait);
+    void PowerBalancerAgent::wait(void)
+    {
+        m_waiter->wait();
     }
 
     std::vector<std::pair<std::string, std::string> > PowerBalancerAgent::report_header(void) const

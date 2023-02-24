@@ -20,21 +20,23 @@
 #include "geopm_debug.hpp"
 
 #include "PlatformIOProf.hpp"
+#include "Waiter.hpp"
+#include "Environment.hpp"
 
 namespace geopm
 {
 
     GPUActivityAgent::GPUActivityAgent()
-        : GPUActivityAgent(PlatformIOProf::platform_io(), platform_topo())
+        : GPUActivityAgent(PlatformIOProf::platform_io(), platform_topo(),
+                           Waiter::make_unique(environment().period(M_WAIT_SEC)))
     {
 
     }
 
-    GPUActivityAgent::GPUActivityAgent(PlatformIO &plat_io, const PlatformTopo &topo)
+    GPUActivityAgent::GPUActivityAgent(PlatformIO &plat_io, const PlatformTopo &topo,
+                                       std::shared_ptr<Waiter> waiter)
         : m_platform_io(plat_io)
         , m_platform_topo(topo)
-        , m_last_wait{{0, 0}}
-        , M_WAIT_SEC(0.020) // 20ms wait default
         , M_POLICY_PHI_DEFAULT(0.5)
         , M_GPU_ACTIVITY_CUTOFF(0.05)
         , M_NUM_GPU(m_platform_topo.num_domain(
@@ -44,8 +46,9 @@ namespace geopm
         , M_NUM_CHIP_PER_GPU(M_NUM_GPU_CHIP / M_NUM_GPU)
         , m_do_write_batch(false)
         , m_do_send_policy(true)
+        , m_waiter(waiter)
     {
-        geopm_time(&m_last_wait);
+
     }
 
     void GPUActivityAgent::init(int level, const std::vector<int> &fan_in, bool is_level_root)
@@ -393,18 +396,13 @@ namespace geopm
     // Wait for the remaining cycle time to keep Controller loop cadence
     void GPUActivityAgent::wait(void)
     {
-        geopm_time_s current_time;
-        do {
-            geopm_time(&current_time);
-        }
-        while(geopm_time_diff(&m_last_wait, &current_time) < M_WAIT_SEC);
-        geopm_time(&m_last_wait);
+        m_waiter->wait();
     }
 
     // Adds the wait time to the top of the report
     std::vector<std::pair<std::string, std::string> > GPUActivityAgent::report_header(void) const
     {
-        return {{"Wait time (sec)", std::to_string(M_WAIT_SEC)}};
+        return {{"Wait time (sec)", std::to_string(m_waiter->period())}};
     }
 
     // Adds number of frquency requests to the per-node section of the report

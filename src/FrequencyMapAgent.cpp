@@ -2,6 +2,7 @@
  * Copyright (c) 2015 - 2023, Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
+#include "config.h"
 
 #include "FrequencyMapAgent.hpp"
 
@@ -22,32 +23,32 @@
 #include "geopm/Helper.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm_debug.hpp"
-#include "config.h"
+#include "Waiter.hpp"
 
 using json11::Json;
 
 namespace geopm
 {
     FrequencyMapAgent::FrequencyMapAgent()
-        : FrequencyMapAgent(PlatformIOProf::platform_io(), platform_topo())
+        : FrequencyMapAgent(PlatformIOProf::platform_io(), platform_topo(),
+                            Waiter::make_unique(environment().period(M_WAIT_SEC)))
     {
 
     }
 
-    FrequencyMapAgent::FrequencyMapAgent(const std::map<uint64_t, double>& hash_freq_map,
-                                         const std::set<uint64_t>& default_freq_hash,
-                                         PlatformIO &plat_io, const PlatformTopo &topo)
-        : FrequencyMapAgent(plat_io, topo)
+    FrequencyMapAgent::FrequencyMapAgent(PlatformIO &plat_io, const PlatformTopo &topo,
+                                         std::shared_ptr<Waiter> waiter)
+        : FrequencyMapAgent(plat_io, topo, waiter, {}, {})
     {
-        m_hash_freq_map = hash_freq_map;
-        m_default_freq_hash = default_freq_hash;
+
     }
 
-    FrequencyMapAgent::FrequencyMapAgent(PlatformIO &plat_io, const PlatformTopo &topo)
-        : M_WAIT_SEC(0.002)
-        , m_platform_io(plat_io)
+    FrequencyMapAgent::FrequencyMapAgent(PlatformIO &plat_io, const PlatformTopo &topo,
+                                         std::shared_ptr<Waiter> waiter,
+                                         const std::map<uint64_t, double>& hash_freq_map,
+                                         const std::set<uint64_t>& default_freq_hash)
+        : m_platform_io(plat_io)
         , m_platform_topo(topo)
-        , m_wait_time(time_zero())
         , m_gpu_min_control_idx(-1)
         , m_gpu_max_control_idx(-1)
         , m_uncore_min_ctl_idx(-1)
@@ -71,6 +72,9 @@ namespace geopm
         , m_default_freq(NAN)
         , m_uncore_freq(NAN)
         , m_default_gpu_freq(NAN)
+        , m_hash_freq_map(hash_freq_map)
+        , m_default_freq_hash(default_freq_hash)
+        , m_waiter(waiter)
     {
 
     }
@@ -354,10 +358,7 @@ namespace geopm
 
     void FrequencyMapAgent::wait(void)
     {
-        while(geopm_time_since(&m_wait_time) < M_WAIT_SEC) {
-
-        }
-        geopm_time(&m_wait_time);
+        m_waiter->wait();
     }
 
     std::vector<std::string> FrequencyMapAgent::policy_names(void)

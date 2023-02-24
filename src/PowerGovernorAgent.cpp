@@ -2,6 +2,7 @@
  * Copyright (c) 2015 - 2023, Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
+#include "config.h"
 
 #include "PowerGovernorAgent.hpp"
 
@@ -11,23 +12,27 @@
 
 #include "PowerGovernor.hpp"
 #include "PlatformIOProf.hpp"
+#include "Waiter.hpp"
 #include "geopm/PlatformIO.hpp"
 #include "geopm/PlatformTopo.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/CircularBuffer.hpp"
 #include "geopm/Agg.hpp"
 #include "geopm/Helper.hpp"
-#include "config.h"
+#include "Environment.hpp"
 
 namespace geopm
 {
     PowerGovernorAgent::PowerGovernorAgent()
-        : PowerGovernorAgent(PlatformIOProf::platform_io(), nullptr)
+        : PowerGovernorAgent(PlatformIOProf::platform_io(), nullptr,
+                             Waiter::make_unique(environment().period(M_WAIT_SEC)))
     {
 
     }
 
-    PowerGovernorAgent::PowerGovernorAgent(PlatformIO &platform_io, std::unique_ptr<PowerGovernor> power_gov)
+    PowerGovernorAgent::PowerGovernorAgent(PlatformIO &platform_io,
+                                           std::unique_ptr<PowerGovernor> power_gov,
+                                           std::shared_ptr<Waiter> waiter)
         : m_platform_io(platform_io)
         , m_level(-1)
         , m_is_converged(false)
@@ -48,10 +53,9 @@ namespace geopm
         , m_ascend_period(10)
         , m_min_num_converged(15)
         , m_adjusted_power(0.0)
-        , m_last_wait(time_zero())
-        , M_WAIT_SEC(0.005)
+        , m_waiter(waiter)
     {
-        geopm_time(&m_last_wait);
+
     }
 
     PowerGovernorAgent::~PowerGovernorAgent() = default;
@@ -262,10 +266,7 @@ namespace geopm
 
     void PowerGovernorAgent::wait()
     {
-        while(geopm_time_since(&m_last_wait) < M_WAIT_SEC) {
-
-        }
-        geopm_time(&m_last_wait);
+        m_waiter->wait();
     }
 
     std::vector<std::pair<std::string, std::string> > PowerGovernorAgent::report_header(void) const

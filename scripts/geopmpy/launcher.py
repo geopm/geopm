@@ -146,6 +146,7 @@ class Config(object):
         parser.add_argument('--geopm-affinity-disable', dest='do_affinity', action='store_false', default=True)
         parser.add_argument('--geopm-launch-verbose', dest='quiet', action='store_false', default=True)
         parser.add_argument('--geopm-launch-script', dest='launch_script', type=str)
+        parser.add_argument('--geopm-period', dest='period', type=str)
         opts, self.argv_unparsed = parser.parse_known_args(argv)
         # Error check inputs
         if opts.ctl not in ('process', 'pthread', 'application'):
@@ -175,6 +176,7 @@ class Config(object):
         self.do_affinity = opts.do_affinity
         self.quiet = opts.quiet
         self.launch_script = opts.launch_script
+        self.period = opts.period
 
     def __repr__(self):
         """
@@ -237,6 +239,8 @@ class Config(object):
             result['GEOPM_OMPT_DISABLE'] = 'true'
         if self.record_filter:
             result['GEOPM_RECORD_FILTER'] = self.record_filter
+        if self.period:
+            result['GEOPM_PERIOD'] = self.period
 
         # Add geopm installed OpenMP library to LD_LIBRARY_PATH if it
         # is present.
@@ -1762,6 +1766,7 @@ GEOPM_OPTIONS:
       --geopm-launch-verbose   emit launch script and affinity configuration to stderr
       --geopm-launch-script=output_file
                                emit launch script to output_file
+      --geopm-period=sec       Control loop period override for Agent value
 
 {}
 

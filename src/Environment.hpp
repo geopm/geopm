@@ -61,6 +61,7 @@ namespace geopm
             virtual bool do_debug_attach_all(void) const = 0;
             virtual bool do_debug_attach_one(void) const = 0;
             virtual int debug_attach_process(void) const = 0;
+            virtual double period(double default_period) const = 0;
             static std::map<std::string, std::string> parse_environment_file(const std::string &env_file_path);
     };
 
@@ -109,6 +110,7 @@ namespace geopm
             bool do_debug_attach_all(void) const override;
             bool do_debug_attach_one(void) const override;
             int debug_attach_process(void) const override;
+            double period(double default_period) const override;
         protected:
             void parse_environment(void);
             bool is_set(const std::string &env_var) const;

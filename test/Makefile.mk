@@ -303,6 +303,10 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/TreeCommTest.send_receive \
               test/gtest_links/TRLFrequencyLimitDetectorTest.returns_single_core_limit_by_default \
               test/gtest_links/TRLFrequencyLimitDetectorTest.returns_max_observed_frequency_after_update \
+              test/gtest_links/WaiterTest.invalid_strategy_name \
+              test/gtest_links/WaiterTest.make_unique \
+              test/gtest_links/WaiterTest.reset \
+              test/gtest_links/WaiterTest.wait \
               test/gtest_links/ValidateRecordTest.valid_stream \
               test/gtest_links/ValidateRecordTest.process_change \
               test/gtest_links/ValidateRecordTest.entry_exit_paired \
@@ -437,6 +441,7 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
                           test/MockTracer.hpp \
                           test/MockTreeComm.hpp \
                           test/MockTreeCommLevel.hpp \
+                          test/MockWaiter.hpp \
                           test/ModelApplicationTest.cpp \
                           test/MonitorAgentTest.cpp \
                           test/OptionParserTest.cpp \
@@ -462,6 +467,7 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
                           test/TreeCommTest.cpp \
                           test/TRLFrequencyLimitDetectorTest.cpp \
                           test/ValidateRecordTest.cpp \
+                          test/WaiterTest.cpp \
                           test/geopm_test.cpp \
                           test/geopm_test_helper.cpp \
                           test/geopm_test.hpp \

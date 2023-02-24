@@ -336,6 +336,10 @@ GEOPM Environment Variables
   :ref:`geopm.7:integration with ompt`.  See the ``--geopm-ompt-disable``
   :ref:`option description <geopm-ompt-disable option>` in :doc:`geopmlaunch(1)
   <geopmlaunch.1>` for more details.
+``GEOPM_PERIOD``
+  The control loop period in seconds, if not specified this is determined by
+  the Agent. See the ``--geopm-period`` :ref:`option description <geopm-period option>`
+  in :doc:`geopmlaunch(1) <geopmlaunch.1>` for details.
 
 Other Environment Variables
 ---------------------------

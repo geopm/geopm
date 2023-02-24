@@ -9,6 +9,7 @@
 #include "MonitorAgent.hpp"
 #include "MockPlatformIO.hpp"
 #include "MockPlatformTopo.hpp"
+#include "MockWaiter.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm/Agg.hpp"
 
@@ -24,11 +25,13 @@ class MonitorAgentTest : public ::testing::Test
         MockPlatformIO m_platform_io;
         MockPlatformTopo m_platform_topo;
         std::unique_ptr<geopm::MonitorAgent> m_agent;
+        std::shared_ptr<MockWaiter> m_waiter;
 };
 
 void MonitorAgentTest::SetUp()
 {
-    m_agent = geopm::make_unique<MonitorAgent>(m_platform_io, m_platform_topo);
+    m_waiter = std::make_unique<MockWaiter>();
+    m_agent = std::make_unique<MonitorAgent>(m_platform_io, m_platform_topo, m_waiter);
 }
 
 TEST_F(MonitorAgentTest, sample_names)

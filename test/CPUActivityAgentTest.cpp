@@ -24,6 +24,7 @@
 #include "MockPlatformIO.hpp"
 #include "MockPlatformTopo.hpp"
 #include "MockFrequencyGovernor.hpp"
+#include "MockWaiter.hpp"
 #include "geopm/PlatformTopo.hpp"
 #include "geopm_prof.h"
 #include "geopm_test.hpp"
@@ -74,6 +75,7 @@ class CPUActivityAgentTest : public ::testing::Test
         std::vector<double> m_mbm_max;
         std::unique_ptr<MockPlatformIO> m_platform_io;
         std::unique_ptr<MockPlatformTopo> m_platform_topo;
+        std::shared_ptr<MockWaiter> m_waiter;
 };
 
 const int CPUActivityAgentTest::M_NUM_CPU = 1;
@@ -84,8 +86,9 @@ const size_t CPUActivityAgentTest::M_NUM_UNCORE_MBM_READINGS = 13;
 
 void CPUActivityAgentTest::SetUp()
 {
-    m_platform_io = geopm::make_unique<MockPlatformIO>();
-    m_platform_topo = geopm::make_unique<MockPlatformTopo>();
+    m_platform_io = std::make_unique<MockPlatformIO>();
+    m_platform_topo = std::make_unique<MockPlatformTopo>();
+    m_waiter = std::make_unique<MockWaiter>();
 
     ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_BOARD))
         .WillByDefault(Return(M_NUM_BOARD));
@@ -158,7 +161,7 @@ void CPUActivityAgentTest::SetUp()
     EXPECT_CALL(*m_gov, get_frequency_min())
         .WillRepeatedly(Return(m_cpu_freq_min));
 
-    m_agent = geopm::make_unique<CPUActivityAgent>(*m_platform_io, *m_platform_topo, m_gov);
+    m_agent = geopm::make_unique<CPUActivityAgent>(*m_platform_io, *m_platform_topo, m_gov, m_waiter);
     m_num_policy = m_agent->policy_names().size();
 
     m_default_policy = {NAN};

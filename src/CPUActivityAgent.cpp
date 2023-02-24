@@ -23,22 +23,24 @@
 
 #include "PlatformIOProf.hpp"
 #include "FrequencyGovernor.hpp"
+#include "Waiter.hpp"
+#include "Environment.hpp"
 
 namespace geopm
 {
     CPUActivityAgent::CPUActivityAgent()
-        : CPUActivityAgent(platform_io(), platform_topo(), FrequencyGovernor::make_shared())
+        : CPUActivityAgent(platform_io(), platform_topo(), FrequencyGovernor::make_shared(),
+                           Waiter::make_unique(environment().period(M_WAIT_SEC)))
     {
 
     }
 
     CPUActivityAgent::CPUActivityAgent(PlatformIO &plat_io,
                                        const PlatformTopo &topo,
-                                       std::shared_ptr<FrequencyGovernor> gov)
+                                       std::shared_ptr<FrequencyGovernor> gov,
+                                       std::shared_ptr<Waiter> waiter)
         : m_platform_io(plat_io)
         , m_platform_topo(topo)
-        , m_last_wait{{0, 0}}
-        , M_WAIT_SEC(0.010) // 10ms wait default
         , M_POLICY_PHI_DEFAULT(0.5)
         , M_NUM_PACKAGE(m_platform_topo.num_domain(GEOPM_DOMAIN_PACKAGE))
         , m_do_write_batch(false)
@@ -53,8 +55,9 @@ namespace geopm
         , m_resolved_f_uncore_max(0)
         , m_resolved_f_core_efficient(0)
         , m_resolved_f_core_max(0)
+        , m_waiter(waiter)
     {
-        geopm_time(&m_last_wait);
+
     }
 
     // Push signals and controls for future batch read/write
@@ -432,18 +435,13 @@ namespace geopm
     // Wait for the remaining cycle time to keep Controller loop cadence
     void CPUActivityAgent::wait(void)
     {
-        geopm_time_s current_time;
-        do {
-            geopm_time(&current_time);
-        }
-        while(geopm_time_diff(&m_last_wait, &current_time) < M_WAIT_SEC);
-        geopm_time(&m_last_wait);
+        m_waiter->wait();
     }
 
     // Adds the wait time to the top of the report
     std::vector<std::pair<std::string, std::string> > CPUActivityAgent::report_header(void) const
     {
-        return {{"Wait time (sec)", std::to_string(M_WAIT_SEC)}};
+        return {{"Wait time (sec)", std::to_string(m_waiter->period())}};
     }
 
     // Adds number of frquency requests to the per-node section of the report

@@ -8,8 +8,8 @@
 
 #include <vector>
 #include <functional>
+#include <memory>
 
-#include "geopm_time.h"
 #include "Agent.hpp"
 
 namespace geopm
@@ -19,6 +19,7 @@ namespace geopm
     class PowerBalancer;
     class PowerGovernor;
     class SampleAggregator;
+    class Waiter;
 
     class PowerBalancerAgent : public Agent
     {
@@ -124,7 +125,8 @@ namespace geopm
                                std::shared_ptr<SampleAggregator> sample_agg,
                                std::vector<std::shared_ptr<PowerBalancer> > power_balancer,
                                double min_power,
-                               double max_power);
+                               double max_power,
+                               std::shared_ptr<Waiter> waiter);
             PowerBalancerAgent();
             virtual ~PowerBalancerAgent();
             void init(int level, const std::vector<int> &fan_in, bool is_level_root) override;
@@ -193,8 +195,7 @@ namespace geopm
             std::shared_ptr<SampleAggregator> m_sample_agg;
             std::shared_ptr<Role> m_role;
             std::vector<std::shared_ptr<PowerBalancer> > m_power_balancer;
-            struct geopm_time_s m_last_wait;
-            const double M_WAIT_SEC;
+            static constexpr double M_WAIT_SEC = 0.005;
             double m_power_tdp;
             bool m_do_send_sample;
             bool m_do_send_policy;
@@ -202,6 +203,7 @@ namespace geopm
             const double M_MIN_PKG_POWER_SETTING;
             const double M_MAX_PKG_POWER_SETTING;
             const double M_TIME_WINDOW;
+            std::shared_ptr<Waiter> m_waiter;
 
             class RootRole;
             class LeafRole;
