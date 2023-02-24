@@ -128,7 +128,8 @@ namespace geopm
                 "GEOPM_MAX_FAN_OUT",
                 "GEOPM_OMPT_DISABLE",
                 "GEOPM_RECORD_FILTER",
-                "GEOPM_INIT_CONTROL"};
+                "GEOPM_INIT_CONTROL",
+                "GEOPM_PERIOD"};
     }
 
     void EnvironmentImp::parse_environment()
@@ -227,6 +228,16 @@ namespace geopm
     std::string EnvironmentImp::agent(void) const
     {
         return lookup("GEOPM_AGENT");
+    }
+
+    double EnvironmentImp::period(double default_period) const
+    {
+        double result = default_period;
+        std::string period_str = lookup("GEOPM_PERIOD");
+        if (period_str.size() != 0) {
+            result = std::stod(period_str);
+        }
+        return result;
     }
 
     std::string EnvironmentImp::trace(void) const

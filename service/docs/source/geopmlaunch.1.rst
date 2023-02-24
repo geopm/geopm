@@ -555,6 +555,16 @@ GEOPM Options
                       Disable OMPT detection of OpenMP regions.
                       See the :ref:`INTEGRATION WITH OMPT section of geopm(7)<geopm.7:Integration With OMPT>`
                       for more information about OpenMP region detection.
+--geopm-period  .. _geopm-period option:
+
+               Override the control loop period specified by the Agent.  All
+	       agents have a default control loop period, and this command
+	       line option allows users to set a different value in units of
+	       seconds.  With longer control loop periods, the overhead for
+	       using GEOPM will be reduced, but more interpolation will be
+	       required when aligning the sparsely sampled hardware signals
+	       with the application feedback.  Additionally agent reaction
+	       time is reduced with longer control loop period.
 
 Examples
 --------

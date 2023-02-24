@@ -8,9 +8,9 @@
 
 #include <vector>
 #include <functional>
+#include <memory>
 
 #include "Agent.hpp"
-#include "geopm_time.h"
 
 namespace geopm
 {
@@ -19,6 +19,7 @@ namespace geopm
     template <class type>
     class CircularBuffer;
     class PowerGovernor;
+    class Waiter;
 
     class PowerGovernorAgent : public Agent
     {
@@ -44,7 +45,8 @@ namespace geopm
 
             PowerGovernorAgent();
             PowerGovernorAgent(PlatformIO &platform_io,
-                               std::unique_ptr<PowerGovernor> power_gov);
+                               std::unique_ptr<PowerGovernor> power_gov,
+                               std::shared_ptr<Waiter> waiter);
             virtual ~PowerGovernorAgent();
             void init(int level, const std::vector<int> &fan_in, bool is_level_root) override;
             void validate_policy(std::vector<double> &policy) const override;
@@ -92,8 +94,8 @@ namespace geopm
             const int m_ascend_period;
             const int m_min_num_converged;
             double m_adjusted_power;
-            geopm_time_s m_last_wait;
-            const double M_WAIT_SEC;
+            static constexpr double M_WAIT_SEC = 0.005;
+            std::shared_ptr<Waiter> m_waiter;
     };
 }
 

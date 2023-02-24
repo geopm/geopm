@@ -25,6 +25,7 @@
 #include "geopm/Agg.hpp"
 #include "MockPlatformIO.hpp"
 #include "MockPlatformTopo.hpp"
+#include "MockWaiter.hpp"
 #include "geopm/PlatformTopo.hpp"
 #include "geopm_prof.h"
 #include "geopm_test.hpp"
@@ -83,12 +84,14 @@ class FrequencyMapAgentTest : public :: testing :: Test
         double m_freq_gpu_step;
         std::unique_ptr<MockPlatformIO> m_platform_io;
         std::unique_ptr<MockPlatformTopo> m_platform_topo;
+        std::shared_ptr<MockWaiter> m_waiter;
 };
 
 void FrequencyMapAgentTest::SetUp()
 {
-    m_platform_io = geopm::make_unique<MockPlatformIO>();
-    m_platform_topo = geopm::make_unique<MockPlatformTopo>();
+    m_platform_io = std::make_unique<MockPlatformIO>();
+    m_platform_topo = std::make_unique<MockPlatformTopo>();
+    m_waiter = std::make_unique<MockWaiter>();
     ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_BOARD))
         .WillByDefault(Return(M_NUM_CPU));
     ON_CALL(*m_platform_io, push_signal("REGION_HASH", _, _))
@@ -147,7 +150,7 @@ void FrequencyMapAgentTest::SetUp()
         frequency_map[m_region_hash[x]] = m_mapped_freqs[x];
     }
 
-    m_agent = geopm::make_unique<FrequencyMapAgent>(*m_platform_io, *m_platform_topo);
+    m_agent = geopm::make_unique<FrequencyMapAgent>(*m_platform_io, *m_platform_topo, m_waiter);
     m_num_policy = m_agent->policy_names().size();
 
     EXPECT_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_BOARD));
@@ -372,7 +375,7 @@ TEST_F(FrequencyMapAgentTest, split_policy)
     int num_children = 2;
 
     setup_gpu(m_do_gpu);
-    auto tree_agent = geopm::make_unique<FrequencyMapAgent>(*m_platform_io, *m_platform_topo);
+    auto tree_agent = geopm::make_unique<FrequencyMapAgent>(*m_platform_io, *m_platform_topo, m_waiter);
     tree_agent->init(1, {num_children}, false);
 
 
@@ -680,6 +683,7 @@ TEST_F(FrequencyMapAgentTest, report_hash_freq_map)
 {
     setup_gpu(m_do_gpu);
     FrequencyMapAgent frequency_agent(
+        *m_platform_io, *m_platform_topo, m_waiter,
         {
             {0x000000003ddc81bf, 1000000000},
             {0x00000000644f9787, 2100000000},
@@ -689,8 +693,7 @@ TEST_F(FrequencyMapAgentTest, report_hash_freq_map)
             {0x00000000d691da00, 1900000000},
             {0x8000000000000000, 2100000000}
         },
-        {},
-        *m_platform_io, *m_platform_topo
+        {}
     );
     std::string reference_map =  "{0x000000003ddc81bf: 1000000000, "
                                   "0x00000000644f9787: 2100000000, "
@@ -710,13 +713,13 @@ TEST_F(FrequencyMapAgentTest, report_default_freq_hash)
 {
     setup_gpu(m_do_gpu);
     FrequencyMapAgent frequency_agent(
+        *m_platform_io, *m_platform_topo, m_waiter,
         {},
         {
             {0x00000000a74bbf35,
              0x00000000d691da00,
              0x8000000000000000}
-        },
-        *m_platform_io, *m_platform_topo
+        }
     );
     std::string reference_map =  "{0x00000000a74bbf35: null, "
                                   "0x00000000d691da00: null, "
@@ -733,6 +736,7 @@ TEST_F(FrequencyMapAgentTest, report_both_map_and_set)
 {
     setup_gpu(m_do_gpu);
     FrequencyMapAgent frequency_agent(
+        *m_platform_io, *m_platform_topo, m_waiter,
         {
             {0x000000003ddc81bf, 1000000000},
             {0x00000000644f9787, 2100000000},
@@ -746,8 +750,7 @@ TEST_F(FrequencyMapAgentTest, report_both_map_and_set)
             {0x00000000644f9789,
              0x000000007b561f47,
              0x00000000d691da02}
-        },
-        *m_platform_io, *m_platform_topo
+        }
     );
     std::string reference_map =  "{0x000000003ddc81bf: 1000000000, "
                                   "0x00000000644f9787: 2100000000, "
@@ -770,9 +773,9 @@ TEST_F(FrequencyMapAgentTest, report_neither_map_nor_set)
 {
     setup_gpu(m_do_gpu);
     FrequencyMapAgent frequency_agent(
+        *m_platform_io, *m_platform_topo, m_waiter,
         {},
-        {},
-        *m_platform_io, *m_platform_topo
+        {}
     );
     std::string reference_map =  "{}";
 

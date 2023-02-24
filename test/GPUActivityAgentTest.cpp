@@ -21,6 +21,7 @@
 #include "geopm/Agg.hpp"
 #include "MockPlatformIO.hpp"
 #include "MockPlatformTopo.hpp"
+#include "MockWaiter.hpp"
 #include "geopm/PlatformTopo.hpp"
 #include "geopm_prof.h"
 #include "geopm_test.hpp"
@@ -69,6 +70,7 @@ class GPUActivityAgentTest : public :: testing :: Test
         std::unique_ptr<GPUActivityAgent> m_agent;
         std::unique_ptr<MockPlatformIO> m_platform_io;
         std::unique_ptr<MockPlatformTopo> m_platform_topo;
+        std::shared_ptr<MockWaiter> m_waiter;
 };
 
 const int GPUActivityAgentTest::M_NUM_CPU = 1;
@@ -82,8 +84,9 @@ const std::vector<double> GPUActivityAgentTest::M_DEFAULT_POLICY = {NAN};
 
 void GPUActivityAgentTest::SetUp()
 {
-    m_platform_io = geopm::make_unique<MockPlatformIO>();
-    m_platform_topo = geopm::make_unique<MockPlatformTopo>();
+    m_platform_io = std::make_unique<MockPlatformIO>();
+    m_platform_topo = std::make_unique<MockPlatformTopo>();
+    m_waiter = std::make_unique<MockWaiter>();
 
     ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_BOARD))
         .WillByDefault(Return(M_NUM_BOARD));
@@ -136,7 +139,7 @@ void GPUActivityAgentTest::SetUp()
 
     ON_CALL(*m_platform_io, signal_names()).WillByDefault(Return(signal_name_set));
 
-    m_agent = geopm::make_unique<GPUActivityAgent>(*m_platform_io, *m_platform_topo);
+    m_agent = geopm::make_unique<GPUActivityAgent>(*m_platform_io, *m_platform_topo, m_waiter);
     m_num_policy = m_agent->policy_names().size();
 
     // leaf agent

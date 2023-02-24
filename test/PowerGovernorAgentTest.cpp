@@ -13,6 +13,7 @@
 #include "MockPowerGovernor.hpp"
 #include "MockPlatformIO.hpp"
 #include "MockPlatformTopo.hpp"
+#include "MockWaiter.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm_test.hpp"
 
@@ -52,6 +53,7 @@ class PowerGovernorAgentTest : public ::testing::Test
         int m_samples_per_control = 10;
         int m_updates_per_sample = 5;
         std::unique_ptr<PowerGovernorAgent> m_agent;
+        std::shared_ptr<MockWaiter> m_waiter;
 };
 
 void PowerGovernorAgentTest::SetUp(void)
@@ -60,7 +62,8 @@ void PowerGovernorAgentTest::SetUp(void)
     // PowerGovernorAgent::wait() will loop forever.
     m_energy_package = 555.5;
     m_fan_in = {2, 2};
-    m_power_gov = std::unique_ptr<MockPowerGovernor>(new MockPowerGovernor());
+    m_power_gov = std::make_unique<MockPowerGovernor>();
+    m_waiter = std::make_shared<MockWaiter>();
 }
 
 void PowerGovernorAgentTest::set_up_leaf(void)
@@ -81,7 +84,7 @@ void PowerGovernorAgentTest::set_up_leaf(void)
     EXPECT_CALL(*m_power_gov, do_write_batch())
         .Times(AtLeast(0))
         .WillRepeatedly(Return(true));
-    m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, std::move(m_power_gov));
+    m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, std::move(m_power_gov), m_waiter);
 }
 
 void PowerGovernorAgentTest::set_up_pio(void)
@@ -118,7 +121,7 @@ TEST_F(PowerGovernorAgentTest, wait)
 {
     GEOPM_TEST_EXTENDED("Requires accurate timing");
     set_up_pio();
-    m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, nullptr);
+    m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, nullptr, m_waiter);
     m_agent->init(1, m_fan_in, false);
     geopm_time_s start_time, end_time;
     m_agent->wait();
@@ -188,7 +191,7 @@ TEST_F(PowerGovernorAgentTest, adjust_platform)
 TEST_F(PowerGovernorAgentTest, aggregate_sample)
 {
     set_up_pio();
-    m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, nullptr);
+    m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, nullptr, m_waiter);
     m_agent->init(1, m_fan_in, false);
 
     std::vector<std::vector<double> > in_sample {{2.2, false, 1.0}, {3.3, true, 2.0}};
@@ -217,7 +220,7 @@ TEST_F(PowerGovernorAgentTest, aggregate_sample)
 TEST_F(PowerGovernorAgentTest, split_policy)
 {
     set_up_pio();
-    m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, nullptr);
+    m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, nullptr, m_waiter);
     m_agent->init(1, m_fan_in, false);
 
     std::vector<double> policy_in;
@@ -262,7 +265,7 @@ TEST_F(PowerGovernorAgentTest, enforce_policy)
     EXPECT_CALL(m_platform_io, write_control("CPU_POWER_LIMIT_CONTROL", GEOPM_DOMAIN_BOARD,
                                              0, limit));
 
-    m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, nullptr);
+    m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, nullptr, m_waiter);
     m_agent->enforce_policy(policy);
 
     EXPECT_THROW(m_agent->enforce_policy(bad_policy), geopm::Exception);
@@ -271,7 +274,7 @@ TEST_F(PowerGovernorAgentTest, enforce_policy)
 TEST_F(PowerGovernorAgentTest, trace)
 {
     set_up_pio();
-    m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, nullptr);
+    m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, nullptr, m_waiter);
     std::vector<std::string> expect_names{"POWER_BUDGET"};
     EXPECT_EQ(expect_names, m_agent->trace_names());
     EXPECT_TRUE(is_format_double(m_agent->trace_formats().at(0)));
@@ -280,7 +283,7 @@ TEST_F(PowerGovernorAgentTest, trace)
 TEST_F(PowerGovernorAgentTest, validate_policy)
 {
     set_up_pio();
-    m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, nullptr);
+    m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, nullptr, m_waiter);
 
     std::vector<double> policy;
 

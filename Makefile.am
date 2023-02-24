@@ -492,6 +492,8 @@ libgeopmpolicy_la_SOURCES = src/Accumulator.cpp \
                             src/TreeCommLevel.hpp \
                             src/ValidateRecord.cpp \
                             src/ValidateRecord.hpp \
+                            src/Waiter.hpp \
+                            src/Waiter.cpp \
                             src/geopm_agent.h \
                             src/geopm_prof.h \
                             src/geopm_endpoint.h \

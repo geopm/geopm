@@ -2,6 +2,7 @@
  * Copyright (c) 2015 - 2023, Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
+#include "config.h"
 
 #include "MonitorAgent.hpp"
 
@@ -10,21 +11,23 @@
 #include "geopm/PlatformTopo.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm/Exception.hpp"
-#include "config.h"
+#include "Waiter.hpp"
+#include "Environment.hpp"
 
 namespace geopm
 {
     MonitorAgent::MonitorAgent()
-        : MonitorAgent(PlatformIOProf::platform_io(), platform_topo())
+        : MonitorAgent(PlatformIOProf::platform_io(), platform_topo(),
+                       Waiter::make_unique(environment().period(M_WAIT_SEC)))
     {
 
     }
 
-    MonitorAgent::MonitorAgent(PlatformIO &plat_io, const PlatformTopo &topo)
-        : m_last_wait(time_zero())
-        , M_WAIT_SEC(0.005)
+    MonitorAgent::MonitorAgent(PlatformIO &plat_io, const PlatformTopo &topo,
+                               std::shared_ptr<Waiter> waiter)
+        : m_waiter(waiter)
     {
-        geopm_time(&m_last_wait);
+
     }
 
     std::string MonitorAgent::plugin_name(void)
@@ -86,10 +89,7 @@ namespace geopm
 
     void MonitorAgent::wait(void)
     {
-        while(geopm_time_since(&m_last_wait) < M_WAIT_SEC) {
-
-        }
-        geopm_time(&m_last_wait);
+        m_waiter->wait();
     }
 
     std::vector<std::string> MonitorAgent::policy_names(void)

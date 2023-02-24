@@ -8,7 +8,6 @@
 
 #include <vector>
 
-#include "geopm_time.h"
 #include "Agent.hpp"
 
 namespace geopm
@@ -16,6 +15,7 @@ namespace geopm
     class PlatformTopo;
     class PlatformIO;
     class FrequencyGovernor;
+    class Waiter;
 
     /// @brief Agent
     class CPUActivityAgent : public Agent
@@ -24,7 +24,8 @@ namespace geopm
             CPUActivityAgent();
             CPUActivityAgent(PlatformIO &plat_io,
                              const PlatformTopo &topo,
-                             std::shared_ptr<FrequencyGovernor> gov);
+                             std::shared_ptr<FrequencyGovernor> gov,
+                             std::shared_ptr<Waiter> waiter);
             virtual ~CPUActivityAgent() = default;
             void init(int level, const std::vector<int> &fan_in, bool is_level_root) override;
             void validate_policy(std::vector<double> &in_policy) const override;
@@ -53,8 +54,7 @@ namespace geopm
         private:
             PlatformIO &m_platform_io;
             const PlatformTopo &m_platform_topo;
-            geopm_time_s m_last_wait;
-            double M_WAIT_SEC;
+            static constexpr double M_WAIT_SEC = 0.010; // 10ms wait default;
             const double M_POLICY_PHI_DEFAULT;
             const int M_NUM_PACKAGE;
             bool m_do_write_batch;
@@ -111,6 +111,7 @@ namespace geopm
             std::vector<signal> m_uncore_freq_status;
             std::vector<control> m_uncore_freq_min_control;
             std::vector<control> m_uncore_freq_max_control;
+            std::shared_ptr<Waiter> m_waiter;
 
             void init_platform_io(void);
             void init_constconfig_io(void);
