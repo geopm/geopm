@@ -171,7 +171,7 @@ class TestPowerLimitPrologue(unittest.TestCase):
 
         # Assert hook accepts the event
         self._mock_event.accept.assert_called_once()
-        # Hook shouldn't need to read any signals
+        # Hook shouldn't need to read or store any settings
         mock_read_signal.assert_not_called()
         mock_secure_make_dirs.assert_not_called()
         # Assert hook restores settings from file
@@ -182,6 +182,65 @@ class TestPowerLimitPrologue(unittest.TestCase):
         mock_write_control.assert_has_calls(expected_calls, any_order=True)
         # Assert hook removes saved controls file
         self.assertFalse(os.path.exists(SAVED_CONTROLS_FILE))
+
+
+@mock.patch("geopmdpy.pio.write_control")
+class TestPowerLimitEpilogue(unittest.TestCase):
+    def setUp(self):
+        self._mock_pbs = hook.pbs
+        self._mock_event = mock.Mock()
+        self._mock_pbs.event.return_value = self._mock_event
+
+    def tearDown(self):
+        try:
+            os.unlink(SAVED_CONTROLS_FILE)
+        except:
+            pass
+
+    def test_no_settings_to_restore(self, mock_write_control):
+        # Ensure there is no file prior to running the test
+        self.assertFalse(os.path.exists(SAVED_CONTROLS_FILE))
+
+        hook.do_power_limit_epilogue()
+
+        # Assert hook accepts event
+        self._mock_event.accept.assert_called_once()
+        # Hook shouldn't need to write any settings
+        mock_write_control.assert_not_called()
+
+    def test_settings_restored(self, mock_write_control):
+        # Create some settings to restore
+        write_settings_to_file(SAVED_CONTROLS_FILE, CURRENT_SETTINGS)
+
+        hook.do_power_limit_epilogue()
+
+        # Assert hook accepts the event
+        self._mock_event.accept.assert_called_once()
+        # Assert hook restores settings from file
+        expected_calls = [
+            mock.call(d["name"], d["domain_type"], d["domain_idx"],
+                      d["setting"])
+            for d in CURRENT_SETTINGS]
+        mock_write_control.assert_has_calls(expected_calls, any_order=True)
+        # Assert hook removes saved controls file
+        self.assertFalse(os.path.exists(SAVED_CONTROLS_FILE))
+
+    def test_invalid_saved_controls_file(self, mock_write_control):
+        # Create some spurious settings
+        settings = [
+            {"name": "SELF_DESTRUCT_CONTROL",
+             "nuclear_option": True}]
+        write_settings_to_file(SAVED_CONTROLS_FILE, settings)
+        self._mock_event.reject.side_effect = RuntimeError
+
+        with self.assertRaises(RuntimeError):
+            hook.do_power_limit_epilogue()
+
+        # Assert hook rejects the event
+        self._mock_event.reject.assert_called_once()
+        self._mock_event.accept.assert_not_called()
+        # Hook shouldn't write any settings
+        mock_write_control.assert_not_called()
 
 
 if __name__ == "__main__":
