@@ -1,8 +1,8 @@
 #  Copyright (c) 2015 - 2023, Intel Corporation
 #  SPDX-License-Identifier: BSD-3-Clause
 #
-Summary: Global Extensible Open Power Manager
-Name: geopmpolicy
+Summary: Global Extensible Open Power Manager Runtime
+Name: geopm-runtime
 Version: @VERSION@
 Release: 1
 License: BSD-3-Clause
@@ -77,7 +77,7 @@ Prefix: %{_prefix}
 %package devel
 Summary: Global Extensible Open Power Manager - development
 Group: Development/Libraries
-Requires: geopmpolicy
+Requires: geopm-runtime
 
 %description devel
 Development package for GEOPM.
@@ -85,7 +85,7 @@ Development package for GEOPM.
 %package -n python%{python_major_version}-geopmpy
 Summary: Global Extensible Open Power Manager - python %{python_major_version}
 Group: System Environment/Libraries
-Requires: geopmpolicy
+Requires: geopm-runtime
 Requires: python%{python_major_version}-geopmdpy
 %{?python_provide:%python_provide python%{python_major_version}-geopmpy}
 
@@ -123,7 +123,7 @@ test -f configure || ./autogen.sh
 %{__make} DESTDIR=%{buildroot} install
 rm -f $(find %{buildroot}/%{_libdir} -name '*.a'; \
         find %{buildroot}/%{_libdir} -name '*.la')
-
+rm -r %{buildroot}/%{_libdir}/libgeopmpolicy*
 rm -f %{buildroot}/%{_mandir}/man1/geopmbench.1
 rm -f %{buildroot}/%{_mandir}/man1/geopmctl.1
 rm -f %{buildroot}/%{_mandir}/man1/geopmlaunch.1
@@ -146,9 +146,6 @@ rm -f %{buildroot}/%{_bindir}/geopmlaunch
 
 %files
 %defattr(-,root,root,-)
-%{_libdir}/libgeopmpolicy.so.1.0.0
-%{_libdir}/libgeopmpolicy.so.1
-%{_libdir}/libgeopmpolicy.so
 %{_libdir}/libgeopm.so.1.0.0
 %{_libdir}/libgeopm.so.1
 %{_libdir}/libgeopm.so
