@@ -8,6 +8,10 @@ EXTRA_DIST += integration/README.md \
               integration/get_batch_server.py \
               integration/install_service.sh \
               integration/kill_geopmd.sh \
+              integration/open_pbs/geopm_install_pbs_power_limit.sh \
+              integration/open_pbs/geopm_power_limit.py \
+              integration/open_pbs/README.rst \
+              integration/open_pbs/TestPowerLimitHook.py \
               integration/test/__init__.py \
               integration/test/test_bash_examples.py \
               integration/test/check_write_session.sh \
