@@ -1,4 +1,7 @@
 #!/bin/bash
+#  Copyright (c) 2015 - 2023, Intel Corporation
+#  SPDX-License-Identifier: BSD-3-Clause
+#
 
 RESOURCE="geopm-node-power-limit"
 HOOK="geopm_power_limit"
