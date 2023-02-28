@@ -12,6 +12,7 @@ from gi.repository import GLib
 class ClientRegistry(object):
     def __init__(self, active_sessions, destroy_session):
         self._WATCH_INTERVAL_SEC = 1
+        self._DEFAULT_ACCESS = '0.DEFAULT_ACCESS'
         self._active_sessions = active_sessions
         self._destroy_session = destroy_session
 
@@ -51,13 +52,17 @@ class ClientRegistry(object):
         return user_groups
 
     def validate_group(self, group):
-        group = str(group)
-        if group[0].isdigit():
-            raise RuntimeError('Linux group name cannot begin with a digit: group = "{}"'.format(group))
-        try:
-            grp.getgrnam(group)
-        except KeyError:
-            raise RuntimeError('Linux group is not defined: group = "{}"'.format(group))
+        if group is None or group == '':
+            group = self._DEFAULT_ACCESS
+        else:
+            group = str(group)
+            if group[0].isdigit():
+                raise RuntimeError('Linux group name cannot begin with a digit: group = "{}"'.format(group))
+            try:
+                grp.getgrnam(group)
+            except KeyError:
+                raise RuntimeError('Linux group is not defined: group = "{}"'.format(group))
+        return group
 
     def get_write_client(self, client_id):
         write_pid = client_pid

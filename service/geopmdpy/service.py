@@ -82,7 +82,7 @@ class PlatformService(object):
             RuntimeError: The group name is not valid on the system.
 
         """
-        self._client_registry.validate_group(group)
+        group = self._client_registry.validate_group(group)
         return self._access_lists.get_group_access(group)
 
     def set_group_access(self, group, allowed_signals, allowed_controls):
@@ -108,7 +108,7 @@ class PlatformService(object):
             RuntimeError: The group name is not valid on the system.
 
         """
-        self._client_registry.validate_group(group)
+        group = self._client_registry.validate_group(group)
         self._access_lists.set_group_access(group, allowed_signals, allowed_controls)
 
     def set_group_access_signals(self, group, allowed_signals):
@@ -131,7 +131,7 @@ class PlatformService(object):
             RuntimeError: The group name is not valid on the system.
 
         """
-        self._client_registry.validate_group(group)
+        group = self._client_registry.validate_group(group)
         self._access_lists.set_group_access_signals(group, allowed_signals)
 
     def set_group_access_controls(self, group, allowed_controls):
@@ -154,7 +154,7 @@ class PlatformService(object):
             RuntimeError: The group name is not valid on the system.
 
         """
-        self._client_registry.validate_group(group)
+        group = self._client_registry.validate_group(group)
         self._access_lists.set_group_access_controls(group, allowed_controls)
 
     def get_user_access(self, user):

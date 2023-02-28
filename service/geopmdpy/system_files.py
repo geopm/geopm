@@ -889,11 +889,10 @@ class AccessLists(object):
         self._pio = pio
 
     def _validate_group(self, group):
-        group = str(group)
-        if len(group) > 0 and group[0].isdigit():
-            raise RuntimeError('Client group name cannot begin with a digit: group = "{}"'.format(group))
-        if group is None or group == '':
+        if (group == '' or group is None):
             group = self._DEFAULT_ACCESS
+        elif group[0].isdigit() and group != self._DEFAULT_ACCESS:
+            raise RuntimeError('Client group name is invalid: group = "{}"'.format(group))
         return group
 
     def _read_allowed(self, path):
