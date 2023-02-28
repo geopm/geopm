@@ -44,6 +44,15 @@ namespace geopm
         std::ostringstream id;
         id << getuid() << "," << getpid();
         m_session_key = id.str();
+        // Throw at construction time if topo cache cannot be read
+        try {
+            (void)topo_get_cache();
+        }
+        catch (const Exception &ex) {
+            throw Exception("GRPCServiceProxy: Failed to connect with gRPC server: " +
+                            std::string(ex.what()),
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
     }
 
 

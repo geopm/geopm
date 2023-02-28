@@ -126,7 +126,7 @@ namespace geopm
             std::string err_msg = ex.what();
             // Check for failure messages from ServiceProxy or GRPCProxy
             if (err_msg.find("Failed to open system bus") == std::string::npos &&
-                err_msg.find("failed to connect to all addresses") == std::string::npos) {
+                err_msg.find("Failed to connect with gRPC server") == std::string::npos) {
                 throw;
             }
         }
