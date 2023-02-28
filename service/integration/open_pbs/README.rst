@@ -42,8 +42,6 @@ general syntax is as follows:
    qsub [-l geopm-node-power-limit=<power limit (watts)>]
       [<other qsub options>] [- | <script> | -- <executable> [<arguments>]]
 
-Note: the power limit must be an integer value.
-
 Requirements
 ------------
 

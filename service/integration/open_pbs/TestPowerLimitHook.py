@@ -149,11 +149,7 @@ class TestPowerLimitPrologue(unittest.TestCase):
                                        mock_write_control, mock_read_signal):
         self._mock_server_job.Resource_List = {}
 
-        # pbs.event().accept() doesn't actually throw, but does end hook
-        # execution. Using an exception here to simulate the same side effect.
-        self._mock_event.accept.side_effect = RuntimeError
-        with self.assertRaises(RuntimeError):
-            hook.do_power_limit_prologue()
+        hook.do_power_limit_prologue()
 
         # Assert hook accepts the event
         self._mock_event.accept.assert_called_once()
@@ -248,6 +244,55 @@ class TestPowerLimitEpilogue(unittest.TestCase):
         self._mock_event.accept.assert_not_called()
         # Hook shouldn't write any settings
         mock_write_control.assert_not_called()
+
+
+@mock.patch("geopm_power_limit.do_power_limit_prologue")
+@mock.patch("geopm_power_limit.do_power_limit_epilogue")
+class TestPowerLimitMain(unittest.TestCase):
+    def setUp(self):
+        self._mock_pbs = hook.pbs
+        self._mock_event = mock.Mock()
+        self._mock_pbs.event.return_value = self._mock_event
+        self._mock_pbs.EXECJOB_PROLOGUE = 1
+        self._mock_pbs.EXECJOB_EPILOGUE = 2
+
+    def test_prologue(self, mock_epilogue, mock_prologue):
+        # Simulate the prologue event
+        self._mock_event.type = self._mock_pbs.EXECJOB_PROLOGUE
+
+        hook.hook_main()
+
+        # Assert only the prologue is executed
+        mock_epilogue.assert_not_called()
+        mock_prologue.assert_called_once()
+        # The hook main should not reject the event
+        self._mock_event.reject.assert_not_called()
+
+    def test_epilogue(self, mock_epilogue, mock_prologue):
+        # Simulate the epilogue event
+        self._mock_event.type = self._mock_pbs.EXECJOB_EPILOGUE
+
+        hook.hook_main()
+
+        # Assert only the epilogue is executed
+        mock_epilogue.assert_called_once()
+        mock_prologue.assert_not_called()
+        # The hook main should not reject the event
+        self._mock_event.reject.assert_not_called()
+
+    def test_invalid_event(self, mock_epilogue, mock_prologue):
+        SOME_OTHER_EVENT = self._mock_pbs.EXECJOB_PROLOGUE + \
+                           self._mock_pbs.EXECJOB_EPILOGUE
+        self._mock_event.type = SOME_OTHER_EVENT
+
+        hook.hook_main()
+
+        # Neither prologue or epilogue should be called and event should be
+        # rejected
+        mock_epilogue.assert_not_called()
+        mock_prologue.assert_not_called()
+        self._mock_event.reject.assert_called_once()
+        self._mock_event.accept.assert_not_called()
 
 
 if __name__ == "__main__":

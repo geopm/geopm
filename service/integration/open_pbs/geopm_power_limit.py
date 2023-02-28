@@ -22,8 +22,8 @@ from geopmdpy import pio
 from geopmdpy import system_files
 
 
-_SAVED_CONTROLS_PATH = "run/geopm-service/SAVE_FILES"
-_SAVED_CONTROLS_FILE = _SAVED_CONTROLS_PATH + "/saved_controls.json"
+_SAVED_CONTROLS_PATH = "/run/geopm-pbs-hooks/SAVE_FILES"
+_SAVED_CONTROLS_FILE = _SAVED_CONTROLS_PATH + "/power-limit-save-control.json"
 _POWER_LIMIT_RESOURCE = "geopm-node-power-limit"
 
 _power_limit_control = {
@@ -126,6 +126,7 @@ def do_power_limit_prologue():
         if os.path.exists(_SAVED_CONTROLS_FILE):
             restore_controls_from_file(_SAVED_CONTROLS_FILE)
         e.accept()
+        return
 
     power_limit = resource_to_float(_POWER_LIMIT_RESOURCE, power_limit_str)
     pbs.logmsg(pbs.LOG_DEBUG, f"Requested power limit: {power_limit}")
@@ -147,17 +148,21 @@ def do_power_limit_epilogue():
     e.accept()
 
 
+def hook_main():
+    try:
+        event_type = pbs.event().type
+        if event_type == pbs.EXECJOB_PROLOGUE:
+            do_power_limit_prologue()
+        elif event_type == pbs.EXECJOB_EPILOGUE:
+            do_power_limit_epilogue()
+        else:
+            reject_event("Power limit hook incorrectly configured!")
+    except SystemExit:
+        pass
+    except:
+        _, e, _ = sys.exc_info()
+        reject_event(f"Unexpected error: {str(e)}")
+
+
 # Begin hook...
-try:
-    event_type = pbs.event().type
-    if event_type == pbs.EXECJOB_PROLOGUE:
-        do_power_limit_prologue()
-    elif event_type == pbs.EXECJOB_EPILOGUE:
-        do_power_limit_epilogue()
-    else:
-        reject_event("Power limit hook incorrectly configured!")
-except SystemExit:
-    pass
-except:
-    _, e, _ = sys.exc_info()
-    reject_event(f"Unexpected error: {str(e)}")
+hook_main()
