@@ -237,7 +237,11 @@ namespace geopm
                 signal.sample_last = sample;
                 signal.region_hash_last = hash;
                 signal.epoch_count_last = epoch_count;
-                signal.region_accum_it = sample_aggregator_emplace_hash(signal.region_accum, hash);
+                if (hash != GEOPM_REGION_HASH_INVALID) {
+                    signal.region_accum_it = sample_aggregator_emplace_hash(signal.region_accum, hash);
+                }
+                sample_aggregator_emplace_hash(signal.region_accum, GEOPM_REGION_HASH_EPOCH);
+                sample_aggregator_emplace_hash(signal.region_accum, GEOPM_REGION_HASH_APP);
             }
             else {
                 // Measure the change since the last update
@@ -285,7 +289,11 @@ namespace geopm
                 signal.time_last = time;
                 signal.region_hash_last = hash;
                 signal.epoch_count_last = epoch_count;
-                signal.region_accum_it = sample_aggregator_emplace_hash(signal.region_accum, hash);
+                if (hash != GEOPM_REGION_HASH_INVALID) {
+                    signal.region_accum_it = sample_aggregator_emplace_hash(signal.region_accum, hash);
+                }
+                sample_aggregator_emplace_hash(signal.region_accum, GEOPM_REGION_HASH_EPOCH);
+                sample_aggregator_emplace_hash(signal.region_accum, GEOPM_REGION_HASH_APP);
             }
             else {
                 // Measure the time change since the last update
