@@ -12,6 +12,7 @@ benchmark is reflected in the reports.
 import sys
 import unittest
 import os
+import math
 
 import geopmpy.io
 import geopmpy.agent
@@ -76,10 +77,16 @@ class TestIntegration_monitor(unittest.TestCase):
         node_names = self._report.host_names()
         for nn in node_names:
             report = self._report.raw_totals(host_name=nn)
-            package_energy_0 = report['CPU_ENERGY@package-0']
-            package_energy_1 = report['CPU_ENERGY@package-1']
-            self.assertNotEqual(0, package_energy_0)
-            self.assertNotEqual(0, package_energy_1)
+            package_energy = report['package-energy (J)']
+            CPU_ENERGY_package_0 = report['CPU_ENERGY@package-0']
+            CPU_ENERGY_package_1 = report['CPU_ENERGY@package-1']
+            self.assertNotEqual(0, CPU_ENERGY_package_0)
+            self.assertNotEqual(0, CPU_ENERGY_package_1)
+            # CPU_ENERGY@package-0 + CPU_ENERGY@package-1 should be == package-energy (J)
+            self.assertEqual(
+                True,
+                math.isclose(CPU_ENERGY_package_0 + CPU_ENERGY_package_1, package_energy)
+            )
 
 if __name__ == '__main__':
     unittest.main()
