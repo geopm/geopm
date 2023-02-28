@@ -9,8 +9,8 @@ License: BSD-3-Clause
 Group: System Environment/Libraries
 Vendor: Intel Corporation
 URL: https://geopm.github.io
-Source0: geopm.tar.gz
-BuildRoot: %{_tmppath}/geopm-%{version}-%{release}-root
+Source0: geopm-runtime.tar.gz
+BuildRoot: %{_tmppath}/geopm-runtime-%{version}-%{release}-root
 BuildRequires: gcc-c++
 BuildRequires: unzip
 BuildRequires: libtool
@@ -72,7 +72,7 @@ Prefix: %{_prefix}
 
 %prep
 
-%setup -n geopm-%{version}
+%setup -n geopm-runtime-%{version}
 
 %package devel
 Summary: Global Extensible Open Power Manager - development
