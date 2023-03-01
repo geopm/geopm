@@ -27,7 +27,7 @@ namespace geopm
         public:
             LevelZeroIOGroup();
             LevelZeroIOGroup(const PlatformTopo &platform_topo,
-                             const LevelZeroDevicePool &device_pool,
+                             LevelZeroDevicePool &device_pool,
                              std::shared_ptr<SaveControl> save_control_test);
             virtual ~LevelZeroIOGroup() = default;
             std::set<std::string> signal_names(void) const override;
@@ -113,7 +113,7 @@ namespace geopm
             static const std::string M_PLUGIN_NAME;
             static const std::string M_NAME_PREFIX;
             const PlatformTopo &m_platform_topo;
-            const LevelZeroDevicePool &m_levelzero_device_pool;
+            LevelZeroDevicePool &m_levelzero_device_pool;
             bool m_is_batch_read;
             int m_native_domain;
 
@@ -124,6 +124,7 @@ namespace geopm
             const std::set<std::string> m_special_signal_set;
             std::map<std::string, derivative_signal_info> m_derivative_signal_map;
             std::set<int> m_derivative_signal_pushed_set;
+            std::vector<bool> m_metric_signal_pushed;
 
             //GEOPM Domain indexed
             std::vector<std::pair<double,double> > m_frequency_range;

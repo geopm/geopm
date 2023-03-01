@@ -312,9 +312,18 @@ namespace geopm
             /// @return Display Error Count
             virtual double ras_display_errcount_uncorrectable(int domain, unsigned int domain_idx,
                                                 int l0_domain) const = 0;
+
+            //ZET Metrics
+            virtual double metric_sample(int domain, unsigned int domain_idx,
+                                         std::string metric) const = 0;
+            virtual uint32_t metric_update_rate(int domain, unsigned int domain_idx) const = 0;
+            virtual void metric_read(int domain, unsigned int domain_idx) const = 0;
+//            virtual void metric_polling_disable(void) = 0;
+            virtual void metric_update_rate_control(int domain, unsigned int domain_idx,
+                                                    uint32_t setting) const = 0;
         private:
     };
 
-    const LevelZeroDevicePool &levelzero_device_pool();
+    LevelZeroDevicePool &levelzero_device_pool();
 }
 #endif
