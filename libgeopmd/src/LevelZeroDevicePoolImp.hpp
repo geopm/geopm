@@ -21,7 +21,7 @@ namespace geopm
     {
         public:
             LevelZeroDevicePoolImp();
-            LevelZeroDevicePoolImp(const LevelZero &levelzero);
+            LevelZeroDevicePoolImp(LevelZero &levelzero);
             virtual ~LevelZeroDevicePoolImp() = default;
             int num_gpu(int domain_type) const override;
             double frequency_status(int domain, unsigned int domain_idx,
@@ -96,8 +96,19 @@ namespace geopm
                                       int l0_domain) const override;
             double ras_display_errcount_uncorrectable(int domain, unsigned int domain_idx,
                                         int l0_domain) const override;
+
+            //ZET Metrics
+            double metric_sample(int domain, unsigned int domain_idx,
+                                 std::string metric_name) const override;
+            uint32_t metric_update_rate(int domain, unsigned int domain_idx) const override;
+
+            void metric_read(int domain, unsigned int domain_idx) const override;
+//            void metric_polling_disable(void) override;
+            void metric_update_rate_control(int domain, unsigned int domain_idx,
+                                            uint32_t setting) const override;
+
         private:
-            const LevelZero &m_levelzero;
+            LevelZero &m_levelzero;
 
             void check_idx_range(int domain, unsigned int domain_idx) const;
             void check_domain_exists(int size, const char *func, int line) const;
