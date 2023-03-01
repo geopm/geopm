@@ -10,6 +10,7 @@
 
 #include <level_zero/ze_api.h>
 #include <level_zero/zes_api.h>
+#include <level_zero/zet_api.h>
 
 #include "LevelZero.hpp"
 
@@ -85,6 +86,15 @@ namespace geopm
                                             int l0_domain_idx,
                                             double setting) const override;
 
+            std::vector<double> metric_sample(unsigned int l0_device_idx,
+                                              std::string metric_name) const override;
+            uint32_t metric_update_rate(unsigned int l0_device_idx) const override;
+
+            void metric_read(unsigned int l0_device_idx) override;
+            void metric_init(unsigned int l0_device_idx) override;
+            void metric_destroy(unsigned int l0_device_idx) override;
+            void metric_update_rate_control(unsigned int l0_device_idx, uint32_t setting) override;
+
         private:
             struct m_frequency_s {
                 double voltage = 0;
@@ -129,9 +139,26 @@ namespace geopm
                 m_subdevice_s subdevice;
 
                 // Device/Package domains
-                uint32_t num_device_power_domain;
                 zes_pwr_handle_t power_domain;
+                //ZE Context used for ZET data collection
+                ze_context_handle_t context;
+
+                uint32_t num_device_power_domain;
                 mutable uint64_t cached_energy_timestamp;
+
+                // required for L0 metric result tracking
+                mutable std::map<std::string, std::vector<double>> m_metric_data;
+                mutable bool metrics_initialized;
+
+                // required for L0 metric querying
+                uint32_t num_metric;
+                uint32_t num_reports;
+                uint32_t metric_sampling_period;
+                bool metric_domain_cached;
+                ze_event_pool_handle_t event_pool;
+                ze_event_handle_t event; //TODO: rename metric_notification_event?
+                zet_metric_streamer_handle_t metric_streamer;
+                zet_metric_group_handle_t metric_group_handle; //compute basic only
             };
 
 
@@ -155,6 +182,10 @@ namespace geopm
 
             std::vector<ze_driver_handle_t> m_levelzero_driver;
             std::vector<m_device_info_s> m_devices;
+
+            void metric_group_cache(unsigned int l0_device_idx);
+            void metric_calc(unsigned int l0_device_idx,
+                             zet_metric_streamer_handle_t metric_streamer) const;
     };
 }
 #endif

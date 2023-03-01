@@ -8,6 +8,13 @@
 #include <algorithm>
 #include <string>
 #include <cstdint>
+#include <numeric>
+
+//DELETEME
+#include <iostream>
+#include <chrono>
+#include <ctime>
+//DELETEME
 
 #include "geopm/Exception.hpp"
 #include "geopm/Agg.hpp"
@@ -18,13 +25,13 @@
 
 namespace geopm
 {
-    const LevelZeroDevicePool &levelzero_device_pool()
+    LevelZeroDevicePool &levelzero_device_pool()
     {
         static LevelZeroDevicePoolImp instance(levelzero());
         return instance;
     }
 
-    LevelZeroDevicePoolImp::LevelZeroDevicePoolImp(const LevelZero &levelzero)
+    LevelZeroDevicePoolImp::LevelZeroDevicePoolImp(LevelZero &levelzero)
         : m_levelzero(levelzero)
     {
     }
@@ -521,5 +528,87 @@ namespace geopm
 
         m_levelzero.performance_factor_control(dev_subdev_idx_pair.first,
                                                l0_domain, dev_subdev_idx_pair.second, setting);
+    }
+
+    //TODO: consider adding 'group_name' parameter?
+    void LevelZeroDevicePoolImp::metric_read(int domain, unsigned int domain_idx) const
+    {
+        if (domain != GEOPM_DOMAIN_GPU) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for metrics.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
+        std::chrono::time_point<std::chrono::system_clock> start, end;
+        start = std::chrono::system_clock::now();
+
+        m_levelzero.metric_read(domain_idx);
+
+        end = std::chrono::system_clock::now();
+        std::chrono::duration<double> elapsed_seconds = end - start;
+        std::cout << "metric_read - gpu " << std::to_string(domain_idx) << " read time: " << elapsed_seconds.count() << "s" << std::endl;
+    }
+
+    double LevelZeroDevicePoolImp::metric_sample(int domain, unsigned int domain_idx,
+                                                 std::string metric_name) const
+    {
+        double result = NAN;
+        if (domain != GEOPM_DOMAIN_GPU) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for metrics.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
+        //std::chrono::time_point<std::chrono::system_clock> start, end;
+
+        std::vector<double> data = m_levelzero.metric_sample(domain_idx, metric_name);
+
+        //std::cout << "Data size is: " << std::to_string(data.size()) << std::endl;
+        //start = std::chrono::system_clock::now();
+        if (data.size() > 0) {
+            //TODO: add min, max, avg etc handling.
+            result = std::accumulate(data.begin(), data.end(), 0.0) / data.size();
+            //result = data.at(data.size()-1);
+        }
+        //end = std::chrono::system_clock::now();
+        //elapsed_seconds = end - start;
+        //std::cout << "gpu " << std::to_string(domain_idx) << " process time: " << elapsed_seconds.count() << "s" << std::endl;
+
+        return result;
+    }
+
+    uint32_t LevelZeroDevicePoolImp::metric_update_rate(int domain, unsigned int domain_idx) const
+    {
+        if (domain != GEOPM_DOMAIN_GPU) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for metrics.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
+        return m_levelzero.metric_update_rate(domain_idx);
+    }
+
+//    void LevelZeroDevicePoolImp::metric_polling_disable()
+//    {
+//        unsigned int num_device = num_gpu(GEOPM_DOMAIN_GPU);
+//        for (unsigned int l0_device_idx = 0; l0_device_idx < num_device; l0_device_idx++) {
+//            m_levelzero.metric_destroy(l0_device_idx);
+//        }
+//    }
+
+    void LevelZeroDevicePoolImp::metric_update_rate_control(int domain, unsigned int domain_idx,
+                                                            uint32_t setting) const
+    {
+        if (domain != GEOPM_DOMAIN_GPU) {
+            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
+                            ": domain " + std::to_string(domain) +
+                            " is not supported for metrics.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
+        m_levelzero.metric_update_rate_control(domain_idx, setting);
     }
 }
