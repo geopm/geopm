@@ -16,6 +16,7 @@ static void __attribute__((constructor)) geopm_lib_init(void)
         try {
             std::string profile_name = geopm::environment().profile();
             auto service_proxy = geopm::ServiceProxy::make_unique();
+            service_proxy->platform_open_session();
             service_proxy->platform_start_profile(profile_name);
             geopm::Profile::default_profile();
             geopm::PlatformIOProf::platform_io();
@@ -33,6 +34,7 @@ static void __attribute__((destructor)) geopm_lib_fini(void)
             auto region_names = geopm::Profile::default_profile().region_names();
             auto service_proxy = geopm::ServiceProxy::make_unique();
             service_proxy->platform_stop_profile(region_names);
+            service_proxy->platform_close_session();
         }
         catch (...) {
             geopm::exception_handler(std::current_exception(), true);
