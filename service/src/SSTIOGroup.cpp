@@ -348,6 +348,14 @@ namespace geopm
             add_mmio_controls(raw_name, raw_desc.domain_type, raw_desc.register_offset,
                               raw_desc.fields, control_read_mask);
         }
+
+        // Attempt to read the priority of each core. On a system that does not
+        // support this action, the read_signal will throw. Let that exception
+        // bubble up to indicated to the owner of this IOGroup that this
+        // IOGroup should not be loaded.
+        for (int core = 0; core < m_topo.num_domain(GEOPM_DOMAIN_CORE); ++core) {
+            read_signal("SST::COREPRIORITY:ASSOCIATION", GEOPM_DOMAIN_CORE, core);
+        }
     }
 
     std::set<std::string> SSTIOGroup::signal_names(void) const

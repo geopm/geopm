@@ -430,3 +430,12 @@ TEST_F(SSTIOGroupTest, restored_controls_follow_ordered_dependencies_enabled)
                 && *std::prev(sst_tf_it) == SST_CP_COMMAND)
         << "Expected SST-TF to be enabled after SST-CP in restore()";
 }
+
+TEST_F(SSTIOGroupTest, constructor_throws_if_priority_not_readable)
+{
+    EXPECT_CALL(*m_sstio, get_punit_from_cpu(_)).Times(m_num_package * m_num_core);
+    EXPECT_CALL(*m_sstio, read_mmio_once(_, _)).Times(AtLeast(0))
+        .WillRepeatedly(Throw(geopm::Exception("Test-injected failure", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__)));
+    EXPECT_THROW(geopm::make_unique<SSTIOGroup>(*m_topo, m_sstio, m_mock_save_ctl),
+                 geopm::Exception);
+}
