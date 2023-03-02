@@ -68,6 +68,9 @@ namespace geopm
             throw Exception("EndpointImp(): Profile name is too long for endpoint storage: " + profile_name,
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
+        data->count = m_num_sample;
+        std::fill(data->values, data->values + m_num_sample, NAN);
+        geopm_time(&data->timestamp);
         data->agent[GEOPM_ENDPOINT_AGENT_NAME_MAX - 1] = '\0';
         data->profile_name[GEOPM_ENDPOINT_PROFILE_NAME_MAX - 1] = '\0';
         strncpy(data->agent, agent_name.c_str(), GEOPM_ENDPOINT_AGENT_NAME_MAX - 1);

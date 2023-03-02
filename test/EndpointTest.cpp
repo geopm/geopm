@@ -39,6 +39,8 @@ using geopm::geopm_endpoint_policy_shmem_s;
 using geopm::geopm_endpoint_sample_shmem_s;
 using geopm::Exception;
 using testing::AtLeast;
+using testing::ElementsAre;
+using testing::IsNan;
 
 class EndpointTest : public ::testing::Test
 {
@@ -192,6 +194,23 @@ TEST_F(EndpointTestIntegration, write_read_sample)
     mio->read_sample(result);
     EXPECT_EQ(values, result);
     mio->close();
+    unlink(hostlist_path.c_str());
+}
+
+TEST_F(EndpointTestIntegration, read_sample_before_data_exists)
+{
+    std::vector<double> sample_values = {1, 2};
+    std::set<std::string> hosts = {"node5"};
+    std::string hostlist_path = "EndpointTestIntegration_hostlist";
+    std::shared_ptr<Endpoint> endpoint = std::make_shared<EndpointImp>(m_shm_path, nullptr, nullptr, 0, sample_values.size());
+    endpoint->open();
+    EndpointUserImp endpoint_user(m_shm_path, nullptr, nullptr, "power_balancer",
+                                  sample_values.size(), "myprofile", hostlist_path, hosts);
+
+    endpoint->read_sample(sample_values);
+    EXPECT_THAT(sample_values, ElementsAre(IsNan(), IsNan()));
+
+    endpoint->close();
     unlink(hostlist_path.c_str());
 }
 
