@@ -131,6 +131,7 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/EndpointTest.get_agent \
               test/gtest_links/EndpointTest.wait_attach_timeout_0 \
               test/gtest_links/EndpointTest.wait_detach_timeout_0 \
+              test/gtest_links/EndpointTestIntegration.read_sample_before_data_exists \
               test/gtest_links/EndpointTestIntegration.write_shm \
               test/gtest_links/EndpointTestIntegration.write_read_policy \
               test/gtest_links/EndpointTestIntegration.write_read_sample \
