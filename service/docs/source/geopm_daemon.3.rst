@@ -8,7 +8,7 @@ Synopsis
 
 #include `<geopm_daemon.h> <https://github.com/geopm/geopm/blob/dev/src/geopm_daemon.h>`_
 
-Link with ``-lgeopmpolicy``
+Link with ``-lgeopm``
 
 
 .. code-block:: c

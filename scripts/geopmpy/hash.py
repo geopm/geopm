@@ -5,15 +5,15 @@
 
 
 from geopmdpy.gffi import gffi
-from geopmdpy.gffi import get_dl_geopmpolicy
+from geopmdpy.gffi import get_dl_geopm
 
 gffi.cdef("""
 uint64_t geopm_crc32_str(const char *key);
 """)
 try:
-    _dl = get_dl_geopmpolicy()
+    _dl = get_dl_geopm()
 except OSError as ee:
-    raise OSError('This module requires libgeopmpolicy.so to be present in your LD_LIBRARY_PATH.') from ee
+    raise OSError('This module requires libgeopm.so to be present in your LD_LIBRARY_PATH.') from ee
 
 def crc32_str(key):
     """Return the geopm hash of a string

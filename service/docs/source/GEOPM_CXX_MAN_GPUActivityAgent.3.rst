@@ -8,7 +8,7 @@ Synopsis
 
 #include `<geopm/GPUActivityAgent.hpp> <https://github.com/geopm/geopm/blob/dev/src/GPUActivityAgent.hpp>`_\
 
-Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
+Link with ``-lgeopm`` **(MPI)** or ``-lgeopm`` **(non-MPI)**
 
 Requires ``-enable-nvml`` and ``-enable-dcgm`` on systems with NVIDIA GPUs
 

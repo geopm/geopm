@@ -8,7 +8,7 @@ Synopsis
 
 #include `<geopm_policystore.h> <https://github.com/geopm/geopm/blob/dev/src/geopm_policystore.h>`_
 
-Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
+Link with ``-lgeopm`` **(MPI)** or ``-lgeopm`` **(non-MPI)**
 
 
 .. code-block:: c

@@ -6,7 +6,7 @@
 
 import math
 from geopmdpy.gffi import gffi
-from geopmdpy.gffi import get_dl_geopmpolicy
+from geopmdpy.gffi import get_dl_geopm
 from geopmdpy import error
 
 gffi.cdef("""
@@ -23,7 +23,7 @@ int geopm_policystore_set_best(const char* agent_name, const char* profile_name,
 int geopm_policystore_set_default(const char* agent_name,
                                   size_t num_policy_vals, const double* policy_vals);
 """)
-_dl = get_dl_geopmpolicy()
+_dl = get_dl_geopm()
 
 
 def connect(database_path):

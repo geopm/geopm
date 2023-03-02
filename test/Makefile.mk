@@ -590,12 +590,11 @@ else
     EXTRA_DIST += test/ELFTest.cpp
 endif
 
-# add sources not in geopmpolicy; Profile uses MockComm
 test_geopm_test_SOURCES += src/Profile.cpp \
                            src/Profile.hpp \
                            # endif
 
-test_geopm_test_LDADD = libgeopmpolicy.la \
+test_geopm_test_LDADD = libgeopm.la \
                         libgmock.a \
                         libgtest.a \
                         # end
@@ -609,7 +608,7 @@ if ENABLE_MPI
                                       test/geopm_test.cpp \
                                       # end
 
-    test_geopm_mpi_test_api_LDADD = libgeopmpolicy.la \
+    test_geopm_mpi_test_api_LDADD = libgeopm.la \
                                     libgmock.a \
                                     libgtest.a \
                                     # end

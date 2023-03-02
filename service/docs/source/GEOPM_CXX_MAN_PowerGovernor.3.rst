@@ -8,7 +8,7 @@ Synopsis
 
 #include `<geopm/PowerGovernor.hpp> <https://github.com/geopm/geopm/blob/dev/src/PowerGovernor.hpp>`_
 
-Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
+Link with ``-lgeopm`` **(MPI)** or ``-lgeopm`` **(non-MPI)**
 
 Description
 -----------

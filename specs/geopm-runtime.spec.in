@@ -123,7 +123,6 @@ test -f configure || ./autogen.sh
 %{__make} DESTDIR=%{buildroot} install
 rm -f $(find %{buildroot}/%{_libdir} -name '*.a'; \
         find %{buildroot}/%{_libdir} -name '*.la')
-rm -r %{buildroot}/%{_libdir}/libgeopmpolicy*
 rm -f %{buildroot}/%{_mandir}/man1/geopmbench.1
 rm -f %{buildroot}/%{_mandir}/man1/geopmctl.1
 rm -f %{buildroot}/%{_mandir}/man1/geopmlaunch.1

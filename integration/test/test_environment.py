@@ -51,7 +51,7 @@ class TestIntegrationEnvironment(unittest.TestCase):
     @util.skip_unless_batch()
     @util.skip_or_ensure_writable_file(environment_default_path)
     @util.skip_or_ensure_writable_file(environment_override_path)
-    @util.skip_unless_library_in_ldconfig('libgeopmpolicy.so')
+    @util.skip_unless_library_in_ldconfig('libgeopm.so')
     def test_geopm_environment(self):
         """Test behavior of geopm environment files.
         """

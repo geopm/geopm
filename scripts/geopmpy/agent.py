@@ -5,7 +5,7 @@
 
 
 from geopmdpy.gffi import gffi
-from geopmdpy.gffi import get_dl_geopmpolicy
+from geopmdpy.gffi import get_dl_geopm
 from geopmdpy import error
 import json
 
@@ -43,7 +43,7 @@ int geopm_agent_name(int agent_idx,
 
 int geopm_agent_enforce_policy(void);
 """)
-_dl = get_dl_geopmpolicy()
+_dl = get_dl_geopm()
 _name_max = 1024
 _policy_max = 8192
 

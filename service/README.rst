@@ -164,10 +164,10 @@ setting as well.
 Opening a Session
 -----------------
 
-A client process opens a session with the GEOPM Service each time a
-PlatformIO object is created with libgeopm or libgeopmpolicy while the
-GEOPM systemd service is active.  This session is initially opened in
-read-only mode.  Calls into the D-Bus APIs that modify control values:
+A client process opens a session with the GEOPM Service each time a PlatformIO
+object is created with libgeopm while the GEOPM systemd service is active.
+This session is initially opened in read-only mode.  Calls into the D-Bus APIs
+that modify control values:
 
 .. code-block::
 
@@ -209,7 +209,7 @@ Batch Server
 The GEOPM Service provides the implementation for the ServiceIOGroup
 which accesses this implementation through the DBus interface.  When a
 user program calls ``read_signal()`` or ``write_control()`` on a
-PlatformIO object provided by libgeopm or libgeopmpolicy and the only
+PlatformIO object provided by libgeopm and the only
 IOGroup that provides the signal or control requested is the
 ServiceIOGroup, then each request goes through the slow D-Bus
 interface.  When a client process uses the ServiceIOGroup for batch

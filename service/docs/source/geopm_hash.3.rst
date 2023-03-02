@@ -6,7 +6,7 @@ Synopsis
 
 #include `<geopm_hash.h> <https://github.com/geopm/geopm/blob/dev/service/src/geopm_hash.h>`_
 
-Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
+Link with ``-lgeopm`` **(MPI)** or ``-lgeopm`` **(non-MPI)**
 
 
 .. code-block:: c
