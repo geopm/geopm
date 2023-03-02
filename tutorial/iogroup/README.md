@@ -186,7 +186,7 @@ PlatformIO::save_control() is called prior to the Agent::init() method.
 
 The ExampleIOGroup plugin is built by running tutorial_build_gnu.sh or
 tutorial_build_intel.sh.  The plugin will be loaded with the
-geopmpolicy library if it is found in a directory in
+geopm library if it is found in a directory in
 GEOPM_PLUGIN_PATH.  Note that to be recognized as an iogroup plugin, the
 filename must begin with "libgeopmiogroup_" and end in
 ".so.1.0.0".  Add the current directory (containing the

@@ -4,7 +4,7 @@
 #
 
 from geopmdpy.gffi import gffi
-from geopmdpy.gffi import get_dl_geopmpolicy
+from geopmdpy.gffi import get_dl_geopm
 from geopmdpy import error
 
 
@@ -16,7 +16,7 @@ int geopm_reporter_generate(const char *profile_name,
                             size_t result_max,
                             char *result);
 """)
-_dl = get_dl_geopmpolicy()
+_dl = get_dl_geopm()
 
 def init():
     '''Initialize reporter object

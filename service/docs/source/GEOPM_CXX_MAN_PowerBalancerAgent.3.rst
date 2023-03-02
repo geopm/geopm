@@ -8,7 +8,7 @@ Synopsis
 
 #include `<geopm/PowerBalancerAgent.hpp> <https://github.com/geopm/geopm/blob/dev/src/PowerBalancerAgent.hpp>`_
 
-Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
+Link with ``-lgeopm`` **(MPI)** or ``-lgeopm`` **(non-MPI)**
 
 Description
 -----------

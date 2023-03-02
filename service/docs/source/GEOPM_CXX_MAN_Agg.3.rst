@@ -23,7 +23,7 @@ Synopsis
 
 #include `<geopm/Agg.hpp> <https://github.com/geopm/geopm/blob/dev/service/src/geopm/Agg.hpp>`_
 
-Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
+Link with ``-lgeopm`` **(MPI)** or ``-lgeopm`` **(non-MPI)**
 
 
 .. code-block:: c++

@@ -67,7 +67,7 @@ resources for multiple MPI jobs and multiple users by the system
 resource manager.
 
 The GEOPM HPC Runtime package provides two libraries: libgeopm for use
-with MPI applications, and libgeopmpolicy for use with applications
+with MPI applications, and libgeopm for use with applications
 that do not link to MPI.  There are several command line tools
 included in GEOPM which have dedicated manual pages.  The
 :doc:`geopmlaunch(1) <geopmlaunch.1>` command line tool is used to launch an

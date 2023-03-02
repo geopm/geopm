@@ -19,7 +19,7 @@ Synopsis
 
 #include `<geopm/MonitorAgent.hpp> <https://github.com/geopm/geopm/blob/dev/src/MonitorAgent.hpp>`_
 
-Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
+Link with ``-lgeopm`` **(MPI)** or ``-lgeopm`` **(non-MPI)**
 
 
 .. code-block:: c++

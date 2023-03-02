@@ -12,7 +12,7 @@ Synopsis
 
 #include `<geopm_version.h> <https://github.com/geopm/geopm/blob/dev/service/src/geopm_version.h>`_
 
-Link with ``-lgeopm`` **(MPI)** or ``-lgeopmpolicy`` **(non-MPI)**
+Link with ``-lgeopm`` **(MPI)** or ``-lgeopm`` **(non-MPI)**
 
 
 .. code-block:: c

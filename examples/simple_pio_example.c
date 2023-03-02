@@ -19,7 +19,7 @@
 #
 # BEGIN SCRIPT
 
-if [ ! -e $HOME/build/geopm/lib/libgeopmpolicy.so ]; then
+if [ ! -e $HOME/build/geopm/lib/libgeopm.so ]; then
     if [ ! -d geopm ]; then
         git clone https://github.com/geopm/geopm.git
     fi
@@ -33,7 +33,7 @@ if [ ! -e $HOME/build/geopm/lib/libgeopmpolicy.so ]; then
     make install
     cd ..
 fi
-gcc -I$HOME/build/geopm/include -L$HOME/build/geopm/lib -lgeopmpolicy simple_pio_example.c
+gcc -I$HOME/build/geopm/include -L$HOME/build/geopm/lib -lgeopm simple_pio_example.c
 LD_LIBRARY_PATH=$HOME/build/geopm/lib:$LD_LIBRARY_PATH ./a.out
 # Total energy for package 0: 518.16 (joules)
 # END SCRIPT

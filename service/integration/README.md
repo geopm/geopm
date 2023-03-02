@@ -145,10 +145,9 @@ Where to find other tests
 -------------------------
 
 The tests in this directory do not use any of the tools provided by
-`libgeopm` or `libgeopmpolicy`.  Integration tests for `libgeopm` and
-`libgeopmpolicy` derived features are located in
-`geopm/integration/test`.  Some of these tests may use the GEOPM
-service on a system where it is required.
+`libgeopm`.  Integration tests for `libgeopm` derived features are
+located in `geopm/integration/test`.  Some of these tests may use the
+GEOPM service on a system where it is required.
 
 The unit tests for the C++ files in `geopm/service/src` are located in
 `geopm/service/test`.  The unit tests for the C++ files in `geopm/src`

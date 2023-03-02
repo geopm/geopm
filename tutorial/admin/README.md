@@ -31,22 +31,22 @@ message will be displayed recommending corrective action or referring the user
 back to the main GEOPM README for guidance.
 
 ## 1. GEOPM+SLURM static policy plugin
-GEOPM provides two libraries: `libgeopmpolicy` and `libgeopm`. `libgeopmpolicy`
+GEOPM provides two libraries: `libgeopm` and `libgeopm`. `libgeopm`
 contains tools for interacting with hardware signals and controls, such as
 `geopmread`, and the supporting library functions. `libgeopm` contains all of
 these functions and also provides tools for launching and interacting with MPI
 applications.
 
-The `libgeopmpolicy` library must be available in order to set up a system with
+The `libgeopm` library must be available in order to set up a system with
 the GEOPM+SLURM static policy plugin. The SLURM plugin requires
-`libgeopmpolicy` alone; it does not use `libgeopm` or MPI. If the GEOPM runtime
+`libgeopm` alone; it does not use `libgeopm` or MPI. If the GEOPM runtime
 will be installed (including `libgeopm` and MPI launch tools), it should be
 installed in a different location, preferably using the module system. The
 packages are available through OpenHPC
 (<https://openhpc.community/downloads/>). See the [GEOPM runtime
 capabilities](#2-geopm-runtime-capabilities) section in this guide.
 
-A.  To build `libgeopmpolicy` and a compatible `libgeopm_slurm.so`:
+A.  To build `libgeopm` and a compatible `libgeopm_slurm.so`:
 * Obtain the source code for geopm from <https://github.com/geopm/geopm>
 * Make sure no modules that will affect compilation are loaded in the
   environment:
@@ -61,7 +61,7 @@ module purge
 ```
 make -j && make install
 ```
-* Build an RPM to be used to install `libgeopmpolicy` on the compute nodes.
+* Build an RPM to be used to install `libgeopm` on the compute nodes.
   The output from this make command will indicate where the RPMs are located:
 ```
 make rpm
@@ -76,7 +76,7 @@ make rpm
 ```
 make && make install
 ```
-B.  Install the `libgeopmpolicy` package in the compute nodes using the RPM.
+B.  Install the `libgeopm` package in the compute nodes using the RPM.
 The library must be in a directory that is in the root user's library search
 path when the plugin runs (such as `/usr/lib64`), and this version of the
 library should be built against a toolchain available in the system default
