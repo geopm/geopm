@@ -49,3 +49,5 @@ integration_test_test_batch_interface_LDADD = libgeopmd.la
 integration_test_test_invalid_values_SOURCES = integration/test/test_invalid_values.cpp
 integration_test_test_invalid_values_CXXFLAGS = $(CXXFLAGS) $(FASTMATH)
 integration_test_test_invalid_values_LDADD = libgeopmd.la
+
+TESTS += integration/open_pbs/geopm_openpbs_test.sh
