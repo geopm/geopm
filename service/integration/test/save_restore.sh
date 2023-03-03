@@ -42,7 +42,7 @@ check_control() {
 
     # CHECK THAT THE VALUE OF THE CONTROL REGISTER HAS BEEN CHANGED
     test ${SESSION_VALUE} == ${REQUEST_VALUE} ||
-        test_error "Writing the new value has failed"
+        test_error "Writing the new value has failed: $(cat ${TEST_ERROR})"
 }
 
 restore_control() {
