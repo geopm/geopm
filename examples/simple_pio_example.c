@@ -66,8 +66,8 @@ int main(int argc, char **argv)
         printf("Total energy for package 0: %0.2f (joules)\n", total_energy);
     }
     if (err) {
-        char error_string[NAME_MAX];
-        geopm_error_message(err, error_string, NAME_MAX);
+        char error_string[PATH_MAX];
+        geopm_error_message(err, error_string, PATH_MAX);
         fprintf(stderr, "Error: %s\n", error_string);
     }
     return err;

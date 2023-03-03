@@ -57,7 +57,7 @@ def message(err_number):
     """
     global _dl
 
-    name_max = 1024
-    result_cstr = gffi.gffi.new("char[]", name_max)
-    _dl.geopm_error_message(err_number, result_cstr, name_max)
+    path_max = 4096
+    result_cstr = gffi.gffi.new("char[]", path_max)
+    _dl.geopm_error_message(err_number, result_cstr, path_max)
     return gffi.gffi.string(result_cstr).decode()
