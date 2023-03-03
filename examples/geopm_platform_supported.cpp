@@ -10,6 +10,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <limits.h>
 
 #include "geopm/PlatformTopo.hpp"
 #include "geopm_hash.h"
@@ -19,8 +20,8 @@
 int main(int argc, char **argv)
 {
     int err = 0;
-    char error_msg[512];
-    error_msg[511] = '\0';
+    char error_msg[PATH_MAX];
+    error_msg[PATH_MAX - 1] = '\0';
 
     if (argc == 2 &&
         strncmp(argv[1], "crc32", strlen("crc32") + 1) == 0) {
@@ -42,14 +43,14 @@ int main(int argc, char **argv)
             cpu_id != 0x64F &&
             cpu_id != 0x657) {
             err = GEOPM_ERROR_PLATFORM_UNSUPPORTED;
-            geopm_error_message(err, error_msg, 511);
+            geopm_error_message(err, error_msg, PATH_MAX);
             std::cerr << "Warning: <geopm_platform_supported>: Platform 0x" << std::hex << cpu_id << " is not a supported CPU" << " " << error_msg << "." << std::endl;
         }
         if (!err) {
             int fd = open("/dev/cpu/0/msr_safe", O_RDONLY);
             if (fd == -1) {
                 err = GEOPM_ERROR_MSR_OPEN;
-                geopm_error_message(err, error_msg, 511);
+                geopm_error_message(err, error_msg, PATH_MAX);
                 std::cerr << "Warning: <geopm_platform_supported>: Not able to open msr_safe device. " << error_msg << "." << std::endl;
 
             }

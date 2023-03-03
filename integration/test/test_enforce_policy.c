@@ -13,8 +13,8 @@ int main(int argc, char *argv[])
 {
     int err = geopm_agent_enforce_policy();
     if (err) {
-        char err_msg[NAME_MAX];
-        geopm_error_message(err, err_msg, NAME_MAX);
+        char err_msg[PATH_MAX];
+        geopm_error_message(err, err_msg, PATH_MAX);
         printf("enforce policy failed: %s\n", err_msg);
     }
     return err;

@@ -162,8 +162,8 @@ int main(int argc, char **argv)
     }
 
     if (err) {
-        char err_msg[NAME_MAX] = {};
-        geopm_error_message(err, err_msg, NAME_MAX);
+        char err_msg[PATH_MAX] = {};
+        geopm_error_message(err, err_msg, PATH_MAX);
         std::cerr << "ERROR: " << argv[0] << ": " << err_msg << std::endl;
     }
 

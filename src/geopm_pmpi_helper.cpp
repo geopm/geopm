@@ -210,8 +210,8 @@ static int geopm_pmpi_init(const char *exec_name)
         }
 #ifdef GEOPM_DEBUG
         if (err) {
-            char err_msg[NAME_MAX];
-            geopm_error_message(err, err_msg, NAME_MAX);
+            char err_msg[PATH_MAX];
+            geopm_error_message(err, err_msg, PATH_MAX);
             fprintf(stderr, "%s", err_msg);
         }
 #endif

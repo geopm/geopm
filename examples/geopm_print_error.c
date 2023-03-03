@@ -7,11 +7,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+#include <limits.h>
 
 #include "geopm_error.h"
-#ifndef NAME_MAX
-#define NAME_MAX 512
-#endif
 
 int main(int argc, char **argv)
 {
@@ -65,7 +63,7 @@ int main(int argc, char **argv)
     const char *tag = "<geopm> ";
     int format_type = GEOPM_FORMAT_TYPE_HUMAN;
     const char *usage = "%s [--help] [--roff]\n";
-    char message[NAME_MAX];
+    char message[PATH_MAX];
     int i;
 
     if (argc == 2 && strncmp(argv[1], "--roff", strlen("--roff")) == 0 ) {
@@ -89,8 +87,8 @@ int main(int argc, char **argv)
         printf("GEOPM ERROR CODES\n");
     }
     for (i = 0; !return_code && i < num_error; ++i) {
-        geopm_error_message(error_codes[i], message, NAME_MAX);
-        message[NAME_MAX - 1] = '\0';
+        geopm_error_message(error_codes[i], message, PATH_MAX);
+        message[PATH_MAX - 1] = '\0';
         if (strstr(message, tag) == message) {
             switch (format_type) {
                 case GEOPM_FORMAT_TYPE_HUMAN:

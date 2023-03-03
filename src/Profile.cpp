@@ -159,9 +159,9 @@ namespace geopm
                       << step << ", running without geopm." << std::endl;
             int err = ex.err_value();
             if (err != GEOPM_ERROR_RUNTIME) {
-                char tmp_msg[NAME_MAX];
+                char tmp_msg[PATH_MAX];
                 geopm_error_message(err, tmp_msg, sizeof(tmp_msg));
-                tmp_msg[NAME_MAX-1] = '\0';
+                tmp_msg[PATH_MAX-1] = '\0';
                 std::cerr << tmp_msg << std::endl;
             }
             m_is_enabled = false;
