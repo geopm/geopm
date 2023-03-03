@@ -246,7 +246,7 @@ namespace geopm
             void shutdown(void) override;
             void thread_init(uint32_t num_work_unit) override;
             void thread_post(int cpu) override;
-            std::vector<std::string> region_names(void);
+            std::vector<std::string> region_names(void) override;
         protected:
             bool m_is_enabled;
         private:
