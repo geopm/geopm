@@ -150,7 +150,7 @@ def control_names():
     num_control = _dl.geopm_pio_num_control_name()
     if num_control < 0:
         raise RuntimeError('geopm_pio_num_control_name() failed: {}'.format(error.message(num_control)))
-    name_max = 1024
+    name_max = 255
     control_name_cstr = gffi.gffi.new("char[]", name_max)
     for control_idx in range(num_control):
         err = _dl.geopm_pio_control_name(control_idx, name_max, control_name_cstr)
@@ -503,7 +503,6 @@ def save_control_dir(save_dir):
 
     """
     global _dl
-    name_max = 1024
     save_dir_cstr = gffi.gffi.new("char[]", save_dir.encode())
     err = _dl.geopm_pio_save_control_dir(save_dir_cstr)
     if err < 0:
@@ -526,7 +525,6 @@ def restore_control_dir(save_dir):
 
     """
     global _dl
-    name_max = 1024
     save_dir_cstr = gffi.gffi.new("char[]", save_dir.encode())
     err = _dl.geopm_pio_restore_control_dir(save_dir_cstr)
     if err < 0:
@@ -559,7 +557,6 @@ def signal_info(signal_name):
 
     """
     global _dl
-    name_max = 1024
     signal_name_cstr = gffi.gffi.new("char[]", signal_name.encode())
     aggregation_type = gffi.gffi.new("int*")
     format_type = gffi.gffi.new("int*")
