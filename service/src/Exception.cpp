@@ -31,7 +31,7 @@ namespace geopm
             virtual ~ErrorMessage() = default;
             const std::map<int, std::string> M_VALUE_MESSAGE_MAP;
             int m_error_value;
-            char m_error_message[NAME_MAX];
+            char m_error_message[PATH_MAX];
             std::mutex m_lock;
         public:
             ErrorMessage(const ErrorMessage &other) = delete;
@@ -143,7 +143,7 @@ namespace geopm
             {GEOPM_ERROR_DATA_STORE, "Encountered a data store error"}}
         , m_error_value(0)
     {
-        std::fill(m_error_message, m_error_message + NAME_MAX, '\0');
+        std::fill(m_error_message, m_error_message + PATH_MAX, '\0');
     }
 
     ErrorMessage &ErrorMessage::get(void)
@@ -155,8 +155,8 @@ namespace geopm
     void ErrorMessage::update(int error_value, const std::string &error_message)
     {
         size_t num_copy = error_message.size();
-        if (num_copy > NAME_MAX - 1) {
-            num_copy = NAME_MAX - 1;
+        if (num_copy > PATH_MAX - 1) {
+            num_copy = PATH_MAX - 1;
         }
         std::lock_guard<std::mutex> guard(m_lock);
         std::copy_n(error_message.data(), num_copy, m_error_message);
@@ -177,7 +177,7 @@ namespace geopm
 
     std::string ErrorMessage::message_fixed(int err)
     {
-        char error_message[NAME_MAX];
+        char error_message[PATH_MAX];
         err = err ? err : GEOPM_ERROR_RUNTIME;
         std::string result("<geopm> ");
         auto it = M_VALUE_MESSAGE_MAP.find(err);
@@ -185,7 +185,7 @@ namespace geopm
             result += it->second;
         }
         else {
-            result += strerror_r(err, error_message, NAME_MAX);
+            result += strerror_r(err, error_message, PATH_MAX);
         }
         return result;
     }
