@@ -11,6 +11,7 @@ import json
 import os
 
 mock.patch.dict("sys.modules", pbs=mock.MagicMock()).start()
+mock.patch("cffi.FFI.dlopen").start()
 import geopm_power_limit as hook
 
 
