@@ -69,54 +69,6 @@ TEST_F(ApplicationRecordLogTest, empty_dump)
     EXPECT_EQ(0ULL, short_regions.size());
 }
 
-TEST_F(ApplicationRecordLogTest, no_proc_set)
-{
-    EXPECT_CALL(*m_mock_shared_memory, get_scoped_lock())
-        .Times(0);
-    GEOPM_EXPECT_THROW_MESSAGE(m_record_log->enter(0,{{0,0}}),
-                               GEOPM_ERROR_RUNTIME,
-                               "set_process() must be called prior to calling enter(), exit() or epoch()");
-    GEOPM_EXPECT_THROW_MESSAGE(m_record_log->exit(0,{{0,0}}),
-                               GEOPM_ERROR_RUNTIME,
-                               "set_process() must be called prior to calling enter(), exit() or epoch()");
-    GEOPM_EXPECT_THROW_MESSAGE(m_record_log->epoch({{0,0}}),
-                               GEOPM_ERROR_RUNTIME,
-                               "set_process() must be called prior to calling enter(), exit() or epoch()");
-}
-
-TEST_F(ApplicationRecordLogTest, no_time_zero_set)
-{
-    EXPECT_CALL(*m_mock_shared_memory, get_scoped_lock())
-        .Times(0);
-    m_record_log->set_process(123);
-    GEOPM_EXPECT_THROW_MESSAGE(m_record_log->enter(0,{{0,0}}),
-                               GEOPM_ERROR_RUNTIME,
-                               "set_time_zero() must be called prior to calling enter(), exit() or epoch()");
-    GEOPM_EXPECT_THROW_MESSAGE(m_record_log->exit(0,{{0,0}}),
-                               GEOPM_ERROR_RUNTIME,
-                               "set_time_zero() must be called prior to calling enter(), exit() or epoch()");
-    GEOPM_EXPECT_THROW_MESSAGE(m_record_log->epoch({{0,0}}),
-                               GEOPM_ERROR_RUNTIME,
-                               "set_time_zero() must be called prior to calling enter(), exit() or epoch()");
-}
-
-TEST_F(ApplicationRecordLogTest, setup_only_once)
-{
-    int proc_id = 123;
-    geopm_time_s time_0 = {{1, 0}};
-
-    m_record_log->set_process(proc_id);
-    m_record_log->set_time_zero(time_0);
-
-    m_record_log->epoch(time_0);
-
-    GEOPM_EXPECT_THROW_MESSAGE(m_record_log->set_process(proc_id),
-                               GEOPM_ERROR_RUNTIME, "set_process() called after process has been used");
-    GEOPM_EXPECT_THROW_MESSAGE(m_record_log->set_time_zero(time_0),
-                               GEOPM_ERROR_RUNTIME, "set_time_zero() called after time zero has been used");
-}
-
-
 TEST_F(ApplicationRecordLogTest, scoped_lock_test)
 {
     int proc_id = 123;
@@ -124,8 +76,6 @@ TEST_F(ApplicationRecordLogTest, scoped_lock_test)
     geopm_time_s time_0 = {{1, 0}};
     geopm_time_s time = {{2, 0}};
 
-    m_record_log->set_process(proc_id);
-    m_record_log->set_time_zero(time_0);
     {
         EXPECT_CALL(*m_mock_shared_memory, get_scoped_lock())
             .Times(1);
@@ -160,9 +110,6 @@ TEST_F(ApplicationRecordLogTest, one_entry)
     geopm_time_s time_0 = {{1, 0}};
     geopm_time_s time = {{2, 0}};
 
-    m_record_log->set_process(proc_id);
-    m_record_log->set_time_zero(time_0);
-
     m_record_log->enter(hash, time);
     m_record_log->dump(records, short_regions);
     EXPECT_EQ(0ULL, short_regions.size());
@@ -182,9 +129,6 @@ TEST_F(ApplicationRecordLogTest, one_exit)
     geopm_time_s time_0 = {{1, 0}};
     geopm_time_s time_1 = {{2, 0}};
     geopm_time_s time_2 = {{3, 0}};
-
-    m_record_log->set_process(proc_id);
-    m_record_log->set_time_zero(time_0);
 
     m_record_log->enter(hash, time_1);
     m_record_log->dump(records, short_regions);
@@ -206,9 +150,6 @@ TEST_F(ApplicationRecordLogTest, one_epoch)
     int proc_id = 123;
     geopm_time_s time_0 = {{1, 0}};
     geopm_time_s time = {{2, 0}};
-
-    m_record_log->set_process(proc_id);
-    m_record_log->set_time_zero(time_0);
 
     m_record_log->epoch(time);
     m_record_log->dump(records, short_regions);
@@ -232,9 +173,6 @@ TEST_F(ApplicationRecordLogTest, short_region_entry_exit)
     geopm_time_s time_exit1 = {{3, 0}};
     geopm_time_s time_entry2 = {{5, 0}};
     geopm_time_s time_exit2 = {{7, 0}};
-
-    m_record_log->set_process(proc_id);
-    m_record_log->set_time_zero(time_0);
 
     m_record_log->enter(hash, time_entry1);
     m_record_log->exit(hash, time_exit1);
@@ -262,9 +200,6 @@ TEST_F(ApplicationRecordLogTest, dump_twice)
     geopm_time_s time_0 = {{1, 0}};
     geopm_time_s time_1 = {{2, 0}};
     geopm_time_s time_2 = {{3, 0}};
-
-    m_record_log->set_process(proc_id);
-    m_record_log->set_time_zero(time_0);
 
     m_record_log->enter(0x1234, time_1);
     m_record_log->exit(0x1234, time_2);
@@ -294,8 +229,6 @@ TEST_F(ApplicationRecordLogTest, dump_within_region)
     uint64_t hash = 0xABCD;
     // Note time_zero is one second after 1970
     geopm_time_s time_0 = {{1, 0}};
-    m_record_log->set_process(proc_id);
-    m_record_log->set_time_zero(time_0);
 
     m_record_log->enter(hash, {2, 0});
     m_record_log->exit(hash, {3, 0});
@@ -340,8 +273,6 @@ TEST_F(ApplicationRecordLogTest, overflow_record_table)
     int proc_id = 123;
     // Note time_zero is one second after 1970
     geopm_time_s time_0 = {{1, 0}};
-    m_record_log->set_process(proc_id);
-    m_record_log->set_time_zero(time_0);
 
     int max_size = 1024;
     for (int ii = 0; ii < max_size; ++ii) {
@@ -359,8 +290,6 @@ TEST_F(ApplicationRecordLogTest, cannot_overflow_region_table)
     uint64_t hash = 0xABCD;
     // Note time_zero is one second after 1970
     geopm_time_s time_0 = {{1, 0}};
-    m_record_log->set_process(proc_id);
-    m_record_log->set_time_zero(time_0);
 
     m_record_log->enter(hash, {2, 0});
     m_record_log->exit(hash, {3, 0});
