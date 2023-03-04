@@ -9,7 +9,6 @@
 #include "gmock/gmock.h"
 
 #include "ApplicationSamplerImp.hpp"
-#include "MockProfileSampler.hpp"
 #include "MockApplicationRecordLog.hpp"
 #include "MockRecordFilter.hpp"
 #include "MockApplicationStatus.hpp"
@@ -28,7 +27,6 @@ using testing::SetArgReferee;
 using testing::DoAll;
 using geopm::ApplicationSampler;
 using geopm::ApplicationSamplerImp;
-using geopm::ProfileSampler;
 using geopm::record_s;
 using geopm::short_region_s;
 using geopm::RecordFilter;
@@ -39,7 +37,6 @@ class ApplicationSamplerTest : public ::testing::Test
 {
     protected:
         void SetUp();
-        std::shared_ptr<MockProfileSampler> m_mock_profile_sampler;
         std::shared_ptr<ApplicationSamplerImp> m_app_sampler;
         std::map<int, ApplicationSamplerImp::m_process_s> m_process_map;
         std::shared_ptr<MockRecordFilter> m_filter_0;
@@ -53,7 +50,6 @@ class ApplicationSamplerTest : public ::testing::Test
 
 void ApplicationSamplerTest::SetUp()
 {
-    m_mock_profile_sampler = std::make_shared<MockProfileSampler>();
     m_filter_0 = std::make_shared<MockRecordFilter>();
     m_filter_1 = std::make_shared<MockRecordFilter>();
     m_record_log_0 = std::make_shared<MockApplicationRecordLog>();
@@ -76,8 +72,8 @@ void ApplicationSamplerTest::SetUp()
                                                             false,
                                                             "",
                                                             is_active,
-                                                            true);
-    m_app_sampler->set_sampler(m_mock_profile_sampler);
+                                                            true,
+                                                            "profile_name");
     m_app_sampler->time_zero(geopm_time_s {{0,0}});
 }
 
@@ -566,7 +562,6 @@ TEST_F(ApplicationSamplerTest, sampler_cpu)
 
 TEST_F(ApplicationSamplerTest, per_cpu_process_no_sampler)
 {
-    m_app_sampler->set_sampler(nullptr);
     auto process_actual = m_app_sampler->per_cpu_process();
     EXPECT_EQ((size_t)m_num_cpu, process_actual.size());
     std::vector<int> process_expect(m_num_cpu, -1);

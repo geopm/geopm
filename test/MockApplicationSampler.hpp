@@ -22,11 +22,7 @@ class MockApplicationSampler : public geopm::ApplicationSampler
                     (const, override));
         MOCK_METHOD(double, cpu_progress, (int cpu_idx), (const, override));
         MOCK_METHOD(std::vector<int>, per_cpu_process, (), (const, override));
-        MOCK_METHOD(void, connect, (const std::string &shm_key), (override));
-        MOCK_METHOD(void, set_sampler,
-                    (std::shared_ptr<geopm::ProfileSampler> sampler), (override));
-        MOCK_METHOD(std::shared_ptr<geopm::ProfileSampler>, get_sampler, (),
-                    (override));
+        MOCK_METHOD(void, connect, (), (override));
         MOCK_METHOD(geopm::short_region_s, get_short_region,
                     (uint64_t event_signal), (const, override));
         std::vector<geopm::record_s> get_records(void) const override;

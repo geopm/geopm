@@ -18,8 +18,6 @@ class MockApplicationIO : public geopm::ApplicationIO
         MOCK_METHOD(std::string, report_name, (), (const, override));
         MOCK_METHOD(std::string, profile_name, (), (const, override));
         MOCK_METHOD(std::set<std::string>, region_name_set, (), (const, override));
-        MOCK_METHOD(void, controller_ready, (), (override));
-        MOCK_METHOD(void, abort, (), (override));
 };
 
 #endif

@@ -13,8 +13,6 @@
 class MockApplicationRecordLog : public geopm::ApplicationRecordLog
 {
     public:
-        MOCK_METHOD(void, set_process, (int process), (override));
-        MOCK_METHOD(void, set_time_zero, (const geopm_time_s &time), (override));
         MOCK_METHOD(void, enter, (uint64_t hash, const geopm_time_s &time), (override));
         MOCK_METHOD(void, exit, (uint64_t hash, const geopm_time_s &time), (override));
         MOCK_METHOD(void, epoch, (const geopm_time_s &time), (override));

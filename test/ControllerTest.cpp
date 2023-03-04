@@ -210,7 +210,6 @@ TEST_F(ControllerTest, construct_with_file_policy_and_init_control)
                           {"A", "B"},
                           m_file_policy_path, true,
                           nullptr, "", false, // endpoint
-                          m_shm_key,
                           m_init_control, true);
 }
 
@@ -253,9 +252,7 @@ TEST_F(ControllerTest, run_with_no_policy)
                           {"A", "B"},
                           "", false,  // false
                           nullptr, "", false, // endpoint
-                          m_shm_key,
                           m_init_control, false);
-
 
     std::vector<std::string> trace_names = {"COL1", "COL2"};
     std::vector<std::function<std::string(double)> > trace_formats = {
@@ -361,7 +358,6 @@ TEST_F(ControllerTest, get_hostnames)
                           {}, "", false, // file policy
                           std::unique_ptr<MockEndpointUser>(m_endpoint),
                           "", true,  // endpoint
-                          m_shm_key,
                           m_init_control, false);
 
     EXPECT_CALL(*multi_node_comm, rank());
@@ -395,7 +391,6 @@ TEST_F(ControllerTest, single_node)
                           {}, "", false,  // file policy
                           std::unique_ptr<MockEndpointUser>(m_endpoint),
                           "", true,  // endpoint
-                          m_shm_key,
                           m_init_control, false);
 
     // setup trace
@@ -477,7 +472,6 @@ TEST_F(ControllerTest, two_level_controller_1)
                           {}, "", false, // file policy
                           std::unique_ptr<MockEndpointUser>(m_endpoint),
                           "", true,  // endpoint
-                          m_shm_key,
                           m_init_control, false);
 
     std::vector<std::string> trace_names = {"COL1", "COL2"};
@@ -579,7 +573,6 @@ TEST_F(ControllerTest, two_level_controller_2)
                           {}, "", false, // file policy
                           std::unique_ptr<MockEndpointUser>(m_endpoint),
                           "", true, // endpoint
-                          m_shm_key,
                           m_init_control, false);
 
     std::vector<std::string> trace_names = {"COL1", "COL2"};
@@ -690,7 +683,6 @@ TEST_F(ControllerTest, two_level_controller_0)
                           {}, "", false, // file policy
                           std::unique_ptr<MockEndpointUser>(m_endpoint),
                           "", true, // endpoint
-                          m_shm_key,
                           m_init_control, false);
 
     std::vector<std::string> trace_names = {"COL1", "COL2"};

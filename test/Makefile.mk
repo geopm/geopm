@@ -33,9 +33,6 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/ApplicationRecordLogTest.bad_shmem \
               test/gtest_links/ApplicationRecordLogTest.get_sizes \
               test/gtest_links/ApplicationRecordLogTest.empty_dump \
-              test/gtest_links/ApplicationRecordLogTest.no_proc_set \
-              test/gtest_links/ApplicationRecordLogTest.no_time_zero_set \
-              test/gtest_links/ApplicationRecordLogTest.setup_only_once \
               test/gtest_links/ApplicationRecordLogTest.scoped_lock_test \
               test/gtest_links/ApplicationRecordLogTest.one_entry \
               test/gtest_links/ApplicationRecordLogTest.one_exit \
@@ -53,14 +50,11 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/ApplicationSamplerTest.hash \
               test/gtest_links/ApplicationSamplerTest.hint \
               test/gtest_links/ApplicationSamplerTest.hint_time \
-              test/gtest_links/ApplicationSamplerTest.cpu_process \
               test/gtest_links/ApplicationSamplerTest.cpu_progress \
               test/gtest_links/ApplicationSamplerTest.sampler_cpu \
-              test/gtest_links/ApplicationSamplerTest.per_cpu_process_no_sampler \
               test/gtest_links/ApplicationStatusTest.bad_shmem \
               test/gtest_links/ApplicationStatusTest.hash \
               test/gtest_links/ApplicationStatusTest.hints \
-              test/gtest_links/ApplicationStatusTest.process \
               test/gtest_links/ApplicationStatusTest.update_cache \
               test/gtest_links/ApplicationStatusTest.work_progress \
               test/gtest_links/ApplicationStatusTest.wrong_buffer_size \
@@ -75,16 +69,24 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/CommMPIImpTest.mpi_mem_ops \
               test/gtest_links/CommMPIImpTest.mpi_reduce \
               test/gtest_links/CommMPIImpTest.mpi_win_ops \
-              test/gtest_links/ControlMessageTest.cpu_rank \
-              test/gtest_links/ControlMessageTest.is_name_begin \
-              test/gtest_links/ControlMessageTest.is_sample_begin \
-              test/gtest_links/ControlMessageTest.is_sample_end \
-              test/gtest_links/ControlMessageTest.is_shutdown \
-              test/gtest_links/ControlMessageTest.loop_begin_0 \
-              test/gtest_links/ControlMessageTest.loop_begin_1 \
-              test/gtest_links/ControlMessageTest.step \
-              test/gtest_links/ControlMessageTest.wait \
               test/gtest_links/ControllerTest.construct_with_file_policy_and_init_control \
+              test/gtest_links/CommNullImpTest.split \
+              test/gtest_links/CommNullImpTest.comm_supported \
+              test/gtest_links/CommNullImpTest.ranks \
+              test/gtest_links/CommNullImpTest.dimension_create \
+              test/gtest_links/CommNullImpTest.read_back_memory_writes \
+              test/gtest_links/CommNullImpTest.window_creation_and_destruction \
+              test/gtest_links/CommNullImpTest.window_lock \
+              test/gtest_links/CommNullImpTest.coordinate \
+              test/gtest_links/CommNullImpTest.barrier \
+              test/gtest_links/CommNullImpTest.broadcast \
+              test/gtest_links/CommNullImpTest.test \
+              test/gtest_links/CommNullImpTest.reduce_max \
+              test/gtest_links/CommNullImpTest.gather \
+              test/gtest_links/CommNullImpTest.gatherv \
+              test/gtest_links/CommNullImpTest.window_put \
+              test/gtest_links/CommNullImpTest.tear_down \
+              test/gtest_links/ControllerTest.construct_with_file_policy \
               test/gtest_links/ControllerTest.get_hostnames \
               test/gtest_links/ControllerTest.run_with_no_policy \
               test/gtest_links/ControllerTest.single_node \
@@ -258,19 +260,10 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/ProfileIOGroupTest.batch_signal_thread_progress \
               test/gtest_links/ProfileIOGroupTest.batch_signal_hint_time \
               test/gtest_links/ProfileIOGroupTest.errors \
-              test/gtest_links/ProfileTableTest.hello \
-              test/gtest_links/ProfileTableTest.name_set_fill_long \
-              test/gtest_links/ProfileTableTest.name_set_fill_short \
-              test/gtest_links/ProfileTableTest.overfill \
               test/gtest_links/ProfileTest.enter_exit \
               test/gtest_links/ProfileTest.enter_exit_nested \
               test/gtest_links/ProfileTest.epoch \
               test/gtest_links/ProfileTest.progress_multithread \
-              test/gtest_links/ProfileTestIntegration.enter_exit \
-              test/gtest_links/ProfileTestIntegration.enter_exit_short \
-              test/gtest_links/ProfileTestIntegration.enter_exit_nested \
-              test/gtest_links/ProfileTestIntegration.epoch \
-              test/gtest_links/ProfileTestIntegration.progress_multithread \
               test/gtest_links/ProfileTracerTest.construct_update_destruct \
               test/gtest_links/ProfileTracerTest.format \
               test/gtest_links/ProxyEpochRecordFilterTest.simple_conversion \
@@ -469,7 +462,7 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
                           test/ApplicationSamplerTest.cpp \
                           test/ApplicationStatusTest.cpp \
                           test/CommMPIImpTest.cpp \
-                          test/ControlMessageTest.cpp \
+                          test/CommNullImpTest.cpp \
                           test/ControllerTest.cpp \
                           test/CSVTest.cpp \
                           test/DebugIOGroupTest.cpp \
@@ -495,7 +488,6 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
                           test/MockApplicationSampler.hpp \
                           test/MockApplicationStatus.hpp \
                           test/MockComm.hpp \
-                          test/MockControlMessage.hpp \
                           test/MockDenseLayer.hpp \
                           test/MockDomainNetMap.hpp \
                           test/MockEndpoint.hpp \
@@ -513,13 +505,12 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
                           test/MockPowerBalancer.hpp \
                           test/MockPowerGovernor.hpp \
                           test/MockProcessRegionAggregator.hpp \
-                          test/MockProfileSampler.hpp \
-                          test/MockProfileTable.hpp \
                           test/MockProfileTracer.hpp \
                           test/MockRecordFilter.hpp \
                           test/MockRegionHintRecommender.hpp \
                           test/MockReporter.hpp \
                           test/MockSampleAggregator.hpp \
+                          test/MockScheduler.hpp \
                           test/MockServiceProxy.hpp \
                           test/MockSharedMemory.hpp \
                           test/MockSSTClosGovernor.hpp \
@@ -537,9 +528,7 @@ test_geopm_test_SOURCES = test/AccumulatorTest.cpp \
                           test/PowerGovernorAgentTest.cpp \
                           test/PowerGovernorTest.cpp \
                           test/ProfileIOGroupTest.cpp \
-                          test/ProfileTableTest.cpp \
                           test/ProfileTest.cpp \
-                          test/ProfileTestIntegration.cpp \
                           test/ProfileTracerTest.cpp \
                           test/ProxyEpochRecordFilterTest.cpp \
                           test/ProcessRegionAggregatorTest.cpp \
