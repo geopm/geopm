@@ -365,6 +365,90 @@ TEST_F(SampleAggregatorTest, epoch_application_total)
     EXPECT_DOUBLE_EQ(7.0, m_agg->sample_application(M_SIGNAL_TIME));
 }
 
+TEST_F(SampleAggregatorTest, invalid_value_total)
+{
+    EXPECT_CALL(m_platio, push_signal("TIME", GEOPM_DOMAIN_BOARD, 0));
+    EXPECT_CALL(m_platio, push_signal("REGION_HASH", GEOPM_DOMAIN_BOARD, 0));
+    EXPECT_CALL(m_platio, signal_behavior("TIME"))
+        .WillOnce(Return(IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE));
+    m_agg->push_signal("TIME", GEOPM_DOMAIN_BOARD, 0);
+    // There is only one region here, and that is an invalid region.
+    std::vector<uint64_t> pre_epoch_regions {GEOPM_REGION_HASH_INVALID};
+    // The step tracks time
+    int step = 0;
+    for (auto region : pre_epoch_regions) {
+        EXPECT_CALL(m_platio, sample(M_SIGNAL_TIME))
+            .WillOnce(Return(step))
+            .WillOnce(Return(step))
+            .WillOnce(Return(step))
+            .WillOnce(Return(step));
+        EXPECT_CALL(m_platio, sample(M_SIGNAL_R_HASH_BOARD))
+            .WillOnce(Return(region));
+        // Epoch count stays zero
+        EXPECT_CALL(m_platio, sample(M_SIGNAL_EPOCH_COUNT))
+            .WillOnce(Return(0));
+
+        ++step;
+
+        m_agg->update();
+    }
+
+    // There is no unmarked time yet, we have only sampled unmarked once
+    EXPECT_DOUBLE_EQ(0.0, m_agg->sample_region(M_SIGNAL_TIME, GEOPM_REGION_HASH_INVALID));
+    // Epoch count has stayed zero, so total time for epoch is zero
+    EXPECT_DOUBLE_EQ(0.0, m_agg->sample_epoch(M_SIGNAL_TIME));
+
+    // Set epoch count to one and sample one time (one second)
+    std::vector<uint64_t> epoch_regions {GEOPM_REGION_HASH_INVALID};
+    for (auto region : epoch_regions) {
+        EXPECT_CALL(m_platio, sample(M_SIGNAL_TIME))
+            .WillOnce(Return(step))
+            .WillOnce(Return(step))
+            .WillOnce(Return(step))
+            .WillOnce(Return(step));
+        EXPECT_CALL(m_platio, sample(M_SIGNAL_R_HASH_BOARD))
+            .WillOnce(Return(region));
+        // after first epoch()
+        EXPECT_CALL(m_platio, sample(M_SIGNAL_EPOCH_COUNT))
+            .WillOnce(Return(1));
+
+        ++step;
+
+        m_agg->update();
+    }
+
+    // There has been one completed sample in region hash invalid
+    // (this is the current region hash).
+    EXPECT_DOUBLE_EQ(0, m_agg->sample_region(M_SIGNAL_TIME, GEOPM_REGION_HASH_INVALID));
+
+    // Run through the same invalid region hash with the epoch set to two
+    for (auto region : epoch_regions) {
+        EXPECT_CALL(m_platio, sample(M_SIGNAL_TIME))
+            .WillOnce(Return(step))
+            .WillOnce(Return(step))
+            .WillOnce(Return(step))
+            .WillOnce(Return(step));
+        EXPECT_CALL(m_platio, sample(M_SIGNAL_R_HASH_BOARD))
+            .WillOnce(Return(region));
+        // This is the second epoch
+        EXPECT_CALL(m_platio, sample(M_SIGNAL_EPOCH_COUNT))
+            .WillOnce(Return(2));
+
+        ++step;
+
+        m_agg->update();
+    }
+
+    EXPECT_DOUBLE_EQ(0, m_agg->sample_region(M_SIGNAL_TIME, GEOPM_REGION_HASH_INVALID));
+    // First epoch observed at step == 2
+    EXPECT_DOUBLE_EQ(2.0, m_agg->sample_epoch(M_SIGNAL_TIME));
+    EXPECT_DOUBLE_EQ(2.0, m_agg->sample_epoch_last(M_SIGNAL_TIME));
+    EXPECT_DOUBLE_EQ(2.0, m_agg->sample_period_last(M_SIGNAL_TIME));
+
+    // Application totals
+    EXPECT_DOUBLE_EQ(3.0, m_agg->sample_application(M_SIGNAL_TIME));
+}
+
 TEST_F(SampleAggregatorTest, test_sample_before_update)
 {
     EXPECT_CALL(m_platio, push_signal("TIME", GEOPM_DOMAIN_BOARD, 0));

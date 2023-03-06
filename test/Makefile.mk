@@ -266,8 +266,10 @@ GTEST_TESTS = test/gtest_links/AccumulatorTest.empty \
               test/gtest_links/RecordFilterTest.make_edit_distance \
               test/gtest_links/ReporterTest.generate \
               test/gtest_links/ReporterTest.generate_conditional \
-              test/gtest_links/SampleAggregatorTest.epoch_application_total \
               test/gtest_links/SampleAggregatorTest.sample_application \
+              test/gtest_links/SampleAggregatorTest.epoch_application_total \
+              test/gtest_links/SampleAggregatorTest.invalid_value_total \
+              test/gtest_links/SampleAggregatorTest.test_sample_before_update \
               test/gtest_links/SchedTest.test_proc_cpuset_0 \
               test/gtest_links/SchedTest.test_proc_cpuset_1 \
               test/gtest_links/SchedTest.test_proc_cpuset_2 \
