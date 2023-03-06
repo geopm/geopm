@@ -10,6 +10,7 @@ EXTRA_DIST += integration/experiment/common_args.py \
               integration/experiment/plotting.py \
               integration/experiment/README.md \
               integration/experiment/report.py \
+              integration/experiment/run_experiment.py \
               integration/experiment/util.py \
               integration/experiment/outlier/README.md \
               integration/experiment/outlier/outlier_detection.py \
