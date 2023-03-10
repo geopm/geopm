@@ -48,11 +48,11 @@ Requirements
 The GEOPM power limit hook requires:
 
 - OpenPBS
-- geopmdpy (and libgeopmd) with LevelZero support on nodes where the power
-  limit feature is needed
+- geopmdpy (and libgeopmd) on nodes where the power limit feature is needed
 - This feature requires platform vendor HW support. In particular, it requires
-  HW support for certain MSRs: MSR_PLATFORM_LIMIT and
-  MSR_PLATFORM_ENGERGY_COUNTER
+  HW support for the MSR::PLATFORM_POWER_LIMIT MSRs (PLATFORM_POWER_LIMIT,
+  PL1_TIME_WINDOW, PL1_CLAMP_ENABLE, PL1_LIMIT_ENABLE), and the
+  MSR::PLATFORM_ENERGY_STATUS MSRs.
 
 Installation
 ------------
