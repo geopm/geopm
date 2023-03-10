@@ -108,8 +108,6 @@ def restore_controls_from_file(file_name):
 
 
 def do_power_limit_prologue():
-    # pbs.logmsg(pbs.LOG_DEBUG, "Executing geopm_power_limit prologue")
-
     e = pbs.event()
     job_id = e.job.id
     server_job = pbs.server().job(job_id)
@@ -119,7 +117,6 @@ def do_power_limit_prologue():
         power_limit_str = server_job.Resource_List[_POWER_LIMIT_RESOURCE]
         power_limit_requested = bool(power_limit_str)
     except KeyError:
-        # power_limit_requested = False
         pass
 
     if not power_limit_requested:
@@ -129,7 +126,7 @@ def do_power_limit_prologue():
         return
 
     power_limit = resource_to_float(_POWER_LIMIT_RESOURCE, power_limit_str)
-    pbs.logmsg(pbs.LOG_DEBUG, f"Requested power limit: {power_limit}")
+    pbs.logmsg(pbs.LOG_DEBUG, f"<geopm> Requested power limit: {power_limit}")
     current_settings = _controls.copy()
     read_controls(current_settings)
     system_files.secure_make_dirs(_SAVED_CONTROLS_PATH)
@@ -140,8 +137,6 @@ def do_power_limit_prologue():
 
 
 def do_power_limit_epilogue():
-    # pbs.logmsg(pbs.LOG_DEBUG, "Executing geopm_power_limit epilogue")
-
     e = pbs.event()
     if os.path.exists(_SAVED_CONTROLS_FILE):
         restore_controls_from_file(_SAVED_CONTROLS_FILE)
