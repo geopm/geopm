@@ -96,7 +96,9 @@ the ``build.sh`` script provided in the benchmark's folder).
 
 The automated method of characterization requires running::
 
-    PYTHONPATH=$PYTHONPATH:${GEOPM_SOURCE}/integration/experiment/ python3 ${GEOPM_SOURCE}/integration/test/test_cpu_characterization.py
+    PYTHONPATH=${GEOPM_SOURCE}:\
+    ${GEOPM_SOURCE}/integration/experiment:${PYTHONPATH} \
+    python3 ${GEOPM_SOURCE}/integration/test/test_cpu_characterization.py
 
 This will generate a file named ``const_config_io-characterization.json``
 in the current working directory containing configuration information for
