@@ -394,7 +394,7 @@ if __name__ == '__main__':
             tdp = machine_info.power_package_tdp()
             max_pl = machine_info.power_package_tdp()
         except RuntimeError:
-            sys.stderr.write('Warning: couldn\'t open machine.json. Falling '
+            sys.stderr.write('Warning: could not open machine.json. Falling '
                              'back to default values.\n')
             min_pl = 150
             tdp = 280
