@@ -55,7 +55,7 @@ namespace geopm
     std::vector<std::string> string_split(const std::string &str,
                                           const std::string &delim);
 
-    /// @brief Joins a vector of strings together with a delimter.
+    /// @brief Joins a vector of strings together with a delimiter.
     /// @param [in] string_list The list of strings to be joined.
     /// @param [in] delim The delimiter to use to join the strings.
     /// @return The joined string.

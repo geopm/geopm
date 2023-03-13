@@ -36,7 +36,7 @@ _controls = [
         {"name": "MSR::PLATFORM_POWER_LIMIT::PL1_TIME_WINDOW",
          "domain_type": "board",
          "domain_idx": 0,
-         "setting": 0.013},
+         "setting": 0.013}, # SDM Vol. 4. Table 2.39 - Recommends 0xD = 13
         {"name": "MSR::PLATFORM_POWER_LIMIT::PL1_CLAMP_ENABLE",
          "domain_type": "board",
          "domain_idx": 0,
