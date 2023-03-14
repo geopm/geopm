@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include "config.h"
+
 #include <stdlib.h>
 #include <iostream>
 #include <memory>
@@ -204,7 +206,11 @@ void EnvironmentTest::TearDown()
 TEST_F(EnvironmentTest, internal_defaults)
 {
     std::map<std::string, std::string> internal_default_vars = {
+#ifdef ENABLE_MPI
               {"GEOPM_COMM", "MPIComm"},
+#else
+              {"GEOPM_COMM", "NullComm"},
+#endif
               {"GEOPM_AGENT", "monitor"},
               {"GEOPM_MAX_FAN_OUT", "16"},
               {"GEOPM_TIMEOUT", "30"},

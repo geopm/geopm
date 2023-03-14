@@ -1,4 +1,7 @@
 #!/bin/bash
+#  Copyright (c) 2015 - 2023, Intel Corporation
+#  SPDX-License-Identifier: BSD-3-Clause
+#
 
 source ${GEOPM_SOURCE}/integration/config/run_env.sh 
 TEST_NAME=test_sleep_region

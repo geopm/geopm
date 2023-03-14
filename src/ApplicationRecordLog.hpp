@@ -168,6 +168,10 @@ namespace geopm
     {
         public:
             ApplicationRecordLogImp(std::shared_ptr<SharedMemory> shmem);
+            ApplicationRecordLogImp(std::shared_ptr<SharedMemory> shmem,
+                                    int process, geopm_time_s time_zero);
+            ApplicationRecordLogImp(std::shared_ptr<SharedMemory> shmem,
+                                    int process);
             virtual ~ApplicationRecordLogImp() = default;
             void enter(uint64_t hash, const geopm_time_s &time) override;
             void exit(uint64_t hash, const geopm_time_s &time) override;

@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include "config.h"
+
 #include <memory>
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -26,6 +28,11 @@ class ProfileTracerTest : public ::testing::Test
         std::string m_start_time = "Mon Sep 14 19:00:25 2020";
         std::string m_path = "test.profiletrace";
         std::string m_host_name = "myhost";
+#ifdef ENABLE_MPI
+        std::string m_output_path = m_path + "-" + m_host_name;
+#else
+        std::string m_output_path = m_path;
+#endif
         std::vector<record_s> m_data;
         MockApplicationSampler m_application_sampler;
 };
@@ -65,7 +72,7 @@ TEST_F(ProfileTracerTest, construct_update_destruct)
         tracer->update(m_data);
     }
     // Test that a file was created by deleting it without error
-    int err = unlink(m_path.c_str());
+    int err = unlink(m_output_path.c_str());
     EXPECT_EQ(0, err);
 }
 
@@ -82,8 +89,7 @@ TEST_F(ProfileTracerTest, format)
         tracer->update(m_data);
     }
 
-    std::string output_path = m_path + "-" + m_host_name;
-    std::string output = geopm::read_file(output_path);
+    std::string output = geopm::read_file(m_output_path);
     std::vector<std::string> output_lines = geopm::string_split(output, "\n");
     std::vector<std::string> expect_lines = {
         "TIME|PROCESS|EVENT|SIGNAL",
@@ -108,6 +114,6 @@ TEST_F(ProfileTracerTest, format)
         }
     }
     EXPECT_EQ(expect_lines.end(), expect_it);
-    int err = unlink(output_path.c_str());
+    int err = unlink(m_output_path.c_str());
     EXPECT_EQ(0, err);
 }

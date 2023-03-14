@@ -97,7 +97,8 @@ namespace geopm
             init_app_record_log();
         }
         catch (const Exception &ex) {
-            std::cerr << "Warning: <geopm> Failed to connect with geopmd, running without geopm." << std::endl;
+            std::cerr << "Warning: <geopm> Failed to connect with geopmd, running without geopm. "
+                      << "Error: " << ex.what() << "." << std::endl;
             int err = ex.err_value();
             char tmp_msg[PATH_MAX];
             geopm_error_message(err, tmp_msg, sizeof(tmp_msg));

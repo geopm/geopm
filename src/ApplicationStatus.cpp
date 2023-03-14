@@ -46,6 +46,7 @@ namespace geopm
         // accessed atomically by hardware.
         m_buffer = (m_app_status_s *)m_shmem->pointer();
         m_cache.resize(m_shmem->size());
+        update_cache();
     }
 
     void ApplicationStatusImp::set_hint(int cpu_idx, uint64_t hint)

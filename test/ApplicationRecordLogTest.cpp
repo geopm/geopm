@@ -13,6 +13,7 @@
 #include "MockSharedMemory.hpp"
 
 using geopm::ApplicationRecordLog;
+using geopm::ApplicationRecordLogImp;
 using geopm::SharedMemory;
 using geopm::record_s;
 using geopm::short_region_s;
@@ -25,14 +26,17 @@ class ApplicationRecordLogTest : public ::testing::Test
         void SetUp();
         std::shared_ptr<MockSharedMemory> m_mock_shared_memory;
         std::unique_ptr<ApplicationRecordLog> m_record_log;
-
+        const int M_PROC_ID = 123;
+        // Note time_zero is one second after 1970
+        const geopm_time_s M_TIME_ZERO = {{1, 0}};
 };
 
 void ApplicationRecordLogTest::SetUp()
 {
     size_t buffer_size = ApplicationRecordLog::buffer_size();
     m_mock_shared_memory = std::make_shared<MockSharedMemory>(buffer_size);
-    m_record_log = ApplicationRecordLog::make_unique(m_mock_shared_memory);
+    m_record_log.reset(new ApplicationRecordLogImp(m_mock_shared_memory, M_PROC_ID, M_TIME_ZERO));
+    //m_record_log = ApplicationRecordLog::make_unique(m_mock_shared_memory);
 
     EXPECT_CALL(*m_mock_shared_memory, get_scoped_lock()).Times(AtLeast(0));
 }
@@ -71,9 +75,7 @@ TEST_F(ApplicationRecordLogTest, empty_dump)
 
 TEST_F(ApplicationRecordLogTest, scoped_lock_test)
 {
-    int proc_id = 123;
     uint64_t hash = 0x1234abcd;
-    geopm_time_s time_0 = {{1, 0}};
     geopm_time_s time = {{2, 0}};
 
     {
@@ -105,9 +107,8 @@ TEST_F(ApplicationRecordLogTest, one_entry)
 {
     std::vector<record_s> records;
     std::vector<short_region_s> short_regions;
-    int proc_id = 123;
+    int M_PROC_ID = 123;
     uint64_t hash = 0x1234abcd;
-    geopm_time_s time_0 = {{1, 0}};
     geopm_time_s time = {{2, 0}};
 
     m_record_log->enter(hash, time);
@@ -115,7 +116,7 @@ TEST_F(ApplicationRecordLogTest, one_entry)
     EXPECT_EQ(0ULL, short_regions.size());
     ASSERT_EQ(1ULL, records.size());
     EXPECT_EQ(1.0, records[0].time);
-    EXPECT_EQ(proc_id, records[0].process);
+    EXPECT_EQ(M_PROC_ID, records[0].process);
     EXPECT_EQ(geopm::EVENT_REGION_ENTRY, records[0].event);
     EXPECT_EQ(hash, records[0].signal);
 }
@@ -124,9 +125,8 @@ TEST_F(ApplicationRecordLogTest, one_exit)
 {
     std::vector<record_s> records;
     std::vector<short_region_s> short_regions;
-    int proc_id = 123;
+    int M_PROC_ID = 123;
     uint64_t hash = 0x1234abcd;
-    geopm_time_s time_0 = {{1, 0}};
     geopm_time_s time_1 = {{2, 0}};
     geopm_time_s time_2 = {{3, 0}};
 
@@ -138,7 +138,7 @@ TEST_F(ApplicationRecordLogTest, one_exit)
     EXPECT_EQ(0ULL, short_regions.size());
     ASSERT_EQ(1ULL, records.size());
     EXPECT_EQ(2.0, records[0].time);
-    EXPECT_EQ(proc_id, records[0].process);
+    EXPECT_EQ(M_PROC_ID, records[0].process);
     EXPECT_EQ(geopm::EVENT_REGION_EXIT, records[0].event);
     EXPECT_EQ(hash, records[0].signal);
 }
@@ -147,8 +147,7 @@ TEST_F(ApplicationRecordLogTest, one_epoch)
 {
     std::vector<record_s> records;
     std::vector<short_region_s> short_regions;
-    int proc_id = 123;
-    geopm_time_s time_0 = {{1, 0}};
+    int M_PROC_ID = 123;
     geopm_time_s time = {{2, 0}};
 
     m_record_log->epoch(time);
@@ -156,7 +155,7 @@ TEST_F(ApplicationRecordLogTest, one_epoch)
     EXPECT_EQ(0ULL, short_regions.size());
     ASSERT_EQ(1ULL, records.size());
     EXPECT_EQ(1.0, records[0].time);
-    EXPECT_EQ(proc_id, records[0].process);
+    EXPECT_EQ(M_PROC_ID, records[0].process);
     EXPECT_EQ(geopm::EVENT_EPOCH_COUNT, records[0].event);
     EXPECT_EQ(1ULL, records[0].signal);
 }
@@ -165,10 +164,8 @@ TEST_F(ApplicationRecordLogTest, short_region_entry_exit)
 {
     std::vector<record_s> records;
     std::vector<short_region_s> short_regions;
-    int proc_id = 123;
+    int M_PROC_ID = 123;
     uint64_t hash = 0x1234abcd;
-    // Note time_zero is one second after 1970
-    geopm_time_s time_0 = {{1, 0}};
     geopm_time_s time_entry1 = {{2, 0}};
     geopm_time_s time_exit1 = {{3, 0}};
     geopm_time_s time_entry2 = {{5, 0}};
@@ -182,7 +179,7 @@ TEST_F(ApplicationRecordLogTest, short_region_entry_exit)
 
     ASSERT_EQ(1ULL, records.size());
     EXPECT_EQ(1.0, records[0].time);
-    EXPECT_EQ(proc_id, records[0].process);
+    EXPECT_EQ(M_PROC_ID, records[0].process);
     EXPECT_EQ(geopm::EVENT_SHORT_REGION, records[0].event);
     EXPECT_EQ(0ULL, records[0].signal);
     ASSERT_EQ(1ULL, short_regions.size());
@@ -195,9 +192,6 @@ TEST_F(ApplicationRecordLogTest, dump_twice)
 {
     std::vector<record_s> records;
     std::vector<short_region_s> short_regions;
-    int proc_id = 123;
-    // Note time_zero is one second after 1970
-    geopm_time_s time_0 = {{1, 0}};
     geopm_time_s time_1 = {{2, 0}};
     geopm_time_s time_2 = {{3, 0}};
 
@@ -225,10 +219,7 @@ TEST_F(ApplicationRecordLogTest, dump_within_region)
     // region event in the subsequent call to dump().
     std::vector<record_s> records;
     std::vector<short_region_s> short_regions;
-    int proc_id = 123;
     uint64_t hash = 0xABCD;
-    // Note time_zero is one second after 1970
-    geopm_time_s time_0 = {{1, 0}};
 
     m_record_log->enter(hash, {2, 0});
     m_record_log->exit(hash, {3, 0});
@@ -270,9 +261,6 @@ TEST_F(ApplicationRecordLogTest, overflow_record_table)
 {
     std::vector<record_s> records;
     std::vector<short_region_s> short_regions;
-    int proc_id = 123;
-    // Note time_zero is one second after 1970
-    geopm_time_s time_0 = {{1, 0}};
 
     int max_size = 1024;
     for (int ii = 0; ii < max_size; ++ii) {
@@ -286,10 +274,7 @@ TEST_F(ApplicationRecordLogTest, cannot_overflow_region_table)
 {
     std::vector<record_s> records;
     std::vector<short_region_s> short_regions;
-    int proc_id = 123;
     uint64_t hash = 0xABCD;
-    // Note time_zero is one second after 1970
-    geopm_time_s time_0 = {{1, 0}};
 
     m_record_log->enter(hash, {2, 0});
     m_record_log->exit(hash, {3, 0});
