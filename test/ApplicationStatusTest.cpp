@@ -51,7 +51,6 @@ TEST_F(ApplicationStatusTest, hints)
     uint64_t NOHINTS = GEOPM_REGION_HINT_UNSET;
     uint64_t NETWORK = GEOPM_REGION_HINT_NETWORK;
     uint64_t COMPUTE = GEOPM_REGION_HINT_COMPUTE;
-    uint64_t INACTIVE = GEOPM_REGION_HINT_INACTIVE;
 
     EXPECT_EQ(NOHINTS, m_status->get_hint(0));
     EXPECT_EQ(NOHINTS, m_status->get_hint(1));
@@ -217,7 +216,6 @@ TEST_F(ApplicationStatusTest, update_cache)
 {
     uint64_t hint = GEOPM_REGION_HINT_NETWORK;
     uint64_t hash = 0xABC;
-    int process = 42;
     EXPECT_EQ(GEOPM_REGION_HINT_UNSET, m_status->get_hint(0));
     EXPECT_EQ(GEOPM_REGION_HASH_INVALID, m_status->get_hash(0));
     //EXPECT_EQ(GEOPM_REGION_HASH_UNMARKED, m_status->get_hash(0));

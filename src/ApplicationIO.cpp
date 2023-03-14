@@ -10,9 +10,9 @@
 #include <unistd.h>
 #include <time.h>
 
+#include "geopm_time.h"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
-#include "ApplicationSampler.hpp"
 #include "Environment.hpp"
 #include "geopm/ServiceProxy.hpp"
 
@@ -21,8 +21,7 @@ namespace geopm
     constexpr size_t ApplicationIOImp::M_SHMEM_REGION_SIZE;
 
     ApplicationIOImp::ApplicationIOImp()
-        : ApplicationIOImp(ApplicationSampler::application_sampler(),
-                           ServiceProxy::make_unique(),
+        : ApplicationIOImp(ServiceProxy::make_unique(),
                            environment().profile(),
                            environment().report(),
                            environment().timeout(),
@@ -31,19 +30,16 @@ namespace geopm
 
     }
 
-    ApplicationIOImp::ApplicationIOImp(ApplicationSampler &application_sampler,
-                                       std::shared_ptr<ServiceProxy> service_proxy,
+    ApplicationIOImp::ApplicationIOImp(std::shared_ptr<ServiceProxy> service_proxy,
                                        const std::string &profile_name,
                                        const std::string &report_name,
                                        int timeout,
                                        int num_proc)
         : m_is_connected(false)
-        , m_application_sampler(application_sampler)
         , m_service_proxy(service_proxy)
         , m_profile_name(profile_name)
         , m_report_name(report_name)
         , m_timeout(timeout)
-        , m_do_profile(m_timeout != -1)
         , m_num_proc(num_proc)
     {
 

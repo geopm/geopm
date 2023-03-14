@@ -42,14 +42,11 @@ namespace geopm
             virtual std::set<std::string> region_name_set(void) const = 0;
     };
 
-    class ApplicationSampler;
-
     class ApplicationIOImp : public ApplicationIO
     {
         public:
             ApplicationIOImp();
-            ApplicationIOImp(ApplicationSampler &application_sampler,
-                             std::shared_ptr<ServiceProxy> service_proxy,
+            ApplicationIOImp(std::shared_ptr<ServiceProxy> service_proxy,
                              const std::string &profile_name,
                              const std::string &report_name,
                              int timeout,
@@ -65,12 +62,10 @@ namespace geopm
             static constexpr size_t M_SHMEM_REGION_SIZE = 2*1024*1024;
 
             bool m_is_connected;
-            ApplicationSampler &m_application_sampler;
             std::shared_ptr<ServiceProxy> m_service_proxy;
             const std::string m_profile_name;
             const std::string m_report_name;
             const int m_timeout;
-            const bool m_do_profile;
             std::set<int> m_profile_pids;
             int m_num_proc;
     };
