@@ -50,7 +50,7 @@ void TreeCommTest::SetUp()
 void TreeCommTest::root_setup()
 {
     m_fan_out = {2, 3, 4, 5};
-    std::vector<std::unique_ptr<TreeCommLevel> > temp;
+    std::vector<std::shared_ptr<TreeCommLevel> > temp;
     for (size_t lvl = 0; lvl < m_fan_out.size(); ++lvl) {
         m_level_ptr.push_back(new MockTreeCommLevel);
         temp.emplace_back(m_level_ptr[lvl]);
@@ -59,13 +59,13 @@ void TreeCommTest::root_setup()
     EXPECT_CALL(*m_mock_comm, barrier());
     EXPECT_CALL(*m_mock_comm, num_rank()).WillOnce(Return(120));
     m_tree_comm.reset(new TreeCommImp(m_mock_comm, m_fan_out, m_fan_out.size(),
-                                      m_num_send_down, m_num_send_up, std::move(temp)));
+                                      m_num_send_down, m_num_send_up, temp));
 }
 
 void TreeCommTest::nonroot_setup()
 {
     m_fan_out = {2, 3, 4, 5};
-    std::vector<std::unique_ptr<TreeCommLevel> > temp;
+    std::vector<std::shared_ptr<TreeCommLevel> > temp;
     for (size_t lvl = 0; lvl < m_fan_out.size(); ++lvl) {
         m_level_ptr.push_back(new MockTreeCommLevel);
         temp.emplace_back(m_level_ptr[lvl]);
@@ -74,7 +74,7 @@ void TreeCommTest::nonroot_setup()
     EXPECT_CALL(*m_mock_comm, barrier());
     EXPECT_CALL(*m_mock_comm, num_rank()).WillOnce(Return(120));
     m_tree_comm.reset(new TreeCommImp(m_mock_comm, m_fan_out, m_fan_out.size() - 1,
-                                   m_num_send_down, m_num_send_up, std::move(temp)));
+                                   m_num_send_down, m_num_send_up, temp));
 }
 
 TEST_F(TreeCommTest, geometry)

@@ -45,6 +45,11 @@ class TracerTest : public ::testing::Test
         MockPlatformTopo m_platform_topo;
         std::string m_path = "test.trace";
         std::string m_hostname = "myhost";
+#ifdef ENABLE_MPI
+        std::string m_file_path = m_path + "-" + m_hostname;
+#else
+        std::string m_file_path = m_path;
+#endif
         std::string m_start_time = "Tue Nov  6 08:00:00 2018";
         std::vector<struct m_request_s> m_default_cols;
         const int m_num_extra_cols = 3;
@@ -54,7 +59,7 @@ class TracerTest : public ::testing::Test
 void TracerTest::remove_files(void)
 {
     std::remove(m_path.c_str());
-    std::remove((m_path + "-" + m_hostname).c_str());
+    std::remove(m_file_path.c_str());
 }
 
 void TracerTest::SetUp(void)
@@ -141,7 +146,7 @@ TEST_F(TracerTest, columns)
         "EXTRA|EXTRA_SPECIAL-cpu-0|EXTRA_SPECIAL-cpu-1|"
         "col1|col2\n";
     std::istringstream expected(expected_str);
-    std::ifstream result(m_path + "-" + m_hostname);
+    std::ifstream result(m_file_path);
     ASSERT_TRUE(result.good()) << strerror(errno);
     check_trace(expected, result);
 }
@@ -171,7 +176,7 @@ TEST_F(TracerTest, update_samples)
     std::string expected_str = "\n\n\n\n\n\n"
         "0.5|1|0x00000002|0x00000003|4.5|5.5|6.5|7.5|8.5|9.5|10|11|12.5|13.7|14.7|15.7|88.8|77.7\n";
     std::istringstream expected(expected_str);
-    std::ifstream result(m_path + "-" + m_hostname);
+    std::ifstream result(m_file_path);
     ASSERT_TRUE(result.good()) << strerror(errno);
     check_trace(expected, result);
 }
@@ -199,7 +204,7 @@ TEST_F(TracerTest, region_entry_exit)
         "2.2|0|0x00000123|0x00000001|0|0|2.2|2.2|2.2|2.2|2|2|2.2|2.2|2.2|2.2|88|77\n";
 
     std::istringstream expected(expected_str);
-    std::ifstream result(m_path + "-" + m_hostname);
+    std::ifstream result(m_file_path);
     ASSERT_TRUE(result.good()) << strerror(errno);
     check_trace(expected, result);
 }

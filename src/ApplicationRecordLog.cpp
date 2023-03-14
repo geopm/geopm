@@ -38,9 +38,21 @@ namespace geopm
     }
 
     ApplicationRecordLogImp::ApplicationRecordLogImp(std::shared_ptr<SharedMemory> shmem)
-        : m_process(getpid())
-        , m_shmem(shmem)
-        , m_time_zero({{0, 0}})
+        : ApplicationRecordLogImp(shmem, getpid())
+    {
+    }
+
+    ApplicationRecordLogImp::ApplicationRecordLogImp(std::shared_ptr<SharedMemory> shmem,
+                                                     int process, geopm_time_s time_zero)
+        : ApplicationRecordLogImp(shmem, process)
+    {
+        m_time_zero = time_zero;
+    }
+    
+    ApplicationRecordLogImp::ApplicationRecordLogImp(std::shared_ptr<SharedMemory> shmem,
+                                                     int process)
+        : m_shmem(shmem)
+        , m_process(process)
         , m_epoch_count(0)
         , m_entered_region_hash(GEOPM_REGION_HASH_INVALID)
     {

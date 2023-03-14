@@ -56,9 +56,9 @@ void ApplicationIOTest::SetUp()
 
 TEST_F(ApplicationIOTest, passthrough)
 {
-    EXPECT_FALSE(m_app_io->do_shutdown());
+    EXPECT_TRUE(m_app_io->do_shutdown());
 
-    EXPECT_EQ("my_report", m_app_io->report_name());
+    EXPECT_EQ(m_report_name, m_app_io->report_name());
 
-    EXPECT_EQ("my_profile", m_app_io->profile_name());
+    EXPECT_EQ(m_profile_name, m_app_io->profile_name());
 }

@@ -67,6 +67,7 @@ integration/experiment/uncore_frequency_sweep/README.md
 integration/README.md
 integration/requirements.txt
 integration/test/README.md
+integration/test-no-mpi/README.md
 json_schemas/domainnetmap_neural_net.schema.json
 json_schemas/geopmbench_config.schema.json
 json_schemas/geopmagent_policy.schema.json
