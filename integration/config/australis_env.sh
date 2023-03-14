@@ -21,3 +21,4 @@ export MPIFC=mpifort
 export MPIF77=mpifort
 export MPIF90=mpifort
 export PALS_PMI=pmix
+export GEOPM_LAUNCHER=pals
