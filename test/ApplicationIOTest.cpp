@@ -12,7 +12,6 @@
 #include "gmock/gmock.h"
 
 #include "ApplicationIO.hpp"
-#include "ApplicationSampler.hpp"
 #include "geopm/Helper.hpp"
 #include "MockPlatformIO.hpp"
 #include "MockPlatformTopo.hpp"
@@ -39,14 +38,11 @@ class ApplicationIOTest : public ::testing::Test
 
 void ApplicationIOTest::SetUp()
 {
-    auto &tmp_app_sampler = geopm::ApplicationSampler::application_sampler();
-
     m_service_proxy = std::make_shared<MockServiceProxy>();
     m_profile_name = "test_profile_name";
     m_report_name = "test_geopm.report";
 
-    m_app_io = geopm::make_unique<ApplicationIOImp>(tmp_app_sampler,
-                                                    m_service_proxy,
+    m_app_io = geopm::make_unique<ApplicationIOImp>(m_service_proxy,
                                                     m_profile_name,
                                                     m_report_name,
                                                     5,

@@ -27,7 +27,6 @@ int geopmctl_main(void);
 int main(int argc, char **argv)
 {
     int opt;
-    int world_size = 1, my_rank = 0, i;
     int err0 = 0;
     char error_str[NAME_MAX] = {0};
     char *arg_ptr = NULL;
@@ -85,6 +84,7 @@ int main(int argc, char **argv)
     }
 
 #if ENABLE_MPI
+    int world_size = 1, my_rank = 0;
     int err_mpi = 0;
     MPI_Comm comm_world = MPI_COMM_NULL;
     if (!err0) {
@@ -103,9 +103,6 @@ int main(int argc, char **argv)
         fprintf(stderr, "Error: %s\n", error_str);
         err0 = err_mpi;
     }
-#else
-    world_size = 1;
-    my_rank = 0;
 #endif
     if (!err0) {
         err0 = geopmctl_main();

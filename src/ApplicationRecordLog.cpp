@@ -51,8 +51,8 @@ namespace geopm
     
     ApplicationRecordLogImp::ApplicationRecordLogImp(std::shared_ptr<SharedMemory> shmem,
                                                      int process)
-        : m_shmem(shmem)
-        , m_process(process)
+        : m_process(process)
+        , m_shmem(shmem)
         , m_epoch_count(0)
         , m_entered_region_hash(GEOPM_REGION_HASH_INVALID)
     {
