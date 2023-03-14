@@ -105,12 +105,18 @@ in the current working directory containing configuration information for
 the node.  If successful, this is all that is required.
 
 The manual method of characterization consists of several steps.
-The first step is to generate the execution script by running::
+The first step is to generate the execution script by running
+the following for SLURM based systems::
 
     gen_slurm.sh 1 arithmetic_intensity uncore_frequency_sweep
 
-The generated ``test.sbatch`` should be modified to enable Memory Bandwidth
-Monitoring by adding the following above the experiment script invocation::
+Or if you're running a PBS based system run the following::
+
+    gen_pbs.sh 1 arithmetic_intensity uncore_frequency_sweep
+
+The generated ``test.sbatch``  or ``test.pbs`` should be modified to enable
+Memory Bandwidth Monitoring by adding the following above the experiment
+script invocation::
 
     srun -N ${SLURM_NNODES} geopmwrite MSR::PQR_ASSOC:RMID board 0 0
     srun -N ${SLURM_NNODES} geopmwrite MSR::QM_EVTSEL:RMID board 0 0
