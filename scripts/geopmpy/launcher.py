@@ -396,6 +396,7 @@ class Launcher(object):
         # Calculate derived values
         if self.rank_per_node is None and self.num_rank and self.num_node:
             self.rank_per_node = int_ceil_div(self.num_rank, self.num_node)
+        self.environ_ext['GEOPM_NUM_RANK'] = str(self.rank_per_node)
 
         if self.num_node is None and self.num_rank and self.rank_per_node:
             self.num_node = int_ceil_div(self.num_rank, self.rank_per_node)
