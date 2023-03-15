@@ -467,6 +467,7 @@ class ActiveSessions(object):
             sess = self._sessions.pop(client_pid)
             profile_name = sess.get('profile_name')
             if profile_name is not None:
+                self.stop_profile(client_pid, [])
                 self._profiles[profile_name].remove(client_pid)
                 if len(self._profiles[profile_name]) == 0:
                     self._profiles.pop(profile_name)
