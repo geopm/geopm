@@ -533,37 +533,44 @@ namespace geopm
     //TODO: consider adding 'group_name' parameter?
     void LevelZeroDevicePoolImp::metric_read(int domain, unsigned int domain_idx) const
     {
-        if (domain != GEOPM_DOMAIN_GPU) {
+        if (domain != GEOPM_DOMAIN_GPU_CHIP) {
             throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
                             ": domain " + std::to_string(domain) +
                             " is not supported for metrics.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        std::chrono::time_point<std::chrono::system_clock> start, end;
-        start = std::chrono::system_clock::now();
+        std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
+        dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
 
-        m_levelzero.metric_read(domain_idx);
+//        std::chrono::time_point<std::chrono::system_clock> start, end;
+//        start = std::chrono::system_clock::now();
 
-        end = std::chrono::system_clock::now();
-        std::chrono::duration<double> elapsed_seconds = end - start;
-        std::cout << "metric_read - gpu " << std::to_string(domain_idx) << " read time: " << elapsed_seconds.count() << "s" << std::endl;
+        m_levelzero.metric_read(dev_subdev_idx_pair.first, dev_subdev_idx_pair.second);
+
+//        end = std::chrono::system_clock::now();
+//        std::chrono::duration<double> elapsed_seconds = end - start;
+//        std::cout << "metric_read - gpu " << std::to_string(domain_idx) << " read time: " << elapsed_seconds.count() << "s" << std::endl;
     }
 
     double LevelZeroDevicePoolImp::metric_sample(int domain, unsigned int domain_idx,
                                                  std::string metric_name) const
     {
         double result = NAN;
-        if (domain != GEOPM_DOMAIN_GPU) {
+        if (domain != GEOPM_DOMAIN_GPU_CHIP) {
             throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
                             ": domain " + std::to_string(domain) +
                             " is not supported for metrics.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
+        std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
+        dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
         //std::chrono::time_point<std::chrono::system_clock> start, end;
 
-        std::vector<double> data = m_levelzero.metric_sample(domain_idx, metric_name);
+        std::vector<double> data = m_levelzero.metric_sample(dev_subdev_idx_pair.first,
+                                                             dev_subdev_idx_pair.second,
+                                                             metric_name);
 
         //std::cout << "Data size is: " << std::to_string(data.size()) << std::endl;
         //start = std::chrono::system_clock::now();

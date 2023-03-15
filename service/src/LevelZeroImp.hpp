@@ -87,12 +87,16 @@ namespace geopm
                                             double setting) const override;
 
             std::vector<double> metric_sample(unsigned int l0_device_idx,
+                                              unsigned int l0_domain_idx,
                                               std::string metric_name) const override;
             uint32_t metric_update_rate(unsigned int l0_device_idx) const override;
 
-            void metric_read(unsigned int l0_device_idx) override;
-            void metric_init(unsigned int l0_device_idx) override;
-            void metric_destroy(unsigned int l0_device_idx) override;
+            void metric_read(unsigned int l0_device_idx,
+                             unsigned int l0_domain_idx) override;
+            void metric_init(unsigned int l0_device_idx,
+                             unsigned int l0_domain_idx) override;
+            void metric_destroy(unsigned int l0_device_idx,
+                                unsigned int l0_domain_idx) override;
             void metric_update_rate_control(unsigned int l0_device_idx, uint32_t setting) override;
 
         private:
@@ -124,9 +128,25 @@ namespace geopm
                 std::vector<zes_pwr_handle_t> power_domain;
                 mutable std::vector<uint64_t> cached_energy_timestamp;
 
+                //ZE Context used for ZET data collection
+                std::vector<ze_context_handle_t> context;
+
+                // required for L0 metric querying
+                std::vector<uint32_t> num_metric;
+                std::vector<uint32_t> num_reports;
+                std::vector<bool> metric_domain_cached;
+                std::vector<ze_event_pool_handle_t> event_pool;
+                std::vector<ze_event_handle_t> event; //TODO: rename metric_notification_event?
+                std::vector<zet_metric_streamer_handle_t> metric_streamer;
+                std::vector<zet_metric_group_handle_t> metric_group_handle; //compute basic only
+
+                // required for L0 metric result tracking
+                mutable std::vector<std::map<std::string, std::vector<double>>> m_metric_data;
+                mutable std::vector<bool> metrics_initialized;
             };
 
             struct m_device_info_s {
+                ze_driver_handle_t driver;
                 zes_device_handle_t device_handle;
                 ze_device_properties_t property;
                 uint32_t m_num_subdevice;
@@ -140,25 +160,11 @@ namespace geopm
 
                 // Device/Package domains
                 zes_pwr_handle_t power_domain;
-                //ZE Context used for ZET data collection
-                ze_context_handle_t context;
 
                 uint32_t num_device_power_domain;
                 mutable uint64_t cached_energy_timestamp;
 
-                // required for L0 metric result tracking
-                mutable std::map<std::string, std::vector<double>> m_metric_data;
-                mutable bool metrics_initialized;
-
-                // required for L0 metric querying
-                uint32_t num_metric;
-                uint32_t num_reports;
                 uint32_t metric_sampling_period;
-                bool metric_domain_cached;
-                ze_event_pool_handle_t event_pool;
-                ze_event_handle_t event; //TODO: rename metric_notification_event?
-                zet_metric_streamer_handle_t metric_streamer;
-                zet_metric_group_handle_t metric_group_handle; //compute basic only
             };
 
 
@@ -184,7 +190,7 @@ namespace geopm
             std::vector<m_device_info_s> m_devices;
 
             void metric_group_cache(unsigned int l0_device_idx);
-            void metric_calc(unsigned int l0_device_idx,
+            void metric_calc(unsigned int l0_device_idx, unsigned int l0_domain_idx,
                              zet_metric_streamer_handle_t metric_streamer) const;
     };
 }

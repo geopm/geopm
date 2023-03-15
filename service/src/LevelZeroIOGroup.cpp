@@ -497,9 +497,9 @@ namespace geopm
                                   1
                                   }},
                               {M_NAME_PREFIX + "METRIC:XVE_ACTIVE", {
-                                  //TODO: pull from L0 metrics programatically
+                                  //TODO: pull from L0 metrics programmatically
                                   "Percentage of time in which at least one pipe is active in XVE",
-                                  GEOPM_DOMAIN_GPU, //TODO: GPU_CHIP is possible, this is a simplification
+                                  GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
@@ -507,16 +507,16 @@ namespace geopm
                                   [this](unsigned int domain_idx) -> double
                                   {
                                       return this->m_levelzero_device_pool.metric_sample(
-                                                   GEOPM_DOMAIN_GPU,
+                                                   GEOPM_DOMAIN_GPU_CHIP,
                                                    domain_idx,
                                                    "XVE_ACTIVE");
                                   },
                                   .01
                                   }},
                               {M_NAME_PREFIX + "METRIC:XVE_STALL", {
-                                  //TODO: pull from L0 metrics programatically
+                                  //TODO: pull from L0 metrics programmatically
                                   "Percentage of time in which any threads are loaded but not even a single pipe is active in XVE",
-                                  GEOPM_DOMAIN_GPU, //TODO: GPU_CHIP is possible, this is a simplification
+                                  GEOPM_DOMAIN_GPU_CHIP,
                                   Agg::average,
                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
                                   string_format_double,
@@ -524,7 +524,7 @@ namespace geopm
                                   [this](unsigned int domain_idx) -> double
                                   {
                                       return this->m_levelzero_device_pool.metric_sample(
-                                                   GEOPM_DOMAIN_GPU,
+                                                   GEOPM_DOMAIN_GPU_CHIP,
                                                    domain_idx,
                                                    "XVE_STALL");
                                   },
@@ -665,7 +665,7 @@ namespace geopm
 
         // popluate tracking structure for L0 metrics
         for (int domain_idx = 0; domain_idx <
-             m_platform_topo.num_domain(GEOPM_DOMAIN_GPU); ++domain_idx) {
+             m_platform_topo.num_domain(GEOPM_DOMAIN_GPU_CHIP); ++domain_idx) {
             m_metric_signal_pushed.push_back(false);
         }
 
@@ -856,7 +856,7 @@ namespace geopm
 
         if ((signal_name.find(":METRIC:") != std::string::npos ) && //||
             //m_metric_alias_set.find(signal_name) != m_metric_alias_set.end()) &&
-            domain_type == GEOPM_DOMAIN_GPU) {
+            domain_type == GEOPM_DOMAIN_GPU_CHIP) {
 
             m_metric_signal_pushed.at(domain_idx) = true;
         }
@@ -970,19 +970,21 @@ namespace geopm
     void LevelZeroIOGroup::read_batch(void)
     {
         m_is_batch_read = true;
+
+        // Consider doing this first vs second
+        for (int domain_idx = 0; domain_idx <
+             m_platform_topo.num_domain(GEOPM_DOMAIN_GPU_CHIP); ++domain_idx) {
+            if (m_metric_signal_pushed.at(domain_idx)) {
+                m_levelzero_device_pool.metric_read(GEOPM_DOMAIN_GPU_CHIP, domain_idx);
+            }
+        }
+
         for (size_t ii = 0; ii < m_signal_pushed.size(); ++ii) {
             // If the current signal index (ii) is in the derivative_signal_pushed_set do not read().
             // Derivative signals are comprised of base signals, and thus cannot be read directly.
             // The base signals are automatically pushed when a derivative signal is requested.
             if (m_derivative_signal_pushed_set.find(ii) == m_derivative_signal_pushed_set.end()) {
                 m_signal_pushed[ii]->set_sample(m_signal_pushed[ii]->read());
-            }
-        }
-
-        for (int domain_idx = 0; domain_idx <
-             m_platform_topo.num_domain(GEOPM_DOMAIN_GPU); ++domain_idx) {
-            if (m_metric_signal_pushed.at(domain_idx)) {
-                m_levelzero_device_pool.metric_read(GEOPM_DOMAIN_GPU, domain_idx);
             }
         }
     }
@@ -1088,14 +1090,12 @@ namespace geopm
         double result = NAN;
         auto it = m_signal_available.find(signal_name);
         if (it != m_signal_available.end()) {
-
             if ((signal_name.find(":METRIC:") != std::string::npos ) && //||
                 //m_metric_alias_set.find(signal_name) != m_metric_alias_set.end()) &&
-                domain_type == GEOPM_DOMAIN_GPU) {
-
+                domain_type == GEOPM_DOMAIN_GPU_CHIP) {
                 for (int domain_idx = 0; domain_idx <
-                     m_platform_topo.num_domain(GEOPM_DOMAIN_GPU); ++domain_idx) {
-                    m_levelzero_device_pool.metric_read(GEOPM_DOMAIN_GPU, domain_idx);
+                     m_platform_topo.num_domain(GEOPM_DOMAIN_GPU_CHIP); ++domain_idx) {
+                    m_levelzero_device_pool.metric_read(GEOPM_DOMAIN_GPU_CHIP, domain_idx);
                 }
             }
 
