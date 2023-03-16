@@ -134,15 +134,6 @@ static int geopm_pmpi_init(const char *exec_name)
         if (!err &&
             pmpi_ctl == geopm::Environment::M_CTL_PROCESS) {
             g_is_geopm_pmpi_ctl_enabled = 1;
-            try {
-                auto service_proxy = geopm::ServiceProxy::make_unique();
-                service_proxy->platform_stop_profile({});
-            }
-            catch (const Exception &ex) {
-                throw Exception(std::string("Requested GEOPM Controller be launched in process mode,"
-                                " but GEOPM Service is not active: ") + ex.what(),
-                                GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-            }
             int is_ctl;
             MPI_Comm tmp_comm;
             err = geopm_comm_split(MPI_COMM_WORLD, "pmpi", &tmp_comm, &is_ctl);
@@ -154,6 +145,15 @@ static int geopm_pmpi_init(const char *exec_name)
                 g_geopm_comm_world_swap_f = PMPI_Comm_c2f(g_geopm_comm_world_swap);
             }
             if (!err && is_ctl) {
+                try {
+                    auto service_proxy = geopm::ServiceProxy::make_unique();
+                    service_proxy->platform_stop_profile({});
+                }
+                catch (const Exception &ex) {
+                    throw Exception(std::string("Requested GEOPM Controller be launched in process mode,"
+                                    " but GEOPM Service is not active: ") + ex.what(),
+                                    GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                }
                 err = geopm_ctl_create(g_geopm_comm_world_swap, &g_ctl);
                 if (!err) {
                     err = geopm_ctl_run(g_ctl);
