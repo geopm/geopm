@@ -90,9 +90,11 @@ int main(int argc, char **argv)
 "\n";
 
     const int ERROR_HELP = -4096;
-    err = MPI_Init(&argc, &argv);
-    if (!err) {
-        err = MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    if (!getenv("GEOPMBENCH_NO_MPI")) {
+        err = MPI_Init(&argc, &argv);
+        if (!err) {
+            err = MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+        }
     }
 
     if (!err && argc > 1) {
@@ -167,8 +169,10 @@ int main(int argc, char **argv)
         std::cerr << "ERROR: " << argv[0] << ": " << err_msg << std::endl;
     }
 
-    int err_fin = MPI_Finalize();
-    err = err ? err : err_fin;
+    if (!getenv("GEOPMBENCH_NO_MPI")) {
+        int err_fin = MPI_Finalize();
+        err = err ? err : err_fin;
+    }
 
     return err;
 }

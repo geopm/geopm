@@ -6,9 +6,10 @@
 #include "config.h"
 #include "ReduceModelRegion.hpp"
 
+#include <stdlib.h>
+#include <mpi.h>
 #include <iostream>
 #include <vector>
-#include <mpi.h>
 
 #include "geopm/Exception.hpp"
 
@@ -35,18 +36,21 @@ namespace geopm
 
     void ReduceModelRegion::run(void)
     {
-        int num_rank = 0;
-        int err = MPI_Comm_size(MPI_COMM_WORLD, &num_rank);
-        if (err) {
-            throw Exception("MPI_Comm_size", err, __FILE__, __LINE__);
-        }
-        if (m_verbosity != 0) {
-            std::cout << "Executing reduce\n";
-        }
-        err = MPI_Allreduce(m_send_buffer.data(), m_recv_buffer.data(),
-                            m_num_elem, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-        if (err) {
-            throw Exception("MPI_Allreduce", err, __FILE__, __LINE__);
+        if (!getenv("GEOPMBENCH_NO_MPI")) {
+            int num_rank = 0;
+            int err = 0;
+            err = MPI_Comm_size(MPI_COMM_WORLD, &num_rank);
+            if (err) {
+                throw Exception("MPI_Comm_size", err, __FILE__, __LINE__);
+            }
+            if (m_verbosity != 0) {
+                std::cout << "Executing reduce\n";
+            }
+            err = MPI_Allreduce(m_send_buffer.data(), m_recv_buffer.data(),
+                                m_num_elem, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+            if (err) {
+                throw Exception("MPI_Allreduce", err, __FILE__, __LINE__);
+            }
         }
     }
 }

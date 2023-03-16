@@ -6,6 +6,7 @@
 #include "config.h"
 #include "All2allModelRegion.hpp"
 
+#include <stdlib.h>
 #include <mpi.h>
 #include <iostream>
 
@@ -33,13 +34,16 @@ namespace geopm
         m_do_imbalance = do_imbalance;
         m_do_progress = do_progress;
         m_do_unmarked = do_unmarked;
-        int err = MPI_Comm_size(MPI_COMM_WORLD, &m_num_rank);
-        if (err) {
-            throw Exception("All2allModelRegion: MPI_Comm_size() failed",
-                            err, __FILE__, __LINE__);
+        int err = 0;
+        if (!getenv("GEOPMBENCH_NO_MPI")) {
+            err = MPI_Comm_size(MPI_COMM_WORLD, &m_num_rank);
+            if (err) {
+                throw Exception("All2allModelRegion: MPI_Comm_size() failed",
+                                err, __FILE__, __LINE__);
+            }
         }
         err = ModelRegion::region(GEOPM_REGION_HINT_UNKNOWN);
-        if (!err) {
+        if (!err && !getenv("GEOPMBENCH_NO_MPI")) {
             err = MPI_Comm_rank(MPI_COMM_WORLD, &m_rank);
         }
         if (err) {
@@ -102,7 +106,9 @@ namespace geopm
                 std::cout << "Executing " << m_num_send << " byte buffer all2all "
                           << m_num_progress_updates << " times."  << std::endl << std::flush;
             }
-            MPI_Barrier(MPI_COMM_WORLD);
+            if (!getenv("GEOPMBENCH_NO_MPI")) {
+                MPI_Barrier(MPI_COMM_WORLD);
+            }
             ModelRegion::region_enter();
             for (uint64_t i = 0; i < m_num_progress_updates; ++i) {
                 ModelRegion::loop_enter(i);
@@ -115,10 +121,13 @@ namespace geopm
                     (void)geopm_time(&start);
                 }
                 while (!loop_done) {
-                    int err = MPI_Alltoall(m_send_buffer, m_num_send, MPI_CHAR, m_recv_buffer,
+                    int err = 0;
+                    if (!getenv("GEOPMBENCH_NO_MPI")) {
+                        err = MPI_Alltoall(m_send_buffer, m_num_send, MPI_CHAR, m_recv_buffer,
                                            m_num_send, MPI_CHAR, MPI_COMM_WORLD);
-                    if (err) {
-                        throw Exception("MPI_Alltoall()", err, __FILE__, __LINE__);
+                        if (err) {
+                            throw Exception("MPI_Alltoall()", err, __FILE__, __LINE__);
+                        }
                     }
                     if (!m_rank) {
                         (void)geopm_time(&curr);
@@ -127,9 +136,11 @@ namespace geopm
                             loop_done = 1;
                         }
                     }
-                    err = MPI_Bcast((void*)&loop_done, 1, MPI_INT, 0, MPI_COMM_WORLD);
-                    if (err) {
-                        throw Exception("MPI_Bcast()", err, __FILE__, __LINE__);
+                    if (!getenv("GEOPMBENCH_NO_MPI")) {
+                        err = MPI_Bcast((void*)&loop_done, 1, MPI_INT, 0, MPI_COMM_WORLD);
+                        if (err) {
+                            throw Exception("MPI_Bcast()", err, __FILE__, __LINE__);
+                        }
                     }
                 }
 

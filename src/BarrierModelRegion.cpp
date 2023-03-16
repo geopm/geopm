@@ -6,8 +6,9 @@
 #include "config.h"
 #include "BarrierModelRegion.hpp"
 
-#include <iostream>
+#include <stdlib.h>
 #include <mpi.h>
+#include <iostream>
 
 #include "geopm/Exception.hpp"
 
@@ -30,12 +31,14 @@ namespace geopm
 
     void BarrierModelRegion::run(void)
     {
-        if (m_verbosity != 0) {
-            std::cout << "Executing barrier\n";
-        }
-        int err = MPI_Barrier(MPI_COMM_WORLD);
-        if (err) {
-            throw Exception("MPI_Barrier", err, __FILE__, __LINE__);
+        if (!getenv("GEOPMBENCH_NO_MPI")) {
+            if (m_verbosity != 0) {
+                std::cout << "Executing barrier\n";
+            }
+            int err = MPI_Barrier(MPI_COMM_WORLD);
+            if (err) {
+                throw Exception("MPI_Barrier", err, __FILE__, __LINE__);
+            }
         }
     }
 }
