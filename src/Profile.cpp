@@ -30,6 +30,7 @@
 #include "ApplicationStatus.hpp"
 #include "ApplicationSampler.hpp"
 #include "Scheduler.hpp"
+#include "geopm/ServiceProxy.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm_debug.hpp"
@@ -93,6 +94,9 @@ namespace geopm
 #endif
         init_cpu_set(m_num_cpu);
         try {
+            // TODO: Add a constructor argument to enable mocking
+            auto service_proxy = ServiceProxy::make_unique();
+            service_proxy->platform_start_profile(m_prof_name);
             init_app_status();
             init_app_record_log();
         }
@@ -172,6 +176,8 @@ namespace geopm
         if (!m_is_enabled) {
             return;
         }
+        auto service_proxy = ServiceProxy::make_unique();
+        service_proxy->platform_stop_profile(region_names());
 #ifdef GEOPM_OVERHEAD
         std::cerr << "Info: <geopm> Overhead (seconds) PID: " << getpid()
                   << " startup:  " << m_overhead_time_startup <<
