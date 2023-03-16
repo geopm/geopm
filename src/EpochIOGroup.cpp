@@ -125,11 +125,11 @@ namespace geopm
 
     void EpochIOGroup::read_batch(void)
     {
-        if (!m_is_initialized) {
-            init();
-        }
         /// update_records() will get called by controller
         auto records = m_app.get_records();
+        if (!m_is_initialized && records.size() != 0) {
+            init();
+        }
         for (const auto &record : records) {
             GEOPM_DEBUG_ASSERT(m_process_cpu_map.find(record.process) != m_process_cpu_map.end(),
                                "Process " + std::to_string(record.process) + " in record not found");
