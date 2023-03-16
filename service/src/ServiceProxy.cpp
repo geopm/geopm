@@ -165,7 +165,6 @@ namespace geopm
 
     void ServiceProxyImp::platform_start_profile(const std::string &profile_name)
     {
-        platform_open_session();
         (void)m_bus->call_method("PlatformStartProfile",
                                  profile_name);
     }
@@ -175,7 +174,6 @@ namespace geopm
         std::shared_ptr<SDBusMessage> bus_message = m_bus->make_call_message("PlatformStopProfile");
         bus_message->append_strings(region_names);
         (void)m_bus->call_method(bus_message);
-        platform_close_session();
     }
 
     std::vector<int> ServiceProxyImp::platform_get_profile_pids(const std::string &profile_name)
