@@ -474,19 +474,16 @@ class Launcher(object):
             argv_mod.extend(self.argv_unparsed)
         else:
             argv_mod.extend(self.argv)
-        echo = []
+
+        echo_app = []
         if self.is_geopm_enabled:
-            echo.append(str(self.config))
+            echo_app.append(str(self.config))
             for it in self.environ_ext.items():
-                echo.append('{}={}'.format(it[0], it[1]))
-        echo.extend(argv_mod)
-        echo = u'\n' + u' '.join(echo) + u'\n\n'
+                echo_app.append('{}={}'.format(it[0], it[1]))
+        echo_app.extend(argv_mod)
+        echo_app = u'\n' + u' '.join(echo_app) + u'\n\n'
         if not self.quiet:
-            stderr.write(echo) # Echo the command that's about to be run
-        if self.is_geopm_enabled and self.config.launch_script:
-            with open(os.open(self.config.launch_script, os.O_CREAT | os.O_WRONLY), 'w') as fid:
-                fid.write('#!/bin/bash\n')
-                fid.write(echo)
+            stderr.write(echo_app) # Echo the command that's about to be run
 
         signal.signal(signal.SIGINT, self.int_handler)
 
@@ -499,6 +496,23 @@ class Launcher(object):
             is_geopmctl = True
         else:
             is_geopmctl = False
+
+        echo_ctl = []
+        if is_geopmctl:
+            self.config.set_omp_num_threads(1)
+            echo_ctl.append(str(self.config))
+            for it in self.environ_ext.items():
+                echo_ctl.append('{}={}'.format(it[0], it[1]))
+            echo_ctl.extend(geopm_argv)
+            echo_ctl = u'\n' + u' '.join(echo_ctl) + u' &\n\n'
+            if not self.quiet:
+                stderr.write(echo_ctl) # Echo the command that's about to be run
+
+        if self.is_geopm_enabled and self.config.launch_script:
+            with open(os.open(self.config.launch_script, os.O_CREAT | os.O_WRONLY), 'w') as fid:
+                fid.write('#!/bin/bash\n')
+                fid.write(echo_ctl)
+                fid.write(echo_app)
 
         # Popen stream redirection only works with things that can be written
         # through file descriptors. The launcher may be given a StringIO or some
