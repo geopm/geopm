@@ -13,6 +13,7 @@
 #include <vector>
 #include <map>
 #include <list>
+#include <ctime>
 
 #include "geopm_hint.h"
 
@@ -68,6 +69,8 @@ namespace geopm
             const int m_timeout;
             std::set<int> m_profile_pids;
             int m_num_proc;
+            static constexpr double M_SLOW_LOOP_PERIOD = 0.1; // 100 msec
+            std::time_t m_slow_loop_last;
     };
 }
 
