@@ -18,6 +18,7 @@
 #include "Environment.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/ServiceProxy.hpp"
+#include "Profile.hpp"
 #ifndef GEOPM_TEST
 #include <mpi.h>
 #endif
@@ -146,8 +147,7 @@ static int geopm_pmpi_init(const char *exec_name)
             }
             if (!err && is_ctl) {
                 try {
-                    auto service_proxy = geopm::ServiceProxy::make_unique();
-                    service_proxy->platform_stop_profile({});
+                    geopm::Profile::default_profile().shutdown();
                 }
                 catch (const Exception &ex) {
                     throw Exception(std::string("Requested GEOPM Controller be launched in process mode,"

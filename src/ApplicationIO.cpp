@@ -8,7 +8,7 @@
 
 #include <utility>
 #include <unistd.h>
-#include <time.h>
+#include <ctime>
 
 #include "geopm_time.h"
 #include "geopm/Exception.hpp"
@@ -72,6 +72,7 @@ namespace geopm
             clock_nanosleep(CLOCK_REALTIME, 0, &delay, NULL);
             geopm_time(&time_curr);
         } while (!m_is_connected && geopm_time_diff(&time_zero, &time_curr) < timeout);
+        m_slow_loop_last = time(nullptr);
     }
 
     // Private helper function
@@ -100,8 +101,15 @@ namespace geopm
             }
         }
         // If we have removed all of the PIDs that were previously
-        // discovered, check to see if there are any new registered
+        // discovered then the application has ended
+        auto time_now = std::time(nullptr);
         if (m_profile_pids.size() == 0) {
+            result = true;
+        }
+        // If the slow loop interval has expired, check to see if all
+        // PIDs have requested an end to profiling.
+        else if (std::difftime(time_now, m_slow_loop_last) > M_SLOW_LOOP_PERIOD) {
+            m_slow_loop_last = time_now;
             m_profile_pids = get_profile_pids();
             if (m_profile_pids.size() == 0) {
                 result = true;
