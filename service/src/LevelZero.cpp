@@ -10,8 +10,6 @@
 #include <map>
 #include <stdlib.h>
 
-#include <chrono>
-
 #include "geopm/Exception.hpp"
 #include "geopm/Agg.hpp"
 #include "geopm/Helper.hpp"
@@ -600,7 +598,6 @@ namespace geopm
         }
     }
 
-    //TODO: need metric destory
     void LevelZeroImp::metric_destroy(unsigned int l0_device_idx, unsigned int l0_domain_idx)
     {
 ////        //std::cout << "ZET_DESTROY - gpu " << std::to_string(l0_device_idx) << std::endl;
@@ -708,9 +705,6 @@ namespace geopm
         //////////////////////
         // Convert Raw Data //
         //////////////////////
-        std::chrono::time_point<std::chrono::system_clock> start, end;
-        std::chrono::duration<double> elapsed_seconds;
-
         size_t data_size = 0;
         uint32_t report_count_req = 100;//UINT32_MAX; //100;
         ze_result = zetMetricStreamerReadData(metric_streamer, report_count_req, &data_size, nullptr );
@@ -732,23 +726,14 @@ namespace geopm
         uint32_t num_metric_values = 0;
         uint32_t data_count = 0;
         zet_metric_group_calculation_type_t calculation_type = ZET_METRIC_GROUP_CALCULATION_TYPE_METRIC_VALUES;
-        //ze_result = zetMetricGroupCalculateMultipleMetricValuesExp(m_devices.at(l0_device_idx).metric_group_handle, calculation_type, data_size, data.data(), &data_count, &num_metric_values, nullptr, nullptr);
         ze_result = zetMetricGroupCalculateMultipleMetricValuesExp(m_devices.at(l0_device_idx).subdevice.metric_group_handle.at(l0_domain_idx), calculation_type, data_size, data.data(), &data_count, &num_metric_values, nullptr, nullptr);
-
-        end = std::chrono::system_clock::now();
-        elapsed_seconds = end - start;
-//        std::cout << "\t\tgpu " << std::to_string(l0_device_idx) << " pre-calculate time: " << elapsed_seconds.count() << "s" << std::endl;
         check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
                         "LevelZero::" + std::string(__func__) +
                         ": LevelZero Metric group calculate metric values to find num metrics failed",
                         __LINE__);
-//        std::cout << "\t\tNum metric values from calculate metric values: " << std::to_string(num_metric_values) << std::endl;
-//        std::cout << "\t\tNum data count from calculate metric values: " << std::to_string(data_count) << std::endl;
 
-        start = std::chrono::system_clock::now();
         std::vector<uint32_t> metric_count(data_count);
         std::vector<zet_typed_value_t> metric_values(num_metric_values);
-        //ze_result = zetMetricGroupCalculateMultipleMetricValuesExp(m_devices.at(l0_device_idx).metric_group_handle, calculation_type, data_size, data.data(), &data_count, &num_metric_values, metric_count.data(), metric_values.data());
         ze_result = zetMetricGroupCalculateMultipleMetricValuesExp(m_devices.at(l0_device_idx).subdevice.metric_group_handle.at(l0_domain_idx), calculation_type, data_size, data.data(), &data_count, &num_metric_values, metric_count.data(), metric_values.data());
 //        check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
 //                        "LevelZero::" + std::string(__func__) +
@@ -757,30 +742,12 @@ namespace geopm
 //        //std::cout << "\tmetric group calculate metric values: " << std::to_string(num_metric_values) << std::endl;
 //        ze_result = ZE_RESULT_ERROR_UNKNOWN;
 
-        end = std::chrono::system_clock::now();
-        elapsed_seconds = end - start;
-//        std::cout << "\t\tgpu " << std::to_string(l0_device_idx) << " calculate time: " << elapsed_seconds.count() << "s" << std::endl;
-
-        //uint32_t num_metric = m_devices.at(l0_device_idx).num_metric;
         uint32_t num_metric = m_devices.at(l0_device_idx).subdevice.num_metric.at(l0_domain_idx);
-        //unsigned int num_reports = num_metric_values/num_metric;
-        //std::cout << "\tgpu " << std::to_string(l0_device_idx) << " num reports: " << std::to_string(num_reports) <<
-                  //std::endl;
-
         if (ze_result == ZE_RESULT_SUCCESS) {
-            start = std::chrono::system_clock::now();
-
-
             unsigned int num_reports = num_metric_values / num_metric;
 
             for (unsigned int metric_idx = 0; metric_idx < num_metric; metric_idx++)
             {
-                std::chrono::time_point<std::chrono::system_clock> start2, end2;
-                std::chrono::duration<double> elapsed_seconds;
-                start2 = std::chrono::system_clock::now();
-////
-
-
                 //TODO: It is possible that simply parsing all the metrics is
                 //      faster than the additional API calls to check the metric
                 //      name.  This should be studied
@@ -801,9 +768,6 @@ namespace geopm
                                 __LINE__);
 
                 std::string metric_name (metric_properties.name);
-                end2 = std::chrono::system_clock::now();
-                elapsed_seconds = end2 - start2;
-                //std::cout << "\t\tgpu " << std::to_string(l0_device_idx) << " name find time: " << elapsed_seconds.count() << "s" << std::endl;
 
                 //TODO: check timing impact of only processing metrics supported by IOGroup
                 if(metric_name.compare("XVE_ACTIVE") == 0 ||
@@ -848,40 +812,21 @@ namespace geopm
             m_devices.at(l0_device_idx).subdevice.m_metric_data.at(l0_domain_idx).at("XVE_ACTIVE") = {};
             m_devices.at(l0_device_idx).subdevice.m_metric_data.at(l0_domain_idx).at("XVE_STALL") = {};
         }
-        end = std::chrono::system_clock::now();
-        elapsed_seconds = end - start;
-//        std::cout << "\t\tgpu " << std::to_string(l0_device_idx) << " process time: " << elapsed_seconds.count() << "s" << std::endl;
     }
 
     void LevelZeroImp::metric_read(unsigned int l0_device_idx, unsigned int l0_domain_idx)
     {
         if (m_devices.at(l0_device_idx).subdevice.metric_domain_cached.at(l0_domain_idx)) {
             if (!m_devices.at(l0_device_idx).subdevice.metrics_initialized.at(l0_domain_idx)) {
-                std::chrono::time_point<std::chrono::system_clock> start, end;
-                std::chrono::duration<double> elapsed_seconds;
-                start = std::chrono::system_clock::now();
-
                 metric_init(l0_device_idx, l0_domain_idx);
                 m_devices.at(l0_device_idx).subdevice.metrics_initialized.at(l0_domain_idx) = true;
-
-                end = std::chrono::system_clock::now();
-                elapsed_seconds = end - start;
-//                std::cout << "\tgpu " << std::to_string(l0_device_idx) << " metric_init time: " << elapsed_seconds.count() << "s" << std::endl;
             }
 
             ze_result_t ze_host_result = zeEventHostSynchronize(m_devices.at(l0_device_idx).subdevice.event.at(l0_domain_idx), 0);
 
             if (ze_host_result != ZE_RESULT_NOT_READY) {
-                std::chrono::time_point<std::chrono::system_clock> start, end;
-                std::chrono::duration<double> elapsed_seconds;
-                start = std::chrono::system_clock::now();
-
                 metric_calc(l0_device_idx, l0_domain_idx,
                             m_devices.at(l0_device_idx).subdevice.metric_streamer.at(l0_domain_idx));
-
-                end = std::chrono::system_clock::now();
-                elapsed_seconds = end - start;
-//                std::cout << "\tgpu " << std::to_string(l0_device_idx) << " metric_calc time: " << elapsed_seconds.count() << "s" << std::endl;
             }
             else {
                 metric_read(l0_device_idx, l0_domain_idx); //TODO: possible infinite loop
@@ -894,6 +839,12 @@ namespace geopm
                                                     std::string metric_name) const
     {
         std::vector<double> result = {};
+        if (!m_devices.at(l0_device_idx).subdevice.metric_domain_cached.at(l0_domain_idx)) {
+            throw Exception("LevelZero::" + std::string(__func__) +
+                            ": Metric groups not cached" ,
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
         if(m_devices.at(l0_device_idx).subdevice.m_metric_data.at(l0_domain_idx).count(metric_name) == 0) {
             throw Exception("LevelZero::" + std::string(__func__) +
                             ": No metric named " + metric_name  + " found." ,
