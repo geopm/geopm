@@ -85,13 +85,6 @@ namespace geopm
         , m_do_profile(do_profile)
     {
         GEOPM_DEBUG_ASSERT(m_sample_agg != nullptr, "m_sample_agg cannot be null");
-
-        init_sync_fields();
-
-        init_environment_signals();
-
-        m_epoch_count_idx = m_platform_io.push_signal("EPOCH_COUNT", GEOPM_DOMAIN_BOARD, 0);
-
         if (!m_rank) {
             // check if report file can be created
             if (!m_report_name.empty()) {
@@ -110,6 +103,9 @@ namespace geopm
         if (m_do_profile && m_proc_region_agg == nullptr) {
             // ProcessRegionAggregator should not be constructed until
             // application connection is established.
+            init_sync_fields();
+            init_environment_signals();
+            m_epoch_count_idx = m_platform_io.push_signal("EPOCH_COUNT", GEOPM_DOMAIN_BOARD, 0);
             m_proc_region_agg = ProcessRegionAggregator::make_unique();
         }
     }

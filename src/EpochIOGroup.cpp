@@ -19,6 +19,11 @@
 
 namespace geopm
 {
+    const std::set<std::string> EpochIOGroup::m_valid_signal_name = {
+        "EPOCH::EPOCH_COUNT",
+        "EPOCH_COUNT",
+    };
+
     EpochIOGroup::EpochIOGroup()
         : EpochIOGroup(platform_topo(),
                        ApplicationSampler::application_sampler())
@@ -33,17 +38,6 @@ namespace geopm
         , m_num_cpu(m_topo.num_domain(GEOPM_DOMAIN_CPU))
         , m_per_cpu_count(m_num_cpu, NAN)
         , m_is_batch_read(false)
-        , m_is_initialized(false)
-    {
-
-    }
-
-    const std::set<std::string> EpochIOGroup::m_valid_signal_name = {
-        "EPOCH::EPOCH_COUNT",
-        "EPOCH_COUNT",
-    };
-
-    void EpochIOGroup::init(void)
     {
         int cpu_idx = 0;
         for (const auto &proc : m_app.per_cpu_process()) {
@@ -53,7 +47,6 @@ namespace geopm
             }
             ++cpu_idx;
         }
-        m_is_initialized = true;
     }
 
     std::set<std::string> EpochIOGroup::signal_names(void) const
@@ -127,9 +120,6 @@ namespace geopm
     {
         /// update_records() will get called by controller
         auto records = m_app.get_records();
-        if (!m_is_initialized && records.size() != 0) {
-            init();
-        }
         for (const auto &record : records) {
             GEOPM_DEBUG_ASSERT(m_process_cpu_map.find(record.process) != m_process_cpu_map.end(),
                                "Process " + std::to_string(record.process) + " in record not found");
