@@ -50,7 +50,6 @@ namespace geopm
             static std::unique_ptr<IOGroup> make_plugin(void);
         private:
             static const std::set<std::string> m_valid_signal_name;
-            void init(void);
             void check_domain(int domain_type, int domain_idx) const;
             void check_signal_name(const std::string &signal_name) const;
 
@@ -60,7 +59,6 @@ namespace geopm
             std::vector<double> m_per_cpu_count;
             std::map<int, std::set<int> > m_process_cpu_map;
             bool m_is_batch_read;
-            bool m_is_initialized;
             std::map<int, int> m_cpu_signal_map;
             std::vector<int> m_active_signal;
     };
