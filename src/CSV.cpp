@@ -30,7 +30,7 @@ namespace geopm
         , m_buffer_limit(buffer_size)
         , m_is_active(false)
     {
-#ifdef ENABLE_MPI
+#ifdef GEOPM_ENABLE_MPI
         if (host_name.size()) {
             m_file_path += "-" + host_name;
         }

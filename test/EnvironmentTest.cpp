@@ -206,7 +206,7 @@ void EnvironmentTest::TearDown()
 TEST_F(EnvironmentTest, internal_defaults)
 {
     std::map<std::string, std::string> internal_default_vars = {
-#ifdef ENABLE_MPI
+#ifdef GEOPM_ENABLE_MPI
               {"GEOPM_COMM", "MPIComm"},
 #else
               {"GEOPM_COMM", "NullComm"},
