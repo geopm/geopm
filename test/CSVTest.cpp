@@ -42,7 +42,7 @@ TEST_F(CSVTest, header)
     {
         std::unique_ptr<geopm::CSV> tmp = geopm::make_unique<geopm::CSVImp>(output_path, m_host_name, m_start_time, m_buffer_size);
     }
-#ifdef ENABLE_MPI
+#ifdef GEOPM_ENABLE_MPI
     output_path += "-" + m_host_name;
 #endif
 
@@ -98,7 +98,7 @@ TEST_F(CSVTest, columns)
         csv->activate();
         csv->update(sample);
     }
-#ifdef ENABLE_MPI
+#ifdef GEOPM_ENABLE_MPI
     output_path += "-" + m_host_name;
 #endif
     std::string output_string = geopm::read_file(output_path);

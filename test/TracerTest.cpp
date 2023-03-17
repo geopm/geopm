@@ -45,7 +45,7 @@ class TracerTest : public ::testing::Test
         MockPlatformTopo m_platform_topo;
         std::string m_path = "test.trace";
         std::string m_hostname = "myhost";
-#ifdef ENABLE_MPI
+#ifdef GEOPM_ENABLE_MPI
         std::string m_file_path = m_path + "-" + m_hostname;
 #else
         std::string m_file_path = m_path;
