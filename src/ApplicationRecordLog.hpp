@@ -134,6 +134,9 @@ namespace geopm
             ///        output vector.
             virtual void dump(std::vector<record_s> &records,
                               std::vector<short_region_s> &short_regions) = 0;
+            virtual void start_profile(const geopm_time_s &time) = 0;
+            virtual void stop_profile(const geopm_time_s &time) = 0;
+            virtual geopm_time_s time_zero(void) = 0;
             /// @brief Gets the shared memory size requirement.
             ///
             /// This method returns the value to use when sizing the
@@ -178,6 +181,9 @@ namespace geopm
             void epoch(const geopm_time_s &time) override;
             void dump(std::vector<record_s> &records,
                       std::vector<short_region_s> &short_regions) override;
+            void start_profile(const geopm_time_s &time) override;
+            void stop_profile(const geopm_time_s &time) override;
+            geopm_time_s time_zero(void) override;
         private:
             struct m_layout_s {
                 int num_record;
@@ -202,6 +208,7 @@ namespace geopm
             geopm_time_s m_time_zero;
             uint64_t m_epoch_count;
             uint64_t m_entered_region_hash;
+            uint64_t m_profile_hash;
     };
 }
 
