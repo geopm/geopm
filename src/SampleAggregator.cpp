@@ -9,6 +9,7 @@
 
 #include "geopm_hash.h"
 #include "geopm_debug.hpp"
+#include "geopm_time.h"
 #include "geopm/PlatformIO.hpp"
 #include "geopm/PlatformTopo.hpp"
 #include "geopm/Exception.hpp"
@@ -280,7 +281,10 @@ namespace geopm
             int epoch_count = m_platform_io.sample(signal.epoch_count_idx);
             if (!m_is_updated) {
                 // On first call just initialize the signal values
-                signal.time_last = time;
+                geopm_time_s now;
+                geopm_time_s time_zero = geopm::time_zero();
+                geopm_time(&now);
+                signal.time_last = geopm_time_diff(&time_zero, &now);
                 signal.region_hash_last = hash;
                 signal.epoch_count_last = epoch_count;
                 signal.region_accum_it = sample_aggregator_emplace_hash(signal.region_accum, hash);
