@@ -30,6 +30,7 @@
 #include "geopm_hint.h"
 #include "geopm_shmem.h"
 #include "geopm_sched.h"
+#include "geopm_time.h"
 
 namespace geopm
 {
@@ -110,8 +111,7 @@ namespace geopm
                                                  const std::vector<bool> &is_cpu_active,
                                                  bool do_profile,
                                                  const std::string &profile_name)
-        : m_time_zero(geopm::time_zero())
-        , m_status(status)
+        : m_status(status)
         , m_topo(platform_topo)
         , m_num_cpu(m_topo.num_domain(GEOPM_DOMAIN_CPU))
         , m_process_map(process_map)
@@ -129,11 +129,6 @@ namespace geopm
         if (m_is_cpu_active.empty()) {
             m_is_cpu_active.resize(m_num_cpu, false);
         }
-    }
-
-    void ApplicationSamplerImp::time_zero(const geopm_time_s &start_time)
-    {
-        m_time_zero = start_time;
     }
 
     void ApplicationSamplerImp::update(const geopm_time_s &curr_time)

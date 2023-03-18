@@ -181,14 +181,13 @@ namespace geopm
         m_layout_s &layout = *((m_layout_s *)(m_shmem->pointer()));
         check_reset(layout);
 
-        ++m_epoch_count;
-        record_s epoch_record = {
+        record_s start_record = {
            .time = geopm_time_diff(&m_time_zero, &time),
            .process = m_process,
            .event = EVENT_START_PROFILE,
            .signal = m_profile_hash,
         };
-        append_record(layout, epoch_record);
+        append_record(layout, start_record);
     }
 
     void ApplicationRecordLogImp::stop_profile(const geopm_time_s &time)
@@ -197,14 +196,13 @@ namespace geopm
         m_layout_s &layout = *((m_layout_s *)(m_shmem->pointer()));
         check_reset(layout);
 
-        ++m_epoch_count;
-        record_s epoch_record = {
+        record_s stop_record = {
            .time = geopm_time_diff(&m_time_zero, &time),
            .process = m_process,
            .event = EVENT_STOP_PROFILE,
            .signal = m_profile_hash,
         };
-        append_record(layout, epoch_record);
+        append_record(layout, stop_record);
     }
 
     void ApplicationRecordLogImp::dump(std::vector<record_s> &records,
@@ -217,12 +215,13 @@ namespace geopm
         short_regions.assign(layout.region_table, layout.region_table + layout.num_region);
         layout.num_record = 0;
         layout.num_region = 0;
-        if (m_time_zero.t.sec == 0 && m_time_zero.t.nsec == 0 && layout.num_record != 0) {
-            if (layout.region_table[0].event != EVENT_START_PROFILE) {
+        if (m_time_zero.t.tv_sec == 0 && m_time_zero.t.tv_nsec == 0 && layout.num_record != 0) {
+            if (layout.record_table[0].event != EVENT_START_PROFILE) {
                 throw (Exception("ApplicationRecorLogImp::dump(): First record in table is not of type EVENT_START_PROFILE",
                                  GEOPM_ERROR_RUNTIME, __FILE__, __LINE__));
             }
-            geopm_time_add(&m_time_zero, layout.region_table[0].time, &m_time_zero);
+            geopm_time_add(&m_time_zero, layout.record_table[0].time, &m_time_zero);
+            geopm::time_zero_reset(m_time_zero); // Last application PID to start determines start time
         }
     }
     geopm_time_s ApplicationRecordLogImp::time_zero(void)
