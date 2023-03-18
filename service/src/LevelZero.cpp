@@ -19,7 +19,7 @@
 static void __attribute__((constructor)) geopm_levelzero_init(void)
 {
     setenv("ZES_ENABLE_SYSMAN", "1", 1);
-    setenv("ZET_ENABLE_METRICS", "1", 1);
+//    setenv("ZET_ENABLE_METRICS", "1", 1);
 }
 
 namespace geopm
@@ -494,7 +494,7 @@ namespace geopm
 #ifdef GEOPM_DEBUG
                 std::cerr << "Warning: <geopm>: ZET_ENABLE_METRICS not set to 1.  Skipping metric caching" <<
                              " for device " << std::to_string(device_idx) << " subdevice " <<
-                             std::to_srting(subdevice_idx) << std::endl;
+                             std::to_string(subdevice_idx) << std::endl;
 #endif
             }
             else {
@@ -568,7 +568,6 @@ namespace geopm
                                         __LINE__);
 
                         //Cache compute basic number of metrics
-                        //m_devices.at(device_idx).subdevice.num_metric.at(subdevice_idx) = num_metric;
                         m_devices.at(device_idx).subdevice.num_metric.push_back(num_metric);
 
                         //Build metric map
@@ -644,8 +643,6 @@ namespace geopm
     {
         ze_result_t ze_result;
         ze_context_handle_t context = m_devices.at(l0_device_idx).subdevice.context.at(l0_domain_idx);
-        //ze_result = zetContextActivateMetricGroups(context, m_devices.at(l0_device_idx).device_handle,
-        //                                           1, &m_devices.at(l0_device_idx).metric_group_handle);
         ze_result = zetContextActivateMetricGroups(context, m_devices.at(l0_device_idx).subdevice_handle.at(l0_domain_idx),
                                                    1, &m_devices.at(l0_device_idx).subdevice.metric_group_handle.at(l0_domain_idx));
 
@@ -653,7 +650,6 @@ namespace geopm
         ze_event_pool_desc_t event_pool_desc = {ZE_STRUCTURE_TYPE_EVENT_POOL_DESC, nullptr, 0, 1};
 
         ze_result = zeEventPoolCreate(context, &event_pool_desc, 1,
-                                      //&m_devices.at(l0_device_idx).device_handle,
                                       &m_devices.at(l0_device_idx).subdevice_handle.at(l0_domain_idx),
                                       &event_pool_handle);
 
@@ -661,7 +657,6 @@ namespace geopm
                         "LevelZero::" + std::string(__func__) +
                         ": LevelZero Event Pool Create failed",
                         __LINE__);
-        //m_devices.at(l0_device_idx).event_pool = event_pool_handle;
         m_devices.at(l0_device_idx).subdevice.event_pool.push_back(event_pool_handle);
 
         ze_event_desc_t event_desc = {ZE_STRUCTURE_TYPE_EVENT_DESC, nullptr, 0,
@@ -674,19 +669,15 @@ namespace geopm
                         ": LevelZero Event Create failed",
                         __LINE__);
 
-        //m_devices.at(l0_device_idx).event = event;
-
-//        std::cout << "ZET_INIT - pushing back event for gpu " << std::to_string(l0_device_idx) << std::endl;
         m_devices.at(l0_device_idx).subdevice.event.push_back(event);
 
         zet_metric_streamer_desc_t metric_streamer_desc = {
             ZET_STRUCTURE_TYPE_METRIC_STREAMER_DESC,
             nullptr,
-            32768, /* reports to collect before notify */
+            32768,
             m_devices.at(l0_device_idx).metric_sampling_period};
         zet_metric_streamer_handle_t metric_streamer = nullptr;
 
-        //ze_result = zetMetricStreamerOpen(context, m_devices.at(l0_device_idx).device_handle, m_devices.at(l0_device_idx).metric_group_handle, &metric_streamer_desc, event, &metric_streamer);
         ze_result = zetMetricStreamerOpen(context, m_devices.at(l0_device_idx).subdevice_handle.at(l0_domain_idx), m_devices.at(l0_device_idx).subdevice.metric_group_handle.at(l0_domain_idx), &metric_streamer_desc, event, &metric_streamer);
 
         check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
@@ -694,7 +685,6 @@ namespace geopm
                         ": LevelZero Metric Streamer Open failed",
                         __LINE__);
 
-        //m_devices.at(l0_device_idx).metric_streamer = metric_streamer;
         m_devices.at(l0_device_idx).subdevice.metric_streamer.push_back(metric_streamer);
     }
 
@@ -706,7 +696,7 @@ namespace geopm
         // Convert Raw Data //
         //////////////////////
         size_t data_size = 0;
-        uint32_t report_count_req = 100;//UINT32_MAX; //100;
+        uint32_t report_count_req = 100;
         ze_result = zetMetricStreamerReadData(metric_streamer, report_count_req, &data_size, nullptr );
         check_ze_result(ze_result, GEOPM_ERROR_RUNTIME,
                         "LevelZero::" + std::string(__func__) +
@@ -799,10 +789,8 @@ namespace geopm
                         };
                         //Clear cached values
                         if(report_idx == 0) {
-                            //m_devices.at(l0_device_idx).m_metric_data.at(metric_name) = {};
                             m_devices.at(l0_device_idx).subdevice.m_metric_data.at(l0_domain_idx).at(metric_name) = {};
                         }
-                        //m_devices.at(l0_device_idx).m_metric_data.at(metric_name).push_back(data_double);
                         m_devices.at(l0_device_idx).subdevice.m_metric_data.at(l0_domain_idx).at(metric_name).push_back(data_double);
                     }
                 }
