@@ -40,6 +40,7 @@ namespace geopm
                                   bool do_profile,
                                   const std::string &profile_name);
             virtual ~ApplicationSamplerImp() = default;
+            void time_zero(const geopm_time_s &start_time) override;
             void update(const geopm_time_s &curr_time) override;
             std::vector<record_s> get_records(void) const override;
             short_region_s get_short_region(uint64_t event_signal) const override;
@@ -51,6 +52,7 @@ namespace geopm
             void connect(void) override;
             int sampler_cpu(void);
         private:
+            struct geopm_time_s m_time_zero;
             std::vector<record_s> m_record_buffer;
             std::vector<short_region_s> m_short_region_buffer;
             std::shared_ptr<SharedMemory> m_status_shmem;
