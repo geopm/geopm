@@ -6,11 +6,13 @@
 #include "config.h"
 #include "ReduceModelRegion.hpp"
 
-#include <stdlib.h>
 #include <mpi.h>
 #include <iostream>
 #include <vector>
+#include <thread>
+#include <chrono>
 
+#include "GEOPMBenchConfig.hpp"
 #include "geopm/Exception.hpp"
 
 namespace geopm
@@ -23,6 +25,8 @@ namespace geopm
         : ModelRegion(verbosity)
     {
         big_o(big_o_in);
+        const GEOPMBenchConfig &config = geopmbench_config();
+        m_is_mpi_enabled = config.is_mpi_enabled();
     }
 
     void ReduceModelRegion::big_o(double big_o)
@@ -36,7 +40,7 @@ namespace geopm
 
     void ReduceModelRegion::run(void)
     {
-        if (!getenv("GEOPMBENCH_NO_MPI")) {
+        if (m_is_mpi_enabled) {
             int num_rank = 0;
             int err = 0;
             err = MPI_Comm_size(MPI_COMM_WORLD, &num_rank);
@@ -51,6 +55,9 @@ namespace geopm
             if (err) {
                 throw Exception("MPI_Allreduce", err, __FILE__, __LINE__);
             }
+        }
+        else {
+            std::this_thread::sleep_for(std::chrono::microseconds(100));
         }
     }
 }

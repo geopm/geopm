@@ -21,6 +21,8 @@ namespace geopm
             virtual ~BarrierModelRegion() = default;
             void big_o(double big_o);
             void run(void);
+        private:
+            bool m_is_mpi_enabled;
     };
 }
 
