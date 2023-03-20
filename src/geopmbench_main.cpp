@@ -15,6 +15,7 @@
 #include "geopm_prof.h"
 #include "geopm_hint.h"
 #include "geopm_error.h"
+#include "GEOPMBenchConfig.hpp"
 #include "ModelApplication.hpp"
 #include "ModelParse.hpp"
 #include "config.h"
@@ -90,7 +91,8 @@ int main(int argc, char **argv)
 "\n";
 
     const int ERROR_HELP = -4096;
-    if (!getenv("GEOPMBENCH_NO_MPI")) {
+    const geopm::GEOPMBenchConfig &config = geopm::geopmbench_config();
+    if (config.is_mpi_enabled()) {
         err = MPI_Init(&argc, &argv);
         if (!err) {
             err = MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -169,7 +171,7 @@ int main(int argc, char **argv)
         std::cerr << "ERROR: " << argv[0] << ": " << err_msg << std::endl;
     }
 
-    if (!getenv("GEOPMBENCH_NO_MPI")) {
+    if (config.is_mpi_enabled()) {
         int err_fin = MPI_Finalize();
         err = err ? err : err_fin;
     }

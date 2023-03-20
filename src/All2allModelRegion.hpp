@@ -28,6 +28,7 @@ namespace geopm
             int m_num_rank;
             const size_t m_align;
             int m_rank;
+            bool m_is_mpi_enabled;
         private:
             void cleanup(void);
     };

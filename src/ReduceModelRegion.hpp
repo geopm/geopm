@@ -27,6 +27,7 @@ namespace geopm
             int m_num_elem;
             std::vector<double> m_send_buffer;
             std::vector<double> m_recv_buffer;
+            bool m_is_mpi_enabled;
     };
 }
 

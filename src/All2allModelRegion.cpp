@@ -6,12 +6,14 @@
 #include "config.h"
 #include "All2allModelRegion.hpp"
 
-#include <stdlib.h>
 #include <mpi.h>
 #include <iostream>
+#include <thread>
+#include <chrono>
 
 #include "geopm_hint.h"
 #include "geopm_time.h"
+#include "GEOPMBenchConfig.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
 
@@ -34,8 +36,10 @@ namespace geopm
         m_do_imbalance = do_imbalance;
         m_do_progress = do_progress;
         m_do_unmarked = do_unmarked;
+        const GEOPMBenchConfig &config = geopmbench_config();
+        m_is_mpi_enabled = config.is_mpi_enabled();
         int err = 0;
-        if (!getenv("GEOPMBENCH_NO_MPI")) {
+        if (m_is_mpi_enabled) {
             err = MPI_Comm_size(MPI_COMM_WORLD, &m_num_rank);
             if (err) {
                 throw Exception("All2allModelRegion: MPI_Comm_size() failed",
@@ -43,7 +47,7 @@ namespace geopm
             }
         }
         err = ModelRegion::region(GEOPM_REGION_HINT_UNKNOWN);
-        if (!err && !getenv("GEOPMBENCH_NO_MPI")) {
+        if (!err && m_is_mpi_enabled) {
             err = MPI_Comm_rank(MPI_COMM_WORLD, &m_rank);
         }
         if (err) {
@@ -106,47 +110,52 @@ namespace geopm
                 std::cout << "Executing " << m_num_send << " byte buffer all2all "
                           << m_num_progress_updates << " times."  << std::endl << std::flush;
             }
-            if (!getenv("GEOPMBENCH_NO_MPI")) {
+            if (m_is_mpi_enabled) {
                 MPI_Barrier(MPI_COMM_WORLD);
-            }
-            ModelRegion::region_enter();
-            for (uint64_t i = 0; i < m_num_progress_updates; ++i) {
-                ModelRegion::loop_enter(i);
+                ModelRegion::region_enter();
+                for (uint64_t i = 0; i < m_num_progress_updates; ++i) {
+                    ModelRegion::loop_enter(i);
 
-                double timeout = 0.0;
-                struct geopm_time_s start = {{0,0}};
-                struct geopm_time_s curr = {{0,0}};
-                int loop_done = 0;
-                if (!m_rank) {
-                    (void)geopm_time(&start);
-                }
-                while (!loop_done) {
-                    int err = 0;
-                    if (!getenv("GEOPMBENCH_NO_MPI")) {
+                    double timeout = 0.0;
+                    struct geopm_time_s start = {{0,0}};
+                    struct geopm_time_s curr = {{0,0}};
+                    int loop_done = 0;
+                    if (!m_rank) {
+                        (void)geopm_time(&start);
+                    }
+                    while (!loop_done) {
+                        int err = 0;
                         err = MPI_Alltoall(m_send_buffer, m_num_send, MPI_CHAR, m_recv_buffer,
                                            m_num_send, MPI_CHAR, MPI_COMM_WORLD);
                         if (err) {
                             throw Exception("MPI_Alltoall()", err, __FILE__, __LINE__);
                         }
-                    }
-                    if (!m_rank) {
-                        (void)geopm_time(&curr);
-                        timeout = geopm_time_diff(&start, &curr);
-                        if (timeout > (m_big_o / m_num_progress_updates)) {
-                            loop_done = 1;
+                        if (!m_rank) {
+                            (void)geopm_time(&curr);
+                            timeout = geopm_time_diff(&start, &curr);
+                            if (timeout > (m_big_o / m_num_progress_updates)) {
+                                loop_done = 1;
+                            }
                         }
-                    }
-                    if (!getenv("GEOPMBENCH_NO_MPI")) {
                         err = MPI_Bcast((void*)&loop_done, 1, MPI_INT, 0, MPI_COMM_WORLD);
                         if (err) {
                             throw Exception("MPI_Bcast()", err, __FILE__, __LINE__);
                         }
                     }
-                }
 
-                ModelRegion::loop_exit();
+                    ModelRegion::loop_exit();
+                }
+                ModelRegion::region_exit();
             }
-            ModelRegion::region_exit();
+            else {
+                ModelRegion::region_enter();
+                for (uint64_t i = 0; i < m_num_progress_updates; ++i) {
+                    ModelRegion::loop_enter(i);
+                    std::this_thread::sleep_for(std::chrono::microseconds(100));
+                    ModelRegion::loop_exit();
+                }
+                ModelRegion::region_exit();
+            }
         }
     }
 }
