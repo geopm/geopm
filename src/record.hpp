@@ -29,12 +29,31 @@ namespace geopm
         EVENT_SHORT_REGION = 3,  /// EVENT: The application entered and exited a
                                  ///        region at least once since last update.
                                  /// SIGNAL: Handle to pass to AppliationSampler::get_short_region()
-        EVENT_START_PROFILE = 4, /// EVENT: One application process has started up.
+        ///
+        /// @todo SUPPORT FOR EVENTS BELOW IS FUTURE WORK
+        ///
+        EVENT_PROFILE = 4,       /// EVENT: The application has started up and all
+                                 ///        processes associated with the
+                                 ///        application identify their profile name.
                                  /// SIGNAL: The hash of the profile name unique to
                                  ///         the application.
-        EVENT_STOP_PROFILE = 5,  /// EVENT: One application process has completed.
-                                 /// SIGNAL: The hash of the profile name unique to
-                                 ///         the application.
+        EVENT_REPORT = 5,        /// EVENT: The application has completed and
+                                 ///        all processes associated with the
+                                 ///        application identify their report name.
+                                 /// SIGNAL: The hash of the report name.
+        EVENT_CLAIM_CPU = 6,     /// EVENT: The application has started up.  Each
+                                 ///        process will send one "claim" event per
+                                 ///        CPU in affinity mask.
+                                 /// SIGNAL: Linux logical CPU claimed by process.
+        EVENT_RELEASE_CPU = 7,   /// EVENT: The application is shutting down.  Each
+                                 ///        process will send one "release" event for
+                                 ///        every previous "claim" event.
+        EVENT_NAME_MAP = 8,      /// EVENT: The application is shutting down and has
+                                 ///        recorded all region names.
+                                 /// SIGNAL: A unique identifier which can be used to
+                                 ///         access the map to all strings hashed
+                                 ///         by the application (get_name_map()
+                                 ///         parameter).
     };
 
     /// @brief Format an event_e type as a string.

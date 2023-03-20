@@ -10,7 +10,6 @@
 #include "geopm/SharedMemory.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Helper.hpp"
-#include "Environment.hpp"
 #include "geopm_debug.hpp"
 #include "geopm_hint.h"
 #include "geopm_hash.h"
@@ -41,25 +40,27 @@ namespace geopm
     ApplicationRecordLogImp::ApplicationRecordLogImp(std::shared_ptr<SharedMemory> shmem)
         : ApplicationRecordLogImp(shmem, getpid())
     {
-        geopm_time_s time_zero;
-        geopm_time(&time_zero);
-        start_profile(time_zero);
-        m_time_zero = time_zero;
     }
 
+    ApplicationRecordLogImp::ApplicationRecordLogImp(std::shared_ptr<SharedMemory> shmem,
+                                                     int process, geopm_time_s time_zero)
+        : ApplicationRecordLogImp(shmem, process)
+    {
+        m_time_zero = time_zero;
+    }
+    
     ApplicationRecordLogImp::ApplicationRecordLogImp(std::shared_ptr<SharedMemory> shmem,
                                                      int process)
         : m_process(process)
         , m_shmem(shmem)
         , m_epoch_count(0)
         , m_entered_region_hash(GEOPM_REGION_HASH_INVALID)
-        , m_profile_hash(geopm_crc32_str(geopm::environment().profile().c_str()))
-        , m_time_zero({{0, 0}})
     {
         if (m_shmem->size() < buffer_size()) {
             throw Exception("ApplicationRecordLog: Shared memory provided in constructor is too small",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
+        geopm_time(&m_time_zero);
     }
 
     void ApplicationRecordLogImp::enter(uint64_t hash, const geopm_time_s &time)
@@ -175,38 +176,6 @@ namespace geopm
         append_record(layout, epoch_record);
     }
 
-    void ApplicationRecordLogImp::start_profile(const geopm_time_s &time)
-    {
-        std::unique_ptr<SharedMemoryScopedLock> lock = m_shmem->get_scoped_lock();
-        m_layout_s &layout = *((m_layout_s *)(m_shmem->pointer()));
-        check_reset(layout);
-
-        ++m_epoch_count;
-        record_s epoch_record = {
-           .time = geopm_time_diff(&m_time_zero, &time),
-           .process = m_process,
-           .event = EVENT_START_PROFILE,
-           .signal = m_profile_hash,
-        };
-        append_record(layout, epoch_record);
-    }
-
-    void ApplicationRecordLogImp::stop_profile(const geopm_time_s &time)
-    {
-        std::unique_ptr<SharedMemoryScopedLock> lock = m_shmem->get_scoped_lock();
-        m_layout_s &layout = *((m_layout_s *)(m_shmem->pointer()));
-        check_reset(layout);
-
-        ++m_epoch_count;
-        record_s epoch_record = {
-           .time = geopm_time_diff(&m_time_zero, &time),
-           .process = m_process,
-           .event = EVENT_STOP_PROFILE,
-           .signal = m_profile_hash,
-        };
-        append_record(layout, epoch_record);
-    }
-
     void ApplicationRecordLogImp::dump(std::vector<record_s> &records,
                                        std::vector<short_region_s> &short_regions)
     {
@@ -217,17 +186,6 @@ namespace geopm
         short_regions.assign(layout.region_table, layout.region_table + layout.num_region);
         layout.num_record = 0;
         layout.num_region = 0;
-        if (m_time_zero.t.sec == 0 && m_time_zero.t.nsec == 0 && layout.num_record != 0) {
-            if (layout.region_table[0].event != EVENT_START_PROFILE) {
-                throw (Exception("ApplicationRecorLogImp::dump(): First record in table is not of type EVENT_START_PROFILE",
-                                 GEOPM_ERROR_RUNTIME, __FILE__, __LINE__));
-            }
-            geopm_time_add(&m_time_zero, layout.region_table[0].time, &m_time_zero);
-        }
-    }
-    geopm_time_s ApplicationRecordLogImp::time_zero(void)
-    {
-        return m_time_zero;
     }
 
     void ApplicationRecordLogImp::check_reset(m_layout_s &layout)

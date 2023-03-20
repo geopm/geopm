@@ -349,7 +349,6 @@ namespace geopm
         double sample_delay = geopm_time_since(&zero);
         m_reporter->update();
         m_tracer->update(m_trace_sample);
-        auto records = m_application_sampler.get_records();
         m_profile_tracer->update(m_application_sampler.get_records());
         while (!m_application_io->do_shutdown() &&
                !m_application_sampler.do_shutdown()) {
