@@ -304,6 +304,7 @@ if test "x$enable_mpi" = "x1"; then
   AS_IF([test "x$have_CXX_mpi" == "xyes"],
          AC_MSG_NOTICE([Building with MPI C++ support]),
          AC_MSG_ERROR([Failed to determine MPI C++ build flags use --with-mpi-bin or --with-mpicxx or --disable-mpi]))
+  AC_DEFINE([GEOPM_ENABLE_MPI], [], [MPI support enabled.])
 if test "x$enable_fortran" = "x1"; then
   AS_IF([test "x$have_F_mpi" == "xyes"],
          AC_MSG_NOTICE([Building with MPI Fortran support]),
