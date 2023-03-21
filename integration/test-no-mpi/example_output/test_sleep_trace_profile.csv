@@ -1,6 +1,0 @@
-# geopm_version: 2.0.0+dev393g278f477a1
-# start_time: Wed Feb 15 20:39:24 2023
-# profile_name: "test_sleep"
-# node_name: mcfly1
-# agent: monitor
-TIME|PROCESS|EVENT|SIGNAL
