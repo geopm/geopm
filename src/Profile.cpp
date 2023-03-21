@@ -162,7 +162,7 @@ namespace geopm
         GEOPM_DEBUG_ASSERT(m_app_record_log != nullptr,
                            "Profile::init_app_record_log(): m_app_record_log not initialized");
 
-        m_app_status->set_valid_cpu(m_cpu_set, true);
+        m_app_status->set_valid_cpu(m_cpu_set);
 
     }
 
