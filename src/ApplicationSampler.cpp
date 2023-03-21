@@ -144,7 +144,7 @@ namespace geopm
         m_status->update_cache();
         if (m_is_first_update) {
             for (int cpu_idx = 0; cpu_idx != m_num_cpu; ++cpu_idx) {
-                m_hint_last[cpu_idx] = m_status->get_hint(cpu_idx);
+                m_hint_last[cpu_idx] = cpu_hint(cpu_idx);
             }
         }
         else {
@@ -154,7 +154,7 @@ namespace geopm
             double time_delta = geopm_time_diff(&m_update_time, &curr_time);
             for (int cpu_idx = 0; cpu_idx != m_num_cpu; ++cpu_idx) {
                 m_hint_time[cpu_idx][m_hint_last[cpu_idx]] += time_delta;
-                m_hint_last[cpu_idx] = m_status->get_hint(cpu_idx);
+                m_hint_last[cpu_idx] = cpu_hint(cpu_idx);
             }
         }
         m_is_first_update = false;
@@ -227,18 +227,26 @@ namespace geopm
 
     uint64_t ApplicationSamplerImp::cpu_region_hash(int cpu_idx) const
     {
+        uint64_t result = GEOPM_REGION_HASH_INVALID;
         if (!m_status) {
-            return GEOPM_REGION_HASH_APP;
+            result = GEOPM_REGION_HASH_APP;
         }
-        return m_status->get_hash(cpu_idx);
+        else if (m_is_cpu_active[cpu_idx]) {
+            result = m_status->get_hash(cpu_idx);
+        }
+        return result;
     }
 
     uint64_t ApplicationSamplerImp::cpu_hint(int cpu_idx) const
     {
+        uint64_t result = GEOPM_REGION_HINT_INACTIVE;
         if (!m_status) {
-            return GEOPM_REGION_HINT_INACTIVE;
+            result = GEOPM_REGION_HINT_INACTIVE;
         }
-        return m_status->get_hint(cpu_idx);
+        if (m_status != nullptr && m_is_cpu_active[cpu_idx]) {
+            result = m_status->get_hint(cpu_idx);
+        }
+        return result;
     }
 
     double ApplicationSamplerImp::cpu_hint_time(int cpu_idx, uint64_t hint) const
@@ -319,14 +327,11 @@ namespace geopm
                     }
                 }
             }
-            std::set<int> inactive_cpu;
             for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
-                if (!CPU_ISSET_S(cpu_idx, set_size, all_cpuset.get())) {
-                    inactive_cpu.insert(cpu_idx);
+                if (CPU_ISSET_S(cpu_idx, set_size, all_cpuset.get())) {
+                    m_is_cpu_active[cpu_idx] = true;
                 }
             }
-            m_status->set_valid_cpu(inactive_cpu, false);
-            m_status->update_cache();
         }
         // Try to pin the sampling thread to a free core
         std::set<int> sampler_cpu_set = {sampler_cpu()};
