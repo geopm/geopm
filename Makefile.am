@@ -384,6 +384,11 @@ libgeopmpolicy_la_SOURCES = src/Accumulator.cpp \
                             src/CSV.hpp \
                             src/DebugIOGroup.cpp \
                             src/DebugIOGroup.hpp \
+                            src/DenseLayer.cpp \
+                            src/DenseLayer.hpp \
+                            src/DenseLayerImp.hpp \
+                            src/DomainNetMap.cpp \
+                            src/DomainNetMap.hpp \
                             src/EditDistPeriodicityDetector.cpp \
                             src/EditDistPeriodicityDetector.hpp \
                             src/EditDistEpochRecordFilter.cpp \
@@ -402,6 +407,8 @@ libgeopmpolicy_la_SOURCES = src/Accumulator.cpp \
                             src/Environment.hpp \
                             src/EpochIOGroup.cpp \
                             src/EpochIOGroup.hpp \
+                            src/FFNetAgent.cpp \
+                            src/FFNetAgent.hpp \
                             src/FilePolicy.cpp \
                             src/FilePolicy.hpp \
                             src/FrequencyGovernor.cpp \
@@ -417,6 +424,9 @@ libgeopmpolicy_la_SOURCES = src/Accumulator.cpp \
                             src/TRLFrequencyLimitDetector.hpp \
                             src/FrequencyMapAgent.cpp \
                             src/FrequencyMapAgent.hpp \
+                            src/LocalNeuralNet.cpp \
+                            src/LocalNeuralNet.hpp \
+                            src/LocalNeuralNetImp.hpp \
                             src/Imbalancer.cpp \
                             src/ModelParse.cpp \
                             src/ModelParse.hpp \
@@ -451,6 +461,8 @@ libgeopmpolicy_la_SOURCES = src/Accumulator.cpp \
                             src/ProcessRegionAggregator.hpp \
                             src/RecordFilter.cpp \
                             src/RecordFilter.hpp \
+                            src/RegionHintRecommender.cpp \
+                            src/RegionHintRecommender.hpp \
                             src/Reporter.cpp \
                             src/Reporter.hpp \
                             src/SampleAggregator.cpp \
@@ -461,6 +473,12 @@ libgeopmpolicy_la_SOURCES = src/Accumulator.cpp \
                             src/SSTClosGovernor.cpp \
                             src/SSTClosGovernor.hpp \
                             src/SSTClosGovernorImp.hpp \
+                            src/TensorMath.cpp \
+                            src/TensorMath.hpp \
+                            src/TensorOneD.cpp \
+                            src/TensorOneD.hpp \
+                            src/TensorTwoD.cpp \
+                            src/TensorTwoD.hpp \
                             src/Tracer.cpp \
                             src/Tracer.hpp \
                             src/TreeComm.cpp \
