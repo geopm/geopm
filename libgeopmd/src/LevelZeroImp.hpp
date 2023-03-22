@@ -179,7 +179,7 @@ namespace geopm
                 // then by error set type (correctable vs uncorrectable)
                 std::vector<zes_ras_handle_t> ras_domain;
 
-                //ZE Context used for ZET data collection
+                //ZE Context used for ZET data collection.  Chip indexed
                 std::vector<ze_context_handle_t> context;
 
                 // required for L0 metric querying.  Chip indexed
@@ -194,7 +194,7 @@ namespace geopm
                 std::vector<std::vector<uint8_t>> zet_data;
 
                 // required for L0 metric result tracking.  Chip indexed
-                std::vector<std::map<std::string, std::vector<double>>> metric_data;
+                mutable std::vector<std::map<std::string, std::vector<double>>> metric_data;
                 mutable std::vector<bool> metrics_initialized;
             };
 
