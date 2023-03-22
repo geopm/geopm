@@ -808,10 +808,12 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
-        dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
+        if (domain_idx < 1) {
+            std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
+            dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
 
-        m_levelzero.metric_read(dev_subdev_idx_pair.first, dev_subdev_idx_pair.second);
+            m_levelzero.metric_read(dev_subdev_idx_pair.first, dev_subdev_idx_pair.second);
+        }
     }
 
     double LevelZeroDevicePoolImp::metric_sample(int domain, unsigned int domain_idx,
@@ -825,17 +827,19 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
-        dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
+        if (domain_idx < 1) {
+            std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
+            dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
 
-        std::vector<double> data = m_levelzero.metric_sample(dev_subdev_idx_pair.first,
-                                                             dev_subdev_idx_pair.second,
-                                                             metric_name);
+            std::vector<double> data = m_levelzero.metric_sample(dev_subdev_idx_pair.first,
+                                                                 dev_subdev_idx_pair.second,
+                                                                 metric_name);
 
-        if (data.size() > 0) {
-            //TODO: add min, max, avg etc handling.
-            result = std::accumulate(data.begin(), data.end(), 0.0) / data.size();
-            //result = data.at(data.size()-1);
+            if (data.size() > 0) {
+                //TODO: add min, max, avg etc handling.
+                result = std::accumulate(data.begin(), data.end(), 0.0) / data.size();
+                //result = data.at(data.size()-1);
+            }
         }
         return result;
     }
