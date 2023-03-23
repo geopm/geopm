@@ -50,7 +50,7 @@ void ProfileTest::SetUp()
     m_record_log = std::make_shared<MockApplicationRecordLog>();
     m_status = std::make_shared<MockApplicationStatus>();
 
-    EXPECT_CALL(*m_status, set_valid_cpu(m_cpu_list, true));
+    EXPECT_CALL(*m_status, set_valid_cpu(m_cpu_list));
     m_profile = geopm::make_unique<ProfileImp>("profile",
                                                "report",
                                                M_NUM_CPU,
