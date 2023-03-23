@@ -23,7 +23,7 @@ class MockApplicationStatus : public geopm::ApplicationStatus
                     (override));
         MOCK_METHOD(void, increment_work_unit, (int cpu_idx), (override));
         MOCK_METHOD(double, get_progress_cpu, (int cpu_idx), (const, override));
-        MOCK_METHOD(void, set_valid_cpu, (const std::set<int> &cpu_idx, bool is_valid), (override));
+        MOCK_METHOD(void, set_valid_cpu, (const std::set<int> &cpu_idx), (override));
         MOCK_METHOD(void, update_cache, (), (override));
 };
 
