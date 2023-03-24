@@ -57,7 +57,6 @@ enum {
 
 TEST_F(EpochIOGroupIntegrationTest, read_batch_count)
 {
-    EXPECT_CALL(m_app, per_cpu_process());
     int idx0 = -1;
     int idx1 = -1;
     // expectations for push

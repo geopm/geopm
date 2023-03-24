@@ -61,7 +61,8 @@ namespace geopm
                            std::set<int> cpu_set,
                            std::shared_ptr<ApplicationStatus> app_status,
                            std::shared_ptr<ApplicationRecordLog> app_record_log,
-                           bool do_profile)
+                           bool do_profile,
+                           std::shared_ptr<ServiceProxy> service_proxy)
         : m_is_enabled(false)
         , m_prof_name(prof_name)
         , m_report(report)
@@ -76,6 +77,7 @@ namespace geopm
         , m_overhead_time_startup(0.0)
         , m_overhead_time_shutdown(0.0)
         , m_do_profile(do_profile)
+        , m_service_proxy(service_proxy)
     {
         if (!m_do_profile) {
             return;
@@ -94,9 +96,7 @@ namespace geopm
 #endif
         init_cpu_set(m_num_cpu);
         try {
-            // TODO: Add a constructor argument to enable mocking
-            auto service_proxy = ServiceProxy::make_unique();
-            service_proxy->platform_start_profile(m_prof_name);
+            m_service_proxy->platform_start_profile(m_prof_name);
             init_app_status();
             init_app_record_log();
         }
@@ -122,7 +122,8 @@ namespace geopm
                      {},  // cpu_set
                      nullptr,  // app_status
                      nullptr,  // app_record_log
-                     environment().timeout() != -1)
+                     environment().timeout() != -1,
+                     ServiceProxy::make_unique())
     {
 
     }
@@ -176,8 +177,7 @@ namespace geopm
         if (!m_is_enabled) {
             return;
         }
-        auto service_proxy = ServiceProxy::make_unique();
-        service_proxy->platform_stop_profile(region_names());
+        m_service_proxy->platform_stop_profile(region_names());
 #ifdef GEOPM_OVERHEAD
         std::cerr << "Info: <geopm> Overhead (seconds) PID: " << getpid()
                   << " startup:  " << m_overhead_time_startup <<

@@ -23,6 +23,7 @@
 #include "MockComm.hpp"
 #include "MockApplicationRecordLog.hpp"
 #include "MockApplicationStatus.hpp"
+#include "MockServiceProxy.hpp"
 
 
 using geopm::Profile;
@@ -41,7 +42,7 @@ class ProfileTest : public ::testing::Test
         std::set<int> m_cpu_list = {2, 3};
         std::shared_ptr<MockApplicationRecordLog> m_record_log;
         std::shared_ptr<MockApplicationStatus> m_status;
-
+        std::shared_ptr<MockServiceProxy> m_service_proxy;
         std::unique_ptr<Profile> m_profile;
 };
 
@@ -49,6 +50,9 @@ void ProfileTest::SetUp()
 {
     m_record_log = std::make_shared<MockApplicationRecordLog>();
     m_status = std::make_shared<MockApplicationStatus>();
+    m_service_proxy = std::make_shared<MockServiceProxy>();
+    EXPECT_CALL(*m_service_proxy, platform_start_profile("profile"));
+    EXPECT_CALL(*m_service_proxy, platform_stop_profile(_));
 
     EXPECT_CALL(*m_status, set_valid_cpu(m_cpu_list));
     m_profile = geopm::make_unique<ProfileImp>("profile",
@@ -57,7 +61,8 @@ void ProfileTest::SetUp()
                                                m_cpu_list,
                                                m_status,
                                                m_record_log,
-                                               true);
+                                               true,
+                                               m_service_proxy);
 }
 
 TEST_F(ProfileTest, enter_exit)

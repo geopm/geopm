@@ -206,6 +206,7 @@ namespace geopm
     class SharedMemory;
     class ApplicationRecordLog;
     class ApplicationStatus;
+    class ServiceProxy;
 
     class ProfileImp : public Profile
     {
@@ -236,7 +237,8 @@ namespace geopm
                        std::set<int> cpu_set,
                        std::shared_ptr<ApplicationStatus> app_status,
                        std::shared_ptr<ApplicationRecordLog> app_record_log,
-                       bool do_profile);
+                       bool do_profile,
+                       std::shared_ptr<ServiceProxy> service_proxy);
             /// @brief ProfileImp destructor, virtual.
             virtual ~ProfileImp();
             uint64_t region(const std::string &region_name, long hint) override;
@@ -291,6 +293,7 @@ namespace geopm
             /// @brief The list of known region identifiers.
             std::set<uint64_t> m_region_ids;
 #endif
+            std::shared_ptr<ServiceProxy> m_service_proxy;
     };
 }
 

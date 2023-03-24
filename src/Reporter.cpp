@@ -83,6 +83,7 @@ namespace geopm
         , m_sticker_freq(m_platform_io.read_signal("CPUINFO::FREQ_STICKER", GEOPM_DOMAIN_BOARD, 0))
         , m_epoch_count_idx(-1)
         , m_do_profile(do_profile)
+        , m_do_init(true)
     {
         GEOPM_DEBUG_ASSERT(m_sample_agg != nullptr, "m_sample_agg cannot be null");
         if (!m_rank) {
@@ -100,14 +101,18 @@ namespace geopm
 
     void ReporterImp::init(void)
     {
-        if (m_do_profile && m_proc_region_agg == nullptr) {
+        if (m_do_profile && m_do_init) {
             // ProcessRegionAggregator should not be constructed until
             // application connection is established.
             init_sync_fields();
             init_environment_signals();
             m_epoch_count_idx = m_platform_io.push_signal("EPOCH_COUNT", GEOPM_DOMAIN_BOARD, 0);
-            m_proc_region_agg = ProcessRegionAggregator::make_unique();
+            if (m_proc_region_agg == nullptr) {
+                m_proc_region_agg = ProcessRegionAggregator::make_unique();
+            }
+            m_do_init = false;
         }
+
     }
 
     void ReporterImp::update()
