@@ -190,6 +190,7 @@ namespace geopm
             // Signals added through environment
             std::vector<std::pair<std::string, int> > m_env_signal_name_idx;
             bool m_do_profile;
+            bool m_do_init;
     };
 }
 

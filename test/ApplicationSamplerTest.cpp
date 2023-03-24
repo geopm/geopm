@@ -397,9 +397,7 @@ TEST_F(ApplicationSamplerTest, hint_time)
         EXPECT_CALL(*m_mock_status, update_cache());
         EXPECT_CALL(*m_mock_status, get_hint(_))
             .WillOnce(Return(GEOPM_REGION_HINT_NETWORK))
-            .WillOnce(Return(GEOPM_REGION_HINT_COMPUTE))
-            .WillOnce(Return(GEOPM_REGION_HINT_INACTIVE))
-            .WillOnce(Return(GEOPM_REGION_HINT_INACTIVE));
+            .WillOnce(Return(GEOPM_REGION_HINT_COMPUTE));
         m_app_sampler->update({{1, 0}});
     }
     compute_time = m_app_sampler->cpu_hint_time(0, GEOPM_REGION_HINT_COMPUTE);
@@ -424,9 +422,7 @@ TEST_F(ApplicationSamplerTest, hint_time)
         EXPECT_CALL(*m_mock_status, update_cache());
         EXPECT_CALL(*m_mock_status, get_hint(_))
             .WillOnce(Return(GEOPM_REGION_HINT_NETWORK))
-            .WillOnce(Return(GEOPM_REGION_HINT_MEMORY))
-            .WillOnce(Return(GEOPM_REGION_HINT_INACTIVE))
-            .WillOnce(Return(GEOPM_REGION_HINT_INACTIVE));
+            .WillOnce(Return(GEOPM_REGION_HINT_MEMORY));
         m_app_sampler->update({{2, 0}});
     }
     compute_time = m_app_sampler->cpu_hint_time(0, GEOPM_REGION_HINT_COMPUTE);
@@ -451,9 +447,7 @@ TEST_F(ApplicationSamplerTest, hint_time)
         EXPECT_CALL(*m_mock_status, update_cache());
         EXPECT_CALL(*m_mock_status, get_hint(_))
             .WillOnce(Return(GEOPM_REGION_HINT_COMPUTE))
-            .WillOnce(Return(GEOPM_REGION_HINT_NETWORK))
-            .WillOnce(Return(GEOPM_REGION_HINT_INACTIVE))
-            .WillOnce(Return(GEOPM_REGION_HINT_INACTIVE));
+            .WillOnce(Return(GEOPM_REGION_HINT_NETWORK));
         m_app_sampler->update({{4, 0}});
     }
     compute_time = m_app_sampler->cpu_hint_time(0, GEOPM_REGION_HINT_COMPUTE);
@@ -478,9 +472,7 @@ TEST_F(ApplicationSamplerTest, hint_time)
         EXPECT_CALL(*m_mock_status, update_cache());
         EXPECT_CALL(*m_mock_status, get_hint(_))
             .WillOnce(Return(GEOPM_REGION_HINT_UNSET))
-            .WillOnce(Return(GEOPM_REGION_HINT_UNSET))
-            .WillOnce(Return(GEOPM_REGION_HINT_INACTIVE))
-            .WillOnce(Return(GEOPM_REGION_HINT_INACTIVE));
+            .WillOnce(Return(GEOPM_REGION_HINT_UNSET));
         m_app_sampler->update({{7, 0}});
     }
     compute_time = m_app_sampler->cpu_hint_time(0, GEOPM_REGION_HINT_COMPUTE);

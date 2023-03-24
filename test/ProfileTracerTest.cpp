@@ -72,7 +72,7 @@ TEST_F(ProfileTracerTest, construct_update_destruct)
         tracer->update(m_data);
     }
     // Test that a file was created by deleting it without error
-    int err = unlink(m_output_path.c_str());
+    int err = unlink(m_path.c_str());
     EXPECT_EQ(0, err);
 }
 

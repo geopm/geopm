@@ -56,7 +56,6 @@ TEST_F(EpochIOGroupTest, valid_signals)
         "EPOCH_COUNT",
     };
     // enable signals
-    EXPECT_CALL(m_app, per_cpu_process());
     m_group->read_batch();
 
     auto signal_names = m_group->signal_names();
@@ -104,7 +103,6 @@ TIME|PROCESS|EVENT|SIGNAL
 1.28657223|33|EPOCH_COUNT|2
 1.286573997|42|EPOCH_COUNT|1
 )");
-    EXPECT_CALL(m_app, per_cpu_process());
     m_group->read_batch();
     // no more push allowed
     EXPECT_THROW(m_group->push_signal("EPOCH_COUNT", GEOPM_DOMAIN_CPU, 0), Exception);
@@ -112,7 +110,6 @@ TIME|PROCESS|EVENT|SIGNAL
 
 TEST_F(EpochIOGroupTest, sample_count)
 {
-    EXPECT_CALL(m_app, per_cpu_process());
     int idx0 = -1;
     int idx1 = -1;
     idx0 = m_group->push_signal("EPOCH_COUNT", GEOPM_DOMAIN_CPU, 0);
