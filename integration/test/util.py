@@ -323,6 +323,23 @@ def skip_unless_msr_access(msg=None):
     return lambda func: func
 
 
+def skip_unless_no_service_or_root():
+    if not g_util.skip_launch():
+        try:
+            test_exec = "dummy -- systemctl status geopm"
+            with open('/dev/null', 'w') as dev_null:
+                geopm_test_launcher.allocation_node_test(test_exec, dev_null, dev_null)
+        except subprocess.CalledProcessError:
+            return lambda func: func
+
+        if os.getuid() == 0:
+                return lambda func: func
+        else:
+            return unittest.skip("The service is currently installed and running AND you are not root.")
+
+    return lambda func: func
+
+
 def run_script_on_compute_nodes(script, stdout, stderr, interpreter='sh'):
     """Run an inline script on compute nodes.
     """

@@ -19,6 +19,7 @@ from integration.test import util
 
 
 @util.skip_unless_msr_access('Skipped pending resolution of issue #2017.')
+@util.skip_unless_no_service_or_root()
 @util.skip_unless_do_launch()
 @util.skip_unless_batch()
 class TestIntegrationEnforcePolicy(unittest.TestCase):
