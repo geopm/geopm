@@ -91,8 +91,7 @@ def geopmread(read_str):
     try:
         allocation_node_test(test_exec, stdout, stderr)
     except subprocess.CalledProcessError as err:
-        sys.stderr.write(stderr.getvalue())
-        raise err
+        raise subprocess.CalledProcessError(err.returncode, stderr.getvalue()) from err
     output = stdout.getvalue()
     last_line = output.splitlines()[-1]
 
