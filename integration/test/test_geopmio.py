@@ -194,7 +194,23 @@ class TestIntegrationGeopmio(unittest.TestCase):
         self.check_output(['INVALID', 'board', '0', '0'], ['cannot write control'])
         self.check_output(['--domain', '--info'], ['info about domain not implemented'])
 
+    # TODO
+    # The user must have direct msr access and the service must
+    # not be running in order for these test to work as written.
+    # The geopm_test_launcher.geopmwrite calls currently call down
+    # through the launcher.py in order to set controls.  Because the
+    # launcher will execute these commands via srun, and srun forks
+    # a process before executing the desired command, the service starts
+    # a session for this forked srun process instead of the job/shell
+    # running the test.  As soon as the srun call completes, the control
+    # is reverted.
+    # To make these tests work, the geopmread/write helpers need to
+    # call Popen without invoking srun.  This will establish the
+    # terminal/job running the test as the session that is tracked
+    # by the service.  This may impact later tests that run on the
+    # same nodes if they cannot acquire the write lock.
     @util.skip_unless_msr_access()
+    @util.skip_unless_no_service_or_root()
     @util.skip_unless_batch()
     @util.skip_unless_stressng()
     def test_geopmwrite_set_freq(self):
