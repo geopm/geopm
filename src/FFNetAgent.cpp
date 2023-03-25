@@ -15,7 +15,6 @@
 #include "PlatformIOProf.hpp"
 #include "geopm/PluginFactory.hpp"
 #include "geopm/PlatformIO.hpp"
-#include "geopm/PlatformTopo.hpp"
 #include "geopm/Helper.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Agg.hpp"
@@ -28,6 +27,36 @@ using geopm::PlatformTopo;
 
 namespace geopm
 {
+    const std::map<geopm_domain_e, const char *> FFNetAgent::nnet_envname = 
+            {
+                {GEOPM_DOMAIN_PACKAGE, "GEOPM_CPU_NN_PATH"},
+                {GEOPM_DOMAIN_GPU, "GEOPM_GPU_NN_PATH"}
+            };
+
+    const std::map<geopm_domain_e, const char *> FFNetAgent::freqmap_envname = 
+            {
+                {GEOPM_DOMAIN_PACKAGE, "GEOPM_CPU_FMAP_PATH"},
+                {GEOPM_DOMAIN_GPU, "GEOPM_GPU_FMAP_PATH"}
+            };
+
+    const std::map<geopm_domain_e, std::string> FFNetAgent::max_freq_signal_name = 
+            {
+                {GEOPM_DOMAIN_PACKAGE, "CPU_FREQUENCY_MAX_AVAIL"},
+                {GEOPM_DOMAIN_GPU, "GPU_CORE_FREQUENCY_MAX_AVAIL"}
+            };
+
+    const std::map<geopm_domain_e, std::string> FFNetAgent::min_freq_signal_name = 
+            {
+                {GEOPM_DOMAIN_PACKAGE, "CPU_FREQUENCY_MIN_AVAIL"},
+                {GEOPM_DOMAIN_GPU, "GPU_CORE_FREQUENCY_MIN_AVAIL"}
+            };
+
+    const std::map<geopm_domain_e, std::string> FFNetAgent::trace_suffix = 
+            {
+                {GEOPM_DOMAIN_PACKAGE, "_cpu_"},
+                {GEOPM_DOMAIN_GPU, "_gpu_"}
+            };
+
     FFNetAgent::FFNetAgent()
         : FFNetAgent(geopm::platform_io(), geopm::platform_topo())
     {
@@ -44,17 +73,24 @@ namespace geopm
         geopm_time(&m_last_wait);
 
         m_domain_types.push_back(GEOPM_DOMAIN_PACKAGE);
-        m_domain_types.push_back(GEOPM_DOMAIN_GPU);
-
-        for (int domain_type : m_domain_types) {
-            m_net_map[domain_type] = geopm::make_unique<DomainNetMap>(
-                            m_platform_io,
-                            m_platform_topo.num_domain(domain_type));
-
-            m_freq_recommender[domain_type] = geopm::make_unique<RegionHintRecommender>();
+        if (m_platform_topo.num_domain(GEOPM_DOMAIN_GPU) > 0) {
+            m_domain_types.push_back(GEOPM_DOMAIN_GPU);
         }
 
-        m_has_gpus = m_platform_topo.num_domain(GEOPM_DOMAIN_GPU) > 0;
+        for (geopm_domain_e domain_type : m_domain_types) {
+            for (int domain_index=0; domain_index < m_platform_topo.num_domain(domain_type); ++domain_index) {
+                m_domains.push_back({domain_type, domain_index});
+            }
+        }
+
+        for (const m_domain_key_s domain_key : m_domains) {
+            m_net_map[domain_key] = geopm::make_unique<DomainNetMap>(
+                            m_platform_io);
+        }
+
+        for (geopm_domain_e domain_type : m_domain_types) {
+            m_freq_recommender[domain_type] = geopm::make_unique<RegionHintRecommender>();
+        }
     }
 
     std::string FFNetAgent::plugin_name(void)
@@ -72,39 +108,31 @@ namespace geopm
     void FFNetAgent::init(int level, const std::vector<int> &fan_in, bool is_level_root)
     {
         //Loading neural nets
-        m_net_map[GEOPM_DOMAIN_PACKAGE]->load_neural_net(getenv("GEOPM_CPU_NN_PATH"), GEOPM_DOMAIN_PACKAGE);
-        m_net_map[GEOPM_DOMAIN_GPU]->load_neural_net(getenv("GEOPM_GPU_NN_PATH"), GEOPM_DOMAIN_GPU);
+        for (const m_domain_key_s domain_key : m_domains) {
+            m_net_map[domain_key]->load_neural_net(
+                    getenv(nnet_envname.at(domain_key.type)),
+                    domain_key.type,
+                    domain_key.index);
+        }
 
         //Loading frequency map
-        m_freq_recommender[GEOPM_DOMAIN_PACKAGE]->load_freqmap(getenv("GEOPM_CPU_FMAP_PATH"));
-        m_freq_recommender[GEOPM_DOMAIN_GPU]->load_freqmap(getenv("GEOPM_GPU_FMAP_PATH"));
+        for (geopm_domain_e domain_type : m_domain_types) {
+            m_freq_recommender[domain_type]->load_freqmap(
+                    getenv(freqmap_envname.at(domain_type)));
 
-        m_freq_recommender[GEOPM_DOMAIN_PACKAGE]->set_max_freq(
-                        m_platform_io.read_signal(
-                                "CPU_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0)
-                        );
-        m_freq_recommender[GEOPM_DOMAIN_PACKAGE]->set_min_freq(
-                        m_platform_io.read_signal(
-                                "CPU_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0)
-                        );
+            m_freq_recommender[domain_type]->set_max_freq(
+                    m_platform_io.read_signal(
+                        max_freq_signal_name.at(domain_type),
+                        GEOPM_DOMAIN_BOARD,
+                        0)
+                    );
 
-        if (m_has_gpus) {
-            m_freq_recommender[GEOPM_DOMAIN_GPU]->set_max_freq(
-                            m_platform_io.read_signal(
-                                    "GPU_CORE_FREQUENCY_MAX_AVAIL", GEOPM_DOMAIN_BOARD, 0)
-                            );
-            m_freq_recommender[GEOPM_DOMAIN_GPU]->set_min_freq(
-                            m_platform_io.read_signal(
-                                    "GPU_CORE_FREQUENCY_MIN_AVAIL", GEOPM_DOMAIN_BOARD, 0)
-                            );
-        }
-
-        for (int idx=0; idx<m_platform_topo.num_domain(GEOPM_DOMAIN_PACKAGE); ++idx) {
-            m_freq_control[GEOPM_DOMAIN_PACKAGE].push_back(m_platform_io.push_control("CPU_FREQUENCY_MAX_CONTROL", GEOPM_DOMAIN_PACKAGE, idx));
-        }
-
-        for (int idx=0; idx<m_platform_topo.num_domain(GEOPM_DOMAIN_GPU); ++idx) {
-            m_freq_control[GEOPM_DOMAIN_GPU].push_back(m_platform_io.push_control("GPU_CORE_FREQUENCY_MAX_CONTROL", GEOPM_DOMAIN_GPU, idx));
+            m_freq_recommender[domain_type]->set_min_freq(
+                    m_platform_io.read_signal(
+                        min_freq_signal_name.at(domain_type),
+                        GEOPM_DOMAIN_BOARD,
+                        0)
+                    );
         }
 
         m_platform_io.write_control("MSR::PQR_ASSOC:RMID", GEOPM_DOMAIN_BOARD, 0, 0);
@@ -157,19 +185,17 @@ namespace geopm
         }
         m_do_write_batch = false;
 
-        for (int domain_type : m_domain_types) {
-            for (int idx=0; idx<m_platform_topo.num_domain(domain_type); ++idx) {
-                double new_freq = m_freq_recommender[domain_type]->recommend_frequency(
-                        m_net_map[domain_type]->last_output(idx),
-                        m_phi_idx
+        for (const m_domain_key_s domain_key : m_domains) {
+            double new_freq = m_freq_recommender[domain_key.type]->recommend_frequency(
+                    m_net_map[domain_key]->last_output(),
+                    m_phi_idx
+                    );
+            if (!std::isnan(new_freq)) {
+                m_platform_io.adjust(
+                        m_freq_control[domain_key],
+                        new_freq
                         );
-                if (!std::isnan(new_freq)) {
-                    m_platform_io.adjust(
-                            m_freq_control[domain_type][idx],
-                            new_freq
-                            );
-                    m_do_write_batch = true;
-                }
+                m_do_write_batch = true;
             }
         }
     }
@@ -185,8 +211,8 @@ namespace geopm
     {
         m_sample ++;
 
-        for (int domain_type : m_domain_types) {
-            m_net_map[domain_type]->sample();
+        for (const m_domain_key_s domain_key : m_domains) {
+            m_net_map[domain_key]->sample();
         }
     }
 
@@ -234,9 +260,14 @@ namespace geopm
     std::vector<std::string> FFNetAgent::trace_names(void) const
     {
         std::vector<std::string> tracelist;
-        for (int domain_type : m_domain_types) {
-            std::vector<std::string> domain_tracenames = m_net_map.at(domain_type)->trace_names(std::to_string(domain_type));
-            tracelist.insert(tracelist.end(), domain_tracenames.begin(), domain_tracenames.end());
+        for (const m_domain_key_s domain_key : m_domains) {
+            // TODO change to nicer domain type names
+            for (const std::string trace_name : m_net_map.at(domain_key)->trace_names()) {
+                tracelist.push_back(
+                        trace_name
+                        + trace_suffix.at(domain_key.type)
+                        + std::to_string(domain_key.index));
+            }
         }
         return tracelist;
     }
@@ -250,8 +281,8 @@ namespace geopm
     void FFNetAgent::trace_values(std::vector<double> &values)
     {
         int vidx = 0;
-        for (int domain_type : m_domain_types) {
-            std::vector<double> domain_row = m_net_map[domain_type]->trace_values();
+        for (const m_domain_key_s domain_key : m_domains) {
+            std::vector<double> domain_row = m_net_map[domain_key]->trace_values();
             for (std::size_t idx=0; idx < domain_row.size(); ++vidx, ++idx) {
                 values[vidx] = domain_row[idx];
             }

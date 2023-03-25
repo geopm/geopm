@@ -18,12 +18,8 @@
 
 namespace geopm
 {
-    DomainNetMap::DomainNetMap(geopm::PlatformIO &plat_io, const int count)
+    DomainNetMap::DomainNetMap(geopm::PlatformIO &plat_io)
         : m_platform_io(plat_io)
-          , m_count(count)
-          , m_last_output(m_count)
-          , m_signal_inputs(m_count)
-          , m_delta_inputs(m_count)
     {
     }
 
@@ -101,7 +97,7 @@ namespace geopm
         return TensorTwoD(vals);
     }
 
-    void DomainNetMap::load_neural_net(char* nn_path, int domain_type)
+    void DomainNetMap::load_neural_net(char* nn_path, geopm_domain_e domain_type, int domain_index)
     {
         std::ifstream file(nn_path);
 
@@ -150,94 +146,77 @@ namespace geopm
 
         m_neural_net = geopm::make_unique<LocalNeuralNetImp>(layers);
 
-        for (int domain_idx = 0; domain_idx < m_count; ++domain_idx) {
-            for (std::size_t i=0; i<nnet_json["signal_inputs"].array_items().size(); i++) {
-                m_signal_inputs[domain_idx].push_back({
-                        m_platform_io.push_signal(
-                                nnet_json["signal_inputs"][i][0].string_value(),
-                                domain_type,
-                                domain_idx),
-                        NAN});
-            }
+        for (std::size_t i=0; i<nnet_json["signal_inputs"].array_items().size(); i++) {
+            m_signal_inputs.push_back({
+                    m_platform_io.push_signal(
+                            nnet_json["signal_inputs"][i][0].string_value(),
+                            domain_type,
+                            domain_index),
+                    NAN});
+        }
 
-            for (std::size_t i=0; i<nnet_json["delta_inputs"].array_items().size(); i++) {
-                m_delta_inputs[domain_idx].push_back({
-                        m_platform_io.push_signal(
-                                nnet_json["delta_inputs"][i][0][0].string_value(),
-                                domain_type,
-                                domain_idx),
-                        m_platform_io.push_signal(
-                                nnet_json["delta_inputs"][i][1][0].string_value(),
-                                domain_type,
-                                domain_idx),
-                        NAN, NAN, NAN, NAN});
-            }
+        for (std::size_t i=0; i<nnet_json["delta_inputs"].array_items().size(); i++) {
+            m_delta_inputs.push_back({
+                    m_platform_io.push_signal(
+                            nnet_json["delta_inputs"][i][0][0].string_value(),
+                            domain_type,
+                            domain_index),
+                    m_platform_io.push_signal(
+                            nnet_json["delta_inputs"][i][1][0].string_value(),
+                            domain_type,
+                            domain_index),
+                    NAN, NAN, NAN, NAN});
         }
 
         for (std::size_t i=0; i<nnet_json["trace_outputs"].array_items().size(); i++) {
             m_trace_outputs.push_back(nnet_json["trace_outputs"][i].string_value());
         }
+        // TODO validate that trace_outputs == size of final layer in the net
+        //      validate that signal_inputs + delta_inputs == size of initial layer
+        //      if net is empty, ensure that these are equal to each other instead
     }
 
     void DomainNetMap::sample()
     {
-        for (int idx=0; idx<m_count; ++idx) {
-            sample_one(idx);
-        }
-    }
-
-    void DomainNetMap::sample_one(int domain_index)
-    {
-        TensorOneD xs(m_signal_inputs[domain_index].size() + m_delta_inputs[domain_index].size());
+        TensorOneD xs(m_signal_inputs.size() + m_delta_inputs.size());
 
         // Collect latest signal values
-        for (std::size_t i=0; i<m_signal_inputs[domain_index].size(); i++) {
-            m_signal_inputs[domain_index][i].signal = m_platform_io.sample(m_signal_inputs[domain_index][i].batch_idx);
-            xs[i] = m_platform_io.sample(m_signal_inputs[domain_index][i].batch_idx);
+        for (std::size_t i=0; i<m_signal_inputs.size(); i++) {
+            m_signal_inputs[i].signal = m_platform_io.sample(m_signal_inputs[i].batch_idx);
+            xs[i] = m_platform_io.sample(m_signal_inputs[i].batch_idx);
         }
-        for (std::size_t i=0; i<m_delta_inputs[domain_index].size(); i++) {
-            m_delta_inputs[domain_index][i].signal_num_last = m_delta_inputs[domain_index][i].signal_num;
-            m_delta_inputs[domain_index][i].signal_den_last = m_delta_inputs[domain_index][i].signal_den;
-            m_delta_inputs[domain_index][i].signal_num = m_platform_io.sample(m_delta_inputs[domain_index][i].batch_idx_num);
-            m_delta_inputs[domain_index][i].signal_den = m_platform_io.sample(m_delta_inputs[domain_index][i].batch_idx_den);
-            xs[m_signal_inputs[domain_index].size() + i] =
-                (m_delta_inputs[domain_index][i].signal_num - m_delta_inputs[domain_index][i].signal_num_last) /
-                (m_delta_inputs[domain_index][i].signal_den - m_delta_inputs[domain_index][i].signal_den_last);
+        for (std::size_t i=0; i<m_delta_inputs.size(); i++) {
+            m_delta_inputs[i].signal_num_last = m_delta_inputs[i].signal_num;
+            m_delta_inputs[i].signal_den_last = m_delta_inputs[i].signal_den;
+            m_delta_inputs[i].signal_num = m_platform_io.sample(m_delta_inputs[i].batch_idx_num);
+            m_delta_inputs[i].signal_den = m_platform_io.sample(m_delta_inputs[i].batch_idx_den);
+            xs[m_signal_inputs.size() + i] =
+                (m_delta_inputs[i].signal_num - m_delta_inputs[i].signal_num_last) /
+                (m_delta_inputs[i].signal_den - m_delta_inputs[i].signal_den_last);
         }
 
-        m_last_output[domain_index] = m_neural_net->forward(xs);
+        m_last_output = m_neural_net->forward(xs);
     }
 
-    std::vector<std::string> DomainNetMap::trace_names(std::string domain) const
+    std::vector<std::string> DomainNetMap::trace_names() const
     {
-        std::vector<std::string> tracelist;
-        for (int domain_index=0; domain_index<m_count; ++domain_index) {
-            for (std::string col: m_trace_outputs) {
-                tracelist.push_back(col + "_" + domain + "_" + std::to_string(domain_index));
-            }
-        }
-        return tracelist;
+        return m_trace_outputs;
     }
 
     std::vector<double> DomainNetMap::trace_values() const
     {
-        std::vector<double> rval;
-
-        for (int domain_index=0; domain_index<m_count; ++domain_index) {
-            for (std::size_t idx=0; idx<m_last_output[domain_index].get_dim(); ++idx) {
-                rval.push_back(m_last_output[domain_index][idx]);
-            }
-        }
-
+        std::vector<double> rval(
+                m_last_output.get_data().begin(),
+                m_last_output.get_data().end());
         return rval;
     }
 
-    std::map<std::string, float> DomainNetMap::last_output(int domain_index) const
+    std::map<std::string, float> DomainNetMap::last_output() const
     {
         std::map<std::string, float> rval;
 
-        for (std::size_t idx=0; idx<m_last_output[domain_index].get_dim(); ++idx) {
-            rval[m_trace_outputs.at(idx)] = m_last_output.at(domain_index)[idx];
+        for (std::size_t idx=0; idx<m_last_output.get_dim(); ++idx) {
+            rval[m_trace_outputs.at(idx)] = m_last_output[idx];
         }
 
         return rval;

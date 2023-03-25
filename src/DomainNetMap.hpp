@@ -7,6 +7,7 @@
 #define DOMAINNETMAP_HPP_INCLUDE
 
 #include "geopm/json11.hpp"
+#include "geopm/PlatformTopo.hpp"
 
 #include "DenseLayer.hpp"
 #include "LocalNeuralNet.hpp"
@@ -24,7 +25,7 @@ namespace geopm
     class DomainNetMap
     {
         public:
-            DomainNetMap(geopm::PlatformIO &plat_io, int count);
+            DomainNetMap(geopm::PlatformIO &plat_io);
             /// @brief Constructor with size specified 
             ///
             /// @param [in] n Size of 1D tensor
@@ -40,18 +41,13 @@ namespace geopm
             ///
             /// @param [in] nn_path Path to neural net
             /// @param [in] domain_type Domain type, defined by geopm_domain_e enum 
-            void load_neural_net(char* nn_path, int domain_type);
-            /// @brief Calls sample_one for every domain index
-            void sample();
-            /// @brief Collects latest signals for a specific domain index and applies the 
+            /// @param [in] domain_index Index of the domain to be measured
+            void load_neural_net(char* nn_path, geopm_domain_e domain_type, int domain_index);
+            /// @brief Collects latest signals for a specific domain and applies the 
             ///        resulting TensorOneD state to the neural net.
-            ///
-            /// @param [in] domain_index
-            void sample_one(int index);
+            void sample();
             /// @brief generates the names for trace columns from the appropriate field in the neural net
-            ///
-            /// @param [in] domain String containing domain name. Must match neural net index
-            std::vector<std::string> trace_names(std::string domain) const;
+            std::vector<std::string> trace_names() const;
             /// @brief Populates trace values from last_output for each index within each domain type
             ///
             /// @return A vector of doubles containing trace values
@@ -62,7 +58,7 @@ namespace geopm
             /// @param [in] domain_index
             ///
             /// @return A map of string, float containing region class and probabilities
-            std::map<std::string, float> last_output(int index) const;
+            std::map<std::string, float> last_output() const;
         private:
             std::shared_ptr<DenseLayer> json_to_DenseLayer(const json11::Json &obj) const;
             TensorOneD json_to_TensorOneD(const json11::Json &obj) const;
@@ -96,9 +92,9 @@ namespace geopm
             static constexpr int m_max_nnet_size = 1024;
             std::unique_ptr<LocalNeuralNet> m_neural_net;
 
-            std::vector<TensorOneD> m_last_output;
-            std::vector<std::vector<signal> > m_signal_inputs;
-            std::vector<std::vector<delta_signal> > m_delta_inputs;
+            TensorOneD m_last_output;
+            std::vector<signal> m_signal_inputs;
+            std::vector<delta_signal> m_delta_inputs;
             std::vector<std::string> m_trace_outputs;
     };
 }
