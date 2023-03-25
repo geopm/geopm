@@ -51,6 +51,12 @@ namespace geopm
                 {GEOPM_DOMAIN_GPU, "GPU_CORE_FREQUENCY_MIN_AVAIL"}
             };
 
+    const std::map<geopm_domain_e, std::string> FFNetAgent::max_freq_control_name = 
+            {
+                {GEOPM_DOMAIN_PACKAGE, "CPU_FREQUENCY_MAX_CONTROL"},
+                {GEOPM_DOMAIN_GPU, "GPU_CORE_FREQUENCY_MAX_CONTROL"}
+            };
+
     const std::map<geopm_domain_e, std::string> FFNetAgent::trace_suffix = 
             {
                 {GEOPM_DOMAIN_PACKAGE, "_cpu_"},
@@ -68,7 +74,7 @@ namespace geopm
           , m_platform_topo(topo)
           , m_last_wait{{0, 0}}
           , M_WAIT_SEC(0.050) // 50ms Wait
-          , m_phi_idx(0)
+          , m_phi(0)
     {
         geopm_time(&m_last_wait);
 
@@ -83,13 +89,27 @@ namespace geopm
             }
         }
 
+        //Loading neural nets
         for (const m_domain_key_s domain_key : m_domains) {
             m_net_map[domain_key] = geopm::make_unique<DomainNetMap>(
-                            m_platform_io);
+                            m_platform_io,
+                            getenv(nnet_envname.at(domain_key.type)),
+                            domain_key.type,
+                            domain_key.index);
         }
 
         for (geopm_domain_e domain_type : m_domain_types) {
-            m_freq_recommender[domain_type] = geopm::make_unique<RegionHintRecommender>();
+            m_freq_recommender[domain_type] = geopm::make_unique<RegionHintRecommender>(
+                    getenv(freqmap_envname.at(domain_type)),
+                    m_platform_io.read_signal(
+                        min_freq_signal_name.at(domain_type),
+                        GEOPM_DOMAIN_BOARD,
+                        0),
+                    m_platform_io.read_signal(
+                        max_freq_signal_name.at(domain_type),
+                        GEOPM_DOMAIN_BOARD,
+                        0)
+                    );
         }
     }
 
@@ -107,32 +127,12 @@ namespace geopm
     // Push signals and controls for future batch read/write
     void FFNetAgent::init(int level, const std::vector<int> &fan_in, bool is_level_root)
     {
-        //Loading neural nets
         for (const m_domain_key_s domain_key : m_domains) {
-            m_net_map[domain_key]->load_neural_net(
-                    getenv(nnet_envname.at(domain_key.type)),
-                    domain_key.type,
-                    domain_key.index);
-        }
-
-        //Loading frequency map
-        for (geopm_domain_e domain_type : m_domain_types) {
-            m_freq_recommender[domain_type]->load_freqmap(
-                    getenv(freqmap_envname.at(domain_type)));
-
-            m_freq_recommender[domain_type]->set_max_freq(
-                    m_platform_io.read_signal(
-                        max_freq_signal_name.at(domain_type),
-                        GEOPM_DOMAIN_BOARD,
-                        0)
-                    );
-
-            m_freq_recommender[domain_type]->set_min_freq(
-                    m_platform_io.read_signal(
-                        min_freq_signal_name.at(domain_type),
-                        GEOPM_DOMAIN_BOARD,
-                        0)
-                    );
+            m_freq_control[domain_key] = 
+                    m_platform_io.push_control(
+                        max_freq_control_name.at(domain_key.type),
+                        domain_key.type,
+                        domain_key.index);
         }
 
         m_platform_io.write_control("MSR::PQR_ASSOC:RMID", GEOPM_DOMAIN_BOARD, 0, 0);
@@ -175,12 +175,12 @@ namespace geopm
     void FFNetAgent::adjust_platform(const std::vector<double>& in_policy)
     {
         if (!std::isnan(in_policy[M_POLICY_PHI])) {
-            m_phi_idx = (int)in_policy[M_POLICY_PHI];
-            if (m_phi_idx < 0) {
-                m_phi_idx = 0;
+            m_phi = in_policy[M_POLICY_PHI];
+            if (m_phi < 0) {
+                m_phi = 0;
             }
-            if (m_phi_idx > 10) {
-                m_phi_idx = 10;
+            if (m_phi > 1) {
+                m_phi = 1;
             }
         }
         m_do_write_batch = false;
@@ -188,7 +188,7 @@ namespace geopm
         for (const m_domain_key_s domain_key : m_domains) {
             double new_freq = m_freq_recommender[domain_key.type]->recommend_frequency(
                     m_net_map[domain_key]->last_output(),
-                    m_phi_idx
+                    m_phi
                     );
             if (!std::isnan(new_freq)) {
                 m_platform_io.adjust(
@@ -261,7 +261,6 @@ namespace geopm
     {
         std::vector<std::string> tracelist;
         for (const m_domain_key_s domain_key : m_domains) {
-            // TODO change to nicer domain type names
             for (const std::string trace_name : m_net_map.at(domain_key)->trace_names()) {
                 tracelist.push_back(
                         trace_name

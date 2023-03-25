@@ -18,86 +18,8 @@
 
 namespace geopm
 {
-    DomainNetMap::DomainNetMap(geopm::PlatformIO &plat_io)
+    DomainNetMap::DomainNetMap(geopm::PlatformIO &plat_io, char* nn_path, geopm_domain_e domain_type, int domain_index)
         : m_platform_io(plat_io)
-    {
-    }
-
-    std::shared_ptr<DenseLayer> DomainNetMap::json_to_DenseLayer(const json11::Json &obj) const {
-        if (!obj.is_array()) {
-            throw geopm::Exception("Neural network weights contains non-array-type.\n",
-                                   GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-
-        if (obj.array_items().size() != 2) {
-            throw geopm::Exception("Dense Layer weights must be an array of length exactly two.\n",
-                                   GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-
-        TensorTwoD weights = json_to_TensorTwoD(obj[0]);
-        TensorOneD biases = json_to_TensorOneD(obj[1]);
-        return std::make_shared<DenseLayerImp>(weights, biases);
-    }
-
-    TensorOneD DomainNetMap::json_to_TensorOneD(const json11::Json &obj) const {
-        if (!obj.is_array()) {
-            throw geopm::Exception("Neural network weights contains non-array-type.\n",
-                                   GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-
-        if (obj.array_items().empty()) {
-            throw geopm::Exception("Empty array is invalid for neural network weights.\n",
-                                   GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-
-        std::size_t vec_size = obj.array_items().size();
-        std::vector<float> vals(vec_size);
-
-        for (std::size_t idx = 0; idx < vec_size; ++idx) {
-            if (!obj[idx].is_number()) {
-                throw geopm::Exception("Non-numeric type found in neural network weights.\n",
-                                       GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-            }
-            vals[idx] = obj[idx].number_value();
-        }
-
-        return TensorOneD(vals);
-    }
-
-    TensorTwoD DomainNetMap::json_to_TensorTwoD(const json11::Json &obj) const {
-        if (!obj.is_array()){
-            throw geopm::Exception("Neural network weights is non-array-type.\n",
-                                   GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-        if (obj.array_items().size() == 0) {
-            throw geopm::Exception("Empty array is invalid for neural network weights.\n",
-                                   GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-
-        std::vector<std::vector<float> > vals;
-        for (std::size_t ridx = 0; ridx < obj.array_items().size(); ++ridx) {
-            if(!obj[ridx].is_array()) {
-                throw geopm::Exception("Neural network weights is non-array-type.\n",
-                                       GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-            }
-            std::size_t vec_size = obj[ridx].array_items().size();
-            std::vector<float> row(vec_size);
-
-            for (std::size_t cidx = 0; cidx < vec_size; ++cidx) {
-                if (!obj[ridx][cidx].is_number()) {
-                    throw geopm::Exception("Non-numeric type found in neural network weights.\n",
-                                           GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-                }
-                row[cidx] = obj[ridx][cidx].number_value();
-            }
-
-            vals.push_back(row);
-        }
-
-        return TensorTwoD(vals);
-    }
-
-    void DomainNetMap::load_neural_net(char* nn_path, geopm_domain_e domain_type, int domain_index)
     {
         std::ifstream file(nn_path);
 
@@ -174,6 +96,80 @@ namespace geopm
         // TODO validate that trace_outputs == size of final layer in the net
         //      validate that signal_inputs + delta_inputs == size of initial layer
         //      if net is empty, ensure that these are equal to each other instead
+    }
+
+    std::shared_ptr<DenseLayer> DomainNetMap::json_to_DenseLayer(const json11::Json &obj) const {
+        if (!obj.is_array()) {
+            throw geopm::Exception("Neural network weights contains non-array-type.\n",
+                                   GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
+        if (obj.array_items().size() != 2) {
+            throw geopm::Exception("Dense Layer weights must be an array of length exactly two.\n",
+                                   GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
+        TensorTwoD weights = json_to_TensorTwoD(obj[0]);
+        TensorOneD biases = json_to_TensorOneD(obj[1]);
+        return std::make_shared<DenseLayerImp>(weights, biases);
+    }
+
+    TensorOneD DomainNetMap::json_to_TensorOneD(const json11::Json &obj) const {
+        if (!obj.is_array()) {
+            throw geopm::Exception("Neural network weights contains non-array-type.\n",
+                                   GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
+        if (obj.array_items().empty()) {
+            throw geopm::Exception("Empty array is invalid for neural network weights.\n",
+                                   GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
+        std::size_t vec_size = obj.array_items().size();
+        std::vector<float> vals(vec_size);
+
+        for (std::size_t idx = 0; idx < vec_size; ++idx) {
+            if (!obj[idx].is_number()) {
+                throw geopm::Exception("Non-numeric type found in neural network weights.\n",
+                                       GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+            vals[idx] = obj[idx].number_value();
+        }
+
+        return TensorOneD(vals);
+    }
+
+    TensorTwoD DomainNetMap::json_to_TensorTwoD(const json11::Json &obj) const {
+        if (!obj.is_array()){
+            throw geopm::Exception("Neural network weights is non-array-type.\n",
+                                   GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        if (obj.array_items().size() == 0) {
+            throw geopm::Exception("Empty array is invalid for neural network weights.\n",
+                                   GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
+        std::vector<std::vector<float> > vals;
+        for (std::size_t ridx = 0; ridx < obj.array_items().size(); ++ridx) {
+            if(!obj[ridx].is_array()) {
+                throw geopm::Exception("Neural network weights is non-array-type.\n",
+                                       GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+            std::size_t vec_size = obj[ridx].array_items().size();
+            std::vector<float> row(vec_size);
+
+            for (std::size_t cidx = 0; cidx < vec_size; ++cidx) {
+                if (!obj[ridx][cidx].is_number()) {
+                    throw geopm::Exception("Non-numeric type found in neural network weights.\n",
+                                           GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                }
+                row[cidx] = obj[ridx][cidx].number_value();
+            }
+
+            vals.push_back(row);
+        }
+
+        return TensorTwoD(vals);
     }
 
     void DomainNetMap::sample()

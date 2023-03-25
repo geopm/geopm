@@ -77,7 +77,7 @@ namespace geopm
 
             std::map<std::string, double> m_policy_available;
 
-            int m_phi_idx;
+            double m_phi;
             int m_sample;
             std::map<m_domain_key_s, std::unique_ptr<DomainNetMap> > m_net_map;
             std::map<geopm_domain_e, std::unique_ptr<RegionHintRecommender> > m_freq_recommender;
@@ -91,6 +91,7 @@ namespace geopm
             const static std::map<geopm_domain_e, const char *> freqmap_envname;
             const static std::map<geopm_domain_e, std::string> max_freq_signal_name;
             const static std::map<geopm_domain_e, std::string> min_freq_signal_name;
+            const static std::map<geopm_domain_e, std::string> max_freq_control_name;
             const static std::map<geopm_domain_e, std::string> trace_suffix;
     };
 }
