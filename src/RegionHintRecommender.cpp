@@ -12,7 +12,9 @@
 
 namespace geopm
 {
-    void RegionHintRecommender::load_freqmap(char* fmap_path)
+    RegionHintRecommender::RegionHintRecommender(char* fmap_path, int min_freq, int max_freq)
+        : m_min_freq(min_freq)
+          , m_max_freq(max_freq)
     {
         std::string buf, err;
 
@@ -41,17 +43,7 @@ namespace geopm
         }
     }
 
-    void RegionHintRecommender::set_max_freq(int max_freq)
-    {
-        m_max_freq = max_freq;
-    }
-
-    void RegionHintRecommender::set_min_freq(int min_freq)
-    {
-        m_min_freq = min_freq;
-    }
-
-    double RegionHintRecommender::recommend_frequency(std::map<std::string, float> region_class, int phi)
+    double RegionHintRecommender::recommend_frequency(std::map<std::string, float> region_class, double phi)
     {
         for (const auto & [region_name, probability] : region_class) {
             if (std::isnan(probability)) {
@@ -62,7 +54,8 @@ namespace geopm
         double ZZ = 0;
         double freq = 0;
         for (const auto & [region_name, probability] : region_class) {
-            freq += exp(probability) * m_freq_map[region_name][phi];
+            int phi_idx = (int)(phi * (m_freq_map[region_name].size() - 1));
+            freq += exp(probability) * m_freq_map[region_name].at(phi_idx);
             ZZ += exp(probability);
         }
         freq = freq / ZZ;

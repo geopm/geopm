@@ -25,12 +25,7 @@ namespace geopm
     class DomainNetMap
     {
         public:
-            DomainNetMap(geopm::PlatformIO &plat_io);
-            /// @brief Constructor with size specified 
-            ///
-            /// @param [in] n Size of 1D tensor
-            virtual ~DomainNetMap() = default;
-            /// @brief Loads neural net for a specified domain from a json11 instance.
+            /// @brief Constructor which loads neural net for a specified domain from a json11 instance.
             ///
             /// @throws geopm::Exception if unable to open neural net file
             ///
@@ -39,10 +34,13 @@ namespace geopm
             /// @throws geopm::Exception if neural net file does not contain 
             ///         expected keys or arrays
             ///
+            /// @param [in] plat_io PlatformIO instance
             /// @param [in] nn_path Path to neural net
             /// @param [in] domain_type Domain type, defined by geopm_domain_e enum 
             /// @param [in] domain_index Index of the domain to be measured
-            void load_neural_net(char* nn_path, geopm_domain_e domain_type, int domain_index);
+
+            DomainNetMap(geopm::PlatformIO &plat_io, char* nn_path, geopm_domain_e domain_type, int domain_index);
+            virtual ~DomainNetMap() = default;
             /// @brief Collects latest signals for a specific domain and applies the 
             ///        resulting TensorOneD state to the neural net.
             void sample();

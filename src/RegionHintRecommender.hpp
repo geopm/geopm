@@ -16,24 +16,21 @@ namespace geopm
     class RegionHintRecommender
     {
         public:
-            /// @brief Loads frequency map file from json11 into a std::map
-            ///        of region class string to double
+            /// @brief Constructor loads frequency map file from json11 into
+            ///        a std::map of region class string to double, and sets
+            ///        both min and max frequency recommendations.
             ///
             /// @param [in] fmap_path string containing path to freq map json
-            void load_freqmap(char* fmap_path);
-            /// @brief Set maximum frequency to recommend
-            ///
-            /// @param [in] max_freq integer containing maximum frequency
-            void set_max_freq(int max_freq);
-            /// @brief Set minimum frequency to recommend
             /// @param [in] min_freq integer containing minimum frequency
-            void set_min_freq(int min_freq);
+            /// @param [in] max_freq integer containing maximum frequency
+            RegionHintRecommender(char* fmap_path, int min_freq, int max_freq);
+
             /// @brief Recommends frequency based on region classification probabilities
             ///
             /// @param [in] region_class List of region classification names and
             ///             probabilities output from region class neural net
             /// @param [in] phi User-input energy-perf bias
-            double recommend_frequency(std::map<std::string, float> region_class, int phi);
+            double recommend_frequency(std::map<std::string, float> region_class, double phi);
 
         private:
             int m_max_freq;
