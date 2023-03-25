@@ -12,6 +12,7 @@
 #include "geopm_time.h"
 #include "DomainNetMap.hpp"
 #include "RegionHintRecommender.hpp"
+#include "geopm/PlatformTopo.hpp"
 
 namespace geopm
 {
@@ -60,6 +61,14 @@ namespace geopm
             static std::vector<std::string> policy_names(void);
             static std::vector<std::string> sample_names(void);
         private:
+            struct m_domain_key_s {
+                geopm_domain_e type;
+                int index;
+                bool operator<(const m_domain_key_s &other) const {
+                    return type < other.type || (type == other.type && index < other.index);
+                }
+            };
+
             geopm::PlatformIO &m_platform_io;
             const geopm::PlatformTopo &m_platform_topo;
             geopm_time_s m_last_wait;
@@ -70,13 +79,19 @@ namespace geopm
 
             int m_phi_idx;
             int m_sample;
-            bool m_has_gpus;
-            std::map<int, std::unique_ptr<DomainNetMap> > m_net_map;
-            std::map<int, std::unique_ptr<RegionHintRecommender> > m_freq_recommender;
+            std::map<m_domain_key_s, std::unique_ptr<DomainNetMap> > m_net_map;
+            std::map<geopm_domain_e, std::unique_ptr<RegionHintRecommender> > m_freq_recommender;
 
             // m_freq_control[domain type][domain index] = platform io control index
-            std::map<int, std::vector<int> > m_freq_control;
-            std::vector<int> m_domain_types;
+            std::map<m_domain_key_s, int> m_freq_control;
+            std::vector<geopm_domain_e> m_domain_types;
+            std::vector<m_domain_key_s> m_domains;
+
+            const static std::map<geopm_domain_e, const char *> nnet_envname;
+            const static std::map<geopm_domain_e, const char *> freqmap_envname;
+            const static std::map<geopm_domain_e, std::string> max_freq_signal_name;
+            const static std::map<geopm_domain_e, std::string> min_freq_signal_name;
+            const static std::map<geopm_domain_e, std::string> trace_suffix;
     };
 }
 #endif  /* FFNETAGENT_HPP_INCLUDE */

@@ -39,7 +39,6 @@ namespace geopm
             int m_max_freq;
             int m_min_freq;
             std::map<std::string, std::vector<double> > m_freq_map;
-            std::vector<int> m_freq_control;
     };
 }
 
