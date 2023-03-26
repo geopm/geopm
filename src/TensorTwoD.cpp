@@ -12,8 +12,6 @@
 
 #include "geopm/Exception.hpp"
 
-#include <iostream>
-
 namespace geopm
 {
     TensorTwoD::TensorTwoD()
@@ -29,18 +27,18 @@ namespace geopm
     TensorTwoD::TensorTwoD(size_t rows,
                            size_t cols,
                            std::shared_ptr<TensorMath> math)
+        : m_math(math)
     {
         set_dim(rows, cols);
-        m_math = math;
     }
 
     TensorTwoD::TensorTwoD(const TensorTwoD &other)
-        : m_mat(other.m_mat)
+        : m_mat(other.m_mat), m_math(other.m_math)
     {
     }
 
     TensorTwoD::TensorTwoD(TensorTwoD &&other)
-        : TensorTwoD(std::move(other.m_mat))
+        : TensorTwoD(std::move(other.m_mat), std::move(other.m_math))
     {
     }
 
@@ -51,34 +49,32 @@ namespace geopm
 
     TensorTwoD::TensorTwoD(std::vector<TensorOneD> input,
                            std::shared_ptr<TensorMath> math)
+        : m_math(math)
     {
         set_data(input);
-        m_math = math;
     }
 
     TensorTwoD::TensorTwoD(std::vector<std::vector<float> > input)
+        : TensorTwoD(input, std::make_shared<TensorMathImp>())
     {
-        std::cerr << "init 61" << std::endl;
-        std::cout << "init 62" << std::endl;
+    }
 
+    TensorTwoD::TensorTwoD(std::vector<std::vector<float> > input,
+                           std::shared_ptr<TensorMath> math)
+        : m_math(math)
+    {
         if (input.size() == 0) {
             throw geopm::Exception("Empty array is invalid for neural network weights.\n",
                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        std::cout << "init 69" << std::endl;
-
         size_t rows = input.size();
-        std::cout << "rows = " << rows << std::endl;
         std::vector<TensorOneD> tensor_vec(rows);
         for (size_t idx = 0; idx < rows; ++idx) {
             tensor_vec[idx] = TensorOneD(input[idx]);
-            std::cout << "cols[" << idx << "] = " << tensor_vec[idx].get_dim() << std::endl;
-            std::cout << "from " << input[idx].size() << std::endl;
         }
 
         set_data(tensor_vec);
-        m_math = std::make_shared<TensorMathImp>();
     }
 
     size_t TensorTwoD::get_rows() const
@@ -144,10 +140,8 @@ namespace geopm
         m_mat = data;
         size_t rows = data.size();
         if (rows > 1) {
-            std::cout << "hi" << std::endl;
             size_t cols = data[0].get_dim();
             for (size_t idx = 1; idx < rows; ++idx) {
-                std::cout << idx << data[idx].get_dim() << "=?" << cols << std::endl;
                 if (data[idx].get_dim() != cols) {
                     throw geopm::Exception("Attempt to load non-rectangular matrix.",
                                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);

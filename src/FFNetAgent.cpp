@@ -13,6 +13,7 @@
 #include <fstream>
 
 #include "PlatformIOProf.hpp"
+#include "geopm_debug.hpp"
 #include "geopm/PluginFactory.hpp"
 #include "geopm/PlatformIO.hpp"
 #include "geopm/Helper.hpp"
@@ -143,6 +144,29 @@ namespace geopm
     // Validate incoming policy and configure default policy requests.
     void FFNetAgent::validate_policy(std::vector<double> &in_policy) const
     {
+        GEOPM_DEBUG_ASSERT(in_policy.size() == M_NUM_POLICY,
+                           "FFNetAgent::" + std::string(__func__) +
+                           "(): policy vector not correctly sized.");
+
+        if (is_all_nan(in_policy)) {
+            // All-NAN policy may be received before the first policy
+            /// @todo: in the future, this should not be accepted by this agent.
+            return;
+        }
+        if (!std::isnan(in_policy[M_POLICY_PHI])) {
+            if (in_policy[M_POLICY_PHI] > 1.0 || in_policy[M_POLICY_PHI] < 0) {
+                throw Exception("FFNetAgent::" + std::string(__func__) +
+                                "(): CPU_PHI is out of range (should be 0-1). (",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+
+            }
+        }
+    }
+
+    bool FFNetAgent::is_all_nan(const std::vector<double> &vec)
+    {
+        return std::all_of(vec.begin(), vec.end(),
+                           [](double x) -> bool { return std::isnan(x); });
     }
 
     // Distribute incoming policy to children
@@ -176,12 +200,6 @@ namespace geopm
     {
         if (!std::isnan(in_policy[M_POLICY_PHI])) {
             m_phi = in_policy[M_POLICY_PHI];
-            if (m_phi < 0) {
-                m_phi = 0;
-            }
-            if (m_phi > 1) {
-                m_phi = 1;
-            }
         }
         m_do_write_batch = false;
 
