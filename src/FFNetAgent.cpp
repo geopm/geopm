@@ -91,7 +91,7 @@ namespace geopm
 
         //Loading neural nets
         for (const m_domain_key_s domain_key : m_domains) {
-            m_net_map[domain_key] = geopm::make_unique<DomainNetMap>(
+            m_net_map[domain_key] = DomainNetMap::make_unique(
                             m_platform_io,
                             getenv(nnet_envname.at(domain_key.type)),
                             domain_key.type,
@@ -99,7 +99,7 @@ namespace geopm
         }
 
         for (geopm_domain_e domain_type : m_domain_types) {
-            m_freq_recommender[domain_type] = geopm::make_unique<RegionHintRecommender>(
+            m_freq_recommender[domain_type] = RegionHintRecommender::make_unique(
                     getenv(freqmap_envname.at(domain_type)),
                     m_platform_io.read_signal(
                         min_freq_signal_name.at(domain_type),
@@ -147,7 +147,7 @@ namespace geopm
 
     // Distribute incoming policy to children
     void FFNetAgent::split_policy(const std::vector<double>& in_policy,
-            std::vector<std::vector<double> >& out_policy)
+                                  std::vector<std::vector<double> >& out_policy)
     {
         for (auto &child_pol : out_policy) {
             child_pol = in_policy;
@@ -161,7 +161,7 @@ namespace geopm
     }
 
     void FFNetAgent::aggregate_sample(const std::vector<std::vector<double> > &in_sample,
-            std::vector<double>& out_sample)
+                                      std::vector<double>& out_sample)
     {
 
     }
@@ -209,7 +209,7 @@ namespace geopm
     // Read signals from the platform and calculate samples to be sent up
     void FFNetAgent::sample_platform(std::vector<double> &out_sample)
     {
-        m_sample ++;
+        ++m_sample;
 
         for (const m_domain_key_s domain_key : m_domains) {
             m_net_map[domain_key]->sample();
@@ -223,7 +223,7 @@ namespace geopm
         do {
             geopm_time(&current_time);
         }
-        while(geopm_time_diff(&m_last_wait, &current_time) < M_WAIT_SEC);
+        while (geopm_time_diff(&m_last_wait, &current_time) < M_WAIT_SEC);
         geopm_time(&m_last_wait);
     }
 

@@ -6,36 +6,34 @@
 #ifndef REGIONHINTRECOMMENDER_HPP_INCLUDE
 #define REGIONHINTRECOMMENDER_HPP_INCLUDE
 
-#include "geopm/json11.hpp"
+#include <memory>
+#include <map>
 
 namespace geopm
 {
     /// @brief Class ingesting region classification probabilities and
-    ///        a frequency map json11 file and determining a recommended 
+    ///        a frequency map json file and determining a recommended 
     ///        frequency decisions.
     class RegionHintRecommender
     {
         public:
-            /// @brief Constructor loads frequency map file from json11 into
-            ///        a std::map of region class string to double, and sets
-            ///        both min and max frequency recommendations.
+            /// @brief Returns a unique_ptr to a concrete object constructed
+            ///        using the underlying implementation, which loads a
+            ///        frequency map file into a std::map of region class
+            ///        string to double, and sets both min and max frequency
+            ///        recommendations.
             ///
             /// @param [in] fmap_path string containing path to freq map json
             /// @param [in] min_freq integer containing minimum frequency
             /// @param [in] max_freq integer containing maximum frequency
-            RegionHintRecommender(char* fmap_path, int min_freq, int max_freq);
+            static std::unique_ptr<RegionHintRecommender> make_unique(const std::string fmap_path, int min_freq, int max_freq);
 
             /// @brief Recommends frequency based on region classification probabilities
             ///
             /// @param [in] region_class List of region classification names and
             ///             probabilities output from region class neural net
             /// @param [in] phi User-input energy-perf bias
-            double recommend_frequency(std::map<std::string, float> region_class, double phi);
-
-        private:
-            int m_max_freq;
-            int m_min_freq;
-            std::map<std::string, std::vector<double> > m_freq_map;
+            virtual double recommend_frequency(std::map<std::string, float> region_class, double phi) const = 0;
     };
 }
 
