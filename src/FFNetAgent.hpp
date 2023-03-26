@@ -68,6 +68,7 @@ namespace geopm
                     return type < other.type || (type == other.type && index < other.index);
                 }
             };
+            static bool is_all_nan(const std::vector<double> &vec);
 
             PlatformIO &m_platform_io;
             const PlatformTopo &m_platform_topo;

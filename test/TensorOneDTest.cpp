@@ -12,6 +12,7 @@
 #include "MockTensorMath.hpp"
 
 using geopm::TensorOneD;
+using ::testing::Mock;
 using ::testing::Return;
 using ::testing::_;
 
@@ -27,8 +28,9 @@ TEST_F(TensorOneDTest, test_sum)
     std::vector<float> vec_b = {6, 7};
 
     TensorOneD tensor_a(vec_a, fake_math);
-    TensorOneD tensor_b(vec_b, fake_math);
+    TensorOneD tensor_b(vec_b);
 
+    Mock::AllowLeak(&*fake_math);
     EXPECT_CALL(*fake_math, add(tensor_a, tensor_a)).WillOnce(Return(tensor_b));
     TensorOneD tensor_c = tensor_a + tensor_a;
 

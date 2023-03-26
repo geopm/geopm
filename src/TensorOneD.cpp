@@ -24,12 +24,12 @@ namespace geopm
     }
 
     TensorOneD::TensorOneD(const TensorOneD &other)
-        : TensorOneD(other.m_vec)
+        : TensorOneD(other.m_vec, other.m_math)
     {
     }
 
     TensorOneD::TensorOneD(TensorOneD &&other)
-        : TensorOneD(std::move(other.m_vec))
+        : TensorOneD(std::move(other.m_vec), std::move(other.m_math))
     {
     }
 
