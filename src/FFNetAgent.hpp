@@ -20,7 +20,7 @@ namespace geopm
     class PlatformIO;
 
     /// @brief Agent
-    class FFNetAgent : public geopm::Agent
+    class FFNetAgent : public Agent
     {
         public:
             enum m_policy_e {
@@ -34,7 +34,7 @@ namespace geopm
             };
 
             FFNetAgent();
-            FFNetAgent(geopm::PlatformIO &plat_io, const geopm::PlatformTopo &topo);
+            FFNetAgent(PlatformIO &plat_io, const PlatformTopo &topo);
             virtual ~FFNetAgent() = default;
             void init(int level, const std::vector<int> &fan_in, bool is_level_root) override;
             void validate_policy(std::vector<double> &in_policy) const override;
@@ -57,7 +57,7 @@ namespace geopm
             void enforce_policy(const std::vector<double> &policy) const override;
 
             static std::string plugin_name(void);
-            static std::unique_ptr<geopm::Agent> make_plugin(void);
+            static std::unique_ptr<Agent> make_plugin(void);
             static std::vector<std::string> policy_names(void);
             static std::vector<std::string> sample_names(void);
         private:
@@ -69,8 +69,8 @@ namespace geopm
                 }
             };
 
-            geopm::PlatformIO &m_platform_io;
-            const geopm::PlatformTopo &m_platform_topo;
+            PlatformIO &m_platform_io;
+            const PlatformTopo &m_platform_topo;
             geopm_time_s m_last_wait;
             const double M_WAIT_SEC;
             bool m_do_write_batch;

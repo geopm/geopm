@@ -389,6 +389,7 @@ libgeopmpolicy_la_SOURCES = src/Accumulator.cpp \
                             src/DenseLayerImp.hpp \
                             src/DomainNetMap.cpp \
                             src/DomainNetMap.hpp \
+                            src/DomainNetMapImp.hpp \
                             src/EditDistPeriodicityDetector.cpp \
                             src/EditDistPeriodicityDetector.hpp \
                             src/EditDistEpochRecordFilter.cpp \
@@ -463,6 +464,7 @@ libgeopmpolicy_la_SOURCES = src/Accumulator.cpp \
                             src/RecordFilter.hpp \
                             src/RegionHintRecommender.cpp \
                             src/RegionHintRecommender.hpp \
+                            src/RegionHintRecommenderImp.hpp \
                             src/Reporter.cpp \
                             src/Reporter.hpp \
                             src/SampleAggregator.cpp \

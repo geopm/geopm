@@ -4,6 +4,7 @@
  */
 
 #include "DomainNetMap.hpp"
+#include "DomainNetMapImp.hpp"
 
 #include <cmath>
 #include <fstream>
@@ -18,7 +19,12 @@
 
 namespace geopm
 {
-    DomainNetMap::DomainNetMap(geopm::PlatformIO &plat_io, char* nn_path, geopm_domain_e domain_type, int domain_index)
+    std::unique_ptr<DomainNetMap> DomainNetMap::make_unique(PlatformIO &plat_io, const std::string nn_path, geopm_domain_e domain_type, int domain_index)
+    {
+        return geopm::make_unique<DomainNetMapImp>(plat_io, nn_path, domain_type, domain_index);
+    }
+
+    DomainNetMapImp::DomainNetMapImp(PlatformIO &plat_io, const std::string nn_path, geopm_domain_e domain_type, int domain_index)
         : m_platform_io(plat_io)
     {
         std::ifstream file(nn_path);
@@ -98,7 +104,7 @@ namespace geopm
         //      if net is empty, ensure that these are equal to each other instead
     }
 
-    std::shared_ptr<DenseLayer> DomainNetMap::json_to_DenseLayer(const json11::Json &obj) const {
+    std::shared_ptr<DenseLayer> DomainNetMapImp::json_to_DenseLayer(const json11::Json &obj) const {
         if (!obj.is_array()) {
             throw geopm::Exception("Neural network weights contains non-array-type.\n",
                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -114,7 +120,7 @@ namespace geopm
         return std::make_shared<DenseLayerImp>(weights, biases);
     }
 
-    TensorOneD DomainNetMap::json_to_TensorOneD(const json11::Json &obj) const {
+    TensorOneD DomainNetMapImp::json_to_TensorOneD(const json11::Json &obj) const {
         if (!obj.is_array()) {
             throw geopm::Exception("Neural network weights contains non-array-type.\n",
                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -139,7 +145,7 @@ namespace geopm
         return TensorOneD(vals);
     }
 
-    TensorTwoD DomainNetMap::json_to_TensorTwoD(const json11::Json &obj) const {
+    TensorTwoD DomainNetMapImp::json_to_TensorTwoD(const json11::Json &obj) const {
         if (!obj.is_array()){
             throw geopm::Exception("Neural network weights is non-array-type.\n",
                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -172,7 +178,7 @@ namespace geopm
         return TensorTwoD(vals);
     }
 
-    void DomainNetMap::sample()
+    void DomainNetMapImp::sample()
     {
         TensorOneD xs(m_signal_inputs.size() + m_delta_inputs.size());
 
@@ -194,12 +200,12 @@ namespace geopm
         m_last_output = m_neural_net->forward(xs);
     }
 
-    std::vector<std::string> DomainNetMap::trace_names() const
+    std::vector<std::string> DomainNetMapImp::trace_names() const
     {
         return m_trace_outputs;
     }
 
-    std::vector<double> DomainNetMap::trace_values() const
+    std::vector<double> DomainNetMapImp::trace_values() const
     {
         std::vector<double> rval(
                 m_last_output.get_data().begin(),
@@ -207,7 +213,7 @@ namespace geopm
         return rval;
     }
 
-    std::map<std::string, float> DomainNetMap::last_output() const
+    std::map<std::string, float> DomainNetMapImp::last_output() const
     {
         std::map<std::string, float> rval;
 
