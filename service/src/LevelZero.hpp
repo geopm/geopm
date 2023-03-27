@@ -258,12 +258,6 @@ namespace geopm
 
             virtual void metric_read(unsigned int l0_device_idx,
                                      unsigned int l0_domain_idx) = 0;
-            virtual void metric_init(unsigned int l0_device_idx,
-                                     unsigned int l0_domain_idx) = 0;
-            virtual void metric_destroy(unsigned int l0_device_idx,
-                                        unsigned int l0_domain_idx) = 0;
-            virtual void metric_update_rate_control(unsigned int l0_device_idx,
-                                                    uint32_t setting) = 0;
     };
 
     LevelZero &levelzero();
