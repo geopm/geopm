@@ -530,6 +530,23 @@ namespace geopm
                                   },
                                   .01
                                   }},
+                              {M_NAME_PREFIX + "METRIC:NUM_REPORTS", {
+                                  //TODO: pull from L0 metrics programmatically
+                                  "Number of Level Zero Tools reports processed this sample",
+                                  GEOPM_DOMAIN_GPU_CHIP,
+                                  Agg::average,
+                                  IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
+                                  string_format_double,
+                                  {},
+                                  [this](unsigned int domain_idx) -> double
+                                  {
+                                      return this->m_levelzero_device_pool.metric_sample(
+                                                   GEOPM_DOMAIN_GPU_CHIP,
+                                                   domain_idx,
+                                                   "NUM_REPORTS");
+                                  },
+                                  .01
+                                  }},
                              })
         , m_control_available({{M_NAME_PREFIX + "GPU_CORE_FREQUENCY_MIN_CONTROL", {
                                     "Sets the minimum frequency request for the GPU Compute Hardware.",

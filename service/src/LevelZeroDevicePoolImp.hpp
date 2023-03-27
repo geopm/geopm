@@ -79,9 +79,6 @@ namespace geopm
             uint32_t metric_update_rate(int domain, unsigned int domain_idx) const override;
 
             void metric_read(int domain, unsigned int domain_idx) const override;
-//            void metric_polling_disable(void) override;
-            void metric_update_rate_control(int domain, unsigned int domain_idx,
-                                            uint32_t setting) const override;
 
         private:
             LevelZero &m_levelzero;

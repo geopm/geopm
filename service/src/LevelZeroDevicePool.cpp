@@ -538,10 +538,12 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
-        dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
+        if (domain_idx < 2) {
+            std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
+            dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
 
-        m_levelzero.metric_read(dev_subdev_idx_pair.first, dev_subdev_idx_pair.second);
+            m_levelzero.metric_read(dev_subdev_idx_pair.first, dev_subdev_idx_pair.second);
+        }
     }
 
     double LevelZeroDevicePoolImp::metric_sample(int domain, unsigned int domain_idx,
@@ -555,17 +557,19 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
-        dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
+        if (domain_idx < 2) {
+            std::pair<unsigned int, unsigned int> dev_subdev_idx_pair;
+            dev_subdev_idx_pair = subdevice_device_conversion(domain_idx);
 
-        std::vector<double> data = m_levelzero.metric_sample(dev_subdev_idx_pair.first,
-                                                             dev_subdev_idx_pair.second,
-                                                             metric_name);
+            std::vector<double> data = m_levelzero.metric_sample(dev_subdev_idx_pair.first,
+                                                                 dev_subdev_idx_pair.second,
+                                                                 metric_name);
 
-        if (data.size() > 0) {
-            //TODO: add min, max, avg etc handling.
-            result = std::accumulate(data.begin(), data.end(), 0.0) / data.size();
-            //result = data.at(data.size()-1);
+            if (data.size() > 0) {
+                //TODO: add min, max, avg etc handling.
+                result = std::accumulate(data.begin(), data.end(), 0.0) / data.size();
+                //result = data.at(data.size()-1);
+            }
         }
         return result;
     }
@@ -580,26 +584,5 @@ namespace geopm
         }
 
         return m_levelzero.metric_update_rate(domain_idx);
-    }
-
-//    void LevelZeroDevicePoolImp::metric_polling_disable()
-//    {
-//        unsigned int num_device = num_gpu(GEOPM_DOMAIN_GPU);
-//        for (unsigned int l0_device_idx = 0; l0_device_idx < num_device; l0_device_idx++) {
-//            m_levelzero.metric_destroy(l0_device_idx);
-//        }
-//    }
-
-    void LevelZeroDevicePoolImp::metric_update_rate_control(int domain, unsigned int domain_idx,
-                                                            uint32_t setting) const
-    {
-        if (domain != GEOPM_DOMAIN_GPU) {
-            throw Exception("LevelZeroDevicePool::" + std::string(__func__) +
-                            ": domain " + std::to_string(domain) +
-                            " is not supported for metrics.",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-
-        m_levelzero.metric_update_rate_control(domain_idx, setting);
     }
 }
