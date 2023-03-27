@@ -11,7 +11,7 @@
 #include <getopt.h>
 #include <errno.h>
 #include <limits.h>
-#ifdef ENABLE_MPI
+#ifdef GEOPM_ENABLE_MPI
 #include <mpi.h>
 #endif
 
@@ -83,8 +83,8 @@ int main(int argc, char **argv)
         err0 = EINVAL;
     }
 
-#if ENABLE_MPI
-    int world_size = 1, my_rank = 0;
+#ifdef GEOPM_ENABLE_MPI
+    int world_size = 1, my_rank = 0, i;
     int err_mpi = 0;
     MPI_Comm comm_world = MPI_COMM_NULL;
     if (!err0) {
@@ -98,7 +98,7 @@ int main(int argc, char **argv)
         }
     }
     if (err_mpi) {
-        i = NAME_MAX
+        i = NAME_MAX;
         PMPI_Error_string(err_mpi, error_str, &i);
         fprintf(stderr, "Error: %s\n", error_str);
         err0 = err_mpi;
@@ -112,7 +112,7 @@ int main(int argc, char **argv)
         }
     }
 
-#if ENABLE_MPI
+#ifdef GEOPM_ENABLE_MPI
     PMPI_Finalize();
 #endif
     return err0;
