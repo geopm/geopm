@@ -22,7 +22,7 @@ namespace geopm
     {
         public:
             LevelZeroImp();
-            virtual ~LevelZeroImp() = default;
+            virtual ~LevelZeroImp();
             int num_gpu(void) const override;
             int num_gpu(int domain) const override;
             int frequency_domain_count(unsigned int l0_device_idx,
@@ -134,11 +134,6 @@ namespace geopm
 
             void metric_read(unsigned int l0_device_idx,
                              unsigned int l0_domain_idx) override;
-            void metric_init(unsigned int l0_device_idx,
-                             unsigned int l0_domain_idx) override;
-            void metric_destroy(unsigned int l0_device_idx,
-                                unsigned int l0_domain_idx) override;
-            void metric_update_rate_control(unsigned int l0_device_idx, uint32_t setting) override;
 
         private:
             enum m_error_type {
@@ -191,12 +186,12 @@ namespace geopm
                 std::vector<uint32_t> num_reports;
                 std::vector<bool> metric_domain_cached;
                 std::vector<ze_event_pool_handle_t> event_pool;
-                std::vector<ze_event_handle_t> event; //TODO: rename metric_notification_event?
+                std::vector<ze_event_handle_t> metric_notifcation_event; //TODO: rename metric_notification_event?
                 std::vector<zet_metric_streamer_handle_t> metric_streamer;
                 std::vector<zet_metric_group_handle_t> metric_group_handle; //compute basic only
 
                 // required for L0 metric result tracking.  Chip indexed
-                mutable std::vector<std::map<std::string, std::vector<double>>> m_metric_data;
+                std::vector<std::map<std::string, std::vector<double>>> m_metric_data;
                 mutable std::vector<bool> metrics_initialized;
             };
 
@@ -219,7 +214,7 @@ namespace geopm
                 uint32_t num_device_power_domain;
                 mutable uint64_t cached_energy_timestamp;
 
-                uint32_t metric_sampling_period;
+                uint32_t metric_sampling_period_ns;
             };
 
             void ras_domain_cache(unsigned int l0_device_idx);
@@ -252,7 +247,14 @@ namespace geopm
 
             void metric_group_cache(unsigned int l0_device_idx);
             void metric_calc(unsigned int l0_device_idx, unsigned int l0_domain_idx,
-                             zet_metric_streamer_handle_t metric_streamer) const;
+                             size_t data_size, std::vector<uint8_t> data);
+
+            void metric_init(unsigned int l0_device_idx,
+                             unsigned int l0_domain_idx);
+            void metric_destroy(unsigned int l0_device_idx,
+                                unsigned int l0_domain_idx);
+
+            double metric_data_convert(zet_typed_value_t data) const;
     };
 }
 #endif
