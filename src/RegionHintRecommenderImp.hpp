@@ -17,8 +17,8 @@ namespace geopm
             double recommend_frequency(std::map<std::string, float> region_class, double phi) const override;
 
         private:
-            int m_max_freq;
             int m_min_freq;
+            int m_max_freq;
             std::map<std::string, std::vector<double> > m_freq_map;
     };
 }

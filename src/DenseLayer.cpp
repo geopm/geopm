@@ -25,6 +25,8 @@ namespace geopm
     }
 
     DenseLayerImp::DenseLayerImp(const TensorTwoD &weights, const TensorOneD &biases) 
+	    : m_weights(weights)
+	      , m_biases(biases)
     {
         if (weights.get_rows() == 0 && weights.get_cols() == 0) {
             throw geopm::Exception("Empty array is invalid for neural network weights.\n",
@@ -35,9 +37,6 @@ namespace geopm
             throw geopm::Exception("Incompatible dimensions for weights and biases.",
                     GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-
-        m_weights = weights;
-        m_biases = biases;
     }
 
     TensorOneD DenseLayerImp::forward(const TensorOneD &input) const

@@ -33,7 +33,7 @@ namespace geopm
     }
 
     TensorTwoD::TensorTwoD(const TensorTwoD &other)
-        : m_mat(other.m_mat), m_math(other.m_math)
+        : TensorTwoD(other.m_mat, other.m_math)
     {
     }
 
@@ -121,6 +121,7 @@ namespace geopm
     TensorTwoD& TensorTwoD::operator=(const TensorTwoD &other)
     {
         m_mat = other.m_mat;
+        m_math = other.m_math;
 
         return *this;
     }
