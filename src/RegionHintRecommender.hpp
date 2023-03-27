@@ -28,6 +28,7 @@ namespace geopm
             /// @param [in] max_freq integer containing maximum frequency
             static std::unique_ptr<RegionHintRecommender> make_unique(const std::string fmap_path, int min_freq, int max_freq);
 
+            virtual ~RegionHintRecommender() = default;
             /// @brief Recommends frequency based on region classification probabilities
             ///
             /// @param [in] region_class List of region classification names and

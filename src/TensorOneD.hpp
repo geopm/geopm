@@ -44,7 +44,7 @@ namespace geopm
             /// @param [in] math  TensorMath instance
             ///
             /// @throws geopm::Exception if input is empty.
-            TensorOneD(std::vector<float> input, std::shared_ptr<TensorMath> math);
+            TensorOneD(const std::vector<float> &input, std::shared_ptr<TensorMath> math);
 
             /// @brief Set length of 1D tensor
             ///

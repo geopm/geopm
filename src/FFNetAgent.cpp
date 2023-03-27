@@ -279,7 +279,7 @@ namespace geopm
     {
         std::vector<std::string> tracelist;
         for (const m_domain_key_s domain_key : m_domains) {
-            for (const std::string trace_name : m_net_map.at(domain_key)->trace_names()) {
+            for (const std::string& trace_name : m_net_map.at(domain_key)->trace_names()) {
                 tracelist.push_back(
                         trace_name
                         + trace_suffix.at(domain_key.type)

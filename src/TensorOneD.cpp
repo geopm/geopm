@@ -29,8 +29,8 @@ namespace geopm
     }
 
     TensorOneD::TensorOneD(TensorOneD &&other)
-        : TensorOneD(std::move(other.m_vec), std::move(other.m_math))
     {
+        *this = std::move(other);
     }
 
     TensorOneD::TensorOneD(std::vector<float> input)
@@ -38,7 +38,7 @@ namespace geopm
     {
     }
 
-    TensorOneD::TensorOneD(std::vector<float> input, std::shared_ptr<TensorMath> math)
+    TensorOneD::TensorOneD(const std::vector<float> &input, std::shared_ptr<TensorMath> math)
     {
         m_vec = input;
         m_math = math;
@@ -57,6 +57,7 @@ namespace geopm
     TensorOneD& TensorOneD::operator=(const TensorOneD &other)
     {
         m_vec = other.m_vec;
+        m_math = other.m_math;
         return *this;
     }
 
@@ -67,6 +68,7 @@ namespace geopm
         }
 
         m_vec = std::move(other.m_vec);
+        m_math = std::move(other.m_math);
         return *this;
     }
 
