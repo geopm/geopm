@@ -1281,7 +1281,6 @@ namespace geopm
     {
         m_is_batch_read = true;
 
-        // Consider doing this first vs second
         for (int domain_idx = 0; domain_idx <
              m_platform_topo.num_domain(GEOPM_DOMAIN_GPU_CHIP); ++domain_idx) {
             if (m_metric_signal_pushed.at(domain_idx)) {
@@ -1395,6 +1394,7 @@ namespace geopm
         if (string_ends_with(signal_name, "_TIMESTAMP")) {
             return NAN;
         }
+
         double result = NAN;
         auto it = m_signal_available.find(signal_name);
         if (it != m_signal_available.end()) {
