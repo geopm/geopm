@@ -18,19 +18,19 @@ import geopm_power_limit as hook
 SAVED_CONTROLS_FILE = "saved_controls.json"
 
 CURRENT_SETTINGS = [
-        {"name": "MSR::PLATFORM_POWER_LIMIT::PL1_TIME_WINDOW",
+        {"name": "MSR::PLATFORM_POWER_LIMIT:PL1_TIME_WINDOW",
          "domain_type": "board",
          "domain_idx": 0,
          "setting": 0.0},
-        {"name": "MSR::PLATFORM_POWER_LIMIT::PL1_CLAMP_ENABLE",
+        {"name": "MSR::PLATFORM_POWER_LIMIT:PL1_CLAMP_ENABLE",
          "domain_type": "board",
          "domain_idx": 0,
          "setting": 0},
-        {"name": "MSR::PLATFORM_POWER_LIMIT::PLATFORM_POWER_LIMIT",
+        {"name": "MSR::PLATFORM_POWER_LIMIT:PL1_POWER_LIMIT",
          "domain_type": "board",
          "domain_idx": 0,
          "setting": 340000000},
-        {"name": "MSR::PLATFORM_POWER_LIMIT::PL1_LIMIT_ENABLE",
+        {"name": "MSR::PLATFORM_POWER_LIMIT:PL1_LIMIT_ENABLE",
          "domain_type": "board",
          "domain_idx": 0,
          "setting": 0}
