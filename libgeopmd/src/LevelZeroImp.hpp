@@ -186,7 +186,7 @@ namespace geopm
                 //ZE Context used for ZET data collection
                 std::vector<ze_context_handle_t> context;
 
-                // required for L0 metric querying
+                // required for L0 metric querying.  Chip indexed
                 std::vector<uint32_t> num_metric;
                 std::vector<uint32_t> num_reports;
                 std::vector<bool> metric_domain_cached;
@@ -195,7 +195,7 @@ namespace geopm
                 std::vector<zet_metric_streamer_handle_t> metric_streamer;
                 std::vector<zet_metric_group_handle_t> metric_group_handle; //compute basic only
 
-                // required for L0 metric result tracking
+                // required for L0 metric result tracking.  Chip indexed
                 mutable std::vector<std::map<std::string, std::vector<double>>> m_metric_data;
                 mutable std::vector<bool> metrics_initialized;
             };
