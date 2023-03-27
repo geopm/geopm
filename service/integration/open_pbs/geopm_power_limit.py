@@ -27,22 +27,22 @@ _SAVED_CONTROLS_FILE = _SAVED_CONTROLS_PATH + "/power-limit-save-control.json"
 _POWER_LIMIT_RESOURCE = "geopm-node-power-limit"
 
 _power_limit_control = {
-        "name": "MSR::PLATFORM_POWER_LIMIT::PLATFORM_POWER_LIMIT",
+        "name": "MSR::PLATFORM_POWER_LIMIT:PL1_POWER_LIMIT",
         "domain_type": "board",
         "domain_idx": 0,
         "setting": None
     }
 _controls = [
-        {"name": "MSR::PLATFORM_POWER_LIMIT::PL1_TIME_WINDOW",
+        {"name": "MSR::PLATFORM_POWER_LIMIT:PL1_TIME_WINDOW",
          "domain_type": "board",
          "domain_idx": 0,
          "setting": 0.013}, # SDM Vol. 4. Table 2.39 - Recommends 0xD = 13
-        {"name": "MSR::PLATFORM_POWER_LIMIT::PL1_CLAMP_ENABLE",
+        {"name": "MSR::PLATFORM_POWER_LIMIT:PL1_CLAMP_ENABLE",
          "domain_type": "board",
          "domain_idx": 0,
          "setting": 1},
         _power_limit_control,
-        {"name": "MSR::PLATFORM_POWER_LIMIT::PL1_LIMIT_ENABLE",
+        {"name": "MSR::PLATFORM_POWER_LIMIT:PL1_LIMIT_ENABLE",
          "domain_type": "board",
          "domain_idx": 0,
          "setting": 1}
@@ -126,7 +126,7 @@ def do_power_limit_prologue():
         return
 
     power_limit = resource_to_float(_POWER_LIMIT_RESOURCE, power_limit_str)
-    pbs.logmsg(pbs.LOG_DEBUG, f"<geopm> Requested power limit: {power_limit}")
+    pbs.logmsg(pbs.LOG_DEBUG, f"{e.hook_name}: Requested power limit: {power_limit}")
     current_settings = _controls.copy()
     read_controls(current_settings)
     system_files.secure_make_dirs(_SAVED_CONTROLS_PATH)
