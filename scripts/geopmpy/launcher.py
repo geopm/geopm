@@ -511,7 +511,8 @@ class Launcher(object):
         if self.is_geopm_enabled and self.config.launch_script:
             with open(os.open(self.config.launch_script, os.O_CREAT | os.O_WRONLY), 'w') as fid:
                 fid.write('#!/bin/bash\n')
-                fid.write(echo_ctl)
+                if is_geopmctl:
+                    fid.write(echo_ctl)
                 fid.write(echo_app)
 
         # Popen stream redirection only works with things that can be written
