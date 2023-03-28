@@ -136,7 +136,7 @@ namespace geopm
                 std::vector<zet_metric_group_handle_t> metric_group_handle; //compute basic only
 
                 // required for L0 metric result tracking.  Chip indexed
-                std::vector<std::map<std::string, std::vector<double>>> m_metric_data;
+                std::vector<std::map<std::string, std::vector<double>>> metric_data;
                 mutable std::vector<bool> metrics_initialized;
             };
 
@@ -144,7 +144,7 @@ namespace geopm
                 ze_driver_handle_t driver;
                 zes_device_handle_t device_handle;
                 ze_device_properties_t property;
-                uint32_t m_num_subdevice;
+                uint32_t num_subdevice;
                 std::vector<zes_device_handle_t> subdevice_handle;
 
                 // Sub-Device domain tracking.  Because levelzero returns ALL handles for a

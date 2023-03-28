@@ -154,7 +154,7 @@ namespace geopm
             // If we have more than one device confirm all devices have the same
             // number of subdevices
             for (unsigned int idx = 1; idx < m_devices.size(); ++idx) {
-                if (m_devices.at(idx).m_num_subdevice != m_devices.at(idx - 1).m_num_subdevice) {
+                if (m_devices.at(idx).num_subdevice != m_devices.at(idx - 1).num_subdevice) {
                     throw Exception("LevelZero::" + std::string(__func__) +
                                     ": GEOPM Requires the number of subdevices to be" +
                                     " the same on all devices. " +
@@ -179,7 +179,7 @@ namespace geopm
     LevelZeroImp::~LevelZeroImp() {
         for (unsigned int gpu_idx = 0; gpu_idx < m_num_gpu; gpu_idx++) {
             for (int subdevice_idx = 0;
-             subdevice_idx < m_devices.at(gpu_idx).m_num_subdevice;
+             subdevice_idx < m_devices.at(gpu_idx).num_subdevice;
              ++subdevice_idx) {
                 metric_destroy(gpu_idx, subdevice_idx);
             }
@@ -216,7 +216,7 @@ namespace geopm
                                 GEOPM_ERROR_RUNTIME, "LevelZero::" + std::string(__func__) +
                                 ": Sysman failed to get domain properties.", __LINE__);
 
-                if (property.onSubdevice == 0 && m_devices.at(device_idx).m_num_subdevice != 0) {
+                if (property.onSubdevice == 0 && m_devices.at(device_idx).num_subdevice != 0) {
 #ifdef GEOPM_DEBUG
                     std::cerr << "Warning: <geopm> LevelZero: A device level "
                                  "frequency domain was found but is not currently supported.\n";
@@ -291,12 +291,12 @@ namespace geopm
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
 
-            if (num_subdevice_power_domain > m_devices.at(device_idx).m_num_subdevice) {
+            if (num_subdevice_power_domain > m_devices.at(device_idx).num_subdevice) {
                 throw Exception("LevelZero::" + std::string(__func__) +
                                 ": Number of subdevice power domains (" +
                                 std::to_string(num_device_power_domain) +
                                 ") exceeds the number of subdevices (" +
-                                std::to_string(m_devices.at(device_idx).m_num_subdevice) + ").",
+                                std::to_string(m_devices.at(device_idx).num_subdevice) + ").",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
 
@@ -388,7 +388,7 @@ namespace geopm
                                 GEOPM_ERROR_RUNTIME, "LevelZero::" + std::string(__func__) +
                                 ": Sysman failed to get domain engine properties", __LINE__);
 
-                if (property.onSubdevice == 0 && m_devices.at(device_idx).m_num_subdevice != 0) {
+                if (property.onSubdevice == 0 && m_devices.at(device_idx).num_subdevice != 0) {
 #ifdef GEOPM_DEBUG
                     std::cerr << "Warning: <geopm> LevelZero: A device level "
                                  "engine domain was found but is not currently supported.\n";
@@ -501,7 +501,7 @@ namespace geopm
     //      - data storage for the ComputeBasics metric group
     void LevelZeroImp::metric_group_init(unsigned int device_idx) {
         for (int subdevice_idx = 0;
-             subdevice_idx < m_devices.at(device_idx).m_num_subdevice;
+             subdevice_idx < m_devices.at(device_idx).num_subdevice;
              ++subdevice_idx) {
             // Setup tracking of the caching and initialization steps
             m_devices.at(device_idx).subdevice.metric_domain_cached.push_back(false);
@@ -547,7 +547,7 @@ namespace geopm
             // set metric_notifcation_event sampling period in nanoseconds
             m_devices.at(device_idx).metric_sampling_period_ns =   1000000;
 
-            m_devices.at(device_idx).subdevice.m_metric_data.push_back({});
+            m_devices.at(device_idx).subdevice.metric_data.push_back({});
 
             for (unsigned int metric_group_idx = 0; metric_group_idx < num_metric_group;
                  metric_group_idx++) {
@@ -605,15 +605,15 @@ namespace geopm
 
                        //m_devices is a std::vector of structs, indexed by GPU
                        // subdevice is a struct inside of it.  One per GPU
-                       //  m_metric_data is a vector, indexed by CHIP
+                       //  metric_data is a vector, indexed by CHIP
                        //    it contains a map of metric name (string) -> report data for N reports (vector<double>)
-                       if (m_devices.at(device_idx).subdevice.m_metric_data.at(subdevice_idx).count(metric_name) != 0) {
+                       if (m_devices.at(device_idx).subdevice.metric_data.at(subdevice_idx).count(metric_name) != 0) {
                            throw Exception("LevelZero::" + std::string(__func__) +
                                            ": Metric group has two metrics with the same name",
                                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
                        }
-                       m_devices.at(device_idx).subdevice.m_metric_data.at(subdevice_idx)[metric_name] = {};
-                       m_devices.at(device_idx).subdevice.m_metric_data.at(subdevice_idx)["NUM_REPORTS"] = {};
+                       m_devices.at(device_idx).subdevice.metric_data.at(subdevice_idx)[metric_name] = {};
+                       m_devices.at(device_idx).subdevice.metric_data.at(subdevice_idx)["NUM_REPORTS"] = {};
                    }
                    // Break out of loop once we've found the group of interest
                    break;
@@ -628,12 +628,12 @@ namespace geopm
         GEOPM_DEBUG_ASSERT(m_devices.at(l0_device_idx).subdevice.metric_domain_cached.at(l0_domain_idx) == true,
                            "metric caching for GPU " + std::to_string(l0_device_idx) +
                            ", CHIP " + std::to_string(l0_domain_idx) +
-                           " not completed prior to metric_calc call.");
+                           " not completed prior to metric_destroy call.");
 
         GEOPM_DEBUG_ASSERT(m_devices.at(l0_device_idx).subdevice.metrics_initialized.at(l0_domain_idx) == true,
                            "metric initialization for GPU " + std::to_string(l0_device_idx) +
                            ", CHIP " + std::to_string(l0_domain_idx) +
-                           " not completed prior to metric_calc call.");
+                           " not completed prior to metric_destroy call.");
 
         ze_result_t ze_result;
 
@@ -763,6 +763,19 @@ namespace geopm
 
         uint32_t num_metric = m_devices.at(l0_device_idx).subdevice.num_metric.at(l0_domain_idx);
         unsigned int num_reports = num_metric_values / num_metric;
+
+        // If num_metric_values is not evenly divisble by num_metrics
+        // skip the metric and report processing for this sample
+        if (num_metric_values % num_metric != 0) {
+#ifdef GEOPM_DEBUG
+            std::cerr << "LevelZero::" << std::string(__func__)  <<
+                         ": ZET metric_calc call retunred a number of metric values "
+                         "that is not evenly divisible by the number of metrics.  This "
+                         "may indicate a ZET report erroor, skipping data processing." << std::endl;
+#endif
+            num_metric = 0;
+        }
+
         for (unsigned int metric_idx = 0; metric_idx < num_metric; metric_idx++)
         {
             //TODO: It is possible that simply parsing all the metrics is
@@ -797,13 +810,13 @@ namespace geopm
 
                     if (report_idx == 0) {
                         // Clear cached values
-                        m_devices.at(l0_device_idx).subdevice.m_metric_data.at(l0_domain_idx).at(metric_name) = {};
-                        m_devices.at(l0_device_idx).subdevice.m_metric_data.at(l0_domain_idx)["NUM_REPORTS"] = {};
+                        m_devices.at(l0_device_idx).subdevice.metric_data.at(l0_domain_idx).at(metric_name) = {};
+                        m_devices.at(l0_device_idx).subdevice.metric_data.at(l0_domain_idx)["NUM_REPORTS"] = {};
 
                         // Update num_reports
-                        m_devices.at(l0_device_idx).subdevice.m_metric_data.at(l0_domain_idx)["NUM_REPORTS"].push_back(num_reports);
+                        m_devices.at(l0_device_idx).subdevice.metric_data.at(l0_domain_idx)["NUM_REPORTS"].push_back(num_reports);
                     }
-                    m_devices.at(l0_device_idx).subdevice.m_metric_data.at(l0_domain_idx).at(metric_name).push_back(data_double);
+                    m_devices.at(l0_device_idx).subdevice.metric_data.at(l0_domain_idx).at(metric_name).push_back(data_double);
                 }
             }
         }
@@ -890,12 +903,12 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        if (m_devices.at(l0_device_idx).subdevice.m_metric_data.at(l0_domain_idx).count(metric_name) == 0) {
+        if (m_devices.at(l0_device_idx).subdevice.metric_data.at(l0_domain_idx).count(metric_name) == 0) {
             throw Exception("LevelZero::" + std::string(__func__) +
                             ": No metric named " + metric_name  + " found." ,
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        result = m_devices.at(l0_device_idx).subdevice.m_metric_data.at(l0_domain_idx).at(metric_name);
+        result = m_devices.at(l0_device_idx).subdevice.metric_data.at(l0_domain_idx).at(metric_name);
         return result;
     }
 
