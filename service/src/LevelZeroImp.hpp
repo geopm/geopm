@@ -184,7 +184,7 @@ namespace geopm
             std::vector<ze_driver_handle_t> m_levelzero_driver;
             std::vector<m_device_info_s> m_devices;
 
-            void metric_group_cache(unsigned int l0_device_idx);
+            void metric_group_init(unsigned int l0_device_idx);
             void metric_calc(unsigned int l0_device_idx, unsigned int l0_domain_idx,
                              size_t data_size, std::vector<uint8_t> data);
 
