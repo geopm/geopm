@@ -74,6 +74,12 @@ class MockLevelZero : public geopm::LevelZero
                     (unsigned int, int, int, double, double), (const, override));
         MOCK_METHOD(void, performance_factor_control,
                     (unsigned int, int, int, double), (const, override));
+
+        MOCK_METHOD(std::vector<double>, metric_sample,
+                    (unsigned int, unsigned int, std::string),
+                    (const, override));
+        MOCK_METHOD(uint32_t, metric_update_rate, (unsigned int), (const, override));
+        MOCK_METHOD(void, metric_read, (unsigned int, unsigned int), (override));
 };
 
 #endif
